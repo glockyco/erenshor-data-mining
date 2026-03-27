@@ -61381,38 +61381,6 @@
         "night_spawn": false
       }
     ],
-    "character:alice hewer": [
-      {
-        "scene": "Stowaway",
-        "x": 747.1500244140625,
-        "y": 18.45000457763672,
-        "z": 440.3800048828125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 747.1500244140625,
-        "y": 18.45000457763672,
-        "z": 440.3800048828125,
-        "night_spawn": false
-      }
-    ],
-    "character:amethi plazzo": [
-      {
-        "scene": "Stowaway",
-        "x": 575.364013671875,
-        "y": 73.03500366210938,
-        "z": 549.85400390625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 575.364013671875,
-        "y": 73.03500366210938,
-        "z": 549.85400390625,
-        "night_spawn": false
-      }
-    ],
     "character:aranuil olaseo": [
       {
         "scene": "Rottenfoot",
@@ -61442,86 +61410,6 @@
         "x": 332.2044982910156,
         "y": 6.943122386932373,
         "z": 1281.82275390625,
-        "night_spawn": false
-      }
-    ],
-    "character:aspen dechaffe:1": [
-      {
-        "scene": "Braxonian",
-        "x": 332.2044982910156,
-        "y": 6.943122386932373,
-        "z": 1281.82275390625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Braxonian",
-        "x": 332.2044982910156,
-        "y": 6.943122386932373,
-        "z": 1281.82275390625,
-        "night_spawn": false
-      }
-    ],
-    "character:beth constantine": [
-      {
-        "scene": "Soluna",
-        "x": 243.1300048828125,
-        "y": 100.0,
-        "z": 421.1499938964844,
-        "night_spawn": false
-      },
-      {
-        "scene": "Soluna",
-        "x": 243.1300048828125,
-        "y": 100.0,
-        "z": 421.1499938964844,
-        "night_spawn": false
-      }
-    ],
-    "character:captain genevieve voldance": [
-      {
-        "scene": "Stowaway",
-        "x": 838.9808349609375,
-        "y": 9.978261947631836,
-        "z": 444.2299499511719,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 838.9808349609375,
-        "y": 9.978261947631836,
-        "z": 444.2299499511719,
-        "night_spawn": false
-      }
-    ],
-    "character:character_peasant_white": [
-      {
-        "scene": "PrielPlateau",
-        "x": 73.57131958007812,
-        "y": 0.04511833190917969,
-        "z": 343.447998046875,
-        "night_spawn": false
-      },
-      {
-        "scene": "PrielPlateau",
-        "x": 73.57131958007812,
-        "y": 0.04511833190917969,
-        "z": 343.447998046875,
-        "night_spawn": false
-      }
-    ],
-    "character:cirreus alxanth": [
-      {
-        "scene": "Krakengard",
-        "x": 280.6410217285156,
-        "y": -9.608320236206055,
-        "z": 91.16722869873047,
-        "night_spawn": false
-      },
-      {
-        "scene": "Krakengard",
-        "x": 280.6410217285156,
-        "y": -9.608320236206055,
-        "z": 91.16722869873047,
         "night_spawn": false
       }
     ],
@@ -61573,38 +61461,6 @@
         "night_spawn": false
       }
     ],
-    "character:desmond shaffer": [
-      {
-        "scene": "Stowaway",
-        "x": 676.6149291992188,
-        "y": 24.049591064453125,
-        "z": 387.8360900878906,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 676.6149291992188,
-        "y": 24.049591064453125,
-        "z": 387.8360900878906,
-        "night_spawn": false
-      }
-    ],
-    "character:dream invader": [
-      {
-        "scene": "FernallaPortal",
-        "x": 343.45001220703125,
-        "y": 0.5215692520141602,
-        "z": 405.94000244140625,
-        "night_spawn": false
-      },
-      {
-        "scene": "FernallaPortal",
-        "x": 343.45001220703125,
-        "y": 0.5215692520141602,
-        "z": 405.94000244140625,
-        "night_spawn": false
-      }
-    ],
     "character:figure": [
       {
         "scene": "DuskenPortal",
@@ -61635,38 +61491,6 @@
         "night_spawn": false
       }
     ],
-    "character:garrey ambrose": [
-      {
-        "scene": "Stowaway",
-        "x": 729.6799926757812,
-        "y": 21.420000076293945,
-        "z": 507.9889831542969,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 729.6799926757812,
-        "y": 21.420000076293945,
-        "z": 507.9889831542969,
-        "night_spawn": false
-      }
-    ],
-    "character:gatekeeper": [
-      {
-        "scene": "ShiveringStep",
-        "x": 672.1527099609375,
-        "y": 29.528295516967773,
-        "z": 421.1363830566406,
-        "night_spawn": false
-      },
-      {
-        "scene": "ShiveringStep",
-        "x": 672.1527099609375,
-        "y": 29.528295516967773,
-        "z": 421.1363830566406,
-        "night_spawn": false
-      }
-    ],
     "character:granderson jovich": [
       {
         "scene": "Soluna",
@@ -61680,22 +61504,6 @@
         "x": 252.73611450195312,
         "y": 100.00000762939453,
         "z": 413.152099609375,
-        "night_spawn": false
-      }
-    ],
-    "character:haileigh serenie": [
-      {
-        "scene": "Soluna",
-        "x": 251.28546142578125,
-        "y": 99.99998474121094,
-        "z": 426.7729797363281,
-        "night_spawn": false
-      },
-      {
-        "scene": "Soluna",
-        "x": 251.28546142578125,
-        "y": 99.99998474121094,
-        "z": 426.7729797363281,
         "night_spawn": false
       }
     ],
@@ -61763,22 +61571,6 @@
         "night_spawn": false
       }
     ],
-    "character:jan yarrow": [
-      {
-        "scene": "Stowaway",
-        "x": 567.8400268554688,
-        "y": 72.34137725830078,
-        "z": 423.83544921875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 567.8400268554688,
-        "y": 72.34137725830078,
-        "z": 423.83544921875,
-        "night_spawn": false
-      }
-    ],
     "character:kio the lightkeeper": [
       {
         "scene": "ShiveringStep",
@@ -61809,36 +61601,6 @@
         "night_spawn": false
       }
     ],
-    "character:lucian revald": [
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      }
-    ],
     "character:miner": [
       {
         "scene": "PrielPlateau",
@@ -61852,22 +61614,6 @@
         "x": 109.18997192382812,
         "y": 0.08696317672729492,
         "z": 352.43817138671875,
-        "night_spawn": false
-      }
-    ],
-    "character:neziroth daggerhart": [
-      {
-        "scene": "Stowaway",
-        "x": 497.0852355957031,
-        "y": 68.71165466308594,
-        "z": 677.5910034179688,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 497.0852355957031,
-        "y": 68.71165466308594,
-        "z": 677.5910034179688,
         "night_spawn": false
       }
     ],
@@ -61919,54 +61665,6 @@
         "night_spawn": false
       }
     ],
-    "character:olden lennova": [
-      {
-        "scene": "Malaroth",
-        "x": 490.9480285644531,
-        "y": 26.90198516845703,
-        "z": 274.26007080078125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Malaroth",
-        "x": 490.9480285644531,
-        "y": 26.90198516845703,
-        "z": 274.26007080078125,
-        "night_spawn": false
-      }
-    ],
-    "character:percy ildia": [
-      {
-        "scene": "Stowaway",
-        "x": 693.18701171875,
-        "y": 20.673898696899414,
-        "z": 504.84698486328125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 693.18701171875,
-        "y": 20.673898696899414,
-        "z": 504.84698486328125,
-        "night_spawn": false
-      }
-    ],
-    "character:prestigio valusha": [
-      {
-        "scene": "Stowaway",
-        "x": 550.4359741210938,
-        "y": 72.50199890136719,
-        "z": 422.35699462890625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 550.4359741210938,
-        "y": 72.50199890136719,
-        "z": 422.35699462890625,
-        "night_spawn": false
-      }
-    ],
     "character:sean figarello": [
       {
         "scene": "Stowaway",
@@ -61980,22 +61678,6 @@
         "x": 605.4510498046875,
         "y": 72.16108703613281,
         "z": 464.4002685546875,
-        "night_spawn": false
-      }
-    ],
-    "character:sergeant d'vin": [
-      {
-        "scene": "Stowaway",
-        "x": 553.4134521484375,
-        "y": 68.50445556640625,
-        "z": 571.2824096679688,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 553.4134521484375,
-        "y": 68.50445556640625,
-        "z": 571.2824096679688,
         "night_spawn": false
       }
     ],
@@ -62015,38 +61697,6 @@
         "night_spawn": false
       }
     ],
-    "character:shopkeeper treven": [
-      {
-        "scene": "Stowaway",
-        "x": 384.7569885253906,
-        "y": 58.46200180053711,
-        "z": 394.4939880371094,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 384.7569885253906,
-        "y": 58.46200180053711,
-        "z": 394.4939880371094,
-        "night_spawn": false
-      }
-    ],
-    "character:sm_chr_bartender_01": [
-      {
-        "scene": "Azure",
-        "x": 154.8459930419922,
-        "y": 34.07408905029297,
-        "z": 255.2030029296875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Azure",
-        "x": 154.8459930419922,
-        "y": 34.07408905029297,
-        "z": 255.2030029296875,
-        "night_spawn": false
-      }
-    ],
     "character:thella steepleton": [
       {
         "scene": "Azure",
@@ -62060,70 +61710,6 @@
         "x": 242.53500366210938,
         "y": 27.96500015258789,
         "z": 315.61199951171875,
-        "night_spawn": false
-      }
-    ],
-    "character:timothy allorn": [
-      {
-        "scene": "Stowaway",
-        "x": 545.1973876953125,
-        "y": 72.0904769897461,
-        "z": 442.79510498046875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 545.1973876953125,
-        "y": 72.0904769897461,
-        "z": 442.79510498046875,
-        "night_spawn": false
-      }
-    ],
-    "character:tracy aldern": [
-      {
-        "scene": "Stowaway",
-        "x": 590.8900146484375,
-        "y": 72.04002380371094,
-        "z": 432.8999938964844,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 590.8900146484375,
-        "y": 72.04002380371094,
-        "z": 432.8999938964844,
-        "night_spawn": false
-      }
-    ],
-    "character:wally waldorf": [
-      {
-        "scene": "Stowaway",
-        "x": 573.4539794921875,
-        "y": 70.49800109863281,
-        "z": 545.0999755859375,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 573.4539794921875,
-        "y": 70.49800109863281,
-        "z": 545.0999755859375,
-        "night_spawn": false
-      }
-    ],
-    "character:watchman": [
-      {
-        "scene": "ShiveringStep",
-        "x": 508.9568176269531,
-        "y": 68.49441528320312,
-        "z": 659.7152099609375,
-        "night_spawn": false
-      },
-      {
-        "scene": "ShiveringStep",
-        "x": 508.9568176269531,
-        "y": 68.49441528320312,
-        "z": 659.7152099609375,
         "night_spawn": false
       }
     ],
@@ -65018,7 +64604,7 @@
       "stable_key": "quest:fernallagift",
       "display_name": "A Gift for Fernalla",
       "description": "You've heard a legend that if you were to approach the Gate of Fernalla with a worthy gift, it may open for you.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "zone_context": "The Duskenlight Coast",
       "acquisition": [
@@ -65028,6 +64614,32 @@
           "source_type": "character",
           "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
           "keyword": "gate"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"gate\" to Malor Mara.",
+          "target_name": "Malor Mara",
+          "target_type": "character",
+          "target_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
+          "keyword": "gate",
+          "level_estimate": {
+            "recommended": 14,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -65041,6 +64653,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"gate\" to Malor Mara.",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -67718,8 +67340,53 @@
       "stable_key": "quest:amethikeys",
       "display_name": "A Retired Locksmith",
       "description": "Amethi, just outside of town in Stowaway's Step, has expressed interest in making and repairing keys... if you find any broken ones, bring them her way. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Broken Key Blade.",
+          "target_name": "Broken Key Blade",
+          "target_type": "item",
+          "target_key": "item:gen - broken key",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Woe",
+                "level": 4
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "collect",
+          "description": "Collect Broken Key Bow.",
+          "target_name": "Broken Key Bow",
+          "target_type": "item",
+          "target_key": "item:gen - broken key bow",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Mourning",
+                "level": 4
+              }
+            ]
+          }
+        },
+        {
+          "order": 3,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "required_items": [
         {
           "item_name": "Broken Key Blade",
@@ -67767,6 +67434,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Broken Key Blade.",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -69178,7 +68855,7 @@
       "stable_key": "quest:alterplane",
       "display_name": "Accessing the Ethereal Planes",
       "description": "Rumors of methods to access the Ethereal Planes have been persistent throughout history. \n\nThere may be a way to reach places not meant for humans, and reap the rewards within.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
@@ -69197,6 +68874,32 @@
           "keyword": "hunt"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"hunt\" to Cerbantias Flameward.",
+          "target_name": "Cerbantias Flameward",
+          "target_type": "character",
+          "target_key": "character:cerbantias flameward",
+          "keyword": "hunt",
+          "level_estimate": {
+            "recommended": 11,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Port Azure",
+                "level": 11
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "rewards": {
         "xp": 0,
         "gold": 0
@@ -69208,6 +68911,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"hunt\" to Cerbantias Flameward.",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -70857,8 +70570,15 @@
       "stable_key": "quest:bellwain",
       "display_name": "Bellwain Isle",
       "description": "A fisherman has brought you to a small island he happened upon. He claims that the Island matches the description of the lost Bellwain Isle, where a 100-year wanted Pirate retired into hiding with his wife with all of his treasures. \n\nThe fisherman claims to have disturbed nothing, but something mysterious lingers in the air. \n\n",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -71893,8 +71613,59 @@
       "stable_key": "quest:clearingthebonepits",
       "display_name": "Clearing the Bonepits",
       "description": "William Cardigo at Willowwatch has hinted that if you clear out the bonepits, and bring him proof of slaying the \"glowing red demon\" deep within, he'd make it worth your while. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Skeleton Eye.",
+          "target_name": "Skeleton Eye",
+          "target_type": "item",
+          "target_key": "item:gen - skeleton eye",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 8,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Bassalt Vallano",
+                "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "Wiggleribs",
+                "level": 8
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "required_items": [
         {
           "item_name": "Skeleton Eye",
@@ -71992,6 +71763,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 8,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Skeleton Eye.",
+            "level": 8
+          }
+        ]
       }
     },
     {
@@ -76302,7 +76083,7 @@
       "stable_key": "quest:endingthecorruptionofthegods",
       "display_name": "Ending the Corruption",
       "description": "Through Larviso, Sivayaka has shown you that Azynthi's corruption has taken hold of all of the Gods of Erenshor. Fernalla, Vitheo, Soluna, and Brax. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "acquisition": [
         {
@@ -76310,6 +76091,13 @@
           "source_name": "The Secrets of Creation",
           "source_type": "quest",
           "source_stable_key": "quest:secretsofcreationtolarviso"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -77752,7 +77540,7 @@
       "stable_key": "quest:kilkayquestline1",
       "display_name": "Kilkay's Questline",
       "description": "PLACEHOLDER FOR CONTINUATION",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "acquisition": [
         {
@@ -77760,6 +77548,13 @@
           "source_name": "A Bounty on Ripper DeMerth",
           "source_type": "quest",
           "source_stable_key": "quest:rippersbounty"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -79252,8 +79047,15 @@
       "stable_key": "quest:shiver-meetall",
       "display_name": "Meet Shivering Step",
       "description": "Find the four spirits of Shivering Step.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -84785,8 +84587,15 @@
       "stable_key": "quest:jawsseen",
       "display_name": "She Sees You",
       "description": "The statue of Sivakaya has gazed upon you.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -85159,8 +84968,34 @@
       "stable_key": "quest:inteltokilkay3",
       "display_name": "Sivakayan Intel for Kilkay (3)",
       "description": "A recovered journal of a Sivakayan Darkwardenl was handed to Guard Captain Kilkay, who was appreciative of the info.\n",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Ealdred's Journal.",
+          "target_name": "Ealdred's Journal",
+          "target_type": "item",
+          "target_key": "item:gen - ealdred's journal",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 32,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Darkwarden Ealdred",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "required_items": [
         {
           "item_name": "Ealdred's Journal",
@@ -85203,6 +85038,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Ealdred's Journal.",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -86372,7 +86217,7 @@
       "stable_key": "quest:solunascelestialblade2",
       "display_name": "Soluna's Celestial Blade - Part 3",
       "description": "TO BE CONTINUED",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "acquisition": [
         {
@@ -86380,6 +86225,13 @@
           "source_name": "Soluna's Celestial Blade - Part 2",
           "source_type": "quest",
           "source_stable_key": "quest:solunascelestialblade1"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -89015,7 +88867,7 @@
       "stable_key": "quest:willowbranch",
       "display_name": "The Great Willow's Branch",
       "description": "The Druids of Fernalla believe that a powerful artifact exists known as 'A Branch of the Great Willow' - the tree from which Fernalla observes the land. \n\nYou should note of any clues you stumble upon, and follow their trails.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
@@ -89023,22 +88875,34 @@
           "method": "dialog",
           "source_name": "Orion Mycon",
           "source_type": "character",
-          "source_stable_key": "character:aspen dechaffe:1",
-          "keyword": "cause, crusade"
-        },
-        {
-          "method": "dialog",
-          "source_name": "Orion Mycon",
-          "source_type": "character",
           "source_stable_key": "character:orion mycon",
           "keyword": "cause, crusade"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"cause, crusade\" to Orion Mycon.",
+          "target_name": "Orion Mycon",
+          "target_type": "character",
+          "target_key": "character:orion mycon",
+          "keyword": "cause, crusade",
+          "level_estimate": {
+            "recommended": 11,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Port Azure",
+                "level": 11
+              }
+            ]
+          }
         },
         {
-          "method": "dialog",
-          "source_name": "Orion Mycon",
-          "source_type": "character",
-          "source_stable_key": "character:orion mycon bkp",
-          "keyword": "cause, crusade"
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -89052,6 +88916,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"cause, crusade\" to Orion Mycon.",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -90640,7 +90514,7 @@
       "stable_key": "quest:thelostsoul3",
       "display_name": "The Lost Soul Pt. 3",
       "description": "You have a deceased treasure hunter's journal, and a request from his widow to continue his quest. You should bring whatever you find back to him to help put him at rest. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "acquisition": [
         {
@@ -90656,6 +90530,32 @@
           "quest_key": "quest:thelostsoul",
           "quest_name": "The Lost Soul Pt. 1",
           "item": "Treasure Hunter's Pin"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Treasure Hunter's Pin.",
+          "target_name": "Treasure Hunter's Pin",
+          "target_type": "item",
+          "target_key": "item:gen - treasure hunter's pin",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 32,
+            "factors": [
+              {
+                "source": "quest_reward",
+                "name": "The Lost Soul Pt. 1",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "required_items": [
@@ -90838,6 +90738,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Treasure Hunter's Pin.",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -95853,13 +95763,20 @@
       "stable_key": "quest:shiver-torch",
       "display_name": "The Shivering Torch",
       "description": "Kio has summoned you to the lighthouse to get your lamp for whatever he has in store next.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "acquisition": [
         {
           "method": "scripted",
           "source_type": "scripted",
           "note": "ShiverEvent.cs - assigned after meeting keepers"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -95880,7 +95797,7 @@
       "stable_key": "quest:goodsoil",
       "display_name": "The Tragedy at Goodsoil",
       "description": "The village of Goodsoil in Fernalla's Revival Plane was destroyed by forces unknown. \n\nRumors are abound, but figuring out what truly happened may take more time. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
       "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
@@ -95899,6 +95816,32 @@
           "keyword": "what, happened, goodsoil, tragedy, village"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"Goodsoil\" to Alexander Farland.",
+          "target_name": "Alexander Farland",
+          "target_type": "character",
+          "target_key": "character:alexander farland",
+          "keyword": "Goodsoil",
+          "level_estimate": {
+            "recommended": 13,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Fernalla's Revival Plains",
+                "level": 13
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "rewards": {
         "xp": 0,
         "gold": 0
@@ -95910,6 +95853,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"Goodsoil\" to Alexander Farland.",
+            "level": 13
+          }
+        ]
       }
     },
     {

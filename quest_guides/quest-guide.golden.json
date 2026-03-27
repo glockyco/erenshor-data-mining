@@ -1,5 +1,5 @@
 {
-  "_version": 3,
+  "_version": 5,
   "_zone_lookup": {
     "SaltedStrand": {
       "display_name": "Blacksalt Strand",
@@ -61381,38 +61381,6 @@
         "night_spawn": false
       }
     ],
-    "character:alice hewer": [
-      {
-        "scene": "Stowaway",
-        "x": 747.1500244140625,
-        "y": 18.45000457763672,
-        "z": 440.3800048828125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 747.1500244140625,
-        "y": 18.45000457763672,
-        "z": 440.3800048828125,
-        "night_spawn": false
-      }
-    ],
-    "character:amethi plazzo": [
-      {
-        "scene": "Stowaway",
-        "x": 575.364013671875,
-        "y": 73.03500366210938,
-        "z": 549.85400390625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 575.364013671875,
-        "y": 73.03500366210938,
-        "z": 549.85400390625,
-        "night_spawn": false
-      }
-    ],
     "character:aranuil olaseo": [
       {
         "scene": "Rottenfoot",
@@ -61442,86 +61410,6 @@
         "x": 332.2044982910156,
         "y": 6.943122386932373,
         "z": 1281.82275390625,
-        "night_spawn": false
-      }
-    ],
-    "character:aspen dechaffe:1": [
-      {
-        "scene": "Braxonian",
-        "x": 332.2044982910156,
-        "y": 6.943122386932373,
-        "z": 1281.82275390625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Braxonian",
-        "x": 332.2044982910156,
-        "y": 6.943122386932373,
-        "z": 1281.82275390625,
-        "night_spawn": false
-      }
-    ],
-    "character:beth constantine": [
-      {
-        "scene": "Soluna",
-        "x": 243.1300048828125,
-        "y": 100.0,
-        "z": 421.1499938964844,
-        "night_spawn": false
-      },
-      {
-        "scene": "Soluna",
-        "x": 243.1300048828125,
-        "y": 100.0,
-        "z": 421.1499938964844,
-        "night_spawn": false
-      }
-    ],
-    "character:captain genevieve voldance": [
-      {
-        "scene": "Stowaway",
-        "x": 838.9808349609375,
-        "y": 9.978261947631836,
-        "z": 444.2299499511719,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 838.9808349609375,
-        "y": 9.978261947631836,
-        "z": 444.2299499511719,
-        "night_spawn": false
-      }
-    ],
-    "character:character_peasant_white": [
-      {
-        "scene": "PrielPlateau",
-        "x": 73.57131958007812,
-        "y": 0.04511833190917969,
-        "z": 343.447998046875,
-        "night_spawn": false
-      },
-      {
-        "scene": "PrielPlateau",
-        "x": 73.57131958007812,
-        "y": 0.04511833190917969,
-        "z": 343.447998046875,
-        "night_spawn": false
-      }
-    ],
-    "character:cirreus alxanth": [
-      {
-        "scene": "Krakengard",
-        "x": 280.6410217285156,
-        "y": -9.608320236206055,
-        "z": 91.16722869873047,
-        "night_spawn": false
-      },
-      {
-        "scene": "Krakengard",
-        "x": 280.6410217285156,
-        "y": -9.608320236206055,
-        "z": 91.16722869873047,
         "night_spawn": false
       }
     ],
@@ -61573,38 +61461,6 @@
         "night_spawn": false
       }
     ],
-    "character:desmond shaffer": [
-      {
-        "scene": "Stowaway",
-        "x": 676.6149291992188,
-        "y": 24.049591064453125,
-        "z": 387.8360900878906,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 676.6149291992188,
-        "y": 24.049591064453125,
-        "z": 387.8360900878906,
-        "night_spawn": false
-      }
-    ],
-    "character:dream invader": [
-      {
-        "scene": "FernallaPortal",
-        "x": 343.45001220703125,
-        "y": 0.5215692520141602,
-        "z": 405.94000244140625,
-        "night_spawn": false
-      },
-      {
-        "scene": "FernallaPortal",
-        "x": 343.45001220703125,
-        "y": 0.5215692520141602,
-        "z": 405.94000244140625,
-        "night_spawn": false
-      }
-    ],
     "character:figure": [
       {
         "scene": "DuskenPortal",
@@ -61635,38 +61491,6 @@
         "night_spawn": false
       }
     ],
-    "character:garrey ambrose": [
-      {
-        "scene": "Stowaway",
-        "x": 729.6799926757812,
-        "y": 21.420000076293945,
-        "z": 507.9889831542969,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 729.6799926757812,
-        "y": 21.420000076293945,
-        "z": 507.9889831542969,
-        "night_spawn": false
-      }
-    ],
-    "character:gatekeeper": [
-      {
-        "scene": "ShiveringStep",
-        "x": 672.1527099609375,
-        "y": 29.528295516967773,
-        "z": 421.1363830566406,
-        "night_spawn": false
-      },
-      {
-        "scene": "ShiveringStep",
-        "x": 672.1527099609375,
-        "y": 29.528295516967773,
-        "z": 421.1363830566406,
-        "night_spawn": false
-      }
-    ],
     "character:granderson jovich": [
       {
         "scene": "Soluna",
@@ -61680,22 +61504,6 @@
         "x": 252.73611450195312,
         "y": 100.00000762939453,
         "z": 413.152099609375,
-        "night_spawn": false
-      }
-    ],
-    "character:haileigh serenie": [
-      {
-        "scene": "Soluna",
-        "x": 251.28546142578125,
-        "y": 99.99998474121094,
-        "z": 426.7729797363281,
-        "night_spawn": false
-      },
-      {
-        "scene": "Soluna",
-        "x": 251.28546142578125,
-        "y": 99.99998474121094,
-        "z": 426.7729797363281,
         "night_spawn": false
       }
     ],
@@ -61763,22 +61571,6 @@
         "night_spawn": false
       }
     ],
-    "character:jan yarrow": [
-      {
-        "scene": "Stowaway",
-        "x": 567.8400268554688,
-        "y": 72.34137725830078,
-        "z": 423.83544921875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 567.8400268554688,
-        "y": 72.34137725830078,
-        "z": 423.83544921875,
-        "night_spawn": false
-      }
-    ],
     "character:kio the lightkeeper": [
       {
         "scene": "ShiveringStep",
@@ -61809,36 +61601,6 @@
         "night_spawn": false
       }
     ],
-    "character:lucian revald": [
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 432.1910705566406,
-        "y": 69.89600372314453,
-        "z": 532.0416870117188,
-        "night_spawn": false
-      }
-    ],
     "character:miner": [
       {
         "scene": "PrielPlateau",
@@ -61852,22 +61614,6 @@
         "x": 109.18997192382812,
         "y": 0.08696317672729492,
         "z": 352.43817138671875,
-        "night_spawn": false
-      }
-    ],
-    "character:neziroth daggerhart": [
-      {
-        "scene": "Stowaway",
-        "x": 497.0852355957031,
-        "y": 68.71165466308594,
-        "z": 677.5910034179688,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 497.0852355957031,
-        "y": 68.71165466308594,
-        "z": 677.5910034179688,
         "night_spawn": false
       }
     ],
@@ -61919,54 +61665,6 @@
         "night_spawn": false
       }
     ],
-    "character:olden lennova": [
-      {
-        "scene": "Malaroth",
-        "x": 490.9480285644531,
-        "y": 26.90198516845703,
-        "z": 274.26007080078125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Malaroth",
-        "x": 490.9480285644531,
-        "y": 26.90198516845703,
-        "z": 274.26007080078125,
-        "night_spawn": false
-      }
-    ],
-    "character:percy ildia": [
-      {
-        "scene": "Stowaway",
-        "x": 693.18701171875,
-        "y": 20.673898696899414,
-        "z": 504.84698486328125,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 693.18701171875,
-        "y": 20.673898696899414,
-        "z": 504.84698486328125,
-        "night_spawn": false
-      }
-    ],
-    "character:prestigio valusha": [
-      {
-        "scene": "Stowaway",
-        "x": 550.4359741210938,
-        "y": 72.50199890136719,
-        "z": 422.35699462890625,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 550.4359741210938,
-        "y": 72.50199890136719,
-        "z": 422.35699462890625,
-        "night_spawn": false
-      }
-    ],
     "character:sean figarello": [
       {
         "scene": "Stowaway",
@@ -61980,22 +61678,6 @@
         "x": 605.4510498046875,
         "y": 72.16108703613281,
         "z": 464.4002685546875,
-        "night_spawn": false
-      }
-    ],
-    "character:sergeant d'vin": [
-      {
-        "scene": "Stowaway",
-        "x": 553.4134521484375,
-        "y": 68.50445556640625,
-        "z": 571.2824096679688,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 553.4134521484375,
-        "y": 68.50445556640625,
-        "z": 571.2824096679688,
         "night_spawn": false
       }
     ],
@@ -62015,38 +61697,6 @@
         "night_spawn": false
       }
     ],
-    "character:shopkeeper treven": [
-      {
-        "scene": "Stowaway",
-        "x": 384.7569885253906,
-        "y": 58.46200180053711,
-        "z": 394.4939880371094,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 384.7569885253906,
-        "y": 58.46200180053711,
-        "z": 394.4939880371094,
-        "night_spawn": false
-      }
-    ],
-    "character:sm_chr_bartender_01": [
-      {
-        "scene": "Azure",
-        "x": 154.8459930419922,
-        "y": 34.07408905029297,
-        "z": 255.2030029296875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Azure",
-        "x": 154.8459930419922,
-        "y": 34.07408905029297,
-        "z": 255.2030029296875,
-        "night_spawn": false
-      }
-    ],
     "character:thella steepleton": [
       {
         "scene": "Azure",
@@ -62060,70 +61710,6 @@
         "x": 242.53500366210938,
         "y": 27.96500015258789,
         "z": 315.61199951171875,
-        "night_spawn": false
-      }
-    ],
-    "character:timothy allorn": [
-      {
-        "scene": "Stowaway",
-        "x": 545.1973876953125,
-        "y": 72.0904769897461,
-        "z": 442.79510498046875,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 545.1973876953125,
-        "y": 72.0904769897461,
-        "z": 442.79510498046875,
-        "night_spawn": false
-      }
-    ],
-    "character:tracy aldern": [
-      {
-        "scene": "Stowaway",
-        "x": 590.8900146484375,
-        "y": 72.04002380371094,
-        "z": 432.8999938964844,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 590.8900146484375,
-        "y": 72.04002380371094,
-        "z": 432.8999938964844,
-        "night_spawn": false
-      }
-    ],
-    "character:wally waldorf": [
-      {
-        "scene": "Stowaway",
-        "x": 573.4539794921875,
-        "y": 70.49800109863281,
-        "z": 545.0999755859375,
-        "night_spawn": false
-      },
-      {
-        "scene": "Stowaway",
-        "x": 573.4539794921875,
-        "y": 70.49800109863281,
-        "z": 545.0999755859375,
-        "night_spawn": false
-      }
-    ],
-    "character:watchman": [
-      {
-        "scene": "ShiveringStep",
-        "x": 508.9568176269531,
-        "y": 68.49441528320312,
-        "z": 659.7152099609375,
-        "night_spawn": false
-      },
-      {
-        "scene": "ShiveringStep",
-        "x": 508.9568176269531,
-        "y": 68.49441528320312,
-        "z": 659.7152099609375,
         "night_spawn": false
       }
     ],
@@ -64031,6 +63617,7 @@
       "display_name": "A Bounty on Guard Captain Kilkay",
       "description": "Ripper DeMerth wants you to kill Guard Captain Kilkay in Port Azure, for his role in the abandonment of the Citizens of the North.\n\nReturn with proof of his demise. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -64049,6 +63636,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
+          "keyword": "Kilkay",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -64178,6 +63766,7 @@
       "display_name": "A Bounty on Ripper DeMerth",
       "description": "Guard Captain Kilkay in Port Azure has offered a reward for the death of Ripper DeMerth, a traitor to Port Azure.\n\nReturn with proof of the demise of Ripper.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -64196,6 +63785,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
+          "keyword": "Ripper's",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64325,6 +63915,7 @@
       "display_name": "A Cat for a Deer",
       "description": "You gave a tiny statue of a talking cat to a ghostly talking deer in a dream, and the deer gave you a nightmare. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Mysterious Portal (3)",
       "steps": [
         {
@@ -64424,6 +64015,7 @@
       "display_name": "A Dying Wish, Part 1",
       "description": "You've encountered a dying wish of Fernalla in the Blooming Sepulcher, and it has asked you to find her brother's tomb and defeat its guardian at the entry chamber. Upon doing so, you should return to this wish with a memory of the Burial",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "dialog",
@@ -64440,7 +64032,8 @@
           "description": "Say \"Vitheo\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 1"
+          "target_key": "character:fernalla's wish - 1",
+          "keyword": "Vitheo"
         },
         {
           "order": 2,
@@ -64525,6 +64118,7 @@
       "display_name": "A Dying Wish, Part 2",
       "description": "You've encountered a second wish of Fernalla in the Blooming Sepulcher. This one has asked you to find Balaste, in Vitheo's Rest, and see if you can sense a memory that might reveal if Vitheo was indeed laid to rest there, and what happened next. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "dialog",
@@ -64541,7 +64135,8 @@
           "description": "Say \"Balaste\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 2"
+          "target_key": "character:fernalla's wish - 2",
+          "keyword": "Balaste"
         },
         {
           "order": 2,
@@ -64626,6 +64221,7 @@
       "display_name": "A Dying Wish, Part 3",
       "description": "A wish of Fernalla has asked that you find Elwio the Traitor in Vitheo's Rest, within the Traitor's Halls. She feels a great sadness for him, but cannot recall why. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "dialog",
@@ -64642,7 +64238,8 @@
           "description": "Say \"Elwio\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 3"
+          "target_key": "character:fernalla's wish - 3",
+          "keyword": "Elwio"
         },
         {
           "order": 2,
@@ -64727,6 +64324,7 @@
       "display_name": "A Dying Wish, Part 4",
       "description": "Fernalla herself has asked that you find Vitheo and be sure his wordly remains are at rest. She has given you a key ingredient for lighting one of the braziers in his tomb to awaken the Guardian who watches over his inner sanctum's key.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Blooming Sepulcher",
       "acquisition": [
         {
@@ -64752,6 +64350,7 @@
           "target_name": "Fallen Fernalla",
           "target_type": "character",
           "target_key": "character:fallen fernalla 1",
+          "keyword": "abomination",
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -64857,6 +64456,7 @@
       "display_name": "A Fernallan Rune",
       "description": "You've powered your Fernallan Rune",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Fernalla's Revival Plains",
       "steps": [
         {
@@ -65004,7 +64604,8 @@
       "stable_key": "quest:fernallagift",
       "display_name": "A Gift for Fernalla",
       "description": "You've heard a legend that if you were to approach the Gate of Fernalla with a worthy gift, it may open for you.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "zone_context": "The Duskenlight Coast",
       "acquisition": [
         {
@@ -65013,6 +64614,32 @@
           "source_type": "character",
           "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
           "keyword": "gate"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"gate\" to Malor Mara.",
+          "target_name": "Malor Mara",
+          "target_type": "character",
+          "target_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
+          "keyword": "gate",
+          "level_estimate": {
+            "recommended": 14,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -65026,6 +64653,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"gate\" to Malor Mara.",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -65034,6 +64671,7 @@
       "display_name": "A Hermit's Request",
       "description": "An old Hermit in Fernalla's Field has asked you to recover an old toolbox from a group of bandits who are passing through the area. \n\nIf you are able to recover it, bring it back to him at his home.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -65052,6 +64690,7 @@
           "target_name": "A Hermit",
           "target_type": "character",
           "target_key": "character:a hermit",
+          "keyword": "they",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -65184,6 +64823,7 @@
       "display_name": "A Hidden Cause",
       "description": "There is a group of people hidden underneath Port Azure near the docks. A spoken password is required for safe entry - it's \"Shadowtide\".\n\nYou should investigate when you're in the city.",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -65201,6 +64841,7 @@
           "target_name": "Styria Olafur",
           "target_type": "character",
           "target_key": "character:styria olafur:azure:120.30:11.61:291.56",
+          "keyword": "shadowtide, Shadowtide",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65265,6 +64906,7 @@
       "display_name": "A Key to Vitheo's Rest",
       "description": "Vethalo Gala in Port Azure's undercity tunnels has offered you a key to Vitheo's Rest - a hidden tomb beneath the city. \n\nHe's asking for one Sivakrux as a trade. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -65469,8 +65111,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -65522,6 +65166,7 @@
       "display_name": "A Lost Portal",
       "description": "You showed the two pieces of the Braxonian Portal to Braxon Elden, and he was able to combine them.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Braxonian Desert",
       "steps": [
         {
@@ -65671,6 +65316,7 @@
       "display_name": "A Lost Portal Pt. 2",
       "description": "You need to find an Eldrich Crystal to power the Rune of Brax, and offer both items to the energy source at his Portal.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fallen Braxonia",
       "acquisition": [
         {
@@ -65862,6 +65508,7 @@
       "display_name": "A Magical Sword in Port Azure",
       "description": "There is a magical sword to be had in Port Azure. \n\nFind a Ruby and two Seaspices for Tristian, who is loitering in the back lots of the houses near the main gate.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -65880,6 +65527,7 @@
           "target_name": "Tristan Warton",
           "target_type": "character",
           "target_key": "character:tristan warton",
+          "keyword": "swords",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66928,6 +66576,7 @@
       "display_name": "A Missing Person",
       "description": "Xander Zaxtrough in Hidden Hills made mention of a missing person he's hunting for. He suspects that the Molorai Militia are holding this person somewhere on Erenshor. \n\nHe mentioned Old Krakengard specifically.",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -66946,6 +66595,7 @@
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
           "target_key": "character:xander zaxtrough",
+          "keyword": "work",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -66964,6 +66614,7 @@
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
           "target_key": "character:cirreus alxanth:1",
+          "keyword": "Open, open",
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -67024,6 +66675,7 @@
       "display_name": "A Necromancer's Book",
       "description": "Trevor Urchand in Hidden Hills is doing research on Eldoth Molorai. He suspects Eldoth has ties to the resurgence of Necromancy on Erenshor, but needs to know more. \n\nHe says that there may be Necromancers in the Bonepits, and should you find any of their ritual books, he'd like you to bring it to him. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -67042,6 +66694,7 @@
           "target_name": "Trevor Ulchand",
           "target_type": "character",
           "target_key": "character:trevor ulchand",
+          "keyword": "jobs",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67150,6 +66803,7 @@
       "display_name": "A Note for C. Pillot",
       "description": "A note was given to you by a strange hermit in Fernalla's Revival Plains. Its addressed to a C. Pillot. \n\nFind him, wherever he is, and deliver the note. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -67366,6 +67020,7 @@
       "display_name": "A Pious Guest",
       "description": "You have demonstrated your faith in Sivakaya's Gift to proceed into the inner church of the Jaws of Sivakaya.",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Jaws of Sivakaya",
       "steps": [
         {
@@ -67375,6 +67030,7 @@
           "target_name": "Ward of Piety",
           "target_type": "character",
           "target_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
+          "keyword": "azynthi, Azynthi",
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -67426,6 +67082,7 @@
       "display_name": "A Portal to Vitheo's Rest",
       "description": "A portal exists between Blooming Sepulcher and Vitheo's Rest - you can re-activate it by bringing a piece of Vitheo's Rest to the Remnant in Blooming Sepulcher",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Blooming Sepulcher",
       "acquisition": [
         {
@@ -67647,7 +67304,17 @@
       ],
       "rewards": {
         "xp": 5,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Vitheo's Rest",
+            "to_zone": "Blooming Sepulcher"
+          },
+          {
+            "from_zone": "Blooming Sepulcher",
+            "to_zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -67673,7 +67340,53 @@
       "stable_key": "quest:amethikeys",
       "display_name": "A Retired Locksmith",
       "description": "Amethi, just outside of town in Stowaway's Step, has expressed interest in making and repairing keys... if you find any broken ones, bring them her way. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Broken Key Blade.",
+          "target_name": "Broken Key Blade",
+          "target_type": "item",
+          "target_key": "item:gen - broken key",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Woe",
+                "level": 4
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "collect",
+          "description": "Collect Broken Key Bow.",
+          "target_name": "Broken Key Bow",
+          "target_type": "item",
+          "target_key": "item:gen - broken key bow",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Mourning",
+                "level": 4
+              }
+            ]
+          }
+        },
+        {
+          "order": 3,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "required_items": [
         {
           "item_name": "Broken Key Blade",
@@ -67721,6 +67434,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Broken Key Blade.",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -67729,6 +67452,7 @@
       "display_name": "A Sivakayan Horn for Ludo Luxo",
       "description": "Ludo Luxo in Hidden Hills has asked for you to find a Sivakayan Horn from the Bonepits - a cave on the north side of Hidden Hills. \n\nThey make great sharpening stones. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -67747,6 +67471,7 @@
           "target_name": "Ludo Luxo",
           "target_type": "character",
           "target_key": "character:ludo luxo",
+          "keyword": "task, quest, help",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67866,6 +67591,7 @@
       "display_name": "A Skeleton Eye for Alyssia Fearnon",
       "description": "Return a Skeleton Eye to Alyssia Fernon in Hidden Hills. \n\nShe has warned you that they're hard to come by, but every now and then you'll find one on a skeleton of any sort. \n\nShe suggested searching in the cave on the north side of Hidden Hills.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -67884,6 +67610,7 @@
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
           "target_key": "character:alyssa fearnon",
+          "keyword": "favor",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68082,6 +67809,7 @@
       "display_name": "A Solunarian Rune",
       "description": "You've powered your Solunarian Rune",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Soluna's Landing",
       "prerequisites": [
         {
@@ -68247,6 +67975,7 @@
       "display_name": "A Trade in Ripper's Keep",
       "description": "Jeremie Galyard has offered to trade a trinket he found in Ripper's Keep that he says may have belonged to Azynthi. \n\nHe wants 3 bottles of Azure Mead and a Seaspice. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -68265,6 +67994,7 @@
           "target_name": "Jeremie Galyard",
           "target_type": "character",
           "target_key": "character:jeremie galyard",
+          "keyword": "Azynthi",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -68858,6 +68588,7 @@
       "display_name": "A Vithean Rune",
       "description": "You've powered your Vithean Rune",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Vitheo's Rest",
       "steps": [
         {
@@ -69009,6 +68740,7 @@
       "display_name": "A Way To Erenshor",
       "description": "You've earned the favor of a mysterious brotherhood by finding their lost friend.\n\nPer their instructions, you should make your way to the sandbar beneath the statue of Vitheo for a ride to the mainland.",
       "quest_type": "hybrid",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -69026,6 +68758,7 @@
           "target_name": "Chance Barlow",
           "target_type": "character",
           "target_key": "character:chance barlow",
+          "keyword": "ready, yes, go",
           "or_group": "complete",
           "level_estimate": {
             "recommended": 2,
@@ -69077,6 +68810,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Hidden Hills"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Agents of The Wisp",
@@ -69116,7 +68855,8 @@
       "stable_key": "quest:alterplane",
       "display_name": "Accessing the Ethereal Planes",
       "description": "Rumors of methods to access the Ethereal Planes have been persistent throughout history. \n\nThere may be a way to reach places not meant for humans, and reap the rewards within.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -69134,6 +68874,32 @@
           "keyword": "hunt"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"hunt\" to Cerbantias Flameward.",
+          "target_name": "Cerbantias Flameward",
+          "target_type": "character",
+          "target_key": "character:cerbantias flameward",
+          "keyword": "hunt",
+          "level_estimate": {
+            "recommended": 11,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Port Azure",
+                "level": 11
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "rewards": {
         "xp": 0,
         "gold": 0
@@ -69145,6 +68911,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"hunt\" to Cerbantias Flameward.",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -69153,6 +68929,7 @@
       "display_name": "Aetheria for Saya Seawatcher",
       "description": "Ghostly beings of Erenshor can leave behind Aetheria if you destroy them. If you find any, Saya Seawatcher in Vitheo's Watch says she has a unique reward for you.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Watch",
       "acquisition": [
         {
@@ -69171,6 +68948,7 @@
           "target_name": "Saya Seawatcher",
           "target_type": "character",
           "target_key": "character:saya seawatcher",
+          "keyword": "aetheria",
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -69657,6 +69435,7 @@
       "display_name": "Albixt's Engagement Ring",
       "description": "Albixt Munger in Silkengrass fears that his missing wife is now one of the risen pilgrims in the area. If you find her engagement ring on one of them, return it to him for a reward. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Silkengrass Meadowlands",
       "acquisition": [
         {
@@ -69675,6 +69454,7 @@
           "target_name": "Albixt Munger",
           "target_type": "character",
           "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+          "keyword": "Lost",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -69790,6 +69570,7 @@
       "display_name": "Alice Hewer's Necklace",
       "description": "Alice Hewer's necklace was eaten by a small crocodile near the lighthouse! \n\nIf you find it, she would like for you to bring it back to her.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -69922,6 +69703,7 @@
       "display_name": "Annaleigh's Nagalok Claws",
       "description": "Bring 5 Nagalok claws to Annaleigh in Salted Strand. \n\nShe thinks she may be able to make something out of them that you would find useful.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Blacksalt Strand",
       "acquisition": [
         {
@@ -69940,6 +69722,7 @@
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
           "target_key": "character:annaleigh hephan",
+          "keyword": "inventor",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -70161,6 +69944,7 @@
       "display_name": "Aragath's Imprisonment",
       "description": "Aragath claims to have been imprisoned by a group of necromancers. He thinks they're behind a hidden door in the Island Tomb near a Stone Throne. \n\nDestroy the necromancers and collect their soul-stones, and reunite those stones with their linked watchlights to absorb their power.\n\nReturn the four charged stones to Aragath.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -70205,6 +69989,7 @@
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "target_key": "character:aragath swellsteer",
+          "keyword": "four",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -70463,6 +70248,7 @@
       "display_name": "Awakening Azynthi",
       "description": "A strange hermit in Azynthi's Garden has taken note of you shouting his name. He asked you to speak it to him in person. ",
       "quest_type": "shout",
+      "acceptance": "implicit",
       "zone_context": "Azynthi's Garden",
       "steps": [
         {
@@ -70523,6 +70309,7 @@
       "display_name": "Bear Meat for Fredrick",
       "description": "Fredrick in Port Azure would like bear meat.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -70783,7 +70570,15 @@
       "stable_key": "quest:bellwain",
       "display_name": "Bellwain Isle",
       "description": "A fisherman has brought you to a small island he happened upon. He claims that the Island matches the description of the lost Bellwain Isle, where a 100-year wanted Pirate retired into hiding with his wife with all of his treasures. \n\nThe fisherman claims to have disturbed nothing, but something mysterious lingers in the air. \n\n",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -70794,6 +70589,12 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "Shady Fisherman",
+            "zone": "Bellwain Island"
+          }
+        ],
         "achievements": [
           "BELLWAIN"
         ]
@@ -70813,6 +70614,7 @@
       "display_name": "Bellwain's Lost Letters",
       "description": "You've handed the lost love letters to Bellwain, but he told you they were not his to take.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Bellwain Island",
       "steps": [
         {
@@ -70887,6 +70689,7 @@
       "display_name": "Braxonian Scripture",
       "description": "You showed the writings from Fallen Braxonia to Braxon Elden, and he was most impressed.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Braxonian Desert",
       "steps": [
         {
@@ -71084,6 +70887,7 @@
       "display_name": "Capture Leah's Soul",
       "description": "Capture Leah's soul from her watchlight on Stowaway's Step",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Stowaway's Step",
       "steps": [
         {
@@ -71182,6 +70986,7 @@
       "display_name": "Capture Posta's Soul",
       "description": "Capture Posta's soul from his watchlight on Stowaway's Step",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Stowaway's Step",
       "steps": [
         {
@@ -71280,6 +71085,7 @@
       "display_name": "Capture Revid's Soul",
       "description": "Capture Revid's soul from his watchlight on Stowaway's Step",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Stowaway's Step",
       "steps": [
         {
@@ -71378,6 +71184,7 @@
       "display_name": "Capture Stalzo's Soul",
       "description": "Capture Stalzo's soul from his watchlight on Stowaway's Step",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Stowaway's Step",
       "steps": [
         {
@@ -71476,6 +71283,7 @@
       "display_name": "Catnip for a statue",
       "description": "You're not even sure if this really happened. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Mysterious Portal (3)",
       "steps": [
         {
@@ -71590,6 +71398,7 @@
       "display_name": "Changing the Lighthouse",
       "description": "It may be beneficial to find a way to change the lighthouse color to brighten up the island further...",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Shivering Step",
       "acquisition": [
         {
@@ -71702,6 +71511,7 @@
       "display_name": "Claiming the Reliquary",
       "description": "A Guard in Port Azure has offered you the job of Reliquary Caretaker. All you have to do is go inside and make sure everything is in order. After that, you can do whatever you'd like with it. ",
       "quest_type": "hybrid",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "steps": [
         {
@@ -71799,11 +71609,179 @@
       }
     },
     {
+      "db_name": "ClearingTheBonePits",
+      "stable_key": "quest:clearingthebonepits",
+      "display_name": "Clearing the Bonepits",
+      "description": "William Cardigo at Willowwatch has hinted that if you clear out the bonepits, and bring him proof of slaying the \"glowing red demon\" deep within, he'd make it worth your while. ",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Skeleton Eye.",
+          "target_name": "Skeleton Eye",
+          "target_type": "item",
+          "target_key": "item:gen - skeleton eye",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 8,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Bassalt Vallano",
+                "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "Wiggleribs",
+                "level": 8
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
+      "required_items": [
+        {
+          "item_name": "Skeleton Eye",
+          "item_stable_key": "item:gen - skeleton eye",
+          "quantity": 1,
+          "sources": [
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "The Bonepits",
+              "scene": "Bonepits",
+              "level": 8,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "The Bonepits",
+              "scene": "Bonepits",
+              "level": 8,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 26
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 8,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Wiggleribs",
+              "zone": "Willowwatch Ridge",
+              "scene": "Willowwatch",
+              "level": 8,
+              "source_key": "character:wiggleribs",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 9
+            },
+            {
+              "type": "drop",
+              "name": "Bassalt Vallano",
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 10,
+              "source_key": "character:bassalt valanno",
+              "spawn_count": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "xp": 155,
+        "gold": 0,
+        "item_name": "Adventure Charm",
+        "item_stable_key": "item:charm - 8 - adventure charm",
+        "faction_effects": [
+          {
+            "faction_name": "Fernalla's Children",
+            "faction_stable_key": "faction:fernalla",
+            "amount": 1
+          },
+          {
+            "faction_name": "The Children of Sivakaya",
+            "faction_stable_key": "faction:sivakayans",
+            "amount": -1
+          }
+        ]
+      },
+      "flags": {
+        "repeatable": true,
+        "disabled": false,
+        "kill_turn_in_holder": false,
+        "destroy_turn_in_holder": false,
+        "drop_invuln_on_holder": false,
+        "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 8,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Skeleton Eye.",
+            "level": 8
+          }
+        ]
+      }
+    },
+    {
       "db_name": "CLEARBONEPITS",
       "stable_key": "quest:clearbonepits",
       "display_name": "Clearing the Bonepits",
       "description": "William Cardigo has asked you to find out what lurks in the Bonepits and clear it out before it emerges into Willowwatch. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Willowwatch Ridge",
       "acquisition": [
         {
@@ -71822,6 +71800,7 @@
           "target_name": "William Cardigo",
           "target_type": "character",
           "target_key": "character:william cardigo",
+          "keyword": "demon",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -71932,116 +71911,12 @@
       }
     },
     {
-      "db_name": "ClearingTheBonePits",
-      "stable_key": "quest:clearingthebonepits",
-      "display_name": "Clearing the Bonepits",
-      "description": "William Cardigo at Willowwatch has hinted that if you clear out the bonepits, and bring him proof of slaying the \"glowing red demon\" deep within, he'd make it worth your while. ",
-      "quest_type": "scripted",
-      "required_items": [
-        {
-          "item_name": "Skeleton Eye",
-          "item_stable_key": "item:gen - skeleton eye",
-          "quantity": 1,
-          "sources": [
-            {
-              "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "The Bonepits",
-              "scene": "Bonepits",
-              "level": 8,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "The Bonepits",
-              "scene": "Bonepits",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 26
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "Wiggleribs",
-              "zone": "Willowwatch Ridge",
-              "scene": "Willowwatch",
-              "level": 8,
-              "source_key": "character:wiggleribs",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 9,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 9,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 9
-            },
-            {
-              "type": "drop",
-              "name": "Bassalt Vallano",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 10,
-              "source_key": "character:bassalt valanno",
-              "spawn_count": 1
-            }
-          ]
-        }
-      ],
-      "rewards": {
-        "xp": 155,
-        "gold": 0,
-        "item_name": "Adventure Charm",
-        "item_stable_key": "item:charm - 8 - adventure charm",
-        "faction_effects": [
-          {
-            "faction_name": "Fernalla's Children",
-            "faction_stable_key": "faction:fernalla",
-            "amount": 1
-          },
-          {
-            "faction_name": "The Children of Sivakaya",
-            "faction_stable_key": "faction:sivakayans",
-            "amount": -1
-          }
-        ]
-      },
-      "flags": {
-        "repeatable": true,
-        "disabled": false,
-        "kill_turn_in_holder": false,
-        "destroy_turn_in_holder": false,
-        "drop_invuln_on_holder": false,
-        "once_per_spawn_instance": false
-      }
-    },
-    {
       "db_name": "StowawayRitualComplete",
       "stable_key": "quest:stowawayritualcomplete",
       "display_name": "Completing the Ritual",
       "description": "Lucian has asked for your help in completing the Stowaway Step Ritual. He needs the following legendary items:\n\nA Loss Stone\nA Remnant of Sivakaya\nA brain warped  by the Sivakayan Dementia \nA Nightmare Crystal",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -72259,6 +72134,12 @@
         "also_completes": [
           "The Loss Stone Pt. 2"
         ],
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Secluded Sanctuary"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Agents of The Wisp",
@@ -72298,6 +72179,7 @@
       "display_name": "Crafting: Azynthian Dining Room",
       "description": "You've found a blueprint for an Azynthian Dining Room and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -72521,7 +72403,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Dining Set"
+        "vendor_unlock": {
+          "item_name": "Azynthian Dining Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -72549,6 +72434,7 @@
       "display_name": "Crafting: Azynthian Living Room",
       "description": "You've found a blueprint for an Azynthian Livingroom and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -72772,7 +72658,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Livingroom Set"
+        "vendor_unlock": {
+          "item_name": "Azynthian Livingroom Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -72800,6 +72689,7 @@
       "display_name": "Crafting: Azynthian Resting Place",
       "description": "You've found a blueprint for an Azynthian Resting Place and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -73023,7 +72913,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Resting place"
+        "vendor_unlock": {
+          "item_name": "Azynthian Resting place",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73051,6 +72944,7 @@
       "display_name": "Crafting: Game Room",
       "description": "You've found a blueprint for an Loomingwood Shrine and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -73185,7 +73079,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Game Room"
+        "vendor_unlock": {
+          "item_name": "Game Room",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73213,6 +73110,7 @@
       "display_name": "Crafting: Loomingwood Market",
       "description": "You've found a blueprint for an Loomingwood Marketplace and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -73483,7 +73381,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Loomingwood Market Set"
+        "vendor_unlock": {
+          "item_name": "Loomingwood Market Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73511,6 +73412,7 @@
       "display_name": "Crafting: Loomingwood Shrine",
       "description": "You've found a blueprint for an Loomingwood Shrine and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -73781,7 +73683,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Loomingwood Shrine Set"
+        "vendor_unlock": {
+          "item_name": "Loomingwood Shrine Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73809,6 +73714,7 @@
       "display_name": "Crafting: Stone Auctions",
       "description": "You've found a blueprint for a Stone Auction House and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -73995,7 +73901,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Auction Set"
+        "vendor_unlock": {
+          "item_name": "Stone Auction Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74023,6 +73932,7 @@
       "display_name": "Crafting: Stone Bank",
       "description": "You've found a blueprint for a Stone Bank and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -74209,7 +74119,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Bank Set"
+        "vendor_unlock": {
+          "item_name": "Stone Bank Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74237,6 +74150,7 @@
       "display_name": "Crafting: Stone Dining Room",
       "description": "You've found a blueprint for a Stone Dining Room and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -74423,7 +74337,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Dining Set"
+        "vendor_unlock": {
+          "item_name": "Stone Dining Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74451,6 +74368,7 @@
       "display_name": "Crafting: Stone Fountain",
       "description": "You've found a blueprint for a Stone Fountain and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -74637,7 +74555,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Fountain Set"
+        "vendor_unlock": {
+          "item_name": "Stone Fountain Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74665,6 +74586,7 @@
       "display_name": "Crafting: Stone Training Room",
       "description": "You've found a blueprint for a Stone Training Room and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -74837,7 +74759,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Training Set"
+        "vendor_unlock": {
+          "item_name": "Stone Training Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74865,6 +74790,7 @@
       "display_name": "Crafting: Stone Vendor",
       "description": "You've found a blueprint for a Stone Vendor and gave it to a furniture maker.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -75037,7 +74963,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Vendor Set"
+        "vendor_unlock": {
+          "item_name": "Stone Vendor Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -75065,6 +74994,7 @@
       "display_name": "Croc Tails for the Poachers",
       "description": "The Rottenfoot Poachers have asked for Croc tails",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Rottenfoot",
       "acquisition": [
         {
@@ -75201,6 +75131,7 @@
       "display_name": "Daggerhart Ancestral Coin",
       "description": "Neziroth Daggerhart had his prized ancestral coin stolen by bandits somewhere in Stowaway's Step. \n\nIf you find it, return it to him near the Shrine to Vitheo.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -75219,6 +75150,7 @@
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
           "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
+          "keyword": "coin, Protect",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -75378,6 +75310,7 @@
       "display_name": "Delivering the Light",
       "description": "You've achieved something impressive.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "steps": [
         {
           "order": 1,
@@ -75482,6 +75415,7 @@
       "display_name": "Destroying Aragath",
       "description": "A group of necromancers in the island tomb claim to be holding a demon named Aragath captive through magic. \n\nThey have asked you to hand the demon an empty soulstone, to absorb his power and finally allow them to leave the island.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Island Tomb",
       "acquisition": [
         {
@@ -75500,6 +75434,7 @@
           "target_name": "Stalzo",
           "target_type": "character",
           "target_key": "character:stalzo",
+          "keyword": "soul, gem",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75618,6 +75553,7 @@
       "display_name": "Disarming the Sivakayans",
       "description": "Edgar in Silkengrass has promised a generous reward for any Sivakayan Axes or Swords or Sceptres that you're able to bring him.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Silkengrass Meadowlands",
       "acquisition": [
         {
@@ -75636,6 +75572,7 @@
           "target_name": "Edgar Taether",
           "target_type": "character",
           "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
+          "keyword": "protected",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -75882,6 +75819,7 @@
       "display_name": "Druid Beads for Varran",
       "description": "Varran Juctor in Fernalla Field would like some of the beads he sees the Risen Druids behind him wearing. Bring him as many as you can find. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -75900,6 +75838,7 @@
           "target_name": "Varran Juctor",
           "target_type": "character",
           "target_key": "character:varran juctor",
+          "keyword": "dispose",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -76144,13 +76083,21 @@
       "stable_key": "quest:endingthecorruptionofthegods",
       "display_name": "Ending the Corruption",
       "description": "Through Larviso, Sivayaka has shown you that Azynthi's corruption has taken hold of all of the Gods of Erenshor. Fernalla, Vitheo, Soluna, and Brax. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "quest_chain",
           "source_name": "The Secrets of Creation",
           "source_type": "quest",
           "source_stable_key": "quest:secretsofcreationtolarviso"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -76179,6 +76126,7 @@
       "display_name": "Faerie Dust for Nylith Valorro",
       "description": "Nyltih in Hidden Hills has asked for Faerie Dust from the nearby forest.\n\nIt could be dropped by any Faerie that you find.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -76386,6 +76334,7 @@
       "display_name": "Find The Hider",
       "description": "You've been pulled into a game of hide and seek... \n\nSomeone (or something) is waiting to be found on Shivering Step.",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Shivering Step",
       "acquisition": [
         {
@@ -76453,6 +76402,7 @@
       "display_name": "Flickering Souls",
       "description": "Handing a Riftsnare Gem to the Flickering Souls in Azynthi's Garden pulls them into full existence...",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Azynthi's Garden",
       "steps": [
         {
@@ -76605,6 +76555,7 @@
       "display_name": "Graveweed Leaf for Benson Gamble",
       "description": "Benson Gamble in Hidden Hills is looking for Graveweed Leaf from the nearby Bonepits. It's located on the north side of Hidden Hills.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -76623,6 +76574,7 @@
           "target_name": "Benson Gamble",
           "target_type": "character",
           "target_key": "character:benson gamble",
+          "keyword": "prove",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -76784,6 +76736,7 @@
       "display_name": "Grizzlepaw's Chain",
       "description": "A Stormcaller named Windlae in Hidden Hills has asked that you find and fell a beast in the Brake called Grizzlepaw.\n\nShe has observed a remnant of a chain stuck in the beast's teeth that may have belonged to a friend of hers. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -76802,6 +76755,7 @@
           "target_name": "Windlae Oldseer",
           "target_type": "character",
           "target_key": "character:windlae oldseer",
+          "keyword": "test",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -76921,6 +76875,7 @@
       "display_name": "Hadden's Supplies",
       "description": "Hadden in Fernalla's Revival Plains has asked you to take a package of supplies to Ripper's Keep. They'll give you a receipt, and if you bring that back to Hadden he'll reward you. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -76939,6 +76894,7 @@
           "target_name": "Hadden Passican",
           "target_type": "character",
           "target_key": "character:hadden passican",
+          "keyword": "Ripper's, ripper's",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -77062,6 +77018,7 @@
       "display_name": "Hadden's Supplies 2",
       "description": "Take the receipt of delivery from Ripper's Keep back to Hadden in Fernalla's Revival Plains. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -77203,6 +77160,7 @@
       "display_name": "Head to the Gate",
       "description": "Go to the Gate and tell the Guard there that you've registered to gain a key to the pass through to the rest of Stowaway's Step. \n\n(To tell the guard you've registered, target him and press ENTER to type. Type 'I'm registered'.)",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -77220,6 +77178,7 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
+          "keyword": "registered",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77277,6 +77236,7 @@
       "display_name": "Intel from the Lost Cellar",
       "description": "Foreman Hauck in Port Azure has asked you to explore the Lost Cellar and find any Intel that may or may not exist down there. Bring it to him if you find it. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -77295,6 +77255,7 @@
           "target_name": "Foreman Hauck",
           "target_type": "character",
           "target_key": "character:foreman hauck",
+          "keyword": "prisoners",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77410,6 +77371,7 @@
       "display_name": "Keys for Valrae",
       "description": "Valrae Cleary in Faerie's Brake has asked you to find her a set of keys to Krakengard. The Bunk key and the Tower key are what she's after. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Faerie's Brake",
       "acquisition": [
         {
@@ -77428,6 +77390,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
+          "keyword": "Krakengard",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -77577,13 +77540,21 @@
       "stable_key": "quest:kilkayquestline1",
       "display_name": "Kilkay's Questline",
       "description": "PLACEHOLDER FOR CONTINUATION",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "quest_chain",
           "source_name": "A Bounty on Ripper DeMerth",
           "source_type": "quest",
           "source_stable_key": "quest:rippersbounty"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -77619,6 +77590,7 @@
       "display_name": "Kio's Papers",
       "description": "Deliver the deportation papers to Kio the Light Keeper at the Lighthouse and collect his Gate Key for your own use. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -77637,6 +77609,7 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
+          "keyword": "problem",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77754,6 +77727,7 @@
       "display_name": "Liam's Note",
       "description": "You should find the recipient of this note, it looks as though it's never going to find its own way.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "The Duskenlight Coast",
       "acquisition": [
         {
@@ -77885,6 +77859,7 @@
       "display_name": "Lighting the Nighthollow Candle",
       "description": "You have restored the Nighthollow Candle, but it is not lit. You must find a Braxonian Flame to ignite the wick and restore the Candle's true power. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fallen Braxonia",
       "acquisition": [
         {
@@ -78041,6 +78016,7 @@
       "display_name": "Lost Faith",
       "description": "Handing an Essence of Lost Faith to a Stardust will take away its invulnerability.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Soluna's Landing",
       "steps": [
         {
@@ -78200,6 +78176,7 @@
       "display_name": "Malaroth Food",
       "description": "You've made Malaroth Food with:\n1 Octorunner\n1 Frowney Clowney\n1 Azure Mead",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -78220,37 +78197,32 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -78279,63 +78251,48 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Blooming Sepulcher",
+                "name": "Fishing",
                 "level": 27
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Faerie's Brake",
+                "name": "Fishing",
                 "level": 4
               },
               {
                 "source": "fishing",
-                "name": "Ripper's Keep",
+                "name": "Fishing",
                 "level": 28
               },
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               },
               {
                 "source": "fishing",
-                "name": "Silkengrass Meadowlands",
+                "name": "Fishing",
                 "level": 18
               },
               {
                 "source": "fishing",
-                "name": "Stowaway's Step",
+                "name": "Fishing",
                 "level": 2
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
-              },
-              {
-                "source": "fishing",
-                "name": "Willowwatch Ridge",
-                "level": 4
-              },
-              {
-                "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
               }
             ]
           }
@@ -78407,51 +78364,65 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
@@ -78472,30 +78443,38 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
+              "source_key": "fishing:Stowaway",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Faerie's Brake",
               "scene": "Brake",
               "level": 4,
+              "source_key": "fishing:Brake",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
               "level": 4,
+              "source_key": "fishing:Willowwatch",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
@@ -78508,58 +78487,74 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 3
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
               "level": 18,
+              "source_key": "fishing:Silkengrass",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
               "level": 27,
+              "source_key": "fishing:BloomingSepulcher",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Ripper's Keep",
               "scene": "Ripper",
               "level": 28,
+              "source_key": "fishing:Ripper",
               "node_count": 1
             },
             {
@@ -78573,8 +78568,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -78681,6 +78678,7 @@
       "display_name": "Maps for Prichard",
       "description": "Prichard Zemoro has asked you to bring him a treasure map and an elixir of enlightment II. He says he'll give you a Sivakrux for each combo you bring. Prichard is in the slums of Port Azure. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -78707,6 +78705,7 @@
           "target_name": "Prichard Zemoro",
           "target_type": "character",
           "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
+          "keyword": "map",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -78814,10 +78813,11 @@
                 },
                 {
                   "type": "fishing",
-                  "name": "Torn Treasure Map (Top Right): fishing",
+                  "name": "Torn Treasure Map (Top Right): Fishing",
                   "zone": "Faerie's Brake",
                   "scene": "Brake",
                   "level": 4,
+                  "source_key": "fishing:Brake",
                   "node_count": 2
                 }
               ]
@@ -78917,6 +78917,7 @@
       "display_name": "Mavik's Note",
       "description": "Mavik Estonia, of Ripper's Army, has requested you deliver a message to Guard Captain Kilkay in Port Azure.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Silkengrass Meadowlands",
       "acquisition": [
         {
@@ -78935,6 +78936,7 @@
           "target_name": "Mavik Estonia",
           "target_type": "character",
           "target_key": "character:mavik eston",
+          "keyword": "Kilkay",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -79045,7 +79047,15 @@
       "stable_key": "quest:shiver-meetall",
       "display_name": "Meet Shivering Step",
       "description": "Find the four spirits of Shivering Step.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -79072,6 +79082,7 @@
       "display_name": "Meet the Fisherman",
       "description": "There is a fisherman waiting for you under the cover of night in Blacksalt Strand to take you back to Stowaway's Step. ",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Blacksalt Strand",
       "steps": [
         {
@@ -79081,6 +79092,7 @@
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
           "target_key": "character:bassle wavebreak",
+          "keyword": "taking",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -79104,7 +79116,23 @@
       ],
       "rewards": {
         "xp": 5,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Blacksalt Strand",
+            "to_zone": "Stowaway's Step"
+          }
+        ],
+        "unlocked_characters": [
+          {
+            "name": "Lucian Revald",
+            "zone": "Stowaway's Step"
+          },
+          {
+            "name": "Revan Gavault",
+            "zone": "Stowaway's Step"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -79131,6 +79159,7 @@
       "display_name": "Note to Soluna",
       "description": "A note found on Raval's corpse was accepted by the Solunarian Holy Guard. He was not happy to read it. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Soluna's Landing",
       "steps": [
         {
@@ -79236,6 +79265,7 @@
       "display_name": "Octorunners",
       "description": "The Fisherman on the Azure Docks has promised you a trip to a lost Island in exchange for helping him finish his day's fishing quota. \n\nHe needs 4 Octorunners. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -79254,6 +79284,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "catch",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -79283,37 +79314,32 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -79347,51 +79373,65 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
@@ -79416,7 +79456,13 @@
       ],
       "rewards": {
         "xp": 0,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Port Azure",
+            "to_zone": "Bellwain Island"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -79443,6 +79489,7 @@
       "display_name": "Ogre Spice for Valrae",
       "description": "Valrae Cleary in Faerie's Brake has asked you to bring her four Ogrespice leaves. Who knows what for?",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Faerie's Brake",
       "acquisition": [
         {
@@ -79461,6 +79508,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
+          "keyword": "Underspine",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -79674,6 +79722,7 @@
       "display_name": "Orion Mycon's Lost Ring",
       "description": "A scribbled note from a madman in the desert has revealed that a mysterious stone that he was holding was the property of Orion Mycon in Port Azure. \n\nOrion may be interested in receiving it back...",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -79843,6 +79892,7 @@
       "display_name": "Passage off the Island",
       "description": "In return for Seaspice, Percy Ildia gave you a note with instructions to give it to the boat captain on the docks who was preparing to leave.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -80219,6 +80269,7 @@
       "display_name": "Passage to Azynthi's Garden",
       "description": "You've found a strange boatman in The Blight and presented your found \"Boat Pass\" to him. He will grant you passage to Azynthi's Garden now, at your leisure. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "The Blight",
       "steps": [
         {
@@ -80302,7 +80353,13 @@
       ],
       "rewards": {
         "xp": 155,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "The Blight",
+            "to_zone": "Azynthi's Garden"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -80330,6 +80387,7 @@
       "display_name": "Percy's Seaspice",
       "description": "Percy has asked for some Sea Spice and in return he has promised passage off of the island. \n\nHe is behind the registration office.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -80348,6 +80406,7 @@
           "target_name": "Percy Ildia",
           "target_type": "character",
           "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
+          "keyword": "Do, Favor, What, Need",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -80842,6 +80901,7 @@
       "display_name": "Portal of Hidden Hills",
       "description": "You've placed the Rune of the Hills in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "steps": [
         {
@@ -80936,7 +80996,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of The Hills",
-        "item_stable_key": "item:gen - rune of the hills"
+        "item_stable_key": "item:gen - rune of the hills",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Hidden Hills"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -80964,6 +81030,7 @@
       "display_name": "Portal of Ripper's Keep",
       "description": "You've placed the Rune of Ripper in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "prerequisites": [
         {
@@ -81355,7 +81422,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Ripper's Keep",
-        "item_stable_key": "item:gen - rune of ripper's keep"
+        "item_stable_key": "item:gen - rune of ripper's keep",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Ripper's Keep"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81383,6 +81456,7 @@
       "display_name": "Portal of Sands",
       "description": "You've placed the Rune of Sands in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "steps": [
         {
@@ -81474,7 +81548,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Sands",
-        "item_stable_key": "item:gen - rune of sands"
+        "item_stable_key": "item:gen - rune of sands",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Braxonian Desert"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81502,6 +81582,7 @@
       "display_name": "Portal of Silkengrass",
       "description": "You've placed the Rune of Silkengrass in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "steps": [
         {
@@ -81587,7 +81668,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Silkengrass",
-        "item_stable_key": "item:gen - rune of silkengrass"
+        "item_stable_key": "item:gen - rune of silkengrass",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Silkengrass Meadowlands"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81615,6 +81702,7 @@
       "display_name": "Portal of Soluna",
       "description": "You've placed the Rune of Soluna in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "prerequisites": [
         {
@@ -81702,7 +81790,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Soluna's Landing",
-        "item_stable_key": "item:gen - rune of soluna's landing"
+        "item_stable_key": "item:gen - rune of soluna's landing",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Soluna's Landing"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81730,6 +81824,7 @@
       "display_name": "Portal of Windwashed",
       "description": "You've placed the Rune of Winds in its receptacle in the Reliquary",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Reliquary Hall",
       "prerequisites": [
         {
@@ -81819,7 +81914,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Winds",
-        "item_stable_key": "item:gen - rune of winds"
+        "item_stable_key": "item:gen - rune of winds",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Windwashed Pass"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81847,6 +81948,7 @@
       "display_name": "Raval's Last Wish",
       "description": "Raval, the First Paladin, has been trapped in an insanity wracked body for centuries. You've freed him and found his spirit, and his last wish is to know that Astra, the Celestial Dragon, has finally been removed from this plane. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "dialog",
@@ -81863,7 +81965,8 @@
           "description": "Say \"presence\" to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
-          "target_key": "character:freed spirit of raval"
+          "target_key": "character:freed spirit of raval",
+          "keyword": "presence"
         },
         {
           "order": 2,
@@ -81955,6 +82058,7 @@
       "display_name": "Recovering the Nighthollow Candle",
       "description": "Larviso in Loomingwood has told you about the Nighthollow Candle. It was stolen from The Wisp long ago. If you find any trace of it, bring it to him. \n\nHe mentioned that a Sivakayan Darkwarden may have interest in it, or perhaps its lost in the Braxonian Desert... worse yet, an antiquities dealer may have recovered it.\n",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Loomingwood Forest",
       "acquisition": [
         {
@@ -81973,6 +82077,7 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
+          "keyword": "Nighthollow",
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -82186,6 +82291,7 @@
       "display_name": "Repairing Orion's Ring",
       "description": "Orion Mycon has given you his damaged ring. If you can fix it, it's yours. \n\nHe said you should find a jeweler for more help.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -82341,6 +82447,7 @@
       "display_name": "Repairing Orion's Ring, Part 2",
       "description": "Parmalee Gemlyn has asked you to bring back the broken ring, an Elderstone Shard, and a chunk of Citrine Sandsilver in order to repair Orion's Ring",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -82701,6 +82808,7 @@
       "display_name": "Repairing Treasure Maps",
       "description": "If you find four pieces of a treasure map, you can bring it to Cecil in Faerie's Brake to have it repaired. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Faerie's Brake",
       "steps": [
         {
@@ -82753,7 +82861,7 @@
             "factors": [
               {
                 "source": "fishing",
-                "name": "Faerie's Brake",
+                "name": "Fishing",
                 "level": 4
               }
             ]
@@ -82813,9 +82921,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Faerie's Brake",
               "scene": "Brake",
               "level": 4,
+              "source_key": "fishing:Brake",
               "node_count": 2
             }
           ]
@@ -82860,6 +82970,7 @@
       "display_name": "Ripper's Insignia Badges",
       "description": "Guard Captain Kilkay in Port Azure was not pleased with the note Ripper had his men send along. \n\nHe has warned you away from Ripper and his \"traitorous army\", and has said that if you can acquire their Insignia Badges, he'll reward you handsomly. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -83080,6 +83191,7 @@
       "display_name": "Ripper's Questline (1)",
       "description": "Ripper has mentioned rumors of Sivakayans in Port Azure. She has asked that you keep an eye open for evidence of that, and bring it to her should you find it. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -83332,6 +83444,7 @@
       "display_name": "Ripper's Questline (2)",
       "description": "Ripper has reviewed the encryption you brought to her and has determined that Sivakayans have gained access to Port Azure through the lighthouse. She has asked that you investigate. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -83452,6 +83565,7 @@
       "display_name": "Ritual Components",
       "description": "Torado in Wardhaven has asked if you could help him gather components for The Rituals they must perform to restore Sivakaya. He needs:\n\n1 Intact Faerie Wing\n1 Devoratrix Thorn\n1 Pink Pteriaped Feather",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Loomingwood Forest",
       "acquisition": [
         {
@@ -83470,6 +83584,7 @@
           "target_name": "Torado Zortia",
           "target_type": "character",
           "target_key": "character:torado  zortia",
+          "keyword": "work",
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -83725,6 +83840,7 @@
       "display_name": "Rottenfoot Sashes for Alitho Echeswer",
       "description": "Alitho, a collector in Port Azure, has asked for you to bring him any Rottenfoot sashes that you may find. \n\nThe Rottenfoot swamps would be a logical place to search for these sashes.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -83743,6 +83859,7 @@
           "target_name": "Alitho Echeswer",
           "target_type": "character",
           "target_key": "character:alitho echeswer",
+          "keyword": "collector",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -83883,6 +84000,7 @@
       "display_name": "Samuel's Note",
       "description": "Samuel in Hidden Hills has asked you to deliver a note to his good friend Harvey Alder, who is likely staying at the Azure Arms in Port Azure.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Hidden Hills",
       "acquisition": [
         {
@@ -83901,6 +84019,7 @@
           "target_name": "Samuel Thatcher",
           "target_type": "character",
           "target_key": "character:shopkeeper samuel",
+          "keyword": "note",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -84018,6 +84137,7 @@
       "display_name": "Seaslimed Bracelet",
       "description": "Feed an Eye of Plaxitheris to Occuphage under the lighthouse.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Shivering Tomb (2)",
       "steps": [
         {
@@ -84119,6 +84239,7 @@
       "display_name": "Secure Port Azure",
       "description": "Keep your eyes open for any intel on how or why Sivakayans are gaining access to Port Azure. Share it with Guard Captain Kilkay if you find it. \n",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -84242,6 +84363,7 @@
       "display_name": "Seeing the Truth",
       "description": "You've learned that seeing is not always easy, but is possible in any light.",
       "quest_type": "item_read",
+      "acceptance": "implicit",
       "steps": [
         {
           "order": 1,
@@ -84255,7 +84377,7 @@
             "factors": [
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               }
             ]
@@ -84270,9 +84392,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 2
             }
           ]
@@ -84315,6 +84439,7 @@
       "display_name": "Serra Stile's Shovel",
       "description": "Serra Stile lost her family heirloom shovel in the Elderstone Mines incident. \n\nShe believes it was taken by a slime. If you happen across it, return it to her. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "The Elderstone Mines",
       "acquisition": [
         {
@@ -84333,6 +84458,7 @@
           "target_name": "Serra Stiles",
           "target_type": "character",
           "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
+          "keyword": "shovel",
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -84461,7 +84587,15 @@
       "stable_key": "quest:jawsseen",
       "display_name": "She Sees You",
       "description": "The statue of Sivakaya has gazed upon you.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "completion": [
         {
           "method": "scripted",
@@ -84491,6 +84625,7 @@
       "display_name": "Shivering Step",
       "description": "You've made quite a mark on Shivering Step. It's time to go home.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Shivering Step",
       "steps": [
         {
@@ -84590,6 +84725,7 @@
       "display_name": "Sivakayan Intel for Kilkay (1)",
       "description": "A recovered page of Sivakayan Intel was handed to Guard Captain Kilkay, who was appreciative of the info.\n\nHe has asked you to continue to search for information on how Sivakayans may be entering Port Azure. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -84728,6 +84864,7 @@
       "display_name": "Sivakayan Intel for Kilkay (2)",
       "description": "A recovered page of Sivakayan Intel was handed to Guard Captain Kilkay, who was appreciative of the info.\n",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -84831,7 +84968,34 @@
       "stable_key": "quest:inteltokilkay3",
       "display_name": "Sivakayan Intel for Kilkay (3)",
       "description": "A recovered journal of a Sivakayan Darkwardenl was handed to Guard Captain Kilkay, who was appreciative of the info.\n",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "implicit",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Ealdred's Journal.",
+          "target_name": "Ealdred's Journal",
+          "target_type": "item",
+          "target_key": "item:gen - ealdred's journal",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 32,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Darkwarden Ealdred",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "required_items": [
         {
           "item_name": "Ealdred's Journal",
@@ -84874,6 +85038,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Ealdred's Journal.",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -84882,6 +85056,7 @@
       "display_name": "Sivakayan Intel for Ripper",
       "description": "Ripper asked for you to bring any information you find on Sivakayan activity to her. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -84900,6 +85075,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
+          "keyword": "Sivakayans",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -85021,6 +85197,7 @@
       "display_name": "Sivakayan Ore for Tipp",
       "description": "Supply Sergeant Tipp wants Sivakayan Ore. He says their soldiers carry it sometimes, but it's hard to find. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -85039,6 +85216,7 @@
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
           "target_key": "character:supply sergeant tipp",
+          "keyword": "favor",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85431,6 +85609,7 @@
       "display_name": "Sivakayans in Port Azure",
       "description": "Despite reports of Sivakayan raiders headed to Port Azure, none have been seen within the city. \n\nIt is suspected that they may be lurking inside the city, somewhere in the shadows. \n\nIf you're able to locate them, report to Captain Kilkay.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -85449,6 +85628,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
+          "keyword": "Sivakayans",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85703,6 +85883,7 @@
       "display_name": "Sivakayans in Port Azure Pt. 2",
       "description": "The Guard Captain in Port Azure has reviewed the Sivakayan Encryption that you have found and has determined that the Sivakayans have created a secret access point in the Port Azure Lighthouse.\n\nHe has given you a key and asked you to investigate.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -85829,6 +86010,7 @@
       "display_name": "Soluna's Celestial Blade",
       "description": "Once wielded by Soluna herself, the blade was forged from the metal of a moon and bathed in the flames of stars. It is rumored to exist on this plane. \n\nIf your travels bring you across clues, take note. ",
       "quest_type": "chain",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -85854,6 +86036,7 @@
           "target_name": "Leyor M'Chante",
           "target_type": "character",
           "target_key": "character:leyor m'chante",
+          "keyword": "Celestial, Blade",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85928,6 +86111,7 @@
       "display_name": "Soluna's Celestial Blade - Part 2",
       "description": "You've found a Paladin trapped by Azynthi who claims to have had knowledge of Soluna's Celestial Blade stolen from him. If you can restore him, he may be able to share it with you.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Azynthi's Garden (Dimensional Rift)",
       "steps": [
         {
@@ -86033,13 +86217,21 @@
       "stable_key": "quest:solunascelestialblade2",
       "display_name": "Soluna's Celestial Blade - Part 3",
       "description": "TO BE CONTINUED",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "quest_chain",
           "source_name": "Soluna's Celestial Blade - Part 2",
           "source_type": "quest",
           "source_stable_key": "quest:solunascelestialblade1"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -86068,6 +86260,7 @@
       "display_name": "Stand, Angel!",
       "description": "You have found a way to move the fallen angel statue out of the way on Shivering Step",
       "quest_type": "item_read",
+      "acceptance": "implicit",
       "steps": [
         {
           "order": 1,
@@ -86143,6 +86336,7 @@
       "display_name": "Stowaway Registration",
       "description": "Register yourself on the island by bringing your Dock Papers to Controller Wendyl in the registration office.\n\nThe registration office is the large building near the docks.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -86285,6 +86479,7 @@
       "display_name": "Stowaway's Step",
       "description": "You are stranded on Stowaway's Step. There has to be a way off... You should ask around and see what you can learn.",
       "quest_type": "zone_trigger",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "zone_entry",
@@ -86351,6 +86546,7 @@
       "display_name": "Ta'Dah's Shadows",
       "description": "Ta'Dah, the hidden Sorcerer for Ripper has stopped you and offered you a prize for collecting three intact mushroom caps from the cave near Ripper's Keep. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -86369,6 +86565,7 @@
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
           "target_key": "character:ripparian high sorcerer",
+          "keyword": "convenient",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -86512,6 +86709,7 @@
       "display_name": "The Ancient Teachings",
       "description": "You've found ancient Siva-Braxonian teachings that reveal some surprising world history. You've given them to Braxon Michaen who was very impressed. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "The Duskenlight Coast",
       "steps": [
         {
@@ -86843,6 +87041,7 @@
       "display_name": "The Angler's Ring",
       "description": "Liani Bosh in Port Azure has asked you to forge an Angler's Ring. With it, you can buy a trip back to Stowaway's Step.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -86929,6 +87128,12 @@
       "rewards": {
         "xp": 225,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Blacksalt Strand",
+            "to_zone": "Stowaway's Step"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Citizens of Erenshor",
@@ -86963,6 +87168,7 @@
       "display_name": "The Bridgekeeper",
       "description": "You met a strange being called \"The Bridgekeeper\" on Shivering Step",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Shivering Step",
       "acquisition": [
         {
@@ -87028,6 +87234,7 @@
       "display_name": "The Curator",
       "description": "You met a strange being called \"The Curator\" on Shivering Step",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Shivering Step",
       "steps": [
         {
@@ -87086,6 +87293,7 @@
       "display_name": "The Dark Flame",
       "description": "To ignite, combine the following in the Dark Flame Brazier in Vitheo's Rest:\n2 Blight Crystals\n1 Blightwood slab\n1 Spark of the First Flame",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Rest",
       "acquisition": [
         {
@@ -87556,7 +87764,13 @@
       ],
       "rewards": {
         "xp": 15,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "The Abomination",
+            "zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -87583,6 +87797,7 @@
       "display_name": "The Duskenlight Ritual",
       "description": "The Ceremonial Flame requires:\n1 Ancient Coal\n1 Elderstone Shard\n1 Wolf Meat\n1 Pristine Grass Spider Carapace",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "The Duskenlight Coast",
       "acquisition": [
         {
@@ -88448,6 +88663,12 @@
       "rewards": {
         "xp": 15,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "The Duskenlight Coast",
+            "to_zone": "Mysterious Portal (1)"
+          }
+        ],
         "achievements": [
           "DUSKENPORTAL"
         ]
@@ -88477,6 +88698,7 @@
       "display_name": "The Eldrich Crystal",
       "description": "You have been told that it may be possible to combine an Eldrich crystal with an inert rune at the right place of power in order to power the rune once again. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Braxonian Desert",
       "steps": [
         {
@@ -88587,6 +88809,7 @@
       "display_name": "The Gatekeeper",
       "description": "You met a strange being called \"The Gatekeeper\" on Shivering Step",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Shivering Step",
       "steps": [
         {
@@ -88640,11 +88863,78 @@
       }
     },
     {
+      "db_name": "WillowBranch",
+      "stable_key": "quest:willowbranch",
+      "display_name": "The Great Willow's Branch",
+      "description": "The Druids of Fernalla believe that a powerful artifact exists known as 'A Branch of the Great Willow' - the tree from which Fernalla observes the land. \n\nYou should note of any clues you stumble upon, and follow their trails.",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
+      "zone_context": "Port Azure",
+      "acquisition": [
+        {
+          "method": "dialog",
+          "source_name": "Orion Mycon",
+          "source_type": "character",
+          "source_stable_key": "character:orion mycon",
+          "keyword": "cause, crusade"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"cause, crusade\" to Orion Mycon.",
+          "target_name": "Orion Mycon",
+          "target_type": "character",
+          "target_key": "character:orion mycon",
+          "keyword": "cause, crusade",
+          "level_estimate": {
+            "recommended": 11,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Port Azure",
+                "level": 11
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0
+      },
+      "flags": {
+        "repeatable": false,
+        "disabled": false,
+        "kill_turn_in_holder": false,
+        "destroy_turn_in_holder": false,
+        "drop_invuln_on_holder": false,
+        "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"cause, crusade\" to Orion Mycon.",
+            "level": 11
+          }
+        ]
+      }
+    },
+    {
       "db_name": "JAWSENTRY",
       "stable_key": "quest:jawsentry",
       "display_name": "The Guardian Awakens",
       "description": "A strange ghostly statue in the Jaws of Sivakaya claims to have 'awoken the guardian' and that you should let it look upon you for a moment.",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Jaws of Sivakaya",
       "steps": [
         {
@@ -88703,6 +88993,7 @@
       "display_name": "The Harbinger",
       "description": "You met a strange being called \"The Harbinger\" on Shivering Step",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Shivering Step",
       "steps": [
         {
@@ -88761,6 +89052,7 @@
       "display_name": "The Island Tomb",
       "description": "You've heard rumors of an old tomb on the island that has attracted the attention of strange ritualists. It may be worth investigating if you can find it. ",
       "quest_type": "zone_trigger",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -88779,6 +89071,7 @@
           "target_name": "Timothy Allorn",
           "target_type": "character",
           "target_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
+          "keyword": "tomb",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -88874,6 +89167,7 @@
       "display_name": "The Life Flame",
       "description": "To ignite, combine the following in the Life Flame Brazier in Vitheo's Rest:\n1 Essence of Nature\n1 Gift of Fernalla\n1 Loomingwood Branch\n1 Droplet of the First Frost",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Rest",
       "acquisition": [
         {
@@ -89305,7 +89599,13 @@
       ],
       "rewards": {
         "xp": 15,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "The Abomination",
+            "zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -89332,6 +89632,7 @@
       "display_name": "The Loss Stone",
       "description": "A Ghostly Figure has handed you a stone that contains the very sadness that has been brought upon the world by Azynthi. She instructed you to bring it to someone who might know its true power, she suggested someone who mourns the loss of Sivakaya may be best.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "The Duskenlight Coast",
       "acquisition": [
         {
@@ -89350,6 +89651,7 @@
           "target_name": "Arcane Headmaster",
           "target_type": "character",
           "target_key": "character:arcane headmaster",
+          "keyword": "sivakaya, Sivakaya",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -89473,6 +89775,7 @@
       "display_name": "The Loss Stone Pt. 2",
       "description": "You've been told that it's imperative to get the Loss Stone back to Lucian at Stowaway's Step.",
       "quest_type": "chain",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "quest_chain",
@@ -89606,6 +89909,7 @@
       "display_name": "The Lost Soul Pt. 1",
       "description": "You've found the writings of a treasure hunter and you found his phantom on the Duskenlight Coast near the Malaroth Nesting Grounds. He has asked you to continue the hunt in his name, and directed you to his wife for help. He does not recall where he lived, but he says it was in a busy place. He gave you a small pin to prove to his wife that you've met him. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Malaroth's Nesting Grounds",
       "steps": [
         {
@@ -89938,6 +90242,7 @@
       "display_name": "The Lost Soul Pt. 2",
       "description": "You've reminded a phantom of who he was in a past life, and he has asked you to continue his treasure hunt. He gave you a pin and directed you to speak to his wife, using the pin as proof of having met him. He said she will help you pick up on his quest where he left off. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -90209,7 +90514,8 @@
       "stable_key": "quest:thelostsoul3",
       "display_name": "The Lost Soul Pt. 3",
       "description": "You have a deceased treasure hunter's journal, and a request from his widow to continue his quest. You should bring whatever you find back to him to help put him at rest. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "quest_chain",
@@ -90224,6 +90530,32 @@
           "quest_key": "quest:thelostsoul",
           "quest_name": "The Lost Soul Pt. 1",
           "item": "Treasure Hunter's Pin"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Treasure Hunter's Pin.",
+          "target_name": "Treasure Hunter's Pin",
+          "target_type": "item",
+          "target_key": "item:gen - treasure hunter's pin",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 32,
+            "factors": [
+              {
+                "source": "quest_reward",
+                "name": "The Lost Soul Pt. 1",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "required_items": [
@@ -90406,6 +90738,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Treasure Hunter's Pin.",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -90414,6 +90756,7 @@
       "display_name": "The Lunchbag",
       "description": "You handed a fisherman his lunch in in return he mentioned he may share a pirate tale.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -91200,6 +91543,7 @@
       "display_name": "The Lunchbag Pt. 2",
       "description": "You should ask the Shady Fisherman on the Port Azure docks to tell you a tale. He claims to have found something in the sea that may interest an adventurous person like you. ",
       "quest_type": "dialog",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -91217,6 +91561,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "Bellwain, tale, tell",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -91275,6 +91620,7 @@
       "display_name": "The Mathers' Demise",
       "description": "You've found a note in the pocket of Brice Mathers. It instructs you to find his brother in Goodsoil. \n\nHis brother's name is Yarren - if you cannot find him, ask for him. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Watch",
       "acquisition": [
         {
@@ -91416,6 +91762,7 @@
       "display_name": "The Mathers' Demise",
       "description": "Yarren Mathers has given you a key to an old church he says is buried in the hills of Blacksalt Strand. \n\nLocate the church, and see what secrets it holds. \n\nReturn any tomes you find to Yarren and he may share more of what he knows with you. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Watch",
       "acquisition": [
         {
@@ -91689,6 +92036,7 @@
       "display_name": "The Mathers' Demise",
       "description": "Yarren Mathers has studied the Chapters of Descent you found in the old Church.\n\nThe tale of Sivakaya, Azynthi, and The Wisp has become more clear, but is still shrouded in mystery. \n\nYarren has asked you to search for more pages from the Chapters of Descent.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Vitheo's Watch",
       "acquisition": [
         {
@@ -92188,6 +92536,7 @@
       "display_name": "The Mystery of Bellwain Island",
       "description": "You've found some lost letters meant for Captain Bellwain, and you've given them back to Bellsie Bellwain. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Bellwain Island",
       "steps": [
         {
@@ -92263,6 +92612,7 @@
       "display_name": "The Mystery of Bellwain Island",
       "description": "Brackfruit Breaded Island Fin\n1 Island Fin\n1 Brackfruit Juice\n1 Bread\n1 Coal",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -92659,8 +93009,10 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 4
             }
           ]
@@ -93398,6 +93750,7 @@
       "display_name": "The Reaver's Origin",
       "description": "Jazmyn Challa in Port Azure has asked for you to bring back any clues that might prove her claim that Reavers are the true first people of Erenshor.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Port Azure",
       "acquisition": [
         {
@@ -93416,6 +93769,7 @@
           "target_name": "Jazmyn Challa",
           "target_type": "character",
           "target_key": "character:jazmyn challa",
+          "keyword": "north",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -93566,6 +93920,7 @@
       "display_name": "The Revival Plains Ritual",
       "description": "The Ceremonial Flame in Fernalla's Revival Plains requires:\n\n1 Ancient Coal\n1 Faerie Dust\n1 Remnant of a Day Dream\n1 Remnant of a Nightmare",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -94346,6 +94701,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Fernalla's Revival Plains",
+            "to_zone": "Mysterious Portal (2)"
+          }
+        ],
         "achievements": [
           "FERNALLAPORTAL"
         ]
@@ -94375,6 +94736,7 @@
       "display_name": "The Riftstone",
       "description": "The odd Hermit has given you a Riftstone and instructed you to find \"The Riftsnares\" to \"Pull the four souls into this realm and destroy them.\"",
       "quest_type": "zone_trigger",
+      "acceptance": "explicit",
       "zone_context": "Azynthi's Garden",
       "acquisition": [
         {
@@ -94393,6 +94755,7 @@
           "target_name": "A Strange Hermit",
           "target_type": "character",
           "target_key": "character:a strange hermit",
+          "keyword": "Umbran, umbran",
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -94434,7 +94797,13 @@
       ],
       "rewards": {
         "xp": 0,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "Watchlight",
+            "zone": "Azynthi's Garden"
+          }
+        ]
       },
       "flags": {
         "repeatable": true,
@@ -94462,6 +94831,7 @@
       "display_name": "The Ripper Ritual",
       "description": "The Ceremonial Flame at Ripper's Keep requires:\n\n1 Sivakrux\n1 Planar Stone Shard\n1 Ghostly Giant's Blood\n1 Unborn Phobia",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Ripper's Keep",
       "acquisition": [
         {
@@ -94829,8 +95199,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -94903,6 +95275,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Ripper's Keep",
+            "to_zone": "Mysterious Portal (3)"
+          }
+        ],
         "achievements": [
           "RIPPERPORTAL"
         ]
@@ -94932,6 +95310,7 @@
       "display_name": "The Scent of Brashell",
       "description": "Braxon Elden in the Braxonian Desert has expressed interest in the scent of Brashell emanating from the covered well that has been recently excavated. \n\nIf you you happen across any Brashell in your explorations, Braxon Elden may be interested in seeing it.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Braxonian Desert",
       "acquisition": [
         {
@@ -94950,6 +95329,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
+          "keyword": "tunnels",
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -95065,6 +95445,7 @@
       "display_name": "The Secrets of Creation",
       "description": "Sivakaya has asked you to obtain the Secrets of Creation from the corruption that will manifest in the Stowaway's Step Portal. She wants you to bring it to The Wisp. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Loomingwood Forest",
       "acquisition": [
         {
@@ -95199,6 +95580,7 @@
       "display_name": "The Secrets of Creation (To Lucian)",
       "description": "You tried to give the Secrets of Creation to Lucian on Stowaway's Step, but he instructed you to bring it to Larviso in Loomingwood instead.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -95321,6 +95703,7 @@
       "display_name": "The Shard of Sivakaya",
       "description": "You've met a Shard of Sivakaya inside the portal at the Stowaway's Step Ritual. She warned you of a corruption taking over Erenshor, and asked that you help free the Gods who have touched this world. \n\nShe faded out of existence after her warning, cautioning you of a manifesting corruption nearby. ",
       "quest_type": "dialog",
+      "acceptance": "implicit",
       "zone_context": "Secluded Sanctuary",
       "steps": [
         {
@@ -95330,6 +95713,7 @@
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
           "target_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
+          "keyword": "again",
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -95379,12 +95763,20 @@
       "stable_key": "quest:shiver-torch",
       "display_name": "The Shivering Torch",
       "description": "Kio has summoned you to the lighthouse to get your lamp for whatever he has in store next.",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "acquisition": [
         {
           "method": "scripted",
           "source_type": "scripted",
           "note": "ShiverEvent.cs - assigned after meeting keepers"
+        }
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
         }
       ],
       "rewards": {
@@ -95405,7 +95797,8 @@
       "stable_key": "quest:goodsoil",
       "display_name": "The Tragedy at Goodsoil",
       "description": "The village of Goodsoil in Fernalla's Revival Plane was destroyed by forces unknown. \n\nRumors are abound, but figuring out what truly happened may take more time. ",
-      "quest_type": "scripted",
+      "quest_type": "unknown",
+      "acceptance": "explicit",
       "zone_context": "Fernalla's Revival Plains",
       "acquisition": [
         {
@@ -95423,6 +95816,32 @@
           "keyword": "what, happened, goodsoil, tragedy, village"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"Goodsoil\" to Alexander Farland.",
+          "target_name": "Alexander Farland",
+          "target_type": "character",
+          "target_key": "character:alexander farland",
+          "keyword": "Goodsoil",
+          "level_estimate": {
+            "recommended": 13,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Fernalla's Revival Plains",
+                "level": 13
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "custom",
+          "description": "How to complete this quest is not yet known. It may not be fully implemented in the current game version, or our guide data may be incomplete."
+        }
+      ],
       "rewards": {
         "xp": 0,
         "gold": 0
@@ -95434,6 +95853,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"Goodsoil\" to Alexander Farland.",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -95442,6 +95871,7 @@
       "display_name": "Underloft's Compass",
       "description": "You've returned a compass to Asaga Underloft in Port Azure, and he has asked you to continue to explore the mysterious portals in search of his missing father. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
@@ -95545,6 +95975,7 @@
       "display_name": "Wally's Moongill",
       "description": "Wally Waldorf is near the shop in Stowaway's Step and he really wants a Moongill fish. \n\nMoongill are known to come out at night and are famously hard to catch.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -95563,6 +95994,7 @@
           "target_name": "Wally Waldorf",
           "target_type": "character",
           "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
+          "keyword": "Moongill",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -95617,52 +96049,47 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "Ripper's Keep",
+                "name": "Fishing",
                 "level": 28
               },
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               },
               {
                 "source": "fishing",
-                "name": "Stowaway's Step",
+                "name": "Fishing",
                 "level": 2
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -95696,9 +96123,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
+              "source_key": "fishing:Stowaway",
               "node_count": 1
             },
             {
@@ -95712,58 +96141,74 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 1
             },
             {
@@ -95786,9 +96231,11 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Ripper's Keep",
               "scene": "Ripper",
               "level": 28,
+              "source_key": "fishing:Ripper",
               "node_count": 1
             },
             {
@@ -95820,8 +96267,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 1
             }
           ]
@@ -95874,6 +96323,7 @@
       "display_name": "Warming the Isle",
       "description": "You should find a way to ignite the Brazier deep in the cold Island Cave.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Shivering Step",
       "acquisition": [
         {
@@ -96233,6 +96683,7 @@
       "display_name": "Whispers of Wyland",
       "description": "The odd cultists won't say much, but one has mistaken you for their friend 'Wyland' before realizing his error.\n\nIf you find this 'Wyland', he may be holding a note or a clue as to what they're up to...",
       "quest_type": "item_read",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -96368,6 +96819,7 @@
       "display_name": "Whispers of Wyland",
       "description": "You've found a note on the Ghost of Wyland Sercher. \n\nUpon reading it, it has instructed you to speak a secret password to an \"Elder Brother at the Ritual\". \n\nApproach his brothers, and speak the word to them.",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Stowaway's Step",
       "acquisition": [
         {
@@ -96512,6 +96964,12 @@
         "also_completes": [
           "Whispers of Wyland"
         ],
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Hidden Hills"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Agents of The Wisp",
@@ -96553,6 +97011,7 @@
       "display_name": "Willow Seeds",
       "description": "You have gathered seeds from all of the known Willows in Erenshor and given them to a Watcher high upon a hill in Willowwatch. \n\nIn return, the Watcher has given you a special lens and claimed it will allow its wearer to spot hidden Sivakayans throughout the world. They are thought to wander nearly everywhere on occassion. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Willowwatch Ridge",
       "steps": [
         {
@@ -96794,6 +97253,7 @@
       "display_name": "Willow Soil",
       "description": "Cagnus Marlsen in Willowwatch has asked for you to clear out the old Willow shrine so they can use the fertile soil to grow crops for their settlement. ",
       "quest_type": "fetch",
+      "acceptance": "explicit",
       "zone_context": "Willowwatch Ridge",
       "acquisition": [
         {
@@ -96812,6 +97272,7 @@
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
           "target_key": "character:cagnus marlsen",
+          "keyword": "giant",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -96932,6 +97393,7 @@
       "display_name": "Wishlan's Hope",
       "description": "You have returned a journal to Wishlan that he lost ages ago. He was gracious, and offered you an old trinket he once held dear. ",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "The Blight",
       "steps": [
         {
@@ -97031,6 +97493,7 @@
       "display_name": "Wishlan's Hope Pt. 2",
       "description": "Wishlan handed you a bag of stones and asked for one to keep.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "The Blight",
       "steps": [
         {
@@ -97122,6 +97585,7 @@
       "display_name": "Wolf Meat for Fredrick",
       "description": "Fredrick in Port Azure would like wolf meat.",
       "quest_type": "fetch",
+      "acceptance": "implicit",
       "zone_context": "Port Azure",
       "steps": [
         {
