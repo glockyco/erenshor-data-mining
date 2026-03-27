@@ -2,11 +2,11 @@
 
 ## v2026.327.1
 
+- Added keyboard shortcut to toggle the ground path on/off (configurable in settings)
+- Tracker window hides automatically when covered by native game UI panels
 - Ground path now connects directly from your position to the target without floating gaps
 - Ground path dashes remain stable as you walk — only the short endpoint segments adjust, reducing visual noise
 - Navigation path and arrow diamond now render at a consistent height above terrain
-- Tracker window hides automatically when covered by native game UI panels
-- Added keyboard shortcut to toggle the ground path on/off (configurable in settings)
 
 ## v2026.326.1
 
