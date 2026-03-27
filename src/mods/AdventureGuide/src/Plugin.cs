@@ -154,7 +154,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
             + $"  Quests: {_data.Count} in guide, {withSteps} with step data\n"
-            + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker\n"
+            + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
             + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
             + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)");
     }
@@ -242,6 +242,9 @@ public sealed class Plugin : BaseUnityPlugin
 
         if (_config.TrackerEnabled.Value && Input.GetKeyDown(_config.TrackerToggleKey.Value))
             _tracker?.Toggle();
+
+        if (Input.GetKeyDown(_config.GroundPathToggleKey.Value))
+            _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 
     private void OnGUI()

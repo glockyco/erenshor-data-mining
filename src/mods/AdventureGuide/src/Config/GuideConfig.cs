@@ -39,6 +39,7 @@ public sealed class GuideConfig
 
     public ConfigEntry<bool> ShowArrow { get; }
     public ConfigEntry<bool> ShowGroundPath { get; }
+    public ConfigEntry<KeyCode> GroundPathToggleKey { get; }
 
     // ── User-facing: World Markers ───────────────────────────────────
 
@@ -99,6 +100,8 @@ public sealed class GuideConfig
             "Show directional arrow pointing toward navigation target");
         ShowGroundPath = config.Bind("Navigation", "ShowGroundPath", false,
             "Show ground path from player to navigation target (uses NavMesh pathfinding)");
+        GroundPathToggleKey = config.Bind("Navigation", "GroundPathToggleKey", KeyCode.P,
+            "Key to toggle the ground path overlay");
 
         // World Markers
         ShowWorldMarkers = config.Bind("World Markers", "Enabled", true,
