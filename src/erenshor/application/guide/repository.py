@@ -545,9 +545,8 @@ def _fetch_character_spawns(
         JOIN characters i ON i.object_name = p.object_name
                           AND i.is_prefab = 0
                           AND i.scene IS NOT NULL
-                          AND i.is_map_visible = 1
+                          AND i.npc_name = p.npc_name
         WHERE p.is_prefab = 1
-          AND p.is_map_visible = 1
           AND p.stable_key NOT IN (
               SELECT character_stable_key FROM character_spawns
           )
