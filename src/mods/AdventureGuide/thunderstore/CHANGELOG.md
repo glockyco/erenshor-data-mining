@@ -1,6 +1,6 @@
 # Changelog
 
-## v2026.327.1
+## v2026.327.0
 
 - Added keyboard shortcut to toggle the ground path on/off (configurable in settings)
 - Tracker window hides automatically when covered by native game UI panels
