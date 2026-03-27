@@ -80,7 +80,7 @@ class QuestDataContext:
 
 def load_quest_data(db_path: Path) -> QuestDataContext:
     """Open *db_path* read-only and return a fully populated context."""
-    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     try:
         return _load(conn)

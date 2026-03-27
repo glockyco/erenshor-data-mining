@@ -1320,11 +1320,17 @@ class Writer:
     # ------------------------------------------------------------------
 
     def finalize(self) -> None:
-        """Run VACUUM + ANALYZE and close the connection."""
+        """Run VACUUM + ANALYZE, switch to DELETE journal mode, and close.
+
+        VACUUM rebuilds the database. We then switch journal mode back to
+        DELETE so the file is self-contained (no -shm/-wal siblings) and
+        readable with any SQLite connection flags.
+        """
         self._conn.execute("PRAGMA foreign_keys = OFF")
         self._conn.execute("VACUUM")
         self._conn.execute("PRAGMA foreign_keys = ON")
         self._conn.execute("ANALYZE")
+        self._conn.execute("PRAGMA journal_mode = DELETE")
         self._conn.commit()
         self._conn.close()
         logger.info(f"Clean DB finalised: {self._path}")
