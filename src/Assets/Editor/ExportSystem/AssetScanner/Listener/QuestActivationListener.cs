@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Linq;
 using SQLite;
 using UnityEngine;
 
@@ -16,6 +17,18 @@ using UnityEngine;
 ///
 /// Multiple sources targeting the same zone line or character create additional
 /// OR groups — any single group being fully satisfied unlocks it.
+///
+/// Target resolution rules:
+///   - Zoneline:   emit ZoneLineQuestUnlockRecord. Zone lines with activeSelf=false
+///     on their own GO (and not the direct target) are skipped — enabling a parent
+///     GO does not propagate to children whose own activeSelf is false.
+///   - Character:  emit CharacterQuestUnlockRecord directly.
+///   - SpawnPoint: the spawnable Character lives on prefabs in CommonSpawns/RareSpawns,
+///     not in the scene hierarchy, so GetComponentsInChildren<Character> misses it.
+///     Walk those spawn lists instead to emit CharacterQuestUnlockRecords.
+///     This handles patterns where a disabled SpawnPoint GO (e.g. BassleSpawn) is
+///     enabled by an external QuestSpawnListener rather than the SpawnPoint's own
+///     SpawnUponQuestComplete field.
 /// </summary>
 public class QuestActivationListener : IAssetScanListener<GameObject>
 {
@@ -153,9 +166,16 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
             if (target == null)
                 continue;
 
-            // Check target and all descendants for zone lines
+            // Zone lines: emit a record only when the zone line will actually become
+            // accessible by enabling the target. A zone line with activeSelf=false
+            // on its own GO will NOT be activated when its parent is enabled (Unity
+            // propagates activation only to children that already have activeSelf=true).
+            // Exception: if the zone line IS the direct target, it will be activated.
             foreach (var zoneLine in target.GetComponentsInChildren<Zoneline>(includeInactive: true))
             {
+                if (!zoneLine.gameObject.activeSelf && zoneLine.gameObject != target)
+                    continue;
+
                 var stableKey = _zoneLineKeyResolver.GetStableKey(zoneLine);
                 foreach (var questDBName in questDBNames)
                 {
@@ -171,7 +191,7 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
                 }
             }
 
-            // Check target and all descendants for characters
+            // Characters: emit records for Character components found in the hierarchy.
             foreach (var character in target.GetComponentsInChildren<Character>(includeInactive: true))
             {
                 var stableKey = _characterKeyResolver.GetStableKey(character);
@@ -185,6 +205,43 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
                             UnlockGroup = groupId,
                             QuestDBName = questDBName,
                         });
+                    }
+                }
+            }
+
+            // SpawnPoints: the Character lives on prefabs in CommonSpawns/RareSpawns,
+            // not in the scene hierarchy, so GetComponentsInChildren<Character> cannot
+            // find it. Walk the spawn lists to emit CharacterQuestUnlockRecords.
+            // Apply the same activeSelf guard as zone lines: a SpawnPoint that is
+            // inactive inside the target hierarchy (not the direct target) would not
+            // be activated by enabling the parent.
+            foreach (var spawnPoint in target.GetComponentsInChildren<SpawnPoint>(includeInactive: true))
+            {
+                if (!spawnPoint.gameObject.activeSelf && spawnPoint.gameObject != target)
+                    continue;
+
+                var allSpawns =
+                    (spawnPoint.CommonSpawns ?? new List<GameObject>())
+                    .Concat(spawnPoint.RareSpawns ?? new List<GameObject>());
+                foreach (var spawnGO in allSpawns)
+                {
+                    if (spawnGO == null)
+                        continue;
+                    var character = spawnGO.GetComponent<Character>();
+                    if (character == null)
+                        continue;
+                    var stableKey = _characterKeyResolver.GetStableKey(character);
+                    foreach (var questDBName in questDBNames)
+                    {
+                        if (_seenCharacterUnlocks.Add((stableKey, groupId, questDBName)))
+                        {
+                            _characterRecords.Add(new CharacterQuestUnlockRecord
+                            {
+                                CharacterStableKey = stableKey,
+                                UnlockGroup = groupId,
+                                QuestDBName = questDBName,
+                            });
+                        }
                     }
                 }
             }
