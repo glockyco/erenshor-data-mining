@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Quest-locked NPCs now show which quest unlocks them on their map marker instead of "Re-enter zone to respawn"
+- Fixed completed prerequisites still showing as required in the tracker
+- Fixed The Angler's Ring incorrectly listing Stowaway's Step as an unlock reward
+- Meet the Fisherman now shows The Angler's Ring as a prerequisite
 - Fixed quest "The Great Willow's Branch" showing no guide data
 - Quests without complete guide data now show partial steps instead of "No guide data available"
 - Fixed long step descriptions running off the edge of the panel instead of wrapping
