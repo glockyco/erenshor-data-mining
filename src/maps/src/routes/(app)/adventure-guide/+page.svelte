@@ -164,6 +164,12 @@
                     >
                     Open the quest tracker
                 </p>
+                <p>
+                    <kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
+                        >P</kbd
+                    >
+                    Toggle ground path overlay
+                </p>
             </div>
         </div>
 

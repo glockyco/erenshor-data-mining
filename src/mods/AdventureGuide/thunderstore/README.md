@@ -45,6 +45,7 @@ you left them.
 |-----|--------|
 | **L** | Open the Adventure Guide |
 | **K** | Open the quest tracker |
+| **P** | Toggle ground path overlay |
 
 ## Configuration
 
