@@ -32,7 +32,7 @@ class QuestType(str, Enum):
     ZONE_TRIGGER = "zone_trigger"  # CompleteQuestOnEnter
     SHOUT = "shout"  # NPCShoutListener.TriggerQuest
     ITEM_READ = "item_read"  # CompleteOnRead
-    SCRIPTED = "scripted"  # Hardcoded in C# event scripts
+    UNKNOWN = "unknown"  # No completion data or mechanism known yet
     CHAIN = "chain"  # Only completed via CompleteOtherQuests
     HYBRID = "hybrid"  # Multiple completion methods
 

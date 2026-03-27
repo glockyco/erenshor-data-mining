@@ -30,6 +30,7 @@ from .schema import (
     QuestType,
     RequiredItemInfo,
     Rewards,
+    StepAction,
     UnlockedCharacter,
     UnlockedZoneLine,
     VendorUnlockInfo,
@@ -286,7 +287,7 @@ def _infer_quest_type(
     methods = {c.method for c in completion}
 
     if len(methods) == 0:
-        return QuestType.SCRIPTED.value
+        return QuestType.UNKNOWN.value
     if len(methods) > 1 and "scripted" not in methods:
         return QuestType.HYBRID.value
 
@@ -302,10 +303,10 @@ def _infer_quest_type(
         "zone": QuestType.ZONE_TRIGGER,
         "shout": QuestType.SHOUT,
         "read": QuestType.ITEM_READ,
-        "scripted": QuestType.SCRIPTED,
+        "scripted": QuestType.UNKNOWN,
         "chain": QuestType.CHAIN,
     }
-    return method_to_type.get(method, QuestType.SCRIPTED).value
+    return method_to_type.get(method, QuestType.UNKNOWN).value
 
 
 # ---------------------------------------------------------------------------
@@ -541,8 +542,8 @@ def _generate_steps(
             shout_keywords,
         ),
     }
+    generators[QuestType.UNKNOWN.value] = lambda: _steps_unknown(step, giver, required_items)
     gen = generators.get(quest_type)
-    # Scripted — can't auto-generate (hardcoded in C# event scripts)
     return gen() if gen else []
 
 
@@ -777,6 +778,30 @@ def _comp_chain(
 # ---------------------------------------------------------------------------
 # Step generators — one per quest type
 # ---------------------------------------------------------------------------
+
+
+def _steps_unknown(
+    step: Callable[..., QuestStep],
+    giver: AcquisitionSource | None,
+    required_items: list[RequiredItemInfo],
+) -> list[QuestStep]:
+    """Generate whatever steps are known for a quest with unknown completion.
+
+    Emits the giver and any collect steps from available data, then always
+    appends a terminal note that completion conditions are not yet known.
+    """
+    steps: list[QuestStep] = []
+    steps.extend(_emit_giver_step(step, giver))
+    steps.extend(_emit_collect_steps(step, required_items))
+    steps.append(
+        step(
+            StepAction.CUSTOM.value,
+            "How to complete this quest is not yet known. It may not be fully "
+            "implemented in the current game version, or our guide data may be "
+            "incomplete.",
+        )
+    )
+    return steps
 
 
 def _steps_fetch(
