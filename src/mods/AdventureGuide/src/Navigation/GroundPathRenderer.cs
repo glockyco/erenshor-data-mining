@@ -5,16 +5,25 @@ namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Renders a ground path from the player to the navigation target using
-/// NavMesh.CalculatePath for pathfinding and a Unity LineRenderer for
-/// world-space rendering with proper depth occlusion.
+/// NavMesh.CalculatePath for pathfinding and three independent LineRenderer
+/// pairs for world-space rendering with proper depth occlusion.
 ///
-/// The path is recalculated when the target changes or the player moves
-/// beyond a threshold from the last calculation point. Off by default.
+/// The path is split into three segments to prevent visual noise from texture
+/// rescaling as the player moves. Each segment has its own material and
+/// computes its own tiling independently, so movement in one segment does not
+/// disturb the dash pattern in any other.
 ///
-/// Visual style: dashes with soft edges and a subtle glow halo. Two
-/// layered LineRenderers — a wider dim halo underneath and a bright
-/// dashed core on top. Path corners are offset above the NavMesh
-/// surface to reduce ground clipping.
+///   Stub: first NavMesh node → player   (texture anchors at the stable node)
+///   Mid:  first node → last node        (fully stable between recalculations)
+///   Tail: last NavMesh node → target    (texture anchors at the stable node)
+///
+/// Interior corners are lifted above the NavMesh surface to reduce ground
+/// clipping. The player and target endpoints sit at their raw world positions
+/// so they connect cleanly to the arrow marker and the player's feet.
+///
+/// When the path has no interior nodes (N=2), a single stub segment covers
+/// the direct line. When there is exactly one interior node (N=3), stub and
+/// tail share that node and mid is suppressed.
 /// </summary>
 public sealed class GroundPathRenderer
 {
@@ -42,11 +51,11 @@ public sealed class GroundPathRenderer
     private Vector3 _lastCalcTargetPos;
     private bool _pathValid;
 
-    // Two layered LineRenderers: glow halo + dashed core
+    // Three independent segments; created on first use
     private GameObject? _lineObj;
-    private LineRenderer? _core;
-    private LineRenderer? _glow;
-    private Material? _coreMat;
+    private PathSegment? _stub;
+    private PathSegment? _mid;
+    private PathSegment? _tail;
 
     public bool Enabled
     {
@@ -54,7 +63,7 @@ public sealed class GroundPathRenderer
         set
         {
             _enabled = value;
-            SetLineVisible(value && _pathValid);
+            SetAllVisible(value && _pathValid);
         }
     }
 
@@ -64,21 +73,22 @@ public sealed class GroundPathRenderer
     }
 
     /// <summary>
-    /// Call each frame. Recalculates the NavMesh path if needed,
-    /// updates LineRenderer positions, and animates the dash scroll.
+    /// Call each frame. Recalculates the NavMesh path when needed,
+    /// distributes corners across the three segments on recalculation,
+    /// and updates the dynamic endpoints every frame.
     /// </summary>
     public void Update(string currentScene)
     {
         if (!_enabled || _nav.Target == null)
         {
             _pathValid = false;
-            SetLineVisible(false);
+            SetAllVisible(false);
             return;
         }
 
         if (GameData.PlayerControl == null)
         {
-            SetLineVisible(false);
+            SetAllVisible(false);
             return;
         }
         var playerPos = GameData.PlayerControl.transform.position;
@@ -89,7 +99,7 @@ public sealed class GroundPathRenderer
         if (effectiveTarget.IsCrossZone(currentScene))
         {
             _pathValid = false;
-            SetLineVisible(false);
+            SetAllVisible(false);
             return;
         }
 
@@ -97,7 +107,7 @@ public sealed class GroundPathRenderer
         if (_nav.Distance < ArrivalDistance)
         {
             _pathValid = false;
-            SetLineVisible(false);
+            SetAllVisible(false);
             return;
         }
 
@@ -105,20 +115,17 @@ public sealed class GroundPathRenderer
 
         if (!_pathValid || _cornerCount < 2)
         {
-            SetLineVisible(false);
+            SetAllVisible(false);
             return;
         }
 
         if (recalculated)
-            ApplyToLineRenderers();
+            ApplyToSegments();
 
-        // Anchor endpoints to the actual player/target positions every
-        // frame so the path visually connects to both without gaps.
-        // NavMesh snapping can place the first/last corner meters away
-        // from the real positions — this keeps the line attached.
+        // Update only the moving endpoints every frame — the stable mid
+        // segment and the anchor positions of stub/tail are untouched.
         UpdateEndpoints(playerPos, effectiveTarget.Position);
-
-        SetLineVisible(true);
+        SetAllVisible(true);
     }
 
     public void Destroy()
@@ -127,9 +134,9 @@ public sealed class GroundPathRenderer
         {
             UnityEngine.Object.Destroy(_lineObj);
             _lineObj = null;
-            _core = null;
-            _glow = null;
-            _coreMat = null;
+            _stub = null;
+            _mid = null;
+            _tail = null;
         }
     }
 
@@ -185,88 +192,224 @@ public sealed class GroundPathRenderer
         return true;
     }
 
-    private void ApplyToLineRenderers()
+    /// <summary>
+    /// Distribute the current NavMesh corners across the three segments.
+    /// Called only when the path has been recalculated. UpdateEndpoints
+    /// will immediately run after to fill in the dynamic player/target ends.
+    /// </summary>
+    private void ApplyToSegments()
     {
-        EnsureLineRenderers();
-        if (_core == null || _glow == null) return;
+        EnsureSegments();
 
-        _core.positionCount = _cornerCount;
-        _glow.positionCount = _cornerCount;
-        for (int i = 0; i < _cornerCount; i++)
+        if (_cornerCount == 2)
         {
-            var pos = _corners[i];
-            pos.y += PathYOffset;
-            _core.SetPosition(i, pos);
-
-            // Glow sits slightly below core to avoid z-fighting between layers
-            var glowPos = pos;
-            glowPos.y -= 0.01f;
-            _glow.SetPosition(i, glowPos);
+            // No interior nodes: direct line. Both endpoints are dynamic;
+            // UpdateEndpoints fills them with playerPos and targetPos.
+            _stub!.SetEndpoints(Vector3.zero, Vector3.zero);
+            _mid!.Clear();
+            _tail!.Clear();
+            return;
         }
 
-        // Set texture tiling based on path length so dash density is consistent
-        float pathLen = 0f;
-        for (int i = 0; i < _cornerCount - 1; i++)
-            pathLen += Vector3.Distance(_corners[i], _corners[i + 1]);
+        int firstNode = 1;
+        int lastNode = _cornerCount - 2;
 
-        if (_coreMat != null)
-            _coreMat.mainTextureScale = new Vector2(pathLen * TileScale, 1f);
+        // Stub: anchor at firstNode (stable), player end filled by UpdateEndpoints.
+        var firstAnchor = _corners[firstNode];
+        firstAnchor.y += PathYOffset;
+        _stub!.SetEndpoints(firstAnchor, firstAnchor); // player placeholder
+
+        // Tail: anchor at lastNode (stable), target end filled by UpdateEndpoints.
+        var lastAnchor = _corners[lastNode];
+        lastAnchor.y += PathYOffset;
+        _tail!.SetEndpoints(lastAnchor, lastAnchor); // target placeholder
+
+        // Mid: all interior nodes. Completely stable between recalculations.
+        // Suppressed when firstNode == lastNode (N=3, single shared anchor).
+        if (firstNode < lastNode)
+            _mid!.SetFromCorners(_corners, firstNode, lastNode - firstNode + 1, PathYOffset);
+        else
+            _mid!.Clear();
     }
 
     /// <summary>
-    /// Override the first and last LineRenderer positions with the actual
-    /// player and target world positions. NavMesh snapping offsets these
-    /// from the real locations; this keeps the visible line attached to
-    /// both endpoints every frame.
+    /// Overwrite the moving endpoints of stub and tail each frame.
+    /// The stable anchor at position 0 of each segment is untouched,
+    /// so the dash pattern stays locked there as the endpoints shift.
     /// </summary>
     private void UpdateEndpoints(Vector3 playerPos, Vector3 targetPos)
     {
-        if (_core == null || _glow == null || _cornerCount < 2) return;
+        if (_stub == null || _cornerCount < 2) return;
 
-        int last = _cornerCount - 1;
+        if (_cornerCount == 2)
+        {
+            // No interior nodes: both ends of the single stub are dynamic.
+            _stub.SetEndpoints(playerPos, targetPos);
+            return;
+        }
 
-        _core.SetPosition(0, playerPos);
-        _glow.SetPosition(0, new Vector3(playerPos.x, playerPos.y - 0.01f, playerPos.z));
-
-        _core.SetPosition(last, targetPos);
-        _glow.SetPosition(last, new Vector3(targetPos.x, targetPos.y - 0.01f, targetPos.z));
+        _stub.UpdateLastPosition(playerPos);
+        _tail!.UpdateLastPosition(targetPos);
     }
 
-    // ── LineRenderer setup ────────────────────────────────────────
+    // ── Segment management ────────────────────────────────────────
 
-    private void EnsureLineRenderers()
+    private void EnsureSegments()
     {
-        if (_core != null) return;
+        if (_stub != null) return;
 
         _lineObj = new GameObject("AdventureGuide_GroundPath");
         UnityEngine.Object.DontDestroyOnLoad(_lineObj);
         _lineObj.hideFlags = HideFlags.HideAndDontSave;
 
-        // Bottom layer: soft glow halo
-        var glowObj = new GameObject("Glow");
-        glowObj.transform.SetParent(_lineObj.transform);
-        _glow = glowObj.AddComponent<LineRenderer>();
-        ConfigureLineRenderer(_glow, GlowWidth);
-        var glowMat = new Material(Shader.Find("Sprites/Default"));
-        glowMat.color = GlowColor;
-        _glow.material = glowMat;
-        _glow.startColor = GlowColor;
-        _glow.endColor = GlowColor;
-
-        // Top layer: bright dashed core
-        var coreObj = new GameObject("Core");
-        coreObj.transform.SetParent(_lineObj.transform);
-        _core = coreObj.AddComponent<LineRenderer>();
-        ConfigureLineRenderer(_core, CoreWidth);
-
-        _coreMat = new Material(Shader.Find("Sprites/Default"));
-        _coreMat.mainTexture = CreateDashTexture();
-        _coreMat.color = Color.white; // tint via vertex colors instead
-        _core.material = _coreMat;
-        _core.textureMode = LineTextureMode.Tile;
-        _core.startColor = CoreColor;
-        _core.endColor = CoreColor;
+        // All three segments share the same dash texture (one GPU upload),
+        // but each gets its own Material so tiling is independent.
+        var dashTex = CreateDashTexture();
+        _stub = new PathSegment(_lineObj, "Stub", dashTex);
+        _mid  = new PathSegment(_lineObj, "Mid",  dashTex);
+        _tail = new PathSegment(_lineObj, "Tail", dashTex);
     }
+
+    private void SetAllVisible(bool visible)
+    {
+        _stub?.SetVisible(visible);
+        _mid?.SetVisible(visible);
+        _tail?.SetVisible(visible);
+    }
+
+    // ── PathSegment ───────────────────────────────────────────────
+
+    /// <summary>
+    /// One visual segment: a core (dashed gold) and glow (wider dim halo)
+    /// LineRenderer pair with an independent tiling material instance.
+    ///
+    /// Tiling is recomputed locally whenever positions change, so no segment
+    /// affects the dash scale of any other. The texture anchors at position 0
+    /// (the stable NavMesh node for stub/tail), so the pattern stays locked
+    /// there as the dynamic endpoint at position N-1 shifts each frame.
+    /// </summary>
+    private sealed class PathSegment
+    {
+        private readonly LineRenderer _core;
+        private readonly LineRenderer _glow;
+        private readonly Material _coreMat;
+        private Vector3 _anchor; // cached position[0] for per-frame length recompute
+
+        internal PathSegment(GameObject parent, string name, Texture2D dashTex)
+        {
+            // Bottom layer: soft glow halo
+            var glowObj = new GameObject($"{name}_Glow");
+            glowObj.transform.SetParent(parent.transform);
+            _glow = glowObj.AddComponent<LineRenderer>();
+            ConfigureLineRenderer(_glow, GlowWidth);
+            var glowMat = new Material(Shader.Find("Sprites/Default"));
+            glowMat.color = GlowColor;
+            _glow.material = glowMat;
+            _glow.startColor = GlowColor;
+            _glow.endColor = GlowColor;
+
+            // Top layer: bright dashed core
+            var coreObj = new GameObject($"{name}_Core");
+            coreObj.transform.SetParent(parent.transform);
+            _core = coreObj.AddComponent<LineRenderer>();
+            ConfigureLineRenderer(_core, CoreWidth);
+            _coreMat = new Material(Shader.Find("Sprites/Default"));
+            _coreMat.mainTexture = dashTex;
+            _coreMat.color = Color.white; // tint via vertex colors
+            _core.material = _coreMat;
+            _core.textureMode = LineTextureMode.Tile;
+            _core.startColor = CoreColor;
+            _core.endColor = CoreColor;
+        }
+
+        /// <summary>
+        /// Set a two-point segment. Used for stub/tail anchor initialization
+        /// and the N=2 direct-line fallback. The anchor (position 0) is cached
+        /// for efficient per-frame length recompute in UpdateLastPosition.
+        /// </summary>
+        internal void SetEndpoints(Vector3 p0, Vector3 p1)
+        {
+            _core.positionCount = 2;
+            _glow.positionCount = 2;
+            SetAt(0, p0);
+            SetAt(1, p1);
+            _anchor = p0;
+            SetTiling(Vector3.Distance(p0, p1));
+        }
+
+        /// <summary>
+        /// Set positions from a slice of the corners array with Y offset applied.
+        /// Used for the mid segment on recalculation.
+        /// </summary>
+        internal void SetFromCorners(Vector3[] src, int start, int count, float yOffset)
+        {
+            _core.positionCount = count;
+            _glow.positionCount = count;
+            float len = 0f;
+            Vector3 prev = default;
+            for (int i = 0; i < count; i++)
+            {
+                var p = src[start + i];
+                p.y += yOffset;
+                SetAt(i, p);
+                if (i == 0) _anchor = p;
+                else        len += Vector3.Distance(prev, p);
+                prev = p;
+            }
+            SetTiling(len);
+        }
+
+        /// <summary>
+        /// Update position[last] (the dynamic endpoint) and recompute tiling
+        /// using the cached anchor. For stub/tail this is always a two-point
+        /// segment so the recompute is a single Distance call.
+        /// </summary>
+        internal void UpdateLastPosition(Vector3 pos)
+        {
+            int last = _core.positionCount - 1;
+            if (last < 1) return;
+
+            SetAt(last, pos);
+
+            float len = 0f;
+            Vector3 prev = _anchor;
+            for (int i = 1; i <= last; i++)
+            {
+                var cur = _core.GetPosition(i);
+                len += Vector3.Distance(prev, cur);
+                prev = cur;
+            }
+            SetTiling(len);
+        }
+
+        /// <summary>Zero position count, hiding the segment.</summary>
+        internal void Clear()
+        {
+            _core.positionCount = 0;
+            _glow.positionCount = 0;
+        }
+
+        /// <summary>Enable or disable renderers. Never shows with fewer than 2 positions.</summary>
+        internal void SetVisible(bool visible)
+        {
+            bool show = visible && _core.positionCount >= 2;
+            _core.enabled = show;
+            _glow.enabled = show;
+        }
+
+        private void SetAt(int i, Vector3 pos)
+        {
+            _core.SetPosition(i, pos);
+            _glow.SetPosition(i, new Vector3(pos.x, pos.y - 0.01f, pos.z));
+        }
+
+        private void SetTiling(float len)
+        {
+            _coreMat.mainTextureScale = new Vector2(len * TileScale, 1f);
+        }
+    }
+
+    // ── LineRenderer configuration ────────────────────────────────
 
     private static void ConfigureLineRenderer(LineRenderer lr, float width)
     {
@@ -331,11 +474,5 @@ public sealed class GroundPathRenderer
         tex.SetPixels(pixels);
         tex.Apply(false, true); // makeNoLongerReadable for GPU memory
         return tex;
-    }
-
-    private void SetLineVisible(bool visible)
-    {
-        if (_core != null) _core.enabled = visible;
-        if (_glow != null) _glow.enabled = visible;
     }
 }
