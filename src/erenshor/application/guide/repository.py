@@ -698,8 +698,11 @@ def _fetch_reward_items(conn: sqlite3.Connection) -> dict[str, str]:
         FROM quest_variants qv
         WHERE qv.item_on_complete_stable_key IS NOT NULL
           AND qv.item_on_complete_stable_key != ''
-        GROUP BY qv.quest_stable_key
-        HAVING MIN(qv.quest_db_index)
+          AND qv.quest_db_index = (
+              SELECT MIN(qv2.quest_db_index)
+              FROM quest_variants qv2
+              WHERE qv2.quest_stable_key = qv.quest_stable_key
+          )
         """
     ).fetchall()
     return {row["quest_stable_key"]: row["item_on_complete_stable_key"] for row in rows}
