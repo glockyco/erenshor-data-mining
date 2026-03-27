@@ -18,6 +18,7 @@ public enum MarkerType
     DeadSpawn,           // clock red — respawn timer
     NightSpawn,          // moon pale-blue — night-only, currently daytime
     ZoneReentry,         // clock grey — directly placed, re-enter zone to respawn
+    QuestLocked,         // circle-question amber — spawn disabled, needs quest unlock
 }
 
 /// <summary>
@@ -153,6 +154,7 @@ public sealed class MarkerInstance
     private static readonly Color Grey = new(0.5f, 0.5f, 0.5f, 1f);
     private static readonly Color MutedRed = new(0.65f, 0.35f, 0.35f, 1f);
     private static readonly Color PaleBlue = new(0.55f, 0.6f, 0.8f, 1f);
+    private static readonly Color Amber = new(0.85f, 0.62f, 0.25f, 1f);
 
     // ── Sub-text defaults ──────────────────────────────────────────────────
     internal static readonly Color SubTextColor = new(0.92f, 0.92f, 0.92f, 1f);
@@ -176,6 +178,7 @@ public sealed class MarkerInstance
         (MarkerFonts.Clock,           MutedRed, SizeInfo),       // DeadSpawn
         (MarkerFonts.Moon,            PaleBlue, SizeInfo),       // NightSpawn
         (MarkerFonts.Clock,           Grey,     SizeInfo),       // ZoneReentry
+        (MarkerFonts.CircleQuestion,  Amber,    SizeInfo),       // QuestLocked
     };
 
     public readonly GameObject Root;

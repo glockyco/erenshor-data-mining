@@ -322,7 +322,7 @@ public sealed class WorldMarkerSystem
             var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
             string spawnKey = $"{stableKey}@{sp.X:F2},{sp.Y:F2},{sp.Z:F2}";
 
-            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, displayName);
+            var info = _bridge.GetState(sp, displayName);
 
             // Use live NPC position when available (NPCs drift from placed position)
             var pos = info.LiveNPC != null ? GetMarkerPosition(info.LiveNPC) : staticPos;
@@ -336,33 +336,42 @@ public sealed class WorldMarkerSystem
 
                 case SpawnPointBridge.SpawnState.Dead:
                 case SpawnPointBridge.SpawnState.Mined:
-                {
-                    string timer = info.RespawnSeconds > 0f
-                        ? SpawnTimerTracker.FormatTimer(info.RespawnSeconds)
-                        : "Respawning...";
-                    TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
-                        $"{displayName}\n{timer}", pos, targetKey: null,
-                        info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
-                    break;
-                }
+                    {
+                        string timer = info.RespawnSeconds > 0f
+                            ? SpawnTimerTracker.FormatTimer(info.RespawnSeconds)
+                            : "Respawning...";
+                        TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
+                            $"{displayName}\n{timer}", pos, targetKey: null,
+                            info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
+                        break;
+                    }
 
                 case SpawnPointBridge.SpawnState.NightLocked:
-                {
-                    int hour = GameData.Time.hour;
-                    int min = GameData.Time.min;
-                    TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
-                        $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
-                        pos, targetKey: null,
-                        info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
-                    break;
-                }
+                    {
+                        int hour = GameData.Time.hour;
+                        int min = GameData.Time.min;
+                        TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
+                            $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
+                            pos, targetKey: null,
+                            info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
+                        break;
+                    }
 
                 case SpawnPointBridge.SpawnState.DirectlyPlacedDead:
                     TryAddMarker(spawnKey, MarkerType.ZoneReentry, displayName,
                         $"{displayName}\nRe-enter zone to respawn",
                         pos, targetKey: null);
                     break;
-                // QuestGated, NotFound: no marker
+
+                case SpawnPointBridge.SpawnState.Disabled:
+                    {
+                        string unlockText = BuildQuestLockText(sp.SpawnUponQuestComplete);
+                        TryAddMarker(spawnKey, MarkerType.QuestLocked, displayName,
+                            $"{displayName}\n{unlockText}",
+                            pos, targetKey: null);
+                        break;
+                    }
+                    // QuestGated, NotFound: no marker
             }
         }
     }
@@ -392,6 +401,17 @@ public sealed class WorldMarkerSystem
                 SubText = subText,
             });
         }
+    }
+
+    private string BuildQuestLockText(string? questStableKey)
+    {
+        if (questStableKey != null)
+        {
+            var quest = _data.GetByStableKey(questStableKey);
+            if (quest != null)
+                return $"Requires: {quest.DisplayName}";
+        }
+        return "Requires quest unlock";
     }
 
     private string FormatLootContainerText(LootScanner.LootContainer container)

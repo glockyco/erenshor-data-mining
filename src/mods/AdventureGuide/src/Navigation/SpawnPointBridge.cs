@@ -1,5 +1,7 @@
-using AdventureGuide.Navigation;
 using UnityEngine;
+using AdventureGuide.Navigation;
+
+
 
 /// <summary>
 /// Bridges static spawn data (from quest-guide.json) to live game SpawnPoint
@@ -26,6 +28,8 @@ public sealed class SpawnPointBridge
         QuestGated,
         /// <summary>Directly-placed NPC that died — respawns on zone re-entry.</summary>
         DirectlyPlacedDead,
+        /// <summary>Spawn point is disabled — requires a quest unlock to activate.</summary>
+        Disabled,
         /// <summary>No live SpawnPoint and NPC not found in scene.</summary>
         NotFound,
     }
@@ -112,10 +116,25 @@ public sealed class SpawnPointBridge
     }
 
     /// <summary>
-    /// Look up the live state for a static spawn at the given position.
-    /// Returns the spawn state and live SpawnPoint reference (if found).
+    /// Look up the live state for a spawn point from guide data.
+    /// <para>
+    /// Checks static flags from the guide JSON first (IsEnabled, NightSpawn),
+    /// then performs the live scene lookup. Static checks allow the correct
+    /// state to be returned even when the NPC is absent from the scene for a
+    /// known reason (disabled by quest gate, wrong time of day).
+    /// </para>
     /// </summary>
-    public SpawnInfo GetState(float x, float y, float z, string expectedNPCName)
+    public SpawnInfo GetState(AdventureGuide.Data.SpawnPoint staticSpawn, string expectedNPCName)
+    {
+        // Disabled spawn points never activate without a quest unlock.
+        // Check before the scene lookup so we report the real reason.
+        if (!staticSpawn.IsEnabled)
+            return new SpawnInfo(SpawnState.Disabled);
+
+        return QueryLiveState(staticSpawn.X, staticSpawn.Y, staticSpawn.Z, expectedNPCName);
+    }
+
+    private SpawnInfo QueryLiveState(float x, float y, float z, string expectedNPCName)
     {
         var key = new PosKey(x, y, z);
 

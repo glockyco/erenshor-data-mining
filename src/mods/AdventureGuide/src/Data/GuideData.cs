@@ -159,6 +159,8 @@ public sealed class SpawnPoint
     [JsonProperty("y")] public float Y { get; set; }
     [JsonProperty("z")] public float Z { get; set; }
     [JsonProperty("night_spawn")] public bool NightSpawn { get; set; }
+    [JsonProperty("is_enabled")] public bool IsEnabled { get; set; } = true;
+    [JsonProperty("spawn_upon_quest_complete")] public string? SpawnUponQuestComplete { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>
