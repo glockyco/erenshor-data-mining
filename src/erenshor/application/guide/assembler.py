@@ -71,7 +71,7 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
         required_items = _build_required_items(variant_rn, sk, ctx)
         _inject_readable_items(sk, acquisition, completion, required_items, ctx)
         implicit_prereqs = _detect_implicit_prerequisites(sk, required_items, ctx)
-        implicit_prereqs += _detect_character_unlock_prerequisites(sk, acquisition, ctx)
+        implicit_prereqs += _detect_character_unlock_prerequisites(sk, acquisition, completion, ctx)
 
         # Merge explicit + implicit prerequisites, dedup by quest_key
         explicit_prereqs = ctx.prerequisites.get(sk, [])
@@ -239,19 +239,28 @@ def _detect_implicit_prerequisites(
 def _detect_character_unlock_prerequisites(
     quest_sk: str,
     acquisition: list[AcquisitionSource],
+    completion: list[CompletionSource],
     ctx: QuestDataContext,
 ) -> list[Prerequisite]:
     """Detect prerequisites from quest-gated character spawning.
 
-    If a quest's acquisition source character only spawns after another
-    quest is completed, that quest is an implicit prerequisite.
+    If any character involved in the quest (as giver or completer) only spawns
+    after another quest is completed, that quest is an implicit prerequisite.
+    Checks both acquisition and completion sources so that implicit quests with
+    no explicit giver (like MEETBASSLE, where Bassle is completer only) are also
+    handled correctly.
     """
     result: list[Prerequisite] = []
     seen: set[str] = set()
-    for acq in acquisition:
-        char_key = acq.source_stable_key
-        if not char_key:
-            continue
+
+    # Collect (stable_key, display_name) for all character sources.
+    # Both AcquisitionSource and CompletionSource have source_stable_key /
+    # source_name; using attribute access works for both types.
+    all_sources = [
+        (src.source_stable_key, src.source_name) for src in (*acquisition, *completion) if src.source_stable_key
+    ]
+
+    for char_key, source_name in all_sources:
         groups = ctx.character_quest_unlocks.get(char_key)
         if not groups:
             continue
@@ -268,7 +277,7 @@ def _detect_character_unlock_prerequisites(
                     type="quest",
                     quest_key=prereq_sk,
                     quest_name=ctx.quest_names.get(prereq_sk, quest_db_name),
-                    note=f"{acq.source_name} spawns after quest completion",
+                    note=f"{source_name} spawns after quest completion",
                 )
             )
     return result
