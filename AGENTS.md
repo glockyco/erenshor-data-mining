@@ -64,6 +64,12 @@ values, and prototype fixes without a build cycle. Use the decompiled
 game scripts as reference for available fields and methods. See the
 `runtime-eval` and `mod-development` skills for full details.
 
+Use Unity MCP (`unity` server in `.omp/mcp.json`) to inspect scene
+hierarchy, read component values, and query GameObjects directly from
+the Unity Editor. Requires the Unity Editor open with the MCP server
+started via **Window > MCP for Unity > Start Server** (HTTP on port 8080).
+Package: `com.coplaydev.unity-mcp` (in `Packages/manifest.json`).
+
 ## Working Principles
 
 - Take a holistic view. Every change considers the overall project architecture.
