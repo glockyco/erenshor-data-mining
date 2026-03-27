@@ -22,10 +22,12 @@ outdir = "./thunderstore/build"
 # Thunderstore requires separate DLLs (no ILRepack merge).
 # Build with: dotnet build -p:SkipILRepack=true
 #
-# Only ship truly third-party DLLs. System.Numerics.Vectors and
-# System.Runtime.CompilerServices.Unsafe are .NET Standard façades that
-# Unity's Mono runtime already provides. Shipping them creates a duplicate
-# Vector2 type identity that breaks ImGui.NET's ref-return methods at JIT time.
+# Do NOT ship System.Numerics.Vectors — Unity's Mono already provides
+# Vector2/Vector3 via System.Numerics.dll. Shipping the NuGet version
+# creates a duplicate type identity that breaks ImGui.NET at JIT time.
+# An AssemblyResolve handler in Plugin.cs redirects to the game's copy.
+#
+# DO ship System.Runtime.CompilerServices.Unsafe — no game equivalent.
 
 # CHANGELOG.md must be explicitly copied — tcli does not add it automatically
 # despite the changelog field above. Without this the Changelog tab on
