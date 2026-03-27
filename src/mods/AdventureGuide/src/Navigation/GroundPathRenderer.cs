@@ -225,15 +225,11 @@ public sealed class GroundPathRenderer
 
         int last = _cornerCount - 1;
 
-        var start = playerPos;
-        start.y += PathYOffset;
-        _core.SetPosition(0, start);
-        _glow.SetPosition(0, new Vector3(start.x, start.y - 0.01f, start.z));
+        _core.SetPosition(0, playerPos);
+        _glow.SetPosition(0, new Vector3(playerPos.x, playerPos.y - 0.01f, playerPos.z));
 
-        var end = targetPos;
-        end.y += PathYOffset;
-        _core.SetPosition(last, end);
-        _glow.SetPosition(last, new Vector3(end.x, end.y - 0.01f, end.z));
+        _core.SetPosition(last, targetPos);
+        _glow.SetPosition(last, new Vector3(targetPos.x, targetPos.y - 0.01f, targetPos.z));
     }
 
     // ── LineRenderer setup ────────────────────────────────────────
