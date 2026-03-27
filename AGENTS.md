@@ -19,6 +19,7 @@ Solo developer. Hobby project.
 | `src/mods/` | BepInEx companion mods (C#) |
 | `src/maps/` | Interactive map website (SvelteKit) |
 | `variants/{variant}/` | Per-variant game files, Unity projects, databases (gitignored) |
+| `variants/{variant}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/` | Decompiled game C# scripts (read-only reference) |
 | `wiki/`, `wiki-templates/` | Wiki source files and templates |
 | `quest_guides/` | Quest guide JSON (auto-generated + manual curation) |
 | `.agent/skills/` | Agent skill files (domain-specific knowledge) |
@@ -55,6 +56,13 @@ uv run erenshor mod deploy --mod <id>           # Production deploy (restart gam
 uv run pytest                                   # Run all tests
 uv run erenshor golden capture                  # Regenerate golden baselines after data changes
 ```
+
+## Runtime Inspection
+
+Use HotRepl (`erenshor eval`) to inspect live game state, check field
+values, and prototype fixes without a build cycle. Use the decompiled
+game scripts as reference for available fields and methods. See the
+`runtime-eval` and `mod-development` skills for full details.
 
 ## Working Principles
 
