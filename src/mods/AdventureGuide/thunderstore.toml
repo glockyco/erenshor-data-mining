@@ -22,6 +22,13 @@ outdir = "./thunderstore/build"
 # Thunderstore requires separate DLLs (no ILRepack merge).
 # Build with: dotnet build -p:SkipILRepack=true
 
+# CHANGELOG.md must be explicitly copied — tcli does not add it automatically
+# despite the changelog field above. Without this the Changelog tab on
+# Thunderstore is greyed out.
+[[build.copy]]
+source = "./thunderstore/CHANGELOG.md"
+target = "CHANGELOG.md"
+
 [[build.copy]]
 source = "./bin/Debug/netstandard2.1/AdventureGuide.dll"
 target = "plugins/AdventureGuide/"
