@@ -143,6 +143,16 @@ public sealed class TrackerWindow
     {
         if (!_visible || !_tracker.Enabled) return;
 
+        // Hide when a non-permanent game window overlaps us. Uses
+        // previous frame's content bounds (stable — tracker isn't being
+        // dragged while a game window opens). On the first frame before
+        // any content has been drawn, _contentMax.Y == 0 so we skip the
+        // check rather than suppress based on a zero rect.
+        if (_contentMax.Y > _contentMin.Y
+            && GameWindowOverlap.ShouldSuppressTracker(
+                _contentMin.X, _contentMin.Y, _contentMax.X, _contentMax.Y))
+            return;
+
         PruneAnimations();
         DetectStepAdvances();
         RebuildSortedListIfNeeded();

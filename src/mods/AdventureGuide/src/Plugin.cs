@@ -171,6 +171,7 @@ public sealed class Plugin : BaseUnityPlugin
     private bool _gameUIVisible = true;
     private bool _inGameplay;
     private bool _discoveryDone;
+    private bool _wasEditUIMode;
 
     private void Update()
     {
@@ -198,6 +199,14 @@ public sealed class Plugin : BaseUnityPlugin
                 }
             }
         }
+
+        // When the player exits UI edit mode, game windows may have been
+        // repositioned. Invalidate cached rects so overlap detection uses
+        // the new positions on the next window open-transition.
+        bool editMode = GameData.EditUIMode;
+        if (_wasEditUIMode && !editMode)
+            GameWindowOverlap.InvalidateRects();
+        _wasEditUIMode = editMode;
 
         // Set game's typing flag only when an ImGui text widget is actively
         // being edited (e.g., search field). WantTextInput is narrower than
@@ -263,6 +272,9 @@ public sealed class Plugin : BaseUnityPlugin
             _config.UiScale.Value = scale;
         }
         CameraCache.Invalidate();
+        // Reset overlap detection — UIWindows references are stale after
+        // scene change and DragUI.Start() may reposition windows.
+        GameWindowOverlap.Reset();
 
 
         // Track whether we're in a gameplay scene
