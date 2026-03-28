@@ -58,6 +58,10 @@ public sealed class TrackerPanel
     private int _lastStateVersion = -1;
     private TrackerSortMode _lastSortMode;
 
+    // Frontier summary cache — avoids rebuilding view trees every frame
+    private readonly Dictionary<string, string> _frontierCache = new(StringComparer.OrdinalIgnoreCase);
+    private int _frontierCacheVersion = -1;
+
     // Compact mode state
     private bool _compact = true;
     private System.Numerics.Vector2 _contentMin;
@@ -411,6 +415,23 @@ public sealed class TrackerPanel
     }
 
     private string GetFrontierSummary(string questKey)
+    {
+        // Invalidate cache when game state changes (quest/inventory updates)
+        if (_tracker.Version != _frontierCacheVersion)
+        {
+            _frontierCache.Clear();
+            _frontierCacheVersion = _tracker.Version;
+        }
+
+        if (_frontierCache.TryGetValue(questKey, out var cached))
+            return cached;
+
+        var summary = ComputeFrontierSummary(questKey);
+        _frontierCache[questKey] = summary;
+        return summary;
+    }
+
+    private string ComputeFrontierSummary(string questKey)
     {
         var root = _viewBuilder.Build(questKey);
         if (root == null) return "Unknown";
