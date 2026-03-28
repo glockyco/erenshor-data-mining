@@ -1452,7 +1452,6 @@ def _add_character_drop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> N
     rows = conn.execute("""
         SELECT character_stable_key, item_stable_key, drop_probability
         FROM loot_drops
-        WHERE is_visible = 1
     """)
     for r in rows:
         if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["item_stable_key"]):
