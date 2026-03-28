@@ -14,6 +14,7 @@ public enum MarkerType
     Objective,           // circle-dot orange — step objective or drop source
     QuestGiver,          // star gold — new quest available
     QuestGiverRepeat,    // star blue — repeatable quest available
+    QuestGiverBlocked,   // star grey — prerequisites not met
     TurnInPending,       // circle-question grey — quest active, missing items
     DeadSpawn,           // clock red — respawn timer
     NightSpawn,          // moon pale-blue — night-only, currently daytime
@@ -174,6 +175,7 @@ public sealed class MarkerInstance
         (MarkerFonts.CircleDot,       Orange,   SizeObjective),  // Objective
         (MarkerFonts.Star,            Gold,     SizeTier2),      // QuestGiver
         (MarkerFonts.Star,            Blue,     SizeTier2),      // QuestGiverRepeat
+        (MarkerFonts.Star,            Grey,     SizeInfo),       // QuestGiverBlocked
         (MarkerFonts.CircleQuestion,  Grey,     SizeTier3),      // TurnInPending
         (MarkerFonts.Clock,           MutedRed, SizeInfo),       // DeadSpawn
         (MarkerFonts.Moon,            PaleBlue, SizeInfo),       // NightSpawn

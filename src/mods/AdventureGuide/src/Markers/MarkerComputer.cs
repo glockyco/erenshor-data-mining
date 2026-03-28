@@ -246,6 +246,28 @@ public sealed class MarkerComputer
     /// </summary>
     private void EmitQuestGiverMarkers(Node quest, bool repeatable)
     {
+        // Check prerequisites: any RequiresQuest edge pointing to an incomplete quest blocks the giver
+        var prereqEdges = _graph.OutEdges(quest.Key, EdgeType.RequiresQuest);
+        MarkerType markerType;
+        string? prereqOverrideSubText = null;
+        bool blocked = false;
+
+        for (int i = 0; i < prereqEdges.Count; i++)
+        {
+            var prereqNode = _graph.GetNode(prereqEdges[i].Target);
+            if (prereqNode == null) continue;
+            if (prereqNode.DbName != null && _tracker.IsCompleted(prereqNode.DbName)) continue;
+            // This prerequisite is not complete — quest giver is blocked
+            blocked = true;
+            prereqOverrideSubText = $"Requires: {prereqNode.DisplayName}";
+            break;
+        }
+
+        if (blocked)
+            markerType = MarkerType.QuestGiverBlocked;
+        else
+            markerType = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
+
         var edges = _graph.OutEdges(quest.Key, EdgeType.AssignedBy);
         for (int i = 0; i < edges.Count; i++)
         {
@@ -253,8 +275,7 @@ public sealed class MarkerComputer
             var charNode = _graph.GetNode(edge.Target);
             if (charNode == null) continue;
 
-            var markerType = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
-            string subText = FormatAcquisitionText(edge);
+            string subText = prereqOverrideSubText ?? FormatAcquisitionText(edge);
             EmitCharacterSpawnMarkers(charNode, quest, markerType, subText);
         }
     }
