@@ -453,32 +453,22 @@ public sealed class TrackerPanel
         if (frontier.Count == 0)
             return new CachedFrontier("Ready to turn in", System.Array.Empty<FrontierPosition>());
 
-        // Collect summary and positions from frontier nodes
-        string? summary = null;
+        // Build summary from first frontier ViewNode using shared formatter.
+        // The ViewNode carries edge type/keyword/quantity for action text.
+        string summary = ActionTextFormatter.FormatSummary(frontier[0], _tracker);
+        if (frontier.Count > 1)
+            summary += $" (+{frontier.Count - 1} more)";
+
+        // Collect positions for distance computation
         var positions = new List<FrontierPosition>();
-
-        foreach (var key in frontier)
-        {
-            var node = _graph.GetNode(key);
-            if (node == null) continue;
-
-            // Build summary from first node
-            if (summary == null)
-            {
-                string suffix = frontier.Count > 1 ? $" (+{frontier.Count - 1} more)" : "";
-                summary = FormatFrontierNodeSummary(key, node) + suffix;
-            }
-
-            // Collect positions for distance computation
-            CollectFrontierPositions(node, positions);
-        }
+        for (int i = 0; i < frontier.Count; i++)
+            CollectFrontierPositions(frontier[i].Node, positions);
 
         // Prepend cross-zone prefix when all frontier is outside current scene
         if (positions.Count > 0)
         {
             string currentScene = _tracker.CurrentZone;
             bool anyInZone = false;
-            string? crossZoneName = null;
             foreach (var p in positions)
             {
                 if (string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
@@ -489,46 +479,21 @@ public sealed class TrackerPanel
             }
             if (!anyInZone)
             {
-                // Find zone display name from first frontier node
-                foreach (var key2 in frontier)
+                // Find zone name from first frontier node with one
+                for (int i = 0; i < frontier.Count; i++)
                 {
-                    var n = _graph.GetNode(key2);
-                    if (n?.Zone != null)
+                    if (frontier[i].Node.Zone != null)
                     {
-                        crossZoneName = n.Zone;
+                        summary = $"In {frontier[i].Node.Zone}: {summary}";
                         break;
                     }
                 }
-                if (crossZoneName != null && summary != null)
-                    summary = $"In {crossZoneName}: {summary}";
             }
         }
 
         return new CachedFrontier(
-            summary ?? "In progress",
+            summary,
             positions.Count > 0 ? positions.ToArray() : System.Array.Empty<FrontierPosition>());
-    }
-
-    /// <summary>
-    /// Format a frontier node's summary text. For items, shows have/need progress.
-    /// </summary>
-    private string FormatFrontierNodeSummary(string nodeKey, Node node)
-    {
-        // Check if this node is an item with a quantity requirement
-        // by looking at incoming RequiresItem edges
-        var inEdges = _graph.InEdges(nodeKey, EdgeType.RequiresItem);
-        for (int i = 0; i < inEdges.Count; i++)
-        {
-            var edge = inEdges[i];
-            int need = edge.Quantity ?? 1;
-            if (need > 1)
-            {
-                int have = _tracker.CountItem(nodeKey);
-                return $"{node.DisplayName} ({have}/{need})";
-            }
-        }
-
-        return node.DisplayName;
     }
 
     /// <summary>

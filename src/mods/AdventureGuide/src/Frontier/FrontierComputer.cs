@@ -9,17 +9,24 @@ namespace AdventureGuide.Frontier;
 /// yet completed themselves. These are the simultaneously actionable
 /// objectives — everything the player can work on right now.
 ///
+/// Returns <see cref="ViewNode"/>s (not bare keys) so consumers have full
+/// context: edge type, keyword, quantity, and the graph node. This avoids
+/// the need to walk the tree a second time to recover formatting context.
+///
 /// Pure function of (ViewNode tree, GameState). No state of its own.
 /// </summary>
 public static class FrontierComputer
 {
     /// <summary>
-    /// Compute frontier node keys from a view tree built by QuestViewBuilder.
+    /// Compute frontier ViewNodes from a view tree built by QuestViewBuilder.
+    /// Each returned ViewNode carries the edge that led to it (type, keyword,
+    /// quantity) for action text formatting.
     /// </summary>
-    public static HashSet<string> ComputeFrontier(ViewNode root, GameState state)
+    public static List<ViewNode> ComputeFrontier(ViewNode root, GameState state)
     {
-        var frontier = new HashSet<string>();
-        CollectFrontier(root, state, frontier);
+        var frontier = new List<ViewNode>();
+        var seen = new HashSet<string>();
+        CollectFrontier(root, state, frontier, seen);
         return frontier;
     }
 
@@ -31,7 +38,8 @@ public static class FrontierComputer
     /// Leaf nodes (no children) that are not satisfied are always frontier.
     /// Cycle references are never frontier (not actionable).
     /// </summary>
-    private static void CollectFrontier(ViewNode node, GameState state, HashSet<string> frontier)
+    private static void CollectFrontier(
+        ViewNode node, GameState state, List<ViewNode> frontier, HashSet<string> seen)
     {
         if (node.IsCycleRef) return;
 
@@ -43,8 +51,10 @@ public static class FrontierComputer
 
         if (node.Children.Count == 0)
         {
-            // Leaf node, not satisfied → it's actionable
-            frontier.Add(node.NodeKey);
+            // Leaf node, not satisfied → it's actionable.
+            // Deduplicate: same node can appear in multiple branches.
+            if (seen.Add(node.NodeKey))
+                frontier.Add(node);
             return;
         }
 
@@ -56,13 +66,14 @@ public static class FrontierComputer
         int frontierBefore = frontier.Count;
 
         foreach (var child in node.Children)
-            CollectFrontier(child, state, frontier);
+            CollectFrontier(child, state, frontier, seen);
 
         if (frontier.Count == frontierBefore)
         {
             // No children contributed to the frontier — this node is
             // directly actionable (e.g., talk to NPC for turn-in)
-            frontier.Add(node.NodeKey);
+            if (seen.Add(node.NodeKey))
+                frontier.Add(node);
         }
     }
 

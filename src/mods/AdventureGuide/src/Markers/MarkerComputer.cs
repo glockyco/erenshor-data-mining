@@ -92,51 +92,31 @@ public sealed class MarkerComputer
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
 
-        // Walk the view tree to find frontier nodes with their edge context.
-        // We need the edge type and keyword to format action text.
-        CollectFrontierMarkers(root, frontier, quest);
+        // Frontier ViewNodes carry edge context (type, keyword, quantity)
+        // so we can format action text without a second tree walk.
+        for (int i = 0; i < frontier.Count; i++)
+        {
+            var viewNode = frontier[i];
+            var graphNode = viewNode.Node;
+
+            // Quest nodes and items are not directly markable.
+            // Items are handled by EmitItemSourceMarkers instead.
+            if (graphNode.Type == NodeType.Quest || graphNode.Type == NodeType.Item)
+                continue;
+
+            string subText = ActionTextFormatter.FormatAction(viewNode.EdgeType, viewNode.Edge);
+
+            if (graphNode.Type == NodeType.Character)
+                EmitCharacterSpawnMarkers(graphNode, quest, MarkerType.Objective, subText);
+            else if (HasPosition(graphNode))
+                EmitStaticMarker(graphNode, quest, MarkerType.Objective, subText);
+        }
 
         // Turn-in markers on completed_by characters.
         EmitTurnInMarkers(quest);
 
         // Item source markers for items still needed.
         EmitItemSourceMarkers(quest);
-    }
-
-    /// <summary>
-    /// Recursive walk of the view tree. For each node whose key is in the frontier,
-    /// emit markers using the ViewNode's edge context for action text formatting.
-    /// </summary>
-    private void CollectFrontierMarkers(ViewNode node, HashSet<string> frontier, Node quest)
-    {
-        if (node.IsCycleRef) return;
-
-        if (frontier.Contains(node.NodeKey))
-        {
-            var graphNode = node.Node;
-
-            // Quest nodes and items without positions are not directly markable.
-            // Items in the frontier are handled by EmitItemSourceMarkers instead.
-            if (graphNode.Type == NodeType.Quest || graphNode.Type == NodeType.Item)
-            {
-                // Don't return — still recurse into children for nested frontier nodes
-            }
-            else if (graphNode.Type == NodeType.Character)
-            {
-                string subText = FormatStepActionText(node.EdgeType, node.Edge);
-                EmitCharacterSpawnMarkers(
-                    graphNode, quest, MarkerType.Objective, subText);
-            }
-            else if (HasPosition(graphNode))
-            {
-                // Mining nodes, item bags, waters, forges, etc. — emit at static position
-                EmitStaticMarker(graphNode, quest, MarkerType.Objective,
-                    FormatStepActionText(node.EdgeType, node.Edge));
-            }
-        }
-
-        for (int i = 0; i < node.Children.Count; i++)
-            CollectFrontierMarkers(node.Children[i], frontier, quest);
     }
 
     // ── Turn-in markers ─────────────────────────────────────────────────
@@ -444,24 +424,7 @@ public sealed class MarkerComputer
         _markers.Add(entry);
     }
 
-    // ── Text formatting ─────────────────────────────────────────────────
-
-    /// <summary>Format sub-text for step targets based on edge type and keyword.</summary>
-    private static string FormatStepActionText(EdgeType? edgeType, Edge? edge)
-    {
-        return edgeType switch
-        {
-            EdgeType.StepTalk when edge?.Keyword != null => $"Say '{edge.Keyword}'",
-            EdgeType.StepTalk => "Talk to",
-            EdgeType.StepKill when edge?.Quantity is > 1 => $"Kill ({edge.Quantity})",
-            EdgeType.StepKill => "Kill",
-            EdgeType.StepShout when edge?.Keyword != null => $"Shout '{edge.Keyword}'",
-            EdgeType.StepShout => "Shout near",
-            EdgeType.StepTravel => "Travel to",
-            EdgeType.StepRead => "Read",
-            _ => "Talk to",
-        };
-    }
+    // ── Text formatting ─────────────────────────────────────────────
 
     /// <summary>Format sub-text for quest giver markers based on assignment edge.</summary>
     private static string FormatAcquisitionText(Edge edge)

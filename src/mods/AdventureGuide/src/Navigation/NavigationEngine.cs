@@ -30,7 +30,7 @@ public sealed class NavigationEngine
     private readonly EntityRegistry _entities;
 
     // Reusable buffers — owned by the engine, never exposed.
-    private readonly List<(string nodeKey, Vector3 position, string? scene)> _candidates = new();
+    private readonly List<(string nodeKey, Vector3 position, string? scene, Views.ViewNode? viewNode)> _candidates = new();
     private readonly List<ResolvedPosition> _positionBuffer = new();
 
     // ── Resolved target state (set by Resolve, read by Track) ────────
@@ -174,7 +174,7 @@ public sealed class NavigationEngine
         _positionBuffer.Clear();
         _registry.Resolve(nodeKey, _positionBuffer);
         for (int i = 0; i < _positionBuffer.Count; i++)
-            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene));
+            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null));
     }
 
     private void ResolveFrontier(string questKey)
@@ -184,12 +184,13 @@ public sealed class NavigationEngine
 
         var frontier = FrontierComputer.ComputeFrontier(viewRoot, _gameState);
 
-        foreach (var frontierKey in frontier)
+        for (int i = 0; i < frontier.Count; i++)
         {
+            var viewNode = frontier[i];
             _positionBuffer.Clear();
-            _registry.Resolve(frontierKey, _positionBuffer);
-            for (int i = 0; i < _positionBuffer.Count; i++)
-                _candidates.Add((frontierKey, _positionBuffer[i].Position, _positionBuffer[i].Scene));
+            _registry.Resolve(viewNode.NodeKey, _positionBuffer);
+            for (int j = 0; j < _positionBuffer.Count; j++)
+                _candidates.Add((viewNode.NodeKey, _positionBuffer[j].Position, _positionBuffer[j].Scene, viewNode));
         }
     }
 
@@ -199,10 +200,11 @@ public sealed class NavigationEngine
         string? bestKey = null;
         Vector3? bestPos = null;
         string? bestScene = null;
+        Views.ViewNode? bestViewNode = null;
 
         for (int i = 0; i < _candidates.Count; i++)
         {
-            var (key, pos, scene) = _candidates[i];
+            var (key, pos, scene, viewNode) = _candidates[i];
             bool sameScene = string.Equals(scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                           || scene == null;
             float sqr = (pos - playerPosition).sqrMagnitude;
@@ -215,6 +217,7 @@ public sealed class NavigationEngine
                 bestKey = key;
                 bestPos = pos;
                 bestScene = scene;
+                bestViewNode = viewNode;
             }
         }
 
@@ -222,8 +225,14 @@ public sealed class NavigationEngine
         TargetPosition = bestPos;
         TargetScene = bestScene;
 
-        var targetNode = bestKey != null ? _graph.GetNode(bestKey) : null;
-        TargetDisplayName = targetNode?.DisplayName;
+        // Format display name with action text when frontier context is available
+        if (bestViewNode != null)
+            TargetDisplayName = Frontier.ActionTextFormatter.FormatSummary(bestViewNode, _tracker);
+        else
+        {
+            var targetNode = bestKey != null ? _graph.GetNode(bestKey) : null;
+            TargetDisplayName = targetNode?.DisplayName;
+        }
 
         // Cross-zone routing: resolve zone line waypoint
         bool targetInOtherZone = bestScene != null
@@ -235,13 +244,13 @@ public sealed class NavigationEngine
             if (route != null)
             {
                 EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
-                TargetDisplayName = targetNode?.DisplayName != null
-                    ? $"{targetNode.DisplayName} (via zone line)"
-                    : "Zone line";
+                if (TargetDisplayName != null)
+                    TargetDisplayName += " (via zone line)";
+                else
+                    TargetDisplayName = "Zone line";
             }
             else
             {
-                // No route found — use the raw cross-zone position as fallback
                 EffectiveTarget = bestPos;
             }
         }

@@ -30,7 +30,7 @@ public sealed class QuestPositionResolver : IPositionResolver
             return;
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
-        foreach (var key in frontier)
-            _registry.Resolve(key, results);
+        for (int i = 0; i < frontier.Count; i++)
+            _registry.Resolve(frontier[i].NodeKey, results);
     }
 }
