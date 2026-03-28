@@ -81,9 +81,336 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_item_spell_edges(conn, graph)
     _add_item_door_edges(conn, graph)
 
+    # --- Denormalization ---
     graph.build_indexes()
+    _denormalize_quest_metadata(conn, graph)
+
     conn.close()
     return graph
+
+
+# ---------------------------------------------------------------------------
+# Quest metadata denormalization (zone + level)
+# ---------------------------------------------------------------------------
+
+
+def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Backfill zone, zone_key, and level on quest nodes.
+
+    Runs after all nodes and edges are built.  Uses graph edges to infer
+    the quest's primary zone (from its giver or completer NPC) and
+    estimates a recommended level from mob levels and zone medians.
+
+    Level estimation mirrors the old levels.py approach:
+    - Kill targets: max(enemy_level, zone_median)
+    - NPC interactions: zone median of the NPC's zone
+    - Required items: min obtainability level across drop/vendor/gather sources
+    - Quest chains: prerequisite quest levels propagated via topological sort
+    """
+    zone_displays = _zone_display(conn)
+    zone_medians = _build_zone_medians(conn)
+    char_levels = _build_char_levels(conn)
+    char_zones = _build_char_zone_keys(conn)
+
+    # First pass: zone + direct level factors (no quest-chain propagation)
+    quest_levels: dict[str, int] = {}  # quest_key → estimated level
+    for quest in graph.nodes_of_type(NodeType.QUEST):
+        _fill_quest_zone(quest, graph, char_zones, zone_displays)
+        level = _estimate_quest_level(
+            quest,
+            graph,
+            zone_medians,
+            char_levels,
+            char_zones,
+            quest_levels,
+        )
+        if level is not None:
+            quest.level = level
+            quest_levels[quest.key] = level
+
+    # Second pass: propagate through quest chains (chains_to / rewards_item)
+    # Process in topological order so prerequisite levels are available.
+    topo = _quest_topological_order(graph)
+    for quest_key in topo:
+        quest = graph.get_node(quest_key)
+        if quest is None:
+            continue
+        level = _estimate_quest_level(
+            quest,
+            graph,
+            zone_medians,
+            char_levels,
+            char_zones,
+            quest_levels,
+        )
+        if level is not None:
+            quest.level = level
+            quest_levels[quest.key] = level
+
+
+def _fill_quest_zone(
+    quest: Node,
+    graph: EntityGraph,
+    char_zones: dict[str, str],
+    zone_displays: dict[str, str],
+) -> None:
+    """Set quest.zone and quest.zone_key from the quest giver or completer."""
+    # Try assigned_by first (where you GET the quest)
+    for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY):
+        zone_key = char_zones.get(edge.target)
+        if zone_key:
+            quest.zone_key = zone_key
+            quest.zone = zone_displays.get(zone_key, zone_key)
+            return
+
+    # Fallback: completed_by (where you TURN IN the quest)
+    for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
+        zone_key = char_zones.get(edge.target)
+        if zone_key:
+            quest.zone_key = zone_key
+            quest.zone = zone_displays.get(zone_key, zone_key)
+            return
+
+
+def _estimate_quest_level(
+    quest: Node,
+    graph: EntityGraph,
+    zone_medians: dict[str, int],
+    char_levels: dict[str, int],
+    char_zones: dict[str, str],
+    quest_levels: dict[str, int],
+) -> int | None:
+    """Estimate recommended level for a quest.
+
+    Returns the max across all step/requirement level factors,
+    or None if no level data is available.
+    """
+    factors: list[int] = []
+
+    # Kill targets: max(enemy_level, zone_median)
+    for edge in graph.out_edges(quest.key, EdgeType.STEP_KILL):
+        _add_character_level_factor(edge.target, char_levels, char_zones, zone_medians, factors)
+
+    # Talk/shout targets: zone median of NPC's zone
+    for edge in graph.out_edges(quest.key, EdgeType.STEP_TALK):
+        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
+    for edge in graph.out_edges(quest.key, EdgeType.STEP_SHOUT):
+        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
+
+    # Travel targets: zone median of destination
+    for edge in graph.out_edges(quest.key, EdgeType.STEP_TRAVEL):
+        target = graph.get_node(edge.target)
+        if target and target.key in zone_medians:
+            factors.append(zone_medians[target.key])
+
+    # Completed_by NPC: zone median (player must reach this zone)
+    for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
+        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
+
+    # Required items: min obtainability level per item
+    for edge in graph.out_edges(quest.key, EdgeType.REQUIRES_ITEM):
+        item_level = _item_obtainability_level(
+            edge.target,
+            graph,
+            char_levels,
+            char_zones,
+            zone_medians,
+            quest_levels,
+        )
+        if item_level is not None:
+            factors.append(item_level)
+
+    # Quest chain prerequisites: prerequisite quest levels
+    for edge in graph.out_edges(quest.key, EdgeType.CHAINS_TO):
+        prereq_level = quest_levels.get(edge.target)
+        if prereq_level is not None:
+            factors.append(prereq_level)
+
+    if not factors:
+        # Fallback: quest giver zone median
+        if quest.zone_key and quest.zone_key in zone_medians:
+            return zone_medians[quest.zone_key]
+        return None
+
+    return max(factors)
+
+
+def _item_obtainability_level(
+    item_key: str,
+    graph: EntityGraph,
+    char_levels: dict[str, int],
+    char_zones: dict[str, str],
+    zone_medians: dict[str, int],
+    quest_levels: dict[str, int],
+) -> int | None:
+    """Min level at which an item is obtainable across all sources.
+
+    Sources: drops_item, sells_item, gives_item, yields_item (water/mining),
+    rewards_item (quest reward).
+    """
+    source_levels: list[int] = []
+
+    for edge in graph.in_edges(item_key):
+        if edge.type == EdgeType.DROPS_ITEM:
+            # Kill the mob: max(mob_level, zone_median)
+            lvl = _character_level_factor(edge.source, char_levels, char_zones, zone_medians)
+            if lvl is not None:
+                source_levels.append(lvl)
+
+        elif edge.type in (EdgeType.SELLS_ITEM, EdgeType.GIVES_ITEM):
+            # Visit the vendor/NPC: zone median
+            zone_key = char_zones.get(edge.source)
+            if zone_key and zone_key in zone_medians:
+                source_levels.append(zone_medians[zone_key])
+
+        elif edge.type == EdgeType.YIELDS_ITEM:
+            # Gather from water/mining node: zone median
+            source_node = graph.get_node(edge.source)
+            if source_node and source_node.zone_key and source_node.zone_key in zone_medians:
+                source_levels.append(zone_medians[source_node.zone_key])
+
+        elif edge.type == EdgeType.REWARDS_ITEM:
+            # Quest reward: rewarding quest's level
+            ql = quest_levels.get(edge.source)
+            if ql is not None:
+                source_levels.append(ql)
+
+    return min(source_levels) if source_levels else None
+
+
+def _character_level_factor(
+    char_key: str,
+    char_levels: dict[str, int],
+    char_zones: dict[str, str],
+    zone_medians: dict[str, int],
+) -> int | None:
+    """Level to fight a character: max(char_level, zone_median)."""
+    char_level = char_levels.get(char_key)
+    zone_key = char_zones.get(char_key)
+    zone_med = zone_medians.get(zone_key) if zone_key else None
+
+    if char_level is not None and zone_med is not None:
+        return max(char_level, zone_med)
+    return char_level or zone_med
+
+
+def _add_character_level_factor(
+    char_key: str,
+    char_levels: dict[str, int],
+    char_zones: dict[str, str],
+    zone_medians: dict[str, int],
+    factors: list[int],
+) -> None:
+    """Append a kill-target level factor."""
+    lvl = _character_level_factor(char_key, char_levels, char_zones, zone_medians)
+    if lvl is not None:
+        factors.append(lvl)
+
+
+def _add_zone_factor(
+    char_key: str,
+    char_zones: dict[str, str],
+    zone_medians: dict[str, int],
+    factors: list[int],
+) -> None:
+    """Append a zone-median factor for a character's zone."""
+    zone_key = char_zones.get(char_key)
+    if zone_key and zone_key in zone_medians:
+        factors.append(zone_medians[zone_key])
+
+
+def _quest_topological_order(graph: EntityGraph) -> list[str]:
+    """Topologically sort quests by chains_to and quest-reward dependencies.
+
+    A quest depends on another when:
+    - It has a chains_to edge to the other quest
+    - A required item has a rewards_item edge from another quest
+    """
+    from collections import deque
+
+    quest_keys = [n.key for n in graph.nodes_of_type(NodeType.QUEST)]
+    quest_set = set(quest_keys)
+    in_degree: dict[str, int] = dict.fromkeys(quest_keys, 0)
+    dependents: dict[str, list[str]] = {k: [] for k in quest_keys}
+
+    for qk in quest_keys:
+        seen: set[str] = set()
+        # chains_to dependencies
+        for edge in graph.out_edges(qk, EdgeType.CHAINS_TO):
+            if edge.target in quest_set and edge.target not in seen:
+                seen.add(edge.target)
+                in_degree[qk] += 1
+                dependents[edge.target].append(qk)
+
+        # Quest-reward item dependencies: if a required item is only
+        # obtainable via quest reward, that quest is a dependency.
+        for req_edge in graph.out_edges(qk, EdgeType.REQUIRES_ITEM):
+            for src_edge in graph.in_edges(req_edge.target, EdgeType.REWARDS_ITEM):
+                if src_edge.source in quest_set and src_edge.source not in seen:
+                    seen.add(src_edge.source)
+                    in_degree[qk] += 1
+                    dependents[src_edge.source].append(qk)
+
+    queue: deque[str] = deque(k for k, d in in_degree.items() if d == 0)
+    result: list[str] = []
+    while queue:
+        k = queue.popleft()
+        result.append(k)
+        for dep in dependents[k]:
+            in_degree[dep] -= 1
+            if in_degree[dep] == 0:
+                queue.append(dep)
+
+    # Append any cyclic quests at the end
+    if len(result) < len(quest_keys):
+        result.extend(k for k in quest_keys if k not in set(result))
+
+    return result
+
+
+def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
+    """Compute zone median mob level: {zone_key → median_level}.
+
+    Only non-friendly characters with level > 0 contribute.
+    """
+    from statistics import median
+
+    rows = conn.execute("""
+        SELECT cs.zone_stable_key, c.level
+        FROM character_spawns cs
+        JOIN characters c ON cs.character_stable_key = c.stable_key
+        WHERE c.is_friendly = 0 AND c.level > 0 AND c.is_map_visible = 1
+            AND cs.spawn_point_stable_key IS NOT NULL
+    """).fetchall()
+    zone_levels: dict[str, list[int]] = {}
+    for r in rows:
+        zk = r["zone_stable_key"]
+        if zk:
+            zone_levels.setdefault(zk, []).append(r["level"])
+    return {zk: int(median(levels)) for zk, levels in zone_levels.items()}
+
+
+def _build_char_levels(conn: sqlite3.Connection) -> dict[str, int]:
+    """Return {character_key → level} for non-friendly characters with level > 0."""
+    rows = conn.execute(
+        "SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0 AND is_map_visible = 1"
+    ).fetchall()
+    return {r["stable_key"]: r["level"] for r in rows}
+
+
+def _build_char_zone_keys(conn: sqlite3.Connection) -> dict[str, str]:
+    """Return {character_key → zone_key} picking the first spawn's zone.
+
+    Includes all characters (friendly and hostile) — quest givers are friendly.
+    """
+    rows = conn.execute("""
+        SELECT cs.character_stable_key, cs.zone_stable_key
+        FROM character_spawns cs
+        WHERE cs.zone_stable_key IS NOT NULL
+            AND cs.spawn_point_stable_key IS NOT NULL
+        GROUP BY cs.character_stable_key
+    """).fetchall()
+    return {r["character_stable_key"]: r["zone_stable_key"] for r in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -310,7 +637,7 @@ def _add_spawn_point_nodes(
                c.display_name AS char_display
         FROM character_spawns cs
         JOIN characters c ON c.stable_key = cs.character_stable_key
-        WHERE COALESCE(cs.is_map_visible, 1) = 1
+        WHERE COALESCE(cs.is_map_visible, 1) = 1 AND cs.spawn_point_stable_key IS NOT NULL
     """)
     seen: set[str] = set()
     for r in rows:
@@ -1189,7 +1516,7 @@ def _add_character_spawn_edges(conn: sqlite3.Connection, graph: EntityGraph) -> 
         SELECT character_stable_key, spawn_point_stable_key,
                zone_stable_key, spawn_chance, is_rare
         FROM character_spawns
-        WHERE COALESCE(is_map_visible, 1) = 1
+        WHERE COALESCE(is_map_visible, 1) = 1 AND spawn_point_stable_key IS NOT NULL
     """)
     char_zones: dict[str, set[str]] = {}
     for r in rows:
@@ -1253,7 +1580,7 @@ def _add_spawn_point_gate_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
     rows = conn.execute("""
         SELECT DISTINCT spawn_point_stable_key, spawn_upon_quest_complete_stable_key
         FROM character_spawns
-        WHERE spawn_upon_quest_complete_stable_key IS NOT NULL
+        WHERE spawn_upon_quest_complete_stable_key IS NOT NULL AND spawn_point_stable_key IS NOT NULL
     """)
     for r in rows:
         sp_key = r["spawn_point_stable_key"]
