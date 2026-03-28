@@ -307,6 +307,7 @@ public sealed class ViewRenderer
             NodeType.Quest => true,
             NodeType.Item => true,
             NodeType.Character => true,
+            NodeType.Zone => true,
             NodeType.ZoneLine => true,
             NodeType.SpawnPoint => true,
             NodeType.MiningNode => true,

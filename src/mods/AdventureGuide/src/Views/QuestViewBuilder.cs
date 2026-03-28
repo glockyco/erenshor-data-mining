@@ -56,13 +56,13 @@ public sealed class QuestViewBuilder
         AddQuestPrereqs(viewNode, key, visited);
 
         // 3. Steps (ordered by ordinal when present)
-        AddStepChildren(viewNode, key, visited);
+        var stepTargets = AddStepChildren(viewNode, key, visited);
 
         // 4. Required items (with full obtainability chains)
         AddRequiredItems(viewNode, key, visited);
 
-        // 5. Turn-in (how to complete)
-        AddEdgeChildren(viewNode, key, EdgeType.CompletedBy, visited);
+        // 5. Turn-in (how to complete) — skip targets already shown as steps
+        AddCompletionChildren(viewNode, key, stepTargets, visited);
 
         visited.Remove(key);
         return viewNode;
@@ -76,8 +76,9 @@ public sealed class QuestViewBuilder
         EdgeType.StepShout, EdgeType.StepRead,
     };
 
-    private void AddStepChildren(ViewNode parent, string questKey, HashSet<string> visited)
+    private HashSet<string> AddStepChildren(ViewNode parent, string questKey, HashSet<string> visited)
     {
+        var stepTargets = new HashSet<string>();
         // Collect all step edges, sort by ordinal (null ordinals last)
         var steps = new List<(Edge edge, Node target)>();
         foreach (var stepType in StepEdgeTypes)
@@ -86,7 +87,10 @@ public sealed class QuestViewBuilder
             {
                 var target = _graph.GetNode(edge.Target);
                 if (target != null)
+                {
                     steps.Add((edge, target));
+                    stepTargets.Add(edge.Target);
+                }
             }
         }
 
@@ -100,6 +104,25 @@ public sealed class QuestViewBuilder
         foreach (var (edge, target) in steps)
         {
             var child = BuildLeafOrExpand(edge.Target, target, edge.Type, edge, visited);
+            parent.Children.Add(child);
+        }
+        return stepTargets;
+    }
+
+    private void AddCompletionChildren(
+        ViewNode parent, string questKey, HashSet<string> stepTargets, HashSet<string> visited)
+    {
+        foreach (var edge in _graph.OutEdges(questKey, EdgeType.CompletedBy))
+        {
+            // Skip completion targets that are already shown as step targets
+            // (e.g., zone-entry quests have both step_travel and completed_by to same zone)
+            if (stepTargets.Contains(edge.Target))
+                continue;
+
+            var target = _graph.GetNode(edge.Target);
+            if (target == null) continue;
+
+            var child = BuildLeafOrExpand(edge.Target, target, EdgeType.CompletedBy, edge, visited);
             parent.Children.Add(child);
         }
     }
