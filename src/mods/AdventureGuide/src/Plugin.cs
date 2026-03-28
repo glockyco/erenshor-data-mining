@@ -161,7 +161,7 @@ public sealed class Plugin : BaseUnityPlugin
         _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel);
         _window.Filter.LoadFrom(_config);
 
-        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config);
+        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter);
         _imgui.OnLayout = () =>
         {
             _window.Draw();

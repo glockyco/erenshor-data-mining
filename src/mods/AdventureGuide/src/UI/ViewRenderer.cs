@@ -185,7 +185,7 @@ public sealed class ViewRenderer
 
     // ── Label formatting ────────────────────────────────────────────────
 
-    private static string FormatLabel(ViewNode node)
+    private string FormatLabel(ViewNode node)
     {
         var edge = node.Edge;
         var n = node.Node;
@@ -197,7 +197,7 @@ public sealed class ViewRenderer
         string prefix = node.EdgeType.Value switch
         {
             EdgeType.RequiresQuest => "Requires: ",
-            EdgeType.RequiresItem => FormatQuantity("Obtain: ", name, edge?.Quantity),
+            EdgeType.RequiresItem => FormatHaveNeed("Obtain: ", name, edge),
             EdgeType.StepTalk => FormatKeyword("Talk to ", name, edge?.Keyword),
             EdgeType.StepKill => $"Kill: {name}",
             EdgeType.StepTravel => $"Travel to: {name}",
@@ -206,7 +206,7 @@ public sealed class ViewRenderer
             EdgeType.CompletedBy => FormatKeyword("Turn in to ", name, edge?.Keyword),
             EdgeType.AssignedBy => FormatKeyword("Talk to ", name, edge?.Keyword),
             EdgeType.CraftedFrom => $"Crafted via: {name}",
-            EdgeType.RequiresMaterial => FormatQuantity("Ingredient: ", name, edge?.Quantity),
+            EdgeType.RequiresMaterial => FormatHaveNeed("Ingredient: ", name, edge),
             EdgeType.DropsItem => FormatChance($"Drops from: {name}", edge?.Chance),
             EdgeType.SellsItem => $"Vendor: {name}",
             EdgeType.GivesItem => FormatKeyword("Talk to ", name, edge?.Keyword),
@@ -222,11 +222,19 @@ public sealed class ViewRenderer
         return prefix;
     }
 
-    private static string FormatQuantity(string prefix, string name, int? quantity)
+    /// <summary>
+    /// Format item requirement with have/need counts when quantity > 1.
+    /// Shows "Obtain: Iron Ore (2/3)" instead of "Obtain: Iron Ore (×3)".
+    /// </summary>
+    private string FormatHaveNeed(string prefix, string name, Edge? edge)
     {
-        if (quantity.HasValue && quantity.Value > 1)
-            return $"{prefix}{name} (\u00d7{quantity.Value})";
-        return $"{prefix}{name}";
+        int need = edge?.Quantity ?? 1;
+        if (need <= 1)
+            return $"{prefix}{name}";
+
+        string itemKey = edge!.Target;
+        int have = _tracker.CountItem(itemKey);
+        return $"{prefix}{name} ({have}/{need})";
     }
 
     private static string FormatKeyword(string prefix, string name, string? keyword)

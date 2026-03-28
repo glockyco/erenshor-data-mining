@@ -2,6 +2,7 @@ using AdventureGuide.Config;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Rendering;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using AdventureGuide.Views;
 using ImGuiNET;
@@ -45,6 +46,7 @@ public sealed class TrackerPanel
     private readonly NavigationSet _navSet;
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
+    private readonly ZoneRouter _router;
 
     private bool _visible = true;
 
@@ -58,8 +60,9 @@ public sealed class TrackerPanel
     private int _lastStateVersion = -1;
     private TrackerSortMode _lastSortMode;
 
-    // Frontier summary cache — avoids rebuilding view trees every frame
-    private readonly Dictionary<string, string> _frontierCache = new(StringComparer.OrdinalIgnoreCase);
+    // Frontier cache — avoids rebuilding view trees every frame.
+    // Stores summary text and frontier positions for distance computation.
+    private readonly Dictionary<string, CachedFrontier> _frontierCache = new(StringComparer.OrdinalIgnoreCase);
     private int _frontierCacheVersion = -1;
 
     // Compact mode state
@@ -80,7 +83,8 @@ public sealed class TrackerPanel
         QuestViewBuilder viewBuilder,
         NavigationSet navSet,
         GuideWindow guide,
-        GuideConfig config)
+        GuideConfig config,
+        ZoneRouter router)
     {
         _graph = graph;
         _tracker = tracker;
@@ -90,6 +94,7 @@ public sealed class TrackerPanel
         _navSet = navSet;
         _guide = guide;
         _config = config;
+        _router = router;
 
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
@@ -406,7 +411,14 @@ public sealed class TrackerPanel
             return;
         }
 
-        string summary = GetFrontierSummary(quest.Key);
+        var frontier = GetCachedFrontier(quest.Key);
+        string summary = frontier.Summary;
+
+        // Append distance annotation
+        string distText = ComputeDistanceText(frontier);
+        if (distText.Length > 0)
+            summary += $" {distText}";
+
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextWrapped(summary);
@@ -414,7 +426,7 @@ public sealed class TrackerPanel
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private string GetFrontierSummary(string questKey)
+    private CachedFrontier GetCachedFrontier(string questKey)
     {
         // Invalidate cache when game state changes (quest/inventory updates)
         if (_tracker.Version != _frontierCacheVersion)
@@ -426,28 +438,169 @@ public sealed class TrackerPanel
         if (_frontierCache.TryGetValue(questKey, out var cached))
             return cached;
 
-        var summary = ComputeFrontierSummary(questKey);
-        _frontierCache[questKey] = summary;
-        return summary;
+        var result = ComputeFrontierInfo(questKey);
+        _frontierCache[questKey] = result;
+        return result;
     }
 
-    private string ComputeFrontierSummary(string questKey)
+    private CachedFrontier ComputeFrontierInfo(string questKey)
     {
         var root = _viewBuilder.Build(questKey);
-        if (root == null) return "Unknown";
+        if (root == null)
+            return new CachedFrontier("Unknown", System.Array.Empty<FrontierPosition>());
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
-        if (frontier.Count == 0) return "Ready to turn in";
+        if (frontier.Count == 0)
+            return new CachedFrontier("Ready to turn in", System.Array.Empty<FrontierPosition>());
+
+        // Collect summary and positions from frontier nodes
+        string? summary = null;
+        var positions = new List<FrontierPosition>();
 
         foreach (var key in frontier)
         {
             var node = _graph.GetNode(key);
             if (node == null) continue;
-            string suffix = frontier.Count > 1 ? $" (+{frontier.Count - 1} more)" : "";
-            return $"{node.DisplayName}{suffix}";
+
+            // Build summary from first node
+            if (summary == null)
+            {
+                string suffix = frontier.Count > 1 ? $" (+{frontier.Count - 1} more)" : "";
+                summary = FormatFrontierNodeSummary(key, node) + suffix;
+            }
+
+            // Collect positions for distance computation
+            CollectFrontierPositions(node, positions);
         }
 
-        return "In progress";
+        return new CachedFrontier(
+            summary ?? "In progress",
+            positions.Count > 0 ? positions.ToArray() : System.Array.Empty<FrontierPosition>());
+    }
+
+    /// <summary>
+    /// Format a frontier node's summary text. For items, shows have/need progress.
+    /// </summary>
+    private string FormatFrontierNodeSummary(string nodeKey, Node node)
+    {
+        // Check if this node is an item with a quantity requirement
+        // by looking at incoming RequiresItem edges
+        var inEdges = _graph.InEdges(nodeKey, EdgeType.RequiresItem);
+        for (int i = 0; i < inEdges.Count; i++)
+        {
+            var edge = inEdges[i];
+            int need = edge.Quantity ?? 1;
+            if (need > 1)
+            {
+                int have = _tracker.CountItem(nodeKey);
+                return $"{node.DisplayName} ({have}/{need})";
+            }
+        }
+
+        return node.DisplayName;
+    }
+
+    /// <summary>
+    /// Collect world positions for a frontier node. Characters are expanded
+    /// to their spawn points; other nodes use their own position.
+    /// </summary>
+    private void CollectFrontierPositions(Node node, List<FrontierPosition> positions)
+    {
+        if (node.Type == NodeType.Character)
+        {
+            var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
+            for (int i = 0; i < spawnEdges.Count; i++)
+            {
+                var sp = _graph.GetNode(spawnEdges[i].Target);
+                if (sp != null && sp.X.HasValue && sp.Y.HasValue && sp.Z.HasValue)
+                    positions.Add(new FrontierPosition(sp.X.Value, sp.Y.Value, sp.Z.Value, sp.Scene ?? ""));
+            }
+            if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
+                positions.Add(new FrontierPosition(node.X.Value, node.Y.Value, node.Z.Value, node.Scene ?? ""));
+        }
+        else if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
+        {
+            positions.Add(new FrontierPosition(node.X.Value, node.Y.Value, node.Z.Value, node.Scene ?? ""));
+        }
+    }
+
+    /// <summary>
+    /// Compute distance text for display: "(42m)" for same-zone,
+    /// "({n} hops)" for cross-zone.
+    /// </summary>
+    private string ComputeDistanceText(CachedFrontier frontier)
+    {
+        if (frontier.Positions.Length == 0)
+            return "";
+
+        string currentScene = _tracker.CurrentZone;
+        var playerCtrl = GameData.PlayerControl;
+        if (playerCtrl == null) return "";
+        var playerPos = playerCtrl.transform.position;
+
+        // Check for same-zone frontier nodes
+        float minDist = float.MaxValue;
+        foreach (var p in frontier.Positions)
+        {
+            if (!string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+                continue;
+            float dist = Vector3.Distance(playerPos, new Vector3(p.X, p.Y, p.Z));
+            if (dist < minDist) minDist = dist;
+        }
+
+        if (minDist < float.MaxValue)
+            return $"({(int)minDist}m)";
+
+        // All frontier nodes are cross-zone
+        string? bestZone = null;
+        int bestHops = int.MaxValue;
+        foreach (var p in frontier.Positions)
+        {
+            if (string.IsNullOrEmpty(p.Scene)) continue;
+            var route = _router.FindRoute(currentScene, p.Scene);
+            if (route == null) continue;
+            int hops = route.Path.Count - 1;
+            if (hops < bestHops)
+            {
+                bestHops = hops;
+                bestZone = p.Scene;
+            }
+        }
+
+        if (bestZone != null && bestHops > 0)
+        {
+            string hopText = bestHops == 1 ? "1 hop" : $"{bestHops} hops";
+            return $"({hopText})";
+        }
+
+        return "";
+    }
+
+    /// <summary>
+    /// Get minimum distance from player to any same-zone frontier node.
+    /// Returns float.MaxValue if no frontier nodes are in the current zone.
+    /// </summary>
+    private float GetMinFrontierDistance(string questKey)
+    {
+        var frontier = GetCachedFrontier(questKey);
+        if (frontier.Positions.Length == 0)
+            return float.MaxValue;
+
+        string currentScene = _tracker.CurrentZone;
+        var playerCtrl = GameData.PlayerControl;
+        if (playerCtrl == null) return float.MaxValue;
+        var playerPos = playerCtrl.transform.position;
+
+        float minDist = float.MaxValue;
+        foreach (var p in frontier.Positions)
+        {
+            if (!string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+                continue;
+            float dist = Vector3.Distance(playerPos, new Vector3(p.X, p.Y, p.Z));
+            if (dist < minDist) minDist = dist;
+        }
+
+        return minDist;
     }
 
     // ── Animation management ─────────────────────────────────────────
@@ -521,10 +674,11 @@ public sealed class TrackerPanel
 
             return _trackerState.SortMode switch
             {
+                TrackerSortMode.Proximity => CompareByProximity(na, nb),
                 TrackerSortMode.Level => CompareByLevel(na, nb),
                 TrackerSortMode.Alphabetical => string.Compare(
                     na.DisplayName, nb.DisplayName, StringComparison.OrdinalIgnoreCase),
-                _ => 0, // Proximity: keep insertion order for now
+                _ => 0,
             };
         });
     }
@@ -538,6 +692,34 @@ public sealed class TrackerPanel
             a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Compare quests by proximity: same-zone quests first (sorted by distance),
+    /// then cross-zone quests (sorted by hop count). Tie-break alphabetically.
+    /// </summary>
+    private int CompareByProximity(Node a, Node b)
+    {
+        float distA = GetMinFrontierDistance(a.Key);
+        float distB = GetMinFrontierDistance(b.Key);
+
+        bool aInZone = distA < float.MaxValue;
+        bool bInZone = distB < float.MaxValue;
+
+        // Same-zone quests sort before cross-zone
+        if (aInZone && !bInZone) return -1;
+        if (!aInZone && bInZone) return 1;
+
+        // Both in zone: sort by distance
+        if (aInZone && bInZone)
+        {
+            int cmp = distA.CompareTo(distB);
+            return cmp != 0 ? cmp : string.Compare(
+                a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Both cross-zone: compare by level as proxy for closeness
+        return CompareByLevel(a, b);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────
 
     private EntryAnimation GetOrDefaultAnim(string dbName) =>
@@ -547,5 +729,34 @@ public sealed class TrackerPanel
     {
         public float AddedAt;
         public float CompletedAt;
+    }
+}
+
+
+/// <summary>Cached frontier computation result for a quest.</summary>
+internal readonly struct CachedFrontier
+{
+    public readonly string Summary;
+    public readonly FrontierPosition[] Positions;
+
+    public CachedFrontier(string summary, FrontierPosition[] positions)
+    {
+        Summary = summary;
+        Positions = positions;
+    }
+}
+
+/// <summary>World position of a frontier node for distance computation.</summary>
+internal readonly struct FrontierPosition
+{
+    public readonly float X, Y, Z;
+    public readonly string Scene;
+
+    public FrontierPosition(float x, float y, float z, string scene)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        Scene = scene;
     }
 }
