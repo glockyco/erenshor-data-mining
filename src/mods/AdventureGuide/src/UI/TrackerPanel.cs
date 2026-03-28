@@ -1,3 +1,4 @@
+using System.Numerics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.State;
@@ -48,22 +49,29 @@ public sealed class TrackerPanel
     {
         if (!_visible) return;
         var tracked = _trackerState.TrackedQuests;
-        if (tracked.Count == 0)
+        if (tracked.Count == 0) return;
+
+        ImGui.SetNextWindowSize(new Vector2(340f, 260f), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowPos(new Vector2(10f, 10f), ImGuiCond.FirstUseEver);
+
+        Theme.PushWindowStyle();
+
+        var flags = ImGuiWindowFlags.NoFocusOnAppearing;
+        if (ImGui.Begin("Quest Tracker", ref _visible, flags))
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text("No tracked quests.");
-            ImGui.PopStyleColor();
-            return;
+            foreach (var questKey in tracked)
+            {
+                var node = _graph.GetNode(questKey);
+                if (node == null || node.Type != NodeType.Quest) continue;
+
+                DrawTrackedQuest(questKey, node);
+                ImGui.Spacing();
+            }
         }
 
-        foreach (var questKey in tracked)
-        {
-            var node = _graph.GetNode(questKey);
-            if (node == null || node.Type != NodeType.Quest) continue;
-
-            DrawTrackedQuest(questKey, node);
-            ImGui.Spacing();
-        }
+        Theme.ClampWindowPosition();
+        ImGui.End();
+        Theme.PopWindowStyle();
     }
 
     private void DrawTrackedQuest(string questKey, Node node)

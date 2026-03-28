@@ -86,11 +86,6 @@ public sealed class ViewRenderer
         // Level · Zone · Repeatable metadata line
         DrawMetadataLine(quest);
 
-        // Acquisition sources: who gives this quest
-        DrawAcquisitionSources(quest);
-
-        // Turn-in targets: who completes this quest
-        DrawCompletionTargets(quest);
 
         // Description
         if (!string.IsNullOrEmpty(quest.Description))
@@ -128,66 +123,6 @@ public sealed class ViewRenderer
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.Text(meta);
-        ImGui.PopStyleColor();
-    }
-
-    private void DrawAcquisitionSources(Node quest)
-    {
-        var edges = _graph.OutEdges(quest.Key, EdgeType.AssignedBy);
-        if (edges.Count == 0) return;
-
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        foreach (var edge in edges)
-        {
-            var target = _graph.GetNode(edge.Target);
-            if (target == null) continue;
-
-            string label = target.Type switch
-            {
-                NodeType.Character => FormatKeyword("Given by: ", target.DisplayName, edge.Keyword),
-                NodeType.Item => $"Read: {target.DisplayName}",
-                NodeType.Zone => $"Enter: {target.DisplayName}",
-                NodeType.Quest => $"Chain from: {target.DisplayName}",
-                _ => $"From: {target.DisplayName}",
-            };
-
-            // Append zone for character sources
-            if (target.Type == NodeType.Character && target.Zone != null)
-                label += $" ({target.Zone})";
-
-            DrawNavButtonByKey(target);
-            ImGui.SameLine();
-            ImGui.Text(label);
-        }
-        ImGui.PopStyleColor();
-    }
-
-    private void DrawCompletionTargets(Node quest)
-    {
-        var edges = _graph.OutEdges(quest.Key, EdgeType.CompletedBy);
-        if (edges.Count == 0) return;
-
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        foreach (var edge in edges)
-        {
-            var target = _graph.GetNode(edge.Target);
-            if (target == null) continue;
-
-            string label = target.Type switch
-            {
-                NodeType.Character => FormatKeyword("Turn in to: ", target.DisplayName, edge.Keyword),
-                NodeType.Zone => $"Complete at: {target.DisplayName}",
-                NodeType.Item => $"Complete by reading: {target.DisplayName}",
-                _ => $"Complete: {target.DisplayName}",
-            };
-
-            if (target.Type == NodeType.Character && target.Zone != null)
-                label += $" ({target.Zone})";
-
-            DrawNavButtonByKey(target);
-            ImGui.SameLine();
-            ImGui.Text(label);
-        }
         ImGui.PopStyleColor();
     }
 
