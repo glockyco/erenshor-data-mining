@@ -122,6 +122,11 @@ class Node:
     key: str
     type: NodeType
     display_name: str
+    # Typed fields per NodeType instead of properties: dict.
+    # On the Python side these are still a dict for flexibility during
+    # graph construction, but the serializer emits them as typed JSON
+    # fields that the C# GraphLoader deserializes into typed Node fields.
+    # This avoids Dictionary<string, object> allocation + boxing in C#.
     properties: dict[str, Any]
 
 @dataclass
@@ -132,7 +137,14 @@ class Edge:
     group: str | None = None
     ordinal: int | None = None
     negated: bool = False
-    properties: dict[str, Any] = field(default_factory=dict)
+    # Typed fields instead of generic dict. The serializer flattens these
+    # into the edge JSON object alongside source/target/type/group/ordinal.
+    quantity: int | None = None
+    keyword: str | None = None
+    note: str | None = None
+    chance: float | None = None
+    amount: int | None = None
+    slot: int | None = None
 
 @dataclass
 class ViewNode:
@@ -327,8 +339,8 @@ AdventureGuide/src/
 │
 ├── Graph/
 │   ├── EntityGraph.cs               # In-memory graph: nodes + adjacency
-│   ├── Node.cs                      # Node record (key, type, name, props)
-│   ├── Edge.cs                      # Edge record (source, target, type, group, props)
+│   ├── Node.cs                      # Node class: key, type, name, typed nullable fields (no dict)
+│   ├── Edge.cs                      # Edge readonly struct: source, target, type, group (no dict)
 │   ├── NodeType.cs                  # Enum (25 types)
 │   ├── EdgeType.cs                  # Enum (~35 types)
 │   └── GraphLoader.cs              # JSON → EntityGraph
@@ -422,8 +434,8 @@ AdventureGuide/src/
 
 | Component | Responsibility | Depends on |
 |---|---|---|
-| `Node` | Immutable record: key, type, display_name, properties dict | — |
-| `Edge` | Immutable record: source, target, type, group, ordinal, negated, properties | — |
+| `Node` | Class with typed nullable fields (no properties dict). Key is interned. ~15-20 fields covering all NodeTypes: X/Y/Z, Scene, DbName, Description, Level, Zone, Keyword, NightSpawn, IsEnabled, etc. | — |
+| `Edge` | Readonly struct in flat array (no heap allocation per edge). Fields: Source, Target (interned keys), Type, Group, Ordinal, Negated, Quantity, Keyword, Note. Adjacency lists store indices into the edge array. | — |
 | `NodeType` | Enum of all 25 entity types | — |
 | `EdgeType` | Enum of all ~35 edge types | — |
 | `EntityGraph` | In-memory graph. Adjacency lists (out + in) indexed by node key. API: `GetNode`, `OutEdges`, `InEdges`, `NodesOfType`. Built once on load, immutable thereafter. | Node, Edge |
@@ -628,3 +640,160 @@ limitation). Component targets change:
 The reduction comes from eliminating ad hoc per-type switches and
 duplicated traversal logic. The graph's uniform edge/node model means
 one code path handles all types, replacing N separate implementations.
+
+
+## Performance Architecture
+
+The system must run inside Unity at 60 FPS with no perceptible frame
+drops. Estimated scale: ~10-15K nodes, ~50-100K edges, ~170 quests.
+
+### Performance budget
+
+| Operation | Budget | Notes |
+|---|---|---|
+| Startup JSON load | <500ms | Game zone loads take 2-5s; mod should be invisible |
+| Marker rebuild (on dirty) | <2ms | Full marker list from cached frontiers |
+| Frontier compute (per quest) | <0.2ms | DFS through quest dependency tree |
+| Per-frame live state | <0.5ms | NPC state, timers, positions |
+| Navigation resolution | <0.5ms | Cached frontier + closest position |
+| View tree build (page open) | <1ms | On-demand graph DFS |
+| ImGui render (quest page) | <1ms | Collapsed by default, ~20 visible widgets |
+| Per-frame GC allocation | <5KB | Pooling + string caching |
+
+### Critical design rules
+
+#### 1. Per-quest dirty tracking, not global
+
+Most state changes (quest complete, inventory change) affect 1-3 quests.
+Build inverted indexes at load time:
+- `itemKey → Set<questKey>` — which quests need this item
+- `prereqQuestKey → Set<questKey>` — which quests depend on this one
+
+On state change, dirty only the affected quests. The common case is 1-3
+frontier recomputations, not 170.
+
+#### 2. Two-tier dirty flags: frontier-dirty vs marker-dirty
+
+Frontier recomputation is expensive (graph DFS per quest). Marker rebuild
+from cached frontiers is cheap (linear scan + position lookups).
+
+| Event | Frontier dirty? | Marker dirty? |
+|---|---|---|
+| Quest assigned/completed | Yes (that quest + dependents) | Yes |
+| Inventory changed | Yes (quests needing that item) | Yes |
+| NPC death/spawn | No | Yes (position update only) |
+| Mining node mined | No | Yes (state overlay) |
+| Scene change | Yes (all — scene filter changes) | Yes |
+| Hour change | No | Yes (night-locked state) |
+
+NPC death (the most frequent event) triggers only marker-dirty, not
+frontier-dirty. No graph traversal needed.
+
+#### 3. Typed properties, not dict
+
+Node and Edge MUST NOT use `Dictionary<string, object>` for properties.
+This would create 60K+ dictionary allocations with boxing on every value.
+
+Node uses nullable typed fields covering all NodeTypes:
+```csharp
+public sealed class Node {
+    public string Key;          // interned
+    public NodeType Type;
+    public string DisplayName;
+    public float? X, Y, Z;      // world position (nullable)
+    public string? Scene;
+    public string? DbName;      // quests
+    public string? Description;  // quests, items
+    public int? Level;           // characters, zones
+    public string? Zone;         // display zone name
+    public string? Keyword;      // dialog-give
+    public bool NightSpawn;      // spawn points
+    public bool IsEnabled;       // spawn points
+    // ~15-20 nullable fields covers all NodeTypes
+}
+```
+
+More fields than any single NodeType uses, but avoids the dict allocation
+per node. 15K nodes × 200 bytes = 3MB vs 6MB+ with dicts.
+
+#### 4. Edge as struct in flat array
+
+50-100K edges as class instances = 50-100K heap objects with 16-byte
+Mono object headers. As readonly structs in a flat `Edge[]` array:
+```csharp
+public readonly struct Edge {
+    public readonly string Source;    // interned key
+    public readonly string Target;    // interned key
+    public readonly EdgeType Type;
+    public readonly string? Group;
+    public readonly short Ordinal;    // -1 if unused
+    public readonly bool Negated;
+    public readonly int Quantity;     // 0 if unused
+    public readonly string? Keyword;
+    public readonly string? Note;
+}
+```
+
+Adjacency lists store indices into the flat edge array, not copies.
+Zero per-edge heap allocation.
+
+#### 5. String interning for node keys
+
+Node keys appear as dictionary keys, edge source/target fields, ViewNode
+references, frontier sets, marker entries, and navigation sets. Intern
+during GraphLoader to ensure reference equality and eliminate ~100K+
+duplicate string allocations.
+
+#### 6. Iterative DFS, not recursive
+
+Mono's managed stack frames are expensive (~100-200 bytes of captured
+locals per frame). QuestViewBuilder uses an explicit `Stack<T>` for
+iterative DFS. Reuse the stack between calls (clear, don't reallocate).
+
+#### 7. ViewNode pooling + reusable traversal buffers
+
+QuestViewBuilder owns:
+- `Stack<ViewNode>` pool (pre-allocated to 512)
+- `HashSet<string>` for cycle detection (clear per quest, never reallocate)
+- `Stack<(string, int)>` for DFS (clear per quest, never reallocate)
+
+After use, ViewNodes are returned to pool. `ViewNode.Reset()` clears
+all fields.
+
+#### 8. Scene-aware marker filtering
+
+Build a static `questKey → Set<scene>` index at graph load time from
+node coordinates. MarkerComputer skips quests whose frontier contains
+zero nodes in the current scene. Eliminates ~80% of quests from
+consideration.
+
+#### 9. Avoid per-frame string allocation
+
+Timer text, marker sub-text, and distance formatting cache the last
+result and only regenerate when the underlying value (integer second,
+distance bracket) changes. No string interpolation in per-frame paths.
+
+### Serialization performance
+
+JSON deserialization target: <300ms for 10K nodes + 50K edges.
+- Stream-parse via `JsonTextReader` (avoid full-string intermediate)
+- Typed properties (no JToken/JObject intermediaries)
+- `_nodes` and `_edges` as arrays, not nested dicts (faster streaming)
+- Pre-size all collections from counts in JSON header
+
+If JSON exceeds 400ms, switch to MessagePack. Design GraphLoader with
+a format discriminator so the switch is transparent.
+
+### Memory estimate
+
+| Component | Size |
+|---|---|
+| Node instances (15K × ~200 bytes) | ~3MB |
+| Edge array (100K × ~80 bytes struct) | ~8MB |
+| Adjacency lists (2 × int[] CSR) | ~2MB |
+| String intern table | ~1MB |
+| Cached frontiers (~20 active quests) | <0.1MB |
+| ViewNode pool (512 instances) | <0.1MB |
+| **Total** | **~14MB** |
+
+Well within Unity's typical 500MB-2GB memory budget.
