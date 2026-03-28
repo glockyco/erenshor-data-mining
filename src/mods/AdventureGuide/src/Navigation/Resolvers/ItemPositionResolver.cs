@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Navigation.Resolvers;
@@ -28,15 +27,15 @@ public sealed class ItemPositionResolver : IPositionResolver
         _registry = registry;
     }
 
-    public List<Vector3> Resolve(Node node)
+    public List<ResolvedPosition> Resolve(Node node)
     {
-        var result = new List<Vector3>();
+        var result = new List<ResolvedPosition>();
         var visited = new HashSet<string>();
         CollectSourcePositions(node.Key, result, visited);
         return result;
     }
 
-    private void CollectSourcePositions(string itemKey, List<Vector3> result, HashSet<string> visited)
+    private void CollectSourcePositions(string itemKey, List<ResolvedPosition> result, HashSet<string> visited)
     {
         if (!visited.Add(itemKey)) return;
 

@@ -4,10 +4,26 @@ using AdventureGuide.Graph;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// Resolves a graph node to zero or more world positions.
+/// A resolved world position with its scene name.
+/// Scene is required for cross-zone navigation routing.
+/// </summary>
+public readonly struct ResolvedPosition
+{
+    public readonly Vector3 Position;
+    public readonly string? Scene;
+
+    public ResolvedPosition(Vector3 position, string? scene)
+    {
+        Position = position;
+        Scene = scene;
+    }
+}
+
+/// <summary>
+/// Resolves a graph node to zero or more world positions with scene info.
 /// Empty list means the node cannot be located right now.
 /// </summary>
 public interface IPositionResolver
 {
-    List<Vector3> Resolve(Node node);
+    List<ResolvedPosition> Resolve(Node node);
 }

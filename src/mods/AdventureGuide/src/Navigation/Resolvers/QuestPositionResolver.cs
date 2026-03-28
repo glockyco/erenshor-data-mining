@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.State;
@@ -24,14 +23,14 @@ public sealed class QuestPositionResolver : IPositionResolver
         _registry = registry;
     }
 
-    public List<Vector3> Resolve(Node node)
+    public List<ResolvedPosition> Resolve(Node node)
     {
         var root = _viewBuilder.Build(node.Key);
         if (root == null)
-            return new List<Vector3>();
+            return new List<ResolvedPosition>();
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
-        var result = new List<Vector3>();
+        var result = new List<ResolvedPosition>();
         foreach (var key in frontier)
             result.AddRange(_registry.Resolve(key));
         return result;

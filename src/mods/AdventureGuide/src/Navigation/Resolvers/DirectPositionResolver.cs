@@ -10,12 +10,12 @@ namespace AdventureGuide.Navigation.Resolvers;
 /// </summary>
 public sealed class DirectPositionResolver : IPositionResolver
 {
-    public List<Vector3> Resolve(Node node)
+    public List<ResolvedPosition> Resolve(Node node)
     {
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-            return new List<Vector3> { new Vector3(node.X.Value, node.Y.Value, node.Z.Value) };
+            return new List<ResolvedPosition> { new ResolvedPosition(new Vector3(node.X.Value, node.Y.Value, node.Z.Value), node.Scene) };
 
-        return new List<Vector3>();
+        return new List<ResolvedPosition>();
     }
 
     /// <summary>

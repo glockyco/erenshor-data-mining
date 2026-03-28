@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Navigation;
@@ -26,14 +25,14 @@ public sealed class PositionResolverRegistry
     /// Resolve world positions for a node key. Returns empty list if the node
     /// doesn't exist or no resolver is registered for its type.
     /// </summary>
-    public List<Vector3> Resolve(string nodeKey)
+    public List<ResolvedPosition> Resolve(string nodeKey)
     {
         var node = _graph.GetNode(nodeKey);
         if (node == null)
-            return new List<Vector3>();
+            return new List<ResolvedPosition>();
 
         if (!_resolvers.TryGetValue(node.Type, out var resolver))
-            return new List<Vector3>();
+            return new List<ResolvedPosition>();
 
         return resolver.Resolve(node);
     }

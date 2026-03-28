@@ -113,9 +113,8 @@ public sealed class NavigationEngine
 
         // Non-quest (or unknown) keys resolve directly.
         var positions = _registry.Resolve(nodeKey);
-        string? scene = node?.Scene;
         for (int i = 0; i < positions.Count; i++)
-            _candidates.Add((nodeKey, positions[i], scene));
+            _candidates.Add((nodeKey, positions[i].Position, positions[i].Scene));
     }
 
     /// <summary>
@@ -132,11 +131,9 @@ public sealed class NavigationEngine
 
         foreach (var frontierKey in frontier)
         {
-            var frontierNode = _graph.GetNode(frontierKey);
             var positions = _registry.Resolve(frontierKey);
-            string? scene = frontierNode?.Scene;
             for (int i = 0; i < positions.Count; i++)
-                _candidates.Add((frontierKey, positions[i], scene));
+                _candidates.Add((frontierKey, positions[i].Position, positions[i].Scene));
         }
     }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Navigation.Resolvers;
@@ -19,25 +20,25 @@ public sealed class CharacterPositionResolver : IPositionResolver
         _graph = graph;
     }
 
-    public List<Vector3> Resolve(Node node)
+    public List<ResolvedPosition> Resolve(Node node)
     {
         // Prefer live NPC position for real-time tracking
         var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
         var liveNPC = _entities.FindClosest(node.Key, playerPos);
         if (liveNPC != null)
-            return new List<Vector3> { liveNPC.transform.position };
+            return new List<ResolvedPosition> { new ResolvedPosition(liveNPC.transform.position, SceneManager.GetActiveScene().name) };
 
         // Fallback: static coordinates baked into the graph node
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-            return new List<Vector3> { new Vector3(node.X.Value, node.Y.Value, node.Z.Value) };
+            return new List<ResolvedPosition> { new ResolvedPosition(new Vector3(node.X.Value, node.Y.Value, node.Z.Value), node.Scene) };
 
         // Last resort: collect positions from linked spawn point nodes
-        var result = new List<Vector3>();
+        var result = new List<ResolvedPosition>();
         foreach (var edge in _graph.OutEdges(node.Key, EdgeType.HasSpawn))
         {
             var spawnNode = _graph.GetNode(edge.Target);
             if (spawnNode?.X != null && spawnNode.Y != null && spawnNode.Z != null)
-                result.Add(new Vector3(spawnNode.X.Value, spawnNode.Y.Value, spawnNode.Z.Value));
+                result.Add(new ResolvedPosition(new Vector3(spawnNode.X.Value, spawnNode.Y.Value, spawnNode.Z.Value), spawnNode.Scene));
         }
         return result;
     }
