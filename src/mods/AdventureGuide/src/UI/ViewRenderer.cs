@@ -298,8 +298,23 @@ public sealed class ViewRenderer
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
             return true;
 
-        // Quests and items resolve via their frontier/sources
-        return node.Type == NodeType.Quest || node.Type == NodeType.Item;
+        // Characters resolve via EntityRegistry or spawn point edges
+        // Items resolve via drop/vendor/gather source positions
+        // Quests resolve via their frontier
+        // Zone lines, spawn points, mining nodes have static coords
+        return node.Type switch
+        {
+            NodeType.Quest => true,
+            NodeType.Item => true,
+            NodeType.Character => true,
+            NodeType.ZoneLine => true,
+            NodeType.SpawnPoint => true,
+            NodeType.MiningNode => true,
+            NodeType.Water => true,
+            NodeType.Forge => true,
+            NodeType.ItemBag => true,
+            _ => false,
+        };
     }
 
     // ── Quest badge ─────────────────────────────────────────────────────
