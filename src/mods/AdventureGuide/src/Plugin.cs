@@ -206,6 +206,7 @@ public sealed class Plugin : BaseUnityPlugin
         _trackerState.OnCharacterLoaded();
         _navEngine.OnSceneChanged(SceneManager.GetActiveScene().name);
         _markerComputer.MarkDirty();
+        _markerSystem.OnSceneChanged(SceneManager.GetActiveScene().name);
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 

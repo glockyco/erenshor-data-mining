@@ -27,6 +27,7 @@ public sealed class MarkerSystem
     private bool _configDirty;
     private string _currentScene = "";
     private int _lastConfiguredVersion = -1;
+    private List<MarkerEntry> _activeMarkers = new();
 
     public bool Enabled
     {
@@ -60,11 +61,13 @@ public sealed class MarkerSystem
         if (!_enabled || GameData.PlayerControl == null || !MarkerFonts.IsReady)
             return;
 
-        var markers = _computer.Markers;
+        var markers = _activeMarkers;
 
         // Re-configure pool when marker set or config changed
         if (_computer.Version != _lastConfiguredVersion || _configDirty)
         {
+            _activeMarkers = DeduplicateByPosition(_computer.Markers);
+            markers = _activeMarkers;
             ConfigureMarkers(markers);
             _lastConfiguredVersion = _computer.Version;
             _configDirty = false;
@@ -72,7 +75,6 @@ public sealed class MarkerSystem
 
         // Per-frame: position updates and distance fading
         var playerPos = GameData.PlayerControl.transform.position;
-        int activeCount = 0;
 
         for (int i = 0; i < markers.Count; i++)
         {
@@ -93,7 +95,6 @@ public sealed class MarkerSystem
             float dist = Vector3.Distance(playerPos, pos);
             instance.SetAlpha(dist);
             instance.SetActive(true);
-            activeCount++;
         }
     }
 
@@ -118,20 +119,14 @@ public sealed class MarkerSystem
     private void OnConfigChanged(object sender, System.EventArgs e) => _configDirty = true;
 
     /// <summary>
-    /// Configure all pool instances from the current marker set.
-    /// Handles priority dedup: when multiple markers overlap at the same
-    /// position, the highest-priority marker type wins.
+    /// Configure all pool instances from the deduped marker set.
     /// </summary>
-    private void ConfigureMarkers(IReadOnlyList<MarkerEntry> markers)
+    private void ConfigureMarkers(List<MarkerEntry> markers)
     {
-        // Dedup by position: MarkerType enum values are priority-ordered
-        // (lower = higher priority)
-        var deduped = DeduplicateByPosition(markers);
-
-        _pool.SetActiveCount(deduped.Count);
-        for (int i = 0; i < deduped.Count; i++)
+        _pool.SetActiveCount(markers.Count);
+        for (int i = 0; i < markers.Count; i++)
         {
-            var entry = deduped[i];
+            var entry = markers[i];
             var instance = _pool.Get(i);
             instance.Configure(
                 entry.Type, entry.SubText,

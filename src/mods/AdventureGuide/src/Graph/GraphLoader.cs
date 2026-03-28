@@ -33,7 +33,7 @@ public static class GraphLoader
         }
         catch (Exception ex)
         {
-            log.LogError($"Failed to load entity graph: {ex.Message}");
+            log.LogError($"Failed to load entity graph: {ex}");
             return new EntityGraph(Array.Empty<Node>(), Array.Empty<Edge>());
         }
     }
