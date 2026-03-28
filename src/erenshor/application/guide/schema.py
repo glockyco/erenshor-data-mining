@@ -1,417 +1,247 @@
-"""Quest guide data schema (v3).
+"""Entity graph data model.
 
-These dataclasses define the quest guide JSON structure consumed by both
-the BepInEx mod (at runtime) and the manual curation layer (at author time).
+The guide's knowledge is an entity graph: every game entity is a Node,
+every relationship is a typed Edge.  The Python pipeline builds the raw
+graph from the clean SQLite DB and serializes it to JSON.  The C# mod
+deserializes it, builds view trees on demand from the graph + live game
+state, and handles rendering, navigation, and markers.
 
-Design principles:
-- All obtainability data lives in a single polymorphic ItemSource type.
-  Each source carries its own level inline. No parallel factor lists.
-- Sources are sorted by level ascending (easiest first) after level
-  estimation, and pre-aggregated to zone granularity (mining/fishing/pickup).
-- Prerequisites are structured data with stable keys, not opaque strings.
-- Optional fields are None when absent. Present fields are always
-  serialized, including zero and false values.
+Design:
+- Node and Edge use typed fields (not dicts) for compile-time safety on
+  the C# side and clarity on the Python side.
+- NodeType and EdgeType are exhaustive enums covering every entity and
+  relationship the game contains.
+- AND/OR/NOT dependency semantics are encoded via Edge.group and
+  Edge.negated (see plan doc for full semantics).
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 # ---------------------------------------------------------------------------
-# Enumerations
+# Node types — every entity that is a node in the graph
 # ---------------------------------------------------------------------------
 
 
-class QuestType(str, Enum):
-    """How the quest is primarily completed. Drives step auto-generation."""
+class NodeType(str, Enum):
+    """Every entity type that exists as a graph node."""
 
-    FETCH = "fetch"  # Has required items + item turn-in
-    KILL = "kill"  # QuestCompleteOnDeath
-    DIALOG = "dialog"  # QuestToComplete on NPCDialog
-    ZONE_TRIGGER = "zone_trigger"  # CompleteQuestOnEnter
-    SHOUT = "shout"  # NPCShoutListener.TriggerQuest
-    ITEM_READ = "item_read"  # CompleteOnRead
-    UNKNOWN = "unknown"  # No completion data or mechanism known yet
-    CHAIN = "chain"  # Only completed via CompleteOtherQuests
-    HYBRID = "hybrid"  # Multiple completion methods
-
-
-class StepAction(str, Enum):
-    """What the player does in a quest step."""
-
-    TALK = "talk"
-    KILL = "kill"
-    COLLECT = "collect"
-    TRAVEL = "travel"
-    USE_ITEM = "use_item"
-    SHOUT = "shout"
-    TURN_IN = "turn_in"
-    READ = "read"
-    COMPLETE_QUEST = "complete_quest"
-    CUSTOM = "custom"
-
-
-class AcceptanceMode(str, Enum):
-    """How a quest enters the player's quest log."""
-
-    EXPLICIT = "explicit"  # Requires dialog, item read, zone entry, etc.
-    IMPLICIT = "implicit"  # Always completable, no formal acceptance
-
-
-class AcquisitionMethod(str, Enum):
-    """How a player obtains a quest."""
-
-    DIALOG = "dialog"
-    ITEM_READ = "item_read"
-    ZONE_ENTRY = "zone_entry"
-    QUEST_CHAIN = "quest_chain"
-    PARTIAL_TURNIN = "partial_turnin"
-    SCRIPTED = "scripted"
-
-
-class CompletionMethod(str, Enum):
-    """How a player completes a quest."""
-
-    ITEM_TURNIN = "item_turnin"
-    TALK = "talk"
+    QUEST = "quest"
+    ITEM = "item"
+    CHARACTER = "character"
     ZONE = "zone"
-    READ = "read"
-    SHOUT = "shout"
-    DEATH = "death"
-    SCRIPTED = "scripted"
-    CHAIN = "chain"
+    ZONE_LINE = "zone_line"
+    SPAWN_POINT = "spawn_point"
+    MINING_NODE = "mining_node"
+    WATER = "water"
+    FORGE = "forge"
+    ITEM_BAG = "item_bag"
+    RECIPE = "recipe"
+    DOOR = "door"
+    FACTION = "faction"
+    SPELL = "spell"
+    SKILL = "skill"
+    TELEPORT = "teleport"
+    WORLD_OBJECT = "world_object"
+    ACHIEVEMENT_TRIGGER = "achievement_trigger"
+    SECRET_PASSAGE = "secret_passage"
+    WISHING_WELL = "wishing_well"
+    TREASURE_LOCATION = "treasure_location"
+    BOOK = "book"
+    CLASS = "class_"
+    STANCE = "stance"
+    ASCENSION = "ascension"
 
 
 # ---------------------------------------------------------------------------
-# Obtainability
+# Edge types — every relationship between nodes
 # ---------------------------------------------------------------------------
 
 
-@dataclass
-class ItemSource:
-    """A single way to obtain an item, with inline level and count data.
+class EdgeType(str, Enum):
+    """Every typed, directed relationship in the graph.
 
-    Replaces the v2 DropSource, VendorSource, FishingSource, MiningSource,
-    BagSource, CraftingSource, and QuestRewardSource types. Each source
-    carries its own level so the UI doesn't need to join against a separate
-    factor list.
-
-    Sources are sorted by level ascending (easiest first) after level
-    estimation. Zone-level sources (mining, fishing, pickup) are
-    pre-aggregated per zone.
-
-    ``children`` is populated for quest_reward (rewarding quest's required-item
-    sources) and crafting (mold sources + ingredient entries) to provide one
-    level of acquisition sub-tree expansion.
+    Convention: A → B means "A relates to B in this way."
     """
 
-    type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward", "dialog_give"
-    name: str | None = None  # entity name (enemy, vendor, recipe item, quest name)
-    zone: str | None = None  # zone display name
-    scene: str | None = None  # scene name for spawn lookup (e.g., "Rockshade")
-    level: int | None = None  # recommended level to use this source
-    source_key: str | None = (
-        None  # character stable_key, mining-nodes:{scene}, pickup-nodes:{item_key}:{scene}, or forge:{scene}
-    )
-    quest_key: str | None = None  # for quest_reward: rewarding quest's stable_key
-    node_count: int | None = None  # for mining/fishing/pickup: nodes per zone
-    spawn_count: int | None = None  # for drop: enemy spawn points in this zone
-    recipe_key: str | None = None  # for crafting: recipe item stable_key
-    children: list[ItemSource] = field(default_factory=list)
+    # -- Quest edges (source = quest) --
+    REQUIRES_QUEST = "requires_quest"
+    REQUIRES_ITEM = "requires_item"
+    STEP_TALK = "step_talk"
+    STEP_KILL = "step_kill"
+    STEP_TRAVEL = "step_travel"
+    STEP_SHOUT = "step_shout"
+    STEP_READ = "step_read"
+    COMPLETED_BY = "completed_by"
+    ASSIGNED_BY = "assigned_by"
+    REWARDS_ITEM = "rewards_item"
+    CHAINS_TO = "chains_to"
+    ALSO_COMPLETES = "also_completes"
+    UNLOCKS_ZONE_LINE = "unlocks_zone_line"
+    UNLOCKS_CHARACTER = "unlocks_character"
+    AFFECTS_FACTION = "affects_faction"
 
+    # -- Item edges (source = item) --
+    CRAFTED_FROM = "crafted_from"
+    TEACHES_SPELL = "teaches_spell"
+    ASSIGNS_QUEST = "assigns_quest"
+    COMPLETES_QUEST = "completes_quest"
+    UNLOCKS_DOOR = "unlocks_door"
+    ENABLES_INTERACTION = "enables_interaction"
 
-@dataclass
-class RequiredItemInfo:
-    """A required item with quantity and unified obtainability sources.
+    # -- Character edges (source = character) --
+    DROPS_ITEM = "drops_item"
+    SELLS_ITEM = "sells_item"
+    GIVES_ITEM = "gives_item"
+    SPAWNS_IN = "spawns_in"
+    HAS_SPAWN = "has_spawn"
+    BELONGS_TO_FACTION = "belongs_to_faction"
+    PROTECTS = "protects"
 
-    When ``or_group`` is set, this item is one of several alternatives
-    sharing the same group name (e.g. multiple item_read triggers).
-    The player only needs one item from the group, not all of them.
-    ``or_group = None`` means the item is mandatory.
-    """
+    # -- Recipe edges (source = recipe) --
+    REQUIRES_MATERIAL = "requires_material"
+    PRODUCES = "produces"
 
-    item_name: str
-    item_stable_key: str
-    quantity: int = 1
-    or_group: str | None = None
-    sources: list[ItemSource] = field(default_factory=list)
+    # -- Zone edges (source = zone) --
+    CONNECTS_TO = "connects_to"
+    CONTAINS = "contains"
+
+    # -- Resource node edges (source = mining_node / water / item_bag) --
+    YIELDS_ITEM = "yields_item"
+
+    # -- Spawn point edges --
+    SPAWNS_CHARACTER = "spawns_character"
+    GATED_BY_QUEST = "gated_by_quest"
+    STOPS_AFTER_QUEST = "stops_after_quest"
+
+    # -- Zone line edges --
+    CONNECTS_ZONES = "connects_zones"
+
+    # -- World object edges --
+    REMOVES_INVULNERABILITY = "removes_invulnerability"
 
 
 # ---------------------------------------------------------------------------
-# Quest structure
+# Core data model
 # ---------------------------------------------------------------------------
 
 
 @dataclass
-class QuestStep:
-    """A single step in the quest walkthrough.
+class Node:
+    """A node in the entity graph.
 
-    When ``or_group`` is set, this step is one of several alternatives
-    sharing the same group name. The player only needs to complete one
-    step from each group. ``or_group = None`` means the step is mandatory.
+    Every field beyond key/type/display_name is optional and type-specific.
+    The serializer emits all non-None fields; the C# GraphLoader maps them
+    to typed nullable fields on the C# Node class.
     """
 
-    order: int
-    action: str  # StepAction value
-    description: str
-    target_name: str | None = None  # NPC/item/zone name
-    target_type: str | None = None  # "character", "item", "zone"
-    target_key: str | None = None  # stable key for spawn/entity lookup
-    quantity: int | None = None  # for collect/kill steps
-    zone_name: str | None = None  # where this step happens
-    keyword: str | None = None  # for talk/shout steps requiring a specific phrase
-    or_group: str | None = None
-    tips: list[str] = field(default_factory=list)
-    level_estimate: LevelEstimate | None = None
+    key: str
+    type: NodeType
+    display_name: str
 
+    # Position (character spawns, zone lines, mining nodes, etc.)
+    x: float | None = None
+    y: float | None = None
+    z: float | None = None
+    scene: str | None = None
 
-@dataclass
-class AcquisitionSource:
-    """How the player obtains this quest."""
+    # Identity
+    db_name: str | None = None  # quest db_name, item id, etc.
+    description: str | None = None
 
-    method: str  # AcquisitionMethod value
-    source_name: str | None = None
-    source_type: str | None = None  # "character", "item", "zone", "quest"
-    source_stable_key: str | None = None
-    zone_name: str | None = None
-    keyword: str | None = None  # dialog keyword to say to the NPC
-    note: str | None = None
-
-
-@dataclass
-class CompletionSource:
-    """How the player completes this quest."""
-
-    method: str  # CompletionMethod value
-    source_name: str | None = None
-    source_type: str | None = None
-    source_stable_key: str | None = None
-    zone_name: str | None = None
+    # Game data
+    level: int | None = None
+    zone: str | None = None  # display name of containing zone
+    zone_key: str | None = None  # stable key of containing zone
     keyword: str | None = None
-    note: str | None = None
+    night_spawn: bool = False
+    is_enabled: bool = True
 
-
-@dataclass
-class Prerequisite:
-    """A quest that must be completed before this one.
-
-    Covers both explicit prerequisites from the game data and implicit
-    prerequisites detected from item dependencies (when a required item
-    is obtainable ONLY as a reward from another quest).
-    """
-
-    type: str = "quest"  # currently always "quest"; extensible for future types
-    quest_key: str = ""  # stable_key of the prerequisite quest
-    quest_name: str = ""  # display name for rendering
-    item: str | None = None  # connecting item name (for implicit prerequisites)
-    note: str | None = None  # explanation (for character unlock prerequisites)
-
-
-@dataclass
-class UnlockedZoneLine:
-    """A zone transition unlocked by completing this quest."""
-
-    from_zone: str = ""
-    to_zone: str = ""
-    co_requirements: list[str] = field(default_factory=list)  # other quest names needed
-
-
-@dataclass
-class UnlockedCharacter:
-    """An NPC that spawns when this quest is completed."""
-
-    name: str = ""
-    zone: str | None = None
-
-
-@dataclass
-class VendorUnlockInfo:
-    """An item unlocked for vendor purchase on quest completion."""
-
-    item_name: str = ""
-    vendor_name: str = ""
-
-
-@dataclass
-class Rewards:
-    """Quest completion rewards."""
-
-    xp: int = 0
-    gold: int = 0
-    item_name: str | None = None
-    item_stable_key: str | None = None
-    next_quest_name: str | None = None
-    next_quest_stable_key: str | None = None
-    also_completes: list[str] = field(default_factory=list)
-    vendor_unlock: VendorUnlockInfo | None = None
-    unlocked_zone_lines: list[UnlockedZoneLine] = field(default_factory=list)
-    unlocked_characters: list[UnlockedCharacter] = field(default_factory=list)
-    achievements: list[str] = field(default_factory=list)
-    faction_effects: list[FactionEffect] = field(default_factory=list)
-
-
-@dataclass
-class FactionEffect:
-    """Faction reputation change on quest completion."""
-
-    faction_name: str = ""
-    faction_stable_key: str = ""
-    amount: int = 0
-
-
-@dataclass
-class ChainLink:
-    """A link in a quest chain."""
-
-    quest_name: str = ""
-    quest_stable_key: str = ""
-    relationship: str = ""  # "previous", "next", "also_completes", "completed_by"
-
-
-@dataclass
-class QuestFlags:
-    """Behavioral flags that affect gameplay."""
-
+    # Quest-specific
+    xp_reward: int | None = None
+    gold_reward: int | None = None
+    reward_item_key: str | None = None
     repeatable: bool = False
     disabled: bool = False
     disabled_text: str | None = None
-    kill_turn_in_holder: bool = False
-    destroy_turn_in_holder: bool = False
-    drop_invuln_on_holder: bool = False
-    once_per_spawn_instance: bool = False
+    implicit: bool = False  # completable without formal acceptance
 
+    # Item-specific
+    item_level: int | None = None
+    stackable: bool = False
+    is_unique: bool = False
+    template: bool = False  # crafting recipe template item
 
-# ---------------------------------------------------------------------------
-# Level estimation
-# ---------------------------------------------------------------------------
+    # Character-specific
+    is_vendor: bool = False
+    is_friendly: bool = False
+    invulnerable: bool = False
+    faction_key: str | None = None
 
+    # Spawn point specific
+    spawn_chance: float | None = None
+    is_rare: bool = False
+    respawn_delay: float | None = None
 
-@dataclass
-class LevelFactor:
-    """A contributing factor to a level estimate.
+    # Mining node / water / item_bag specific
+    respawn_time: float | None = None
 
-    For non-collect steps (talk, travel, shout, turn_in): the zone median.
-    For quest-level estimates: the driving step reference.
-    Not used for collect/read steps — their levels come from ItemSource.level.
-    """
+    # Item bag specific
+    respawns: bool = True
 
-    source: str  # e.g. "zone_median", "step_3"
-    name: str | None = None
-    level: int = 0
+    # Door specific
+    key_item_key: str | None = None
 
+    # Teleport specific
+    teleport_item_key: str | None = None
 
-@dataclass
-class LevelEstimate:
-    """Recommended level for a quest or step.
-
-    For steps: min(source.level) for collect/read, zone median for others.
-    For quests: max(step.level) across all steps.
-    """
-
-    recommended: int | None = None
-    factors: list[LevelFactor] = field(default_factory=list)
-
-
-# ---------------------------------------------------------------------------
-# Lookup tables
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class SpawnPoint:
-    """A character spawn location."""
-
-    scene: str = ""
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    night_spawn: bool = False
-    is_enabled: bool = True
-    spawn_upon_quest_complete: str | None = None  # quest stable key that enables this spawn
-
-
-@dataclass
-class ZoneInfo:
-    """Zone metadata for the lookup table."""
-
-    display_name: str = ""
-    stable_key: str = ""
+    # Zone specific
+    is_dungeon: bool = False
     level_min: int | None = None
     level_max: int | None = None
-    level_median: int | None = None
 
+    # Book specific
+    book_title: str | None = None
 
-@dataclass
-class ZoneLine:
-    """A zone transition point."""
+    # Achievement trigger
+    achievement_name: str | None = None
 
-    scene: str = ""
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    is_enabled: bool = True
-    destination_zone_key: str = ""
-    destination_display: str = ""
+    # Faction specific
+    default_value: float | None = None
+
+    # Zone line specific
+    destination_zone_key: str | None = None
+    destination_display: str | None = None
     landing_x: float | None = None
     landing_y: float | None = None
     landing_z: float | None = None
-    required_quest_groups: list[list[str]] = field(default_factory=list)
 
 
 @dataclass
-class ChainGroup:
-    """A pre-computed quest chain."""
+class Edge:
+    """A typed, directed relationship between two nodes.
 
-    name: str = ""
-    quests: list[str] = field(default_factory=list)  # ordered db_names
+    AND/OR semantics are encoded via ``group``:
+    - group=None: unconditional, always applies.
+    - Same group value: AND — all edges in the group must be satisfied.
+    - Different groups for the same (source, edge_type pattern): OR —
+      any fully-satisfied group unlocks.
 
+    ``negated=True`` inverts the condition (e.g., PietyTrigger: spawn
+    active when quest is NOT completed).
+    """
 
-# ---------------------------------------------------------------------------
-# Top-level
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class QuestGuide:
-    """Complete guide entry for a single quest."""
-
-    # Identity — always present
-    db_name: str = ""
-    stable_key: str = ""
-    display_name: str = ""
-    description: str | None = None
-
-    # Classification — inferred
-    quest_type: str | None = None  # QuestType value
-    acceptance: str | None = None  # AcceptanceMode value
-    zone_context: str | None = None  # primary zone, inferred from NPC locations
-
-    # Structured data
-    acquisition: list[AcquisitionSource] = field(default_factory=list)
-    prerequisites: list[Prerequisite] = field(default_factory=list)
-    steps: list[QuestStep] = field(default_factory=list)
-    required_items: list[RequiredItemInfo] = field(default_factory=list)
-    completion: list[CompletionSource] = field(default_factory=list)
-    rewards: Rewards = field(default_factory=Rewards)
-    chain: list[ChainLink] = field(default_factory=list)
-    flags: QuestFlags = field(default_factory=QuestFlags)
-    level_estimate: LevelEstimate | None = None
-
-    # Manual curation fields
-    difficulty: str | None = None  # trivial|easy|moderate|hard|epic
-    estimated_time: str | None = None
-    tags: list[str] = field(default_factory=list)
-
-
-@dataclass
-class GuideOutput:
-    """Complete guide output with lookup tables and quest entries."""
-
-    version: int = 5
-    zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)
-    character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)
-    zone_lines: list[ZoneLine] = field(default_factory=list)
-    chain_groups: list[ChainGroup] = field(default_factory=list)
-    character_quest_unlocks: dict[str, list[list[str]]] = field(default_factory=dict)
-    quests: list[QuestGuide] = field(default_factory=list)
+    source: str
+    target: str
+    type: EdgeType
+    group: str | None = None
+    ordinal: int | None = None
+    negated: bool = False
+    quantity: int | None = None
+    keyword: str | None = None
+    note: str | None = None
+    chance: float | None = None
+    amount: int | None = None
+    slot: int | None = None
