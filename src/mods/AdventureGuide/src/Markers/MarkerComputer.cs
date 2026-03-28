@@ -21,6 +21,7 @@ public sealed class MarkerComputer
 
     public IReadOnlyList<MarkerEntry> Markers => _markers;
     public bool IsDirty => _dirty;
+    public int Version { get; private set; }
 
     public MarkerComputer(
         EntityGraph graph,
@@ -44,6 +45,7 @@ public sealed class MarkerComputer
     {
         if (!_dirty) return;
         _dirty = false;
+        Version++;
         _markers.Clear();
 
         var quests = _graph.NodesOfType(NodeType.Quest);
@@ -82,14 +84,18 @@ public sealed class MarkerComputer
                 if (node.Type == NodeType.Quest) continue;
                 if (!HasPosition(node)) continue;
 
+                var markerType = ResolveMarkerType(node);
+                string? subText = markerType == MarkerType.Objective ? quest.DisplayName : null;
+
                 _markers.Add(new MarkerEntry
                 {
-                    Type = MarkerType.Objective,
+                    Type = markerType,
                     X = node.X!.Value,
                     Y = node.Y!.Value,
                     Z = node.Z!.Value,
                     Scene = node.Scene ?? "",
                     DisplayName = node.DisplayName,
+                    SubText = subText ?? "",
                     NodeKey = node.Key,
                     QuestKey = quest.Key,
                 });
@@ -172,4 +178,23 @@ public sealed class MarkerComputer
 
     private static bool HasPosition(Node node) =>
         node.X.HasValue && node.Y.HasValue && node.Z.HasValue;
+
+    /// <summary>
+    /// Determine the marker type for a frontier node based on its live state.
+    /// Dead/respawning → DeadSpawn, night-locked → NightSpawn,
+    /// quest-gated → QuestLocked, otherwise → Objective.
+    /// </summary>
+    private MarkerType ResolveMarkerType(Node node)
+    {
+        var nodeState = _state.GetState(node.Key);
+        return nodeState switch
+        {
+            SpawnDead => MarkerType.DeadSpawn,
+            SpawnNightLocked => MarkerType.NightSpawn,
+            SpawnQuestGated => MarkerType.QuestLocked,
+            SpawnDisabled => MarkerType.QuestLocked,
+            MiningMined => MarkerType.DeadSpawn,
+            _ => MarkerType.Objective,
+        };
+    }
 }

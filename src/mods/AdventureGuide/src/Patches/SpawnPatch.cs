@@ -5,15 +5,14 @@ using HarmonyLib;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Registers newly spawned NPCs in the EntityRegistry and triggers
-/// marker recomputation.
-/// SpawnPoint.SpawnNPC sets SpawnedNPC and adds to NPCTable.LiveNPCs
-/// before this postfix runs, so NPCName is available.
+/// Registers newly spawned NPCs in the EntityRegistry and notifies
+/// LiveStateTracker to clear respawn timers.
 /// </summary>
 [HarmonyPatch(typeof(SpawnPoint), "SpawnNPC")]
 internal static class SpawnPatch
 {
     internal static EntityRegistry? Registry;
+    internal static LiveStateTracker? LiveState;
     internal static MarkerComputer? Markers;
 
     [HarmonyPostfix]
@@ -21,6 +20,7 @@ internal static class SpawnPatch
     {
         if (__instance.SpawnedNPC != null)
             Registry?.Register(__instance.SpawnedNPC, __instance);
+        LiveState?.OnNPCSpawn(__instance);
         Markers?.MarkDirty();
     }
 }

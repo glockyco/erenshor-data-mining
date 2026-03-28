@@ -44,6 +44,8 @@ public sealed class Plugin : BaseUnityPlugin
     private TrackerState? _trackerState;
     private TrackerPanel? _trackerPanel;
     private EntityRegistry? _entities;
+    private LiveStateTracker? _liveState;
+    private MarkerSystem? _markerSystem;
 
     static Plugin()
     {
@@ -105,10 +107,26 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _entities = new EntityRegistry();
+        _liveState = new LiveStateTracker(_graph, _entities);
         _zoneRouter = new ZoneRouter(_graph, _gameState);
+
+        // Register remaining state resolvers (character, spawn, mining, bag, door)
+        _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
+        _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
+        _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
+        _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver());
+        _gameState.Register(NodeType.Door, new DoorStateResolver(_questTracker));
 
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
+        positionRegistry.Register(NodeType.Character,
+            new CharacterPositionResolver(_entities, _graph));
+        positionRegistry.Register(NodeType.Item,
+            new ItemPositionResolver(_graph, positionRegistry));
+        positionRegistry.Register(NodeType.Quest,
+            new QuestPositionResolver(_viewBuilder, _gameState, positionRegistry));
+        positionRegistry.Register(NodeType.ZoneLine,
+            new ZoneLinePositionResolver());
 
         _navEngine = new NavigationEngine(
             _navSet, positionRegistry, _graph, _viewBuilder, _gameState, _zoneRouter);
@@ -123,6 +141,8 @@ public sealed class Plugin : BaseUnityPlugin
         // --- Markers layer ---
         _markerPool = new MarkerPool();
         _markerComputer = new MarkerComputer(_graph, _questTracker, _gameState, _viewBuilder);
+        _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _liveState, _config);
+        _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
         _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
@@ -166,8 +186,10 @@ public sealed class Plugin : BaseUnityPlugin
         InventoryPatch.Tracker = _questTracker;
         InventoryPatch.Markers = _markerComputer;
         SpawnPatch.Registry = _entities;
+        SpawnPatch.LiveState = _liveState;
         SpawnPatch.Markers = _markerComputer;
         DeathPatch.Registry = _entities;
+        DeathPatch.LiveState = _liveState;
         DeathPatch.Markers = _markerComputer;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
@@ -180,6 +202,7 @@ public sealed class Plugin : BaseUnityPlugin
         // Sync from current game state (essential for hot reload)
         _questTracker.OnSceneChanged(SceneManager.GetActiveScene().name);
         _entities.SyncFromLiveNPCs();
+        _liveState.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
         _navEngine.OnSceneChanged(SceneManager.GetActiveScene().name);
         _markerComputer.MarkDirty();
@@ -239,6 +262,7 @@ public sealed class Plugin : BaseUnityPlugin
         _markerComputer?.Recompute();
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
+        _markerSystem?.Update();
 
         if (_config == null || _window == null) return;
         if (!_inGameplay) return;
@@ -280,11 +304,13 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         _entities?.Clear();
+        _liveState?.OnSceneLoaded();
         _questTracker?.OnSceneChanged(scene.name);
         _trackerState?.OnCharacterLoaded();
         _trackerState?.PruneCompleted(_questTracker!);
         _navEngine?.OnSceneChanged(scene.name);
         _markerComputer?.MarkDirty();
+        _markerSystem?.OnSceneChanged(scene.name);
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
@@ -334,6 +360,8 @@ public sealed class Plugin : BaseUnityPlugin
         bool ui = _gameUIVisible;
         _arrow!.Enabled = ui && _config!.ShowArrow.Value;
         _groundPath!.Enabled = ui && _config!.ShowGroundPath.Value;
+        if (_markerSystem != null)
+            _markerSystem.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
     private void OnDestroy()
@@ -355,7 +383,7 @@ public sealed class Plugin : BaseUnityPlugin
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
-        _markerPool?.Destroy();
+        _markerSystem?.Destroy();
         _entities?.Clear();
         MarkerFonts.Destroy();
         DebugAPI.Graph = null;
