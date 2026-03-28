@@ -7,8 +7,9 @@ with manual node and edge definitions and merges them into the graph.
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -25,11 +26,6 @@ def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
     if not overrides_path.exists():
         return
 
-    try:
-        import tomllib
-    except ModuleNotFoundError:
-        import tomli as tomllib  # type: ignore[no-redef]
-
     text = overrides_path.read_text(encoding="utf-8")
     data = tomllib.loads(text)
 
@@ -43,7 +39,7 @@ def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
         graph.add_edge(edge)
 
 
-def _parse_node(data: dict) -> Node:
+def _parse_node(data: dict[str, Any]) -> Node:
     """Parse a node dict from TOML into a Node."""
     return Node(
         key=data["key"],
@@ -62,7 +58,7 @@ def _parse_node(data: dict) -> Node:
     )
 
 
-def _parse_edge(data: dict) -> Edge:
+def _parse_edge(data: dict[str, Any]) -> Edge:
     """Parse an edge dict from TOML into an Edge."""
     return Edge(
         source=data["source"],

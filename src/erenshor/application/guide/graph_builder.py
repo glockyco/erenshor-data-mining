@@ -70,6 +70,7 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_spawn_point_protector_edges(conn, graph)
     _add_zone_line_gate_edges(conn, graph)
     _add_zone_line_connect_edges(conn, graph)
+    _add_zone_connect_edges(conn, graph, scene_to_zone)
     _add_zone_contain_edges(conn, graph, scene_to_zone)
     _add_mining_yield_edges(conn, graph)
     _add_water_yield_edges(conn, graph)
@@ -109,16 +110,17 @@ def _resolve_zone(scene: str | None, scene_to_zone: dict[str, str]) -> str | Non
     return scene_to_zone.get(scene)
 
 
-def _zone_display_for_scene(
-    scene: str | None,
-    scene_to_zone: dict[str, str],
+def _zone_display_name(
+    zone_key: str | None,
     zone_displays: dict[str, str],
+    fallback: str | None = None,
 ) -> str | None:
-    """Resolve scene → zone key → zone display name."""
-    zk = _resolve_zone(scene, scene_to_zone)
-    if zk is None:
-        return None
-    return zone_displays.get(zk)
+    """Resolve zone key to display name, with optional fallback."""
+    if zone_key is not None:
+        name = zone_displays.get(zone_key)
+        if name is not None:
+            return name
+    return fallback
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +224,7 @@ def _add_character_nodes(
                 z=r["z"],
                 scene=scene,
                 level=r["level"],
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 is_vendor=bool(r["is_vendor"]),
                 is_friendly=bool(r["is_friendly"]),
@@ -270,7 +272,7 @@ def _add_zone_line_nodes(
         zone_key = _resolve_zone(r["scene"], scene_to_zone)
         # Display name: "Zone A → Zone B" or fallback to display_text
         dest = r["dest_display"] or "?"
-        src_display = zone_displays.get(zone_key) if zone_key else r["scene"]
+        src_display = _zone_display_name(zone_key, zone_displays, r["scene"])
         display = f"{src_display} → {dest}"
         graph.add_node(
             Node(
@@ -281,7 +283,7 @@ def _add_zone_line_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=r["scene"],
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 is_enabled=bool(r["is_enabled"]) if r["is_enabled"] is not None else True,
                 destination_zone_key=r["destination_zone_stable_key"],
@@ -328,7 +330,7 @@ def _add_spawn_point_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 is_enabled=bool(r["is_enabled"]) if r["is_enabled"] is not None else True,
                 night_spawn=bool(r["night_spawn"]),
@@ -357,7 +359,7 @@ def _add_mining_node_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 respawn_time=r["respawn_time"],
             )
@@ -378,12 +380,12 @@ def _add_water_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.WATER,
-                display_name=f"Fishing spot ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Fishing spot ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
             )
         )
@@ -403,12 +405,12 @@ def _add_forge_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.FORGE,
-                display_name=f"Forge ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Forge ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
             )
         )
@@ -440,7 +442,7 @@ def _add_item_bag_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 respawns=bool(r["respawns"]) if r["respawns"] is not None else True,
                 respawn_time=r["respawn_timer"],
@@ -480,12 +482,12 @@ def _add_door_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.DOOR,
-                display_name=f"Door ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Door ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 key_item_key=r["key_item_stable_key"],
             )
@@ -550,12 +552,12 @@ def _add_teleport_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.TELEPORT,
-                display_name=f"Teleport ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Teleport ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 teleport_item_key=r["teleport_item_stable_key"],
             )
@@ -581,7 +583,7 @@ def _add_achievement_trigger_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
                 achievement_name=r["achievement_name"],
             )
@@ -607,7 +609,7 @@ def _add_secret_passage_nodes(
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
             )
         )
@@ -627,12 +629,12 @@ def _add_wishing_well_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.WISHING_WELL,
-                display_name=f"Wishing Well ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Wishing Well ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
             )
         )
@@ -652,12 +654,12 @@ def _add_treasure_location_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.TREASURE_LOCATION,
-                display_name=f"Treasure ({zone_displays.get(zone_key, scene)})",
+                display_name=f"Treasure ({_zone_display_name(zone_key, zone_displays, scene)})",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
                 scene=scene,
-                zone=zone_displays.get(zone_key) if zone_key else None,
+                zone=_zone_display_name(zone_key, zone_displays),
                 zone_key=zone_key,
             )
         )
@@ -1348,6 +1350,41 @@ def _add_zone_line_connect_edges(conn: sqlite3.Connection, graph: EntityGraph) -
             )
 
 
+def _add_zone_connect_edges(
+    conn: sqlite3.Connection,
+    graph: EntityGraph,
+    scene_to_zone: dict[str, str],
+) -> None:
+    """zone → zone (CONNECTS_TO) derived from zone lines.
+
+    If zone A has a zone line whose destination is zone B, then A connects_to B.
+    Deduplicated: only one edge per (source_zone, dest_zone) pair.
+    """
+    rows = conn.execute("""
+        SELECT zl.scene, zl.destination_zone_stable_key
+        FROM zone_lines zl
+        WHERE zl.destination_zone_stable_key IS NOT NULL
+    """)
+    seen: set[tuple[str, str]] = set()
+    for r in rows:
+        dest_zone = r["destination_zone_stable_key"]
+        src_zone = scene_to_zone.get(r["scene"] or "")
+        if not src_zone or src_zone == dest_zone:
+            continue
+        pair = (src_zone, dest_zone)
+        if pair in seen:
+            continue
+        seen.add(pair)
+        if graph.has_node(src_zone) and graph.has_node(dest_zone):
+            graph.add_edge(
+                Edge(
+                    source=src_zone,
+                    target=dest_zone,
+                    type=EdgeType.CONNECTS_TO,
+                )
+            )
+
+
 def _add_zone_contain_edges(
     conn: sqlite3.Connection,
     graph: EntityGraph,
@@ -1583,5 +1620,6 @@ def _find_dialog_keyword(
         return None
 
     if row and row["keywords"]:
-        return row["keywords"].split(",")[0].strip()
+        keywords: str = row["keywords"]
+        return keywords.split(",")[0].strip()
     return None
