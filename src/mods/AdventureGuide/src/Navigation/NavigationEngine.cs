@@ -26,6 +26,11 @@ public sealed class NavigationEngine
     // Reusable buffers to avoid per-frame allocation.
     private readonly List<(string nodeKey, Vector3 position, string? scene)> _candidates = new();
 
+    // Cross-zone route cache: route doesn't change within a scene.
+    private string? _cachedRouteFrom;
+    private string? _cachedRouteTo;
+    private ZoneRouter.Route? _cachedRoute;
+
     /// <summary>World position of the closest resolved target, or null if nothing is resolvable.</summary>
     public Vector3? TargetPosition { get; private set; }
 
@@ -71,6 +76,9 @@ public sealed class NavigationEngine
     public void OnSceneChanged(string sceneName)
     {
         CurrentScene = sceneName;
+        _cachedRouteFrom = null;
+        _cachedRouteTo = null;
+        _cachedRoute = null;
         _router.Rebuild();
     }
 
@@ -175,7 +183,7 @@ public sealed class NavigationEngine
 
         if (targetInOtherZone && bestScene != null)
         {
-            var route = _router.FindRoute(CurrentScene, bestScene);
+            var route = FindRouteCached(CurrentScene, bestScene);
             if (route != null)
             {
                 EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
@@ -195,6 +203,16 @@ public sealed class NavigationEngine
         Distance = bestPos.HasValue
             ? Vector3.Distance(playerPosition, bestPos.Value)
             : 0f;
+    }
+
+    private ZoneRouter.Route? FindRouteCached(string from, string to)
+    {
+        if (from == _cachedRouteFrom && to == _cachedRouteTo)
+            return _cachedRoute;
+        _cachedRouteFrom = from;
+        _cachedRouteTo = to;
+        _cachedRoute = _router.FindRoute(from, to);
+        return _cachedRoute;
     }
 
     private void ClearTarget()
