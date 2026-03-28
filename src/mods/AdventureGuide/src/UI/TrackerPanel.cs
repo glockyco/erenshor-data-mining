@@ -473,6 +473,37 @@ public sealed class TrackerPanel
             CollectFrontierPositions(node, positions);
         }
 
+        // Prepend cross-zone prefix when all frontier is outside current scene
+        if (positions.Count > 0)
+        {
+            string currentScene = _tracker.CurrentZone;
+            bool anyInZone = false;
+            string? crossZoneName = null;
+            foreach (var p in positions)
+            {
+                if (string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+                {
+                    anyInZone = true;
+                    break;
+                }
+            }
+            if (!anyInZone)
+            {
+                // Find zone display name from first frontier node
+                foreach (var key2 in frontier)
+                {
+                    var n = _graph.GetNode(key2);
+                    if (n?.Zone != null)
+                    {
+                        crossZoneName = n.Zone;
+                        break;
+                    }
+                }
+                if (crossZoneName != null && summary != null)
+                    summary = $"In {crossZoneName}: {summary}";
+            }
+        }
+
         return new CachedFrontier(
             summary ?? "In progress",
             positions.Count > 0 ? positions.ToArray() : System.Array.Empty<FrontierPosition>());
