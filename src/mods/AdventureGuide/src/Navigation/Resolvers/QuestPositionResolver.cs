@@ -23,16 +23,14 @@ public sealed class QuestPositionResolver : IPositionResolver
         _registry = registry;
     }
 
-    public List<ResolvedPosition> Resolve(Node node)
+    public void Resolve(Node node, List<ResolvedPosition> results)
     {
         var root = _viewBuilder.Build(node.Key);
         if (root == null)
-            return new List<ResolvedPosition>();
+            return;
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
-        var result = new List<ResolvedPosition>();
         foreach (var key in frontier)
-            result.AddRange(_registry.Resolve(key));
-        return result;
+            _registry.Resolve(key, results);
     }
 }

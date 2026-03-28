@@ -25,6 +25,7 @@ public sealed class NavigationEngine
 
     // Reusable buffers to avoid per-frame allocation.
     private readonly List<(string nodeKey, Vector3 position, string? scene)> _candidates = new();
+    private readonly List<ResolvedPosition> _positionBuffer = new();
 
     // Cross-zone route cache: route doesn't change within a scene.
     private string? _cachedRouteFrom;
@@ -120,9 +121,10 @@ public sealed class NavigationEngine
         }
 
         // Non-quest (or unknown) keys resolve directly.
-        var positions = _registry.Resolve(nodeKey);
-        for (int i = 0; i < positions.Count; i++)
-            _candidates.Add((nodeKey, positions[i].Position, positions[i].Scene));
+        _registry.Resolve(nodeKey, _positionBuffer);
+        for (int i = 0; i < _positionBuffer.Count; i++)
+            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene));
+        _positionBuffer.Clear();
     }
 
     /// <summary>
@@ -139,9 +141,10 @@ public sealed class NavigationEngine
 
         foreach (var frontierKey in frontier)
         {
-            var positions = _registry.Resolve(frontierKey);
-            for (int i = 0; i < positions.Count; i++)
-                _candidates.Add((frontierKey, positions[i].Position, positions[i].Scene));
+            _registry.Resolve(frontierKey, _positionBuffer);
+            for (int i = 0; i < _positionBuffer.Count; i++)
+                _candidates.Add((frontierKey, _positionBuffer[i].Position, _positionBuffer[i].Scene));
+            _positionBuffer.Clear();
         }
     }
 

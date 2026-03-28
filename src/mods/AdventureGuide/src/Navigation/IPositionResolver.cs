@@ -21,9 +21,9 @@ public readonly struct ResolvedPosition
 
 /// <summary>
 /// Resolves a graph node to zero or more world positions with scene info.
-/// Empty list means the node cannot be located right now.
+/// Writes results into a caller-provided list to avoid per-call allocation.
 /// </summary>
 public interface IPositionResolver
 {
-    List<ResolvedPosition> Resolve(Node node);
+    void Resolve(Node node, List<ResolvedPosition> results);
 }

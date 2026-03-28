@@ -27,12 +27,10 @@ public sealed class ItemPositionResolver : IPositionResolver
         _registry = registry;
     }
 
-    public List<ResolvedPosition> Resolve(Node node)
+    public void Resolve(Node node, List<ResolvedPosition> results)
     {
-        var result = new List<ResolvedPosition>();
         var visited = new HashSet<string>();
-        CollectSourcePositions(node.Key, result, visited);
-        return result;
+        CollectSourcePositions(node.Key, results, visited);
     }
 
     private void CollectSourcePositions(string itemKey, List<ResolvedPosition> result, HashSet<string> visited)
@@ -43,7 +41,7 @@ public sealed class ItemPositionResolver : IPositionResolver
         foreach (var et in SourceEdgeTypes)
         {
             foreach (var edge in _graph.InEdges(itemKey, et))
-                result.AddRange(_registry.Resolve(edge.Source));
+                _registry.Resolve(edge.Source, result);
         }
 
         // Crafting chains: item → CraftedFrom → recipe → RequiresMaterial → ingredients

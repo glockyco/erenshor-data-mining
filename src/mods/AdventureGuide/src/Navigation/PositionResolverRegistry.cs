@@ -22,18 +22,18 @@ public sealed class PositionResolverRegistry
     }
 
     /// <summary>
-    /// Resolve world positions for a node key. Returns empty list if the node
-    /// doesn't exist or no resolver is registered for its type.
+    /// Resolve world positions for a node key. Appends to the provided results list.
+    /// Returns without adding if the node doesn't exist or no resolver is registered.
     /// </summary>
-    public List<ResolvedPosition> Resolve(string nodeKey)
+    public void Resolve(string nodeKey, List<ResolvedPosition> results)
     {
         var node = _graph.GetNode(nodeKey);
         if (node == null)
-            return new List<ResolvedPosition>();
+            return;
 
         if (!_resolvers.TryGetValue(node.Type, out var resolver))
-            return new List<ResolvedPosition>();
+            return;
 
-        return resolver.Resolve(node);
+        resolver.Resolve(node, results);
     }
 }
