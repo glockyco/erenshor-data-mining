@@ -113,18 +113,7 @@ public sealed class QuestViewBuilder
             var itemNode = _graph.GetNode(edge.Target);
             if (itemNode == null) continue;
 
-            var child = new ViewNode(edge.Target, itemNode, EdgeType.RequiresItem, edge);
-
-            if (visited.Add(edge.Target))
-            {
-                ExpandItemSources(child, edge.Target, visited);
-                visited.Remove(edge.Target);
-            }
-            else
-            {
-                child = new ViewNode(edge.Target, itemNode, EdgeType.RequiresItem, edge) { IsCycleRef = true };
-            }
-
+            var child = BuildLeafOrExpand(edge.Target, itemNode, EdgeType.RequiresItem, edge, visited);
             parent.Children.Add(child);
         }
     }
@@ -250,17 +239,26 @@ public sealed class QuestViewBuilder
     }
 
     /// <summary>
-    /// Build a child node. Quests get full recursive expansion; other types
-    /// are leaf nodes (the renderer shows their state inline).
+    /// Build a child node. Quests get full recursive expansion. Items get
+    /// their obtainability sources expanded (drops, vendors, gathering, etc.).
+    /// Other node types are leaves.
     /// </summary>
     private ViewNode BuildLeafOrExpand(
         string key, Node node, EdgeType edgeType, Edge edge, HashSet<string> visited)
     {
-        // Quest nodes get full recursive expansion
         if (node.Type == NodeType.Quest)
             return BuildQuestNode(key, node, edgeType, edge, visited);
 
-        // Everything else is a leaf in the quest view tree
-        return new ViewNode(key, node, edgeType, edge);
+        var viewNode = new ViewNode(key, node, edgeType, edge);
+
+        // Items need obtainability chains — you must get the item before you
+        // can read it, turn it in, use it as a crafting ingredient, etc.
+        if (node.Type == NodeType.Item && visited.Add(key))
+        {
+            ExpandItemSources(viewNode, key, visited);
+            visited.Remove(key);
+        }
+
+        return viewNode;
     }
 }
