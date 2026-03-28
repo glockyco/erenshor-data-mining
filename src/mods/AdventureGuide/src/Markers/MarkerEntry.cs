@@ -1,5 +1,12 @@
+using AdventureGuide.Navigation;
+
 namespace AdventureGuide.Markers;
 
+/// <summary>
+/// Data for a single world marker. Produced by <see cref="MarkerComputer"/>,
+/// consumed by the marker rendering system to place billboards in the world.
+/// Uses <see cref="MarkerType"/> from the existing MarkerPool for visual styling.
+/// </summary>
 public sealed class MarkerEntry
 {
     // Position
