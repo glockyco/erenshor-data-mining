@@ -143,8 +143,8 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(_graph, _questTracker, _gameState, _viewBuilder);
-        _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _liveState, _config);
+        _markerComputer = new MarkerComputer(_graph, _questTracker, _gameState, _viewBuilder, _liveState);
+        _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
