@@ -2,13 +2,18 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using AdventureGuide.Config;
-using AdventureGuide.Data;
 using AdventureGuide.Diagnostics;
+using AdventureGuide.Frontier;
+using AdventureGuide.Graph;
+using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
+using AdventureGuide.Navigation.Resolvers;
 using AdventureGuide.Patches;
 using AdventureGuide.Rendering;
 using AdventureGuide.State;
+using AdventureGuide.State.Resolvers;
 using AdventureGuide.UI;
+using AdventureGuide.Views;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,29 +28,28 @@ public sealed class Plugin : BaseUnityPlugin
 
     private Harmony? _harmony;
     private GuideConfig? _config;
-    private GuideData? _data;
-    private QuestStateTracker? _state;
-    private EntityRegistry? _entities;
-    private NavigationController? _nav;
+    private EntityGraph? _graph;
+    private QuestStateTracker? _questTracker;
+    private GameState? _gameState;
+    private QuestViewBuilder? _viewBuilder;
+    private NavigationSet? _navSet;
+    private NavigationEngine? _navEngine;
+    private MarkerComputer? _markerComputer;
+    private MarkerPool? _markerPool;
+    private ZoneRouter? _zoneRouter;
     private ArrowRenderer? _arrow;
     private GroundPathRenderer? _groundPath;
-    private WorldMarkerSystem? _markers;
-    private SpawnTimerTracker? _timers;
-    private MiningNodeTracker? _miningTracker;
-    private LootScanner? _lootScanner;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
     private TrackerState? _trackerState;
-    private TrackerWindow? _tracker;
+    private TrackerPanel? _trackerPanel;
+    private EntityRegistry? _entities;
 
     static Plugin()
     {
         // When installed via Thunderstore (separate DLLs, no ILRepack),
         // ImGui.NET.dll references System.Numerics.Vectors which Unity's
-        // Mono doesn't ship. Shipping the NuGet DLL conflicts with Unity's
-        // own System.Numerics.dll (same Vector2 type, different identities).
-        // Intercept the load request and redirect to System.Numerics.dll,
-        // which Unity already provides with all the same types.
+        // Mono doesn't ship. Intercept and redirect to System.Numerics.dll.
         AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
         {
             if (new System.Reflection.AssemblyName(args.Name).Name == "System.Numerics.Vectors")
@@ -61,21 +65,25 @@ public sealed class Plugin : BaseUnityPlugin
         Log = Logger;
 
         // Hide the shared BepInEx manager GameObject so the game cannot
-        // find and destroy it during scene cleanup. Without this, Erenshor's
-        // cleanup routines kill all plugins. BepInEx v6 does this unconditionally;
-        // v5 requires the HideManagerGameObject config flag, which defaults to false.
+        // find and destroy it during scene cleanup.
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
         _config = new GuideConfig(Config);
-        _data = GuideData.Load(Log);
-        _state = new QuestStateTracker(_data);
+
+        // --- Graph layer ---
+        _graph = GraphLoader.Load(Log);
+
+        // --- State layer ---
+        _questTracker = new QuestStateTracker(_graph);
+        _gameState = new GameState(_graph);
+        _gameState.Register(NodeType.Quest, new QuestStateResolver(_questTracker));
+        _gameState.Register(NodeType.Item, new ItemStateResolver(_questTracker));
+        _gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(_graph, _questTracker));
 
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
 
-        // If UiScale is uninitialized (-1), start with 1.0 for Init.
-        // Auto-detection from Screen.height happens on first gameplay
-        // scene load, when the display is fully initialized.
+        // --- ImGui ---
         var uiScale = _config.UiScale.Value >= 0f ? _config.UiScale.Value : 1f;
         _config.ResolvedUiScale = uiScale;
         var iniPath = System.IO.Path.Combine(BepInEx.Paths.ConfigPath, "wow-much.adventure-guide.imgui.ini");
@@ -89,70 +97,78 @@ public sealed class Plugin : BaseUnityPlugin
         _config.UiScale.SettingChanged += OnUiScaleChanged;
         _config.ResetWindowLayout.SettingChanged += OnResetWindowLayout;
 
-        _entities = new EntityRegistry();
-        _timers = new SpawnTimerTracker();
-        _miningTracker = new MiningNodeTracker();
-        var bridge = new SpawnPointBridge();
-        _lootScanner = new LootScanner();
+        // --- Views layer ---
+        _viewBuilder = new QuestViewBuilder(_graph, _gameState);
 
-        _nav = new NavigationController(_data, _entities, _state, _timers, _miningTracker, _lootScanner);
-        _arrow = new ArrowRenderer(_nav);
+        // --- Frontier layer ---
+        _navSet = new NavigationSet();
+
+        // --- Navigation layer ---
+        _entities = new EntityRegistry();
+        _zoneRouter = new ZoneRouter(_graph, _gameState);
+
+        var positionRegistry = new PositionResolverRegistry(_graph);
+        DirectPositionResolver.RegisterAll(positionRegistry);
+
+        _navEngine = new NavigationEngine(
+            _navSet, positionRegistry, _graph, _viewBuilder, _gameState, _zoneRouter);
+        _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
-        _groundPath = new GroundPathRenderer(_nav);
+        _groundPath = new GroundPathRenderer(_navEngine);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
-        _markers = new WorldMarkerSystem(_data, _state, bridge, _lootScanner, _config);
-        _markers.Enabled = _config.ShowWorldMarkers.Value;
-        _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
+        // --- Markers layer ---
+        _markerPool = new MarkerPool();
+        _markerComputer = new MarkerComputer(_graph, _questTracker, _gameState, _viewBuilder);
 
+        _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
         _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
         _config.ReplaceQuestLog.SettingChanged += OnReplaceQuestLogChanged;
 
+        // --- UI layer ---
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
-        _window = new GuideWindow(_data, _state, _nav, history, _trackerState, _config);
-        _state.SetHistory(history);
+        _questTracker.SetHistory(history);
+
+        var viewRenderer = new ViewRenderer(_graph, _gameState, _navSet);
+        var listPanel = new QuestListPanel(_graph, _questTracker, new FilterState(), _trackerState);
+        _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel);
         _window.Filter.LoadFrom(_config);
-        _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
+
+        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet);
         _imgui.OnLayout = () =>
         {
             _window.Draw();
-            _tracker!.Draw();
+            _trackerPanel!.Draw();
             _arrow!.Draw();
             _config.LayoutResetRequested = false;
         };
 
-        // Wire DebugAPI for HotRepl inspection
-        DebugAPI.Data = _data;
-        DebugAPI.State = _state;
+        // --- Debug API ---
+        DebugAPI.Graph = _graph;
+        DebugAPI.State = _questTracker;
         DebugAPI.Filter = _window.Filter;
-        DebugAPI.Nav = _nav;
+        DebugAPI.Nav = _navEngine;
         DebugAPI.Entities = _entities;
         DebugAPI.GroundPath = _groundPath;
+        DebugAPI.Router = _zoneRouter;
 
-        // Inject dependencies into Harmony patches
-        QuestAssignPatch.Tracker = _state;
-        QuestAssignPatch.Nav = _nav;
-        QuestAssignPatch.Loot = _lootScanner;
+        // --- Harmony patches ---
+        QuestAssignPatch.Tracker = _questTracker;
+        QuestAssignPatch.Markers = _markerComputer;
         QuestAssignPatch.TrackerPins = _trackerState;
-        QuestFinishPatch.Tracker = _state;
-        QuestFinishPatch.Nav = _nav;
-        QuestFinishPatch.Loot = _lootScanner;
+        QuestFinishPatch.Tracker = _questTracker;
+        QuestFinishPatch.Markers = _markerComputer;
         QuestFinishPatch.TrackerPins = _trackerState;
-        InventoryPatch.Tracker = _state;
-        InventoryPatch.Nav = _nav;
-        InventoryPatch.Loot = _lootScanner;
+        InventoryPatch.Tracker = _questTracker;
+        InventoryPatch.Markers = _markerComputer;
         SpawnPatch.Registry = _entities;
-        SpawnPatch.Timers = _timers;
-        SpawnPatch.Markers = _markers;
-        SpawnPatch.Loot = _lootScanner;
+        SpawnPatch.Markers = _markerComputer;
         DeathPatch.Registry = _entities;
-        DeathPatch.Timers = _timers;
-        DeathPatch.Markers = _markers;
-        DeathPatch.Loot = _lootScanner;
+        DeathPatch.Markers = _markerComputer;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
@@ -161,58 +177,36 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
 
-
-        // Sync from current game state (essential for hot reload — no scene
-        // load event fires, so without this the tracker starts empty)
-        _state.OnSceneChanged(SceneManager.GetActiveScene().name);
+        // Sync from current game state (essential for hot reload)
+        _questTracker.OnSceneChanged(SceneManager.GetActiveScene().name);
         _entities.SyncFromLiveNPCs();
-        _miningTracker.Rescan();
-        _lootScanner.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
-        _nav.LoadPerCharacter(_config, SceneManager.GetActiveScene().name);
+        _navEngine.OnSceneChanged(SceneManager.GetActiveScene().name);
+        _markerComputer.MarkDirty();
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
-        int withSteps = 0;
-        foreach (var q in _data.All) { if (q.HasSteps) withSteps++; }
-
+        var questCount = _graph.NodesOfType(NodeType.Quest).Count;
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
-            + $"  Quests: {_data.Count} in guide, {withSteps} with step data\n"
+            + $"  Graph: {_graph.NodeCount} nodes, {_graph.EdgeCount} edges, {questCount} quests\n"
             + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
             + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
             + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)");
     }
 
-    private void TryMergeUnknownQuests()
-    {
-        if (_discoveryDone || _data == null) return;
-        int result = _data.MergeUnknownQuests();
-        if (result < 0) return;  // QuestDB not ready yet
-        _discoveryDone = true;
-    }
-
     private bool _wasTextInputActive;
     private bool _gameUIVisible = true;
     private bool _inGameplay;
-    private bool _discoveryDone;
     private bool _wasEditUIMode;
 
     private void Update()
     {
-        // Respect the game's F7 UI hide toggle. When the game HUD Canvas
-        // is disabled, suppress all mod visuals. Navigation state still
-        // updates so the UI is current when restored.
+        // Respect the game's F7 UI hide toggle
         bool gameUIVisible = GameUIVisibility.IsVisible;
         if (gameUIVisible != _gameUIVisible)
         {
             _gameUIVisible = gameUIVisible;
             SyncVisibility();
-
-            // Clear ImGui capture state and game typing flag so mouse
-            // input and movement aren't blocked while the UI is hidden.
-            // Without this, WantCaptureMouse retains its last value from
-            // when OnGUI was called, and PointerOverUIPatch keeps forcing
-            // IsPointerOverGameObject to true.
             if (!gameUIVisible)
             {
                 _imgui?.ClearCaptureState();
@@ -224,18 +218,12 @@ public sealed class Plugin : BaseUnityPlugin
             }
         }
 
-        // When the player exits UI edit mode, game windows may have been
-        // repositioned. Invalidate cached rects so overlap detection uses
-        // the new positions on the next window open-transition.
         bool editMode = GameData.EditUIMode;
         if (_wasEditUIMode && !editMode)
             GameWindowOverlap.InvalidateRects();
         _wasEditUIMode = editMode;
 
-        // Set game's typing flag only when an ImGui text widget is actively
-        // being edited (e.g., search field). WantTextInput is narrower than
-        // WantCaptureKeyboard — the latter fires when any window has focus,
-        // which would block movement (CanMove) on every window click.
+        // Text input state for game movement blocking
         if (_gameUIVisible)
         {
             bool textActive = _imgui?.WantTextInput ?? false;
@@ -246,22 +234,11 @@ public sealed class Plugin : BaseUnityPlugin
             _wasTextInputActive = textActive;
         }
 
-        // Retry quest discovery until QuestDB becomes available.
-        // QuestDB.Start() runs after OnSceneLoaded, so the first
-        // successful attempt is typically the frame after scene load.
-        if (!_discoveryDone) TryMergeUnknownQuests();
-
-        // Update shared systems before renderers. LootScanner runs here
-        // (not inside WorldMarkerSystem) so nav gets fresh corpse/chest
-        // data even when markers are disabled.
-        var currentZone = _state?.CurrentZone ?? "";
-        _lootScanner?.Update(_data!, _state!);
-        _nav?.Update(currentZone);
-
-        // Ground path and markers respect Enabled — when SyncVisibility
-        // sets them to false, their Update methods early-return.
-        _groundPath?.Update(currentZone);
-        _markers?.Update(currentZone);
+        // Per-frame updates
+        var playerPos = GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : Vector3.zero;
+        _markerComputer?.Recompute();
+        _navEngine?.Update(playerPos);
+        _groundPath?.Update();
 
         if (_config == null || _window == null) return;
         if (!_inGameplay) return;
@@ -274,7 +251,7 @@ public sealed class Plugin : BaseUnityPlugin
             _window.Toggle();
 
         if (_config.TrackerEnabled.Value && Input.GetKeyDown(_config.TrackerToggleKey.Value))
-            _tracker?.Toggle();
+            _trackerPanel?.Toggle();
 
         if (Input.GetKeyDown(_config.GroundPathToggleKey.Value))
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
@@ -288,53 +265,35 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Auto-detect UI scale on first gameplay scene load when uninitialized.
-        // Screen.height is reliable by now; the game has fully initialized.
         if (_config!.UiScale.Value < 0f && scene.name != "Menu" && scene.name != "LoadScene")
         {
             var scale = DetectUiScale();
             _config.UiScale.Value = scale;
         }
         CameraCache.Invalidate();
-        // Reset overlap detection — UIWindows references are stale after
-        // scene change and DragUI.Start() may reposition windows.
         GameWindowOverlap.Reset();
 
-
-        // Track whether we're in a gameplay scene
         _inGameplay = scene.name != "Menu" && scene.name != "LoadScene";
         if (!_inGameplay)
         {
             _window?.Hide();
-            _tracker?.Hide();
-            _nav?.Clear();
         }
-        _markers?.OnSceneLoaded();  // deactivate markers before camera goes stale
+
         _entities?.Clear();
-        _timers?.Clear();
-        _miningTracker?.Rescan();
-        _lootScanner?.OnSceneLoaded();
-        _state?.OnSceneChanged(scene.name);
-        // Load per-character state (tracked quests, navigation target).
-        // These use slot-guarded binding: first call reads from config,
-        // subsequent calls for the same character are no-ops.
+        _questTracker?.OnSceneChanged(scene.name);
         _trackerState?.OnCharacterLoaded();
-        _trackerState?.PruneCompleted(_state!);
-        _nav?.LoadPerCharacter(_config!, scene.name);
-        // Rebuild ZoneGraph and auto-advance navigation if the restored
-        // target's step is behind the player's current progress.
-        _nav?.OnGameStateChanged(scene.name);
+        _trackerState?.PruneCompleted(_questTracker!);
+        _navEngine?.OnSceneChanged(scene.name);
+        _markerComputer?.MarkDirty();
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
-
     private void OnShowGroundPathChanged(object sender, System.EventArgs e) => SyncVisibility();
 
     private void OnUiScaleChanged(object sender, System.EventArgs e)
     {
         var scale = _config!.UiScale.Value;
-        if (scale < 0f)
-            scale = DetectUiScale();
+        if (scale < 0f) scale = DetectUiScale();
         _config.ResolvedUiScale = scale;
         _config.LayoutResetRequested = true;
         _imgui?.SetScale(scale);
@@ -362,8 +321,6 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnReplaceQuestLogChanged(object sender, System.EventArgs e)
     {
         if (!_config!.ReplaceQuestLog.Value) return;
-
-        // Close the native journal if it's open and show the guide instead
         var ql = GameData.QuestLog;
         if (ql != null && ql.QuestWindow != null && ql.QuestWindow.activeSelf)
         {
@@ -372,16 +329,11 @@ public sealed class Plugin : BaseUnityPlugin
         }
     }
 
-    /// <summary>
-    /// Applies effective visibility = config setting AND game UI visible.
-    /// Called on config changes and on game UI visibility transitions.
-    /// </summary>
     private void SyncVisibility()
     {
         bool ui = _gameUIVisible;
         _arrow!.Enabled = ui && _config!.ShowArrow.Value;
         _groundPath!.Enabled = ui && _config!.ShowGroundPath.Value;
-        _markers!.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
     private void OnDestroy()
@@ -399,32 +351,22 @@ public sealed class Plugin : BaseUnityPlugin
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();
-        _tracker?.Dispose();
-
-        // Window geometry is saved each frame inside Draw (requires active
-        // ImGui window context). TrackerState and NavigationController
-        // persist per-character state to config.
         _trackerState?.SaveToConfig();
-        _nav?.SavePerCharacter();
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
-        _markers?.Destroy();
-        _timers?.Clear();
+        _markerPool?.Destroy();
         _entities?.Clear();
-        _miningTracker?.Clear();
         MarkerFonts.Destroy();
-        DebugAPI.Data = null;
+        DebugAPI.Graph = null;
         DebugAPI.State = null;
         DebugAPI.Filter = null;
         DebugAPI.Nav = null;
         DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
+        DebugAPI.Router = null;
     }
 
-    /// <summary>
-    /// Compute UI scale from screen resolution. 1080p = 1.0, 4K = 2.0.
-    /// </summary>
     private static float DetectUiScale()
     {
         const float referenceHeight = 1080f;

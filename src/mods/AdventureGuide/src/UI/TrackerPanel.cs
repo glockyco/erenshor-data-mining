@@ -38,8 +38,15 @@ public sealed class TrackerPanel
         _navSet = navSet;
     }
 
+    private bool _visible = true;
+    public bool Visible => _visible;
+    public void Toggle() => _visible = !_visible;
+    public void Show() => _visible = true;
+    public void Hide() => _visible = false;
+
     public void Draw()
     {
+        if (!_visible) return;
         var tracked = _trackerState.TrackedQuests;
         if (tracked.Count == 0)
         {

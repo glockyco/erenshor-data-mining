@@ -29,7 +29,7 @@ public sealed class ArrowRenderer
     private static readonly uint ColorOutline = Theme.Rgba(0.10f, 0.10f, 0.10f, 0.80f);
     private static readonly uint ColorText = Theme.Rgba(1.00f, 0.95f, 0.60f, 0.95f);
 
-    private readonly NavigationController _nav;
+    private readonly NavigationEngine _nav;
     private bool _enabled = true;
 
     // Cached label lines — each line centered independently for multi-line text
@@ -45,7 +45,7 @@ public sealed class ArrowRenderer
         set => _enabled = value;
     }
 
-    public ArrowRenderer(NavigationController nav)
+    public ArrowRenderer(NavigationEngine nav)
     {
         _nav = nav;
     }
@@ -56,7 +56,7 @@ public sealed class ArrowRenderer
     /// </summary>
     public void Draw()
     {
-        if (!_enabled || _nav.Target == null || _nav.Distance < ArrivalDistance)
+        if (!_enabled || !_nav.HasTarget || _nav.Distance < ArrivalDistance)
             return;
 
         var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
@@ -65,8 +65,9 @@ public sealed class ArrowRenderer
         var cam = CameraCache.Get();
         if (cam == null) return;
 
-        var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
-        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Position + Vector3.up * NavigationDisplay.GroundOffset);
+        var effectiveTarget = _nav.EffectiveTarget;
+        if (effectiveTarget == null) return;
+        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Value + Vector3.up * NavigationDisplay.GroundOffset);
         bool isBehind = screenPos.z < 0;
         float sw = Screen.width;
         float sh = Screen.height;
@@ -87,13 +88,14 @@ public sealed class ArrowRenderer
 
         // Rebuild label only when the visible distance or target name changes
         int distInt = Mathf.RoundToInt(_nav.Distance);
-        if (distInt != _cachedDistInt || effectiveTarget.DisplayName != _cachedTargetName)
+        var targetName = _nav.TargetDisplayName ?? "";
+        if (distInt != _cachedDistInt || targetName != _cachedTargetName)
         {
             _cachedDistInt = distInt;
-            _cachedTargetName = effectiveTarget.DisplayName;
+            _cachedTargetName = targetName;
 
             // Split into lines; distance goes on the first line
-            var rawLines = effectiveTarget.DisplayName.Split('\n');
+            var rawLines = targetName.Split('\n');
             rawLines[0] = $"{rawLines[0]} ({distInt}m)";
             _cachedLines = rawLines;
             _cachedLineSizes = new CimguiNative.Vec2[rawLines.Length];

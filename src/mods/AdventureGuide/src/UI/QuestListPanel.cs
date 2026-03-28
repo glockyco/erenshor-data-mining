@@ -1,4 +1,4 @@
-using AdventureGuide.Data;
+using AdventureGuide.Graph;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -9,13 +9,13 @@ namespace AdventureGuide.UI;
 /// </summary>
 public sealed class QuestListPanel
 {
-    private readonly GuideData _data;
+    private readonly EntityGraph _graph;
     private readonly QuestStateTracker _state;
     private readonly FilterState _filter;
     private readonly TrackerState _tracker;
 
     private string _searchBuf = string.Empty;
-    private readonly List<QuestEntry> _sorted = new();
+    private readonly List<Node> _sorted = new();
 
     // Dirty-checking: skip re-filter/sort when nothing changed
     private int _lastFilterVersion = -1;
@@ -29,18 +29,29 @@ public sealed class QuestListPanel
     private readonly string[] _zoneNames;
     private int _zoneIndex;
 
-    public QuestListPanel(GuideData data, QuestStateTracker state, FilterState filter, TrackerState tracker)
+    // Scene → zone display name lookup, built once from graph zone nodes
+    private readonly Dictionary<string, string> _sceneToZone;
+
+    public QuestListPanel(EntityGraph graph, QuestStateTracker state, FilterState filter, TrackerState tracker)
     {
-        _data = data;
+        _graph = graph;
         _state = state;
         _filter = filter;
         _tracker = tracker;
 
-        // Build sorted zone list from quest data
+        // Build scene → zone display name map from zone nodes
+        _sceneToZone = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var zone in graph.NodesOfType(NodeType.Zone))
+        {
+            if (zone.Scene != null)
+                _sceneToZone[zone.Scene] = zone.DisplayName;
+        }
+
+        // Build sorted zone list from quest nodes' Zone field
         var zones = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var quest in data.All)
-            if (quest.ZoneContext != null)
-                zones.Add(quest.ZoneContext);
+        foreach (var quest in graph.NodesOfType(NodeType.Quest))
+            if (quest.Zone != null)
+                zones.Add(quest.Zone);
         _zoneNames = new string[zones.Count + 2];
         _zoneNames[0] = "All Zones";
         _zoneNames[1] = "Current Zone";
@@ -66,7 +77,7 @@ public sealed class QuestListPanel
         if (count == 0)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            if (_data.Count == 0)
+            if (_graph.NodesOfType(NodeType.Quest).Count == 0)
                 ImGui.TextWrapped("No quest data loaded.");
             else if (!string.IsNullOrEmpty(_filter.SearchText))
                 ImGui.TextWrapped("No quests match your search.");
@@ -177,7 +188,7 @@ public sealed class QuestListPanel
             _lastStateVersion = _state.Version;
 
             _sorted.Clear();
-            var all = _data.All;
+            var all = _graph.NodesOfType(NodeType.Quest);
             for (int i = 0; i < all.Count; i++)
             {
                 var quest = all[i];
@@ -193,7 +204,7 @@ public sealed class QuestListPanel
         return _sorted.Count;
     }
 
-    private int CompareQuests(QuestEntry a, QuestEntry b)
+    private int CompareQuests(Node a, Node b)
     {
         return _filter.SortMode switch
         {
@@ -203,10 +214,10 @@ public sealed class QuestListPanel
         };
     }
 
-    private static int CompareLevels(QuestEntry a, QuestEntry b)
+    private static int CompareLevels(Node a, Node b)
     {
-        int? la = a.LevelEstimate?.Recommended;
-        int? lb = b.LevelEstimate?.Recommended;
+        int? la = a.Level;
+        int? lb = b.Level;
         if (la == null && lb == null)
             return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
         if (la == null) return 1;  // null sorts to end
@@ -215,23 +226,23 @@ public sealed class QuestListPanel
         return cmp != 0 ? cmp : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static int CompareZones(QuestEntry a, QuestEntry b)
+    private static int CompareZones(Node a, Node b)
     {
-        if (a.ZoneContext == null && b.ZoneContext == null)
+        if (a.Zone == null && b.Zone == null)
             return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
-        if (a.ZoneContext == null) return 1;  // null sorts to end
-        if (b.ZoneContext == null) return -1;
-        int cmp = string.Compare(a.ZoneContext, b.ZoneContext, StringComparison.OrdinalIgnoreCase);
+        if (a.Zone == null) return 1;  // null sorts to end
+        if (b.Zone == null) return -1;
+        int cmp = string.Compare(a.Zone, b.Zone, StringComparison.OrdinalIgnoreCase);
         return cmp != 0 ? cmp : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
     }
 
-    private bool PassesFilter(QuestEntry quest)
+    private bool PassesFilter(Node quest)
     {
         bool statusOk = _filter.FilterMode switch
         {
-            QuestFilterMode.Active    => _state.IsActive(quest.DBName),
-            QuestFilterMode.Available => !_state.IsActive(quest.DBName) && !_state.IsCompleted(quest.DBName),
-            QuestFilterMode.Completed => _state.IsCompleted(quest.DBName),
+            QuestFilterMode.Active    => _state.IsActive(quest.DbName!),
+            QuestFilterMode.Available => !_state.IsActive(quest.DbName!) && !_state.IsCompleted(quest.DbName!),
+            QuestFilterMode.Completed => _state.IsCompleted(quest.DbName!),
             QuestFilterMode.All       => true,
             _ => true,
         };
@@ -241,19 +252,19 @@ public sealed class QuestListPanel
         if (_filter.ZoneFilter != null)
         {
             string? targetZone = _filter.ZoneFilter == CurrentZoneSentinel
-                ? _data.GetZoneDisplayName(_state.CurrentZone)
+                ? ResolveZoneDisplayName(_state.CurrentZone)
                 : _filter.ZoneFilter;
             if (targetZone == null) return true; // current zone not resolvable
-            return string.Equals(quest.ZoneContext, targetZone, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(quest.Zone, targetZone, StringComparison.OrdinalIgnoreCase);
         }
 
         return true;
     }
 
     /// <summary>
-    /// Search matches against quest name, zone, NPC names, and item names.
+    /// Search matches against quest name, zone, assigned-by NPCs, required items, and step targets.
     /// </summary>
-    private bool PassesSearch(QuestEntry quest)
+    private bool PassesSearch(Node quest)
     {
         if (string.IsNullOrEmpty(_filter.SearchText))
             return true;
@@ -263,46 +274,51 @@ public sealed class QuestListPanel
         if (quest.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (quest.ZoneContext != null &&
-            quest.ZoneContext.Contains(term, StringComparison.OrdinalIgnoreCase))
+        if (quest.Zone != null &&
+            quest.Zone.Contains(term, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (quest.Acquisition != null)
+        // AssignedBy edges → NPC display names
+        foreach (var edge in _graph.OutEdges(quest.Key, EdgeType.AssignedBy))
         {
-            foreach (var acq in quest.Acquisition)
-            {
-                if (acq.SourceName != null &&
-                    acq.SourceName.Contains(term, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
+            var target = _graph.GetNode(edge.Target);
+            if (target != null && target.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                return true;
         }
 
-        if (quest.RequiredItems != null)
+        // RequiresItem edges → item display names
+        foreach (var edge in _graph.OutEdges(quest.Key, EdgeType.RequiresItem))
         {
-            foreach (var item in quest.RequiredItems)
-            {
-                if (item.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
+            var target = _graph.GetNode(edge.Target);
+            if (target != null && target.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                return true;
         }
 
-        if (quest.Steps != null)
-        {
-            foreach (var step in quest.Steps)
-            {
-                if (step.TargetName != null &&
-                    step.TargetName.Contains(term, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-        }
+        // Step edges → target display names
+        if (SearchStepEdges(quest.Key, EdgeType.StepTalk, term)) return true;
+        if (SearchStepEdges(quest.Key, EdgeType.StepKill, term)) return true;
+        if (SearchStepEdges(quest.Key, EdgeType.StepTravel, term)) return true;
+        if (SearchStepEdges(quest.Key, EdgeType.StepShout, term)) return true;
+        if (SearchStepEdges(quest.Key, EdgeType.StepRead, term)) return true;
 
         return false;
     }
 
-    private void DrawQuestEntry(QuestEntry quest)
+    private bool SearchStepEdges(string questKey, EdgeType stepType, string term)
     {
-        bool isSelected = quest.DBName == _state.SelectedQuestDBName;
-        uint statusColor = GetQuestColor(quest);
+        foreach (var edge in _graph.OutEdges(questKey, stepType))
+        {
+            var target = _graph.GetNode(edge.Target);
+            if (target != null && target.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
+    private void DrawQuestEntry(Node quest)
+    {
+        bool isSelected = quest.DbName == _state.SelectedQuestDBName;
+        uint statusColor = Theme.GetQuestColor(_state, quest.DbName!);
 
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
@@ -310,31 +326,30 @@ public sealed class QuestListPanel
         // Level prefix in Selectable label. DrawList.AddText crashes after
         // ILRepack merges System.Numerics.Vectors (same class of P/Invoke
         // issue as Vector4 colors), so we use a single-color label instead.
-        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
+        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DbName!);
         string prefix = isTracked ? "\u00b7" : " ";
-        bool isRepeatable = quest.Flags is { Repeatable: true };
-        string suffix = isRepeatable ? " [R]" : "";
-        string label = quest.LevelEstimate?.Recommended is int lvl
+        string suffix = quest.Repeatable ? " [R]" : "";
+        string label = quest.Level is int lvl
             ? $"{prefix}{lvl,2}  {quest.DisplayName}{suffix}"
             : $"{prefix}    {quest.DisplayName}{suffix}";
 
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
 
-        if (ImGui.Selectable(label + "##" + quest.DBName, isSelected))
-            _state.SelectQuest(quest.DBName);
+        if (ImGui.Selectable(label + "##" + quest.DbName, isSelected))
+            _state.SelectQuest(quest.DbName!);
 
         // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            if (quest.ZoneContext != null)
-                ImGui.Text(quest.ZoneContext);
-            string status = _state.IsCompleted(quest.DBName) ? "Completed"
-                          : _state.IsImplicitlyActive(quest.DBName) ? "Completable here"
-                          : _state.IsActive(quest.DBName) ? "Active"
+            if (quest.Zone != null)
+                ImGui.Text(quest.Zone);
+            string status = _state.IsCompleted(quest.DbName!) ? "Completed"
+                          : _state.IsImplicitlyActive(quest.DbName!) ? "Completable here"
+                          : _state.IsActive(quest.DbName!) ? "Active"
                           : "Available";
             ImGui.Text(status);
-            if (quest.LevelEstimate?.Recommended is int tipLvl)
+            if (quest.Level is int tipLvl)
                 ImGui.Text($"Level {tipLvl}");
             ImGui.EndTooltip();
         }
@@ -342,5 +357,12 @@ public sealed class QuestListPanel
         ImGui.PopStyleColor(isSelected ? 2 : 1);
     }
 
-    private uint GetQuestColor(QuestEntry quest) => Theme.GetQuestColor(_state, quest.DBName);
+    /// <summary>
+    /// Resolves a scene name to its zone display name via graph zone nodes.
+    /// </summary>
+    private string? ResolveZoneDisplayName(string? sceneName)
+    {
+        if (sceneName == null) return null;
+        return _sceneToZone.TryGetValue(sceneName, out var name) ? name : null;
+    }
 }

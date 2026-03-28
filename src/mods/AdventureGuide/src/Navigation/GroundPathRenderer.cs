@@ -39,7 +39,7 @@ public sealed class GroundPathRenderer
     private static readonly Color CoreColor = new(1.00f, 0.85f, 0.30f, 0.80f);
     private static readonly Color GlowColor = new(1.00f, 0.75f, 0.20f, 0.15f);
 
-    private readonly NavigationController _nav;
+    private readonly NavigationEngine _nav;
     private readonly NavMeshPath _path = new();
     private Vector3[] _corners = new Vector3[64];
     private int _cornerCount;
@@ -66,7 +66,7 @@ public sealed class GroundPathRenderer
         }
     }
 
-    public GroundPathRenderer(NavigationController nav)
+    public GroundPathRenderer(NavigationEngine nav)
     {
         _nav = nav;
     }
@@ -76,9 +76,9 @@ public sealed class GroundPathRenderer
     /// distributes corners across the three segments on recalculation,
     /// and updates the dynamic endpoints every frame.
     /// </summary>
-    public void Update(string currentScene)
+    public void Update()
     {
-        if (!_enabled || _nav.Target == null)
+        if (!_enabled || !_nav.HasTarget)
         {
             _pathValid = false;
             SetAllVisible(false);
@@ -92,15 +92,7 @@ public sealed class GroundPathRenderer
         }
         var playerPos = GameData.PlayerControl.transform.position;
 
-        var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
-
-        // Only calculate path for same-zone targets
-        if (effectiveTarget.IsCrossZone(currentScene))
-        {
-            _pathValid = false;
-            SetAllVisible(false);
-            return;
-        }
+        var effectiveTarget = _nav.EffectiveTarget!.Value;
 
         // Hide path when close to target
         if (_nav.Distance < ArrivalDistance)
@@ -110,7 +102,7 @@ public sealed class GroundPathRenderer
             return;
         }
 
-        bool recalculated = RecalculateIfNeeded(playerPos, effectiveTarget.Position);
+        bool recalculated = RecalculateIfNeeded(playerPos, effectiveTarget);
 
         if (!_pathValid || _cornerCount < 2)
         {
@@ -123,7 +115,7 @@ public sealed class GroundPathRenderer
 
         // Update only the moving endpoints every frame — the stable mid
         // segment and the anchor positions of stub/tail are untouched.
-        UpdateEndpoints(playerPos, effectiveTarget.Position);
+        UpdateEndpoints(playerPos, effectiveTarget);
         SetAllVisible(true);
     }
 

@@ -1,42 +1,44 @@
 using System.Numerics;
 using AdventureGuide.Config;
-using AdventureGuide.Data;
-using AdventureGuide.Navigation;
+using AdventureGuide.Graph;
 using AdventureGuide.State;
+using AdventureGuide.Views;
 using ImGuiNET;
 
 namespace AdventureGuide.UI;
 
 /// <summary>
 /// Main AdventureGuide window rendered via Dear ImGui.
-/// Orchestrates QuestListPanel and QuestDetailPanel.
+/// Orchestrates QuestListPanel (left) and ViewRenderer (right).
 /// </summary>
 public sealed class GuideWindow
 {
-    private readonly GuideData _data;
+    private readonly EntityGraph _graph;
     private readonly QuestStateTracker _state;
     private readonly FilterState _filter = new();
-    private readonly QuestListPanel _listPanel;
-    private readonly QuestDetailPanel _detailPanel;
+    private readonly QuestViewBuilder _viewBuilder;
     private readonly NavigationHistory _history;
     private readonly GuideConfig _config;
+    private readonly ViewRenderer _viewRenderer;
+    private readonly QuestListPanel _listPanel;
 
     private bool _visible;
-
 
     public bool Visible => _visible;
 
     public FilterState Filter => _filter;
 
-    public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav,
-        NavigationHistory history, TrackerState tracker, GuideConfig config)
+    public GuideWindow(EntityGraph graph, QuestStateTracker state, QuestViewBuilder viewBuilder,
+        NavigationHistory history, TrackerState tracker, GuideConfig config,
+        ViewRenderer viewRenderer, QuestListPanel listPanel)
     {
-        _data = data;
+        _graph = graph;
         _state = state;
+        _viewBuilder = viewBuilder;
         _history = history;
         _config = config;
-        _listPanel = new QuestListPanel(data, state, _filter, tracker);
-        _detailPanel = new QuestDetailPanel(data, state, nav, tracker, config);
+        _viewRenderer = viewRenderer;
+        _listPanel = listPanel;
     }
 
     public void Toggle() => _visible = !_visible;
@@ -70,6 +72,7 @@ public sealed class GuideWindow
         ImGui.End();
         Theme.PopWindowStyle();
     }
+
     private void DrawTabBar()
     {
         if (ImGui.BeginTabBar("##GuideTabs"))
@@ -109,11 +112,27 @@ public sealed class GuideWindow
 
         ImGui.SameLine();
 
-        // Right panel: quest detail
+        // Right panel: quest dependency tree
         ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
-        _detailPanel.Draw();
+        var selectedKey = _state.SelectedQuestDBName;
+        ViewNode? tree = null;
+        if (selectedKey != null)
+            tree = FindAndBuild(selectedKey);
+        _viewRenderer.Draw(tree);
         ImGui.EndChild();
     }
 
-
+    /// <summary>
+    /// Resolves a quest DB name (e.g. "ANGLERRING") to a node key, then builds
+    /// the view tree for the detail panel.
+    /// </summary>
+    private ViewNode? FindAndBuild(string dbName)
+    {
+        foreach (var quest in _graph.NodesOfType(NodeType.Quest))
+        {
+            if (string.Equals(quest.DbName, dbName, System.StringComparison.OrdinalIgnoreCase))
+                return _viewBuilder.Build(quest.Key);
+        }
+        return null;
+    }
 }

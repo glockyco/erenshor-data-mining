@@ -1,4 +1,4 @@
-using AdventureGuide.Navigation;
+using AdventureGuide.Markers;
 using AdventureGuide.State;
 using HarmonyLib;
 
@@ -8,16 +8,14 @@ namespace AdventureGuide.Patches;
 internal static class QuestAssignPatch
 {
     internal static QuestStateTracker? Tracker;
-    internal static NavigationController? Nav;
-    internal static LootScanner? Loot;
+    internal static MarkerComputer? Markers;
     internal static TrackerState? TrackerPins;
 
     [HarmonyPostfix]
     private static void Postfix(string _questName)
     {
         Tracker?.OnQuestAssigned(_questName);
-        Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
-        Loot?.MarkDirty();
+        Markers?.MarkDirty();
 
         if (TrackerPins is { Enabled: true, AutoTrackEnabled: true })
             TrackerPins.Track(_questName);

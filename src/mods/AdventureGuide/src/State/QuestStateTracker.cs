@@ -1,4 +1,4 @@
-using AdventureGuide.Data;
+using AdventureGuide.Graph;
 
 namespace AdventureGuide.State;
 
@@ -13,14 +13,13 @@ public sealed class QuestStateTracker
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    // Quests without acquisition sources — pre-computed once from guide data.
-    // Each entry stores the completion scene (last step's zone). The quest
-    // activates implicitly when the player enters that scene.
+    // Quests without acquisition sources — pre-computed once from graph.
+    // Each entry stores the completion scene. The quest activates
+    // implicitly when the player enters that scene.
     private readonly List<ImplicitQuest> _implicitQuests;
     private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
 
     // Cached inventory counts, invalidated on inventory/zone/quest changes.
-    // The implicit quest set is rebuilt from the same trigger.
     private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
     private bool _dirty = true;
 
@@ -35,22 +34,27 @@ public sealed class QuestStateTracker
 
     private NavigationHistory? _history;
 
-    public QuestStateTracker(GuideData data)
+    public QuestStateTracker(EntityGraph graph)
     {
-        // Pre-compute the list of quests without acquisition sources and
-        // the scene where they can be completed. Quests without steps are
-        // excluded — there's nothing to show markers for.
+        // Pre-compute implicit quests from the graph. A quest is implicit
+        // when it has no acquisition source (Node.Implicit == true). The
+        // activation scene comes from the COMPLETED_BY edge target's scene.
         _implicitQuests = new List<ImplicitQuest>();
-        foreach (var quest in data.All)
+        foreach (var quest in graph.NodesOfType(NodeType.Quest))
         {
-            if (!quest.IsImplicit) continue;
-            if (quest.Steps == null || quest.Steps.Count == 0) continue;
+            if (!quest.Implicit) continue;
+            if (quest.DbName == null) continue;
 
-            // Activation scene: the zone of the last step (turn-in/completion).
-            var lastStep = quest.Steps[quest.Steps.Count - 1];
-            string? scene = StepSceneResolver.ResolveScene(quest, lastStep, data);
+            // Find the completion scene from the COMPLETED_BY edge target
+            string? scene = null;
+            var completedByEdges = graph.OutEdges(quest.Key, EdgeType.CompletedBy);
+            if (completedByEdges.Count > 0)
+            {
+                var targetNode = graph.GetNode(completedByEdges[0].Target);
+                scene = targetNode?.Scene;
+            }
 
-            _implicitQuests.Add(new ImplicitQuest(quest.DBName, scene));
+            _implicitQuests.Add(new ImplicitQuest(quest.DbName, scene));
         }
     }
 
@@ -124,9 +128,6 @@ public sealed class QuestStateTracker
     public void OnQuestAssigned(string dbName)
     {
         _activeQuests.Add(dbName);
-        // Quest acceptance can give items (e.g., Kio's Papers gives a
-        // leave order). Mark dirty so collect-step progress reflects
-        // the new item on the next check.
         _dirty = true;
         Version++;
     }
@@ -135,7 +136,6 @@ public sealed class QuestStateTracker
     {
         _activeQuests.Remove(dbName);
         _completedQuests.Add(dbName);
-        // Completion may consume items; refresh cache.
         _dirty = true;
         Version++;
     }
@@ -183,10 +183,6 @@ public sealed class QuestStateTracker
         {
             if (slot?.MyItem != null)
             {
-                // Key by stable key format matching the export pipeline.
-                // Uses Unity object name (MyItem.name), not display name
-                // (MyItem.ItemName), because display names are ambiguous
-                // (e.g. multiple "Soul Gem" items for different quests).
                 var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
                 _inventoryCache[key] = _inventoryCache.TryGetValue(key, out int c) ? c + 1 : 1;
             }
@@ -196,8 +192,7 @@ public sealed class QuestStateTracker
     /// <summary>
     /// Rebuild the set of implicitly active quests. A quest activates
     /// implicitly when it has no acquisition source and the player is
-    /// in the quest's completion zone. Items are not checked — the quest
-    /// activates to show markers for all relevant NPCs and objectives.
+    /// in the quest's completion zone.
     /// </summary>
     private void RebuildImplicitQuests()
     {
@@ -208,8 +203,6 @@ public sealed class QuestStateTracker
             if (_activeQuests.Contains(iq.DBName) || _completedQuests.Contains(iq.DBName))
                 continue;
 
-            // Zone gate: must be in the completion scene.
-            // Quests with unresolvable scenes never activate implicitly.
             if (iq.ActivationScene == null) continue;
             if (!string.Equals(iq.ActivationScene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -218,10 +211,6 @@ public sealed class QuestStateTracker
         }
     }
 
-    /// <summary>
-    /// Pre-computed data for an implicit quest: no acquisition source,
-    /// activates when the player enters the completion zone.
-    /// </summary>
     private readonly struct ImplicitQuest
     {
         public readonly string DBName;

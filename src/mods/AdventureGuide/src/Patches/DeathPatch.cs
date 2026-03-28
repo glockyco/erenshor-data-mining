@@ -1,11 +1,12 @@
+using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
 using HarmonyLib;
 
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Unregisters dying NPCs from the EntityRegistry and notifies
-/// SpawnTimerTracker to start tracking respawn timers.
+/// Unregisters dying NPCs from the EntityRegistry and triggers
+/// marker recomputation.
 /// Character.DoDeath is private but Harmony patches it by name.
 /// Only NPC characters (those with an NPC component) are tracked.
 /// </summary>
@@ -13,9 +14,7 @@ namespace AdventureGuide.Patches;
 internal static class DeathPatch
 {
     internal static EntityRegistry? Registry;
-    internal static SpawnTimerTracker? Timers;
-    internal static WorldMarkerSystem? Markers;
-    internal static LootScanner? Loot;
+    internal static MarkerComputer? Markers;
 
     [HarmonyPostfix]
     private static void Postfix(Character __instance)
@@ -24,8 +23,6 @@ internal static class DeathPatch
         if (npc == null) return;
 
         Registry?.Unregister(npc);
-        Timers?.OnNPCDeath(npc);
-        Markers?.MarkSpawnDirty();
-        Loot?.MarkDirty();
+        Markers?.MarkDirty();
     }
 }

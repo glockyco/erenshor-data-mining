@@ -1,4 +1,4 @@
-using AdventureGuide.Data;
+using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using AdventureGuide.UI;
@@ -16,12 +16,13 @@ namespace AdventureGuide.Diagnostics;
 /// </summary>
 public static class DebugAPI
 {
-    internal static GuideData? Data { get; set; }
+    internal static EntityGraph? Graph { get; set; }
     internal static QuestStateTracker? State { get; set; }
     internal static FilterState? Filter { get; set; }
-    internal static NavigationController? Nav { get; set; }
+    internal static NavigationEngine? Nav { get; set; }
     internal static EntityRegistry? Entities { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
+    internal static ZoneRouter? Router { get; set; }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
@@ -38,42 +39,21 @@ public static class DebugAPI
              + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
     }
 
-    /// <summary>Dump navigation state: target, waypoint, distance, ground path.</summary>
+    /// <summary>Dump navigation state: target, position, distance, ground path.</summary>
     public static string DumpNav()
     {
         if (Nav == null) return "Not initialized";
-        if (Nav.Target == null) return "No active navigation target";
+        if (!Nav.HasTarget) return "No active navigation target";
 
-        var t = Nav.Target;
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Target: {t.DisplayName}");
-        sb.AppendLine($"  Kind: {t.TargetKind}");
-        sb.AppendLine($"  Scene: {t.Scene}");
-        sb.AppendLine($"  Position: {t.Position}");
-        sb.AppendLine($"  SourceId: {t.SourceId ?? "(none)"}");
-        sb.AppendLine($"  Quest: {t.QuestDBName} step {t.StepOrder}");
-        sb.AppendLine($"  Origin: {t.OriginQuestDBName} step {t.OriginStepOrder}");
-
-        var currentZone = State?.CurrentZone ?? "";
-        sb.AppendLine($"  CrossZone: {t.IsCrossZone(currentZone)}");
+        sb.AppendLine($"Target: {Nav.TargetDisplayName}");
+        sb.AppendLine($"  NodeKey: {Nav.TargetNodeKey}");
+        sb.AppendLine($"  Position: {Nav.EffectiveTarget}");
         sb.AppendLine($"  Distance: {Nav.Distance:F1}");
-
-        if (Nav.ZoneLineWaypoint != null)
-        {
-            var zl = Nav.ZoneLineWaypoint;
-            sb.AppendLine($"ZoneLineWaypoint: {zl.DisplayName}");
-            sb.AppendLine($"  Scene: {zl.Scene}");
-            sb.AppendLine($"  Position: {zl.Position}");
-        }
-        else
-        {
-            sb.AppendLine("ZoneLineWaypoint: (none)");
-        }
+        sb.AppendLine($"  Scene: {Nav.CurrentScene}");
 
         if (GroundPath != null)
             sb.AppendLine($"GroundPath: enabled={GroundPath.Enabled}");
-
-        sb.AppendLine($"ManualOverride: {Nav.IsManualSourceOverride}");
 
         return sb.ToString();
     }
@@ -85,7 +65,7 @@ public static class DebugAPI
 
         if (displayName != null)
         {
-            string key = displayName.StartsWith("character:", System.StringComparison.OrdinalIgnoreCase)
+            string key = displayName.StartsWith("character:", StringComparison.OrdinalIgnoreCase)
                 ? displayName
                 : "character:" + displayName.Trim().ToLowerInvariant();
             int count = Entities.CountAlive(key);
@@ -95,104 +75,104 @@ public static class DebugAPI
         return "Pass a character name or stable key: DumpEntities(\"NPC Name\")";
     }
 
-    /// <summary>Dump full details for a specific quest by DB name or display name.</summary>
+    /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
     public static string DumpQuest(string name)
     {
-        if (Data == null) return "Not initialized";
+        if (Graph == null) return "Not initialized";
 
-        var q = FindQuest(name);
-        if (q == null) return $"Quest '{name}' not found (searched DB name and display name)";
+        var node = FindQuestNode(name);
+        if (node == null) return $"Quest '{name}' not found";
 
-        var lines = new System.Text.StringBuilder();
-        lines.AppendLine($"DBName: {q.DBName}");
-        lines.AppendLine($"Name: {q.DisplayName}");
-        lines.AppendLine($"Type: {q.QuestType}");
-        lines.AppendLine($"Zone: {q.ZoneContext}");
-        lines.AppendLine($"Level: {q.LevelEstimate?.Recommended}");
-        lines.AppendLine($"Active: {State?.IsActive(q.DBName)}");
-        lines.AppendLine($"Completed: {State?.IsCompleted(q.DBName)}");
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Key: {node.Key}");
+        sb.AppendLine($"DbName: {node.DbName}");
+        sb.AppendLine($"Name: {node.DisplayName}");
+        sb.AppendLine($"Zone: {node.Zone}");
+        sb.AppendLine($"Level: {node.Level}");
+        sb.AppendLine($"Implicit: {node.Implicit}");
+        sb.AppendLine($"Active: {State?.IsActive(node.DbName!)}");
+        sb.AppendLine($"Completed: {State?.IsCompleted(node.DbName!)}");
 
-        if (q.Steps != null)
-        {
-            lines.AppendLine($"Steps ({q.Steps.Count}):");
-            foreach (var s in q.Steps)
-                lines.AppendLine($"  {s.Order}. [{s.Action}] {s.Description} (target_key={s.TargetKey})");
-        }
+        var edges = Graph.OutEdges(node.Key);
+        sb.AppendLine($"Outgoing edges ({edges.Count}):");
+        foreach (var e in edges)
+            sb.AppendLine($"  [{e.Type}] \u2192 {e.Target}");
 
-        if (q.Rewards != null)
-            lines.AppendLine($"Rewards: {q.Rewards.XP} XP, {q.Rewards.Gold} Gold, {q.Rewards.ItemName}");
-
-        return lines.ToString();
+        return sb.ToString();
     }
 
     /// <summary>Dump all quests for the current zone.</summary>
     public static string DumpZoneQuests()
     {
-        if (Data == null || State == null) return "Not initialized";
+        if (Graph == null || State == null) return "Not initialized";
 
         var zone = State.CurrentZone;
-        var lines = new System.Text.StringBuilder();
-        lines.AppendLine($"Quests in zone '{zone}':");
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Quests in zone '{zone}':");
 
-        foreach (var q in Data.All)
+        foreach (var node in Graph.NodesOfType(NodeType.Quest))
         {
-            if (q.ZoneContext == null) continue;
-            if (!q.ZoneContext.Equals(zone, System.StringComparison.OrdinalIgnoreCase)) continue;
+            if (node.Zone == null) continue;
+            if (!node.Zone.Equals(zone, StringComparison.OrdinalIgnoreCase)) continue;
 
-            var status = State.IsCompleted(q.DBName) ? "done"
-                       : State.IsActive(q.DBName) ? "active"
+            var status = State.IsCompleted(node.DbName!) ? "done"
+                       : State.IsActive(node.DbName!) ? "active"
                        : "available";
-            lines.AppendLine($"  [{status}] {q.DisplayName} ({q.DBName})");
+            sb.AppendLine($"  [{status}] {node.DisplayName} ({node.DbName})");
         }
 
-        return lines.ToString();
+        return sb.ToString();
     }
 
     /// <summary>
     /// Remove a quest from the player's active and completed lists so it
-    /// can be accepted again. Accepts DB name or display name. Syncs the
-    /// mod's cached state after modification.
+    /// can be accepted again. Accepts node key, DB name, or display name.
+    /// Syncs the mod's cached state after modification.
     /// </summary>
     public static string ResetQuest(string name)
     {
-        if (Data == null || State == null) return "Not initialized";
+        if (Graph == null || State == null) return "Not initialized";
 
-        var q = FindQuest(name);
-        if (q == null) return $"Quest '{name}' not found";
+        var node = FindQuestNode(name);
+        if (node == null) return $"Quest '{name}' not found";
 
-        bool wasActive = GameData.HasQuest.Remove(q.DBName);
-        bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
+        bool wasActive = GameData.HasQuest.Remove(node.DbName!);
+        bool wasCompleted = GameData.CompletedQuests.Remove(node.DbName!);
 
         State.SyncFromGameData();
-        Nav?.OnGameStateChanged(State.CurrentZone);
 
         string prev = wasActive ? "active" : wasCompleted ? "completed" : "not in quest log";
-        return $"Reset '{q.DisplayName}' (was {prev})";
+        return $"Reset '{node.DisplayName}' (was {prev})";
     }
 
-    /// <summary>Test zone graph routing between two scenes.</summary>
+    /// <summary>Test zone routing between two scenes.</summary>
     public static string TestRoute(string fromScene, string toScene)
     {
-        if (Nav == null) return "Not initialized";
-        var graphField = typeof(NavigationController).GetField("_zoneGraph",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var graph = graphField?.GetValue(Nav) as ZoneGraph;
-        if (graph == null) return "ZoneGraph not found";
-        var route = graph.FindRoute(fromScene, toScene);
+        if (Router == null) return "Not initialized";
+
+        var route = Router.FindRoute(fromScene, toScene);
         if (route == null) return $"No route from {fromScene} to {toScene}";
-        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" -> ", route.Path)}";
+
+        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" \u2192 ", route.Path)}";
     }
 
-    private static QuestEntry? FindQuest(string name)
+    private static Node? FindQuestNode(string name)
     {
-        if (Data == null) return null;
-        var q = Data.GetByDBName(name);
-        if (q != null) return q;
-        foreach (var entry in Data.All)
+        if (Graph == null) return null;
+
+        // Try as node key first
+        var node = Graph.GetNode(name);
+        if (node != null && node.Type == NodeType.Quest) return node;
+
+        // Try as DB name, then display name
+        foreach (var q in Graph.NodesOfType(NodeType.Quest))
         {
-            if (string.Equals(entry.DisplayName, name, System.StringComparison.OrdinalIgnoreCase))
-                return entry;
+            if (string.Equals(q.DbName, name, StringComparison.OrdinalIgnoreCase))
+                return q;
+            if (string.Equals(q.DisplayName, name, StringComparison.OrdinalIgnoreCase))
+                return q;
         }
+
         return null;
     }
 }
