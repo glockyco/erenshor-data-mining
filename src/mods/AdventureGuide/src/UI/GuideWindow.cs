@@ -128,11 +128,7 @@ public sealed class GuideWindow
     /// </summary>
     private ViewNode? FindAndBuild(string dbName)
     {
-        foreach (var quest in _graph.NodesOfType(NodeType.Quest))
-        {
-            if (string.Equals(quest.DbName, dbName, System.StringComparison.OrdinalIgnoreCase))
-                return _viewBuilder.Build(quest.Key);
-        }
-        return null;
+        var quest = _graph.GetQuestByDbName(dbName);
+        return quest != null ? _viewBuilder.Build(quest.Key) : null;
     }
 }

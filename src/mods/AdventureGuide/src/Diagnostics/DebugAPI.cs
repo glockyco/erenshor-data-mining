@@ -164,11 +164,13 @@ public static class DebugAPI
         var node = Graph.GetNode(name);
         if (node != null && node.Type == NodeType.Quest) return node;
 
-        // Try as DB name, then display name
+        // Try as DB name (O(1) via index)
+        node = Graph.GetQuestByDbName(name);
+        if (node != null) return node;
+
+        // Last resort: display name (linear scan)
         foreach (var q in Graph.NodesOfType(NodeType.Quest))
         {
-            if (string.Equals(q.DbName, name, StringComparison.OrdinalIgnoreCase))
-                return q;
             if (string.Equals(q.DisplayName, name, StringComparison.OrdinalIgnoreCase))
                 return q;
         }

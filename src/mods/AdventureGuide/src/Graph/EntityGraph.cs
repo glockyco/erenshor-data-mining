@@ -13,6 +13,7 @@ public sealed class EntityGraph
     private readonly Dictionary<string, List<Edge>> _outEdges;
     private readonly Dictionary<string, List<Edge>> _inEdges;
     private readonly Dictionary<NodeType, IReadOnlyList<Node>> _nodesByType;
+    private readonly Dictionary<string, Node> _questsByDbName;
     private readonly int _edgeCount;
 
     internal EntityGraph(Node[] nodes, Edge[] edges)
@@ -46,6 +47,7 @@ public sealed class EntityGraph
 
         // Pre-compute nodes grouped by type
         var byType = new Dictionary<NodeType, List<Node>>();
+        var questsByDb = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
         foreach (var node in nodes)
         {
             if (!byType.TryGetValue(node.Type, out var list))
@@ -54,11 +56,16 @@ public sealed class EntityGraph
                 byType[node.Type] = list;
             }
             list.Add(node);
+
+            // Index quest nodes by DB name for fast lookup
+            if (node.Type == NodeType.Quest && node.DbName != null)
+                questsByDb[node.DbName] = node;
         }
 
         _nodesByType = new Dictionary<NodeType, IReadOnlyList<Node>>(byType.Count);
         foreach (var (type, list) in byType)
             _nodesByType[type] = list.AsReadOnly();
+        _questsByDbName = questsByDb;
     }
 
     public int NodeCount => _nodes.Count;
@@ -68,6 +75,10 @@ public sealed class EntityGraph
         _nodes.TryGetValue(key, out var node) ? node : null;
 
     public bool HasNode(string key) => _nodes.ContainsKey(key);
+
+    /// <summary>Look up a quest node by its game DB name (e.g. "ANGLERRING"). O(1).</summary>
+    public Node? GetQuestByDbName(string dbName) =>
+        _questsByDbName.TryGetValue(dbName, out var node) ? node : null;
 
     public IReadOnlyList<Node> NodesOfType(NodeType type) =>
         _nodesByType.TryGetValue(type, out var list) ? list : EmptyNodes;
