@@ -127,6 +127,8 @@ public sealed class Plugin : BaseUnityPlugin
             new QuestPositionResolver(_viewBuilder, _gameState, positionRegistry));
         positionRegistry.Register(NodeType.ZoneLine,
             new ZoneLinePositionResolver());
+        positionRegistry.Register(NodeType.Zone,
+            new ZonePositionResolver(_graph));
 
         _navEngine = new NavigationEngine(
             _navSet, positionRegistry, _graph, _viewBuilder, _gameState, _zoneRouter);
