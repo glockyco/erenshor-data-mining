@@ -37,8 +37,9 @@ public static class FrontierComputer
 
         var nodeState = state.GetState(node.NodeKey);
 
-        // Already done — not in the frontier, and don't recurse
-        if (nodeState.IsSatisfied) return;
+        // Already done — not in the frontier, and don't recurse.
+        // For items with edge.Quantity, "done" means have >= required, not just > 0.
+        if (IsSatisfied(nodeState, node.Edge)) return;
 
         if (node.Children.Count == 0)
         {
@@ -63,5 +64,18 @@ public static class FrontierComputer
             // directly actionable (e.g., talk to NPC for turn-in)
             frontier.Add(node.NodeKey);
         }
+    }
+
+    /// <summary>
+    /// Check whether a node is satisfied, accounting for edge quantity.
+    /// For items: the player must have at least the required quantity.
+    /// For everything else: delegates to NodeState.IsSatisfied.
+    /// </summary>
+    private static bool IsSatisfied(NodeState nodeState, Graph.Edge? edge)
+    {
+        if (nodeState is ItemCount ic && edge?.Quantity is int required)
+            return ic.Count >= required;
+
+        return nodeState.IsSatisfied;
     }
 }
