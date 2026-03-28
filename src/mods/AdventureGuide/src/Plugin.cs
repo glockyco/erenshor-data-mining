@@ -131,7 +131,8 @@ public sealed class Plugin : BaseUnityPlugin
             new ZonePositionResolver(_graph));
 
         _navEngine = new NavigationEngine(
-            _navSet, positionRegistry, _graph, _viewBuilder, _gameState, _zoneRouter);
+            _navSet, positionRegistry, _graph, _viewBuilder, _gameState,
+            _questTracker, _zoneRouter, _entities);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
