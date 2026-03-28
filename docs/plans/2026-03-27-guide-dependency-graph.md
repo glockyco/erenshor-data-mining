@@ -719,7 +719,7 @@ across every quest. With a graph:
 
 ### Phase 1: Graph pipeline (Python)
 
-Replace repository.py → assembler.py → serializer.py:
+Replace repository.py → assembler.py → serializer.py with:
 
 1. **Node/Edge schema**: define dataclasses in schema.py. All NodeTypes,
    EdgeTypes, AND/OR/NOT semantics.
@@ -729,16 +729,14 @@ Replace repository.py → assembler.py → serializer.py:
    NodeTypes and all edge types. Merge manual edges from
    `graph_overrides.toml`.
 
-3. **Quest view builder** (`quest_view.py`): graph → depth-first
-   ViewNode tree per quest. Handles transitive inlining, cycle pruning,
-   OR-group alternatives, step ordering, character unlock requirements.
+3. **Serializer**: full graph (nodes + edges) → JSON.
 
-4. **Serializer**: full graph → JSON.
+4. **Tests**: graph construction from DB, edge completeness, AND/OR
+   group correctness.
 
-5. **Level estimation**: subgraph-based, kill-step enemy level adjustment.
-
-6. **Tests**: graph construction, view generation, cycle detection,
-   AND/OR resolution, level estimation.
+Quest view building, level estimation, and merge logic all move to C#
+since they depend on live game state. The Python pipeline's sole job is:
+DB → entity graph → JSON.
 
 ### Phase 2: Graph-aware mod (C#)
 
@@ -750,37 +748,43 @@ Replace quest-centric data model and all rendering/navigation/marker code:
 2. **GameState.cs**: unified state per NodeType. Single
    `GetState(nodeKey) → NodeState` interface with per-type resolvers.
 
-3. **Frontier.cs**: compute frontier (actionable leaves) for a quest's
+3. **QuestViewBuilder.cs**: build quest dependency trees on-demand from
+   EntityGraph + GameState. Depth-first traversal with cycle pruning,
+   transitive inlining, OR-group alternatives, step ordering. Also
+   handles level estimation (zone medians + enemy levels). Views are
+   NOT pre-computed — they depend on live game state.
+
+4. **Frontier.cs**: compute frontier (actionable leaves) for a quest's
    dependency tree given game state. Union frontiers across all quests
    in the navigation set. Non-quest nodes in the navigation set
    contribute their resolved positions directly.
 
-4. **MarkerComputation.cs**: for ALL eligible quests (not just navigated),
+5. **MarkerComputation.cs**: for ALL eligible quests (not just navigated),
    compute marker set: quest giver markers (available quests), turn-in
    markers (active quests, two states), objective markers (active quest
    frontier nodes). Markers independent of navigation selection.
 
-5. **ViewRenderer.cs**: single recursive renderer. Template lookup by
+6. **ViewRenderer.cs**: single recursive renderer. Template lookup by
    (edge_type, node_type). Expand/collapse, cycle-pruned views, state
    indicators, NAV buttons, clickable names.
 
-6. **GraphNavigator.cs**: node key → world position(s). Quest keys →
+7. **GraphNavigator.cs**: node key → world position(s). Quest keys →
    frontier positions. Item keys → obtainable source positions. Direct
    position nodes → coordinates. Union across all navigation set entries.
    Mining nodes → prefer available. Waters → zone-level.
 
-7. **GraphMarkerSystem.cs**: render markers from MarkerComputation output.
+8. **GraphMarkerSystem.cs**: render markers from MarkerComputation output.
    Priority dedup. Per-frame live state tracking. Two-state turn-in
    markers.
 
-8. **Multi-target NAV**: navigation set management. Click = override
+9. **Multi-target NAV**: navigation set management. Click = override
    (single node), Shift+click = toggle (add/remove). Any navigable
    node can be in the set — quests, characters, items, sources, etc.
    Arrow/path to closest resolved position across all entries.
 
-9. **Remove old code**: QuestDetailPanel, NavigationController per-type
-   switches, WorldMarkerSystem per-role collectors, StepProgress,
-   Prerequisites section.
+10. **Remove old code**: QuestDetailPanel, NavigationController per-type
+    switches, WorldMarkerSystem per-role collectors, StepProgress,
+    Prerequisites section.
 
 ### Phase 3: Entity pages
 
@@ -798,14 +802,14 @@ Phase 1 (Python):
 1. Define Node, Edge, NodeType, EdgeType schema
 2. Graph builder: all entity types + relationships from DB
 3. Manual edge loader: graph_overrides.toml
-4. Quest view builder with cycle pruning
-5. Serializer
-6. Level estimation
-7. Tests
+4. Serializer: graph → JSON
+5. Tests for graph construction
+6. Wire CLI command, delete old pipeline, verify goldens
 
 Phase 2 (C#):
-8. EntityGraph data loader
-9. GameState: unified state resolution
+7. EntityGraph data loader
+8. GameState: unified state resolution
+9. QuestViewBuilder: on-demand view construction from graph + state
 10. Frontier computation + multi-target union
 11. Marker computation: always-on, all-quest markers
 12. ViewRenderer: recursive template rendering
@@ -818,19 +822,30 @@ Phase 3+4: separate planning when we get there.
 
 ## Open questions
 
-1. **Pre-compute quest views vs on-demand**: pre-computation saves mod
-   startup time, increases JSON size. Start pre-computed, measure.
-
-2. **OR-group visualization**: visual design for alternative paths
+1. **OR-group visualization**: visual design for alternative paths
    deferred to implementation. Graph captures them correctly.
 
-3. **Binary serialization**: switch to MessagePack if JSON too large.
+2. **Binary serialization**: switch to MessagePack if JSON too large.
 
-4. **graph_overrides.toml scope**: start with Evadne, doors, ward bosses.
+3. **graph_overrides.toml scope**: start with Evadne, doors, ward bosses.
 
-5. **Marker performance**: computing markers for ALL quests every rebuild
+4. **Marker performance**: computing markers for ALL quests every rebuild
    may need optimization (spatial indexing, only recompute changed quests).
    Profile first, optimize if needed.
 
-6. **Quest view caching**: deterministic given graph. Can be pre-computed
-   in Python or on-demand in C#. Decision deferred.
+## Resolved decisions
+
+- **Quest views are built on-demand in C#, not pre-computed in Python.**
+  Views depend on live game state (quest completion, inventory, spawn state)
+  so pre-computed views would be stale. The JSON contains only the raw graph
+  (nodes + edges). The mod builds ViewNode trees at runtime from the graph +
+  current game state. This is simpler and more correct.
+
+- **No manual quest override system.** The existing `merge.py` curation layer
+  has no actual manual files. Dropped from the new pipeline. If manual data is
+  needed in the future, it goes into `graph_overrides.toml` as manual edges,
+  not as quest-level JSON overrides.
+
+- **Implementation strategy**: build new pipeline files alongside old ones.
+  Verify new output against goldens. Then delete old files in the same commit.
+  No gradual migration — clean cut.

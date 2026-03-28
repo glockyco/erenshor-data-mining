@@ -28,13 +28,10 @@ src/erenshor/application/guide/
 
 ```
 src/erenshor/application/guide/
-├── schema.py              # Node, Edge, NodeType, EdgeType, ViewNode
+├── schema.py              # Node, Edge, NodeType, EdgeType
 ├── graph.py               # EntityGraph class (in-memory graph)
 ├── graph_builder.py       # DB → EntityGraph
 ├── graph_overrides.py     # graph_overrides.toml → manual nodes/edges
-├── quest_view.py          # EntityGraph → QuestView (dependency tree)
-├── level_estimator.py     # ViewNode tree → level estimates
-├── merge.py               # Manual quest override merging (kept)
 ├── generator.py           # Orchestrator (rewritten)
 └── serializer.py          # EntityGraph → JSON (rewritten)
 ```
@@ -246,61 +243,25 @@ def merge_overrides(graph: EntityGraph, overrides_path: Path) -> None:
     """Merge manual nodes/edges into the graph."""
 ```
 
-#### `quest_view.py` — Dependency tree builder
-
-```python
-def build_quest_view(
-    graph: EntityGraph,
-    quest_key: str,
-) -> ViewNode:
-    """Build the depth-first dependency tree for a quest.
-
-    Traverses outgoing edges from the quest node, inlining
-    transitive dependencies (sub-quests, recipes, ingredient
-    sources, character unlocks). Prunes cycle-blocked paths
-    via a visited set.
-    """
-
-def _expand_node(
-    graph: EntityGraph,
-    node_key: str,
-    edge_type: EdgeType | None,
-    visited: set[str],
-) -> ViewNode:
-    """Recursively expand a node into a ViewNode tree."""
-```
-
-#### `level_estimator.py`
-
-```python
-def estimate_levels(
-    view: ViewNode,
-    graph: EntityGraph,
-) -> None:
-    """Annotate ViewNodes with level estimates.
-
-    Zone-context nodes use zone median. Kill-step targets use
-    max(zone_median, enemy_level). Quests inherit from deepest
-    dependency.
-    """
-```
-
 #### `generator.py` — Orchestrator
 
 ```python
-def generate(db_path: Path, overrides_path: Path | None) -> GuideOutput:
+def generate(db_path: Path, overrides_path: Path | None) -> EntityGraph:
     graph = build_graph(db_path)
     if overrides_path:
         merge_overrides(graph, overrides_path)
-
-    quest_views = {}
-    for node in graph.nodes_of_type(NodeType.QUEST):
-        view = build_quest_view(graph, node.key)
-        estimate_levels(view, graph)
-        quest_views[node.key] = view
-
-    return GuideOutput(graph=graph, quest_views=quest_views)
+    return graph
 ```
+
+The Python pipeline emits only the raw graph (nodes + edges). Quest view
+trees are built on-demand in C# by QuestViewBuilder from the graph +
+live game state. Level estimation also moves to C# since it depends on
+which nodes are reachable from a quest (which varies with game state).
+
+Removed from Python pipeline:
+- `quest_view.py` — view building moved to C# (QuestViewBuilder.cs)
+- `level_estimator.py` — level estimation moved to C# (lives in QuestViewBuilder)
+- `merge.py` — no manual override files exist; dropped
 
 ---
 
@@ -374,8 +335,7 @@ AdventureGuide/src/
 │
 ├── Views/
 │   ├── ViewNode.cs                  # Renderable tree node
-│   ├── QuestViewLoader.cs          # Load pre-computed quest views from JSON
-│   ├── QuestViewBuilder.cs         # Build quest views on-demand (if needed)
+│   ├── QuestViewBuilder.cs         # Build quest views on-demand from graph + state
 │   └── EntityViewBuilder.cs        # Build item/character/zone views (future)
 │
 ├── State/
@@ -474,8 +434,7 @@ AdventureGuide/src/
 | Component | Responsibility | Depends on |
 |---|---|---|
 | `ViewNode` | Tree node for rendering: node_key, edge_type, children, properties, is_cycle_ref. The universal rendering unit — every UI tree is made of ViewNodes. | — |
-| `QuestViewLoader` | Loads pre-computed quest view trees from JSON (if pre-computed in Python). | ViewNode |
-| `QuestViewBuilder` | Builds quest view trees on-demand from EntityGraph via depth-first traversal with cycle pruning. Used if views aren't pre-computed. | EntityGraph, ViewNode |
+| `QuestViewBuilder` | Builds quest view trees on-demand from EntityGraph + GameState via depth-first traversal with cycle pruning. Called each time a quest page is opened or game state changes. Views are NOT pre-computed — they depend on live game state (quest completion, inventory) so pre-computing would produce stale trees. | EntityGraph, GameState, ViewNode |
 | `EntityViewBuilder` | Builds entity page views (item, character, zone) from EntityGraph. Future — but the interface is defined now. | EntityGraph, ViewNode |
 
 #### State layer (`State/`)
@@ -559,7 +518,7 @@ limitation). Component targets change:
 ```
 1. GuideConfig
 2. GraphLoader → EntityGraph (from embedded JSON)
-3. QuestViewLoader → dict<questKey, ViewNode> (from same JSON)
+3. (no pre-loading of views — QuestViewBuilder builds on-demand from graph + state)
 4. QuestTracker(EntityGraph)
 5. TrackerState + LoadFromConfig
 6. GameState(EntityGraph) + register all NodeType resolvers
