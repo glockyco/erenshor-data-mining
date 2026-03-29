@@ -69,6 +69,8 @@ public sealed class MarkerComputer
         Version++;
         _markers.Clear();
         _markerIndex.Clear();
+        if (string.IsNullOrEmpty(_tracker.CurrentZone))
+            return;
         var quests = _graph.NodesOfType(NodeType.Quest);
         for (int i = 0; i < quests.Count; i++)
         {
@@ -94,9 +96,9 @@ public sealed class MarkerComputer
 
     /// <summary>
     /// Active or implicitly-active quests emit markers from the same resolved
-    /// frontier targets that navigation and tracker use. This keeps markers
-    /// truthful for nested crafting chains and blocked quest subgoals instead
-    /// of maintaining a parallel marker-only interpretation.
+    /// frontier targets that navigation and tracker use, but only keep targets
+    /// in the player's current scene. This keeps markers truthful for nested
+    /// crafting chains while avoiding world-wide marker work the player cannot see.
     /// </summary>
     private void EmitActiveQuestMarkers(Node quest)
     {
@@ -171,6 +173,10 @@ public sealed class MarkerComputer
     /// point, query <see cref="LiveStateTracker"/> for live state and emit the
     /// appropriate marker: quest marker when alive, absence marker when not.
     /// </summary>
+    private bool IsCurrentScene(string? scene) =>
+        string.IsNullOrEmpty(scene)
+        || string.Equals(scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase);
+
     private void EmitCharacterSpawnMarkers(
         Node charNode, Node quest, MarkerType questType, string questSubText)
     {
@@ -179,7 +185,7 @@ public sealed class MarkerComputer
         if (spawnEdges.Count == 0)
         {
             // No spawn point edges — fall back to character node position (directly placed NPC).
-            if (!HasPosition(charNode)) return;
+            if (!HasPosition(charNode) || !IsCurrentScene(charNode.Scene)) return;
 
             var info = _liveState.GetCharacterState(charNode);
             EmitSpawnMarker(
@@ -191,7 +197,7 @@ public sealed class MarkerComputer
         for (int i = 0; i < spawnEdges.Count; i++)
         {
             var spawnNode = _graph.GetNode(spawnEdges[i].Target);
-            if (spawnNode == null || !HasPosition(spawnNode)) continue;
+            if (spawnNode == null || !HasPosition(spawnNode) || !IsCurrentScene(spawnNode.Scene)) continue;
 
             var info = _liveState.GetSpawnState(spawnNode);
             EmitSpawnMarker(
@@ -273,6 +279,9 @@ public sealed class MarkerComputer
     /// </summary>
     private void EmitStaticMarker(Node node, Node quest, MarkerType questType, string subText)
     {
+        if (!HasPosition(node) || !IsCurrentScene(node.Scene))
+            return;
+
         MarkerType type = questType;
         string actualSubText = subText;
         MiningNode? liveMining = null;
@@ -343,6 +352,9 @@ public sealed class MarkerComputer
 
     private void EmitResolvedMarker(Node quest, ResolvedViewPosition resolved)
     {
+        if (!IsCurrentScene(resolved.Scene))
+            return;
+
         var targetNode = resolved.TargetNode.Node;
         var explanation = NavigationExplanationBuilder.Build(resolved.GoalNode, resolved.TargetNode, _tracker);
         var markerType = DetermineActiveMarkerType(quest, resolved.GoalNode);
