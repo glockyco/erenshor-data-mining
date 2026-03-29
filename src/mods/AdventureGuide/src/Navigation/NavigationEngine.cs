@@ -26,6 +26,7 @@ public sealed class NavigationEngine
 {
     private readonly NavigationSet _navSet;
     private readonly PositionResolverRegistry _registry;
+    private readonly ViewNodePositionCollector _viewPositions;
     private readonly EntityGraph _graph;
     private readonly QuestViewBuilder _viewBuilder;
     private readonly GameState _gameState;
@@ -87,6 +88,7 @@ public sealed class NavigationEngine
     public NavigationEngine(
         NavigationSet navSet,
         PositionResolverRegistry registry,
+        ViewNodePositionCollector viewPositions,
         EntityGraph graph,
         QuestViewBuilder viewBuilder,
         GameState gameState,
@@ -96,6 +98,7 @@ public sealed class NavigationEngine
     {
         _navSet = navSet;
         _registry = registry;
+        _viewPositions = viewPositions;
         _graph = graph;
         _viewBuilder = viewBuilder;
         _gameState = gameState;
@@ -181,15 +184,32 @@ public sealed class NavigationEngine
     private void ResolveKey(string nodeKey)
     {
         var node = _graph.GetNode(nodeKey);
+        if (node == null)
+            return;
 
-        // Quest nodes expand into their frontier.
-        if (node != null && node.Type == NodeType.Quest)
+        // Quest and item navigation must resolve from the already-pruned view tree.
+
+        // Re-walking the raw graph here creates a second, inconsistent traversal
+        // model that can reintroduce cycles the UI already removed.
+
+        // Use the shared pruned ViewNode tree so navigation sees the exact same
+        // dependency state as the quest panel and tracker.
+
+        if (node.Type == NodeType.Quest || node.Type == NodeType.Item)
         {
-            ResolveFrontier(nodeKey);
+            var root = _viewBuilder.BuildNode(nodeKey);
+            if (root == null)
+                return;
+
+            _positionBuffer.Clear();
+            _viewPositions.Collect(root, _positionBuffer);
+            for (int i = 0; i < _positionBuffer.Count; i++)
+                _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
             return;
         }
 
-        // Non-quest keys resolve directly.
+        // Other node types resolve directly.
+
         _positionBuffer.Clear();
         _registry.Resolve(nodeKey, _positionBuffer);
         for (int i = 0; i < _positionBuffer.Count; i++)
@@ -207,7 +227,7 @@ public sealed class NavigationEngine
         {
             var viewNode = frontier[i];
             _positionBuffer.Clear();
-            _registry.Resolve(viewNode.NodeKey, _positionBuffer);
+            _viewPositions.Collect(viewNode, _positionBuffer);
             for (int j = 0; j < _positionBuffer.Count; j++)
                 _candidates.Add((viewNode.NodeKey, _positionBuffer[j].Position, _positionBuffer[j].Scene, viewNode, _positionBuffer[j].SourceKey));
         }

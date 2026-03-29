@@ -125,17 +125,15 @@ public sealed class Plugin : BaseUnityPlugin
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
             new CharacterPositionResolver(_entities, _graph, _liveState));
-        positionRegistry.Register(NodeType.Item,
-            new ItemPositionResolver(_graph, positionRegistry));
-        positionRegistry.Register(NodeType.Quest,
-            new QuestPositionResolver(_viewBuilder, _gameState, positionRegistry));
         positionRegistry.Register(NodeType.ZoneLine,
             new ZoneLinePositionResolver());
         positionRegistry.Register(NodeType.Zone,
             new ZonePositionResolver(_graph));
 
+        var viewPositions = new ViewNodePositionCollector(positionRegistry, _gameState);
+
         _navEngine = new NavigationEngine(
-            _navSet, positionRegistry, _graph, _viewBuilder, _gameState,
+            _navSet, positionRegistry, viewPositions, _graph, _viewBuilder, _gameState,
             _questTracker, _zoneRouter, _entities);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
@@ -166,7 +164,7 @@ public sealed class Plugin : BaseUnityPlugin
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
         _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel, filter);
 
-        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter);
+        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter, viewPositions);
         _imgui.OnLayout = () =>
         {
             _window.Draw();

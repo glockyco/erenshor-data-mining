@@ -47,6 +47,7 @@ public sealed class TrackerPanel
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
     private readonly ZoneRouter _router;
+    private readonly ViewNodePositionCollector _viewPositions;
 
     private bool _visible = true;
 
@@ -84,7 +85,8 @@ public sealed class TrackerPanel
         NavigationSet navSet,
         GuideWindow guide,
         GuideConfig config,
-        ZoneRouter router)
+        ZoneRouter router,
+        ViewNodePositionCollector viewPositions)
     {
         _graph = graph;
         _tracker = tracker;
@@ -95,6 +97,7 @@ public sealed class TrackerPanel
         _guide = guide;
         _config = config;
         _router = router;
+        _viewPositions = viewPositions;
 
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
@@ -461,10 +464,12 @@ public sealed class TrackerPanel
         if (frontier.Count > 1)
             summary += $" (+{frontier.Count - 1} more)";
 
-        // Collect positions for distance computation
+        // Collect positions for distance computation from the same pruned
+        // frontier nodes the quest view renders and navigation uses.
+
         var positions = new List<FrontierPosition>();
         for (int i = 0; i < frontier.Count; i++)
-            CollectFrontierPositions(frontier[i].Node, positions);
+            CollectFrontierPositions(frontier[i], positions);
 
         // Prepend cross-zone prefix when all frontier is outside current scene
         if (positions.Count > 0)
@@ -499,26 +504,19 @@ public sealed class TrackerPanel
     }
 
     /// <summary>
-    /// Collect world positions for a frontier node. Characters are expanded
-    /// to their spawn points; other nodes use their own position.
+    /// Collect world positions for a frontier node from its pruned view tree.
+    /// This keeps tracker distance computation consistent with navigation and
+    /// the rendered dependency tree.
     /// </summary>
-    private void CollectFrontierPositions(Node node, List<FrontierPosition> positions)
+    private void CollectFrontierPositions(ViewNode node, List<FrontierPosition> positions)
     {
-        if (node.Type == NodeType.Character)
+        var resolved = new List<ResolvedPosition>();
+        _viewPositions.Collect(node, resolved);
+        for (int i = 0; i < resolved.Count; i++)
         {
-            var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
-            for (int i = 0; i < spawnEdges.Count; i++)
-            {
-                var sp = _graph.GetNode(spawnEdges[i].Target);
-                if (sp != null && sp.X.HasValue && sp.Y.HasValue && sp.Z.HasValue)
-                    positions.Add(new FrontierPosition(sp.X.Value, sp.Y.Value, sp.Z.Value, sp.Scene ?? ""));
-            }
-            if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-                positions.Add(new FrontierPosition(node.X.Value, node.Y.Value, node.Z.Value, node.Scene ?? ""));
-        }
-        else if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-        {
-            positions.Add(new FrontierPosition(node.X.Value, node.Y.Value, node.Z.Value, node.Scene ?? ""));
+            var rp = resolved[i];
+            positions.Add(new FrontierPosition(
+                rp.Position.x, rp.Position.y, rp.Position.z, rp.Scene ?? ""));
         }
     }
 

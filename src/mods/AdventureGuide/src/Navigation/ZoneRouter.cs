@@ -47,6 +47,28 @@ public sealed class ZoneRouter
         }
     }
 
+    /// <summary>First locked hop on a route that otherwise exists.</summary>
+    public sealed class LockedHop
+    {
+        public string ZoneLineKey { get; }
+        public string FromScene { get; }
+        public string ToScene { get; }
+        public float X { get; }
+        public float Y { get; }
+        public float Z { get; }
+
+        public LockedHop(string zoneLineKey, string fromScene, string toScene,
+            float x, float y, float z)
+        {
+            ZoneLineKey = zoneLineKey;
+            FromScene = fromScene;
+            ToScene = toScene;
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+
     private readonly EntityGraph _graph;
     private readonly GameState _state;
 
@@ -146,6 +168,41 @@ public sealed class ZoneRouter
         if (result == null)
             result = BFS(currentScene, targetScene, accessibleOnly: false);
         return result;
+    }
+
+    /// <summary>
+    /// Find the first locked hop on the best route from currentScene to targetScene.
+    /// Returns null when an accessible-only route exists or no route exists at all.
+    /// </summary>
+    public LockedHop? FindFirstLockedHop(string currentScene, string targetScene)
+    {
+        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        // If a fully accessible route exists, there is no unlock dependency to show.
+        if (BFS(currentScene, targetScene, accessibleOnly: true) != null)
+            return null;
+
+        var route = BFS(currentScene, targetScene, accessibleOnly: false);
+        if (route == null)
+            return null;
+
+        for (int i = 0; i < route.Path.Count - 1; i++)
+        {
+            var edge = FindEdge(route.Path[i], route.Path[i + 1], accessibleOnly: false);
+            if (edge == null || edge.Value.Accessible)
+                continue;
+
+            return new LockedHop(
+                edge.Value.ZoneLineKey,
+                route.Path[i],
+                route.Path[i + 1],
+                edge.Value.X,
+                edge.Value.Y,
+                edge.Value.Z);
+        }
+
+        return null;
     }
 
     private Route? BFS(string start, string goal, bool accessibleOnly)

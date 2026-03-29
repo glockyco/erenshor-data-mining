@@ -42,10 +42,12 @@ public sealed class QuestViewBuilder
 
     /// <summary>Grey set: quest keys currently on the DFS stack.</summary>
     private readonly HashSet<string> _questsOnPath = new();
-    /// <summary>Black set: quest keys that have been fully expanded.</summary>
+    /// <summary>Quests that have been fully built and cached this pass.</summary>
     private readonly HashSet<string> _questsExpanded = new();
     /// <summary>Quest keys determined to be structurally infeasible.</summary>
     private readonly HashSet<string> _questsInfeasible = new();
+    /// <summary>Successfully built quest subtrees for reuse when they recur.</summary>
+    private readonly Dictionary<string, ViewNode> _questCache = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker)
@@ -63,13 +65,32 @@ public sealed class QuestViewBuilder
         if (questNode == null || questNode.Type != NodeType.Quest)
             return null;
 
-        // DFS state is scoped to one build — clear all three sets.
+        return BuildNode(questKey);
+    }
+
+    /// <summary>Build a pruned dependency/source tree for any graph node.</summary>
+    public ViewNode? BuildNode(string nodeKey)
+    {
+        var node = _graph.GetNode(nodeKey);
+        if (node == null)
+            return null;
+
+        ResetBuildState();
+        var itemVisited = new HashSet<string>();
+
+        return node.Type == NodeType.Quest
+            ? BuildQuestNode(nodeKey, node, edgeType: null, edge: null, itemVisited)
+            : BuildLeafOrExpand(nodeKey, node, edgeType: null, edge: null, itemVisited);
+    }
+
+    private void ResetBuildState()
+    {
+        // DFS state is scoped to one build.
+
         _questsOnPath.Clear();
         _questsExpanded.Clear();
         _questsInfeasible.Clear();
-
-        var itemVisited = new HashSet<string>();
-        return BuildQuestNode(questKey, questNode, edgeType: null, edge: null, itemVisited);
+        _questCache.Clear();
     }
 
     // ── Quest node expansion ─────────────────────────────────────────────────
@@ -81,9 +102,14 @@ public sealed class QuestViewBuilder
         if (_questsInfeasible.Contains(key))
             return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
 
-        // (2) Already fully expanded elsewhere — cross-edge; don't re-render.
+        // (2) Already fully expanded elsewhere — cross-edge. Duplicate the
+        // cached subtree so repeated but valid subtrees remain visible.
         if (_questsExpanded.Contains(key))
+        {
+            if (_questCache.TryGetValue(key, out var cached))
+                return CloneViewNode(cached);
             return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+        }
 
         // (3) Currently on the DFS stack — back-edge (true structural cycle).
         if (!_questsOnPath.Add(key))
@@ -117,7 +143,28 @@ public sealed class QuestViewBuilder
         }
 
         _questsExpanded.Add(key);
+        _questCache[key] = CloneViewNode(viewNode);
         return viewNode;
+    }
+
+    private static ViewNode CloneViewNode(ViewNode source)
+    {
+        var clone = new ViewNode(source.NodeKey, source.Node, source.EdgeType, source.Edge)
+        {
+            IsCycleRef = source.IsCycleRef,
+            DefaultExpanded = source.DefaultExpanded,
+            EffectiveLevel = source.EffectiveLevel,
+        };
+
+        if (source.SourceZones != null)
+            clone.SourceZones = new List<string>(source.SourceZones);
+        if (source.UnlockDependency != null)
+            clone.UnlockDependency = CloneViewNode(source.UnlockDependency);
+
+        for (int i = 0; i < source.Children.Count; i++)
+            clone.Children.Add(CloneViewNode(source.Children[i]));
+
+        return clone;
     }
 
     // ── Quest feasibility ────────────────────────────────────────────────────
@@ -400,13 +447,12 @@ public sealed class QuestViewBuilder
     /// edges and build its dependency tree as an inline unlock requirement.
     ///
     /// Three cases for the gating quest:
-    /// — Cross-edge (_questsExpanded): the quest is already shown elsewhere in
-    ///   the tree and is completable.  Clear UnlockDependency so the character
-    ///   does not appear blocked; the player will see the requirement above.
-    /// — Back-edge (_questsOnPath) or infeasible (_questsInfeasible): a genuine
-    ///   deadlock. The character is unreachable; mark it as a cycle ref so it
-    ///   is excluded from the tree.
-    /// — Not yet visited: build the gating quest's full tree inline.
+    /// If the character is disabled, find the gating quest via UnlocksCharacter
+    /// edges and build its dependency tree as an inline unlock requirement.
+    ///
+    /// Repeated but valid unlock subtrees are duplicated from the cache so the
+    /// tree stays complete anywhere the dependency matters. Only true back-edges
+    /// or already-infeasible quests block the character.
     /// </summary>
     private void CheckCharacterUnlock(ViewNode viewNode, Node charNode, HashSet<string> itemVisited)
     {
@@ -423,20 +469,11 @@ public sealed class QuestViewBuilder
         var gatingQuest = _graph.GetNode(gatingQuestKey);
         if (gatingQuest == null) return;
 
-        // Blocked: build (or reference) the gating quest's tree.
+        // Blocked: build (or duplicate) the gating quest's tree.
         viewNode.UnlockDependency = BuildQuestNode(
             gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
 
-        // Cross-edge: gating quest already shown and is feasible — character IS
-        // accessible once that quest completes.  Don't mark character blocked;
-        // the tree already shows the requirement elsewhere.
-        if (viewNode.UnlockDependency.IsCycleRef && _questsExpanded.Contains(gatingQuestKey))
-        {
-            viewNode.UnlockDependency = null;
-            return;
-        }
-
-        // Back-edge or infeasible: character is genuinely unreachable.
+        // Only true back-edges / infeasible quests block the character.
         if (viewNode.UnlockDependency.IsCycleRef)
         {
             viewNode.IsCycleRef = true;
@@ -453,53 +490,81 @@ public sealed class QuestViewBuilder
     /// </summary>
     private void CheckZoneReachability(ViewNode viewNode, Node node, HashSet<string> itemVisited)
     {
-        string? scene = node.Scene;
-        if (scene == null) return;
-
         string currentScene = _tracker.CurrentZone;
         if (string.IsNullOrEmpty(currentScene)) return;
-        if (string.Equals(scene, currentScene, StringComparison.OrdinalIgnoreCase)) return;
 
-        var route = _router.FindRoute(currentScene, scene);
-        if (route == null || !route.IsLocked) return;
+        var candidateScenes = CollectReachabilityScenes(node);
+        if (candidateScenes.Count == 0) return;
 
-        string nextHop = route.NextHopZoneKey;
-        var zoneLines = _graph.NodesOfType(NodeType.ZoneLine);
-        foreach (var zl in zoneLines)
+        ZoneRouter.LockedHop? bestLockedHop = null;
+        int bestPathLength = int.MaxValue;
+
+        for (int i = 0; i < candidateScenes.Count; i++)
         {
-            if (!string.Equals(zl.Scene, currentScene, StringComparison.OrdinalIgnoreCase)) continue;
-            if (!string.Equals(zl.DestinationZoneKey, nextHop, StringComparison.OrdinalIgnoreCase)) continue;
+            string targetScene = candidateScenes[i];
+            if (string.Equals(targetScene, currentScene, StringComparison.OrdinalIgnoreCase))
+                return; // At least one target is directly in-zone
 
-            var zlState = _state.GetState(zl.Key);
-            if (zlState.IsSatisfied) continue; // Not locked
+            var route = _router.FindRoute(currentScene, targetScene);
+            if (route == null)
+                continue;
 
-            var unlockEdges = _graph.InEdges(zl.Key, EdgeType.UnlocksZoneLine);
-            if (unlockEdges.Count == 0) continue;
+            var lockedHop = _router.FindFirstLockedHop(currentScene, targetScene);
+            if (lockedHop == null)
+                return; // At least one target scene is already reachable
 
-            var gatingQuestKey = unlockEdges[0].Source;
-            if (_state.GetState(gatingQuestKey) is QuestCompleted) continue;
-
-            var gatingQuest = _graph.GetNode(gatingQuestKey);
-            if (gatingQuest == null) continue;
-
-            viewNode.UnlockDependency = BuildQuestNode(
-                gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
-
-            // Cross-edge: gating quest already shown and feasible.
-            if (viewNode.UnlockDependency.IsCycleRef && _questsExpanded.Contains(gatingQuestKey))
+            if (route.Path.Count < bestPathLength)
             {
-                viewNode.UnlockDependency = null;
-                return;
+                bestPathLength = route.Path.Count;
+                bestLockedHop = lockedHop;
             }
-
-            // Back-edge or infeasible: zone is genuinely unreachable.
-            if (viewNode.UnlockDependency.IsCycleRef)
-            {
-                viewNode.IsCycleRef = true;
-                viewNode.UnlockDependency = null;
-            }
-            return;
         }
+
+        if (bestLockedHop == null)
+            return;
+
+        var unlockEdges = _graph.InEdges(bestLockedHop.ZoneLineKey, EdgeType.UnlocksZoneLine);
+        if (unlockEdges.Count == 0)
+            return;
+
+        var gatingQuestKey = unlockEdges[0].Source;
+        if (_state.GetState(gatingQuestKey) is QuestCompleted)
+            return;
+
+        var gatingQuest = _graph.GetNode(gatingQuestKey);
+        if (gatingQuest == null)
+            return;
+
+        viewNode.UnlockDependency = BuildQuestNode(
+            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
+
+        // Only true back-edges / infeasible quests block the route.
+        if (viewNode.UnlockDependency.IsCycleRef)
+        {
+            viewNode.IsCycleRef = true;
+            viewNode.UnlockDependency = null;
+        }
+    }
+
+    private List<string> CollectReachabilityScenes(Node node)
+    {
+        var scenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrEmpty(node.Scene))
+            scenes.Add(node.Scene);
+
+        if (node.Type == NodeType.Character)
+        {
+            var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
+            for (int i = 0; i < spawnEdges.Count; i++)
+            {
+                var spawn = _graph.GetNode(spawnEdges[i].Target);
+                if (!string.IsNullOrEmpty(spawn?.Scene))
+                    scenes.Add(spawn.Scene!);
+            }
+        }
+
+        return scenes.ToList();
     }
 
     /// <summary>
@@ -589,7 +654,7 @@ public sealed class QuestViewBuilder
     /// Other node types are leaves.
     /// </summary>
     private ViewNode BuildLeafOrExpand(
-        string key, Node node, EdgeType edgeType, Edge edge, HashSet<string> itemVisited)
+        string key, Node node, EdgeType? edgeType, Edge? edge, HashSet<string> itemVisited)
     {
         if (node.Type == NodeType.Quest)
             return BuildQuestNode(key, node, edgeType, edge, itemVisited);
@@ -604,7 +669,10 @@ public sealed class QuestViewBuilder
         // Check if this node is in an unreachable zone (locked zone line).
         // Only check if no character unlock already set (character unlock is
         // more specific and already explains why the node is blocked).
-        if (viewNode.UnlockDependency == null && node.Scene != null)
+        // Reachability is not limited to node.Scene — characters often carry
+        // their scene only on spawn points, so CheckZoneReachability derives
+        // candidate scenes from the node type.
+        if (viewNode.UnlockDependency == null)
             CheckZoneReachability(viewNode, node, itemVisited);
 
         // Items need obtainability chains — you must get the item before you
