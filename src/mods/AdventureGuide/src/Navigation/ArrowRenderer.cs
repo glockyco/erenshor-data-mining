@@ -37,6 +37,7 @@ public sealed class ArrowRenderer
     private CimguiNative.Vec2[] _cachedLineSizes = System.Array.Empty<CimguiNative.Vec2>();
     private float _cachedTotalHeight;
     private int _cachedDistInt = -1;
+    private int _cachedHopCount = -1;
     private string? _cachedTargetName;
 
     public bool Enabled
@@ -86,17 +87,22 @@ public sealed class ArrowRenderer
             && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
             && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
 
-        // Rebuild label only when the visible distance or target name changes
+        // Rebuild label only when the visible distance, hop count, or target name changes
         int distInt = Mathf.RoundToInt(_nav.Distance);
+        int hopCount = _nav.HopCount;
         var targetName = _nav.TargetDisplayName ?? "";
-        if (distInt != _cachedDistInt || targetName != _cachedTargetName)
+        if (distInt != _cachedDistInt || hopCount != _cachedHopCount || targetName != _cachedTargetName)
         {
             _cachedDistInt = distInt;
+            _cachedHopCount = hopCount;
             _cachedTargetName = targetName;
 
             // Split into lines; distance goes on the first line
             var rawLines = targetName.Split('\n');
-            rawLines[0] = $"{rawLines[0]} ({distInt}m)";
+            string distanceText = hopCount > 0
+                ? $"({distInt}m + {hopCount} hops)"
+                : $"({distInt}m)";
+            rawLines[0] = $"{rawLines[0]} {distanceText}";
             _cachedLines = rawLines;
             _cachedLineSizes = new CimguiNative.Vec2[rawLines.Length];
             _cachedTotalHeight = 0;

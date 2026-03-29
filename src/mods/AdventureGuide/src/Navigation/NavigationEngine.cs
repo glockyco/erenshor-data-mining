@@ -68,6 +68,9 @@ public sealed class NavigationEngine
     /// <summary>Current scene name.</summary>
     public string CurrentScene { get; private set; } = "";
 
+    /// <summary>Number of zone transitions on the current routed path.</summary>
+    public int HopCount { get; private set; }
+
     // ── Change detection ─────────────────────────────────────────────
 
     private int _lastNavSetVersion = -1;
@@ -265,6 +268,7 @@ public sealed class NavigationEngine
         TargetNodeKey = bestKey;
         TargetPosition = bestPos;
         TargetScene = bestScene;
+        HopCount = 0;
 
         // Format display name with action text when frontier context is available
         if (bestViewNode != null)
@@ -285,9 +289,8 @@ public sealed class NavigationEngine
             if (route != null)
             {
                 EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
-                if (TargetDisplayName != null)
-                    TargetDisplayName += " (via zone line)";
-                else
+                HopCount = Math.Max(0, route.Path.Count - 1);
+                if (TargetDisplayName == null)
                     TargetDisplayName = "Zone line";
             }
             else
@@ -378,6 +381,7 @@ public sealed class NavigationEngine
         TargetScene = null;
         EffectiveTarget = null;
         TargetDisplayName = null;
+        HopCount = 0;
         Distance = 0f;
     }
 }
