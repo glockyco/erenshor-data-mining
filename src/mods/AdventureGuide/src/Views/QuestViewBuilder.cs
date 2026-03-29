@@ -227,40 +227,66 @@ public sealed class QuestViewBuilder
             if (sourceNode == null) continue;
 
             var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, visited);
-            EnrichSourceMetadata(child, sourceNode);
+            EnrichSourceMetadata(child, sourceNode, visited);
             parent.Children.Add(child);
         }
     }
 
     /// <summary>
-    /// Populate SourceZones and EffectiveLevel on a source view node.
-    /// Characters get zones from spawn points and effective level as
-    /// max(character level, zone median). Non-characters use their own
-    /// Zone and Level fields directly.
+    /// Populate SourceZones, EffectiveLevel, and UnlockDependency on a source
+    /// view node. Characters get zones from spawn points and effective level as
+    /// max(character level, zone median). Non-characters use their own Zone and
+    /// Level fields directly.
     /// </summary>
-    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode)
+    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode, HashSet<string> visited)
     {
         if (sourceNode.Type == NodeType.Character)
         {
             var (zones, maxZoneLevel) = CollectCharacterZonesAndMaxLevel(sourceNode);
             viewNode.SourceZones = zones;
 
-            // Effective level = max(enemy level, highest zone median)
-            // A low-level enemy in a high-level zone is effectively that zone's difficulty.
             int? charLevel = sourceNode.Level;
             if (charLevel.HasValue && maxZoneLevel.HasValue)
                 viewNode.EffectiveLevel = Math.Max(charLevel.Value, maxZoneLevel.Value);
             else
                 viewNode.EffectiveLevel = charLevel ?? maxZoneLevel;
+
+            // Check if this character is blocked by an unsatisfied unlock
+            CheckCharacterUnlock(viewNode, sourceNode, visited);
         }
         else
         {
-            // Non-character sources: zone from node, level from node
-            // (pipeline sets level to zone median for water/mining/itembag)
             if (sourceNode.Zone != null)
                 viewNode.SourceZones = new List<string> { sourceNode.Zone };
             viewNode.EffectiveLevel = sourceNode.Level;
         }
+    }
+
+    /// <summary>
+    /// If the character is disabled, find the gating quest via UnlocksCharacter
+    /// edges and build its dependency tree as an inline unlock requirement.
+    /// The disabled variant is the specific node the tree references — even if
+    /// an enabled variant of the same NPC exists, it doesn't help because that
+    /// variant doesn't provide the same interaction (e.g., different GivesItem).
+    /// </summary>
+    private void CheckCharacterUnlock(ViewNode viewNode, Node charNode, HashSet<string> visited)
+    {
+        if (charNode.IsEnabled) return;
+
+        // Find the quest that unlocks this character
+        var unlockEdges = _graph.InEdges(charNode.Key, EdgeType.UnlocksCharacter);
+        if (unlockEdges.Count == 0) return;
+
+        var gatingQuestKey = unlockEdges[0].Source;
+        var gatingQuestState = _state.GetState(gatingQuestKey);
+        if (gatingQuestState is QuestCompleted) return; // Already unlocked
+
+        // Blocked: build the gating quest's tree as an unlock dependency
+        var gatingQuest = _graph.GetNode(gatingQuestKey);
+        if (gatingQuest == null) return;
+
+        viewNode.UnlockDependency = BuildQuestNode(
+            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, visited);
     }
 
     /// <summary>

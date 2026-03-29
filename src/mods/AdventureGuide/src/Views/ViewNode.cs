@@ -46,6 +46,14 @@ public sealed class ViewNode
     /// </summary>
     public int? EffectiveLevel { get; set; }
 
+    /// <summary>
+    /// When non-null, this node is blocked by an unsatisfied unlock
+    /// requirement. The ViewNode is a full expansion of the gating quest's
+    /// dependency tree, shown inline as a child sub-tree. Only set when the
+    /// node is genuinely unreachable via all paths. Null once satisfied.
+    /// </summary>
+    public ViewNode? UnlockDependency { get; set; }
+
     public ViewNode(string nodeKey, Node node, EdgeType? edgeType = null, Edge? edge = null)
     {
         NodeKey = nodeKey;

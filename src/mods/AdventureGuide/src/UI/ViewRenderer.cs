@@ -199,7 +199,27 @@ public sealed class ViewRenderer
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             ImGui.BulletText(label);
             ImGui.PopStyleColor();
+        }
 
+        // Inline unlock dependency sub-tree when this node is blocked
+        if (node.UnlockDependency != null)
+        {
+            ImGui.Indent(Theme.IndentWidth);
+            var unlockState = _state.GetState(node.UnlockDependency.NodeKey);
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            if (ImGui.TreeNodeEx($"Requires: {node.UnlockDependency.Node.DisplayName}###{node.UnlockDependency.NodeKey}_{depth}",
+                    ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                ImGui.PopStyleColor();
+                foreach (var child in node.UnlockDependency.Children)
+                    DrawNode(child, depth + 1, unlockState);
+                ImGui.TreePop();
+            }
+            else
+            {
+                ImGui.PopStyleColor();
+            }
+            ImGui.Unindent(Theme.IndentWidth);
         }
     }
 
