@@ -136,7 +136,7 @@ public sealed class MarkerSystem
             // Live NPC position tracking (alive markers with a tracked NPC)
             UpdatePosition(entry);
 
-            var pos = new Vector3(entry.X, entry.Y, entry.Z) + Vector3.up * StaticHeightOffset;
+            var pos = new Vector3(entry.X, entry.Y, entry.Z);
             instance.SetPosition(pos);
 
             float dist = Vector3.Distance(playerPos, pos);

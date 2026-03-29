@@ -26,6 +26,9 @@ public sealed class MarkerComputer
     private readonly Dictionary<string, int> _markerIndex = new(StringComparer.Ordinal);
     private bool _dirty = true;
 
+    /// <summary>Height offset above raw graph coordinates for static markers.</summary>
+    private const float StaticHeightOffset = 2.5f;
+
     public IReadOnlyList<MarkerEntry> Markers => _markers;
     public int Version { get; private set; }
 
@@ -348,7 +351,7 @@ public sealed class MarkerComputer
         TryAddMarker(new MarkerEntry
         {
             X = positionNode.X!.Value,
-            Y = positionNode.Y!.Value,
+            Y = positionNode.Y!.Value + StaticHeightOffset,
             Z = positionNode.Z!.Value,
             Scene = positionNode.Scene ?? "",
             Type = type,
@@ -389,7 +392,7 @@ public sealed class MarkerComputer
         TryAddMarker(new MarkerEntry
         {
             X = node.X!.Value,
-            Y = node.Y!.Value,
+            Y = node.Y!.Value + StaticHeightOffset,
             Z = node.Z!.Value,
             Scene = node.Scene ?? "",
             Type = type,
