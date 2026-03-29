@@ -64,8 +64,10 @@ public sealed class ViewRenderer
                 DrawNode(child, 0, root.Node, questState);
             ImGui.Unindent(Theme.IndentWidth);
 
-            // Notice when the tree has objectives but no completion path
-            if (!HasChildOfType(root, EdgeType.CompletedBy))
+            // Notice when the graph has no completion edges for this quest.
+            // Check the graph, not the view tree — the view tree intentionally
+            // omits CompletedBy nodes that overlap with step targets.
+            if (_graph.OutEdges(root.NodeKey, EdgeType.CompletedBy).Count == 0)
                 DrawNotice("Completion method not in guide data \u2014 may be scripted.");
         }
 
@@ -252,15 +254,6 @@ public sealed class ViewRenderer
         ImGui.PopStyleColor();
     }
 
-    private static bool HasChildOfType(ViewNode parent, EdgeType type)
-    {
-        foreach (var child in parent.Children)
-        {
-            if (child.EdgeType == type)
-                return true;
-        }
-        return false;
-    }
 
     // ── Rewards section ─────────────────────────────────────────────────
 
