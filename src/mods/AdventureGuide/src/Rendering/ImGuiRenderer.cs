@@ -286,14 +286,11 @@ public sealed class ImGuiRenderer : IDisposable
             var fontPtr = ImGuiNET.ImGui.MemAlloc((uint)fontBytes.Length);
             Marshal.Copy(fontBytes, 0, fontPtr, fontBytes.Length);
 
-            // Glyph ranges: Latin + the specific Unicode chars we use.
-            // Default range covers ASCII + Latin-1 Supplement (includes \u00b7 middle dot).
-            // We add checkmark (\u2713) and circle (\u25cb) explicitly.
+            // Glyph ranges: Latin extended. Default range covers ASCII +
+            // Latin-1 Supplement (includes \u00b7 middle dot).
             var builder = new ImGuiNET.ImFontGlyphRangesBuilderPtr(
                 ImGuiNET.ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
             builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
-            builder.AddChar('\u2713');  // checkmark
-            builder.AddChar('\u25cb');  // circle
             builder.BuildRanges(out ImGuiNET.ImVector ranges);
 
             // Configure font: use cimgui's constructor to set proper defaults,

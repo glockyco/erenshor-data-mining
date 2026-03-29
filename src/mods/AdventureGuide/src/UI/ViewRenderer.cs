@@ -141,7 +141,7 @@ public sealed class ViewRenderer
         if (node.IsCycleRef)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.TextWrapped($"  \u21bb {node.Node.DisplayName} (see above)");
+            ImGui.TextWrapped($"  ~ {node.Node.DisplayName} (see above)");
             ImGui.PopStyleColor();
             return;
         }
@@ -160,7 +160,7 @@ public sealed class ViewRenderer
         uint color = GetNodeColor(node, role);
         bool hasChildren = node.Children.Count > 0;
         bool satisfied = role == FrontierComputer.EdgeRole.Done;
-        string statePrefix = satisfied ? "\u2713 " : "";
+        string statePrefix = satisfied ? "[x] " : "";
 
         // Quest flag warnings on CompletedBy nodes
         string? warning = null;
@@ -226,7 +226,7 @@ public sealed class ViewRenderer
         if (warnings.Count == 0)
             return null;
 
-        return "\u26a0 " + string.Join(" · ", warnings);
+        return "(!) " + string.Join(" · ", warnings);
     }
 
     private static void DrawWarningText(string warning)
