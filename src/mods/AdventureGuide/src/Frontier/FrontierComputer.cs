@@ -15,12 +15,15 @@ namespace AdventureGuide.Frontier;
 /// the need to walk the tree a second time to recover formatting context.
 ///
 /// Edge-type-aware satisfaction and ordering:
-/// - AssignedBy: satisfied when the quest is active or completed.
+/// - AssignedBy: satisfied when the owning quest is active or completed.
 /// - CompletedBy: deferred until all other siblings are satisfied.
 ///   Only appears in the frontier as the final "turn in" step.
+///   Satisfied only when the owning quest is completed.
 /// - RequiresItem with source children: the RequiresItem node is the
 ///   frontier entry, NOT its individual sources (drops, vendors, etc.).
 ///   Sources are acquisition paths, not player objectives.
+/// - Sub-quest nodes: questState switches to the sub-quest's own state
+///   so its edges check the correct quest, not the root.
 ///
 /// Pure function of (ViewNode tree, GameState). No state of its own.
 /// </summary>
@@ -74,6 +77,12 @@ public static class FrontierComputer
         ViewNode node, GameState state, NodeState questState,
         List<ViewNode> frontier, HashSet<string> seen)
     {
+        if (node.IsCycleRef) return;
+
+        // When entering a sub-quest node, switch to that quest's state
+        // so its AssignedBy/CompletedBy edges check the right quest.
+        if (node.Node.Type == NodeType.Quest)
+            questState = state.GetState(node.NodeKey);
         if (node.IsCycleRef) return;
 
         // Edge-aware satisfaction check.
@@ -165,9 +174,10 @@ public static class FrontierComputer
     }
 
     /// <summary>
-    /// Check whether all children of a node are source edges (drops, vendors,
-    /// gathering, crafting, quest rewards). If so, the node itself is the
-    /// frontier entry — the sources are acquisition paths, not objectives.
+    /// Check whether all children are simple acquisition sources (drops, vendors,
+    /// gathering, crafting). If so, the parent item node is the frontier entry.
+    /// Quest sources (RewardsItem from a quest) are NOT simple — they have their
+    /// own dependency chains the player must work through.
     /// </summary>
     private static bool HasOnlySourceChildren(ViewNode node)
     {
@@ -176,6 +186,9 @@ public static class FrontierComputer
         foreach (var child in node.Children)
         {
             if (!IsSourceEdge(child.EdgeType))
+                return false;
+            // Quest sources have their own objectives — recurse into them.
+            if (child.Node.Type == NodeType.Quest)
                 return false;
         }
         return true;

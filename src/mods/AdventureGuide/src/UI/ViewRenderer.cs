@@ -146,6 +146,14 @@ public sealed class ViewRenderer
             return;
         }
 
+        // When entering a sub-quest node, switch to that quest's state and node
+        // so edge satisfaction and warnings check the correct quest.
+        if (node.Node.Type == Graph.NodeType.Quest)
+        {
+            questState = _state.GetState(node.NodeKey);
+            questNode = node.Node;
+        }
+
         // Build the label from edge type + node data
         string label = FormatLabel(node);
         uint color = GetNodeColor(node);
