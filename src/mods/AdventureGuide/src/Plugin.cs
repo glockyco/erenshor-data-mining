@@ -46,6 +46,8 @@ public sealed class Plugin : BaseUnityPlugin
     private EntityRegistry? _entities;
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
+    private BepInEx.Configuration.ConfigEntry<string>? _navSetEntry;
+    private int _navSetBoundSlot = -1;
 
     static Plugin()
     {
@@ -306,7 +308,9 @@ public sealed class Plugin : BaseUnityPlugin
         {
             _window?.Hide();
             _trackerPanel?.Hide();
+            SaveNavigationSet();
             _navSet?.Clear();
+            _navSetBoundSlot = -1;
         }
 
         _entities?.Clear();
@@ -314,6 +318,7 @@ public sealed class Plugin : BaseUnityPlugin
         _questTracker?.OnSceneChanged(scene.name);
         _trackerState?.OnCharacterLoaded();
         _trackerState?.PruneCompleted(_questTracker!);
+        LoadNavigationSet();
         _navEngine?.OnSceneChanged(scene.name);
         _markerComputer?.MarkDirty();
         _markerSystem?.OnSceneChanged(scene.name);
@@ -370,6 +375,36 @@ public sealed class Plugin : BaseUnityPlugin
             _markerSystem.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
+    private void SaveNavigationSet()
+    {
+        if (_navSetEntry != null && _navSet != null)
+            _navSetEntry.Value = string.Join(";", _navSet.Keys);
+    }
+
+    private void LoadNavigationSet()
+    {
+        if (_navSet == null || _config == null || _graph == null) return;
+        var slot = GameData.CurrentCharacterSlot;
+        if (slot == null) return;
+        if (slot.index == _navSetBoundSlot) return;
+
+        _navSetBoundSlot = slot.index;
+        _navSetEntry = _config.BindPerCharacter(slot.index, "NavigationTargets", "");
+
+        var keys = new List<string>();
+        var raw = _navSetEntry.Value;
+        if (!string.IsNullOrEmpty(raw))
+        {
+            foreach (var part in raw.Split(';'))
+            {
+                var trimmed = part.Trim();
+                if (trimmed.Length > 0 && _graph.HasNode(trimmed))
+                    keys.Add(trimmed);
+            }
+        }
+        _navSet.Load(keys);
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -386,6 +421,7 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _harmony?.UnpatchSelf();
         _trackerState?.SaveToConfig();
+        SaveNavigationSet();
         _trackerPanel?.Dispose();
         _imgui?.Dispose();
         _arrow?.Dispose();

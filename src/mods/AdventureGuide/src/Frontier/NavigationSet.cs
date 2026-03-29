@@ -47,6 +47,15 @@ public sealed class NavigationSet
         Version++;
     }
 
+    /// <summary>Replace contents with the given keys. Used for persistence restore.</summary>
+    public void Load(IEnumerable<string> keys)
+    {
+        _keys.Clear();
+        foreach (var key in keys)
+            _keys.Add(key);
+        Version++;
+    }
+
     /// <summary>
     /// Monotonically increasing version for change detection.
     /// Consumers compare against their snapshot to know if the set changed.
