@@ -84,7 +84,7 @@ public static class ActionTextFormatter
 
             EdgeType.AssignedBy when edge?.Keyword != null
                 => $"Say '{edge.Keyword}' to {name}",
-            EdgeType.AssignedBy => $"Talk to {name}",
+            EdgeType.AssignedBy => FormatAssignmentSummary(frontierNode),
 
             EdgeType.RequiresItem => FormatItemSummary(name, edge, frontierNode.NodeKey, tracker),
             EdgeType.RequiresQuest => $"Complete {name}",
@@ -107,5 +107,17 @@ public static class ActionTextFormatter
         }
 
         return $"Collect {itemName} (\u00d7{need})";
+    }
+
+    private static string FormatAssignmentSummary(ViewNode node)
+    {
+        string name = node.Node.DisplayName;
+        return node.Node.Type switch
+        {
+            Graph.NodeType.Item => $"Read {name}",
+            Graph.NodeType.Zone => $"Go to {name}",
+            Graph.NodeType.Quest => $"Complete {name}",
+            _ => $"Talk to {name}",
+        };
     }
 }

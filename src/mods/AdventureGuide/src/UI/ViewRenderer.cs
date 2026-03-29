@@ -399,7 +399,7 @@ public sealed class ViewRenderer
             EdgeType.StepShout => FormatKeyword("Shout at ", name, edge?.Keyword),
             EdgeType.StepRead => $"Read: {name}",
             EdgeType.CompletedBy => FormatKeyword("Turn in to ", name, edge?.Keyword),
-            EdgeType.AssignedBy => FormatKeyword("Talk to ", name, edge?.Keyword),
+            EdgeType.AssignedBy => FormatAssignment(node),
             EdgeType.CraftedFrom => $"Crafted via: {name}",
             EdgeType.RequiresMaterial => FormatHaveNeed("Ingredient: ", name, edge),
             EdgeType.DropsItem => FormatChance($"Drops from: {name}", edge?.Chance),
@@ -444,6 +444,19 @@ public sealed class ViewRenderer
         if (chance.HasValue && chance.Value < 1.0f)
             return $"{text} ({chance.Value:P0})";
         return text;
+    }
+
+    private static string FormatAssignment(ViewNode node)
+    {
+        string name = node.Node.DisplayName;
+        var edge = node.Edge;
+        return node.Node.Type switch
+        {
+            Graph.NodeType.Item => $"Read: {name}",
+            Graph.NodeType.Zone => $"Enter: {name}",
+            Graph.NodeType.Quest => $"Complete: {name}",
+            _ => FormatKeyword("Talk to ", name, edge?.Keyword),
+        };
     }
 
     // ── Colors ──────────────────────────────────────────────────────────
