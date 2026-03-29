@@ -82,6 +82,7 @@ class EdgeType(str, Enum):
     UNLOCKS_ZONE_LINE = "unlocks_zone_line"
     UNLOCKS_CHARACTER = "unlocks_character"
     AFFECTS_FACTION = "affects_faction"
+    UNLOCKS_VENDOR_ITEM = "unlocks_vendor_item"
 
     # -- Item edges (source = item) --
     CRAFTED_FROM = "crafted_from"

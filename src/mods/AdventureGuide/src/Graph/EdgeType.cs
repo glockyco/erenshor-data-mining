@@ -52,6 +52,9 @@ public enum EdgeType
     [EnumMember(Value = "affects_faction")]
     AffectsFaction,
 
+    [EnumMember(Value = "unlocks_vendor_item")]
+    UnlocksVendorItem,
+
     [EnumMember(Value = "crafted_from")]
     CraftedFrom,
 

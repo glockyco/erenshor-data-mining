@@ -1508,9 +1508,14 @@ def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
 
 
 def _add_vendor_quest_unlock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """character → item (SELLS_ITEM) for quest-unlocked vendor inventory."""
+    """quest → item (UNLOCKS_VENDOR_ITEM) for quest-unlocked vendor inventory.
+
+    Also emits a SELLS_ITEM edge from vendor → item so the item appears in
+    obtainability chains.
+    """
     rows = conn.execute("""
         SELECT cvqu.character_stable_key,
+               cvqu.quest_stable_key,
                qv.unlock_item_for_vendor_stable_key
         FROM character_vendor_quest_unlocks cvqu
         JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
@@ -1522,18 +1527,29 @@ def _add_vendor_quest_unlock_edges(conn: sqlite3.Connection, graph: EntityGraph)
         WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
     """)
     for r in rows:
+        quest_key = r["quest_stable_key"]
         char_key = r["character_stable_key"]
         item_key = r["unlock_item_for_vendor_stable_key"]
-        if not graph.has_node(char_key) or not graph.has_node(item_key):
+        if not graph.has_node(quest_key) or not graph.has_node(item_key):
             continue
+        # Quest → item: shown in rewards section with vendor name from note
         graph.add_edge(
             Edge(
-                source=char_key,
+                source=quest_key,
                 target=item_key,
-                type=EdgeType.SELLS_ITEM,
-                note="Quest unlock",
+                type=EdgeType.UNLOCKS_VENDOR_ITEM,
+                note=char_key,  # vendor character key for display name lookup
             )
         )
+        # Vendor → item: for item obtainability chains
+        if graph.has_node(char_key):
+            graph.add_edge(
+                Edge(
+                    source=char_key,
+                    target=item_key,
+                    type=EdgeType.SELLS_ITEM,
+                )
+            )
 
 
 def _add_character_dialog_give_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
