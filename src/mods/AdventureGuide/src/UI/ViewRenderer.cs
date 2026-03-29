@@ -12,9 +12,6 @@ namespace AdventureGuide.UI;
 /// The dependency tree is the primary content — steps, required items, prerequisites,
 /// acquisition sources, and turn-in targets rendered recursively from ViewNode trees.
 /// The rewards section follows, showing what the player gets for completing the quest.
-///
-/// Quest behavior flags (KillTurnInHolder, etc.) are rendered as inline warnings on
-/// the CompletedBy tree nodes where they're contextually relevant.
 /// </summary>
 public sealed class ViewRenderer
 {
@@ -61,7 +58,7 @@ public sealed class ViewRenderer
             var questState = _state.GetState(root.NodeKey);
             ImGui.Indent(Theme.IndentWidth);
             foreach (var child in root.Children)
-                DrawNode(child, 0, root.Node, questState);
+                DrawNode(child, 0, questState);
             ImGui.Unindent(Theme.IndentWidth);
 
             // Notice when the graph has no completion edges for this quest.
@@ -146,7 +143,7 @@ public sealed class ViewRenderer
     // ── Recursive node renderer ─────────────────────────────────────────
 
     /// <summary>Render a single dependency tree node with children.</summary>
-    private void DrawNode(ViewNode node, int depth, Node questNode, NodeState questState)
+    private void DrawNode(ViewNode node, int depth, NodeState questState)
     {
         if (node.IsCycleRef)
         {
@@ -156,13 +153,9 @@ public sealed class ViewRenderer
             return;
         }
 
-        // When entering a sub-quest node, switch to that quest's state and node
-        // so edge satisfaction and warnings check the correct quest.
+        // When entering a sub-quest node, switch to that quest's state.
         if (node.Node.Type == Graph.NodeType.Quest)
-        {
             questState = _state.GetState(node.NodeKey);
-            questNode = node.Node;
-        }
 
         // Single source of truth: classify the edge once, derive all visuals from it.
         var role = FrontierComputer.ClassifyEdge(node, _state, questState);
@@ -171,10 +164,6 @@ public sealed class ViewRenderer
         bool hasChildren = node.Children.Count > 0;
         // Color already communicates state; no prefix glyph needed.
 
-        // Quest flag warnings on CompletedBy nodes
-        string? warning = null;
-        if (node.EdgeType == EdgeType.CompletedBy)
-            warning = FormatQuestFlagWarning(questNode);
 
         // NAV button on the left, before the label
         bool navigable = IsNavigable(node.Node);
@@ -192,13 +181,11 @@ public sealed class ViewRenderer
                 node.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
             ImGui.PopStyleColor();
 
-            if (warning != null)
-                DrawWarningText(warning);
 
             if (open)
             {
                 foreach (var child in node.Children)
-                    DrawNode(child, depth + 1, questNode, questState);
+                    DrawNode(child, depth + 1, questState);
                 ImGui.TreePop();
             }
         }
@@ -213,39 +200,9 @@ public sealed class ViewRenderer
             ImGui.BulletText(label);
             ImGui.PopStyleColor();
 
-            if (warning != null)
-                DrawWarningText(warning);
         }
     }
 
-    /// <summary>Format inline warning for quest behavior flags.</summary>
-    private static string? FormatQuestFlagWarning(Node quest)
-    {
-        // Collect all applicable warnings
-        var warnings = new System.Collections.Generic.List<string>(2);
-        if (quest.KillTurnInHolder)
-            warnings.Add("NPC dies on turn-in");
-        if (quest.DestroyTurnInHolder)
-            warnings.Add("NPC destroyed on turn-in");
-        if (quest.DropInvulnOnHolder)
-            warnings.Add("NPC becomes vulnerable");
-        if (quest.OncePerSpawnInstance)
-            warnings.Add("One turn-in per NPC");
-
-        if (warnings.Count == 0)
-            return null;
-
-        return string.Join(" · ", warnings);
-    }
-
-    private static void DrawWarningText(string warning)
-    {
-        ImGui.Indent(Theme.IndentWidth);
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-        ImGui.TextWrapped(warning);
-        ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
-    }
 
     private static void DrawNotice(string text)
     {
