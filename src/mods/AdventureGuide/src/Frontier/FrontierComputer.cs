@@ -6,191 +6,233 @@ namespace AdventureGuide.Frontier;
 
 /// <summary>
 /// Computes the frontier of a quest's dependency tree: the set of all
-/// nodes whose parent dependencies are satisfied but which are not yet
-/// completed themselves. These are the simultaneously actionable
-/// objectives — everything the player can work on right now.
+/// nodes the player can act on right now.
 ///
-/// Returns <see cref="ViewNode"/>s (not bare keys) so consumers have full
-/// context: edge type, keyword, quantity, and the graph node. This avoids
-/// the need to walk the tree a second time to recover formatting context.
+/// Every edge in the tree is classified into a role that determines
+/// whether its node is skipped, added as a leaf objective, or recursed
+/// into. Children are processed in three phases:
 ///
-/// Edge-type-aware satisfaction and ordering:
-/// - AssignedBy: satisfied when the owning quest is active or completed.
-/// - CompletedBy: deferred until all other siblings are satisfied.
-///   Only appears in the frontier as the final "turn in" step.
-///   Satisfied only when the owning quest is completed.
-/// - RequiresItem with source children: the RequiresItem node is the
-///   frontier entry, NOT its individual sources (drops, vendors, etc.).
-///   Sources are acquisition paths, not player objectives.
-/// - Sub-quest nodes: questState switches to the sub-quest's own state
-///   so its edges check the correct quest, not the root.
+/// 1. Acceptance — quest acceptance steps (AssignedBy). If any are
+///    unsatisfied, they block all other objectives.
+/// 2. Objectives — concurrent actionable targets (steps, items).
+/// 3. Turn-in — deferred until all objectives are satisfied.
+///
+/// Sub-quest nodes switch the quest state context so their edges
+/// evaluate against the correct quest.
 ///
 /// Pure function of (ViewNode tree, GameState). No state of its own.
 /// </summary>
 public static class FrontierComputer
 {
     /// <summary>
+    /// The role of an edge in frontier computation. Each edge type maps
+    /// to exactly one role — no ambiguity, no fallback chains.
+    /// </summary>
+    public enum EdgeRole
+    {
+        /// <summary>Already satisfied — skip entirely.</summary>
+        Done,
+        /// <summary>Quest acceptance step — blocks all other objectives.</summary>
+        Acceptance,
+        /// <summary>A direct player objective — leaf in the frontier.</summary>
+        Objective,
+        /// <summary>An acquisition source (drop, vendor, etc.) — not an objective.</summary>
+        Source,
+        /// <summary>Turn-in step — deferred until all objectives are satisfied.</summary>
+        TurnIn,
+        /// <summary>Contains sub-objectives — recurse into children.</summary>
+        Container,
+    }
+
+    /// <summary>
     /// Compute frontier ViewNodes from a view tree built by QuestViewBuilder.
-    /// Each returned ViewNode carries the edge that led to it (type, keyword,
-    /// quantity) for action text formatting.
+    /// Each returned ViewNode carries the edge that led to it for formatting.
     /// </summary>
     public static List<ViewNode> ComputeFrontier(ViewNode root, GameState state)
     {
         var frontier = new List<ViewNode>();
         var seen = new HashSet<string>();
-
-        // Resolve the quest's own state for edge-aware satisfaction checks.
         var questState = state.GetState(root.NodeKey);
-
         CollectFrontier(root, state, questState, frontier, seen);
         return frontier;
     }
 
     /// <summary>
-    /// Edge types that represent item acquisition paths (sources), not
-    /// direct objectives. When a RequiresItem node has only source
-    /// children, the RequiresItem node itself is the frontier entry.
+    /// Classify an edge into its role for frontier computation. Each edge
+    /// type has exactly one rule — the mapping is exhaustive and explicit.
     /// </summary>
-    private static bool IsSourceEdge(EdgeType? edgeType)
+    public static EdgeRole ClassifyEdge(ViewNode node, GameState state, NodeState questState)
     {
-        return edgeType is EdgeType.DropsItem
-            or EdgeType.SellsItem
-            or EdgeType.GivesItem
-            or EdgeType.YieldsItem
-            or EdgeType.RewardsItem
-            or EdgeType.CraftedFrom;
+        switch (node.EdgeType)
+        {
+            // ── Quest lifecycle ────────────────────────────────────
+            case null:
+                // Root or embedded sub-quest node
+                return questState is QuestCompleted ? EdgeRole.Done : EdgeRole.Container;
+
+            case EdgeType.AssignedBy:
+                return questState is QuestActive or QuestCompleted or QuestImplicitlyActive
+                    ? EdgeRole.Done
+                    : EdgeRole.Acceptance;
+
+            case EdgeType.CompletedBy:
+                return questState is QuestCompleted ? EdgeRole.Done : EdgeRole.TurnIn;
+
+            // ── Item requirements ──────────────────────────────────
+            case EdgeType.RequiresItem:
+            case EdgeType.RequiresMaterial:
+            {
+                var ns = state.GetState(node.NodeKey);
+                if (ns is ItemCount ic && node.Edge?.Quantity is int qty)
+                    return ic.Count >= qty ? EdgeRole.Done : EdgeRole.Objective;
+                return ns.IsSatisfied ? EdgeRole.Done : EdgeRole.Objective;
+            }
+
+            // ── Quest prerequisites ────────────────────────────────
+            case EdgeType.RequiresQuest:
+                return state.GetState(node.NodeKey) is QuestCompleted
+                    ? EdgeRole.Done : EdgeRole.Container;
+
+            // ── Player action steps ────────────────────────────────
+            // The game doesn't expose per-step completion state, so
+            // these are always objectives for active quests. We can't
+            // distinguish "talked to NPC A" from "haven't talked yet."
+            case EdgeType.StepTalk:
+            case EdgeType.StepKill:
+            case EdgeType.StepTravel:
+            case EdgeType.StepShout:
+            case EdgeType.StepRead:
+                return EdgeRole.Objective;
+
+            // ── Acquisition sources (not objectives) ───────────────
+            case EdgeType.DropsItem:
+            case EdgeType.SellsItem:
+            case EdgeType.GivesItem:
+            case EdgeType.YieldsItem:
+            case EdgeType.CraftedFrom:
+                return EdgeRole.Source;
+
+            case EdgeType.RewardsItem:
+                // Quest rewards require completing the quest — recurse.
+                // Non-quest rewards are just loot table entries — skip.
+                return node.Node.Type == NodeType.Quest
+                    ? EdgeRole.Container : EdgeRole.Source;
+
+            // ── Everything else ────────────────────────────────────
+            default:
+            {
+                var ns = state.GetState(node.NodeKey);
+                return ns.IsSatisfied ? EdgeRole.Done : EdgeRole.Objective;
+            }
+        }
     }
 
-    /// <summary>
-    /// Recursive walk: a node is in the frontier if it is not satisfied
-    /// AND all its children that are dependencies (not sources) are either
-    /// satisfied or also in the frontier.
-    ///
-    /// Leaf nodes (no children) that are not satisfied are always frontier.
-    /// Cycle references are never frontier (not actionable).
-    ///
-    /// CompletedBy children are deferred: they only enter the frontier
-    /// when all non-CompletedBy siblings are satisfied. This ensures
-    /// "Turn in to NPC" only appears after all objectives are met.
-    /// </summary>
+    // ── Walker ─────────────────────────────────────────────────────────
+
     private static void CollectFrontier(
         ViewNode node, GameState state, NodeState questState,
         List<ViewNode> frontier, HashSet<string> seen)
     {
         if (node.IsCycleRef) return;
 
-        // When entering a sub-quest node, switch to that quest's state
-        // so its AssignedBy/CompletedBy edges check the right quest.
+        // Sub-quests carry their own state context.
         if (node.Node.Type == NodeType.Quest)
             questState = state.GetState(node.NodeKey);
-        if (node.IsCycleRef) return;
 
-        // Edge-aware satisfaction check.
-        if (IsEdgeSatisfied(node, state, questState)) return;
+        var role = ClassifyEdge(node, state, questState);
 
-        // RequiresItem nodes with source children: the item is the objective,
-        // not the individual sources. Add the RequiresItem node itself and
-        // don't recurse into sources.
-        if (node.EdgeType == EdgeType.RequiresItem && HasOnlySourceChildren(node))
+        switch (role)
         {
-            if (seen.Add(node.NodeKey))
-                frontier.Add(node);
-            return;
+            case EdgeRole.Done:
+            case EdgeRole.Source:
+                return;
+            case EdgeRole.Objective:
+                if (seen.Add(node.NodeKey))
+                    frontier.Add(node);
+                return;
+            case EdgeRole.Acceptance:
+            case EdgeRole.TurnIn:
+                // These are orchestrated by the parent — if we reach here
+                // directly (e.g., leaf node), treat as objective.
+                if (node.Children.Count == 0)
+                {
+                    if (seen.Add(node.NodeKey))
+                        frontier.Add(node);
+                    return;
+                }
+                break;
+            case EdgeRole.Container:
+                break;
         }
 
-        if (node.Children.Count == 0)
-        {
-            // Leaf node, not satisfied → it's actionable.
-            // Deduplicate: same node can appear in multiple branches.
-            if (seen.Add(node.NodeKey))
-                frontier.Add(node);
-            return;
-        }
+        // ── Three-phase child processing ───────────────────────────
 
-        // Interior node: recurse into non-CompletedBy children first.
-        // CompletedBy is deferred — it's the turn-in step and should only
-        // appear in the frontier after all other objectives are met.
-        int frontierBefore = frontier.Count;
-        List<ViewNode>? deferredCompletedBy = null;
+        // Partition children by role.
+        List<ViewNode>? acceptance = null;
+        List<ViewNode>? objectives = null;
+        List<ViewNode>? turnIn = null;
 
         foreach (var child in node.Children)
         {
-            if (child.EdgeType == EdgeType.CompletedBy)
+            var childQuestState = child.Node.Type == NodeType.Quest
+                ? state.GetState(child.NodeKey) : questState;
+            var childRole = ClassifyEdge(child, state, childQuestState);
+
+            switch (childRole)
             {
-                // Defer — evaluate after all other children.
-                deferredCompletedBy ??= new List<ViewNode>();
-                deferredCompletedBy.Add(child);
-                continue;
+                case EdgeRole.Done:
+                case EdgeRole.Source:
+                    break;
+                case EdgeRole.Acceptance:
+                    acceptance ??= new List<ViewNode>();
+                    acceptance.Add(child);
+                    break;
+                case EdgeRole.TurnIn:
+                    turnIn ??= new List<ViewNode>();
+                    turnIn.Add(child);
+                    break;
+                default:
+                    objectives ??= new List<ViewNode>();
+                    objectives.Add(child);
+                    break;
             }
-            CollectFrontier(child, state, questState, frontier, seen);
         }
 
-        // If non-CompletedBy children contributed to the frontier, objectives
-        // are still in progress — don't show turn-in yet.
-        // If none contributed (all objectives done), process deferred
-        // CompletedBy children — they become the frontier ("Turn in").
-        if (frontier.Count == frontierBefore && deferredCompletedBy != null)
+        int before = frontier.Count;
+
+        // Phase 1: Acceptance gates everything else.
+        // If the quest hasn't been accepted, only the acceptance step
+        // is actionable — other objectives aren't available yet.
+        if (acceptance != null)
         {
-            foreach (var cb in deferredCompletedBy)
-                CollectFrontier(cb, state, questState, frontier, seen);
+            foreach (var a in acceptance)
+                CollectFrontier(a, state, questState, frontier, seen);
+            if (frontier.Count > before)
+                return;
         }
 
-        // If still nothing contributed (no children, no deferred), this
-        // interior node itself is the frontier entry.
-        if (frontier.Count == frontierBefore)
+        // Phase 2: All objectives are concurrent.
+        if (objectives != null)
+        {
+            foreach (var o in objectives)
+                CollectFrontier(o, state, questState, frontier, seen);
+        }
+
+        // Phase 3: Turn-in only when all objectives are satisfied.
+        if (frontier.Count == before && turnIn != null)
+        {
+            foreach (var t in turnIn)
+            {
+                if (seen.Add(t.NodeKey))
+                    frontier.Add(t);
+            }
+        }
+
+        // Nothing contributed — this node itself is the frontier.
+        if (frontier.Count == before)
         {
             if (seen.Add(node.NodeKey))
                 frontier.Add(node);
         }
-    }
-
-    /// <summary>
-    /// Check whether a node's edge is satisfied, accounting for edge type,
-    /// quest state, and item quantity.
-    ///
-    /// AssignedBy: satisfied when the quest is active or completed (the
-    /// acceptance step is done). CompletedBy: satisfied only when the quest
-    /// is completed (turn-in is done). RequiresItem with quantity: satisfied
-    /// when the player has enough. Everything else: delegates to the node's
-    /// intrinsic state.
-    /// </summary>
-    private static bool IsEdgeSatisfied(ViewNode node, GameState state, NodeState questState)
-    {
-        // AssignedBy: done once the quest is accepted
-        if (node.EdgeType == EdgeType.AssignedBy)
-            return questState is QuestActive or QuestCompleted or QuestImplicitlyActive;
-
-        // CompletedBy: done only when the quest is fully completed
-        if (node.EdgeType == EdgeType.CompletedBy)
-            return questState is QuestCompleted;
-
-        var nodeState = state.GetState(node.NodeKey);
-
-        // Items with quantity requirements
-        if (nodeState is ItemCount ic && node.Edge?.Quantity is int required)
-            return ic.Count >= required;
-
-        return nodeState.IsSatisfied;
-    }
-
-    /// <summary>
-    /// Check whether all children are simple acquisition sources (drops, vendors,
-    /// gathering, crafting). If so, the parent item node is the frontier entry.
-    /// Quest sources (RewardsItem from a quest) are NOT simple — they have their
-    /// own dependency chains the player must work through.
-    /// </summary>
-    private static bool HasOnlySourceChildren(ViewNode node)
-    {
-        if (node.Children.Count == 0) return false;
-
-        foreach (var child in node.Children)
-        {
-            if (!IsSourceEdge(child.EdgeType))
-                return false;
-            // Quest sources have their own objectives — recurse into them.
-            if (child.Node.Type == NodeType.Quest)
-                return false;
-        }
-        return true;
     }
 }

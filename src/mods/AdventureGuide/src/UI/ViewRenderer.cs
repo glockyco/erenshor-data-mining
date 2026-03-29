@@ -160,14 +160,9 @@ public sealed class ViewRenderer
         bool hasChildren = node.Children.Count > 0;
 
         // State indicator (checkmark for satisfied nodes)
-        // Edge-aware: AssignedBy is done when quest is active,
-        // CompletedBy is done only when quest is completed.
-        bool satisfied = node.EdgeType switch
-        {
-            EdgeType.AssignedBy => questState is QuestActive or QuestCompleted or QuestImplicitlyActive,
-            EdgeType.CompletedBy => questState is QuestCompleted,
-            _ => _state.GetState(node.NodeKey).IsSatisfied,
-        };
+        // Uses the same classification as FrontierComputer for consistency.
+        bool satisfied = FrontierComputer.ClassifyEdge(node, _state, questState)
+            == FrontierComputer.EdgeRole.Done;
         string statePrefix = satisfied ? "\u2713 " : "";
 
         // Quest flag warnings on CompletedBy nodes
