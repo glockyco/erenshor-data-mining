@@ -161,7 +161,7 @@ public sealed class MarkerComputer
             var charNode = _graph.GetNode(edge.Target);
             if (charNode == null) continue;
 
-            string subText = prereqOverrideSubText ?? FormatAcquisitionText(edge);
+            string subText = FormatQuestGiverText(edge, quest, prereqOverrideSubText);
             EmitCharacterSpawnMarkers(charNode, quest, markerType, subText);
         }
     }
@@ -405,7 +405,13 @@ public sealed class MarkerComputer
 
     // ── Text formatting ─────────────────────────────────────────────
 
-    /// <summary>Format sub-text for quest giver markers based on assignment edge.</summary>
+    /// <summary>Format sub-text for quest giver markers.</summary>
+    private static string FormatQuestGiverText(Edge edge, Node quest, string? primaryTextOverride = null)
+    {
+        string primary = primaryTextOverride ?? FormatAcquisitionText(edge);
+        return $"{primary}\n{quest.DisplayName}";
+    }
+
     private static string FormatAcquisitionText(Edge edge)
     {
         if (edge.Keyword != null)
