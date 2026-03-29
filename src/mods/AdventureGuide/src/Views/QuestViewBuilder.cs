@@ -7,13 +7,29 @@ namespace AdventureGuide.Views;
 /// <summary>
 /// Builds quest dependency trees on-demand from the entity graph and live game state.
 ///
-/// The tree is a depth-first traversal of the quest's dependency subgraph with
-/// cycle pruning. Item obtainability chains are inlined transitively: crafting
-/// recipes expand to their ingredients, each ingredient expands to its sources.
+/// The tree is a depth-first traversal of the quest's dependency subgraph.
+/// Item obtainability chains are inlined transitively: crafting recipes expand
+/// to their ingredients (including the consumed mold), each ingredient expands
+/// to its sources.
 ///
 /// Views are NOT pre-computed — they depend on live game state (quest completion,
-/// inventory counts) for state indicators. Call <see cref="Build"/> each time the
-/// quest page opens or game state changes.
+/// inventory counts) for state indicators. Call <see cref="Build"/> each time
+/// the quest page opens or game state changes.
+///
+/// Quest traversal uses three-colour DFS to correctly distinguish structural
+/// cycles from DAG cross-edges:
+///
+///   _questsOnPath   (grey)  — currently on the DFS stack; a reference to one of
+///                             these is a true back-edge (deadlock cycle).
+///   _questsExpanded (black) — fully processed; a reference is a cross-edge that
+///                             is safe and already rendered elsewhere in the tree.
+///   _questsInfeasible       — determined infeasible during this build; cascade
+///                             makes any quest that requires an infeasible one
+///                             infeasible too.
+///
+/// Item expansion uses a separate <c>itemVisited</c> set (passed as a parameter)
+/// to guard against circular ingredient chains; it does not interact with the
+/// quest sets above.
 /// </summary>
 public sealed class QuestViewBuilder
 {
@@ -21,6 +37,15 @@ public sealed class QuestViewBuilder
     private readonly GameState _state;
     private readonly ZoneRouter _router;
     private readonly QuestStateTracker _tracker;
+
+    // ── DFS state — reset at the start of every Build() call ────────────────
+
+    /// <summary>Grey set: quest keys currently on the DFS stack.</summary>
+    private readonly HashSet<string> _questsOnPath = new();
+    /// <summary>Black set: quest keys that have been fully expanded.</summary>
+    private readonly HashSet<string> _questsExpanded = new();
+    /// <summary>Quest keys determined to be structurally infeasible.</summary>
+    private readonly HashSet<string> _questsInfeasible = new();
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker)
@@ -38,47 +63,140 @@ public sealed class QuestViewBuilder
         if (questNode == null || questNode.Type != NodeType.Quest)
             return null;
 
-        var visited = new HashSet<string>();
-        return BuildQuestNode(questKey, questNode, edgeType: null, edge: null, visited);
+        // DFS state is scoped to one build — clear all three sets.
+        _questsOnPath.Clear();
+        _questsExpanded.Clear();
+        _questsInfeasible.Clear();
+
+        var itemVisited = new HashSet<string>();
+        return BuildQuestNode(questKey, questNode, edgeType: null, edge: null, itemVisited);
     }
 
-    // ── Quest node expansion ────────────────────────────────────────────
+    // ── Quest node expansion ─────────────────────────────────────────────────
 
     private ViewNode BuildQuestNode(
-        string key, Node node, EdgeType? edgeType, Edge? edge, HashSet<string> visited)
+        string key, Node node, EdgeType? edgeType, Edge? edge, HashSet<string> itemVisited)
     {
+        // (1) Explicitly infeasible — no valid accept/complete path exists.
+        if (_questsInfeasible.Contains(key))
+            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+
+        // (2) Already fully expanded elsewhere — cross-edge; don't re-render.
+        if (_questsExpanded.Contains(key))
+            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+
+        // (3) Currently on the DFS stack — back-edge (true structural cycle).
+        if (!_questsOnPath.Add(key))
+            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+
         var viewNode = new ViewNode(key, node, edgeType, edge);
 
-        if (!visited.Add(key))
+        // 1. Assignment (how the player gets this quest)
+        AddEdgeChildren(viewNode, key, EdgeType.AssignedBy, itemVisited);
+
+        // 2. Prerequisites (quests that must be completed first)
+        AddQuestPrereqs(viewNode, key, itemVisited);
+
+        // 3. Steps (ordered by ordinal when present)
+        var stepTargets = AddStepChildren(viewNode, key, itemVisited);
+
+        // 4. Required items (with full obtainability chains)
+        AddRequiredItems(viewNode, key, itemVisited);
+
+        // 5. Turn-in (how to complete) — skip targets already shown as steps
+        AddCompletionChildren(viewNode, key, stepTargets, itemVisited);
+
+        // Remove from the grey set before the feasibility check so that
+        // _questsOnPath reflects only true ancestors at check time.
+        _questsOnPath.Remove(key);
+
+        if (IsQuestInfeasible(viewNode, key))
         {
-            // Cycle detected — mark as back-reference, don't expand
+            _questsInfeasible.Add(key);
             return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
         }
 
-        // 1. Assignment (how the player gets this quest)
-        AddEdgeChildren(viewNode, key, EdgeType.AssignedBy, visited);
-
-        // 2. Prerequisites (quests that must be completed first)
-        AddQuestPrereqs(viewNode, key, visited);
-
-        // 3. Steps (ordered by ordinal when present)
-        var stepTargets = AddStepChildren(viewNode, key, visited);
-
-        // 4. Required items (with full obtainability chains)
-        AddRequiredItems(viewNode, key, visited);
-
-        // 5. Turn-in (how to complete) — skip targets already shown as steps
-        AddCompletionChildren(viewNode, key, stepTargets, visited);
-
-        // Don't remove from visited — prevents exponential blowup from
-        // unlock dependency chains re-expanding the same quest, and catches
-        // circular unlock dependencies (quest A unlocks zone for quest B
-        // which unlocks character for quest A). Each quest expands at most
-        // once in the entire tree; subsequent references become cycle refs.
+        _questsExpanded.Add(key);
         return viewNode;
     }
 
-    // ── Step edges ──────────────────────────────────────────────────────
+    // ── Quest feasibility ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns true when the quest has no viable path to acceptance or completion
+    /// given the current expansion.
+    ///
+    /// Three rules:
+    ///
+    /// 1. Non-implicit quests with AssignedBy edges must have at least one
+    ///    AssignedBy child that is not a cycle ref. (Implicit quests activate
+    ///    in-zone without an acceptance interaction, so they have no AssignedBy
+    ///    edges and must not be penalised for lacking them.)
+    ///
+    /// 2. Quests with CompletedBy edges must have at least one CompletedBy child
+    ///    that is not a cycle ref.
+    ///
+    /// 3. Any RequiresQuest child is a cycle ref AND its key is in
+    ///    _questsOnPath (back-edge — the ancestor that the cycle returns to) or
+    ///    _questsInfeasible (already proven infeasible) makes this quest
+    ///    infeasible too.  A cycle ref that comes from _questsExpanded is merely
+    ///    a cross-edge: the prerequisite was already shown and IS completable.
+    /// </summary>
+    private bool IsQuestInfeasible(ViewNode questNode, string questKey)
+    {
+        var node = _graph.GetNode(questKey);
+
+        // Rule 1 — non-implicit quests need a reachable assignment.
+        if (node?.Implicit == false)
+        {
+            var assignEdges = _graph.OutEdges(questKey, EdgeType.AssignedBy);
+            if (assignEdges.Count > 0)
+            {
+                bool hasValidAssignment = false;
+                foreach (var c in questNode.Children)
+                {
+                    if (c.EdgeType == EdgeType.AssignedBy && !c.IsCycleRef)
+                    {
+                        hasValidAssignment = true;
+                        break;
+                    }
+                }
+                if (!hasValidAssignment)
+                    return true;
+            }
+        }
+
+        // Rule 2 — quests with explicit completion targets need a reachable one.
+        var completeEdges = _graph.OutEdges(questKey, EdgeType.CompletedBy);
+        if (completeEdges.Count > 0)
+        {
+            bool hasValidCompletion = false;
+            foreach (var c in questNode.Children)
+            {
+                if (c.EdgeType == EdgeType.CompletedBy && !c.IsCycleRef)
+                {
+                    hasValidCompletion = true;
+                    break;
+                }
+            }
+            if (!hasValidCompletion)
+                return true;
+        }
+
+        // Rule 3 — a prerequisite that is a back-edge or infeasible propagates.
+        foreach (var c in questNode.Children)
+        {
+            if (c.EdgeType != EdgeType.RequiresQuest || !c.IsCycleRef)
+                continue;
+            // Cross-edges (_questsExpanded) are safe — prereq already shown.
+            if (_questsOnPath.Contains(c.NodeKey) || _questsInfeasible.Contains(c.NodeKey))
+                return true;
+        }
+
+        return false;
+    }
+
+    // ── Step edges ───────────────────────────────────────────────────────────
 
     private static readonly EdgeType[] StepEdgeTypes =
     {
@@ -86,7 +204,7 @@ public sealed class QuestViewBuilder
         EdgeType.StepShout, EdgeType.StepRead,
     };
 
-    private HashSet<string> AddStepChildren(ViewNode parent, string questKey, HashSet<string> visited)
+    private HashSet<string> AddStepChildren(ViewNode parent, string questKey, HashSet<string> itemVisited)
     {
         var stepTargets = new HashSet<string>();
         // Collect all step edges, sort by ordinal (null ordinals last)
@@ -113,7 +231,7 @@ public sealed class QuestViewBuilder
 
         foreach (var (edge, target) in steps)
         {
-            var child = BuildLeafOrExpand(edge.Target, target, edge.Type, edge, visited);
+            var child = BuildLeafOrExpand(edge.Target, target, edge.Type, edge, itemVisited);
             if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
@@ -121,7 +239,7 @@ public sealed class QuestViewBuilder
     }
 
     private void AddCompletionChildren(
-        ViewNode parent, string questKey, HashSet<string> stepTargets, HashSet<string> visited)
+        ViewNode parent, string questKey, HashSet<string> stepTargets, HashSet<string> itemVisited)
     {
         foreach (var edge in _graph.OutEdges(questKey, EdgeType.CompletedBy))
         {
@@ -133,33 +251,34 @@ public sealed class QuestViewBuilder
             var target = _graph.GetNode(edge.Target);
             if (target == null) continue;
 
-            var child = BuildLeafOrExpand(edge.Target, target, EdgeType.CompletedBy, edge, visited);
+            var child = BuildLeafOrExpand(edge.Target, target, EdgeType.CompletedBy, edge, itemVisited);
             if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
     }
 
-    // ── Required items with obtainability ────────────────────────────────
+    // ── Required items with obtainability ────────────────────────────────────
 
-    private void AddRequiredItems(ViewNode parent, string questKey, HashSet<string> visited)
+    private void AddRequiredItems(ViewNode parent, string questKey, HashSet<string> itemVisited)
     {
         foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresItem))
         {
             var itemNode = _graph.GetNode(edge.Target);
             if (itemNode == null) continue;
 
-            var child = BuildLeafOrExpand(edge.Target, itemNode, EdgeType.RequiresItem, edge, visited);
+            var child = BuildLeafOrExpand(edge.Target, itemNode, EdgeType.RequiresItem, edge, itemVisited);
             parent.Children.Add(child);
         }
     }
 
     /// <summary>
     /// Expand an item node with all its obtainability sources:
-    /// crafting recipes, drops, vendors, dialog gives, resource yields, quest rewards.
+    /// crafting recipes (including the consumed mold), drops, vendors,
+    /// dialog gives, resource yields, quest rewards.
     /// </summary>
-    private void ExpandItemSources(ViewNode itemViewNode, string itemKey, HashSet<string> visited)
+    private void ExpandItemSources(ViewNode itemViewNode, string itemKey, HashSet<string> itemVisited)
     {
-        // Crafting: item → CRAFTED_FROM → recipe → REQUIRES_MATERIAL → ingredients
+        // Crafting: item → CRAFTED_FROM → recipe → REQUIRES_MATERIAL → ingredients + mold
         foreach (var craftEdge in _graph.OutEdges(itemKey, EdgeType.CraftedFrom))
         {
             var recipeNode = _graph.GetNode(craftEdge.Target);
@@ -167,7 +286,7 @@ public sealed class QuestViewBuilder
 
             var recipeView = new ViewNode(craftEdge.Target, recipeNode, EdgeType.CraftedFrom, craftEdge);
 
-            if (visited.Add(craftEdge.Target))
+            if (itemVisited.Add(craftEdge.Target))
             {
                 foreach (var matEdge in _graph.OutEdges(craftEdge.Target, EdgeType.RequiresMaterial))
                 {
@@ -176,10 +295,10 @@ public sealed class QuestViewBuilder
 
                     var matView = new ViewNode(matEdge.Target, matNode, EdgeType.RequiresMaterial, matEdge);
 
-                    if (visited.Add(matEdge.Target))
+                    if (itemVisited.Add(matEdge.Target))
                     {
-                        ExpandItemSources(matView, matEdge.Target, visited);
-                        visited.Remove(matEdge.Target);
+                        ExpandItemSources(matView, matEdge.Target, itemVisited);
+                        itemVisited.Remove(matEdge.Target);
                     }
                     else
                     {
@@ -189,26 +308,26 @@ public sealed class QuestViewBuilder
                     recipeView.Children.Add(matView);
                 }
 
-                visited.Remove(craftEdge.Target);
+                itemVisited.Remove(craftEdge.Target);
             }
 
             itemViewNode.Children.Add(recipeView);
         }
 
         // Drop sources: character → DROPS_ITEM → this item (walk incoming)
-        AddIncomingSources(itemViewNode, itemKey, EdgeType.DropsItem, visited);
+        AddIncomingSources(itemViewNode, itemKey, EdgeType.DropsItem, itemVisited);
 
         // Vendor sources: character → SELLS_ITEM → this item
-        AddIncomingSources(itemViewNode, itemKey, EdgeType.SellsItem, visited);
+        AddIncomingSources(itemViewNode, itemKey, EdgeType.SellsItem, itemVisited);
 
         // Dialog give sources: character → GIVES_ITEM → this item
-        AddIncomingSources(itemViewNode, itemKey, EdgeType.GivesItem, visited);
+        AddIncomingSources(itemViewNode, itemKey, EdgeType.GivesItem, itemVisited);
 
         // Resource yields: mining_node/water/item_bag → YIELDS_ITEM → this item
-        AddIncomingSources(itemViewNode, itemKey, EdgeType.YieldsItem, visited);
+        AddIncomingSources(itemViewNode, itemKey, EdgeType.YieldsItem, itemVisited);
 
         // Quest reward sources: quest → REWARDS_ITEM → this item
-        AddIncomingSources(itemViewNode, itemKey, EdgeType.RewardsItem, visited);
+        AddIncomingSources(itemViewNode, itemKey, EdgeType.RewardsItem, itemVisited);
 
         // Sort sources by effective level ascending so the easiest
         // targets appear first. Null levels sort last.
@@ -231,20 +350,20 @@ public sealed class QuestViewBuilder
     /// become children of the item view node).
     /// </summary>
     private void AddIncomingSources(
-        ViewNode parent, string targetKey, EdgeType incomingType, HashSet<string> visited)
+        ViewNode parent, string targetKey, EdgeType incomingType, HashSet<string> itemVisited)
     {
         foreach (var edge in _graph.InEdges(targetKey, incomingType))
         {
             var sourceNode = _graph.GetNode(edge.Source);
             if (sourceNode == null) continue;
 
-            var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, visited);
+            var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, itemVisited);
 
             // Skip cycle references in source lists — they're graph artifacts,
             // not viable acquisition paths.
             if (child.IsCycleRef) continue;
 
-            EnrichSourceMetadata(child, sourceNode, visited);
+            EnrichSourceMetadata(child, sourceNode, itemVisited);
             parent.Children.Add(child);
         }
     }
@@ -255,7 +374,7 @@ public sealed class QuestViewBuilder
     /// max(character level, zone median). Non-characters use their own Zone and
     /// Level fields directly.
     /// </summary>
-    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode, HashSet<string> visited)
+    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode, HashSet<string> itemVisited)
     {
         if (sourceNode.Type == NodeType.Character)
         {
@@ -279,11 +398,17 @@ public sealed class QuestViewBuilder
     /// <summary>
     /// If the character is disabled, find the gating quest via UnlocksCharacter
     /// edges and build its dependency tree as an inline unlock requirement.
-    /// The disabled variant is the specific node the tree references — even if
-    /// an enabled variant of the same NPC exists, it doesn't help because that
-    /// variant doesn't provide the same interaction (e.g., different GivesItem).
+    ///
+    /// Three cases for the gating quest:
+    /// — Cross-edge (_questsExpanded): the quest is already shown elsewhere in
+    ///   the tree and is completable.  Clear UnlockDependency so the character
+    ///   does not appear blocked; the player will see the requirement above.
+    /// — Back-edge (_questsOnPath) or infeasible (_questsInfeasible): a genuine
+    ///   deadlock. The character is unreachable; mark it as a cycle ref so it
+    ///   is excluded from the tree.
+    /// — Not yet visited: build the gating quest's full tree inline.
     /// </summary>
-    private void CheckCharacterUnlock(ViewNode viewNode, Node charNode, HashSet<string> visited)
+    private void CheckCharacterUnlock(ViewNode viewNode, Node charNode, HashSet<string> itemVisited)
     {
         if (charNode.IsEnabled) return;
 
@@ -295,20 +420,38 @@ public sealed class QuestViewBuilder
         var gatingQuestState = _state.GetState(gatingQuestKey);
         if (gatingQuestState is QuestCompleted) return; // Already unlocked
 
-        // Blocked: build the gating quest's tree as an unlock dependency
         var gatingQuest = _graph.GetNode(gatingQuestKey);
         if (gatingQuest == null) return;
 
+        // Blocked: build (or reference) the gating quest's tree.
         viewNode.UnlockDependency = BuildQuestNode(
-            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, visited);
+            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
+
+        // Cross-edge: gating quest already shown and is feasible — character IS
+        // accessible once that quest completes.  Don't mark character blocked;
+        // the tree already shows the requirement elsewhere.
+        if (viewNode.UnlockDependency.IsCycleRef && _questsExpanded.Contains(gatingQuestKey))
+        {
+            viewNode.UnlockDependency = null;
+            return;
+        }
+
+        // Back-edge or infeasible: character is genuinely unreachable.
+        if (viewNode.UnlockDependency.IsCycleRef)
+        {
+            viewNode.IsCycleRef = true;
+            viewNode.UnlockDependency = null;
+        }
     }
 
     /// <summary>
     /// If the node is in a zone that's unreachable from the player's current
     /// zone (route goes through a locked zone line), find the gating quest and
     /// build its dependency tree as an inline unlock requirement.
+    ///
+    /// Cross-edge / back-edge handling mirrors CheckCharacterUnlock.
     /// </summary>
-    private void CheckZoneReachability(ViewNode viewNode, Node node, HashSet<string> visited)
+    private void CheckZoneReachability(ViewNode viewNode, Node node, HashSet<string> itemVisited)
     {
         string? scene = node.Scene;
         if (scene == null) return;
@@ -320,22 +463,16 @@ public sealed class QuestViewBuilder
         var route = _router.FindRoute(currentScene, scene);
         if (route == null || !route.IsLocked) return;
 
-        // Find which zone line is locked on this route by checking zone lines
-        // in the first hop zone that connect to the next zone in the path.
-        // The route's NextHopZoneKey tells us which zone we need to get to.
-        // Look for locked zone lines from current scene to that zone.
         string nextHop = route.NextHopZoneKey;
         var zoneLines = _graph.NodesOfType(NodeType.ZoneLine);
         foreach (var zl in zoneLines)
         {
-            // Zone line must be from current scene and connect to the next hop
             if (!string.Equals(zl.Scene, currentScene, StringComparison.OrdinalIgnoreCase)) continue;
             if (!string.Equals(zl.DestinationZoneKey, nextHop, StringComparison.OrdinalIgnoreCase)) continue;
 
             var zlState = _state.GetState(zl.Key);
             if (zlState.IsSatisfied) continue; // Not locked
 
-            // Found the locked zone line. Find the quest that unlocks it.
             var unlockEdges = _graph.InEdges(zl.Key, EdgeType.UnlocksZoneLine);
             if (unlockEdges.Count == 0) continue;
 
@@ -346,7 +483,21 @@ public sealed class QuestViewBuilder
             if (gatingQuest == null) continue;
 
             viewNode.UnlockDependency = BuildQuestNode(
-                gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, visited);
+                gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
+
+            // Cross-edge: gating quest already shown and feasible.
+            if (viewNode.UnlockDependency.IsCycleRef && _questsExpanded.Contains(gatingQuestKey))
+            {
+                viewNode.UnlockDependency = null;
+                return;
+            }
+
+            // Back-edge or infeasible: zone is genuinely unreachable.
+            if (viewNode.UnlockDependency.IsCycleRef)
+            {
+                viewNode.IsCycleRef = true;
+                viewNode.UnlockDependency = null;
+            }
             return;
         }
     }
@@ -372,7 +523,6 @@ public sealed class QuestViewBuilder
             if (sp.Zone != null)
                 zoneNames.Add(sp.Zone);
 
-            // Look up the zone node to get its median level
             if (sp.ZoneKey != null)
             {
                 var zoneNode = _graph.GetNode(sp.ZoneKey);
@@ -393,9 +543,9 @@ public sealed class QuestViewBuilder
         return (sorted, maxZoneLevel);
     }
 
-    // ── Quest prerequisites ─────────────────────────────────────────────
+    // ── Quest prerequisites ──────────────────────────────────────────────────
 
-    private void AddQuestPrereqs(ViewNode parent, string questKey, HashSet<string> visited)
+    private void AddQuestPrereqs(ViewNode parent, string questKey, HashSet<string> itemVisited)
     {
         foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresQuest))
         {
@@ -404,8 +554,9 @@ public sealed class QuestViewBuilder
 
             if (prereqNode.Type == NodeType.Quest)
             {
-                // Full recursive expansion of prerequisite quest
-                var child = BuildQuestNode(edge.Target, prereqNode, EdgeType.RequiresQuest, edge, visited);
+                // Full recursive expansion; cycle refs are kept as children so
+                // IsQuestInfeasible can inspect them for back-edge detection.
+                var child = BuildQuestNode(edge.Target, prereqNode, EdgeType.RequiresQuest, edge, itemVisited);
                 parent.Children.Add(child);
             }
             else
@@ -414,24 +565,19 @@ public sealed class QuestViewBuilder
                 parent.Children.Add(child);
             }
         }
-
-        // Character unlock dependencies: if the quest's assigned_by or step
-        // targets have GATED_BY_QUEST spawn edges, those quests are implicit
-        // prerequisites. We don't inline those here — the spawn state is shown
-        // on the character node itself. The GameState system handles it.
     }
 
-    // ── Generic edge expansion ──────────────────────────────────────────
+    // ── Generic edge expansion ───────────────────────────────────────────────
 
     private void AddEdgeChildren(
-        ViewNode parent, string sourceKey, EdgeType type, HashSet<string> visited)
+        ViewNode parent, string sourceKey, EdgeType type, HashSet<string> itemVisited)
     {
         foreach (var edge in _graph.OutEdges(sourceKey, type))
         {
             var target = _graph.GetNode(edge.Target);
             if (target == null) continue;
 
-            var child = BuildLeafOrExpand(edge.Target, target, type, edge, visited);
+            var child = BuildLeafOrExpand(edge.Target, target, type, edge, itemVisited);
             if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
@@ -443,38 +589,31 @@ public sealed class QuestViewBuilder
     /// Other node types are leaves.
     /// </summary>
     private ViewNode BuildLeafOrExpand(
-        string key, Node node, EdgeType edgeType, Edge edge, HashSet<string> visited)
+        string key, Node node, EdgeType edgeType, Edge edge, HashSet<string> itemVisited)
     {
         if (node.Type == NodeType.Quest)
-            return BuildQuestNode(key, node, edgeType, edge, visited);
+            return BuildQuestNode(key, node, edgeType, edge, itemVisited);
 
         var viewNode = new ViewNode(key, node, edgeType, edge);
 
         // Check for unsatisfied unlock requirements on any character node,
         // regardless of edge type (source, step, assignment, etc.).
         if (node.Type == NodeType.Character)
-            CheckCharacterUnlock(viewNode, node, visited);
+            CheckCharacterUnlock(viewNode, node, itemVisited);
 
         // Check if this node is in an unreachable zone (locked zone line).
         // Only check if no character unlock already set (character unlock is
         // more specific and already explains why the node is blocked).
         if (viewNode.UnlockDependency == null && node.Scene != null)
-            CheckZoneReachability(viewNode, node, visited);
+            CheckZoneReachability(viewNode, node, itemVisited);
 
-        // If the unlock dependency is itself a cycle ref, this node's unlock
-        // path is circular and not viable. Mark the node as a cycle ref so
-        // callers can prune it.
-        if (viewNode.UnlockDependency != null && viewNode.UnlockDependency.IsCycleRef)
-        {
-            viewNode.IsCycleRef = true;
-            viewNode.UnlockDependency = null;
-        }
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.
-        if (node.Type == NodeType.Item && visited.Add(key))
+        if (node.Type == NodeType.Item && itemVisited.Add(key))
         {
-            ExpandItemSources(viewNode, key, visited);
-            // Don't remove — same rationale as quest nodes above.
+            ExpandItemSources(viewNode, key, itemVisited);
+            // Don't remove from itemVisited — each item expands at most once
+            // per tree build (prevents exponential re-expansion of shared items).
         }
 
         return viewNode;
