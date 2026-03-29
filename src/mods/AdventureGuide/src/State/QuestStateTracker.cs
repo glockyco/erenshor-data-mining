@@ -14,8 +14,8 @@ public sealed class QuestStateTracker
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
 
     // Quests without acquisition sources — pre-computed once from graph.
-    // Each entry stores the completion scene. The quest activates
-    // implicitly when the player enters that scene.
+    // Each entry stores every scene where the quest can be completed. The
+    // quest activates implicitly when the player enters any completion scene.
     private readonly List<ImplicitQuest> _implicitQuests;
     private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
 
@@ -37,25 +37,45 @@ public sealed class QuestStateTracker
     public QuestStateTracker(EntityGraph graph)
     {
         // Pre-compute implicit quests from the graph. A quest is implicit
-        // when it has no acquisition source (Node.Implicit == true). The
-        // activation scene comes from the COMPLETED_BY edge target's scene.
+        // when it has no acquisition source (Node.Implicit == true). Activation
+        // scenes come from all COMPLETED_BY targets, resolving character targets
+        // through their spawn scenes when the character node itself has no scene.
         _implicitQuests = new List<ImplicitQuest>();
         foreach (var quest in graph.NodesOfType(NodeType.Quest))
         {
             if (!quest.Implicit) continue;
             if (quest.DbName == null) continue;
 
-            // Find the completion scene from the COMPLETED_BY edge target
-            string? scene = null;
-            var completedByEdges = graph.OutEdges(quest.Key, EdgeType.CompletedBy);
-            if (completedByEdges.Count > 0)
-            {
-                var targetNode = graph.GetNode(completedByEdges[0].Target);
-                scene = targetNode?.Scene;
-            }
-
-            _implicitQuests.Add(new ImplicitQuest(quest.DbName, scene));
+            var activationScenes = CollectImplicitActivationScenes(graph, quest.Key);
+            _implicitQuests.Add(new ImplicitQuest(quest.DbName, activationScenes));
         }
+    }
+
+    private static HashSet<string> CollectImplicitActivationScenes(EntityGraph graph, string questKey)
+    {
+        var scenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var completedByEdges = graph.OutEdges(questKey, EdgeType.CompletedBy);
+        for (int i = 0; i < completedByEdges.Count; i++)
+        {
+            var targetNode = graph.GetNode(completedByEdges[i].Target);
+            if (targetNode == null)
+                continue;
+
+            if (!string.IsNullOrEmpty(targetNode.Scene))
+                scenes.Add(targetNode.Scene);
+
+            if (targetNode.Type != NodeType.Character)
+                continue;
+
+            var spawnEdges = graph.OutEdges(targetNode.Key, EdgeType.HasSpawn);
+            for (int j = 0; j < spawnEdges.Count; j++)
+            {
+                var spawnNode = graph.GetNode(spawnEdges[j].Target);
+                if (!string.IsNullOrEmpty(spawnNode?.Scene))
+                    scenes.Add(spawnNode.Scene);
+            }
+        }
+        return scenes;
     }
 
     /// <summary>Wire navigation history. Call from Plugin.Awake after construction.</summary>
@@ -192,7 +212,7 @@ public sealed class QuestStateTracker
     /// <summary>
     /// Rebuild the set of implicitly active quests. A quest activates
     /// implicitly when it has no acquisition source and the player is
-    /// in the quest's completion zone.
+    /// in any of its completion scenes.
     /// </summary>
     private void RebuildImplicitQuests()
     {
@@ -203,23 +223,28 @@ public sealed class QuestStateTracker
             if (_activeQuests.Contains(iq.DBName) || _completedQuests.Contains(iq.DBName))
                 continue;
 
-            if (iq.ActivationScene == null) continue;
-            if (!string.Equals(iq.ActivationScene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
+            if (iq.ActivationScenes.Count == 0)
                 continue;
 
-            _implicitlyActiveQuests.Add(iq.DBName);
+            foreach (var scene in iq.ActivationScenes)
+            {
+                if (!string.Equals(scene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
+                    continue;
+                _implicitlyActiveQuests.Add(iq.DBName);
+                break;
+            }
         }
     }
 
     private readonly struct ImplicitQuest
     {
         public readonly string DBName;
-        public readonly string? ActivationScene;
+        public readonly HashSet<string> ActivationScenes;
 
-        public ImplicitQuest(string dbName, string? activationScene)
+        public ImplicitQuest(string dbName, HashSet<string> activationScenes)
         {
             DBName = dbName;
-            ActivationScene = activationScene;
+            ActivationScenes = activationScenes;
         }
     }
 }
