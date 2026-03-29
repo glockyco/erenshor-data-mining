@@ -60,8 +60,10 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_quest_unlock_zone_line_edges(conn, graph)
     _add_quest_unlock_character_edges(conn, graph)
     _add_quest_step_edges(conn, graph)
+    _add_quest_dialog_prerequisite_edges(conn, graph)
     _add_character_drop_edges(conn, graph)
     _add_character_vendor_edges(conn, graph)
+    _add_vendor_quest_unlock_edges(conn, graph)
     _add_character_dialog_give_edges(conn, graph)
     _add_character_spawn_edges(conn, graph)
     _add_character_faction_edges(conn, graph)
@@ -473,7 +475,9 @@ def _add_quest_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                qv.quest_desc, qv.xp_on_complete, qv.gold_on_complete,
                qv.item_on_complete_stable_key,
                qv.assign_new_quest_on_complete_stable_key,
-               qv.repeatable, qv.disable_quest, qv.disable_text
+               qv.repeatable, qv.disable_quest, qv.disable_text,
+               qv.kill_turn_in_holder, qv.destroy_turn_in_holder,
+               qv.drop_invuln_on_holder, qv.once_per_spawn_instance
         FROM quests q
         LEFT JOIN quest_variants qv ON qv.quest_stable_key = q.stable_key
             AND qv.resource_name = (
@@ -498,6 +502,10 @@ def _add_quest_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 disabled=bool(r["disable_quest"]),
                 disabled_text=r["disable_text"],
                 implicit=r["stable_key"] not in explicit_quests,
+                kill_turn_in_holder=bool(r["kill_turn_in_holder"]) if r["kill_turn_in_holder"] else False,
+                destroy_turn_in_holder=bool(r["destroy_turn_in_holder"]) if r["destroy_turn_in_holder"] else False,
+                drop_invuln_on_holder=bool(r["drop_invuln_on_holder"]) if r["drop_invuln_on_holder"] else False,
+                once_per_spawn_instance=bool(r["once_per_spawn_instance"]) if r["once_per_spawn_instance"] else False,
             )
         )
 
@@ -1447,6 +1455,24 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
             )
 
 
+def _add_quest_dialog_prerequisite_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """quest → quest (REQUIRES_QUEST) from character_dialogs.required_quest_stable_key."""
+    rows = conn.execute("""
+        SELECT required_quest_stable_key, complete_quest_stable_key
+        FROM character_dialogs
+        WHERE required_quest_stable_key IS NOT NULL
+          AND complete_quest_stable_key IS NOT NULL
+    """)
+    for r in rows:
+        src = r["complete_quest_stable_key"]
+        tgt = r["required_quest_stable_key"]
+        if src == tgt:
+            continue
+        if not graph.has_node(src) or not graph.has_node(tgt):
+            continue
+        graph.add_edge(Edge(source=src, target=tgt, type=EdgeType.REQUIRES_QUEST))
+
+
 def _add_character_drop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """character → item (DROPS_ITEM) from loot_drops."""
     rows = conn.execute("""
@@ -1477,6 +1503,35 @@ def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
                 source=r["character_stable_key"],
                 target=r["item_stable_key"],
                 type=EdgeType.SELLS_ITEM,
+            )
+        )
+
+
+def _add_vendor_quest_unlock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """character → item (SELLS_ITEM) for quest-unlocked vendor inventory."""
+    rows = conn.execute("""
+        SELECT cvqu.character_stable_key,
+               qv.unlock_item_for_vendor_stable_key
+        FROM character_vendor_quest_unlocks cvqu
+        JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+            AND qv.resource_name = (
+                SELECT MIN(qv2.resource_name)
+                FROM quest_variants qv2
+                WHERE qv2.quest_stable_key = cvqu.quest_stable_key
+            )
+        WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
+    """)
+    for r in rows:
+        char_key = r["character_stable_key"]
+        item_key = r["unlock_item_for_vendor_stable_key"]
+        if not graph.has_node(char_key) or not graph.has_node(item_key):
+            continue
+        graph.add_edge(
+            Edge(
+                source=char_key,
+                target=item_key,
+                type=EdgeType.SELLS_ITEM,
+                note="Quest unlock",
             )
         )
 

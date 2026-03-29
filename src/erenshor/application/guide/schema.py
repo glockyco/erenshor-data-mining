@@ -167,6 +167,10 @@ class Node:
     disabled: bool = False
     disabled_text: str | None = None
     implicit: bool = False  # completable without formal acceptance
+    kill_turn_in_holder: bool = False
+    destroy_turn_in_holder: bool = False
+    drop_invuln_on_holder: bool = False
+    once_per_spawn_instance: bool = False
 
     # Item-specific
     item_level: int | None = None

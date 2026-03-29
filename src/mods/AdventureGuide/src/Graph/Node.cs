@@ -32,6 +32,10 @@ public sealed class Node
     [JsonProperty("disabled"), DefaultValue(false)] public bool Disabled { get; set; }
     [JsonProperty("disabled_text")] public string? DisabledText { get; set; }
     [JsonProperty("implicit"), DefaultValue(false)] public bool Implicit { get; set; }
+    [JsonProperty("kill_turn_in_holder"), DefaultValue(false)] public bool KillTurnInHolder { get; set; }
+    [JsonProperty("destroy_turn_in_holder"), DefaultValue(false)] public bool DestroyTurnInHolder { get; set; }
+    [JsonProperty("drop_invuln_on_holder"), DefaultValue(false)] public bool DropInvulnOnHolder { get; set; }
+    [JsonProperty("once_per_spawn_instance"), DefaultValue(false)] public bool OncePerSpawnInstance { get; set; }
 
     [JsonProperty("item_level")] public int? ItemLevel { get; set; }
     [JsonProperty("stackable"), DefaultValue(false)] public bool Stackable { get; set; }
