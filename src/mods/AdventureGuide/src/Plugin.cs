@@ -305,6 +305,8 @@ public sealed class Plugin : BaseUnityPlugin
         if (!_inGameplay)
         {
             _window?.Hide();
+            _trackerPanel?.Hide();
+            _navSet?.Clear();
         }
 
         _entities?.Clear();
