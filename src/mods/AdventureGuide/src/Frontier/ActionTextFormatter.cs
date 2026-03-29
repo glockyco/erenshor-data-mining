@@ -44,6 +44,11 @@ public static class ActionTextFormatter
             EdgeType.CompletedBy => "Turn in",
             EdgeType.AssignedBy when edge?.Keyword != null => $"Say '{edge.Keyword}'",
             EdgeType.AssignedBy => "Talk to",
+            EdgeType.GivesItem when edge?.Keyword != null => $"Say '{edge.Keyword}'",
+            EdgeType.GivesItem => "Talk to",
+            EdgeType.SellsItem => "Buy",
+            EdgeType.DropsItem => "Kill",
+            EdgeType.YieldsItem => "Gather",
             _ => "Talk to",
         };
     }

@@ -361,12 +361,34 @@ public sealed class MarkerComputer
 
     private static string FormatActiveMarkerSubText(NavigationExplanation explanation)
     {
+        string action = ActionTextFormatter.FormatAction(
+            explanation.TargetNode.EdgeType, explanation.TargetNode.Edge);
+        string? reason = FormatActiveMarkerReason(explanation);
+        if (string.IsNullOrEmpty(reason))
+            return action;
+
+        return action == reason ? action : $"{action}\n{reason}";
+    }
+
+    private static string? FormatActiveMarkerReason(NavigationExplanation explanation)
+    {
         bool sameTarget = explanation.GoalNode.NodeKey == explanation.TargetNode.NodeKey
             && explanation.GoalNode.EdgeType == explanation.TargetNode.EdgeType;
         if (sameTarget)
-            return ActionTextFormatter.FormatAction(explanation.GoalNode.EdgeType, explanation.GoalNode.Edge);
+            return null;
+
+        if (explanation.GoalKind == NavigationGoalKind.CollectItem)
+            return StripCollectPrefix(explanation.GoalText);
 
         return explanation.GoalText;
+    }
+
+    private static string StripCollectPrefix(string text)
+    {
+        const string prefix = "Collect ";
+        return text.StartsWith(prefix, StringComparison.Ordinal)
+            ? text.Substring(prefix.Length)
+            : text;
     }
 
     // ── Text formatting ─────────────────────────────────────────────
