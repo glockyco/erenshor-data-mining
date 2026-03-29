@@ -81,9 +81,26 @@ public sealed class ViewNodePositionCollector
 
                 case NodeType.Item:
                 case NodeType.Recipe:
+                {
+                    bool hasReachableChild = false;
                     for (int i = 0; i < node.Children.Count; i++)
-                        Collect(node.Children[i], results, active);
+                    {
+                        if (!node.Children[i].IsCycleRef && node.Children[i].UnlockDependency == null)
+                        {
+                            hasReachableChild = true;
+                            break;
+                        }
+                    }
+
+                    for (int i = 0; i < node.Children.Count; i++)
+                    {
+                        var child = node.Children[i];
+                        if (hasReachableChild && child.UnlockDependency != null)
+                            continue;
+                        Collect(child, results, active);
+                    }
                     return;
+                }
             }
 
             int before = results.Count;

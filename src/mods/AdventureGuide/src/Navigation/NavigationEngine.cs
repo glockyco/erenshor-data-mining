@@ -186,6 +186,15 @@ public sealed class NavigationEngine
 
     private void ResolveKey(string nodeKey)
     {
+        if (_navSet.TryGetContext(nodeKey, out var context) && context != null)
+        {
+            _positionBuffer.Clear();
+            _viewPositions.Collect(context, _positionBuffer);
+            for (int i = 0; i < _positionBuffer.Count; i++)
+                _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
+            return;
+        }
+
         var node = _graph.GetNode(nodeKey);
         if (node == null)
             return;

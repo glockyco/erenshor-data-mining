@@ -518,7 +518,26 @@ public sealed class ViewRenderer
     /// <summary>NAV button for a dependency tree node.</summary>
     private void DrawNavButton(ViewNode node)
     {
-        DrawNavButtonByKey(node.Node, node.NodeKey);
+        if (!IsNavigable(node.Node))
+            return;
+
+        string key = node.NodeKey;
+        bool isSelected = _navSet.Contains(key);
+        if (isSelected)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+
+        if (ImGui.SmallButton($"NAV###{key}"))
+        {
+            if (ImGui.GetIO().KeyShift)
+                _navSet.Toggle(key, node);
+            else if (isSelected && _navSet.Count == 1)
+                _navSet.Clear();
+            else
+                _navSet.Override(key, node);
+        }
+
+        if (isSelected)
+            ImGui.PopStyleColor();
     }
 
     /// <summary>NAV button for a graph node (used in header for giver/turn-in).</summary>
@@ -545,6 +564,7 @@ public sealed class ViewRenderer
         if (isSelected)
             ImGui.PopStyleColor();
     }
+
 
     private static bool IsNavigable(Node node)
     {
