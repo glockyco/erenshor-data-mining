@@ -29,6 +29,7 @@ public sealed class Plugin : BaseUnityPlugin
     private Harmony? _harmony;
     private GuideConfig? _config;
     private EntityGraph? _graph;
+    private GraphIndexes? _graphIndexes;
     private QuestStateTracker? _questTracker;
     private GameState? _gameState;
     private QuestViewBuilder? _viewBuilder;
@@ -75,6 +76,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Graph layer ---
         _graph = GraphLoader.Load(Log);
+        _graphIndexes = new GraphIndexes(_graph);
 
         // --- State layer ---
         _questTracker = new QuestStateTracker(_graph);
