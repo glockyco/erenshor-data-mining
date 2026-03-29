@@ -15,7 +15,7 @@ public sealed class GuideWindow
 {
     private readonly EntityGraph _graph;
     private readonly QuestStateTracker _state;
-    private readonly FilterState _filter = new();
+    private readonly FilterState _filter;
     private readonly QuestViewBuilder _viewBuilder;
     private readonly NavigationHistory _history;
     private readonly GuideConfig _config;
@@ -30,7 +30,7 @@ public sealed class GuideWindow
 
     public GuideWindow(EntityGraph graph, QuestStateTracker state, QuestViewBuilder viewBuilder,
         NavigationHistory history, TrackerState tracker, GuideConfig config,
-        ViewRenderer viewRenderer, QuestListPanel listPanel)
+        ViewRenderer viewRenderer, QuestListPanel listPanel, FilterState filter)
     {
         _graph = graph;
         _state = state;
@@ -39,6 +39,7 @@ public sealed class GuideWindow
         _config = config;
         _viewRenderer = viewRenderer;
         _listPanel = listPanel;
+        _filter = filter;
     }
 
     public void Toggle() => _visible = !_visible;

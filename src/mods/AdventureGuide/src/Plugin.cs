@@ -159,9 +159,10 @@ public sealed class Plugin : BaseUnityPlugin
         _questTracker.SetHistory(history);
 
         var viewRenderer = new ViewRenderer(_graph, _gameState, _navSet, _questTracker, _trackerState);
-        var listPanel = new QuestListPanel(_graph, _questTracker, new FilterState(), _trackerState);
-        _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel);
-        _window.Filter.LoadFrom(_config);
+        var filter = new FilterState();
+        filter.LoadFrom(_config);
+        var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
+        _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel, filter);
 
         _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter);
         _imgui.OnLayout = () =>
