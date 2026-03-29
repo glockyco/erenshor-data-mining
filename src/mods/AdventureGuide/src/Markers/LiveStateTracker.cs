@@ -124,10 +124,10 @@ public sealed class LiveStateTracker
             }
         }
 
-        if (found)
+        if (found && best.State is not UnknownState)
             return best;
 
-        // No spawn point edges — try name-based fallback directly.
+        // Spawn edges returned Unknown or no edges at all — try name-based lookup.
         var npc = FindNpcByNameAndProximity(characterNode);
         if (npc != null)
         {
