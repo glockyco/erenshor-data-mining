@@ -46,8 +46,7 @@ public sealed class Plugin : BaseUnityPlugin
     private EntityRegistry? _entities;
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
-    private BepInEx.Configuration.ConfigEntry<string>? _navSetEntry;
-    private int _navSetBoundSlot = -1;
+    private NavigationSetPersistence? _navPersistence;
 
     static Plugin()
     {
@@ -105,6 +104,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Frontier layer ---
         _navSet = new NavigationSet();
+        _navPersistence = new NavigationSetPersistence(_navSet, _config);
 
         // --- Navigation layer ---
         _entities = new EntityRegistry();
@@ -214,15 +214,20 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         // Sync from current game state (essential for hot reload)
-        _questTracker.OnSceneChanged(SceneManager.GetActiveScene().name);
-        _entities.SyncFromLiveNPCs();
-        _liveState.OnSceneLoaded();
-        _trackerState.OnCharacterLoaded();
-        _navEngine.OnSceneChanged(SceneManager.GetActiveScene().name);
-        _markerComputer.MarkDirty();
-        _markerSystem.OnSceneChanged(SceneManager.GetActiveScene().name);
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
+
+        _questTracker.OnSceneChanged(currentScene);
+        _entities.SyncFromLiveNPCs();
+        _liveState.OnSceneLoaded();
+        if (_inGameplay)
+        {
+            _trackerState.OnCharacterLoaded();
+            _navPersistence.OnCharacterLoaded(_graph);
+        }
+        _navEngine.OnSceneChanged(currentScene);
+        _markerComputer.MarkDirty();
+        _markerSystem.OnSceneChanged(currentScene);
 
         var questCount = _graph.NodesOfType(NodeType.Quest).Count;
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
@@ -318,17 +323,18 @@ public sealed class Plugin : BaseUnityPlugin
         {
             _window?.Hide();
             _trackerPanel?.Hide();
-            SaveNavigationSet();
-            _navSet?.Clear();
-            _navSetBoundSlot = -1;
+            _navPersistence?.UnloadCurrentCharacter();
         }
 
         _entities?.Clear();
         _liveState?.OnSceneLoaded();
         _questTracker?.OnSceneChanged(scene.name);
-        _trackerState?.OnCharacterLoaded();
-        _trackerState?.PruneCompleted(_questTracker!);
-        LoadNavigationSet();
+        if (_inGameplay)
+        {
+            _trackerState?.OnCharacterLoaded();
+            _trackerState?.PruneCompleted(_questTracker!);
+            _navPersistence?.OnCharacterLoaded(_graph!);
+        }
         _navEngine?.OnSceneChanged(scene.name);
         _markerComputer?.MarkDirty();
         _markerSystem?.OnSceneChanged(scene.name);
@@ -385,35 +391,6 @@ public sealed class Plugin : BaseUnityPlugin
             _markerSystem.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
-    private void SaveNavigationSet()
-    {
-        if (_navSetEntry != null && _navSet != null)
-            _navSetEntry.Value = string.Join(";", _navSet.Keys);
-    }
-
-    private void LoadNavigationSet()
-    {
-        if (_navSet == null || _config == null || _graph == null) return;
-        var slot = GameData.CurrentCharacterSlot;
-        if (slot == null) return;
-        if (slot.index == _navSetBoundSlot) return;
-
-        _navSetBoundSlot = slot.index;
-        _navSetEntry = _config.BindPerCharacter(slot.index, "NavigationTargets", "");
-
-        var keys = new List<string>();
-        var raw = _navSetEntry.Value;
-        if (!string.IsNullOrEmpty(raw))
-        {
-            foreach (var part in raw.Split(';'))
-            {
-                var trimmed = part.Trim();
-                if (trimmed.Length > 0 && _graph.HasNode(trimmed))
-                    keys.Add(trimmed);
-            }
-        }
-        _navSet.Load(keys);
-    }
 
     private void OnDestroy()
     {
@@ -431,7 +408,8 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _harmony?.UnpatchSelf();
         _trackerState?.SaveToConfig();
-        SaveNavigationSet();
+        _navPersistence?.SaveCurrentSelection();
+        _navPersistence?.Dispose();
         _trackerPanel?.Dispose();
         _imgui?.Dispose();
         _arrow?.Dispose();

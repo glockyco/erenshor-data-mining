@@ -57,6 +57,7 @@ public sealed class TrackerState
     {
         if (!_tracked.Add(dbName)) return;
         _orderedList.Add(dbName);
+        PersistTrackedQuests();
         _dirty = true;
         Tracked?.Invoke(dbName);
     }
@@ -65,6 +66,7 @@ public sealed class TrackerState
     {
         if (!_tracked.Remove(dbName)) return;
         _orderedList.Remove(dbName);
+        PersistTrackedQuests();
         _dirty = true;
         Untracked?.Invoke(dbName);
     }
@@ -84,6 +86,7 @@ public sealed class TrackerState
     /// <summary>Remove tracked quests that are completed.</summary>
     public void PruneCompleted(QuestStateTracker state)
     {
+        bool changed = false;
         for (int i = _orderedList.Count - 1; i >= 0; i--)
         {
             var db = _orderedList[i];
@@ -92,8 +95,12 @@ public sealed class TrackerState
                 _tracked.Remove(db);
                 _orderedList.RemoveAt(i);
                 _dirty = true;
+                changed = true;
             }
         }
+
+        if (changed)
+            PersistTrackedQuests();
     }
 
     // ── Config persistence ───────────────────────────────────────────
@@ -124,7 +131,7 @@ public sealed class TrackerState
 
         // Switching characters: save outgoing state before rebinding
         if (_trackedEntry != null)
-            _trackedEntry.Value = string.Join(";", _orderedList);
+            PersistTrackedQuests();
 
         _boundSlotIndex = slot.index;
         _trackedEntry = _config.BindPerCharacter(slot.index, "TrackedQuests", "");
@@ -150,6 +157,11 @@ public sealed class TrackerState
         _config.TrackerEnabled.Value = Enabled;
         _config.TrackerAutoTrack.Value = AutoTrackEnabled;
         _config.TrackerSortMode.Value = SortMode.ToString();
+        PersistTrackedQuests();
+    }
+
+    private void PersistTrackedQuests()
+    {
         if (_trackedEntry != null)
             _trackedEntry.Value = string.Join(";", _orderedList);
     }

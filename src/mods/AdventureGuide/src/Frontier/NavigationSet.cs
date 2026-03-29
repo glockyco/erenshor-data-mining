@@ -14,6 +14,9 @@ public sealed class NavigationSet
     private readonly HashSet<string> _keys = new();
     private readonly Dictionary<string, ViewNode> _contexts = new(StringComparer.Ordinal);
 
+    /// <summary>Fired after the selected navigation target set changes.</summary>
+    public event Action? Changed;
+
     /// <summary>Number of targets in the set.</summary>
     public int Count => _keys.Count;
 
@@ -31,7 +34,7 @@ public sealed class NavigationSet
         _keys.Add(nodeKey);
         if (context != null)
             _contexts[nodeKey] = CloneViewNode(context);
-        Version++;
+        MarkChanged();
     }
 
     /// <summary>Toggle: add if absent, remove if present (shift+click).</summary>
@@ -47,7 +50,7 @@ public sealed class NavigationSet
             if (context != null)
                 _contexts[nodeKey] = CloneViewNode(context);
         }
-        Version++;
+        MarkChanged();
     }
 
     /// <summary>Check whether a node is in the navigation set.</summary>
@@ -71,7 +74,7 @@ public sealed class NavigationSet
         if (_keys.Count == 0 && _contexts.Count == 0) return;
         _keys.Clear();
         _contexts.Clear();
-        Version++;
+        MarkChanged();
     }
 
     /// <summary>Replace contents with the given keys. Used for persistence restore.</summary>
@@ -81,7 +84,7 @@ public sealed class NavigationSet
         _contexts.Clear();
         foreach (var key in keys)
             _keys.Add(key);
-        Version++;
+        MarkChanged();
     }
 
     /// <summary>
@@ -89,6 +92,12 @@ public sealed class NavigationSet
     /// Consumers compare against their snapshot to know if the set changed.
     /// </summary>
     public int Version { get; private set; }
+
+    private void MarkChanged()
+    {
+        Version++;
+        Changed?.Invoke();
+    }
 
     private static ViewNode CloneViewNode(ViewNode source)
     {
