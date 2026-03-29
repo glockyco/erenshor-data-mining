@@ -137,7 +137,22 @@ class TestAnglerRingChain:
         edges = graph.out_edges("item:ring - 6 - angler's ring", EdgeType.CRAFTED_FROM)
         recipe_key = edges[0].target
         materials = graph.out_edges(recipe_key, EdgeType.REQUIRES_MATERIAL)
-        assert len(materials) == 4, f"Expected 4 materials, got {len(materials)}"
+        # 4 ingredients + 1 mold (template item consumed in Smithing.DoSuccess)
+        assert len(materials) == 5, f"Expected 5 materials (4 ingredients + mold), got {len(materials)}"
+
+    def test_recipe_includes_mold_as_material(self, graph: EntityGraph) -> None:
+        """The template item (mold) must appear as a required material of its recipe.
+
+        Smithing.DoSuccess() sets Template.MyItem = Empty on a successful craft,
+        confirming the mold is consumed like any other ingredient.
+        """
+        edges = graph.out_edges("item:ring - 6 - angler's ring", EdgeType.CRAFTED_FROM)
+        recipe_key = edges[0].target
+        materials = graph.out_edges(recipe_key, EdgeType.REQUIRES_MATERIAL)
+        mold_key = recipe_key[len("recipe:") :]  # template item key = recipe key minus prefix
+        assert any(m.target == mold_key for m in materials), (
+            f"Recipe {recipe_key} must include its template item {mold_key} as a required material"
+        )
 
     def test_mold_from_liani(self, graph: EntityGraph) -> None:
         """Liani Bosh gives the mold via dialog."""

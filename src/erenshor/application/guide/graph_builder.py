@@ -1898,6 +1898,24 @@ def _add_crafting_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 )
             )
 
+    # Mold (template item): the template is consumed on a successful craft.
+    # Smithing.DoSuccess() clears Template.MyItem just like the ingredients,
+    # confirming it is an ingredient. Its key is derived by stripping "recipe:"
+    # from the recipe key — that naming convention is enforced by _add_recipe_nodes.
+    # Slot 0 is reserved for the template; ingredient slots come from the DB.
+    for recipe_node in graph.nodes_of_type(NodeType.RECIPE):
+        template_key = recipe_node.key[len("recipe:") :]
+        if graph.has_node(template_key):
+            graph.add_edge(
+                Edge(
+                    source=recipe_node.key,
+                    target=template_key,
+                    type=EdgeType.REQUIRES_MATERIAL,
+                    quantity=1,
+                    slot=0,
+                )
+            )
+
     # Products
     rows = conn.execute("""
         SELECT recipe_item_stable_key, reward_slot, reward_item_stable_key, reward_quantity
