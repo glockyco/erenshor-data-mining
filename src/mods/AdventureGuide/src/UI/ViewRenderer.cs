@@ -141,7 +141,7 @@ public sealed class ViewRenderer
         if (node.IsCycleRef)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.TextWrapped($"  ~ {node.Node.DisplayName} (see above)");
+            ImGui.TextWrapped($"  {node.Node.DisplayName} (see above)");
             ImGui.PopStyleColor();
             return;
         }
@@ -159,8 +159,7 @@ public sealed class ViewRenderer
         string label = FormatLabel(node);
         uint color = GetNodeColor(node, role);
         bool hasChildren = node.Children.Count > 0;
-        bool satisfied = role == FrontierComputer.EdgeRole.Done;
-        string statePrefix = satisfied ? "[x] " : "";
+        // Color already communicates state; no prefix glyph needed.
 
         // Quest flag warnings on CompletedBy nodes
         string? warning = null;
@@ -179,7 +178,7 @@ public sealed class ViewRenderer
             }
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             bool open = ImGui.TreeNodeEx(
-                $"{statePrefix}{label}###{node.NodeKey}_{depth}",
+                $"{label}###{node.NodeKey}_{depth}",
                 node.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
             ImGui.PopStyleColor();
 
@@ -201,7 +200,7 @@ public sealed class ViewRenderer
                 ImGui.SameLine();
             }
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.BulletText($"{statePrefix}{label}");
+            ImGui.BulletText(label);
             ImGui.PopStyleColor();
 
             if (warning != null)
@@ -226,7 +225,7 @@ public sealed class ViewRenderer
         if (warnings.Count == 0)
             return null;
 
-        return "(!) " + string.Join(" · ", warnings);
+        return string.Join(" · ", warnings);
     }
 
     private static void DrawWarningText(string warning)

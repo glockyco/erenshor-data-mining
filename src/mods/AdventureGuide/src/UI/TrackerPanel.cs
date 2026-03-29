@@ -408,7 +408,7 @@ public sealed class TrackerPanel
         if (dbName != null && _tracker.IsCompleted(dbName))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestCompleted);
-            ImGui.Text("  [x] Completed");
+            ImGui.Text("  Completed");
             ImGui.PopStyleColor();
             return;
         }
