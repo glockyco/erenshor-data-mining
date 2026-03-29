@@ -214,13 +214,29 @@ public sealed class QuestViewBuilder
         }
 
         // Rule 2 — quests with explicit completion targets need a reachable one.
+        // CompletedBy targets are intentionally de-duplicated when the same
+        // node already appears as a step target (e.g. talk-to-X also completes
+        // the quest). In that case the step node itself is the valid completion
+        // path and must count here.
         var completeEdges = _graph.OutEdges(questKey, EdgeType.CompletedBy);
         if (completeEdges.Count > 0)
         {
+            var completionTargets = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < completeEdges.Count; i++)
+                completionTargets.Add(completeEdges[i].Target);
+
             bool hasValidCompletion = false;
             foreach (var c in questNode.Children)
             {
-                if (c.EdgeType == EdgeType.CompletedBy && !c.IsCycleRef)
+                if (c.IsCycleRef)
+                    continue;
+
+                bool isExplicitCompletion = c.EdgeType == EdgeType.CompletedBy;
+                bool isCompletionStep = c.EdgeType.HasValue
+                    && System.Array.IndexOf(StepEdgeTypes, c.EdgeType.Value) >= 0
+                    && completionTargets.Contains(c.NodeKey);
+
+                if (isExplicitCompletion || isCompletionStep)
                 {
                     hasValidCompletion = true;
                     break;
