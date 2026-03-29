@@ -447,6 +447,9 @@ public sealed class ViewRenderer
         if (nodeState.IsSatisfied)
             return Theme.QuestCompleted;
 
+        if (_navSet.Contains(node.NodeKey))
+            return Theme.NavManualOverride;
+
         return node.EdgeType switch
         {
             EdgeType.RequiresQuest => Theme.QuestAvailable,
@@ -479,6 +482,8 @@ public sealed class ViewRenderer
         {
             if (ImGui.GetIO().KeyShift)
                 _navSet.Toggle(key);
+            else if (isSelected && _navSet.Count == 1)
+                _navSet.Clear();
             else
                 _navSet.Override(key);
         }

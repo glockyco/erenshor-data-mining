@@ -371,7 +371,9 @@ public sealed class TrackerPanel
 
         if (ImGui.SmallButton($"NAV###{quest.Key}_tracker"))
         {
-            if (isActive)
+            if (ImGui.GetIO().KeyShift)
+                _navSet.Toggle(quest.Key);
+            else if (isActive && _navSet.Count == 1)
                 _navSet.Clear();
             else
                 _navSet.Override(quest.Key);
