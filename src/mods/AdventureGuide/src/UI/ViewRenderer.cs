@@ -7,12 +7,14 @@ using ImGuiNET;
 namespace AdventureGuide.UI;
 
 /// <summary>
-/// Single recursive tree renderer for ViewNode trees. Replaces QuestDetailPanel's
-/// per-type rendering with a data-driven approach: each (EdgeType, NodeType)
-/// combination maps to a rendering pattern.
+/// Renders quest detail pages: header, dependency tree, and rewards section.
 ///
-/// Adding a new edge or node type = adding a case to the render switch.
-/// No separate DrawSteps/DrawPrereqs/DrawRewards methods.
+/// The dependency tree is the primary content — steps, required items, prerequisites,
+/// acquisition sources, and turn-in targets rendered recursively from ViewNode trees.
+/// The rewards section follows, showing what the player gets for completing the quest.
+///
+/// Quest behavior flags (KillTurnInHolder, etc.) are rendered as inline warnings on
+/// the CompletedBy tree nodes where they're contextually relevant.
 /// </summary>
 public sealed class ViewRenderer
 {
@@ -49,9 +51,14 @@ public sealed class ViewRenderer
         ImGui.Separator();
         ImGui.Spacing();
 
-        // Children: the dependency tree
+        // Dependency tree — the primary content, no section header needed
         foreach (var child in root.Children)
-            DrawNode(child, 0);
+            DrawNode(child, 0, root.Node);
+
+        ImGui.Spacing();
+
+        // Rewards & unlocks section
+        DrawRewards(root.Node);
     }
 
     // ── Header ──────────────────────────────────────────────────────────
@@ -85,7 +92,6 @@ public sealed class ViewRenderer
 
         // Level · Zone · Repeatable metadata line
         DrawMetadataLine(quest);
-
 
         // Description
         if (!string.IsNullOrEmpty(quest.Description))
@@ -128,7 +134,8 @@ public sealed class ViewRenderer
 
     // ── Recursive node renderer ─────────────────────────────────────────
 
-    private void DrawNode(ViewNode node, int depth)
+    /// <summary>Render a single dependency tree node with children.</summary>
+    private void DrawNode(ViewNode node, int depth, Node questNode)
     {
         if (node.IsCycleRef)
         {
@@ -147,6 +154,11 @@ public sealed class ViewRenderer
         var nodeState = _state.GetState(node.NodeKey);
         string statePrefix = nodeState.IsSatisfied ? "\u2713 " : "";
 
+        // Quest flag warnings on CompletedBy nodes
+        string? warning = null;
+        if (node.EdgeType == EdgeType.CompletedBy)
+            warning = FormatQuestFlagWarning(questNode);
+
         // NAV button on the left, before the label
         bool navigable = IsNavigable(node.Node);
 
@@ -163,10 +175,13 @@ public sealed class ViewRenderer
                 node.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
             ImGui.PopStyleColor();
 
+            if (warning != null)
+                DrawWarningText(warning);
+
             if (open)
             {
                 foreach (var child in node.Children)
-                    DrawNode(child, depth + 1);
+                    DrawNode(child, depth + 1, questNode);
                 ImGui.TreePop();
             }
         }
@@ -180,7 +195,179 @@ public sealed class ViewRenderer
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             ImGui.BulletText($"{statePrefix}{label}");
             ImGui.PopStyleColor();
+
+            if (warning != null)
+                DrawWarningText(warning);
         }
+    }
+
+    /// <summary>Format inline warning for quest behavior flags.</summary>
+    private static string? FormatQuestFlagWarning(Node quest)
+    {
+        // Collect all applicable warnings
+        var warnings = new System.Collections.Generic.List<string>(2);
+        if (quest.KillTurnInHolder)
+            warnings.Add("NPC dies on turn-in");
+        if (quest.DestroyTurnInHolder)
+            warnings.Add("NPC destroyed on turn-in");
+        if (quest.DropInvulnOnHolder)
+            warnings.Add("NPC becomes vulnerable");
+        if (quest.OncePerSpawnInstance)
+            warnings.Add("One turn-in per NPC");
+
+        if (warnings.Count == 0)
+            return null;
+
+        return "\u26a0 " + string.Join(" · ", warnings);
+    }
+
+    private static void DrawWarningText(string warning)
+    {
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
+        ImGui.TextWrapped(warning);
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    // ── Rewards section ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Collapsible rewards section showing XP, gold, items, zone/NPC unlocks,
+    /// quest chain, faction effects, and also-completes. Reads from Node fields
+    /// and outgoing graph edges.
+    /// </summary>
+    private void DrawRewards(Node quest)
+    {
+        // Check if there's anything to show before rendering the header
+        bool hasNodeRewards = quest.XpReward is > 0
+            || quest.GoldReward is > 0
+            || quest.RewardItemKey != null;
+
+        var rewardEdges = _graph.OutEdges(quest.Key, EdgeType.RewardsItem);
+        var chainEdges = _graph.OutEdges(quest.Key, EdgeType.ChainsTo);
+        var alsoEdges = _graph.OutEdges(quest.Key, EdgeType.AlsoCompletes);
+        var zoneLineEdges = _graph.OutEdges(quest.Key, EdgeType.UnlocksZoneLine);
+        var charEdges = _graph.OutEdges(quest.Key, EdgeType.UnlocksCharacter);
+        var factionEdges = _graph.OutEdges(quest.Key, EdgeType.AffectsFaction);
+        var vendorEdges = _graph.OutEdges(quest.Key, EdgeType.UnlocksVendorItem);
+
+        bool hasEdgeRewards = rewardEdges.Count > 0
+            || chainEdges.Count > 0
+            || alsoEdges.Count > 0
+            || zoneLineEdges.Count > 0
+            || charEdges.Count > 0
+            || factionEdges.Count > 0
+            || vendorEdges.Count > 0;
+
+        if (!hasNodeRewards && !hasEdgeRewards)
+            return;
+
+        if (!ImGui.CollapsingHeader("Rewards", ImGuiTreeNodeFlags.DefaultOpen))
+            return;
+
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        // XP and Gold
+        if (quest.XpReward is > 0)
+            ImGui.Text($"{quest.XpReward} XP");
+        if (quest.GoldReward is > 0)
+            ImGui.Text($"{quest.GoldReward} Gold");
+
+        // Reward items (from edges — more reliable than RewardItemKey since
+        // the edge target gives us the display name)
+        for (int i = 0; i < rewardEdges.Count; i++)
+        {
+            var itemNode = _graph.GetNode(rewardEdges[i].Target);
+            if (itemNode != null)
+                ImGui.Text(itemNode.DisplayName);
+        }
+        // Fallback: if no RewardsItem edges but Node has a reward key
+        if (rewardEdges.Count == 0 && quest.RewardItemKey != null)
+        {
+            var itemNode = _graph.GetNode(quest.RewardItemKey);
+            ImGui.Text(itemNode?.DisplayName ?? quest.RewardItemKey);
+        }
+
+        // Zone line unlocks
+        for (int i = 0; i < zoneLineEdges.Count; i++)
+        {
+            var zlNode = _graph.GetNode(zoneLineEdges[i].Target);
+            if (zlNode == null) continue;
+            string dest = zlNode.DestinationDisplay ?? zlNode.DisplayName;
+            string from = zlNode.Zone ?? zlNode.Scene ?? "";
+            if (from.Length > 0)
+                ImGui.Text($"Opens path: {from} \u2192 {dest}");
+            else
+                ImGui.Text($"Opens path to {dest}");
+        }
+
+        // Character unlocks
+        for (int i = 0; i < charEdges.Count; i++)
+        {
+            var charNode = _graph.GetNode(charEdges[i].Target);
+            if (charNode == null) continue;
+            string text = charNode.Zone != null
+                ? $"Enables {charNode.DisplayName} in {charNode.Zone}"
+                : $"Enables {charNode.DisplayName}";
+            ImGui.Text(text);
+        }
+
+        // Vendor item unlocks
+        for (int i = 0; i < vendorEdges.Count; i++)
+        {
+            var edge = vendorEdges[i];
+            var itemNode = _graph.GetNode(edge.Target);
+            if (itemNode == null) continue;
+            // Vendor character key is stored in Edge.Note
+            string vendorName = "vendor";
+            if (edge.Note != null)
+            {
+                var vendorNode = _graph.GetNode(edge.Note);
+                if (vendorNode != null)
+                    vendorName = vendorNode.DisplayName;
+            }
+            ImGui.Text($"Unlocks {itemNode.DisplayName} at {vendorName}");
+        }
+
+        // Quest chain
+        for (int i = 0; i < chainEdges.Count; i++)
+        {
+            var nextQuest = _graph.GetNode(chainEdges[i].Target);
+            if (nextQuest == null) continue;
+            if (ImGui.Selectable($"Chains to: {nextQuest.DisplayName}###chain_{nextQuest.Key}"))
+            {
+                if (nextQuest.DbName != null)
+                    _tracker.SelectQuest(nextQuest.DbName);
+            }
+        }
+
+        // Also completes
+        for (int i = 0; i < alsoEdges.Count; i++)
+        {
+            var otherQuest = _graph.GetNode(alsoEdges[i].Target);
+            if (otherQuest == null) continue;
+            if (ImGui.Selectable($"Also completes: {otherQuest.DisplayName}###also_{otherQuest.Key}"))
+            {
+                if (otherQuest.DbName != null)
+                    _tracker.SelectQuest(otherQuest.DbName);
+            }
+        }
+
+        // Faction effects
+        for (int i = 0; i < factionEdges.Count; i++)
+        {
+            var edge = factionEdges[i];
+            var factionNode = _graph.GetNode(edge.Target);
+            if (factionNode == null) continue;
+            int amount = edge.Amount ?? 0;
+            string sign = amount >= 0 ? "+" : "";
+            ImGui.Text($"{factionNode.DisplayName}: {sign}{amount}");
+        }
+
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
     }
 
     // ── Label formatting ────────────────────────────────────────────────
