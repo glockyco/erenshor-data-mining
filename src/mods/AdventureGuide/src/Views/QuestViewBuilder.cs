@@ -70,7 +70,11 @@ public sealed class QuestViewBuilder
         // 5. Turn-in (how to complete) — skip targets already shown as steps
         AddCompletionChildren(viewNode, key, stepTargets, visited);
 
-        visited.Remove(key);
+        // Don't remove from visited — prevents exponential blowup from
+        // unlock dependency chains re-expanding the same quest, and catches
+        // circular unlock dependencies (quest A unlocks zone for quest B
+        // which unlocks character for quest A). Each quest expands at most
+        // once in the entire tree; subsequent references become cycle refs.
         return viewNode;
     }
 
@@ -110,6 +114,7 @@ public sealed class QuestViewBuilder
         foreach (var (edge, target) in steps)
         {
             var child = BuildLeafOrExpand(edge.Target, target, edge.Type, edge, visited);
+            if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
         return stepTargets;
@@ -129,6 +134,7 @@ public sealed class QuestViewBuilder
             if (target == null) continue;
 
             var child = BuildLeafOrExpand(edge.Target, target, EdgeType.CompletedBy, edge, visited);
+            if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
     }
@@ -426,6 +432,7 @@ public sealed class QuestViewBuilder
             if (target == null) continue;
 
             var child = BuildLeafOrExpand(edge.Target, target, type, edge, visited);
+            if (child.IsCycleRef) continue;
             parent.Children.Add(child);
         }
     }
@@ -454,12 +461,20 @@ public sealed class QuestViewBuilder
         if (viewNode.UnlockDependency == null && node.Scene != null)
             CheckZoneReachability(viewNode, node, visited);
 
+        // If the unlock dependency is itself a cycle ref, this node's unlock
+        // path is circular and not viable. Mark the node as a cycle ref so
+        // callers can prune it.
+        if (viewNode.UnlockDependency != null && viewNode.UnlockDependency.IsCycleRef)
+        {
+            viewNode.IsCycleRef = true;
+            viewNode.UnlockDependency = null;
+        }
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.
         if (node.Type == NodeType.Item && visited.Add(key))
         {
             ExpandItemSources(viewNode, key, visited);
-            visited.Remove(key);
+            // Don't remove — same rationale as quest nodes above.
         }
 
         return viewNode;
