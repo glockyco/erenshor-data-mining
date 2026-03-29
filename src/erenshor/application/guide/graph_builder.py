@@ -717,7 +717,7 @@ def _add_water_nodes(
             Node(
                 key=r["stable_key"],
                 type=NodeType.WATER,
-                display_name=f"Fishing spot ({_zone_display_name(zone_key, zone_displays, scene)})",
+                display_name="Fishing",
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
