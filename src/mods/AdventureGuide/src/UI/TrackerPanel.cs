@@ -458,11 +458,9 @@ public sealed class TrackerPanel
         if (frontier.Count == 0)
             return new CachedFrontier("Ready to turn in", System.Array.Empty<FrontierPosition>());
 
-        // Build summary from first frontier ViewNode using shared formatter.
-        // The ViewNode carries edge type/keyword/quantity for action text.
-        string summary = ActionTextFormatter.FormatSummary(frontier[0], _tracker);
-        if (frontier.Count > 1)
-            summary += $" (+{frontier.Count - 1} more)";
+        var summaryInfo = NavigationExplanationBuilder.BuildTrackerSummary(
+            frontier[0], _tracker, frontier.Count - 1);
+        string summary = summaryInfo.PrimaryText;
 
         // Collect positions for distance computation from the same pruned
         // frontier nodes the quest view renders and navigation uses.
@@ -470,33 +468,6 @@ public sealed class TrackerPanel
         var positions = new List<FrontierPosition>();
         for (int i = 0; i < frontier.Count; i++)
             CollectFrontierPositions(frontier[i], positions);
-
-        // Prepend cross-zone prefix when all frontier is outside current scene
-        if (positions.Count > 0)
-        {
-            string currentScene = _tracker.CurrentZone;
-            bool anyInZone = false;
-            foreach (var p in positions)
-            {
-                if (string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
-                {
-                    anyInZone = true;
-                    break;
-                }
-            }
-            if (!anyInZone)
-            {
-                // Find zone name from first frontier node with one
-                for (int i = 0; i < frontier.Count; i++)
-                {
-                    if (frontier[i].Node.Zone != null)
-                    {
-                        summary = $"In {frontier[i].Node.Zone}: {summary}";
-                        break;
-                    }
-                }
-            }
-        }
 
         return new CachedFrontier(
             summary,

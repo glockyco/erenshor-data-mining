@@ -9,9 +9,9 @@ namespace AdventureGuide.Navigation;
 /// Collects world positions from an already-pruned <see cref="ViewNode"/> tree.
 ///
 /// This is the shared bridge between the dependency tree and runtime consumers
-/// that need positions (navigation, tracker distance computation).  It walks
-/// the same pruned tree that the UI renders instead of re-traversing the raw
-/// graph, so all consumers see the same cycle-free dependency state.
+/// that need positions (navigation, tracker distance computation). It walks the
+/// same pruned tree that the UI renders instead of re-traversing the raw graph,
+/// so all consumers see the same cycle-free dependency state.
 ///
 /// Rules:
 /// - cycle refs are skipped entirely
@@ -21,6 +21,9 @@ namespace AdventureGuide.Navigation;
 ///   actionable steps, not the quest node itself
 /// - item / recipe nodes recurse into their already-pruned source children
 /// - leaf nodes resolve through <see cref="PositionResolverRegistry"/>
+/// - when an item / recipe has at least one reachable top-level source branch,
+///   blocked alternative branches are ignored so they cannot override usable
+///   direct sources during candidate selection
 /// </summary>
 public sealed class ViewNodePositionCollector
 {
@@ -38,24 +41,44 @@ public sealed class ViewNodePositionCollector
     /// </summary>
     public void Collect(ViewNode node, List<ResolvedPosition> results)
     {
-        var active = new HashSet<string>(StringComparer.Ordinal);
-        Collect(node, results, active);
+        var detailed = new List<ResolvedViewPosition>();
+        CollectDetailed(node, detailed);
+        for (int i = 0; i < detailed.Count; i++)
+        {
+            var item = detailed[i];
+            results.Add(new ResolvedPosition(item.Position, item.Scene, item.SourceKey));
+        }
     }
 
-    private void Collect(ViewNode node, List<ResolvedPosition> results, HashSet<string> active)
+    /// <summary>
+    /// Append all reachable world positions represented by this pruned view node,
+    /// attributed to both the branch goal node and the immediate target node that
+    /// produced each candidate.
+    /// </summary>
+    public void CollectDetailed(ViewNode node, List<ResolvedViewPosition> results)
+    {
+        var active = new HashSet<string>(StringComparer.Ordinal);
+        CollectDetailed(node, results, active, node);
+    }
+
+    private void CollectDetailed(
+        ViewNode node,
+        List<ResolvedViewPosition> results,
+        HashSet<string> active,
+        ViewNode goalNode)
     {
         if (node.IsCycleRef)
             return;
 
         // A blocked node is not itself navigable yet — the actionable target is
-        // the unlock requirement shown inline under it.
+        // the unlock requirement shown inline under it. Keep the original goal.
         if (node.UnlockDependency != null)
         {
-            Collect(node.UnlockDependency, results, active);
+            CollectDetailed(node.UnlockDependency, results, active, goalNode);
             return;
         }
 
-        string token = $"{node.NodeKey}|{node.EdgeType?.ToString() ?? "root"}";
+        string token = $"{goalNode.NodeKey}|{node.NodeKey}|{node.EdgeType?.ToString() ?? "root"}";
         if (!active.Add(token))
             return;
 
@@ -74,7 +97,7 @@ public sealed class ViewNodePositionCollector
                         if (frontierNode.NodeKey == node.NodeKey
                             && frontierNode.EdgeType == node.EdgeType)
                             continue;
-                        Collect(frontierNode, results, active);
+                        CollectDetailed(frontierNode, results, active, frontierNode);
                     }
                     return;
                 }
@@ -97,25 +120,36 @@ public sealed class ViewNodePositionCollector
                         var child = node.Children[i];
                         if (hasReachableChild && child.UnlockDependency != null)
                             continue;
-                        Collect(child, results, active);
+                        CollectDetailed(child, results, active, goalNode);
                     }
                     return;
                 }
             }
 
-            int before = results.Count;
-            _registry.Resolve(node.NodeKey, results);
-            if (results.Count > before)
+            int before = _scratch.Count;
+            _registry.Resolve(node.NodeKey, _scratch);
+            for (int i = before; i < _scratch.Count; i++)
+            {
+                var rp = _scratch[i];
+                results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, node));
+            }
+            if (_scratch.Count > before)
+            {
+                _scratch.RemoveRange(before, _scratch.Count - before);
                 return;
+            }
 
             // Fallback for non-leaf wrapper nodes that have no direct resolver
             // but still contain actionable children.
             for (int i = 0; i < node.Children.Count; i++)
-                Collect(node.Children[i], results, active);
+                CollectDetailed(node.Children[i], results, active, goalNode);
         }
         finally
         {
             active.Remove(token);
         }
     }
+
+    // Reusable internal scratch list to avoid per-recursion allocations.
+    private readonly List<ResolvedPosition> _scratch = new();
 }

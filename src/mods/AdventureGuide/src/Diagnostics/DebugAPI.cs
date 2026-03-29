@@ -46,7 +46,10 @@ public static class DebugAPI
         if (!Nav.HasTarget) return "No active navigation target";
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Target: {Nav.TargetDisplayName}");
+        var explanation = Nav.Explanation;
+        sb.AppendLine($"Target: {explanation?.GoalText ?? "(none)"}");
+        if (explanation != null)
+            sb.AppendLine($"  TargetNode: {explanation.TargetText}");
         sb.AppendLine($"  NodeKey: {Nav.TargetNodeKey}");
         sb.AppendLine($"  Position: {Nav.EffectiveTarget}");
         sb.AppendLine($"  Distance: {Nav.Distance:F1}");

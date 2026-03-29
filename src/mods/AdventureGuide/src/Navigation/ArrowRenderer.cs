@@ -38,7 +38,7 @@ public sealed class ArrowRenderer
     private float _cachedTotalHeight;
     private int _cachedDistInt = -1;
     private int _cachedHopCount = -1;
-    private string? _cachedTargetName;
+    private string _cachedLabelIdentity = string.Empty;
 
     public bool Enabled
     {
@@ -87,28 +87,22 @@ public sealed class ArrowRenderer
             && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
             && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
 
-        // Rebuild label only when the visible distance, hop count, or target name changes
+        // Rebuild label only when the visible distance, hop count, or explanation changes
         int distInt = Mathf.RoundToInt(_nav.Distance);
         int hopCount = _nav.HopCount;
-        var targetName = _nav.TargetDisplayName ?? "";
-        if (distInt != _cachedDistInt || hopCount != _cachedHopCount || targetName != _cachedTargetName)
+        string labelIdentity = BuildLabelIdentity(_nav.Explanation);
+        if (distInt != _cachedDistInt || hopCount != _cachedHopCount || labelIdentity != _cachedLabelIdentity)
         {
             _cachedDistInt = distInt;
             _cachedHopCount = hopCount;
-            _cachedTargetName = targetName;
+            _cachedLabelIdentity = labelIdentity;
 
-            // Split into lines; distance goes on the first line
-            var rawLines = targetName.Split('\n');
-            string distanceText = hopCount > 0
-                ? $"({distInt}m + {hopCount} hops)"
-                : $"({distInt}m)";
-            rawLines[0] = $"{rawLines[0]} {distanceText}";
-            _cachedLines = rawLines;
-            _cachedLineSizes = new CimguiNative.Vec2[rawLines.Length];
+            _cachedLines = BuildLines(_nav.Explanation, distInt, hopCount);
+            _cachedLineSizes = new CimguiNative.Vec2[_cachedLines.Length];
             _cachedTotalHeight = 0;
-            for (int i = 0; i < rawLines.Length; i++)
+            for (int i = 0; i < _cachedLines.Length; i++)
             {
-                _cachedLineSizes[i] = CimguiNative.CalcTextSize(rawLines[i]);
+                _cachedLineSizes[i] = CimguiNative.CalcTextSize(_cachedLines[i]);
                 _cachedTotalHeight += _cachedLineSizes[i].Y;
             }
         }
@@ -163,6 +157,59 @@ public sealed class ArrowRenderer
             CimguiNative.AddText(dl, x, y, ColorText, _cachedLines[i]);
             y += _cachedLineSizes[i].Y;
         }
+    }
+
+    private static string BuildLabelIdentity(NavigationExplanation? explanation)
+    {
+        if (explanation == null)
+            return string.Empty;
+        return string.Join("\u001f", new[]
+        {
+            explanation.GoalText,
+            explanation.TargetText,
+            explanation.ZoneText ?? string.Empty,
+            explanation.DetailText ?? string.Empty,
+        });
+    }
+
+    private static string[] BuildLines(
+        NavigationExplanation? explanation,
+        int distInt,
+        int hopCount)
+    {
+        string distanceText = hopCount > 0
+            ? $"({distInt}m + {hopCount} hops)"
+            : $"({distInt}m)";
+
+        if (explanation == null)
+            return new[] { distanceText };
+
+        var lines = new List<string>(3)
+        {
+            $"{explanation.GoalText} {distanceText}".Trim()
+        };
+
+        bool targetDiffers = !string.Equals(
+            explanation.TargetText, explanation.GoalText, StringComparison.OrdinalIgnoreCase);
+
+        string? targetLine = null;
+        if (targetDiffers)
+        {
+            targetLine = explanation.TargetText;
+            if (!string.IsNullOrEmpty(explanation.ZoneText))
+                targetLine += $" · {explanation.ZoneText}";
+        }
+        else if (!string.IsNullOrEmpty(explanation.ZoneText))
+        {
+            targetLine = explanation.ZoneText;
+        }
+
+        if (!string.IsNullOrEmpty(targetLine))
+            lines.Add(targetLine);
+        if (!string.IsNullOrEmpty(explanation.DetailText))
+            lines.Add(explanation.DetailText);
+
+        return lines.ToArray();
     }
 
     // ── Drawing primitives ─────────────────────────────────────────

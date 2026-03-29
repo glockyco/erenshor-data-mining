@@ -35,7 +35,8 @@ public sealed class NavigationEngine
     private readonly EntityRegistry _entities;
 
     // Reusable buffers — owned by the engine, never exposed.
-    private readonly List<(string nodeKey, Vector3 position, string? scene, Views.ViewNode? viewNode, string? sourceKey)> _candidates = new();
+    private readonly List<(string requestedKey, string nodeKey, Vector3 position, string? scene, ViewNode? goalNode, ViewNode? targetNode, string? sourceKey)> _candidates = new();
+    private readonly List<ResolvedViewPosition> _detailedPositionBuffer = new();
     private readonly List<ResolvedPosition> _positionBuffer = new();
 
     // ── Resolved target state (set by Resolve, read by Track) ────────
@@ -48,16 +49,14 @@ public sealed class NavigationEngine
 
     /// <summary>Scene the target is in (from resolver).</summary>
     public string? TargetScene { get; private set; }
-
     /// <summary>
     /// Effective position the arrow should point at. For same-zone targets,
     /// this is the live NPC position (updated per-frame). For cross-zone targets,
     /// this is the zone line waypoint position.
     /// </summary>
     public Vector3? EffectiveTarget { get; private set; }
-
-    /// <summary>Display name shown on the arrow label.</summary>
-    public string? TargetDisplayName { get; private set; }
+    /// <summary>Current semantic explanation for the selected navigation target.</summary>
+    public NavigationExplanation? Explanation { get; private set; }
 
     /// <summary>True when navigation has a valid target.</summary>
     public bool HasTarget => EffectiveTarget.HasValue;
@@ -188,10 +187,13 @@ public sealed class NavigationEngine
     {
         if (_navSet.TryGetContext(nodeKey, out var context) && context != null)
         {
-            _positionBuffer.Clear();
-            _viewPositions.Collect(context, _positionBuffer);
-            for (int i = 0; i < _positionBuffer.Count; i++)
-                _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
+            _detailedPositionBuffer.Clear();
+            _viewPositions.CollectDetailed(context, _detailedPositionBuffer);
+            for (int i = 0; i < _detailedPositionBuffer.Count; i++)
+            {
+                var resolved = _detailedPositionBuffer[i];
+                _candidates.Add((nodeKey, resolved.TargetNode.NodeKey, resolved.Position, resolved.Scene, resolved.GoalNode, resolved.TargetNode, resolved.SourceKey));
+            }
             return;
         }
 
@@ -213,19 +215,23 @@ public sealed class NavigationEngine
             if (root == null)
                 return;
 
-            _positionBuffer.Clear();
-            _viewPositions.Collect(root, _positionBuffer);
-            for (int i = 0; i < _positionBuffer.Count; i++)
-                _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
+            _detailedPositionBuffer.Clear();
+            _viewPositions.CollectDetailed(root, _detailedPositionBuffer);
+            for (int i = 0; i < _detailedPositionBuffer.Count; i++)
+            {
+                var resolved = _detailedPositionBuffer[i];
+                _candidates.Add((nodeKey, resolved.TargetNode.NodeKey, resolved.Position, resolved.Scene, resolved.GoalNode, resolved.TargetNode, resolved.SourceKey));
+            }
             return;
         }
 
         // Other node types resolve directly.
 
+        var directView = new ViewNode(nodeKey, node);
         _positionBuffer.Clear();
         _registry.Resolve(nodeKey, _positionBuffer);
         for (int i = 0; i < _positionBuffer.Count; i++)
-            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
+            _candidates.Add((nodeKey, nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, directView, directView, _positionBuffer[i].SourceKey));
     }
 
     private void ResolveFrontier(string questKey)
@@ -238,25 +244,29 @@ public sealed class NavigationEngine
         for (int i = 0; i < frontier.Count; i++)
         {
             var viewNode = frontier[i];
-            _positionBuffer.Clear();
-            _viewPositions.Collect(viewNode, _positionBuffer);
-            for (int j = 0; j < _positionBuffer.Count; j++)
-                _candidates.Add((viewNode.NodeKey, _positionBuffer[j].Position, _positionBuffer[j].Scene, viewNode, _positionBuffer[j].SourceKey));
+            _detailedPositionBuffer.Clear();
+            _viewPositions.CollectDetailed(viewNode, _detailedPositionBuffer);
+            for (int j = 0; j < _detailedPositionBuffer.Count; j++)
+            {
+                var resolved = _detailedPositionBuffer[j];
+                _candidates.Add((questKey, resolved.TargetNode.NodeKey, resolved.Position, resolved.Scene, resolved.GoalNode, resolved.TargetNode, resolved.SourceKey));
+            }
         }
     }
 
     private void PickClosest(Vector3 playerPosition)
     {
         float bestSqr = float.MaxValue;
-        string? bestKey = null;
+        string? bestNodeKey = null;
         Vector3? bestPos = null;
         string? bestScene = null;
-        Views.ViewNode? bestViewNode = null;
+        ViewNode? bestGoalNode = null;
+        ViewNode? bestTargetNode = null;
         string? bestSourceKey = null;
 
         for (int i = 0; i < _candidates.Count; i++)
         {
-            var (key, pos, scene, viewNode, sourceKey) = _candidates[i];
+            var (_, nodeKey, pos, scene, goalNode, targetNode, sourceKey) = _candidates[i];
             bool sameScene = string.Equals(scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                           || scene == null;
             float sqr = (pos - playerPosition).sqrMagnitude;
@@ -266,27 +276,23 @@ public sealed class NavigationEngine
             if (sqr < bestSqr)
             {
                 bestSqr = sqr;
-                bestKey = key;
+                bestNodeKey = nodeKey;
                 bestPos = pos;
                 bestScene = scene;
-                bestViewNode = viewNode;
+                bestGoalNode = goalNode;
+                bestTargetNode = targetNode;
                 bestSourceKey = sourceKey;
             }
         }
 
-        TargetNodeKey = bestKey;
+        TargetNodeKey = bestNodeKey;
         TargetPosition = bestPos;
         TargetScene = bestScene;
         HopCount = 0;
 
-        // Format display name with action text when frontier context is available
-        if (bestViewNode != null)
-            TargetDisplayName = Frontier.ActionTextFormatter.FormatSummary(bestViewNode, _tracker);
-        else
-        {
-            var targetNode = bestKey != null ? _graph.GetNode(bestKey) : null;
-            TargetDisplayName = targetNode?.DisplayName;
-        }
+        Explanation = bestGoalNode != null && bestTargetNode != null
+            ? NavigationExplanationBuilder.Build(bestGoalNode, bestTargetNode, _tracker)
+            : null;
 
         // Cross-zone routing: resolve zone line waypoint
         bool targetInOtherZone = bestScene != null
@@ -299,8 +305,6 @@ public sealed class NavigationEngine
             {
                 EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
                 HopCount = Math.Max(0, route.Path.Count - 1);
-                if (TargetDisplayName == null)
-                    TargetDisplayName = "Zone line";
             }
             else
             {
@@ -312,8 +316,7 @@ public sealed class NavigationEngine
             EffectiveTarget = bestPos;
         }
 
-        // Append requirement text when target spawn is quest-gated
-        if (bestSourceKey != null)
+        if (bestSourceKey != null && Explanation != null)
         {
             var gatedEdges = _graph.OutEdges(bestSourceKey, EdgeType.GatedByQuest);
             for (int i = 0; i < gatedEdges.Count; i++)
@@ -321,10 +324,16 @@ public sealed class NavigationEngine
                 var gatingQuest = _graph.GetNode(gatedEdges[i].Target);
                 if (gatingQuest?.DbName != null && !_tracker.IsCompleted(gatingQuest.DbName))
                 {
-                    TargetDisplayName = TargetDisplayName != null
-                        ? $"{TargetDisplayName}\nRequires: {gatingQuest.DisplayName}"
-                        : $"Requires: {gatingQuest.DisplayName}";
-                    break; // Only show first unmet requirement
+                    Explanation = new NavigationExplanation(
+                        Explanation.GoalKind,
+                        Explanation.TargetKind,
+                        Explanation.GoalNode,
+                        Explanation.TargetNode,
+                        Explanation.GoalText,
+                        Explanation.TargetText,
+                        Explanation.ZoneText,
+                        $"Requires: {gatingQuest.DisplayName}");
+                    break;
                 }
             }
         }
@@ -389,7 +398,7 @@ public sealed class NavigationEngine
         TargetPosition = null;
         TargetScene = null;
         EffectiveTarget = null;
-        TargetDisplayName = null;
+        Explanation = null;
         HopCount = 0;
         Distance = 0f;
     }

@@ -87,6 +87,11 @@ public sealed class ViewRenderer
         ImGui.PopStyleColor();
         DrawQuestBadge(root.NodeKey);
 
+        // Quest-level navigation and tracking controls.
+
+        ImGui.SameLine();
+        DrawNavButtonByKey(quest, root.NodeKey);
+
         // Track/Untrack button (only for non-completed quests with a DB name)
         if (dbName != null && !_tracker.IsCompleted(dbName))
         {
