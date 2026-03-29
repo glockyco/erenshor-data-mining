@@ -252,3 +252,17 @@ class TestAcquisitionMethods:
         """Item-read quest assignment."""
         assigned = [e for e in graph.all_edges() if e.type == EdgeType.ASSIGNED_BY and e.note == "item_read"]
         assert len(assigned) >= 10, f"Expected 10+ item_read assignments, got {len(assigned)}"
+
+
+class TestAlternativeQuestMetadata:
+    """Verify quest header metadata prefers the easiest alternative path."""
+
+    def test_occuphage_uses_lowest_level_turn_in_alternative(self, graph: EntityGraph) -> None:
+        node = graph.get_node("quest:occuphage")
+        assert node is not None
+        assert node.display_name == "Seaslimed Bracelet"
+        # The quest can be turned in to Occuphage in multiple zones. Those are
+        # alternatives, so canonical quest metadata should use the easiest turn-in
+        # zone. The overall quest level still reflects the required item path.
+        assert node.zone == "Island Tomb"
+        assert node.level == 7

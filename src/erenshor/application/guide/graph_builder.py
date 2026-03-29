@@ -118,7 +118,7 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
     # First pass: zone + direct level factors (no quest-chain propagation)
     quest_levels: dict[str, int] = {}  # quest_key → estimated level
     for quest in graph.nodes_of_type(NodeType.QUEST):
-        _fill_quest_zone(quest, graph, char_zones, zone_displays)
+        _fill_quest_zone(quest, graph, char_zones, zone_displays, zone_medians)
         level = _estimate_quest_level(
             quest,
             graph,
@@ -151,28 +151,70 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             quest_levels[quest.key] = level
 
 
+def _target_zone_key(
+    target_key: str,
+    graph: EntityGraph,
+    char_zones: dict[str, str],
+) -> str | None:
+    """Resolve the interaction zone for an edge target.
+
+    Characters use the spawn-derived char_zones map. Other node types fall back
+    to their graph node's own zone_key (useful for quest-chain assigned_by).
+    """
+    zone_key = char_zones.get(target_key)
+    if zone_key is not None:
+        return zone_key
+    target = graph.get_node(target_key)
+    return target.zone_key if target is not None else None
+
+
+def _best_interaction_zone_key(
+    target_keys: list[str],
+    graph: EntityGraph,
+    char_zones: dict[str, str],
+    zone_medians: dict[str, int],
+) -> str | None:
+    """Pick the easiest interaction zone across alternative targets.
+
+    Lower zone median wins. Missing medians sort last. Ties break
+    lexicographically by zone key for deterministic output.
+    """
+    candidates: list[tuple[int, str]] = []
+    fallback: list[str] = []
+    for target_key in target_keys:
+        zone_key = _target_zone_key(target_key, graph, char_zones)
+        if zone_key is None:
+            continue
+        fallback.append(zone_key)
+        median = zone_medians.get(zone_key)
+        if median is not None:
+            candidates.append((median, zone_key))
+
+    if candidates:
+        candidates.sort(key=lambda item: (item[0], item[1]))
+        return candidates[0][1]
+    if fallback:
+        return sorted(fallback)[0]
+    return None
+
+
 def _fill_quest_zone(
     quest: Node,
     graph: EntityGraph,
     char_zones: dict[str, str],
     zone_displays: dict[str, str],
+    zone_medians: dict[str, int],
 ) -> None:
-    """Set quest.zone and quest.zone_key from the quest giver or completer."""
-    # Try assigned_by first (where you GET the quest)
-    for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY):
-        zone_key = char_zones.get(edge.target)
-        if zone_key:
-            quest.zone_key = zone_key
-            quest.zone = zone_displays.get(zone_key, zone_key)
-            return
+    """Set quest.zone and quest.zone_key from the easiest assignment or turn-in alternative."""
+    assign_targets = [edge.target for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY)]
+    zone_key = _best_interaction_zone_key(assign_targets, graph, char_zones, zone_medians)
+    if zone_key is None:
+        complete_targets = [edge.target for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY)]
+        zone_key = _best_interaction_zone_key(complete_targets, graph, char_zones, zone_medians)
 
-    # Fallback: completed_by (where you TURN IN the quest)
-    for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
-        zone_key = char_zones.get(edge.target)
-        if zone_key:
-            quest.zone_key = zone_key
-            quest.zone = zone_displays.get(zone_key, zone_key)
-            return
+    if zone_key is not None:
+        quest.zone_key = zone_key
+        quest.zone = zone_displays.get(zone_key, zone_key)
 
 
 def _estimate_quest_level(
@@ -206,10 +248,14 @@ def _estimate_quest_level(
         if target and target.key in zone_medians:
             factors.append(zone_medians[target.key])
 
-    # Completed_by NPC: zone median (player must reach this zone)
+    # Completed_by targets are alternatives: use the easiest reachable turn-in zone.
+    completion_levels: list[int] = []
     for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
-        _add_zone_factor(edge.target, char_zones, zone_medians, factors)
-
+        zone_key = _target_zone_key(edge.target, graph, char_zones)
+        if zone_key and zone_key in zone_medians:
+            completion_levels.append(zone_medians[zone_key])
+    if completion_levels:
+        factors.append(min(completion_levels))
     # Required items: min obtainability level per item
     for edge in graph.out_edges(quest.key, EdgeType.REQUIRES_ITEM):
         item_level = _item_obtainability_level(
