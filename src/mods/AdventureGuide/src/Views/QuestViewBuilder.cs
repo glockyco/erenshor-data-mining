@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 
 namespace AdventureGuide.Views;
@@ -18,11 +19,16 @@ public sealed class QuestViewBuilder
 {
     private readonly EntityGraph _graph;
     private readonly GameState _state;
+    private readonly ZoneRouter _router;
+    private readonly QuestStateTracker _tracker;
 
-    public QuestViewBuilder(EntityGraph graph, GameState state)
+    public QuestViewBuilder(EntityGraph graph, GameState state,
+        ZoneRouter router, QuestStateTracker tracker)
     {
         _graph = graph;
         _state = state;
+        _router = router;
+        _tracker = tracker;
     }
 
     /// <summary>Build the full dependency tree for a quest.</summary>
@@ -227,6 +233,11 @@ public sealed class QuestViewBuilder
             if (sourceNode == null) continue;
 
             var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, visited);
+
+            // Skip cycle references in source lists — they're graph artifacts,
+            // not viable acquisition paths.
+            if (child.IsCycleRef) continue;
+
             EnrichSourceMetadata(child, sourceNode, visited);
             parent.Children.Add(child);
         }
@@ -284,6 +295,54 @@ public sealed class QuestViewBuilder
 
         viewNode.UnlockDependency = BuildQuestNode(
             gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, visited);
+    }
+
+    /// <summary>
+    /// If the node is in a zone that's unreachable from the player's current
+    /// zone (route goes through a locked zone line), find the gating quest and
+    /// build its dependency tree as an inline unlock requirement.
+    /// </summary>
+    private void CheckZoneReachability(ViewNode viewNode, Node node, HashSet<string> visited)
+    {
+        string? scene = node.Scene;
+        if (scene == null) return;
+
+        string currentScene = _tracker.CurrentZone;
+        if (string.IsNullOrEmpty(currentScene)) return;
+        if (string.Equals(scene, currentScene, StringComparison.OrdinalIgnoreCase)) return;
+
+        var route = _router.FindRoute(currentScene, scene);
+        if (route == null || !route.IsLocked) return;
+
+        // Find which zone line is locked on this route by checking zone lines
+        // in the first hop zone that connect to the next zone in the path.
+        // The route's NextHopZoneKey tells us which zone we need to get to.
+        // Look for locked zone lines from current scene to that zone.
+        string nextHop = route.NextHopZoneKey;
+        var zoneLines = _graph.NodesOfType(NodeType.ZoneLine);
+        foreach (var zl in zoneLines)
+        {
+            // Zone line must be from current scene and connect to the next hop
+            if (!string.Equals(zl.Scene, currentScene, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(zl.DestinationZoneKey, nextHop, StringComparison.OrdinalIgnoreCase)) continue;
+
+            var zlState = _state.GetState(zl.Key);
+            if (zlState.IsSatisfied) continue; // Not locked
+
+            // Found the locked zone line. Find the quest that unlocks it.
+            var unlockEdges = _graph.InEdges(zl.Key, EdgeType.UnlocksZoneLine);
+            if (unlockEdges.Count == 0) continue;
+
+            var gatingQuestKey = unlockEdges[0].Source;
+            if (_state.GetState(gatingQuestKey) is QuestCompleted) continue;
+
+            var gatingQuest = _graph.GetNode(gatingQuestKey);
+            if (gatingQuest == null) continue;
+
+            viewNode.UnlockDependency = BuildQuestNode(
+                gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, visited);
+            return;
+        }
     }
 
     /// <summary>
@@ -388,6 +447,12 @@ public sealed class QuestViewBuilder
         // regardless of edge type (source, step, assignment, etc.).
         if (node.Type == NodeType.Character)
             CheckCharacterUnlock(viewNode, node, visited);
+
+        // Check if this node is in an unreachable zone (locked zone line).
+        // Only check if no character unlock already set (character unlock is
+        // more specific and already explains why the node is blocked).
+        if (viewNode.UnlockDependency == null && node.Scene != null)
+            CheckZoneReachability(viewNode, node, visited);
 
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.

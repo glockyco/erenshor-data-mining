@@ -101,8 +101,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.UiScale.SettingChanged += OnUiScaleChanged;
         _config.ResetWindowLayout.SettingChanged += OnResetWindowLayout;
 
-        // --- Views layer ---
-        _viewBuilder = new QuestViewBuilder(_graph, _gameState);
+        // Views layer created after navigation layer (needs ZoneRouter)
 
         // --- Frontier layer ---
         _navSet = new NavigationSet();
@@ -111,6 +110,9 @@ public sealed class Plugin : BaseUnityPlugin
         _entities = new EntityRegistry();
         _liveState = new LiveStateTracker(_graph, _entities);
         _zoneRouter = new ZoneRouter(_graph, _gameState);
+
+        // --- Views layer ---
+        _viewBuilder = new QuestViewBuilder(_graph, _gameState, _zoneRouter, _questTracker);
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
