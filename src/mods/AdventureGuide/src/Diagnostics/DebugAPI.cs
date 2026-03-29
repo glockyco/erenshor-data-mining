@@ -96,7 +96,7 @@ public static class DebugAPI
         var edges = Graph.OutEdges(node.Key);
         sb.AppendLine($"Outgoing edges ({edges.Count}):");
         foreach (var e in edges)
-            sb.AppendLine($"  [{e.Type}] \u2192 {e.Target}");
+            sb.AppendLine($"  [{e.Type}] > {e.Target}");
 
         return sb.ToString();
     }
@@ -153,7 +153,7 @@ public static class DebugAPI
         var route = Router.FindRoute(fromScene, toScene);
         if (route == null) return $"No route from {fromScene} to {toScene}";
 
-        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" \u2192 ", route.Path)}";
+        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" > ", route.Path)}";
     }
 
     private static Node? FindQuestNode(string name)

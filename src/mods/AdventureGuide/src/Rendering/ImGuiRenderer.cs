@@ -286,11 +286,13 @@ public sealed class ImGuiRenderer : IDisposable
             var fontPtr = ImGuiNET.ImGui.MemAlloc((uint)fontBytes.Length);
             Marshal.Copy(fontBytes, 0, fontPtr, fontBytes.Length);
 
-            // Glyph ranges: Latin extended. Default range covers ASCII +
-            // Latin-1 Supplement (includes \u00b7 middle dot).
+            // Glyph ranges: default (ASCII + Latin-1 Supplement) plus
+            // specific characters Roboto has that we use in the UI.
             var builder = new ImGuiNET.ImFontGlyphRangesBuilderPtr(
                 ImGuiNET.ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
             builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
+            builder.AddChar('\u2014');  // em-dash (keyword labels)
+            builder.AddChar('\u2022');  // bullet (tracked indicator)
             builder.BuildRanges(out ImGuiNET.ImVector ranges);
 
             // Configure font: use cimgui's constructor to set proper defaults,

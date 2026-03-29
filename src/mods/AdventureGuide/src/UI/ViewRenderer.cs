@@ -305,7 +305,7 @@ public sealed class ViewRenderer
             string dest = zlNode.DestinationDisplay ?? zlNode.DisplayName;
             string from = zlNode.Zone ?? zlNode.Scene ?? "";
             if (from.Length > 0)
-                ImGui.Text($"Opens path: {from} \u2192 {dest}");
+                ImGui.Text($"Opens path: {from} > {dest}");
             else
                 ImGui.Text($"Opens path to {dest}");
         }

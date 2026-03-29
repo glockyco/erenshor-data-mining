@@ -327,7 +327,7 @@ public sealed class QuestListPanel
         // ILRepack merges System.Numerics.Vectors (same class of P/Invoke
         // issue as Vector4 colors), so we use a single-color label instead.
         bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DbName!);
-        string prefix = isTracked ? "\u00b7" : " ";
+        string prefix = isTracked ? "\u2022" : " ";
         string suffix = quest.Repeatable ? " [R]" : "";
         string label = quest.Level is int lvl
             ? $"{prefix}{lvl,2}  {quest.DisplayName}{suffix}"
