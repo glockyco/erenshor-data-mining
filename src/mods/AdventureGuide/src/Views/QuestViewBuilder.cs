@@ -250,9 +250,6 @@ public sealed class QuestViewBuilder
                 viewNode.EffectiveLevel = Math.Max(charLevel.Value, maxZoneLevel.Value);
             else
                 viewNode.EffectiveLevel = charLevel ?? maxZoneLevel;
-
-            // Check if this character is blocked by an unsatisfied unlock
-            CheckCharacterUnlock(viewNode, sourceNode, visited);
         }
         else
         {
@@ -386,6 +383,11 @@ public sealed class QuestViewBuilder
             return BuildQuestNode(key, node, edgeType, edge, visited);
 
         var viewNode = new ViewNode(key, node, edgeType, edge);
+
+        // Check for unsatisfied unlock requirements on any character node,
+        // regardless of edge type (source, step, assignment, etc.).
+        if (node.Type == NodeType.Character)
+            CheckCharacterUnlock(viewNode, node, visited);
 
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.
