@@ -5,11 +5,10 @@ using HarmonyLib;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Patches Inventory.UpdatePlayerInventory to notify QuestStateTracker and
-/// trigger marker recomputation when inventory contents change. This is the
-/// single centralized method called by all inventory mutations: AddItemToInv,
-/// ForceItemToInv, RemoveItemFromInv, RemoveStackFromInv, and equipment
-/// changes.
+/// Patches Inventory.UpdatePlayerInventory to notify AdventureGuide only when
+/// the underlying inventory contents actually changed. The game also calls this
+/// method for inventory UI refreshes such as open/close, so the tracker must
+/// fast-path no-op refreshes instead of treating them as world-state changes.
 /// </summary>
 [HarmonyPatch(typeof(Inventory), nameof(Inventory.UpdatePlayerInventory))]
 internal static class InventoryPatch
@@ -20,7 +19,7 @@ internal static class InventoryPatch
     [HarmonyPostfix]
     private static void Postfix()
     {
-        Tracker?.OnInventoryChanged();
-        Markers?.MarkDirty();
+        if (Tracker?.OnInventoryChanged() == true)
+            Markers?.MarkDirty();
     }
 }

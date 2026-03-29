@@ -22,6 +22,8 @@ public sealed class QuestStateTracker
     // Cached inventory counts, invalidated on inventory/zone/quest changes.
     private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
     private bool _dirty = true;
+    private ulong _inventoryFingerprint;
+    private bool _hasInventoryFingerprint;
 
     /// <summary>
     /// Monotonically increasing version. Consumers compare against their
@@ -141,6 +143,7 @@ public sealed class QuestStateTracker
             foreach (var q in GameData.CompletedQuests)
                 _completedQuests.Add(q);
 
+        CaptureInventoryFingerprint();
         _dirty = true;
         Version++;
     }
@@ -160,10 +163,18 @@ public sealed class QuestStateTracker
         Version++;
     }
 
-    public void OnInventoryChanged()
+    public bool OnInventoryChanged()
     {
+        if (!TryComputeInventoryFingerprint(out var fingerprint))
+            return false;
+        if (_hasInventoryFingerprint && fingerprint == _inventoryFingerprint)
+            return false;
+
+        _inventoryFingerprint = fingerprint;
+        _hasInventoryFingerprint = true;
         _dirty = true;
         Version++;
+        return true;
     }
 
     public void OnSceneChanged(string sceneName)
@@ -234,6 +245,54 @@ public sealed class QuestStateTracker
                 break;
             }
         }
+    }
+
+    private void CaptureInventoryFingerprint()
+    {
+        if (TryComputeInventoryFingerprint(out var fingerprint))
+        {
+            _inventoryFingerprint = fingerprint;
+            _hasInventoryFingerprint = true;
+        }
+        else
+        {
+            _inventoryFingerprint = 0UL;
+            _hasInventoryFingerprint = false;
+        }
+    }
+
+    private static bool TryComputeInventoryFingerprint(out ulong fingerprint)
+    {
+        const ulong offsetBasis = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
+
+        fingerprint = offsetBasis;
+        var slots = GameData.PlayerInv?.StoredSlots;
+        if (slots == null)
+            return false;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var slot = slots[i];
+            fingerprint ^= (ulong)i;
+            fingerprint *= prime;
+
+            var item = slot?.MyItem;
+            if (item == null)
+                continue;
+
+            string name = item.name;
+            for (int j = 0; j < name.Length; j++)
+            {
+                fingerprint ^= name[j];
+                fingerprint *= prime;
+            }
+
+            fingerprint ^= (ulong)slot!.Quantity;
+            fingerprint *= prime;
+        }
+
+        return true;
     }
 
     private readonly struct ImplicitQuest
