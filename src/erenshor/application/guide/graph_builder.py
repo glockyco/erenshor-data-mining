@@ -640,6 +640,7 @@ def _add_spawn_point_nodes(
         SELECT cs.spawn_point_stable_key, cs.character_stable_key,
                cs.scene, cs.x, cs.y, cs.z, cs.is_enabled,
                cs.night_spawn, cs.spawn_chance, cs.is_rare,
+               cs.is_directly_placed,
                cs.spawn_upon_quest_complete_stable_key,
                cs.zone_stable_key,
                c.display_name AS char_display
@@ -660,7 +661,7 @@ def _add_spawn_point_nodes(
             Node(
                 key=sp_key,
                 type=NodeType.SPAWN_POINT,
-                display_name=f"{r['char_display']} spawn",
+                display_name=r["char_display"],
                 x=r["x"],
                 y=r["y"],
                 z=r["z"],
@@ -671,6 +672,7 @@ def _add_spawn_point_nodes(
                 night_spawn=bool(r["night_spawn"]),
                 spawn_chance=r["spawn_chance"],
                 is_rare=bool(r["is_rare"]),
+                is_directly_placed=bool(r["is_directly_placed"]),
             )
         )
 

@@ -80,6 +80,10 @@ public sealed class LiveStateTracker
         if (spawnNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
+        // Directly-placed NPCs have no runtime SpawnPoint — find by character name.
+        if (spawnNode.IsDirectlyPlaced)
+            return ResolveDirectlyPlacedSpawn(spawnNode);
+
         var sp = FindSpawnPoint(spawnNode);
         if (sp != null)
             return ClassifySpawnPoint(sp);
@@ -265,6 +269,46 @@ public sealed class LiveStateTracker
     }
 
     // ── Lookups ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Resolve a directly-placed spawn node by finding the live NPC via
+    /// its character name. Directly-placed NPCs have no runtime SpawnPoint
+    /// component — they exist as scene objects and are always present.
+    /// </summary>
+    private SpawnInfo ResolveDirectlyPlacedSpawn(Node spawnNode)
+    {
+        // Find the character this spawn point belongs to via HasSpawn edge
+        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
+        if (charEdges.Count > 0)
+        {
+            var charNode = _graph.GetNode(charEdges[0].Source);
+            if (charNode != null)
+            {
+                var npc = FindNpcByNameAndProximity(charNode);
+                if (npc != null)
+                {
+                    var ch = npc.GetComponent<Character>();
+                    bool alive = ch != null && ch.Alive;
+                    return new SpawnInfo(
+                        alive ? NodeState.Alive : new SpawnDead(0f),
+                        null, npc, 0f);
+                }
+            }
+        }
+
+        // Last resort: try by spawn node's own display name
+        var fallbackNpc = FindNpcByNameAndProximity(spawnNode);
+        if (fallbackNpc != null)
+        {
+            var ch = fallbackNpc.GetComponent<Character>();
+            bool alive = ch != null && ch.Alive;
+            return new SpawnInfo(
+                alive ? NodeState.Alive : new SpawnDead(0f),
+                null, fallbackNpc, 0f);
+        }
+
+        return new SpawnInfo(NodeState.Unknown, null, null, 0f);
+    }
 
     private SpawnPoint? FindSpawnPoint(Node node)
     {

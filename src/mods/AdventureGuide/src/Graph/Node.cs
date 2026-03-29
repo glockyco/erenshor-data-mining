@@ -52,6 +52,7 @@ public sealed class Node
     [JsonProperty("respawn_delay")] public float? RespawnDelay { get; set; }
     [JsonProperty("respawn_time")] public float? RespawnTime { get; set; }
     [JsonProperty("respawns"), DefaultValue(true)] public bool Respawns { get; set; } = true;
+    [JsonProperty("is_directly_placed"), DefaultValue(false)] public bool IsDirectlyPlaced { get; set; }
 
     [JsonProperty("key_item_key")] public string? KeyItemKey { get; set; }
     [JsonProperty("teleport_item_key")] public string? TeleportItemKey { get; set; }
