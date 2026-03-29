@@ -7,12 +7,16 @@ using AdventureGuide.Views;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// Two-phase navigation driver.
+/// Three-phase navigation driver.
 ///
 /// <b>Resolve phase</b> (on state change): builds view trees, computes frontiers,
-/// resolves positions via <see cref="PositionResolverRegistry"/>, picks the best
-/// target. Runs when <see cref="NavigationSet.Version"/> or
+/// resolves positions via <see cref="PositionResolverRegistry"/>. Populates the
+/// candidate list. Runs when <see cref="NavigationSet.Version"/> or
 /// <see cref="QuestStateTracker.Version"/> changes, or on scene change.
+///
+/// <b>Pick phase</b> (on timer, 0.5s): re-evaluates which candidate is closest
+/// to the player. Runs from the cached candidate list without re-resolving.
+/// This is what makes the arrow switch to a closer target as the player moves.
 ///
 /// <b>Track phase</b> (per frame): updates the target's live position from
 /// <see cref="EntityRegistry"/> for smooth NPC tracking, computes distance
@@ -69,6 +73,11 @@ public sealed class NavigationEngine
     private int _lastTrackerVersion = -1;
     private string _lastResolveScene = "";
 
+    // ── Proximity re-pick timer ─────────────────────────────────────
+
+    private const float RePickInterval = 0.5f;
+    private float _rePickTimer;
+
     // ── Cross-zone route cache ───────────────────────────────────────
 
     private string? _cachedRouteFrom;
@@ -109,7 +118,8 @@ public sealed class NavigationEngine
 
     /// <summary>
     /// Call once per frame. Runs the resolve phase if state changed,
-    /// then runs the track phase for live position updates.
+    /// re-picks the closest candidate on a timer, then runs the track
+    /// phase for live position updates.
     /// </summary>
     public void Update(Vector3 playerPosition)
     {
@@ -119,7 +129,7 @@ public sealed class NavigationEngine
             return;
         }
 
-        // Phase 1: Resolve — only when something changed
+        // Resolve — only when something changed
         bool navChanged = _navSet.Version != _lastNavSetVersion;
         bool stateChanged = _tracker.Version != _lastTrackerVersion;
         bool sceneChanged = !string.Equals(CurrentScene, _lastResolveScene,
@@ -131,13 +141,22 @@ public sealed class NavigationEngine
             _lastTrackerVersion = _tracker.Version;
             _lastResolveScene = CurrentScene;
             Resolve(playerPosition);
+            _rePickTimer = 0f; // Just picked, reset timer
         }
 
-        // Phase 2: Track — every frame, cheap
+        // Re-pick — periodically re-evaluate closest candidate
+        _rePickTimer += Time.deltaTime;
+        if (_rePickTimer >= RePickInterval && _candidates.Count > 1)
+        {
+            _rePickTimer = 0f;
+            PickClosest(playerPosition);
+        }
+
+        // Track — every frame, cheap
         Track(playerPosition);
     }
 
-    // ── Phase 1: Resolve ─────────────────────────────────────────────
+    // ── Resolve ──────────────────────────────────────────────────────
 
     /// <summary>
     /// Full resolution: expand quest frontiers, resolve all positions,
@@ -279,7 +298,7 @@ public sealed class NavigationEngine
         }
     }
 
-    // ── Phase 2: Track ───────────────────────────────────────────────
+    // ── Track ───────────────────────────────────────────────────────
 
     /// <summary>
     /// Per-frame live tracking. Updates the effective target position from
