@@ -154,15 +154,12 @@ public sealed class ViewRenderer
             questNode = node.Node;
         }
 
-        // Build the label from edge type + node data
+        // Single source of truth: classify the edge once, derive all visuals from it.
+        var role = FrontierComputer.ClassifyEdge(node, _state, questState);
         string label = FormatLabel(node);
-        uint color = GetNodeColor(node);
+        uint color = GetNodeColor(node, role);
         bool hasChildren = node.Children.Count > 0;
-
-        // State indicator (checkmark for satisfied nodes)
-        // Uses the same classification as FrontierComputer for consistency.
-        bool satisfied = FrontierComputer.ClassifyEdge(node, _state, questState)
-            == FrontierComputer.EdgeRole.Done;
+        bool satisfied = role == FrontierComputer.EdgeRole.Done;
         string statePrefix = satisfied ? "\u2713 " : "";
 
         // Quest flag warnings on CompletedBy nodes
@@ -451,21 +448,19 @@ public sealed class ViewRenderer
 
     // ── Colors ──────────────────────────────────────────────────────────
 
-    private uint GetNodeColor(ViewNode node)
+    private uint GetNodeColor(ViewNode node, FrontierComputer.EdgeRole role)
     {
-        var nodeState = _state.GetState(node.NodeKey);
-
-        if (nodeState.IsSatisfied)
+        if (role == FrontierComputer.EdgeRole.Done)
             return Theme.QuestCompleted;
 
         if (_navSet.Contains(node.NodeKey))
             return Theme.NavManualOverride;
 
-        return node.EdgeType switch
+        return role switch
         {
-            EdgeType.RequiresQuest => Theme.QuestAvailable,
-            EdgeType.CompletedBy => Theme.Accent,
-            EdgeType.AssignedBy => Theme.Accent,
+            FrontierComputer.EdgeRole.Acceptance => Theme.Accent,
+            FrontierComputer.EdgeRole.TurnIn => Theme.Accent,
+            FrontierComputer.EdgeRole.Source => Theme.SourceDimmed,
             _ => Theme.TextPrimary,
         };
     }
