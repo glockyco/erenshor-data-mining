@@ -57,7 +57,7 @@ public sealed class CharacterPositionResolver : IPositionResolver
                     // Alive spawn we didn't find via EntityRegistry — use its static position
                     results.Add(new ResolvedPosition(
                         new Vector3(spawnNode.X!.Value, spawnNode.Y!.Value, spawnNode.Z!.Value),
-                        spawnNode.Scene));
+                        spawnNode.Scene, spawnNode.Key));
                     return;
                 }
 
@@ -81,7 +81,7 @@ public sealed class CharacterPositionResolver : IPositionResolver
             {
                 results.Add(new ResolvedPosition(
                     new Vector3(bestSpawn.X!.Value, bestSpawn.Y!.Value, bestSpawn.Z!.Value),
-                    bestSpawn.Scene));
+                    bestSpawn.Scene, bestSpawn.Key));
                 return;
             }
         }

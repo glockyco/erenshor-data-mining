@@ -30,7 +30,7 @@ public sealed class NavigationEngine
     private readonly EntityRegistry _entities;
 
     // Reusable buffers — owned by the engine, never exposed.
-    private readonly List<(string nodeKey, Vector3 position, string? scene, Views.ViewNode? viewNode)> _candidates = new();
+    private readonly List<(string nodeKey, Vector3 position, string? scene, Views.ViewNode? viewNode, string? sourceKey)> _candidates = new();
     private readonly List<ResolvedPosition> _positionBuffer = new();
 
     // ── Resolved target state (set by Resolve, read by Track) ────────
@@ -174,7 +174,7 @@ public sealed class NavigationEngine
         _positionBuffer.Clear();
         _registry.Resolve(nodeKey, _positionBuffer);
         for (int i = 0; i < _positionBuffer.Count; i++)
-            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null));
+            _candidates.Add((nodeKey, _positionBuffer[i].Position, _positionBuffer[i].Scene, null, _positionBuffer[i].SourceKey));
     }
 
     private void ResolveFrontier(string questKey)
@@ -190,7 +190,7 @@ public sealed class NavigationEngine
             _positionBuffer.Clear();
             _registry.Resolve(viewNode.NodeKey, _positionBuffer);
             for (int j = 0; j < _positionBuffer.Count; j++)
-                _candidates.Add((viewNode.NodeKey, _positionBuffer[j].Position, _positionBuffer[j].Scene, viewNode));
+                _candidates.Add((viewNode.NodeKey, _positionBuffer[j].Position, _positionBuffer[j].Scene, viewNode, _positionBuffer[j].SourceKey));
         }
     }
 
@@ -201,10 +201,11 @@ public sealed class NavigationEngine
         Vector3? bestPos = null;
         string? bestScene = null;
         Views.ViewNode? bestViewNode = null;
+        string? bestSourceKey = null;
 
         for (int i = 0; i < _candidates.Count; i++)
         {
-            var (key, pos, scene, viewNode) = _candidates[i];
+            var (key, pos, scene, viewNode, sourceKey) = _candidates[i];
             bool sameScene = string.Equals(scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                           || scene == null;
             float sqr = (pos - playerPosition).sqrMagnitude;
@@ -218,6 +219,7 @@ public sealed class NavigationEngine
                 bestPos = pos;
                 bestScene = scene;
                 bestViewNode = viewNode;
+                bestSourceKey = sourceKey;
             }
         }
 
@@ -257,6 +259,23 @@ public sealed class NavigationEngine
         else
         {
             EffectiveTarget = bestPos;
+        }
+
+        // Append requirement text when target spawn is quest-gated
+        if (bestSourceKey != null)
+        {
+            var gatedEdges = _graph.OutEdges(bestSourceKey, EdgeType.GatedByQuest);
+            for (int i = 0; i < gatedEdges.Count; i++)
+            {
+                var gatingQuest = _graph.GetNode(gatedEdges[i].Target);
+                if (gatingQuest?.DbName != null && !_tracker.IsCompleted(gatingQuest.DbName))
+                {
+                    TargetDisplayName = TargetDisplayName != null
+                        ? $"{TargetDisplayName}\nRequires: {gatingQuest.DisplayName}"
+                        : $"Requires: {gatingQuest.DisplayName}";
+                    break; // Only show first unmet requirement
+                }
+            }
         }
     }
 
