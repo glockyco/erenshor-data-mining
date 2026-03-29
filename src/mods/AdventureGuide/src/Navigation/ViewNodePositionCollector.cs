@@ -52,8 +52,8 @@ public sealed class ViewNodePositionCollector
 
     /// <summary>
     /// Append all reachable world positions represented by this pruned view node,
-    /// attributed to both the branch goal node and the immediate target node that
-    /// produced each candidate.
+    /// attributed to both the current actionable goal node and the immediate target
+    /// node that produced each candidate.
     /// </summary>
     public void CollectDetailed(ViewNode node, List<ResolvedViewPosition> results)
     {
@@ -70,11 +70,11 @@ public sealed class ViewNodePositionCollector
         if (node.IsCycleRef)
             return;
 
-        // A blocked node is not itself navigable yet — the actionable target is
-        // the unlock requirement shown inline under it. Keep the original goal.
+        // A blocked node is not itself actionable. Recurse into the unlock
+        // requirement and promote that requirement to the current goal.
         if (node.UnlockDependency != null)
         {
-            CollectDetailed(node.UnlockDependency, results, active, goalNode);
+            CollectDetailed(node.UnlockDependency, results, active, node.UnlockDependency);
             return;
         }
 
@@ -89,6 +89,7 @@ public sealed class ViewNodePositionCollector
                 case NodeType.Quest:
                 {
                     var frontier = FrontierComputer.ComputeFrontier(node, _state);
+                    bool keepQuestAsGoal = node.EdgeType == EdgeType.RequiresQuest;
                     for (int i = 0; i < frontier.Count; i++)
                     {
                         var frontierNode = frontier[i];
@@ -97,7 +98,8 @@ public sealed class ViewNodePositionCollector
                         if (frontierNode.NodeKey == node.NodeKey
                             && frontierNode.EdgeType == node.EdgeType)
                             continue;
-                        CollectDetailed(frontierNode, results, active, frontierNode);
+                        var frontierGoalNode = keepQuestAsGoal ? goalNode : frontierNode;
+                        CollectDetailed(frontierNode, results, active, frontierGoalNode);
                     }
                     return;
                 }
@@ -120,7 +122,15 @@ public sealed class ViewNodePositionCollector
                         var child = node.Children[i];
                         if (hasReachableChild && child.UnlockDependency != null)
                             continue;
-                        CollectDetailed(child, results, active, goalNode);
+
+                        var childRole = ClassifyRole(child);
+                        if (childRole == FrontierComputer.EdgeRole.Done)
+                            continue;
+
+                        var childGoalNode = childRole == FrontierComputer.EdgeRole.Source
+                            ? goalNode
+                            : child;
+                        CollectDetailed(child, results, active, childGoalNode);
                     }
                     return;
                 }
@@ -149,6 +159,9 @@ public sealed class ViewNodePositionCollector
             active.Remove(token);
         }
     }
+
+    private FrontierComputer.EdgeRole ClassifyRole(ViewNode node) =>
+        FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
 
     // Reusable internal scratch list to avoid per-recursion allocations.
     private readonly List<ResolvedPosition> _scratch = new();

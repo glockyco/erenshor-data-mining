@@ -422,7 +422,8 @@ public sealed class TrackerPanel
         var frontier = GetCachedFrontier(quest.Key);
         string summary = frontier.Summary;
 
-        // Append distance annotation
+        // Append distance annotation to the primary actionable line.
+
         string distText = ComputeDistanceText(frontier);
         if (distText.Length > 0)
             summary += $" {distText}";
@@ -430,6 +431,8 @@ public sealed class TrackerPanel
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextWrapped(summary);
+        if (!string.IsNullOrEmpty(frontier.SecondarySummary))
+            ImGui.TextWrapped(frontier.SecondarySummary);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
     }
@@ -458,43 +461,48 @@ public sealed class TrackerPanel
     {
         var root = _viewBuilder.Build(questKey);
         if (root == null)
-            return new CachedFrontier("Unknown", System.Array.Empty<FrontierPosition>());
+            return new CachedFrontier("Unknown", null, System.Array.Empty<FrontierPosition>());
 
         var frontier = FrontierComputer.ComputeFrontier(root, _state);
         if (frontier.Count == 0)
-            return new CachedFrontier("Ready to turn in", System.Array.Empty<FrontierPosition>());
+            return new CachedFrontier("Ready to turn in", null, System.Array.Empty<FrontierPosition>());
 
-        var summaryInfo = NavigationExplanationBuilder.BuildTrackerSummary(
-            frontier[0], _tracker, frontier.Count - 1);
-        string summary = summaryInfo.PrimaryText;
-
-        // Collect positions for distance computation from the same pruned
-        // frontier nodes the quest view renders and navigation uses.
-
+        ViewNode summaryNode = frontier[0];
         var positions = new List<FrontierPosition>();
         for (int i = 0; i < frontier.Count; i++)
-            CollectFrontierPositions(frontier[i], positions);
+        {
+            var promotedSummaryNode = CollectFrontierPositions(frontier[i], positions);
+            if (i == 0)
+                summaryNode = promotedSummaryNode;
+        }
+
+        var summaryInfo = NavigationExplanationBuilder.BuildTrackerSummary(
+            frontier[0], summaryNode, _tracker, frontier.Count - 1);
 
         return new CachedFrontier(
-            summary,
+            summaryInfo.PrimaryText,
+            summaryInfo.SecondaryText,
             positions.Count > 0 ? positions.ToArray() : System.Array.Empty<FrontierPosition>());
     }
 
     /// <summary>
-    /// Collect world positions for a frontier node from its pruned view tree.
-    /// This keeps tracker distance computation consistent with navigation and
-    /// the rendered dependency tree.
+    /// Collect world positions for a frontier node from its pruned view tree and
+    /// return the first promoted actionable goal represented by those positions.
+    /// This keeps tracker summary and distance computation consistent with
+    /// navigation and the rendered dependency tree.
     /// </summary>
-    private void CollectFrontierPositions(ViewNode node, List<FrontierPosition> positions)
+    private ViewNode CollectFrontierPositions(ViewNode node, List<FrontierPosition> positions)
     {
-        var resolved = new List<ResolvedPosition>();
-        _viewPositions.Collect(node, resolved);
+        var resolved = new List<ResolvedViewPosition>();
+        _viewPositions.CollectDetailed(node, resolved);
         for (int i = 0; i < resolved.Count; i++)
         {
             var rp = resolved[i];
             positions.Add(new FrontierPosition(
                 rp.Position.x, rp.Position.y, rp.Position.z, rp.Scene ?? ""));
         }
+
+        return resolved.Count > 0 ? resolved[0].GoalNode : node;
     }
 
     /// <summary>
@@ -710,11 +718,13 @@ public sealed class TrackerPanel
 internal readonly struct CachedFrontier
 {
     public readonly string Summary;
+    public readonly string? SecondarySummary;
     public readonly FrontierPosition[] Positions;
 
-    public CachedFrontier(string summary, FrontierPosition[] positions)
+    public CachedFrontier(string summary, string? secondarySummary, FrontierPosition[] positions)
     {
         Summary = summary;
+        SecondarySummary = secondarySummary;
         Positions = positions;
     }
 }

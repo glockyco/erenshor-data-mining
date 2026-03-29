@@ -37,20 +37,47 @@ public static class NavigationExplanationBuilder
 
     public static TrackerSummary BuildTrackerSummary(
         ViewNode frontierNode,
+        ViewNode summaryNode,
         QuestStateTracker tracker,
         int additionalCount)
     {
-        var explanation = Build(frontierNode, frontierNode, tracker);
-        string primary = explanation.GoalKind switch
-        {
-            NavigationGoalKind.CompleteBlockingQuest => $"Blocked by {frontierNode.Node.DisplayName}",
-            _ => explanation.GoalText,
-        };
+        var explanation = Build(summaryNode, summaryNode, tracker);
+        string primary = explanation.GoalText;
 
         if (additionalCount > 0)
             primary += $" (+{additionalCount} more)";
 
-        return new TrackerSummary(primary, null);
+        string? secondary = BuildTrackerSecondary(frontierNode, summaryNode);
+        return new TrackerSummary(primary, secondary);
+    }
+
+    private static string? BuildTrackerSecondary(ViewNode frontierNode, ViewNode summaryNode)
+    {
+        bool sameSummary = frontierNode.NodeKey == summaryNode.NodeKey
+            && frontierNode.EdgeType == summaryNode.EdgeType;
+        if (sameSummary)
+            return null;
+
+        var blockingQuest = FindBlockingQuest(frontierNode);
+        if (blockingQuest != null)
+            return $"Needed for {blockingQuest.Node.DisplayName}";
+
+        return $"Needed for {frontierNode.Node.DisplayName}";
+    }
+
+    private static ViewNode? FindBlockingQuest(ViewNode node)
+    {
+        if (node.UnlockDependency != null)
+            return node.UnlockDependency;
+
+        for (int i = 0; i < node.Children.Count; i++)
+        {
+            var found = FindBlockingQuest(node.Children[i]);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 
     private static NavigationGoalKind DetermineGoalKind(ViewNode node)

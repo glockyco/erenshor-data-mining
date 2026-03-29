@@ -40,7 +40,7 @@ public sealed class NavigationExplanation
     public NavigationGoalKind GoalKind { get; }
     public NavigationTargetKind TargetKind { get; }
 
-    /// <summary>The branch/requested node that produced this navigation target.</summary>
+    /// <summary>The current actionable goal node that produced this navigation target.</summary>
     public ViewNode GoalNode { get; }
 
     /// <summary>The immediate actionable node whose position won candidate selection.</summary>

@@ -4,8 +4,8 @@ using UnityEngine;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// A resolved world position attributed to both the branch goal node and the
-/// immediate target node that produced it.
+/// A resolved world position attributed to both the current actionable goal
+/// node and the immediate target node that produced it.
 /// </summary>
 public readonly struct ResolvedViewPosition
 {
