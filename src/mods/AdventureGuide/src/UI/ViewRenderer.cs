@@ -51,16 +51,18 @@ public sealed class ViewRenderer
         ImGui.Separator();
         ImGui.Spacing();
 
-        // Dependency tree — the primary content, no section header needed
+        // Dependency tree
         if (root.Children.Count == 0)
         {
             DrawNotice("No guide data available for this quest.");
         }
-        else
+        else if (ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
         {
             var questState = _state.GetState(root.NodeKey);
+            ImGui.Indent(Theme.IndentWidth);
             foreach (var child in root.Children)
                 DrawNode(child, 0, root.Node, questState);
+            ImGui.Unindent(Theme.IndentWidth);
 
             // Notice when the tree has objectives but no completion path
             if (!HasChildOfType(root, EdgeType.CompletedBy))
@@ -129,11 +131,6 @@ public sealed class ViewRenderer
         {
             if (meta.Length > 0) meta += "  \u00b7  ";
             meta += "Repeatable";
-        }
-        if (quest.Implicit)
-        {
-            if (meta.Length > 0) meta += "  \u00b7  ";
-            meta += "Implicit";
         }
 
         if (meta.Length == 0)
@@ -541,8 +538,6 @@ public sealed class ViewRenderer
 
         return role switch
         {
-            FrontierComputer.EdgeRole.Acceptance => Theme.Accent,
-            FrontierComputer.EdgeRole.TurnIn => Theme.Accent,
             FrontierComputer.EdgeRole.Source => Theme.SourceDimmed,
             _ => Theme.TextPrimary,
         };
