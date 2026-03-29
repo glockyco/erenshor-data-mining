@@ -333,9 +333,9 @@ public sealed class MarkerComputer
                 break;
 
             case SpawnDisabled:
-                type = MarkerType.QuestLocked;
-                subText = $"{displayName}\nRequires quest unlock";
-                break;
+                // Permanently disabled (StopIfQuestComplete, scripted event, etc.)
+                // Don't show a marker — no actionable information for the player.
+                return;
 
             default:
                 // Unknown state (spawn not found in scene) — still emit at static position

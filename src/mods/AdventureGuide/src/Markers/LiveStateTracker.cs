@@ -181,23 +181,33 @@ public sealed class LiveStateTracker
 
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
     {
-        // Quest-gated: canSpawn is false (controlled by quest progression).
+        // canSpawn=false has three causes in the game:
+        //   1. SpawnUponQuestComplete set, quest not done → gated, will appear later
+        //   2. StopIfQuestComplete quest done → permanently gone
+        //   3. Scripted event (ReliqDisableFiendSpawn, FernallaFightEvent) → unknown
+        // Only case 1 produces a useful marker. Cases 2 and 3 return Disabled
+        // so MarkerComputer skips them (no marker is better than a wrong one).
         if (!sp.canSpawn)
         {
-            // Try to find the gating quest name from the graph.
-            string questName = FindGatingQuest(sp);
-            var state = questName.Length > 0
-                ? (NodeState)new SpawnQuestGated(questName)
-                : NodeState.Disabled;
-            return new SpawnInfo(state, sp, null, 0f);
+            if (sp.SpawnUponQuestComplete != null
+                && !GameData.IsQuestDone(sp.SpawnUponQuestComplete.DBName))
+            {
+                string questName = sp.SpawnUponQuestComplete.QuestName
+                    ?? sp.SpawnUponQuestComplete.DBName
+                    ?? "unknown quest";
+                return new SpawnInfo(new SpawnQuestGated(questName), sp, null, 0f);
+            }
+            return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
         }
 
         // Night-locked: NightSpawn is true but it's currently daytime.
         if (sp.NightSpawn && !IsNight())
             return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
 
-        // Alive: NPC is up.
-        if (sp.MyNPCAlive)
+        // Alive: NPC is up and its Character component is alive.
+        // sp.MyNPCAlive is unreliable — it's set true on spawn but never
+        // cleared on death. The game itself checks SpawnedNPC.GetChar().Alive.
+        if (IsSpawnedNPCAlive(sp))
             return new SpawnInfo(NodeState.Alive, sp, sp.SpawnedNPC, 0f);
 
         // Dead: NPC has been killed, compute respawn timer.
@@ -302,34 +312,25 @@ public sealed class LiveStateTracker
         return best;
     }
 
-    private string FindGatingQuest(SpawnPoint sp)
-    {
-        // Attempt to find the quest name from graph edges (GatedByQuest on the spawn point node).
-        var posKey = NodePosKey(sp.transform.position);
-        foreach (var node in _graph.NodesOfType(NodeType.SpawnPoint))
-        {
-            var nodePosKey = NodePosKey(node);
-            if (!nodePosKey.HasValue || !nodePosKey.Value.Equals(posKey))
-                continue;
-
-            var edges = _graph.InEdges(node.Key, EdgeType.GatedByQuest);
-            if (edges.Count > 0)
-            {
-                var questNode = _graph.GetNode(edges[0].Source);
-                if (questNode != null)
-                    return questNode.DisplayName ?? questNode.Key;
-            }
-            break;
-        }
-        return "";
-    }
-
     // ── Helpers ──────────────────────────────────────────────────────────
 
     private static bool IsNight()
     {
         int hour = GameData.Time.GetHour();
         return hour >= 22 || hour < 4;
+    }
+
+    /// <summary>
+    /// Check whether a SpawnPoint's NPC is alive. Matches the game's own
+    /// check in SpawnPoint.Update: SpawnedNPC != null and GetChar().Alive.
+    /// Do NOT use sp.MyNPCAlive — it is set on spawn but never cleared on death.
+    /// </summary>
+    private static bool IsSpawnedNPCAlive(SpawnPoint sp)
+    {
+        return sp.SpawnedNPC != null
+            && sp.SpawnedNPC.gameObject != null
+            && sp.SpawnedNPC.GetChar() != null
+            && sp.SpawnedNPC.GetChar().Alive;
     }
 
     private static float ComputeRespawnSeconds(SpawnPoint sp)

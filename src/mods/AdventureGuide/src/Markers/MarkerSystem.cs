@@ -146,38 +146,83 @@ public sealed class MarkerSystem
     }
 
     /// <summary>
-    /// Detect alive/dead transitions on spawn-point-based markers and update
-    /// marker type, sub-text, and position accordingly.
+    /// Per-frame state update for spawn-point-based markers.
+    ///
+    /// Handles transitions that occur without quest state changes:
+    ///   - Alive ↔ Dead (NPC killed / respawned)
+    ///   - Night ↔ Day (NightSpawn NPCs appear/disappear with time)
+    ///   - Dead timer countdown
+    ///   - Night time display updates
+    ///
+    /// canSpawn changes (quest gates, StopIfQuestComplete) trigger
+    /// MarkerComputer.MarkDirty via patches, so a full recompute handles
+    /// those before the next MarkerSystem.Update.
+    ///
+    /// Uses SpawnedNPC.GetChar().Alive instead of sp.MyNPCAlive, which
+    /// the game sets on spawn but never clears on death.
     /// </summary>
     private void UpdateSpawnState(MarkerEntry entry, MarkerInstance instance)
     {
         var sp = entry.LiveSpawnPoint!;
-        bool isAlive = sp.MyNPCAlive;
 
-        if (isAlive && entry.Type != entry.QuestType)
+        MarkerType newType;
+        string newSubText;
+
+        if (sp.NightSpawn && !IsNight())
         {
-            // Dead → Alive: restore quest marker
-            entry.Type = entry.QuestType;
-            entry.SubText = entry.QuestSubText;
+            // Night-only spawn during daytime — NPC doesn't exist
+            newType = MarkerType.NightSpawn;
+            int hour = GameData.Time.GetHour();
+            int min = GameData.Time.min;
+            newSubText = $"{entry.DisplayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}";
+        }
+        else if (IsSpawnedNPCAlive(sp))
+        {
+            newType = entry.QuestType;
+            newSubText = entry.QuestSubText;
+        }
+        else
+        {
+            // Dead or not yet spawned — show respawn timer
+            newType = MarkerType.DeadSpawn;
+            newSubText = FormatDeadSubText(entry.DisplayName, sp);
+        }
+
+        if (newType != entry.Type)
+        {
+            entry.Type = newType;
+            entry.SubText = newSubText;
             ReconfigureInstance(entry, instance);
 
-            // Update position to the live NPC
-            if (sp.SpawnedNPC != null)
+            // Track live NPC position when transitioning to alive
+            if (newType == entry.QuestType && sp.SpawnedNPC != null)
                 SetPositionFromNPC(entry, sp.SpawnedNPC);
         }
-        else if (!isAlive && entry.Type == entry.QuestType)
+        else if (newType == MarkerType.DeadSpawn || newType == MarkerType.NightSpawn)
         {
-            // Alive → Dead: switch to skull with timer
-            entry.Type = MarkerType.DeadSpawn;
-            entry.SubText = FormatDeadSubText(entry.DisplayName, sp);
-            ReconfigureInstance(entry, instance);
+            // Timer/time text updates every frame
+            entry.SubText = newSubText;
+            instance.UpdateSubText(newSubText);
         }
-        else if (entry.Type == MarkerType.DeadSpawn)
-        {
-            // Still dead: update timer text every frame
-            entry.SubText = FormatDeadSubText(entry.DisplayName, sp);
-            instance.UpdateSubText(entry.SubText);
-        }
+    }
+
+    /// <summary>
+    /// Check whether a SpawnPoint's NPC is alive. Matches the game's own
+    /// check in SpawnPoint.Update: SpawnedNPC != null &amp;&amp; GetChar().Alive.
+    /// Do NOT use sp.MyNPCAlive — set on spawn, never cleared on death.
+    /// </summary>
+    private static bool IsSpawnedNPCAlive(SpawnPoint sp)
+    {
+        return sp.SpawnedNPC != null
+            && sp.SpawnedNPC.gameObject != null
+            && sp.SpawnedNPC.GetChar() != null
+            && sp.SpawnedNPC.GetChar().Alive;
+    }
+
+    private static bool IsNight()
+    {
+        int hour = GameData.Time.GetHour();
+        return hour >= 22 || hour < 4;
     }
 
     /// <summary>
