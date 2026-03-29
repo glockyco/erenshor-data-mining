@@ -120,7 +120,7 @@ public sealed class Plugin : BaseUnityPlugin
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
-            new CharacterPositionResolver(_entities, _graph));
+            new CharacterPositionResolver(_entities, _graph, _liveState));
         positionRegistry.Register(NodeType.Item,
             new ItemPositionResolver(_graph, positionRegistry));
         positionRegistry.Register(NodeType.Quest,
