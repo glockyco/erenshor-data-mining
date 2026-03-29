@@ -447,19 +447,31 @@ public sealed class ViewRenderer
 
     /// <summary>
     /// Build a parenthesized metadata suffix for a tree node label.
-    /// Source nodes get level + zone(s) from SourceZones.
-    /// Other nodes get just zone if available.
+    /// Level is shown only for combat-relevant edges (kill targets, drop
+    /// sources) — not for friendly NPCs (quest givers, turn-in, vendors,
+    /// talk targets). Uses EffectiveLevel (max of character level and zone
+    /// median) when available, falling back to the node's raw level.
     /// </summary>
     private static string FormatNodeMetadata(ViewNode node)
     {
         var parts = new List<string>(3);
 
-        if (node.Node.Level.HasValue)
-            parts.Add($"Lv {node.Node.Level.Value}");
+        // Level: only for edges where combat difficulty matters
+        bool showLevel = node.EdgeType is EdgeType.StepKill
+            or EdgeType.DropsItem
+            or EdgeType.YieldsItem
+            or EdgeType.StepTravel;
 
+        if (showLevel)
+        {
+            int? level = node.EffectiveLevel ?? node.Node.Level;
+            if (level.HasValue)
+                parts.Add($"Lv {level.Value}");
+        }
+
+        // Zones: always shown when available
         if (node.SourceZones != null && node.SourceZones.Count > 0)
         {
-            // Use SourceZones (computed by view builder from spawn points)
             if (node.SourceZones.Count <= 3)
                 parts.Add(string.Join(", ", node.SourceZones));
             else

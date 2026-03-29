@@ -39,6 +39,13 @@ public sealed class ViewNode
     /// </summary>
     public List<string>? SourceZones { get; set; }
 
+    /// <summary>
+    /// Effective difficulty level for display. For enemy sources:
+    /// max(character level, zone median). For non-combat sources:
+    /// zone median. Null when no level data is available.
+    /// </summary>
+    public int? EffectiveLevel { get; set; }
+
     public ViewNode(string nodeKey, Node node, EdgeType? edgeType = null, Edge? edge = null)
     {
         NodeKey = nodeKey;

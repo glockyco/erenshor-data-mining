@@ -198,6 +198,15 @@ public sealed class QuestViewBuilder
         // Quest reward sources: quest → REWARDS_ITEM → this item
         AddIncomingSources(itemViewNode, itemKey, EdgeType.RewardsItem, visited);
 
+        // Sort sources by effective level ascending so the easiest
+        // targets appear first. Null levels sort last.
+        itemViewNode.Children.Sort((a, b) =>
+        {
+            int la = a.EffectiveLevel ?? int.MaxValue;
+            int lb = b.EffectiveLevel ?? int.MaxValue;
+            return la.CompareTo(lb);
+        });
+
         // Source lists start collapsed — the item name is the objective,
         // the sources are detail the player expands on demand.
         if (itemViewNode.Children.Count > 0)
@@ -218,41 +227,82 @@ public sealed class QuestViewBuilder
             if (sourceNode == null) continue;
 
             var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, visited);
-            child.SourceZones = CollectZones(sourceNode);
+            EnrichSourceMetadata(child, sourceNode);
             parent.Children.Add(child);
         }
     }
 
     /// <summary>
-    /// Collect unique zone display names for a node. Characters get zones
-    /// from their spawn points. Other node types use their own Zone field.
+    /// Populate SourceZones and EffectiveLevel on a source view node.
+    /// Characters get zones from spawn points and effective level as
+    /// max(character level, zone median). Non-characters use their own
+    /// Zone and Level fields directly.
     /// </summary>
-    private List<string>? CollectZones(Node node)
+    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode)
     {
-        if (node.Zone != null)
-            return new List<string> { node.Zone };
+        if (sourceNode.Type == NodeType.Character)
+        {
+            var (zones, maxZoneLevel) = CollectCharacterZonesAndMaxLevel(sourceNode);
+            viewNode.SourceZones = zones;
 
-        if (node.Type != NodeType.Character)
-            return null;
+            // Effective level = max(enemy level, highest zone median)
+            // A low-level enemy in a high-level zone is effectively that zone's difficulty.
+            int? charLevel = sourceNode.Level;
+            if (charLevel.HasValue && maxZoneLevel.HasValue)
+                viewNode.EffectiveLevel = Math.Max(charLevel.Value, maxZoneLevel.Value);
+            else
+                viewNode.EffectiveLevel = charLevel ?? maxZoneLevel;
+        }
+        else
+        {
+            // Non-character sources: zone from node, level from node
+            // (pipeline sets level to zone median for water/mining/itembag)
+            if (sourceNode.Zone != null)
+                viewNode.SourceZones = new List<string> { sourceNode.Zone };
+            viewNode.EffectiveLevel = sourceNode.Level;
+        }
+    }
 
-        var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
+    /// <summary>
+    /// Collect unique zone names and the maximum zone median level for a character
+    /// by walking its spawn point edges. Returns (zones, maxZoneLevel).
+    /// </summary>
+    private (List<string>? zones, int? maxZoneLevel) CollectCharacterZonesAndMaxLevel(Node charNode)
+    {
+        var spawnEdges = _graph.OutEdges(charNode.Key, EdgeType.HasSpawn);
         if (spawnEdges.Count == 0)
-            return null;
+            return (null, null);
 
-        var zones = new HashSet<string>();
+        var zoneNames = new HashSet<string>();
+        int? maxZoneLevel = null;
+
         for (int i = 0; i < spawnEdges.Count; i++)
         {
             var sp = _graph.GetNode(spawnEdges[i].Target);
-            if (sp?.Zone != null)
-                zones.Add(sp.Zone);
+            if (sp == null) continue;
+
+            if (sp.Zone != null)
+                zoneNames.Add(sp.Zone);
+
+            // Look up the zone node to get its median level
+            if (sp.ZoneKey != null)
+            {
+                var zoneNode = _graph.GetNode(sp.ZoneKey);
+                if (zoneNode?.Level != null)
+                {
+                    maxZoneLevel = maxZoneLevel.HasValue
+                        ? Math.Max(maxZoneLevel.Value, zoneNode.Level.Value)
+                        : zoneNode.Level.Value;
+                }
+            }
         }
 
-        if (zones.Count == 0)
-            return null;
+        if (zoneNames.Count == 0)
+            return (null, maxZoneLevel);
 
-        var sorted = new List<string>(zones);
+        var sorted = new List<string>(zoneNames);
         sorted.Sort(StringComparer.OrdinalIgnoreCase);
-        return sorted;
+        return (sorted, maxZoneLevel);
     }
 
     // ── Quest prerequisites ─────────────────────────────────────────────

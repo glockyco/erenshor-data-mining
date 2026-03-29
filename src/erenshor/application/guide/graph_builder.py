@@ -86,6 +86,7 @@ def build_graph(db_path: Path) -> EntityGraph:
     # --- Denormalization ---
     graph.build_indexes()
     _denormalize_quest_metadata(conn, graph)
+    _denormalize_zone_and_source_levels(conn, graph)
 
     conn.close()
     return graph
@@ -368,6 +369,30 @@ def _quest_topological_order(graph: EntityGraph) -> list[str]:
         result.extend(k for k in quest_keys if k not in set(result))
 
     return result
+
+
+def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Set level on zone nodes (median enemy level) and on non-combat source
+    nodes (water, mining, item bag) to their zone's median.
+
+    This makes zone difficulty a first-class property in the graph, available
+    to any consumer without recomputing from character spawns.
+    """
+    zone_medians = _build_zone_medians(conn)
+
+    # Set level on zone nodes
+    for zone_key, median_level in zone_medians.items():
+        node = graph.get_node(zone_key)
+        if node is not None:
+            node.level = median_level
+
+    # Set level on non-combat source nodes from their zone's median
+    for node_type in (NodeType.WATER, NodeType.MINING_NODE, NodeType.ITEM_BAG):
+        for node in graph.nodes_of_type(node_type):
+            if node.level is None and node.zone_key is not None:
+                median = zone_medians.get(node.zone_key)
+                if median is not None:
+                    node.level = median
 
 
 def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
