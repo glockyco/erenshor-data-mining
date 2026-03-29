@@ -409,9 +409,9 @@ public sealed class ViewRenderer
             _ => $"[{node.EdgeType.Value}] {name}",
         };
 
-        // Append zone context if available
-        if (n.Zone != null && !prefix.Contains(n.Zone))
-            prefix += $" ({n.Zone})";
+        // Append metadata: level and zone(s) for source nodes,
+        // or just zone for other nodes.
+        prefix += FormatNodeMetadata(node);
 
         return prefix;
     }
@@ -443,6 +443,37 @@ public sealed class ViewRenderer
         if (chance.HasValue && chance.Value < 1.0f)
             return $"{text} ({chance.Value:P0})";
         return text;
+    }
+
+    /// <summary>
+    /// Build a parenthesized metadata suffix for a tree node label.
+    /// Source nodes get level + zone(s) from SourceZones.
+    /// Other nodes get just zone if available.
+    /// </summary>
+    private static string FormatNodeMetadata(ViewNode node)
+    {
+        var parts = new List<string>(3);
+
+        if (node.Node.Level.HasValue)
+            parts.Add($"Lv {node.Node.Level.Value}");
+
+        if (node.SourceZones != null && node.SourceZones.Count > 0)
+        {
+            // Use SourceZones (computed by view builder from spawn points)
+            if (node.SourceZones.Count <= 3)
+                parts.Add(string.Join(", ", node.SourceZones));
+            else
+                parts.Add($"{node.SourceZones.Count} zones");
+        }
+        else if (node.Node.Zone != null)
+        {
+            parts.Add(node.Node.Zone);
+        }
+
+        if (parts.Count == 0)
+            return "";
+
+        return " (" + string.Join(", ", parts) + ")";
     }
 
     private static string FormatAssignment(ViewNode node)

@@ -157,7 +157,6 @@ public sealed class QuestViewBuilder
 
             if (visited.Add(craftEdge.Target))
             {
-                // Recipe materials — each is an item that may have its own sources
                 foreach (var matEdge in _graph.OutEdges(craftEdge.Target, EdgeType.RequiresMaterial))
                 {
                     var matNode = _graph.GetNode(matEdge.Target);
@@ -198,6 +197,11 @@ public sealed class QuestViewBuilder
 
         // Quest reward sources: quest → REWARDS_ITEM → this item
         AddIncomingSources(itemViewNode, itemKey, EdgeType.RewardsItem, visited);
+
+        // Source lists start collapsed — the item name is the objective,
+        // the sources are detail the player expands on demand.
+        if (itemViewNode.Children.Count > 0)
+            itemViewNode.DefaultExpanded = false;
     }
 
     /// <summary>
@@ -214,8 +218,41 @@ public sealed class QuestViewBuilder
             if (sourceNode == null) continue;
 
             var child = BuildLeafOrExpand(edge.Source, sourceNode, incomingType, edge, visited);
+            child.SourceZones = CollectZones(sourceNode);
             parent.Children.Add(child);
         }
+    }
+
+    /// <summary>
+    /// Collect unique zone display names for a node. Characters get zones
+    /// from their spawn points. Other node types use their own Zone field.
+    /// </summary>
+    private List<string>? CollectZones(Node node)
+    {
+        if (node.Zone != null)
+            return new List<string> { node.Zone };
+
+        if (node.Type != NodeType.Character)
+            return null;
+
+        var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
+        if (spawnEdges.Count == 0)
+            return null;
+
+        var zones = new HashSet<string>();
+        for (int i = 0; i < spawnEdges.Count; i++)
+        {
+            var sp = _graph.GetNode(spawnEdges[i].Target);
+            if (sp?.Zone != null)
+                zones.Add(sp.Zone);
+        }
+
+        if (zones.Count == 0)
+            return null;
+
+        var sorted = new List<string>(zones);
+        sorted.Sort(StringComparer.OrdinalIgnoreCase);
+        return sorted;
     }
 
     // ── Quest prerequisites ─────────────────────────────────────────────

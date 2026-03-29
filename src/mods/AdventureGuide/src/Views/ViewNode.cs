@@ -32,6 +32,13 @@ public sealed class ViewNode
     /// <summary>Whether the UI should show this node's children expanded.</summary>
     public bool DefaultExpanded { get; set; } = true;
 
+    /// <summary>
+    /// Zone names where this source node can be found. Populated by the view
+    /// builder for source edges (DropsItem, SellsItem, etc.) by collecting unique
+    /// zones from spawn point edges. Null for non-source nodes.
+    /// </summary>
+    public List<string>? SourceZones { get; set; }
+
     public ViewNode(string nodeKey, Node node, EdgeType? edgeType = null, Edge? edge = null)
     {
         NodeKey = nodeKey;
