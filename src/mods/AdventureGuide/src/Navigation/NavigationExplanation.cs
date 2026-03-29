@@ -55,6 +55,9 @@ public sealed class NavigationExplanation
     /// <summary>Zone/area label for the immediate target when known.</summary>
     public string? ZoneText { get; }
 
+    /// <summary>Optional high-level context line, e.g. the quest name for a quest giver.</summary>
+    public string? ContextText { get; }
+
     /// <summary>Optional reason/progress line, e.g. "Drops the required item".</summary>
     public string? DetailText { get; }
 
@@ -66,6 +69,7 @@ public sealed class NavigationExplanation
         string goalText,
         string targetText,
         string? zoneText,
+        string? contextText,
         string? detailText)
     {
         GoalKind = goalKind;
@@ -75,6 +79,7 @@ public sealed class NavigationExplanation
         GoalText = goalText;
         TargetText = targetText;
         ZoneText = zoneText;
+        ContextText = contextText;
         DetailText = detailText;
     }
 }

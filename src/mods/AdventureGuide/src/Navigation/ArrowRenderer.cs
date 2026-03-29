@@ -168,6 +168,7 @@ public sealed class ArrowRenderer
             explanation.GoalText,
             explanation.TargetText,
             explanation.ZoneText ?? string.Empty,
+            explanation.ContextText ?? string.Empty,
             explanation.DetailText ?? string.Empty,
         });
     }
@@ -193,7 +194,13 @@ public sealed class ArrowRenderer
             explanation.TargetText, explanation.GoalText, StringComparison.OrdinalIgnoreCase);
 
         string? targetLine = null;
-        if (targetDiffers)
+        if (!string.IsNullOrEmpty(explanation.ContextText))
+        {
+            targetLine = explanation.ContextText;
+            if (!string.IsNullOrEmpty(explanation.ZoneText))
+                targetLine += $" · {explanation.ZoneText}";
+        }
+        else if (targetDiffers)
         {
             targetLine = explanation.TargetText;
             if (!string.IsNullOrEmpty(explanation.ZoneText))

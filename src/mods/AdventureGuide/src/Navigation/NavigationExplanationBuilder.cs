@@ -15,13 +15,15 @@ public static class NavigationExplanationBuilder
     public static NavigationExplanation Build(
         ViewNode goalNode,
         ViewNode targetNode,
-        QuestStateTracker tracker)
+        QuestStateTracker tracker,
+        Node? requestedNode = null)
     {
         var goalKind = DetermineGoalKind(goalNode);
         var targetKind = DetermineTargetKind(targetNode);
         string goalText = BuildGoalText(goalNode, tracker, goalKind);
         string targetText = targetNode.Node.DisplayName;
         string? zoneText = GetZoneText(targetNode);
+        string? contextText = BuildContextText(requestedNode, goalNode, targetNode);
         string? detailText = BuildDetailText(goalNode, targetNode, goalKind, tracker);
 
         return new NavigationExplanation(
@@ -32,7 +34,21 @@ public static class NavigationExplanationBuilder
             goalText,
             targetText,
             zoneText,
+            contextText,
             detailText);
+    }
+
+    private static string? BuildContextText(Node? requestedNode, ViewNode goalNode, ViewNode targetNode)
+    {
+        if (requestedNode?.Type != NodeType.Quest)
+            return null;
+        if (goalNode.EdgeType != EdgeType.AssignedBy)
+            return null;
+        if (targetNode.Node.Type != NodeType.Character)
+            return null;
+        if (string.Equals(requestedNode.DisplayName, targetNode.Node.DisplayName, StringComparison.OrdinalIgnoreCase))
+            return null;
+        return requestedNode.DisplayName;
     }
 
     public static TrackerSummary BuildTrackerSummary(

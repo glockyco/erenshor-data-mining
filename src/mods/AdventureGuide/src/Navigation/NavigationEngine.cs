@@ -263,6 +263,7 @@ public sealed class NavigationEngine
     private void PickClosest(Vector3 playerPosition)
     {
         float bestSqr = float.MaxValue;
+        string? bestRequestedKey = null;
         string? bestNodeKey = null;
         Vector3? bestPos = null;
         string? bestScene = null;
@@ -272,7 +273,7 @@ public sealed class NavigationEngine
 
         for (int i = 0; i < _candidates.Count; i++)
         {
-            var (_, nodeKey, pos, scene, goalNode, targetNode, sourceKey) = _candidates[i];
+            var (requestedKey, nodeKey, pos, scene, goalNode, targetNode, sourceKey) = _candidates[i];
             bool sameScene = string.Equals(scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                           || scene == null;
             float sqr = (pos - playerPosition).sqrMagnitude;
@@ -282,6 +283,7 @@ public sealed class NavigationEngine
             if (sqr < bestSqr)
             {
                 bestSqr = sqr;
+                bestRequestedKey = requestedKey;
                 bestNodeKey = nodeKey;
                 bestPos = pos;
                 bestScene = scene;
@@ -296,8 +298,9 @@ public sealed class NavigationEngine
         TargetScene = bestScene;
         HopCount = 0;
 
+        Node? requestedNode = bestRequestedKey != null ? _graph.GetNode(bestRequestedKey) : null;
         Explanation = bestGoalNode != null && bestTargetNode != null
-            ? NavigationExplanationBuilder.Build(bestGoalNode, bestTargetNode, _tracker)
+            ? NavigationExplanationBuilder.Build(bestGoalNode, bestTargetNode, _tracker, requestedNode)
             : null;
 
         // Cross-zone routing: resolve zone line waypoint
@@ -338,6 +341,7 @@ public sealed class NavigationEngine
                         Explanation.GoalText,
                         Explanation.TargetText,
                         Explanation.ZoneText,
+                        Explanation.ContextText,
                         $"Requires: {gatingQuest.DisplayName}");
                     break;
                 }
