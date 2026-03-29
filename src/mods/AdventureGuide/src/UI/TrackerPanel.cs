@@ -48,6 +48,7 @@ public sealed class TrackerPanel
     private readonly GuideConfig _config;
     private readonly ZoneRouter _router;
     private readonly ViewNodePositionCollector _viewPositions;
+    private readonly AdventureGuide.Markers.LiveStateTracker _liveState;
 
     private bool _visible = true;
 
@@ -65,7 +66,7 @@ public sealed class TrackerPanel
     // Stores summary text and frontier positions for distance computation.
     private readonly Dictionary<string, CachedFrontier> _frontierCache = new(StringComparer.OrdinalIgnoreCase);
     private int _frontierCacheVersion = -1;
-
+    private int _frontierLiveVersion = -1;
     // Compact mode state
     private bool _compact = true;
     private System.Numerics.Vector2 _contentMin;
@@ -86,7 +87,8 @@ public sealed class TrackerPanel
         GuideWindow guide,
         GuideConfig config,
         ZoneRouter router,
-        ViewNodePositionCollector viewPositions)
+        ViewNodePositionCollector viewPositions,
+        AdventureGuide.Markers.LiveStateTracker liveState)
     {
         _graph = graph;
         _tracker = tracker;
@@ -98,6 +100,7 @@ public sealed class TrackerPanel
         _config = config;
         _router = router;
         _viewPositions = viewPositions;
+        _liveState = liveState;
 
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
@@ -433,11 +436,14 @@ public sealed class TrackerPanel
 
     private CachedFrontier GetCachedFrontier(string questKey)
     {
-        // Invalidate cache when game state changes (quest/inventory updates)
-        if (_tracker.Version != _frontierCacheVersion)
+        // Invalidate cache when game state or live world state changes.
+
+        if (_tracker.Version != _frontierCacheVersion
+            || _liveState.Version != _frontierLiveVersion)
         {
             _frontierCache.Clear();
             _frontierCacheVersion = _tracker.Version;
+            _frontierLiveVersion = _liveState.Version;
         }
 
         if (_frontierCache.TryGetValue(questKey, out var cached))

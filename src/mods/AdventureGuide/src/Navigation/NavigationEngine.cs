@@ -33,6 +33,7 @@ public sealed class NavigationEngine
     private readonly QuestStateTracker _tracker;
     private readonly ZoneRouter _router;
     private readonly EntityRegistry _entities;
+    private readonly Markers.LiveStateTracker _liveState;
 
     // Reusable buffers — owned by the engine, never exposed.
     private readonly List<(string requestedKey, string nodeKey, Vector3 position, string? scene, ViewNode? goalNode, ViewNode? targetNode, string? sourceKey)> _candidates = new();
@@ -74,6 +75,7 @@ public sealed class NavigationEngine
 
     private int _lastNavSetVersion = -1;
     private int _lastTrackerVersion = -1;
+    private int _lastLiveVersion = -1;
     private string _lastResolveScene = "";
 
     // ── Proximity re-pick timer ─────────────────────────────────────
@@ -96,7 +98,8 @@ public sealed class NavigationEngine
         GameState gameState,
         QuestStateTracker tracker,
         ZoneRouter router,
-        EntityRegistry entities)
+        EntityRegistry entities,
+        Markers.LiveStateTracker liveState)
     {
         _navSet = navSet;
         _registry = registry;
@@ -107,6 +110,7 @@ public sealed class NavigationEngine
         _tracker = tracker;
         _router = router;
         _entities = entities;
+        _liveState = liveState;
     }
 
     /// <summary>Called on scene change to update zone context and force re-resolve.</summary>
@@ -137,13 +141,15 @@ public sealed class NavigationEngine
         // Resolve — only when something changed
         bool navChanged = _navSet.Version != _lastNavSetVersion;
         bool stateChanged = _tracker.Version != _lastTrackerVersion;
+        bool liveChanged = _liveState.Version != _lastLiveVersion;
         bool sceneChanged = !string.Equals(CurrentScene, _lastResolveScene,
             StringComparison.OrdinalIgnoreCase);
 
-        if (navChanged || stateChanged || sceneChanged)
+        if (navChanged || stateChanged || liveChanged || sceneChanged)
         {
             _lastNavSetVersion = _navSet.Version;
             _lastTrackerVersion = _tracker.Version;
+            _lastLiveVersion = _liveState.Version;
             _lastResolveScene = CurrentScene;
             Resolve(playerPosition);
             _rePickTimer = 0f; // Just picked, reset timer

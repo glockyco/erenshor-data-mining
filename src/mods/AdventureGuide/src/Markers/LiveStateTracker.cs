@@ -27,16 +27,17 @@ public sealed class LiveStateTracker
     private readonly EntityRegistry _entities;
 
     // ── Scene-local caches (rebuilt on scene load) ──────────────────────
-
+    
     private Dictionary<PosKey, SpawnPoint> _spawnIndex = new();
     private Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
     private MiningNode[] _miningNodes = System.Array.Empty<MiningNode>();
-
-    // ── Dirty flag ──────────────────────────────────────────────────────
-
-    public bool IsDirty { get; private set; }
-
-    public void ClearDirty() => IsDirty = false;
+    private ItemBag[] _itemBags = System.Array.Empty<ItemBag>();
+    private readonly Dictionary<PosKey, bool> _miningAvailable = new();
+    
+    // ── Live versioning ──────────────────────────────────────────────────
+    
+    public int Version { get; private set; }
+    private bool _isNight;
 
     // ── Constructor ─────────────────────────────────────────────────────
 
@@ -46,8 +47,8 @@ public sealed class LiveStateTracker
         _entities = entities;
     }
 
-    // ── Scene load ──────────────────────────────────────────────────────
-
+    // ── Scene load / live updates ───────────────────────────────────────
+    
     /// <summary>
     /// Rebuild all scene-local caches. Call on every scene transition.
     /// </summary>
@@ -56,21 +57,74 @@ public sealed class LiveStateTracker
         RebuildSpawnIndex();
         RebuildNpcNameCache();
         _miningNodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
-        IsDirty = true;
+        _itemBags = UnityEngine.Object.FindObjectsOfType<ItemBag>();
+        _isNight = IsNight();
+        RebuildMiningAvailability();
+        BumpVersion();
     }
-
-    // ── Patch callbacks ─────────────────────────────────────────────────
-
+    
     public void OnNPCSpawn(SpawnPoint sp)
     {
         if (sp == null) return;
-        IsDirty = true;
+        BumpVersion();
     }
-
+    
     public void OnNPCDeath(NPC npc)
     {
         if (npc == null) return;
-        IsDirty = true;
+        BumpVersion();
+    }
+    
+    public void OnMiningChanged(MiningNode mn)
+    {
+        if (mn == null) return;
+        _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
+        BumpVersion();
+    }
+
+    public void OnItemBagChanged(ItemBag bag)
+    {
+        if (bag == null) return;
+        BumpVersion();
+    }
+
+    /// <summary>Poll low-frequency world state with no event hook, currently day/night and mining respawns.</summary>
+    public void UpdateFrameState()
+    {
+        bool changed = false;
+
+        bool nowNight = IsNight();
+        if (nowNight != _isNight)
+        {
+            _isNight = nowNight;
+            changed = true;
+        }
+
+        foreach (var mn in _miningNodes)
+        {
+            if (mn == null) continue;
+            var key = NodePosKey(mn.transform.position);
+            bool available = IsMiningNodeAvailable(mn);
+            if (_miningAvailable.TryGetValue(key, out var previous) && previous == available)
+                continue;
+            _miningAvailable[key] = available;
+            changed = true;
+        }
+
+        if (changed)
+            BumpVersion();
+    }
+    
+    private void BumpVersion() => Version++;
+
+    private void RebuildMiningAvailability()
+    {
+        _miningAvailable.Clear();
+        foreach (var mn in _miningNodes)
+        {
+            if (mn == null) continue;
+            _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
+        }
     }
 
     // ── Public state queries ────────────────────────────────────────────
@@ -153,6 +207,7 @@ public sealed class LiveStateTracker
             return new MiningInfo(NodeState.Unknown, null);
 
         // Find the live MiningNode by position match.
+
         var posKey = NodePosKey(miningNode);
         if (!posKey.HasValue)
             return new MiningInfo(NodeState.Unknown, null);
@@ -175,10 +230,46 @@ public sealed class LiveStateTracker
         }
 
         // Allow up to 2m tolerance for position matching.
+
         if (closest == null || closestDist > 2f)
             return new MiningInfo(NodeState.Unknown, null);
 
         return ClassifyMiningNode(closest);
+    }
+
+    public NodeState GetItemBagState(Node itemBagNode)
+    {
+        if (itemBagNode == null)
+            return NodeState.Unknown;
+
+        var posKey = NodePosKey(itemBagNode);
+        if (!posKey.HasValue)
+            return NodeState.Unknown;
+
+        ItemBag? closest = null;
+        float closestDist = float.MaxValue;
+
+        foreach (var bag in _itemBags)
+        {
+            if (bag == null) continue;
+            var pos = bag.transform.position;
+            float dist = Vector3.Distance(
+                pos,
+                new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f));
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = bag;
+            }
+        }
+
+        if (closest != null && closestDist <= 2f)
+            return NodeState.BagAvailable;
+
+        if (itemBagNode.Respawns)
+            return new ItemBagPickedUp(itemBagNode.RespawnTime ?? 0f);
+
+        return NodeState.BagGone;
     }
 
     // ── Spawn point classification ──────────────────────────────────────
@@ -355,6 +446,9 @@ public sealed class LiveStateTracker
 
         return best;
     }
+
+    private static bool IsMiningNodeAvailable(MiningNode mn) =>
+        mn.MyRender != null && mn.MyRender.enabled;
 
     // ── Helpers ──────────────────────────────────────────────────────────
 

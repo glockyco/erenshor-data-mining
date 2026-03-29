@@ -5,8 +5,8 @@ namespace AdventureGuide.Navigation.Resolvers;
 
 /// <summary>
 /// Resolves nodes that carry static X/Y/Z coordinates directly on the graph node.
-/// Covers: MiningNode, Water, Forge, ItemBag, Door, SpawnPoint, Teleport,
-/// AchievementTrigger, SecretPassage, WishingWell, TreasureLocation, WorldObject, ZoneLine.
+/// Covers: Water, Forge, Door, SpawnPoint, Teleport, AchievementTrigger,
+/// SecretPassage, WishingWell, TreasureLocation, WorldObject, ZoneLine.
 /// </summary>
 public sealed class DirectPositionResolver : IPositionResolver
 {
@@ -24,10 +24,8 @@ public sealed class DirectPositionResolver : IPositionResolver
         var resolver = new DirectPositionResolver();
         var types = new[]
         {
-            NodeType.MiningNode,
             NodeType.Water,
             NodeType.Forge,
-            NodeType.ItemBag,
             NodeType.Door,
             NodeType.SpawnPoint,
             NodeType.Teleport,

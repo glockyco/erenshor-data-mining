@@ -118,13 +118,17 @@ public sealed class Plugin : BaseUnityPlugin
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
         _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
         _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
-        _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver());
+        _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver(_liveState));
         _gameState.Register(NodeType.Door, new DoorStateResolver(_questTracker));
 
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
             new CharacterPositionResolver(_entities, _graph, _liveState));
+        positionRegistry.Register(NodeType.MiningNode,
+            new MiningNodePositionResolver(_liveState));
+        positionRegistry.Register(NodeType.ItemBag,
+            new ItemBagPositionResolver(_liveState));
         positionRegistry.Register(NodeType.ZoneLine,
             new ZoneLinePositionResolver());
         positionRegistry.Register(NodeType.Zone,
@@ -134,7 +138,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         _navEngine = new NavigationEngine(
             _navSet, positionRegistry, viewPositions, _graph, _viewBuilder, _gameState,
-            _questTracker, _zoneRouter, _entities);
+            _questTracker, _zoneRouter, _entities, _liveState);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -164,7 +168,7 @@ public sealed class Plugin : BaseUnityPlugin
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
         _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel, filter);
 
-        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter, viewPositions);
+        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter, viewPositions, _liveState);
         _imgui.OnLayout = () =>
         {
             _window.Draw();
@@ -197,6 +201,10 @@ public sealed class Plugin : BaseUnityPlugin
         DeathPatch.Registry = _entities;
         DeathPatch.LiveState = _liveState;
         DeathPatch.Markers = _markerComputer;
+        MiningNodePatch.LiveState = _liveState;
+        MiningNodePatch.Markers = _markerComputer;
+        ItemBagPatch.LiveState = _liveState;
+        ItemBagPatch.Markers = _markerComputer;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
@@ -266,6 +274,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // Per-frame updates
         var playerPos = GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : Vector3.zero;
+        _liveState?.UpdateFrameState();
         _markerComputer?.Recompute();
         _navEngine?.Update(playerPos);
         _groundPath?.Update();

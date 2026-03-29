@@ -1,13 +1,19 @@
 using AdventureGuide.Graph;
+using AdventureGuide.Markers;
 
 namespace AdventureGuide.State.Resolvers;
 
 /// <summary>
-/// Resolves item bag state. Currently returns <see cref="NodeState.BagAvailable"/>
-/// unconditionally — live bag tracking (scene scanning for picked-up bags)
-/// will be added to <c>LiveStateTracker</c> in a future pass.
+/// Resolves live item bag state by delegating to <see cref="LiveStateTracker"/>.
 /// </summary>
 public sealed class ItemBagStateResolver : INodeStateResolver
 {
-    public NodeState Resolve(Node node) => NodeState.BagAvailable;
+    private readonly LiveStateTracker _tracker;
+
+    public ItemBagStateResolver(LiveStateTracker tracker)
+    {
+        _tracker = tracker;
+    }
+
+    public NodeState Resolve(Node node) => _tracker.GetItemBagState(node);
 }

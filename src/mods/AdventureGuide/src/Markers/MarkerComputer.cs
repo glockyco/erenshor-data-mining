@@ -25,6 +25,7 @@ public sealed class MarkerComputer
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, int> _markerIndex = new(StringComparer.Ordinal);
     private bool _dirty = true;
+    private int _lastLiveVersion = -1;
 
     /// <summary>Height offset above raw graph coordinates for static markers.</summary>
     private const float StaticHeightOffset = 2.5f;
@@ -54,12 +55,16 @@ public sealed class MarkerComputer
     /// </summary>
     public void Recompute()
     {
+        if (_liveState.Version != _lastLiveVersion)
+        {
+            _dirty = true;
+            _lastLiveVersion = _liveState.Version;
+        }
         if (!_dirty) return;
         _dirty = false;
         Version++;
         _markers.Clear();
         _markerIndex.Clear();
-
         var quests = _graph.NodesOfType(NodeType.Quest);
         for (int i = 0; i < quests.Count; i++)
         {
@@ -386,6 +391,19 @@ public sealed class MarkerComputer
             {
                 type = MarkerType.DeadSpawn;
                 actualSubText = $"{node.DisplayName}\n{FormatTimer(mined.RespawnSeconds)}";
+            }
+        }
+        else if (node.Type == NodeType.ItemBag)
+        {
+            var bagState = _liveState.GetItemBagState(node);
+            if (bagState is ItemBagPickedUp picked)
+            {
+                type = MarkerType.DeadSpawn;
+                actualSubText = $"{node.DisplayName}\n{FormatTimer(picked.RespawnSeconds)}";
+            }
+            else if (bagState is ItemBagGone)
+            {
+                return;
             }
         }
 
