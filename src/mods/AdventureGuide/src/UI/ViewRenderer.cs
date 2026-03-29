@@ -52,9 +52,20 @@ public sealed class ViewRenderer
         ImGui.Spacing();
 
         // Dependency tree — the primary content, no section header needed
-        var questState = _state.GetState(root.NodeKey);
-        foreach (var child in root.Children)
-            DrawNode(child, 0, root.Node, questState);
+        if (root.Children.Count == 0)
+        {
+            DrawNotice("No guide data available for this quest.");
+        }
+        else
+        {
+            var questState = _state.GetState(root.NodeKey);
+            foreach (var child in root.Children)
+                DrawNode(child, 0, root.Node, questState);
+
+            // Notice when the tree has objectives but no completion path
+            if (!HasChildOfType(root, EdgeType.CompletedBy))
+                DrawNotice("Completion method not in guide data \u2014 may be scripted.");
+        }
 
         ImGui.Spacing();
 
@@ -235,6 +246,23 @@ public sealed class ViewRenderer
         ImGui.TextWrapped(warning);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    private static void DrawNotice(string text)
+    {
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        ImGui.TextWrapped(text);
+        ImGui.PopStyleColor();
+    }
+
+    private static bool HasChildOfType(ViewNode parent, EdgeType type)
+    {
+        foreach (var child in parent.Children)
+        {
+            if (child.EdgeType == type)
+                return true;
+        }
+        return false;
     }
 
     // ── Rewards section ─────────────────────────────────────────────────
