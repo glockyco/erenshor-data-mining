@@ -52,8 +52,9 @@ public sealed class ViewRenderer
         ImGui.Spacing();
 
         // Dependency tree — the primary content, no section header needed
+        var questState = _state.GetState(root.NodeKey);
         foreach (var child in root.Children)
-            DrawNode(child, 0, root.Node);
+            DrawNode(child, 0, root.Node, questState);
 
         ImGui.Spacing();
 
@@ -135,7 +136,7 @@ public sealed class ViewRenderer
     // ── Recursive node renderer ─────────────────────────────────────────
 
     /// <summary>Render a single dependency tree node with children.</summary>
-    private void DrawNode(ViewNode node, int depth, Node questNode)
+    private void DrawNode(ViewNode node, int depth, Node questNode, NodeState questState)
     {
         if (node.IsCycleRef)
         {
@@ -151,8 +152,15 @@ public sealed class ViewRenderer
         bool hasChildren = node.Children.Count > 0;
 
         // State indicator (checkmark for satisfied nodes)
-        var nodeState = _state.GetState(node.NodeKey);
-        string statePrefix = nodeState.IsSatisfied ? "\u2713 " : "";
+        // Edge-aware: AssignedBy is done when quest is active,
+        // CompletedBy is done only when quest is completed.
+        bool satisfied = node.EdgeType switch
+        {
+            EdgeType.AssignedBy => questState is QuestActive or QuestCompleted or QuestImplicitlyActive,
+            EdgeType.CompletedBy => questState is QuestCompleted,
+            _ => _state.GetState(node.NodeKey).IsSatisfied,
+        };
+        string statePrefix = satisfied ? "\u2713 " : "";
 
         // Quest flag warnings on CompletedBy nodes
         string? warning = null;
@@ -181,7 +189,7 @@ public sealed class ViewRenderer
             if (open)
             {
                 foreach (var child in node.Children)
-                    DrawNode(child, depth + 1, questNode);
+                    DrawNode(child, depth + 1, questNode, questState);
                 ImGui.TreePop();
             }
         }
