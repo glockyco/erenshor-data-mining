@@ -198,7 +198,9 @@ internal static class ResolvedActionSemanticBuilder
                 EdgeType.DropsItem => $"Drops {item}",
                 EdgeType.SellsItem => $"Sells {item}",
                 EdgeType.GivesItem => $"Gives {item}",
-                EdgeType.YieldsItem => item,
+                EdgeType.YieldsItem => targetNode.Node.Type == NodeType.MiningNode
+                    ? $"Drops {item}"
+                    : item,
                 EdgeType.RewardsItem => targetNode.Node.Type == NodeType.Quest
                     ? $"Rewards {item}"
                     : $"Provides {item}",
