@@ -69,8 +69,7 @@ public static class NavigationExplanationBuilder
 
     private static string? BuildTrackerSecondary(ViewNode frontierNode, ViewNode summaryNode)
     {
-        bool sameSummary = frontierNode.NodeKey == summaryNode.NodeKey
-            && frontierNode.EdgeType == summaryNode.EdgeType;
+        bool sameSummary = IsSameSummary(frontierNode, summaryNode);
         if (sameSummary)
             return null;
 
@@ -79,6 +78,25 @@ public static class NavigationExplanationBuilder
             return $"Needed for {blockingQuest.Node.DisplayName}";
 
         return $"Needed for {frontierNode.Node.DisplayName}";
+    }
+
+    private static bool IsSameSummary(ViewNode frontierNode, ViewNode summaryNode)
+    {
+        if (frontierNode.EdgeType != summaryNode.EdgeType)
+            return false;
+
+        if (frontierNode.NodeKey == summaryNode.NodeKey)
+            return true;
+
+        // Position collection can promote a positioned source variant of the same
+        // semantic target (for example a directly placed NPC marker node instead of
+        // the character node). Suppress redundant secondary text when both summary
+        // nodes describe the same visible target.
+        return frontierNode.Node.Type == summaryNode.Node.Type
+            && string.Equals(
+                frontierNode.Node.DisplayName,
+                summaryNode.Node.DisplayName,
+                StringComparison.OrdinalIgnoreCase);
     }
 
     private static ViewNode? FindBlockingQuest(ViewNode node)
