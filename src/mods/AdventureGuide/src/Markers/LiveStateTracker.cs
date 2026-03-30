@@ -621,6 +621,9 @@ public sealed class LiveStateTracker
 
     private static bool IsNight()
     {
+        // GameData.Time may be null during early scene load before the game
+        // manager has initialized. Treat as daytime rather than throwing.
+        if (GameData.Time == null) return false;
         int hour = GameData.Time.GetHour();
         return hour >= 22 || hour < 4;
     }
