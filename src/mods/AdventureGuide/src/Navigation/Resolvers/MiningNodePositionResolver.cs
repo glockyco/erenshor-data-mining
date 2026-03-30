@@ -6,8 +6,9 @@ using UnityEngine;
 namespace AdventureGuide.Navigation.Resolvers;
 
 /// <summary>
-/// Resolves a mining node only when it is currently available. Mined nodes are
-/// excluded from navigation candidates so selection can move to another live node.
+/// Resolves a mining node to its static position regardless of mined state.
+/// Available nodes are actionable; mined nodes are non-actionable so NAV
+/// deprioritises them while markers show respawn timers.
 /// </summary>
 public sealed class MiningNodePositionResolver : IPositionResolver
 {
@@ -23,12 +24,11 @@ public sealed class MiningNodePositionResolver : IPositionResolver
         if (node.X is null || node.Y is null || node.Z is null)
             return;
 
-        if (_liveState.GetMiningState(node).State is not MiningAvailable)
-            return;
-
+        bool actionable = _liveState.GetMiningState(node).State is MiningAvailable;
         results.Add(new ResolvedPosition(
             new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
             node.Scene,
-            node.Key));
+            node.Key,
+            actionable));
     }
 }
