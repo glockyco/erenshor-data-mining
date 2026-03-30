@@ -89,7 +89,6 @@ public sealed class ViewNodePositionCollector
                 case NodeType.Quest:
                 {
                     var frontier = FrontierComputer.ComputeFrontier(node, _state);
-                    bool keepQuestAsGoal = node.EdgeType == EdgeType.RequiresQuest;
                     for (int i = 0; i < frontier.Count; i++)
                     {
                         var frontierNode = frontier[i];
@@ -98,8 +97,10 @@ public sealed class ViewNodePositionCollector
                         if (frontierNode.NodeKey == node.NodeKey
                             && frontierNode.EdgeType == node.EdgeType)
                             continue;
-                        var frontierGoalNode = keepQuestAsGoal ? goalNode : frontierNode;
-                        CollectDetailed(frontierNode, results, active, frontierGoalNode);
+                        // Subquests should promote their next actionable leaf as the
+                        // goal. Surfaces need the true next step, not a redundant
+                        // "Complete <subquest>" wrapper around that same subquest.
+                        CollectDetailed(frontierNode, results, active, frontierNode);
                     }
                     return;
                 }
