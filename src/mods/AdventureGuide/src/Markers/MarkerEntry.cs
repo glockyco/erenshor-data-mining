@@ -21,6 +21,7 @@ public sealed class MarkerEntry
     // ── Display (mutable — updated on alive/dead transitions) ──────────
 
     public MarkerType Type { get; set; }
+    public int Priority { get; set; }
     public string DisplayName { get; set; } = "";
     public string SubText { get; set; } = "";
 
@@ -46,6 +47,18 @@ public sealed class MarkerEntry
     /// <summary>The quest-relevant marker type to restore when the NPC respawns.</summary>
     public MarkerType QuestType { get; set; }
 
+    /// <summary>The quest-relevant priority to restore when the NPC respawns.</summary>
+    public int QuestPriority { get; set; }
+
     /// <summary>The quest-relevant sub-text to restore when the NPC respawns.</summary>
     public string QuestSubText { get; set; } = "";
+
+    /// <summary>Keep the quest marker on a dead corpse while it is still present and lootable.</summary>
+    public bool KeepWhileCorpsePresent { get; set; }
+
+    /// <summary>Alternate sub-text to show while a corpse remains actionable.</summary>
+    public string? CorpseSubText { get; set; }
+
+    /// <summary>True when this entry is the separate static respawn-timer marker for a spawn.</summary>
+    public bool IsSpawnTimer { get; set; }
 }

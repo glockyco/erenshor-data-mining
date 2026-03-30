@@ -139,6 +139,7 @@ public sealed class NavigationEngine
                 target.Position,
                 target.Scene,
                 target.SourceKey,
+                target.Semantic,
                 target.Explanation));
         }
     }
@@ -174,7 +175,9 @@ public sealed class NavigationEngine
         TargetPosition = best.Value.Position;
         TargetScene = best.Value.Scene;
         EffectiveTarget = best.Value.Position;
-        Explanation = ApplySourceGateDetail(best.Value.Explanation, best.Value.SourceKey);
+        Explanation = ApplySourceGateDetail(
+            ApplyLiveActionOverride(best.Value.Semantic, best.Value.Explanation, best.Value.SourceKey),
+            best.Value.SourceKey);
         HopCount = 0;
 
         bool targetInOtherZone = best.Value.Scene != null
@@ -188,6 +191,34 @@ public sealed class NavigationEngine
                 HopCount = Math.Max(0, route.Path.Count - 1);
             }
         }
+    }
+
+    private NavigationExplanation ApplyLiveActionOverride(
+        ResolvedActionSemantic semantic,
+        NavigationExplanation explanation,
+        string? sourceKey)
+    {
+        if (semantic.ActionKind != ResolvedActionKind.Kill || sourceKey == null)
+            return explanation;
+
+        var sourceNode = _graph.GetNode(sourceKey);
+        if (sourceNode == null)
+            return explanation;
+
+        SpawnInfo info = sourceNode.Type switch
+        {
+            NodeType.SpawnPoint => _liveState.GetSpawnState(sourceNode),
+            NodeType.Character => _liveState.GetCharacterState(sourceNode),
+            _ => default,
+        };
+
+        if (info.State is SpawnDead && info.LiveNPC != null && info.LiveNPC.gameObject != null)
+            return NavigationExplanationBuilder.BuildCorpseExplanation(
+                semantic,
+                explanation.GoalNode,
+                explanation.TargetNode);
+
+        return explanation;
     }
 
     private NavigationExplanation ApplySourceGateDetail(NavigationExplanation explanation, string? sourceKey)
@@ -207,10 +238,10 @@ public sealed class NavigationEngine
                 explanation.TargetKind,
                 explanation.GoalNode,
                 explanation.TargetNode,
-                explanation.GoalText,
-                explanation.TargetText,
+                explanation.PrimaryText,
+                explanation.TargetIdentityText,
                 explanation.ZoneText,
-                explanation.ContextText,
+                explanation.SecondaryText,
                 $"Requires: {gatingQuest.DisplayName}");
         }
 
@@ -273,6 +304,8 @@ public sealed class NavigationEngine
         public readonly string? Scene;
         public readonly string? SourceKey;
         public readonly NavigationExplanation Explanation;
+        public readonly ResolvedActionSemantic Semantic;
+
 
         public Candidate(
             string requestedKey,
@@ -280,6 +313,7 @@ public sealed class NavigationEngine
             Vector3 position,
             string? scene,
             string? sourceKey,
+            ResolvedActionSemantic semantic,
             NavigationExplanation explanation)
         {
             RequestedKey = requestedKey;
@@ -287,6 +321,7 @@ public sealed class NavigationEngine
             Position = position;
             Scene = scene;
             SourceKey = sourceKey;
+            Semantic = semantic;
             Explanation = explanation;
         }
     }

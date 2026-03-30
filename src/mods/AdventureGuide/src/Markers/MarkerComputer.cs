@@ -1,9 +1,8 @@
-using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Resolution;
-using AdventureGuide.Views;
 using AdventureGuide.State;
+using AdventureGuide.Views;
 using UnityEngine;
 
 namespace AdventureGuide.Markers;
@@ -20,7 +19,6 @@ public sealed class MarkerComputer
     private readonly EntityGraph _graph;
     private readonly GraphIndexes _indexes;
     private readonly QuestStateTracker _tracker;
-    private readonly GameState _state;
     private readonly QuestResolutionService _resolution;
     private readonly LiveStateTracker _liveState;
 
@@ -39,14 +37,12 @@ public sealed class MarkerComputer
         EntityGraph graph,
         GraphIndexes indexes,
         QuestStateTracker tracker,
-        GameState state,
         QuestResolutionService resolution,
         LiveStateTracker liveState)
     {
         _graph = graph;
         _indexes = indexes;
         _tracker = tracker;
-        _state = state;
         _resolution = resolution;
         _liveState = liveState;
     }
@@ -137,9 +133,12 @@ public sealed class MarkerComputer
         if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
             return;
 
+        bool implicitlyActive = _tracker.IsImplicitlyActive(quest.DbName);
         if (_tracker.IsActionable(quest.DbName))
         {
-            EmitActiveQuestMarkers(quest);
+            var resolution = _resolution.ResolveQuest(quest.Key);
+            if (!implicitlyActive || !HasBlockedImplicitFrontier(resolution.Frontier))
+                EmitActiveQuestMarkers(quest, resolution);
             return;
         }
 
@@ -147,193 +146,175 @@ public sealed class MarkerComputer
             EmitQuestGiverMarkers(quest);
     }
 
-    private void EmitActiveQuestMarkers(Node quest)
+    private static bool HasBlockedImplicitFrontier(IReadOnlyList<ViewNode> frontier)
     {
-        var resolution = _resolution.ResolveQuest(quest.Key);
-        for (int i = 0; i < resolution.Frontier.Count; i++)
-            EmitGoalMarkers(quest, resolution.Frontier[i], resolution.Frontier[i], new HashSet<string>(StringComparer.Ordinal));
+        for (int i = 0; i < frontier.Count; i++)
+        {
+            if (HasBlockingQuestDependency(frontier[i]))
+                return true;
+        }
+
+        return false;
     }
 
-    private void EmitGoalMarkers(
-        Node quest,
-        ViewNode goalNode,
-        ViewNode currentNode,
-        HashSet<string> active)
+    private static bool HasBlockingQuestDependency(ViewNode node)
     {
-        if (currentNode.IsCycleRef)
-            return;
+        if (node.UnlockDependency != null)
+            return true;
 
-        string token = string.Join("|", new[]
+        for (int i = 0; i < node.Children.Count; i++)
         {
-            goalNode.NodeKey,
-            currentNode.NodeKey,
-            currentNode.EdgeType?.ToString() ?? "root",
-        });
-        if (!active.Add(token))
-            return;
-
-        try
-        {
-            if (currentNode.UnlockDependency != null)
-            {
-                EmitGoalMarkers(quest, currentNode.UnlockDependency, currentNode.UnlockDependency, active);
-                return;
-            }
-
-            if (currentNode.Node.Type == NodeType.Quest && currentNode.NodeKey != goalNode.NodeKey)
-            {
-                var nested = _resolution.ResolveQuest(currentNode.NodeKey);
-                for (int i = 0; i < nested.Frontier.Count; i++)
-                    EmitGoalMarkers(quest, nested.Frontier[i], nested.Frontier[i], active);
-                return;
-            }
-
-            if (currentNode.Node.Type is NodeType.Item or NodeType.Recipe)
-            {
-                bool hasReachableChild = false;
-                for (int i = 0; i < currentNode.Children.Count; i++)
-                {
-                    if (!currentNode.Children[i].IsCycleRef && currentNode.Children[i].UnlockDependency == null)
-                    {
-                        hasReachableChild = true;
-                        break;
-                    }
-                }
-
-                for (int i = 0; i < currentNode.Children.Count; i++)
-                {
-                    var child = currentNode.Children[i];
-                    if (hasReachableChild && child.UnlockDependency != null)
-                        continue;
-
-                    var childRole = ClassifyRole(child);
-                    if (childRole == FrontierComputer.EdgeRole.Done)
-                        continue;
-
-                    var childGoalNode = childRole == FrontierComputer.EdgeRole.Source
-                        ? goalNode
-                        : child;
-                    EmitGoalMarkers(quest, childGoalNode, child, active);
-                }
-                return;
-            }
-
-            EmitGoalLeafMarker(quest, goalNode, currentNode);
+            if (HasBlockingQuestDependency(node.Children[i]))
+                return true;
         }
-        finally
-        {
-            active.Remove(token);
-        }
+
+        return false;
     }
 
-    private void EmitGoalLeafMarker(Node quest, ViewNode goalNode, ViewNode targetNode)
+    private void EmitActiveQuestMarkers(Node quest, QuestResolution resolution)
     {
-        var explanation = NavigationExplanationBuilder.Build(goalNode, targetNode, _tracker, quest);
-        var markerType = DetermineGoalMarkerType(quest, goalNode);
-        var subText = FormatGoalMarkerSubText(explanation);
-
-        if (targetNode.Node.Type == NodeType.Character)
+        for (int i = 0; i < resolution.Targets.Count; i++)
         {
-            EmitCharacterGoalMarkers(quest, targetNode.Node, markerType, subText);
-            return;
+            var target = resolution.Targets[i];
+            var entry = CreateActiveMarkerEntry(quest, target);
+            if (entry != null)
+                AddContribution(quest.Key, entry.NodeKey, entry);
+
+            var respawnEntry = CreateRespawnTimerEntry(quest, target);
+            if (respawnEntry != null)
+                AddContribution(quest.Key, respawnEntry.NodeKey, respawnEntry);
         }
 
-        if (!HasPosition(targetNode.Node) || !IsCurrentScene(targetNode.Node.Scene))
-            return;
-
-        var entry = CreateStaticMarkerEntry(
-            quest.Key,
-            targetNode.Node.Key,
-            targetNode.Node.DisplayName,
-            markerType,
-            subText,
-            targetNode.Node,
-            targetNode.Node,
-            new Vector3(targetNode.Node.X!.Value, targetNode.Node.Y!.Value, targetNode.Node.Z!.Value));
-        if (entry != null)
-            AddContribution(quest.Key, entry.NodeKey, entry);
+        EmitPendingCompletionMarkers(quest, resolution);
     }
 
-    private void EmitCharacterGoalMarkers(
-        Node quest,
-        Node characterNode,
-        MarkerType markerType,
-        string subText)
-    {
-        var spawnEdges = _graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
-        if (spawnEdges.Count == 0)
-        {
-            if (!IsCurrentScene(characterNode.Scene))
-                return;
 
-            var directEntry = CreateCharacterMarkerEntry(
-                quest.Key,
-                characterNode.Key,
-                characterNode.DisplayName,
-                markerType,
-                subText,
-                characterNode,
-                characterNode);
-            if (directEntry != null)
-                AddContribution(quest.Key, directEntry.NodeKey, directEntry);
-            return;
+
+    private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedQuestTarget target)
+    {
+        if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
+            return null;
+
+        var positionNode = target.SourceKey != null
+            ? _graph.GetNode(target.SourceKey)
+            : null;
+        if (positionNode == null || positionNode.Type != NodeType.SpawnPoint)
+            return null;
+
+        if (!TryGetMarkerPosition(positionNode, out var position))
+            return null;
+
+        var info = _liveState.GetSpawnState(positionNode);
+        if (info.State is SpawnAlive)
+            return null;
+
+        string displayName = target.TargetNode.Node.DisplayName;
+        if (info.LiveSpawnPoint != null)
+        {
+            string timerText = $"{displayName}\n{FormatTimer(info.RespawnSeconds)}";
+            return new MarkerEntry
+            {
+                X = position.x,
+                Y = position.y + StaticHeightOffset,
+                Z = position.z,
+                Scene = positionNode.Scene ?? _tracker.CurrentZone,
+                Type = MarkerType.DeadSpawn,
+                Priority = 0,
+                DisplayName = displayName,
+                SubText = timerText,
+                NodeKey = positionNode.Key + "|respawn",
+                QuestKey = quest.Key,
+                LiveSpawnPoint = info.LiveSpawnPoint,
+                QuestType = MarkerType.DeadSpawn,
+                QuestPriority = 0,
+                QuestSubText = timerText,
+                IsSpawnTimer = true,
+            };
         }
 
-        for (int i = 0; i < spawnEdges.Count; i++)
+        if (positionNode.IsDirectlyPlaced)
         {
-            var spawnNode = _graph.GetNode(spawnEdges[i].Target);
-            if (spawnNode == null || !HasPosition(spawnNode) || !IsCurrentScene(spawnNode.Scene))
+            string reentryText = $"{displayName}\nRe-enter zone";
+            return new MarkerEntry
+            {
+                X = position.x,
+                Y = position.y + StaticHeightOffset,
+                Z = position.z,
+                Scene = positionNode.Scene ?? _tracker.CurrentZone,
+                Type = MarkerType.ZoneReentry,
+                Priority = 0,
+                DisplayName = displayName,
+                SubText = reentryText,
+                NodeKey = positionNode.Key + "|respawn",
+                QuestKey = quest.Key,
+                QuestType = MarkerType.ZoneReentry,
+                QuestPriority = 0,
+                QuestSubText = reentryText,
+                IsSpawnTimer = true,
+            };
+        }
+
+        return null;
+    }
+
+    private void EmitPendingCompletionMarkers(Node quest, QuestResolution resolution)
+    {
+        bool hasReadyCompletion = resolution.Targets.Any(target =>
+            target.Semantic.PreferredMarkerType is MarkerType.TurnInReady or MarkerType.TurnInRepeatReady);
+        if (hasReadyCompletion)
+            return;
+
+        var blueprints = _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
+        for (int i = 0; i < blueprints.Count; i++)
+        {
+            var blueprint = blueprints[i];
+            if (blueprint.QuestKey != quest.Key)
                 continue;
 
-            var entry = CreateCharacterMarkerEntry(
-                quest.Key,
-                spawnNode.Key,
-                characterNode.DisplayName,
-                markerType,
-                subText,
-                characterNode,
-                spawnNode);
+            var entry = CreatePendingCompletionEntry(quest, blueprint);
             if (entry != null)
                 AddContribution(quest.Key, entry.NodeKey, entry);
         }
     }
 
-    private static MarkerType DetermineGoalMarkerType(Node quest, ViewNode goalNode) =>
-        goalNode.EdgeType == EdgeType.CompletedBy
-            ? (quest.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
-            : MarkerType.Objective;
-
-    private static string FormatGoalMarkerSubText(NavigationExplanation explanation)
+    private MarkerEntry? CreatePendingCompletionEntry(Node quest, QuestCompletionBlueprint blueprint)
     {
-        string action = ActionTextFormatter.FormatAction(
-            explanation.TargetNode.EdgeType,
-            explanation.TargetNode.Edge);
-        string? reason = FormatGoalMarkerReason(explanation);
-        if (string.IsNullOrEmpty(reason))
-            return action;
-
-        return action == reason ? action : $"{action}\n{reason}";
-    }
-
-    private static string? FormatGoalMarkerReason(NavigationExplanation explanation)
-    {
-        bool sameTarget = explanation.GoalNode.NodeKey == explanation.TargetNode.NodeKey
-            && explanation.GoalNode.EdgeType == explanation.TargetNode.EdgeType;
-        if (sameTarget)
+        var targetNode = _graph.GetNode(blueprint.TargetNodeKey);
+        var positionNode = _graph.GetNode(blueprint.PositionNodeKey);
+        if (targetNode == null || positionNode == null)
             return null;
 
-        if (explanation.GoalKind == NavigationGoalKind.CollectItem)
-            return StripCollectPrefix(explanation.GoalText);
+        var semantic = ResolvedActionSemanticBuilder.BuildQuestCompletion(
+            _graph,
+            quest,
+            targetNode,
+            blueprint,
+            ready: false);
+        var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
-        return explanation.GoalText;
-    }
+        if (targetNode.Type == NodeType.Character)
+        {
+            return CreateCharacterMarkerEntry(
+                quest.Key,
+                positionNode.Key,
+                targetNode.DisplayName,
+                instruction.Type,
+                instruction.Priority,
+                instruction.SubText,
+                targetNode,
+                positionNode);
+        }
 
-    private static string StripCollectPrefix(string text)
-    {
-        const string prefix = "Collect ";
-        return text.StartsWith(prefix, StringComparison.Ordinal)
-            ? text.Substring(prefix.Length)
-            : text;
+        return CreateStaticMarkerEntry(
+            quest.Key,
+            positionNode.Key,
+            targetNode.DisplayName,
+            instruction.Type,
+            instruction.Priority,
+            instruction.SubText,
+            targetNode,
+            positionNode,
+            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f));
     }
 
     private void EmitQuestGiverMarkers(Node quest)
@@ -358,28 +339,23 @@ public sealed class MarkerComputer
         if (characterNode == null || positionNode == null)
             return null;
 
-        var (markerType, primaryLine) = ResolveQuestGiverPresentation(blueprint);
-        string subText = $"{primaryLine}\n{blueprint.QuestDisplayName}";
+        string? blockedRequirement = FindFirstMissingRequirement(blueprint.RequiredQuestDbNames);
+        var semantic = ResolvedActionSemanticBuilder.BuildQuestGiver(
+            quest,
+            characterNode,
+            blueprint,
+            blockedRequirement);
+        var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
         return CreateCharacterMarkerEntry(
             questKey: quest.Key,
             nodeKey: positionNode.Key,
             displayName: characterNode.DisplayName,
-            markerType: markerType,
-            subText: subText,
+            markerType: instruction.Type,
+            priority: instruction.Priority,
+            subText: instruction.SubText,
             targetNode: characterNode,
             positionNode: positionNode);
-    }
-
-    private (MarkerType Type, string PrimaryLine) ResolveQuestGiverPresentation(QuestGiverBlueprint blueprint)
-    {
-        string? blockedRequirement = FindFirstMissingRequirement(blueprint.RequiredQuestDbNames);
-        if (blockedRequirement != null)
-            return (MarkerType.QuestGiverBlocked, $"Requires: {blockedRequirement}");
-
-        return (
-            blueprint.Repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver,
-            FormatInteraction(blueprint.Interaction));
     }
 
     private string? FindFirstMissingRequirement(IReadOnlyList<string> requiredQuestDbNames)
@@ -399,6 +375,9 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateActiveMarkerEntry(Node quest, ResolvedQuestTarget target)
     {
+        if (!IsCurrentScene(target.Scene))
+            return null;
+
         var targetNode = target.TargetNode.Node;
         var positionNode = target.SourceKey != null
             ? _graph.GetNode(target.SourceKey)
@@ -406,25 +385,34 @@ public sealed class MarkerComputer
         if (positionNode == null)
             return null;
 
+        var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic, target.TargetNode);
+        string? corpseSubText = target.Semantic.ActionKind == ResolvedActionKind.Kill
+            ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
+            : null;
+
         if (targetNode.Type == NodeType.Character)
         {
             return CreateCharacterMarkerEntry(
                 quest.Key,
                 positionNode.Key,
                 targetNode.DisplayName,
-                target.Marker.Type,
-                target.Marker.SubText,
+                instruction.Type,
+                instruction.Priority,
+                instruction.SubText,
                 targetNode,
                 positionNode,
-                target.Position);
+                target.Position,
+                target.Semantic.ActionKind == ResolvedActionKind.Kill,
+                corpseSubText);
         }
 
         return CreateStaticMarkerEntry(
             quest.Key,
             positionNode.Key,
             targetNode.DisplayName,
-            target.Marker.Type,
-            target.Marker.SubText,
+            instruction.Type,
+            instruction.Priority,
+            instruction.SubText,
             targetNode,
             positionNode,
             target.Position);
@@ -435,10 +423,13 @@ public sealed class MarkerComputer
         string nodeKey,
         string displayName,
         MarkerType markerType,
+        int priority,
         string subText,
         Node targetNode,
         Node positionNode,
-        Vector3? fallbackPosition = null)
+        Vector3? fallbackPosition = null,
+        bool keepWhileCorpsePresent = false,
+        string? corpseSubText = null)
     {
         SpawnInfo info = positionNode.Type == NodeType.SpawnPoint || positionNode.IsDirectlyPlaced
             ? _liveState.GetSpawnState(positionNode)
@@ -447,7 +438,13 @@ public sealed class MarkerComputer
         if (info.State is SpawnDisabled)
             return null;
 
-        var (type, text) = ResolveCharacterPresentation(displayName, markerType, subText, info);
+        var (type, resolvedPriority, text) = ResolveCharacterPresentation(
+            displayName,
+            markerType,
+            priority,
+            subText,
+            info,
+            keepWhileCorpsePresent);
 
         Vector3 position;
         if (TryGetMarkerPosition(positionNode, out var staticPosition))
@@ -470,6 +467,11 @@ public sealed class MarkerComputer
         string scene = positionNode.Scene
             ?? targetNode.Scene
             ?? _tracker.CurrentZone;
+        string contributionNodeKey = BuildCharacterContributionKey(
+            nodeKey,
+            targetNode,
+            scene,
+            position);
 
         return new MarkerEntry
         {
@@ -478,31 +480,63 @@ public sealed class MarkerComputer
             Z = position.z,
             Scene = scene,
             Type = type,
+            Priority = resolvedPriority,
             DisplayName = displayName,
             SubText = text,
-            NodeKey = nodeKey,
+            NodeKey = contributionNodeKey,
             QuestKey = questKey,
             LiveSpawnPoint = info.LiveSpawnPoint,
             TrackedNPC = info.LiveNPC,
             QuestType = markerType,
+            QuestPriority = priority,
             QuestSubText = subText,
+            KeepWhileCorpsePresent = keepWhileCorpsePresent,
+            CorpseSubText = corpseSubText,
         };
     }
 
-    private static (MarkerType Type, string SubText) ResolveCharacterPresentation(
+    private static string BuildCharacterContributionKey(
+        string fallbackNodeKey,
+        Node targetNode,
+        string scene,
+        Vector3 position)
+    {
+        return targetNode.Type != NodeType.Character
+            ? fallbackNodeKey
+            : string.Join("|", new[]
+            {
+                targetNode.Key,
+                scene,
+                position.x.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                position.y.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                position.z.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+            });
+    }
+
+    private static bool IsCorpsePresent(SpawnInfo info) =>
+        info.State is SpawnDead
+        && info.LiveNPC != null
+        && info.LiveNPC.gameObject != null;
+
+    private static (MarkerType Type, int Priority, string SubText) ResolveCharacterPresentation(
         string displayName,
         MarkerType markerType,
+        int priority,
         string subText,
-        SpawnInfo info)
+        SpawnInfo info,
+        bool keepWhileCorpsePresent)
     {
+        if (keepWhileCorpsePresent && IsCorpsePresent(info))
+            return (markerType, priority, subText);
+
         return info.State switch
         {
-            SpawnAlive => (markerType, subText),
-            SpawnDead dead => (MarkerType.DeadSpawn, $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"),
-            SpawnNightLocked => (MarkerType.NightSpawn, BuildNightLockedText(displayName)),
-            SpawnQuestGated gated => (MarkerType.QuestLocked, $"{displayName}\nRequires: {gated.QuestName}"),
-            SpawnDisabled => (markerType, subText),
-            _ => (markerType, subText),
+            SpawnAlive => (markerType, priority, subText),
+            SpawnDead dead => (MarkerType.DeadSpawn, 0, $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"),
+            SpawnNightLocked => (MarkerType.NightSpawn, 0, BuildNightLockedText(displayName)),
+            SpawnQuestGated gated => (MarkerType.QuestLocked, 0, $"{displayName}\nRequires: {gated.QuestName}"),
+            SpawnDisabled => (markerType, priority, subText),
+            _ => (markerType, priority, subText),
         };
     }
 
@@ -511,12 +545,14 @@ public sealed class MarkerComputer
         string nodeKey,
         string displayName,
         MarkerType markerType,
+        int priority,
         string subText,
         Node targetNode,
         Node positionNode,
         Vector3 fallbackPosition)
     {
         var type = markerType;
+        int resolvedPriority = priority;
         var text = subText;
         MiningNode? liveMining = null;
 
@@ -527,6 +563,7 @@ public sealed class MarkerComputer
             if (mining.State is MiningMined mined)
             {
                 type = MarkerType.DeadSpawn;
+                resolvedPriority = 0;
                 text = $"{displayName}\n{FormatTimer(mined.RespawnSeconds)}";
             }
         }
@@ -536,6 +573,7 @@ public sealed class MarkerComputer
             if (bagState is ItemBagPickedUp picked)
             {
                 type = MarkerType.DeadSpawn;
+                resolvedPriority = 0;
                 text = $"{displayName}\n{FormatTimer(picked.RespawnSeconds)}";
             }
             else if (bagState is ItemBagGone)
@@ -555,12 +593,14 @@ public sealed class MarkerComputer
             Z = position.z,
             Scene = positionNode.Scene ?? targetNode.Scene ?? _tracker.CurrentZone,
             Type = type,
+            Priority = resolvedPriority,
             DisplayName = displayName,
             SubText = text,
             NodeKey = nodeKey,
             QuestKey = questKey,
             LiveMiningNode = liveMining,
             QuestType = markerType,
+            QuestPriority = priority,
             QuestSubText = subText,
         };
     }
@@ -573,7 +613,12 @@ public sealed class MarkerComputer
             _contributionsByNode[nodeKey] = byQuest;
         }
 
-        byQuest[questKey] = entry;
+        if (!byQuest.TryGetValue(questKey, out var existing)
+            || entry.Priority < existing.Priority
+            || (entry.Priority == existing.Priority && entry.Type < existing.Type))
+        {
+            byQuest[questKey] = entry;
+        }
 
         if (!_nodesByQuest.TryGetValue(questKey, out var nodes))
         {
@@ -610,8 +655,12 @@ public sealed class MarkerComputer
             MarkerEntry? best = null;
             foreach (var entry in byQuest.Values)
             {
-                if (best == null || entry.Type < best.Type)
+                if (best == null
+                    || entry.Priority < best.Priority
+                    || (entry.Priority == best.Priority && entry.Type < best.Type))
+                {
                     best = entry;
+                }
             }
 
             if (best != null)
@@ -646,11 +695,6 @@ public sealed class MarkerComputer
     private static bool HasPosition(Node node) =>
         node.X.HasValue && node.Y.HasValue && node.Z.HasValue;
 
-
-    private FrontierComputer.EdgeRole ClassifyRole(ViewNode node) =>
-        FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
-
-
     private static MarkerEntry CloneEntry(MarkerEntry entry) => new()
     {
         X = entry.X,
@@ -658,6 +702,7 @@ public sealed class MarkerComputer
         Z = entry.Z,
         Scene = entry.Scene,
         Type = entry.Type,
+        Priority = entry.Priority,
         DisplayName = entry.DisplayName,
         SubText = entry.SubText,
         NodeKey = entry.NodeKey,
@@ -666,13 +711,12 @@ public sealed class MarkerComputer
         TrackedNPC = entry.TrackedNPC,
         LiveMiningNode = entry.LiveMiningNode,
         QuestType = entry.QuestType,
+        QuestPriority = entry.QuestPriority,
         QuestSubText = entry.QuestSubText,
+        KeepWhileCorpsePresent = entry.KeepWhileCorpsePresent,
+        CorpseSubText = entry.CorpseSubText,
+        IsSpawnTimer = entry.IsSpawnTimer,
     };
-
-    private static string FormatInteraction(MarkerInteraction interaction) =>
-        interaction.Kind == MarkerInteractionKind.SayKeyword && !string.IsNullOrEmpty(interaction.Keyword)
-            ? $"Say '{interaction.Keyword}'"
-            : "Talk to";
 
     private static string BuildNightLockedText(string displayName)
     {

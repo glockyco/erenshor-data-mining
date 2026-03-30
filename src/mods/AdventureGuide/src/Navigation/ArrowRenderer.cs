@@ -165,11 +165,11 @@ public sealed class ArrowRenderer
             return string.Empty;
         return string.Join("\u001f", new[]
         {
-            explanation.GoalText,
-            explanation.TargetText,
+            explanation.PrimaryText,
+            explanation.TargetIdentityText,
             explanation.ZoneText ?? string.Empty,
-            explanation.ContextText ?? string.Empty,
-            explanation.DetailText ?? string.Empty,
+            explanation.SecondaryText ?? string.Empty,
+            explanation.TertiaryText ?? string.Empty,
         });
     }
 
@@ -187,34 +187,27 @@ public sealed class ArrowRenderer
 
         var lines = new List<string>(3)
         {
-            $"{explanation.GoalText} {distanceText}".Trim()
+            $"{explanation.PrimaryText} {distanceText}".Trim()
         };
 
-        bool targetDiffers = !string.Equals(
-            explanation.TargetText, explanation.GoalText, StringComparison.OrdinalIgnoreCase);
-
-        string? targetLine = null;
-        if (!string.IsNullOrEmpty(explanation.ContextText))
+        string? secondary = explanation.SecondaryText;
+        if (hopCount == 0 && !string.IsNullOrEmpty(secondary) && !string.IsNullOrEmpty(explanation.ZoneText))
         {
-            targetLine = explanation.ContextText;
-            if (!string.IsNullOrEmpty(explanation.ZoneText))
-                targetLine += $" · {explanation.ZoneText}";
-        }
-        else if (targetDiffers)
-        {
-            targetLine = explanation.TargetText;
-            if (!string.IsNullOrEmpty(explanation.ZoneText))
-                targetLine += $" · {explanation.ZoneText}";
-        }
-        else if (!string.IsNullOrEmpty(explanation.ZoneText))
-        {
-            targetLine = explanation.ZoneText;
+            string zoneSuffix = $" · {explanation.ZoneText}";
+            if (string.Equals(secondary, explanation.ZoneText, StringComparison.OrdinalIgnoreCase))
+            {
+                secondary = null;
+            }
+            else if (secondary.EndsWith(zoneSuffix, StringComparison.OrdinalIgnoreCase))
+            {
+                secondary = secondary.Substring(0, secondary.Length - zoneSuffix.Length);
+            }
         }
 
-        if (!string.IsNullOrEmpty(targetLine))
-            lines.Add(targetLine);
-        if (!string.IsNullOrEmpty(explanation.DetailText))
-            lines.Add(explanation.DetailText);
+        if (!string.IsNullOrEmpty(secondary))
+            lines.Add(secondary);
+        if (!string.IsNullOrEmpty(explanation.TertiaryText))
+            lines.Add(explanation.TertiaryText);
 
         return lines.ToArray();
     }

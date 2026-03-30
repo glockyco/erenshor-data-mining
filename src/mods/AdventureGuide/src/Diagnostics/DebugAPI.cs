@@ -47,9 +47,9 @@ public static class DebugAPI
 
         var sb = new System.Text.StringBuilder();
         var explanation = Nav.Explanation;
-        sb.AppendLine($"Target: {explanation?.GoalText ?? "(none)"}");
+        sb.AppendLine($"Target: {explanation?.PrimaryText ?? "(none)"}");
         if (explanation != null)
-            sb.AppendLine($"  TargetNode: {explanation.TargetText}");
+            sb.AppendLine($"  TargetNode: {explanation.TargetIdentityText}");
         sb.AppendLine($"  NodeKey: {Nav.TargetNodeKey}");
         sb.AppendLine($"  Position: {Nav.EffectiveTarget}");
         sb.AppendLine($"  Distance: {Nav.Distance:F1}");

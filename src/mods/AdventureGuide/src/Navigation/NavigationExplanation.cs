@@ -29,63 +29,48 @@ public enum NavigationTargetKind
 }
 
 /// <summary>
-/// Semantic explanation of why navigation points at the current target.
-///
-/// This separates navigation meaning from rendering. Arrow, tracker, and any
-/// future consumers should render this model rather than reconstructing meaning
-/// from raw nodes or ad hoc strings.
+/// Arrow-facing projection of a resolved semantic action.
+/// Navigation keeps the underlying goal/target nodes for debugging and tie-breaks,
+/// but rendering consumes already-projected arrow lines rather than rebuilding
+/// wording from raw graph/view state.
 /// </summary>
 public sealed class NavigationExplanation
 {
     public NavigationGoalKind GoalKind { get; }
     public NavigationTargetKind TargetKind { get; }
-
-    /// <summary>The current actionable goal node that produced this navigation target.</summary>
     public ViewNode GoalNode { get; }
-
-    /// <summary>The immediate actionable node whose position won candidate selection.</summary>
     public ViewNode TargetNode { get; }
-
-    /// <summary>Primary user-facing goal text, e.g. "Collect Rune of The Hills".</summary>
-    public string GoalText { get; }
-
-    /// <summary>Immediate target text, e.g. "Ghost of Wyland Sercher".</summary>
-    public string TargetText { get; }
-
-    /// <summary>Zone/area label for the immediate target when known.</summary>
+    public string PrimaryText { get; }
+    public string TargetIdentityText { get; }
     public string? ZoneText { get; }
-
-    /// <summary>Optional high-level context line, e.g. the quest name for a quest giver.</summary>
-    public string? ContextText { get; }
-
-    /// <summary>Optional reason/progress line, e.g. "Drops the required item".</summary>
-    public string? DetailText { get; }
+    public string? SecondaryText { get; }
+    public string? TertiaryText { get; }
 
     public NavigationExplanation(
         NavigationGoalKind goalKind,
         NavigationTargetKind targetKind,
         ViewNode goalNode,
         ViewNode targetNode,
-        string goalText,
-        string targetText,
+        string primaryText,
+        string targetIdentityText,
         string? zoneText,
-        string? contextText,
-        string? detailText)
+        string? secondaryText,
+        string? tertiaryText)
     {
         GoalKind = goalKind;
         TargetKind = targetKind;
         GoalNode = goalNode;
         TargetNode = targetNode;
-        GoalText = goalText;
-        TargetText = targetText;
+        PrimaryText = primaryText;
+        TargetIdentityText = targetIdentityText;
         ZoneText = zoneText;
-        ContextText = contextText;
-        DetailText = detailText;
+        SecondaryText = secondaryText;
+        TertiaryText = tertiaryText;
     }
 }
 
 /// <summary>
-/// Compact tracker projection derived from <see cref="NavigationExplanation"/>.
+/// Compact tracker projection derived from the shared resolved action semantics.
 /// Tracker is intentionally lossy compared to the arrow: it is an overview of
 /// all tracked quests, not a single immediate instruction surface.
 /// </summary>

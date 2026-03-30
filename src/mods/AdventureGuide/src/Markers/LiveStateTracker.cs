@@ -304,7 +304,7 @@ public sealed class LiveStateTracker
             return new SpawnInfo(NodeState.Alive, sp, sp.SpawnedNPC, 0f);
 
         float respawnSeconds = ComputeRespawnSeconds(sp);
-        return new SpawnInfo(new SpawnDead(respawnSeconds), sp, null, respawnSeconds);
+        return new SpawnInfo(new SpawnDead(respawnSeconds), sp, sp.SpawnedNPC, respawnSeconds);
     }
 
     private MiningInfo ClassifyMiningNode(MiningNode mn)
@@ -423,6 +423,10 @@ public sealed class LiveStateTracker
             var charNode = _graph.GetNode(charEdges[0].Source);
             if (charNode != null)
             {
+                string? gatingQuestName = FindCharacterUnlockRequirement(charNode);
+                if (!string.IsNullOrEmpty(gatingQuestName))
+                    return new SpawnInfo(new SpawnQuestGated(gatingQuestName), null, null, 0f);
+
                 var npc = FindNpcByNameAndProximity(charNode);
                 if (npc != null)
                 {
@@ -430,6 +434,8 @@ public sealed class LiveStateTracker
                     bool alive = ch != null && ch.Alive;
                     return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
                 }
+
+                return new SpawnInfo(new SpawnDead(0f), null, null, 0f);
             }
         }
 
@@ -442,6 +448,20 @@ public sealed class LiveStateTracker
         }
 
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
+    }
+
+    private string? FindCharacterUnlockRequirement(Node charNode)
+    {
+        var unlockEdges = _graph.InEdges(charNode.Key, EdgeType.UnlocksCharacter);
+        for (int i = 0; i < unlockEdges.Count; i++)
+        {
+            var questNode = _graph.GetNode(unlockEdges[i].Source);
+            string? dbName = questNode?.DbName;
+            if (!string.IsNullOrEmpty(dbName) && !GameData.IsQuestDone(dbName))
+                return questNode?.DisplayName ?? dbName;
+        }
+
+        return null;
     }
 
     private SpawnPoint? FindSpawnPoint(Node node)

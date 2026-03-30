@@ -143,7 +143,7 @@ public sealed class Plugin : BaseUnityPlugin
         var viewPositions = new ViewNodePositionCollector(positionRegistry, _gameState);
 
         _resolutionService = new QuestResolutionService(
-            _graph, _graphIndexes, _questTracker, _gameState, _viewBuilder, viewPositions, _dependencyEngine);
+            _graph, _questTracker, _gameState, _viewBuilder, viewPositions, _dependencyEngine);
 
         _navEngine = new NavigationEngine(
             _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState);
@@ -157,7 +157,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _gameState, _resolutionService, _liveState);
+        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _resolutionService, _liveState);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 

@@ -127,14 +127,26 @@ public sealed class MarkerSystem
                 continue;
             }
 
-            // Per-frame spawn state transitions
+            bool active = true;
             if (entry.LiveMiningNode != null)
+            {
                 UpdateMiningState(entry, instance);
+            }
             else if (entry.LiveSpawnPoint != null)
-                UpdateSpawnState(entry, instance);
+            {
+                active = entry.IsSpawnTimer
+                    ? UpdateSpawnTimerState(entry, instance)
+                    : UpdateSpawnState(entry, instance);
+            }
 
-            // Live NPC position tracking (alive markers with a tracked NPC)
-            UpdatePosition(entry);
+            if (!active)
+            {
+                instance.SetActive(false);
+                continue;
+            }
+
+            if (!entry.IsSpawnTimer)
+                UpdatePosition(entry);
 
             var pos = new Vector3(entry.X, entry.Y, entry.Z);
             instance.SetPosition(pos);
@@ -161,17 +173,19 @@ public sealed class MarkerSystem
     /// Uses SpawnedNPC.GetChar().Alive instead of sp.MyNPCAlive, which
     /// the game sets on spawn but never clears on death.
     /// </summary>
-    private void UpdateSpawnState(MarkerEntry entry, MarkerInstance instance)
+    private bool UpdateSpawnState(MarkerEntry entry, MarkerInstance instance)
     {
         var sp = entry.LiveSpawnPoint!;
 
         MarkerType newType;
+        int newPriority;
         string newSubText;
 
         if (sp.NightSpawn && !IsNight())
         {
             // Night-only spawn during daytime — NPC doesn't exist
             newType = MarkerType.NightSpawn;
+            newPriority = 0;
             int hour = GameData.Time.GetHour();
             int min = GameData.Time.min;
             newSubText = $"{entry.DisplayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}";
@@ -179,31 +193,69 @@ public sealed class MarkerSystem
         else if (IsSpawnedNPCAlive(sp))
         {
             newType = entry.QuestType;
+            newPriority = entry.QuestPriority;
             newSubText = entry.QuestSubText;
+        }
+        else if (entry.KeepWhileCorpsePresent && IsSpawnedNPCCorpsePresent(sp))
+        {
+            newType = entry.QuestType;
+            newPriority = entry.QuestPriority;
+            newSubText = entry.CorpseSubText ?? entry.QuestSubText;
+        }
+        else if (entry.KeepWhileCorpsePresent)
+        {
+            return false;
         }
         else
         {
             // Dead or not yet spawned — show respawn timer
             newType = MarkerType.DeadSpawn;
+            newPriority = 0;
             newSubText = FormatDeadSubText(entry.DisplayName, sp);
         }
 
-        if (newType != entry.Type)
+        if (newType != entry.Type
+            || newPriority != entry.Priority
+            || !string.Equals(newSubText, entry.SubText, System.StringComparison.Ordinal))
         {
             entry.Type = newType;
+            entry.Priority = newPriority;
             entry.SubText = newSubText;
             ReconfigureInstance(entry, instance);
 
-            // Track live NPC position when transitioning to alive
             if (newType == entry.QuestType && sp.SpawnedNPC != null)
                 SetPositionFromNPC(entry, sp.SpawnedNPC);
         }
         else if (newType == MarkerType.DeadSpawn || newType == MarkerType.NightSpawn)
         {
-            // Timer/time text updates every frame
             entry.SubText = newSubText;
             instance.UpdateSubText(newSubText);
         }
+
+        return true;
+    }
+
+    private bool UpdateSpawnTimerState(MarkerEntry entry, MarkerInstance instance)
+    {
+        var sp = entry.LiveSpawnPoint!;
+        if (IsSpawnedNPCAlive(sp))
+            return false;
+
+        string newSubText = FormatDeadSubText(entry.DisplayName, sp);
+        if (entry.Type != MarkerType.DeadSpawn || !string.Equals(entry.SubText, newSubText, System.StringComparison.Ordinal))
+        {
+            entry.Type = MarkerType.DeadSpawn;
+            entry.Priority = 0;
+            entry.SubText = newSubText;
+            ReconfigureInstance(entry, instance);
+        }
+        else
+        {
+            entry.SubText = newSubText;
+            instance.UpdateSubText(newSubText);
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -218,6 +270,13 @@ public sealed class MarkerSystem
             && sp.SpawnedNPC.GetChar() != null
             && sp.SpawnedNPC.GetChar().Alive;
     }
+
+    private static bool IsSpawnedNPCCorpsePresent(SpawnPoint sp) =>
+        sp.SpawnedNPC != null
+        && sp.SpawnedNPC.gameObject != null
+        && sp.SpawnedNPC.GetChar() != null
+        && !sp.SpawnedNPC.GetChar().Alive;
+
 
     private static bool IsNight()
     {
@@ -237,6 +296,7 @@ public sealed class MarkerSystem
         {
             // Regenerated: restore quest marker
             entry.Type = entry.QuestType;
+            entry.Priority = entry.QuestPriority;
             entry.SubText = entry.QuestSubText;
             ReconfigureInstance(entry, instance);
         }
@@ -244,6 +304,7 @@ public sealed class MarkerSystem
         {
             // Just mined: switch to skull with timer
             entry.Type = MarkerType.DeadSpawn;
+            entry.Priority = 0;
             float seconds = GetMiningRespawnSeconds(mn);
             entry.SubText = $"{entry.DisplayName}\n{MarkerComputer.FormatTimer(seconds)}";
             ReconfigureInstance(entry, instance);

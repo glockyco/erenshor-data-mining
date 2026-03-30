@@ -6,6 +6,8 @@ namespace AdventureGuide.Resolution;
 
 /// <summary>
 /// One resolved actionable world target derived from a quest resolution.
+/// The shared semantic action is canonical; arrow and marker projections are
+/// derived from it rather than rebuilt locally.
 /// </summary>
 public sealed class ResolvedQuestTarget
 {
@@ -16,10 +18,10 @@ public sealed class ResolvedQuestTarget
 
     public ViewNode GoalNode { get; }
     public ViewNode TargetNode { get; }
+    public ResolvedActionSemantic Semantic { get; }
     public NavigationExplanation Explanation { get; }
 
     public Vector3 Position { get; }
-    public MarkerInstruction Marker { get; }
 
     public ResolvedQuestTarget(
         string questKey,
@@ -28,9 +30,9 @@ public sealed class ResolvedQuestTarget
         string? sourceKey,
         ViewNode goalNode,
         ViewNode targetNode,
+        ResolvedActionSemantic semantic,
         NavigationExplanation explanation,
-        Vector3 position,
-        MarkerInstruction marker)
+        Vector3 position)
     {
         QuestKey = questKey;
         TargetNodeKey = targetNodeKey;
@@ -38,8 +40,8 @@ public sealed class ResolvedQuestTarget
         SourceKey = sourceKey;
         GoalNode = goalNode;
         TargetNode = targetNode;
+        Semantic = semantic;
         Explanation = explanation;
         Position = position;
-        Marker = marker;
     }
 }

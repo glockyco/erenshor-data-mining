@@ -1,102 +1,180 @@
-using AdventureGuide.Frontier;
-using AdventureGuide.Graph;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Views;
 
 namespace AdventureGuide.Navigation;
 
-/// <summary>
-/// Builds semantic navigation explanations from already-resolved pruned view
-/// nodes. This is the single place that translates graph/tree semantics into
-/// player-facing intent for arrow and tracker surfaces.
-/// </summary>
 public static class NavigationExplanationBuilder
 {
     public static NavigationExplanation Build(
+        ResolvedActionSemantic semantic,
         ViewNode goalNode,
-        ViewNode targetNode,
-        QuestStateTracker tracker,
-        Node? requestedNode = null)
+        ViewNode targetNode)
     {
-        var goalKind = DetermineGoalKind(goalNode);
-        var targetKind = DetermineTargetKind(targetNode);
-        string goalText = BuildGoalText(goalNode, tracker, goalKind);
-        string targetText = targetNode.Node.DisplayName;
-        string? zoneText = GetZoneText(targetNode);
-        string? contextText = BuildContextText(requestedNode, goalNode, targetNode);
-        string? detailText = BuildDetailText(goalNode, targetNode, goalKind, tracker);
+        string primary = BuildArrowPrimary(semantic, targetNode);
+        string? secondary = BuildArrowSecondary(semantic, primary);
+        string? tertiary = BuildArrowTertiary(semantic, secondary);
 
         return new NavigationExplanation(
-            goalKind,
-            targetKind,
+            semantic.GoalKind,
+            semantic.TargetKind,
             goalNode,
             targetNode,
-            goalText,
-            targetText,
-            zoneText,
-            contextText,
-            detailText);
+            primary,
+            semantic.TargetIdentityText,
+            semantic.ZoneText,
+            secondary,
+            tertiary);
     }
 
-    private static string? BuildContextText(Node? requestedNode, ViewNode goalNode, ViewNode targetNode)
+    public static NavigationExplanation BuildCorpseExplanation(
+        ResolvedActionSemantic semantic,
+        ViewNode goalNode,
+        ViewNode targetNode)
     {
-        if (requestedNode?.Type != NodeType.Quest)
-            return null;
-        if (goalNode.EdgeType != EdgeType.AssignedBy)
-            return null;
-        if (targetNode.Node.Type != NodeType.Character)
-            return null;
-        if (string.Equals(requestedNode.DisplayName, targetNode.Node.DisplayName, StringComparison.OrdinalIgnoreCase))
-            return null;
-        return requestedNode.DisplayName;
+        string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
+        string primary = $"Loot {payload}";
+        string? secondary = BuildArrowSecondary(semantic, primary);
+
+        return new NavigationExplanation(
+            semantic.GoalKind,
+            semantic.TargetKind,
+            goalNode,
+            targetNode,
+            primary,
+            semantic.TargetIdentityText,
+            semantic.ZoneText,
+            secondary,
+            tertiaryText: null);
     }
 
     public static TrackerSummary BuildTrackerSummary(
         ViewNode frontierNode,
-        ViewNode summaryNode,
+        ResolvedActionSemantic semantic,
         QuestStateTracker tracker,
         int additionalCount)
     {
-        var explanation = Build(summaryNode, summaryNode, tracker);
-        string primary = explanation.GoalText;
-
+        string primary = BuildTrackerPrimary(semantic, tracker);
         if (additionalCount > 0)
             primary += $" (+{additionalCount} more)";
 
-        string? secondary = BuildTrackerSecondary(frontierNode, summaryNode);
+        string? secondary = BuildTrackerSecondary(frontierNode, semantic, primary);
         return new TrackerSummary(primary, secondary);
     }
 
-    private static string? BuildTrackerSecondary(ViewNode frontierNode, ViewNode summaryNode)
+    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, ViewNode targetNode)
     {
-        bool sameSummary = IsSameSummary(frontierNode, summaryNode);
-        if (sameSummary)
+        return semantic.ActionKind switch
+        {
+            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText)
+                => $"Give {semantic.PayloadText}",
+            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText)
+                => $"Buy {semantic.PayloadText}",
+            ResolvedActionKind.Talk => $"Talk to {semantic.TargetIdentityText}",
+            ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
+            ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
+            ResolvedActionKind.Kill when targetNode.Edge?.Quantity is int quantity && quantity > 1
+                => $"Kill {semantic.TargetIdentityText} ({quantity})",
+            ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
+            ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
+            ResolvedActionKind.Travel => $"Go to {semantic.TargetIdentityText}",
+            ResolvedActionKind.Gather => $"Gather {semantic.TargetIdentityText}",
+            ResolvedActionKind.Buy => $"Buy from {semantic.TargetIdentityText}",
+            ResolvedActionKind.CompleteQuest => $"Complete {semantic.TargetIdentityText}",
+            _ => semantic.TargetIdentityText,
+        };
+    }
+
+    private static string? BuildArrowSecondary(ResolvedActionSemantic semantic, string primary)
+    {
+        bool includesTargetIdentity = primary.Contains(semantic.TargetIdentityText, System.StringComparison.OrdinalIgnoreCase);
+        if (!includesTargetIdentity)
+            return AppendZone(semantic.TargetIdentityText, semantic.ZoneText);
+
+        if (!string.IsNullOrEmpty(semantic.ContextText))
+            return AppendZone(semantic.ContextText!, semantic.ZoneText);
+
+        return semantic.ZoneText;
+    }
+
+    private static string? BuildArrowTertiary(ResolvedActionSemantic semantic, string? secondary)
+    {
+        if (string.IsNullOrEmpty(semantic.RationaleText))
             return null;
+        if (string.Equals(semantic.RationaleText, secondary, System.StringComparison.OrdinalIgnoreCase))
+            return null;
+        return semantic.RationaleText;
+    }
+
+    private static string BuildTrackerPrimary(ResolvedActionSemantic semantic, QuestStateTracker tracker)
+    {
+        return semantic.GoalKind switch
+        {
+            NavigationGoalKind.CollectItem => BuildCollectPrimary(semantic, tracker),
+            NavigationGoalKind.CompleteBlockingQuest => $"Complete {semantic.TargetIdentityText}",
+            _ => BuildTrackerActionPrimary(semantic),
+        };
+    }
+
+    private static string BuildCollectPrimary(ResolvedActionSemantic semantic, QuestStateTracker tracker)
+    {
+        string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
+        int need = semantic.GoalQuantity ?? 1;
+        if (need <= 1 || string.IsNullOrEmpty(semantic.GoalNodeKey))
+            return $"Collect {payload}";
+
+        int have = tracker.CountItem(semantic.GoalNodeKey);
+        return $"Collect {payload} ({have}/{need})";
+    }
+
+    private static string BuildTrackerActionPrimary(ResolvedActionSemantic semantic)
+    {
+        return semantic.ActionKind switch
+        {
+            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText)
+                => $"Give {semantic.PayloadText}",
+            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText)
+                => $"Buy {semantic.PayloadText}",
+            ResolvedActionKind.Talk => $"Talk to {semantic.TargetIdentityText}",
+            ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
+            ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
+            ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
+            ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
+            ResolvedActionKind.Travel => $"Go to {semantic.TargetIdentityText}",
+            ResolvedActionKind.Gather => $"Gather {semantic.TargetIdentityText}",
+            ResolvedActionKind.Buy => $"Buy from {semantic.TargetIdentityText}",
+            ResolvedActionKind.CompleteQuest => $"Complete {semantic.TargetIdentityText}",
+            _ => semantic.TargetIdentityText,
+        };
+    }
+
+    private static string? BuildTrackerSecondary(
+        ViewNode frontierNode,
+        ResolvedActionSemantic semantic,
+        string primary)
+    {
+        if (semantic.GoalKind != NavigationGoalKind.CollectItem
+            && !string.IsNullOrEmpty(semantic.RationaleText)
+            && !string.Equals(semantic.RationaleText, primary, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return semantic.RationaleText;
+        }
 
         var blockingQuest = FindBlockingQuest(frontierNode);
         if (blockingQuest != null)
-            return $"Needed for {blockingQuest.Node.DisplayName}";
+        {
+            string secondary = $"Needed for {blockingQuest.Node.DisplayName}";
+            return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
+        }
 
-        return $"Needed for {frontierNode.Node.DisplayName}";
-    }
+        if (semantic.GoalKind == NavigationGoalKind.CollectItem)
+            return null;
 
-    private static bool IsSameSummary(ViewNode frontierNode, ViewNode summaryNode)
-    {
-        if (frontierNode.EdgeType != summaryNode.EdgeType)
-            return false;
+        if (string.Equals(frontierNode.Node.DisplayName, semantic.TargetIdentityText, System.StringComparison.OrdinalIgnoreCase))
+            return null;
 
-        if (frontierNode.NodeKey == summaryNode.NodeKey)
-            return true;
-
-        // Position collection can promote a positioned source variant of the same
-        // semantic target (for example a directly placed NPC marker node instead of
-        // the character node). Suppress redundant secondary text when both summary
-        // nodes describe the same visible target.
-        return frontierNode.Node.Type == summaryNode.Node.Type
-            && string.Equals(
-                frontierNode.Node.DisplayName,
-                summaryNode.Node.DisplayName,
-                StringComparison.OrdinalIgnoreCase);
+        string neededFor = $"Needed for {frontierNode.Node.DisplayName}";
+        return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase) ? null : neededFor;
     }
 
     private static ViewNode? FindBlockingQuest(ViewNode node)
@@ -114,110 +192,6 @@ public static class NavigationExplanationBuilder
         return null;
     }
 
-    private static NavigationGoalKind DetermineGoalKind(ViewNode node)
-    {
-        if (node.Node.Type == NodeType.Item || node.EdgeType == EdgeType.RequiresItem)
-            return NavigationGoalKind.CollectItem;
-
-        return node.EdgeType switch
-        {
-            EdgeType.StepKill => NavigationGoalKind.KillTarget,
-            EdgeType.StepRead => NavigationGoalKind.ReadItem,
-            EdgeType.StepTalk or EdgeType.StepShout or EdgeType.AssignedBy => NavigationGoalKind.TalkToTarget,
-            EdgeType.StepTravel => NavigationGoalKind.TravelToZone,
-            EdgeType.CompletedBy => NavigationGoalKind.CompleteQuest,
-            EdgeType.RequiresQuest => NavigationGoalKind.CompleteBlockingQuest,
-            _ when node.Node.Type == NodeType.Quest => NavigationGoalKind.CompleteQuest,
-            _ => NavigationGoalKind.Generic,
-        };
-    }
-
-    private static NavigationTargetKind DetermineTargetKind(ViewNode node)
-    {
-        return node.Node.Type switch
-        {
-            NodeType.Character => node.EdgeType == EdgeType.StepKill || node.EdgeType == EdgeType.DropsItem
-                ? NavigationTargetKind.Enemy
-                : NavigationTargetKind.Character,
-            NodeType.Item => NavigationTargetKind.Item,
-            NodeType.Quest => NavigationTargetKind.Quest,
-            NodeType.Zone => NavigationTargetKind.Zone,
-            NodeType.ZoneLine => NavigationTargetKind.ZoneLine,
-            _ => NavigationTargetKind.Object,
-        };
-    }
-
-    private static string BuildGoalText(ViewNode node, QuestStateTracker tracker, NavigationGoalKind kind)
-    {
-        return kind switch
-        {
-            NavigationGoalKind.CollectItem => FormatCollectItem(node, tracker),
-            NavigationGoalKind.CompleteBlockingQuest => $"Complete {node.Node.DisplayName}",
-            _ => ActionTextFormatter.FormatSummary(node, tracker),
-        };
-    }
-
-    private static string FormatCollectItem(ViewNode node, QuestStateTracker tracker)
-    {
-        string itemName = node.Node.DisplayName;
-        int need = node.Edge?.Quantity ?? 1;
-        if (need <= 1)
-            return $"Collect {itemName}";
-
-        int have = tracker.CountItem(node.NodeKey);
-        return $"Collect {itemName} ({have}/{need})";
-    }
-
-    private static string? BuildDetailText(
-        ViewNode goalNode,
-        ViewNode targetNode,
-        NavigationGoalKind goalKind,
-        QuestStateTracker tracker)
-    {
-        bool sameTarget = goalNode.NodeKey == targetNode.NodeKey
-            && goalNode.EdgeType == targetNode.EdgeType;
-        if (sameTarget)
-            return null;
-
-        if (goalKind == NavigationGoalKind.CollectItem)
-        {
-            return targetNode.EdgeType switch
-            {
-                EdgeType.DropsItem => "Drops the required item",
-                EdgeType.SellsItem => "Sells the required item",
-                EdgeType.GivesItem => "Gives the required item",
-                EdgeType.YieldsItem => "Contains the required item",
-                EdgeType.RewardsItem => targetNode.Node.Type == NodeType.Quest
-                    ? "Rewards the required item"
-                    : "Provides the required item",
-                _ => "Unlocks the required source",
-            };
-        }
-
-        if (goalKind == NavigationGoalKind.CompleteBlockingQuest)
-            return "Required for the tracked goal";
-
-        if (targetNode.EdgeType == EdgeType.CompletedBy && goalNode.EdgeType != EdgeType.CompletedBy)
-            return "Current completion target";
-
-        if (goalNode.EdgeType == EdgeType.CompletedBy && goalNode.Edge?.Quantity is int qty && qty > 1)
-        {
-            int have = tracker.CountItem(goalNode.NodeKey);
-            return $"Progress {have}/{qty}";
-        }
-
-        return null;
-    }
-
-    private static string? GetZoneText(ViewNode node)
-    {
-        if (node.SourceZones != null && node.SourceZones.Count > 0)
-        {
-            if (node.SourceZones.Count == 1)
-                return node.SourceZones[0];
-            return string.Join(", ", node.SourceZones);
-        }
-
-        return node.Node.Zone;
-    }
+    private static string AppendZone(string text, string? zoneText) =>
+        string.IsNullOrEmpty(zoneText) ? text : $"{text} · {zoneText}";
 }

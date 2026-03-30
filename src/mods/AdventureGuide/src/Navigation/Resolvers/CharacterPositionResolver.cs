@@ -35,20 +35,6 @@ public sealed class CharacterPositionResolver : IPositionResolver
     public void Resolve(Node node, List<ResolvedPosition> results)
     {
         var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
-        var liveNpc = _entities.FindClosest(node.Key, playerPos);
-        if (liveNpc != null)
-        {
-            var sourceNodeKey = FindClosestSpawnNodeKey(node, liveNpc.transform.position)
-                ?? (node.X.HasValue && node.Y.HasValue && node.Z.HasValue ? node.Key : null);
-            if (sourceNodeKey != null)
-                _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, sourceNodeKey));
-
-            results.Add(new ResolvedPosition(
-                liveNpc.transform.position,
-                SceneManager.GetActiveScene().name,
-                sourceNodeKey));
-            return;
-        }
 
         var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
         if (spawnEdges.Count > 0)
@@ -75,6 +61,15 @@ public sealed class CharacterPositionResolver : IPositionResolver
 
                 if (info.State is SpawnDead dead)
                 {
+                    if (info.LiveNPC != null && info.LiveNPC.gameObject != null)
+                    {
+                        results.Add(new ResolvedPosition(
+                            info.LiveNPC.transform.position,
+                            SceneManager.GetActiveScene().name,
+                            spawnNode.Key));
+                        return;
+                    }
+
                     foundAny = true;
                     if (dead.RespawnSeconds < bestRespawn)
                     {
@@ -96,6 +91,21 @@ public sealed class CharacterPositionResolver : IPositionResolver
                     bestSpawn.Key));
                 return;
             }
+        }
+
+        var liveNpc = _entities.FindClosest(node.Key, playerPos);
+        if (liveNpc != null)
+        {
+            var sourceNodeKey = FindClosestSpawnNodeKey(node, liveNpc.transform.position)
+                ?? (node.X.HasValue && node.Y.HasValue && node.Z.HasValue ? node.Key : null);
+            if (sourceNodeKey != null)
+                _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, sourceNodeKey));
+
+            results.Add(new ResolvedPosition(
+                liveNpc.transform.position,
+                SceneManager.GetActiveScene().name,
+                sourceNodeKey));
+            return;
         }
 
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)

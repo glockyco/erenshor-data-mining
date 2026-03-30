@@ -14,7 +14,6 @@ namespace AdventureGuide.Resolution;
 public sealed class QuestResolutionService
 {
     private readonly EntityGraph _graph;
-    private readonly GraphIndexes _indexes;
     private readonly QuestStateTracker _tracker;
     private readonly GameState _gameState;
     private readonly QuestViewBuilder _viewBuilder;
@@ -29,7 +28,6 @@ public sealed class QuestResolutionService
 
     public QuestResolutionService(
         EntityGraph graph,
-        GraphIndexes indexes,
         QuestStateTracker tracker,
         GameState gameState,
         QuestViewBuilder viewBuilder,
@@ -37,7 +35,6 @@ public sealed class QuestResolutionService
         GuideDependencyEngine dependencies)
     {
         _graph = graph;
-        _indexes = indexes;
         _tracker = tracker;
         _gameState = gameState;
         _viewBuilder = viewBuilder;
@@ -111,7 +108,7 @@ public sealed class QuestResolutionService
         var structure = ResolveStructure(questKey);
         var questNode = _graph.GetNode(questKey);
         var targets = ResolveTargets(questKey, structure.Frontier, questNode);
-        var trackerSummary = BuildTrackerSummary(structure.Frontier, targets);
+        var trackerSummary = BuildTrackerSummary(questNode, structure.Frontier, targets);
 
         return new QuestResolution(
             questKey,
@@ -240,11 +237,15 @@ public sealed class QuestResolutionService
         if (!seen.Add(dedupeKey))
             return;
 
-        var explanation = NavigationExplanationBuilder.Build(
+        var semantic = ResolvedActionSemanticBuilder.Build(
+            _graph,
+            requestedNode,
             resolved.GoalNode,
-            resolved.TargetNode,
-            _tracker,
-            requestedNode);
+            resolved.TargetNode);
+        var explanation = NavigationExplanationBuilder.Build(
+            semantic,
+            resolved.GoalNode,
+            resolved.TargetNode);
 
         results.Add(new ResolvedQuestTarget(
             questKey,
@@ -253,72 +254,55 @@ public sealed class QuestResolutionService
             resolved.SourceKey,
             resolved.GoalNode,
             resolved.TargetNode,
+            semantic,
             explanation,
-            resolved.Position,
-            BuildMarkerInstruction(requestedNode, explanation, resolved.GoalNode)));
+            resolved.Position));
     }
 
     private TrackerSummary BuildTrackerSummary(
+        Node? requestedNode,
         IReadOnlyList<ViewNode> frontier,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
         if (frontier.Count == 0)
             return new TrackerSummary("Ready to turn in", null);
 
-        var summaryNode = targets.Count > 0 ? targets[0].GoalNode : frontier[0];
+        var summarySemantic = SelectTrackerSemantic(frontier[0], targets)
+            ?? ResolvedActionSemanticBuilder.Build(_graph, requestedNode ?? frontier[0].Node, frontier[0], frontier[0]);
+
         return NavigationExplanationBuilder.BuildTrackerSummary(
             frontier[0],
-            summaryNode,
+            summarySemantic,
             _tracker,
             Math.Max(0, frontier.Count - 1));
     }
 
-    private static MarkerInstruction BuildMarkerInstruction(
-        Node requestedNode,
-        NavigationExplanation explanation,
-        ViewNode goalNode)
+    private static ResolvedActionSemantic? SelectTrackerSemantic(
+        ViewNode frontierNode,
+        IReadOnlyList<ResolvedQuestTarget> targets)
     {
-        var markerType = DetermineActiveMarkerType(requestedNode, goalNode);
-        var subText = FormatActiveMarkerSubText(explanation);
-        return new MarkerInstruction(markerType, subText);
+        for (int i = 0; i < targets.Count; i++)
+        {
+            if (IsSameGoal(frontierNode, targets[i].GoalNode))
+                return targets[i].Semantic;
+        }
+
+        return targets.Count > 0 ? targets[0].Semantic : null;
     }
 
-    private static MarkerType DetermineActiveMarkerType(Node requestedNode, ViewNode goalNode) =>
-        goalNode.EdgeType == EdgeType.CompletedBy
-            ? (requestedNode.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
-            : MarkerType.Objective;
-
-    private static string FormatActiveMarkerSubText(NavigationExplanation explanation)
+    private static bool IsSameGoal(ViewNode frontierNode, ViewNode candidateGoal)
     {
-        string action = ActionTextFormatter.FormatAction(
-            explanation.TargetNode.EdgeType,
-            explanation.TargetNode.Edge);
-        string? reason = FormatActiveMarkerReason(explanation);
-        if (string.IsNullOrEmpty(reason))
-            return action;
+        if (frontierNode.EdgeType != candidateGoal.EdgeType)
+            return false;
 
-        return action == reason ? action : $"{action}\n{reason}";
-    }
+        if (frontierNode.NodeKey == candidateGoal.NodeKey)
+            return true;
 
-    private static string? FormatActiveMarkerReason(NavigationExplanation explanation)
-    {
-        bool sameTarget = explanation.GoalNode.NodeKey == explanation.TargetNode.NodeKey
-            && explanation.GoalNode.EdgeType == explanation.TargetNode.EdgeType;
-        if (sameTarget)
-            return null;
-
-        if (explanation.GoalKind == NavigationGoalKind.CollectItem)
-            return StripCollectPrefix(explanation.GoalText);
-
-        return explanation.GoalText;
-    }
-
-    private static string StripCollectPrefix(string text)
-    {
-        const string prefix = "Collect ";
-        return text.StartsWith(prefix, StringComparison.Ordinal)
-            ? text.Substring(prefix.Length)
-            : text;
+        return frontierNode.Node.Type == candidateGoal.Node.Type
+            && string.Equals(
+                frontierNode.Node.DisplayName,
+                candidateGoal.Node.DisplayName,
+                StringComparison.OrdinalIgnoreCase);
     }
 
     private readonly struct QuestStructure
