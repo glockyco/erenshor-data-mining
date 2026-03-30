@@ -57,16 +57,32 @@ public sealed class ViewRenderer
         {
             var questState = _state.GetState(root.NodeKey);
             ImGui.Indent(Theme.IndentWidth);
-            bool lastWasVariantContainer = false;
-            foreach (var child in root.Children)
+            // Detect runs of consecutive VariantGroupNodes. A "One of:" header
+            // and indent wraps each run; the separator was replaced by this
+            // structure so no special characters are needed.
+            bool inVariantRun = false;
+            for (int i = 0; i < root.Children.Count; i++)
             {
-                // Insert a visual separator between consecutive OR-variant
-                // containers so the player understands they are alternatives.
-                if (child is VariantGroupNode && lastWasVariantContainer)
-                    DrawOrSeparator();
+                var child = root.Children[i];
+                bool isVariant = child is VariantGroupNode;
+
+                if (isVariant && !inVariantRun)
+                {
+                    DrawOneOfHeader();
+                    ImGui.Indent(Theme.IndentWidth);
+                    inVariantRun = true;
+                }
+                else if (!isVariant && inVariantRun)
+                {
+                    ImGui.Unindent(Theme.IndentWidth);
+                    inVariantRun = false;
+                }
+
                 DrawNode(child, 0, questState);
-                lastWasVariantContainer = child is VariantGroupNode;
             }
+
+            if (inVariantRun)
+                ImGui.Unindent(Theme.IndentWidth);
             ImGui.Unindent(Theme.IndentWidth);
 
             if (_graph.OutEdges(root.NodeKey, EdgeType.CompletedBy).Count == 0)
@@ -258,41 +274,36 @@ public sealed class ViewRenderer
     /// </summary>
     private void DrawVariantContainer(VariantGroupNode container, int depth, NodeState questState)
     {
-        bool hasLabel = container.HasLabel;
-        if (hasLabel)
+        if (container.HasLabel)
         {
-            // Collapsible section labelled by reward outcome (e.g. "\u2192 Malaroth Feed")
+            // Labelled group: "Malaroth Feed:" header then indented items.
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            bool open = ImGui.TreeNodeEx(
-                $"\u2192 {container.Label}###{container.NodeKey}",
-                ImGuiTreeNodeFlags.DefaultOpen);
+            ImGui.TextUnformatted($"{container.Label}:");
             ImGui.PopStyleColor();
-            if (open)
-            {
-                foreach (var child in container.Children)
-                    DrawNode(child, depth + 1, questState);
-                ImGui.TreePop();
-            }
+            ImGui.Indent(Theme.IndentWidth);
+            foreach (var child in container.Children)
+                DrawNode(child, depth + 1, questState);
+            ImGui.Unindent(Theme.IndentWidth);
         }
         else
         {
-            // Unlabelled container — items at the same depth, OR separator handles grouping.
+            // Unlabelled: items flat — the "One of:" header from the Objectives
+            // loop already provides context and visual indentation.
             foreach (var child in container.Children)
                 DrawNode(child, depth, questState);
         }
     }
 
     /// <summary>
-    /// Horizontal rule with "or" label rendered between consecutive OR-variant
-    /// group containers in the Objectives section.
+    /// "One of:" header rendered before the first VariantGroupNode in a run.
+    /// Uses only ASCII text to avoid font-rendering issues.
     /// </summary>
-    private static void DrawOrSeparator()
+    private static void DrawOneOfHeader()
     {
         ImGui.Spacing();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        ImGui.TextUnformatted("\u2500 or \u2500");  // "─ or ─"
+        ImGui.TextUnformatted("One of:");
         ImGui.PopStyleColor();
-        ImGui.Spacing();
     }
 
 
