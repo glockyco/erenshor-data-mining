@@ -154,8 +154,9 @@ public sealed class NavigationEngine
             var candidate = _candidates[i];
             bool sameScene = string.Equals(candidate.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                 || candidate.Scene == null;
+            bool zoneExit = sameScene && candidate.Semantic.GoalKind == NavigationGoalKind.TravelToZone;
             float score = (candidate.Position - playerPosition).sqrMagnitude;
-            if (!sameScene)
+            if (!sameScene || zoneExit)
                 score += 1_000_000f;
 
             if (score < bestScore)

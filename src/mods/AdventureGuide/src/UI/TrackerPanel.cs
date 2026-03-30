@@ -451,6 +451,8 @@ public sealed class TrackerPanel
             var target = resolution.Targets[i];
             if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
                 continue;
+            if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
+                continue;
 
             float distance = Vector3.Distance(playerPos, target.Position);
             if (distance < minDistance)
@@ -479,6 +481,8 @@ public sealed class TrackerPanel
         {
             var target = resolution.Targets[i];
             if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
                 continue;
 
             float distance = Vector3.Distance(playerPos, target.Position);
