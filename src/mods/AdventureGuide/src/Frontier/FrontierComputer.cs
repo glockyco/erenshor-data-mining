@@ -240,7 +240,10 @@ public static class FrontierComputer
         }
 
         // Nothing contributed — this node itself is the frontier.
-        if (frontier.Count == before)
+        // OR-variant containers are structural wrappers with no world position;
+        // if all their items are collected the parent quest's turn-in phase
+        // handles progression. Never add them to the frontier.
+        if (frontier.Count == before && !node.IsVariantContainer)
         {
             if (seen.Add(node.NodeKey))
                 frontier.Add(node);

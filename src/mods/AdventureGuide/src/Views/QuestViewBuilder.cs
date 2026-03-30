@@ -149,12 +149,21 @@ public sealed class QuestViewBuilder
 
     private static ViewNode CloneViewNode(ViewNode source)
     {
-        var clone = new ViewNode(source.NodeKey, source.Node, source.EdgeType, source.Edge)
+        ViewNode clone;
+        if (source.IsVariantContainer)
         {
-            IsCycleRef = source.IsCycleRef,
-            DefaultExpanded = source.DefaultExpanded,
-            EffectiveLevel = source.EffectiveLevel,
-        };
+            clone = ViewNode.CreateVariantContainer(
+                source.NodeKey, source.VariantGroupLabel!, source.EdgeType ?? EdgeType.RequiresItem);
+        }
+        else
+        {
+            clone = new ViewNode(source.NodeKey, source.Node, source.EdgeType, source.Edge)
+            {
+                IsCycleRef = source.IsCycleRef,
+                DefaultExpanded = source.DefaultExpanded,
+                EffectiveLevel = source.EffectiveLevel,
+            };
+        }
 
         if (source.SourceZones != null)
             clone.SourceZones = new List<string>(source.SourceZones);

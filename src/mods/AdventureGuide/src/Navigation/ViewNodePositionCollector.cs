@@ -78,6 +78,15 @@ public sealed class ViewNodePositionCollector
             return;
         }
 
+        // OR-variant containers are structural wrappers with no position.
+        // Recurse into their children so item positions are still collected.
+        if (node.IsVariantContainer)
+        {
+            foreach (var child in node.Children)
+                CollectDetailed(child, results, active, goalNode);
+            return;
+        }
+
         string token = $"{goalNode.NodeKey}|{node.NodeKey}|{node.EdgeType?.ToString() ?? "root"}";
         if (!active.Add(token))
             return;
