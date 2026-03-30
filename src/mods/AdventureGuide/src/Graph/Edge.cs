@@ -19,6 +19,7 @@ public sealed class Edge
     [JsonProperty("chance")] public float? Chance { get; set; }
     [JsonProperty("amount")] public int? Amount { get; set; }
     [JsonProperty("slot")] public int? Slot { get; set; }
+    [JsonProperty("time_restriction")] public string? TimeRestriction { get; set; }
 
     public override string ToString() => $"{Source} --{Type}--> {Target}";
 }

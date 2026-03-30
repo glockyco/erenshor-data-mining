@@ -477,6 +477,10 @@ public sealed class ViewRenderer
             parts.Add(node.Node.Zone);
         }
 
+        // Time restriction: day/night-only fishables
+        if (node.Edge?.TimeRestriction != null)
+            parts.Add(node.Edge.TimeRestriction == "day" ? "day only" : "night only");
+
         if (parts.Count == 0)
             return "";
 

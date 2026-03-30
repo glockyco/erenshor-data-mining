@@ -1895,18 +1895,41 @@ def _add_mining_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> Non
 
 
 def _add_water_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """water → item (YIELDS_ITEM) from water_fishables."""
-    rows = conn.execute("SELECT water_stable_key, item_stable_key, drop_chance FROM water_fishables")
+    """water → item (YIELDS_ITEM) from water_fishables, deduplicated per (water, item)."""
+    rows = conn.execute("SELECT water_stable_key, item_stable_key, type, drop_chance FROM water_fishables")
+    # Group by (water, item) to merge day/night entries.
+    pairs: dict[tuple[str, str], dict[str, float | None]] = {}
     for r in rows:
-        if graph.has_node(r["water_stable_key"]) and graph.has_node(r["item_stable_key"]):
-            graph.add_edge(
-                Edge(
-                    source=r["water_stable_key"],
-                    target=r["item_stable_key"],
-                    type=EdgeType.YIELDS_ITEM,
-                    chance=r["drop_chance"],
-                )
+        key = (r["water_stable_key"], r["item_stable_key"])
+        if key not in pairs:
+            pairs[key] = {}
+        pairs[key][r["type"]] = r["drop_chance"]
+
+    for (water_key, item_key), types in pairs.items():
+        if not (graph.has_node(water_key) and graph.has_node(item_key)):
+            continue
+
+        has_day = "DayFishable" in types
+        has_night = "NightFishable" in types
+        if has_day and has_night:
+            time_restriction = None
+            chance = max(c for c in types.values() if c is not None) if any(types.values()) else None
+        elif has_day:
+            time_restriction = "day"
+            chance = types.get("DayFishable")
+        else:
+            time_restriction = "night"
+            chance = types.get("NightFishable")
+
+        graph.add_edge(
+            Edge(
+                source=water_key,
+                target=item_key,
+                type=EdgeType.YIELDS_ITEM,
+                chance=chance,
+                time_restriction=time_restriction,
             )
+        )
 
 
 def _add_item_bag_yield_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:

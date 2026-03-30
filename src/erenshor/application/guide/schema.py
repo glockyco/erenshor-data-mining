@@ -251,3 +251,4 @@ class Edge:
     chance: float | None = None
     amount: int | None = None
     slot: int | None = None
+    time_restriction: str | None = None  # "day" or "night"; None = always
