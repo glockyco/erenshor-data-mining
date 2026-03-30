@@ -7,11 +7,12 @@ using UnityEngine.SceneManagement;
 namespace AdventureGuide.Navigation.Resolvers;
 
 /// <summary>
-/// Resolves a Character node to world positions. Priority order:
-/// 1. live NPC position
-/// 2. live spawn/static spawn position
-/// 3. best dead/unknown spawn position
-/// 4. static character position
+/// Resolves a Character node to world positions.
+///
+/// Returns a position for every spawn edge so that each spawn point
+/// produces its own marker and NAV candidate. Live NPC positions are
+/// preferred over static spawn coordinates; dead spawns produce
+/// non-actionable candidates so NAV deprioritises them.
 /// </summary>
 public sealed class CharacterPositionResolver : IPositionResolver
 {
@@ -34,65 +35,60 @@ public sealed class CharacterPositionResolver : IPositionResolver
 
     public void Resolve(Node node, List<ResolvedPosition> results)
     {
-        var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
+        var currentScene = SceneManager.GetActiveScene().name;
+        bool anyFromSpawns = false;
 
         var spawnEdges = _graph.OutEdges(node.Key, EdgeType.HasSpawn);
-        if (spawnEdges.Count > 0)
+        for (int i = 0; i < spawnEdges.Count; i++)
         {
-            Node? bestSpawn = null;
-            float bestRespawn = float.MaxValue;
-            bool foundAny = false;
+            var spawnNode = _graph.GetNode(spawnEdges[i].Target);
+            if (spawnNode == null || !HasPosition(spawnNode))
+                continue;
 
-            for (int i = 0; i < spawnEdges.Count; i++)
+            var info = _liveState.GetSpawnState(spawnNode);
+            var staticPos = new Vector3(spawnNode.X!.Value, spawnNode.Y!.Value, spawnNode.Z!.Value);
+
+            switch (info.State)
             {
-                var spawnNode = _graph.GetNode(spawnEdges[i].Target);
-                if (spawnNode == null || !HasPosition(spawnNode))
-                    continue;
-
-                var info = _liveState.GetSpawnState(spawnNode);
-                if (info.State is SpawnAlive)
+                case SpawnAlive:
                 {
-                    results.Add(new ResolvedPosition(
-                        new Vector3(spawnNode.X!.Value, spawnNode.Y!.Value, spawnNode.Z!.Value),
-                        spawnNode.Scene,
-                        spawnNode.Key));
-                    return;
+                    // Prefer the live NPC transform; fall back to static spawn coords.
+                    var pos = info.LiveNPC != null && info.LiveNPC.gameObject != null
+                        ? info.LiveNPC.transform.position
+                        : staticPos;
+                    var scene = info.LiveNPC != null && info.LiveNPC.gameObject != null
+                        ? currentScene
+                        : spawnNode.Scene;
+                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: true));
+                    anyFromSpawns = true;
+                    break;
                 }
 
-                if (info.State is SpawnDead dead)
+                case SpawnDead:
                 {
-                    if (info.LiveNPC != null && info.LiveNPC.gameObject != null)
-                    {
-                        results.Add(new ResolvedPosition(
-                            info.LiveNPC.transform.position,
-                            SceneManager.GetActiveScene().name,
-                            spawnNode.Key));
-                        return;
-                    }
-
-                    foundAny = true;
-                    if (dead.RespawnSeconds < bestRespawn)
-                    {
-                        bestRespawn = dead.RespawnSeconds;
-                        bestSpawn = spawnNode;
-                    }
+                    // Corpse still present: navigate to it (actionable).
+                    // No corpse: show static spawn position (non-actionable respawn timer).
+                    bool corpsePresent = info.LiveNPC != null && info.LiveNPC.gameObject != null;
+                    var pos = corpsePresent ? info.LiveNPC!.transform.position : staticPos;
+                    var scene = corpsePresent ? currentScene : spawnNode.Scene;
+                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: corpsePresent));
+                    anyFromSpawns = true;
+                    break;
                 }
-                else if (!foundAny)
-                {
-                    bestSpawn ??= spawnNode;
-                }
-            }
 
-            if (bestSpawn != null)
-            {
-                results.Add(new ResolvedPosition(
-                    new Vector3(bestSpawn.X!.Value, bestSpawn.Y!.Value, bestSpawn.Z!.Value),
-                    bestSpawn.Scene,
-                    bestSpawn.Key));
-                return;
+                default:
+                    // NightLocked, QuestGated, Disabled, Unknown — static position, non-actionable.
+                    results.Add(new ResolvedPosition(staticPos, spawnNode.Scene, spawnNode.Key, isActionable: false));
+                    anyFromSpawns = true;
+                    break;
             }
         }
 
+        if (anyFromSpawns)
+            return;
+
+        // No spawn edges — fall back to live NPC entity or static character position.
+        var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
         var liveNpc = _entities.FindClosest(node.Key, playerPos);
         if (liveNpc != null)
         {
@@ -103,8 +99,9 @@ public sealed class CharacterPositionResolver : IPositionResolver
 
             results.Add(new ResolvedPosition(
                 liveNpc.transform.position,
-                SceneManager.GetActiveScene().name,
-                sourceNodeKey));
+                currentScene,
+                sourceNodeKey,
+                isActionable: true));
             return;
         }
 
