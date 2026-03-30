@@ -187,16 +187,17 @@ internal static class ResolvedActionSemanticBuilder
 
         if (goalKind == NavigationGoalKind.CollectItem)
         {
+            string item = goalNode.Node.DisplayName;
             return targetNode.EdgeType switch
             {
-                EdgeType.DropsItem => "Drops the required item",
-                EdgeType.SellsItem => "Sells the required item",
-                EdgeType.GivesItem => "Gives the required item",
-                EdgeType.YieldsItem => "Contains the required item",
+                EdgeType.DropsItem => $"Drops {item}",
+                EdgeType.SellsItem => $"Sells {item}",
+                EdgeType.GivesItem => $"Gives {item}",
+                EdgeType.YieldsItem => $"Contains {item}",
                 EdgeType.RewardsItem => targetNode.Node.Type == NodeType.Quest
-                    ? "Rewards the required item"
-                    : "Provides the required item",
-                _ => "Unlocks the required source",
+                    ? $"Rewards {item}"
+                    : $"Provides {item}",
+                _ => $"Unlocks {item}",
             };
         }
 
