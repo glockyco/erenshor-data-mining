@@ -136,6 +136,7 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 | Interactive map (`src/maps/`) | interactive-map | `.agent/skills/interactive-map/SKILL.md` |
 | Map tile capture | tile-capture | `.agent/skills/tile-capture/SKILL.md` |
 | Runtime eval / HotRepl | runtime-eval | `.agent/skills/runtime-eval/SKILL.md` |
+| In-game runtime profiling | in-game-performance-profiling | `.agent/skills/in-game-performance-profiling/SKILL.md` |
 | Wiki templates | wiki-templates | `.agent/skills/wiki-templates/SKILL.md` |
 | Google Sheets queries | sheets-queries | `.agent/skills/sheets-queries/SKILL.md` |
 | CLI commands (`src/erenshor/cli/`) | cli-commands | `.agent/skills/cli-commands/SKILL.md` |

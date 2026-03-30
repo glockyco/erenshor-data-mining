@@ -84,6 +84,14 @@ uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpEntities("A Hi
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpZoneQuests()'
 ```
 
+## Performance Profiling
+
+For live runtime timing, use the `in-game-performance-profiling` skill.
+
+Keep this skill focused on HotRepl usage, evaluation quirks, and inspection.
+Move detailed benchmarking patterns, Stopwatch helpers, and profiling workflow
+guidance into the profiling skill so `runtime-eval` stays concise.
+
 ## Unity API Access
 
 Static Unity methods need the full `UnityEngine.Object.` prefix:
