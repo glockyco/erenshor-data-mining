@@ -162,13 +162,19 @@ public sealed class MarkerComputer
         if (node.UnlockDependency != null)
             return true;
 
+        if (node.Children.Count == 0)
+            return false;
+
         for (int i = 0; i < node.Children.Count; i++)
         {
-            if (HasBlockingQuestDependency(node.Children[i]))
-                return true;
+            var child = node.Children[i];
+            if (child.IsCycleRef)
+                continue;
+            if (!HasBlockingQuestDependency(child))
+                return false;
         }
 
-        return false;
+        return true;
     }
 
     private void EmitActiveQuestMarkers(Node quest, QuestResolution resolution)

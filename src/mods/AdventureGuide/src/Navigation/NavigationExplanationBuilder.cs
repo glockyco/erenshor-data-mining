@@ -182,14 +182,22 @@ public static class NavigationExplanationBuilder
         if (node.UnlockDependency != null)
             return node.UnlockDependency;
 
+        if (node.Children.Count == 0)
+            return null;
+
+        ViewNode? firstBlocker = null;
         for (int i = 0; i < node.Children.Count; i++)
         {
-            var found = FindBlockingQuest(node.Children[i]);
-            if (found != null)
-                return found;
+            var child = node.Children[i];
+            if (child.IsCycleRef)
+                continue;
+            var found = FindBlockingQuest(child);
+            if (found == null)
+                return null;
+            firstBlocker ??= found;
         }
 
-        return null;
+        return firstBlocker;
     }
 
     private static string AppendZone(string text, string? zoneText) =>
