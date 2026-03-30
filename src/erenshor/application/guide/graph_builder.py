@@ -1259,11 +1259,13 @@ def _add_quest_required_item_edges(conn: sqlite3.Connection, graph: EntityGraph)
         FROM quest_required_items qri
         JOIN quest_variants qv ON qv.resource_name = qri.quest_variant_resource_name
     """)
-    # Check which quests have multiple variants
-    variant_counts: dict[str, int] = {}
+    # Check which quests have multiple distinct variants (count resource_names,
+    # not rows — a single variant with N items must not be treated as N variants).
+    variant_resource_names: dict[str, set[str]] = {}
     for r in rows:
         qk = r["quest_stable_key"]
-        variant_counts[qk] = variant_counts.get(qk, 0) + 1
+        variant_resource_names.setdefault(qk, set()).add(r["quest_variant_resource_name"])
+    is_multi_variant = {qk: len(names) > 1 for qk, names in variant_resource_names.items()}
 
     # Re-execute to iterate (sqlite3 cursors are single-pass)
     rows = conn.execute("""
@@ -1277,8 +1279,8 @@ def _add_quest_required_item_edges(conn: sqlite3.Connection, graph: EntityGraph)
         item_key = r["item_stable_key"]
         if not graph.has_node(quest_key) or not graph.has_node(item_key):
             continue
-        # Use variant resource_name as group for multi-variant quests
-        group = r["quest_variant_resource_name"] if variant_counts.get(quest_key, 1) > 1 else None
+        # Use variant resource_name as group only for genuinely multi-variant quests.
+        group = r["quest_variant_resource_name"] if is_multi_variant.get(quest_key) else None
         graph.add_edge(
             Edge(
                 source=quest_key,
@@ -1321,18 +1323,41 @@ def _add_quest_also_completes_edges(conn: sqlite3.Connection, graph: EntityGraph
 
 
 def _add_quest_reward_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → item (REWARDS_ITEM) from quest_variants.item_on_complete_stable_key."""
+    """quest → item (REWARDS_ITEM) from quest_variants.item_on_complete_stable_key.
+
+    When different variants of the same quest reward different items, each edge
+    carries group=resource_name so the renderer can show per-variant outcomes.
+    When all variants give the same item (or only one variant has a reward),
+    a single ungrouped edge is emitted instead.
+    """
     rows = conn.execute("""
-        SELECT quest_stable_key, item_on_complete_stable_key
+        SELECT quest_stable_key, resource_name, item_on_complete_stable_key
         FROM quest_variants
         WHERE item_on_complete_stable_key IS NOT NULL
-    """)
+    """).fetchall()
+
+    # Group by quest: {quest_key: {resource_name: item_key}}
+    by_quest: dict[str, dict[str, str]] = {}
     for r in rows:
-        src = r["quest_stable_key"]
-        tgt = r["item_on_complete_stable_key"]
-        if not graph.has_node(src) or not graph.has_node(tgt):
+        by_quest.setdefault(r["quest_stable_key"], {})[r["resource_name"]] = r["item_on_complete_stable_key"]
+
+    for quest_key, variant_rewards in by_quest.items():
+        if not graph.has_node(quest_key):
             continue
-        graph.add_edge(Edge(source=src, target=tgt, type=EdgeType.REWARDS_ITEM))
+        distinct_items = set(variant_rewards.values())
+        if len(distinct_items) <= 1:
+            # All variants give the same item — one ungrouped edge, no duplication.
+            item_key = next(iter(distinct_items))
+            if graph.has_node(item_key):
+                graph.add_edge(Edge(source=quest_key, target=item_key, type=EdgeType.REWARDS_ITEM))
+        else:
+            # Different rewards per variant — group each edge by variant so the
+            # renderer can show which recipe produces which item.
+            for resource_name, item_key in variant_rewards.items():
+                if graph.has_node(item_key):
+                    graph.add_edge(
+                        Edge(source=quest_key, target=item_key, type=EdgeType.REWARDS_ITEM, group=resource_name)
+                    )
 
 
 def _add_quest_faction_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
