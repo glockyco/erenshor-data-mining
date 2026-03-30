@@ -141,7 +141,12 @@ internal static class ResolvedActionSemanticBuilder
             EdgeType.StepRead => ResolvedActionKind.Read,
             EdgeType.StepTravel => ResolvedActionKind.Travel,
             EdgeType.SellsItem => ResolvedActionKind.Buy,
-            EdgeType.YieldsItem => ResolvedActionKind.Gather,
+            EdgeType.YieldsItem => targetNode.Node.Type switch
+            {
+                NodeType.Water      => ResolvedActionKind.Fish,
+                NodeType.MiningNode => ResolvedActionKind.Mine,
+                _                   => ResolvedActionKind.Collect,
+            },
             EdgeType.RequiresQuest or EdgeType.RewardsItem => ResolvedActionKind.CompleteQuest,
             _ when targetNode.Node.Type == NodeType.Quest => ResolvedActionKind.CompleteQuest,
             _ => ResolvedActionKind.Talk,

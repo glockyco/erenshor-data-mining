@@ -5,53 +5,14 @@ using AdventureGuide.Views;
 namespace AdventureGuide.Frontier;
 
 /// <summary>
-/// Formats frontier ViewNodes into player-facing action text.
-///
-/// Two assembly patterns, same underlying logic:
-/// <list type="bullet">
-///   <item><see cref="FormatAction"/>: action only, no target name.
-///     For marker sub-text where the marker IS the target.
-///     Example: "Kill", "Say 'tomb'", "2/5 Dragon Scale"</item>
-///   <item><see cref="FormatSummary"/>: action + target name.
-///     For tracker overlay and arrow labels.
-///     Example: "Kill Grizzlemaw", "Say 'tomb' to Kedon", "Dragon Scale (2/5)"</item>
-/// </list>
-///
+/// Formats frontier <see cref="EntityViewNode"/>s into player-facing action text
+/// for the tracker overlay and arrow labels (action + target name).
 /// The detail panel (ViewRenderer) uses its own verbose format with colons
 /// and em-dashes because tree nodes need different readability than glanceable
 /// overlay text.
 /// </summary>
 public static class ActionTextFormatter
 {
-    // ── Marker sub-text: action only ────────────────────────────────────
-
-    /// <summary>
-    /// Terse action without target name. The marker position identifies the target.
-    /// </summary>
-    public static string FormatAction(EdgeType? edgeType, Edge? edge)
-    {
-        return edgeType switch
-        {
-            EdgeType.StepTalk when edge?.Keyword != null => $"Say '{edge.Keyword}'",
-            EdgeType.StepTalk => "Talk to",
-            EdgeType.StepKill when edge?.Quantity is > 1 => $"Kill ({edge.Quantity})",
-            EdgeType.StepKill => "Kill",
-            EdgeType.StepShout when edge?.Keyword != null => $"Shout '{edge.Keyword}'",
-            EdgeType.StepShout => "Shout near",
-            EdgeType.StepTravel => "Travel to",
-            EdgeType.StepRead => "Read",
-            EdgeType.CompletedBy when edge?.Keyword != null => $"Say '{edge.Keyword}'",
-            EdgeType.CompletedBy => "Turn in",
-            EdgeType.AssignedBy when edge?.Keyword != null => $"Say '{edge.Keyword}'",
-            EdgeType.AssignedBy => "Talk to",
-            EdgeType.GivesItem when edge?.Keyword != null => $"Say '{edge.Keyword}'",
-            EdgeType.GivesItem => "Talk to",
-            EdgeType.SellsItem => "Buy",
-            EdgeType.DropsItem => "Kill",
-            EdgeType.YieldsItem => "Gather",
-            _ => "Talk to",
-        };
-    }
 
     // ── Tracker / arrow: action + target ────────────────────────────────
 
