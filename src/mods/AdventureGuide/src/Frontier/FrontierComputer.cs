@@ -82,6 +82,8 @@ public static class FrontierComputer
             case EdgeType.RequiresItem:
             case EdgeType.RequiresMaterial:
             {
+                if (questState is QuestCompleted)
+                    return EdgeRole.Done;
                 var ns = state.GetState(node.NodeKey);
                 if (ns is ItemCount ic && node.Edge?.Quantity is int qty)
                     return ic.Count >= qty ? EdgeRole.Done : EdgeRole.Objective;
@@ -95,14 +97,16 @@ public static class FrontierComputer
 
             // ── Player action steps ────────────────────────────────
             // The game doesn't expose per-step completion state, so
-            // these are always objectives for active quests. We can't
-            // distinguish "talked to NPC A" from "haven't talked yet."
+            // these are always objectives for active quests. When the
+            // quest itself is completed, all steps are implicitly done
+            // — the game permits completion without individual step
+            // tracking.
             case EdgeType.StepTalk:
             case EdgeType.StepKill:
             case EdgeType.StepTravel:
             case EdgeType.StepShout:
             case EdgeType.StepRead:
-                return EdgeRole.Objective;
+                return questState is QuestCompleted ? EdgeRole.Done : EdgeRole.Objective;
 
             // ── Acquisition sources (not objectives) ───────────────
             case EdgeType.DropsItem:
