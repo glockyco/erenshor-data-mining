@@ -256,7 +256,8 @@ public sealed class QuestResolutionService
             resolved.TargetNode,
             semantic,
             explanation,
-            resolved.Position));
+            resolved.Position,
+            resolved.IsActionable));
     }
 
     private TrackerSummary BuildTrackerSummary(

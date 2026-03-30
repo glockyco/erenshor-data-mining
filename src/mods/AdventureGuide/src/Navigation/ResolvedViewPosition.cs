@@ -14,18 +14,21 @@ public readonly struct ResolvedViewPosition
     public readonly string? SourceKey;
     public readonly ViewNode GoalNode;
     public readonly ViewNode TargetNode;
+    public readonly bool IsActionable;
 
     public ResolvedViewPosition(
         Vector3 position,
         string? scene,
         string? sourceKey,
         ViewNode goalNode,
-        ViewNode targetNode)
+        ViewNode targetNode,
+        bool isActionable = true)
     {
         Position = position;
         Scene = scene;
         SourceKey = sourceKey;
         GoalNode = goalNode;
         TargetNode = targetNode;
+        IsActionable = isActionable;
     }
 }

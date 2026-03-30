@@ -140,24 +140,31 @@ public sealed class NavigationEngine
                 target.Scene,
                 target.SourceKey,
                 target.Semantic,
-                target.Explanation));
+                target.Explanation,
+                target.IsActionable));
         }
     }
 
     private void PickClosest(Vector3 playerPosition)
     {
+        const float NonActionablePenalty = 500_000f;
+        const float CrossZonePenalty = 1_000_000f;
+
         float bestScore = float.MaxValue;
         Candidate? best = null;
 
         for (int i = 0; i < _candidates.Count; i++)
         {
             var candidate = _candidates[i];
+
             bool sameScene = string.Equals(candidate.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
                 || candidate.Scene == null;
             bool zoneExit = sameScene && candidate.Semantic.GoalKind == NavigationGoalKind.TravelToZone;
             float score = (candidate.Position - playerPosition).sqrMagnitude;
             if (!sameScene || zoneExit)
-                score += 1_000_000f;
+                score += CrossZonePenalty;
+            else if (!candidate.IsActionable)
+                score += NonActionablePenalty;
 
             if (score < bestScore)
             {
@@ -306,7 +313,7 @@ public sealed class NavigationEngine
         public readonly string? SourceKey;
         public readonly NavigationExplanation Explanation;
         public readonly ResolvedActionSemantic Semantic;
-
+        public readonly bool IsActionable;
 
         public Candidate(
             string requestedKey,
@@ -315,7 +322,8 @@ public sealed class NavigationEngine
             string? scene,
             string? sourceKey,
             ResolvedActionSemantic semantic,
-            NavigationExplanation explanation)
+            NavigationExplanation explanation,
+            bool isActionable = true)
         {
             RequestedKey = requestedKey;
             NodeKey = nodeKey;
@@ -324,6 +332,7 @@ public sealed class NavigationEngine
             SourceKey = sourceKey;
             Semantic = semantic;
             Explanation = explanation;
+            IsActionable = isActionable;
         }
     }
 }

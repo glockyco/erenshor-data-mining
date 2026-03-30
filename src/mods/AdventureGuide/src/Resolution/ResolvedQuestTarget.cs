@@ -22,6 +22,7 @@ public sealed class ResolvedQuestTarget
     public NavigationExplanation Explanation { get; }
 
     public Vector3 Position { get; }
+    public bool IsActionable { get; }
 
     public ResolvedQuestTarget(
         string questKey,
@@ -32,7 +33,8 @@ public sealed class ResolvedQuestTarget
         ViewNode targetNode,
         ResolvedActionSemantic semantic,
         NavigationExplanation explanation,
-        Vector3 position)
+        Vector3 position,
+        bool isActionable = true)
     {
         QuestKey = questKey;
         TargetNodeKey = targetNodeKey;
@@ -43,5 +45,6 @@ public sealed class ResolvedQuestTarget
         Semantic = semantic;
         Explanation = explanation;
         Position = position;
+        IsActionable = isActionable;
     }
 }

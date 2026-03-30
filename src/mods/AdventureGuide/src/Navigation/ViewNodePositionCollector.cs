@@ -46,7 +46,7 @@ public sealed class ViewNodePositionCollector
         for (int i = 0; i < detailed.Count; i++)
         {
             var item = detailed[i];
-            results.Add(new ResolvedPosition(item.Position, item.Scene, item.SourceKey));
+            results.Add(new ResolvedPosition(item.Position, item.Scene, item.SourceKey, item.IsActionable));
         }
     }
 
@@ -142,7 +142,7 @@ public sealed class ViewNodePositionCollector
             for (int i = before; i < _scratch.Count; i++)
             {
                 var rp = _scratch[i];
-                results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, node));
+                results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, node, rp.IsActionable));
             }
             if (_scratch.Count > before)
             {
