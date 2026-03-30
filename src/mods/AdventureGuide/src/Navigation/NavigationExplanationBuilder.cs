@@ -52,13 +52,14 @@ public static class NavigationExplanationBuilder
         ViewNode frontierNode,
         ResolvedActionSemantic semantic,
         QuestStateTracker tracker,
-        int additionalCount)
+        int additionalCount,
+        string? prerequisiteQuestName = null)
     {
         string primary = BuildTrackerPrimary(semantic, tracker);
         if (additionalCount > 0)
             primary += $" (+{additionalCount} more)";
 
-        string? secondary = BuildTrackerSecondary(frontierNode, semantic, primary);
+        string? secondary = BuildTrackerSecondary(frontierNode, semantic, primary, prerequisiteQuestName);
         return new TrackerSummary(primary, secondary);
     }
 
@@ -151,7 +152,8 @@ public static class NavigationExplanationBuilder
     private static string? BuildTrackerSecondary(
         ViewNode frontierNode,
         ResolvedActionSemantic semantic,
-        string primary)
+        string primary,
+        string? prerequisiteQuestName)
     {
         if (semantic.GoalKind != NavigationGoalKind.CollectItem
             && !string.IsNullOrEmpty(semantic.RationaleText)
@@ -164,6 +166,12 @@ public static class NavigationExplanationBuilder
         if (blockingQuest != null)
         {
             string secondary = $"Needed for {blockingQuest.Node.DisplayName}";
+            return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
+        }
+
+        if (!string.IsNullOrEmpty(prerequisiteQuestName))
+        {
+            string secondary = $"Needed for {prerequisiteQuestName}";
             return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
         }
 

@@ -108,7 +108,7 @@ public sealed class QuestResolutionService
         var structure = ResolveStructure(questKey);
         var questNode = _graph.GetNode(questKey);
         var targets = ResolveTargets(questKey, structure.Frontier, questNode);
-        var trackerSummary = BuildTrackerSummary(questNode, structure.Frontier, targets);
+        var trackerSummary = BuildTrackerSummary(questNode, structure.ViewRoot, structure.Frontier, targets);
 
         return new QuestResolution(
             questKey,
@@ -261,6 +261,7 @@ public sealed class QuestResolutionService
 
     private TrackerSummary BuildTrackerSummary(
         Node? requestedNode,
+        ViewNode? viewRoot,
         IReadOnlyList<ViewNode> frontier,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
@@ -270,11 +271,32 @@ public sealed class QuestResolutionService
         var summarySemantic = SelectTrackerSemantic(frontier[0], targets)
             ?? ResolvedActionSemanticBuilder.Build(_graph, requestedNode ?? frontier[0].Node, frontier[0], frontier[0]);
 
+        string? prerequisiteQuestName = FindFirstIncompletePrerequisite(viewRoot);
+
         return NavigationExplanationBuilder.BuildTrackerSummary(
             frontier[0],
             summarySemantic,
             _tracker,
-            Math.Max(0, frontier.Count - 1));
+            Math.Max(0, frontier.Count - 1),
+            prerequisiteQuestName);
+    }
+
+    private string? FindFirstIncompletePrerequisite(ViewNode? viewRoot)
+    {
+        if (viewRoot == null) return null;
+        for (int i = 0; i < viewRoot.Children.Count; i++)
+        {
+            var child = viewRoot.Children[i];
+            if (child.Node.Type != NodeType.Quest || child.IsCycleRef)
+                continue;
+            if (_gameState.GetState(child.NodeKey) is QuestCompleted)
+                continue;
+            // Any quest child the frontier would recurse into:
+            // AssignedBy (acceptance gate) or RequiresQuest (prerequisite).
+            if (child.EdgeType is EdgeType.AssignedBy or EdgeType.RequiresQuest)
+                return child.Node.DisplayName;
+        }
+        return null;
     }
 
     private static ResolvedActionSemantic? SelectTrackerSemantic(
