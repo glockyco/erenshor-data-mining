@@ -79,7 +79,7 @@ public static class NavigationExplanationBuilder
             ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
             ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
             ResolvedActionKind.Travel => $"Go to {semantic.TargetIdentityText}",
-            ResolvedActionKind.Gather => $"Gather {semantic.TargetIdentityText}",
+            ResolvedActionKind.Gather => semantic.TargetIdentityText,
             ResolvedActionKind.Buy => $"Buy from {semantic.TargetIdentityText}",
             ResolvedActionKind.CompleteQuest => $"Complete {semantic.TargetIdentityText}",
             _ => semantic.TargetIdentityText,
