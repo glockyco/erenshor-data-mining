@@ -19,7 +19,7 @@ public static class Theme
     public static readonly uint TextSecondary = Rgba(0.60f, 0.60f, 0.60f, 1.00f);
 
     // -- Semantic --
-    public static readonly uint Accent  = Rgba(0.20f, 0.35f, 0.55f, 1.00f);
+    public static readonly uint Accent  = Rgba(0.22f, 0.55f, 0.30f, 1.00f);
     public static readonly uint Success = Rgba(0.40f, 0.80f, 0.40f, 1.00f);
     public static readonly uint Warning = Rgba(1.00f, 0.50f, 0.30f, 1.00f);
     public static readonly uint Error   = Rgba(1.00f, 0.30f, 0.30f, 1.00f);
