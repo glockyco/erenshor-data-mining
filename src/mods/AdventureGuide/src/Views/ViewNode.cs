@@ -8,6 +8,12 @@ namespace AdventureGuide.Views;
 ///
 /// Created by view builders (QuestViewBuilder, etc.) and consumed by the
 /// ViewRenderer which looks up a rendering template by (EdgeType, NodeType).
+///
+/// Most ViewNodes wrap a real entity graph <see cref="Node"/>. The exception is
+/// OR-variant containers (<see cref="IsVariantContainer"/> = true): synthetic
+/// grouping nodes that have no backing graph node. Their children are the
+/// required-item nodes for one completion variant of a multi-variant quest.
+/// Access <see cref="Node"/> only after confirming <c>!IsVariantContainer</c>.
 /// </summary>
 public sealed class ViewNode
 {
@@ -17,8 +23,18 @@ public sealed class ViewNode
     /// <summary>The edge type that led to this node (null for root).</summary>
     public EdgeType? EdgeType { get; }
 
-    /// <summary>The graph node (cached for rendering — avoids repeated lookups).</summary>
-    public Node Node { get; }
+    // Backing field is nullable; only OR-container nodes have a null Node.
+    private readonly Node? _node;
+
+    /// <summary>
+    /// The graph node (cached for rendering — avoids repeated lookups).
+    /// Throws <see cref="InvalidOperationException"/> when called on an
+    /// OR-variant container — check <see cref="IsVariantContainer"/> first.
+    /// </summary>
+    public Node Node => _node
+        ?? throw new InvalidOperationException(
+            $"OR-variant container ViewNode '{NodeKey}' has no backing graph node. " +
+            "Check IsVariantContainer before accessing Node.");
 
     /// <summary>The edge that led to this node (null for root). Carries quantity, keyword, etc.</summary>
     public Edge? Edge { get; }
@@ -54,14 +70,54 @@ public sealed class ViewNode
     /// </summary>
     public ViewNode? UnlockDependency { get; set; }
 
+    // ── OR-variant container ─────────────────────────────────────────────
+
+    /// <summary>
+    /// True when this node is a synthetic OR-variant group container.
+    /// Container nodes have no backing graph node; their children are the
+    /// required items for one variant of a multi-variant quest.
+    /// </summary>
+    public bool IsVariantContainer => VariantGroupLabel != null;
+
+    /// <summary>
+    /// Human-readable label for this variant group.
+    /// Non-null (possibly empty string) marks this as an OR-variant container.
+    /// Non-empty = labelled by outcome (e.g. reward item name).
+    /// Empty string = unlabelled (same outcome as sibling groups).
+    /// </summary>
+    public string? VariantGroupLabel { get; set; }
+
+    // ── Constructors ─────────────────────────────────────────────────────
+
     public ViewNode(string nodeKey, Node node, EdgeType? edgeType = null, Edge? edge = null)
     {
         NodeKey = nodeKey;
-        Node = node;
+        _node = node;
         EdgeType = edgeType;
         Edge = edge;
     }
 
+    // Internal constructor used by CreateVariantContainer only.
+    private ViewNode(string nodeKey, EdgeType? edgeType)
+    {
+        NodeKey = nodeKey;
+        _node = null;
+        EdgeType = edgeType;
+        Edge = null;
+    }
+
+    /// <summary>
+    /// Create a synthetic OR-variant group container node.
+    /// <paramref name="label"/> is shown as a section header when non-empty
+    /// (e.g. reward item name for quests where variants produce different items).
+    /// Pass an empty string when all sibling groups have the same outcome.
+    /// </summary>
+    public static ViewNode CreateVariantContainer(
+        string nodeKey, string label, EdgeType edgeType)
+        => new ViewNode(nodeKey, edgeType) { VariantGroupLabel = label };
+
     public override string ToString() =>
-        EdgeType.HasValue ? $"[{EdgeType.Value}] {Node.DisplayName}" : Node.DisplayName;
+        IsVariantContainer
+            ? $"[VariantGroup] {VariantGroupLabel}"
+            : (EdgeType.HasValue ? $"[{EdgeType.Value}] {_node!.DisplayName}" : _node!.DisplayName);
 }

@@ -63,6 +63,11 @@ public static class FrontierComputer
     /// </summary>
     public static EdgeRole ClassifyEdge(ViewNode node, GameState state, NodeState questState)
     {
+        // OR-variant containers are transparent to the frontier — recurse into
+        // their children, each of which is a RequiresItem objective node.
+        if (node.IsVariantContainer)
+            return EdgeRole.Container;
+
         switch (node.EdgeType)
         {
             // ── Quest lifecycle ────────────────────────────────────
@@ -140,8 +145,10 @@ public static class FrontierComputer
         if (node.IsCycleRef) return;
 
         // Sub-quests carry their own state context.
-        if (node.Node.Type == NodeType.Quest)
+        // Guard against OR-variant containers, which have no backing Node.
+        if (!node.IsVariantContainer && node.Node.Type == NodeType.Quest)
             questState = state.GetState(node.NodeKey);
+
 
         var role = ClassifyEdge(node, state, questState);
 

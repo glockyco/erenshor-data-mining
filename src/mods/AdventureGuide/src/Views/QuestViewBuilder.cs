@@ -324,14 +324,82 @@ public sealed class QuestViewBuilder
 
     private void AddRequiredItems(ViewNode parent, string questKey, HashSet<string> itemVisited)
     {
-        foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresItem))
-        {
-            var itemNode = _graph.GetNode(edge.Target);
-            if (itemNode == null) continue;
+        var edges = _graph.OutEdges(questKey, EdgeType.RequiresItem);
+        if (edges.Count == 0) return;
 
-            var child = BuildLeafOrExpand(edge.Target, itemNode, EdgeType.RequiresItem, edge, itemVisited);
-            parent.Children.Add(child);
+        // Group edges by variant group key.
+        // Null group means single-variant: no OR semantics, emit flat as before.
+        var groups = new Dictionary<string, List<Edge>>(StringComparer.Ordinal);
+        foreach (var edge in edges)
+        {
+            string key = edge.Group ?? string.Empty;
+            if (!groups.TryGetValue(key, out var list))
+                groups[key] = list = new List<Edge>();
+            list.Add(edge);
         }
+
+        if (groups.Count <= 1)
+        {
+            // Single group (or ungrouped) — flat, same behaviour as before.
+            foreach (var edge in edges)
+            {
+                var itemNode = _graph.GetNode(edge.Target);
+                if (itemNode == null) continue;
+                var child = BuildLeafOrExpand(edge.Target, itemNode,
+                    EdgeType.RequiresItem, edge, itemVisited);
+                parent.Children.Add(child);
+            }
+            return;
+        }
+
+        // Multiple groups — wrap each in an OR-variant container so the
+        // renderer can show them as alternatives rather than concurrent
+        // requirements.
+        var rewardsByGroup = CollectRewardsByGroup(questKey);
+        bool rewardsDiffer = rewardsByGroup.Values.Distinct(StringComparer.Ordinal).Count() > 1;
+
+        foreach (var (groupKey, groupEdges) in groups)
+        {
+            // Label the container by its variant's reward item when rewards
+            // differ across groups (e.g. Malaroth Food good vs. bad recipe).
+            string label = string.Empty;
+            if (rewardsDiffer && rewardsByGroup.TryGetValue(groupKey, out var rewardKey))
+            {
+                var rewardNode = _graph.GetNode(rewardKey);
+                label = rewardNode?.DisplayName ?? string.Empty;
+            }
+
+            var container = ViewNode.CreateVariantContainer(
+                $"variant-group:{questKey}:{groupKey}",
+                label,
+                EdgeType.RequiresItem);
+
+            foreach (var edge in groupEdges)
+            {
+                var itemNode = _graph.GetNode(edge.Target);
+                if (itemNode == null) continue;
+                var child = BuildLeafOrExpand(edge.Target, itemNode,
+                    EdgeType.RequiresItem, edge, itemVisited);
+                container.Children.Add(child);
+            }
+
+            if (container.Children.Count > 0)
+                parent.Children.Add(container);
+        }
+    }
+
+    /// <summary>
+    /// Returns the per-variant reward item keys for this quest's REWARDS_ITEM
+    /// edges that carry a group field. Used to label OR-variant containers by
+    /// their outcome when variants produce different items.
+    /// </summary>
+    private Dictionary<string, string> CollectRewardsByGroup(string questKey)
+    {
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var edge in _graph.OutEdges(questKey, EdgeType.RewardsItem))
+            if (edge.Group != null)
+                result[edge.Group] = edge.Target;
+        return result;
     }
 
     /// <summary>
