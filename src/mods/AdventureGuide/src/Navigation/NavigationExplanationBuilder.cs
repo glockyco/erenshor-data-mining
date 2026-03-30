@@ -8,8 +8,8 @@ public static class NavigationExplanationBuilder
 {
     public static NavigationExplanation Build(
         ResolvedActionSemantic semantic,
-        ViewNode goalNode,
-        ViewNode targetNode)
+        EntityViewNode goalNode,
+        EntityViewNode targetNode)
     {
         string primary = BuildArrowPrimary(semantic, targetNode);
         string? secondary = BuildArrowSecondary(semantic, primary);
@@ -29,8 +29,8 @@ public static class NavigationExplanationBuilder
 
     public static NavigationExplanation BuildCorpseExplanation(
         ResolvedActionSemantic semantic,
-        ViewNode goalNode,
-        ViewNode targetNode)
+        EntityViewNode goalNode,
+        EntityViewNode targetNode)
     {
         string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
         string primary = $"Loot {payload}";
@@ -49,7 +49,7 @@ public static class NavigationExplanationBuilder
     }
 
     public static TrackerSummary BuildTrackerSummary(
-        ViewNode frontierNode,
+        EntityViewNode frontierNode,
         ResolvedActionSemantic semantic,
         QuestStateTracker tracker,
         int additionalCount,
@@ -63,7 +63,7 @@ public static class NavigationExplanationBuilder
         return new TrackerSummary(primary, secondary);
     }
 
-    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, ViewNode targetNode)
+    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, EntityViewNode targetNode)
     {
         return semantic.ActionKind switch
         {
@@ -150,7 +150,7 @@ public static class NavigationExplanationBuilder
     }
 
     private static string? BuildTrackerSecondary(
-        ViewNode frontierNode,
+        EntityViewNode frontierNode,
         ResolvedActionSemantic semantic,
         string primary,
         string? prerequisiteQuestName)
@@ -185,27 +185,40 @@ public static class NavigationExplanationBuilder
         return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase) ? null : neededFor;
     }
 
-    private static ViewNode? FindBlockingQuest(ViewNode node)
+    private static EntityViewNode? FindBlockingQuest(ViewNode node)
     {
-        if (node.UnlockDependency != null)
-            return node.UnlockDependency;
-
-        if (node.Children.Count == 0)
-            return null;
-
-        ViewNode? firstBlocker = null;
-        for (int i = 0; i < node.Children.Count; i++)
+        if (node is VariantGroupNode variantGroup)
         {
-            var child = node.Children[i];
-            if (child.IsCycleRef)
-                continue;
-            var found = FindBlockingQuest(child);
-            if (found == null)
-                return null;
-            firstBlocker ??= found;
+            // Variant containers have no unlock dependency. Recurse into
+            // children to check if item sources are blocked.
+            EntityViewNode? firstBlocker = null;
+            for (int i = 0; i < variantGroup.Children.Count; i++)
+            {
+                if (variantGroup.Children[i].IsCycleRef) continue;
+                var found = FindBlockingQuest(variantGroup.Children[i]);
+                if (found == null) return null;
+                firstBlocker ??= found;
+            }
+            return firstBlocker;
         }
 
-        return firstBlocker;
+        var entityNode = (EntityViewNode)node;
+        if (entityNode.UnlockDependency != null)
+            return (EntityViewNode)entityNode.UnlockDependency;
+
+        if (entityNode.Children.Count == 0)
+            return null;
+
+        EntityViewNode? firstChildBlocker = null;
+        for (int i = 0; i < entityNode.Children.Count; i++)
+        {
+            var child = entityNode.Children[i];
+            if (child.IsCycleRef) continue;
+            var found = FindBlockingQuest(child);
+            if (found == null) return null;
+            firstChildBlocker ??= found;
+        }
+        return firstChildBlocker;
     }
 
     private static string AppendZone(string text, string? zoneText) =>

@@ -12,14 +12,14 @@ public sealed class QuestResolution
 {
     public string QuestKey { get; }
     public ViewNode? ViewRoot { get; }
-    public IReadOnlyList<ViewNode> Frontier { get; }
+    public IReadOnlyList<EntityViewNode> Frontier { get; }
     public IReadOnlyList<ResolvedQuestTarget> Targets { get; }
     public TrackerSummary TrackerSummary { get; }
 
     public QuestResolution(
         string questKey,
         ViewNode? viewRoot,
-        IReadOnlyList<ViewNode> frontier,
+        IReadOnlyList<EntityViewNode> frontier,
         IReadOnlyList<ResolvedQuestTarget> targets,
         TrackerSummary trackerSummary)
     {

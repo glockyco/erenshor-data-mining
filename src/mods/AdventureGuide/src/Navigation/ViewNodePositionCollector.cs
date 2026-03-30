@@ -58,14 +58,14 @@ public sealed class ViewNodePositionCollector
     public void CollectDetailed(ViewNode node, List<ResolvedViewPosition> results)
     {
         var active = new HashSet<string>(StringComparer.Ordinal);
-        CollectDetailed(node, results, active, node);
+        CollectDetailed(node, results, active, (EntityViewNode)node);
     }
 
     private void CollectDetailed(
         ViewNode node,
         List<ResolvedViewPosition> results,
         HashSet<string> active,
-        ViewNode goalNode)
+        EntityViewNode goalNode)
     {
         if (node.IsCycleRef)
             return;
@@ -74,18 +74,21 @@ public sealed class ViewNodePositionCollector
         // requirement and promote that requirement to the current goal.
         if (node.UnlockDependency != null)
         {
-            CollectDetailed(node.UnlockDependency, results, active, node.UnlockDependency);
+            CollectDetailed(node.UnlockDependency, results, active, (EntityViewNode)node.UnlockDependency!);
             return;
         }
 
         // OR-variant containers are structural wrappers with no position.
         // Recurse into their children so item positions are still collected.
-        if (node.IsVariantContainer)
+        if (node is VariantGroupNode)
         {
+            // Recurse into variant group children directly — each child is an
+            // EntityViewNode representing an item the player needs to collect.
             foreach (var child in node.Children)
                 CollectDetailed(child, results, active, goalNode);
             return;
         }
+        var entityNode = (EntityViewNode)node;
 
         string token = $"{goalNode.NodeKey}|{node.NodeKey}|{node.EdgeType?.ToString() ?? "root"}";
         if (!active.Add(token))
@@ -93,7 +96,7 @@ public sealed class ViewNodePositionCollector
 
         try
         {
-            switch (node.Node.Type)
+            switch (entityNode.Node.Type)
             {
                 case NodeType.Quest:
                 {
@@ -137,9 +140,9 @@ public sealed class ViewNodePositionCollector
                         if (childRole == FrontierComputer.EdgeRole.Done)
                             continue;
 
-                        var childGoalNode = childRole == FrontierComputer.EdgeRole.Source
+                        var childGoalNode = (childRole == FrontierComputer.EdgeRole.Source || child is VariantGroupNode)
                             ? goalNode
-                            : child;
+                            : (EntityViewNode)child;
                         CollectDetailed(child, results, active, childGoalNode);
                     }
                     return;
@@ -151,7 +154,7 @@ public sealed class ViewNodePositionCollector
             for (int i = before; i < _scratch.Count; i++)
             {
                 var rp = _scratch[i];
-                results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, node, rp.IsActionable));
+                results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, entityNode, rp.IsActionable));
             }
             if (_scratch.Count > before)
             {
@@ -170,8 +173,12 @@ public sealed class ViewNodePositionCollector
         }
     }
 
-    private FrontierComputer.EdgeRole ClassifyRole(ViewNode node) =>
-        FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
+    private FrontierComputer.EdgeRole ClassifyRole(ViewNode node)
+    {
+        if (node is VariantGroupNode)
+            return FrontierComputer.EdgeRole.Container;
+        return FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
+    }
 
     // Reusable internal scratch list to avoid per-recursion allocations.
     private readonly List<ResolvedPosition> _scratch = new();

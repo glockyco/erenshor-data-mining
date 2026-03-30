@@ -35,8 +35,7 @@ public sealed class ViewRenderer
     /// <summary>Render a full quest detail page from a shared quest resolution.</summary>
     public void Draw(QuestResolution? resolution)
     {
-        var root = resolution?.ViewRoot;
-        if (root == null)
+        if (resolution?.ViewRoot is not EntityViewNode root)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.TextWrapped("Select a quest from the list.");
@@ -58,8 +57,16 @@ public sealed class ViewRenderer
         {
             var questState = _state.GetState(root.NodeKey);
             ImGui.Indent(Theme.IndentWidth);
+            bool lastWasVariantContainer = false;
             foreach (var child in root.Children)
+            {
+                // Insert a visual separator between consecutive OR-variant
+                // containers so the player understands they are alternatives.
+                if (child is VariantGroupNode && lastWasVariantContainer)
+                    DrawOrSeparator();
                 DrawNode(child, 0, questState);
+                lastWasVariantContainer = child is VariantGroupNode;
+            }
             ImGui.Unindent(Theme.IndentWidth);
 
             if (_graph.OutEdges(root.NodeKey, EdgeType.CompletedBy).Count == 0)
@@ -72,7 +79,7 @@ public sealed class ViewRenderer
 
     // ── Header ──────────────────────────────────────────────────────────
 
-    private void DrawHeader(ViewNode root)
+    private void DrawHeader(EntityViewNode root)
     {
         var quest = root.Node;
         string? dbName = quest.DbName;
@@ -145,46 +152,54 @@ public sealed class ViewRenderer
     /// <summary>Render a single dependency tree node with children.</summary>
     private void DrawNode(ViewNode node, int depth, NodeState questState)
     {
-        if (node.IsCycleRef)
+        if (node is VariantGroupNode vgContainer)
+        {
+            DrawVariantContainer(vgContainer, depth, questState);
+            return;
+        }
+
+        var entityNode = (EntityViewNode)node;
+
+        if (entityNode.IsCycleRef)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.TextWrapped($"  {node.Node.DisplayName} (see above)");
+            ImGui.TextWrapped($"  {entityNode.Node.DisplayName} (see above)");
             ImGui.PopStyleColor();
             return;
         }
 
         // When entering a sub-quest node, switch to that quest's state.
-        if (node.Node.Type == Graph.NodeType.Quest)
-            questState = _state.GetState(node.NodeKey);
+        if (entityNode.Node.Type == Graph.NodeType.Quest)
+            questState = _state.GetState(entityNode.NodeKey);
 
         // Single source of truth: classify the edge once, derive all visuals from it.
-        var role = FrontierComputer.ClassifyEdge(node, _state, questState);
-        string label = FormatLabel(node);
-        uint color = GetNodeColor(node, role);
-        bool hasChildren = node.Children.Count > 0;
+        var role = FrontierComputer.ClassifyEdge(entityNode, _state, questState);
+        string label = FormatLabel(entityNode);
+        uint color = GetNodeColor(entityNode, role);
+        bool hasChildren = entityNode.Children.Count > 0;
         // Color already communicates state; no prefix glyph needed.
 
 
         // NAV button on the left, before the label
-        bool navigable = IsNavigable(node.Node);
+        bool navigable = IsNavigable(entityNode.Node);
 
         if (hasChildren)
         {
             if (navigable)
             {
-                DrawNavButton(node);
+                DrawNavButton(entityNode);
                 ImGui.SameLine();
             }
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             bool open = ImGui.TreeNodeEx(
-                $"{label}###{node.NodeKey}_{depth}",
-                node.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
+                $"{label}###{entityNode.NodeKey}_{depth}",
+                entityNode.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
             ImGui.PopStyleColor();
 
 
             if (open)
             {
-                foreach (var child in node.Children)
+                foreach (var child in entityNode.Children)
                     DrawNode(child, depth + 1, questState);
                 ImGui.TreePop();
             }
@@ -193,7 +208,7 @@ public sealed class ViewRenderer
         {
             if (navigable)
             {
-                DrawNavButton(node);
+                DrawNavButton(entityNode);
                 ImGui.SameLine();
             }
             ImGui.PushStyleColor(ImGuiCol.Text, color);
@@ -202,16 +217,16 @@ public sealed class ViewRenderer
         }
 
         // Inline unlock dependency sub-tree when this node is blocked
-        if (node.UnlockDependency != null)
+        if (entityNode.UnlockDependency is EntityViewNode unlockNode)
         {
             ImGui.Indent(Theme.IndentWidth);
-            var unlockState = _state.GetState(node.UnlockDependency.NodeKey);
+            var unlockState = _state.GetState(unlockNode.NodeKey);
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            if (ImGui.TreeNodeEx($"Requires: {node.UnlockDependency.Node.DisplayName}###{node.NodeKey}_{node.UnlockDependency.NodeKey}_{depth}",
+            if (ImGui.TreeNodeEx($"Requires: {unlockNode.Node.DisplayName}###{entityNode.NodeKey}_{unlockNode.NodeKey}_{depth}",
                     ImGuiTreeNodeFlags.DefaultOpen))
             {
                 ImGui.PopStyleColor();
-                foreach (var child in node.UnlockDependency.Children)
+                foreach (var child in unlockNode.Children)
                     DrawNode(child, depth + 1, unlockState);
                 ImGui.TreePop();
             }
@@ -229,6 +244,55 @@ public sealed class ViewRenderer
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextWrapped(text);
         ImGui.PopStyleColor();
+    }
+
+
+    // ── OR-variant container renderer ────────────────────────────────────
+
+    /// <summary>
+    /// Render an OR-variant group container. Labelled containers (where the
+    /// variant's reward item differs from siblings) get a collapsible section
+    /// header. Unlabelled containers render their items inline at the same
+    /// depth — the "\u2500 or \u2500" separator inserted by the Objectives loop
+    /// communicates the OR relationship without extra nesting.
+    /// </summary>
+    private void DrawVariantContainer(VariantGroupNode container, int depth, NodeState questState)
+    {
+        bool hasLabel = container.HasLabel;
+        if (hasLabel)
+        {
+            // Collapsible section labelled by reward outcome (e.g. "\u2192 Malaroth Feed")
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            bool open = ImGui.TreeNodeEx(
+                $"\u2192 {container.Label}###{container.NodeKey}",
+                ImGuiTreeNodeFlags.DefaultOpen);
+            ImGui.PopStyleColor();
+            if (open)
+            {
+                foreach (var child in container.Children)
+                    DrawNode(child, depth + 1, questState);
+                ImGui.TreePop();
+            }
+        }
+        else
+        {
+            // Unlabelled container — items at the same depth, OR separator handles grouping.
+            foreach (var child in container.Children)
+                DrawNode(child, depth, questState);
+        }
+    }
+
+    /// <summary>
+    /// Horizontal rule with "or" label rendered between consecutive OR-variant
+    /// group containers in the Objectives section.
+    /// </summary>
+    private static void DrawOrSeparator()
+    {
+        ImGui.Spacing();
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        ImGui.TextUnformatted("\u2500 or \u2500");  // "─ or ─"
+        ImGui.PopStyleColor();
+        ImGui.Spacing();
     }
 
 
@@ -279,11 +343,32 @@ public sealed class ViewRenderer
 
         // Reward items (from edges — more reliable than RewardItemKey since
         // the edge target gives us the display name)
-        for (int i = 0; i < rewardEdges.Count; i++)
+        // Reward items. When edges carry group fields and rewards differ across
+        // variants, each item is listed separately (no merging). When all
+        // variants give the same item (or edges are ungrouped), deduplication
+        // prevents the same item appearing multiple times.
+        if (rewardEdges.Count > 0)
         {
-            var itemNode = _graph.GetNode(rewardEdges[i].Target);
-            if (itemNode != null)
-                ImGui.Text(itemNode.DisplayName);
+            bool variantGrouped = rewardEdges.Any(e => e.Group != null)
+                && rewardEdges.Select(e => e.Group).Distinct().Count() > 1;
+            if (variantGrouped)
+            {
+                foreach (var edge in rewardEdges)
+                {
+                    var itemNode = _graph.GetNode(edge.Target);
+                    if (itemNode != null) ImGui.Text(itemNode.DisplayName);
+                }
+            }
+            else
+            {
+                var shown = new HashSet<string>(StringComparer.Ordinal);
+                for (int i = 0; i < rewardEdges.Count; i++)
+                {
+                    if (!shown.Add(rewardEdges[i].Target)) continue;
+                    var itemNode = _graph.GetNode(rewardEdges[i].Target);
+                    if (itemNode != null) ImGui.Text(itemNode.DisplayName);
+                }
+            }
         }
         // Fallback: if no RewardsItem edges but Node has a reward key
         if (rewardEdges.Count == 0 && quest.RewardItemKey != null)
@@ -374,7 +459,7 @@ public sealed class ViewRenderer
 
     // ── Label formatting ────────────────────────────────────────────────
 
-    private string FormatLabel(ViewNode node)
+    private string FormatLabel(EntityViewNode node)
     {
         var edge = node.Edge;
         var n = node.Node;
@@ -447,7 +532,7 @@ public sealed class ViewRenderer
     /// talk targets). Uses EffectiveLevel (max of character level and zone
     /// median) when available, falling back to the node's raw level.
     /// </summary>
-    private static string FormatNodeMetadata(ViewNode node)
+    private static string FormatNodeMetadata(EntityViewNode node)
     {
         var parts = new List<string>(3);
 
@@ -487,7 +572,7 @@ public sealed class ViewRenderer
         return " (" + string.Join(", ", parts) + ")";
     }
 
-    private static string FormatAssignment(ViewNode node)
+    private static string FormatAssignment(EntityViewNode node)
     {
         string name = node.Node.DisplayName;
         var edge = node.Edge;
@@ -520,7 +605,7 @@ public sealed class ViewRenderer
     // ── NAV buttons ─────────────────────────────────────────────────────
 
     /// <summary>NAV button for a dependency tree node.</summary>
-    private void DrawNavButton(ViewNode node)
+    private void DrawNavButton(EntityViewNode node)
     {
         if (!IsNavigable(node.Node))
             return;

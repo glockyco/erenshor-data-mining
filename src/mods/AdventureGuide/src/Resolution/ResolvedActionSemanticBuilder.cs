@@ -10,8 +10,8 @@ internal static class ResolvedActionSemanticBuilder
     public static ResolvedActionSemantic Build(
         EntityGraph graph,
         Node requestedNode,
-        ViewNode goalNode,
-        ViewNode targetNode)
+        EntityViewNode goalNode,
+        EntityViewNode targetNode)
     {
         var goalKind = DetermineGoalKind(goalNode);
         var targetKind = DetermineTargetKind(targetNode);
@@ -117,8 +117,8 @@ internal static class ResolvedActionSemanticBuilder
     private static ResolvedActionKind DetermineActionKind(
         EntityGraph graph,
         Node requestedNode,
-        ViewNode goalNode,
-        ViewNode targetNode)
+        EntityViewNode goalNode,
+        EntityViewNode targetNode)
     {
         if (IsCompletionTarget(goalNode, targetNode))
         {
@@ -151,7 +151,7 @@ internal static class ResolvedActionSemanticBuilder
     private static string? BuildPayloadText(
         EntityGraph graph,
         Node requestedNode,
-        ViewNode goalNode,
+        EntityViewNode goalNode,
         ResolvedActionKind actionKind)
     {
         if (actionKind == ResolvedActionKind.Give)
@@ -162,7 +162,7 @@ internal static class ResolvedActionSemanticBuilder
             : null;
     }
 
-    private static string? BuildContextText(Node requestedNode, ViewNode goalNode, ViewNode targetNode)
+    private static string? BuildContextText(Node requestedNode, EntityViewNode goalNode, EntityViewNode targetNode)
     {
         if (requestedNode.Type != NodeType.Quest)
             return null;
@@ -176,8 +176,8 @@ internal static class ResolvedActionSemanticBuilder
     }
 
     private static string? BuildRationaleText(
-        ViewNode goalNode,
-        ViewNode targetNode,
+        EntityViewNode goalNode,
+        EntityViewNode targetNode,
         NavigationGoalKind goalKind)
     {
         bool sameTarget = goalNode.NodeKey == targetNode.NodeKey
@@ -210,12 +210,12 @@ internal static class ResolvedActionSemanticBuilder
         return null;
     }
 
-    private static MarkerType DetermineActiveMarkerType(Node requestedNode, ViewNode goalNode) =>
+    private static MarkerType DetermineActiveMarkerType(Node requestedNode, EntityViewNode goalNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy
             ? (requestedNode.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
             : MarkerType.Objective;
 
-    private static bool IsCompletionTarget(ViewNode goalNode, ViewNode targetNode) =>
+    private static bool IsCompletionTarget(EntityViewNode goalNode, EntityViewNode targetNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy
         && targetNode.EdgeType == EdgeType.CompletedBy;
 
@@ -258,7 +258,7 @@ internal static class ResolvedActionSemanticBuilder
         }
     }
 
-    private static NavigationGoalKind DetermineGoalKind(ViewNode node)
+    private static NavigationGoalKind DetermineGoalKind(EntityViewNode node)
     {
         if (node.Node.Type == NodeType.Item || node.EdgeType == EdgeType.RequiresItem)
             return NavigationGoalKind.CollectItem;
@@ -276,7 +276,7 @@ internal static class ResolvedActionSemanticBuilder
         };
     }
 
-    private static NavigationTargetKind DetermineTargetKind(ViewNode node) =>
+    private static NavigationTargetKind DetermineTargetKind(EntityViewNode node) =>
         DetermineTargetKind(node.Node, node.EdgeType);
 
     private static NavigationTargetKind DetermineTargetKind(Node node, EdgeType? edgeType)
@@ -294,7 +294,7 @@ internal static class ResolvedActionSemanticBuilder
         };
     }
 
-    private static string? GetZoneText(ViewNode node)
+    private static string? GetZoneText(EntityViewNode node)
     {
         if (node.SourceZones != null && node.SourceZones.Count > 0)
         {

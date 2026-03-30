@@ -155,7 +155,7 @@ public sealed class MarkerComputer
     ///   Objectives (items, steps): blocked when ANY single objective is blocked.
     ///   Turn-in (CompletedBy): blocked when ALL paths are blocked.
     /// </summary>
-    private static bool HasBlockedImplicitFrontier(IReadOnlyList<ViewNode> frontier)
+    private static bool HasBlockedImplicitFrontier(IReadOnlyList<EntityViewNode> frontier)
     {
         if (frontier.Count == 0)
             return false;

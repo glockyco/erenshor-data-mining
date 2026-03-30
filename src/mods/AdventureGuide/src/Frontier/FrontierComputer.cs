@@ -46,11 +46,11 @@ public static class FrontierComputer
 
     /// <summary>
     /// Compute frontier ViewNodes from a view tree built by QuestViewBuilder.
-    /// Each returned ViewNode carries the edge that led to it for formatting.
+    /// Each returned EntityViewNode carries the edge that led to it for formatting.
     /// </summary>
-    public static List<ViewNode> ComputeFrontier(ViewNode root, GameState state)
+    public static List<EntityViewNode> ComputeFrontier(ViewNode root, GameState state)
     {
-        var frontier = new List<ViewNode>();
+        var frontier = new List<EntityViewNode>();
         var seen = new HashSet<string>();
         var questState = state.GetState(root.NodeKey);
         CollectFrontier(root, state, questState, frontier, seen);
@@ -65,10 +65,12 @@ public static class FrontierComputer
     {
         // OR-variant containers are transparent to the frontier — recurse into
         // their children, each of which is a RequiresItem objective node.
-        if (node.IsVariantContainer)
+        if (node is VariantGroupNode)
             return EdgeRole.Container;
 
-        switch (node.EdgeType)
+        var en = (EntityViewNode)node;
+
+        switch (en.EdgeType)
         {
             // ── Quest lifecycle ────────────────────────────────────
             case null:
@@ -89,15 +91,15 @@ public static class FrontierComputer
             {
                 if (questState is QuestCompleted)
                     return EdgeRole.Done;
-                var ns = state.GetState(node.NodeKey);
-                if (ns is ItemCount ic && node.Edge?.Quantity is int qty)
+                var ns = state.GetState(en.NodeKey);
+                if (ns is ItemCount ic && en.Edge?.Quantity is int qty)
                     return ic.Count >= qty ? EdgeRole.Done : EdgeRole.Objective;
                 return ns.IsSatisfied ? EdgeRole.Done : EdgeRole.Objective;
             }
 
             // ── Quest prerequisites ────────────────────────────────
             case EdgeType.RequiresQuest:
-                return state.GetState(node.NodeKey) is QuestCompleted
+                return state.GetState(en.NodeKey) is QuestCompleted
                     ? EdgeRole.Done : EdgeRole.Container;
 
             // ── Player action steps ────────────────────────────────
@@ -124,13 +126,13 @@ public static class FrontierComputer
             case EdgeType.RewardsItem:
                 // Quest rewards require completing the quest — recurse.
                 // Non-quest rewards are just loot table entries — skip.
-                return node.Node.Type == NodeType.Quest
+                return en.Node.Type == NodeType.Quest
                     ? EdgeRole.Container : EdgeRole.Source;
 
             // ── Everything else ────────────────────────────────────
             default:
             {
-                var ns = state.GetState(node.NodeKey);
+                var ns = state.GetState(en.NodeKey);
                 return ns.IsSatisfied ? EdgeRole.Done : EdgeRole.Objective;
             }
         }
@@ -140,13 +142,13 @@ public static class FrontierComputer
 
     private static void CollectFrontier(
         ViewNode node, GameState state, NodeState questState,
-        List<ViewNode> frontier, HashSet<string> seen)
+        List<EntityViewNode> frontier, HashSet<string> seen)
     {
         if (node.IsCycleRef) return;
 
         // Sub-quests carry their own state context.
         // Guard against OR-variant containers, which have no backing Node.
-        if (!node.IsVariantContainer && node.Node.Type == NodeType.Quest)
+        if (node is EntityViewNode en && en.Node.Type == NodeType.Quest)
             questState = state.GetState(node.NodeKey);
 
 
@@ -159,7 +161,7 @@ public static class FrontierComputer
                 return;
             case EdgeRole.Objective:
                 if (seen.Add(node.NodeKey))
-                    frontier.Add(node);
+                    frontier.Add((EntityViewNode)node);
                 return;
             case EdgeRole.Acceptance:
             case EdgeRole.TurnIn:
@@ -168,7 +170,7 @@ public static class FrontierComputer
                 if (node.Children.Count == 0)
                 {
                     if (seen.Add(node.NodeKey))
-                        frontier.Add(node);
+                        frontier.Add((EntityViewNode)node);
                     return;
                 }
                 break;
@@ -185,7 +187,7 @@ public static class FrontierComputer
 
         foreach (var child in node.Children)
         {
-            var childQuestState = child.Node.Type == NodeType.Quest
+            var childQuestState = child is EntityViewNode ce && ce.Node.Type == NodeType.Quest
                 ? state.GetState(child.NodeKey) : questState;
             var childRole = ClassifyEdge(child, state, childQuestState);
 
@@ -235,7 +237,7 @@ public static class FrontierComputer
             foreach (var t in turnIn)
             {
                 if (seen.Add(t.NodeKey))
-                    frontier.Add(t);
+                    frontier.Add((EntityViewNode)t);
             }
         }
 
@@ -243,10 +245,10 @@ public static class FrontierComputer
         // OR-variant containers are structural wrappers with no world position;
         // if all their items are collected the parent quest's turn-in phase
         // handles progression. Never add them to the frontier.
-        if (frontier.Count == before && !node.IsVariantContainer)
+        if (frontier.Count == before && node is EntityViewNode fallback)
         {
-            if (seen.Add(node.NodeKey))
-                frontier.Add(node);
+            if (seen.Add(fallback.NodeKey))
+                frontier.Add(fallback);
         }
     }
 }

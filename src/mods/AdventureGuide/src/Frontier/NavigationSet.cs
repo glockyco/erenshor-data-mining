@@ -1,3 +1,4 @@
+using AdventureGuide.Graph;
 using AdventureGuide.Views;
 
 namespace AdventureGuide.Frontier;
@@ -12,7 +13,7 @@ namespace AdventureGuide.Frontier;
 public sealed class NavigationSet
 {
     private readonly HashSet<string> _keys = new();
-    private readonly Dictionary<string, ViewNode> _contexts = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, EntityViewNode> _contexts = new(StringComparer.Ordinal);
 
     /// <summary>Fired after the selected navigation target set changes.</summary>
     public event Action? Changed;
@@ -27,18 +28,18 @@ public sealed class NavigationSet
     public IReadOnlyCollection<string> Keys => _keys;
 
     /// <summary>Override: clear the set and add a single target (click).</summary>
-    public void Override(string nodeKey, ViewNode? context = null)
+    public void Override(string nodeKey, EntityViewNode? context = null)
     {
         _keys.Clear();
         _contexts.Clear();
         _keys.Add(nodeKey);
         if (context != null)
-            _contexts[nodeKey] = CloneViewNode(context);
+            _contexts[nodeKey] = (EntityViewNode)CloneViewNode(context);
         MarkChanged();
     }
 
     /// <summary>Toggle: add if absent, remove if present (shift+click).</summary>
-    public void Toggle(string nodeKey, ViewNode? context = null)
+    public void Toggle(string nodeKey, EntityViewNode? context = null)
     {
         if (_keys.Remove(nodeKey))
         {
@@ -48,7 +49,7 @@ public sealed class NavigationSet
         {
             _keys.Add(nodeKey);
             if (context != null)
-                _contexts[nodeKey] = CloneViewNode(context);
+                _contexts[nodeKey] = (EntityViewNode)CloneViewNode(context);
         }
         MarkChanged();
     }
@@ -57,11 +58,11 @@ public sealed class NavigationSet
     public bool Contains(string nodeKey) => _keys.Contains(nodeKey);
 
     /// <summary>Try to get the contextual pruned view node for a manual target.</summary>
-    public bool TryGetContext(string nodeKey, out ViewNode? context)
+    public bool TryGetContext(string nodeKey, out EntityViewNode? context)
     {
         if (_contexts.TryGetValue(nodeKey, out var stored))
         {
-            context = CloneViewNode(stored);
+            context = (EntityViewNode)CloneViewNode(stored);
             return true;
         }
         context = null;
@@ -101,21 +102,37 @@ public sealed class NavigationSet
 
     private static ViewNode CloneViewNode(ViewNode source)
     {
-        var clone = new ViewNode(source.NodeKey, source.Node, source.EdgeType, source.Edge)
+        switch (source)
         {
-            IsCycleRef = source.IsCycleRef,
-            DefaultExpanded = source.DefaultExpanded,
-            EffectiveLevel = source.EffectiveLevel,
-        };
-
-        if (source.SourceZones != null)
-            clone.SourceZones = new List<string>(source.SourceZones);
-        if (source.UnlockDependency != null)
-            clone.UnlockDependency = CloneViewNode(source.UnlockDependency);
-
-        for (int i = 0; i < source.Children.Count; i++)
-            clone.Children.Add(CloneViewNode(source.Children[i]));
-
-        return clone;
+            case EntityViewNode ev:
+            {
+                var clone = new EntityViewNode(ev.NodeKey, ev.Node, ev.EdgeType, ev.Edge)
+                {
+                    IsCycleRef = ev.IsCycleRef,
+                    DefaultExpanded = ev.DefaultExpanded,
+                    EffectiveLevel = ev.EffectiveLevel,
+                };
+                if (ev.SourceZones != null)
+                    clone.SourceZones = new List<string>(ev.SourceZones);
+                if (ev.UnlockDependency != null)
+                    clone.UnlockDependency = CloneViewNode(ev.UnlockDependency);
+                for (int i = 0; i < ev.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(ev.Children[i]));
+                return clone;
+            }
+            case VariantGroupNode vg:
+            {
+                var clone = new VariantGroupNode(vg.NodeKey, vg.Label,
+                    vg.EdgeType ?? EdgeType.RequiresItem)
+                {
+                    DefaultExpanded = vg.DefaultExpanded,
+                };
+                for (int i = 0; i < vg.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(vg.Children[i]));
+                return clone;
+            }
+            default:
+                throw new InvalidOperationException($"Unknown ViewNode type: {source.GetType().Name}");
+        }
     }
 }

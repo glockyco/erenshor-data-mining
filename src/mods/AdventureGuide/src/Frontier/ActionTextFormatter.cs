@@ -60,7 +60,7 @@ public static class ActionTextFormatter
     /// Items show have/need progress when a tracker is provided.
     /// </summary>
     public static string FormatSummary(
-        ViewNode frontierNode, QuestStateTracker? tracker = null)
+        EntityViewNode frontierNode, QuestStateTracker? tracker = null)
     {
         var edge = frontierNode.Edge;
         var node = frontierNode.Node;
@@ -114,7 +114,7 @@ public static class ActionTextFormatter
         return $"Collect {itemName} (\u00d7{need})";
     }
 
-    private static string FormatAssignmentSummary(ViewNode node)
+    private static string FormatAssignmentSummary(EntityViewNode node)
     {
         string name = node.Node.DisplayName;
         return node.Node.Type switch

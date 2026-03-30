@@ -47,7 +47,7 @@ public sealed class QuestViewBuilder
     /// <summary>Quest keys determined to be structurally infeasible.</summary>
     private readonly HashSet<string> _questsInfeasible = new();
     /// <summary>Successfully built quest subtrees for reuse when they recur.</summary>
-    private readonly Dictionary<string, ViewNode> _questCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, EntityViewNode> _questCache = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker)
@@ -95,27 +95,27 @@ public sealed class QuestViewBuilder
 
     // ── Quest node expansion ─────────────────────────────────────────────────
 
-    private ViewNode BuildQuestNode(
+    private EntityViewNode BuildQuestNode(
         string key, Node node, EdgeType? edgeType, Edge? edge, HashSet<string> itemVisited)
     {
         // (1) Explicitly infeasible — no valid accept/complete path exists.
         if (_questsInfeasible.Contains(key))
-            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+            return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
 
         // (2) Already fully expanded elsewhere — cross-edge. Duplicate the
         // cached subtree so repeated but valid subtrees remain visible.
         if (_questsExpanded.Contains(key))
         {
             if (_questCache.TryGetValue(key, out var cached))
-                return CloneViewNode(cached);
-            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+                return (EntityViewNode)CloneViewNode(cached);
+            return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
         }
 
         // (3) Currently on the DFS stack — back-edge (true structural cycle).
         if (!_questsOnPath.Add(key))
-            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+        return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
 
-        var viewNode = new ViewNode(key, node, edgeType, edge);
+        var viewNode = new EntityViewNode(key, node, edgeType, edge);
 
         // 1. Assignment (how the player gets this quest)
         AddEdgeChildren(viewNode, key, EdgeType.AssignedBy, itemVisited);
@@ -139,41 +139,48 @@ public sealed class QuestViewBuilder
         if (IsQuestInfeasible(viewNode, key))
         {
             _questsInfeasible.Add(key);
-            return new ViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+            return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
         }
 
         _questsExpanded.Add(key);
-        _questCache[key] = CloneViewNode(viewNode);
+        _questCache[key] = (EntityViewNode)CloneViewNode(viewNode);
         return viewNode;
     }
 
     private static ViewNode CloneViewNode(ViewNode source)
     {
-        ViewNode clone;
-        if (source.IsVariantContainer)
+        switch (source)
         {
-            clone = ViewNode.CreateVariantContainer(
-                source.NodeKey, source.VariantGroupLabel!, source.EdgeType ?? EdgeType.RequiresItem);
-        }
-        else
-        {
-            clone = new ViewNode(source.NodeKey, source.Node, source.EdgeType, source.Edge)
+            case EntityViewNode ev:
             {
-                IsCycleRef = source.IsCycleRef,
-                DefaultExpanded = source.DefaultExpanded,
-                EffectiveLevel = source.EffectiveLevel,
-            };
+                var clone = new EntityViewNode(ev.NodeKey, ev.Node, ev.EdgeType, ev.Edge)
+                {
+                    IsCycleRef = ev.IsCycleRef,
+                    DefaultExpanded = ev.DefaultExpanded,
+                    EffectiveLevel = ev.EffectiveLevel,
+                };
+                if (ev.SourceZones != null)
+                    clone.SourceZones = new List<string>(ev.SourceZones);
+                if (ev.UnlockDependency != null)
+                    clone.UnlockDependency = CloneViewNode(ev.UnlockDependency);
+                for (int i = 0; i < ev.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(ev.Children[i]));
+                return clone;
+            }
+            case VariantGroupNode vg:
+            {
+                var clone = new VariantGroupNode(vg.NodeKey, vg.Label,
+                    vg.EdgeType ?? EdgeType.RequiresItem)
+                {
+                    DefaultExpanded = vg.DefaultExpanded,
+                };
+                for (int i = 0; i < vg.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(vg.Children[i]));
+                return clone;
+            }
+            default:
+                throw new InvalidOperationException($"Unknown ViewNode type: {source.GetType().Name}");
         }
-
-        if (source.SourceZones != null)
-            clone.SourceZones = new List<string>(source.SourceZones);
-        if (source.UnlockDependency != null)
-            clone.UnlockDependency = CloneViewNode(source.UnlockDependency);
-
-        for (int i = 0; i < source.Children.Count; i++)
-            clone.Children.Add(CloneViewNode(source.Children[i]));
-
-        return clone;
     }
 
     // ── Quest feasibility ────────────────────────────────────────────────────
@@ -378,7 +385,7 @@ public sealed class QuestViewBuilder
                 label = rewardNode?.DisplayName ?? string.Empty;
             }
 
-            var container = ViewNode.CreateVariantContainer(
+            var container = new VariantGroupNode(
                 $"variant-group:{questKey}:{groupKey}",
                 label,
                 EdgeType.RequiresItem);
@@ -424,7 +431,7 @@ public sealed class QuestViewBuilder
             var recipeNode = _graph.GetNode(craftEdge.Target);
             if (recipeNode == null) continue;
 
-            var recipeView = new ViewNode(craftEdge.Target, recipeNode, EdgeType.CraftedFrom, craftEdge);
+            var recipeView = new EntityViewNode(craftEdge.Target, recipeNode, EdgeType.CraftedFrom, craftEdge);
 
             if (itemVisited.Add(craftEdge.Target))
             {
@@ -433,7 +440,7 @@ public sealed class QuestViewBuilder
                     var matNode = _graph.GetNode(matEdge.Target);
                     if (matNode == null) continue;
 
-                    var matView = new ViewNode(matEdge.Target, matNode, EdgeType.RequiresMaterial, matEdge);
+                    var matView = new EntityViewNode(matEdge.Target, matNode, EdgeType.RequiresMaterial, matEdge);
 
                     if (itemVisited.Add(matEdge.Target))
                     {
@@ -442,7 +449,7 @@ public sealed class QuestViewBuilder
                     }
                     else
                     {
-                        matView = new ViewNode(matEdge.Target, matNode, EdgeType.RequiresMaterial, matEdge) { IsCycleRef = true };
+                        matView = new EntityViewNode(matEdge.Target, matNode, EdgeType.RequiresMaterial, matEdge) { IsCycleRef = true };
                     }
 
                     recipeView.Children.Add(matView);
@@ -514,7 +521,7 @@ public sealed class QuestViewBuilder
     /// max(character level, zone median). Non-characters use their own Zone and
     /// Level fields directly.
     /// </summary>
-    private void EnrichSourceMetadata(ViewNode viewNode, Node sourceNode, HashSet<string> itemVisited)
+    private void EnrichSourceMetadata(EntityViewNode viewNode, Node sourceNode, HashSet<string> itemVisited)
     {
         if (sourceNode.Type == NodeType.Character)
         {
@@ -547,7 +554,7 @@ public sealed class QuestViewBuilder
     /// tree stays complete anywhere the dependency matters. Only true back-edges
     /// or already-infeasible quests block the character.
     /// </summary>
-    private void CheckCharacterUnlock(ViewNode viewNode, Node charNode, HashSet<string> itemVisited)
+    private void CheckCharacterUnlock(EntityViewNode viewNode, Node charNode, HashSet<string> itemVisited)
     {
         if (charNode.IsEnabled) return;
 
@@ -581,7 +588,7 @@ public sealed class QuestViewBuilder
     ///
     /// Cross-edge / back-edge handling mirrors CheckCharacterUnlock.
     /// </summary>
-    private void CheckZoneReachability(ViewNode viewNode, Node node, HashSet<string> itemVisited)
+    private void CheckZoneReachability(EntityViewNode viewNode, Node node, HashSet<string> itemVisited)
     {
         string currentScene = _tracker.CurrentZone;
         if (string.IsNullOrEmpty(currentScene)) return;
@@ -719,7 +726,7 @@ public sealed class QuestViewBuilder
             }
             else
             {
-                var child = new ViewNode(edge.Target, prereqNode, EdgeType.RequiresQuest, edge);
+                var child = new EntityViewNode(edge.Target, prereqNode, EdgeType.RequiresQuest, edge);
                 parent.Children.Add(child);
             }
         }
@@ -746,13 +753,13 @@ public sealed class QuestViewBuilder
     /// their obtainability sources expanded (drops, vendors, gathering, etc.).
     /// Other node types are leaves.
     /// </summary>
-    private ViewNode BuildLeafOrExpand(
+    private EntityViewNode BuildLeafOrExpand(
         string key, Node node, EdgeType? edgeType, Edge? edge, HashSet<string> itemVisited)
     {
         if (node.Type == NodeType.Quest)
             return BuildQuestNode(key, node, edgeType, edge, itemVisited);
 
-        var viewNode = new ViewNode(key, node, edgeType, edge);
+        var viewNode = new EntityViewNode(key, node, edgeType, edge);
 
         // Check for unsatisfied unlock requirements on any character node,
         // regardless of edge type (source, step, assignment, etc.).

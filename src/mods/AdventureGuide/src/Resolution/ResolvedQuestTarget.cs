@@ -16,8 +16,8 @@ public sealed class ResolvedQuestTarget
     public string? Scene { get; }
     public string? SourceKey { get; }
 
-    public ViewNode GoalNode { get; }
-    public ViewNode TargetNode { get; }
+    public EntityViewNode GoalNode { get; }
+    public EntityViewNode TargetNode { get; }
     public ResolvedActionSemantic Semantic { get; }
     public NavigationExplanation Explanation { get; }
 
@@ -29,8 +29,8 @@ public sealed class ResolvedQuestTarget
         string targetNodeKey,
         string? scene,
         string? sourceKey,
-        ViewNode goalNode,
-        ViewNode targetNode,
+        EntityViewNode goalNode,
+        EntityViewNode targetNode,
         ResolvedActionSemantic semantic,
         NavigationExplanation explanation,
         Vector3 position,

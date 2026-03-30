@@ -118,7 +118,7 @@ public sealed class QuestResolutionService
             trackerSummary);
     }
 
-    public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey, ViewNode? context = null)
+    public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey, EntityViewNode? context = null)
     {
         var requestedNode = _graph.GetNode(nodeKey);
         if (requestedNode == null && context == null)
@@ -132,7 +132,7 @@ public sealed class QuestResolutionService
 
         var root = requestedNode.Type == NodeType.Item || requestedNode.Type == NodeType.Recipe
             ? _viewBuilder.BuildNode(nodeKey)
-            : new ViewNode(nodeKey, requestedNode);
+            : new EntityViewNode(nodeKey, requestedNode);
 
         return root == null
             ? Array.Empty<ResolvedQuestTarget>()
@@ -159,7 +159,7 @@ public sealed class QuestResolutionService
             var root = _viewBuilder.Build(questKey);
             var frontier = root != null
                 ? FrontierComputer.ComputeFrontier(root, _gameState)
-                : new List<ViewNode>();
+                : new List<EntityViewNode>();
 
             var structure = new QuestStructure(root, frontier);
             _structureCache[questKey] = structure;
@@ -169,7 +169,7 @@ public sealed class QuestResolutionService
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveTargets(
         string questKey,
-        IReadOnlyList<ViewNode> frontier,
+        IReadOnlyList<EntityViewNode> frontier,
         Node? requestedNode)
     {
         if (_targetCache.TryGetValue(questKey, out var cached))
@@ -185,7 +185,7 @@ public sealed class QuestResolutionService
 
     private IReadOnlyList<ResolvedQuestTarget> BuildTargets(
         string questKey,
-        IReadOnlyList<ViewNode> frontier,
+        IReadOnlyList<EntityViewNode> frontier,
         Node? requestedNode)
     {
         if (frontier.Count == 0 || requestedNode == null)
@@ -263,7 +263,7 @@ public sealed class QuestResolutionService
     private TrackerSummary BuildTrackerSummary(
         Node? requestedNode,
         ViewNode? viewRoot,
-        IReadOnlyList<ViewNode> frontier,
+        IReadOnlyList<EntityViewNode> frontier,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
         if (frontier.Count == 0)
@@ -287,12 +287,10 @@ public sealed class QuestResolutionService
         if (viewRoot == null) return null;
         for (int i = 0; i < viewRoot.Children.Count; i++)
         {
-            var child = viewRoot.Children[i];
-            if (child.Node.Type != NodeType.Quest || child.IsCycleRef)
-                continue;
-            if (_gameState.GetState(child.NodeKey) is QuestCompleted)
-                continue;
-            // Any quest child the frontier would recurse into:
+            if (viewRoot.Children[i] is not EntityViewNode child) continue;
+            if (child.IsCycleRef) continue;
+            if (child.Node.Type != NodeType.Quest) continue;
+            if (_gameState.GetState(child.NodeKey) is QuestCompleted) continue;
             // AssignedBy (acceptance gate) or RequiresQuest (prerequisite).
             if (child.EdgeType is EdgeType.AssignedBy or EdgeType.RequiresQuest)
                 return child.Node.DisplayName;
@@ -301,7 +299,7 @@ public sealed class QuestResolutionService
     }
 
     private static ResolvedActionSemantic? SelectTrackerSemantic(
-        ViewNode frontierNode,
+        EntityViewNode frontierNode,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
         for (int i = 0; i < targets.Count; i++)
@@ -313,7 +311,7 @@ public sealed class QuestResolutionService
         return targets.Count > 0 ? targets[0].Semantic : null;
     }
 
-    private static bool IsSameGoal(ViewNode frontierNode, ViewNode candidateGoal)
+    private static bool IsSameGoal(EntityViewNode frontierNode, EntityViewNode candidateGoal)
     {
         if (frontierNode.EdgeType != candidateGoal.EdgeType)
             return false;
@@ -331,9 +329,9 @@ public sealed class QuestResolutionService
     private readonly struct QuestStructure
     {
         public readonly ViewNode? ViewRoot;
-        public readonly IReadOnlyList<ViewNode> Frontier;
+        public readonly IReadOnlyList<EntityViewNode> Frontier;
 
-        public QuestStructure(ViewNode? viewRoot, IReadOnlyList<ViewNode> frontier)
+        public QuestStructure(ViewNode? viewRoot, IReadOnlyList<EntityViewNode> frontier)
         {
             ViewRoot = viewRoot;
             Frontier = frontier;

@@ -125,7 +125,7 @@ public sealed class NavigationEngine
 
     private void ResolveKey(string nodeKey)
     {
-        ViewNode? context = null;
+        EntityViewNode? context = null;
         if (_navSet.TryGetContext(nodeKey, out var storedContext))
             context = storedContext;
 

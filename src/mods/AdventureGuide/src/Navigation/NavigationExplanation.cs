@@ -38,8 +38,8 @@ public sealed class NavigationExplanation
 {
     public NavigationGoalKind GoalKind { get; }
     public NavigationTargetKind TargetKind { get; }
-    public ViewNode GoalNode { get; }
-    public ViewNode TargetNode { get; }
+    public EntityViewNode GoalNode { get; }
+    public EntityViewNode TargetNode { get; }
     public string PrimaryText { get; }
     public string TargetIdentityText { get; }
     public string? ZoneText { get; }
@@ -49,8 +49,8 @@ public sealed class NavigationExplanation
     public NavigationExplanation(
         NavigationGoalKind goalKind,
         NavigationTargetKind targetKind,
-        ViewNode goalNode,
-        ViewNode targetNode,
+        EntityViewNode goalNode,
+        EntityViewNode targetNode,
         string primaryText,
         string targetIdentityText,
         string? zoneText,
