@@ -24,7 +24,6 @@ public sealed class DirectPositionResolver : IPositionResolver
         var resolver = new DirectPositionResolver();
         var types = new[]
         {
-            NodeType.Water,
             NodeType.Forge,
             NodeType.Door,
             NodeType.SpawnPoint,

@@ -51,6 +51,7 @@ public sealed class Plugin : BaseUnityPlugin
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
+    private WaterPositionResolver? _waterResolver;
 
     static Plugin()
     {
@@ -139,6 +140,8 @@ public sealed class Plugin : BaseUnityPlugin
             new ZoneLinePositionResolver());
         positionRegistry.Register(NodeType.Zone,
             new ZonePositionResolver(_graph));
+        _waterResolver = new WaterPositionResolver(_graph);
+        positionRegistry.Register(NodeType.Water, _waterResolver);
 
         var viewPositions = new ViewNodePositionCollector(positionRegistry, _gameState);
 
@@ -229,6 +232,7 @@ public sealed class Plugin : BaseUnityPlugin
         var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
         _entities.SyncFromLiveNPCs();
         _liveState.OnSceneLoaded();
+        _waterResolver.OnSceneLoaded();
         if (_inGameplay)
         {
             _trackerState.OnCharacterLoaded();
@@ -339,6 +343,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         _entities?.Clear();
         _liveState?.OnSceneLoaded();
+        _waterResolver?.OnSceneLoaded();
         var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
         if (_inGameplay)
         {
