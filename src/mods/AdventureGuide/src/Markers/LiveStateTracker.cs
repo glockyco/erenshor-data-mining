@@ -7,134 +7,147 @@ using UnityEngine;
 namespace AdventureGuide.Markers;
 
 /// <summary>
-/// Tracks live spawn, character, and mining node state by correlating graph nodes
-/// with in-scene game objects. Rebuilt on scene load; updated incrementally via
-/// Harmony patch callbacks (spawn/death).
+/// Tracks live spawn, character, mining, item-bag, and time-of-day state.
+/// Emits precise live-world fact deltas so downstream maintained views can
+/// invalidate only derivations that depend on changed sources.
 /// </summary>
 public sealed class LiveStateTracker
 {
-    // ── Reflection cache ────────────────────────────────────────────────
-
     private static readonly FieldInfo? NpcSpawnPointField =
         typeof(NPC).GetField("MySpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic);
 
     private static readonly FieldInfo? MiningRespawnField =
         typeof(MiningNode).GetField("Respawn", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    // ── Dependencies ────────────────────────────────────────────────────
-
     private readonly EntityGraph _graph;
+    private readonly GraphIndexes _indexes;
     private readonly EntityRegistry _entities;
+    private readonly GuideDependencyEngine _dependencies;
 
-    // ── Scene-local caches (rebuilt on scene load) ──────────────────────
-    
     private Dictionary<PosKey, SpawnPoint> _spawnIndex = new();
-    private Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
     private MiningNode[] _miningNodes = System.Array.Empty<MiningNode>();
     private ItemBag[] _itemBags = System.Array.Empty<ItemBag>();
     private readonly Dictionary<PosKey, bool> _miningAvailable = new();
-    
-    // ── Live versioning ──────────────────────────────────────────────────
-    
+
+    private readonly Dictionary<PosKey, string> _graphSpawnSourcesByPos = new();
+    private readonly Dictionary<PosKey, string> _graphMiningSourcesByPos = new();
+    private readonly Dictionary<PosKey, string> _graphItemBagSourcesByPos = new();
+    private readonly Dictionary<string, List<Node>> _directSpawnNodesByNpcName = new(System.StringComparer.OrdinalIgnoreCase);
+
     public int Version { get; private set; }
     private bool _isNight;
 
-    // ── Constructor ─────────────────────────────────────────────────────
-
-    public LiveStateTracker(EntityGraph graph, EntityRegistry entities)
+    public LiveStateTracker(
+        EntityGraph graph,
+        GraphIndexes indexes,
+        EntityRegistry entities,
+        GuideDependencyEngine dependencies)
     {
         _graph = graph;
+        _indexes = indexes;
         _entities = entities;
+        _dependencies = dependencies;
     }
 
-    // ── Scene load / live updates ───────────────────────────────────────
-    
-    /// <summary>
-    /// Rebuild all scene-local caches. Call on every scene transition.
-    /// </summary>
     public void OnSceneLoaded()
     {
         RebuildSpawnIndex();
         RebuildNpcNameCache();
+        RebuildGraphSourceIndexes();
         _miningNodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
         _itemBags = UnityEngine.Object.FindObjectsOfType<ItemBag>();
         _isNight = IsNight();
         RebuildMiningAvailability();
         BumpVersion();
     }
-    
-    public void OnNPCSpawn(SpawnPoint sp)
+
+    public GuideChangeSet OnNPCSpawn(SpawnPoint sp)
     {
-        if (sp == null) return;
+        if (sp == null)
+            return GuideChangeSet.None;
+
         BumpVersion();
+        var sourceKey = ResolveSpawnSourceKey(sp);
+        return BuildSourceChange(sourceKey);
     }
-    
-    public void OnNPCDeath(NPC npc)
+
+    public GuideChangeSet OnNPCDeath(NPC npc)
     {
-        if (npc == null) return;
+        if (npc == null)
+            return GuideChangeSet.None;
+
         BumpVersion();
+
+        var sourceKey = ResolveNpcSourceKey(npc);
+        return BuildSourceChange(sourceKey);
     }
-    
-    public void OnMiningChanged(MiningNode mn)
+
+    public GuideChangeSet OnMiningChanged(MiningNode mn)
     {
-        if (mn == null) return;
+        if (mn == null)
+            return GuideChangeSet.None;
+
         _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
         BumpVersion();
+        return BuildSourceChange(ResolveMiningSourceKey(mn));
     }
 
-    public void OnItemBagChanged(ItemBag bag)
+    public GuideChangeSet OnItemBagChanged(ItemBag bag)
     {
-        if (bag == null) return;
+        if (bag == null)
+            return GuideChangeSet.None;
+
         BumpVersion();
+        return BuildSourceChange(ResolveItemBagSourceKey(bag));
     }
 
-    /// <summary>Poll low-frequency world state with no event hook, currently day/night and mining respawns.</summary>
-    public void UpdateFrameState()
+    public GuideChangeSet UpdateFrameState()
     {
         bool changed = false;
+        bool timeChanged = false;
+        var changedSourceKeys = new HashSet<string>(StringComparer.Ordinal);
 
         bool nowNight = IsNight();
         if (nowNight != _isNight)
         {
             _isNight = nowNight;
             changed = true;
+            timeChanged = true;
         }
 
         foreach (var mn in _miningNodes)
         {
-            if (mn == null) continue;
+            if (mn == null)
+                continue;
+
             var key = NodePosKey(mn.transform.position);
             bool available = IsMiningNodeAvailable(mn);
             if (_miningAvailable.TryGetValue(key, out var previous) && previous == available)
                 continue;
+
             _miningAvailable[key] = available;
             changed = true;
+
+            var sourceKey = ResolveMiningSourceKey(mn);
+            if (!string.IsNullOrEmpty(sourceKey))
+                changedSourceKeys.Add(sourceKey);
         }
 
-        if (changed)
-            BumpVersion();
-    }
-    
-    private void BumpVersion() => Version++;
+        if (!changed)
+            return GuideChangeSet.None;
 
-    private void RebuildMiningAvailability()
-    {
-        _miningAvailable.Clear();
-        foreach (var mn in _miningNodes)
-        {
-            if (mn == null) continue;
-            _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
-        }
+        BumpVersion();
+        return BuildLiveChange(changedSourceKeys, timeChanged);
     }
-
-    // ── Public state queries ────────────────────────────────────────────
 
     public SpawnInfo GetSpawnState(Node spawnNode)
     {
         if (spawnNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        // Directly-placed NPCs have no runtime SpawnPoint — find by character name.
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, spawnNode.Key));
+
         if (spawnNode.IsDirectlyPlaced)
             return ResolveDirectlyPlacedSpawn(spawnNode);
 
@@ -142,17 +155,12 @@ public sealed class LiveStateTracker
         if (sp != null)
             return ClassifySpawnPoint(sp);
 
-        // Fallback: try to find a directly-placed NPC by name + proximity.
         var npc = FindNpcByNameAndProximity(spawnNode);
         if (npc != null)
         {
             var ch = npc.GetComponent<Character>();
             bool alive = ch != null && ch.Alive;
-            return new SpawnInfo(
-                alive ? NodeState.Alive : new SpawnDead(0f),
-                null,
-                npc,
-                0f);
+            return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
         }
 
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -163,16 +171,17 @@ public sealed class LiveStateTracker
         if (characterNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        // Characters connect to spawn points via HAS_SPAWN edges (character → spawn_point).
-        var spawnEdges = _graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
 
+        var spawnEdges = _graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
         SpawnInfo best = new SpawnInfo(NodeState.Unknown, null, null, 0f);
         bool found = false;
 
         for (int i = 0; i < spawnEdges.Count; i++)
         {
             var spawnNode = _graph.GetNode(spawnEdges[i].Target);
-            if (spawnNode == null) continue;
+            if (spawnNode == null)
+                continue;
 
             var info = GetSpawnState(spawnNode);
             if (!found || IsBetterState(info.State, best.State))
@@ -185,17 +194,12 @@ public sealed class LiveStateTracker
         if (found && best.State is not UnknownState)
             return best;
 
-        // Spawn edges returned Unknown or no edges at all — try name-based lookup.
         var npc = FindNpcByNameAndProximity(characterNode);
         if (npc != null)
         {
             var ch = npc.GetComponent<Character>();
             bool alive = ch != null && ch.Alive;
-            return new SpawnInfo(
-                alive ? NodeState.Alive : new SpawnDead(0f),
-                null,
-                npc,
-                0f);
+            return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
         }
 
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -206,7 +210,7 @@ public sealed class LiveStateTracker
         if (miningNode == null)
             return new MiningInfo(NodeState.Unknown, null);
 
-        // Find the live MiningNode by position match.
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, miningNode.Key));
 
         var posKey = NodePosKey(miningNode);
         if (!posKey.HasValue)
@@ -217,10 +221,11 @@ public sealed class LiveStateTracker
 
         foreach (var mn in _miningNodes)
         {
-            if (mn == null) continue;
-            var pos = mn.transform.position;
+            if (mn == null)
+                continue;
+
             float dist = Vector3.Distance(
-                pos,
+                mn.transform.position,
                 new Vector3(miningNode.X ?? 0f, miningNode.Y ?? 0f, miningNode.Z ?? 0f));
             if (dist < closestDist)
             {
@@ -228,8 +233,6 @@ public sealed class LiveStateTracker
                 closest = mn;
             }
         }
-
-        // Allow up to 2m tolerance for position matching.
 
         if (closest == null || closestDist > 2f)
             return new MiningInfo(NodeState.Unknown, null);
@@ -242,19 +245,21 @@ public sealed class LiveStateTracker
         if (itemBagNode == null)
             return NodeState.Unknown;
 
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, itemBagNode.Key));
+
         var posKey = NodePosKey(itemBagNode);
         if (!posKey.HasValue)
             return NodeState.Unknown;
 
         ItemBag? closest = null;
         float closestDist = float.MaxValue;
-
         foreach (var bag in _itemBags)
         {
-            if (bag == null) continue;
-            var pos = bag.transform.position;
+            if (bag == null)
+                continue;
+
             float dist = Vector3.Distance(
-                pos,
+                bag.transform.position,
                 new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f));
             if (dist < closestDist)
             {
@@ -272,16 +277,8 @@ public sealed class LiveStateTracker
         return NodeState.BagGone;
     }
 
-    // ── Spawn point classification ──────────────────────────────────────
-
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
     {
-        // canSpawn=false has three causes in the game:
-        //   1. SpawnUponQuestComplete set, quest not done → gated, will appear later
-        //   2. StopIfQuestComplete quest done → permanently gone
-        //   3. Scripted event (ReliqDisableFiendSpawn, FernallaFightEvent) → unknown
-        // Only case 1 produces a useful marker. Cases 2 and 3 return Disabled
-        // so MarkerComputer skips them (no marker is better than a wrong one).
         if (!sp.canSpawn)
         {
             if (sp.SpawnUponQuestComplete != null
@@ -292,27 +289,26 @@ public sealed class LiveStateTracker
                     ?? "unknown quest";
                 return new SpawnInfo(new SpawnQuestGated(questName), sp, null, 0f);
             }
+
             return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
         }
 
-        // Night-locked: NightSpawn is true but it's currently daytime.
-        if (sp.NightSpawn && !IsNight())
-            return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
+        if (sp.NightSpawn)
+        {
+            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.TimeOfDay, "night"));
+            if (!IsNight())
+                return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
+        }
 
-        // Alive: NPC is up and its Character component is alive.
-        // sp.MyNPCAlive is unreliable — it's set true on spawn but never
-        // cleared on death. The game itself checks SpawnedNPC.GetChar().Alive.
         if (IsSpawnedNPCAlive(sp))
             return new SpawnInfo(NodeState.Alive, sp, sp.SpawnedNPC, 0f);
 
-        // Dead: NPC has been killed, compute respawn timer.
         float respawnSeconds = ComputeRespawnSeconds(sp);
         return new SpawnInfo(new SpawnDead(respawnSeconds), sp, null, respawnSeconds);
     }
 
     private MiningInfo ClassifyMiningNode(MiningNode mn)
     {
-        // Mined = renderer disabled.
         var render = mn.MyRender;
         if (render != null && !render.enabled)
         {
@@ -323,20 +319,19 @@ public sealed class LiveStateTracker
         return new MiningInfo(NodeState.MineAvailable, mn);
     }
 
-    // ── Index builders ──────────────────────────────────────────────────
-
     private void RebuildSpawnIndex()
     {
         _spawnIndex.Clear();
         var spawnPoints = SpawnPointManager.SpawnPointsInScene;
-        if (spawnPoints == null) return;
+        if (spawnPoints == null)
+            return;
 
         foreach (var sp in spawnPoints)
         {
-            if (sp == null) continue;
-            var pos = sp.transform.position;
-            var key = new PosKey(pos.x, pos.y, pos.z);
-            // First one wins — duplicates at exact position are unlikely.
+            if (sp == null)
+                continue;
+
+            var key = new PosKey(sp.transform.position.x, sp.transform.position.y, sp.transform.position.z);
             if (!_spawnIndex.ContainsKey(key))
                 _spawnIndex[key] = sp;
         }
@@ -348,27 +343,80 @@ public sealed class LiveStateTracker
         var npcs = UnityEngine.Object.FindObjectsOfType<NPC>();
         foreach (var npc in npcs)
         {
-            if (npc == null || string.IsNullOrEmpty(npc.NPCName)) continue;
+            if (npc == null || string.IsNullOrEmpty(npc.NPCName))
+                continue;
+
             string nameLower = npc.NPCName.ToLowerInvariant();
             if (!_npcByName.TryGetValue(nameLower, out var list))
             {
                 list = new List<NPC>(2);
                 _npcByName[nameLower] = list;
             }
+
             list.Add(npc);
         }
     }
 
-    // ── Lookups ─────────────────────────────────────────────────────────
+    private void RebuildGraphSourceIndexes()
+    {
+        _graphSpawnSourcesByPos.Clear();
+        _graphMiningSourcesByPos.Clear();
+        _graphItemBagSourcesByPos.Clear();
+        _directSpawnNodesByNpcName.Clear();
 
-    /// <summary>
-    /// Resolve a directly-placed spawn node by finding the live NPC via
-    /// its character name. Directly-placed NPCs have no runtime SpawnPoint
-    /// component — they exist as scene objects and are always present.
-    /// </summary>
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        foreach (var node in _graph.AllNodes)
+        {
+            if (!string.Equals(node.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var posKey = NodePosKey(node);
+            switch (node.Type)
+            {
+                case NodeType.SpawnPoint when posKey.HasValue:
+                    if (!_graphSpawnSourcesByPos.ContainsKey(posKey.Value))
+                        _graphSpawnSourcesByPos[posKey.Value] = node.Key;
+                    if (node.IsDirectlyPlaced)
+                        AddDirectSpawnNode(node);
+                    break;
+                case NodeType.MiningNode when posKey.HasValue:
+                    if (!_graphMiningSourcesByPos.ContainsKey(posKey.Value))
+                        _graphMiningSourcesByPos[posKey.Value] = node.Key;
+                    break;
+                case NodeType.ItemBag when posKey.HasValue:
+                    if (!_graphItemBagSourcesByPos.ContainsKey(posKey.Value))
+                        _graphItemBagSourcesByPos[posKey.Value] = node.Key;
+                    break;
+            }
+        }
+    }
+
+    private void AddDirectSpawnNode(Node spawnNode)
+    {
+        string? name = spawnNode.DisplayName;
+        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
+        if (charEdges.Count > 0)
+        {
+            var character = _graph.GetNode(charEdges[0].Source);
+            if (!string.IsNullOrEmpty(character?.DisplayName))
+                name = character.DisplayName;
+        }
+
+        if (string.IsNullOrEmpty(name))
+            return;
+
+        string key = name.ToLowerInvariant();
+        if (!_directSpawnNodesByNpcName.TryGetValue(key, out var list))
+        {
+            list = new List<Node>(1);
+            _directSpawnNodesByNpcName[key] = list;
+        }
+
+        list.Add(spawnNode);
+    }
+
     private SpawnInfo ResolveDirectlyPlacedSpawn(Node spawnNode)
     {
-        // Find the character this spawn point belongs to via HasSpawn edge
         var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
         if (charEdges.Count > 0)
         {
@@ -380,22 +428,17 @@ public sealed class LiveStateTracker
                 {
                     var ch = npc.GetComponent<Character>();
                     bool alive = ch != null && ch.Alive;
-                    return new SpawnInfo(
-                        alive ? NodeState.Alive : new SpawnDead(0f),
-                        null, npc, 0f);
+                    return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
                 }
             }
         }
 
-        // Last resort: try by spawn node's own display name
         var fallbackNpc = FindNpcByNameAndProximity(spawnNode);
         if (fallbackNpc != null)
         {
             var ch = fallbackNpc.GetComponent<Character>();
             bool alive = ch != null && ch.Alive;
-            return new SpawnInfo(
-                alive ? NodeState.Alive : new SpawnDead(0f),
-                null, fallbackNpc, 0f);
+            return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, fallbackNpc, 0f);
         }
 
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -404,28 +447,30 @@ public sealed class LiveStateTracker
     private SpawnPoint? FindSpawnPoint(Node node)
     {
         var posKey = NodePosKey(node);
-        if (posKey.HasValue && _spawnIndex.TryGetValue(posKey.Value, out var sp))
-            return sp;
-        return null;
+        return posKey.HasValue && _spawnIndex.TryGetValue(posKey.Value, out var sp) ? sp : null;
     }
 
     private NPC? FindNpcByNameAndProximity(Node node)
     {
-        if (string.IsNullOrEmpty(node.DisplayName)) return null;
-        string nameLower = node.DisplayName.ToLowerInvariant();
+        if (string.IsNullOrEmpty(node.DisplayName))
+            return null;
 
+        string nameLower = node.DisplayName.ToLowerInvariant();
         if (!_npcByName.TryGetValue(nameLower, out var candidates))
             return null;
 
         if (!node.X.HasValue || !node.Y.HasValue || !node.Z.HasValue)
         {
-            // No position data — return first alive candidate.
             foreach (var npc in candidates)
             {
-                if (npc == null) continue;
+                if (npc == null)
+                    continue;
+
                 var ch = npc.GetComponent<Character>();
-                if (ch != null && ch.Alive) return npc;
+                if (ch != null && ch.Alive)
+                    return npc;
             }
+
             return null;
         }
 
@@ -435,7 +480,9 @@ public sealed class LiveStateTracker
 
         foreach (var npc in candidates)
         {
-            if (npc == null) continue;
+            if (npc == null)
+                continue;
+
             float dist = Vector3.Distance(npc.transform.position, nodePos);
             if (dist < bestDist)
             {
@@ -447,10 +494,109 @@ public sealed class LiveStateTracker
         return best;
     }
 
-    private static bool IsMiningNodeAvailable(MiningNode mn) =>
-        mn.MyRender != null && mn.MyRender.enabled;
+    private string? ResolveSpawnSourceKey(SpawnPoint sp)
+    {
+        var key = NodePosKey(sp.transform.position);
+        return _graphSpawnSourcesByPos.TryGetValue(key, out var sourceKey) ? sourceKey : null;
+    }
 
-    // ── Helpers ──────────────────────────────────────────────────────────
+    private string? ResolveMiningSourceKey(MiningNode miningNode)
+    {
+        var key = NodePosKey(miningNode.transform.position);
+        return _graphMiningSourcesByPos.TryGetValue(key, out var sourceKey) ? sourceKey : null;
+    }
+
+    private string? ResolveItemBagSourceKey(ItemBag bag)
+    {
+        var key = NodePosKey(bag.transform.position);
+        return _graphItemBagSourcesByPos.TryGetValue(key, out var sourceKey) ? sourceKey : null;
+    }
+
+    private string? ResolveNpcSourceKey(NPC npc)
+    {
+        if (NpcSpawnPointField?.GetValue(npc) is SpawnPoint spawnPoint)
+            return ResolveSpawnSourceKey(spawnPoint);
+
+        if (!string.IsNullOrEmpty(npc.NPCName)
+            && _directSpawnNodesByNpcName.TryGetValue(npc.NPCName.ToLowerInvariant(), out var candidates)
+            && candidates.Count > 0)
+        {
+            Node? best = null;
+            float bestDist = float.MaxValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                var candidate = candidates[i];
+                if (!candidate.X.HasValue || !candidate.Y.HasValue || !candidate.Z.HasValue)
+                    continue;
+
+                float dist = Vector3.Distance(
+                    npc.transform.position,
+                    new Vector3(candidate.X.Value, candidate.Y.Value, candidate.Z.Value));
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    best = candidate;
+                }
+            }
+
+            if (best != null)
+                return best.Key;
+        }
+
+        return null;
+    }
+
+    private GuideChangeSet BuildSourceChange(string? sourceKey)
+    {
+        if (string.IsNullOrEmpty(sourceKey))
+            return GuideChangeSet.None;
+
+        return BuildLiveChange(new[] { sourceKey }, timeChanged: false);
+    }
+
+    private GuideChangeSet BuildLiveChange(IEnumerable<string> changedSourceKeys, bool timeChanged)
+    {
+        var sourceKeys = new HashSet<string>(changedSourceKeys.Where(k => !string.IsNullOrWhiteSpace(k)), StringComparer.Ordinal);
+        var changedFacts = new List<GuideFactKey>();
+        foreach (var sourceKey in sourceKeys)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.SourceState, sourceKey));
+        if (timeChanged)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.TimeOfDay, "night"));
+
+        if (changedFacts.Count == 0)
+            return GuideChangeSet.None;
+
+        var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sourceKey in sourceKeys)
+        {
+            foreach (var questKey in _indexes.GetQuestsTouchingSource(sourceKey))
+                affectedQuestKeys.Add(questKey);
+        }
+
+        return new GuideChangeSet(
+            inventoryChanged: false,
+            questLogChanged: false,
+            sceneChanged: false,
+            liveWorldChanged: true,
+            changedItemKeys: Array.Empty<string>(),
+            changedQuestDbNames: Array.Empty<string>(),
+            affectedQuestKeys: affectedQuestKeys,
+            changedFacts: changedFacts);
+    }
+
+    private void RebuildMiningAvailability()
+    {
+        _miningAvailable.Clear();
+        foreach (var mn in _miningNodes)
+        {
+            if (mn == null)
+                continue;
+
+            _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
+        }
+    }
+
+    private void BumpVersion() => Version++;
 
     private static bool IsNight()
     {
@@ -458,11 +604,6 @@ public sealed class LiveStateTracker
         return hour >= 22 || hour < 4;
     }
 
-    /// <summary>
-    /// Check whether a SpawnPoint's NPC is alive. Matches the game's own
-    /// check in SpawnPoint.Update: SpawnedNPC != null and GetChar().Alive.
-    /// Do NOT use sp.MyNPCAlive — it is set on spawn but never cleared on death.
-    /// </summary>
     private static bool IsSpawnedNPCAlive(SpawnPoint sp)
     {
         return sp.SpawnedNPC != null
@@ -474,27 +615,22 @@ public sealed class LiveStateTracker
     private static float ComputeRespawnSeconds(SpawnPoint sp)
     {
         float spawnTimeMod = GameData.GM.SpawnTimeMod;
-        if (spawnTimeMod <= 0f) spawnTimeMod = 1f;
+        if (spawnTimeMod <= 0f)
+            spawnTimeMod = 1f;
         return sp.actualSpawnDelay / (60f * spawnTimeMod);
     }
 
     private static float GetMiningRespawnSeconds(MiningNode mn)
     {
-        if (MiningRespawnField == null) return 0f;
+        if (MiningRespawnField == null)
+            return 0f;
+
         object? val = MiningRespawnField.GetValue(mn);
-        if (val is float ticks)
-            return ticks / 60f;
-        return 0f;
+        return val is float ticks ? ticks / 60f : 0f;
     }
 
-    /// <summary>
-    /// Returns true if <paramref name="candidate"/> is a "better" (more favorable)
-    /// state than <paramref name="current"/>. Alive > Dead > everything else.
-    /// </summary>
-    private static bool IsBetterState(NodeState candidate, NodeState current)
-    {
-        return GetStatePriority(candidate) > GetStatePriority(current);
-    }
+    private static bool IsBetterState(NodeState candidate, NodeState current) =>
+        GetStatePriority(candidate) > GetStatePriority(current);
 
     private static int GetStatePriority(NodeState state)
     {
@@ -503,6 +639,9 @@ public sealed class LiveStateTracker
         if (state is SpawnNightLocked) return 1;
         return 0;
     }
+
+    private static bool IsMiningNodeAvailable(MiningNode mn) =>
+        mn.MyRender != null && mn.MyRender.enabled;
 
     private static PosKey? NodePosKey(Node node)
     {
@@ -513,14 +652,11 @@ public sealed class LiveStateTracker
 
     private static PosKey NodePosKey(Vector3 pos) => new PosKey(pos.x, pos.y, pos.z);
 
-    // ── PosKey ──────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Position key with centimeter precision for O(1) spawn point lookup.
-    /// </summary>
     private readonly struct PosKey : System.IEquatable<PosKey>
     {
-        private readonly int _x, _y, _z;
+        private readonly int _x;
+        private readonly int _y;
+        private readonly int _z;
 
         public PosKey(float x, float y, float z)
         {
@@ -535,9 +671,6 @@ public sealed class LiveStateTracker
     }
 }
 
-// ── Result structs ──────────────────────────────────────────────────────
-
-/// <summary>Live state snapshot for a spawn point or character node.</summary>
 public readonly struct SpawnInfo
 {
     public readonly NodeState State;
@@ -554,7 +687,6 @@ public readonly struct SpawnInfo
     }
 }
 
-/// <summary>Live state snapshot for a mining node.</summary>
 public readonly struct MiningInfo
 {
     public readonly NodeState State;

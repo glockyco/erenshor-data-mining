@@ -21,6 +21,7 @@ public sealed class GraphIndexes
     private readonly Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> _questGiversByScene;
     private readonly Dictionary<string, IReadOnlyList<QuestCompletionBlueprint>> _questCompletionsByScene;
     private readonly Dictionary<string, IReadOnlyList<StaticSourceBlueprint>> _staticSourcesByScene;
+    private readonly Dictionary<string, IReadOnlyCollection<string>> _questsBySourceKey;
     private readonly Dictionary<string, IReadOnlyCollection<string>> _scenesByQuestKey;
 
     public GraphIndexes(EntityGraph graph)
@@ -34,6 +35,7 @@ public sealed class GraphIndexes
         _questCompletionsByScene = BuildQuestCompletionBlueprints(graph);
         _staticSourcesByScene = BuildStaticSourceBlueprints(graph);
         _scenesByQuestKey = BuildQuestScenes(graph, _questGiversByScene, _questCompletionsByScene);
+        _questsBySourceKey = BuildSourceQuestDependencies(_questGiversByScene, _questCompletionsByScene);
     }
 
     public IReadOnlyCollection<string> GetQuestsDependingOnItem(string itemKey) =>
@@ -53,6 +55,52 @@ public sealed class GraphIndexes
 
     public IReadOnlyCollection<string> GetScenesTouchedByQuest(string questKey) =>
         _scenesByQuestKey.TryGetValue(questKey, out var scenes) ? scenes : EmptyKeySet;
+
+    public IReadOnlyCollection<string> GetQuestsTouchingSource(string sourceKey) =>
+        _questsBySourceKey.TryGetValue(sourceKey, out var quests) ? quests : EmptyKeySet;
+
+
+    private static Dictionary<string, IReadOnlyCollection<string>> BuildSourceQuestDependencies(
+        IReadOnlyDictionary<string, IReadOnlyList<QuestGiverBlueprint>> giversByScene,
+        IReadOnlyDictionary<string, IReadOnlyList<QuestCompletionBlueprint>> completionsByScene)
+    {
+        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var pair in giversByScene)
+        {
+            for (int i = 0; i < pair.Value.Count; i++)
+            {
+                var blueprint = pair.Value[i];
+                AddSourceQuestDependency(map, blueprint.PositionNodeKey, blueprint.QuestKey);
+            }
+        }
+
+        foreach (var pair in completionsByScene)
+        {
+            for (int i = 0; i < pair.Value.Count; i++)
+            {
+                var blueprint = pair.Value[i];
+                AddSourceQuestDependency(map, blueprint.PositionNodeKey, blueprint.QuestKey);
+            }
+        }
+
+        return FreezeSetMap(map);
+    }
+
+    private static void AddSourceQuestDependency(
+        Dictionary<string, HashSet<string>> map,
+        string sourceKey,
+        string questKey)
+    {
+        if (!map.TryGetValue(sourceKey, out var quests))
+        {
+            quests = new HashSet<string>(StringComparer.Ordinal);
+            map[sourceKey] = quests;
+        }
+
+        quests.Add(questKey);
+    }
+
 
     private static Dictionary<string, IReadOnlyCollection<string>> BuildQuestItemDependencies(EntityGraph graph)
     {

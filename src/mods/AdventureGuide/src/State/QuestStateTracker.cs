@@ -3,54 +3,324 @@ using AdventureGuide.Graph;
 namespace AdventureGuide.State;
 
 /// <summary>
-/// Tracks player quest state from Harmony patch callbacks.
-/// Caches inventory counts and detects implicitly active quests
-/// (those without acquisition sources that become active when the
-/// player enters the quest's completion zone).
+/// Central mutable runtime guide state.
+/// Tracks quest journal state, inventory counts, current scene, selected quest,
+/// and emits structured deltas so downstream systems can invalidate maintained
+/// views from precise fact changes rather than broad version bumps.
 /// </summary>
 public sealed class QuestStateTracker
 {
+    private readonly EntityGraph _graph;
+    private readonly GraphIndexes _indexes;
+    private readonly GuideDependencyEngine _dependencies;
+
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
-
-    // Quests without acquisition sources — pre-computed once from graph.
-    // Each entry stores every scene where the quest can be completed. The
-    // quest activates implicitly when the player enters any completion scene.
+    private readonly Dictionary<string, int> _inventoryCounts = new(StringComparer.Ordinal);
     private readonly List<ImplicitQuest> _implicitQuests;
     private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    // Cached inventory counts, invalidated on inventory/zone/quest changes.
-    private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
-    private bool _dirty = true;
-    private ulong _inventoryFingerprint;
-    private bool _hasInventoryFingerprint;
-
-    /// <summary>
-    /// Monotonically increasing version. Consumers compare against their
-    /// own snapshot to detect whether quest state changed since their last
-    /// check. Avoids the multi-consumer race of a bool that one reader clears.
-    /// </summary>
-    public int Version { get; private set; }
-    public string CurrentZone { get; set; } = "";
-    public string? SelectedQuestDBName { get; set; }
-
     private NavigationHistory? _history;
+    private string _currentZone = string.Empty;
 
-    public QuestStateTracker(EntityGraph graph)
+    public int Version { get; private set; }
+    public int QuestLogVersion { get; private set; }
+    public int InventoryVersion { get; private set; }
+    public int SceneVersion { get; private set; }
+
+    public string CurrentZone
     {
-        // Pre-compute implicit quests from the graph. A quest is implicit
-        // when it has no acquisition source (Node.Implicit == true). Activation
-        // scenes come from all COMPLETED_BY targets, resolving character targets
-        // through their spawn scenes when the character node itself has no scene.
-        _implicitQuests = new List<ImplicitQuest>();
+        get
+        {
+            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.Scene, "current"));
+            return _currentZone;
+        }
+        private set => _currentZone = value ?? string.Empty;
+    }
+
+    public string? SelectedQuestDBName { get; set; }
+    public GuideChangeSet LastChangeSet { get; private set; } = GuideChangeSet.None;
+
+    public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
+    public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
+    public IReadOnlyDictionary<string, int> InventoryCounts => _inventoryCounts;
+
+    public QuestStateTracker(EntityGraph graph, GraphIndexes indexes, GuideDependencyEngine dependencies)
+    {
+        _graph = graph;
+        _indexes = indexes;
+        _dependencies = dependencies;
+        _implicitQuests = BuildImplicitQuestIndex(graph);
+    }
+
+    public void SetHistory(NavigationHistory history) => _history = history;
+
+    public void SelectQuest(string dbName)
+    {
+        if (dbName == SelectedQuestDBName)
+            return;
+
+        _history?.Navigate(new NavigationHistory.PageRef(
+            NavigationHistory.PageType.Quest,
+            dbName));
+        SelectedQuestDBName = dbName;
+    }
+
+    public bool IsActive(string dbName)
+    {
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.QuestActive, dbName));
+        return _activeQuests.Contains(dbName);
+    }
+
+    public bool IsImplicitlyActive(string dbName)
+    {
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.Scene, "current"));
+        return !_activeQuests.Contains(dbName) && _implicitlyActiveQuests.Contains(dbName);
+    }
+
+    public bool IsActionable(string dbName) => IsActive(dbName) || IsImplicitlyActive(dbName);
+
+    public bool IsCompleted(string dbName)
+    {
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+        return _completedQuests.Contains(dbName);
+    }
+
+    public int CountItem(string itemStableKey)
+    {
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.InventoryItemCount, itemStableKey));
+        return _inventoryCounts.TryGetValue(itemStableKey, out var count) ? count : 0;
+    }
+
+    public IEnumerable<string> GetActionableQuestDbNames()
+    {
+        foreach (var quest in _activeQuests)
+            yield return quest;
+
+        foreach (var quest in _implicitlyActiveQuests)
+        {
+            if (!_activeQuests.Contains(quest))
+                yield return quest;
+        }
+    }
+
+    public GuideChangeSet SyncFromGameData() => FinalizeChange(BuildSyncChangeSet());
+
+    public GuideChangeSet OnQuestAssigned(string dbName)
+    {
+        bool changed = _activeQuests.Add(dbName);
+        if (!changed)
+            return GuideChangeSet.None;
+
+        RebuildImplicitlyActiveQuests();
+
+        return FinalizeChange(new GuideChangeSet(
+            inventoryChanged: false,
+            questLogChanged: true,
+            sceneChanged: false,
+            liveWorldChanged: false,
+            changedItemKeys: Array.Empty<string>(),
+            changedQuestDbNames: new[] { dbName },
+            affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
+            changedFacts: new[]
+            {
+                new GuideFactKey(GuideFactKind.QuestActive, dbName),
+                new GuideFactKey(GuideFactKind.QuestCompleted, dbName),
+            }));
+    }
+
+    public GuideChangeSet OnQuestCompleted(string dbName)
+    {
+        bool removed = _activeQuests.Remove(dbName);
+        bool added = _completedQuests.Add(dbName);
+        if (!removed && !added)
+            return GuideChangeSet.None;
+
+        RebuildImplicitlyActiveQuests();
+
+        return FinalizeChange(new GuideChangeSet(
+            inventoryChanged: false,
+            questLogChanged: true,
+            sceneChanged: false,
+            liveWorldChanged: false,
+            changedItemKeys: Array.Empty<string>(),
+            changedQuestDbNames: new[] { dbName },
+            affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
+            changedFacts: new[]
+            {
+                new GuideFactKey(GuideFactKind.QuestActive, dbName),
+                new GuideFactKey(GuideFactKind.QuestCompleted, dbName),
+            }));
+    }
+
+    public GuideChangeSet OnInventoryChanged()
+    {
+        if (!TryBuildInventorySnapshot(out var snapshot))
+            return GuideChangeSet.None;
+
+        var changedItemKeys = CollectChangedItemKeys(snapshot.Counts);
+        if (changedItemKeys.Count == 0)
+            return GuideChangeSet.None;
+
+        ReplaceInventoryCounts(snapshot.Counts);
+
+        return FinalizeChange(new GuideChangeSet(
+            inventoryChanged: true,
+            questLogChanged: false,
+            sceneChanged: false,
+            liveWorldChanged: false,
+            changedItemKeys: changedItemKeys,
+            changedQuestDbNames: Array.Empty<string>(),
+            affectedQuestKeys: CollectAffectedQuestKeysForItems(changedItemKeys),
+            changedFacts: changedItemKeys.Select(itemKey => new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey))));
+    }
+
+    public GuideChangeSet OnSceneChanged(string sceneName)
+    {
+        bool sceneChanged = !string.Equals(CurrentZone, sceneName, StringComparison.OrdinalIgnoreCase);
+        CurrentZone = sceneName ?? string.Empty;
+
+        var sync = BuildSyncChangeSet();
+        if (!sceneChanged)
+            return FinalizeChange(sync);
+
+        var sceneChange = new GuideChangeSet(
+            sync.InventoryChanged,
+            sync.QuestLogChanged,
+            sceneChanged: true,
+            liveWorldChanged: false,
+            sync.ChangedItemKeys,
+            sync.ChangedQuestDbNames,
+            sync.AffectedQuestKeys,
+            sync.ChangedFacts.Concat(new[] { new GuideFactKey(GuideFactKind.Scene, "current") }));
+
+        return FinalizeChange(sceneChange);
+    }
+
+    private GuideChangeSet BuildSyncChangeSet()
+    {
+        var nextActive = SnapshotQuestSet(GameData.HasQuest);
+        var nextCompleted = SnapshotQuestSet(GameData.CompletedQuests);
+        var changedQuestDbNames = CollectChangedQuestDbNames(nextActive, nextCompleted);
+        bool questLogChanged = changedQuestDbNames.Count > 0;
+
+        ReplaceSet(_activeQuests, nextActive);
+        ReplaceSet(_completedQuests, nextCompleted);
+
+        bool inventoryChanged = false;
+        HashSet<string> changedItemKeys = new(StringComparer.Ordinal);
+        if (TryBuildInventorySnapshot(out var inventorySnapshot))
+        {
+            changedItemKeys = CollectChangedItemKeys(inventorySnapshot.Counts);
+            inventoryChanged = changedItemKeys.Count > 0;
+            ReplaceInventoryCounts(inventorySnapshot.Counts);
+        }
+
+        RebuildImplicitlyActiveQuests();
+
+        var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
+        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
+        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
+
+        var changedFacts = new List<GuideFactKey>(changedQuestDbNames.Count * 2 + changedItemKeys.Count);
+        foreach (var dbName in changedQuestDbNames)
+        {
+            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestActive, dbName));
+            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+        }
+
+        foreach (var itemKey in changedItemKeys)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+
+        return new GuideChangeSet(
+            inventoryChanged,
+            questLogChanged,
+            sceneChanged: false,
+            liveWorldChanged: false,
+            changedItemKeys,
+            changedQuestDbNames,
+            affectedQuestKeys,
+            changedFacts);
+    }
+
+    private GuideChangeSet FinalizeChange(GuideChangeSet changeSet)
+    {
+        if (changeSet == null || !changeSet.HasMeaningfulChanges)
+            return GuideChangeSet.None;
+
+        if (changeSet.QuestLogChanged)
+            QuestLogVersion++;
+        if (changeSet.InventoryChanged)
+            InventoryVersion++;
+        if (changeSet.SceneChanged)
+            SceneVersion++;
+
+        Version++;
+        LastChangeSet = changeSet;
+        return changeSet;
+    }
+
+    private static HashSet<string> SnapshotQuestSet(IEnumerable<string>? values)
+    {
+        var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (values == null)
+            return result;
+
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                result.Add(value);
+        }
+
+        return result;
+    }
+
+    private HashSet<string> CollectChangedQuestDbNames(HashSet<string> nextActive, HashSet<string> nextCompleted)
+    {
+        var changed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var quest in _activeQuests)
+        {
+            if (!nextActive.Contains(quest))
+                changed.Add(quest);
+        }
+
+        foreach (var quest in nextActive)
+        {
+            if (!_activeQuests.Contains(quest))
+                changed.Add(quest);
+        }
+
+        foreach (var quest in _completedQuests)
+        {
+            if (!nextCompleted.Contains(quest))
+                changed.Add(quest);
+        }
+
+        foreach (var quest in nextCompleted)
+        {
+            if (!_completedQuests.Contains(quest))
+                changed.Add(quest);
+        }
+
+        return changed;
+    }
+
+    private static List<ImplicitQuest> BuildImplicitQuestIndex(EntityGraph graph)
+    {
+        var implicitQuests = new List<ImplicitQuest>();
         foreach (var quest in graph.NodesOfType(NodeType.Quest))
         {
-            if (!quest.Implicit) continue;
-            if (quest.DbName == null) continue;
+            if (!quest.Implicit || string.IsNullOrEmpty(quest.DbName))
+                continue;
 
-            var activationScenes = CollectImplicitActivationScenes(graph, quest.Key);
-            _implicitQuests.Add(new ImplicitQuest(quest.DbName, activationScenes));
+            implicitQuests.Add(new ImplicitQuest(
+                quest.Key,
+                quest.DbName,
+                CollectImplicitActivationScenes(graph, quest.Key)));
         }
+
+        return implicitQuests;
     }
 
     private static HashSet<string> CollectImplicitActivationScenes(EntityGraph graph, string questKey)
@@ -77,232 +347,162 @@ public sealed class QuestStateTracker
                     scenes.Add(spawnNode.Scene);
             }
         }
+
         return scenes;
     }
 
-    /// <summary>Wire navigation history. Call from Plugin.Awake after construction.</summary>
-    public void SetHistory(NavigationHistory history) => _history = history;
-
-    /// <summary>
-    /// Select a quest via user action. Pushes onto navigation history.
-    /// Use for list clicks, prerequisite links, sub-tree quest links.
-    /// </summary>
-    public void SelectQuest(string dbName)
-    {
-        if (dbName == SelectedQuestDBName) return;
-        _history?.Navigate(new NavigationHistory.PageRef(
-            NavigationHistory.PageType.Quest, dbName));
-        SelectedQuestDBName = dbName;
-    }
-
-    public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
-    public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
-
-    /// <summary>
-    /// True when the quest is game-assigned (in the player's quest journal).
-    /// Does NOT include implicitly active quests.
-    /// </summary>
-    public bool IsActive(string dbName) => _activeQuests.Contains(dbName);
-
-    /// <summary>
-    /// True when the quest is actionable — either game-assigned or implicitly
-    /// active (no acquisition source, player is in the completion zone).
-    /// Use for marker eligibility, step progress, and navigation.
-    /// </summary>
-    public bool IsActionable(string dbName)
-    {
-        if (_activeQuests.Contains(dbName)) return true;
-        EnsureCacheCurrent();
-        return _implicitlyActiveQuests.Contains(dbName);
-    }
-
-    /// <summary>
-    /// True when the quest is implicitly active (no acquisition source,
-    /// player is in the completion zone) but not game-assigned.
-    /// </summary>
-    public bool IsImplicitlyActive(string dbName)
-    {
-        if (_activeQuests.Contains(dbName)) return false;
-        EnsureCacheCurrent();
-        return _implicitlyActiveQuests.Contains(dbName);
-    }
-
-    public bool IsCompleted(string dbName) => _completedQuests.Contains(dbName);
-
-    /// <summary>Sync from live GameData state. Called on scene load and periodically.</summary>
-    public void SyncFromGameData()
-    {
-        _activeQuests.Clear();
-        _completedQuests.Clear();
-
-        if (GameData.HasQuest != null)
-            foreach (var q in GameData.HasQuest)
-                _activeQuests.Add(q);
-
-        if (GameData.CompletedQuests != null)
-            foreach (var q in GameData.CompletedQuests)
-                _completedQuests.Add(q);
-
-        CaptureInventoryFingerprint();
-        _dirty = true;
-        Version++;
-    }
-
-    public void OnQuestAssigned(string dbName)
-    {
-        _activeQuests.Add(dbName);
-        _dirty = true;
-        Version++;
-    }
-
-    public void OnQuestCompleted(string dbName)
-    {
-        _activeQuests.Remove(dbName);
-        _completedQuests.Add(dbName);
-        _dirty = true;
-        Version++;
-    }
-
-    public bool OnInventoryChanged()
-    {
-        if (!TryComputeInventoryFingerprint(out var fingerprint))
-            return false;
-        if (_hasInventoryFingerprint && fingerprint == _inventoryFingerprint)
-            return false;
-
-        _inventoryFingerprint = fingerprint;
-        _hasInventoryFingerprint = true;
-        _dirty = true;
-        Version++;
-        return true;
-    }
-
-    public void OnSceneChanged(string sceneName)
-    {
-        CurrentZone = sceneName;
-        SyncFromGameData();
-    }
-
-    /// <summary>
-    /// Count items matching a stable key in the player inventory.
-    /// Stable keys are derived from the Unity object name:
-    /// "item:" + objectName.Trim().ToLowerInvariant().
-    /// </summary>
-    public int CountItem(string itemStableKey)
-    {
-        EnsureCacheCurrent();
-        return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
-    }
-
-    // ── Cache rebuild ───────────────────────────────────────────────────
-
-    private void EnsureCacheCurrent()
-    {
-        if (!_dirty) return;
-        RebuildInventoryCache();
-        RebuildImplicitQuests();
-    }
-
-    private void RebuildInventoryCache()
-    {
-        _inventoryCache.Clear();
-        _dirty = false;
-
-        if (GameData.PlayerInv?.StoredSlots == null) return;
-
-        foreach (var slot in GameData.PlayerInv.StoredSlots)
-        {
-            if (slot?.MyItem != null)
-            {
-                var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
-                _inventoryCache[key] = _inventoryCache.TryGetValue(key, out int c) ? c + 1 : 1;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Rebuild the set of implicitly active quests. A quest activates
-    /// implicitly when it has no acquisition source and the player is
-    /// in any of its completion scenes.
-    /// </summary>
-    private void RebuildImplicitQuests()
+    private void RebuildImplicitlyActiveQuests()
     {
         _implicitlyActiveQuests.Clear();
-
-        foreach (var iq in _implicitQuests)
+        foreach (var implicitQuest in _implicitQuests)
         {
-            if (_activeQuests.Contains(iq.DBName) || _completedQuests.Contains(iq.DBName))
+            if (_activeQuests.Contains(implicitQuest.DbName) || _completedQuests.Contains(implicitQuest.DbName))
                 continue;
 
-            if (iq.ActivationScenes.Count == 0)
-                continue;
-
-            foreach (var scene in iq.ActivationScenes)
+            foreach (var scene in implicitQuest.ActivationScenes)
             {
-                if (!string.Equals(scene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(scene, CurrentZone, StringComparison.OrdinalIgnoreCase))
                     continue;
-                _implicitlyActiveQuests.Add(iq.DBName);
+
+                _implicitlyActiveQuests.Add(implicitQuest.DbName);
                 break;
             }
         }
     }
 
-    private void CaptureInventoryFingerprint()
+    private bool TryBuildInventorySnapshot(out InventorySnapshot snapshot)
     {
-        if (TryComputeInventoryFingerprint(out var fingerprint))
-        {
-            _inventoryFingerprint = fingerprint;
-            _hasInventoryFingerprint = true;
-        }
-        else
-        {
-            _inventoryFingerprint = 0UL;
-            _hasInventoryFingerprint = false;
-        }
-    }
-
-    private static bool TryComputeInventoryFingerprint(out ulong fingerprint)
-    {
-        const ulong offsetBasis = 14695981039346656037UL;
-        const ulong prime = 1099511628211UL;
-
-        fingerprint = offsetBasis;
         var slots = GameData.PlayerInv?.StoredSlots;
         if (slots == null)
+        {
+            snapshot = default;
             return false;
+        }
 
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int i = 0; i < slots.Count; i++)
         {
             var slot = slots[i];
-            fingerprint ^= (ulong)i;
-            fingerprint *= prime;
-
             var item = slot?.MyItem;
             if (item == null)
                 continue;
 
-            string name = item.name;
-            for (int j = 0; j < name.Length; j++)
-            {
-                fingerprint ^= name[j];
-                fingerprint *= prime;
-            }
-
-            fingerprint ^= (ulong)slot!.Quantity;
-            fingerprint *= prime;
+            var itemKey = BuildItemStableKey(item.name);
+            int quantity = slot!.Quantity > 0 ? slot.Quantity : 1;
+            counts[itemKey] = counts.TryGetValue(itemKey, out var current)
+                ? current + quantity
+                : quantity;
         }
 
+        snapshot = new InventorySnapshot(counts);
         return true;
+    }
+
+    private HashSet<string> CollectChangedItemKeys(IReadOnlyDictionary<string, int> nextCounts)
+    {
+        var changed = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var (itemKey, count) in _inventoryCounts)
+        {
+            if (!nextCounts.TryGetValue(itemKey, out var nextCount) || nextCount != count)
+                changed.Add(itemKey);
+        }
+
+        foreach (var (itemKey, count) in nextCounts)
+        {
+            if (!_inventoryCounts.TryGetValue(itemKey, out var current) || current != count)
+                changed.Add(itemKey);
+        }
+
+        return changed;
+    }
+
+    private HashSet<string> CollectAffectedQuestKeysForItems(IEnumerable<string> changedItemKeys)
+    {
+        var seeds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var itemKey in changedItemKeys)
+        {
+            foreach (var questKey in _indexes.GetQuestsDependingOnItem(itemKey))
+                seeds.Add(questKey);
+        }
+
+        return ExpandDependentQuestClosure(seeds);
+    }
+
+    private HashSet<string> CollectAffectedQuestKeysForQuestDbNames(IEnumerable<string> changedQuestDbNames)
+    {
+        var seeds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var dbName in changedQuestDbNames)
+        {
+            var quest = _graph.GetQuestByDbName(dbName);
+            if (quest != null)
+                seeds.Add(quest.Key);
+        }
+
+        return ExpandDependentQuestClosure(seeds);
+    }
+
+    private HashSet<string> ExpandDependentQuestClosure(IEnumerable<string> seedQuestKeys)
+    {
+        var closure = new HashSet<string>(StringComparer.Ordinal);
+        var queue = new Queue<string>();
+
+        foreach (var questKey in seedQuestKeys)
+        {
+            if (closure.Add(questKey))
+                queue.Enqueue(questKey);
+        }
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            foreach (var dependent in _indexes.GetQuestsDependingOnQuest(current))
+            {
+                if (closure.Add(dependent))
+                    queue.Enqueue(dependent);
+            }
+        }
+
+        return closure;
+    }
+
+    private static void ReplaceSet(HashSet<string> target, IReadOnlyCollection<string> values)
+    {
+        target.Clear();
+        foreach (var value in values)
+            target.Add(value);
+    }
+
+    private void ReplaceInventoryCounts(IReadOnlyDictionary<string, int> nextCounts)
+    {
+        _inventoryCounts.Clear();
+        foreach (var (itemKey, count) in nextCounts)
+            _inventoryCounts[itemKey] = count;
+    }
+
+    private static string BuildItemStableKey(string itemName) =>
+        "item:" + itemName.Trim().ToLowerInvariant();
+
+    private readonly struct InventorySnapshot
+    {
+        public readonly IReadOnlyDictionary<string, int> Counts;
+
+        public InventorySnapshot(IReadOnlyDictionary<string, int> counts)
+        {
+            Counts = counts;
+        }
     }
 
     private readonly struct ImplicitQuest
     {
-        public readonly string DBName;
+        public readonly string QuestKey;
+        public readonly string DbName;
         public readonly HashSet<string> ActivationScenes;
 
-        public ImplicitQuest(string dbName, HashSet<string> activationScenes)
+        public ImplicitQuest(string questKey, string dbName, HashSet<string> activationScenes)
         {
-            DBName = dbName;
+            QuestKey = questKey;
+            DbName = dbName;
             ActivationScenes = activationScenes;
         }
     }

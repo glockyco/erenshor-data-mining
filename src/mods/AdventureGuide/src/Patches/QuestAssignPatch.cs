@@ -14,8 +14,8 @@ internal static class QuestAssignPatch
     [HarmonyPostfix]
     private static void Postfix(string _questName)
     {
-        Tracker?.OnQuestAssigned(_questName);
-        Markers?.MarkDirty();
+        var changeSet = Tracker?.OnQuestAssigned(_questName) ?? GuideChangeSet.None;
+        Markers?.ApplyGuideChangeSet(changeSet);
 
         if (TrackerPins is { Enabled: true, AutoTrackEnabled: true })
             TrackerPins.Track(_questName);

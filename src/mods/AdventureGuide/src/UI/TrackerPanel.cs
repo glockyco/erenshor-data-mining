@@ -1,27 +1,19 @@
-using AdventureGuide.Config;
-using AdventureGuide.Frontier;
-using AdventureGuide.Graph;
 using AdventureGuide.Rendering;
+using AdventureGuide.Frontier;
+using AdventureGuide.Config;
+using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
-using AdventureGuide.Views;
 using ImGuiNET;
 using UnityEngine;
 
 namespace AdventureGuide.UI;
 
 /// <summary>
-/// Compact always-visible quest tracker overlay. Shows tracked quests with
-/// their frontier summary (what to do next) and NAV buttons.
-///
-/// Features ported from the original TrackerWindow, adapted to the entity
-/// graph model:
-/// - Compact mode: transparent backdrop when not hovered, full window on hover
-/// - Animations: fade-in on track, fade-out on untrack, completion flash
-/// - Sort modes: proximity, level, alphabetical
-/// - Game window overlap suppression
-/// - Auto-untrack on quest completion
-/// - Right-click context menu (untrack, open in guide)
+/// Compact always-visible quest tracker overlay.
+/// Renders tracked quests as a projection of shared quest resolutions rather than
+/// rebuilding frontier semantics locally.
 /// </summary>
 public sealed class TrackerPanel
 {
@@ -40,34 +32,20 @@ public sealed class TrackerPanel
 
     private readonly EntityGraph _graph;
     private readonly QuestStateTracker _tracker;
-    private readonly GameState _state;
     private readonly TrackerState _trackerState;
-    private readonly QuestViewBuilder _viewBuilder;
     private readonly NavigationSet _navSet;
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
     private readonly ZoneRouter _router;
-    private readonly ViewNodePositionCollector _viewPositions;
-    private readonly AdventureGuide.Markers.LiveStateTracker _liveState;
+    private readonly QuestResolutionService _resolution;
 
     private bool _visible = true;
-
-    // Animation state
     private readonly Dictionary<string, EntryAnimation> _animations = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, float> _fadingOut = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, float> _completionTimers = new(StringComparer.OrdinalIgnoreCase);
-
-    // Sorted working copy — includes both tracked and fading-out entries
     private readonly List<string> _sorted = new();
     private int _lastStateVersion = -1;
     private TrackerSortMode _lastSortMode;
-
-    // Frontier cache — avoids rebuilding view trees every frame.
-    // Stores summary text and frontier positions for distance computation.
-    private readonly Dictionary<string, CachedFrontier> _frontierCache = new(StringComparer.OrdinalIgnoreCase);
-    private int _frontierCacheVersion = -1;
-    private int _frontierLiveVersion = -1;
-    // Compact mode state
     private bool _compact = true;
     private System.Numerics.Vector2 _contentMin;
     private System.Numerics.Vector2 _contentMax;
@@ -80,27 +58,21 @@ public sealed class TrackerPanel
     public TrackerPanel(
         EntityGraph graph,
         QuestStateTracker tracker,
-        GameState state,
         TrackerState trackerState,
-        QuestViewBuilder viewBuilder,
         NavigationSet navSet,
         GuideWindow guide,
         GuideConfig config,
         ZoneRouter router,
-        ViewNodePositionCollector viewPositions,
-        AdventureGuide.Markers.LiveStateTracker liveState)
+        QuestResolutionService resolution)
     {
         _graph = graph;
         _tracker = tracker;
-        _state = state;
         _trackerState = trackerState;
-        _viewBuilder = viewBuilder;
         _navSet = navSet;
         _guide = guide;
         _config = config;
         _router = router;
-        _viewPositions = viewPositions;
-        _liveState = liveState;
+        _resolution = resolution;
 
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
@@ -113,8 +85,6 @@ public sealed class TrackerPanel
         _trackerState.Untracked -= OnQuestUntracked;
         _trackerState.QuestCompleted -= OnQuestCompleted;
     }
-
-    // ── Event handlers ───────────────────────────────────────────────
 
     private void OnQuestTracked(string dbName)
     {
@@ -137,13 +107,11 @@ public sealed class TrackerPanel
         _completionTimers[dbName] = Time.realtimeSinceStartup;
     }
 
-    // ── Draw ─────────────────────────────────────────────────────────
-
     public void Draw()
     {
-        if (!_visible || !_trackerState.Enabled) return;
+        if (!_visible || !_trackerState.Enabled)
+            return;
 
-        // Hide when game UI overlaps us
         if (_contentMax.Y > _contentMin.Y
             && GameWindowOverlap.ShouldSuppressTracker(
                 _contentMin.X, _contentMin.Y, _contentMax.X, _contentMax.Y))
@@ -178,7 +146,6 @@ public sealed class TrackerPanel
             extraColors = 8;
         }
 
-        // Draw fitted tint backdrop using last frame's content bounds
         if (_compact && _contentMax.Y > _contentMin.Y)
         {
             uint tint = Theme.Rgba(0f, 0f, 0f, _config.TrackerBackgroundOpacity.Value);
@@ -187,7 +154,9 @@ public sealed class TrackerPanel
                 bgDl,
                 new CimguiNative.Vec2(_contentMin.X, _contentMin.Y),
                 new CimguiNative.Vec2(_contentMax.X, _contentMax.Y),
-                tint, CompactTintRounding, DrawFlagsRoundCornersAll);
+                tint,
+                CompactTintRounding,
+                DrawFlagsRoundCornersAll);
         }
 
         var flags = ImGuiWindowFlags.NoCollapse
@@ -197,11 +166,9 @@ public sealed class TrackerPanel
         if (_compact)
             flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
 
-        bool beginOpen;
-        if (_compact)
-            beginOpen = ImGui.Begin("###Tracker", flags);
-        else
-            beginOpen = ImGui.Begin("Quest Tracker###Tracker", ref _visible, flags);
+        bool beginOpen = _compact
+            ? ImGui.Begin("###Tracker", flags)
+            : ImGui.Begin("Quest Tracker###Tracker", ref _visible, flags);
 
         if (beginOpen)
         {
@@ -223,14 +190,11 @@ public sealed class TrackerPanel
         }
 
         Theme.ClampWindowPosition();
-
         ImGui.End();
         if (extraColors > 0)
             ImGui.PopStyleColor(extraColors);
         Theme.PopWindowStyle();
     }
-
-    // ── Header bar ───────────────────────────────────────────────────
 
     private void DrawHeaderBar()
     {
@@ -239,7 +203,6 @@ public sealed class TrackerPanel
         DrawSortButton("Lv", TrackerSortMode.Level, "Sort by level");
         ImGui.SameLine(0, 2);
         DrawSortButton("Az", TrackerSortMode.Alphabetical, "Sort alphabetically");
-
         ImGui.Separator();
     }
 
@@ -267,24 +230,19 @@ public sealed class TrackerPanel
         }
     }
 
-    // ── Quest list ───────────────────────────────────────────────────
-
     private void DrawQuestList()
     {
         ImGui.BeginChild("##TrackerScroll", System.Numerics.Vector2.Zero, false);
 
         var contentTop = ImGui.GetCursorScreenPos();
-
         for (int i = 0; i < _sorted.Count; i++)
         {
             var dbName = _sorted[i];
             var quest = _graph.GetQuestByDbName(dbName);
-            if (quest == null) continue;
-
-            DrawQuestEntry(quest, dbName, i);
+            if (quest != null)
+                DrawQuestEntry(quest, dbName, i);
         }
 
-        // Record bounds for backdrop
         var contentBottom = ImGui.GetCursorScreenPos();
         var childPos = ImGui.GetWindowPos();
         float childWidth = ImGui.GetWindowWidth();
@@ -306,14 +264,16 @@ public sealed class TrackerPanel
         float now = Time.realtimeSinceStartup;
         bool isFadingOut = _fadingOut.TryGetValue(dbName, out float fadeStart);
 
-        if (!isFadingOut && !_trackerState.IsTracked(dbName)) return;
+        if (!isFadingOut && !_trackerState.IsTracked(dbName))
+            return;
 
         float entryAlpha = 1f;
         if (isFadingOut)
         {
             float elapsed = now - fadeStart;
             entryAlpha = Mathf.Clamp01(1f - elapsed / FadeOutDuration);
-            if (entryAlpha <= 0f) return;
+            if (entryAlpha <= 0f)
+                return;
         }
         else if (anim.AddedAt > 0)
         {
@@ -323,7 +283,6 @@ public sealed class TrackerPanel
         }
 
         ImGui.PushID(index);
-
         if (entryAlpha < 1f)
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, entryAlpha);
 
@@ -334,17 +293,11 @@ public sealed class TrackerPanel
             tinted = true;
         }
 
-        // NAV button
         DrawNavButton(quest);
         ImGui.SameLine();
-
-        // Quest name with level prefix
         DrawQuestNameAndLevel(quest, dbName);
+        DrawResolutionSummary(quest);
 
-        // Frontier summary: what to do next
-        DrawFrontierSummary(quest);
-
-        // Right-click context menu
         if (ImGui.BeginPopupContextItem($"##ctx{dbName}"))
         {
             if (ImGui.Selectable("Untrack"))
@@ -363,11 +316,8 @@ public sealed class TrackerPanel
             ImGui.PopStyleColor();
         if (entryAlpha < 1f)
             ImGui.PopStyleVar();
-
         ImGui.PopID();
     }
-
-    // ── NAV button ───────────────────────────────────────────────────
 
     private void DrawNavButton(Node quest)
     {
@@ -389,8 +339,6 @@ public sealed class TrackerPanel
             ImGui.PopStyleColor();
     }
 
-    // ── Quest name + level ───────────────────────────────────────────
-
     private void DrawQuestNameAndLevel(Node quest, string dbName)
     {
         string label = quest.Level.HasValue
@@ -406,9 +354,7 @@ public sealed class TrackerPanel
         ImGui.PopStyleColor();
     }
 
-    // ── Frontier summary ─────────────────────────────────────────────
-
-    private void DrawFrontierSummary(Node quest)
+    private void DrawResolutionSummary(Node quest)
     {
         string? dbName = quest.DbName;
         if (dbName != null && _tracker.IsCompleted(dbName))
@@ -419,178 +365,96 @@ public sealed class TrackerPanel
             return;
         }
 
-        var frontier = GetCachedFrontier(quest.Key);
-        string summary = frontier.Summary;
-
-        // Append distance annotation to the primary actionable line.
-
-        string distText = ComputeDistanceText(frontier);
+        var resolution = _resolution.ResolveQuest(quest.Key);
+        string summary = resolution.TrackerSummary.PrimaryText;
+        string distText = ComputeDistanceText(resolution);
         if (distText.Length > 0)
-            summary += $" {distText}";
+            summary += " " + distText;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextWrapped(summary);
-        if (!string.IsNullOrEmpty(frontier.SecondarySummary))
-            ImGui.TextWrapped(frontier.SecondarySummary);
+        if (!string.IsNullOrEmpty(resolution.TrackerSummary.SecondaryText))
+            ImGui.TextWrapped(resolution.TrackerSummary.SecondaryText);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private CachedFrontier GetCachedFrontier(string questKey)
+    private string ComputeDistanceText(QuestResolution resolution)
     {
-        // Invalidate cache when game state or live world state changes.
-
-        if (_tracker.Version != _frontierCacheVersion
-            || _liveState.Version != _frontierLiveVersion)
-        {
-            _frontierCache.Clear();
-            _frontierCacheVersion = _tracker.Version;
-            _frontierLiveVersion = _liveState.Version;
-        }
-
-        if (_frontierCache.TryGetValue(questKey, out var cached))
-            return cached;
-
-        var result = ComputeFrontierInfo(questKey);
-        _frontierCache[questKey] = result;
-        return result;
-    }
-
-    private CachedFrontier ComputeFrontierInfo(string questKey)
-    {
-        var root = _viewBuilder.Build(questKey);
-        if (root == null)
-            return new CachedFrontier("Unknown", null, System.Array.Empty<FrontierPosition>());
-
-        var frontier = FrontierComputer.ComputeFrontier(root, _state);
-        if (frontier.Count == 0)
-            return new CachedFrontier("Ready to turn in", null, System.Array.Empty<FrontierPosition>());
-
-        ViewNode summaryNode = frontier[0];
-        var positions = new List<FrontierPosition>();
-        for (int i = 0; i < frontier.Count; i++)
-        {
-            var promotedSummaryNode = CollectFrontierPositions(frontier[i], positions);
-            if (i == 0)
-                summaryNode = promotedSummaryNode;
-        }
-
-        var summaryInfo = NavigationExplanationBuilder.BuildTrackerSummary(
-            frontier[0], summaryNode, _tracker, frontier.Count - 1);
-
-        return new CachedFrontier(
-            summaryInfo.PrimaryText,
-            summaryInfo.SecondaryText,
-            positions.Count > 0 ? positions.ToArray() : System.Array.Empty<FrontierPosition>());
-    }
-
-    /// <summary>
-    /// Collect world positions for a frontier node from its pruned view tree and
-    /// return the first promoted actionable goal represented by those positions.
-    /// This keeps tracker summary and distance computation consistent with
-    /// navigation and the rendered dependency tree.
-    /// </summary>
-    private ViewNode CollectFrontierPositions(ViewNode node, List<FrontierPosition> positions)
-    {
-        var resolved = new List<ResolvedViewPosition>();
-        _viewPositions.CollectDetailed(node, resolved);
-        for (int i = 0; i < resolved.Count; i++)
-        {
-            var rp = resolved[i];
-            positions.Add(new FrontierPosition(
-                rp.Position.x, rp.Position.y, rp.Position.z, rp.Scene ?? ""));
-        }
-
-        return resolved.Count > 0 ? resolved[0].GoalNode : node;
-    }
-
-    /// <summary>
-    /// Compute distance text for display: "(42m)" for same-zone,
-    /// "({n} hops)" for cross-zone.
-    /// </summary>
-    private string ComputeDistanceText(CachedFrontier frontier)
-    {
-        if (frontier.Positions.Length == 0)
+        if (resolution.Targets.Count == 0 || GameData.PlayerControl == null)
             return "";
 
-        string currentScene = _tracker.CurrentZone;
-        var playerCtrl = GameData.PlayerControl;
-        if (playerCtrl == null) return "";
-        var playerPos = playerCtrl.transform.position;
-
-        // Check for same-zone frontier nodes
-        float minDist = float.MaxValue;
-        foreach (var p in frontier.Positions)
+        var playerPos = GameData.PlayerControl.transform.position;
+        float minDistance = float.MaxValue;
+        for (int i = 0; i < resolution.Targets.Count; i++)
         {
-            if (!string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+            var target = resolution.Targets[i];
+            if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
                 continue;
-            float dist = Vector3.Distance(playerPos, new Vector3(p.X, p.Y, p.Z));
-            if (dist < minDist) minDist = dist;
+
+            float distance = Vector3.Distance(playerPos, target.Position);
+            if (distance < minDistance)
+                minDistance = distance;
         }
 
-        if (minDist < float.MaxValue)
-            return $"({(int)minDist}m)";
+        if (minDistance < float.MaxValue)
+            return $"({(int)minDistance}m)";
 
-        // All frontier nodes are cross-zone
-        string? bestZone = null;
-        int bestHops = int.MaxValue;
-        foreach (var p in frontier.Positions)
-        {
-            if (string.IsNullOrEmpty(p.Scene)) continue;
-            var route = _router.FindRoute(currentScene, p.Scene);
-            if (route == null) continue;
-            int hops = route.Path.Count - 1;
-            if (hops < bestHops)
-            {
-                bestHops = hops;
-                bestZone = p.Scene;
-            }
-        }
-
-        if (bestZone != null && bestHops > 0)
-        {
-            string hopText = bestHops == 1 ? "1 hop" : $"{bestHops} hops";
-            return $"({hopText})";
-        }
+        int bestHops = GetBestHopCount(resolution);
+        if (bestHops > 0)
+            return bestHops == 1 ? "(1 hop)" : $"({bestHops} hops)";
 
         return "";
     }
 
-    /// <summary>
-    /// Get minimum distance from player to any same-zone frontier node.
-    /// Returns float.MaxValue if no frontier nodes are in the current zone.
-    /// </summary>
     private float GetMinFrontierDistance(string questKey)
     {
-        var frontier = GetCachedFrontier(questKey);
-        if (frontier.Positions.Length == 0)
+        var resolution = _resolution.ResolveQuest(questKey);
+        if (resolution.Targets.Count == 0 || GameData.PlayerControl == null)
             return float.MaxValue;
 
-        string currentScene = _tracker.CurrentZone;
-        var playerCtrl = GameData.PlayerControl;
-        if (playerCtrl == null) return float.MaxValue;
-        var playerPos = playerCtrl.transform.position;
-
-        float minDist = float.MaxValue;
-        foreach (var p in frontier.Positions)
+        var playerPos = GameData.PlayerControl.transform.position;
+        float minDistance = float.MaxValue;
+        for (int i = 0; i < resolution.Targets.Count; i++)
         {
-            if (!string.Equals(p.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+            var target = resolution.Targets[i];
+            if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
                 continue;
-            float dist = Vector3.Distance(playerPos, new Vector3(p.X, p.Y, p.Z));
-            if (dist < minDist) minDist = dist;
+
+            float distance = Vector3.Distance(playerPos, target.Position);
+            if (distance < minDistance)
+                minDistance = distance;
         }
 
-        return minDist;
+        return minDistance;
     }
 
-    // ── Animation management ─────────────────────────────────────────
+    private int GetBestHopCount(QuestResolution resolution)
+    {
+        int bestHops = int.MaxValue;
+        for (int i = 0; i < resolution.Targets.Count; i++)
+        {
+            var target = resolution.Targets[i];
+            if (string.IsNullOrEmpty(target.Scene))
+                continue;
+
+            var route = _router.FindRoute(_tracker.CurrentZone, target.Scene!);
+            if (route == null)
+                continue;
+
+            int hops = route.Path.Count - 1;
+            if (hops < bestHops)
+                bestHops = hops;
+        }
+
+        return bestHops == int.MaxValue ? -1 : bestHops;
+    }
 
     private void PruneAnimations()
     {
         float now = Time.realtimeSinceStartup;
 
-        // Auto-untrack completed quests after flash
         var toUntrack = new List<string>();
         foreach (var (dbName, startTime) in _completionTimers)
         {
@@ -603,7 +467,6 @@ public sealed class TrackerPanel
             _trackerState.Untrack(dbName);
         }
 
-        // Remove expired fade-outs
         var expiredFades = new List<string>();
         foreach (var (dbName, startTime) in _fadingOut)
         {
@@ -617,8 +480,6 @@ public sealed class TrackerPanel
         }
     }
 
-    // ── Sort management ──────────────────────────────────────────────
-
     private void RebuildSortedListIfNeeded()
     {
         bool trackerDirty = _trackerState.IsDirty;
@@ -627,7 +488,8 @@ public sealed class TrackerPanel
 
         if (trackerDirty || stateDirty || sortModeChanged)
         {
-            if (stateDirty) _lastStateVersion = _tracker.Version;
+            if (stateDirty)
+                _lastStateVersion = _tracker.Version;
             RebuildSortedList();
         }
     }
@@ -637,7 +499,6 @@ public sealed class TrackerPanel
         _sorted.Clear();
         _sorted.AddRange(_trackerState.TrackedQuests);
 
-        // Append fading-out entries so they fade in place
         foreach (var dbName in _fadingOut.Keys)
         {
             if (!_sorted.Contains(dbName))
@@ -645,20 +506,21 @@ public sealed class TrackerPanel
         }
 
         _lastSortMode = _trackerState.SortMode;
-
-        // Sort based on mode
         _sorted.Sort((a, b) =>
         {
             var na = _graph.GetQuestByDbName(a);
             var nb = _graph.GetQuestByDbName(b);
-            if (na == null || nb == null) return 0;
+            if (na == null || nb == null)
+                return 0;
 
             return _trackerState.SortMode switch
             {
                 TrackerSortMode.Proximity => CompareByProximity(na, nb),
                 TrackerSortMode.Level => CompareByLevel(na, nb),
                 TrackerSortMode.Alphabetical => string.Compare(
-                    na.DisplayName, nb.DisplayName, StringComparison.OrdinalIgnoreCase),
+                    na.DisplayName,
+                    nb.DisplayName,
+                    StringComparison.OrdinalIgnoreCase),
                 _ => 0,
             };
         });
@@ -669,14 +531,11 @@ public sealed class TrackerPanel
         int la = a.Level ?? int.MaxValue;
         int lb = b.Level ?? int.MaxValue;
         int cmp = la.CompareTo(lb);
-        return cmp != 0 ? cmp : string.Compare(
-            a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        return cmp != 0
+            ? cmp
+            : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Compare quests by proximity: same-zone quests first (sorted by distance),
-    /// then cross-zone quests (sorted by hop count). Tie-break alphabetically.
-    /// </summary>
     private int CompareByProximity(Node a, Node b)
     {
         float distA = GetMinFrontierDistance(a.Key);
@@ -684,24 +543,26 @@ public sealed class TrackerPanel
 
         bool aInZone = distA < float.MaxValue;
         bool bInZone = distB < float.MaxValue;
+        if (aInZone && !bInZone)
+            return -1;
+        if (!aInZone && bInZone)
+            return 1;
 
-        // Same-zone quests sort before cross-zone
-        if (aInZone && !bInZone) return -1;
-        if (!aInZone && bInZone) return 1;
-
-        // Both in zone: sort by distance
         if (aInZone && bInZone)
         {
             int cmp = distA.CompareTo(distB);
-            return cmp != 0 ? cmp : string.Compare(
-                a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+            return cmp != 0
+                ? cmp
+                : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
         }
 
-        // Both cross-zone: compare by level as proxy for closeness
-        return CompareByLevel(a, b);
+        int hopsA = GetBestHopCount(_resolution.ResolveQuest(a.Key));
+        int hopsB = GetBestHopCount(_resolution.ResolveQuest(b.Key));
+        int hopCmp = hopsA.CompareTo(hopsB);
+        return hopCmp != 0
+            ? hopCmp
+            : CompareByLevel(a, b);
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────
 
     private EntryAnimation GetOrDefaultAnim(string dbName) =>
         _animations.TryGetValue(dbName, out var anim) ? anim : default;
@@ -710,36 +571,5 @@ public sealed class TrackerPanel
     {
         public float AddedAt;
         public float CompletedAt;
-    }
-}
-
-
-/// <summary>Cached frontier computation result for a quest.</summary>
-internal readonly struct CachedFrontier
-{
-    public readonly string Summary;
-    public readonly string? SecondarySummary;
-    public readonly FrontierPosition[] Positions;
-
-    public CachedFrontier(string summary, string? secondarySummary, FrontierPosition[] positions)
-    {
-        Summary = summary;
-        SecondarySummary = secondarySummary;
-        Positions = positions;
-    }
-}
-
-/// <summary>World position of a frontier node for distance computation.</summary>
-internal readonly struct FrontierPosition
-{
-    public readonly float X, Y, Z;
-    public readonly string Scene;
-
-    public FrontierPosition(float x, float y, float z, string scene)
-    {
-        X = x;
-        Y = y;
-        Z = z;
-        Scene = scene;
     }
 }

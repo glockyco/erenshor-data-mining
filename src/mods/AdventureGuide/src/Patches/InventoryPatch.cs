@@ -5,10 +5,8 @@ using HarmonyLib;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Patches Inventory.UpdatePlayerInventory to notify AdventureGuide only when
-/// the underlying inventory contents actually changed. The game also calls this
-/// method for inventory UI refreshes such as open/close, so the tracker must
-/// fast-path no-op refreshes instead of treating them as world-state changes.
+/// Patches Inventory.UpdatePlayerInventory and propagates structured inventory
+/// deltas into the guide marker pipeline.
 /// </summary>
 [HarmonyPatch(typeof(Inventory), nameof(Inventory.UpdatePlayerInventory))]
 internal static class InventoryPatch
@@ -19,7 +17,7 @@ internal static class InventoryPatch
     [HarmonyPostfix]
     private static void Postfix()
     {
-        if (Tracker?.OnInventoryChanged() == true)
-            Markers?.MarkDirty();
+        var changeSet = Tracker?.OnInventoryChanged() ?? GuideChangeSet.None;
+        Markers?.ApplyGuideChangeSet(changeSet);
     }
 }

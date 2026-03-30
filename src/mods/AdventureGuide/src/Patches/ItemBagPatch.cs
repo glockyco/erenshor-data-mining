@@ -1,11 +1,12 @@
 using AdventureGuide.Markers;
+using AdventureGuide.State;
 using HarmonyLib;
 
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Notifies live-state and marker systems when an item bag is picked up so
-/// navigation and markers stop pointing at a destroyed bag.
+/// Notifies live-state and guide systems when an item bag changes so marker and
+/// navigation invalidation can stay source-local.
 /// </summary>
 [HarmonyPatch(typeof(ItemBag), nameof(ItemBag.PickUp))]
 internal static class ItemBagPatch
@@ -16,7 +17,7 @@ internal static class ItemBagPatch
     [HarmonyPostfix]
     private static void Postfix(ItemBag __instance)
     {
-        LiveState?.OnItemBagChanged(__instance);
-        Markers?.MarkDirty();
+        var changeSet = LiveState?.OnItemBagChanged(__instance) ?? GuideChangeSet.None;
+        Markers?.ApplyGuideChangeSet(changeSet);
     }
 }

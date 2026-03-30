@@ -10,6 +10,7 @@ using AdventureGuide.Navigation;
 using AdventureGuide.Navigation.Resolvers;
 using AdventureGuide.Patches;
 using AdventureGuide.Rendering;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.State.Resolvers;
 using AdventureGuide.UI;
@@ -32,6 +33,8 @@ public sealed class Plugin : BaseUnityPlugin
     private GraphIndexes? _graphIndexes;
     private QuestStateTracker? _questTracker;
     private GameState? _gameState;
+    private GuideDependencyEngine? _dependencyEngine;
+    private QuestResolutionService? _resolutionService;
     private QuestViewBuilder? _viewBuilder;
     private NavigationSet? _navSet;
     private NavigationEngine? _navEngine;
@@ -78,8 +81,9 @@ public sealed class Plugin : BaseUnityPlugin
         _graph = GraphLoader.Load(Log);
         _graphIndexes = new GraphIndexes(_graph);
 
+        _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
-        _questTracker = new QuestStateTracker(_graph);
+        _questTracker = new QuestStateTracker(_graph, _graphIndexes, _dependencyEngine);
         _gameState = new GameState(_graph);
         _gameState.Register(NodeType.Quest, new QuestStateResolver(_questTracker));
         _gameState.Register(NodeType.Item, new ItemStateResolver(_questTracker));
@@ -110,7 +114,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _entities = new EntityRegistry();
-        _liveState = new LiveStateTracker(_graph, _entities);
+        _liveState = new LiveStateTracker(_graph, _graphIndexes, _entities, _dependencyEngine);
         _zoneRouter = new ZoneRouter(_graph, _gameState);
 
         // --- Views layer ---
@@ -126,7 +130,7 @@ public sealed class Plugin : BaseUnityPlugin
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
-            new CharacterPositionResolver(_entities, _graph, _liveState));
+            new CharacterPositionResolver(_entities, _graph, _liveState, _dependencyEngine));
         positionRegistry.Register(NodeType.MiningNode,
             new MiningNodePositionResolver(_liveState));
         positionRegistry.Register(NodeType.ItemBag,
@@ -138,9 +142,11 @@ public sealed class Plugin : BaseUnityPlugin
 
         var viewPositions = new ViewNodePositionCollector(positionRegistry, _gameState);
 
+        _resolutionService = new QuestResolutionService(
+            _graph, _graphIndexes, _questTracker, _gameState, _viewBuilder, viewPositions, _dependencyEngine);
+
         _navEngine = new NavigationEngine(
-            _navSet, positionRegistry, viewPositions, _graph, _viewBuilder, _gameState,
-            _questTracker, _zoneRouter, _entities, _liveState);
+            _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -151,7 +157,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(_graph, _questTracker, _gameState, _viewBuilder, viewPositions, _liveState);
+        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _gameState, _resolutionService, _liveState);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
@@ -168,9 +174,10 @@ public sealed class Plugin : BaseUnityPlugin
         var filter = new FilterState();
         filter.LoadFrom(_config);
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
-        _window = new GuideWindow(_graph, _questTracker, _viewBuilder, history, _trackerState, _config, viewRenderer, listPanel, filter);
+        _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
 
-        _trackerPanel = new TrackerPanel(_graph, _questTracker, _gameState, _trackerState, _viewBuilder, _navSet, _window, _config, _zoneRouter, viewPositions, _liveState);
+        _trackerPanel = new TrackerPanel(
+            _graph, _questTracker, _trackerState, _navSet, _window, _config, _zoneRouter, _resolutionService);
         _imgui.OnLayout = () =>
         {
             _window.Draw();
@@ -219,7 +226,7 @@ public sealed class Plugin : BaseUnityPlugin
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
-        _questTracker.OnSceneChanged(currentScene);
+        var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
         _entities.SyncFromLiveNPCs();
         _liveState.OnSceneLoaded();
         if (_inGameplay)
@@ -228,7 +235,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence.OnCharacterLoaded(_graph);
         }
         _navEngine.OnSceneChanged(currentScene);
-        _markerComputer.MarkDirty();
+        _markerComputer.ApplyGuideChangeSet(initialChangeSet);
         _markerSystem.OnSceneChanged(currentScene);
 
         var questCount = _graph.NodesOfType(NodeType.Quest).Count;
@@ -281,7 +288,9 @@ public sealed class Plugin : BaseUnityPlugin
 
         // Per-frame updates
         var playerPos = GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : Vector3.zero;
-        _liveState?.UpdateFrameState();
+        var liveChangeSet = _liveState?.UpdateFrameState() ?? GuideChangeSet.None;
+        if (liveChangeSet.HasMeaningfulChanges)
+            _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
         _markerComputer?.Recompute();
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
@@ -330,7 +339,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         _entities?.Clear();
         _liveState?.OnSceneLoaded();
-        _questTracker?.OnSceneChanged(scene.name);
+        var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
         if (_inGameplay)
         {
             _trackerState?.OnCharacterLoaded();
@@ -338,7 +347,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence?.OnCharacterLoaded(_graph!);
         }
         _navEngine?.OnSceneChanged(scene.name);
-        _markerComputer?.MarkDirty();
+        _markerComputer?.ApplyGuideChangeSet(sceneChangeSet);
         _markerSystem?.OnSceneChanged(scene.name);
     }
 

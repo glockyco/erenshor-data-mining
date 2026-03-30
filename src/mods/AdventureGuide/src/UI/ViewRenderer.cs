@@ -1,3 +1,4 @@
+using AdventureGuide.Resolution;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.State;
@@ -31,9 +32,10 @@ public sealed class ViewRenderer
         _trackerState = trackerState;
     }
 
-    /// <summary>Render a full quest view tree.</summary>
-    public void Draw(ViewNode? root)
+    /// <summary>Render a full quest detail page from a shared quest resolution.</summary>
+    public void Draw(QuestResolution? resolution)
     {
+        var root = resolution?.ViewRoot;
         if (root == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -48,7 +50,6 @@ public sealed class ViewRenderer
         ImGui.Separator();
         ImGui.Spacing();
 
-        // Dependency tree
         if (root.Children.Count == 0)
         {
             DrawNotice("No guide data available for this quest.");
@@ -61,16 +62,11 @@ public sealed class ViewRenderer
                 DrawNode(child, 0, questState);
             ImGui.Unindent(Theme.IndentWidth);
 
-            // Notice when the graph has no completion edges for this quest.
-            // Check the graph, not the view tree — the view tree intentionally
-            // omits CompletedBy nodes that overlap with step targets.
             if (_graph.OutEdges(root.NodeKey, EdgeType.CompletedBy).Count == 0)
-                DrawNotice("Completion method not in guide data \u2014 may be scripted.");
+                DrawNotice("Completion method not in guide data — may be scripted.");
         }
 
         ImGui.Spacing();
-
-        // Rewards & unlocks section
         DrawRewards(root.Node);
     }
 

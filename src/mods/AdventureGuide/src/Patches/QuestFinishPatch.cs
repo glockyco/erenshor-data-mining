@@ -14,8 +14,8 @@ internal static class QuestFinishPatch
     [HarmonyPostfix]
     private static void Postfix(string _questName)
     {
-        Tracker?.OnQuestCompleted(_questName);
-        Markers?.MarkDirty();
+        var changeSet = Tracker?.OnQuestCompleted(_questName) ?? GuideChangeSet.None;
+        Markers?.ApplyGuideChangeSet(changeSet);
         TrackerPins?.OnQuestCompleted(_questName);
     }
 }
