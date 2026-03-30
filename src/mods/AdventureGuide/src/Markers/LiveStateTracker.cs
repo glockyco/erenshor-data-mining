@@ -271,10 +271,11 @@ public sealed class LiveStateTracker
         if (closest != null && closestDist <= 2f)
             return NodeState.BagAvailable;
 
-        if (itemBagNode.Respawns)
-            return new ItemBagPickedUp(itemBagNode.RespawnTime ?? 0f);
-
-        return NodeState.BagGone;
+        // Bag is missing from the scene. The game recreates all ItemBags on
+        // scene reload; the only permanent removal is in Start() for unique
+        // items the player already owns. The Respawns field is unused by the
+        // game. Treat every missing bag as picked up (re-enter zone to respawn).
+        return new ItemBagPickedUp(0f);
     }
 
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)

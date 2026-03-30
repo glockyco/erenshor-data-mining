@@ -6,9 +6,10 @@ using UnityEngine;
 namespace AdventureGuide.Navigation.Resolvers;
 
 /// <summary>
-/// Resolves an item bag to its static position unless permanently gone.
-/// Available bags are actionable; picked-up respawning bags are non-actionable
-/// so NAV deprioritises them while markers show respawn timers.
+/// Resolves an item bag to its static position. Available bags are actionable;
+/// picked-up bags are non-actionable so NAV deprioritises them while markers
+/// show "re-enter zone" text. The game recreates all non-unique bags on scene
+/// reload, so bags are never permanently gone.
 /// </summary>
 public sealed class ItemBagPositionResolver : IPositionResolver
 {
@@ -24,11 +25,7 @@ public sealed class ItemBagPositionResolver : IPositionResolver
         if (node.X is null || node.Y is null || node.Z is null)
             return;
 
-        var state = _liveState.GetItemBagState(node);
-        if (state is ItemBagGone)
-            return;
-
-        bool actionable = state is ItemBagAvailable;
+        bool actionable = _liveState.GetItemBagState(node) is ItemBagAvailable;
         results.Add(new ResolvedPosition(
             new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
             node.Scene,

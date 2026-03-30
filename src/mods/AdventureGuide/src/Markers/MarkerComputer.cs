@@ -146,15 +146,46 @@ public sealed class MarkerComputer
             EmitQuestGiverMarkers(quest);
     }
 
+    /// <summary>
+    /// Determine whether an implicit quest's frontier is entirely blocked by
+    /// quest dependencies, making the quest uncompletable right now.
+    ///
+    /// The rule depends on which phase the frontier nodes belong to:
+    ///   Acceptance (AssignedBy): blocked when ALL paths are blocked.
+    ///   Objectives (items, steps): blocked when ANY single objective is blocked.
+    ///   Turn-in (CompletedBy): blocked when ALL paths are blocked.
+    /// </summary>
     private static bool HasBlockedImplicitFrontier(IReadOnlyList<ViewNode> frontier)
     {
-        for (int i = 0; i < frontier.Count; i++)
+        if (frontier.Count == 0)
+            return false;
+
+        // Determine the dominant phase from the first frontier node.
+        // FrontierComputer emits nodes in phase order: acceptance gates
+        // objectives, objectives gate turn-in. So the frontier contains
+        // either acceptance OR objective OR turn-in nodes (possibly mixed
+        // with sub-quest contributions, but the first node's edge type is
+        // representative).
+        bool isObjectivePhase = frontier[0].EdgeType is not (EdgeType.AssignedBy or EdgeType.CompletedBy);
+
+        if (isObjectivePhase)
         {
-            if (HasBlockingQuestDependency(frontier[i]))
-                return true;
+            // ANY fully-blocked objective makes the quest uncompletable.
+            for (int i = 0; i < frontier.Count; i++)
+            {
+                if (HasBlockingQuestDependency(frontier[i]))
+                    return true;
+            }
+            return false;
         }
 
-        return false;
+        // Acceptance or turn-in: ALL must be blocked to suppress.
+        for (int i = 0; i < frontier.Count; i++)
+        {
+            if (!HasBlockingQuestDependency(frontier[i]))
+                return false;
+        }
+        return true;
     }
 
     private static bool HasBlockingQuestDependency(ViewNode node)
@@ -576,11 +607,11 @@ public sealed class MarkerComputer
         else if (targetNode.Type == NodeType.ItemBag)
         {
             var bagState = _liveState.GetItemBagState(targetNode);
-            if (bagState is ItemBagPickedUp picked)
+            if (bagState is ItemBagPickedUp)
             {
-                type = MarkerType.DeadSpawn;
+                type = MarkerType.ZoneReentry;
                 resolvedPriority = 0;
-                text = $"{displayName}\n{FormatTimer(picked.RespawnSeconds)}";
+                text = $"{displayName}\nRe-enter zone";
             }
             else if (bagState is ItemBagGone)
             {
