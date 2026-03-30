@@ -198,12 +198,71 @@ public sealed class TrackerPanel
 
     private void DrawHeaderBar()
     {
+        DrawNavAllButton();
+        ImGui.SameLine(0, 6);
         DrawSortButton("Px", TrackerSortMode.Proximity, "Sort by proximity");
         ImGui.SameLine(0, 2);
         DrawSortButton("Lv", TrackerSortMode.Level, "Sort by level");
         ImGui.SameLine(0, 2);
         DrawSortButton("Az", TrackerSortMode.Alphabetical, "Sort alphabetically");
         ImGui.Separator();
+    }
+
+    private void DrawNavAllButton()
+    {
+        bool allActive = AllTrackedInNavSet();
+        if (allActive)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+
+        if (ImGui.SmallButton("NAV##tracker_nav_all"))
+        {
+            if (allActive)
+                ClearTrackedFromNavSet();
+            else
+                AddAllTrackedToNavSet();
+        }
+
+        if (allActive)
+            ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(allActive ? "Clear navigation for all tracked quests" : "Navigate to all tracked quests");
+            ImGui.EndTooltip();
+        }
+    }
+
+    private bool AllTrackedInNavSet()
+    {
+        if (_sorted.Count == 0) return false;
+        for (int i = 0; i < _sorted.Count; i++)
+        {
+            var quest = _graph.GetQuestByDbName(_sorted[i]);
+            if (quest != null && !_navSet.Contains(quest.Key))
+                return false;
+        }
+        return true;
+    }
+
+    private void AddAllTrackedToNavSet()
+    {
+        for (int i = 0; i < _sorted.Count; i++)
+        {
+            var quest = _graph.GetQuestByDbName(_sorted[i]);
+            if (quest != null && !_navSet.Contains(quest.Key))
+                _navSet.Toggle(quest.Key);
+        }
+    }
+
+    private void ClearTrackedFromNavSet()
+    {
+        for (int i = 0; i < _sorted.Count; i++)
+        {
+            var quest = _graph.GetQuestByDbName(_sorted[i]);
+            if (quest != null && _navSet.Contains(quest.Key))
+                _navSet.Toggle(quest.Key);
+        }
     }
 
     private void DrawSortButton(string label, TrackerSortMode mode, string tooltip)
