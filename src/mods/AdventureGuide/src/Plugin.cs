@@ -343,7 +343,6 @@ public sealed class Plugin : BaseUnityPlugin
         if (_inGameplay)
         {
             _trackerState?.OnCharacterLoaded();
-            _trackerState?.PruneCompleted(_questTracker!);
             _navPersistence?.OnCharacterLoaded(_graph!);
         }
         _navEngine?.OnSceneChanged(scene.name);

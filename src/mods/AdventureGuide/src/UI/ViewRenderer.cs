@@ -88,8 +88,7 @@ public sealed class ViewRenderer
         ImGui.SameLine();
         DrawNavButtonByKey(quest, root.NodeKey);
 
-        // Track/Untrack button (only for non-completed quests with a DB name)
-        if (dbName != null && !_tracker.IsCompleted(dbName))
+        if (dbName != null)
         {
             ImGui.SameLine();
             bool tracked = _trackerState.IsTracked(dbName);

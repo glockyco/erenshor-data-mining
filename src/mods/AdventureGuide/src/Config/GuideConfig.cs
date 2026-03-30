@@ -57,6 +57,7 @@ public sealed class GuideConfig
     public ConfigEntry<bool> TrackerAutoTrack { get; }
     public ConfigEntry<string> TrackerSortMode { get; }
     public ConfigEntry<float> TrackerBackgroundOpacity { get; }
+    public ConfigEntry<bool> TrackerUntrackOnComplete { get; }
 
 
     // ── Internal: quest list state (auto-managed) ────────────────────
@@ -135,6 +136,8 @@ public sealed class GuideConfig
             new ConfigDescription(
                 "Opacity of the tracker background when not hovered (0 = fully transparent, 1 = opaque)",
                 new AcceptableValueRange<float>(0f, 1f)));
+        TrackerUntrackOnComplete = config.Bind("Tracker", "UntrackOnComplete", true,
+            "Automatically untrack quests when they are completed");
 
 
         // Internal: quest list state (hidden from F1)

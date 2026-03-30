@@ -75,32 +75,14 @@ public sealed class TrackerState
     {
         if (!_tracked.Contains(dbName)) return;
         QuestCompleted?.Invoke(dbName);
+        if (_config?.TrackerUntrackOnComplete.Value == true)
+            Untrack(dbName);
     }
 
     public void OnStepAdvanced(string dbName)
     {
         if (!_tracked.Contains(dbName)) return;
         StepAdvanced?.Invoke(dbName);
-    }
-
-    /// <summary>Remove tracked quests that are completed.</summary>
-    public void PruneCompleted(QuestStateTracker state)
-    {
-        bool changed = false;
-        for (int i = _orderedList.Count - 1; i >= 0; i--)
-        {
-            var db = _orderedList[i];
-            if (state.IsCompleted(db))
-            {
-                _tracked.Remove(db);
-                _orderedList.RemoveAt(i);
-                _dirty = true;
-                changed = true;
-            }
-        }
-
-        if (changed)
-            PersistTrackedQuests();
     }
 
     // ── Config persistence ───────────────────────────────────────────
