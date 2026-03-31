@@ -6,7 +6,7 @@ namespace AdventureGuide.Navigation;
 /// <summary>
 /// Zone connectivity graph with shortest-path BFS routing.
 ///
-/// Built from EntityGraph zone line nodes and their gate edges. Provides
+/// Built from EntityGraph zone line nodes and their unlock state. Provides
 /// cross-zone routing: given a current scene and a target scene, returns
 /// the next-hop zone line to navigate toward.
 ///
@@ -70,7 +70,7 @@ public sealed class ZoneRouter
     }
 
     private readonly EntityGraph _graph;
-    private readonly GameState _state;
+    private readonly UnlockEvaluator _unlocks;
 
     // scene -> list of (destScene, zoneLineNodeKey, accessible)
     private readonly Dictionary<string, List<ZoneEdge>> _adj = new(StringComparer.OrdinalIgnoreCase);
@@ -96,10 +96,10 @@ public sealed class ZoneRouter
         }
     }
 
-    public ZoneRouter(EntityGraph graph, GameState state)
+    public ZoneRouter(EntityGraph graph, UnlockEvaluator unlocks)
     {
         _graph = graph;
-        _state = state;
+        _unlocks = unlocks;
 
         // Build zone_key -> scene mapping from zone nodes
         foreach (var zone in graph.NodesOfType(NodeType.Zone))
@@ -112,8 +112,8 @@ public sealed class ZoneRouter
     }
 
     /// <summary>
-    /// Rebuild the adjacency graph from current zone line data and quest gate state.
-    /// Call when quest completion state changes (new zone lines may become accessible).
+    /// Rebuild the adjacency graph from current zone line data and unlock state.
+    /// Call when tracked unlock facts change.
     /// </summary>
     public void Rebuild()
     {
@@ -237,6 +237,11 @@ public sealed class ZoneRouter
                     if (firstEdge == null)
                         return null;
 
+                    // A route from the fallback (accessibleOnly=false) pass is locked
+                    // if any hop is inaccessible. The first hop is the only one we
+                    // know for certain here, but any fallback route implies at least
+                    // one locked hop — we would have returned from the accessible-only
+                    // pass otherwise.
                     bool locked = !accessibleOnly || !firstEdge.Value.Accessible;
                     var destZoneKey = _graph.GetNode(firstEdge.Value.ZoneLineKey)?.DestinationZoneKey ?? "";
                     return new Route(destZoneKey, start,
@@ -269,8 +274,7 @@ public sealed class ZoneRouter
     }
 
     /// <summary>
-    /// Check zone line accessibility via its GatedByQuest edges.
-    /// Uses AND/OR group semantics from the graph.
+    /// Check zone line accessibility via the shared incoming-unlock evaluator.
     /// </summary>
     private bool IsZoneLineAccessible(string zoneLineKey)
     {
@@ -278,70 +282,6 @@ public sealed class ZoneRouter
         if (node == null || !node.IsEnabled)
             return false;
 
-        var gateEdges = _graph.OutEdges(zoneLineKey, EdgeType.GatedByQuest);
-        if (gateEdges.Count == 0)
-            return true;
-
-        // Partition into unconditional (null group) and named groups
-        List<Edge>? unconditional = null;
-        Dictionary<string, List<Edge>>? groups = null;
-
-        foreach (var edge in gateEdges)
-        {
-            if (edge.Group == null)
-            {
-                unconditional ??= new List<Edge>();
-                unconditional.Add(edge);
-            }
-            else
-            {
-                groups ??= new Dictionary<string, List<Edge>>();
-                if (!groups.TryGetValue(edge.Group, out var list))
-                {
-                    list = new List<Edge>();
-                    groups[edge.Group] = list;
-                }
-                list.Add(edge);
-            }
-        }
-
-        // Unconditional edges: all must be satisfied
-        if (unconditional != null)
-        {
-            foreach (var edge in unconditional)
-            {
-                var questState = _state.GetState(edge.Target);
-                if (!questState.IsSatisfied)
-                    return false;
-            }
-        }
-
-        // Named groups: at least one group must be fully satisfied (OR of ANDs)
-        if (groups != null)
-        {
-            bool anyGroupSatisfied = false;
-            foreach (var group in groups.Values)
-            {
-                bool allSatisfied = true;
-                foreach (var edge in group)
-                {
-                    var questState = _state.GetState(edge.Target);
-                    if (!questState.IsSatisfied)
-                    {
-                        allSatisfied = false;
-                        break;
-                    }
-                }
-                if (allSatisfied)
-                {
-                    anyGroupSatisfied = true;
-                    break;
-                }
-            }
-            if (!anyGroupSatisfied)
-                return false;
-        }
-
-        return true;
+        return _unlocks.Evaluate(node).IsUnlocked;
     }
 }

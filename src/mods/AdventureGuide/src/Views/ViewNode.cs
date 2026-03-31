@@ -5,18 +5,20 @@ namespace AdventureGuide.Views;
 /// <summary>
 /// Abstract base for all nodes in the rendered dependency tree.
 ///
-/// Two concrete types:
+/// Three concrete types:
 /// <list type="bullet">
 ///   <item><see cref="EntityViewNode"/> — wraps a real entity graph <see cref="Node"/>.</item>
 ///   <item><see cref="VariantGroupNode"/> — a synthetic OR-group container for one
 ///     completion variant of a multi-variant quest. Has no backing graph node.</item>
+///   <item><see cref="UnlockGroupNode"/> — a synthetic AND-group container for
+///     multiple simultaneous unlock requirements.</item>
 /// </list>
 ///
 /// Every surface (renderer, frontier computer, position collector) must
 /// pattern-match on the concrete type before accessing entity-specific data.
 /// <see cref="Frontier.FrontierComputer.ComputeFrontier"/> always returns
-/// <see cref="EntityViewNode"/> instances — variant containers are structural
-/// wrappers that are never frontier leaves.
+/// <see cref="EntityViewNode"/> instances — structural containers are never frontier
+/// leaves.
 /// </summary>
 public abstract class ViewNode
 {
@@ -54,8 +56,8 @@ public abstract class ViewNode
 
     /// <summary>
     /// When non-null, this node is blocked by an unsatisfied unlock requirement.
-    /// The ViewNode is a full expansion of the gating quest's dependency tree,
-    /// shown inline as a child sub-tree. Null once satisfied.
+    /// The subtree may be a single entity source or a synthetic AND-group container
+    /// when multiple requirements must all be satisfied. Null once unlocked.
     /// </summary>
     public ViewNode? UnlockDependency { get; set; }
 

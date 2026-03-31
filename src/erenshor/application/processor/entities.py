@@ -497,6 +497,8 @@ def process_quests(
                 "display_name": r["display_name"],
                 "wiki_page_name": r["wiki_page_name"],
                 "image_name": r["image_name"],
+                "is_wiki_generated": r["is_wiki_generated"],
+                "is_map_visible": r["is_map_visible"],
             }
         )
     writer.insert_quests(quest_out)

@@ -22,6 +22,7 @@ public sealed class NavigationEngine
     private readonly ZoneRouter _router;
     private readonly LiveStateTracker _liveState;
     private readonly EntityRegistry _entities;
+    private readonly UnlockEvaluator _unlocks;
 
     private readonly List<Candidate> _candidates = new();
 
@@ -54,7 +55,8 @@ public sealed class NavigationEngine
         QuestStateTracker tracker,
         ZoneRouter router,
         EntityRegistry entities,
-        LiveStateTracker liveState)
+        LiveStateTracker liveState,
+        UnlockEvaluator unlocks)
     {
         _navSet = navSet;
         _graph = graph;
@@ -63,6 +65,7 @@ public sealed class NavigationEngine
         _router = router;
         _entities = entities;
         _liveState = liveState;
+        _unlocks = unlocks;
     }
 
     public void OnSceneChanged(string sceneName)
@@ -90,6 +93,14 @@ public sealed class NavigationEngine
 
         if (navChanged || stateChanged || liveChanged || sceneChanged)
         {
+            if (stateChanged)
+            {
+                _cachedRouteFrom = null;
+                _cachedRouteTo = null;
+                _cachedRoute = null;
+                _router.Rebuild();
+            }
+
             _lastNavSetVersion = _navSet.Version;
             _lastTrackerVersion = _tracker.Version;
             _lastLiveVersion = _liveState.Version;
@@ -234,26 +245,20 @@ public sealed class NavigationEngine
         if (sourceKey == null)
             return explanation;
 
-        var gatedEdges = _graph.OutEdges(sourceKey, EdgeType.GatedByQuest);
-        for (int i = 0; i < gatedEdges.Count; i++)
-        {
-            var gatingQuest = _graph.GetNode(gatedEdges[i].Target);
-            if (gatingQuest?.DbName == null || _tracker.IsCompleted(gatingQuest.DbName))
-                continue;
+        string? reason = _unlocks.GetRequirementReason(sourceKey);
+        if (string.IsNullOrEmpty(reason))
+            return explanation;
 
-            return new NavigationExplanation(
-                explanation.GoalKind,
-                explanation.TargetKind,
-                explanation.GoalNode,
-                explanation.TargetNode,
-                explanation.PrimaryText,
-                explanation.TargetIdentityText,
-                explanation.ZoneText,
-                explanation.SecondaryText,
-                $"Requires: {gatingQuest.DisplayName}");
-        }
-
-        return explanation;
+        return new NavigationExplanation(
+            explanation.GoalKind,
+            explanation.TargetKind,
+            explanation.GoalNode,
+            explanation.TargetNode,
+            explanation.PrimaryText,
+            explanation.TargetIdentityText,
+            explanation.ZoneText,
+            explanation.SecondaryText,
+            reason);
     }
 
     private void Track(Vector3 playerPosition)

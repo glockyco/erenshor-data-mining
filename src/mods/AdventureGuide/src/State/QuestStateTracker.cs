@@ -4,9 +4,10 @@ namespace AdventureGuide.State;
 
 /// <summary>
 /// Central mutable runtime guide state.
-/// Tracks quest journal state, inventory counts, current scene, selected quest,
-/// and emits structured deltas so downstream systems can invalidate maintained
-/// views from precise fact changes rather than broad version bumps.
+/// Tracks quest journal state, inventory counts, keyring-backed unlock possession,
+/// current scene, selected quest, and emits structured deltas so downstream
+/// systems can invalidate maintained views from precise fact changes rather than
+/// broad version bumps.
 /// </summary>
 public sealed class QuestStateTracker
 {
@@ -17,6 +18,7 @@ public sealed class QuestStateTracker
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, int> _inventoryCounts = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _keyringItemKeys = new(StringComparer.Ordinal);
     private readonly List<ImplicitQuest> _implicitQuests;
     private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
 
@@ -92,6 +94,13 @@ public sealed class QuestStateTracker
         return _inventoryCounts.TryGetValue(itemStableKey, out var count) ? count : 0;
     }
 
+    public bool HasUnlockItem(string itemStableKey)
+    {
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemStableKey));
+        return (_inventoryCounts.TryGetValue(itemStableKey, out var count) && count > 0)
+            || _keyringItemKeys.Contains(itemStableKey);
+    }
+
     public IEnumerable<string> GetActionableQuestDbNames()
     {
         foreach (var quest in _activeQuests)
@@ -159,10 +168,18 @@ public sealed class QuestStateTracker
             return GuideChangeSet.None;
 
         var changedItemKeys = CollectChangedItemKeys(snapshot.Counts);
-        if (changedItemKeys.Count == 0)
+        var changedUnlockItemKeys = CollectChangedUnlockItemKeys(snapshot.Counts, snapshot.KeyringItemKeys);
+        if (changedItemKeys.Count == 0 && changedUnlockItemKeys.Count == 0)
             return GuideChangeSet.None;
 
         ReplaceInventoryCounts(snapshot.Counts);
+        ReplaceKeyringItemKeys(snapshot.KeyringItemKeys);
+
+        var changedFacts = new List<GuideFactKey>(changedItemKeys.Count + changedUnlockItemKeys.Count);
+        foreach (var itemKey in changedItemKeys)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+        foreach (var itemKey in changedUnlockItemKeys)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
 
         return FinalizeChange(new GuideChangeSet(
             inventoryChanged: true,
@@ -172,7 +189,7 @@ public sealed class QuestStateTracker
             changedItemKeys: changedItemKeys,
             changedQuestDbNames: Array.Empty<string>(),
             affectedQuestKeys: CollectAffectedQuestKeysForItems(changedItemKeys),
-            changedFacts: changedItemKeys.Select(itemKey => new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey))));
+            changedFacts: changedFacts));
     }
 
     public GuideChangeSet OnSceneChanged(string sceneName)
@@ -209,11 +226,15 @@ public sealed class QuestStateTracker
 
         bool inventoryChanged = false;
         HashSet<string> changedItemKeys = new(StringComparer.Ordinal);
+        HashSet<string> changedUnlockItemKeys = new(StringComparer.Ordinal);
         if (TryBuildInventorySnapshot(out var inventorySnapshot))
         {
             changedItemKeys = CollectChangedItemKeys(inventorySnapshot.Counts);
-            inventoryChanged = changedItemKeys.Count > 0;
+            changedUnlockItemKeys = CollectChangedUnlockItemKeys(
+                inventorySnapshot.Counts, inventorySnapshot.KeyringItemKeys);
+            inventoryChanged = changedItemKeys.Count > 0 || changedUnlockItemKeys.Count > 0;
             ReplaceInventoryCounts(inventorySnapshot.Counts);
+            ReplaceKeyringItemKeys(inventorySnapshot.KeyringItemKeys);
         }
 
         RebuildImplicitlyActiveQuests();
@@ -222,7 +243,8 @@ public sealed class QuestStateTracker
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
 
-        var changedFacts = new List<GuideFactKey>(changedQuestDbNames.Count * 2 + changedItemKeys.Count);
+        var changedFacts = new List<GuideFactKey>(
+            changedQuestDbNames.Count * 2 + changedItemKeys.Count + changedUnlockItemKeys.Count);
         foreach (var dbName in changedQuestDbNames)
         {
             changedFacts.Add(new GuideFactKey(GuideFactKind.QuestActive, dbName));
@@ -231,6 +253,8 @@ public sealed class QuestStateTracker
 
         foreach (var itemKey in changedItemKeys)
             changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+        foreach (var itemKey in changedUnlockItemKeys)
+            changedFacts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
 
         return new GuideChangeSet(
             inventoryChanged,
@@ -394,7 +418,24 @@ public sealed class QuestStateTracker
                 : quantity;
         }
 
-        snapshot = new InventorySnapshot(counts);
+        var keyringItemKeys = new HashSet<string>(StringComparer.Ordinal);
+        if (GameData.Keyring != null && GameData.ItemDB != null)
+        {
+            for (int i = 0; i < GameData.Keyring.Count; i++)
+            {
+                string itemId = GameData.Keyring[i];
+                if (string.IsNullOrWhiteSpace(itemId))
+                    continue;
+
+                var item = GameData.ItemDB.GetItemByID(itemId);
+                if (item == null)
+                    continue;
+
+                keyringItemKeys.Add(BuildItemStableKey(item.name));
+            }
+        }
+
+        snapshot = new InventorySnapshot(counts, keyringItemKeys);
         return true;
     }
 
@@ -466,6 +507,42 @@ public sealed class QuestStateTracker
         return closure;
     }
 
+    private HashSet<string> CollectChangedUnlockItemKeys(
+        IReadOnlyDictionary<string, int> nextCounts,
+        IReadOnlyCollection<string> nextKeyringItemKeys)
+    {
+        var changed = new HashSet<string>(StringComparer.Ordinal);
+        var candidates = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var itemKey in _inventoryCounts.Keys)
+            candidates.Add(itemKey);
+        foreach (var itemKey in _keyringItemKeys)
+            candidates.Add(itemKey);
+        foreach (var itemKey in nextCounts.Keys)
+            candidates.Add(itemKey);
+        foreach (var itemKey in nextKeyringItemKeys)
+            candidates.Add(itemKey);
+
+        foreach (var itemKey in candidates)
+        {
+            bool currentPossessed = IsUnlockItemPossessed(_inventoryCounts, _keyringItemKeys, itemKey);
+            bool nextPossessed = IsUnlockItemPossessed(nextCounts, nextKeyringItemKeys, itemKey);
+            if (currentPossessed != nextPossessed)
+                changed.Add(itemKey);
+        }
+
+        return changed;
+    }
+
+    private static bool IsUnlockItemPossessed(
+        IReadOnlyDictionary<string, int> counts,
+        IReadOnlyCollection<string> keyringItemKeys,
+        string itemKey)
+    {
+        return (counts.TryGetValue(itemKey, out var count) && count > 0)
+            || keyringItemKeys.Contains(itemKey);
+    }
+
     private static void ReplaceSet(HashSet<string> target, IReadOnlyCollection<string> values)
     {
         target.Clear();
@@ -480,16 +557,27 @@ public sealed class QuestStateTracker
             _inventoryCounts[itemKey] = count;
     }
 
+    private void ReplaceKeyringItemKeys(IReadOnlyCollection<string> nextKeyringItemKeys)
+    {
+        _keyringItemKeys.Clear();
+        foreach (var itemKey in nextKeyringItemKeys)
+            _keyringItemKeys.Add(itemKey);
+    }
+
     private static string BuildItemStableKey(string itemName) =>
         "item:" + itemName.Trim().ToLowerInvariant();
 
     private readonly struct InventorySnapshot
     {
         public readonly IReadOnlyDictionary<string, int> Counts;
+        public readonly IReadOnlyCollection<string> KeyringItemKeys;
 
-        public InventorySnapshot(IReadOnlyDictionary<string, int> counts)
+        public InventorySnapshot(
+            IReadOnlyDictionary<string, int> counts,
+            IReadOnlyCollection<string> keyringItemKeys)
         {
             Counts = counts;
+            KeyringItemKeys = keyringItemKeys;
         }
     }
 

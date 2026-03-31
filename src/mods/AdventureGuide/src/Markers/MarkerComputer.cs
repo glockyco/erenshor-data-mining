@@ -617,7 +617,7 @@ public sealed class MarkerComputer
             SpawnAlive => (markerType, priority, subText),
             SpawnDead dead => (MarkerType.DeadSpawn, 0, $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"),
             SpawnNightLocked => (MarkerType.NightSpawn, 0, BuildNightLockedText(displayName)),
-            SpawnQuestGated gated => (MarkerType.QuestLocked, 0, $"{displayName}\nRequires: {gated.QuestName}"),
+            SpawnUnlockBlocked blocked => (MarkerType.QuestLocked, 0, $"{displayName}\n{blocked.Reason}"),
             SpawnDisabled => (markerType, priority, subText),
             _ => (markerType, priority, subText),
         };

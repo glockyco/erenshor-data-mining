@@ -2,12 +2,13 @@ namespace AdventureGuide.State;
 
 public enum GuideFactKind
 {
-    InventoryItemCount,
-    QuestActive,
-    QuestCompleted,
-    Scene,
-    SourceState,
-    TimeOfDay,
+	InventoryItemCount,
+	UnlockItemPossessed,
+	QuestActive,
+	QuestCompleted,
+	Scene,
+	SourceState,
+	TimeOfDay,
 }
 
 /// <summary>

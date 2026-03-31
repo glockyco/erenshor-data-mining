@@ -94,10 +94,10 @@ public sealed class SpawnDisabled : NodeState { }
 
 public sealed class SpawnNightLocked : NodeState { }
 
-public sealed class SpawnQuestGated : NodeState
+public sealed class SpawnUnlockBlocked : NodeState
 {
-    public string QuestName { get; }
-    public SpawnQuestGated(string questName) => QuestName = questName;
+	public string Reason { get; }
+	public SpawnUnlockBlocked(string reason) => Reason = reason;
 }
 
 // ── Mining node states ──────────────────────────────────────────────────

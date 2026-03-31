@@ -74,16 +74,25 @@ public sealed class ViewNodePositionCollector
         // requirement and promote that requirement to the current goal.
         if (node.UnlockDependency != null)
         {
-            CollectDetailed(node.UnlockDependency, results, active, (EntityViewNode)node.UnlockDependency!);
+            if (node.UnlockDependency is UnlockGroupNode unlockGroup)
+            {
+                for (int i = 0; i < unlockGroup.Children.Count; i++)
+                {
+                    var child = unlockGroup.Children[i];
+                    CollectDetailed(child, results, active, (EntityViewNode)child);
+                }
+            }
+            else
+            {
+                CollectDetailed(node.UnlockDependency, results, active, (EntityViewNode)node.UnlockDependency);
+            }
             return;
         }
 
-        // OR-variant containers are structural wrappers with no position.
-        // Recurse into their children so item positions are still collected.
-        if (node is VariantGroupNode)
+        // Structural containers have no position. Recurse into their children so
+        // child item or quest positions are still collected.
+        if (node is VariantGroupNode or UnlockGroupNode)
         {
-            // Recurse into variant group children directly — each child is an
-            // EntityViewNode representing an item the player needs to collect.
             foreach (var child in node.Children)
                 CollectDetailed(child, results, active, goalNode);
             return;
@@ -175,7 +184,7 @@ public sealed class ViewNodePositionCollector
 
     private FrontierComputer.EdgeRole ClassifyRole(ViewNode node)
     {
-        if (node is VariantGroupNode)
+        if (node is VariantGroupNode or UnlockGroupNode)
             return FrontierComputer.EdgeRole.Container;
         return FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
     }

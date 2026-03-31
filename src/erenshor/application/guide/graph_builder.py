@@ -70,7 +70,6 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_spawn_point_gate_edges(conn, graph)
     _add_spawn_point_stop_edges(conn, graph)
     _add_spawn_point_protector_edges(conn, graph)
-    _add_zone_line_gate_edges(conn, graph)
     _add_zone_line_connect_edges(conn, graph)
     _add_zone_connect_edges(conn, graph, scene_to_zone)
     _add_zone_contain_edges(conn, graph, scene_to_zone)
@@ -1797,32 +1796,6 @@ def _add_spawn_point_protector_edges(conn: sqlite3.Connection, graph: EntityGrap
                     type=EdgeType.PROTECTS,
                 )
             )
-
-
-def _add_zone_line_gate_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """zone_line → quest (GATED_BY_QUEST) from zone_line_quest_unlocks.
-
-    This is the inverse direction from unlock edges: the zone line's
-    accessibility depends on the quest being complete.
-    """
-    rows = conn.execute("""
-        SELECT zone_line_stable_key, unlock_group, quest_db_name
-        FROM zone_line_quest_unlocks
-    """)
-    db_to_key = _quest_dbname_to_key(conn)
-    for r in rows:
-        zl_key = r["zone_line_stable_key"]
-        quest_key = db_to_key.get(r["quest_db_name"])
-        if not quest_key or not graph.has_node(zl_key) or not graph.has_node(quest_key):
-            continue
-        graph.add_edge(
-            Edge(
-                source=zl_key,
-                target=quest_key,
-                type=EdgeType.GATED_BY_QUEST,
-                group=str(r["unlock_group"]),
-            )
-        )
 
 
 def _add_zone_line_connect_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:

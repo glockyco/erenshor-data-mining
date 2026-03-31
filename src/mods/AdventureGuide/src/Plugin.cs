@@ -33,6 +33,7 @@ public sealed class Plugin : BaseUnityPlugin
     private GraphIndexes? _graphIndexes;
     private QuestStateTracker? _questTracker;
     private GameState? _gameState;
+    private UnlockEvaluator? _unlockEvaluator;
     private GuideDependencyEngine? _dependencyEngine;
     private QuestResolutionService? _resolutionService;
     private QuestViewBuilder? _viewBuilder;
@@ -86,9 +87,10 @@ public sealed class Plugin : BaseUnityPlugin
         // --- State layer ---
         _questTracker = new QuestStateTracker(_graph, _graphIndexes, _dependencyEngine);
         _gameState = new GameState(_graph);
+        _unlockEvaluator = new UnlockEvaluator(_graph, _gameState, _questTracker);
         _gameState.Register(NodeType.Quest, new QuestStateResolver(_questTracker));
         _gameState.Register(NodeType.Item, new ItemStateResolver(_questTracker));
-        _gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(_graph, _questTracker));
+        _gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(_unlockEvaluator));
 
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
@@ -115,18 +117,19 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _entities = new EntityRegistry();
-        _liveState = new LiveStateTracker(_graph, _graphIndexes, _entities, _dependencyEngine);
-        _zoneRouter = new ZoneRouter(_graph, _gameState);
+        _liveState = new LiveStateTracker(
+            _graph, _graphIndexes, _entities, _dependencyEngine, _unlockEvaluator);
+        _zoneRouter = new ZoneRouter(_graph, _unlockEvaluator);
 
         // --- Views layer ---
-        _viewBuilder = new QuestViewBuilder(_graph, _gameState, _zoneRouter, _questTracker);
+        _viewBuilder = new QuestViewBuilder(_graph, _gameState, _zoneRouter, _questTracker, _unlockEvaluator);
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
         _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
         _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
         _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver(_liveState));
-        _gameState.Register(NodeType.Door, new DoorStateResolver(_questTracker));
+        _gameState.Register(NodeType.Door, new DoorStateResolver(_graph, _questTracker));
 
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
@@ -149,7 +152,7 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _questTracker, _gameState, _viewBuilder, viewPositions, _dependencyEngine);
 
         _navEngine = new NavigationEngine(
-            _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState);
+            _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState, _unlockEvaluator);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;

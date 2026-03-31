@@ -37,6 +37,7 @@ public sealed class QuestViewBuilder
     private readonly GameState _state;
     private readonly ZoneRouter _router;
     private readonly QuestStateTracker _tracker;
+    private readonly UnlockEvaluator _unlocks;
 
     // ── DFS state — reset at the start of every Build() call ────────────────
 
@@ -50,12 +51,13 @@ public sealed class QuestViewBuilder
     private readonly Dictionary<string, EntityViewNode> _questCache = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
-        ZoneRouter router, QuestStateTracker tracker)
+        ZoneRouter router, QuestStateTracker tracker, UnlockEvaluator unlocks)
     {
         _graph = graph;
         _state = state;
         _router = router;
         _tracker = tracker;
+        _unlocks = unlocks;
     }
 
     /// <summary>Build the full dependency tree for a quest.</summary>
@@ -176,6 +178,16 @@ public sealed class QuestViewBuilder
                 };
                 for (int i = 0; i < vg.Children.Count; i++)
                     clone.Children.Add(CloneViewNode(vg.Children[i]));
+                return clone;
+            }
+            case UnlockGroupNode ug:
+            {
+                var clone = new UnlockGroupNode(ug.NodeKey, ug.Label)
+                {
+                    DefaultExpanded = ug.DefaultExpanded,
+                };
+                for (int i = 0; i < ug.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(ug.Children[i]));
                 return clone;
             }
             default:
@@ -543,50 +555,18 @@ public sealed class QuestViewBuilder
     }
 
     /// <summary>
-    /// If the character is disabled, find the gating quest via UnlocksCharacter
-    /// edges and build its dependency tree as an inline unlock requirement.
-    ///
-    /// Three cases for the gating quest:
-    /// If the character is disabled, find the gating quest via UnlocksCharacter
-    /// edges and build its dependency tree as an inline unlock requirement.
-    ///
-    /// Repeated but valid unlock subtrees are duplicated from the cache so the
-    /// tree stays complete anywhere the dependency matters. Only true back-edges
-    /// or already-infeasible quests block the character.
+    /// If the character has an unsatisfied incoming unlock requirement, build the
+    /// blocking source tree inline as an unlock dependency.
     /// </summary>
     private void CheckCharacterUnlock(EntityViewNode viewNode, Node charNode, HashSet<string> itemVisited)
     {
-        if (charNode.IsEnabled) return;
-
-        // Find the quest that unlocks this character
-        var unlockEdges = _graph.InEdges(charNode.Key, EdgeType.UnlocksCharacter);
-        if (unlockEdges.Count == 0) return;
-
-        var gatingQuestKey = unlockEdges[0].Source;
-        var gatingQuestState = _state.GetState(gatingQuestKey);
-        if (gatingQuestState is QuestCompleted) return; // Already unlocked
-
-        var gatingQuest = _graph.GetNode(gatingQuestKey);
-        if (gatingQuest == null) return;
-
-        // Blocked: build (or duplicate) the gating quest's tree.
-        viewNode.UnlockDependency = BuildQuestNode(
-            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
-
-        // Only true back-edges / infeasible quests block the character.
-        if (viewNode.UnlockDependency.IsCycleRef)
-        {
-            viewNode.IsCycleRef = true;
-            viewNode.UnlockDependency = null;
-        }
+        ApplyUnlockDependency(viewNode, charNode.Key, _unlocks.Evaluate(charNode), itemVisited);
     }
 
     /// <summary>
-    /// If the node is in a zone that's unreachable from the player's current
-    /// zone (route goes through a locked zone line), find the gating quest and
-    /// build its dependency tree as an inline unlock requirement.
-    ///
-    /// Cross-edge / back-edge handling mirrors CheckCharacterUnlock.
+    /// If the node is in a zone that's unreachable from the player's current zone
+    /// (route goes through a locked zone line), build the blocking source tree for
+    /// that locked hop inline as an unlock dependency.
     /// </summary>
     private void CheckZoneReachability(EntityViewNode viewNode, Node node, HashSet<string> itemVisited)
     {
@@ -623,27 +603,72 @@ public sealed class QuestViewBuilder
         if (bestLockedHop == null)
             return;
 
-        var unlockEdges = _graph.InEdges(bestLockedHop.ZoneLineKey, EdgeType.UnlocksZoneLine);
-        if (unlockEdges.Count == 0)
+        var lockedZoneLine = _graph.GetNode(bestLockedHop.ZoneLineKey);
+        if (lockedZoneLine == null)
             return;
 
-        var gatingQuestKey = unlockEdges[0].Source;
-        if (_state.GetState(gatingQuestKey) is QuestCompleted)
+        ApplyUnlockDependency(viewNode, lockedZoneLine.Key, _unlocks.Evaluate(lockedZoneLine), itemVisited);
+    }
+
+    private void ApplyUnlockDependency(
+        EntityViewNode viewNode,
+        string targetKey,
+        UnlockEvaluation evaluation,
+        HashSet<string> itemVisited)
+    {
+        if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
             return;
 
-        var gatingQuest = _graph.GetNode(gatingQuestKey);
-        if (gatingQuest == null)
+        viewNode.UnlockDependency = BuildUnlockDependency(targetKey, evaluation.BlockingSources, itemVisited);
+        if (viewNode.UnlockDependency == null)
             return;
 
-        viewNode.UnlockDependency = BuildQuestNode(
-            gatingQuestKey, gatingQuest, EdgeType.RequiresQuest, null, itemVisited);
-
-        // Only true back-edges / infeasible quests block the route.
-        if (viewNode.UnlockDependency.IsCycleRef)
+        if (IsUnlockDependencyInfeasible(viewNode.UnlockDependency))
         {
             viewNode.IsCycleRef = true;
             viewNode.UnlockDependency = null;
         }
+    }
+
+    private ViewNode? BuildUnlockDependency(
+        string targetKey,
+        IReadOnlyList<Node> blockingSources,
+        HashSet<string> itemVisited)
+    {
+        if (blockingSources.Count == 1)
+            return BuildUnlockSourceNode(blockingSources[0], itemVisited);
+
+        var group = new UnlockGroupNode($"unlock-group:{targetKey}", "Requires all of");
+        for (int i = 0; i < blockingSources.Count; i++)
+        {
+            group.Children.Add(BuildUnlockSourceNode(blockingSources[i], itemVisited));
+        }
+
+        return group.Children.Count == 0 ? null : group;
+    }
+
+    private EntityViewNode BuildUnlockSourceNode(Node sourceNode, HashSet<string> itemVisited)
+    {
+        return sourceNode.Type == NodeType.Quest
+            ? BuildQuestNode(sourceNode.Key, sourceNode, edgeType: null, edge: null, itemVisited)
+            : BuildLeafOrExpand(sourceNode.Key, sourceNode, edgeType: null, edge: null, itemVisited);
+    }
+
+    private static bool IsUnlockDependencyInfeasible(ViewNode dependency)
+    {
+        if (dependency.IsCycleRef)
+            return true;
+
+        if (dependency is UnlockGroupNode group)
+        {
+            for (int i = 0; i < group.Children.Count; i++)
+            {
+                if (IsUnlockDependencyInfeasible(group.Children[i]))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private List<string> CollectReachabilityScenes(Node node)

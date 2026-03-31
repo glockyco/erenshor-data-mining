@@ -1,0 +1,22 @@
+# Manual graph edges for scripted / non-inferable unlocks.
+# These are direct content unlocks, not generic reachability analysis.
+
+[[edges]]
+source = "item:key - stowaway step lighthouse key"
+target = "zoneline:stowaway:tutorial:808.08:14.08:592.64"
+type = "unlocks_zone_line"
+
+[[edges]]
+source = "item:key - ghostly key"
+target = "character:ghost of wylan sercher"
+type = "unlocks_character"
+
+[[edges]]
+source = "item:key -  ancient braxonian key"
+target = "zoneline:braxonian:braxonia:1120.23:92.99:568.02"
+type = "unlocks_zone_line"
+
+[[edges]]
+source = "item:ring - 20 - tempestalia"
+target = "character:evadne"
+type = "unlocks_character"

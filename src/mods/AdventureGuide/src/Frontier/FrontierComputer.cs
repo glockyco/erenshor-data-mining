@@ -63,9 +63,9 @@ public static class FrontierComputer
     /// </summary>
     public static EdgeRole ClassifyEdge(ViewNode node, GameState state, NodeState questState)
     {
-        // OR-variant containers are transparent to the frontier — recurse into
-        // their children, each of which is a RequiresItem objective node.
-        if (node is VariantGroupNode)
+        // Structural containers are transparent to the frontier — recurse into
+        // their children and never add the container itself as a frontier leaf.
+        if (node is VariantGroupNode or UnlockGroupNode)
             return EdgeRole.Container;
 
         var en = (EntityViewNode)node;

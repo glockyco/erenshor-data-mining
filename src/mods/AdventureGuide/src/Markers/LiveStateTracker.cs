@@ -23,6 +23,7 @@ public sealed class LiveStateTracker
     private readonly GraphIndexes _indexes;
     private readonly EntityRegistry _entities;
     private readonly GuideDependencyEngine _dependencies;
+    private readonly UnlockEvaluator _unlocks;
 
     private Dictionary<PosKey, SpawnPoint> _spawnIndex = new();
     private readonly Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
@@ -42,12 +43,14 @@ public sealed class LiveStateTracker
         EntityGraph graph,
         GraphIndexes indexes,
         EntityRegistry entities,
-        GuideDependencyEngine dependencies)
+        GuideDependencyEngine dependencies,
+        UnlockEvaluator unlocks)
     {
         _graph = graph;
         _indexes = indexes;
         _entities = entities;
         _dependencies = dependencies;
+        _unlocks = unlocks;
     }
 
     public void OnSceneLoaded()
@@ -173,6 +176,10 @@ public sealed class LiveStateTracker
 
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
 
+        string? unlockReason = GetCharacterUnlockRequirement(characterNode);
+        if (!string.IsNullOrEmpty(unlockReason))
+            return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
+
         var spawnEdges = _graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
         SpawnInfo best = new SpawnInfo(NodeState.Unknown, null, null, 0f);
         bool found = false;
@@ -288,7 +295,7 @@ public sealed class LiveStateTracker
                 string questName = sp.SpawnUponQuestComplete.QuestName
                     ?? sp.SpawnUponQuestComplete.DBName
                     ?? "unknown quest";
-                return new SpawnInfo(new SpawnQuestGated(questName), sp, null, 0f);
+                return new SpawnInfo(new SpawnUnlockBlocked($"Requires: {questName}"), sp, null, 0f);
             }
 
             return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
@@ -424,9 +431,9 @@ public sealed class LiveStateTracker
             var charNode = _graph.GetNode(charEdges[0].Source);
             if (charNode != null)
             {
-                string? gatingQuestName = FindCharacterUnlockRequirement(charNode);
-                if (!string.IsNullOrEmpty(gatingQuestName))
-                    return new SpawnInfo(new SpawnQuestGated(gatingQuestName), null, null, 0f);
+                string? unlockReason = GetCharacterUnlockRequirement(charNode);
+                if (!string.IsNullOrEmpty(unlockReason))
+                    return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
 
                 var npc = FindNpcByNameAndProximity(charNode);
                 if (npc != null)
@@ -451,18 +458,10 @@ public sealed class LiveStateTracker
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
     }
 
-    private string? FindCharacterUnlockRequirement(Node charNode)
+    private string? GetCharacterUnlockRequirement(Node charNode)
     {
-        var unlockEdges = _graph.InEdges(charNode.Key, EdgeType.UnlocksCharacter);
-        for (int i = 0; i < unlockEdges.Count; i++)
-        {
-            var questNode = _graph.GetNode(unlockEdges[i].Source);
-            string? dbName = questNode?.DbName;
-            if (!string.IsNullOrEmpty(dbName) && !GameData.IsQuestDone(dbName))
-                return questNode?.DisplayName ?? dbName;
-        }
-
-        return null;
+        var evaluation = _unlocks.Evaluate(charNode);
+        return evaluation.IsUnlocked ? null : evaluation.Reason;
     }
 
     private SpawnPoint? FindSpawnPoint(Node node)

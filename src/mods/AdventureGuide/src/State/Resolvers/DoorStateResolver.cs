@@ -4,15 +4,16 @@ namespace AdventureGuide.State.Resolvers;
 
 /// <summary>
 /// Resolves door state by checking whether the player has the required key item
-/// in inventory via <see cref="QuestStateTracker.CountItem"/>.
-/// Doors with no key requirement are always unlocked.
+/// either in inventory or on the keyring.
 /// </summary>
 public sealed class DoorStateResolver : INodeStateResolver
 {
+    private readonly EntityGraph _graph;
     private readonly QuestStateTracker _tracker;
 
-    public DoorStateResolver(QuestStateTracker tracker)
+    public DoorStateResolver(EntityGraph graph, QuestStateTracker tracker)
     {
+        _graph = graph;
         _tracker = tracker;
     }
 
@@ -21,7 +22,10 @@ public sealed class DoorStateResolver : INodeStateResolver
         if (node.KeyItemKey == null)
             return NodeState.Unlocked;
 
-        int count = _tracker.CountItem(node.KeyItemKey);
-        return count > 0 ? NodeState.Unlocked : new DoorLocked(node.KeyItemKey);
+        if (_tracker.HasUnlockItem(node.KeyItemKey))
+            return NodeState.Unlocked;
+
+        string keyName = _graph.GetNode(node.KeyItemKey)?.DisplayName ?? node.KeyItemKey;
+        return new DoorLocked(keyName);
     }
 }

@@ -166,10 +166,10 @@ public static class NavigationExplanationBuilder
             return semantic.RationaleText;
         }
 
-        var blockingQuest = FindBlockingQuest(frontierNode);
-        if (blockingQuest != null)
+        var blockingRequirement = FindBlockingRequirement(frontierNode);
+        if (blockingRequirement != null)
         {
-            string secondary = $"Needed for {blockingQuest.Node.DisplayName}";
+            string secondary = $"Needed for {blockingRequirement.Node.DisplayName}";
             return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
         }
 
@@ -189,7 +189,7 @@ public static class NavigationExplanationBuilder
         return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase) ? null : neededFor;
     }
 
-    private static EntityViewNode? FindBlockingQuest(ViewNode node)
+    private static EntityViewNode? FindBlockingRequirement(ViewNode node)
     {
         if (node is VariantGroupNode variantGroup)
         {
@@ -199,16 +199,32 @@ public static class NavigationExplanationBuilder
             for (int i = 0; i < variantGroup.Children.Count; i++)
             {
                 if (variantGroup.Children[i].IsCycleRef) continue;
-                var found = FindBlockingQuest(variantGroup.Children[i]);
+                var found = FindBlockingRequirement(variantGroup.Children[i]);
                 if (found == null) return null;
                 firstBlocker ??= found;
             }
             return firstBlocker;
         }
 
+        if (node is UnlockGroupNode unlockGroup)
+        {
+            // AND group: all children must be satisfied. Accumulate the first
+            // blocker found; do NOT short-circuit on null (a satisfied child
+            // does not clear the remaining unsatisfied ones).
+            EntityViewNode? firstBlocker = null;
+            for (int i = 0; i < unlockGroup.Children.Count; i++)
+            {
+                if (unlockGroup.Children[i].IsCycleRef) continue;
+                firstBlocker ??= FindBlockingRequirement(unlockGroup.Children[i]);
+            }
+            return firstBlocker;
+        }
+
         var entityNode = (EntityViewNode)node;
-        if (entityNode.UnlockDependency != null)
-            return (EntityViewNode)entityNode.UnlockDependency;
+        if (entityNode.UnlockDependency is EntityViewNode unlockNode)
+            return unlockNode;
+        if (entityNode.UnlockDependency is UnlockGroupNode unlockDependencyGroup)
+            return FindBlockingRequirement(unlockDependencyGroup);
 
         if (entityNode.Children.Count == 0)
             return null;
@@ -218,7 +234,7 @@ public static class NavigationExplanationBuilder
         {
             var child = entityNode.Children[i];
             if (child.IsCycleRef) continue;
-            var found = FindBlockingQuest(child);
+            var found = FindBlockingRequirement(child);
             if (found == null) return null;
             firstChildBlocker ??= found;
         }

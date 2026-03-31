@@ -131,6 +131,16 @@ public sealed class NavigationSet
                     clone.Children.Add(CloneViewNode(vg.Children[i]));
                 return clone;
             }
+            case UnlockGroupNode ug:
+            {
+                var clone = new UnlockGroupNode(ug.NodeKey, ug.Label)
+                {
+                    DefaultExpanded = ug.DefaultExpanded,
+                };
+                for (int i = 0; i < ug.Children.Count; i++)
+                    clone.Children.Add(CloneViewNode(ug.Children[i]));
+                return clone;
+            }
             default:
                 throw new InvalidOperationException($"Unknown ViewNode type: {source.GetType().Name}");
         }

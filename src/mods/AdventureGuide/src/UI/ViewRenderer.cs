@@ -174,6 +174,12 @@ public sealed class ViewRenderer
             return;
         }
 
+        if (node is UnlockGroupNode unlockGroup)
+        {
+            DrawUnlockGroup(unlockGroup, depth, questState);
+            return;
+        }
+
         var entityNode = (EntityViewNode)node;
 
         if (entityNode.IsCycleRef)
@@ -233,26 +239,65 @@ public sealed class ViewRenderer
         }
 
         // Inline unlock dependency sub-tree when this node is blocked
-        if (entityNode.UnlockDependency is EntityViewNode unlockNode)
-        {
-            ImGui.Indent(Theme.IndentWidth);
-            var unlockState = _state.GetState(unlockNode.NodeKey);
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            if (ImGui.TreeNodeEx($"Requires: {unlockNode.Node.DisplayName}###{entityNode.NodeKey}_{unlockNode.NodeKey}_{depth}",
-                    ImGuiTreeNodeFlags.DefaultOpen))
-            {
-                ImGui.PopStyleColor();
-                foreach (var child in unlockNode.Children)
-                    DrawNode(child, depth + 1, unlockState);
-                ImGui.TreePop();
-            }
-            else
-            {
-                ImGui.PopStyleColor();
-            }
-            ImGui.Unindent(Theme.IndentWidth);
-        }
+        if (entityNode.UnlockDependency != null)
+            DrawUnlockDependency(entityNode, entityNode.UnlockDependency, depth, questState);
     }
+
+    private void DrawUnlockDependency(
+        EntityViewNode blockedNode,
+        ViewNode unlockDependency,
+        int depth,
+        NodeState questState)
+    {
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        switch (unlockDependency)
+        {
+            case EntityViewNode unlockNode:
+            {
+                var unlockState = _state.GetState(unlockNode.NodeKey);
+                if (ImGui.TreeNodeEx($"Requires: {unlockNode.Node.DisplayName}###{blockedNode.NodeKey}_{unlockNode.NodeKey}_{depth}",
+                        ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    ImGui.PopStyleColor();
+                    foreach (var child in unlockNode.Children)
+                        DrawNode(child, depth + 1, unlockState);
+                    ImGui.TreePop();
+                }
+                else
+                {
+                    ImGui.PopStyleColor();
+                }
+
+                break;
+            }
+            case UnlockGroupNode unlockGroup:
+            {
+                if (ImGui.TreeNodeEx($"{unlockGroup.Label}###{blockedNode.NodeKey}_{unlockGroup.NodeKey}_{depth}",
+                        ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    ImGui.PopStyleColor();
+                    foreach (var child in unlockGroup.Children)
+                        DrawNode(child, depth + 1, questState);
+                    ImGui.TreePop();
+                }
+                else
+                {
+                    ImGui.PopStyleColor();
+                }
+
+                break;
+            }
+            default:
+                ImGui.PopStyleColor();
+                break;
+        }
+
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+
 
 
     private static void DrawNotice(string text)
@@ -292,6 +337,19 @@ public sealed class ViewRenderer
             foreach (var child in container.Children)
                 DrawNode(child, depth, questState);
         }
+
+    }
+
+
+    private void DrawUnlockGroup(UnlockGroupNode group, int depth, NodeState questState)
+    {
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        ImGui.TextUnformatted($"{group.Label}:");
+        ImGui.PopStyleColor();
+        ImGui.Indent(Theme.IndentWidth);
+        foreach (var child in group.Children)
+            DrawNode(child, depth + 1, questState);
+        ImGui.Unindent(Theme.IndentWidth);
     }
 
     /// <summary>
