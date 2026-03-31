@@ -38,6 +38,9 @@ using Debug = UnityEngine.Debug;
 /// treasurehunting, treasurelocs, waters, wishingwells, worldfactions, zoneannounces,
 /// zoneatlasentries, zonelines
 ///
+/// The `spawnpoints` export includes both classic SpawnPoint components and
+/// trigger-based SpawnPointTrigger encounter spawners.
+///
 /// Exit codes:
 /// - 0: Success
 /// - 1: Error (check Unity log for details)
@@ -292,7 +295,11 @@ public static class ExportBatch
             ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db, characterKeyResolver)),
             ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),
             ["miningnodes"] = () => scanner.RegisterComponentListener(new MiningNodeListener(db)),
-            ["spawnpoints"] = () => scanner.RegisterComponentListener(new SpawnPointListener(db, characterKeyResolver)),
+            ["spawnpoints"] = () =>
+            {
+                scanner.RegisterComponentListener(new SpawnPointListener(db, characterKeyResolver));
+                scanner.RegisterComponentListener(new SpawnPointTriggerListener(db, characterKeyResolver));
+            },
             ["treasurehunting"] = () => scanner.RegisterComponentListener(new TreasureHuntingListener(db)),
             ["treasurelocs"] = () => scanner.RegisterComponentListener(new TreasureLocListener(db)),
             ["waters"] = () => scanner.RegisterComponentListener(new WaterListener(db)),

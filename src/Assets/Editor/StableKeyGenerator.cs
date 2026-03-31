@@ -237,6 +237,19 @@ public static class StableKeyGenerator
     }
 
     /// <summary>
+    /// Generate stable key for a trigger-based spawn point.
+    /// Format: "trigger:scene:x:y:z"
+    /// </summary>
+    public static string ForSpawnPointTrigger(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"trigger:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+
+    /// <summary>
     /// Generate stable key for a door.
     /// Format: "door:scene:x:y:z"
     /// </summary>
