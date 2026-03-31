@@ -65,6 +65,7 @@ _NODE_DEFAULTS: dict[str, Any] = {
     "is_friendly": False,
     "invulnerable": False,
     "is_rare": False,
+    "is_trigger_spawn": False,
     "respawns": True,
     "is_dungeon": False,
     "implicit": False,

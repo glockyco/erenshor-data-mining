@@ -77,6 +77,7 @@ class _SpawnRow:
     z: float | None
     is_enabled: int | None
     is_directly_placed: int
+    is_trigger_spawn: int
     rare_npc_chance: int | None
     level_mod: int | None
     spawn_delay_1: float | None
@@ -283,6 +284,7 @@ def process_characters(
                 z=row.get("Z"),  # type: ignore[arg-type]
                 is_enabled=row.get("IsEnabled"),  # type: ignore[arg-type]
                 is_directly_placed=1,
+                is_trigger_spawn=0,
                 rare_npc_chance=None,
                 level_mod=None,
                 spawn_delay_1=None,
@@ -351,6 +353,7 @@ def process_characters(
                 z=cast("float | None", r.get("Z")),
                 is_enabled=cast("int | None", r.get("IsEnabled")),
                 is_directly_placed=int(cast("int", r.get("IsDirectlyPlaced") or 0)),
+                is_trigger_spawn=0,
                 rare_npc_chance=cast("int | None", r.get("RareNPCChance")),
                 level_mod=cast("int | None", r.get("LevelMod")),
                 spawn_delay_1=cast("float | None", r.get("SpawnDelay1")),
@@ -368,6 +371,62 @@ def process_characters(
                 spawn_chance=float(cast("float", r.get("SpawnChance") or 0.0)),
                 is_common=cast("int | None", r.get("IsCommon")),
                 is_rare=cast("int | None", r.get("IsRare")),
+                is_wiki_generated=spawn_override["is_wiki_generated"] if spawn_override else None,
+                is_map_visible=spawn_override["is_map_visible"] if spawn_override else None,
+            )
+        )
+
+    # Load trigger-based encounter spawns
+    trigger_rows = _load_rows(
+        raw,
+        """
+        SELECT
+            spt.StableKey           AS SpawnPointStableKey,
+            spt.Scene               AS SpScene,
+            spt.X, spt.Y, spt.Z,
+            spt.IsEnabledByDefault  AS IsEnabled,
+            sptc.CharacterStableKey,
+            sptc.SpawnChance
+        FROM SpawnPointTriggers spt
+        JOIN SpawnPointTriggerCharacters sptc ON spt.StableKey = sptc.SpawnPointTriggerStableKey
+        WHERE sptc.CharacterStableKey IN ({})
+    """.format(",".join("?" * len(all_keys))),
+        tuple(all_keys),
+    )
+
+    for r in trigger_rows:
+        sk = str(r["CharacterStableKey"])
+        scene = r.get("SpScene")
+        spk = str(r["SpawnPointStableKey"])
+        spawn_override = _spawn_mapping.get(spk)
+        spawn_rows_by_char[sk].append(
+            _SpawnRow(
+                spawn_point_stable_key=spk,
+                zone_stable_key=zone_by_scene.get(str(scene)) if scene else None,
+                scene=str(scene) if scene else None,
+                x=cast("float | None", r.get("X")),
+                y=cast("float | None", r.get("Y")),
+                z=cast("float | None", r.get("Z")),
+                is_enabled=cast("int | None", r.get("IsEnabled")),
+                is_directly_placed=0,
+                is_trigger_spawn=1,
+                rare_npc_chance=None,
+                level_mod=None,
+                spawn_delay_1=None,
+                spawn_delay_2=None,
+                spawn_delay_3=None,
+                spawn_delay_4=None,
+                staggerable=None,
+                stagger_mod=None,
+                night_spawn=None,
+                patrol_points=None,
+                loop_patrol=None,
+                random_wander_range=None,
+                spawn_upon_quest_complete_stable_key=None,
+                protector_stable_key=None,
+                spawn_chance=float(cast("float", r.get("SpawnChance") or 0.0)),
+                is_common=None,
+                is_rare=None,
                 is_wiki_generated=spawn_override["is_wiki_generated"] if spawn_override else None,
                 is_map_visible=spawn_override["is_map_visible"] if spawn_override else None,
             )
@@ -632,6 +691,7 @@ def process_characters(
                     "z": s.z,
                     "is_enabled": s.is_enabled,
                     "is_directly_placed": s.is_directly_placed,
+                    "is_trigger_spawn": s.is_trigger_spawn,
                     "rare_npc_chance": s.rare_npc_chance,
                     "level_mod": s.level_mod,
                     "spawn_delay_1": s.spawn_delay_1,

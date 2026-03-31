@@ -26,9 +26,9 @@ mapping.json schema (version 2.0):
     }
 
 Character keys start with "character:" and require display_name and
-image_name. Spawn keys start with "spawn:" and only carry visibility
-flags. is_wiki_generated and is_map_visible default to 1 when absent
-in either rule type.
+image_name. Spawn keys start with "spawn:" or "trigger:" and only carry
+visibility flags. is_wiki_generated and is_map_visible default to 1 when
+absent in either rule type.
 """
 
 from __future__ import annotations
@@ -59,9 +59,9 @@ def load_mapping(
     """Load mapping.json and return (character_overrides, spawn_overrides).
 
     Rules are split by key prefix: keys starting with "character:" are
-    character overrides; keys starting with "spawn:" are spawn-point
-    overrides. Character rules require display_name and image_name; spawn
-    rules only carry is_wiki_generated and is_map_visible.
+    character overrides; keys starting with "spawn:" or "trigger:" are
+    spawn-location overrides. Character rules require display_name and
+    image_name; spawn rules only carry is_wiki_generated and is_map_visible.
 
     Stable keys in mapping.json are already lowercase and colon-separated
     (matching the StableKey values in the raw DB), so no normalisation is
@@ -103,7 +103,7 @@ def load_mapping(
             errors.append(f"{stable_key}: rule must be an object")
             continue
 
-        if stable_key.startswith("spawn:"):
+        if stable_key.startswith(("spawn:", "trigger:")):
             spawn_result[stable_key] = SpawnMappingOverride(
                 is_wiki_generated=int(rule.get("is_wiki_generated", 1)),
                 is_map_visible=int(rule.get("is_map_visible", 1)),

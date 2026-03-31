@@ -855,6 +855,7 @@ CREATE TABLE character_spawns (
     z                       REAL,
     is_enabled              INTEGER,
     is_directly_placed      INTEGER,
+    is_trigger_spawn        INTEGER NOT NULL DEFAULT 0,
     rare_npc_chance         INTEGER,
     level_mod               INTEGER,
     spawn_delay_1           REAL,
