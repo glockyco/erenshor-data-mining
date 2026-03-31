@@ -53,6 +53,7 @@ public sealed class Plugin : BaseUnityPlugin
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
+    private CompiledSourceIndex? _sourceIndex;
 
     static Plugin()
     {
@@ -82,6 +83,7 @@ public sealed class Plugin : BaseUnityPlugin
         // --- Graph layer ---
         _graph = GraphLoader.Load(Log);
         _graphIndexes = new GraphIndexes(_graph);
+        _sourceIndex = new CompiledSourceIndex(_graph);
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
@@ -200,6 +202,8 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Entities = _entities;
         DebugAPI.GroundPath = _groundPath;
         DebugAPI.Router = _zoneRouter;
+        DebugAPI.Resolution = _resolutionService;
+        DebugAPI.Markers = _markerComputer;
 
         // --- Harmony patches ---
         QuestAssignPatch.Tracker = _questTracker;
@@ -443,6 +447,8 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
         DebugAPI.Router = null;
+        DebugAPI.Resolution = null;
+        DebugAPI.Markers = null;
     }
 
     private static float DetectUiScale()

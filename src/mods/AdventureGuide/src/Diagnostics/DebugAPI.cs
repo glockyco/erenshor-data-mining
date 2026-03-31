@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using AdventureGuide.Graph;
+using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.UI;
 
@@ -23,6 +26,8 @@ public static class DebugAPI
     internal static EntityRegistry? Entities { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
     internal static ZoneRouter? Router { get; set; }
+    internal static QuestResolutionService? Resolution { get; set; }
+    internal static MarkerComputer? Markers { get; set; }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
@@ -179,5 +184,128 @@ public static class DebugAPI
         }
 
         return null;
+    }
+
+    /// <summary>Profile resolving a single quest: cold (cache cleared) and hot timings.</summary>
+    public static string ProfileQuestResolve(string name, int iterations = 5)
+    {
+        if (Graph == null || Resolution == null || State == null) return "Not initialized";
+
+        var node = FindQuestNode(name);
+        if (node == null) return $"Quest '{name}' not found";
+
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+        var structureCache = Resolution.GetType().GetField("_structureCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Profiling quest: {node.DisplayName} ({node.Key})");
+        sb.AppendLine($"Iterations: {iterations}");
+        sb.AppendLine();
+
+        // Cold run (clear caches first)
+        targetCache?.Remove(node.Key);
+        structureCache?.Remove(node.Key);
+        var sw = Stopwatch.StartNew();
+        var result = Resolution.ResolveQuest(node.Key);
+        sw.Stop();
+        sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms  targets={result.Targets.Count}");
+
+        // Hot runs
+        double totalHot = 0;
+        for (int i = 0; i < iterations; i++)
+        {
+            sw.Restart();
+            result = Resolution.ResolveQuest(node.Key);
+            sw.Stop();
+            double ms = sw.Elapsed.TotalMilliseconds;
+            totalHot += ms;
+            sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
+        }
+
+        sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
+        return sb.ToString();
+    }
+
+    /// <summary>Profile cold resolution of all actionable quests with aggregate stats.</summary>
+    public static string ProfileActionableQuests()
+    {
+        if (Graph == null || Resolution == null || State == null) return "Not initialized";
+
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+        var structureCache = Resolution.GetType().GetField("_structureCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Profiling all actionable quests (cold):");
+        sb.AppendLine();
+
+        // Clear all caches
+        targetCache?.Clear();
+        structureCache?.Clear();
+
+        int questCount = 0;
+        double totalMs = 0;
+        var sw = new Stopwatch();
+
+        foreach (var node in Graph.NodesOfType(NodeType.Quest))
+        {
+            if (node.DbName == null) continue;
+            if (!State.IsActive(node.DbName)) continue;
+
+            // Clear per-quest caches for a true cold measurement
+            targetCache?.Remove(node.Key);
+            structureCache?.Remove(node.Key);
+
+            sw.Restart();
+            var result = Resolution.ResolveQuest(node.Key);
+            sw.Stop();
+
+            double ms = sw.Elapsed.TotalMilliseconds;
+            totalMs += ms;
+            questCount++;
+            sb.AppendLine($"  {node.DisplayName}: {ms:F3} ms  targets={result.Targets.Count}");
+        }
+
+        if (questCount == 0) return "No active quests";
+
+        sb.AppendLine();
+        sb.AppendLine($"Total: {questCount} quests in {totalMs:F3} ms");
+        sb.AppendLine($"Average: {totalMs / questCount:F3} ms/quest");
+        return sb.ToString();
+    }
+
+    /// <summary>Profile MarkerComputer.Recompute() cold and hot.</summary>
+    public static string ProfileMarkerRecompute(int iterations = 5)
+    {
+        if (Markers == null) return "Not initialized";
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Profiling MarkerComputer.Recompute()");
+        sb.AppendLine($"Iterations: {iterations}");
+        sb.AppendLine();
+
+        // Cold run
+        Markers.MarkDirty();
+        var sw = Stopwatch.StartNew();
+        Markers.Recompute();
+        sw.Stop();
+        sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms");
+
+        // Hot runs
+        double totalHot = 0;
+        for (int i = 0; i < iterations; i++)
+        {
+            Markers.MarkDirty();
+            sw.Restart();
+            Markers.Recompute();
+            sw.Stop();
+            double ms = sw.Elapsed.TotalMilliseconds;
+            totalHot += ms;
+            sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
+        }
+
+        sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
+        return sb.ToString();
     }
 }
