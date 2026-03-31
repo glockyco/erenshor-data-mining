@@ -638,6 +638,13 @@ public sealed class ViewRenderer
 
         if (isSelected)
             ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(isSelected ? "Click to clear" : "Click to navigate\nShift+click to add");
+            ImGui.EndTooltip();
+        }
     }
 
     /// <summary>NAV button for a graph node (used in header for giver/turn-in).</summary>
@@ -663,6 +670,13 @@ public sealed class ViewRenderer
 
         if (isSelected)
             ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(isSelected ? "Click to clear" : "Click to navigate\nShift+click to add");
+            ImGui.EndTooltip();
+        }
     }
 
 

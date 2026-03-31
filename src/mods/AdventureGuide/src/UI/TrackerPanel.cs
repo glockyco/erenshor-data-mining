@@ -396,6 +396,13 @@ public sealed class TrackerPanel
 
         if (isActive)
             ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(isActive ? "Click to clear" : "Click to navigate\nShift+click to add");
+            ImGui.EndTooltip();
+        }
     }
 
     private void DrawQuestNameAndLevel(Node quest, string dbName)
