@@ -84,3 +84,92 @@ source = "quest:jawsseen"
 target = "zoneline:duskenlight:jaws:989.40:148.67:53.90"
 type = "unlocks_zone_line"
 group = "quest"
+
+
+# ── Shivering Step quest chain (ShiverEvent.cs scripted logic) ───────────────
+
+[[edges]]
+source = "quest:shiver-meetall"
+target = "quest:shiver-watchman"
+type = "requires_quest"
+
+[[edges]]
+source = "quest:shiver-meetall"
+target = "quest:shiver-curator"
+type = "requires_quest"
+
+[[edges]]
+source = "quest:shiver-meetall"
+target = "quest:shiver-gatekeeper"
+type = "requires_quest"
+
+[[edges]]
+source = "quest:shiver-meetall"
+target = "quest:shiver-harbinger"
+type = "requires_quest"
+
+[[edges]]
+source = "quest:shiver-meetall"
+target = "quest:shiver-torch"
+type = "chains_to"
+note = "ShiverEvent.cs: assigned when all 4 keeper quests complete"
+
+[[edges]]
+source = "quest:shiver-torch"
+target = "quest:shiver-hider"
+type = "chains_to"
+note = "ShiverEvent.cs: darkness phase begins after Shivering Torch completes"
+
+[[edges]]
+source = "quest:shiver-hider"
+target = "quest:shiver-flamelit"
+type = "chains_to"
+note = "The Hider gives Warming the Isle on completion"
+
+# ── Shivering Step character unlock gates ────────────────────────────────────
+
+[[edges]]
+source = "quest:shiver-glasses"
+target = "character:phantasmal demon"
+type = "unlocks_character"
+note = "ShiverEvent.cs: Phantom activates on Seeing the Truth completion"
+
+[[edges]]
+source = "quest:shiver-lighthousechange"
+target = "character:endkio"
+type = "unlocks_character"
+note = "ShiverEvent.cs: Phase 4 — endkio replaces Kio the Lightkeeper"
+
+[[edges]]
+source = "quest:shiver-torch"
+target = "character:shiverman"
+type = "unlocks_character"
+note = "ShiverEvent.cs: SpawnTriggers activate during Phase 2 darkness"
+
+# ── Shivering Tomb character unlock gates ────────────────────────────────────
+
+[[edges]]
+source = "item:key - shadowed key"
+target = "character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89"
+type = "unlocks_character"
+note = "Shadowed Key doors gate access to the Warded Shadow room"
+
+[[edges]]
+source = "item:key - dockhouse key"
+target = "character:founder:shiveringstep:705.22:21.11:506.71"
+type = "unlocks_character"
+note = "Dockhouse Key required to enter the dockhouse and reach Founder"
+
+[[edges]]
+source = "item:key - shivering step lighthouse key 1"
+target = "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50"
+type = "unlocks_character"
+note = "Lighthouse Key required to reach Lighthouse Flame"
+
+# ── Shivering Tomb 2 zone line gate ──────────────────────────────────────────
+
+[[edges]]
+source = "quest:standangel"
+target = "zoneline:shiveringstep:shiveringtomb2:809.72:19.36:645.26"
+type = "unlocks_zone_line"
+note = "ShiveringAngel.cs: angel statue rotates clear when STANDANGEL completes"
