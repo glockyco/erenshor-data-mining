@@ -148,10 +148,12 @@ public sealed class Plugin : BaseUnityPlugin
         _waterResolver = new WaterPositionResolver(_graph);
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
-        var viewPositions = new ViewNodePositionCollector(positionRegistry, _gameState);
+        var positionCache = new SourcePositionCache(positionRegistry);
+        var viewPositions = new ViewNodePositionCollector(positionCache, _gameState);
 
         _resolutionService = new QuestResolutionService(
-            _graph, _questTracker, _gameState, _viewBuilder, viewPositions, _dependencyEngine);
+            _graph, _questTracker, _gameState, _viewBuilder, viewPositions,
+            _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator);
 
         _navEngine = new NavigationEngine(
             _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState, _unlockEvaluator);

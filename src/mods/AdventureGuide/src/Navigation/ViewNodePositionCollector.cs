@@ -1,5 +1,6 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Views;
 
@@ -27,12 +28,12 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 public sealed class ViewNodePositionCollector
 {
-    private readonly PositionResolverRegistry _registry;
+    private readonly SourcePositionCache _positionCache;
     private readonly GameState _state;
 
-    public ViewNodePositionCollector(PositionResolverRegistry registry, GameState state)
+    public ViewNodePositionCollector(SourcePositionCache positionCache, GameState state)
     {
-        _registry = registry;
+        _positionCache = positionCache;
         _state = state;
     }
 
@@ -158,18 +159,14 @@ public sealed class ViewNodePositionCollector
                 }
             }
 
-            int before = _scratch.Count;
-            _registry.Resolve(node.NodeKey, _scratch);
-            for (int i = before; i < _scratch.Count; i++)
+            var positions = _positionCache.Resolve(node.NodeKey);
+            for (int i = 0; i < positions.Length; i++)
             {
-                var rp = _scratch[i];
+                var rp = positions[i];
                 results.Add(new ResolvedViewPosition(rp.Position, rp.Scene, rp.SourceKey, goalNode, entityNode, rp.IsActionable));
             }
-            if (_scratch.Count > before)
-            {
-                _scratch.RemoveRange(before, _scratch.Count - before);
+            if (positions.Length > 0)
                 return;
-            }
 
             // Fallback for non-leaf wrapper nodes that have no direct resolver
             // but still contain actionable children.
@@ -189,6 +186,4 @@ public sealed class ViewNodePositionCollector
         return FrontierComputer.ClassifyEdge(node, _state, _state.GetState(node.NodeKey));
     }
 
-    // Reusable internal scratch list to avoid per-recursion allocations.
-    private readonly List<ResolvedPosition> _scratch = new();
 }

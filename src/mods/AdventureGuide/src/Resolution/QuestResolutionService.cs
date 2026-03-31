@@ -3,7 +3,6 @@ using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using AdventureGuide.Views;
-
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -19,6 +18,9 @@ public sealed class QuestResolutionService
     private readonly QuestViewBuilder _viewBuilder;
     private readonly ViewNodePositionCollector _viewPositions;
     private readonly GuideDependencyEngine _dependencies;
+    private readonly CompiledSourceIndex _sourceIndex;
+    private readonly SourcePositionCache _positionCache;
+    private readonly UnlockEvaluator _unlocks;
 
     private readonly Dictionary<string, QuestStructure> _structureCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
@@ -32,7 +34,10 @@ public sealed class QuestResolutionService
         GameState gameState,
         QuestViewBuilder viewBuilder,
         ViewNodePositionCollector viewPositions,
-        GuideDependencyEngine dependencies)
+        GuideDependencyEngine dependencies,
+        CompiledSourceIndex sourceIndex,
+        SourcePositionCache positionCache,
+        UnlockEvaluator unlocks)
     {
         _graph = graph;
         _tracker = tracker;
@@ -40,6 +45,9 @@ public sealed class QuestResolutionService
         _viewBuilder = viewBuilder;
         _viewPositions = viewPositions;
         _dependencies = dependencies;
+        _sourceIndex = sourceIndex;
+        _positionCache = positionCache;
+        _unlocks = unlocks;
     }
 
     public GuideChangeSet ApplyChangeSet(GuideChangeSet changeSet)
@@ -54,6 +62,7 @@ public sealed class QuestResolutionService
                 _structureCache.Clear();
                 _targetCache.Clear();
                 _dependencies.Clear();
+                _positionCache.Clear();
                 Version++;
             }
 
@@ -89,6 +98,17 @@ public sealed class QuestResolutionService
         foreach (var questKey in targetInvalidations)
             removedAny |= _targetCache.Remove(questKey);
 
+
+        // Evict cached source positions for changed live-world sources.
+        // This ensures the next resolution sees fresh NPC positions.
+        if (changeSet.LiveWorldChanged)
+        {
+            foreach (var fact in changeSet.ChangedFacts)
+            {
+                if (fact.Kind == GuideFactKind.SourceState)
+                    _positionCache.Invalidate(fact.Key);
+            }
+        }
         if (removedAny)
             Version++;
 
@@ -196,13 +216,115 @@ public sealed class QuestResolutionService
 
         for (int i = 0; i < frontier.Count; i++)
         {
+            var frontierNode = frontier[i];
+
+            // Item/Recipe frontier nodes are the expensive case: they recurse
+            // into potentially hundreds of source children. Use the pre-compiled
+            // source index instead of walking the view tree.
+            if (frontierNode.Node.Type is NodeType.Item or NodeType.Recipe)
+            {
+                ResolveItemTargetsFromBlueprint(
+                    questKey, frontierNode, requestedNode, results, seen);
+                continue;
+            }
+
+            // All other frontier node types (Character, Zone, Quest, etc.)
+            // use the view-tree-based collector. It benefits from the shared
+            // SourcePositionCache for leaf position resolution.
             _detailedPositions.Clear();
-            _viewPositions.CollectDetailed(frontier[i], _detailedPositions);
+            _viewPositions.CollectDetailed(frontierNode, _detailedPositions);
             for (int j = 0; j < _detailedPositions.Count; j++)
                 AddResolvedTarget(results, seen, questKey, _detailedPositions[j], requestedNode);
         }
 
         return results;
+    }
+
+    // ── Blueprint-based item target resolution ──────────────────────────────
+
+    /// <summary>
+    /// Resolve targets for an item/recipe frontier node using the pre-compiled
+    /// source index. This avoids the recursive view-tree walk that previously
+    /// dominated cold-path cost for quests with broad item dependencies.
+    /// </summary>
+    private void ResolveItemTargetsFromBlueprint(
+        string questKey,
+        EntityViewNode frontierNode,
+        Node requestedNode,
+        List<ResolvedQuestTarget> results,
+        HashSet<string> seen)
+    {
+        var sources = _sourceIndex.GetSourcesForItem(frontierNode.NodeKey);
+        if (sources.Count == 0)
+        {
+            // No pre-compiled sources — fall back to view-tree walk.
+            // This handles edge cases where the view builder found sources
+            // that the static compilation missed (e.g., dynamic item paths).
+            _detailedPositions.Clear();
+            _viewPositions.CollectDetailed(frontierNode, _detailedPositions);
+            for (int i = 0; i < _detailedPositions.Count; i++)
+                AddResolvedTarget(results, seen, questKey, _detailedPositions[i], requestedNode);
+            return;
+        }
+
+        // Determine if any source is reachable (not unlock-blocked).
+        // When reachable sources exist, skip blocked alternatives so they
+        // cannot override usable direct sources during candidate selection.
+        bool hasReachable = false;
+        for (int i = 0; i < sources.Count; i++)
+        {
+            if (IsSourceReachable(sources[i]))
+            {
+                hasReachable = true;
+                break;
+            }
+        }
+
+        for (int i = 0; i < sources.Count; i++)
+        {
+            var source = sources[i];
+            var sourceNode = _graph.GetNode(source.SourceNodeKey);
+            if (sourceNode == null) continue;
+
+            // Skip completed quest reward sources — the reward is already received.
+            if (source.SourceNodeType == NodeType.Quest
+                && _gameState.GetState(source.SourceNodeKey) is QuestCompleted)
+                continue;
+
+            bool reachable = IsSourceReachable(source);
+            if (hasReachable && !reachable)
+                continue;
+
+            // Resolve positions from cache.
+            var positions = _positionCache.Resolve(source.SourceNodeKey);
+            if (positions.Length == 0) continue;
+
+            // Create a synthetic target view node for attribution.
+            // ResolvedActionSemanticBuilder needs the node reference and edge type.
+            var targetViewNode = new EntityViewNode(
+                source.SourceNodeKey, sourceNode, source.AcquisitionEdge, null);
+
+            for (int j = 0; j < positions.Length; j++)
+            {
+                var pos = positions[j];
+                var resolved = new ResolvedViewPosition(
+                    pos.Position, pos.Scene, pos.SourceKey,
+                    frontierNode, targetViewNode, pos.IsActionable);
+                AddResolvedTarget(results, seen, questKey, resolved, requestedNode);
+            }
+        }
+    }
+
+    private bool IsSourceReachable(SourceEntry source)
+    {
+        if (source.SourceNodeType != NodeType.Character)
+            return true;
+
+        var sourceNode = _graph.GetNode(source.SourceNodeKey);
+        if (sourceNode == null) return false;
+
+        var eval = _unlocks.Evaluate(sourceNode);
+        return eval.IsUnlocked;
     }
 
     private IReadOnlyList<ResolvedQuestTarget> CollectTargets(string questKey, ViewNode root, Node requestedNode)
