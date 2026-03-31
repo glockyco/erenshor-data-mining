@@ -400,7 +400,12 @@ public sealed class TrackerPanel
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            ImGui.TextUnformatted(isActive ? "Click to clear" : "Click to navigate\nShift+click to add");
+            if (!isActive)
+                ImGui.TextUnformatted("Click to navigate\nShift+click to add");
+            else if (_navSet.Count == 1)
+                ImGui.TextUnformatted("Click to stop navigating\nShift+click to remove");
+            else
+                ImGui.TextUnformatted("Click to navigate here only\nShift+click to remove");
             ImGui.EndTooltip();
         }
     }

@@ -642,7 +642,12 @@ public sealed class ViewRenderer
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            ImGui.TextUnformatted(isSelected ? "Click to clear" : "Click to navigate\nShift+click to add");
+            if (!isSelected)
+                ImGui.TextUnformatted("Click to navigate\nShift+click to add");
+            else if (_navSet.Count == 1)
+                ImGui.TextUnformatted("Click to stop navigating\nShift+click to remove");
+            else
+                ImGui.TextUnformatted("Click to navigate here only\nShift+click to remove");
             ImGui.EndTooltip();
         }
     }
@@ -674,7 +679,12 @@ public sealed class ViewRenderer
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            ImGui.TextUnformatted(isSelected ? "Click to clear" : "Click to navigate\nShift+click to add");
+            if (!isSelected)
+                ImGui.TextUnformatted("Click to navigate\nShift+click to add");
+            else if (_navSet.Count == 1)
+                ImGui.TextUnformatted("Click to stop navigating\nShift+click to remove");
+            else
+                ImGui.TextUnformatted("Click to navigate here only\nShift+click to remove");
             ImGui.EndTooltip();
         }
     }
