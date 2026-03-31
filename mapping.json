@@ -1530,16 +1530,22 @@
       "image_name": "Leyor M'Chante"
     },
     "character:lighthouse demon:shiveringtomb2:-64.96:22.36:149.11": {
-      "wiki_page_name": "Occuphage, Eater of Eyes",
-      "display_name": "Occuphage, Eater of Eyes",
-      "image_name": "Occuphage, Eater of Eyes"
-    },
-    "character:lighthouse demon:shiveringtomb:75.44:6.85:101.72": {
-      "wiki_page_name": "Occuphage, Eater of Eyes",
+      "wiki_page_name": null,
       "display_name": "Occuphage, Eater of Eyes",
       "image_name": "Occuphage, Eater of Eyes",
-      "mapping_type": "custom",
-      "reason": null
+      "mapping_type": "exclude",
+      "reason": "Duplicate Occuphage in Shivering Tomb 2; exclude from wiki and guide",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
+    },
+    "character:lighthouse demon:shiveringtomb:75.44:6.85:101.72": {
+      "wiki_page_name": null,
+      "display_name": "Occuphage, Eater of Eyes",
+      "image_name": "Occuphage, Eater of Eyes",
+      "mapping_type": "exclude",
+      "reason": "Duplicate Occuphage in Shivering Tomb; exclude from wiki and guide",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:lighthouse demon:tutorial:-64.96:22.26:149.12": {
       "wiki_page_name": "Occuphage, Eater of Eyes",

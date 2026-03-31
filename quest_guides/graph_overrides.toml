@@ -1,5 +1,12 @@
 # Manual graph edges for scripted / non-inferable unlocks.
 # These are direct content unlocks, not generic reachability analysis.
+#
+# Group semantics: edges sharing the same `group` on the same target are
+# AND'd (all must be satisfied); different groups on the same target are
+# OR'd (any satisfied group unlocks).  Edges with no group are
+# unconditional prerequisites that must always be satisfied.
+
+# ── Stowaway's Step ─────────────────────────────────────────────────────
 
 [[edges]]
 source = "item:key - stowaway step lighthouse key"
@@ -7,9 +14,25 @@ target = "zoneline:stowaway:tutorial:808.08:14.08:592.64"
 type = "unlocks_zone_line"
 
 [[edges]]
+source = "item:key - stowaway step lighthouse key"
+target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"
+type = "unlocks_character"
+note = "Occuphage in Island Tomb requires the lighthouse key to reach"
+
+[[edges]]
+source = "item:key - crypt key"
+target = "zoneline:stowaway:shiveringstep:592.39:41.07:672.77"
+type = "unlocks_zone_line"
+note = "Shivering Key (Halloween Event) required for this zone transition"
+
+# ── Shivering Step ──────────────────────────────────────────────────────
+
+[[edges]]
 source = "item:key - ghostly key"
 target = "character:ghost of wylan sercher"
 type = "unlocks_character"
+
+# ── Braxonian Desert ────────────────────────────────────────────────────
 
 [[edges]]
 source = "item:key -  ancient braxonian key"
@@ -20,3 +43,44 @@ type = "unlocks_zone_line"
 source = "item:ring - 20 - tempestalia"
 target = "character:evadne"
 type = "unlocks_character"
+
+# ── Jaws of Sivakaya ────────────────────────────────────────────────────
+
+# Memory of Sivakaya statues require the Nighthollow Candle
+[[edges]]
+source = "item:hand - 100 - the nighthollow candle"
+target = "character:memorystatue (1):jaws:1183.73:0.87:235.21"
+type = "unlocks_character"
+
+[[edges]]
+source = "item:hand - 100 - the nighthollow candle"
+target = "character:memorystatue (1):jaws:1407.73:-9.46:109.21"
+type = "unlocks_character"
+
+# Vessel Siraethe requires A Pious Guest quest completed
+[[edges]]
+source = "quest:jawspiety"
+target = "character:siraethe"
+type = "unlocks_character"
+
+# Sableheart requires Sableheart's Key
+[[edges]]
+source = "item:key - sableheart's key"
+target = "character:sablehart"
+type = "unlocks_character"
+
+# ── The Duskenlight Coast → Jaws of Sivakaya ────────────────────────────
+
+# This zone line can be unlocked by EITHER the Nighthollow Candle OR
+# completing the "She Sees You" quest.  Different group names = OR.
+[[edges]]
+source = "item:hand - 100 - the nighthollow candle"
+target = "zoneline:duskenlight:jaws:989.40:148.67:53.90"
+type = "unlocks_zone_line"
+group = "candle"
+
+[[edges]]
+source = "quest:jawsseen"
+target = "zoneline:duskenlight:jaws:989.40:148.67:53.90"
+type = "unlocks_zone_line"
+group = "quest"
