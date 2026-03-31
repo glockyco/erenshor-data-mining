@@ -82,13 +82,27 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_item_spell_edges(conn, graph)
     _add_item_door_edges(conn, graph)
 
-    # --- Denormalization ---
+    # --- Denormalization (zone/source levels only) ---
+    # Quest metadata denormalization runs later, after graph overrides are
+    # merged, so that manual unlock/gate edges affect level estimation.
     graph.build_indexes()
-    _denormalize_quest_metadata(conn, graph)
     _denormalize_zone_and_source_levels(conn, graph)
 
     conn.close()
     return graph
+
+
+def denormalize_quest_metadata(graph: EntityGraph, db_path: Path) -> None:
+    """Public entry point for quest zone + level denormalization.
+
+    Must be called AFTER graph overrides are merged, so that manual
+    unlock edges (unlocks_character, unlocks_zone_line) are visible
+    to the level estimation algorithm.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    _denormalize_quest_metadata(conn, graph)
+    conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -103,19 +117,25 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
     the quest's primary zone (from its giver or completer NPC) and
     estimates a recommended level from mob levels and zone medians.
 
-    Level estimation mirrors the old levels.py approach:
-    - Kill targets: max(enemy_level, zone_median)
+    Level estimation considers the full dependency tree:
+    - Kill targets: character accessibility (combat level + unlock requirements)
     - NPC interactions: zone median of the NPC's zone
-    - Required items: min obtainability level across drop/vendor/gather sources
+    - Read targets: item obtainability (OR — any item completes)
+    - Required items: item obtainability through crafting chains
+    - Turn-in targets: min accessibility across alternatives
     - Quest chains: prerequisite quest levels propagated via topological sort
+    - Assignment sources: min zone/item level across alternative givers
     """
     zone_displays = _zone_display(conn)
     zone_medians = _build_zone_medians(conn)
     char_levels = _build_char_levels(conn)
     char_zones = _build_char_zone_keys(conn)
 
-    # First pass: zone + direct level factors (no quest-chain propagation)
+    # Shared caches across all quest estimations
+    item_cache: dict[str, int | None] = {}  # item_key → obtainability level
     quest_levels: dict[str, int] = {}  # quest_key → estimated level
+
+    # First pass: zone + direct level factors (no quest-chain propagation)
     for quest in graph.nodes_of_type(NodeType.QUEST):
         _fill_quest_zone(quest, graph, char_zones, zone_displays, zone_medians)
         level = _estimate_quest_level(
@@ -125,6 +145,7 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             char_levels,
             char_zones,
             quest_levels,
+            item_cache,
         )
         if level is not None:
             quest.level = level
@@ -144,6 +165,7 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             char_levels,
             char_zones,
             quest_levels,
+            item_cache,
         )
         if level is not None:
             quest_node.level = level
@@ -216,6 +238,11 @@ def _fill_quest_zone(
         quest.zone = zone_displays.get(zone_key, zone_key)
 
 
+# ---------------------------------------------------------------------------
+# Level estimation helpers
+# ---------------------------------------------------------------------------
+
+
 def _estimate_quest_level(
     quest: Node,
     graph: EntityGraph,
@@ -223,59 +250,98 @@ def _estimate_quest_level(
     char_levels: dict[str, int],
     char_zones: dict[str, str],
     quest_levels: dict[str, int],
+    item_cache: dict[str, int | None],
 ) -> int | None:
     """Estimate recommended level for a quest.
 
     Returns the max across all step/requirement level factors,
-    or None if no level data is available.
+    or None if no level data is available.  Each factor category
+    uses the correct aggregation (OR for alternatives, AND for
+    requirements that must all be met).
     """
     factors: list[int] = []
+    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache)
 
-    # Kill targets: max(enemy_level, zone_median)
+    # Kill targets (AND — all must die): character accessibility
     for edge in graph.out_edges(quest.key, EdgeType.STEP_KILL):
-        _add_character_level_factor(edge.target, char_levels, char_zones, zone_medians, factors)
+        lvl = _character_accessibility_level(edge.target, ctx, set())
+        if lvl is not None:
+            factors.append(lvl)
 
-    # Talk/shout targets: zone median of NPC's zone
+    # Talk/shout targets (AND): zone median of NPC's zone
     for edge in graph.out_edges(quest.key, EdgeType.STEP_TALK):
         _add_zone_factor(edge.target, char_zones, zone_medians, factors)
     for edge in graph.out_edges(quest.key, EdgeType.STEP_SHOUT):
         _add_zone_factor(edge.target, char_zones, zone_medians, factors)
 
-    # Travel targets: zone median of destination
+    # Travel targets (AND): zone median of destination
     for edge in graph.out_edges(quest.key, EdgeType.STEP_TRAVEL):
         target = graph.get_node(edge.target)
         if target and target.key in zone_medians:
             factors.append(zone_medians[target.key])
 
-    # Completed_by targets are alternatives: use the easiest reachable turn-in zone.
+    # Read targets (OR — reading any one completes): min across alternatives
+    read_levels: list[int] = []
+    for edge in graph.out_edges(quest.key, EdgeType.STEP_READ):
+        lvl = _item_obtainability_level(edge.target, ctx, set())
+        if lvl is not None:
+            read_levels.append(lvl)
+    if read_levels:
+        factors.append(min(read_levels))
+
+    # Turn-in targets (OR — any alternative): min accessibility
     completion_levels: list[int] = []
     for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
-        zone_key = _target_zone_key(edge.target, graph, char_zones)
-        if zone_key and zone_key in zone_medians:
-            completion_levels.append(zone_medians[zone_key])
+        target = graph.get_node(edge.target)
+        if target is None:
+            continue
+        if target.type == NodeType.CHARACTER:
+            lvl = _character_accessibility_level(edge.target, ctx, set())
+        else:
+            zone_key = _target_zone_key(edge.target, graph, char_zones)
+            lvl = zone_medians.get(zone_key) if zone_key else None
+        if lvl is not None:
+            completion_levels.append(lvl)
     if completion_levels:
         factors.append(min(completion_levels))
-    # Required items: min obtainability level per item
-    for edge in graph.out_edges(quest.key, EdgeType.REQUIRES_ITEM):
-        item_level = _item_obtainability_level(
-            edge.target,
-            graph,
-            char_levels,
-            char_zones,
-            zone_medians,
-            quest_levels,
-        )
-        if item_level is not None:
-            factors.append(item_level)
 
-    # Quest chain prerequisites: prerequisite quest levels
+    # Required items — with variant group support (OR-of-AND)
+    _add_required_item_factors(
+        quest.key,
+        graph,
+        ctx,
+        factors,
+    )
+
+    # Quest chain prerequisites (AND): prerequisite quest levels
     for edge in graph.out_edges(quest.key, EdgeType.CHAINS_TO):
         prereq_level = quest_levels.get(edge.target)
         if prereq_level is not None:
             factors.append(prereq_level)
 
+    # Assignment sources (OR — only need one giver): min across alternatives
+    assign_levels: list[int] = []
+    for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY):
+        if edge.note == "quest_chain":
+            # Already handled via CHAINS_TO — skip to avoid double-counting
+            continue
+        target = graph.get_node(edge.target)
+        if target is None:
+            continue
+        if target.type == NodeType.CHARACTER:
+            zone_key = char_zones.get(edge.target)
+            lvl = zone_medians.get(zone_key) if zone_key else None
+        elif target.type == NodeType.ITEM:
+            lvl = _item_obtainability_level(edge.target, ctx, set())
+        else:
+            lvl = zone_medians.get(target.zone_key) if target.zone_key else None
+        if lvl is not None:
+            assign_levels.append(lvl)
+    if assign_levels:
+        factors.append(min(assign_levels))
+
     if not factors:
-        # Fallback: quest giver zone median
+        # Fallback: quest giver zone median (for quests with no edges at all)
         if quest.zone_key and quest.zone_key in zone_medians:
             return zone_medians[quest.zone_key]
         return None
@@ -283,47 +349,229 @@ def _estimate_quest_level(
     return max(factors)
 
 
+def _add_required_item_factors(
+    quest_key: str,
+    graph: EntityGraph,
+    ctx: _LevelContext,
+    factors: list[int],
+) -> None:
+    """Add required-item level factors with variant group support.
+
+    Same group = AND (all items needed, max). Different groups = OR
+    (any group suffices, min of per-group maxes). Null/empty group is
+    treated as a single default group.
+    """
+    edges = graph.out_edges(quest_key, EdgeType.REQUIRES_ITEM)
+    if not edges:
+        return
+
+    # Partition edges by group
+    groups: dict[str, list[Edge]] = {}
+    for edge in edges:
+        key = edge.group or ""
+        groups.setdefault(key, []).append(edge)
+
+    if len(groups) <= 1:
+        # No variant groups — flat AND (each item is a factor)
+        for edge in edges:
+            lvl = _item_obtainability_level(edge.target, ctx, set())
+            if lvl is not None:
+                factors.append(lvl)
+    else:
+        # OR-of-AND: min across groups, max within each group
+        group_levels: list[int] = []
+        for group_edges in groups.values():
+            mat_levels: list[int] = []
+            for edge in group_edges:
+                lvl = _item_obtainability_level(edge.target, ctx, set())
+                if lvl is not None:
+                    mat_levels.append(lvl)
+            if mat_levels:
+                group_levels.append(max(mat_levels))
+        if group_levels:
+            factors.append(min(group_levels))
+
+
+class _LevelContext:
+    """Shared state threaded through level estimation to avoid long arg lists."""
+
+    __slots__ = ("char_levels", "char_zones", "graph", "item_cache", "quest_levels", "zone_medians")
+
+    def __init__(
+        self,
+        graph: EntityGraph,
+        zone_medians: dict[str, int],
+        char_levels: dict[str, int],
+        char_zones: dict[str, str],
+        quest_levels: dict[str, int],
+        item_cache: dict[str, int | None],
+    ) -> None:
+        self.graph = graph
+        self.zone_medians = zone_medians
+        self.char_levels = char_levels
+        self.char_zones = char_zones
+        self.quest_levels = quest_levels
+        self.item_cache = item_cache
+
+
 def _item_obtainability_level(
     item_key: str,
-    graph: EntityGraph,
-    char_levels: dict[str, int],
-    char_zones: dict[str, str],
-    zone_medians: dict[str, int],
-    quest_levels: dict[str, int],
+    ctx: _LevelContext,
+    visiting: set[str],
 ) -> int | None:
     """Min level at which an item is obtainable across all sources.
 
     Sources: drops_item, sells_item, gives_item, yields_item (water/mining),
-    rewards_item (quest reward).
+    rewards_item (quest reward), produces (crafting — recursive).
+
+    Uses memoization (ctx.item_cache) and cycle detection (visiting set).
+    Multiple sources are alternatives (OR) — returns min across all.
+    Crafting requires ALL ingredients (AND) — uses max within a recipe.
     """
+    if item_key in ctx.item_cache:
+        return ctx.item_cache[item_key]
+    if item_key in visiting:
+        return None  # cycle — break without caching
+
+    visiting.add(item_key)
     source_levels: list[int] = []
 
-    for edge in graph.in_edges(item_key):
+    for edge in ctx.graph.in_edges(item_key):
         if edge.type == EdgeType.DROPS_ITEM:
-            # Kill the mob: max(mob_level, zone_median)
-            lvl = _character_level_factor(edge.source, char_levels, char_zones, zone_medians)
+            # Kill the mob: character accessibility (combat + unlock reqs)
+            lvl = _character_accessibility_level(edge.source, ctx, visiting)
             if lvl is not None:
                 source_levels.append(lvl)
 
         elif edge.type in (EdgeType.SELLS_ITEM, EdgeType.GIVES_ITEM):
             # Visit the vendor/NPC: zone median
-            zone_key = char_zones.get(edge.source)
-            if zone_key and zone_key in zone_medians:
-                source_levels.append(zone_medians[zone_key])
+            zone_key = ctx.char_zones.get(edge.source)
+            if zone_key and zone_key in ctx.zone_medians:
+                source_levels.append(ctx.zone_medians[zone_key])
 
         elif edge.type == EdgeType.YIELDS_ITEM:
             # Gather from water/mining node: zone median
-            source_node = graph.get_node(edge.source)
-            if source_node and source_node.zone_key and source_node.zone_key in zone_medians:
-                source_levels.append(zone_medians[source_node.zone_key])
+            source_node = ctx.graph.get_node(edge.source)
+            if source_node and source_node.zone_key and source_node.zone_key in ctx.zone_medians:
+                source_levels.append(ctx.zone_medians[source_node.zone_key])
 
         elif edge.type == EdgeType.REWARDS_ITEM:
             # Quest reward: rewarding quest's level
-            ql = quest_levels.get(edge.source)
+            ql = ctx.quest_levels.get(edge.source)
             if ql is not None:
                 source_levels.append(ql)
 
-    return min(source_levels) if source_levels else None
+        elif edge.type == EdgeType.PRODUCES:
+            # Crafting: recipe produces this item.
+            # Need ALL materials → max(ingredient obtainability levels).
+            recipe_key = edge.source
+            mat_levels: list[int] = []
+            for mat_edge in ctx.graph.out_edges(recipe_key, EdgeType.REQUIRES_MATERIAL):
+                mat_lvl = _item_obtainability_level(mat_edge.target, ctx, visiting)
+                if mat_lvl is not None:
+                    mat_levels.append(mat_lvl)
+            if mat_levels:
+                source_levels.append(max(mat_levels))
+
+    visiting.discard(item_key)
+    result = min(source_levels) if source_levels else None
+    # Only cache definitive results.  None means "no sources found yet" and
+    # may become resolvable in the second pass once more quest levels are known
+    # (e.g., an item is only obtainable as a quest reward).
+    if result is not None:
+        ctx.item_cache[item_key] = result
+    return result
+
+
+def _character_accessibility_level(
+    char_key: str,
+    ctx: _LevelContext,
+    visiting: set[str],
+) -> int | None:
+    """Level to access a character: combat level plus unlock requirements.
+
+    Base: max(char_level, zone_median) — the existing combat factor.
+    Plus: if the character has incoming UNLOCKS_CHARACTER edges, include
+    the cost of satisfying those unlock requirements.
+    """
+    base = _character_level_factor(
+        char_key,
+        ctx.char_levels,
+        ctx.char_zones,
+        ctx.zone_medians,
+    )
+    unlock = _unlock_requirement_level(
+        char_key,
+        EdgeType.UNLOCKS_CHARACTER,
+        ctx,
+        visiting,
+    )
+    if base is not None and unlock is not None:
+        return max(base, unlock)
+    return base if base is not None else unlock
+
+
+def _unlock_requirement_level(
+    target_key: str,
+    edge_type: EdgeType,
+    ctx: _LevelContext,
+    visiting: set[str],
+) -> int | None:
+    """Level to satisfy unlock requirements on a target node.
+
+    Uses OR-of-AND group semantics:
+    - Same group = AND: all sources in the group must be obtained → max
+    - Different groups = OR: any group suffices → min across groups
+    - Null group = unconditional standalone source
+    """
+    edges = ctx.graph.in_edges(target_key, edge_type)
+    if not edges:
+        return None
+
+    # Partition by group. Null-group edges are standalone (each is its own group).
+    unconditional: list[int] = []
+    groups: dict[str, list[Edge]] = {}
+    for edge in edges:
+        if edge.group is None:
+            source = ctx.graph.get_node(edge.source)
+            if source is None:
+                continue
+            lvl = _unlock_source_level(source, ctx, visiting)
+            if lvl is not None:
+                unconditional.append(lvl)
+        else:
+            groups.setdefault(edge.group, []).append(edge)
+
+    # Each named group is AND (max within), groups are OR (min across)
+    group_levels: list[int] = []
+    for group_edges in groups.values():
+        and_levels: list[int] = []
+        for edge in group_edges:
+            source = ctx.graph.get_node(edge.source)
+            if source is None:
+                continue
+            lvl = _unlock_source_level(source, ctx, visiting)
+            if lvl is not None:
+                and_levels.append(lvl)
+        if and_levels:
+            group_levels.append(max(and_levels))
+
+    # Combine: unconditional sources are standalone alternatives
+    all_alternatives = unconditional + group_levels
+    return min(all_alternatives) if all_alternatives else None
+
+
+def _unlock_source_level(
+    source: Node,
+    ctx: _LevelContext,
+    visiting: set[str],
+) -> int | None:
+    """Level contributed by a single unlock source (item or quest)."""
+    if source.type == NodeType.ITEM:
+        return _item_obtainability_level(source.key, ctx, visiting)
+    if source.type == NodeType.QUEST:
+        return ctx.quest_levels.get(source.key)
+    return None
 
 
 def _character_level_factor(
@@ -340,19 +588,6 @@ def _character_level_factor(
     if char_level is not None and zone_med is not None:
         return max(char_level, zone_med)
     return char_level or zone_med
-
-
-def _add_character_level_factor(
-    char_key: str,
-    char_levels: dict[str, int],
-    char_zones: dict[str, str],
-    zone_medians: dict[str, int],
-    factors: list[int],
-) -> None:
-    """Append a kill-target level factor."""
-    lvl = _character_level_factor(char_key, char_levels, char_zones, zone_medians)
-    if lvl is not None:
-        factors.append(lvl)
 
 
 def _add_zone_factor(

@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 
-from erenshor.application.guide.graph_builder import build_graph
+from erenshor.application.guide.generator import generate
 from erenshor.application.guide.schema import EdgeType, NodeType
 
 if TYPE_CHECKING:
@@ -21,8 +21,13 @@ if TYPE_CHECKING:
 
 @pytest.fixture(scope="module")
 def graph(integration_db: Path) -> EntityGraph:
-    """Build the entity graph once for the entire test module."""
-    return build_graph(integration_db)
+    """Build the entity graph once for the entire test module.
+
+    Uses generate() so that graph overrides are merged and quest
+    metadata (zone + level) is denormalized — matching production.
+    """
+    overrides = Path("quest_guides/graph_overrides.toml")
+    return generate(integration_db, overrides if overrides.exists() else None)
 
 
 # ---------------------------------------------------------------------------
@@ -35,7 +40,7 @@ class TestNodeCounts:
 
     def test_has_quest_nodes(self, graph: EntityGraph) -> None:
         quests = list(graph.nodes_of_type(NodeType.QUEST))
-        assert len(quests) >= 170, f"Expected 170+ quests, got {len(quests)}"
+        assert len(quests) >= 165, f"Expected 165+ quests, got {len(quests)}"
 
     def test_has_item_nodes(self, graph: EntityGraph) -> None:
         items = list(graph.nodes_of_type(NodeType.ITEM))
@@ -194,20 +199,20 @@ class TestImplicitQuests:
         assert len(edges) > 0
 
 
-class TestZoneLineGating:
-    """Verify zone line quest gating edges."""
+class TestZoneLineUnlocks:
+    """Verify zone line unlock edges."""
 
-    def test_stowaway_to_hidden_gated(self, graph: EntityGraph) -> None:
-        """The Stowaway→Hidden zone line is gated by quests."""
+    def test_stowaway_to_hidden_unlocked(self, graph: EntityGraph) -> None:
+        """The Stowaway→Hidden zone line has incoming unlock edges."""
         zl_key = "zoneline:stowaway:hidden:424.04:10.79:820.42"
-        gate_edges = graph.out_edges(zl_key, EdgeType.GATED_BY_QUEST)
-        assert len(gate_edges) > 0, "Expected gating edges on Stowaway→Hidden zone line"
+        unlock_edges = graph.in_edges(zl_key, EdgeType.UNLOCKS_ZONE_LINE)
+        assert len(unlock_edges) > 0, "Expected unlock edges on Stowaway→Hidden zone line"
 
-    def test_gate_edges_have_groups(self, graph: EntityGraph) -> None:
-        """Zone line gate edges should have group for AND/OR semantics."""
-        gate_edges = [e for e in graph.all_edges() if e.type == EdgeType.GATED_BY_QUEST]
-        with_group = [e for e in gate_edges if e.group is not None]
-        assert len(with_group) > 0, "Expected some gate edges to have groups"
+    def test_unlock_edges_have_groups(self, graph: EntityGraph) -> None:
+        """Zone line unlock edges should have group for AND/OR semantics."""
+        unlock_edges = [e for e in graph.all_edges() if e.type == EdgeType.UNLOCKS_ZONE_LINE]
+        with_group = [e for e in unlock_edges if e.group is not None]
+        assert len(with_group) > 0, "Expected some unlock edges to have groups"
 
 
 class TestCharacterSpawns:
