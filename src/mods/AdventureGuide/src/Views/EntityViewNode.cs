@@ -8,9 +8,9 @@ namespace AdventureGuide.Views;
 /// Every tree entry that represents something in the game world (quest,
 /// character, item, zone, mining node, etc.) is an <see cref="EntityViewNode"/>.
 ///
-/// All frontier results from <see cref="FrontierComputer.ComputeFrontier"/> are
+/// All frontier results from <see cref="Frontier.FrontierComputer.ComputeFrontier"/> are
 /// <see cref="EntityViewNode"/> instances; so are the goal and target nodes in
-/// <see cref="ResolvedViewPosition"/> and <see cref="ResolvedQuestTarget"/>.
+/// <see cref="Navigation.ResolvedViewPosition"/> and <see cref="Resolution.ResolvedQuestTarget"/>.
 /// </summary>
 public sealed class EntityViewNode : ViewNode
 {

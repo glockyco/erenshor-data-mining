@@ -14,7 +14,7 @@ namespace AdventureGuide.Views;
 ///
 /// Every surface (renderer, frontier computer, position collector) must
 /// pattern-match on the concrete type before accessing entity-specific data.
-/// <see cref="FrontierComputer.ComputeFrontier"/> always returns
+/// <see cref="Frontier.FrontierComputer.ComputeFrontier"/> always returns
 /// <see cref="EntityViewNode"/> instances — variant containers are structural
 /// wrappers that are never frontier leaves.
 /// </summary>

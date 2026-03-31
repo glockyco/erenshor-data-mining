@@ -17,7 +17,7 @@ namespace AdventureGuide.Views;
 /// (e.g. Malaroth Food good vs. bad recipe). Empty when all groups lead to the
 /// same outcome (e.g. Disarming the Sivakayans — different weapons, same reward).
 ///
-/// <see cref="FrontierComputer.ComputeFrontier"/> treats these as transparent
+/// <see cref="Frontier.FrontierComputer.ComputeFrontier"/> treats these as transparent
 /// containers — it recurses into children and never adds a
 /// <see cref="VariantGroupNode"/> to the frontier result.
 /// </summary>
