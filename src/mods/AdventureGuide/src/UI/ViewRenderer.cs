@@ -78,7 +78,9 @@ public sealed class ViewRenderer
                     inVariantRun = false;
                 }
 
+                ImGui.PushID(i);
                 DrawNode(child, 0, questState);
+                ImGui.PopID();
             }
 
             if (inVariantRun)
@@ -221,8 +223,7 @@ public sealed class ViewRenderer
 
             if (open)
             {
-                foreach (var child in entityNode.Children)
-                    DrawNode(child, depth + 1, questState);
+                DrawChildNodes(entityNode.Children, depth + 1, questState);
                 ImGui.TreePop();
             }
         }
@@ -261,8 +262,7 @@ public sealed class ViewRenderer
                         ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     ImGui.PopStyleColor();
-                    foreach (var child in unlockNode.Children)
-                        DrawNode(child, depth + 1, unlockState);
+                    DrawChildNodes(unlockNode.Children, depth + 1, unlockState);
                     ImGui.TreePop();
                 }
                 else
@@ -278,8 +278,7 @@ public sealed class ViewRenderer
                         ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     ImGui.PopStyleColor();
-                    foreach (var child in unlockGroup.Children)
-                        DrawNode(child, depth + 1, questState);
+                    DrawChildNodes(unlockGroup.Children, depth + 1, questState);
                     ImGui.TreePop();
                 }
                 else
@@ -326,16 +325,14 @@ public sealed class ViewRenderer
             ImGui.TextUnformatted($"{container.Label}:");
             ImGui.PopStyleColor();
             ImGui.Indent(Theme.IndentWidth);
-            foreach (var child in container.Children)
-                DrawNode(child, depth + 1, questState);
+            DrawChildNodes(container.Children, depth + 1, questState);
             ImGui.Unindent(Theme.IndentWidth);
         }
         else
         {
             // Unlabelled: items flat — the "One of:" header from the Objectives
             // loop already provides context and visual indentation.
-            foreach (var child in container.Children)
-                DrawNode(child, depth, questState);
+            DrawChildNodes(container.Children, depth, questState);
         }
 
     }
@@ -347,10 +344,20 @@ public sealed class ViewRenderer
         ImGui.TextUnformatted($"{group.Label}:");
         ImGui.PopStyleColor();
         ImGui.Indent(Theme.IndentWidth);
-        foreach (var child in group.Children)
-            DrawNode(child, depth + 1, questState);
+        DrawChildNodes(group.Children, depth + 1, questState);
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    private void DrawChildNodes(IReadOnlyList<ViewNode> children, int depth, NodeState questState)
+    {
+        for (int i = 0; i < children.Count; i++)
+        {
+            ImGui.PushID(i);
+            DrawNode(children[i], depth, questState);
+            ImGui.PopID();
+        }
+    }
+
 
     /// <summary>
     /// "One of:" header rendered before the first VariantGroupNode in a run.
