@@ -160,7 +160,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _resolutionService, _liveState);
+        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _resolutionService, _liveState, _navSet, _trackerState);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
@@ -429,6 +429,7 @@ public sealed class Plugin : BaseUnityPlugin
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
+        _markerComputer?.Destroy();
         _markerSystem?.Destroy();
         _entities?.Clear();
         MarkerFonts.Destroy();

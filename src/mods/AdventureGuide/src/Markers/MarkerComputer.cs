@@ -1,3 +1,4 @@
+using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Resolution;
@@ -21,6 +22,8 @@ public sealed class MarkerComputer
     private readonly QuestStateTracker _tracker;
     private readonly QuestResolutionService _resolution;
     private readonly LiveStateTracker _liveState;
+    private readonly NavigationSet _navSet;
+    private readonly TrackerState _trackerState;
 
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(StringComparer.Ordinal);
@@ -38,14 +41,32 @@ public sealed class MarkerComputer
         GraphIndexes indexes,
         QuestStateTracker tracker,
         QuestResolutionService resolution,
-        LiveStateTracker liveState)
+        LiveStateTracker liveState,
+        NavigationSet navSet,
+        TrackerState trackerState)
     {
         _graph = graph;
         _indexes = indexes;
         _tracker = tracker;
         _resolution = resolution;
         _liveState = liveState;
+        _navSet = navSet;
+        _trackerState = trackerState;
+
+        _navSet.Changed += OnExternalSelectionChanged;
+        _trackerState.Tracked += OnTrackedChanged;
+        _trackerState.Untracked += OnTrackedChanged;
     }
+
+    public void Destroy()
+    {
+        _navSet.Changed -= OnExternalSelectionChanged;
+        _trackerState.Tracked -= OnTrackedChanged;
+        _trackerState.Untracked -= OnTrackedChanged;
+    }
+
+    private void OnExternalSelectionChanged() => MarkDirty();
+    private void OnTrackedChanged(string _) => MarkDirty();
 
     public void ApplyGuideChangeSet(GuideChangeSet changeSet)
     {
@@ -121,6 +142,22 @@ public sealed class MarkerComputer
                 sceneQuestKeys.Add(quest.Key);
         }
 
+        // Include quests the player explicitly selected as NAV targets or
+        // pinned to the tracker, even if they are not in the quest log.
+        foreach (var nodeKey in _navSet.Keys)
+        {
+            var node = _graph.GetNode(nodeKey);
+            if (node?.Type == NodeType.Quest)
+                sceneQuestKeys.Add(node.Key);
+        }
+
+        foreach (var dbName in _trackerState.TrackedQuests)
+        {
+            var quest = _graph.GetQuestByDbName(dbName);
+            if (quest != null)
+                sceneQuestKeys.Add(quest.Key);
+        }
+
         foreach (var questKey in sceneQuestKeys)
             RebuildQuestMarkers(questKey);
     }
@@ -134,10 +171,19 @@ public sealed class MarkerComputer
             return;
 
         bool implicitlyActive = _tracker.IsImplicitlyActive(quest.DbName);
-        if (_tracker.IsActionable(quest.DbName))
+        bool explicitlySelected = _navSet.Contains(quest.Key)
+            || _trackerState.IsTracked(quest.DbName);
+
+        if (_tracker.IsActionable(quest.DbName) || explicitlySelected)
         {
             var resolution = _resolution.ResolveQuest(quest.Key);
-            if (!implicitlyActive || !HasBlockedImplicitFrontier(resolution.Frontier))
+            // Suppress markers for implicitly-active quests with blocked
+            // objectives — but not when the player explicitly selected the
+            // quest via NAV or tracker.
+            bool suppressBlocked = implicitlyActive
+                && !explicitlySelected
+                && HasBlockedImplicitFrontier(resolution.Frontier);
+            if (!suppressBlocked)
                 EmitActiveQuestMarkers(quest, resolution);
             return;
         }
