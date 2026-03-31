@@ -539,7 +539,7 @@ public sealed class ViewRenderer
 
         string prefix = node.EdgeType.Value switch
         {
-            EdgeType.RequiresQuest => "Requires: ",
+            EdgeType.RequiresQuest => $"Requires: {name}",
             EdgeType.RequiresItem => FormatHaveNeed("Obtain: ", name, edge),
             EdgeType.StepTalk => FormatKeyword("Talk to ", name, edge?.Keyword),
             EdgeType.StepKill => $"Kill: {name}",
