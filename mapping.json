@@ -3690,9 +3690,9 @@
       "display_name": "Bellwain's Lost Letters",
       "image_name": "Bellwain's Lost Letters",
       "mapping_type": "exclude",
-      "reason": "Quest should not appear in wiki",
+      "reason": "Quest should not appear in wiki but is completable in-game",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "quest:braxscript": {
       "wiki_page_name": "Braxonian Scripture (Quest)",
@@ -3827,36 +3827,36 @@
       "display_name": "Capture Leah's Soul",
       "image_name": "Capture Leah's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki",
+      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "quest:soulgemposta": {
       "wiki_page_name": null,
       "display_name": "Capture Posta's Soul",
       "image_name": "Capture Posta's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki",
+      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "quest:soulgemrevid": {
       "wiki_page_name": null,
       "display_name": "Capture Revid's Soul",
       "image_name": "Capture Revid's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki",
+      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "quest:soulgemstalzo": {
       "wiki_page_name": null,
       "display_name": "Capture Stalzo's Soul",
       "image_name": "Capture Stalzo's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki",
+      "reason": "Soul gem quest should not appear in wiki but is completable in-game",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "quest:theduskenlightritual": {
       "wiki_page_name": "The Duskenlight Ritual (Quest)",
