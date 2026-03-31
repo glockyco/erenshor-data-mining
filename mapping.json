@@ -3914,10 +3914,10 @@
     },
     "quest:wyland's note": {
       "wiki_page_name": "Whispers of Wyland",
-      "display_name": "Whispers of Wyland",
-      "image_name": "Whispers of Wyland",
+      "display_name": "Wyland's Note",
+      "image_name": "Wyland's Note",
       "mapping_type": "custom",
-      "reason": "Map to main quest page"
+      "reason": "Distinct display name; shares wiki page with Whispers of Wyland"
     },
     "skill:archery - envenomed arrow": {
       "wiki_page_name": "Envenomed Arrow",
