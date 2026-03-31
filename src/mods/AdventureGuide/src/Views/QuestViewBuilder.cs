@@ -28,8 +28,8 @@ namespace AdventureGuide.Views;
 ///                             infeasible too.
 ///
 /// Item expansion uses a separate <c>itemVisited</c> set (passed as a parameter)
-/// to guard against circular ingredient chains; it does not interact with the
-/// quest sets above.
+/// to guard only the current item path. Expanded item subtrees are cached and
+/// cloned so repeated requirements still show their full obtainability details.
 /// </summary>
 public sealed class QuestViewBuilder
 {
@@ -49,6 +49,8 @@ public sealed class QuestViewBuilder
     private readonly HashSet<string> _questsInfeasible = new();
     /// <summary>Successfully built quest subtrees for reuse when they recur.</summary>
     private readonly Dictionary<string, EntityViewNode> _questCache = new(StringComparer.Ordinal);
+    /// <summary>Successfully built item subtrees for reuse when they recur.</summary>
+    private readonly Dictionary<string, EntityViewNode> _itemCache = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker, UnlockEvaluator unlocks)
@@ -93,6 +95,7 @@ public sealed class QuestViewBuilder
         _questsExpanded.Clear();
         _questsInfeasible.Clear();
         _questCache.Clear();
+        _itemCache.Clear();
     }
 
     // ── Quest node expansion ─────────────────────────────────────────────────
@@ -193,6 +196,28 @@ public sealed class QuestViewBuilder
             default:
                 throw new InvalidOperationException($"Unknown ViewNode type: {source.GetType().Name}");
         }
+    }
+
+    private static EntityViewNode CloneEntityViewNode(
+        EntityViewNode source,
+        EdgeType? edgeType,
+        Edge? edge)
+    {
+        var clone = new EntityViewNode(source.NodeKey, source.Node, edgeType, edge)
+        {
+            IsCycleRef = source.IsCycleRef,
+            DefaultExpanded = source.DefaultExpanded,
+            EffectiveLevel = source.EffectiveLevel,
+        };
+
+        if (source.SourceZones != null)
+            clone.SourceZones = new List<string>(source.SourceZones);
+        if (source.UnlockDependency != null)
+            clone.UnlockDependency = CloneViewNode(source.UnlockDependency);
+        for (int i = 0; i < source.Children.Count; i++)
+            clone.Children.Add(CloneViewNode(source.Children[i]));
+
+        return clone;
     }
 
     // ── Quest feasibility ────────────────────────────────────────────────────
@@ -802,11 +827,18 @@ public sealed class QuestViewBuilder
 
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.
-        if (node.Type == NodeType.Item && itemVisited.Add(key))
+        if (node.Type == NodeType.Item)
         {
+            if (itemVisited.Contains(key))
+                return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+
+            if (_itemCache.TryGetValue(key, out var cachedItem))
+                return CloneEntityViewNode(cachedItem, edgeType, edge);
+
+            itemVisited.Add(key);
             ExpandItemSources(viewNode, key, itemVisited);
-            // Don't remove from itemVisited — each item expands at most once
-            // per tree build (prevents exponential re-expansion of shared items).
+            itemVisited.Remove(key);
+            _itemCache[key] = CloneEntityViewNode(viewNode, edgeType: null, edge: null);
         }
 
         return viewNode;
