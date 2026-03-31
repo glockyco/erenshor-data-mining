@@ -709,8 +709,10 @@ def process_characters(
                     "spawn_chance": s.spawn_chance,
                     "is_common": s.is_common,
                     "is_rare": s.is_rare,
-                    "is_wiki_generated": s.is_wiki_generated,
-                    "is_map_visible": s.is_map_visible,
+                    "is_wiki_generated": s.is_wiki_generated
+                    if s.is_wiki_generated is not None
+                    else d.char.is_wiki_generated,
+                    "is_map_visible": s.is_map_visible if s.is_map_visible is not None else d.char.is_map_visible,
                 }
             )
     writer.insert_character_spawns(spawn_out)
