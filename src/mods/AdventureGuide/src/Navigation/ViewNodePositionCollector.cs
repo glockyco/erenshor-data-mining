@@ -9,10 +9,12 @@ namespace AdventureGuide.Navigation;
 /// <summary>
 /// Collects world positions from an already-pruned <see cref="ViewNode"/> tree.
 ///
-/// This is the shared bridge between the dependency tree and runtime consumers
-/// that need positions (navigation, tracker distance computation). It walks the
-/// same pruned tree that the UI renders instead of re-traversing the raw graph,
-/// so all consumers see the same cycle-free dependency state.
+/// This is a secondary resolution path used by navigation and non-quest node
+/// resolution. The primary cold-path for item/recipe frontier nodes now uses
+/// <see cref="CompiledSourceIndex"/> directly in <see cref="QuestResolutionService"/>.
+///
+/// All leaf position resolution goes through <see cref="SourcePositionCache"/>,
+/// which deduplicates across quests and persists within a scene.
 ///
 /// Rules:
 /// - cycle refs are skipped entirely
@@ -21,7 +23,7 @@ namespace AdventureGuide.Navigation;
 /// - quest nodes recurse into their frontier so consumers navigate to the next
 ///   actionable steps, not the quest node itself
 /// - item / recipe nodes recurse into their already-pruned source children
-/// - leaf nodes resolve through <see cref="PositionResolverRegistry"/>
+/// - leaf nodes resolve through <see cref="SourcePositionCache"/>
 /// - when an item / recipe has at least one reachable top-level source branch,
 ///   blocked alternative branches are ignored so they cannot override usable
 ///   direct sources during candidate selection
