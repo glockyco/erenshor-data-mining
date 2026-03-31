@@ -601,7 +601,7 @@ public sealed class QuestViewBuilder
         var candidateScenes = CollectReachabilityScenes(node);
         if (candidateScenes.Count == 0) return;
 
-        ZoneRouter.LockedHop? bestLockedHop = null;
+        IReadOnlyList<ZoneRouter.LockedHop>? bestLockedHops = null;
         int bestPathLength = int.MaxValue;
 
         for (int i = 0; i < candidateScenes.Count; i++)
@@ -614,25 +614,58 @@ public sealed class QuestViewBuilder
             if (route == null)
                 continue;
 
-            var lockedHop = _router.FindFirstLockedHop(currentScene, targetScene);
-            if (lockedHop == null)
+            var lockedHops = _router.FindLockedHops(currentScene, targetScene);
+            if (lockedHops.Count == 0)
                 return; // At least one target scene is already reachable
 
             if (route.Path.Count < bestPathLength)
             {
                 bestPathLength = route.Path.Count;
-                bestLockedHop = lockedHop;
+                bestLockedHops = lockedHops;
             }
         }
 
-        if (bestLockedHop == null)
+        if (bestLockedHops == null || bestLockedHops.Count == 0)
             return;
 
-        var lockedZoneLine = _graph.GetNode(bestLockedHop.ZoneLineKey);
-        if (lockedZoneLine == null)
+        var dependencyRoots = new List<ViewNode>();
+        for (int i = 0; i < bestLockedHops.Count; i++)
+        {
+            var lockedZoneLine = _graph.GetNode(bestLockedHops[i].ZoneLineKey);
+            if (lockedZoneLine == null)
+                continue;
+
+            var evaluation = _unlocks.Evaluate(lockedZoneLine);
+            if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
+                continue;
+
+            var dependency = BuildUnlockDependency(lockedZoneLine.Key, evaluation.BlockingSources, itemVisited);
+            if (dependency == null)
+                continue;
+
+            if (IsUnlockDependencyInfeasible(dependency))
+            {
+                viewNode.IsCycleRef = true;
+                viewNode.UnlockDependency = null;
+                return;
+            }
+
+            dependencyRoots.Add(dependency);
+        }
+
+        if (dependencyRoots.Count == 0)
             return;
 
-        ApplyUnlockDependency(viewNode, lockedZoneLine.Key, _unlocks.Evaluate(lockedZoneLine), itemVisited);
+        if (dependencyRoots.Count == 1)
+        {
+            viewNode.UnlockDependency = dependencyRoots[0];
+            return;
+        }
+
+        var group = new UnlockGroupNode($"reachability:{viewNode.NodeKey}", "Requires all of");
+        for (int i = 0; i < dependencyRoots.Count; i++)
+            group.Children.Add(dependencyRoots[i]);
+        viewNode.UnlockDependency = group;
     }
 
     private void ApplyUnlockDependency(

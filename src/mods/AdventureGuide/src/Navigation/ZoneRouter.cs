@@ -176,34 +176,41 @@ public sealed class ZoneRouter
     /// </summary>
     public LockedHop? FindFirstLockedHop(string currentScene, string targetScene)
     {
-        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
-            return null;
+        var lockedHops = FindLockedHops(currentScene, targetScene);
+        return lockedHops.Count == 0 ? null : lockedHops[0];
+    }
 
-        // If a fully accessible route exists, there is no unlock dependency to show.
+    public IReadOnlyList<LockedHop> FindLockedHops(string currentScene, string targetScene)
+    {
+        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+            return Array.Empty<LockedHop>();
+
         if (BFS(currentScene, targetScene, accessibleOnly: true) != null)
-            return null;
+            return Array.Empty<LockedHop>();
 
         var route = BFS(currentScene, targetScene, accessibleOnly: false);
         if (route == null)
-            return null;
+            return Array.Empty<LockedHop>();
 
+        var lockedHops = new List<LockedHop>();
         for (int i = 0; i < route.Path.Count - 1; i++)
         {
             var edge = FindEdge(route.Path[i], route.Path[i + 1], accessibleOnly: false);
             if (edge == null || edge.Value.Accessible)
                 continue;
 
-            return new LockedHop(
+            lockedHops.Add(new LockedHop(
                 edge.Value.ZoneLineKey,
                 route.Path[i],
                 route.Path[i + 1],
                 edge.Value.X,
                 edge.Value.Y,
-                edge.Value.Z);
+                edge.Value.Z));
         }
 
-        return null;
+        return lockedHops;
     }
+
 
     private Route? BFS(string start, string goal, bool accessibleOnly)
     {
