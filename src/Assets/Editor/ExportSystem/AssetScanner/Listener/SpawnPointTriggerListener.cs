@@ -35,6 +35,7 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
         }
 
         var scene = asset.gameObject.scene.name;
+        var isEnabledByDefault = !IsDisabledAtRuntimeStart(asset);
         foreach (var spawnSpot in asset.SpawnSpots)
         {
             if (spawnSpot == null)
@@ -53,7 +54,7 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
                 X = position.x,
                 Y = position.y,
                 Z = position.z,
-                IsEnabledByDefault = asset.isActiveAndEnabled,
+                IsEnabledByDefault = isEnabledByDefault,
             });
 
             foreach (var characterChance in characterChances)
@@ -84,6 +85,25 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
         _triggerRecords.Clear();
         _characterRecords.Clear();
     }
+
+    private static bool IsDisabledAtRuntimeStart(SpawnPointTrigger trigger)
+    {
+        foreach (var shiverEvent in Object.FindObjectsOfType<ShiverEvent>(true))
+        {
+            if (shiverEvent == null || shiverEvent.gameObject.scene != trigger.gameObject.scene)
+            {
+                continue;
+            }
+
+            if (shiverEvent.SpawnTriggers != null && shiverEvent.SpawnTriggers.Contains(trigger.gameObject))
+            {
+                return true;
+            }
+        }
+
+        return !trigger.isActiveAndEnabled;
+    }
+
 
     private Dictionary<string, float> BuildCharacterChances(SpawnPointTrigger trigger)
     {
