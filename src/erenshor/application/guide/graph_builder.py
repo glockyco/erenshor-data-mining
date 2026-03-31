@@ -135,11 +135,11 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
     # Process in topological order so prerequisite levels are available.
     topo = _quest_topological_order(graph)
     for quest_key in topo:
-        quest = graph.get_node(quest_key)
-        if quest is None:
+        quest_node = graph.get_node(quest_key)
+        if quest_node is None:
             continue
         level = _estimate_quest_level(
-            quest,
+            quest_node,
             graph,
             zone_medians,
             char_levels,
@@ -147,8 +147,8 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
             quest_levels,
         )
         if level is not None:
-            quest.level = level
-            quest_levels[quest.key] = level
+            quest_node.level = level
+            quest_levels[quest_node.key] = level
 
 
 def _target_zone_key(
