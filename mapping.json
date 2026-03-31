@@ -1491,7 +1491,7 @@
       "mapping_type": "custom",
       "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 1
     },
     "character:kio the lightkeeper:stowaway:799.34:20.07:585.85": {
       "wiki_page_name": "Kio the Light Keeper",
