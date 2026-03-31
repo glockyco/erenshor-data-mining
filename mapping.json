@@ -3663,6 +3663,15 @@
       "mapping_type": "custom",
       "reason": null
     },
+    "quest:amethikeys": {
+      "wiki_page_name": null,
+      "display_name": "A Retired Locksmith",
+      "image_name": "A Retired Locksmith",
+      "mapping_type": "exclude",
+      "reason": "Old placeholder quest; unavailable in-game and should not appear in wiki or Adventure Guide data",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
+    },
     "quest:bellwainletters": {
       "wiki_page_name": "The Mystery of Bellwain Island",
       "display_name": "The Mystery of Bellwain Island",
