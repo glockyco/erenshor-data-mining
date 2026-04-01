@@ -1,5 +1,7 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Plan.Semantics;
+using AdventureGuide.Position;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Plan;
 
@@ -11,6 +13,10 @@ namespace AdventureGuide.Plan;
 public sealed class QuestPlanBuilder
 {
     private readonly EntityGraph _graph;
+    private readonly GameState? _state;
+    private readonly ZoneRouter? _router;
+    private readonly QuestStateTracker? _tracker;
+    private readonly UnlockEvaluator? _unlocks;
     private readonly Dictionary<PlanNodeId, PlanNode> _nodesById = new();
     private readonly Dictionary<string, PlanEntityNode> _entitiesByKey = new(StringComparer.Ordinal);
     private readonly Dictionary<PlanNodeId, PlanGroupNode> _groupsById = new();
@@ -20,6 +26,20 @@ public sealed class QuestPlanBuilder
     public QuestPlanBuilder(EntityGraph graph)
     {
         _graph = graph;
+    }
+
+    public QuestPlanBuilder(
+        EntityGraph graph,
+        GameState state,
+        ZoneRouter router,
+        QuestStateTracker tracker,
+        UnlockEvaluator unlocks)
+    {
+        _graph = graph;
+        _state = state;
+        _router = router;
+        _tracker = tracker;
+        _unlocks = unlocks;
     }
 
     public QuestPlan Build(string questKey)
@@ -60,11 +80,13 @@ public sealed class QuestPlanBuilder
                 return;
 
             var questNode = GetOrCreateEntity(quest);
+            ApplyRuntimeState(questNode);
             AddQuestGroup(questNode, EdgeType.AssignedBy, PlanGroupKind.AnyOf, "assignment");
             AddQuestGroup(questNode, EdgeType.RequiresQuest, PlanGroupKind.AllOf, "prerequisites");
             AddQuestStepGroup(questNode);
             AddRequiredItems(questNode);
             AddQuestGroup(questNode, EdgeType.CompletedBy, PlanGroupKind.AnyOf, "completion");
+            AddUnlockRequirement(questNode);
         }
         finally
         {
@@ -89,6 +111,8 @@ public sealed class QuestPlanBuilder
                 continue;
 
             var childNode = GetOrCreateEntity(child);
+            ApplyRuntimeState(childNode);
+            AddUnlockRequirement(childNode);
             AddLink(group.Id, childNode.Id, semantic,
                 edgeType: edgeType,
                 ordinal: edges[i].Ordinal,
@@ -138,6 +162,8 @@ public sealed class QuestPlanBuilder
             var edge = collected[i].edge;
             var child = collected[i].node;
             var childNode = GetOrCreateEntity(child);
+            ApplyRuntimeState(childNode);
+            AddUnlockRequirement(childNode);
             AddLink(group.Id, childNode.Id, DependencySemantics.FromEdge(edge.Type),
                 edgeType: edge.Type,
                 ordinal: edge.Ordinal,
@@ -197,6 +223,8 @@ public sealed class QuestPlanBuilder
                 continue;
 
             var childNode = GetOrCreateEntity(child);
+            ApplyRuntimeState(childNode);
+            AddUnlockRequirement(childNode);
             AddLink(parentId, childNode.Id, semantic,
                 edgeType: EdgeType.RequiresItem,
                 quantity: edges[i].Quantity,
@@ -218,6 +246,7 @@ public sealed class QuestPlanBuilder
                 return;
 
             var itemNode = GetOrCreateEntity(item);
+            ApplyRuntimeState(itemNode);
             var sourceGroup = GetOrCreateGroup($"{itemNode.NodeKey}:sources:anyof", PlanGroupKind.AnyOf);
 
             bool hasSources = false;
@@ -253,6 +282,8 @@ public sealed class QuestPlanBuilder
                     continue;
                 any = true;
                 var childNode = GetOrCreateEntity(child);
+                ApplyRuntimeState(childNode);
+                AddUnlockRequirement(childNode);
                 AddLink(sourceGroup.Id, childNode.Id, semantic,
                     edgeType: edgeType,
                     ordinal: edges[i].Ordinal,
@@ -278,6 +309,9 @@ public sealed class QuestPlanBuilder
                 continue;
             any = true;
             var sourceNode = GetOrCreateEntity(source);
+            ApplyRuntimeState(sourceNode);
+            AddUnlockRequirement(sourceNode);
+            EnrichSourceMetadata(sourceNode, source);
             AddLink(sourceGroup.Id, sourceNode.Id, semantic,
                 edgeType: edgeType,
                 ordinal: incoming[i].Ordinal,
@@ -304,6 +338,7 @@ public sealed class QuestPlanBuilder
             return;
 
         var recipeNode = GetOrCreateEntity(recipe);
+        ApplyRuntimeState(recipeNode);
         var materialEdges = _graph.OutEdges(recipeKey, EdgeType.RequiresMaterial);
         if (materialEdges.Count == 0)
             return;
@@ -318,12 +353,115 @@ public sealed class QuestPlanBuilder
                 continue;
 
             var childNode = GetOrCreateEntity(child);
+            ApplyRuntimeState(childNode);
+            AddUnlockRequirement(childNode);
             AddLink(materialsGroup.Id, childNode.Id, DependencySemantics.FromEdge(EdgeType.RequiresMaterial),
                 edgeType: EdgeType.RequiresMaterial,
                 quantity: materialEdges[i].Quantity,
                 group: materialEdges[i].Group);
             if (child.Type == NodeType.Item)
                 BuildItem(child.Key);
+        }
+    }
+
+
+    private void ApplyRuntimeState(PlanEntityNode node)
+    {
+        if (_state == null)
+            return;
+
+        var nodeState = _state.GetState(node.NodeKey);
+        node.Status = nodeState.IsSatisfied ? PlanStatus.Satisfied : PlanStatus.Available;
+    }
+
+    private void EnrichSourceMetadata(PlanEntityNode planNode, Node sourceNode)
+    {
+        if (sourceNode.Type == NodeType.Character)
+        {
+            var (zones, maxZoneLevel) = CollectCharacterZonesAndMaxLevel(sourceNode);
+            planNode.SourceZones = zones;
+
+            int? charLevel = sourceNode.Level;
+            if (charLevel.HasValue && maxZoneLevel.HasValue)
+                planNode.EffectiveLevel = Math.Max(charLevel.Value, maxZoneLevel.Value);
+            else
+                planNode.EffectiveLevel = charLevel ?? maxZoneLevel;
+            return;
+        }
+
+        if (sourceNode.Zone != null)
+            planNode.SourceZones = new List<string> { sourceNode.Zone };
+        planNode.EffectiveLevel = sourceNode.Level;
+    }
+
+    private (List<string>? zones, int? maxZoneLevel) CollectCharacterZonesAndMaxLevel(Node charNode)
+    {
+        var spawnEdges = _graph.OutEdges(charNode.Key, EdgeType.HasSpawn);
+        if (spawnEdges.Count == 0)
+            return (null, null);
+
+        var zoneNames = new HashSet<string>();
+        int? maxZoneLevel = null;
+
+        for (int i = 0; i < spawnEdges.Count; i++)
+        {
+            var sp = _graph.GetNode(spawnEdges[i].Target);
+            if (sp == null) continue;
+
+            if (sp.Zone != null)
+                zoneNames.Add(sp.Zone);
+
+            if (sp.ZoneKey != null)
+            {
+                var zoneNode = _graph.GetNode(sp.ZoneKey);
+                if (zoneNode?.Level != null)
+                    maxZoneLevel = maxZoneLevel.HasValue
+                        ? Math.Max(maxZoneLevel.Value, zoneNode.Level.Value)
+                        : zoneNode.Level.Value;
+            }
+        }
+
+        if (zoneNames.Count == 0)
+            return (null, maxZoneLevel);
+
+        var sorted = new List<string>(zoneNames);
+        sorted.Sort(StringComparer.OrdinalIgnoreCase);
+        return (sorted, maxZoneLevel);
+    }
+
+    private void AddUnlockRequirement(PlanEntityNode node)
+    {
+        if (_unlocks == null)
+            return;
+        if (!UnlockEvaluator.TryGetUnlockEdgeType(node.Node.Type, out _))
+            return;
+
+        var evaluation = _unlocks.Evaluate(node.Node);
+        if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
+            return;
+
+        var groupId = $"{node.NodeKey}:unlock:allof";
+        var group = GetOrCreateGroup(groupId, PlanGroupKind.AllOf, node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
+        node.UnlockRequirementId = group.Id;
+        AddLink(node.Id, group.Id, DependencySemantics.FromEdge(
+            node.Node.Type == NodeType.Door ? EdgeType.UnlocksDoor :
+            node.Node.Type == NodeType.Character ? EdgeType.UnlocksCharacter : EdgeType.UnlocksZoneLine), edgeType: null);
+
+        for (int i = 0; i < evaluation.BlockingSources.Count; i++)
+        {
+            var source = evaluation.BlockingSources[i];
+            var sourceNode = GetOrCreateEntity(source);
+            ApplyRuntimeState(sourceNode);
+            AddLink(group.Id, sourceNode.Id, DependencySemantics.FromEdge(
+                node.Node.Type == NodeType.Door ? EdgeType.UnlocksDoor :
+                node.Node.Type == NodeType.Character ? EdgeType.UnlocksCharacter : EdgeType.UnlocksZoneLine), edgeType: null);
+
+            if (source.Type == NodeType.Quest)
+                BuildQuest(source.Key);
+            else if (source.Type == NodeType.Item)
+                BuildItem(source.Key);
+            else if (source.Type == NodeType.Recipe)
+                BuildRecipe(source.Key);
         }
     }
 
