@@ -1,5 +1,6 @@
 using System.Numerics;
 using AdventureGuide.Config;
+using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using ImGuiNET;
@@ -109,11 +110,14 @@ public sealed class GuideWindow
         ImGui.SameLine();
 
         ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
-        QuestResolution? resolution = null;
+        QuestPlanProjection? projection = null;
         if (_state.SelectedQuestDBName != null)
-            resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
-        var viewTree = resolution != null ? _resolution.GetViewTree(resolution.QuestKey) : null;
-        _viewRenderer.Draw(resolution, viewTree);
+        {
+            var resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
+            if (resolution != null)
+                projection = _resolution.GetQuestPlanProjection(resolution.QuestKey);
+        }
+        _viewRenderer.Draw(projection);
         ImGui.EndChild();
     }
 }

@@ -64,7 +64,11 @@ public sealed class LazyTreeProjectorTests
 
         var recipeRef = firstLevel.Single(r => r.NodeId == (PlanNodeId)"recipe:product");
         var secondLevel = projector.GetChildren(recipeRef);
-        Assert.Single(secondLevel);
-        Assert.Equal((PlanNodeId)"item:mat", secondLevel[0].NodeId);
+        var materialsGroup = Assert.Single(secondLevel);
+        Assert.Equal((PlanNodeId)"recipe:product:materials:allof", materialsGroup.NodeId);
+
+        var thirdLevel = projector.GetChildren(materialsGroup);
+        Assert.Single(thirdLevel);
+        Assert.Equal((PlanNodeId)"item:mat", thirdLevel[0].NodeId);
     }
 }
