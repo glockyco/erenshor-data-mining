@@ -198,8 +198,9 @@ public static class DebugAPI
         if (node == null) return $"Quest '{name}' not found";
 
         var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var planCache = Resolution.GetType().GetField("_planCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+        var projectionCache = Resolution.GetType().GetField("_planProjectionCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
         var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var structureCache = Resolution.GetType().GetField("_structureCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"Profiling quest: {node.DisplayName} ({node.Key})");
@@ -207,8 +208,9 @@ public static class DebugAPI
         sb.AppendLine();
 
         // Cold run (clear caches first)
+        planCache?.Remove(node.Key);
+        projectionCache?.Remove(node.Key);
         targetCache?.Remove(node.Key);
-        structureCache?.Remove(node.Key);
         var sw = Stopwatch.StartNew();
         var result = Resolution.ResolveQuest(node.Key);
         sw.Stop();
@@ -236,16 +238,18 @@ public static class DebugAPI
         if (Graph == null || Resolution == null || State == null) return "Not initialized";
 
         var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var planCache = Resolution.GetType().GetField("_planCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
+        var projectionCache = Resolution.GetType().GetField("_planProjectionCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
         var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var structureCache = Resolution.GetType().GetField("_structureCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("Profiling all actionable quests (cold):");
         sb.AppendLine();
 
         // Clear all caches
+        planCache?.Clear();
+        projectionCache?.Clear();
         targetCache?.Clear();
-        structureCache?.Clear();
 
         int questCount = 0;
         double totalMs = 0;
@@ -254,11 +258,12 @@ public static class DebugAPI
         foreach (var node in Graph.NodesOfType(NodeType.Quest))
         {
             if (node.DbName == null) continue;
-            if (!State.IsActive(node.DbName)) continue;
+            if (!State.IsActionable(node.DbName)) continue;
 
             // Clear per-quest caches for a true cold measurement
+            planCache?.Remove(node.Key);
+            projectionCache?.Remove(node.Key);
             targetCache?.Remove(node.Key);
-            structureCache?.Remove(node.Key);
 
             sw.Restart();
             var result = Resolution.ResolveQuest(node.Key);
