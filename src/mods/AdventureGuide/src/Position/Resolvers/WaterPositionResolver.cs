@@ -2,7 +2,7 @@ using AdventureGuide.Graph;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace AdventureGuide.Navigation.Resolvers;
+namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
 /// Resolves Water nodes to shore positions rather than the water center.

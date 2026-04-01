@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Markers;
 
 /// <summary>
 /// Types of world markers. Priority order (highest first) determines

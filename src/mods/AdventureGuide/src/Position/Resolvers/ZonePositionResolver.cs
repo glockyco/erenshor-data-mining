@@ -1,7 +1,7 @@
 using UnityEngine;
 using AdventureGuide.Graph;
 
-namespace AdventureGuide.Navigation.Resolvers;
+namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
 /// Resolves a Zone node to world positions by finding zone lines that

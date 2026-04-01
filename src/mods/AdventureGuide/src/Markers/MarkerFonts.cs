@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Markers;
 
 /// <summary>
 /// Lazily creates and caches TMP_FontAsset objects for world markers.

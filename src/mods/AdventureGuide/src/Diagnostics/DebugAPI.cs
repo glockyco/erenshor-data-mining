@@ -2,6 +2,7 @@ using System.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.UI;

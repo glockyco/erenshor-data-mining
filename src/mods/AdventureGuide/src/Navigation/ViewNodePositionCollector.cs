@@ -3,6 +3,7 @@ using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Views;
+using AdventureGuide.Position;
 
 namespace AdventureGuide.Navigation;
 

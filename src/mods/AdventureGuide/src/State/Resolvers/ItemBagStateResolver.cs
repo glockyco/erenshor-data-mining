@@ -1,5 +1,4 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Markers;
 
 namespace AdventureGuide.State.Resolvers;
 

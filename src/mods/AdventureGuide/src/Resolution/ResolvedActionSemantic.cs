@@ -1,4 +1,5 @@
 using AdventureGuide.Navigation;
+using AdventureGuide.Markers;
 
 namespace AdventureGuide.Resolution;
 

@@ -3,6 +3,7 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Config;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using ImGuiNET;

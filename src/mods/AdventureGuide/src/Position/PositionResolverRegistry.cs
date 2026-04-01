@@ -1,6 +1,6 @@
 using AdventureGuide.Graph;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Position;
 
 /// <summary>
 /// Maps <see cref="NodeType"/> to an <see cref="IPositionResolver"/>, providing a

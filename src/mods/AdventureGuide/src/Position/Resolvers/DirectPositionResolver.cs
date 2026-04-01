@@ -1,7 +1,7 @@
 using UnityEngine;
 using AdventureGuide.Graph;
 
-namespace AdventureGuide.Navigation.Resolvers;
+namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
 /// Resolves nodes that carry static X/Y/Z coordinates directly on the graph node.

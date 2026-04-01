@@ -1,5 +1,4 @@
 using AdventureGuide.Config;
-using AdventureGuide.Navigation;
 using UnityEngine;
 
 namespace AdventureGuide.Markers;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.State;
 
 /// <summary>
 /// Maintains a stable-key-indexed registry of living NPCs, kept in sync by

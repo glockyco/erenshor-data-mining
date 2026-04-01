@@ -1,9 +1,8 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Markers;
 using AdventureGuide.State;
 using UnityEngine;
 
-namespace AdventureGuide.Navigation.Resolvers;
+namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
 /// Resolves a mining node to its static position regardless of mined state.

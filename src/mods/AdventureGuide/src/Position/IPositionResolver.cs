@@ -1,7 +1,7 @@
 using UnityEngine;
 using AdventureGuide.Graph;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Position;
 
 /// <summary>
 /// A resolved world position with its scene name.

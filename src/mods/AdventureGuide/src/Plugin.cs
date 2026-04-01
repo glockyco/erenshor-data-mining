@@ -7,7 +7,8 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
-using AdventureGuide.Navigation.Resolvers;
+using AdventureGuide.Position;
+using AdventureGuide.Position.Resolvers;
 using AdventureGuide.Patches;
 using AdventureGuide.Rendering;
 using AdventureGuide.Resolution;
@@ -148,8 +149,6 @@ public sealed class Plugin : BaseUnityPlugin
             new MiningNodePositionResolver(_liveState));
         positionRegistry.Register(NodeType.ItemBag,
             new ItemBagPositionResolver(_liveState));
-        positionRegistry.Register(NodeType.ZoneLine,
-            new ZoneLinePositionResolver());
         positionRegistry.Register(NodeType.Zone,
             new ZonePositionResolver(_graph));
         _waterResolver = new WaterPositionResolver(_graph);

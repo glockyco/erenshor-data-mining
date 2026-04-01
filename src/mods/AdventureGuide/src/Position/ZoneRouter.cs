@@ -1,7 +1,7 @@
 using AdventureGuide.Graph;
 using AdventureGuide.State;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Position;
 
 /// <summary>
 /// Zone connectivity graph with shortest-path BFS routing.

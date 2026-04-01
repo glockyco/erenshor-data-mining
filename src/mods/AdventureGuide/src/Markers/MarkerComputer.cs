@@ -1,6 +1,5 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
-using AdventureGuide.Navigation;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Views;

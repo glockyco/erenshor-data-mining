@@ -1,4 +1,4 @@
-using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 
 namespace AdventureGuide.Resolution;
 

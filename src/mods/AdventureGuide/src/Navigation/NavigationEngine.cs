@@ -3,7 +3,7 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
-using AdventureGuide.Markers;
+using AdventureGuide.Position;
 using UnityEngine;
 
 namespace AdventureGuide.Navigation;

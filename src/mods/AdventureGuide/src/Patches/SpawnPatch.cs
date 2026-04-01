@@ -1,5 +1,4 @@
 using AdventureGuide.Markers;
-using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using HarmonyLib;
 

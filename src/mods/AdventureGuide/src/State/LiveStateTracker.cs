@@ -1,10 +1,8 @@
 using System.Reflection;
 using AdventureGuide.Graph;
-using AdventureGuide.Navigation;
-using AdventureGuide.State;
 using UnityEngine;
 
-namespace AdventureGuide.Markers;
+namespace AdventureGuide.State;
 
 /// <summary>
 /// Tracks live spawn, character, mining, item-bag, and time-of-day state.

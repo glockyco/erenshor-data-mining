@@ -1,10 +1,9 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Markers;
 using AdventureGuide.State;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace AdventureGuide.Navigation.Resolvers;
+namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
 /// Resolves a Character node to world positions.

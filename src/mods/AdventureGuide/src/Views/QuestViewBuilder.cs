@@ -1,5 +1,5 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 using AdventureGuide.State;
 
 namespace AdventureGuide.Views;
