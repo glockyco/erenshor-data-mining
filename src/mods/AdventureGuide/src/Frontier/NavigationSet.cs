@@ -1,4 +1,3 @@
-using AdventureGuide.Graph;
 using AdventureGuide.Views;
 
 namespace AdventureGuide.Frontier;
@@ -9,6 +8,9 @@ namespace AdventureGuide.Frontier;
 /// Any navigable node can be in the set (quests, characters, items,
 /// mining nodes, etc.).  Click = override (clear + add single),
 /// Shift+click = toggle (add/remove without affecting others).
+///
+/// Context view nodes are stored by reference — no deep cloning.
+/// View trees are immutable after building, so sharing is safe.
 /// </summary>
 public sealed class NavigationSet
 {
@@ -34,7 +36,7 @@ public sealed class NavigationSet
         _contexts.Clear();
         _keys.Add(nodeKey);
         if (context != null)
-            _contexts[nodeKey] = (EntityViewNode)CloneViewNode(context);
+            _contexts[nodeKey] = context;
         MarkChanged();
     }
 
@@ -49,7 +51,7 @@ public sealed class NavigationSet
         {
             _keys.Add(nodeKey);
             if (context != null)
-                _contexts[nodeKey] = (EntityViewNode)CloneViewNode(context);
+                _contexts[nodeKey] = context;
         }
         MarkChanged();
     }
@@ -60,11 +62,8 @@ public sealed class NavigationSet
     /// <summary>Try to get the contextual pruned view node for a manual target.</summary>
     public bool TryGetContext(string nodeKey, out EntityViewNode? context)
     {
-        if (_contexts.TryGetValue(nodeKey, out var stored))
-        {
-            context = (EntityViewNode)CloneViewNode(stored);
+        if (_contexts.TryGetValue(nodeKey, out context))
             return true;
-        }
         context = null;
         return false;
     }
@@ -98,51 +97,5 @@ public sealed class NavigationSet
     {
         Version++;
         Changed?.Invoke();
-    }
-
-    private static ViewNode CloneViewNode(ViewNode source)
-    {
-        switch (source)
-        {
-            case EntityViewNode ev:
-            {
-                var clone = new EntityViewNode(ev.NodeKey, ev.Node, ev.EdgeType, ev.Edge)
-                {
-                    IsCycleRef = ev.IsCycleRef,
-                    DefaultExpanded = ev.DefaultExpanded,
-                    EffectiveLevel = ev.EffectiveLevel,
-                };
-                if (ev.SourceZones != null)
-                    clone.SourceZones = new List<string>(ev.SourceZones);
-                if (ev.UnlockDependency != null)
-                    clone.UnlockDependency = CloneViewNode(ev.UnlockDependency);
-                for (int i = 0; i < ev.Children.Count; i++)
-                    clone.Children.Add(CloneViewNode(ev.Children[i]));
-                return clone;
-            }
-            case VariantGroupNode vg:
-            {
-                var clone = new VariantGroupNode(vg.NodeKey, vg.Label,
-                    vg.EdgeType ?? EdgeType.RequiresItem)
-                {
-                    DefaultExpanded = vg.DefaultExpanded,
-                };
-                for (int i = 0; i < vg.Children.Count; i++)
-                    clone.Children.Add(CloneViewNode(vg.Children[i]));
-                return clone;
-            }
-            case UnlockGroupNode ug:
-            {
-                var clone = new UnlockGroupNode(ug.NodeKey, ug.Label)
-                {
-                    DefaultExpanded = ug.DefaultExpanded,
-                };
-                for (int i = 0; i < ug.Children.Count; i++)
-                    clone.Children.Add(CloneViewNode(ug.Children[i]));
-                return clone;
-            }
-            default:
-                throw new InvalidOperationException($"Unknown ViewNode type: {source.GetType().Name}");
-        }
     }
 }
