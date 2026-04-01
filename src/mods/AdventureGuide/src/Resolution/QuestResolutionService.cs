@@ -271,7 +271,7 @@ public sealed class QuestResolutionService
                 var prereqResolution = ResolveQuest(frontierNode.NodeKey);
                 foreach (var t in prereqResolution.Targets)
                     results.Add(new ResolvedQuestTarget(
-                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
+                        t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
                         t.Position, t.IsActionable));
                 continue;
@@ -314,7 +314,7 @@ public sealed class QuestResolutionService
                 var blockingResolution = ResolveQuest(blockingSource.Key);
                 foreach (var t in blockingResolution.Targets)
                     results.Add(new ResolvedQuestTarget(
-                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
+                        t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
                         t.Position, t.IsActionable));
                 continue;
@@ -427,7 +427,6 @@ public sealed class QuestResolutionService
             targetNode);
 
         results.Add(new ResolvedQuestTarget(
-            questKey,
             targetNode.NodeKey,
             pos.Scene,
             pos.SourceKey,
@@ -472,7 +471,6 @@ public sealed class QuestResolutionService
         var frontierContext = focusTarget?.GoalNode
             ?? ToContext(projection.Frontier[0], projection.Plan);
         var summarySemantic = focusTarget?.Semantic
-            ?? SelectTrackerSemantic(projection.Frontier[0], targets)
             ?? ResolvedActionSemanticBuilder.Build(
                 _graph,
                 requestedNode ?? frontierContext.Node,
@@ -576,28 +574,6 @@ public sealed class QuestResolutionService
 
         return null;
     }
-
-    private static ResolvedActionSemantic? SelectTrackerSemantic(
-        FrontierRef frontierNode,
-        IReadOnlyList<ResolvedQuestTarget> targets)
-    {
-        for (int i = 0; i < targets.Count; i++)
-        {
-            if (IsSameGoal(frontierNode, targets[i].GoalNode))
-                return targets[i].Semantic;
-        }
-
-        return targets.Count > 0 ? targets[0].Semantic : null;
-    }
-
-    private static bool IsSameGoal(FrontierRef frontierNode, ResolvedNodeContext candidateGoal)
-    {
-        if (frontierNode.IncomingLink.EdgeType != candidateGoal.EdgeType)
-            return false;
-
-        return frontierNode.GoalId.Value == candidateGoal.NodeKey;
-    }
-
     private static ResolvedNodeContext ToContext(FrontierRef frontierRef, QuestPlan plan)
     {
         var node = (PlanEntityNode)(plan.GetNode(frontierRef.NodeId)

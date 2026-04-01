@@ -10,7 +10,6 @@ namespace AdventureGuide.Resolution;
 /// </summary>
 public sealed class ResolvedQuestTarget
 {
-    public string QuestKey { get; }
     public string TargetNodeKey { get; }
     public string? Scene { get; }
     public string? SourceKey { get; }
@@ -23,7 +22,6 @@ public sealed class ResolvedQuestTarget
     public bool IsActionable { get; }
 
     public ResolvedQuestTarget(
-        string questKey,
         string targetNodeKey,
         string? scene,
         string? sourceKey,
@@ -34,7 +32,6 @@ public sealed class ResolvedQuestTarget
         Vector3 position,
         bool isActionable = true)
     {
-        QuestKey = questKey;
         TargetNodeKey = targetNodeKey;
         Scene = scene;
         SourceKey = sourceKey;
