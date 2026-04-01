@@ -193,15 +193,16 @@ public sealed class MarkerComputer
 
         if (_tracker.IsActionable(quest.DbName) || explicitlySelected)
         {
-            var resolution = _resolution.ResolveQuest(quest.Key);
+            var projection = _resolution.GetQuestPlanProjection(quest.Key);
+            var targets = _resolution.GetTargetsForScene(quest.Key, _tracker.CurrentZone);
             // Suppress markers for implicitly-active quests with blocked
             // objectives — but not when the player explicitly selected the
             // quest via NAV or tracker.
             bool suppressBlocked = implicitlyActive
                 && !explicitlySelected
-                && FrontierResolver.IsImplicitFrontierBlocked(resolution.PlanProjection);
+                && FrontierResolver.IsImplicitFrontierBlocked(projection);
             if (!suppressBlocked)
-                EmitActiveQuestMarkers(quest, resolution);
+                EmitActiveQuestMarkers(quest, targets);
             return;
         }
 
@@ -209,11 +210,11 @@ public sealed class MarkerComputer
             EmitQuestGiverMarkers(quest);
     }
 
-    private void EmitActiveQuestMarkers(Node quest, QuestResolution resolution)
+    private void EmitActiveQuestMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
     {
-        for (int i = 0; i < resolution.Targets.Count; i++)
+        for (int i = 0; i < targets.Count; i++)
         {
-            var target = resolution.Targets[i];
+            var target = targets[i];
             var entry = CreateActiveMarkerEntry(quest, target);
             if (entry != null)
                 AddContribution(quest.Key, entry.NodeKey, entry);
@@ -223,7 +224,7 @@ public sealed class MarkerComputer
                 AddContribution(quest.Key, respawnEntry.NodeKey, respawnEntry);
         }
 
-        EmitPendingCompletionMarkers(quest, resolution);
+        EmitPendingCompletionMarkers(quest, targets);
     }
 
 
@@ -295,9 +296,9 @@ public sealed class MarkerComputer
         return null;
     }
 
-    private void EmitPendingCompletionMarkers(Node quest, QuestResolution resolution)
+    private void EmitPendingCompletionMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
     {
-        bool hasReadyCompletion = resolution.Targets.Any(target =>
+        bool hasReadyCompletion = targets.Any(target =>
             target.Semantic.PreferredMarkerType is MarkerType.TurnInReady or MarkerType.TurnInRepeatReady);
         if (hasReadyCompletion)
             return;

@@ -28,6 +28,7 @@ public sealed class QuestResolutionService
     private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>> _sceneTargetCache = new(StringComparer.Ordinal);
 
     public int Version { get; private set; }
 
@@ -61,11 +62,12 @@ public sealed class QuestResolutionService
 
         if (changeSet.SceneChanged)
         {
-            if (_planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0)
+            if (_planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0 || _sceneTargetCache.Count > 0)
             {
                 _planCache.Clear();
                 _planProjectionCache.Clear();
                 _targetCache.Clear();
+                _sceneTargetCache.Clear();
                 _dependencies.Clear();
                 _positionCache.Clear();
                 Version++;
@@ -96,6 +98,7 @@ public sealed class QuestResolutionService
             removedAny |= _planCache.Remove(questKey);
             removedAny |= _planProjectionCache.Remove(questKey);
             removedAny |= _targetCache.Remove(questKey);
+            removedAny |= _sceneTargetCache.Remove(questKey);
         }
 
 
@@ -159,6 +162,34 @@ public sealed class QuestResolutionService
         return projection;
     }
 
+    public IReadOnlyList<ResolvedQuestTarget> GetTargetsForScene(string questKey, string scene)
+    {
+        if (_sceneTargetCache.TryGetValue(questKey, out var byScene)
+            && byScene.TryGetValue(scene, out var cached))
+        {
+            return cached;
+        }
+
+        var requestedNode = _graph.GetNode(questKey);
+        if (requestedNode == null)
+            return Array.Empty<ResolvedQuestTarget>();
+
+        var targets = BuildTargets(
+            questKey,
+            GetQuestPlanProjection(questKey),
+            requestedNode,
+            sceneFilter: scene);
+
+        if (!_sceneTargetCache.TryGetValue(questKey, out byScene))
+        {
+            byScene = new Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>(StringComparer.OrdinalIgnoreCase);
+            _sceneTargetCache[questKey] = byScene;
+        }
+
+        byScene[scene] = targets;
+        return targets;
+    }
+
     public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey)
     {
         var requestedNode = _graph.GetNode(nodeKey);
@@ -193,7 +224,8 @@ public sealed class QuestResolutionService
 
         if (requestedNode.Type is NodeType.Item or NodeType.Recipe)
         {
-            ResolveItemTargetsFromBlueprint(nodeKey, goalContext, requestedNode, results, seen, plan);
+            ResolveItemTargetsFromBlueprint(
+                nodeKey, goalContext, requestedNode, results, seen, plan, sceneFilter: null);
             return results;
         }
 
@@ -202,14 +234,14 @@ public sealed class QuestResolutionService
             var eval = _unlocks.Evaluate(requestedNode);
             if (!eval.IsUnlocked)
             {
-                ResolveBlockedTargets(nodeKey, goalContext, requestedNode, eval, results, seen, plan);
+                ResolveBlockedTargets(nodeKey, goalContext, requestedNode, eval, results, seen, plan, sceneFilter: null);
                 return results;
             }
         }
 
         var positions = _positionCache.Resolve(requestedNode.Key);
         for (int i = 0; i < positions.Length; i++)
-            AddResolvedTargetDirect(results, seen, nodeKey, goalContext, goalContext, positions[i], requestedNode, plan);
+            AddResolvedTargetDirect(results, seen, nodeKey, goalContext, goalContext, positions[i], requestedNode, plan, sceneFilter: null);
 
         return results;
     }
@@ -243,7 +275,8 @@ public sealed class QuestResolutionService
     private IReadOnlyList<ResolvedQuestTarget> BuildTargets(
         string questKey,
         QuestPlanProjection projection,
-        Node? requestedNode)
+        Node? requestedNode,
+        string? sceneFilter = null)
     {
         if (projection.Frontier.Count == 0 || requestedNode == null)
             return Array.Empty<ResolvedQuestTarget>();
@@ -264,14 +297,16 @@ public sealed class QuestResolutionService
             if (nodeType is NodeType.Item or NodeType.Recipe)
             {
                 ResolveItemTargetsFromBlueprint(
-                    questKey, goalContext, requestedNode, results, seen, projection.Plan);
+                    questKey, goalContext, requestedNode, results, seen, projection.Plan, sceneFilter);
                 continue;
             }
 
             if (nodeType == NodeType.Quest)
             {
-                var prereqResolution = ResolveQuest(frontierNode.NodeKey);
-                foreach (var t in prereqResolution.Targets)
+                var prereqTargets = sceneFilter == null
+                    ? ResolveQuest(frontierNode.NodeKey).Targets
+                    : GetTargetsForScene(frontierNode.NodeKey, sceneFilter);
+                foreach (var t in prereqTargets)
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
@@ -284,15 +319,16 @@ public sealed class QuestResolutionService
                 var eval = _unlocks.Evaluate(frontierNode.Node);
                 if (!eval.IsUnlocked)
                 {
-                    ResolveBlockedTargets(questKey, goalContext, requestedNode, eval, results, seen, projection.Plan);
+                    ResolveBlockedTargets(
+                        questKey, goalContext, requestedNode, eval, results, seen, projection.Plan, sceneFilter);
                     continue;
                 }
             }
 
             var positions = _positionCache.Resolve(frontierNode.NodeKey);
             for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    goalContext, goalContext, positions[j], requestedNode, projection.Plan);
+                AddResolvedTargetDirect(
+                    results, seen, questKey, goalContext, goalContext, positions[j], requestedNode, projection.Plan, sceneFilter);
         }
 
         return results;
@@ -305,7 +341,8 @@ public sealed class QuestResolutionService
         UnlockEvaluation evaluation,
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
-        QuestPlan? plan)
+        QuestPlan? plan,
+        string? sceneFilter)
     {
         var blocking = evaluation.BlockingSources;
         for (int i = 0; i < blocking.Count; i++)
@@ -316,8 +353,10 @@ public sealed class QuestResolutionService
                 if (string.Equals(blockingSource.Key, questKey, StringComparison.Ordinal))
                     continue;
 
-                var blockingResolution = ResolveQuest(blockingSource.Key);
-                foreach (var t in blockingResolution.Targets)
+                var blockingTargets = sceneFilter == null
+                    ? ResolveQuest(blockingSource.Key).Targets
+                    : GetTargetsForScene(blockingSource.Key, sceneFilter);
+                foreach (var t in blockingTargets)
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
@@ -329,7 +368,7 @@ public sealed class QuestResolutionService
             {
                 var itemContext = CreateContext(blockingSource, plan);
                 ResolveItemTargetsFromBlueprint(
-                    questKey, itemContext, requestedNode, results, seen, plan);
+                    questKey, itemContext, requestedNode, results, seen, plan, sceneFilter);
                 continue;
             }
 
@@ -341,7 +380,8 @@ public sealed class QuestResolutionService
                     var doorEvaluation = _unlocks.Evaluate(blockingSource);
                     if (!doorEvaluation.IsUnlocked)
                     {
-                        ResolveBlockedTargets(questKey, frontierNode, requestedNode, doorEvaluation, results, seen, plan);
+                        ResolveBlockedTargets(
+                            questKey, frontierNode, requestedNode, doorEvaluation, results, seen, plan, sceneFilter);
                         continue;
                     }
                 }
@@ -350,10 +390,9 @@ public sealed class QuestResolutionService
             var blockingContext = CreateContext(blockingSource, plan);
             var positions = _positionCache.Resolve(blockingSource.Key);
             for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, blockingContext, positions[j], requestedNode, plan);
+                AddResolvedTargetDirect(
+                    results, seen, questKey, frontierNode, blockingContext, positions[j], requestedNode, plan, sceneFilter);
         }
-
     }
 
     private void ResolveItemTargetsFromBlueprint(
@@ -362,9 +401,53 @@ public sealed class QuestResolutionService
         Node requestedNode,
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
-        QuestPlan? plan)
+        QuestPlan? plan,
+        string? sceneFilter)
     {
-        var sources = _sourceIndex.GetSourcesForItem(frontierNode.NodeKey);
+        IReadOnlyList<SourceSiteBlueprint> sources;
+        if (sceneFilter == null)
+        {
+            sources = _sourceIndex.GetSourceSitesForItem(frontierNode.NodeKey);
+        }
+        else
+        {
+            var allSites = _sourceIndex.GetSourceSitesForItem(frontierNode.NodeKey);
+            var currentSceneSites = _sourceIndex.GetSourceSitesForItemInScene(frontierNode.NodeKey, sceneFilter);
+            var reduced = new List<SourceSiteBlueprint>(currentSceneSites.Count + 8);
+            var addedIds = new HashSet<string>(StringComparer.Ordinal);
+            var addedScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < currentSceneSites.Count; i++)
+            {
+                var site = currentSceneSites[i];
+                reduced.Add(site);
+                addedIds.Add(SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene));
+                if (!string.IsNullOrEmpty(site.Scene))
+                    addedScenes.Add(site.Scene);
+            }
+
+            for (int i = 0; i < allSites.Count; i++)
+            {
+                var site = allSites[i];
+                string siteId = SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene);
+                if (addedIds.Contains(siteId))
+                    continue;
+                if (string.IsNullOrEmpty(site.Scene))
+                {
+                    reduced.Add(site);
+                    addedIds.Add(siteId);
+                    continue;
+                }
+                if (!addedScenes.Add(site.Scene))
+                    continue;
+
+                reduced.Add(site);
+                addedIds.Add(siteId);
+            }
+
+            sources = reduced;
+        }
+
         if (sources.Count == 0)
             return;
 
@@ -382,11 +465,14 @@ public sealed class QuestResolutionService
         {
             var source = sources[i];
             var sourceNode = _graph.GetNode(source.SourceNodeKey);
-            if (sourceNode == null) continue;
+            if (sourceNode == null)
+                continue;
 
             if (source.SourceNodeType == NodeType.Quest
                 && _gameState.GetState(source.SourceNodeKey) is QuestCompleted)
+            {
                 continue;
+            }
 
             bool reachable = IsSourceReachable(source);
             if (hasReachable && !reachable)
@@ -397,18 +483,39 @@ public sealed class QuestResolutionService
                 var evaluation = _unlocks.Evaluate(sourceNode);
                 if (!evaluation.IsUnlocked)
                 {
-                    ResolveBlockedTargets(questKey, frontierNode, requestedNode, evaluation, results, seen, plan);
+                    ResolveBlockedTargets(
+                        questKey, frontierNode, requestedNode, evaluation, results, seen, plan, sceneFilter);
                     continue;
                 }
             }
 
-            var positions = _positionCache.Resolve(source.SourceNodeKey);
-            if (positions.Length == 0) continue;
+            ResolvedPosition[] positions;
+            if (sceneFilter != null)
+            {
+                if (string.Equals(source.Scene, sceneFilter, StringComparison.OrdinalIgnoreCase))
+                {
+                    positions = _positionCache.Resolve(source.SourceNodeKey)
+                        .Where(pos => string.Equals(pos.Scene, sceneFilter, StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+                }
+                else
+                {
+                    var representative = GetRepresentativePosition(source);
+                    positions = representative == null ? Array.Empty<ResolvedPosition>() : new[] { representative.Value };
+                }
+            }
+            else
+            {
+                positions = _positionCache.Resolve(source.SourceNodeKey);
+            }
+
+            if (positions.Length == 0)
+                continue;
 
             var targetContext = CreateContext(sourceNode, source.AcquisitionEdge, plan);
             for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, targetContext, positions[j], requestedNode, plan);
+                AddResolvedTargetDirect(
+                    results, seen, questKey, frontierNode, targetContext, positions[j], requestedNode, plan, sceneFilter);
         }
     }
     private bool TryResolveBlockedRoute(
@@ -419,7 +526,8 @@ public sealed class QuestResolutionService
         ResolvedNodeContext targetNode,
         ResolvedPosition pos,
         Node requestedNode,
-        QuestPlan? plan)
+        QuestPlan? plan,
+        string? sceneFilter)
     {
         string? targetScene = GetBlockedRouteScene(targetNode, pos);
         var blockedRoute = _zoneAccess.FindBlockedRoute(targetScene);
@@ -431,7 +539,6 @@ public sealed class QuestResolutionService
             "route",
             questKey,
             goalNode.NodeKey,
-            targetNode.NodeKey,
             targetScene ?? string.Empty,
             blockedRoute.ZoneLineNode.Key,
         });
@@ -445,7 +552,8 @@ public sealed class QuestResolutionService
             blockedRoute.Evaluation,
             results,
             seen,
-            plan);
+            plan,
+            sceneFilter);
         return true;
     }
 
@@ -465,9 +573,13 @@ public sealed class QuestResolutionService
         ResolvedNodeContext targetNode,
         ResolvedPosition pos,
         Node requestedNode,
-        QuestPlan? plan)
+        QuestPlan? plan,
+        string? sceneFilter)
     {
-        if (TryResolveBlockedRoute(results, seen, questKey, goalNode, targetNode, pos, requestedNode, plan))
+        if (TryResolveBlockedRoute(results, seen, questKey, goalNode, targetNode, pos, requestedNode, plan, sceneFilter))
+            return;
+
+        if (sceneFilter != null && !string.Equals(pos.Scene, sceneFilter, StringComparison.OrdinalIgnoreCase))
             return;
 
         string dedupeKey = string.Join("|", new[]
@@ -511,16 +623,29 @@ public sealed class QuestResolutionService
     /// blocking sources so navigation reaches the unlock requirement instead.
     /// </summary>
 
-    private bool IsSourceReachable(SourceEntry source)
+    private bool IsSourceReachable(SourceSiteBlueprint source)
     {
         if (source.SourceNodeType != NodeType.Character)
             return true;
 
         var sourceNode = _graph.GetNode(source.SourceNodeKey);
-        if (sourceNode == null) return false;
+        if (sourceNode == null)
+            return false;
 
         var eval = _unlocks.Evaluate(sourceNode);
         return eval.IsUnlocked;
+    }
+
+    private static ResolvedPosition? GetRepresentativePosition(SourceSiteBlueprint source)
+    {
+        if (source.StaticPositions.Count == 0)
+            return null;
+
+        var pos = source.StaticPositions[0];
+        return new ResolvedPosition(
+            new Vector3(pos.X, pos.Y, pos.Z),
+            pos.Scene,
+            pos.PositionNodeKey);
     }
 
 
