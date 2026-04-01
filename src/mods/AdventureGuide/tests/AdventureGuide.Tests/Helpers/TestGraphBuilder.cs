@@ -44,12 +44,13 @@ public sealed class TestGraphBuilder
         => AddNode(key, NodeType.Door, name, scene: scene, keyItemKey: keyItemKey);
 
     public TestGraphBuilder AddZoneLine(string key, string name, string? scene = null,
-        string? destinationZoneKey = null)
+        string? destinationZoneKey = null, float? x = null, float? y = null, float? z = null)
     {
         _nodes.Add(new Node
         {
             Key = key, Type = NodeType.ZoneLine, DisplayName = name,
             Scene = scene, DestinationZoneKey = destinationZoneKey,
+            X = x, Y = y, Z = z,
         });
         return this;
     }
