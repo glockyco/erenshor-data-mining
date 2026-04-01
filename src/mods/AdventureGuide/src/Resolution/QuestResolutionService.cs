@@ -3,7 +3,6 @@ using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.State;
-using AdventureGuide.Views;
 
 namespace AdventureGuide.Resolution;
 
@@ -17,7 +16,6 @@ public sealed class QuestResolutionService
     private readonly EntityGraph _graph;
     private readonly QuestStateTracker _tracker;
     private readonly GameState _gameState;
-    private readonly QuestViewBuilder _viewBuilder;
     private readonly QuestPlanBuilder _planBuilder;
     private readonly GuideDependencyEngine _dependencies;
     private readonly CompiledSourceIndex _sourceIndex;
@@ -35,7 +33,6 @@ public sealed class QuestResolutionService
         EntityGraph graph,
         QuestStateTracker tracker,
         GameState gameState,
-        QuestViewBuilder viewBuilder,
         QuestPlanBuilder planBuilder,
         GuideDependencyEngine dependencies,
         CompiledSourceIndex sourceIndex,
@@ -46,7 +43,6 @@ public sealed class QuestResolutionService
         _graph = graph;
         _tracker = tracker;
         _gameState = gameState;
-        _viewBuilder = viewBuilder;
         _planBuilder = planBuilder;
         _dependencies = dependencies;
         _sourceIndex = sourceIndex;
@@ -170,13 +166,8 @@ public sealed class QuestResolutionService
         if (requestedNode.Type == NodeType.Quest)
             return ResolveQuest(nodeKey).Targets;
 
-        var root = requestedNode.Type == NodeType.Item || requestedNode.Type == NodeType.Recipe
-            ? _viewBuilder.BuildNode(nodeKey)
-            : new EntityViewNode(nodeKey, requestedNode);
-
-        return root == null
-            ? Array.Empty<ResolvedQuestTarget>()
-            : CollectTargets(nodeKey, root, requestedNode);
+        var plan = _planBuilder.BuildNode(nodeKey);
+        return ResolveTargetsForNodePlan(nodeKey, plan, requestedNode);
     }
 
     public IEnumerable<QuestResolution> ResolveTrackedQuests(IEnumerable<string> trackedQuestDbNames)
@@ -189,6 +180,37 @@ public sealed class QuestResolutionService
         }
     }
 
+    private IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNodePlan(string nodeKey, QuestPlan plan, Node requestedNode)
+    {
+        var root = plan.GetNode(plan.RootId) as PlanEntityNode
+            ?? throw new InvalidOperationException($"Plan root '{plan.RootId}' missing entity node.");
+
+        var goalContext = CreateContext(root.Node, plan);
+        var results = new List<ResolvedQuestTarget>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        if (requestedNode.Type is NodeType.Item or NodeType.Recipe)
+        {
+            ResolveItemTargetsFromBlueprint(nodeKey, goalContext, requestedNode, results, seen);
+            return results;
+        }
+
+        if (requestedNode.Type is NodeType.Character or NodeType.ZoneLine)
+        {
+            var eval = _unlocks.Evaluate(requestedNode);
+            if (!eval.IsUnlocked)
+            {
+                ResolveBlockedTargets(nodeKey, goalContext, requestedNode, eval, results, seen, plan);
+                return results;
+            }
+        }
+
+        var positions = _positionCache.Resolve(requestedNode.Key);
+        for (int i = 0; i < positions.Length; i++)
+            AddResolvedTargetDirect(results, seen, nodeKey, goalContext, goalContext, positions[i], requestedNode);
+
+        return results;
+    }
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveTargets(
         string questKey,
@@ -273,7 +295,6 @@ public sealed class QuestResolutionService
 
         return results;
     }
-
 
     private void ResolveBlockedTargets(
         string questKey,
@@ -416,111 +437,6 @@ public sealed class QuestResolutionService
     /// When a frontier node is unlock-blocked, resolve positions for its
     /// blocking sources so navigation reaches the unlock requirement instead.
     /// </summary>
-    private void ResolveBlockedTargets(
-        string questKey,
-        EntityViewNode frontierNode,
-        Node requestedNode,
-        UnlockEvaluation evaluation,
-        List<ResolvedQuestTarget> results,
-        HashSet<string> seen)
-    {
-        var blocking = evaluation.BlockingSources;
-        for (int i = 0; i < blocking.Count; i++)
-        {
-            var blockingSource = blocking[i];
-            if (blockingSource.Type == NodeType.Quest)
-            {
-                var blockingResolution = ResolveQuest(blockingSource.Key);
-                foreach (var t in blockingResolution.Targets)
-                    results.Add(new ResolvedQuestTarget(
-                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
-                        t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.Position, t.IsActionable));
-                continue;
-            }
-
-            if (blockingSource.Type == NodeType.Door)
-            {
-                var doorState = _gameState.GetState(blockingSource.Key);
-                if (doorState is DoorLocked)
-                {
-                    var doorEvaluation = _unlocks.Evaluate(blockingSource);
-                    if (!doorEvaluation.IsUnlocked)
-                    {
-                        ResolveBlockedTargets(questKey, frontierNode, requestedNode, doorEvaluation, results, seen);
-                        continue;
-                    }
-                }
-            }
-
-            var blockingViewNode = new EntityViewNode(blockingSource.Key, blockingSource);
-            var positions = _positionCache.Resolve(blockingSource.Key);
-            for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, blockingViewNode, positions[j], requestedNode);
-        }
-    }
-
-    // ── Blueprint-based item target resolution ──────────────────────────────
-
-    /// <summary>
-    /// Resolve targets for an item/recipe frontier node using the pre-compiled
-    /// source index. This avoids a recursive view-tree walk for quests with
-    /// broad item dependencies.
-    /// </summary>
-    private void ResolveItemTargetsFromBlueprint(
-        string questKey,
-        EntityViewNode frontierNode,
-        Node requestedNode,
-        List<ResolvedQuestTarget> results,
-        HashSet<string> seen)
-    {
-        var sources = _sourceIndex.GetSourcesForItem(frontierNode.NodeKey);
-        if (sources.Count == 0)
-            return;
-
-        // Determine if any source is reachable (not unlock-blocked).
-        // When reachable sources exist, skip blocked alternatives so they
-        // cannot override usable direct sources during candidate selection.
-        bool hasReachable = false;
-        for (int i = 0; i < sources.Count; i++)
-        {
-            if (IsSourceReachable(sources[i]))
-            {
-                hasReachable = true;
-                break;
-            }
-        }
-
-        for (int i = 0; i < sources.Count; i++)
-        {
-            var source = sources[i];
-            var sourceNode = _graph.GetNode(source.SourceNodeKey);
-            if (sourceNode == null) continue;
-
-            // Skip completed quest reward sources — the reward is already received.
-            if (source.SourceNodeType == NodeType.Quest
-                && _gameState.GetState(source.SourceNodeKey) is QuestCompleted)
-                continue;
-
-            bool reachable = IsSourceReachable(source);
-            if (hasReachable && !reachable)
-                continue;
-
-            // Resolve positions from cache.
-            var positions = _positionCache.Resolve(source.SourceNodeKey);
-            if (positions.Length == 0) continue;
-
-            // Create a synthetic target view node for attribution.
-            // ResolvedActionSemanticBuilder needs the node reference and edge type.
-            var targetViewNode = new EntityViewNode(
-                source.SourceNodeKey, sourceNode, source.AcquisitionEdge, null);
-
-            for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, targetViewNode, positions[j], requestedNode);
-        }
-    }
 
     private bool IsSourceReachable(SourceEntry source)
     {
@@ -534,86 +450,6 @@ public sealed class QuestResolutionService
         return eval.IsUnlocked;
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> CollectTargets(string questKey, ViewNode root, Node requestedNode)
-    {
-        var results = new List<ResolvedQuestTarget>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        if (root is not EntityViewNode entityNode)
-            return results;
-
-        var nodeType = entityNode.Node.Type;
-
-        if (nodeType is NodeType.Item or NodeType.Recipe)
-        {
-            ResolveItemTargetsFromBlueprint(questKey, entityNode, requestedNode, results, seen);
-            return results;
-        }
-
-        if (nodeType is NodeType.Character or NodeType.ZoneLine)
-        {
-            var eval = _unlocks.Evaluate(entityNode.Node);
-            if (!eval.IsUnlocked)
-            {
-                ResolveBlockedTargets(questKey, entityNode, requestedNode, eval, results, seen);
-                return results;
-            }
-        }
-
-        var positions = _positionCache.Resolve(entityNode.NodeKey);
-        for (int i = 0; i < positions.Length; i++)
-            AddResolvedTargetDirect(results, seen, questKey,
-                entityNode, entityNode, positions[i], requestedNode);
-
-        return results;
-    }
-
-    private void AddResolvedTargetDirect(
-        List<ResolvedQuestTarget> results,
-        HashSet<string> seen,
-        string questKey,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode,
-        ResolvedPosition pos,
-        Node requestedNode)
-    {
-        string dedupeKey = string.Join("|", new[]
-        {
-            questKey,
-            targetNode.NodeKey,
-            pos.Scene ?? string.Empty,
-            pos.SourceKey ?? string.Empty,
-            goalNode.NodeKey,
-        });
-
-        if (!seen.Add(dedupeKey))
-            return;
-
-        var goalContext = ToContext(goalNode);
-        var targetContext = ToContext(targetNode);
-
-        var semantic = ResolvedActionSemanticBuilder.Build(
-            _graph,
-            requestedNode,
-            goalContext,
-            targetContext);
-        var explanation = NavigationExplanationBuilder.Build(
-            semantic,
-            goalContext,
-            targetContext);
-
-        results.Add(new ResolvedQuestTarget(
-            questKey,
-            targetNode.NodeKey,
-            pos.Scene,
-            pos.SourceKey,
-            goalContext,
-            targetContext,
-            semantic,
-            explanation,
-            pos.Position,
-            pos.IsActionable));
-    }
 
     private TrackerSummary BuildTrackerSummary(
         Node? requestedNode,
@@ -680,16 +516,6 @@ public sealed class QuestResolutionService
 
         return frontierNode.GoalId.Value == candidateGoal.NodeKey;
     }
-
-    private static ResolvedNodeContext ToContext(EntityViewNode node) =>
-        new(
-            node.NodeKey,
-            node.Node,
-            node.EdgeType,
-            node.Edge?.Quantity,
-            node.Edge?.Keyword,
-            node.SourceZones,
-            node.EffectiveLevel);
 
     private static ResolvedNodeContext ToContext(FrontierRef frontierRef, QuestPlan plan)
     {

@@ -6,7 +6,6 @@ using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 using AdventureGuide.State.Resolvers;
-using AdventureGuide.Views;
 
 namespace AdventureGuide.Tests.Helpers;
 
@@ -25,31 +24,25 @@ public sealed class SnapshotHarness
     public QuestStateTracker Tracker { get; }
     public UnlockEvaluator Unlocks { get; }
     public ZoneRouter Router { get; }
-    public QuestViewBuilder ViewBuilder { get; }
     public QuestPlanBuilder PlanBuilder { get; }
 
     private SnapshotHarness(EntityGraph graph, GameState gameState,
         QuestStateTracker tracker, UnlockEvaluator unlocks,
-        ZoneRouter router, QuestViewBuilder viewBuilder, QuestPlanBuilder planBuilder)
+        ZoneRouter router, QuestPlanBuilder planBuilder)
     {
         Graph = graph;
         GameState = gameState;
         Tracker = tracker;
         Unlocks = unlocks;
         Router = router;
-        ViewBuilder = viewBuilder;
         PlanBuilder = planBuilder;
     }
 
-    /// <summary>Builds a full dependency view tree for a quest.</summary>
-    public ViewNode? BuildViewTree(string questKey) => ViewBuilder.Build(questKey);
-
-    /// <summary>Computes the actionable frontier from a pre-built view tree.</summary>
-    public List<EntityViewNode> ComputeFrontier(ViewNode? tree)
-        => tree != null ? FrontierComputer.ComputeFrontier(tree, GameState) : new();
-
     /// <summary>Builds a canonical quest plan for a quest.</summary>
     public QuestPlan BuildPlan(string questKey) => PlanBuilder.Build(questKey);
+
+    /// <summary>Builds a canonical plan rooted at any graph node.</summary>
+    public QuestPlan BuildNodePlan(string nodeKey) => PlanBuilder.BuildNode(nodeKey);
 
     /// <summary>Computes the actionable frontier from a canonical quest plan.</summary>
     public IReadOnlyList<FrontierRef> ComputePlanFrontier(QuestPlan plan)
@@ -88,10 +81,9 @@ public sealed class SnapshotHarness
         var router = new ZoneRouter(graph, unlocks);
         router.Rebuild();
 
-        var viewBuilder = new QuestViewBuilder(graph, gameState, router, tracker, unlocks);
-        var planBuilder = new QuestPlanBuilder(graph);
+        var planBuilder = new QuestPlanBuilder(graph, gameState, router, tracker, unlocks);
 
-        return new SnapshotHarness(graph, gameState, tracker, unlocks, router, viewBuilder, planBuilder);
+        return new SnapshotHarness(graph, gameState, tracker, unlocks, router, planBuilder);
     }
 
     /// <summary>Creates a harness from a builder with empty (all-default) state.</summary>

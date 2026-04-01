@@ -16,7 +16,6 @@ using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.State.Resolvers;
 using AdventureGuide.UI;
-using AdventureGuide.Views;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -38,7 +37,6 @@ public sealed class Plugin : BaseUnityPlugin
     private UnlockEvaluator? _unlockEvaluator;
     private GuideDependencyEngine? _dependencyEngine;
     private QuestResolutionService? _resolutionService;
-    private QuestViewBuilder? _viewBuilder;
     private NavigationSet? _navSet;
     private NavigationEngine? _navEngine;
     private MarkerComputer? _markerComputer;
@@ -132,9 +130,6 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _graphIndexes, _entities, _dependencyEngine, _unlockEvaluator);
         _zoneRouter = new ZoneRouter(_graph, _unlockEvaluator);
 
-        // --- Views layer ---
-        _viewBuilder = new QuestViewBuilder(_graph, _gameState, _zoneRouter, _questTracker, _unlockEvaluator);
-
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
         _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
@@ -156,9 +151,9 @@ public sealed class Plugin : BaseUnityPlugin
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
         var positionCache = new SourcePositionCache(positionRegistry);
-        var planBuilder = new QuestPlanBuilder(_graph);
+        var planBuilder = new QuestPlanBuilder(_graph, _gameState, _zoneRouter, _questTracker, _unlockEvaluator);
         _resolutionService = new QuestResolutionService(
-            _graph, _questTracker, _gameState, _viewBuilder, planBuilder,
+            _graph, _questTracker, _gameState, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter);
 
         _navEngine = new NavigationEngine(
