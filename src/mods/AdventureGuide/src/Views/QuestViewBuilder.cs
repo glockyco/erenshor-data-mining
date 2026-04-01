@@ -551,6 +551,11 @@ public sealed class QuestViewBuilder
         ApplyUnlockDependency(viewNode, charNode.Key, _unlocks.Evaluate(charNode), itemVisited);
     }
 
+    private void CheckDoorUnlock(EntityViewNode viewNode, Node doorNode, HashSet<string> itemVisited)
+    {
+        ApplyUnlockDependency(viewNode, doorNode.Key, _unlocks.Evaluate(doorNode), itemVisited);
+    }
+
     /// <summary>
     /// If the node is in a zone that's unreachable from the player's current zone
     /// (route goes through a locked zone line), build the blocking source tree for
@@ -571,7 +576,7 @@ public sealed class QuestViewBuilder
         {
             string targetScene = candidateScenes[i];
             if (string.Equals(targetScene, currentScene, StringComparison.OrdinalIgnoreCase))
-                return; // At least one target is directly in-zone
+                return;
 
             var route = _router.FindRoute(currentScene, targetScene);
             if (route == null)
@@ -579,7 +584,7 @@ public sealed class QuestViewBuilder
 
             var lockedHops = _router.FindLockedHops(currentScene, targetScene);
             if (lockedHops.Count == 0)
-                return; // At least one target scene is already reachable
+                return;
 
             if (route.Path.Count < bestPathLength)
             {
@@ -596,9 +601,6 @@ public sealed class QuestViewBuilder
         {
             var zoneLineKey = bestLockedHops[i].ZoneLineKey;
 
-            // Share cached unlock dependency subtrees. Every node blocked by
-            // the same zone line gets the same shared subtree reference instead
-            // of an independent deep clone.
             if (_unlockDepCache.TryGetValue(zoneLineKey, out var cachedDep))
             {
                 if (cachedDep != null)
@@ -620,33 +622,28 @@ public sealed class QuestViewBuilder
                 continue;
             }
 
-            var dependency = BuildUnlockDependency(lockedZoneLine.Key, evaluation.BlockingSources, itemVisited);
-            _unlockDepCache[zoneLineKey] = dependency;
-            if (dependency == null)
+            var lockedDependency = BuildUnlockDependency(lockedZoneLine.Key, evaluation.BlockingSources, itemVisited);
+            _unlockDepCache[zoneLineKey] = lockedDependency;
+            if (lockedDependency == null)
                 continue;
-            if (IsUnlockDependencyInfeasible(dependency))
+            if (IsUnlockDependencyInfeasible(lockedDependency))
             {
                 viewNode.IsCycleRef = true;
                 viewNode.UnlockDependency = null;
                 return;
             }
 
-            dependencyRoots.Add(dependency);
+            dependencyRoots.Add(lockedDependency);
         }
 
         if (dependencyRoots.Count == 0)
             return;
 
-        if (dependencyRoots.Count == 1)
-        {
-            viewNode.UnlockDependency = dependencyRoots[0];
-            return;
-        }
+        ViewNode reachabilityDependency = dependencyRoots.Count == 1
+            ? dependencyRoots[0]
+            : BuildAndGroup($"reachability:{viewNode.NodeKey}", dependencyRoots);
 
-        var group = new UnlockGroupNode($"reachability:{viewNode.NodeKey}", "Requires all of");
-        for (int i = 0; i < dependencyRoots.Count; i++)
-            group.Children.Add(dependencyRoots[i]);
-        viewNode.UnlockDependency = group;
+        MergeUnlockDependency(viewNode, reachabilityDependency, $"reachability:{viewNode.NodeKey}");
     }
 
     private void ApplyUnlockDependency(
@@ -658,17 +655,19 @@ public sealed class QuestViewBuilder
         if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
             return;
 
-        viewNode.UnlockDependency = BuildUnlockDependency(targetKey, evaluation.BlockingSources, itemVisited);
-        if (viewNode.UnlockDependency == null)
+        var dependency = BuildUnlockDependency(targetKey, evaluation.BlockingSources, itemVisited);
+        if (dependency == null)
             return;
 
-        if (IsUnlockDependencyInfeasible(viewNode.UnlockDependency))
+        if (IsUnlockDependencyInfeasible(dependency))
         {
             viewNode.IsCycleRef = true;
             viewNode.UnlockDependency = null;
+            return;
         }
-    }
 
+        MergeUnlockDependency(viewNode, dependency, $"unlock:{targetKey}");
+    }
     private ViewNode? BuildUnlockDependency(
         string targetKey,
         IReadOnlyList<Node> blockingSources,
@@ -679,11 +678,49 @@ public sealed class QuestViewBuilder
 
         var group = new UnlockGroupNode($"unlock-group:{targetKey}", "Requires all of");
         for (int i = 0; i < blockingSources.Count; i++)
-        {
             group.Children.Add(BuildUnlockSourceNode(blockingSources[i], itemVisited));
-        }
 
         return group.Children.Count == 0 ? null : group;
+    }
+
+    private static UnlockGroupNode BuildAndGroup(string nodeKey, List<ViewNode> dependencies)
+    {
+        var group = new UnlockGroupNode(nodeKey, "Requires all of");
+        for (int i = 0; i < dependencies.Count; i++)
+            group.Children.Add(dependencies[i]);
+        return group;
+    }
+
+    private static void MergeUnlockDependency(EntityViewNode viewNode, ViewNode dependency, string groupKey)
+    {
+        if (viewNode.UnlockDependency == null)
+        {
+            viewNode.UnlockDependency = dependency;
+            return;
+        }
+
+        var merged = new UnlockGroupNode(groupKey, "Requires all of");
+        if (viewNode.UnlockDependency is UnlockGroupNode existingGroup && existingGroup.Label == "Requires all of")
+        {
+            for (int i = 0; i < existingGroup.Children.Count; i++)
+                merged.Children.Add(existingGroup.Children[i]);
+        }
+        else
+        {
+            merged.Children.Add(viewNode.UnlockDependency);
+        }
+
+        if (dependency is UnlockGroupNode newGroup && newGroup.Label == "Requires all of")
+        {
+            for (int i = 0; i < newGroup.Children.Count; i++)
+                merged.Children.Add(newGroup.Children[i]);
+        }
+        else
+        {
+            merged.Children.Add(dependency);
+        }
+
+        viewNode.UnlockDependency = merged;
     }
 
     private EntityViewNode BuildUnlockSourceNode(Node sourceNode, HashSet<string> itemVisited)
@@ -825,19 +862,13 @@ public sealed class QuestViewBuilder
 
         var viewNode = new EntityViewNode(key, node, edgeType, edge);
 
-        // Check for unsatisfied unlock requirements on any character node,
-        // regardless of edge type (source, step, assignment, etc.).
         if (node.Type == NodeType.Character)
             CheckCharacterUnlock(viewNode, node, itemVisited);
 
-        // Check if this node is in an unreachable zone (locked zone line).
-        // Only check if no character unlock already set (character unlock is
-        // more specific and already explains why the node is blocked).
-        // Reachability is not limited to node.Scene — characters often carry
-        // their scene only on spawn points, so CheckZoneReachability derives
-        // candidate scenes from the node type.
-        if (viewNode.UnlockDependency == null)
-            CheckZoneReachability(viewNode, node, itemVisited);
+        if (node.Type == NodeType.Door)
+            CheckDoorUnlock(viewNode, node, itemVisited);
+
+        CheckZoneReachability(viewNode, node, itemVisited);
 
         // Items need obtainability chains — you must get the item before you
         // can read it, turn it in, use it as a crafting ingredient, etc.

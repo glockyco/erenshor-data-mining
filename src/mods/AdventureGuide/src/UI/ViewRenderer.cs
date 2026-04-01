@@ -168,7 +168,7 @@ public sealed class ViewRenderer
     // ── Recursive node renderer ─────────────────────────────────────────
 
     /// <summary>Render a single dependency tree node with children.</summary>
-    private void DrawNode(ViewNode node, int depth, NodeState questState)
+    private void DrawNode(ViewNode node, int depth, NodeState questState, string? labelPrefix = null)
     {
         if (node is VariantGroupNode vgContainer)
         {
@@ -192,22 +192,19 @@ public sealed class ViewRenderer
             return;
         }
 
-        // When entering a sub-quest node, switch to that quest's state.
         if (entityNode.Node.Type == Graph.NodeType.Quest)
             questState = _state.GetState(entityNode.NodeKey);
 
-        // Single source of truth: classify the edge once, derive all visuals from it.
         var role = FrontierComputer.ClassifyEdge(entityNode, _state, questState);
         string label = FormatLabel(entityNode);
+        if (!string.IsNullOrEmpty(labelPrefix))
+            label = labelPrefix + label;
         uint color = GetNodeColor(entityNode, role);
-        bool hasChildren = entityNode.Children.Count > 0;
-        // Color already communicates state; no prefix glyph needed.
+        bool hasTreeContent = entityNode.Children.Count > 0 || entityNode.UnlockDependency != null;
 
-
-        // NAV button on the left, before the label
         bool navigable = IsNavigable(entityNode.Node);
 
-        if (hasChildren)
+        if (hasTreeContent)
         {
             if (navigable)
             {
@@ -220,9 +217,10 @@ public sealed class ViewRenderer
                 entityNode.DefaultExpanded ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None);
             ImGui.PopStyleColor();
 
-
             if (open)
             {
+                if (entityNode.UnlockDependency != null)
+                    DrawUnlockDependency(entityNode, entityNode.UnlockDependency, depth, questState);
                 DrawChildNodes(entityNode.Children, depth + 1, questState);
                 ImGui.TreePop();
             }
@@ -238,10 +236,6 @@ public sealed class ViewRenderer
             ImGui.BulletText(label);
             ImGui.PopStyleColor();
         }
-
-        // Inline unlock dependency sub-tree when this node is blocked
-        if (entityNode.UnlockDependency != null)
-            DrawUnlockDependency(entityNode, entityNode.UnlockDependency, depth, questState);
     }
 
     private void DrawUnlockDependency(
@@ -258,18 +252,9 @@ public sealed class ViewRenderer
             case EntityViewNode unlockNode:
             {
                 var unlockState = _state.GetState(unlockNode.NodeKey);
-                if (ImGui.TreeNodeEx($"Requires: {unlockNode.Node.DisplayName}###{blockedNode.NodeKey}_{unlockNode.NodeKey}_{depth}",
-                        ImGuiTreeNodeFlags.DefaultOpen))
-                {
-                    ImGui.PopStyleColor();
-                    DrawChildNodes(unlockNode.Children, depth + 1, unlockState);
-                    ImGui.TreePop();
-                }
-                else
-                {
-                    ImGui.PopStyleColor();
-                }
-
+                ImGui.PopStyleColor();
+                string prefix = unlockNode.Node.Type == Graph.NodeType.Door ? "Unlock: " : "Requires: ";
+                DrawNode(unlockNode, depth + 1, unlockState, prefix);
                 break;
             }
             case UnlockGroupNode unlockGroup:
