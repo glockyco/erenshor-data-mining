@@ -730,21 +730,90 @@ public sealed class QuestViewBuilder
             : BuildLeafOrExpand(sourceNode.Key, sourceNode, edgeType: null, edge: null, itemVisited);
     }
 
-    private static bool IsUnlockDependencyInfeasible(ViewNode dependency)
+    private bool IsUnlockDependencyInfeasible(ViewNode dependency) =>
+        IsSupportSubtreeInfeasible(dependency);
+
+    private bool IsSupportSubtreeInfeasible(ViewNode node)
     {
-        if (dependency.IsCycleRef)
+        if (node.IsCycleRef)
             return true;
 
-        if (dependency is UnlockGroupNode group)
+        if (node is UnlockGroupNode unlockGroup)
         {
-            for (int i = 0; i < group.Children.Count; i++)
+            // AND-group: every child must remain viable. If any child is
+            // cyclical/infeasible, the whole requirement is impossible.
+            for (int i = 0; i < unlockGroup.Children.Count; i++)
             {
-                if (IsUnlockDependencyInfeasible(group.Children[i]))
+                if (IsSupportSubtreeInfeasible(unlockGroup.Children[i]))
                     return true;
             }
+
+            return unlockGroup.Children.Count == 0;
         }
 
+        if (node is VariantGroupNode variantGroup)
+        {
+            // OR-group: drop infeasible alternatives and keep the remaining
+            // viable branches, if any.
+            PruneInfeasibleChildren(variantGroup.Children);
+            return variantGroup.Children.Count == 0;
+        }
+
+        var entityNode = (EntityViewNode)node;
+
+        if (entityNode.UnlockDependency != null
+            && IsSupportSubtreeInfeasible(entityNode.UnlockDependency))
+        {
+            return true;
+        }
+
+        if (entityNode.Node.Type == NodeType.Item)
+        {
+            // Item nodes are only actionable when we already have the item or
+            // there is still at least one viable acquisition path beneath them.
+            PruneInfeasibleChildren(entityNode.Children);
+            return !_state.GetState(entityNode.NodeKey).IsSatisfied
+                && entityNode.Children.Count == 0;
+        }
+
+        if (entityNode.Node.Type == NodeType.Quest)
+        {
+            // Support subtrees can prune away every viable prerequisite or
+            // completion path after the initial build. Re-run quest feasibility
+            // on the pruned node so an empty gated quest does not survive as a
+            // dead-end leaf.
+            PruneInfeasibleChildren(entityNode.Children);
+            return !_state.GetState(entityNode.NodeKey).IsSatisfied
+                && IsQuestInfeasible(entityNode, entityNode.NodeKey);
+        }
+
+        if (entityNode.Node.Type == NodeType.Recipe)
+        {
+            // Recipes are AND-nodes over their materials: losing any material
+            // makes the crafting path infeasible.
+            for (int i = 0; i < entityNode.Children.Count; i++)
+            {
+                if (IsSupportSubtreeInfeasible(entityNode.Children[i]))
+                    return true;
+            }
+
+            return entityNode.Children.Count == 0;
+        }
+
+        // Other entity nodes are actionable leaves on their own. Prune any
+        // infeasible descendants, but do not discard the entity itself merely
+        // because it becomes childless.
+        PruneInfeasibleChildren(entityNode.Children);
         return false;
+    }
+
+    private void PruneInfeasibleChildren(List<ViewNode> children)
+    {
+        for (int i = children.Count - 1; i >= 0; i--)
+        {
+            if (IsSupportSubtreeInfeasible(children[i]))
+                children.RemoveAt(i);
+        }
     }
 
     private List<string> CollectReachabilityScenes(Node node)
@@ -883,6 +952,10 @@ public sealed class QuestViewBuilder
             itemVisited.Add(key);
             ExpandItemSources(viewNode, key, itemVisited);
             itemVisited.Remove(key);
+
+            if (IsSupportSubtreeInfeasible(viewNode))
+                return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
+
             _itemCache[key] = viewNode;
         }
 
