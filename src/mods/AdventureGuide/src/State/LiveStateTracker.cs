@@ -27,11 +27,14 @@ public sealed class LiveStateTracker
     private readonly Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
     private MiningNode[] _miningNodes = System.Array.Empty<MiningNode>();
     private ItemBag[] _itemBags = System.Array.Empty<ItemBag>();
+    private Door[] _doors = System.Array.Empty<Door>();
     private readonly Dictionary<PosKey, bool> _miningAvailable = new();
+    private readonly Dictionary<PosKey, bool> _doorClosed = new();
 
     private readonly Dictionary<PosKey, string> _graphSpawnSourcesByPos = new();
     private readonly Dictionary<PosKey, string> _graphMiningSourcesByPos = new();
     private readonly Dictionary<PosKey, string> _graphItemBagSourcesByPos = new();
+    private readonly Dictionary<PosKey, string> _graphDoorSourcesByPos = new();
     private readonly Dictionary<string, List<Node>> _directSpawnNodesByNpcName = new(System.StringComparer.OrdinalIgnoreCase);
 
     public int Version { get; private set; }
@@ -58,8 +61,10 @@ public sealed class LiveStateTracker
         RebuildGraphSourceIndexes();
         _miningNodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
         _itemBags = UnityEngine.Object.FindObjectsOfType<ItemBag>();
+        _doors = UnityEngine.Object.FindObjectsOfType<Door>();
         _isNight = IsNight();
         RebuildMiningAvailability();
+        RebuildDoorStates();
         BumpVersion();
     }
 
@@ -131,6 +136,24 @@ public sealed class LiveStateTracker
             changed = true;
 
             var sourceKey = ResolveMiningSourceKey(mn);
+            if (!string.IsNullOrEmpty(sourceKey))
+                changedSourceKeys.Add(sourceKey);
+        }
+
+        foreach (var door in _doors)
+        {
+            if (door == null)
+                continue;
+
+            var key = NodePosKey(door.transform.position);
+            bool isClosed = door.isClosed && !door.swinging;
+            if (_doorClosed.TryGetValue(key, out var previous) && previous == isClosed)
+                continue;
+
+            _doorClosed[key] = isClosed;
+            changed = true;
+
+            var sourceKey = ResolveDoorSourceKey(door);
             if (!string.IsNullOrEmpty(sourceKey))
                 changedSourceKeys.Add(sourceKey);
         }
@@ -283,6 +306,42 @@ public sealed class LiveStateTracker
         return new ItemBagPickedUp(0f);
     }
 
+    public DoorInfo GetDoorState(Node doorNode)
+    {
+        if (doorNode == null)
+            return new DoorInfo(NodeState.Unknown, null, false);
+
+        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, doorNode.Key));
+
+        var posKey = NodePosKey(doorNode);
+        if (!posKey.HasValue)
+            return new DoorInfo(NodeState.Unknown, null, false);
+
+        Door? closest = null;
+        float closestDist = float.MaxValue;
+        foreach (var door in _doors)
+        {
+            if (door == null)
+                continue;
+
+            float dist = Vector3.Distance(
+                door.transform.position,
+                new Vector3(doorNode.X ?? 0f, doorNode.Y ?? 0f, doorNode.Z ?? 0f));
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = door;
+            }
+        }
+
+        if (closest == null || closestDist > 2f)
+            return new DoorInfo(NodeState.Unknown, null, false);
+
+        return !closest.isClosed || closest.swinging
+            ? new DoorInfo(NodeState.Unlocked, closest, true)
+            : new DoorInfo(NodeState.Unknown, closest, true);
+    }
+
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
     {
         if (!sp.canSpawn)
@@ -368,6 +427,7 @@ public sealed class LiveStateTracker
         _graphSpawnSourcesByPos.Clear();
         _graphMiningSourcesByPos.Clear();
         _graphItemBagSourcesByPos.Clear();
+        _graphDoorSourcesByPos.Clear();
         _directSpawnNodesByNpcName.Clear();
 
         string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
@@ -392,6 +452,10 @@ public sealed class LiveStateTracker
                 case NodeType.ItemBag when posKey.HasValue:
                     if (!_graphItemBagSourcesByPos.ContainsKey(posKey.Value))
                         _graphItemBagSourcesByPos[posKey.Value] = node.Key;
+                    break;
+                case NodeType.Door when posKey.HasValue:
+                    if (!_graphDoorSourcesByPos.ContainsKey(posKey.Value))
+                        _graphDoorSourcesByPos[posKey.Value] = node.Key;
                     break;
             }
         }
@@ -530,6 +594,12 @@ public sealed class LiveStateTracker
         return _graphItemBagSourcesByPos.TryGetValue(key, out var sourceKey) ? sourceKey : null;
     }
 
+    private string? ResolveDoorSourceKey(Door door)
+    {
+        var key = NodePosKey(door.transform.position);
+        return _graphDoorSourcesByPos.TryGetValue(key, out var sourceKey) ? sourceKey : null;
+    }
+
     private string? ResolveNpcSourceKey(NPC npc)
     {
         if (NpcSpawnPointField?.GetValue(npc) is SpawnPoint spawnPoint)
@@ -611,6 +681,18 @@ public sealed class LiveStateTracker
                 continue;
 
             _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
+        }
+    }
+
+    private void RebuildDoorStates()
+    {
+        _doorClosed.Clear();
+        foreach (var door in _doors)
+        {
+            if (door == null)
+                continue;
+
+            _doorClosed[NodePosKey(door.transform.position)] = door.isClosed && !door.swinging;
         }
     }
 
@@ -717,5 +799,19 @@ public readonly struct MiningInfo
     {
         State = state;
         LiveNode = liveNode;
+    }
+}
+
+public readonly struct DoorInfo
+{
+    public readonly NodeState State;
+    public readonly Door? LiveDoor;
+    public readonly bool FoundInScene;
+
+    public DoorInfo(NodeState state, Door? liveDoor, bool foundInScene)
+    {
+        State = state;
+        LiveDoor = liveDoor;
+        FoundInScene = foundInScene;
     }
 }

@@ -141,6 +141,12 @@ public sealed class DoorLocked : NodeState
     public DoorLocked(string keyItemName) => KeyItemName = keyItemName;
 }
 
+public sealed class DoorClosed : NodeState
+{
+    public string? KeyItemName { get; }
+    public DoorClosed(string? keyItemName = null) => KeyItemName = keyItemName;
+}
+
 // ── Fallback ────────────────────────────────────────────────────────────
 
 public sealed class UnknownState : NodeState { }

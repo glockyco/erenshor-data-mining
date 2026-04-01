@@ -41,6 +41,7 @@ internal static class MarkerTextBuilder
             ResolvedActionKind.Kill => "Kill",
             ResolvedActionKind.Read => "Read",
             ResolvedActionKind.Travel => "Travel to",
+            ResolvedActionKind.UnlockDoor => "Unlock",
             ResolvedActionKind.Fish    => "Fish",
             ResolvedActionKind.Mine    => "Mine",
             ResolvedActionKind.Collect => "Collect",

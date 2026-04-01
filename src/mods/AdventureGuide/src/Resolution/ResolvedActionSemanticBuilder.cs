@@ -20,7 +20,7 @@ internal static class ResolvedActionSemanticBuilder
         string? payloadText = BuildPayloadText(graph, requestedNode, goalNode, actionKind);
         string targetIdentityText = targetNode.Node.DisplayName;
         string? contextText = BuildContextText(requestedNode, goalNode, targetNode);
-        string? rationaleText = BuildRationaleText(goalNode, targetNode, goalKind);
+        string? rationaleText = BuildRationaleText(graph, goalNode, targetNode, goalKind);
         string? zoneText = GetZoneText(targetNode);
         var markerType = DetermineActiveMarkerType(requestedNode, goalNode);
 
@@ -130,6 +130,9 @@ internal static class ResolvedActionSemanticBuilder
                 : ResolvedActionKind.Talk;
         }
 
+        if (targetNode.Node.Type == NodeType.Door)
+            return ResolvedActionKind.UnlockDoor;
+
         return targetNode.EdgeType switch
         {
             EdgeType.StepTalk or EdgeType.AssignedBy or EdgeType.GivesItem
@@ -181,6 +184,7 @@ internal static class ResolvedActionSemanticBuilder
     }
 
     private static string? BuildRationaleText(
+        EntityGraph graph,
         EntityViewNode goalNode,
         EntityViewNode targetNode,
         NavigationGoalKind goalKind)
@@ -189,6 +193,12 @@ internal static class ResolvedActionSemanticBuilder
             && goalNode.EdgeType == targetNode.EdgeType;
         if (sameTarget)
             return null;
+
+        if (targetNode.Node.Type == NodeType.Door && !string.IsNullOrEmpty(targetNode.Node.KeyItemKey))
+        {
+            string keyName = graph.GetNode(targetNode.Node.KeyItemKey!)?.DisplayName ?? targetNode.Node.KeyItemKey!;
+            return $"Requires {keyName}";
+        }
 
         if (goalKind == NavigationGoalKind.CollectItem)
         {

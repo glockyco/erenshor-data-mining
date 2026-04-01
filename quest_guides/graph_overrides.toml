@@ -8,34 +8,39 @@
 
 # ── Stowaway's Step ─────────────────────────────────────────────────────
 
+# Stowaway Step Lighthouse Key door blocks the Tutorial lighthouse zone line
+# and the Occuphage character (Lighthouse Demon) behind it.
 [[edges]]
-source = "item:key - stowaway step lighthouse key"
+source = "door:stowaway:799.94:21.48:587.86"
 target = "zoneline:stowaway:tutorial:808.08:14.08:592.64"
 type = "unlocks_zone_line"
 
 [[edges]]
-source = "item:key - stowaway step lighthouse key"
+source = "door:stowaway:799.94:21.48:587.86"
 target = "character:lighthouse demon:tutorial:-64.96:22.26:149.12"
 type = "unlocks_character"
 note = "Occuphage in Island Tomb requires the lighthouse key to reach"
 
+# Crypt Key door blocks the Shivering Step zone line (Halloween Event).
 [[edges]]
-source = "item:key - crypt key"
+source = "door:stowaway:592.34:41.00:671.24"
 target = "zoneline:stowaway:shiveringstep:592.39:41.07:672.77"
 type = "unlocks_zone_line"
 note = "Shivering Key (Halloween Event) required for this zone transition"
 
 # ── Shivering Step ──────────────────────────────────────────────────────
 
+# Ghostly Key door in Island Tomb blocks Ghost of Wylan Sercher.
 [[edges]]
-source = "item:key - ghostly key"
+source = "door:tutorial:114.41:-1.78:-2.48"
 target = "character:ghost of wylan sercher"
 type = "unlocks_character"
 
 # ── Braxonian Desert ────────────────────────────────────────────────────
 
+# Ancient Braxonian Key door (one of two double-doors) blocks the zone line.
 [[edges]]
-source = "item:key -  ancient braxonian key"
+source = "door:braxonian:1059.53:89.37:579.35"
 target = "zoneline:braxonian:braxonia:1120.23:92.99:568.02"
 type = "unlocks_zone_line"
 
@@ -63,9 +68,9 @@ source = "quest:jawspiety"
 target = "character:siraethe"
 type = "unlocks_character"
 
-# Sableheart requires Sableheart's Key
+# Sableheart's Key door blocks Sablehart.
 [[edges]]
-source = "item:key - sableheart's key"
+source = "door:jaws:1641.85:-35.59:-0.65"
 target = "character:sablehart"
 type = "unlocks_character"
 
@@ -146,22 +151,25 @@ target = "character:shiverman"
 type = "unlocks_character"
 note = "ShiverEvent.cs: SpawnTriggers activate during Phase 2 darkness"
 
-# ── Shivering Tomb character unlock gates ────────────────────────────────────
+# ── Shivering Tomb character unlock gates ──────────────────────────────────────────────
 
+# Shadowed Key door (one of two double-doors) blocks the Warded Phantom room.
 [[edges]]
-source = "item:key - shadowed key"
+source = "door:shiveringtomb2:-75.71:-61.28:152.32"
 target = "character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89"
 type = "unlocks_character"
 note = "Shadowed Key doors gate access to the Warded Shadow room"
 
+# Dockhouse Key door blocks access to Founder.
 [[edges]]
-source = "item:key - dockhouse key"
+source = "door:shiveringstep:719.29:23.41:506.51"
 target = "character:founder:shiveringstep:705.22:21.11:506.71"
 type = "unlocks_character"
 note = "Dockhouse Key required to enter the dockhouse and reach Founder"
 
+# Shivering Step Lighthouse Key 1 door blocks the Lighthouse Flame (furnace).
 [[edges]]
-source = "item:key - shivering step lighthouse key 1"
+source = "door:shiveringstep:799.86:21.62:587.79"
 target = "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50"
 type = "unlocks_character"
 note = "Lighthouse Key required to reach Lighthouse Flame"

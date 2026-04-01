@@ -121,6 +121,9 @@ public sealed class UnlockEvaluator
             case NodeType.Character:
                 edgeType = EdgeType.UnlocksCharacter;
                 return true;
+            case NodeType.Door:
+                edgeType = EdgeType.UnlocksDoor;
+                return true;
             default:
                 edgeType = default;
                 return false;

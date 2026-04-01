@@ -139,7 +139,7 @@ public sealed class Plugin : BaseUnityPlugin
         _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
         _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
         _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver(_liveState));
-        _gameState.Register(NodeType.Door, new DoorStateResolver(_graph, _questTracker));
+        _gameState.Register(NodeType.Door, new DoorStateResolver(_graph, _questTracker, _liveState));
 
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);

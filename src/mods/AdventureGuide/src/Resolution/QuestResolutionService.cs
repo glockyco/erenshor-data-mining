@@ -314,23 +314,34 @@ public sealed class QuestResolutionService
             var blockingSource = blocking[i];
             if (blockingSource.Type == NodeType.Quest)
             {
-                // Complete the blocking quest first.
                 var blockingResolution = ResolveQuest(blockingSource.Key);
                 foreach (var t in blockingResolution.Targets)
                     results.Add(new ResolvedQuestTarget(
                         questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
                         t.Position, t.IsActionable));
+                continue;
             }
-            else
+
+            if (blockingSource.Type == NodeType.Door)
             {
-                // Door, item, or other blocking source — resolve its position.
-                var blockingViewNode = new EntityViewNode(blockingSource.Key, blockingSource);
-                var positions = _positionCache.Resolve(blockingSource.Key);
-                for (int j = 0; j < positions.Length; j++)
-                    AddResolvedTargetDirect(results, seen, questKey,
-                        frontierNode, blockingViewNode, positions[j], requestedNode);
+                var doorState = _gameState.GetState(blockingSource.Key);
+                if (doorState is DoorLocked)
+                {
+                    var doorEvaluation = _unlocks.Evaluate(blockingSource);
+                    if (!doorEvaluation.IsUnlocked)
+                    {
+                        ResolveBlockedTargets(questKey, frontierNode, requestedNode, doorEvaluation, results, seen);
+                        continue;
+                    }
+                }
             }
+
+            var blockingViewNode = new EntityViewNode(blockingSource.Key, blockingSource);
+            var positions = _positionCache.Resolve(blockingSource.Key);
+            for (int j = 0; j < positions.Length; j++)
+                AddResolvedTargetDirect(results, seen, questKey,
+                    frontierNode, blockingViewNode, positions[j], requestedNode);
         }
     }
 

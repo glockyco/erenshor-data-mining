@@ -69,6 +69,7 @@ public enum ResolvedActionKind
     Kill,
     Read,
     Travel,
+    UnlockDoor,
     Fish,
     Mine,
     Collect,
