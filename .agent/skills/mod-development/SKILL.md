@@ -137,9 +137,11 @@ generic + adapter pattern to test core logic without Unity runtime.
 
 - Run `erenshor mod dev-setup` once to install ScriptEngine + ConfigurationManager
 - `erenshor mod deploy --mod <id> --scripts` copies DLL + PDB to `BepInEx/scripts/`
-- Press F6 in game to reload. Press F1 for in-game config editor.
-- Mod must implement `OnDestroy()` that unpatches Harmony and removes event handlers.
-- Full cycle: `mod build --mod <id>` → `mod deploy --mod <id> --scripts` → F6
+- Trigger ScriptEngine reload through HotRepl using the `runtime-eval` skill's
+  `ReloadPlugins` reflection snippet
+- Press F1 for in-game config editor when ConfigurationManager is installed
+- Mod must implement `OnDestroy()` that unpatches Harmony and removes event handlers
+- Full cycle: `mod deploy --mod <id> --scripts` → HotRepl `ReloadPlugins` call
 
 ## Runtime Debugging
 

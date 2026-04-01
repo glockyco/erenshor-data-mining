@@ -61,6 +61,40 @@ state.GetType().GetProperty("CurrentZone").GetValue(state)
 '
 ```
 
+## Triggering ScriptEngine hot reload
+
+After `erenshor mod deploy --mod <id> --scripts`, trigger ScriptEngine
+directly through HotRepl:
+
+```bash
+uv run erenshor eval run '
+var asm = AppDomain.CurrentDomain.GetAssemblies()
+    .First(a => a.GetName().Name == "ScriptEngine");
+var type = asm.GetType("ScriptEngine.ScriptEngine");
+var inst = UnityEngine.Object.FindObjectsOfTypeAll(type).First();
+type.GetMethod(
+    "ReloadPlugins",
+    System.Reflection.BindingFlags.Instance
+        | System.Reflection.BindingFlags.Public
+        | System.Reflection.BindingFlags.NonPublic)
+    .Invoke(inst, null);
+"reloaded"
+'
+```
+
+Why this shape matters:
+- `FindObjectOfType(type)` can return null for the ScriptEngine singleton
+- `FindObjectsOfTypeAll(type).First()` finds the `BepInEx_Manager` instance
+- `ReloadPlugins` is an instance method, not static
+
+After the reload, check `BepInEx/LogOutput.log` for:
+- `Script Engine] Reloaded all plugins!`
+- your mod's startup log block
+- any reload-time exceptions
+
+HotRepl auto-resets its evaluator session after ScriptEngine reload, so the
+connection dropping and reconnecting once is expected.
+
 ## AdventureGuide DebugAPI
 
 For AdventureGuide inspection, **prefer DebugAPI over raw reflection**. DebugAPI
