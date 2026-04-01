@@ -13,7 +13,12 @@ public sealed class DirectPositionResolver : IPositionResolver
     public void Resolve(Node node, List<ResolvedPosition> results)
     {
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-            results.Add(new ResolvedPosition(new Vector3(node.X.Value, node.Y.Value, node.Z.Value), node.Scene));
+        {
+            results.Add(new ResolvedPosition(
+                new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                node.Scene,
+                node.Key));
+        }
     }
 
     /// <summary>

@@ -23,6 +23,7 @@ public sealed class QuestResolutionService
     private readonly SourcePositionCache _positionCache;
     private readonly UnlockEvaluator _unlocks;
     private readonly ZoneRouter _router;
+    private readonly ZoneAccessResolver _zoneAccess;
 
     private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
@@ -50,6 +51,7 @@ public sealed class QuestResolutionService
         _positionCache = positionCache;
         _unlocks = unlocks;
         _router = router;
+        _zoneAccess = new ZoneAccessResolver(graph, tracker, unlocks, router);
     }
 
     public GuideChangeSet ApplyChangeSet(GuideChangeSet changeSet)
@@ -191,7 +193,7 @@ public sealed class QuestResolutionService
 
         if (requestedNode.Type is NodeType.Item or NodeType.Recipe)
         {
-            ResolveItemTargetsFromBlueprint(nodeKey, goalContext, requestedNode, results, seen);
+            ResolveItemTargetsFromBlueprint(nodeKey, goalContext, requestedNode, results, seen, plan);
             return results;
         }
 
@@ -207,7 +209,7 @@ public sealed class QuestResolutionService
 
         var positions = _positionCache.Resolve(requestedNode.Key);
         for (int i = 0; i < positions.Length; i++)
-            AddResolvedTargetDirect(results, seen, nodeKey, goalContext, goalContext, positions[i], requestedNode);
+            AddResolvedTargetDirect(results, seen, nodeKey, goalContext, goalContext, positions[i], requestedNode, plan);
 
         return results;
     }
@@ -262,7 +264,7 @@ public sealed class QuestResolutionService
             if (nodeType is NodeType.Item or NodeType.Recipe)
             {
                 ResolveItemTargetsFromBlueprint(
-                    questKey, goalContext, requestedNode, results, seen);
+                    questKey, goalContext, requestedNode, results, seen, projection.Plan);
                 continue;
             }
 
@@ -290,7 +292,7 @@ public sealed class QuestResolutionService
             var positions = _positionCache.Resolve(frontierNode.NodeKey);
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(results, seen, questKey,
-                    goalContext, goalContext, positions[j], requestedNode);
+                    goalContext, goalContext, positions[j], requestedNode, projection.Plan);
         }
 
         return results;
@@ -303,7 +305,7 @@ public sealed class QuestResolutionService
         UnlockEvaluation evaluation,
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
-        QuestPlan plan)
+        QuestPlan? plan)
     {
         var blocking = evaluation.BlockingSources;
         for (int i = 0; i < blocking.Count; i++)
@@ -324,7 +326,7 @@ public sealed class QuestResolutionService
             {
                 var itemContext = CreateContext(blockingSource, plan);
                 ResolveItemTargetsFromBlueprint(
-                    questKey, itemContext, requestedNode, results, seen);
+                    questKey, itemContext, requestedNode, results, seen, plan);
                 continue;
             }
 
@@ -346,7 +348,7 @@ public sealed class QuestResolutionService
             var positions = _positionCache.Resolve(blockingSource.Key);
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, blockingContext, positions[j], requestedNode);
+                    frontierNode, blockingContext, positions[j], requestedNode, plan);
         }
     }
 
@@ -355,7 +357,8 @@ public sealed class QuestResolutionService
         ResolvedNodeContext frontierNode,
         Node requestedNode,
         List<ResolvedQuestTarget> results,
-        HashSet<string> seen)
+        HashSet<string> seen,
+        QuestPlan? plan)
     {
         var sources = _sourceIndex.GetSourcesForItem(frontierNode.NodeKey);
         if (sources.Count == 0)
@@ -391,8 +394,40 @@ public sealed class QuestResolutionService
             var targetContext = CreateContext(sourceNode, source.AcquisitionEdge, plan: null);
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, targetContext, positions[j], requestedNode);
+                    frontierNode, targetContext, positions[j], requestedNode, plan);
         }
+    }
+    private bool TryResolveBlockedRoute(
+        List<ResolvedQuestTarget> results,
+        HashSet<string> seen,
+        string questKey,
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode,
+        ResolvedPosition pos,
+        Node requestedNode,
+        QuestPlan? plan)
+    {
+        var blockedRoute = _zoneAccess.FindBlockedRoute(GetBlockedRouteScene(targetNode, pos));
+        if (blockedRoute == null)
+            return false;
+
+        ResolveBlockedTargets(
+            questKey,
+            goalNode,
+            requestedNode,
+            blockedRoute.Evaluation,
+            results,
+            seen,
+            plan);
+        return true;
+    }
+
+    private static string? GetBlockedRouteScene(ResolvedNodeContext targetNode, ResolvedPosition pos)
+    {
+        if (targetNode.Node.Type == NodeType.Zone && !string.IsNullOrEmpty(targetNode.Node.Scene))
+            return targetNode.Node.Scene;
+
+        return pos.Scene ?? targetNode.Node.Scene;
     }
 
     private void AddResolvedTargetDirect(
@@ -402,8 +437,12 @@ public sealed class QuestResolutionService
         ResolvedNodeContext goalNode,
         ResolvedNodeContext targetNode,
         ResolvedPosition pos,
-        Node requestedNode)
+        Node requestedNode,
+        QuestPlan? plan)
     {
+        if (TryResolveBlockedRoute(results, seen, questKey, goalNode, targetNode, pos, requestedNode, plan))
+            return;
+
         string dedupeKey = string.Join("|", new[]
         {
             questKey,

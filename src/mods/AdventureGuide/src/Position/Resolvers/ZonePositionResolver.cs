@@ -35,7 +35,8 @@ public sealed class ZonePositionResolver : IPositionResolver
             {
                 results.Add(new ResolvedPosition(
                     new Vector3(zoneLine.X.Value, zoneLine.Y.Value, zoneLine.Z.Value),
-                    zoneLine.Scene));
+                    zoneLine.Scene,
+                    zoneLine.Key));
             }
         }
 
@@ -51,7 +52,8 @@ public sealed class ZonePositionResolver : IPositionResolver
 
                 results.Add(new ResolvedPosition(
                     new Vector3(zoneLine.X.Value, zoneLine.Y.Value, zoneLine.Z.Value),
-                    zoneLine.Scene));
+                    zoneLine.Scene,
+                    zoneLine.Key));
             }
         }
     }
