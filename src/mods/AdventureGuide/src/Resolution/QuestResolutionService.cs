@@ -1,5 +1,4 @@
 using AdventureGuide.Plan;
-using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Position;
@@ -26,7 +25,6 @@ public sealed class QuestResolutionService
     private readonly UnlockEvaluator _unlocks;
     private readonly ZoneRouter _router;
 
-    private readonly Dictionary<string, QuestStructure> _structureCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
@@ -64,9 +62,8 @@ public sealed class QuestResolutionService
 
         if (changeSet.SceneChanged)
         {
-            if (_structureCache.Count > 0 || _planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0)
+            if (_planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0)
             {
-                _structureCache.Clear();
                 _planCache.Clear();
                 _planProjectionCache.Clear();
                 _targetCache.Clear();
@@ -78,40 +75,29 @@ public sealed class QuestResolutionService
             return changeSet;
         }
 
-        var structureInvalidations = new HashSet<string>(StringComparer.Ordinal);
         var targetInvalidations = new HashSet<string>(changeSet.AffectedQuestKeys, StringComparer.Ordinal);
-
-        bool staticStructureChange = changeSet.InventoryChanged || changeSet.QuestLogChanged;
+        bool planChange = changeSet.InventoryChanged || changeSet.QuestLogChanged || changeSet.LiveWorldChanged;
 
         foreach (var derivedKey in _dependencies.InvalidateFacts(changeSet.ChangedFacts))
         {
             switch (derivedKey.Kind)
             {
                 case GuideDerivedKind.QuestStructure:
-                    structureInvalidations.Add(derivedKey.Key);
-                    targetInvalidations.Add(derivedKey.Key);
-                    break;
                 case GuideDerivedKind.QuestTargets:
                     targetInvalidations.Add(derivedKey.Key);
                     break;
             }
         }
 
-        if (staticStructureChange)
-            structureInvalidations.UnionWith(changeSet.AffectedQuestKeys);
+        if (planChange)
+            targetInvalidations.UnionWith(changeSet.AffectedQuestKeys);
 
         bool removedAny = false;
-        foreach (var questKey in structureInvalidations)
-        {
-            removedAny |= _structureCache.Remove(questKey);
-            removedAny |= _planCache.Remove(questKey);
-            removedAny |= _planProjectionCache.Remove(questKey);
-        }
-
         foreach (var questKey in targetInvalidations)
         {
-            removedAny |= _targetCache.Remove(questKey);
+            removedAny |= _planCache.Remove(questKey);
             removedAny |= _planProjectionCache.Remove(questKey);
+            removedAny |= _targetCache.Remove(questKey);
         }
 
 
@@ -141,7 +127,6 @@ public sealed class QuestResolutionService
 
     public QuestResolution ResolveQuest(string questKey)
     {
-        var structure = ResolveStructure(questKey);
         var projection = GetQuestPlanProjection(questKey);
         var questNode = _graph.GetNode(questKey);
         var targets = ResolveTargets(questKey, projection, questNode);
@@ -152,13 +137,6 @@ public sealed class QuestResolutionService
             projection,
             targets,
             trackerSummary);
-    }
-
-    /// <summary>Returns the cached view tree for UI rendering. Only call from UI code.</summary>
-    public ViewNode? GetViewTree(string questKey)
-    {
-        _structureCache.TryGetValue(questKey, out var cached);
-        return cached.ViewRoot;
     }
 
     /// <summary>Returns the cached canonical plan, building it on first access.</summary>
@@ -211,35 +189,6 @@ public sealed class QuestResolutionService
         }
     }
 
-    private QuestStructure ResolveStructure(string questKey)
-    {
-        if (_structureCache.TryGetValue(questKey, out var cached))
-            return cached;
-
-        using (_dependencies.BeginCollection(new GuideDerivedKey(GuideDerivedKind.QuestStructure, questKey)))
-        {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var root = _viewBuilder.Build(questKey);
-            var buildMs = sw.Elapsed.TotalMilliseconds;
-            sw.Restart();
-            var frontier = root != null
-                ? FrontierComputer.ComputeFrontier(root, _gameState)
-                : new List<EntityViewNode>();
-            var frontierMs = sw.Elapsed.TotalMilliseconds;
-
-            if (buildMs + frontierMs >= 5.0)
-            {
-                var quest = _graph.GetNode(questKey);
-                Plugin.Log.LogInfo(
-                    $"Structure cold: {quest?.DisplayName ?? questKey}"
-                    + $" build={buildMs:F1}ms frontier={frontierMs:F1}ms");
-            }
-
-            var structure = new QuestStructure(root, frontier);
-            _structureCache[questKey] = structure;
-            return structure;
-        }
-    }
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveTargets(
         string questKey,
@@ -325,93 +274,6 @@ public sealed class QuestResolutionService
         return results;
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolveTargets(
-        string questKey,
-        IReadOnlyList<EntityViewNode> frontier,
-        Node? requestedNode)
-    {
-        if (_targetCache.TryGetValue(questKey, out var cached))
-            return cached;
-
-        using (_dependencies.BeginCollection(new GuideDerivedKey(GuideDerivedKind.QuestTargets, questKey)))
-        {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var targets = BuildTargets(questKey, frontier, requestedNode);
-            sw.Stop();
-            if (sw.Elapsed.TotalMilliseconds >= 5.0)
-            {
-                var quest = _graph.GetNode(questKey);
-                Plugin.Log.LogInfo(
-                    $"Targets cold: {quest?.DisplayName ?? questKey}"
-                    + $" {sw.Elapsed.TotalMilliseconds:F1}ms"
-                    + $" frontier={frontier.Count} targets={targets.Count}");
-            }
-            _targetCache[questKey] = targets;
-            return targets;
-        }
-    }
-
-    private IReadOnlyList<ResolvedQuestTarget> BuildTargets(
-        string questKey,
-        IReadOnlyList<EntityViewNode> frontier,
-        Node? requestedNode)
-    {
-        if (frontier.Count == 0 || requestedNode == null)
-            return Array.Empty<ResolvedQuestTarget>();
-
-        var results = new List<ResolvedQuestTarget>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        for (int i = 0; i < frontier.Count; i++)
-        {
-            var frontierNode = frontier[i];
-            var nodeType = frontierNode.Node.Type;
-
-            // Item/Recipe frontier nodes are the expensive case: they recurse
-            // into potentially hundreds of source children. Use the pre-compiled
-            // source index instead of walking the view tree.
-            if (nodeType is NodeType.Item or NodeType.Recipe)
-            {
-                ResolveItemTargetsFromBlueprint(
-                    questKey, frontierNode, requestedNode, results, seen);
-                continue;
-            }
-
-            // Prerequisite quests: recursively resolve their targets and re-attribute
-            // to the current quest so navigation reaches the next actionable step.
-            if (nodeType == NodeType.Quest)
-            {
-                var prereqResolution = ResolveQuest(frontierNode.NodeKey);
-                foreach (var t in prereqResolution.Targets)
-                    results.Add(new ResolvedQuestTarget(
-                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
-                        t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.Position, t.IsActionable));
-                continue;
-            }
-
-            // Characters and zone lines may be unlock-gated. When blocked,
-            // redirect navigation to the blocking requirement instead.
-            if (nodeType is NodeType.Character or NodeType.ZoneLine)
-            {
-                var eval = _unlocks.Evaluate(frontierNode.Node);
-                if (!eval.IsUnlocked)
-                {
-                    ResolveBlockedTargets(questKey, frontierNode, requestedNode, eval, results, seen);
-                    continue;
-                }
-            }
-
-            // All remaining types (Zone, ZoneLine when unlocked, etc.) resolve
-            // directly via the position cache.
-            var positions = _positionCache.Resolve(frontierNode.NodeKey);
-            for (int j = 0; j < positions.Length; j++)
-                AddResolvedTargetDirect(results, seen, questKey,
-                    frontierNode, frontierNode, positions[j], requestedNode);
-        }
-
-        return results;
-    }
 
     private void ResolveBlockedTargets(
         string questKey,
@@ -864,17 +726,5 @@ public sealed class QuestResolutionService
             node.Key,
             node,
             edgeType);
-    }
-
-    private readonly struct QuestStructure
-    {
-        public readonly ViewNode? ViewRoot;
-        public readonly IReadOnlyList<EntityViewNode> Frontier;
-
-        public QuestStructure(ViewNode? viewRoot, IReadOnlyList<EntityViewNode> frontier)
-        {
-            ViewRoot = viewRoot;
-            Frontier = frontier;
-        }
     }
 }
