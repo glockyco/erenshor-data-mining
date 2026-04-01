@@ -210,6 +210,7 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Router = _zoneRouter;
         DebugAPI.Resolution = _resolutionService;
         DebugAPI.Markers = _markerComputer;
+        DebugAPI.GameStateInstance = _gameState;
 
         // --- Harmony patches ---
         QuestAssignPatch.Tracker = _questTracker;
@@ -474,6 +475,7 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Router = null;
         DebugAPI.Resolution = null;
         DebugAPI.Markers = null;
+        DebugAPI.GameStateInstance = null;
     }
 
     private static float DetectUiScale()

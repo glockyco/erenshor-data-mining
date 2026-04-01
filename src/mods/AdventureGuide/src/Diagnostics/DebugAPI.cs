@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
@@ -29,6 +30,7 @@ public static class DebugAPI
     internal static ZoneRouter? Router { get; set; }
     internal static QuestResolutionService? Resolution { get; set; }
     internal static MarkerComputer? Markers { get; set; }
+    internal static GameState? GameStateInstance { get; set; }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
@@ -308,5 +310,91 @@ public static class DebugAPI
 
         sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
         return sb.ToString();
+    }
+
+    // ── Node-state classification ─────────────────────────────────────
+
+    private static readonly NodeType[] SnapshotNodeTypes =
+    {
+        NodeType.Character, NodeType.SpawnPoint, NodeType.MiningNode,
+        NodeType.ItemBag, NodeType.Door,
+    };
+
+    private static string ClassifyState(NodeState state) => state switch
+    {
+        SpawnAlive          => "alive",
+        SpawnDead           => "dead",
+        SpawnDisabled       => "disabled",
+        SpawnNightLocked    => "night_locked",
+        SpawnUnlockBlocked  => "unlock_blocked",
+        MiningAvailable     => "mine_available",
+        MiningMined         => "mine_mined",
+        ItemBagAvailable    => "bag_available",
+        ItemBagPickedUp     => "bag_picked_up",
+        ItemBagGone         => "bag_gone",
+        DoorUnlocked        => "door_unlocked",
+        DoorLocked          => "door_locked",
+        DoorClosed          => "door_closed",
+        UnknownState        => "unknown",
+        _                   => "unknown",
+    };
+
+    // ── Snapshot export ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Capture a full pipeline-relevant state snapshot and write it to disk.
+    /// Returns the output file path, or an error string if the mod is not initialized.
+    /// </summary>
+    public static string ExportStateSnapshot()
+    {
+        if (State == null || Graph == null || GameStateInstance == null)
+            return "Not initialized";
+
+        var zone = State.CurrentZone;
+
+        // Keyring — private field, reflect once per call
+        var keyringField = typeof(QuestStateTracker)
+            .GetField("_keyringItemKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+        var keyring = keyringField?.GetValue(State) as HashSet<string>;
+
+        // Live node states for resolver-registered types in current scene
+        var liveStates = new Dictionary<string, LiveNodeState>();
+        foreach (var nodeType in SnapshotNodeTypes)
+        {
+            foreach (var node in Graph.NodesOfType(nodeType))
+            {
+                if (!string.Equals(node.Scene, zone, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var ns = GameStateInstance.GetState(node.Key);
+                liveStates[node.Key] = new LiveNodeState
+                {
+                    State = ClassifyState(ns),
+                    IsSatisfied = ns.IsSatisfied,
+                };
+            }
+        }
+
+        var snapshot = new StateSnapshot
+        {
+            CapturedAt = DateTime.UtcNow.ToString("o"),
+            CurrentZone = zone,
+            ActiveQuests = new List<string>(State.ActiveQuests),
+            CompletedQuests = new List<string>(State.CompletedQuests),
+            Inventory = new Dictionary<string, int>(State.InventoryCounts),
+            Keyring = keyring != null ? new List<string>(keyring) : new List<string>(),
+            LiveNodeStates = liveStates,
+        };
+
+        var dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "state-snapshots");
+        Directory.CreateDirectory(dir);
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+        var filePath = Path.Combine(dir, $"{zone}_{timestamp}.json");
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(snapshot, Newtonsoft.Json.Formatting.Indented);
+        File.WriteAllText(filePath, json);
+
+        return filePath;
     }
 }
