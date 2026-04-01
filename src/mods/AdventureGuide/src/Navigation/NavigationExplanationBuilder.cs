@@ -1,6 +1,5 @@
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
-using AdventureGuide.Views;
 
 namespace AdventureGuide.Navigation;
 
@@ -8,8 +7,8 @@ public static class NavigationExplanationBuilder
 {
     public static NavigationExplanation Build(
         ResolvedActionSemantic semantic,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode)
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode)
     {
         string primary = BuildArrowPrimary(semantic, targetNode);
         string? secondary = BuildArrowSecondary(semantic, primary);
@@ -29,8 +28,8 @@ public static class NavigationExplanationBuilder
 
     public static NavigationExplanation BuildCorpseExplanation(
         ResolvedActionSemantic semantic,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode)
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode)
     {
         string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
         string primary = $"Loot {payload}";
@@ -49,7 +48,7 @@ public static class NavigationExplanationBuilder
     }
 
     public static TrackerSummary BuildTrackerSummary(
-        EntityViewNode frontierNode,
+        ResolvedNodeContext frontierNode,
         ResolvedActionSemantic semantic,
         QuestStateTracker tracker,
         int additionalCount,
@@ -63,7 +62,7 @@ public static class NavigationExplanationBuilder
         return new TrackerSummary(primary, secondary);
     }
 
-    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, EntityViewNode targetNode)
+    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, ResolvedNodeContext targetNode)
     {
         return semantic.ActionKind switch
         {
@@ -74,14 +73,14 @@ public static class NavigationExplanationBuilder
             ResolvedActionKind.Talk => $"Talk to {semantic.TargetIdentityText}",
             ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
             ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
-            ResolvedActionKind.Kill when targetNode.Edge?.Quantity is int quantity && quantity > 1
+            ResolvedActionKind.Kill when targetNode.Quantity is int quantity && quantity > 1
                 => $"Kill {semantic.TargetIdentityText} ({quantity})",
             ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
             ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
             ResolvedActionKind.Travel => $"Go to {semantic.TargetIdentityText}",
             ResolvedActionKind.UnlockDoor => $"Unlock {semantic.TargetIdentityText}",
-            ResolvedActionKind.Fish    => semantic.TargetIdentityText,
-            ResolvedActionKind.Mine    => $"Mine {semantic.TargetIdentityText}",
+            ResolvedActionKind.Fish => semantic.TargetIdentityText,
+            ResolvedActionKind.Mine => $"Mine {semantic.TargetIdentityText}",
             ResolvedActionKind.Collect => semantic.TargetIdentityText,
             ResolvedActionKind.Buy => $"Buy from {semantic.TargetIdentityText}",
             ResolvedActionKind.CompleteQuest => $"Complete {semantic.TargetIdentityText}",
@@ -146,8 +145,8 @@ public static class NavigationExplanationBuilder
             ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
             ResolvedActionKind.Travel => $"Go to {semantic.TargetIdentityText}",
             ResolvedActionKind.UnlockDoor => $"Unlock {semantic.TargetIdentityText}",
-            ResolvedActionKind.Fish    => semantic.TargetIdentityText,
-            ResolvedActionKind.Mine    => $"Mine {semantic.TargetIdentityText}",
+            ResolvedActionKind.Fish => semantic.TargetIdentityText,
+            ResolvedActionKind.Mine => $"Mine {semantic.TargetIdentityText}",
             ResolvedActionKind.Collect => semantic.TargetIdentityText,
             ResolvedActionKind.Buy => $"Buy from {semantic.TargetIdentityText}",
             ResolvedActionKind.CompleteQuest => $"Complete {semantic.TargetIdentityText}",
@@ -156,7 +155,7 @@ public static class NavigationExplanationBuilder
     }
 
     private static string? BuildTrackerSecondary(
-        EntityViewNode frontierNode,
+        ResolvedNodeContext frontierNode,
         ResolvedActionSemantic semantic,
         string primary,
         string? prerequisiteQuestName)
@@ -166,13 +165,6 @@ public static class NavigationExplanationBuilder
             && !string.Equals(semantic.RationaleText, primary, System.StringComparison.OrdinalIgnoreCase))
         {
             return semantic.RationaleText;
-        }
-
-        var blockingRequirement = FindBlockingRequirement(frontierNode);
-        if (blockingRequirement != null)
-        {
-            string secondary = $"Needed for {blockingRequirement.Node.DisplayName}";
-            return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
         }
 
         if (!string.IsNullOrEmpty(prerequisiteQuestName))
@@ -189,58 +181,6 @@ public static class NavigationExplanationBuilder
 
         string neededFor = $"Needed for {frontierNode.Node.DisplayName}";
         return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase) ? null : neededFor;
-    }
-
-    private static EntityViewNode? FindBlockingRequirement(ViewNode node)
-    {
-        if (node is VariantGroupNode variantGroup)
-        {
-            // Variant containers have no unlock dependency. Recurse into
-            // children to check if item sources are blocked.
-            EntityViewNode? firstBlocker = null;
-            for (int i = 0; i < variantGroup.Children.Count; i++)
-            {
-                if (variantGroup.Children[i].IsCycleRef) continue;
-                var found = FindBlockingRequirement(variantGroup.Children[i]);
-                if (found == null) return null;
-                firstBlocker ??= found;
-            }
-            return firstBlocker;
-        }
-
-        if (node is UnlockGroupNode unlockGroup)
-        {
-            // AND group: all children must be satisfied. Accumulate the first
-            // blocker found; do NOT short-circuit on null (a satisfied child
-            // does not clear the remaining unsatisfied ones).
-            EntityViewNode? firstBlocker = null;
-            for (int i = 0; i < unlockGroup.Children.Count; i++)
-            {
-                if (unlockGroup.Children[i].IsCycleRef) continue;
-                firstBlocker ??= FindBlockingRequirement(unlockGroup.Children[i]);
-            }
-            return firstBlocker;
-        }
-
-        var entityNode = (EntityViewNode)node;
-        if (entityNode.UnlockDependency is EntityViewNode unlockNode)
-            return unlockNode;
-        if (entityNode.UnlockDependency is UnlockGroupNode unlockDependencyGroup)
-            return FindBlockingRequirement(unlockDependencyGroup);
-
-        if (entityNode.Children.Count == 0)
-            return null;
-
-        EntityViewNode? firstChildBlocker = null;
-        for (int i = 0; i < entityNode.Children.Count; i++)
-        {
-            var child = entityNode.Children[i];
-            if (child.IsCycleRef) continue;
-            var found = FindBlockingRequirement(child);
-            if (found == null) return null;
-            firstChildBlocker ??= found;
-        }
-        return firstChildBlocker;
     }
 
     private static string AppendZone(string text, string? zoneText) =>

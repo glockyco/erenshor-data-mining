@@ -1,7 +1,6 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
-using AdventureGuide.Views;
 
 namespace AdventureGuide.Resolution;
 
@@ -10,13 +9,13 @@ internal static class ResolvedActionSemanticBuilder
     public static ResolvedActionSemantic Build(
         EntityGraph graph,
         Node requestedNode,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode)
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode)
     {
         var goalKind = DetermineGoalKind(goalNode);
         var targetKind = DetermineTargetKind(targetNode);
         var actionKind = DetermineActionKind(graph, requestedNode, goalNode, targetNode);
-        string? keywordText = goalNode.Edge?.Keyword ?? targetNode.Edge?.Keyword;
+        string? keywordText = goalNode.Keyword ?? targetNode.Keyword;
         string? payloadText = BuildPayloadText(graph, requestedNode, goalNode, actionKind);
         string targetIdentityText = targetNode.Node.DisplayName;
         string? contextText = BuildContextText(requestedNode, goalNode, targetNode);
@@ -29,7 +28,7 @@ internal static class ResolvedActionSemanticBuilder
             targetKind,
             actionKind,
             goalNode.NodeKey,
-            goalNode.Edge?.Quantity,
+            goalNode.Quantity,
             keywordText,
             payloadText,
             targetIdentityText,
@@ -117,12 +116,12 @@ internal static class ResolvedActionSemanticBuilder
     private static ResolvedActionKind DetermineActionKind(
         EntityGraph graph,
         Node requestedNode,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode)
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode)
     {
         if (IsCompletionTarget(goalNode, targetNode))
         {
-            if (!string.IsNullOrEmpty(goalNode.Edge?.Keyword) || !string.IsNullOrEmpty(targetNode.Edge?.Keyword))
+            if (!string.IsNullOrEmpty(goalNode.Keyword) || !string.IsNullOrEmpty(targetNode.Keyword))
                 return ResolvedActionKind.SayKeyword;
 
             return HasTurnInPayload(graph, requestedNode)
@@ -136,9 +135,9 @@ internal static class ResolvedActionSemanticBuilder
         return targetNode.EdgeType switch
         {
             EdgeType.StepTalk or EdgeType.AssignedBy or EdgeType.GivesItem
-                when !string.IsNullOrEmpty(targetNode.Edge?.Keyword) => ResolvedActionKind.SayKeyword,
+                when !string.IsNullOrEmpty(targetNode.Keyword) => ResolvedActionKind.SayKeyword,
             EdgeType.StepTalk or EdgeType.AssignedBy or EdgeType.GivesItem => ResolvedActionKind.Talk,
-            EdgeType.StepShout when !string.IsNullOrEmpty(targetNode.Edge?.Keyword) => ResolvedActionKind.ShoutKeyword,
+            EdgeType.StepShout when !string.IsNullOrEmpty(targetNode.Keyword) => ResolvedActionKind.ShoutKeyword,
             EdgeType.StepShout => ResolvedActionKind.Talk,
             EdgeType.StepKill or EdgeType.DropsItem => ResolvedActionKind.Kill,
             EdgeType.StepRead => ResolvedActionKind.Read,
@@ -146,9 +145,9 @@ internal static class ResolvedActionSemanticBuilder
             EdgeType.SellsItem => ResolvedActionKind.Buy,
             EdgeType.YieldsItem => targetNode.Node.Type switch
             {
-                NodeType.Water      => ResolvedActionKind.Fish,
+                NodeType.Water => ResolvedActionKind.Fish,
                 NodeType.MiningNode => ResolvedActionKind.Mine,
-                _                   => ResolvedActionKind.Collect,
+                _ => ResolvedActionKind.Collect,
             },
             EdgeType.RequiresQuest or EdgeType.RewardsItem => ResolvedActionKind.CompleteQuest,
             _ when targetNode.Node.Type == NodeType.Quest => ResolvedActionKind.CompleteQuest,
@@ -159,7 +158,7 @@ internal static class ResolvedActionSemanticBuilder
     private static string? BuildPayloadText(
         EntityGraph graph,
         Node requestedNode,
-        EntityViewNode goalNode,
+        ResolvedNodeContext goalNode,
         ResolvedActionKind actionKind)
     {
         if (actionKind == ResolvedActionKind.Give)
@@ -170,7 +169,7 @@ internal static class ResolvedActionSemanticBuilder
             : null;
     }
 
-    private static string? BuildContextText(Node requestedNode, EntityViewNode goalNode, EntityViewNode targetNode)
+    private static string? BuildContextText(Node requestedNode, ResolvedNodeContext goalNode, ResolvedNodeContext targetNode)
     {
         if (requestedNode.Type != NodeType.Quest)
             return null;
@@ -185,8 +184,8 @@ internal static class ResolvedActionSemanticBuilder
 
     private static string? BuildRationaleText(
         EntityGraph graph,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode,
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode,
         NavigationGoalKind goalKind)
     {
         bool sameTarget = goalNode.NodeKey == targetNode.NodeKey
@@ -227,12 +226,12 @@ internal static class ResolvedActionSemanticBuilder
         return null;
     }
 
-    private static MarkerType DetermineActiveMarkerType(Node requestedNode, EntityViewNode goalNode) =>
+    private static MarkerType DetermineActiveMarkerType(Node requestedNode, ResolvedNodeContext goalNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy
             ? (requestedNode.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
             : MarkerType.Objective;
 
-    private static bool IsCompletionTarget(EntityViewNode goalNode, EntityViewNode targetNode) =>
+    private static bool IsCompletionTarget(ResolvedNodeContext goalNode, ResolvedNodeContext targetNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy
         && targetNode.EdgeType == EdgeType.CompletedBy;
 
@@ -275,7 +274,7 @@ internal static class ResolvedActionSemanticBuilder
         }
     }
 
-    private static NavigationGoalKind DetermineGoalKind(EntityViewNode node)
+    private static NavigationGoalKind DetermineGoalKind(ResolvedNodeContext node)
     {
         if (node.Node.Type == NodeType.Item || node.EdgeType == EdgeType.RequiresItem)
             return NavigationGoalKind.CollectItem;
@@ -293,7 +292,7 @@ internal static class ResolvedActionSemanticBuilder
         };
     }
 
-    private static NavigationTargetKind DetermineTargetKind(EntityViewNode node) =>
+    private static NavigationTargetKind DetermineTargetKind(ResolvedNodeContext node) =>
         DetermineTargetKind(node.Node, node.EdgeType);
 
     private static NavigationTargetKind DetermineTargetKind(Node node, EdgeType? edgeType)
@@ -311,7 +310,7 @@ internal static class ResolvedActionSemanticBuilder
         };
     }
 
-    private static string? GetZoneText(EntityViewNode node)
+    private static string? GetZoneText(ResolvedNodeContext node)
     {
         if (node.SourceZones != null && node.SourceZones.Count > 0)
         {

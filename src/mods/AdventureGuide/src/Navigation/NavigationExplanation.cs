@@ -1,4 +1,4 @@
-using AdventureGuide.Views;
+using AdventureGuide.Resolution;
 
 namespace AdventureGuide.Navigation;
 
@@ -38,8 +38,8 @@ public sealed class NavigationExplanation
 {
     public NavigationGoalKind GoalKind { get; }
     public NavigationTargetKind TargetKind { get; }
-    public EntityViewNode GoalNode { get; }
-    public EntityViewNode TargetNode { get; }
+    public ResolvedNodeContext GoalNode { get; }
+    public ResolvedNodeContext TargetNode { get; }
     public string PrimaryText { get; }
     public string TargetIdentityText { get; }
     public string? ZoneText { get; }
@@ -49,8 +49,8 @@ public sealed class NavigationExplanation
     public NavigationExplanation(
         NavigationGoalKind goalKind,
         NavigationTargetKind targetKind,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode,
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode,
         string primaryText,
         string targetIdentityText,
         string? zoneText,

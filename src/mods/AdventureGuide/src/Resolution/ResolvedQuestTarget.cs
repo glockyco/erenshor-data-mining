@@ -1,5 +1,4 @@
 using AdventureGuide.Navigation;
-using AdventureGuide.Views;
 using UnityEngine;
 
 namespace AdventureGuide.Resolution;
@@ -15,9 +14,8 @@ public sealed class ResolvedQuestTarget
     public string TargetNodeKey { get; }
     public string? Scene { get; }
     public string? SourceKey { get; }
-
-    public EntityViewNode GoalNode { get; }
-    public EntityViewNode TargetNode { get; }
+    public ResolvedNodeContext GoalNode { get; }
+    public ResolvedNodeContext TargetNode { get; }
     public ResolvedActionSemantic Semantic { get; }
     public NavigationExplanation Explanation { get; }
 
@@ -29,8 +27,8 @@ public sealed class ResolvedQuestTarget
         string targetNodeKey,
         string? scene,
         string? sourceKey,
-        EntityViewNode goalNode,
-        EntityViewNode targetNode,
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode,
         ResolvedActionSemantic semantic,
         NavigationExplanation explanation,
         Vector3 position,

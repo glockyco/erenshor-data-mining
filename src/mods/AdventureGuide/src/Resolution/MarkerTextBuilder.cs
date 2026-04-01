@@ -1,6 +1,4 @@
 using AdventureGuide.Markers;
-using AdventureGuide.Views;
-
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -12,7 +10,7 @@ internal static class MarkerTextBuilder
 {
     public static MarkerInstruction BuildInstruction(
         ResolvedActionSemantic semantic,
-        ViewNode? targetNode = null)
+        ResolvedNodeContext? targetNode = null)
     {
         string primary = BuildPrimaryLine(semantic, targetNode);
         string? secondary = BuildSecondaryLine(semantic);
@@ -26,7 +24,7 @@ internal static class MarkerTextBuilder
             semantic.MarkerPriority);
     }
 
-    private static string BuildPrimaryLine(ResolvedActionSemantic semantic, ViewNode? targetNode)
+    private static string BuildPrimaryLine(ResolvedActionSemantic semantic, ResolvedNodeContext? targetNode)
     {
         if (!string.IsNullOrEmpty(semantic.AvailabilityText))
             return semantic.AvailabilityText;
@@ -36,7 +34,7 @@ internal static class MarkerTextBuilder
             ResolvedActionKind.Talk => "Talk to",
             ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}'",
             ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}'",
-            ResolvedActionKind.Kill when targetNode?.Edge?.Quantity is int quantity && quantity > 1
+            ResolvedActionKind.Kill when targetNode?.Quantity is int quantity && quantity > 1
                 => $"Kill ({quantity})",
             ResolvedActionKind.Kill => "Kill",
             ResolvedActionKind.Read => "Read",

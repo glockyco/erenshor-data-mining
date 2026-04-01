@@ -1,21 +1,14 @@
-using AdventureGuide.Views;
-
 namespace AdventureGuide.Frontier;
 
 /// <summary>
 /// The player's selected navigation targets — a set of node keys.
-///
 /// Any navigable node can be in the set (quests, characters, items,
-/// mining nodes, etc.).  Click = override (clear + add single),
+/// mining nodes, etc.). Click = override (clear + add single),
 /// Shift+click = toggle (add/remove without affecting others).
-///
-/// Context view nodes are stored by reference — no deep cloning.
-/// View trees are immutable after building, so sharing is safe.
 /// </summary>
 public sealed class NavigationSet
 {
     private readonly HashSet<string> _keys = new();
-    private readonly Dictionary<string, EntityViewNode> _contexts = new(StringComparer.Ordinal);
 
     /// <summary>Fired after the selected navigation target set changes.</summary>
     public event Action? Changed;
@@ -30,50 +23,31 @@ public sealed class NavigationSet
     public IReadOnlyCollection<string> Keys => _keys;
 
     /// <summary>Override: clear the set and add a single target (click).</summary>
-    public void Override(string nodeKey, EntityViewNode? context = null)
+    public void Override(string nodeKey)
     {
         _keys.Clear();
-        _contexts.Clear();
         _keys.Add(nodeKey);
-        if (context != null)
-            _contexts[nodeKey] = context;
         MarkChanged();
     }
 
     /// <summary>Toggle: add if absent, remove if present (shift+click).</summary>
-    public void Toggle(string nodeKey, EntityViewNode? context = null)
+    public void Toggle(string nodeKey)
     {
-        if (_keys.Remove(nodeKey))
-        {
-            _contexts.Remove(nodeKey);
-        }
-        else
-        {
+        if (!_keys.Remove(nodeKey))
             _keys.Add(nodeKey);
-            if (context != null)
-                _contexts[nodeKey] = context;
-        }
         MarkChanged();
     }
 
     /// <summary>Check whether a node is in the navigation set.</summary>
     public bool Contains(string nodeKey) => _keys.Contains(nodeKey);
 
-    /// <summary>Try to get the contextual pruned view node for a manual target.</summary>
-    public bool TryGetContext(string nodeKey, out EntityViewNode? context)
-    {
-        if (_contexts.TryGetValue(nodeKey, out context))
-            return true;
-        context = null;
-        return false;
-    }
-
     /// <summary>Remove all targets.</summary>
     public void Clear()
     {
-        if (_keys.Count == 0 && _contexts.Count == 0) return;
+        if (_keys.Count == 0)
+            return;
+
         _keys.Clear();
-        _contexts.Clear();
         MarkChanged();
     }
 
@@ -81,7 +55,6 @@ public sealed class NavigationSet
     public void Load(IEnumerable<string> keys)
     {
         _keys.Clear();
-        _contexts.Clear();
         foreach (var key in keys)
             _keys.Add(key);
         MarkChanged();

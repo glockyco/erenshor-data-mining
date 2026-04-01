@@ -1,5 +1,5 @@
 using AdventureGuide.Navigation;
-using AdventureGuide.Views;
+using AdventureGuide.Plan;
 
 namespace AdventureGuide.Resolution;
 
@@ -11,18 +11,19 @@ namespace AdventureGuide.Resolution;
 public sealed class QuestResolution
 {
     public string QuestKey { get; }
-    public IReadOnlyList<EntityViewNode> Frontier { get; }
+    public QuestPlanProjection PlanProjection { get; }
+    public IReadOnlyList<FrontierRef> Frontier => PlanProjection.Frontier;
     public IReadOnlyList<ResolvedQuestTarget> Targets { get; }
     public TrackerSummary TrackerSummary { get; }
 
     public QuestResolution(
         string questKey,
-        IReadOnlyList<EntityViewNode> frontier,
+        QuestPlanProjection planProjection,
         IReadOnlyList<ResolvedQuestTarget> targets,
         TrackerSummary trackerSummary)
     {
         QuestKey = questKey;
-        Frontier = frontier;
+        PlanProjection = planProjection;
         Targets = targets;
         TrackerSummary = trackerSummary;
     }

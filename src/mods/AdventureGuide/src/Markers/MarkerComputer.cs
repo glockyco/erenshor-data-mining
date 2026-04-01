@@ -1,8 +1,8 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
-using AdventureGuide.Views;
 using UnityEngine;
 
 namespace AdventureGuide.Markers;
@@ -199,7 +199,7 @@ public sealed class MarkerComputer
             // quest via NAV or tracker.
             bool suppressBlocked = implicitlyActive
                 && !explicitlySelected
-                && HasBlockedImplicitFrontier(resolution.Frontier);
+                && HasBlockedImplicitFrontier(resolution.PlanProjection);
             if (!suppressBlocked)
                 EmitActiveQuestMarkers(quest, resolution);
             return;
@@ -218,57 +218,86 @@ public sealed class MarkerComputer
     ///   Objectives (items, steps): blocked when ANY single objective is blocked.
     ///   Turn-in (CompletedBy): blocked when ALL paths are blocked.
     /// </summary>
-    private static bool HasBlockedImplicitFrontier(IReadOnlyList<EntityViewNode> frontier)
+    private static bool HasBlockedImplicitFrontier(QuestPlanProjection projection)
     {
+        var frontier = projection.Frontier;
         if (frontier.Count == 0)
             return false;
 
-        // Determine the dominant phase from the first frontier node.
-        // FrontierComputer emits nodes in phase order: acceptance gates
-        // objectives, objectives gate turn-in. So the frontier contains
-        // either acceptance OR objective OR turn-in nodes (possibly mixed
-        // with sub-quest contributions, but the first node's edge type is
-        // representative).
-        bool isObjectivePhase = frontier[0].EdgeType is not (EdgeType.AssignedBy or EdgeType.CompletedBy);
+        bool isObjectivePhase = frontier[0].IncomingLink.EdgeType is not (EdgeType.AssignedBy or EdgeType.CompletedBy);
 
         if (isObjectivePhase)
         {
-            // ANY fully-blocked objective makes the quest uncompletable.
             for (int i = 0; i < frontier.Count; i++)
             {
-                if (HasBlockingQuestDependency(frontier[i]))
+                if (HasBlockingRequirement(projection.Plan, frontier[i].NodeId, new HashSet<PlanNodeId>()))
                     return true;
             }
             return false;
         }
 
-        // Acceptance or turn-in: ALL must be blocked to suppress.
         for (int i = 0; i < frontier.Count; i++)
         {
-            if (!HasBlockingQuestDependency(frontier[i]))
+            if (!HasBlockingRequirement(projection.Plan, frontier[i].NodeId, new HashSet<PlanNodeId>()))
                 return false;
         }
         return true;
     }
 
-    private static bool HasBlockingQuestDependency(ViewNode node)
+    private static bool HasBlockingRequirement(QuestPlan plan, PlanNodeId nodeId, HashSet<PlanNodeId> visited)
     {
-        if (node.UnlockDependency != null)
+        if (!visited.Add(nodeId))
             return true;
 
-        if (node.Children.Count == 0)
-            return false;
-
-        for (int i = 0; i < node.Children.Count; i++)
+        try
         {
-            var child = node.Children[i];
-            if (child.IsCycleRef)
-                continue;
-            if (!HasBlockingQuestDependency(child))
+            var node = plan.GetNode(nodeId);
+            if (node == null)
                 return false;
-        }
 
-        return true;
+            if (node is PlanEntityNode entity)
+            {
+                if (entity.UnlockRequirementId != null)
+                    return true;
+                if (entity.Outgoing.Count == 0)
+                    return false;
+
+                for (int i = 0; i < entity.Outgoing.Count; i++)
+                {
+                    if (!HasBlockingRequirement(plan, entity.Outgoing[i].ToId, visited))
+                        return false;
+                }
+
+                return entity.Outgoing.Count > 0;
+            }
+
+            var group = (PlanGroupNode)node;
+            switch (group.GroupKind)
+            {
+                case PlanGroupKind.AnyOf:
+                    for (int i = 0; i < group.Outgoing.Count; i++)
+                    {
+                        if (!HasBlockingRequirement(plan, group.Outgoing[i].ToId, visited))
+                            return false;
+                    }
+                    return group.Outgoing.Count > 0;
+
+                case PlanGroupKind.AllOf:
+                    for (int i = 0; i < group.Outgoing.Count; i++)
+                    {
+                        if (HasBlockingRequirement(plan, group.Outgoing[i].ToId, visited))
+                            return true;
+                    }
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+        finally
+        {
+            visited.Remove(nodeId);
+        }
     }
 
     private void EmitActiveQuestMarkers(Node quest, QuestResolution resolution)

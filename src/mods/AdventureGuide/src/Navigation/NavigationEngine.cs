@@ -1,4 +1,3 @@
-using AdventureGuide.Views;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
@@ -136,11 +135,7 @@ public sealed class NavigationEngine
 
     private void ResolveKey(string nodeKey)
     {
-        EntityViewNode? context = null;
-        if (_navSet.TryGetContext(nodeKey, out var storedContext))
-            context = storedContext;
-
-        var targets = _resolution.ResolveTargetsForNavigation(nodeKey, context);
+        var targets = _resolution.ResolveTargetsForNavigation(nodeKey);
         for (int i = 0; i < targets.Count; i++)
         {
             var target = targets[i];
