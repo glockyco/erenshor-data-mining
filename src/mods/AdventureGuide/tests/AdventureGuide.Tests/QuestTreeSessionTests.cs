@@ -36,6 +36,9 @@ public sealed class QuestTreeSessionTests
     [Fact]
     public void GetChildren_PrunesCyclesAtAnyDepth()
     {
+        // quest:a ↔ quest:b mutual prerequisite cycle. Both become
+        // PrunedInfeasible, and the tree session shows empty roots
+        // because the only group (prerequisites) is also infeasible.
         var graph = new TestGraphBuilder()
             .AddQuest("quest:a", "Quest A", dbName: "QuestA")
             .AddQuest("quest:b", "Quest B", dbName: "QuestB")
@@ -44,15 +47,14 @@ public sealed class QuestTreeSessionTests
             .Build();
 
         var plan = new QuestPlanBuilder(graph).Build("quest:a");
+
+        // Both quests should be PrunedInfeasible.
+        Assert.Equal(PlanStatus.PrunedInfeasible, plan.EntityNodesByKey["quest:a"].Status);
+        Assert.Equal(PlanStatus.PrunedInfeasible, plan.EntityNodesByKey["quest:b"].Status);
+
+        // The tree session should show empty roots — the only group is infeasible.
         var session = new QuestTreeSession(plan);
-
-        var roots = session.GetRootChildren();
-        var prereqGroupForA = Assert.Single(roots);
-        var bRef = Assert.Single(session.GetChildren(prereqGroupForA));
-        var prereqGroupForB = Assert.Single(session.GetChildren(bRef));
-        var childrenOfBPrereqs = session.GetChildren(prereqGroupForB);
-
-        Assert.Empty(childrenOfBPrereqs);
+        Assert.Empty(session.GetRootChildren());
     }
 
     [Fact]

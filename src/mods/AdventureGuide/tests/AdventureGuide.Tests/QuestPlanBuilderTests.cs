@@ -95,7 +95,13 @@ public sealed class QuestPlanBuilderTests
         Assert.Contains(item.Outgoing, l => l.ToId == sourceGroup.Id);
         Assert.Contains(sourceGroup.Outgoing, l => l.ToId == recipe.Id && l.EdgeType == EdgeType.CraftedFrom);
         Assert.Contains(sourceGroup.Outgoing, l => l.ToId == (PlanNodeId)"character:dropper" && l.EdgeType == EdgeType.DropsItem);
-        Assert.Contains(sourceGroup.Outgoing, l => l.ToId == (PlanNodeId)"quest:reward" && l.EdgeType == EdgeType.RewardsItem);
+
+        // quest:reward is on the build path when item:product is built,
+        // so the RewardsItem source becomes a cycle stub.
+        var rewardLink = Assert.Single(sourceGroup.Outgoing, l => l.EdgeType == EdgeType.RewardsItem);
+        var rewardTarget = plan.GetNode(rewardLink.ToId);
+        Assert.NotNull(rewardTarget);
+        Assert.Equal(PlanStatus.PrunedCycle, rewardTarget!.Status);
 
         Assert.Equal(PlanGroupKind.AllOf, materials.GroupKind);
         Assert.Contains(recipe.Outgoing, l => l.ToId == materials.Id);

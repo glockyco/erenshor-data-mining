@@ -75,6 +75,9 @@ public sealed class LazyTreeProjectorTests
     [Fact]
     public void Projector_PrunesCrossTypeCyclesWithoutRenderingPlaceholders()
     {
+        // quest:note → item:torn-note → quest:orders → quest:note is a
+        // complete cycle. All entities become PrunedInfeasible and the
+        // tree session correctly shows nothing.
         var graph = new TestGraphBuilder()
             .AddQuest("quest:note", "Wyland's Note", dbName: "WylandsNote")
             .AddItem("item:torn-note", "Torn Note")
@@ -85,17 +88,19 @@ public sealed class LazyTreeProjectorTests
             .Build();
 
         var plan = new QuestPlanBuilder(graph).Build("quest:note");
+
+        // quest:orders has a cyclic prereq on quest:note → PrunedInfeasible.
+        Assert.Equal(PlanStatus.PrunedInfeasible, plan.EntityNodesByKey["quest:orders"].Status);
+
+        // item:torn-note's only source is quest:orders (infeasible) → PrunedInfeasible.
+        Assert.Equal(PlanStatus.PrunedInfeasible, plan.EntityNodesByKey["item:torn-note"].Status);
+
+        // quest:note's only step is torn-note (infeasible) → PrunedInfeasible.
+        Assert.Equal(PlanStatus.PrunedInfeasible, plan.EntityNodesByKey["quest:note"].Status);
+
+        // The tree session should show nothing — all entities are pruned.
         var session = new QuestTreeSession(plan);
         var projector = new LazyTreeProjector(plan, session);
-
-        var tornNoteRef = Assert.Single(projector.GetRootChildren());
-        Assert.Equal((PlanNodeId)"item:torn-note", tornNoteRef.NodeId);
-
-        var itemChildren = projector.GetChildren(tornNoteRef);
-        var ordersRef = Assert.Single(itemChildren);
-        Assert.Equal((PlanNodeId)"quest:orders", ordersRef.NodeId);
-
-        var ordersChildren = projector.GetChildren(ordersRef);
-        Assert.Empty(ordersChildren);
+        Assert.Empty(projector.GetRootChildren());
     }
 }
