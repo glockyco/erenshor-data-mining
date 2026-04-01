@@ -74,6 +74,38 @@ public sealed class QuestPlanRuntimeTests
         Assert.Contains(group.Outgoing, l => l.ToId == (PlanNodeId)"item:key");
     }
 
+
+    [Fact]
+    public void LockedTravelZone_DropsCurrentQuestFromUnlockRequirementGroup()
+    {
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:travel", "Travel Quest", dbName: "TravelQuest")
+            .AddQuest("quest:gate", "Gate Quest", dbName: "GateQuest")
+            .AddZone("zone:a", "Zone A", scene: "ZoneA")
+            .AddZone("zone:b", "Zone B", scene: "ZoneB")
+            .AddZoneLine("zl:ab", "ZL A→B", scene: "ZoneA", destinationZoneKey: "zone:b",
+                x: 10, y: 0, z: 5)
+            .AddEdge("quest:travel", "zone:b", EdgeType.StepTravel)
+            .AddEdge("zl:ab", "zone:b", EdgeType.ConnectsZones)
+            .AddEdge("quest:travel", "zl:ab", EdgeType.UnlocksZoneLine)
+            .AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
+            .Build();
+
+        var snapshot = new StateSnapshot
+        {
+            ActiveQuests = ["TravelQuest"],
+            CurrentZone = "ZoneA",
+        };
+        var harness = SnapshotHarness.FromSnapshot(graph, snapshot);
+        var plan = new QuestPlanBuilder(graph, harness.GameState, harness.Router, harness.Tracker, harness.Unlocks)
+            .Build("quest:travel");
+
+        var zone = plan.EntityNodesByKey["zone:b"];
+        Assert.NotNull(zone.UnlockRequirementId);
+        var group = Assert.IsType<PlanGroupNode>(plan.GetNode(zone.UnlockRequirementId!.Value));
+        Assert.Contains(group.Outgoing, l => l.ToId == (PlanNodeId)"quest:gate");
+        Assert.DoesNotContain(group.Outgoing, l => l.ToId == (PlanNodeId)"quest:travel");
+    }
     [Fact]
     public void LockedTravelZone_GetsExplicitUnlockRequirementGroup()
     {

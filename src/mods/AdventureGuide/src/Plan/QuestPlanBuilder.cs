@@ -503,7 +503,16 @@ public sealed class QuestPlanBuilder
         EdgeType unlockEdgeType,
         string label)
     {
-        if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
+        var blockingSources = new List<Node>(evaluation.BlockingSources.Count);
+        for (int i = 0; i < evaluation.BlockingSources.Count; i++)
+        {
+            var source = evaluation.BlockingSources[i];
+            if (source.Type == NodeType.Quest && _questsOnPath.Contains(source.Key))
+                continue;
+            blockingSources.Add(source);
+        }
+
+        if (evaluation.IsUnlocked || blockingSources.Count == 0)
             return;
 
         var groupId = $"{node.NodeKey}:unlock:allof";
@@ -511,9 +520,9 @@ public sealed class QuestPlanBuilder
         node.UnlockRequirementId = group.Id;
         AddLink(node.Id, group.Id, DependencySemantics.FromEdge(unlockEdgeType), edgeType: null);
 
-        for (int i = 0; i < evaluation.BlockingSources.Count; i++)
+        for (int i = 0; i < blockingSources.Count; i++)
         {
-            var source = evaluation.BlockingSources[i];
+            var source = blockingSources[i];
             var sourceNode = GetOrCreateEntity(source);
             ApplyRuntimeState(sourceNode);
             AddLink(group.Id, sourceNode.Id, DependencySemantics.FromEdge(unlockEdgeType), edgeType: null);

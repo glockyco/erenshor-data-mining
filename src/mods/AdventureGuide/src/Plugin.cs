@@ -256,9 +256,11 @@ public sealed class Plugin : BaseUnityPlugin
 
         // First marker recompute — this triggers cold quest resolution for all
         // actionable quests. Timed separately because it dominates cold start.
+        Log.LogInfo("Adventure Guide startup: beginning first marker recompute");
         syncSw.Restart();
         _markerComputer.Recompute();
         var firstRecomputeMs = syncSw.Elapsed.TotalMilliseconds;
+        Log.LogInfo($"Adventure Guide startup: first marker recompute finished in {firstRecomputeMs:F0} ms");
 
         _markerSystem.OnSceneChanged(currentScene);
         startupSw.Stop();

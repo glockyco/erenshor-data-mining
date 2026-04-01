@@ -313,6 +313,9 @@ public sealed class QuestResolutionService
             var blockingSource = blocking[i];
             if (blockingSource.Type == NodeType.Quest)
             {
+                if (string.Equals(blockingSource.Key, questKey, StringComparison.Ordinal))
+                    continue;
+
                 var blockingResolution = ResolveQuest(blockingSource.Key);
                 foreach (var t in blockingResolution.Targets)
                     results.Add(new ResolvedQuestTarget(
@@ -350,6 +353,7 @@ public sealed class QuestResolutionService
                 AddResolvedTargetDirect(results, seen, questKey,
                     frontierNode, blockingContext, positions[j], requestedNode, plan);
         }
+
     }
 
     private void ResolveItemTargetsFromBlueprint(
