@@ -51,6 +51,8 @@ public sealed class QuestViewBuilder
     private readonly Dictionary<string, EntityViewNode> _questCache = new(StringComparer.Ordinal);
     /// <summary>Successfully built item subtrees for reuse when they recur.</summary>
     private readonly Dictionary<string, EntityViewNode> _itemCache = new(StringComparer.Ordinal);
+    /// <summary>Cached unlock dependency subtrees keyed by zone-line key.</summary>
+    private readonly Dictionary<string, ViewNode?> _unlockDepCache = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker, UnlockEvaluator unlocks)
@@ -96,6 +98,7 @@ public sealed class QuestViewBuilder
         _questsInfeasible.Clear();
         _questCache.Clear();
         _itemCache.Clear();
+        _unlockDepCache.Clear();
     }
 
     // ── Quest node expansion ─────────────────────────────────────────────────
@@ -107,12 +110,12 @@ public sealed class QuestViewBuilder
         if (_questsInfeasible.Contains(key))
             return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
 
-        // (2) Already fully expanded elsewhere — cross-edge. Duplicate the
-        // cached subtree so repeated but valid subtrees remain visible.
+        // (2) Already fully expanded elsewhere — cross-edge. Create a thin
+        // wrapper that shares the canonical children instead of deep-cloning.
         if (_questsExpanded.Contains(key))
         {
             if (_questCache.TryGetValue(key, out var cached))
-                return (EntityViewNode)CloneViewNode(cached);
+                return CreateSharedReference(cached, edgeType, edge);
             return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
         }
 
@@ -148,7 +151,7 @@ public sealed class QuestViewBuilder
         }
 
         _questsExpanded.Add(key);
-        _questCache[key] = (EntityViewNode)CloneViewNode(viewNode);
+        _questCache[key] = viewNode;
         return viewNode;
     }
 
@@ -218,6 +221,34 @@ public sealed class QuestViewBuilder
             clone.Children.Add(CloneViewNode(source.Children[i]));
 
         return clone;
+    }
+
+    /// <summary>
+    /// Create a thin wrapper that shares the canonical children, SourceZones,
+    /// EffectiveLevel, and UnlockDependency from <paramref name="canonical"/>.
+    /// Only EdgeType and Edge are overridden for the root — the subtree is the
+    /// same shared instance, not a deep clone.
+    /// </summary>
+    private static EntityViewNode CreateSharedReference(
+        EntityViewNode canonical,
+        EdgeType? edgeType,
+        Edge? edge)
+    {
+        var wrapper = new EntityViewNode(canonical.NodeKey, canonical.Node, edgeType, edge)
+        {
+            IsCycleRef = canonical.IsCycleRef,
+            DefaultExpanded = canonical.DefaultExpanded,
+            EffectiveLevel = canonical.EffectiveLevel,
+            SourceZones = canonical.SourceZones,
+            UnlockDependency = canonical.UnlockDependency,
+        };
+
+        // Share the canonical children list by reference. These are immutable
+        // after building — no consumer mutates children post-build.
+        for (int i = 0; i < canonical.Children.Count; i++)
+            wrapper.Children.Add(canonical.Children[i]);
+
+        return wrapper;
     }
 
     // ── Quest feasibility ────────────────────────────────────────────────────
@@ -631,18 +662,36 @@ public sealed class QuestViewBuilder
         var dependencyRoots = new List<ViewNode>();
         for (int i = 0; i < bestLockedHops.Count; i++)
         {
-            var lockedZoneLine = _graph.GetNode(bestLockedHops[i].ZoneLineKey);
-            if (lockedZoneLine == null)
+            var zoneLineKey = bestLockedHops[i].ZoneLineKey;
+
+            // Share cached unlock dependency subtrees. Every node blocked by
+            // the same zone line gets the same shared subtree reference instead
+            // of an independent deep clone.
+            if (_unlockDepCache.TryGetValue(zoneLineKey, out var cachedDep))
+            {
+                if (cachedDep != null)
+                    dependencyRoots.Add(cachedDep);
                 continue;
+            }
+
+            var lockedZoneLine = _graph.GetNode(zoneLineKey);
+            if (lockedZoneLine == null)
+            {
+                _unlockDepCache[zoneLineKey] = null;
+                continue;
+            }
 
             var evaluation = _unlocks.Evaluate(lockedZoneLine);
             if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
+            {
+                _unlockDepCache[zoneLineKey] = null;
                 continue;
+            }
 
             var dependency = BuildUnlockDependency(lockedZoneLine.Key, evaluation.BlockingSources, itemVisited);
+            _unlockDepCache[zoneLineKey] = dependency;
             if (dependency == null)
                 continue;
-
             if (IsUnlockDependencyInfeasible(dependency))
             {
                 viewNode.IsCycleRef = true;
@@ -866,12 +915,12 @@ public sealed class QuestViewBuilder
                 return new EntityViewNode(key, node, edgeType, edge) { IsCycleRef = true };
 
             if (_itemCache.TryGetValue(key, out var cachedItem))
-                return CloneEntityViewNode(cachedItem, edgeType, edge);
+                return CreateSharedReference(cachedItem, edgeType, edge);
 
             itemVisited.Add(key);
             ExpandItemSources(viewNode, key, itemVisited);
             itemVisited.Remove(key);
-            _itemCache[key] = CloneEntityViewNode(viewNode, edgeType: null, edge: null);
+            _itemCache[key] = viewNode;
         }
 
         return viewNode;
