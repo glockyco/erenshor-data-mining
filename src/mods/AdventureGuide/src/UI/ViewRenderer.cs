@@ -33,9 +33,9 @@ public sealed class ViewRenderer
     }
 
     /// <summary>Render a full quest detail page from a shared quest resolution.</summary>
-    public void Draw(QuestResolution? resolution)
+    public void Draw(QuestResolution? resolution, ViewNode? viewTree)
     {
-        if (resolution?.ViewRoot is not EntityViewNode root)
+        if (viewTree is not EntityViewNode root)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.TextWrapped("Select a quest from the list.");

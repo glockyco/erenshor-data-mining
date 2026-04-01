@@ -112,7 +112,8 @@ public sealed class GuideWindow
         QuestResolution? resolution = null;
         if (_state.SelectedQuestDBName != null)
             resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
-        _viewRenderer.Draw(resolution);
+        var viewTree = resolution != null ? _resolution.GetViewTree(resolution.QuestKey) : null;
+        _viewRenderer.Draw(resolution, viewTree);
         ImGui.EndChild();
     }
 }

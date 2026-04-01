@@ -129,14 +129,20 @@ public sealed class QuestResolutionService
         var structure = ResolveStructure(questKey);
         var questNode = _graph.GetNode(questKey);
         var targets = ResolveTargets(questKey, structure.Frontier, questNode);
-        var trackerSummary = BuildTrackerSummary(questNode, structure.ViewRoot, structure.Frontier, targets);
+        var trackerSummary = BuildTrackerSummary(questNode, questKey, structure.Frontier, targets);
 
         return new QuestResolution(
             questKey,
-            structure.ViewRoot,
             structure.Frontier,
             targets,
             trackerSummary);
+    }
+
+    /// <summary>Returns the cached view tree for UI rendering. Only call from UI code.</summary>
+    public ViewNode? GetViewTree(string questKey)
+    {
+        _structureCache.TryGetValue(questKey, out var cached);
+        return cached.ViewRoot;
     }
 
     public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey, EntityViewNode? context = null)
@@ -481,7 +487,7 @@ public sealed class QuestResolutionService
 
     private TrackerSummary BuildTrackerSummary(
         Node? requestedNode,
-        ViewNode? viewRoot,
+        string questKey,
         IReadOnlyList<EntityViewNode> frontier,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
@@ -491,7 +497,7 @@ public sealed class QuestResolutionService
         var summarySemantic = SelectTrackerSemantic(frontier[0], targets)
             ?? ResolvedActionSemanticBuilder.Build(_graph, requestedNode ?? frontier[0].Node, frontier[0], frontier[0]);
 
-        string? prerequisiteQuestName = FindFirstIncompletePrerequisite(viewRoot);
+        string? prerequisiteQuestName = FindFirstIncompletePrerequisite(questKey);
 
         return NavigationExplanationBuilder.BuildTrackerSummary(
             frontier[0],
@@ -501,18 +507,19 @@ public sealed class QuestResolutionService
             prerequisiteQuestName);
     }
 
-    private string? FindFirstIncompletePrerequisite(ViewNode? viewRoot)
+    private string? FindFirstIncompletePrerequisite(string questKey)
     {
-        if (viewRoot == null) return null;
-        for (int i = 0; i < viewRoot.Children.Count; i++)
+        foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresQuest))
         {
-            if (viewRoot.Children[i] is not EntityViewNode child) continue;
-            if (child.IsCycleRef) continue;
-            if (child.Node.Type != NodeType.Quest) continue;
-            if (_gameState.GetState(child.NodeKey) is QuestCompleted) continue;
-            // AssignedBy (acceptance gate) or RequiresQuest (prerequisite).
-            if (child.EdgeType is EdgeType.AssignedBy or EdgeType.RequiresQuest)
-                return child.Node.DisplayName;
+            if (_gameState.GetState(edge.Target) is not QuestCompleted)
+                return _graph.GetNode(edge.Target)?.DisplayName;
+        }
+        foreach (var edge in _graph.OutEdges(questKey, EdgeType.AssignedBy))
+        {
+            var node = _graph.GetNode(edge.Target);
+            if (node?.Type == NodeType.Quest
+                && _gameState.GetState(edge.Target) is not QuestCompleted)
+                return node.DisplayName;
         }
         return null;
     }
