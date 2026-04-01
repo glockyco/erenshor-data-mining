@@ -14,9 +14,8 @@ public sealed class QuestPlanBuilder
 {
     private readonly EntityGraph _graph;
     private readonly GameState? _state;
-    private readonly ZoneRouter? _router;
-    private readonly QuestStateTracker? _tracker;
     private readonly UnlockEvaluator? _unlocks;
+    private readonly ZoneAccessResolver? _zoneAccess;
     private readonly Dictionary<PlanNodeId, PlanNode> _nodesById = new();
     private readonly Dictionary<string, PlanEntityNode> _entitiesByKey = new(StringComparer.Ordinal);
     private readonly Dictionary<PlanNodeId, PlanGroupNode> _groupsById = new();
@@ -37,9 +36,8 @@ public sealed class QuestPlanBuilder
     {
         _graph = graph;
         _state = state;
-        _router = router;
-        _tracker = tracker;
         _unlocks = unlocks;
+        _zoneAccess = new ZoneAccessResolver(graph, tracker, unlocks, router);
     }
 
     public QuestPlan Build(string questKey)
@@ -469,28 +467,56 @@ public sealed class QuestPlanBuilder
     {
         if (_unlocks == null)
             return;
-        if (!UnlockEvaluator.TryGetUnlockEdgeType(node.Node.Type, out _))
+
+        if (node.Node.Type == NodeType.Zone)
+        {
+            AddZoneUnlockRequirement(node);
+            return;
+        }
+
+        if (!UnlockEvaluator.TryGetUnlockEdgeType(node.Node.Type, out var unlockEdgeType))
             return;
 
-        var evaluation = _unlocks.Evaluate(node.Node);
+        AddUnlockRequirement(node, _unlocks.Evaluate(node.Node), unlockEdgeType,
+            node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
+    }
+
+    private void AddZoneUnlockRequirement(PlanEntityNode node)
+    {
+        if (_zoneAccess == null || _unlocks == null)
+            return;
+
+        var lockedRoute = _zoneAccess.FindBlockedRoute(node.Node.Scene);
+        if (lockedRoute == null)
+            return;
+
+        AddUnlockRequirement(
+            node,
+            lockedRoute.Evaluation,
+            EdgeType.UnlocksZoneLine,
+            "Requires");
+    }
+
+    private void AddUnlockRequirement(
+        PlanEntityNode node,
+        UnlockEvaluation evaluation,
+        EdgeType unlockEdgeType,
+        string label)
+    {
         if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
             return;
 
         var groupId = $"{node.NodeKey}:unlock:allof";
-        var group = GetOrCreateGroup(groupId, PlanGroupKind.AllOf, node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
+        var group = GetOrCreateGroup(groupId, PlanGroupKind.AllOf, label);
         node.UnlockRequirementId = group.Id;
-        AddLink(node.Id, group.Id, DependencySemantics.FromEdge(
-            node.Node.Type == NodeType.Door ? EdgeType.UnlocksDoor :
-            node.Node.Type == NodeType.Character ? EdgeType.UnlocksCharacter : EdgeType.UnlocksZoneLine), edgeType: null);
+        AddLink(node.Id, group.Id, DependencySemantics.FromEdge(unlockEdgeType), edgeType: null);
 
         for (int i = 0; i < evaluation.BlockingSources.Count; i++)
         {
             var source = evaluation.BlockingSources[i];
             var sourceNode = GetOrCreateEntity(source);
             ApplyRuntimeState(sourceNode);
-            AddLink(group.Id, sourceNode.Id, DependencySemantics.FromEdge(
-                node.Node.Type == NodeType.Door ? EdgeType.UnlocksDoor :
-                node.Node.Type == NodeType.Character ? EdgeType.UnlocksCharacter : EdgeType.UnlocksZoneLine), edgeType: null);
+            AddLink(group.Id, sourceNode.Id, DependencySemantics.FromEdge(unlockEdgeType), edgeType: null);
 
             if (source.Type == NodeType.Quest)
                 BuildQuest(source.Key);
