@@ -3,6 +3,7 @@ using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.State;
+using UnityEngine;
 
 namespace AdventureGuide.Resolution;
 
@@ -78,7 +79,6 @@ public sealed class QuestResolutionService
         {
             switch (derivedKey.Kind)
             {
-                case GuideDerivedKind.QuestStructure:
                 case GuideDerivedKind.QuestTargets:
                     targetInvalidations.Add(derivedKey.Key);
                     break;
@@ -320,6 +320,14 @@ public sealed class QuestResolutionService
                 continue;
             }
 
+            if (blockingSource.Type is NodeType.Item or NodeType.Recipe)
+            {
+                var itemContext = CreateContext(blockingSource, plan);
+                ResolveItemTargetsFromBlueprint(
+                    questKey, itemContext, requestedNode, results, seen);
+                continue;
+            }
+
             if (blockingSource.Type == NodeType.Door)
             {
                 var doorState = _gameState.GetState(blockingSource.Key);
@@ -460,8 +468,11 @@ public sealed class QuestResolutionService
         if (projection.Frontier.Count == 0)
             return new TrackerSummary("Ready to turn in", null);
 
-        var frontierContext = ToContext(projection.Frontier[0], projection.Plan);
-        var summarySemantic = SelectTrackerSemantic(projection.Frontier[0], projection.Plan, targets)
+        var focusTarget = SelectTrackerFocusTarget(targets);
+        var frontierContext = focusTarget?.GoalNode
+            ?? ToContext(projection.Frontier[0], projection.Plan);
+        var summarySemantic = focusTarget?.Semantic
+            ?? SelectTrackerSemantic(projection.Frontier[0], targets)
             ?? ResolvedActionSemanticBuilder.Build(
                 _graph,
                 requestedNode ?? frontierContext.Node,
@@ -478,6 +489,73 @@ public sealed class QuestResolutionService
             prerequisiteQuestName);
     }
 
+    private ResolvedQuestTarget? SelectTrackerFocusTarget(IReadOnlyList<ResolvedQuestTarget> targets)
+    {
+        if (targets.Count == 0)
+            return null;
+
+        var best = targets[0];
+        for (int i = 1; i < targets.Count; i++)
+        {
+            if (IsBetterTrackerTarget(targets[i], best))
+                best = targets[i];
+        }
+
+        return best;
+    }
+
+    private bool IsBetterTrackerTarget(ResolvedQuestTarget candidate, ResolvedQuestTarget currentBest)
+    {
+        int candidateSceneRank = GetTrackerSceneRank(candidate);
+        int currentSceneRank = GetTrackerSceneRank(currentBest);
+        if (candidateSceneRank != currentSceneRank)
+            return candidateSceneRank < currentSceneRank;
+
+        if (candidate.IsActionable != currentBest.IsActionable)
+            return candidate.IsActionable;
+
+        int candidateHops = GetTrackerHopCount(candidate);
+        int currentHops = GetTrackerHopCount(currentBest);
+        if (candidateHops != currentHops)
+            return candidateHops < currentHops;
+
+        var player = GameData.PlayerControl;
+        bool sameScene = IsTrackerCurrentScene(candidate);
+        bool currentSameScene = IsTrackerCurrentScene(currentBest);
+        if (player != null && sameScene && currentSameScene)
+        {
+            float candidateDistance = Vector3.SqrMagnitude(candidate.Position - player.transform.position);
+            float currentDistance = Vector3.SqrMagnitude(currentBest.Position - player.transform.position);
+            if (!Mathf.Approximately(candidateDistance, currentDistance))
+                return candidateDistance < currentDistance;
+        }
+
+        return false;
+    }
+
+    private int GetTrackerSceneRank(ResolvedQuestTarget target)
+    {
+        if (IsTrackerCurrentScene(target))
+            return 0;
+        if (string.IsNullOrEmpty(target.Scene))
+            return 1;
+        return _router.FindRoute(_tracker.CurrentZone, target.Scene!) != null ? 1 : 2;
+    }
+
+    private int GetTrackerHopCount(ResolvedQuestTarget target)
+    {
+        if (IsTrackerCurrentScene(target) || string.IsNullOrEmpty(target.Scene))
+            return 0;
+
+        var route = _router.FindRoute(_tracker.CurrentZone, target.Scene!);
+        return route == null ? int.MaxValue : Math.Max(0, route.Path.Count - 1);
+    }
+
+    private bool IsTrackerCurrentScene(ResolvedQuestTarget target) =>
+        string.IsNullOrEmpty(target.Scene)
+        || string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase);
+
+
     private string? FindFirstIncompletePrerequisite(string questKey)
     {
         foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresQuest))
@@ -485,19 +563,22 @@ public sealed class QuestResolutionService
             if (_gameState.GetState(edge.Target) is not QuestCompleted)
                 return _graph.GetNode(edge.Target)?.DisplayName;
         }
+
         foreach (var edge in _graph.OutEdges(questKey, EdgeType.AssignedBy))
         {
             var node = _graph.GetNode(edge.Target);
             if (node?.Type == NodeType.Quest
                 && _gameState.GetState(edge.Target) is not QuestCompleted)
+            {
                 return node.DisplayName;
+            }
         }
+
         return null;
     }
 
     private static ResolvedActionSemantic? SelectTrackerSemantic(
         FrontierRef frontierNode,
-        QuestPlan plan,
         IReadOnlyList<ResolvedQuestTarget> targets)
     {
         for (int i = 0; i < targets.Count; i++)
