@@ -176,10 +176,22 @@ public sealed class QuestResolutionService
 
         using (_dependencies.BeginCollection(new GuideDerivedKey(GuideDerivedKind.QuestStructure, questKey)))
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var root = _viewBuilder.Build(questKey);
+            var buildMs = sw.Elapsed.TotalMilliseconds;
+            sw.Restart();
             var frontier = root != null
                 ? FrontierComputer.ComputeFrontier(root, _gameState)
                 : new List<EntityViewNode>();
+            var frontierMs = sw.Elapsed.TotalMilliseconds;
+
+            if (buildMs + frontierMs >= 5.0)
+            {
+                var quest = _graph.GetNode(questKey);
+                Plugin.Log.LogInfo(
+                    $"Structure cold: {quest?.DisplayName ?? questKey}"
+                    + $" build={buildMs:F1}ms frontier={frontierMs:F1}ms");
+            }
 
             var structure = new QuestStructure(root, frontier);
             _structureCache[questKey] = structure;
@@ -197,7 +209,17 @@ public sealed class QuestResolutionService
 
         using (_dependencies.BeginCollection(new GuideDerivedKey(GuideDerivedKind.QuestTargets, questKey)))
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var targets = BuildTargets(questKey, frontier, requestedNode);
+            sw.Stop();
+            if (sw.Elapsed.TotalMilliseconds >= 5.0)
+            {
+                var quest = _graph.GetNode(questKey);
+                Plugin.Log.LogInfo(
+                    $"Targets cold: {quest?.DisplayName ?? questKey}"
+                    + $" {sw.Elapsed.TotalMilliseconds:F1}ms"
+                    + $" frontier={frontier.Count} targets={targets.Count}");
+            }
             _targetCache[questKey] = targets;
             return targets;
         }

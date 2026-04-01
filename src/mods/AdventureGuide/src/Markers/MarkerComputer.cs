@@ -158,8 +158,26 @@ public sealed class MarkerComputer
                 sceneQuestKeys.Add(quest.Key);
         }
 
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Cold marker rebuild: {sceneQuestKeys.Count} quests");
+        double totalMs = 0;
+
         foreach (var questKey in sceneQuestKeys)
+        {
+            sw.Restart();
             RebuildQuestMarkers(questKey);
+            sw.Stop();
+            double ms = sw.Elapsed.TotalMilliseconds;
+            totalMs += ms;
+
+            var quest = _graph.GetNode(questKey);
+            if (ms >= 1.0)
+                sb.AppendLine($"  {quest?.DisplayName ?? questKey}: {ms:F1} ms");
+        }
+
+        sb.AppendLine($"  total: {totalMs:F0} ms");
+        Plugin.Log.LogInfo(sb.ToString());
     }
 
     private void RebuildQuestMarkers(string questKey)

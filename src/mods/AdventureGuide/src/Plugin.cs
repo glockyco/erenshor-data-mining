@@ -73,6 +73,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Log = Logger;
+        var startupSw = System.Diagnostics.Stopwatch.StartNew();
 
         // Hide the shared BepInEx manager GameObject so the game cannot
         // find and destroy it during scene cleanup.
@@ -81,9 +82,15 @@ public sealed class Plugin : BaseUnityPlugin
         _config = new GuideConfig(Config);
 
         // --- Graph layer ---
+        var graphSw = System.Diagnostics.Stopwatch.StartNew();
         _graph = GraphLoader.Load(Log);
+        var graphLoadMs = graphSw.Elapsed.TotalMilliseconds;
+        graphSw.Restart();
         _graphIndexes = new GraphIndexes(_graph);
+        var graphIndexMs = graphSw.Elapsed.TotalMilliseconds;
+        graphSw.Restart();
         _sourceIndex = new CompiledSourceIndex(_graph);
+        var sourceIndexMs = graphSw.Elapsed.TotalMilliseconds;
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
@@ -235,6 +242,7 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         // Sync from current game state (essential for hot reload)
+        var syncSw = System.Diagnostics.Stopwatch.StartNew();
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
@@ -249,11 +257,29 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _navEngine.OnSceneChanged(currentScene);
         _markerComputer.ApplyGuideChangeSet(initialChangeSet);
+        var syncMs = syncSw.Elapsed.TotalMilliseconds;
+
+        // First marker recompute — this triggers cold quest resolution for all
+        // actionable quests. Timed separately because it dominates cold start.
+        syncSw.Restart();
+        _markerComputer.Recompute();
+        var firstRecomputeMs = syncSw.Elapsed.TotalMilliseconds;
+
         _markerSystem.OnSceneChanged(currentScene);
+        startupSw.Stop();
 
         var questCount = _graph.NodesOfType(NodeType.Quest).Count;
+        var activeCount = _questTracker.ActiveQuests.Count;
+        var completedCount = _questTracker.CompletedQuests.Count;
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
             + $"  Graph: {_graph.NodeCount} nodes, {_graph.EdgeCount} edges, {questCount} quests\n"
+            + $"  State: {activeCount} active, {completedCount} completed, zone={currentScene}\n"
+            + $"  Startup: {startupSw.Elapsed.TotalMilliseconds:F0} ms total\n"
+            + $"    graph load:    {graphLoadMs:F0} ms\n"
+            + $"    graph indexes: {graphIndexMs:F0} ms\n"
+            + $"    source index:  {sourceIndexMs:F0} ms\n"
+            + $"    state sync:    {syncMs:F0} ms\n"
+            + $"    first markers: {firstRecomputeMs:F0} ms\n"
             + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
             + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
             + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)");
