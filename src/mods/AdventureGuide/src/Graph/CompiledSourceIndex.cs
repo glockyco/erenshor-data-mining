@@ -13,7 +13,7 @@ namespace AdventureGuide.Graph;
 /// </list>
 ///
 /// These indexes let target resolution enumerate sources for an item in O(1) lookup
-/// instead of recursively walking the view tree.
+/// instead of recursively rebuilding source chains at runtime.
 /// </summary>
 public sealed class CompiledSourceIndex
 {

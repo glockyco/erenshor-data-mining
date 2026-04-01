@@ -26,5 +26,4 @@
   <ItemGroup>
     <ProjectReference Include="../../AdventureGuide.csproj" />
   </ItemGroup>
-
 </Project>

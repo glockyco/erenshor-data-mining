@@ -11,7 +11,7 @@ namespace AdventureGuide.Tests.Helpers;
 
 /// <summary>
 /// Wires an <see cref="EntityGraph"/> + <see cref="StateSnapshot"/> (or empty state)
-/// into the full view-build / frontier / unlock pipeline for testing.
+/// into the canonical plan / resolution / unlock pipeline for testing.
 ///
 /// Uses reflection to populate <see cref="QuestStateTracker"/> internals directly,
 /// bypassing <see cref="QuestStateTracker.SyncFromGameData"/> which reads live
@@ -25,7 +25,6 @@ public sealed class SnapshotHarness
     public UnlockEvaluator Unlocks { get; }
     public ZoneRouter Router { get; }
     public QuestPlanBuilder PlanBuilder { get; }
-
     private SnapshotHarness(EntityGraph graph, GameState gameState,
         QuestStateTracker tracker, UnlockEvaluator unlocks,
         ZoneRouter router, QuestPlanBuilder planBuilder)
@@ -89,7 +88,6 @@ public sealed class SnapshotHarness
     /// <summary>Creates a harness from a builder with empty (all-default) state.</summary>
     public static SnapshotHarness FromGraph(TestGraphBuilder builder)
         => FromSnapshot(builder.Build(), new StateSnapshot());
-
     private static void PopulateTracker(QuestStateTracker tracker, StateSnapshot snapshot)
     {
         const BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;

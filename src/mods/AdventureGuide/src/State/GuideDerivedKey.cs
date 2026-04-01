@@ -2,7 +2,6 @@ namespace AdventureGuide.State;
 
 public enum GuideDerivedKind
 {
-    QuestStructure,
     QuestTargets,
 }
 

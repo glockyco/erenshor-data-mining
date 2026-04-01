@@ -4,8 +4,8 @@ namespace AdventureGuide.Resolution;
 
 /// <summary>
 /// Neutral resolved-node context used by projections and target resolution.
-/// Replaces the old dependency on EntityViewNode so canonical-plan consumers can
-/// pass edge context without requiring a visual tree node.
+/// Carries graph-node metadata plus edge context without coupling consumers to the
+/// lazy detail tree or any UI-specific node type.
 /// </summary>
 public sealed class ResolvedNodeContext
 {

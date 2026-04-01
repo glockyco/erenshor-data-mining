@@ -6,9 +6,9 @@ using AdventureGuide.State;
 namespace AdventureGuide.Plan;
 
 /// <summary>
-/// Builds a canonical, explicitly-grouped dependency plan from the immutable
-/// entity graph. This first cut focuses on structure, not yet on full runtime
-/// pruning/frontier resolution.
+/// Builds the canonical, explicitly-grouped dependency plan from the immutable
+/// entity graph plus live state needed for statuses, unlock requirements, and
+/// source metadata.
 /// </summary>
 public sealed class QuestPlanBuilder
 {
@@ -44,11 +44,7 @@ public sealed class QuestPlanBuilder
 
     public QuestPlan Build(string questKey)
     {
-        _nodesById.Clear();
-        _entitiesByKey.Clear();
-        _groupsById.Clear();
-        _questsOnPath.Clear();
-        _itemsOnPath.Clear();
+        Reset();
 
         var rootNode = _graph.GetNode(questKey);
         if (rootNode == null || rootNode.Type != NodeType.Quest)
@@ -56,10 +52,50 @@ public sealed class QuestPlanBuilder
 
         var root = GetOrCreateEntity(rootNode);
         BuildQuest(rootNode.Key);
+        return CreatePlan(root.Id);
+    }
 
+    public QuestPlan BuildNode(string nodeKey)
+    {
+        Reset();
+
+        var rootNode = _graph.GetNode(nodeKey)
+            ?? throw new InvalidOperationException($"Node '{nodeKey}' not found.");
+
+        var root = GetOrCreateEntity(rootNode);
+        ApplyRuntimeState(root);
+        AddUnlockRequirement(root);
+
+        switch (rootNode.Type)
+        {
+            case NodeType.Quest:
+                BuildQuest(rootNode.Key);
+                break;
+            case NodeType.Item:
+                BuildItem(rootNode.Key);
+                break;
+            case NodeType.Recipe:
+                BuildRecipe(rootNode.Key);
+                break;
+        }
+
+        return CreatePlan(root.Id);
+    }
+
+    private void Reset()
+    {
+        _nodesById.Clear();
+        _entitiesByKey.Clear();
+        _groupsById.Clear();
+        _questsOnPath.Clear();
+        _itemsOnPath.Clear();
+    }
+
+    private QuestPlan CreatePlan(PlanNodeId rootId)
+    {
         var emptyFrontier = Array.Empty<FrontierRef>();
         return new QuestPlan(
-            root.Id,
+            rootId,
             _nodesById,
             _entitiesByKey,
             _groupsById,

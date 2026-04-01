@@ -71,4 +71,31 @@ public sealed class LazyTreeProjectorTests
         Assert.Single(thirdLevel);
         Assert.Equal((PlanNodeId)"item:mat", thirdLevel[0].NodeId);
     }
+
+    [Fact]
+    public void Projector_PrunesCrossTypeCyclesWithoutRenderingPlaceholders()
+    {
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:note", "Wyland's Note", dbName: "WylandsNote")
+            .AddItem("item:torn-note", "Torn Note")
+            .AddQuest("quest:orders", "Marching Orders", dbName: "MarchingOrders")
+            .AddEdge("quest:note", "item:torn-note", EdgeType.StepRead)
+            .AddEdge("quest:orders", "item:torn-note", EdgeType.RewardsItem)
+            .AddEdge("quest:orders", "quest:note", EdgeType.RequiresQuest)
+            .Build();
+
+        var plan = new QuestPlanBuilder(graph).Build("quest:note");
+        var session = new QuestTreeSession(plan);
+        var projector = new LazyTreeProjector(plan, session);
+
+        var tornNoteRef = Assert.Single(projector.GetRootChildren());
+        Assert.Equal((PlanNodeId)"item:torn-note", tornNoteRef.NodeId);
+
+        var itemChildren = projector.GetChildren(tornNoteRef);
+        var ordersRef = Assert.Single(itemChildren);
+        Assert.Equal((PlanNodeId)"quest:orders", ordersRef.NodeId);
+
+        var ordersChildren = projector.GetChildren(ordersRef);
+        Assert.Empty(ordersChildren);
+    }
 }

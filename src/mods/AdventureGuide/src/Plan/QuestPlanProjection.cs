@@ -2,8 +2,7 @@ namespace AdventureGuide.Plan;
 
 /// <summary>
 /// Shared canonical projection bundle derived from a <see cref="QuestPlan"/>.
-/// This is the service-layer handoff point for NAV, tracker, and markers before
-/// they fully migrate off the old ViewNode-based structure.
+/// This is the shared service-layer handoff point for NAV, tracker, and markers.
 /// </summary>
 public sealed class QuestPlanProjection
 {
