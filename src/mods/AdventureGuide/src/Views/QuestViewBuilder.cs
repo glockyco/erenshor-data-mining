@@ -53,6 +53,12 @@ public sealed class QuestViewBuilder
     private readonly Dictionary<string, EntityViewNode> _itemCache = new(StringComparer.Ordinal);
     /// <summary>Cached unlock dependency subtrees keyed by zone-line key.</summary>
     private readonly Dictionary<string, ViewNode?> _unlockDepCache = new(StringComparer.Ordinal);
+    /// <summary>
+    /// Cycle guard for IsSupportSubtreeInfeasible. Prevents re-entrant evaluation
+    /// of the same item key (can occur in diamond-shaped crafting DAGs where
+    /// the same ingredient appears in multiple recipe branches).
+    /// </summary>
+    private readonly HashSet<string> _supportCheckInProgress = new(StringComparer.Ordinal);
 
     public QuestViewBuilder(EntityGraph graph, GameState state,
         ZoneRouter router, QuestStateTracker tracker, UnlockEvaluator unlocks)
@@ -99,6 +105,7 @@ public sealed class QuestViewBuilder
         _questCache.Clear();
         _itemCache.Clear();
         _unlockDepCache.Clear();
+        _supportCheckInProgress.Clear();
     }
 
     // ── Quest node expansion ─────────────────────────────────────────────────
@@ -740,79 +747,74 @@ public sealed class QuestViewBuilder
 
         if (node is UnlockGroupNode unlockGroup)
         {
-            // AND-group: every child must remain viable. If any child is
-            // cyclical/infeasible, the whole requirement is impossible.
+            // AND-group: every blocker must be satisfiable.
             for (int i = 0; i < unlockGroup.Children.Count; i++)
-            {
                 if (IsSupportSubtreeInfeasible(unlockGroup.Children[i]))
                     return true;
-            }
-
             return unlockGroup.Children.Count == 0;
         }
 
         if (node is VariantGroupNode variantGroup)
         {
-            // OR-group: drop infeasible alternatives and keep the remaining
-            // viable branches, if any.
-            PruneInfeasibleChildren(variantGroup.Children);
+            // OR-group: prune infeasible alternatives, infeasible when all gone.
+            for (int i = variantGroup.Children.Count - 1; i >= 0; i--)
+                if (IsSupportSubtreeInfeasible(variantGroup.Children[i]))
+                    variantGroup.Children.RemoveAt(i);
             return variantGroup.Children.Count == 0;
         }
 
         var entityNode = (EntityViewNode)node;
 
+        // A node whose own unlock dependency is infeasible is itself infeasible.
         if (entityNode.UnlockDependency != null
             && IsSupportSubtreeInfeasible(entityNode.UnlockDependency))
-        {
             return true;
-        }
 
-        if (entityNode.Node.Type == NodeType.Item)
+        switch (entityNode.Node.Type)
         {
-            // Item nodes are only actionable when we already have the item or
-            // there is still at least one viable acquisition path beneath them.
-            PruneInfeasibleChildren(entityNode.Children);
-            return !_state.GetState(entityNode.NodeKey).IsSatisfied
-                && entityNode.Children.Count == 0;
-        }
-
-        if (entityNode.Node.Type == NodeType.Quest)
-        {
-            // Support subtrees can prune away every viable prerequisite or
-            // completion path after the initial build. Re-run quest feasibility
-            // on the pruned node so an empty gated quest does not survive as a
-            // dead-end leaf.
-            PruneInfeasibleChildren(entityNode.Children);
-            return !_state.GetState(entityNode.NodeKey).IsSatisfied
-                && IsQuestInfeasible(entityNode, entityNode.NodeKey);
-        }
-
-        if (entityNode.Node.Type == NodeType.Recipe)
-        {
-            // Recipes are AND-nodes over their materials: losing any material
-            // makes the crafting path infeasible.
-            for (int i = 0; i < entityNode.Children.Count; i++)
+            case NodeType.Item:
             {
-                if (IsSupportSubtreeInfeasible(entityNode.Children[i]))
-                    return true;
+                // Guard against re-entrant evaluation of the same item key.
+                // Diamond-shaped crafting DAGs (the same ingredient in multiple
+                // recipe branches) would otherwise cause exponential traversal.
+                // On re-entry we assume feasible: the outer evaluation will prune.
+                if (!_supportCheckInProgress.Add(entityNode.NodeKey))
+                    return false;
+                try
+                {
+                    // Prune sources that are infeasible (cycle refs, empty recipes,
+                    // no-source items). Sources that survive are viable paths.
+                    for (int i = entityNode.Children.Count - 1; i >= 0; i--)
+                        if (IsSupportSubtreeInfeasible(entityNode.Children[i]))
+                            entityNode.Children.RemoveAt(i);
+                    return !_state.GetState(entityNode.NodeKey).IsSatisfied
+                        && entityNode.Children.Count == 0;
+                }
+                finally
+                {
+                    _supportCheckInProgress.Remove(entityNode.NodeKey);
+                }
             }
 
-            return entityNode.Children.Count == 0;
-        }
+            case NodeType.Recipe:
+                // AND over materials: the first infeasible material kills the recipe.
+                // Don't prune — early-out; the recipe is removed by its parent item.
+                for (int i = 0; i < entityNode.Children.Count; i++)
+                    if (IsSupportSubtreeInfeasible(entityNode.Children[i]))
+                        return true;
+                return entityNode.Children.Count == 0;
 
-        // Other entity nodes are actionable leaves on their own. Prune any
-        // infeasible descendants, but do not discard the entity itself merely
-        // because it becomes childless.
-        PruneInfeasibleChildren(entityNode.Children);
-        return false;
-    }
+            case NodeType.Quest:
+                // IsQuestInfeasible checks direct cycle-ref structure of children —
+                // the same three rules used during the DFS build. No pre-pruning
+                // needed: every unreachable node already carries IsCycleRef = true.
+                return !_state.GetState(entityNode.NodeKey).IsSatisfied
+                    && IsQuestInfeasible(entityNode, entityNode.NodeKey);
 
-    private void PruneInfeasibleChildren(List<ViewNode> children)
-    {
-        for (int i = children.Count - 1; i >= 0; i--)
-        {
-            if (IsSupportSubtreeInfeasible(children[i]))
-                children.RemoveAt(i);
+            default:
+                // Character, ZoneLine, SpawnPoint, Door, etc. are actionable on
+                // their own. Sub-structures are irrelevant for feasibility here.
+                return false;
         }
     }
 
