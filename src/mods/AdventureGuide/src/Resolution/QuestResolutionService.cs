@@ -1,3 +1,4 @@
+using AdventureGuide.Plan;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
@@ -18,6 +19,7 @@ public sealed class QuestResolutionService
     private readonly QuestStateTracker _tracker;
     private readonly GameState _gameState;
     private readonly QuestViewBuilder _viewBuilder;
+    private readonly QuestPlanBuilder _planBuilder;
     private readonly GuideDependencyEngine _dependencies;
     private readonly CompiledSourceIndex _sourceIndex;
     private readonly SourcePositionCache _positionCache;
@@ -25,6 +27,7 @@ public sealed class QuestResolutionService
     private readonly ZoneRouter _router;
 
     private readonly Dictionary<string, QuestStructure> _structureCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
 
     public int Version { get; private set; }
@@ -34,6 +37,7 @@ public sealed class QuestResolutionService
         QuestStateTracker tracker,
         GameState gameState,
         QuestViewBuilder viewBuilder,
+        QuestPlanBuilder planBuilder,
         GuideDependencyEngine dependencies,
         CompiledSourceIndex sourceIndex,
         SourcePositionCache positionCache,
@@ -44,6 +48,7 @@ public sealed class QuestResolutionService
         _tracker = tracker;
         _gameState = gameState;
         _viewBuilder = viewBuilder;
+        _planBuilder = planBuilder;
         _dependencies = dependencies;
         _sourceIndex = sourceIndex;
         _positionCache = positionCache;
@@ -58,9 +63,10 @@ public sealed class QuestResolutionService
 
         if (changeSet.SceneChanged)
         {
-            if (_structureCache.Count > 0 || _targetCache.Count > 0)
+            if (_structureCache.Count > 0 || _planCache.Count > 0 || _targetCache.Count > 0)
             {
                 _structureCache.Clear();
+                _planCache.Clear();
                 _targetCache.Clear();
                 _dependencies.Clear();
                 _positionCache.Clear();
@@ -94,7 +100,10 @@ public sealed class QuestResolutionService
 
         bool removedAny = false;
         foreach (var questKey in structureInvalidations)
+        {
             removedAny |= _structureCache.Remove(questKey);
+            removedAny |= _planCache.Remove(questKey);
+        }
 
         foreach (var questKey in targetInvalidations)
             removedAny |= _targetCache.Remove(questKey);
@@ -143,6 +152,17 @@ public sealed class QuestResolutionService
     {
         _structureCache.TryGetValue(questKey, out var cached);
         return cached.ViewRoot;
+    }
+
+    /// <summary>Returns the cached canonical plan, building it on first access.</summary>
+    public QuestPlan GetQuestPlan(string questKey)
+    {
+        if (_planCache.TryGetValue(questKey, out var cached))
+            return cached;
+
+        var plan = _planBuilder.Build(questKey);
+        _planCache[questKey] = plan;
+        return plan;
     }
 
     public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey, EntityViewNode? context = null)

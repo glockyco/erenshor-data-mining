@@ -7,6 +7,7 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
+using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.Position.Resolvers;
 using AdventureGuide.Patches;
@@ -155,8 +156,9 @@ public sealed class Plugin : BaseUnityPlugin
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
         var positionCache = new SourcePositionCache(positionRegistry);
+        var planBuilder = new QuestPlanBuilder(_graph);
         _resolutionService = new QuestResolutionService(
-            _graph, _questTracker, _gameState, _viewBuilder,
+            _graph, _questTracker, _gameState, _viewBuilder, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter);
 
         _navEngine = new NavigationEngine(
