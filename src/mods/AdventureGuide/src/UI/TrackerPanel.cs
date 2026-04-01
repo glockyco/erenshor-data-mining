@@ -50,6 +50,10 @@ public sealed class TrackerPanel
     private bool _compact = true;
     private System.Numerics.Vector2 _contentMin;
     private System.Numerics.Vector2 _contentMax;
+    private const float DistanceUpdateInterval = 0.5f;
+    private float _distanceTimer = DistanceUpdateInterval;  // force immediate first update
+    private readonly Dictionary<string, string> _cachedDistanceText = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, float> _cachedMinDistance = new(StringComparer.OrdinalIgnoreCase);
 
     public bool Visible => _visible;
     public void Toggle() => _visible = !_visible;
@@ -120,6 +124,7 @@ public sealed class TrackerPanel
 
         PruneAnimations();
         RebuildSortedListIfNeeded();
+        UpdateDistancesIfNeeded();
 
         if (_sorted.Count == 0 && _fadingOut.Count == 0)
             return;
@@ -439,8 +444,7 @@ public sealed class TrackerPanel
 
         var resolution = _resolution.ResolveQuest(quest.Key);
         string summary = resolution.TrackerSummary.PrimaryText;
-        string distText = ComputeDistanceText(resolution);
-        if (distText.Length > 0)
+        if (_cachedDistanceText.TryGetValue(quest.Key, out var distText) && distText.Length > 0)
             summary += " " + distText;
 
         ImGui.Indent(Theme.IndentWidth);
@@ -450,6 +454,54 @@ public sealed class TrackerPanel
             ImGui.TextWrapped(resolution.TrackerSummary.SecondaryText);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    private void UpdateDistancesIfNeeded()
+    {
+        _distanceTimer += Time.deltaTime;
+        if (_distanceTimer < DistanceUpdateInterval)
+            return;
+        _distanceTimer = 0f;
+
+        _cachedDistanceText.Clear();
+        _cachedMinDistance.Clear();
+
+        for (int i = 0; i < _sorted.Count; i++)
+        {
+            var dbName = _sorted[i];
+            var quest = _graph.GetQuestByDbName(dbName);
+            if (quest == null) continue;
+
+            var resolution = _resolution.ResolveQuest(quest.Key);
+            var distText = ComputeDistanceText(resolution);
+            _cachedDistanceText[quest.Key] = distText;
+
+            float minDist = ComputeMinSameZoneDistance(resolution);
+            if (minDist < float.MaxValue)
+                _cachedMinDistance[quest.Key] = minDist;
+        }
+    }
+
+    private float ComputeMinSameZoneDistance(QuestResolution resolution)
+    {
+        if (resolution.Targets.Count == 0 || GameData.PlayerControl == null)
+            return float.MaxValue;
+
+        var playerPos = GameData.PlayerControl.transform.position;
+        float minDistance = float.MaxValue;
+        for (int i = 0; i < resolution.Targets.Count; i++)
+        {
+            var target = resolution.Targets[i];
+            if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
+                continue;
+
+            float distance = Vector3.Distance(playerPos, target.Position);
+            if (distance < minDistance)
+                minDistance = distance;
+        }
+        return minDistance;
     }
 
     private string ComputeDistanceText(QuestResolution resolution)
@@ -480,30 +532,6 @@ public sealed class TrackerPanel
             return bestHops == 1 ? "(1 hop)" : $"({bestHops} hops)";
 
         return "";
-    }
-
-    private float GetMinFrontierDistance(string questKey)
-    {
-        var resolution = _resolution.ResolveQuest(questKey);
-        if (resolution.Targets.Count == 0 || GameData.PlayerControl == null)
-            return float.MaxValue;
-
-        var playerPos = GameData.PlayerControl.transform.position;
-        float minDistance = float.MaxValue;
-        for (int i = 0; i < resolution.Targets.Count; i++)
-        {
-            var target = resolution.Targets[i];
-            if (!string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
-                continue;
-            if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
-                continue;
-
-            float distance = Vector3.Distance(playerPos, target.Position);
-            if (distance < minDistance)
-                minDistance = distance;
-        }
-
-        return minDistance;
     }
 
     private int GetBestHopCount(QuestResolution resolution)
@@ -614,8 +642,10 @@ public sealed class TrackerPanel
 
     private int CompareByProximity(Node a, Node b)
     {
-        float distA = GetMinFrontierDistance(a.Key);
-        float distB = GetMinFrontierDistance(b.Key);
+        _cachedMinDistance.TryGetValue(a.Key, out float distA);
+        _cachedMinDistance.TryGetValue(b.Key, out float distB);
+        if (distA == 0f) distA = float.MaxValue;
+        if (distB == 0f) distB = float.MaxValue;
 
         bool aInZone = distA < float.MaxValue;
         bool bInZone = distB < float.MaxValue;
@@ -632,6 +662,7 @@ public sealed class TrackerPanel
                 : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
         }
 
+        // Both cross-zone: compare by cached resolution hop count.
         int hopsA = GetBestHopCount(_resolution.ResolveQuest(a.Key));
         int hopsB = GetBestHopCount(_resolution.ResolveQuest(b.Key));
         int hopCmp = hopsA.CompareTo(hopsB);

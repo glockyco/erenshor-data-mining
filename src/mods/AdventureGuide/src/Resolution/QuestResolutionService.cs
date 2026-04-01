@@ -29,6 +29,7 @@ public sealed class QuestResolutionService
     private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>> _sceneTargetCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, QuestResolution> _resolutionCache = new(StringComparer.Ordinal);
 
     public int Version { get; private set; }
 
@@ -62,12 +63,13 @@ public sealed class QuestResolutionService
 
         if (changeSet.SceneChanged)
         {
-            if (_planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0 || _sceneTargetCache.Count > 0)
+            if (_planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0 || _sceneTargetCache.Count > 0 || _resolutionCache.Count > 0)
             {
                 _planCache.Clear();
                 _planProjectionCache.Clear();
                 _targetCache.Clear();
                 _sceneTargetCache.Clear();
+                _resolutionCache.Clear();
                 _dependencies.Clear();
                 _positionCache.Clear();
                 Version++;
@@ -99,6 +101,7 @@ public sealed class QuestResolutionService
             removedAny |= _planProjectionCache.Remove(questKey);
             removedAny |= _targetCache.Remove(questKey);
             removedAny |= _sceneTargetCache.Remove(questKey);
+            removedAny |= _resolutionCache.Remove(questKey);
         }
 
 
@@ -128,16 +131,21 @@ public sealed class QuestResolutionService
 
     public QuestResolution ResolveQuest(string questKey)
     {
+        if (_resolutionCache.TryGetValue(questKey, out var cached))
+            return cached;
+
         var projection = GetQuestPlanProjection(questKey);
         var questNode = _graph.GetNode(questKey);
         var targets = ResolveTargets(questKey, projection, questNode);
         var trackerSummary = BuildTrackerSummary(questNode, questKey, projection, targets);
 
-        return new QuestResolution(
+        var resolution = new QuestResolution(
             questKey,
             projection,
             targets,
             trackerSummary);
+        _resolutionCache[questKey] = resolution;
+        return resolution;
     }
 
     /// <summary>Returns the cached canonical plan, building it on first access.</summary>
