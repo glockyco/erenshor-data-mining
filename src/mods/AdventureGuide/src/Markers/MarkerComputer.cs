@@ -199,7 +199,7 @@ public sealed class MarkerComputer
             // quest via NAV or tracker.
             bool suppressBlocked = implicitlyActive
                 && !explicitlySelected
-                && HasBlockedImplicitFrontier(resolution.PlanProjection);
+                && FrontierResolver.IsImplicitFrontierBlocked(resolution.PlanProjection);
             if (!suppressBlocked)
                 EmitActiveQuestMarkers(quest, resolution);
             return;
@@ -207,97 +207,6 @@ public sealed class MarkerComputer
 
         if (!_tracker.IsCompleted(quest.DbName) || quest.Repeatable)
             EmitQuestGiverMarkers(quest);
-    }
-
-    /// <summary>
-    /// Determine whether an implicit quest's frontier is entirely blocked by
-    /// quest dependencies, making the quest uncompletable right now.
-    ///
-    /// The rule depends on which phase the frontier nodes belong to:
-    ///   Acceptance (AssignedBy): blocked when ALL paths are blocked.
-    ///   Objectives (items, steps): blocked when ANY single objective is blocked.
-    ///   Turn-in (CompletedBy): blocked when ALL paths are blocked.
-    /// </summary>
-    private static bool HasBlockedImplicitFrontier(QuestPlanProjection projection)
-    {
-        var frontier = projection.Frontier;
-        if (frontier.Count == 0)
-            return false;
-
-        bool isObjectivePhase = frontier[0].IncomingLink.EdgeType is not (EdgeType.AssignedBy or EdgeType.CompletedBy);
-
-        if (isObjectivePhase)
-        {
-            for (int i = 0; i < frontier.Count; i++)
-            {
-                if (HasBlockingRequirement(projection.Plan, frontier[i].NodeId, new HashSet<PlanNodeId>()))
-                    return true;
-            }
-            return false;
-        }
-
-        for (int i = 0; i < frontier.Count; i++)
-        {
-            if (!HasBlockingRequirement(projection.Plan, frontier[i].NodeId, new HashSet<PlanNodeId>()))
-                return false;
-        }
-        return true;
-    }
-
-    private static bool HasBlockingRequirement(QuestPlan plan, PlanNodeId nodeId, HashSet<PlanNodeId> visited)
-    {
-        if (!visited.Add(nodeId))
-            return true;
-
-        try
-        {
-            var node = plan.GetNode(nodeId);
-            if (node == null)
-                return false;
-
-            if (node is PlanEntityNode entity)
-            {
-                if (entity.UnlockRequirementId != null)
-                    return true;
-                if (entity.Outgoing.Count == 0)
-                    return false;
-
-                for (int i = 0; i < entity.Outgoing.Count; i++)
-                {
-                    if (!HasBlockingRequirement(plan, entity.Outgoing[i].ToId, visited))
-                        return false;
-                }
-
-                return entity.Outgoing.Count > 0;
-            }
-
-            var group = (PlanGroupNode)node;
-            switch (group.GroupKind)
-            {
-                case PlanGroupKind.AnyOf:
-                    for (int i = 0; i < group.Outgoing.Count; i++)
-                    {
-                        if (!HasBlockingRequirement(plan, group.Outgoing[i].ToId, visited))
-                            return false;
-                    }
-                    return group.Outgoing.Count > 0;
-
-                case PlanGroupKind.AllOf:
-                    for (int i = 0; i < group.Outgoing.Count; i++)
-                    {
-                        if (HasBlockingRequirement(plan, group.Outgoing[i].ToId, visited))
-                            return true;
-                    }
-                    return false;
-
-                default:
-                    return false;
-            }
-        }
-        finally
-        {
-            visited.Remove(nodeId);
-        }
     }
 
     private void EmitActiveQuestMarkers(Node quest, QuestResolution resolution)
