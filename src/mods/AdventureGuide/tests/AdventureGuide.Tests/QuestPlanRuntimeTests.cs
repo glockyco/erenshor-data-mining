@@ -52,6 +52,85 @@ public sealed class QuestPlanRuntimeTests
         Assert.Equal(6, ghost.EffectiveLevel);
     }
 
+
+    [Fact]
+    public void LockedCharacterSource_GetsNestedDoorAndKeyRequirements()
+    {
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:q", "Quest Q", dbName: "QuestQ")
+            .AddItem("item:note", "Torn Note")
+            .AddCharacter("character:ghost", "Ghost")
+            .AddDoor("door:gate", "Gate", scene: "IslandTomb", keyItemKey: "item:key")
+            .AddItem("item:key", "Copper Key")
+            .AddItemBag("bag:key", "Key Cache", scene: "IslandTomb")
+            .AddEdge("quest:q", "item:note", EdgeType.StepRead)
+            .AddEdge("character:ghost", "item:note", EdgeType.DropsItem)
+            .AddEdge("door:gate", "character:ghost", EdgeType.UnlocksCharacter)
+            .AddEdge("item:key", "door:gate", EdgeType.UnlocksDoor)
+            .AddEdge("bag:key", "item:key", EdgeType.DropsItem)
+            .Build();
+
+        var bag = graph.GetNode("bag:key")!;
+        bag.X = 2f;
+        bag.Y = 0f;
+        bag.Z = 3f;
+
+        var snapshot = new StateSnapshot
+        {
+            ActiveQuests = ["QuestQ"],
+            CurrentZone = "IslandTomb",
+        };
+        var harness = SnapshotHarness.FromSnapshot(graph, snapshot);
+        var builder = new QuestPlanBuilder(graph, harness.GameState, harness.Router, harness.Tracker, harness.Unlocks);
+        var plan = builder.Build("quest:q");
+
+        var ghost = plan.EntityNodesByKey["character:ghost"];
+        Assert.NotNull(ghost.UnlockRequirementId);
+        var ghostGroup = Assert.IsType<PlanGroupNode>(plan.GetNode(ghost.UnlockRequirementId!.Value));
+        Assert.Contains(ghostGroup.Outgoing, l => l.ToId == (PlanNodeId)"door:gate");
+
+        var door = plan.EntityNodesByKey["door:gate"];
+        Assert.NotNull(door.UnlockRequirementId);
+        var doorGroup = Assert.IsType<PlanGroupNode>(plan.GetNode(door.UnlockRequirementId!.Value));
+        Assert.Contains(doorGroup.Outgoing, l => l.ToId == (PlanNodeId)"item:key");
+
+        var key = plan.EntityNodesByKey["item:key"];
+        var sourceGroup = Assert.IsType<PlanGroupNode>(plan.GetNode("item:key:sources:anyof"));
+        Assert.Contains(sourceGroup.Outgoing, l => l.ToId == (PlanNodeId)"bag:key");
+    }
+
+    [Fact]
+    public void CharacterSourceInLockedZone_GetsZoneLineQuestRequirement()
+    {
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:q", "Quest Q", dbName: "QuestQ")
+            .AddQuest("quest:gate", "Gate Quest", dbName: "GateQuest")
+            .AddItem("item:orders", "Marching Orders")
+            .AddCharacter("character:gherist", "Gherist", scene: "ZoneB")
+            .AddZone("zone:a", "Zone A", scene: "ZoneA")
+            .AddZone("zone:b", "Zone B", scene: "ZoneB")
+            .AddZoneLine("zl:ab", "ZL A→B", scene: "ZoneA", destinationZoneKey: "zone:b",
+                x: 10, y: 0, z: 5)
+            .AddEdge("quest:q", "item:orders", EdgeType.StepRead)
+            .AddEdge("character:gherist", "item:orders", EdgeType.DropsItem)
+            .AddEdge("zl:ab", "zone:b", EdgeType.ConnectsZones)
+            .AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
+            .Build();
+
+        var snapshot = new StateSnapshot
+        {
+            ActiveQuests = ["QuestQ"],
+            CurrentZone = "ZoneA",
+        };
+        var harness = SnapshotHarness.FromSnapshot(graph, snapshot);
+        var builder = new QuestPlanBuilder(graph, harness.GameState, harness.Router, harness.Tracker, harness.Unlocks);
+        var plan = builder.Build("quest:q");
+
+        var gherist = plan.EntityNodesByKey["character:gherist"];
+        Assert.NotNull(gherist.UnlockRequirementId);
+        var group = Assert.IsType<PlanGroupNode>(plan.GetNode(gherist.UnlockRequirementId!.Value));
+        Assert.Contains(group.Outgoing, l => l.ToId == (PlanNodeId)"quest:gate");
+    }
     [Fact]
     public void LockedDoor_GetsExplicitUnlockRequirementGroup()
     {

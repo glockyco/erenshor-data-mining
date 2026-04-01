@@ -468,51 +468,56 @@ public sealed class QuestPlanBuilder
         if (_unlocks == null)
             return;
 
-        if (node.Node.Type == NodeType.Zone)
+        var blockingSources = new List<Node>();
+        EdgeType semanticEdgeType = EdgeType.UnlocksZoneLine;
+
+        if (UnlockEvaluator.TryGetUnlockEdgeType(node.Node.Type, out var unlockEdgeType))
         {
-            AddZoneUnlockRequirement(node);
-            return;
+            semanticEdgeType = unlockEdgeType;
+            CollectBlockingSources(blockingSources, _unlocks.Evaluate(node.Node));
         }
 
-        if (!UnlockEvaluator.TryGetUnlockEdgeType(node.Node.Type, out var unlockEdgeType))
-            return;
-
-        AddUnlockRequirement(node, _unlocks.Evaluate(node.Node), unlockEdgeType,
-            node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
-    }
-
-    private void AddZoneUnlockRequirement(PlanEntityNode node)
-    {
-        if (_zoneAccess == null || _unlocks == null)
-            return;
-
-        var lockedRoute = _zoneAccess.FindBlockedRoute(node.Node.Scene);
-        if (lockedRoute == null)
-            return;
+        if (_zoneAccess != null)
+        {
+            var lockedRoute = _zoneAccess.FindBlockedRoute(node.Node.Scene);
+            if (lockedRoute != null)
+            {
+                if (blockingSources.Count == 0)
+                    semanticEdgeType = EdgeType.UnlocksZoneLine;
+                CollectBlockingSources(blockingSources, lockedRoute.Evaluation);
+            }
+        }
 
         AddUnlockRequirement(
             node,
-            lockedRoute.Evaluation,
-            EdgeType.UnlocksZoneLine,
-            "Requires");
+            blockingSources,
+            semanticEdgeType,
+            node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
     }
 
-    private void AddUnlockRequirement(
-        PlanEntityNode node,
-        UnlockEvaluation evaluation,
-        EdgeType unlockEdgeType,
-        string label)
+    private void CollectBlockingSources(List<Node> target, UnlockEvaluation evaluation)
     {
-        var blockingSources = new List<Node>(evaluation.BlockingSources.Count);
+        if (evaluation.IsUnlocked || evaluation.BlockingSources.Count == 0)
+            return;
+
         for (int i = 0; i < evaluation.BlockingSources.Count; i++)
         {
             var source = evaluation.BlockingSources[i];
             if (source.Type == NodeType.Quest && _questsOnPath.Contains(source.Key))
                 continue;
-            blockingSources.Add(source);
+            if (target.Any(existing => string.Equals(existing.Key, source.Key, StringComparison.Ordinal)))
+                continue;
+            target.Add(source);
         }
+    }
 
-        if (evaluation.IsUnlocked || blockingSources.Count == 0)
+    private void AddUnlockRequirement(
+        PlanEntityNode node,
+        List<Node> blockingSources,
+        EdgeType unlockEdgeType,
+        string label)
+    {
+        if (blockingSources.Count == 0)
             return;
 
         var groupId = $"{node.NodeKey}:unlock:allof";
@@ -525,6 +530,7 @@ public sealed class QuestPlanBuilder
             var source = blockingSources[i];
             var sourceNode = GetOrCreateEntity(source);
             ApplyRuntimeState(sourceNode);
+            AddUnlockRequirement(sourceNode);
             AddLink(group.Id, sourceNode.Id, DependencySemantics.FromEdge(unlockEdgeType), edgeType: null);
 
             if (source.Type == NodeType.Quest)

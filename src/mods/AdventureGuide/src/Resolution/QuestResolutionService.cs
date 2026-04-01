@@ -392,10 +392,20 @@ public sealed class QuestResolutionService
             if (hasReachable && !reachable)
                 continue;
 
+            if (!reachable && sourceNode.Type is NodeType.Character or NodeType.ZoneLine)
+            {
+                var evaluation = _unlocks.Evaluate(sourceNode);
+                if (!evaluation.IsUnlocked)
+                {
+                    ResolveBlockedTargets(questKey, frontierNode, requestedNode, evaluation, results, seen, plan);
+                    continue;
+                }
+            }
+
             var positions = _positionCache.Resolve(source.SourceNodeKey);
             if (positions.Length == 0) continue;
 
-            var targetContext = CreateContext(sourceNode, source.AcquisitionEdge, plan: null);
+            var targetContext = CreateContext(sourceNode, source.AcquisitionEdge, plan);
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(results, seen, questKey,
                     frontierNode, targetContext, positions[j], requestedNode, plan);
