@@ -421,9 +421,22 @@ public sealed class QuestResolutionService
         Node requestedNode,
         QuestPlan? plan)
     {
-        var blockedRoute = _zoneAccess.FindBlockedRoute(GetBlockedRouteScene(targetNode, pos));
+        string? targetScene = GetBlockedRouteScene(targetNode, pos);
+        var blockedRoute = _zoneAccess.FindBlockedRoute(targetScene);
         if (blockedRoute == null)
             return false;
+
+        string routeDedupeKey = string.Join("|", new[]
+        {
+            "route",
+            questKey,
+            goalNode.NodeKey,
+            targetNode.NodeKey,
+            targetScene ?? string.Empty,
+            blockedRoute.ZoneLineNode.Key,
+        });
+        if (!seen.Add(routeDedupeKey))
+            return true;
 
         ResolveBlockedTargets(
             questKey,
