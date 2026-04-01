@@ -28,6 +28,7 @@ public sealed class QuestResolutionService
 
     private readonly Dictionary<string, QuestStructure> _structureCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
 
     public int Version { get; private set; }
@@ -63,10 +64,11 @@ public sealed class QuestResolutionService
 
         if (changeSet.SceneChanged)
         {
-            if (_structureCache.Count > 0 || _planCache.Count > 0 || _targetCache.Count > 0)
+            if (_structureCache.Count > 0 || _planCache.Count > 0 || _planProjectionCache.Count > 0 || _targetCache.Count > 0)
             {
                 _structureCache.Clear();
                 _planCache.Clear();
+                _planProjectionCache.Clear();
                 _targetCache.Clear();
                 _dependencies.Clear();
                 _positionCache.Clear();
@@ -103,10 +105,14 @@ public sealed class QuestResolutionService
         {
             removedAny |= _structureCache.Remove(questKey);
             removedAny |= _planCache.Remove(questKey);
+            removedAny |= _planProjectionCache.Remove(questKey);
         }
 
         foreach (var questKey in targetInvalidations)
+        {
             removedAny |= _targetCache.Remove(questKey);
+            removedAny |= _planProjectionCache.Remove(questKey);
+        }
 
 
         // Evict cached source positions for changed live-world sources.
@@ -163,6 +169,17 @@ public sealed class QuestResolutionService
         var plan = _planBuilder.Build(questKey);
         _planCache[questKey] = plan;
         return plan;
+    }
+
+    /// <summary>Returns the canonical plan plus shared frontier/tracker/nav projections.</summary>
+    public QuestPlanProjection GetQuestPlanProjection(string questKey)
+    {
+        if (_planProjectionCache.TryGetValue(questKey, out var cached))
+            return cached;
+
+        var projection = QuestPlanProjectionBuilder.Build(GetQuestPlan(questKey), _gameState);
+        _planProjectionCache[questKey] = projection;
+        return projection;
     }
 
     public IReadOnlyList<ResolvedQuestTarget> ResolveTargetsForNavigation(string nodeKey, EntityViewNode? context = null)
