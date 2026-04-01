@@ -10,7 +10,7 @@ namespace AdventureGuide.Views;
 ///
 /// All frontier results from <see cref="Frontier.FrontierComputer.ComputeFrontier"/> are
 /// <see cref="EntityViewNode"/> instances; so are the goal and target nodes in
-/// <see cref="Navigation.ResolvedViewPosition"/> and <see cref="Resolution.ResolvedQuestTarget"/>.
+/// <see cref="Resolution.ResolvedQuestTarget"/>.
 /// </summary>
 public sealed class EntityViewNode : ViewNode
 {

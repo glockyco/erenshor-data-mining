@@ -1,8 +1,10 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 using AdventureGuide.State;
 using AdventureGuide.Views;
+
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -16,15 +18,14 @@ public sealed class QuestResolutionService
     private readonly QuestStateTracker _tracker;
     private readonly GameState _gameState;
     private readonly QuestViewBuilder _viewBuilder;
-    private readonly ViewNodePositionCollector _viewPositions;
     private readonly GuideDependencyEngine _dependencies;
     private readonly CompiledSourceIndex _sourceIndex;
     private readonly SourcePositionCache _positionCache;
     private readonly UnlockEvaluator _unlocks;
+    private readonly ZoneRouter _router;
 
     private readonly Dictionary<string, QuestStructure> _structureCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetCache = new(StringComparer.Ordinal);
-    private readonly List<ResolvedViewPosition> _detailedPositions = new();
 
     public int Version { get; private set; }
 
@@ -33,21 +34,21 @@ public sealed class QuestResolutionService
         QuestStateTracker tracker,
         GameState gameState,
         QuestViewBuilder viewBuilder,
-        ViewNodePositionCollector viewPositions,
         GuideDependencyEngine dependencies,
         CompiledSourceIndex sourceIndex,
         SourcePositionCache positionCache,
-        UnlockEvaluator unlocks)
+        UnlockEvaluator unlocks,
+        ZoneRouter router)
     {
         _graph = graph;
         _tracker = tracker;
         _gameState = gameState;
         _viewBuilder = viewBuilder;
-        _viewPositions = viewPositions;
         _dependencies = dependencies;
         _sourceIndex = sourceIndex;
         _positionCache = positionCache;
         _unlocks = unlocks;
+        _router = router;
     }
 
     public GuideChangeSet ApplyChangeSet(GuideChangeSet changeSet)
@@ -239,35 +240,100 @@ public sealed class QuestResolutionService
         for (int i = 0; i < frontier.Count; i++)
         {
             var frontierNode = frontier[i];
+            var nodeType = frontierNode.Node.Type;
 
             // Item/Recipe frontier nodes are the expensive case: they recurse
             // into potentially hundreds of source children. Use the pre-compiled
             // source index instead of walking the view tree.
-            if (frontierNode.Node.Type is NodeType.Item or NodeType.Recipe)
+            if (nodeType is NodeType.Item or NodeType.Recipe)
             {
                 ResolveItemTargetsFromBlueprint(
                     questKey, frontierNode, requestedNode, results, seen);
                 continue;
             }
 
-            // All other frontier node types (Character, Zone, Quest, etc.)
-            // use the view-tree-based collector. It benefits from the shared
-            // SourcePositionCache for leaf position resolution.
-            _detailedPositions.Clear();
-            _viewPositions.CollectDetailed(frontierNode, _detailedPositions);
-            for (int j = 0; j < _detailedPositions.Count; j++)
-                AddResolvedTarget(results, seen, questKey, _detailedPositions[j], requestedNode);
+            // Prerequisite quests: recursively resolve their targets and re-attribute
+            // to the current quest so navigation reaches the next actionable step.
+            if (nodeType == NodeType.Quest)
+            {
+                var prereqResolution = ResolveQuest(frontierNode.NodeKey);
+                foreach (var t in prereqResolution.Targets)
+                    results.Add(new ResolvedQuestTarget(
+                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
+                        t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
+                        t.Position, t.IsActionable));
+                continue;
+            }
+
+            // Characters and zone lines may be unlock-gated. When blocked,
+            // redirect navigation to the blocking requirement instead.
+            if (nodeType is NodeType.Character or NodeType.ZoneLine)
+            {
+                var eval = _unlocks.Evaluate(frontierNode.Node);
+                if (!eval.IsUnlocked)
+                {
+                    ResolveBlockedTargets(questKey, frontierNode, requestedNode, eval, results, seen);
+                    continue;
+                }
+            }
+
+            // All remaining types (Zone, ZoneLine when unlocked, etc.) resolve
+            // directly via the position cache.
+            var positions = _positionCache.Resolve(frontierNode.NodeKey);
+            for (int j = 0; j < positions.Length; j++)
+                AddResolvedTargetDirect(results, seen, questKey,
+                    frontierNode, frontierNode, positions[j], requestedNode);
         }
 
         return results;
+    }
+
+    // ── Blocked-target resolution ────────────────────────────────────────────
+
+    /// <summary>
+    /// When a frontier node is unlock-blocked, resolve positions for its
+    /// blocking sources so navigation reaches the unlock requirement instead.
+    /// </summary>
+    private void ResolveBlockedTargets(
+        string questKey,
+        EntityViewNode frontierNode,
+        Node requestedNode,
+        UnlockEvaluation evaluation,
+        List<ResolvedQuestTarget> results,
+        HashSet<string> seen)
+    {
+        var blocking = evaluation.BlockingSources;
+        for (int i = 0; i < blocking.Count; i++)
+        {
+            var blockingSource = blocking[i];
+            if (blockingSource.Type == NodeType.Quest)
+            {
+                // Complete the blocking quest first.
+                var blockingResolution = ResolveQuest(blockingSource.Key);
+                foreach (var t in blockingResolution.Targets)
+                    results.Add(new ResolvedQuestTarget(
+                        questKey, t.TargetNodeKey, t.Scene, t.SourceKey,
+                        t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
+                        t.Position, t.IsActionable));
+            }
+            else
+            {
+                // Door, item, or other blocking source — resolve its position.
+                var blockingViewNode = new EntityViewNode(blockingSource.Key, blockingSource);
+                var positions = _positionCache.Resolve(blockingSource.Key);
+                for (int j = 0; j < positions.Length; j++)
+                    AddResolvedTargetDirect(results, seen, questKey,
+                        frontierNode, blockingViewNode, positions[j], requestedNode);
+            }
+        }
     }
 
     // ── Blueprint-based item target resolution ──────────────────────────────
 
     /// <summary>
     /// Resolve targets for an item/recipe frontier node using the pre-compiled
-    /// source index. This avoids the recursive view-tree walk that previously
-    /// dominated cold-path cost for quests with broad item dependencies.
+    /// source index. This avoids a recursive view-tree walk for quests with
+    /// broad item dependencies.
     /// </summary>
     private void ResolveItemTargetsFromBlueprint(
         string questKey,
@@ -278,16 +344,7 @@ public sealed class QuestResolutionService
     {
         var sources = _sourceIndex.GetSourcesForItem(frontierNode.NodeKey);
         if (sources.Count == 0)
-        {
-            // No pre-compiled sources — fall back to view-tree walk.
-            // This handles edge cases where the view builder found sources
-            // that the static compilation missed (e.g., dynamic item paths).
-            _detailedPositions.Clear();
-            _viewPositions.CollectDetailed(frontierNode, _detailedPositions);
-            for (int i = 0; i < _detailedPositions.Count; i++)
-                AddResolvedTarget(results, seen, questKey, _detailedPositions[i], requestedNode);
             return;
-        }
 
         // Determine if any source is reachable (not unlock-blocked).
         // When reachable sources exist, skip blocked alternatives so they
@@ -327,13 +384,8 @@ public sealed class QuestResolutionService
                 source.SourceNodeKey, sourceNode, source.AcquisitionEdge, null);
 
             for (int j = 0; j < positions.Length; j++)
-            {
-                var pos = positions[j];
-                var resolved = new ResolvedViewPosition(
-                    pos.Position, pos.Scene, pos.SourceKey,
-                    frontierNode, targetViewNode, pos.IsActionable);
-                AddResolvedTarget(results, seen, questKey, resolved, requestedNode);
-            }
+                AddResolvedTargetDirect(results, seen, questKey,
+                    frontierNode, targetViewNode, positions[j], requestedNode);
         }
     }
 
@@ -354,28 +406,51 @@ public sealed class QuestResolutionService
         var results = new List<ResolvedQuestTarget>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
-        _detailedPositions.Clear();
-        _viewPositions.CollectDetailed(root, _detailedPositions);
-        for (int i = 0; i < _detailedPositions.Count; i++)
-            AddResolvedTarget(results, seen, questKey, _detailedPositions[i], requestedNode);
+        if (root is not EntityViewNode entityNode)
+            return results;
+
+        var nodeType = entityNode.Node.Type;
+
+        if (nodeType is NodeType.Item or NodeType.Recipe)
+        {
+            ResolveItemTargetsFromBlueprint(questKey, entityNode, requestedNode, results, seen);
+            return results;
+        }
+
+        if (nodeType is NodeType.Character or NodeType.ZoneLine)
+        {
+            var eval = _unlocks.Evaluate(entityNode.Node);
+            if (!eval.IsUnlocked)
+            {
+                ResolveBlockedTargets(questKey, entityNode, requestedNode, eval, results, seen);
+                return results;
+            }
+        }
+
+        var positions = _positionCache.Resolve(entityNode.NodeKey);
+        for (int i = 0; i < positions.Length; i++)
+            AddResolvedTargetDirect(results, seen, questKey,
+                entityNode, entityNode, positions[i], requestedNode);
 
         return results;
     }
 
-    private void AddResolvedTarget(
+    private void AddResolvedTargetDirect(
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
         string questKey,
-        ResolvedViewPosition resolved,
+        EntityViewNode goalNode,
+        EntityViewNode targetNode,
+        ResolvedPosition pos,
         Node requestedNode)
     {
         string dedupeKey = string.Join("|", new[]
         {
             questKey,
-            resolved.TargetNode.NodeKey,
-            resolved.Scene ?? string.Empty,
-            resolved.SourceKey ?? string.Empty,
-            resolved.GoalNode.NodeKey,
+            targetNode.NodeKey,
+            pos.Scene ?? string.Empty,
+            pos.SourceKey ?? string.Empty,
+            goalNode.NodeKey,
         });
 
         if (!seen.Add(dedupeKey))
@@ -384,24 +459,24 @@ public sealed class QuestResolutionService
         var semantic = ResolvedActionSemanticBuilder.Build(
             _graph,
             requestedNode,
-            resolved.GoalNode,
-            resolved.TargetNode);
+            goalNode,
+            targetNode);
         var explanation = NavigationExplanationBuilder.Build(
             semantic,
-            resolved.GoalNode,
-            resolved.TargetNode);
+            goalNode,
+            targetNode);
 
         results.Add(new ResolvedQuestTarget(
             questKey,
-            resolved.TargetNode.NodeKey,
-            resolved.Scene,
-            resolved.SourceKey,
-            resolved.GoalNode,
-            resolved.TargetNode,
+            targetNode.NodeKey,
+            pos.Scene,
+            pos.SourceKey,
+            goalNode,
+            targetNode,
             semantic,
             explanation,
-            resolved.Position,
-            resolved.IsActionable));
+            pos.Position,
+            pos.IsActionable));
     }
 
     private TrackerSummary BuildTrackerSummary(
