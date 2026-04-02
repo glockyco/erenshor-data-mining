@@ -78,6 +78,11 @@ public sealed class ZoneRouter
     // zone_key -> scene name
     private readonly Dictionary<string, string> _zoneKeyToScene = new(StringComparer.OrdinalIgnoreCase);
 
+    // Hop-count cache: fromScene -> (scene -> hop count). Invalidated on Rebuild().
+    // Computed lazily on first GetHopCount call for a given source scene.
+    private Dictionary<string, int>? _hopCache;
+    private string? _hopCacheFrom;
+
     private readonly struct ZoneEdge
     {
         public readonly string DestScene;
@@ -118,6 +123,7 @@ public sealed class ZoneRouter
     public void Rebuild()
     {
         _adj.Clear();
+        _hopCache = null;  // invalidate cached hop counts — adjacency changed
 
         foreach (var zl in _graph.NodesOfType(NodeType.ZoneLine))
         {
@@ -158,6 +164,63 @@ public sealed class ZoneRouter
     /// Find the best route from currentScene to targetScene.
     /// Returns null if no route exists or both are the same zone.
     /// </summary>
+    /// <summary>
+    /// Minimum hop count from <paramref name="fromScene"/> to
+    /// <paramref name="toScene"/>. Returns <see cref="int.MaxValue"/> when
+    /// unreachable.
+    ///
+    /// Results are computed once per source scene via a single BFS over all
+    /// zones and cached until the next <see cref="Rebuild"/> call. Use this
+    /// instead of <see cref="FindRoute"/> when only the distance matters.
+    /// </summary>
+    public int GetHopCount(string fromScene, string toScene)
+    {
+        if (string.Equals(fromScene, toScene, StringComparison.OrdinalIgnoreCase))
+            return 0;
+
+        if (_hopCache == null || !string.Equals(_hopCacheFrom, fromScene,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            _hopCache     = ComputeHopsFrom(fromScene);
+            _hopCacheFrom = fromScene;
+        }
+
+        return _hopCache.TryGetValue(toScene, out var h) ? h : int.MaxValue;
+    }
+
+    /// <summary>
+    /// BFS from <paramref name="fromScene"/> across all edges (accessible and
+    /// locked) to compute minimum hop counts to every reachable zone.
+    /// </summary>
+    private Dictionary<string, int> ComputeHopsFrom(string fromScene)
+    {
+        var hops  = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var queue = new Queue<string>();
+
+        hops[fromScene] = 0;
+        queue.Enqueue(fromScene);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            int depth   = hops[current];
+
+            if (!_adj.TryGetValue(current, out var edges))
+                continue;
+
+            foreach (var edge in edges)
+            {
+                if (!hops.ContainsKey(edge.DestScene))
+                {
+                    hops[edge.DestScene] = depth + 1;
+                    queue.Enqueue(edge.DestScene);
+                }
+            }
+        }
+
+        return hops;
+    }
+
     public Route? FindRoute(string currentScene, string targetScene)
     {
         if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
