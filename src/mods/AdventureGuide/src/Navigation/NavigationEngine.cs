@@ -37,6 +37,7 @@ public sealed class NavigationEngine
     private int _lastSelectorVersion  = -1;
     private int _lastResolutionVersion = -1;
     private string _lastResolveScene = "";
+    private bool _resolveForced = false;
 
     private string? _cachedRouteFrom;
     private string? _cachedRouteTo;
@@ -95,15 +96,16 @@ public sealed class NavigationEngine
                 _cachedRouteTo   = null;
                 _cachedRoute     = null;
                 _router.Rebuild();
+                _resolveForced   = true;
             }
 
             _lastNavSetVersion     = _navSet.Version;
             _lastSelectorVersion   = _selector.Version;
             _lastResolutionVersion = _resolution.Version;
             _lastResolveScene      = CurrentScene;
-            Resolve(playerPosition);
         }
 
+        Resolve(playerPosition);
         Track(playerPosition);
     }
 
@@ -127,11 +129,16 @@ public sealed class NavigationEngine
 
         if (best == null)
         {
+            _resolveForced = false;
             ClearTarget();
             return;
         }
 
-        SetTarget(best);
+        if (best.TargetNodeKey != TargetNodeKey || _resolveForced)
+        {
+            _resolveForced = false;
+            SetTarget(best);
+        }
     }
 
     private static float ComputeNavScore(SelectedNavTarget sel, Vector3 playerPos)

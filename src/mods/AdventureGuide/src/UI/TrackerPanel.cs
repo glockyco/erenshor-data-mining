@@ -439,11 +439,23 @@ public sealed class TrackerPanel
         var resolution = _resolution.ResolveQuest(quest.Key);
         string distText = "";
         if (_selector.TryGet(quest.Key, out var sel))
-            distText = sel.IsSameZone
-                ? $"({(int)sel.Distance}m)"
-                : sel.HopCount == 1 ? "(1 hop)"
-                : sel.HopCount > 1  ? $"({sel.HopCount} hops)"
-                : "";
+        {
+            if (sel.IsSameZone && GameData.PlayerControl != null)
+            {
+                var p = GameData.PlayerControl.transform.position;
+                float dx = sel.Target.X - p.x;
+                float dy = sel.Target.Y - p.y;
+                float dz = sel.Target.Z - p.z;
+                float dist = UnityEngine.Mathf.Sqrt(dx*dx + dy*dy + dz*dz);
+                distText = $"({(int)dist}m)";
+            }
+            else if (!sel.IsSameZone)
+            {
+                distText = sel.HopCount == 1 ? "(1 hop)"
+                         : sel.HopCount > 1  ? $"({sel.HopCount} hops)"
+                         : "";
+            }
+        }
         string summary = resolution.TrackerSummary.PrimaryText;
         if (distText.Length > 0) summary += " " + distText;
 
@@ -552,7 +564,16 @@ public sealed class TrackerPanel
 
         if (aInZone) // both in zone
         {
-            int cmp = selA.Distance.CompareTo(selB.Distance);
+            float distA = 0f, distB = 0f;
+            if (GameData.PlayerControl != null)
+            {
+                var p = GameData.PlayerControl.transform.position;
+                float dxA = selA.Target.X - p.x, dyA = selA.Target.Y - p.y, dzA = selA.Target.Z - p.z;
+                float dxB = selB.Target.X - p.x, dyB = selB.Target.Y - p.y, dzB = selB.Target.Z - p.z;
+                distA = dxA*dxA + dyA*dyA + dzA*dzA;  // squared: monotone, valid for comparison
+                distB = dxB*dxB + dyB*dyB + dzB*dzB;
+            }
+            int cmp = distA.CompareTo(distB);
             return cmp != 0 ? cmp
                 : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
         }

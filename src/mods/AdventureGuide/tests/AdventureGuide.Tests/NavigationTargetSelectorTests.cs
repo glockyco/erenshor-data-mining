@@ -78,7 +78,6 @@ public sealed class NavigationTargetSelectorTests
         Assert.NotNull(result);
         Assert.True(result!.Value.IsSameZone);
         Assert.Equal(20f, result.Value.Target.X);
-        Assert.Equal(20f, result.Value.Distance, precision: 0);
     }
 
     [Fact]
@@ -164,7 +163,7 @@ public sealed class NavigationTargetSelectorTests
     }
 
     [Fact]
-    public void SelectBest_Distance_SameZone()
+    public void SelectBest_SameZone_ClosestSelected()
     {
         var target = MakeTarget(ZoneA, x: 42f);
 
@@ -173,7 +172,7 @@ public sealed class NavigationTargetSelectorTests
 
         Assert.NotNull(result);
         Assert.True(result!.Value.IsSameZone);
-        Assert.Equal(42f, result.Value.Distance, precision: 0);
+        Assert.Equal(42f, result.Value.Target.X, precision: 0);
     }
 
     [Fact]

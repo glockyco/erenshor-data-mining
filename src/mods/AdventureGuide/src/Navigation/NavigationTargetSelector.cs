@@ -5,9 +5,9 @@ using UnityEngine;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// One quest's pre-selected best navigation target, computed on a shared throttled timer.
-/// Both <see cref="NavigationEngine"/> and <c>TrackerPanel</c> read from the same cache so
-/// they can never disagree about which target is "closest" for a given quest.
+/// One quest's pre-selected best navigation target.
+/// Both <see cref="NavigationEngine"/> and <c>TrackerPanel</c> read from the same cache.
+/// Consumers compute distance inline from <c>Target.X/Y/Z</c>.
 /// </summary>
 public struct SelectedNavTarget
 {
@@ -18,12 +18,6 @@ public struct SelectedNavTarget
     public bool IsSameZone;
 
     /// <summary>
-    /// Metric distance to <see cref="Target"/>'s world position.
-    /// Valid when <see cref="IsSameZone"/> is true.
-    /// </summary>
-    public float Distance;
-
-    /// <summary>
     /// Number of zone transitions required to reach the target zone.
     /// Valid when <see cref="IsSameZone"/> is false. -1 means no route exists.
     /// </summary>
@@ -31,12 +25,15 @@ public struct SelectedNavTarget
 }
 
 /// <summary>
-/// Throttled per-key best-target selection shared by <see cref="NavigationEngine"/> and
+/// Per-key best-target selection shared by <see cref="NavigationEngine"/> and
 /// <c>TrackerPanel</c>.
 ///
-/// Computes the canonical "best target" for each requested node key once per
-/// <see cref="UpdateInterval"/> (or immediately when forced) using a priority-ordered
-/// algorithm:
+/// <see cref="Tick"/> is a no-op unless <c>force=true</c>. Callers that need a fresh
+/// plan (e.g. after a resolution or scene change) pass <c>force=true</c> to clear the
+/// cache and recompute all keys. Consumers compute distance inline from
+/// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
+///
+/// Priority algorithm:
 /// <list type="number">
 ///   <item>Same-zone, actionable, non-TravelToZone — closest by metric distance</item>
 ///   <item>Same-zone, non-actionable, non-TravelToZone — closest by metric distance</item>
@@ -45,22 +42,13 @@ public struct SelectedNavTarget
 /// TravelToZone candidates are always skipped: they are zone-exit waypoints, not quest
 /// objectives. NAV navigates to the zone exit via its own <c>EffectiveTarget</c>
 /// computation when the winning target is cross-zone.
-///
-/// Plugin calls <see cref="Tick"/> once per frame (before NavigationEngine.Update), passing
-/// the union of nav-set keys and tracker quest keys. Both consumers then call
-/// <see cref="TryGet"/> and format display text independently.
 /// </summary>
 public sealed class NavigationTargetSelector
 {
-    private const float UpdateInterval = 0.5f;
-
     private readonly QuestResolutionService _resolution;
     private readonly ZoneRouter _router;
     private readonly Dictionary<string, SelectedNavTarget> _cache =
         new(StringComparer.Ordinal);
-
-    // Start at the interval so the very first Tick fires immediately.
-    private float _timer = UpdateInterval;
 
     /// <summary>
     /// Monotonically increasing version. Incremented after each cache refresh so
@@ -75,21 +63,21 @@ public sealed class NavigationTargetSelector
     }
 
     /// <summary>
-    /// Called once per frame by Plugin before consumers read. Refreshes the cache when the
-    /// throttle interval expires or <paramref name="force"/> is true.
+    /// Called once per frame by Plugin before consumers read.
+    /// When <paramref name="force"/> is false this is a no-op.
+    /// When <paramref name="force"/> is true, the cache is cleared, all keys are
+    /// re-evaluated, and <see cref="Version"/> is incremented.
     ///
     /// Passing a lazy iterator for <paramref name="nodeKeys"/> avoids allocation on
-    /// suppressed frames because the iterator is only consumed when a refresh runs.
-    /// Duplicate keys in the iterator are deduplicated via the dictionary.
+    /// suppressed frames because the iterator is only consumed on forced ticks.
+    /// Duplicate keys are deduplicated via the dictionary.
     /// </summary>
     public void Tick(Vector3 playerPos, string currentZone,
                      IEnumerable<string> nodeKeys, bool force = false)
     {
-        _timer += Time.deltaTime;
-        if (!force && _timer < UpdateInterval)
+        if (!force)
             return;
 
-        _timer = 0f;
         _cache.Clear();
 
         foreach (var key in nodeKeys)
@@ -202,7 +190,6 @@ public sealed class NavigationTargetSelector
             {
                 Target = bestActionable,
                 IsSameZone = true,
-                Distance = bestActionableDist,
             };
 
         if (bestNonActionable != null)
@@ -210,7 +197,6 @@ public sealed class NavigationTargetSelector
             {
                 Target = bestNonActionable,
                 IsSameZone = true,
-                Distance = bestNonActionableDist,
             };
 
         if (bestCrossZone != null)
