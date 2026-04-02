@@ -366,6 +366,64 @@ public sealed class CyclePruningTests
     // ── Non-build entity re-processing ────────────────────────────────
 
     [Fact]
+    public void SharedBlockedSource_ReinitializedAfterCycleOnlyEncounter()
+    {
+        // Root quest needs Dust and has Gate Quest as a prerequisite.
+        //
+        // Gate Quest unlocks the blocked zone and needs Token.
+        // Token has two sources:
+        //   (a) character:a in the blocked zone — cyclic while Gate Quest is on the stack
+        //   (b) character:free in the current zone — keeps Gate Quest feasible
+        //
+        // Dust later reuses character:a as one of its direct sources, alongside
+        // character:b in the same blocked zone. character:a must be re-evaluated
+        // from that later non-cyclic context and remain Blocked, not permanently
+        // poisoned as PrunedCycle.
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:root", "Root Quest", dbName: "RootQuest")
+            .AddQuest("quest:gate", "Gate Quest", dbName: "GateQuest")
+            .AddItem("item:dust", "Dust")
+            .AddItem("item:token", "Token")
+            .AddCharacter("character:a", "Source A", scene: "ZoneBlocked")
+            .AddCharacter("character:b", "Source B", scene: "ZoneBlocked")
+            .AddCharacter("character:free", "Free Source", scene: "ZoneStart")
+            .AddZone("zone:start", "Zone Start", scene: "ZoneStart")
+            .AddZone("zone:blocked", "Zone Blocked", scene: "ZoneBlocked")
+            .AddZoneLine("zl:start:blocked", "ZL", scene: "ZoneStart",
+                destinationZoneKey: "zone:blocked", x: 1, y: 0, z: 1)
+            .AddEdge("quest:root", "quest:gate", EdgeType.RequiresQuest)
+            .AddEdge("quest:root", "item:dust", EdgeType.StepRead)
+            .AddEdge("quest:gate", "item:token", EdgeType.StepRead)
+            .AddEdge("quest:gate", "zl:start:blocked", EdgeType.UnlocksZoneLine)
+            .AddEdge("character:a", "item:token", EdgeType.DropsItem)
+            .AddEdge("character:free", "item:token", EdgeType.DropsItem)
+            .AddEdge("character:a", "item:dust", EdgeType.DropsItem)
+            .AddEdge("character:b", "item:dust", EdgeType.DropsItem)
+            .Build();
+
+        var snapshot = new StateSnapshot
+        {
+            ActiveQuests = ["RootQuest"],
+            CurrentZone = "ZoneStart",
+        };
+        var harness = SnapshotHarness.FromSnapshot(graph, snapshot);
+        var plan = harness.BuildPlan("quest:root");
+
+        var gate = plan.EntityNodesByKey["quest:gate"];
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, gate.Status);
+
+        var sourceA = plan.EntityNodesByKey["character:a"];
+        Assert.Equal(PlanStatus.Blocked, sourceA.Status);
+
+        var sourceB = plan.EntityNodesByKey["character:b"];
+        Assert.Equal(PlanStatus.Blocked, sourceB.Status);
+
+        var dustSources = Assert.IsType<PlanGroupNode>(plan.GetNode("item:dust:sources:anyof"));
+        Assert.Contains(dustSources.Outgoing, l => l.ToId == (PlanNodeId)"character:a");
+        Assert.Contains(dustSources.Outgoing, l => l.ToId == (PlanNodeId)"character:b");
+    }
+
+    [Fact]
     public void CrossZoneIngredientCycle_NonCyclicSourcePreserved()
     {
         // Reproduces the quest:whereswyland pattern.

@@ -725,6 +725,12 @@ public sealed class QuestPlanBuilder
         }
 
         var entity = GetOrCreateEntity(childNode);
+        if (ShouldReinitializeProvisionalCycleEntity(childNode, entity))
+        {
+            ResetProvisionalCycleEntity(entity);
+            _resolvedEntityKeys.Remove(childNode.Key);
+        }
+
         if (!_resolvedEntityKeys.Contains(childNode.Key))
         {
             if (RequiresRecursiveBuild(childNode.Type))
@@ -739,6 +745,26 @@ public sealed class QuestPlanBuilder
         }
         AddLink(parentId, entity.Id, semantic, edgeType, ordinal, quantity, keyword, group, note);
         return entity;
+    }
+
+    // A cycle-only result for a non-build entity is provisional: the same
+    // canonical source may be reached later from a sibling branch where the
+    // blocker is no longer on the active DFS path.
+
+    private static bool ShouldReinitializeProvisionalCycleEntity(Node childNode, PlanEntityNode entity) =>
+        !RequiresRecursiveBuild(childNode.Type) && IsProvisionalCycleOnlyEntity(entity);
+
+    private static bool IsProvisionalCycleOnlyEntity(PlanEntityNode entity) =>
+        entity.Status == PlanStatus.PrunedCycle
+        && entity.UnlockRequirementId == null
+        && entity.Outgoing.Count == 0;
+
+    private static void ResetProvisionalCycleEntity(PlanEntityNode entity)
+    {
+        entity.Status = PlanStatus.Available;
+        entity.UnlockRequirementId = null;
+        entity.SourceZones = null;
+        entity.EffectiveLevel = null;
     }
 
     private void InitializeNonBuildEntity(PlanEntityNode entity)
