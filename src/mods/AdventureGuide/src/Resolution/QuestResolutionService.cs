@@ -723,6 +723,14 @@ public sealed class QuestResolutionService
 
     private bool IsBetterTrackerTarget(ResolvedQuestTarget candidate, ResolvedQuestTarget currentBest)
     {
+        // Prefer direct targets over those produced via a blocked-route
+        // expansion. Within the same blocking status existing criteria apply,
+        // so blocked-path in-zone still beats blocked-path cross-zone.
+        bool candidateBlocked = candidate.RequiredForQuestKey != null;
+        bool currentBlocked   = currentBest.RequiredForQuestKey != null;
+        if (candidateBlocked != currentBlocked)
+            return !candidateBlocked;
+
         int candidateSceneRank = GetTrackerSceneRank(candidate);
         int currentSceneRank = GetTrackerSceneRank(currentBest);
         if (candidateSceneRank != currentSceneRank)

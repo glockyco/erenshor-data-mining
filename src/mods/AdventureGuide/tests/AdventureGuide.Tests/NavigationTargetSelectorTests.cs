@@ -30,7 +30,8 @@ public sealed class NavigationTargetSelectorTests
         float z = 0f,
         bool isActionable = true,
         NavigationGoalKind goalKind = NavigationGoalKind.StartQuest,
-        string targetNodeKey = "stub")
+        string targetNodeKey = "stub",
+        string? requiredForQuestKey = null)
     {
         var stubNode = new Node { Key = targetNodeKey, Type = NodeType.Character, DisplayName = targetNodeKey };
         var ctx = new ResolvedNodeContext(targetNodeKey, stubNode);
@@ -43,7 +44,8 @@ public sealed class NavigationTargetSelectorTests
             targetNodeKey, targetNodeKey, null, null, null);
         return new ResolvedQuestTarget(
             targetNodeKey, scene, null, ctx, ctx, semantic, explanation,
-            x, y, z, isActionable);
+            x, y, z, isActionable,
+            requiredForQuestKey: requiredForQuestKey);
     }
 
     private const string ZoneA = "ZoneA";
@@ -320,6 +322,85 @@ public sealed class NavigationTargetSelectorTests
         selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
         selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
         Assert.Equal(v1, selector.Version);
+    }
+
+    // ── Blocked-path priority tests ──────────────────────────────────────────
+
+    [Fact]
+    public void SelectBest_DirectBeatsBlockedPathSameZone_RegardlessOfDistance()
+    {
+        // Blocked-path Mineral Deposit at x=5 (closer) vs. direct Fishing at x=20.
+        // Direct target must win regardless of proximity.
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 5f,  requiredForQuestKey: "quest:wyland"),  // blocked, closer
+            MakeTarget(ZoneA, x: 20f, requiredForQuestKey: null),             // direct, farther
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.True(result!.Value.IsSameZone);
+        Assert.Equal(20f, result.Value.Target.X);
+        Assert.False(result.Value.IsBlocked);
+    }
+
+    [Fact]
+    public void SelectBest_DirectCrossZoneBeatsBlockedPathSameZone()
+    {
+        // Direct cross-zone target beats blocked-path same-zone actionable target.
+        // Tier 3 (direct cross-zone) must beat tier 4 (blocked same-zone actionable).
+        var targets = new[]
+        {
+            MakeTarget(ZoneA,  x: 1f,  requiredForQuestKey: "quest:wyland"),  // blocked, in-zone
+            MakeTarget(ZoneB,  x: 999f, requiredForQuestKey: null),            // direct, cross-zone
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.False(result!.Value.IsSameZone);
+        Assert.Equal(ZoneB, result.Value.Target.Scene);
+        Assert.False(result.Value.IsBlocked);
+    }
+
+    [Fact]
+    public void SelectBest_AllBlockedPath_InZoneBeatesCrossZone()
+    {
+        // When all targets are blocked-path, existing zone/actionable ordering applies.
+        // Blocked in-zone (tier 4) must beat blocked cross-zone (tier 6).
+        var targets = new[]
+        {
+            MakeTarget(ZoneB,  x: 1f,  requiredForQuestKey: "quest:req"),   // blocked, cross-zone
+            MakeTarget(ZoneA,  x: 99f, requiredForQuestKey: "quest:req"),   // blocked, in-zone
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.True(result!.Value.IsSameZone);
+        Assert.Equal(ZoneA, result.Value.Target.Scene);
+        Assert.True(result.Value.IsBlocked);
+    }
+
+    [Fact]
+    public void SelectBest_IsBlocked_ReflectsWinningTarget()
+    {
+        // When the only available target is blocked-path, IsBlocked is true.
+        var result = NavigationTargetSelector.SelectBest(
+            new[] { MakeTarget(ZoneA, requiredForQuestKey: "quest:req") },
+            PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.True(result!.Value.IsBlocked);
+
+        // When the winning target is direct, IsBlocked is false.
+        var result2 = NavigationTargetSelector.SelectBest(
+            new[] { MakeTarget(ZoneA, requiredForQuestKey: null) },
+            PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result2);
+        Assert.False(result2!.Value.IsBlocked);
     }
 
 }

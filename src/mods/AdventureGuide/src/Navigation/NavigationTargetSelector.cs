@@ -21,6 +21,9 @@ public struct SelectedNavTarget
     /// Valid when <see cref="IsSameZone"/> is false. -1 means no route exists.
     /// </summary>
     public int HopCount;
+
+    /// <summary>True when <see cref="Target"/> was produced via a blocked-route expansion (<c>RequiredForQuestKey != null</c>).</summary>
+    public bool IsBlocked;
 }
 
 /// <summary>
@@ -32,15 +35,16 @@ public struct SelectedNavTarget
 /// scene change) pass <c>force=true</c>. Consumers compute distance inline from
 /// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
 ///
-/// Priority algorithm:
+/// Priority algorithm (six tiers; "direct" means RequiredForQuestKey is null):
 /// <list type="number">
-///   <item>Same-zone, actionable, non-TravelToZone — closest by metric distance</item>
-///   <item>Same-zone, non-actionable, non-TravelToZone — closest by metric distance</item>
-///   <item>Cross-zone — fewest zone hops</item>
+///   <item>Direct + same-zone, actionable — closest</item>
+///   <item>Direct + same-zone, non-actionable — closest</item>
+///   <item>Direct + cross-zone — fewest zone hops</item>
+///   <item>Blocked-path + same-zone, actionable — closest</item>
+///   <item>Blocked-path + same-zone, non-actionable — closest</item>
+///   <item>Blocked-path + cross-zone — fewest zone hops</item>
 /// </list>
-/// TravelToZone candidates are always skipped: they are zone-exit waypoints, not quest
-/// objectives. NAV navigates to the zone exit via its own <c>EffectiveTarget</c>
-/// computation when the winning target is cross-zone.
+/// TravelToZone candidates are always skipped.
 /// </summary>
 public sealed class NavigationTargetSelector
 {
@@ -142,8 +146,9 @@ public sealed class NavigationTargetSelector
     /// Canonical best-target selection algorithm. Exposed as internal static for direct
     /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
     ///
-    /// Priority: same-zone actionable (closest) → same-zone non-actionable (closest)
-    ///           → cross-zone (fewest hops, -1 if no route).
+    /// Priority (six tiers; "direct" means RequiredForQuestKey is null):
+    /// direct-actionable → direct-non-actionable → direct-cross-zone →
+    /// blocked-actionable → blocked-non-actionable → blocked-cross-zone.
     /// TravelToZone candidates are always skipped.
     /// </summary>
     internal static SelectedNavTarget? SelectBest(
@@ -152,18 +157,14 @@ public sealed class NavigationTargetSelector
         string currentZone,
         ZoneRouter router)
     {
-        ResolvedQuestTarget? bestActionable = null;
-        float bestActionableDist = float.MaxValue;
+        var actionable    = BestSameZone.Init();
+        var nonActionable = BestSameZone.Init();
 
-        ResolvedQuestTarget? bestNonActionable = null;
-        float bestNonActionableDist = float.MaxValue;
-
-        // Cross-zone: first collect one representative target per destination zone
-        // (O(targets) with O(1) dict lookups), then score each unique zone using the
-        // hop-count cache (O(unique zones), no BFS per target).
-        Dictionary<string, ResolvedQuestTarget>? crossZoneReps = null;
-        ResolvedQuestTarget? bestCrossZone = null;
-        int bestHops = int.MaxValue;
+        // Cross-zone: one representative per destination zone, split by
+        // blocking status. Zone deduplication keeps the hop-count pass
+        // O(unique zones) rather than O(targets).
+        Dictionary<string, ResolvedQuestTarget>? crossZoneDirect  = null;
+        Dictionary<string, ResolvedQuestTarget>? crossZoneBlocked = null;
 
         for (int i = 0; i < targets.Count; i++)
         {
@@ -180,84 +181,110 @@ public sealed class NavigationTargetSelector
             {
                 float dx = playerX - t.X, dy = playerY - t.Y, dz = playerZ - t.Z;
                 float d = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
-                if (t.IsActionable)
-                {
-                    if (d < bestActionableDist)
-                    {
-                        bestActionable = t;
-                        bestActionableDist = d;
-                    }
-                }
-                else
-                {
-                    if (d < bestNonActionableDist)
-                    {
-                        bestNonActionable = t;
-                        bestNonActionableDist = d;
-                    }
-                }
+                if (t.IsActionable) actionable.Consider(t, d);
+                else                nonActionable.Consider(t, d);
             }
             else if (!string.IsNullOrEmpty(t.Scene))
             {
-                // Record only the first target seen per destination zone.
-                // Which specific target within that zone to navigate to is a
-                // decision that belongs to a later in-zone resolution.
-                crossZoneReps ??= new Dictionary<string, ResolvedQuestTarget>(
-                    StringComparer.OrdinalIgnoreCase);
-                if (!crossZoneReps.ContainsKey(t.Scene!))
-                    crossZoneReps[t.Scene!] = t;
+                // Record one candidate per destination zone within each
+                // blocking half; which specific in-zone target to use is
+                // decided during later in-zone resolution.
+                if (t.RequiredForQuestKey == null)
+                {
+                    crossZoneDirect ??= new Dictionary<string, ResolvedQuestTarget>(
+                        StringComparer.OrdinalIgnoreCase);
+                    if (!crossZoneDirect.ContainsKey(t.Scene!))
+                        crossZoneDirect[t.Scene!] = t;
+                }
+                else
+                {
+                    crossZoneBlocked ??= new Dictionary<string, ResolvedQuestTarget>(
+                        StringComparer.OrdinalIgnoreCase);
+                    if (!crossZoneBlocked.ContainsKey(t.Scene!))
+                        crossZoneBlocked[t.Scene!] = t;
+                }
             }
         }
 
         // Score unique destination zones — O(unique zones) GetHopCount calls,
         // each O(1) after the first call populates the router's hop cache.
-        if (crossZoneReps != null)
-        {
-            foreach (var kv in crossZoneReps)
-            {
-                int hops = router.GetHopCount(currentZone, kv.Key);
-                if (hops < bestHops)
-                {
-                    bestHops      = hops;
-                    bestCrossZone = kv.Value;
-                }
-            }
+        var (czDirect,  czDirectHops)  = BestCrossZoneCandidate(crossZoneDirect,  currentZone, router);
+        var (czBlocked, czBlockedHops) = BestCrossZoneCandidate(crossZoneBlocked, currentZone, router);
 
-            // Fallback: all zones unreachable; return any candidate so callers
-            // know cross-zone targets exist even if we can't route to them.
-            if (bestCrossZone == null)
-            {
-                foreach (var kv in crossZoneReps)
-                {
-                    bestCrossZone = kv.Value;
-                    break;
-                }
-            }
+        return MakeSameZone(actionable.Direct)
+            ?? MakeSameZone(nonActionable.Direct)
+            ?? MakeCrossZone(czDirect, czDirectHops)
+            ?? MakeSameZone(actionable.Blocked)
+            ?? MakeSameZone(nonActionable.Blocked)
+            ?? MakeCrossZone(czBlocked, czBlockedHops);
+    }
+
+    /// <summary>
+    /// Returns the cross-zone representative with the fewest hops and that
+    /// hop count. Returns <c>(null, -1)</c> when <paramref name="reps"/> is
+    /// null. Hop count is -1 when all destination zones are unreachable.
+    /// </summary>
+    private static (ResolvedQuestTarget? Target, int Hops) BestCrossZoneCandidate(
+        Dictionary<string, ResolvedQuestTarget>? reps,
+        string currentZone,
+        ZoneRouter router)
+    {
+        if (reps == null)
+            return (null, -1);
+
+        ResolvedQuestTarget? best = null;
+        int bestHops = int.MaxValue;
+        foreach (var kv in reps)
+        {
+            int hops = router.GetHopCount(currentZone, kv.Key);
+            if (hops < bestHops) { bestHops = hops; best = kv.Value; }
         }
 
-        if (bestActionable != null)
-            return new SelectedNavTarget
-            {
-                Target = bestActionable,
-                IsSameZone = true,
-            };
+        // Fallback: all destination zones are unreachable; return any
+        // candidate so callers know cross-zone targets exist.
+        if (best == null)
+            foreach (var kv in reps) { best = kv.Value; break; }
 
-        if (bestNonActionable != null)
-            return new SelectedNavTarget
-            {
-                Target = bestNonActionable,
-                IsSameZone = true,
-            };
+        return (best, bestHops == int.MaxValue ? -1 : bestHops);
+    }
 
-        if (bestCrossZone != null)
-            return new SelectedNavTarget
-            {
-                Target = bestCrossZone,
-                IsSameZone = false,
-                // int.MaxValue means only no-route candidates were seen → -1 sentinel.
-                HopCount = bestHops == int.MaxValue ? -1 : bestHops,
-            };
+    private static SelectedNavTarget? MakeSameZone(ResolvedQuestTarget? t) =>
+        t == null ? null : new SelectedNavTarget
+        {
+            Target     = t,
+            IsSameZone = true,
+            IsBlocked  = t.RequiredForQuestKey != null,
+        };
 
-        return null;
+    private static SelectedNavTarget? MakeCrossZone(ResolvedQuestTarget? t, int hops) =>
+        t == null ? null : new SelectedNavTarget
+        {
+            Target     = t,
+            IsSameZone = false,
+            HopCount   = hops,
+            IsBlocked  = t.RequiredForQuestKey != null,
+        };
+
+    /// <summary>
+    /// Tracks the nearest direct (unblocked-path) and nearest blocked-path
+    /// candidate within a single same-zone actionability tier.
+    /// </summary>
+    private struct BestSameZone
+    {
+        public ResolvedQuestTarget? Direct;
+        public float DirectDist;
+        public ResolvedQuestTarget? Blocked;
+        public float BlockedDist;
+
+        public static BestSameZone Init() =>
+            new BestSameZone { DirectDist = float.MaxValue, BlockedDist = float.MaxValue };
+
+        public void Consider(ResolvedQuestTarget t, float dist)
+        {
+            if (t.RequiredForQuestKey == null)
+            { if (dist < DirectDist)  { Direct  = t; DirectDist  = dist; } }
+            else
+            { if (dist < BlockedDist) { Blocked = t; BlockedDist = dist; } }
+        }
     }
 }
