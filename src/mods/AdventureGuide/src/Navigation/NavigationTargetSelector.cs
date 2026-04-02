@@ -22,8 +22,8 @@ public struct SelectedNavTarget
     /// </summary>
     public int HopCount;
 
-    /// <summary>True when <see cref="Target"/> was produced via a blocked-route expansion (<c>RequiredForQuestKey != null</c>).</summary>
-    public bool IsBlocked;
+    /// <summary>True when <see cref="Target"/> belongs to a blocked-but-feasible route.</summary>
+    public bool IsBlockedPath;
 }
 
 /// <summary>
@@ -35,7 +35,7 @@ public struct SelectedNavTarget
 /// scene change) pass <c>force=true</c>. Consumers compute distance inline from
 /// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
 ///
-/// Priority algorithm (six tiers; "direct" means RequiredForQuestKey is null):
+/// Priority algorithm (six tiers; "direct" means <c>IsBlockedPath</c> is false):
 /// <list type="number">
 ///   <item>Direct + same-zone, actionable — closest</item>
 ///   <item>Direct + same-zone, non-actionable — closest</item>
@@ -146,7 +146,7 @@ public sealed class NavigationTargetSelector
     /// Canonical best-target selection algorithm. Exposed as internal static for direct
     /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
     ///
-    /// Priority (six tiers; "direct" means RequiredForQuestKey is null):
+    /// Priority (six tiers; "direct" means <c>IsBlockedPath</c> is false):
     /// direct-actionable → direct-non-actionable → direct-cross-zone →
     /// blocked-actionable → blocked-non-actionable → blocked-cross-zone.
     /// TravelToZone candidates are always skipped.
@@ -189,7 +189,7 @@ public sealed class NavigationTargetSelector
                 // Record one candidate per destination zone within each
                 // blocking half; which specific in-zone target to use is
                 // decided during later in-zone resolution.
-                if (t.RequiredForQuestKey == null)
+                if (!t.IsBlockedPath)
                 {
                     crossZoneDirect ??= new Dictionary<string, ResolvedQuestTarget>(
                         StringComparer.OrdinalIgnoreCase);
@@ -251,18 +251,18 @@ public sealed class NavigationTargetSelector
     private static SelectedNavTarget? MakeSameZone(ResolvedQuestTarget? t) =>
         t == null ? null : new SelectedNavTarget
         {
-            Target     = t,
-            IsSameZone = true,
-            IsBlocked  = t.RequiredForQuestKey != null,
+            Target        = t,
+            IsSameZone    = true,
+            IsBlockedPath = t.IsBlockedPath,
         };
 
     private static SelectedNavTarget? MakeCrossZone(ResolvedQuestTarget? t, int hops) =>
         t == null ? null : new SelectedNavTarget
         {
-            Target     = t,
-            IsSameZone = false,
-            HopCount   = hops,
-            IsBlocked  = t.RequiredForQuestKey != null,
+            Target        = t,
+            IsSameZone    = false,
+            HopCount      = hops,
+            IsBlockedPath = t.IsBlockedPath,
         };
 
     /// <summary>
@@ -281,7 +281,7 @@ public sealed class NavigationTargetSelector
 
         public void Consider(ResolvedQuestTarget t, float dist)
         {
-            if (t.RequiredForQuestKey == null)
+            if (!t.IsBlockedPath)
             { if (dist < DirectDist)  { Direct  = t; DirectDist  = dist; } }
             else
             { if (dist < BlockedDist) { Blocked = t; BlockedDist = dist; } }

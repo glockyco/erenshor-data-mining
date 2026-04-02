@@ -155,7 +155,7 @@ public sealed class NavigationEngine
         float penalty = 0f;
         if (!sel.IsSameZone)          penalty += CrossZonePenalty;
         if (!sel.Target.IsActionable) penalty += NonActionablePenalty;
-        if (sel.IsBlocked)            penalty += BlockedPenalty;
+        if (sel.IsBlockedPath)        penalty += BlockedPenalty;
         return dist2 + penalty;
     }
 

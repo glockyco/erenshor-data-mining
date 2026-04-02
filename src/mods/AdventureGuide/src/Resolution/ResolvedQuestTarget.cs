@@ -22,9 +22,16 @@ public sealed class ResolvedQuestTarget
     public float Z { get; }
     public bool IsActionable { get; }
     /// <summary>
+    /// True when this target belongs to a blocked-but-feasible route that must
+    /// first resolve some unlock chain before it reaches the original source.
+    /// Ranking uses this to prefer easier direct alternatives while still
+    /// keeping blocked-feasible paths visible in the resolved set.
+    /// </summary>
+    public bool IsBlockedPath { get; }
+    /// <summary>
     /// Key of the immediate sub-quest within the tracked chain that this target
     /// is working toward. Null when the target is a direct step of the tracked
-    /// quest itself. Used by the tracker to show "Needed for &lt;sub-quest&gt;".
+    /// quest itself. Used by the tracker to show "Needed for {sub-quest}".
     /// </summary>
     public string? RequiredForQuestKey { get; }
 
@@ -40,19 +47,23 @@ public sealed class ResolvedQuestTarget
         float y,
         float z,
         bool isActionable = true,
-        string? requiredForQuestKey = null)
+        string? requiredForQuestKey = null,
+        bool isBlockedPath = false)
     {
-        TargetNodeKey      = targetNodeKey;
-        Scene              = scene;
-        SourceKey          = sourceKey;
-        GoalNode           = goalNode;
-        TargetNode         = targetNode;
-        Semantic           = semantic;
-        Explanation        = explanation;
-        X                  = x;
-        Y                  = y;
-        Z                  = z;
-        IsActionable       = isActionable;
+        TargetNodeKey = targetNodeKey;
+        Scene = scene;
+        SourceKey = sourceKey;
+        GoalNode = goalNode;
+        TargetNode = targetNode;
+        Semantic = semantic;
+        Explanation = explanation;
+        X = x;
+        Y = y;
+        Z = z;
+        IsActionable = isActionable;
+        // Any quest-tagged target is necessarily on a blocked path. The
+        // explicit flag additionally covers item/door unlock chains.
+        IsBlockedPath = isBlockedPath || requiredForQuestKey != null;
         RequiredForQuestKey = requiredForQuestKey;
     }
 }
