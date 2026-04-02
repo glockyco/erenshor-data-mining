@@ -17,13 +17,11 @@ public sealed class NavigationEngine
     private readonly NavigationSet _navSet;
     private readonly EntityGraph _graph;
     private readonly QuestResolutionService _resolution;
-    private readonly QuestStateTracker _tracker;
+    private readonly NavigationTargetSelector _selector;
     private readonly ZoneRouter _router;
     private readonly LiveStateTracker _liveState;
     private readonly EntityRegistry _entities;
     private readonly UnlockEvaluator _unlocks;
-
-    private readonly List<Candidate> _candidates = new();
 
     public string? TargetNodeKey { get; private set; }
     public Vector3? TargetPosition { get; private set; }
@@ -36,12 +34,8 @@ public sealed class NavigationEngine
     public int HopCount { get; private set; }
 
     private int _lastNavSetVersion = -1;
-    private int _lastTrackerVersion = -1;
-    private int _lastLiveVersion = -1;
+    private int _lastSelectorVersion = -1;
     private string _lastResolveScene = "";
-
-    private const float RePickInterval = 0.5f;
-    private float _rePickTimer;
 
     private string? _cachedRouteFrom;
     private string? _cachedRouteTo;
@@ -51,7 +45,7 @@ public sealed class NavigationEngine
         NavigationSet navSet,
         EntityGraph graph,
         QuestResolutionService resolution,
-        QuestStateTracker tracker,
+        NavigationTargetSelector selector,
         ZoneRouter router,
         EntityRegistry entities,
         LiveStateTracker liveState,
@@ -60,7 +54,7 @@ public sealed class NavigationEngine
         _navSet = navSet;
         _graph = graph;
         _resolution = resolution;
-        _tracker = tracker;
+        _selector = selector;
         _router = router;
         _entities = entities;
         _liveState = liveState;
@@ -85,34 +79,24 @@ public sealed class NavigationEngine
             return;
         }
 
-        bool navChanged = _navSet.Version != _lastNavSetVersion;
-        bool stateChanged = _tracker.Version != _lastTrackerVersion;
-        bool liveChanged = _liveState.Version != _lastLiveVersion;
-        bool sceneChanged = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
+        bool navChanged      = _navSet.Version   != _lastNavSetVersion;
+        bool selectorChanged = _selector.Version != _lastSelectorVersion;
+        bool sceneChanged    = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
 
-        if (navChanged || stateChanged || liveChanged || sceneChanged)
+        if (navChanged || selectorChanged || sceneChanged)
         {
-            if (stateChanged)
+            if (selectorChanged || sceneChanged)
             {
                 _cachedRouteFrom = null;
-                _cachedRouteTo = null;
-                _cachedRoute = null;
+                _cachedRouteTo   = null;
+                _cachedRoute     = null;
                 _router.Rebuild();
             }
 
-            _lastNavSetVersion = _navSet.Version;
-            _lastTrackerVersion = _tracker.Version;
-            _lastLiveVersion = _liveState.Version;
-            _lastResolveScene = CurrentScene;
+            _lastNavSetVersion   = _navSet.Version;
+            _lastSelectorVersion = _selector.Version;
+            _lastResolveScene    = CurrentScene;
             Resolve(playerPosition);
-            _rePickTimer = 0f;
-        }
-
-        _rePickTimer += Time.deltaTime;
-        if (_rePickTimer >= RePickInterval && _candidates.Count > 1)
-        {
-            _rePickTimer = 0f;
-            PickClosest(playerPosition);
         }
 
         Track(playerPosition);
@@ -120,62 +104,19 @@ public sealed class NavigationEngine
 
     private void Resolve(Vector3 playerPosition)
     {
-        _candidates.Clear();
-        foreach (var key in _navSet.Keys)
-            ResolveKey(key);
-
-        if (_candidates.Count == 0)
-        {
-            ClearTarget();
-            return;
-        }
-
-        PickClosest(playerPosition);
-    }
-
-    private void ResolveKey(string nodeKey)
-    {
-        var targets = _resolution.ResolveTargetsForNavigation(nodeKey);
-        for (int i = 0; i < targets.Count; i++)
-        {
-            var target = targets[i];
-            _candidates.Add(new Candidate(
-                nodeKey,
-                target.TargetNodeKey,
-                new Vector3(target.X, target.Y, target.Z),
-                target.Scene,
-                target.SourceKey,
-                target.Semantic,
-                target.Explanation,
-                target.IsActionable));
-        }
-    }
-
-    private void PickClosest(Vector3 playerPosition)
-    {
-        const float NonActionablePenalty = 500_000f;
-        const float CrossZonePenalty = 1_000_000f;
-
+        ResolvedQuestTarget? best = null;
         float bestScore = float.MaxValue;
-        Candidate? best = null;
 
-        for (int i = 0; i < _candidates.Count; i++)
+        foreach (var key in _navSet.Keys)
         {
-            var candidate = _candidates[i];
+            if (!_selector.TryGet(key, out var sel))
+                continue;
 
-            bool sameScene = string.Equals(candidate.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase)
-                || candidate.Scene == null;
-            bool zoneExit = sameScene && candidate.Semantic.GoalKind == NavigationGoalKind.TravelToZone;
-            float score = (candidate.Position - playerPosition).sqrMagnitude;
-            if (!sameScene || zoneExit)
-                score += CrossZonePenalty;
-            else if (!candidate.IsActionable)
-                score += NonActionablePenalty;
-
+            float score = ComputeNavScore(sel, playerPosition);
             if (score < bestScore)
             {
                 bestScore = score;
-                best = candidate;
+                best = sel.Target;
             }
         }
 
@@ -185,20 +126,40 @@ public sealed class NavigationEngine
             return;
         }
 
-        TargetNodeKey = best.Value.NodeKey;
-        TargetPosition = best.Value.Position;
-        TargetScene = best.Value.Scene;
-        EffectiveTarget = best.Value.Position;
+        SetTarget(best);
+    }
+
+    private static float ComputeNavScore(SelectedNavTarget sel, Vector3 playerPos)
+    {
+        const float NonActionablePenalty = 500_000f;
+        const float CrossZonePenalty     = 1_000_000f;
+
+        float dx = sel.Target.X - playerPos.x;
+        float dy = sel.Target.Y - playerPos.y;
+        float dz = sel.Target.Z - playerPos.z;
+        float dist2 = dx * dx + dy * dy + dz * dz;
+
+        if (!sel.IsSameZone)             return dist2 + CrossZonePenalty;
+        if (!sel.Target.IsActionable)    return dist2 + NonActionablePenalty;
+        return dist2;
+    }
+
+    private void SetTarget(ResolvedQuestTarget target)
+    {
+        TargetNodeKey  = target.TargetNodeKey;
+        TargetPosition = new Vector3(target.X, target.Y, target.Z);
+        TargetScene    = target.Scene;
+        EffectiveTarget = new Vector3(target.X, target.Y, target.Z);
         Explanation = ApplySourceGateDetail(
-            ApplyLiveActionOverride(best.Value.Semantic, best.Value.Explanation, best.Value.SourceKey),
-            best.Value.SourceKey);
+            ApplyLiveActionOverride(target.Semantic, target.Explanation, target.SourceKey),
+            target.SourceKey);
         HopCount = 0;
 
-        bool targetInOtherZone = best.Value.Scene != null
-            && !string.Equals(best.Value.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase);
+        bool targetInOtherZone = target.Scene != null
+            && !string.Equals(target.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase);
         if (targetInOtherZone)
         {
-            var route = FindRouteCached(CurrentScene, best.Value.Scene!);
+            var route = FindRouteCached(CurrentScene, target.Scene!);
             if (route != null)
             {
                 EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
@@ -302,37 +263,5 @@ public sealed class NavigationEngine
         Explanation = null;
         HopCount = 0;
         Distance = 0f;
-    }
-
-    private readonly struct Candidate
-    {
-        public readonly string RequestedKey;
-        public readonly string NodeKey;
-        public readonly Vector3 Position;
-        public readonly string? Scene;
-        public readonly string? SourceKey;
-        public readonly NavigationExplanation Explanation;
-        public readonly ResolvedActionSemantic Semantic;
-        public readonly bool IsActionable;
-
-        public Candidate(
-            string requestedKey,
-            string nodeKey,
-            Vector3 position,
-            string? scene,
-            string? sourceKey,
-            ResolvedActionSemantic semantic,
-            NavigationExplanation explanation,
-            bool isActionable = true)
-        {
-            RequestedKey = requestedKey;
-            NodeKey = nodeKey;
-            Position = position;
-            Scene = scene;
-            SourceKey = sourceKey;
-            Semantic = semantic;
-            Explanation = explanation;
-            IsActionable = isActionable;
-        }
     }
 }

@@ -54,6 +54,9 @@ public sealed class Plugin : BaseUnityPlugin
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
     private CompiledSourceIndex? _sourceIndex;
+    private NavigationTargetSelector? _targetSelector;
+    private int _lastResolutionVersion = -1;
+    private int _lastNavSetVersion = -1;
 
     static Plugin()
     {
@@ -156,8 +159,10 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _questTracker, _gameState, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter);
 
+        _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter);
+
         _navEngine = new NavigationEngine(
-            _navSet, _graph, _resolutionService, _questTracker, _zoneRouter, _entities, _liveState, _unlockEvaluator);
+            _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _entities, _liveState, _unlockEvaluator);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -188,7 +193,7 @@ public sealed class Plugin : BaseUnityPlugin
         _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
 
         _trackerPanel = new TrackerPanel(
-            _graph, _questTracker, _trackerState, _navSet, _window, _config, _zoneRouter, _resolutionService);
+            _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector, _resolutionService);
         _imgui.OnLayout = () =>
         {
             _window.Draw();
@@ -328,6 +333,15 @@ public sealed class Plugin : BaseUnityPlugin
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
         _markerComputer?.Recompute();
+        bool forceSelector = _resolutionService!.Version != _lastResolutionVersion
+                          || _navSet!.Version            != _lastNavSetVersion;
+        if (forceSelector)
+        {
+            _lastResolutionVersion = _resolutionService.Version;
+            _lastNavSetVersion     = _navSet.Version;
+        }
+        _targetSelector?.Tick(playerPos, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
+
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
         _markerSystem?.Update();
@@ -347,6 +361,17 @@ public sealed class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(_config.GroundPathToggleKey.Value))
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
+    }
+
+    private IEnumerable<string> AllNavigableNodeKeys()
+    {
+        foreach (var key in _navSet!.Keys)
+            yield return key;
+        foreach (var db in _trackerState!.TrackedQuests)
+        {
+            var node = _graph!.GetQuestByDbName(db);
+            if (node != null) yield return node.Key;
+        }
     }
 
     private void OnGUI()
