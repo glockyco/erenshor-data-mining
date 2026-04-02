@@ -636,6 +636,20 @@ public sealed class QuestPlanBuilder
         {
             ApplyRuntimeState(entity);
             AddUnlockRequirement(entity);
+
+            // Characters, doors, zone lines, and other non-build entities have no
+            // Build* method. The two calls above are their complete processing.
+            // Mark resolved now so re-encounters in a different _entitiesOnPath
+            // context skip AddUnlockRequirement and avoid false cycle detection.
+            // Quests, items, and recipes are excluded: their Build* methods add them
+            // to _resolvedEntityKeys after a full traversal, and pre-marking them
+            // here would cause that traversal to be skipped entirely.
+            if (childNode.Type != NodeType.Quest
+                && childNode.Type != NodeType.Item
+                && childNode.Type != NodeType.Recipe)
+            {
+                _resolvedEntityKeys.Add(childNode.Key);
+            }
         }
         AddLink(parentId, entity.Id, semantic, edgeType, ordinal, quantity, keyword, group, note);
         return entity;

@@ -362,4 +362,100 @@ public sealed class CyclePruningTests
         Assert.NotNull(stubNode);
         Assert.Equal(PlanStatus.PrunedCycle, stubNode!.Status);
     }
+
+    // ── Non-build entity re-processing ────────────────────────────────
+
+    [Fact]
+    public void CrossZoneIngredientCycle_NonCyclicSourcePreserved()
+    {
+        // Reproduces the quest:whereswyland pattern.
+        //
+        // Building item:key requires ingredient:i.
+        // ingredient:i has two sources:
+        //   (a) character:free in ZoneFree — always accessible
+        //   (b) character:locked in ZoneLocked — requires quest:chain
+        //
+        // quest:chain requires quest:root (the quest being built) — a cycle.
+        // But source (a) is valid, so ingredient:i is Available and key can be crafted.
+        //
+        // ghost requires door:d (unlocks_character override).
+        // door:d requires item:key.
+        //
+        // quest:chain also needs ghost (same StepTalk edge), causing ghost to be
+        // encountered a SECOND time while item:key is on _entitiesOnPath.
+        // Without the fix, door:d gets PrunedCycle on that second encounter.
+        // With the fix, ghost is memoized after the first encounter and the
+        // second processing is skipped.
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:root", "Root Quest", dbName: "RootQuest")
+            .AddQuest("quest:chain", "Chain Quest", dbName: "ChainQuest")
+            .AddItem("item:step", "Step Item")
+            .AddItem("item:key", "Key Item")
+            .AddItem("ingredient:i", "Ingredient")
+            .AddRecipe("recipe:key", "Key Recipe")
+            .AddCharacter("character:ghost", "Ghost", scene: "ZoneFree")
+            .AddCharacter("character:free", "Free Source", scene: "ZoneFree")
+            .AddCharacter("character:locked", "Locked Source", scene: "ZoneLocked")
+            .AddDoor("door:d", "The Door", scene: "ZoneFree")
+            .AddZone("zone:free", "Zone Free", scene: "ZoneFree")
+            .AddZone("zone:locked", "Zone Locked", scene: "ZoneLocked")
+            .AddZoneLine("zl:to-locked", "ZL to Locked", scene: "ZoneFree",
+                destinationZoneKey: "zone:locked", x: 1, y: 0, z: 1)
+            // Root quest objective: step item from ghost
+            .AddEdge("quest:root", "item:step", EdgeType.StepRead)
+            .AddEdge("character:ghost", "item:step", EdgeType.DropsItem)
+            // Ghost is blocked by the door (unlocks_character override)
+            .AddEdge("door:d", "character:ghost", EdgeType.UnlocksCharacter)
+            // Door is unlocked by item:key (UnlocksDoor edge: source=item, target=door)
+            // This mirrors how UnlockEvaluator finds blocking sources:
+            // it calls _graph.InEdges(door.Key, EdgeType.UnlocksDoor)
+            .AddEdge("item:key", "door:d", EdgeType.UnlocksDoor)
+            // Key is crafted via recipe (CraftedFrom: outgoing edge from item to recipe)
+            .AddEdge("item:key", "recipe:key", EdgeType.CraftedFrom)
+            // Recipe requires ingredient as material
+            .AddEdge("recipe:key", "ingredient:i", EdgeType.RequiresMaterial)
+            // Ingredient has a free source in ZoneFree
+            .AddEdge("character:free", "ingredient:i", EdgeType.DropsItem)
+            // Ingredient also has a cross-zone source in ZoneLocked
+            .AddEdge("character:locked", "ingredient:i", EdgeType.DropsItem)
+            // ZoneLocked is only reachable via zl:to-locked, which requires quest:chain
+            .AddEdge("quest:chain", "zl:to-locked", EdgeType.UnlocksZoneLine)
+            // quest:chain also needs the step item (same pattern as wyland's note needing the ghost)
+            .AddEdge("quest:chain", "item:step", EdgeType.StepRead)
+            // quest:chain requires quest:root — the cycle back to the root
+            .AddEdge("quest:chain", "quest:root", EdgeType.RequiresQuest)
+            .Build();
+
+        var snapshot = new StateSnapshot
+        {
+            ActiveQuests = ["RootQuest"],
+            CurrentZone = "ZoneFree",
+        };
+        var harness = SnapshotHarness.FromSnapshot(graph, snapshot);
+        var plan = harness.BuildPlan("quest:root");
+
+        // Ingredient has a free source — must remain Available.
+        var ingredient = plan.EntityNodesByKey["ingredient:i"];
+        Assert.NotEqual(PlanStatus.PrunedCycle, ingredient.Status);
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, ingredient.Status);
+
+        // Key can be crafted — must remain Available.
+        var key = plan.EntityNodesByKey["item:key"];
+        Assert.NotEqual(PlanStatus.PrunedCycle, key.Status);
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, key.Status);
+
+        // Door is unlockable (key is available) — must NOT be PrunedCycle.
+        var door = plan.EntityNodesByKey["door:d"];
+        Assert.NotEqual(PlanStatus.PrunedCycle, door.Status);
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, door.Status);
+
+        // Ghost is reachable (door is not infeasible) — must NOT be PrunedInfeasible.
+        var ghost = plan.EntityNodesByKey["character:ghost"];
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, ghost.Status);
+
+        // Step item can drop from ghost — must NOT be PrunedInfeasible.
+        var stepItem = plan.EntityNodesByKey["item:step"];
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, stepItem.Status);
+    }
+
 }
