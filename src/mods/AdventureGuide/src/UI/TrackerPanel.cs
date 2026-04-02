@@ -497,7 +497,7 @@ public sealed class TrackerPanel
             if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
                 continue;
 
-            float distance = Vector3.Distance(playerPos, target.Position);
+            float distance = Vector3.Distance(playerPos, new Vector3(target.X, target.Y, target.Z));
             if (distance < minDistance)
                 minDistance = distance;
         }
@@ -519,7 +519,7 @@ public sealed class TrackerPanel
             if (target.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
                 continue;
 
-            float distance = Vector3.Distance(playerPos, target.Position);
+            float distance = Vector3.Distance(playerPos, new Vector3(target.X, target.Y, target.Z));
             if (distance < minDistance)
                 minDistance = distance;
         }

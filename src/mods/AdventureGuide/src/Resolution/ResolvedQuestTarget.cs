@@ -1,5 +1,4 @@
 using AdventureGuide.Navigation;
-using UnityEngine;
 
 namespace AdventureGuide.Resolution;
 
@@ -18,7 +17,9 @@ public sealed class ResolvedQuestTarget
     public ResolvedActionSemantic Semantic { get; }
     public NavigationExplanation Explanation { get; }
 
-    public Vector3 Position { get; }
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
     public bool IsActionable { get; }
 
     public ResolvedQuestTarget(
@@ -29,7 +30,9 @@ public sealed class ResolvedQuestTarget
         ResolvedNodeContext targetNode,
         ResolvedActionSemantic semantic,
         NavigationExplanation explanation,
-        Vector3 position,
+        float x,
+        float y,
+        float z,
         bool isActionable = true)
     {
         TargetNodeKey = targetNodeKey;
@@ -39,7 +42,9 @@ public sealed class ResolvedQuestTarget
         TargetNode = targetNode;
         Semantic = semantic;
         Explanation = explanation;
-        Position = position;
+        X = x;
+        Y = y;
+        Z = z;
         IsActionable = isActionable;
     }
 }

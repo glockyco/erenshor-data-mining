@@ -142,7 +142,7 @@ public sealed class NavigationEngine
             _candidates.Add(new Candidate(
                 nodeKey,
                 target.TargetNodeKey,
-                target.Position,
+                new Vector3(target.X, target.Y, target.Z),
                 target.Scene,
                 target.SourceKey,
                 target.Semantic,

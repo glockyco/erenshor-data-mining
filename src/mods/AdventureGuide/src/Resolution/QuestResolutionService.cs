@@ -318,7 +318,7 @@ public sealed class QuestResolutionService
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.Position, t.IsActionable));
+                        t.X, t.Y, t.Z, t.IsActionable));
                 continue;
             }
 
@@ -368,7 +368,7 @@ public sealed class QuestResolutionService
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.Position, t.IsActionable));
+                        t.X, t.Y, t.Z, t.IsActionable));
                 continue;
             }
 
@@ -620,7 +620,7 @@ public sealed class QuestResolutionService
             targetNode,
             semantic,
             explanation,
-            pos.Position,
+            pos.Position.x, pos.Position.y, pos.Position.z,
             pos.IsActionable));
     }
 
@@ -721,8 +721,13 @@ public sealed class QuestResolutionService
         bool currentSameScene = IsTrackerCurrentScene(currentBest);
         if (player != null && sameScene && currentSameScene)
         {
-            float candidateDistance = Vector3.SqrMagnitude(candidate.Position - player.transform.position);
-            float currentDistance = Vector3.SqrMagnitude(currentBest.Position - player.transform.position);
+            var pp = player.transform.position;
+            float candidateDistance = (candidate.X - pp.x) * (candidate.X - pp.x)
+                + (candidate.Y - pp.y) * (candidate.Y - pp.y)
+                + (candidate.Z - pp.z) * (candidate.Z - pp.z);
+            float currentDistance = (currentBest.X - pp.x) * (currentBest.X - pp.x)
+                + (currentBest.Y - pp.y) * (currentBest.Y - pp.y)
+                + (currentBest.Z - pp.z) * (currentBest.Z - pp.z);
             if (!Mathf.Approximately(candidateDistance, currentDistance))
                 return candidateDistance < currentDistance;
         }

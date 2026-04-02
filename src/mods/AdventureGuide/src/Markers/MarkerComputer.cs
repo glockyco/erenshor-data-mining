@@ -440,7 +440,7 @@ public sealed class MarkerComputer
                 instruction.SubText,
                 targetNode,
                 positionNode,
-                target.Position,
+                new Vector3(target.X, target.Y, target.Z),
                 target.Semantic.ActionKind == ResolvedActionKind.Kill,
                 corpseSubText);
         }
@@ -454,7 +454,7 @@ public sealed class MarkerComputer
             instruction.SubText,
             targetNode,
             positionNode,
-            target.Position);
+            new Vector3(target.X, target.Y, target.Z));
     }
 
     private MarkerEntry? CreateCharacterMarkerEntry(
