@@ -242,7 +242,7 @@ public sealed class QuestResolutionService
             var eval = _unlocks.Evaluate(requestedNode);
             if (!eval.IsUnlocked)
             {
-                ResolveBlockedTargets(nodeKey, goalContext, requestedNode, eval, results, seen, plan, sceneFilter: null);
+                ResolveBlockedTargets(nodeKey, goalContext, requestedNode, eval, results, seen, plan, sceneFilter: null, isBlockedPath: true);
                 return results;
             }
         }
@@ -305,7 +305,7 @@ public sealed class QuestResolutionService
             if (nodeType is NodeType.Item or NodeType.Recipe)
             {
                 ResolveItemTargetsFromBlueprint(
-                    questKey, goalContext, requestedNode, results, seen, projection.Plan, sceneFilter);
+                    questKey, goalContext, requestedNode, results, seen, projection.Plan, sceneFilter, isBlockedPath: false);
                 continue;
             }
 
@@ -331,7 +331,7 @@ public sealed class QuestResolutionService
                 if (!eval.IsUnlocked)
                 {
                     ResolveBlockedTargets(
-                        questKey, goalContext, requestedNode, eval, results, seen, projection.Plan, sceneFilter);
+                        questKey, goalContext, requestedNode, eval, results, seen, projection.Plan, sceneFilter, isBlockedPath: true);
                     continue;
                 }
             }
@@ -353,7 +353,8 @@ public sealed class QuestResolutionService
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
         QuestPlan? plan,
-        string? sceneFilter)
+        string? sceneFilter,
+        bool isBlockedPath = false)
     {
         var blocking = evaluation.BlockingSources;
         for (int i = 0; i < blocking.Count; i++)
@@ -383,7 +384,8 @@ public sealed class QuestResolutionService
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
                         t.X, t.Y, t.Z, t.IsActionable,
-                        requiredForQuestKey: blockingSource.Key));
+                        requiredForQuestKey: blockingSource.Key,
+                        isBlockedPath: true));
                 continue;
             }
 
@@ -391,7 +393,7 @@ public sealed class QuestResolutionService
             {
                 var itemContext = CreateContext(blockingSource, plan);
                 ResolveItemTargetsFromBlueprint(
-                    questKey, itemContext, requestedNode, results, seen, plan, sceneFilter);
+                    questKey, itemContext, requestedNode, results, seen, plan, sceneFilter, isBlockedPath: true);
                 continue;
             }
 
@@ -404,7 +406,7 @@ public sealed class QuestResolutionService
                     if (!doorEvaluation.IsUnlocked)
                     {
                         ResolveBlockedTargets(
-                            questKey, frontierNode, requestedNode, doorEvaluation, results, seen, plan, sceneFilter);
+                            questKey, frontierNode, requestedNode, doorEvaluation, results, seen, plan, sceneFilter, isBlockedPath: true);
                         continue;
                     }
                 }
@@ -414,7 +416,7 @@ public sealed class QuestResolutionService
             var positions = _positionCache.Resolve(blockingSource.Key);
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(
-                    results, seen, questKey, frontierNode, blockingContext, positions[j], requestedNode, plan, sceneFilter);
+                    results, seen, questKey, frontierNode, blockingContext, positions[j], requestedNode, plan, sceneFilter, isBlockedPath: isBlockedPath);
         }
     }
 
@@ -425,7 +427,8 @@ public sealed class QuestResolutionService
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
         QuestPlan? plan,
-        string? sceneFilter)
+        string? sceneFilter,
+        bool isBlockedPath = false)
     {
         IReadOnlyList<SourceSiteBlueprint> sources;
         if (sceneFilter == null)
@@ -507,7 +510,7 @@ public sealed class QuestResolutionService
                 if (!evaluation.IsUnlocked)
                 {
                     ResolveBlockedTargets(
-                        questKey, frontierNode, requestedNode, evaluation, results, seen, plan, sceneFilter);
+                        questKey, frontierNode, requestedNode, evaluation, results, seen, plan, sceneFilter, isBlockedPath: true);
                     continue;
                 }
             }
@@ -547,7 +550,7 @@ public sealed class QuestResolutionService
                 : frontierNode;
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(
-                    results, seen, questKey, directGoalNode, targetContext, positions[j], requestedNode, plan, sceneFilter);
+                    results, seen, questKey, directGoalNode, targetContext, positions[j], requestedNode, plan, sceneFilter, isBlockedPath: isBlockedPath);
         }
     }
     private bool TryResolveBlockedRoute(
@@ -585,7 +588,8 @@ public sealed class QuestResolutionService
             results,
             seen,
             plan,
-            sceneFilter);
+            sceneFilter,
+            isBlockedPath: true);
         return true;
     }
 
@@ -606,7 +610,8 @@ public sealed class QuestResolutionService
         ResolvedPosition pos,
         Node requestedNode,
         QuestPlan? plan,
-        string? sceneFilter)
+        string? sceneFilter,
+        bool isBlockedPath = false)
     {
         if (TryResolveBlockedRoute(results, seen, questKey, goalNode, targetNode, pos, requestedNode, plan, sceneFilter))
             return;
@@ -645,7 +650,9 @@ public sealed class QuestResolutionService
             semantic,
             explanation,
             pos.Position.x, pos.Position.y, pos.Position.z,
-            pos.IsActionable));
+            pos.IsActionable,
+            requiredForQuestKey: null,
+            isBlockedPath: isBlockedPath));
     }
 
     // ── Blocked-target resolution ────────────────────────────────────────────
