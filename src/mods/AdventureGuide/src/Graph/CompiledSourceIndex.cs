@@ -143,7 +143,7 @@ public sealed class CompiledSourceIndex
             var collector = new SourceSiteCollector(graph, positionsBySource);
             visited.Clear();
 
-            CollectItemSources(graph, itemNode.Key, collector, visited);
+            CollectItemSources(graph, itemNode.Key, directItemKey: itemNode.Key, collector, visited);
 
             if (collector.SiteCount == 0)
                 continue;
@@ -156,29 +156,38 @@ public sealed class CompiledSourceIndex
         return (all, byScene);
     }
 
+    // directItemKey: the item this source directly provides at this recursion level.
+    // For top-level direct sources (drops/sells/yields/etc.) it equals itemKey.
+    // For crafting-chain ingredients it equals the material being sought at this level,
+    // not the final crafted item being searched from the root call.
     private static void CollectItemSources(
         EntityGraph graph,
         string itemKey,
+        string directItemKey,
         SourceSiteCollector collector,
         HashSet<string> visited)
     {
         if (!visited.Add(itemKey))
             return;
 
-        AddIncomingSources(graph, itemKey, EdgeType.DropsItem, collector);
-        AddIncomingSources(graph, itemKey, EdgeType.SellsItem, collector);
-        AddIncomingSources(graph, itemKey, EdgeType.GivesItem, collector);
-        AddIncomingSources(graph, itemKey, EdgeType.YieldsItem, collector);
-        AddIncomingSources(graph, itemKey, EdgeType.RewardsItem, collector);
+        AddIncomingSources(graph, itemKey, EdgeType.DropsItem,   collector, directItemKey);
+        AddIncomingSources(graph, itemKey, EdgeType.SellsItem,   collector, directItemKey);
+        AddIncomingSources(graph, itemKey, EdgeType.GivesItem,   collector, directItemKey);
+        AddIncomingSources(graph, itemKey, EdgeType.YieldsItem,  collector, directItemKey);
+        AddIncomingSources(graph, itemKey, EdgeType.RewardsItem, collector, directItemKey);
 
-        // Follow crafting chains: item ← recipe ← materials
+        // Follow crafting chains: item ← recipe ← materials.
+        // Each material is its own direct item at the next recursion level.
         var recipeEdges = graph.OutEdges(itemKey, EdgeType.CraftedFrom);
         for (int i = 0; i < recipeEdges.Count; i++)
         {
             var recipeKey = recipeEdges[i].Target;
             var materialEdges = graph.OutEdges(recipeKey, EdgeType.RequiresMaterial);
             for (int j = 0; j < materialEdges.Count; j++)
-                CollectItemSources(graph, materialEdges[j].Target, collector, visited);
+            {
+                string materialKey = materialEdges[j].Target;
+                CollectItemSources(graph, materialKey, directItemKey: materialKey, collector, visited);
+            }
         }
 
         visited.Remove(itemKey);
@@ -188,14 +197,15 @@ public sealed class CompiledSourceIndex
         EntityGraph graph,
         string targetKey,
         EdgeType edgeType,
-        SourceSiteCollector collector)
+        SourceSiteCollector collector,
+        string directItemKey)
     {
         var edges = graph.InEdges(targetKey, edgeType);
         for (int i = 0; i < edges.Count; i++)
         {
             var sourceNode = graph.GetNode(edges[i].Source);
             if (sourceNode != null)
-                collector.Add(sourceNode, edgeType);
+                collector.Add(sourceNode, edgeType, directItemKey);
         }
     }
 
@@ -215,7 +225,7 @@ public sealed class CompiledSourceIndex
             _positionsBySource = positionsBySource;
         }
 
-        public void Add(Node sourceNode, EdgeType acquisitionEdge)
+        public void Add(Node sourceNode, EdgeType acquisitionEdge, string directItemKey)
         {
             if (_positionsBySource.TryGetValue(sourceNode.Key, out var positions) && positions.Count > 0)
             {
@@ -233,13 +243,13 @@ public sealed class CompiledSourceIndex
 
                 foreach (var pair in byScene)
                 {
-                    AddSite(sourceNode, acquisitionEdge, pair.Key.Length == 0 ? null : pair.Key, pair.Value);
+                    AddSite(sourceNode, acquisitionEdge, pair.Key.Length == 0 ? null : pair.Key, pair.Value, directItemKey);
                 }
 
                 return;
             }
 
-            AddSite(sourceNode, acquisitionEdge, sourceNode.Scene, positions: null);
+            AddSite(sourceNode, acquisitionEdge, sourceNode.Scene, positions: null, directItemKey);
         }
 
         public IReadOnlyList<SourceSiteBlueprint> BuildAll()
@@ -276,16 +286,17 @@ public sealed class CompiledSourceIndex
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        private void AddSite(Node sourceNode, EdgeType acquisitionEdge, string? scene, IReadOnlyList<StaticSourcePosition>? positions)
+        private void AddSite(Node sourceNode, EdgeType acquisitionEdge, string? scene,
+                              IReadOnlyList<StaticSourcePosition>? positions, string directItemKey)
         {
-            string siteId = SourceSiteBlueprint.BuildId(sourceNode.Key, acquisitionEdge, scene);
+            string siteId = SourceSiteBlueprint.BuildId(sourceNode.Key, acquisitionEdge, scene, directItemKey);
             if (_sites.TryGetValue(siteId, out var existing))
             {
                 existing.AddPositions(positions);
                 return;
             }
 
-            var builder = new SourceSiteBuilder(sourceNode, acquisitionEdge, scene);
+            var builder = new SourceSiteBuilder(sourceNode, acquisitionEdge, scene, directItemKey);
             builder.AddPositions(positions);
             _sites[siteId] = builder;
         }
@@ -296,13 +307,15 @@ public sealed class CompiledSourceIndex
         private readonly Node _sourceNode;
         private readonly EdgeType _acquisitionEdge;
         private readonly string? _scene;
+        private readonly string _directItemKey;
         private readonly List<StaticSourcePosition> _positions = new();
 
-        public SourceSiteBuilder(Node sourceNode, EdgeType acquisitionEdge, string? scene)
+        public SourceSiteBuilder(Node sourceNode, EdgeType acquisitionEdge, string? scene, string directItemKey)
         {
-            _sourceNode = sourceNode;
+            _sourceNode     = sourceNode;
             _acquisitionEdge = acquisitionEdge;
-            _scene = scene;
+            _scene          = scene;
+            _directItemKey  = directItemKey;
         }
 
         public void AddPositions(IReadOnlyList<StaticSourcePosition>? positions)
@@ -328,6 +341,7 @@ public sealed class CompiledSourceIndex
                 _sourceNode.Type,
                 _acquisitionEdge,
                 _scene,
+                _directItemKey,
                 _positions.Count == 0 ? EmptyPositions : _positions.ToArray());
     }
 }
@@ -343,6 +357,13 @@ public readonly struct SourceSiteBlueprint
     public readonly NodeType SourceNodeType;
     public readonly EdgeType AcquisitionEdge;
     public readonly string? Scene;
+    /// <summary>
+    /// The item this source directly provides within the crafting chain.
+    /// For direct sources (DropsItem, SellsItem, etc.) this equals the top-level
+    /// item being sought. For transitive recipe ingredients this equals the
+    /// material key at this recursion level, not the final crafted item.
+    /// </summary>
+    public readonly string DirectItemKey;
     public readonly IReadOnlyList<StaticSourcePosition> StaticPositions;
 
     public SourceSiteBlueprint(
@@ -350,17 +371,20 @@ public readonly struct SourceSiteBlueprint
         NodeType sourceNodeType,
         EdgeType acquisitionEdge,
         string? scene,
+        string directItemKey,
         IReadOnlyList<StaticSourcePosition> staticPositions)
     {
-        SourceNodeKey = sourceNodeKey;
-        SourceNodeType = sourceNodeType;
-        AcquisitionEdge = acquisitionEdge;
-        Scene = scene;
-        StaticPositions = staticPositions;
+        SourceNodeKey    = sourceNodeKey;
+        SourceNodeType   = sourceNodeType;
+        AcquisitionEdge  = acquisitionEdge;
+        Scene            = scene;
+        DirectItemKey    = directItemKey;
+        StaticPositions  = staticPositions;
     }
 
-    public static string BuildId(string sourceNodeKey, EdgeType acquisitionEdge, string? scene) =>
-        string.Concat(sourceNodeKey, "|", acquisitionEdge, "|", scene ?? string.Empty);
+    public static string BuildId(string sourceNodeKey, EdgeType acquisitionEdge,
+                                  string? scene, string directItemKey) =>
+        string.Concat(sourceNodeKey, "|", acquisitionEdge, "|", scene ?? string.Empty, "|", directItemKey);
 }
 
 /// <summary>

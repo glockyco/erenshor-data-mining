@@ -66,4 +66,39 @@ public sealed class CompiledSourceIndexTests
         Assert.Equal("ZoneA", site.Scene);
         Assert.Equal("character:angler", site.SourceNodeKey);
     }
+
+    [Fact]
+    public void SourceSiteBlueprint_CraftingChain_DirectItemKey_IsIngredient()
+    {
+        // Ghostly Key  ←CraftedFrom←  Recipe  ←RequiresMaterial←  Iron Ore
+        //                                                       ←YieldsItem←  Mineral Deposit
+        //
+        // Sites for item:ghostly-key must include the Mineral Deposit.
+        // The site's DirectItemKey must be "item:iron-ore" (what the deposit
+        // actually provides), not "item:ghostly-key" (the final crafted item).
+        var graph = new TestGraphBuilder()
+            .AddItem("item:ghostly-key", "Ghostly Key")
+            .AddRecipe("recipe:ghostly-key", "Ghostly Key Recipe")
+            .AddItem("item:iron-ore", "Iron Ore")
+            .AddMiningNode("node:mineral-deposit", "Mineral Deposit", scene: "ZoneA")
+            .AddEdge("item:ghostly-key",      "recipe:ghostly-key",      EdgeType.CraftedFrom)
+            .AddEdge("recipe:ghostly-key",    "item:iron-ore",           EdgeType.RequiresMaterial)
+            .AddEdge("node:mineral-deposit",  "item:iron-ore",           EdgeType.YieldsItem)
+            .Build();
+
+        graph.GetNode("node:mineral-deposit")!.X = 10f;
+        graph.GetNode("node:mineral-deposit")!.Y = 0f;
+        graph.GetNode("node:mineral-deposit")!.Z = 10f;
+
+        var index = new CompiledSourceIndex(graph);
+        var sites = index.GetSourceSitesForItem("item:ghostly-key");
+
+        // Mineral Deposit must appear as a source of the Ghostly Key.
+        var depositSite = Assert.Single(sites, s => s.SourceNodeKey == "node:mineral-deposit");
+
+        // DirectItemKey must be the INGREDIENT (Iron Ore), not the final crafted item.
+        Assert.Equal("item:iron-ore", depositSite.DirectItemKey);
+        Assert.NotEqual("item:ghostly-key", depositSite.DirectItemKey);
+    }
+
 }

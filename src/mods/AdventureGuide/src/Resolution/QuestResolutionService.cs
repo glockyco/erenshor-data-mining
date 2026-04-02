@@ -429,7 +429,7 @@ public sealed class QuestResolutionService
             {
                 var site = currentSceneSites[i];
                 reduced.Add(site);
-                addedIds.Add(SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene));
+                addedIds.Add(SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene, site.DirectItemKey));
                 if (!string.IsNullOrEmpty(site.Scene))
                     addedScenes.Add(site.Scene);
             }
@@ -437,7 +437,7 @@ public sealed class QuestResolutionService
             for (int i = 0; i < allSites.Count; i++)
             {
                 var site = allSites[i];
-                string siteId = SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene);
+                string siteId = SourceSiteBlueprint.BuildId(site.SourceNodeKey, site.AcquisitionEdge, site.Scene, site.DirectItemKey);
                 if (addedIds.Contains(siteId))
                     continue;
                 if (string.IsNullOrEmpty(site.Scene))
