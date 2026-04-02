@@ -781,18 +781,29 @@ public sealed class QuestResolutionService
         return false;
     }
 
-    private int GetTrackerSceneRank(ResolvedQuestTarget target)
+    private int GetTrackerSceneRank(ResolvedQuestTarget target) =>
+        GetTrackerSceneRank(target, _tracker.CurrentZone, _router);
+
+    internal static int GetTrackerSceneRank(
+        ResolvedQuestTarget target,
+        string currentZone,
+        ZoneRouter router)
     {
-        if (IsTrackerCurrentScene(target))
+        // Zone lines are physically in the current scene, but semantically they
+        // are transitions out of it. Treat them as accessible cross-zone steps,
+        // not as in-zone objectives.
+        if (target.TargetNode.Node.Type == NodeType.ZoneLine)
+            return 1;
+        if (IsTrackerCurrentScene(target, currentZone))
             return 0;
         if (string.IsNullOrEmpty(target.Scene))
             return 1;
-        return _router.FindRoute(_tracker.CurrentZone, target.Scene!) != null ? 1 : 2;
+        return router.FindRoute(currentZone, target.Scene!) != null ? 1 : 2;
     }
 
     private int GetTrackerHopCount(ResolvedQuestTarget target)
     {
-        if (IsTrackerCurrentScene(target) || string.IsNullOrEmpty(target.Scene))
+        if (IsTrackerCurrentScene(target, _tracker.CurrentZone) || string.IsNullOrEmpty(target.Scene))
             return 0;
 
         var route = _router.FindRoute(_tracker.CurrentZone, target.Scene!);
@@ -800,8 +811,11 @@ public sealed class QuestResolutionService
     }
 
     private bool IsTrackerCurrentScene(ResolvedQuestTarget target) =>
+        IsTrackerCurrentScene(target, _tracker.CurrentZone);
+
+    internal static bool IsTrackerCurrentScene(ResolvedQuestTarget target, string currentZone) =>
         string.IsNullOrEmpty(target.Scene)
-        || string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase);
+        || string.Equals(target.Scene, currentZone, StringComparison.OrdinalIgnoreCase);
 
     private static ResolvedNodeContext ToContext(FrontierRef frontierRef, QuestPlan plan)
     {
