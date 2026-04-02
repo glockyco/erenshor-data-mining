@@ -318,7 +318,10 @@ public sealed class QuestResolutionService
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.X, t.Y, t.Z, t.IsActionable));
+                        t.X, t.Y, t.Z, t.IsActionable,
+                        // Tag with the sub-quest key so the tracker can show
+                        // "Needed for <sub-quest>" in its secondary line.
+                        requiredForQuestKey: frontierNode.NodeKey));
                 continue;
             }
 
@@ -368,7 +371,8 @@ public sealed class QuestResolutionService
                     results.Add(new ResolvedQuestTarget(
                         t.TargetNodeKey, t.Scene, t.SourceKey,
                         t.GoalNode, t.TargetNode, t.Semantic, t.Explanation,
-                        t.X, t.Y, t.Z, t.IsActionable));
+                        t.X, t.Y, t.Z, t.IsActionable,
+                        requiredForQuestKey: blockingSource.Key));
                 continue;
             }
 
@@ -685,14 +689,21 @@ public sealed class QuestResolutionService
                 frontierContext,
                 frontierContext);
 
-        string? prerequisiteQuestName = FindFirstIncompletePrerequisite(questKey);
+        // Derive the "Needed for" context from the plan resolution chain, not from
+        // graph-level prerequisite edges. When the focus target is a step toward a
+        // sub-quest, RequiredForQuestKey holds that sub-quest's key; show its name.
+        // For direct steps of the tracked quest RequiredForQuestKey is null — the
+        // quest header already provides the context, no secondary needed.
+        string? neededForContext = null;
+        if (focusTarget?.RequiredForQuestKey != null)
+            neededForContext = _graph.GetNode(focusTarget.RequiredForQuestKey)?.DisplayName;
 
         return NavigationExplanationBuilder.BuildTrackerSummary(
             frontierContext,
             summarySemantic,
             _tracker,
             Math.Max(0, projection.Frontier.Count - 1),
-            prerequisiteQuestName);
+            neededForContext);
     }
 
     private ResolvedQuestTarget? SelectTrackerFocusTarget(IReadOnlyList<ResolvedQuestTarget> targets)
@@ -766,27 +777,6 @@ public sealed class QuestResolutionService
         string.IsNullOrEmpty(target.Scene)
         || string.Equals(target.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase);
 
-
-    private string? FindFirstIncompletePrerequisite(string questKey)
-    {
-        foreach (var edge in _graph.OutEdges(questKey, EdgeType.RequiresQuest))
-        {
-            if (_gameState.GetState(edge.Target) is not QuestCompleted)
-                return _graph.GetNode(edge.Target)?.DisplayName;
-        }
-
-        foreach (var edge in _graph.OutEdges(questKey, EdgeType.AssignedBy))
-        {
-            var node = _graph.GetNode(edge.Target);
-            if (node?.Type == NodeType.Quest
-                && _gameState.GetState(edge.Target) is not QuestCompleted)
-            {
-                return node.DisplayName;
-            }
-        }
-
-        return null;
-    }
     private static ResolvedNodeContext ToContext(FrontierRef frontierRef, QuestPlan plan)
     {
         var node = (PlanEntityNode)(plan.GetNode(frontierRef.NodeId)

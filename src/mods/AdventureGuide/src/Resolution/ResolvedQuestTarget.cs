@@ -21,6 +21,12 @@ public sealed class ResolvedQuestTarget
     public float Y { get; }
     public float Z { get; }
     public bool IsActionable { get; }
+    /// <summary>
+    /// Key of the immediate sub-quest within the tracked chain that this target
+    /// is working toward. Null when the target is a direct step of the tracked
+    /// quest itself. Used by the tracker to show "Needed for &lt;sub-quest&gt;".
+    /// </summary>
+    public string? RequiredForQuestKey { get; }
 
     public ResolvedQuestTarget(
         string targetNodeKey,
@@ -33,18 +39,20 @@ public sealed class ResolvedQuestTarget
         float x,
         float y,
         float z,
-        bool isActionable = true)
+        bool isActionable = true,
+        string? requiredForQuestKey = null)
     {
-        TargetNodeKey = targetNodeKey;
-        Scene = scene;
-        SourceKey = sourceKey;
-        GoalNode = goalNode;
-        TargetNode = targetNode;
-        Semantic = semantic;
-        Explanation = explanation;
-        X = x;
-        Y = y;
-        Z = z;
-        IsActionable = isActionable;
+        TargetNodeKey      = targetNodeKey;
+        Scene              = scene;
+        SourceKey          = sourceKey;
+        GoalNode           = goalNode;
+        TargetNode         = targetNode;
+        Semantic           = semantic;
+        Explanation        = explanation;
+        X                  = x;
+        Y                  = y;
+        Z                  = z;
+        IsActionable       = isActionable;
+        RequiredForQuestKey = requiredForQuestKey;
     }
 }

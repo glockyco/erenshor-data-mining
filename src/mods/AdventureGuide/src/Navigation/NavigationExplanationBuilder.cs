@@ -113,6 +113,12 @@ public static class NavigationExplanationBuilder
     {
         return semantic.GoalKind switch
         {
+            // When the only way to collect an item is to complete a quest (e.g. the
+            // quest rewards the item), lead with the quest action, not "Collect X".
+            // The rationale "Rewards X" will carry the payload in the secondary line.
+            NavigationGoalKind.CollectItem when
+                semantic.ActionKind == ResolvedActionKind.CompleteQuest
+                => BuildTrackerActionPrimary(semantic),
             NavigationGoalKind.CollectItem => BuildCollectPrimary(semantic, tracker),
             NavigationGoalKind.CompleteBlockingQuest => $"Complete {semantic.TargetIdentityText}",
             _ => BuildTrackerActionPrimary(semantic),
@@ -160,13 +166,23 @@ public static class NavigationExplanationBuilder
         string primary,
         string? prerequisiteQuestName)
     {
-        if (semantic.GoalKind != NavigationGoalKind.CollectItem
+        // Allow RationaleText for CollectItem goals when the action is CompleteQuest
+        // (e.g. "Rewards A Rolled Note" when completing a quest yields the needed item).
+        // In all other CollectItem cases rationale is suppressed to avoid noise.
+        bool rationaleApplies =
+            semantic.GoalKind != NavigationGoalKind.CollectItem
+            || semantic.ActionKind == ResolvedActionKind.CompleteQuest;
+
+        if (rationaleApplies
             && !string.IsNullOrEmpty(semantic.RationaleText)
             && !string.Equals(semantic.RationaleText, primary, System.StringComparison.OrdinalIgnoreCase))
         {
             return semantic.RationaleText;
         }
 
+        // prerequisiteQuestName (now neededForContext) is the display name of a
+        // sub-quest derived from RequiredForQuestKey — the immediate quest within
+        // the tracked chain that this target is working toward.
         if (!string.IsNullOrEmpty(prerequisiteQuestName))
         {
             string secondary = $"Needed for {prerequisiteQuestName}";
