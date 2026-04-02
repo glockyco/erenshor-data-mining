@@ -167,6 +167,118 @@ public static class DebugAPI
         return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" > ", route.Path)}";
     }
 
+    /// <summary>Dumps ZoneRouter adjacency graph and zone-key-to-scene mapping.</summary>
+    public static string DumpZoneRouterAdj()
+    {
+        if (Router == null)
+            return "Router is null";
+
+        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
+        var pubInst = BindingFlags.Public | BindingFlags.Instance;
+        var adjObj = Router.GetType().GetField("_adj", bf)?.GetValue(Router);
+        var zoneKeyObj = Router.GetType().GetField("_zoneKeyToScene", bf)?.GetValue(Router);
+
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("=== _zoneKeyToScene ===");
+        if (zoneKeyObj is System.Collections.IDictionary zoneKeyDict)
+        {
+            foreach (System.Collections.DictionaryEntry de in zoneKeyDict)
+                sb.AppendLine($"  {de.Key} -> {de.Value}");
+        }
+        else
+        {
+            sb.AppendLine("  (unavailable)");
+        }
+
+        sb.AppendLine("=== _adj ===");
+        if (adjObj is System.Collections.IDictionary adjDict)
+        {
+            // ZoneEdge is a private struct; get its Type from the List<ZoneEdge> generic argument
+            var listType = adjObj.GetType().GetGenericArguments()[1];
+            var edgeType = listType.GetGenericArguments()[0];
+            var destSceneF   = edgeType.GetField("DestScene",   pubInst);
+            var zoneLineKeyF = edgeType.GetField("ZoneLineKey", pubInst);
+            var accessibleF  = edgeType.GetField("Accessible",  pubInst);
+
+            foreach (System.Collections.DictionaryEntry de in adjDict)
+            {
+                sb.AppendLine($"  [{de.Key}]:");
+                if (de.Value is System.Collections.IList edgeList)
+                {
+                    foreach (var item in edgeList)
+                    {
+                        var dst = destSceneF?.GetValue(item)   ?? "?";
+                        var zlk = zoneLineKeyF?.GetValue(item) ?? "?";
+                        var acc = accessibleF?.GetValue(item)  ?? "?";
+                        sb.AppendLine($"    -> {dst}  key={zlk}  accessible={acc}");
+                    }
+                }
+            }
+        }
+        else
+        {
+            sb.AppendLine("  (unavailable)");
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>Calls ZoneAccessResolver.FindBlockedRoute for the given target scene.</summary>
+    public static string DumpBlockedRoute(string targetScene)
+    {
+        if (Resolution == null)
+            return "Resolution is null";
+
+        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
+        var zoneAccess = Resolution.GetType().GetField("_zoneAccess", bf)?.GetValue(Resolution)
+            as ZoneAccessResolver;
+        if (zoneAccess == null)
+            return "_zoneAccess is null";
+
+        var result = zoneAccess.FindBlockedRoute(targetScene);
+        if (result == null)
+            return $"null - not blocked (targetScene={targetScene})";
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"ZoneLineKey: {result.ZoneLineNode.Key}");
+        sb.AppendLine($"IsUnlocked: {result.Evaluation.IsUnlocked}");
+        sb.AppendLine($"Reason: {result.Evaluation.Reason ?? "(none)"}");
+        sb.AppendLine($"BlockingSources ({result.Evaluation.BlockingSources.Count}):");
+        foreach (var src in result.Evaluation.BlockingSources)
+            sb.AppendLine($"  {src.Key}  type={src.Type}");
+        return sb.ToString();
+    }
+
+    /// <summary>Calls UnlockEvaluator.Evaluate for the given node key and returns the result.</summary>
+    public static string DumpEntityUnlock(string nodeKey)
+    {
+        if (Resolution == null)
+            return "Resolution is null";
+        if (Graph == null)
+            return "Graph is null";
+
+        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
+        var unlocks = Resolution.GetType().GetField("_unlocks", bf)?.GetValue(Resolution)
+            as UnlockEvaluator;
+        if (unlocks == null)
+            return "_unlocks is null";
+
+        var node = Graph.GetNode(nodeKey);
+        if (node == null)
+            return $"Node '{nodeKey}' not found in graph";
+
+        var eval = unlocks.Evaluate(node);
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Node: {node.Key}  type={node.Type}  enabled={node.IsEnabled}");
+        sb.AppendLine($"IsUnlocked: {eval.IsUnlocked}");
+        sb.AppendLine($"Reason: {eval.Reason ?? "(none)"}");
+        sb.AppendLine($"BlockingSources ({eval.BlockingSources.Count}):");
+        foreach (var src in eval.BlockingSources)
+            sb.AppendLine($"  {src.Key}  type={src.Type}");
+        return sb.ToString();
+    }
+
     private static Node? FindQuestNode(string name)
     {
         if (Graph == null) return null;
