@@ -33,8 +33,9 @@ public sealed class NavigationEngine
     public string CurrentScene { get; private set; } = "";
     public int HopCount { get; private set; }
 
-    private int _lastNavSetVersion = -1;
-    private int _lastSelectorVersion = -1;
+    private int _lastNavSetVersion    = -1;
+    private int _lastSelectorVersion  = -1;
+    private int _lastResolutionVersion = -1;
     private string _lastResolveScene = "";
 
     private string? _cachedRouteFrom;
@@ -79,13 +80,16 @@ public sealed class NavigationEngine
             return;
         }
 
-        bool navChanged      = _navSet.Version   != _lastNavSetVersion;
-        bool selectorChanged = _selector.Version != _lastSelectorVersion;
-        bool sceneChanged    = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
+        bool navChanged        = _navSet.Version     != _lastNavSetVersion;
+        bool selectorChanged   = _selector.Version   != _lastSelectorVersion;
+        bool resolutionChanged = _resolution.Version != _lastResolutionVersion;
+        bool sceneChanged      = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
 
         if (navChanged || selectorChanged || sceneChanged)
         {
-            if (selectorChanged || sceneChanged)
+            // Router accessibility depends on unlock state (plan), not player position.
+            // Only rebuild when the resolution plan changed or the scene changed.
+            if (resolutionChanged || sceneChanged)
             {
                 _cachedRouteFrom = null;
                 _cachedRouteTo   = null;
@@ -93,9 +97,10 @@ public sealed class NavigationEngine
                 _router.Rebuild();
             }
 
-            _lastNavSetVersion   = _navSet.Version;
-            _lastSelectorVersion = _selector.Version;
-            _lastResolveScene    = CurrentScene;
+            _lastNavSetVersion     = _navSet.Version;
+            _lastSelectorVersion   = _selector.Version;
+            _lastResolutionVersion = _resolution.Version;
+            _lastResolveScene      = CurrentScene;
             Resolve(playerPosition);
         }
 
