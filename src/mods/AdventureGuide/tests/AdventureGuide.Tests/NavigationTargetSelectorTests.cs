@@ -29,19 +29,20 @@ public sealed class NavigationTargetSelectorTests
         float y = 0f,
         float z = 0f,
         bool isActionable = true,
-        NavigationGoalKind goalKind = NavigationGoalKind.StartQuest)
+        NavigationGoalKind goalKind = NavigationGoalKind.StartQuest,
+        string targetNodeKey = "stub")
     {
-        var stubNode = new Node { Key = "stub", Type = NodeType.Character, DisplayName = "stub" };
-        var ctx = new ResolvedNodeContext("stub", stubNode);
+        var stubNode = new Node { Key = targetNodeKey, Type = NodeType.Character, DisplayName = targetNodeKey };
+        var ctx = new ResolvedNodeContext(targetNodeKey, stubNode);
         var semantic = new ResolvedActionSemantic(
             goalKind, NavigationTargetKind.Character, ResolvedActionKind.Talk,
-            null, null, null, null, "stub", null, null, null, null,
+            null, null, null, null, targetNodeKey, null, null, null, null,
             MarkerType.Objective, 0);
         var explanation = new NavigationExplanation(
             goalKind, NavigationTargetKind.Character, ctx, ctx,
-            "stub", "stub", null, null, null);
+            targetNodeKey, targetNodeKey, null, null, null);
         return new ResolvedQuestTarget(
-            "stub", scene, null, ctx, ctx, semantic, explanation,
+            targetNodeKey, scene, null, ctx, ctx, semantic, explanation,
             x, y, z, isActionable);
     }
 
@@ -265,4 +266,60 @@ public sealed class NavigationTargetSelectorTests
         Assert.Equal(1, result.Value.HopCount);
         Assert.Equal(ZoneB, result.Value.Target.Scene);
     }
+
+    // ── Tick-level regression tests ─────────────────────────────────────────────
+
+    [Fact]
+    public void Tick_SameZone_PlayerMoves_ReroutesToCloserTarget()
+    {
+        // Two same-zone nodes: A at x=10, B at x=100.
+        // After a force tick with the player at origin, A is closer (D=10 < D=100).
+        // A non-force tick with the player at x=150 should reroute to B (D=50 < D=140).
+        var nodeA = MakeTarget(ZoneA, x: 10f,  targetNodeKey: "node:a");
+        var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
+        var targets = new[] { nodeA, nodeB };
+
+        var selector = new NavigationTargetSelector(
+            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                                        : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter());
+
+        // Force tick near A.
+        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("node:a", first.Target.TargetNodeKey);
+
+        int versionAfterForce = selector.Version;
+
+        // Non-force tick near B — nodeKeys is empty but _targetLists already cached.
+        selector.Tick(150, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        Assert.True(selector.TryGet("quest:test", out var second));
+        Assert.Equal("node:b", second.Target.TargetNodeKey);
+        // Version must increment because the selected identity changed.
+        Assert.True(selector.Version > versionAfterForce);
+    }
+
+    [Fact]
+    public void Tick_NoForce_NoChange_DoesNotIncrementVersion()
+    {
+        // When the player stays near A and nothing moves, Version must not tick up
+        // on every frame (avoids unnecessary NavigationEngine selectorChanged triggers).
+        var nodeA = MakeTarget(ZoneA, x: 10f,  targetNodeKey: "node:a");
+        var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
+        var targets = new[] { nodeA, nodeB };
+
+        var selector = new NavigationTargetSelector(
+            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                                        : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter());
+
+        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
+        int v1 = selector.Version;
+
+        // Multiple non-force ticks at the same position — same winner, no version bump.
+        selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        Assert.Equal(v1, selector.Version);
+    }
+
 }

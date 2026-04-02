@@ -1,6 +1,5 @@
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
-using UnityEngine;
 
 namespace AdventureGuide.Navigation;
 
@@ -28,9 +27,9 @@ public struct SelectedNavTarget
 /// Per-key best-target selection shared by <see cref="NavigationEngine"/> and
 /// <c>TrackerPanel</c>.
 ///
-/// <see cref="Tick"/> is a no-op unless <c>force=true</c>. Callers that need a fresh
-/// plan (e.g. after a resolution or scene change) pass <c>force=true</c> to clear the
-/// cache and recompute all keys. Consumers compute distance inline from
+/// <see cref="Tick"/> re-evaluates the best target for every cached key on each
+/// call. Callers that need a fresh target-list fetch (e.g. after a resolution or
+/// scene change) pass <c>force=true</c>. Consumers compute distance inline from
 /// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
 ///
 /// Priority algorithm:
@@ -45,9 +44,14 @@ public struct SelectedNavTarget
 /// </summary>
 public sealed class NavigationTargetSelector
 {
-    private readonly QuestResolutionService _resolution;
+    private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
     private readonly ZoneRouter _router;
     private readonly Dictionary<string, SelectedNavTarget> _cache =
+        new(StringComparer.Ordinal);
+    // Resolved target lists per key. Populated once per force tick; re-used
+    // on every subsequent tick so ResolveTargetsForNavigation is not called
+    // per frame. Cleared and rebuilt when the resolution plan or nav set changes.
+    private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetLists =
         new(StringComparer.Ordinal);
 
     /// <summary>
@@ -57,44 +61,74 @@ public sealed class NavigationTargetSelector
     public int Version { get; private set; }
 
     public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router)
+        : this(resolution.ResolveTargetsForNavigation, router) { }
+
+    /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
+    internal NavigationTargetSelector(
+        Func<string, IReadOnlyList<ResolvedQuestTarget>> resolver, ZoneRouter router)
     {
-        _resolution = resolution;
-        _router = router;
+        _resolver = resolver;
+        _router   = router;
     }
 
     /// <summary>
     /// Called once per frame by Plugin before consumers read.
-    /// When <paramref name="force"/> is false this is a no-op.
-    /// When <paramref name="force"/> is true, the cache is cleared, all keys are
-    /// re-evaluated, and <see cref="Version"/> is incremented.
     ///
-    /// Passing a lazy iterator for <paramref name="nodeKeys"/> avoids allocation on
-    /// suppressed frames because the iterator is only consumed on forced ticks.
-    /// Duplicate keys are deduplicated via the dictionary.
+    /// <b>Every tick</b>: re-runs <see cref="SelectBest"/> for all cached keys using
+    /// the current player position. <see cref="Version"/> is incremented when the
+    /// selected target identity changes for any key, or when <paramref name="force"/> is
+    /// true.
+    ///
+    /// <b>Forced tick</b> (<paramref name="force"/> is true): clears and rebuilds the
+    /// target-list cache from <paramref name="nodeKeys"/>. Force is required when the
+    /// resolution plan or nav key set has changed.
+    ///
+    /// <paramref name="nodeKeys"/> is consumed only on forced ticks, so passing a lazy
+    /// iterator avoids allocation on non-forced frames.
     /// </summary>
-    public void Tick(Vector3 playerPos, string currentZone,
+    public void Tick(float playerX, float playerY, float playerZ, string currentZone,
                      IEnumerable<string> nodeKeys, bool force = false)
     {
-        if (!force)
-            return;
-
-        _cache.Clear();
-
-        foreach (var key in nodeKeys)
+        if (force)
         {
-            if (_cache.ContainsKey(key))
-                continue;
+            _targetLists.Clear();
+            _cache.Clear();
 
-            var targets = _resolution.ResolveTargetsForNavigation(key);
-            if (targets.Count == 0)
-                continue;
-
-            var selected = SelectBest(targets, playerPos.x, playerPos.y, playerPos.z, currentZone, _router);
-            if (selected.HasValue)
-                _cache[key] = selected.Value;
+            foreach (var key in nodeKeys)
+            {
+                if (_targetLists.ContainsKey(key))
+                    continue;
+                var targets = _resolver(key);
+                if (targets.Count > 0)
+                    _targetLists[key] = targets;
+            }
         }
 
-        Version++;
+        // Re-run SelectBest every tick using current player position.
+        // With hop-count caching, SelectBest is O(targets) distance math +
+        // O(unique_zones) O(1) lookups — cheap enough for per-frame execution.
+        bool changed = false;
+        foreach (var kv in _targetLists)
+        {
+            var selected = SelectBest(
+                kv.Value, playerX, playerY, playerZ, currentZone, _router);
+            if (selected.HasValue)
+            {
+                if (!_cache.TryGetValue(kv.Key, out var existing) ||
+                    existing.Target.TargetNodeKey != selected.Value.Target.TargetNodeKey)
+                {
+                    _cache[kv.Key] = selected.Value;
+                    changed = true;
+                }
+            }
+            else if (_cache.Remove(kv.Key))
+            {
+                changed = true;
+            }
+        }
+
+        if (force || changed)
+            Version++;
     }
 
     /// <summary>

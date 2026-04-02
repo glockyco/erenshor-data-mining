@@ -340,7 +340,7 @@ public sealed class Plugin : BaseUnityPlugin
             _lastResolutionVersion = _resolutionService.Version;
             _lastNavSetVersion     = _navSet!.Version;
         }
-        _targetSelector?.Tick(playerPos, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
+        _targetSelector?.Tick(playerPos.x, playerPos.y, playerPos.z, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
