@@ -521,9 +521,18 @@ public sealed class QuestResolutionService
                 continue;
 
             var targetContext = CreateContext(sourceNode, source.AcquisitionEdge, plan);
+            // Use the direct item as goalNode when the source is a transitive recipe
+            // ingredient. BuildRationaleText reads goalNode.Node.DisplayName for the
+            // "Drops / Sells / Yields X" text — that must be the item this specific
+            // source provides (e.g. Iron Ore), not the root crafted item (Ghostly Key).
+            var directItemNode = _graph.GetNode(source.DirectItemKey);
+            var directGoalNode = directItemNode != null
+                && !string.Equals(source.DirectItemKey, frontierNode.NodeKey, StringComparison.Ordinal)
+                ? CreateContext(directItemNode, plan)
+                : frontierNode;
             for (int j = 0; j < positions.Length; j++)
                 AddResolvedTargetDirect(
-                    results, seen, questKey, frontierNode, targetContext, positions[j], requestedNode, plan, sceneFilter);
+                    results, seen, questKey, directGoalNode, targetContext, positions[j], requestedNode, plan, sceneFilter);
         }
     }
     private bool TryResolveBlockedRoute(
