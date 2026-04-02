@@ -44,9 +44,18 @@ public sealed class CharacterPositionResolver : IPositionResolver
             if (spawnNode == null || !HasPosition(spawnNode))
                 continue;
 
-            var info = _liveState.GetSpawnState(spawnNode);
             var staticPos = new Vector3(spawnNode.X!.Value, spawnNode.Y!.Value, spawnNode.Z!.Value);
 
+            // Only the loaded scene has live NPCs. Off-scene spawns must stay on
+            // their static graph positions rather than probing current-scene objects.
+            if (!LiveSceneScope.CanUseLiveSceneState(spawnNode.Scene, currentScene))
+            {
+                results.Add(new ResolvedPosition(staticPos, spawnNode.Scene, spawnNode.Key, isActionable: true));
+                anyFromSpawns = true;
+                continue;
+            }
+
+            var info = _liveState.GetSpawnState(spawnNode);
             switch (info.State)
             {
                 case SpawnAlive:
@@ -87,6 +96,19 @@ public sealed class CharacterPositionResolver : IPositionResolver
             return;
 
         // No spawn edges — fall back to live NPC entity or static character position.
+        if (!LiveSceneScope.CharacterHasCurrentScenePresence(_graph, node, currentScene))
+        {
+            if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
+            {
+                results.Add(new ResolvedPosition(
+                    new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                    node.Scene,
+                    node.Key,
+                    isActionable: true));
+            }
+            return;
+        }
+
         var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
         var liveNpc = _entities.FindClosest(node.Key, playerPos);
         if (liveNpc != null)

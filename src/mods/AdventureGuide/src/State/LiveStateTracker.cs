@@ -172,6 +172,9 @@ public sealed class LiveStateTracker
 
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, spawnNode.Key));
 
+        if (!LiveSceneScope.CanUseLiveSceneState(spawnNode.Scene, CurrentSceneName()))
+            return new SpawnInfo(NodeState.Unknown, null, null, 0f);
+
         if (spawnNode.IsDirectlyPlaced)
             return ResolveDirectlyPlacedSpawn(spawnNode);
 
@@ -179,7 +182,7 @@ public sealed class LiveStateTracker
         if (sp != null)
             return ClassifySpawnPoint(sp);
 
-        var npc = FindNpcByNameAndProximity(spawnNode);
+        var npc = FindNpcByNameAndProximity(GetSpawnOwnerCharacter(spawnNode) ?? spawnNode);
         if (npc != null)
         {
             var ch = npc.GetComponent<Character>();
@@ -198,6 +201,13 @@ public sealed class LiveStateTracker
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
 
         string? unlockReason = GetCharacterUnlockRequirement(characterNode);
+        if (!LiveSceneScope.CharacterHasCurrentScenePresence(_graph, characterNode, CurrentSceneName()))
+        {
+            return string.IsNullOrEmpty(unlockReason)
+                ? new SpawnInfo(NodeState.Unknown, null, null, 0f)
+                : new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
+        }
+
         if (!string.IsNullOrEmpty(unlockReason))
             return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
 
@@ -240,6 +250,9 @@ public sealed class LiveStateTracker
 
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, miningNode.Key));
 
+        if (!LiveSceneScope.CanUseLiveSceneState(miningNode.Scene, CurrentSceneName()))
+            return new MiningInfo(NodeState.Unknown, null);
+
         var posKey = NodePosKey(miningNode);
         if (!posKey.HasValue)
             return new MiningInfo(NodeState.Unknown, null);
@@ -274,6 +287,9 @@ public sealed class LiveStateTracker
             return NodeState.Unknown;
 
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, itemBagNode.Key));
+
+        if (!LiveSceneScope.CanUseLiveSceneState(itemBagNode.Scene, CurrentSceneName()))
+            return NodeState.Unknown;
 
         var posKey = NodePosKey(itemBagNode);
         if (!posKey.HasValue)
@@ -312,6 +328,9 @@ public sealed class LiveStateTracker
             return new DoorInfo(NodeState.Unknown, null, false);
 
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, doorNode.Key));
+
+        if (!LiveSceneScope.CanUseLiveSceneState(doorNode.Scene, CurrentSceneName()))
+            return new DoorInfo(NodeState.Unknown, null, false);
 
         var posKey = NodePosKey(doorNode);
         if (!posKey.HasValue)
@@ -463,15 +482,9 @@ public sealed class LiveStateTracker
 
     private void AddDirectSpawnNode(Node spawnNode)
     {
-        string? name = spawnNode.DisplayName;
-        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
-        if (charEdges.Count > 0)
-        {
-            var character = _graph.GetNode(charEdges[0].Source);
-            if (!string.IsNullOrEmpty(character?.DisplayName))
-                name = character.DisplayName;
-        }
-
+        string name = LiveSceneScope.ResolveSpawnLookupName(
+            spawnNode,
+            GetSpawnOwnerCharacter(spawnNode));
         if (string.IsNullOrEmpty(name))
             return;
 
@@ -487,26 +500,22 @@ public sealed class LiveStateTracker
 
     private SpawnInfo ResolveDirectlyPlacedSpawn(Node spawnNode)
     {
-        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
-        if (charEdges.Count > 0)
+        var charNode = GetSpawnOwnerCharacter(spawnNode);
+        if (charNode != null)
         {
-            var charNode = _graph.GetNode(charEdges[0].Source);
-            if (charNode != null)
+            string? unlockReason = GetCharacterUnlockRequirement(charNode);
+            if (!string.IsNullOrEmpty(unlockReason))
+                return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
+
+            var npc = FindNpcByNameAndProximity(charNode);
+            if (npc != null)
             {
-                string? unlockReason = GetCharacterUnlockRequirement(charNode);
-                if (!string.IsNullOrEmpty(unlockReason))
-                    return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
-
-                var npc = FindNpcByNameAndProximity(charNode);
-                if (npc != null)
-                {
-                    var ch = npc.GetComponent<Character>();
-                    bool alive = ch != null && ch.Alive;
-                    return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
-                }
-
-                return new SpawnInfo(new SpawnDead(0f), null, null, 0f);
+                var ch = npc.GetComponent<Character>();
+                bool alive = ch != null && ch.Alive;
+                return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, npc, 0f);
             }
+
+            return new SpawnInfo(new SpawnDead(0f), null, null, 0f);
         }
 
         var fallbackNpc = FindNpcByNameAndProximity(spawnNode);
@@ -525,6 +534,18 @@ public sealed class LiveStateTracker
         var evaluation = _unlocks.Evaluate(charNode);
         return evaluation.IsUnlocked ? null : evaluation.Reason;
     }
+
+    private string CurrentSceneName() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+    private Node? GetSpawnOwnerCharacter(Node spawnNode)
+    {
+        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
+        if (charEdges.Count == 0)
+            return null;
+
+        return _graph.GetNode(charEdges[0].Source);
+    }
+
 
     private SpawnPoint? FindSpawnPoint(Node node)
     {
