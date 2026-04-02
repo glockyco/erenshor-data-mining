@@ -289,11 +289,13 @@ public sealed class ViewRenderer
         string prefix = edgeType.Value switch
         {
             EdgeType.RequiresQuest => $"Requires: {name}",
-            EdgeType.RequiresItem => FormatHaveNeed("Obtain: ", name, node, link),
+            EdgeType.RequiresItem => FormatHaveNeed("Collect: ", name, node, link),
             EdgeType.StepTalk => FormatKeyword("Talk to ", name, link?.Keyword),
             EdgeType.StepKill => $"Kill: {name}",
             EdgeType.StepTravel => $"Travel to: {name}",
-            EdgeType.StepShout => FormatKeyword("Shout at ", name, link?.Keyword),
+            EdgeType.StepShout => !string.IsNullOrEmpty(link?.Keyword)
+                ? $"Shout '{link!.Keyword}' near {name}"
+                : $"Shout near {name}",
             EdgeType.StepRead => $"Read: {name}",
             EdgeType.CompletedBy => FormatKeyword("Turn in to ", name, link?.Keyword),
             EdgeType.AssignedBy => FormatAssignment(node, link),
@@ -302,7 +304,12 @@ public sealed class ViewRenderer
             EdgeType.DropsItem => FormatChance($"Drops from: {name}", link?.Note == null ? null : ParseChance(link.Note)),
             EdgeType.SellsItem => $"Vendor: {name}",
             EdgeType.GivesItem => FormatKeyword("Talk to ", name, link?.Keyword),
-            EdgeType.YieldsItem => $"Gathered from: {name}",
+            EdgeType.YieldsItem => n.Type switch
+            {
+                NodeType.MiningNode => $"Mine: {name}",
+                NodeType.Water      => $"Fish at: {name}",
+                _                   => $"Collect: {name}",
+            },
             EdgeType.RewardsItem => $"Quest reward: {name}",
             _ => $"[{edgeType.Value}] {name}",
         };
