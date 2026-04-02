@@ -207,4 +207,62 @@ public sealed class NavigationTargetSelectorTests
         Assert.False(result!.Value.IsSameZone);
         Assert.Equal(-1, result.Value.HopCount);
     }
+
+    [Fact]
+    public void SelectBest_CrossZone_ManyTargetsSameDestination_SingleHopLookup()
+    {
+        // 500 cross-zone targets all in ZoneB — should produce one representative,
+        // not 500 FindRoute calls. Verifiable by result being correct and fast.
+        var graph = new TestGraphBuilder()
+            .AddZone("zone:a", "Zone A", scene: ZoneA)
+            .AddZone("zone:b", "Zone B", scene: ZoneB)
+            .AddZoneLine("zl:ab", "A\u2192B", scene: ZoneA,
+                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .Build();
+        var harness = SnapshotHarness.FromSnapshot(
+            graph, new StateSnapshot { CurrentZone = ZoneA });
+
+        var targets = Enumerable.Range(0, 500)
+            .Select(i => MakeTarget(ZoneB, x: i))
+            .ToArray();
+
+        var result = NavigationTargetSelector.SelectBest(
+            targets, PX, PY, PZ, ZoneA, harness.Router);
+
+        // Correct winner: first target in ZoneB, 1 hop away.
+        Assert.NotNull(result);
+        Assert.False(result!.Value.IsSameZone);
+        Assert.Equal(1, result.Value.HopCount);
+        Assert.Equal(ZoneB, result.Value.Target.Scene);
+    }
+
+    [Fact]
+    public void SelectBest_CrossZone_CloserZoneWins_DespiteMoreTargetsInFarZone()
+    {
+        // ZoneB is 1 hop, ZoneC is 2 hops. Many targets in ZoneC, one in ZoneB.
+        // ZoneB target should still win because fewer hops matter more than count.
+        var graph = new TestGraphBuilder()
+            .AddZone("zone:a", "Zone A", scene: ZoneA)
+            .AddZone("zone:b", "Zone B", scene: ZoneB)
+            .AddZone("zone:c", "Zone C", scene: ZoneC)
+            .AddZoneLine("zl:ab", "A\u2192B", scene: ZoneA,
+                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .AddZoneLine("zl:bc", "B\u2192C", scene: ZoneB,
+                destinationZoneKey: "zone:c", x: 20, y: 0, z: 0)
+            .Build();
+        var harness = SnapshotHarness.FromSnapshot(
+            graph, new StateSnapshot { CurrentZone = ZoneA });
+
+        var targets = new[] { MakeTarget(ZoneB) }
+            .Concat(Enumerable.Range(0, 100).Select(i => MakeTarget(ZoneC, x: i)))
+            .ToArray();
+
+        var result = NavigationTargetSelector.SelectBest(
+            targets, PX, PY, PZ, ZoneA, harness.Router);
+
+        Assert.NotNull(result);
+        Assert.False(result!.Value.IsSameZone);
+        Assert.Equal(1, result.Value.HopCount);
+        Assert.Equal(ZoneB, result.Value.Target.Scene);
+    }
 }

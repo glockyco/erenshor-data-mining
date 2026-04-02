@@ -124,10 +124,12 @@ public sealed class NavigationTargetSelector
         ResolvedQuestTarget? bestNonActionable = null;
         float bestNonActionableDist = float.MaxValue;
 
-        // Cross-zone tracking: fewest hops wins; no-route targets are kept as fallback
-        // only when no routable cross-zone target exists.
+        // Cross-zone: first collect one representative target per destination zone
+        // (O(targets) with O(1) dict lookups), then score each unique zone using the
+        // hop-count cache (O(unique zones), no BFS per target).
+        Dictionary<string, ResolvedQuestTarget>? crossZoneReps = null;
         ResolvedQuestTarget? bestCrossZone = null;
-        int bestHops = int.MaxValue; // int.MaxValue means "only no-route candidates seen"
+        int bestHops = int.MaxValue;
 
         for (int i = 0; i < targets.Count; i++)
         {
@@ -161,26 +163,40 @@ public sealed class NavigationTargetSelector
                     }
                 }
             }
-            else
+            else if (!string.IsNullOrEmpty(t.Scene))
             {
-                if (string.IsNullOrEmpty(t.Scene))
-                    continue;
+                // Record only the first target seen per destination zone.
+                // Which specific target within that zone to navigate to is a
+                // decision that belongs to a later in-zone resolution.
+                crossZoneReps ??= new Dictionary<string, ResolvedQuestTarget>(
+                    StringComparer.OrdinalIgnoreCase);
+                if (!crossZoneReps.ContainsKey(t.Scene!))
+                    crossZoneReps[t.Scene!] = t;
+            }
+        }
 
-                var route = router.FindRoute(currentZone, t.Scene!);
-                if (route != null)
+        // Score unique destination zones — O(unique zones) GetHopCount calls,
+        // each O(1) after the first call populates the router's hop cache.
+        if (crossZoneReps != null)
+        {
+            foreach (var kv in crossZoneReps)
+            {
+                int hops = router.GetHopCount(currentZone, kv.Key);
+                if (hops < bestHops)
                 {
-                    int hops = Math.Max(0, route.Path.Count - 1);
-                    if (hops < bestHops)
-                    {
-                        bestHops = hops;
-                        bestCrossZone = t;
-                    }
+                    bestHops      = hops;
+                    bestCrossZone = kv.Value;
                 }
-                else if (bestCrossZone == null)
+            }
+
+            // Fallback: all zones unreachable; return any candidate so callers
+            // know cross-zone targets exist even if we can't route to them.
+            if (bestCrossZone == null)
+            {
+                foreach (var kv in crossZoneReps)
                 {
-                    // No route exists; keep as a last-resort candidate so callers know
-                    // the target exists even if we can't route to it.
-                    bestCrossZone = t;
+                    bestCrossZone = kv.Value;
+                    break;
                 }
             }
         }
