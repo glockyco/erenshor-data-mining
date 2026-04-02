@@ -444,18 +444,49 @@ public sealed class CyclePruningTests
         Assert.NotEqual(PlanStatus.PrunedCycle, key.Status);
         Assert.NotEqual(PlanStatus.PrunedInfeasible, key.Status);
 
-        // Door is unlockable (key is available) — must NOT be PrunedCycle.
+        // Door is unlockable (key is available) — it should remain blocked, not pruned.
         var door = plan.EntityNodesByKey["door:d"];
-        Assert.NotEqual(PlanStatus.PrunedCycle, door.Status);
-        Assert.NotEqual(PlanStatus.PrunedInfeasible, door.Status);
+        Assert.Equal(PlanStatus.Blocked, door.Status);
 
-        // Ghost is reachable (door is not infeasible) — must NOT be PrunedInfeasible.
+        // Ghost is blocked by the door, but the door itself is unlockable.
+        // That makes the ghost blocked, not infeasible.
         var ghost = plan.EntityNodesByKey["character:ghost"];
-        Assert.NotEqual(PlanStatus.PrunedInfeasible, ghost.Status);
+        Assert.Equal(PlanStatus.Blocked, ghost.Status);
 
-        // Step item can drop from ghost — must NOT be PrunedInfeasible.
+        // Step item can still be sourced through the blocked ghost path, so it
+        // must remain feasible in the plan.
         var stepItem = plan.EntityNodesByKey["item:step"];
         Assert.NotEqual(PlanStatus.PrunedInfeasible, stepItem.Status);
+    }
+
+    [Fact]
+    public void BuildNode_DoorWithFeasibleUnlockChain_RemainsBlockedNotCyclic()
+    {
+        var graph = new TestGraphBuilder()
+            .AddItem("item:key", "Key Item")
+            .AddItem("item:piece", "Key Piece")
+            .AddRecipe("recipe:key", "Key Recipe")
+            .AddCharacter("character:ghost", "Ghost", scene: "ZoneA")
+            .AddCharacter("character:free", "Free Source", scene: "ZoneA")
+            .AddDoor("door:d", "The Door", scene: "ZoneA")
+            .AddEdge("door:d", "character:ghost", EdgeType.UnlocksCharacter)
+            .AddEdge("item:key", "door:d", EdgeType.UnlocksDoor)
+            .AddEdge("item:key", "recipe:key", EdgeType.CraftedFrom)
+            .AddEdge("recipe:key", "item:piece", EdgeType.RequiresMaterial)
+            .AddEdge("character:ghost", "item:piece", EdgeType.DropsItem)
+            .AddEdge("character:free", "item:piece", EdgeType.DropsItem)
+            .Build();
+
+        var harness = SnapshotHarness.FromSnapshot(
+            graph,
+            new StateSnapshot { CurrentZone = "ZoneA" });
+        var plan = harness.BuildNodePlan("door:d");
+
+        var door = plan.EntityNodesByKey["door:d"];
+        Assert.Equal(PlanStatus.Blocked, door.Status);
+
+        var piece = plan.EntityNodesByKey["item:piece"];
+        Assert.NotEqual(PlanStatus.PrunedInfeasible, piece.Status);
     }
 
 }

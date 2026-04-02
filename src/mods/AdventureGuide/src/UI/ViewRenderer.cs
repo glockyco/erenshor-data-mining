@@ -61,7 +61,8 @@ public sealed class ViewRenderer
         ImGui.Spacing();
 
         var rootChildren = _currentProjector!.GetRootChildren();
-        if (rootChildren.Count == 0)
+        string? completionFallback = GetCompletionFallbackNotice(_graph, root.Node);
+        if (rootChildren.Count == 0 && completionFallback == null)
         {
             DrawNotice("No guide data available for this quest.");
         }
@@ -75,10 +76,11 @@ public sealed class ViewRenderer
                 DrawTreeRef(rootChildren[i], questState);
                 ImGui.PopID();
             }
-            ImGui.Unindent(Theme.IndentWidth);
 
-            if (_graph.OutEdges(root.NodeKey, EdgeType.CompletedBy).Count == 0)
-                DrawNotice("Completion method not in guide data — may be scripted.");
+            if (completionFallback != null)
+                DrawNoticeGroup("How to complete", completionFallback);
+
+            ImGui.Unindent(Theme.IndentWidth);
         }
 
         ImGui.Spacing();
@@ -275,6 +277,23 @@ public sealed class ViewRenderer
         ImGui.PopStyleColor();
     }
 
+    private static void DrawNoticeGroup(string label, string text)
+    {
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        bool open = ImGui.TreeNodeEx(label, ImGuiTreeNodeFlags.DefaultOpen);
+        ImGui.PopStyleColor();
+        if (!open)
+            return;
+
+        DrawNotice(text);
+        ImGui.TreePop();
+    }
+
+    internal static string? GetCompletionFallbackNotice(EntityGraph graph, Node quest) =>
+        graph.OutEdges(quest.Key, EdgeType.CompletedBy).Count == 0
+            ? "Completion method not in guide data. Quest may be scripted or not yet completable."
+            : null;
+
     // ── Label formatting ────────────────────────────────────────────────
 
     private string FormatLabel(PlanEntityNode node, PlanLink? link)
@@ -297,7 +316,7 @@ public sealed class ViewRenderer
                 ? $"Shout '{link!.Keyword}' near {name}"
                 : $"Shout near {name}",
             EdgeType.StepRead => $"Read: {name}",
-            EdgeType.CompletedBy => FormatKeyword("Turn in to ", name, link?.Keyword),
+            EdgeType.CompletedBy => FormatCompletion(node, link),
             EdgeType.AssignedBy => FormatAssignment(node, link),
             EdgeType.CraftedFrom => $"Crafted via: {name}",
             EdgeType.RequiresMaterial => FormatHaveNeed("Ingredient: ", name, node, link),
@@ -375,6 +394,20 @@ public sealed class ViewRenderer
             NodeType.Zone => $"Enter: {name}",
             NodeType.Quest => $"Complete: {name}",
             _ => FormatKeyword("Talk to ", name, link?.Keyword),
+        };
+    }
+
+    internal static string FormatCompletion(PlanEntityNode node, PlanLink? link)
+    {
+        string name = node.Node.DisplayName;
+        return node.Node.Type switch
+        {
+            NodeType.Character => FormatKeyword("Turn in to ", name, link?.Keyword),
+            NodeType.Item => $"Read: {name}",
+            NodeType.Zone => $"Enter: {name}",
+            NodeType.ZoneLine => $"Travel to: {name}",
+            NodeType.Quest => $"Complete: {name}",
+            _ => $"Complete via: {name}",
         };
     }
 

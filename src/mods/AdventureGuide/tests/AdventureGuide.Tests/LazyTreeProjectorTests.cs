@@ -9,7 +9,7 @@ namespace AdventureGuide.Tests;
 public sealed class LazyTreeProjectorTests
 {
     [Fact]
-    public void Projector_FlattensStructuralGroupsAtRoot()
+    public void Projector_PreservesLabeledQuestPhaseGroupsAtRoot()
     {
         var graph = new TestGraphBuilder()
             .AddQuest("quest:root", "Root Quest", dbName: "RootQuest")
@@ -29,12 +29,26 @@ public sealed class LazyTreeProjectorTests
 
         var roots = projector.GetRootChildren();
 
-        Assert.Equal(4, roots.Count);
-        Assert.All(roots, r => Assert.IsType<PlanEntityNode>(plan.GetNode(r.NodeId)));
-        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"character:giver");
-        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:pre");
-        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"item:step");
-        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"character:turnin");
+        Assert.Equal(3, roots.Count);
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:assignment:anyof");
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:objectives:allof");
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:completion:anyof");
+
+        var assignmentGroup = Assert.IsType<PlanGroupNode>(plan.GetNode("quest:root:assignment:anyof"));
+        var objectivesGroup = Assert.IsType<PlanGroupNode>(plan.GetNode("quest:root:objectives:allof"));
+        var completionGroup = Assert.IsType<PlanGroupNode>(plan.GetNode("quest:root:completion:anyof"));
+        Assert.Equal("How to start", assignmentGroup.Label);
+        Assert.Equal("What to do", objectivesGroup.Label);
+        Assert.Equal("How to complete", completionGroup.Label);
+
+        var assignmentRef = roots.Single(r => r.NodeId == assignmentGroup.Id);
+        var objectivesRef = roots.Single(r => r.NodeId == objectivesGroup.Id);
+        var completionRef = roots.Single(r => r.NodeId == completionGroup.Id);
+        Assert.Single(projector.GetChildren(assignmentRef), r => r.NodeId == (PlanNodeId)"character:giver");
+        var objectiveChildren = projector.GetChildren(objectivesRef);
+        Assert.Contains(objectiveChildren, r => r.NodeId == (PlanNodeId)"quest:pre");
+        Assert.Contains(objectiveChildren, r => r.NodeId == (PlanNodeId)"item:step");
+        Assert.Single(projector.GetChildren(completionRef), r => r.NodeId == (PlanNodeId)"character:turnin");
     }
 
     [Fact]
@@ -56,7 +70,10 @@ public sealed class LazyTreeProjectorTests
         var session = new QuestTreeSession(plan);
         var projector = new LazyTreeProjector(plan, session);
 
-        var productRef = projector.GetRootChildren().Single(r => r.NodeId == (PlanNodeId)"item:product");
+        var objectivesRef = projector.GetRootChildren().Single(
+            r => r.NodeId == (PlanNodeId)"quest:reward:objectives:allof");
+        var objectiveChildren = projector.GetChildren(objectivesRef);
+        var productRef = objectiveChildren.Single(r => r.NodeId == (PlanNodeId)"item:product");
         var firstLevel = projector.GetChildren(productRef);
 
         Assert.Contains(firstLevel, r => r.NodeId == (PlanNodeId)"recipe:product");

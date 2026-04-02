@@ -84,8 +84,15 @@ public sealed class QuestPlanBuilder
             ?? throw new InvalidOperationException($"Node '{nodeKey}' not found.");
 
         var root = GetOrCreateEntity(rootNode);
-        ApplyRuntimeState(root);
-        AddUnlockRequirement(root);
+        if (RequiresRecursiveBuild(rootNode.Type))
+        {
+            ApplyRuntimeState(root);
+            AddUnlockRequirement(root);
+        }
+        else
+        {
+            InitializeNonBuildEntity(root);
+        }
 
         switch (rootNode.Type)
         {
@@ -150,11 +157,21 @@ public sealed class QuestPlanBuilder
                 return;
 
             ApplyRuntimeState(questNode);
-            AddQuestGroup(questNode, EdgeType.AssignedBy, PlanGroupKind.AnyOf, "assignment");
-            AddQuestGroup(questNode, EdgeType.RequiresQuest, PlanGroupKind.AllOf, "prerequisites");
-            AddQuestStepGroup(questNode);
-            AddRequiredItems(questNode);
-            AddQuestGroup(questNode, EdgeType.CompletedBy, PlanGroupKind.AnyOf, "completion");
+            AddQuestGroup(
+                questNode.Id,
+                questNode,
+                EdgeType.AssignedBy,
+                PlanGroupKind.AnyOf,
+                "assignment",
+                label: "How to start");
+            AddQuestObjectiveGroup(questNode);
+            AddQuestGroup(
+                questNode.Id,
+                questNode,
+                EdgeType.CompletedBy,
+                PlanGroupKind.AnyOf,
+                "completion",
+                label: "How to complete");
             AddUnlockRequirement(questNode);
 
             PropagateEntityFeasibility(questNode);
@@ -263,15 +280,24 @@ public sealed class QuestPlanBuilder
 
     // ── Quest group builders ────────────────────────────────────────────
 
-    private void AddQuestGroup(PlanEntityNode questNode, EdgeType edgeType, PlanGroupKind groupKind, string suffix)
+    private void AddQuestGroup(
+        PlanNodeId parentId,
+        PlanEntityNode questNode,
+        EdgeType edgeType,
+        PlanGroupKind groupKind,
+        string suffix,
+        string? label = null)
     {
         var edges = _graph.OutEdges(questNode.NodeKey, edgeType);
         if (edges.Count == 0)
             return;
 
         var semantic = DependencySemantics.FromEdge(edgeType);
-        var group = GetOrCreateGroup($"{questNode.NodeKey}:{suffix}:{groupKind.ToString().ToLowerInvariant()}", groupKind);
-        AddLink(questNode.Id, group.Id, semantic, edgeType: edgeType);
+        var group = GetOrCreateGroup(
+            $"{questNode.NodeKey}:{suffix}:{groupKind.ToString().ToLowerInvariant()}",
+            groupKind,
+            label: label);
+        AddLink(parentId, group.Id, semantic, edgeType: edgeType);
 
         for (int i = 0; i < edges.Count; i++)
         {
@@ -298,7 +324,52 @@ public sealed class QuestPlanBuilder
         }
     }
 
-    private void AddQuestStepGroup(PlanEntityNode questNode)
+    private void AddQuestObjectiveGroup(PlanEntityNode questNode)
+    {
+        if (!HasQuestObjectives(questNode.NodeKey))
+            return;
+
+        var group = GetOrCreateGroup(
+            $"{questNode.NodeKey}:objectives:allof",
+            PlanGroupKind.AllOf,
+            label: "What to do");
+        AddLink(
+            questNode.Id,
+            group.Id,
+            DependencySemantics.FromEdge(EdgeType.RequiresQuest),
+            edgeType: null);
+
+        AddQuestGroup(group.Id, questNode, EdgeType.RequiresQuest, PlanGroupKind.AllOf, "prerequisites");
+        AddQuestStepGroup(group.Id, questNode);
+        AddRequiredItems(group.Id, questNode);
+    }
+
+    private bool HasQuestObjectives(string questKey)
+    {
+        if (_graph.OutEdges(questKey, EdgeType.RequiresQuest).Count > 0)
+            return true;
+        if (_graph.OutEdges(questKey, EdgeType.RequiresItem).Count > 0)
+            return true;
+
+        var stepTypes = new[]
+        {
+            EdgeType.StepTalk,
+            EdgeType.StepKill,
+            EdgeType.StepTravel,
+            EdgeType.StepShout,
+            EdgeType.StepRead,
+        };
+
+        for (int i = 0; i < stepTypes.Length; i++)
+        {
+            if (_graph.OutEdges(questKey, stepTypes[i]).Count > 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void AddQuestStepGroup(PlanNodeId parentId, PlanEntityNode questNode)
     {
         var stepTypes = new[]
         {
@@ -326,8 +397,10 @@ public sealed class QuestPlanBuilder
 
         collected.Sort((a, b) => (a.edge.Ordinal ?? int.MaxValue).CompareTo(b.edge.Ordinal ?? int.MaxValue));
 
-        var group = GetOrCreateGroup($"{questNode.NodeKey}:steps:allof", PlanGroupKind.AllOf);
-        AddLink(questNode.Id, group.Id, DependencySemantics.FromEdge(EdgeType.StepTalk), edgeType: null);
+        var group = GetOrCreateGroup(
+            $"{questNode.NodeKey}:steps:allof",
+            PlanGroupKind.AllOf);
+        AddLink(parentId, group.Id, DependencySemantics.FromEdge(EdgeType.StepTalk), edgeType: null);
 
         for (int i = 0; i < collected.Count; i++)
         {
@@ -352,7 +425,7 @@ public sealed class QuestPlanBuilder
         }
     }
 
-    private void AddRequiredItems(PlanEntityNode questNode)
+    private void AddRequiredItems(PlanNodeId parentId, PlanEntityNode questNode)
     {
         var edges = _graph.OutEdges(questNode.NodeKey, EdgeType.RequiresItem);
         if (edges.Count == 0)
@@ -370,13 +443,13 @@ public sealed class QuestPlanBuilder
         if (byGroup.Count == 1 && byGroup.ContainsKey(string.Empty))
         {
             var allOf = GetOrCreateGroup($"{questNode.NodeKey}:required-items:allof", PlanGroupKind.AllOf);
-            AddLink(questNode.Id, allOf.Id, DependencySemantics.FromEdge(EdgeType.RequiresItem), edgeType: EdgeType.RequiresItem);
+            AddLink(parentId, allOf.Id, DependencySemantics.FromEdge(EdgeType.RequiresItem), edgeType: EdgeType.RequiresItem);
             AddRequiredItemChildren(allOf.Id, byGroup[string.Empty], DependencySemantics.FromEdge(EdgeType.RequiresItem));
             return;
         }
 
         var anyOf = GetOrCreateGroup($"{questNode.NodeKey}:required-items:anyof", PlanGroupKind.AnyOf);
-        AddLink(questNode.Id, anyOf.Id, DependencySemantics.FromEdge(EdgeType.RequiresItem), edgeType: EdgeType.RequiresItem);
+        AddLink(parentId, anyOf.Id, DependencySemantics.FromEdge(EdgeType.RequiresItem), edgeType: EdgeType.RequiresItem);
 
         foreach (var pair in byGroup)
         {
@@ -512,6 +585,7 @@ public sealed class QuestPlanBuilder
         {
             if (hadCyclicSources)
                 node.Status = PlanStatus.PrunedCycle;
+            NormalizeUnlockBlockedStatus(node);
             return;
         }
 
@@ -520,6 +594,7 @@ public sealed class QuestPlanBuilder
             blockingSources,
             semanticEdgeType,
             node.Node.Type == NodeType.Door ? "Unlock" : "Requires");
+        NormalizeUnlockBlockedStatus(node);
     }
 
     /// <summary>
@@ -579,11 +654,29 @@ public sealed class QuestPlanBuilder
                 BuildRecipe(source.Key);
         }
 
-        // After building all blocking sources, check if the unlock group
-        // is now infeasible. This propagates to entities that don't have
-        // their own Build* method (e.g. characters, doors, zones).
-        if (IsGroupInfeasible(group))
+        // After building all blocking sources, the unlock group tells us whether
+        // the entity is truly infeasible or merely blocked by a feasible path.
+        NormalizeUnlockBlockedStatus(node);
+    }
+
+    private void NormalizeUnlockBlockedStatus(PlanEntityNode node)
+    {
+        if (node.UnlockRequirementId == null)
+            return;
+        if (!_nodesById.TryGetValue(node.UnlockRequirementId.Value, out var unlockNode)
+            || unlockNode is not PlanGroupNode unlockGroup)
+        {
+            return;
+        }
+
+        if (IsGroupInfeasible(unlockGroup))
+        {
             node.Status = PlanStatus.PrunedInfeasible;
+            return;
+        }
+
+        if (node.Status != PlanStatus.Satisfied)
+            node.Status = PlanStatus.Blocked;
     }
 
     // ── Cycle detection and feasibility propagation ─────────────────────
@@ -634,26 +727,42 @@ public sealed class QuestPlanBuilder
         var entity = GetOrCreateEntity(childNode);
         if (!_resolvedEntityKeys.Contains(childNode.Key))
         {
-            ApplyRuntimeState(entity);
-            AddUnlockRequirement(entity);
-
-            // Characters, doors, zone lines, and other non-build entities have no
-            // Build* method. The two calls above are their complete processing.
-            // Mark resolved now so re-encounters in a different _entitiesOnPath
-            // context skip AddUnlockRequirement and avoid false cycle detection.
-            // Quests, items, and recipes are excluded: their Build* methods add them
-            // to _resolvedEntityKeys after a full traversal, and pre-marking them
-            // here would cause that traversal to be skipped entirely.
-            if (childNode.Type != NodeType.Quest
-                && childNode.Type != NodeType.Item
-                && childNode.Type != NodeType.Recipe)
+            if (RequiresRecursiveBuild(childNode.Type))
             {
-                _resolvedEntityKeys.Add(childNode.Key);
+                ApplyRuntimeState(entity);
+                AddUnlockRequirement(entity);
+            }
+            else
+            {
+                InitializeNonBuildEntity(entity);
             }
         }
         AddLink(parentId, entity.Id, semantic, edgeType, ordinal, quantity, keyword, group, note);
         return entity;
     }
+
+    private void InitializeNonBuildEntity(PlanEntityNode entity)
+    {
+        if (_resolvedEntityKeys.Contains(entity.NodeKey))
+            return;
+        if (!_entitiesOnPath.Add(entity.NodeKey))
+            return;
+
+        try
+        {
+            ApplyRuntimeState(entity);
+            AddUnlockRequirement(entity);
+        }
+        finally
+        {
+            _entitiesOnPath.Remove(entity.NodeKey);
+        }
+
+        _resolvedEntityKeys.Add(entity.NodeKey);
+    }
+
+    private static bool RequiresRecursiveBuild(NodeType nodeType) =>
+        nodeType is NodeType.Quest or NodeType.Item or NodeType.Recipe;
 
     /// <summary>
     /// Evaluates feasibility of an entity after its full subtree is built.

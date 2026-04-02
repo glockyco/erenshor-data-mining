@@ -28,9 +28,12 @@ public sealed class QuestTreeSessionTests
 
         var roots = session.GetRootChildren();
 
-        Assert.Equal(4, roots.Count);
+        Assert.Equal(3, roots.Count);
         Assert.All(roots, r => Assert.Equal(0, r.Depth));
         Assert.All(roots, r => Assert.NotNull(plan.GetNode(r.NodeId)));
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:assignment:anyof");
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:objectives:allof");
+        Assert.Contains(roots, r => r.NodeId == (PlanNodeId)"quest:root:completion:anyof");
     }
 
     [Fact]
