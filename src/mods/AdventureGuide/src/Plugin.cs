@@ -338,7 +338,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (forceSelector)
         {
             _lastResolutionVersion = _resolutionService.Version;
-            _lastNavSetVersion     = _navSet.Version;
+            _lastNavSetVersion     = _navSet!.Version;
         }
         _targetSelector?.Tick(playerPos, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
 
