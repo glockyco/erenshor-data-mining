@@ -141,23 +141,8 @@ public sealed class NavigationEngine
         }
     }
 
-    private static float ComputeNavScore(SelectedNavTarget sel, Vector3 playerPos)
-    {
-        const float BlockedPenalty       = 3_000_000f;  // > CrossZonePenalty
-        const float CrossZonePenalty     = 1_000_000f;
-        const float NonActionablePenalty =   500_000f;
-
-        float dx = sel.Target.X - playerPos.x;
-        float dy = sel.Target.Y - playerPos.y;
-        float dz = sel.Target.Z - playerPos.z;
-        float dist2 = dx * dx + dy * dy + dz * dz;
-
-        float penalty = 0f;
-        if (!sel.IsSameZone)          penalty += CrossZonePenalty;
-        if (!sel.Target.IsActionable) penalty += NonActionablePenalty;
-        if (sel.IsBlockedPath)        penalty += BlockedPenalty;
-        return dist2 + penalty;
-    }
+    private static float ComputeNavScore(SelectedNavTarget sel, Vector3 playerPos) =>
+        NavigationScore.Compute(sel, playerPos.x, playerPos.y, playerPos.z);
 
     private void SetTarget(ResolvedQuestTarget target)
     {
