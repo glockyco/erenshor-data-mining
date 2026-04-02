@@ -364,6 +364,17 @@ public sealed class QuestResolutionService
                 if (string.Equals(blockingSource.Key, questKey, StringComparison.Ordinal))
                     continue;
 
+                // Deduplicate: the same blocking quest may be reached via
+                // multiple blocked-route paths (e.g. ten out-of-zone fishing
+                // spots all gated behind the same prerequisite). Expanding
+                // once per (parent quest, goal context, blocking quest, scene
+                // filter) is sufficient; further copies produce identical tagged
+                // targets.
+                string expansionKey =
+                    $"bq|{questKey}|{frontierNode.NodeKey}|{blockingSource.Key}|{sceneFilter ?? string.Empty}";
+                if (!seen.Add(expansionKey))
+                    continue;
+
                 var blockingTargets = sceneFilter == null
                     ? ResolveQuest(blockingSource.Key).Targets
                     : GetTargetsForScene(blockingSource.Key, sceneFilter);
