@@ -20,7 +20,7 @@ public sealed class QuestStateTracker
     private readonly Dictionary<string, int> _inventoryCounts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _keyringItemKeys = new(StringComparer.Ordinal);
     private readonly List<ImplicitQuest> _implicitQuests;
-    private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _implicitlyAvailableQuests = new(StringComparer.OrdinalIgnoreCase);
 
     private NavigationHistory? _history;
     private string _currentZone = string.Empty;
@@ -74,13 +74,13 @@ public sealed class QuestStateTracker
         return _activeQuests.Contains(dbName);
     }
 
-    public bool IsImplicitlyActive(string dbName)
+    public bool IsImplicitlyAvailable(string dbName)
     {
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.Scene, "current"));
-        return !_activeQuests.Contains(dbName) && _implicitlyActiveQuests.Contains(dbName);
+        return !_activeQuests.Contains(dbName) && _implicitlyAvailableQuests.Contains(dbName);
     }
 
-    public bool IsActionable(string dbName) => IsActive(dbName) || IsImplicitlyActive(dbName);
+    public bool IsActionable(string dbName) => IsActive(dbName) || IsImplicitlyAvailable(dbName);
 
     public bool IsCompleted(string dbName)
     {
@@ -106,7 +106,7 @@ public sealed class QuestStateTracker
         foreach (var quest in _activeQuests)
             yield return quest;
 
-        foreach (var quest in _implicitlyActiveQuests)
+        foreach (var quest in _implicitlyAvailableQuests)
         {
             if (!_activeQuests.Contains(quest))
                 yield return quest;
@@ -121,7 +121,7 @@ public sealed class QuestStateTracker
         if (!changed)
             return GuideChangeSet.None;
 
-        RebuildImplicitlyActiveQuests();
+        RebuildImplicitlyAvailableQuests();
 
         return FinalizeChange(new GuideChangeSet(
             inventoryChanged: false,
@@ -145,7 +145,7 @@ public sealed class QuestStateTracker
         if (!removed && !added)
             return GuideChangeSet.None;
 
-        RebuildImplicitlyActiveQuests();
+        RebuildImplicitlyAvailableQuests();
 
         return FinalizeChange(new GuideChangeSet(
             inventoryChanged: false,
@@ -237,7 +237,7 @@ public sealed class QuestStateTracker
             ReplaceKeyringItemKeys(inventorySnapshot.KeyringItemKeys);
         }
 
-        RebuildImplicitlyActiveQuests();
+        RebuildImplicitlyAvailableQuests();
 
         var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
@@ -375,9 +375,9 @@ public sealed class QuestStateTracker
         return scenes;
     }
 
-    private void RebuildImplicitlyActiveQuests()
+    private void RebuildImplicitlyAvailableQuests()
     {
-        _implicitlyActiveQuests.Clear();
+        _implicitlyAvailableQuests.Clear();
         foreach (var implicitQuest in _implicitQuests)
         {
             if (_activeQuests.Contains(implicitQuest.DbName) || _completedQuests.Contains(implicitQuest.DbName))
@@ -388,7 +388,7 @@ public sealed class QuestStateTracker
                 if (!string.Equals(scene, CurrentZone, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                _implicitlyActiveQuests.Add(implicitQuest.DbName);
+                _implicitlyAvailableQuests.Add(implicitQuest.DbName);
                 break;
             }
         }

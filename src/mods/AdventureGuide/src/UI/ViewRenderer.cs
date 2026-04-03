@@ -498,7 +498,7 @@ public sealed class ViewRenderer
                 color = Theme.QuestCompleted;
                 break;
             case QuestActive:
-            case QuestImplicitlyActive:
+            case QuestImplicitlyAvailable:
                 badge = "[ACTIVE]";
                 color = Theme.Accent;
                 break;

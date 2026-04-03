@@ -103,7 +103,7 @@ public static class Theme
     /// </summary>
     public static uint GetQuestColor(QuestStateTracker state, string dbName)
     {
-        if (state.IsImplicitlyActive(dbName)) return QuestImplicit;
+        if (state.IsImplicitlyAvailable(dbName)) return QuestImplicit;
         if (state.IsActive(dbName))           return QuestActive;
         if (state.IsCompleted(dbName))        return QuestCompleted;
         return QuestAvailable;

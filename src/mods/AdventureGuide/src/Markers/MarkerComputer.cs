@@ -187,7 +187,7 @@ public sealed class MarkerComputer
         if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
             return;
 
-        bool implicitlyActive = _tracker.IsImplicitlyActive(quest.DbName);
+        bool implicitlyActive = _tracker.IsImplicitlyAvailable(quest.DbName);
         bool explicitlySelected = _navSet.Contains(quest.Key)
             || _trackerState.IsTracked(quest.DbName);
 

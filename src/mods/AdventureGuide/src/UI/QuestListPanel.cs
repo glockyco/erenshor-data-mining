@@ -345,7 +345,7 @@ public sealed class QuestListPanel
             if (quest.Zone != null)
                 ImGui.Text(quest.Zone);
             string status = _state.IsCompleted(quest.DbName!) ? "Completed"
-                          : _state.IsImplicitlyActive(quest.DbName!) ? "Completable here"
+                          : _state.IsImplicitlyAvailable(quest.DbName!) ? "Completable here"
                           : _state.IsActive(quest.DbName!) ? "Active"
                           : "Available";
             ImGui.Text(status);

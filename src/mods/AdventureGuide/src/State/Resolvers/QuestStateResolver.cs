@@ -25,8 +25,8 @@ public sealed class QuestStateResolver : INodeStateResolver
             return NodeState.Completed;
         if (_tracker.IsActive(dbName))
             return NodeState.Active;
-        if (_tracker.IsImplicitlyActive(dbName))
-            return NodeState.ImplicitlyActive;
+        if (_tracker.IsImplicitlyAvailable(dbName))
+            return NodeState.ImplicitlyAvailable;
 
         return NodeState.NotStarted;
     }

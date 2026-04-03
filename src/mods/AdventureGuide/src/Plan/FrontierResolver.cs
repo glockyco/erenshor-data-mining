@@ -160,7 +160,7 @@ public static class FrontierResolver
         switch (semantic?.Kind)
         {
             case DependencySemanticKind.AssignmentSource:
-                return questState is QuestActive or QuestCompleted or QuestImplicitlyActive
+                return questState is QuestActive or QuestCompleted or QuestImplicitlyAvailable
                     ? Role.Done : Role.Acceptance;
 
             case DependencySemanticKind.CompletionTarget:

@@ -21,7 +21,7 @@ public abstract class NodeState
     public static readonly NodeState Completed = new QuestCompleted();
     public static readonly NodeState Active = new QuestActive();
     public static readonly NodeState NotStarted = new QuestNotStarted();
-    public static readonly NodeState ImplicitlyActive = new QuestImplicitlyActive();
+    public static readonly NodeState ImplicitlyAvailable = new QuestImplicitlyAvailable();
 
     // Zone line
     public static readonly NodeState Accessible = new ZoneLineAccessible();
@@ -53,7 +53,7 @@ public sealed class QuestActive : NodeState { }
 
 public sealed class QuestNotStarted : NodeState { }
 
-public sealed class QuestImplicitlyActive : NodeState { }
+public sealed class QuestImplicitlyAvailable : NodeState { }
 
 // ── Item state ──────────────────────────────────────────────────────────
 
