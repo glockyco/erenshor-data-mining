@@ -30,6 +30,14 @@ public sealed class MarkerEntry
     public string NodeKey { get; set; } = "";
     public string QuestKey { get; set; } = "";
 
+    /// <summary>
+    /// The raw position node key from the graph (spawn point or directly-placed
+    /// node) used for spawn-point-level deduplication. Distinct from
+    /// <see cref="NodeKey"/>, which is the contribution bucket key and may be a
+    /// composite character-position identifier.
+    /// </summary>
+    public string? SourceNodeKey { get; set; }
+
     // ── Live game object references (for per-frame updates) ────────────
 
     /// <summary>Live SpawnPoint for per-frame alive/dead checks and timer reads.</summary>
