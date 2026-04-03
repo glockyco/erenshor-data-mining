@@ -779,7 +779,44 @@ public sealed class MarkerComputer
                 _markers.Add(CloneEntry(best));
         }
 
+        SuppressBlockedMarkersAtOccupiedPositions();
+
         Version++;
+    }
+
+    /// <summary>
+    /// Removes QuestGiverBlocked markers whose exact position is already
+    /// occupied by a non-blocked marker. Exact float equality is correct here:
+    /// co-located NPCs come from the same Unity spawn point and share identical
+    /// exported coordinates. A blocked variant at the same spot adds no value
+    /// when the player can already act there.
+    /// </summary>
+    private void SuppressBlockedMarkersAtOccupiedPositions()
+    {
+        // First pass: record every position that has a non-blocked marker.
+        var occupiedByNonBlocked = new HashSet<(float X, float Y, float Z)>();
+        for (int i = 0; i < _markers.Count; i++)
+        {
+            if (_markers[i].Type != MarkerType.QuestGiverBlocked)
+                occupiedByNonBlocked.Add((_markers[i].X, _markers[i].Y, _markers[i].Z));
+        }
+
+        if (occupiedByNonBlocked.Count == 0)
+            return;
+
+        // Second pass: remove any QuestGiverBlocked entry at those positions.
+        int write = 0;
+        for (int read = 0; read < _markers.Count; read++)
+        {
+            var m = _markers[read];
+            if (m.Type == MarkerType.QuestGiverBlocked
+                && occupiedByNonBlocked.Contains((m.X, m.Y, m.Z)))
+            {
+                continue;
+            }
+            _markers[write++] = m;
+        }
+        _markers.RemoveRange(write, _markers.Count - write);
     }
 
     private void ClearAll()
