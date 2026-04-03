@@ -80,7 +80,7 @@ public sealed class QuestStateTracker
         return !_activeQuests.Contains(dbName) && _implicitlyAvailableQuests.Contains(dbName);
     }
 
-    public bool IsActionable(string dbName) => IsActive(dbName) || IsImplicitlyAvailable(dbName);
+    public bool IsActionable(string dbName) => IsActive(dbName);
 
     public bool IsCompleted(string dbName)
     {
@@ -105,13 +105,9 @@ public sealed class QuestStateTracker
     {
         foreach (var quest in _activeQuests)
             yield return quest;
-
-        foreach (var quest in _implicitlyAvailableQuests)
-        {
-            if (!_activeQuests.Contains(quest))
-                yield return quest;
-        }
     }
+
+    public IEnumerable<string> GetImplicitlyAvailableQuestDbNames() => _implicitlyAvailableQuests;
 
     public GuideChangeSet SyncFromGameData() => FinalizeChange(BuildSyncChangeSet());
 

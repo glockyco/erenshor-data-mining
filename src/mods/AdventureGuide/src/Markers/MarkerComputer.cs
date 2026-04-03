@@ -1,6 +1,5 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using UnityEngine;
@@ -157,6 +156,13 @@ public sealed class MarkerComputer
                 sceneQuestKeys.Add(quest.Key);
         }
 
+        foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
+        {
+            var quest = _graph.GetQuestByDbName(dbName);
+            if (quest != null)
+                sceneQuestKeys.Add(quest.Key);
+        }
+
         var sw = System.Diagnostics.Stopwatch.StartNew();
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"Cold marker rebuild: {sceneQuestKeys.Count} quests");
@@ -187,22 +193,20 @@ public sealed class MarkerComputer
         if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
             return;
 
-        bool implicitlyActive = _tracker.IsImplicitlyAvailable(quest.DbName);
         bool explicitlySelected = _navSet.Contains(quest.Key)
             || _trackerState.IsTracked(quest.DbName);
 
-        if (_tracker.IsActionable(quest.DbName) || explicitlySelected)
+        if (explicitlySelected || _tracker.IsActive(quest.DbName))
         {
             var projection = _resolution.GetQuestPlanProjection(quest.Key);
             var targets = _resolution.GetTargetsForScene(quest.Key, _tracker.CurrentZone);
-            // Suppress markers for implicitly-active quests with blocked
-            // objectives — but not when the player explicitly selected the
-            // quest via NAV or tracker.
-            bool suppressBlocked = implicitlyActive
-                && !explicitlySelected
-                && FrontierResolver.IsImplicitFrontierBlocked(projection);
-            if (!suppressBlocked)
-                EmitActiveQuestMarkers(quest, targets);
+            EmitActiveQuestMarkers(quest, targets);
+            return;
+        }
+
+        if (_tracker.IsImplicitlyAvailable(quest.DbName))
+        {
+            EmitImplicitCompletionMarkers(quest);
             return;
         }
 
@@ -329,6 +333,75 @@ public sealed class MarkerComputer
             targetNode,
             blueprint,
             ready: false);
+        var instruction = MarkerTextBuilder.BuildInstruction(semantic);
+
+        if (targetNode.Type == NodeType.Character)
+        {
+            return CreateCharacterMarkerEntry(
+                quest.Key,
+                positionNode.Key,
+                targetNode.DisplayName,
+                instruction.Type,
+                instruction.Priority,
+                instruction.SubText,
+                targetNode,
+                positionNode);
+        }
+
+        return CreateStaticMarkerEntry(
+            quest.Key,
+            positionNode.Key,
+            targetNode.DisplayName,
+            instruction.Type,
+            instruction.Priority,
+            instruction.SubText,
+            targetNode,
+            positionNode,
+            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f));
+    }
+
+    private void EmitImplicitCompletionMarkers(Node quest)
+    {
+        // Determine readiness: player holds all required items.
+        var requiredEdges = _graph.OutEdges(quest.Key, EdgeType.RequiresItem);
+        bool ready = true;
+        for (int i = 0; i < requiredEdges.Count; i++)
+        {
+            int qty = requiredEdges[i].Quantity ?? 1;
+            if (_tracker.CountItem(requiredEdges[i].Target) < qty)
+            {
+                ready = false;
+                break;
+            }
+        }
+
+        // Emit turn-in markers for completion NPCs present in the current scene.
+        var blueprints = _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
+        for (int i = 0; i < blueprints.Count; i++)
+        {
+            var blueprint = blueprints[i];
+            if (blueprint.QuestKey != quest.Key)
+                continue;
+
+            var entry = CreateImplicitCompletionEntry(quest, blueprint, ready);
+            if (entry != null)
+                AddContribution(quest.Key, entry.NodeKey, entry);
+        }
+    }
+
+    private MarkerEntry? CreateImplicitCompletionEntry(Node quest, QuestCompletionBlueprint blueprint, bool ready)
+    {
+        var targetNode = _graph.GetNode(blueprint.TargetNodeKey);
+        var positionNode = _graph.GetNode(blueprint.PositionNodeKey);
+        if (targetNode == null || positionNode == null)
+            return null;
+
+        var semantic = ResolvedActionSemanticBuilder.BuildQuestCompletion(
+            _graph,
+            quest,
+            targetNode,
+            blueprint,
+            ready: ready);
         var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
         if (targetNode.Type == NodeType.Character)

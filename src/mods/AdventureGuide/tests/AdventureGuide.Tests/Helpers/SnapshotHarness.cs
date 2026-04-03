@@ -126,6 +126,10 @@ public sealed class SnapshotHarness
             foreach (var k in snapshot.Keyring)
                 keyringSet.Add(k);
         }
+        // Trigger implicit quest availability based on the zone and quest state just set.
+        var rebuildMethod = tracker.GetType().GetMethod(
+            "RebuildImplicitlyAvailableQuests", NonPublicInstance);
+        rebuildMethod?.Invoke(tracker, null);
     }
 
     private static void SetField(object target, string fieldName, object value, BindingFlags flags)
