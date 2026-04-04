@@ -24,6 +24,10 @@ public sealed class QuestResolutionService
     private readonly UnlockEvaluator _unlocks;
     private readonly ZoneRouter _router;
     private readonly ZoneAccessResolver _zoneAccess;
+    // Live faction reputation lookup used to suppress friendly drop sources
+    // when hostile alternatives exist. Initialized here so all three rendering
+    // surfaces (markers, NAV arrow, tracker) get consistent filtering.
+    private readonly Func<string, float?> _factionLookup;
 
     private readonly Dictionary<string, QuestPlan> _planCache = new(StringComparer.Ordinal);
     private readonly Dictionary<string, QuestPlanProjection> _planProjectionCache = new(StringComparer.Ordinal);
@@ -54,6 +58,7 @@ public sealed class QuestResolutionService
         _unlocks = unlocks;
         _router = router;
         _zoneAccess = new ZoneAccessResolver(graph, tracker, unlocks, router);
+        _factionLookup = refname => GlobalFactionManager.FindFactionData(refname)?.Value;
     }
 
     public GuideChangeSet ApplyChangeSet(GuideChangeSet changeSet)
@@ -474,6 +479,10 @@ public sealed class QuestResolutionService
             sources = reduced;
         }
 
+        // Hostile-preference filter: all rendering surfaces (markers, NAV, tracker)
+        // flow through this method, making it the single canonical filtering point.
+        // Suppress friendly DropsItem sources whenever a hostile alternative exists.
+        sources = ApplyHostileDropFilter(sources);
         if (sources.Count == 0)
             return;
 
@@ -661,6 +670,41 @@ public sealed class QuestResolutionService
     /// When a frontier node is unlock-blocked, resolve positions for its
     /// blocking sources so navigation reaches the unlock requirement instead.
     /// </summary>
+
+    /// <summary>
+    /// Returns a filtered copy of <paramref name="sources"/> with friendly DropsItem
+    /// sources removed when at least one hostile DropsItem source exists. Non-drop
+    /// sources (SellsItem, GivesItem, etc.) are always preserved unchanged.
+    /// </summary>
+    private IReadOnlyList<SourceSiteBlueprint> ApplyHostileDropFilter(
+        IReadOnlyList<SourceSiteBlueprint> sources)
+    {
+        bool hasHostileDrop = false;
+        for (int i = 0; i < sources.Count && !hasHostileDrop; i++)
+        {
+            if (sources[i].AcquisitionEdge != EdgeType.DropsItem) continue;
+            var node = _graph.GetNode(sources[i].SourceNodeKey);
+            if (node != null && FactionChecker.IsCurrentlyHostile(node, _graph, _factionLookup))
+                hasHostileDrop = true;
+        }
+        if (!hasHostileDrop) return sources;
+
+        var filtered = new List<SourceSiteBlueprint>(sources.Count);
+        for (int i = 0; i < sources.Count; i++)
+        {
+            var s = sources[i];
+            if (s.AcquisitionEdge != EdgeType.DropsItem)
+            {
+                filtered.Add(s); // non-drop sources always shown
+                continue;
+            }
+            var node = _graph.GetNode(s.SourceNodeKey);
+            // Fail-open: unknown source node is kept; hostile nodes are kept.
+            if (node == null || FactionChecker.IsCurrentlyHostile(node, _graph, _factionLookup))
+                filtered.Add(s);
+        }
+        return filtered;
+    }
 
     private bool IsSourceReachable(SourceSiteBlueprint source)
     {
