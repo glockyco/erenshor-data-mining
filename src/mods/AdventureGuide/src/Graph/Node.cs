@@ -46,6 +46,7 @@ public sealed class Node
     [JsonProperty("is_friendly"), DefaultValue(false)] public bool IsFriendly { get; set; }
     [JsonProperty("invulnerable"), DefaultValue(false)] public bool Invulnerable { get; set; }
     [JsonProperty("faction_key")] public string? FactionKey { get; set; }
+    [JsonProperty("refname")] public string? Refname { get; set; }
 
     [JsonProperty("spawn_chance")] public float? SpawnChance { get; set; }
     [JsonProperty("is_rare"), DefaultValue(false)] public bool IsRare { get; set; }
