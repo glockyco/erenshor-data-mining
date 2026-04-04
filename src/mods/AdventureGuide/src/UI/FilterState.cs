@@ -2,21 +2,6 @@ using AdventureGuide.Config;
 
 namespace AdventureGuide.UI;
 
-public enum QuestFilterMode
-{
-    Active,
-    Available,
-    Completed,
-    All,
-}
-
-public enum QuestSortMode
-{
-    Alphabetical,
-    ByZone,
-    ByLevel,
-}
-
 /// <summary>
 /// Mutable state bag for the guide window's filter/search/tab controls.
 /// One instance lives for the lifetime of the window. Version increments
