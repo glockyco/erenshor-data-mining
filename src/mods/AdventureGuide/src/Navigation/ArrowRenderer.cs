@@ -1,3 +1,4 @@
+using AdventureGuide.Resolution;
 using AdventureGuide.Rendering;
 using UnityEngine;
 using V2 = AdventureGuide.Rendering.CimguiNative.Vec2;

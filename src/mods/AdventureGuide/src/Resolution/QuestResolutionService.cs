@@ -1,6 +1,5 @@
 using AdventureGuide.Plan;
 using AdventureGuide.Graph;
-using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 using UnityEngine;

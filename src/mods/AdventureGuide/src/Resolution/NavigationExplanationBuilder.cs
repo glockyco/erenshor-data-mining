@@ -1,7 +1,6 @@
-using AdventureGuide.Resolution;
 using AdventureGuide.State;
 
-namespace AdventureGuide.Navigation;
+namespace AdventureGuide.Resolution;
 
 public static class NavigationExplanationBuilder
 {

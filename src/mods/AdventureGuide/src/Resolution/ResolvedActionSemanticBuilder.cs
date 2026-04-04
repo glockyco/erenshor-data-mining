@@ -1,5 +1,4 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Navigation;
 
 namespace AdventureGuide.Resolution;
 
