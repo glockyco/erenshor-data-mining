@@ -1,4 +1,4 @@
-namespace AdventureGuide.UI;
+namespace AdventureGuide.State;
 
 public enum TrackerSortMode
 {
