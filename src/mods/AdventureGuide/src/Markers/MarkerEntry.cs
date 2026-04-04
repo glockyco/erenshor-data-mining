@@ -1,3 +1,5 @@
+using AdventureGuide.Resolution;
+
 
 namespace AdventureGuide.Markers;
 
@@ -51,8 +53,8 @@ public sealed class MarkerEntry
 
     // ── Quest intent (for dead→alive marker restoration) ───────────────
 
-    /// <summary>The quest-relevant marker type to restore when the NPC respawns.</summary>
-    public MarkerType QuestType { get; set; }
+    /// <summary>The quest-semantic marker kind to restore when the NPC respawns. Null for spawn-timer and zone-reentry entries.</summary>
+    public QuestMarkerKind? QuestKind { get; set; }
 
     /// <summary>The quest-relevant priority to restore when the NPC respawns.</summary>
     public int QuestPriority { get; set; }
@@ -68,4 +70,21 @@ public sealed class MarkerEntry
 
     /// <summary>True when this entry is the separate static respawn-timer marker for a spawn.</summary>
     public bool IsSpawnTimer { get; set; }
+
+    /// <summary>
+    /// Maps a QuestMarkerKind to the corresponding MarkerType for pool configuration.
+    /// Called by MarkerComputer and MarkerSystem when setting entry.Type or
+    /// comparing against it.
+    /// </summary>
+    internal static MarkerType ToMarkerType(QuestMarkerKind kind) => kind switch
+    {
+        QuestMarkerKind.TurnInReady       => MarkerType.TurnInReady,
+        QuestMarkerKind.TurnInRepeatReady => MarkerType.TurnInRepeatReady,
+        QuestMarkerKind.TurnInPending     => MarkerType.TurnInPending,
+        QuestMarkerKind.Objective         => MarkerType.Objective,
+        QuestMarkerKind.QuestGiver        => MarkerType.QuestGiver,
+        QuestMarkerKind.QuestGiverRepeat  => MarkerType.QuestGiverRepeat,
+        QuestMarkerKind.QuestGiverBlocked => MarkerType.QuestGiverBlocked,
+        _                                 => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+    };
 }

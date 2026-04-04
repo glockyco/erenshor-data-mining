@@ -1,5 +1,4 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
 
 namespace AdventureGuide.Resolution;
@@ -21,7 +20,7 @@ internal static class ResolvedActionSemanticBuilder
         string? contextText = BuildContextText(requestedNode, goalNode, targetNode);
         string? rationaleText = BuildRationaleText(graph, goalNode, targetNode, goalKind);
         string? zoneText = GetZoneText(targetNode);
-        var markerType = DetermineActiveMarkerType(requestedNode, goalNode);
+        var markerType = DetermineActiveMarkerKind(requestedNode, goalNode);
 
         return new ResolvedActionSemantic(
             goalKind,
@@ -49,8 +48,8 @@ internal static class ResolvedActionSemanticBuilder
         bool saysKeyword = blueprint.Interaction.Kind == MarkerInteractionKind.SayKeyword
             && !string.IsNullOrEmpty(blueprint.Interaction.Keyword);
         var markerType = blockedRequirement != null
-            ? MarkerType.QuestGiverBlocked
-            : blueprint.Repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
+            ? QuestMarkerKind.QuestGiverBlocked
+            : blueprint.Repeatable ? QuestMarkerKind.QuestGiverRepeat : QuestMarkerKind.QuestGiver;
 
         return new ResolvedActionSemantic(
             NavigationGoalKind.StartQuest,
@@ -65,7 +64,7 @@ internal static class ResolvedActionSemanticBuilder
             rationaleText: null,
             zoneText: blueprint.Scene,
             availabilityText: blockedRequirement != null ? $"Requires: {blockedRequirement}" : null,
-            preferredMarkerType: markerType,
+            preferredMarkerKind: markerType,
             markerPriority: GetMarkerPriority(markerType));
     }
 
@@ -80,8 +79,8 @@ internal static class ResolvedActionSemanticBuilder
             && !string.IsNullOrEmpty(blueprint.Interaction.Keyword);
         bool hasPayload = HasTurnInPayload(graph, quest);
         var markerType = ready
-            ? (quest.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
-            : MarkerType.TurnInPending;
+            ? (quest.Repeatable ? QuestMarkerKind.TurnInRepeatReady : QuestMarkerKind.TurnInReady)
+            : QuestMarkerKind.TurnInPending;
 
         return new ResolvedActionSemantic(
             NavigationGoalKind.CompleteQuest,
@@ -96,20 +95,20 @@ internal static class ResolvedActionSemanticBuilder
             rationaleText: null,
             zoneText: blueprint.Scene,
             availabilityText: null,
-            preferredMarkerType: markerType,
+            preferredMarkerKind: markerType,
             markerPriority: GetMarkerPriority(markerType));
     }
 
-    public static int GetMarkerPriority(MarkerType markerType) =>
-        markerType switch
+    public static int GetMarkerPriority(QuestMarkerKind kind) =>
+        kind switch
         {
-            MarkerType.TurnInReady => 10,
-            MarkerType.TurnInRepeatReady => 11,
-            MarkerType.Objective => 20,
-            MarkerType.QuestGiver => 30,
-            MarkerType.QuestGiverRepeat => 31,
-            MarkerType.QuestGiverBlocked => 40,
-            MarkerType.TurnInPending => 25,
+            QuestMarkerKind.TurnInReady => 10,
+            QuestMarkerKind.TurnInRepeatReady => 11,
+            QuestMarkerKind.Objective => 20,
+            QuestMarkerKind.QuestGiver => 30,
+            QuestMarkerKind.QuestGiverRepeat => 31,
+            QuestMarkerKind.QuestGiverBlocked => 40,
+            QuestMarkerKind.TurnInPending => 25,
             _ => 100,
         };
 
@@ -226,10 +225,10 @@ internal static class ResolvedActionSemanticBuilder
         return null;
     }
 
-    private static MarkerType DetermineActiveMarkerType(Node requestedNode, ResolvedNodeContext goalNode) =>
+    private static QuestMarkerKind DetermineActiveMarkerKind(Node requestedNode, ResolvedNodeContext goalNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy
-            ? (requestedNode.Repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady)
-            : MarkerType.Objective;
+            ? (requestedNode.Repeatable ? QuestMarkerKind.TurnInRepeatReady : QuestMarkerKind.TurnInReady)
+            : QuestMarkerKind.Objective;
 
     private static bool IsCompletionTarget(ResolvedNodeContext goalNode, ResolvedNodeContext targetNode) =>
         goalNode.EdgeType == EdgeType.CompletedBy

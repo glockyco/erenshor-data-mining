@@ -1,5 +1,4 @@
 using AdventureGuide.Navigation;
-using AdventureGuide.Markers;
 
 namespace AdventureGuide.Resolution;
 
@@ -24,7 +23,7 @@ public sealed class ResolvedActionSemantic
     public string? RationaleText { get; }
     public string? ZoneText { get; }
     public string? AvailabilityText { get; }
-    public MarkerType PreferredMarkerType { get; }
+    public QuestMarkerKind PreferredMarkerKind { get; }
     public int MarkerPriority { get; }
 
     public ResolvedActionSemantic(
@@ -40,7 +39,7 @@ public sealed class ResolvedActionSemantic
         string? rationaleText,
         string? zoneText,
         string? availabilityText,
-        MarkerType preferredMarkerType,
+        QuestMarkerKind preferredMarkerKind,
         int markerPriority)
     {
         GoalKind = goalKind;
@@ -55,7 +54,7 @@ public sealed class ResolvedActionSemantic
         RationaleText = rationaleText;
         ZoneText = zoneText;
         AvailabilityText = availabilityText;
-        PreferredMarkerType = preferredMarkerType;
+        PreferredMarkerKind = preferredMarkerKind;
         MarkerPriority = markerPriority;
     }
 }

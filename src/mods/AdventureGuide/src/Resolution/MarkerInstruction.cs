@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 
 namespace AdventureGuide.Resolution;
 
@@ -10,13 +9,13 @@ namespace AdventureGuide.Resolution;
 /// </summary>
 public sealed class MarkerInstruction
 {
-    public MarkerType Type { get; }
+    public QuestMarkerKind Kind { get; }
     public string SubText { get; }
     public int Priority { get; }
 
-    public MarkerInstruction(MarkerType type, string subText, int priority)
+    public MarkerInstruction(QuestMarkerKind kind, string subText, int priority)
     {
-        Type = type;
+        Kind = kind;
         SubText = subText;
         Priority = priority;
     }

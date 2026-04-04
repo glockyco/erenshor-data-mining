@@ -39,7 +39,7 @@ public sealed class NavigationTargetSelectorTests
         var semantic = new ResolvedActionSemantic(
             goalKind, NavigationTargetKind.Character, ResolvedActionKind.Talk,
             null, null, null, null, targetNodeKey, null, null, null, null,
-            MarkerType.Objective, 0);
+            QuestMarkerKind.Objective, 0);
         var explanation = new NavigationExplanation(
             goalKind, NavigationTargetKind.Character, ctx, ctx,
             targetNodeKey, targetNodeKey, null, null, null);

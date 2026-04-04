@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -19,7 +18,7 @@ internal static class MarkerTextBuilder
             : $"{primary}\n{secondary}";
 
         return new MarkerInstruction(
-            semantic.PreferredMarkerType,
+            semantic.PreferredMarkerKind,
             subText,
             semantic.MarkerPriority);
     }
@@ -63,7 +62,7 @@ internal static class MarkerTextBuilder
         if (!string.IsNullOrEmpty(semantic.PayloadText))
             return semantic.PayloadText;
 
-        if (semantic.PreferredMarkerType is MarkerType.QuestGiver or MarkerType.QuestGiverRepeat or MarkerType.QuestGiverBlocked)
+        if (semantic.PreferredMarkerKind is QuestMarkerKind.QuestGiver or QuestMarkerKind.QuestGiverRepeat or QuestMarkerKind.QuestGiverBlocked)
             return semantic.ContextText;
 
         return semantic.RationaleText;

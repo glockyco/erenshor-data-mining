@@ -268,7 +268,7 @@ public sealed class MarkerComputer
                 NodeKey = positionNode.Key + "|respawn",
                 QuestKey = quest.Key,
                 LiveSpawnPoint = info.LiveSpawnPoint,
-                QuestType = MarkerType.DeadSpawn,
+                QuestKind = null,
                 QuestPriority = 0,
                 QuestSubText = timerText,
                 IsSpawnTimer = true,
@@ -290,7 +290,7 @@ public sealed class MarkerComputer
                 SubText = reentryText,
                 NodeKey = positionNode.Key + "|respawn",
                 QuestKey = quest.Key,
-                QuestType = MarkerType.ZoneReentry,
+                QuestKind = null,
                 QuestPriority = 0,
                 QuestSubText = reentryText,
                 IsSpawnTimer = true,
@@ -303,7 +303,7 @@ public sealed class MarkerComputer
     private void EmitPendingCompletionMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
     {
         bool hasReadyCompletion = targets.Any(target =>
-            target.Semantic.PreferredMarkerType is MarkerType.TurnInReady or MarkerType.TurnInRepeatReady);
+            target.Semantic.PreferredMarkerKind is QuestMarkerKind.TurnInReady or QuestMarkerKind.TurnInRepeatReady);
         if (hasReadyCompletion)
             return;
 
@@ -341,7 +341,7 @@ public sealed class MarkerComputer
                 quest.Key,
                 positionNode.Key,
                 targetNode.DisplayName,
-                instruction.Type,
+                instruction.Kind,
                 instruction.Priority,
                 instruction.SubText,
                 targetNode,
@@ -352,7 +352,7 @@ public sealed class MarkerComputer
             quest.Key,
             positionNode.Key,
             targetNode.DisplayName,
-            instruction.Type,
+            instruction.Kind,
             instruction.Priority,
             instruction.SubText,
             targetNode,
@@ -410,7 +410,7 @@ public sealed class MarkerComputer
                 quest.Key,
                 positionNode.Key,
                 targetNode.DisplayName,
-                instruction.Type,
+                instruction.Kind,
                 instruction.Priority,
                 instruction.SubText,
                 targetNode,
@@ -421,7 +421,7 @@ public sealed class MarkerComputer
             quest.Key,
             positionNode.Key,
             targetNode.DisplayName,
-            instruction.Type,
+            instruction.Kind,
             instruction.Priority,
             instruction.SubText,
             targetNode,
@@ -463,7 +463,7 @@ public sealed class MarkerComputer
             questKey: quest.Key,
             nodeKey: positionNode.Key,
             displayName: characterNode.DisplayName,
-            markerType: instruction.Type,
+            questKind: instruction.Kind,
             priority: instruction.Priority,
             subText: instruction.SubText,
             targetNode: characterNode,
@@ -508,7 +508,7 @@ public sealed class MarkerComputer
                 quest.Key,
                 positionNode.Key,
                 targetNode.DisplayName,
-                instruction.Type,
+                instruction.Kind,
                 instruction.Priority,
                 instruction.SubText,
                 targetNode,
@@ -522,7 +522,7 @@ public sealed class MarkerComputer
             quest.Key,
             positionNode.Key,
             targetNode.DisplayName,
-            instruction.Type,
+            instruction.Kind,
             instruction.Priority,
             instruction.SubText,
             targetNode,
@@ -534,7 +534,7 @@ public sealed class MarkerComputer
         string questKey,
         string nodeKey,
         string displayName,
-        MarkerType markerType,
+        QuestMarkerKind questKind,
         int priority,
         string subText,
         Node targetNode,
@@ -552,7 +552,7 @@ public sealed class MarkerComputer
 
         var (type, resolvedPriority, text) = ResolveCharacterPresentation(
             displayName,
-            markerType,
+            questKind,
             priority,
             subText,
             info,
@@ -600,7 +600,7 @@ public sealed class MarkerComputer
             QuestKey = questKey,
             LiveSpawnPoint = info.LiveSpawnPoint,
             TrackedNPC = info.LiveNPC,
-            QuestType = markerType,
+            QuestKind = questKind,
             QuestPriority = priority,
             QuestSubText = subText,
             KeepWhileCorpsePresent = keepWhileCorpsePresent,
@@ -633,23 +633,23 @@ public sealed class MarkerComputer
 
     private static (MarkerType Type, int Priority, string SubText) ResolveCharacterPresentation(
         string displayName,
-        MarkerType markerType,
+        QuestMarkerKind questKind,
         int priority,
         string subText,
         SpawnInfo info,
         bool keepWhileCorpsePresent)
     {
         if (keepWhileCorpsePresent && IsCorpsePresent(info))
-            return (markerType, priority, subText);
+            return (MarkerEntry.ToMarkerType(questKind), priority, subText);
 
         return info.State switch
         {
-            SpawnAlive => (markerType, priority, subText),
+            SpawnAlive => (MarkerEntry.ToMarkerType(questKind), priority, subText),
             SpawnDead dead => (MarkerType.DeadSpawn, 0, $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"),
             SpawnNightLocked => (MarkerType.NightSpawn, 0, BuildNightLockedText(displayName)),
             SpawnUnlockBlocked blocked => (MarkerType.QuestLocked, 0, $"{displayName}\n{blocked.Reason}"),
-            SpawnDisabled => (markerType, priority, subText),
-            _ => (markerType, priority, subText),
+            SpawnDisabled => (MarkerEntry.ToMarkerType(questKind), priority, subText),
+            _ => (MarkerEntry.ToMarkerType(questKind), priority, subText),
         };
     }
 
@@ -657,14 +657,14 @@ public sealed class MarkerComputer
         string questKey,
         string nodeKey,
         string displayName,
-        MarkerType markerType,
+        QuestMarkerKind questKind,
         int priority,
         string subText,
         Node targetNode,
         Node positionNode,
         Vector3 fallbackPosition)
     {
-        var type = markerType;
+        var type = MarkerEntry.ToMarkerType(questKind);
         int resolvedPriority = priority;
         var text = subText;
         MiningNode? liveMining = null;
@@ -713,7 +713,7 @@ public sealed class MarkerComputer
             SourceNodeKey = positionNode.Key,
             QuestKey = questKey,
             LiveMiningNode = liveMining,
-            QuestType = markerType,
+            QuestKind = questKind,
             QuestPriority = priority,
             QuestSubText = subText,
         };
@@ -875,7 +875,7 @@ public sealed class MarkerComputer
         LiveSpawnPoint = entry.LiveSpawnPoint,
         TrackedNPC = entry.TrackedNPC,
         LiveMiningNode = entry.LiveMiningNode,
-        QuestType = entry.QuestType,
+        QuestKind = entry.QuestKind,
         QuestPriority = entry.QuestPriority,
         QuestSubText = entry.QuestSubText,
         KeepWhileCorpsePresent = entry.KeepWhileCorpsePresent,

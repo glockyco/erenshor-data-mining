@@ -191,13 +191,13 @@ public sealed class MarkerSystem
         }
         else if (IsSpawnedNPCAlive(sp))
         {
-            newType = entry.QuestType;
+            newType = MarkerEntry.ToMarkerType(entry.QuestKind!.Value);
             newPriority = entry.QuestPriority;
             newSubText = entry.QuestSubText;
         }
         else if (entry.KeepWhileCorpsePresent && IsSpawnedNPCCorpsePresent(sp))
         {
-            newType = entry.QuestType;
+            newType = MarkerEntry.ToMarkerType(entry.QuestKind!.Value);
             newPriority = entry.QuestPriority;
             newSubText = entry.CorpseSubText ?? entry.QuestSubText;
         }
@@ -222,7 +222,7 @@ public sealed class MarkerSystem
             entry.SubText = newSubText;
             ReconfigureInstance(entry, instance);
 
-            if (newType == entry.QuestType && sp.SpawnedNPC != null)
+            if (newType == MarkerEntry.ToMarkerType(entry.QuestKind!.Value) && sp.SpawnedNPC != null)
                 SetPositionFromNPC(entry, sp.SpawnedNPC);
         }
         else if (newType == MarkerType.DeadSpawn || newType == MarkerType.NightSpawn)
@@ -291,15 +291,15 @@ public sealed class MarkerSystem
         var mn = entry.LiveMiningNode!;
         bool isMined = mn.MyRender != null && !mn.MyRender.enabled;
 
-        if (!isMined && entry.Type != entry.QuestType)
+        if (!isMined && entry.Type != MarkerEntry.ToMarkerType(entry.QuestKind!.Value))
         {
             // Regenerated: restore quest marker
-            entry.Type = entry.QuestType;
+            entry.Type = MarkerEntry.ToMarkerType(entry.QuestKind!.Value);
             entry.Priority = entry.QuestPriority;
             entry.SubText = entry.QuestSubText;
             ReconfigureInstance(entry, instance);
         }
-        else if (isMined && entry.Type == entry.QuestType)
+        else if (isMined && entry.Type == MarkerEntry.ToMarkerType(entry.QuestKind!.Value))
         {
             // Just mined: switch to skull with timer
             entry.Type = MarkerType.DeadSpawn;
@@ -327,7 +327,7 @@ public sealed class MarkerSystem
         if (npc == null || npc.gameObject == null) return;
 
         // Only track live positions for quest-type markers (not dead/night/locked)
-        if (entry.Type != entry.QuestType) return;
+        if (!entry.QuestKind.HasValue || entry.Type != MarkerEntry.ToMarkerType(entry.QuestKind.Value)) return;
 
         SetPositionFromNPC(entry, npc);
     }

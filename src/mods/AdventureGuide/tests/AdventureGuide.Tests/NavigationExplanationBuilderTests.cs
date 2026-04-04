@@ -40,7 +40,7 @@ public sealed class NavigationExplanationBuilderTests
             keywordText, payloadText: null, targetName,
             contextText: null, rationaleText: null,
             zoneText: null, availabilityText: null,
-            MarkerType.Objective, markerPriority: 20);
+            QuestMarkerKind.Objective, markerPriority: 20);
 
         return NavigationExplanationBuilder.Build(semantic, goalCtx, targetCtx);
     }

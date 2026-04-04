@@ -37,7 +37,7 @@ public sealed class TrackerTextTests
             keywordText: null, payloadText, targetIdentityText,
             contextText: null, rationaleText,
             zoneText: null, availabilityText: null,
-            MarkerType.Objective, markerPriority: 20);
+            QuestMarkerKind.Objective, markerPriority: 20);
     }
 
     private static ResolvedNodeContext FrontierCtx(string key, string displayName)

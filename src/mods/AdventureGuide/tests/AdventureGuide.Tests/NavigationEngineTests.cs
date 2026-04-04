@@ -70,7 +70,7 @@ public sealed class NavigationEngineTests
             rationaleText: null,
             zoneText: null,
             availabilityText: null,
-            MarkerType.Objective,
+            QuestMarkerKind.Objective,
             markerPriority: 0);
         var explanation = new NavigationExplanation(
             NavigationGoalKind.StartQuest,
