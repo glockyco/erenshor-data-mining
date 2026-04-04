@@ -97,18 +97,3 @@ infeasible.
 The group key is still `{itemKey}:sources:anyof` (internal deduplication
 string, not the kind enum). Do not rely on the key string to detect source
 groups — use `GroupKind == PlanGroupKind.ItemSources`.
-
----
-
-## Known architectural debt
-
-These pre-existing violations should be fixed in separate dedicated changes.
-They do not affect correctness today but should not be compounded.
-
-| Violation | Files affected | Correct location |
-|---|---|---|
-| `Graph` → `Markers` | `GraphIndexes.cs`, `QuestGiverBlueprint.cs`, `QuestCompletionBlueprint.cs` import `MarkerInteraction` | `MarkerInteraction` belongs in `Graph/` |
-| `Config` ↔ `UI` circular | `GuideConfig` uses `QuestFilterMode`/`QuestSortMode` from `UI/` | Move enums to `Config/` |
-| `State` → `UI` | `TrackerState` uses `TrackerSortMode` from `UI/` | Move `TrackerSortMode` to `State/` |
-| `Navigation` → `UI` | `ArrowRenderer` imports `Theme` for two color constants | Inline constants or move to `Rendering/` |
-| `Navigation` ↔ `Resolution` circular | `NavigationGoalKind`, `NavigationTargetKind`, `TrackerSummary` in `Navigation/` but embedded in `Resolution` types | Move to `Resolution/` |
