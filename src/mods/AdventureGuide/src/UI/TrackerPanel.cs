@@ -148,7 +148,7 @@ public sealed class TrackerPanel
 
         if (_compact && _contentMax.Y > _contentMin.Y)
         {
-            uint tint = Theme.Rgba(0f, 0f, 0f, _config.TrackerBackgroundOpacity.Value);
+            uint tint = ImGuiColors.Rgba(0f, 0f, 0f, _config.TrackerBackgroundOpacity.Value);
             var bgDl = CimguiNative.igGetBackgroundDrawList_Nil();
             CimguiNative.ImDrawList_AddRectFilled(
                 bgDl,

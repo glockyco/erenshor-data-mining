@@ -1,5 +1,4 @@
 using AdventureGuide.Rendering;
-using AdventureGuide.UI;
 using UnityEngine;
 using V2 = AdventureGuide.Rendering.CimguiNative.Vec2;
 
@@ -25,9 +24,9 @@ public sealed class ArrowRenderer
     private const float ArrivalDistance = 15f;
     private const float OutlineThickness = 1.5f;
 
-    private static readonly uint ColorArrow = Theme.Rgba(1.00f, 0.85f, 0.30f, 0.90f);
-    private static readonly uint ColorOutline = Theme.Rgba(0.10f, 0.10f, 0.10f, 0.80f);
-    private static readonly uint ColorText = Theme.Rgba(1.00f, 0.95f, 0.60f, 0.95f);
+    private static readonly uint ColorArrow = ImGuiColors.Rgba(1.00f, 0.85f, 0.30f, 0.90f);
+    private static readonly uint ColorOutline = ImGuiColors.Rgba(0.10f, 0.10f, 0.10f, 0.80f);
+    private static readonly uint ColorText = ImGuiColors.Rgba(1.00f, 0.95f, 0.60f, 0.95f);
 
     private readonly NavigationEngine _nav;
     private bool _enabled = true;

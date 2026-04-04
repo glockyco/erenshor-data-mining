@@ -1,3 +1,4 @@
+using AdventureGuide.Rendering;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -11,38 +12,38 @@ namespace AdventureGuide.UI;
 public static class Theme
 {
     // -- Surface colors --
-    public static readonly uint Background    = Rgba(0.10f, 0.10f, 0.12f, 0.95f);
-    public static readonly uint Surface       = Rgba(0.15f, 0.15f, 0.18f, 1.00f);
+    public static readonly uint Background    = ImGuiColors.Rgba(0.10f, 0.10f, 0.12f, 0.95f);
+    public static readonly uint Surface       = ImGuiColors.Rgba(0.15f, 0.15f, 0.18f, 1.00f);
 
     // -- Text --
-    public static readonly uint TextPrimary   = Rgba(1.00f, 1.00f, 1.00f, 1.00f);
-    public static readonly uint TextSecondary = Rgba(0.60f, 0.60f, 0.60f, 1.00f);
+    public static readonly uint TextPrimary   = ImGuiColors.Rgba(1.00f, 1.00f, 1.00f, 1.00f);
+    public static readonly uint TextSecondary = ImGuiColors.Rgba(0.60f, 0.60f, 0.60f, 1.00f);
 
     // -- Semantic --
-    public static readonly uint Accent  = Rgba(0.22f, 0.55f, 0.30f, 1.00f);
-    public static readonly uint Success = Rgba(0.40f, 0.80f, 0.40f, 1.00f);
-    public static readonly uint Warning = Rgba(1.00f, 0.50f, 0.30f, 1.00f);
-    public static readonly uint Error   = Rgba(1.00f, 0.30f, 0.30f, 1.00f);
+    public static readonly uint Accent  = ImGuiColors.Rgba(0.22f, 0.55f, 0.30f, 1.00f);
+    public static readonly uint Success = ImGuiColors.Rgba(0.40f, 0.80f, 0.40f, 1.00f);
+    public static readonly uint Warning = ImGuiColors.Rgba(1.00f, 0.50f, 0.30f, 1.00f);
+    public static readonly uint Error   = ImGuiColors.Rgba(1.00f, 0.30f, 0.30f, 1.00f);
 
     // -- Quest status --
-    public static readonly uint QuestActive    = Rgba(1.00f, 0.90f, 0.30f, 1.00f);
-    public static readonly uint QuestImplicit   = Rgba(0.55f, 0.80f, 0.75f, 1.00f);
-    public static readonly uint QuestCompleted = Rgba(0.40f, 0.70f, 0.40f, 1.00f);
-    public static readonly uint QuestAvailable = Rgba(0.50f, 0.70f, 0.90f, 1.00f);
-    public static readonly uint NavManualOverride = Rgba(0.45f, 0.85f, 0.90f, 1.00f);
-    public static readonly uint SourceDimmed = Rgba(0.50f, 0.50f, 0.50f, 1.00f);
+    public static readonly uint QuestActive    = ImGuiColors.Rgba(1.00f, 0.90f, 0.30f, 1.00f);
+    public static readonly uint QuestImplicit   = ImGuiColors.Rgba(0.55f, 0.80f, 0.75f, 1.00f);
+    public static readonly uint QuestCompleted = ImGuiColors.Rgba(0.40f, 0.70f, 0.40f, 1.00f);
+    public static readonly uint QuestAvailable = ImGuiColors.Rgba(0.50f, 0.70f, 0.90f, 1.00f);
+    public static readonly uint NavManualOverride = ImGuiColors.Rgba(0.45f, 0.85f, 0.90f, 1.00f);
+    public static readonly uint SourceDimmed = ImGuiColors.Rgba(0.50f, 0.50f, 0.50f, 1.00f);
 
     // -- Decorative --
-    public static readonly uint Header = Rgba(0.90f, 0.85f, 0.60f, 1.00f);
+    public static readonly uint Header = ImGuiColors.Rgba(0.90f, 0.85f, 0.60f, 1.00f);
 
     // -- Level badge difficulty --
-    public static readonly uint LevelSafe    = Rgba(0.40f, 0.80f, 0.40f, 1.00f);
-    public static readonly uint LevelCaution = Rgba(1.00f, 0.90f, 0.30f, 1.00f);
-    public static readonly uint LevelDanger  = Rgba(1.00f, 0.30f, 0.30f, 1.00f);
+    public static readonly uint LevelSafe    = ImGuiColors.Rgba(0.40f, 0.80f, 0.40f, 1.00f);
+    public static readonly uint LevelCaution = ImGuiColors.Rgba(1.00f, 0.90f, 0.30f, 1.00f);
+    public static readonly uint LevelDanger  = ImGuiColors.Rgba(1.00f, 0.30f, 0.30f, 1.00f);
 
     // -- Tracker flash --
-    public static readonly uint TrackerFlashGreen  = Rgba(0.20f, 0.80f, 0.20f, 0.30f);
-    public static readonly uint TrackerFlashYellow = Rgba(0.80f, 0.70f, 0.10f, 0.20f);
+    public static readonly uint TrackerFlashGreen  = ImGuiColors.Rgba(0.20f, 0.80f, 0.20f, 0.30f);
+    public static readonly uint TrackerFlashYellow = ImGuiColors.Rgba(0.80f, 0.70f, 0.10f, 0.20f);
 
     // -- Spacing --
     public const float WindowPadding  = 8f;
@@ -62,16 +63,6 @@ public static class Theme
     public static void PopWindowStyle()
     {
         ImGui.PopStyleColor(2);
-    }
-
-    /// <summary>Convert RGBA floats (0-1) to packed uint in ImGui's ABGR format.</summary>
-    public static uint Rgba(float r, float g, float b, float a)
-    {
-        byte br = (byte)(r * 255f + 0.5f);
-        byte bg = (byte)(g * 255f + 0.5f);
-        byte bb = (byte)(b * 255f + 0.5f);
-        byte ba = (byte)(a * 255f + 0.5f);
-        return (uint)(br | (bg << 8) | (bb << 16) | (ba << 24));
     }
 
     /// <summary>
