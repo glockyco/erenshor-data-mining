@@ -1,4 +1,4 @@
-namespace AdventureGuide.Markers;
+namespace AdventureGuide.Graph;
 
 public enum MarkerInteractionKind
 {
