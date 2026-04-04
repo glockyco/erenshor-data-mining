@@ -271,3 +271,14 @@ class TestAlternativeQuestMetadata:
         # zone. The overall quest level still reflects the required item path.
         assert node.zone == "Island Tomb"
         assert node.level == 7
+
+
+class TestFactionNodes:
+    """Verify faction node data quality."""
+
+    def test_faction_nodes_have_refname(self, graph: EntityGraph) -> None:
+        """Every faction node must carry a refname for live reputation lookup."""
+        factions = list(graph.nodes_of_type(NodeType.FACTION))
+        assert len(factions) > 0, "Expected faction nodes"
+        missing = [n.key for n in factions if not n.refname]
+        assert not missing, f"Faction nodes missing refname: {missing}"

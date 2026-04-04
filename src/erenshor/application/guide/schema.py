@@ -217,6 +217,7 @@ class Node:
 
     # Faction specific
     default_value: float | None = None
+    refname: str | None = None
 
     # Zone line specific
     destination_zone_key: str | None = None

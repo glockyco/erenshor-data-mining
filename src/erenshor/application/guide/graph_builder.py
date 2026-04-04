@@ -1138,7 +1138,7 @@ def _add_door_nodes(
 
 
 def _add_faction_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    rows = conn.execute("SELECT stable_key, display_name, default_value FROM factions")
+    rows = conn.execute("SELECT stable_key, display_name, default_value, refname FROM factions")
     for r in rows:
         graph.add_node(
             Node(
@@ -1146,6 +1146,7 @@ def _add_faction_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 type=NodeType.FACTION,
                 display_name=r["display_name"],
                 default_value=r["default_value"],
+                refname=r["refname"],
             )
         )
 
