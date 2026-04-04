@@ -44,12 +44,10 @@ public sealed class QuestPlanBuilder
 
     /// <summary>Counter for generating unique cycle stub IDs.</summary>
     private int _cycleStubCounter;
-    private readonly Func<string, float?> _factionLookup;
 
     public QuestPlanBuilder(EntityGraph graph)
     {
         _graph = graph;
-        _factionLookup = _ => null;
     }
 
     public QuestPlanBuilder(
@@ -63,7 +61,6 @@ public sealed class QuestPlanBuilder
         _state = state;
         _unlocks = unlocks;
         _zoneAccess = new ZoneAccessResolver(graph, tracker, unlocks, router);
-        _factionLookup = refname => GlobalFactionManager.FindFactionData(refname)?.Value;
     }
 
     public QuestPlan Build(string questKey)
@@ -205,7 +202,7 @@ public sealed class QuestPlanBuilder
                 return;
 
             ApplyRuntimeState(itemNode);
-            var sourceGroup = GetOrCreateGroup($"{itemNode.NodeKey}:sources:anyof", PlanGroupKind.AnyOf);
+            var sourceGroup = GetOrCreateGroup($"{itemNode.NodeKey}:sources:anyof", PlanGroupKind.ItemSources);
 
             bool hasSources = false;
 
@@ -519,41 +516,7 @@ public sealed class QuestPlanBuilder
             return any;
         }
 
-        var allIncoming = _graph.InEdges(itemNode.NodeKey, edgeType);
-        IReadOnlyList<Edge> incoming;
-
-        // For drop sources: suppress non-hostile characters when any hostile
-        // source exists. Adapts to live faction reputation changes.
-        if (edgeType == EdgeType.DropsItem && allIncoming.Count > 0)
-        {
-            bool hasHostile = false;
-            for (int i = 0; i < allIncoming.Count && !hasHostile; i++)
-            {
-                var src = _graph.GetNode(allIncoming[i].Source);
-                if (src != null && FactionChecker.IsCurrentlyHostile(src, _graph, _factionLookup))
-                    hasHostile = true;
-            }
-            if (hasHostile)
-            {
-                var filtered = new List<Edge>(allIncoming.Count);
-                for (int i = 0; i < allIncoming.Count; i++)
-                {
-                    var src = _graph.GetNode(allIncoming[i].Source);
-                    // Fail-open: unknown source node is kept.
-                    if (src == null || FactionChecker.IsCurrentlyHostile(src, _graph, _factionLookup))
-                        filtered.Add(allIncoming[i]);
-                }
-                incoming = filtered;
-            }
-            else
-            {
-                incoming = allIncoming;
-            }
-        }
-        else
-        {
-            incoming = allIncoming;
-        }
+        var incoming = _graph.InEdges(itemNode.NodeKey, edgeType);
         for (int i = 0; i < incoming.Count; i++)
         {
             var source = _graph.GetNode(incoming[i].Source);
@@ -882,7 +845,7 @@ public sealed class QuestPlanBuilder
         bool infeasible = group.GroupKind switch
         {
             PlanGroupKind.AllOf => infeasibleCount > 0,
-            PlanGroupKind.AnyOf => infeasibleCount == totalCount,
+            PlanGroupKind.AnyOf or PlanGroupKind.ItemSources => infeasibleCount == totalCount,
             _ => false,
         };
 

@@ -1,3 +1,4 @@
+using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Plan.Semantics;
 
@@ -11,11 +12,19 @@ public sealed class LazyTreeProjector
 {
     private readonly QuestPlan _plan;
     private readonly QuestTreeSession _session;
+    private readonly SourceVisibilityPolicy? _visibilityPolicy;
 
     public LazyTreeProjector(QuestPlan plan, QuestTreeSession session)
+        : this(plan, session, null) { }
+
+    internal LazyTreeProjector(
+        QuestPlan plan,
+        QuestTreeSession session,
+        SourceVisibilityPolicy? visibilityPolicy)
     {
         _plan = plan;
         _session = session;
+        _visibilityPolicy = visibilityPolicy;
     }
 
     public IReadOnlyList<TreeRef> GetRootChildren()
@@ -81,6 +90,31 @@ public sealed class LazyTreeProjector
         // Structural groups that are usually flattened stay transparent in the
         // detail tree. Their children become siblings at the same visual level.
         var children = _session.GetChildren(candidate);
+        if (group.GroupKind == PlanGroupKind.ItemSources && _visibilityPolicy != null)
+        {
+            bool hasHostileDrop = false;
+            for (int i = 0; i < children.Count && !hasHostileDrop; i++)
+            {
+                if (children[i].IncomingLink?.EdgeType != EdgeType.DropsItem) continue;
+                var e = _plan.GetNode(children[i].NodeId) as PlanEntityNode;
+                if (_visibilityPolicy.IsHostileDropSource(e?.Node))
+                    hasHostileDrop = true;
+            }
+            if (hasHostileDrop)
+            {
+                var filtered = new List<TreeRef>(children.Count);
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i].IncomingLink?.EdgeType != EdgeType.DropsItem)
+                    { filtered.Add(children[i]); continue; }
+                    var e = _plan.GetNode(children[i].NodeId) as PlanEntityNode;
+                    // Fail-open: null entity kept; hostile entity kept.
+                    if (e == null || _visibilityPolicy.IsHostileDropSource(e.Node))
+                        filtered.Add(children[i]);
+                }
+                children = filtered;
+            }
+        }
         for (int i = 0; i < children.Count; i++)
             CollectVisibleRefs(children[i], output);
     }

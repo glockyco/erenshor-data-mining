@@ -31,4 +31,5 @@ public enum PlanGroupKind
 {
     AllOf,
     AnyOf,
+    ItemSources,
 }

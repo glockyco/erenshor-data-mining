@@ -141,7 +141,7 @@ public sealed class QuestPlanBuilderTests
         var recipe = plan.EntityNodesByKey["recipe:product"];
         var materials = (PlanGroupNode)plan.GetNode("recipe:product:materials:allof")!;
 
-        Assert.Equal(PlanGroupKind.AnyOf, sourceGroup.GroupKind);
+        Assert.Equal(PlanGroupKind.ItemSources, sourceGroup.GroupKind);
         Assert.Contains(item.Outgoing, l => l.ToId == sourceGroup.Id);
         Assert.Contains(sourceGroup.Outgoing, l => l.ToId == recipe.Id && l.EdgeType == EdgeType.CraftedFrom);
         Assert.Contains(sourceGroup.Outgoing, l => l.ToId == (PlanNodeId)"character:dropper" && l.EdgeType == EdgeType.DropsItem);

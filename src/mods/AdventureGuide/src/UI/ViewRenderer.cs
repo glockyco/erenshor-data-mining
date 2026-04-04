@@ -20,6 +20,7 @@ public sealed class ViewRenderer
     private readonly NavigationSet _navSet;
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
+    private readonly SourceVisibilityPolicy _visibilityPolicy;
 
     private QuestPlan? _currentPlan;
     private QuestTreeSession? _currentSession;
@@ -33,6 +34,8 @@ public sealed class ViewRenderer
         _navSet = navSet;
         _tracker = tracker;
         _trackerState = trackerState;
+        _visibilityPolicy = new SourceVisibilityPolicy(
+            graph, refname => GlobalFactionManager.FindFactionData(refname)?.Value);
     }
 
     /// <summary>Render a full quest detail page from a canonical quest plan.</summary>
@@ -94,7 +97,7 @@ public sealed class ViewRenderer
 
         _currentPlan = plan;
         _currentSession = new QuestTreeSession(plan);
-        _currentProjector = new LazyTreeProjector(plan, _currentSession);
+        _currentProjector = new LazyTreeProjector(plan, _currentSession, _visibilityPolicy);
     }
 
     // ── Header ──────────────────────────────────────────────────────────
