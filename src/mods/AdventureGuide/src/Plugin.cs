@@ -143,7 +143,7 @@ public sealed class Plugin : BaseUnityPlugin
         var positionRegistry = new PositionResolverRegistry(_graph);
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
-            new CharacterPositionResolver(_entities, _graph, _liveState, _dependencyEngine));
+            new CharacterPositionResolver(_graph, _liveState, _dependencyEngine));
         positionRegistry.Register(NodeType.MiningNode,
             new MiningNodePositionResolver(_liveState));
         positionRegistry.Register(NodeType.ItemBag,
@@ -162,7 +162,7 @@ public sealed class Plugin : BaseUnityPlugin
         _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter);
 
         _navEngine = new NavigationEngine(
-            _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _entities, _liveState, _unlockEvaluator);
+            _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _liveState, _unlockEvaluator);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;

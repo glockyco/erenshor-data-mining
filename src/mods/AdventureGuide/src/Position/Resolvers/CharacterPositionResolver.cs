@@ -15,18 +15,15 @@ namespace AdventureGuide.Position.Resolvers;
 /// </summary>
 public sealed class CharacterPositionResolver : IPositionResolver
 {
-    private readonly EntityRegistry _entities;
     private readonly EntityGraph _graph;
     private readonly LiveStateTracker _liveState;
     private readonly GuideDependencyEngine _dependencies;
 
     public CharacterPositionResolver(
-        EntityRegistry entities,
         EntityGraph graph,
         LiveStateTracker liveState,
         GuideDependencyEngine dependencies)
     {
-        _entities = entities;
         _graph = graph;
         _liveState = liveState;
         _dependencies = dependencies;
@@ -109,25 +106,26 @@ public sealed class CharacterPositionResolver : IPositionResolver
             return;
         }
 
-        var playerPos = GameData.PlayerControl?.transform.position ?? Vector3.zero;
-        var liveNpc = _entities.FindClosest(node.Key, playerPos);
-        if (liveNpc != null)
+        // No spawn edges — fall back to character state. Fact recording is correct here:
+        // this is resolution time, inside a BeginCollection/EndCollection pass.
+        var charState = _liveState.GetCharacterState(node);
+        if (charState.LiveNPC != null && charState.LiveNPC.gameObject != null)
         {
-            var sourceNodeKey = FindClosestSpawnNodeKey(node, liveNpc.transform.position)
-                ?? (node.X.HasValue && node.Y.HasValue && node.Z.HasValue ? node.Key : null);
-            if (sourceNodeKey != null)
-                _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, sourceNodeKey));
-
+            var sourceKey = FindClosestSpawnNodeKey(node, charState.LiveNPC.transform.position)
+                            ?? node.Key;
             results.Add(new ResolvedPosition(
-                liveNpc.transform.position,
+                charState.LiveNPC.transform.position,
                 currentScene,
-                sourceNodeKey,
+                sourceKey,
                 isActionable: true));
             return;
         }
 
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-            results.Add(new ResolvedPosition(new Vector3(node.X.Value, node.Y.Value, node.Z.Value), node.Scene, node.Key));
+            results.Add(new ResolvedPosition(
+                new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                node.Scene,
+                node.Key));
     }
 
     private string? FindClosestSpawnNodeKey(Node characterNode, Vector3 livePosition)
