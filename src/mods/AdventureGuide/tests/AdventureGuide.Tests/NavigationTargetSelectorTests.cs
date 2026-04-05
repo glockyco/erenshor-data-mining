@@ -31,6 +31,7 @@ public sealed class NavigationTargetSelectorTests
         bool isActionable = true,
         NavigationGoalKind goalKind = NavigationGoalKind.StartQuest,
         string targetNodeKey = "stub",
+        string? sourceKey = null,
         string? requiredForQuestKey = null,
         bool isBlockedPath = false,
         bool isGuaranteedLoot = false)
@@ -45,7 +46,7 @@ public sealed class NavigationTargetSelectorTests
             goalKind, NavigationTargetKind.Character, ctx, ctx,
             targetNodeKey, targetNodeKey, null, null, null);
         return new ResolvedQuestTarget(
-            targetNodeKey, scene, null, ctx, ctx, semantic, explanation,
+            targetNodeKey, scene, sourceKey ?? targetNodeKey, ctx, ctx, semantic, explanation,
             x, y, z, isActionable,
             requiredForQuestKey: requiredForQuestKey,
             isBlockedPath: isBlockedPath,
@@ -302,6 +303,36 @@ public sealed class NavigationTargetSelectorTests
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("node:b", second.Target.TargetNodeKey);
         // Version must increment because the selected identity changed.
+        Assert.True(selector.Version > versionAfterForce);
+    }
+
+    [Fact]
+    public void Tick_SameTargetNode_DifferentSource_ReroutesToNewSource()
+    {
+        // Same conceptual character, two physical spawns. The selector must switch
+        // when proximity makes a different source better, even though TargetNodeKey
+        // stays the same.
+        var nearSpawn = MakeTarget(
+            ZoneA, x: 10f, targetNodeKey: "character:bandit", sourceKey: "spawn:a");
+        var farSpawn = MakeTarget(
+            ZoneA, x: 100f, targetNodeKey: "character:bandit", sourceKey: "spawn:b");
+        var targets = new[] { nearSpawn, farSpawn };
+
+        var selector = new NavigationTargetSelector(
+            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                                        : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter());
+
+        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("spawn:a", first.Target.SourceKey);
+
+        int versionAfterForce = selector.Version;
+
+        selector.Tick(150, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        Assert.True(selector.TryGet("quest:test", out var second));
+        Assert.Equal("spawn:b", second.Target.SourceKey);
+        Assert.Equal("character:bandit", second.Target.TargetNodeKey);
         Assert.True(selector.Version > versionAfterForce);
     }
 
