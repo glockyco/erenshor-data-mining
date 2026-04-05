@@ -227,8 +227,10 @@ source presents as `ZoneReentry`.
 1. Death/spawn/corpse facts are keyed by the physical source node
    (`spawn:*`), because cache invalidation and marker/NAV cutover depend on
    concrete source identity.
-2. `SourcePositionCache` must never cache `NodeType.Character` positions.
-   Character positions are live-state dependent.
+2. `SourcePositionCache` must never cache live-state-dependent source types:
+   `Character`, `MiningNode`, and `ItemBag`. Their position or actionability
+   can change independently of scene changes, and cached hits would suppress
+   fresh source-state fact recording.
 3. `CorpseContainsItem` must run inside a dependency collection scope so the
    source-state fact is recorded correctly.
 4. Synthetic chest keys use the `chest:` prefix and must never collide with real
