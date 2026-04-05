@@ -31,6 +31,64 @@ public static class FrontierResolver
             : NodeState.Unknown;
         CollectFrontier(plan, root, incomingLink: null, state, questState, frontier, seen);
         return frontier;
+
+    }
+
+    internal static bool HasObjectiveOccurrence(QuestPlan plan, GameState state, string nodeKey)
+    {
+        var root = plan.GetNode(plan.RootId)
+            ?? throw new InvalidOperationException($"Quest plan root '{plan.RootId}' not found.");
+        var questState = root is PlanEntityNode rootEntity
+            ? state.GetState(rootEntity.NodeKey)
+            : NodeState.Unknown;
+        var seen = new HashSet<PlanNodeId>();
+        return HasObjectiveOccurrence(plan, root, incomingLink: null, state, questState, nodeKey, seen);
+    }
+
+    private static bool HasObjectiveOccurrence(
+        QuestPlan plan,
+        PlanNode node,
+        PlanLink? incomingLink,
+        GameState state,
+        NodeState questState,
+        string nodeKey,
+        HashSet<PlanNodeId> seen)
+    {
+        if (!seen.Add(node.Id))
+            return false;
+        if (node.Status is PlanStatus.PrunedCycle or PlanStatus.PrunedInfeasible)
+            return false;
+
+        if (node is PlanEntityNode entity && entity.Node.Type == NodeType.Quest)
+            questState = state.GetState(entity.NodeKey);
+
+        var role = Classify(node, incomingLink, state, questState);
+        if (role == Role.Done)
+            return false;
+
+        if (role == Role.Objective
+            && node is PlanEntityNode objectiveEntity
+            && incomingLink != null
+            && string.Equals(objectiveEntity.NodeKey, nodeKey, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        for (int i = 0; i < node.Outgoing.Count; i++)
+        {
+            var link = node.Outgoing[i];
+            var child = plan.GetNode(link.ToId);
+            if (child == null)
+                continue;
+
+            var childQuestState = child is PlanEntityNode childEntity && childEntity.Node.Type == NodeType.Quest
+                ? state.GetState(childEntity.NodeKey)
+                : questState;
+            if (HasObjectiveOccurrence(plan, child, link, state, childQuestState, nodeKey, seen))
+                return true;
+        }
+
+        return false;
     }
 
     private static void CollectFrontier(

@@ -75,6 +75,9 @@ public sealed class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Log = Logger;
+        GuideDiagnostics.LogInfo = msg => Logger.LogInfo(msg);
+        GuideDiagnostics.LogWarning = msg => Logger.LogWarning(msg);
+        GuideDiagnostics.LogError = msg => Logger.LogError(msg);
         var startupSw = System.Diagnostics.Stopwatch.StartNew();
 
         // Hide the shared BepInEx manager GameObject so the game cannot
@@ -488,6 +491,9 @@ public sealed class Plugin : BaseUnityPlugin
         _markerComputer?.Destroy();
         _markerSystem?.Destroy();
         MarkerFonts.Destroy();
+        GuideDiagnostics.LogInfo = null;
+        GuideDiagnostics.LogWarning = null;
+        GuideDiagnostics.LogError = null;
         DebugAPI.Graph = null;
         DebugAPI.State = null;
         DebugAPI.Filter = null;

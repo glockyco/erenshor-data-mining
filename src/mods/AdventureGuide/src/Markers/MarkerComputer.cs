@@ -1,3 +1,4 @@
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
@@ -182,7 +183,7 @@ public sealed class MarkerComputer
         }
 
         sb.AppendLine($"  total: {totalMs:F0} ms");
-        Plugin.Log.LogInfo(sb.ToString());
+        GuideDiagnostics.LogInfo?.Invoke(sb.ToString());
     }
 
     private void RebuildQuestMarkers(string questKey)

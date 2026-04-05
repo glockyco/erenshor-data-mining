@@ -1,3 +1,4 @@
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Plan;
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
@@ -293,7 +294,7 @@ public sealed class QuestResolutionService
             if (sw.Elapsed.TotalMilliseconds >= 5.0)
             {
                 var quest = _graph.GetNode(questKey);
-                Plugin.Log.LogInfo(
+                GuideDiagnostics.LogInfo?.Invoke(
                     $"Targets cold: {quest?.DisplayName ?? questKey}"
                     + $" {sw.Elapsed.TotalMilliseconds:F1}ms"
                     + $" frontier={projection.Frontier.Count} targets={targets.Count}");
@@ -513,10 +514,31 @@ public sealed class QuestResolutionService
                 break;
             }
         }
+        // Pre-compute which transitive direct-item keys are already satisfied.
+        // Done once per unique key — not once per source blueprint — so 30
+        // iron-ore mining sources cost one plan traversal, not 30.
+        var satisfiedTransitiveIngredients = new HashSet<string>(StringComparer.Ordinal);
+        if (plan != null)
+        {
+            foreach (var s in sources)
+            {
+                if (!string.IsNullOrEmpty(s.DirectItemKey)
+                    && !string.Equals(s.DirectItemKey, frontierNode.NodeKey, StringComparison.Ordinal)
+                    && !FrontierResolver.HasObjectiveOccurrence(plan, _gameState, s.DirectItemKey))
+                {
+                    satisfiedTransitiveIngredients.Add(s.DirectItemKey);
+                }
+            }
+        }
 
         for (int i = 0; i < sources.Count; i++)
         {
             var source = sources[i];
+            if (!string.IsNullOrEmpty(source.DirectItemKey)
+                && !string.Equals(source.DirectItemKey, frontierNode.NodeKey, StringComparison.Ordinal)
+                && satisfiedTransitiveIngredients.Contains(source.DirectItemKey))
+                continue;
+
             var sourceNode = _graph.GetNode(source.SourceNodeKey);
             if (sourceNode == null)
                 continue;
@@ -679,6 +701,7 @@ public sealed class QuestResolutionService
                 isGuaranteedLoot: true));
         }
     }
+
     private bool TryResolveBlockedRoute(
         List<ResolvedQuestTarget> results,
         HashSet<string> seen,
