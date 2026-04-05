@@ -32,7 +32,8 @@ public sealed class NavigationTargetSelectorTests
         NavigationGoalKind goalKind = NavigationGoalKind.StartQuest,
         string targetNodeKey = "stub",
         string? requiredForQuestKey = null,
-        bool isBlockedPath = false)
+        bool isBlockedPath = false,
+        bool isGuaranteedLoot = false)
     {
         var stubNode = new Node { Key = targetNodeKey, Type = NodeType.Character, DisplayName = targetNodeKey };
         var ctx = new ResolvedNodeContext(targetNodeKey, stubNode);
@@ -47,7 +48,8 @@ public sealed class NavigationTargetSelectorTests
             targetNodeKey, scene, null, ctx, ctx, semantic, explanation,
             x, y, z, isActionable,
             requiredForQuestKey: requiredForQuestKey,
-            isBlockedPath: isBlockedPath);
+            isBlockedPath: isBlockedPath,
+            isGuaranteedLoot: isGuaranteedLoot);
     }
 
     private const string ZoneA = "ZoneA";
@@ -405,4 +407,70 @@ public sealed class NavigationTargetSelectorTests
         Assert.False(result2!.Value.IsBlockedPath);
     }
 
+    // ── Guaranteed-loot priority tests ─────────────────────────────────────────
+
+    [Fact]
+    public void SelectBest_CorpseBeatsAliveNPCRegardlessOfDistance()
+    {
+        // Guaranteed-loot target at 500m must beat a normal actionable at 10m (same zone).
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 10f,  isActionable: true,  isGuaranteedLoot: false, targetNodeKey: "alive"),
+            MakeTarget(ZoneA, x: 500f, isActionable: true,  isGuaranteedLoot: true,  targetNodeKey: "corpse"),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.True(result!.Value.IsSameZone);
+        Assert.Equal("corpse", result.Value.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void SelectBest_ChestBeatsAliveNPC()
+    {
+        // A chest (IsGuaranteedLoot=true) at 500m must beat a normal actionable at 10m.
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 10f,  isActionable: true, isGuaranteedLoot: false, targetNodeKey: "npc"),
+            MakeTarget(ZoneA, x: 500f, isActionable: true, isGuaranteedLoot: true,  targetNodeKey: "chest"),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.Equal("chest", result.Value.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void SelectBest_GuaranteedLootBlockedDoesNotBeatDirectActionable()
+    {
+        // A blocked guaranteed-loot target (tier 4) must lose to a direct actionable (tier 1).
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 500f, isActionable: true, isGuaranteedLoot: true,  isBlockedPath: true,  targetNodeKey: "blocked-chest"),
+            MakeTarget(ZoneA, x: 10f,  isActionable: true, isGuaranteedLoot: false, isBlockedPath: false, targetNodeKey: "direct-npc"),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.Equal("direct-npc", result.Value.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void SelectBest_MultipleGuaranteedLootPicksClosest()
+    {
+        // Two guaranteed-loot targets; the closer one (100m) must win over the farther (400m).
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 400f, isActionable: true, isGuaranteedLoot: true, targetNodeKey: "far-corpse"),
+            MakeTarget(ZoneA, x: 100f, isActionable: true, isGuaranteedLoot: true, targetNodeKey: "near-corpse"),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.Equal("near-corpse", result.Value.Target.TargetNodeKey);
+    }
 }

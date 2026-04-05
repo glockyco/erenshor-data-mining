@@ -79,7 +79,7 @@ public sealed class CharacterPositionResolver : IPositionResolver
                     bool corpsePresent = info.LiveNPC != null && info.LiveNPC.gameObject != null;
                     var pos = corpsePresent ? info.LiveNPC!.transform.position : staticPos;
                     var scene = corpsePresent ? currentScene : spawnNode.Scene;
-                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: corpsePresent));
+                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: corpsePresent, isCorpse: corpsePresent));
                     anyFromSpawns = true;
                     break;
                 }

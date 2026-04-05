@@ -14,13 +14,15 @@ public readonly struct ResolvedPosition
     /// <summary>Key of the graph node that produced this position (e.g., spawn point key). Null for live NPC positions.</summary>
     public readonly string? SourceKey;
     public readonly bool IsActionable;
+    public readonly bool IsCorpse;
 
-    public ResolvedPosition(Vector3 position, string? scene, string? sourceKey = null, bool isActionable = true)
+    public ResolvedPosition(Vector3 position, string? scene, string? sourceKey = null, bool isActionable = true, bool isCorpse = false)
     {
         Position = position;
         Scene = scene;
         SourceKey = sourceKey;
         IsActionable = isActionable;
+        IsCorpse = isCorpse;
     }
 }
 

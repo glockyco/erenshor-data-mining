@@ -28,6 +28,12 @@ public sealed class ResolvedQuestTarget
     /// </summary>
     public bool IsBlockedPath { get; }
     /// <summary>
+    /// True when the item is confirmed present at this target (corpse with confirmed
+    /// loot, zone-reentry chest). Navigation prefers these over alive-NPC kill targets
+    /// regardless of distance — no kill is required and the item is guaranteed.
+    /// </summary>
+    public bool IsGuaranteedLoot { get; }
+    /// <summary>
     /// Key of the immediate sub-quest within the tracked chain that this target
     /// is working toward. Null when the target is a direct step of the tracked
     /// quest itself. Used by the tracker to show "Needed for {sub-quest}".
@@ -47,7 +53,8 @@ public sealed class ResolvedQuestTarget
         float z,
         bool isActionable = true,
         string? requiredForQuestKey = null,
-        bool isBlockedPath = false)
+        bool isBlockedPath = false,
+        bool isGuaranteedLoot = false)
     {
         TargetNodeKey = targetNodeKey;
         Scene = scene;
@@ -64,5 +71,6 @@ public sealed class ResolvedQuestTarget
         // explicit flag additionally covers item/door unlock chains.
         IsBlockedPath = isBlockedPath || requiredForQuestKey != null;
         RequiredForQuestKey = requiredForQuestKey;
+        IsGuaranteedLoot = isGuaranteedLoot;
     }
 }

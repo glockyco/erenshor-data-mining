@@ -35,11 +35,13 @@ public struct SelectedNavTarget
 /// scene change) pass <c>force=true</c>. Consumers compute distance inline from
 /// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
 ///
-/// Priority algorithm (six tiers; "direct" means <c>IsBlockedPath</c> is false):
+/// Priority algorithm (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
 /// <list type="number">
+///   <item>Direct + same-zone, guaranteed loot — closest</item>
 ///   <item>Direct + same-zone, actionable — closest</item>
 ///   <item>Direct + same-zone, non-actionable — closest</item>
 ///   <item>Direct + cross-zone — fewest zone hops</item>
+///   <item>Blocked-path + same-zone, guaranteed loot — closest</item>
 ///   <item>Blocked-path + same-zone, actionable — closest</item>
 ///   <item>Blocked-path + same-zone, non-actionable — closest</item>
 ///   <item>Blocked-path + cross-zone — fewest zone hops</item>
@@ -146,9 +148,10 @@ public sealed class NavigationTargetSelector
     /// Canonical best-target selection algorithm. Exposed as internal static for direct
     /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
     ///
-    /// Priority (six tiers; "direct" means <c>IsBlockedPath</c> is false):
-    /// direct-actionable → direct-non-actionable → direct-cross-zone →
-    /// blocked-actionable → blocked-non-actionable → blocked-cross-zone.
+    /// Priority (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
+    /// guaranteed-loot-direct → direct-actionable → direct-non-actionable →
+    /// direct-cross-zone → guaranteed-loot-blocked → blocked-actionable →
+    /// blocked-non-actionable → blocked-cross-zone.
     /// TravelToZone candidates are always skipped.
     /// </summary>
     internal static SelectedNavTarget? SelectBest(
@@ -211,12 +214,14 @@ public sealed class NavigationTargetSelector
         var (czDirect,  czDirectHops)  = BestCrossZoneCandidate(crossZoneDirect,  currentZone, router);
         var (czBlocked, czBlockedHops) = BestCrossZoneCandidate(crossZoneBlocked, currentZone, router);
 
-        return MakeSameZone(actionable.Direct)
-            ?? MakeSameZone(nonActionable.Direct)
-            ?? MakeCrossZone(czDirect, czDirectHops)
-            ?? MakeSameZone(actionable.Blocked)
-            ?? MakeSameZone(nonActionable.Blocked)
-            ?? MakeCrossZone(czBlocked, czBlockedHops);
+        return MakeSameZone(actionable.DirectGuaranteedLoot)    // tier 0: direct + same-zone, guaranteed loot
+            ?? MakeSameZone(actionable.Direct)                  // tier 1: direct + same-zone, actionable
+            ?? MakeSameZone(nonActionable.Direct)               // tier 2: direct + same-zone, non-actionable
+            ?? MakeCrossZone(czDirect, czDirectHops)            // tier 3: direct + cross-zone
+            ?? MakeSameZone(actionable.BlockedGuaranteedLoot)   // tier 4: blocked + same-zone, guaranteed loot
+            ?? MakeSameZone(actionable.Blocked)                 // tier 5: blocked + same-zone, actionable
+            ?? MakeSameZone(nonActionable.Blocked)              // tier 6: blocked + same-zone, non-actionable
+            ?? MakeCrossZone(czBlocked, czBlockedHops);         // tier 7: blocked + cross-zone
     }
 
     /// <summary>
@@ -275,12 +280,29 @@ public sealed class NavigationTargetSelector
         public float DirectDist;
         public ResolvedQuestTarget? Blocked;
         public float BlockedDist;
+        public ResolvedQuestTarget? DirectGuaranteedLoot;
+        public float DirectGuaranteedLootDist;
+        public ResolvedQuestTarget? BlockedGuaranteedLoot;
+        public float BlockedGuaranteedLootDist;
 
-        public static BestSameZone Init() =>
-            new BestSameZone { DirectDist = float.MaxValue, BlockedDist = float.MaxValue };
+        public static BestSameZone Init() => new BestSameZone
+        {
+            DirectDist = float.MaxValue,
+            BlockedDist = float.MaxValue,
+            DirectGuaranteedLootDist = float.MaxValue,
+            BlockedGuaranteedLootDist = float.MaxValue,
+        };
 
         public void Consider(ResolvedQuestTarget t, float dist)
         {
+            if (t.IsGuaranteedLoot)
+            {
+                if (!t.IsBlockedPath)
+                { if (dist < DirectGuaranteedLootDist) { DirectGuaranteedLoot = t; DirectGuaranteedLootDist = dist; } }
+                else
+                { if (dist < BlockedGuaranteedLootDist) { BlockedGuaranteedLoot = t; BlockedGuaranteedLootDist = dist; } }
+                return; // Do not also populate the regular actionable slot.
+            }
             if (!t.IsBlockedPath)
             { if (dist < DirectDist)  { Direct  = t; DirectDist  = dist; } }
             else

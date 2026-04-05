@@ -572,9 +572,12 @@ public sealed class QuestResolutionService
                     }
                 }
 
+                bool posIsGuaranteedLoot = pos.IsCorpse && pos.IsActionable;
                 AddResolvedTargetDirect(
                     results, seen, questKey, directGoalNode, targetContext, pos,
-                    requestedNode, plan, sceneFilter, isBlockedPath: isBlockedPath);
+                    requestedNode, plan, sceneFilter,
+                    isBlockedPath: isBlockedPath,
+                    isGuaranteedLoot: posIsGuaranteedLoot);
             }
         }
 
@@ -641,7 +644,8 @@ public sealed class QuestResolutionService
                 semantic: semantic,
                 explanation: explanation,
                 x: chestPos.x, y: chestPos.y, z: chestPos.z,
-                isActionable: true));
+                isActionable: true,
+                isGuaranteedLoot: true));
         }
     }
     private bool TryResolveBlockedRoute(
@@ -702,7 +706,8 @@ public sealed class QuestResolutionService
         Node requestedNode,
         QuestPlan? plan,
         string? sceneFilter,
-        bool isBlockedPath = false)
+        bool isBlockedPath = false,
+        bool isGuaranteedLoot = false)
     {
         if (TryResolveBlockedRoute(results, seen, questKey, goalNode, targetNode, pos, requestedNode, plan, sceneFilter))
             return;
@@ -743,7 +748,8 @@ public sealed class QuestResolutionService
             pos.Position.x, pos.Position.y, pos.Position.z,
             pos.IsActionable,
             requiredForQuestKey: null,
-            isBlockedPath: isBlockedPath));
+            isBlockedPath: isBlockedPath,
+            isGuaranteedLoot: isGuaranteedLoot));
     }
 
     // ── Blocked-target resolution ────────────────────────────────────────────
