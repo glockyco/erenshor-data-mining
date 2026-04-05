@@ -51,6 +51,12 @@ public sealed class MarkerEntry
     /// <summary>Live MiningNode for per-frame mined/available checks and timer reads.</summary>
     public MiningNode? LiveMiningNode { get; set; }
 
+    /// <summary>Live RotChest for per-frame rot detection. Non-null only for zone-reentry chest markers.</summary>
+    public RotChest? LiveRotChest { get; set; }
+
+    /// <summary>True for zone-reentry loot chest markers. Suppresses live-NPC position tracking.</summary>
+    public bool IsLootChestTarget { get; set; }
+
     // ── Quest intent (for dead→alive marker restoration) ───────────────
 
     /// <summary>The quest-semantic marker kind to restore when the NPC respawns. Null for spawn-timer and zone-reentry entries.</summary>

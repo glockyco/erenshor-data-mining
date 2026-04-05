@@ -487,6 +487,9 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateActiveMarkerEntry(Node quest, ResolvedQuestTarget target)
     {
+        if (target.Semantic.ActionKind == ResolvedActionKind.LootChest)
+            return CreateLootChestMarkerEntry(quest, target);
+
         if (!IsCurrentScene(target.Scene))
             return null;
 
@@ -528,6 +531,38 @@ public sealed class MarkerComputer
             targetNode,
             positionNode,
             new Vector3(target.X, target.Y, target.Z));
+    }
+
+    private MarkerEntry? CreateLootChestMarkerEntry(Node quest, ResolvedQuestTarget target)
+    {
+        if (!IsCurrentScene(target.Scene))
+            return null;
+
+        var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic, target.TargetNode);
+        var chestPos = new Vector3(target.X, target.Y, target.Z);
+
+        string nodeKey = FormattableString.Invariant(
+            $"chest:{target.Scene ?? _tracker.CurrentZone}:{target.X:F2}:{target.Y:F2}:{target.Z:F2}");
+
+        return new MarkerEntry
+        {
+            X = target.X,
+            Y = target.Y + StaticHeightOffset,
+            Z = target.Z,
+            Scene = target.Scene ?? _tracker.CurrentZone,
+            Type = MarkerEntry.ToMarkerType(instruction.Kind),
+            Priority = instruction.Priority,
+            DisplayName = target.TargetNode.Node.DisplayName,
+            SubText = instruction.SubText,
+            NodeKey = nodeKey,
+            SourceNodeKey = null,
+            QuestKey = quest.Key,
+            QuestKind = instruction.Kind,
+            QuestPriority = instruction.Priority,
+            QuestSubText = instruction.SubText,
+            IsLootChestTarget = true,
+            LiveRotChest = _liveState.GetRotChestNear(chestPos),
+        };
     }
 
     private MarkerEntry? CreateCharacterMarkerEntry(
@@ -881,6 +916,8 @@ public sealed class MarkerComputer
         KeepWhileCorpsePresent = entry.KeepWhileCorpsePresent,
         CorpseSubText = entry.CorpseSubText,
         IsSpawnTimer = entry.IsSpawnTimer,
+        LiveRotChest = entry.LiveRotChest,
+        IsLootChestTarget = entry.IsLootChestTarget,
     };
 
     private static string BuildNightLockedText(string displayName)

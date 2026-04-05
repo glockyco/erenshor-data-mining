@@ -144,8 +144,20 @@ public sealed class MarkerSystem
                 continue;
             }
 
-            if (!entry.IsSpawnTimer)
+            if (entry.IsLootChestTarget)
+            {
+                // Hide when the chest has rotted away (gameObject destroyed by RotChest.FixedUpdate).
+                if (entry.LiveRotChest != null && entry.LiveRotChest.gameObject == null)
+                {
+                    instance.SetActive(false);
+                    continue;
+                }
+                // Chest position is static — fall through to distance fading without UpdatePosition.
+            }
+            else if (!entry.IsSpawnTimer)
+            {
                 UpdatePosition(entry);
+            }
 
             var pos = new Vector3(entry.X, entry.Y, entry.Z);
             instance.SetPosition(pos);
