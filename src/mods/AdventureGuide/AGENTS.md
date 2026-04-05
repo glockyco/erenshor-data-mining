@@ -103,170 +103,133 @@ groups — use `GroupKind == PlanGroupKind.ItemSources`.
 
 ## Character / spawn-point / corpse system
 
-Read this section before touching `CharacterPositionResolver`, `LiveStateTracker`,
-`MarkerComputer`, `MarkerSystem`, `QuestResolutionService`, or any `Patches/`
-file that intercepts NPC death, spawn, or loot events.
+Read this section before touching `CharacterPositionResolver`,
+`LiveStateTracker`, `NavigationTargetSelector`, `NavigationEngine`,
+`MarkerComputer`, `MarkerSystem`, `QuestResolutionService`, or any patch
+that intercepts NPC spawn, death, corpse, or loot events.
 
-### Graph model
+### 1. Identity layers
 
-Every killable character has **two graph nodes**:
-
-| Node type | Key format | Role |
+| Layer | Canonical key | Meaning |
 |---|---|---|
-| `Character` | `character:{prefab_name}` (or `character:{name}:{zone}:{x}:{y}:{z}` for directly-placed) | Conceptual identity; holds loot/quest edges |
-| `SpawnPoint` | `spawnpoint:{zone}:{x}:{y}:{z}` | Physical placement in a specific zone |
+| Conceptual source | `Character` node key, e.g. `character:islander bandit` | Loot edges, quest semantics, display name |
+| Physical source | `SpawnPoint` node key, e.g. `spawn:stowaway:342.23:52.52:490.37` | One concrete world placement in one scene |
+| Concrete target instance | `ResolvedQuestTarget.SourceKey ?? ResolvedQuestTarget.TargetNodeKey` | The world object NAV and markers must cut over between |
 
-The `HasSpawn` edge runs **character → spawnpoint**. One character can have
-multiple spawn nodes (multi-zone or multi-spawn). The `IsDirectlyPlaced` flag
-on a spawn node means the export pipeline synthesised it for a character placed
-directly in the Unity scene (no `SpawnPoint` component).
+A character can have many physical sources. Multiple character nodes may also
+share the same physical source. That is common in the export data for repeated
+NPC variants with identical loot tables and display names.
 
-### Full character lifecycle
+`TargetNodeKey` is therefore **not** a world-instance identity. Use the
+physical source key whenever one exists. Character markers, NAV cutover, and
+same-target change detection all operate on the concrete target instance, not
+the conceptual character key.
 
-**1. Spawning** (`SpawnPoint.SpawnNPC`, patched by `SpawnPatch`)**:**
-   NPC instantiated at spawn-point transform. `sp.SpawnedNPC = newNPC`,
-   added to `NPCTable.LiveNPCs`. `EntityRegistry.Register(newNPC, sp)` then
-   `LiveState.OnNPCSpawn(sp)` emitting a `liveWorldChanged` changeset keyed on
-   the **spawn-point node key**.
+### 2. Runtime source states
 
-**2. Alive:** `sp.SpawnedNPC` = live NPC; `EntityRegistry.FindClosest` returns
-   it. `CharacterPositionResolver` emits `info.LiveNPC.transform.position`
-   (follows the NPC as it wanders).
+Every character source resolves to one of these occupancy states:
 
-**3. Death** (`Character.DoDeath`, patched by `DeathPatch`)**:**
-   `Alive = false`; removed from `NPCTable.LiveNPCs`.
-   `NPC.ResetSpawnPoint()` saves `sp.corpsePos` and starts respawn timer.
-   `CorpseDataManager.AddCorpseData(...)` persists loot+position for zone
-   reentry. NPC game-object stays in scene as a **corpse**; `sp.SpawnedNPC`
-   still references it. `EntityRegistry.Unregister(npc)`, then
-   `LiveState.OnNPCDeath(npc)` changeset keyed on **spawn-point node key**.
+| Occupancy state | Meaning | Position anchor |
+|---|---|---|
+| `Alive` | Live NPC game object exists and `Character.Alive` is true | live NPC transform |
+| `CorpsePresent` | NPC game object still exists but `Alive` is false | corpse transform at kill position |
+| `SpawnEmpty` | No game object currently occupies the source | static spawn coordinates |
+| `NightLocked` | Night-only spawn is currently unavailable | static spawn coordinates |
+| `UnlockBlocked` | Source is gated by quest/world state | static spawn coordinates |
+| `Disabled` | Source cannot spawn for gameplay reasons | static spawn coordinates |
+| `Unknown` | Source is out of scene or live state is unavailable | static/exported coordinates only |
 
-**4. Corpse present** (`SpawnDead` state, `info.LiveNPC != null`):
-   `ClassifySpawnPoint` returns `SpawnDead(respawnSeconds)` with
-   `LiveNPC = sp.SpawnedNPC` (the dead game object). Corpse is at its
-   **kill position**, which may differ from the spawn-point static coordinates.
-   `info.LiveNPC.GetComponent<LootTable>().ActualDrops` holds the remaining
-   loot and is the authoritative source for corpse loot checks.
-   `MarkerSystem.UpdatePosition` tracks the corpse transform per-frame via
-   `sp.SpawnedNPC`, so the marker follows the corpse correctly. A separate
-   **respawn-timer marker** (`|respawn` node-key suffix) shows simultaneously
-   at the static spawn coordinates. Both markers coexist; they use different
-   node keys and do not compete for the same marker slot.
+Actionability is derived from occupancy plus quest semantics:
 
-**5. Corpse looted:** items taken from the loot window trigger
-   `Inventory.UpdatePlayerInventory` → `InventoryPatch` →
-   `QuestStateTracker.OnInventoryChanged`. When all items are taken,
-   `npc.ExpediteRot()` sets `rotTimer = 5f` and the corpse disappears within
-   a few frames.
+| Case | `IsActionable` | Rule |
+|---|---|---|
+| Alive kill / talk target | true | the player can act on the live NPC now |
+| Corpse for `DropsItem` | `CorpseContainsItem(source, itemKey)` | only actionable while the required item is still on the corpse |
+| Corpse for non-loot semantics | semantic-specific | do not assume all corpses are lootable |
+| SpawnEmpty / NightLocked / UnlockBlocked / Disabled / Unknown | false | marker may remain, but as timer/blocked information only |
+| Zone-reentry `LootChest` | true while chest exists and still contains the item | separate target type, not an NPC |
 
-**6. Corpse rotted** (natural decay or post-loot): `rotTimer` hits 0,
-   `Object.Destroy(npc.gameObject)`. `sp.SpawnedNPC.gameObject == null`.
-   `CharacterPositionResolver` sees `corpsePresent = false` and emits the
-   static spawn-point position with `isActionable = false`. Markers show
-   the respawn timer only.
+### 3. Marker presentation states
 
-**7. Respawn** (`SpawnPoint.Update` → `SpawnNPC`):
-   New NPC instantiated. `sp.SpawnedNPC = newNPC`. Old corpse (if still in
-   scene) is no longer reachable via `sp.SpawnedNPC`. `SpawnPatch` fires;
-   `UpdateSpawnState` transitions marker back to kill-type immediately.
+`MarkerEntry.Type` is a presentation state, not a source state. Relevant kinds
+for character flows are:
 
-**8. Zone exit with unlooted corpse:** `CorpseDataManager.CheckAllCorpses()`
-   prunes expired entries. `CorpseData` (managed C# object, not a Unity
-   scene component) persists in memory with the saved loot and position.
+- Quest semantics: `QuestGiver`, `QuestGiverRepeat`, `QuestGiverBlocked`,
+  `Objective`, `TurnInPending`, `TurnInReady`, `TurnInRepeatReady`
+- Runtime overlays: `DeadSpawn`, `NightSpawn`, `QuestLocked`, `ZoneReentry`
 
-**9. Zone reentry** (`ZoneAnnounce.SpawnAllCorpses()`, patched by
-   `CorpseChestPatch`):
-   `CorpseData.SpawnMe` instantiates a `CorpseChest` prefab (`RotChest +
-   LootTable`) at the saved corpse position. **`RotChest` and `ItemBag` are
-   completely independent systems**; the chest uses `LootTable` for looting
-   (not `ItemBag.PickUp`). `CorpseChestPatch.Postfix` calls
-   `LiveState.OnAllCorpsesSpawned()`, which scans for `RotChest` objects and
-   updates `_rotChests`. `GetRotChestPositionsWithItem` is then called live
-   during resolution to check if any chest contains the required item.
+A single physical source can legitimately project more than one marker entry:
 
-### Directly-placed characters
+- the live quest marker anchored to the current NPC/corpse
+- the separate static respawn-timer marker (`|respawn`) at the source location
 
-Characters placed directly in the Unity scene have `MySpawnPoint = null` and
-are **not** in `NPCTable.LiveNPCs`. The export pipeline creates a synthetic
-`IsDirectlyPlaced = true` spawn node at the character's graph coordinates.
+Those entries are different by design. Duplicate quest markers for the same
+physical source are not.
 
-Live-state resolution for directly-placed NPCs goes through
-`ResolveDirectlyPlacedSpawn` → `FindNpcByNameAndProximity`, which searches
-`_npcByName` (populated at scene load via `FindObjectsOfType<NPC>()`, includes
-all NPCs alive or dead). The character-with-position path in
-`FindNpcByNameAndProximity` returns the closest NPC by name **regardless of
-alive status**, so the dead NPC (corpse) is returned when it is still in the
-scene. The resulting `SpawnInfo.LiveNPC` is the dead NPC game object, exactly
-as for spawn-point NPCs. **Verified via HotRepl (Timothy Allorn):**
-`GetSpawnState` on the synthetic spawn node returns
-`SpawnDead, LiveNPC=Timothy Allorn, LiveSpawnPoint=null` when dead.
+### 4. Lifecycle
 
-Directly-placed NPCs respawn via **zone reentry** (Unity re-instantiates scene
-objects). The `ZoneReentry` marker (`MarkerType.ZoneReentry`) is shown when the
-NPC is in `SpawnDead` state with no corpse (`LiveNPC == null`) AND the spawn
-node is `IsDirectlyPlaced = true`.
+1. **Spawn** — `SpawnPoint.SpawnNPC` instantiates the NPC, assigns
+   `sp.SpawnedNPC`, adds it to `NPCTable.LiveNPCs`, and `SpawnPatch` calls
+   `LiveStateTracker.OnNPCSpawn(sp)`. The emitted fact is keyed by the
+   physical source (`spawn:*`).
+2. **Alive** — resolution and markers use the live NPC transform. This is the
+   only state where per-frame tracking follows a wandering NPC.
+3. **Death** — `DeathPatch` calls `LiveStateTracker.OnNPCDeath(npc)`. The dead
+   NPC remains as a corpse game object; `sp.SpawnedNPC` still points at it.
+4. **Corpse present** — the corpse is a first-class entity at the kill
+   position. Loot checks read `LootTable.ActualDrops` from the corpse game
+   object itself. Do not infer corpse loot from static drop tables.
+5. **Corpse looted / corpse rot** — once the corpse is emptied or its rot timer
+   expires, Unity destroys the corpse game object. The source then becomes
+   `SpawnEmpty`. NAV and markers must fall back to the static source position.
+6. **Respawn** — `SpawnPoint.Update` creates a new NPC and replaces
+   `sp.SpawnedNPC`. The source returns to `Alive`.
+7. **Zone exit with unlooted corpse** — corpse data is persisted by the game in
+   `CorpseDataManager`; this is not a scene object.
+8. **Zone reentry chest** — `CorpseData.SpawnMe` instantiates a `RotChest` with
+   a `LootTable`. This is modeled as `ResolvedActionKind.LootChest` /
+   `NavigationTargetKind.LootChest`, not as a live NPC or corpse.
 
-### Corpses are their own entity
+### 5. Selection and tracking rules
 
-A corpse is an NPC game object with `Character.Alive = false`. It is a
-first-class entity. **Do not think of a corpse as "the spawn point's dead
-NPC".** The spawn node is only a lookup key to reach `info.LiveNPC`.
+The selector and renderer answer different questions:
 
-Loot checks are purely on the corpse game object:
+- `NavigationTargetSelector` chooses the best **physical source** each tick
+  based on current scene, route availability, guaranteed loot, actionability,
+  and proximity.
+- `NavigationEngine.Track()` follows the currently selected source's live
+  occupant. It must not rescan all equivalent NPCs globally, or NAV can drift
+  away from the selected source.
+- `MarkerComputer` keys character markers by the physical source node, not by
+  the conceptual character key or by the NPC's current live position.
+- `MarkerSystem` may update the rendered position every frame, but it does not
+  own source identity. Identity comes from the resolved source key.
 
-```csharp
-// Works for both spawn-point and directly-placed NPCs.
-// No spawn-point mediation required.
-var loot = info.LiveNPC.GetComponent<LootTable>();
-bool hasItem = loot?.ActualDrops.Any(d => d != null &&
-    "item:" + d.name.Trim().ToLowerInvariant() == itemStableKey) == true;
-```
+### 6. Directly-placed characters
 
-`LiveStateTracker.CorpseContainsItem(Node spawnNode, string itemKey)` encapsulates
-this and is the single canonical method for the check.
+Directly-placed NPCs have `MySpawnPoint = null` and no real `SpawnPoint`
+component. The export pipeline creates a synthetic spawn node with
+`IsDirectlyPlaced = true`. Treat that synthetic spawn node exactly like any
+other physical source key for NAV and marker identity.
 
-### Position cache exclusion rule
+Live-state lookup for directly-placed NPCs goes through
+`ResolveDirectlyPlacedSpawn` / `FindNpcByNameAndProximity`. Respawn happens via
+zone reentry, not `SpawnPoint.Update`. When dead with no corpse present, the
+source presents as `ZoneReentry`.
 
-`SourcePositionCache` does **not** cache positions for `NodeType.Character`.
-Character positions depend on live NPC state (death, spawn, movement) and
-must be re-resolved on every target-rebuild pass. All other source types
-(item bags, mining nodes, zone lines) are cached as before.
+### 7. Non-negotiable invariants
 
-This is enforced in `SourcePositionCache.Resolve(nodeKey)` via a node-type
-check before the cache lookup. The old workaround of evicting by spawn-point
-key has been removed; the exclusion rule makes it unnecessary.
-
-### LootChest targets (zone-reentry chests)
-
-`ResolvedActionKind.LootChest` and `NavigationTargetKind.LootChest` mark
-targets produced from zone-reentry `RotChest` objects. Key properties:
-
-- **Synthetic `TargetNodeKey`**: `"chest:{scene}:{x:F2}:{y:F2}:{z:F2}"`. Not
-  present in the graph. `_graph.GetNode(key)` returns `null`, so
-  `NavigationEngine.Track()` naturally skips `FindClosest` (the condition
-  `targetNode?.Type == NodeType.Character` is false). `NavigationEngine.Resolve()`
-  detects a target-identity change when switching between a live NPC and a
-  chest because the key differs.
-- **Static position**: chest does not move. `EffectiveTarget` is set once by
-  `SetTarget`; `Track()` does not update it.
-- **`ApplyLiveActionOverride` short-circuits** for `LootChest` action kind.
-- **Marker**: `IsLootChestTarget = true` on `MarkerEntry`. `MarkerSystem`
-  hides the marker per-frame when `LiveRotChest.gameObject == null` (chest
-  has rotted). `UpdatePosition` is not called for chest entries.
-- **Loot change detection**: `GetRotChestPositionsWithItem` is a live query.
-  After the required item is picked up, `InventoryPatch` fires, the quest
-  objective completes, and the target cache is evicted. On the next rebuild the
-  chest target is no longer produced. No separate chest-loot changeset needed.
-
-### Invariants to maintain
-
-1. Death and spawn events emit facts keyed by the **spawn-point node key**.
-   This is correct for `_targetCache` eviction via the dependency engine.
-   Character positions are excluded from cache so no additional eviction is
-   needed for position cache correctness.
-2. `CorpseContainsItem` must be called inside a `BeginCollection` scope so
-   the `GetSpawnState` call records its dependency fact correctly.
-3. Synthetic `TargetNodeKey` values for chest targets must never collide with
-   real graph node keys. The `chest:` prefix is not used by any graph node type.
-4. `OnAllCorpsesSpawned` clears `_rotChests` before scanning. `OnSceneLoaded`
-   also clears it so stale references from a previous scene session never leak.
+1. Death/spawn/corpse facts are keyed by the physical source node
+   (`spawn:*`), because cache invalidation and marker/NAV cutover depend on
+   concrete source identity.
+2. `SourcePositionCache` must never cache `NodeType.Character` positions.
+   Character positions are live-state dependent.
+3. `CorpseContainsItem` must run inside a dependency collection scope so the
+   source-state fact is recorded correctly.
+4. Synthetic chest keys use the `chest:` prefix and must never collide with real
+   graph node keys.
+5. `OnAllCorpsesSpawned` and `OnSceneLoaded` must clear `_rotChests` before
+   rescanning to avoid stale chest references.
+6. If two resolved character targets share the same physical source key, world
+   markers and NAV treat them as the same concrete target instance. The source
+   key wins over the conceptual character key.
