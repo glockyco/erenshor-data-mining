@@ -163,6 +163,11 @@ A single physical source can legitimately project more than one marker entry:
 - the live quest marker anchored to the current NPC/corpse
 - the separate static respawn-timer marker (`|respawn`) at the source location
 
+
+For kill semantics, the active quest marker exists only while the source is
+currently actionable. Once a kill source is dead and non-actionable, the active
+marker disappears and the static respawn-timer marker becomes the only marker
+for that source.
 Those entries are different by design. Duplicate quest markers for the same
 physical source are not.
 
@@ -233,3 +238,5 @@ source presents as `ZoneReentry`.
 6. If two resolved character targets share the same physical source key, world
    markers and NAV treat them as the same concrete target instance. The source
    key wins over the conceptual character key.
+7. Non-actionable kill targets do not emit an active character marker. The
+   respawn-timer marker owns dead/empty representation for those sources.
