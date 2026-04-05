@@ -74,4 +74,6 @@ public enum ResolvedActionKind
     Buy,
     Give,
     CompleteQuest,
+    // Zone-reentry corpse chest containing loot from a previous kill.
+    LootChest,
 }

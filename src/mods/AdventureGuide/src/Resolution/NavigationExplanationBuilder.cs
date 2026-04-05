@@ -46,6 +46,30 @@ public static class NavigationExplanationBuilder
             tertiaryText: null);
     }
 
+    /// <summary>
+    /// Navigation explanation for a zone-reentry loot chest. The chest is a
+    /// RotChest game object at the saved corpse position; no live NPC is involved.
+    /// </summary>
+    public static NavigationExplanation BuildLootChestExplanation(
+        ResolvedActionSemantic semantic,
+        ResolvedNodeContext goalNode,
+        ResolvedNodeContext targetNode)
+    {
+        string primary = $"Loot {goalNode.Node.DisplayName}";
+        string? secondary = BuildArrowSecondary(semantic, primary);
+
+        return new NavigationExplanation(
+            semantic.GoalKind,
+            semantic.TargetKind,
+            goalNode,
+            targetNode,
+            primary,
+            semantic.TargetIdentityText,
+            semantic.ZoneText,
+            secondary,
+            tertiaryText: null);
+    }
+
     public static TrackerSummary BuildTrackerSummary(
         ResolvedNodeContext frontierNode,
         ResolvedActionSemantic semantic,

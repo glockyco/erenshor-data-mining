@@ -45,6 +45,7 @@ internal static class MarkerTextBuilder
             ResolvedActionKind.Buy => "Buy",
             ResolvedActionKind.Give => "Give",
             ResolvedActionKind.CompleteQuest => "Complete",
+            ResolvedActionKind.LootChest => "Loot",
             _ => "Talk to",
         };
     }

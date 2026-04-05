@@ -10,4 +10,6 @@ public enum NavigationTargetKind
     Zone,
     ZoneLine,
     Object,
+    // RotChest game object spawned at a previous corpse position on zone reentry.
+    LootChest,
 }

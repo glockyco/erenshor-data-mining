@@ -173,6 +173,8 @@ public sealed class NavigationEngine
         NavigationExplanation explanation,
         string? sourceKey)
     {
+        if (semantic.ActionKind == ResolvedActionKind.LootChest)
+            return explanation;
         if (semantic.ActionKind != ResolvedActionKind.Kill || sourceKey == null)
             return explanation;
 
@@ -229,6 +231,10 @@ public sealed class NavigationEngine
             || TargetScene == null;
         if (isSameScene)
         {
+            // Chest targets use synthetic TargetNodeKeys ("chest:...") not present in the
+            // graph. _graph.GetNode returns null, so targetNode?.Type == NodeType.Character
+            // evaluates to false and FindClosest is never called. The chest position stored
+            // in EffectiveTarget from SetTarget() is static and needs no per-frame update.
             var targetNode = _graph.GetNode(TargetNodeKey);
             if (targetNode?.Type == NodeType.Character)
             {

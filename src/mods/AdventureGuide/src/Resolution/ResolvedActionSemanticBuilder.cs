@@ -98,6 +98,31 @@ internal static class ResolvedActionSemanticBuilder
             markerPriority: GetMarkerPriority(markerType));
     }
 
+    /// <summary>
+    /// Semantic for a zone-reentry loot chest containing an item dropped by a
+    /// previously killed NPC. The chest is the target; the item is the goal.
+    /// </summary>
+    public static ResolvedActionSemantic BuildForLootChest(
+        Node goalItemNode, Node characterNode, string chestScene)
+    {
+        var markerType = QuestMarkerKind.Objective;
+        return new ResolvedActionSemantic(
+            NavigationGoalKind.CollectItem,
+            NavigationTargetKind.LootChest,
+            ResolvedActionKind.LootChest,
+            goalNodeKey: goalItemNode.Key,
+            goalQuantity: null,
+            keywordText: null,
+            payloadText: null,
+            targetIdentityText: characterNode.DisplayName + "'s loot chest",
+            contextText: null,
+            rationaleText: "Drops " + goalItemNode.DisplayName,
+            zoneText: chestScene,
+            availabilityText: null,
+            preferredMarkerKind: markerType,
+            markerPriority: GetMarkerPriority(markerType));
+    }
+
     public static int GetMarkerPriority(QuestMarkerKind kind) =>
         kind switch
         {
