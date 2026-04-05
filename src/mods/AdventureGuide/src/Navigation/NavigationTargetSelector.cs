@@ -167,11 +167,21 @@ public sealed class NavigationTargetSelector
     /// </summary>
 
     /// <summary>
-    /// Updates X/Y/Z on character targets whose NPC is alive in the current
-    /// scene, so SelectBest ranks by the NPC's actual position rather than
-    /// the position baked at resolution time. Static targets (mining nodes,
-    /// item bags, chests, zone lines) have non-Character TargetNode types
-    /// and are never modified. Cross-zone targets are skipped.
+    /// Updates X/Y/Z and <see cref="ResolvedQuestTarget.IsActionable"/> on
+    /// character targets each tick based on live scene state:
+    /// <list type="bullet">
+    /// <item>Alive NPC found: position updated to live coords, IsActionable forced
+    /// to true (an alive NPC is always a valid kill target).</item>
+    /// <item>Spawn completely empty (corpse rotted, no game object): position
+    /// snapped to static graph spawn coordinates so the arrow points to the
+    /// respawn spot, IsActionable set to false.</item>
+    /// <item>Corpse present (game object exists, NPC dead): both fields left
+    /// unchanged — CorpseContainsItem in the resolution pipeline already set
+    /// them correctly.</item>
+    /// </list>
+    /// Static targets (mining nodes, item bags, chests, zone lines) have
+    /// non-Character TargetNode types and are never modified. Cross-zone targets
+    /// are skipped.
     /// </summary>
     private void UpdateLivePositions(
         IReadOnlyList<ResolvedQuestTarget> targets,
@@ -200,12 +210,32 @@ public sealed class NavigationTargetSelector
                 continue;
 
             var pos = _liveState.GetLiveNpcPosition(spawnNode);
-            if (pos == null)
-                continue;
-
-            t.X = pos.Value.x;
-            t.Y = pos.Value.y;
-            t.Z = pos.Value.z;
+            if (pos != null)
+            {
+                // NPC alive: update to live position and ensure actionable.
+                // Corrects stale isActionable=false from when the previous
+                // NPC's corpse had no required loot.
+                t.X = pos.Value.x;
+                t.Y = pos.Value.y;
+                t.Z = pos.Value.z;
+                t.IsActionable = true;
+            }
+            else if (_liveState.IsSpawnEmpty(spawnNode))
+            {
+                // Spawn completely empty (corpse rotted, no game object).
+                // Point to static spawn coordinates so the arrow shows the
+                // respawn location rather than the last-seen corpse position.
+                if (spawnNode.X.HasValue && spawnNode.Y.HasValue && spawnNode.Z.HasValue)
+                {
+                    t.X = spawnNode.X.Value;
+                    t.Y = spawnNode.Y.Value;
+                    t.Z = spawnNode.Z.Value;
+                }
+                t.IsActionable = false;
+            }
+            // else: corpse is present (game object exists, NPC dead).
+            // isActionable was set correctly by CorpseContainsItem during
+            // resolution. Leave both position and actionability unchanged.
         }
     }
 

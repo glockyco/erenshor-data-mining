@@ -21,7 +21,12 @@ public sealed class ResolvedQuestTarget
     public float X { get; internal set; }
     public float Y { get; internal set; }
     public float Z { get; internal set; }
-    public bool IsActionable { get; }
+    /// <summary>
+    /// Whether this target is currently actionable (alive NPC to kill, lootable
+    /// corpse, etc.). Set at resolution time; updated per-frame by
+    /// NavigationTargetSelector.UpdateLivePositions for character targets.
+    /// </summary>
+    public bool IsActionable { get; internal set; }
     /// <summary>
     /// True when this target belongs to a blocked-but-feasible route that must
     /// first resolve some unlock chain before it reaches the original source.

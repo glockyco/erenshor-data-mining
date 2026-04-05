@@ -573,6 +573,26 @@ public sealed class LiveStateTracker
         return (pos.x, pos.y, pos.z);
     }
 
+    /// <summary>
+    /// Returns true when the spawn point has no live game object at all — either
+    /// the NPC has not yet spawned or the corpse has fully rotted away. Returns
+    /// false when a game object exists (alive NPC or present corpse), when the
+    /// spawn node is directly-placed (those respawn on zone reentry, not via
+    /// SpawnPoint), or when the spawn is not found in the scene index.
+    ///
+    /// Used by NavigationTargetSelector to distinguish "corpse present" (do not
+    /// touch isActionable) from "spawn empty" (reset to static coords, non-actionable).
+    /// </summary>
+    public bool IsSpawnEmpty(Node spawnNode)
+    {
+        if (spawnNode.IsDirectlyPlaced) return false;
+        var posKey = NodePosKey(spawnNode);
+        if (!posKey.HasValue) return false;
+        if (!_spawnIndex.TryGetValue(posKey.Value, out var sp)) return false;
+        // Empty = SpawnedNPC never set, or the game object has been destroyed
+        return sp.SpawnedNPC == null || !sp.SpawnedNPC.gameObject;
+    }
+
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
     {
         if (!sp.canSpawn)
