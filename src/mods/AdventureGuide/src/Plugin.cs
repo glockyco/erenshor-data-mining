@@ -329,8 +329,12 @@ public sealed class Plugin : BaseUnityPlugin
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
         _markerComputer?.Recompute();
-        bool forceSelector = _resolutionService!.Version != _lastResolutionVersion
-                          || _navSet!.Version            != _lastNavSetVersion;
+        bool forceSelector = TargetSelectorRefreshPolicy.ShouldForce(
+            liveChangeSet.HasMeaningfulChanges,
+            _resolutionService!.Version,
+            _lastResolutionVersion,
+            _navSet!.Version,
+            _lastNavSetVersion);
         if (forceSelector)
         {
             _lastResolutionVersion = _resolutionService.Version;

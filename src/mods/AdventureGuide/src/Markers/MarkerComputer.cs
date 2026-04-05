@@ -504,6 +504,9 @@ public sealed class MarkerComputer
 
         if (targetNode.Type == NodeType.Character)
         {
+            if (!CharacterMarkerPolicy.ShouldEmitActiveMarker(target))
+                return null;
+
             return CreateCharacterMarkerEntry(
                 quest.Key,
                 targetNode.DisplayName,
@@ -513,7 +516,7 @@ public sealed class MarkerComputer
                 targetNode,
                 positionNode,
                 new Vector3(target.X, target.Y, target.Z),
-                target.Semantic.ActionKind == ResolvedActionKind.Kill && target.IsActionable,
+                CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target),
                 corpseSubText);
         }
 
@@ -609,10 +612,9 @@ public sealed class MarkerComputer
         string scene = positionNode.Scene
             ?? targetNode.Scene
             ?? _tracker.CurrentZone;
-        // Character markers are keyed by the physical source node. Multiple
-        // character nodes can share one spawn; the world marker must collapse
-        // to that concrete source rather than duplicate by conceptual identity.
-        string contributionNodeKey = positionNode.Key;
+        string contributionNodeKey = TargetInstanceIdentity.Get(
+            targetNode.Key,
+            positionNode.Key);
 
         return new MarkerEntry
         {
