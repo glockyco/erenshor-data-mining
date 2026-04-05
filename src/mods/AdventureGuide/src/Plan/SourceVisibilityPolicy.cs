@@ -10,7 +10,7 @@ namespace AdventureGuide.Plan;
 /// Lives in the Plan layer so both Resolution (blueprint path) and UI.Tree
 /// (plan-tree path) can consume it without layering violations. Both layers
 /// already import Plan. Faction hostility is delegated to
-/// <see cref="FactionChecker.IsCurrentlyHostile"/>.
+/// <see cref="FactionChecker.IsCurrentlyHostile(Node, EntityGraph)"/>
 /// </summary>
 internal sealed class SourceVisibilityPolicy
 {
