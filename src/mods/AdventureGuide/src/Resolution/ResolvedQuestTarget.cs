@@ -16,7 +16,7 @@ public sealed class ResolvedQuestTarget
     /// positioned source node when available so multi-spawn characters do not
     /// collapse to a single conceptual character key.
     /// </summary>
-    public string TargetInstanceKey => SourceKey ?? TargetNodeKey;
+    public string TargetInstanceKey => TargetInstanceIdentity.Get(TargetNodeKey, SourceKey);
     public ResolvedNodeContext GoalNode { get; }
     public ResolvedNodeContext TargetNode { get; }
     public ResolvedActionSemantic Semantic { get; }

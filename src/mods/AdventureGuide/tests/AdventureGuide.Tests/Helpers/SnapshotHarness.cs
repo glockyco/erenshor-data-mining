@@ -1,4 +1,3 @@
-using System.Reflection;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
@@ -11,11 +10,8 @@ namespace AdventureGuide.Tests.Helpers;
 
 /// <summary>
 /// Wires an <see cref="EntityGraph"/> + <see cref="StateSnapshot"/> (or empty state)
-/// into the canonical plan / resolution / unlock pipeline for testing.
-///
-/// Uses reflection to populate <see cref="QuestStateTracker"/> internals directly,
-/// bypassing <see cref="QuestStateTracker.SyncFromGameData"/> which reads live
-/// <c>GameData.*</c> statics.
+/// into the canonical plan / resolution / unlock pipeline for testing without
+/// reading live <c>GameData</c>.
 /// </summary>
 public sealed class SnapshotHarness
 {
@@ -57,8 +53,12 @@ public sealed class SnapshotHarness
         var indexes = new GraphIndexes(graph);
         var tracker = new QuestStateTracker(graph, indexes, depEngine);
 
-        // Populate tracker from snapshot without calling SyncFromGameData.
-        PopulateTracker(tracker, snapshot);
+        tracker.LoadState(
+            snapshot.CurrentZone,
+            snapshot.ActiveQuests,
+            snapshot.CompletedQuests,
+            snapshot.Inventory,
+            snapshot.Keyring);
 
         var gameState = new GameState(graph);
         gameState.Register(NodeType.Quest, new QuestStateResolver(tracker));
@@ -88,67 +88,6 @@ public sealed class SnapshotHarness
     /// <summary>Creates a harness from a builder with empty (all-default) state.</summary>
     public static SnapshotHarness FromGraph(TestGraphBuilder builder)
         => FromSnapshot(builder.Build(), new StateSnapshot());
-    private static void PopulateTracker(QuestStateTracker tracker, StateSnapshot snapshot)
-    {
-        const BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;
-
-        // Current zone
-        SetField(tracker, "_currentZone", snapshot.CurrentZone ?? "", NonPublicInstance);
-
-        // Active quests
-        if (GetField<HashSet<string>>(tracker, "_activeQuests", NonPublicInstance) is { } activeSet)
-        {
-            activeSet.Clear();
-            foreach (var q in snapshot.ActiveQuests)
-                activeSet.Add(q);
-        }
-
-        // Completed quests
-        if (GetField<HashSet<string>>(tracker, "_completedQuests", NonPublicInstance) is { } completedSet)
-        {
-            completedSet.Clear();
-            foreach (var q in snapshot.CompletedQuests)
-                completedSet.Add(q);
-        }
-
-        // Inventory counts
-        if (GetField<Dictionary<string, int>>(tracker, "_inventoryCounts", NonPublicInstance) is { } invDict)
-        {
-            invDict.Clear();
-            foreach (var (k, v) in snapshot.Inventory)
-                invDict[k] = v;
-        }
-
-        // Keyring
-        if (GetField<HashSet<string>>(tracker, "_keyringItemKeys", NonPublicInstance) is { } keyringSet)
-        {
-            keyringSet.Clear();
-            foreach (var k in snapshot.Keyring)
-                keyringSet.Add(k);
-        }
-        // Trigger implicit quest availability based on the zone and quest state just set.
-        var rebuildMethod = tracker.GetType().GetMethod(
-            "RebuildImplicitlyAvailableQuests", NonPublicInstance);
-        rebuildMethod?.Invoke(tracker, null);
-    }
-
-    private static void SetField(object target, string fieldName, object value, BindingFlags flags)
-    {
-        var field = target.GetType().GetField(fieldName, flags)
-            ?? throw new InvalidOperationException(
-                $"Field '{fieldName}' not found on {target.GetType().Name}. " +
-                "QuestStateTracker internals may have been renamed.");
-        field.SetValue(target, value);
-    }
-
-    private static T? GetField<T>(object target, string fieldName, BindingFlags flags) where T : class
-    {
-        var field = target.GetType().GetField(fieldName, flags)
-            ?? throw new InvalidOperationException(
-                $"Field '{fieldName}' not found on {target.GetType().Name}. " +
-                "QuestStateTracker internals may have been renamed.");
-        return field.GetValue(target) as T;
-    }
 }
 
 /// <summary>

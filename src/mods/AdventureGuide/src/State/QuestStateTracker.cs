@@ -55,6 +55,34 @@ public sealed class QuestStateTracker
         _implicitQuests = BuildImplicitQuestIndex(graph);
     }
 
+    /// <summary>
+    /// Replaces the tracked quest, inventory, and scene state from a deterministic
+    /// snapshot without reading live <c>GameData</c>. Used by snapshot replay and
+    /// test harnesses.
+    /// </summary>
+    internal void LoadState(
+        string? currentZone,
+        IReadOnlyCollection<string>? activeQuests,
+        IReadOnlyCollection<string>? completedQuests,
+        IReadOnlyDictionary<string, int>? inventoryCounts,
+        IReadOnlyCollection<string>? keyringItemKeys)
+    {
+        CurrentZone = currentZone ?? string.Empty;
+        ReplaceSet(_activeQuests, activeQuests ?? Array.Empty<string>());
+        ReplaceSet(_completedQuests, completedQuests ?? Array.Empty<string>());
+        ReplaceInventoryCounts(
+            inventoryCounts ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        ReplaceKeyringItemKeys(keyringItemKeys ?? Array.Empty<string>());
+        RebuildImplicitlyAvailableQuests();
+
+        SelectedQuestDBName = null;
+        LastChangeSet = GuideChangeSet.None;
+        Version = 0;
+        QuestLogVersion = 0;
+        InventoryVersion = 0;
+        SceneVersion = 0;
+    }
+
     public void SetHistory(NavigationHistory history) => _history = history;
 
     public void SelectQuest(string dbName)
