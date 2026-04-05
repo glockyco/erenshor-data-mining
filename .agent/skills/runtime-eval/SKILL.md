@@ -111,8 +111,6 @@ uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpQuest("TheQues
 # Navigation state (target, waypoint, ground path)
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpNav()'
 
-# Entity registry for a display name
-uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpEntities("A Highwayman Raider")'
 
 # All quests in current zone
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpZoneQuests()'
