@@ -240,7 +240,9 @@ public sealed class LiveStateTracker : IResolutionLiveState
             return GuideChangeSet.None;
 
         BumpVersion();
-        return BuildLiveChange(changedSourceKeys, timeChanged);
+        // forceChanged: a state change was detected above; emit the signal even
+        // when no specific source key could be resolved from the changed nodes.
+        return BuildLiveChange(changedSourceKeys, timeChanged, forceChanged: true);
     }
 
     public SpawnInfo GetSpawnState(Node spawnNode)
@@ -831,13 +833,22 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
     private GuideChangeSet BuildSourceChange(string? sourceKey)
     {
-        if (string.IsNullOrEmpty(sourceKey))
-            return GuideChangeSet.None;
-
-        return BuildLiveChange(new[] { sourceKey }, timeChanged: false);
+        // Always emit a meaningful changeset so the downstream system rebuilds.
+        // When the source key is unknown (position not in graph), emit a generic
+        // liveWorldChanged signal; selective invalidation falls back to wholesale.
+        return string.IsNullOrEmpty(sourceKey)
+            ? BuildLiveChange(Array.Empty<string>(), timeChanged: false, forceChanged: true)
+            : BuildLiveChange(new[] { sourceKey }, timeChanged: false);
     }
 
-    private GuideChangeSet BuildLiveChange(IEnumerable<string> changedSourceKeys, bool timeChanged)
+    private GuideChangeSet BuildLiveChange(
+        IEnumerable<string> changedSourceKeys,
+        bool timeChanged,
+        // forceChanged: emit a liveWorldChanged changeset even when no specific
+        // source facts are available (e.g. a node whose position is not in the
+        // graph index). Without this the caller would silently return None and the
+        // NAV system would never learn the world changed.
+        bool forceChanged = false)
     {
         var sourceKeys = new HashSet<string>(changedSourceKeys.Where(k => !string.IsNullOrWhiteSpace(k)), StringComparer.Ordinal);
         var changedFacts = new List<GuideFactKey>();
@@ -846,7 +857,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (timeChanged)
             changedFacts.Add(new GuideFactKey(GuideFactKind.TimeOfDay, "night"));
 
-        if (changedFacts.Count == 0)
+        if (!forceChanged && changedFacts.Count == 0)
             return GuideChangeSet.None;
 
         var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
