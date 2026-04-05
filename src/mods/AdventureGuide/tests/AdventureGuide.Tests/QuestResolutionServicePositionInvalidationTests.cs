@@ -64,8 +64,8 @@ public sealed class QuestResolutionServicePositionInvalidationTests
             positionCache,
             unlocks,
             router,
-            new NoopResolutionLiveState());
 
+            new TestResolutionLiveState());
         var first = Assert.Single(resolution.ResolveTargetsForNavigation("mining:test"));
         Assert.True(first.IsActionable);
         Assert.Equal(1, miningResolver.CallCount);
@@ -112,13 +112,4 @@ public sealed class QuestResolutionServicePositionInvalidationTests
         }
     }
 
-    private sealed class NoopResolutionLiveState : IResolutionLiveState
-    {
-        public bool CorpseContainsItem(Node spawnNode, string itemStableKey) => false;
-
-        public IEnumerable<LiveChestPosition> GetRotChestPositionsWithItem(string itemStableKey)
-        {
-            yield break;
-        }
-    }
 }
