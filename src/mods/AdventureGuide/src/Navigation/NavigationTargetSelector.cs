@@ -58,11 +58,12 @@ public sealed class NavigationTargetSelector
     private readonly LiveStateTracker? _liveState;
     private readonly Dictionary<string, SelectedNavTarget> _cache =
         new(StringComparer.Ordinal);
-    // Resolved target lists per key. Populated once per force tick; re-used
-    // on every subsequent tick so ResolveTargetsForNavigation is not called
-    // per frame. Cleared and rebuilt when the resolution plan or nav set changes.
-    private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _targetLists =
-        new(StringComparer.Ordinal);
+    // Per-key pre-decomposed target structure. Entries are retained across forced
+    // ticks so their inner lists can be cleared and refilled without reallocation.
+    private readonly Dictionary<string, TargetEntry> _entries = new(StringComparer.Ordinal);
+    // Scratch collections for key-set management during forced ticks.
+    private readonly HashSet<string> _activeKeys  = new(StringComparer.Ordinal);
+    private readonly List<string>    _keysToEvict = new();
 
     /// <summary>
     /// Monotonically increasing version. Incremented after each cache refresh so
@@ -90,16 +91,17 @@ public sealed class NavigationTargetSelector
     /// <summary>
     /// Called once per frame by Plugin before consumers read.
     ///
-    /// <b>Every tick</b>: re-runs <see cref="SelectBest"/> for all cached keys using
-    /// the current player position. <see cref="Version"/> is incremented when the
-    /// selected target identity changes for any key, or when <paramref name="force"/> is
-    /// true.
+    /// <b>Every tick</b>: re-runs <see cref="SelectBestCore"/> for all cached keys
+    /// using the current player position. <see cref="Version"/> is incremented when
+    /// the selected target identity changes for any key, or when <paramref name="force"/>
+    /// is true.
     ///
-    /// <b>Forced tick</b> (<paramref name="force"/> is true): clears and rebuilds the
-    /// target-list cache from <paramref name="nodeKeys"/>. Force is required when the
-    /// resolution plan or nav key set has changed.
+    /// <b>Forced tick</b> (<paramref name="force"/> is true): resolves fresh target lists
+    /// from <paramref name="nodeKeys"/> and decomposes each into same-zone and cross-zone
+    /// partitions stored in the per-key <see cref="TargetEntry"/>. Cross-zone reps are
+    /// pre-built here so <see cref="SelectBestCore"/> never allocates on regular ticks.
     ///
-    /// <paramref name="nodeKeys"/> is consumed only on forced ticks, so passing a lazy
+    /// <paramref name="nodeKeys"/> is only consumed on forced ticks, so passing a lazy
     /// iterator avoids allocation on non-forced frames.
     /// </summary>
     public void Tick(float playerX, float playerY, float playerZ, string currentZone,
@@ -107,28 +109,41 @@ public sealed class NavigationTargetSelector
     {
         if (force)
         {
-            _targetLists.Clear();
-            _cache.Clear();
-
+            // Resolve fresh target lists and decompose each into same-zone and
+            // cross-zone partitions. Reuse existing TargetEntry objects to avoid
+            // reallocating their inner collections on every live-world event.
+            _activeKeys.Clear();
             foreach (var key in nodeKeys)
             {
-                if (_targetLists.ContainsKey(key))
-                    continue;
+                _activeKeys.Add(key);
                 var targets = _resolver(key);
-                if (targets.Count > 0)
-                    _targetLists[key] = targets;
+                if (targets.Count == 0)
+                    continue;
+                if (!_entries.TryGetValue(key, out var entry))
+                {
+                    entry = new TargetEntry();
+                    _entries[key] = entry;
+                }
+                entry.Rebuild(targets, currentZone);
             }
+            // Evict entries for keys no longer in the nav set.
+            _keysToEvict.Clear();
+            foreach (var k in _entries.Keys)
+                if (!_activeKeys.Contains(k))
+                    _keysToEvict.Add(k);
+            foreach (var k in _keysToEvict)
+                _entries.Remove(k);
+            _cache.Clear();
         }
 
-        // Re-run SelectBest every tick using current player position.
-        // With hop-count caching, SelectBest is O(targets) distance math +
-        // O(unique_zones) O(1) lookups — cheap enough for per-frame execution.
+        // Re-run SelectBestCore every tick using current player position.
+        // Cost: O(same-zone targets) + O(unique cross-zone zones). No allocation
+        // because cross-zone reps were pre-built at force time.
         bool changed = false;
-        foreach (var kv in _targetLists)
+        foreach (var kv in _entries)
         {
-            UpdateLivePositions(kv.Value, playerX, playerY, playerZ, currentZone);
-            var selected = SelectBest(
-                kv.Value, playerX, playerY, playerZ, currentZone, _router);
+            UpdateLivePositions(kv.Value, currentZone);
+            var selected = SelectBestCore(kv.Value, playerX, playerY, playerZ, currentZone, _router);
             if (selected.HasValue)
             {
                 bool targetChanged = !_cache.TryGetValue(kv.Key, out var existing)
@@ -158,56 +173,26 @@ public sealed class NavigationTargetSelector
         _cache.TryGetValue(nodeKey, out target);
 
     /// <summary>
-    /// Canonical best-target selection algorithm. Exposed as internal static for direct
-    /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
+    /// Updates X/Y/Z and <see cref="ResolvedQuestTarget.IsActionable"/> on same-zone
+    /// character targets using live scene state.
     ///
-    /// Priority (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
-    /// guaranteed-loot-direct → direct-actionable → direct-non-actionable →
-    /// direct-cross-zone → guaranteed-loot-blocked → blocked-actionable →
-    /// blocked-non-actionable → blocked-cross-zone.
-    /// TravelToZone candidates are always skipped.
+    /// Only iterates <see cref="TargetEntry.SameZoneCharacters"/>, pre-filtered at force
+    /// time, so the full target list is never re-scanned per frame.
     /// </summary>
-
-    /// <summary>
-    /// Updates X/Y/Z and <see cref="ResolvedQuestTarget.IsActionable"/> on
-    /// character targets each tick based on live scene state:
-    /// <list type="bullet">
-    /// <item>Alive NPC found: position updated to live coords, IsActionable forced
-    /// to true (an alive NPC is always a valid kill target).</item>
-    /// <item>Spawn completely empty (corpse rotted, no game object): position
-    /// snapped to static graph spawn coordinates so the arrow points to the
-    /// respawn spot, IsActionable set to false.</item>
-    /// <item>Corpse present (game object exists, NPC dead): both fields left
-    /// unchanged — CorpseContainsItem in the resolution pipeline already set
-    /// them correctly.</item>
-    /// </list>
-    /// Static targets (mining nodes, item bags, chests, zone lines) have
-    /// non-Character TargetNode types and are never modified. Cross-zone targets
-    /// are skipped.
-    /// </summary>
-    private void UpdateLivePositions(
-        IReadOnlyList<ResolvedQuestTarget> targets,
-        float playerX, float playerY, float playerZ,
-        string currentZone)
+    private void UpdateLivePositions(TargetEntry entry, string currentZone)
     {
         if (_liveState == null || _graph == null) return;
 
-        for (int i = 0; i < targets.Count; i++)
+        // SameZoneCharacters was pre-filtered at force time: only Character-type
+        // targets whose Scene matches currentZone (or have no scene constraint).
+        for (int i = 0; i < entry.SameZoneCharacters.Count; i++)
         {
-            var t = targets[i];
-
-            // Only same-scene character targets need live updates.
-            if (t.TargetNode.Node.Type != NodeType.Character)
-                continue;
-            if (t.Scene != null
-                && !string.Equals(t.Scene, currentZone, StringComparison.OrdinalIgnoreCase))
-                continue;
-            if (t.SourceKey == null)
-                continue;
+            var t = entry.SameZoneCharacters[i];
+            if (t.SourceKey == null) continue;
 
             var spawnNode = _graph.GetNode(t.SourceKey);
             // SourceKey may resolve to a Character node in the rare no-spawn-edges
-            // fallback path. GetLiveNpcForTracking expects a SpawnPoint node.
+            // fallback path. GetLiveNpcPosition expects a SpawnPoint node.
             if (spawnNode?.Type != NodeType.SpawnPoint)
                 continue;
 
@@ -241,8 +226,41 @@ public sealed class NavigationTargetSelector
         }
     }
 
+    /// <summary>
+    /// Canonical best-target selection algorithm. Exposed as internal static for direct
+    /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
+    ///
+    /// Builds a temporary <see cref="TargetEntry"/> and delegates to
+    /// <see cref="SelectBestCore"/>. Allocates; not called from the per-frame hot path.
+    ///
+    /// Priority (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
+    /// guaranteed-loot-direct → direct-actionable → direct-non-actionable →
+    /// direct-cross-zone → guaranteed-loot-blocked → blocked-actionable →
+    /// blocked-non-actionable → blocked-cross-zone.
+    /// TravelToZone candidates are always skipped.
+    /// </summary>
     internal static SelectedNavTarget? SelectBest(
         IReadOnlyList<ResolvedQuestTarget> targets,
+        float playerX, float playerY, float playerZ,
+        string currentZone,
+        ZoneRouter router)
+    {
+        // Build a temporary TargetEntry. Allocates; SelectBest is only called from
+        // tests and manual profiling, never from the per-frame hot path.
+        var entry = new TargetEntry();
+        entry.Rebuild(targets, currentZone);
+        return SelectBestCore(entry, playerX, playerY, playerZ, currentZone, router);
+    }
+
+    /// <summary>
+    /// Hot-path best-target selection over pre-decomposed <see cref="TargetEntry"/> data.
+    ///
+    /// Cost: O(<see cref="TargetEntry.SameZone"/>) distance math +
+    /// O(unique cross-zone destination zones) hop lookups.
+    /// No heap allocation because cross-zone representatives were pre-built at force time.
+    /// </summary>
+    private static SelectedNavTarget? SelectBestCore(
+        TargetEntry entry,
         float playerX, float playerY, float playerZ,
         string currentZone,
         ZoneRouter router)
@@ -250,65 +268,30 @@ public sealed class NavigationTargetSelector
         var actionable    = BestSameZone.Init();
         var nonActionable = BestSameZone.Init();
 
-        // Cross-zone: one representative per destination zone, split by
-        // blocking status. Zone deduplication keeps the hop-count pass
-        // O(unique zones) rather than O(targets).
-        Dictionary<string, ResolvedQuestTarget>? crossZoneDirect  = null;
-        Dictionary<string, ResolvedQuestTarget>? crossZoneBlocked = null;
-
-        for (int i = 0; i < targets.Count; i++)
+        // Score same-zone targets only — cross-zone reps are pre-computed in entry.
+        for (int i = 0; i < entry.SameZone.Count; i++)
         {
-            var t = targets[i];
-
-            // Zone-exit waypoints are navigation artefacts, not objectives.
-            if (t.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
-                continue;
-
-            bool sameZone = t.Scene == null ||
-                string.Equals(t.Scene, currentZone, StringComparison.OrdinalIgnoreCase);
-
-            if (sameZone)
-            {
-                float dx = playerX - t.X, dy = playerY - t.Y, dz = playerZ - t.Z;
-                float d = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
-                if (t.IsActionable) actionable.Consider(t, d);
-                else                nonActionable.Consider(t, d);
-            }
-            else if (!string.IsNullOrEmpty(t.Scene))
-            {
-                // Record one candidate per destination zone within each
-                // blocking half; which specific in-zone target to use is
-                // decided during later in-zone resolution.
-                if (!t.IsBlockedPath)
-                {
-                    crossZoneDirect ??= new Dictionary<string, ResolvedQuestTarget>(
-                        StringComparer.OrdinalIgnoreCase);
-                    if (!crossZoneDirect.ContainsKey(t.Scene!))
-                        crossZoneDirect[t.Scene!] = t;
-                }
-                else
-                {
-                    crossZoneBlocked ??= new Dictionary<string, ResolvedQuestTarget>(
-                        StringComparer.OrdinalIgnoreCase);
-                    if (!crossZoneBlocked.ContainsKey(t.Scene!))
-                        crossZoneBlocked[t.Scene!] = t;
-                }
-            }
+            var t = entry.SameZone[i];
+            float dx = playerX - t.X, dy = playerY - t.Y, dz = playerZ - t.Z;
+            float d = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
+            if (t.IsActionable) actionable.Consider(t, d);
+            else                nonActionable.Consider(t, d);
         }
 
-        // Score unique destination zones — O(unique zones) GetHopCount calls,
-        // each O(1) after the first call populates the router's hop cache.
-        var (czDirect,  czDirectHops)  = BestCrossZoneCandidate(crossZoneDirect,  currentZone, router);
-        var (czBlocked, czBlockedHops) = BestCrossZoneCandidate(crossZoneBlocked, currentZone, router);
+        // Cross-zone: use pre-built reps, no allocation.
+        var czDirect  = entry.CrossZoneDirect.Count  > 0 ? entry.CrossZoneDirect  : null;
+        var czBlocked = entry.CrossZoneBlocked.Count > 0 ? entry.CrossZoneBlocked : null;
+        var (czDirectTarget,  czDirectHops)  = BestCrossZoneCandidate(czDirect,  currentZone, router);
+        var (czBlockedTarget, czBlockedHops) = BestCrossZoneCandidate(czBlocked, currentZone, router);
 
         return MakeSameZone(actionable.DirectGuaranteedLoot)    // tier 0: direct + same-zone, guaranteed loot
             ?? MakeSameZone(actionable.Direct)                  // tier 1: direct + same-zone, actionable
             ?? MakeSameZone(nonActionable.Direct)               // tier 2: direct + same-zone, non-actionable
-            ?? MakeCrossZone(czDirect, czDirectHops)            // tier 3: direct + cross-zone
+            ?? MakeCrossZone(czDirectTarget, czDirectHops)      // tier 3: direct + cross-zone
             ?? MakeSameZone(actionable.BlockedGuaranteedLoot)   // tier 4: blocked + same-zone, guaranteed loot
             ?? MakeSameZone(actionable.Blocked)                 // tier 5: blocked + same-zone, actionable
             ?? MakeSameZone(nonActionable.Blocked)              // tier 6: blocked + same-zone, non-actionable
-            ?? MakeCrossZone(czBlocked, czBlockedHops);         // tier 7: blocked + cross-zone
+            ?? MakeCrossZone(czBlockedTarget, czBlockedHops);   // tier 7: blocked + cross-zone
     }
 
     /// <summary>
@@ -396,4 +379,82 @@ public sealed class NavigationTargetSelector
             { if (dist < BlockedDist) { Blocked = t; BlockedDist = dist; } }
         }
     }
+    /// <summary>
+    /// Per-key pre-decomposed target structure owned by <see cref="NavigationTargetSelector"/>.
+    ///
+    /// Rebuilt on each forced <see cref="Tick"/>; inner collections are retained across
+    /// force ticks so they can be cleared and refilled without reallocation on every
+    /// live-world event. The same <see cref="ResolvedQuestTarget"/> objects appear in
+    /// <see cref="All"/>, <see cref="SameZone"/>, and <see cref="SameZoneCharacters"/> —
+    /// mutations by <see cref="UpdateLivePositions"/> propagate consistently.
+    /// </summary>
+    private sealed class TargetEntry
+    {
+        /// <summary>Full target list; objects are shared with the sub-lists.</summary>
+        public IReadOnlyList<ResolvedQuestTarget> All = Array.Empty<ResolvedQuestTarget>();
+
+        /// <summary>
+        /// Same-zone targets (Scene == null or Scene == currentZone at force time),
+        /// excluding TravelToZone artefacts. Iterated by <see cref="SelectBestCore"/>.
+        /// </summary>
+        public readonly List<ResolvedQuestTarget> SameZone = new();
+
+        /// <summary>
+        /// Subset of <see cref="SameZone"/> containing only Character-type targets.
+        /// Iterated by <see cref="UpdateLivePositions"/> to avoid scanning the full list.
+        /// </summary>
+        public readonly List<ResolvedQuestTarget> SameZoneCharacters = new();
+
+        /// <summary>
+        /// Cross-zone representatives for unblocked-path targets: one per destination
+        /// zone name. Reused dict avoids per-tick allocation.
+        /// </summary>
+        public readonly Dictionary<string, ResolvedQuestTarget> CrossZoneDirect
+            = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Cross-zone representatives for blocked-path targets: one per destination
+        /// zone name. Reused dict avoids per-tick allocation.
+        /// </summary>
+        public readonly Dictionary<string, ResolvedQuestTarget> CrossZoneBlocked
+            = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Decompose <paramref name="all"/> into same-zone and cross-zone partitions
+        /// for <paramref name="currentZone"/>. Called once per forced tick.
+        /// </summary>
+        public void Rebuild(IReadOnlyList<ResolvedQuestTarget> all, string currentZone)
+        {
+            All = all;
+            SameZone.Clear();
+            SameZoneCharacters.Clear();
+            CrossZoneDirect.Clear();
+            CrossZoneBlocked.Clear();
+
+            for (int i = 0; i < all.Count; i++)
+            {
+                var t = all[i];
+                // TravelToZone markers are navigation artefacts, not objectives.
+                if (t.Semantic.GoalKind == NavigationGoalKind.TravelToZone)
+                    continue;
+
+                bool sameZone = t.Scene == null ||
+                    string.Equals(t.Scene, currentZone, StringComparison.OrdinalIgnoreCase);
+                if (sameZone)
+                {
+                    SameZone.Add(t);
+                    if (t.TargetNode.Node.Type == NodeType.Character)
+                        SameZoneCharacters.Add(t);
+                }
+                else if (!string.IsNullOrEmpty(t.Scene))
+                {
+                    // One representative per destination zone, split by blocking.
+                    var dict = t.IsBlockedPath ? CrossZoneBlocked : CrossZoneDirect;
+                    if (!dict.ContainsKey(t.Scene!))
+                        dict[t.Scene!] = t;
+                }
+            }
+        }
+    }
+
 }
