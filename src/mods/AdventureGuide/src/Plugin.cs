@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -326,12 +327,26 @@ public sealed class Plugin : BaseUnityPlugin
             _wasTextInputActive = textActive;
         }
 
-        // Per-frame updates
+        // Per-frame updates — each step is timed into a 512-entry ring buffer.
+        // Query GuideProfiler.DumpReport() via HotRepl to read results.
         var playerPos = GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : Vector3.zero;
+        long pt;
+
+        pt = Stopwatch.GetTimestamp();
         var liveChangeSet = _liveState?.UpdateFrameState() ?? GuideChangeSet.None;
+        GuideProfiler.LiveState.Record(pt);
+
         if (liveChangeSet.HasMeaningfulChanges)
+        {
+            pt = Stopwatch.GetTimestamp();
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
+            GuideProfiler.MarkerApply.Record(pt);
+        }
+
+        pt = Stopwatch.GetTimestamp();
         _markerComputer?.Recompute();
+        GuideProfiler.MarkerRecompute.Record(pt);
+
         bool forceSelector = TargetSelectorRefreshPolicy.ShouldForce(
             liveChangeSet.HasMeaningfulChanges,
             _resolutionService!.Version,
@@ -343,11 +358,22 @@ public sealed class Plugin : BaseUnityPlugin
             _lastResolutionVersion = _resolutionService.Version;
             _lastNavSetVersion     = _navSet!.Version;
         }
-        _targetSelector?.Tick(playerPos.x, playerPos.y, playerPos.z, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
 
+        pt = Stopwatch.GetTimestamp();
+        _targetSelector?.Tick(playerPos.x, playerPos.y, playerPos.z, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
+        GuideProfiler.SelectorTick.Record(pt);
+
+        pt = Stopwatch.GetTimestamp();
         _navEngine?.Update(playerPos);
+        GuideProfiler.NavUpdate.Record(pt);
+
+        pt = Stopwatch.GetTimestamp();
         _groundPath?.Update();
+        GuideProfiler.GroundPath.Record(pt);
+
+        pt = Stopwatch.GetTimestamp();
         _markerSystem?.Update();
+        GuideProfiler.MarkerSysUpdate.Record(pt);
 
         if (_config == null || _window == null) return;
         if (!_inGameplay) return;

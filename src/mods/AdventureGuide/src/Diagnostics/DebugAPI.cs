@@ -439,6 +439,27 @@ public static class DebugAPI
         _                   => "unknown",
     };
 
+    // ── Per-frame profiler ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Dump timing statistics for every instrumented step in Plugin.Update().
+    /// Stats accumulate continuously in 512-entry ring buffers so results
+    /// reflect recent behavior, not a one-shot synthetic run.
+    ///
+    /// MarkerApply is event-driven and will show fewer samples than the others.
+    /// </summary>
+    public static string DumpPerfReport() => GuideProfiler.DumpReport();
+
+    /// <summary>
+    /// Zero all profiler ring buffers. Call before a specific scenario
+    /// (e.g. right before mining a node) to isolate that workload.
+    /// </summary>
+    public static string ResetPerfCounters()
+    {
+        GuideProfiler.ResetAll();
+        return "Profiler counters reset.";
+    }
+
     // ── Snapshot export ──────────────────────────────────────────────
 
     /// <summary>
