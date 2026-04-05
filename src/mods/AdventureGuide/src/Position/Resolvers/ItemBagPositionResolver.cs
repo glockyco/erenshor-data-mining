@@ -1,6 +1,5 @@
 using AdventureGuide.Graph;
 using AdventureGuide.State;
-using UnityEngine;
 
 namespace AdventureGuide.Position.Resolvers;
 
@@ -26,7 +25,9 @@ public sealed class ItemBagPositionResolver : IPositionResolver
 
         bool actionable = _liveState.GetItemBagState(node) is ItemBagAvailable;
         results.Add(new ResolvedPosition(
-            new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+            node.X.Value,
+            node.Y.Value,
+            node.Z.Value,
             node.Scene,
             node.Key,
             actionable));

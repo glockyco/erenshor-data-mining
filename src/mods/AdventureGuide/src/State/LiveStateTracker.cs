@@ -9,7 +9,7 @@ namespace AdventureGuide.State;
 /// Emits precise live-world fact deltas so downstream maintained views can
 /// invalidate only derivations that depend on changed sources.
 /// </summary>
-public sealed class LiveStateTracker
+public sealed class LiveStateTracker : IResolutionLiveState
 {
     private static readonly FieldInfo? NpcSpawnPointField =
         typeof(NPC).GetField("MySpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -140,7 +140,7 @@ public sealed class LiveStateTracker
     /// query; no additional caching is applied so chest contents stay fresh after
     /// partial looting.
     /// </summary>
-    public System.Collections.Generic.IEnumerable<(Vector3 Position, string Scene)>
+    public System.Collections.Generic.IEnumerable<LiveChestPosition>
         GetRotChestPositionsWithItem(string itemStableKey)
     {
         string currentScene = CurrentSceneName();
@@ -161,7 +161,8 @@ public sealed class LiveStateTracker
                 if (drop != null
                     && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
                 {
-                    yield return (chest.transform.position, currentScene);
+                    var pos = chest.transform.position;
+                    yield return new LiveChestPosition(pos.x, pos.y, pos.z, currentScene);
                     break;
                 }
             }

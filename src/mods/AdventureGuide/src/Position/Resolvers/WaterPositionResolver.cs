@@ -69,7 +69,11 @@ public sealed class WaterPositionResolver : IPositionResolver
 
         // Fallback: use the static water position if no shore points were computed.
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
-            results.Add(new ResolvedPosition(new Vector3(node.X.Value, node.Y.Value, node.Z.Value), node.Scene));
+            results.Add(new ResolvedPosition(
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
+                node.Scene));
     }
 
     private static List<ResolvedPosition> FindShorePoints(Vector3 center, float surfaceY, string scene)
@@ -100,7 +104,11 @@ public sealed class WaterPositionResolver : IPositionResolver
                     ? navHit.position
                     : hit.point;
 
-                points.Add(new ResolvedPosition(shorePos, scene));
+                points.Add(new ResolvedPosition(
+                    shorePos.x,
+                    shorePos.y,
+                    shorePos.z,
+                    scene));
                 break;
             }
         }

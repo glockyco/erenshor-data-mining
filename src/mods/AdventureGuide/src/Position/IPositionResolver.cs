@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Position;
@@ -9,16 +8,27 @@ namespace AdventureGuide.Position;
 /// </summary>
 public readonly struct ResolvedPosition
 {
-    public readonly Vector3 Position;
+    public readonly float X;
+    public readonly float Y;
+    public readonly float Z;
     public readonly string? Scene;
     /// <summary>Key of the graph node that produced this position (e.g., spawn point key). Null for live NPC positions.</summary>
     public readonly string? SourceKey;
     public readonly bool IsActionable;
     public readonly bool IsCorpse;
 
-    public ResolvedPosition(Vector3 position, string? scene, string? sourceKey = null, bool isActionable = true, bool isCorpse = false)
+    public ResolvedPosition(
+        float x,
+        float y,
+        float z,
+        string? scene,
+        string? sourceKey = null,
+        bool isActionable = true,
+        bool isCorpse = false)
     {
-        Position = position;
+        X = x;
+        Y = y;
+        Z = z;
         Scene = scene;
         SourceKey = sourceKey;
         IsActionable = isActionable;

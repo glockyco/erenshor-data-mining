@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Position.Resolvers;
@@ -15,7 +14,9 @@ public sealed class DirectPositionResolver : IPositionResolver
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
         {
             results.Add(new ResolvedPosition(
-                new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
                 node.Scene,
                 node.Key));
         }

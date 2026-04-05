@@ -1,6 +1,5 @@
 using AdventureGuide.Graph;
 using AdventureGuide.State;
-using UnityEngine;
 
 namespace AdventureGuide.Position.Resolvers;
 
@@ -25,7 +24,9 @@ public sealed class MiningNodePositionResolver : IPositionResolver
 
         bool actionable = _liveState.GetMiningState(node).State is MiningAvailable;
         results.Add(new ResolvedPosition(
-            new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+            node.X.Value,
+            node.Y.Value,
+            node.Z.Value,
             node.Scene,
             node.Key,
             actionable));

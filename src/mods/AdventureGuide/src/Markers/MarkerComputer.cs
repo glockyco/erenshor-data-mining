@@ -74,7 +74,7 @@ public sealed class MarkerComputer
         var resolvedChangeSet = _resolution.ApplyChangeSet(changeSet);
         _dirty = true;
 
-        if (resolvedChangeSet.SceneChanged)
+        if (resolvedChangeSet.SceneChanged || resolvedChangeSet.LiveWorldChanged)
         {
             _fullRebuild = true;
             _pendingQuestKeys.Clear();

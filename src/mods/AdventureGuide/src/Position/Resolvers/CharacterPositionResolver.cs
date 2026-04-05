@@ -47,7 +47,11 @@ public sealed class CharacterPositionResolver : IPositionResolver
             // their static graph positions rather than probing current-scene objects.
             if (!LiveSceneScope.CanUseLiveSceneState(spawnNode.Scene, currentScene))
             {
-                results.Add(new ResolvedPosition(staticPos, spawnNode.Scene, spawnNode.Key, isActionable: true));
+                results.Add(new ResolvedPosition(
+                    staticPos.x, staticPos.y, staticPos.z,
+                    spawnNode.Scene,
+                    spawnNode.Key,
+                    isActionable: true));
                 anyFromSpawns = true;
                 continue;
             }
@@ -64,7 +68,11 @@ public sealed class CharacterPositionResolver : IPositionResolver
                     var scene = info.LiveNPC != null && info.LiveNPC.gameObject != null
                         ? currentScene
                         : spawnNode.Scene;
-                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: true));
+                    results.Add(new ResolvedPosition(
+                        pos.x, pos.y, pos.z,
+                        scene,
+                        spawnNode.Key,
+                        isActionable: true));
                     anyFromSpawns = true;
                     break;
                 }
@@ -76,14 +84,23 @@ public sealed class CharacterPositionResolver : IPositionResolver
                     bool corpsePresent = info.LiveNPC != null && info.LiveNPC.gameObject != null;
                     var pos = corpsePresent ? info.LiveNPC!.transform.position : staticPos;
                     var scene = corpsePresent ? currentScene : spawnNode.Scene;
-                    results.Add(new ResolvedPosition(pos, scene, spawnNode.Key, isActionable: corpsePresent, isCorpse: corpsePresent));
+                    results.Add(new ResolvedPosition(
+                        pos.x, pos.y, pos.z,
+                        scene,
+                        spawnNode.Key,
+                        isActionable: corpsePresent,
+                        isCorpse: corpsePresent));
                     anyFromSpawns = true;
                     break;
                 }
 
                 default:
                     // NightLocked, QuestGated, Disabled, Unknown — static position, non-actionable.
-                    results.Add(new ResolvedPosition(staticPos, spawnNode.Scene, spawnNode.Key, isActionable: false));
+                    results.Add(new ResolvedPosition(
+                        staticPos.x, staticPos.y, staticPos.z,
+                        spawnNode.Scene,
+                        spawnNode.Key,
+                        isActionable: false));
                     anyFromSpawns = true;
                     break;
             }
@@ -98,7 +115,9 @@ public sealed class CharacterPositionResolver : IPositionResolver
             if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
             {
                 results.Add(new ResolvedPosition(
-                    new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                    node.X.Value,
+                    node.Y.Value,
+                    node.Z.Value,
                     node.Scene,
                     node.Key,
                     isActionable: true));
@@ -114,7 +133,9 @@ public sealed class CharacterPositionResolver : IPositionResolver
             var sourceKey = FindClosestSpawnNodeKey(node, charState.LiveNPC.transform.position)
                             ?? node.Key;
             results.Add(new ResolvedPosition(
-                charState.LiveNPC.transform.position,
+                charState.LiveNPC.transform.position.x,
+                charState.LiveNPC.transform.position.y,
+                charState.LiveNPC.transform.position.z,
                 currentScene,
                 sourceKey,
                 isActionable: true));
@@ -123,7 +144,9 @@ public sealed class CharacterPositionResolver : IPositionResolver
 
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
             results.Add(new ResolvedPosition(
-                new Vector3(node.X.Value, node.Y.Value, node.Z.Value),
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
                 node.Scene,
                 node.Key));
     }

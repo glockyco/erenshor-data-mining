@@ -26,7 +26,7 @@ public sealed class QuestResolutionService
     private readonly SourcePositionCache _positionCache;
     private readonly UnlockEvaluator _unlocks;
     private readonly ZoneRouter _router;
-    private readonly LiveStateTracker _liveState;
+    private readonly IResolutionLiveState _liveState;
     private readonly ZoneAccessResolver _zoneAccess;
     private readonly SourceVisibilityPolicy _visibilityPolicy;
 
@@ -48,7 +48,7 @@ public sealed class QuestResolutionService
         SourcePositionCache positionCache,
         UnlockEvaluator unlocks,
         ZoneRouter router,
-        LiveStateTracker liveState)
+        IResolutionLiveState liveState)
     {
         _graph = graph;
         _tracker = tracker;
@@ -86,8 +86,34 @@ public sealed class QuestResolutionService
             return changeSet;
         }
 
+        var changedSourceKeys = changeSet.ChangedFacts
+            .Where(fact => fact.Kind == GuideFactKind.SourceState)
+            .Select(fact => fact.Key)
+            .Where(key => !string.IsNullOrWhiteSpace(key))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (changedSourceKeys.Length > 0)
+            _positionCache.Invalidate(changedSourceKeys);
+
+        if (changeSet.LiveWorldChanged)
+        {
+            bool cleared = _targetCache.Count > 0
+                || _sceneTargetCache.Count > 0
+                || _resolutionCache.Count > 0;
+
+            _targetCache.Clear();
+            _sceneTargetCache.Clear();
+            _resolutionCache.Clear();
+            _dependencies.Clear();
+
+            if (cleared || changedSourceKeys.Length > 0)
+                Version++;
+
+            return changeSet;
+        }
+
         var targetInvalidations = new HashSet<string>(changeSet.AffectedQuestKeys, StringComparer.Ordinal);
-        bool planChange = changeSet.InventoryChanged || changeSet.QuestLogChanged || changeSet.LiveWorldChanged;
+        bool planChange = changeSet.InventoryChanged || changeSet.QuestLogChanged;
 
         foreach (var derivedKey in _dependencies.InvalidateFacts(changeSet.ChangedFacts))
         {
@@ -111,7 +137,6 @@ public sealed class QuestResolutionService
             removedAny |= _sceneTargetCache.Remove(questKey);
             removedAny |= _resolutionCache.Remove(questKey);
         }
-
 
         if (removedAny)
             Version++;
@@ -573,7 +598,8 @@ public sealed class QuestResolutionService
                         && !_liveState.CorpseContainsItem(spawnNode, source.DirectItemKey))
                     {
                         pos = new ResolvedPosition(
-                            pos.Position, pos.Scene, pos.SourceKey, isActionable: false);
+                            pos.X, pos.Y, pos.Z,
+                            pos.Scene, pos.SourceKey, isActionable: false);
                     }
                 }
 
@@ -608,14 +634,14 @@ public sealed class QuestResolutionService
 
         var itemKey = frontierNode.NodeKey;
         var itemNode = _graph.GetNode(itemKey);
-        foreach (var (chestPos, chestScene) in _liveState.GetRotChestPositionsWithItem(itemKey))
+        foreach (var chest in _liveState.GetRotChestPositionsWithItem(itemKey))
         {
             if (sceneFilter != null
-                && !string.Equals(chestScene, sceneFilter, StringComparison.OrdinalIgnoreCase))
+                && !string.Equals(chest.Scene, sceneFilter, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             string chestKey = FormattableString.Invariant(
-                $"chest:{chestScene}:{chestPos.x:F2}:{chestPos.y:F2}:{chestPos.z:F2}");
+                $"chest:{chest.Scene}:{chest.X:F2}:{chest.Y:F2}:{chest.Z:F2}");
             if (!seen.Add(chestKey))
                 continue;
 
@@ -631,7 +657,7 @@ public sealed class QuestResolutionService
                 continue;
 
             var semantic = ResolvedActionSemanticBuilder.BuildForLootChest(
-                itemNode ?? frontierNode.Node, characterNode, chestScene);
+                itemNode ?? frontierNode.Node, characterNode, chest.Scene);
             if (semantic == null)
                 continue;
 
@@ -642,13 +668,13 @@ public sealed class QuestResolutionService
 
             results.Add(new ResolvedQuestTarget(
                 targetNodeKey: chestKey,
-                scene: chestScene,
+                scene: chest.Scene,
                 sourceKey: null,
                 goalNode: goalCtx,
                 targetNode: targetCtx,
                 semantic: semantic,
                 explanation: explanation,
-                x: chestPos.x, y: chestPos.y, z: chestPos.z,
+                x: chest.X, y: chest.Y, z: chest.Z,
                 isActionable: true,
                 isGuaranteedLoot: true));
         }
@@ -748,7 +774,7 @@ public sealed class QuestResolutionService
             targetNode,
             semantic,
             explanation,
-            pos.Position.x, pos.Position.y, pos.Position.z,
+            pos.X, pos.Y, pos.Z,
             pos.IsActionable,
             requiredForQuestKey: null,
             isBlockedPath: isBlockedPath,
@@ -791,7 +817,7 @@ public sealed class QuestResolutionService
 
         var pos = source.StaticPositions[0];
         return new ResolvedPosition(
-            new Vector3(pos.X, pos.Y, pos.Z),
+            pos.X, pos.Y, pos.Z,
             pos.Scene,
             pos.PositionNodeKey);
     }

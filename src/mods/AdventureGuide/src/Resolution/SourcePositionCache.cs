@@ -30,19 +30,18 @@ public sealed class SourcePositionCache
 
     /// <summary>
     /// Resolve positions for a source node key. Returns cached results on
-    /// subsequent calls for the same key. The underlying
+    /// subsequent calls for static source types. The underlying
     /// <see cref="PositionResolverRegistry"/> is called only on cache miss.
     ///
-    /// Character nodes are never served from cache: their positions reflect live
-    /// NPC state (spawn, death, movement) that changes independently of the
-    /// scene-change signals used to clear other cached entries. Every resolution
-    /// pass for a Character key gets a fresh call to the registry.
+    /// Live-state-dependent sources are never served from cache. Their position or
+    /// actionability can change independently of scene-change signals, and every
+    /// resolution pass must re-enter the resolver so source-state dependencies are
+    /// recorded correctly.
     /// </summary>
     public ResolvedPosition[] Resolve(string nodeKey)
     {
-        // Character positions depend on live NPC state (spawn/death/movement) and
-        // must never be served from cache. Every resolution pass gets fresh data.
-        if (_graph.GetNode(nodeKey)?.Type == NodeType.Character)
+        var nodeType = _graph.GetNode(nodeKey)?.Type;
+        if (nodeType is NodeType.Character or NodeType.MiningNode or NodeType.ItemBag)
         {
             _scratch.Clear();
             _registry.Resolve(nodeKey, _scratch);

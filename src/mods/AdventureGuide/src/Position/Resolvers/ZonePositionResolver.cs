@@ -1,4 +1,3 @@
-using UnityEngine;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Position.Resolvers;
@@ -34,7 +33,9 @@ public sealed class ZonePositionResolver : IPositionResolver
             if (string.Equals(zoneLine.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
             {
                 results.Add(new ResolvedPosition(
-                    new Vector3(zoneLine.X.Value, zoneLine.Y.Value, zoneLine.Z.Value),
+                    zoneLine.X.Value,
+                    zoneLine.Y.Value,
+                    zoneLine.Z.Value,
                     zoneLine.Scene,
                     zoneLine.Key));
             }
@@ -51,7 +52,9 @@ public sealed class ZonePositionResolver : IPositionResolver
                 if (!zoneLine.X.HasValue || !zoneLine.Y.HasValue || !zoneLine.Z.HasValue) continue;
 
                 results.Add(new ResolvedPosition(
-                    new Vector3(zoneLine.X.Value, zoneLine.Y.Value, zoneLine.Z.Value),
+                    zoneLine.X.Value,
+                    zoneLine.Y.Value,
+                    zoneLine.Z.Value,
                     zoneLine.Scene,
                     zoneLine.Key));
             }
