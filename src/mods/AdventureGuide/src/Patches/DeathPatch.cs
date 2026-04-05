@@ -11,7 +11,6 @@ namespace AdventureGuide.Patches;
 [HarmonyPatch(typeof(Character), "DoDeath")]
 internal static class DeathPatch
 {
-    internal static EntityRegistry? Registry;
     internal static LiveStateTracker? LiveState;
     internal static MarkerComputer? Markers;
 
@@ -22,7 +21,6 @@ internal static class DeathPatch
         if (npc == null)
             return;
 
-        Registry?.Unregister(npc);
         var changeSet = LiveState?.OnNPCDeath(npc) ?? GuideChangeSet.None;
         Markers?.ApplyGuideChangeSet(changeSet);
     }

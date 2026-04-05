@@ -48,7 +48,6 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideWindow? _window;
     private TrackerState? _trackerState;
     private TrackerPanel? _trackerPanel;
-    private EntityRegistry? _entities;
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
@@ -128,9 +127,8 @@ public sealed class Plugin : BaseUnityPlugin
         _navPersistence = new NavigationSetPersistence(_navSet, _config);
 
         // --- Navigation layer ---
-        _entities = new EntityRegistry();
         _liveState = new LiveStateTracker(
-            _graph, _graphIndexes, _entities, _dependencyEngine, _unlockEvaluator);
+            _graph, _graphIndexes, _dependencyEngine, _unlockEvaluator);
         _zoneRouter = new ZoneRouter(_graph, _unlockEvaluator);
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
@@ -207,7 +205,6 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.State = _questTracker;
         DebugAPI.Filter = _window.Filter;
         DebugAPI.Nav = _navEngine;
-        DebugAPI.Entities = _entities;
         DebugAPI.GroundPath = _groundPath;
         DebugAPI.Router = _zoneRouter;
         DebugAPI.Resolution = _resolutionService;
@@ -223,10 +220,8 @@ public sealed class Plugin : BaseUnityPlugin
         QuestFinishPatch.TrackerPins = _trackerState;
         InventoryPatch.Tracker = _questTracker;
         InventoryPatch.Markers = _markerComputer;
-        SpawnPatch.Registry = _entities;
         SpawnPatch.LiveState = _liveState;
         SpawnPatch.Markers = _markerComputer;
-        DeathPatch.Registry = _entities;
         DeathPatch.LiveState = _liveState;
         DeathPatch.Markers = _markerComputer;
         MiningNodePatch.LiveState = _liveState;
@@ -249,7 +244,6 @@ public sealed class Plugin : BaseUnityPlugin
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
         var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
-        _entities.SyncFromLiveNPCs();
         _liveState.OnSceneLoaded();
         _waterResolver.OnSceneLoaded();
         if (_inGameplay)
@@ -400,7 +394,6 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence?.UnloadCurrentCharacter();
         }
 
-        _entities?.Clear();
         _liveState?.OnSceneLoaded();
         _waterResolver?.OnSceneLoaded();
         var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
@@ -490,13 +483,11 @@ public sealed class Plugin : BaseUnityPlugin
         _groundPath?.Destroy();
         _markerComputer?.Destroy();
         _markerSystem?.Destroy();
-        _entities?.Clear();
         MarkerFonts.Destroy();
         DebugAPI.Graph = null;
         DebugAPI.State = null;
         DebugAPI.Filter = null;
         DebugAPI.Nav = null;
-        DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
         DebugAPI.Router = null;
         DebugAPI.Resolution = null;

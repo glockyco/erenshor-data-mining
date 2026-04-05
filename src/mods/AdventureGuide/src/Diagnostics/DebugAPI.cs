@@ -25,7 +25,6 @@ public static class DebugAPI
     internal static QuestStateTracker? State { get; set; }
     internal static FilterState? Filter { get; set; }
     internal static NavigationEngine? Nav { get; set; }
-    internal static EntityRegistry? Entities { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
     internal static ZoneRouter? Router { get; set; }
     internal static QuestResolutionService? Resolution { get; set; }
@@ -69,22 +68,6 @@ public static class DebugAPI
         return sb.ToString();
     }
 
-    /// <summary>Dump entity registry state for a display name, or summary if null.</summary>
-    public static string DumpEntities(string? displayName = null)
-    {
-        if (Entities == null) return "Not initialized";
-
-        if (displayName != null)
-        {
-            string key = displayName.StartsWith("character:", StringComparison.OrdinalIgnoreCase)
-                ? displayName
-                : "character:" + displayName.Trim().ToLowerInvariant();
-            int count = Entities.CountAlive(key);
-            return $"{key}: {count} alive";
-        }
-
-        return "Pass a character name or stable key: DumpEntities(\"NPC Name\")";
-    }
 
     /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
     public static string DumpQuest(string name)

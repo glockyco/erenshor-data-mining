@@ -19,7 +19,6 @@ public sealed class LiveStateTracker
 
     private readonly EntityGraph _graph;
     private readonly GraphIndexes _indexes;
-    private readonly EntityRegistry _entities;
     private readonly GuideDependencyEngine _dependencies;
     private readonly UnlockEvaluator _unlocks;
 
@@ -44,13 +43,11 @@ public sealed class LiveStateTracker
     public LiveStateTracker(
         EntityGraph graph,
         GraphIndexes indexes,
-        EntityRegistry entities,
         GuideDependencyEngine dependencies,
         UnlockEvaluator unlocks)
     {
         _graph = graph;
         _indexes = indexes;
-        _entities = entities;
         _dependencies = dependencies;
         _unlocks = unlocks;
     }
