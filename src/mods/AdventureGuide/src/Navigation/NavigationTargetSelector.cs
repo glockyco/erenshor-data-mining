@@ -131,12 +131,14 @@ public sealed class NavigationTargetSelector
                 kv.Value, playerX, playerY, playerZ, currentZone, _router);
             if (selected.HasValue)
             {
-                if (!_cache.TryGetValue(kv.Key, out var existing) ||
-                    existing.Target.TargetNodeKey != selected.Value.Target.TargetNodeKey)
-                {
-                    _cache[kv.Key] = selected.Value;
+                bool targetChanged = !_cache.TryGetValue(kv.Key, out var existing)
+                    || !string.Equals(
+                        existing.Target.TargetInstanceKey,
+                        selected.Value.Target.TargetInstanceKey,
+                        StringComparison.Ordinal);
+                _cache[kv.Key] = selected.Value;
+                if (targetChanged)
                     changed = true;
-                }
             }
             else if (_cache.Remove(kv.Key))
             {

@@ -339,7 +339,6 @@ public sealed class MarkerComputer
         {
             return CreateCharacterMarkerEntry(
                 quest.Key,
-                positionNode.Key,
                 targetNode.DisplayName,
                 instruction.Kind,
                 instruction.Priority,
@@ -408,7 +407,6 @@ public sealed class MarkerComputer
         {
             return CreateCharacterMarkerEntry(
                 quest.Key,
-                positionNode.Key,
                 targetNode.DisplayName,
                 instruction.Kind,
                 instruction.Priority,
@@ -461,7 +459,6 @@ public sealed class MarkerComputer
 
         return CreateCharacterMarkerEntry(
             questKey: quest.Key,
-            nodeKey: positionNode.Key,
             displayName: characterNode.DisplayName,
             questKind: instruction.Kind,
             priority: instruction.Priority,
@@ -509,7 +506,6 @@ public sealed class MarkerComputer
         {
             return CreateCharacterMarkerEntry(
                 quest.Key,
-                positionNode.Key,
                 targetNode.DisplayName,
                 instruction.Kind,
                 instruction.Priority,
@@ -567,7 +563,6 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateCharacterMarkerEntry(
         string questKey,
-        string nodeKey,
         string displayName,
         QuestMarkerKind questKind,
         int priority,
@@ -614,11 +609,10 @@ public sealed class MarkerComputer
         string scene = positionNode.Scene
             ?? targetNode.Scene
             ?? _tracker.CurrentZone;
-        string contributionNodeKey = BuildCharacterContributionKey(
-            nodeKey,
-            targetNode,
-            scene,
-            position);
+        // Character markers are keyed by the physical source node. Multiple
+        // character nodes can share one spawn; the world marker must collapse
+        // to that concrete source rather than duplicate by conceptual identity.
+        string contributionNodeKey = positionNode.Key;
 
         return new MarkerEntry
         {
@@ -643,23 +637,6 @@ public sealed class MarkerComputer
         };
     }
 
-    private static string BuildCharacterContributionKey(
-        string fallbackNodeKey,
-        Node targetNode,
-        string scene,
-        Vector3 position)
-    {
-        return targetNode.Type != NodeType.Character
-            ? fallbackNodeKey
-            : string.Join("|", new[]
-            {
-                targetNode.Key,
-                scene,
-                position.x.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
-                position.y.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
-                position.z.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
-            });
-    }
 
     private static bool IsCorpsePresent(SpawnInfo info) =>
         info.State is SpawnDead

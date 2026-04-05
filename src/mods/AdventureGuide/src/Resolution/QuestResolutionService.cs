@@ -720,10 +720,11 @@ public sealed class QuestResolutionService
         if (sceneFilter != null && !string.Equals(pos.Scene, sceneFilter, StringComparison.OrdinalIgnoreCase))
             return;
 
+        string dedupeTargetKey = pos.SourceKey ?? targetNode.NodeKey;
         string dedupeKey = string.Join("|", new[]
         {
             questKey,
-            targetNode.NodeKey,
+            dedupeTargetKey,
             pos.Scene ?? string.Empty,
             pos.SourceKey ?? string.Empty,
             goalNode.NodeKey,

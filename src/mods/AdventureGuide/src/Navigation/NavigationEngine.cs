@@ -36,16 +36,15 @@ public sealed class NavigationEngine
     private int _lastSelectorVersion  = -1;
     private int _lastResolutionVersion = -1;
     private string _lastResolveScene = "";
-    private bool _resolveForced = false;
 
     private string? _cachedRouteFrom;
     private string? _cachedRouteTo;
     private ZoneRouter.Route? _cachedRoute;
 
-    // Item key for the current DropsItem goal (e.g. "item:luminstone").
-    // Non-null only when Semantic.GoalKind==CollectItem and ActionKind==Kill.
-    // Used by Track() to find the live NPC via loot-table scan.
-    private string? _trackingItemKey;
+    // Concrete positioned source for the current target. For multi-spawn
+    // characters, NAV follows this source's occupant rather than rescanning all
+    // equivalent characters globally each frame.
+    private string? _targetSourceKey;
 
     public NavigationEngine(
         NavigationSet navSet,
@@ -98,7 +97,6 @@ public sealed class NavigationEngine
                 _cachedRouteTo   = null;
                 _cachedRoute     = null;
                 _router.Rebuild();
-                _resolveForced   = true;
             }
 
             _lastNavSetVersion     = _navSet.Version;
@@ -131,16 +129,11 @@ public sealed class NavigationEngine
 
         if (best == null)
         {
-            _resolveForced = false;
             ClearTarget();
             return;
         }
 
-        if (best.TargetNodeKey != TargetNodeKey || _resolveForced)
-        {
-            _resolveForced = false;
-            SetTarget(best);
-        }
+        SetTarget(best);
     }
 
     private static float ComputeNavScore(SelectedNavTarget sel, Vector3 playerPos) =>
@@ -148,19 +141,15 @@ public sealed class NavigationEngine
 
     private void SetTarget(ResolvedQuestTarget target)
     {
-        TargetNodeKey  = target.TargetNodeKey;
-        TargetPosition = new Vector3(target.X, target.Y, target.Z);
-        TargetScene    = target.Scene;
+        TargetNodeKey   = target.TargetNodeKey;
+        TargetPosition  = new Vector3(target.X, target.Y, target.Z);
+        TargetScene     = target.Scene;
         EffectiveTarget = new Vector3(target.X, target.Y, target.Z);
         Explanation = ApplySourceGateDetail(
             ApplyLiveActionOverride(target.Semantic, target.Explanation, target.SourceKey),
             target.SourceKey);
         HopCount = 0;
-        _trackingItemKey =
-            target.Semantic.GoalKind == NavigationGoalKind.CollectItem
-            && target.Semantic.ActionKind == ResolvedActionKind.Kill
-                ? target.Semantic.GoalNodeKey
-                : null;
+        _targetSourceKey = target.SourceKey;
 
         bool targetInOtherZone = target.Scene != null
             && !string.Equals(target.Scene, CurrentScene, StringComparison.OrdinalIgnoreCase);
@@ -238,25 +227,12 @@ public sealed class NavigationEngine
             || TargetScene == null;
         if (isSameScene)
         {
-            // Update EffectiveTarget to follow the live NPC.
-            // Two paths depending on goal type; neither uses graph-key–to–registry-key
-            // matching, which is brittle when export-pipeline and runtime names diverge.
-            NPC? liveNpc;
-            if (_trackingItemKey != null)
-            {
-                // DropsItem goal: scan live NPCs by loot table content.
-                // Checks all 7 drop lists so live NPCs with static ActualDrops entries
-                // (quest items, global drops) are found correctly.
-                liveNpc = _liveState.FindClosestLiveNpcForItem(_trackingItemKey, playerPosition);
-            }
-            else
-            {
-                // Other character goals: follow via spawn-point component references.
-                // No dependency facts recorded (GetLiveNpcForTracking is fact-free).
-                liveNpc = FindLiveNpcBySpawnEdges(playerPosition);
-            }
-            if (liveNpc != null)
-                EffectiveTarget = liveNpc.transform.position;
+            var livePos = TryGetTrackedLivePosition(playerPosition);
+            if (livePos != null)
+                EffectiveTarget = new Vector3(
+                    livePos.Value.x,
+                    livePos.Value.y,
+                    livePos.Value.z);
         }
 
         Distance = EffectiveTarget.HasValue
@@ -264,10 +240,26 @@ public sealed class NavigationEngine
             : 0f;
     }
 
+    private (float x, float y, float z)? TryGetTrackedLivePosition(Vector3 playerPosition)
+    {
+        if (_targetSourceKey != null)
+        {
+            var sourceNode = _graph.GetNode(_targetSourceKey);
+            if (sourceNode?.Type == NodeType.SpawnPoint)
+                return _liveState.GetLiveNpcPosition(sourceNode);
+        }
+
+        var liveNpc = FindLiveNpcBySpawnEdges(playerPosition);
+        if (liveNpc == null) return null;
+
+        var pos = liveNpc.transform.position;
+        return (pos.x, pos.y, pos.z);
+    }
+
     /// <summary>
-    /// Walks the current target character's HasSpawn edges and returns the closest
-    /// alive NPC via SpawnPoint.SpawnedNPC references. Fact-free: safe to call
-    /// every frame from Track().
+    /// Fallback for character targets that have no concrete spawn-source key.
+    /// Walks the target character's HasSpawn edges and returns the closest alive
+    /// NPC via SpawnPoint.SpawnedNPC references.
     /// </summary>
     private NPC? FindLiveNpcBySpawnEdges(Vector3 playerPosition)
     {
@@ -311,6 +303,6 @@ public sealed class NavigationEngine
         Explanation = null;
         HopCount = 0;
         Distance = 0f;
-        _trackingItemKey = null;
+        _targetSourceKey = null;
     }
 }

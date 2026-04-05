@@ -462,65 +462,6 @@ public sealed class LiveStateTracker
         return false;
     }
 
-    /// <summary>
-    /// Returns true when any item across all seven LootTable lists matches
-    /// <paramref name="itemKey"/>. Checks GuaranteeOneDrop, CommonDrop, UncommonDrop,
-    /// RareDrop, LegendaryDrop, UltraRareDrop, and ActualDrops.
-    /// ActualDrops is included because some NPCs have quest items statically
-    /// configured there, and global special-drops (Sivak, PlanarShard, etc.) only
-    /// appear there after InitLootTable rolls them.
-    /// For corpses use CorpseContainsItem (ActualDrops only).
-    /// </summary>
-    private static bool NpcCanDropItem(LootTable loot, string itemKey)
-    {
-        bool CheckList(List<Item>? list)
-        {
-            if (list == null) return false;
-            for (int i = 0; i < list.Count; i++)
-            {
-                var item = list[i];
-                if (item != null && "item:" + item.name.Trim().ToLowerInvariant() == itemKey)
-                    return true;
-            }
-            return false;
-        }
-
-        return CheckList(loot.GuaranteeOneDrop)
-            || CheckList(loot.CommonDrop)
-            || CheckList(loot.UncommonDrop)
-            || CheckList(loot.RareDrop)
-            || CheckList(loot.LegendaryDrop)
-            || CheckList(loot.UltraRareDrop)
-            || CheckList(loot.ActualDrops);
-    }
-
-    /// <summary>
-    /// Returns the closest alive NPC in <see cref="NPCTable.LiveNPCs"/> whose loot
-    /// table contains <paramref name="itemKey"/> on any of the seven drop lists.
-    /// Intended for per-frame NAV tracking; does not record dependency facts.
-    /// Returns null when no matching NPC is alive in the current scene.
-    /// </summary>
-    public NPC? FindClosestLiveNpcForItem(string itemKey, Vector3 playerPos)
-    {
-        if (NPCTable.LiveNPCs == null) return null;
-
-        NPC? best = null;
-        float bestDist = float.MaxValue;
-
-        for (int i = 0; i < NPCTable.LiveNPCs.Count; i++)
-        {
-            var npc = NPCTable.LiveNPCs[i];
-            if (npc == null || npc.gameObject == null) continue;
-
-            var loot = npc.GetComponent<LootTable>();
-            if (loot == null) continue;
-            if (!NpcCanDropItem(loot, itemKey)) continue;
-
-            float dist = Vector3.Distance(playerPos, npc.transform.position);
-            if (dist < bestDist) { bestDist = dist; best = npc; }
-        }
-        return best;
-    }
 
     /// <summary>
     /// Returns the alive NPC currently occupying <paramref name="spawnNode"/> for

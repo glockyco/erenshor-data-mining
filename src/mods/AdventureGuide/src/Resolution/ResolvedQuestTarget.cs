@@ -11,6 +11,12 @@ public sealed class ResolvedQuestTarget
     public string TargetNodeKey { get; }
     public string? Scene { get; }
     public string? SourceKey { get; }
+    /// <summary>
+    /// Concrete world-source identity for selection and rendering. Uses the
+    /// positioned source node when available so multi-spawn characters do not
+    /// collapse to a single conceptual character key.
+    /// </summary>
+    public string TargetInstanceKey => SourceKey ?? TargetNodeKey;
     public ResolvedNodeContext GoalNode { get; }
     public ResolvedNodeContext TargetNode { get; }
     public ResolvedActionSemantic Semantic { get; }
