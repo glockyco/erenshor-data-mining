@@ -559,6 +559,20 @@ public sealed class LiveStateTracker
         }
     }
 
+    /// <summary>
+    /// Returns the live world position of the NPC at the given spawn node, or null
+    /// if the NPC is not alive or not in scene. Returns a value tuple so callers
+    /// that cannot reference Assembly-CSharp (e.g. NavigationTargetSelector in tests)
+    /// are not forced to load game types at JIT time.
+    /// </summary>
+    public (float x, float y, float z)? GetLiveNpcPosition(Node spawnNode)
+    {
+        var npc = GetLiveNpcForTracking(spawnNode);
+        if (npc == null) return null;
+        var pos = npc.transform.position;
+        return (pos.x, pos.y, pos.z);
+    }
+
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
     {
         if (!sp.canSpawn)

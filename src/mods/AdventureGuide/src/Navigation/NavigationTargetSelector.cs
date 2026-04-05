@@ -1,5 +1,7 @@
+using AdventureGuide.Graph;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Navigation;
 
@@ -52,6 +54,8 @@ public sealed class NavigationTargetSelector
 {
     private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
     private readonly ZoneRouter _router;
+    private readonly EntityGraph? _graph;
+    private readonly LiveStateTracker? _liveState;
     private readonly Dictionary<string, SelectedNavTarget> _cache =
         new(StringComparer.Ordinal);
     // Resolved target lists per key. Populated once per force tick; re-used
@@ -66,15 +70,21 @@ public sealed class NavigationTargetSelector
     /// </summary>
     public int Version { get; private set; }
 
-    public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router)
-        : this(resolution.ResolveTargetsForNavigation, router) { }
+    public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router,
+        EntityGraph graph, LiveStateTracker liveState)
+        : this(resolution.ResolveTargetsForNavigation, router, graph, liveState) { }
 
     /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
     internal NavigationTargetSelector(
-        Func<string, IReadOnlyList<ResolvedQuestTarget>> resolver, ZoneRouter router)
+        Func<string, IReadOnlyList<ResolvedQuestTarget>> resolver,
+        ZoneRouter router,
+        EntityGraph? graph = null,
+        LiveStateTracker? liveState = null)
     {
-        _resolver = resolver;
-        _router   = router;
+        _resolver  = resolver;
+        _router    = router;
+        _graph     = graph;
+        _liveState = liveState;
     }
 
     /// <summary>
@@ -116,6 +126,7 @@ public sealed class NavigationTargetSelector
         bool changed = false;
         foreach (var kv in _targetLists)
         {
+            UpdateLivePositions(kv.Value, playerX, playerY, playerZ, currentZone);
             var selected = SelectBest(
                 kv.Value, playerX, playerY, playerZ, currentZone, _router);
             if (selected.HasValue)
@@ -154,6 +165,50 @@ public sealed class NavigationTargetSelector
     /// blocked-non-actionable → blocked-cross-zone.
     /// TravelToZone candidates are always skipped.
     /// </summary>
+
+    /// <summary>
+    /// Updates X/Y/Z on character targets whose NPC is alive in the current
+    /// scene, so SelectBest ranks by the NPC's actual position rather than
+    /// the position baked at resolution time. Static targets (mining nodes,
+    /// item bags, chests, zone lines) have non-Character TargetNode types
+    /// and are never modified. Cross-zone targets are skipped.
+    /// </summary>
+    private void UpdateLivePositions(
+        IReadOnlyList<ResolvedQuestTarget> targets,
+        float playerX, float playerY, float playerZ,
+        string currentZone)
+    {
+        if (_liveState == null || _graph == null) return;
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var t = targets[i];
+
+            // Only same-scene character targets need live updates.
+            if (t.TargetNode.Node.Type != NodeType.Character)
+                continue;
+            if (t.Scene != null
+                && !string.Equals(t.Scene, currentZone, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (t.SourceKey == null)
+                continue;
+
+            var spawnNode = _graph.GetNode(t.SourceKey);
+            // SourceKey may resolve to a Character node in the rare no-spawn-edges
+            // fallback path. GetLiveNpcForTracking expects a SpawnPoint node.
+            if (spawnNode?.Type != NodeType.SpawnPoint)
+                continue;
+
+            var pos = _liveState.GetLiveNpcPosition(spawnNode);
+            if (pos == null)
+                continue;
+
+            t.X = pos.Value.x;
+            t.Y = pos.Value.y;
+            t.Z = pos.Value.z;
+        }
+    }
+
     internal static SelectedNavTarget? SelectBest(
         IReadOnlyList<ResolvedQuestTarget> targets,
         float playerX, float playerY, float playerZ,

@@ -157,7 +157,7 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _questTracker, _gameState, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter, _liveState);
 
-        _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter);
+        _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter, _graph, _liveState);
 
         _navEngine = new NavigationEngine(
             _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _liveState, _unlockEvaluator);

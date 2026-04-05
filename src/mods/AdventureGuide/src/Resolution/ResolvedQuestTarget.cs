@@ -16,9 +16,11 @@ public sealed class ResolvedQuestTarget
     public ResolvedActionSemantic Semantic { get; }
     public NavigationExplanation Explanation { get; }
 
-    public float X { get; }
-    public float Y { get; }
-    public float Z { get; }
+    // Current world position of the target. Mutable for moving NPCs —
+    // NavigationTargetSelector refreshes these each tick before SelectBest.
+    public float X { get; internal set; }
+    public float Y { get; internal set; }
+    public float Z { get; internal set; }
     public bool IsActionable { get; }
     /// <summary>
     /// True when this target belongs to a blocked-but-feasible route that must
