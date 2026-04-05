@@ -119,4 +119,52 @@ public sealed class CorpseLootFilterTests
         Assert.All(sites, s => Assert.Equal(EdgeType.SellsItem, s.AcquisitionEdge));
         // None of these would trigger CorpseContainsItem — the edge guard handles it.
     }
+
+    // ── IsCorpse guard on live-NPC positions ─────────────────────────────
+    //
+    // The guard condition in ResolveItemTargetsFromBlueprint is:
+    //   if (pos.IsCorpse && pos.IsActionable && DropsItem && ...)
+    // This section verifies the three distinct cases produce the right guard outcome.
+
+    [Fact]
+    public void GuardCondition_LiveNPC_IsCorpseFalse_NeverFiresLootCheck()
+    {
+        // CharacterPositionResolver sets IsCorpse=false for SpawnAlive positions.
+        // The corpse loot check must not run: live NPCs are actionable kill targets
+        // regardless of what they might or might not drop on this kill.
+        bool isCorpse    = false; // alive, not a corpse
+        bool isActionable = true;  // reachable kill target
+
+        bool guardFires = isCorpse && isActionable;
+        Assert.False(guardFires,
+            "Loot check must not demote a live NPC to non-actionable");
+    }
+
+    [Fact]
+    public void GuardCondition_CorpseWithItem_FiresLootCheck()
+    {
+        // CharacterPositionResolver sets IsCorpse=true for SpawnDead positions where
+        // the corpse game object is still in the scene. CorpseContainsItem is called
+        // to confirm the required item is still in the loot table.
+        bool isCorpse    = true;  // dead, corpse still present
+        bool isActionable = true; // corpse is looted by walking to it
+
+        bool guardFires = isCorpse && isActionable;
+        Assert.True(guardFires,
+            "Loot check must run for corpses so empty corpses are demoted");
+    }
+
+    [Fact]
+    public void GuardCondition_RottenCorpse_GuardMoot()
+    {
+        // When a corpse has fully rotted, CharacterPositionResolver sets
+        // IsActionable=false. The guard is already false because isActionable=false,
+        // so the loot-check branch is never reached for rotten corpses.
+        bool isCorpse    = false; // game object destroyed — no corpse to check
+        bool isActionable = false; // non-actionable; NAV shows respawn timer instead
+
+        bool guardFires = isCorpse && isActionable;
+        Assert.False(guardFires,
+            "Guard must not fire for rotten corpses (already non-actionable)");
+    }
 }

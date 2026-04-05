@@ -557,8 +557,13 @@ public sealed class QuestResolutionService
                 // For DropsItem sources: only navigate to a corpse if it still
                 // contains the required item. A random-drop miss or an already-looted
                 // corpse would otherwise hold NAV at that position until the body rots.
-                // Works for both spawn-point and directly-placed NPCs.
-                if (pos.IsActionable
+                // pos.IsCorpse is only true for SpawnDead positions where the NPC game
+                // object is still in the scene (set by CharacterPositionResolver).
+                // Live NPCs (IsCorpse=false) are never subject to this check — they are
+                // always actionable kill targets regardless of whether they will drop
+                // the required item on this particular kill.
+                if (pos.IsCorpse
+                    && pos.IsActionable
                     && source.AcquisitionEdge == EdgeType.DropsItem
                     && source.DirectItemKey != null
                     && pos.SourceKey != null)
