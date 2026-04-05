@@ -517,7 +517,7 @@ public sealed class MarkerComputer
                 targetNode,
                 positionNode,
                 new Vector3(target.X, target.Y, target.Z),
-                target.Semantic.ActionKind == ResolvedActionKind.Kill,
+                target.Semantic.ActionKind == ResolvedActionKind.Kill && target.IsActionable,
                 corpseSubText);
         }
 
