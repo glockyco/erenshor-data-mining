@@ -153,11 +153,11 @@ public sealed class Plugin : BaseUnityPlugin
         _waterResolver = new WaterPositionResolver(_graph);
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
-        var positionCache = new SourcePositionCache(positionRegistry);
+        var positionCache = new SourcePositionCache(positionRegistry, _graph);
         var planBuilder = new QuestPlanBuilder(_graph, _gameState, _zoneRouter, _questTracker, _unlockEvaluator);
         _resolutionService = new QuestResolutionService(
             _graph, _questTracker, _gameState, planBuilder,
-            _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter);
+            _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter, _liveState);
 
         _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter);
 
@@ -233,6 +233,8 @@ public sealed class Plugin : BaseUnityPlugin
         MiningNodePatch.Markers = _markerComputer;
         ItemBagPatch.LiveState = _liveState;
         ItemBagPatch.Markers = _markerComputer;
+        CorpseChestPatch.LiveState = _liveState;
+        CorpseChestPatch.Markers = _markerComputer;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;

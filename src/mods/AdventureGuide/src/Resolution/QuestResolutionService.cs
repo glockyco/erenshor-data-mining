@@ -26,6 +26,7 @@ public sealed class QuestResolutionService
     private readonly SourcePositionCache _positionCache;
     private readonly UnlockEvaluator _unlocks;
     private readonly ZoneRouter _router;
+    private readonly LiveStateTracker _liveState;
     private readonly ZoneAccessResolver _zoneAccess;
     private readonly SourceVisibilityPolicy _visibilityPolicy;
 
@@ -46,7 +47,8 @@ public sealed class QuestResolutionService
         CompiledSourceIndex sourceIndex,
         SourcePositionCache positionCache,
         UnlockEvaluator unlocks,
-        ZoneRouter router)
+        ZoneRouter router,
+        LiveStateTracker liveState)
     {
         _graph = graph;
         _tracker = tracker;
@@ -57,6 +59,7 @@ public sealed class QuestResolutionService
         _positionCache = positionCache;
         _unlocks = unlocks;
         _router = router;
+        _liveState = liveState;
         _zoneAccess = new ZoneAccessResolver(graph, tracker, unlocks, router);
         _visibilityPolicy = new SourceVisibilityPolicy(graph, refname => GlobalFactionManager.FindFactionData(refname)?.Value);
     }
@@ -110,16 +113,6 @@ public sealed class QuestResolutionService
         }
 
 
-        // Evict cached source positions for changed live-world sources.
-        // This ensures the next resolution sees fresh NPC positions.
-        if (changeSet.LiveWorldChanged)
-        {
-            foreach (var fact in changeSet.ChangedFacts)
-            {
-                if (fact.Kind == GuideFactKind.SourceState)
-                    _positionCache.Invalidate(fact.Key);
-            }
-        }
         if (removedAny)
             Version++;
 
@@ -558,8 +551,97 @@ public sealed class QuestResolutionService
                 ? CreateContext(directItemNode, plan)
                 : frontierNode;
             for (int j = 0; j < positions.Length; j++)
+            {
+                var pos = positions[j];
+
+                // For DropsItem sources: only navigate to a corpse if it still
+                // contains the required item. A random-drop miss or an already-looted
+                // corpse would otherwise hold NAV at that position until the body rots.
+                // Works for both spawn-point and directly-placed NPCs.
+                if (pos.IsActionable
+                    && source.AcquisitionEdge == EdgeType.DropsItem
+                    && source.DirectItemKey != null
+                    && pos.SourceKey != null)
+                {
+                    var spawnNode = _graph.GetNode(pos.SourceKey);
+                    if (spawnNode?.Type == NodeType.SpawnPoint
+                        && !_liveState.CorpseContainsItem(spawnNode, source.DirectItemKey))
+                    {
+                        pos = new ResolvedPosition(
+                            pos.Position, pos.Scene, pos.SourceKey, isActionable: false);
+                    }
+                }
+
                 AddResolvedTargetDirect(
-                    results, seen, questKey, directGoalNode, targetContext, positions[j], requestedNode, plan, sceneFilter, isBlockedPath: isBlockedPath);
+                    results, seen, questKey, directGoalNode, targetContext, pos,
+                    requestedNode, plan, sceneFilter, isBlockedPath: isBlockedPath);
+            }
+        }
+
+        ResolveChestTargetsFromBlueprint(
+            questKey, frontierNode, results, seen, plan, sceneFilter, isBlockedPath);
+    }
+
+    // Zone-reentry loot chests: loot saved from a previous kill that was present
+    // when the player left the zone. Only applicable to DropsItem frontier nodes.
+    // Chest targets use a synthetic key absent from the graph; see the contract
+    // comment in NavigationEngine.Track() for why this matters.
+    private void ResolveChestTargetsFromBlueprint(
+        string questKey,
+        ResolvedNodeContext frontierNode,
+        List<ResolvedQuestTarget> results,
+        HashSet<string> seen,
+        QuestPlan? plan,
+        string? sceneFilter,
+        bool isBlockedPath)
+    {
+        if (isBlockedPath)
+            return;
+
+        var itemKey = frontierNode.NodeKey;
+        var itemNode = _graph.GetNode(itemKey);
+        foreach (var (chestPos, chestScene) in _liveState.GetRotChestPositionsWithItem(itemKey))
+        {
+            if (sceneFilter != null
+                && !string.Equals(chestScene, sceneFilter, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string chestKey = FormattableString.Invariant(
+                $"chest:{chestScene}:{chestPos.x:F2}:{chestPos.y:F2}:{chestPos.z:F2}");
+            if (!seen.Add(chestKey))
+                continue;
+
+            // The source node is whichever character drops this item (first DropsItem
+            // source for the item, for display purposes only).
+            var firstDropSource = _sourceIndex.GetSourceSitesForItem(itemKey)
+                .FirstOrDefault(s => s.AcquisitionEdge == EdgeType.DropsItem);
+            var characterNode = firstDropSource.SourceNodeKey != null
+                ? _graph.GetNode(firstDropSource.SourceNodeKey)
+                : null;
+
+            if (characterNode == null)
+                continue;
+
+            var semantic = ResolvedActionSemanticBuilder.BuildForLootChest(
+                itemNode ?? frontierNode.Node, characterNode, chestScene);
+            if (semantic == null)
+                continue;
+
+            var goalCtx = itemNode != null ? CreateContext(itemNode, plan) : frontierNode;
+            var targetCtx = CreateContext(characterNode, plan);
+            var explanation = NavigationExplanationBuilder.BuildLootChestExplanation(
+                semantic, goalCtx, targetCtx);
+
+            results.Add(new ResolvedQuestTarget(
+                targetNodeKey: chestKey,
+                scene: chestScene,
+                sourceKey: null,
+                goalNode: goalCtx,
+                targetNode: targetCtx,
+                semantic: semantic,
+                explanation: explanation,
+                x: chestPos.x, y: chestPos.y, z: chestPos.z,
+                isActionable: true));
         }
     }
     private bool TryResolveBlockedRoute(
