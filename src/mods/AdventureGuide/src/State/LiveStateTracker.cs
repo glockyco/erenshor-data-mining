@@ -28,6 +28,7 @@ public sealed class LiveStateTracker
     private MiningNode[] _miningNodes = System.Array.Empty<MiningNode>();
     private ItemBag[] _itemBags = System.Array.Empty<ItemBag>();
     private Door[] _doors = System.Array.Empty<Door>();
+    private readonly List<RotChest> _rotChests = new();
     private readonly Dictionary<PosKey, bool> _miningAvailable = new();
     private readonly Dictionary<PosKey, bool> _doorClosed = new();
 
@@ -62,6 +63,7 @@ public sealed class LiveStateTracker
         _miningNodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
         _itemBags = UnityEngine.Object.FindObjectsOfType<ItemBag>();
         _doors = UnityEngine.Object.FindObjectsOfType<Door>();
+        _rotChests.Clear();
         _isNight = IsNight();
         RebuildMiningAvailability();
         RebuildDoorStates();
@@ -106,6 +108,84 @@ public sealed class LiveStateTracker
 
         BumpVersion();
         return BuildSourceChange(ResolveItemBagSourceKey(bag));
+    }
+
+    /// <summary>
+    /// Called after CorpseDataManager.SpawnAllCorpses to register all RotChest
+    /// objects created from saved corpse data. Returns a liveWorldChanged changeset
+    /// so the resolution service rebuilds targets that may include chest loot.
+    /// </summary>
+    public GuideChangeSet OnAllCorpsesSpawned()
+    {
+        _rotChests.Clear();
+        var chests = UnityEngine.Object.FindObjectsOfType<RotChest>();
+        foreach (var chest in chests)
+        {
+            if (chest != null)
+                _rotChests.Add(chest);
+        }
+
+        if (_rotChests.Count == 0)
+            return GuideChangeSet.None;
+
+        // Mark all quests in the current scene as potentially affected — any active
+        // quest that needs an item from a DropsItem source could now find the item
+        // in a loot chest.
+        BumpVersion();
+        return BuildLiveChange(
+            _graphSpawnSourcesByPos.Values,
+            timeChanged: false);
+    }
+
+    /// <summary>
+    /// Returns the world position and scene name for every RotChest in the current
+    /// scene whose loot table contains the specified item. Called live on each
+    /// query; no additional caching is applied so chest contents stay fresh after
+    /// partial looting.
+    /// </summary>
+    public System.Collections.Generic.IEnumerable<(Vector3 Position, string Scene)>
+        GetRotChestPositionsWithItem(string itemStableKey)
+    {
+        string currentScene = CurrentSceneName();
+        for (int i = _rotChests.Count - 1; i >= 0; i--)
+        {
+            var chest = _rotChests[i];
+            if (chest == null || chest.gameObject == null)
+            {
+                _rotChests.RemoveAt(i);
+                continue;
+            }
+
+            var loot = chest.GetComponent<LootTable>();
+            if (loot == null) continue;
+
+            foreach (var drop in loot.ActualDrops)
+            {
+                if (drop != null
+                    && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
+                {
+                    yield return (chest.transform.position, currentScene);
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the first RotChest within <paramref name="maxDistance"/> of
+    /// <paramref name="position"/>, or null if none is found. Used by
+    /// MarkerComputer to bind a live chest reference to a marker entry.
+    /// </summary>
+    public RotChest? GetRotChestNear(Vector3 position, float maxDistance = 1f)
+    {
+        for (int i = 0; i < _rotChests.Count; i++)
+        {
+            var chest = _rotChests[i];
+            if (chest == null || chest.gameObject == null) continue;
+            if (Vector3.Distance(chest.transform.position, position) <= maxDistance)
+                return chest;
+        }
+        return null;
     }
 
     public GuideChangeSet UpdateFrameState()
@@ -359,6 +439,30 @@ public sealed class LiveStateTracker
         return !closest.isClosed || closest.swinging
             ? new DoorInfo(NodeState.Unlocked, closest, true)
             : new DoorInfo(NodeState.Unknown, closest, true);
+    }
+
+    /// <summary>
+    /// Returns true when the spawn node's corpse is present in the scene and its
+    /// loot table contains the required item. Works for both spawn-point and
+    /// directly-placed NPCs — GetSpawnState resolves info.LiveNPC regardless of
+    /// NPC type, and the loot check is purely on the corpse game object.
+    /// </summary>
+    public bool CorpseContainsItem(Node spawnNode, string itemStableKey)
+    {
+        var info = GetSpawnState(spawnNode);
+        if (!(info.State is SpawnDead)) return false;
+        if (info.LiveNPC == null || info.LiveNPC.gameObject == null) return false;
+
+        var loot = info.LiveNPC.GetComponent<LootTable>();
+        if (loot == null) return false;
+
+        foreach (var drop in loot.ActualDrops)
+        {
+            if (drop != null
+                && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
+                return true;
+        }
+        return false;
     }
 
     private SpawnInfo ClassifySpawnPoint(SpawnPoint sp)
