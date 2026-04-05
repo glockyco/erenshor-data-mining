@@ -98,18 +98,40 @@ public sealed class QuestResolutionService
 
         if (changeSet.LiveWorldChanged)
         {
-            bool cleared = _targetCache.Count > 0
-                || _sceneTargetCache.Count > 0
-                || _resolutionCache.Count > 0;
-
-            _targetCache.Clear();
-            _sceneTargetCache.Clear();
-            _resolutionCache.Clear();
-            _dependencies.Clear();
-
-            if (cleared || changedSourceKeys.Length > 0)
-                Version++;
-
+            // Prefer dependency-guided selective invalidation: only evict the quests
+            // that actually subscribed to the changed source facts. A single mining-node
+            // mine or NPC death then rebuilds one quest instead of all active quests.
+            //
+            // Fall back to wholesale when the dependency index has no subscriptions for
+            // the changed facts — either because SourceState facts are not yet tracked
+            // in dependencies, or because this is a source-agnostic event (door state,
+            // faction change, etc.).
+            bool didSelectiveInvalidation = false;
+            if (changeSet.ChangedFacts.Count > 0)
+            {
+                var affected = _dependencies.InvalidateFacts(changeSet.ChangedFacts);
+                if (affected.Count > 0)
+                {
+                    didSelectiveInvalidation = true;
+                    foreach (var dk in affected)
+                    {
+                        if (dk.Kind != GuideDerivedKind.QuestTargets) continue;
+                        _targetCache.Remove(dk.Key);
+                        _sceneTargetCache.Remove(dk.Key);
+                        _resolutionCache.Remove(dk.Key);
+                    }
+                }
+            }
+            if (!didSelectiveInvalidation)
+            {
+                _targetCache.Clear();
+                _sceneTargetCache.Clear();
+                _resolutionCache.Clear();
+                _dependencies.Clear();
+            }
+            // Version is always incremented on LiveWorldChanged: the position cache was
+            // partially invalidated above and at least one source's state changed.
+            Version++;
             return changeSet;
         }
 
