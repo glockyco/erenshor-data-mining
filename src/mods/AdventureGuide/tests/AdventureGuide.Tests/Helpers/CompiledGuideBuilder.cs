@@ -26,9 +26,15 @@ public sealed class CompiledGuideBuilder
     private sealed record ItemDef(string Key);
     private sealed record CharacterDef(string Key, string? Scene, float X, float Y, float Z);
 
+    private sealed record ItemSourceDef(string ItemKey, string SourceKey);
+    private sealed record UnlockDef(string TargetKey, string SourceKey, byte Group, byte CheckType);
+
     private readonly List<QuestDef> _quests = new();
     private readonly List<ItemDef> _items = new();
     private readonly List<CharacterDef> _characters = new();
+
+    private readonly List<ItemSourceDef> _itemSources = new();
+    private readonly List<UnlockDef> _unlockDefs = new();
 
     public CompiledGuideBuilder AddQuest(
         string key,
@@ -69,6 +75,22 @@ public sealed class CompiledGuideBuilder
         return this;
     }
 
+    public CompiledGuideBuilder AddItemSource(string itemKey, string sourceKey)
+    {
+        _itemSources.Add(new ItemSourceDef(itemKey, sourceKey));
+        return this;
+    }
+
+    public CompiledGuideBuilder AddUnlockPredicate(
+        string targetKey,
+        string sourceKey,
+        byte group = 0,
+        byte checkType = 0)
+    {
+        _unlockDefs.Add(new UnlockDef(targetKey, sourceKey, group, checkType));
+        return this;
+    }
+
     public CompiledGuideModel Build()
     {
         var allKeys = new SortedSet<string>(StringComparer.Ordinal);
@@ -83,6 +105,16 @@ public sealed class CompiledGuideBuilder
         }
         foreach (ItemDef item in _items) allKeys.Add(item.Key);
         foreach (CharacterDef character in _characters) allKeys.Add(character.Key);
+        foreach (ItemSourceDef source in _itemSources)
+        {
+            allKeys.Add(source.ItemKey);
+            allKeys.Add(source.SourceKey);
+        }
+        foreach (UnlockDef unlock in _unlockDefs)
+        {
+            allKeys.Add(unlock.TargetKey);
+            allKeys.Add(unlock.SourceKey);
+        }
 
         var keyToId = new Dictionary<string, int>(StringComparer.Ordinal);
         int nodeId = 0;
@@ -234,8 +266,8 @@ public sealed class CompiledGuideBuilder
             chainsToIds,
             questFlags,
             itemNodeIds,
-            itemNodeIds.Select(_ => Array.Empty<SourceSiteEntry>()).ToArray(),
-            new Dictionary<int, UnlockPredicateEntry>(),
+            BuildItemSources(itemNodeIds, keyToId, charByKey),
+            BuildUnlocks(keyToId),
             Enumerable.Range(0, questNodeIds.Length).ToArray(),
             i2qOff,
             i2qVal,
@@ -247,5 +279,57 @@ public sealed class CompiledGuideBuilder
             Array.Empty<QuestGiverEntry>(),
             Array.Empty<QuestCompletion>(),
             new bool[keyToId.Count]);
+    }
+
+    private SourceSiteEntry[][] BuildItemSources(
+        int[] itemNodeIds,
+        Dictionary<string, int> keyToId,
+        Dictionary<string, CharacterDef> charByKey)
+    {
+        var rows = itemNodeIds.Select(_ => Array.Empty<SourceSiteEntry>()).ToArray();
+        var itemIndexByNodeId = itemNodeIds.Select((id, index) => (id, index)).ToDictionary(x => x.id, x => x.index);
+        foreach (var group in _itemSources.GroupBy(def => def.ItemKey, StringComparer.Ordinal))
+        {
+            if (!keyToId.TryGetValue(group.Key, out int itemNodeId) || !itemIndexByNodeId.TryGetValue(itemNodeId, out int itemIndex))
+            {
+                continue;
+            }
+
+            var entries = new List<SourceSiteEntry>();
+            foreach (ItemSourceDef def in group)
+            {
+                int sourceId = keyToId[def.SourceKey];
+                CharacterDef? character = charByKey.GetValueOrDefault(def.SourceKey);
+                SpawnPositionEntry[] positions = character is null
+                    ? Array.Empty<SpawnPositionEntry>()
+                    : new[] { new SpawnPositionEntry(sourceId, character.X, character.Y, character.Z) };
+                entries.Add(new SourceSiteEntry(
+                    sourceId,
+                    sourceType: 2,
+                    edgeType: 16,
+                    directItemId: 0,
+                    scene: character?.Scene,
+                    positions: positions));
+            }
+
+            rows[itemIndex] = entries.ToArray();
+        }
+
+        return rows;
+    }
+
+    private Dictionary<int, UnlockPredicateEntry> BuildUnlocks(Dictionary<string, int> keyToId)
+    {
+        return _unlockDefs
+            .GroupBy(def => def.TargetKey, StringComparer.Ordinal)
+            .ToDictionary(
+                group => keyToId[group.Key],
+                group => new UnlockPredicateEntry(
+                    group.Select(def => new UnlockConditionEntry(
+                        keyToId[def.SourceKey],
+                        def.CheckType,
+                        def.Group)).ToArray(),
+                    group.Max(def => (int)def.Group),
+                    group.Any(def => def.Group != 0) ? (byte)1 : (byte)0));
     }
 }

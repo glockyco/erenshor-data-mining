@@ -10,7 +10,7 @@ public readonly struct TrackerSummary
     public readonly string PrimaryText;
     public readonly string? SecondaryText;
 
-    public TrackerSummary(string primaryText, string? secondaryText)
+    public TrackerSummary(string primaryText, string? secondaryText = null)
     {
         PrimaryText = primaryText;
         SecondaryText = secondaryText;
