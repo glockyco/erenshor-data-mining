@@ -79,20 +79,20 @@ public sealed class MarkerComputer
 
     public void ApplyGuideChangeSet(GuideChangeSet changeSet)
     {
-        if (changeSet == null || !changeSet.HasMeaningfulChanges)
+        var plan = MarkerChangePlanner.Plan(changeSet);
+        if (!plan.FullRebuild && plan.AffectedQuestKeys.Count == 0)
             return;
 
-        var resolvedChangeSet = _resolution.ApplyChangeSet(changeSet);
         _dirty = true;
 
-        if (resolvedChangeSet.SceneChanged || resolvedChangeSet.LiveWorldChanged)
+        if (plan.FullRebuild)
         {
             _fullRebuild = true;
             _pendingQuestKeys.Clear();
             return;
         }
 
-        foreach (var questKey in resolvedChangeSet.AffectedQuestKeys)
+        foreach (var questKey in plan.AffectedQuestKeys)
             _pendingQuestKeys.Add(questKey);
     }
 
