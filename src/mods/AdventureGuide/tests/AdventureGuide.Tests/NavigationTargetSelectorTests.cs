@@ -504,4 +504,59 @@ public sealed class NavigationTargetSelectorTests
         Assert.NotNull(result);
         Assert.Equal("near-corpse", result.Value.Target.TargetNodeKey);
     }
+
+    [Fact]
+    public void Tick_SkipsNonForcedRerankUntilIntervalElapsed()
+    {
+        float now = 0f;
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 0f, targetNodeKey: "near"),
+            MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
+        };
+        var selector = new NavigationTargetSelector(
+            _ => targets,
+            EmptyRouter(),
+            clock: () => now,
+            rerankInterval: 1.0f);
+
+        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        Assert.True(selector.TryGet("quest:a", out var selected));
+        Assert.Equal("near", selected.Target.TargetNodeKey);
+
+        now = 0.5f;
+        selector.Tick(100f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        Assert.True(selector.TryGet("quest:a", out selected));
+        Assert.Equal("near", selected.Target.TargetNodeKey);
+
+        now = 1.1f;
+        selector.Tick(100f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        Assert.True(selector.TryGet("quest:a", out selected));
+        Assert.Equal("far", selected.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void Tick_ForceBypassesInterval()
+    {
+        float now = 0f;
+        var targets = new[]
+        {
+            MakeTarget(ZoneA, x: 0f, targetNodeKey: "near"),
+            MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
+        };
+        var selector = new NavigationTargetSelector(
+            _ => targets,
+            EmptyRouter(),
+            clock: () => now,
+            rerankInterval: 1.0f);
+
+        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        Assert.True(selector.TryGet("quest:a", out var selected));
+        Assert.Equal("near", selected.Target.TargetNodeKey);
+
+        now = 0.2f;
+        selector.Tick(100f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        Assert.True(selector.TryGet("quest:a", out selected));
+        Assert.Equal("far", selected.Target.TargetNodeKey);
+    }
 }

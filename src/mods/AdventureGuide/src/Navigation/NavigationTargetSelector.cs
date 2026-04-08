@@ -64,6 +64,9 @@ public sealed class NavigationTargetSelector
     // Scratch collections for key-set management during forced ticks.
     private readonly HashSet<string> _activeKeys  = new(StringComparer.Ordinal);
     private readonly List<string>    _keysToEvict = new();
+    private readonly Func<float> _clock;
+    private readonly float _rerankInterval;
+    private float _lastRerankTime = float.NegativeInfinity;
 
     /// <summary>
     /// Monotonically increasing version. Incremented after each cache refresh so
@@ -73,19 +76,23 @@ public sealed class NavigationTargetSelector
 
     public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router,
         EntityGraph graph, LiveStateTracker liveState)
-        : this(resolution.ResolveTargetsForNavigation, router, graph, liveState) { }
+        : this(resolution.ResolveTargetsForNavigation, router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
 
     /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
     internal NavigationTargetSelector(
         Func<string, IReadOnlyList<ResolvedQuestTarget>> resolver,
         ZoneRouter router,
         EntityGraph? graph = null,
-        LiveStateTracker? liveState = null)
+        LiveStateTracker? liveState = null,
+        Func<float>? clock = null,
+        float rerankInterval = 0f)
     {
         _resolver  = resolver;
         _router    = router;
         _graph     = graph;
         _liveState = liveState;
+        _clock     = clock ?? (() => 0f);
+        _rerankInterval = rerankInterval;
     }
 
     /// <summary>
@@ -107,6 +114,12 @@ public sealed class NavigationTargetSelector
     public void Tick(float playerX, float playerY, float playerZ, string currentZone,
                      IEnumerable<string> nodeKeys, bool force = false)
     {
+        float now = _clock();
+        bool due = now - _lastRerankTime >= _rerankInterval;
+        if (!force && !due)
+            return;
+        _lastRerankTime = now;
+
         if (force)
         {
             // Resolve fresh target lists and decompose each into same-zone and
