@@ -85,4 +85,57 @@ public sealed class CharacterMarkerPolicyTests
             z: 3f,
             isActionable: isActionable);
     }
+
+    [Fact]
+    public void CompiledKillTarget_WithActionableSource_KeepsActiveMarker()
+    {
+        var target = MakeCompiledTarget(ResolvedActionKind.Kill, isActionable: true);
+
+        Assert.True(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.True(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
+    }
+
+    [Fact]
+    public void CompiledKillTarget_WithoutActionableSource_UsesRespawnMarkerOnly()
+    {
+        var target = MakeCompiledTarget(ResolvedActionKind.Kill, isActionable: false);
+
+        Assert.False(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
+    }
+
+    private static ResolvedTarget MakeCompiledTarget(
+        ResolvedActionKind actionKind,
+        bool isActionable)
+    {
+        var semantic = new ResolvedActionSemantic(
+            NavigationGoalKind.StartQuest,
+            NavigationTargetKind.Character,
+            actionKind,
+            null,
+            null,
+            keywordText: null,
+            payloadText: null,
+            targetIdentityText: "Test NPC",
+            contextText: null,
+            rationaleText: null,
+            zoneText: null,
+            availabilityText: null,
+            QuestMarkerKind.Objective,
+            markerPriority: 0);
+
+        return new ResolvedTarget(
+            targetNodeId: 1,
+            positionNodeId: 2,
+            role: ResolvedTargetRole.Objective,
+            semantic: semantic,
+            x: 1f,
+            y: 2f,
+            z: 3f,
+            scene: "ZoneA",
+            isLive: false,
+            isActionable: isActionable,
+            questIndex: 0,
+            requiredForQuestIndex: -1);
+    }
 }

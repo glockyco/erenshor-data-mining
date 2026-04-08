@@ -61,6 +61,8 @@ public sealed class Plugin : BaseUnityPlugin
     private QuestPhaseTracker? _compiledQuestTracker;
     private AdventureGuide.Resolution.UnlockPredicateEvaluator? _compiledUnlocks;
     private SpecTreeProjector? _specTreeProjector;
+    private EffectiveFrontier? _compiledFrontier;
+    private SourceResolver? _compiledSourceResolver;
     private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
     private int _lastNavSetVersion = -1;
@@ -192,7 +194,9 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(_graph, _graphIndexes, _questTracker, _resolutionService, _liveState, _navSet, _trackerState);
+        _markerComputer = new MarkerComputer(
+            _graph, _graphIndexes, _questTracker, _resolutionService, _liveState, _navSet, _trackerState,
+            _compiledGuide, _compiledFrontier, _compiledSourceResolver);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
@@ -213,6 +217,12 @@ public sealed class Plugin : BaseUnityPlugin
         {
             SyncCompiledQuestTracker();
             _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
+            _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
+            _compiledSourceResolver = new SourceResolver(
+                _compiledGuide,
+                _compiledQuestTracker,
+                _compiledUnlocks,
+                new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
             _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
             viewRenderer = new ViewRenderer(_compiledGuide, _navSet, _questTracker, _trackerState, _specTreeProjector);
             _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _compiledGuide);
@@ -223,11 +233,11 @@ public sealed class Plugin : BaseUnityPlugin
             _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
         }
 
-        if (_compiledGuide != null && _compiledQuestTracker != null)
+        if (_compiledGuide != null && _compiledQuestTracker != null && _compiledFrontier != null)
         {
             _trackerPanel = new TrackerPanel(
                 _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector,
-                _compiledGuide, _compiledQuestTracker, new EffectiveFrontier(_compiledGuide, _compiledQuestTracker));
+                _compiledGuide, _compiledQuestTracker, _compiledFrontier);
         }
         else
         {

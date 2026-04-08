@@ -27,4 +27,16 @@ internal static class CharacterMarkerPolicy
             && target.Semantic.ActionKind == ResolvedActionKind.Kill
             && target.IsActionable;
     }
+
+    public static bool ShouldEmitActiveMarker(ResolvedTarget target)
+    {
+        return target.Semantic.ActionKind != ResolvedActionKind.Kill
+            || target.IsActionable;
+    }
+
+    public static bool ShouldKeepQuestMarkerOnCorpse(ResolvedTarget target)
+    {
+        return target.Semantic.ActionKind == ResolvedActionKind.Kill
+            && target.IsActionable;
+    }
 }

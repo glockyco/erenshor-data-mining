@@ -1,6 +1,7 @@
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using UnityEngine;
@@ -23,6 +24,9 @@ public sealed class MarkerComputer
     private readonly LiveStateTracker _liveState;
     private readonly NavigationSet _navSet;
     private readonly TrackerState _trackerState;
+    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
+    private readonly EffectiveFrontier? _effectiveFrontier;
+    private readonly SourceResolver? _sourceResolver;
 
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(StringComparer.Ordinal);
@@ -42,7 +46,10 @@ public sealed class MarkerComputer
         QuestResolutionService resolution,
         LiveStateTracker liveState,
         NavigationSet navSet,
-        TrackerState trackerState)
+        TrackerState trackerState,
+        CompiledGuide.CompiledGuide? compiledGuide = null,
+        EffectiveFrontier? effectiveFrontier = null,
+        SourceResolver? sourceResolver = null)
     {
         _graph = graph;
         _indexes = indexes;
@@ -51,6 +58,9 @@ public sealed class MarkerComputer
         _liveState = liveState;
         _navSet = navSet;
         _trackerState = trackerState;
+        _compiledGuide = compiledGuide;
+        _effectiveFrontier = effectiveFrontier;
+        _sourceResolver = sourceResolver;
 
         _navSet.Changed += OnExternalSelectionChanged;
         _trackerState.Tracked += OnTrackedChanged;
@@ -199,7 +209,22 @@ public sealed class MarkerComputer
 
         if (explicitlySelected || _tracker.IsActive(quest.DbName))
         {
-            var projection = _resolution.GetQuestPlanProjection(quest.Key);
+            if (_compiledGuide != null && _effectiveFrontier != null && _sourceResolver != null)
+            {
+                int? questIndex = FindCompiledQuestIndex(quest.DbName);
+                if (questIndex != null)
+                {
+                    var frontier = new List<FrontierEntry>();
+                    _effectiveFrontier.Resolve(questIndex.Value, frontier, -1);
+                    foreach (var frontierEntry in frontier)
+                    {
+                        var compiledTargets = _sourceResolver.ResolveTargets(frontierEntry, _tracker.CurrentZone);
+                        EmitActiveQuestMarkers(quest, compiledTargets);
+                    }
+                    return;
+                }
+            }
+
             var targets = _resolution.GetTargetsForScene(quest.Key, _tracker.CurrentZone);
             EmitActiveQuestMarkers(quest, targets);
             return;
@@ -232,6 +257,39 @@ public sealed class MarkerComputer
         EmitPendingCompletionMarkers(quest, targets);
     }
 
+    private void EmitActiveQuestMarkers(Node quest, IReadOnlyList<ResolvedTarget> targets)
+    {
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var target = targets[i];
+            var entry = CreateActiveMarkerEntry(quest, target);
+            if (entry != null)
+                AddContribution(quest.Key, entry.NodeKey, entry);
+
+            var respawnEntry = CreateRespawnTimerEntry(quest, target);
+            if (respawnEntry != null)
+                AddContribution(quest.Key, respawnEntry.NodeKey, respawnEntry);
+        }
+    }
+
+    private int? FindCompiledQuestIndex(string dbName)
+    {
+        if (_compiledGuide == null)
+            return null;
+
+        for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
+        {
+            int nodeId = _compiledGuide.QuestNodeId(questIndex);
+            uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
+            if (dbNameOffset == 0)
+                continue;
+            if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
+                return questIndex;
+        }
+
+        return null;
+    }
+
 
 
     private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedQuestTarget target)
@@ -253,6 +311,75 @@ public sealed class MarkerComputer
             return null;
 
         string displayName = target.TargetNode.Node.DisplayName;
+        if (info.LiveSpawnPoint != null)
+        {
+            string timerText = $"{displayName}\n{FormatTimer(info.RespawnSeconds)}";
+            return new MarkerEntry
+            {
+                X = position.x,
+                Y = position.y + StaticHeightOffset,
+                Z = position.z,
+                Scene = positionNode.Scene ?? _tracker.CurrentZone,
+                Type = MarkerType.DeadSpawn,
+                Priority = 0,
+                DisplayName = displayName,
+                SubText = timerText,
+                NodeKey = positionNode.Key + "|respawn",
+                QuestKey = quest.Key,
+                LiveSpawnPoint = info.LiveSpawnPoint,
+                QuestKind = null,
+                QuestPriority = 0,
+                QuestSubText = timerText,
+                IsSpawnTimer = true,
+            };
+        }
+
+        if (positionNode.IsDirectlyPlaced)
+        {
+            string reentryText = $"{displayName}\nRe-enter zone";
+            return new MarkerEntry
+            {
+                X = position.x,
+                Y = position.y + StaticHeightOffset,
+                Z = position.z,
+                Scene = positionNode.Scene ?? _tracker.CurrentZone,
+                Type = MarkerType.ZoneReentry,
+                Priority = 0,
+                DisplayName = displayName,
+                SubText = reentryText,
+                NodeKey = positionNode.Key + "|respawn",
+                QuestKey = quest.Key,
+                QuestKind = null,
+                QuestPriority = 0,
+                QuestSubText = reentryText,
+                IsSpawnTimer = true,
+            };
+        }
+
+        return null;
+    }
+
+    private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedTarget target)
+    {
+        if (_compiledGuide == null)
+            return null;
+        if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
+            return null;
+
+        var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
+        if (positionNode == null || positionNode.Type != NodeType.SpawnPoint)
+            return null;
+
+        if (!TryGetMarkerPosition(positionNode, out var position))
+            return null;
+
+        var info = _liveState.GetSpawnState(positionNode);
+        if (info.State is SpawnAlive)
+            return null;
+
+        string displayName = _graph.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
+            ?? _compiledGuide.GetDisplayName(target.TargetNodeId);
+
         if (info.LiveSpawnPoint != null)
         {
             string timerText = $"{displayName}\n{FormatTimer(info.RespawnSeconds)}";
@@ -426,6 +553,53 @@ public sealed class MarkerComputer
             targetNode,
             positionNode,
             new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f));
+    }
+
+    private MarkerEntry? CreateActiveMarkerEntry(Node quest, ResolvedTarget target)
+    {
+        if (_compiledGuide == null)
+            return null;
+        if (!IsCurrentScene(target.Scene))
+            return null;
+
+        var targetNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId));
+        var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
+        if (targetNode == null || positionNode == null)
+            return null;
+
+        var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic);
+        string? corpseSubText = target.Semantic.ActionKind == ResolvedActionKind.Kill
+            ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
+            : null;
+
+        if (targetNode.Type == NodeType.Character)
+        {
+            if (!CharacterMarkerPolicy.ShouldEmitActiveMarker(target))
+                return null;
+
+            return CreateCharacterMarkerEntry(
+                quest.Key,
+                targetNode.DisplayName,
+                instruction.Kind,
+                instruction.Priority,
+                instruction.SubText,
+                targetNode,
+                positionNode,
+                new Vector3(target.X, target.Y, target.Z),
+                CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target),
+                corpseSubText);
+        }
+
+        return CreateStaticMarkerEntry(
+            quest.Key,
+            positionNode.Key,
+            targetNode.DisplayName,
+            instruction.Kind,
+            instruction.Priority,
+            instruction.SubText,
+            targetNode,
+            positionNode,
+            new Vector3(target.X, target.Y, target.Z));
     }
 
     private void EmitQuestGiverMarkers(Node quest)

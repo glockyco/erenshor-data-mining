@@ -15,7 +15,7 @@ internal sealed class StubLivePositionProvider : ILivePositionProvider
 public sealed class SourceResolverTests
 {
     [Fact]
-    public void Ready_to_accept_resolves_giver_position()
+    public void Ready_to_accept_resolves_giver_position_with_giver_semantics()
     {
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:guard", scene: "Forest", x: 10f, y: 20f, z: 30f)
@@ -28,14 +28,22 @@ public sealed class SourceResolverTests
 
         var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.ReadyToAccept, -1), "Forest");
 
+        guide.TryGetNodeId("char:guard", out int giverId);
         Assert.Single(targets);
+        Assert.Equal(giverId, targets[0].TargetNodeId);
+        Assert.Equal(giverId, targets[0].PositionNodeId);
+        Assert.Equal(ResolvedTargetRole.Giver, targets[0].Role);
+        Assert.Equal(QuestMarkerKind.QuestGiver, targets[0].Semantic.PreferredMarkerKind);
+        Assert.Equal(ResolvedActionKind.Talk, targets[0].Semantic.ActionKind);
         Assert.Equal(10f, targets[0].X);
         Assert.Equal(20f, targets[0].Y);
         Assert.Equal(30f, targets[0].Z);
     }
 
+
+
     [Fact]
-    public void Accepted_with_missing_item_resolves_item_source_position()
+    public void Accepted_with_missing_item_resolves_objective_source_semantics()
     {
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f)
@@ -50,9 +58,42 @@ public sealed class SourceResolverTests
 
         var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
 
+        guide.TryGetNodeId("char:wolf", out int wolfId);
         Assert.Single(targets);
+        Assert.Equal(wolfId, targets[0].TargetNodeId);
+        Assert.Equal(wolfId, targets[0].PositionNodeId);
+        Assert.Equal(ResolvedTargetRole.Objective, targets[0].Role);
+        Assert.Equal(QuestMarkerKind.Objective, targets[0].Semantic.PreferredMarkerKind);
+        Assert.Equal(ResolvedActionKind.Kill, targets[0].Semantic.ActionKind);
         Assert.Equal(40f, targets[0].X);
         Assert.Equal(50f, targets[0].Y);
         Assert.Equal(60f, targets[0].Z);
+    }
+
+    [Fact]
+    public void Accepted_with_satisfied_items_resolves_turnin_semantics()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:pelt")
+            .AddCharacter("char:turnin", scene: "Forest", x: 70f, y: 80f, z: 90f)
+            .AddQuest(
+                "quest:a",
+                dbName: "QUESTA",
+                completers: new[] { "char:turnin" },
+                requiredItems: new[] { ("item:pelt", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int> { ["item:pelt"] = 1 }, Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+
+        guide.TryGetNodeId("char:turnin", out int turnInId);
+        Assert.Single(targets);
+        Assert.Equal(turnInId, targets[0].TargetNodeId);
+        Assert.Equal(ResolvedTargetRole.TurnIn, targets[0].Role);
+        Assert.Equal(QuestMarkerKind.TurnInReady, targets[0].Semantic.PreferredMarkerKind);
+        Assert.Equal(ResolvedActionKind.Give, targets[0].Semantic.ActionKind);
     }
 }
