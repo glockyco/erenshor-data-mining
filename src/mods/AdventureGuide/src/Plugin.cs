@@ -1,3 +1,4 @@
+using AdventureGuide.CompiledGuide;
 using System.Diagnostics;
 using BepInEx;
 using BepInEx.Logging;
@@ -16,6 +17,7 @@ using AdventureGuide.Rendering;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.State.Resolvers;
+using AdventureGuide.UI.Tree;
 using AdventureGuide.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -55,6 +57,11 @@ public sealed class Plugin : BaseUnityPlugin
     private WaterPositionResolver? _waterResolver;
     private CompiledSourceIndex? _sourceIndex;
     private NavigationTargetSelector? _targetSelector;
+    private CompiledGuide.CompiledGuide? _compiledGuide;
+    private QuestPhaseTracker? _compiledQuestTracker;
+    private AdventureGuide.Resolution.UnlockPredicateEvaluator? _compiledUnlocks;
+    private SpecTreeProjector? _specTreeProjector;
+    private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
     private int _lastNavSetVersion = -1;
 
@@ -97,6 +104,16 @@ public sealed class Plugin : BaseUnityPlugin
         graphSw.Restart();
         _sourceIndex = new CompiledSourceIndex(_graph);
         var sourceIndexMs = graphSw.Elapsed.TotalMilliseconds;
+
+        try
+        {
+            _compiledGuide = CompiledGuideLoader.Load(Log);
+            _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"Compiled guide unavailable for detail panel: {ex.Message}");
+        }
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
@@ -188,11 +205,23 @@ public sealed class Plugin : BaseUnityPlugin
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
         _questTracker.SetHistory(history);
 
-        var viewRenderer = new ViewRenderer(_graph, _gameState, _navSet, _questTracker, _trackerState);
+        ViewRenderer viewRenderer;
         var filter = new FilterState();
         filter.LoadFrom(_config);
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
-        _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
+        if (_compiledGuide != null && _compiledQuestTracker != null)
+        {
+            SyncCompiledQuestTracker();
+            _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
+            _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
+            viewRenderer = new ViewRenderer(_compiledGuide, _navSet, _questTracker, _trackerState, _specTreeProjector);
+            _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _compiledGuide);
+        }
+        else
+        {
+            viewRenderer = new ViewRenderer(_graph, _gameState, _navSet, _questTracker, _trackerState);
+            _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
+        }
 
         _trackerPanel = new TrackerPanel(
             _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector, _resolutionService);
@@ -374,6 +403,7 @@ public sealed class Plugin : BaseUnityPlugin
         pt = Stopwatch.GetTimestamp();
         _markerSystem?.Update();
         GuideProfiler.MarkerSysUpdate.Record(pt);
+        SyncCompiledQuestTracker();
 
         if (_config == null || _window == null) return;
         if (!_inGameplay) return;
@@ -401,6 +431,21 @@ public sealed class Plugin : BaseUnityPlugin
             var node = _graph!.GetQuestByDbName(db);
             if (node != null) yield return node.Key;
         }
+    }
+
+    private void SyncCompiledQuestTracker()
+    {
+        if (_compiledQuestTracker == null || _questTracker == null)
+            return;
+        if (_lastCompiledQuestTrackerVersion == _questTracker.Version)
+            return;
+
+        _compiledQuestTracker.Initialize(
+            _questTracker.CompletedQuests,
+            _questTracker.ActiveQuests,
+            _questTracker.InventoryCounts,
+            _questTracker.KeyringItems);
+        _lastCompiledQuestTrackerVersion = _questTracker.Version;
     }
 
     private void OnGUI()

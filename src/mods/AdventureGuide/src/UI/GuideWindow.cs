@@ -1,3 +1,4 @@
+using AdventureGuide.CompiledGuide;
 using System.Numerics;
 using AdventureGuide.Config;
 using AdventureGuide.Plan;
@@ -21,6 +22,7 @@ public sealed class GuideWindow
     private readonly ViewRenderer _viewRenderer;
     private readonly QuestListPanel _listPanel;
     private readonly QuestResolutionService _resolution;
+    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
 
     private bool _visible;
 
@@ -43,6 +45,25 @@ public sealed class GuideWindow
         _listPanel = listPanel;
         _filter = filter;
         _resolution = resolution;
+    }
+
+    public GuideWindow(
+        QuestStateTracker state,
+        NavigationHistory history,
+        GuideConfig config,
+        ViewRenderer viewRenderer,
+        QuestListPanel listPanel,
+        FilterState filter,
+        CompiledGuide.CompiledGuide compiledGuide)
+    {
+        _state = state;
+        _history = history;
+        _config = config;
+        _viewRenderer = viewRenderer;
+        _listPanel = listPanel;
+        _filter = filter;
+        _resolution = null!;
+        _compiledGuide = compiledGuide;
     }
 
     public void Toggle() => _visible = !_visible;
@@ -110,14 +131,52 @@ public sealed class GuideWindow
         ImGui.SameLine();
 
         ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
-        QuestPlanProjection? projection = null;
         if (_state.SelectedQuestDBName != null)
         {
-            var resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
-            if (resolution != null)
-                projection = _resolution.GetQuestPlanProjection(resolution.QuestKey);
+            if (_compiledGuide != null)
+            {
+                int? questIndex = FindQuestIndexByDbName(_state.SelectedQuestDBName);
+                _viewRenderer.Draw(questIndex);
+            }
+            else
+            {
+                QuestPlanProjection? projection = null;
+                var resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
+                if (resolution != null)
+                    projection = _resolution.GetQuestPlanProjection(resolution.QuestKey);
+                _viewRenderer.Draw(projection);
+            }
         }
-        _viewRenderer.Draw(projection);
+        else
+        {
+            _viewRenderer.Draw((int?)null);
+        }
         ImGui.EndChild();
     }
+
+    private int? FindQuestIndexByDbName(string dbName)
+    {
+        if (_compiledGuide == null)
+        {
+            return null;
+        }
+
+        for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
+        {
+            int nodeId = _compiledGuide.QuestNodeId(questIndex);
+            uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
+            if (dbNameOffset == 0)
+            {
+                continue;
+            }
+
+            if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
+            {
+                return questIndex;
+            }
+        }
+
+        return null;
+    }
+
 }

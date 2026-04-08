@@ -1,3 +1,4 @@
+using AdventureGuide.CompiledGuide;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
@@ -21,6 +22,8 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SourceVisibilityPolicy _visibilityPolicy;
+    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
+    private readonly SpecTreeProjector? _specProjector;
 
     private QuestPlan? _currentPlan;
     private QuestTreeSession? _currentSession;
@@ -36,6 +39,19 @@ public sealed class ViewRenderer
         _trackerState = trackerState;
         _visibilityPolicy = new SourceVisibilityPolicy(
             graph, refname => GlobalFactionManager.FindFactionData(refname)?.Value);
+    }
+
+    public ViewRenderer(CompiledGuide.CompiledGuide guide, NavigationSet navSet,
+        QuestStateTracker tracker, TrackerState trackerState, SpecTreeProjector specProjector)
+    {
+        _graph = null!;
+        _state = null!;
+        _navSet = navSet;
+        _tracker = tracker;
+        _trackerState = trackerState;
+        _visibilityPolicy = null!;
+        _compiledGuide = guide;
+        _specProjector = specProjector;
     }
 
     /// <summary>Render a full quest detail page from a canonical quest plan.</summary>
@@ -88,6 +104,32 @@ public sealed class ViewRenderer
 
         ImGui.Spacing();
         DrawRewards(root.Node);
+    }
+
+    /// <summary>Render a quest detail page from compiled guide specs.</summary>
+    public void Draw(int? questIndex)
+    {
+        if (_compiledGuide == null || _specProjector == null || questIndex == null)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.TextWrapped("Select a quest from the list.");
+            ImGui.PopStyleColor();
+            return;
+        }
+
+        int qNodeId = _compiledGuide.QuestNodeId(questIndex.Value);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
+        ImGui.TextWrapped(_compiledGuide.GetDisplayName(qNodeId));
+        ImGui.PopStyleColor();
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        foreach (var root in _specProjector.GetRootChildren(questIndex.Value))
+        {
+            DrawSpecTreeRef(root);
+        }
     }
 
     private void EnsureSession(QuestPlan plan)
@@ -659,4 +701,35 @@ public sealed class ViewRenderer
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    private void DrawSpecTreeRef(SpecTreeRef treeRef)
+    {
+        bool hasChildren = treeRef.Kind == SpecTreeKind.Item;
+        uint color = treeRef.IsBlocked ? Theme.SourceDimmed
+            : treeRef.IsCompleted ? Theme.QuestCompleted
+            : Theme.TextPrimary;
+
+        if (!hasChildren)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, color);
+            ImGui.BulletText(treeRef.DisplayName);
+            ImGui.PopStyleColor();
+            return;
+        }
+
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+        bool open = ImGui.TreeNodeEx($"{treeRef.DisplayName}###{treeRef.NodeId}");
+        ImGui.PopStyleColor();
+        if (!open)
+        {
+            return;
+        }
+
+        foreach (var child in _specProjector!.GetChildren(treeRef))
+        {
+            DrawSpecTreeRef(child);
+        }
+        ImGui.TreePop();
+    }
+
 }

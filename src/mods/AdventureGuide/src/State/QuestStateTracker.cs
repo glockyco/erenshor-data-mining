@@ -46,6 +46,7 @@ public sealed class QuestStateTracker
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
     public IReadOnlyDictionary<string, int> InventoryCounts => _inventoryCounts;
+    public IReadOnlyCollection<string> KeyringItems => _keyringItemKeys;
 
     public QuestStateTracker(EntityGraph graph, GraphIndexes indexes, GuideDependencyEngine dependencies)
     {
