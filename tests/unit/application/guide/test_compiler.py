@@ -11,6 +11,8 @@ from erenshor.application.guide.compiler import (
     EdgeFlags,
     ItemRequirement,
     NodeFlags,
+    QuestCompletionBlueprint,
+    QuestGiverBlueprint,
     QuestSpec,
     SectionId,
     SourceSite,
@@ -263,3 +265,60 @@ def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
     key_ii = compiled.node_item_index[key_id]
     assert compiled.quest_to_dependent_quest_indices[unlock_qi] == [needs_qi]
     assert compiled.item_to_quest_indices[key_ii] == [needs_qi]
+
+
+def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> None:
+    graph = _graph(
+        _quest("quest:pre", db_name="PREQ"),
+        _quest("quest:root", db_name="ROOT"),
+        _char("char:giver", scene="Town", x=1.0, y=2.0, z=3.0),
+        _spawn("spawn:giver:1", scene="Town"),
+        edges=[
+            Edge(source="quest:root", target="quest:pre", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:root", target="char:giver", type=EdgeType.ASSIGNED_BY, keyword="hail"),
+            Edge(source="char:giver", target="spawn:giver:1", type=EdgeType.HAS_SPAWN),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    quest_root_id = compiled.node_key_to_id["quest:root"]
+    giver_id = compiled.node_key_to_id["char:giver"]
+    spawn_id = compiled.node_key_to_id["spawn:giver:1"]
+
+    assert compiled.giver_blueprints == [
+        QuestGiverBlueprint(
+            quest_id=quest_root_id,
+            character_id=giver_id,
+            position_id=spawn_id,
+            interaction_type=1,
+            keyword="hail",
+            required_quest_db_names=["PREQ"],
+        )
+    ]
+
+
+def test_compile_graph_builds_real_completion_blueprints() -> None:
+    graph = _graph(
+        _quest("quest:root", db_name="ROOT"),
+        _char("char:turnin", scene="Town", x=4.0, y=5.0, z=6.0),
+        _spawn("spawn:turnin:1", scene="Town"),
+        edges=[
+            Edge(source="quest:root", target="char:turnin", type=EdgeType.COMPLETED_BY, keyword="done"),
+            Edge(source="char:turnin", target="spawn:turnin:1", type=EdgeType.HAS_SPAWN),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    quest_root_id = compiled.node_key_to_id["quest:root"]
+    turnin_id = compiled.node_key_to_id["char:turnin"]
+    spawn_id = compiled.node_key_to_id["spawn:turnin:1"]
+
+    assert compiled.completion_blueprints == [
+        QuestCompletionBlueprint(
+            quest_id=quest_root_id,
+            character_id=turnin_id,
+            position_id=spawn_id,
+            interaction_type=1,
+            keyword="done",
+        )
+    ]

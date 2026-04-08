@@ -188,6 +188,8 @@ class QuestCompletionBlueprint:
     quest_id: int
     character_id: int
     position_id: int
+    interaction_type: int = 0
+    keyword: str | None = None
 
 
 @dataclass(slots=True)
@@ -268,7 +270,7 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _compile_unlock_predicates(compiled)
     _compile_reverse_dependencies(compiled)
     _compile_zones(compiled)
-    _compile_blueprints(compiled)
+    _compile_blueprints(graph, compiled)
     return compiled
 
 
@@ -574,26 +576,84 @@ def _compile_zones(compiled: CompiledData) -> None:
     compiled.zone_line_ids = [[] for _ in compiled.zone_node_ids]
 
 
-def _compile_blueprints(compiled: CompiledData) -> None:
+def _compile_blueprints(graph: EntityGraph, compiled: CompiledData) -> None:
     compiled.giver_blueprints = []
     compiled.completion_blueprints = []
-    for spec in compiled.quest_specs:
-        for giver_node_id in spec.giver_node_ids:
-            compiled.giver_blueprints.append(
-                QuestGiverBlueprint(
-                    quest_id=spec.quest_id,
-                    character_id=giver_node_id,
-                    position_id=_first_spawn_or_self(compiled, giver_node_id),
+
+    for quest_node in graph.nodes_of_type(NodeType.QUEST):
+        if quest_node.db_name is None:
+            continue
+        quest_id = compiled.node_key_to_id[quest_node.key]
+        required_quest_db_names = _collect_required_quest_db_names(graph, quest_node.key)
+
+        for edge in graph.out_edges(quest_node.key, EdgeType.ASSIGNED_BY):
+            character_node = graph.get_node(edge.target)
+            if character_node is None:
+                continue
+            character_id = compiled.node_key_to_id[character_node.key]
+            interaction_type, keyword = _build_interaction(edge)
+            for position_key, _scene in _enumerate_scene_targets(graph, character_node):
+                compiled.giver_blueprints.append(
+                    QuestGiverBlueprint(
+                        quest_id=quest_id,
+                        character_id=character_id,
+                        position_id=compiled.node_key_to_id[position_key],
+                        interaction_type=interaction_type,
+                        keyword=keyword,
+                        required_quest_db_names=required_quest_db_names,
+                    )
                 )
-            )
-        for completer_node_id in spec.completer_node_ids:
-            compiled.completion_blueprints.append(
-                QuestCompletionBlueprint(
-                    quest_id=spec.quest_id,
-                    character_id=completer_node_id,
-                    position_id=_first_spawn_or_self(compiled, completer_node_id),
+
+        for edge in graph.out_edges(quest_node.key, EdgeType.COMPLETED_BY):
+            target_node = graph.get_node(edge.target)
+            if target_node is None:
+                continue
+            target_id = compiled.node_key_to_id[target_node.key]
+            interaction_type, keyword = _build_interaction(edge)
+            for position_key, _scene in _enumerate_scene_targets(graph, target_node):
+                compiled.completion_blueprints.append(
+                    QuestCompletionBlueprint(
+                        quest_id=quest_id,
+                        character_id=target_id,
+                        position_id=compiled.node_key_to_id[position_key],
+                        interaction_type=interaction_type,
+                        keyword=keyword,
+                    )
                 )
-            )
+
+
+def _collect_required_quest_db_names(graph: EntityGraph, quest_key: str) -> list[str]:
+    required: list[str] = []
+    for edge in graph.out_edges(quest_key, EdgeType.REQUIRES_QUEST):
+        prerequisite = graph.get_node(edge.target)
+        if prerequisite and prerequisite.db_name:
+            required.append(prerequisite.db_name)
+    return required
+
+
+def _enumerate_scene_targets(graph: EntityGraph, node: Node) -> list[tuple[str, str]]:
+    targets: list[tuple[str, str]] = []
+    if node.type != NodeType.CHARACTER:
+        if node.scene:
+            targets.append((node.key, node.scene))
+        return targets
+
+    spawn_targets: list[tuple[str, str]] = []
+    for edge in graph.out_edges(node.key, EdgeType.HAS_SPAWN):
+        spawn_node = graph.get_node(edge.target)
+        if spawn_node and spawn_node.scene:
+            spawn_targets.append((spawn_node.key, spawn_node.scene))
+    if spawn_targets:
+        return spawn_targets
+    if node.scene:
+        targets.append((node.key, node.scene))
+    return targets
+
+
+def _build_interaction(edge: Edge) -> tuple[int, str | None]:
+    if edge.keyword:
+        return (1, edge.keyword)
+    return (0, None)
 
 
 def _first_spawn_or_self(compiled: CompiledData, node_id: int) -> int:

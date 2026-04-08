@@ -247,6 +247,42 @@ public sealed class CompiledGuideBuilder
         var (i2qOff, i2qVal) = EncodeRows(i2qRows);
         var (q2qOff, q2qVal) = EncodeRows(q2qRows);
 
+        var giverBlueprints = new List<QuestGiverEntry>();
+        var completionBlueprints = new List<QuestCompletion>();
+        for (int questIndex = 0; questIndex < questKeys.Length; questIndex++)
+        {
+            QuestDef quest = questByKey[questKeys[questIndex]];
+            int questNodeId = questNodeIds[questIndex];
+            string[] requiredQuestDbNames = quest.Prereqs
+                .Select(prereq => questByKey.GetValueOrDefault(prereq)?.DbName)
+                .Where(dbName => !string.IsNullOrEmpty(dbName))
+                .Cast<string>()
+                .ToArray();
+
+            foreach (string giver in quest.Givers)
+            {
+                int giverId = keyToId[giver];
+                giverBlueprints.Add(new QuestGiverEntry(
+                    questNodeId,
+                    giverId,
+                    giverId,
+                    interactionType: 0,
+                    keyword: null,
+                    requiredQuestDbNames));
+            }
+
+            foreach (string completer in quest.Completers)
+            {
+                int completerId = keyToId[completer];
+                completionBlueprints.Add(new QuestCompletion(
+                    questNodeId,
+                    completerId,
+                    completerId,
+                    interactionType: 0,
+                    keyword: null));
+            }
+        }
+
         return new CompiledGuideModel(
             strings.ToArray(),
             nodes,
@@ -276,8 +312,8 @@ public sealed class CompiledGuideBuilder
             Array.Empty<int>(),
             new[] { 0 },
             Array.Empty<int>(),
-            Array.Empty<QuestGiverEntry>(),
-            Array.Empty<QuestCompletion>(),
+            giverBlueprints.ToArray(),
+            completionBlueprints.ToArray(),
             new bool[keyToId.Count]);
     }
 

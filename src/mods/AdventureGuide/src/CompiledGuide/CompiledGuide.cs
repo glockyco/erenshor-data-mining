@@ -325,14 +325,18 @@ public readonly struct QuestGiverEntry
 
 public readonly struct QuestCompletion
 {
-    public QuestCompletion(int questId, int characterId, int positionId)
+    public QuestCompletion(int questId, int characterId, int positionId, byte interactionType, string? keyword)
     {
         QuestId = questId;
         CharacterId = characterId;
         PositionId = positionId;
+        InteractionType = interactionType;
+        Keyword = keyword;
     }
 
     public int QuestId { get; }
     public int CharacterId { get; }
     public int PositionId { get; }
+    public byte InteractionType { get; }
+    public string? Keyword { get; }
 }

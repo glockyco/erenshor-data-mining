@@ -296,7 +296,12 @@ public static class CompiledGuideLoader
             completionBlueprints = new QuestCompletion[count];
             for (int i = 0; i < count; i++)
             {
-                completionBlueprints[i] = new QuestCompletion(s.ReadUInt16(), s.ReadUInt16(), s.ReadUInt16());
+                completionBlueprints[i] = new QuestCompletion(
+                    s.ReadUInt16(),
+                    s.ReadUInt16(),
+                    s.ReadUInt16(),
+                    s.ReadByte(),
+                    ReadNullableString(ReadString, s.ReadUInt32()));
             }
         }
 

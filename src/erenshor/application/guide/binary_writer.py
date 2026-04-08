@@ -85,7 +85,7 @@ def write(compiled: CompiledData) -> bytes:
     sections.set(SectionId.REVERSE_DEPS, _write_reverse_deps(compiled))
     sections.set(SectionId.ZONE_CONNECTIVITY, _write_zone_connectivity(compiled))
     sections.set(SectionId.QUEST_GIVER_BLUEPRINTS, _write_giver_blueprints(compiled, strings))
-    sections.set(SectionId.QUEST_COMPLETION_BLUEPRINTS, _write_completion_blueprints(compiled))
+    sections.set(SectionId.QUEST_COMPLETION_BLUEPRINTS, _write_completion_blueprints(compiled, strings))
     sections.set(SectionId.FEASIBILITY, _write_feasibility(compiled))
     sections.set(SectionId.STRING_TABLE, strings.to_bytes())
 
@@ -252,11 +252,20 @@ def _write_giver_blueprints(compiled: CompiledData, strings: _StringTable) -> by
     return buffer.getvalue()
 
 
-def _write_completion_blueprints(compiled: CompiledData) -> bytes:
+def _write_completion_blueprints(compiled: CompiledData, strings: _StringTable) -> bytes:
     buffer = io.BytesIO()
     buffer.write(struct.pack("<H", len(compiled.completion_blueprints)))
     for blueprint in compiled.completion_blueprints:
-        buffer.write(struct.pack("<HHH", blueprint.quest_id, blueprint.character_id, blueprint.position_id))
+        buffer.write(
+            struct.pack(
+                "<HHHBI",
+                blueprint.quest_id,
+                blueprint.character_id,
+                blueprint.position_id,
+                blueprint.interaction_type,
+                strings.intern(blueprint.keyword),
+            )
+        )
     return buffer.getvalue()
 
 

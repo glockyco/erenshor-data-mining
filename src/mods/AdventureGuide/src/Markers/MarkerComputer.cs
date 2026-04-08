@@ -141,7 +141,7 @@ public sealed class MarkerComputer
         ClearAll();
 
         var sceneQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var blueprint in _indexes.GetQuestGiversInScene(_tracker.CurrentZone))
+        foreach (var blueprint in GetQuestGiversInCurrentScene())
             sceneQuestKeys.Add(blueprint.QuestKey);
 
         foreach (var questDbName in _tracker.GetActionableQuestDbNames())
@@ -435,10 +435,8 @@ public sealed class MarkerComputer
         if (hasReadyCompletion)
             return;
 
-        var blueprints = _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
-        for (int i = 0; i < blueprints.Count; i++)
+        foreach (var blueprint in GetQuestCompletionsInCurrentScene())
         {
-            var blueprint = blueprints[i];
             if (blueprint.QuestKey != quest.Key)
                 continue;
 
@@ -503,10 +501,8 @@ public sealed class MarkerComputer
         }
 
         // Emit turn-in markers for completion NPCs present in the current scene.
-        var blueprints = _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
-        for (int i = 0; i < blueprints.Count; i++)
+        foreach (var blueprint in GetQuestCompletionsInCurrentScene())
         {
-            var blueprint = blueprints[i];
             if (blueprint.QuestKey != quest.Key)
                 continue;
 
@@ -604,10 +600,8 @@ public sealed class MarkerComputer
 
     private void EmitQuestGiverMarkers(Node quest)
     {
-        var blueprints = _indexes.GetQuestGiversInScene(_tracker.CurrentZone);
-        for (int i = 0; i < blueprints.Count; i++)
+        foreach (var blueprint in GetQuestGiversInCurrentScene())
         {
-            var blueprint = blueprints[i];
             if (blueprint.QuestKey != quest.Key)
                 continue;
 
@@ -616,6 +610,74 @@ public sealed class MarkerComputer
                 AddContribution(quest.Key, entry.NodeKey, entry);
         }
     }
+
+    private IReadOnlyList<QuestGiverBlueprint> GetQuestGiversInCurrentScene()
+    {
+        if (_compiledGuide == null)
+            return _indexes.GetQuestGiversInScene(_tracker.CurrentZone);
+
+        var results = new List<QuestGiverBlueprint>();
+        var blueprints = _compiledGuide.GiverBlueprints;
+        for (int i = 0; i < blueprints.Length; i++)
+        {
+            var blueprint = blueprints[i];
+            var questNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
+            var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            if (questNode?.DbName == null || positionNode == null)
+                continue;
+            if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            results.Add(new QuestGiverBlueprint(
+                questNode.Key,
+                questNode.DbName,
+                questNode.DisplayName,
+                _compiledGuide.GetNodeKey(blueprint.CharacterId),
+                positionNode.Key,
+                positionNode.Scene ?? _tracker.CurrentZone,
+                new MarkerInteraction(
+                    blueprint.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
+                    blueprint.Keyword),
+                questNode.Repeatable,
+                blueprint.RequiredQuestDbNames));
+        }
+
+        return results;
+    }
+
+    private IReadOnlyList<QuestCompletionBlueprint> GetQuestCompletionsInCurrentScene()
+    {
+        if (_compiledGuide == null)
+            return _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
+
+        var results = new List<QuestCompletionBlueprint>();
+        var blueprints = _compiledGuide.CompletionBlueprints;
+        for (int i = 0; i < blueprints.Length; i++)
+        {
+            var blueprint = blueprints[i];
+            var questNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
+            var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            if (questNode?.DbName == null || positionNode == null)
+                continue;
+            if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            results.Add(new QuestCompletionBlueprint(
+                questNode.Key,
+                questNode.DbName,
+                questNode.DisplayName,
+                _compiledGuide.GetNodeKey(blueprint.CharacterId),
+                positionNode.Key,
+                positionNode.Scene ?? _tracker.CurrentZone,
+                new MarkerInteraction(
+                    blueprint.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
+                    blueprint.Keyword),
+                questNode.Repeatable));
+        }
+
+        return results;
+    }
+
 
     private MarkerEntry? CreateQuestGiverEntry(Node quest, QuestGiverBlueprint blueprint)
     {
