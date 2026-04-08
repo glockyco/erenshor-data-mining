@@ -96,8 +96,12 @@ REQUIRED_DLLS = [
     "UnityEngine.dll",
     "UnityEngine.CoreModule.dll",
     "UnityEngine.InputLegacyModule.dll",
+    "UnityEngine.IMGUIModule.dll",
     "UnityEngine.UIModule.dll",
     "UnityEngine.UI.dll",
+    "UnityEngine.TextRenderingModule.dll",
+    "UnityEngine.AIModule.dll",
+    "UnityEngine.PhysicsModule.dll",
     "Unity.TextMeshPro.dll",
     "com.rlabrecque.steamworks.net.dll",
 ]
