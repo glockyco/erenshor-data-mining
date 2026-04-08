@@ -3,7 +3,6 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Config;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
-using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using ImGuiNET;
@@ -38,10 +37,7 @@ public sealed class TrackerPanel
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
     private readonly NavigationTargetSelector _selector;
-    private readonly QuestResolutionService _resolution;
-    private readonly AdventureGuide.CompiledGuide.CompiledGuide? _compiledGuide;
-    private readonly QuestPhaseTracker? _compiledQuestTracker;
-    private readonly EffectiveFrontier? _effectiveFrontier;
+    private readonly TrackerSummaryResolver _summaryResolver;
 
     private bool _visible = true;
     private readonly Dictionary<string, EntryAnimation> _animations = new(StringComparer.OrdinalIgnoreCase);
@@ -67,7 +63,7 @@ public sealed class TrackerPanel
         GuideWindow guide,
         GuideConfig config,
         NavigationTargetSelector selector,
-        QuestResolutionService resolution)
+        TrackerSummaryResolver summaryResolver)
     {
         _graph = graph;
         _tracker = tracker;
@@ -76,29 +72,11 @@ public sealed class TrackerPanel
         _guide = guide;
         _config = config;
         _selector = selector;
-        _resolution = resolution;
+        _summaryResolver = summaryResolver;
 
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
         _trackerState.QuestCompleted += OnQuestCompleted;
-    }
-
-    public TrackerPanel(
-        EntityGraph graph,
-        QuestStateTracker tracker,
-        TrackerState trackerState,
-        NavigationSet navSet,
-        GuideWindow guide,
-        GuideConfig config,
-        NavigationTargetSelector selector,
-        AdventureGuide.CompiledGuide.CompiledGuide compiledGuide,
-        QuestPhaseTracker compiledQuestTracker,
-        EffectiveFrontier effectiveFrontier)
-        : this(graph, tracker, trackerState, navSet, guide, config, selector, resolution: null!)
-    {
-        _compiledGuide = compiledGuide;
-        _compiledQuestTracker = compiledQuestTracker;
-        _effectiveFrontier = effectiveFrontier;
     }
 
     public void Dispose()
@@ -458,45 +436,20 @@ public sealed class TrackerPanel
             return;
         }
 
-        if (_compiledGuide != null && _compiledQuestTracker != null && _effectiveFrontier != null && dbName != null)
-        {
-            int? questIndex = FindQuestIndexByDbName(dbName);
-            if (questIndex != null)
-            {
-                var frontier = new List<FrontierEntry>();
-                _effectiveFrontier.Resolve(questIndex.Value, frontier, -1);
-                if (frontier.Count > 0)
-                {
-                    TrackerSummary summaryEntry = TrackerSummaryBuilder.Build(
-                        _compiledGuide, _compiledQuestTracker, frontier[0]);
-                    string distText = BuildDistanceText(quest.Key);
-                    string summary = summaryEntry.PrimaryText;
-                    if (distText.Length > 0) summary += " " + distText;
+        var summaryEntry = _summaryResolver.Resolve(quest.Key, dbName);
+        if (summaryEntry == null)
+            return;
 
-                    ImGui.Indent(Theme.IndentWidth);
-                    ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                    ImGui.TextWrapped(summary);
-                    if (!string.IsNullOrEmpty(summaryEntry.SecondaryText))
-                        ImGui.TextWrapped(summaryEntry.SecondaryText);
-                    ImGui.PopStyleColor();
-                    ImGui.Unindent(Theme.IndentWidth);
-                    return;
-                }
-            }
-        }
-
-        var resolution = _resolution.ResolveQuest(quest.Key);
-        string fallbackDistText = BuildDistanceText(quest.Key);
-        string fallbackSummary = resolution.TrackerSummary.PrimaryText;
-        if (fallbackDistText.Length > 0) fallbackSummary += " " + fallbackDistText;
+        TrackerSummary resolved = summaryEntry.Value;
+        string distText = BuildDistanceText(quest.Key);
+        string summary = resolved.PrimaryText;
+        if (distText.Length > 0) summary += " " + distText;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        ImGui.TextWrapped(fallbackSummary);
-        if (!string.IsNullOrEmpty(resolution.TrackerSummary.SecondaryText))
-            ImGui.TextWrapped(resolution.TrackerSummary.SecondaryText);
-        ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.TextWrapped(summary);
+        if (!string.IsNullOrEmpty(resolved.SecondaryText))
+            ImGui.TextWrapped(resolved.SecondaryText);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
     }
@@ -523,21 +476,6 @@ public sealed class TrackerPanel
         return string.Empty;
     }
 
-    private int? FindQuestIndexByDbName(string dbName)
-    {
-        if (_compiledGuide == null)
-            return null;
-        for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
-        {
-            int nodeId = _compiledGuide.QuestNodeId(questIndex);
-            uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
-            if (dbNameOffset == 0)
-                continue;
-            if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
-                return questIndex;
-        }
-        return null;
-    }
 
 
     private void PruneAnimations()
