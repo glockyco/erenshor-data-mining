@@ -10,7 +10,7 @@ namespace AdventureGuide.Markers;
 
 /// <summary>
 /// Scene-local world marker projection.
-/// Quest semantics come from <see cref="QuestResolutionService"/> and immutable
+/// Quest semantics come from compiled frontier/source resolvers and immutable
 /// graph blueprints; this class only materializes markers for the current scene.
 /// </summary>
 public sealed class MarkerComputer

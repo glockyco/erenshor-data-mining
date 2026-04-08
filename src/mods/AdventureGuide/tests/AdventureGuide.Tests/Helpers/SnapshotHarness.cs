@@ -1,7 +1,5 @@
 using AdventureGuide.Diagnostics;
-using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 using AdventureGuide.State.Resolvers;
@@ -10,7 +8,7 @@ namespace AdventureGuide.Tests.Helpers;
 
 /// <summary>
 /// Wires an <see cref="EntityGraph"/> + <see cref="StateSnapshot"/> (or empty state)
-/// into the canonical plan / resolution / unlock pipeline for testing without
+/// into the current game-state, unlock, and routing pipeline for tests without
 /// reading live <c>GameData</c>.
 /// </summary>
 public sealed class SnapshotHarness
@@ -20,28 +18,20 @@ public sealed class SnapshotHarness
     public QuestStateTracker Tracker { get; }
     public UnlockEvaluator Unlocks { get; }
     public ZoneRouter Router { get; }
-    public QuestPlanBuilder PlanBuilder { get; }
-    private SnapshotHarness(EntityGraph graph, GameState gameState,
-        QuestStateTracker tracker, UnlockEvaluator unlocks,
-        ZoneRouter router, QuestPlanBuilder planBuilder)
+
+    private SnapshotHarness(
+        EntityGraph graph,
+        GameState gameState,
+        QuestStateTracker tracker,
+        UnlockEvaluator unlocks,
+        ZoneRouter router)
     {
         Graph = graph;
         GameState = gameState;
         Tracker = tracker;
         Unlocks = unlocks;
         Router = router;
-        PlanBuilder = planBuilder;
     }
-
-    /// <summary>Builds a canonical quest plan for a quest.</summary>
-    public QuestPlan BuildPlan(string questKey) => PlanBuilder.Build(questKey);
-
-    /// <summary>Builds a canonical plan rooted at any graph node.</summary>
-    public QuestPlan BuildNodePlan(string nodeKey) => PlanBuilder.BuildNode(nodeKey);
-
-    /// <summary>Computes the actionable frontier from a canonical quest plan.</summary>
-    public IReadOnlyList<FrontierRef> ComputePlanFrontier(QuestPlan plan)
-        => FrontierResolver.ComputeFrontier(plan, GameState);
 
     /// <summary>
     /// Creates a fully wired harness from a graph and a state snapshot.
@@ -64,8 +54,6 @@ public sealed class SnapshotHarness
         gameState.Register(NodeType.Quest, new QuestStateResolver(tracker));
         gameState.Register(NodeType.Item, new ItemStateResolver(tracker));
 
-        // For live-world node types, register a resolver that returns
-        // NodeState from the snapshot's liveNodeStates map.
         var liveResolver = new SnapshotLiveResolver(snapshot.LiveNodeStates);
         gameState.Register(NodeType.Character, liveResolver);
         gameState.Register(NodeType.SpawnPoint, liveResolver);
@@ -73,16 +61,13 @@ public sealed class SnapshotHarness
         gameState.Register(NodeType.ItemBag, liveResolver);
         gameState.Register(NodeType.Door, liveResolver);
 
-        // ZoneLine uses UnlockEvaluator, which we wire below.
         var unlocks = new UnlockEvaluator(graph, gameState, tracker);
         gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(unlocks));
 
         var router = new ZoneRouter(graph, unlocks);
         router.Rebuild();
 
-        var planBuilder = new QuestPlanBuilder(graph, gameState, router, tracker, unlocks);
-
-        return new SnapshotHarness(graph, gameState, tracker, unlocks, router, planBuilder);
+        return new SnapshotHarness(graph, gameState, tracker, unlocks, router);
     }
 
     /// <summary>Creates a harness from a builder with empty (all-default) state.</summary>

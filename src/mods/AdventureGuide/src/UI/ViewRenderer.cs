@@ -1,6 +1,5 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
 using AdventureGuide.State;
 using AdventureGuide.UI.Tree;
 using ImGuiNET;
@@ -472,12 +471,12 @@ public sealed class ViewRenderer
     private static string FormatKeyword(string prefix, string name, string? keyword) =>
         !string.IsNullOrEmpty(keyword) ? $"{prefix}{name} — say \"{keyword}\"" : $"{prefix}{name}";
 
-    internal static string FormatCompletion(PlanEntityNode node, PlanLink? link)
+    internal static string FormatCompletion(Node node, string? keyword)
     {
-        string name = node.Node.DisplayName;
-        return node.Node.Type switch
+        string name = node.DisplayName;
+        return node.Type switch
         {
-            NodeType.Character => FormatKeyword("Turn in to ", name, link?.Keyword),
+            NodeType.Character => FormatKeyword("Turn in to ", name, keyword),
             NodeType.Item => $"Read: {name}",
             NodeType.Zone => $"Enter: {name}",
             NodeType.ZoneLine => $"Travel to: {name}",

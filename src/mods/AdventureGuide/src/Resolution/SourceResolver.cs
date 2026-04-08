@@ -103,7 +103,7 @@ public sealed class SourceResolver
                         continue;
 
                     emittedObjective = true;
-                    foreach (var source in _guide.GetItemSources(itemIndex))
+                    foreach (var source in GetVisibleItemSources(itemIndex))
                     {
                         if (_unlocks.Evaluate(source.SourceId) == UnlockResult.Blocked)
                             continue;
@@ -212,6 +212,31 @@ public sealed class SourceResolver
 
         return -1;
     }
+
+    private List<SourceSiteEntry> GetVisibleItemSources(int itemIndex)
+    {
+        ReadOnlySpan<SourceSiteEntry> sources = _guide.GetItemSources(itemIndex);
+        bool hasHostileDrop = false;
+        for (int i = 0; i < sources.Length && !hasHostileDrop; i++)
+        {
+            if (sources[i].EdgeType == 16 && IsHostileDropSource(sources[i]))
+                hasHostileDrop = true;
+        }
+
+        var visible = new List<SourceSiteEntry>(sources.Length);
+        for (int i = 0; i < sources.Length; i++)
+        {
+            var source = sources[i];
+            if (hasHostileDrop && source.EdgeType == 16 && !IsHostileDropSource(source))
+                continue;
+            visible.Add(source);
+        }
+
+        return visible;
+    }
+
+    private bool IsHostileDropSource(SourceSiteEntry source) =>
+        ((NodeFlags)_guide.GetNode(source.SourceId).Flags & NodeFlags.IsFriendly) == 0;
 
     private ResolvedActionSemantic BuildGiverSemantic(int questIndex, int giverId)
     {

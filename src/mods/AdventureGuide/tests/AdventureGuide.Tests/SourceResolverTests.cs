@@ -70,6 +70,29 @@ public sealed class SourceResolverTests
         Assert.Equal(60f, targets[0].Z);
     }
 
+
+    [Fact]
+    public void Accepted_with_hostile_drop_source_hides_friendly_drop_sources()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f, isFriendly: false)
+            .AddCharacter("char:ranger", scene: "Forest", x: 70f, y: 80f, z: 90f, isFriendly: true)
+            .AddItem("item:pelt")
+            .AddItemSource("item:pelt", "char:wolf", edgeType: 16)
+            .AddItemSource("item:pelt", "char:ranger", edgeType: 16)
+            .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:pelt", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+
+        Assert.Single(targets);
+        guide.TryGetNodeId("char:wolf", out int wolfId);
+        Assert.Equal(wolfId, targets[0].TargetNodeId);
+    }
     [Fact]
     public void Accepted_with_satisfied_items_resolves_turnin_semantics()
     {

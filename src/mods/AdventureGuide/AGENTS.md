@@ -12,14 +12,14 @@ below it. No upward or lateral dependencies.
 
 | Layer | Namespaces | Responsibility |
 |---|---|---|
-| **Graph** | `AdventureGuide.Graph` | Immutable world data: `Node`, `Edge`, `EntityGraph`, `CompiledSourceIndex`, blueprints |
+| **Graph** | `AdventureGuide.Graph`, `AdventureGuide.CompiledGuide` | Immutable world data: `Node`, `Edge`, `EntityGraph`, compiled guide records, blueprints |
 | **State** | `AdventureGuide.State` | Runtime game conditions: quest journal, inventory, live scene objects, per-type node state |
-| **Plan** | `AdventureGuide.Plan`, `.Plan.Semantics` | Derived dependency structure: plan tree, feasibility propagation, frontier, faction rules |
+| **Plan** | `AdventureGuide.Plan` | Compiled frontier state: `QuestPhaseTracker`, `EffectiveFrontier`, `FrontierEntry` |
 | **Position** | `AdventureGuide.Position` | World coordinate resolution per node type; cross-zone routing |
-| **Resolution** | `AdventureGuide.Resolution` | Answers "what should the player do now?": plan caching, target resolution, position lookup |
+| **Resolution** | `AdventureGuide.Resolution` | Answers "what should the player do now?": compiled target resolution, live position integration, tracker summaries |
 | **Navigation** | `AdventureGuide.Navigation` | Arrow renderer, ground path, proximity-based target selection |
 | **Markers** | `AdventureGuide.Markers` | World-space billboard markers from resolution outputs |
-| **UI** | `AdventureGuide.UI`, `.UI.Tree` | Dear ImGui windows: guide panel, tracker, detail tree via `LazyTreeProjector` |
+| **UI** | `AdventureGuide.UI`, `.UI.Tree` | Dear ImGui windows: guide panel, tracker, detail tree via `SpecTreeProjector` |
 | **Rendering** | `AdventureGuide.Rendering` | ImGui/Unity backend; no AG dependencies |
 | **Config** | `AdventureGuide.Config` | BepInEx config entries |
 | **Frontier** | `AdventureGuide.Frontier` | Selected navigation target set; no AG dependencies |
@@ -39,65 +39,35 @@ etc.) are always shown.
 
 ### Where it lives
 
-`Plan/SourceVisibilityPolicy.cs` — in the **Plan** layer alongside
-`FactionChecker`, which it delegates to. Both `Resolution` and `UI.Tree`
-already depend on `Plan`, so neither creates a new cross-layer edge by
-importing this class.
-
-```mermaid
-flowchart LR
-    MC["Markers / NAV / Tracker"]
-    VP["Quest detail panel"]
-    QRS(["★ QuestResolutionService"])
-    CSI["CompiledSourceIndex"]
-    QP["QuestPlan · LazyTreeProjector"]
-
-    MC -->|targets| QRS
-    VP -->|source lists| QRS
-    VP -->|objective tree| QP
-    QRS -->|source sites| CSI
-```
+Hostile-drop suppression now exists in two compiled-guide projections:
+- `Resolution/SourceResolver.GetVisibleItemSources` for runtime targets consumed
+  by markers, NAV, and tracker
+- `UI/Tree/SpecTreeProjector.ApplyHostileDropFilter` for the detail panel's item
+  source tree
 
 ### Two rendering paths
 
 | Surface | Code path | Filter mechanism |
 |---|---|---|
-| Markers, NAV arrow, tracker | `QuestResolutionService.ApplyHostileDropFilter` | delegates to `SourceVisibilityPolicy.FilterBlueprints` |
-| Quest detail panel | `LazyTreeProjector.CollectVisibleRefs` flatten branch for `PlanGroupKind.ItemSources` groups | two-pass loop using `SourceVisibilityPolicy.IsHostileDropSource` |
-
-`ViewRenderer` constructs its own `SourceVisibilityPolicy` and passes it to
-`LazyTreeProjector`. `QuestResolutionService` constructs its own.
-The policy is stateless; shared instances are not required.
+| Markers, NAV arrow, tracker | `SourceResolver.ResolveTargets` | `GetVisibleItemSources` suppresses friendly `DropsItem` sources when any hostile drop source exists |
+| Quest detail panel | `SpecTreeProjector.GetChildren` | `ApplyHostileDropFilter` applies the same hostile-drop rule to item source refs |
 
 ### Adding a new visibility rule
 
-1. Add the rule to `SourceVisibilityPolicy` (new method or extend existing).
-2. Apply in `QuestResolutionService.ApplyHostileDropFilter` (blueprint path).
-3. Apply in `LazyTreeProjector.CollectVisibleRefs` (plan-tree path) using the
-   predicate or new method.
-4. Add tests to `Plan/SourceVisibilityPolicyTests.cs`.
-5. Update this AGENTS.md if the topology changes.
+1. Add the rule in `SourceResolver` for runtime target resolution.
+2. Apply the same rule in `SpecTreeProjector` for detail-tree projection.
+3. Add regression coverage in both `SourceResolverTests.cs` and
+   `SpecTreeProjectorTests.cs`.
+4. Update this AGENTS.md if the topology changes.
+
 
 ### Do not add filter logic elsewhere
 
-`QuestPlanBuilder` builds unfiltered structure. `CompiledSourceIndex` is
-pure precompiled data. Source-visibility policy belongs exclusively in
-`SourceVisibilityPolicy`.
+Compiled-guide source visibility is projection logic. Keep it in
+`SourceResolver` and `SpecTreeProjector`; do not reintroduce a separate
+fallback-only policy layer.
 
 ---
-
-## `PlanGroupKind.ItemSources`
-
-Source groups for items use `PlanGroupKind.ItemSources` (not `AnyOf`). This
-lets `LazyTreeProjector.CollectVisibleRefs` identify them by kind for the
-visibility filter without key-string matching. Semantics for feasibility
-propagation are identical to `AnyOf`: infeasible when all children are
-infeasible.
-
-The group key is still `{itemKey}:sources:anyof` (internal deduplication
-string, not the kind enum). Do not rely on the key string to detect source
-groups — use `GroupKind == PlanGroupKind.ItemSources`.
-
 
 ---
 
@@ -105,7 +75,7 @@ groups — use `GroupKind == PlanGroupKind.ItemSources`.
 
 Read this section before touching `CharacterPositionResolver`,
 `LiveStateTracker`, `NavigationTargetSelector`, `NavigationEngine`,
-`MarkerComputer`, `MarkerSystem`, `QuestResolutionService`, or any patch
+`MarkerComputer`, `MarkerSystem`, `SourceResolver`, or any patch
 that intercepts NPC spawn, death, corpse, or loot events.
 
 ### 1. Identity layers

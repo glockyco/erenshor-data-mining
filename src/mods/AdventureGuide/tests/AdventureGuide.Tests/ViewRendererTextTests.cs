@@ -1,6 +1,4 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
-using AdventureGuide.Plan.Semantics;
 using AdventureGuide.Tests.Helpers;
 using AdventureGuide.UI;
 using Xunit;
@@ -9,28 +7,20 @@ namespace AdventureGuide.Tests;
 
 public sealed class ViewRendererTextTests
 {
-    private static PlanEntityNode Entity(string key, NodeType type, string displayName) =>
-        new(key, new Node
+    private static Node Entity(string key, NodeType type, string displayName) =>
+        new()
         {
             Key = key,
             Type = type,
             DisplayName = displayName,
-        });
-
-    private static PlanLink CompletionLink(string? keyword = null) =>
-        new(
-            fromId: "quest:test",
-            toId: "target",
-            semantic: DependencySemantics.FromEdge(EdgeType.CompletedBy),
-            edgeType: EdgeType.CompletedBy,
-            keyword: keyword);
+        };
 
     [Fact]
     public void FormatCompletion_ItemTarget_UsesReadVerb()
     {
         var item = Entity("item:torn-note", NodeType.Item, "Torn Note");
 
-        string label = ViewRenderer.FormatCompletion(item, CompletionLink());
+        string label = ViewRenderer.FormatCompletion(item, keyword: null);
 
         Assert.Equal("Read: Torn Note", label);
     }
@@ -40,7 +30,7 @@ public sealed class ViewRendererTextTests
     {
         var character = Entity("character:lucian", NodeType.Character, "Lucian Revald");
 
-        string label = ViewRenderer.FormatCompletion(character, CompletionLink("open sesame"));
+        string label = ViewRenderer.FormatCompletion(character, "open sesame");
 
         Assert.Equal("Turn in to Lucian Revald — say \"open sesame\"", label);
     }
@@ -50,7 +40,7 @@ public sealed class ViewRendererTextTests
     {
         var quest = Entity("quest:wyland-note", NodeType.Quest, "Wyland's Note");
 
-        string label = ViewRenderer.FormatCompletion(quest, CompletionLink());
+        string label = ViewRenderer.FormatCompletion(quest, keyword: null);
 
         Assert.Equal("Complete: Wyland's Note", label);
     }
