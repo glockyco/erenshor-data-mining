@@ -101,6 +101,32 @@ public sealed class NavigationTargetResolverTests
     }
 
 
+    [Fact]
+    public void Resolve_NonQuestKey_ReturnsEmptyWhenNoFallbackExists()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:manual", scene: "Forest", x: 40f, y: 50f, z: 60f)
+            .Build();
+        var graph = new TestGraphBuilder()
+            .AddCharacter("char:manual", "Manual NPC", scene: "Forest")
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, phases);
+        var unlocks = new UnlockPredicateEvaluator(guide, phases);
+        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var targetResolver = new NavigationTargetResolver(
+            guide,
+            graph,
+            frontier,
+            sourceResolver,
+            legacyResolver: null);
+
+        var targets = targetResolver.Resolve("char:manual", "Forest");
+
+        Assert.Empty(targets);
+    }
+
     private static ResolvedQuestTarget MakeLegacyTarget(
         string targetNodeKey,
         string scene,

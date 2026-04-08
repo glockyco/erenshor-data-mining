@@ -14,7 +14,7 @@ public sealed class NavigationTargetResolver
     private readonly EntityGraph _graph;
     private readonly EffectiveFrontier _frontier;
     private readonly SourceResolver _sourceResolver;
-    private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>> _legacyResolver;
+    private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>>? _legacyResolver;
     private readonly Func<int> _versionProvider;
 
     public int Version => _versionProvider();
@@ -24,7 +24,7 @@ public sealed class NavigationTargetResolver
         EntityGraph graph,
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
-        Func<string, IReadOnlyList<ResolvedQuestTarget>> legacyResolver,
+        Func<string, IReadOnlyList<ResolvedQuestTarget>>? legacyResolver,
         Func<int>? versionProvider = null)
     {
         _guide = guide;
@@ -50,7 +50,7 @@ public sealed class NavigationTargetResolver
             return ResolveQuestTargets(questIndex, currentScene);
         }
 
-        return _legacyResolver(nodeKey);
+        return _legacyResolver?.Invoke(nodeKey) ?? Array.Empty<ResolvedQuestTarget>();
     }
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene)
