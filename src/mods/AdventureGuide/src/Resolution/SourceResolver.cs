@@ -222,7 +222,7 @@ public sealed class SourceResolver
             NavigationGoalKind.StartQuest,
             DetermineTargetKind(giverId),
             ResolvedActionKind.Talk,
-            goalNodeKey: questNodeId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            goalNodeKey: _guide.GetNodeKey(questNodeId),
             goalQuantity: null,
             keywordText: null,
             payloadText: null,
