@@ -223,8 +223,17 @@ public sealed class Plugin : BaseUnityPlugin
             _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
         }
 
-        _trackerPanel = new TrackerPanel(
-            _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector, _resolutionService);
+        if (_compiledGuide != null && _compiledQuestTracker != null)
+        {
+            _trackerPanel = new TrackerPanel(
+                _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector,
+                _compiledGuide, _compiledQuestTracker, new EffectiveFrontier(_compiledGuide, _compiledQuestTracker));
+        }
+        else
+        {
+            _trackerPanel = new TrackerPanel(
+                _graph, _questTracker, _trackerState, _navSet, _window, _config, _targetSelector, _resolutionService);
+        }
         _imgui.OnLayout = () =>
         {
             _window.Draw();

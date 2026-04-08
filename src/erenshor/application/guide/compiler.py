@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from .schema import EdgeType, NodeType
+from .schema import Edge, EdgeType, Node, NodeType
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -300,7 +300,7 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
     compiled.reverse_adjacency = [[] for _ in compiled.nodes]
 
 
-def _node_flags(node) -> int:
+def _node_flags(node: Node) -> int:
     flags = 0
     if node.is_friendly:
         flags |= NodeFlags.IS_FRIENDLY
@@ -351,7 +351,7 @@ def _compile_edges(graph: EntityGraph, compiled: CompiledData) -> None:
         compiled.reverse_adjacency[target_id].append(edge_id)
 
 
-def _edge_flags(edge) -> int:
+def _edge_flags(edge: Edge) -> int:
     flags = 0
     if edge.negated:
         flags |= EdgeFlags.NEGATED

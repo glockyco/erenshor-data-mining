@@ -3,6 +3,7 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Config;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
+using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using ImGuiNET;
@@ -38,6 +39,9 @@ public sealed class TrackerPanel
     private readonly GuideConfig _config;
     private readonly NavigationTargetSelector _selector;
     private readonly QuestResolutionService _resolution;
+    private readonly AdventureGuide.CompiledGuide.CompiledGuide? _compiledGuide;
+    private readonly QuestPhaseTracker? _compiledQuestTracker;
+    private readonly EffectiveFrontier? _effectiveFrontier;
 
     private bool _visible = true;
     private readonly Dictionary<string, EntryAnimation> _animations = new(StringComparer.OrdinalIgnoreCase);
@@ -77,6 +81,24 @@ public sealed class TrackerPanel
         _trackerState.Tracked += OnQuestTracked;
         _trackerState.Untracked += OnQuestUntracked;
         _trackerState.QuestCompleted += OnQuestCompleted;
+    }
+
+    public TrackerPanel(
+        EntityGraph graph,
+        QuestStateTracker tracker,
+        TrackerState trackerState,
+        NavigationSet navSet,
+        GuideWindow guide,
+        GuideConfig config,
+        NavigationTargetSelector selector,
+        AdventureGuide.CompiledGuide.CompiledGuide compiledGuide,
+        QuestPhaseTracker compiledQuestTracker,
+        EffectiveFrontier effectiveFrontier)
+        : this(graph, tracker, trackerState, navSet, guide, config, selector, resolution: null!)
+    {
+        _compiledGuide = compiledGuide;
+        _compiledQuestTracker = compiledQuestTracker;
+        _effectiveFrontier = effectiveFrontier;
     }
 
     public void Dispose()
@@ -436,36 +458,85 @@ public sealed class TrackerPanel
             return;
         }
 
-        var resolution = _resolution.ResolveQuest(quest.Key);
-        string distText = "";
-        if (_selector.TryGet(quest.Key, out var sel))
+        if (_compiledGuide != null && _compiledQuestTracker != null && _effectiveFrontier != null && dbName != null)
         {
-            if (sel.IsSameZone && GameData.PlayerControl != null)
+            int? questIndex = FindQuestIndexByDbName(dbName);
+            if (questIndex != null)
             {
-                var p = GameData.PlayerControl.transform.position;
-                float dx = sel.Target.X - p.x;
-                float dy = sel.Target.Y - p.y;
-                float dz = sel.Target.Z - p.z;
-                float dist = UnityEngine.Mathf.Sqrt(dx*dx + dy*dy + dz*dz);
-                distText = $"({(int)dist}m)";
-            }
-            else if (!sel.IsSameZone)
-            {
-                distText = sel.HopCount == 1 ? "(1 hop)"
-                         : sel.HopCount > 1  ? $"({sel.HopCount} hops)"
-                         : "";
+                var frontier = new List<FrontierEntry>();
+                _effectiveFrontier.Resolve(questIndex.Value, frontier, -1);
+                if (frontier.Count > 0)
+                {
+                    TrackerSummary summaryEntry = TrackerSummaryBuilder.Build(
+                        _compiledGuide, _compiledQuestTracker, frontier[0]);
+                    string distText = BuildDistanceText(quest.Key);
+                    string summary = summaryEntry.PrimaryText;
+                    if (distText.Length > 0) summary += " " + distText;
+
+                    ImGui.Indent(Theme.IndentWidth);
+                    ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+                    ImGui.TextWrapped(summary);
+                    if (!string.IsNullOrEmpty(summaryEntry.SecondaryText))
+                        ImGui.TextWrapped(summaryEntry.SecondaryText);
+                    ImGui.PopStyleColor();
+                    ImGui.Unindent(Theme.IndentWidth);
+                    return;
+                }
             }
         }
-        string summary = resolution.TrackerSummary.PrimaryText;
-        if (distText.Length > 0) summary += " " + distText;
+
+        var resolution = _resolution.ResolveQuest(quest.Key);
+        string fallbackDistText = BuildDistanceText(quest.Key);
+        string fallbackSummary = resolution.TrackerSummary.PrimaryText;
+        if (fallbackDistText.Length > 0) fallbackSummary += " " + fallbackDistText;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        ImGui.TextWrapped(summary);
+        ImGui.TextWrapped(fallbackSummary);
         if (!string.IsNullOrEmpty(resolution.TrackerSummary.SecondaryText))
             ImGui.TextWrapped(resolution.TrackerSummary.SecondaryText);
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    private string BuildDistanceText(string questKey)
+    {
+        if (!_selector.TryGet(questKey, out var sel))
+            return string.Empty;
+        if (sel.IsSameZone && GameData.PlayerControl != null)
+        {
+            var p = GameData.PlayerControl.transform.position;
+            float dx = sel.Target.X - p.x;
+            float dy = sel.Target.Y - p.y;
+            float dz = sel.Target.Z - p.z;
+            float dist = UnityEngine.Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
+            return $"({(int)dist}m)";
+        }
+        if (!sel.IsSameZone)
+        {
+            return sel.HopCount == 1 ? "(1 hop)"
+                 : sel.HopCount > 1 ? $"({sel.HopCount} hops)"
+                 : string.Empty;
+        }
+        return string.Empty;
+    }
+
+    private int? FindQuestIndexByDbName(string dbName)
+    {
+        if (_compiledGuide == null)
+            return null;
+        for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
+        {
+            int nodeId = _compiledGuide.QuestNodeId(questIndex);
+            uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
+            if (dbNameOffset == 0)
+                continue;
+            if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
+                return questIndex;
+        }
+        return null;
     }
 
 
