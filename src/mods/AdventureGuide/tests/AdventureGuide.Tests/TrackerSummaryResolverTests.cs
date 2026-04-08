@@ -47,4 +47,18 @@ public sealed class TrackerSummaryResolverTests
         Assert.Equal("Legacy summary", resolved.PrimaryText);
         Assert.Equal("Legacy detail", resolved.SecondaryText);
     }
+    [Fact]
+    public void Resolve_ReturnsNullWhenCompiledQuestIsMissingAndNoFallbackExists()
+    {
+        var resolver = new TrackerSummaryResolver(
+            guide: null,
+            phases: null,
+            frontier: null,
+            legacyResolver: null);
+
+        var summary = resolver.Resolve("quest:missing", "MISSING");
+
+        Assert.Null(summary);
+    }
+
 }

@@ -11,13 +11,13 @@ public sealed class TrackerSummaryResolver
     private readonly CompiledGuide.CompiledGuide? _guide;
     private readonly QuestPhaseTracker? _phases;
     private readonly EffectiveFrontier? _frontier;
-    private readonly Func<string, TrackerSummary?> _legacyResolver;
+    private readonly Func<string, TrackerSummary?>? _legacyResolver;
 
     public TrackerSummaryResolver(
         CompiledGuide.CompiledGuide? guide,
         QuestPhaseTracker? phases,
         EffectiveFrontier? frontier,
-        Func<string, TrackerSummary?> legacyResolver)
+        Func<string, TrackerSummary?>? legacyResolver)
     {
         _guide = guide;
         _phases = phases;
@@ -39,7 +39,7 @@ public sealed class TrackerSummaryResolver
             }
         }
 
-        return _legacyResolver(questKey);
+        return _legacyResolver?.Invoke(questKey);
     }
 
     private int? FindQuestIndexByDbName(string dbName)

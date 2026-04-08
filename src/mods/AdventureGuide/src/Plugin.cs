@@ -264,7 +264,7 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledGuide,
             _compiledQuestTracker,
             _compiledFrontier,
-            questKey => _resolutionService.ResolveQuest(questKey).TrackerSummary);
+            legacyResolver: null);
         _trackerPanel = new TrackerPanel(
             _graph,
             _questTracker,
