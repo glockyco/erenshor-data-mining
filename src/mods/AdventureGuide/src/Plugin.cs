@@ -63,6 +63,7 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
+    private NavigationTargetResolver? _navigationTargetResolver;
     private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
     private int _lastNavSetVersion = -1;
@@ -180,7 +181,26 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _questTracker, _gameState, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter, _liveState);
 
-        _targetSelector = new NavigationTargetSelector(_resolutionService, _zoneRouter, _graph, _liveState);
+        if (_compiledGuide != null && _compiledQuestTracker != null)
+        {
+            _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
+            _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
+            _compiledSourceResolver = new SourceResolver(
+                _compiledGuide,
+                _compiledQuestTracker,
+                _compiledUnlocks,
+                new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
+            _navigationTargetResolver = new NavigationTargetResolver(
+                _compiledGuide,
+                _graph,
+                _compiledFrontier,
+                _compiledSourceResolver,
+                _resolutionService.ResolveTargetsForNavigation);
+        }
+
+        _targetSelector = _navigationTargetResolver != null
+            ? new NavigationTargetSelector(_navigationTargetResolver, _zoneRouter, _graph, _liveState)
+            : new NavigationTargetSelector(_resolutionService, _zoneRouter, _graph, _liveState);
 
         _navEngine = new NavigationEngine(
             _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _liveState, _unlockEvaluator);
@@ -216,9 +236,9 @@ public sealed class Plugin : BaseUnityPlugin
         if (_compiledGuide != null && _compiledQuestTracker != null)
         {
             SyncCompiledQuestTracker();
-            _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
-            _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
-            _compiledSourceResolver = new SourceResolver(
+            _compiledUnlocks ??= new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
+            _compiledFrontier ??= new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
+            _compiledSourceResolver ??= new SourceResolver(
                 _compiledGuide,
                 _compiledQuestTracker,
                 _compiledUnlocks,

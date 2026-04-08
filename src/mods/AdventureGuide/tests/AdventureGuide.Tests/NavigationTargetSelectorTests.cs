@@ -3,6 +3,8 @@ using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
 using AdventureGuide.Position;
+using AdventureGuide.Plan;
+using AdventureGuide.State;
 using AdventureGuide.Resolution;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
@@ -274,6 +276,46 @@ public sealed class NavigationTargetSelectorTests
         Assert.Equal(ZoneB, result.Value.Target.Scene);
     }
 
+    [Fact]
+    public void Tick_UsesNavigationTargetResolverForQuestKeys()
+    {
+        var graph = new TestGraphBuilder()
+            .AddQuest("quest:a", "Quest A", dbName: "QUESTA")
+            .AddCharacter("char:giver", "Guide NPC", scene: ZoneA)
+            .Build();
+        var harness = SnapshotHarness.FromSnapshot(
+            graph, new StateSnapshot { CurrentZone = ZoneA });
+
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:giver", scene: ZoneA, x: 10f, y: 20f, z: 30f)
+            .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, phases);
+        var unlocks = new UnlockPredicateEvaluator(guide, phases);
+        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var navigationResolver = new NavigationTargetResolver(
+            guide,
+            graph,
+            frontier,
+            sourceResolver,
+            _ => Array.Empty<ResolvedQuestTarget>());
+
+        var selector = new NavigationTargetSelector(
+            (nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
+            harness.Router);
+
+        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:a" }, force: true);
+
+        Assert.True(selector.TryGet("quest:a", out var selected));
+        Assert.Equal("char:giver", selected.Target.TargetNodeKey);
+        Assert.Equal(10f, selected.Target.X);
+        Assert.Equal(20f, selected.Target.Y);
+        Assert.Equal(30f, selected.Target.Z);
+    }
+
+
     // ── Tick-level regression tests ─────────────────────────────────────────────
 
     [Fact]
@@ -287,7 +329,7 @@ public sealed class NavigationTargetSelectorTests
         var targets = new[] { nodeA, nodeB };
 
         var selector = new NavigationTargetSelector(
-            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
                                         : Array.Empty<ResolvedQuestTarget>(),
             EmptyRouter());
 
@@ -319,7 +361,7 @@ public sealed class NavigationTargetSelectorTests
         var targets = new[] { nearSpawn, farSpawn };
 
         var selector = new NavigationTargetSelector(
-            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
                                         : Array.Empty<ResolvedQuestTarget>(),
             EmptyRouter());
 
@@ -346,7 +388,7 @@ public sealed class NavigationTargetSelectorTests
         var targets = new[] { nodeA, nodeB };
 
         var selector = new NavigationTargetSelector(
-            key => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
+            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
                                         : Array.Empty<ResolvedQuestTarget>(),
             EmptyRouter());
 
@@ -515,7 +557,7 @@ public sealed class NavigationTargetSelectorTests
             MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
         };
         var selector = new NavigationTargetSelector(
-            _ => targets,
+            (_, _) => targets,
             EmptyRouter(),
             clock: () => now,
             rerankInterval: 1.0f);
@@ -545,7 +587,7 @@ public sealed class NavigationTargetSelectorTests
             MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
         };
         var selector = new NavigationTargetSelector(
-            _ => targets,
+            (_, _) => targets,
             EmptyRouter(),
             clock: () => now,
             rerankInterval: 1.0f);

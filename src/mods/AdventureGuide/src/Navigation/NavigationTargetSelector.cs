@@ -52,7 +52,7 @@ public struct SelectedNavTarget
 /// </summary>
 public sealed class NavigationTargetSelector
 {
-    private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
+    private readonly Func<string, string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
     private readonly ZoneRouter _router;
     private readonly EntityGraph? _graph;
     private readonly LiveStateTracker? _liveState;
@@ -74,13 +74,18 @@ public sealed class NavigationTargetSelector
     /// </summary>
     public int Version { get; private set; }
 
+    public NavigationTargetSelector(NavigationTargetResolver resolution, ZoneRouter router,
+        EntityGraph graph, LiveStateTracker liveState)
+        : this(resolution.Resolve, router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
+
     public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router,
         EntityGraph graph, LiveStateTracker liveState)
-        : this(resolution.ResolveTargetsForNavigation, router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
+        : this((nodeKey, _) => resolution.ResolveTargetsForNavigation(nodeKey),
+            router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
 
     /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
     internal NavigationTargetSelector(
-        Func<string, IReadOnlyList<ResolvedQuestTarget>> resolver,
+        Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
         ZoneRouter router,
         EntityGraph? graph = null,
         LiveStateTracker? liveState = null,
@@ -129,7 +134,7 @@ public sealed class NavigationTargetSelector
             foreach (var key in nodeKeys)
             {
                 _activeKeys.Add(key);
-                var targets = _resolver(key);
+                var targets = _resolver(key, currentZone);
                 if (targets.Count == 0)
                     continue;
                 if (!_entries.TryGetValue(key, out var entry))
