@@ -4,9 +4,8 @@ using AdventureGuide.Plan;
 namespace AdventureGuide.Resolution;
 
 /// <summary>
-/// Bridges mixed NavigationSet inputs during the compiled-guide cutover.
-/// Quest keys resolve through the compiled frontier/source pipeline, while
-/// non-quest keys can temporarily reuse the legacy navigation resolver.
+/// Resolves navigation targets for compiled-guide quest keys.
+/// Non-quest keys are intentionally unsupported after the clean-cut runtime migration.
 /// </summary>
 public sealed class NavigationTargetResolver
 {
@@ -14,7 +13,6 @@ public sealed class NavigationTargetResolver
     private readonly EntityGraph _graph;
     private readonly EffectiveFrontier _frontier;
     private readonly SourceResolver _sourceResolver;
-    private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>>? _legacyResolver;
     private readonly Func<int> _versionProvider;
 
     public int Version => _versionProvider();
@@ -24,14 +22,12 @@ public sealed class NavigationTargetResolver
         EntityGraph graph,
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
-        Func<string, IReadOnlyList<ResolvedQuestTarget>>? legacyResolver,
         Func<int>? versionProvider = null)
     {
         _guide = guide;
         _graph = graph;
         _frontier = frontier;
         _sourceResolver = sourceResolver;
-        _legacyResolver = legacyResolver;
         _versionProvider = versionProvider ?? (() => 0);
     }
 
@@ -49,8 +45,7 @@ public sealed class NavigationTargetResolver
 
             return ResolveQuestTargets(questIndex, currentScene);
         }
-
-        return _legacyResolver?.Invoke(nodeKey) ?? Array.Empty<ResolvedQuestTarget>();
+        return Array.Empty<ResolvedQuestTarget>();
     }
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene)

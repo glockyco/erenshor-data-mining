@@ -109,15 +109,8 @@ public sealed class Plugin : BaseUnityPlugin
         _sourceIndex = new CompiledSourceIndex(_graph);
         var sourceIndexMs = graphSw.Elapsed.TotalMilliseconds;
 
-        try
-        {
-            _compiledGuide = CompiledGuideLoader.Load(Log);
-            _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
-        }
-        catch (Exception ex)
-        {
-            Log.LogWarning($"Compiled guide unavailable for detail panel: {ex.Message}");
-        }
+        _compiledGuide = CompiledGuideLoader.Load(Log);
+        _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
@@ -182,36 +175,31 @@ public sealed class Plugin : BaseUnityPlugin
             _graph, _questTracker, _gameState, planBuilder,
             _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter, _liveState);
 
-        if (_compiledGuide != null && _compiledQuestTracker != null)
-        {
-            _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
-            _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
-            _compiledSourceResolver = new SourceResolver(
-                _compiledGuide,
-                _compiledQuestTracker,
-                _compiledUnlocks,
-                new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
-            _navigationTargetResolver = new NavigationTargetResolver(
-                _compiledGuide,
-                _graph,
-                _compiledFrontier,
-                _compiledSourceResolver,
-                _resolutionService.ResolveTargetsForNavigation,
-                () => Math.Max(_questTracker.Version, _resolutionService.Version));
-            _markerQuestTargetResolver = new MarkerQuestTargetResolver(
-                _compiledGuide,
-                _compiledFrontier,
-                _compiledSourceResolver);
-        }
+        _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
+        _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
+        _compiledSourceResolver = new SourceResolver(
+            _compiledGuide,
+            _compiledQuestTracker,
+            _compiledUnlocks,
+            new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
+        _navigationTargetResolver = new NavigationTargetResolver(
+            _compiledGuide,
+            _graph,
+            _compiledFrontier,
+            _compiledSourceResolver,
+            () => _questTracker.Version);
+        _markerQuestTargetResolver = new MarkerQuestTargetResolver(
+            _compiledGuide,
+            _compiledFrontier,
+            _compiledSourceResolver);
 
-        _targetSelector = _navigationTargetResolver != null
-            ? new NavigationTargetSelector(_navigationTargetResolver, _zoneRouter, _graph, _liveState)
-            : new NavigationTargetSelector(_resolutionService, _zoneRouter, _graph, _liveState);
+        _targetSelector = new NavigationTargetSelector(
+            _navigationTargetResolver, _zoneRouter, _graph, _liveState);
 
         _navEngine = new NavigationEngine(
             _navSet,
             _graph,
-            () => _navigationTargetResolver?.Version ?? _resolutionService!.Version,
+            () => _navigationTargetResolver.Version,
             _targetSelector,
             _zoneRouter,
             _liveState,
@@ -245,31 +233,15 @@ public sealed class Plugin : BaseUnityPlugin
         var filter = new FilterState();
         filter.LoadFrom(_config);
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
-        if (_compiledGuide != null && _compiledQuestTracker != null)
-        {
-            SyncCompiledQuestTracker();
-            _compiledUnlocks ??= new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
-            _compiledFrontier ??= new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
-            _compiledSourceResolver ??= new SourceResolver(
-                _compiledGuide,
-                _compiledQuestTracker,
-                _compiledUnlocks,
-                new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
-            _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
-            viewRenderer = new ViewRenderer(_compiledGuide, _navSet, _questTracker, _trackerState, _specTreeProjector);
-            _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _compiledGuide);
-        }
-        else
-        {
-            viewRenderer = new ViewRenderer(_graph, _gameState, _navSet, _questTracker, _trackerState);
-            _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _resolutionService);
-        }
+        SyncCompiledQuestTracker();
+        _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
+        viewRenderer = new ViewRenderer(_compiledGuide, _navSet, _questTracker, _trackerState, _specTreeProjector);
+        _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _compiledGuide);
 
         var trackerSummaryResolver = new TrackerSummaryResolver(
             _compiledGuide,
             _compiledQuestTracker,
-            _compiledFrontier,
-            legacyResolver: null);
+            _compiledFrontier);
         _trackerPanel = new TrackerPanel(
             _graph,
             _questTracker,
@@ -430,7 +402,7 @@ public sealed class Plugin : BaseUnityPlugin
         _markerComputer?.Recompute();
         GuideProfiler.MarkerRecompute.Record(pt);
 
-        int targetSourceVersion = _navigationTargetResolver?.Version ?? _resolutionService!.Version;
+        int targetSourceVersion = _navigationTargetResolver!.Version;
         bool forceSelector = TargetSelectorRefreshPolicy.ShouldForce(
             liveChangeSet.HasMeaningfulChanges,
             targetSourceVersion,

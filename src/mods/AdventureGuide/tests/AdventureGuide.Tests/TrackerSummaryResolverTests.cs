@@ -20,8 +20,7 @@ public sealed class TrackerSummaryResolverTests
         var resolver = new TrackerSummaryResolver(
             guide,
             phases,
-            frontier,
-            _ => null);
+            frontier);
 
         var summary = resolver.Resolve("quest:a", "QUESTA");
 
@@ -31,30 +30,18 @@ public sealed class TrackerSummaryResolverTests
     }
 
     [Fact]
-    public void Resolve_FallsBackToLegacySummaryWhenCompiledQuestIsMissing()
+    public void Resolve_ReturnsNullWhenCompiledQuestIsMissing()
     {
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:other", dbName: "OTHER")
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, phases);
         var resolver = new TrackerSummaryResolver(
-            guide: null,
-            phases: null,
-            frontier: null,
-            legacyResolver: key => key == "quest:legacy"
-                ? new TrackerSummary("Legacy summary", "Legacy detail")
-                : null);
-
-        var summary = resolver.Resolve("quest:legacy", "LEGACY");
-
-        var resolved = Assert.IsType<TrackerSummary>(summary);
-        Assert.Equal("Legacy summary", resolved.PrimaryText);
-        Assert.Equal("Legacy detail", resolved.SecondaryText);
-    }
-    [Fact]
-    public void Resolve_ReturnsNullWhenCompiledQuestIsMissingAndNoFallbackExists()
-    {
-        var resolver = new TrackerSummaryResolver(
-            guide: null,
-            phases: null,
-            frontier: null,
-            legacyResolver: null);
+            guide,
+            phases,
+            frontier);
 
         var summary = resolver.Resolve("quest:missing", "MISSING");
 

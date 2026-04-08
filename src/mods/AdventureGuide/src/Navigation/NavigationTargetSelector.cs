@@ -78,11 +78,6 @@ public sealed class NavigationTargetSelector
         EntityGraph graph, LiveStateTracker liveState)
         : this(resolution.Resolve, router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
 
-    public NavigationTargetSelector(QuestResolutionService resolution, ZoneRouter router,
-        EntityGraph graph, LiveStateTracker liveState)
-        : this((nodeKey, _) => resolution.ResolveTargetsForNavigation(nodeKey),
-            router, graph, liveState, () => UnityEngine.Time.time, 1.0f) { }
-
     /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
     internal NavigationTargetSelector(
         Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
@@ -246,7 +241,7 @@ public sealed class NavigationTargetSelector
 
     /// <summary>
     /// Canonical best-target selection algorithm. Exposed as internal static for direct
-    /// unit testing without requiring a live <see cref="QuestResolutionService"/>.
+    /// unit testing without requiring a live runtime resolver.
     ///
     /// Builds a temporary <see cref="TargetEntry"/> and delegates to
     /// <see cref="SelectBestCore"/>. Allocates; not called from the per-frame hot path.

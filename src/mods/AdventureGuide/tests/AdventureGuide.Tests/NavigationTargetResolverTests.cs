@@ -28,8 +28,7 @@ public sealed class NavigationTargetResolverTests
             guide,
             graph,
             frontier,
-            sourceResolver,
-            _ => Array.Empty<ResolvedQuestTarget>());
+            sourceResolver);
 
         var targets = targetResolver.Resolve("quest:a", "Forest");
 
@@ -47,7 +46,7 @@ public sealed class NavigationTargetResolverTests
     }
 
     [Fact]
-    public void Resolve_NonQuestKey_ConvertsLegacyNavigationTargets()
+    public void Resolve_NonQuestKey_ReturnsEmptyWhenCompiledNavigationOnlySupportsQuests()
     {
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:manual", scene: "Forest", x: 40f, y: 50f, z: 60f)
@@ -60,20 +59,15 @@ public sealed class NavigationTargetResolverTests
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
         var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
-        var legacyTarget = MakeLegacyTarget("char:manual", "Forest", "char:manual", 40f, 50f, 60f);
         var targetResolver = new NavigationTargetResolver(
             guide,
             graph,
             frontier,
-            sourceResolver,
-            key => key == "char:manual"
-                ? new[] { legacyTarget }
-                : Array.Empty<ResolvedQuestTarget>());
+            sourceResolver);
 
         var targets = targetResolver.Resolve("char:manual", "Forest");
 
-        Assert.Single(targets);
-        Assert.Same(legacyTarget, targets[0]);
+        Assert.Empty(targets);
     }
 
     [Fact]
@@ -92,7 +86,6 @@ public sealed class NavigationTargetResolverTests
             graph,
             frontier,
             sourceResolver,
-            _ => Array.Empty<ResolvedQuestTarget>(),
             () => version);
 
         Assert.Equal(1, targetResolver.Version);
@@ -101,74 +94,4 @@ public sealed class NavigationTargetResolverTests
     }
 
 
-    [Fact]
-    public void Resolve_NonQuestKey_ReturnsEmptyWhenNoFallbackExists()
-    {
-        var guide = new CompiledGuideBuilder()
-            .AddCharacter("char:manual", scene: "Forest", x: 40f, y: 50f, z: 60f)
-            .Build();
-        var graph = new TestGraphBuilder()
-            .AddCharacter("char:manual", "Manual NPC", scene: "Forest")
-            .Build();
-        var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var frontier = new EffectiveFrontier(guide, phases);
-        var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
-        var targetResolver = new NavigationTargetResolver(
-            guide,
-            graph,
-            frontier,
-            sourceResolver,
-            legacyResolver: null);
-
-        var targets = targetResolver.Resolve("char:manual", "Forest");
-
-        Assert.Empty(targets);
-    }
-
-    private static ResolvedQuestTarget MakeLegacyTarget(
-        string targetNodeKey,
-        string scene,
-        string sourceKey,
-        float x,
-        float y,
-        float z)
-    {
-        var node = new Node
-        {
-            Key = targetNodeKey,
-            Type = NodeType.Character,
-            DisplayName = "Manual NPC",
-        };
-        var ctx = new ResolvedNodeContext(node.Key, node);
-        var semantic = new ResolvedActionSemantic(
-            NavigationGoalKind.TalkToTarget,
-            NavigationTargetKind.Character,
-            ResolvedActionKind.Talk,
-            goalNodeKey: null,
-            goalQuantity: null,
-            keywordText: null,
-            payloadText: null,
-            targetIdentityText: node.DisplayName,
-            contextText: null,
-            rationaleText: null,
-            zoneText: scene,
-            availabilityText: null,
-            preferredMarkerKind: QuestMarkerKind.Objective,
-            markerPriority: 0);
-        var explanation = NavigationExplanationBuilder.Build(semantic, ctx, ctx);
-        return new ResolvedQuestTarget(
-            targetNodeKey,
-            scene,
-            sourceKey,
-            ctx,
-            ctx,
-            semantic,
-            explanation,
-            x,
-            y,
-            z,
-            isActionable: true);
-    }
 }

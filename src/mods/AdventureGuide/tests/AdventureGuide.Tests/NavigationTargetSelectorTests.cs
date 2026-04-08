@@ -299,8 +299,7 @@ public sealed class NavigationTargetSelectorTests
             guide,
             graph,
             frontier,
-            sourceResolver,
-            _ => Array.Empty<ResolvedQuestTarget>());
+            sourceResolver);
 
         var selector = new NavigationTargetSelector(
             (nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
