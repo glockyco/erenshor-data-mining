@@ -63,6 +63,7 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
+    private MarkerQuestTargetResolver? _markerQuestTargetResolver;
     private NavigationTargetResolver? _navigationTargetResolver;
     private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
@@ -197,6 +198,10 @@ public sealed class Plugin : BaseUnityPlugin
                 _compiledSourceResolver,
                 _resolutionService.ResolveTargetsForNavigation,
                 () => Math.Max(_questTracker.Version, _resolutionService.Version));
+            _markerQuestTargetResolver = new MarkerQuestTargetResolver(
+                _compiledGuide,
+                _compiledFrontier,
+                _compiledSourceResolver);
         }
 
         _targetSelector = _navigationTargetResolver != null
@@ -222,8 +227,8 @@ public sealed class Plugin : BaseUnityPlugin
         // --- Markers layer ---
         _markerPool = new MarkerPool();
         _markerComputer = new MarkerComputer(
-            _graph, _graphIndexes, _questTracker, _resolutionService, _liveState, _navSet, _trackerState,
-            _compiledGuide, _compiledFrontier, _compiledSourceResolver);
+            _graph, _graphIndexes, _questTracker, _liveState, _navSet, _trackerState,
+            _markerQuestTargetResolver, _compiledGuide, _compiledFrontier, _compiledSourceResolver);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 

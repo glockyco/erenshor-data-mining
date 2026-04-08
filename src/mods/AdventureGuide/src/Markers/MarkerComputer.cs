@@ -20,10 +20,10 @@ public sealed class MarkerComputer
     private readonly EntityGraph _graph;
     private readonly GraphIndexes _indexes;
     private readonly QuestStateTracker _tracker;
-    private readonly QuestResolutionService _resolution;
     private readonly LiveStateTracker _liveState;
     private readonly NavigationSet _navSet;
     private readonly TrackerState _trackerState;
+    private readonly MarkerQuestTargetResolver? _questTargetResolver;
     private readonly CompiledGuide.CompiledGuide? _compiledGuide;
     private readonly EffectiveFrontier? _effectiveFrontier;
     private readonly SourceResolver? _sourceResolver;
@@ -43,10 +43,10 @@ public sealed class MarkerComputer
         EntityGraph graph,
         GraphIndexes indexes,
         QuestStateTracker tracker,
-        QuestResolutionService resolution,
         LiveStateTracker liveState,
         NavigationSet navSet,
         TrackerState trackerState,
+        MarkerQuestTargetResolver? questTargetResolver,
         CompiledGuide.CompiledGuide? compiledGuide = null,
         EffectiveFrontier? effectiveFrontier = null,
         SourceResolver? sourceResolver = null)
@@ -54,10 +54,10 @@ public sealed class MarkerComputer
         _graph = graph;
         _indexes = indexes;
         _tracker = tracker;
-        _resolution = resolution;
         _liveState = liveState;
         _navSet = navSet;
         _trackerState = trackerState;
+        _questTargetResolver = questTargetResolver;
         _compiledGuide = compiledGuide;
         _effectiveFrontier = effectiveFrontier;
         _sourceResolver = sourceResolver;
@@ -209,24 +209,14 @@ public sealed class MarkerComputer
 
         if (explicitlySelected || _tracker.IsActive(quest.DbName))
         {
-            if (_compiledGuide != null && _effectiveFrontier != null && _sourceResolver != null)
+            if (_questTargetResolver == null || _compiledGuide == null || _effectiveFrontier == null || _sourceResolver == null)
             {
-                int? questIndex = FindCompiledQuestIndex(quest.DbName);
-                if (questIndex != null)
-                {
-                    var frontier = new List<FrontierEntry>();
-                    _effectiveFrontier.Resolve(questIndex.Value, frontier, -1);
-                    foreach (var frontierEntry in frontier)
-                    {
-                        var compiledTargets = _sourceResolver.ResolveTargets(frontierEntry, _tracker.CurrentZone);
-                        EmitActiveQuestMarkers(quest, compiledTargets);
-                    }
-                    return;
-                }
+                throw new InvalidOperationException(
+                    $"MarkerComputer requires compiled quest target resolution for '{quest.DbName}'.");
             }
 
-            var targets = _resolution.GetTargetsForScene(quest.Key, _tracker.CurrentZone);
-            EmitActiveQuestMarkers(quest, targets);
+            var compiledTargets = _questTargetResolver.Resolve(quest.DbName, _tracker.CurrentZone);
+            EmitActiveQuestMarkers(quest, compiledTargets);
             return;
         }
 
