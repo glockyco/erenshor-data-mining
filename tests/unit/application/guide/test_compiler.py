@@ -18,7 +18,53 @@ from erenshor.application.guide.compiler import (
     StepSpec,
     UnlockCondition,
     UnlockPredicate,
+    compile_graph,
 )
+from erenshor.application.guide.graph import EntityGraph
+from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
+
+
+def _graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
+    graph = EntityGraph()
+    for node in nodes:
+        graph.add_node(node)
+    for edge in edges or []:
+        graph.add_edge(edge)
+    graph.build_indexes()
+    return graph
+
+
+def _quest(key: str, db_name: str | None = None) -> Node:
+    return Node(key=key, type=NodeType.QUEST, display_name=key, db_name=db_name)
+
+
+def _item(key: str) -> Node:
+    return Node(key=key, type=NodeType.ITEM, display_name=key)
+
+
+def _char(key: str, *, scene: str = "Forest", x: float = 1.0, y: float = 2.0, z: float = 3.0) -> Node:
+    return Node(
+        key=key,
+        type=NodeType.CHARACTER,
+        display_name=key,
+        scene=scene,
+        x=x,
+        y=y,
+        z=z,
+    )
+
+
+def _spawn(key: str, *, scene: str = "Forest", zone_key: str = "zone:forest") -> Node:
+    return Node(
+        key=key,
+        type=NodeType.SPAWN_POINT,
+        display_name=key,
+        scene=scene,
+        zone_key=zone_key,
+        x=10.0,
+        y=20.0,
+        z=30.0,
+    )
 
 
 def test_compiled_data_defaults_are_empty() -> None:
@@ -115,3 +161,105 @@ def test_nested_compiled_types_round_trip() -> None:
     assert data.quest_specs[0].required_items[0].qty == 5
     assert data.unlock_predicates[0].conditions[0].source_id == 44
     assert data.item_sources[0][0].positions[0].spawn_id == 66
+
+
+def test_compile_graph_assigns_dense_node_ids_in_key_order() -> None:
+    compiled = compile_graph(_graph(_quest("quest:b"), _item("item:a"), _quest("quest:a")))
+
+    assert compiled.node_keys == ["item:a", "quest:a", "quest:b"]
+    assert compiled.node_key_to_id == {"item:a": 0, "quest:a": 1, "quest:b": 2}
+    assert compiled.quest_node_ids == [1, 2]
+    assert compiled.item_node_ids == [0]
+    assert compiled.node_quest_index == [-1, 0, 1]
+    assert compiled.node_item_index == [0, -1, -1]
+
+
+def test_compile_graph_builds_topo_order_and_marks_cycles_infeasible() -> None:
+    graph = _graph(
+        _quest("quest:a"),
+        _quest("quest:b"),
+        _quest("quest:c"),
+        edges=[
+            Edge(source="quest:a", target="quest:b", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:b", target="quest:c", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:c", target="quest:a", type=EdgeType.REQUIRES_QUEST),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+
+    assert compiled.topo_order == [0, 1, 2]
+    assert compiled.infeasible_node_ids == {0, 1, 2}
+    assert all(spec.is_infeasible for spec in compiled.quest_specs)
+
+
+def test_compile_graph_builds_quest_specs_and_sources() -> None:
+    graph = _graph(
+        _quest("quest:a", db_name="QUESTA"),
+        _quest("quest:b", db_name="QUESTB"),
+        _item("item:x"),
+        _char("char:giver"),
+        _char("char:mob"),
+        _spawn("spawn:mob:1"),
+        edges=[
+            Edge(source="quest:a", target="quest:b", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:a", target="item:x", type=EdgeType.REQUIRES_ITEM, quantity=3),
+            Edge(source="quest:a", target="char:giver", type=EdgeType.ASSIGNED_BY),
+            Edge(source="char:mob", target="item:x", type=EdgeType.DROPS_ITEM, chance=0.25),
+            Edge(source="char:mob", target="spawn:mob:1", type=EdgeType.HAS_SPAWN),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    quest_a_id = compiled.node_key_to_id["quest:a"]
+    quest_b_id = compiled.node_key_to_id["quest:b"]
+    item_x_id = compiled.node_key_to_id["item:x"]
+    giver_id = compiled.node_key_to_id["char:giver"]
+    mob_id = compiled.node_key_to_id["char:mob"]
+    spawn_id = compiled.node_key_to_id["spawn:mob:1"]
+
+    spec = compiled.quest_specs[compiled.node_quest_index[quest_a_id]]
+    assert spec.quest_id == quest_a_id
+    assert spec.prereq_quest_ids == [quest_b_id]
+    assert spec.prereq_quest_indices == [compiled.node_quest_index[quest_b_id]]
+    assert spec.required_items == [ItemRequirement(item_id=item_x_id, qty=3, group=0)]
+    assert spec.giver_node_ids == [giver_id]
+
+    item_index = compiled.node_item_index[item_x_id]
+    source = compiled.item_sources[item_index][0]
+    assert source.source_id == mob_id
+    assert source.positions == [SpawnPosition(spawn_id=spawn_id, x=10.0, y=20.0, z=30.0)]
+
+
+def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
+    graph = _graph(
+        _quest("quest:unlock", db_name="UNLOCK"),
+        _quest("quest:needs", db_name="NEEDS"),
+        _char("char:vendor"),
+        _item("item:key"),
+        edges=[
+            Edge(source="quest:unlock", target="char:vendor", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
+            Edge(source="quest:needs", target="quest:unlock", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:needs", target="item:key", type=EdgeType.REQUIRES_ITEM, quantity=1),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    vendor_id = compiled.node_key_to_id["char:vendor"]
+    unlock_id = compiled.node_key_to_id["quest:unlock"]
+    needs_id = compiled.node_key_to_id["quest:needs"]
+    key_id = compiled.node_key_to_id["item:key"]
+
+    assert compiled.unlock_predicates == [
+        UnlockPredicate(
+            target_id=vendor_id,
+            conditions=[UnlockCondition(source_id=unlock_id, check_type=0, group=1)],
+            group_count=1,
+            semantics=1,
+        )
+    ]
+    unlock_qi = compiled.node_quest_index[unlock_id]
+    needs_qi = compiled.node_quest_index[needs_id]
+    key_ii = compiled.node_item_index[key_id]
+    assert compiled.quest_to_dependent_quest_indices[unlock_qi] == [needs_qi]
+    assert compiled.item_to_quest_indices[key_ii] == [needs_qi]

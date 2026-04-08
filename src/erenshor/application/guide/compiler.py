@@ -255,11 +255,351 @@ def edge_type_byte(edge_type: EdgeType) -> int:
     return _EDGE_TYPE_ORDER.index(edge_type)
 
 
-def compile_graph(_graph: EntityGraph) -> CompiledData:
-    """Compile an :class:`EntityGraph` into :class:`CompiledData`.
+def compile_graph(graph: EntityGraph) -> CompiledData:
+    """Compile an :class:`EntityGraph` into :class:`CompiledData`."""
 
-    The actual structural analysis lands in the next task. The placeholder keeps
-    the public module shape honest for test-first development.
-    """
+    compiled = CompiledData()
+    _compile_nodes(graph, compiled)
+    _compile_edges(graph, compiled)
+    _assign_dense_indices(compiled)
+    _compile_topology(compiled)
+    _compile_quest_specs(compiled)
+    _compile_item_sources(compiled)
+    _compile_unlock_predicates(compiled)
+    _compile_reverse_dependencies(compiled)
+    _compile_zones(compiled)
+    _compile_blueprints(compiled)
+    return compiled
 
-    raise NotImplementedError("compile_graph is implemented in the next phase of the plan")
+
+def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
+    nodes = sorted(graph.all_nodes(), key=lambda node: node.key)
+    compiled.node_keys = [node.key for node in nodes]
+    compiled.node_key_to_id = {key: idx for idx, key in enumerate(compiled.node_keys)}
+    compiled.nodes = [
+        CompiledNode(
+            node_id=compiled.node_key_to_id[node.key],
+            key=node.key,
+            node_type=node_type_byte(node.type),
+            display_name=node.display_name,
+            scene=node.scene,
+            x=node.x if node.x is not None else math.nan,
+            y=node.y if node.y is not None else math.nan,
+            z=node.z if node.z is not None else math.nan,
+            flags=_node_flags(node),
+            level=max(node.level or 0, 0),
+            zone_key=node.zone_key,
+            db_name=node.db_name,
+        )
+        for node in nodes
+    ]
+    compiled.node_levels = [node.level for node in compiled.nodes]
+    compiled.node_quest_index = [-1] * len(compiled.nodes)
+    compiled.node_item_index = [-1] * len(compiled.nodes)
+    compiled.forward_adjacency = [[] for _ in compiled.nodes]
+    compiled.reverse_adjacency = [[] for _ in compiled.nodes]
+
+
+def _node_flags(node) -> int:
+    flags = 0
+    if node.is_friendly:
+        flags |= NodeFlags.IS_FRIENDLY
+    if node.is_vendor:
+        flags |= NodeFlags.IS_VENDOR
+    if node.night_spawn:
+        flags |= NodeFlags.NIGHT_SPAWN
+    if node.implicit:
+        flags |= NodeFlags.IMPLICIT
+    if node.repeatable:
+        flags |= NodeFlags.REPEATABLE
+    if node.disabled:
+        flags |= NodeFlags.DISABLED
+    if node.is_directly_placed:
+        flags |= NodeFlags.IS_DIRECTLY_PLACED
+    if node.is_enabled:
+        flags |= NodeFlags.IS_ENABLED
+    if node.invulnerable:
+        flags |= NodeFlags.INVULNERABLE
+    if node.is_rare:
+        flags |= NodeFlags.IS_RARE
+    if node.is_trigger_spawn:
+        flags |= NodeFlags.IS_TRIGGER_SPAWN
+    return flags
+
+
+def _compile_edges(graph: EntityGraph, compiled: CompiledData) -> None:
+    compiled.edges = []
+    for edge in graph.all_edges():
+        source_id = compiled.node_key_to_id.get(edge.source)
+        target_id = compiled.node_key_to_id.get(edge.target)
+        if source_id is None or target_id is None:
+            continue
+        compiled_edge = CompiledEdge(
+            source_id=source_id,
+            target_id=target_id,
+            edge_type=edge_type_byte(edge.type),
+            flags=_edge_flags(edge),
+            group=edge.group,
+            ordinal=edge.ordinal or 0,
+            quantity=edge.quantity or 0,
+            keyword=edge.keyword,
+            chance=round((edge.chance or 0.0) * 1000),
+        )
+        edge_id = len(compiled.edges)
+        compiled.edges.append(compiled_edge)
+        compiled.forward_adjacency[source_id].append(edge_id)
+        compiled.reverse_adjacency[target_id].append(edge_id)
+
+
+def _edge_flags(edge) -> int:
+    flags = 0
+    if edge.negated:
+        flags |= EdgeFlags.NEGATED
+    if edge.group:
+        flags |= EdgeFlags.HAS_GROUP
+    if edge.quantity is not None:
+        flags |= EdgeFlags.HAS_QUANTITY
+    if edge.keyword:
+        flags |= EdgeFlags.HAS_KEYWORD
+    if edge.chance is not None:
+        flags |= EdgeFlags.HAS_CHANCE
+    return flags
+
+
+def _assign_dense_indices(compiled: CompiledData) -> None:
+    compiled.quest_node_ids = [
+        node.node_id for node in compiled.nodes if node.node_type == node_type_byte(NodeType.QUEST)
+    ]
+    compiled.item_node_ids = [
+        node.node_id for node in compiled.nodes if node.node_type == node_type_byte(NodeType.ITEM)
+    ]
+    for qi, node_id in enumerate(compiled.quest_node_ids):
+        compiled.node_quest_index[node_id] = qi
+    for ii, node_id in enumerate(compiled.item_node_ids):
+        compiled.node_item_index[node_id] = ii
+
+
+def _compile_topology(compiled: CompiledData) -> None:
+    quest_count = len(compiled.quest_node_ids)
+    in_degree = [0] * quest_count
+    dependents: list[list[int]] = [[] for _ in range(quest_count)]
+    requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
+
+    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
+        seen_prereqs: set[int] = set()
+        for edge_id in compiled.forward_adjacency[quest_node_id]:
+            edge = compiled.edges[edge_id]
+            if edge.edge_type != requires_quest:
+                continue
+            prereq_index = compiled.node_quest_index[edge.target_id]
+            if prereq_index == -1 or prereq_index in seen_prereqs:
+                continue
+            seen_prereqs.add(prereq_index)
+            in_degree[quest_index] += 1
+            dependents[prereq_index].append(quest_index)
+
+    from collections import deque
+
+    queue = deque(index for index, degree in enumerate(in_degree) if degree == 0)
+    topo_order: list[int] = []
+    while queue:
+        quest_index = queue.popleft()
+        topo_order.append(quest_index)
+        for dependent in dependents[quest_index]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                queue.append(dependent)
+
+    if len(topo_order) < quest_count:
+        seen = set(topo_order)
+        for quest_index in range(quest_count):
+            if quest_index in seen:
+                continue
+            topo_order.append(quest_index)
+            compiled.infeasible_node_ids.add(compiled.quest_node_ids[quest_index])
+
+    compiled.topo_order = topo_order
+
+
+def _compile_quest_specs(compiled: CompiledData) -> None:
+    compiled.quest_specs = []
+    step_types = {
+        edge_type_byte(EdgeType.STEP_TALK),
+        edge_type_byte(EdgeType.STEP_KILL),
+        edge_type_byte(EdgeType.STEP_TRAVEL),
+        edge_type_byte(EdgeType.STEP_SHOUT),
+        edge_type_byte(EdgeType.STEP_READ),
+    }
+    requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
+    requires_item = {edge_type_byte(EdgeType.REQUIRES_ITEM), edge_type_byte(EdgeType.REQUIRES_MATERIAL)}
+    assigned_by = edge_type_byte(EdgeType.ASSIGNED_BY)
+    completed_by = edge_type_byte(EdgeType.COMPLETED_BY)
+    chains_to = edge_type_byte(EdgeType.CHAINS_TO)
+
+    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
+        node = compiled.nodes[quest_node_id]
+        spec = QuestSpec(
+            quest_id=quest_node_id,
+            quest_index=quest_index,
+            is_implicit=bool(node.flags & NodeFlags.IMPLICIT),
+            is_infeasible=quest_node_id in compiled.infeasible_node_ids,
+            display_name=node.display_name,
+        )
+        for edge_id in compiled.forward_adjacency[quest_node_id]:
+            edge = compiled.edges[edge_id]
+            if edge.edge_type == requires_quest:
+                spec.prereq_quest_ids.append(edge.target_id)
+                prereq_index = compiled.node_quest_index[edge.target_id]
+                if prereq_index != -1:
+                    spec.prereq_quest_indices.append(prereq_index)
+            elif edge.edge_type in requires_item:
+                spec.required_items.append(ItemRequirement(item_id=edge.target_id, qty=edge.quantity or 1, group=0))
+            elif edge.edge_type in step_types:
+                spec.steps.append(StepSpec(step_type=edge.edge_type, target_id=edge.target_id, ordinal=edge.ordinal))
+            elif edge.edge_type == assigned_by:
+                spec.giver_node_ids.append(edge.target_id)
+            elif edge.edge_type == completed_by:
+                spec.completer_node_ids.append(edge.target_id)
+            elif edge.edge_type == chains_to:
+                spec.chains_to_ids.append(edge.target_id)
+        compiled.quest_specs.append(spec)
+
+
+def _compile_item_sources(compiled: CompiledData) -> None:
+    source_edge_types = {
+        edge_type_byte(EdgeType.DROPS_ITEM),
+        edge_type_byte(EdgeType.SELLS_ITEM),
+        edge_type_byte(EdgeType.GIVES_ITEM),
+        edge_type_byte(EdgeType.YIELDS_ITEM),
+        edge_type_byte(EdgeType.CONTAINS),
+        edge_type_byte(EdgeType.PRODUCES),
+    }
+    has_spawn = edge_type_byte(EdgeType.HAS_SPAWN)
+    compiled.item_sources = [[] for _ in compiled.item_node_ids]
+
+    for item_index, item_node_id in enumerate(compiled.item_node_ids):
+        sources: list[SourceSite] = []
+        for edge_id in compiled.reverse_adjacency[item_node_id]:
+            edge = compiled.edges[edge_id]
+            if edge.edge_type not in source_edge_types:
+                continue
+            source_node = compiled.nodes[edge.source_id]
+            positions: list[SpawnPosition] = []
+            for source_edge_id in compiled.forward_adjacency[edge.source_id]:
+                source_edge = compiled.edges[source_edge_id]
+                if source_edge.edge_type != has_spawn:
+                    continue
+                spawn_node = compiled.nodes[source_edge.target_id]
+                positions.append(
+                    SpawnPosition(
+                        spawn_id=spawn_node.node_id,
+                        x=spawn_node.x,
+                        y=spawn_node.y,
+                        z=spawn_node.z,
+                    )
+                )
+            if not positions and not math.isnan(source_node.x):
+                positions.append(
+                    SpawnPosition(
+                        spawn_id=source_node.node_id,
+                        x=source_node.x,
+                        y=source_node.y,
+                        z=source_node.z,
+                    )
+                )
+            sources.append(
+                SourceSite(
+                    source_id=edge.source_id,
+                    source_type=source_node.node_type,
+                    edge_type=edge.edge_type,
+                    direct_item_id=0,
+                    scene=source_node.scene,
+                    positions=positions,
+                )
+            )
+        compiled.item_sources[item_index] = sources
+
+
+def _compile_unlock_predicates(compiled: CompiledData) -> None:
+    unlock_target_edge_types = {
+        edge_type_byte(EdgeType.UNLOCKS_CHARACTER),
+        edge_type_byte(EdgeType.UNLOCKS_ZONE_LINE),
+        edge_type_byte(EdgeType.UNLOCKS_VENDOR_ITEM),
+        edge_type_byte(EdgeType.UNLOCKS_DOOR),
+    }
+    gated_by_quest = edge_type_byte(EdgeType.GATED_BY_QUEST)
+    predicates: dict[int, list[UnlockCondition]] = {}
+
+    for edge in compiled.edges:
+        if edge.edge_type in unlock_target_edge_types:
+            target_id = edge.target_id
+            source_id = edge.source_id
+        elif edge.edge_type == gated_by_quest:
+            target_id = edge.source_id
+            source_id = edge.target_id
+        else:
+            continue
+        group = 1 if edge.group else 0
+        predicates.setdefault(target_id, []).append(UnlockCondition(source_id=source_id, check_type=0, group=group))
+
+    compiled.unlock_predicates = [
+        UnlockPredicate(
+            target_id=target_id,
+            conditions=conditions,
+            group_count=max((condition.group for condition in conditions), default=0),
+            semantics=1 if any(condition.group for condition in conditions) else 0,
+        )
+        for target_id, conditions in sorted(predicates.items())
+    ]
+
+
+def _compile_reverse_dependencies(compiled: CompiledData) -> None:
+    compiled.item_to_quest_indices = [[] for _ in compiled.item_node_ids]
+    compiled.quest_to_dependent_quest_indices = [[] for _ in compiled.quest_node_ids]
+
+    for spec in compiled.quest_specs:
+        for requirement in spec.required_items:
+            item_index = compiled.node_item_index[requirement.item_id]
+            if item_index != -1:
+                compiled.item_to_quest_indices[item_index].append(spec.quest_index)
+        for prereq_index in spec.prereq_quest_indices:
+            compiled.quest_to_dependent_quest_indices[prereq_index].append(spec.quest_index)
+
+
+def _compile_zones(compiled: CompiledData) -> None:
+    compiled.zone_node_ids = [
+        node.node_id for node in compiled.nodes if node.node_type == node_type_byte(NodeType.ZONE)
+    ]
+    compiled.zone_adjacency = [[] for _ in compiled.zone_node_ids]
+    compiled.zone_line_ids = [[] for _ in compiled.zone_node_ids]
+
+
+def _compile_blueprints(compiled: CompiledData) -> None:
+    compiled.giver_blueprints = []
+    compiled.completion_blueprints = []
+    for spec in compiled.quest_specs:
+        for giver_node_id in spec.giver_node_ids:
+            compiled.giver_blueprints.append(
+                QuestGiverBlueprint(
+                    quest_id=spec.quest_id,
+                    character_id=giver_node_id,
+                    position_id=_first_spawn_or_self(compiled, giver_node_id),
+                )
+            )
+        for completer_node_id in spec.completer_node_ids:
+            compiled.completion_blueprints.append(
+                QuestCompletionBlueprint(
+                    quest_id=spec.quest_id,
+                    character_id=completer_node_id,
+                    position_id=_first_spawn_or_self(compiled, completer_node_id),
+                )
+            )
+
+
+def _first_spawn_or_self(compiled: CompiledData, node_id: int) -> int:
+    has_spawn = edge_type_byte(EdgeType.HAS_SPAWN)
+    for edge_id in compiled.forward_adjacency[node_id]:
+        edge = compiled.edges[edge_id]
+        if edge.edge_type == has_spawn:
+            return edge.target_id
+    return node_id
