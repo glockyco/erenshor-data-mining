@@ -76,6 +76,31 @@ public sealed class NavigationTargetResolverTests
         Assert.Same(legacyTarget, targets[0]);
     }
 
+    [Fact]
+    public void Version_UsesProvidedVersionSource()
+    {
+        int version = 1;
+        var guide = new CompiledGuideBuilder().Build();
+        var graph = new TestGraphBuilder().Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, phases);
+        var unlocks = new UnlockPredicateEvaluator(guide, phases);
+        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var targetResolver = new NavigationTargetResolver(
+            guide,
+            graph,
+            frontier,
+            sourceResolver,
+            _ => Array.Empty<ResolvedQuestTarget>(),
+            () => version);
+
+        Assert.Equal(1, targetResolver.Version);
+        version = 2;
+        Assert.Equal(2, targetResolver.Version);
+    }
+
+
     private static ResolvedQuestTarget MakeLegacyTarget(
         string targetNodeKey,
         string scene,

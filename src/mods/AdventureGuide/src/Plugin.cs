@@ -195,7 +195,8 @@ public sealed class Plugin : BaseUnityPlugin
                 _graph,
                 _compiledFrontier,
                 _compiledSourceResolver,
-                _resolutionService.ResolveTargetsForNavigation);
+                _resolutionService.ResolveTargetsForNavigation,
+                () => Math.Max(_questTracker.Version, _resolutionService.Version));
         }
 
         _targetSelector = _navigationTargetResolver != null
@@ -203,7 +204,13 @@ public sealed class Plugin : BaseUnityPlugin
             : new NavigationTargetSelector(_resolutionService, _zoneRouter, _graph, _liveState);
 
         _navEngine = new NavigationEngine(
-            _navSet, _graph, _resolutionService, _targetSelector, _zoneRouter, _liveState, _unlockEvaluator);
+            _navSet,
+            _graph,
+            () => _navigationTargetResolver?.Version ?? _resolutionService!.Version,
+            _targetSelector,
+            _zoneRouter,
+            _liveState,
+            _unlockEvaluator);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -415,15 +422,16 @@ public sealed class Plugin : BaseUnityPlugin
         _markerComputer?.Recompute();
         GuideProfiler.MarkerRecompute.Record(pt);
 
+        int targetSourceVersion = _navigationTargetResolver?.Version ?? _resolutionService!.Version;
         bool forceSelector = TargetSelectorRefreshPolicy.ShouldForce(
             liveChangeSet.HasMeaningfulChanges,
-            _resolutionService!.Version,
+            targetSourceVersion,
             _lastResolutionVersion,
             _navSet!.Version,
             _lastNavSetVersion);
         if (forceSelector)
         {
-            _lastResolutionVersion = _resolutionService.Version;
+            _lastResolutionVersion = targetSourceVersion;
             _lastNavSetVersion     = _navSet!.Version;
         }
 

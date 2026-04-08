@@ -16,7 +16,7 @@ public sealed class NavigationEngine
 {
     private readonly NavigationSet _navSet;
     private readonly EntityGraph _graph;
-    private readonly QuestResolutionService _resolution;
+    private readonly Func<int> _targetSourceVersion;
     private readonly NavigationTargetSelector _selector;
     private readonly ZoneRouter _router;
     private readonly LiveStateTracker _liveState;
@@ -49,7 +49,7 @@ public sealed class NavigationEngine
     public NavigationEngine(
         NavigationSet navSet,
         EntityGraph graph,
-        QuestResolutionService resolution,
+        Func<int> targetSourceVersion,
         NavigationTargetSelector selector,
         ZoneRouter router,
         LiveStateTracker liveState,
@@ -57,7 +57,7 @@ public sealed class NavigationEngine
     {
         _navSet = navSet;
         _graph = graph;
-        _resolution = resolution;
+        _targetSourceVersion = targetSourceVersion;
         _selector = selector;
         _router = router;
         _liveState = liveState;
@@ -82,16 +82,18 @@ public sealed class NavigationEngine
             return;
         }
 
-        bool navChanged        = _navSet.Version     != _lastNavSetVersion;
-        bool selectorChanged   = _selector.Version   != _lastSelectorVersion;
-        bool resolutionChanged = _resolution.Version != _lastResolutionVersion;
-        bool sceneChanged      = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
+        bool navChanged      = _navSet.Version   != _lastNavSetVersion;
+        bool selectorChanged = _selector.Version != _lastSelectorVersion;
+        int targetSourceVersion = _targetSourceVersion();
+        bool sourceChanged   = targetSourceVersion != _lastResolutionVersion;
+        bool sceneChanged    = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
 
         if (navChanged || selectorChanged || sceneChanged)
         {
-            // Router accessibility depends on unlock state (plan), not player position.
-            // Only rebuild when the resolution plan changed or the scene changed.
-            if (resolutionChanged || sceneChanged)
+            // Router accessibility depends on unlock state, not player position.
+            // Only rebuild when the navigation target source changed or the
+            // scene changed.
+            if (sourceChanged || sceneChanged)
             {
                 _cachedRouteFrom = null;
                 _cachedRouteTo   = null;
@@ -101,7 +103,7 @@ public sealed class NavigationEngine
 
             _lastNavSetVersion     = _navSet.Version;
             _lastSelectorVersion   = _selector.Version;
-            _lastResolutionVersion = _resolution.Version;
+            _lastResolutionVersion = targetSourceVersion;
             _lastResolveScene      = CurrentScene;
         }
 

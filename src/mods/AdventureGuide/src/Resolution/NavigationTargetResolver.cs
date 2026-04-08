@@ -15,19 +15,24 @@ public sealed class NavigationTargetResolver
     private readonly EffectiveFrontier _frontier;
     private readonly SourceResolver _sourceResolver;
     private readonly Func<string, IReadOnlyList<ResolvedQuestTarget>> _legacyResolver;
+    private readonly Func<int> _versionProvider;
+
+    public int Version => _versionProvider();
 
     public NavigationTargetResolver(
         CompiledGuide.CompiledGuide guide,
         EntityGraph graph,
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
-        Func<string, IReadOnlyList<ResolvedQuestTarget>> legacyResolver)
+        Func<string, IReadOnlyList<ResolvedQuestTarget>> legacyResolver,
+        Func<int>? versionProvider = null)
     {
         _guide = guide;
         _graph = graph;
         _frontier = frontier;
         _sourceResolver = sourceResolver;
         _legacyResolver = legacyResolver;
+        _versionProvider = versionProvider ?? (() => 0);
     }
 
     public IReadOnlyList<ResolvedQuestTarget> Resolve(string nodeKey, string currentScene)

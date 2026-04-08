@@ -10,8 +10,8 @@ public sealed class TargetSelectorRefreshPolicyTests
     {
         bool force = TargetSelectorRefreshPolicy.ShouldForce(
             liveWorldChanged: true,
-            resolutionVersion: 1,
-            lastResolutionVersion: 1,
+            targetSourceVersion: 1,
+            lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
@@ -23,8 +23,8 @@ public sealed class TargetSelectorRefreshPolicyTests
     {
         bool force = TargetSelectorRefreshPolicy.ShouldForce(
             liveWorldChanged: false,
-            resolutionVersion: 2,
-            lastResolutionVersion: 1,
+            targetSourceVersion: 2,
+            lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
@@ -36,8 +36,8 @@ public sealed class TargetSelectorRefreshPolicyTests
     {
         bool force = TargetSelectorRefreshPolicy.ShouldForce(
             liveWorldChanged: false,
-            resolutionVersion: 1,
-            lastResolutionVersion: 1,
+            targetSourceVersion: 1,
+            lastTargetSourceVersion: 1,
             navSetVersion: 2,
             lastNavSetVersion: 1);
 
@@ -49,8 +49,8 @@ public sealed class TargetSelectorRefreshPolicyTests
     {
         bool force = TargetSelectorRefreshPolicy.ShouldForce(
             liveWorldChanged: false,
-            resolutionVersion: 1,
-            lastResolutionVersion: 1,
+            targetSourceVersion: 1,
+            lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
