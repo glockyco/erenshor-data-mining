@@ -24,14 +24,15 @@ public sealed class CompiledGuideBuilder
         (string ItemKey, int Quantity)[] RequiredItems);
 
     private sealed record ItemDef(string Key);
-    private sealed record CharacterDef(string Key, string? Scene, float X, float Y, float Z);
-
-    private sealed record ItemSourceDef(string ItemKey, string SourceKey);
+    private sealed record CharacterDef(string Key, string? Scene, float X, float Y, float Z, bool IsFriendly);
+    private sealed record StepDef(string QuestKey, byte StepType, string TargetKey);
+    private sealed record ItemSourceDef(string ItemKey, string SourceKey, byte EdgeType, byte SourceType);
     private sealed record UnlockDef(string TargetKey, string SourceKey, byte Group, byte CheckType);
 
     private readonly List<QuestDef> _quests = new();
     private readonly List<ItemDef> _items = new();
     private readonly List<CharacterDef> _characters = new();
+    private readonly List<StepDef> _steps = new();
 
     private readonly List<ItemSourceDef> _itemSources = new();
     private readonly List<UnlockDef> _unlockDefs = new();
@@ -69,15 +70,26 @@ public sealed class CompiledGuideBuilder
         string? scene = null,
         float x = float.NaN,
         float y = float.NaN,
-        float z = float.NaN)
+        float z = float.NaN,
+        bool isFriendly = false)
     {
-        _characters.Add(new CharacterDef(key, scene, x, y, z));
+        _characters.Add(new CharacterDef(key, scene, x, y, z, isFriendly));
         return this;
     }
 
-    public CompiledGuideBuilder AddItemSource(string itemKey, string sourceKey)
+    public CompiledGuideBuilder AddStep(string questKey, byte stepType, string targetKey)
     {
-        _itemSources.Add(new ItemSourceDef(itemKey, sourceKey));
+        _steps.Add(new StepDef(questKey, stepType, targetKey));
+        return this;
+    }
+
+    public CompiledGuideBuilder AddItemSource(
+        string itemKey,
+        string sourceKey,
+        byte edgeType = 16,
+        byte sourceType = 2)
+    {
+        _itemSources.Add(new ItemSourceDef(itemKey, sourceKey, edgeType, sourceType));
         return this;
     }
 
@@ -105,6 +117,11 @@ public sealed class CompiledGuideBuilder
         }
         foreach (ItemDef item in _items) allKeys.Add(item.Key);
         foreach (CharacterDef character in _characters) allKeys.Add(character.Key);
+        foreach (StepDef step in _steps)
+        {
+            allKeys.Add(step.QuestKey);
+            allKeys.Add(step.TargetKey);
+        }
         foreach (ItemSourceDef source in _itemSources)
         {
             allKeys.Add(source.ItemKey);
@@ -157,7 +174,8 @@ public sealed class CompiledGuideBuilder
 
             if (charByKey.TryGetValue(key, out CharacterDef? character))
             {
-                return new NodeRecord(Intern(key), 2, Intern(key), Intern(character.Scene), character.X, character.Y, character.Z, 0, 0, 0, 0);
+                ushort flags = character.IsFriendly ? (ushort)NodeFlags.IsFriendly : (ushort)0;
+                return new NodeRecord(Intern(key), 2, Intern(key), Intern(character.Scene), character.X, character.Y, character.Z, flags, 0, 0, 0);
             }
 
             return new NodeRecord(Intern(key), 255, Intern(key), 0, float.NaN, float.NaN, float.NaN, 0, 0, 0, 0);
@@ -180,6 +198,7 @@ public sealed class CompiledGuideBuilder
         var chainsToIds = new int[questNodeIds.Length][];
         var questFlags = new byte[questNodeIds.Length];
         var stepOff = new int[questNodeIds.Length];
+        var steps = new List<StepEntry>();
 
         for (int questIndex = 0; questIndex < questKeys.Length; questIndex++)
         {
@@ -192,7 +211,13 @@ public sealed class CompiledGuideBuilder
             completerIds[questIndex] = quest.Completers.Select(completer => keyToId[completer]).ToArray();
             chainsToIds[questIndex] = quest.ChainsTo.Select(chained => keyToId[chained]).ToArray();
             questFlags[questIndex] = quest.Implicit ? (byte)1 : (byte)0;
-            stepOff[questIndex] = 0;
+            stepOff[questIndex] = steps.Count;
+
+            byte ordinal = 0;
+            foreach (StepDef step in _steps.Where(step => string.Equals(step.QuestKey, quest.Key, StringComparison.Ordinal)))
+            {
+                steps.Add(new StepEntry(step.StepType, keyToId[step.TargetKey], ordinal++));
+            }
         }
 
         var q2qRows = new List<List<int>>();
@@ -295,7 +320,7 @@ public sealed class CompiledGuideBuilder
             questNodeIds,
             prereqs,
             requiredItems,
-            Array.Empty<StepEntry>(),
+            steps.ToArray(),
             stepOff,
             giverIds,
             completerIds,
@@ -341,8 +366,8 @@ public sealed class CompiledGuideBuilder
                     : new[] { new SpawnPositionEntry(sourceId, character.X, character.Y, character.Z) };
                 entries.Add(new SourceSiteEntry(
                     sourceId,
-                    sourceType: 2,
-                    edgeType: 16,
+                    sourceType: def.SourceType,
+                    edgeType: def.EdgeType,
                     directItemId: 0,
                     scene: character?.Scene,
                     positions: positions));

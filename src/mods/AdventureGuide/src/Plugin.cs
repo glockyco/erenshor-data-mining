@@ -39,7 +39,6 @@ public sealed class Plugin : BaseUnityPlugin
     private GameState? _gameState;
     private UnlockEvaluator? _unlockEvaluator;
     private GuideDependencyEngine? _dependencyEngine;
-    private QuestResolutionService? _resolutionService;
     private NavigationSet? _navSet;
     private NavigationEngine? _navEngine;
     private MarkerComputer? _markerComputer;
@@ -55,7 +54,6 @@ public sealed class Plugin : BaseUnityPlugin
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
-    private CompiledSourceIndex? _sourceIndex;
     private NavigationTargetSelector? _targetSelector;
     private CompiledGuide.CompiledGuide? _compiledGuide;
     private QuestPhaseTracker? _compiledQuestTracker;
@@ -105,9 +103,6 @@ public sealed class Plugin : BaseUnityPlugin
         graphSw.Restart();
         _graphIndexes = new GraphIndexes(_graph);
         var graphIndexMs = graphSw.Elapsed.TotalMilliseconds;
-        graphSw.Restart();
-        _sourceIndex = new CompiledSourceIndex(_graph);
-        var sourceIndexMs = graphSw.Elapsed.TotalMilliseconds;
 
         _compiledGuide = CompiledGuideLoader.Load(Log);
         _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
@@ -169,11 +164,6 @@ public sealed class Plugin : BaseUnityPlugin
         _waterResolver = new WaterPositionResolver(_graph);
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
-        var positionCache = new SourcePositionCache(positionRegistry, _graph);
-        var planBuilder = new QuestPlanBuilder(_graph, _gameState, _zoneRouter, _questTracker, _unlockEvaluator);
-        _resolutionService = new QuestResolutionService(
-            _graph, _questTracker, _gameState, planBuilder,
-            _dependencyEngine, _sourceIndex!, positionCache, _unlockEvaluator, _zoneRouter, _liveState);
 
         _compiledUnlocks = new AdventureGuide.Resolution.UnlockPredicateEvaluator(_compiledGuide, _compiledQuestTracker);
         _compiledFrontier = new EffectiveFrontier(_compiledGuide, _compiledQuestTracker);
@@ -235,7 +225,14 @@ public sealed class Plugin : BaseUnityPlugin
         var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
         SyncCompiledQuestTracker();
         _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
-        viewRenderer = new ViewRenderer(_compiledGuide, _navSet, _questTracker, _trackerState, _specTreeProjector);
+        viewRenderer = new ViewRenderer(
+            _graph,
+            _gameState,
+            _compiledGuide,
+            _navSet,
+            _questTracker,
+            _trackerState,
+            _specTreeProjector);
         _window = new GuideWindow(_questTracker, history, _config, viewRenderer, listPanel, filter, _compiledGuide);
 
         var trackerSummaryResolver = new TrackerSummaryResolver(
@@ -266,7 +263,7 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Nav = _navEngine;
         DebugAPI.GroundPath = _groundPath;
         DebugAPI.Router = _zoneRouter;
-        DebugAPI.Resolution = _resolutionService;
+        DebugAPI.Unlocks = _unlockEvaluator;
         DebugAPI.Markers = _markerComputer;
         DebugAPI.GameStateInstance = _gameState;
 
@@ -334,7 +331,6 @@ public sealed class Plugin : BaseUnityPlugin
             + $"  Startup: {startupSw.Elapsed.TotalMilliseconds:F0} ms total\n"
             + $"    graph load:    {graphLoadMs:F0} ms\n"
             + $"    graph indexes: {graphIndexMs:F0} ms\n"
-            + $"    source index:  {sourceIndexMs:F0} ms\n"
             + $"    state sync:    {syncMs:F0} ms\n"
             + $"    first markers: {firstRecomputeMs:F0} ms\n"
             + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
@@ -598,7 +594,7 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Nav = null;
         DebugAPI.GroundPath = null;
         DebugAPI.Router = null;
-        DebugAPI.Resolution = null;
+        DebugAPI.Unlocks = null;
         DebugAPI.Markers = null;
         DebugAPI.GameStateInstance = null;
     }

@@ -20,6 +20,7 @@ public readonly struct SpecTreeRef
         SpecTreeKind kind,
         int questIndex,
         string displayName,
+        string label,
         bool isCompleted,
         bool isBlocked)
     {
@@ -27,6 +28,7 @@ public readonly struct SpecTreeRef
         Kind = kind;
         QuestIndex = questIndex;
         DisplayName = displayName;
+        Label = label;
         IsCompleted = isCompleted;
         IsBlocked = isBlocked;
     }
@@ -35,6 +37,7 @@ public readonly struct SpecTreeRef
     public SpecTreeKind Kind { get; }
     public int QuestIndex { get; }
     public string DisplayName { get; }
+    public string Label { get; }
     public bool IsCompleted { get; }
     public bool IsBlocked { get; }
 }

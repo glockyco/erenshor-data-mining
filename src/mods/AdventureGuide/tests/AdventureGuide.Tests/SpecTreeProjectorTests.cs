@@ -26,12 +26,13 @@ public sealed class SpecTreeProjectorTests
 
 
     [Fact]
-    public void Root_children_include_prereqs_givers_items_steps_and_completers()
+    public void Root_children_format_player_facing_labels()
     {
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:pre", dbName: "PRE")
             .AddItem("item:gem")
             .AddCharacter("char:giver")
+            .AddCharacter("char:wolf")
             .AddCharacter("char:turnin")
             .AddQuest(
                 "quest:root",
@@ -40,6 +41,7 @@ public sealed class SpecTreeProjectorTests
                 givers: new[] { "char:giver" },
                 completers: new[] { "char:turnin" },
                 requiredItems: new[] { ("item:gem", 2) })
+            .AddStep("quest:root", stepType: 3, targetKey: "char:wolf")
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
@@ -48,14 +50,41 @@ public sealed class SpecTreeProjectorTests
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);
 
-        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Prerequisite && r.DisplayName == "quest:pre");
-        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Giver && r.DisplayName == "char:giver");
-        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Item && r.DisplayName == "item:gem" && !r.IsCompleted);
-        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Completer && r.DisplayName == "char:turnin");
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Prerequisite && r.Label == "Requires: quest:pre");
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Giver && r.Label == "Talk to char:giver");
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Item && r.Label == "Collect: item:gem (0/2)" && !r.IsCompleted);
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Step && r.Label == "Kill: char:wolf");
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Completer && r.Label == "Turn in to char:turnin");
     }
 
     [Fact]
-    public void Item_children_project_sources_and_blocked_state()
+    public void Item_children_hide_friendly_drop_sources_when_hostile_drop_exists()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:pelt")
+            .AddCharacter("char:wolf", isFriendly: false)
+            .AddCharacter("char:ranger", isFriendly: true)
+            .AddCharacter("char:vendor")
+            .AddItemSource("item:pelt", "char:wolf", edgeType: 16)
+            .AddItemSource("item:pelt", "char:ranger", edgeType: 16)
+            .AddItemSource("item:pelt", "char:vendor", edgeType: 17)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:pelt", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker));
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var itemRoot = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
+        var children = projector.GetChildren(itemRoot);
+
+        Assert.Contains(children, child => child.Label == "Drops from: char:wolf");
+        Assert.DoesNotContain(children, child => child.Label == "Drops from: char:ranger");
+        Assert.Contains(children, child => child.Label == "Vendor: char:vendor");
+    }
+
+    [Fact]
+    public void Blocked_nodes_expose_unlock_requirements()
     {
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:unlock", dbName: "UNLOCK")
@@ -71,11 +100,14 @@ public sealed class SpecTreeProjectorTests
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
-        var children = projector.GetChildren(itemRoot);
+        var source = projector.GetChildren(itemRoot).Single();
 
-        Assert.Single(children);
-        Assert.Equal(SpecTreeKind.Source, children[0].Kind);
-        Assert.Equal("char:wolf", children[0].DisplayName);
-        Assert.True(children[0].IsBlocked);
+        Assert.True(source.IsBlocked);
+
+        var unlocks = projector.GetUnlockChildren(source);
+
+        Assert.Single(unlocks);
+        Assert.Equal("Requires: quest:unlock", unlocks[0].Label);
+        Assert.False(unlocks[0].IsCompleted);
     }
 }

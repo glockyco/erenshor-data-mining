@@ -4,7 +4,6 @@ using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
 using AdventureGuide.Position;
-using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.UI;
 
@@ -27,7 +26,7 @@ public static class DebugAPI
     internal static NavigationEngine? Nav { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
     internal static ZoneRouter? Router { get; set; }
-    internal static QuestResolutionService? Resolution { get; set; }
+    internal static UnlockEvaluator? Unlocks { get; set; }
     internal static MarkerComputer? Markers { get; set; }
     internal static GameState? GameStateInstance { get; set; }
 
@@ -67,7 +66,6 @@ public static class DebugAPI
 
         return sb.ToString();
     }
-
 
     /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
     public static string DumpQuest(string name)
@@ -177,12 +175,11 @@ public static class DebugAPI
         sb.AppendLine("=== _adj ===");
         if (adjObj is System.Collections.IDictionary adjDict)
         {
-            // ZoneEdge is a private struct; get its Type from the List<ZoneEdge> generic argument
             var listType = adjObj.GetType().GetGenericArguments()[1];
             var edgeType = listType.GetGenericArguments()[0];
-            var destSceneF   = edgeType.GetField("DestScene",   pubInst);
+            var destSceneF = edgeType.GetField("DestScene", pubInst);
             var zoneLineKeyF = edgeType.GetField("ZoneLineKey", pubInst);
-            var accessibleF  = edgeType.GetField("Accessible",  pubInst);
+            var accessibleF = edgeType.GetField("Accessible", pubInst);
 
             foreach (System.Collections.DictionaryEntry de in adjDict)
             {
@@ -191,9 +188,9 @@ public static class DebugAPI
                 {
                     foreach (var item in edgeList)
                     {
-                        var dst = destSceneF?.GetValue(item)   ?? "?";
+                        var dst = destSceneF?.GetValue(item) ?? "?";
                         var zlk = zoneLineKeyF?.GetValue(item) ?? "?";
-                        var acc = accessibleF?.GetValue(item)  ?? "?";
+                        var acc = accessibleF?.GetValue(item) ?? "?";
                         sb.AppendLine($"    -> {dst}  key={zlk}  accessible={acc}");
                     }
                 }
@@ -207,51 +204,19 @@ public static class DebugAPI
         return sb.ToString();
     }
 
-    /// <summary>Calls ZoneAccessResolver.FindBlockedRoute for the given target scene.</summary>
-    public static string DumpBlockedRoute(string targetScene)
-    {
-        if (Resolution == null)
-            return "Resolution is null";
-
-        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
-        var zoneAccess = Resolution.GetType().GetField("_zoneAccess", bf)?.GetValue(Resolution)
-            as ZoneAccessResolver;
-        if (zoneAccess == null)
-            return "_zoneAccess is null";
-
-        var result = zoneAccess.FindBlockedRoute(targetScene);
-        if (result == null)
-            return $"null - not blocked (targetScene={targetScene})";
-
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"ZoneLineKey: {result.ZoneLineNode.Key}");
-        sb.AppendLine($"IsUnlocked: {result.Evaluation.IsUnlocked}");
-        sb.AppendLine($"Reason: {result.Evaluation.Reason ?? "(none)"}");
-        sb.AppendLine($"BlockingSources ({result.Evaluation.BlockingSources.Count}):");
-        foreach (var src in result.Evaluation.BlockingSources)
-            sb.AppendLine($"  {src.Key}  type={src.Type}");
-        return sb.ToString();
-    }
-
     /// <summary>Calls UnlockEvaluator.Evaluate for the given node key and returns the result.</summary>
     public static string DumpEntityUnlock(string nodeKey)
     {
-        if (Resolution == null)
-            return "Resolution is null";
+        if (Unlocks == null)
+            return "Unlocks are null";
         if (Graph == null)
             return "Graph is null";
-
-        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
-        var unlocks = Resolution.GetType().GetField("_unlocks", bf)?.GetValue(Resolution)
-            as UnlockEvaluator;
-        if (unlocks == null)
-            return "_unlocks is null";
 
         var node = Graph.GetNode(nodeKey);
         if (node == null)
             return $"Node '{nodeKey}' not found in graph";
 
-        var eval = unlocks.Evaluate(node);
+        var eval = Unlocks.Evaluate(node);
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"Node: {node.Key}  type={node.Type}  enabled={node.IsEnabled}");
         sb.AppendLine($"IsUnlocked: {eval.IsUnlocked}");
@@ -266,15 +231,12 @@ public static class DebugAPI
     {
         if (Graph == null) return null;
 
-        // Try as node key first
         var node = Graph.GetNode(name);
         if (node != null && node.Type == NodeType.Quest) return node;
 
-        // Try as DB name (O(1) via index)
         node = Graph.GetQuestByDbName(name);
         if (node != null) return node;
 
-        // Last resort: display name (linear scan)
         foreach (var q in Graph.NodesOfType(NodeType.Quest))
         {
             if (string.Equals(q.DisplayName, name, StringComparison.OrdinalIgnoreCase))
@@ -284,118 +246,22 @@ public static class DebugAPI
         return null;
     }
 
-    /// <summary>Profile resolving a single quest: cold (cache cleared) and hot timings.</summary>
-    public static string ProfileQuestResolve(string name, int iterations = 5)
-    {
-        if (Graph == null || Resolution == null || State == null) return "Not initialized";
-
-        var node = FindQuestNode(name);
-        if (node == null) return $"Quest '{name}' not found";
-
-        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var planCache = Resolution.GetType().GetField("_planCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var projectionCache = Resolution.GetType().GetField("_planProjectionCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Profiling quest: {node.DisplayName} ({node.Key})");
-        sb.AppendLine($"Iterations: {iterations}");
-        sb.AppendLine();
-
-        // Cold run (clear caches first)
-        planCache?.Remove(node.Key);
-        projectionCache?.Remove(node.Key);
-        targetCache?.Remove(node.Key);
-        var sw = Stopwatch.StartNew();
-        var result = Resolution.ResolveQuest(node.Key);
-        sw.Stop();
-        sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms  targets={result.Targets.Count}");
-
-        // Hot runs
-        double totalHot = 0;
-        for (int i = 0; i < iterations; i++)
-        {
-            sw.Restart();
-            result = Resolution.ResolveQuest(node.Key);
-            sw.Stop();
-            double ms = sw.Elapsed.TotalMilliseconds;
-            totalHot += ms;
-            sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
-        }
-
-        sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
-        return sb.ToString();
-    }
-
-    /// <summary>Profile cold resolution of all actionable quests with aggregate stats.</summary>
-    public static string ProfileActionableQuests()
-    {
-        if (Graph == null || Resolution == null || State == null) return "Not initialized";
-
-        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var planCache = Resolution.GetType().GetField("_planCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var projectionCache = Resolution.GetType().GetField("_planProjectionCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-        var targetCache = Resolution.GetType().GetField("_targetCache", bf)?.GetValue(Resolution) as System.Collections.IDictionary;
-
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("Profiling all actionable quests (cold):");
-        sb.AppendLine();
-
-        // Clear all caches
-        planCache?.Clear();
-        projectionCache?.Clear();
-        targetCache?.Clear();
-
-        int questCount = 0;
-        double totalMs = 0;
-        var sw = new Stopwatch();
-
-        foreach (var node in Graph.NodesOfType(NodeType.Quest))
-        {
-            if (node.DbName == null) continue;
-            if (!State.IsActionable(node.DbName)) continue;
-
-            // Clear per-quest caches for a true cold measurement
-            planCache?.Remove(node.Key);
-            projectionCache?.Remove(node.Key);
-            targetCache?.Remove(node.Key);
-
-            sw.Restart();
-            var result = Resolution.ResolveQuest(node.Key);
-            sw.Stop();
-
-            double ms = sw.Elapsed.TotalMilliseconds;
-            totalMs += ms;
-            questCount++;
-            sb.AppendLine($"  {node.DisplayName}: {ms:F3} ms  targets={result.Targets.Count}");
-        }
-
-        if (questCount == 0) return "No active quests";
-
-        sb.AppendLine();
-        sb.AppendLine($"Total: {questCount} quests in {totalMs:F3} ms");
-        sb.AppendLine($"Average: {totalMs / questCount:F3} ms/quest");
-        return sb.ToString();
-    }
-
     /// <summary>Profile MarkerComputer.Recompute() cold and hot.</summary>
     public static string ProfileMarkerRecompute(int iterations = 5)
     {
         if (Markers == null) return "Not initialized";
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Profiling MarkerComputer.Recompute()");
+        sb.AppendLine("Profiling MarkerComputer.Recompute()");
         sb.AppendLine($"Iterations: {iterations}");
         sb.AppendLine();
 
-        // Cold run
         Markers.MarkDirty();
         var sw = Stopwatch.StartNew();
         Markers.Recompute();
         sw.Stop();
         sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms");
 
-        // Hot runs
         double totalHot = 0;
         for (int i = 0; i < iterations; i++)
         {
@@ -412,8 +278,6 @@ public static class DebugAPI
         return sb.ToString();
     }
 
-    // ── Node-state classification ─────────────────────────────────────
-
     private static readonly NodeType[] SnapshotNodeTypes =
     {
         NodeType.Character, NodeType.SpawnPoint, NodeType.MiningNode,
@@ -422,24 +286,22 @@ public static class DebugAPI
 
     private static string ClassifyState(NodeState state) => state switch
     {
-        SpawnAlive          => "alive",
-        SpawnDead           => "dead",
-        SpawnDisabled       => "disabled",
-        SpawnNightLocked    => "night_locked",
-        SpawnUnlockBlocked  => "unlock_blocked",
-        MiningAvailable     => "mine_available",
-        MiningMined         => "mine_mined",
-        ItemBagAvailable    => "bag_available",
-        ItemBagPickedUp     => "bag_picked_up",
-        ItemBagGone         => "bag_gone",
-        DoorUnlocked        => "door_unlocked",
-        DoorLocked          => "door_locked",
-        DoorClosed          => "door_closed",
-        UnknownState        => "unknown",
-        _                   => "unknown",
+        SpawnAlive => "alive",
+        SpawnDead => "dead",
+        SpawnDisabled => "disabled",
+        SpawnNightLocked => "night_locked",
+        SpawnUnlockBlocked => "unlock_blocked",
+        MiningAvailable => "mine_available",
+        MiningMined => "mine_mined",
+        ItemBagAvailable => "bag_available",
+        ItemBagPickedUp => "bag_picked_up",
+        ItemBagGone => "bag_gone",
+        DoorUnlocked => "door_unlocked",
+        DoorLocked => "door_locked",
+        DoorClosed => "door_closed",
+        UnknownState => "unknown",
+        _ => "unknown",
     };
-
-    // ── Per-frame profiler ──────────────────────────────────────────────
 
     /// <summary>
     /// Dump timing statistics for every instrumented step in Plugin.Update().
@@ -460,8 +322,6 @@ public static class DebugAPI
         return "Profiler counters reset.";
     }
 
-    // ── Snapshot export ──────────────────────────────────────────────
-
     /// <summary>
     /// Capture a full pipeline-relevant state snapshot and write it to disk.
     /// Returns the output file path, or an error string if the mod is not initialized.
@@ -473,12 +333,10 @@ public static class DebugAPI
 
         var zone = State.CurrentZone;
 
-        // Keyring — private field, reflect once per call
         var keyringField = typeof(QuestStateTracker)
             .GetField("_keyringItemKeys", BindingFlags.NonPublic | BindingFlags.Instance);
         var keyring = keyringField?.GetValue(State) as HashSet<string>;
 
-        // Live node states for resolver-registered types in current scene
         var liveStates = new Dictionary<string, LiveNodeState>();
         foreach (var nodeType in SnapshotNodeTypes)
         {

@@ -1,18 +1,12 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
-using AdventureGuide.Plan.Semantics;
 using AdventureGuide.State;
 using AdventureGuide.UI.Tree;
 using ImGuiNET;
 
 namespace AdventureGuide.UI;
 
-/// <summary>
-/// Renders quest detail pages from canonical quest plans through a lazy tree
-/// session. The player-facing tree only materializes one level at a time and
-/// never renders cycle placeholders.
-/// </summary>
 public sealed class ViewRenderer
 {
     private readonly EntityGraph _graph;
@@ -20,78 +14,63 @@ public sealed class ViewRenderer
     private readonly NavigationSet _navSet;
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
-    private readonly SourceVisibilityPolicy _visibilityPolicy;
-    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
-    private readonly SpecTreeProjector? _specProjector;
+    private readonly AdventureGuide.CompiledGuide.CompiledGuide _compiledGuide;
+    private readonly SpecTreeProjector _specProjector;
 
-    private QuestPlan? _currentPlan;
-    private QuestTreeSession? _currentSession;
-    private LazyTreeProjector? _currentProjector;
-
-    public ViewRenderer(EntityGraph graph, GameState state, NavigationSet navSet,
-        QuestStateTracker tracker, TrackerState trackerState)
+    public ViewRenderer(
+        EntityGraph graph,
+        GameState state,
+        AdventureGuide.CompiledGuide.CompiledGuide guide,
+        NavigationSet navSet,
+        QuestStateTracker tracker,
+        TrackerState trackerState,
+        SpecTreeProjector specProjector)
     {
         _graph = graph;
         _state = state;
-        _navSet = navSet;
-        _tracker = tracker;
-        _trackerState = trackerState;
-        _visibilityPolicy = new SourceVisibilityPolicy(
-            graph, refname => GlobalFactionManager.FindFactionData(refname)?.Value);
-    }
-
-    public ViewRenderer(CompiledGuide.CompiledGuide guide, NavigationSet navSet,
-        QuestStateTracker tracker, TrackerState trackerState, SpecTreeProjector specProjector)
-    {
-        _graph = null!;
-        _state = null!;
-        _navSet = navSet;
-        _tracker = tracker;
-        _trackerState = trackerState;
-        _visibilityPolicy = null!;
         _compiledGuide = guide;
+        _navSet = navSet;
+        _tracker = tracker;
+        _trackerState = trackerState;
         _specProjector = specProjector;
     }
 
-    /// <summary>Render a full quest detail page from a canonical quest plan.</summary>
-    public void Draw(QuestPlanProjection? projection)
+    public void Draw(int? questIndex)
     {
-        if (projection == null)
+        if (questIndex == null)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.TextWrapped("Select a quest from the list.");
-            ImGui.PopStyleColor();
+            DrawNotice("Select a quest from the list.");
             return;
         }
 
-        EnsureSession(projection.Plan);
-        var root = _currentPlan?.GetNode(_currentPlan.RootId) as PlanEntityNode;
-        if (root == null)
+        int questNodeId = _compiledGuide.QuestNodeId(questIndex.Value);
+        string questKey = _compiledGuide.GetNodeKey(questNodeId);
+        var quest = _graph.GetNode(questKey);
+        if (quest == null)
         {
             DrawNotice("No guide data available for this quest.");
             return;
         }
 
-        DrawHeader(root);
+        DrawHeader(quest, questKey);
 
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
 
-        var rootChildren = _currentProjector!.GetRootChildren();
-        string? completionFallback = GetCompletionFallbackNotice(_graph, root.Node);
+        var rootChildren = _specProjector.GetRootChildren(questIndex.Value);
+        string? completionFallback = GetCompletionFallbackNotice(_graph, quest);
         if (rootChildren.Count == 0 && completionFallback == null)
         {
             DrawNotice("No guide data available for this quest.");
         }
         else if (ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
         {
-            var questState = _state.GetState(root.NodeKey);
             ImGui.Indent(Theme.IndentWidth);
             for (int i = 0; i < rootChildren.Count; i++)
             {
-                ImGui.PushID(i);
-                DrawTreeRef(rootChildren[i], questState);
+                ImGui.PushID($"spec_root_{i}");
+                DrawSpecTreeRef(rootChildren[i]);
                 ImGui.PopID();
             }
 
@@ -102,59 +81,78 @@ public sealed class ViewRenderer
         }
 
         ImGui.Spacing();
-        DrawRewards(root.Node);
+        DrawRewards(quest);
     }
 
-    /// <summary>Render a quest detail page from compiled guide specs.</summary>
-    public void Draw(int? questIndex)
+    private void DrawSpecTreeRef(SpecTreeRef treeRef)
     {
-        if (_compiledGuide == null || _specProjector == null || questIndex == null)
+        var node = ResolveGraphNode(treeRef.NodeId);
+        bool navigable = node != null && IsNavigable(node);
+        var unlockChildren = _specProjector.GetUnlockChildren(treeRef);
+        var children = _specProjector.GetChildren(treeRef);
+        bool hasTreeContent = unlockChildren.Count > 0 || children.Count > 0;
+        uint color = GetNodeColor(treeRef, node);
+
+        if (hasTreeContent)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.TextWrapped("Select a quest from the list.");
+            if (navigable)
+            {
+                DrawNavButtonByKey(node!);
+                ImGui.SameLine();
+            }
+
+            ImGui.PushStyleColor(ImGuiCol.Text, color);
+            bool open = ImGui.TreeNodeEx($"{treeRef.Label}###{treeRef.Kind}:{treeRef.NodeId}");
             ImGui.PopStyleColor();
+            if (!open)
+                return;
+
+            for (int i = 0; i < unlockChildren.Count; i++)
+            {
+                ImGui.PushID($"unlock_{i}");
+                DrawSpecTreeRef(unlockChildren[i]);
+                ImGui.PopID();
+            }
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                ImGui.PushID($"child_{i}");
+                DrawSpecTreeRef(children[i]);
+                ImGui.PopID();
+            }
+
+            ImGui.TreePop();
             return;
         }
 
-        int qNodeId = _compiledGuide.QuestNodeId(questIndex.Value);
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
-        ImGui.TextWrapped(_compiledGuide.GetDisplayName(qNodeId));
-        ImGui.PopStyleColor();
-
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
-
-        foreach (var root in _specProjector.GetRootChildren(questIndex.Value))
+        if (navigable)
         {
-            DrawSpecTreeRef(root);
+            DrawNavButtonByKey(node!);
+            ImGui.SameLine();
         }
+
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+        ImGui.BulletText(treeRef.Label);
+        ImGui.PopStyleColor();
     }
 
-    private void EnsureSession(QuestPlan plan)
+    private Node? ResolveGraphNode(int nodeId)
     {
-        if (ReferenceEquals(_currentPlan, plan) && _currentSession != null && _currentProjector != null)
-            return;
-
-        _currentPlan = plan;
-        _currentSession = new QuestTreeSession(plan);
-        _currentProjector = new LazyTreeProjector(plan, _currentSession, _visibilityPolicy);
+        string key = _compiledGuide.GetNodeKey(nodeId);
+        return _graph.GetNode(key);
     }
 
-    // ── Header ──────────────────────────────────────────────────────────
-
-    private void DrawHeader(PlanEntityNode root)
+    private void DrawHeader(Node quest, string questKey)
     {
-        var quest = root.Node;
         string? dbName = quest.DbName;
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
-        DrawQuestBadge(root.NodeKey);
+        DrawQuestBadge(questKey);
 
         ImGui.SameLine();
-        DrawNavButtonByKey(quest, root.NodeKey);
+        DrawNavButtonByKey(quest, questKey);
 
         if (dbName != null)
         {
@@ -206,114 +204,6 @@ public sealed class ViewRenderer
         ImGui.PopStyleColor();
     }
 
-    // ── Lazy tree renderer ──────────────────────────────────────────────
-
-    private void DrawTreeRef(TreeRef treeRef, NodeState questState, string? labelPrefix = null)
-    {
-        var node = _currentPlan!.GetNode(treeRef.NodeId);
-        if (node == null)
-            return;
-
-        if (node is PlanGroupNode group)
-        {
-            DrawGroupRef(treeRef, group, questState);
-            return;
-        }
-
-        var entity = (PlanEntityNode)node;
-        if (entity.Node.Type == NodeType.Quest)
-            questState = _state.GetState(entity.NodeKey);
-
-        string label = FormatLabel(entity, treeRef.IncomingLink);
-        if (!string.IsNullOrEmpty(labelPrefix))
-            label = labelPrefix + label;
-
-        uint color = GetNodeColor(entity, treeRef.IncomingLink);
-        var unlockChildren = _currentProjector!.GetUnlockChildren(treeRef);
-        var childRefs = _currentProjector.GetChildren(treeRef);
-        bool hasTreeContent = unlockChildren.Count > 0 || childRefs.Count > 0;
-        bool navigable = IsNavigable(entity.Node);
-
-        if (hasTreeContent)
-        {
-            if (navigable)
-            {
-                DrawNavButtonByKey(entity.Node, entity.NodeKey);
-                ImGui.SameLine();
-            }
-
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            bool open = ImGui.TreeNodeEx($"{label}###{treeRef.Id}");
-            ImGui.PopStyleColor();
-            _currentSession!.SetExpanded(treeRef.Id, open);
-
-            if (open)
-            {
-                if (unlockChildren.Count == 1)
-                {
-                    var unlockNode = _currentPlan.GetNode(unlockChildren[0].NodeId) as PlanEntityNode;
-                    string prefix = unlockNode?.Node.Type == NodeType.Door ? "Unlock: " : "Requires: ";
-                    DrawTreeRef(unlockChildren[0], questState, prefix);
-                }
-                else if (unlockChildren.Count > 1)
-                {
-                    ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                    ImGui.TextUnformatted("Requires all of:");
-                    ImGui.PopStyleColor();
-                    ImGui.Indent(Theme.IndentWidth);
-                    for (int i = 0; i < unlockChildren.Count; i++)
-                    {
-                        ImGui.PushID($"unlock_{i}");
-                        DrawTreeRef(unlockChildren[i], questState);
-                        ImGui.PopID();
-                    }
-                    ImGui.Unindent(Theme.IndentWidth);
-                }
-
-                for (int i = 0; i < childRefs.Count; i++)
-                {
-                    ImGui.PushID($"child_{i}");
-                    DrawTreeRef(childRefs[i], questState);
-                    ImGui.PopID();
-                }
-
-                ImGui.TreePop();
-            }
-        }
-        else
-        {
-            if (navigable)
-            {
-                DrawNavButtonByKey(entity.Node, entity.NodeKey);
-                ImGui.SameLine();
-            }
-
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.BulletText(label);
-            ImGui.PopStyleColor();
-        }
-    }
-
-    private void DrawGroupRef(TreeRef treeRef, PlanGroupNode group, NodeState questState)
-    {
-        string label = group.Label ?? (group.GroupKind == PlanGroupKind.AnyOf ? "One of" : "Requires all of");
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        bool open = ImGui.TreeNodeEx($"{label}###{treeRef.Id}", ImGuiTreeNodeFlags.DefaultOpen);
-        ImGui.PopStyleColor();
-        _currentSession!.SetExpanded(treeRef.Id, open);
-        if (!open)
-            return;
-
-        var children = _currentProjector!.GetChildren(treeRef);
-        for (int i = 0; i < children.Count; i++)
-        {
-            ImGui.PushID($"group_{i}");
-            DrawTreeRef(children[i], questState);
-            ImGui.PopID();
-        }
-        ImGui.TreePop();
-    }
-
     private static void DrawNotice(string text)
     {
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -338,137 +228,19 @@ public sealed class ViewRenderer
             ? "Completion method not in guide data. Quest may be scripted or not yet completable."
             : null;
 
-    // ── Label formatting ────────────────────────────────────────────────
-
-    private string FormatLabel(PlanEntityNode node, PlanLink? link)
+    private uint GetNodeColor(SpecTreeRef treeRef, Node? node)
     {
-        var edgeType = link?.EdgeType;
-        var n = node.Node;
-        string name = n.DisplayName;
-
-        if (edgeType == null)
-            return name;
-
-        string prefix = edgeType.Value switch
-        {
-            EdgeType.RequiresQuest => $"Requires: {name}",
-            EdgeType.RequiresItem => FormatHaveNeed("Collect: ", name, node, link),
-            EdgeType.StepTalk => FormatKeyword("Talk to ", name, link?.Keyword),
-            EdgeType.StepKill => $"Kill: {name}",
-            EdgeType.StepTravel => $"Travel to: {name}",
-            EdgeType.StepShout => !string.IsNullOrEmpty(link?.Keyword)
-                ? $"Shout '{link!.Keyword}' near {name}"
-                : $"Shout near {name}",
-            EdgeType.StepRead => $"Read: {name}",
-            EdgeType.CompletedBy => FormatCompletion(node, link),
-            EdgeType.AssignedBy => FormatAssignment(node, link),
-            EdgeType.CraftedFrom => $"Crafted via: {name}",
-            EdgeType.RequiresMaterial => FormatHaveNeed("Ingredient: ", name, node, link),
-            EdgeType.DropsItem => FormatChance($"Drops from: {name}", link?.Note == null ? null : ParseChance(link.Note)),
-            EdgeType.SellsItem => $"Vendor: {name}",
-            EdgeType.GivesItem => FormatKeyword("Talk to ", name, link?.Keyword),
-            EdgeType.YieldsItem => n.Type switch
-            {
-                NodeType.MiningNode => $"Mine: {name}",
-                NodeType.Water      => $"Fish at: {name}",
-                _                   => $"Collect: {name}",
-            },
-            EdgeType.RewardsItem => $"Quest reward: {name}",
-            _ => $"[{edgeType.Value}] {name}",
-        };
-
-        prefix += FormatNodeMetadata(node, link);
-        return prefix;
-    }
-
-    private string FormatHaveNeed(string prefix, string name, PlanEntityNode node, PlanLink? link)
-    {
-        int need = link?.Quantity ?? 1;
-        if (need <= 1)
-            return $"{prefix}{name}";
-
-        int have = _tracker.CountItem(node.NodeKey);
-        return $"{prefix}{name} ({have}/{need})";
-    }
-
-    private static string FormatKeyword(string prefix, string name, string? keyword)
-        => !string.IsNullOrEmpty(keyword) ? $"{prefix}{name} — say \"{keyword}\"" : $"{prefix}{name}";
-
-    private static string FormatChance(string text, float? chance)
-        => chance.HasValue && chance.Value < 1.0f ? $"{text} ({chance.Value:P0})" : text;
-
-    private static float? ParseChance(string? note) => null;
-
-    private static string FormatNodeMetadata(PlanEntityNode node, PlanLink? link)
-    {
-        var parts = new List<string>(3);
-        bool showLevel = link?.EdgeType is EdgeType.StepKill or EdgeType.DropsItem or EdgeType.YieldsItem or EdgeType.StepTravel;
-
-        if (showLevel)
-        {
-            int? level = node.EffectiveLevel ?? node.Node.Level;
-            if (level.HasValue)
-                parts.Add($"Lv {level.Value}");
-        }
-
-        if (node.SourceZones != null && node.SourceZones.Count > 0)
-        {
-            if (node.SourceZones.Count <= 3)
-                parts.Add(string.Join(", ", node.SourceZones));
-            else
-                parts.Add($"{node.SourceZones.Count} zones");
-        }
-        else if (node.Node.Zone != null)
-        {
-            parts.Add(node.Node.Zone);
-        }
-
-        if (parts.Count == 0)
-            return string.Empty;
-
-        return " (" + string.Join(", ", parts) + ")";
-    }
-
-    private static string FormatAssignment(PlanEntityNode node, PlanLink? link)
-    {
-        string name = node.Node.DisplayName;
-        return node.Node.Type switch
-        {
-            NodeType.Item => $"Read: {name}",
-            NodeType.Zone => $"Enter: {name}",
-            NodeType.Quest => $"Complete: {name}",
-            _ => FormatKeyword("Talk to ", name, link?.Keyword),
-        };
-    }
-
-    internal static string FormatCompletion(PlanEntityNode node, PlanLink? link)
-    {
-        string name = node.Node.DisplayName;
-        return node.Node.Type switch
-        {
-            NodeType.Character => FormatKeyword("Turn in to ", name, link?.Keyword),
-            NodeType.Item => $"Read: {name}",
-            NodeType.Zone => $"Enter: {name}",
-            NodeType.ZoneLine => $"Travel to: {name}",
-            NodeType.Quest => $"Complete: {name}",
-            _ => $"Complete via: {name}",
-        };
-    }
-
-    // ── Colors ──────────────────────────────────────────────────────────
-
-    private uint GetNodeColor(PlanEntityNode node, PlanLink? link)
-    {
-        if (node.Status == PlanStatus.Satisfied)
+        if (treeRef.IsCompleted)
             return Theme.QuestCompleted;
-        if (_navSet.Contains(node.NodeKey))
+
+        if (node != null && _navSet.Contains(node.Key))
             return Theme.NavManualOverride;
-        if (link?.Semantic.Phase == DependencyPhase.Source)
+
+        if (treeRef.IsBlocked)
             return Theme.SourceDimmed;
+
         return Theme.TextPrimary;
     }
-
-    // ── NAV buttons ─────────────────────────────────────────────────────
 
     private void DrawNavButtonByKey(Node node, string? keyOverride = null)
     {
@@ -527,8 +299,6 @@ public sealed class ViewRenderer
         };
     }
 
-    // ── Quest badge ─────────────────────────────────────────────────────
-
     private void DrawQuestBadge(string questKey)
     {
         var nodeState = _state.GetState(questKey);
@@ -560,8 +330,6 @@ public sealed class ViewRenderer
         ImGui.TextUnformatted(badge);
         ImGui.PopStyleColor();
     }
-
-    // ── Rewards section ─────────────────────────────────────────────────
 
     private void DrawRewards(Node quest)
     {
@@ -701,34 +469,20 @@ public sealed class ViewRenderer
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private void DrawSpecTreeRef(SpecTreeRef treeRef)
+    private static string FormatKeyword(string prefix, string name, string? keyword) =>
+        !string.IsNullOrEmpty(keyword) ? $"{prefix}{name} — say \"{keyword}\"" : $"{prefix}{name}";
+
+    internal static string FormatCompletion(PlanEntityNode node, PlanLink? link)
     {
-        bool hasChildren = treeRef.Kind == SpecTreeKind.Item;
-        uint color = treeRef.IsBlocked ? Theme.SourceDimmed
-            : treeRef.IsCompleted ? Theme.QuestCompleted
-            : Theme.TextPrimary;
-
-        if (!hasChildren)
+        string name = node.Node.DisplayName;
+        return node.Node.Type switch
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.BulletText(treeRef.DisplayName);
-            ImGui.PopStyleColor();
-            return;
-        }
-
-        ImGui.PushStyleColor(ImGuiCol.Text, color);
-        bool open = ImGui.TreeNodeEx($"{treeRef.DisplayName}###{treeRef.NodeId}");
-        ImGui.PopStyleColor();
-        if (!open)
-        {
-            return;
-        }
-
-        foreach (var child in _specProjector!.GetChildren(treeRef))
-        {
-            DrawSpecTreeRef(child);
-        }
-        ImGui.TreePop();
+            NodeType.Character => FormatKeyword("Turn in to ", name, link?.Keyword),
+            NodeType.Item => $"Read: {name}",
+            NodeType.Zone => $"Enter: {name}",
+            NodeType.ZoneLine => $"Travel to: {name}",
+            NodeType.Quest => $"Complete: {name}",
+            _ => $"Complete via: {name}",
+        };
     }
-
 }

@@ -1,7 +1,5 @@
 using System.Numerics;
 using AdventureGuide.Config;
-using AdventureGuide.Plan;
-using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -9,8 +7,7 @@ namespace AdventureGuide.UI;
 
 /// <summary>
 /// Main AdventureGuide window rendered via Dear ImGui.
-/// The quest detail tree is now sourced from <see cref="QuestResolutionService"/>
-/// so the window renders the same semantics layer as tracker, navigation, and markers.
+/// The quest detail tree is projected directly from compiled quest specs.
 /// </summary>
 public sealed class GuideWindow
 {
@@ -20,8 +17,7 @@ public sealed class GuideWindow
     private readonly GuideConfig _config;
     private readonly ViewRenderer _viewRenderer;
     private readonly QuestListPanel _listPanel;
-    private readonly QuestResolutionService _resolution;
-    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
+    private readonly AdventureGuide.CompiledGuide.CompiledGuide _compiledGuide;
 
     private bool _visible;
 
@@ -35,7 +31,7 @@ public sealed class GuideWindow
         ViewRenderer viewRenderer,
         QuestListPanel listPanel,
         FilterState filter,
-        QuestResolutionService resolution)
+        AdventureGuide.CompiledGuide.CompiledGuide compiledGuide)
     {
         _state = state;
         _history = history;
@@ -43,25 +39,6 @@ public sealed class GuideWindow
         _viewRenderer = viewRenderer;
         _listPanel = listPanel;
         _filter = filter;
-        _resolution = resolution;
-    }
-
-    public GuideWindow(
-        QuestStateTracker state,
-        NavigationHistory history,
-        GuideConfig config,
-        ViewRenderer viewRenderer,
-        QuestListPanel listPanel,
-        FilterState filter,
-        CompiledGuide.CompiledGuide compiledGuide)
-    {
-        _state = state;
-        _history = history;
-        _config = config;
-        _viewRenderer = viewRenderer;
-        _listPanel = listPanel;
-        _filter = filter;
-        _resolution = null!;
         _compiledGuide = compiledGuide;
     }
 
@@ -132,50 +109,29 @@ public sealed class GuideWindow
         ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
         if (_state.SelectedQuestDBName != null)
         {
-            if (_compiledGuide != null)
-            {
-                int? questIndex = FindQuestIndexByDbName(_state.SelectedQuestDBName);
-                _viewRenderer.Draw(questIndex);
-            }
-            else
-            {
-                QuestPlanProjection? projection = null;
-                var resolution = _resolution.GetQuestResolutionByDbName(_state.SelectedQuestDBName);
-                if (resolution != null)
-                    projection = _resolution.GetQuestPlanProjection(resolution.QuestKey);
-                _viewRenderer.Draw(projection);
-            }
+            int? questIndex = FindQuestIndexByDbName(_state.SelectedQuestDBName);
+            _viewRenderer.Draw(questIndex);
         }
         else
         {
-            _viewRenderer.Draw((int?)null);
+            _viewRenderer.Draw(null);
         }
         ImGui.EndChild();
     }
 
     private int? FindQuestIndexByDbName(string dbName)
     {
-        if (_compiledGuide == null)
-        {
-            return null;
-        }
-
         for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
         {
             int nodeId = _compiledGuide.QuestNodeId(questIndex);
             uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
             if (dbNameOffset == 0)
-            {
                 continue;
-            }
 
             if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
-            {
                 return questIndex;
-            }
         }
 
         return null;
     }
-
 }
