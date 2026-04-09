@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Text;
 using AdventureGuide.CompiledGuide;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 using Xunit;
@@ -9,66 +7,46 @@ namespace AdventureGuide.Tests;
 public sealed class CompiledGuideTypesTests
 {
     [Fact]
-    public void BinaryFormat_constants_match_expected_values()
-    {
-        Assert.Equal(0x47434741u, BinaryFormat.Magic);
-        Assert.Equal((ushort)1, BinaryFormat.Version);
-        Assert.Equal((byte)0, (byte)SectionId.StringTable);
-        Assert.Equal((byte)13, (byte)SectionId.Feasibility);
-    }
-
-    [Fact]
     public void CompiledGuide_exposes_counts_and_string_lookup()
     {
-        byte[] strings = Encoding.UTF8.GetBytes("\0quest:a\0Quest A\0");
-        var nodes = new[]
+        var data = new CompiledGuideData
         {
-            new NodeRecord(
-                keyOffset: 1,
-                nodeType: 0,
-                displayNameOffset: 9,
-                sceneOffset: 0,
-                x: float.NaN,
-                y: float.NaN,
-                z: float.NaN,
-                flags: 0,
-                level: 0,
-                zoneKeyOffset: 0,
-                dbNameOffset: 0),
+            Nodes = new[]
+            {
+                new CompiledNodeData
+                {
+                    NodeId = 0,
+                    Key = "quest:a",
+                    NodeType = 0,
+                    DisplayName = "Quest A",
+                },
+            },
+            Edges = Array.Empty<CompiledEdgeData>(),
+            ForwardAdjacency = new[] { Array.Empty<int>() },
+            ReverseAdjacency = new[] { Array.Empty<int>() },
+            QuestNodeIds = new[] { 0 },
+            ItemNodeIds = Array.Empty<int>(),
+            QuestSpecs = new[]
+            {
+                new CompiledQuestSpecData
+                {
+                    QuestId = 0,
+                    QuestIndex = 0,
+                },
+            },
+            ItemSources = Array.Empty<CompiledSourceSiteData[]>(),
+            UnlockPredicates = Array.Empty<CompiledUnlockPredicateData>(),
+            TopoOrder = new[] { 0 },
+            ItemToQuestIndices = Array.Empty<int[]>(),
+            QuestToDependentQuestIndices = new[] { Array.Empty<int>() },
+            ZoneNodeIds = Array.Empty<int>(),
+            ZoneAdjacency = Array.Empty<int[]>(),
+            ZoneLineIds = Array.Empty<int[]>(),
+            GiverBlueprints = Array.Empty<CompiledGiverBlueprintData>(),
+            CompletionBlueprints = Array.Empty<CompiledCompletionBlueprintData>(),
+            InfeasibleNodeIds = Array.Empty<int>(),
         };
-
-        var guide = new CompiledGuideModel(
-            strings,
-            nodes,
-            new Dictionary<string, int> { ["quest:a"] = 0 },
-            System.Array.Empty<EdgeRecord>(),
-            new[] { 0, 0 },
-            System.Array.Empty<int>(),
-            new[] { 0, 0 },
-            System.Array.Empty<int>(),
-            new[] { 0 },
-            new[] { System.Array.Empty<int>() },
-            new[] { System.Array.Empty<ItemReq>() },
-            System.Array.Empty<StepEntry>(),
-            new[] { 0 },
-            new[] { System.Array.Empty<int>() },
-            new[] { System.Array.Empty<int>() },
-            new[] { System.Array.Empty<int>() },
-            new byte[] { 0 },
-            System.Array.Empty<int>(),
-            System.Array.Empty<SourceSiteEntry[]>(),
-            new Dictionary<int, UnlockPredicateEntry>(),
-            new[] { 0 },
-            new[] { 0 },
-            System.Array.Empty<int>(),
-            new[] { 0 },
-            System.Array.Empty<int>(),
-            System.Array.Empty<int>(),
-            new[] { 0 },
-            System.Array.Empty<int>(),
-            System.Array.Empty<QuestGiverEntry>(),
-            System.Array.Empty<QuestCompletion>(),
-            new[] { false });
+        var guide = new CompiledGuideModel(data);
 
         Assert.Equal(1, guide.NodeCount);
         Assert.Equal(0, guide.EdgeCount);
@@ -78,5 +56,21 @@ public sealed class CompiledGuideTypesTests
         Assert.Equal("Quest A", guide.GetDisplayName(0));
         Assert.True(guide.TryGetNodeId("quest:a", out int id));
         Assert.Equal(0, id);
+    }
+
+    [Fact]
+    public void NodeFlags_bit_values_are_stable()
+    {
+        Assert.Equal((ushort)1, (ushort)NodeFlags.IsFriendly);
+        Assert.Equal((ushort)2, (ushort)NodeFlags.IsVendor);
+        Assert.Equal((ushort)4, (ushort)NodeFlags.NightSpawn);
+        Assert.Equal((ushort)8, (ushort)NodeFlags.Implicit);
+        Assert.Equal((ushort)16, (ushort)NodeFlags.Repeatable);
+        Assert.Equal((ushort)32, (ushort)NodeFlags.Disabled);
+        Assert.Equal((ushort)64, (ushort)NodeFlags.IsDirectlyPlaced);
+        Assert.Equal((ushort)128, (ushort)NodeFlags.IsEnabled);
+        Assert.Equal((ushort)256, (ushort)NodeFlags.Invulnerable);
+        Assert.Equal((ushort)512, (ushort)NodeFlags.IsRare);
+        Assert.Equal((ushort)1024, (ushort)NodeFlags.IsTriggerSpawn);
     }
 }

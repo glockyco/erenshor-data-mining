@@ -190,9 +190,9 @@ public sealed class SourceResolver
             positionNodeId,
             role,
             semantic,
-            node.X,
-            node.Y,
-            node.Z,
+            node.X ?? float.NaN,
+            node.Y ?? float.NaN,
+            node.Z ?? float.NaN,
             _guide.GetScene(positionNodeId),
             false,
             true,
@@ -370,7 +370,7 @@ public sealed class SourceResolver
 
     private NavigationTargetKind DetermineTargetKind(int nodeId)
     {
-        byte nodeType = _guide.GetNode(nodeId).NodeType;
+        int nodeType = _guide.GetNode(nodeId).NodeType;
         return nodeType switch
         {
             2 => NavigationTargetKind.Character,

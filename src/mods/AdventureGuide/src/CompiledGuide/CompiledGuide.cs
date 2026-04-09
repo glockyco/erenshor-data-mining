@@ -1,17 +1,12 @@
-using System.Text;
-
 namespace AdventureGuide.CompiledGuide;
 
 public sealed class CompiledGuide
 {
-    private readonly byte[] _stringTable;
-    private readonly NodeRecord[] _nodes;
+    private readonly CompiledNodeData[] _nodes;
     private readonly Dictionary<string, int> _keyToId;
-    private readonly EdgeRecord[] _edges;
-    private readonly int[] _fwdOff;
-    private readonly int[] _fwdVal;
-    private readonly int[] _revOff;
-    private readonly int[] _revVal;
+    private readonly CompiledEdgeData[] _edges;
+    private readonly int[][] _forwardAdj;
+    private readonly int[][] _reverseAdj;
     private readonly int[] _questNodeIds;
     private readonly int[][] _prereqIds;
     private readonly ItemReq[][] _requiredItems;
@@ -25,81 +20,125 @@ public sealed class CompiledGuide
     private readonly SourceSiteEntry[][] _itemSources;
     private readonly Dictionary<int, UnlockPredicateEntry> _unlocks;
     private readonly int[] _topoOrder;
-    private readonly int[] _i2qOff;
-    private readonly int[] _i2qVal;
-    private readonly int[] _q2qOff;
-    private readonly int[] _q2qVal;
+    private readonly int[][] _itemToQuestIndices;
+    private readonly int[][] _questToDependentQuestIndices;
     private readonly int[] _zoneNodeIds;
-    private readonly int[] _zoneAdjOff;
-    private readonly int[] _zoneAdjVal;
+    private readonly int[][] _zoneAdj;
     private readonly QuestGiverEntry[] _giverBlueprints;
     private readonly QuestCompletion[] _completionBlueprints;
     private readonly bool[] _infeasible;
 
-    internal CompiledGuide(
-        byte[] stringTable,
-        NodeRecord[] nodes,
-        Dictionary<string, int> keyToId,
-        EdgeRecord[] edges,
-        int[] fwdOff,
-        int[] fwdVal,
-        int[] revOff,
-        int[] revVal,
-        int[] questNodeIds,
-        int[][] prereqIds,
-        ItemReq[][] requiredItems,
-        StepEntry[] steps,
-        int[] stepOff,
-        int[][] giverIds,
-        int[][] completerIds,
-        int[][] chainsToIds,
-        byte[] questFlags,
-        int[] itemNodeIds,
-        SourceSiteEntry[][] itemSources,
-        Dictionary<int, UnlockPredicateEntry> unlocks,
-        int[] topoOrder,
-        int[] i2qOff,
-        int[] i2qVal,
-        int[] q2qOff,
-        int[] q2qVal,
-        int[] zoneNodeIds,
-        int[] zoneAdjOff,
-        int[] zoneAdjVal,
-        QuestGiverEntry[] giverBlueprints,
-        QuestCompletion[] completionBlueprints,
-        bool[] infeasible)
+    internal CompiledGuide(CompiledGuideData data)
     {
-        _stringTable = stringTable;
-        _nodes = nodes;
-        _keyToId = keyToId;
-        _edges = edges;
-        _fwdOff = fwdOff;
-        _fwdVal = fwdVal;
-        _revOff = revOff;
-        _revVal = revVal;
-        _questNodeIds = questNodeIds;
-        _prereqIds = prereqIds;
-        _requiredItems = requiredItems;
-        _steps = steps;
-        _stepOff = stepOff;
-        _giverIds = giverIds;
-        _completerIds = completerIds;
-        _chainsToIds = chainsToIds;
-        _questFlags = questFlags;
-        _itemNodeIds = itemNodeIds;
-        _itemSources = itemSources;
-        _unlocks = unlocks;
-        _topoOrder = topoOrder;
-        _i2qOff = i2qOff;
-        _i2qVal = i2qVal;
-        _q2qOff = q2qOff;
-        _q2qVal = q2qVal;
-        _zoneNodeIds = zoneNodeIds;
-        _zoneAdjOff = zoneAdjOff;
-        _zoneAdjVal = zoneAdjVal;
-        _giverBlueprints = giverBlueprints;
-        _completionBlueprints = completionBlueprints;
-        _infeasible = infeasible;
+        _nodes = data.Nodes;
+        _edges = data.Edges;
+
+        _keyToId = new Dictionary<string, int>(_nodes.Length, StringComparer.Ordinal);
+        for (int i = 0; i < _nodes.Length; i++)
+        {
+            _keyToId[_nodes[i].Key] = i;
+        }
+
+        _forwardAdj = data.ForwardAdjacency;
+        _reverseAdj = data.ReverseAdjacency;
+        _questNodeIds = data.QuestNodeIds;
+        _itemNodeIds = data.ItemNodeIds;
+        _topoOrder = data.TopoOrder;
+        _zoneNodeIds = data.ZoneNodeIds;
+        _zoneAdj = data.ZoneAdjacency;
+        _itemToQuestIndices = data.ItemToQuestIndices;
+        _questToDependentQuestIndices = data.QuestToDependentQuestIndices;
+
+        // Build quest spec arrays from DTO
+        int questCount = data.QuestSpecs.Length;
+        _prereqIds = new int[questCount][];
+        _requiredItems = new ItemReq[questCount][];
+        var stepsList = new List<StepEntry>();
+        _stepOff = new int[questCount];
+        _giverIds = new int[questCount][];
+        _completerIds = new int[questCount][];
+        _chainsToIds = new int[questCount][];
+        _questFlags = new byte[questCount];
+
+        for (int qi = 0; qi < questCount; qi++)
+        {
+            CompiledQuestSpecData spec = data.QuestSpecs[qi];
+            _prereqIds[qi] = spec.PrereqQuestIds;
+            _requiredItems[qi] = spec.RequiredItems
+                .Select(r => new ItemReq(r.ItemId, r.Qty, r.Group))
+                .ToArray();
+            _stepOff[qi] = stepsList.Count;
+            foreach (CompiledStepData step in spec.Steps)
+            {
+                stepsList.Add(new StepEntry((byte)step.StepType, step.TargetId, (byte)step.Ordinal));
+            }
+            _giverIds[qi] = spec.GiverNodeIds;
+            _completerIds[qi] = spec.CompleterNodeIds;
+            _chainsToIds[qi] = spec.ChainsToIds;
+            _questFlags[qi] = spec.IsImplicit ? (byte)1 : (byte)0;
+        }
+        _steps = stepsList.ToArray();
+
+        // Build item sources from DTO
+        _itemSources = new SourceSiteEntry[data.ItemSources.Length][];
+        for (int ii = 0; ii < data.ItemSources.Length; ii++)
+        {
+            CompiledSourceSiteData[] dtoSources = data.ItemSources[ii];
+            var entries = new SourceSiteEntry[dtoSources.Length];
+            for (int si = 0; si < dtoSources.Length; si++)
+            {
+                CompiledSourceSiteData s = dtoSources[si];
+                var positions = s.Positions
+                    .Select(p => new SpawnPositionEntry(p.SpawnId, p.X, p.Y, p.Z))
+                    .ToArray();
+                entries[si] = new SourceSiteEntry(
+                    s.SourceId,
+                    (byte)s.SourceType,
+                    (byte)s.EdgeType,
+                    s.DirectItemId,
+                    s.Scene,
+                    positions);
+            }
+            _itemSources[ii] = entries;
+        }
+
+        // Build unlock predicates from DTO
+        _unlocks = new Dictionary<int, UnlockPredicateEntry>();
+        foreach (CompiledUnlockPredicateData pred in data.UnlockPredicates)
+        {
+            var conditions = pred.Conditions
+                .Select(c => new UnlockConditionEntry(c.SourceId, (byte)c.CheckType, (byte)c.Group))
+                .ToArray();
+            _unlocks[pred.TargetId] = new UnlockPredicateEntry(conditions, pred.GroupCount, (byte)pred.Semantics);
+        }
+
+        // Build blueprints from DTO
+        _giverBlueprints = data.GiverBlueprints
+            .Select(g => new QuestGiverEntry(
+                g.QuestId,
+                g.CharacterId,
+                g.PositionId,
+                (byte)g.InteractionType,
+                g.Keyword,
+                g.RequiredQuestDbNames))
+            .ToArray();
+
+        _completionBlueprints = data.CompletionBlueprints
+            .Select(c => new QuestCompletion(
+                c.QuestId,
+                c.CharacterId,
+                c.PositionId,
+                (byte)c.InteractionType,
+                c.Keyword))
+            .ToArray();
+
+        // Build infeasible bitset from DTO
+        _infeasible = new bool[_nodes.Length];
+        foreach (int nodeId in data.InfeasibleNodeIds)
+        {
+            if (nodeId >= 0 && nodeId < _infeasible.Length)
+                _infeasible[nodeId] = true;
+        }
     }
 
     public int NodeCount => _nodes.Length;
@@ -107,43 +146,21 @@ public sealed class CompiledGuide
     public int QuestCount => _questNodeIds.Length;
     public int ItemCount => _itemNodeIds.Length;
 
-    public string GetString(uint offset)
-    {
-        if (offset == 0)
-        {
-            return string.Empty;
-        }
-
-        int end = (int)offset;
-        while (end < _stringTable.Length && _stringTable[end] != 0)
-        {
-            end++;
-        }
-
-        return Encoding.UTF8.GetString(_stringTable, (int)offset, end - (int)offset);
-    }
-
-    public ref readonly NodeRecord GetNode(int nodeId) => ref _nodes[nodeId];
+    public CompiledNodeData GetNode(int nodeId) => _nodes[nodeId];
 
     public bool TryGetNodeId(string key, out int nodeId) => _keyToId.TryGetValue(key, out nodeId);
 
-    public string GetNodeKey(int nodeId) => GetString(_nodes[nodeId].KeyOffset);
+    public string GetNodeKey(int nodeId) => _nodes[nodeId].Key;
 
-    public string GetDisplayName(int nodeId) => GetString(_nodes[nodeId].DisplayNameOffset);
+    public string GetDisplayName(int nodeId) => _nodes[nodeId].DisplayName;
 
-    public string? GetScene(int nodeId)
-    {
-        uint offset = _nodes[nodeId].SceneOffset;
-        return offset == 0 ? null : GetString(offset);
-    }
+    public string? GetScene(int nodeId) => _nodes[nodeId].Scene;
 
-    public ref readonly EdgeRecord GetEdge(int edgeId) => ref _edges[edgeId];
+    public string? GetDbName(int nodeId) => _nodes[nodeId].DbName;
 
-    public ReadOnlySpan<int> ForwardEdgeIds(int nodeId) =>
-        _fwdVal.AsSpan(_fwdOff[nodeId], _fwdOff[nodeId + 1] - _fwdOff[nodeId]);
+    public ReadOnlySpan<int> ForwardEdgeIds(int nodeId) => _forwardAdj[nodeId];
 
-    public ReadOnlySpan<int> ReverseEdgeIds(int nodeId) =>
-        _revVal.AsSpan(_revOff[nodeId], _revOff[nodeId + 1] - _revOff[nodeId]);
+    public ReadOnlySpan<int> ReverseEdgeIds(int nodeId) => _reverseAdj[nodeId];
 
     public int QuestNodeId(int questIndex) => _questNodeIds[questIndex];
 
@@ -180,16 +197,13 @@ public sealed class CompiledGuide
 
     public ReadOnlySpan<int> TopologicalOrder => _topoOrder;
 
-    public ReadOnlySpan<int> QuestsDependingOnItem(int itemIndex) =>
-        _i2qVal.AsSpan(_i2qOff[itemIndex], _i2qOff[itemIndex + 1] - _i2qOff[itemIndex]);
+    public ReadOnlySpan<int> QuestsDependingOnItem(int itemIndex) => _itemToQuestIndices[itemIndex];
 
-    public ReadOnlySpan<int> QuestsDependingOnQuest(int questIndex) =>
-        _q2qVal.AsSpan(_q2qOff[questIndex], _q2qOff[questIndex + 1] - _q2qOff[questIndex]);
+    public ReadOnlySpan<int> QuestsDependingOnQuest(int questIndex) => _questToDependentQuestIndices[questIndex];
 
     public ReadOnlySpan<int> ZoneNodeIds => _zoneNodeIds;
 
-    public ReadOnlySpan<int> ZoneNeighbors(int zoneIndex) =>
-        _zoneAdjVal.AsSpan(_zoneAdjOff[zoneIndex], _zoneAdjOff[zoneIndex + 1] - _zoneAdjOff[zoneIndex]);
+    public ReadOnlySpan<int> ZoneNeighbors(int zoneIndex) => _zoneAdj[zoneIndex];
 
     public ReadOnlySpan<QuestGiverEntry> GiverBlueprints => _giverBlueprints;
 

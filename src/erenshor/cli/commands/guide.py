@@ -69,7 +69,7 @@ def compile(
         None,
         "--output",
         "-o",
-        help="Output path for guide.bin (default: quest_guides/guide.bin)",
+        help="Output path for guide.json (default: quest_guides/guide.json)",
     ),
     overrides: Path = typer.Option(
         None,
@@ -77,7 +77,7 @@ def compile(
         help="Path to graph_overrides.toml (default: quest_guides/graph_overrides.toml)",
     ),
 ) -> None:
-    """Compile entity graph to binary guide format."""
+    """Compile entity graph to JSON guide format."""
     cli_ctx: CLIContext = ctx.obj
 
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -89,23 +89,23 @@ def compile(
 
     guides_dir = cli_ctx.repo_root / "quest_guides"
     if output is None:
-        output = guides_dir / "guide.bin"
+        output = guides_dir / "guide.json"
     if overrides is None:
         overrides = guides_dir / "graph_overrides.toml"
 
-    from erenshor.application.guide.binary_writer import write
     from erenshor.application.guide.compiler import compile_graph
     from erenshor.application.guide.generator import generate as gen_graph
+    from erenshor.application.guide.json_writer import serialize
 
     typer.echo(f"Reading entity data from {db_path}")
     graph = gen_graph(db_path, overrides if overrides.exists() else None)
     typer.echo(f"Built graph: {graph.node_count} nodes, {graph.edge_count} edges")
 
     compiled = compile_graph(graph)
-    binary = write(compiled)
+    text = serialize(compiled)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_bytes(binary)
+    output.write_text(text, encoding="utf-8")
     typer.echo(
-        f"Wrote {output} ({len(binary):,} bytes, "
+        f"Wrote {output} ({len(text.encode('utf-8')):,} bytes, "
         f"{len(compiled.quest_node_ids)} quests, {len(compiled.item_node_ids)} items)"
     )

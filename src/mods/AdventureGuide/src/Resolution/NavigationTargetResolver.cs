@@ -129,14 +129,14 @@ public sealed class NavigationTargetResolver
             Type = (NodeType)record.NodeType,
             DisplayName = _guide.GetDisplayName(nodeId),
             Scene = _guide.GetScene(nodeId),
-            X = float.IsNaN(record.X) ? null : record.X,
-            Y = float.IsNaN(record.Y) ? null : record.Y,
-            Z = float.IsNaN(record.Z) ? null : record.Z,
-            DbName = record.DbNameOffset == 0 ? null : _guide.GetString(record.DbNameOffset),
-            Repeatable = (record.Flags & (ushort)AdventureGuide.CompiledGuide.NodeFlags.Repeatable) != 0,
-            Implicit = (record.Flags & (ushort)AdventureGuide.CompiledGuide.NodeFlags.Implicit) != 0,
-            Disabled = (record.Flags & (ushort)AdventureGuide.CompiledGuide.NodeFlags.Disabled) != 0,
-            IsEnabled = (record.Flags & (ushort)AdventureGuide.CompiledGuide.NodeFlags.IsEnabled) != 0,
+            X = record.X,
+            Y = record.Y,
+            Z = record.Z,
+            DbName = record.DbName,
+            Repeatable = (record.Flags & (int)AdventureGuide.CompiledGuide.NodeFlags.Repeatable) != 0,
+            Implicit = (record.Flags & (int)AdventureGuide.CompiledGuide.NodeFlags.Implicit) != 0,
+            Disabled = (record.Flags & (int)AdventureGuide.CompiledGuide.NodeFlags.Disabled) != 0,
+            IsEnabled = (record.Flags & (int)AdventureGuide.CompiledGuide.NodeFlags.IsEnabled) != 0,
         };
     }
 

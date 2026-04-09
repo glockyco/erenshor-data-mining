@@ -21,29 +21,6 @@ if TYPE_CHECKING:
     from .graph import EntityGraph
 
 
-class SectionId(IntEnum):
-    """Binary section identifiers.
-
-    These IDs are written to the section directory and must remain stable once
-    the binary format ships.
-    """
-
-    STRING_TABLE = 0
-    NODE_TABLE = 1
-    EDGE_TABLE = 2
-    FORWARD_ADJACENCY = 3
-    REVERSE_ADJACENCY = 4
-    QUEST_SPECS = 5
-    ITEM_SOURCE_INDEX = 6
-    UNLOCK_PREDICATES = 7
-    TOPOLOGICAL_ORDER = 8
-    REVERSE_DEPS = 9
-    ZONE_CONNECTIVITY = 10
-    QUEST_GIVER_BLUEPRINTS = 11
-    QUEST_COMPLETION_BLUEPRINTS = 12
-    FEASIBILITY = 13
-
-
 class NodeFlags(IntEnum):
     """Packed bitflags emitted for nodes in the binary format."""
 
@@ -86,6 +63,16 @@ class CompiledNode:
     level: int = 0
     zone_key: str | None = None
     db_name: str | None = None
+    description: str | None = None
+    keyword: str | None = None
+    zone_display: str | None = None
+    xp_reward: int = 0
+    gold_reward: int = 0
+    reward_item_key: str | None = None
+    disabled_text: str | None = None
+    key_item_key: str | None = None
+    destination_zone_key: str | None = None
+    destination_display: str | None = None
 
 
 @dataclass(slots=True)
@@ -101,6 +88,8 @@ class CompiledEdge:
     quantity: int = 0
     keyword: str | None = None
     chance: int = 0
+    note: str | None = None
+    amount: int = 0
 
 
 @dataclass(slots=True)
@@ -292,6 +281,16 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             level=max(node.level or 0, 0),
             zone_key=node.zone_key,
             db_name=node.db_name,
+            description=node.description,
+            keyword=node.keyword,
+            zone_display=node.zone,
+            xp_reward=node.xp_reward or 0,
+            gold_reward=node.gold_reward or 0,
+            reward_item_key=node.reward_item_key,
+            disabled_text=node.disabled_text,
+            key_item_key=node.key_item_key,
+            destination_zone_key=node.destination_zone_key,
+            destination_display=node.destination_display,
         )
         for node in nodes
     ]
@@ -346,6 +345,8 @@ def _compile_edges(graph: EntityGraph, compiled: CompiledData) -> None:
             quantity=edge.quantity or 0,
             keyword=edge.keyword,
             chance=round((edge.chance or 0.0) * 1000),
+            note=edge.note,
+            amount=edge.amount or 0,
         )
         edge_id = len(compiled.edges)
         compiled.edges.append(compiled_edge)

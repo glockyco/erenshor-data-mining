@@ -22,13 +22,12 @@ public sealed class QuestPhaseTracker
         for (int questIndex = 0; questIndex < guide.QuestCount; questIndex++)
         {
             int nodeId = guide.QuestNodeId(questIndex);
-            uint dbNameOffset = guide.GetNode(nodeId).DbNameOffset;
-            if (dbNameOffset == 0)
+            string? dbName = guide.GetDbName(nodeId);
+            if (dbName == null)
             {
                 continue;
             }
 
-            string dbName = guide.GetString(dbNameOffset);
             if (!string.IsNullOrEmpty(dbName))
             {
                 _dbNameToQuestIndex[dbName] = questIndex;
@@ -71,7 +70,7 @@ public sealed class QuestPhaseTracker
         foreach (int questIndex in _guide.TopologicalOrder)
         {
             int nodeId = _guide.QuestNodeId(questIndex);
-            string dbName = _guide.GetString(_guide.GetNode(nodeId).DbNameOffset);
+            string? dbName = _guide.GetDbName(nodeId);
             if (!string.IsNullOrEmpty(dbName) && completedQuestDbNames.Contains(dbName))
             {
                 ApplyCompleted(questIndex);

@@ -1,4 +1,3 @@
-using System.Text;
 using AdventureGuide.CompiledGuide;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -7,9 +6,8 @@ namespace AdventureGuide.Tests.Helpers;
 /// <summary>
 /// Minimal fluent builder for CompiledGuide tests.
 ///
-/// This bypasses binary serialization so runtime tests can exercise the new
-/// guide model directly. It intentionally starts small and can be expanded as
-/// later phases need richer fixtures.
+/// Builds a CompiledGuideData DTO and passes it to the CompiledGuide
+/// constructor. No binary serialization, no string interning, no CSR encoding.
 /// </summary>
 public sealed class CompiledGuideBuilder
 {
@@ -33,7 +31,6 @@ public sealed class CompiledGuideBuilder
     private readonly List<ItemDef> _items = new();
     private readonly List<CharacterDef> _characters = new();
     private readonly List<StepDef> _steps = new();
-
     private readonly List<ItemSourceDef> _itemSources = new();
     private readonly List<UnlockDef> _unlockDefs = new();
 
@@ -105,6 +102,7 @@ public sealed class CompiledGuideBuilder
 
     public CompiledGuideModel Build()
     {
+        // Collect all keys and assign stable node IDs
         var allKeys = new SortedSet<string>(StringComparer.Ordinal);
         foreach (QuestDef quest in _quests)
         {
@@ -140,144 +138,95 @@ public sealed class CompiledGuideBuilder
             keyToId[key] = nodeId++;
         }
 
-        var strings = new List<byte> { 0 };
-        var offsets = new Dictionary<string, uint>(StringComparer.Ordinal) { [string.Empty] = 0 };
-
-        uint Intern(string? value)
-        {
-            if (string.IsNullOrEmpty(value)) return 0;
-            if (offsets.TryGetValue(value, out uint existing)) return existing;
-            uint offset = (uint)strings.Count;
-            offsets[value] = offset;
-            strings.AddRange(Encoding.UTF8.GetBytes(value));
-            strings.Add(0);
-            return offset;
-        }
-
         var questByKey = _quests.ToDictionary(q => q.Key, StringComparer.Ordinal);
         var itemKeys = _items.Select(i => i.Key).OrderBy(k => k, StringComparer.Ordinal).ToArray();
         var questKeys = _quests.Select(q => q.Key).OrderBy(k => k, StringComparer.Ordinal).ToArray();
         var charByKey = _characters.ToDictionary(c => c.Key, StringComparer.Ordinal);
 
-        NodeRecord BuildNode(string key)
-        {
-            if (questByKey.TryGetValue(key, out QuestDef? quest))
-            {
-                ushort flags = quest.Implicit ? (ushort)NodeFlags.Implicit : (ushort)0;
-                return new NodeRecord(Intern(key), 0, Intern(key), 0, float.NaN, float.NaN, float.NaN, flags, 0, 0, Intern(quest.DbName));
-            }
-
-            if (itemKeys.Contains(key, StringComparer.Ordinal))
-            {
-                return new NodeRecord(Intern(key), 1, Intern(key), 0, float.NaN, float.NaN, float.NaN, 0, 0, 0, 0);
-            }
-
-            if (charByKey.TryGetValue(key, out CharacterDef? character))
-            {
-                ushort flags = character.IsFriendly ? (ushort)NodeFlags.IsFriendly : (ushort)0;
-                return new NodeRecord(Intern(key), 2, Intern(key), Intern(character.Scene), character.X, character.Y, character.Z, flags, 0, 0, 0);
-            }
-
-            return new NodeRecord(Intern(key), 255, Intern(key), 0, float.NaN, float.NaN, float.NaN, 0, 0, 0, 0);
-        }
-
-        var nodes = new NodeRecord[keyToId.Count];
+        // Build node DTOs
+        var nodes = new CompiledNodeData[keyToId.Count];
         foreach ((string key, int id) in keyToId)
         {
-            nodes[id] = BuildNode(key);
+            nodes[id] = BuildNodeData(key, id, questByKey, itemKeys, charByKey);
         }
 
+        // Build quest specs
         int[] questNodeIds = questKeys.Select(key => keyToId[key]).ToArray();
         int[] itemNodeIds = itemKeys.Select(key => keyToId[key]).ToArray();
         var questIndexByNodeId = questNodeIds.Select((id, index) => (id, index)).ToDictionary(p => p.id, p => p.index);
 
-        var prereqs = new int[questNodeIds.Length][];
-        var requiredItems = new ItemReq[questNodeIds.Length][];
-        var giverIds = new int[questNodeIds.Length][];
-        var completerIds = new int[questNodeIds.Length][];
-        var chainsToIds = new int[questNodeIds.Length][];
-        var questFlags = new byte[questNodeIds.Length];
-        var stepOff = new int[questNodeIds.Length];
-        var steps = new List<StepEntry>();
-
+        var questSpecs = new CompiledQuestSpecData[questKeys.Length];
         for (int questIndex = 0; questIndex < questKeys.Length; questIndex++)
         {
             QuestDef quest = questByKey[questKeys[questIndex]];
-            prereqs[questIndex] = quest.Prereqs.Select(prereq => keyToId[prereq]).ToArray();
-            requiredItems[questIndex] = quest.RequiredItems
-                .Select(item => new ItemReq(keyToId[item.ItemKey], item.Quantity, 0))
+            int[] prereqNodeIds = quest.Prereqs.Select(p => keyToId[p]).ToArray();
+            int[] prereqIndices = prereqNodeIds
+                .Where(id => questIndexByNodeId.ContainsKey(id))
+                .Select(id => questIndexByNodeId[id])
                 .ToArray();
-            giverIds[questIndex] = quest.Givers.Select(giver => keyToId[giver]).ToArray();
-            completerIds[questIndex] = quest.Completers.Select(completer => keyToId[completer]).ToArray();
-            chainsToIds[questIndex] = quest.ChainsTo.Select(chained => keyToId[chained]).ToArray();
-            questFlags[questIndex] = quest.Implicit ? (byte)1 : (byte)0;
-            stepOff[questIndex] = steps.Count;
 
-            byte ordinal = 0;
-            foreach (StepDef step in _steps.Where(step => string.Equals(step.QuestKey, quest.Key, StringComparison.Ordinal)))
+            var steps = _steps
+                .Where(s => string.Equals(s.QuestKey, quest.Key, StringComparison.Ordinal))
+                .Select((s, ordinal) => new CompiledStepData
+                {
+                    StepType = s.StepType,
+                    TargetId = keyToId[s.TargetKey],
+                    Ordinal = ordinal,
+                })
+                .ToArray();
+
+            questSpecs[questIndex] = new CompiledQuestSpecData
             {
-                steps.Add(new StepEntry(step.StepType, keyToId[step.TargetKey], ordinal++));
-            }
+                QuestId = questNodeIds[questIndex],
+                QuestIndex = questIndex,
+                PrereqQuestIds = prereqNodeIds,
+                PrereqQuestIndices = prereqIndices,
+                RequiredItems = quest.RequiredItems
+                    .Select(r => new CompiledItemRequirementData { ItemId = keyToId[r.ItemKey], Qty = r.Quantity, Group = 0 })
+                    .ToArray(),
+                Steps = steps,
+                GiverNodeIds = quest.Givers.Select(g => keyToId[g]).ToArray(),
+                CompleterNodeIds = quest.Completers.Select(c => keyToId[c]).ToArray(),
+                ChainsToIds = quest.ChainsTo.Select(c => keyToId[c]).ToArray(),
+                IsImplicit = quest.Implicit,
+                IsInfeasible = false,
+                DisplayName = quest.Key,
+            };
         }
 
-        var q2qRows = new List<List<int>>();
-        for (int i = 0; i < questNodeIds.Length; i++) q2qRows.Add(new List<int>());
-        for (int questIndex = 0; questIndex < questNodeIds.Length; questIndex++)
+        // Build reverse dependency indices
+        var q2qRows = Enumerable.Range(0, questNodeIds.Length).Select(_ => new List<int>()).ToArray();
+        for (int qi = 0; qi < questNodeIds.Length; qi++)
         {
-            foreach (int prereqNodeId in prereqs[questIndex])
+            foreach (int prereqNodeId in questSpecs[qi].PrereqQuestIds)
             {
                 if (questIndexByNodeId.TryGetValue(prereqNodeId, out int prereqIndex))
                 {
-                    q2qRows[prereqIndex].Add(questIndex);
+                    q2qRows[prereqIndex].Add(qi);
                 }
             }
         }
 
-        var i2qRows = new List<List<int>>();
-        for (int i = 0; i < itemNodeIds.Length; i++) i2qRows.Add(new List<int>());
         var itemIndexByNodeId = itemNodeIds.Select((id, index) => (id, index)).ToDictionary(p => p.id, p => p.index);
-        for (int questIndex = 0; questIndex < questNodeIds.Length; questIndex++)
+        var i2qRows = Enumerable.Range(0, itemNodeIds.Length).Select(_ => new List<int>()).ToArray();
+        for (int qi = 0; qi < questNodeIds.Length; qi++)
         {
-            foreach (ItemReq item in requiredItems[questIndex])
+            foreach (CompiledItemRequirementData item in questSpecs[qi].RequiredItems)
             {
                 if (itemIndexByNodeId.TryGetValue(item.ItemId, out int itemIndex))
                 {
-                    i2qRows[itemIndex].Add(questIndex);
+                    i2qRows[itemIndex].Add(qi);
                 }
             }
         }
 
-        (int[] Offsets, int[] Values) EncodeRows(IReadOnlyList<List<int>> rows)
-        {
-            var offsets = new int[rows.Count + 1];
-            int count = 0;
-            for (int i = 0; i < rows.Count; i++)
-            {
-                offsets[i] = count;
-                count += rows[i].Count;
-            }
-            offsets[rows.Count] = count;
-            var values = new int[count];
-            int cursor = 0;
-            foreach (List<int> row in rows)
-            {
-                foreach (int value in row)
-                {
-                    values[cursor++] = value;
-                }
-            }
-            return (offsets, values);
-        }
-
-        var (i2qOff, i2qVal) = EncodeRows(i2qRows);
-        var (q2qOff, q2qVal) = EncodeRows(q2qRows);
-
-        var giverBlueprints = new List<QuestGiverEntry>();
-        var completionBlueprints = new List<QuestCompletion>();
+        // Build giver/completion blueprints
+        var giverBlueprints = new List<CompiledGiverBlueprintData>();
+        var completionBlueprints = new List<CompiledCompletionBlueprintData>();
         for (int questIndex = 0; questIndex < questKeys.Length; questIndex++)
         {
             QuestDef quest = questByKey[questKeys[questIndex]];
-            int questNodeId = questNodeIds[questIndex];
+            int questNid = questNodeIds[questIndex];
             string[] requiredQuestDbNames = quest.Prereqs
                 .Select(prereq => questByKey.GetValueOrDefault(prereq)?.DbName)
                 .Where(dbName => !string.IsNullOrEmpty(dbName))
@@ -287,67 +236,127 @@ public sealed class CompiledGuideBuilder
             foreach (string giver in quest.Givers)
             {
                 int giverId = keyToId[giver];
-                giverBlueprints.Add(new QuestGiverEntry(
-                    questNodeId,
-                    giverId,
-                    giverId,
-                    interactionType: 0,
-                    keyword: null,
-                    requiredQuestDbNames));
+                giverBlueprints.Add(new CompiledGiverBlueprintData
+                {
+                    QuestId = questNid,
+                    CharacterId = giverId,
+                    PositionId = giverId,
+                    InteractionType = 0,
+                    Keyword = null,
+                    RequiredQuestDbNames = requiredQuestDbNames,
+                });
             }
 
             foreach (string completer in quest.Completers)
             {
                 int completerId = keyToId[completer];
-                completionBlueprints.Add(new QuestCompletion(
-                    questNodeId,
-                    completerId,
-                    completerId,
-                    interactionType: 0,
-                    keyword: null));
+                completionBlueprints.Add(new CompiledCompletionBlueprintData
+                {
+                    QuestId = questNid,
+                    CharacterId = completerId,
+                    PositionId = completerId,
+                    InteractionType = 0,
+                    Keyword = null,
+                });
             }
         }
 
-        return new CompiledGuideModel(
-            strings.ToArray(),
-            nodes,
-            keyToId,
-            Array.Empty<EdgeRecord>(),
-            new int[keyToId.Count + 1],
-            Array.Empty<int>(),
-            new int[keyToId.Count + 1],
-            Array.Empty<int>(),
-            questNodeIds,
-            prereqs,
-            requiredItems,
-            steps.ToArray(),
-            stepOff,
-            giverIds,
-            completerIds,
-            chainsToIds,
-            questFlags,
-            itemNodeIds,
-            BuildItemSources(itemNodeIds, keyToId, charByKey),
-            BuildUnlocks(keyToId),
-            Enumerable.Range(0, questNodeIds.Length).ToArray(),
-            i2qOff,
-            i2qVal,
-            q2qOff,
-            q2qVal,
-            Array.Empty<int>(),
-            new[] { 0 },
-            Array.Empty<int>(),
-            giverBlueprints.ToArray(),
-            completionBlueprints.ToArray(),
-            new bool[keyToId.Count]);
+        // Build item sources
+        CompiledSourceSiteData[][] itemSourcesDto = BuildItemSourcesDto(itemNodeIds, keyToId, charByKey);
+
+        // Build unlock predicates
+        CompiledUnlockPredicateData[] unlockPredicates = BuildUnlockPredicatesDto(keyToId);
+
+        int nodeCount = keyToId.Count;
+        var data = new CompiledGuideData
+        {
+            Nodes = nodes,
+            Edges = Array.Empty<CompiledEdgeData>(),
+            ForwardAdjacency = Enumerable.Range(0, nodeCount).Select(_ => Array.Empty<int>()).ToArray(),
+            ReverseAdjacency = Enumerable.Range(0, nodeCount).Select(_ => Array.Empty<int>()).ToArray(),
+            QuestNodeIds = questNodeIds,
+            ItemNodeIds = itemNodeIds,
+            QuestSpecs = questSpecs,
+            ItemSources = itemSourcesDto,
+            UnlockPredicates = unlockPredicates,
+            TopoOrder = Enumerable.Range(0, questNodeIds.Length).ToArray(),
+            ItemToQuestIndices = i2qRows.Select(r => r.ToArray()).ToArray(),
+            QuestToDependentQuestIndices = q2qRows.Select(r => r.ToArray()).ToArray(),
+            ZoneNodeIds = Array.Empty<int>(),
+            ZoneAdjacency = Array.Empty<int[]>(),
+            ZoneLineIds = Array.Empty<int[]>(),
+            GiverBlueprints = giverBlueprints.ToArray(),
+            CompletionBlueprints = completionBlueprints.ToArray(),
+            InfeasibleNodeIds = Array.Empty<int>(),
+        };
+
+        return new CompiledGuideModel(data);
     }
 
-    private SourceSiteEntry[][] BuildItemSources(
+    private static CompiledNodeData BuildNodeData(
+        string key,
+        int id,
+        Dictionary<string, QuestDef> questByKey,
+        string[] itemKeys,
+        Dictionary<string, CharacterDef> charByKey)
+    {
+        if (questByKey.TryGetValue(key, out QuestDef? quest))
+        {
+            int flags = quest.Implicit ? (int)NodeFlags.Implicit : 0;
+            return new CompiledNodeData
+            {
+                NodeId = id,
+                Key = key,
+                NodeType = 0,
+                DisplayName = key,
+                Flags = flags,
+                DbName = quest.DbName,
+            };
+        }
+
+        if (itemKeys.Contains(key, StringComparer.Ordinal))
+        {
+            return new CompiledNodeData
+            {
+                NodeId = id,
+                Key = key,
+                NodeType = 1,
+                DisplayName = key,
+            };
+        }
+
+        if (charByKey.TryGetValue(key, out CharacterDef? character))
+        {
+            int flags = character.IsFriendly ? (int)NodeFlags.IsFriendly : 0;
+            return new CompiledNodeData
+            {
+                NodeId = id,
+                Key = key,
+                NodeType = 2,
+                DisplayName = key,
+                Scene = character.Scene,
+                X = float.IsNaN(character.X) ? null : character.X,
+                Y = float.IsNaN(character.Y) ? null : character.Y,
+                Z = float.IsNaN(character.Z) ? null : character.Z,
+                Flags = flags,
+            };
+        }
+
+        return new CompiledNodeData
+        {
+            NodeId = id,
+            Key = key,
+            NodeType = 255,
+            DisplayName = key,
+        };
+    }
+
+    private CompiledSourceSiteData[][] BuildItemSourcesDto(
         int[] itemNodeIds,
         Dictionary<string, int> keyToId,
         Dictionary<string, CharacterDef> charByKey)
     {
-        var rows = itemNodeIds.Select(_ => Array.Empty<SourceSiteEntry>()).ToArray();
+        var rows = itemNodeIds.Select(_ => Array.Empty<CompiledSourceSiteData>()).ToArray();
         var itemIndexByNodeId = itemNodeIds.Select((id, index) => (id, index)).ToDictionary(x => x.id, x => x.index);
         foreach (var group in _itemSources.GroupBy(def => def.ItemKey, StringComparer.Ordinal))
         {
@@ -356,41 +365,45 @@ public sealed class CompiledGuideBuilder
                 continue;
             }
 
-            var entries = new List<SourceSiteEntry>();
+            var entries = new List<CompiledSourceSiteData>();
             foreach (ItemSourceDef def in group)
             {
                 int sourceId = keyToId[def.SourceKey];
                 CharacterDef? character = charByKey.GetValueOrDefault(def.SourceKey);
-                SpawnPositionEntry[] positions = character is null
-                    ? Array.Empty<SpawnPositionEntry>()
-                    : new[] { new SpawnPositionEntry(sourceId, character.X, character.Y, character.Z) };
-                entries.Add(new SourceSiteEntry(
-                    sourceId,
-                    sourceType: def.SourceType,
-                    edgeType: def.EdgeType,
-                    directItemId: 0,
-                    scene: character?.Scene,
-                    positions: positions));
+                CompiledSpawnPositionData[] positions = character is null
+                    ? Array.Empty<CompiledSpawnPositionData>()
+                    : new[] { new CompiledSpawnPositionData { SpawnId = sourceId, X = character.X, Y = character.Y, Z = character.Z } };
+                entries.Add(new CompiledSourceSiteData
+                {
+                    SourceId = sourceId,
+                    SourceType = def.SourceType,
+                    EdgeType = def.EdgeType,
+                    DirectItemId = 0,
+                    Scene = character?.Scene,
+                    Positions = positions,
+                });
             }
-
             rows[itemIndex] = entries.ToArray();
         }
-
         return rows;
     }
 
-    private Dictionary<int, UnlockPredicateEntry> BuildUnlocks(Dictionary<string, int> keyToId)
+    private CompiledUnlockPredicateData[] BuildUnlockPredicatesDto(Dictionary<string, int> keyToId)
     {
         return _unlockDefs
             .GroupBy(def => def.TargetKey, StringComparer.Ordinal)
-            .ToDictionary(
-                group => keyToId[group.Key],
-                group => new UnlockPredicateEntry(
-                    group.Select(def => new UnlockConditionEntry(
-                        keyToId[def.SourceKey],
-                        def.CheckType,
-                        def.Group)).ToArray(),
-                    group.Max(def => (int)def.Group),
-                    group.Any(def => def.Group != 0) ? (byte)1 : (byte)0));
+            .Select(group => new CompiledUnlockPredicateData
+            {
+                TargetId = keyToId[group.Key],
+                Conditions = group.Select(def => new CompiledUnlockConditionData
+                {
+                    SourceId = keyToId[def.SourceKey],
+                    CheckType = def.CheckType,
+                    Group = def.Group,
+                }).ToArray(),
+                GroupCount = group.Max(def => (int)def.Group),
+                Semantics = group.Any(def => def.Group != 0) ? 1 : 0,
+            })
+            .ToArray();
     }
 }

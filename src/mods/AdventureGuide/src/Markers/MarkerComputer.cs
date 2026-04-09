@@ -270,10 +270,10 @@ public sealed class MarkerComputer
         for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
         {
             int nodeId = _compiledGuide.QuestNodeId(questIndex);
-            uint dbNameOffset = _compiledGuide.GetNode(nodeId).DbNameOffset;
-            if (dbNameOffset == 0)
+            string? nodeDbName = _compiledGuide.GetDbName(nodeId);
+            if (nodeDbName == null)
                 continue;
-            if (string.Equals(_compiledGuide.GetString(dbNameOffset), dbName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeDbName, dbName, StringComparison.OrdinalIgnoreCase))
                 return questIndex;
         }
 

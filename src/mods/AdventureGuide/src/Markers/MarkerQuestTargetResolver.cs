@@ -42,10 +42,10 @@ public sealed class MarkerQuestTargetResolver
         for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
         {
             int nodeId = _guide.QuestNodeId(questIndex);
-            uint dbNameOffset = _guide.GetNode(nodeId).DbNameOffset;
-            if (dbNameOffset == 0)
+            string? nodeDbName = _guide.GetDbName(nodeId);
+            if (nodeDbName == null)
                 continue;
-            if (string.Equals(_guide.GetString(dbNameOffset), questDbName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeDbName, questDbName, StringComparison.OrdinalIgnoreCase))
                 return questIndex;
         }
 

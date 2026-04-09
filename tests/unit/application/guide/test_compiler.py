@@ -14,13 +14,13 @@ from erenshor.application.guide.compiler import (
     QuestCompletionBlueprint,
     QuestGiverBlueprint,
     QuestSpec,
-    SectionId,
     SourceSite,
     SpawnPosition,
     StepSpec,
     UnlockCondition,
     UnlockPredicate,
     compile_graph,
+    edge_type_byte,
 )
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
@@ -103,13 +103,6 @@ def test_compiled_node_preserves_nan_positions() -> None:
     assert math.isnan(node.z)
     assert node.flags == NodeFlags.IMPLICIT
     assert node.db_name == "QUESTA"
-
-
-def test_section_ids_are_stable() -> None:
-    assert SectionId.STRING_TABLE == 0
-    assert SectionId.NODE_TABLE == 1
-    assert SectionId.EDGE_TABLE == 2
-    assert SectionId.FEASIBILITY == 13
 
 
 def test_nested_compiled_types_round_trip() -> None:
@@ -322,3 +315,88 @@ def test_compile_graph_builds_real_completion_blueprints() -> None:
             keyword="done",
         )
     ]
+
+
+def test_compile_graph_preserves_runtime_metadata() -> None:
+    graph = _graph(
+        Node(
+            key="door:crypt",
+            type=NodeType.DOOR,
+            display_name="Crypt Door",
+            scene="Crypt",
+            key_item_key="item:key",
+        ),
+        Node(
+            key="faction:wardens",
+            type=NodeType.FACTION,
+            display_name="Wardens",
+        ),
+        _item("item:key"),
+        Node(
+            key="quest:root",
+            type=NodeType.QUEST,
+            display_name="Quest Root",
+            db_name="ROOT",
+            description="Recover the key.",
+            level=12,
+            zone="Starter Coast",
+            zone_key="zone:starter",
+            keyword="hail",
+            xp_reward=120,
+            gold_reward=34,
+            reward_item_key="item:key",
+            repeatable=True,
+            disabled=True,
+            disabled_text="Night only",
+        ),
+        Node(
+            key="zone:line:depths",
+            type=NodeType.ZONE_LINE,
+            display_name="Ancient Tunnel",
+            scene="StarterScene",
+            zone="Starter Coast",
+            zone_key="zone:starter",
+            destination_zone_key="zone:depths",
+            destination_display="Sunken Depths",
+            x=1.0,
+            y=2.0,
+            z=3.0,
+        ),
+        edges=[
+            Edge(source="quest:root", target="item:key", type=EdgeType.REWARDS_ITEM, note="char:vendor", amount=5),
+            Edge(source="quest:root", target="zone:line:depths", type=EdgeType.UNLOCKS_ZONE_LINE),
+            Edge(source="quest:root", target="faction:wardens", type=EdgeType.AFFECTS_FACTION, amount=25),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    quest = compiled.nodes[compiled.node_key_to_id["quest:root"]]
+    door = compiled.nodes[compiled.node_key_to_id["door:crypt"]]
+    zone_line = compiled.nodes[compiled.node_key_to_id["zone:line:depths"]]
+    reward_edge = next(
+        edge
+        for edge in compiled.edges
+        if edge.source_id == compiled.node_key_to_id["quest:root"]
+        and edge.target_id == compiled.node_key_to_id["item:key"]
+        and edge.edge_type == edge_type_byte(EdgeType.REWARDS_ITEM)
+    )
+    faction_edge = next(
+        edge
+        for edge in compiled.edges
+        if edge.source_id == compiled.node_key_to_id["quest:root"]
+        and edge.target_id == compiled.node_key_to_id["faction:wardens"]
+    )
+
+    assert quest.description == "Recover the key."
+    assert quest.keyword == "hail"
+    assert quest.xp_reward == 120
+    assert quest.gold_reward == 34
+    assert quest.reward_item_key == "item:key"
+    assert quest.disabled_text == "Night only"
+    assert quest.zone_display == "Starter Coast"
+    assert door.key_item_key == "item:key"
+    assert zone_line.destination_zone_key == "zone:depths"
+    assert zone_line.destination_display == "Sunken Depths"
+    assert reward_edge.note == "char:vendor"
+    assert reward_edge.amount == 5
+    assert faction_edge.amount == 25
