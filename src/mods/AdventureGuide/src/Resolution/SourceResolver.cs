@@ -1,5 +1,7 @@
 using AdventureGuide.CompiledGuide;
 
+using AdventureGuide.Graph;
+
 using AdventureGuide.Plan;
 
 namespace AdventureGuide.Resolution;
@@ -236,12 +238,12 @@ public sealed class SourceResolver
     }
 
     private bool IsHostileDropSource(SourceSiteEntry source) =>
-        ((NodeFlags)_guide.GetNode(source.SourceId).Flags & NodeFlags.IsFriendly) == 0;
+        !_guide.GetNode(source.SourceId).IsFriendly;
 
     private ResolvedActionSemantic BuildGiverSemantic(int questIndex, int giverId)
     {
         int questNodeId = _guide.QuestNodeId(questIndex);
-        bool repeatable = (_guide.GetNode(questNodeId).Flags & (ushort)NodeFlags.Repeatable) != 0;
+        bool repeatable = _guide.GetNode(questNodeId).Repeatable;
         QuestMarkerKind markerKind = repeatable ? QuestMarkerKind.QuestGiverRepeat : QuestMarkerKind.QuestGiver;
         return new ResolvedActionSemantic(
             NavigationGoalKind.StartQuest,
@@ -330,7 +332,7 @@ public sealed class SourceResolver
     private ResolvedActionSemantic BuildTurnInSemantic(int questIndex, int completerId)
     {
         int questNodeId = _guide.QuestNodeId(questIndex);
-        bool repeatable = (_guide.GetNode(questNodeId).Flags & (ushort)NodeFlags.Repeatable) != 0;
+        bool repeatable = _guide.GetNode(questNodeId).Repeatable;
         bool hasPayload = _guide.RequiredItems(questIndex).Length > 0;
         QuestMarkerKind markerKind = repeatable ? QuestMarkerKind.TurnInRepeatReady : QuestMarkerKind.TurnInReady;
         string? payload = hasPayload ? string.Join(", ", _guide.RequiredItems(questIndex).ToArray().Select(req => _guide.GetDisplayName(req.ItemId))) : null;
@@ -370,14 +372,14 @@ public sealed class SourceResolver
 
     private NavigationTargetKind DetermineTargetKind(int nodeId)
     {
-        int nodeType = _guide.GetNode(nodeId).NodeType;
+        NodeType nodeType = _guide.GetNode(nodeId).Type;
         return nodeType switch
         {
-            2 => NavigationTargetKind.Character,
-            1 => NavigationTargetKind.Item,
-            0 => NavigationTargetKind.Quest,
-            3 => NavigationTargetKind.Zone,
-            4 => NavigationTargetKind.ZoneLine,
+            NodeType.Character => NavigationTargetKind.Character,
+            NodeType.Item => NavigationTargetKind.Item,
+            NodeType.Quest => NavigationTargetKind.Quest,
+            NodeType.Zone => NavigationTargetKind.Zone,
+            NodeType.ZoneLine => NavigationTargetKind.ZoneLine,
             _ => NavigationTargetKind.Object,
         };
     }

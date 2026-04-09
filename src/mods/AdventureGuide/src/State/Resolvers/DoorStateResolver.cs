@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State.Resolvers;
 
@@ -8,13 +9,13 @@ namespace AdventureGuide.State.Resolvers;
 /// </summary>
 public sealed class DoorStateResolver : INodeStateResolver
 {
-    private readonly EntityGraph _graph;
+    private readonly CompiledGuideModel _guide;
     private readonly QuestStateTracker _tracker;
     private readonly LiveStateTracker _liveState;
 
-    public DoorStateResolver(EntityGraph graph, QuestStateTracker tracker, LiveStateTracker liveState)
+    public DoorStateResolver(CompiledGuideModel guide, QuestStateTracker tracker, LiveStateTracker liveState)
     {
-        _graph = graph;
+        _guide = guide;
         _tracker = tracker;
         _liveState = liveState;
     }
@@ -26,7 +27,7 @@ public sealed class DoorStateResolver : INodeStateResolver
         if (node.KeyItemKey == null)
             return live.FoundInScene ? live.State : NodeState.Unlocked;
 
-        string keyName = _graph.GetNode(node.KeyItemKey)?.DisplayName ?? node.KeyItemKey;
+        string keyName = _guide.GetNode(node.KeyItemKey)?.DisplayName ?? node.KeyItemKey;
 
         if (live.FoundInScene)
         {

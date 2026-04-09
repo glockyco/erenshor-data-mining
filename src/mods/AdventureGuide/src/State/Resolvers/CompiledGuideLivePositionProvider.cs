@@ -1,21 +1,19 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State.Resolvers;
 
 public sealed class CompiledGuideLivePositionProvider : ILivePositionProvider
 {
-    private readonly CompiledGuide.CompiledGuide _guide;
-    private readonly EntityGraph _graph;
+    private readonly CompiledGuideModel _guide;
     private readonly LiveStateTracker _liveState;
 
     public CompiledGuideLivePositionProvider(
-        CompiledGuide.CompiledGuide guide,
-        EntityGraph graph,
+        CompiledGuideModel guide,
         LiveStateTracker liveState)
     {
         _guide = guide;
-        _graph = graph;
         _liveState = liveState;
     }
 
@@ -41,6 +39,6 @@ public sealed class CompiledGuideLivePositionProvider : ILivePositionProvider
     private Node? ResolveGraphNode(int nodeId)
     {
         string key = _guide.GetNodeKey(nodeId);
-        return _graph.GetNode(key);
+        return _guide.GetNode(key);
     }
 }

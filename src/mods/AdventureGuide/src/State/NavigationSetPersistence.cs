@@ -1,6 +1,5 @@
 using AdventureGuide.Config;
 using AdventureGuide.Frontier;
-using AdventureGuide.Graph;
 using BepInEx.Configuration;
 
 namespace AdventureGuide.State;
@@ -36,7 +35,7 @@ public sealed class NavigationSetPersistence : IDisposable
     /// Rebinding saves the outgoing slot first so cross-character switches do
     /// not lose pending in-memory changes.
     /// </summary>
-    public void OnCharacterLoaded(EntityGraph graph)
+    public void OnCharacterLoaded(CompiledGuide.CompiledGuide guide)
     {
         var slot = GameData.CurrentCharacterSlot;
         if (slot == null) return;
@@ -47,7 +46,7 @@ public sealed class NavigationSetPersistence : IDisposable
         _boundSlotIndex = slot.index;
         _entry = _config.BindPerCharacter(slot.index, "NavigationTargets", "");
 
-        var keys = ParseStoredKeys(_entry.Value, graph);
+        var keys = ParseStoredKeys(_entry.Value, guide);
         ApplyWithoutPersist(() => _navSet.Load(keys));
     }
 
@@ -88,7 +87,7 @@ public sealed class NavigationSetPersistence : IDisposable
         }
     }
 
-    private static List<string> ParseStoredKeys(string raw, EntityGraph graph)
+    private static List<string> ParseStoredKeys(string raw, CompiledGuide.CompiledGuide guide)
     {
         var keys = new List<string>();
         if (string.IsNullOrEmpty(raw))
@@ -97,7 +96,7 @@ public sealed class NavigationSetPersistence : IDisposable
         foreach (var part in raw.Split(';'))
         {
             var trimmed = part.Trim();
-            if (trimmed.Length > 0 && graph.HasNode(trimmed))
+            if (trimmed.Length > 0 && guide.TryGetNodeId(trimmed, out _))
                 keys.Add(trimmed);
         }
 

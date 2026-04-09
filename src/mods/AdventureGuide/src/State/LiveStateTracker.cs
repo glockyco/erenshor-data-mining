@@ -1,6 +1,7 @@
 using System.Reflection;
 using AdventureGuide.Graph;
 using UnityEngine;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
 
@@ -17,8 +18,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
     private static readonly FieldInfo? MiningRespawnField =
         typeof(MiningNode).GetField("Respawn", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    private readonly EntityGraph _graph;
-    private readonly GraphIndexes _indexes;
+    private readonly CompiledGuideModel _guide;
     private readonly GuideDependencyEngine _dependencies;
     private readonly UnlockEvaluator _unlocks;
 
@@ -41,13 +41,11 @@ public sealed class LiveStateTracker : IResolutionLiveState
     private bool _isNight;
 
     public LiveStateTracker(
-        EntityGraph graph,
-        GraphIndexes indexes,
+        CompiledGuideModel guide,
         GuideDependencyEngine dependencies,
         UnlockEvaluator unlocks)
     {
-        _graph = graph;
-        _indexes = indexes;
+        _guide = guide;
         _dependencies = dependencies;
         _unlocks = unlocks;
     }
@@ -281,7 +279,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
 
         string? unlockReason = GetCharacterUnlockRequirement(characterNode);
-        if (!LiveSceneScope.CharacterHasCurrentScenePresence(_graph, characterNode, CurrentSceneName()))
+        if (!LiveSceneScope.CharacterHasCurrentScenePresence(_guide, characterNode, CurrentSceneName()))
         {
             return string.IsNullOrEmpty(unlockReason)
                 ? new SpawnInfo(NodeState.Unknown, null, null, 0f)
@@ -291,13 +289,13 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!string.IsNullOrEmpty(unlockReason))
             return new SpawnInfo(new SpawnUnlockBlocked(unlockReason), null, null, 0f);
 
-        var spawnEdges = _graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
+        var spawnEdges = _guide.OutEdges(characterNode.Key, EdgeType.HasSpawn);
         SpawnInfo best = new SpawnInfo(NodeState.Unknown, null, null, 0f);
         bool found = false;
 
         for (int i = 0; i < spawnEdges.Count; i++)
         {
-            var spawnNode = _graph.GetNode(spawnEdges[i].Target);
+            var spawnNode = _guide.GetNode(spawnEdges[i].Target);
             if (spawnNode == null)
                 continue;
 
@@ -626,7 +624,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         _directSpawnNodesByNpcName.Clear();
 
         string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        foreach (var node in _graph.AllNodes)
+        foreach (var node in _guide.AllNodes)
         {
             if (!string.Equals(node.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -715,11 +713,11 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
     private Node? GetSpawnOwnerCharacter(Node spawnNode)
     {
-        var charEdges = _graph.InEdges(spawnNode.Key, EdgeType.HasSpawn);
+        var charEdges = _guide.InEdges(spawnNode.Key, EdgeType.HasSpawn);
         if (charEdges.Count == 0)
             return null;
 
-        return _graph.GetNode(charEdges[0].Source);
+        return _guide.GetNode(charEdges[0].Source);
     }
 
 
@@ -863,7 +861,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var sourceKey in sourceKeys)
         {
-            foreach (var questKey in _indexes.GetQuestsTouchingSource(sourceKey))
+            foreach (var questKey in _guide.GetQuestsTouchingSource(sourceKey))
                 affectedQuestKeys.Add(questKey);
         }
 

@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
 
@@ -9,17 +10,17 @@ internal static class LiveSceneScope
         && string.Equals(nodeScene, currentScene, StringComparison.OrdinalIgnoreCase);
 
     internal static bool CharacterHasCurrentScenePresence(
-        EntityGraph graph,
+        CompiledGuideModel guide,
         Node characterNode,
         string currentScene)
     {
         if (CanUseLiveSceneState(characterNode.Scene, currentScene))
             return true;
 
-        var spawnEdges = graph.OutEdges(characterNode.Key, EdgeType.HasSpawn);
+        var spawnEdges = guide.OutEdges(characterNode.Key, EdgeType.HasSpawn);
         for (int i = 0; i < spawnEdges.Count; i++)
         {
-            var spawnNode = graph.GetNode(spawnEdges[i].Target);
+            var spawnNode = guide.GetNode(spawnEdges[i].Target);
             if (spawnNode != null && CanUseLiveSceneState(spawnNode.Scene, currentScene))
                 return true;
         }

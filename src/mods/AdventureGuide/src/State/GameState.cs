@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
 
@@ -8,12 +9,12 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class GameState
 {
-    private readonly EntityGraph _graph;
+    private readonly CompiledGuideModel _guide;
     private readonly Dictionary<NodeType, INodeStateResolver> _resolvers = new();
 
-    public GameState(EntityGraph graph)
+    public GameState(CompiledGuideModel guide)
     {
-        _graph = graph;
+        _guide = guide;
     }
 
     /// <summary>Register (or replace) the resolver for a given node type.</summary>
@@ -28,7 +29,7 @@ public sealed class GameState
     /// </summary>
     public NodeState GetState(string nodeKey)
     {
-        var node = _graph.GetNode(nodeKey);
+        var node = _guide.GetNode(nodeKey);
         if (node == null)
             return NodeState.Unknown;
 

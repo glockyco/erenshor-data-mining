@@ -5,6 +5,7 @@ using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using UnityEngine;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Markers;
 
@@ -17,16 +18,14 @@ public sealed class MarkerComputer
 {
     private const float StaticHeightOffset = 2.5f;
 
-    private readonly EntityGraph _graph;
-    private readonly GraphIndexes _indexes;
     private readonly QuestStateTracker _tracker;
     private readonly LiveStateTracker _liveState;
     private readonly NavigationSet _navSet;
     private readonly TrackerState _trackerState;
-    private readonly MarkerQuestTargetResolver? _questTargetResolver;
-    private readonly CompiledGuide.CompiledGuide? _compiledGuide;
-    private readonly EffectiveFrontier? _effectiveFrontier;
-    private readonly SourceResolver? _sourceResolver;
+    private readonly MarkerQuestTargetResolver _questTargetResolver;
+    private readonly CompiledGuideModel _compiledGuide;
+    private readonly EffectiveFrontier _effectiveFrontier;
+    private readonly SourceResolver _sourceResolver;
 
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(StringComparer.Ordinal);
@@ -40,25 +39,21 @@ public sealed class MarkerComputer
     public int Version { get; private set; }
 
     public MarkerComputer(
-        EntityGraph graph,
-        GraphIndexes indexes,
+        CompiledGuideModel compiledGuide,
         QuestStateTracker tracker,
         LiveStateTracker liveState,
         NavigationSet navSet,
         TrackerState trackerState,
-        MarkerQuestTargetResolver? questTargetResolver,
-        CompiledGuide.CompiledGuide? compiledGuide = null,
-        EffectiveFrontier? effectiveFrontier = null,
-        SourceResolver? sourceResolver = null)
+        MarkerQuestTargetResolver questTargetResolver,
+        EffectiveFrontier effectiveFrontier,
+        SourceResolver sourceResolver)
     {
-        _graph = graph;
-        _indexes = indexes;
+        _compiledGuide = compiledGuide;
         _tracker = tracker;
         _liveState = liveState;
         _navSet = navSet;
         _trackerState = trackerState;
         _questTargetResolver = questTargetResolver;
-        _compiledGuide = compiledGuide;
         _effectiveFrontier = effectiveFrontier;
         _sourceResolver = sourceResolver;
 
@@ -146,7 +141,7 @@ public sealed class MarkerComputer
 
         foreach (var questDbName in _tracker.GetActionableQuestDbNames())
         {
-            var quest = _graph.GetQuestByDbName(questDbName);
+            var quest = _compiledGuide.GetQuestByDbName(questDbName);
             if (quest != null)
                 sceneQuestKeys.Add(quest.Key);
         }
@@ -155,21 +150,21 @@ public sealed class MarkerComputer
         // pinned to the tracker, even if they are not in the quest log.
         foreach (var nodeKey in _navSet.Keys)
         {
-            var node = _graph.GetNode(nodeKey);
+            var node = _compiledGuide.GetNode(nodeKey);
             if (node?.Type == NodeType.Quest)
                 sceneQuestKeys.Add(node.Key);
         }
 
         foreach (var dbName in _trackerState.TrackedQuests)
         {
-            var quest = _graph.GetQuestByDbName(dbName);
+            var quest = _compiledGuide.GetQuestByDbName(dbName);
             if (quest != null)
                 sceneQuestKeys.Add(quest.Key);
         }
 
         foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
         {
-            var quest = _graph.GetQuestByDbName(dbName);
+            var quest = _compiledGuide.GetQuestByDbName(dbName);
             if (quest != null)
                 sceneQuestKeys.Add(quest.Key);
         }
@@ -187,7 +182,7 @@ public sealed class MarkerComputer
             double ms = sw.Elapsed.TotalMilliseconds;
             totalMs += ms;
 
-            var quest = _graph.GetNode(questKey);
+            var quest = _compiledGuide.GetNode(questKey);
             if (ms >= 1.0)
                 sb.AppendLine($"  {quest?.DisplayName ?? questKey}: {ms:F1} ms");
         }
@@ -200,7 +195,7 @@ public sealed class MarkerComputer
     {
         RemoveQuestContributions(questKey);
 
-        var quest = _graph.GetNode(questKey);
+        var quest = _compiledGuide.GetNode(questKey);
         if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
             return;
 
@@ -209,12 +204,6 @@ public sealed class MarkerComputer
 
         if (explicitlySelected || _tracker.IsActive(quest.DbName))
         {
-            if (_questTargetResolver == null || _compiledGuide == null || _effectiveFrontier == null || _sourceResolver == null)
-            {
-                throw new InvalidOperationException(
-                    $"MarkerComputer requires compiled quest target resolution for '{quest.DbName}'.");
-            }
-
             var compiledTargets = _questTargetResolver.Resolve(quest.DbName, _tracker.CurrentZone);
             EmitActiveQuestMarkers(quest, compiledTargets);
             return;
@@ -264,9 +253,6 @@ public sealed class MarkerComputer
 
     private int? FindCompiledQuestIndex(string dbName)
     {
-        if (_compiledGuide == null)
-            return null;
-
         for (int questIndex = 0; questIndex < _compiledGuide.QuestCount; questIndex++)
         {
             int nodeId = _compiledGuide.QuestNodeId(questIndex);
@@ -280,15 +266,13 @@ public sealed class MarkerComputer
         return null;
     }
 
-
-
     private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedQuestTarget target)
     {
         if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
             return null;
 
         var positionNode = target.SourceKey != null
-            ? _graph.GetNode(target.SourceKey)
+            ? _compiledGuide.GetNode(target.SourceKey)
             : null;
         if (positionNode == null || positionNode.Type != NodeType.SpawnPoint)
             return null;
@@ -351,12 +335,10 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedTarget target)
     {
-        if (_compiledGuide == null)
-            return null;
         if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
             return null;
 
-        var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
+        var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
         if (positionNode == null || positionNode.Type != NodeType.SpawnPoint)
             return null;
 
@@ -367,7 +349,7 @@ public sealed class MarkerComputer
         if (info.State is SpawnAlive)
             return null;
 
-        string displayName = _graph.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
+        string displayName = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
             ?? _compiledGuide.GetDisplayName(target.TargetNodeId);
 
         if (info.LiveSpawnPoint != null)
@@ -438,13 +420,13 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreatePendingCompletionEntry(Node quest, QuestCompletionBlueprint blueprint)
     {
-        var targetNode = _graph.GetNode(blueprint.TargetNodeKey);
-        var positionNode = _graph.GetNode(blueprint.PositionNodeKey);
+        var targetNode = _compiledGuide.GetNode(blueprint.TargetNodeKey);
+        var positionNode = _compiledGuide.GetNode(blueprint.PositionNodeKey);
         if (targetNode == null || positionNode == null)
             return null;
 
         var semantic = ResolvedActionSemanticBuilder.BuildQuestCompletion(
-            _graph,
+            _compiledGuide,
             quest,
             targetNode,
             blueprint,
@@ -478,7 +460,7 @@ public sealed class MarkerComputer
     private void EmitImplicitCompletionMarkers(Node quest)
     {
         // Determine readiness: player holds all required items.
-        var requiredEdges = _graph.OutEdges(quest.Key, EdgeType.RequiresItem);
+        var requiredEdges = _compiledGuide.OutEdges(quest.Key, EdgeType.RequiresItem);
         bool ready = true;
         for (int i = 0; i < requiredEdges.Count; i++)
         {
@@ -504,13 +486,13 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateImplicitCompletionEntry(Node quest, QuestCompletionBlueprint blueprint, bool ready)
     {
-        var targetNode = _graph.GetNode(blueprint.TargetNodeKey);
-        var positionNode = _graph.GetNode(blueprint.PositionNodeKey);
+        var targetNode = _compiledGuide.GetNode(blueprint.TargetNodeKey);
+        var positionNode = _compiledGuide.GetNode(blueprint.PositionNodeKey);
         if (targetNode == null || positionNode == null)
             return null;
 
         var semantic = ResolvedActionSemanticBuilder.BuildQuestCompletion(
-            _graph,
+            _compiledGuide,
             quest,
             targetNode,
             blueprint,
@@ -543,13 +525,11 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateActiveMarkerEntry(Node quest, ResolvedTarget target)
     {
-        if (_compiledGuide == null)
-            return null;
         if (!IsCurrentScene(target.Scene))
             return null;
 
-        var targetNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId));
-        var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
+        var targetNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId));
+        var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));
         if (targetNode == null || positionNode == null)
             return null;
 
@@ -603,16 +583,13 @@ public sealed class MarkerComputer
 
     private IReadOnlyList<QuestGiverBlueprint> GetQuestGiversInCurrentScene()
     {
-        if (_compiledGuide == null)
-            return _indexes.GetQuestGiversInScene(_tracker.CurrentZone);
-
         var results = new List<QuestGiverBlueprint>();
         var blueprints = _compiledGuide.GiverBlueprints;
         for (int i = 0; i < blueprints.Length; i++)
         {
             var blueprint = blueprints[i];
-            var questNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
+            var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
             if (questNode?.DbName == null || positionNode == null)
                 continue;
             if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
@@ -637,16 +614,13 @@ public sealed class MarkerComputer
 
     private IReadOnlyList<QuestCompletionBlueprint> GetQuestCompletionsInCurrentScene()
     {
-        if (_compiledGuide == null)
-            return _indexes.GetQuestCompletionsInScene(_tracker.CurrentZone);
-
         var results = new List<QuestCompletionBlueprint>();
         var blueprints = _compiledGuide.CompletionBlueprints;
         for (int i = 0; i < blueprints.Length; i++)
         {
             var blueprint = blueprints[i];
-            var questNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _graph.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
+            var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
             if (questNode?.DbName == null || positionNode == null)
                 continue;
             if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
@@ -668,11 +642,10 @@ public sealed class MarkerComputer
         return results;
     }
 
-
     private MarkerEntry? CreateQuestGiverEntry(Node quest, QuestGiverBlueprint blueprint)
     {
-        var characterNode = _graph.GetNode(blueprint.CharacterKey);
-        var positionNode = _graph.GetNode(blueprint.PositionNodeKey);
+        var characterNode = _compiledGuide.GetNode(blueprint.CharacterKey);
+        var positionNode = _compiledGuide.GetNode(blueprint.PositionNodeKey);
         if (characterNode == null || positionNode == null)
             return null;
 
@@ -702,7 +675,7 @@ public sealed class MarkerComputer
             if (_tracker.IsCompleted(dbName))
                 continue;
 
-            var quest = _graph.GetQuestByDbName(dbName);
+            var quest = _compiledGuide.GetQuestByDbName(dbName);
             return quest?.DisplayName ?? dbName;
         }
 
@@ -719,7 +692,7 @@ public sealed class MarkerComputer
 
         var targetNode = target.TargetNode.Node;
         var positionNode = target.SourceKey != null
-            ? _graph.GetNode(target.SourceKey)
+            ? _compiledGuide.GetNode(target.SourceKey)
             : targetNode;
         if (positionNode == null)
             return null;
@@ -865,7 +838,6 @@ public sealed class MarkerComputer
             CorpseSubText = corpseSubText,
         };
     }
-
 
     private static bool IsCorpsePresent(SpawnInfo info) =>
         info.State is SpawnDead
@@ -1048,7 +1020,7 @@ public sealed class MarkerComputer
             if (IsBlocked(_markers[i].Type)) continue;
             var sourceKey = _markers[i].SourceNodeKey;
             if (sourceKey == null) continue;
-            var node = _graph.GetNode(sourceKey);
+            var node = _compiledGuide.GetNode(sourceKey);
             if (node?.X == null || node.Y == null || node.Z == null) continue;
             occupiedByNonBlocked.Add((node.X.Value, node.Y.Value, node.Z.Value));
         }
@@ -1063,7 +1035,7 @@ public sealed class MarkerComputer
             var m = _markers[read];
             if (IsBlocked(m.Type) && m.SourceNodeKey != null)
             {
-                var node = _graph.GetNode(m.SourceNodeKey);
+                var node = _compiledGuide.GetNode(m.SourceNodeKey);
                 if (node?.X != null && node.Y != null && node.Z != null
                     && occupiedByNonBlocked.Contains((node.X.Value, node.Y.Value, node.Z.Value)))
                 {

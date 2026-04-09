@@ -211,11 +211,11 @@ public sealed class SpecTreeProjector
 
     private bool IsHostileDropSource(SourceSiteEntry source)
     {
-        if (source.EdgeType != EdgeDropsItem)
-            return false;
+    if (source.EdgeType != EdgeDropsItem)
+        return false;
 
-        var node = _guide.GetNode(source.SourceId);
-        return ((NodeFlags)node.Flags & NodeFlags.IsFriendly) == 0;
+    var node = _guide.GetNode(source.SourceId);
+    return !node.IsFriendly;
     }
 
     private SpecTreeKind DetermineUnlockKind(UnlockConditionEntry condition)
@@ -223,7 +223,7 @@ public sealed class SpecTreeProjector
         if (condition.CheckType == 1)
             return SpecTreeKind.Item;
 
-        return (NodeType)_guide.GetNode(condition.SourceId).NodeType == NodeType.Quest
+        return _guide.GetNode(condition.SourceId).Type == NodeType.Quest
             ? SpecTreeKind.Prerequisite
             : SpecTreeKind.Source;
     }
@@ -242,26 +242,26 @@ public sealed class SpecTreeProjector
 
     private string FormatAssignmentLabel(int nodeId, string name, string? keyword)
     {
-        return (NodeType)_guide.GetNode(nodeId).NodeType switch
-        {
-            NodeType.Item => $"Read: {name}",
-            NodeType.Zone => $"Enter: {name}",
-            NodeType.Quest => $"Complete: {name}",
-            _ => FormatKeywordLabel("Talk to ", name, keyword),
-        };
+    return _guide.GetNode(nodeId).Type switch
+    {
+        NodeType.Item => $"Read: {name}",
+        NodeType.Zone => $"Enter: {name}",
+        NodeType.Quest => $"Complete: {name}",
+        _ => FormatKeywordLabel("Talk to ", name, keyword),
+    };
     }
 
     private string FormatCompletionLabel(int nodeId, string name, string? keyword)
     {
-        return (NodeType)_guide.GetNode(nodeId).NodeType switch
-        {
-            NodeType.Character => FormatKeywordLabel("Turn in to ", name, keyword),
-            NodeType.Item => $"Read: {name}",
-            NodeType.Zone => $"Enter: {name}",
-            NodeType.ZoneLine => $"Travel to: {name}",
-            NodeType.Quest => $"Complete: {name}",
-            _ => $"Complete via: {name}",
-        };
+    return _guide.GetNode(nodeId).Type switch
+    {
+        NodeType.Character => FormatKeywordLabel("Turn in to ", name, keyword),
+        NodeType.Item => $"Read: {name}",
+        NodeType.Zone => $"Enter: {name}",
+        NodeType.ZoneLine => $"Travel to: {name}",
+        NodeType.Quest => $"Complete: {name}",
+        _ => $"Complete via: {name}",
+    };
     }
 
     private string FormatStepLabel(StepEntry step, string name)
@@ -293,13 +293,13 @@ public sealed class SpecTreeProjector
 
     private string FormatYieldLabel(SourceSiteEntry source, string name)
     {
-        return source.SourceType switch
-        {
-            6 => $"Mine: {name}",
-            _ => (NodeType)_guide.GetNode(source.SourceId).NodeType == NodeType.Water
-                ? $"Fish at: {name}"
-                : $"Collect: {name}",
-        };
+    return source.SourceType switch
+    {
+        6 => $"Mine: {name}",
+        _ => _guide.GetNode(source.SourceId).Type == NodeType.Water
+            ? $"Fish at: {name}"
+            : $"Collect: {name}",
+    };
     }
 
     private static string FormatKeywordLabel(string prefix, string name, string? keyword)

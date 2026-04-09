@@ -6,6 +6,7 @@ using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 using AdventureGuide.UI;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Diagnostics;
 
@@ -20,360 +21,360 @@ namespace AdventureGuide.Diagnostics;
 /// </summary>
 public static class DebugAPI
 {
-    internal static EntityGraph? Graph { get; set; }
-    internal static QuestStateTracker? State { get; set; }
-    internal static FilterState? Filter { get; set; }
-    internal static NavigationEngine? Nav { get; set; }
-    internal static GroundPathRenderer? GroundPath { get; set; }
-    internal static ZoneRouter? Router { get; set; }
-    internal static UnlockEvaluator? Unlocks { get; set; }
-    internal static MarkerComputer? Markers { get; set; }
-    internal static GameState? GameStateInstance { get; set; }
+	internal static CompiledGuideModel? Guide { get; set; }
+	internal static QuestStateTracker? State { get; set; }
+	internal static FilterState? Filter { get; set; }
+	internal static NavigationEngine? Nav { get; set; }
+	internal static GroundPathRenderer? GroundPath { get; set; }
+	internal static ZoneRouter? Router { get; set; }
+	internal static UnlockEvaluator? Unlocks { get; set; }
+	internal static MarkerComputer? Markers { get; set; }
+	internal static GameState? GameStateInstance { get; set; }
 
-    /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
-    public static string DumpState()
-    {
-        if (State == null) return "Not initialized";
+	/// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
+	public static string DumpState()
+	{
+		if (State == null) return "Not initialized";
 
-        return $"Zone: {State.CurrentZone}\n"
-             + $"Active quests: {State.ActiveQuests.Count}\n"
-             + $"Completed quests: {State.CompletedQuests.Count}\n"
-             + $"Selected: {State.SelectedQuestDBName ?? "(none)"}\n"
-             + $"Filter: {Filter?.FilterMode}\n"
-             + $"Sort: {Filter?.SortMode}\n"
-             + $"Search: '{Filter?.SearchText ?? ""}'\n"
-             + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
-    }
+		return $"Zone: {State.CurrentZone}\n"
+			 + $"Active quests: {State.ActiveQuests.Count}\n"
+			 + $"Completed quests: {State.CompletedQuests.Count}\n"
+			 + $"Selected: {State.SelectedQuestDBName ?? "(none)"}\n"
+			 + $"Filter: {Filter?.FilterMode}\n"
+			 + $"Sort: {Filter?.SortMode}\n"
+			 + $"Search: '{Filter?.SearchText ?? ""}'\n"
+			 + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
+	}
 
-    /// <summary>Dump navigation state: target, position, distance, ground path.</summary>
-    public static string DumpNav()
-    {
-        if (Nav == null) return "Not initialized";
-        if (!Nav.HasTarget) return "No active navigation target";
+	/// <summary>Dump navigation state: target, position, distance, ground path.</summary>
+	public static string DumpNav()
+	{
+		if (Nav == null) return "Not initialized";
+		if (!Nav.HasTarget) return "No active navigation target";
 
-        var sb = new System.Text.StringBuilder();
-        var explanation = Nav.Explanation;
-        sb.AppendLine($"Target: {explanation?.PrimaryText ?? "(none)"}");
-        if (explanation != null)
-            sb.AppendLine($"  TargetNode: {explanation.TargetIdentityText}");
-        sb.AppendLine($"  NodeKey: {Nav.TargetNodeKey}");
-        sb.AppendLine($"  Position: {Nav.EffectiveTarget}");
-        sb.AppendLine($"  Distance: {Nav.Distance:F1}");
-        sb.AppendLine($"  Scene: {Nav.CurrentScene}");
+		var sb = new System.Text.StringBuilder();
+		var explanation = Nav.Explanation;
+		sb.AppendLine($"Target: {explanation?.PrimaryText ?? "(none)"}");
+		if (explanation != null)
+			sb.AppendLine($"  TargetNode: {explanation.TargetIdentityText}");
+		sb.AppendLine($"  NodeKey: {Nav.TargetNodeKey}");
+		sb.AppendLine($"  Position: {Nav.EffectiveTarget}");
+		sb.AppendLine($"  Distance: {Nav.Distance:F1}");
+		sb.AppendLine($"  Scene: {Nav.CurrentScene}");
 
-        if (GroundPath != null)
-            sb.AppendLine($"GroundPath: enabled={GroundPath.Enabled}");
+		if (GroundPath != null)
+			sb.AppendLine($"GroundPath: enabled={GroundPath.Enabled}");
 
-        return sb.ToString();
-    }
+		return sb.ToString();
+	}
 
-    /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
-    public static string DumpQuest(string name)
-    {
-        if (Graph == null) return "Not initialized";
+	/// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
+	public static string DumpQuest(string name)
+	{
+		if (Guide == null) return "Not initialized";
 
-        var node = FindQuestNode(name);
-        if (node == null) return $"Quest '{name}' not found";
+		var node = FindQuestNode(name);
+		if (node == null) return $"Quest '{name}' not found";
 
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Key: {node.Key}");
-        sb.AppendLine($"DbName: {node.DbName}");
-        sb.AppendLine($"Name: {node.DisplayName}");
-        sb.AppendLine($"Zone: {node.Zone}");
-        sb.AppendLine($"Level: {node.Level}");
-        sb.AppendLine($"Implicit: {node.Implicit}");
-        sb.AppendLine($"Active: {State?.IsActive(node.DbName!)}");
-        sb.AppendLine($"Completed: {State?.IsCompleted(node.DbName!)}");
+		var sb = new System.Text.StringBuilder();
+		sb.AppendLine($"Key: {node.Key}");
+		sb.AppendLine($"DbName: {node.DbName}");
+		sb.AppendLine($"Name: {node.DisplayName}");
+		sb.AppendLine($"Zone: {node.Zone}");
+		sb.AppendLine($"Level: {node.Level}");
+		sb.AppendLine($"Implicit: {node.Implicit}");
+		sb.AppendLine($"Active: {State?.IsActive(node.DbName!)}");
+		sb.AppendLine($"Completed: {State?.IsCompleted(node.DbName!)}");
 
-        var edges = Graph.OutEdges(node.Key);
-        sb.AppendLine($"Outgoing edges ({edges.Count}):");
-        foreach (var e in edges)
-            sb.AppendLine($"  [{e.Type}] > {e.Target}");
+		var edges = Guide.OutEdges(node.Key);
+		sb.AppendLine($"Outgoing edges ({edges.Count}):");
+		foreach (var e in edges)
+			sb.AppendLine($"  [{e.Type}] > {e.Target}");
 
-        return sb.ToString();
-    }
+		return sb.ToString();
+	}
 
-    /// <summary>Dump all quests for the current zone.</summary>
-    public static string DumpZoneQuests()
-    {
-        if (Graph == null || State == null) return "Not initialized";
+	/// <summary>Dump all quests for the current zone.</summary>
+	public static string DumpZoneQuests()
+	{
+		if (Guide == null || State == null) return "Not initialized";
 
-        var zone = State.CurrentZone;
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Quests in zone '{zone}':");
+		var zone = State.CurrentZone;
+		var sb = new System.Text.StringBuilder();
+		sb.AppendLine($"Quests in zone '{zone}':");
 
-        foreach (var node in Graph.NodesOfType(NodeType.Quest))
-        {
-            if (node.Zone == null) continue;
-            if (!node.Zone.Equals(zone, StringComparison.OrdinalIgnoreCase)) continue;
+		foreach (var node in Guide.NodesOfType(NodeType.Quest))
+		{
+			if (node.Zone == null) continue;
+			if (!node.Zone.Equals(zone, StringComparison.OrdinalIgnoreCase)) continue;
 
-            var status = State.IsCompleted(node.DbName!) ? "done"
-                       : State.IsActive(node.DbName!) ? "active"
-                       : "available";
-            sb.AppendLine($"  [{status}] {node.DisplayName} ({node.DbName})");
-        }
+			var status = State.IsCompleted(node.DbName!) ? "done"
+					   : State.IsActive(node.DbName!) ? "active"
+					   : "available";
+			sb.AppendLine($"  [{status}] {node.DisplayName} ({node.DbName})");
+		}
 
-        return sb.ToString();
-    }
+		return sb.ToString();
+	}
 
-    /// <summary>
-    /// Remove a quest from the player's active and completed lists so it
-    /// can be accepted again. Accepts node key, DB name, or display name.
-    /// Syncs the mod's cached state after modification.
-    /// </summary>
-    public static string ResetQuest(string name)
-    {
-        if (Graph == null || State == null) return "Not initialized";
+	/// <summary>
+	/// Remove a quest from the player's active and completed lists so it
+	/// can be accepted again. Accepts node key, DB name, or display name.
+	/// Syncs the mod's cached state after modification.
+	/// </summary>
+	public static string ResetQuest(string name)
+	{
+		if (Guide == null || State == null) return "Not initialized";
 
-        var node = FindQuestNode(name);
-        if (node == null) return $"Quest '{name}' not found";
+		var node = FindQuestNode(name);
+		if (node == null) return $"Quest '{name}' not found";
 
-        bool wasActive = GameData.HasQuest.Remove(node.DbName!);
-        bool wasCompleted = GameData.CompletedQuests.Remove(node.DbName!);
+		bool wasActive = GameData.HasQuest.Remove(node.DbName!);
+		bool wasCompleted = GameData.CompletedQuests.Remove(node.DbName!);
 
-        State.SyncFromGameData();
+		State.SyncFromGameData();
 
-        string prev = wasActive ? "active" : wasCompleted ? "completed" : "not in quest log";
-        return $"Reset '{node.DisplayName}' (was {prev})";
-    }
+		string prev = wasActive ? "active" : wasCompleted ? "completed" : "not in quest log";
+		return $"Reset '{node.DisplayName}' (was {prev})";
+	}
 
-    /// <summary>Test zone routing between two scenes.</summary>
-    public static string TestRoute(string fromScene, string toScene)
-    {
-        if (Router == null) return "Not initialized";
+	/// <summary>Test zone routing between two scenes.</summary>
+	public static string TestRoute(string fromScene, string toScene)
+	{
+		if (Router == null) return "Not initialized";
 
-        var route = Router.FindRoute(fromScene, toScene);
-        if (route == null) return $"No route from {fromScene} to {toScene}";
+		var route = Router.FindRoute(fromScene, toScene);
+		if (route == null) return $"No route from {fromScene} to {toScene}";
 
-        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" > ", route.Path)}";
-    }
+		return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" > ", route.Path)}";
+	}
 
-    /// <summary>Dumps ZoneRouter adjacency graph and zone-key-to-scene mapping.</summary>
-    public static string DumpZoneRouterAdj()
-    {
-        if (Router == null)
-            return "Router is null";
+	/// <summary>Dumps ZoneRouter adjacency graph and zone-key-to-scene mapping.</summary>
+	public static string DumpZoneRouterAdj()
+	{
+		if (Router == null)
+			return "Router is null";
 
-        var bf = BindingFlags.NonPublic | BindingFlags.Instance;
-        var pubInst = BindingFlags.Public | BindingFlags.Instance;
-        var adjObj = Router.GetType().GetField("_adj", bf)?.GetValue(Router);
-        var zoneKeyObj = Router.GetType().GetField("_zoneKeyToScene", bf)?.GetValue(Router);
+		var bf = BindingFlags.NonPublic | BindingFlags.Instance;
+		var pubInst = BindingFlags.Public | BindingFlags.Instance;
+		var adjObj = Router.GetType().GetField("_adj", bf)?.GetValue(Router);
+		var zoneKeyObj = Router.GetType().GetField("_zoneKeyToScene", bf)?.GetValue(Router);
 
-        var sb = new System.Text.StringBuilder();
+		var sb = new System.Text.StringBuilder();
 
-        sb.AppendLine("=== _zoneKeyToScene ===");
-        if (zoneKeyObj is System.Collections.IDictionary zoneKeyDict)
-        {
-            foreach (System.Collections.DictionaryEntry de in zoneKeyDict)
-                sb.AppendLine($"  {de.Key} -> {de.Value}");
-        }
-        else
-        {
-            sb.AppendLine("  (unavailable)");
-        }
+		sb.AppendLine("=== _zoneKeyToScene ===");
+		if (zoneKeyObj is System.Collections.IDictionary zoneKeyDict)
+		{
+			foreach (System.Collections.DictionaryEntry de in zoneKeyDict)
+				sb.AppendLine($"  {de.Key} -> {de.Value}");
+		}
+		else
+		{
+			sb.AppendLine("  (unavailable)");
+		}
 
-        sb.AppendLine("=== _adj ===");
-        if (adjObj is System.Collections.IDictionary adjDict)
-        {
-            var listType = adjObj.GetType().GetGenericArguments()[1];
-            var edgeType = listType.GetGenericArguments()[0];
-            var destSceneF = edgeType.GetField("DestScene", pubInst);
-            var zoneLineKeyF = edgeType.GetField("ZoneLineKey", pubInst);
-            var accessibleF = edgeType.GetField("Accessible", pubInst);
+		sb.AppendLine("=== _adj ===");
+		if (adjObj is System.Collections.IDictionary adjDict)
+		{
+			var listType = adjObj.GetType().GetGenericArguments()[1];
+			var edgeType = listType.GetGenericArguments()[0];
+			var destSceneF = edgeType.GetField("DestScene", pubInst);
+			var zoneLineKeyF = edgeType.GetField("ZoneLineKey", pubInst);
+			var accessibleF = edgeType.GetField("Accessible", pubInst);
 
-            foreach (System.Collections.DictionaryEntry de in adjDict)
-            {
-                sb.AppendLine($"  [{de.Key}]:");
-                if (de.Value is System.Collections.IList edgeList)
-                {
-                    foreach (var item in edgeList)
-                    {
-                        var dst = destSceneF?.GetValue(item) ?? "?";
-                        var zlk = zoneLineKeyF?.GetValue(item) ?? "?";
-                        var acc = accessibleF?.GetValue(item) ?? "?";
-                        sb.AppendLine($"    -> {dst}  key={zlk}  accessible={acc}");
-                    }
-                }
-            }
-        }
-        else
-        {
-            sb.AppendLine("  (unavailable)");
-        }
+			foreach (System.Collections.DictionaryEntry de in adjDict)
+			{
+				sb.AppendLine($"  [{de.Key}]:");
+				if (de.Value is System.Collections.IList edgeList)
+				{
+					foreach (var item in edgeList)
+					{
+						var dst = destSceneF?.GetValue(item) ?? "?";
+						var zlk = zoneLineKeyF?.GetValue(item) ?? "?";
+						var acc = accessibleF?.GetValue(item) ?? "?";
+						sb.AppendLine($"    -> {dst}  key={zlk}  accessible={acc}");
+					}
+				}
+			}
+		}
+		else
+		{
+			sb.AppendLine("  (unavailable)");
+		}
 
-        return sb.ToString();
-    }
+		return sb.ToString();
+	}
 
-    /// <summary>Calls UnlockEvaluator.Evaluate for the given node key and returns the result.</summary>
-    public static string DumpEntityUnlock(string nodeKey)
-    {
-        if (Unlocks == null)
-            return "Unlocks are null";
-        if (Graph == null)
-            return "Graph is null";
+	/// <summary>Calls UnlockEvaluator.Evaluate for the given node key and returns the result.</summary>
+	public static string DumpEntityUnlock(string nodeKey)
+	{
+		if (Unlocks == null)
+			return "Unlocks are null";
+		if (Guide == null)
+			return "Guide is null";
 
-        var node = Graph.GetNode(nodeKey);
-        if (node == null)
-            return $"Node '{nodeKey}' not found in graph";
+		var node = Guide.GetNode(nodeKey);
+		if (node == null)
+			return $"Node '{nodeKey}' not found in guide";
 
-        var eval = Unlocks.Evaluate(node);
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Node: {node.Key}  type={node.Type}  enabled={node.IsEnabled}");
-        sb.AppendLine($"IsUnlocked: {eval.IsUnlocked}");
-        sb.AppendLine($"Reason: {eval.Reason ?? "(none)"}");
-        sb.AppendLine($"BlockingSources ({eval.BlockingSources.Count}):");
-        foreach (var src in eval.BlockingSources)
-            sb.AppendLine($"  {src.Key}  type={src.Type}");
-        return sb.ToString();
-    }
+		var eval = Unlocks.Evaluate(node);
+		var sb = new System.Text.StringBuilder();
+		sb.AppendLine($"Node: {node.Key}  type={node.Type}  enabled={node.IsEnabled}");
+		sb.AppendLine($"IsUnlocked: {eval.IsUnlocked}");
+		sb.AppendLine($"Reason: {eval.Reason ?? "(none)"}");
+		sb.AppendLine($"BlockingSources ({eval.BlockingSources.Count}):");
+		foreach (var src in eval.BlockingSources)
+			sb.AppendLine($"  {src.Key}  type={src.Type}");
+		return sb.ToString();
+	}
 
-    private static Node? FindQuestNode(string name)
-    {
-        if (Graph == null) return null;
+	private static Node? FindQuestNode(string name)
+	{
+		if (Guide == null) return null;
 
-        var node = Graph.GetNode(name);
-        if (node != null && node.Type == NodeType.Quest) return node;
+		var node = Guide.GetNode(name);
+		if (node != null && node.Type == NodeType.Quest) return node;
 
-        node = Graph.GetQuestByDbName(name);
-        if (node != null) return node;
+		node = Guide.GetQuestByDbName(name);
+		if (node != null) return node;
 
-        foreach (var q in Graph.NodesOfType(NodeType.Quest))
-        {
-            if (string.Equals(q.DisplayName, name, StringComparison.OrdinalIgnoreCase))
-                return q;
-        }
+		foreach (var q in Guide.NodesOfType(NodeType.Quest))
+		{
+			if (string.Equals(q.DisplayName, name, StringComparison.OrdinalIgnoreCase))
+				return q;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /// <summary>Profile MarkerComputer.Recompute() cold and hot.</summary>
-    public static string ProfileMarkerRecompute(int iterations = 5)
-    {
-        if (Markers == null) return "Not initialized";
+	/// <summary>Profile MarkerComputer.Recompute() cold and hot.</summary>
+	public static string ProfileMarkerRecompute(int iterations = 5)
+	{
+		if (Markers == null) return "Not initialized";
 
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("Profiling MarkerComputer.Recompute()");
-        sb.AppendLine($"Iterations: {iterations}");
-        sb.AppendLine();
+		var sb = new System.Text.StringBuilder();
+		sb.AppendLine("Profiling MarkerComputer.Recompute()");
+		sb.AppendLine($"Iterations: {iterations}");
+		sb.AppendLine();
 
-        Markers.MarkDirty();
-        var sw = Stopwatch.StartNew();
-        Markers.Recompute();
-        sw.Stop();
-        sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms");
+		Markers.MarkDirty();
+		var sw = Stopwatch.StartNew();
+		Markers.Recompute();
+		sw.Stop();
+		sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms");
 
-        double totalHot = 0;
-        for (int i = 0; i < iterations; i++)
-        {
-            Markers.MarkDirty();
-            sw.Restart();
-            Markers.Recompute();
-            sw.Stop();
-            double ms = sw.Elapsed.TotalMilliseconds;
-            totalHot += ms;
-            sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
-        }
+		double totalHot = 0;
+		for (int i = 0; i < iterations; i++)
+		{
+			Markers.MarkDirty();
+			sw.Restart();
+			Markers.Recompute();
+			sw.Stop();
+			double ms = sw.Elapsed.TotalMilliseconds;
+			totalHot += ms;
+			sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
+		}
 
-        sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
-        return sb.ToString();
-    }
+		sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
+		return sb.ToString();
+	}
 
-    private static readonly NodeType[] SnapshotNodeTypes =
-    {
-        NodeType.Character, NodeType.SpawnPoint, NodeType.MiningNode,
-        NodeType.ItemBag, NodeType.Door,
-    };
+	private static readonly NodeType[] SnapshotNodeTypes =
+	{
+		NodeType.Character, NodeType.SpawnPoint, NodeType.MiningNode,
+		NodeType.ItemBag, NodeType.Door,
+	};
 
-    private static string ClassifyState(NodeState state) => state switch
-    {
-        SpawnAlive => "alive",
-        SpawnDead => "dead",
-        SpawnDisabled => "disabled",
-        SpawnNightLocked => "night_locked",
-        SpawnUnlockBlocked => "unlock_blocked",
-        MiningAvailable => "mine_available",
-        MiningMined => "mine_mined",
-        ItemBagAvailable => "bag_available",
-        ItemBagPickedUp => "bag_picked_up",
-        ItemBagGone => "bag_gone",
-        DoorUnlocked => "door_unlocked",
-        DoorLocked => "door_locked",
-        DoorClosed => "door_closed",
-        UnknownState => "unknown",
-        _ => "unknown",
-    };
+	private static string ClassifyState(NodeState state) => state switch
+	{
+		SpawnAlive => "alive",
+		SpawnDead => "dead",
+		SpawnDisabled => "disabled",
+		SpawnNightLocked => "night_locked",
+		SpawnUnlockBlocked => "unlock_blocked",
+		MiningAvailable => "mine_available",
+		MiningMined => "mine_mined",
+		ItemBagAvailable => "bag_available",
+		ItemBagPickedUp => "bag_picked_up",
+		ItemBagGone => "bag_gone",
+		DoorUnlocked => "door_unlocked",
+		DoorLocked => "door_locked",
+		DoorClosed => "door_closed",
+		UnknownState => "unknown",
+		_ => "unknown",
+	};
 
-    /// <summary>
-    /// Dump timing statistics for every instrumented step in Plugin.Update().
-    /// Stats accumulate continuously in 512-entry ring buffers so results
-    /// reflect recent behavior, not a one-shot synthetic run.
-    ///
-    /// MarkerApply is event-driven and will show fewer samples than the others.
-    /// </summary>
-    public static string DumpPerfReport() => GuideProfiler.DumpReport();
+	/// <summary>
+	/// Dump timing statistics for every instrumented step in Plugin.Update().
+	/// Stats accumulate continuously in 512-entry ring buffers so results
+	/// reflect recent behavior, not a one-shot synthetic run.
+	///
+	/// MarkerApply is event-driven and will show fewer samples than the others.
+	/// </summary>
+	public static string DumpPerfReport() => GuideProfiler.DumpReport();
 
-    /// <summary>
-    /// Zero all profiler ring buffers. Call before a specific scenario
-    /// (e.g. right before mining a node) to isolate that workload.
-    /// </summary>
-    public static string ResetPerfCounters()
-    {
-        GuideProfiler.ResetAll();
-        return "Profiler counters reset.";
-    }
+	/// <summary>
+	/// Zero all profiler ring buffers. Call before a specific scenario
+	/// (e.g. right before mining a node) to isolate that workload.
+	/// </summary>
+	public static string ResetPerfCounters()
+	{
+		GuideProfiler.ResetAll();
+		return "Profiler counters reset.";
+	}
 
-    /// <summary>
-    /// Capture a full pipeline-relevant state snapshot and write it to disk.
-    /// Returns the output file path, or an error string if the mod is not initialized.
-    /// </summary>
-    public static string ExportStateSnapshot()
-    {
-        if (State == null || Graph == null || GameStateInstance == null)
-            return "Not initialized";
+	/// <summary>
+	/// Capture a full pipeline-relevant state snapshot and write it to disk.
+	/// Returns the output file path, or an error string if the mod is not initialized.
+	/// </summary>
+	public static string ExportStateSnapshot()
+	{
+		if (State == null || Guide == null || GameStateInstance == null)
+			return "Not initialized";
 
-        var zone = State.CurrentZone;
+		var zone = State.CurrentZone;
 
-        var keyringField = typeof(QuestStateTracker)
-            .GetField("_keyringItemKeys", BindingFlags.NonPublic | BindingFlags.Instance);
-        var keyring = keyringField?.GetValue(State) as HashSet<string>;
+		var keyringField = typeof(QuestStateTracker)
+			.GetField("_keyringItemKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+		var keyring = keyringField?.GetValue(State) as HashSet<string>;
 
-        var liveStates = new Dictionary<string, LiveNodeState>();
-        foreach (var nodeType in SnapshotNodeTypes)
-        {
-            foreach (var node in Graph.NodesOfType(nodeType))
-            {
-                if (!string.Equals(node.Scene, zone, StringComparison.OrdinalIgnoreCase))
-                    continue;
+		var liveStates = new Dictionary<string, LiveNodeState>();
+		foreach (var nodeType in SnapshotNodeTypes)
+		{
+			foreach (var node in Guide.NodesOfType(nodeType))
+			{
+				if (!string.Equals(node.Scene, zone, StringComparison.OrdinalIgnoreCase))
+					continue;
 
-                var ns = GameStateInstance.GetState(node.Key);
-                liveStates[node.Key] = new LiveNodeState
-                {
-                    State = ClassifyState(ns),
-                    IsSatisfied = ns.IsSatisfied,
-                };
-            }
-        }
+				var ns = GameStateInstance.GetState(node.Key);
+				liveStates[node.Key] = new LiveNodeState
+				{
+					State = ClassifyState(ns),
+					IsSatisfied = ns.IsSatisfied,
+				};
+			}
+		}
 
-        var snapshot = new StateSnapshot
-        {
-            CapturedAt = DateTime.UtcNow.ToString("o"),
-            CurrentZone = zone,
-            ActiveQuests = new List<string>(State.ActiveQuests),
-            CompletedQuests = new List<string>(State.CompletedQuests),
-            Inventory = new Dictionary<string, int>(State.InventoryCounts),
-            Keyring = keyring != null ? new List<string>(keyring) : new List<string>(),
-            LiveNodeStates = liveStates,
-        };
+		var snapshot = new StateSnapshot
+		{
+			CapturedAt = DateTime.UtcNow.ToString("o"),
+			CurrentZone = zone,
+			ActiveQuests = new List<string>(State.ActiveQuests),
+			CompletedQuests = new List<string>(State.CompletedQuests),
+			Inventory = new Dictionary<string, int>(State.InventoryCounts),
+			Keyring = keyring != null ? new List<string>(keyring) : new List<string>(),
+			LiveNodeStates = liveStates,
+		};
 
-        var dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "state-snapshots");
-        Directory.CreateDirectory(dir);
+		var dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "state-snapshots");
+		Directory.CreateDirectory(dir);
 
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-        var filePath = Path.Combine(dir, $"{zone}_{timestamp}.json");
+		var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+		var filePath = Path.Combine(dir, $"{zone}_{timestamp}.json");
 
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(snapshot, Newtonsoft.Json.Formatting.Indented);
-        File.WriteAllText(filePath, json);
+		var json = Newtonsoft.Json.JsonConvert.SerializeObject(snapshot, Newtonsoft.Json.Formatting.Indented);
+		File.WriteAllText(filePath, json);
 
-        return filePath;
-    }
+		return filePath;
+	}
 }

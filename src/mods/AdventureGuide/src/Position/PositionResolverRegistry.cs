@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Position;
 
@@ -8,32 +9,32 @@ namespace AdventureGuide.Position;
 /// </summary>
 public sealed class PositionResolverRegistry
 {
-    private readonly EntityGraph _graph;
-    private readonly Dictionary<NodeType, IPositionResolver> _resolvers = new();
+	private readonly CompiledGuideModel _guide;
+	private readonly Dictionary<NodeType, IPositionResolver> _resolvers = new();
 
-    public PositionResolverRegistry(EntityGraph graph)
-    {
-        _graph = graph;
-    }
+	public PositionResolverRegistry(CompiledGuideModel guide)
+	{
+		_guide = guide;
+	}
 
-    public void Register(NodeType type, IPositionResolver resolver)
-    {
-        _resolvers[type] = resolver;
-    }
+	public void Register(NodeType type, IPositionResolver resolver)
+	{
+		_resolvers[type] = resolver;
+	}
 
-    /// <summary>
-    /// Resolve world positions for a node key. Appends to the provided results list.
-    /// Returns without adding if the node doesn't exist or no resolver is registered.
-    /// </summary>
-    public void Resolve(string nodeKey, List<ResolvedPosition> results)
-    {
-        var node = _graph.GetNode(nodeKey);
-        if (node == null)
-            return;
+	/// <summary>
+	/// Resolve world positions for a node key. Appends to the provided results list.
+	/// Returns without adding if the node doesn't exist or no resolver is registered.
+	/// </summary>
+	public void Resolve(string nodeKey, List<ResolvedPosition> results)
+	{
+		var node = _guide.GetNode(nodeKey);
+		if (node == null)
+			return;
 
-        if (!_resolvers.TryGetValue(node.Type, out var resolver))
-            return;
+		if (!_resolvers.TryGetValue(node.Type, out var resolver))
+			return;
 
-        resolver.Resolve(node, results);
-    }
+		resolver.Resolve(node, results);
+	}
 }

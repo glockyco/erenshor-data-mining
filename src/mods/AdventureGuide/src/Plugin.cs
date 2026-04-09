@@ -21,6 +21,7 @@ using AdventureGuide.UI.Tree;
 using AdventureGuide.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 // See .agent/skills/mod-development/SKILL.md for mod architecture patterns
 
@@ -33,8 +34,6 @@ public sealed class Plugin : BaseUnityPlugin
 
     private Harmony? _harmony;
     private GuideConfig? _config;
-    private EntityGraph? _graph;
-    private GraphIndexes? _graphIndexes;
     private QuestStateTracker? _questTracker;
     private GameState? _gameState;
     private UnlockEvaluator? _unlockEvaluator;
@@ -55,7 +54,7 @@ public sealed class Plugin : BaseUnityPlugin
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
     private NavigationTargetSelector? _targetSelector;
-    private CompiledGuide.CompiledGuide? _compiledGuide;
+    private CompiledGuideModel? _compiledGuide;
     private QuestPhaseTracker? _compiledQuestTracker;
     private AdventureGuide.Resolution.UnlockPredicateEvaluator? _compiledUnlocks;
     private SpecTreeProjector? _specTreeProjector;
@@ -96,22 +95,17 @@ public sealed class Plugin : BaseUnityPlugin
 
         _config = new GuideConfig(Config);
 
-        // --- Graph layer ---
+        // --- Data layer ---
         var graphSw = System.Diagnostics.Stopwatch.StartNew();
-        _graph = GraphLoader.Load(Log);
-        var graphLoadMs = graphSw.Elapsed.TotalMilliseconds;
-        graphSw.Restart();
-        _graphIndexes = new GraphIndexes(_graph);
-        var graphIndexMs = graphSw.Elapsed.TotalMilliseconds;
-
         _compiledGuide = CompiledGuideLoader.Load(Log);
+        var graphLoadMs = graphSw.Elapsed.TotalMilliseconds;
         _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
-        _questTracker = new QuestStateTracker(_graph, _graphIndexes, _dependencyEngine);
-        _gameState = new GameState(_graph);
-        _unlockEvaluator = new UnlockEvaluator(_graph, _gameState, _questTracker);
+        _questTracker = new QuestStateTracker(_compiledGuide, _dependencyEngine);
+        _gameState = new GameState(_compiledGuide);
+        _unlockEvaluator = new UnlockEvaluator(_compiledGuide, _gameState, _questTracker);
         _gameState.Register(NodeType.Quest, new QuestStateResolver(_questTracker));
         _gameState.Register(NodeType.Item, new ItemStateResolver(_questTracker));
         _gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(_unlockEvaluator));
@@ -141,27 +135,27 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _liveState = new LiveStateTracker(
-            _graph, _graphIndexes, _dependencyEngine, _unlockEvaluator);
-        _zoneRouter = new ZoneRouter(_graph, _unlockEvaluator);
+            _compiledGuide, _dependencyEngine, _unlockEvaluator);
+        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator);
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
         _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
         _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
         _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver(_liveState));
-        _gameState.Register(NodeType.Door, new DoorStateResolver(_graph, _questTracker, _liveState));
+        _gameState.Register(NodeType.Door, new DoorStateResolver(_compiledGuide, _questTracker, _liveState));
 
-        var positionRegistry = new PositionResolverRegistry(_graph);
+        var positionRegistry = new PositionResolverRegistry(_compiledGuide);
         DirectPositionResolver.RegisterAll(positionRegistry);
         positionRegistry.Register(NodeType.Character,
-            new CharacterPositionResolver(_graph, _liveState, _dependencyEngine));
+            new CharacterPositionResolver(_compiledGuide, _liveState, _dependencyEngine));
         positionRegistry.Register(NodeType.MiningNode,
             new MiningNodePositionResolver(_liveState));
         positionRegistry.Register(NodeType.ItemBag,
             new ItemBagPositionResolver(_liveState));
         positionRegistry.Register(NodeType.Zone,
-            new ZonePositionResolver(_graph));
-        _waterResolver = new WaterPositionResolver(_graph);
+            new ZonePositionResolver(_compiledGuide));
+        _waterResolver = new WaterPositionResolver(_compiledGuide);
         positionRegistry.Register(NodeType.Water, _waterResolver);
 
 
@@ -171,10 +165,9 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledGuide,
             _compiledQuestTracker,
             _compiledUnlocks,
-            new CompiledGuideLivePositionProvider(_compiledGuide, _graph, _liveState));
+            new CompiledGuideLivePositionProvider(_compiledGuide, _liveState));
         _navigationTargetResolver = new NavigationTargetResolver(
             _compiledGuide,
-            _graph,
             _compiledFrontier,
             _compiledSourceResolver,
             () => _questTracker.Version);
@@ -184,11 +177,11 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledSourceResolver);
 
         _targetSelector = new NavigationTargetSelector(
-            _navigationTargetResolver, _zoneRouter, _graph, _liveState);
+            _navigationTargetResolver, _zoneRouter, _compiledGuide, _liveState);
 
         _navEngine = new NavigationEngine(
             _navSet,
-            _graph,
+            _compiledGuide,
             () => _navigationTargetResolver.Version,
             _targetSelector,
             _zoneRouter,
@@ -205,8 +198,8 @@ public sealed class Plugin : BaseUnityPlugin
         // --- Markers layer ---
         _markerPool = new MarkerPool();
         _markerComputer = new MarkerComputer(
-            _graph, _graphIndexes, _questTracker, _liveState, _navSet, _trackerState,
-            _markerQuestTargetResolver, _compiledGuide, _compiledFrontier, _compiledSourceResolver);
+            _compiledGuide, _questTracker, _liveState, _navSet, _trackerState,
+            _markerQuestTargetResolver, _compiledFrontier, _compiledSourceResolver);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
@@ -222,13 +215,12 @@ public sealed class Plugin : BaseUnityPlugin
         ViewRenderer viewRenderer;
         var filter = new FilterState();
         filter.LoadFrom(_config);
-        var listPanel = new QuestListPanel(_graph, _questTracker, filter, _trackerState);
+        var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         SyncCompiledQuestTracker();
         _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
         viewRenderer = new ViewRenderer(
-            _graph,
-            _gameState,
             _compiledGuide,
+            _gameState,
             _navSet,
             _questTracker,
             _trackerState,
@@ -240,7 +232,7 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledQuestTracker,
             _compiledFrontier);
         _trackerPanel = new TrackerPanel(
-            _graph,
+            _compiledGuide,
             _questTracker,
             _trackerState,
             _navSet,
@@ -257,7 +249,7 @@ public sealed class Plugin : BaseUnityPlugin
         };
 
         // --- Debug API ---
-        DebugAPI.Graph = _graph;
+        DebugAPI.Guide = _compiledGuide;
         DebugAPI.State = _questTracker;
         DebugAPI.Filter = _window.Filter;
         DebugAPI.Nav = _navEngine;
@@ -305,7 +297,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (_inGameplay)
         {
             _trackerState.OnCharacterLoaded();
-            _navPersistence.OnCharacterLoaded(_graph);
+            _navPersistence.OnCharacterLoaded(_compiledGuide);
         }
         _navEngine.OnSceneChanged(currentScene);
         _markerComputer.ApplyGuideChangeSet(initialChangeSet);
@@ -322,15 +314,14 @@ public sealed class Plugin : BaseUnityPlugin
         _markerSystem.OnSceneChanged(currentScene);
         startupSw.Stop();
 
-        var questCount = _graph.NodesOfType(NodeType.Quest).Count;
+        var questCount = _compiledGuide.NodesOfType(NodeType.Quest).Count;
         var activeCount = _questTracker.ActiveQuests.Count;
         var completedCount = _questTracker.CompletedQuests.Count;
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
-            + $"  Graph: {_graph.NodeCount} nodes, {_graph.EdgeCount} edges, {questCount} quests\n"
+            + $"  Graph: {_compiledGuide.NodeCount} nodes, {_compiledGuide.EdgeCount} edges, {questCount} quests\n"
             + $"  State: {activeCount} active, {completedCount} completed, zone={currentScene}\n"
             + $"  Startup: {startupSw.Elapsed.TotalMilliseconds:F0} ms total\n"
-            + $"    graph load:    {graphLoadMs:F0} ms\n"
-            + $"    graph indexes: {graphIndexMs:F0} ms\n"
+            + $"    data load:     {graphLoadMs:F0} ms\n"
             + $"    state sync:    {syncMs:F0} ms\n"
             + $"    first markers: {firstRecomputeMs:F0} ms\n"
             + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
@@ -451,7 +442,7 @@ public sealed class Plugin : BaseUnityPlugin
             yield return key;
         foreach (var db in _trackerState!.TrackedQuests)
         {
-            var node = _graph!.GetQuestByDbName(db);
+            var node = _compiledGuide!.GetQuestByDbName(db);
             if (node != null) yield return node.Key;
         }
     }
@@ -501,7 +492,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (_inGameplay)
         {
             _trackerState?.OnCharacterLoaded();
-            _navPersistence?.OnCharacterLoaded(_graph!);
+            _navPersistence?.OnCharacterLoaded(_compiledGuide!);
         }
         _navEngine?.OnSceneChanged(scene.name);
         _markerComputer?.ApplyGuideChangeSet(sceneChangeSet);
@@ -588,7 +579,7 @@ public sealed class Plugin : BaseUnityPlugin
         GuideDiagnostics.LogInfo = null;
         GuideDiagnostics.LogWarning = null;
         GuideDiagnostics.LogError = null;
-        DebugAPI.Graph = null;
+        DebugAPI.Guide = null;
         DebugAPI.State = null;
         DebugAPI.Filter = null;
         DebugAPI.Nav = null;

@@ -134,8 +134,8 @@ class Node:
     """A node in the entity graph.
 
     Every field beyond key/type/display_name is optional and type-specific.
-    The serializer emits all non-None fields; the C# GraphLoader maps them
-    to typed nullable fields on the C# Node class.
+    Non-None fields are compiled into the guide binary; the C# Node class
+    exposes them as typed nullable fields.
     """
 
     key: str

@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
 
@@ -18,13 +19,13 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class UnlockEvaluator
 {
-    private readonly EntityGraph _graph;
+    private readonly CompiledGuideModel _guide;
     private readonly GameState _state;
     private readonly QuestStateTracker _tracker;
 
-    public UnlockEvaluator(EntityGraph graph, GameState state, QuestStateTracker tracker)
+    public UnlockEvaluator(CompiledGuideModel guide, GameState state, QuestStateTracker tracker)
     {
-        _graph = graph;
+        _guide = guide;
         _state = state;
         _tracker = tracker;
     }
@@ -41,7 +42,7 @@ public sealed class UnlockEvaluator
 
     public UnlockEvaluation Evaluate(string targetKey, EdgeType edgeType)
     {
-        var unlockEdges = _graph.InEdges(targetKey, edgeType);
+        var unlockEdges = _guide.InEdges(targetKey, edgeType);
         if (unlockEdges.Count == 0)
             return UnlockEvaluation.Unlocked;
 
@@ -87,7 +88,7 @@ public sealed class UnlockEvaluator
 
         for (int i = 0; i < blockingEdges.Count; i++)
         {
-            var source = _graph.GetNode(blockingEdges[i].Source);
+            var source = _guide.GetNode(blockingEdges[i].Source);
             if (source == null || IsSourceSatisfied(source))
                 continue;
 
@@ -103,7 +104,7 @@ public sealed class UnlockEvaluator
 
     public string? GetRequirementReason(string targetKey)
     {
-        var target = _graph.GetNode(targetKey);
+        var target = _guide.GetNode(targetKey);
         if (target == null)
             return null;
 
@@ -137,7 +138,7 @@ public sealed class UnlockEvaluator
 
         for (int i = 0; i < edges.Count; i++)
         {
-            var source = _graph.GetNode(edges[i].Source);
+            var source = _guide.GetNode(edges[i].Source);
             if (source == null || !IsSourceSatisfied(source))
                 return false;
         }

@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
 
@@ -11,8 +12,7 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class QuestStateTracker
 {
-    private readonly EntityGraph _graph;
-    private readonly GraphIndexes _indexes;
+    private readonly CompiledGuideModel _guide;
     private readonly GuideDependencyEngine _dependencies;
 
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
@@ -48,12 +48,11 @@ public sealed class QuestStateTracker
     public IReadOnlyDictionary<string, int> InventoryCounts => _inventoryCounts;
     public IReadOnlyCollection<string> KeyringItems => _keyringItemKeys;
 
-    public QuestStateTracker(EntityGraph graph, GraphIndexes indexes, GuideDependencyEngine dependencies)
+    public QuestStateTracker(CompiledGuideModel guide, GuideDependencyEngine dependencies)
     {
-        _graph = graph;
-        _indexes = indexes;
+        _guide = guide;
         _dependencies = dependencies;
-        _implicitQuests = BuildImplicitQuestIndex(graph);
+        _implicitQuests = BuildImplicitQuestIndex(guide);
     }
 
     /// <summary>
@@ -355,10 +354,10 @@ public sealed class QuestStateTracker
         return changed;
     }
 
-    private static List<ImplicitQuest> BuildImplicitQuestIndex(EntityGraph graph)
+    private static List<ImplicitQuest> BuildImplicitQuestIndex(CompiledGuideModel guide)
     {
         var implicitQuests = new List<ImplicitQuest>();
-        foreach (var quest in graph.NodesOfType(NodeType.Quest))
+        foreach (var quest in guide.NodesOfType(NodeType.Quest))
         {
             if (!quest.Implicit || string.IsNullOrEmpty(quest.DbName))
                 continue;
@@ -366,19 +365,19 @@ public sealed class QuestStateTracker
             implicitQuests.Add(new ImplicitQuest(
                 quest.Key,
                 quest.DbName,
-                CollectImplicitActivationScenes(graph, quest.Key)));
+                CollectImplicitActivationScenes(guide, quest.Key)));
         }
 
         return implicitQuests;
     }
 
-    private static HashSet<string> CollectImplicitActivationScenes(EntityGraph graph, string questKey)
+    private static HashSet<string> CollectImplicitActivationScenes(CompiledGuideModel guide, string questKey)
     {
         var scenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var completedByEdges = graph.OutEdges(questKey, EdgeType.CompletedBy);
+        var completedByEdges = guide.OutEdges(questKey, EdgeType.CompletedBy);
         for (int i = 0; i < completedByEdges.Count; i++)
         {
-            var targetNode = graph.GetNode(completedByEdges[i].Target);
+            var targetNode = guide.GetNode(completedByEdges[i].Target);
             if (targetNode == null)
                 continue;
 
@@ -388,10 +387,10 @@ public sealed class QuestStateTracker
             if (targetNode.Type != NodeType.Character)
                 continue;
 
-            var spawnEdges = graph.OutEdges(targetNode.Key, EdgeType.HasSpawn);
+            var spawnEdges = guide.OutEdges(targetNode.Key, EdgeType.HasSpawn);
             for (int j = 0; j < spawnEdges.Count; j++)
             {
-                var spawnNode = graph.GetNode(spawnEdges[j].Target);
+                var spawnNode = guide.GetNode(spawnEdges[j].Target);
                 if (!string.IsNullOrEmpty(spawnNode?.Scene))
                     scenes.Add(spawnNode.Scene);
             }
@@ -488,7 +487,7 @@ public sealed class QuestStateTracker
         var seeds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var itemKey in changedItemKeys)
         {
-            foreach (var questKey in _indexes.GetQuestsDependingOnItem(itemKey))
+            foreach (var questKey in _guide.GetQuestsDependingOnItem(itemKey))
                 seeds.Add(questKey);
         }
 
@@ -500,7 +499,7 @@ public sealed class QuestStateTracker
         var seeds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var dbName in changedQuestDbNames)
         {
-            var quest = _graph.GetQuestByDbName(dbName);
+            var quest = _guide.GetQuestByDbName(dbName);
             if (quest != null)
                 seeds.Add(quest.Key);
         }
@@ -522,7 +521,7 @@ public sealed class QuestStateTracker
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
-            foreach (var dependent in _indexes.GetQuestsDependingOnQuest(current))
+            foreach (var dependent in _guide.GetQuestsDependingOnQuest(current))
             {
                 if (closure.Add(dependent))
                     queue.Enqueue(dependent);
