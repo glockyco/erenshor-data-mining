@@ -4,8 +4,8 @@ namespace AdventureGuide.Diagnostics;
 
 /// <summary>
 /// Captures the complete pipeline-relevant game state as a JSON-serializable snapshot.
-/// Combined with entity-graph.json, this fully determines the canonical plan,
-/// frontier, and unlock outputs for a quest.
+/// Combined with the compiled guide, this fully determines the frontier, target
+/// resolution, and unlock outputs for a quest.
 /// </summary>
 public sealed class StateSnapshot
 {

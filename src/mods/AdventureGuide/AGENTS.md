@@ -12,7 +12,7 @@ below it. No upward or lateral dependencies.
 
 | Layer | Namespaces | Responsibility |
 |---|---|---|
-| **Graph** | `AdventureGuide.Graph`, `AdventureGuide.CompiledGuide` | Immutable world data: `Node`, `Edge`, `EntityGraph`, compiled guide records, blueprints |
+| **Graph** | `AdventureGuide.Graph`, `AdventureGuide.CompiledGuide` | Immutable world data: `Node`, `Edge`, `CompiledGuide`, blueprints |
 | **State** | `AdventureGuide.State` | Runtime game conditions: quest journal, inventory, live scene objects, per-type node state |
 | **Plan** | `AdventureGuide.Plan` | Compiled frontier state: `QuestPhaseTracker`, `EffectiveFrontier`, `FrontierEntry` |
 | **Position** | `AdventureGuide.Position` | World coordinate resolution per node type; cross-zone routing |
