@@ -82,7 +82,10 @@ public sealed class ZoneRouter
 	private Dictionary<string, int>? _hopCache;
 	private string? _hopCacheFrom;
 
-	private readonly struct ZoneEdge
+	internal IReadOnlyDictionary<string, List<ZoneEdge>> DebugAdj => _adj;
+	internal IReadOnlyDictionary<string, string> DebugZoneKeyToScene => _zoneKeyToScene;
+
+	internal readonly struct ZoneEdge
 	{
 		public readonly string DestScene;
 		public readonly string ZoneLineKey;

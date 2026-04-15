@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
@@ -155,51 +154,18 @@ public static class DebugAPI
 		if (Router == null)
 			return "Router is null";
 
-		var bf = BindingFlags.NonPublic | BindingFlags.Instance;
-		var pubInst = BindingFlags.Public | BindingFlags.Instance;
-		var adjObj = Router.GetType().GetField("_adj", bf)?.GetValue(Router);
-		var zoneKeyObj = Router.GetType().GetField("_zoneKeyToScene", bf)?.GetValue(Router);
-
 		var sb = new System.Text.StringBuilder();
 
 		sb.AppendLine("=== _zoneKeyToScene ===");
-		if (zoneKeyObj is System.Collections.IDictionary zoneKeyDict)
-		{
-			foreach (System.Collections.DictionaryEntry de in zoneKeyDict)
-				sb.AppendLine($"  {de.Key} -> {de.Value}");
-		}
-		else
-		{
-			sb.AppendLine("  (unavailable)");
-		}
+		foreach (var kvp in Router.DebugZoneKeyToScene)
+			sb.AppendLine($"  {kvp.Key} -> {kvp.Value}");
 
 		sb.AppendLine("=== _adj ===");
-		if (adjObj is System.Collections.IDictionary adjDict)
+		foreach (var kvp in Router.DebugAdj)
 		{
-			var listType = adjObj.GetType().GetGenericArguments()[1];
-			var edgeType = listType.GetGenericArguments()[0];
-			var destSceneF = edgeType.GetField("DestScene", pubInst);
-			var zoneLineKeyF = edgeType.GetField("ZoneLineKey", pubInst);
-			var accessibleF = edgeType.GetField("Accessible", pubInst);
-
-			foreach (System.Collections.DictionaryEntry de in adjDict)
-			{
-				sb.AppendLine($"  [{de.Key}]:");
-				if (de.Value is System.Collections.IList edgeList)
-				{
-					foreach (var item in edgeList)
-					{
-						var dst = destSceneF?.GetValue(item) ?? "?";
-						var zlk = zoneLineKeyF?.GetValue(item) ?? "?";
-						var acc = accessibleF?.GetValue(item) ?? "?";
-						sb.AppendLine($"    -> {dst}  key={zlk}  accessible={acc}");
-					}
-				}
-			}
-		}
-		else
-		{
-			sb.AppendLine("  (unavailable)");
+			sb.AppendLine($"  [{kvp.Key}]:");
+			foreach (var edge in kvp.Value)
+				sb.AppendLine($"    -> {edge.DestScene}  key={edge.ZoneLineKey}  accessible={edge.Accessible}");
 		}
 
 		return sb.ToString();
@@ -334,9 +300,7 @@ public static class DebugAPI
 
 		var zone = State.CurrentZone;
 
-		var keyringField = typeof(QuestStateTracker)
-			.GetField("_keyringItemKeys", BindingFlags.NonPublic | BindingFlags.Instance);
-		var keyring = keyringField?.GetValue(State) as HashSet<string>;
+		var keyring = State.KeyringItems;
 
 		var liveStates = new Dictionary<string, LiveNodeState>();
 		foreach (var nodeType in SnapshotNodeTypes)
@@ -362,7 +326,7 @@ public static class DebugAPI
 			ActiveQuests = new List<string>(State.ActiveQuests),
 			CompletedQuests = new List<string>(State.CompletedQuests),
 			Inventory = new Dictionary<string, int>(State.InventoryCounts),
-			Keyring = keyring != null ? new List<string>(keyring) : new List<string>(),
+			Keyring = new List<string>(keyring),
 			LiveNodeStates = liveStates,
 		};
 
