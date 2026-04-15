@@ -58,6 +58,9 @@ public sealed class GuideConfig
     public ConfigEntry<float> TrackerBackgroundOpacity { get; }
     public ConfigEntry<bool> TrackerUntrackOnComplete { get; }
 
+    // ── User-facing: Debug ──────────────────────────────────────────
+
+    public ConfigEntry<bool> DiagnosticOverlay { get; }
 
     // ── Internal: quest list state (auto-managed) ────────────────────
 
@@ -138,6 +141,9 @@ public sealed class GuideConfig
         TrackerUntrackOnComplete = config.Bind("Tracker", "UntrackOnComplete", true,
             "Automatically untrack quests when they are completed");
 
+        // Debug
+        DiagnosticOverlay = config.Bind("Debug", "DiagnosticOverlay", false,
+            "Show a diagnostic overlay with active quest count, marker count, NAV targets, and frame cost");
 
         // Internal: quest list state (hidden from F1)
         FilterMode = Bind(config, "_State", "FilterMode", QuestFilterMode.Active);

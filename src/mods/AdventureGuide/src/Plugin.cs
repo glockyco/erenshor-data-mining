@@ -49,6 +49,7 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideWindow? _window;
     private TrackerState? _trackerState;
     private TrackerPanel? _trackerPanel;
+	private DiagnosticOverlay? _diagnosticOverlay;
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
@@ -240,10 +241,15 @@ public sealed class Plugin : BaseUnityPlugin
             _config,
             _targetSelector,
             trackerSummaryResolver);
+
+        _diagnosticOverlay = new DiagnosticOverlay(
+            _questTracker, _markerComputer, _navSet, _config, _compiledGuide);
+
         _imgui.OnLayout = () =>
         {
             _window.Draw();
             _trackerPanel!.Draw();
+			_diagnosticOverlay?.Render();
             _arrow!.Draw();
             _config.LayoutResetRequested = false;
         };

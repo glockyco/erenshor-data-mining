@@ -49,6 +49,18 @@ internal static class GuideProfiler
         foreach (var slot in AllSlots)
             slot.Reset();
     }
+
+    /// <summary>Sum of last-sample milliseconds across all profiled slots.</summary>
+    internal static double TotalLastMs
+    {
+        get
+        {
+            double sum = 0;
+            foreach (var slot in AllSlots)
+                sum += slot.LastMs;
+            return sum;
+        }
+    }
 }
 
 /// <summary>
@@ -87,6 +99,17 @@ internal sealed class ProfileSlot
     {
         _head  = 0;
         _count = 0;
+    }
+
+    /// <summary>Last recorded sample converted to milliseconds. Returns 0 if no samples.</summary>
+    internal double LastMs
+    {
+        get
+        {
+            if (_count == 0) return 0;
+            int idx = (_head - 1 + Capacity) & Mask;
+            return _samples[idx] / TicksPerMs;
+        }
     }
 
     /// <summary>

@@ -1116,4 +1116,14 @@ public sealed class MarkerComputer
         int remainingSeconds = totalSeconds % 60;
         return $"~{minutes}:{remainingSeconds:D2}";
     }
+
+    /// <summary>
+    /// Returns the quest keys contributing to a given node key, for diagnostic display.
+    /// </summary>
+    internal IReadOnlyCollection<string>? GetContributingQuestKeys(string nodeKey)
+    {
+        if (_contributionsByNode.TryGetValue(nodeKey, out var byQuest))
+            return byQuest.Keys;
+        return null;
+    }
 }
