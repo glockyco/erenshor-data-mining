@@ -30,6 +30,8 @@ public static class DebugAPI
 	internal static MarkerComputer? Markers { get; set; }
 	internal static GameState? GameStateInstance { get; set; }
 
+	internal static AdventureGuide.Resolution.NavigationTargetResolver? Resolver { get; set; }
+
 	/// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
 	public static string DumpState()
 	{
@@ -91,6 +93,23 @@ public static class DebugAPI
 			sb.AppendLine($"  [{e.Type}] > {e.Target}");
 
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Run the resolution pipeline with tracing enabled and return
+	/// a human-readable log of every decision. Accepts node key,
+	/// DB name, or display name.
+	/// </summary>
+	public static string TraceQuest(string name)
+	{
+		if (Guide == null || Resolver == null) return "Not initialized";
+
+		var node = FindQuestNode(name);
+		if (node == null) return $"Quest '{name}' not found";
+
+		var tracer = new TextResolutionTracer();
+		Resolver.Resolve(node.Key, State?.CurrentZone ?? "", tracer);
+		return tracer.GetTrace();
 	}
 
 	/// <summary>Dump all quests for the current zone.</summary>

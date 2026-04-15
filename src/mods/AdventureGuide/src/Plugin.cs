@@ -259,6 +259,8 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Markers = _markerComputer;
         DebugAPI.GameStateInstance = _gameState;
 
+        DebugAPI.Resolver = _navigationTargetResolver;
+
         // --- Harmony patches ---
         QuestAssignPatch.Tracker = _questTracker;
         QuestAssignPatch.Markers = _markerComputer;
@@ -588,6 +590,7 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Unlocks = null;
         DebugAPI.Markers = null;
         DebugAPI.GameStateInstance = null;
+        DebugAPI.Resolver = null;
     }
 
     private static float DetectUiScale()

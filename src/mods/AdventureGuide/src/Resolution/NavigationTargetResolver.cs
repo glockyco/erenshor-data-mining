@@ -30,8 +30,10 @@ public sealed class NavigationTargetResolver
 		_versionProvider = versionProvider ?? (() => 0);
 	}
 
-	public IReadOnlyList<ResolvedQuestTarget> Resolve(string nodeKey, string currentScene)
+	public IReadOnlyList<ResolvedQuestTarget> Resolve(string nodeKey, string currentScene, IResolutionTracer? tracer = null)
 	{
+		tracer?.OnResolveBegin(nodeKey);
+
 		if (string.IsNullOrWhiteSpace(nodeKey))
 			return Array.Empty<ResolvedQuestTarget>();
 
@@ -39,27 +41,39 @@ public sealed class NavigationTargetResolver
 			return Array.Empty<ResolvedQuestTarget>();
 
 		var node = _guide.GetNode(nodeId);
+		IReadOnlyList<ResolvedQuestTarget> results;
 		if (node.Type == NodeType.Quest)
 		{
 			int questIndex = _guide.FindQuestIndex(nodeId);
 			if (questIndex < 0)
+			{
+				tracer?.OnResolveEnd(0);
 				return Array.Empty<ResolvedQuestTarget>();
+			}
 
-			return ResolveQuestTargets(questIndex, currentScene);
+			results = ResolveQuestTargets(questIndex, currentScene, tracer);
+		}
+		else
+		{
+			results = ResolveNonQuestEntity(nodeId, nodeKey, node);
 		}
 
-		return ResolveNonQuestEntity(nodeId, nodeKey, node);
+		tracer?.OnResolveEnd(results.Count);
+		return results;
 	}
 
-	private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene)
+	private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene, IResolutionTracer? tracer = null)
 	{
+		var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
+		tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
+
 		var frontier = new List<FrontierEntry>();
-		_frontier.Resolve(questIndex, frontier, -1);
+		_frontier.Resolve(questIndex, frontier, -1, tracer);
 
 		var results = new List<ResolvedQuestTarget>();
 		for (int i = 0; i < frontier.Count; i++)
 		{
-			var compiledTargets = _sourceResolver.ResolveTargets(frontier[i], currentScene);
+			var compiledTargets = _sourceResolver.ResolveTargets(frontier[i], currentScene, tracer);
 			for (int j = 0; j < compiledTargets.Count; j++)
 				results.Add(ConvertCompiledTarget(compiledTargets[j]));
 		}

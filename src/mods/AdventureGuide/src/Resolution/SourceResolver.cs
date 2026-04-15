@@ -76,7 +76,7 @@ public sealed class SourceResolver
         _livePositions = livePositions;
     }
 
-    public IReadOnlyList<ResolvedTarget> ResolveTargets(FrontierEntry entry, string currentScene)
+    public IReadOnlyList<ResolvedTarget> ResolveTargets(FrontierEntry entry, string currentScene, IResolutionTracer? tracer = null)
     {
         var results = new List<ResolvedTarget>();
 
@@ -91,7 +91,8 @@ public sealed class SourceResolver
                         ResolvedTargetRole.Giver,
                         BuildGiverSemantic(entry.QuestIndex, giverId),
                         entry,
-                        results);
+                        results,
+                        tracer);
                 }
                 break;
 
@@ -101,18 +102,18 @@ public sealed class SourceResolver
                 {
                     int itemIndex = _guide.FindItemIndex(requirement.ItemId);
                     if (itemIndex < 0)
-                    					{
-                    						emittedObjective = true; // Unknown item is still a requirement
-                    						continue;
-                    					}
-                    					int count = _phases.GetItemCount(itemIndex);
-                    					if (count >= requirement.Quantity)
-                    						continue;
+                    {
+                        emittedObjective = true;
+                        continue;
+                    }
+                    int count = _phases.GetItemCount(itemIndex);
+                    if (count >= requirement.Quantity)
+                        continue;
 
                     emittedObjective = true;
-                    foreach (var source in GetVisibleItemSources(itemIndex))
+                    foreach (var source in GetVisibleItemSources(itemIndex, tracer))
                     {
-                        if (_unlocks.Evaluate(source.SourceId) == UnlockResult.Blocked)
+                        if (_unlocks.Evaluate(source.SourceId, tracer) == UnlockResult.Blocked)
                             continue;
 
                         var semantic = BuildSourceSemantic(requirement.ItemId, source);
@@ -124,13 +125,15 @@ public sealed class SourceResolver
                                 ResolvedTargetRole.Objective,
                                 semantic,
                                 entry,
-                                results);
+                                results,
+                                tracer);
                             continue;
                         }
 
                         foreach (var position in source.Positions)
                         {
                             WorldPosition? live = _livePositions.GetLivePosition(position.SpawnId);
+                            bool isActionable = _livePositions.IsAlive(position.SpawnId);
                             results.Add(new ResolvedTarget(
                                 source.SourceId,
                                 position.SpawnId,
@@ -141,9 +144,10 @@ public sealed class SourceResolver
                                 live?.Z ?? position.Z,
                                 source.Scene,
                                 live.HasValue,
-                                _livePositions.IsAlive(position.SpawnId),
+                                isActionable,
                                 entry.QuestIndex,
                                 entry.RequiredForQuestIndex));
+                            tracer?.OnTargetMaterialized(source.SourceId, position.SpawnId, nameof(ResolvedTargetRole.Objective), source.Scene, isActionable);
                         }
                     }
                 }
@@ -157,7 +161,8 @@ public sealed class SourceResolver
                         ResolvedTargetRole.Objective,
                         BuildStepSemantic(step),
                         entry,
-                        results);
+                        results,
+                        tracer);
                 }
 
                 if (!emittedObjective)
@@ -170,7 +175,8 @@ public sealed class SourceResolver
                             ResolvedTargetRole.TurnIn,
                             BuildTurnInSemantic(entry.QuestIndex, completerId),
                             entry,
-                            results);
+                            results,
+                            tracer);
                     }
                 }
                 break;
@@ -186,12 +192,14 @@ public sealed class SourceResolver
         ResolvedTargetRole role,
         ResolvedActionSemantic semantic,
         FrontierEntry entry,
-        List<ResolvedTarget> results)
+        List<ResolvedTarget> results,
+        IResolutionTracer? tracer = null)
     {
-        if (_unlocks.Evaluate(targetNodeId) == UnlockResult.Blocked)
+        if (_unlocks.Evaluate(targetNodeId, tracer) == UnlockResult.Blocked)
             return;
 
         var node = _guide.GetNode(positionNodeId);
+        var scene = _guide.GetScene(positionNodeId);
         results.Add(new ResolvedTarget(
             targetNodeId,
             positionNodeId,
@@ -200,14 +208,15 @@ public sealed class SourceResolver
             node.X ?? float.NaN,
             node.Y ?? float.NaN,
             node.Z ?? float.NaN,
-            _guide.GetScene(positionNodeId),
+            scene,
             false,
             true,
             entry.QuestIndex,
             entry.RequiredForQuestIndex));
+        tracer?.OnTargetMaterialized(targetNodeId, positionNodeId, role.ToString(), scene, true);
     }
 
-    private List<SourceSiteEntry> GetVisibleItemSources(int itemIndex)
+    private List<SourceSiteEntry> GetVisibleItemSources(int itemIndex, IResolutionTracer? tracer = null)
     {
         ReadOnlySpan<SourceSiteEntry> sources = _guide.GetItemSources(itemIndex);
         bool hasHostileDrop = false;
@@ -218,13 +227,20 @@ public sealed class SourceResolver
         }
 
         var visible = new List<SourceSiteEntry>(sources.Length);
+        int suppressed = 0;
         for (int i = 0; i < sources.Length; i++)
         {
             var source = sources[i];
             if (hasHostileDrop && source.EdgeType == 16 && !IsHostileDropSource(source))
+            {
+                suppressed++;
                 continue;
+            }
             visible.Add(source);
         }
+
+        if (suppressed > 0)
+            tracer?.OnHostileDropFilter(itemIndex, sources.Length, suppressed);
 
         return visible;
     }

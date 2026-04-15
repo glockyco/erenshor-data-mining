@@ -12,7 +12,7 @@ public sealed class EffectiveFrontier
         _phases = phases;
     }
 
-    public void Resolve(int questIndex, List<FrontierEntry> results, int requiredFor)
+    public void Resolve(int questIndex, List<FrontierEntry> results, int requiredFor, AdventureGuide.Resolution.IResolutionTracer? tracer = null)
     {
         QuestPhase phase = _phases.GetPhase(questIndex);
         if (phase is QuestPhase.Completed or QuestPhase.Infeasible)
@@ -22,7 +22,9 @@ public sealed class EffectiveFrontier
 
         if (phase != QuestPhase.NotReady)
         {
-            results.Add(new FrontierEntry(questIndex, phase, requiredFor));
+            var entry = new FrontierEntry(questIndex, phase, requiredFor);
+            results.Add(entry);
+            tracer?.OnFrontierEntry(questIndex, _guide.GetNode(_guide.QuestNodeId(questIndex)).DbName, phase.ToString(), requiredFor);
             return;
         }
 
@@ -34,7 +36,7 @@ public sealed class EffectiveFrontier
                 continue;
             }
 
-            Resolve(prereqQuestIndex, results, questIndex);
+            Resolve(prereqQuestIndex, results, questIndex, tracer);
         }
     }
 }

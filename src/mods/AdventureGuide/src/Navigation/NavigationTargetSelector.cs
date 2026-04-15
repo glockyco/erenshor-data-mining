@@ -77,7 +77,7 @@ public sealed class NavigationTargetSelector
 
 	public NavigationTargetSelector(NavigationTargetResolver resolution, ZoneRouter router,
 		CompiledGuideModel guide, LiveStateTracker liveState)
-		: this(resolution.Resolve, router, guide, liveState, () => UnityEngine.Time.time, 1.0f) { }
+		: this((key, scene) => resolution.Resolve(key, scene), router, guide, liveState, () => UnityEngine.Time.time, 1.0f) { }
 
 	/// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
 	internal NavigationTargetSelector(

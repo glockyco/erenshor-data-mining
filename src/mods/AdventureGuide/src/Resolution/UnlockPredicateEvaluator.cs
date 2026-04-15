@@ -20,19 +20,26 @@ public sealed class UnlockPredicateEvaluator
         _phases = phases;
     }
 
-    public UnlockResult Evaluate(int targetNodeId)
+    public UnlockResult Evaluate(int targetNodeId, IResolutionTracer? tracer = null)
     {
         if (!_guide.TryGetUnlockPredicate(targetNodeId, out var predicate))
         {
+            tracer?.OnUnlockEvaluation(targetNodeId, true);
             return UnlockResult.Unlocked;
         }
 
+        UnlockResult result;
         if (predicate.Semantics == 0)
         {
-            return EvaluateAll(predicate);
+            result = EvaluateAll(predicate);
+        }
+        else
+        {
+            result = EvaluateAnyGroup(predicate);
         }
 
-        return EvaluateAnyGroup(predicate);
+        tracer?.OnUnlockEvaluation(targetNodeId, result == UnlockResult.Unlocked);
+        return result;
     }
 
     private UnlockResult EvaluateAll(UnlockPredicateEntry predicate)
