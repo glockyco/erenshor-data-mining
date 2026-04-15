@@ -37,7 +37,7 @@ public sealed class NavigationTargetResolver
 				if (_guide.TryGetNodeId(nodeKey, out int nodeId)
 			&& _guide.GetNode(nodeId).Type == NodeType.Quest)
 		{
-			int questIndex = FindQuestIndex(nodeId);
+			int questIndex = _guide.FindQuestIndex(nodeId);
 			if (questIndex < 0)
 				return Array.Empty<ResolvedQuestTarget>();
 
@@ -136,16 +136,5 @@ public sealed class NavigationTargetResolver
 			Disabled = record.Disabled,
 			IsEnabled = record.IsEnabled,
 		};
-	}
-
-	private int FindQuestIndex(int questNodeId)
-	{
-		for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-		{
-			if (_guide.QuestNodeId(questIndex) == questNodeId)
-				return questIndex;
-		}
-
-		return -1;
 	}
 }

@@ -99,7 +99,7 @@ public sealed class SourceResolver
                 bool emittedObjective = false;
                 foreach (var requirement in _guide.RequiredItems(entry.QuestIndex))
                 {
-                    int itemIndex = FindItemIndex(requirement.ItemId);
+                    int itemIndex = _guide.FindItemIndex(requirement.ItemId);
                     int count = itemIndex >= 0 ? _phases.GetItemCount(itemIndex) : 0;
                     if (count >= requirement.Quantity || itemIndex < 0)
                         continue;
@@ -200,19 +200,6 @@ public sealed class SourceResolver
             true,
             entry.QuestIndex,
             entry.RequiredForQuestIndex));
-    }
-
-    private int FindItemIndex(int itemNodeId)
-    {
-        for (int itemIndex = 0; itemIndex < _guide.ItemCount; itemIndex++)
-        {
-            if (_guide.ItemNodeId(itemIndex) == itemNodeId)
-            {
-                return itemIndex;
-            }
-        }
-
-        return -1;
     }
 
     private List<SourceSiteEntry> GetVisibleItemSources(int itemIndex)

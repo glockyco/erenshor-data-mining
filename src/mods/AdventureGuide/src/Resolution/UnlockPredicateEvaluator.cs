@@ -90,37 +90,11 @@ public sealed class UnlockPredicateEvaluator
     {
         if (condition.CheckType == 0)
         {
-            int questIndex = FindQuestIndex(condition.SourceId);
+            int questIndex = _guide.FindQuestIndex(condition.SourceId);
             return questIndex >= 0 && _phases.IsCompleted(questIndex);
         }
 
-        int itemIndex = FindItemIndex(condition.SourceId);
+        int itemIndex = _guide.FindItemIndex(condition.SourceId);
         return itemIndex >= 0 && _phases.GetItemCount(itemIndex) > 0;
-    }
-
-    private int FindQuestIndex(int nodeId)
-    {
-        for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-        {
-            if (_guide.QuestNodeId(questIndex) == nodeId)
-            {
-                return questIndex;
-            }
-        }
-
-        return -1;
-    }
-
-    private int FindItemIndex(int nodeId)
-    {
-        for (int itemIndex = 0; itemIndex < _guide.ItemCount; itemIndex++)
-        {
-            if (_guide.ItemNodeId(itemIndex) == nodeId)
-            {
-                return itemIndex;
-            }
-        }
-
-        return -1;
     }
 }

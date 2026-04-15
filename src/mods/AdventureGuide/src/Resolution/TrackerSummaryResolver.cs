@@ -27,34 +27,25 @@ public sealed class TrackerSummaryResolver
             return null;
         }
 
-        int? questIndex = FindQuestIndexByDbName(questDbName);
-        if (questIndex == null)
+        var questNode = _guide.GetQuestByDbName(questDbName);
+        if (questNode == null || !_guide.TryGetNodeId(questNode.Key, out int nodeId))
+        {
+            return null;
+        }
+
+        int questIndex = _guide.FindQuestIndex(nodeId);
+        if (questIndex < 0)
         {
             return null;
         }
 
         var frontier = new List<FrontierEntry>();
-        _frontier.Resolve(questIndex.Value, frontier, -1);
+        _frontier.Resolve(questIndex, frontier, -1);
         if (frontier.Count == 0)
         {
             return null;
         }
 
         return TrackerSummaryBuilder.Build(_guide, _phases, frontier[0]);
-    }
-
-    private int? FindQuestIndexByDbName(string dbName)
-    {
-        for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-        {
-            int nodeId = _guide.QuestNodeId(questIndex);
-            string? nodeDbName = _guide.GetDbName(nodeId);
-            if (nodeDbName == null)
-                continue;
-            if (string.Equals(nodeDbName, dbName, StringComparison.OrdinalIgnoreCase))
-                return questIndex;
-        }
-
-        return null;
     }
 }

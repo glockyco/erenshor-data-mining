@@ -28,7 +28,7 @@ public sealed class EffectiveFrontier
 
         foreach (int prereqQuestId in _guide.PrereqQuestIds(questIndex))
         {
-            int prereqQuestIndex = FindQuestIndex(prereqQuestId);
+            int prereqQuestIndex = _guide.FindQuestIndex(prereqQuestId);
             if (prereqQuestIndex < 0 || _phases.IsCompleted(prereqQuestIndex))
             {
                 continue;
@@ -36,18 +36,5 @@ public sealed class EffectiveFrontier
 
             Resolve(prereqQuestIndex, results, questIndex);
         }
-    }
-
-    private int FindQuestIndex(int questNodeId)
-    {
-        for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-        {
-            if (_guide.QuestNodeId(questIndex) == questNodeId)
-            {
-                return questIndex;
-            }
-        }
-
-        return -1;
     }
 }
