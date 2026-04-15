@@ -268,7 +268,7 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedQuestTarget target)
     {
-        if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
+        if (!IsCurrentScene(target.Scene))
             return null;
 
         var positionNode = target.SourceKey != null
@@ -335,7 +335,7 @@ public sealed class MarkerComputer
 
     private MarkerEntry? CreateRespawnTimerEntry(Node quest, ResolvedTarget target)
     {
-        if (target.Semantic.ActionKind != ResolvedActionKind.Kill || !IsCurrentScene(target.Scene))
+        if (!IsCurrentScene(target.Scene))
             return null;
 
         var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.PositionNodeId));

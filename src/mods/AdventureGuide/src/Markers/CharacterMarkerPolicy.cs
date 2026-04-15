@@ -6,7 +6,7 @@ namespace AdventureGuide.Markers;
 /// <summary>
 /// Marker emission policy for character targets.
 ///
-/// Kill targets are special: once they are no longer actionable, the active
+/// All character targets: once they are no longer actionable, the active
 /// quest marker must disappear and the separate respawn-timer marker becomes
 /// the only representation of that source.
 /// </summary>
@@ -17,8 +17,7 @@ internal static class CharacterMarkerPolicy
         if (target.TargetNode.Node.Type != NodeType.Character)
             return true;
 
-        return target.Semantic.ActionKind != ResolvedActionKind.Kill
-            || target.IsActionable;
+        return target.IsActionable;
     }
 
     public static bool ShouldKeepQuestMarkerOnCorpse(ResolvedQuestTarget target)
@@ -30,8 +29,7 @@ internal static class CharacterMarkerPolicy
 
     public static bool ShouldEmitActiveMarker(ResolvedTarget target)
     {
-        return target.Semantic.ActionKind != ResolvedActionKind.Kill
-            || target.IsActionable;
+        return target.IsActionable;
     }
 
     public static bool ShouldKeepQuestMarkerOnCorpse(ResolvedTarget target)

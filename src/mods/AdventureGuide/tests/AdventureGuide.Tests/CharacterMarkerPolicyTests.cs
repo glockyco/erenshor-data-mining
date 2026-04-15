@@ -27,11 +27,20 @@ public sealed class CharacterMarkerPolicyTests
     }
 
     [Fact]
-    public void NonKillCharacterTarget_StillEmitsActiveMarkerWhenNonActionable()
+    public void NonKillCharacterTarget_Alive_EmitsActiveMarker()
+    {
+        var target = MakeTarget(ResolvedActionKind.Talk, isActionable: true);
+
+        Assert.True(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
+    }
+
+    [Fact]
+    public void NonKillCharacterTarget_Dead_SuppressesActiveMarker()
     {
         var target = MakeTarget(ResolvedActionKind.Talk, isActionable: false);
 
-        Assert.True(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.False(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
         Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
     }
 
@@ -99,6 +108,24 @@ public sealed class CharacterMarkerPolicyTests
     public void CompiledKillTarget_WithoutActionableSource_UsesRespawnMarkerOnly()
     {
         var target = MakeCompiledTarget(ResolvedActionKind.Kill, isActionable: false);
+
+        Assert.False(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
+    }
+
+    [Fact]
+    public void CompiledNonKillTarget_Alive_EmitsActiveMarker()
+    {
+        var target = MakeCompiledTarget(ResolvedActionKind.Talk, isActionable: true);
+
+        Assert.True(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
+        Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
+    }
+
+    [Fact]
+    public void CompiledNonKillTarget_Dead_SuppressesActiveMarker()
+    {
+        var target = MakeCompiledTarget(ResolvedActionKind.Talk, isActionable: false);
 
         Assert.False(CharacterMarkerPolicy.ShouldEmitActiveMarker(target));
         Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));

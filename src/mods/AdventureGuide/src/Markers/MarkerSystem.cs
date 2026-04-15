@@ -169,13 +169,16 @@ public sealed class MarkerSystem
     }
 
     /// <summary>
-    /// Per-frame state update for spawn-point-based markers.
+    /// Per-frame state update for spawn-point-based active markers.
     ///
     /// Handles transitions that occur without quest state changes:
     ///   - Alive ↔ Dead (NPC killed / respawned)
     ///   - Night ↔ Day (NightSpawn NPCs appear/disappear with time)
-    ///   - Dead timer countdown
     ///   - Night time display updates
+    ///
+    /// When the NPC dies and the entry has no corpse loot tracking
+    /// (KeepWhileCorpsePresent), returns false to hide the active marker.
+    /// The respawn-timer marker handles dead/empty display.
     ///
     /// canSpawn changes (quest gates, StopIfQuestComplete) trigger
     /// MarkerComputer.MarkDirty via patches, so a full recompute handles
@@ -213,16 +216,10 @@ public sealed class MarkerSystem
             newPriority = entry.QuestPriority;
             newSubText = entry.CorpseSubText ?? entry.QuestSubText;
         }
-        else if (entry.KeepWhileCorpsePresent)
-        {
-            return false;
-        }
         else
         {
-            // Dead or not yet spawned — show respawn timer
-            newType = MarkerType.DeadSpawn;
-            newPriority = 0;
-            newSubText = FormatDeadSubText(entry.DisplayName, sp);
+            // Dead or not yet spawned — hide active marker; respawn timer handles display
+            return false;
         }
 
         if (newType != entry.Type
@@ -237,7 +234,7 @@ public sealed class MarkerSystem
             if (newType == MarkerEntry.ToMarkerType(entry.QuestKind!.Value) && sp.SpawnedNPC != null)
                 SetPositionFromNPC(entry, sp.SpawnedNPC);
         }
-        else if (newType == MarkerType.DeadSpawn || newType == MarkerType.NightSpawn)
+        else if (newType == MarkerType.NightSpawn)
         {
             entry.SubText = newSubText;
             instance.UpdateSubText(newSubText);
