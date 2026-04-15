@@ -319,9 +319,18 @@ implementing this architecture. Key milestones:
 - Legacy plan builder, projection, and resolution service deleted
 - Entity graph replaced by CompiledGuide API
 
-This work is functional but incomplete: correctness issues from the incomplete cutover
-need to be resolved, and the architecture needs the polishing and acceptance testing
-defined in this spec.
+This work compiles and does not crash, but has widespread correctness issues observed
+in-game. Markers appear for wrong targets, navigation resolves to stale positions,
+tracker displays inaccurate progress, and frontier computation produces incorrect
+results in many scenarios. The cutover from legacy code to the compiled guide API is
+structurally complete but functionally untrustworthy -- every component that was
+touched during the transition should be treated with suspicion until verified against
+the acceptance criteria in this spec.
+
+The implementation plan should not limit itself to polishing and testing. Where
+architectural improvements would produce cleaner, more correct, or more performant
+code, they should be pursued. The goal is the best possible architecture, not
+preservation of what was written during the cutover.
 
 ### Acceptance criteria
 
@@ -373,16 +382,39 @@ The mod loads these precomputed specs at startup. No plan building occurs at run
 ### 5.3 Acceptance and turn-in varieties
 
 **Acceptance** (AssignmentSource) covers multiple interaction types:
-- Talking to an NPC quest giver (most common)
-- Reading an item that starts a quest
+- Talking to an NPC quest giver (most common; `NPCDialog.QuestToAssign`)
+- Reading an item that starts a quest (`Item.AssignQuestOnRead`)
+- Entering a zone (`ZoneAnnounce.AssignQuestOnEnter` -- quest assigned automatically
+  on scene load)
+- Quest chain auto-assignment (`Quest.AssignNewQuestOnComplete` -- completing a
+  quest automatically assigns the next quest in the chain)
 - Implicit quests (no assignment step -- `QuestImplicitlyAvailable`)
 
+**Scripted quest triggers** (not yet exported; see Phase 3 export gaps):
+- Boss death (`ReliquaryFiend` -- quest completes when specific boss dies)
+- NPC shout keyword match (`NPCShoutListener.CheckShout`)
+- Duration-based proximity (`SivTorchLight` -- quest completes after sustained
+  presence in a trigger zone)
+- Timed event sequences (`ShiverEvent` -- multi-phase event that assigns/completes
+  quests at phase transitions)
+- Multi-objective completion (`AngelScript` -- quest completes when all sub-objectives
+  are satisfied)
+
+These scripted triggers represent acceptance and completion mechanisms the export
+pipeline does not yet capture. Until their gating conditions are exported (Phase 3),
+quests that depend on them will have incomplete dependency chains in the compiled
+guide -- the guide knows the quest exists but cannot fully direct the player through
+its acceptance or completion steps.
+
 **Turn-in** (CompletionTarget) similarly covers:
-- Talking to an NPC (dialogue completion)
-- Giving items to an NPC
-- Traveling to a zone (zone-completion quests)
+- Talking to an NPC (dialogue completion; `NPCDialog.QuestToComplete`)
+- Giving items to an NPC (item turn-in via `TradeWindow`)
+- Traveling to a zone (`ZoneAnnounce.CompleteQuestOnEnter`)
+- Reading an item (`Item.CompleteOnRead`)
 - Killing the turn-in holder (`KillTurnInHolder`)
 - Destroying the turn-in holder (`DestroyTurnInHolder`)
+- Partial item turn-in (`Item.AssignThisQuestOnPartialComplete` -- completes
+  current quest and assigns the next stage)
 
 ### 5.4 Frontier resolution
 
@@ -418,8 +450,14 @@ Implicit quests skip the acceptance phase.
 
 ### Known defects
 
-- `quest:a way to erenshor` resolves to 1815 targets (Erenshor-zf8) -- suggests
-  excessive transitive dependency expansion; may need bounded expansion depth
+- `quest:a way to erenshor` resolves to 1815 targets (Erenshor-zf8) -- the compiler
+  must fully resolve all transitive dependencies to ensure the player is directed
+  through every prerequisite step. Bounded expansion is NOT acceptable as it would
+  produce incorrect guidance by omission. The fix must be smarter plan building:
+  pruning structurally unreachable branches, deduplicating shared subtrees more
+  aggressively, or collapsing equivalent source groups. The target count itself may
+  be correct for a quest with deep transitive chains -- the real question is whether
+  the resolution and UI can present 1815 targets usefully.
 
 ---
 
@@ -634,16 +672,24 @@ icons requires verifying availability in the Free-Regular weight.
 Multiple quests can emit markers for the same physical source (spawn point). The marker
 computer tracks contributions per source key. When multiple quests want different marker
 types at the same position, the highest-priority type wins. Priority order (highest
-first): TurnInReady > TurnInRepeatReady > TurnInPending > Objective > QuestGiver >
-QuestGiverRepeat > QuestGiverBlocked.
+first): TurnInReady > TurnInRepeatReady > Objective > QuestGiver > QuestGiverRepeat >
+TurnInPending > QuestGiverBlocked.
+
+**Rationale:** TurnInPending is not immediately actionable (the player still has
+objectives to complete before they can turn in), so it ranks below Objective and
+QuestGiver which represent things the player can act on now. QuestGiverBlocked is
+similarly non-actionable and ranks last.
 
 ### 8.3 Character marker policy
 
 - **Kill targets:** Active quest marker exists only while source is actionable (alive NPC
   or lootable corpse). When dead and non-actionable, active marker disappears and only
   the static respawn-timer marker remains.
-- **Non-kill character targets** (talk, give): Active quest marker persists regardless of
-  alive/dead state.
+- **Non-kill character targets** (talk, give): Follow the same dual-marker pattern as
+  kill targets. When the NPC is dead and non-actionable, the active quest marker
+  disappears and only the static respawn-timer marker remains. When the NPC is alive,
+  the active quest marker is shown. The only difference from kill targets is that
+  corpse loot checks do not apply (there is no lootable corpse for talk/give targets).
 - **Dual markers:** A single physical source can legitimately have two entries: the live
   quest marker (anchored to NPC/corpse) and the static respawn-timer marker (at spawn
   coordinates). These are different by design.
@@ -665,8 +711,9 @@ QuestGiverRepeat > QuestGiverBlocked.
 
 1. Each spawn point shows at most one quest-semantic marker (highest priority) plus
    optionally one respawn-timer marker
-2. Kill targets: quest marker disappears when NPC dead and non-actionable; respawn
-   timer appears instead
+2. All character targets (kill AND non-kill): quest marker disappears when NPC dead
+   and non-actionable; respawn timer appears instead. Non-kill targets skip corpse
+   loot checks but otherwise follow the same dead/alive marker transitions.
 3. Corpse markers persist ONLY for actionable loot targets (corpse contains required item)
 4. Blocked markers suppressed where actionable markers exist
 5. Markers track live NPC position per-frame without calling into resolution pipeline
@@ -891,7 +938,13 @@ component exposing debug state provides a typed property or method. No more
 3. Diagnostic overlay toggleable and hidden by default
 4. Marker tooltip shows source key, contributing quests, character state
 5. Debug API has compile-time safety, no reflection
-6. State snapshot export continues working for test fixtures
+6. ~~State snapshot export continues working for test fixtures~~ -- REMOVED.
+   `ExportStateSnapshot()` in DebugAPI is implemented but never called by any
+   automated system. Tests build `StateSnapshot` objects programmatically via
+   `SnapshotHarness`, not by loading exported JSON. The export method may be kept
+   as a manual debugging convenience but is not a required deliverable. The
+   `StateSnapshot` data model and `SnapshotHarness` test infrastructure remain
+   (they are actively used by 13+ test files).
 
 ---
 
@@ -911,8 +964,9 @@ component exposing debug state provides a typed property or method. No more
 - Fix NAV for targets behind locked zone lines (Erenshor-1cg) -- unlock chains for
   zone lines, characters, AND doors
 - Fix respawn hint for disabled NPCs (Erenshor-qhi) -- show "Disabled", not respawn timer
-- Fix "a way to erenshor" 1815-target explosion (Erenshor-zf8) -- bounded transitive
-  expansion or smarter plan building
+- Fix "a way to erenshor" 1815-target explosion (Erenshor-zf8) -- smarter plan building
+  (prune unreachable branches, deduplicate shared subtrees, collapse equivalent sources);
+  bounded expansion is NOT acceptable (correctness by omission is not correctness)
 - Validate all character lifecycle states produce correct markers/NAV/tracker
 
 ### Phase 3: Export pipeline gaps
