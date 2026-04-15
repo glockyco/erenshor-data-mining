@@ -100,9 +100,14 @@ public sealed class SourceResolver
                 foreach (var requirement in _guide.RequiredItems(entry.QuestIndex))
                 {
                     int itemIndex = _guide.FindItemIndex(requirement.ItemId);
-                    int count = itemIndex >= 0 ? _phases.GetItemCount(itemIndex) : 0;
-                    if (count >= requirement.Quantity || itemIndex < 0)
-                        continue;
+                    if (itemIndex < 0)
+                    					{
+                    						emittedObjective = true; // Unknown item is still a requirement
+                    						continue;
+                    					}
+                    					int count = _phases.GetItemCount(itemIndex);
+                    					if (count >= requirement.Quantity)
+                    						continue;
 
                     emittedObjective = true;
                     foreach (var source in GetVisibleItemSources(itemIndex))

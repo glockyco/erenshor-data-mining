@@ -38,12 +38,17 @@ public static class TrackerSummaryBuilder
         foreach (var requirement in guide.RequiredItems(questIndex))
         {
             int itemIndex = guide.FindItemIndex(requirement.ItemId);
-            int count = itemIndex >= 0 ? phases.GetItemCount(itemIndex) : 0;
-            if (count < requirement.Quantity)
-            {
-                return new TrackerSummary(
-                    $"Collect {guide.GetDisplayName(requirement.ItemId)} ({count}/{requirement.Quantity})");
-            }
+            			if (itemIndex < 0)
+            			{
+            				return new TrackerSummary(
+            					$"Collect [Unknown] (0/{requirement.Quantity})");
+            			}
+            			int count = phases.GetItemCount(itemIndex);
+            			if (count < requirement.Quantity)
+            			{
+            				return new TrackerSummary(
+            					$"Collect {guide.GetDisplayName(requirement.ItemId)} ({count}/{requirement.Quantity})");
+            			}
         }
 
         foreach (var step in guide.Steps(questIndex))

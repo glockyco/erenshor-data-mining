@@ -119,4 +119,29 @@ public sealed class SourceResolverTests
         Assert.Equal(QuestMarkerKind.TurnInReady, targets[0].Semantic.PreferredMarkerKind);
         Assert.Equal(ResolvedActionKind.Give, targets[0].Semantic.ActionKind);
     }
+
+    [Fact]
+    public void Accepted_with_unindexed_required_item_does_not_emit_turnin()
+    {
+        // Quest requires "item:mystery" which exists as a graph node but is NOT
+        // registered via AddItem, so FindItemIndex returns -1.
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:turnin", scene: "Forest", x: 70f, y: 80f, z: 90f)
+            .AddQuest(
+                "quest:a",
+                dbName: "QUESTA",
+                completers: new[] { "char:turnin" },
+                requiredItems: new[] { ("item:mystery", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+
+        // The item is unindexed, so no objective sources can be resolved.
+        // But it is still a requirement — turn-in must NOT be emitted.
+        Assert.Empty(targets);
+    }
 }
