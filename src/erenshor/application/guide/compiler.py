@@ -531,6 +531,7 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
         edge_type_byte(EdgeType.UNLOCKS_DOOR),
     }
     gated_by_quest = edge_type_byte(EdgeType.GATED_BY_QUEST)
+    item_type = node_type_byte(NodeType.ITEM)
     predicates: dict[int, list[UnlockCondition]] = {}
 
     for edge in compiled.edges:
@@ -543,7 +544,13 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
         else:
             continue
         group = 1 if edge.group else 0
-        predicates.setdefault(target_id, []).append(UnlockCondition(source_id=source_id, check_type=0, group=group))
+        # check_type 0 = quest completion, 1 = item possession.
+        # Other source types (door, zone_line, etc.) default to 0 and will
+        # evaluate as blocked, which is the safe default for unknown gating.
+        check_type = 1 if compiled.nodes[source_id].node_type == item_type else 0
+        predicates.setdefault(target_id, []).append(
+            UnlockCondition(source_id=source_id, check_type=check_type, group=group)
+        )
 
     compiled.unlock_predicates = [
         UnlockPredicate(
