@@ -50,4 +50,40 @@ public sealed class UnlockPredicateEvaluatorTests
         guide.TryGetNodeId("char:vendor", out int nodeId);
         Assert.Equal(UnlockResult.Blocked, evaluator.Evaluate(nodeId));
     }
+
+    [Fact]
+    public void Item_in_inventory_unlocks_target()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:key")
+            .AddCharacter("char:door")
+            .AddUnlockPredicate("char:door", "item:key", checkType: 1) // 1 = item possession
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int> { ["item:key"] = 1 },
+            Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+
+        guide.TryGetNodeId("char:door", out int nodeId);
+        Assert.Equal(UnlockResult.Unlocked, evaluator.Evaluate(nodeId));
+    }
+
+    [Fact]
+    public void Item_not_in_inventory_blocks_target()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:key")
+            .AddCharacter("char:door")
+            .AddUnlockPredicate("char:door", "item:key", checkType: 1)
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+
+        guide.TryGetNodeId("char:door", out int nodeId);
+        Assert.Equal(UnlockResult.Blocked, evaluator.Evaluate(nodeId));
+    }
 }

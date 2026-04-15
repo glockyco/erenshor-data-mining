@@ -78,4 +78,52 @@ public sealed class TrackerSummaryBuilderTests
 
         Assert.Null(summary.RequiredForContext);
     }
+
+    [Fact]
+    public void Accepted_travel_step_shows_travel_to_prefix()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:zone")
+            .AddQuest("quest:a", dbName: "QUESTA")
+            .AddStep("quest:a", stepType: 4, targetKey: "char:zone") // 4 = Travel
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+
+        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+
+        Assert.StartsWith("Travel to:", summary.PrimaryText);
+    }
+
+    [Fact]
+    public void Accepted_kill_step_shows_kill_prefix()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:wolf")
+            .AddQuest("quest:a", dbName: "QUESTA")
+            .AddStep("quest:a", stepType: 3, targetKey: "char:wolf") // 3 = Kill
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+
+        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+
+        Assert.StartsWith("Kill:", summary.PrimaryText);
+    }
+
+    [Fact]
+    public void Accepted_talk_step_shows_talk_to_prefix()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:npc")
+            .AddQuest("quest:a", dbName: "QUESTA")
+            .AddStep("quest:a", stepType: 2, targetKey: "char:npc") // 2 = Talk
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+
+        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+
+        Assert.StartsWith("Talk to", summary.PrimaryText);
+    }
 }

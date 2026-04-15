@@ -110,4 +110,57 @@ public sealed class SpecTreeProjectorTests
         Assert.Equal("Requires: quest:unlock", unlocks[0].Label);
         Assert.False(unlocks[0].IsCompleted);
     }
+
+    [Fact]
+    public void Item_unlock_condition_expands_to_item_sources()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:key")
+            .AddCharacter("char:enemy", isFriendly: false)
+            .AddCharacter("char:npc")
+            .AddItemSource("item:key", "char:enemy", edgeType: 16, sourceType: 2) // 16=DropsItem, 2=Character
+            .AddUnlockPredicate("char:npc", "item:key", checkType: 1)
+            .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+
+        int questIndex = FindQuestIndex(guide, "quest:a");
+        var roots = projector.GetRootChildren(questIndex);
+        var completerRef = roots.Single(r => r.Kind == SpecTreeKind.Completer);
+        var unlockRefs = projector.GetUnlockChildren(completerRef);
+
+        Assert.Single(unlockRefs);
+        Assert.Equal(SpecTreeKind.Item, unlockRefs[0].Kind);
+
+        // Expanding the item ref must return its sources
+        var itemSources = projector.GetChildren(unlockRefs[0]);
+        Assert.NotEmpty(itemSources);
+        Assert.Contains(itemSources, s => s.Label.Contains("char:enemy"));
+    }
+
+    [Fact]
+    public void Quest_unlock_condition_shows_as_prerequisite_kind()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:gate", dbName: "GATE")
+            .AddCharacter("char:npc")
+            .AddUnlockPredicate("char:npc", "quest:gate", checkType: 0) // 0 = quest completion
+            .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+
+        int questIndex = FindQuestIndex(guide, "quest:a");
+        var roots = projector.GetRootChildren(questIndex);
+        var completerRef = roots.Single(r => r.Kind == SpecTreeKind.Completer);
+        var unlockRefs = projector.GetUnlockChildren(completerRef);
+
+        Assert.Single(unlockRefs);
+        Assert.Equal(SpecTreeKind.Prerequisite, unlockRefs[0].Kind);
+    }
 }

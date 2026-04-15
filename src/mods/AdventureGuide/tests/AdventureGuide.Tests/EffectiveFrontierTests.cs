@@ -56,4 +56,39 @@ public sealed class EffectiveFrontierTests
         Assert.Equal(QuestPhase.ReadyToAccept, results[0].Phase);
         Assert.Equal(0, results[0].RequiredForQuestIndex);
     }
+
+    [Fact]
+    public void Implicit_ready_quest_is_excluded_from_frontier()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:a", dbName: "QUESTA", implicit_: true)
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, tracker);
+        var results = new List<FrontierEntry>();
+
+        frontier.Resolve(0, results, -1);
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void Implicit_ready_prereq_is_excluded_leaving_empty_frontier()
+    {
+        // quest:a (explicit, not-ready) requires quest:b (implicit, ready-to-accept).
+        // The implicit prereq is auto-handled by the game; the player has no action.
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:b", dbName: "QUESTB", implicit_: true)
+            .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, tracker);
+        var results = new List<FrontierEntry>();
+
+        frontier.Resolve(0, results, -1); // quest:a index
+
+        Assert.Empty(results);
+    }
 }
