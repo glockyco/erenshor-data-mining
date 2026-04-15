@@ -451,6 +451,12 @@ public sealed class TrackerPanel
 		ImGui.TextWrapped(summary);
 		if (!string.IsNullOrEmpty(resolved.SecondaryText))
 			ImGui.TextWrapped(resolved.SecondaryText);
+		if (!string.IsNullOrEmpty(resolved.RequiredForContext))
+		{
+			ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextDim);
+			ImGui.TextWrapped(resolved.RequiredForContext);
+			ImGui.PopStyleColor();
+		}
 		ImGui.PopStyleColor();
 		ImGui.Unindent(Theme.IndentWidth);
 	}

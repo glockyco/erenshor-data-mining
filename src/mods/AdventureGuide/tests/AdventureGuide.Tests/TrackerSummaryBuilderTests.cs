@@ -37,4 +37,45 @@ public sealed class TrackerSummaryBuilderTests
         Assert.Contains("Collect", summary.PrimaryText, System.StringComparison.OrdinalIgnoreCase);
         Assert.Contains("0/3", summary.PrimaryText, System.StringComparison.OrdinalIgnoreCase);
     }
+
+    [Fact]
+    public void Prerequisite_entry_shows_required_for_context()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:b", dbName: "QUESTB")
+            .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" }, givers: new[] { "char:guard" })
+            .AddCharacter("char:guard")
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+
+        // quest:b is index 0, quest:a is index 1.
+        // Frontier entry for quest:b that is needed for quest:a.
+        int questBIndex = 0;
+        int questAIndex = 1;
+        string parentName = guide.GetDisplayName(guide.QuestNodeId(questAIndex));
+
+        var entry = new FrontierEntry(questBIndex, QuestPhase.ReadyToAccept, requiredForQuestIndex: questAIndex);
+        var summary = TrackerSummaryBuilder.Build(guide, tracker, entry);
+
+        Assert.NotNull(summary.RequiredForContext);
+        Assert.Contains("Needed for:", summary.RequiredForContext);
+        Assert.Contains(parentName, summary.RequiredForContext, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Non_prerequisite_entry_has_no_required_for_context()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:guard")
+            .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:guard" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+
+        var entry = new FrontierEntry(0, QuestPhase.ReadyToAccept, requiredForQuestIndex: -1);
+        var summary = TrackerSummaryBuilder.Build(guide, tracker, entry);
+
+        Assert.Null(summary.RequiredForContext);
+    }
 }

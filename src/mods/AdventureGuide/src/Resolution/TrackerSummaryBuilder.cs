@@ -10,13 +10,21 @@ public static class TrackerSummaryBuilder
         QuestPhaseTracker phases,
         FrontierEntry entry)
     {
-        return entry.Phase switch
+        var summary = entry.Phase switch
         {
             QuestPhase.ReadyToAccept => BuildReadyToAccept(guide, entry.QuestIndex),
             QuestPhase.Accepted => BuildAccepted(guide, phases, entry.QuestIndex),
             QuestPhase.NotReady => new TrackerSummary($"Complete: {guide.GetDisplayName(guide.PrereqQuestIds(entry.QuestIndex)[0])}"),
             _ => new TrackerSummary(guide.GetDisplayName(guide.QuestNodeId(entry.QuestIndex))),
         };
+
+        if (entry.RequiredForQuestIndex >= 0)
+        {
+            string parentName = guide.GetDisplayName(guide.QuestNodeId(entry.RequiredForQuestIndex));
+            return new TrackerSummary(summary.PrimaryText, summary.SecondaryText, $"Needed for: {parentName}");
+        }
+
+        return summary;
     }
 
     private static TrackerSummary BuildReadyToAccept(CompiledGuide.CompiledGuide guide, int questIndex)

@@ -9,10 +9,12 @@ public readonly struct TrackerSummary
 {
     public readonly string PrimaryText;
     public readonly string? SecondaryText;
+    public readonly string? RequiredForContext;
 
-    public TrackerSummary(string primaryText, string? secondaryText = null)
+    public TrackerSummary(string primaryText, string? secondaryText = null, string? requiredForContext = null)
     {
         PrimaryText = primaryText;
         SecondaryText = secondaryText;
+        RequiredForContext = requiredForContext;
     }
 }

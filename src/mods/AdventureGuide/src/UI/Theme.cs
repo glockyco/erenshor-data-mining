@@ -18,6 +18,7 @@ public static class Theme
     // -- Text --
     public static readonly uint TextPrimary   = ImGuiColors.Rgba(1.00f, 1.00f, 1.00f, 1.00f);
     public static readonly uint TextSecondary = ImGuiColors.Rgba(0.60f, 0.60f, 0.60f, 1.00f);
+    public static readonly uint TextDim       = ImGuiColors.Rgba(0.45f, 0.45f, 0.45f, 1.00f);
 
     // -- Semantic --
     public static readonly uint Accent  = ImGuiColors.Rgba(0.22f, 0.55f, 0.30f, 1.00f);
