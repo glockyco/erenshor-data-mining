@@ -61,7 +61,7 @@ public sealed class SpecTreeProjector
         if (parent.Kind != SpecTreeKind.Item)
             return Array.Empty<SpecTreeRef>();
 
-        int itemIndex = FindItemIndex(parent.NodeId);
+        int itemIndex = _guide.FindItemIndex(parent.NodeId);
         if (itemIndex < 0)
             return Array.Empty<SpecTreeRef>();
 
@@ -90,7 +90,7 @@ public sealed class SpecTreeProjector
     private SpecTreeRef BuildPrerequisiteRef(int questIndex, int prereqId)
     {
         string name = _guide.GetDisplayName(prereqId);
-        int prereqQuestIndex = FindQuestIndex(prereqId);
+        int prereqQuestIndex = _guide.FindQuestIndex(prereqId);
         bool done = prereqQuestIndex >= 0 && _phases.IsCompleted(prereqQuestIndex);
         return new SpecTreeRef(
             prereqId,
@@ -119,7 +119,7 @@ public sealed class SpecTreeProjector
     private SpecTreeRef BuildRequiredItemRef(int questIndex, ItemReq requirement)
     {
         string name = _guide.GetDisplayName(requirement.ItemId);
-        int itemIndex = FindItemIndex(requirement.ItemId);
+        int itemIndex = _guide.FindItemIndex(requirement.ItemId);
         int have = itemIndex >= 0 ? _phases.GetItemCount(itemIndex) : 0;
         string label = requirement.Quantity > 1
             ? $"Collect: {name} ({have}/{requirement.Quantity})"
@@ -232,11 +232,11 @@ public sealed class SpecTreeProjector
     {
         if (condition.CheckType == 0)
         {
-            int questIndex = FindQuestIndex(condition.SourceId);
+            int questIndex = _guide.FindQuestIndex(condition.SourceId);
             return questIndex >= 0 && _phases.IsCompleted(questIndex);
         }
 
-        int itemIndex = FindItemIndex(condition.SourceId);
+        int itemIndex = _guide.FindItemIndex(condition.SourceId);
         return itemIndex >= 0 && _phases.GetItemCount(itemIndex) > 0;
     }
 
@@ -341,27 +341,5 @@ public sealed class SpecTreeProjector
 
         interactionType = 0;
         keyword = null;
-    }
-
-    private int FindQuestIndex(int nodeId)
-    {
-        for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-        {
-            if (_guide.QuestNodeId(questIndex) == nodeId)
-                return questIndex;
-        }
-
-        return -1;
-    }
-
-    private int FindItemIndex(int nodeId)
-    {
-        for (int itemIndex = 0; itemIndex < _guide.ItemCount; itemIndex++)
-        {
-            if (_guide.ItemNodeId(itemIndex) == nodeId)
-                return itemIndex;
-        }
-
-        return -1;
     }
 }

@@ -37,7 +37,7 @@ public static class TrackerSummaryBuilder
     {
         foreach (var requirement in guide.RequiredItems(questIndex))
         {
-            int itemIndex = FindItemIndex(guide, requirement.ItemId);
+            int itemIndex = guide.FindItemIndex(requirement.ItemId);
             int count = itemIndex >= 0 ? phases.GetItemCount(itemIndex) : 0;
             if (count < requirement.Quantity)
             {
@@ -58,18 +58,5 @@ public static class TrackerSummaryBuilder
         }
 
         return new TrackerSummary($"Complete {guide.GetDisplayName(guide.QuestNodeId(questIndex))}");
-    }
-
-    private static int FindItemIndex(CompiledGuide.CompiledGuide guide, int itemNodeId)
-    {
-        for (int itemIndex = 0; itemIndex < guide.ItemCount; itemIndex++)
-        {
-            if (guide.ItemNodeId(itemIndex) == itemNodeId)
-            {
-                return itemIndex;
-            }
-        }
-
-        return -1;
     }
 }

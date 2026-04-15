@@ -142,24 +142,11 @@ public sealed class QuestPhaseTracker
 
         foreach (int chainedQuestId in _guide.ChainsToIds(questIndex))
         {
-            int chainedQuestIndex = FindQuestIndex(chainedQuestId);
+            int chainedQuestIndex = _guide.FindQuestIndex(chainedQuestId);
             if (chainedQuestIndex >= 0 && _phases[chainedQuestIndex] == QuestPhase.ReadyToAccept)
             {
                 _phases[chainedQuestIndex] = QuestPhase.Accepted;
             }
         }
-    }
-
-    private int FindQuestIndex(int questNodeId)
-    {
-        for (int questIndex = 0; questIndex < _guide.QuestCount; questIndex++)
-        {
-            if (_guide.QuestNodeId(questIndex) == questNodeId)
-            {
-                return questIndex;
-            }
-        }
-
-        return -1;
     }
 }
