@@ -61,7 +61,8 @@ public static class TrackerSummaryBuilder
 
         foreach (var step in guide.Steps(questIndex))
         {
-            return new TrackerSummary($"Complete {guide.GetDisplayName(step.TargetId)}");
+            string name = guide.GetDisplayName(step.TargetId);
+            return new TrackerSummary(StepLabels.Format(step.StepType, name));
         }
 
         ReadOnlySpan<int> completerIds = guide.CompleterIds(questIndex);

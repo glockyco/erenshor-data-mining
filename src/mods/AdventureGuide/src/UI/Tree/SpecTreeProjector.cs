@@ -7,12 +7,6 @@ namespace AdventureGuide.UI.Tree;
 
 public sealed class SpecTreeProjector
 {
-    private const byte StepTalk = 2;
-    private const byte StepKill = 3;
-    private const byte StepTravel = 4;
-    private const byte StepShout = 5;
-    private const byte StepRead = 6;
-
     private const byte EdgeDropsItem = 16;
     private const byte EdgeSellsItem = 17;
     private const byte EdgeGivesItem = 18;
@@ -266,15 +260,7 @@ public sealed class SpecTreeProjector
 
     private string FormatStepLabel(StepEntry step, string name)
     {
-        return step.StepType switch
-        {
-            StepTalk => $"Talk to {name}",
-            StepKill => $"Kill: {name}",
-            StepTravel => $"Travel to: {name}",
-            StepShout => $"Shout near {name}",
-            StepRead => $"Read: {name}",
-            _ => name,
-        };
+        return StepLabels.Format(step.StepType, name);
     }
 
     private string FormatSourceLabel(SourceSiteEntry source, string name)
