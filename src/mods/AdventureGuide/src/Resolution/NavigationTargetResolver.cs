@@ -5,8 +5,9 @@ using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 namespace AdventureGuide.Resolution;
 
 /// <summary>
-/// Resolves navigation targets for compiled-guide quest keys.
-/// Non-quest keys are intentionally unsupported after the clean-cut runtime migration.
+/// Resolves navigation targets for compiled-guide node keys.
+/// Quest keys use frontier computation; non-quest entity keys (characters,
+/// items, mining nodes) resolve positions directly from the compiled guide.
 /// </summary>
 public sealed class NavigationTargetResolver
 {
@@ -34,8 +35,11 @@ public sealed class NavigationTargetResolver
 		if (string.IsNullOrWhiteSpace(nodeKey))
 			return Array.Empty<ResolvedQuestTarget>();
 
-				if (_guide.TryGetNodeId(nodeKey, out int nodeId)
-			&& _guide.GetNode(nodeId).Type == NodeType.Quest)
+		if (!_guide.TryGetNodeId(nodeKey, out int nodeId))
+			return Array.Empty<ResolvedQuestTarget>();
+
+		var node = _guide.GetNode(nodeId);
+		if (node.Type == NodeType.Quest)
 		{
 			int questIndex = _guide.FindQuestIndex(nodeId);
 			if (questIndex < 0)
@@ -43,7 +47,8 @@ public sealed class NavigationTargetResolver
 
 			return ResolveQuestTargets(questIndex, currentScene);
 		}
-		return Array.Empty<ResolvedQuestTarget>();
+
+		return ResolveNonQuestEntity(nodeId, nodeKey, node);
 	}
 
 	private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene)
@@ -136,5 +141,172 @@ public sealed class NavigationTargetResolver
 			Disabled = record.Disabled,
 			IsEnabled = record.IsEnabled,
 		};
+	}
+
+	// ---------------------------------------------------------------
+	// Non-quest entity resolution
+	// ---------------------------------------------------------------
+
+	private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuestEntity(int nodeId, string nodeKey, Node node)
+	{
+		return node.Type switch
+		{
+			NodeType.Character => ResolveCharacterTargets(nodeKey, node),
+			NodeType.Item => ResolveItemTargets(nodeId, nodeKey, node),
+			_ when node.X.HasValue && node.Y.HasValue && node.Z.HasValue
+				=> ResolvePositionedEntityTargets(nodeKey, node),
+			_ => Array.Empty<ResolvedQuestTarget>(),
+		};
+	}
+
+	private IReadOnlyList<ResolvedQuestTarget> ResolveCharacterTargets(string nodeKey, Node node)
+	{
+		var spawnEdges = _guide.OutEdges(nodeKey, EdgeType.HasSpawn);
+		if (spawnEdges.Count == 0)
+			return Array.Empty<ResolvedQuestTarget>();
+
+		var nodeContext = BuildNodeContext(nodeKey);
+		var results = new List<ResolvedQuestTarget>();
+
+		for (int i = 0; i < spawnEdges.Count; i++)
+		{
+			string spawnKey = spawnEdges[i].Target;
+			var spawnNode = _guide.GetNode(spawnKey);
+			if (spawnNode == null || !spawnNode.X.HasValue || !spawnNode.Y.HasValue || !spawnNode.Z.HasValue)
+				continue;
+
+			var semantic = BuildDirectNavigationSemantic(
+				node, NavigationTargetKind.Character, ResolvedActionKind.Talk, spawnNode.Scene);
+			var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
+
+			results.Add(new ResolvedQuestTarget(
+				nodeKey,
+				spawnNode.Scene,
+				spawnKey,
+				nodeContext,
+				nodeContext,
+				semantic,
+				explanation,
+				spawnNode.X.Value,
+				spawnNode.Y.Value,
+				spawnNode.Z.Value,
+				isActionable: true));
+		}
+
+		return results;
+	}
+
+	private IReadOnlyList<ResolvedQuestTarget> ResolveItemTargets(int nodeId, string nodeKey, Node node)
+	{
+		int itemIndex = _guide.FindItemIndex(nodeId);
+		if (itemIndex < 0)
+			return Array.Empty<ResolvedQuestTarget>();
+
+		var sources = _guide.GetItemSources(itemIndex);
+		if (sources.Length == 0)
+			return Array.Empty<ResolvedQuestTarget>();
+
+		var nodeContext = BuildNodeContext(nodeKey);
+		var results = new List<ResolvedQuestTarget>();
+
+		for (int i = 0; i < sources.Length; i++)
+		{
+			var source = sources[i];
+			string sourceKey = _guide.GetNodeKey(source.SourceId);
+			var sourceNode = _guide.GetNode(source.SourceId);
+
+			// Use source's spawn positions if available, otherwise the source node's own coords
+			if (source.Positions.Length > 0)
+			{
+				for (int j = 0; j < source.Positions.Length; j++)
+				{
+					var pos = source.Positions[j];
+					var sourceContext = BuildNodeContext(sourceKey);
+					var semantic = BuildDirectNavigationSemantic(
+						node, NavigationTargetKind.Item, ResolvedActionKind.Collect, source.Scene);
+					var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
+
+					results.Add(new ResolvedQuestTarget(
+						sourceKey,
+						source.Scene,
+						sourceKey,
+						nodeContext,
+						sourceContext,
+						semantic,
+						explanation,
+						pos.X,
+						pos.Y,
+						pos.Z,
+						isActionable: true));
+				}
+			}
+			else if (sourceNode.X.HasValue && sourceNode.Y.HasValue && sourceNode.Z.HasValue)
+			{
+				var sourceContext = BuildNodeContext(sourceKey);
+				var semantic = BuildDirectNavigationSemantic(
+					node, NavigationTargetKind.Item, ResolvedActionKind.Collect, sourceNode.Scene);
+				var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
+
+				results.Add(new ResolvedQuestTarget(
+					sourceKey,
+					sourceNode.Scene,
+					sourceKey,
+					nodeContext,
+					sourceContext,
+					semantic,
+					explanation,
+					sourceNode.X.Value,
+					sourceNode.Y.Value,
+					sourceNode.Z.Value,
+					isActionable: true));
+			}
+		}
+
+		return results;
+	}
+
+	private IReadOnlyList<ResolvedQuestTarget> ResolvePositionedEntityTargets(string nodeKey, Node node)
+	{
+		var nodeContext = BuildNodeContext(nodeKey);
+		var actionKind = node.Type == NodeType.MiningNode ? ResolvedActionKind.Mine
+			: node.Type == NodeType.Water ? ResolvedActionKind.Fish
+			: ResolvedActionKind.Collect;
+		var targetKind = node.Type == NodeType.Character ? NavigationTargetKind.Character
+			: NavigationTargetKind.Object;
+		var semantic = BuildDirectNavigationSemantic(node, targetKind, actionKind, node.Scene);
+		var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
+
+		return new[] { new ResolvedQuestTarget(
+			nodeKey,
+			node.Scene,
+			nodeKey,
+			nodeContext,
+			nodeContext,
+			semantic,
+			explanation,
+			node.X!.Value,
+			node.Y!.Value,
+			node.Z!.Value,
+			isActionable: true) };
+	}
+
+	private static ResolvedActionSemantic BuildDirectNavigationSemantic(
+		Node targetNode, NavigationTargetKind targetKind, ResolvedActionKind actionKind, string? zoneText)
+	{
+		return new ResolvedActionSemantic(
+			NavigationGoalKind.Generic,
+			targetKind,
+			actionKind,
+			goalNodeKey: null,
+			goalQuantity: null,
+			keywordText: null,
+			payloadText: null,
+			targetIdentityText: targetNode.DisplayName,
+			contextText: null,
+			rationaleText: null,
+			zoneText: zoneText,
+			availabilityText: null,
+			preferredMarkerKind: QuestMarkerKind.Objective,
+			markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(QuestMarkerKind.Objective));
 	}
 }
