@@ -673,12 +673,7 @@ Multiple quests can emit markers for the same physical source (spawn point). The
 computer tracks contributions per source key. When multiple quests want different marker
 types at the same position, the highest-priority type wins. Priority order (highest
 first): TurnInReady > TurnInRepeatReady > Objective > QuestGiver > QuestGiverRepeat >
-TurnInPending > QuestGiverBlocked.
-
-**Rationale:** TurnInPending is not immediately actionable (the player still has
-objectives to complete before they can turn in), so it ranks below Objective and
-QuestGiver which represent things the player can act on now. QuestGiverBlocked is
-similarly non-actionable and ranks last.
+QuestGiverBlocked > TurnInPending.
 
 ### 8.3 Character marker policy
 
