@@ -22,6 +22,12 @@ public sealed class EffectiveFrontier
 
         if (phase != QuestPhase.NotReady)
         {
+            // Implicit quests auto-accept; the player has no action to take until
+            // the game triggers them. Suppress from the frontier while ReadyToAccept.
+            if (phase == QuestPhase.ReadyToAccept
+                && _guide.GetNode(_guide.QuestNodeId(questIndex)).Implicit)
+                return;
+
             var entry = new FrontierEntry(questIndex, phase, requiredFor);
             results.Add(entry);
             tracer?.OnFrontierEntry(questIndex, _guide.GetNode(_guide.QuestNodeId(questIndex)).DbName, phase.ToString(), requiredFor);

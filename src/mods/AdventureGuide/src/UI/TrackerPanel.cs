@@ -520,7 +520,8 @@ public sealed class TrackerPanel
 		bool stateDirty = _tracker.Version != _lastStateVersion;
 		bool sortModeChanged = _trackerState.SortMode != _lastSortMode;
 
-		if (trackerDirty || stateDirty || sortModeChanged)
+		bool proximityActive = _trackerState.SortMode == TrackerSortMode.Proximity;
+		if (trackerDirty || stateDirty || sortModeChanged || proximityActive)
 		{
 			if (stateDirty)
 				_lastStateVersion = _tracker.Version;
