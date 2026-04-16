@@ -163,4 +163,33 @@ public sealed class SpecTreeProjectorTests
         Assert.Single(unlockRefs);
         Assert.Equal(SpecTreeKind.Prerequisite, unlockRefs[0].Kind);
     }
+
+    [Fact]
+    public void Prerequisite_node_expands_to_prereq_quest_root_children()
+    {
+        // quest:pre has a completer; quest:root requires quest:pre as a prereq.
+        // Expanding the Prerequisite node in quest:root's tree should show
+        // quest:pre's own root children (its completer).
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:completer")
+            .AddQuest("quest:pre", dbName: "QUESTPRE",
+                completers: new[] { "char:completer" })
+            .AddQuest("quest:root", dbName: "QUESTROOT",
+                prereqs: new[] { "quest:pre" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(),
+            new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+
+        int rootIndex = FindQuestIndex(guide, "quest:root");
+        var roots = projector.GetRootChildren(rootIndex);
+        var prereqRef = roots.Single(r => r.Kind == SpecTreeKind.Prerequisite);
+        var prereqChildren = projector.GetChildren(prereqRef);
+
+        // quest:pre has one completer
+        Assert.Single(prereqChildren);
+        Assert.Equal(SpecTreeKind.Completer, prereqChildren[0].Kind);
+    }
 }

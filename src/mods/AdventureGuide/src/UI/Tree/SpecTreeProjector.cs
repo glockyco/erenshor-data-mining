@@ -52,6 +52,14 @@ public sealed class SpecTreeProjector
 
     public IReadOnlyList<SpecTreeRef> GetChildren(SpecTreeRef parent)
     {
+        if (parent.Kind == SpecTreeKind.Prerequisite)
+        {
+            int prereqQuestIndex = _guide.FindQuestIndex(parent.NodeId);
+            return prereqQuestIndex >= 0
+                ? GetRootChildren(prereqQuestIndex)
+                : Array.Empty<SpecTreeRef>();
+        }
+
         if (parent.Kind != SpecTreeKind.Item)
             return Array.Empty<SpecTreeRef>();
 
