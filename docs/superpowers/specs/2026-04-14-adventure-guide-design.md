@@ -428,7 +428,17 @@ precomputed quest spec with the current quest phase. The classification logic:
 3. **Turn-in** -- only if no objectives produced frontier items (quest ready for turn-in)
 4. **Fallback** -- quest root node itself
 
-Implicit quests skip the acceptance phase.
+**Implicit quest phasing:** 71 of 174 quests have no quest giver and can never be
+formally accepted. `QuestPhaseTracker` handles these at the phase level:
+in `Initialize` and `ApplyCompleted`, when an implicit quest's prerequisites are
+satisfied, its phase is set directly to `Accepted` (never `ReadyToAccept`).
+This is the single seam where implicit/explicit semantics diverge. All downstream
+resolvers (`EffectiveFrontier`, `TrackerSummaryBuilder`, `SourceResolver`) then
+handle implicit quests uniformly via the `Accepted` path — no special-casing
+required. Implicit quests never appear in the game journal; `IsActive()` reads
+the journal and always returns false for them. Marker behavior is unaffected:
+`MarkerComputer.RebuildQuestMarkers` gates on `IsActive()`, so implicit quests
+follow the separate implicit-completion marker path.
 
 ### 5.5 Plan group kinds
 
@@ -531,6 +541,16 @@ When a target is blocked, the evaluator returns the blocking sources (quests, it
 These appear as Gate-kind requirement groups in the plan tree and as blocked-path targets
 in the resolution output.
 
+**Door unlock condition resolution:** Doors gate access to characters and zone lines
+via `UnlocksCharacter` and `UnlocksZoneLine` edges where the source is a door node.
+Every door in the data has a `key_item_key` referencing the item needed to open it.
+The compiler resolves door conditions at compile time: when the unlock condition source
+is a door node, it emits `check_type=1` (item possession) with the door's key item
+node_id as the source. After compilation, no door nodes appear as unlock condition
+sources — they become ordinary item-possession checks. The display label becomes
+`Requires: {key item name}` (e.g., "Requires: Dockhouse Key") and evaluation uses
+the existing `FindItemIndex` + `GetItemCount > 0` path.
+
 ### 6.5 Source visibility policy
 
 When at least one hostile `DropsItem` source exists for an item, friendly `DropsItem`
@@ -573,8 +593,10 @@ Position resolution for Character, MiningNode, and ItemBag always queries live s
 
 ### Known defects
 
-- Nav shows nothing for targets behind locked zone lines (Erenshor-1cg)
-- Guide shows wrong respawn hint for disabled NPCs (Erenshor-qhi)
+- Nav shows nothing for targets behind locked zone lines (Erenshor-1cg) — correct
+	behavior specified in §7.4, implementation pending
+- Guide shows wrong respawn hint for disabled NPCs (Erenshor-qhi) — correct behavior
+	specified in §8.3, implementation pending
 
 ---
 
@@ -628,6 +650,15 @@ When the best target is in another zone, `NavigationEngine` resolves the effecti
 position as the nearest zone line on the route. `ZoneRouter` computes hop counts via BFS
 on the zone connectivity graph at scene load time.
 
+**Locked zone line handling:** `ZoneRouter.FindRoute` tries accessible-only BFS first,
+then falls back to a BFS that includes locked zone lines. When the fallback finds a
+route, `Route.IsLocked` is true. `NavigationEngine.SetTarget` detects this and annotates
+the explanation: it calls `FindFirstLockedHop` to identify the blocking zone line, then
+`UnlockEvaluator.GetRequirementReason` to get the human-readable reason (e.g.,
+"Requires: Meet the Fisherman, Angler's Ring"). The reason replaces the explanation's
+tertiary text. The arrow points to the locked zone line's position; the player sees
+what quests to complete before the route opens.
+
 ### Acceptance criteria
 
 1. 8-tier priority is strict -- tier-0 always beats tier-1 regardless of distance
@@ -638,10 +669,12 @@ on the zone connectivity graph at scene load time.
 6. When tracked NPC dies, NAV updates to next best target
 7. Multiple simultaneous NAV targets supported via shift+click
 8. NAV set persisted per character across sessions
+9. Locked zone line routes show arrow to zone line with unlock reason in tertiary text
 
 ### Known defects
 
-- Nav shows nothing for targets behind locked zone lines (Erenshor-1cg)
+- Nav shows nothing for targets behind locked zone lines (Erenshor-1cg) — correct
+	behavior specified in §7.4, implementation pending
 
 ---
 
@@ -685,9 +718,19 @@ QuestGiverBlocked > TurnInPending.
   disappears and only the static respawn-timer marker remains. When the NPC is alive,
   the active quest marker is shown. The only difference from kill targets is that
   corpse loot checks do not apply (there is no lootable corpse for talk/give targets).
+- **Quest-locked NPCs** (`SpawnUnlockBlocked`): The character marker path shows a
+  `QuestLocked` marker with the unlock reason text (e.g., "Requires: Meet the Fisherman").
+  The respawn timer path suppresses (returns null) — no timer is meaningful for a
+  quest-gated spawn.
+- **Disabled NPCs** (`SpawnDisabled`): Both marker paths suppress. No useful info to
+  show. The character marker returns null at the `SpawnDisabled` check; the respawn
+  timer also returns null.
 - **Dual markers:** A single physical source can legitimately have two entries: the live
   quest marker (anchored to NPC/corpse) and the static respawn-timer marker (at spawn
   coordinates). These are different by design.
+- **Respawn timer eligibility:** Respawn timers are only created for `SpawnDead` (with a
+  real timer) and `SpawnNightLocked` (time-based gate). All other non-alive states
+  (`SpawnDisabled`, `SpawnUnlockBlocked`) suppress the timer marker.
 - **Suppression:** Blocked markers (QuestGiverBlocked, QuestLocked) suppressed at
   positions where non-blocked markers exist.
 
@@ -702,6 +745,55 @@ QuestGiverBlocked > TurnInPending.
 - When game's built-in markers are replaced (ShowWorldMarkers=true), game markers
   suppressed via `QuestMarkerPatch`
 
+### 8.5 Marker text projection
+
+All three player-facing surfaces (markers, tracker, arrow) derive text from a shared
+`ResolvedActionSemantic` model. Each surface projects the subset appropriate to its role.
+
+**Semantic layers** (carried by `ResolvedActionSemantic`):
+
+| Layer | Field(s) | Example |
+|---|---|---|
+| Action | `ActionKind` | Kill, Talk, SayKeyword, Read, Travel, Give, Buy, Collect, Mine, Fish, LootChest |
+| Payload | `PayloadText` | "Dock Pass", "Iron Ore" (the object of the action) |
+| Target identity | `TargetIdentityText` | "Spark Beetle", "Controller Wendyl" |
+| Keyword | `KeywordText` | "lighthouse" (phrase to say or shout) |
+| Context | `ContextText` | Quest name for giver markers |
+| Rationale | `RationaleText` | "Drops Iron Ore", "Rewards A Rolled Note" |
+| Zone | `ZoneText` | "Port Azure" |
+| Availability | `AvailabilityText` | Overrides primary text when set (dead, locked, etc.) |
+| Goal | `GoalKind`, `GoalQuantity`, `GoalNodeKey` | CollectItem, CompleteBlockingQuest |
+| Marker hint | `PreferredMarkerKind`, `MarkerPriority` | QuestGiver priority 2, Objective priority 1 |
+
+**Surface projections:**
+
+| Surface | Primary | Secondary | Tertiary | Role |
+|---|---|---|---|---|
+| **Marker** | Action verb only (no target name — NPC name is on the billboard). `AvailabilityText` overrides if set. Kill shows quantity when > 1. | `PayloadText` if set, else `ContextText` for givers, else `RationaleText` | — | Local action affordance: what can I do *here*? |
+| **Tracker** | Action + target identity + progress. CollectItem shows `({have}/{need})`. CompleteBlockingQuest shows `Complete {name}`. | `RationaleText` (when applicable), else `Needed for {quest}` (sub-quest context), else `Needed for {frontier node}` | — | Quest-level planning summary: what is next for this quest? |
+| **Arrow** | Action + target identity. Give/Buy lead with payload. | Target identity (if not in primary) or zone. | Rationale (if different from secondary). | Immediate steering: what should I do *right now*? |
+
+**Runtime state overrides** (applied per-frame by `MarkerSystem` and `MarkerComputer`):
+
+| State | Marker text | Icon |
+|---|---|---|
+| Alive | Original instruction text | Original quest kind |
+| Corpse (lootable) | Original instruction text (kept via `KeepWhileCorpsePresent`) | Original quest kind |
+| Dead (timer) | `{name}\n~M:SS` | DeadSpawn (clock) |
+| Dead (respawning) | `{name}\nRespawning...` | DeadSpawn (clock) |
+| Night-locked | `{name}\nNight only (23:00-04:00)\nNow: {hour}:{min}` | NightSpawn (moon) |
+| Quest-locked | `{name}\n{unlock reason}` | QuestLocked (amber question) |
+| Zone reentry | `{name}\nRe-enter zone` | ZoneReentry (grey clock) |
+| Disabled | No marker | — |
+
+**Arrow runtime overrides** (applied by `NavigationEngine`):
+
+| Override | Trigger | Effect |
+|---|---|---|
+| Corpse loot | Kill target is dead with corpse present | Primary becomes `Loot {payload}` |
+| Source gate | Target's source has unsatisfied unlock | Tertiary becomes unlock reason |
+| Zone lock | Route goes through locked zone line | Tertiary becomes zone line unlock reason |
+
 ### Acceptance criteria
 
 1. Each spawn point shows at most one quest-semantic marker (highest priority) plus
@@ -713,11 +805,16 @@ QuestGiverBlocked > TurnInPending.
 4. Blocked markers suppressed where actionable markers exist
 5. Markers track live NPC position per-frame without calling into resolution pipeline
 6. Respawn timer text updates per-frame from SpawnPoint timer fields
-7. Disabled NPCs show "Disabled" state, not respawn timer
+7. Quest-locked NPCs (`SpawnUnlockBlocked`) show `QuestLocked` marker with unlock reason;
+   respawn timer suppressed. Disabled NPCs (`SpawnDisabled`) show no marker at all.
+8. Marker text derived from `ResolvedActionSemantic`; markers show action verb only
+   (no target name), arrow shows action + target identity, tracker shows action +
+   progress
 
 ### Known defects
 
-- Guide shows wrong respawn hint for disabled NPCs (Erenshor-qhi)
+- Guide shows wrong respawn hint for disabled NPCs (Erenshor-qhi) — correct behavior
+	specified in §8.3, implementation pending
 
 ---
 
@@ -743,6 +840,24 @@ Split panel opened with L key. Left panel: quest list. Right panel: quest detail
 **Search:** Filters by quest name, zone, assigned-by NPCs, required items, step target
 names.
 
+### 9.2.1 Quest display states
+
+Every quest in the list and detail header shows a badge and color:
+
+| State | Badge | Color | Condition |
+|---|---|---|---|
+| Completed | `[COMPLETED]` | Green | Quest is done |
+| Active | `[ACTIVE]` | Yellow | In the game journal (explicit quests only) |
+| Implicitly available | `[AVAILABLE]` | Teal | `IsImplicitlyAvailable` — completion target in current scene |
+| Available | `[AVAILABLE]` | Secondary text | Not active, not completed |
+
+`[COMPLETABLE]` and `[NOT STARTED]` do not exist. `IsImplicitlyAvailable` drives
+only the teal color hint ("something for this quest is here"), not a completion
+guarantee — it checks only whether the turn-in target is in the current scene,
+not whether all objectives are achievable.
+
+**Tooltip text:** Completed → "Completed", Active → "Active",
+ImplicitlyAvailable → "Completable here", Default → "Available".
 ### 9.3 Quest detail tree
 
 Shows the selected quest's dependency tree:
@@ -751,10 +866,38 @@ Shows the selected quest's dependency tree:
 - **Objectives section:** Step-by-step tree of what the player needs to do. Each node
   shows type icon, display name, status (satisfied/in-progress/blocked), and details
   (item counts, zone name, NPC name, keyword)
+- **Prerequisite expansion:** Prerequisite nodes expand to show the prerequisite quest's
+  full requirement tree. This lets players traverse the full dependency chain.
 - **Source visibility:** When hostile drop sources exist for an item, friendly drop
   sources hidden; non-drop sources always shown
 - **Unlock requirements:** Shown as sub-trees under blocked nodes
 - **Rewards section:** XP, gold, item rewards, faction changes, quest chains, unlocks
+
+**Label format rules:**
+
+Action labels use verb phrase form with no colon — they describe what the player does:
+
+| Context | Label format | Examples |
+|---|---|---|
+| Step labels | `{verb} {name}` | Kill Bandit, Travel to Port Azure, Read Tome, Talk to Garrey, Shout near Stone |
+| Completer labels | `{verb} {name}` | Turn in to Garrey, Read Tome, Enter Port Azure, Travel to Blacksalt, Complete Shield of Dawn |
+| Giver labels | `Talk to {name}` or `Talk to {name} — say "{keyword}"` | Talk to Bassle Wavebreaker |
+
+Source labels use category form with colon — they name the source type, not the player action:
+
+| Edge type | Label format | Example |
+|---|---|---|
+| DropsItem | `Drops from: {name}` | Drops from: Islander Bandit |
+| SellsItem | `Vendor: {name}` | Vendor: Garrey Ambrose |
+| GivesItem | `Talk to {name}` or `Talk to {name} — say "{keyword}"` | Talk to Garrey Ambrose — say "lighthouse" |
+| Contains | `Collect from: {name}` | Collect from: Iron Deposit |
+| YieldsItem (mine) | `Mine at: {name}` | Mine at: Iron Vein |
+| YieldsItem (water) | `Fish at: {name}` | Fish at: Stowaway Shore |
+| Produces | `Crafted via: {name}` | Crafted via: Iron Ingot Recipe |
+
+GivesItem uses instruction form (not category form) because the player must perform
+a specific action. When a keyword is required, it is shown as
+`Talk to {name} — say "{keyword}"`.
 
 ### 9.4 Lazy tree projection
 
@@ -785,6 +928,11 @@ the precomputed structural plan forest with fresh state lookups:
 7. NAV buttons correctly toggle navigation
 8. Search covers quest name, zone, NPC names, item names
 9. Window state persists across sessions
+10. Badges show `[COMPLETED]`/`[ACTIVE]`/`[AVAILABLE]` with correct colors; no
+    `[COMPLETABLE]` or `[NOT STARTED]` badges exist
+11. Action labels use verb phrase form (no colon); source labels use `Category: {name}` form
+12. GivesItem sources with keywords show `Talk to {name} — say "{keyword}"`
+13. Prerequisite nodes expand to show the prerequisite quest's full requirement tree
 
 ---
 
@@ -956,10 +1104,11 @@ component exposing debug state provides a typed property or method. No more
 
 ### Phase 2: Correctness fixes
 
-- Fix NAV for targets behind locked zone lines (Erenshor-1cg) -- unlock chains for
-  zone lines, characters, AND doors
-- Fix respawn hint for disabled NPCs (Erenshor-qhi) -- show "Disabled", not respawn timer
-- Fix "a way to erenshor" 1815-target explosion (Erenshor-zf8) -- smarter plan building
+- Fix NAV for targets behind locked zone lines (Erenshor-1cg) — behavior specified in
+  §7.4, implementation pending
+- Fix respawn hint for disabled NPCs (Erenshor-qhi) — behavior specified in §8.3,
+  implementation pending
+- Fix "a way to erenshor" 1815-target explosion (Erenshor-zf8) — smarter plan building
   (prune unreachable branches, deduplicate shared subtrees, collapse equivalent sources);
   bounded expansion is NOT acceptable (correctness by omission is not correctness)
 - Validate all character lifecycle states produce correct markers/NAV/tracker
@@ -967,7 +1116,8 @@ component exposing debug state provides a typed property or method. No more
 ### Phase 3: Export pipeline gaps
 
 - Export PietyTrigger inverse quest gating (Erenshor-0ab)
-- Export Door item/key gating (Erenshor-hv2)
+- ~~Export Door item/key gating (Erenshor-hv2)~~ -- resolved at compile time: door
+  unlock conditions map to key-item possession checks (§6.4)
 - Export AngelScript quest+puzzle gating (Erenshor-ar6)
 - Export ShiverEvent quest gating (Erenshor-c5r)
 - Export JawsStatueStartup+SivTorchLight gating (Erenshor-q80)
