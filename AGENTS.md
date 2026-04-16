@@ -160,13 +160,4 @@ Link discovered work: `bd create "Found bug" -p 1 --deps discovered-from:<parent
 
 ## Session Completion
 
-Work is NOT complete until `git push` succeeds.
-
-```bash
-git pull --rebase
-bd dolt push
-git push
-git status    # Must show "up to date with origin"
-```
-
-Close finished issues, create issues for remaining work, push everything.
+Close finished issues. Create issues for remaining work.
