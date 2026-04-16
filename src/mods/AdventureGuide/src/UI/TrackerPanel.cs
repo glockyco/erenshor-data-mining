@@ -248,12 +248,14 @@ public sealed class TrackerPanel
 
 	private void AddAllTrackedToNavSet()
 	{
+		var keys = new List<string>(_sorted.Count);
 		for (int i = 0; i < _sorted.Count; i++)
 		{
 			var quest = _guide.GetQuestByDbName(_sorted[i]);
-			if (quest != null && !_navSet.Contains(quest.Key))
-				_navSet.Toggle(quest.Key);
+			if (quest != null)
+				keys.Add(quest.Key);
 		}
+		_navSet.Load(keys);
 	}
 
 	private void ClearTrackedFromNavSet()
