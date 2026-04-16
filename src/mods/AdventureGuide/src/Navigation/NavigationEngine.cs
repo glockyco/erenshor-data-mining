@@ -164,6 +164,26 @@ public sealed class NavigationEngine
 				EffectiveTarget = new Vector3(route.X, route.Y, route.Z);
 				HopCount = Math.Max(0, route.Path.Count - 1);
 			}
+
+			// When the only available route passes through a locked zone line,
+			// annotate the explanation so the player knows what to complete first.
+			if (route != null && route.IsLocked && Explanation != null)
+			{
+				var lockedHop = _router.FindFirstLockedHop(CurrentScene, target.Scene!);
+				if (lockedHop != null)
+				{
+					string? lockReason = _unlocks.GetRequirementReason(lockedHop.ZoneLineKey);
+					if (!string.IsNullOrEmpty(lockReason))
+					{
+						Explanation = new NavigationExplanation(
+							Explanation.GoalKind, Explanation.TargetKind,
+							Explanation.GoalNode, Explanation.TargetNode,
+							Explanation.PrimaryText, Explanation.TargetIdentityText,
+							Explanation.ZoneText, Explanation.SecondaryText,
+							lockReason);
+					}
+				}
+			}
 		}
 	}
 
