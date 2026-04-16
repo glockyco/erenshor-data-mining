@@ -101,7 +101,7 @@ Conventional commits: `type(scope): description`
 2. **No backward compatibility**: clean breaks when changing behavior.
 3. **Clean cuts**: remove old code entirely when refactoring.
 4. **Atomic commits**: one concept per commit.
-5. **Fix all errors**: don't ignore bugs discovered during work.
+5. **Fix all errors**: fix every test failure, linter error, and type error you encounter — including ones that predate your change. "Pre-existing" is not an exemption. If CI is broken when you arrive, fix it before committing anything else.
 6. **Verify every claim**: search the codebase, read files, confirm.
 
 ## Critical Constraints
