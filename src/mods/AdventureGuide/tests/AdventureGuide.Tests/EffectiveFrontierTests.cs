@@ -58,8 +58,11 @@ public sealed class EffectiveFrontierTests
     }
 
     [Fact]
-    public void Implicit_ready_quest_is_excluded_from_frontier()
+    public void Implicit_quest_is_accepted_and_included_in_frontier()
     {
+        // Implicit quests skip ReadyToAccept — QuestPhaseTracker assigns Accepted
+        // directly. EffectiveFrontier must include them so the resolution pipeline
+        // can emit objectives and completion targets.
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:a", dbName: "QUESTA", implicit_: true)
             .Build();
@@ -70,14 +73,18 @@ public sealed class EffectiveFrontierTests
 
         frontier.Resolve(0, results, -1);
 
-        Assert.Empty(results);
+        Assert.Single(results);
+        Assert.Equal(0, results[0].QuestIndex);
+        Assert.Equal(QuestPhase.Accepted, results[0].Phase);
     }
 
     [Fact]
-    public void Implicit_ready_prereq_is_excluded_leaving_empty_frontier()
+    public void Implicit_prereq_is_accepted_and_included_in_frontier()
     {
-        // quest:a (explicit, not-ready) requires quest:b (implicit, ready-to-accept).
-        // The implicit prereq is auto-handled by the game; the player has no action.
+        // quest:a (explicit, not-ready) requires quest:b (implicit).
+        // QuestPhaseTracker places quest:b in Accepted directly, so the frontier
+        // for quest:a resolves to quest:b's Accepted entry.
+        // Builder sorts quest keys alphabetically: quest:a=0, quest:b=1.
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:b", dbName: "QUESTB", implicit_: true)
             .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
@@ -87,8 +94,11 @@ public sealed class EffectiveFrontierTests
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
-        frontier.Resolve(0, results, -1); // quest:a index
+        frontier.Resolve(0, results, -1); // quest:a is index 0 (alphabetical)
 
-        Assert.Empty(results);
+        Assert.Single(results);
+        Assert.Equal(1, results[0].QuestIndex);  // quest:b is index 1
+        Assert.Equal(QuestPhase.Accepted, results[0].Phase);
+        Assert.Equal(0, results[0].RequiredForQuestIndex); // required for quest:a
     }
 }
