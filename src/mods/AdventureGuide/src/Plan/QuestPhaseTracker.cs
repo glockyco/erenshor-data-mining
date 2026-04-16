@@ -54,7 +54,12 @@ public sealed class QuestPhaseTracker
             }
             else if (_remainingPrereqs[questIndex] == 0)
             {
-                _phases[questIndex] = QuestPhase.ReadyToAccept;
+                // Implicit quests have no acceptance step — skip ReadyToAccept and
+                // go directly to Accepted so the standard pipeline handles them
+                // uniformly without special-casing downstream.
+                _phases[questIndex] = _guide.IsImplicit(questIndex)
+                    ? QuestPhase.Accepted
+                    : QuestPhase.ReadyToAccept;
             }
         }
 
@@ -136,7 +141,9 @@ public sealed class QuestPhaseTracker
             _remainingPrereqs[dependentQuestIndex] = Math.Max(0, _remainingPrereqs[dependentQuestIndex] - 1);
             if (_remainingPrereqs[dependentQuestIndex] == 0 && _phases[dependentQuestIndex] == QuestPhase.NotReady)
             {
-                _phases[dependentQuestIndex] = QuestPhase.ReadyToAccept;
+                _phases[dependentQuestIndex] = _guide.IsImplicit(dependentQuestIndex)
+                    ? QuestPhase.Accepted
+                    : QuestPhase.ReadyToAccept;
             }
         }
 
