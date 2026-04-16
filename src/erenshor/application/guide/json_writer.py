@@ -5,10 +5,18 @@ from __future__ import annotations
 import dataclasses
 import json
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, overload
 
 if TYPE_CHECKING:
     from .compiler import CompiledData
+
+
+@overload
+def _sanitize(obj: dict[str, Any]) -> dict[str, Any]: ...
+
+
+@overload
+def _sanitize(obj: list[Any]) -> list[Any]: ...
 
 
 def _sanitize(obj: Any) -> Any:
