@@ -31,11 +31,19 @@ public static class TrackerSummaryBuilder
     {
         ReadOnlySpan<int> giverIds = guide.GiverIds(questIndex);
         if (giverIds.Length == 0)
-        {
             return new TrackerSummary($"Accept {guide.GetDisplayName(guide.QuestNodeId(questIndex))}");
-        }
 
-        return new TrackerSummary($"Talk to {guide.GetDisplayName(giverIds[0])}");
+        int giverId = giverIds[0];
+        string giverName = guide.GetDisplayName(giverId);
+        string label = guide.GetNode(giverId).Type switch
+        {
+            AdventureGuide.Graph.NodeType.Item or AdventureGuide.Graph.NodeType.Book
+                => $"Read {giverName}",
+            AdventureGuide.Graph.NodeType.Zone
+                => $"Travel to {giverName}",
+            _ => $"Talk to {giverName}",
+        };
+        return new TrackerSummary(label);
     }
 
     private static TrackerSummary BuildAccepted(

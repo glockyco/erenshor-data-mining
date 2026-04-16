@@ -33,6 +33,7 @@ public sealed class CompiledGuide
     private readonly int[][] _questToDependentQuestIndices;
     private readonly int[] _zoneNodeIds;
     private readonly int[][] _zoneAdj;
+    private readonly Dictionary<string, string> _sceneToZoneDisplay;
     private readonly QuestGiverEntry[] _giverBlueprints;
     private readonly QuestCompletion[] _completionBlueprints;
     private readonly bool[] _infeasible;
@@ -201,6 +202,15 @@ public sealed class CompiledGuide
         _questCompletionsByScene = BuildQuestCompletionsByScene();
         _staticSourcesByScene = BuildStaticSourcesByScene();
 
+        // Scene name → user-facing zone display name
+        _sceneToZoneDisplay = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < _zoneNodeIds.Length; i++)
+        {
+            var zoneNode = _projectedNodes[_zoneNodeIds[i]];
+            if (!string.IsNullOrEmpty(zoneNode.Scene) && !string.IsNullOrEmpty(zoneNode.DisplayName))
+                _sceneToZoneDisplay[zoneNode.Scene] = zoneNode.DisplayName;
+        }
+
         // Source → quest key reverse index (from projected blueprints)
         _questKeysBySourceKey = BuildQuestKeysBySourceKey();
     }
@@ -228,6 +238,14 @@ public sealed class CompiledGuide
     public string GetDisplayName(int nodeId) => _projectedNodes[nodeId].DisplayName;
 
     public string? GetScene(int nodeId) => _projectedNodes[nodeId].Scene;
+
+    /// <summary>
+    /// Translates a raw Unity scene name to the user-facing zone display name.
+    /// Falls back to the raw name when no Zone node maps to that scene.
+    /// </summary>
+    public string? GetZoneDisplay(string? scene) =>
+        string.IsNullOrEmpty(scene) ? null
+        : _sceneToZoneDisplay.TryGetValue(scene, out string? display) ? display : scene;
 
     public string? GetDbName(int nodeId) => _nodes[nodeId].DbName;
 

@@ -64,6 +64,13 @@ public sealed class SourceResolver
     private readonly UnlockPredicateEvaluator _unlocks;
     private readonly ILivePositionProvider _livePositions;
 
+    private const byte EdgeDropsItem  = (byte)EdgeType.DropsItem;
+    private const byte EdgeSellsItem  = (byte)EdgeType.SellsItem;
+    private const byte EdgeGivesItem  = (byte)EdgeType.GivesItem;
+    private const byte EdgeYieldsItem = (byte)EdgeType.YieldsItem;
+    private const byte EdgeContains   = (byte)EdgeType.Contains;
+    private const byte EdgeProduces   = (byte)EdgeType.Produces;
+
     public SourceResolver(
         CompiledGuide.CompiledGuide guide,
         QuestPhaseTracker phases,
@@ -222,7 +229,7 @@ public sealed class SourceResolver
         bool hasHostileDrop = false;
         for (int i = 0; i < sources.Length && !hasHostileDrop; i++)
         {
-            if (sources[i].EdgeType == 16 && IsHostileDropSource(sources[i]))
+            if (sources[i].EdgeType == EdgeDropsItem && IsHostileDropSource(sources[i]))
                 hasHostileDrop = true;
         }
 
@@ -231,7 +238,7 @@ public sealed class SourceResolver
         for (int i = 0; i < sources.Length; i++)
         {
             var source = sources[i];
-            if (hasHostileDrop && source.EdgeType == 16 && !IsHostileDropSource(source))
+            if (hasHostileDrop && source.EdgeType == EdgeDropsItem && !IsHostileDropSource(source))
             {
                 suppressed++;
                 continue;
@@ -253,10 +260,20 @@ public sealed class SourceResolver
         int questNodeId = _guide.QuestNodeId(questIndex);
         bool repeatable = _guide.GetNode(questNodeId).Repeatable;
         QuestMarkerKind markerKind = repeatable ? QuestMarkerKind.QuestGiverRepeat : QuestMarkerKind.QuestGiver;
+
+        // Derive action from giver type: items/books are read, zones are entered, characters are talked to.
+        var giverNode = _guide.GetNode(giverId);
+        ResolvedActionKind actionKind = giverNode.Type switch
+        {
+            NodeType.Item or NodeType.Book => ResolvedActionKind.Read,
+            NodeType.Zone                  => ResolvedActionKind.Travel,
+            _                              => ResolvedActionKind.Talk,
+        };
+
         return new ResolvedActionSemantic(
             NavigationGoalKind.StartQuest,
             DetermineTargetKind(giverId),
-            ResolvedActionKind.Talk,
+            actionKind,
             goalNodeKey: _guide.GetNodeKey(questNodeId),
             goalQuantity: null,
             keywordText: null,
@@ -264,7 +281,7 @@ public sealed class SourceResolver
             targetIdentityText: _guide.GetDisplayName(giverId),
             contextText: _guide.GetDisplayName(questNodeId),
             rationaleText: null,
-            zoneText: _guide.GetScene(giverId),
+            zoneText: _guide.GetZoneDisplay(_guide.GetScene(giverId)),
             availabilityText: null,
             preferredMarkerKind: markerKind,
             markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(markerKind));
@@ -274,13 +291,13 @@ public sealed class SourceResolver
     {
         var actionKind = source.EdgeType switch
         {
-            16 => ResolvedActionKind.Kill,   // DropsItem
-            17 => ResolvedActionKind.Buy,    // SellsItem
-            18 => ResolvedActionKind.Talk,   // GivesItem
-            31 => DetermineYieldAction(source.SourceType), // YieldsItem
-            29 => ResolvedActionKind.Collect, // Contains
-            21 => ResolvedActionKind.Collect, // Produces
-            _ => ResolvedActionKind.Collect,
+            EdgeDropsItem  => ResolvedActionKind.Kill,
+            EdgeSellsItem  => ResolvedActionKind.Buy,
+            EdgeGivesItem  => ResolvedActionKind.Talk,
+            EdgeYieldsItem => DetermineYieldAction(source.SourceType),
+            EdgeContains   => ResolvedActionKind.Collect,
+            EdgeProduces   => ResolvedActionKind.Collect,
+            _              => ResolvedActionKind.Collect,
         };
 
         return new ResolvedActionSemantic(
@@ -294,7 +311,7 @@ public sealed class SourceResolver
             targetIdentityText: _guide.GetDisplayName(source.SourceId),
             contextText: null,
             rationaleText: BuildSourceRationale(itemNodeId, actionKind),
-            zoneText: source.Scene,
+            zoneText: _guide.GetZoneDisplay(source.Scene),
             availabilityText: null,
             preferredMarkerKind: QuestMarkerKind.Objective,
             markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(QuestMarkerKind.Objective));
@@ -331,7 +348,7 @@ public sealed class SourceResolver
             targetIdentityText: _guide.GetDisplayName(step.TargetId),
             contextText: null,
             rationaleText: null,
-            zoneText: _guide.GetScene(step.TargetId),
+            zoneText: _guide.GetZoneDisplay(_guide.GetScene(step.TargetId)),
             availabilityText: null,
             preferredMarkerKind: QuestMarkerKind.Objective,
             markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(QuestMarkerKind.Objective));
@@ -355,7 +372,7 @@ public sealed class SourceResolver
             targetIdentityText: _guide.GetDisplayName(completerId),
             contextText: null,
             rationaleText: null,
-            zoneText: _guide.GetScene(completerId),
+            zoneText: _guide.GetZoneDisplay(_guide.GetScene(completerId)),
             availabilityText: null,
             preferredMarkerKind: markerKind,
             markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(markerKind));
@@ -364,9 +381,9 @@ public sealed class SourceResolver
     private static ResolvedActionKind DetermineYieldAction(byte sourceType) =>
         sourceType switch
         {
-            6 => ResolvedActionKind.Mine,
-            7 => ResolvedActionKind.Collect,
-            _ => ResolvedActionKind.Collect,
+            (byte)NodeType.MiningNode => ResolvedActionKind.Mine,
+            (byte)NodeType.Water      => ResolvedActionKind.Fish,
+            _                         => ResolvedActionKind.Collect,
         };
 
     private string BuildSourceRationale(int itemNodeId, ResolvedActionKind actionKind) =>

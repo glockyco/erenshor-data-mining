@@ -40,6 +40,7 @@ internal static class ResolvedActionSemanticBuilder
 	}
 
 	public static ResolvedActionSemantic BuildQuestGiver(
+		CompiledGuideModel guide,
 		Node quest,
 		Node characterNode,
 		QuestGiverBlueprint blueprint,
@@ -62,7 +63,7 @@ internal static class ResolvedActionSemanticBuilder
 			targetIdentityText: characterNode.DisplayName,
 			contextText: quest.DisplayName,
 			rationaleText: null,
-			zoneText: blueprint.Scene,
+			zoneText: guide.GetZoneDisplay(blueprint.Scene),
 			availabilityText: blockedRequirement != null ? $"Requires: {blockedRequirement}" : null,
 			preferredMarkerKind: markerType,
 			markerPriority: GetMarkerPriority(markerType));
@@ -93,7 +94,7 @@ internal static class ResolvedActionSemanticBuilder
 			targetIdentityText: targetNode.DisplayName,
 			contextText: null,
 			rationaleText: null,
-			zoneText: blueprint.Scene,
+			zoneText: guide.GetZoneDisplay(blueprint.Scene),
 			availabilityText: null,
 			preferredMarkerKind: markerType,
 			markerPriority: GetMarkerPriority(markerType));

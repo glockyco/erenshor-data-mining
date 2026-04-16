@@ -665,6 +665,7 @@ public sealed class MarkerComputer
 
         string? blockedRequirement = FindFirstMissingRequirement(blueprint.RequiredQuestDbNames);
         var semantic = ResolvedActionSemanticBuilder.BuildQuestGiver(
+            _compiledGuide,
             quest,
             characterNode,
             blueprint,

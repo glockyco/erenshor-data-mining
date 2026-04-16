@@ -173,6 +173,15 @@ public sealed class NavigationTargetResolver
 		};
 	}
 
+	private ResolvedActionKind ResolveCharacterActionKind(string nodeKey)
+	{
+		if (_guide.OutEdges(nodeKey, EdgeType.DropsItem).Count > 0)
+			return ResolvedActionKind.Kill;
+		if (_guide.OutEdges(nodeKey, EdgeType.SellsItem).Count > 0)
+			return ResolvedActionKind.Buy;
+		return ResolvedActionKind.Talk;
+	}
+
 	private IReadOnlyList<ResolvedQuestTarget> ResolveCharacterTargets(string nodeKey, Node node)
 	{
 		var spawnEdges = _guide.OutEdges(nodeKey, EdgeType.HasSpawn);
@@ -181,6 +190,10 @@ public sealed class NavigationTargetResolver
 
 		var nodeContext = BuildNodeContext(nodeKey);
 		var results = new List<ResolvedQuestTarget>();
+		var actionKind = ResolveCharacterActionKind(nodeKey);
+		var targetKind = actionKind == ResolvedActionKind.Kill
+			? NavigationTargetKind.Enemy
+			: NavigationTargetKind.Character;
 
 		for (int i = 0; i < spawnEdges.Count; i++)
 		{
@@ -190,7 +203,7 @@ public sealed class NavigationTargetResolver
 				continue;
 
 			var semantic = BuildDirectNavigationSemantic(
-				node, NavigationTargetKind.Character, ResolvedActionKind.Talk, spawnNode.Scene);
+				node, targetKind, actionKind, _guide.GetZoneDisplay(spawnNode.Scene));
 			var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 
 			results.Add(new ResolvedQuestTarget(
@@ -237,7 +250,7 @@ public sealed class NavigationTargetResolver
 					var pos = source.Positions[j];
 					var sourceContext = BuildNodeContext(sourceKey);
 					var semantic = BuildDirectNavigationSemantic(
-						node, NavigationTargetKind.Item, ResolvedActionKind.Collect, source.Scene);
+						node, NavigationTargetKind.Item, ResolvedActionKind.Collect, _guide.GetZoneDisplay(source.Scene));
 					var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
 
 					results.Add(new ResolvedQuestTarget(
@@ -258,7 +271,7 @@ public sealed class NavigationTargetResolver
 			{
 				var sourceContext = BuildNodeContext(sourceKey);
 				var semantic = BuildDirectNavigationSemantic(
-					node, NavigationTargetKind.Item, ResolvedActionKind.Collect, sourceNode.Scene);
+					node, NavigationTargetKind.Item, ResolvedActionKind.Collect, _guide.GetZoneDisplay(sourceNode.Scene));
 				var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
 
 				results.Add(new ResolvedQuestTarget(
@@ -287,7 +300,7 @@ public sealed class NavigationTargetResolver
 			: ResolvedActionKind.Collect;
 		var targetKind = node.Type == NodeType.Character ? NavigationTargetKind.Character
 			: NavigationTargetKind.Object;
-		var semantic = BuildDirectNavigationSemantic(node, targetKind, actionKind, node.Scene);
+		var semantic = BuildDirectNavigationSemantic(node, targetKind, actionKind, _guide.GetZoneDisplay(node.Scene));
 		var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 
 		return new[] { new ResolvedQuestTarget(

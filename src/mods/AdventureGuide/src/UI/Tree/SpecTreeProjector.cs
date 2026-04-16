@@ -7,12 +7,12 @@ namespace AdventureGuide.UI.Tree;
 
 public sealed class SpecTreeProjector
 {
-    private const byte EdgeDropsItem = 16;
-    private const byte EdgeSellsItem = 17;
-    private const byte EdgeGivesItem = 18;
-    private const byte EdgeContains = 29;
-    private const byte EdgeYieldsItem = 31;
-    private const byte EdgeProduces = 21;
+    private const byte EdgeDropsItem  = (byte)EdgeType.DropsItem;
+    private const byte EdgeSellsItem  = (byte)EdgeType.SellsItem;
+    private const byte EdgeGivesItem  = (byte)EdgeType.GivesItem;
+    private const byte EdgeContains   = (byte)EdgeType.Contains;
+    private const byte EdgeYieldsItem = (byte)EdgeType.YieldsItem;
+    private const byte EdgeProduces   = (byte)EdgeType.Produces;
 
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestPhaseTracker _phases;
