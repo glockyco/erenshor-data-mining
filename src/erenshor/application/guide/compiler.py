@@ -108,6 +108,7 @@ class SourceSite:
     direct_item_id: int = 0
     scene: str | None = None
     positions: list[SpawnPosition] = field(default_factory=list)
+    keyword: str | None = None
 
 
 @dataclass(slots=True)
@@ -478,6 +479,7 @@ def _compile_item_sources(compiled: CompiledData) -> None:
         edge_type_byte(EdgeType.PRODUCES),
     }
     has_spawn = edge_type_byte(EdgeType.HAS_SPAWN)
+    gives_item = edge_type_byte(EdgeType.GIVES_ITEM)
     compiled.item_sources = [[] for _ in compiled.item_node_ids]
 
     for item_index, item_node_id in enumerate(compiled.item_node_ids):
@@ -518,6 +520,7 @@ def _compile_item_sources(compiled: CompiledData) -> None:
                     direct_item_id=0,
                     scene=source_node.scene,
                     positions=positions,
+                    keyword=edge.keyword if edge.edge_type == gives_item else None,
                 )
             )
         compiled.item_sources[item_index] = sources
@@ -532,6 +535,7 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
     }
     gated_by_quest = edge_type_byte(EdgeType.GATED_BY_QUEST)
     item_type = node_type_byte(NodeType.ITEM)
+    door_type = node_type_byte(NodeType.DOOR)
     predicates: dict[int, list[UnlockCondition]] = {}
 
     for edge in compiled.edges:
@@ -545,9 +549,21 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
             continue
         group = 1 if edge.group else 0
         # check_type 0 = quest completion, 1 = item possession.
-        # Other source types (door, zone_line, etc.) default to 0 and will
-        # evaluate as blocked, which is the safe default for unknown gating.
-        check_type = 1 if compiled.nodes[source_id].node_type == item_type else 0
+        # Door nodes are transparent: resolve to their key item so the condition
+        # evaluates as item possession rather than the opaque door check.
+        if compiled.nodes[source_id].node_type == door_type:
+            key_item_key = compiled.nodes[source_id].key_item_key
+            if key_item_key is not None and key_item_key in compiled.node_key_to_id:
+                source_id = compiled.node_key_to_id[key_item_key]
+                check_type = 1
+            else:
+                # No key item recorded; fall through to safe default (evaluate as blocked).
+                check_type = 0
+        elif compiled.nodes[source_id].node_type == item_type:
+            check_type = 1
+        else:
+            # Other source types (zone_line, etc.) default to 0.
+            check_type = 0
         predicates.setdefault(target_id, []).append(
             UnlockCondition(source_id=source_id, check_type=check_type, group=group)
         )
