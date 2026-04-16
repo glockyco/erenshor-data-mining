@@ -107,6 +107,7 @@ public sealed class CompiledSourceSiteData
     [JsonProperty("direct_item_id")] public int DirectItemId { get; set; }
     [JsonProperty("scene")] public string? Scene { get; set; }
     [JsonProperty("positions")] public CompiledSpawnPositionData[] Positions { get; set; } = Array.Empty<CompiledSpawnPositionData>();
+    [JsonProperty("keyword")] public string? Keyword { get; set; }
 }
 
 public sealed class CompiledSpawnPositionData

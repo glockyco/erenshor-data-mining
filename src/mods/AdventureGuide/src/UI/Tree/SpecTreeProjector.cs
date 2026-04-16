@@ -275,13 +275,13 @@ public sealed class SpecTreeProjector
     {
         return source.EdgeType switch
         {
-            EdgeDropsItem => $"Drops from: {name}",
-            EdgeSellsItem => $"Vendor: {name}",
-            EdgeGivesItem => FormatKeywordLabel("Talk to ", name, null),
-            EdgeContains => $"Collect: {name}",
-            EdgeProduces => $"Crafted via: {name}",
+            EdgeDropsItem  => $"Drops from: {name}",
+            EdgeSellsItem  => $"Vendor: {name}",
+            EdgeGivesItem  => FormatKeywordLabel("Talk to ", name, source.Keyword),
+            EdgeContains   => $"Collect from: {name}",
+            EdgeProduces   => $"Crafted via: {name}",
             EdgeYieldsItem => FormatYieldLabel(source, name),
-            _ => name,
+            _              => name,
         };
     }
 
@@ -289,10 +289,10 @@ public sealed class SpecTreeProjector
     {
     return source.SourceType switch
     {
-        6 => $"Mine: {name}",
+        6 => $"Mine at: {name}",
         _ => _guide.GetNode(source.SourceId).Type == NodeType.Water
             ? $"Fish at: {name}"
-            : $"Collect: {name}",
+            : $"Collect from: {name}",
     };
     }
 

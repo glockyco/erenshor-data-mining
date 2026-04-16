@@ -131,7 +131,8 @@ public sealed class CompiledGuide
                     (byte)s.EdgeType,
                     s.DirectItemId,
                     s.Scene,
-                    positions);
+                    positions,
+                    s.Keyword);
             }
             _itemSources[ii] = entries;
         }
@@ -767,7 +768,8 @@ public readonly struct SourceSiteEntry
         byte edgeType,
         int directItemId,
         string? scene,
-        SpawnPositionEntry[] positions)
+        SpawnPositionEntry[] positions,
+        string? keyword)
     {
         SourceId = sourceId;
         SourceType = sourceType;
@@ -775,6 +777,7 @@ public readonly struct SourceSiteEntry
         DirectItemId = directItemId;
         Scene = scene;
         Positions = positions;
+        Keyword = keyword;
     }
 
     public int SourceId { get; }
@@ -783,6 +786,7 @@ public readonly struct SourceSiteEntry
     public int DirectItemId { get; }
     public string? Scene { get; }
     public SpawnPositionEntry[] Positions { get; }
+    public string? Keyword { get; }
 }
 
 public readonly struct UnlockConditionEntry
