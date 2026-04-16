@@ -9,9 +9,8 @@ from erenshor.cli.commands import guide
 runner = CliRunner()
 
 
-def test_help_lists_generate_and_compile() -> None:
+def test_help_lists_compile() -> None:
     result = runner.invoke(guide.app, ["--help"])
 
     assert result.exit_code == 0
-    assert "generate" in result.stdout
     assert "compile" in result.stdout

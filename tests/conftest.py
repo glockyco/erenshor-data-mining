@@ -50,8 +50,9 @@ def integration_db() -> Generator[Path]:
     variants_dir = Path(__file__).parent.parent / "variants"
     databases = list(variants_dir.glob("*/erenshor-*.sqlite"))
 
-    # Filter out backup/temp files
-    databases = [db for db in databases if ".pre-" not in db.name]
+    # Exclude raw exports and backup/temp files — only the processed clean DB has
+    # the full schema (stable_key, etc.) that repository tests depend on.
+    databases = [db for db in databases if ".pre-" not in db.name and "-raw" not in db.name]
 
     if not databases:
         pytest.skip("No exported database found. Run 'uv run erenshor extract export' first.")

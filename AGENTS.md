@@ -46,8 +46,7 @@ sqlite3 variants/main/erenshor-main.sqlite ".tables"
 ```bash
 uv run erenshor --help                          # All command groups
 uv run erenshor extract export                  # Unity -> raw SQLite
-uv run erenshor extract build                   # Raw SQLite -> clean SQLite
-uv run erenshor guide generate                  # Generate quest guide JSON
+uv run erenshor guide compile                   # Compile entity graph to guide.json
 uv run erenshor mod setup                       # Copy game DLLs (first time)
 uv run erenshor mod dev-setup                   # Install ScriptEngine + ConfigManager (first time)
 uv run erenshor mod build --mod <id>            # Build a mod
