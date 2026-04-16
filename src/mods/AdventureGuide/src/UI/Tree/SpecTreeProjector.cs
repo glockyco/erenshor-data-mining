@@ -238,9 +238,9 @@ public sealed class SpecTreeProjector
     {
     return _guide.GetNode(nodeId).Type switch
     {
-        NodeType.Item => $"Read: {name}",
-        NodeType.Zone => $"Enter: {name}",
-        NodeType.Quest => $"Complete: {name}",
+        NodeType.Item => $"Read {name}",
+        NodeType.Zone => $"Enter {name}",
+        NodeType.Quest => $"Complete {name}",
         _ => FormatKeywordLabel("Talk to ", name, keyword),
     };
     }
@@ -250,10 +250,10 @@ public sealed class SpecTreeProjector
     return _guide.GetNode(nodeId).Type switch
     {
         NodeType.Character => FormatKeywordLabel("Turn in to ", name, keyword),
-        NodeType.Item => $"Read: {name}",
-        NodeType.Zone => $"Enter: {name}",
-        NodeType.ZoneLine => $"Travel to: {name}",
-        NodeType.Quest => $"Complete: {name}",
+        NodeType.Item => $"Read {name}",
+        NodeType.Zone => $"Enter {name}",
+        NodeType.ZoneLine => $"Travel to {name}",
+        NodeType.Quest => $"Complete {name}",
         _ => $"Complete via: {name}",
     };
     }

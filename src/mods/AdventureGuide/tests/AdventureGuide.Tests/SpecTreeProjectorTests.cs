@@ -53,7 +53,7 @@ public sealed class SpecTreeProjectorTests
         Assert.Contains(roots, r => r.Kind == SpecTreeKind.Prerequisite && r.Label == "Requires: quest:pre");
         Assert.Contains(roots, r => r.Kind == SpecTreeKind.Giver && r.Label == "Talk to char:giver");
         Assert.Contains(roots, r => r.Kind == SpecTreeKind.Item && r.Label == "Collect: item:gem (0/2)" && !r.IsCompleted);
-        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Step && r.Label == "Kill: char:wolf");
+        Assert.Contains(roots, r => r.Kind == SpecTreeKind.Step && r.Label == "Kill char:wolf");
         Assert.Contains(roots, r => r.Kind == SpecTreeKind.Completer && r.Label == "Turn in to char:turnin");
     }
 

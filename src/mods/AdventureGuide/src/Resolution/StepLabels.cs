@@ -12,10 +12,10 @@ public static class StepLabels
     public static string Format(byte stepType, string targetName) => stepType switch
     {
         Talk   => $"Talk to {targetName}",
-        Kill   => $"Kill: {targetName}",
-        Travel => $"Travel to: {targetName}",
+        Kill   => $"Kill {targetName}",
+        Travel => $"Travel to {targetName}",
         Shout  => $"Shout near {targetName}",
-        Read   => $"Read: {targetName}",
+        Read   => $"Read {targetName}",
         _      => targetName,
     };
 }

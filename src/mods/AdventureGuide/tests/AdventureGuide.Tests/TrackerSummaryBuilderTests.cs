@@ -92,7 +92,7 @@ public sealed class TrackerSummaryBuilderTests
 
         var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
 
-        Assert.StartsWith("Travel to:", summary.PrimaryText);
+        Assert.StartsWith("Travel to ", summary.PrimaryText);
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public sealed class TrackerSummaryBuilderTests
 
         var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
 
-        Assert.StartsWith("Kill:", summary.PrimaryText);
+        Assert.StartsWith("Kill ", summary.PrimaryText);
     }
 
     [Fact]
