@@ -284,6 +284,13 @@ public sealed class MarkerComputer
         if (info.State is SpawnAlive)
             return null;
 
+        // Respawn timers are only meaningful for SpawnDead (with a real timer)
+        // and SpawnNightLocked (time-based gate). SpawnDisabled has no respawn
+        // path; SpawnUnlockBlocked already shows a QuestLocked marker from the
+        // character marker path.
+        if (info.State is SpawnDisabled or SpawnUnlockBlocked)
+            return null;
+
         string displayName = target.TargetNode.Node.DisplayName;
         if (info.LiveSpawnPoint != null)
         {
@@ -347,6 +354,13 @@ public sealed class MarkerComputer
 
         var info = _liveState.GetSpawnState(positionNode);
         if (info.State is SpawnAlive)
+            return null;
+
+        // Respawn timers are only meaningful for SpawnDead (with a real timer)
+        // and SpawnNightLocked (time-based gate). SpawnDisabled has no respawn
+        // path; SpawnUnlockBlocked already shows a QuestLocked marker from the
+        // character marker path.
+        if (info.State is SpawnDisabled or SpawnUnlockBlocked)
             return null;
 
         string displayName = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
