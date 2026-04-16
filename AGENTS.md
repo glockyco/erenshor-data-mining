@@ -72,7 +72,7 @@ Package: `com.coplaydev.unity-mcp` (in `Packages/manifest.json`).
 
 ## Working Principles
 
-- Take a holistic view. Every change considers the overall project architecture.
+- **Take a holistic view.** Every change considers the overall project architecture. Avoid tunnel vision: a compiling build or a passing test is not the same as a correct, complete solution. Always ask what else is affected by a change.
 - Be proactive. If you notice something that can be improved, bring it up and fix it.
 - Plan before implementing. List planned commits before writing code.
 - Suggest larger architectural changes if they make for a cleaner solution.
