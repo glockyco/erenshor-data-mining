@@ -313,11 +313,11 @@ public sealed class ViewRenderer
 				color = Theme.Accent;
 				break;
 			case QuestImplicitlyAvailable:
-				badge = "[COMPLETABLE]";
+				badge = "[AVAILABLE]";
 				color = Theme.QuestImplicit;
 				break;
 			default:
-				badge = "[NOT STARTED]";
+				badge = "[AVAILABLE]";
 				color = Theme.TextSecondary;
 				break;
 		}
@@ -469,17 +469,4 @@ public sealed class ViewRenderer
 	private static string FormatKeyword(string prefix, string name, string? keyword) =>
 		!string.IsNullOrEmpty(keyword) ? $"{prefix}{name} — say \"{keyword}\"" : $"{prefix}{name}";
 
-	internal static string FormatCompletion(Node node, string? keyword)
-	{
-		string name = node.DisplayName;
-		return node.Type switch
-		{
-			NodeType.Character => FormatKeyword("Turn in to ", name, keyword),
-			NodeType.Item => $"Read: {name}",
-			NodeType.Zone => $"Enter: {name}",
-			NodeType.ZoneLine => $"Travel to: {name}",
-			NodeType.Quest => $"Complete: {name}",
-			_ => $"Complete via: {name}",
-		};
-	}
 }
