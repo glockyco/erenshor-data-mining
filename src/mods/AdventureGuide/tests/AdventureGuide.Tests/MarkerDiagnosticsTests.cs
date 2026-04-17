@@ -5,6 +5,7 @@ using AdventureGuide.Markers;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
+using AdventureGuide.Tests.Helpers;
 using Xunit;
 
 namespace AdventureGuide.Tests;
@@ -14,7 +15,9 @@ public sealed class MarkerDiagnosticsTests
     [Fact]
     public void ApplyGuideChangeSet_RecordsFullRebuildReasonForSceneChanges()
     {
-        var marker = CreateMarkerComputer(new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled));
+        var marker = CreateMarkerComputer(
+            new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
+        );
 
         marker.ApplyGuideChangeSet(
             new GuideChangeSet(
@@ -79,7 +82,8 @@ public sealed class MarkerDiagnosticsTests
             guide,
             phases,
             compiledUnlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var markerResolver = new MarkerQuestTargetResolver(
             guide,

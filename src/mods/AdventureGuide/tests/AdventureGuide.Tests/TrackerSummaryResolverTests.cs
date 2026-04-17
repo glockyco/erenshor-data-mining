@@ -29,7 +29,8 @@ public sealed class TrackerSummaryResolverTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
@@ -60,7 +61,8 @@ public sealed class TrackerSummaryResolverTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
@@ -94,7 +96,8 @@ public sealed class TrackerSummaryResolverTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
@@ -123,7 +126,8 @@ public sealed class TrackerSummaryResolverTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
         var deps = new GuideDependencyEngine();
@@ -206,7 +210,8 @@ public sealed class TrackerSummaryResolverTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 

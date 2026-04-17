@@ -69,7 +69,7 @@ public sealed class CompiledGuideBuilder
 
     private sealed record DoorDef(string Key, string? Scene, string? KeyItemKey);
 
-    private sealed record MiningNodeDef(string Key, string? Scene);
+    private sealed record MiningNodeDef(string Key, string? Scene, float X, float Y, float Z);
 
     private sealed record ItemBagDef(string Key, string? Scene);
 
@@ -226,9 +226,15 @@ public sealed class CompiledGuideBuilder
         return this;
     }
 
-    public CompiledGuideBuilder AddMiningNode(string key, string? scene = null)
+    public CompiledGuideBuilder AddMiningNode(
+        string key,
+        string? scene = null,
+        float x = float.NaN,
+        float y = float.NaN,
+        float z = float.NaN
+    )
     {
-        _miningNodes.Add(new MiningNodeDef(key, scene));
+        _miningNodes.Add(new MiningNodeDef(key, scene, x, y, z));
         return this;
     }
 
@@ -433,7 +439,6 @@ public sealed class CompiledGuideBuilder
             };
         }
 
-        // Build reverse dependency indices
         var q2qRows = Enumerable
             .Range(0, questNodeIds.Length)
             .Select(_ => new List<int>())
@@ -443,9 +448,7 @@ public sealed class CompiledGuideBuilder
             foreach (int prereqNodeId in questSpecs[qi].PrereqQuestIds)
             {
                 if (questIndexByNodeId.TryGetValue(prereqNodeId, out int prereqIndex))
-                {
                     q2qRows[prereqIndex].Add(qi);
-                }
             }
         }
 
@@ -461,13 +464,10 @@ public sealed class CompiledGuideBuilder
             foreach (CompiledItemRequirementData item in questSpecs[qi].RequiredItems)
             {
                 if (itemIndexByNodeId.TryGetValue(item.ItemId, out int itemIndex))
-                {
                     i2qRows[itemIndex].Add(qi);
-                }
             }
         }
 
-        // Build giver/completion blueprints
         var giverBlueprints = new List<CompiledGiverBlueprintData>();
         var completionBlueprints = new List<CompiledCompletionBlueprintData>();
         for (int questIndex = 0; questIndex < questKeys.Length; questIndex++)
@@ -479,7 +479,6 @@ public sealed class CompiledGuideBuilder
                 .Where(dbName => !string.IsNullOrEmpty(dbName))
                 .Cast<string>()
                 .ToArray();
-
             foreach (string giver in quest.Givers)
             {
                 int giverId = keyToId[giver];
@@ -515,7 +514,7 @@ public sealed class CompiledGuideBuilder
         CompiledSourceSiteData[][] itemSourcesDto = BuildItemSourcesDto(
             itemNodeIds,
             keyToId,
-            charByKey,
+            nodes,
             spawnPointByKey
         );
 
@@ -541,13 +540,14 @@ public sealed class CompiledGuideBuilder
                     EdgeType = (int)e.Type,
                     Group = e.Group,
                     Ordinal = e.Ordinal ?? 0,
+                    Flags = 0,
+
                     Quantity = e.Quantity ?? 0,
                     Keyword = e.Keyword,
                     Note = e.Note,
                     Amount = e.Amount ?? 0,
                 }
             );
-
             int edgeIndex = edgeDataList.Count - 1;
             forwardAdj[sourceId].Add(edgeIndex);
             reverseAdj[targetId].Add(edgeIndex);
@@ -558,22 +558,24 @@ public sealed class CompiledGuideBuilder
         {
             Nodes = nodes,
             Edges = edgeDataList.ToArray(),
-            ForwardAdjacency = forwardAdj.Select(r => r.ToArray()).ToArray(),
-            ReverseAdjacency = reverseAdj.Select(r => r.ToArray()).ToArray(),
+            ForwardAdjacency = forwardAdj.Select(l => l.ToArray()).ToArray(),
+            ReverseAdjacency = reverseAdj.Select(l => l.ToArray()).ToArray(),
             QuestNodeIds = questNodeIds,
             ItemNodeIds = itemNodeIds,
             QuestSpecs = questSpecs,
             ItemSources = itemSourcesDto,
             UnlockPredicates = unlockPredicates,
             TopoOrder = Enumerable.Range(0, questNodeIds.Length).ToArray(),
-            ItemToQuestIndices = i2qRows.Select(r => r.ToArray()).ToArray(),
-            QuestToDependentQuestIndices = q2qRows.Select(r => r.ToArray()).ToArray(),
-            ZoneNodeIds = Array.Empty<int>(),
+
+            ItemToQuestIndices = i2qRows.Select(l => l.ToArray()).ToArray(),
+            QuestToDependentQuestIndices = q2qRows.Select(l => l.ToArray()).ToArray(),
+            ZoneNodeIds = _zones.Select(z => keyToId[z.Key]).ToArray(),
             ZoneAdjacency = Array.Empty<int[]>(),
             ZoneLineIds = Array.Empty<int[]>(),
             GiverBlueprints = giverBlueprints.ToArray(),
             CompletionBlueprints = completionBlueprints.ToArray(),
             InfeasibleNodeIds = Array.Empty<int>(),
+
         };
 
         return new CompiledGuideModel(data);
@@ -709,6 +711,9 @@ public sealed class CompiledGuideBuilder
                 NodeType = (int)Graph.NodeType.MiningNode,
                 DisplayName = key,
                 Scene = miningNode.Scene,
+                X = miningNode.X,
+                Y = miningNode.Y,
+                Z = miningNode.Z,
             };
         }
 
@@ -762,7 +767,7 @@ public sealed class CompiledGuideBuilder
     private CompiledSourceSiteData[][] BuildItemSourcesDto(
         int[] itemNodeIds,
         Dictionary<string, int> keyToId,
-        Dictionary<string, CharacterDef> charByKey,
+        CompiledNodeData[] nodes,
         Dictionary<string, SpawnPointDef> spawnPointByKey
     )
     {
@@ -784,8 +789,8 @@ public sealed class CompiledGuideBuilder
             foreach (ItemSourceDef def in group)
             {
                 int sourceId = keyToId[def.SourceKey];
-                CharacterDef? character = charByKey.GetValueOrDefault(def.SourceKey);
-                string? scene = character?.Scene;
+                CompiledNodeData sourceNode = nodes[sourceId];
+                string? scene = sourceNode.Scene;
                 CompiledSpawnPositionData[] positions;
                 if (def.PositionKeys.Length > 0)
                 {
@@ -806,16 +811,16 @@ public sealed class CompiledGuideBuilder
                     if (positions.Length > 0)
                         scene = spawnPointByKey[def.PositionKeys[0]].Scene;
                 }
-                else if (character is not null)
+                else if (sourceNode.X.HasValue && sourceNode.Y.HasValue && sourceNode.Z.HasValue)
                 {
                     positions = new[]
                     {
                         new CompiledSpawnPositionData
                         {
                             SpawnId = sourceId,
-                            X = character.X,
-                            Y = character.Y,
-                            Z = character.Z,
+                            X = sourceNode.X.Value,
+                            Y = sourceNode.Y.Value,
+                            Z = sourceNode.Z.Value,
                         },
                     };
                 }

@@ -30,7 +30,8 @@ public sealed class TrackerDiagnosticsTests
             guide,
             phases,
             new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new TrackerSummaryResolver(
             guide,

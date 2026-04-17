@@ -350,29 +350,17 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!posKey.HasValue)
             return new MiningInfo(NodeState.Unknown, null);
 
-        MiningNode? closest = null;
-        float closestDist = float.MaxValue;
-
-        foreach (var mn in _miningNodes)
-        {
-            if (mn == null)
-                continue;
-
-            float dist = Vector3.Distance(
-                mn.transform.position,
-                new Vector3(miningNode.X ?? 0f, miningNode.Y ?? 0f, miningNode.Z ?? 0f)
-            );
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closest = mn;
-            }
-        }
-
-        if (closest == null || closestDist > 2f)
+        var targetPos = new Vector3(miningNode.X ?? 0f, miningNode.Y ?? 0f, miningNode.Z ?? 0f);
+        var best = FindBestPositionMatch(
+            posKey.Value,
+            targetPos,
+            _miningNodes,
+            mn => mn.transform.position
+        );
+        if (best == null)
             return new MiningInfo(NodeState.Unknown, null);
 
-        return ClassifyMiningNode(closest);
+        return ClassifyMiningNode(best);
     }
 
     public NodeState GetItemBagState(Node itemBagNode)
@@ -389,25 +377,14 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!posKey.HasValue)
             return NodeState.Unknown;
 
-        ItemBag? closest = null;
-        float closestDist = float.MaxValue;
-        foreach (var bag in _itemBags)
-        {
-            if (bag == null)
-                continue;
-
-            float dist = Vector3.Distance(
-                bag.transform.position,
-                new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f)
-            );
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closest = bag;
-            }
-        }
-
-        if (closest != null && closestDist <= 2f)
+        var targetPos = new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f);
+        var best = FindBestPositionMatch(
+            posKey.Value,
+            targetPos,
+            _itemBags,
+            bag => bag.transform.position
+        );
+        if (best != null)
             return NodeState.BagAvailable;
 
         // Bag is missing from the scene. The game recreates all ItemBags on
@@ -431,30 +408,19 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!posKey.HasValue)
             return new DoorInfo(NodeState.Unknown, null, false);
 
-        Door? closest = null;
-        float closestDist = float.MaxValue;
-        foreach (var door in _doors)
-        {
-            if (door == null)
-                continue;
-
-            float dist = Vector3.Distance(
-                door.transform.position,
-                new Vector3(doorNode.X ?? 0f, doorNode.Y ?? 0f, doorNode.Z ?? 0f)
-            );
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closest = door;
-            }
-        }
-
-        if (closest == null || closestDist > 2f)
+        var targetPos = new Vector3(doorNode.X ?? 0f, doorNode.Y ?? 0f, doorNode.Z ?? 0f);
+        var best = FindBestPositionMatch(
+            posKey.Value,
+            targetPos,
+            _doors,
+            door => door.transform.position
+        );
+        if (best == null)
             return new DoorInfo(NodeState.Unknown, null, false);
 
-        return !closest.isClosed || closest.swinging
-            ? new DoorInfo(NodeState.Unlocked, closest, true)
-            : new DoorInfo(NodeState.Unknown, closest, true);
+        return !best.isClosed || best.swinging
+            ? new DoorInfo(NodeState.Unlocked, best, true)
+            : new DoorInfo(NodeState.Unknown, best, true);
     }
 
     /// <summary>
@@ -772,6 +738,77 @@ public sealed class LiveStateTracker : IResolutionLiveState
     {
         var posKey = NodePosKey(node);
         return posKey.HasValue && _spawnIndex.TryGetValue(posKey.Value, out var sp) ? sp : null;
+    }
+
+    private static T? FindBestPositionMatch<T>(
+        PosKey targetKey,
+        Vector3 targetPosition,
+        IReadOnlyList<T> candidates,
+        System.Func<T, Vector3> positionSelector,
+        float maxDistance = 2f
+    )
+        where T : class
+    {
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            var candidate = candidates[i];
+            if (candidate == null)
+                continue;
+
+            if (NodePosKey(positionSelector(candidate)).Equals(targetKey))
+                return candidate;
+        }
+
+        T? best = null;
+        float bestDist = maxDistance;
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            var candidate = candidates[i];
+            if (candidate == null)
+                continue;
+
+            float dist = Vector3.Distance(positionSelector(candidate), targetPosition);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = candidate;
+            }
+        }
+
+        return best;
+    }
+
+    internal static int FindBestPositionMatchIndex(
+        (float X, float Y, float Z) targetPosition,
+        IReadOnlyList<(float X, float Y, float Z)> candidatePositions,
+        float maxDistance = 2f
+    )
+    {
+        var targetKey = new PosKey(targetPosition.X, targetPosition.Y, targetPosition.Z);
+        for (int i = 0; i < candidatePositions.Count; i++)
+        {
+            var candidate = candidatePositions[i];
+            if (new PosKey(candidate.X, candidate.Y, candidate.Z).Equals(targetKey))
+                return i;
+        }
+
+        int bestIndex = -1;
+        float bestDistSquared = maxDistance * maxDistance;
+        for (int i = 0; i < candidatePositions.Count; i++)
+        {
+            var candidate = candidatePositions[i];
+            float dx = candidate.X - targetPosition.X;
+            float dy = candidate.Y - targetPosition.Y;
+            float dz = candidate.Z - targetPosition.Z;
+            float distSquared = dx * dx + dy * dy + dz * dz;
+            if (distSquared < bestDistSquared)
+            {
+                bestDistSquared = distSquared;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
     }
 
     private NPC? FindNpcByNameAndProximity(Node node)

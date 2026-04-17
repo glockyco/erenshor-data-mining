@@ -198,16 +198,19 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledGuide,
             _compiledQuestTracker,
             _compiledUnlocks,
-            new CompiledGuideLivePositionProvider(_compiledGuide, _liveState)
+            new CompiledGuideLivePositionProvider(_compiledGuide, _liveState),
+            positionRegistry
         );
         _navigationTargetResolver = new NavigationTargetResolver(
             _compiledGuide,
             _compiledFrontier,
             _compiledSourceResolver,
             _zoneRouter,
+            positionRegistry,
             () => _questTracker.Version,
             _diagnostics
         );
+
         _markerQuestTargetResolver = new MarkerQuestTargetResolver(
             _compiledGuide,
             _compiledFrontier,
@@ -219,8 +222,10 @@ public sealed class Plugin : BaseUnityPlugin
             _zoneRouter,
             _compiledGuide,
             _liveState,
+            positionRegistry,
             _diagnostics
         );
+
 
         _navEngine = new NavigationEngine(
             _navSet,
@@ -340,7 +345,9 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.State = _questTracker;
         DebugAPI.Filter = _window.Filter;
         DebugAPI.Nav = _navEngine;
+        DebugAPI.TargetSelector = _targetSelector;
         DebugAPI.GroundPath = _groundPath;
+
         DebugAPI.Router = _zoneRouter;
         DebugAPI.Unlocks = _unlockEvaluator;
         DebugAPI.Markers = _markerComputer;
@@ -694,7 +701,9 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.State = null;
         DebugAPI.Filter = null;
         DebugAPI.Nav = null;
+        DebugAPI.TargetSelector = null;
         DebugAPI.GroundPath = null;
+
         DebugAPI.Router = null;
         DebugAPI.Unlocks = null;
         DebugAPI.Markers = null;

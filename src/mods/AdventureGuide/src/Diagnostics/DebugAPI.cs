@@ -24,7 +24,9 @@ public static class DebugAPI
     internal static QuestStateTracker? State { get; set; }
     internal static FilterState? Filter { get; set; }
     internal static NavigationEngine? Nav { get; set; }
+    internal static NavigationTargetSelector? TargetSelector { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
+
     internal static ZoneRouter? Router { get; set; }
     internal static UnlockEvaluator? Unlocks { get; set; }
     internal static MarkerComputer? Markers { get; set; }
@@ -76,6 +78,27 @@ public static class DebugAPI
 
         return sb.ToString();
     }
+
+    /// <summary>Dump cached selector candidates for the current navigation target.</summary>
+    public static string DumpNavCandidates()
+    {
+        if (Nav == null || TargetSelector == null)
+            return "Not initialized";
+        if (!Nav.HasTarget)
+            return "No active navigation target";
+
+        var playerPos = GameData.PlayerControl != null
+            ? GameData.PlayerControl.transform.position
+            : default(UnityEngine.Vector3);
+        return TargetSelector.DumpCandidates(
+            playerPos.x,
+            playerPos.y,
+            playerPos.z,
+            Nav.CurrentScene,
+            Nav.TargetNodeKey
+        );
+    }
+
 
     /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
     public static string DumpQuest(string name)

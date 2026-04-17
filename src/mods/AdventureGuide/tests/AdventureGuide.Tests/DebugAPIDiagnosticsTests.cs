@@ -70,9 +70,11 @@ public sealed class DebugAPIDiagnosticsTests
         DebugAPI.Diagnostics = null;
     }
 
+
     [Fact]
     public void DumpAllIncidents_ReturnsDetailedHistoryNewestFirst()
     {
+
         var thresholds = new IncidentThresholds(
             frameHitchTicks: 1,
             frameStallTicks: 50,

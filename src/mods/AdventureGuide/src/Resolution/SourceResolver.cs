@@ -1,6 +1,7 @@
 using AdventureGuide.CompiledGuide;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
+using AdventureGuide.Position;
 
 namespace AdventureGuide.Resolution;
 
@@ -62,6 +63,7 @@ public sealed class SourceResolver
     private readonly QuestPhaseTracker _phases;
     private readonly UnlockPredicateEvaluator _unlocks;
     private readonly ILivePositionProvider _livePositions;
+    private readonly PositionResolverRegistry _positionResolvers;
 
     private const byte EdgeDropsItem = (byte)EdgeType.DropsItem;
     private const byte EdgeSellsItem = (byte)EdgeType.SellsItem;
@@ -74,13 +76,15 @@ public sealed class SourceResolver
         CompiledGuide.CompiledGuide guide,
         QuestPhaseTracker phases,
         UnlockPredicateEvaluator unlocks,
-        ILivePositionProvider livePositions
+        ILivePositionProvider livePositions,
+        PositionResolverRegistry positionResolvers
     )
     {
         _guide = guide;
         _phases = phases;
         _unlocks = unlocks;
         _livePositions = livePositions;
+        _positionResolvers = positionResolvers;
     }
 
     public IReadOnlyList<ResolvedTarget> ResolveTargets(
@@ -498,6 +502,23 @@ public sealed class SourceResolver
             return;
 
         var node = _guide.GetNode(positionNodeId);
+        if (node == null)
+            return;
+
+        if (
+            TryEmitMutableNodePositions(
+                targetNodeId,
+                positionNodeId,
+                node,
+                role,
+                semantic,
+                entry,
+                results,
+                tracer
+            )
+        )
+            return;
+
         var scene = _guide.GetScene(positionNodeId);
         results.Add(
             new ResolvedTarget(
@@ -516,6 +537,56 @@ public sealed class SourceResolver
             )
         );
         tracer?.OnTargetMaterialized(targetNodeId, positionNodeId, role.ToString(), scene, true);
+    }
+
+    private bool TryEmitMutableNodePositions(
+        int targetNodeId,
+        int positionNodeId,
+        Node node,
+        ResolvedTargetRole role,
+        ResolvedActionSemantic semantic,
+        FrontierEntry entry,
+        List<ResolvedTarget> results,
+        IResolutionTracer? tracer
+    )
+    {
+        if (node.Type is not NodeType.MiningNode and not NodeType.ItemBag)
+            return false;
+
+        var resolvedPositions = new List<ResolvedPosition>();
+        _positionResolvers.Resolve(node.Key, resolvedPositions);
+        if (resolvedPositions.Count == 0)
+            return false;
+
+        for (int i = 0; i < resolvedPositions.Count; i++)
+        {
+            var position = resolvedPositions[i];
+            results.Add(
+                new ResolvedTarget(
+                    targetNodeId,
+                    positionNodeId,
+                    role,
+                    semantic,
+                    position.X,
+                    position.Y,
+                    position.Z,
+                    position.Scene,
+                    false,
+                    position.IsActionable,
+                    entry.QuestIndex,
+                    entry.RequiredForQuestIndex
+                )
+            );
+            tracer?.OnTargetMaterialized(
+                targetNodeId,
+                positionNodeId,
+                role.ToString(),
+                position.Scene,
+                position.IsActionable
+            );
+        }
+
+        return true;
     }
 
     private void EmitSourceTargets(
@@ -541,8 +612,25 @@ public sealed class SourceResolver
             return;
         }
 
+        var sourceNode = _guide.GetNode(source.SourceId);
+        if (sourceNode is { Type: NodeType.MiningNode or NodeType.ItemBag })
+        {
+            TryEmitMutableNodePositions(
+                source.SourceId,
+                source.SourceId,
+                sourceNode,
+                role,
+                semantic,
+                entry,
+                results,
+                tracer
+            );
+            return;
+        }
+
         string? scene = _guide.GetSourceScene(source);
         foreach (var position in source.Positions)
+
         {
             WorldPosition? live = _livePositions.GetLivePosition(position.SpawnId);
             bool isActionable = _livePositions.IsAlive(position.SpawnId);

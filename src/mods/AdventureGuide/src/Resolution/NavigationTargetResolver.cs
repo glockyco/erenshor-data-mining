@@ -18,6 +18,7 @@ public sealed class NavigationTargetResolver
     private readonly EffectiveFrontier _frontier;
     private readonly SourceResolver _sourceResolver;
     private readonly ZoneRouter? _zoneRouter;
+    private readonly PositionResolverRegistry _positionResolvers;
     private readonly Func<int> _versionProvider;
     private readonly DiagnosticsCore? _diagnostics;
     private string? _lastResolvedNodeKey;
@@ -30,6 +31,7 @@ public sealed class NavigationTargetResolver
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
         ZoneRouter? zoneRouter,
+        PositionResolverRegistry positionResolvers,
         Func<int>? versionProvider = null,
         DiagnosticsCore? diagnostics = null
     )
@@ -38,6 +40,7 @@ public sealed class NavigationTargetResolver
         _frontier = frontier;
         _sourceResolver = sourceResolver;
         _zoneRouter = zoneRouter;
+        _positionResolvers = positionResolvers;
         _versionProvider = versionProvider ?? (() => 0);
         _diagnostics = diagnostics;
     }
@@ -357,6 +360,9 @@ public sealed class NavigationTargetResolver
         {
             NodeType.Character => ResolveCharacterTargets(nodeKey, node, currentScene),
             NodeType.Item => ResolveItemTargets(nodeId, nodeKey, node, currentScene),
+            NodeType.MiningNode
+            or NodeType.ItemBag when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
+                ResolveMutablePositionedEntityTargets(nodeKey, node, currentScene),
             _ when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
                 ResolvePositionedEntityTargets(nodeKey, node, currentScene),
             _ => Array.Empty<ResolvedQuestTarget>(),
@@ -459,6 +465,45 @@ public sealed class NavigationTargetResolver
             string sourceKey = _guide.GetNodeKey(source.SourceId);
             var sourceNode = _guide.GetNode(source.SourceId);
             string? sourceScene = _guide.GetSourceScene(source);
+            var sourceContext = BuildNodeContext(sourceKey);
+            var semantic = BuildDirectNavigationSemantic(
+                node,
+                NavigationTargetKind.Item,
+                ResolvedActionKind.Collect,
+                _guide.GetZoneDisplay(sourceScene)
+            );
+            var explanation = NavigationExplanationBuilder.Build(
+                semantic,
+                nodeContext,
+                sourceContext
+            );
+
+            if (sourceNode.Type is NodeType.MiningNode or NodeType.ItemBag)
+            {
+                var positions = new List<ResolvedPosition>();
+                _positionResolvers.Resolve(sourceKey, positions);
+                for (int j = 0; j < positions.Count; j++)
+                {
+                    var position = positions[j];
+                    results.Add(
+                        new ResolvedQuestTarget(
+                            sourceKey,
+                            position.Scene,
+                            position.SourceKey ?? sourceKey,
+                            nodeContext,
+                            sourceContext,
+                            semantic,
+                            explanation,
+                            position.X,
+                            position.Y,
+                            position.Z,
+                            isActionable: position.IsActionable,
+                            isBlockedPath: IsSceneBlocked(currentScene, position.Scene)
+                        )
+                    );
+                }
+                continue;
+            }
 
             // Use source's spawn positions if available, otherwise the source node's own coords.
             if (source.Positions.Length > 0)
@@ -466,19 +511,6 @@ public sealed class NavigationTargetResolver
                 for (int j = 0; j < source.Positions.Length; j++)
                 {
                     var pos = source.Positions[j];
-                    var sourceContext = BuildNodeContext(sourceKey);
-                    var semantic = BuildDirectNavigationSemantic(
-                        node,
-                        NavigationTargetKind.Item,
-                        ResolvedActionKind.Collect,
-                        _guide.GetZoneDisplay(sourceScene)
-                    );
-                    var explanation = NavigationExplanationBuilder.Build(
-                        semantic,
-                        nodeContext,
-                        sourceContext
-                    );
-
                     results.Add(
                         new ResolvedQuestTarget(
                             sourceKey,
@@ -499,19 +531,6 @@ public sealed class NavigationTargetResolver
             }
             else if (sourceNode.X.HasValue && sourceNode.Y.HasValue && sourceNode.Z.HasValue)
             {
-                var sourceContext = BuildNodeContext(sourceKey);
-                var semantic = BuildDirectNavigationSemantic(
-                    node,
-                    NavigationTargetKind.Item,
-                    ResolvedActionKind.Collect,
-                    _guide.GetZoneDisplay(sourceScene)
-                );
-                var explanation = NavigationExplanationBuilder.Build(
-                    semantic,
-                    nodeContext,
-                    sourceContext
-                );
-
                 results.Add(
                     new ResolvedQuestTarget(
                         sourceKey,
@@ -531,6 +550,51 @@ public sealed class NavigationTargetResolver
             }
         }
 
+        return results;
+    }
+
+    private IReadOnlyList<ResolvedQuestTarget> ResolveMutablePositionedEntityTargets(
+        string nodeKey,
+        Node node,
+        string currentScene
+    )
+    {
+        var positions = new List<ResolvedPosition>();
+        _positionResolvers.Resolve(nodeKey, positions);
+        if (positions.Count == 0)
+            return Array.Empty<ResolvedQuestTarget>();
+
+        var nodeContext = BuildNodeContext(nodeKey);
+        var actionKind =
+            node.Type == NodeType.MiningNode ? ResolvedActionKind.Mine : ResolvedActionKind.Collect;
+        var semantic = BuildDirectNavigationSemantic(
+            node,
+            NavigationTargetKind.Object,
+            actionKind,
+            _guide.GetZoneDisplay(node.Scene)
+        );
+        var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
+        var results = new List<ResolvedQuestTarget>(positions.Count);
+        for (int i = 0; i < positions.Count; i++)
+        {
+            var position = positions[i];
+            results.Add(
+                new ResolvedQuestTarget(
+                    nodeKey,
+                    position.Scene,
+                    position.SourceKey ?? nodeKey,
+                    nodeContext,
+                    nodeContext,
+                    semantic,
+                    explanation,
+                    position.X,
+                    position.Y,
+                    position.Z,
+                    isActionable: position.IsActionable,
+                    isBlockedPath: IsSceneBlocked(currentScene, position.Scene)
+                )
+            );
+        }
         return results;
     }
 

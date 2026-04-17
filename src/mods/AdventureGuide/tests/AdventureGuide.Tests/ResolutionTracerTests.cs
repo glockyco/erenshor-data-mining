@@ -25,9 +25,16 @@ public sealed class ResolutionTracerTests
             guide,
             tracker,
             unlocks,
-            new NullLivePositionProvider()
+            new NullLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            frontier,
+            sourceResolver,
+            null,
+            TestPositionResolvers.Create(guide)
+        );
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:a", "TestScene", tracer);
@@ -60,9 +67,16 @@ public sealed class ResolutionTracerTests
             guide,
             tracker,
             unlocks,
-            new NullLivePositionProvider()
+            new NullLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            frontier,
+            sourceResolver,
+            null,
+            TestPositionResolvers.Create(guide)
+        );
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:b", "Zone1", tracer);
@@ -88,9 +102,16 @@ public sealed class ResolutionTracerTests
             guide,
             tracker,
             unlocks,
-            new NullLivePositionProvider()
+            new NullLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            frontier,
+            sourceResolver,
+            null,
+            TestPositionResolvers.Create(guide)
+        );
 
         // Should not throw with null tracer (default)
         var results = resolver.Resolve("quest:c", "TestScene");

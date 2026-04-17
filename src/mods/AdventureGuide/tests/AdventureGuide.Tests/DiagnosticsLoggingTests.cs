@@ -63,7 +63,8 @@ public sealed class DiagnosticsLoggingTests
             guide,
             phases,
             compiledUnlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var markerResolver = new MarkerQuestTargetResolver(
             guide,

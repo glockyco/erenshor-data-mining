@@ -28,7 +28,8 @@ public sealed class MarkerQuestTargetResolverTests
             guide,
             phases,
             unlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new MarkerQuestTargetResolver(guide, frontier, sourceResolver);
 
@@ -58,7 +59,8 @@ public sealed class MarkerQuestTargetResolverTests
             guide,
             phases,
             unlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var resolver = new MarkerQuestTargetResolver(guide, frontier, sourceResolver);
 

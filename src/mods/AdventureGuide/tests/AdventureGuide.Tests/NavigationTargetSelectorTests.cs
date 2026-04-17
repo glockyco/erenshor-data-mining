@@ -36,13 +36,14 @@ public sealed class NavigationTargetSelectorTests
         string? sourceKey = null,
         string? requiredForQuestKey = null,
         bool isBlockedPath = false,
-        bool isGuaranteedLoot = false
+        bool isGuaranteedLoot = false,
+        NodeType targetNodeType = NodeType.Character
     )
     {
         var stubNode = new Node
         {
             Key = targetNodeKey,
-            Type = NodeType.Character,
+            Type = targetNodeType,
             DisplayName = targetNodeKey,
         };
         var ctx = new ResolvedNodeContext(targetNodeKey, stubNode);
@@ -381,13 +382,15 @@ public sealed class NavigationTargetSelectorTests
             guide,
             phases,
             unlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var navigationResolver = new NavigationTargetResolver(
             guide,
             frontier,
             sourceResolver,
-            harness.Router
+            harness.Router,
+            TestPositionResolvers.Create(guide)
         );
 
         var selector = new NavigationTargetSelector(
@@ -504,6 +507,65 @@ public sealed class NavigationTargetSelectorTests
         selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
         selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
         Assert.Equal(v1, selector.Version);
+    }
+
+    [Fact]
+    public void Tick_NoForce_RefreshesCachedMiningActionabilityFromPositionResolver()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddMiningNode("mine:mined", scene: ZoneA, x: 5f, y: 0f, z: 0f)
+            .AddMiningNode("mine:available", scene: ZoneA, x: 20f, y: 0f, z: 0f)
+            .Build();
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: 5f,
+                targetNodeKey: "mine:mined",
+                sourceKey: "mine:mined",
+                isActionable: true,
+                targetNodeType: NodeType.MiningNode
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 20f,
+                targetNodeKey: "mine:available",
+                sourceKey: "mine:available",
+                isActionable: true,
+                targetNodeType: NodeType.MiningNode
+            ),
+        };
+        var actionabilityByKey = new Dictionary<string, bool>
+        {
+            ["mine:mined"] = true,
+            ["mine:available"] = true,
+        };
+        var positionRegistry = TestPositionResolvers.Create(guide, actionabilityByKey);
+
+        var selector = new NavigationTargetSelector(
+            (key, _) =>
+                key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                    : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter(),
+            guide: guide,
+            positionResolvers: positionRegistry
+        );
+
+        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("mine:mined", first.Target.TargetNodeKey);
+
+        int versionAfterForce = selector.Version;
+        actionabilityByKey["mine:mined"] = false;
+
+        selector.Tick(0f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+
+
+        Assert.True(selector.TryGet("quest:test", out var second));
+        Assert.Equal("mine:available", second.Target.TargetNodeKey);
+        Assert.False(targets[0].IsActionable);
+        Assert.True(selector.Version > versionAfterForce);
     }
 
     // -- Blocked-path priority tests -----------------------------------------------
@@ -767,5 +829,38 @@ public sealed class NavigationTargetSelectorTests
         selector.Tick(100f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out selected));
         Assert.Equal("far", selected.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void DumpCandidates_IncludesActionabilityAndSelectionForMatchingTarget()
+    {
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: 5f,
+                targetNodeKey: "mined",
+                sourceKey: "mine:mined",
+                isActionable: false
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 20f,
+                targetNodeKey: "available",
+                sourceKey: "mine:available",
+                isActionable: true
+            ),
+        };
+        var selector = new NavigationTargetSelector((_, _) => targets, EmptyRouter());
+
+        selector.Tick(PX, PY, PZ, ZoneA, new[] { "quest:a" }, force: true);
+        string text = selector.DumpCandidates(PX, PY, PZ, ZoneA, "available");
+
+        Assert.Contains("RequestKey: quest:a", text, StringComparison.Ordinal);
+        Assert.Contains("Selected: available", text, StringComparison.Ordinal);
+        Assert.Contains("key=mined", text, StringComparison.Ordinal);
+        Assert.Contains("actionable=False", text, StringComparison.Ordinal);
+        Assert.Contains("key=available", text, StringComparison.Ordinal);
+        Assert.Contains("actionable=True", text, StringComparison.Ordinal);
     }
 }

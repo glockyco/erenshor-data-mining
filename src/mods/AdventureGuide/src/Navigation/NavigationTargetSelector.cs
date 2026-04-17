@@ -61,6 +61,7 @@ public sealed class NavigationTargetSelector
     private readonly ZoneRouter _router;
     private readonly CompiledGuideModel? _guide;
     private readonly LiveStateTracker? _liveState;
+    private readonly PositionResolverRegistry? _positionResolvers;
     private readonly DiagnosticsCore? _diagnostics;
     private readonly Dictionary<string, SelectedNavTarget> _cache = new(StringComparer.Ordinal);
 
@@ -88,6 +89,7 @@ public sealed class NavigationTargetSelector
         ZoneRouter router,
         CompiledGuideModel guide,
         LiveStateTracker liveState,
+        PositionResolverRegistry positionResolvers,
         DiagnosticsCore? diagnostics = null
     )
         : this(
@@ -95,17 +97,18 @@ public sealed class NavigationTargetSelector
             router,
             guide,
             liveState,
+            positionResolvers,
             diagnostics,
             () => UnityEngine.Time.time,
             DefaultRerankIntervalSeconds
         ) { }
 
-    /// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
     internal NavigationTargetSelector(
         Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
         ZoneRouter router,
         CompiledGuideModel? guide = null,
         LiveStateTracker? liveState = null,
+        PositionResolverRegistry? positionResolvers = null,
         DiagnosticsCore? diagnostics = null,
         Func<float>? clock = null,
         float rerankInterval = 0f
@@ -115,6 +118,7 @@ public sealed class NavigationTargetSelector
         _router = router;
         _guide = guide;
         _liveState = liveState;
+        _positionResolvers = positionResolvers;
         _diagnostics = diagnostics;
         _clock = clock ?? (() => 0f);
         _rerankInterval = rerankInterval;
@@ -254,7 +258,59 @@ public sealed class NavigationTargetSelector
     public bool TryGet(string nodeKey, out SelectedNavTarget target) =>
         _cache.TryGetValue(nodeKey, out target);
 
+    internal string DumpCandidates(
+        float playerX,
+        float playerY,
+        float playerZ,
+        string currentZone,
+        string? selectedTargetNodeKey = null
+    )
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var kv in _entries)
+        {
+            if (!_cache.TryGetValue(kv.Key, out var selected))
+                continue;
+            if (
+                selectedTargetNodeKey != null
+                && !string.Equals(
+                    selected.Target.TargetNodeKey,
+                    selectedTargetNodeKey,
+                    StringComparison.Ordinal
+                )
+            )
+                continue;
+
+            sb.AppendLine($"RequestKey: {kv.Key}");
+            sb.AppendLine(
+                $"  Selected: {selected.Target.TargetNodeKey} source={selected.Target.SourceKey} actionable={selected.Target.IsActionable} guaranteed={selected.Target.IsGuaranteedLoot} blocked={selected.Target.IsBlockedPath}"
+            );
+
+            for (int i = 0; i < kv.Value.SameZone.Count; i++)
+            {
+                var target = kv.Value.SameZone[i];
+                float dx = playerX - target.X;
+                float dy = playerY - target.Y;
+                float dz = playerZ - target.Z;
+                float dist = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
+                sb.AppendLine(
+                    $"  Candidate[{i}]: key={target.TargetNodeKey} source={target.SourceKey} scene={target.Scene ?? "(none)"} dist={dist:F1} actionable={target.IsActionable} guaranteed={target.IsGuaranteedLoot} blocked={target.IsBlockedPath}"
+                );
+            }
+        }
+
+        if (sb.Length == 0)
+        {
+            return selectedTargetNodeKey == null
+                ? "No cached navigation candidates"
+                : $"No cached navigation candidates for selected target '{selectedTargetNodeKey}'";
+        }
+
+        return sb.ToString();
+    }
+
     internal NavigationDiagnosticsSnapshot ExportDiagnosticsSnapshot()
+
     {
         return new NavigationDiagnosticsSnapshot(
             lastForceReason: _lastForceReason,
@@ -265,59 +321,87 @@ public sealed class NavigationTargetSelector
     }
 
     /// <summary>
-    /// Updates X/Y/Z and <see cref="ResolvedQuestTarget.IsActionable"/> on same-zone
-    /// character targets using live scene state.
+    /// Refreshes cached same-zone mutable targets from canonical live truth.
     ///
-    /// Only iterates <see cref="TargetEntry.SameZoneCharacters"/>, pre-filtered at force
-    /// time, so the full target list is never re-scanned per frame.
+    /// Character targets follow live spawn occupancy. Mining and item-bag targets
+    /// refresh through the shared position-resolver registry so selector cache
+    /// truth matches fresh resolution without requiring a forced rebuild.
     /// </summary>
     private void UpdateLivePositions(TargetEntry entry, string currentZone)
     {
-        if (_liveState == null || _guide == null)
+        for (int i = 0; i < entry.SameZoneMutableTargets.Count; i++)
+        {
+            var t = entry.SameZoneMutableTargets[i];
+            switch (t.TargetNode.Node.Type)
+            {
+                case NodeType.Character:
+                    RefreshCharacterTarget(t);
+                    break;
+                case NodeType.MiningNode:
+                case NodeType.ItemBag:
+                    RefreshResolvedPositionTarget(t);
+                    break;
+            }
+        }
+    }
+
+    private void RefreshCharacterTarget(ResolvedQuestTarget target)
+    {
+        if (_liveState == null || _guide == null || target.SourceKey == null)
             return;
 
-        // SameZoneCharacters was pre-filtered at force time: only Character-type
-        // targets whose Scene matches currentZone (or have no scene constraint).
-        for (int i = 0; i < entry.SameZoneCharacters.Count; i++)
+        var spawnNode = _guide.GetNode(target.SourceKey);
+        // SourceKey may resolve to a Character node in the rare no-spawn-edges
+        // fallback path. GetLiveNpcPosition expects a SpawnPoint node.
+        if (spawnNode?.Type != NodeType.SpawnPoint)
+            return;
+
+        var pos = _liveState.GetLiveNpcPosition(spawnNode);
+        if (pos != null)
         {
-            var t = entry.SameZoneCharacters[i];
-            if (t.SourceKey == null)
-                continue;
-
-            var spawnNode = _guide.GetNode(t.SourceKey);
-            // SourceKey may resolve to a Character node in the rare no-spawn-edges
-            // fallback path. GetLiveNpcPosition expects a SpawnPoint node.
-            if (spawnNode?.Type != NodeType.SpawnPoint)
-                continue;
-
-            var pos = _liveState.GetLiveNpcPosition(spawnNode);
-            if (pos != null)
-            {
-                // NPC alive: update to live position and ensure actionable.
-                // Corrects stale isActionable=false from when the previous
-                // NPC's corpse had no required loot.
-                t.X = pos.Value.x;
-                t.Y = pos.Value.y;
-                t.Z = pos.Value.z;
-                t.IsActionable = true;
-            }
-            else if (_liveState.IsSpawnEmpty(spawnNode))
-            {
-                // Spawn completely empty (corpse rotted, no game object).
-                // Point to static spawn coordinates so the arrow shows the
-                // respawn location rather than the last-seen corpse position.
-                if (spawnNode.X.HasValue && spawnNode.Y.HasValue && spawnNode.Z.HasValue)
-                {
-                    t.X = spawnNode.X.Value;
-                    t.Y = spawnNode.Y.Value;
-                    t.Z = spawnNode.Z.Value;
-                }
-                t.IsActionable = false;
-            }
-            // else: corpse is present (game object exists, NPC dead).
-            // isActionable was set correctly by CorpseContainsItem during
-            // resolution. Leave both position and actionability unchanged.
+            // NPC alive: update to live position and ensure actionable.
+            // Corrects stale isActionable=false from when the previous
+            // NPC's corpse had no required loot.
+            target.X = pos.Value.x;
+            target.Y = pos.Value.y;
+            target.Z = pos.Value.z;
+            target.IsActionable = true;
         }
+        else if (_liveState.IsSpawnEmpty(spawnNode))
+        {
+            // Spawn completely empty (corpse rotted, no game object).
+            // Point to static spawn coordinates so the arrow shows the
+            // respawn location rather than the last-seen corpse position.
+            if (spawnNode.X.HasValue && spawnNode.Y.HasValue && spawnNode.Z.HasValue)
+            {
+                target.X = spawnNode.X.Value;
+                target.Y = spawnNode.Y.Value;
+                target.Z = spawnNode.Z.Value;
+            }
+            target.IsActionable = false;
+        }
+        // else: corpse is present (game object exists, NPC dead).
+        // isActionable was set correctly by CorpseContainsItem during
+        // resolution. Leave both position and actionability unchanged.
+    }
+
+    private void RefreshResolvedPositionTarget(ResolvedQuestTarget target)
+    {
+        if (_positionResolvers == null)
+            return;
+
+        string nodeKey = target.SourceKey ?? target.TargetNodeKey;
+        var positions = new List<ResolvedPosition>();
+        _positionResolvers.Resolve(nodeKey, positions);
+        if (positions.Count == 0)
+            return;
+
+        ResolvedPosition position = positions[0];
+        target.X = position.X;
+        target.Y = position.Y;
+        target.Z = position.Z;
+        target.IsActionable = position.IsActionable;
+
     }
 
     /// <summary>
@@ -532,7 +616,7 @@ public sealed class NavigationTargetSelector
     /// Rebuilt on each forced <see cref="Tick"/>; inner collections are retained across
     /// force ticks so they can be cleared and refilled without reallocation on every
     /// live-world event. The same <see cref="ResolvedQuestTarget"/> objects appear in
-    /// <see cref="All"/>, <see cref="SameZone"/>, and <see cref="SameZoneCharacters"/> —
+    /// <see cref="All"/>, <see cref="SameZone"/>, and <see cref="SameZoneMutableTargets"/> —
     /// mutations by <see cref="UpdateLivePositions"/> propagate consistently.
     /// </summary>
     private sealed class TargetEntry
@@ -547,10 +631,10 @@ public sealed class NavigationTargetSelector
         public readonly List<ResolvedQuestTarget> SameZone = new();
 
         /// <summary>
-        /// Subset of <see cref="SameZone"/> containing only Character-type targets.
-        /// Iterated by <see cref="UpdateLivePositions"/> to avoid scanning the full list.
+        /// Same-zone targets whose position or actionability can change while the
+        /// selector cache remains valid.
         /// </summary>
-        public readonly List<ResolvedQuestTarget> SameZoneCharacters = new();
+        public readonly List<ResolvedQuestTarget> SameZoneMutableTargets = new();
 
         /// <summary>
         /// Cross-zone representatives for unblocked-path targets: one per destination
@@ -576,7 +660,7 @@ public sealed class NavigationTargetSelector
         {
             All = all;
             SameZone.Clear();
-            SameZoneCharacters.Clear();
+            SameZoneMutableTargets.Clear();
             CrossZoneDirect.Clear();
             CrossZoneBlocked.Clear();
 
@@ -593,8 +677,11 @@ public sealed class NavigationTargetSelector
                 if (sameZone)
                 {
                     SameZone.Add(t);
-                    if (t.TargetNode.Node.Type == NodeType.Character)
-                        SameZoneCharacters.Add(t);
+                    if (
+                        t.TargetNode.Node.Type
+                        is NodeType.Character or NodeType.MiningNode or NodeType.ItemBag
+                    )
+                        SameZoneMutableTargets.Add(t);
                 }
                 else if (!string.IsNullOrEmpty(t.Scene))
                 {

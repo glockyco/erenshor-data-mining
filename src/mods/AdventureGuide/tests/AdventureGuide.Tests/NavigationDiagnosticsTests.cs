@@ -56,7 +56,8 @@ public sealed class NavigationDiagnosticsTests
             guide,
             phases,
             unlocks,
-            new StubLivePositionProvider()
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
         );
         var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
         var resolver = new NavigationTargetResolver(
@@ -64,6 +65,7 @@ public sealed class NavigationDiagnosticsTests
             frontier,
             sourceResolver,
             null,
+            TestPositionResolvers.Create(guide),
             () => 0,
             core
         );
