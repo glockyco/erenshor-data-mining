@@ -260,6 +260,39 @@ public sealed class NavigationTargetResolverTests
         Assert.True(Assert.Single(targets).IsBlockedPath);
     }
 
+    [Fact]
+    public void Resolve_QuestKey_WithLockedRoute_CutsOverToUnlockItemSource()
+    {
+        var builder = new CompiledGuideBuilder()
+            .AddZone("zone:a", scene: "ZoneA")
+            .AddZone("zone:b", scene: "ZoneB")
+            .AddZoneLine("zl:ab", scene: "ZoneA", destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 5f)
+            .AddItem("item:key")
+            .AddCharacter("char:keykeeper", scene: "ZoneA", x: 2f, y: 3f, z: 4f)
+            .AddItemSource("item:key", "char:keykeeper", edgeType: (byte)EdgeType.GivesItem, sourceType: (byte)NodeType.Character)
+            .AddEdge("item:key", "zl:ab", EdgeType.UnlocksZoneLine)
+            .AddUnlockPredicate("zl:ab", "item:key", checkType: 1)
+            .AddItem("item:fish")
+            .AddWater("water:pond", scene: "ZoneB", x: 5f, y: 6f, z: 7f)
+            .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
+        var harness = SnapshotHarness.FromSnapshot(builder.Build(), new StateSnapshot { CurrentZone = "ZoneA", ActiveQuests = ["ROOT"] });
+        var phases = new QuestPhaseTracker(harness.Guide);
+        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(harness.Guide, phases);
+        var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
+        var sourceResolver = new SourceResolver(harness.Guide, phases, unlocks, new StubLivePositionProvider());
+        var resolver = new NavigationTargetResolver(harness.Guide, frontier, sourceResolver, harness.Router);
+
+        var targets = resolver.Resolve("quest:root", "ZoneA");
+
+
+        var target = Assert.Single(targets);
+        Assert.Equal("char:keykeeper", target.TargetNodeKey);
+        Assert.Equal("item:key", target.GoalNode.Node.Key);
+        Assert.False(target.IsBlockedPath);
+    }
+
     private static NavigationTargetResolver BuildResolver(CompiledGuideModel guide, ZoneRouter? router = null)
     {
         var phases = new QuestPhaseTracker(guide);

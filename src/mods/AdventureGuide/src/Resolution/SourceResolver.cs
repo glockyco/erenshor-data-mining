@@ -90,6 +90,14 @@ public sealed class SourceResolver
         return results;
     }
 
+    public IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(int targetNodeId, FrontierEntry entry, string currentScene, IResolutionTracer? tracer = null)
+    {
+        var results = new List<ResolvedTarget>();
+        ResolveUnlockRequirements(targetNodeId, entry, currentScene, results, new HashSet<int>(), new HashSet<int>(), tracer);
+        return results;
+    }
+
+
     private void ResolveEntry(
         FrontierEntry entry,
         string currentScene,

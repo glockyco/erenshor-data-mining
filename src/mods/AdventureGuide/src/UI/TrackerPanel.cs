@@ -439,7 +439,10 @@ public sealed class TrackerPanel
 			return;
 		}
 
-		var summaryEntry = _summaryResolver.Resolve(quest.Key, dbName, _tracker.CurrentZone);
+		ResolvedQuestTarget? preferredTarget = _selector.TryGet(quest.Key, out var selected)
+		    ? selected.Target
+		    : null;
+		var summaryEntry = _summaryResolver.Resolve(quest.Key, dbName, _tracker.CurrentZone, preferredTarget, _tracker);
 		if (summaryEntry == null)
 			return;
 

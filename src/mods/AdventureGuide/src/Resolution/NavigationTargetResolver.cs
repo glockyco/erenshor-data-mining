@@ -79,11 +79,54 @@ public sealed class NavigationTargetResolver
         {
             var compiledTargets = _sourceResolver.ResolveTargets(frontier[i], currentScene, tracer);
             for (int j = 0; j < compiledTargets.Count; j++)
-                results.Add(ConvertCompiledTarget(compiledTargets[j], currentScene));
+                AppendQuestTarget(results, frontier[i], compiledTargets[j], currentScene, new HashSet<int>(), tracer);
         }
 
         return results;
     }
+
+    private void AppendQuestTarget(
+        List<ResolvedQuestTarget> results,
+        FrontierEntry entry,
+        ResolvedTarget target,
+        string currentScene,
+        HashSet<int> lockedHopTrail,
+        IResolutionTracer? tracer = null)
+    {
+        if (TryGetLockedHopNodeId(currentScene, target.Scene, out int lockedHopNodeId)
+            && lockedHopTrail.Add(lockedHopNodeId))
+        {
+            try
+            {
+                var unlockTargets = _sourceResolver.ResolveUnlockTargets(lockedHopNodeId, entry, currentScene, tracer);
+                if (unlockTargets.Count > 0)
+                {
+                    for (int i = 0; i < unlockTargets.Count; i++)
+                        AppendQuestTarget(results, entry, unlockTargets[i], currentScene, lockedHopTrail, tracer);
+                    return;
+                }
+            }
+            finally
+            {
+                lockedHopTrail.Remove(lockedHopNodeId);
+            }
+        }
+
+        results.Add(ConvertCompiledTarget(target, currentScene));
+    }
+
+    private bool TryGetLockedHopNodeId(string currentScene, string? targetScene, out int lockedHopNodeId)
+    {
+        lockedHopNodeId = -1;
+        if (_zoneRouter == null || string.IsNullOrWhiteSpace(currentScene) || string.IsNullOrWhiteSpace(targetScene))
+            return false;
+        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, targetScene);
+        return lockedHop != null && _guide.TryGetNodeId(lockedHop.ZoneLineKey, out lockedHopNodeId);
+    }
+
 
     private ResolvedQuestTarget ConvertCompiledTarget(ResolvedTarget target, string currentScene)
     {

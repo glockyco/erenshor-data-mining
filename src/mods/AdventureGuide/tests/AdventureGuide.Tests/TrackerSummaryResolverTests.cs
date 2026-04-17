@@ -1,5 +1,8 @@
+using AdventureGuide.Diagnostics;
+using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
 
@@ -69,6 +72,58 @@ public sealed class TrackerSummaryResolverTests
 
         var resolved = Assert.IsType<TrackerSummary>(summary);
         Assert.Equal("Talk to char:elder", resolved.PrimaryText);
+    }
+
+    [Fact]
+    public void Resolve_WithPreferredSelectedTarget_UsesSelectedTargetSummary()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:ore")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:ore", 1) })
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var deps = new GuideDependencyEngine();
+        var tracker = new QuestStateTracker(guide, deps);
+        tracker.LoadState("Forest", new[] { "ROOT" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var goalNode = new ResolvedNodeContext("item:ore", new Node { Key = "item:ore", Type = NodeType.Item, DisplayName = "Iron Ore" });
+        var targetNode = new ResolvedNodeContext("mine:ore", new Node { Key = "mine:ore", Type = NodeType.MiningNode, DisplayName = "Mineral Deposit" });
+        var semantic = new ResolvedActionSemantic(
+            NavigationGoalKind.CollectItem,
+            NavigationTargetKind.Object,
+            ResolvedActionKind.Mine,
+            goalNodeKey: "item:ore",
+            goalQuantity: 1,
+            keywordText: null,
+            payloadText: "Iron Ore",
+            targetIdentityText: "Mineral Deposit",
+            contextText: null,
+            rationaleText: null,
+            zoneText: null,
+            availabilityText: null,
+            preferredMarkerKind: QuestMarkerKind.Objective,
+            markerPriority: 10);
+        var preferredTarget = new ResolvedQuestTarget(
+            "mine:ore",
+            "Forest",
+            "mine:ore",
+            goalNode,
+            targetNode,
+            semantic,
+            NavigationExplanationBuilder.Build(semantic, goalNode, targetNode),
+            x: 1f,
+            y: 2f,
+            z: 3f,
+            isActionable: true);
+
+        var summary = resolver.Resolve("quest:root", "ROOT", "Forest", preferredTarget, tracker);
+
+        var resolved = Assert.IsType<TrackerSummary>(summary);
+        Assert.Equal("Collect Iron Ore", resolved.PrimaryText);
+        Assert.NotEqual("Mine Mineral Deposit", resolved.PrimaryText);
     }
 
     [Fact]
