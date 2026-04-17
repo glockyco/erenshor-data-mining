@@ -252,7 +252,8 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledQuestTracker,
             _compiledUnlocks,
             _zoneRouter,
-            () => _questTracker.CurrentZone);
+            () => _questTracker.CurrentZone,
+            _diagnostics);
         viewRenderer = new ViewRenderer(
             _compiledGuide,
             _gameState,
@@ -266,7 +267,8 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledGuide,
             _compiledQuestTracker,
             _compiledFrontier,
-            _compiledSourceResolver);
+            _compiledSourceResolver,
+            _diagnostics);
         _trackerPanel = new TrackerPanel(
             _compiledGuide,
             _questTracker,

@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using AdventureGuide.CompiledGuide;
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Position;
@@ -20,42 +22,72 @@ public sealed class SpecTreeProjector
     private readonly UnlockPredicateEvaluator _unlocks;
     private readonly ZoneRouter? _zoneRouter;
     private readonly Func<string> _currentSceneProvider;
+    private readonly DiagnosticsCore? _diagnostics;
+    private int _lastProjectedNodeCount;
+    private int _lastChildCount;
+    private int _lastPrunedCount;
+    private int _lastCyclePruneCount;
 
-    public SpecTreeProjector(
+    internal SpecTreeProjector(
         CompiledGuide.CompiledGuide guide,
         QuestPhaseTracker phases,
         UnlockPredicateEvaluator unlocks,
         ZoneRouter? zoneRouter,
-        Func<string>? currentSceneProvider = null)
+        Func<string>? currentSceneProvider = null,
+        DiagnosticsCore? diagnostics = null)
     {
         _guide = guide;
         _phases = phases;
         _unlocks = unlocks;
         _zoneRouter = zoneRouter;
         _currentSceneProvider = currentSceneProvider ?? (() => string.Empty);
+        _diagnostics = diagnostics;
     }
 
     public IReadOnlyList<SpecTreeRef> GetRootChildren(int questIndex)
     {
-        return GetQuestChildren(questIndex, new[] { _guide.QuestNodeId(questIndex) });
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+            primaryKey: _guide.GetNodeKey(_guide.QuestNodeId(questIndex)));
+        long startTick = Stopwatch.GetTimestamp();
+        try
+        {
+            _lastChildCount = 0;
+            _lastPrunedCount = 0;
+            _lastCyclePruneCount = 0;
+            var roots = GetQuestChildren(questIndex, new[] { _guide.QuestNodeId(questIndex) });
+            _lastProjectedNodeCount = roots.Count;
+            return roots;
+        }
+        finally
+        {
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _lastProjectedNodeCount, value1: _lastCyclePruneCount);
+        }
     }
 
     public IReadOnlyList<SpecTreeRef> GetChildren(SpecTreeRef parent)
     {
         if (HasAncestryCycle(parent))
             return Array.Empty<SpecTreeRef>();
+        IReadOnlyList<SpecTreeRef> children;
         if (parent.Kind == SpecTreeKind.Group)
-            return FilterVisible(parent.SyntheticChildren ?? Array.Empty<SpecTreeRef>());
-
-        if (parent.Kind == SpecTreeKind.Prerequisite)
+            children = FilterVisible(parent.SyntheticChildren ?? Array.Empty<SpecTreeRef>());
+        else if (parent.Kind == SpecTreeKind.Prerequisite)
         {
             int prereqQuestIndex = _guide.FindQuestIndex(parent.NodeId);
-            return prereqQuestIndex >= 0
+            children = prereqQuestIndex >= 0
                 ? FilterVisible(GetQuestChildren(prereqQuestIndex, parent.Ancestry))
                 : Array.Empty<SpecTreeRef>();
         }
+        else
+        {
+            children = FilterVisible(GetNodeChildren(parent));
+        }
 
-        return FilterVisible(GetNodeChildren(parent));
+        _lastChildCount = children.Count;
+        return children;
     }
 
     private IReadOnlyList<SpecTreeRef> GetNodeChildren(SpecTreeRef parent)
@@ -153,7 +185,10 @@ public sealed class SpecTreeProjector
         foreach (var condition in predicate.Conditions)
         {
             if (ancestry.Contains(condition.SourceId))
+            {
+                _lastCyclePruneCount++;
                 continue;
+            }
             results.Add(BuildUnlockConditionRef(questIndex, condition, ancestry));
         }
     }
@@ -423,7 +458,10 @@ public sealed class SpecTreeProjector
     private void AddIfVisible(List<SpecTreeRef> results, SpecTreeRef candidate)
     {
         if (!IsMeaningfullyVisible(candidate))
+        {
+            _lastPrunedCount++;
             return;
+        }
         results.Add(candidate);
     }
 
@@ -456,14 +494,17 @@ public sealed class SpecTreeProjector
     }
 
 
-    private static bool HasAncestryCycle(SpecTreeRef candidate)
+    private bool HasAncestryCycle(SpecTreeRef candidate)
     {
         if (candidate.Ancestry.Length < 2)
             return false;
         for (int i = 0; i < candidate.Ancestry.Length - 1; i++)
         {
             if (candidate.Ancestry[i] == candidate.NodeId)
+            {
+                _lastCyclePruneCount++;
                 return true;
+            }
         }
         return false;
     }
@@ -475,7 +516,10 @@ public sealed class SpecTreeProjector
         for (int i = 0; i < conditions.Count; i++)
         {
             if (ancestry.Contains(conditions[i].SourceId))
+            {
+                _lastCyclePruneCount++;
                 continue;
+            }
             children.Add(BuildUnlockConditionRef(questIndex, conditions[i], ancestry));
         }
         return children.ToArray();
@@ -595,12 +639,21 @@ public sealed class SpecTreeProjector
             if (blueprint.QuestId == questNodeId && blueprint.CharacterId == completerId)
             {
                 interactionType = blueprint.InteractionType;
-                keyword = interactionType == 1 ? blueprint.Keyword : null;
+                keyword = blueprint.Keyword;
                 return;
             }
         }
 
         interactionType = 0;
         keyword = null;
+    }
+
+    internal SpecTreeDiagnosticsSnapshot ExportDiagnosticsSnapshot()
+    {
+        return new SpecTreeDiagnosticsSnapshot(
+            lastProjectedNodeCount: _lastProjectedNodeCount,
+            lastChildCount: _lastChildCount,
+            lastPrunedCount: _lastPrunedCount,
+            lastCyclePruneCount: _lastCyclePruneCount);
     }
 }
