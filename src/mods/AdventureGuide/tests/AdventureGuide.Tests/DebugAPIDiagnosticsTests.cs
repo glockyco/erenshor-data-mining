@@ -69,4 +69,43 @@ public sealed class DebugAPIDiagnosticsTests
         Assert.Contains("projected nodes=11", text, StringComparison.Ordinal);
         DebugAPI.Diagnostics = null;
     }
+
+    [Fact]
+    public void DumpAllIncidents_ReturnsDetailedHistoryNewestFirst()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
+            frameStallTicks: 50,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(16, 16, 8, thresholds);
+
+        var first = core.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            DiagnosticsContext.Root(DiagnosticTrigger.InventoryChanged),
+            primaryKey: "quest:first"
+        );
+        core.EndSpan(first, elapsedTicks: 10, value0: 4, value1: 2);
+
+        var second = core.BeginSpan(
+            DiagnosticSpanKind.NavSelectorTick,
+            DiagnosticsContext.Root(DiagnosticTrigger.NavSetChanged),
+            primaryKey: "quest:second"
+        );
+        core.EndSpan(second, elapsedTicks: 10);
+        DebugAPI.Diagnostics = core;
+
+        string text = DebugAPI.DumpAllIncidents();
+
+        Assert.Contains("=== Incident 1 ===", text, StringComparison.Ordinal);
+        Assert.Contains("quest:second", text, StringComparison.Ordinal);
+        Assert.Contains("quest:first", text, StringComparison.Ordinal);
+        Assert.True(
+            text.IndexOf("quest:second", StringComparison.Ordinal)
+                < text.IndexOf("quest:first", StringComparison.Ordinal)
+        );
+        DebugAPI.Diagnostics = null;
+    }
 }

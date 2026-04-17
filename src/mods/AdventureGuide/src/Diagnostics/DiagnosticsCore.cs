@@ -170,12 +170,29 @@ internal sealed class DiagnosticsCore
         return IncidentReportFormatter.FormatDetailed(bundle);
     }
 
+    public string FormatAllIncidents()
+    {
+        var incidents = GetRecentIncidents();
+        if (incidents.Count == 0)
+            return "No incidents in history.";
+
+        var sb = new StringBuilder();
+        for (int i = incidents.Count - 1; i >= 0; i--)
+        {
+            if (sb.Length > 0)
+                sb.AppendLine().AppendLine();
+            sb.AppendLine($"=== Incident {i} ===");
+            sb.Append(IncidentReportFormatter.FormatDetailed(incidents[i]));
+        }
+        return sb.ToString();
+    }
+
     public string FormatDetailedIncidentAt(int index)
     {
         var incidents = GetRecentIncidents();
         if (incidents.Count == 0)
             return "No incidents in history.";
-        
+
         // Clamp index safely
         int clampedIndex = Math.Max(0, Math.Min(index, incidents.Count - 1));
         return IncidentReportFormatter.FormatDetailed(incidents[clampedIndex]);

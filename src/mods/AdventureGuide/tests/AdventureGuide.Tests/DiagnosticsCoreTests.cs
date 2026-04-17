@@ -317,4 +317,41 @@ public sealed class DiagnosticsCoreTests
         var label = core.FormatIncidentListLabel(0);
         Assert.Equal("[0] (invalid)", label);
     }
+
+    [Fact]
+    public void FormatAllIncidents_ReturnsDetailedHistoryNewestFirst()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
+            frameStallTicks: 50,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(eventCapacity: 8, spanCapacity: 8, incidentCapacity: 4, thresholds);
+
+        var first = core.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            DiagnosticsContext.Root(DiagnosticTrigger.InventoryChanged),
+            primaryKey: "quest:first"
+        );
+        core.EndSpan(first, elapsedTicks: 5, value0: 7, value1: 3);
+
+        var second = core.BeginSpan(
+            DiagnosticSpanKind.NavSelectorTick,
+            DiagnosticsContext.Root(DiagnosticTrigger.NavSetChanged),
+            primaryKey: "quest:second"
+        );
+        core.EndSpan(second, elapsedTicks: 5);
+
+        var formatted = core.FormatAllIncidents();
+
+        Assert.Contains("=== Incident 1 ===", formatted, StringComparison.Ordinal);
+        Assert.Contains("quest:second", formatted, StringComparison.Ordinal);
+        Assert.Contains("quest:first", formatted, StringComparison.Ordinal);
+        Assert.True(
+            formatted.IndexOf("quest:second", StringComparison.Ordinal)
+                < formatted.IndexOf("quest:first", StringComparison.Ordinal)
+        );
+    }
 }

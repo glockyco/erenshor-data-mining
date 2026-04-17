@@ -65,6 +65,12 @@ internal sealed class IncidentPanel
             ImGui.SetClipboardText(_diagnostics.FormatDetailedIncidentAt(_selectedIncidentIndex));
             _statusMessage = "Incident detail copied.";
         }
+        ImGui.SameLine();
+        if (ImGui.Button("Copy all incidents"))
+        {
+            ImGui.SetClipboardText(_diagnostics.FormatAllIncidents());
+            _statusMessage = "All incidents copied.";
+        }
 
         if (!string.IsNullOrEmpty(_statusMessage))
             ImGui.TextWrapped(_statusMessage);
