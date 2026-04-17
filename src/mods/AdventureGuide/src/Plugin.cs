@@ -187,14 +187,19 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledFrontier,
             _compiledSourceResolver,
             _zoneRouter,
-            () => _questTracker.Version);
+            () => _questTracker.Version,
+            _diagnostics);
         _markerQuestTargetResolver = new MarkerQuestTargetResolver(
             _compiledGuide,
             _compiledFrontier,
             _compiledSourceResolver);
 
         _targetSelector = new NavigationTargetSelector(
-            _navigationTargetResolver, _zoneRouter, _compiledGuide, _liveState);
+            _navigationTargetResolver,
+            _zoneRouter,
+            _compiledGuide,
+            _liveState,
+            _diagnostics);
 
         _navEngine = new NavigationEngine(
             _navSet,
@@ -203,7 +208,8 @@ public sealed class Plugin : BaseUnityPlugin
             _targetSelector,
             _zoneRouter,
             _liveState,
-            _unlockEvaluator);
+            _unlockEvaluator,
+            _diagnostics);
         _arrow = new ArrowRenderer(_navEngine);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -427,12 +433,13 @@ public sealed class Plugin : BaseUnityPlugin
         GuideProfiler.MarkerRecompute.Record(pt);
 
         int targetSourceVersion = _navigationTargetResolver!.Version;
-        bool forceSelector = TargetSelectorRefreshPolicy.ShouldForce(
+        var selectorDecision = TargetSelectorRefreshPolicy.Decide(
             liveChangeSet.HasMeaningfulChanges,
             targetSourceVersion,
             _lastResolutionVersion,
             _navSet!.Version,
             _lastNavSetVersion);
+        bool forceSelector = selectorDecision.Force;
         if (forceSelector)
         {
             _lastResolutionVersion = targetSourceVersion;
@@ -440,7 +447,14 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         pt = Stopwatch.GetTimestamp();
-        _targetSelector?.Tick(playerPos.x, playerPos.y, playerPos.z, _navEngine!.CurrentScene, AllNavigableNodeKeys(), forceSelector);
+        _targetSelector?.Tick(
+            playerPos.x,
+            playerPos.y,
+            playerPos.z,
+            _navEngine!.CurrentScene,
+            AllNavigableNodeKeys(),
+            forceSelector,
+            selectorDecision.Reason);
         GuideProfiler.SelectorTick.Record(pt);
 
         pt = Stopwatch.GetTimestamp();

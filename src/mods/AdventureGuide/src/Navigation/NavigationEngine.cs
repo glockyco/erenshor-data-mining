@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
@@ -22,6 +24,7 @@ public sealed class NavigationEngine
 	private readonly ZoneRouter _router;
 	private readonly LiveStateTracker _liveState;
 	private readonly UnlockEvaluator _unlocks;
+	private readonly DiagnosticsCore? _diagnostics;
 
 	public string? TargetNodeKey { get; private set; }
 	public Vector3? TargetPosition { get; private set; }
@@ -47,14 +50,15 @@ public sealed class NavigationEngine
 	// equivalent characters globally each frame.
 	private string? _targetSourceKey;
 
-	public NavigationEngine(
+	internal NavigationEngine(
 		NavigationSet navSet,
 		CompiledGuideModel guide,
 		Func<int> targetSourceVersion,
 		NavigationTargetSelector selector,
 		ZoneRouter router,
 		LiveStateTracker liveState,
-		UnlockEvaluator unlocks)
+		UnlockEvaluator unlocks,
+		DiagnosticsCore? diagnostics = null)
 	{
 		_navSet = navSet;
 		_guide = guide;
@@ -63,6 +67,7 @@ public sealed class NavigationEngine
 		_router = router;
 		_liveState = liveState;
 		_unlocks = unlocks;
+		_diagnostics = diagnostics;
 	}
 
 	public void OnSceneChanged(string sceneName)
@@ -77,39 +82,49 @@ public sealed class NavigationEngine
 
 	public void Update(Vector3 playerPosition)
 	{
-		if (_navSet.Keys.Count == 0)
+		var token = _diagnostics?.BeginSpan(
+			DiagnosticSpanKind.NavEngineUpdate,
+			DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+			primaryKey: CurrentScene);
+		long startTick = Stopwatch.GetTimestamp();
+		try
 		{
-			ClearTarget();
-			return;
-		}
-
-		bool navChanged      = _navSet.Version   != _lastNavSetVersion;
-		bool selectorChanged = _selector.Version != _lastSelectorVersion;
-		int targetSourceVersion = _targetSourceVersion();
-		bool sourceChanged   = targetSourceVersion != _lastResolutionVersion;
-		bool sceneChanged    = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
-
-		if (navChanged || selectorChanged || sceneChanged)
-		{
-			// Router accessibility depends on unlock state, not player position.
-			// Only rebuild when the navigation target source changed or the
-			// scene changed.
-			if (sourceChanged || sceneChanged)
+			if (_navSet.Keys.Count == 0)
 			{
-				_cachedRouteFrom = null;
-				_cachedRouteTo   = null;
-				_cachedRoute     = null;
-				_router.Rebuild();
+				ClearTarget();
+				return;
 			}
 
-			_lastNavSetVersion     = _navSet.Version;
-			_lastSelectorVersion   = _selector.Version;
-			_lastResolutionVersion = targetSourceVersion;
-			_lastResolveScene      = CurrentScene;
-		}
+			bool navChanged = _navSet.Version != _lastNavSetVersion;
+			bool selectorChanged = _selector.Version != _lastSelectorVersion;
+			int targetSourceVersion = _targetSourceVersion();
+			bool sourceChanged = targetSourceVersion != _lastResolutionVersion;
+			bool sceneChanged = !string.Equals(CurrentScene, _lastResolveScene, StringComparison.OrdinalIgnoreCase);
 
-		Resolve(playerPosition);
-		Track(playerPosition);
+			if (navChanged || selectorChanged || sceneChanged)
+			{
+				if (sourceChanged || sceneChanged)
+				{
+					_cachedRouteFrom = null;
+					_cachedRouteTo = null;
+					_cachedRoute = null;
+					_router.Rebuild();
+				}
+
+				_lastNavSetVersion = _navSet.Version;
+				_lastSelectorVersion = _selector.Version;
+				_lastResolutionVersion = targetSourceVersion;
+				_lastResolveScene = CurrentScene;
+			}
+
+			Resolve(playerPosition);
+			Track(playerPosition);
+		}
+		finally
+		{
+			if (token != null)
+				_diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _navSet.Count, value1: HopCount);
+		}
 	}
 
 	private void Resolve(Vector3 playerPosition)

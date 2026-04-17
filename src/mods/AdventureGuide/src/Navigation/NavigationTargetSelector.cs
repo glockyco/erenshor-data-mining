@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
@@ -53,10 +55,13 @@ public struct SelectedNavTarget
 /// </summary>
 public sealed class NavigationTargetSelector
 {
+	private const float DefaultRerankIntervalSeconds = 1f;
+
 	private readonly Func<string, string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
 	private readonly ZoneRouter _router;
 	private readonly CompiledGuideModel? _guide;
 	private readonly LiveStateTracker? _liveState;
+	private readonly DiagnosticsCore? _diagnostics;
 	private readonly Dictionary<string, SelectedNavTarget> _cache =
 		new(StringComparer.Ordinal);
 	// Per-key pre-decomposed target structure. Entries are retained across forced
@@ -68,6 +73,8 @@ public sealed class NavigationTargetSelector
 	private readonly Func<float> _clock;
 	private readonly float _rerankInterval;
 	private float _lastRerankTime = float.NegativeInfinity;
+	private DiagnosticTrigger _lastForceReason = DiagnosticTrigger.Unknown;
+	private int _lastResolvedTargetCount;
 
 	/// <summary>
 	/// Monotonically increasing version. Incremented after each cache refresh so
@@ -75,9 +82,22 @@ public sealed class NavigationTargetSelector
 	/// </summary>
 	public int Version { get; private set; }
 
-	public NavigationTargetSelector(NavigationTargetResolver resolution, ZoneRouter router,
-		CompiledGuideModel guide, LiveStateTracker liveState)
-		: this((key, scene) => resolution.Resolve(key, scene), router, guide, liveState, () => UnityEngine.Time.time, 1.0f) { }
+	internal NavigationTargetSelector(
+		NavigationTargetResolver resolution,
+		ZoneRouter router,
+		CompiledGuideModel guide,
+		LiveStateTracker liveState,
+		DiagnosticsCore? diagnostics = null)
+		: this(
+			(key, scene) => resolution.Resolve(key, scene),
+			router,
+			guide,
+			liveState,
+			diagnostics,
+			() => UnityEngine.Time.time,
+			DefaultRerankIntervalSeconds)
+	{
+	}
 
 	/// <summary>Test seam: inject a custom resolver without a live resolution service.</summary>
 	internal NavigationTargetSelector(
@@ -85,14 +105,16 @@ public sealed class NavigationTargetSelector
 		ZoneRouter router,
 		CompiledGuideModel? guide = null,
 		LiveStateTracker? liveState = null,
+		DiagnosticsCore? diagnostics = null,
 		Func<float>? clock = null,
 		float rerankInterval = 0f)
 	{
-		_resolver  = resolver;
-		_router    = router;
-		_guide     = guide;
+		_resolver = resolver;
+		_router = router;
+		_guide = guide;
 		_liveState = liveState;
-		_clock     = clock ?? (() => 0f);
+		_diagnostics = diagnostics;
+		_clock = clock ?? (() => 0f);
 		_rerankInterval = rerankInterval;
 	}
 
@@ -112,71 +134,93 @@ public sealed class NavigationTargetSelector
 	/// <paramref name="nodeKeys"/> is only consumed on forced ticks, so passing a lazy
 	/// iterator avoids allocation on non-forced frames.
 	/// </summary>
-	public void Tick(float playerX, float playerY, float playerZ, string currentZone,
-					 IEnumerable<string> nodeKeys, bool force = false)
+	internal void Tick(
+		float playerX,
+		float playerY,
+		float playerZ,
+		string currentZone,
+		IEnumerable<string> nodeKeys,
+		bool force = false,
+		DiagnosticTrigger forceReason = DiagnosticTrigger.Unknown)
 	{
-		float now = _clock();
-		bool due = now - _lastRerankTime >= _rerankInterval;
-		if (!force && !due)
-			return;
-		_lastRerankTime = now;
-
-		if (force)
+		var context = DiagnosticsContext.Root(force ? forceReason : DiagnosticTrigger.Unknown);
+		var token = _diagnostics?.BeginSpan(DiagnosticSpanKind.NavSelectorTick, context, primaryKey: currentZone);
+		long startTick = Stopwatch.GetTimestamp();
+		try
 		{
-			// Resolve fresh target lists and decompose each into same-zone and
-			// cross-zone partitions. Reuse existing TargetEntry objects to avoid
-			// reallocating their inner collections on every live-world event.
-			_activeKeys.Clear();
-			foreach (var key in nodeKeys)
+			float now = _clock();
+			bool due = now - _lastRerankTime >= _rerankInterval;
+			if (!force && !due)
+				return;
+			_lastRerankTime = now;
+
+			if (force)
 			{
-				_activeKeys.Add(key);
-				var targets = _resolver(key, currentZone);
-				if (targets.Count == 0)
-					continue;
-				if (!_entries.TryGetValue(key, out var entry))
+				_lastForceReason = forceReason;
+				_lastResolvedTargetCount = 0;
+				_diagnostics?.RecordEvent(new DiagnosticEvent(
+					DiagnosticEventKind.SelectorRefreshForced,
+					context,
+					timestampTicks: startTick,
+					primaryKey: currentZone,
+					value0: _entries.Count,
+					value1: 0));
+
+				_activeKeys.Clear();
+				foreach (var key in nodeKeys)
 				{
-					entry = new TargetEntry();
-					_entries[key] = entry;
+					_activeKeys.Add(key);
+					var targets = _resolver(key, currentZone);
+					_lastResolvedTargetCount += targets.Count;
+					if (targets.Count == 0)
+						continue;
+					if (!_entries.TryGetValue(key, out var entry))
+					{
+						entry = new TargetEntry();
+						_entries[key] = entry;
+					}
+					entry.Rebuild(targets, currentZone);
 				}
-				entry.Rebuild(targets, currentZone);
-			}
-			// Evict entries for keys no longer in the nav set.
-			_keysToEvict.Clear();
-			foreach (var k in _entries.Keys)
-				if (!_activeKeys.Contains(k))
-					_keysToEvict.Add(k);
-			foreach (var k in _keysToEvict)
-				_entries.Remove(k);
-			_cache.Clear();
-		}
 
-		// Re-run SelectBestCore every tick using current player position.
-		// Cost: O(same-zone targets) + O(unique cross-zone zones). No allocation
-		// because cross-zone reps were pre-built at force time.
-		bool changed = false;
-		foreach (var kv in _entries)
-		{
-			UpdateLivePositions(kv.Value, currentZone);
-			var selected = SelectBestCore(kv.Value, playerX, playerY, playerZ, currentZone, _router);
-			if (selected.HasValue)
+				_keysToEvict.Clear();
+				foreach (var k in _entries.Keys)
+					if (!_activeKeys.Contains(k))
+						_keysToEvict.Add(k);
+				foreach (var k in _keysToEvict)
+					_entries.Remove(k);
+				_cache.Clear();
+			}
+
+			bool changed = false;
+			foreach (var kv in _entries)
 			{
-				bool targetChanged = !_cache.TryGetValue(kv.Key, out var existing)
-					|| !string.Equals(
-						existing.Target.TargetInstanceKey,
-						selected.Value.Target.TargetInstanceKey,
-						StringComparison.Ordinal);
-				_cache[kv.Key] = selected.Value;
-				if (targetChanged)
+				UpdateLivePositions(kv.Value, currentZone);
+				var selected = SelectBestCore(kv.Value, playerX, playerY, playerZ, currentZone, _router);
+				if (selected.HasValue)
+				{
+					bool targetChanged = !_cache.TryGetValue(kv.Key, out var existing)
+						|| !string.Equals(
+							existing.Target.TargetInstanceKey,
+							selected.Value.Target.TargetInstanceKey,
+							StringComparison.Ordinal);
+					_cache[kv.Key] = selected.Value;
+					if (targetChanged)
+						changed = true;
+				}
+				else if (_cache.Remove(kv.Key))
+				{
 					changed = true;
+				}
 			}
-			else if (_cache.Remove(kv.Key))
-			{
-				changed = true;
-			}
-		}
 
-		if (force || changed)
-			Version++;
+			if (force || changed)
+				Version++;
+		}
+		finally
+		{
+			if (token != null)
+				_diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _entries.Count, value1: _lastResolvedTargetCount);
+		}
 	}
 
 	/// <summary>
@@ -185,6 +229,15 @@ public sealed class NavigationTargetSelector
 	/// </summary>
 	public bool TryGet(string nodeKey, out SelectedNavTarget target) =>
 		_cache.TryGetValue(nodeKey, out target);
+
+	internal NavigationDiagnosticsSnapshot ExportDiagnosticsSnapshot()
+	{
+		return new NavigationDiagnosticsSnapshot(
+			lastForceReason: _lastForceReason,
+			cacheEntryCount: _entries.Count,
+			currentTargetKey: null,
+			lastResolvedTargetCount: _lastResolvedTargetCount);
+	}
 
 	/// <summary>
 	/// Updates X/Y/Z and <see cref="ResolvedQuestTarget.IsActionable"/> on same-zone

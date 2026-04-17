@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Position;
@@ -17,53 +19,73 @@ public sealed class NavigationTargetResolver
     private readonly SourceResolver _sourceResolver;
     private readonly ZoneRouter? _zoneRouter;
     private readonly Func<int> _versionProvider;
+    private readonly DiagnosticsCore? _diagnostics;
+    private string? _lastResolvedNodeKey;
+    private int _lastResolvedTargetCount;
 
     public int Version => _versionProvider();
 
-    public NavigationTargetResolver(
+    internal NavigationTargetResolver(
         CompiledGuideModel guide,
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
         ZoneRouter? zoneRouter,
-        Func<int>? versionProvider = null)
+        Func<int>? versionProvider = null,
+        DiagnosticsCore? diagnostics = null)
     {
         _guide = guide;
         _frontier = frontier;
         _sourceResolver = sourceResolver;
         _zoneRouter = zoneRouter;
         _versionProvider = versionProvider ?? (() => 0);
+        _diagnostics = diagnostics;
     }
 
     public IReadOnlyList<ResolvedQuestTarget> Resolve(string nodeKey, string currentScene, IResolutionTracer? tracer = null)
     {
-        tracer?.OnResolveBegin(nodeKey);
-
-        if (string.IsNullOrWhiteSpace(nodeKey))
-            return Array.Empty<ResolvedQuestTarget>();
-
-        if (!_guide.TryGetNodeId(nodeKey, out int nodeId))
-            return Array.Empty<ResolvedQuestTarget>();
-
-        var node = _guide.GetNode(nodeId);
-        IReadOnlyList<ResolvedQuestTarget> results;
-        if (node.Type == NodeType.Quest)
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.NavResolverResolve,
+            DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+            primaryKey: nodeKey);
+        long startTick = Stopwatch.GetTimestamp();
+        try
         {
-            int questIndex = _guide.FindQuestIndex(nodeId);
-            if (questIndex < 0)
-            {
-                tracer?.OnResolveEnd(0);
+            tracer?.OnResolveBegin(nodeKey);
+
+            if (string.IsNullOrWhiteSpace(nodeKey))
                 return Array.Empty<ResolvedQuestTarget>();
+
+            if (!_guide.TryGetNodeId(nodeKey, out int nodeId))
+                return Array.Empty<ResolvedQuestTarget>();
+
+            var node = _guide.GetNode(nodeId);
+            IReadOnlyList<ResolvedQuestTarget> results;
+            if (node.Type == NodeType.Quest)
+            {
+                int questIndex = _guide.FindQuestIndex(nodeId);
+                if (questIndex < 0)
+                {
+                    tracer?.OnResolveEnd(0);
+                    return Array.Empty<ResolvedQuestTarget>();
+                }
+
+                results = ResolveQuestTargets(questIndex, currentScene, tracer);
+            }
+            else
+            {
+                results = ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
             }
 
-            results = ResolveQuestTargets(questIndex, currentScene, tracer);
+            _lastResolvedNodeKey = nodeKey;
+            _lastResolvedTargetCount = results.Count;
+            tracer?.OnResolveEnd(results.Count);
+            return results;
         }
-        else
+        finally
         {
-            results = ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _lastResolvedTargetCount, value1: 0);
         }
-
-        tracer?.OnResolveEnd(results.Count);
-        return results;
     }
 
     private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene, IResolutionTracer? tracer = null)
@@ -125,6 +147,15 @@ public sealed class NavigationTargetResolver
 
         var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, targetScene);
         return lockedHop != null && _guide.TryGetNodeId(lockedHop.ZoneLineKey, out lockedHopNodeId);
+    }
+
+    internal NavigationDiagnosticsSnapshot ExportDiagnosticsSnapshot()
+    {
+        return new NavigationDiagnosticsSnapshot(
+            lastForceReason: DiagnosticTrigger.Unknown,
+            cacheEntryCount: 0,
+            currentTargetKey: _lastResolvedNodeKey,
+            lastResolvedTargetCount: _lastResolvedTargetCount);
     }
 
 

@@ -1,3 +1,4 @@
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Navigation;
 using Xunit;
 
@@ -6,54 +7,58 @@ namespace AdventureGuide.Tests;
 public sealed class TargetSelectorRefreshPolicyTests
 {
     [Fact]
-    public void ShouldForce_WhenLiveWorldChanged_ReturnsTrue()
+    public void Decide_WhenLiveWorldChanged_ReturnsForceWithLiveWorldReason()
     {
-        bool force = TargetSelectorRefreshPolicy.ShouldForce(
+        var decision = TargetSelectorRefreshPolicy.Decide(
             liveWorldChanged: true,
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
-        Assert.True(force);
+        Assert.True(decision.Force);
+        Assert.Equal(DiagnosticTrigger.LiveWorldChanged, decision.Reason);
     }
 
     [Fact]
-    public void ShouldForce_WhenResolutionVersionChanged_ReturnsTrue()
+    public void Decide_WhenResolutionVersionChanged_ReturnsForceWithResolutionReason()
     {
-        bool force = TargetSelectorRefreshPolicy.ShouldForce(
+        var decision = TargetSelectorRefreshPolicy.Decide(
             liveWorldChanged: false,
             targetSourceVersion: 2,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
-        Assert.True(force);
+        Assert.True(decision.Force);
+        Assert.Equal(DiagnosticTrigger.TargetSourceVersionChanged, decision.Reason);
     }
 
     [Fact]
-    public void ShouldForce_WhenNavSetVersionChanged_ReturnsTrue()
+    public void Decide_WhenNavSetVersionChanged_ReturnsForceWithNavSetReason()
     {
-        bool force = TargetSelectorRefreshPolicy.ShouldForce(
+        var decision = TargetSelectorRefreshPolicy.Decide(
             liveWorldChanged: false,
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 2,
             lastNavSetVersion: 1);
 
-        Assert.True(force);
+        Assert.True(decision.Force);
+        Assert.Equal(DiagnosticTrigger.NavSetChanged, decision.Reason);
     }
 
     [Fact]
-    public void ShouldForce_WhenNothingChanged_ReturnsFalse()
+    public void Decide_WhenNothingChanged_ReturnsNoDecision()
     {
-        bool force = TargetSelectorRefreshPolicy.ShouldForce(
+        var decision = TargetSelectorRefreshPolicy.Decide(
             liveWorldChanged: false,
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
             lastNavSetVersion: 1);
 
-        Assert.False(force);
+        Assert.False(decision.Force);
+        Assert.Equal(DiagnosticTrigger.Unknown, decision.Reason);
     }
 }

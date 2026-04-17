@@ -1,3 +1,5 @@
+using AdventureGuide.Diagnostics;
+
 namespace AdventureGuide.Navigation;
 
 /// <summary>
@@ -9,17 +11,36 @@ namespace AdventureGuide.Navigation;
 /// despawned corpses, and other transient state changes that can change target
 /// actionability without changing the selected quest set.
 /// </summary>
+internal readonly struct TargetSelectorRefreshDecision
+{
+    public static readonly TargetSelectorRefreshDecision No = new(false, DiagnosticTrigger.Unknown);
+
+    public TargetSelectorRefreshDecision(bool force, DiagnosticTrigger reason)
+    {
+        Force = force;
+        Reason = reason;
+    }
+
+    public bool Force { get; }
+
+    public DiagnosticTrigger Reason { get; }
+}
+
 internal static class TargetSelectorRefreshPolicy
 {
-    public static bool ShouldForce(
+    public static TargetSelectorRefreshDecision Decide(
         bool liveWorldChanged,
         int targetSourceVersion,
         int lastTargetSourceVersion,
         int navSetVersion,
         int lastNavSetVersion)
     {
-        return liveWorldChanged
-            || targetSourceVersion != lastTargetSourceVersion
-            || navSetVersion != lastNavSetVersion;
+        if (liveWorldChanged)
+            return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.LiveWorldChanged);
+        if (targetSourceVersion != lastTargetSourceVersion)
+            return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.TargetSourceVersionChanged);
+        if (navSetVersion != lastNavSetVersion)
+            return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.NavSetChanged);
+        return TargetSelectorRefreshDecision.No;
     }
 }
