@@ -60,7 +60,9 @@ public sealed class QuestImplicitlyAvailable : NodeState { }
 public sealed class ItemCount : NodeState
 {
     public int Count { get; }
+
     public ItemCount(int count) => Count = count;
+
     public override bool IsSatisfied => Count > 0;
 }
 
@@ -74,6 +76,7 @@ public sealed class ZoneLineAccessible : NodeState
 public sealed class ZoneLineLocked : NodeState
 {
     public string Reason { get; }
+
     public ZoneLineLocked(string reason) => Reason = reason;
 }
 
@@ -87,6 +90,7 @@ public sealed class SpawnAlive : NodeState
 public sealed class SpawnDead : NodeState
 {
     public float RespawnSeconds { get; }
+
     public SpawnDead(float respawnSeconds) => RespawnSeconds = respawnSeconds;
 }
 
@@ -96,8 +100,9 @@ public sealed class SpawnNightLocked : NodeState { }
 
 public sealed class SpawnUnlockBlocked : NodeState
 {
-	public string Reason { get; }
-	public SpawnUnlockBlocked(string reason) => Reason = reason;
+    public string Reason { get; }
+
+    public SpawnUnlockBlocked(string reason) => Reason = reason;
 }
 
 // ── Mining node states ──────────────────────────────────────────────────
@@ -110,6 +115,7 @@ public sealed class MiningAvailable : NodeState
 public sealed class MiningMined : NodeState
 {
     public float RespawnSeconds { get; }
+
     public MiningMined(float respawnSeconds) => RespawnSeconds = respawnSeconds;
 }
 
@@ -123,6 +129,7 @@ public sealed class ItemBagAvailable : NodeState
 public sealed class ItemBagPickedUp : NodeState
 {
     public float RespawnSeconds { get; }
+
     public ItemBagPickedUp(float respawnSeconds) => RespawnSeconds = respawnSeconds;
 }
 
@@ -138,12 +145,14 @@ public sealed class DoorUnlocked : NodeState
 public sealed class DoorLocked : NodeState
 {
     public string KeyItemName { get; }
+
     public DoorLocked(string keyItemName) => KeyItemName = keyItemName;
 }
 
 public sealed class DoorClosed : NodeState
 {
     public string? KeyItemName { get; }
+
     public DoorClosed(string? keyItemName = null) => KeyItemName = keyItemName;
 }
 

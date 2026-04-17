@@ -33,12 +33,16 @@ internal static class TargetSelectorRefreshPolicy
         int targetSourceVersion,
         int lastTargetSourceVersion,
         int navSetVersion,
-        int lastNavSetVersion)
+        int lastNavSetVersion
+    )
     {
         if (liveWorldChanged)
             return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.LiveWorldChanged);
         if (targetSourceVersion != lastTargetSourceVersion)
-            return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.TargetSourceVersionChanged);
+            return new TargetSelectorRefreshDecision(
+                true,
+                DiagnosticTrigger.TargetSourceVersionChanged
+            );
         if (navSetVersion != lastNavSetVersion)
             return new TargetSelectorRefreshDecision(true, DiagnosticTrigger.NavSetChanged);
         return TargetSelectorRefreshDecision.No;

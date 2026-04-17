@@ -28,33 +28,56 @@ public sealed class TrackerTextTests
         string? payloadText = null,
         string? rationaleText = null,
         string? goalNodeKey = null,
-        int? goalQuantity = null)
+        int? goalQuantity = null
+    )
     {
-        var stub = new Node { Key = "stub", Type = NodeType.Character, DisplayName = "stub" };
+        var stub = new Node
+        {
+            Key = "stub",
+            Type = NodeType.Character,
+            DisplayName = "stub",
+        };
         return new ResolvedActionSemantic(
-            goalKind, NavigationTargetKind.Character, actionKind,
-            goalNodeKey, goalQuantity,
-            keywordText: null, payloadText, targetIdentityText,
-            contextText: null, rationaleText,
-            zoneText: null, availabilityText: null,
-            QuestMarkerKind.Objective, markerPriority: 20);
+            goalKind,
+            NavigationTargetKind.Character,
+            actionKind,
+            goalNodeKey,
+            goalQuantity,
+            keywordText: null,
+            payloadText,
+            targetIdentityText,
+            contextText: null,
+            rationaleText,
+            zoneText: null,
+            availabilityText: null,
+            QuestMarkerKind.Objective,
+            markerPriority: 20
+        );
     }
 
     private static ResolvedNodeContext FrontierCtx(string key, string displayName)
     {
-        var node = new Node { Key = key, Type = NodeType.Item, DisplayName = displayName };
+        var node = new Node
+        {
+            Key = key,
+            Type = NodeType.Item,
+            DisplayName = displayName,
+        };
         return new ResolvedNodeContext(key, node);
     }
 
     private static TrackerSummary Summary(
         ResolvedNodeContext frontierCtx,
         ResolvedActionSemantic semantic,
-        string? neededForContext = null) =>
+        string? neededForContext = null
+    ) =>
         NavigationExplanationBuilder.BuildTrackerSummary(
-            frontierCtx, semantic,
-            tracker: null!,       // only used for CollectItem quantity — irrelevant here
+            frontierCtx,
+            semantic,
+            tracker: null!, // only used for CollectItem quantity — irrelevant here
             additionalCount: 0,
-            prerequisiteQuestName: neededForContext);
+            prerequisiteQuestName: neededForContext
+        );
 
     // ── primary: quest-as-item-source ────────────────────────────────────────
 
@@ -68,10 +91,11 @@ public sealed class TrackerTextTests
             ResolvedActionKind.CompleteQuest,
             targetIdentityText: "Percy's Seaspice",
             payloadText: "A Rolled Note",
-            rationaleText: "Rewards A Rolled Note");
+            rationaleText: "Rewards A Rolled Note"
+        );
 
         var frontier = FrontierCtx("item:rolled-note", "A Rolled Note");
-        var summary  = Summary(frontier, semantic);
+        var summary = Summary(frontier, semantic);
 
         Assert.Equal("Complete Percy's Seaspice", summary.PrimaryText);
     }
@@ -86,10 +110,11 @@ public sealed class TrackerTextTests
             ResolvedActionKind.CompleteQuest,
             targetIdentityText: "Percy's Seaspice",
             payloadText: "A Rolled Note",
-            rationaleText: "Rewards A Rolled Note");
+            rationaleText: "Rewards A Rolled Note"
+        );
 
         var frontier = FrontierCtx("item:rolled-note", "A Rolled Note");
-        var summary  = Summary(frontier, semantic);
+        var summary = Summary(frontier, semantic);
 
         Assert.Equal("Rewards A Rolled Note", summary.SecondaryText);
         Assert.NotEqual("Needed for Percy's Seaspice", summary.SecondaryText);
@@ -106,10 +131,11 @@ public sealed class TrackerTextTests
             ResolvedActionKind.Kill,
             targetIdentityText: "Spark Beetle",
             payloadText: "Iron Ore",
-            rationaleText: "Drops Iron Ore");
+            rationaleText: "Drops Iron Ore"
+        );
 
         var frontier = FrontierCtx("item:iron-ore", "Iron Ore");
-        var summary  = Summary(frontier, semantic);
+        var summary = Summary(frontier, semantic);
 
         Assert.Equal("Collect Iron Ore", summary.PrimaryText);
     }
@@ -125,10 +151,11 @@ public sealed class TrackerTextTests
         var semantic = Semantic(
             NavigationGoalKind.KillTarget,
             ResolvedActionKind.Kill,
-            targetIdentityText: "Guard");
+            targetIdentityText: "Guard"
+        );
 
-        var frontier  = FrontierCtx("item:key", "Key");
-        var summary   = Summary(frontier, semantic, neededForContext: "Quest 2");
+        var frontier = FrontierCtx("item:key", "Key");
+        var summary = Summary(frontier, semantic, neededForContext: "Quest 2");
 
         Assert.Equal("Needed for Quest 2", summary.SecondaryText);
     }
@@ -141,10 +168,11 @@ public sealed class TrackerTextTests
         var semantic = Semantic(
             NavigationGoalKind.KillTarget,
             ResolvedActionKind.Kill,
-            targetIdentityText: "Guard");
+            targetIdentityText: "Guard"
+        );
 
         var frontier = FrontierCtx("item:key", "Key");
-        var summary  = Summary(frontier, semantic, neededForContext: null);
+        var summary = Summary(frontier, semantic, neededForContext: null);
 
         // Secondary is null or describes something other than a "Needed for" fallback.
         // The frontier node display name is "Key" which differs from "Guard",
@@ -156,7 +184,8 @@ public sealed class TrackerTextTests
             ResolvedActionKind.Kill,
             targetIdentityText: "Spark Beetle",
             payloadText: "Iron Ore",
-            rationaleText: "Drops Iron Ore");
+            rationaleText: "Drops Iron Ore"
+        );
 
         var collectSummary = Summary(FrontierCtx("item:iron-ore", "Iron Ore"), killSemantic, null);
         // CollectItem with null neededForContext → secondary is the rationale,

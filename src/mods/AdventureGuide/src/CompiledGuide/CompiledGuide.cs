@@ -7,9 +7,12 @@ public sealed class CompiledGuide
     private static readonly IReadOnlyList<Edge> EmptyEdgeList = Array.Empty<Edge>();
     private static readonly IReadOnlyList<Node> EmptyNodeList = Array.Empty<Node>();
     private static readonly IReadOnlyCollection<string> EmptyKeySet = Array.Empty<string>();
-    private static readonly IReadOnlyList<QuestGiverBlueprint> EmptyGiverBlueprints = Array.Empty<QuestGiverBlueprint>();
-    private static readonly IReadOnlyList<QuestCompletionBlueprint> EmptyCompletionBlueprints = Array.Empty<QuestCompletionBlueprint>();
-    private static readonly IReadOnlyList<StaticSourceBlueprint> EmptyStaticBlueprints = Array.Empty<StaticSourceBlueprint>();
+    private static readonly IReadOnlyList<QuestGiverBlueprint> EmptyGiverBlueprints =
+        Array.Empty<QuestGiverBlueprint>();
+    private static readonly IReadOnlyList<QuestCompletionBlueprint> EmptyCompletionBlueprints =
+        Array.Empty<QuestCompletionBlueprint>();
+    private static readonly IReadOnlyList<StaticSourceBlueprint> EmptyStaticBlueprints =
+        Array.Empty<StaticSourceBlueprint>();
 
     // Raw DTO arrays (int-indexed access)
     private readonly CompiledNodeData[] _nodes;
@@ -52,7 +55,10 @@ public sealed class CompiledGuide
     private readonly Dictionary<string, IReadOnlyCollection<string>> _questKeysByQuestKey;
     private readonly Dictionary<string, IReadOnlyCollection<string>> _questKeysBySourceKey;
     private readonly Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> _questGiversByScene;
-    private readonly Dictionary<string, IReadOnlyList<QuestCompletionBlueprint>> _questCompletionsByScene;
+    private readonly Dictionary<
+        string,
+        IReadOnlyList<QuestCompletionBlueprint>
+    > _questCompletionsByScene;
     private readonly Dictionary<string, IReadOnlyList<StaticSourceBlueprint>> _staticSourcesByScene;
 
     internal CompiledGuide(CompiledGuideData data)
@@ -99,13 +105,15 @@ public sealed class CompiledGuide
         {
             CompiledQuestSpecData spec = data.QuestSpecs[qi];
             _prereqIds[qi] = spec.PrereqQuestIds;
-            _requiredItems[qi] = spec.RequiredItems
-                .Select(r => new ItemReq(r.ItemId, r.Qty, r.Group))
+            _requiredItems[qi] = spec
+                .RequiredItems.Select(r => new ItemReq(r.ItemId, r.Qty, r.Group))
                 .ToArray();
             _stepOff[qi] = stepsList.Count;
             foreach (CompiledStepData step in spec.Steps)
             {
-                stepsList.Add(new StepEntry((byte)step.StepType, step.TargetId, (byte)step.Ordinal));
+                stepsList.Add(
+                    new StepEntry((byte)step.StepType, step.TargetId, (byte)step.Ordinal)
+                );
             }
             _giverIds[qi] = spec.GiverNodeIds;
             _completerIds[qi] = spec.CompleterNodeIds;
@@ -123,8 +131,8 @@ public sealed class CompiledGuide
             for (int si = 0; si < dtoSources.Length; si++)
             {
                 CompiledSourceSiteData s = dtoSources[si];
-                var positions = s.Positions
-                    .Select(p => new SpawnPositionEntry(p.SpawnId, p.X, p.Y, p.Z))
+                var positions = s
+                    .Positions.Select(p => new SpawnPositionEntry(p.SpawnId, p.X, p.Y, p.Z))
                     .ToArray();
                 entries[si] = new SourceSiteEntry(
                     s.SourceId,
@@ -133,7 +141,8 @@ public sealed class CompiledGuide
                     s.DirectItemId,
                     s.Scene,
                     positions,
-                    s.Keyword);
+                    s.Keyword
+                );
             }
             _itemSources[ii] = entries;
         }
@@ -142,30 +151,40 @@ public sealed class CompiledGuide
         _unlocks = new Dictionary<int, UnlockPredicateEntry>();
         foreach (CompiledUnlockPredicateData pred in data.UnlockPredicates)
         {
-            var conditions = pred.Conditions
-                .Select(c => new UnlockConditionEntry(c.SourceId, (byte)c.CheckType, (byte)c.Group))
+            var conditions = pred
+                .Conditions.Select(c => new UnlockConditionEntry(
+                    c.SourceId,
+                    (byte)c.CheckType,
+                    (byte)c.Group
+                ))
                 .ToArray();
-            _unlocks[pred.TargetId] = new UnlockPredicateEntry(conditions, pred.GroupCount, (byte)pred.Semantics);
+            _unlocks[pred.TargetId] = new UnlockPredicateEntry(
+                conditions,
+                pred.GroupCount,
+                (byte)pred.Semantics
+            );
         }
 
         // Build blueprints from DTO
-        _giverBlueprints = data.GiverBlueprints
-            .Select(g => new QuestGiverEntry(
+        _giverBlueprints = data
+            .GiverBlueprints.Select(g => new QuestGiverEntry(
                 g.QuestId,
                 g.CharacterId,
                 g.PositionId,
                 (byte)g.InteractionType,
                 g.Keyword,
-                g.RequiredQuestDbNames))
+                g.RequiredQuestDbNames
+            ))
             .ToArray();
 
-        _completionBlueprints = data.CompletionBlueprints
-            .Select(c => new QuestCompletion(
+        _completionBlueprints = data
+            .CompletionBlueprints.Select(c => new QuestCompletion(
                 c.QuestId,
                 c.CharacterId,
                 c.PositionId,
                 (byte)c.InteractionType,
-                c.Keyword))
+                c.Keyword
+            ))
             .ToArray();
 
         // Build infeasible bitset from DTO
@@ -207,7 +226,9 @@ public sealed class CompiledGuide
         for (int i = 0; i < _zoneNodeIds.Length; i++)
         {
             var zoneNode = _projectedNodes[_zoneNodeIds[i]];
-            if (!string.IsNullOrEmpty(zoneNode.Scene) && !string.IsNullOrEmpty(zoneNode.DisplayName))
+            if (
+                !string.IsNullOrEmpty(zoneNode.Scene) && !string.IsNullOrEmpty(zoneNode.DisplayName)
+            )
                 _sceneToZoneDisplay[zoneNode.Scene] = zoneNode.DisplayName;
         }
 
@@ -254,7 +275,8 @@ public sealed class CompiledGuide
     /// </summary>
     public string? GetZoneDisplay(string? scene) =>
         string.IsNullOrEmpty(scene) ? null
-        : _sceneToZoneDisplay.TryGetValue(scene, out string? display) ? display : scene;
+        : _sceneToZoneDisplay.TryGetValue(scene, out string? display) ? display
+        : scene;
 
     public string? GetDbName(int nodeId) => _nodes[nodeId].DbName;
 
@@ -370,7 +392,8 @@ public sealed class CompiledGuide
 
     public bool IsImplicit(int questIndex) => (_questFlags[questIndex] & 1) != 0;
 
-    public bool IsInfeasibleNode(int nodeId) => nodeId >= 0 && nodeId < _infeasible.Length && _infeasible[nodeId];
+    public bool IsInfeasibleNode(int nodeId) =>
+        nodeId >= 0 && nodeId < _infeasible.Length && _infeasible[nodeId];
 
     // ---------------------------------------------------------------
     // Item access (int-indexed)
@@ -406,7 +429,8 @@ public sealed class CompiledGuide
 
     public ReadOnlySpan<int> QuestsDependingOnItem(int itemIndex) => _itemToQuestIndices[itemIndex];
 
-    public ReadOnlySpan<int> QuestsDependingOnQuest(int questIndex) => _questToDependentQuestIndices[questIndex];
+    public ReadOnlySpan<int> QuestsDependingOnQuest(int questIndex) =>
+        _questToDependentQuestIndices[questIndex];
 
     // ---------------------------------------------------------------
     // Dependency lookups (string-keyed, high-level API)
@@ -440,7 +464,9 @@ public sealed class CompiledGuide
         _questGiversByScene.TryGetValue(scene, out var list) ? list : EmptyGiverBlueprints;
 
     public IReadOnlyList<QuestCompletionBlueprint> GetQuestCompletionsInScene(string scene) =>
-        _questCompletionsByScene.TryGetValue(scene, out var list) ? list : EmptyCompletionBlueprints;
+        _questCompletionsByScene.TryGetValue(scene, out var list)
+            ? list
+            : EmptyCompletionBlueprints;
 
     public IReadOnlyList<StaticSourceBlueprint> GetStaticSourcesInScene(string scene) =>
         _staticSourcesByScene.TryGetValue(scene, out var list) ? list : EmptyStaticBlueprints;
@@ -541,7 +567,10 @@ public sealed class CompiledGuide
         return result;
     }
 
-    private static Dictionary<string, Node> BuildQuestsByDbName(Node[] projectedNodes, int[] questNodeIds)
+    private static Dictionary<string, Node> BuildQuestsByDbName(
+        Node[] projectedNodes,
+        int[] questNodeIds
+    )
     {
         var map = new Dictionary<string, Node>(questNodeIds.Length, StringComparer.Ordinal);
         for (int qi = 0; qi < questNodeIds.Length; qi++)
@@ -620,7 +649,9 @@ public sealed class CompiledGuide
 
     private Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> BuildQuestGiversByScene()
     {
-        var map = new Dictionary<string, List<QuestGiverBlueprint>>(StringComparer.OrdinalIgnoreCase);
+        var map = new Dictionary<string, List<QuestGiverBlueprint>>(
+            StringComparer.OrdinalIgnoreCase
+        );
         for (int i = 0; i < _giverBlueprints.Length; i++)
         {
             var bp = _giverBlueprints[i];
@@ -637,10 +668,14 @@ public sealed class CompiledGuide
                 positionNode.Key,
                 positionNode.Scene,
                 new MarkerInteraction(
-                    bp.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
-                    bp.Keyword),
+                    bp.InteractionType == 1
+                        ? MarkerInteractionKind.SayKeyword
+                        : MarkerInteractionKind.TalkTo,
+                    bp.Keyword
+                ),
                 questNode.Repeatable,
-                bp.RequiredQuestDbNames);
+                bp.RequiredQuestDbNames
+            );
 
             if (!map.TryGetValue(positionNode.Scene, out var list))
             {
@@ -653,9 +688,14 @@ public sealed class CompiledGuide
         return FreezeListMap(map);
     }
 
-    private Dictionary<string, IReadOnlyList<QuestCompletionBlueprint>> BuildQuestCompletionsByScene()
+    private Dictionary<
+        string,
+        IReadOnlyList<QuestCompletionBlueprint>
+    > BuildQuestCompletionsByScene()
     {
-        var map = new Dictionary<string, List<QuestCompletionBlueprint>>(StringComparer.OrdinalIgnoreCase);
+        var map = new Dictionary<string, List<QuestCompletionBlueprint>>(
+            StringComparer.OrdinalIgnoreCase
+        );
         for (int i = 0; i < _completionBlueprints.Length; i++)
         {
             var bp = _completionBlueprints[i];
@@ -674,9 +714,13 @@ public sealed class CompiledGuide
                 positionNode.Key,
                 positionNode.Scene,
                 new MarkerInteraction(
-                    bp.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
-                    bp.Keyword),
-                questNode.Repeatable);
+                    bp.InteractionType == 1
+                        ? MarkerInteractionKind.SayKeyword
+                        : MarkerInteractionKind.TalkTo,
+                    bp.Keyword
+                ),
+                questNode.Repeatable
+            );
 
             if (!map.TryGetValue(positionNode.Scene, out var list))
             {
@@ -691,7 +735,9 @@ public sealed class CompiledGuide
 
     private Dictionary<string, IReadOnlyList<StaticSourceBlueprint>> BuildStaticSourcesByScene()
     {
-        var map = new Dictionary<string, List<StaticSourceBlueprint>>(StringComparer.OrdinalIgnoreCase);
+        var map = new Dictionary<string, List<StaticSourceBlueprint>>(
+            StringComparer.OrdinalIgnoreCase
+        );
         for (int i = 0; i < _projectedNodes.Length; i++)
         {
             var node = _projectedNodes[i];
@@ -699,8 +745,17 @@ public sealed class CompiledGuide
                 continue;
             if (node.X == null && node.Y == null && node.Z == null)
                 continue;
-            if (node.Type is not (NodeType.MiningNode or NodeType.Water or NodeType.Forge
-                or NodeType.ItemBag or NodeType.ZoneLine or NodeType.WorldObject))
+            if (
+                node.Type
+                is not (
+                    NodeType.MiningNode
+                    or NodeType.Water
+                    or NodeType.Forge
+                    or NodeType.ItemBag
+                    or NodeType.ZoneLine
+                    or NodeType.WorldObject
+                )
+            )
                 continue;
 
             if (!map.TryGetValue(node.Scene, out var list))
@@ -714,7 +769,11 @@ public sealed class CompiledGuide
         return FreezeListMap(map);
     }
 
-    private static void AddToSetMap(Dictionary<string, HashSet<string>> map, string key, string value)
+    private static void AddToSetMap(
+        Dictionary<string, HashSet<string>> map,
+        string key,
+        string value
+    )
     {
         if (!map.TryGetValue(key, out var set))
         {
@@ -725,7 +784,8 @@ public sealed class CompiledGuide
     }
 
     private static Dictionary<string, IReadOnlyCollection<string>> FreezeSetMap(
-        Dictionary<string, HashSet<string>> map)
+        Dictionary<string, HashSet<string>> map
+    )
     {
         var result = new Dictionary<string, IReadOnlyCollection<string>>(map.Count, map.Comparer);
         foreach (var pair in map)
@@ -734,7 +794,8 @@ public sealed class CompiledGuide
     }
 
     private static Dictionary<string, IReadOnlyList<T>> FreezeListMap<T>(
-        Dictionary<string, List<T>> map)
+        Dictionary<string, List<T>> map
+    )
     {
         var result = new Dictionary<string, IReadOnlyList<T>>(map.Count, map.Comparer);
         foreach (var pair in map)
@@ -796,7 +857,8 @@ public readonly struct SourceSiteEntry
         int directItemId,
         string? scene,
         SpawnPositionEntry[] positions,
-        string? keyword)
+        string? keyword
+    )
     {
         SourceId = sourceId;
         SourceType = sourceType;
@@ -832,10 +894,7 @@ public readonly struct UnlockConditionEntry
 
 public readonly struct UnlockPredicateEntry
 {
-    public UnlockPredicateEntry(
-        UnlockConditionEntry[] conditions,
-        int groupCount,
-        byte semantics)
+    public UnlockPredicateEntry(UnlockConditionEntry[] conditions, int groupCount, byte semantics)
     {
         Conditions = conditions;
         GroupCount = groupCount;
@@ -855,7 +914,8 @@ public readonly struct QuestGiverEntry
         int positionId,
         byte interactionType,
         string? keyword,
-        string[] requiredQuestDbNames)
+        string[] requiredQuestDbNames
+    )
     {
         QuestId = questId;
         CharacterId = characterId;
@@ -875,7 +935,13 @@ public readonly struct QuestGiverEntry
 
 public readonly struct QuestCompletion
 {
-    public QuestCompletion(int questId, int characterId, int positionId, byte interactionType, string? keyword)
+    public QuestCompletion(
+        int questId,
+        int characterId,
+        int positionId,
+        byte interactionType,
+        string? keyword
+    )
     {
         QuestId = questId;
         CharacterId = characterId;

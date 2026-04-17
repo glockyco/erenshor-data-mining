@@ -13,7 +13,11 @@ public sealed class DoorStateResolver : INodeStateResolver
     private readonly QuestStateTracker _tracker;
     private readonly LiveStateTracker _liveState;
 
-    public DoorStateResolver(CompiledGuideModel guide, QuestStateTracker tracker, LiveStateTracker liveState)
+    public DoorStateResolver(
+        CompiledGuideModel guide,
+        QuestStateTracker tracker,
+        LiveStateTracker liveState
+    )
     {
         _guide = guide;
         _tracker = tracker;

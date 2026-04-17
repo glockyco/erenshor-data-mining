@@ -2,13 +2,13 @@ namespace AdventureGuide.State;
 
 public enum GuideFactKind
 {
-	InventoryItemCount,
-	UnlockItemPossessed,
-	QuestActive,
-	QuestCompleted,
-	Scene,
-	SourceState,
-	TimeOfDay,
+    InventoryItemCount,
+    UnlockItemPossessed,
+    QuestActive,
+    QuestCompleted,
+    Scene,
+    SourceState,
+    TimeOfDay,
 }
 
 /// <summary>
@@ -27,7 +27,10 @@ public readonly struct GuideFactKey : IEquatable<GuideFactKey>
     }
 
     public bool Equals(GuideFactKey other) => Kind == other.Kind && Key == other.Key;
+
     public override bool Equals(object? obj) => obj is GuideFactKey other && Equals(other);
+
     public override int GetHashCode() => ((int)Kind * 397) ^ Key.GetHashCode();
+
     public override string ToString() => $"{Kind}:{Key}";
 }

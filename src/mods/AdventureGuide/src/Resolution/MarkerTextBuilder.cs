@@ -9,21 +9,27 @@ internal static class MarkerTextBuilder
 {
     public static MarkerInstruction BuildInstruction(
         ResolvedActionSemantic semantic,
-        ResolvedNodeContext? targetNode = null)
+        ResolvedNodeContext? targetNode = null
+    )
     {
         string primary = BuildPrimaryLine(semantic, targetNode);
         string? secondary = BuildSecondaryLine(semantic);
-        string subText = string.IsNullOrEmpty(secondary) || primary == secondary
-            ? primary
-            : $"{primary}\n{secondary}";
+        string subText =
+            string.IsNullOrEmpty(secondary) || primary == secondary
+                ? primary
+                : $"{primary}\n{secondary}";
 
         return new MarkerInstruction(
             semantic.PreferredMarkerKind,
             subText,
-            semantic.MarkerPriority);
+            semantic.MarkerPriority
+        );
     }
 
-    private static string BuildPrimaryLine(ResolvedActionSemantic semantic, ResolvedNodeContext? targetNode)
+    private static string BuildPrimaryLine(
+        ResolvedActionSemantic semantic,
+        ResolvedNodeContext? targetNode
+    )
     {
         if (!string.IsNullOrEmpty(semantic.AvailabilityText))
             return semantic.AvailabilityText;
@@ -33,14 +39,14 @@ internal static class MarkerTextBuilder
             ResolvedActionKind.Talk => "Talk to",
             ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}'",
             ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}'",
-            ResolvedActionKind.Kill when targetNode?.Quantity is int quantity && quantity > 1
-                => $"Kill ({quantity})",
+            ResolvedActionKind.Kill when targetNode?.Quantity is int quantity && quantity > 1 =>
+                $"Kill ({quantity})",
             ResolvedActionKind.Kill => "Kill",
             ResolvedActionKind.Read => "Read",
             ResolvedActionKind.Travel => "Travel to",
             ResolvedActionKind.UnlockDoor => "Unlock",
-            ResolvedActionKind.Fish    => "Fish",
-            ResolvedActionKind.Mine    => "Mine",
+            ResolvedActionKind.Fish => "Fish",
+            ResolvedActionKind.Mine => "Mine",
             ResolvedActionKind.Collect => "Collect",
             ResolvedActionKind.Buy => "Buy",
             ResolvedActionKind.Give => "Give",
@@ -63,7 +69,12 @@ internal static class MarkerTextBuilder
         if (!string.IsNullOrEmpty(semantic.PayloadText))
             return semantic.PayloadText;
 
-        if (semantic.PreferredMarkerKind is QuestMarkerKind.QuestGiver or QuestMarkerKind.QuestGiverRepeat or QuestMarkerKind.QuestGiverBlocked)
+        if (
+            semantic.PreferredMarkerKind
+            is QuestMarkerKind.QuestGiver
+                or QuestMarkerKind.QuestGiverRepeat
+                or QuestMarkerKind.QuestGiverBlocked
+        )
             return semantic.ContextText;
 
         return semantic.RationaleText;

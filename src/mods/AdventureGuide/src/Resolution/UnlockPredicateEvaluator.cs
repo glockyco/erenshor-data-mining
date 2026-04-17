@@ -22,14 +22,17 @@ public sealed class UnlockPredicateEvaluator
 
     public UnlockResult Evaluate(int targetNodeId, IResolutionTracer? tracer = null)
     {
-        UnlockResult result = GetBlockingRequirementGroups(targetNodeId).Count == 0
-            ? UnlockResult.Unlocked
-            : UnlockResult.Blocked;
+        UnlockResult result =
+            GetBlockingRequirementGroups(targetNodeId).Count == 0
+                ? UnlockResult.Unlocked
+                : UnlockResult.Blocked;
         tracer?.OnUnlockEvaluation(targetNodeId, result == UnlockResult.Unlocked);
         return result;
     }
 
-    public IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> GetBlockingRequirementGroups(int targetNodeId)
+    public IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> GetBlockingRequirementGroups(
+        int targetNodeId
+    )
     {
         if (!_guide.TryGetUnlockPredicate(targetNodeId, out var predicate))
             return Array.Empty<IReadOnlyList<UnlockConditionEntry>>();
@@ -42,8 +45,8 @@ public sealed class UnlockPredicateEvaluator
                 : new IReadOnlyList<UnlockConditionEntry>[] { unmet };
         }
 
-        var unconditional = predicate.Conditions
-            .Where(condition => condition.Group == 0 && !ConditionMet(condition))
+        var unconditional = predicate
+            .Conditions.Where(condition => condition.Group == 0 && !ConditionMet(condition))
             .ToArray();
         var groups = new List<IReadOnlyList<UnlockConditionEntry>>();
         for (int group = 1; group <= predicate.GroupCount; group++)

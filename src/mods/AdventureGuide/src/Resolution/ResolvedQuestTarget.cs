@@ -1,4 +1,3 @@
-
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -11,6 +10,7 @@ public sealed class ResolvedQuestTarget
     public string TargetNodeKey { get; }
     public string? Scene { get; }
     public string? SourceKey { get; }
+
     /// <summary>
     /// Concrete world-source identity for selection and rendering. Uses the
     /// positioned source node when available so multi-spawn characters do not
@@ -27,12 +27,14 @@ public sealed class ResolvedQuestTarget
     public float X { get; internal set; }
     public float Y { get; internal set; }
     public float Z { get; internal set; }
+
     /// <summary>
     /// Whether this target is currently actionable (alive NPC to kill, lootable
     /// corpse, etc.). Set at resolution time; updated per-frame by
     /// NavigationTargetSelector.UpdateLivePositions for character targets.
     /// </summary>
     public bool IsActionable { get; internal set; }
+
     /// <summary>
     /// True when this target belongs to a blocked-but-feasible route that must
     /// first resolve some unlock chain before it reaches the original source.
@@ -40,12 +42,14 @@ public sealed class ResolvedQuestTarget
     /// keeping blocked-feasible paths visible in the resolved set.
     /// </summary>
     public bool IsBlockedPath { get; }
+
     /// <summary>
     /// True when the item is confirmed present at this target (corpse with confirmed
     /// loot, zone-reentry chest). Navigation prefers these over alive-NPC kill targets
     /// regardless of distance — no kill is required and the item is guaranteed.
     /// </summary>
     public bool IsGuaranteedLoot { get; }
+
     /// <summary>
     /// Key of the immediate sub-quest within the tracked chain that this target
     /// is working toward. Null when the target is a direct step of the tracked
@@ -67,7 +71,8 @@ public sealed class ResolvedQuestTarget
         bool isActionable = true,
         string? requiredForQuestKey = null,
         bool isBlockedPath = false,
-        bool isGuaranteedLoot = false)
+        bool isGuaranteedLoot = false
+    )
     {
         TargetNodeKey = targetNodeKey;
         Scene = scene;

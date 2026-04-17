@@ -10,23 +10,26 @@ namespace AdventureGuide.Resolution;
 /// </summary>
 internal static class TargetInstanceIdentity
 {
-    public static string Get(string targetNodeKey, string? sourceKey) =>
-        sourceKey ?? targetNodeKey;
+    public static string Get(string targetNodeKey, string? sourceKey) => sourceKey ?? targetNodeKey;
 
     public static string BuildDedupeKey(
         string questKey,
         string goalNodeKey,
         string targetNodeKey,
         string? scene,
-        string? sourceKey)
+        string? sourceKey
+    )
     {
-        return string.Join("|", new[]
-        {
-            questKey,
-            Get(targetNodeKey, sourceKey),
-            scene ?? string.Empty,
-            sourceKey ?? string.Empty,
-            goalNodeKey,
-        });
+        return string.Join(
+            "|",
+            new[]
+            {
+                questKey,
+                Get(targetNodeKey, sourceKey),
+                scene ?? string.Empty,
+                sourceKey ?? string.Empty,
+                goalNodeKey,
+            }
+        );
     }
 }

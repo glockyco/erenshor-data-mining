@@ -1467,8 +1467,9 @@ def _add_quest_completion_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
         if target is None:
             continue
         keyword = None
-        if r["method"] == "item_turnin" and r["source_type"] == "character":
+        if r["source_type"] == "character" and r["method"] in {"item_turnin", "talk"}:
             keyword = _find_dialog_keyword(conn, target, r["quest_stable_key"], "complete")
+
         graph.add_edge(
             Edge(
                 source=r["quest_stable_key"],

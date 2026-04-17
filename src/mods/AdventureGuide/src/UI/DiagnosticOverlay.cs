@@ -31,7 +31,8 @@ internal sealed class DiagnosticOverlay
         NavigationSet navSet,
         GuideConfig config,
         CompiledGuideModel guide,
-        DiagnosticsCore diagnostics)
+        DiagnosticsCore diagnostics
+    )
     {
         _questTracker = questTracker;
         _markerComputer = markerComputer;
@@ -57,10 +58,17 @@ internal sealed class DiagnosticOverlay
         var display = ImGui.GetIO().DisplaySize;
         float barHeight = StatusBarHeightPx * _config.ResolvedUiScale;
 
-        ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, display.Y - barHeight), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new System.Numerics.Vector2(display.X, barHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(
+            new System.Numerics.Vector2(0, display.Y - barHeight),
+            ImGuiCond.Always
+        );
+        ImGui.SetNextWindowSize(
+            new System.Numerics.Vector2(display.X, barHeight),
+            ImGuiCond.Always
+        );
 
-        var flags = ImGuiWindowFlags.NoDecoration
+        var flags =
+            ImGuiWindowFlags.NoDecoration
             | ImGuiWindowFlags.NoInputs
             | ImGuiWindowFlags.NoNav
             | ImGuiWindowFlags.NoBringToFrontOnFocus
@@ -74,15 +82,19 @@ internal sealed class DiagnosticOverlay
             int activeCount = _questTracker.ActiveQuests.Count;
             int markerCount = _markerComputer.Markers.Count;
             int navCount = _navSet.Count;
-            double markerMs = _diagnostics.GetLastSpanMilliseconds(DiagnosticSpanKind.MarkerRecompute);
+            double markerMs = _diagnostics.GetLastSpanMilliseconds(
+                DiagnosticSpanKind.MarkerRecompute
+            );
             var markerSnapshot = _markerComputer.ExportDiagnosticsSnapshot();
-            string modeText = markerSnapshot.RecentModes.Count == 0
-                ? "n/a"
-                : markerSnapshot.RecentModes[^1].Mode.ToString();
+            string modeText =
+                markerSnapshot.RecentModes.Count == 0
+                    ? "n/a"
+                    : markerSnapshot.RecentModes[^1].Mode.ToString();
             string incidentText = _diagnostics.TryGetLastIncident()?.Kind.ToString() ?? "none";
 
             ImGui.TextUnformatted(
-                $"AG: {activeCount} active, {markerCount} markers, {navCount} NAV, marker={markerMs:F1}ms, mode={modeText}, incident={incidentText}");
+                $"AG: {activeCount} active, {markerCount} markers, {navCount} NAV, marker={markerMs:F1}ms, mode={modeText}, incident={incidentText}"
+            );
         }
 
         ImGui.End();

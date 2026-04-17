@@ -1,6 +1,6 @@
 using AdventureGuide.CompiledGuide;
-using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 using Xunit;
+using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Tests;
 
@@ -28,11 +28,7 @@ public sealed class CompiledGuideTypesTests
             ItemNodeIds = Array.Empty<int>(),
             QuestSpecs = new[]
             {
-                new CompiledQuestSpecData
-                {
-                    QuestId = 0,
-                    QuestIndex = 0,
-                },
+                new CompiledQuestSpecData { QuestId = 0, QuestIndex = 0 },
             },
             ItemSources = Array.Empty<CompiledSourceSiteData[]>(),
             UnlockPredicates = Array.Empty<CompiledUnlockPredicateData>(),

@@ -10,7 +10,8 @@ public sealed class TargetInstanceIdentityTests
     {
         string key = TargetInstanceIdentity.Get(
             "character:islander bandit",
-            "spawn:stowaway:342.23:52.52:490.37");
+            "spawn:stowaway:342.23:52.52:490.37"
+        );
 
         Assert.Equal("spawn:stowaway:342.23:52.52:490.37", key);
     }
@@ -31,14 +32,16 @@ public sealed class TargetInstanceIdentityTests
             "item:bandit note",
             "character:islander bandit",
             "Stowaway",
-            "spawn:stowaway:342.23:52.52:490.37");
+            "spawn:stowaway:342.23:52.52:490.37"
+        );
 
         string second = TargetInstanceIdentity.BuildDedupeKey(
             "quest:test",
             "item:bandit note",
             "character:islander bandit 2",
             "Stowaway",
-            "spawn:stowaway:342.23:52.52:490.37");
+            "spawn:stowaway:342.23:52.52:490.37"
+        );
 
         Assert.Equal(first, second);
     }

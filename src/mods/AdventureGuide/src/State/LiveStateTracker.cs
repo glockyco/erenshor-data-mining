@@ -12,18 +12,24 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class LiveStateTracker : IResolutionLiveState
 {
-    private static readonly FieldInfo? NpcSpawnPointField =
-        typeof(NPC).GetField("MySpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo? NpcSpawnPointField = typeof(NPC).GetField(
+        "MySpawnPoint",
+        BindingFlags.Instance | BindingFlags.NonPublic
+    );
 
-    private static readonly FieldInfo? MiningRespawnField =
-        typeof(MiningNode).GetField("Respawn", BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo? MiningRespawnField = typeof(MiningNode).GetField(
+        "Respawn",
+        BindingFlags.Instance | BindingFlags.NonPublic
+    );
 
     private readonly CompiledGuideModel _guide;
     private readonly GuideDependencyEngine _dependencies;
     private readonly UnlockEvaluator _unlocks;
 
     private Dictionary<PosKey, SpawnPoint> _spawnIndex = new();
-    private readonly Dictionary<string, List<NPC>> _npcByName = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<NPC>> _npcByName = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
     private MiningNode[] _miningNodes = System.Array.Empty<MiningNode>();
     private ItemBag[] _itemBags = System.Array.Empty<ItemBag>();
     private Door[] _doors = System.Array.Empty<Door>();
@@ -35,7 +41,9 @@ public sealed class LiveStateTracker : IResolutionLiveState
     private readonly Dictionary<PosKey, string> _graphMiningSourcesByPos = new();
     private readonly Dictionary<PosKey, string> _graphItemBagSourcesByPos = new();
     private readonly Dictionary<PosKey, string> _graphDoorSourcesByPos = new();
-    private readonly Dictionary<string, List<Node>> _directSpawnNodesByNpcName = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<Node>> _directSpawnNodesByNpcName = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
 
     public int Version { get; private set; }
     private bool _isNight;
@@ -43,7 +51,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
     public LiveStateTracker(
         CompiledGuideModel guide,
         GuideDependencyEngine dependencies,
-        UnlockEvaluator unlocks)
+        UnlockEvaluator unlocks
+    )
     {
         _guide = guide;
         _dependencies = dependencies;
@@ -127,9 +136,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         // quest that needs an item from a DropsItem source could now find the item
         // in a loot chest.
         BumpVersion();
-        return BuildLiveChange(
-            _graphSpawnSourcesByPos.Values,
-            timeChanged: false);
+        return BuildLiveChange(_graphSpawnSourcesByPos.Values, timeChanged: false);
     }
 
     /// <summary>
@@ -138,8 +145,9 @@ public sealed class LiveStateTracker : IResolutionLiveState
     /// query; no additional caching is applied so chest contents stay fresh after
     /// partial looting.
     /// </summary>
-    public System.Collections.Generic.IEnumerable<LiveChestPosition>
-        GetRotChestPositionsWithItem(string itemStableKey)
+    public System.Collections.Generic.IEnumerable<LiveChestPosition> GetRotChestPositionsWithItem(
+        string itemStableKey
+    )
     {
         string currentScene = CurrentSceneName();
         for (int i = _rotChests.Count - 1; i >= 0; i--)
@@ -152,12 +160,12 @@ public sealed class LiveStateTracker : IResolutionLiveState
             }
 
             var loot = chest.GetComponent<LootTable>();
-            if (loot == null) continue;
+            if (loot == null)
+                continue;
 
             foreach (var drop in loot.ActualDrops)
             {
-                if (drop != null
-                    && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
+                if (drop != null && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
                 {
                     var pos = chest.transform.position;
                     yield return new LiveChestPosition(pos.x, pos.y, pos.z, currentScene);
@@ -177,7 +185,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
         for (int i = 0; i < _rotChests.Count; i++)
         {
             var chest = _rotChests[i];
-            if (chest == null || chest.gameObject == null) continue;
+            if (chest == null || chest.gameObject == null)
+                continue;
             if (Vector3.Distance(chest.transform.position, position) <= maxDistance)
                 return chest;
         }
@@ -279,7 +288,13 @@ public sealed class LiveStateTracker : IResolutionLiveState
         _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
 
         string? unlockReason = GetCharacterUnlockRequirement(characterNode);
-        if (!LiveSceneScope.CharacterHasCurrentScenePresence(_guide, characterNode, CurrentSceneName()))
+        if (
+            !LiveSceneScope.CharacterHasCurrentScenePresence(
+                _guide,
+                characterNode,
+                CurrentSceneName()
+            )
+        )
         {
             return string.IsNullOrEmpty(unlockReason)
                 ? new SpawnInfo(NodeState.Unknown, null, null, 0f)
@@ -345,7 +360,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
             float dist = Vector3.Distance(
                 mn.transform.position,
-                new Vector3(miningNode.X ?? 0f, miningNode.Y ?? 0f, miningNode.Z ?? 0f));
+                new Vector3(miningNode.X ?? 0f, miningNode.Y ?? 0f, miningNode.Z ?? 0f)
+            );
             if (dist < closestDist)
             {
                 closestDist = dist;
@@ -382,7 +398,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
             float dist = Vector3.Distance(
                 bag.transform.position,
-                new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f));
+                new Vector3(itemBagNode.X ?? 0f, itemBagNode.Y ?? 0f, itemBagNode.Z ?? 0f)
+            );
             if (dist < closestDist)
             {
                 closestDist = dist;
@@ -423,7 +440,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
             float dist = Vector3.Distance(
                 door.transform.position,
-                new Vector3(doorNode.X ?? 0f, doorNode.Y ?? 0f, doorNode.Z ?? 0f));
+                new Vector3(doorNode.X ?? 0f, doorNode.Y ?? 0f, doorNode.Z ?? 0f)
+            );
             if (dist < closestDist)
             {
                 closestDist = dist;
@@ -448,21 +466,22 @@ public sealed class LiveStateTracker : IResolutionLiveState
     public bool CorpseContainsItem(Node spawnNode, string itemStableKey)
     {
         var info = GetSpawnState(spawnNode);
-        if (!(info.State is SpawnDead)) return false;
-        if (info.LiveNPC == null || info.LiveNPC.gameObject == null) return false;
+        if (!(info.State is SpawnDead))
+            return false;
+        if (info.LiveNPC == null || info.LiveNPC.gameObject == null)
+            return false;
 
         var loot = info.LiveNPC.GetComponent<LootTable>();
-        if (loot == null) return false;
+        if (loot == null)
+            return false;
 
         foreach (var drop in loot.ActualDrops)
         {
-            if (drop != null
-                && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
+            if (drop != null && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
                 return true;
         }
         return false;
     }
-
 
     /// <summary>
     /// Returns the alive NPC currently occupying <paramref name="spawnNode"/> for
@@ -479,21 +498,27 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!spawnNode.IsDirectlyPlaced)
         {
             var posKey = NodePosKey(spawnNode);
-            if (!posKey.HasValue) return null;
-            if (!_spawnIndex.TryGetValue(posKey.Value, out var sp)) return null;
+            if (!posKey.HasValue)
+                return null;
+            if (!_spawnIndex.TryGetValue(posKey.Value, out var sp))
+                return null;
 
-            if (sp.SpawnedNPC == null || !sp.SpawnedNPC.gameObject) return null;
+            if (sp.SpawnedNPC == null || !sp.SpawnedNPC.gameObject)
+                return null;
             var ch = sp.SpawnedNPC.GetComponent<Character>();
-            if (ch == null || !ch.Alive) return null;
+            if (ch == null || !ch.Alive)
+                return null;
             return sp.SpawnedNPC;
         }
         else
         {
-            if (NPCTable.LiveNPCs == null) return null;
+            if (NPCTable.LiveNPCs == null)
+                return null;
             for (int i = 0; i < NPCTable.LiveNPCs.Count; i++)
             {
                 var npc = NPCTable.LiveNPCs[i];
-                if (npc == null || npc.gameObject == null) continue;
+                if (npc == null || npc.gameObject == null)
+                    continue;
                 if (npc.NPCName.Equals(spawnNode.DisplayName, StringComparison.OrdinalIgnoreCase))
                     return npc;
             }
@@ -510,7 +535,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
     public (float x, float y, float z)? GetLiveNpcPosition(Node spawnNode)
     {
         var npc = GetLiveNpcForTracking(spawnNode);
-        if (npc == null) return null;
+        if (npc == null)
+            return null;
         var pos = npc.transform.position;
         return (pos.x, pos.y, pos.z);
     }
@@ -527,10 +553,13 @@ public sealed class LiveStateTracker : IResolutionLiveState
     /// </summary>
     public bool IsSpawnEmpty(Node spawnNode)
     {
-        if (spawnNode.IsDirectlyPlaced) return false;
+        if (spawnNode.IsDirectlyPlaced)
+            return false;
         var posKey = NodePosKey(spawnNode);
-        if (!posKey.HasValue) return false;
-        if (!_spawnIndex.TryGetValue(posKey.Value, out var sp)) return false;
+        if (!posKey.HasValue)
+            return false;
+        if (!_spawnIndex.TryGetValue(posKey.Value, out var sp))
+            return false;
         // Empty = SpawnedNPC never set, or the game object has been destroyed
         return sp.SpawnedNPC == null || !sp.SpawnedNPC.gameObject;
     }
@@ -539,13 +568,21 @@ public sealed class LiveStateTracker : IResolutionLiveState
     {
         if (!sp.canSpawn)
         {
-            if (sp.SpawnUponQuestComplete != null
-                && !GameData.IsQuestDone(sp.SpawnUponQuestComplete.DBName))
+            if (
+                sp.SpawnUponQuestComplete != null
+                && !GameData.IsQuestDone(sp.SpawnUponQuestComplete.DBName)
+            )
             {
-                string questName = sp.SpawnUponQuestComplete.QuestName
+                string questName =
+                    sp.SpawnUponQuestComplete.QuestName
                     ?? sp.SpawnUponQuestComplete.DBName
                     ?? "unknown quest";
-                return new SpawnInfo(new SpawnUnlockBlocked($"Requires: {questName}"), sp, null, 0f);
+                return new SpawnInfo(
+                    new SpawnUnlockBlocked($"Requires: {questName}"),
+                    sp,
+                    null,
+                    0f
+                );
             }
 
             return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
@@ -589,7 +626,11 @@ public sealed class LiveStateTracker : IResolutionLiveState
             if (sp == null)
                 continue;
 
-            var key = new PosKey(sp.transform.position.x, sp.transform.position.y, sp.transform.position.z);
+            var key = new PosKey(
+                sp.transform.position.x,
+                sp.transform.position.y,
+                sp.transform.position.z
+            );
             if (!_spawnIndex.ContainsKey(key))
                 _spawnIndex[key] = sp;
         }
@@ -658,7 +699,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
     {
         string name = LiveSceneScope.ResolveSpawnLookupName(
             spawnNode,
-            GetSpawnOwnerCharacter(spawnNode));
+            GetSpawnOwnerCharacter(spawnNode)
+        );
         if (string.IsNullOrEmpty(name))
             return;
 
@@ -697,7 +739,12 @@ public sealed class LiveStateTracker : IResolutionLiveState
         {
             var ch = fallbackNpc.GetComponent<Character>();
             bool alive = ch != null && ch.Alive;
-            return new SpawnInfo(alive ? NodeState.Alive : new SpawnDead(0f), null, fallbackNpc, 0f);
+            return new SpawnInfo(
+                alive ? NodeState.Alive : new SpawnDead(0f),
+                null,
+                fallbackNpc,
+                0f
+            );
         }
 
         return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -709,7 +756,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
         return evaluation.IsUnlocked ? null : evaluation.Reason;
     }
 
-    private string CurrentSceneName() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+    private string CurrentSceneName() =>
+        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
     private Node? GetSpawnOwnerCharacter(Node spawnNode)
     {
@@ -719,7 +767,6 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
         return _guide.GetNode(charEdges[0].Source);
     }
-
 
     private SpawnPoint? FindSpawnPoint(Node node)
     {
@@ -800,9 +847,14 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (NpcSpawnPointField?.GetValue(npc) is SpawnPoint spawnPoint)
             return ResolveSpawnSourceKey(spawnPoint);
 
-        if (!string.IsNullOrEmpty(npc.NPCName)
-            && _directSpawnNodesByNpcName.TryGetValue(npc.NPCName.ToLowerInvariant(), out var candidates)
-            && candidates.Count > 0)
+        if (
+            !string.IsNullOrEmpty(npc.NPCName)
+            && _directSpawnNodesByNpcName.TryGetValue(
+                npc.NPCName.ToLowerInvariant(),
+                out var candidates
+            )
+            && candidates.Count > 0
+        )
         {
             Node? best = null;
             float bestDist = float.MaxValue;
@@ -814,7 +866,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
                 float dist = Vector3.Distance(
                     npc.transform.position,
-                    new Vector3(candidate.X.Value, candidate.Y.Value, candidate.Z.Value));
+                    new Vector3(candidate.X.Value, candidate.Y.Value, candidate.Z.Value)
+                );
                 if (dist < bestDist)
                 {
                     bestDist = dist;
@@ -846,9 +899,13 @@ public sealed class LiveStateTracker : IResolutionLiveState
         // source facts are available (e.g. a node whose position is not in the
         // graph index). Without this the caller would silently return None and the
         // NAV system would never learn the world changed.
-        bool forceChanged = false)
+        bool forceChanged = false
+    )
     {
-        var sourceKeys = new HashSet<string>(changedSourceKeys.Where(k => !string.IsNullOrWhiteSpace(k)), StringComparer.Ordinal);
+        var sourceKeys = new HashSet<string>(
+            changedSourceKeys.Where(k => !string.IsNullOrWhiteSpace(k)),
+            StringComparer.Ordinal
+        );
         var changedFacts = new List<GuideFactKey>();
         foreach (var sourceKey in sourceKeys)
             changedFacts.Add(new GuideFactKey(GuideFactKind.SourceState, sourceKey));
@@ -873,7 +930,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
             changedItemKeys: Array.Empty<string>(),
             changedQuestDbNames: Array.Empty<string>(),
             affectedQuestKeys: affectedQuestKeys,
-            changedFacts: changedFacts);
+            changedFacts: changedFacts
+        );
     }
 
     private void RebuildMiningAvailability()
@@ -906,7 +964,8 @@ public sealed class LiveStateTracker : IResolutionLiveState
     {
         // GameData.Time may be null during early scene load before the game
         // manager has initialized. Treat as daytime rather than throwing.
-        if (GameData.Time == null) return false;
+        if (GameData.Time == null)
+            return false;
         int hour = GameData.Time.GetHour();
         return hour >= 22 || hour < 4;
     }
@@ -941,9 +1000,12 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
     private static int GetStatePriority(NodeState state)
     {
-        if (state is SpawnAlive) return 3;
-        if (state is SpawnDead) return 2;
-        if (state is SpawnNightLocked) return 1;
+        if (state is SpawnAlive)
+            return 3;
+        if (state is SpawnDead)
+            return 2;
+        if (state is SpawnNightLocked)
+            return 1;
         return 0;
     }
 
@@ -973,7 +1035,9 @@ public sealed class LiveStateTracker : IResolutionLiveState
         }
 
         public bool Equals(PosKey other) => _x == other._x && _y == other._y && _z == other._z;
+
         public override bool Equals(object? obj) => obj is PosKey other && Equals(other);
+
         public override int GetHashCode() => (_x * 397) ^ (_y * 17) ^ _z;
     }
 }
@@ -985,7 +1049,12 @@ public readonly struct SpawnInfo
     public readonly NPC? LiveNPC;
     public readonly float RespawnSeconds;
 
-    public SpawnInfo(NodeState state, SpawnPoint? liveSpawnPoint, NPC? liveNPC, float respawnSeconds)
+    public SpawnInfo(
+        NodeState state,
+        SpawnPoint? liveSpawnPoint,
+        NPC? liveNPC,
+        float respawnSeconds
+    )
     {
         State = state;
         LiveSpawnPoint = liveSpawnPoint;

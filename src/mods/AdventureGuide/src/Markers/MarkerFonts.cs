@@ -14,15 +14,19 @@ internal static class MarkerFonts
     // Font Awesome 7 Free-Regular glyph codepoints. The Free-Regular
     // weight only has outlined icons — solid-weight glyphs (circle-exclamation,
     // crosshairs, skull) are not available. Validated at init time.
-    internal const char CircleQuestion = '\uf059';  // turn-in markers
-    internal const char Star = '\uf005';             // quest giver markers
-    internal const char CircleDot = '\uf192';        // objective markers
-    internal const char Clock = '\uf017';             // dead spawn timer
-    internal const char Moon = '\uf186';              // night spawn
+    internal const char CircleQuestion = '\uf059'; // turn-in markers
+    internal const char Star = '\uf005'; // quest giver markers
+    internal const char CircleDot = '\uf192'; // objective markers
+    internal const char Clock = '\uf017'; // dead spawn timer
+    internal const char Moon = '\uf186'; // night spawn
 
     private static readonly char[] RequiredGlyphs =
     {
-        CircleQuestion, Star, CircleDot, Clock, Moon,
+        CircleQuestion,
+        Star,
+        CircleDot,
+        Clock,
+        Moon,
     };
 
     // Outline settings — dark border for contrast on any background
@@ -68,8 +72,10 @@ internal static class MarkerFonts
     /// </summary>
     public static void Destroy()
     {
-        if (_iconFont != null) UnityEngine.Object.Destroy(_iconFont);
-        if (_subTextFont != null) UnityEngine.Object.Destroy(_subTextFont);
+        if (_iconFont != null)
+            UnityEngine.Object.Destroy(_iconFont);
+        if (_subTextFont != null)
+            UnityEngine.Object.Destroy(_subTextFont);
         _iconFont = null;
         _subTextFont = null;
         _initialized = false;
@@ -77,7 +83,8 @@ internal static class MarkerFonts
 
     private static void EnsureInitialized()
     {
-        if (_initialized) return;
+        if (_initialized)
+            return;
 
         var sdfShader = Shader.Find("TextMeshPro/Distance Field");
         if (sdfShader == null)
@@ -93,8 +100,10 @@ internal static class MarkerFonts
         {
             // Font sources not available yet (GameData not ready) —
             // clean up any partial result and retry next access.
-            if (_iconFont != null) UnityEngine.Object.Destroy(_iconFont);
-            if (_subTextFont != null) UnityEngine.Object.Destroy(_subTextFont);
+            if (_iconFont != null)
+                UnityEngine.Object.Destroy(_iconFont);
+            if (_subTextFont != null)
+                UnityEngine.Object.Destroy(_subTextFont);
             _iconFont = null;
             _subTextFont = null;
             return;

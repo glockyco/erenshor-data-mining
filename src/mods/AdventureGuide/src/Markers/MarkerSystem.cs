@@ -29,9 +29,11 @@ public sealed class MarkerSystem
         get => _enabled;
         set
         {
-            if (_enabled == value) return;
+            if (_enabled == value)
+                return;
             _enabled = value;
-            if (!value) _pool.DeactivateAll();
+            if (!value)
+                _pool.DeactivateAll();
         }
     }
 
@@ -97,10 +99,14 @@ public sealed class MarkerSystem
             var entry = markers[i];
             var instance = _pool.Get(i);
             instance.Configure(
-                entry.Type, entry.SubText,
-                _config.MarkerScale.Value, _config.IconSize.Value,
-                _config.SubTextSize.Value, _config.IconYOffset.Value,
-                _config.SubTextYOffset.Value);
+                entry.Type,
+                entry.SubText,
+                _config.MarkerScale.Value,
+                _config.IconSize.Value,
+                _config.SubTextSize.Value,
+                _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value
+            );
             instance.SetActive(true);
         }
     }
@@ -119,8 +125,13 @@ public sealed class MarkerSystem
             var instance = _pool.Get(i);
 
             // Only render markers in the current scene
-            if (!string.Equals(entry.Scene, _currentScene,
-                    System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    entry.Scene,
+                    _currentScene,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
             {
                 instance.SetActive(false);
                 continue;
@@ -222,16 +233,21 @@ public sealed class MarkerSystem
             return false;
         }
 
-        if (newType != entry.Type
+        if (
+            newType != entry.Type
             || newPriority != entry.Priority
-            || !string.Equals(newSubText, entry.SubText, System.StringComparison.Ordinal))
+            || !string.Equals(newSubText, entry.SubText, System.StringComparison.Ordinal)
+        )
         {
             entry.Type = newType;
             entry.Priority = newPriority;
             entry.SubText = newSubText;
             ReconfigureInstance(entry, instance);
 
-            if (newType == MarkerEntry.ToMarkerType(entry.QuestKind!.Value) && sp.SpawnedNPC != null)
+            if (
+                newType == MarkerEntry.ToMarkerType(entry.QuestKind!.Value)
+                && sp.SpawnedNPC != null
+            )
                 SetPositionFromNPC(entry, sp.SpawnedNPC);
         }
         else if (newType == MarkerType.NightSpawn)
@@ -250,7 +266,10 @@ public sealed class MarkerSystem
             return false;
 
         string newSubText = FormatDeadSubText(entry.DisplayName, sp);
-        if (entry.Type != MarkerType.DeadSpawn || !string.Equals(entry.SubText, newSubText, System.StringComparison.Ordinal))
+        if (
+            entry.Type != MarkerType.DeadSpawn
+            || !string.Equals(entry.SubText, newSubText, System.StringComparison.Ordinal)
+        )
         {
             entry.Type = MarkerType.DeadSpawn;
             entry.Priority = 0;
@@ -284,7 +303,6 @@ public sealed class MarkerSystem
         && sp.SpawnedNPC.gameObject != null
         && sp.SpawnedNPC.GetChar() != null
         && !sp.SpawnedNPC.GetChar().Alive;
-
 
     private static bool IsNight()
     {
@@ -333,10 +351,15 @@ public sealed class MarkerSystem
     private static void UpdatePosition(MarkerEntry entry)
     {
         NPC? npc = entry.LiveSpawnPoint?.SpawnedNPC ?? entry.TrackedNPC;
-        if (npc == null || npc.gameObject == null) return;
+        if (npc == null || npc.gameObject == null)
+            return;
 
         // Only track live positions for quest-type markers (not dead/night/locked)
-        if (!entry.QuestKind.HasValue || entry.Type != MarkerEntry.ToMarkerType(entry.QuestKind.Value)) return;
+        if (
+            !entry.QuestKind.HasValue
+            || entry.Type != MarkerEntry.ToMarkerType(entry.QuestKind.Value)
+        )
+            return;
 
         SetPositionFromNPC(entry, npc);
     }
@@ -348,9 +371,11 @@ public sealed class MarkerSystem
     private static void SetPositionFromNPC(MarkerEntry entry, NPC npc)
     {
         var collider = npc.GetComponent<CapsuleCollider>();
-        float height = collider != null
-            ? collider.height * Mathf.Max(npc.transform.localScale.y, 1f) + LiveHeightAboveCollider
-            : StaticHeightOffset;
+        float height =
+            collider != null
+                ? collider.height * Mathf.Max(npc.transform.localScale.y, 1f)
+                    + LiveHeightAboveCollider
+                : StaticHeightOffset;
         var pos = npc.transform.position + Vector3.up * height;
         entry.X = pos.x;
         entry.Y = pos.y;
@@ -360,10 +385,14 @@ public sealed class MarkerSystem
     private void ReconfigureInstance(MarkerEntry entry, MarkerInstance instance)
     {
         instance.Configure(
-            entry.Type, entry.SubText,
-            _config.MarkerScale.Value, _config.IconSize.Value,
-            _config.SubTextSize.Value, _config.IconYOffset.Value,
-            _config.SubTextYOffset.Value);
+            entry.Type,
+            entry.SubText,
+            _config.MarkerScale.Value,
+            _config.IconSize.Value,
+            _config.SubTextSize.Value,
+            _config.IconYOffset.Value,
+            _config.SubTextYOffset.Value
+        );
     }
 
     private static string FormatDeadSubText(string displayName, SpawnPoint sp)
@@ -375,14 +404,18 @@ public sealed class MarkerSystem
     }
 
     private static readonly System.Reflection.FieldInfo? MiningRespawnField =
-        typeof(MiningNode).GetField("Respawn",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        typeof(MiningNode).GetField(
+            "Respawn",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+        );
 
     private static float GetMiningRespawnSeconds(MiningNode mn)
     {
-        if (MiningRespawnField == null) return 0f;
+        if (MiningRespawnField == null)
+            return 0f;
         object? val = MiningRespawnField.GetValue(mn);
-        if (val is float ticks) return ticks / 60f;
+        if (val is float ticks)
+            return ticks / 60f;
         return 0f;
     }
 }

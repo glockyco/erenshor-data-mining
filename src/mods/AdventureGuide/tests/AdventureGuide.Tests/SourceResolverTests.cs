@@ -23,11 +23,24 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:guard" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.ReadyToAccept, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.ReadyToAccept, -1),
+            "Forest"
+        );
 
         guide.TryGetNodeId("char:guard", out int giverId);
         Assert.Single(targets);
@@ -52,11 +65,24 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "item:note" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.ReadyToAccept, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.ReadyToAccept, -1),
+            "Forest"
+        );
 
         guide.TryGetNodeId("char:ghost", out int sourceId);
         guide.TryGetNodeId("spawn:ghost", out int spawnId);
@@ -81,11 +107,24 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:pelt", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.Accepted, -1),
+            "Forest"
+        );
 
         guide.TryGetNodeId("char:wolf", out int wolfId);
         Assert.Single(targets);
@@ -111,11 +150,24 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:pelt", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.Accepted, -1),
+            "Forest"
+        );
 
         Assert.Single(targets);
         guide.TryGetNodeId("char:wolf", out int wolfId);
@@ -132,14 +184,28 @@ public sealed class SourceResolverTests
                 "quest:a",
                 dbName: "QUESTA",
                 completers: new[] { "char:turnin" },
-                requiredItems: new[] { ("item:pelt", 1) })
+                requiredItems: new[] { ("item:pelt", 1) }
+            )
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int> { ["item:pelt"] = 1 }, Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int> { ["item:pelt"] = 1 },
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.Accepted, -1),
+            "Forest"
+        );
 
         guide.TryGetNodeId("char:turnin", out int turnInId);
         Assert.Single(targets);
@@ -158,14 +224,28 @@ public sealed class SourceResolverTests
                 "quest:a",
                 dbName: "QUESTA",
                 completers: new[] { "char:turnin" },
-                requiredItems: new[] { ("item:mystery", 1) })
+                requiredItems: new[] { ("item:mystery", 1) }
+            )
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(0, QuestPhase.Accepted, -1),
+            "Forest"
+        );
 
         Assert.Empty(targets);
     }
@@ -179,19 +259,37 @@ public sealed class SourceResolverTests
             .AddItemSource("item:ore", "char:wolf")
             .AddItem("item:key")
             .AddRecipe("recipe:key")
-            .AddItemSource("item:key", "recipe:key", edgeType: (byte)EdgeType.Produces, sourceType: (byte)NodeType.Recipe)
+            .AddItemSource(
+                "item:key",
+                "recipe:key",
+                edgeType: (byte)EdgeType.Produces,
+                sourceType: (byte)NodeType.Recipe
+            )
             .AddEdge("recipe:key", "item:ore", EdgeType.RequiresMaterial, quantity: 1)
             .AddEdge("recipe:key", "item:key", EdgeType.Produces)
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:key", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
         Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
         int questIndex = guide.FindQuestIndex(questNodeId);
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Forest");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+            "Forest"
+        );
 
         guide.TryGetNodeId("char:wolf", out int wolfId);
         Assert.Single(targets);
@@ -210,13 +308,26 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:note", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
         Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
         int questIndex = guide.FindQuestIndex(questNodeId);
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Beach");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+            "Beach"
+        );
 
         guide.TryGetNodeId("char:percy", out int percyId);
         Assert.Single(targets);
@@ -238,13 +349,26 @@ public sealed class SourceResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:crystal", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        var resolver = new SourceResolver(
+            guide,
+            tracker,
+            evaluator,
+            new StubLivePositionProvider()
+        );
         Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
         int questIndex = guide.FindQuestIndex(questNodeId);
 
-        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Town");
+        var targets = resolver.ResolveTargets(
+            new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+            "Town"
+        );
 
         guide.TryGetNodeId("char:elder", out int elderId);
         Assert.Single(targets);

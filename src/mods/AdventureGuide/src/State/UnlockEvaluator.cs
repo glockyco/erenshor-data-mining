@@ -99,7 +99,11 @@ public sealed class UnlockEvaluator
         if (blockingSources.Count == 0)
             return new UnlockEvaluation(false, Array.Empty<Node>(), "Locked");
 
-        return new UnlockEvaluation(false, blockingSources, "Requires: " + string.Join(", ", labels));
+        return new UnlockEvaluation(
+            false,
+            blockingSources,
+            "Requires: " + string.Join(", ", labels)
+        );
     }
 
     public string? GetRequirementReason(string targetKey)
@@ -149,7 +153,8 @@ public sealed class UnlockEvaluator
     private List<Edge> SelectBlockingEdges(
         List<Edge>? unconditional,
         bool unconditionalSatisfied,
-        Dictionary<string, List<Edge>>? groups)
+        Dictionary<string, List<Edge>>? groups
+    )
     {
         if (!unconditionalSatisfied && unconditional != null)
             return unconditional;

@@ -107,7 +107,9 @@ public sealed class ImGuiRenderer : IDisposable
             _nativeLib = LoadLibrary(dllPath);
             if (_nativeLib == IntPtr.Zero)
             {
-                _log.LogError($"Failed to LoadLibrary: {dllPath} (error {Marshal.GetLastWin32Error()})");
+                _log.LogError(
+                    $"Failed to LoadLibrary: {dllPath} (error {Marshal.GetLastWin32Error()})"
+                );
                 return false;
             }
 
@@ -161,10 +163,12 @@ public sealed class ImGuiRenderer : IDisposable
     public void OnGUI()
     {
         var current = Event.current;
-        if (current == null) return;
+        if (current == null)
+            return;
 
         // Only render on Repaint
-        if (current.type != EventType.Repaint) return;
+        if (current.type != EventType.Repaint)
+            return;
 
         try
         {
@@ -248,7 +252,10 @@ public sealed class ImGuiRenderer : IDisposable
     private byte[]? _unscaledStyleBackup;
 
     /// <summary>Set before calling Init(). Scales font and UI element sizes.</summary>
-    public float UiScale { set => _uiScale = value; }
+    public float UiScale
+    {
+        set => _uiScale = value;
+    }
 
     /// <summary>Current effective UI scale factor.</summary>
     public float CurrentScale => _uiScale;
@@ -289,10 +296,11 @@ public sealed class ImGuiRenderer : IDisposable
             // Glyph ranges: default (ASCII + Latin-1 Supplement) plus
             // specific characters Roboto has that we use in the UI.
             var builder = new ImGuiNET.ImFontGlyphRangesBuilderPtr(
-                ImGuiNET.ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
+                ImGuiNET.ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder()
+            );
             builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
-            builder.AddChar('\u2014');  // em-dash (keyword labels)
-            builder.AddChar('\u2022');  // bullet (tracked indicator)
+            builder.AddChar('\u2014'); // em-dash (keyword labels)
+            builder.AddChar('\u2022'); // bullet (tracked indicator)
             builder.BuildRanges(out ImGuiNET.ImVector ranges);
 
             // Configure font: use cimgui's constructor to set proper defaults,
@@ -301,8 +309,13 @@ public sealed class ImGuiRenderer : IDisposable
             configPtr->OversampleH = 2;
             configPtr->OversampleV = 1;
 
-            io.Fonts.AddFontFromMemoryTTF(fontPtr, fontBytes.Length, BaseFontSize * _uiScale,
-                (ImGuiNET.ImFontConfigPtr)configPtr, ranges.Data);
+            io.Fonts.AddFontFromMemoryTTF(
+                fontPtr,
+                fontBytes.Length,
+                BaseFontSize * _uiScale,
+                (ImGuiNET.ImFontConfigPtr)configPtr,
+                ranges.Data
+            );
 
             builder.Destroy();
         }
@@ -378,10 +391,15 @@ public sealed class ImGuiRenderer : IDisposable
 
     private unsafe void RestoreStyleBackup()
     {
-        if (_unscaledStyleBackup == null) return;
+        if (_unscaledStyleBackup == null)
+            return;
         fixed (byte* src = _unscaledStyleBackup)
-            Buffer.MemoryCopy(src, ImGuiNET.ImGui.GetStyle().NativePtr,
-                _unscaledStyleBackup.Length, _unscaledStyleBackup.Length);
+            Buffer.MemoryCopy(
+                src,
+                ImGuiNET.ImGui.GetStyle().NativePtr,
+                _unscaledStyleBackup.Length,
+                _unscaledStyleBackup.Length
+            );
     }
 
     private void CreateMaterial()
@@ -412,9 +430,18 @@ public sealed class ImGuiRenderer : IDisposable
             io.AddMouseWheelEvent(scroll.x, scroll.y);
 
         // Keyboard modifiers
-        io.AddKeyEvent(ImGuiKey.ImGuiMod_Ctrl, Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
-        io.AddKeyEvent(ImGuiKey.ImGuiMod_Shift, Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-        io.AddKeyEvent(ImGuiKey.ImGuiMod_Alt, Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt));
+        io.AddKeyEvent(
+            ImGuiKey.ImGuiMod_Ctrl,
+            Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)
+        );
+        io.AddKeyEvent(
+            ImGuiKey.ImGuiMod_Shift,
+            Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)
+        );
+        io.AddKeyEvent(
+            ImGuiKey.ImGuiMod_Alt,
+            Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)
+        );
 
         // Common navigation keys
         AddKeyMapping(io, ImGuiKey.Tab, KeyCode.Tab);
@@ -458,10 +485,12 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     private unsafe void RenderDrawData()
     {
-        if (_commandBuffer == null || _material == null) return;
+        if (_commandBuffer == null || _material == null)
+            return;
 
         var drawData = ImGuiNET.ImGui.GetDrawData();
-        if (drawData.CmdListsCount == 0) return;
+        if (drawData.CmdListsCount == 0)
+            return;
 
         float screenW = Screen.width;
         float screenH = Screen.height;
@@ -500,11 +529,14 @@ public sealed class ImGuiRenderer : IDisposable
                 _verts.Add(new Vector3(vtx.pos.X - offsetX, vtx.pos.Y - offsetY, 0));
                 _uvs.Add(new Vector2(vtx.uv.X, vtx.uv.Y));
                 uint col = vtx.col;
-                _colors.Add(new Color32(
-                    (byte)(col & 0xFF),
-                    (byte)((col >> 8) & 0xFF),
-                    (byte)((col >> 16) & 0xFF),
-                    (byte)((col >> 24) & 0xFF)));
+                _colors.Add(
+                    new Color32(
+                        (byte)(col & 0xFF),
+                        (byte)((col >> 8) & 0xFF),
+                        (byte)((col >> 16) & 0xFF),
+                        (byte)((col >> 24) & 0xFF)
+                    )
+                );
             }
 
             // Set mesh data
@@ -532,14 +564,17 @@ public sealed class ImGuiRenderer : IDisposable
             for (int cmd = 0; cmd < cmdBuffer.Size; cmd++)
             {
                 var drawCmd = cmdBuffer[cmd];
-                if (drawCmd.ElemCount == 0) continue;
+                if (drawCmd.ElemCount == 0)
+                    continue;
 
                 // Scissor rect
                 float clipX = drawCmd.ClipRect.X - offsetX;
                 float clipY = drawCmd.ClipRect.Y - offsetY;
                 float clipW = drawCmd.ClipRect.Z - drawCmd.ClipRect.X;
                 float clipH = drawCmd.ClipRect.W - drawCmd.ClipRect.Y;
-                _commandBuffer.EnableScissorRect(new Rect(clipX, screenH - clipY - clipH, clipW, clipH));
+                _commandBuffer.EnableScissorRect(
+                    new Rect(clipX, screenH - clipY - clipH, clipW, clipH)
+                );
 
                 // Texture
                 _mpb.Clear();

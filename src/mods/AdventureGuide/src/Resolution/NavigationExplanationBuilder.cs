@@ -7,7 +7,8 @@ public static class NavigationExplanationBuilder
     public static NavigationExplanation Build(
         ResolvedActionSemantic semantic,
         ResolvedNodeContext goalNode,
-        ResolvedNodeContext targetNode)
+        ResolvedNodeContext targetNode
+    )
     {
         string primary = BuildArrowPrimary(semantic, targetNode);
         string? secondary = BuildArrowSecondary(semantic, primary);
@@ -22,13 +23,15 @@ public static class NavigationExplanationBuilder
             semantic.TargetIdentityText,
             semantic.ZoneText,
             secondary,
-            tertiary);
+            tertiary
+        );
     }
 
     public static NavigationExplanation BuildCorpseExplanation(
         ResolvedActionSemantic semantic,
         ResolvedNodeContext goalNode,
-        ResolvedNodeContext targetNode)
+        ResolvedNodeContext targetNode
+    )
     {
         string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
         string primary = $"Loot {payload}";
@@ -43,7 +46,8 @@ public static class NavigationExplanationBuilder
             semantic.TargetIdentityText,
             semantic.ZoneText,
             secondary,
-            tertiaryText: null);
+            tertiaryText: null
+        );
     }
 
     /// <summary>
@@ -53,7 +57,8 @@ public static class NavigationExplanationBuilder
     public static NavigationExplanation BuildLootChestExplanation(
         ResolvedActionSemantic semantic,
         ResolvedNodeContext goalNode,
-        ResolvedNodeContext targetNode)
+        ResolvedNodeContext targetNode
+    )
     {
         string primary = $"Loot {goalNode.Node.DisplayName}";
         string? secondary = BuildArrowSecondary(semantic, primary);
@@ -67,7 +72,8 @@ public static class NavigationExplanationBuilder
             semantic.TargetIdentityText,
             semantic.ZoneText,
             secondary,
-            tertiaryText: null);
+            tertiaryText: null
+        );
     }
 
     public static TrackerSummary BuildTrackerSummary(
@@ -75,29 +81,40 @@ public static class NavigationExplanationBuilder
         ResolvedActionSemantic semantic,
         QuestStateTracker tracker,
         int additionalCount,
-        string? prerequisiteQuestName = null)
+        string? prerequisiteQuestName = null
+    )
     {
         string primary = BuildTrackerPrimary(semantic, tracker);
         if (additionalCount > 0)
             primary += $" (+{additionalCount} more)";
 
-        string? secondary = BuildTrackerSecondary(frontierNode, semantic, primary, prerequisiteQuestName);
+        string? secondary = BuildTrackerSecondary(
+            frontierNode,
+            semantic,
+            primary,
+            prerequisiteQuestName
+        );
         return new TrackerSummary(primary, secondary);
     }
 
-    private static string BuildArrowPrimary(ResolvedActionSemantic semantic, ResolvedNodeContext targetNode)
+    private static string BuildArrowPrimary(
+        ResolvedActionSemantic semantic,
+        ResolvedNodeContext targetNode
+    )
     {
         return semantic.ActionKind switch
         {
-            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText)
-                => $"Give {semantic.PayloadText}",
-            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText)
-                => $"Buy {semantic.PayloadText}",
+            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText) =>
+                $"Give {semantic.PayloadText}",
+            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText) =>
+                $"Buy {semantic.PayloadText}",
             ResolvedActionKind.Talk => $"Talk to {semantic.TargetIdentityText}",
-            ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
-            ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
-            ResolvedActionKind.Kill when targetNode.Quantity is int quantity && quantity > 1
-                => $"Kill {semantic.TargetIdentityText} ({quantity})",
+            ResolvedActionKind.SayKeyword =>
+                $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
+            ResolvedActionKind.ShoutKeyword =>
+                $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
+            ResolvedActionKind.Kill when targetNode.Quantity is int quantity && quantity > 1 =>
+                $"Kill {semantic.TargetIdentityText} ({quantity})",
             ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
             ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
             ResolvedActionKind.Travel => $"Travel to {semantic.TargetIdentityText}",
@@ -113,7 +130,10 @@ public static class NavigationExplanationBuilder
 
     private static string? BuildArrowSecondary(ResolvedActionSemantic semantic, string primary)
     {
-        bool includesTargetIdentity = primary.Contains(semantic.TargetIdentityText, System.StringComparison.OrdinalIgnoreCase);
+        bool includesTargetIdentity = primary.Contains(
+            semantic.TargetIdentityText,
+            System.StringComparison.OrdinalIgnoreCase
+        );
         if (!includesTargetIdentity)
             return AppendZone(semantic.TargetIdentityText, semantic.ZoneText);
 
@@ -127,28 +147,40 @@ public static class NavigationExplanationBuilder
     {
         if (string.IsNullOrEmpty(semantic.RationaleText))
             return null;
-        if (string.Equals(semantic.RationaleText, secondary, System.StringComparison.OrdinalIgnoreCase))
+        if (
+            string.Equals(
+                semantic.RationaleText,
+                secondary,
+                System.StringComparison.OrdinalIgnoreCase
+            )
+        )
             return null;
         return semantic.RationaleText;
     }
 
-    private static string BuildTrackerPrimary(ResolvedActionSemantic semantic, QuestStateTracker tracker)
+    private static string BuildTrackerPrimary(
+        ResolvedActionSemantic semantic,
+        QuestStateTracker tracker
+    )
     {
         return semantic.GoalKind switch
         {
             // When the only way to collect an item is to complete a quest (e.g. the
             // quest rewards the item), lead with the quest action, not "Collect X".
             // The rationale "Rewards X" will carry the payload in the secondary line.
-            NavigationGoalKind.CollectItem when
-                semantic.ActionKind == ResolvedActionKind.CompleteQuest
-                => BuildTrackerActionPrimary(semantic),
+            NavigationGoalKind.CollectItem
+                when semantic.ActionKind == ResolvedActionKind.CompleteQuest =>
+                BuildTrackerActionPrimary(semantic),
             NavigationGoalKind.CollectItem => BuildCollectPrimary(semantic, tracker),
             NavigationGoalKind.CompleteBlockingQuest => $"Complete {semantic.TargetIdentityText}",
             _ => BuildTrackerActionPrimary(semantic),
         };
     }
 
-    private static string BuildCollectPrimary(ResolvedActionSemantic semantic, QuestStateTracker tracker)
+    private static string BuildCollectPrimary(
+        ResolvedActionSemantic semantic,
+        QuestStateTracker tracker
+    )
     {
         string payload = semantic.PayloadText ?? semantic.TargetIdentityText;
         int need = semantic.GoalQuantity ?? 1;
@@ -163,13 +195,15 @@ public static class NavigationExplanationBuilder
     {
         return semantic.ActionKind switch
         {
-            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText)
-                => $"Give {semantic.PayloadText}",
-            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText)
-                => $"Buy {semantic.PayloadText}",
+            ResolvedActionKind.Give when !string.IsNullOrEmpty(semantic.PayloadText) =>
+                $"Give {semantic.PayloadText}",
+            ResolvedActionKind.Buy when !string.IsNullOrEmpty(semantic.PayloadText) =>
+                $"Buy {semantic.PayloadText}",
             ResolvedActionKind.Talk => $"Talk to {semantic.TargetIdentityText}",
-            ResolvedActionKind.SayKeyword => $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
-            ResolvedActionKind.ShoutKeyword => $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
+            ResolvedActionKind.SayKeyword =>
+                $"Say '{semantic.KeywordText}' to {semantic.TargetIdentityText}",
+            ResolvedActionKind.ShoutKeyword =>
+                $"Shout '{semantic.KeywordText}' near {semantic.TargetIdentityText}",
             ResolvedActionKind.Kill => $"Kill {semantic.TargetIdentityText}",
             ResolvedActionKind.Read => $"Read {semantic.TargetIdentityText}",
             ResolvedActionKind.Travel => $"Travel to {semantic.TargetIdentityText}",
@@ -187,7 +221,8 @@ public static class NavigationExplanationBuilder
         ResolvedNodeContext frontierNode,
         ResolvedActionSemantic semantic,
         string primary,
-        string? prerequisiteQuestName)
+        string? prerequisiteQuestName
+    )
     {
         // Allow RationaleText for CollectItem goals when the action is CompleteQuest
         // (e.g. "Rewards A Rolled Note" when completing a quest yields the needed item).
@@ -196,9 +231,15 @@ public static class NavigationExplanationBuilder
             semantic.GoalKind != NavigationGoalKind.CollectItem
             || semantic.ActionKind == ResolvedActionKind.CompleteQuest;
 
-        if (rationaleApplies
+        if (
+            rationaleApplies
             && !string.IsNullOrEmpty(semantic.RationaleText)
-            && !string.Equals(semantic.RationaleText, primary, System.StringComparison.OrdinalIgnoreCase))
+            && !string.Equals(
+                semantic.RationaleText,
+                primary,
+                System.StringComparison.OrdinalIgnoreCase
+            )
+        )
         {
             return semantic.RationaleText;
         }
@@ -209,17 +250,27 @@ public static class NavigationExplanationBuilder
         if (!string.IsNullOrEmpty(prerequisiteQuestName))
         {
             string secondary = $"Needed for {prerequisiteQuestName}";
-            return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase) ? null : secondary;
+            return string.Equals(secondary, primary, System.StringComparison.OrdinalIgnoreCase)
+                ? null
+                : secondary;
         }
 
         if (semantic.GoalKind == NavigationGoalKind.CollectItem)
             return null;
 
-        if (string.Equals(frontierNode.Node.DisplayName, semantic.TargetIdentityText, System.StringComparison.OrdinalIgnoreCase))
+        if (
+            string.Equals(
+                frontierNode.Node.DisplayName,
+                semantic.TargetIdentityText,
+                System.StringComparison.OrdinalIgnoreCase
+            )
+        )
             return null;
 
         string neededFor = $"Needed for {frontierNode.Node.DisplayName}";
-        return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase) ? null : neededFor;
+        return string.Equals(neededFor, primary, System.StringComparison.OrdinalIgnoreCase)
+            ? null
+            : neededFor;
     }
 
     private static string AppendZone(string text, string? zoneText) =>

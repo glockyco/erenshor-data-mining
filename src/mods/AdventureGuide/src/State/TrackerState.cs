@@ -29,7 +29,15 @@ public sealed class TrackerState
     /// Returns true if state changed since last check, then clears the flag.
     /// Designed for single-consumer polling (the tracker window).
     /// </summary>
-    public bool IsDirty { get { var d = _dirty; _dirty = false; return d; } }
+    public bool IsDirty
+    {
+        get
+        {
+            var d = _dirty;
+            _dirty = false;
+            return d;
+        }
+    }
 
     /// <summary>Current tracked quest DB names in insertion order.</summary>
     public IReadOnlyList<string> TrackedQuests => _orderedList;
@@ -54,7 +62,8 @@ public sealed class TrackerState
 
     public void Track(string dbName)
     {
-        if (!_tracked.Add(dbName)) return;
+        if (!_tracked.Add(dbName))
+            return;
         _orderedList.Add(dbName);
         PersistTrackedQuests();
         _dirty = true;
@@ -63,7 +72,8 @@ public sealed class TrackerState
 
     public void Untrack(string dbName)
     {
-        if (!_tracked.Remove(dbName)) return;
+        if (!_tracked.Remove(dbName))
+            return;
         _orderedList.Remove(dbName);
         PersistTrackedQuests();
         _dirty = true;
@@ -72,7 +82,8 @@ public sealed class TrackerState
 
     public void OnQuestCompleted(string dbName)
     {
-        if (!_tracked.Contains(dbName)) return;
+        if (!_tracked.Contains(dbName))
+            return;
         QuestCompleted?.Invoke(dbName);
         if (_config?.TrackerUntrackOnComplete.Value == true)
             Untrack(dbName);
@@ -80,7 +91,8 @@ public sealed class TrackerState
 
     public void OnStepAdvanced(string dbName)
     {
-        if (!_tracked.Contains(dbName)) return;
+        if (!_tracked.Contains(dbName))
+            return;
         StepAdvanced?.Invoke(dbName);
     }
 
@@ -103,12 +115,15 @@ public sealed class TrackerState
     /// </summary>
     public void OnCharacterLoaded()
     {
-        if (_config == null) return;
+        if (_config == null)
+            return;
         var slot = GameData.CurrentCharacterSlot;
-        if (slot == null) return;
+        if (slot == null)
+            return;
 
         // Same character — in-memory state is authoritative
-        if (slot.index == _boundSlotIndex) return;
+        if (slot.index == _boundSlotIndex)
+            return;
 
         // Switching characters: save outgoing state before rebinding
         if (_trackedEntry != null)
@@ -134,7 +149,8 @@ public sealed class TrackerState
 
     public void SaveToConfig()
     {
-        if (_config == null) return;
+        if (_config == null)
+            return;
         _config.TrackerEnabled.Value = Enabled;
         _config.TrackerAutoTrack.Value = AutoTrackEnabled;
         _config.TrackerSortMode.Value = SortMode.ToString();

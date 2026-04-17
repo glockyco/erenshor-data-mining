@@ -16,10 +16,20 @@ public sealed class MarkerQuestTargetResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         var resolver = new MarkerQuestTargetResolver(guide, frontier, sourceResolver);
 
         var targets = resolver.Resolve("QUESTA", "Forest");
@@ -36,13 +46,25 @@ public sealed class MarkerQuestTargetResolverTests
     {
         var guide = new CompiledGuideBuilder().Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         var resolver = new MarkerQuestTargetResolver(guide, frontier, sourceResolver);
 
-        var ex = Assert.Throws<InvalidOperationException>(() => resolver.Resolve("MISSING", "Forest"));
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => resolver.Resolve("MISSING", "Forest")
+        );
 
         Assert.Contains("MISSING", ex.Message, System.StringComparison.Ordinal);
     }

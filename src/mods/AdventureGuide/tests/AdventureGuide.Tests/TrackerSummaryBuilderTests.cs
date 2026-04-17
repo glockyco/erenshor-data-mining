@@ -15,11 +15,24 @@ public sealed class TrackerSummaryBuilderTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:guard" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
-        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.ReadyToAccept, -1));
+        var summary = TrackerSummaryBuilder.Build(
+            guide,
+            tracker,
+            new FrontierEntry(0, QuestPhase.ReadyToAccept, -1)
+        );
 
-        Assert.Contains("char:guard", summary.PrimaryText, System.StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(
+            "char:guard",
+            summary.PrimaryText,
+            System.StringComparison.OrdinalIgnoreCase
+        );
     }
 
     [Fact]
@@ -30,9 +43,18 @@ public sealed class TrackerSummaryBuilderTests
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:x", 3) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
-        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+        var summary = TrackerSummaryBuilder.Build(
+            guide,
+            tracker,
+            new FrontierEntry(0, QuestPhase.Accepted, -1)
+        );
 
         Assert.Contains("Collect", summary.PrimaryText, System.StringComparison.OrdinalIgnoreCase);
         Assert.Contains("0/3", summary.PrimaryText, System.StringComparison.OrdinalIgnoreCase);
@@ -43,11 +65,21 @@ public sealed class TrackerSummaryBuilderTests
     {
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:b", dbName: "QUESTB")
-            .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" }, givers: new[] { "char:guard" })
+            .AddQuest(
+                "quest:a",
+                dbName: "QUESTA",
+                prereqs: new[] { "quest:b" },
+                givers: new[] { "char:guard" }
+            )
             .AddCharacter("char:guard")
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
         // quest:b is index 0, quest:a is index 1.
         // Frontier entry for quest:b that is needed for quest:a.
@@ -55,7 +87,11 @@ public sealed class TrackerSummaryBuilderTests
         int questAIndex = 1;
         string parentName = guide.GetDisplayName(guide.QuestNodeId(questAIndex));
 
-        var entry = new FrontierEntry(questBIndex, QuestPhase.ReadyToAccept, requiredForQuestIndex: questAIndex);
+        var entry = new FrontierEntry(
+            questBIndex,
+            QuestPhase.ReadyToAccept,
+            requiredForQuestIndex: questAIndex
+        );
         var summary = TrackerSummaryBuilder.Build(guide, tracker, entry);
 
         Assert.NotNull(summary.RequiredForContext);
@@ -71,7 +107,12 @@ public sealed class TrackerSummaryBuilderTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:guard" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
         var entry = new FrontierEntry(0, QuestPhase.ReadyToAccept, requiredForQuestIndex: -1);
         var summary = TrackerSummaryBuilder.Build(guide, tracker, entry);
@@ -88,9 +129,18 @@ public sealed class TrackerSummaryBuilderTests
             .AddStep("quest:a", stepType: 4, targetKey: "char:zone") // 4 = Travel
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
-        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+        var summary = TrackerSummaryBuilder.Build(
+            guide,
+            tracker,
+            new FrontierEntry(0, QuestPhase.Accepted, -1)
+        );
 
         Assert.StartsWith("Travel to ", summary.PrimaryText);
     }
@@ -104,9 +154,18 @@ public sealed class TrackerSummaryBuilderTests
             .AddStep("quest:a", stepType: 3, targetKey: "char:wolf") // 3 = Kill
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
-        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+        var summary = TrackerSummaryBuilder.Build(
+            guide,
+            tracker,
+            new FrontierEntry(0, QuestPhase.Accepted, -1)
+        );
 
         Assert.StartsWith("Kill ", summary.PrimaryText);
     }
@@ -120,9 +179,18 @@ public sealed class TrackerSummaryBuilderTests
             .AddStep("quest:a", stepType: 2, targetKey: "char:npc") // 2 = Talk
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
-        var summary = TrackerSummaryBuilder.Build(guide, tracker, new FrontierEntry(0, QuestPhase.Accepted, -1));
+        var summary = TrackerSummaryBuilder.Build(
+            guide,
+            tracker,
+            new FrontierEntry(0, QuestPhase.Accepted, -1)
+        );
 
         Assert.StartsWith("Talk to", summary.PrimaryText);
     }

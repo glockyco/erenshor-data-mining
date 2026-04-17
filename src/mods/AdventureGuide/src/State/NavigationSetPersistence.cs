@@ -38,8 +38,10 @@ public sealed class NavigationSetPersistence : IDisposable
     public void OnCharacterLoaded(CompiledGuide.CompiledGuide guide)
     {
         var slot = GameData.CurrentCharacterSlot;
-        if (slot == null) return;
-        if (slot.index == _boundSlotIndex) return;
+        if (slot == null)
+            return;
+        if (slot.index == _boundSlotIndex)
+            return;
 
         SaveCurrentSelection();
 
@@ -64,13 +66,15 @@ public sealed class NavigationSetPersistence : IDisposable
 
     public void SaveCurrentSelection()
     {
-        if (_entry == null) return;
+        if (_entry == null)
+            return;
         _entry.Value = string.Join(";", _navSet.Keys);
     }
 
     private void OnNavigationSetChanged()
     {
-        if (_suppressWrites) return;
+        if (_suppressWrites)
+            return;
         SaveCurrentSelection();
     }
 

@@ -8,8 +8,19 @@ namespace AdventureGuide.Resolution;
 public interface IResolutionTracer
 {
     void OnQuestPhase(int questIndex, string? dbName, string phase);
-    void OnFrontierEntry(int questIndex, string? questDbName, string phase, int requiredForQuestIndex);
-    void OnTargetMaterialized(int targetNodeId, int positionNodeId, string role, string? scene, bool isActionable);
+    void OnFrontierEntry(
+        int questIndex,
+        string? questDbName,
+        string phase,
+        int requiredForQuestIndex
+    );
+    void OnTargetMaterialized(
+        int targetNodeId,
+        int positionNodeId,
+        string role,
+        string? scene,
+        bool isActionable
+    );
     void OnHostileDropFilter(int itemIndex, int totalSources, int suppressedCount);
     void OnUnlockEvaluation(int targetNodeId, bool isUnlocked);
     void OnResolveBegin(string nodeKey);

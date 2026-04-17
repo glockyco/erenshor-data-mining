@@ -9,7 +9,10 @@ public sealed class IncidentBundleTests
     public void CreateBundle_CopiesEventsSpansAndSnapshots()
     {
         var bundle = IncidentBundle.Create(
-            DiagnosticIncident.CreateForTests(DiagnosticIncidentKind.FrameStall, timestampTicks: 1000),
+            DiagnosticIncident.CreateForTests(
+                DiagnosticIncidentKind.FrameStall,
+                timestampTicks: 1000
+            ),
             new[]
             {
                 new DiagnosticEvent(
@@ -18,7 +21,8 @@ public sealed class IncidentBundleTests
                     timestampTicks: 900,
                     primaryKey: "scene:stowaway",
                     value0: 0,
-                    value1: 0),
+                    value1: 0
+                ),
             },
             new[]
             {
@@ -29,7 +33,8 @@ public sealed class IncidentBundleTests
                     endTicks: 930,
                     primaryKey: "MarkerComputer",
                     value0: 0,
-                    value1: 0),
+                    value1: 0
+                ),
             },
             new[]
             {
@@ -41,8 +46,11 @@ public sealed class IncidentBundleTests
                         lastReason: DiagnosticTrigger.SceneChanged,
                         lastDurationTicks: 20,
                         topQuestCosts: Array.Empty<QuestCostSample>(),
-                        recentModes: Array.Empty<MarkerRebuildModeSample>())),
-            });
+                        recentModes: Array.Empty<MarkerRebuildModeSample>()
+                    )
+                ),
+            }
+        );
 
         Assert.Equal(DiagnosticIncidentKind.FrameStall, bundle.Incident.Kind);
         Assert.Single(bundle.Events);

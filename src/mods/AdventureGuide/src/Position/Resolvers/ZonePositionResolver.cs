@@ -10,55 +10,71 @@ namespace AdventureGuide.Position.Resolvers;
 /// </summary>
 public sealed class ZonePositionResolver : IPositionResolver
 {
-	private readonly CompiledGuideModel _guide;
+    private readonly CompiledGuideModel _guide;
 
-	public ZonePositionResolver(CompiledGuideModel guide)
-	{
-		_guide = guide;
-	}
+    public ZonePositionResolver(CompiledGuideModel guide)
+    {
+        _guide = guide;
+    }
 
-	public void Resolve(Node node, List<ResolvedPosition> results)
-	{
-		var currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-		int startCount = results.Count;
+    public void Resolve(Node node, List<ResolvedPosition> results)
+    {
+        var currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        int startCount = results.Count;
 
-		// Find zone lines that connect to this zone
-		foreach (var edge in _guide.InEdges(node.Key, EdgeType.ConnectsZones))
-		{
-			var zoneLine = _guide.GetNode(edge.Source);
-			if (zoneLine == null) continue;
-			if (!zoneLine.X.HasValue || !zoneLine.Y.HasValue || !zoneLine.Z.HasValue) continue;
+        // Find zone lines that connect to this zone
+        foreach (var edge in _guide.InEdges(node.Key, EdgeType.ConnectsZones))
+        {
+            var zoneLine = _guide.GetNode(edge.Source);
+            if (zoneLine == null)
+                continue;
+            if (!zoneLine.X.HasValue || !zoneLine.Y.HasValue || !zoneLine.Z.HasValue)
+                continue;
 
-			// Only include zone lines in the current scene — the player
-			// needs to walk to one to reach the target zone
-			if (string.Equals(zoneLine.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
-			{
-				results.Add(new ResolvedPosition(
-					zoneLine.X.Value,
-					zoneLine.Y.Value,
-					zoneLine.Z.Value,
-					zoneLine.Scene,
-					zoneLine.Key));
-			}
-		}
+            // Only include zone lines in the current scene — the player
+            // needs to walk to one to reach the target zone
+            if (
+                string.Equals(
+                    zoneLine.Scene,
+                    currentScene,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
+            {
+                results.Add(
+                    new ResolvedPosition(
+                        zoneLine.X.Value,
+                        zoneLine.Y.Value,
+                        zoneLine.Z.Value,
+                        zoneLine.Scene,
+                        zoneLine.Key
+                    )
+                );
+            }
+        }
 
-		// If no zone lines in the current scene, include all zone lines
-		// (cross-zone routing will handle it)
-		if (results.Count == startCount)
-		{
-			foreach (var edge in _guide.InEdges(node.Key, EdgeType.ConnectsZones))
-			{
-				var zoneLine = _guide.GetNode(edge.Source);
-				if (zoneLine == null) continue;
-				if (!zoneLine.X.HasValue || !zoneLine.Y.HasValue || !zoneLine.Z.HasValue) continue;
+        // If no zone lines in the current scene, include all zone lines
+        // (cross-zone routing will handle it)
+        if (results.Count == startCount)
+        {
+            foreach (var edge in _guide.InEdges(node.Key, EdgeType.ConnectsZones))
+            {
+                var zoneLine = _guide.GetNode(edge.Source);
+                if (zoneLine == null)
+                    continue;
+                if (!zoneLine.X.HasValue || !zoneLine.Y.HasValue || !zoneLine.Z.HasValue)
+                    continue;
 
-				results.Add(new ResolvedPosition(
-					zoneLine.X.Value,
-					zoneLine.Y.Value,
-					zoneLine.Z.Value,
-					zoneLine.Scene,
-					zoneLine.Key));
-			}
-		}
-	}
+                results.Add(
+                    new ResolvedPosition(
+                        zoneLine.X.Value,
+                        zoneLine.Y.Value,
+                        zoneLine.Z.Value,
+                        zoneLine.Scene,
+                        zoneLine.Key
+                    )
+                );
+            }
+        }
+    }
 }

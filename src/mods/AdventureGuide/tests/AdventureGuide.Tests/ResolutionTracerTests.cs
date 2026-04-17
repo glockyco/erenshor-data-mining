@@ -11,18 +11,22 @@ public sealed class ResolutionTracerTests
     [Fact]
     public void Tracer_captures_quest_phase_and_frontier_entry()
     {
-        var guide = new CompiledGuideBuilder()
-            .AddQuest("quest:a", dbName: "QUESTA")
-            .Build();
+        var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
-            Array.Empty<string>());
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
-        var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            tracker,
+            unlocks,
+            new NullLivePositionProvider()
+        );
         var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         var tracer = new TextResolutionTracer();
@@ -48,10 +52,16 @@ public sealed class ResolutionTracerTests
             Array.Empty<string>(),
             new[] { "QUESTB" }, // active
             new Dictionary<string, int>(),
-            Array.Empty<string>());
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
-        var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            tracker,
+            unlocks,
+            new NullLivePositionProvider()
+        );
         var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         var tracer = new TextResolutionTracer();
@@ -64,18 +74,22 @@ public sealed class ResolutionTracerTests
     [Fact]
     public void Null_tracer_does_not_throw()
     {
-        var guide = new CompiledGuideBuilder()
-            .AddQuest("quest:c", dbName: "QUESTC")
-            .Build();
+        var guide = new CompiledGuideBuilder().AddQuest("quest:c", dbName: "QUESTC").Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
-            Array.Empty<string>());
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
-        var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            tracker,
+            unlocks,
+            new NullLivePositionProvider()
+        );
         var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         // Should not throw with null tracer (default)
@@ -86,6 +100,7 @@ public sealed class ResolutionTracerTests
     private sealed class NullLivePositionProvider : ILivePositionProvider
     {
         public WorldPosition? GetLivePosition(int nodeId) => null;
+
         public bool IsAlive(int nodeId) => false;
     }
 }

@@ -31,7 +31,8 @@ public sealed class NavigationTargetResolver
         SourceResolver sourceResolver,
         ZoneRouter? zoneRouter,
         Func<int>? versionProvider = null,
-        DiagnosticsCore? diagnostics = null)
+        DiagnosticsCore? diagnostics = null
+    )
     {
         _guide = guide;
         _frontier = frontier;
@@ -41,12 +42,17 @@ public sealed class NavigationTargetResolver
         _diagnostics = diagnostics;
     }
 
-    public IReadOnlyList<ResolvedQuestTarget> Resolve(string nodeKey, string currentScene, IResolutionTracer? tracer = null)
+    public IReadOnlyList<ResolvedQuestTarget> Resolve(
+        string nodeKey,
+        string currentScene,
+        IResolutionTracer? tracer = null
+    )
     {
         var token = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.NavResolverResolve,
             DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
-            primaryKey: nodeKey);
+            primaryKey: nodeKey
+        );
         long startTick = Stopwatch.GetTimestamp();
         try
         {
@@ -84,11 +90,20 @@ public sealed class NavigationTargetResolver
         finally
         {
             if (token != null)
-                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _lastResolvedTargetCount, value1: 0);
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    Stopwatch.GetTimestamp() - startTick,
+                    value0: _lastResolvedTargetCount,
+                    value1: 0
+                );
         }
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(int questIndex, string currentScene, IResolutionTracer? tracer = null)
+    private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(
+        int questIndex,
+        string currentScene,
+        IResolutionTracer? tracer = null
+    )
     {
         var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
         tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
@@ -97,11 +112,22 @@ public sealed class NavigationTargetResolver
         _frontier.Resolve(questIndex, frontier, -1, tracer);
 
         var results = new List<ResolvedQuestTarget>();
+        var seenTargets = new HashSet<string>(StringComparer.Ordinal);
         for (int i = 0; i < frontier.Count; i++)
         {
             var compiledTargets = _sourceResolver.ResolveTargets(frontier[i], currentScene, tracer);
+            var lockedHopCache = new Dictionary<int, IReadOnlyList<ResolvedTarget>>();
             for (int j = 0; j < compiledTargets.Count; j++)
-                AppendQuestTarget(results, frontier[i], compiledTargets[j], currentScene, new HashSet<int>(), tracer);
+                AppendQuestTarget(
+                    results,
+                    frontier[i],
+                    compiledTargets[j],
+                    currentScene,
+                    new HashSet<int>(),
+                    seenTargets,
+                    lockedHopCache,
+                    tracer
+                );
         }
 
         return results;
@@ -113,18 +139,38 @@ public sealed class NavigationTargetResolver
         ResolvedTarget target,
         string currentScene,
         HashSet<int> lockedHopTrail,
-        IResolutionTracer? tracer = null)
+        HashSet<string> seenTargets,
+        Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
+        IResolutionTracer? tracer = null
+    )
     {
-        if (TryGetLockedHopNodeId(currentScene, target.Scene, out int lockedHopNodeId)
-            && lockedHopTrail.Add(lockedHopNodeId))
+        if (
+            TryGetLockedHopNodeId(currentScene, target.Scene, out int lockedHopNodeId)
+            && lockedHopTrail.Add(lockedHopNodeId)
+        )
         {
             try
             {
-                var unlockTargets = _sourceResolver.ResolveUnlockTargets(lockedHopNodeId, entry, currentScene, tracer);
+                var unlockTargets = GetUnlockTargets(
+                    lockedHopNodeId,
+                    entry,
+                    currentScene,
+                    lockedHopCache,
+                    tracer
+                );
                 if (unlockTargets.Count > 0)
                 {
                     for (int i = 0; i < unlockTargets.Count; i++)
-                        AppendQuestTarget(results, entry, unlockTargets[i], currentScene, lockedHopTrail, tracer);
+                        AppendQuestTarget(
+                            results,
+                            entry,
+                            unlockTargets[i],
+                            currentScene,
+                            lockedHopTrail,
+                            seenTargets,
+                            lockedHopCache,
+                            tracer
+                        );
                     return;
                 }
             }
@@ -134,13 +180,65 @@ public sealed class NavigationTargetResolver
             }
         }
 
-        results.Add(ConvertCompiledTarget(target, currentScene));
+        TryAddResolvedTarget(results, entry, target, currentScene, seenTargets);
     }
 
-    private bool TryGetLockedHopNodeId(string currentScene, string? targetScene, out int lockedHopNodeId)
+    private IReadOnlyList<ResolvedTarget> GetUnlockTargets(
+        int lockedHopNodeId,
+        FrontierEntry entry,
+        string currentScene,
+        Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
+        IResolutionTracer? tracer
+    )
+    {
+        if (lockedHopCache.TryGetValue(lockedHopNodeId, out var cachedTargets))
+            return cachedTargets;
+
+        cachedTargets = _sourceResolver.ResolveUnlockTargets(
+            lockedHopNodeId,
+            entry,
+            currentScene,
+            tracer
+        );
+        lockedHopCache[lockedHopNodeId] = cachedTargets;
+        return cachedTargets;
+    }
+
+    private void TryAddResolvedTarget(
+        List<ResolvedQuestTarget> results,
+        FrontierEntry entry,
+        ResolvedTarget target,
+        string currentScene,
+        HashSet<string> seenTargets
+    )
+    {
+        var resolvedTarget = ConvertCompiledTarget(target, currentScene);
+        string questKey =
+            resolvedTarget.RequiredForQuestKey
+            ?? _guide.GetNodeKey(_guide.QuestNodeId(entry.QuestIndex));
+        string dedupeKey = TargetInstanceIdentity.BuildDedupeKey(
+            questKey,
+            resolvedTarget.GoalNode.Node.Key,
+            resolvedTarget.TargetNodeKey,
+            resolvedTarget.Scene,
+            resolvedTarget.SourceKey
+        );
+        if (seenTargets.Add(dedupeKey))
+            results.Add(resolvedTarget);
+    }
+
+    private bool TryGetLockedHopNodeId(
+        string currentScene,
+        string? targetScene,
+        out int lockedHopNodeId
+    )
     {
         lockedHopNodeId = -1;
-        if (_zoneRouter == null || string.IsNullOrWhiteSpace(currentScene) || string.IsNullOrWhiteSpace(targetScene))
+        if (
+            _zoneRouter == null
+            || string.IsNullOrWhiteSpace(currentScene)
+            || string.IsNullOrWhiteSpace(targetScene)
+        )
             return false;
         if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
             return false;
@@ -155,9 +253,9 @@ public sealed class NavigationTargetResolver
             lastForceReason: DiagnosticTrigger.Unknown,
             cacheEntryCount: 0,
             currentTargetKey: _lastResolvedNodeKey,
-            lastResolvedTargetCount: _lastResolvedTargetCount);
+            lastResolvedTargetCount: _lastResolvedTargetCount
+        );
     }
-
 
     private ResolvedQuestTarget ConvertCompiledTarget(ResolvedTarget target, string currentScene)
     {
@@ -165,13 +263,20 @@ public sealed class NavigationTargetResolver
         string sourceKey = _guide.GetNodeKey(target.PositionNodeId);
         var goalNode = BuildGoalContext(target);
         var targetNode = BuildNodeContext(target.TargetNodeId);
-        var explanation = target.Semantic.ActionKind == ResolvedActionKind.LootChest
-            ? NavigationExplanationBuilder.BuildLootChestExplanation(target.Semantic, goalNode, targetNode)
-            : NavigationExplanationBuilder.Build(target.Semantic, goalNode, targetNode);
+        var explanation =
+            target.Semantic.ActionKind == ResolvedActionKind.LootChest
+                ? NavigationExplanationBuilder.BuildLootChestExplanation(
+                    target.Semantic,
+                    goalNode,
+                    targetNode
+                )
+                : NavigationExplanationBuilder.Build(target.Semantic, goalNode, targetNode);
 
         string? requiredForQuestKey = null;
         if (target.RequiredForQuestIndex >= 0)
-            requiredForQuestKey = _guide.GetNodeKey(_guide.QuestNodeId(target.RequiredForQuestIndex));
+            requiredForQuestKey = _guide.GetNodeKey(
+                _guide.QuestNodeId(target.RequiredForQuestIndex)
+            );
 
         return new ResolvedQuestTarget(
             targetNodeKey,
@@ -186,7 +291,8 @@ public sealed class NavigationTargetResolver
             target.Z,
             target.IsActionable,
             requiredForQuestKey: requiredForQuestKey,
-            isBlockedPath: IsSceneBlocked(currentScene, target.Scene));
+            isBlockedPath: IsSceneBlocked(currentScene, target.Scene)
+        );
     }
 
     private ResolvedNodeContext BuildGoalContext(ResolvedTarget target)
@@ -240,14 +346,19 @@ public sealed class NavigationTargetResolver
     // Non-quest entity resolution
     // ---------------------------------------------------------------
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuestEntity(int nodeId, string nodeKey, Node node, string currentScene)
+    private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuestEntity(
+        int nodeId,
+        string nodeKey,
+        Node node,
+        string currentScene
+    )
     {
         return node.Type switch
         {
             NodeType.Character => ResolveCharacterTargets(nodeKey, node, currentScene),
             NodeType.Item => ResolveItemTargets(nodeId, nodeKey, node, currentScene),
-            _ when node.X.HasValue && node.Y.HasValue && node.Z.HasValue
-                => ResolvePositionedEntityTargets(nodeKey, node, currentScene),
+            _ when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
+                ResolvePositionedEntityTargets(nodeKey, node, currentScene),
             _ => Array.Empty<ResolvedQuestTarget>(),
         };
     }
@@ -261,7 +372,11 @@ public sealed class NavigationTargetResolver
         return ResolvedActionKind.Talk;
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolveCharacterTargets(string nodeKey, Node node, string currentScene)
+    private IReadOnlyList<ResolvedQuestTarget> ResolveCharacterTargets(
+        string nodeKey,
+        Node node,
+        string currentScene
+    )
     {
         var spawnEdges = _guide.OutEdges(nodeKey, EdgeType.HasSpawn);
         if (spawnEdges.Count == 0)
@@ -270,40 +385,62 @@ public sealed class NavigationTargetResolver
         var nodeContext = BuildNodeContext(nodeKey);
         var results = new List<ResolvedQuestTarget>();
         var actionKind = ResolveCharacterActionKind(nodeKey);
-        var targetKind = actionKind == ResolvedActionKind.Kill
-            ? NavigationTargetKind.Enemy
-            : NavigationTargetKind.Character;
+        var targetKind =
+            actionKind == ResolvedActionKind.Kill
+                ? NavigationTargetKind.Enemy
+                : NavigationTargetKind.Character;
 
         for (int i = 0; i < spawnEdges.Count; i++)
         {
             string spawnKey = spawnEdges[i].Target;
             var spawnNode = _guide.GetNode(spawnKey);
-            if (spawnNode == null || !spawnNode.X.HasValue || !spawnNode.Y.HasValue || !spawnNode.Z.HasValue)
+            if (
+                spawnNode == null
+                || !spawnNode.X.HasValue
+                || !spawnNode.Y.HasValue
+                || !spawnNode.Z.HasValue
+            )
                 continue;
 
             var semantic = BuildDirectNavigationSemantic(
-                node, targetKind, actionKind, _guide.GetZoneDisplay(spawnNode.Scene));
-            var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
-
-            results.Add(new ResolvedQuestTarget(
-                nodeKey,
-                spawnNode.Scene,
-                spawnKey,
-                nodeContext,
-                nodeContext,
+                node,
+                targetKind,
+                actionKind,
+                _guide.GetZoneDisplay(spawnNode.Scene)
+            );
+            var explanation = NavigationExplanationBuilder.Build(
                 semantic,
-                explanation,
-                spawnNode.X.Value,
-                spawnNode.Y.Value,
-                spawnNode.Z.Value,
-                isActionable: true,
-                isBlockedPath: IsSceneBlocked(currentScene, spawnNode.Scene)));
+                nodeContext,
+                nodeContext
+            );
+
+            results.Add(
+                new ResolvedQuestTarget(
+                    nodeKey,
+                    spawnNode.Scene,
+                    spawnKey,
+                    nodeContext,
+                    nodeContext,
+                    semantic,
+                    explanation,
+                    spawnNode.X.Value,
+                    spawnNode.Y.Value,
+                    spawnNode.Z.Value,
+                    isActionable: true,
+                    isBlockedPath: IsSceneBlocked(currentScene, spawnNode.Scene)
+                )
+            );
         }
 
         return results;
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolveItemTargets(int nodeId, string nodeKey, Node node, string currentScene)
+    private IReadOnlyList<ResolvedQuestTarget> ResolveItemTargets(
+        int nodeId,
+        string nodeKey,
+        Node node,
+        string currentScene
+    )
     {
         int itemIndex = _guide.FindItemIndex(nodeId);
         if (itemIndex < 0)
@@ -331,10 +468,52 @@ public sealed class NavigationTargetResolver
                     var pos = source.Positions[j];
                     var sourceContext = BuildNodeContext(sourceKey);
                     var semantic = BuildDirectNavigationSemantic(
-                        node, NavigationTargetKind.Item, ResolvedActionKind.Collect, _guide.GetZoneDisplay(sourceScene));
-                    var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
+                        node,
+                        NavigationTargetKind.Item,
+                        ResolvedActionKind.Collect,
+                        _guide.GetZoneDisplay(sourceScene)
+                    );
+                    var explanation = NavigationExplanationBuilder.Build(
+                        semantic,
+                        nodeContext,
+                        sourceContext
+                    );
 
-                    results.Add(new ResolvedQuestTarget(
+                    results.Add(
+                        new ResolvedQuestTarget(
+                            sourceKey,
+                            sourceScene,
+                            sourceKey,
+                            nodeContext,
+                            sourceContext,
+                            semantic,
+                            explanation,
+                            pos.X,
+                            pos.Y,
+                            pos.Z,
+                            isActionable: true,
+                            isBlockedPath: IsSceneBlocked(currentScene, sourceScene)
+                        )
+                    );
+                }
+            }
+            else if (sourceNode.X.HasValue && sourceNode.Y.HasValue && sourceNode.Z.HasValue)
+            {
+                var sourceContext = BuildNodeContext(sourceKey);
+                var semantic = BuildDirectNavigationSemantic(
+                    node,
+                    NavigationTargetKind.Item,
+                    ResolvedActionKind.Collect,
+                    _guide.GetZoneDisplay(sourceScene)
+                );
+                var explanation = NavigationExplanationBuilder.Build(
+                    semantic,
+                    nodeContext,
+                    sourceContext
+                );
+
+                results.Add(
+                    new ResolvedQuestTarget(
                         sourceKey,
                         sourceScene,
                         sourceKey,
@@ -342,63 +521,59 @@ public sealed class NavigationTargetResolver
                         sourceContext,
                         semantic,
                         explanation,
-                        pos.X,
-                        pos.Y,
-                        pos.Z,
+                        sourceNode.X.Value,
+                        sourceNode.Y.Value,
+                        sourceNode.Z.Value,
                         isActionable: true,
-                        isBlockedPath: IsSceneBlocked(currentScene, sourceScene)));
-                }
-            }
-            else if (sourceNode.X.HasValue && sourceNode.Y.HasValue && sourceNode.Z.HasValue)
-            {
-                var sourceContext = BuildNodeContext(sourceKey);
-                var semantic = BuildDirectNavigationSemantic(
-                    node, NavigationTargetKind.Item, ResolvedActionKind.Collect, _guide.GetZoneDisplay(sourceScene));
-                var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
-
-                results.Add(new ResolvedQuestTarget(
-                    sourceKey,
-                    sourceScene,
-                    sourceKey,
-                    nodeContext,
-                    sourceContext,
-                    semantic,
-                    explanation,
-                    sourceNode.X.Value,
-                    sourceNode.Y.Value,
-                    sourceNode.Z.Value,
-                    isActionable: true,
-                    isBlockedPath: IsSceneBlocked(currentScene, sourceScene)));
+                        isBlockedPath: IsSceneBlocked(currentScene, sourceScene)
+                    )
+                );
             }
         }
 
         return results;
     }
 
-    private IReadOnlyList<ResolvedQuestTarget> ResolvePositionedEntityTargets(string nodeKey, Node node, string currentScene)
+    private IReadOnlyList<ResolvedQuestTarget> ResolvePositionedEntityTargets(
+        string nodeKey,
+        Node node,
+        string currentScene
+    )
     {
         var nodeContext = BuildNodeContext(nodeKey);
-        var actionKind = node.Type == NodeType.MiningNode ? ResolvedActionKind.Mine
+        var actionKind =
+            node.Type == NodeType.MiningNode ? ResolvedActionKind.Mine
             : node.Type == NodeType.Water ? ResolvedActionKind.Fish
             : ResolvedActionKind.Collect;
-        var targetKind = node.Type == NodeType.Character ? NavigationTargetKind.Character
-            : NavigationTargetKind.Object;
-        var semantic = BuildDirectNavigationSemantic(node, targetKind, actionKind, _guide.GetZoneDisplay(node.Scene));
+        var targetKind =
+            node.Type == NodeType.Character
+                ? NavigationTargetKind.Character
+                : NavigationTargetKind.Object;
+        var semantic = BuildDirectNavigationSemantic(
+            node,
+            targetKind,
+            actionKind,
+            _guide.GetZoneDisplay(node.Scene)
+        );
         var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 
-        return new[] { new ResolvedQuestTarget(
-            nodeKey,
-            node.Scene,
-            nodeKey,
-            nodeContext,
-            nodeContext,
-            semantic,
-            explanation,
-            node.X!.Value,
-            node.Y!.Value,
-            node.Z!.Value,
-            isActionable: true,
-            isBlockedPath: IsSceneBlocked(currentScene, node.Scene)) };
+        return new[]
+        {
+            new ResolvedQuestTarget(
+                nodeKey,
+                node.Scene,
+                nodeKey,
+                nodeContext,
+                nodeContext,
+                semantic,
+                explanation,
+                node.X!.Value,
+                node.Y!.Value,
+                node.Z!.Value,
+                isActionable: true,
+                isBlockedPath: IsSceneBlocked(currentScene, node.Scene)
+            ),
+        };
     }
 
     private bool IsSceneBlocked(string currentScene, string? targetScene)
@@ -413,7 +588,11 @@ public sealed class NavigationTargetResolver
     }
 
     private static ResolvedActionSemantic BuildDirectNavigationSemantic(
-        Node targetNode, NavigationTargetKind targetKind, ResolvedActionKind actionKind, string? zoneText)
+        Node targetNode,
+        NavigationTargetKind targetKind,
+        ResolvedActionKind actionKind,
+        string? zoneText
+    )
     {
         return new ResolvedActionSemantic(
             NavigationGoalKind.Generic,
@@ -429,6 +608,9 @@ public sealed class NavigationTargetResolver
             zoneText: zoneText,
             availabilityText: null,
             preferredMarkerKind: QuestMarkerKind.Objective,
-            markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(QuestMarkerKind.Objective));
+            markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(
+                QuestMarkerKind.Objective
+            )
+        );
     }
 }

@@ -44,9 +44,7 @@ public sealed class CharacterMarkerPolicyTests
         Assert.False(CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target));
     }
 
-    private static ResolvedQuestTarget MakeTarget(
-        ResolvedActionKind actionKind,
-        bool isActionable)
+    private static ResolvedQuestTarget MakeTarget(ResolvedActionKind actionKind, bool isActionable)
     {
         var node = new Node
         {
@@ -69,7 +67,8 @@ public sealed class CharacterMarkerPolicyTests
             zoneText: null,
             availabilityText: null,
             QuestMarkerKind.Objective,
-            markerPriority: 0);
+            markerPriority: 0
+        );
         var explanation = new NavigationExplanation(
             NavigationGoalKind.StartQuest,
             NavigationTargetKind.Character,
@@ -79,7 +78,8 @@ public sealed class CharacterMarkerPolicyTests
             node.DisplayName,
             zoneText: null,
             secondaryText: null,
-            tertiaryText: null);
+            tertiaryText: null
+        );
 
         return new ResolvedQuestTarget(
             targetNodeKey: node.Key,
@@ -92,7 +92,8 @@ public sealed class CharacterMarkerPolicyTests
             x: 1f,
             y: 2f,
             z: 3f,
-            isActionable: isActionable);
+            isActionable: isActionable
+        );
     }
 
     [Fact]
@@ -133,7 +134,8 @@ public sealed class CharacterMarkerPolicyTests
 
     private static ResolvedTarget MakeCompiledTarget(
         ResolvedActionKind actionKind,
-        bool isActionable)
+        bool isActionable
+    )
     {
         var semantic = new ResolvedActionSemantic(
             NavigationGoalKind.StartQuest,
@@ -149,7 +151,8 @@ public sealed class CharacterMarkerPolicyTests
             zoneText: null,
             availabilityText: null,
             QuestMarkerKind.Objective,
-            markerPriority: 0);
+            markerPriority: 0
+        );
 
         return new ResolvedTarget(
             targetNodeId: 1,
@@ -163,6 +166,7 @@ public sealed class CharacterMarkerPolicyTests
             isLive: false,
             isActionable: isActionable,
             questIndex: 0,
-            requiredForQuestIndex: -1);
+            requiredForQuestIndex: -1
+        );
     }
 }

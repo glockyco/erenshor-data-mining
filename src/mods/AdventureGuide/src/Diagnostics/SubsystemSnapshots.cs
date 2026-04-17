@@ -52,7 +52,8 @@ internal sealed class MarkerDiagnosticsSnapshot
         DiagnosticTrigger lastReason,
         long lastDurationTicks,
         IReadOnlyList<QuestCostSample> topQuestCosts,
-        IReadOnlyList<MarkerRebuildModeSample> recentModes)
+        IReadOnlyList<MarkerRebuildModeSample> recentModes
+    )
     {
         FullRebuild = fullRebuild;
         PendingQuestCount = pendingQuestCount;
@@ -81,7 +82,8 @@ internal sealed class NavigationDiagnosticsSnapshot
         DiagnosticTrigger lastForceReason,
         int cacheEntryCount,
         string? currentTargetKey,
-        int lastResolvedTargetCount)
+        int lastResolvedTargetCount
+    )
     {
         LastForceReason = lastForceReason;
         CacheEntryCount = cacheEntryCount;
@@ -104,7 +106,8 @@ internal sealed class TrackerDiagnosticsSnapshot
         int trackedQuestCount,
         string? lastResolveQuestKey,
         bool lastResolveUsedPreferredTarget,
-        string? lastSummaryText)
+        string? lastSummaryText
+    )
     {
         TrackedQuestCount = trackedQuestCount;
         LastResolveQuestKey = lastResolveQuestKey;
@@ -123,7 +126,12 @@ internal sealed class TrackerDiagnosticsSnapshot
 
 internal sealed class SpecTreeDiagnosticsSnapshot
 {
-    public SpecTreeDiagnosticsSnapshot(int lastProjectedNodeCount, int lastChildCount, int lastPrunedCount, int lastCyclePruneCount)
+    public SpecTreeDiagnosticsSnapshot(
+        int lastProjectedNodeCount,
+        int lastChildCount,
+        int lastPrunedCount,
+        int lastCyclePruneCount
+    )
     {
         LastProjectedNodeCount = lastProjectedNodeCount;
         LastChildCount = lastChildCount;

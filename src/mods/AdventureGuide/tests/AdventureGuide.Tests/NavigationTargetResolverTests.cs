@@ -19,15 +19,21 @@ public sealed class NavigationTargetResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
-        var targetResolver = new NavigationTargetResolver(
+        var sourceResolver = new SourceResolver(
             guide,
-            frontier,
-            sourceResolver,
-            null);
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
+        var targetResolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         var targets = targetResolver.Resolve("quest:a", "Forest");
 
@@ -87,16 +93,27 @@ public sealed class NavigationTargetResolverTests
         int version = 1;
         var guide = new CompiledGuideBuilder().Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         var targetResolver = new NavigationTargetResolver(
             guide,
             frontier,
             sourceResolver,
             null,
-            () => version);
+            () => version
+        );
 
         Assert.Equal(1, targetResolver.Version);
         version = 2;
@@ -120,7 +137,10 @@ public sealed class NavigationTargetResolverTests
         Assert.Equal(2, targets.Count);
         Assert.All(targets, t => Assert.Equal("char:npc", t.TargetNodeKey));
         Assert.All(targets, t => Assert.Equal(ResolvedActionKind.Talk, t.Semantic.ActionKind));
-        Assert.All(targets, t => Assert.Equal(NavigationTargetKind.Character, t.Semantic.TargetKind));
+        Assert.All(
+            targets,
+            t => Assert.Equal(NavigationTargetKind.Character, t.Semantic.TargetKind)
+        );
         Assert.All(targets, t => Assert.True(t.IsActionable));
 
         var sourceKeys = targets.Select(t => t.SourceKey).OrderBy(k => k).ToArray();
@@ -162,9 +182,7 @@ public sealed class NavigationTargetResolverTests
     [Fact]
     public void Resolve_ItemKey_WithNoSources_ReturnsEmpty()
     {
-        var guide = new CompiledGuideBuilder()
-            .AddItem("item:orphan")
-            .Build();
+        var guide = new CompiledGuideBuilder().AddItem("item:orphan").Build();
         var resolver = BuildResolver(guide);
 
         var targets = resolver.Resolve("item:orphan", "Forest");
@@ -221,21 +239,51 @@ public sealed class NavigationTargetResolverTests
         var builder = new CompiledGuideBuilder()
             .AddZone("zone:a", scene: "ZoneA")
             .AddZone("zone:b", scene: "ZoneB")
-            .AddZoneLine("zl:ab", scene: "ZoneA", destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 5f)
+            .AddZoneLine(
+                "zl:ab",
+                scene: "ZoneA",
+                destinationZoneKey: "zone:b",
+                x: 10f,
+                y: 0f,
+                z: 5f
+            )
             .AddQuest("quest:gate", dbName: "GATE")
             .AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
             .AddItem("item:fish")
             .AddWater("water:pond", scene: "ZoneB", x: 5f, y: 6f, z: 7f)
-            .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+            .AddItemSource(
+                "item:fish",
+                "water:pond",
+                edgeType: (byte)EdgeType.YieldsItem,
+                sourceType: (byte)NodeType.Water
+            )
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
-        var harness = SnapshotHarness.FromSnapshot(builder.Build(), new StateSnapshot { CurrentZone = "ZoneA" });
+        var harness = SnapshotHarness.FromSnapshot(
+            builder.Build(),
+            new StateSnapshot { CurrentZone = "ZoneA" }
+        );
 
         var phases = new QuestPhaseTracker(harness.Guide);
-        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(harness.Guide, phases);
         var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
-        var sourceResolver = new SourceResolver(harness.Guide, phases, unlocks, new StubLivePositionProvider());
-        var targetResolver = new NavigationTargetResolver(harness.Guide, frontier, sourceResolver, harness.Router);
+        var sourceResolver = new SourceResolver(
+            harness.Guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
+        var targetResolver = new NavigationTargetResolver(
+            harness.Guide,
+            frontier,
+            sourceResolver,
+            harness.Router
+        );
 
         var targets = targetResolver.Resolve("quest:root", "ZoneA");
 
@@ -248,11 +296,21 @@ public sealed class NavigationTargetResolverTests
         var builder = new CompiledGuideBuilder()
             .AddZone("zone:a", scene: "ZoneA")
             .AddZone("zone:b", scene: "ZoneB")
-            .AddZoneLine("zl:ab", scene: "ZoneA", destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 5f)
+            .AddZoneLine(
+                "zl:ab",
+                scene: "ZoneA",
+                destinationZoneKey: "zone:b",
+                x: 10f,
+                y: 0f,
+                z: 5f
+            )
             .AddQuest("quest:gate", dbName: "GATE")
             .AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
             .AddWater("water:pond", scene: "ZoneB", x: 5f, y: 6f, z: 7f);
-        var harness = SnapshotHarness.FromSnapshot(builder.Build(), new StateSnapshot { CurrentZone = "ZoneA" });
+        var harness = SnapshotHarness.FromSnapshot(
+            builder.Build(),
+            new StateSnapshot { CurrentZone = "ZoneA" }
+        );
         var resolver = BuildResolver(harness.Guide, harness.Router);
 
         var targets = resolver.Resolve("water:pond", "ZoneA");
@@ -266,26 +324,60 @@ public sealed class NavigationTargetResolverTests
         var builder = new CompiledGuideBuilder()
             .AddZone("zone:a", scene: "ZoneA")
             .AddZone("zone:b", scene: "ZoneB")
-            .AddZoneLine("zl:ab", scene: "ZoneA", destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 5f)
+            .AddZoneLine(
+                "zl:ab",
+                scene: "ZoneA",
+                destinationZoneKey: "zone:b",
+                x: 10f,
+                y: 0f,
+                z: 5f
+            )
             .AddItem("item:key")
             .AddCharacter("char:keykeeper", scene: "ZoneA", x: 2f, y: 3f, z: 4f)
-            .AddItemSource("item:key", "char:keykeeper", edgeType: (byte)EdgeType.GivesItem, sourceType: (byte)NodeType.Character)
+            .AddItemSource(
+                "item:key",
+                "char:keykeeper",
+                edgeType: (byte)EdgeType.GivesItem,
+                sourceType: (byte)NodeType.Character
+            )
             .AddEdge("item:key", "zl:ab", EdgeType.UnlocksZoneLine)
             .AddUnlockPredicate("zl:ab", "item:key", checkType: 1)
             .AddItem("item:fish")
             .AddWater("water:pond", scene: "ZoneB", x: 5f, y: 6f, z: 7f)
-            .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+            .AddItemSource(
+                "item:fish",
+                "water:pond",
+                edgeType: (byte)EdgeType.YieldsItem,
+                sourceType: (byte)NodeType.Water
+            )
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
-        var harness = SnapshotHarness.FromSnapshot(builder.Build(), new StateSnapshot { CurrentZone = "ZoneA", ActiveQuests = ["ROOT"] });
+        var harness = SnapshotHarness.FromSnapshot(
+            builder.Build(),
+            new StateSnapshot { CurrentZone = "ZoneA", ActiveQuests = ["ROOT"] }
+        );
         var phases = new QuestPhaseTracker(harness.Guide);
-        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(harness.Guide, phases);
         var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
-        var sourceResolver = new SourceResolver(harness.Guide, phases, unlocks, new StubLivePositionProvider());
-        var resolver = new NavigationTargetResolver(harness.Guide, frontier, sourceResolver, harness.Router);
+        var sourceResolver = new SourceResolver(
+            harness.Guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
+        var resolver = new NavigationTargetResolver(
+            harness.Guide,
+            frontier,
+            sourceResolver,
+            harness.Router
+        );
 
         var targets = resolver.Resolve("quest:root", "ZoneA");
-
 
         var target = Assert.Single(targets);
         Assert.Equal("char:keykeeper", target.TargetNodeKey);
@@ -293,13 +385,100 @@ public sealed class NavigationTargetResolverTests
         Assert.False(target.IsBlockedPath);
     }
 
-    private static NavigationTargetResolver BuildResolver(CompiledGuideModel guide, ZoneRouter? router = null)
+    [Fact]
+    public void Resolve_QuestKey_WithRepeatedLockedHopTargets_DedupesUnlockCutoverTargets()
+    {
+        var builder = new CompiledGuideBuilder()
+            .AddZone("zone:a", scene: "ZoneA")
+            .AddZone("zone:b", scene: "ZoneB")
+            .AddZoneLine(
+                "zl:ab",
+                scene: "ZoneA",
+                destinationZoneKey: "zone:b",
+                x: 10f,
+                y: 0f,
+                z: 5f
+            )
+            .AddItem("item:key")
+            .AddCharacter("char:keykeeper", scene: "ZoneA", x: 2f, y: 3f, z: 4f)
+            .AddItemSource(
+                "item:key",
+                "char:keykeeper",
+                edgeType: (byte)EdgeType.GivesItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddEdge("item:key", "zl:ab", EdgeType.UnlocksZoneLine)
+            .AddUnlockPredicate("zl:ab", "item:key", checkType: 1)
+            .AddItem("item:fish")
+            .AddWater("water:pond:1", scene: "ZoneB", x: 5f, y: 6f, z: 7f)
+            .AddWater("water:pond:2", scene: "ZoneB", x: 8f, y: 9f, z: 10f)
+            .AddItemSource(
+                "item:fish",
+                "water:pond:1",
+                edgeType: (byte)EdgeType.YieldsItem,
+                sourceType: (byte)NodeType.Water
+            )
+            .AddItemSource(
+                "item:fish",
+                "water:pond:2",
+                edgeType: (byte)EdgeType.YieldsItem,
+                sourceType: (byte)NodeType.Water
+            )
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
+        var harness = SnapshotHarness.FromSnapshot(
+            builder.Build(),
+            new StateSnapshot { CurrentZone = "ZoneA", ActiveQuests = ["ROOT"] }
+        );
+
+        var phases = new QuestPhaseTracker(harness.Guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(harness.Guide, phases);
+        var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
+        var sourceResolver = new SourceResolver(
+            harness.Guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
+        var resolver = new NavigationTargetResolver(
+            harness.Guide,
+            frontier,
+            sourceResolver,
+            harness.Router
+        );
+
+        var targets = resolver.Resolve("quest:root", "ZoneA");
+
+        var target = Assert.Single(targets);
+        Assert.Equal("char:keykeeper", target.TargetNodeKey);
+        Assert.Equal("item:key", target.GoalNode.Node.Key);
+    }
+
+    private static NavigationTargetResolver BuildResolver(
+        CompiledGuideModel guide,
+        ZoneRouter? router = null
+    )
     {
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         return new NavigationTargetResolver(guide, frontier, sourceResolver, router);
     }
 }

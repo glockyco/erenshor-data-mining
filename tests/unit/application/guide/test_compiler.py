@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import sqlite3
 
 from erenshor.application.guide.compiler import (
     CompiledData,
@@ -315,6 +316,50 @@ def test_compile_graph_builds_real_completion_blueprints() -> None:
             keyword="done",
         )
     ]
+
+
+def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
+    from erenshor.application.guide.graph_builder import _add_quest_completion_edges
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE quest_completion_sources (
+                quest_stable_key TEXT,
+                method TEXT,
+                source_type TEXT,
+                source_stable_key TEXT,
+                note TEXT
+            );
+            CREATE TABLE character_dialogs (
+                character_stable_key TEXT,
+                complete_quest_stable_key TEXT,
+                keywords TEXT
+            );
+            """
+        )
+        conn.execute(
+            "INSERT INTO quest_completion_sources VALUES (?, ?, ?, ?, ?)",
+            ("quest:meetbassle", "talk", "character", "char:bassle", None),
+        )
+        conn.execute(
+            "INSERT INTO character_dialogs VALUES (?, ?, ?)",
+            ("char:bassle", "quest:meetbassle", "taking"),
+        )
+
+        graph = _graph(
+            _quest("quest:meetbassle", db_name="ROOT"),
+            _char("char:bassle"),
+        )
+        _add_quest_completion_edges(conn, graph)
+        graph.build_indexes()
+
+        edge = graph.out_edges("quest:meetbassle", EdgeType.COMPLETED_BY)[0]
+        assert edge.keyword == "taking"
+    finally:
+        conn.close()
 
 
 def test_compile_graph_preserves_runtime_metadata() -> None:

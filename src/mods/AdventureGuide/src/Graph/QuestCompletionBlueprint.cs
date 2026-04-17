@@ -1,5 +1,3 @@
-
-
 namespace AdventureGuide.Graph;
 
 /// <summary>
@@ -24,7 +22,8 @@ public sealed class QuestCompletionBlueprint
         string positionNodeKey,
         string scene,
         MarkerInteraction interaction,
-        bool repeatable)
+        bool repeatable
+    )
     {
         QuestKey = questKey;
         QuestDbName = questDbName;

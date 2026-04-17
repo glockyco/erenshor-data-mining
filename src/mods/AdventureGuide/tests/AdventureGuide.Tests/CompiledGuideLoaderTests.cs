@@ -44,7 +44,12 @@ public sealed class CompiledGuideLoaderTests
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:giver", scene: "Town", x: 1f, y: 2f, z: 3f)
             .AddQuest("quest:pre", dbName: "PRE")
-            .AddQuest("quest:root", dbName: "ROOT", prereqs: new[] { "quest:pre" }, givers: new[] { "char:giver" })
+            .AddQuest(
+                "quest:root",
+                dbName: "ROOT",
+                prereqs: new[] { "quest:pre" },
+                givers: new[] { "char:giver" }
+            )
             .Build();
 
         Assert.Equal(1, guide.GiverBlueprints.Length);
@@ -111,65 +116,65 @@ public sealed class CompiledGuideLoaderTests
     private static string BuildMinimalJson()
     {
         return """
-        {
-            "nodes": [
-                {"node_id":0,"key":"quest:a","node_type":0,"display_name":"Quest A","scene":null,"x":null,"y":null,"z":null,"flags":0,"level":0,"zone_key":null,"db_name":null,"description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null}
-            ],
-            "edges": [],
-            "forward_adjacency": [[]],
-            "reverse_adjacency": [[]],
-            "quest_node_ids": [0],
-            "item_node_ids": [],
-            "quest_specs": [
-                {"quest_id":0,"quest_index":0,"prereq_quest_ids":[],"prereq_quest_indices":[],"required_items":[],"steps":[],"giver_node_ids":[],"completer_node_ids":[],"chains_to_ids":[],"is_implicit":false,"is_infeasible":false,"display_name":"Quest A"}
-            ],
-            "item_sources": [],
-            "unlock_predicates": [],
-            "topo_order": [0],
-            "item_to_quest_indices": [],
-            "quest_to_dependent_quest_indices": [[]],
-            "zone_node_ids": [],
-            "zone_adjacency": [],
-            "zone_line_ids": [],
-            "giver_blueprints": [],
-            "completion_blueprints": [],
-            "infeasible_node_ids": []
-        }
-        """;
+            {
+                "nodes": [
+                    {"node_id":0,"key":"quest:a","node_type":0,"display_name":"Quest A","scene":null,"x":null,"y":null,"z":null,"flags":0,"level":0,"zone_key":null,"db_name":null,"description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null}
+                ],
+                "edges": [],
+                "forward_adjacency": [[]],
+                "reverse_adjacency": [[]],
+                "quest_node_ids": [0],
+                "item_node_ids": [],
+                "quest_specs": [
+                    {"quest_id":0,"quest_index":0,"prereq_quest_ids":[],"prereq_quest_indices":[],"required_items":[],"steps":[],"giver_node_ids":[],"completer_node_ids":[],"chains_to_ids":[],"is_implicit":false,"is_infeasible":false,"display_name":"Quest A"}
+                ],
+                "item_sources": [],
+                "unlock_predicates": [],
+                "topo_order": [0],
+                "item_to_quest_indices": [],
+                "quest_to_dependent_quest_indices": [[]],
+                "zone_node_ids": [],
+                "zone_adjacency": [],
+                "zone_line_ids": [],
+                "giver_blueprints": [],
+                "completion_blueprints": [],
+                "infeasible_node_ids": []
+            }
+            """;
     }
 
     private static string BuildBlueprintJson()
     {
         return """
-        {
-            "nodes": [
-                {"node_id":0,"key":"quest:root","node_type":0,"display_name":"Quest Root","scene":null,"x":null,"y":null,"z":null,"flags":0,"level":0,"zone_key":null,"db_name":"ROOT","description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null},
-                {"node_id":1,"key":"char:npc","node_type":2,"display_name":"NPC","scene":"Town","x":10.0,"y":20.0,"z":30.0,"flags":0,"level":0,"zone_key":null,"db_name":null,"description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null}
-            ],
-            "edges": [],
-            "forward_adjacency": [[],[]],
-            "reverse_adjacency": [[],[]],
-            "quest_node_ids": [0],
-            "item_node_ids": [],
-            "quest_specs": [
-                {"quest_id":0,"quest_index":0,"prereq_quest_ids":[],"prereq_quest_indices":[],"required_items":[],"steps":[],"giver_node_ids":[],"completer_node_ids":[],"chains_to_ids":[],"is_implicit":false,"is_infeasible":false,"display_name":"Quest Root"}
-            ],
-            "item_sources": [],
-            "unlock_predicates": [],
-            "topo_order": [0],
-            "item_to_quest_indices": [],
-            "quest_to_dependent_quest_indices": [[]],
-            "zone_node_ids": [],
-            "zone_adjacency": [],
-            "zone_line_ids": [],
-            "giver_blueprints": [
-                {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"hail","required_quest_db_names":["PRE","CHAIN"]}
-            ],
-            "completion_blueprints": [
-                {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"done"}
-            ],
-            "infeasible_node_ids": []
-        }
-        """;
+            {
+                "nodes": [
+                    {"node_id":0,"key":"quest:root","node_type":0,"display_name":"Quest Root","scene":null,"x":null,"y":null,"z":null,"flags":0,"level":0,"zone_key":null,"db_name":"ROOT","description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null},
+                    {"node_id":1,"key":"char:npc","node_type":2,"display_name":"NPC","scene":"Town","x":10.0,"y":20.0,"z":30.0,"flags":0,"level":0,"zone_key":null,"db_name":null,"description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null}
+                ],
+                "edges": [],
+                "forward_adjacency": [[],[]],
+                "reverse_adjacency": [[],[]],
+                "quest_node_ids": [0],
+                "item_node_ids": [],
+                "quest_specs": [
+                    {"quest_id":0,"quest_index":0,"prereq_quest_ids":[],"prereq_quest_indices":[],"required_items":[],"steps":[],"giver_node_ids":[],"completer_node_ids":[],"chains_to_ids":[],"is_implicit":false,"is_infeasible":false,"display_name":"Quest Root"}
+                ],
+                "item_sources": [],
+                "unlock_predicates": [],
+                "topo_order": [0],
+                "item_to_quest_indices": [],
+                "quest_to_dependent_quest_indices": [[]],
+                "zone_node_ids": [],
+                "zone_adjacency": [],
+                "zone_line_ids": [],
+                "giver_blueprints": [
+                    {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"hail","required_quest_db_names":["PRE","CHAIN"]}
+                ],
+                "completion_blueprints": [
+                    {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"done"}
+                ],
+                "infeasible_node_ids": []
+            }
+            """;
     }
 }

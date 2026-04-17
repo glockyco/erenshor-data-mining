@@ -28,21 +28,38 @@ public sealed class TextResolutionTracer : IResolutionTracer
         _sb.AppendLine($"  Phase: {phase} (questIndex={questIndex}, db={dbName ?? "?"})");
     }
 
-    public void OnFrontierEntry(int questIndex, string? questDbName, string phase, int requiredForQuestIndex)
+    public void OnFrontierEntry(
+        int questIndex,
+        string? questDbName,
+        string phase,
+        int requiredForQuestIndex
+    )
     {
         string reqFor = requiredForQuestIndex >= 0 ? $", requiredFor={requiredForQuestIndex}" : "";
-        _sb.AppendLine($"    Frontier: questIndex={questIndex}, db={questDbName ?? "?"}, phase={phase}{reqFor}");
+        _sb.AppendLine(
+            $"    Frontier: questIndex={questIndex}, db={questDbName ?? "?"}, phase={phase}{reqFor}"
+        );
     }
 
-    public void OnTargetMaterialized(int targetNodeId, int positionNodeId, string role, string? scene, bool isActionable)
+    public void OnTargetMaterialized(
+        int targetNodeId,
+        int positionNodeId,
+        string role,
+        string? scene,
+        bool isActionable
+    )
     {
         string actionable = isActionable ? "actionable" : "non-actionable";
-        _sb.AppendLine($"    Target: node={targetNodeId}, pos={positionNodeId}, role={role}, scene={scene ?? "?"}, {actionable}");
+        _sb.AppendLine(
+            $"    Target: node={targetNodeId}, pos={positionNodeId}, role={role}, scene={scene ?? "?"}, {actionable}"
+        );
     }
 
     public void OnHostileDropFilter(int itemIndex, int totalSources, int suppressedCount)
     {
-        _sb.AppendLine($"    HostileDropFilter: itemIndex={itemIndex}, total={totalSources}, suppressed={suppressedCount}");
+        _sb.AppendLine(
+            $"    HostileDropFilter: itemIndex={itemIndex}, total={totalSources}, suppressed={suppressedCount}"
+        );
     }
 
     public void OnUnlockEvaluation(int targetNodeId, bool isUnlocked)

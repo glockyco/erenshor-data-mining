@@ -24,7 +24,8 @@ public sealed class ResolvedNodeContext
         int? quantity = null,
         string? keyword = null,
         IReadOnlyList<string>? sourceZones = null,
-        int? effectiveLevel = null)
+        int? effectiveLevel = null
+    )
     {
         NodeKey = nodeKey;
         Node = node;

@@ -15,10 +15,20 @@ public sealed class NavigationExplanationBuilderTests
 {
     // ── helpers ──────────────────────────────────────────────────────────────
 
-    private static ResolvedNodeContext Ctx(string key, NodeType type, string name,
-        EdgeType? edgeType = null, int? quantity = null)
+    private static ResolvedNodeContext Ctx(
+        string key,
+        NodeType type,
+        string name,
+        EdgeType? edgeType = null,
+        int? quantity = null
+    )
     {
-        var node = new Node { Key = key, Type = type, DisplayName = name };
+        var node = new Node
+        {
+            Key = key,
+            Type = type,
+            DisplayName = name,
+        };
         return new ResolvedNodeContext(key, node, edgeType, quantity);
     }
 
@@ -27,20 +37,34 @@ public sealed class NavigationExplanationBuilderTests
         string targetName,
         string? keywordText = null,
         NavigationGoalKind goalKind = NavigationGoalKind.Generic,
-        int? targetQuantity = null)
+        int? targetQuantity = null
+    )
     {
-        var stub = new Node { Key = "goal", Type = NodeType.Item, DisplayName = "goal" };
-        var goalCtx   = new ResolvedNodeContext("goal", stub);
-        var targetCtx = Ctx("target", NodeType.Character, targetName,
-            quantity: targetQuantity);
+        var stub = new Node
+        {
+            Key = "goal",
+            Type = NodeType.Item,
+            DisplayName = "goal",
+        };
+        var goalCtx = new ResolvedNodeContext("goal", stub);
+        var targetCtx = Ctx("target", NodeType.Character, targetName, quantity: targetQuantity);
 
         var semantic = new ResolvedActionSemantic(
-            goalKind, NavigationTargetKind.Character, actionKind,
-            goalNodeKey: null, goalQuantity: null,
-            keywordText, payloadText: null, targetName,
-            contextText: null, rationaleText: null,
-            zoneText: null, availabilityText: null,
-            QuestMarkerKind.Objective, markerPriority: 20);
+            goalKind,
+            NavigationTargetKind.Character,
+            actionKind,
+            goalNodeKey: null,
+            goalQuantity: null,
+            keywordText,
+            payloadText: null,
+            targetName,
+            contextText: null,
+            rationaleText: null,
+            zoneText: null,
+            availabilityText: null,
+            QuestMarkerKind.Objective,
+            markerPriority: 20
+        );
 
         return NavigationExplanationBuilder.Build(semantic, goalCtx, targetCtx);
     }

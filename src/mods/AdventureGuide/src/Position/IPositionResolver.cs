@@ -12,6 +12,7 @@ public readonly struct ResolvedPosition
     public readonly float Y;
     public readonly float Z;
     public readonly string? Scene;
+
     /// <summary>Key of the graph node that produced this position (e.g., spawn point key). Null for live NPC positions.</summary>
     public readonly string? SourceKey;
     public readonly bool IsActionable;
@@ -24,7 +25,8 @@ public readonly struct ResolvedPosition
         string? scene,
         string? sourceKey = null,
         bool isActionable = true,
-        bool isCorpse = false)
+        bool isCorpse = false
+    )
     {
         X = x;
         Y = y;

@@ -28,26 +28,57 @@ public class FilterState
     public QuestFilterMode FilterMode
     {
         get => _filterMode;
-        set { if (_filterMode != value) { _filterMode = value; Version++; _config?.FilterMode.SetSerializedValue(value.ToString()); } }
+        set
+        {
+            if (_filterMode != value)
+            {
+                _filterMode = value;
+                Version++;
+                _config?.FilterMode.SetSerializedValue(value.ToString());
+            }
+        }
     }
 
     public string SearchText
     {
         get => _searchText;
-        set { if (_searchText != value) { _searchText = value; Version++; } }
+        set
+        {
+            if (_searchText != value)
+            {
+                _searchText = value;
+                Version++;
+            }
+        }
     }
 
     /// <summary>Null means "all zones" (no filter).</summary>
     public string? ZoneFilter
     {
         get => _zoneFilter;
-        set { if (_zoneFilter != value) { _zoneFilter = value; Version++; _config?.ZoneFilter.SetSerializedValue(value ?? ""); } }
+        set
+        {
+            if (_zoneFilter != value)
+            {
+                _zoneFilter = value;
+                Version++;
+                _config?.ZoneFilter.SetSerializedValue(value ?? "");
+            }
+        }
     }
 
     public QuestSortMode SortMode
     {
         get => _sortMode;
-        set { if (_sortMode != value) { _sortMode = value; Version++; _config?.SortMode.SetSerializedValue(value.ToString()); } }
+        set
+        {
+            if (_sortMode != value)
+            {
+                _sortMode = value;
+                Version++;
+                _config?.SortMode.SetSerializedValue(value.ToString());
+            }
+        }
     }
 
     /// <summary>

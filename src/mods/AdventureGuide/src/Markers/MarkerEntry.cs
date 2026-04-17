@@ -1,6 +1,5 @@
 using AdventureGuide.Resolution;
 
-
 namespace AdventureGuide.Markers;
 
 /// <summary>
@@ -82,15 +81,16 @@ public sealed class MarkerEntry
     /// Called by MarkerComputer and MarkerSystem when setting entry.Type or
     /// comparing against it.
     /// </summary>
-    internal static MarkerType ToMarkerType(QuestMarkerKind kind) => kind switch
-    {
-        QuestMarkerKind.TurnInReady       => MarkerType.TurnInReady,
-        QuestMarkerKind.TurnInRepeatReady => MarkerType.TurnInRepeatReady,
-        QuestMarkerKind.TurnInPending     => MarkerType.TurnInPending,
-        QuestMarkerKind.Objective         => MarkerType.Objective,
-        QuestMarkerKind.QuestGiver        => MarkerType.QuestGiver,
-        QuestMarkerKind.QuestGiverRepeat  => MarkerType.QuestGiverRepeat,
-        QuestMarkerKind.QuestGiverBlocked => MarkerType.QuestGiverBlocked,
-        _                                 => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
-    };
+    internal static MarkerType ToMarkerType(QuestMarkerKind kind) =>
+        kind switch
+        {
+            QuestMarkerKind.TurnInReady => MarkerType.TurnInReady,
+            QuestMarkerKind.TurnInRepeatReady => MarkerType.TurnInRepeatReady,
+            QuestMarkerKind.TurnInPending => MarkerType.TurnInPending,
+            QuestMarkerKind.Objective => MarkerType.Objective,
+            QuestMarkerKind.QuestGiver => MarkerType.QuestGiver,
+            QuestMarkerKind.QuestGiverRepeat => MarkerType.QuestGiverRepeat,
+            QuestMarkerKind.QuestGiverBlocked => MarkerType.QuestGiverBlocked,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
 }

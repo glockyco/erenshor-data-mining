@@ -9,17 +9,17 @@ namespace AdventureGuide.Markers;
 /// </summary>
 public enum MarkerType
 {
-    TurnInReady,         // circle-question gold — can turn in now
-    TurnInRepeatReady,   // circle-question blue — repeatable, can turn in
-    Objective,           // circle-dot orange — step objective or drop source
-    QuestGiver,          // star gold — new quest available
-    QuestGiverRepeat,    // star blue — repeatable quest available
-    QuestGiverBlocked,   // star grey — prerequisites not met
-    TurnInPending,       // circle-question grey — quest active, missing items
-    DeadSpawn,           // clock red — respawn timer
-    NightSpawn,          // moon pale-blue — night-only, currently daytime
-    ZoneReentry,         // clock grey — directly placed, re-enter zone to respawn
-    QuestLocked,         // circle-question amber — spawn disabled, needs quest unlock
+    TurnInReady, // circle-question gold — can turn in now
+    TurnInRepeatReady, // circle-question blue — repeatable, can turn in
+    Objective, // circle-dot orange — step objective or drop source
+    QuestGiver, // star gold — new quest available
+    QuestGiverRepeat, // star blue — repeatable quest available
+    QuestGiverBlocked, // star grey — prerequisites not met
+    TurnInPending, // circle-question grey — quest active, missing items
+    DeadSpawn, // clock red — respawn timer
+    NightSpawn, // moon pale-blue — night-only, currently daytime
+    ZoneReentry, // clock grey — directly placed, re-enter zone to respawn
+    QuestLocked, // circle-question amber — spawn disabled, needs quest unlock
 }
 
 /// <summary>
@@ -79,7 +79,6 @@ public sealed class MarkerPool
         _activeCount = 0;
     }
 
-
     /// <summary>Destroy all pooled objects.</summary>
     public void Destroy()
     {
@@ -90,7 +89,6 @@ public sealed class MarkerPool
 
     private void CreateInstance()
     {
-
         var obj = new GameObject($"Marker_{_pool.Count}");
         obj.transform.SetParent(_root.transform);
         // Billboard via game's NamePlate component on the root so both
@@ -142,11 +140,11 @@ public sealed class MarkerPool
 public sealed class MarkerInstance
 {
     // ── Icon sizes per marker type ──────────────────────────────
-    private const float SizeTier1 = 8f;    // TurnInReady, TurnInRepeatReady
-    private const float SizeTier2 = 7f;    // QuestGiver, QuestGiverRepeat, Objective
+    private const float SizeTier1 = 8f; // TurnInReady, TurnInRepeatReady
+    private const float SizeTier2 = 7f; // QuestGiver, QuestGiverRepeat, Objective
     private const float SizeObjective = 6.5f;
-    private const float SizeTier3 = 6f;    // TurnInPending
-    private const float SizeInfo = 5.5f;   // DeadSpawn, NightSpawn
+    private const float SizeTier3 = 6f; // TurnInPending
+    private const float SizeInfo = 5.5f; // DeadSpawn, NightSpawn
 
     // ── Face colors ─────────────────────────────────────────────
     private static readonly Color Gold = new(1.0f, 0.85f, 0.3f, 1f);
@@ -170,17 +168,17 @@ public sealed class MarkerInstance
     // ── Glyph + color lookup ────────────────────────────────────
     private static readonly (char glyph, Color color, float size)[] TypeVisuals =
     {
-        (MarkerFonts.CircleQuestion,  Gold,     SizeTier1),      // TurnInReady
-        (MarkerFonts.CircleQuestion,  Blue,     SizeTier1),      // TurnInRepeatReady
-        (MarkerFonts.CircleDot,       Orange,   SizeObjective),  // Objective
-        (MarkerFonts.Star,            Gold,     SizeTier2),      // QuestGiver
-        (MarkerFonts.Star,            Blue,     SizeTier2),      // QuestGiverRepeat
-        (MarkerFonts.Star,            Grey,     SizeInfo),       // QuestGiverBlocked
-        (MarkerFonts.CircleQuestion,  Grey,     SizeTier3),      // TurnInPending
-        (MarkerFonts.Clock,           MutedRed, SizeInfo),       // DeadSpawn
-        (MarkerFonts.Moon,            PaleBlue, SizeInfo),       // NightSpawn
-        (MarkerFonts.Clock,           Grey,     SizeInfo),       // ZoneReentry
-        (MarkerFonts.CircleQuestion,  Amber,    SizeInfo),       // QuestLocked
+        (MarkerFonts.CircleQuestion, Gold, SizeTier1), // TurnInReady
+        (MarkerFonts.CircleQuestion, Blue, SizeTier1), // TurnInRepeatReady
+        (MarkerFonts.CircleDot, Orange, SizeObjective), // Objective
+        (MarkerFonts.Star, Gold, SizeTier2), // QuestGiver
+        (MarkerFonts.Star, Blue, SizeTier2), // QuestGiverRepeat
+        (MarkerFonts.Star, Grey, SizeInfo), // QuestGiverBlocked
+        (MarkerFonts.CircleQuestion, Grey, SizeTier3), // TurnInPending
+        (MarkerFonts.Clock, MutedRed, SizeInfo), // DeadSpawn
+        (MarkerFonts.Moon, PaleBlue, SizeInfo), // NightSpawn
+        (MarkerFonts.Clock, Grey, SizeInfo), // ZoneReentry
+        (MarkerFonts.CircleQuestion, Amber, SizeInfo), // QuestLocked
     };
 
     public readonly GameObject Root;
@@ -197,9 +195,15 @@ public sealed class MarkerInstance
     }
 
     /// <summary>Configure the marker's visual appearance for a given type.</summary>
-    public void Configure(MarkerType type, string? subText,
-        float markerScale, float iconSize, float subTextSize,
-        float iconYOffset, float subTextYOffset)
+    public void Configure(
+        MarkerType type,
+        string? subText,
+        float markerScale,
+        float iconSize,
+        float subTextSize,
+        float iconYOffset,
+        float subTextYOffset
+    )
     {
         int idx = (int)type;
         var (glyph, color, _) = TypeVisuals[idx];
@@ -280,7 +284,8 @@ public sealed class MarkerInstance
 
     private static float ComputeFade(float distance, float fadeStart, float fadeEnd)
     {
-        if (distance > fadeEnd) return 0f;
+        if (distance > fadeEnd)
+            return 0f;
         if (distance > fadeStart)
             return 1f - (distance - fadeStart) / (fadeEnd - fadeStart);
         return 1f;

@@ -24,12 +24,15 @@ public sealed class ItemBagPositionResolver : IPositionResolver
             return;
 
         bool actionable = _liveState.GetItemBagState(node) is ItemBagAvailable;
-        results.Add(new ResolvedPosition(
-            node.X.Value,
-            node.Y.Value,
-            node.Z.Value,
-            node.Scene,
-            node.Key,
-            actionable));
+        results.Add(
+            new ResolvedPosition(
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
+                node.Scene,
+                node.Key,
+                actionable
+            )
+        );
     }
 }

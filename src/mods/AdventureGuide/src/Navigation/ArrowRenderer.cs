@@ -1,5 +1,5 @@
-using AdventureGuide.Resolution;
 using AdventureGuide.Rendering;
+using AdventureGuide.Resolution;
 using UnityEngine;
 using V2 = AdventureGuide.Rendering.CimguiNative.Vec2;
 
@@ -61,14 +61,19 @@ public sealed class ArrowRenderer
             return;
 
         var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
-        if (drawList == System.IntPtr.Zero) return;
+        if (drawList == System.IntPtr.Zero)
+            return;
 
         var cam = CameraCache.Get();
-        if (cam == null) return;
+        if (cam == null)
+            return;
 
         var effectiveTarget = _nav.EffectiveTarget;
-        if (effectiveTarget == null) return;
-        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Value + Vector3.up * NavigationDisplay.GroundOffset);
+        if (effectiveTarget == null)
+            return;
+        var screenPos = cam.WorldToScreenPoint(
+            effectiveTarget.Value + Vector3.up * NavigationDisplay.GroundOffset
+        );
         bool isBehind = screenPos.z < 0;
         float sw = Screen.width;
         float sh = Screen.height;
@@ -83,15 +88,22 @@ public sealed class ArrowRenderer
         // ImGui uses top-down Y (0 = top of screen)
         float imguiY = sh - screenPos.y;
 
-        bool onScreen = !isBehind
-            && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
-            && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
+        bool onScreen =
+            !isBehind
+            && screenPos.x > EdgeMargin
+            && screenPos.x < sw - EdgeMargin
+            && imguiY > EdgeMargin
+            && imguiY < sh - EdgeMargin;
 
         // Rebuild label only when the visible distance, hop count, or explanation changes
         int distInt = Mathf.RoundToInt(_nav.Distance);
         int hopCount = _nav.HopCount;
         string labelIdentity = BuildLabelIdentity(_nav.Explanation);
-        if (distInt != _cachedDistInt || hopCount != _cachedHopCount || labelIdentity != _cachedLabelIdentity)
+        if (
+            distInt != _cachedDistInt
+            || hopCount != _cachedHopCount
+            || labelIdentity != _cachedLabelIdentity
+        )
         {
             _cachedDistInt = distInt;
             _cachedHopCount = hopCount;
@@ -120,7 +132,12 @@ public sealed class ArrowRenderer
             float dirX = screenPos.x - centerX;
             float dirY = imguiY - centerY;
             float dirLen = Mathf.Sqrt(dirX * dirX + dirY * dirY);
-            if (dirLen < 0.01f) { dirX = 0; dirY = -1; dirLen = 1; }
+            if (dirLen < 0.01f)
+            {
+                dirX = 0;
+                dirY = -1;
+                dirLen = 1;
+            }
             dirX /= dirLen;
             dirY /= dirLen;
 
@@ -151,7 +168,8 @@ public sealed class ArrowRenderer
         for (int i = 0; i < _cachedLines.Length; i++)
         {
             float x = anchorX - _cachedLineSizes[i].X * 0.5f;
-            if (x < pad) x = pad;
+            if (x < pad)
+                x = pad;
             if (x + _cachedLineSizes[i].X > screenWidth - pad)
                 x = screenWidth - pad - _cachedLineSizes[i].X;
             CimguiNative.AddText(dl, x, y, ColorText, _cachedLines[i]);
@@ -163,35 +181,38 @@ public sealed class ArrowRenderer
     {
         if (explanation == null)
             return string.Empty;
-        return string.Join("\u001f", new[]
-        {
-            explanation.PrimaryText,
-            explanation.TargetIdentityText,
-            explanation.ZoneText ?? string.Empty,
-            explanation.SecondaryText ?? string.Empty,
-            explanation.TertiaryText ?? string.Empty,
-        });
+        return string.Join(
+            "\u001f",
+            new[]
+            {
+                explanation.PrimaryText,
+                explanation.TargetIdentityText,
+                explanation.ZoneText ?? string.Empty,
+                explanation.SecondaryText ?? string.Empty,
+                explanation.TertiaryText ?? string.Empty,
+            }
+        );
     }
 
     private static string[] BuildLines(
         NavigationExplanation? explanation,
         int distInt,
-        int hopCount)
+        int hopCount
+    )
     {
-        string distanceText = hopCount > 0
-            ? $"({distInt}m + {hopCount} hops)"
-            : $"({distInt}m)";
+        string distanceText = hopCount > 0 ? $"({distInt}m + {hopCount} hops)" : $"({distInt}m)";
 
         if (explanation == null)
             return new[] { distanceText };
 
-        var lines = new List<string>(3)
-        {
-            $"{explanation.PrimaryText} {distanceText}".Trim()
-        };
+        var lines = new List<string>(3) { $"{explanation.PrimaryText} {distanceText}".Trim() };
 
         string? secondary = explanation.SecondaryText;
-        if (hopCount == 0 && !string.IsNullOrEmpty(secondary) && !string.IsNullOrEmpty(explanation.ZoneText))
+        if (
+            hopCount == 0
+            && !string.IsNullOrEmpty(secondary)
+            && !string.IsNullOrEmpty(explanation.ZoneText)
+        )
         {
             string zoneSuffix = $" · {explanation.ZoneText}";
             if (string.Equals(secondary, explanation.ZoneText, StringComparison.OrdinalIgnoreCase))

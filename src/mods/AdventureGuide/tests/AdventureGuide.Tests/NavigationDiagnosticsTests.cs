@@ -18,9 +18,18 @@ public sealed class NavigationDiagnosticsTests
             router: SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router,
             diagnostics: core,
             clock: () => 1f,
-            rerankInterval: 0f);
+            rerankInterval: 0f
+        );
 
-        selector.Tick(0f, 0f, 0f, "Stowaway", new[] { "quest:a" }, force: true, forceReason: DiagnosticTrigger.NavSetChanged);
+        selector.Tick(
+            0f,
+            0f,
+            0f,
+            "Stowaway",
+            new[] { "quest:a" },
+            force: true,
+            forceReason: DiagnosticTrigger.NavSetChanged
+        );
 
         var span = Assert.Single(core.GetRecentSpans());
         Assert.Equal(DiagnosticSpanKind.NavSelectorTick, span.Kind);
@@ -35,12 +44,29 @@ public sealed class NavigationDiagnosticsTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         var core = new DiagnosticsCore(128, 128, IncidentThresholds.Disabled);
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null, () => 0, core);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            frontier,
+            sourceResolver,
+            null,
+            () => 0,
+            core
+        );
 
         var results = resolver.Resolve("quest:a", "Forest");
 

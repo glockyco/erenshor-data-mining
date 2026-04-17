@@ -34,7 +34,6 @@ internal static class CharacterMarkerPolicy
 
     public static bool ShouldKeepQuestMarkerOnCorpse(ResolvedTarget target)
     {
-        return target.Semantic.ActionKind == ResolvedActionKind.Kill
-            && target.IsActionable;
+        return target.Semantic.ActionKind == ResolvedActionKind.Kill && target.IsActionable;
     }
 }

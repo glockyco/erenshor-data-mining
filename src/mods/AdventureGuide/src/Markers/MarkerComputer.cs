@@ -31,8 +31,12 @@ public sealed class MarkerComputer
     private readonly DiagnosticsCore? _diagnostics;
 
     private readonly List<MarkerEntry> _markers = new();
-    private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, HashSet<string>> _nodesByQuest = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(
+        StringComparer.Ordinal
+    );
+    private readonly Dictionary<string, HashSet<string>> _nodesByQuest = new(
+        StringComparer.Ordinal
+    );
     private readonly HashSet<string> _pendingQuestKeys = new(StringComparer.Ordinal);
     private readonly List<QuestCostSample> _recentQuestCosts = new();
     private readonly List<MarkerRebuildModeSample> _recentModes = new();
@@ -54,7 +58,8 @@ public sealed class MarkerComputer
         MarkerQuestTargetResolver questTargetResolver,
         EffectiveFrontier effectiveFrontier,
         SourceResolver sourceResolver,
-        DiagnosticsCore? diagnostics = null)
+        DiagnosticsCore? diagnostics = null
+    )
     {
         _compiledGuide = compiledGuide;
         _tracker = tracker;
@@ -79,13 +84,18 @@ public sealed class MarkerComputer
     }
 
     private void OnExternalSelectionChanged() => MarkDirty(DiagnosticTrigger.NavSetChanged);
+
     private void OnTrackedChanged(string _) => MarkDirty(DiagnosticTrigger.TrackedQuestSetChanged);
 
     public void ApplyGuideChangeSet(GuideChangeSet changeSet)
     {
         var trigger = ResolveTrigger(changeSet);
         var context = DiagnosticsContext.Root(trigger);
-        var token = _diagnostics?.BeginSpan(DiagnosticSpanKind.MarkerApplyGuideChangeSet, context, primaryKey: "MarkerComputer");
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.MarkerApplyGuideChangeSet,
+            context,
+            primaryKey: "MarkerComputer"
+        );
         long startTick = Stopwatch.GetTimestamp();
         try
         {
@@ -95,13 +105,16 @@ public sealed class MarkerComputer
 
             _dirty = true;
             _lastDiagnosticTrigger = trigger;
-            _diagnostics?.RecordEvent(new DiagnosticEvent(
-                DiagnosticEventKind.MarkerRebuildRequested,
-                context,
-                timestampTicks: startTick,
-                primaryKey: "MarkerComputer",
-                value0: plan.FullRebuild ? 1 : 0,
-                value1: plan.AffectedQuestKeys.Count));
+            _diagnostics?.RecordEvent(
+                new DiagnosticEvent(
+                    DiagnosticEventKind.MarkerRebuildRequested,
+                    context,
+                    timestampTicks: startTick,
+                    primaryKey: "MarkerComputer",
+                    value0: plan.FullRebuild ? 1 : 0,
+                    value1: plan.AffectedQuestKeys.Count
+                )
+            );
 
             if (plan.FullRebuild)
             {
@@ -116,7 +129,12 @@ public sealed class MarkerComputer
         finally
         {
             if (token != null)
-                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _fullRebuild ? 1 : 0, value1: _pendingQuestKeys.Count);
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    Stopwatch.GetTimestamp() - startTick,
+                    value0: _fullRebuild ? 1 : 0,
+                    value1: _pendingQuestKeys.Count
+                );
         }
     }
 
@@ -134,13 +152,16 @@ public sealed class MarkerComputer
         _dirty = true;
         _fullRebuild = true;
         _lastDiagnosticTrigger = trigger;
-        _diagnostics?.RecordEvent(new DiagnosticEvent(
-            DiagnosticEventKind.MarkerRebuildRequested,
-            DiagnosticsContext.Root(trigger),
-            timestampTicks: Stopwatch.GetTimestamp(),
-            primaryKey: "MarkerComputer",
-            value0: 1,
-            value1: _pendingQuestKeys.Count));
+        _diagnostics?.RecordEvent(
+            new DiagnosticEvent(
+                DiagnosticEventKind.MarkerRebuildRequested,
+                DiagnosticsContext.Root(trigger),
+                timestampTicks: Stopwatch.GetTimestamp(),
+                primaryKey: "MarkerComputer",
+                value0: 1,
+                value1: _pendingQuestKeys.Count
+            )
+        );
     }
 
     public void Recompute()
@@ -150,7 +171,11 @@ public sealed class MarkerComputer
 
         var mode = _fullRebuild ? MarkerRebuildMode.Full : MarkerRebuildMode.Incremental;
         var context = DiagnosticsContext.Root(_lastDiagnosticTrigger);
-        var token = _diagnostics?.BeginSpan(DiagnosticSpanKind.MarkerRecompute, context, primaryKey: "MarkerComputer");
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.MarkerRecompute,
+            context,
+            primaryKey: "MarkerComputer"
+        );
         long startTick = Stopwatch.GetTimestamp();
         try
         {
@@ -183,7 +208,12 @@ public sealed class MarkerComputer
             _lastRecomputeTicks = Stopwatch.GetTimestamp() - startTick;
             AddRecentMode(mode);
             if (token != null)
-                _diagnostics!.EndSpan(token.Value, _lastRecomputeTicks, value0: mode == MarkerRebuildMode.Full ? 1 : 0, value1: _markers.Count);
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    _lastRecomputeTicks,
+                    value0: mode == MarkerRebuildMode.Full ? 1 : 0,
+                    value1: _markers.Count
+                );
         }
     }
 
@@ -192,7 +222,8 @@ public sealed class MarkerComputer
         var token = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.MarkerRebuildCurrentScene,
             DiagnosticsContext.Root(_lastDiagnosticTrigger),
-            primaryKey: _tracker.CurrentZone);
+            primaryKey: _tracker.CurrentZone
+        );
         long startTick = Stopwatch.GetTimestamp();
         try
         {
@@ -244,7 +275,12 @@ public sealed class MarkerComputer
         finally
         {
             if (token != null)
-                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _recentQuestCosts.Count, value1: _markers.Count);
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    Stopwatch.GetTimestamp() - startTick,
+                    value0: _recentQuestCosts.Count,
+                    value1: _markers.Count
+                );
         }
     }
 
@@ -253,7 +289,8 @@ public sealed class MarkerComputer
         var token = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.MarkerRebuildQuest,
             DiagnosticsContext.Root(_lastDiagnosticTrigger),
-            primaryKey: questKey);
+            primaryKey: questKey
+        );
         long startTick = Stopwatch.GetTimestamp();
         try
         {
@@ -263,12 +300,15 @@ public sealed class MarkerComputer
             if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
                 return;
 
-            bool explicitlySelected = _navSet.Contains(quest.Key)
-                || _trackerState.IsTracked(quest.DbName);
+            bool explicitlySelected =
+                _navSet.Contains(quest.Key) || _trackerState.IsTracked(quest.DbName);
 
             if (explicitlySelected || _tracker.IsActive(quest.DbName))
             {
-                var compiledTargets = _questTargetResolver.Resolve(quest.DbName, _tracker.CurrentZone);
+                var compiledTargets = _questTargetResolver.Resolve(
+                    quest.DbName,
+                    _tracker.CurrentZone
+                );
                 EmitActiveQuestMarkers(quest, compiledTargets);
                 return;
             }
@@ -341,9 +381,8 @@ public sealed class MarkerComputer
         if (!IsCurrentScene(target.Scene))
             return null;
 
-        var positionNode = target.SourceKey != null
-            ? _compiledGuide.GetNode(target.SourceKey)
-            : null;
+        var positionNode =
+            target.SourceKey != null ? _compiledGuide.GetNode(target.SourceKey) : null;
         if (positionNode == null || positionNode.Type != NodeType.SpawnPoint)
             return null;
 
@@ -433,7 +472,8 @@ public sealed class MarkerComputer
         if (info.State is SpawnDisabled or SpawnUnlockBlocked)
             return null;
 
-        string displayName = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
+        string displayName =
+            _compiledGuide.GetNode(_compiledGuide.GetNodeKey(target.TargetNodeId))?.DisplayName
             ?? _compiledGuide.GetDisplayName(target.TargetNodeId);
 
         if (info.LiveSpawnPoint != null)
@@ -484,10 +524,16 @@ public sealed class MarkerComputer
         return null;
     }
 
-    private void EmitPendingCompletionMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
+    private void EmitPendingCompletionMarkers(
+        Node quest,
+        IReadOnlyList<ResolvedQuestTarget> targets
+    )
     {
         bool hasReadyCompletion = targets.Any(target =>
-            target.Semantic.PreferredMarkerKind is QuestMarkerKind.TurnInReady or QuestMarkerKind.TurnInRepeatReady);
+            target.Semantic.PreferredMarkerKind
+                is QuestMarkerKind.TurnInReady
+                    or QuestMarkerKind.TurnInRepeatReady
+        );
         if (hasReadyCompletion)
             return;
 
@@ -502,7 +548,10 @@ public sealed class MarkerComputer
         }
     }
 
-    private MarkerEntry? CreatePendingCompletionEntry(Node quest, QuestCompletionBlueprint blueprint)
+    private MarkerEntry? CreatePendingCompletionEntry(
+        Node quest,
+        QuestCompletionBlueprint blueprint
+    )
     {
         var targetNode = _compiledGuide.GetNode(blueprint.TargetNodeKey);
         var positionNode = _compiledGuide.GetNode(blueprint.PositionNodeKey);
@@ -514,7 +563,8 @@ public sealed class MarkerComputer
             quest,
             targetNode,
             blueprint,
-            ready: false);
+            ready: false
+        );
         var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
         if (targetNode.Type == NodeType.Character)
@@ -526,7 +576,8 @@ public sealed class MarkerComputer
                 instruction.Priority,
                 instruction.SubText,
                 targetNode,
-                positionNode);
+                positionNode
+            );
         }
 
         return CreateStaticMarkerEntry(
@@ -538,7 +589,8 @@ public sealed class MarkerComputer
             instruction.SubText,
             targetNode,
             positionNode,
-            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f));
+            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f)
+        );
     }
 
     private void EmitImplicitCompletionMarkers(Node quest)
@@ -568,7 +620,11 @@ public sealed class MarkerComputer
         }
     }
 
-    private MarkerEntry? CreateImplicitCompletionEntry(Node quest, QuestCompletionBlueprint blueprint, bool ready)
+    private MarkerEntry? CreateImplicitCompletionEntry(
+        Node quest,
+        QuestCompletionBlueprint blueprint,
+        bool ready
+    )
     {
         var targetNode = _compiledGuide.GetNode(blueprint.TargetNodeKey);
         var positionNode = _compiledGuide.GetNode(blueprint.PositionNodeKey);
@@ -580,7 +636,8 @@ public sealed class MarkerComputer
             quest,
             targetNode,
             blueprint,
-            ready: ready);
+            ready: ready
+        );
         var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
         if (targetNode.Type == NodeType.Character)
@@ -592,7 +649,8 @@ public sealed class MarkerComputer
                 instruction.Priority,
                 instruction.SubText,
                 targetNode,
-                positionNode);
+                positionNode
+            );
         }
 
         return CreateStaticMarkerEntry(
@@ -604,7 +662,8 @@ public sealed class MarkerComputer
             instruction.SubText,
             targetNode,
             positionNode,
-            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f));
+            new Vector3(positionNode.X ?? 0f, positionNode.Y ?? 0f, positionNode.Z ?? 0f)
+        );
     }
 
     private MarkerEntry? CreateActiveMarkerEntry(Node quest, ResolvedTarget target)
@@ -618,9 +677,10 @@ public sealed class MarkerComputer
             return null;
 
         var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic);
-        string? corpseSubText = target.Semantic.ActionKind == ResolvedActionKind.Kill
-            ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
-            : null;
+        string? corpseSubText =
+            target.Semantic.ActionKind == ResolvedActionKind.Kill
+                ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
+                : null;
 
         if (targetNode.Type == NodeType.Character)
         {
@@ -637,7 +697,8 @@ public sealed class MarkerComputer
                 positionNode,
                 new Vector3(target.X, target.Y, target.Z),
                 CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target),
-                corpseSubText);
+                corpseSubText
+            );
         }
 
         return CreateStaticMarkerEntry(
@@ -649,7 +710,8 @@ public sealed class MarkerComputer
             instruction.SubText,
             targetNode,
             positionNode,
-            new Vector3(target.X, target.Y, target.Z));
+            new Vector3(target.X, target.Y, target.Z)
+        );
     }
 
     private void EmitQuestGiverMarkers(Node quest)
@@ -673,24 +735,38 @@ public sealed class MarkerComputer
         {
             var blueprint = blueprints[i];
             var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            var positionNode = _compiledGuide.GetNode(
+                _compiledGuide.GetNodeKey(blueprint.PositionId)
+            );
             if (questNode?.DbName == null || positionNode == null)
                 continue;
-            if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    positionNode.Scene,
+                    _tracker.CurrentZone,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
 
-            results.Add(new QuestGiverBlueprint(
-                questNode.Key,
-                questNode.DbName,
-                questNode.DisplayName,
-                _compiledGuide.GetNodeKey(blueprint.CharacterId),
-                positionNode.Key,
-                positionNode.Scene ?? _tracker.CurrentZone,
-                new MarkerInteraction(
-                    blueprint.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
-                    blueprint.Keyword),
-                questNode.Repeatable,
-                blueprint.RequiredQuestDbNames));
+            results.Add(
+                new QuestGiverBlueprint(
+                    questNode.Key,
+                    questNode.DbName,
+                    questNode.DisplayName,
+                    _compiledGuide.GetNodeKey(blueprint.CharacterId),
+                    positionNode.Key,
+                    positionNode.Scene ?? _tracker.CurrentZone,
+                    new MarkerInteraction(
+                        blueprint.InteractionType == 1
+                            ? MarkerInteractionKind.SayKeyword
+                            : MarkerInteractionKind.TalkTo,
+                        blueprint.Keyword
+                    ),
+                    questNode.Repeatable,
+                    blueprint.RequiredQuestDbNames
+                )
+            );
         }
 
         return results;
@@ -704,23 +780,37 @@ public sealed class MarkerComputer
         {
             var blueprint = blueprints[i];
             var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.PositionId));
+            var positionNode = _compiledGuide.GetNode(
+                _compiledGuide.GetNodeKey(blueprint.PositionId)
+            );
             if (questNode?.DbName == null || positionNode == null)
                 continue;
-            if (!string.Equals(positionNode.Scene, _tracker.CurrentZone, StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    positionNode.Scene,
+                    _tracker.CurrentZone,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
 
-            results.Add(new QuestCompletionBlueprint(
-                questNode.Key,
-                questNode.DbName,
-                questNode.DisplayName,
-                _compiledGuide.GetNodeKey(blueprint.CharacterId),
-                positionNode.Key,
-                positionNode.Scene ?? _tracker.CurrentZone,
-                new MarkerInteraction(
-                    blueprint.InteractionType == 1 ? MarkerInteractionKind.SayKeyword : MarkerInteractionKind.TalkTo,
-                    blueprint.Keyword),
-                questNode.Repeatable));
+            results.Add(
+                new QuestCompletionBlueprint(
+                    questNode.Key,
+                    questNode.DbName,
+                    questNode.DisplayName,
+                    _compiledGuide.GetNodeKey(blueprint.CharacterId),
+                    positionNode.Key,
+                    positionNode.Scene ?? _tracker.CurrentZone,
+                    new MarkerInteraction(
+                        blueprint.InteractionType == 1
+                            ? MarkerInteractionKind.SayKeyword
+                            : MarkerInteractionKind.TalkTo,
+                        blueprint.Keyword
+                    ),
+                    questNode.Repeatable
+                )
+            );
         }
 
         return results;
@@ -739,7 +829,8 @@ public sealed class MarkerComputer
             quest,
             characterNode,
             blueprint,
-            blockedRequirement);
+            blockedRequirement
+        );
         var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
         return CreateCharacterMarkerEntry(
@@ -749,7 +840,8 @@ public sealed class MarkerComputer
             priority: instruction.Priority,
             subText: instruction.SubText,
             targetNode: characterNode,
-            positionNode: positionNode);
+            positionNode: positionNode
+        );
     }
 
     private string? FindFirstMissingRequirement(IReadOnlyList<string> requiredQuestDbNames)
@@ -776,16 +868,16 @@ public sealed class MarkerComputer
             return null;
 
         var targetNode = target.TargetNode.Node;
-        var positionNode = target.SourceKey != null
-            ? _compiledGuide.GetNode(target.SourceKey)
-            : targetNode;
+        var positionNode =
+            target.SourceKey != null ? _compiledGuide.GetNode(target.SourceKey) : targetNode;
         if (positionNode == null)
             return null;
 
         var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic, target.TargetNode);
-        string? corpseSubText = target.Semantic.ActionKind == ResolvedActionKind.Kill
-            ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
-            : null;
+        string? corpseSubText =
+            target.Semantic.ActionKind == ResolvedActionKind.Kill
+                ? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
+                : null;
 
         if (targetNode.Type == NodeType.Character)
         {
@@ -802,7 +894,8 @@ public sealed class MarkerComputer
                 positionNode,
                 new Vector3(target.X, target.Y, target.Z),
                 CharacterMarkerPolicy.ShouldKeepQuestMarkerOnCorpse(target),
-                corpseSubText);
+                corpseSubText
+            );
         }
 
         return CreateStaticMarkerEntry(
@@ -814,7 +907,8 @@ public sealed class MarkerComputer
             instruction.SubText,
             targetNode,
             positionNode,
-            new Vector3(target.X, target.Y, target.Z));
+            new Vector3(target.X, target.Y, target.Z)
+        );
     }
 
     private MarkerEntry? CreateLootChestMarkerEntry(Node quest, ResolvedQuestTarget target)
@@ -826,7 +920,8 @@ public sealed class MarkerComputer
         var chestPos = new Vector3(target.X, target.Y, target.Z);
 
         string nodeKey = FormattableString.Invariant(
-            $"chest:{target.Scene ?? _tracker.CurrentZone}:{target.X:F2}:{target.Y:F2}:{target.Z:F2}");
+            $"chest:{target.Scene ?? _tracker.CurrentZone}:{target.X:F2}:{target.Y:F2}:{target.Z:F2}"
+        );
 
         return new MarkerEntry
         {
@@ -859,11 +954,13 @@ public sealed class MarkerComputer
         Node positionNode,
         Vector3? fallbackPosition = null,
         bool keepWhileCorpsePresent = false,
-        string? corpseSubText = null)
+        string? corpseSubText = null
+    )
     {
-        SpawnInfo info = positionNode.Type == NodeType.SpawnPoint || positionNode.IsDirectlyPlaced
-            ? _liveState.GetSpawnState(positionNode)
-            : _liveState.GetCharacterState(targetNode);
+        SpawnInfo info =
+            positionNode.Type == NodeType.SpawnPoint || positionNode.IsDirectlyPlaced
+                ? _liveState.GetSpawnState(positionNode)
+                : _liveState.GetCharacterState(targetNode);
 
         if (info.State is SpawnDisabled)
             return null;
@@ -874,7 +971,8 @@ public sealed class MarkerComputer
             priority,
             subText,
             info,
-            keepWhileCorpsePresent);
+            keepWhileCorpsePresent
+        );
 
         Vector3 position;
         if (TryGetMarkerPosition(positionNode, out var staticPosition))
@@ -894,12 +992,8 @@ public sealed class MarkerComputer
             return null;
         }
 
-        string scene = positionNode.Scene
-            ?? targetNode.Scene
-            ?? _tracker.CurrentZone;
-        string contributionNodeKey = TargetInstanceIdentity.Get(
-            targetNode.Key,
-            positionNode.Key);
+        string scene = positionNode.Scene ?? targetNode.Scene ?? _tracker.CurrentZone;
+        string contributionNodeKey = TargetInstanceIdentity.Get(targetNode.Key, positionNode.Key);
 
         return new MarkerEntry
         {
@@ -925,9 +1019,7 @@ public sealed class MarkerComputer
     }
 
     private static bool IsCorpsePresent(SpawnInfo info) =>
-        info.State is SpawnDead
-        && info.LiveNPC != null
-        && info.LiveNPC.gameObject != null;
+        info.State is SpawnDead && info.LiveNPC != null && info.LiveNPC.gameObject != null;
 
     private static (MarkerType Type, int Priority, string SubText) ResolveCharacterPresentation(
         string displayName,
@@ -935,7 +1027,8 @@ public sealed class MarkerComputer
         int priority,
         string subText,
         SpawnInfo info,
-        bool keepWhileCorpsePresent)
+        bool keepWhileCorpsePresent
+    )
     {
         if (keepWhileCorpsePresent && IsCorpsePresent(info))
             return (MarkerEntry.ToMarkerType(questKind), priority, subText);
@@ -943,9 +1036,17 @@ public sealed class MarkerComputer
         return info.State switch
         {
             SpawnAlive => (MarkerEntry.ToMarkerType(questKind), priority, subText),
-            SpawnDead dead => (MarkerType.DeadSpawn, 0, $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"),
+            SpawnDead dead => (
+                MarkerType.DeadSpawn,
+                0,
+                $"{displayName}\n{FormatTimer(dead.RespawnSeconds)}"
+            ),
             SpawnNightLocked => (MarkerType.NightSpawn, 0, BuildNightLockedText(displayName)),
-            SpawnUnlockBlocked blocked => (MarkerType.QuestLocked, 0, $"{displayName}\n{blocked.Reason}"),
+            SpawnUnlockBlocked blocked => (
+                MarkerType.QuestLocked,
+                0,
+                $"{displayName}\n{blocked.Reason}"
+            ),
             SpawnDisabled => (MarkerEntry.ToMarkerType(questKind), priority, subText),
             _ => (MarkerEntry.ToMarkerType(questKind), priority, subText),
         };
@@ -960,7 +1061,8 @@ public sealed class MarkerComputer
         string subText,
         Node targetNode,
         Node positionNode,
-        Vector3 fallbackPosition)
+        Vector3 fallbackPosition
+    )
     {
         var type = MarkerEntry.ToMarkerType(questKind);
         int resolvedPriority = priority;
@@ -1025,9 +1127,11 @@ public sealed class MarkerComputer
             _contributionsByNode[nodeKey] = byQuest;
         }
 
-        if (!byQuest.TryGetValue(questKey, out var existing)
+        if (
+            !byQuest.TryGetValue(questKey, out var existing)
             || entry.Priority < existing.Priority
-            || (entry.Priority == existing.Priority && entry.Type < existing.Type))
+            || (entry.Priority == existing.Priority && entry.Type < existing.Type)
+        )
         {
             byQuest[questKey] = entry;
         }
@@ -1067,9 +1171,11 @@ public sealed class MarkerComputer
             MarkerEntry? best = null;
             foreach (var entry in byQuest.Values)
             {
-                if (best == null
+                if (
+                    best == null
                     || entry.Priority < best.Priority
-                    || (entry.Priority == best.Priority && entry.Type < best.Type))
+                    || (entry.Priority == best.Priority && entry.Type < best.Type)
+                )
                 {
                     best = entry;
                 }
@@ -1102,11 +1208,14 @@ public sealed class MarkerComputer
         var occupiedByNonBlocked = new HashSet<(float X, float Y, float Z)>();
         for (int i = 0; i < _markers.Count; i++)
         {
-            if (IsBlocked(_markers[i].Type)) continue;
+            if (IsBlocked(_markers[i].Type))
+                continue;
             var sourceKey = _markers[i].SourceNodeKey;
-            if (sourceKey == null) continue;
+            if (sourceKey == null)
+                continue;
             var node = _compiledGuide.GetNode(sourceKey);
-            if (node?.X == null || node.Y == null || node.Z == null) continue;
+            if (node?.X == null || node.Y == null || node.Z == null)
+                continue;
             occupiedByNonBlocked.Add((node.X.Value, node.Y.Value, node.Z.Value));
         }
 
@@ -1121,8 +1230,12 @@ public sealed class MarkerComputer
             if (IsBlocked(m.Type) && m.SourceNodeKey != null)
             {
                 var node = _compiledGuide.GetNode(m.SourceNodeKey);
-                if (node?.X != null && node.Y != null && node.Z != null
-                    && occupiedByNonBlocked.Contains((node.X.Value, node.Y.Value, node.Z.Value)))
+                if (
+                    node?.X != null
+                    && node.Y != null
+                    && node.Z != null
+                    && occupiedByNonBlocked.Contains((node.X.Value, node.Y.Value, node.Z.Value))
+                )
                 {
                     continue;
                 }
@@ -1157,31 +1270,32 @@ public sealed class MarkerComputer
     private static bool HasPosition(Node node) =>
         node.X.HasValue && node.Y.HasValue && node.Z.HasValue;
 
-    private static MarkerEntry CloneEntry(MarkerEntry entry) => new()
-    {
-        X = entry.X,
-        Y = entry.Y,
-        Z = entry.Z,
-        Scene = entry.Scene,
-        Type = entry.Type,
-        Priority = entry.Priority,
-        DisplayName = entry.DisplayName,
-        SubText = entry.SubText,
-        NodeKey = entry.NodeKey,
-        SourceNodeKey = entry.SourceNodeKey,
-        QuestKey = entry.QuestKey,
-        LiveSpawnPoint = entry.LiveSpawnPoint,
-        TrackedNPC = entry.TrackedNPC,
-        LiveMiningNode = entry.LiveMiningNode,
-        QuestKind = entry.QuestKind,
-        QuestPriority = entry.QuestPriority,
-        QuestSubText = entry.QuestSubText,
-        KeepWhileCorpsePresent = entry.KeepWhileCorpsePresent,
-        CorpseSubText = entry.CorpseSubText,
-        IsSpawnTimer = entry.IsSpawnTimer,
-        LiveRotChest = entry.LiveRotChest,
-        IsLootChestTarget = entry.IsLootChestTarget,
-    };
+    private static MarkerEntry CloneEntry(MarkerEntry entry) =>
+        new()
+        {
+            X = entry.X,
+            Y = entry.Y,
+            Z = entry.Z,
+            Scene = entry.Scene,
+            Type = entry.Type,
+            Priority = entry.Priority,
+            DisplayName = entry.DisplayName,
+            SubText = entry.SubText,
+            NodeKey = entry.NodeKey,
+            SourceNodeKey = entry.SourceNodeKey,
+            QuestKey = entry.QuestKey,
+            LiveSpawnPoint = entry.LiveSpawnPoint,
+            TrackedNPC = entry.TrackedNPC,
+            LiveMiningNode = entry.LiveMiningNode,
+            QuestKind = entry.QuestKind,
+            QuestPriority = entry.QuestPriority,
+            QuestSubText = entry.QuestSubText,
+            KeepWhileCorpsePresent = entry.KeepWhileCorpsePresent,
+            CorpseSubText = entry.CorpseSubText,
+            IsSpawnTimer = entry.IsSpawnTimer,
+            LiveRotChest = entry.LiveRotChest,
+            IsLootChestTarget = entry.IsLootChestTarget,
+        };
 
     private static DiagnosticTrigger ResolveTrigger(GuideChangeSet changeSet)
     {
@@ -1201,7 +1315,10 @@ public sealed class MarkerComputer
         _recentQuestCosts.Add(new QuestCostSample(questKey, elapsedTicks));
         _recentQuestCosts.Sort((left, right) => right.ElapsedTicks.CompareTo(left.ElapsedTicks));
         if (_recentQuestCosts.Count > MaxRecentDiagnosticSamples)
-            _recentQuestCosts.RemoveRange(MaxRecentDiagnosticSamples, _recentQuestCosts.Count - MaxRecentDiagnosticSamples);
+            _recentQuestCosts.RemoveRange(
+                MaxRecentDiagnosticSamples,
+                _recentQuestCosts.Count - MaxRecentDiagnosticSamples
+            );
     }
 
     private void AddRecentMode(MarkerRebuildMode mode)
@@ -1238,7 +1355,8 @@ public sealed class MarkerComputer
             lastReason: _lastDiagnosticTrigger,
             lastDurationTicks: _lastRecomputeTicks,
             topQuestCosts: _recentQuestCosts.ToArray(),
-            recentModes: _recentModes.ToArray());
+            recentModes: _recentModes.ToArray()
+        );
     }
 
     internal IReadOnlyCollection<string>? GetContributingQuestKeys(string nodeKey)

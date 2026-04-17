@@ -15,7 +15,8 @@ public sealed class GuideChangeSet
         changedItemKeys: Array.Empty<string>(),
         changedQuestDbNames: Array.Empty<string>(),
         affectedQuestKeys: Array.Empty<string>(),
-        changedFacts: Array.Empty<GuideFactKey>());
+        changedFacts: Array.Empty<GuideFactKey>()
+    );
 
     public bool InventoryChanged { get; }
     public bool QuestLogChanged { get; }
@@ -27,7 +28,8 @@ public sealed class GuideChangeSet
     public IReadOnlyCollection<string> AffectedQuestKeys { get; }
     public IReadOnlyCollection<GuideFactKey> ChangedFacts { get; }
 
-    public bool HasMeaningfulChanges => InventoryChanged
+    public bool HasMeaningfulChanges =>
+        InventoryChanged
         || QuestLogChanged
         || SceneChanged
         || LiveWorldChanged
@@ -44,7 +46,8 @@ public sealed class GuideChangeSet
         IEnumerable<string> changedItemKeys,
         IEnumerable<string> changedQuestDbNames,
         IEnumerable<string> affectedQuestKeys,
-        IEnumerable<GuideFactKey> changedFacts)
+        IEnumerable<GuideFactKey> changedFacts
+    )
     {
         InventoryChanged = inventoryChanged;
         QuestLogChanged = questLogChanged;
@@ -56,29 +59,34 @@ public sealed class GuideChangeSet
         ChangedFacts = FreezeFacts(changedFacts);
     }
 
-    public GuideChangeSet WithAffectedQuestKeys(IEnumerable<string> affectedQuestKeys) => new(
-        InventoryChanged,
-        QuestLogChanged,
-        SceneChanged,
-        LiveWorldChanged,
-        ChangedItemKeys,
-        ChangedQuestDbNames,
-        affectedQuestKeys,
-        ChangedFacts);
+    public GuideChangeSet WithAffectedQuestKeys(IEnumerable<string> affectedQuestKeys) =>
+        new(
+            InventoryChanged,
+            QuestLogChanged,
+            SceneChanged,
+            LiveWorldChanged,
+            ChangedItemKeys,
+            ChangedQuestDbNames,
+            affectedQuestKeys,
+            ChangedFacts
+        );
 
-    public GuideChangeSet Merge(GuideChangeSet other) => new(
-        InventoryChanged || other.InventoryChanged,
-        QuestLogChanged || other.QuestLogChanged,
-        SceneChanged || other.SceneChanged,
-        LiveWorldChanged || other.LiveWorldChanged,
-        ChangedItemKeys.Concat(other.ChangedItemKeys),
-        ChangedQuestDbNames.Concat(other.ChangedQuestDbNames),
-        AffectedQuestKeys.Concat(other.AffectedQuestKeys),
-        ChangedFacts.Concat(other.ChangedFacts));
+    public GuideChangeSet Merge(GuideChangeSet other) =>
+        new(
+            InventoryChanged || other.InventoryChanged,
+            QuestLogChanged || other.QuestLogChanged,
+            SceneChanged || other.SceneChanged,
+            LiveWorldChanged || other.LiveWorldChanged,
+            ChangedItemKeys.Concat(other.ChangedItemKeys),
+            ChangedQuestDbNames.Concat(other.ChangedQuestDbNames),
+            AffectedQuestKeys.Concat(other.AffectedQuestKeys),
+            ChangedFacts.Concat(other.ChangedFacts)
+        );
 
     private static IReadOnlyCollection<string> FreezeStrings(
         IEnumerable<string> values,
-        StringComparer comparer)
+        StringComparer comparer
+    )
     {
         if (values == null)
             return Array.Empty<string>();

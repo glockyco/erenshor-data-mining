@@ -1,4 +1,3 @@
-
 namespace AdventureGuide.Resolution;
 
 /// <summary>
@@ -39,7 +38,8 @@ public sealed class ResolvedActionSemantic
         string? zoneText,
         string? availabilityText,
         QuestMarkerKind preferredMarkerKind,
-        int markerPriority)
+        int markerPriority
+    )
     {
         GoalKind = goalKind;
         TargetKind = targetKind;
@@ -74,6 +74,7 @@ public enum ResolvedActionKind
     Buy,
     Give,
     CompleteQuest,
+
     // Zone-reentry corpse chest containing loot from a previous kill.
     LootChest,
 }

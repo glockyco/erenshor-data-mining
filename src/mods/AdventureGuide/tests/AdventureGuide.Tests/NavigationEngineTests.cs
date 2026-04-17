@@ -55,7 +55,12 @@ public sealed class NavigationEngineTests
 
     private static ResolvedQuestTarget MakeTarget(string scene, float x, bool isBlockedPath)
     {
-        var node = new Node { Key = "node:" + x, Type = NodeType.Character, DisplayName = "Target" };
+        var node = new Node
+        {
+            Key = "node:" + x,
+            Type = NodeType.Character,
+            DisplayName = "Target",
+        };
         var ctx = new ResolvedNodeContext(node.Key, node);
         var semantic = new ResolvedActionSemantic(
             NavigationGoalKind.StartQuest,
@@ -71,7 +76,8 @@ public sealed class NavigationEngineTests
             zoneText: null,
             availabilityText: null,
             QuestMarkerKind.Objective,
-            markerPriority: 0);
+            markerPriority: 0
+        );
         var explanation = new NavigationExplanation(
             NavigationGoalKind.StartQuest,
             NavigationTargetKind.Character,
@@ -81,7 +87,8 @@ public sealed class NavigationEngineTests
             node.DisplayName,
             zoneText: null,
             secondaryText: null,
-            tertiaryText: null);
+            tertiaryText: null
+        );
 
         return new ResolvedQuestTarget(
             node.Key,
@@ -95,6 +102,7 @@ public sealed class NavigationEngineTests
             y: 0f,
             z: 0f,
             isActionable: true,
-            isBlockedPath: isBlockedPath);
+            isBlockedPath: isBlockedPath
+        );
     }
 }

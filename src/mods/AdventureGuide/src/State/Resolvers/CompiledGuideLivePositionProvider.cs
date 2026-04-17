@@ -9,9 +9,7 @@ public sealed class CompiledGuideLivePositionProvider : ILivePositionProvider
     private readonly CompiledGuideModel _guide;
     private readonly LiveStateTracker _liveState;
 
-    public CompiledGuideLivePositionProvider(
-        CompiledGuideModel guide,
-        LiveStateTracker liveState)
+    public CompiledGuideLivePositionProvider(CompiledGuideModel guide, LiveStateTracker liveState)
     {
         _guide = guide;
         _liveState = liveState;

@@ -23,12 +23,15 @@ public sealed class MiningNodePositionResolver : IPositionResolver
             return;
 
         bool actionable = _liveState.GetMiningState(node).State is MiningAvailable;
-        results.Add(new ResolvedPosition(
-            node.X.Value,
-            node.Y.Value,
-            node.Z.Value,
-            node.Scene,
-            node.Key,
-            actionable));
+        results.Add(
+            new ResolvedPosition(
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
+                node.Scene,
+                node.Key,
+                actionable
+            )
+        );
     }
 }

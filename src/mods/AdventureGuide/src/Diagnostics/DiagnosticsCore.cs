@@ -18,7 +18,11 @@ internal sealed class DiagnosticsCore
     private readonly Queue<long> _recentMarkerRebuilds = new();
     private DiagnosticIncident? _lastIncident;
 
-    public DiagnosticsCore(int eventCapacity, int spanCapacity, IncidentThresholds incidentThresholds)
+    public DiagnosticsCore(
+        int eventCapacity,
+        int spanCapacity,
+        IncidentThresholds incidentThresholds
+    )
     {
         if (eventCapacity <= 0)
             throw new ArgumentOutOfRangeException(nameof(eventCapacity));
@@ -39,7 +43,11 @@ internal sealed class DiagnosticsCore
         DetectIncident(evt);
     }
 
-    public SpanToken BeginSpan(DiagnosticSpanKind kind, DiagnosticsContext context, string? primaryKey = null)
+    public SpanToken BeginSpan(
+        DiagnosticSpanKind kind,
+        DiagnosticsContext context,
+        string? primaryKey = null
+    )
     {
         return new SpanToken(_nextSpanId++, kind, context, Stopwatch.GetTimestamp(), primaryKey);
     }
@@ -53,7 +61,8 @@ internal sealed class DiagnosticsCore
             token.StartTicks + elapsedTicks,
             token.PrimaryKey,
             value0,
-            value1);
+            value1
+        );
         _spans[_spanHead] = span;
         _spanHead = (_spanHead + 1) % _spans.Length;
         if (_spanCount < _spans.Length)
@@ -61,11 +70,14 @@ internal sealed class DiagnosticsCore
 
         if (elapsedTicks >= _incidentThresholds.FrameStallTicks)
         {
-            string label = span.PrimaryKey ?? span.Kind.ToString();
+            string label = string.IsNullOrEmpty(span.PrimaryKey)
+                ? span.Kind.ToString()
+                : $"{span.Kind} ({span.PrimaryKey})";
             _lastIncident = new DiagnosticIncident(
                 DiagnosticIncidentKind.FrameStall,
                 span.EndTicks,
-                summary: $"Span {label} exceeded the frame stall threshold.");
+                summary: $"Span {label} exceeded the frame stall threshold."
+            );
         }
     }
 
@@ -89,7 +101,8 @@ internal sealed class DiagnosticsCore
         var incident = new DiagnosticIncident(
             DiagnosticIncidentKind.ManualCapture,
             Stopwatch.GetTimestamp(),
-            summary: "Manual capture");
+            summary: "Manual capture"
+        );
         _lastIncident = incident;
         return IncidentBundle.Create(incident, GetRecentEvents(), GetRecentSpans(), snapshots);
     }
@@ -97,9 +110,11 @@ internal sealed class DiagnosticsCore
     public string FormatRecentSummary()
     {
         var sb = new StringBuilder();
-        sb.AppendLine(_lastIncident == null
-            ? "Last incident: none"
-            : $"Last incident: {_lastIncident.Kind} ({_lastIncident.Summary ?? "no summary"})");
+        sb.AppendLine(
+            _lastIncident == null
+                ? "Last incident: none"
+                : $"Last incident: {_lastIncident.Kind} ({_lastIncident.Summary ?? "no summary"})"
+        );
 
         var spans = GetRecentSpans();
         if (spans.Count == 0)
@@ -152,8 +167,11 @@ internal sealed class DiagnosticsCore
             return;
 
         _recentMarkerRebuilds.Enqueue(evt.TimestampTicks);
-        while (_recentMarkerRebuilds.Count > 0
-            && evt.TimestampTicks - _recentMarkerRebuilds.Peek() > _incidentThresholds.RebuildStormWindowTicks)
+        while (
+            _recentMarkerRebuilds.Count > 0
+            && evt.TimestampTicks - _recentMarkerRebuilds.Peek()
+                > _incidentThresholds.RebuildStormWindowTicks
+        )
         {
             _recentMarkerRebuilds.Dequeue();
         }
@@ -163,7 +181,8 @@ internal sealed class DiagnosticsCore
             _lastIncident = new DiagnosticIncident(
                 DiagnosticIncidentKind.RebuildStorm,
                 evt.TimestampTicks,
-                summary: "Repeated marker rebuild requests exceeded the configured window.");
+                summary: "Repeated marker rebuild requests exceeded the configured window."
+            );
         }
     }
 

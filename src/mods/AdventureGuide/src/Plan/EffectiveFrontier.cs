@@ -1,4 +1,3 @@
-
 namespace AdventureGuide.Plan;
 
 public sealed class EffectiveFrontier
@@ -12,7 +11,12 @@ public sealed class EffectiveFrontier
         _phases = phases;
     }
 
-    public void Resolve(int questIndex, List<FrontierEntry> results, int requiredFor, AdventureGuide.Resolution.IResolutionTracer? tracer = null)
+    public void Resolve(
+        int questIndex,
+        List<FrontierEntry> results,
+        int requiredFor,
+        AdventureGuide.Resolution.IResolutionTracer? tracer = null
+    )
     {
         QuestPhase phase = _phases.GetPhase(questIndex);
         if (phase is QuestPhase.Completed or QuestPhase.Infeasible)
@@ -40,7 +44,12 @@ public sealed class EffectiveFrontier
         {
             var entry = new FrontierEntry(questIndex, phase, requiredFor);
             results.Add(entry);
-            tracer?.OnFrontierEntry(questIndex, _guide.GetNode(_guide.QuestNodeId(questIndex)).DbName, phase.ToString(), requiredFor);
+            tracer?.OnFrontierEntry(
+                questIndex,
+                _guide.GetNode(_guide.QuestNodeId(questIndex)).DbName,
+                phase.ToString(),
+                requiredFor
+            );
             return;
         }
 

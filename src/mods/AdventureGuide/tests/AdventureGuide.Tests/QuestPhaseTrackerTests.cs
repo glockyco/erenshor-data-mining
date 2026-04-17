@@ -16,7 +16,8 @@ public sealed class QuestPhaseTrackerTests
             completedQuestDbNames: Array.Empty<string>(),
             activeQuestDbNames: Array.Empty<string>(),
             inventory: new Dictionary<string, int>(),
-            keyringItems: Array.Empty<string>());
+            keyringItems: Array.Empty<string>()
+        );
 
         Assert.Equal(QuestPhase.ReadyToAccept, tracker.GetPhase(0));
     }
@@ -30,7 +31,12 @@ public sealed class QuestPhaseTrackerTests
             .Build();
         var tracker = new QuestPhaseTracker(guide);
 
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
         Assert.Equal(QuestPhase.NotReady, tracker.GetPhase(0));
         Assert.Equal(QuestPhase.ReadyToAccept, tracker.GetPhase(1));
@@ -45,7 +51,12 @@ public sealed class QuestPhaseTrackerTests
             .Build();
         var tracker = new QuestPhaseTracker(guide);
 
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         tracker.OnQuestCompleted(1);
 
         Assert.Equal(QuestPhase.ReadyToAccept, tracker.GetPhase(0));
@@ -58,7 +69,12 @@ public sealed class QuestPhaseTrackerTests
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
 
-        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
         Assert.Equal(QuestPhase.Accepted, tracker.GetPhase(0));
     }
@@ -69,7 +85,12 @@ public sealed class QuestPhaseTrackerTests
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
 
-        tracker.Initialize(new[] { "QUESTA" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            new[] { "QUESTA" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
 
         Assert.Equal(QuestPhase.Completed, tracker.GetPhase(0));
         Assert.True(tracker.IsCompleted(0));

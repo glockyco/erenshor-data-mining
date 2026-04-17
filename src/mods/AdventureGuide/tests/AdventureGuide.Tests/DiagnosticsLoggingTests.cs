@@ -27,15 +27,16 @@ public sealed class DiagnosticsLoggingTests
             marker.Recompute();
         }
 
-        Assert.DoesNotContain(logs, line => line.Contains("Cold marker rebuild", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            logs,
+            line => line.Contains("Cold marker rebuild", StringComparison.Ordinal)
+        );
         GuideDiagnostics.LogInfo = null;
     }
 
     private static MarkerComputer CreateMarkerComputer(DiagnosticsCore core)
     {
-        var guide = new CompiledGuideBuilder()
-            .AddQuest("quest:a", dbName: "QUESTA")
-            .Build();
+        var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var dependencies = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, dependencies);
         tracker.LoadState(
@@ -43,17 +44,32 @@ public sealed class DiagnosticsLoggingTests
             activeQuests: Array.Empty<string>(),
             completedQuests: Array.Empty<string>(),
             inventoryCounts: new Dictionary<string, int>(),
-            keyringItemKeys: Array.Empty<string>());
+            keyringItemKeys: Array.Empty<string>()
+        );
 
         var navSet = new NavigationSet();
         navSet.Override("quest:a");
         var trackerState = new TrackerState();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var effectiveFrontier = new EffectiveFrontier(guide, phases);
         var compiledUnlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, compiledUnlocks, new StubLivePositionProvider());
-        var markerResolver = new MarkerQuestTargetResolver(guide, effectiveFrontier, sourceResolver);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            compiledUnlocks,
+            new StubLivePositionProvider()
+        );
+        var markerResolver = new MarkerQuestTargetResolver(
+            guide,
+            effectiveFrontier,
+            sourceResolver
+        );
 
         return new MarkerComputer(
             guide,
@@ -64,6 +80,7 @@ public sealed class DiagnosticsLoggingTests
             markerResolver,
             effectiveFrontier,
             sourceResolver,
-            core);
+            core
+        );
     }
 }

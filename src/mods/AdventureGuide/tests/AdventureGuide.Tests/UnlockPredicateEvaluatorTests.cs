@@ -12,7 +12,12 @@ public sealed class UnlockPredicateEvaluatorTests
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
 
         guide.TryGetNodeId("quest:a", out int nodeId);
@@ -28,7 +33,12 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddUnlockPredicate("char:vendor", "quest:unlock")
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(new[] { "UNLOCK" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            new[] { "UNLOCK" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
 
         guide.TryGetNodeId("char:vendor", out int nodeId);
@@ -44,7 +54,12 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddUnlockPredicate("char:vendor", "quest:unlock")
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
 
         guide.TryGetNodeId("char:vendor", out int nodeId);
@@ -64,7 +79,8 @@ public sealed class UnlockPredicateEvaluatorTests
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int> { ["item:key"] = 1 },
-            Array.Empty<string>());
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
 
         guide.TryGetNodeId("char:door", out int nodeId);
@@ -80,7 +96,12 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddUnlockPredicate("char:door", "item:key", checkType: 1)
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
 
         guide.TryGetNodeId("char:door", out int nodeId);

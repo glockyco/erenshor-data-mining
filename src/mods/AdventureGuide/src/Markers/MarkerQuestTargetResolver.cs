@@ -15,7 +15,8 @@ public sealed class MarkerQuestTargetResolver
     public MarkerQuestTargetResolver(
         CompiledGuide.CompiledGuide guide,
         EffectiveFrontier frontier,
-        SourceResolver sourceResolver)
+        SourceResolver sourceResolver
+    )
     {
         _guide = guide;
         _frontier = frontier;
@@ -24,9 +25,11 @@ public sealed class MarkerQuestTargetResolver
 
     public IReadOnlyList<ResolvedTarget> Resolve(string questDbName, string currentScene)
     {
-        int questIndex = FindQuestIndexByDbName(questDbName)
+        int questIndex =
+            FindQuestIndexByDbName(questDbName)
             ?? throw new InvalidOperationException(
-                $"Compiled guide does not contain quest DB name '{questDbName}'.");
+                $"Compiled guide does not contain quest DB name '{questDbName}'."
+            );
 
         var frontier = new List<FrontierEntry>();
         _frontier.Resolve(questIndex, frontier, -1);

@@ -26,7 +26,8 @@ public sealed class MarkerChangePlannerTests
             changedItemKeys: Array.Empty<string>(),
             changedQuestDbNames: Array.Empty<string>(),
             affectedQuestKeys: new[] { "quest:a" },
-            changedFacts: Array.Empty<GuideFactKey>());
+            changedFacts: Array.Empty<GuideFactKey>()
+        );
 
         var plan = MarkerChangePlanner.Plan(changeSet);
 
@@ -35,7 +36,7 @@ public sealed class MarkerChangePlannerTests
     }
 
     [Fact]
-    public void Plan_LiveWorldChange_ForcesFullRebuild()
+    public void Plan_LiveWorldChange_WithAffectedQuestKeys_UsesPartialRebuild()
     {
         var changeSet = new GuideChangeSet(
             inventoryChanged: false,
@@ -44,8 +45,32 @@ public sealed class MarkerChangePlannerTests
             liveWorldChanged: true,
             changedItemKeys: Array.Empty<string>(),
             changedQuestDbNames: Array.Empty<string>(),
-            affectedQuestKeys: new[] { "quest:a" },
-            changedFacts: Array.Empty<GuideFactKey>());
+            affectedQuestKeys: new[] { "quest:a", "quest:b" },
+            changedFacts: Array.Empty<GuideFactKey>()
+        );
+
+        var plan = MarkerChangePlanner.Plan(changeSet);
+
+        Assert.False(plan.FullRebuild);
+        Assert.Equal(
+            new[] { "quest:a", "quest:b" },
+            plan.AffectedQuestKeys.OrderBy(key => key).ToArray()
+        );
+    }
+
+    [Fact]
+    public void Plan_LiveWorldChange_WithoutAffectedQuestKeys_ForcesFullRebuild()
+    {
+        var changeSet = new GuideChangeSet(
+            inventoryChanged: false,
+            questLogChanged: false,
+            sceneChanged: false,
+            liveWorldChanged: true,
+            changedItemKeys: Array.Empty<string>(),
+            changedQuestDbNames: Array.Empty<string>(),
+            affectedQuestKeys: Array.Empty<string>(),
+            changedFacts: Array.Empty<GuideFactKey>()
+        );
 
         var plan = MarkerChangePlanner.Plan(changeSet);
 
@@ -64,11 +89,15 @@ public sealed class MarkerChangePlannerTests
             changedItemKeys: new[] { "item:key" },
             changedQuestDbNames: Array.Empty<string>(),
             affectedQuestKeys: new[] { "quest:a", "quest:b" },
-            changedFacts: Array.Empty<GuideFactKey>());
+            changedFacts: Array.Empty<GuideFactKey>()
+        );
 
         var plan = MarkerChangePlanner.Plan(changeSet);
 
         Assert.False(plan.FullRebuild);
-        Assert.Equal(new[] { "quest:a", "quest:b" }, plan.AffectedQuestKeys.OrderBy(key => key).ToArray());
+        Assert.Equal(
+            new[] { "quest:a", "quest:b" },
+            plan.AffectedQuestKeys.OrderBy(key => key).ToArray()
+        );
     }
 }

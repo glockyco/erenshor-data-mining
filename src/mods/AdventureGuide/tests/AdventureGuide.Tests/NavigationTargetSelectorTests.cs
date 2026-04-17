@@ -2,10 +2,10 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
-using AdventureGuide.Position;
 using AdventureGuide.Plan;
-using AdventureGuide.State;
+using AdventureGuide.Position;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
 
@@ -36,23 +36,59 @@ public sealed class NavigationTargetSelectorTests
         string? sourceKey = null,
         string? requiredForQuestKey = null,
         bool isBlockedPath = false,
-        bool isGuaranteedLoot = false)
+        bool isGuaranteedLoot = false
+    )
     {
-        var stubNode = new Node { Key = targetNodeKey, Type = NodeType.Character, DisplayName = targetNodeKey };
+        var stubNode = new Node
+        {
+            Key = targetNodeKey,
+            Type = NodeType.Character,
+            DisplayName = targetNodeKey,
+        };
         var ctx = new ResolvedNodeContext(targetNodeKey, stubNode);
         var semantic = new ResolvedActionSemantic(
-            goalKind, NavigationTargetKind.Character, ResolvedActionKind.Talk,
-            null, null, null, null, targetNodeKey, null, null, null, null,
-            QuestMarkerKind.Objective, 0);
+            goalKind,
+            NavigationTargetKind.Character,
+            ResolvedActionKind.Talk,
+            null,
+            null,
+            null,
+            null,
+            targetNodeKey,
+            null,
+            null,
+            null,
+            null,
+            QuestMarkerKind.Objective,
+            0
+        );
         var explanation = new NavigationExplanation(
-            goalKind, NavigationTargetKind.Character, ctx, ctx,
-            targetNodeKey, targetNodeKey, null, null, null);
+            goalKind,
+            NavigationTargetKind.Character,
+            ctx,
+            ctx,
+            targetNodeKey,
+            targetNodeKey,
+            null,
+            null,
+            null
+        );
         return new ResolvedQuestTarget(
-            targetNodeKey, scene, sourceKey ?? targetNodeKey, ctx, ctx, semantic, explanation,
-            x, y, z, isActionable,
+            targetNodeKey,
+            scene,
+            sourceKey ?? targetNodeKey,
+            ctx,
+            ctx,
+            semantic,
+            explanation,
+            x,
+            y,
+            z,
+            isActionable,
             requiredForQuestKey: requiredForQuestKey,
             isBlockedPath: isBlockedPath,
-            isGuaranteedLoot: isGuaranteedLoot);
+            isGuaranteedLoot: isGuaranteedLoot
+        );
     }
 
     private const string ZoneA = "ZoneA";
@@ -60,7 +96,9 @@ public sealed class NavigationTargetSelectorTests
     private const string ZoneC = "ZoneC";
 
     // Player at origin for all tests unless otherwise specified.
-    private const float PX = 0f, PY = 0f, PZ = 0f;
+    private const float PX = 0f,
+        PY = 0f,
+        PZ = 0f;
 
     // -- Tests -------------------------------------------------------------------
 
@@ -68,7 +106,13 @@ public sealed class NavigationTargetSelectorTests
     public void SelectBest_EmptyTargets_ReturnsNull()
     {
         var result = NavigationTargetSelector.SelectBest(
-            Array.Empty<ResolvedQuestTarget>(), PX, PY, PZ, ZoneA, EmptyRouter());
+            Array.Empty<ResolvedQuestTarget>(),
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            EmptyRouter()
+        );
 
         Assert.Null(result);
     }
@@ -79,7 +123,7 @@ public sealed class NavigationTargetSelectorTests
         // Non-actionable at 5m; actionable at 20m. Actionable must win despite being farther.
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 5f,  isActionable: false),
+            MakeTarget(ZoneA, x: 5f, isActionable: false),
             MakeTarget(ZoneA, x: 20f, isActionable: true),
         };
 
@@ -96,9 +140,9 @@ public sealed class NavigationTargetSelectorTests
         // Cross-zone target is near origin; same-zone target is far. Same-zone must still win.
         var targets = new[]
         {
-            MakeTarget(ZoneB, x: 1f),   // cross-zone, very close in world-space
-			MakeTarget(ZoneA, x: 500f), // same-zone, very far
-		};
+            MakeTarget(ZoneB, x: 1f), // cross-zone, very close in world-space
+            MakeTarget(ZoneA, x: 500f), // same-zone, very far
+        };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
 
@@ -149,22 +193,28 @@ public sealed class NavigationTargetSelectorTests
             .AddZone("zone:a", scene: ZoneA)
             .AddZone("zone:b", scene: ZoneB)
             .AddZone("zone:c", scene: ZoneC)
-            .AddZoneLine("zl:ab", scene: ZoneA,
-                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
-            .AddZoneLine("zl:bc", scene: ZoneB,
-                destinationZoneKey: "zone:c", x: 20, y: 0, z: 0)
+            .AddZoneLine("zl:ab", scene: ZoneA, destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .AddZoneLine("zl:bc", scene: ZoneB, destinationZoneKey: "zone:c", x: 20, y: 0, z: 0)
             .Build();
         var harness = SnapshotHarness.FromSnapshot(
-            guide, new StateSnapshot { CurrentZone = ZoneA });
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
 
         var targets = new[]
         {
             MakeTarget(ZoneC, x: 100f), // 2 hops
-			MakeTarget(ZoneB, x: 200f), // 1 hop
-		};
+            MakeTarget(ZoneB, x: 200f), // 1 hop
+        };
 
         var result = NavigationTargetSelector.SelectBest(
-            targets, PX, PY, PZ, ZoneA, harness.Router);
+            targets,
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            harness.Router
+        );
 
         Assert.NotNull(result);
         Assert.False(result!.Value.IsSameZone);
@@ -178,7 +228,13 @@ public sealed class NavigationTargetSelectorTests
         var target = MakeTarget(ZoneA, x: 42f);
 
         var result = NavigationTargetSelector.SelectBest(
-            new[] { target }, PX, PY, PZ, ZoneA, EmptyRouter());
+            new[] { target },
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            EmptyRouter()
+        );
 
         Assert.NotNull(result);
         Assert.True(result!.Value.IsSameZone);
@@ -191,14 +247,21 @@ public sealed class NavigationTargetSelectorTests
         var guide = new CompiledGuideBuilder()
             .AddZone("zone:a", scene: ZoneA)
             .AddZone("zone:b", scene: ZoneB)
-            .AddZoneLine("zl:ab", scene: ZoneA,
-                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .AddZoneLine("zl:ab", scene: ZoneA, destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
             .Build();
         var harness = SnapshotHarness.FromSnapshot(
-            guide, new StateSnapshot { CurrentZone = ZoneA });
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
 
         var result = NavigationTargetSelector.SelectBest(
-            new[] { MakeTarget(ZoneB) }, PX, PY, PZ, ZoneA, harness.Router);
+            new[] { MakeTarget(ZoneB) },
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            harness.Router
+        );
 
         Assert.NotNull(result);
         Assert.False(result!.Value.IsSameZone);
@@ -211,7 +274,13 @@ public sealed class NavigationTargetSelectorTests
         // EmptyRouter has no zone lines -- no route to ZoneC exists.
         // Target is still returned but HopCount must be -1.
         var result = NavigationTargetSelector.SelectBest(
-            new[] { MakeTarget(ZoneC) }, PX, PY, PZ, ZoneA, EmptyRouter());
+            new[] { MakeTarget(ZoneC) },
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            EmptyRouter()
+        );
 
         Assert.NotNull(result);
         Assert.False(result!.Value.IsSameZone);
@@ -226,18 +295,23 @@ public sealed class NavigationTargetSelectorTests
         var guide = new CompiledGuideBuilder()
             .AddZone("zone:a", scene: ZoneA)
             .AddZone("zone:b", scene: ZoneB)
-            .AddZoneLine("zl:ab", scene: ZoneA,
-                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .AddZoneLine("zl:ab", scene: ZoneA, destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
             .Build();
         var harness = SnapshotHarness.FromSnapshot(
-            guide, new StateSnapshot { CurrentZone = ZoneA });
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
 
-        var targets = Enumerable.Range(0, 500)
-            .Select(i => MakeTarget(ZoneB, x: i))
-            .ToArray();
+        var targets = Enumerable.Range(0, 500).Select(i => MakeTarget(ZoneB, x: i)).ToArray();
 
         var result = NavigationTargetSelector.SelectBest(
-            targets, PX, PY, PZ, ZoneA, harness.Router);
+            targets,
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            harness.Router
+        );
 
         // Correct winner: first target in ZoneB, 1 hop away.
         Assert.NotNull(result);
@@ -255,20 +329,26 @@ public sealed class NavigationTargetSelectorTests
             .AddZone("zone:a", scene: ZoneA)
             .AddZone("zone:b", scene: ZoneB)
             .AddZone("zone:c", scene: ZoneC)
-            .AddZoneLine("zl:ab", scene: ZoneA,
-                destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
-            .AddZoneLine("zl:bc", scene: ZoneB,
-                destinationZoneKey: "zone:c", x: 20, y: 0, z: 0)
+            .AddZoneLine("zl:ab", scene: ZoneA, destinationZoneKey: "zone:b", x: 10, y: 0, z: 0)
+            .AddZoneLine("zl:bc", scene: ZoneB, destinationZoneKey: "zone:c", x: 20, y: 0, z: 0)
             .Build();
         var harness = SnapshotHarness.FromSnapshot(
-            guide, new StateSnapshot { CurrentZone = ZoneA });
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
 
         var targets = new[] { MakeTarget(ZoneB) }
             .Concat(Enumerable.Range(0, 100).Select(i => MakeTarget(ZoneC, x: i)))
             .ToArray();
 
         var result = NavigationTargetSelector.SelectBest(
-            targets, PX, PY, PZ, ZoneA, harness.Router);
+            targets,
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            harness.Router
+        );
 
         Assert.NotNull(result);
         Assert.False(result!.Value.IsSameZone);
@@ -284,22 +364,36 @@ public sealed class NavigationTargetSelectorTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
         var harness = SnapshotHarness.FromSnapshot(
-            guide, new StateSnapshot { CurrentZone = ZoneA });
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
 
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, unlocks, new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            unlocks,
+            new StubLivePositionProvider()
+        );
         var navigationResolver = new NavigationTargetResolver(
             guide,
             frontier,
             sourceResolver,
-            harness.Router);
+            harness.Router
+        );
 
         var selector = new NavigationTargetSelector(
             (nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
-            harness.Router);
+            harness.Router
+        );
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:a" }, force: true);
 
@@ -309,7 +403,6 @@ public sealed class NavigationTargetSelectorTests
         Assert.Equal(20f, selected.Target.Y);
         Assert.Equal(30f, selected.Target.Z);
     }
-
 
     // -- Tick-level regression tests ------------------------------------------------
 
@@ -324,9 +417,12 @@ public sealed class NavigationTargetSelectorTests
         var targets = new[] { nodeA, nodeB };
 
         var selector = new NavigationTargetSelector(
-            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                                        : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter());
+            (key, _) =>
+                key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                    : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter()
+        );
 
         // Force tick near A.
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
@@ -350,15 +446,26 @@ public sealed class NavigationTargetSelectorTests
         // when proximity makes a different source better, even though TargetNodeKey
         // stays the same.
         var nearSpawn = MakeTarget(
-            ZoneA, x: 10f, targetNodeKey: "character:bandit", sourceKey: "spawn:a");
+            ZoneA,
+            x: 10f,
+            targetNodeKey: "character:bandit",
+            sourceKey: "spawn:a"
+        );
         var farSpawn = MakeTarget(
-            ZoneA, x: 100f, targetNodeKey: "character:bandit", sourceKey: "spawn:b");
+            ZoneA,
+            x: 100f,
+            targetNodeKey: "character:bandit",
+            sourceKey: "spawn:b"
+        );
         var targets = new[] { nearSpawn, farSpawn };
 
         var selector = new NavigationTargetSelector(
-            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                                        : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter());
+            (key, _) =>
+                key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                    : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter()
+        );
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
         Assert.True(selector.TryGet("quest:test", out var first));
@@ -383,9 +490,12 @@ public sealed class NavigationTargetSelectorTests
         var targets = new[] { nodeA, nodeB };
 
         var selector = new NavigationTargetSelector(
-            (key, _) => key == "quest:test" ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                                        : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter());
+            (key, _) =>
+                key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                    : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter()
+        );
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
         int v1 = selector.Version;
@@ -405,9 +515,9 @@ public sealed class NavigationTargetSelectorTests
         // Direct target must win regardless of proximity.
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 5f,  isBlockedPath: true),   // blocked, closer
-			MakeTarget(ZoneA, x: 20f),                        // direct, farther
-		};
+            MakeTarget(ZoneA, x: 5f, isBlockedPath: true), // blocked, closer
+            MakeTarget(ZoneA, x: 20f), // direct, farther
+        };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
 
@@ -424,9 +534,9 @@ public sealed class NavigationTargetSelectorTests
         // Tier 3 (direct cross-zone) must beat tier 4 (blocked same-zone actionable).
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 1f,   isBlockedPath: true),  // blocked, in-zone
-			MakeTarget(ZoneB, x: 999f),                       // direct, cross-zone
-		};
+            MakeTarget(ZoneA, x: 1f, isBlockedPath: true), // blocked, in-zone
+            MakeTarget(ZoneB, x: 999f), // direct, cross-zone
+        };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
 
@@ -443,9 +553,9 @@ public sealed class NavigationTargetSelectorTests
         // Blocked in-zone (tier 4) must beat blocked cross-zone (tier 6).
         var targets = new[]
         {
-            MakeTarget(ZoneB, x: 1f,  isBlockedPath: true),   // blocked, cross-zone
-			MakeTarget(ZoneA, x: 99f, isBlockedPath: true),   // blocked, in-zone
-		};
+            MakeTarget(ZoneB, x: 1f, isBlockedPath: true), // blocked, cross-zone
+            MakeTarget(ZoneA, x: 99f, isBlockedPath: true), // blocked, in-zone
+        };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
 
@@ -461,7 +571,12 @@ public sealed class NavigationTargetSelectorTests
         // When the only available target is blocked-path, IsBlockedPath is true.
         var result = NavigationTargetSelector.SelectBest(
             new[] { MakeTarget(ZoneA, isBlockedPath: true) },
-            PX, PY, PZ, ZoneA, EmptyRouter());
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            EmptyRouter()
+        );
 
         Assert.NotNull(result);
         Assert.True(result!.Value.IsBlockedPath);
@@ -469,7 +584,12 @@ public sealed class NavigationTargetSelectorTests
         // When the winning target is direct, IsBlockedPath is false.
         var result2 = NavigationTargetSelector.SelectBest(
             new[] { MakeTarget(ZoneA) },
-            PX, PY, PZ, ZoneA, EmptyRouter());
+            PX,
+            PY,
+            PZ,
+            ZoneA,
+            EmptyRouter()
+        );
 
         Assert.NotNull(result2);
         Assert.False(result2!.Value.IsBlockedPath);
@@ -483,8 +603,20 @@ public sealed class NavigationTargetSelectorTests
         // Guaranteed-loot target at 500m must beat a normal actionable at 10m (same zone).
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 10f,  isActionable: true,  isGuaranteedLoot: false, targetNodeKey: "alive"),
-            MakeTarget(ZoneA, x: 500f, isActionable: true,  isGuaranteedLoot: true,  targetNodeKey: "corpse"),
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                isActionable: true,
+                isGuaranteedLoot: false,
+                targetNodeKey: "alive"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 500f,
+                isActionable: true,
+                isGuaranteedLoot: true,
+                targetNodeKey: "corpse"
+            ),
         };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
@@ -500,8 +632,20 @@ public sealed class NavigationTargetSelectorTests
         // A chest (IsGuaranteedLoot=true) at 500m must beat a normal actionable at 10m.
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 10f,  isActionable: true, isGuaranteedLoot: false, targetNodeKey: "npc"),
-            MakeTarget(ZoneA, x: 500f, isActionable: true, isGuaranteedLoot: true,  targetNodeKey: "chest"),
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                isActionable: true,
+                isGuaranteedLoot: false,
+                targetNodeKey: "npc"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 500f,
+                isActionable: true,
+                isGuaranteedLoot: true,
+                targetNodeKey: "chest"
+            ),
         };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
@@ -516,8 +660,22 @@ public sealed class NavigationTargetSelectorTests
         // A blocked guaranteed-loot target (tier 4) must lose to a direct actionable (tier 1).
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 500f, isActionable: true, isGuaranteedLoot: true,  isBlockedPath: true,  targetNodeKey: "blocked-chest"),
-            MakeTarget(ZoneA, x: 10f,  isActionable: true, isGuaranteedLoot: false, isBlockedPath: false, targetNodeKey: "direct-npc"),
+            MakeTarget(
+                ZoneA,
+                x: 500f,
+                isActionable: true,
+                isGuaranteedLoot: true,
+                isBlockedPath: true,
+                targetNodeKey: "blocked-chest"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                isActionable: true,
+                isGuaranteedLoot: false,
+                isBlockedPath: false,
+                targetNodeKey: "direct-npc"
+            ),
         };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
@@ -532,8 +690,20 @@ public sealed class NavigationTargetSelectorTests
         // Two guaranteed-loot targets; the closer one (100m) must win over the farther (400m).
         var targets = new[]
         {
-            MakeTarget(ZoneA, x: 400f, isActionable: true, isGuaranteedLoot: true, targetNodeKey: "far-corpse"),
-            MakeTarget(ZoneA, x: 100f, isActionable: true, isGuaranteedLoot: true, targetNodeKey: "near-corpse"),
+            MakeTarget(
+                ZoneA,
+                x: 400f,
+                isActionable: true,
+                isGuaranteedLoot: true,
+                targetNodeKey: "far-corpse"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 100f,
+                isActionable: true,
+                isGuaranteedLoot: true,
+                targetNodeKey: "near-corpse"
+            ),
         };
 
         var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
@@ -555,7 +725,8 @@ public sealed class NavigationTargetSelectorTests
             (_, _) => targets,
             EmptyRouter(),
             clock: () => now,
-            rerankInterval: 1.0f);
+            rerankInterval: 1.0f
+        );
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out var selected));
@@ -585,7 +756,8 @@ public sealed class NavigationTargetSelectorTests
             (_, _) => targets,
             EmptyRouter(),
             clock: () => now,
-            rerankInterval: 1.0f);
+            rerankInterval: 1.0f
+        );
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out var selected));

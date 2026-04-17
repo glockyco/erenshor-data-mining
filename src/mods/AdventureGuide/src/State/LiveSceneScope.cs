@@ -12,7 +12,8 @@ internal static class LiveSceneScope
     internal static bool CharacterHasCurrentScenePresence(
         CompiledGuideModel guide,
         Node characterNode,
-        string currentScene)
+        string currentScene
+    )
     {
         if (CanUseLiveSceneState(characterNode.Scene, currentScene))
             return true;

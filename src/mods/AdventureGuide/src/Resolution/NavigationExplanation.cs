@@ -27,7 +27,8 @@ public sealed class NavigationExplanation
         string targetIdentityText,
         string? zoneText,
         string? secondaryText,
-        string? tertiaryText)
+        string? tertiaryText
+    )
     {
         GoalKind = goalKind;
         TargetKind = targetKind;

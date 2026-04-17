@@ -21,7 +21,10 @@ public static class MarkerChangePlanner
         if (changeSet == null || !changeSet.HasMeaningfulChanges)
             return new MarkerChangePlan(fullRebuild: false, Array.Empty<string>());
 
-        if (changeSet.SceneChanged || changeSet.LiveWorldChanged)
+        if (changeSet.SceneChanged)
+            return new MarkerChangePlan(fullRebuild: true, Array.Empty<string>());
+
+        if (changeSet.LiveWorldChanged && changeSet.AffectedQuestKeys.Count == 0)
             return new MarkerChangePlan(fullRebuild: true, Array.Empty<string>());
 
         return new MarkerChangePlan(fullRebuild: false, changeSet.AffectedQuestKeys);

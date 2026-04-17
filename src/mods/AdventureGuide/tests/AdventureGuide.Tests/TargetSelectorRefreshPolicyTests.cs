@@ -14,7 +14,8 @@ public sealed class TargetSelectorRefreshPolicyTests
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
-            lastNavSetVersion: 1);
+            lastNavSetVersion: 1
+        );
 
         Assert.True(decision.Force);
         Assert.Equal(DiagnosticTrigger.LiveWorldChanged, decision.Reason);
@@ -28,7 +29,8 @@ public sealed class TargetSelectorRefreshPolicyTests
             targetSourceVersion: 2,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
-            lastNavSetVersion: 1);
+            lastNavSetVersion: 1
+        );
 
         Assert.True(decision.Force);
         Assert.Equal(DiagnosticTrigger.TargetSourceVersionChanged, decision.Reason);
@@ -42,7 +44,8 @@ public sealed class TargetSelectorRefreshPolicyTests
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 2,
-            lastNavSetVersion: 1);
+            lastNavSetVersion: 1
+        );
 
         Assert.True(decision.Force);
         Assert.Equal(DiagnosticTrigger.NavSetChanged, decision.Reason);
@@ -56,7 +59,8 @@ public sealed class TargetSelectorRefreshPolicyTests
             targetSourceVersion: 1,
             lastTargetSourceVersion: 1,
             navSetVersion: 1,
-            lastNavSetVersion: 1);
+            lastNavSetVersion: 1
+        );
 
         Assert.False(decision.Force);
         Assert.Equal(DiagnosticTrigger.Unknown, decision.Reason);

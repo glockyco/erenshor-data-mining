@@ -18,9 +18,19 @@ public sealed class TrackerSummaryResolverTests
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
         var summary = resolver.Resolve("quest:a", "QUESTA", "Forest");
@@ -39,9 +49,19 @@ public sealed class TrackerSummaryResolverTests
             .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "quest:percy" })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
         var summary = resolver.Resolve("quest:root", "ROOT", "");
@@ -63,9 +83,19 @@ public sealed class TrackerSummaryResolverTests
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:crystal", 1) })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Town");
@@ -82,15 +112,47 @@ public sealed class TrackerSummaryResolverTests
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:ore", 1) })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
         var deps = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, deps);
-        tracker.LoadState("Forest", new[] { "ROOT" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var goalNode = new ResolvedNodeContext("item:ore", new Node { Key = "item:ore", Type = NodeType.Item, DisplayName = "Iron Ore" });
-        var targetNode = new ResolvedNodeContext("mine:ore", new Node { Key = "mine:ore", Type = NodeType.MiningNode, DisplayName = "Mineral Deposit" });
+        tracker.LoadState(
+            "Forest",
+            new[] { "ROOT" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var goalNode = new ResolvedNodeContext(
+            "item:ore",
+            new Node
+            {
+                Key = "item:ore",
+                Type = NodeType.Item,
+                DisplayName = "Iron Ore",
+            }
+        );
+        var targetNode = new ResolvedNodeContext(
+            "mine:ore",
+            new Node
+            {
+                Key = "mine:ore",
+                Type = NodeType.MiningNode,
+                DisplayName = "Mineral Deposit",
+            }
+        );
         var semantic = new ResolvedActionSemantic(
             NavigationGoalKind.CollectItem,
             NavigationTargetKind.Object,
@@ -105,7 +167,8 @@ public sealed class TrackerSummaryResolverTests
             zoneText: null,
             availabilityText: null,
             preferredMarkerKind: QuestMarkerKind.Objective,
-            markerPriority: 10);
+            markerPriority: 10
+        );
         var preferredTarget = new ResolvedQuestTarget(
             "mine:ore",
             "Forest",
@@ -117,7 +180,8 @@ public sealed class TrackerSummaryResolverTests
             x: 1f,
             y: 2f,
             z: 3f,
-            isActionable: true);
+            isActionable: true
+        );
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Forest", preferredTarget, tracker);
 
@@ -129,13 +193,21 @@ public sealed class TrackerSummaryResolverTests
     [Fact]
     public void Resolve_ReturnsNullWhenCompiledQuestIsMissing()
     {
-        var guide = new CompiledGuideBuilder()
-            .AddQuest("quest:other", dbName: "OTHER")
-            .Build();
+        var guide = new CompiledGuideBuilder().AddQuest("quest:other", dbName: "OTHER").Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
         var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
 
         var summary = resolver.Resolve("quest:missing", "MISSING", "");

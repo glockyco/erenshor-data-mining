@@ -13,12 +13,9 @@ public sealed class DirectPositionResolver : IPositionResolver
     {
         if (node.X.HasValue && node.Y.HasValue && node.Z.HasValue)
         {
-            results.Add(new ResolvedPosition(
-                node.X.Value,
-                node.Y.Value,
-                node.Z.Value,
-                node.Scene,
-                node.Key));
+            results.Add(
+                new ResolvedPosition(node.X.Value, node.Y.Value, node.Z.Value, node.Scene, node.Key)
+            );
         }
     }
 

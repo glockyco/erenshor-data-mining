@@ -12,12 +12,14 @@ public sealed class DebugAPIDiagnosticsTests
             frameStallTicks: 10,
             rebuildStormCount: int.MaxValue,
             rebuildStormWindowTicks: long.MaxValue,
-            resolutionExplosionTargetCount: int.MaxValue);
+            resolutionExplosionTargetCount: int.MaxValue
+        );
         var core = new DiagnosticsCore(16, 16, thresholds);
         var token = core.BeginSpan(
             DiagnosticSpanKind.MarkerRecompute,
             DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged),
-            primaryKey: "MarkerComputer");
+            primaryKey: "MarkerComputer"
+        );
         core.EndSpan(token, elapsedTicks: 20, value0: 1, value1: 0);
         DebugAPI.Diagnostics = core;
 
@@ -33,7 +35,11 @@ public sealed class DebugAPIDiagnosticsTests
     {
         DebugAPI.Diagnostics = new DiagnosticsCore(16, 16, IncidentThresholds.Disabled);
 
-        Assert.Contains("No incident", DebugAPI.DumpLastIncident(), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(
+            "No incident",
+            DebugAPI.DumpLastIncident(),
+            StringComparison.OrdinalIgnoreCase
+        );
         DebugAPI.Diagnostics = null;
     }
 }

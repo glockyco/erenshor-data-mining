@@ -11,7 +11,12 @@ public sealed class EffectiveFrontierTests
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
@@ -28,7 +33,12 @@ public sealed class EffectiveFrontierTests
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(new[] { "QUESTA" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            new[] { "QUESTA" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
@@ -45,7 +55,12 @@ public sealed class EffectiveFrontierTests
             .AddQuest("quest:b", dbName: "QUESTB")
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
@@ -67,7 +82,12 @@ public sealed class EffectiveFrontierTests
             .AddQuest("quest:a", dbName: "QUESTA", implicit_: true)
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
@@ -90,14 +110,19 @@ public sealed class EffectiveFrontierTests
             .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
 
         frontier.Resolve(0, results, -1); // quest:a is index 0 (alphabetical)
 
         Assert.Single(results);
-        Assert.Equal(1, results[0].QuestIndex);  // quest:b is index 1
+        Assert.Equal(1, results[0].QuestIndex); // quest:b is index 1
         Assert.Equal(QuestPhase.Accepted, results[0].Phase);
         Assert.Equal(0, results[0].RequiredForQuestIndex); // required for quest:a
     }
@@ -111,7 +136,12 @@ public sealed class EffectiveFrontierTests
             .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "quest:percy" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, tracker);
         var results = new List<FrontierEntry>();
         Assert.True(guide.TryGetNodeId("quest:root", out int rootNodeId));

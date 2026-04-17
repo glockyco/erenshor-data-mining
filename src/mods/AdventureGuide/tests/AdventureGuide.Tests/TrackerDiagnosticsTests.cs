@@ -19,15 +19,53 @@ public sealed class TrackerDiagnosticsTests
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:ore", 1) })
             .Build();
         var phases = new QuestPhaseTracker(guide);
-        phases.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var frontier = new EffectiveFrontier(guide, phases);
-        var sourceResolver = new SourceResolver(guide, phases, new UnlockPredicateEvaluator(guide, phases), new StubLivePositionProvider());
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver, new DiagnosticsCore(64, 64, IncidentThresholds.Disabled));
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider()
+        );
+        var resolver = new TrackerSummaryResolver(
+            guide,
+            phases,
+            frontier,
+            sourceResolver,
+            new DiagnosticsCore(64, 64, IncidentThresholds.Disabled)
+        );
         var dependencyEngine = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, dependencyEngine);
-        tracker.LoadState("Forest", new[] { "ROOT" }, Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var goalNode = new ResolvedNodeContext("item:ore", new Node { Key = "item:ore", Type = NodeType.Item, DisplayName = "Iron Ore" });
-        var targetNode = new ResolvedNodeContext("mine:ore", new Node { Key = "mine:ore", Type = NodeType.MiningNode, DisplayName = "Mineral Deposit" });
+        tracker.LoadState(
+            "Forest",
+            new[] { "ROOT" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var goalNode = new ResolvedNodeContext(
+            "item:ore",
+            new Node
+            {
+                Key = "item:ore",
+                Type = NodeType.Item,
+                DisplayName = "Iron Ore",
+            }
+        );
+        var targetNode = new ResolvedNodeContext(
+            "mine:ore",
+            new Node
+            {
+                Key = "mine:ore",
+                Type = NodeType.MiningNode,
+                DisplayName = "Mineral Deposit",
+            }
+        );
         var semantic = new ResolvedActionSemantic(
             NavigationGoalKind.CollectItem,
             NavigationTargetKind.Object,
@@ -42,7 +80,8 @@ public sealed class TrackerDiagnosticsTests
             zoneText: null,
             availabilityText: null,
             preferredMarkerKind: QuestMarkerKind.Objective,
-            markerPriority: 10);
+            markerPriority: 10
+        );
         var preferredTarget = new ResolvedQuestTarget(
             "mine:ore",
             "Forest",
@@ -54,7 +93,8 @@ public sealed class TrackerDiagnosticsTests
             x: 1f,
             y: 2f,
             z: 3f,
-            isActionable: true);
+            isActionable: true
+        );
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Forest", preferredTarget, tracker);
 
@@ -72,14 +112,20 @@ public sealed class TrackerDiagnosticsTests
             .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:lucian" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
         var projector = new SpecTreeProjector(
             guide,
             tracker,
             new UnlockPredicateEvaluator(guide, tracker),
             null,
             () => string.Empty,
-            new DiagnosticsCore(64, 64, IncidentThresholds.Disabled));
+            new DiagnosticsCore(64, 64, IncidentThresholds.Disabled)
+        );
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);

@@ -1,5 +1,3 @@
-
-
 namespace AdventureGuide.Graph;
 
 /// <summary>
@@ -28,7 +26,8 @@ public sealed class QuestGiverBlueprint
         string scene,
         MarkerInteraction interaction,
         bool repeatable,
-        IReadOnlyList<string> requiredQuestDbNames)
+        IReadOnlyList<string> requiredQuestDbNames
+    )
     {
         QuestKey = questKey;
         QuestDbName = questDbName;

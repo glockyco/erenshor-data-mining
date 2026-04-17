@@ -30,7 +30,8 @@ internal static class GameUIVisibility
         {
             if (_hudCanvas == null)
             {
-                if (_searched) return true;
+                if (_searched)
+                    return true;
                 _searched = true;
                 var typeText = UnityEngine.Object.FindObjectOfType<TypeText>();
                 if (typeText != null)

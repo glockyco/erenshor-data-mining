@@ -6,7 +6,8 @@ internal sealed class IncidentBundle
         DiagnosticIncident incident,
         IReadOnlyList<DiagnosticEvent> events,
         IReadOnlyList<DiagnosticSpan> spans,
-        IReadOnlyList<SnapshotEnvelope> snapshots)
+        IReadOnlyList<SnapshotEnvelope> snapshots
+    )
     {
         Incident = incident;
         Events = events;
@@ -26,12 +27,9 @@ internal sealed class IncidentBundle
         DiagnosticIncident incident,
         IEnumerable<DiagnosticEvent> events,
         IEnumerable<DiagnosticSpan> spans,
-        IEnumerable<SnapshotEnvelope> snapshots)
+        IEnumerable<SnapshotEnvelope> snapshots
+    )
     {
-        return new IncidentBundle(
-            incident,
-            events.ToArray(),
-            spans.ToArray(),
-            snapshots.ToArray());
+        return new IncidentBundle(incident, events.ToArray(), spans.ToArray(), snapshots.ToArray());
     }
 }

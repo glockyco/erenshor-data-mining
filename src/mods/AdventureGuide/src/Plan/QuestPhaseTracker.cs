@@ -1,4 +1,3 @@
-
 namespace AdventureGuide.Plan;
 
 public sealed class QuestPhaseTracker
@@ -39,7 +38,8 @@ public sealed class QuestPhaseTracker
         IReadOnlyCollection<string> completedQuestDbNames,
         IReadOnlyCollection<string> activeQuestDbNames,
         IReadOnlyDictionary<string, int> inventory,
-        IReadOnlyCollection<string> keyringItems)
+        IReadOnlyCollection<string> keyringItems
+    )
     {
         Array.Fill(_phases, QuestPhase.NotReady);
         Array.Clear(_completed, 0, _completed.Length);
@@ -84,8 +84,10 @@ public sealed class QuestPhaseTracker
 
         foreach (string dbName in activeQuestDbNames)
         {
-            if (_dbNameToQuestIndex.TryGetValue(dbName, out int questIndex)
-                && _phases[questIndex] != QuestPhase.Completed)
+            if (
+                _dbNameToQuestIndex.TryGetValue(dbName, out int questIndex)
+                && _phases[questIndex] != QuestPhase.Completed
+            )
             {
                 _phases[questIndex] = QuestPhase.Accepted;
             }
@@ -138,8 +140,14 @@ public sealed class QuestPhaseTracker
                 continue;
             }
 
-            _remainingPrereqs[dependentQuestIndex] = Math.Max(0, _remainingPrereqs[dependentQuestIndex] - 1);
-            if (_remainingPrereqs[dependentQuestIndex] == 0 && _phases[dependentQuestIndex] == QuestPhase.NotReady)
+            _remainingPrereqs[dependentQuestIndex] = Math.Max(
+                0,
+                _remainingPrereqs[dependentQuestIndex] - 1
+            );
+            if (
+                _remainingPrereqs[dependentQuestIndex] == 0
+                && _phases[dependentQuestIndex] == QuestPhase.NotReady
+            )
             {
                 _phases[dependentQuestIndex] = _guide.IsImplicit(dependentQuestIndex)
                     ? QuestPhase.Accepted

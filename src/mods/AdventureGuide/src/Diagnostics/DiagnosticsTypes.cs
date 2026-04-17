@@ -63,7 +63,8 @@ internal readonly struct DiagnosticEvent
         long timestampTicks,
         string? primaryKey,
         int value0,
-        int value1)
+        int value1
+    )
     {
         Kind = kind;
         Context = context;
@@ -95,7 +96,8 @@ internal readonly struct DiagnosticSpan
         long endTicks,
         string? primaryKey,
         int value0,
-        int value1)
+        int value1
+    )
     {
         Kind = kind;
         Context = context;
@@ -125,7 +127,13 @@ internal readonly struct DiagnosticSpan
 
 internal readonly struct SpanToken
 {
-    public SpanToken(int id, DiagnosticSpanKind kind, DiagnosticsContext context, long startTicks, string? primaryKey)
+    public SpanToken(
+        int id,
+        DiagnosticSpanKind kind,
+        DiagnosticsContext context,
+        long startTicks,
+        string? primaryKey
+    )
     {
         Id = id;
         Kind = kind;
@@ -147,13 +155,15 @@ internal readonly struct SpanToken
 
 internal sealed class IncidentThresholds
 {
-    public static IncidentThresholds Disabled { get; } = new(long.MaxValue, int.MaxValue, long.MaxValue, int.MaxValue);
+    public static IncidentThresholds Disabled { get; } =
+        new(long.MaxValue, int.MaxValue, long.MaxValue, int.MaxValue);
 
     public IncidentThresholds(
         long frameStallTicks,
         int rebuildStormCount,
         long rebuildStormWindowTicks,
-        int resolutionExplosionTargetCount)
+        int resolutionExplosionTargetCount
+    )
     {
         FrameStallTicks = frameStallTicks;
         RebuildStormCount = rebuildStormCount;
@@ -172,7 +182,11 @@ internal sealed class IncidentThresholds
 
 internal sealed class DiagnosticIncident
 {
-    public DiagnosticIncident(DiagnosticIncidentKind kind, long timestampTicks, string? summary = null)
+    public DiagnosticIncident(
+        DiagnosticIncidentKind kind,
+        long timestampTicks,
+        string? summary = null
+    )
     {
         Kind = kind;
         TimestampTicks = timestampTicks;
@@ -185,7 +199,10 @@ internal sealed class DiagnosticIncident
 
     public string? Summary { get; }
 
-    public static DiagnosticIncident CreateForTests(DiagnosticIncidentKind kind, long timestampTicks)
+    public static DiagnosticIncident CreateForTests(
+        DiagnosticIncidentKind kind,
+        long timestampTicks
+    )
     {
         return new DiagnosticIncident(kind, timestampTicks);
     }

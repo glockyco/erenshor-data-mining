@@ -1,4 +1,3 @@
-
 namespace AdventureGuide.Resolution;
 
 /// <summary>

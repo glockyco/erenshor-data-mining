@@ -31,7 +31,8 @@ public sealed class GuideWindow
         ViewRenderer viewRenderer,
         QuestListPanel listPanel,
         FilterState filter,
-        AdventureGuide.CompiledGuide.CompiledGuide compiledGuide)
+        AdventureGuide.CompiledGuide.CompiledGuide compiledGuide
+    )
     {
         _state = state;
         _history = history;
@@ -43,7 +44,9 @@ public sealed class GuideWindow
     }
 
     public void Toggle() => _visible = !_visible;
+
     public void Show() => _visible = true;
+
     public void Hide() => _visible = false;
 
     public void Draw()
@@ -56,8 +59,10 @@ public sealed class GuideWindow
         var display = ImGui.GetIO().DisplaySize;
         ImGui.SetNextWindowSize(new Vector2(780f * scale, 530f * scale), cond);
         ImGui.SetNextWindowPos(
-            new Vector2(display.X * 0.5f, display.Y * 0.5f), cond,
-            new Vector2(0.5f, 0.5f));
+            new Vector2(display.X * 0.5f, display.Y * 0.5f),
+            cond,
+            new Vector2(0.5f, 0.5f)
+        );
 
         Theme.PushWindowStyle();
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))

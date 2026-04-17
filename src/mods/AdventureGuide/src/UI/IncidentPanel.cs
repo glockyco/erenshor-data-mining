@@ -1,7 +1,7 @@
+using System.Numerics;
 using AdventureGuide.Config;
 using AdventureGuide.Diagnostics;
 using ImGuiNET;
-using System.Numerics;
 
 namespace AdventureGuide.UI;
 
