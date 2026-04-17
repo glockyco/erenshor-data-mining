@@ -218,6 +218,66 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
+	public void Resolve_QuestKey_WithCompiledStateVersionProvider_RefreshesAfterQuestAccepted()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddCharacter("char:giver", scene: "Forest", x: 10f, y: 20f, z: 30f)
+			.AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItem("item:pelt")
+			.AddItemSource("item:pelt", "char:wolf")
+			.AddQuest(
+				"quest:root",
+				dbName: "ROOT",
+				givers: new[] { "char:giver" },
+				requiredItems: new[] { ("item:pelt", 1) }
+			)
+			.Build();
+		var phases = new QuestPhaseTracker(guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			Array.Empty<string>(),
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(guide, phases);
+		var positionRegistry = CreatePositionRegistry(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry
+		);
+		var resolver = new NavigationTargetResolver(
+			guide,
+			frontier,
+			sourceResolver,
+			null,
+			positionRegistry,
+			() => phases.Version
+		);
+
+		var initial = resolver.Resolve("quest:root", "Forest");
+		var initialTarget = Assert.Single(initial);
+		Assert.Equal("char:giver", initialTarget.TargetNodeKey);
+		Assert.Equal(QuestMarkerKind.QuestGiver, initialTarget.Semantic.PreferredMarkerKind);
+
+		phases.Initialize(
+			Array.Empty<string>(),
+			new[] { "ROOT" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+
+		var refreshed = resolver.Resolve("quest:root", "Forest");
+		var refreshedTarget = Assert.Single(refreshed);
+		Assert.NotSame(initial, refreshed);
+		Assert.Equal("char:wolf", refreshedTarget.TargetNodeKey);
+		Assert.Equal(QuestMarkerKind.Objective, refreshedTarget.Semantic.PreferredMarkerKind);
+	}
+
+	[Fact]
 	public void Resolve_CharacterKey_WithSpawns_ReturnsTargetsAtSpawnPositions()
 	{
 		var guide = new CompiledGuideBuilder()

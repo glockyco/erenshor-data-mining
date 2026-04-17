@@ -9,6 +9,8 @@ public sealed class QuestPhaseTracker
     private readonly bool[] _completed;
     private readonly Dictionary<string, int> _dbNameToQuestIndex;
 
+    public int Version { get; private set; }
+
     public QuestPhaseTracker(CompiledGuide.CompiledGuide guide)
     {
         _guide = guide;
@@ -94,6 +96,7 @@ public sealed class QuestPhaseTracker
         }
 
         _ = keyringItems;
+        Version++;
     }
 
     public QuestPhase GetPhase(int questIndex) => _phases[questIndex];
@@ -104,10 +107,13 @@ public sealed class QuestPhaseTracker
 
     public void OnQuestAssigned(int questIndex)
     {
-        if (_phases[questIndex] == QuestPhase.ReadyToAccept)
+        if (_phases[questIndex] != QuestPhase.ReadyToAccept)
         {
-            _phases[questIndex] = QuestPhase.Accepted;
+            return;
         }
+
+        _phases[questIndex] = QuestPhase.Accepted;
+        Version++;
     }
 
     public void OnQuestCompleted(int questIndex)
@@ -118,14 +124,23 @@ public sealed class QuestPhaseTracker
         }
 
         ApplyCompleted(questIndex);
+        Version++;
     }
 
     public void OnInventoryChanged(int itemIndex, int newCount)
     {
-        if (itemIndex >= 0 && itemIndex < _itemCounts.Length)
+        if (itemIndex < 0 || itemIndex >= _itemCounts.Length)
         {
-            _itemCounts[itemIndex] = newCount;
+            return;
         }
+
+        if (_itemCounts[itemIndex] == newCount)
+        {
+            return;
+        }
+
+        _itemCounts[itemIndex] = newCount;
+        Version++;
     }
 
     private void ApplyCompleted(int questIndex)

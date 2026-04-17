@@ -128,7 +128,7 @@ public sealed class ViewRendererTextTests
     }
 
     [Fact]
-    public void GetRootChildrenForDetail_ReusesProjectionUntilTrackerVersionChanges()
+    public void GetRootChildrenForDetail_ReusesProjectionUntilCompiledQuestStateChanges()
     {
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:giver")
@@ -163,7 +163,8 @@ public sealed class ViewRendererTextTests
             new NavigationSet(),
             tracker,
             new TrackerState(),
-            projector
+            projector,
+            () => (phases.Version, tracker.SceneVersion)
         );
 
         var first = renderer.GetRootChildrenForDetail(0);
@@ -171,8 +172,81 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         tracker.OnQuestAssigned("ROOT");
-        var afterVersionChange = renderer.GetRootChildrenForDetail(0);
-        Assert.NotSame(first, afterVersionChange);
+        var beforeCompiledSync = renderer.GetRootChildrenForDetail(0);
+        Assert.Same(first, beforeCompiledSync);
+
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+
+        var afterCompiledChange = renderer.GetRootChildrenForDetail(0);
+        Assert.NotSame(first, afterCompiledChange);
+    }
+
+    [Fact]
+    public void GetRootChildrenForDetail_RefreshesWhenCompiledQuestStateCatchesUp()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:giver")
+            .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "char:giver" })
+            .Build();
+        var dependencies = new GuideDependencyEngine();
+        var tracker = new QuestStateTracker(guide, dependencies);
+        tracker.LoadState(
+            currentZone: string.Empty,
+            activeQuests: Array.Empty<string>(),
+            completedQuests: Array.Empty<string>(),
+            inventoryCounts: new Dictionary<string, int>(),
+            keyringItemKeys: Array.Empty<string>()
+        );
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            null,
+            () => string.Empty
+        );
+        var renderer = new ViewRenderer(
+            guide,
+            new GameState(guide),
+            new NavigationSet(),
+            tracker,
+            new TrackerState(),
+            projector,
+            () => (phases.Version, tracker.SceneVersion)
+        );
+
+        var initial = renderer.GetRootChildrenForDetail(0);
+        var initialGiver = Assert.Single(initial, root => root.Kind == SpecTreeKind.Giver);
+        Assert.False(initialGiver.IsCompleted);
+
+        tracker.OnQuestAssigned("ROOT");
+        var stale = renderer.GetRootChildrenForDetail(0);
+        var staleGiver = Assert.Single(stale, root => root.Kind == SpecTreeKind.Giver);
+        Assert.False(staleGiver.IsCompleted);
+
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+
+        var refreshed = renderer.GetRootChildrenForDetail(0);
+        var refreshedGiver = Assert.Single(refreshed, root => root.Kind == SpecTreeKind.Giver);
+
+        Assert.NotSame(stale, refreshed);
+        Assert.True(refreshedGiver.IsCompleted);
     }
 
     [Fact]
@@ -197,7 +271,7 @@ public sealed class ViewRendererTextTests
     }
 
     [Fact]
-    public void GetChildrenForDetail_ReusesProjectionUntilTrackerVersionChanges()
+    public void GetChildrenForDetail_ReusesProjectionUntilCompiledQuestStateChanges()
     {
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:gate-giver")
@@ -215,12 +289,22 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestAssigned("ROOT");
-        var afterVersionChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
-        Assert.NotSame(first, afterVersionChange);
+        var beforeCompiledSync = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+        Assert.Same(first, beforeCompiledSync);
+
+        fixture.Phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+
+        var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+        Assert.NotSame(first, afterCompiledChange);
     }
 
     [Fact]
-    public void GetUnlockChildrenForDetail_ReusesProjectionUntilTrackerVersionChanges()
+    public void GetUnlockChildrenForDetail_ReusesProjectionUntilCompiledQuestStateChanges()
     {
         var guide = new CompiledGuideBuilder()
             .AddItem("item:key")
@@ -246,11 +330,25 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestCompleted("QUESTA");
-        var afterVersionChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
-        Assert.NotSame(first, afterVersionChange);
+        var beforeCompiledSync = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+        Assert.Same(first, beforeCompiledSync);
+
+        fixture.Phases.Initialize(
+            new[] { "QUESTA" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+
+        var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+        Assert.NotSame(first, afterCompiledChange);
     }
 
-    private static (QuestStateTracker Tracker, ViewRenderer Renderer) CreateRendererFixture(
+    private static (
+        QuestStateTracker Tracker,
+        QuestPhaseTracker Phases,
+        ViewRenderer Renderer
+    ) CreateRendererFixture(
         AdventureGuide.CompiledGuide.CompiledGuide guide,
         string[]? activeQuestDbNames = null,
         string[]? completedQuestDbNames = null
@@ -285,9 +383,10 @@ public sealed class ViewRendererTextTests
             new NavigationSet(),
             tracker,
             new TrackerState(),
-            projector
+            projector,
+            () => (phases.Version, tracker.SceneVersion)
         );
-        return (tracker, renderer);
+        return (tracker, phases, renderer);
     }
 
     private static int FindQuestIndex(

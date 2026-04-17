@@ -15,7 +15,8 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
-    private int _cachedDetailTrackerVersion = -1;
+    private readonly Func<(int PhaseVersion, int SceneVersion)> _detailStateVersionProvider;
+    private (int PhaseVersion, int SceneVersion)? _cachedDetailStateVersion;
     private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _cachedRootChildrenByQuest = new();
     private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedChildren = new(
         StringComparer.Ordinal
@@ -30,7 +31,8 @@ public sealed class ViewRenderer
         NavigationSet navSet,
         QuestStateTracker tracker,
         TrackerState trackerState,
-        SpecTreeProjector specProjector
+        SpecTreeProjector specProjector,
+        Func<(int PhaseVersion, int SceneVersion)>? detailStateVersionProvider = null
     )
     {
         _guide = guide;
@@ -39,6 +41,7 @@ public sealed class ViewRenderer
         _tracker = tracker;
         _trackerState = trackerState;
         _specProjector = specProjector;
+        _detailStateVersionProvider = detailStateVersionProvider ?? (() => (tracker.Version, 0));
     }
 
     public void Draw(int? questIndex)
@@ -140,10 +143,11 @@ public sealed class ViewRenderer
 
     private void EnsureDetailProjectionCacheCurrent()
     {
-        if (_cachedDetailTrackerVersion == _tracker.Version)
+        var stateVersion = _detailStateVersionProvider();
+        if (_cachedDetailStateVersion == stateVersion)
             return;
 
-        _cachedDetailTrackerVersion = _tracker.Version;
+        _cachedDetailStateVersion = stateVersion;
         _cachedRootChildrenByQuest.Clear();
         _cachedChildren.Clear();
         _cachedUnlockChildren.Clear();

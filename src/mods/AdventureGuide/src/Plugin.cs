@@ -207,7 +207,7 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledSourceResolver,
             _zoneRouter,
             positionRegistry,
-            () => _questTracker.Version,
+            () => _compiledQuestTracker.Version,
             _diagnostics
         );
 
@@ -290,7 +290,8 @@ public sealed class Plugin : BaseUnityPlugin
             _navSet,
             _questTracker,
             _trackerState,
-            _specTreeProjector
+            _specTreeProjector,
+            () => (_compiledQuestTracker.Version, _questTracker.SceneVersion)
         );
         _window = new GuideWindow(
             _questTracker,
@@ -393,6 +394,7 @@ public sealed class Plugin : BaseUnityPlugin
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
         var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
+        SyncCompiledQuestTracker();
         _liveState.OnSceneLoaded();
         _waterResolver.OnSceneLoaded();
         if (_inGameplay)
@@ -496,6 +498,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
 
+        SyncCompiledQuestTracker();
         _markerComputer?.Recompute();
 
         int targetSourceVersion = _navigationTargetResolver!.Version;
@@ -535,7 +538,6 @@ public sealed class Plugin : BaseUnityPlugin
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
         _markerSystem?.Update();
-        SyncCompiledQuestTracker();
 
         if (_config == null || _window == null)
             return;
@@ -641,6 +643,7 @@ public sealed class Plugin : BaseUnityPlugin
         _liveState?.OnSceneLoaded();
         _waterResolver?.OnSceneLoaded();
         var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
+        SyncCompiledQuestTracker();
         if (_inGameplay)
         {
             _trackerState?.OnCharacterLoaded();
