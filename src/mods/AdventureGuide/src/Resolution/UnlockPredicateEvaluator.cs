@@ -22,75 +22,54 @@ public sealed class UnlockPredicateEvaluator
 
     public UnlockResult Evaluate(int targetNodeId, IResolutionTracer? tracer = null)
     {
-        if (!_guide.TryGetUnlockPredicate(targetNodeId, out var predicate))
-        {
-            tracer?.OnUnlockEvaluation(targetNodeId, true);
-            return UnlockResult.Unlocked;
-        }
-
-        UnlockResult result;
-        if (predicate.Semantics == 0)
-        {
-            result = EvaluateAll(predicate);
-        }
-        else
-        {
-            result = EvaluateAnyGroup(predicate);
-        }
-
+        UnlockResult result = GetBlockingRequirementGroups(targetNodeId).Count == 0
+            ? UnlockResult.Unlocked
+            : UnlockResult.Blocked;
         tracer?.OnUnlockEvaluation(targetNodeId, result == UnlockResult.Unlocked);
         return result;
     }
 
-    private UnlockResult EvaluateAll(UnlockPredicateEntry predicate)
+    public IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> GetBlockingRequirementGroups(int targetNodeId)
     {
-        foreach (var condition in predicate.Conditions)
+        if (!_guide.TryGetUnlockPredicate(targetNodeId, out var predicate))
+            return Array.Empty<IReadOnlyList<UnlockConditionEntry>>();
+
+        if (predicate.Semantics == 0)
         {
-            if (!ConditionMet(condition))
-            {
-                return UnlockResult.Blocked;
-            }
+            var unmet = predicate.Conditions.Where(condition => !ConditionMet(condition)).ToArray();
+            return unmet.Length == 0
+                ? Array.Empty<IReadOnlyList<UnlockConditionEntry>>()
+                : new IReadOnlyList<UnlockConditionEntry>[] { unmet };
         }
 
-        return UnlockResult.Unlocked;
-    }
-
-    private UnlockResult EvaluateAnyGroup(UnlockPredicateEntry predicate)
-    {
-        foreach (var condition in predicate.Conditions)
-        {
-            if (condition.Group == 0 && !ConditionMet(condition))
-            {
-                return UnlockResult.Blocked;
-            }
-        }
-
+        var unconditional = predicate.Conditions
+            .Where(condition => condition.Group == 0 && !ConditionMet(condition))
+            .ToArray();
+        var groups = new List<IReadOnlyList<UnlockConditionEntry>>();
         for (int group = 1; group <= predicate.GroupCount; group++)
         {
-            bool passed = true;
-            bool sawCondition = false;
+            bool hadConditions = false;
+            var grouped = new List<UnlockConditionEntry>();
             foreach (var condition in predicate.Conditions)
             {
                 if (condition.Group != group)
-                {
                     continue;
-                }
 
-                sawCondition = true;
+                hadConditions = true;
                 if (!ConditionMet(condition))
-                {
-                    passed = false;
-                    break;
-                }
+                    grouped.Add(condition);
             }
 
-            if (sawCondition && passed)
-            {
-                return UnlockResult.Unlocked;
-            }
+            if (!hadConditions)
+                continue;
+            if (grouped.Count == 0 && unconditional.Length == 0)
+                return Array.Empty<IReadOnlyList<UnlockConditionEntry>>();
+            groups.Add(unconditional.Concat(grouped).ToArray());
         }
 
-        return UnlockResult.Blocked;
+        if (groups.Count == 0 && unconditional.Length > 0)
+            groups.Add(unconditional);
+        return groups;
     }
 
     private bool ConditionMet(UnlockConditionEntry condition)

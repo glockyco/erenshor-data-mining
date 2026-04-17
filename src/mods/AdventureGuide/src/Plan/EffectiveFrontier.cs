@@ -20,6 +20,22 @@ public sealed class EffectiveFrontier
             return;
         }
 
+        if (phase == QuestPhase.ReadyToAccept)
+        {
+            int before = results.Count;
+            foreach (int giverId in _guide.GiverIds(questIndex))
+            {
+                int giverQuestIndex = _guide.FindQuestIndex(giverId);
+                if (giverQuestIndex < 0 || _phases.IsCompleted(giverQuestIndex))
+                    continue;
+
+                Resolve(giverQuestIndex, results, questIndex, tracer);
+            }
+
+            if (results.Count > before)
+                return;
+        }
+
         if (phase != QuestPhase.NotReady)
         {
             var entry = new FrontierEntry(questIndex, phase, requiredFor);

@@ -237,7 +237,8 @@ public sealed class Plugin : BaseUnityPlugin
         var trackerSummaryResolver = new TrackerSummaryResolver(
             _compiledGuide,
             _compiledQuestTracker,
-            _compiledFrontier);
+            _compiledFrontier,
+            _compiledSourceResolver);
         _trackerPanel = new TrackerPanel(
             _compiledGuide,
             _questTracker,

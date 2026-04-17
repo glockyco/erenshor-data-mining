@@ -169,4 +169,87 @@ public sealed class SourceResolverTests
 
         Assert.Empty(targets);
     }
+
+    [Fact]
+    public void Accepted_with_recipe_source_resolves_material_source_targets()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:ore")
+            .AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f)
+            .AddItemSource("item:ore", "char:wolf")
+            .AddItem("item:key")
+            .AddRecipe("recipe:key")
+            .AddItemSource("item:key", "recipe:key", edgeType: (byte)EdgeType.Produces, sourceType: (byte)NodeType.Recipe)
+            .AddEdge("recipe:key", "item:ore", EdgeType.RequiresMaterial, quantity: 1)
+            .AddEdge("recipe:key", "item:key", EdgeType.Produces)
+            .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:key", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
+        int questIndex = guide.FindQuestIndex(questNodeId);
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Forest");
+
+        guide.TryGetNodeId("char:wolf", out int wolfId);
+        Assert.Single(targets);
+        Assert.Equal(wolfId, targets[0].TargetNodeId);
+        Assert.Equal(ResolvedActionKind.Kill, targets[0].Semantic.ActionKind);
+    }
+
+    [Fact]
+    public void Accepted_with_reward_quest_source_resolves_reward_quest_frontier()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:percy", scene: "Beach", x: 10f, y: 20f, z: 30f)
+            .AddQuest("quest:percy", dbName: "PERCY", givers: new[] { "char:percy" })
+            .AddEdge("quest:percy", "item:note", EdgeType.RewardsItem)
+            .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:note", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
+        int questIndex = guide.FindQuestIndex(questNodeId);
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Beach");
+
+        guide.TryGetNodeId("char:percy", out int percyId);
+        Assert.Single(targets);
+        Assert.Equal(percyId, targets[0].TargetNodeId);
+        Assert.Equal(ResolvedTargetRole.Giver, targets[0].Role);
+        Assert.Equal(ResolvedActionKind.Talk, targets[0].Semantic.ActionKind);
+    }
+
+    [Fact]
+    public void Accepted_with_blocked_source_resolves_unlock_quest_frontier()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:crystal")
+            .AddCharacter("char:keeper", scene: "Vault", x: 40f, y: 50f, z: 60f)
+            .AddItemSource("item:crystal", "char:keeper")
+            .AddCharacter("char:elder", scene: "Town", x: 5f, y: 6f, z: 7f)
+            .AddQuest("quest:gate", dbName: "GATE", givers: new[] { "char:elder" })
+            .AddUnlockPredicate("char:keeper", "quest:gate")
+            .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:crystal", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
+        Assert.True(guide.TryGetNodeId("quest:a", out int questNodeId));
+        int questIndex = guide.FindQuestIndex(questNodeId);
+
+        var targets = resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Town");
+
+        guide.TryGetNodeId("char:elder", out int elderId);
+        Assert.Single(targets);
+        Assert.Equal(elderId, targets[0].TargetNodeId);
+        Assert.Equal(ResolvedTargetRole.Giver, targets[0].Role);
+        Assert.Equal(ResolvedActionKind.Talk, targets[0].Semantic.ActionKind);
+    }
 }

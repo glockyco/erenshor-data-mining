@@ -39,6 +39,7 @@ public sealed class CompiledGuideBuilder
 	private sealed record MiningNodeDef(string Key, string? Scene);
 	private sealed record ItemBagDef(string Key, string? Scene);
 	private sealed record WaterDef(string Key, string? Scene, float X, float Y, float Z);
+	private sealed record RecipeDef(string Key);
 	private sealed record EdgeDef(string Source, string Target, EdgeType Type, string? Group, int? Ordinal, int? Quantity, string? Keyword, string? Note, int? Amount);
 
 	private readonly List<QuestDef> _quests = new();
@@ -54,6 +55,7 @@ public sealed class CompiledGuideBuilder
 	private readonly List<MiningNodeDef> _miningNodes = new();
 	private readonly List<ItemBagDef> _itemBags = new();
 	private readonly List<WaterDef> _waters = new();
+	private readonly List<RecipeDef> _recipes = new();
 	private readonly List<EdgeDef> _edges = new();
 
 	public CompiledGuideBuilder AddQuest(
@@ -188,6 +190,12 @@ public sealed class CompiledGuideBuilder
 		return this;
 	}
 
+	public CompiledGuideBuilder AddRecipe(string key)
+	{
+		_recipes.Add(new RecipeDef(key));
+		return this;
+	}
+
 	public CompiledGuideBuilder AddEdge(
 		string source,
 		string target,
@@ -242,6 +250,7 @@ public sealed class CompiledGuideBuilder
 		foreach (MiningNodeDef mn in _miningNodes) allKeys.Add(mn.Key);
 		foreach (ItemBagDef ib in _itemBags) allKeys.Add(ib.Key);
 		foreach (WaterDef w in _waters) allKeys.Add(w.Key);
+		foreach (RecipeDef recipe in _recipes) allKeys.Add(recipe.Key);
 		foreach (EdgeDef e in _edges)
 		{
 			allKeys.Add(e.Source);
@@ -266,6 +275,7 @@ public sealed class CompiledGuideBuilder
 		var miningNodeByKey = _miningNodes.ToDictionary(mn => mn.Key, StringComparer.Ordinal);
 		var itemBagByKey = _itemBags.ToDictionary(ib => ib.Key, StringComparer.Ordinal);
 		var waterByKey = _waters.ToDictionary(w => w.Key, StringComparer.Ordinal);
+		var recipeByKey = _recipes.ToDictionary(r => r.Key, StringComparer.Ordinal);
 
 		// Build node DTOs
 		var nodes = new CompiledNodeData[keyToId.Count];
@@ -273,7 +283,7 @@ public sealed class CompiledGuideBuilder
 		{
 			nodes[id] = BuildNodeData(key, id, questByKey, itemKeys, charByKey,
 				zoneLineByKey, zoneByKey, spawnPointByKey, doorByKey,
-				miningNodeByKey, itemBagByKey, waterByKey);
+				miningNodeByKey, itemBagByKey, waterByKey, recipeByKey);
 		}
 
 		// Build quest specs
@@ -459,7 +469,8 @@ public sealed class CompiledGuideBuilder
 		Dictionary<string, DoorDef> doorByKey,
 		Dictionary<string, MiningNodeDef> miningNodeByKey,
 		Dictionary<string, ItemBagDef> itemBagByKey,
-		Dictionary<string, WaterDef> waterByKey)
+		Dictionary<string, WaterDef> waterByKey,
+		Dictionary<string, RecipeDef> recipeByKey)
 	{
 		// NodeType ordinals match the C# enum: Quest=0, Item=1, Character=2,
 		// Zone=3, ZoneLine=4, SpawnPoint=5, MiningNode=6, Water=7, Forge=8,
@@ -602,6 +613,17 @@ public sealed class CompiledGuideBuilder
 				X = float.IsNaN(water.X) ? null : water.X,
 				Y = float.IsNaN(water.Y) ? null : water.Y,
 				Z = float.IsNaN(water.Z) ? null : water.Z,
+			};
+		}
+
+		if (recipeByKey.ContainsKey(key))
+		{
+			return new CompiledNodeData
+			{
+				NodeId = id,
+				Key = key,
+				NodeType = (int)Graph.NodeType.Recipe,
+				DisplayName = key,
 			};
 		}
 

@@ -439,7 +439,7 @@ public sealed class TrackerPanel
 			return;
 		}
 
-		var summaryEntry = _summaryResolver.Resolve(quest.Key, dbName);
+		var summaryEntry = _summaryResolver.Resolve(quest.Key, dbName, _tracker.CurrentZone);
 		if (summaryEntry == null)
 			return;
 

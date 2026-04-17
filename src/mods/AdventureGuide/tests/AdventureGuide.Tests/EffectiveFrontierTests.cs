@@ -101,4 +101,29 @@ public sealed class EffectiveFrontierTests
         Assert.Equal(QuestPhase.Accepted, results[0].Phase);
         Assert.Equal(0, results[0].RequiredForQuestIndex); // required for quest:a
     }
+
+    [Fact]
+    public void Ready_quest_with_quest_giver_returns_giver_quest_frontier()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:percy")
+            .AddQuest("quest:percy", dbName: "PERCY", givers: new[] { "char:percy" })
+            .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "quest:percy" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var frontier = new EffectiveFrontier(guide, tracker);
+        var results = new List<FrontierEntry>();
+        Assert.True(guide.TryGetNodeId("quest:root", out int rootNodeId));
+        Assert.True(guide.TryGetNodeId("quest:percy", out int percyNodeId));
+        int rootIndex = guide.FindQuestIndex(rootNodeId);
+        int percyIndex = guide.FindQuestIndex(percyNodeId);
+
+        frontier.Resolve(rootIndex, results, -1);
+
+        Assert.Single(results);
+        Assert.Equal(percyIndex, results[0].QuestIndex);
+        Assert.Equal(QuestPhase.ReadyToAccept, results[0].Phase);
+        Assert.Equal(rootIndex, results[0].RequiredForQuestIndex);
+    }
 }

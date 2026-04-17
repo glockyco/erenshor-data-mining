@@ -23,7 +23,9 @@ public readonly struct SpecTreeRef
         string label,
         bool isCompleted,
         bool isBlocked,
-        int? blockedByNodeId = null)
+        int? blockedByNodeId = null,
+        int[]? ancestry = null,
+        SpecTreeRef[]? syntheticChildren = null)
     {
         NodeId = nodeId;
         Kind = kind;
@@ -33,6 +35,8 @@ public readonly struct SpecTreeRef
         IsCompleted = isCompleted;
         IsBlocked = isBlocked;
         BlockedByNodeId = blockedByNodeId;
+        Ancestry = ancestry ?? Array.Empty<int>();
+        SyntheticChildren = syntheticChildren;
     }
 
     public int NodeId { get; }
@@ -43,4 +47,6 @@ public readonly struct SpecTreeRef
     public bool IsCompleted { get; }
     public bool IsBlocked { get; }
     public int? BlockedByNodeId { get; }
+    public int[] Ancestry { get; }
+    public SpecTreeRef[]? SyntheticChildren { get; }
 }

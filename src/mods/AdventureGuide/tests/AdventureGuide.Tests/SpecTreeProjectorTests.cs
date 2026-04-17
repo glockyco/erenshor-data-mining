@@ -178,6 +178,33 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void Unlock_any_of_conditions_are_grouped()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddQuest("quest:unlock-a", dbName: "UNLOCKA")
+            .AddItem("item:key")
+            .AddCharacter("char:npc")
+            .AddUnlockPredicate("char:npc", "quest:unlock-a", group: 1, checkType: 0)
+            .AddUnlockPredicate("char:npc", "item:key", group: 2, checkType: 1)
+            .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:npc" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+
+        int questIndex = FindQuestIndex(guide, "quest:root");
+        var completerRef = projector.GetRootChildren(questIndex).Single(r => r.Kind == SpecTreeKind.Completer);
+        var unlockRefs = projector.GetUnlockChildren(completerRef);
+
+        var anyOf = Assert.Single(unlockRefs);
+        Assert.Equal(SpecTreeKind.Group, anyOf.Kind);
+        Assert.Equal("Any of:", anyOf.Label);
+        var options = projector.GetChildren(anyOf);
+        Assert.Equal(2, options.Count);
+    }
+
+    [Fact]
     public void Prerequisite_node_expands_to_prereq_quest_root_children()
     {
         var guide = new CompiledGuideBuilder()
@@ -233,4 +260,70 @@ public sealed class SpecTreeProjectorTests
             var unlockChildren = projector.GetUnlockChildren(sourceRef);
             Assert.Contains(unlockChildren, child => child.Label == "Requires: quest:gate");
         }
+
+    [Fact]
+    public void Recipe_source_expands_to_required_materials()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:ore")
+            .AddCharacter("char:wolf", isFriendly: false)
+            .AddItemSource("item:ore", "char:wolf", edgeType: (byte)EdgeType.DropsItem, sourceType: (byte)NodeType.Character)
+            .AddItem("item:key")
+            .AddRecipe("recipe:key")
+            .AddItemSource("item:key", "recipe:key", edgeType: (byte)EdgeType.Produces, sourceType: (byte)NodeType.Recipe)
+            .AddEdge("recipe:key", "item:ore", EdgeType.RequiresMaterial, quantity: 1)
+            .AddEdge("recipe:key", "item:key", EdgeType.Produces)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:key", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker), null, () => string.Empty);
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var itemRef = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
+        var recipeSource = Assert.Single(projector.GetChildren(itemRef));
+        var materials = projector.GetChildren(recipeSource);
+
+        Assert.Contains(materials, child => child.Kind == SpecTreeKind.Item && child.Label == "Collect: item:ore");
+    }
+
+    [Fact]
+    public void Reward_quest_source_expands_to_reward_quest_tree()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:percy")
+            .AddQuest("quest:percy", dbName: "PERCY", givers: new[] { "char:percy" })
+            .AddEdge("quest:percy", "item:note", EdgeType.RewardsItem)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:note", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker), null, () => string.Empty);
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var itemRef = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
+        var questSource = Assert.Single(projector.GetChildren(itemRef));
+        var questChildren = projector.GetChildren(questSource);
+
+        Assert.Contains(questChildren, child => child.Kind == SpecTreeKind.Giver && child.Label == "Talk to char:percy");
+    }
+
+    [Fact]
+    public void Self_cyclic_unlock_only_target_is_hidden()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:lucian")
+            .AddUnlockPredicate("char:lucian", "quest:root")
+            .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:lucian" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker), null, () => string.Empty);
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var roots = projector.GetRootChildren(rootQuestIndex);
+
+        Assert.DoesNotContain(roots, child => child.Kind == SpecTreeKind.Completer && child.Label.Contains("char:lucian", StringComparison.Ordinal));
+    }
 }
