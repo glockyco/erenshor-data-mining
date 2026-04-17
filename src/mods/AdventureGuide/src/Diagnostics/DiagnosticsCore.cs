@@ -170,6 +170,27 @@ internal sealed class DiagnosticsCore
         return IncidentReportFormatter.FormatDetailed(bundle);
     }
 
+    public string FormatDetailedIncidentAt(int index)
+    {
+        var incidents = GetRecentIncidents();
+        if (incidents.Count == 0)
+            return "No incidents in history.";
+        
+        // Clamp index safely
+        int clampedIndex = Math.Max(0, Math.Min(index, incidents.Count - 1));
+        return IncidentReportFormatter.FormatDetailed(incidents[clampedIndex]);
+    }
+
+    public string FormatIncidentListLabel(int index)
+    {
+        var incidents = GetRecentIncidents();
+        if (index < 0 || index >= incidents.Count)
+            return $"[{index}] (invalid)";
+        
+        var incident = incidents[index].Incident;
+        return $"[{index}] {incident.Kind} - {ToMilliseconds(incident.TriggerElapsedTicks):F1} ms";
+    }
+
     public double GetLastSpanMilliseconds(DiagnosticSpanKind kind)
     {
         var spans = GetRecentSpans();

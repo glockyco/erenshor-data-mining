@@ -208,4 +208,88 @@ public sealed class DiagnosticsCoreTests
             bundle => Assert.Equal("quest:2", bundle.Incident.TriggerPrimaryKey)
         );
     }
+
+    [Fact]
+    public void FormatDetailedIncidentAt_ReturnsFormattedIncidentAtIndex()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
+            frameStallTicks: 50,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(eventCapacity: 8, spanCapacity: 8, incidentCapacity: 3, thresholds);
+
+        // Create two frame hitch incidents
+        for (int i = 0; i < 2; i++)
+        {
+            var token = core.BeginSpan(
+                DiagnosticSpanKind.NavSelectorTick,
+                DiagnosticsContext.Root(DiagnosticTrigger.NavSetChanged, correlationId: i + 1),
+                primaryKey: $"quest:{i}"
+            );
+            core.EndSpan(token, elapsedTicks: 5);
+        }
+
+        // FormatDetailedIncidentAt should return a non-empty formatted string for valid indices
+        var formatted = core.FormatDetailedIncidentAt(0);
+        Assert.NotEmpty(formatted);
+        Assert.NotEqual("No incidents in history.", formatted);
+    }
+
+    [Fact]
+    public void FormatDetailedIncidentAt_ReturnsMessageWhenNoIncidents()
+    {
+        var core = new DiagnosticsCore(
+            eventCapacity: 8,
+            spanCapacity: 8,
+            incidentCapacity: 8,
+            incidentThresholds: IncidentThresholds.Disabled
+        );
+
+        var formatted = core.FormatDetailedIncidentAt(0);
+        Assert.Equal("No incidents in history.", formatted);
+    }
+
+    [Fact]
+    public void FormatIncidentListLabel_ReturnsLabelWithKindAndMilliseconds()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
+            frameStallTicks: 50,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(eventCapacity: 8, spanCapacity: 8, incidentCapacity: 3, thresholds);
+
+        // Create a frame hitch incident
+        var token = core.BeginSpan(
+            DiagnosticSpanKind.NavSelectorTick,
+            DiagnosticsContext.Root(DiagnosticTrigger.NavSetChanged),
+            primaryKey: "quest:test"
+        );
+        core.EndSpan(token, elapsedTicks: 5);
+
+        // FormatIncidentListLabel should return a formatted label with index, kind, and time
+        var label = core.FormatIncidentListLabel(0);
+        Assert.StartsWith("[0]", label);
+        Assert.Contains("FrameHitch", label);
+        Assert.Contains("ms", label);
+    }
+
+    [Fact]
+    public void FormatIncidentListLabel_ReturnsInvalidForOutOfRangeIndex()
+    {
+        var core = new DiagnosticsCore(
+            eventCapacity: 8,
+            spanCapacity: 8,
+            incidentCapacity: 8,
+            incidentThresholds: IncidentThresholds.Disabled
+        );
+
+        var label = core.FormatIncidentListLabel(0);
+        Assert.Equal("[0] (invalid)", label);
+    }
 }
