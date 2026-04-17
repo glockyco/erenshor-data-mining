@@ -33,10 +33,15 @@ public sealed class Plugin : BaseUnityPlugin
     internal static ManualLogSource Log { get; private set; } = null!;
 
     private const int DiagnosticsBufferCapacity = 512;
+    private const int DiagnosticsIncidentCapacity = 12;
     private const int DiagnosticsRebuildStormCount = 5;
     private const int DiagnosticsResolutionExplosionTargetCount = 200;
-    private static readonly long DiagnosticsFrameHitchThresholdTicks = Stopwatch.Frequency / 20;
-    private static readonly long DiagnosticsFrameStallThresholdTicks = Stopwatch.Frequency / 4;
+    private const int DiagnosticsFrameHitchThresholdMs = 100;
+    private const int DiagnosticsFrameStallThresholdMs = 250;
+    private static readonly long DiagnosticsFrameHitchThresholdTicks =
+        Stopwatch.Frequency * DiagnosticsFrameHitchThresholdMs / 1000;
+    private static readonly long DiagnosticsFrameStallThresholdTicks =
+        Stopwatch.Frequency * DiagnosticsFrameStallThresholdMs / 1000;
     private static readonly long DiagnosticsRebuildStormWindowTicks = Stopwatch.Frequency * 2;
 
     private Harmony? _harmony;
@@ -113,7 +118,7 @@ public sealed class Plugin : BaseUnityPlugin
         _diagnostics = new DiagnosticsCore(
             eventCapacity: DiagnosticsBufferCapacity,
             spanCapacity: DiagnosticsBufferCapacity,
-            incidentCapacity: 32,
+            incidentCapacity: DiagnosticsIncidentCapacity,
             incidentThresholds: new IncidentThresholds(
                 frameHitchTicks: DiagnosticsFrameHitchThresholdTicks,
                 frameStallTicks: DiagnosticsFrameStallThresholdTicks,

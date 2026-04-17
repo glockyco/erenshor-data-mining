@@ -69,6 +69,31 @@ public sealed class DiagnosticsCoreTests
     }
 
     [Fact]
+    public void EndSpan_UsesHitchThresholdBeforeStallThreshold()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 10,
+            frameStallTicks: 100,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(16, 16, 4, thresholds);
+        var token = core.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            DiagnosticsContext.Root(DiagnosticTrigger.InventoryChanged, correlationId: 4),
+            primaryKey: "quest:lunchbag1"
+        );
+
+        core.EndSpan(token, elapsedTicks: 25, value0: 11, value1: 3);
+
+        var bundle = core.TryGetLastIncidentBundle();
+        Assert.NotNull(bundle);
+        Assert.Equal(DiagnosticIncidentKind.FrameHitch, bundle!.Incident.Kind);
+        Assert.Equal(10, bundle.Incident.ThresholdTicks);
+    }
+
+    [Fact]
     public void EndSpan_FrameStallIncidentIncludesSpanKindAndPrimaryKey()
     {
         var thresholds = new IncidentThresholds(
