@@ -734,15 +734,18 @@ public sealed class SpecTreeProjector
         return false;
     }
 
+    internal void ResetProjectionCaches()
+    {
+        _childCache.Clear();
+        _unlockCache.Clear();
+        _visibilityCache.Clear();
+        _activeProjectionKeys.Clear();
+    }
+
     private void EnterProjection()
     {
         if (_projectionDepth == 0)
-        {
-            _childCache.Clear();
-            _unlockCache.Clear();
-            _visibilityCache.Clear();
             _activeProjectionKeys.Clear();
-        }
 
         _projectionDepth++;
     }

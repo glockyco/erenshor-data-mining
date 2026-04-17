@@ -176,6 +176,27 @@ public sealed class ViewRendererTextTests
     }
 
     [Fact]
+    public void GetRootChildrenForDetail_ReusesQuestRootAfterSwitchingBack()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:giver-a")
+            .AddCharacter("char:giver-b")
+            .AddQuest("quest:first", dbName: "FIRST", givers: new[] { "char:giver-a" })
+            .AddQuest("quest:second", dbName: "SECOND", givers: new[] { "char:giver-b" })
+            .Build();
+        var fixture = CreateRendererFixture(guide);
+        int firstQuestIndex = FindQuestIndex(guide, "FIRST");
+        int secondQuestIndex = FindQuestIndex(guide, "SECOND");
+
+        var first = fixture.Renderer.GetRootChildrenForDetail(firstQuestIndex);
+        var second = fixture.Renderer.GetRootChildrenForDetail(secondQuestIndex);
+        var firstAgain = fixture.Renderer.GetRootChildrenForDetail(firstQuestIndex);
+
+        Assert.NotSame(first, second);
+        Assert.Same(first, firstAgain);
+    }
+
+    [Fact]
     public void GetChildrenForDetail_ReusesProjectionUntilTrackerVersionChanges()
     {
         var guide = new CompiledGuideBuilder()

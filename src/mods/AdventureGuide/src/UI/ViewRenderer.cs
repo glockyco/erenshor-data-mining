@@ -15,9 +15,8 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
-    private int? _cachedRootQuestIndex;
     private int _cachedDetailTrackerVersion = -1;
-    private IReadOnlyList<SpecTreeRef> _cachedRootChildren = Array.Empty<SpecTreeRef>();
+    private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _cachedRootChildrenByQuest = new();
     private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedChildren = new(
         StringComparer.Ordinal
     );
@@ -107,12 +106,12 @@ public sealed class ViewRenderer
     internal IReadOnlyList<SpecTreeRef> GetRootChildrenForDetail(int questIndex)
     {
         EnsureDetailProjectionCacheCurrent();
-        if (_cachedRootQuestIndex == questIndex)
-            return _cachedRootChildren;
+        if (_cachedRootChildrenByQuest.TryGetValue(questIndex, out var cachedRoots))
+            return cachedRoots;
 
-        _cachedRootQuestIndex = questIndex;
-        _cachedRootChildren = _specProjector.GetRootChildren(questIndex);
-        return _cachedRootChildren;
+        cachedRoots = _specProjector.GetRootChildren(questIndex);
+        _cachedRootChildrenByQuest[questIndex] = cachedRoots;
+        return cachedRoots;
     }
 
     internal IReadOnlyList<SpecTreeRef> GetUnlockChildrenForDetail(SpecTreeRef treeRef)
@@ -145,10 +144,10 @@ public sealed class ViewRenderer
             return;
 
         _cachedDetailTrackerVersion = _tracker.Version;
-        _cachedRootQuestIndex = null;
-        _cachedRootChildren = Array.Empty<SpecTreeRef>();
+        _cachedRootChildrenByQuest.Clear();
         _cachedChildren.Clear();
         _cachedUnlockChildren.Clear();
+        _specProjector.ResetProjectionCaches();
     }
 
     private static string BuildDetailProjectionKey(string scope, SpecTreeRef treeRef)
