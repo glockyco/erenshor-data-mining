@@ -11,6 +11,7 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(
             eventCapacity: 4,
             spanCapacity: 4,
+            incidentCapacity: 8,
             incidentThresholds: IncidentThresholds.Disabled
         );
 
@@ -44,6 +45,7 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(
             eventCapacity: 8,
             spanCapacity: 8,
+            incidentCapacity: 8,
             incidentThresholds: IncidentThresholds.Disabled
         );
         var context = DiagnosticsContext.Root(
@@ -70,6 +72,7 @@ public sealed class DiagnosticsCoreTests
     public void EndSpan_FrameStallIncidentIncludesSpanKindAndPrimaryKey()
     {
         var thresholds = new IncidentThresholds(
+            frameHitchTicks: long.MaxValue,
             frameStallTicks: 1,
             rebuildStormCount: int.MaxValue,
             rebuildStormWindowTicks: long.MaxValue,
@@ -78,6 +81,7 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(
             eventCapacity: 8,
             spanCapacity: 8,
+            incidentCapacity: 8,
             incidentThresholds: thresholds
         );
 
@@ -100,6 +104,7 @@ public sealed class DiagnosticsCoreTests
     public void RebuildStorm_TriggersIncidentCapture()
     {
         var thresholds = new IncidentThresholds(
+            frameHitchTicks: long.MaxValue,
             frameStallTicks: long.MaxValue,
             rebuildStormCount: 3,
             rebuildStormWindowTicks: 100,
@@ -108,6 +113,7 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(
             eventCapacity: 64,
             spanCapacity: 64,
+            incidentCapacity: 8,
             incidentThresholds: thresholds
         );
 
@@ -128,5 +134,78 @@ public sealed class DiagnosticsCoreTests
         var incident = core.TryGetLastIncident();
         Assert.NotNull(incident);
         Assert.Equal(DiagnosticIncidentKind.RebuildStorm, incident!.Kind);
+    }
+
+    [Fact]
+    public void EndSpan_FrameHitchIncidentRetainsTriggerMetadataAndCorrelationWindow()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 10,
+            frameStallTicks: 100,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(eventCapacity: 16, spanCapacity: 16, incidentCapacity: 4, thresholds);
+        var context = DiagnosticsContext.Root(DiagnosticTrigger.InventoryChanged, correlationId: 42);
+
+        core.RecordEvent(
+            new DiagnosticEvent(
+                DiagnosticEventKind.InventoryChanged,
+                context,
+                timestampTicks: 10,
+                primaryKey: "quest:lunchbag1",
+                value0: 1,
+                value1: 0
+            )
+        );
+
+        var trigger = core.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            context,
+            primaryKey: "quest:lunchbag1"
+        );
+        core.EndSpan(trigger, elapsedTicks: 25, value0: 12, value1: 3);
+
+        var bundle = core.TryGetLastIncidentBundle();
+        Assert.NotNull(bundle);
+        Assert.Equal(DiagnosticIncidentKind.FrameHitch, bundle!.Incident.Kind);
+        Assert.Equal(DiagnosticSpanKind.SpecTreeProjectRoot, bundle.Incident.TriggerSpanKind);
+        Assert.Equal("quest:lunchbag1", bundle.Incident.TriggerPrimaryKey);
+        Assert.Equal(25, bundle.Incident.TriggerElapsedTicks);
+        Assert.Equal(10, bundle.Incident.ThresholdTicks);
+        Assert.Equal(42, bundle.Incident.CorrelationId);
+        Assert.Contains(bundle.Spans, span => span.PrimaryKey == "quest:lunchbag1");
+        Assert.Contains(bundle.Events, evt => evt.PrimaryKey == "quest:lunchbag1");
+    }
+
+    [Fact]
+    public void IncidentHistory_KeepsNewestBundlesWithinConfiguredWindow()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
+            frameStallTicks: 50,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(eventCapacity: 8, spanCapacity: 8, incidentCapacity: 2, thresholds);
+
+        for (int i = 0; i < 3; i++)
+        {
+            var token = core.BeginSpan(
+                DiagnosticSpanKind.NavSelectorTick,
+                DiagnosticsContext.Root(DiagnosticTrigger.NavSetChanged, correlationId: i + 1),
+                primaryKey: $"quest:{i}"
+            );
+            core.EndSpan(token, elapsedTicks: 5);
+        }
+
+        var incidents = core.GetRecentIncidents();
+        Assert.Collection(
+            incidents,
+            bundle => Assert.Equal("quest:1", bundle.Incident.TriggerPrimaryKey),
+            bundle => Assert.Equal("quest:2", bundle.Incident.TriggerPrimaryKey)
+        );
     }
 }

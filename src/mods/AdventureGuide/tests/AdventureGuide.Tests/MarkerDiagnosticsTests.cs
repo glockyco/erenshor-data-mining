@@ -14,7 +14,7 @@ public sealed class MarkerDiagnosticsTests
     [Fact]
     public void ApplyGuideChangeSet_RecordsFullRebuildReasonForSceneChanges()
     {
-        var marker = CreateMarkerComputer(new DiagnosticsCore(64, 64, IncidentThresholds.Disabled));
+        var marker = CreateMarkerComputer(new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled));
 
         marker.ApplyGuideChangeSet(
             new GuideChangeSet(
@@ -38,7 +38,7 @@ public sealed class MarkerDiagnosticsTests
     public void Recompute_RecordsTopQuestCostSample()
     {
         var marker = CreateMarkerComputer(
-            new DiagnosticsCore(128, 128, IncidentThresholds.Disabled)
+            new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled)
         );
 
         marker.MarkDirty();

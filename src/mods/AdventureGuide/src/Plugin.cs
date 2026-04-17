@@ -35,6 +35,7 @@ public sealed class Plugin : BaseUnityPlugin
     private const int DiagnosticsBufferCapacity = 512;
     private const int DiagnosticsRebuildStormCount = 5;
     private const int DiagnosticsResolutionExplosionTargetCount = 200;
+    private static readonly long DiagnosticsFrameHitchThresholdTicks = Stopwatch.Frequency / 20;
     private static readonly long DiagnosticsFrameStallThresholdTicks = Stopwatch.Frequency / 4;
     private static readonly long DiagnosticsRebuildStormWindowTicks = Stopwatch.Frequency * 2;
 
@@ -112,7 +113,9 @@ public sealed class Plugin : BaseUnityPlugin
         _diagnostics = new DiagnosticsCore(
             eventCapacity: DiagnosticsBufferCapacity,
             spanCapacity: DiagnosticsBufferCapacity,
+            incidentCapacity: 32,
             incidentThresholds: new IncidentThresholds(
+                frameHitchTicks: DiagnosticsFrameHitchThresholdTicks,
                 frameStallTicks: DiagnosticsFrameStallThresholdTicks,
                 rebuildStormCount: DiagnosticsRebuildStormCount,
                 rebuildStormWindowTicks: DiagnosticsRebuildStormWindowTicks,

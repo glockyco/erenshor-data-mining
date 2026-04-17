@@ -18,7 +18,7 @@ public sealed class DiagnosticsLoggingTests
         var logs = new List<string>();
         GuideDiagnostics.LogInfo = logs.Add;
 
-        var core = new DiagnosticsCore(64, 64, IncidentThresholds.Disabled);
+        var core = new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled);
         var marker = CreateMarkerComputer(core);
 
         for (int i = 0; i < 5; i++)

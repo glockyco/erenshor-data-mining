@@ -37,7 +37,7 @@ public sealed class TrackerDiagnosticsTests
             phases,
             frontier,
             sourceResolver,
-            new DiagnosticsCore(64, 64, IncidentThresholds.Disabled)
+            new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
         );
         var dependencyEngine = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, dependencyEngine);
@@ -124,7 +124,7 @@ public sealed class TrackerDiagnosticsTests
             new UnlockPredicateEvaluator(guide, tracker),
             null,
             () => string.Empty,
-            new DiagnosticsCore(64, 64, IncidentThresholds.Disabled)
+            new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
         );
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");

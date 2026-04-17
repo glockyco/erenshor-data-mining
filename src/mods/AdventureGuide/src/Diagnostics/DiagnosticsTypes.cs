@@ -43,6 +43,7 @@ internal enum DiagnosticTrigger
 
 internal enum DiagnosticIncidentKind
 {
+    FrameHitch,
     FrameStall,
     RebuildStorm,
     ResolutionExplosion,
@@ -156,20 +157,24 @@ internal readonly struct SpanToken
 internal sealed class IncidentThresholds
 {
     public static IncidentThresholds Disabled { get; } =
-        new(long.MaxValue, int.MaxValue, long.MaxValue, int.MaxValue);
+        new(long.MaxValue, long.MaxValue, int.MaxValue, long.MaxValue, int.MaxValue);
 
     public IncidentThresholds(
+        long frameHitchTicks,
         long frameStallTicks,
         int rebuildStormCount,
         long rebuildStormWindowTicks,
         int resolutionExplosionTargetCount
     )
     {
+        FrameHitchTicks = frameHitchTicks;
         FrameStallTicks = frameStallTicks;
         RebuildStormCount = rebuildStormCount;
         RebuildStormWindowTicks = rebuildStormWindowTicks;
         ResolutionExplosionTargetCount = resolutionExplosionTargetCount;
     }
+
+    public long FrameHitchTicks { get; }
 
     public long FrameStallTicks { get; }
 
@@ -185,12 +190,24 @@ internal sealed class DiagnosticIncident
     public DiagnosticIncident(
         DiagnosticIncidentKind kind,
         long timestampTicks,
-        string? summary = null
+        string? summary = null,
+        DiagnosticSpanKind? triggerSpanKind = null,
+        string? triggerPrimaryKey = null,
+        long triggerElapsedTicks = 0,
+        long thresholdTicks = 0,
+        int correlationId = 0,
+        int parentSpanId = 0
     )
     {
         Kind = kind;
         TimestampTicks = timestampTicks;
         Summary = summary;
+        TriggerSpanKind = triggerSpanKind;
+        TriggerPrimaryKey = triggerPrimaryKey;
+        TriggerElapsedTicks = triggerElapsedTicks;
+        ThresholdTicks = thresholdTicks;
+        CorrelationId = correlationId;
+        ParentSpanId = parentSpanId;
     }
 
     public DiagnosticIncidentKind Kind { get; }
@@ -198,6 +215,18 @@ internal sealed class DiagnosticIncident
     public long TimestampTicks { get; }
 
     public string? Summary { get; }
+
+    public DiagnosticSpanKind? TriggerSpanKind { get; }
+
+    public string? TriggerPrimaryKey { get; }
+
+    public long TriggerElapsedTicks { get; }
+
+    public long ThresholdTicks { get; }
+
+    public int CorrelationId { get; }
+
+    public int ParentSpanId { get; }
 
     public static DiagnosticIncident CreateForTests(
         DiagnosticIncidentKind kind,

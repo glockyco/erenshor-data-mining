@@ -9,12 +9,13 @@ public sealed class DebugAPIDiagnosticsTests
     public void DumpPerfSummary_ReturnsIncidentAwareSummary()
     {
         var thresholds = new IncidentThresholds(
+            frameHitchTicks: 1,
             frameStallTicks: 10,
             rebuildStormCount: int.MaxValue,
             rebuildStormWindowTicks: long.MaxValue,
             resolutionExplosionTargetCount: int.MaxValue
         );
-        var core = new DiagnosticsCore(16, 16, thresholds);
+        var core = new DiagnosticsCore(16, 16, 8, thresholds);
         var token = core.BeginSpan(
             DiagnosticSpanKind.MarkerRecompute,
             DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged),
@@ -33,7 +34,7 @@ public sealed class DebugAPIDiagnosticsTests
     [Fact]
     public void DumpLastIncident_ReturnsNoIncident_WhenNothingCaptured()
     {
-        DebugAPI.Diagnostics = new DiagnosticsCore(16, 16, IncidentThresholds.Disabled);
+        DebugAPI.Diagnostics = new DiagnosticsCore(16, 16, 8, IncidentThresholds.Disabled);
 
         Assert.Contains(
             "No incident",

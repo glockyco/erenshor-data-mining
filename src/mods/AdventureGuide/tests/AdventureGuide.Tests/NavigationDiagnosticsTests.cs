@@ -12,7 +12,7 @@ public sealed class NavigationDiagnosticsTests
     [Fact]
     public void Tick_RecordsForcedRefreshReason_WhenNavSetVersionChanges()
     {
-        var core = new DiagnosticsCore(128, 128, IncidentThresholds.Disabled);
+        var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
         var selector = new NavigationTargetSelector(
             resolver: (_, _) => Array.Empty<ResolvedQuestTarget>(),
             router: SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router,
@@ -58,7 +58,7 @@ public sealed class NavigationDiagnosticsTests
             unlocks,
             new StubLivePositionProvider()
         );
-        var core = new DiagnosticsCore(128, 128, IncidentThresholds.Disabled);
+        var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
         var resolver = new NavigationTargetResolver(
             guide,
             frontier,
