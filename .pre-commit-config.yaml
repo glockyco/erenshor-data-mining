@@ -66,10 +66,9 @@ repos:
     hooks:
       - id: csharpier
         name: csharpier
-        entry: bash -c 'cd src/mods/InteractiveMapCompanion && dotnet tool restore --verbosity quiet && dotnet csharpier .'
+        entry: bash src/mods/run-csharpier.sh
         language: system
-        files: ^src/mods/.*\.cs$
-        pass_filenames: false
+        files: ^src/mods/[^/]+/.*\.cs$
 
   # Security
   - repo: https://github.com/gitleaks/gitleaks
