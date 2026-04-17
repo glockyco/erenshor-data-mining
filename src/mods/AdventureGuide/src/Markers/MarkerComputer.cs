@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
@@ -17,6 +18,7 @@ namespace AdventureGuide.Markers;
 public sealed class MarkerComputer
 {
     private const float StaticHeightOffset = 2.5f;
+    private const int MaxRecentDiagnosticSamples = 8;
 
     private readonly QuestStateTracker _tracker;
     private readonly LiveStateTracker _liveState;
@@ -26,19 +28,24 @@ public sealed class MarkerComputer
     private readonly CompiledGuideModel _compiledGuide;
     private readonly EffectiveFrontier _effectiveFrontier;
     private readonly SourceResolver _sourceResolver;
+    private readonly DiagnosticsCore? _diagnostics;
 
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, Dictionary<string, MarkerEntry>> _contributionsByNode = new(StringComparer.Ordinal);
     private readonly Dictionary<string, HashSet<string>> _nodesByQuest = new(StringComparer.Ordinal);
     private readonly HashSet<string> _pendingQuestKeys = new(StringComparer.Ordinal);
+    private readonly List<QuestCostSample> _recentQuestCosts = new();
+    private readonly List<MarkerRebuildModeSample> _recentModes = new();
 
     private bool _dirty = true;
     private bool _fullRebuild = true;
+    private DiagnosticTrigger _lastDiagnosticTrigger = DiagnosticTrigger.Unknown;
+    private long _lastRecomputeTicks;
 
     public IReadOnlyList<MarkerEntry> Markers => _markers;
     public int Version { get; private set; }
 
-    public MarkerComputer(
+    internal MarkerComputer(
         CompiledGuideModel compiledGuide,
         QuestStateTracker tracker,
         LiveStateTracker liveState,
@@ -46,7 +53,8 @@ public sealed class MarkerComputer
         TrackerState trackerState,
         MarkerQuestTargetResolver questTargetResolver,
         EffectiveFrontier effectiveFrontier,
-        SourceResolver sourceResolver)
+        SourceResolver sourceResolver,
+        DiagnosticsCore? diagnostics = null)
     {
         _compiledGuide = compiledGuide;
         _tracker = tracker;
@@ -56,6 +64,7 @@ public sealed class MarkerComputer
         _questTargetResolver = questTargetResolver;
         _effectiveFrontier = effectiveFrontier;
         _sourceResolver = sourceResolver;
+        _diagnostics = diagnostics;
 
         _navSet.Changed += OnExternalSelectionChanged;
         _trackerState.Tracked += OnTrackedChanged;
@@ -69,26 +78,46 @@ public sealed class MarkerComputer
         _trackerState.Untracked -= OnTrackedChanged;
     }
 
-    private void OnExternalSelectionChanged() => MarkDirty();
-    private void OnTrackedChanged(string _) => MarkDirty();
+    private void OnExternalSelectionChanged() => MarkDirty(DiagnosticTrigger.NavSetChanged);
+    private void OnTrackedChanged(string _) => MarkDirty(DiagnosticTrigger.TrackedQuestSetChanged);
 
     public void ApplyGuideChangeSet(GuideChangeSet changeSet)
     {
-        var plan = MarkerChangePlanner.Plan(changeSet);
-        if (!plan.FullRebuild && plan.AffectedQuestKeys.Count == 0)
-            return;
-
-        _dirty = true;
-
-        if (plan.FullRebuild)
+        var trigger = ResolveTrigger(changeSet);
+        var context = DiagnosticsContext.Root(trigger);
+        var token = _diagnostics?.BeginSpan(DiagnosticSpanKind.MarkerApplyGuideChangeSet, context, primaryKey: "MarkerComputer");
+        long startTick = Stopwatch.GetTimestamp();
+        try
         {
-            _fullRebuild = true;
-            _pendingQuestKeys.Clear();
-            return;
-        }
+            var plan = MarkerChangePlanner.Plan(changeSet);
+            if (!plan.FullRebuild && plan.AffectedQuestKeys.Count == 0)
+                return;
 
-        foreach (var questKey in plan.AffectedQuestKeys)
-            _pendingQuestKeys.Add(questKey);
+            _dirty = true;
+            _lastDiagnosticTrigger = trigger;
+            _diagnostics?.RecordEvent(new DiagnosticEvent(
+                DiagnosticEventKind.MarkerRebuildRequested,
+                context,
+                timestampTicks: startTick,
+                primaryKey: "MarkerComputer",
+                value0: plan.FullRebuild ? 1 : 0,
+                value1: plan.AffectedQuestKeys.Count));
+
+            if (plan.FullRebuild)
+            {
+                _fullRebuild = true;
+                _pendingQuestKeys.Clear();
+                return;
+            }
+
+            foreach (var questKey in plan.AffectedQuestKeys)
+                _pendingQuestKeys.Add(questKey);
+        }
+        finally
+        {
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _fullRebuild ? 1 : 0, value1: _pendingQuestKeys.Count);
+        }
     }
 
     /// <summary>
@@ -97,8 +126,21 @@ public sealed class MarkerComputer
     /// </summary>
     public void MarkDirty()
     {
+        MarkDirty(DiagnosticTrigger.LiveWorldChanged);
+    }
+
+    private void MarkDirty(DiagnosticTrigger trigger)
+    {
         _dirty = true;
         _fullRebuild = true;
+        _lastDiagnosticTrigger = trigger;
+        _diagnostics?.RecordEvent(new DiagnosticEvent(
+            DiagnosticEventKind.MarkerRebuildRequested,
+            DiagnosticsContext.Root(trigger),
+            timestampTicks: Stopwatch.GetTimestamp(),
+            primaryKey: "MarkerComputer",
+            value0: 1,
+            value1: _pendingQuestKeys.Count));
     }
 
     public void Recompute()
@@ -106,117 +148,157 @@ public sealed class MarkerComputer
         if (!_dirty)
             return;
 
-        _dirty = false;
-
-        if (string.IsNullOrEmpty(_tracker.CurrentZone))
+        var mode = _fullRebuild ? MarkerRebuildMode.Full : MarkerRebuildMode.Incremental;
+        var context = DiagnosticsContext.Root(_lastDiagnosticTrigger);
+        var token = _diagnostics?.BeginSpan(DiagnosticSpanKind.MarkerRecompute, context, primaryKey: "MarkerComputer");
+        long startTick = Stopwatch.GetTimestamp();
+        try
         {
-            ClearAll();
+            _dirty = false;
+
+            if (string.IsNullOrEmpty(_tracker.CurrentZone))
+            {
+                ClearAll();
+                PublishMarkers();
+                return;
+            }
+
+            if (_fullRebuild)
+            {
+                RebuildCurrentScene();
+                _fullRebuild = false;
+                _pendingQuestKeys.Clear();
+            }
+            else
+            {
+                foreach (var questKey in _pendingQuestKeys)
+                    RebuildQuestMarkers(questKey);
+                _pendingQuestKeys.Clear();
+            }
+
             PublishMarkers();
-            return;
         }
-
-        if (_fullRebuild)
+        finally
         {
-            RebuildCurrentScene();
-            _fullRebuild = false;
-            _pendingQuestKeys.Clear();
+            _lastRecomputeTicks = Stopwatch.GetTimestamp() - startTick;
+            AddRecentMode(mode);
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, _lastRecomputeTicks, value0: mode == MarkerRebuildMode.Full ? 1 : 0, value1: _markers.Count);
         }
-        else
-        {
-            foreach (var questKey in _pendingQuestKeys)
-                RebuildQuestMarkers(questKey);
-            _pendingQuestKeys.Clear();
-        }
-
-        PublishMarkers();
     }
 
     private void RebuildCurrentScene()
     {
-        ClearAll();
-
-        var sceneQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var blueprint in GetQuestGiversInCurrentScene())
-            sceneQuestKeys.Add(blueprint.QuestKey);
-
-        foreach (var questDbName in _tracker.GetActionableQuestDbNames())
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.MarkerRebuildCurrentScene,
+            DiagnosticsContext.Root(_lastDiagnosticTrigger),
+            primaryKey: _tracker.CurrentZone);
+        long startTick = Stopwatch.GetTimestamp();
+        try
         {
-            var quest = _compiledGuide.GetQuestByDbName(questDbName);
-            if (quest != null)
-                sceneQuestKeys.Add(quest.Key);
-        }
+            ClearAll();
 
-        // Include quests the player explicitly selected as NAV targets or
-        // pinned to the tracker, even if they are not in the quest log.
-        foreach (var nodeKey in _navSet.Keys)
+            var sceneQuestKeys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var blueprint in GetQuestGiversInCurrentScene())
+                sceneQuestKeys.Add(blueprint.QuestKey);
+
+            foreach (var questDbName in _tracker.GetActionableQuestDbNames())
+            {
+                var quest = _compiledGuide.GetQuestByDbName(questDbName);
+                if (quest != null)
+                    sceneQuestKeys.Add(quest.Key);
+            }
+
+            foreach (var nodeKey in _navSet.Keys)
+            {
+                var node = _compiledGuide.GetNode(nodeKey);
+                if (node?.Type == NodeType.Quest)
+                    sceneQuestKeys.Add(node.Key);
+            }
+
+            foreach (var dbName in _trackerState.TrackedQuests)
+            {
+                var quest = _compiledGuide.GetQuestByDbName(dbName);
+                if (quest != null)
+                    sceneQuestKeys.Add(quest.Key);
+            }
+
+            foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
+            {
+                var quest = _compiledGuide.GetQuestByDbName(dbName);
+                if (quest != null)
+                    sceneQuestKeys.Add(quest.Key);
+            }
+
+            var sw = Stopwatch.StartNew();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Cold marker rebuild: {sceneQuestKeys.Count} quests");
+            double totalMs = 0;
+            _recentQuestCosts.Clear();
+
+            foreach (var questKey in sceneQuestKeys)
+            {
+                sw.Restart();
+                RebuildQuestMarkers(questKey);
+                sw.Stop();
+                double ms = sw.Elapsed.TotalMilliseconds;
+                totalMs += ms;
+                AddQuestCostSample(questKey, sw.ElapsedTicks);
+
+                var quest = _compiledGuide.GetNode(questKey);
+                if (ms >= 1.0)
+                    sb.AppendLine($"  {quest?.DisplayName ?? questKey}: {ms:F1} ms");
+            }
+
+            sb.AppendLine($"  total: {totalMs:F0} ms");
+            GuideDiagnostics.LogInfo?.Invoke(sb.ToString());
+        }
+        finally
         {
-            var node = _compiledGuide.GetNode(nodeKey);
-            if (node?.Type == NodeType.Quest)
-                sceneQuestKeys.Add(node.Key);
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick, value0: _recentQuestCosts.Count, value1: _markers.Count);
         }
-
-        foreach (var dbName in _trackerState.TrackedQuests)
-        {
-            var quest = _compiledGuide.GetQuestByDbName(dbName);
-            if (quest != null)
-                sceneQuestKeys.Add(quest.Key);
-        }
-
-        foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
-        {
-            var quest = _compiledGuide.GetQuestByDbName(dbName);
-            if (quest != null)
-                sceneQuestKeys.Add(quest.Key);
-        }
-
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Cold marker rebuild: {sceneQuestKeys.Count} quests");
-        double totalMs = 0;
-
-        foreach (var questKey in sceneQuestKeys)
-        {
-            sw.Restart();
-            RebuildQuestMarkers(questKey);
-            sw.Stop();
-            double ms = sw.Elapsed.TotalMilliseconds;
-            totalMs += ms;
-
-            var quest = _compiledGuide.GetNode(questKey);
-            if (ms >= 1.0)
-                sb.AppendLine($"  {quest?.DisplayName ?? questKey}: {ms:F1} ms");
-        }
-
-        sb.AppendLine($"  total: {totalMs:F0} ms");
-        GuideDiagnostics.LogInfo?.Invoke(sb.ToString());
     }
 
     private void RebuildQuestMarkers(string questKey)
     {
-        RemoveQuestContributions(questKey);
-
-        var quest = _compiledGuide.GetNode(questKey);
-        if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
-            return;
-
-        bool explicitlySelected = _navSet.Contains(quest.Key)
-            || _trackerState.IsTracked(quest.DbName);
-
-        if (explicitlySelected || _tracker.IsActive(quest.DbName))
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.MarkerRebuildQuest,
+            DiagnosticsContext.Root(_lastDiagnosticTrigger),
+            primaryKey: questKey);
+        long startTick = Stopwatch.GetTimestamp();
+        try
         {
-            var compiledTargets = _questTargetResolver.Resolve(quest.DbName, _tracker.CurrentZone);
-            EmitActiveQuestMarkers(quest, compiledTargets);
-            return;
-        }
+            RemoveQuestContributions(questKey);
 
-        if (_tracker.IsImplicitlyAvailable(quest.DbName))
+            var quest = _compiledGuide.GetNode(questKey);
+            if (quest == null || quest.Type != NodeType.Quest || string.IsNullOrEmpty(quest.DbName))
+                return;
+
+            bool explicitlySelected = _navSet.Contains(quest.Key)
+                || _trackerState.IsTracked(quest.DbName);
+
+            if (explicitlySelected || _tracker.IsActive(quest.DbName))
+            {
+                var compiledTargets = _questTargetResolver.Resolve(quest.DbName, _tracker.CurrentZone);
+                EmitActiveQuestMarkers(quest, compiledTargets);
+                return;
+            }
+
+            if (_tracker.IsImplicitlyAvailable(quest.DbName))
+            {
+                EmitImplicitCompletionMarkers(quest);
+                return;
+            }
+
+            if (!_tracker.IsCompleted(quest.DbName) || quest.Repeatable)
+                EmitQuestGiverMarkers(quest);
+        }
+        finally
         {
-            EmitImplicitCompletionMarkers(quest);
-            return;
+            if (token != null)
+                _diagnostics!.EndSpan(token.Value, Stopwatch.GetTimestamp() - startTick);
         }
-
-        if (!_tracker.IsCompleted(quest.DbName) || quest.Repeatable)
-            EmitQuestGiverMarkers(quest);
     }
 
     private void EmitActiveQuestMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
@@ -1113,6 +1195,34 @@ public sealed class MarkerComputer
         IsLootChestTarget = entry.IsLootChestTarget,
     };
 
+    private static DiagnosticTrigger ResolveTrigger(GuideChangeSet changeSet)
+    {
+        if (changeSet.SceneChanged)
+            return DiagnosticTrigger.SceneChanged;
+        if (changeSet.LiveWorldChanged)
+            return DiagnosticTrigger.LiveWorldChanged;
+        if (changeSet.InventoryChanged)
+            return DiagnosticTrigger.InventoryChanged;
+        if (changeSet.QuestLogChanged)
+            return DiagnosticTrigger.QuestLogChanged;
+        return DiagnosticTrigger.Unknown;
+    }
+
+    private void AddQuestCostSample(string questKey, long elapsedTicks)
+    {
+        _recentQuestCosts.Add(new QuestCostSample(questKey, elapsedTicks));
+        _recentQuestCosts.Sort((left, right) => right.ElapsedTicks.CompareTo(left.ElapsedTicks));
+        if (_recentQuestCosts.Count > MaxRecentDiagnosticSamples)
+            _recentQuestCosts.RemoveRange(MaxRecentDiagnosticSamples, _recentQuestCosts.Count - MaxRecentDiagnosticSamples);
+    }
+
+    private void AddRecentMode(MarkerRebuildMode mode)
+    {
+        _recentModes.Add(new MarkerRebuildModeSample(mode, Stopwatch.GetTimestamp()));
+        if (_recentModes.Count > MaxRecentDiagnosticSamples)
+            _recentModes.RemoveRange(0, _recentModes.Count - MaxRecentDiagnosticSamples);
+    }
+
     private static string BuildNightLockedText(string displayName)
     {
         int hour = GameData.Time.GetHour();
@@ -1132,9 +1242,17 @@ public sealed class MarkerComputer
         return $"~{minutes}:{remainingSeconds:D2}";
     }
 
-    /// <summary>
-    /// Returns the quest keys contributing to a given node key, for diagnostic display.
-    /// </summary>
+    internal MarkerDiagnosticsSnapshot ExportDiagnosticsSnapshot()
+    {
+        return new MarkerDiagnosticsSnapshot(
+            fullRebuild: _fullRebuild,
+            pendingQuestCount: _pendingQuestKeys.Count,
+            lastReason: _lastDiagnosticTrigger,
+            lastDurationTicks: _lastRecomputeTicks,
+            topQuestCosts: _recentQuestCosts.ToArray(),
+            recentModes: _recentModes.ToArray());
+    }
+
     internal IReadOnlyCollection<string>? GetContributingQuestKeys(string nodeKey)
     {
         if (_contributionsByNode.TryGetValue(nodeKey, out var byQuest))

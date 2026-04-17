@@ -32,6 +32,12 @@ public sealed class Plugin : BaseUnityPlugin
 {
     internal static ManualLogSource Log { get; private set; } = null!;
 
+    private const int DiagnosticsBufferCapacity = 512;
+    private const int DiagnosticsRebuildStormCount = 5;
+    private const int DiagnosticsResolutionExplosionTargetCount = 200;
+    private static readonly long DiagnosticsFrameStallThresholdTicks = Stopwatch.Frequency / 4;
+    private static readonly long DiagnosticsRebuildStormWindowTicks = Stopwatch.Frequency * 2;
+
     private Harmony? _harmony;
     private GuideConfig? _config;
     private QuestStateTracker? _questTracker;
@@ -63,6 +69,7 @@ public sealed class Plugin : BaseUnityPlugin
     private SourceResolver? _compiledSourceResolver;
     private MarkerQuestTargetResolver? _markerQuestTargetResolver;
     private NavigationTargetResolver? _navigationTargetResolver;
+    private DiagnosticsCore? _diagnostics;
     private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
     private int _lastNavSetVersion = -1;
@@ -101,6 +108,14 @@ public sealed class Plugin : BaseUnityPlugin
         _compiledGuide = CompiledGuideLoader.Load(Log);
         var graphLoadMs = graphSw.Elapsed.TotalMilliseconds;
         _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
+        _diagnostics = new DiagnosticsCore(
+            eventCapacity: DiagnosticsBufferCapacity,
+            spanCapacity: DiagnosticsBufferCapacity,
+            incidentThresholds: new IncidentThresholds(
+                frameStallTicks: DiagnosticsFrameStallThresholdTicks,
+                rebuildStormCount: DiagnosticsRebuildStormCount,
+                rebuildStormWindowTicks: DiagnosticsRebuildStormWindowTicks,
+                resolutionExplosionTargetCount: DiagnosticsResolutionExplosionTargetCount));
 
         _dependencyEngine = new GuideDependencyEngine();
         // --- State layer ---
@@ -200,8 +215,15 @@ public sealed class Plugin : BaseUnityPlugin
         // --- Markers layer ---
         _markerPool = new MarkerPool();
         _markerComputer = new MarkerComputer(
-            _compiledGuide, _questTracker, _liveState, _navSet, _trackerState,
-            _markerQuestTargetResolver, _compiledFrontier, _compiledSourceResolver);
+            _compiledGuide,
+            _questTracker,
+            _liveState,
+            _navSet,
+            _trackerState,
+            _markerQuestTargetResolver,
+            _compiledFrontier,
+            _compiledSourceResolver,
+            _diagnostics);
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
         _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
 
