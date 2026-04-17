@@ -1,3 +1,5 @@
+using AdventureGuide.Diagnostics;
+using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.Tests.Helpers;
@@ -5,8 +7,6 @@ using AdventureGuide.UI.Tree;
 using Xunit;
 
 namespace AdventureGuide.Tests;
-
-
 
 public sealed class SpecTreeProjectorTests
 {
@@ -23,7 +23,6 @@ public sealed class SpecTreeProjectorTests
 
         throw new InvalidOperationException($"Quest '{key}' not found in compiled guide.");
     }
-
 
     [Fact]
     public void Root_children_format_player_facing_labels()
@@ -45,7 +44,12 @@ public sealed class SpecTreeProjectorTests
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker));
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty);
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);
@@ -65,14 +69,19 @@ public sealed class SpecTreeProjectorTests
             .AddCharacter("char:wolf", isFriendly: false)
             .AddCharacter("char:ranger", isFriendly: true)
             .AddCharacter("char:vendor")
-            .AddItemSource("item:pelt", "char:wolf", edgeType: 16)
-            .AddItemSource("item:pelt", "char:ranger", edgeType: 16)
-            .AddItemSource("item:pelt", "char:vendor", edgeType: 17)
+            .AddItemSource("item:pelt", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
+            .AddItemSource("item:pelt", "char:ranger", edgeType: (byte)EdgeType.DropsItem)
+            .AddItemSource("item:pelt", "char:vendor", edgeType: (byte)EdgeType.SellsItem)
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:pelt", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker));
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty);
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
@@ -90,13 +99,18 @@ public sealed class SpecTreeProjectorTests
             .AddQuest("quest:unlock", dbName: "UNLOCK")
             .AddItem("item:pelt")
             .AddCharacter("char:wolf")
-            .AddItemSource("item:pelt", "char:wolf")
+            .AddItemSource("item:pelt", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
             .AddUnlockPredicate("char:wolf", "quest:unlock")
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:pelt", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
-        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker));
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty);
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
@@ -118,14 +132,14 @@ public sealed class SpecTreeProjectorTests
             .AddItem("item:key")
             .AddCharacter("char:enemy", isFriendly: false)
             .AddCharacter("char:npc")
-            .AddItemSource("item:key", "char:enemy", edgeType: 16, sourceType: 2) // 16=DropsItem, 2=Character
+            .AddItemSource("item:key", "char:enemy", edgeType: (byte)EdgeType.DropsItem, sourceType: (byte)NodeType.Character)
             .AddUnlockPredicate("char:npc", "item:key", checkType: 1)
             .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
 
         int questIndex = FindQuestIndex(guide, "quest:a");
         var roots = projector.GetRootChildren(questIndex);
@@ -135,7 +149,6 @@ public sealed class SpecTreeProjectorTests
         Assert.Single(unlockRefs);
         Assert.Equal(SpecTreeKind.Item, unlockRefs[0].Kind);
 
-        // Expanding the item ref must return its sources
         var itemSources = projector.GetChildren(unlockRefs[0]);
         Assert.NotEmpty(itemSources);
         Assert.Contains(itemSources, s => s.Label.Contains("char:enemy"));
@@ -147,13 +160,13 @@ public sealed class SpecTreeProjectorTests
         var guide = new CompiledGuideBuilder()
             .AddQuest("quest:gate", dbName: "GATE")
             .AddCharacter("char:npc")
-            .AddUnlockPredicate("char:npc", "quest:gate", checkType: 0) // 0 = quest completion
+            .AddUnlockPredicate("char:npc", "quest:gate", checkType: 0)
             .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(Array.Empty<string>(), new[] { "QUESTA" }, new Dictionary<string, int>(), Array.Empty<string>());
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
 
         int questIndex = FindQuestIndex(guide, "quest:a");
         var roots = projector.GetRootChildren(questIndex);
@@ -167,29 +180,57 @@ public sealed class SpecTreeProjectorTests
     [Fact]
     public void Prerequisite_node_expands_to_prereq_quest_root_children()
     {
-        // quest:pre has a completer; quest:root requires quest:pre as a prereq.
-        // Expanding the Prerequisite node in quest:root's tree should show
-        // quest:pre's own root children (its completer).
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:completer")
-            .AddQuest("quest:pre", dbName: "QUESTPRE",
-                completers: new[] { "char:completer" })
-            .AddQuest("quest:root", dbName: "QUESTROOT",
-                prereqs: new[] { "quest:pre" })
+            .AddQuest("quest:pre", dbName: "QUESTPRE", completers: new[] { "char:completer" })
+            .AddQuest("quest:root", dbName: "QUESTROOT", prereqs: new[] { "quest:pre" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(),
-            new Dictionary<string, int>(), Array.Empty<string>());
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator);
+        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
 
         int rootIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootIndex);
         var prereqRef = roots.Single(r => r.Kind == SpecTreeKind.Prerequisite);
         var prereqChildren = projector.GetChildren(prereqRef);
 
-        // quest:pre has one completer
         Assert.Single(prereqChildren);
         Assert.Equal(SpecTreeKind.Completer, prereqChildren[0].Kind);
     }
+
+    [Fact]
+        public void Source_in_locked_zone_is_blocked_and_shows_zone_line_unlock_requirements()
+        {
+            var builder = new CompiledGuideBuilder()
+                .AddZone("zone:a", scene: "ZoneA")
+                .AddZone("zone:b", scene: "ZoneB")
+                .AddZoneLine("zl:ab", scene: "ZoneA", destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 5f)
+                .AddQuest("quest:gate", dbName: "GATE")
+                .AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
+                .AddUnlockPredicate("zl:ab", "quest:gate")
+                .AddItem("item:fish")
+                .AddWater("water:pond", scene: "ZoneB", x: 1f, y: 2f, z: 3f)
+                .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+                .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
+            var harness = SnapshotHarness.FromSnapshot(builder.Build(), new StateSnapshot { CurrentZone = "ZoneA" });
+
+            var tracker = new QuestPhaseTracker(harness.Guide);
+            tracker.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+            var evaluator = new UnlockPredicateEvaluator(harness.Guide, tracker);
+            var projector = new SpecTreeProjector(
+                harness.Guide,
+                tracker,
+                evaluator,
+                harness.Router,
+                () => harness.Tracker.CurrentZone);
+
+            int rootQuestIndex = FindQuestIndex(harness.Guide, "quest:root");
+            var itemRef = projector.GetRootChildren(rootQuestIndex).Single(r => r.Kind == SpecTreeKind.Item);
+            var sourceRef = Assert.Single(projector.GetChildren(itemRef));
+            Assert.True(sourceRef.IsBlocked);
+
+            var unlockChildren = projector.GetUnlockChildren(sourceRef);
+            Assert.Contains(unlockChildren, child => child.Label == "Requires: quest:gate");
+        }
 }

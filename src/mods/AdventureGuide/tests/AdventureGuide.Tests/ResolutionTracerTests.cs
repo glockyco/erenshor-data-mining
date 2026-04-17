@@ -23,7 +23,7 @@ public sealed class ResolutionTracerTests
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
         var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver);
+        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:a", "TestScene", tracer);
@@ -52,7 +52,7 @@ public sealed class ResolutionTracerTests
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
         var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver);
+        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:b", "Zone1", tracer);
@@ -76,7 +76,7 @@ public sealed class ResolutionTracerTests
         var frontier = new EffectiveFrontier(guide, tracker);
         var unlocks = new UnlockPredicateEvaluator(guide, tracker);
         var sourceResolver = new SourceResolver(guide, tracker, unlocks, new NullLivePositionProvider());
-        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver);
+        var resolver = new NavigationTargetResolver(guide, frontier, sourceResolver, null);
 
         // Should not throw with null tracer (default)
         var results = resolver.Resolve("quest:c", "TestScene");

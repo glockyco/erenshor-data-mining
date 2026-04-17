@@ -92,6 +92,30 @@ public sealed class SourceResolver
             case QuestPhase.ReadyToAccept:
                 foreach (int giverId in _guide.GiverIds(entry.QuestIndex))
                 {
+                    var giverNode = _guide.GetNode(giverId);
+                    if (giverNode.Type is NodeType.Item or NodeType.Book)
+                    {
+                        int itemIndex = _guide.FindItemIndex(giverId);
+                        if (itemIndex < 0)
+                            continue;
+
+                        foreach (var source in GetVisibleItemSources(itemIndex, tracer))
+                        {
+                            if (_unlocks.Evaluate(source.SourceId, tracer) == UnlockResult.Blocked)
+                                continue;
+
+                            EmitSourceTargets(
+                                source,
+                                ResolvedTargetRole.Giver,
+                                BuildGiverSemantic(entry.QuestIndex, giverId),
+                                entry,
+                                results,
+                                tracer);
+                        }
+
+                        continue;
+                    }
+
                     EmitNodePosition(
                         giverId,
                         giverId,
@@ -123,39 +147,13 @@ public sealed class SourceResolver
                         if (_unlocks.Evaluate(source.SourceId, tracer) == UnlockResult.Blocked)
                             continue;
 
-                        var semantic = BuildSourceSemantic(requirement.ItemId, source);
-                        if (source.Positions.Length == 0)
-                        {
-                            EmitNodePosition(
-                                source.SourceId,
-                                source.SourceId,
-                                ResolvedTargetRole.Objective,
-                                semantic,
-                                entry,
-                                results,
-                                tracer);
-                            continue;
-                        }
-
-                        foreach (var position in source.Positions)
-                        {
-                            WorldPosition? live = _livePositions.GetLivePosition(position.SpawnId);
-                            bool isActionable = _livePositions.IsAlive(position.SpawnId);
-                            results.Add(new ResolvedTarget(
-                                source.SourceId,
-                                position.SpawnId,
-                                ResolvedTargetRole.Objective,
-                                semantic,
-                                live?.X ?? position.X,
-                                live?.Y ?? position.Y,
-                                live?.Z ?? position.Z,
-                                source.Scene,
-                                live.HasValue,
-                                isActionable,
-                                entry.QuestIndex,
-                                entry.RequiredForQuestIndex));
-                            tracer?.OnTargetMaterialized(source.SourceId, position.SpawnId, nameof(ResolvedTargetRole.Objective), source.Scene, isActionable);
-                        }
+                        EmitSourceTargets(
+                            source,
+                            ResolvedTargetRole.Objective,
+                            BuildSourceSemantic(requirement.ItemId, source),
+                            entry,
+                            results,
+                            tracer);
                     }
                 }
 
@@ -221,6 +219,49 @@ public sealed class SourceResolver
             entry.QuestIndex,
             entry.RequiredForQuestIndex));
         tracer?.OnTargetMaterialized(targetNodeId, positionNodeId, role.ToString(), scene, true);
+    }
+
+    private void EmitSourceTargets(
+        SourceSiteEntry source,
+        ResolvedTargetRole role,
+        ResolvedActionSemantic semantic,
+        FrontierEntry entry,
+        List<ResolvedTarget> results,
+        IResolutionTracer? tracer = null)
+    {
+        if (source.Positions.Length == 0)
+        {
+            EmitNodePosition(
+                source.SourceId,
+                source.SourceId,
+                role,
+                semantic,
+                entry,
+                results,
+                tracer);
+            return;
+        }
+
+        string? scene = _guide.GetSourceScene(source);
+        foreach (var position in source.Positions)
+        {
+            WorldPosition? live = _livePositions.GetLivePosition(position.SpawnId);
+            bool isActionable = _livePositions.IsAlive(position.SpawnId);
+            results.Add(new ResolvedTarget(
+                source.SourceId,
+                position.SpawnId,
+                role,
+                semantic,
+                live?.X ?? position.X,
+                live?.Y ?? position.Y,
+                live?.Z ?? position.Z,
+                scene,
+                live.HasValue,
+                isActionable,
+                entry.QuestIndex,
+                entry.RequiredForQuestIndex));
+            tracer?.OnTargetMaterialized(source.SourceId, position.SpawnId, role.ToString(), scene, isActionable);
+        }
     }
 
     private List<SourceSiteEntry> GetVisibleItemSources(int itemIndex, IResolutionTracer? tracer = null)

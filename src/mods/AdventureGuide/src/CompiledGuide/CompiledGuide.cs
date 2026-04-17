@@ -239,6 +239,15 @@ public sealed class CompiledGuide
 
     public string? GetScene(int nodeId) => _projectedNodes[nodeId].Scene;
 
+    public string? GetSourceScene(SourceSiteEntry source)
+    {
+        if (!string.IsNullOrWhiteSpace(source.Scene))
+            return source.Scene;
+        if (source.Positions.Length > 0)
+            return GetScene(source.Positions[0].SpawnId);
+        return GetScene(source.SourceId);
+    }
+
     /// <summary>
     /// Translates a raw Unity scene name to the user-facing zone display name.
     /// Falls back to the raw name when no Zone node maps to that scene.

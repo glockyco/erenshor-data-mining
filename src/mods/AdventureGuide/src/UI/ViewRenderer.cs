@@ -57,24 +57,37 @@ public sealed class ViewRenderer
 
 		var rootChildren = _specProjector.GetRootChildren(questIndex.Value);
 		string? completionFallback = GetCompletionFallbackNotice(_guide, quest);
-		if (rootChildren.Count == 0 && completionFallback == null)
+		var sections = BuildDetailSections(rootChildren);
+		if (sections.Count == 0 && completionFallback == null)
 		{
 			DrawNotice("No guide data available for this quest.");
 		}
-		else if (ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
+		else
 		{
-			ImGui.Indent(Theme.IndentWidth);
-			for (int i = 0; i < rootChildren.Count; i++)
+			for (int sectionIndex = 0; sectionIndex < sections.Count; sectionIndex++)
 			{
-				ImGui.PushID($"spec_root_{i}");
-				DrawSpecTreeRef(rootChildren[i]);
-				ImGui.PopID();
+				var section = sections[sectionIndex];
+				if (!ImGui.CollapsingHeader(section.Label, ImGuiTreeNodeFlags.DefaultOpen))
+					continue;
+
+				ImGui.Indent(Theme.IndentWidth);
+				if (section.ShowAlternativesLabel)
+					DrawAlternativesLabel();
+
+				for (int rootIndex = 0; rootIndex < section.Roots.Count; rootIndex++)
+				{
+					ImGui.PushID($"spec_section_{sectionIndex}_{rootIndex}");
+					DrawSpecTreeRef(section.Roots[rootIndex]);
+					ImGui.PopID();
+				}
+				ImGui.Unindent(Theme.IndentWidth);
 			}
 
 			if (completionFallback != null)
+			{
+				ImGui.Spacing();
 				DrawNoticeGroup("How to complete", completionFallback);
-
-			ImGui.Unindent(Theme.IndentWidth);
+			}
 		}
 
 		ImGui.Spacing();
@@ -218,6 +231,51 @@ public sealed class ViewRenderer
 
 		DrawNotice(text);
 		ImGui.TreePop();
+	}
+
+	internal readonly struct DetailSection
+	{
+		public DetailSection(string label, IReadOnlyList<SpecTreeRef> roots, bool showAlternativesLabel)
+		{
+			Label = label;
+			Roots = roots;
+			ShowAlternativesLabel = showAlternativesLabel;
+		}
+
+		public string Label { get; }
+		public IReadOnlyList<SpecTreeRef> Roots { get; }
+		public bool ShowAlternativesLabel { get; }
+	}
+
+	internal static IReadOnlyList<DetailSection> BuildDetailSections(IReadOnlyList<SpecTreeRef> roots)
+	{
+		var sections = new List<DetailSection>();
+		AddSection(sections, "Prerequisites", roots.Where(root => root.Kind == SpecTreeKind.Prerequisite).ToArray());
+		var acceptRoots = roots.Where(root => root.Kind == SpecTreeKind.Giver).ToArray();
+		AddSection(sections, "Accept", acceptRoots, acceptRoots.Length > 1);
+		AddSection(sections, "Objectives", roots.Where(root => root.Kind is SpecTreeKind.Item or SpecTreeKind.Step).ToArray());
+		var turnInRoots = roots.Where(root => root.Kind == SpecTreeKind.Completer).ToArray();
+		AddSection(sections, "Turn in", turnInRoots, turnInRoots.Length > 1);
+		return sections;
+	}
+
+	private static void AddSection(
+		List<DetailSection> sections,
+		string label,
+		IReadOnlyList<SpecTreeRef> roots,
+		bool showAlternativesLabel = false)
+	{
+		if (roots.Count == 0)
+			return;
+
+		sections.Add(new DetailSection(label, roots, showAlternativesLabel));
+	}
+
+	private static void DrawAlternativesLabel()
+	{
+		ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+		ImGui.TextUnformatted("Any of:");
+		ImGui.PopStyleColor();
 	}
 
 	internal static string? GetCompletionFallbackNotice(CompiledGuideModel guide, Node quest) =>

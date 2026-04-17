@@ -22,7 +22,8 @@ public readonly struct SpecTreeRef
         string displayName,
         string label,
         bool isCompleted,
-        bool isBlocked)
+        bool isBlocked,
+        int? blockedByNodeId = null)
     {
         NodeId = nodeId;
         Kind = kind;
@@ -31,6 +32,7 @@ public readonly struct SpecTreeRef
         Label = label;
         IsCompleted = isCompleted;
         IsBlocked = isBlocked;
+        BlockedByNodeId = blockedByNodeId;
     }
 
     public int NodeId { get; }
@@ -40,4 +42,5 @@ public readonly struct SpecTreeRef
     public string Label { get; }
     public bool IsCompleted { get; }
     public bool IsBlocked { get; }
+    public int? BlockedByNodeId { get; }
 }

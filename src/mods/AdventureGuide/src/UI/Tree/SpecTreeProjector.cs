@@ -1,6 +1,7 @@
 using AdventureGuide.CompiledGuide;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
+using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 
 namespace AdventureGuide.UI.Tree;
@@ -17,15 +18,21 @@ public sealed class SpecTreeProjector
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestPhaseTracker _phases;
     private readonly UnlockPredicateEvaluator _unlocks;
+    private readonly ZoneRouter? _zoneRouter;
+    private readonly Func<string> _currentSceneProvider;
 
     public SpecTreeProjector(
         CompiledGuide.CompiledGuide guide,
         QuestPhaseTracker phases,
-        UnlockPredicateEvaluator unlocks)
+        UnlockPredicateEvaluator unlocks,
+        ZoneRouter? zoneRouter,
+        Func<string>? currentSceneProvider = null)
     {
         _guide = guide;
         _phases = phases;
         _unlocks = unlocks;
+        _zoneRouter = zoneRouter;
+        _currentSceneProvider = currentSceneProvider ?? (() => string.Empty);
     }
 
     public IReadOnlyList<SpecTreeRef> GetRootChildren(int questIndex)
@@ -80,13 +87,20 @@ public sealed class SpecTreeProjector
 
     public IReadOnlyList<SpecTreeRef> GetUnlockChildren(SpecTreeRef parent)
     {
-        if (!_guide.TryGetUnlockPredicate(parent.NodeId, out var predicate))
-            return Array.Empty<SpecTreeRef>();
-
-        var results = new List<SpecTreeRef>(predicate.Conditions.Length);
-        foreach (var condition in predicate.Conditions)
-            results.Add(BuildUnlockConditionRef(parent.QuestIndex, condition));
+        var results = new List<SpecTreeRef>();
+        AppendUnlockChildren(parent.NodeId, parent.QuestIndex, results);
+        if (parent.BlockedByNodeId is int blockedByNodeId && blockedByNodeId != parent.NodeId)
+            AppendUnlockChildren(blockedByNodeId, parent.QuestIndex, results);
         return results;
+    }
+
+    private void AppendUnlockChildren(int nodeId, int questIndex, List<SpecTreeRef> results)
+    {
+        if (!_guide.TryGetUnlockPredicate(nodeId, out var predicate))
+            return;
+
+        foreach (var condition in predicate.Conditions)
+            results.Add(BuildUnlockConditionRef(questIndex, condition));
     }
 
     private SpecTreeRef BuildPrerequisiteRef(int questIndex, int prereqId)
@@ -108,6 +122,8 @@ public sealed class SpecTreeProjector
     {
         string name = _guide.GetDisplayName(giverId);
         FindGiverInteraction(questIndex, giverId, out _, out string? keyword);
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(_guide.GetScene(giverId));
+        bool isBlocked = _unlocks.Evaluate(giverId) == UnlockResult.Blocked || blockedByNodeId.HasValue;
         return new SpecTreeRef(
             giverId,
             SpecTreeKind.Giver,
@@ -115,7 +131,8 @@ public sealed class SpecTreeProjector
             name,
             FormatAssignmentLabel(giverId, name, keyword),
             false,
-            _unlocks.Evaluate(giverId) == UnlockResult.Blocked);
+            isBlocked,
+            blockedByNodeId);
     }
 
     private SpecTreeRef BuildRequiredItemRef(int questIndex, ItemReq requirement)
@@ -139,6 +156,8 @@ public sealed class SpecTreeProjector
     private SpecTreeRef BuildStepRef(int questIndex, StepEntry step)
     {
         string name = _guide.GetDisplayName(step.TargetId);
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(_guide.GetScene(step.TargetId));
+        bool isBlocked = _unlocks.Evaluate(step.TargetId) == UnlockResult.Blocked || blockedByNodeId.HasValue;
         return new SpecTreeRef(
             step.TargetId,
             SpecTreeKind.Step,
@@ -146,13 +165,16 @@ public sealed class SpecTreeProjector
             name,
             FormatStepLabel(step, name),
             false,
-            _unlocks.Evaluate(step.TargetId) == UnlockResult.Blocked);
+            isBlocked,
+            blockedByNodeId);
     }
 
     private SpecTreeRef BuildCompleterRef(int questIndex, int completerId)
     {
         string name = _guide.GetDisplayName(completerId);
         FindCompletionInteraction(questIndex, completerId, out _, out string? keyword);
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(_guide.GetScene(completerId));
+        bool isBlocked = _unlocks.Evaluate(completerId) == UnlockResult.Blocked || blockedByNodeId.HasValue;
         return new SpecTreeRef(
             completerId,
             SpecTreeKind.Completer,
@@ -160,12 +182,15 @@ public sealed class SpecTreeProjector
             name,
             FormatCompletionLabel(completerId, name, keyword),
             false,
-            _unlocks.Evaluate(completerId) == UnlockResult.Blocked);
+            isBlocked,
+            blockedByNodeId);
     }
 
     private SpecTreeRef BuildSourceRef(int questIndex, SourceSiteEntry source)
     {
         string name = _guide.GetDisplayName(source.SourceId);
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(_guide.GetSourceScene(source));
+        bool isBlocked = _unlocks.Evaluate(source.SourceId) == UnlockResult.Blocked || blockedByNodeId.HasValue;
         return new SpecTreeRef(
             source.SourceId,
             SpecTreeKind.Source,
@@ -173,7 +198,8 @@ public sealed class SpecTreeProjector
             name,
             FormatSourceLabel(source, name),
             false,
-            _unlocks.Evaluate(source.SourceId) == UnlockResult.Blocked);
+            isBlocked,
+            blockedByNodeId);
     }
 
     private SpecTreeRef BuildUnlockConditionRef(int questIndex, UnlockConditionEntry condition)
@@ -213,11 +239,31 @@ public sealed class SpecTreeProjector
 
     private bool IsHostileDropSource(SourceSiteEntry source)
     {
-    if (source.EdgeType != EdgeDropsItem)
-        return false;
+        if (source.EdgeType != EdgeDropsItem)
+            return false;
 
-    var node = _guide.GetNode(source.SourceId);
-    return !node.IsFriendly;
+        var node = _guide.GetNode(source.SourceId);
+        return !node.IsFriendly;
+    }
+
+    private int? FindBlockingZoneLineNodeId(string? targetScene)
+    {
+        if (_zoneRouter == null)
+            return null;
+
+        string currentScene = _currentSceneProvider();
+        if (string.IsNullOrWhiteSpace(currentScene) || string.IsNullOrWhiteSpace(targetScene))
+            return null;
+        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, targetScene);
+        if (lockedHop == null)
+            return null;
+
+        return _guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId)
+            ? zoneLineNodeId
+            : null;
     }
 
     private SpecTreeKind DetermineUnlockKind(UnlockConditionEntry condition)
@@ -244,26 +290,26 @@ public sealed class SpecTreeProjector
 
     private string FormatAssignmentLabel(int nodeId, string name, string? keyword)
     {
-    return _guide.GetNode(nodeId).Type switch
-    {
-        NodeType.Item => $"Read {name}",
-        NodeType.Zone => $"Enter {name}",
-        NodeType.Quest => $"Complete {name}",
-        _ => FormatKeywordLabel("Talk to ", name, keyword),
-    };
+        return _guide.GetNode(nodeId).Type switch
+        {
+            NodeType.Item => $"Read {name}",
+            NodeType.Zone => $"Enter {name}",
+            NodeType.Quest => $"Complete {name}",
+            _ => FormatKeywordLabel("Talk to ", name, keyword),
+        };
     }
 
     private string FormatCompletionLabel(int nodeId, string name, string? keyword)
     {
-    return _guide.GetNode(nodeId).Type switch
-    {
-        NodeType.Character => FormatKeywordLabel("Turn in to ", name, keyword),
-        NodeType.Item => $"Read {name}",
-        NodeType.Zone => $"Enter {name}",
-        NodeType.ZoneLine => $"Travel to {name}",
-        NodeType.Quest => $"Complete {name}",
-        _ => $"Complete via: {name}",
-    };
+        return _guide.GetNode(nodeId).Type switch
+        {
+            NodeType.Character => FormatKeywordLabel("Turn in to ", name, keyword),
+            NodeType.Item => $"Read {name}",
+            NodeType.Zone => $"Enter {name}",
+            NodeType.ZoneLine => $"Travel to {name}",
+            NodeType.Quest => $"Complete {name}",
+            _ => $"Complete via: {name}",
+        };
     }
 
     private string FormatStepLabel(StepEntry step, string name)
@@ -275,25 +321,25 @@ public sealed class SpecTreeProjector
     {
         return source.EdgeType switch
         {
-            EdgeDropsItem  => $"Drops from: {name}",
-            EdgeSellsItem  => $"Vendor: {name}",
-            EdgeGivesItem  => FormatKeywordLabel("Talk to ", name, source.Keyword),
-            EdgeContains   => $"Collect from: {name}",
-            EdgeProduces   => $"Crafted via: {name}",
+            EdgeDropsItem => $"Drops from: {name}",
+            EdgeSellsItem => $"Vendor: {name}",
+            EdgeGivesItem => FormatKeywordLabel("Talk to ", name, source.Keyword),
+            EdgeContains => $"Collect from: {name}",
+            EdgeProduces => $"Crafted via: {name}",
             EdgeYieldsItem => FormatYieldLabel(source, name),
-            _              => name,
+            _ => name,
         };
     }
 
     private string FormatYieldLabel(SourceSiteEntry source, string name)
     {
-    return source.SourceType switch
-    {
-        6 => $"Mine at: {name}",
-        _ => _guide.GetNode(source.SourceId).Type == NodeType.Water
-            ? $"Fish at: {name}"
-            : $"Collect from: {name}",
-    };
+        return source.SourceType switch
+        {
+            (byte)NodeType.MiningNode => $"Mine at: {name}",
+            _ => _guide.GetNode(source.SourceId).Type == NodeType.Water
+                ? $"Fish at: {name}"
+                : $"Collect from: {name}",
+        };
     }
 
     private static string FormatKeywordLabel(string prefix, string name, string? keyword)

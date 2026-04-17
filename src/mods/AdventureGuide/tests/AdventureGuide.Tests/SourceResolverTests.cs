@@ -1,3 +1,4 @@
+using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.Tests.Helpers;
@@ -40,7 +41,35 @@ public sealed class SourceResolverTests
         Assert.Equal(30f, targets[0].Z);
     }
 
+    [Fact]
+    public void Ready_to_accept_item_giver_resolves_item_source_positions_with_read_semantics()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:ghost")
+            .AddSpawnPoint("spawn:ghost", scene: "Tutorial", x: 10f, y: 20f, z: 30f)
+            .AddItemSource("item:note", "char:ghost", positionKeys: new[] { "spawn:ghost" })
+            .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "item:note" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+        var resolver = new SourceResolver(guide, tracker, evaluator, new StubLivePositionProvider());
 
+        var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.ReadyToAccept, -1), "Forest");
+
+        guide.TryGetNodeId("char:ghost", out int sourceId);
+        guide.TryGetNodeId("spawn:ghost", out int spawnId);
+        var target = Assert.Single(targets);
+        Assert.Equal(sourceId, target.TargetNodeId);
+        Assert.Equal(spawnId, target.PositionNodeId);
+        Assert.Equal(ResolvedTargetRole.Giver, target.Role);
+        Assert.Equal(ResolvedActionKind.Read, target.Semantic.ActionKind);
+        Assert.Equal("Tutorial", target.Scene);
+        Assert.Equal(10f, target.X);
+        Assert.Equal(20f, target.Y);
+        Assert.Equal(30f, target.Z);
+    }
 
     [Fact]
     public void Accepted_with_missing_item_resolves_objective_source_semantics()
@@ -70,7 +99,6 @@ public sealed class SourceResolverTests
         Assert.Equal(60f, targets[0].Z);
     }
 
-
     [Fact]
     public void Accepted_with_hostile_drop_source_hides_friendly_drop_sources()
     {
@@ -78,8 +106,8 @@ public sealed class SourceResolverTests
             .AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f, isFriendly: false)
             .AddCharacter("char:ranger", scene: "Forest", x: 70f, y: 80f, z: 90f, isFriendly: true)
             .AddItem("item:pelt")
-            .AddItemSource("item:pelt", "char:wolf", edgeType: 16)
-            .AddItemSource("item:pelt", "char:ranger", edgeType: 16)
+            .AddItemSource("item:pelt", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
+            .AddItemSource("item:pelt", "char:ranger", edgeType: (byte)EdgeType.DropsItem)
             .AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:pelt", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
@@ -93,6 +121,7 @@ public sealed class SourceResolverTests
         guide.TryGetNodeId("char:wolf", out int wolfId);
         Assert.Equal(wolfId, targets[0].TargetNodeId);
     }
+
     [Fact]
     public void Accepted_with_satisfied_items_resolves_turnin_semantics()
     {
@@ -123,8 +152,6 @@ public sealed class SourceResolverTests
     [Fact]
     public void Accepted_with_unindexed_required_item_does_not_emit_turnin()
     {
-        // Quest requires "item:mystery" which exists as a graph node but is NOT
-        // registered via AddItem, so FindItemIndex returns -1.
         var guide = new CompiledGuideBuilder()
             .AddCharacter("char:turnin", scene: "Forest", x: 70f, y: 80f, z: 90f)
             .AddQuest(
@@ -140,8 +167,6 @@ public sealed class SourceResolverTests
 
         var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
 
-        // The item is unindexed, so no objective sources can be resolved.
-        // But it is still a requirement — turn-in must NOT be emitted.
         Assert.Empty(targets);
     }
 }

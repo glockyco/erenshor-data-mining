@@ -171,6 +171,7 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledGuide,
             _compiledFrontier,
             _compiledSourceResolver,
+            _zoneRouter,
             () => _questTracker.Version);
         _markerQuestTargetResolver = new MarkerQuestTargetResolver(
             _compiledGuide,
@@ -218,7 +219,12 @@ public sealed class Plugin : BaseUnityPlugin
         filter.LoadFrom(_config);
         var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         SyncCompiledQuestTracker();
-        _specTreeProjector = new SpecTreeProjector(_compiledGuide, _compiledQuestTracker, _compiledUnlocks);
+        _specTreeProjector = new SpecTreeProjector(
+            _compiledGuide,
+            _compiledQuestTracker,
+            _compiledUnlocks,
+            _zoneRouter,
+            () => _questTracker.CurrentZone);
         viewRenderer = new ViewRenderer(
             _compiledGuide,
             _gameState,
@@ -249,7 +255,7 @@ public sealed class Plugin : BaseUnityPlugin
         {
             _window.Draw();
             _trackerPanel!.Draw();
-			_diagnosticOverlay?.Render();
+            _diagnosticOverlay?.Render();
             _arrow!.Draw();
             _config.LayoutResetRequested = false;
         };

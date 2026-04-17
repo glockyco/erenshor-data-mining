@@ -25,7 +25,12 @@ public sealed class CompiledGuideBuilder
 	private sealed record ItemDef(string Key);
 	private sealed record CharacterDef(string Key, string? Scene, float X, float Y, float Z, bool IsFriendly);
 	private sealed record StepDef(string QuestKey, byte StepType, string TargetKey);
-	private sealed record ItemSourceDef(string ItemKey, string SourceKey, byte EdgeType, byte SourceType);
+	private sealed record ItemSourceDef(
+		string ItemKey,
+		string SourceKey,
+		byte EdgeType,
+		byte SourceType,
+		string[] PositionKeys);
 	private sealed record UnlockDef(string TargetKey, string SourceKey, byte Group, byte CheckType);
 	private sealed record ZoneLineDef(string Key, string? Scene, string? DestinationZoneKey, float X, float Y, float Z, bool IsEnabled);
 	private sealed record ZoneDef(string Key, string? Scene);
@@ -100,10 +105,16 @@ public sealed class CompiledGuideBuilder
 	public CompiledGuideBuilder AddItemSource(
 		string itemKey,
 		string sourceKey,
-		byte edgeType = 16,
-		byte sourceType = 2)
+		byte edgeType = (byte)EdgeType.DropsItem,
+		byte sourceType = (byte)NodeType.Character,
+		string[]? positionKeys = null)
 	{
-		_itemSources.Add(new ItemSourceDef(itemKey, sourceKey, edgeType, sourceType));
+		_itemSources.Add(new ItemSourceDef(
+			itemKey,
+			sourceKey,
+			edgeType,
+			sourceType,
+			positionKeys ?? Array.Empty<string>()));
 		return this;
 	}
 
@@ -216,6 +227,8 @@ public sealed class CompiledGuideBuilder
 		{
 			allKeys.Add(source.ItemKey);
 			allKeys.Add(source.SourceKey);
+			foreach (string positionKey in source.PositionKeys)
+				allKeys.Add(positionKey);
 		}
 		foreach (UnlockDef unlock in _unlockDefs)
 		{
@@ -374,8 +387,7 @@ public sealed class CompiledGuideBuilder
 			}
 		}
 
-		// Build item sources
-		CompiledSourceSiteData[][] itemSourcesDto = BuildItemSourcesDto(itemNodeIds, keyToId, charByKey);
+		CompiledSourceSiteData[][] itemSourcesDto = BuildItemSourcesDto(itemNodeIds, keyToId, charByKey, spawnPointByKey);
 
 		// Build unlock predicates
 		CompiledUnlockPredicateData[] unlockPredicates = BuildUnlockPredicatesDto(keyToId);
@@ -605,7 +617,8 @@ public sealed class CompiledGuideBuilder
 	private CompiledSourceSiteData[][] BuildItemSourcesDto(
 		int[] itemNodeIds,
 		Dictionary<string, int> keyToId,
-		Dictionary<string, CharacterDef> charByKey)
+		Dictionary<string, CharacterDef> charByKey,
+		Dictionary<string, SpawnPointDef> spawnPointByKey)
 	{
 		var rows = itemNodeIds.Select(_ => Array.Empty<CompiledSourceSiteData>()).ToArray();
 		var itemIndexByNodeId = itemNodeIds.Select((id, index) => (id, index)).ToDictionary(x => x.id, x => x.index);
@@ -621,16 +634,52 @@ public sealed class CompiledGuideBuilder
 			{
 				int sourceId = keyToId[def.SourceKey];
 				CharacterDef? character = charByKey.GetValueOrDefault(def.SourceKey);
-				CompiledSpawnPositionData[] positions = character is null
-					? Array.Empty<CompiledSpawnPositionData>()
-					: new[] { new CompiledSpawnPositionData { SpawnId = sourceId, X = character.X, Y = character.Y, Z = character.Z } };
+				string? scene = character?.Scene;
+				CompiledSpawnPositionData[] positions;
+				if (def.PositionKeys.Length > 0)
+				{
+					positions = def.PositionKeys
+						.Where(spawnPointByKey.ContainsKey)
+						.Select(positionKey =>
+						{
+							var spawnPoint = spawnPointByKey[positionKey];
+							return new CompiledSpawnPositionData
+							{
+								SpawnId = keyToId[positionKey],
+								X = spawnPoint.X,
+								Y = spawnPoint.Y,
+								Z = spawnPoint.Z,
+							};
+						})
+						.ToArray();
+					if (positions.Length > 0)
+						scene = spawnPointByKey[def.PositionKeys[0]].Scene;
+				}
+				else if (character is not null)
+				{
+					positions = new[]
+					{
+						new CompiledSpawnPositionData
+						{
+							SpawnId = sourceId,
+							X = character.X,
+							Y = character.Y,
+							Z = character.Z,
+						},
+					};
+				}
+				else
+				{
+					positions = Array.Empty<CompiledSpawnPositionData>();
+				}
+
 				entries.Add(new CompiledSourceSiteData
 				{
 					SourceId = sourceId,
 					SourceType = def.SourceType,
 					EdgeType = def.EdgeType,
 					DirectItemId = 0,
-					Scene = character?.Scene,
+					Scene = scene,
 					Positions = positions,
 				});
 			}
