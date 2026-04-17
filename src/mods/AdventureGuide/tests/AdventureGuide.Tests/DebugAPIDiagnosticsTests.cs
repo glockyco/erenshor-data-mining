@@ -43,4 +43,30 @@ public sealed class DebugAPIDiagnosticsTests
         );
         DebugAPI.Diagnostics = null;
     }
+
+    [Fact]
+    public void DumpLastIncidentDetailed_UsesDetailedIncidentFormatter()
+    {
+        var thresholds = new IncidentThresholds(
+            frameHitchTicks: 10,
+            frameStallTicks: 100,
+            rebuildStormCount: int.MaxValue,
+            rebuildStormWindowTicks: long.MaxValue,
+            resolutionExplosionTargetCount: int.MaxValue
+        );
+        var core = new DiagnosticsCore(16, 16, 4, thresholds);
+        var token = core.BeginSpan(
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+            DiagnosticsContext.Root(DiagnosticTrigger.InventoryChanged, correlationId: 8),
+            primaryKey: "quest:lunchbag1"
+        );
+        core.EndSpan(token, elapsedTicks: 25, value0: 11, value1: 3);
+        DebugAPI.Diagnostics = core;
+
+        string text = DebugAPI.DumpLastIncidentDetailed();
+
+        Assert.Contains("quest:lunchbag1", text, StringComparison.Ordinal);
+        Assert.Contains("projected nodes=11", text, StringComparison.Ordinal);
+        DebugAPI.Diagnostics = null;
+    }
 }

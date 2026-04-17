@@ -344,6 +344,9 @@ public static class DebugAPI
     public static string DumpLastIncident() =>
         Diagnostics?.FormatLastIncidentSummary() ?? "Not initialized";
 
+    public static string DumpLastIncidentDetailed() =>
+        Diagnostics?.FormatDetailedLastIncident() ?? "Not initialized";
+
     public static string CaptureIncidentNow()
     {
         if (Diagnostics == null)

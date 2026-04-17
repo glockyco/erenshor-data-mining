@@ -157,6 +157,19 @@ internal sealed class DiagnosticsCore
         return $"Last incident: {_lastIncident.Kind} - {_lastIncident.Summary ?? "no summary"}";
     }
 
+    public string FormatCompactIncidentSummary()
+    {
+        return IncidentReportFormatter.FormatCompact(TryGetLastIncidentBundle());
+    }
+
+    public string FormatDetailedLastIncident()
+    {
+        var bundle = TryGetLastIncidentBundle();
+        if (bundle == null)
+            return "No incident captured.";
+        return IncidentReportFormatter.FormatDetailed(bundle);
+    }
+
     public double GetLastSpanMilliseconds(DiagnosticSpanKind kind)
     {
         var spans = GetRecentSpans();
