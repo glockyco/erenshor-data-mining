@@ -55,7 +55,8 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideWindow? _window;
     private TrackerState? _trackerState;
     private TrackerPanel? _trackerPanel;
-	private DiagnosticOverlay? _diagnosticOverlay;
+    private DiagnosticOverlay? _diagnosticOverlay;
+    private IncidentPanel? _incidentPanel;
     private LiveStateTracker? _liveState;
     private MarkerSystem? _markerSystem;
     private NavigationSetPersistence? _navPersistence;
@@ -280,13 +281,20 @@ public sealed class Plugin : BaseUnityPlugin
             trackerSummaryResolver);
 
         _diagnosticOverlay = new DiagnosticOverlay(
-            _questTracker, _markerComputer, _navSet, _config, _compiledGuide);
+            _questTracker,
+            _markerComputer,
+            _navSet,
+            _config,
+            _compiledGuide,
+            _diagnostics!);
+        _incidentPanel = new IncidentPanel(_config, _diagnostics!, DebugAPI.CaptureIncidentNow);
 
         _imgui.OnLayout = () =>
         {
             _window.Draw();
             _trackerPanel!.Draw();
             _diagnosticOverlay?.Render();
+            _incidentPanel?.Render();
             _arrow!.Draw();
             _config.LayoutResetRequested = false;
         };
@@ -303,6 +311,11 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.GameStateInstance = _gameState;
 
         DebugAPI.Resolver = _navigationTargetResolver;
+        DebugAPI.Diagnostics = _diagnostics;
+        DebugAPI.MarkerSnapshot = _markerComputer.ExportDiagnosticsSnapshot;
+        DebugAPI.NavSnapshot = _targetSelector!.ExportDiagnosticsSnapshot;
+        DebugAPI.TrackerSnapshot = trackerSummaryResolver.ExportDiagnosticsSnapshot;
+        DebugAPI.TreeSnapshot = _specTreeProjector.ExportDiagnosticsSnapshot;
 
         // --- Harmony patches ---
         QuestAssignPatch.Tracker = _questTracker;
@@ -642,6 +655,11 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Markers = null;
         DebugAPI.GameStateInstance = null;
         DebugAPI.Resolver = null;
+        DebugAPI.Diagnostics = null;
+        DebugAPI.MarkerSnapshot = null;
+        DebugAPI.NavSnapshot = null;
+        DebugAPI.TrackerSnapshot = null;
+        DebugAPI.TreeSnapshot = null;
     }
 
     private static float DetectUiScale()

@@ -61,6 +61,7 @@ public sealed class GuideConfig
     // ── User-facing: Debug ──────────────────────────────────────────
 
     public ConfigEntry<bool> DiagnosticOverlay { get; }
+    public ConfigEntry<bool> IncidentPanel { get; }
 
     // ── Internal: quest list state (auto-managed) ────────────────────
 
@@ -144,6 +145,8 @@ public sealed class GuideConfig
         // Debug
         DiagnosticOverlay = config.Bind("Debug", "DiagnosticOverlay", false,
             "Show a diagnostic overlay with active quest count, marker count, NAV targets, and frame cost");
+        IncidentPanel = config.Bind("Debug", "IncidentPanel", false,
+            "Show the incident diagnostics panel with last-capture details and manual capture controls");
 
         // Internal: quest list state (hidden from F1)
         FilterMode = Bind(config, "_State", "FilterMode", QuestFilterMode.Active);

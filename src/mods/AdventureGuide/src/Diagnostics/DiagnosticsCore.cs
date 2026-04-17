@@ -1,9 +1,12 @@
 using System.Diagnostics;
+using System.Text;
 
 namespace AdventureGuide.Diagnostics;
 
 internal sealed class DiagnosticsCore
 {
+    private const int SummarySpanCount = 5;
+
     private readonly IncidentThresholds _incidentThresholds;
     private readonly DiagnosticEvent[] _events;
     private readonly DiagnosticSpan[] _spans;
@@ -57,7 +60,13 @@ internal sealed class DiagnosticsCore
             _spanCount++;
 
         if (elapsedTicks >= _incidentThresholds.FrameStallTicks)
-            _lastIncident = new DiagnosticIncident(DiagnosticIncidentKind.FrameStall, span.EndTicks);
+        {
+            string label = span.PrimaryKey ?? span.Kind.ToString();
+            _lastIncident = new DiagnosticIncident(
+                DiagnosticIncidentKind.FrameStall,
+                span.EndTicks,
+                summary: $"Span {label} exceeded the frame stall threshold.");
+        }
     }
 
     public IReadOnlyList<DiagnosticEvent> GetRecentEvents()
@@ -85,6 +94,58 @@ internal sealed class DiagnosticsCore
         return IncidentBundle.Create(incident, GetRecentEvents(), GetRecentSpans(), snapshots);
     }
 
+    public string FormatRecentSummary()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(_lastIncident == null
+            ? "Last incident: none"
+            : $"Last incident: {_lastIncident.Kind} ({_lastIncident.Summary ?? "no summary"})");
+
+        var spans = GetRecentSpans();
+        if (spans.Count == 0)
+        {
+            sb.AppendLine("Recent spans: none");
+            return sb.ToString();
+        }
+
+        sb.AppendLine("Recent spans:");
+        int start = Math.Max(0, spans.Count - SummarySpanCount);
+        for (int i = start; i < spans.Count; i++)
+        {
+            var span = spans[i];
+            sb.AppendLine($"  {span.Kind}: {ToMilliseconds(span.ElapsedTicks):F3} ms");
+        }
+        return sb.ToString();
+    }
+
+    public string FormatLastIncidentSummary()
+    {
+        if (_lastIncident == null)
+            return "No incident captured.";
+        return $"Last incident: {_lastIncident.Kind} - {_lastIncident.Summary ?? "no summary"}";
+    }
+
+    public double GetLastSpanMilliseconds(DiagnosticSpanKind kind)
+    {
+        var spans = GetRecentSpans();
+        for (int i = spans.Count - 1; i >= 0; i--)
+        {
+            if (spans[i].Kind == kind)
+                return ToMilliseconds(spans[i].ElapsedTicks);
+        }
+        return 0d;
+    }
+
+    public void ResetAll()
+    {
+        _eventHead = 0;
+        _eventCount = 0;
+        _spanHead = 0;
+        _spanCount = 0;
+        _recentMarkerRebuilds.Clear();
+        _lastIncident = null;
+    }
+
     private void DetectIncident(DiagnosticEvent evt)
     {
         if (evt.Kind != DiagnosticEventKind.MarkerRebuildRequested)
@@ -104,6 +165,11 @@ internal sealed class DiagnosticsCore
                 evt.TimestampTicks,
                 summary: "Repeated marker rebuild requests exceeded the configured window.");
         }
+    }
+
+    private static double ToMilliseconds(long ticks)
+    {
+        return ticks * 1000d / Stopwatch.Frequency;
     }
 
     private static IReadOnlyList<T> ReadWindow<T>(T[] ring, int head, int count)

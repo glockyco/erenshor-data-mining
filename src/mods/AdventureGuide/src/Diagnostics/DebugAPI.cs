@@ -31,6 +31,11 @@ public static class DebugAPI
 	internal static GameState? GameStateInstance { get; set; }
 
 	internal static AdventureGuide.Resolution.NavigationTargetResolver? Resolver { get; set; }
+	internal static DiagnosticsCore? Diagnostics { get; set; }
+	internal static Func<MarkerDiagnosticsSnapshot>? MarkerSnapshot { get; set; }
+	internal static Func<NavigationDiagnosticsSnapshot>? NavSnapshot { get; set; }
+	internal static Func<TrackerDiagnosticsSnapshot>? TrackerSnapshot { get; set; }
+	internal static Func<SpecTreeDiagnosticsSnapshot>? TreeSnapshot { get; set; }
 
 	/// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
 	public static string DumpState()
@@ -290,22 +295,33 @@ public static class DebugAPI
 	};
 
 	/// <summary>
-	/// Dump timing statistics for every instrumented step in Plugin.Update().
-	/// Stats accumulate continuously in 512-entry ring buffers so results
-	/// reflect recent behavior, not a one-shot synthetic run.
-	///
-	/// MarkerApply is event-driven and will show fewer samples than the others.
+	/// Dump timing statistics and incident state from the shared diagnostics core.
 	/// </summary>
-	public static string DumpPerfReport() => GuideProfiler.DumpReport();
+	public static string DumpPerfSummary() => Diagnostics?.FormatRecentSummary() ?? "Not initialized";
+
+	public static string DumpPerfReport() => DumpPerfSummary();
 
 	/// <summary>
-	/// Zero all profiler ring buffers. Call before a specific scenario
-	/// (e.g. right before mining a node) to isolate that workload.
+	/// Zero all diagnostics buffers so the next report reflects fresh data.
 	/// </summary>
 	public static string ResetPerfCounters()
 	{
-		GuideProfiler.ResetAll();
-		return "Profiler counters reset.";
+		if (Diagnostics == null)
+			return "Not initialized";
+		Diagnostics.ResetAll();
+		return "Diagnostics counters reset.";
+	}
+
+	public static string DumpLastIncident() => Diagnostics?.FormatLastIncidentSummary() ?? "Not initialized";
+
+	public static string CaptureIncidentNow()
+	{
+		if (Diagnostics == null)
+			return "Not initialized";
+
+		var snapshots = BuildSnapshots();
+		var bundle = Diagnostics.CaptureNow(snapshots);
+		return $"Captured {bundle.Incident.Kind} with {bundle.Spans.Count} spans and {bundle.Snapshots.Count} snapshots.";
 	}
 
 	/// <summary>
@@ -318,9 +334,7 @@ public static class DebugAPI
 			return "Not initialized";
 
 		var zone = State.CurrentZone;
-
 		var keyring = State.KeyringItems;
-
 		var liveStates = new Dictionary<string, LiveNodeState>();
 		foreach (var nodeType in SnapshotNodeTypes)
 		{
@@ -328,7 +342,6 @@ public static class DebugAPI
 			{
 				if (!string.Equals(node.Scene, zone, StringComparison.OrdinalIgnoreCase))
 					continue;
-
 				var ns = GameStateInstance.GetState(node.Key);
 				liveStates[node.Key] = new LiveNodeState
 				{
@@ -340,15 +353,14 @@ public static class DebugAPI
 
 		var snapshot = new StateSnapshot
 		{
-			CapturedAt = DateTime.UtcNow.ToString("o"),
+			CapturedAt = DateTime.UtcNow.ToString("O"),
 			CurrentZone = zone,
-			ActiveQuests = new List<string>(State.ActiveQuests),
-			CompletedQuests = new List<string>(State.CompletedQuests),
-			Inventory = new Dictionary<string, int>(State.InventoryCounts),
-			Keyring = new List<string>(keyring),
+			ActiveQuests = State.ActiveQuests.OrderBy(q => q, StringComparer.OrdinalIgnoreCase).ToList(),
+			CompletedQuests = State.CompletedQuests.OrderBy(q => q, StringComparer.OrdinalIgnoreCase).ToList(),
+			Inventory = State.InventoryCounts.OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase).ToDictionary(kv => kv.Key, kv => kv.Value),
+			Keyring = keyring.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).ToList(),
 			LiveNodeStates = liveStates,
 		};
-
 		var dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "state-snapshots");
 		Directory.CreateDirectory(dir);
 
@@ -359,5 +371,19 @@ public static class DebugAPI
 		File.WriteAllText(filePath, json);
 
 		return filePath;
+	}
+
+	private static SnapshotEnvelope[] BuildSnapshots()
+	{
+		var snapshots = new List<SnapshotEnvelope>();
+		if (MarkerSnapshot != null)
+			snapshots.Add(SnapshotEnvelope.Create("marker", MarkerSnapshot()));
+		if (NavSnapshot != null)
+			snapshots.Add(SnapshotEnvelope.Create("navigation", NavSnapshot()));
+		if (TrackerSnapshot != null)
+			snapshots.Add(SnapshotEnvelope.Create("tracker", TrackerSnapshot()));
+		if (TreeSnapshot != null)
+			snapshots.Add(SnapshotEnvelope.Create("tree", TreeSnapshot()));
+		return snapshots.ToArray();
 	}
 }
