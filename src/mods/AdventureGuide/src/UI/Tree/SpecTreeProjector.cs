@@ -42,54 +42,81 @@ public sealed class SpecTreeProjector
 
     public IReadOnlyList<SpecTreeRef> GetChildren(SpecTreeRef parent)
     {
+        if (HasAncestryCycle(parent))
+            return Array.Empty<SpecTreeRef>();
         if (parent.Kind == SpecTreeKind.Group)
-            return parent.SyntheticChildren ?? Array.Empty<SpecTreeRef>();
+            return FilterVisible(parent.SyntheticChildren ?? Array.Empty<SpecTreeRef>());
 
         if (parent.Kind == SpecTreeKind.Prerequisite)
         {
             int prereqQuestIndex = _guide.FindQuestIndex(parent.NodeId);
             return prereqQuestIndex >= 0
-                ? GetQuestChildren(prereqQuestIndex, parent.Ancestry)
+                ? FilterVisible(GetQuestChildren(prereqQuestIndex, parent.Ancestry))
                 : Array.Empty<SpecTreeRef>();
         }
 
-        if (parent.Kind == SpecTreeKind.Item)
+        return FilterVisible(GetNodeChildren(parent));
+    }
+
+    private IReadOnlyList<SpecTreeRef> GetNodeChildren(SpecTreeRef parent)
+    {
+        var node = _guide.GetNode(parent.NodeId);
+        if (parent.Kind == SpecTreeKind.Source && node.Type == NodeType.Recipe)
+            return GetRecipeMaterialChildren(parent.QuestIndex, parent.NodeId, parent.Ancestry);
+
+        if ((parent.Kind == SpecTreeKind.Item || parent.Kind is SpecTreeKind.Giver or SpecTreeKind.Completer or SpecTreeKind.Step)
+            && node.Type is NodeType.Item or NodeType.Book)
         {
-            int itemIndex = _guide.FindItemIndex(parent.NodeId);
-            if (itemIndex < 0)
-                return Array.Empty<SpecTreeRef>();
-
-            var results = new List<SpecTreeRef>();
-            var visibleSources = ApplyHostileDropFilter(_guide.GetItemSources(itemIndex));
-            for (int i = 0; i < visibleSources.Count; i++)
-                AddIfVisible(results, BuildSourceRef(parent.QuestIndex, visibleSources[i], parent.Ancestry));
-
-            foreach (var rewardEdge in _guide.InEdges(_guide.GetNodeKey(parent.NodeId), EdgeType.RewardsItem))
-            {
-                if (_guide.TryGetNodeId(rewardEdge.Source, out int rewardQuestId))
-                    AddIfVisible(results, BuildRewardQuestSourceRef(parent.QuestIndex, rewardQuestId, parent.Ancestry));
-            }
-
-            return results;
+            return GetItemChildren(parent.QuestIndex, parent.NodeId, parent.Ancestry);
         }
 
-        if (parent.Kind == SpecTreeKind.Source)
+        if ((parent.Kind == SpecTreeKind.Source || parent.Kind is SpecTreeKind.Giver or SpecTreeKind.Completer)
+            && node.Type == NodeType.Quest)
         {
-            var node = _guide.GetNode(parent.NodeId);
-            if (node.Type == NodeType.Recipe)
-                return GetRecipeMaterialChildren(parent.QuestIndex, parent.NodeId, parent.Ancestry);
-            if (node.Type == NodeType.Quest)
-            {
-                int questIndex = _guide.FindQuestIndex(parent.NodeId);
-                return questIndex >= 0 ? GetQuestChildren(questIndex, parent.Ancestry) : Array.Empty<SpecTreeRef>();
-            }
+            int questIndex = _guide.FindQuestIndex(parent.NodeId);
+            return questIndex >= 0 ? GetQuestChildren(questIndex, parent.Ancestry) : Array.Empty<SpecTreeRef>();
         }
 
         return Array.Empty<SpecTreeRef>();
     }
 
+    private IReadOnlyList<SpecTreeRef> GetItemChildren(int questIndex, int itemNodeId, int[] ancestry)
+    {
+        int itemIndex = _guide.FindItemIndex(itemNodeId);
+        if (itemIndex < 0)
+            return Array.Empty<SpecTreeRef>();
+
+        var results = new List<SpecTreeRef>();
+        var visibleSources = ApplyHostileDropFilter(_guide.GetItemSources(itemIndex));
+        for (int i = 0; i < visibleSources.Count; i++)
+            AddIfVisible(results, BuildSourceRef(questIndex, visibleSources[i], ancestry));
+
+        foreach (var rewardEdge in _guide.InEdges(_guide.GetNodeKey(itemNodeId), EdgeType.RewardsItem))
+        {
+            if (_guide.TryGetNodeId(rewardEdge.Source, out int rewardQuestId))
+                AddIfVisible(results, BuildRewardQuestSourceRef(questIndex, rewardQuestId, ancestry));
+        }
+
+        return results;
+    }
+
+    private bool ItemHasPotentialChildren(int itemNodeId)
+    {
+        int itemIndex = _guide.FindItemIndex(itemNodeId);
+        if (itemIndex < 0)
+            return false;
+        if (_guide.GetItemSources(itemIndex).Length > 0)
+            return true;
+        return _guide.InEdges(_guide.GetNodeKey(itemNodeId), EdgeType.RewardsItem).Count > 0;
+    }
+
+
+
     public IReadOnlyList<SpecTreeRef> GetUnlockChildren(SpecTreeRef parent)
     {
+        if (HasAncestryCycle(parent))
+            return Array.Empty<SpecTreeRef>();
+
         var groups = new List<IReadOnlyList<UnlockConditionEntry>>();
         groups.AddRange(_unlocks.GetBlockingRequirementGroups(parent.NodeId));
         if (parent.BlockedByNodeId is int blockedByNodeId && blockedByNodeId != parent.NodeId)
@@ -97,14 +124,26 @@ public sealed class SpecTreeProjector
         if (groups.Count == 0)
             return Array.Empty<SpecTreeRef>();
         if (groups.Count == 1)
-            return BuildUnlockGroupChildren(parent.QuestIndex, parent.Ancestry, groups[0]);
+            return FilterVisible(BuildUnlockGroupChildren(parent.QuestIndex, parent.Ancestry, groups[0]));
 
-        return new[] { BuildGroupRef(parent.QuestIndex, "Any of:", parent.Ancestry, groups.SelectMany((group, index) =>
+        var options = new List<SpecTreeRef>();
+        for (int i = 0; i < groups.Count; i++)
         {
-            var children = BuildUnlockGroupChildren(parent.QuestIndex, parent.Ancestry, group);
-            return group.Count > 1 ? new[] { BuildGroupRef(parent.QuestIndex, "All of:", parent.Ancestry, children) } : children;
-        }).ToArray()) };
+            var children = FilterVisible(BuildUnlockGroupChildren(parent.QuestIndex, parent.Ancestry, groups[i]));
+            if (children.Count == 0)
+                continue;
+            if (groups[i].Count > 1)
+                options.Add(BuildGroupRef(parent.QuestIndex, "All of:", parent.Ancestry, children.ToArray()));
+            else
+                options.AddRange(children);
+        }
+
+        if (options.Count <= 1)
+            return options;
+
+        return new[] { BuildGroupRef(parent.QuestIndex, "Any of:", parent.Ancestry, options.ToArray()) };
     }
+
 
     private void AppendUnlockChildren(int nodeId, int questIndex, int[] ancestry, List<SpecTreeRef> results)
     {
@@ -239,7 +278,9 @@ public sealed class SpecTreeProjector
             false,
             isBlocked,
             blockedByNodeId,
-            AppendAncestry(ancestry, source.SourceId));
+            AppendAncestry(ancestry, source.SourceId),
+            requiresVisibleChildren: source.SourceType == (byte)NodeType.Recipe);
+
     }
 
     private SpecTreeRef BuildRewardQuestSourceRef(int questIndex, int rewardQuestId, int[] ancestry)
@@ -253,7 +294,9 @@ public sealed class SpecTreeProjector
             $"Complete {name}",
             false,
             false,
-            ancestry: AppendAncestry(ancestry, rewardQuestId));
+            ancestry: AppendAncestry(ancestry, rewardQuestId),
+            requiresVisibleChildren: true);
+
     }
 
     private SpecTreeRef BuildUnlockConditionRef(int questIndex, UnlockConditionEntry condition) =>
@@ -271,7 +314,10 @@ public sealed class SpecTreeProjector
             $"Requires: {name}",
             IsUnlockConditionSatisfied(condition),
             false,
-            ancestry: AppendAncestry(ancestry, condition.SourceId));
+            ancestry: AppendAncestry(ancestry, condition.SourceId),
+            requiresVisibleChildren: kind == SpecTreeKind.Item && ItemHasPotentialChildren(condition.SourceId));
+
+
     }
 
     private List<SourceSiteEntry> ApplyHostileDropFilter(ReadOnlySpan<SourceSiteEntry> sources)
@@ -376,10 +422,52 @@ public sealed class SpecTreeProjector
 
     private void AddIfVisible(List<SpecTreeRef> results, SpecTreeRef candidate)
     {
-        if (candidate.IsBlocked && GetUnlockChildren(candidate).Count == 0 && GetChildren(candidate).Count == 0)
+        if (!IsMeaningfullyVisible(candidate))
             return;
         results.Add(candidate);
     }
+
+    private IReadOnlyList<SpecTreeRef> FilterVisible(IEnumerable<SpecTreeRef> candidates)
+    {
+        var results = new List<SpecTreeRef>();
+        foreach (var candidate in candidates)
+            AddIfVisible(results, candidate);
+        return results;
+    }
+
+    private bool IsMeaningfullyVisible(SpecTreeRef candidate)
+    {
+        bool hasVisibleDescendants = GetUnlockChildren(candidate).Count > 0 || GetChildren(candidate).Count > 0;
+        if (RequiresVisibleChildren(candidate))
+            return candidate.IsCompleted || hasVisibleDescendants;
+        return !candidate.IsBlocked || hasVisibleDescendants;
+    }
+
+    private bool RequiresVisibleChildren(SpecTreeRef candidate)
+    {
+        if (candidate.RequiresVisibleChildren)
+            return true;
+        if (candidate.Kind == SpecTreeKind.Source)
+        {
+            var node = _guide.GetNode(candidate.NodeId);
+            return node.Type is NodeType.Quest or NodeType.Recipe;
+        }
+        return false;
+    }
+
+
+    private static bool HasAncestryCycle(SpecTreeRef candidate)
+    {
+        if (candidate.Ancestry.Length < 2)
+            return false;
+        for (int i = 0; i < candidate.Ancestry.Length - 1; i++)
+        {
+            if (candidate.Ancestry[i] == candidate.NodeId)
+                return true;
+        }
+        return false;
+    }
+
 
     private SpecTreeRef[] BuildUnlockGroupChildren(int questIndex, int[] ancestry, IReadOnlyList<UnlockConditionEntry> conditions)
     {
@@ -405,7 +493,9 @@ public sealed class SpecTreeProjector
             false,
             false,
             ancestry: ancestry,
-            syntheticChildren: children);
+            syntheticChildren: children,
+            requiresVisibleChildren: true);
+
     }
 
     private static int[] AppendAncestry(int[] ancestry, int nodeId)

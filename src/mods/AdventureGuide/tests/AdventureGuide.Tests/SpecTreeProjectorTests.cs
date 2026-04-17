@@ -310,6 +310,48 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void Ready_item_giver_expands_to_item_source_tree()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:torn-note")
+            .AddCharacter("char:ghost")
+            .AddItemSource("item:torn-note", "char:ghost", edgeType: (byte)EdgeType.DropsItem, sourceType: (byte)NodeType.Character)
+            .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "item:torn-note" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), Array.Empty<string>(), new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker), null, () => string.Empty);
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var giverRef = Assert.Single(projector.GetRootChildren(rootQuestIndex), r => r.Kind == SpecTreeKind.Giver);
+        var children = projector.GetChildren(giverRef);
+
+        Assert.Contains(children, child => child.Kind == SpecTreeKind.Source && child.Label == "Drops from: char:ghost");
+    }
+
+    [Fact]
+    public void Recursive_unlock_cycle_with_direct_alternative_hides_impossible_branch()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:lucian-open")
+            .AddCharacter("char:lucian-locked")
+            .AddItem("item:ritual-token")
+            .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:lucian-open", "char:lucian-locked" })
+            .AddUnlockPredicate("char:lucian-locked", "item:ritual-token", checkType: 1)
+            .AddEdge("quest:root", "item:ritual-token", EdgeType.RewardsItem)
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(Array.Empty<string>(), new[] { "ROOT" }, new Dictionary<string, int>(), Array.Empty<string>());
+        var projector = new SpecTreeProjector(guide, tracker, new UnlockPredicateEvaluator(guide, tracker), null, () => string.Empty);
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var completers = projector.GetRootChildren(rootQuestIndex).Where(child => child.Kind == SpecTreeKind.Completer).ToArray();
+
+        Assert.Single(completers);
+        Assert.Equal("Turn in to char:lucian-open", completers[0].Label);
+    }
+
+    [Fact]
     public void Self_cyclic_unlock_only_target_is_hidden()
     {
         var guide = new CompiledGuideBuilder()
