@@ -231,9 +231,6 @@ public sealed class MarkerComputer
             }
 
             var sw = Stopwatch.StartNew();
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine($"Cold marker rebuild: {sceneQuestKeys.Count} quests");
-            double totalMs = 0;
             _recentQuestCosts.Clear();
 
             foreach (var questKey in sceneQuestKeys)
@@ -241,17 +238,8 @@ public sealed class MarkerComputer
                 sw.Restart();
                 RebuildQuestMarkers(questKey);
                 sw.Stop();
-                double ms = sw.Elapsed.TotalMilliseconds;
-                totalMs += ms;
                 AddQuestCostSample(questKey, sw.ElapsedTicks);
-
-                var quest = _compiledGuide.GetNode(questKey);
-                if (ms >= 1.0)
-                    sb.AppendLine($"  {quest?.DisplayName ?? questKey}: {ms:F1} ms");
             }
-
-            sb.AppendLine($"  total: {totalMs:F0} ms");
-            GuideDiagnostics.LogInfo?.Invoke(sb.ToString());
         }
         finally
         {

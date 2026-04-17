@@ -394,7 +394,6 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Update()
     {
-        // Respect the game's F7 UI hide toggle
         bool gameUIVisible = GameUIVisibility.IsVisible;
         if (gameUIVisible != _gameUIVisible)
         {
@@ -416,7 +415,6 @@ public sealed class Plugin : BaseUnityPlugin
             GameWindowOverlap.InvalidateRects();
         _wasEditUIMode = editMode;
 
-        // Text input state for game movement blocking
         if (_gameUIVisible)
         {
             bool textActive = _imgui?.WantTextInput ?? false;
@@ -427,25 +425,26 @@ public sealed class Plugin : BaseUnityPlugin
             _wasTextInputActive = textActive;
         }
 
-        // Per-frame updates — each step is timed into a 512-entry ring buffer.
-        // Query GuideProfiler.DumpReport() via HotRepl to read results.
         var playerPos = GameData.PlayerControl != null ? GameData.PlayerControl.transform.position : Vector3.zero;
-        long pt;
-
-        pt = Stopwatch.GetTimestamp();
+        var liveStateToken = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.LiveStateUpdateFrame,
+            DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged),
+            primaryKey: _navEngine?.CurrentScene ?? string.Empty);
+        long liveStateStart = Stopwatch.GetTimestamp();
         var liveChangeSet = _liveState?.UpdateFrameState() ?? GuideChangeSet.None;
-        GuideProfiler.LiveState.Record(pt);
-
-        if (liveChangeSet.HasMeaningfulChanges)
+        if (liveStateToken != null)
         {
-            pt = Stopwatch.GetTimestamp();
-            _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
-            GuideProfiler.MarkerApply.Record(pt);
+            _diagnostics!.EndSpan(
+                liveStateToken.Value,
+                Stopwatch.GetTimestamp() - liveStateStart,
+                value0: liveChangeSet.HasMeaningfulChanges ? 1 : 0,
+                value1: 0);
         }
 
-        pt = Stopwatch.GetTimestamp();
+        if (liveChangeSet.HasMeaningfulChanges)
+            _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
+
         _markerComputer?.Recompute();
-        GuideProfiler.MarkerRecompute.Record(pt);
 
         int targetSourceVersion = _navigationTargetResolver!.Version;
         var selectorDecision = TargetSelectorRefreshPolicy.Decide(
@@ -458,10 +457,9 @@ public sealed class Plugin : BaseUnityPlugin
         if (forceSelector)
         {
             _lastResolutionVersion = targetSourceVersion;
-            _lastNavSetVersion     = _navSet!.Version;
+            _lastNavSetVersion = _navSet.Version;
         }
 
-        pt = Stopwatch.GetTimestamp();
         _targetSelector?.Tick(
             playerPos.x,
             playerPos.y,
@@ -470,19 +468,10 @@ public sealed class Plugin : BaseUnityPlugin
             AllNavigableNodeKeys(),
             forceSelector,
             selectorDecision.Reason);
-        GuideProfiler.SelectorTick.Record(pt);
 
-        pt = Stopwatch.GetTimestamp();
         _navEngine?.Update(playerPos);
-        GuideProfiler.NavUpdate.Record(pt);
-
-        pt = Stopwatch.GetTimestamp();
         _groundPath?.Update();
-        GuideProfiler.GroundPath.Record(pt);
-
-        pt = Stopwatch.GetTimestamp();
         _markerSystem?.Update();
-        GuideProfiler.MarkerSysUpdate.Record(pt);
         SyncCompiledQuestTracker();
 
         if (_config == null || _window == null) return;
