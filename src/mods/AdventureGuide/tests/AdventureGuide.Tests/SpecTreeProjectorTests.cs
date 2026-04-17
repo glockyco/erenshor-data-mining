@@ -440,6 +440,40 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void Completed_reward_quest_source_is_marked_completed()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:percy")
+            .AddQuest("quest:percy", dbName: "PERCY", givers: new[] { "char:percy" })
+            .AddEdge("quest:percy", "item:note", EdgeType.RewardsItem)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:note", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            new[] { "PERCY" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty
+        );
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var itemRef = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        var questSource = Assert.Single(projector.GetChildren(itemRef));
+
+        Assert.True(questSource.IsCompleted);
+    }
+
+    [Fact]
     public void Ready_item_giver_expands_to_item_source_tree()
     {
         var guide = new CompiledGuideBuilder()
@@ -619,6 +653,161 @@ public sealed class SpecTreeProjectorTests
                 child.Kind == SpecTreeKind.Completer
                 && child.Label.Contains("char:lucian", StringComparison.Ordinal)
         );
+    }
+
+    [Fact]
+    public void Accepted_quest_marks_accept_roots_completed()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:giver")
+            .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "char:giver" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty
+        );
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var giverRef = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(r => r.Kind == SpecTreeKind.Giver);
+
+        Assert.True(giverRef.IsCompleted);
+    }
+
+    [Fact]
+    public void Completed_quest_marks_all_projected_nodes_completed()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:gem")
+            .AddCharacter("char:giver")
+            .AddCharacter("char:wolf", isFriendly: false)
+            .AddCharacter("char:turnin")
+            .AddItemSource("item:gem", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
+            .AddQuest(
+                "quest:root",
+                dbName: "ROOT",
+                givers: new[] { "char:giver" },
+                completers: new[] { "char:turnin" },
+                requiredItems: new[] { ("item:gem", 1) }
+            )
+            .AddStep("quest:root", stepType: 3, targetKey: "char:wolf")
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            new[] { "ROOT" },
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty
+        );
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var roots = projector.GetRootChildren(rootQuestIndex);
+        var itemRoot = roots.Single(r => r.Kind == SpecTreeKind.Item);
+
+        Assert.All(roots, root => Assert.True(root.IsCompleted));
+        Assert.All(projector.GetChildren(itemRoot), child => Assert.True(child.IsCompleted));
+    }
+
+    [Fact]
+    public void Item_requirement_completion_reverts_when_inventory_is_lost()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:gem")
+            .AddCharacter("char:wolf", isFriendly: false)
+            .AddItemSource("item:gem", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:gem", 1) })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int> { ["item:gem"] = 1 },
+            Array.Empty<string>()
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty
+        );
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var completedItem = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        Assert.True(completedItem.IsCompleted);
+
+        Assert.True(guide.TryGetNodeId("item:gem", out int itemNodeId));
+        tracker.OnInventoryChanged(guide.FindItemIndex(itemNodeId), 0);
+
+        var incompleteItem = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        Assert.False(incompleteItem.IsCompleted);
+        Assert.Contains(
+            projector.GetChildren(incompleteItem),
+            child => child.Label == "Drops from: char:wolf"
+        );
+    }
+
+    [Fact]
+    public void Completed_item_root_skips_descendant_cycle_probe()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:loop")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:loop", 1) })
+            .AddEdge("quest:root", "item:loop", EdgeType.RewardsItem)
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int> { ["item:loop"] = 1 },
+            Array.Empty<string>()
+        );
+        var diagnostics = new DiagnosticsCore(
+            eventCapacity: 8,
+            spanCapacity: 8,
+            incidentCapacity: 4,
+            incidentThresholds: IncidentThresholds.Disabled
+        );
+        var projector = new SpecTreeProjector(
+            guide,
+            tracker,
+            new UnlockPredicateEvaluator(guide, tracker),
+            null,
+            () => string.Empty,
+            diagnostics
+        );
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var itemRoot = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        var span = Assert.Single(diagnostics.GetRecentSpans());
+
+        Assert.True(itemRoot.IsCompleted);
+        Assert.Equal(DiagnosticSpanKind.SpecTreeProjectRoot, span.Kind);
+        Assert.Equal(0, span.Value1);
     }
 
     [Fact]
