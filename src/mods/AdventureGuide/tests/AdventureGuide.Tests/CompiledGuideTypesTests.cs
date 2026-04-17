@@ -1,4 +1,6 @@
 using AdventureGuide.CompiledGuide;
+using AdventureGuide.Graph;
+using AdventureGuide.Tests.Helpers;
 using Xunit;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -52,6 +54,26 @@ public sealed class CompiledGuideTypesTests
         Assert.Equal("Quest A", guide.GetDisplayName(0));
         Assert.True(guide.TryGetNodeId("quest:a", out int id));
         Assert.Equal(0, id);
+    }
+
+    [Fact]
+    public void GetQuestsTouchingSource_IncludesRequiredItemSourceChains()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:coal")
+            .AddMiningNode("mine:azure", scene: "Azure", x: 1f, y: 2f, z: 3f)
+            .AddItemSource(
+                "item:coal",
+                "mine:azure",
+                edgeType: (byte)EdgeType.YieldsItem,
+                sourceType: (byte)NodeType.MiningNode
+            )
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:coal", 1) })
+            .Build();
+
+        var quests = guide.GetQuestsTouchingSource("mine:azure");
+
+        Assert.Contains("quest:root", quests);
     }
 
     [Fact]

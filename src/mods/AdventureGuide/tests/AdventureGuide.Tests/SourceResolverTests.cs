@@ -445,4 +445,74 @@ public sealed class SourceResolverTests
 		Assert.Equal(ResolvedTargetRole.Giver, targets[0].Role);
 		Assert.Equal(ResolvedActionKind.Talk, targets[0].Semantic.ActionKind);
 	}
+
+	[Fact]
+	public async Task Accepted_with_shared_reward_subtrees_resolves_without_timing_out()
+	{
+		const int depth = 20;
+		var builder = new CompiledGuideBuilder()
+			.AddCharacter("char:leaf", scene: "Town", x: 1f, y: 2f, z: 3f)
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:0", 1) });
+
+		for (int i = 0; i <= depth; i++)
+			builder.AddItem($"item:{i}");
+
+		var activeQuests = new List<string> { "ROOT" };
+		for (int i = 0; i < depth; i++)
+		{
+			string qa = $"Q{i}A";
+			string qb = $"Q{i}B";
+			activeQuests.Add(qa);
+			activeQuests.Add(qb);
+			builder
+				.AddQuest(
+					$"quest:{i}:a",
+					dbName: qa,
+					requiredItems: new[] { ($"item:{i + 1}", 1) }
+				)
+				.AddQuest(
+					$"quest:{i}:b",
+					dbName: qb,
+					requiredItems: new[] { ($"item:{i + 1}", 1) }
+				)
+				.AddEdge($"quest:{i}:a", $"item:{i}", EdgeType.RewardsItem)
+				.AddEdge($"quest:{i}:b", $"item:{i}", EdgeType.RewardsItem);
+		}
+
+		builder.AddItemSource(
+			$"item:{depth}",
+			"char:leaf",
+			edgeType: (byte)EdgeType.GivesItem,
+			sourceType: (byte)NodeType.Character
+		);
+
+		var guide = builder.Build();
+		var tracker = new QuestPhaseTracker(guide);
+		tracker.Initialize(
+			Array.Empty<string>(),
+			activeQuests,
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var resolver = new SourceResolver(
+			guide,
+			tracker,
+			new UnlockPredicateEvaluator(guide, tracker),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide)
+		);
+		Assert.True(guide.TryGetNodeId("quest:root", out int questNodeId));
+		int questIndex = guide.FindQuestIndex(questNodeId);
+
+		var resolveTask = System.Threading.Tasks.Task.Run(
+			() => resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Town")
+		);
+		var completed = await System.Threading.Tasks.Task.WhenAny(
+			resolveTask,
+			System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(500))
+		);
+
+		Assert.Same(resolveTask, completed);
+		Assert.NotEmpty(await resolveTask);
+	}
 }

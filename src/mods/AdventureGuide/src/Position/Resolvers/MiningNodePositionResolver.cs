@@ -22,7 +22,9 @@ public sealed class MiningNodePositionResolver : IPositionResolver
         if (node.X is null || node.Y is null || node.Z is null)
             return;
 
-        bool actionable = _liveState.GetMiningState(node).State is MiningAvailable;
+        bool actionable = _liveState.TryGetCachedMiningAvailability(node, out bool available)
+            ? available
+            : _liveState.GetMiningState(node).State is MiningAvailable;
         results.Add(
             new ResolvedPosition(
                 node.X.Value,

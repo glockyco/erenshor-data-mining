@@ -644,6 +644,24 @@ public sealed class CompiledGuide
             AddToSetMap(map, sourceKey, questKey);
         }
 
+        for (int itemIndex = 0; itemIndex < _itemSources.Length; itemIndex++)
+        {
+            var questIndices = _itemToQuestIndices[itemIndex];
+            if (questIndices.Length == 0)
+                continue;
+
+            var sources = _itemSources[itemIndex];
+            for (int sourceIndex = 0; sourceIndex < sources.Length; sourceIndex++)
+            {
+                string sourceKey = _nodes[sources[sourceIndex].SourceId].Key;
+                for (int questOffset = 0; questOffset < questIndices.Length; questOffset++)
+                {
+                    string questKey = _nodes[_questNodeIds[questIndices[questOffset]]].Key;
+                    AddToSetMap(map, sourceKey, questKey);
+                }
+            }
+        }
+
         return FreezeSetMap(map);
     }
 

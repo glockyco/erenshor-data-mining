@@ -87,406 +87,573 @@ public sealed class SourceResolver
         _positionResolvers = positionResolvers;
     }
 
+    internal sealed class ResolutionSession
+    {
+        public readonly Dictionary<(int QuestIndex, int RequiredForQuestIndex), IReadOnlyList<ResolvedTarget>> QuestFrontierCache = new();
+        public readonly HashSet<(int QuestIndex, int RequiredForQuestIndex)> ActiveQuestFrontiers = new();
+        public readonly Dictionary<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int ItemNodeId, byte SemanticKind, int GiverNodeId),
+            IReadOnlyList<ResolvedTarget>
+        > ItemRequirementCache = new();
+        public readonly HashSet<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int ItemNodeId, byte SemanticKind, int GiverNodeId)
+        > ActiveItemRequirements = new();
+        public readonly Dictionary<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int TargetNodeId),
+            IReadOnlyList<ResolvedTarget>
+        > UnlockRequirementCache = new();
+        public readonly HashSet<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int TargetNodeId)
+        > ActiveUnlockRequirements = new();
+        public readonly Dictionary<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int RecipeNodeId),
+            IReadOnlyList<ResolvedTarget>
+        > RecipeMaterialCache = new();
+        public readonly HashSet<
+            (int QuestIndex, byte Phase, int RequiredForQuestIndex, int RecipeNodeId)
+        > ActiveRecipeMaterials = new();
+    }
+
+    private enum ItemRequirementSemanticKind : byte
+    {
+        Objective = 0,
+        Giver = 1,
+    }
+
+    private static IReadOnlyList<ResolvedTarget> FreezeResults(List<ResolvedTarget> results) =>
+        results.Count == 0 ? Array.Empty<ResolvedTarget>() : results;
+
+    private static IReadOnlyList<ResolvedTarget> ResolveCached<TKey>(
+        Dictionary<TKey, IReadOnlyList<ResolvedTarget>> cache,
+        HashSet<TKey> active,
+        TKey key,
+        Func<IReadOnlyList<ResolvedTarget>> build
+    )
+        where TKey : notnull
+    {
+        if (cache.TryGetValue(key, out var cached))
+            return cached;
+        if (!active.Add(key))
+            return Array.Empty<ResolvedTarget>();
+
+        try
+        {
+            cached = build();
+            cache[key] = cached;
+            return cached;
+        }
+        finally
+        {
+            active.Remove(key);
+        }
+    }
+
     public IReadOnlyList<ResolvedTarget> ResolveTargets(
+            FrontierEntry entry,
+            string currentScene,
+            IResolutionTracer? tracer = null
+        )
+        {
+            return ResolveTargets(entry, currentScene, new ResolutionSession(), tracer);
+        }
+
+    public IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(
+            int targetNodeId,
+            FrontierEntry entry,
+            string currentScene,
+            IResolutionTracer? tracer = null
+        )
+        {
+            return ResolveUnlockTargets(targetNodeId, entry, currentScene, new ResolutionSession(), tracer);
+        }
+
+    internal IReadOnlyList<ResolvedTarget> ResolveTargets(
         FrontierEntry entry,
         string currentScene,
+        ResolutionSession session,
         IResolutionTracer? tracer = null
     )
     {
         var results = new List<ResolvedTarget>();
-        ResolveEntry(entry, currentScene, results, new HashSet<int>(), new HashSet<int>(), tracer);
+        ResolveEntry(
+            entry,
+            currentScene,
+            results,
+            session,
+            new HashSet<int>(),
+            new HashSet<int>(),
+            tracer
+        );
         return results;
     }
 
-    public IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(
+    internal IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(
         int targetNodeId,
         FrontierEntry entry,
         string currentScene,
+        ResolutionSession session,
         IResolutionTracer? tracer = null
     )
     {
-        var results = new List<ResolvedTarget>();
-        ResolveUnlockRequirements(
+        var results = ResolveBlockingUnlockRequirements(
             targetNodeId,
             entry,
             currentScene,
-            results,
+            session,
             new HashSet<int>(),
             new HashSet<int>(),
             tracer
         );
-        return results;
+        return results ?? Array.Empty<ResolvedTarget>();
     }
 
     private void ResolveEntry(
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        if (!questTrail.Add(entry.QuestIndex))
-            return;
-
-        try
+            FrontierEntry entry,
+            string currentScene,
+            List<ResolvedTarget> results,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
+        )
         {
-            switch (entry.Phase)
+            if (!questTrail.Add(entry.QuestIndex))
+                return;
+
+            try
             {
-                case QuestPhase.ReadyToAccept:
-                    foreach (int giverId in _guide.GiverIds(entry.QuestIndex))
-                    {
-                        var giverNode = _guide.GetNode(giverId);
-                        if (giverNode.Type is NodeType.Item or NodeType.Book)
+                switch (entry.Phase)
+                {
+                    case QuestPhase.ReadyToAccept:
+                        foreach (int giverId in _guide.GiverIds(entry.QuestIndex))
                         {
-                            ResolveItemRequirement(
-                                giverId,
-                                entry,
-                                currentScene,
-                                results,
-                                questTrail,
-                                itemTrail,
-                                (itemId, source) => BuildGiverSemantic(entry.QuestIndex, giverId),
-                                tracer
-                            );
-                            continue;
-                        }
+                            var giverNode = _guide.GetNode(giverId);
+                            if (giverNode.Type is NodeType.Item or NodeType.Book)
+                            {
+                                results.AddRange(
+                                    ResolveItemRequirement(
+                                        giverId,
+                                        entry,
+                                        currentScene,
+                                        session,
+                                        questTrail,
+                                        itemTrail,
+                                        ItemRequirementSemanticKind.Giver,
+                                        giverId,
+                                        tracer
+                                    )
+                                );
+                                continue;
+                            }
 
-                        int giverQuestIndex = _guide.FindQuestIndex(giverId);
-                        if (
-                            giverNode.Type == NodeType.Quest
-                            && giverQuestIndex >= 0
-                            && !_phases.IsCompleted(giverQuestIndex)
-                        )
-                        {
-                            ResolveQuestFrontier(
-                                giverQuestIndex,
-                                entry.QuestIndex,
-                                currentScene,
-                                results,
-                                questTrail,
-                                itemTrail,
-                                tracer
-                            );
-                            continue;
-                        }
+                            int giverQuestIndex = _guide.FindQuestIndex(giverId);
+                            if (
+                                giverNode.Type == NodeType.Quest
+                                && giverQuestIndex >= 0
+                                && !_phases.IsCompleted(giverQuestIndex)
+                            )
+                            {
+                                results.AddRange(
+                                    ResolveQuestFrontier(
+                                        giverQuestIndex,
+                                        entry.QuestIndex,
+                                        currentScene,
+                                        session,
+                                        questTrail,
+                                        itemTrail,
+                                        tracer
+                                    )
+                                );
+                                continue;
+                            }
 
-                        EmitNodePosition(
-                            giverId,
-                            giverId,
-                            ResolvedTargetRole.Giver,
-                            BuildGiverSemantic(entry.QuestIndex, giverId),
-                            entry,
-                            results,
-                            tracer
-                        );
-                    }
-                    break;
-
-                case QuestPhase.Accepted:
-                    bool emittedObjective = false;
-                    foreach (var requirement in _guide.RequiredItems(entry.QuestIndex))
-                    {
-                        int itemIndex = _guide.FindItemIndex(requirement.ItemId);
-                        if (
-                            itemIndex >= 0
-                            && _phases.GetItemCount(itemIndex) >= requirement.Quantity
-                        )
-                            continue;
-
-                        emittedObjective = true;
-                        ResolveItemRequirement(
-                            requirement.ItemId,
-                            entry,
-                            currentScene,
-                            results,
-                            questTrail,
-                            itemTrail,
-                            BuildSourceSemantic,
-                            tracer
-                        );
-                    }
-
-                    foreach (var step in _guide.Steps(entry.QuestIndex))
-                    {
-                        emittedObjective = true;
-                        EmitNodePosition(
-                            step.TargetId,
-                            step.TargetId,
-                            ResolvedTargetRole.Objective,
-                            BuildStepSemantic(step),
-                            entry,
-                            results,
-                            tracer
-                        );
-                    }
-
-                    if (!emittedObjective)
-                    {
-                        foreach (int completerId in _guide.CompleterIds(entry.QuestIndex))
-                        {
                             EmitNodePosition(
-                                completerId,
-                                completerId,
-                                ResolvedTargetRole.TurnIn,
-                                BuildTurnInSemantic(entry.QuestIndex, completerId),
+                                giverId,
+                                giverId,
+                                ResolvedTargetRole.Giver,
+                                BuildGiverSemantic(entry.QuestIndex, giverId),
                                 entry,
                                 results,
                                 tracer
                             );
                         }
-                    }
-                    break;
+                        break;
+
+                    case QuestPhase.Accepted:
+                        bool emittedObjective = false;
+                        foreach (var requirement in _guide.RequiredItems(entry.QuestIndex))
+                        {
+                            int itemIndex = _guide.FindItemIndex(requirement.ItemId);
+                            if (
+                                itemIndex >= 0
+                                && _phases.GetItemCount(itemIndex) >= requirement.Quantity
+                            )
+                                continue;
+
+                            emittedObjective = true;
+                            results.AddRange(
+                                ResolveItemRequirement(
+                                    requirement.ItemId,
+                                    entry,
+                                    currentScene,
+                                    session,
+                                    questTrail,
+                                    itemTrail,
+                                    ItemRequirementSemanticKind.Objective,
+                                    giverNodeId: -1,
+                                    tracer
+                                )
+                            );
+                        }
+
+                        foreach (var step in _guide.Steps(entry.QuestIndex))
+                        {
+                            emittedObjective = true;
+                            EmitNodePosition(
+                                step.TargetId,
+                                step.TargetId,
+                                ResolvedTargetRole.Objective,
+                                BuildStepSemantic(step),
+                                entry,
+                                results,
+                                tracer
+                            );
+                        }
+
+                        if (!emittedObjective)
+                        {
+                            foreach (int completerId in _guide.CompleterIds(entry.QuestIndex))
+                            {
+                                EmitNodePosition(
+                                    completerId,
+                                    completerId,
+                                    ResolvedTargetRole.TurnIn,
+                                    BuildTurnInSemantic(entry.QuestIndex, completerId),
+                                    entry,
+                                    results,
+                                    tracer
+                                );
+                            }
+                        }
+                        break;
+                }
+            }
+            finally
+            {
+                questTrail.Remove(entry.QuestIndex);
             }
         }
-        finally
+
+    private IReadOnlyList<ResolvedTarget> ResolveQuestFrontier(
+            int questIndex,
+            int requiredForQuestIndex,
+            string currentScene,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
+        )
         {
-            questTrail.Remove(entry.QuestIndex);
-        }
-    }
-
-    private void ResolveQuestFrontier(
-        int questIndex,
-        int requiredForQuestIndex,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        var frontier = new List<FrontierEntry>();
-        new EffectiveFrontier(_guide, _phases).Resolve(
-            questIndex,
-            frontier,
-            requiredForQuestIndex,
-            tracer
-        );
-        for (int i = 0; i < frontier.Count; i++)
-            ResolveEntry(frontier[i], currentScene, results, questTrail, itemTrail, tracer);
-    }
-
-    private void ResolveItemRequirement(
-        int itemNodeId,
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        Func<int, SourceSiteEntry, ResolvedActionSemantic> semanticFactory,
-        IResolutionTracer? tracer = null
-    )
-    {
-        if (!itemTrail.Add(itemNodeId))
-            return;
-
-        try
-        {
-            int itemIndex = _guide.FindItemIndex(itemNodeId);
-            if (itemIndex >= 0)
-            {
-                foreach (var source in GetVisibleItemSources(itemIndex, tracer))
+            return ResolveCached(
+                session.QuestFrontierCache,
+                session.ActiveQuestFrontiers,
+                (questIndex, requiredForQuestIndex),
+                () =>
                 {
-                    ResolveItemSource(
-                        itemNodeId,
-                        source,
-                        semanticFactory(itemNodeId, source),
+                    var frontier = new List<FrontierEntry>();
+                    new EffectiveFrontier(_guide, _phases).Resolve(
+                        questIndex,
+                        frontier,
+                        requiredForQuestIndex,
+                        tracer
+                    );
+                    var results = new List<ResolvedTarget>();
+                    for (int i = 0; i < frontier.Count; i++)
+                        ResolveEntry(frontier[i], currentScene, results, session, questTrail, itemTrail, tracer);
+                    return FreezeResults(results);
+                }
+            );
+        }
+
+    private IReadOnlyList<ResolvedTarget> ResolveItemRequirement(
+            int itemNodeId,
+            FrontierEntry entry,
+            string currentScene,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            ItemRequirementSemanticKind semanticKind,
+            int giverNodeId,
+            IResolutionTracer? tracer = null
+        )
+        {
+            return ResolveCached(
+                session.ItemRequirementCache,
+                session.ActiveItemRequirements,
+                (
+                    entry.QuestIndex,
+                    (byte)entry.Phase,
+                    entry.RequiredForQuestIndex,
+                    itemNodeId,
+                    (byte)semanticKind,
+                    giverNodeId
+                ),
+                () =>
+                {
+                    if (!itemTrail.Add(itemNodeId))
+                        return Array.Empty<ResolvedTarget>();
+
+                    try
+                    {
+                        var results = new List<ResolvedTarget>();
+                        int itemIndex = _guide.FindItemIndex(itemNodeId);
+                        if (itemIndex >= 0)
+                        {
+                            foreach (var source in GetVisibleItemSources(itemIndex, tracer))
+                            {
+                                var semantic = semanticKind == ItemRequirementSemanticKind.Giver
+                                    ? BuildGiverSemantic(entry.QuestIndex, giverNodeId)
+                                    : BuildSourceSemantic(itemNodeId, source);
+                                ResolveItemSource(
+                                    itemNodeId,
+                                    source,
+                                    semantic,
+                                    entry,
+                                    currentScene,
+                                    results,
+                                    session,
+                                    questTrail,
+                                    itemTrail,
+                                    tracer
+                                );
+                            }
+                        }
+
+                        foreach (
+                            var rewardEdge in _guide.InEdges(
+                                _guide.GetNodeKey(itemNodeId),
+                                EdgeType.RewardsItem
+                            )
+                        )
+                        {
+                            if (!_guide.TryGetNodeId(rewardEdge.Source, out int rewardQuestId))
+                                continue;
+
+                            int rewardQuestIndex = _guide.FindQuestIndex(rewardQuestId);
+                            if (rewardQuestIndex < 0 || _phases.IsCompleted(rewardQuestIndex))
+                                continue;
+
+                            results.AddRange(
+                                ResolveQuestFrontier(
+                                    rewardQuestIndex,
+                                    entry.QuestIndex,
+                                    currentScene,
+                                    session,
+                                    questTrail,
+                                    itemTrail,
+                                    tracer
+                                )
+                            );
+                        }
+
+                        return FreezeResults(results);
+                    }
+                    finally
+                    {
+                        itemTrail.Remove(itemNodeId);
+                    }
+                }
+            );
+        }
+
+    private void ResolveItemSource(
+            int itemNodeId,
+            SourceSiteEntry source,
+            ResolvedActionSemantic semantic,
+            FrontierEntry entry,
+            string currentScene,
+            List<ResolvedTarget> results,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
+        )
+        {
+            var sourceNode = _guide.GetNode(source.SourceId);
+            if (sourceNode.Type == NodeType.Recipe && source.EdgeType == EdgeProduces)
+            {
+                results.AddRange(
+                    ResolveRecipeMaterials(
+                        source.SourceId,
                         entry,
                         currentScene,
-                        results,
+                        session,
                         questTrail,
                         itemTrail,
                         tracer
-                    );
-                }
-            }
-
-            foreach (
-                var rewardEdge in _guide.InEdges(
-                    _guide.GetNodeKey(itemNodeId),
-                    EdgeType.RewardsItem
-                )
-            )
-            {
-                if (!_guide.TryGetNodeId(rewardEdge.Source, out int rewardQuestId))
-                    continue;
-
-                int rewardQuestIndex = _guide.FindQuestIndex(rewardQuestId);
-                if (rewardQuestIndex < 0 || _phases.IsCompleted(rewardQuestIndex))
-                    continue;
-
-                ResolveQuestFrontier(
-                    rewardQuestIndex,
-                    entry.QuestIndex,
-                    currentScene,
-                    results,
-                    questTrail,
-                    itemTrail,
-                    tracer
+                    )
                 );
+                return;
             }
-        }
-        finally
-        {
-            itemTrail.Remove(itemNodeId);
-        }
-    }
 
-    private void ResolveItemSource(
-        int itemNodeId,
-        SourceSiteEntry source,
-        ResolvedActionSemantic semantic,
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        var sourceNode = _guide.GetNode(source.SourceId);
-        if (sourceNode.Type == NodeType.Recipe && source.EdgeType == EdgeProduces)
-        {
-            ResolveRecipeMaterials(
+            var unlockTargets = ResolveBlockingUnlockRequirements(
                 source.SourceId,
                 entry,
                 currentScene,
-                results,
+                session,
                 questTrail,
                 itemTrail,
                 tracer
             );
-            return;
+            if (unlockTargets != null)
+            {
+                results.AddRange(unlockTargets);
+                return;
+            }
+
+            var role =
+                semantic.GoalKind == NavigationGoalKind.StartQuest
+                    ? ResolvedTargetRole.Giver
+                    : ResolvedTargetRole.Objective;
+            EmitSourceTargets(source, role, semantic, entry, results, tracer);
         }
-
-        if (
-            ResolveUnlockRequirements(
-                source.SourceId,
-                entry,
-                currentScene,
-                results,
-                questTrail,
-                itemTrail,
-                tracer
-            )
-        )
-            return;
-
-        var role =
-            semantic.GoalKind == NavigationGoalKind.StartQuest
-                ? ResolvedTargetRole.Giver
-                : ResolvedTargetRole.Objective;
-        EmitSourceTargets(source, role, semantic, entry, results, tracer);
-    }
 
     private void ResolveUnlockCondition(
-        UnlockConditionEntry condition,
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        if (condition.CheckType == 0)
-        {
-            int questIndex = _guide.FindQuestIndex(condition.SourceId);
-            if (questIndex >= 0 && !_phases.IsCompleted(questIndex))
-                ResolveQuestFrontier(
-                    questIndex,
-                    entry.QuestIndex,
-                    currentScene,
-                    results,
-                    questTrail,
-                    itemTrail,
-                    tracer
-                );
-            return;
-        }
-
-        ResolveItemRequirement(
-            condition.SourceId,
-            entry,
-            currentScene,
-            results,
-            questTrail,
-            itemTrail,
-            BuildSourceSemantic,
-            tracer
-        );
-    }
-
-    private bool ResolveUnlockRequirements(
-        int targetNodeId,
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        var groups = _unlocks.GetBlockingRequirementGroups(targetNodeId);
-        if (groups.Count == 0)
-            return false;
-
-        for (int groupIndex = 0; groupIndex < groups.Count; groupIndex++)
-        {
-            foreach (var condition in groups[groupIndex])
-                ResolveUnlockCondition(
-                    condition,
-                    entry,
-                    currentScene,
-                    results,
-                    questTrail,
-                    itemTrail,
-                    tracer
-                );
-        }
-        return true;
-    }
-
-    private void ResolveRecipeMaterials(
-        int recipeNodeId,
-        FrontierEntry entry,
-        string currentScene,
-        List<ResolvedTarget> results,
-        HashSet<int> questTrail,
-        HashSet<int> itemTrail,
-        IResolutionTracer? tracer = null
-    )
-    {
-        foreach (
-            var materialEdge in _guide.OutEdges(
-                _guide.GetNodeKey(recipeNodeId),
-                EdgeType.RequiresMaterial
-            )
+            UnlockConditionEntry condition,
+            FrontierEntry entry,
+            string currentScene,
+            List<ResolvedTarget> results,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
         )
         {
-            if (!_guide.TryGetNodeId(materialEdge.Target, out int materialId))
-                continue;
+            if (condition.CheckType == 0)
+            {
+                int questIndex = _guide.FindQuestIndex(condition.SourceId);
+                if (questIndex >= 0 && !_phases.IsCompleted(questIndex))
+                    results.AddRange(
+                        ResolveQuestFrontier(
+                            questIndex,
+                            entry.QuestIndex,
+                            currentScene,
+                            session,
+                            questTrail,
+                            itemTrail,
+                            tracer
+                        )
+                    );
+                return;
+            }
 
-            int materialIndex = _guide.FindItemIndex(materialId);
-            if (
-                materialIndex >= 0
-                && _phases.GetItemCount(materialIndex) >= (materialEdge.Quantity ?? 1)
-            )
-                continue;
-
-            ResolveItemRequirement(
-                materialId,
-                entry,
-                currentScene,
-                results,
-                questTrail,
-                itemTrail,
-                BuildSourceSemantic,
-                tracer
+            results.AddRange(
+                ResolveItemRequirement(
+                    condition.SourceId,
+                    entry,
+                    currentScene,
+                    session,
+                    questTrail,
+                    itemTrail,
+                    ItemRequirementSemanticKind.Objective,
+                    giverNodeId: -1,
+                    tracer
+                )
             );
         }
-    }
+
+    private IReadOnlyList<ResolvedTarget>? ResolveBlockingUnlockRequirements(
+            int targetNodeId,
+            FrontierEntry entry,
+            string currentScene,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
+        )
+        {
+            var groups = _unlocks.GetBlockingRequirementGroups(targetNodeId);
+            if (groups.Count == 0)
+                return null;
+
+            return ResolveCached(
+                session.UnlockRequirementCache,
+                session.ActiveUnlockRequirements,
+                (entry.QuestIndex, (byte)entry.Phase, entry.RequiredForQuestIndex, targetNodeId),
+                () =>
+                {
+                    var results = new List<ResolvedTarget>();
+                    for (int groupIndex = 0; groupIndex < groups.Count; groupIndex++)
+                    {
+                        foreach (var condition in groups[groupIndex])
+                            ResolveUnlockCondition(
+                                condition,
+                                entry,
+                                currentScene,
+                                results,
+                                session,
+                                questTrail,
+                                itemTrail,
+                                tracer
+                            );
+                    }
+                    return FreezeResults(results);
+                }
+            );
+        }
+
+    private IReadOnlyList<ResolvedTarget> ResolveRecipeMaterials(
+            int recipeNodeId,
+            FrontierEntry entry,
+            string currentScene,
+            ResolutionSession session,
+            HashSet<int> questTrail,
+            HashSet<int> itemTrail,
+            IResolutionTracer? tracer = null
+        )
+        {
+            return ResolveCached(
+                session.RecipeMaterialCache,
+                session.ActiveRecipeMaterials,
+                (entry.QuestIndex, (byte)entry.Phase, entry.RequiredForQuestIndex, recipeNodeId),
+                () =>
+                {
+                    var results = new List<ResolvedTarget>();
+                    foreach (
+                        var materialEdge in _guide.OutEdges(
+                            _guide.GetNodeKey(recipeNodeId),
+                            EdgeType.RequiresMaterial
+                        )
+                    )
+                    {
+                        if (!_guide.TryGetNodeId(materialEdge.Target, out int materialId))
+                            continue;
+
+                        int materialIndex = _guide.FindItemIndex(materialId);
+                        if (
+                            materialIndex >= 0
+                            && _phases.GetItemCount(materialIndex) >= (materialEdge.Quantity ?? 1)
+                        )
+                            continue;
+
+                        results.AddRange(
+                            ResolveItemRequirement(
+                                materialId,
+                                entry,
+                                currentScene,
+                                session,
+                                questTrail,
+                                itemTrail,
+                                ItemRequirementSemanticKind.Objective,
+                                giverNodeId: -1,
+                                tracer
+                            )
+                        );
+                    }
+                    return FreezeResults(results);
+                }
+            );
+        }
 
     private void EmitNodePosition(
         int targetNodeId,

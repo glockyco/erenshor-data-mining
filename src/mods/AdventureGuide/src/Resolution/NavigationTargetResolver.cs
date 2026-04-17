@@ -15,14 +15,18 @@ namespace AdventureGuide.Resolution;
 public sealed class NavigationTargetResolver
 {
     private readonly CompiledGuideModel _guide;
-    private readonly EffectiveFrontier _frontier;
-    private readonly SourceResolver _sourceResolver;
-    private readonly ZoneRouter? _zoneRouter;
-    private readonly PositionResolverRegistry _positionResolvers;
-    private readonly Func<int> _versionProvider;
-    private readonly DiagnosticsCore? _diagnostics;
-    private string? _lastResolvedNodeKey;
-    private int _lastResolvedTargetCount;
+        private readonly EffectiveFrontier _frontier;
+        private readonly SourceResolver _sourceResolver;
+        private readonly ZoneRouter? _zoneRouter;
+        private readonly PositionResolverRegistry _positionResolvers;
+        private readonly Func<int> _versionProvider;
+        private readonly DiagnosticsCore? _diagnostics;
+        private readonly Dictionary<string, IReadOnlyList<ResolvedQuestTarget>> _questTargetCache = new(
+            StringComparer.Ordinal
+        );
+        private int _cachedQuestTargetVersion = -1;
+        private string? _lastResolvedNodeKey;
+        private int _lastResolvedTargetCount;
 
     public int Version => _versionProvider();
 
@@ -46,189 +50,268 @@ public sealed class NavigationTargetResolver
     }
 
     public IReadOnlyList<ResolvedQuestTarget> Resolve(
-        string nodeKey,
-        string currentScene,
-        IResolutionTracer? tracer = null
-    )
-    {
-        var token = _diagnostics?.BeginSpan(
-            DiagnosticSpanKind.NavResolverResolve,
-            DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
-            primaryKey: nodeKey
-        );
-        long startTick = Stopwatch.GetTimestamp();
-        try
-        {
-            tracer?.OnResolveBegin(nodeKey);
-
-            if (string.IsNullOrWhiteSpace(nodeKey))
-                return Array.Empty<ResolvedQuestTarget>();
-
-            if (!_guide.TryGetNodeId(nodeKey, out int nodeId))
-                return Array.Empty<ResolvedQuestTarget>();
-
-            var node = _guide.GetNode(nodeId);
-            IReadOnlyList<ResolvedQuestTarget> results;
-            if (node.Type == NodeType.Quest)
-            {
-                int questIndex = _guide.FindQuestIndex(nodeId);
-                if (questIndex < 0)
-                {
-                    tracer?.OnResolveEnd(0);
-                    return Array.Empty<ResolvedQuestTarget>();
-                }
-
-                results = ResolveQuestTargets(questIndex, currentScene, tracer);
-            }
-            else
-            {
-                results = ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
-            }
-
-            _lastResolvedNodeKey = nodeKey;
-            _lastResolvedTargetCount = results.Count;
-            tracer?.OnResolveEnd(results.Count);
-            return results;
-        }
-        finally
-        {
-            if (token != null)
-                _diagnostics!.EndSpan(
-                    token.Value,
-                    Stopwatch.GetTimestamp() - startTick,
-                    value0: _lastResolvedTargetCount,
-                    value1: 0
-                );
-        }
-    }
-
-    private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(
-        int questIndex,
-        string currentScene,
-        IResolutionTracer? tracer = null
-    )
-    {
-        var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
-        tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
-
-        var frontier = new List<FrontierEntry>();
-        _frontier.Resolve(questIndex, frontier, -1, tracer);
-
-        var results = new List<ResolvedQuestTarget>();
-        var seenTargets = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < frontier.Count; i++)
-        {
-            var compiledTargets = _sourceResolver.ResolveTargets(frontier[i], currentScene, tracer);
-            var lockedHopCache = new Dictionary<int, IReadOnlyList<ResolvedTarget>>();
-            for (int j = 0; j < compiledTargets.Count; j++)
-                AppendQuestTarget(
-                    results,
-                    frontier[i],
-                    compiledTargets[j],
-                    currentScene,
-                    new HashSet<int>(),
-                    seenTargets,
-                    lockedHopCache,
-                    tracer
-                );
-        }
-
-        return results;
-    }
-
-    private void AppendQuestTarget(
-        List<ResolvedQuestTarget> results,
-        FrontierEntry entry,
-        ResolvedTarget target,
-        string currentScene,
-        HashSet<int> lockedHopTrail,
-        HashSet<string> seenTargets,
-        Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
-        IResolutionTracer? tracer = null
-    )
-    {
-        if (
-            TryGetLockedHopNodeId(currentScene, target.Scene, out int lockedHopNodeId)
-            && lockedHopTrail.Add(lockedHopNodeId)
+            string nodeKey,
+            string currentScene,
+            IResolutionTracer? tracer = null
         )
         {
+            var token = _diagnostics?.BeginSpan(
+                DiagnosticSpanKind.NavResolverResolve,
+                DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+                primaryKey: nodeKey
+            );
+            long startTick = Stopwatch.GetTimestamp();
             try
             {
-                var unlockTargets = GetUnlockTargets(
-                    lockedHopNodeId,
-                    entry,
-                    currentScene,
-                    lockedHopCache,
-                    tracer
-                );
-                if (unlockTargets.Count > 0)
+                tracer?.OnResolveBegin(nodeKey);
+
+                if (string.IsNullOrWhiteSpace(nodeKey))
+                    return Array.Empty<ResolvedQuestTarget>();
+
+                if (!_guide.TryGetNodeId(nodeKey, out int nodeId))
+                    return Array.Empty<ResolvedQuestTarget>();
+
+                int version = Version;
+                if (_cachedQuestTargetVersion != version)
                 {
-                    for (int i = 0; i < unlockTargets.Count; i++)
-                        AppendQuestTarget(
-                            results,
-                            entry,
-                            unlockTargets[i],
-                            currentScene,
-                            lockedHopTrail,
-                            seenTargets,
-                            lockedHopCache,
-                            tracer
-                        );
-                    return;
+                    _questTargetCache.Clear();
+                    _cachedQuestTargetVersion = version;
                 }
+
+                var node = _guide.GetNode(nodeId);
+                IReadOnlyList<ResolvedQuestTarget> results;
+                if (node.Type == NodeType.Quest)
+                {
+                    string cacheKey = BuildQuestCacheKey(nodeKey, currentScene);
+                    if (!_questTargetCache.TryGetValue(cacheKey, out results!))
+                    {
+                        int questIndex = _guide.FindQuestIndex(nodeId);
+                        if (questIndex < 0)
+                        {
+                            tracer?.OnResolveEnd(0);
+                            return Array.Empty<ResolvedQuestTarget>();
+                        }
+
+                        results = ResolveQuestTargets(questIndex, currentScene, tracer);
+                        _questTargetCache[cacheKey] = results;
+                    }
+                }
+                else
+                {
+                    results = ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
+                }
+
+                _lastResolvedNodeKey = nodeKey;
+                _lastResolvedTargetCount = results.Count;
+                tracer?.OnResolveEnd(results.Count);
+                return results;
             }
             finally
             {
-                lockedHopTrail.Remove(lockedHopNodeId);
+                if (token != null)
+                    _diagnostics!.EndSpan(
+                        token.Value,
+                        Stopwatch.GetTimestamp() - startTick,
+                        value0: _lastResolvedTargetCount,
+                        value1: 0
+                    );
             }
         }
 
-        TryAddResolvedTarget(results, entry, target, currentScene, seenTargets);
-    }
+    private IReadOnlyList<ResolvedQuestTarget> ResolveQuestTargets(
+            int questIndex,
+            string currentScene,
+            IResolutionTracer? tracer = null
+        )
+        {
+            var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
+            tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
+
+            var frontier = new List<FrontierEntry>();
+            _frontier.Resolve(questIndex, frontier, -1, tracer);
+
+            var results = new List<ResolvedQuestTarget>();
+            var seenTargets = new HashSet<string>(StringComparer.Ordinal);
+            var expandedLockedTargets = new HashSet<string>(StringComparer.Ordinal);
+            var resolutionSession = new SourceResolver.ResolutionSession();
+            for (int i = 0; i < frontier.Count; i++)
+            {
+                var compiledTargets = CollapseCrossZoneTargets(
+                    _sourceResolver.ResolveTargets(frontier[i], currentScene, resolutionSession, tracer),
+                    currentScene
+                );
+                var lockedHopCache = new Dictionary<int, IReadOnlyList<ResolvedTarget>>();
+                for (int j = 0; j < compiledTargets.Count; j++)
+                    AppendQuestTarget(
+                        results,
+                        frontier[i],
+                        compiledTargets[j],
+                        currentScene,
+                        new HashSet<int>(),
+                        seenTargets,
+                        expandedLockedTargets,
+                        lockedHopCache,
+                        resolutionSession,
+                        tracer
+                    );
+            }
+
+            return results;
+        }
+
+    private void AppendQuestTarget(
+            List<ResolvedQuestTarget> results,
+            FrontierEntry entry,
+            ResolvedTarget target,
+            string currentScene,
+            HashSet<int> lockedHopTrail,
+            HashSet<string> seenTargets,
+            HashSet<string> expandedLockedTargets,
+            Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
+            SourceResolver.ResolutionSession resolutionSession,
+            IResolutionTracer? tracer = null
+        )
+        {
+            if (
+                TryGetLockedHopNodeId(currentScene, target.Scene, out int lockedHopNodeId)
+                && lockedHopTrail.Add(lockedHopNodeId)
+            )
+            {
+                try
+                {
+                    var unlockTargets = GetUnlockTargets(
+                        lockedHopNodeId,
+                        entry,
+                        currentScene,
+                        lockedHopCache,
+                        resolutionSession,
+                        tracer
+                    );
+                    if (unlockTargets.Count > 0)
+                    {
+                        for (int i = 0; i < unlockTargets.Count; i++)
+                        {
+                            string expansionKey = BuildResolvedTargetDedupeKey(entry, unlockTargets[i]);
+                            if (!expandedLockedTargets.Add(expansionKey))
+                                continue;
+
+                            AppendQuestTarget(
+                                results,
+                                entry,
+                                unlockTargets[i],
+                                currentScene,
+                                lockedHopTrail,
+                                seenTargets,
+                                expandedLockedTargets,
+                                lockedHopCache,
+                                resolutionSession,
+                                tracer
+                            );
+                        }
+                        return;
+                    }
+                }
+                finally
+                {
+                    lockedHopTrail.Remove(lockedHopNodeId);
+                }
+            }
+
+            TryAddResolvedTarget(results, entry, target, currentScene, seenTargets);
+        }
 
     private IReadOnlyList<ResolvedTarget> GetUnlockTargets(
-        int lockedHopNodeId,
-        FrontierEntry entry,
-        string currentScene,
-        Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
-        IResolutionTracer? tracer
-    )
-    {
-        if (lockedHopCache.TryGetValue(lockedHopNodeId, out var cachedTargets))
-            return cachedTargets;
+            int lockedHopNodeId,
+            FrontierEntry entry,
+            string currentScene,
+            Dictionary<int, IReadOnlyList<ResolvedTarget>> lockedHopCache,
+            SourceResolver.ResolutionSession resolutionSession,
+            IResolutionTracer? tracer
+        )
+        {
+            if (lockedHopCache.TryGetValue(lockedHopNodeId, out var cachedTargets))
+                return cachedTargets;
 
-        cachedTargets = _sourceResolver.ResolveUnlockTargets(
-            lockedHopNodeId,
-            entry,
-            currentScene,
-            tracer
-        );
-        lockedHopCache[lockedHopNodeId] = cachedTargets;
-        return cachedTargets;
-    }
+            cachedTargets = CollapseCrossZoneTargets(
+                _sourceResolver.ResolveUnlockTargets(
+                    lockedHopNodeId,
+                    entry,
+                    currentScene,
+                    resolutionSession,
+                    tracer
+                ),
+                currentScene
+            );
+            lockedHopCache[lockedHopNodeId] = cachedTargets;
+            return cachedTargets;
+        }
 
     private void TryAddResolvedTarget(
-        List<ResolvedQuestTarget> results,
-        FrontierEntry entry,
-        ResolvedTarget target,
-        string currentScene,
-        HashSet<string> seenTargets
+            List<ResolvedQuestTarget> results,
+            FrontierEntry entry,
+            ResolvedTarget target,
+            string currentScene,
+            HashSet<string> seenTargets
+        )
+        {
+            string dedupeKey = BuildResolvedTargetDedupeKey(entry, target);
+            if (!seenTargets.Add(dedupeKey))
+                return;
+
+            results.Add(ConvertCompiledTarget(target, currentScene));
+        }
+
+    private string BuildResolvedTargetDedupeKey(FrontierEntry entry, ResolvedTarget target)
+        {
+            string questKey =
+                target.RequiredForQuestIndex >= 0
+                    ? _guide.GetNodeKey(_guide.QuestNodeId(target.RequiredForQuestIndex))
+                    : _guide.GetNodeKey(_guide.QuestNodeId(entry.QuestIndex));
+            string goalKey = string.IsNullOrEmpty(target.Semantic.GoalNodeKey)
+                ? _guide.GetNodeKey(target.TargetNodeId)
+                : target.Semantic.GoalNodeKey;
+            return TargetInstanceIdentity.BuildDedupeKey(
+                questKey,
+                goalKey,
+                _guide.GetNodeKey(target.TargetNodeId),
+                target.Scene,
+                _guide.GetNodeKey(target.PositionNodeId)
+            );
+        }
+
+    private IReadOnlyList<ResolvedTarget> CollapseCrossZoneTargets(
+        IReadOnlyList<ResolvedTarget> targets,
+        string currentScene
     )
     {
-        var resolvedTarget = ConvertCompiledTarget(target, currentScene);
-        string questKey =
-            resolvedTarget.RequiredForQuestKey
-            ?? _guide.GetNodeKey(_guide.QuestNodeId(entry.QuestIndex));
-        string dedupeKey = TargetInstanceIdentity.BuildDedupeKey(
-            questKey,
-            resolvedTarget.GoalNode.Node.Key,
-            resolvedTarget.TargetNodeKey,
-            resolvedTarget.Scene,
-            resolvedTarget.SourceKey
-        );
-        if (seenTargets.Add(dedupeKey))
-            results.Add(resolvedTarget);
+        if (targets.Count < 2)
+            return targets;
+
+        var collapsed = new List<ResolvedTarget>(targets.Count);
+        var seenCrossZoneScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var target = targets[i];
+            bool sameScene =
+                target.Scene == null
+                || string.Equals(target.Scene, currentScene, StringComparison.OrdinalIgnoreCase);
+            if (sameScene)
+            {
+                collapsed.Add(target);
+                continue;
+            }
+
+            bool blocked = TryGetLockedHopNodeId(currentScene, target.Scene, out _);
+            string sceneKey = (blocked ? "blocked|" : "direct|") + target.Scene;
+            if (seenCrossZoneScenes.Add(sceneKey))
+                collapsed.Add(target);
+        }
+
+        return collapsed.Count == targets.Count ? targets : collapsed;
     }
+
+    private static string BuildQuestCacheKey(string nodeKey, string currentScene) =>
+        nodeKey + "\n" + (currentScene ?? string.Empty).ToUpperInvariant();
 
     private bool TryGetLockedHopNodeId(
         string currentScene,

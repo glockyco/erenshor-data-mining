@@ -222,9 +222,9 @@ public sealed class Plugin : BaseUnityPlugin
             _zoneRouter,
             _compiledGuide,
             _liveState,
-            positionRegistry,
             _diagnostics
         );
+
 
 
         _navEngine = new NavigationEngine(
@@ -507,10 +507,17 @@ public sealed class Plugin : BaseUnityPlugin
             _lastNavSetVersion
         );
         bool forceSelector = selectorDecision.Force;
+        bool preserveUntouchedEntries = false;
+        string[] selectorKeys = Array.Empty<string>();
         if (forceSelector)
         {
             _lastResolutionVersion = targetSourceVersion;
             _lastNavSetVersion = _navSet.Version;
+            selectorKeys = GetSelectorRefreshKeys(
+                liveChangeSet,
+                selectorDecision.Reason,
+                out preserveUntouchedEntries
+            );
         }
 
         _targetSelector?.Tick(
@@ -518,10 +525,12 @@ public sealed class Plugin : BaseUnityPlugin
             playerPos.y,
             playerPos.z,
             _navEngine!.CurrentScene,
-            AllNavigableNodeKeys(),
+            selectorKeys,
             forceSelector,
-            selectorDecision.Reason
+            selectorDecision.Reason,
+            preserveUntouchedEntries
         );
+
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
@@ -548,10 +557,38 @@ public sealed class Plugin : BaseUnityPlugin
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 
+    private string[] GetSelectorRefreshKeys(
+        GuideChangeSet liveChangeSet,
+        DiagnosticTrigger reason,
+        out bool preserveUntouchedEntries
+    )
+    {
+        var activeKeySet = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var key in AllNavigableNodeKeys())
+            activeKeySet.Add(key);
+
+        string[] activeKeys = activeKeySet.Count == 0 ? Array.Empty<string>() : activeKeySet.ToArray();
+        preserveUntouchedEntries = false;
+        if (reason != DiagnosticTrigger.LiveWorldChanged || liveChangeSet.AffectedQuestKeys.Count == 0)
+            return activeKeys;
+
+        var affected = new List<string>();
+        foreach (var key in liveChangeSet.AffectedQuestKeys)
+            if (activeKeySet.Contains(key))
+                affected.Add(key);
+
+        if (affected.Count == 0 || affected.Count == activeKeys.Length)
+            return activeKeys;
+
+        preserveUntouchedEntries = true;
+        return affected.ToArray();
+    }
+
     private IEnumerable<string> AllNavigableNodeKeys()
     {
         foreach (var key in _navSet!.Keys)
             yield return key;
+
         foreach (var db in _trackerState!.TrackedQuests)
         {
             var node = _compiledGuide!.GetQuestByDbName(db);

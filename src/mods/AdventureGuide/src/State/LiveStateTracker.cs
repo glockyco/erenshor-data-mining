@@ -10,7 +10,7 @@ namespace AdventureGuide.State;
 /// Emits precise live-world fact deltas so downstream maintained views can
 /// invalidate only derivations that depend on changed sources.
 /// </summary>
-public sealed class LiveStateTracker : IResolutionLiveState
+public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelectorLiveState
 {
     private static readonly FieldInfo? NpcSpawnPointField = typeof(NPC).GetField(
         "MySpawnPoint",
@@ -35,6 +35,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
     private Door[] _doors = System.Array.Empty<Door>();
     private readonly List<RotChest> _rotChests = new();
     private readonly Dictionary<PosKey, bool> _miningAvailable = new();
+    private readonly Dictionary<PosKey, bool> _itemBagAvailable = new();
     private readonly Dictionary<PosKey, bool> _doorClosed = new();
 
     private readonly Dictionary<PosKey, string> _graphSpawnSourcesByPos = new();
@@ -70,6 +71,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         _rotChests.Clear();
         _isNight = IsNight();
         RebuildMiningAvailability();
+        RebuildItemBagAvailability();
         RebuildDoorStates();
         BumpVersion();
     }
@@ -110,6 +112,7 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (bag == null)
             return GuideChangeSet.None;
 
+        _itemBagAvailable[NodePosKey(bag.transform.position)] = false;
         BumpVersion();
         return BuildSourceChange(ResolveItemBagSourceKey(bag));
     }
@@ -373,6 +376,9 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (!LiveSceneScope.CanUseLiveSceneState(itemBagNode.Scene, CurrentSceneName()))
             return NodeState.Unknown;
 
+        if (TryGetCachedItemBagAvailability(itemBagNode, out bool available))
+            return available ? NodeState.BagAvailable : new ItemBagPickedUp(0f);
+
         var posKey = NodePosKey(itemBagNode);
         if (!posKey.HasValue)
             return NodeState.Unknown;
@@ -387,10 +393,6 @@ public sealed class LiveStateTracker : IResolutionLiveState
         if (best != null)
             return NodeState.BagAvailable;
 
-        // Bag is missing from the scene. The game recreates all ItemBags on
-        // scene reload; the only permanent removal is in Start() for unique
-        // items the player already owns. The Respawns field is unused by the
-        // game. Treat every missing bag as picked up (re-enter zone to respawn).
         return new ItemBagPickedUp(0f);
     }
 
@@ -403,6 +405,13 @@ public sealed class LiveStateTracker : IResolutionLiveState
 
         if (!LiveSceneScope.CanUseLiveSceneState(doorNode.Scene, CurrentSceneName()))
             return new DoorInfo(NodeState.Unknown, null, false);
+
+        if (TryGetCachedDoorClosed(doorNode, out bool isClosed))
+        {
+            return !isClosed
+                ? new DoorInfo(NodeState.Unlocked, null, true)
+                : new DoorInfo(NodeState.Unknown, null, true);
+        }
 
         var posKey = NodePosKey(doorNode);
         if (!posKey.HasValue)
@@ -422,6 +431,15 @@ public sealed class LiveStateTracker : IResolutionLiveState
             ? new DoorInfo(NodeState.Unlocked, best, true)
             : new DoorInfo(NodeState.Unknown, best, true);
     }
+
+    public bool TryGetCachedMiningAvailability(Node miningNode, out bool available) =>
+        TryGetCachedPositionFlag(miningNode, _miningAvailable, out available);
+
+    public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available) =>
+        TryGetCachedPositionFlag(itemBagNode, _itemBagAvailable, out available);
+
+    public bool TryGetCachedDoorClosed(Node doorNode, out bool isClosed) =>
+        TryGetCachedPositionFlag(doorNode, _doorClosed, out isClosed);
 
     /// <summary>
     /// Returns true when the spawn node's corpse is present in the scene and its
@@ -983,6 +1001,18 @@ public sealed class LiveStateTracker : IResolutionLiveState
         }
     }
 
+    private void RebuildItemBagAvailability()
+    {
+        _itemBagAvailable.Clear();
+        foreach (var bag in _itemBags)
+        {
+            if (bag == null)
+                continue;
+
+            _itemBagAvailable[NodePosKey(bag.transform.position)] = true;
+        }
+    }
+
     private void RebuildDoorStates()
     {
         _doorClosed.Clear();
@@ -1047,7 +1077,18 @@ public sealed class LiveStateTracker : IResolutionLiveState
     }
 
     private static bool IsMiningNodeAvailable(MiningNode mn) =>
-        mn.MyRender != null && mn.MyRender.enabled;
+        mn.MyRender == null || mn.MyRender.enabled;
+
+    private static bool TryGetCachedPositionFlag(
+        Node node,
+        IReadOnlyDictionary<PosKey, bool> cache,
+        out bool value
+    )
+    {
+        value = false;
+        var posKey = NodePosKey(node);
+        return posKey.HasValue && cache.TryGetValue(posKey.Value, out value);
+    }
 
     private static PosKey? NodePosKey(Node node)
     {

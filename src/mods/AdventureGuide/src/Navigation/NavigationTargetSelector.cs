@@ -60,8 +60,7 @@ public sealed class NavigationTargetSelector
     private readonly Func<string, string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
     private readonly ZoneRouter _router;
     private readonly CompiledGuideModel? _guide;
-    private readonly LiveStateTracker? _liveState;
-    private readonly PositionResolverRegistry? _positionResolvers;
+    private readonly INavigationSelectorLiveState? _liveState;
     private readonly DiagnosticsCore? _diagnostics;
     private readonly Dictionary<string, SelectedNavTarget> _cache = new(StringComparer.Ordinal);
 
@@ -88,8 +87,7 @@ public sealed class NavigationTargetSelector
         NavigationTargetResolver resolution,
         ZoneRouter router,
         CompiledGuideModel guide,
-        LiveStateTracker liveState,
-        PositionResolverRegistry positionResolvers,
+        INavigationSelectorLiveState liveState,
         DiagnosticsCore? diagnostics = null
     )
         : this(
@@ -97,7 +95,6 @@ public sealed class NavigationTargetSelector
             router,
             guide,
             liveState,
-            positionResolvers,
             diagnostics,
             () => UnityEngine.Time.time,
             DefaultRerankIntervalSeconds
@@ -107,8 +104,7 @@ public sealed class NavigationTargetSelector
         Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
         ZoneRouter router,
         CompiledGuideModel? guide = null,
-        LiveStateTracker? liveState = null,
-        PositionResolverRegistry? positionResolvers = null,
+        INavigationSelectorLiveState? liveState = null,
         DiagnosticsCore? diagnostics = null,
         Func<float>? clock = null,
         float rerankInterval = 0f
@@ -118,7 +114,6 @@ public sealed class NavigationTargetSelector
         _router = router;
         _guide = guide;
         _liveState = liveState;
-        _positionResolvers = positionResolvers;
         _diagnostics = diagnostics;
         _clock = clock ?? (() => 0f);
         _rerankInterval = rerankInterval;
@@ -137,6 +132,11 @@ public sealed class NavigationTargetSelector
     /// partitions stored in the per-key <see cref="TargetEntry"/>. Cross-zone reps are
     /// pre-built here so <see cref="SelectBestCore"/> never allocates on regular ticks.
     ///
+    /// When <paramref name="preserveUntouchedEntries"/> is true, the forced refresh updates
+    /// only the requested keys and leaves unrelated cached entries intact. Use this for
+    /// source-local live-world deltas such as mining or bag state changes. Full refreshes
+    /// still rebuild the complete active key set and evict stale entries.
+    ///
     /// <paramref name="nodeKeys"/> is only consumed on forced ticks, so passing a lazy
     /// iterator avoids allocation on non-forced frames.
     /// </summary>
@@ -147,7 +147,8 @@ public sealed class NavigationTargetSelector
         string currentZone,
         IEnumerable<string> nodeKeys,
         bool force = false,
-        DiagnosticTrigger forceReason = DiagnosticTrigger.Unknown
+        DiagnosticTrigger forceReason = DiagnosticTrigger.Unknown,
+        bool preserveUntouchedEntries = false
     )
     {
         var context = DiagnosticsContext.Root(force ? forceReason : DiagnosticTrigger.Unknown);
@@ -183,11 +184,18 @@ public sealed class NavigationTargetSelector
                 _activeKeys.Clear();
                 foreach (var key in nodeKeys)
                 {
-                    _activeKeys.Add(key);
+                    if (!_activeKeys.Add(key))
+                        continue;
+
                     var targets = _resolver(key, currentZone);
                     _lastResolvedTargetCount += targets.Count;
                     if (targets.Count == 0)
+                    {
+                        _entries.Remove(key);
+                        _cache.Remove(key);
                         continue;
+                    }
+
                     if (!_entries.TryGetValue(key, out var entry))
                     {
                         entry = new TargetEntry();
@@ -196,13 +204,16 @@ public sealed class NavigationTargetSelector
                     entry.Rebuild(targets, currentZone);
                 }
 
-                _keysToEvict.Clear();
-                foreach (var k in _entries.Keys)
-                    if (!_activeKeys.Contains(k))
-                        _keysToEvict.Add(k);
-                foreach (var k in _keysToEvict)
-                    _entries.Remove(k);
-                _cache.Clear();
+                if (!preserveUntouchedEntries)
+                {
+                    _keysToEvict.Clear();
+                    foreach (var k in _entries.Keys)
+                        if (!_activeKeys.Contains(k))
+                            _keysToEvict.Add(k);
+                    foreach (var k in _keysToEvict)
+                        _entries.Remove(k);
+                    _cache.Clear();
+                }
             }
 
             bool changed = false;
@@ -324,8 +335,8 @@ public sealed class NavigationTargetSelector
     /// Refreshes cached same-zone mutable targets from canonical live truth.
     ///
     /// Character targets follow live spawn occupancy. Mining and item-bag targets
-    /// refresh through the shared position-resolver registry so selector cache
-    /// truth matches fresh resolution without requiring a forced rebuild.
+    /// read the maintained live-state caches directly so cache truth stays aligned
+    /// without re-running full position resolution on every tick.
     /// </summary>
     private void UpdateLivePositions(TargetEntry entry, string currentZone)
     {
@@ -338,8 +349,10 @@ public sealed class NavigationTargetSelector
                     RefreshCharacterTarget(t);
                     break;
                 case NodeType.MiningNode:
+                    RefreshMiningTarget(t);
+                    break;
                 case NodeType.ItemBag:
-                    RefreshResolvedPositionTarget(t);
+                    RefreshItemBagTarget(t);
                     break;
             }
         }
@@ -385,23 +398,46 @@ public sealed class NavigationTargetSelector
         // resolution. Leave both position and actionability unchanged.
     }
 
-    private void RefreshResolvedPositionTarget(ResolvedQuestTarget target)
+    private void RefreshMiningTarget(ResolvedQuestTarget target)
     {
-        if (_positionResolvers == null)
+        if (_liveState == null)
             return;
 
-        string nodeKey = target.SourceKey ?? target.TargetNodeKey;
-        var positions = new List<ResolvedPosition>();
-        _positionResolvers.Resolve(nodeKey, positions);
-        if (positions.Count == 0)
+        if (!_liveState.TryGetCachedMiningAvailability(target.TargetNode.Node, out bool available))
             return;
 
-        ResolvedPosition position = positions[0];
-        target.X = position.X;
-        target.Y = position.Y;
-        target.Z = position.Z;
-        target.IsActionable = position.IsActionable;
+        target.IsActionable = available;
+        if (
+            target.TargetNode.Node.X.HasValue
+            && target.TargetNode.Node.Y.HasValue
+            && target.TargetNode.Node.Z.HasValue
+        )
+        {
+            target.X = target.TargetNode.Node.X.Value;
+            target.Y = target.TargetNode.Node.Y.Value;
+            target.Z = target.TargetNode.Node.Z.Value;
+        }
+    }
 
+    private void RefreshItemBagTarget(ResolvedQuestTarget target)
+    {
+        if (_liveState == null)
+            return;
+
+        if (!_liveState.TryGetCachedItemBagAvailability(target.TargetNode.Node, out bool available))
+            return;
+
+        target.IsActionable = available;
+        if (
+            target.TargetNode.Node.X.HasValue
+            && target.TargetNode.Node.Y.HasValue
+            && target.TargetNode.Node.Z.HasValue
+        )
+        {
+            target.X = target.TargetNode.Node.X.Value;
+            target.Y = target.TargetNode.Node.Y.Value;
+            target.Z = target.TargetNode.Node.Z.Value;
+        }
     }
 
     /// <summary>

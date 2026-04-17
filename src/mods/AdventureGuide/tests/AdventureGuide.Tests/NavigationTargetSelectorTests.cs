@@ -510,7 +510,54 @@ public sealed class NavigationTargetSelectorTests
     }
 
     [Fact]
-    public void Tick_NoForce_RefreshesCachedMiningActionabilityFromPositionResolver()
+    public void Tick_ForcePartialRefresh_PreservesUntouchedEntries()
+    {
+        int aCalls = 0;
+        int bCalls = 0;
+        var selector = new NavigationTargetSelector(
+            (key, _) =>
+            {
+                if (key == "quest:a")
+                {
+                    aCalls++;
+                    return new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "a") };
+                }
+
+                if (key == "quest:b")
+                {
+                    bCalls++;
+                    return new[] { MakeTarget(ZoneA, x: 20f, targetNodeKey: "b") };
+                }
+
+                return Array.Empty<ResolvedQuestTarget>();
+            },
+            EmptyRouter()
+        );
+
+        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a", "quest:b", "quest:a" }, force: true);
+        Assert.True(selector.TryGet("quest:a", out _));
+        Assert.True(selector.TryGet("quest:b", out _));
+        Assert.Equal(1, aCalls);
+        Assert.Equal(1, bCalls);
+
+        selector.Tick(
+            0f,
+            0f,
+            0f,
+            ZoneA,
+            new[] { "quest:a", "quest:a" },
+            force: true,
+            preserveUntouchedEntries: true
+        );
+
+        Assert.True(selector.TryGet("quest:a", out _));
+        Assert.True(selector.TryGet("quest:b", out _));
+        Assert.Equal(2, aCalls);
+        Assert.Equal(1, bCalls);
+    }
+
+    [Fact]
+    public void Tick_NoForce_RefreshesCachedMiningActionabilityFromLiveStateCache()
     {
         var guide = new CompiledGuideBuilder()
             .AddMiningNode("mine:mined", scene: ZoneA, x: 5f, y: 0f, z: 0f)
@@ -535,13 +582,9 @@ public sealed class NavigationTargetSelectorTests
                 targetNodeType: NodeType.MiningNode
             ),
         };
-        var actionabilityByKey = new Dictionary<string, bool>
-        {
-            ["mine:mined"] = true,
-            ["mine:available"] = true,
-        };
-        var positionRegistry = TestPositionResolvers.Create(guide, actionabilityByKey);
-
+        var liveState = new FakeSelectorLiveState();
+        liveState.MiningAvailability["mine:mined"] = true;
+        liveState.MiningAvailability["mine:available"] = true;
         var selector = new NavigationTargetSelector(
             (key, _) =>
                 key == "quest:test"
@@ -549,7 +592,7 @@ public sealed class NavigationTargetSelectorTests
                     : Array.Empty<ResolvedQuestTarget>(),
             EmptyRouter(),
             guide: guide,
-            positionResolvers: positionRegistry
+            liveState: liveState
         );
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
@@ -557,13 +600,61 @@ public sealed class NavigationTargetSelectorTests
         Assert.Equal("mine:mined", first.Target.TargetNodeKey);
 
         int versionAfterForce = selector.Version;
-        actionabilityByKey["mine:mined"] = false;
+        liveState.MiningAvailability["mine:mined"] = false;
 
         selector.Tick(0f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
 
-
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("mine:available", second.Target.TargetNodeKey);
+        Assert.False(targets[0].IsActionable);
+        Assert.True(selector.Version > versionAfterForce);
+    }
+
+    [Fact]
+    public void Tick_NoForce_RefreshesCachedItemBagActionabilityFromLiveStateCache()
+    {
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: 5f,
+                targetNodeKey: "bag:spent",
+                sourceKey: "bag:spent",
+                isActionable: true,
+                targetNodeType: NodeType.ItemBag
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 20f,
+                targetNodeKey: "bag:fresh",
+                sourceKey: "bag:fresh",
+                isActionable: true,
+                targetNodeType: NodeType.ItemBag
+            ),
+        };
+        var liveState = new FakeSelectorLiveState();
+        liveState.ItemBagAvailability["bag:spent"] = true;
+        liveState.ItemBagAvailability["bag:fresh"] = true;
+        var selector = new NavigationTargetSelector(
+            (key, _) =>
+                key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                    : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter(),
+            liveState: liveState
+        );
+
+        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("bag:spent", first.Target.TargetNodeKey);
+
+        int versionAfterForce = selector.Version;
+        liveState.ItemBagAvailability["bag:spent"] = false;
+
+        selector.Tick(0f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+
+        Assert.True(selector.TryGet("quest:test", out var second));
+        Assert.Equal("bag:fresh", second.Target.TargetNodeKey);
         Assert.False(targets[0].IsActionable);
         Assert.True(selector.Version > versionAfterForce);
     }
@@ -862,5 +953,23 @@ public sealed class NavigationTargetSelectorTests
         Assert.Contains("actionable=False", text, StringComparison.Ordinal);
         Assert.Contains("key=available", text, StringComparison.Ordinal);
         Assert.Contains("actionable=True", text, StringComparison.Ordinal);
+    }
+
+    private sealed class FakeSelectorLiveState : INavigationSelectorLiveState
+    {
+        public Dictionary<string, bool> MiningAvailability { get; } =
+            new(StringComparer.Ordinal);
+        public Dictionary<string, bool> ItemBagAvailability { get; } =
+            new(StringComparer.Ordinal);
+
+        public (float x, float y, float z)? GetLiveNpcPosition(Node spawnNode) => null;
+
+        public bool IsSpawnEmpty(Node spawnNode) => false;
+
+        public bool TryGetCachedMiningAvailability(Node miningNode, out bool available) =>
+            MiningAvailability.TryGetValue(miningNode.Key, out available);
+
+        public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available) =>
+            ItemBagAvailability.TryGetValue(itemBagNode.Key, out available);
     }
 }

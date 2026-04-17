@@ -133,6 +133,91 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
+	public void Resolve_QuestKey_ReusesCachedResultsWhenVersionUnchanged()
+	{
+	    int version = 1;
+	    var guide = new CompiledGuideBuilder()
+	        .AddItem("item:fish")
+	        .AddWater("water:pond", scene: "Lake", x: 5f, y: 6f, z: 7f)
+	        .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+	        .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) })
+	        .Build();
+	    var phases = new QuestPhaseTracker(guide);
+	    phases.Initialize(
+	        Array.Empty<string>(),
+	        new[] { "ROOT" },
+	        new Dictionary<string, int>(),
+	        Array.Empty<string>()
+	    );
+	    var frontier = new EffectiveFrontier(guide, phases);
+	    var unlocks = new UnlockPredicateEvaluator(guide, phases);
+	    var positionRegistry = CreatePositionRegistry(guide);
+	    var sourceResolver = new SourceResolver(
+	        guide,
+	        phases,
+	        unlocks,
+	        new StubLivePositionProvider(),
+	        positionRegistry
+	    );
+	    var resolver = new NavigationTargetResolver(
+	        guide,
+	        frontier,
+	        sourceResolver,
+	        null,
+	        positionRegistry,
+	        () => version
+	    );
+
+	    var first = resolver.Resolve("quest:root", "Lake");
+	    var second = resolver.Resolve("quest:root", "Lake");
+
+	    Assert.Same(first, second);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_ClearsCachedResultsWhenVersionChanges()
+	{
+	    int version = 1;
+	    var guide = new CompiledGuideBuilder()
+	        .AddItem("item:fish")
+	        .AddWater("water:pond", scene: "Lake", x: 5f, y: 6f, z: 7f)
+	        .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+	        .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) })
+	        .Build();
+	    var phases = new QuestPhaseTracker(guide);
+	    phases.Initialize(
+	        Array.Empty<string>(),
+	        new[] { "ROOT" },
+	        new Dictionary<string, int>(),
+	        Array.Empty<string>()
+	    );
+	    var frontier = new EffectiveFrontier(guide, phases);
+	    var unlocks = new UnlockPredicateEvaluator(guide, phases);
+	    var positionRegistry = CreatePositionRegistry(guide);
+	    var sourceResolver = new SourceResolver(
+	        guide,
+	        phases,
+	        unlocks,
+	        new StubLivePositionProvider(),
+	        positionRegistry
+	    );
+	    var resolver = new NavigationTargetResolver(
+	        guide,
+	        frontier,
+	        sourceResolver,
+	        null,
+	        positionRegistry,
+	        () => version
+	    );
+
+	    var first = resolver.Resolve("quest:root", "Lake");
+	    version = 2;
+	    var second = resolver.Resolve("quest:root", "Lake");
+
+	    Assert.NotSame(first, second);
+	}
+
+	[Fact]
 	public void Resolve_CharacterKey_WithSpawns_ReturnsTargetsAtSpawnPositions()
 	{
 		var guide = new CompiledGuideBuilder()
@@ -591,6 +676,69 @@ public sealed class NavigationTargetResolverTests
 		var target = Assert.Single(targets);
 		Assert.Equal("char:keykeeper", target.TargetNodeKey);
 		Assert.Equal("item:key", target.GoalNode.Node.Key);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_CollapsesCrossZoneTargetsToOnePerSceneAndBlockedState()
+	{
+		const string zoneA = "ZoneA";
+		const string zoneB = "ZoneB";
+		const string zoneC = "ZoneC";
+		var builder = new CompiledGuideBuilder()
+			.AddZone("zone:a", scene: zoneA)
+			.AddZone("zone:b", scene: zoneB)
+			.AddZone("zone:c", scene: zoneC)
+			.AddZoneLine("zl:ab", scene: zoneA, destinationZoneKey: "zone:b", x: 10f, y: 0f, z: 0f)
+			.AddZoneLine("zl:ac", scene: zoneA, destinationZoneKey: "zone:c", x: 20f, y: 0f, z: 0f)
+			.AddItem("item:fish")
+			.AddWater("water:a", scene: zoneA, x: 1f, y: 0f, z: 0f)
+			.AddWater("water:b:1", scene: zoneB, x: 2f, y: 0f, z: 0f)
+			.AddWater("water:b:2", scene: zoneB, x: 3f, y: 0f, z: 0f)
+			.AddWater("water:b:3", scene: zoneB, x: 4f, y: 0f, z: 0f)
+			.AddWater("water:c:1", scene: zoneC, x: 5f, y: 0f, z: 0f)
+			.AddWater("water:c:2", scene: zoneC, x: 6f, y: 0f, z: 0f)
+			.AddItemSource("item:fish", "water:a", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddItemSource("item:fish", "water:b:1", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddItemSource("item:fish", "water:b:2", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddItemSource("item:fish", "water:b:3", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddItemSource("item:fish", "water:c:1", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddItemSource("item:fish", "water:c:2", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
+		var harness = SnapshotHarness.FromSnapshot(
+			builder.Build(),
+			new StateSnapshot { CurrentZone = zoneA, ActiveQuests = ["ROOT"] }
+		);
+		var phases = new QuestPhaseTracker(harness.Guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			new[] { "ROOT" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(harness.Guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
+		var positionRegistry = CreatePositionRegistry(harness.Guide);
+		var sourceResolver = new SourceResolver(
+			harness.Guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry
+		);
+		var resolver = new NavigationTargetResolver(
+			harness.Guide,
+			frontier,
+			sourceResolver,
+			harness.Router,
+			positionRegistry
+		);
+
+		var targets = resolver.Resolve("quest:root", zoneA);
+
+		Assert.Equal(3, targets.Count);
+		Assert.Contains(targets, target => target.TargetNodeKey == "water:a");
+		Assert.Single(targets, target => string.Equals(target.Scene, zoneB, StringComparison.OrdinalIgnoreCase));
+		Assert.Single(targets, target => string.Equals(target.Scene, zoneC, StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static NavigationTargetResolver BuildResolver(

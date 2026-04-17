@@ -23,7 +23,9 @@ public sealed class ItemBagPositionResolver : IPositionResolver
         if (node.X is null || node.Y is null || node.Z is null)
             return;
 
-        bool actionable = _liveState.GetItemBagState(node) is ItemBagAvailable;
+        bool actionable = _liveState.TryGetCachedItemBagAvailability(node, out bool available)
+            ? available
+            : _liveState.GetItemBagState(node) is ItemBagAvailable;
         results.Add(
             new ResolvedPosition(
                 node.X.Value,
