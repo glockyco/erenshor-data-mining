@@ -10,9 +10,8 @@ public sealed class QuestPhaseTrackerTests
     public void Quest_without_prereqs_is_ready_to_accept()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestPhaseTracker(guide);
-
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             completedQuestDbNames: Array.Empty<string>(),
             activeQuestDbNames: Array.Empty<string>(),
             inventory: new Dictionary<string, int>(),
@@ -29,9 +28,8 @@ public sealed class QuestPhaseTrackerTests
             .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
             .AddQuest("quest:b", dbName: "QUESTB")
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -49,15 +47,14 @@ public sealed class QuestPhaseTrackerTests
             .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
             .AddQuest("quest:b", dbName: "QUESTB")
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-
-        tracker.Initialize(
+        var (state, tracker, _) = QuestPhaseTrackerFactory.BuildWithState(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        tracker.OnQuestCompleted(1);
+        state.OnQuestCompleted("QUESTB");
 
         Assert.Equal(QuestPhase.ReadyToAccept, tracker.GetPhase(0));
         Assert.Equal(QuestPhase.Completed, tracker.GetPhase(1));
@@ -67,9 +64,8 @@ public sealed class QuestPhaseTrackerTests
     public void Active_quest_is_accepted()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestPhaseTracker(guide);
-
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             new[] { "QUESTA" },
             new Dictionary<string, int>(),
@@ -83,9 +79,8 @@ public sealed class QuestPhaseTrackerTests
     public void Completed_quest_is_completed()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestPhaseTracker(guide);
-
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             new[] { "QUESTA" },
             Array.Empty<string>(),
             new Dictionary<string, int>(),

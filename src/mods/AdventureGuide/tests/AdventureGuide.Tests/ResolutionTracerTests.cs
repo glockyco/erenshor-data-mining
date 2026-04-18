@@ -12,8 +12,8 @@ public sealed class ResolutionTracerTests
     public void Tracer_captures_quest_phase_and_frontier_entry()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -61,10 +61,10 @@ public sealed class ResolutionTracerTests
             .AddQuest("quest:b", dbName: "QUESTB", givers: new[] { "character:npc" })
             .AddCharacter("character:npc", scene: "Zone1", x: 10, y: 0, z: 20)
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
-            new[] { "QUESTB" }, // active
+            new[] { "QUESTB" },
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
@@ -103,8 +103,8 @@ public sealed class ResolutionTracerTests
     public void Null_tracer_does_not_throw()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:c", dbName: "QUESTC").Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -134,7 +134,6 @@ public sealed class ResolutionTracerTests
             ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
         );
 
-        // Should not throw with null tracer (default)
         var results = resolver.Resolve("quest:c", "TestScene");
         Assert.NotNull(results);
     }

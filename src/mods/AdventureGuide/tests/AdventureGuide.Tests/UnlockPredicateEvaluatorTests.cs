@@ -11,8 +11,8 @@ public sealed class UnlockPredicateEvaluatorTests
     public void Missing_predicate_is_unlocked()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -32,8 +32,8 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddCharacter("char:vendor")
             .AddUnlockPredicate("char:vendor", "quest:unlock")
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             new[] { "UNLOCK" },
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -53,8 +53,8 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddCharacter("char:vendor")
             .AddUnlockPredicate("char:vendor", "quest:unlock")
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),
@@ -72,10 +72,10 @@ public sealed class UnlockPredicateEvaluatorTests
         var guide = new CompiledGuideBuilder()
             .AddItem("item:key")
             .AddCharacter("char:door")
-            .AddUnlockPredicate("char:door", "item:key", checkType: 1) // 1 = item possession
+            .AddUnlockPredicate("char:door", "item:key", checkType: 1)
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int> { ["item:key"] = 1 },
@@ -95,8 +95,8 @@ public sealed class UnlockPredicateEvaluatorTests
             .AddCharacter("char:door")
             .AddUnlockPredicate("char:door", "item:key", checkType: 1)
             .Build();
-        var tracker = new QuestPhaseTracker(guide);
-        tracker.Initialize(
+        var tracker = QuestPhaseTrackerFactory.Build(
+            guide,
             Array.Empty<string>(),
             Array.Empty<string>(),
             new Dictionary<string, int>(),

@@ -2,25 +2,26 @@ using AdventureGuide.State;
 
 namespace AdventureGuide.Plan;
 
-public sealed class QuestPhaseTracker
+public sealed class QuestPhaseTracker : IDisposable
 {
     private readonly CompiledGuide.CompiledGuide _guide;
+    private readonly QuestStateTracker _state;
     private readonly QuestPhase[] _phases;
     private readonly int[] _remainingPrereqs;
     private readonly int[] _itemCounts;
     private readonly bool[] _completed;
     private readonly Dictionary<string, int> _dbNameToQuestIndex;
-    private readonly GuideDependencyEngine? _dependencies;
+    private bool _disposed;
 
     public int Version { get; private set; }
 
-    public QuestPhaseTracker(
-        CompiledGuide.CompiledGuide guide,
-        GuideDependencyEngine? dependencies = null
-    )
+    internal CompiledGuide.CompiledGuide Guide => _guide;
+    internal QuestStateTracker State => _state;
+
+    public QuestPhaseTracker(CompiledGuide.CompiledGuide guide, QuestStateTracker state)
     {
         _guide = guide;
-        _dependencies = dependencies;
+        _state = state;
         _phases = new QuestPhase[guide.QuestCount];
         _remainingPrereqs = new int[guide.QuestCount];
         _itemCounts = new int[guide.ItemCount];
@@ -31,20 +32,53 @@ public sealed class QuestPhaseTracker
         {
             int nodeId = guide.QuestNodeId(questIndex);
             string? dbName = guide.GetDbName(nodeId);
-            if (dbName == null)
+            if (string.IsNullOrEmpty(dbName))
                 continue;
 
-            if (!string.IsNullOrEmpty(dbName))
-                _dbNameToQuestIndex[dbName] = questIndex;
+            _dbNameToQuestIndex[dbName] = questIndex;
         }
+
+        state.LoadedEvent += OnStateLoaded;
+        state.QuestLogChangedEvent += OnQuestLogChanged;
+        state.InventoryChangedEvent += OnInventoryChanged;
+        OnStateLoaded(state.LastChangeSet);
     }
 
-    public void Initialize(
-        IReadOnlyCollection<string> completedQuestDbNames,
-        IReadOnlyCollection<string> activeQuestDbNames,
-        IReadOnlyDictionary<string, int> inventory,
-        IReadOnlyCollection<string> keyringItems
-    )
+    public QuestPhaseTracker(
+        CompiledGuide.CompiledGuide guide,
+        GuideDependencyEngine? dependencies = null
+    ) : this(guide, CreateDetachedState(guide, dependencies)) { }
+
+    public QuestPhase GetPhase(int questIndex)
+    {
+        RecordQuestFacts(questIndex);
+        return _phases[questIndex];
+    }
+
+    public bool IsCompleted(int questIndex)
+    {
+        RecordQuestCompletedFact(questIndex);
+        return _completed[questIndex];
+    }
+
+    public int GetItemCount(int itemIndex)
+    {
+        RecordItemCountFact(itemIndex);
+        return _itemCounts[itemIndex];
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _state.LoadedEvent -= OnStateLoaded;
+        _state.QuestLogChangedEvent -= OnQuestLogChanged;
+        _state.InventoryChangedEvent -= OnInventoryChanged;
+    }
+
+    private void OnStateLoaded(GuideChangeSet _)
     {
         Array.Fill(_phases, QuestPhase.NotReady);
         Array.Clear(_completed, 0, _completed.Length);
@@ -68,7 +102,7 @@ public sealed class QuestPhaseTracker
         for (int itemIndex = 0; itemIndex < _guide.ItemCount; itemIndex++)
         {
             string itemKey = _guide.GetNodeKey(_guide.ItemNodeId(itemIndex));
-            if (inventory.TryGetValue(itemKey, out int quantity))
+            if (_state.InventoryCounts.TryGetValue(itemKey, out int quantity))
                 _itemCounts[itemIndex] = quantity;
         }
 
@@ -76,11 +110,11 @@ public sealed class QuestPhaseTracker
         {
             int nodeId = _guide.QuestNodeId(questIndex);
             string? dbName = _guide.GetDbName(nodeId);
-            if (!string.IsNullOrEmpty(dbName) && completedQuestDbNames.Contains(dbName))
+            if (!string.IsNullOrEmpty(dbName) && _state.CompletedQuests.Contains(dbName))
                 ApplyCompleted(questIndex);
         }
 
-        foreach (string dbName in activeQuestDbNames)
+        foreach (string dbName in _state.ActiveQuests)
         {
             if (
                 _dbNameToQuestIndex.TryGetValue(dbName, out int questIndex)
@@ -91,56 +125,60 @@ public sealed class QuestPhaseTracker
             }
         }
 
-        _ = keyringItems;
         Version++;
     }
 
-    public QuestPhase GetPhase(int questIndex)
+    private void OnQuestLogChanged(GuideChangeSet changeSet)
     {
-        RecordQuestFacts(questIndex);
-        return _phases[questIndex];
+        bool changed = false;
+        foreach (var dbName in changeSet.ChangedQuestDbNames)
+        {
+            if (!_dbNameToQuestIndex.TryGetValue(dbName, out int questIndex))
+                continue;
+
+            if (_state.CompletedQuests.Contains(dbName))
+            {
+                if (_completed[questIndex])
+                    continue;
+
+                ApplyCompleted(questIndex);
+                changed = true;
+                continue;
+            }
+
+            if (_state.ActiveQuests.Contains(dbName) && _phases[questIndex] == QuestPhase.ReadyToAccept)
+            {
+                _phases[questIndex] = QuestPhase.Accepted;
+                changed = true;
+            }
+        }
+
+        if (changed)
+            Version++;
     }
 
-    public bool IsCompleted(int questIndex)
+    private void OnInventoryChanged(GuideChangeSet changeSet)
     {
-        RecordQuestCompletedFact(questIndex);
-        return _completed[questIndex];
-    }
+        bool changed = false;
+        foreach (var itemKey in changeSet.ChangedItemKeys)
+        {
+            if (!_guide.TryGetNodeId(itemKey, out int itemNodeId))
+                continue;
 
-    public int GetItemCount(int itemIndex)
-    {
-        RecordItemCountFact(itemIndex);
-        return _itemCounts[itemIndex];
-    }
+            int itemIndex = _guide.FindItemIndex(itemNodeId);
+            if (itemIndex < 0 || itemIndex >= _itemCounts.Length)
+                continue;
 
-    public void OnQuestAssigned(int questIndex)
-    {
-        if (_phases[questIndex] != QuestPhase.ReadyToAccept)
-            return;
+            int newCount = _state.InventoryCounts.TryGetValue(itemKey, out int quantity) ? quantity : 0;
+            if (_itemCounts[itemIndex] == newCount)
+                continue;
 
-        _phases[questIndex] = QuestPhase.Accepted;
-        Version++;
-    }
+            _itemCounts[itemIndex] = newCount;
+            changed = true;
+        }
 
-    public void OnQuestCompleted(int questIndex)
-    {
-        if (_completed[questIndex])
-            return;
-
-        ApplyCompleted(questIndex);
-        Version++;
-    }
-
-    public void OnInventoryChanged(int itemIndex, int newCount)
-    {
-        if (itemIndex < 0 || itemIndex >= _itemCounts.Length)
-            return;
-
-        if (_itemCounts[itemIndex] == newCount)
-            return;
-
-        _itemCounts[itemIndex] = newCount;
-        Version++;
+        if (changed)
+            Version++;
     }
 
     private void ApplyCompleted(int questIndex)
@@ -186,19 +224,36 @@ public sealed class QuestPhaseTracker
     {
         string? dbName = _guide.GetDbName(_guide.QuestNodeId(questIndex));
         if (!string.IsNullOrEmpty(dbName))
-            _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.QuestActive, dbName));
+            _ = _state.IsActive(dbName);
     }
 
     private void RecordQuestCompletedFact(int questIndex)
     {
         string? dbName = _guide.GetDbName(_guide.QuestNodeId(questIndex));
         if (!string.IsNullOrEmpty(dbName))
-            _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+            _ = _state.IsCompleted(dbName);
     }
 
     private void RecordItemCountFact(int itemIndex)
     {
         string itemKey = _guide.GetNodeKey(_guide.ItemNodeId(itemIndex));
-        _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+        _ = _state.CountItem(itemKey);
+    }
+
+    private static QuestStateTracker CreateDetachedState(
+        CompiledGuide.CompiledGuide guide,
+        GuideDependencyEngine? dependencies
+    )
+    {
+        var engine = dependencies ?? new GuideDependencyEngine();
+        var state = new QuestStateTracker(guide, engine);
+        state.LoadState(
+            currentZone: string.Empty,
+            activeQuests: Array.Empty<string>(),
+            completedQuests: Array.Empty<string>(),
+            inventoryCounts: new Dictionary<string, int>(StringComparer.Ordinal),
+            keyringItemKeys: Array.Empty<string>()
+        );
+        return state;
     }
 }
