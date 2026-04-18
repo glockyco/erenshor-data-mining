@@ -520,27 +520,20 @@ public sealed class Plugin : BaseUnityPlugin
         _markerComputer?.Recompute();
 
         int targetSourceVersion = _navigationTargetResolver!.Version;
-        var selectorDecision = TargetSelectorRefreshPolicy.Decide(
-            liveChangeSet.HasMeaningfulChanges,
-            targetSourceVersion,
-            _lastResolutionVersion,
-            _navSet!.Version,
-            _lastNavSetVersion
+        int navSetVersion = _navSet!.Version;
+
+        var plan = MaintainedViewPlanner.Plan(
+            AllNavigableNodeKeys(),
+            selectorChangeSet,
+            liveWorldChanged: liveChangeSet.HasMeaningfulChanges,
+            targetSourceVersionChanged: targetSourceVersion != _lastResolutionVersion,
+            navSetVersionChanged: navSetVersion != _lastNavSetVersion
         );
 
-        bool forceSelector = selectorDecision.Force;
-        bool preserveUntouchedEntries = false;
-        string[] selectorKeys = Array.Empty<string>();
-        if (forceSelector)
+        if (plan.RequiresRefresh)
         {
             _lastResolutionVersion = targetSourceVersion;
-            _lastNavSetVersion = _navSet.Version;
-            selectorKeys = GetSelectorRefreshKeys(
-                selectorChangeSet,
-                selectorDecision.Reason,
-                out preserveUntouchedEntries
-            );
-
+            _lastNavSetVersion = navSetVersion;
         }
 
         _targetSelector?.Tick(
@@ -548,11 +541,12 @@ public sealed class Plugin : BaseUnityPlugin
             playerPos.y,
             playerPos.z,
             _navEngine!.CurrentScene,
-            selectorKeys,
-            forceSelector,
-            selectorDecision.Reason,
-            preserveUntouchedEntries
+            plan.Keys,
+            plan.RequiresRefresh,
+            plan.Reason,
+            preserveUntouchedEntries: plan.IsPartial
         );
+
 
 
         _navEngine?.Update(playerPos);
@@ -579,20 +573,6 @@ public sealed class Plugin : BaseUnityPlugin
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 
-    private string[] GetSelectorRefreshKeys(
-        GuideChangeSet liveChangeSet,
-        DiagnosticTrigger reason,
-        out bool preserveUntouchedEntries
-    )
-    {
-        var plan = MaintainedViewRefreshPlanner.Plan(
-            AllNavigableNodeKeys(),
-            liveChangeSet,
-            reason
-        );
-        preserveUntouchedEntries = plan.PreserveUntouchedEntries;
-        return plan.Keys;
-    }
 
     private IEnumerable<string> AllNavigableNodeKeys()
     {

@@ -99,31 +99,37 @@ public sealed class MarkerComputer
         long startTick = Stopwatch.GetTimestamp();
         try
         {
-            var plan = MarkerChangePlanner.Plan(changeSet);
-            if (!plan.FullRebuild && plan.AffectedQuestKeys.Count == 0)
+            var plan = MaintainedViewPlanner.Plan(
+                CollectActiveQuestKeysForPlanning(),
+                changeSet,
+                liveWorldChanged: changeSet.LiveWorldChanged,
+                targetSourceVersionChanged: false,
+                navSetVersionChanged: false
+            );
+            if (!plan.RequiresRefresh)
                 return;
 
             _dirty = true;
-            _lastDiagnosticTrigger = trigger;
+            _lastDiagnosticTrigger = plan.Reason;
             _diagnostics?.RecordEvent(
                 new DiagnosticEvent(
                     DiagnosticEventKind.MarkerRebuildRequested,
                     context,
                     timestampTicks: startTick,
                     primaryKey: "MarkerComputer",
-                    value0: plan.FullRebuild ? 1 : 0,
-                    value1: plan.AffectedQuestKeys.Count
+                    value0: plan.IsFullRebuild ? 1 : 0,
+                    value1: plan.Keys.Count
                 )
             );
 
-            if (plan.FullRebuild)
+            if (plan.IsFullRebuild)
             {
                 _fullRebuild = true;
                 _pendingQuestKeys.Clear();
                 return;
             }
 
-            foreach (var questKey in plan.AffectedQuestKeys)
+            foreach (var questKey in plan.Keys)
                 _pendingQuestKeys.Add(questKey);
         }
         finally
@@ -219,6 +225,43 @@ public sealed class MarkerComputer
         }
     }
 
+    private HashSet<string> CollectActiveQuestKeysForPlanning()
+    {
+        var questKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var blueprint in GetQuestGiversInCurrentScene())
+            questKeys.Add(blueprint.QuestKey);
+
+        foreach (var questDbName in _tracker.GetActionableQuestDbNames())
+        {
+            var quest = _compiledGuide.GetQuestByDbName(questDbName);
+            if (quest != null)
+                questKeys.Add(quest.Key);
+        }
+
+        foreach (var nodeKey in _navSet.Keys)
+        {
+            var node = _compiledGuide.GetNode(nodeKey);
+            if (node?.Type == NodeType.Quest)
+                questKeys.Add(node.Key);
+        }
+
+        foreach (var dbName in _trackerState.TrackedQuests)
+        {
+            var quest = _compiledGuide.GetQuestByDbName(dbName);
+            if (quest != null)
+                questKeys.Add(quest.Key);
+        }
+
+        foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
+        {
+            var quest = _compiledGuide.GetQuestByDbName(dbName);
+            if (quest != null)
+                questKeys.Add(quest.Key);
+        }
+
+        return questKeys;
+    }
+
     private void RebuildCurrentScene()
     {
         var token = _diagnostics?.BeginSpan(
@@ -237,37 +280,8 @@ public sealed class MarkerComputer
                 primaryKey: _tracker.CurrentZone
             );
             long collectionStart = Stopwatch.GetTimestamp();
-            var sceneQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var blueprint in GetQuestGiversInCurrentScene())
-                sceneQuestKeys.Add(blueprint.QuestKey);
+            var sceneQuestKeys = CollectActiveQuestKeysForPlanning();
 
-            foreach (var questDbName in _tracker.GetActionableQuestDbNames())
-            {
-                var quest = _compiledGuide.GetQuestByDbName(questDbName);
-                if (quest != null)
-                    sceneQuestKeys.Add(quest.Key);
-            }
-
-            foreach (var nodeKey in _navSet.Keys)
-            {
-                var node = _compiledGuide.GetNode(nodeKey);
-                if (node?.Type == NodeType.Quest)
-                    sceneQuestKeys.Add(node.Key);
-            }
-
-            foreach (var dbName in _trackerState.TrackedQuests)
-            {
-                var quest = _compiledGuide.GetQuestByDbName(dbName);
-                if (quest != null)
-                    sceneQuestKeys.Add(quest.Key);
-            }
-
-            foreach (var dbName in _tracker.GetImplicitlyAvailableQuestDbNames())
-            {
-                var quest = _compiledGuide.GetQuestByDbName(dbName);
-                if (quest != null)
-                    sceneQuestKeys.Add(quest.Key);
-            }
             if (collectionToken != null)
                 _diagnostics!.EndSpan(
                     collectionToken.Value,
