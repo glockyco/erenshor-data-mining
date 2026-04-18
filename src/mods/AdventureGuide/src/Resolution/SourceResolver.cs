@@ -1334,11 +1334,12 @@ public sealed class SourceResolver
     )
     {
         ReadOnlySpan<SourceSiteEntry> sources = _guide.GetItemSources(itemIndex);
-        var visible = ItemSourceVisibilityPolicy.Filter(
-            sources.ToArray(),
-            source => (EdgeType)source.EdgeType,
-            source => !_guide.GetNode(source.SourceId).IsFriendly
-        );
+        // Specialised, delegate-free filter. Saves two Func<...> allocations per
+        // call plus the sources.ToArray() copy. A fresh List is still allocated so
+        // nested ResolveItemRequirement calls (which can re-enter this method
+        // indirectly via ResolveItemSource) don't alias the caller's enumerator.
+        var visible = new List<SourceSiteEntry>(sources.Length);
+        ItemSourceVisibilityPolicy.Filter(sources, _guide, visible);
         int suppressed = sources.Length - visible.Count;
         if (suppressed > 0)
             tracer?.OnHostileDropFilter(itemIndex, sources.Length, suppressed);

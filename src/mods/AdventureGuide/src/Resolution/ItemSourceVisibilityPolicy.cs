@@ -1,3 +1,4 @@
+using AdventureGuide.CompiledGuide;
 using AdventureGuide.Graph;
 
 namespace AdventureGuide.Resolution;
@@ -8,41 +9,47 @@ namespace AdventureGuide.Resolution;
 /// When at least one hostile <see cref="EdgeType.DropsItem"/> source exists,
 /// friendly <see cref="EdgeType.DropsItem"/> sources are suppressed. Non-drop
 /// sources are always retained.
+///
+/// Called on the hot resolution path once per item-source lookup. Operates
+/// allocation-free over a <see cref="ReadOnlySpan{SourceSiteEntry}"/> input,
+/// writing visible sources into a caller-provided list that is cleared
+/// first. Hostility is answered via the supplied <see cref="CompiledGuide.CompiledGuide"/>
+/// so callers don't need to build delegate closures per lookup.
 /// </summary>
 public static class ItemSourceVisibilityPolicy
 {
-    public static List<TSource> Filter<TSource>(
-        IReadOnlyList<TSource> sources,
-        Func<TSource, EdgeType> getEdgeType,
-        Func<TSource, bool> isHostile
-    )
-    {
-        bool anyHostileDrop = false;
-        for (int i = 0; i < sources.Count; i++)
-        {
-            if (getEdgeType(sources[i]) == EdgeType.DropsItem && isHostile(sources[i]))
-            {
-                anyHostileDrop = true;
-                break;
-            }
-        }
+	public static void Filter(
+		ReadOnlySpan<SourceSiteEntry> sources,
+		CompiledGuide.CompiledGuide guide,
+		List<SourceSiteEntry> visible
+	)
+	{
+		visible.Clear();
+		if (sources.Length == 0)
+			return;
 
-        var visible = new List<TSource>(sources.Count);
-        for (int i = 0; i < sources.Count; i++)
-        {
-            var source = sources[i];
-            if (
-                anyHostileDrop
-                && getEdgeType(source) == EdgeType.DropsItem
-                && !isHostile(source)
-            )
-            {
-                continue;
-            }
+		bool anyHostileDrop = false;
+		for (int i = 0; i < sources.Length; i++)
+		{
+			ref readonly var src = ref sources[i];
+			if (src.EdgeType == (byte)EdgeType.DropsItem
+				&& !guide.GetNode(src.SourceId).IsFriendly)
+			{
+				anyHostileDrop = true;
+				break;
+			}
+		}
 
-            visible.Add(source);
-        }
+		if (visible.Capacity < sources.Length)
+			visible.Capacity = sources.Length;
 
-        return visible;
-    }
+		for (int i = 0; i < sources.Length; i++)
+		{
+			ref readonly var src = ref sources[i];
+			bool isDrop = src.EdgeType == (byte)EdgeType.DropsItem;
+			if (anyHostileDrop && isDrop && guide.GetNode(src.SourceId).IsFriendly)
+				continue;
+			visible.Add(src);
+		}
+	}
 }

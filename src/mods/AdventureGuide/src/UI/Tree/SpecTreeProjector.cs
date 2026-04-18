@@ -611,11 +611,9 @@ internal IReadOnlyList<SpecTreeRef> GetRootChildren(QuestResolutionRecord record
 
     private List<SourceSiteEntry> ApplyHostileDropFilter(ReadOnlySpan<SourceSiteEntry> sources)
     {
-        return ItemSourceVisibilityPolicy.Filter(
-            sources.ToArray(),
-            source => (EdgeType)source.EdgeType,
-            source => !_guide.GetNode(source.SourceId).IsFriendly
-        );
+        var visible = new List<SourceSiteEntry>(sources.Length);
+        ItemSourceVisibilityPolicy.Filter(sources, _guide, visible);
+        return visible;
     }
 
     
