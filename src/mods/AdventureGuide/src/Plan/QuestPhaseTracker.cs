@@ -1,3 +1,5 @@
+using AdventureGuide.State;
+
 namespace AdventureGuide.Plan;
 
 public sealed class QuestPhaseTracker
@@ -8,12 +10,17 @@ public sealed class QuestPhaseTracker
     private readonly int[] _itemCounts;
     private readonly bool[] _completed;
     private readonly Dictionary<string, int> _dbNameToQuestIndex;
+    private readonly GuideDependencyEngine? _dependencies;
 
     public int Version { get; private set; }
 
-    public QuestPhaseTracker(CompiledGuide.CompiledGuide guide)
+    public QuestPhaseTracker(
+        CompiledGuide.CompiledGuide guide,
+        GuideDependencyEngine? dependencies = null
+    )
     {
         _guide = guide;
+        _dependencies = dependencies;
         _phases = new QuestPhase[guide.QuestCount];
         _remainingPrereqs = new int[guide.QuestCount];
         _itemCounts = new int[guide.ItemCount];
@@ -25,14 +32,10 @@ public sealed class QuestPhaseTracker
             int nodeId = guide.QuestNodeId(questIndex);
             string? dbName = guide.GetDbName(nodeId);
             if (dbName == null)
-            {
                 continue;
-            }
 
             if (!string.IsNullOrEmpty(dbName))
-            {
                 _dbNameToQuestIndex[dbName] = questIndex;
-            }
         }
     }
 
@@ -56,9 +59,6 @@ public sealed class QuestPhaseTracker
             }
             else if (_remainingPrereqs[questIndex] == 0)
             {
-                // Implicit quests have no acceptance step — skip ReadyToAccept and
-                // go directly to Accepted so the standard pipeline handles them
-                // uniformly without special-casing downstream.
                 _phases[questIndex] = _guide.IsImplicit(questIndex)
                     ? QuestPhase.Accepted
                     : QuestPhase.ReadyToAccept;
@@ -69,9 +69,7 @@ public sealed class QuestPhaseTracker
         {
             string itemKey = _guide.GetNodeKey(_guide.ItemNodeId(itemIndex));
             if (inventory.TryGetValue(itemKey, out int quantity))
-            {
                 _itemCounts[itemIndex] = quantity;
-            }
         }
 
         foreach (int questIndex in _guide.TopologicalOrder)
@@ -79,9 +77,7 @@ public sealed class QuestPhaseTracker
             int nodeId = _guide.QuestNodeId(questIndex);
             string? dbName = _guide.GetDbName(nodeId);
             if (!string.IsNullOrEmpty(dbName) && completedQuestDbNames.Contains(dbName))
-            {
                 ApplyCompleted(questIndex);
-            }
         }
 
         foreach (string dbName in activeQuestDbNames)
@@ -99,18 +95,28 @@ public sealed class QuestPhaseTracker
         Version++;
     }
 
-    public QuestPhase GetPhase(int questIndex) => _phases[questIndex];
+    public QuestPhase GetPhase(int questIndex)
+    {
+        RecordQuestFacts(questIndex);
+        return _phases[questIndex];
+    }
 
-    public bool IsCompleted(int questIndex) => _completed[questIndex];
+    public bool IsCompleted(int questIndex)
+    {
+        RecordQuestCompletedFact(questIndex);
+        return _completed[questIndex];
+    }
 
-    public int GetItemCount(int itemIndex) => _itemCounts[itemIndex];
+    public int GetItemCount(int itemIndex)
+    {
+        RecordItemCountFact(itemIndex);
+        return _itemCounts[itemIndex];
+    }
 
     public void OnQuestAssigned(int questIndex)
     {
         if (_phases[questIndex] != QuestPhase.ReadyToAccept)
-        {
             return;
-        }
 
         _phases[questIndex] = QuestPhase.Accepted;
         Version++;
@@ -119,9 +125,7 @@ public sealed class QuestPhaseTracker
     public void OnQuestCompleted(int questIndex)
     {
         if (_completed[questIndex])
-        {
             return;
-        }
 
         ApplyCompleted(questIndex);
         Version++;
@@ -130,14 +134,10 @@ public sealed class QuestPhaseTracker
     public void OnInventoryChanged(int itemIndex, int newCount)
     {
         if (itemIndex < 0 || itemIndex >= _itemCounts.Length)
-        {
             return;
-        }
 
         if (_itemCounts[itemIndex] == newCount)
-        {
             return;
-        }
 
         _itemCounts[itemIndex] = newCount;
         Version++;
@@ -151,9 +151,7 @@ public sealed class QuestPhaseTracker
         foreach (int dependentQuestIndex in _guide.QuestsDependingOnQuest(questIndex))
         {
             if (_phases[dependentQuestIndex] is QuestPhase.Completed or QuestPhase.Infeasible)
-            {
                 continue;
-            }
 
             _remainingPrereqs[dependentQuestIndex] = Math.Max(
                 0,
@@ -174,9 +172,33 @@ public sealed class QuestPhaseTracker
         {
             int chainedQuestIndex = _guide.FindQuestIndex(chainedQuestId);
             if (chainedQuestIndex >= 0 && _phases[chainedQuestIndex] == QuestPhase.ReadyToAccept)
-            {
                 _phases[chainedQuestIndex] = QuestPhase.Accepted;
-            }
         }
+    }
+
+    private void RecordQuestFacts(int questIndex)
+    {
+        RecordQuestActiveFact(questIndex);
+        RecordQuestCompletedFact(questIndex);
+    }
+
+    private void RecordQuestActiveFact(int questIndex)
+    {
+        string? dbName = _guide.GetDbName(_guide.QuestNodeId(questIndex));
+        if (!string.IsNullOrEmpty(dbName))
+            _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.QuestActive, dbName));
+    }
+
+    private void RecordQuestCompletedFact(int questIndex)
+    {
+        string? dbName = _guide.GetDbName(_guide.QuestNodeId(questIndex));
+        if (!string.IsNullOrEmpty(dbName))
+            _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+    }
+
+    private void RecordItemCountFact(int itemIndex)
+    {
+        string itemKey = _guide.GetNodeKey(_guide.ItemNodeId(itemIndex));
+        _dependencies?.RecordFact(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
     }
 }

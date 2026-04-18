@@ -76,6 +76,7 @@ public sealed class Plugin : BaseUnityPlugin
     private SourceResolver? _compiledSourceResolver;
     private MarkerQuestTargetResolver? _markerQuestTargetResolver;
     private NavigationTargetResolver? _navigationTargetResolver;
+    private QuestResolutionService? _questResolutionService;
     private DiagnosticsCore? _diagnostics;
     private int _lastCompiledQuestTrackerVersion = -1;
     private int _lastObservedQuestTrackerVersion = -1;
@@ -116,7 +117,8 @@ public sealed class Plugin : BaseUnityPlugin
         var graphSw = System.Diagnostics.Stopwatch.StartNew();
         _compiledGuide = CompiledGuideLoader.Load(Log);
         var graphLoadMs = graphSw.Elapsed.TotalMilliseconds;
-        _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide);
+        _dependencyEngine = new GuideDependencyEngine();
+        _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide, _dependencyEngine);
         _diagnostics = new DiagnosticsCore(
             eventCapacity: DiagnosticsBufferCapacity,
             spanCapacity: DiagnosticsBufferCapacity,
@@ -130,8 +132,7 @@ public sealed class Plugin : BaseUnityPlugin
             )
         );
 
-        _dependencyEngine = new GuideDependencyEngine();
-        // --- State layer ---
+// --- State layer ---
         _questTracker = new QuestStateTracker(_compiledGuide, _dependencyEngine);
         _gameState = new GameState(_compiledGuide);
         _unlockEvaluator = new UnlockEvaluator(_compiledGuide, _gameState, _questTracker);
@@ -210,15 +211,14 @@ public sealed class Plugin : BaseUnityPlugin
             _zoneRouter,
             positionRegistry
         );
-        var questResolutionService = new QuestResolutionService(
-            _compiledGuide,
-            _compiledFrontier,
-            _compiledSourceResolver,
-            _zoneRouter,
-            projector,
-            _dependencyEngine,
-            () => _compiledQuestTracker.Version
-        );
+        var questResolutionService = _questResolutionService = new QuestResolutionService(
+    _compiledGuide,
+    _compiledFrontier,
+    _compiledSourceResolver,
+    _zoneRouter,
+    projector,
+    _dependencyEngine
+);
         _navigationTargetResolver = new NavigationTargetResolver(
             _compiledGuide,
             questResolutionService,
@@ -411,6 +411,7 @@ public sealed class Plugin : BaseUnityPlugin
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
         var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
+        _questResolutionService?.InvalidateAll(initialChangeSet);
         SyncCompiledQuestTracker();
         _liveState.OnSceneLoaded();
         _waterResolver.OnSceneLoaded();
@@ -519,6 +520,11 @@ public sealed class Plugin : BaseUnityPlugin
             _lastObservedQuestTrackerVersion = _questTracker.Version;
         }
         var selectorChangeSet = stateChangeSet.Merge(liveChangeSet);
+
+        if (selectorChangeSet.SceneChanged)
+            _questResolutionService?.InvalidateAll(selectorChangeSet);
+        else if (selectorChangeSet.HasMeaningfulChanges)
+            _questResolutionService?.InvalidateFacts(selectorChangeSet.ChangedFacts);
 
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
@@ -638,6 +644,7 @@ public sealed class Plugin : BaseUnityPlugin
         _liveState?.OnSceneLoaded();
         _waterResolver?.OnSceneLoaded();
         var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
+        _questResolutionService?.InvalidateAll(sceneChangeSet);
         SyncCompiledQuestTracker();
         if (_inGameplay)
         {

@@ -4,6 +4,7 @@ using AdventureGuide.Navigation;
 using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
@@ -195,73 +196,24 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
-	public void Resolve_QuestKey_ClearsCachedResultsWhenVersionChanges()
+	public void Resolve_QuestKey_DoesNotClearCachedResultsWhenVersionChanges()
 	{
-	    int version = 1;
-	    var guide = new CompiledGuideBuilder()
-	        .AddItem("item:fish")
-	        .AddWater("water:pond", scene: "Lake", x: 5f, y: 6f, z: 7f)
-	        .AddItemSource("item:fish", "water:pond", edgeType: (byte)EdgeType.YieldsItem, sourceType: (byte)NodeType.Water)
-	        .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) })
-	        .Build();
-	    var phases = new QuestPhaseTracker(guide);
-	    phases.Initialize(
-	        Array.Empty<string>(),
-	        new[] { "ROOT" },
-	        new Dictionary<string, int>(),
-	        Array.Empty<string>()
-	    );
-	    var frontier = new EffectiveFrontier(guide, phases);
-	    var unlocks = new UnlockPredicateEvaluator(guide, phases);
-	    var positionRegistry = CreatePositionRegistry(guide);
-	    var sourceResolver = new SourceResolver(
-	        guide,
-	        phases,
-	        unlocks,
-	        new StubLivePositionProvider(),
-	        positionRegistry
-	    );
-	    var resolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        versionProvider: () => version,
-        positionRegistry: positionRegistry
-    ),
-    null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
-);
-
-	    var first = resolver.Resolve("quest:root", "Lake");
-	    version = 2;
-	    var second = resolver.Resolve("quest:root", "Lake");
-
-	    Assert.NotSame(first, second);
-	}
-
-	[Fact]
-	public void Resolve_QuestKey_WithCompiledStateVersionProvider_RefreshesAfterQuestAccepted()
-	{
+		int version = 1;
 		var guide = new CompiledGuideBuilder()
-			.AddCharacter("char:giver", scene: "Forest", x: 10f, y: 20f, z: 30f)
-			.AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f)
-			.AddItem("item:pelt")
-			.AddItemSource("item:pelt", "char:wolf")
-			.AddQuest(
-				"quest:root",
-				dbName: "ROOT",
-				givers: new[] { "char:giver" },
-				requiredItems: new[] { ("item:pelt", 1) }
+			.AddItem("item:fish")
+			.AddWater("water:pond", scene: "Lake", x: 5f, y: 6f, z: 7f)
+			.AddItemSource(
+				"item:fish",
+				"water:pond",
+				edgeType: (byte)EdgeType.YieldsItem,
+				sourceType: (byte)NodeType.Water
 			)
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) })
 			.Build();
 		var phases = new QuestPhaseTracker(guide);
 		phases.Initialize(
 			Array.Empty<string>(),
-			Array.Empty<string>(),
+			new[] { "ROOT" },
 			new Dictionary<string, int>(),
 			Array.Empty<string>()
 		);
@@ -276,19 +228,75 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var resolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        versionProvider: () => phases.Version,
-        positionRegistry: positionRegistry
-    ),
-    null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: null,
+				versionProvider: () => version,
+				positionRegistry: positionRegistry
+			),
+			null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+		);
+
+		var first = resolver.Resolve("quest:root", "Lake");
+		version = 2;
+		var second = resolver.Resolve("quest:root", "Lake");
+
+		Assert.Same(first, second);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_RefreshesAfterFactInvalidation()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddCharacter("char:giver", scene: "Forest", x: 10f, y: 20f, z: 30f)
+			.AddCharacter("char:wolf", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItem("item:pelt")
+			.AddItemSource("item:pelt", "char:wolf")
+			.AddQuest(
+				"quest:root",
+				dbName: "ROOT",
+				givers: new[] { "char:giver" },
+				requiredItems: new[] { ("item:pelt", 1) }
+			)
+			.Build();
+		var dependencies = new GuideDependencyEngine();
+		var phases = new QuestPhaseTracker(guide, dependencies);
+		phases.Initialize(
+		    Array.Empty<string>(),
+		    Array.Empty<string>(),
+		    new Dictionary<string, int>(),
+		    Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(guide, phases);
+		var positionRegistry = CreatePositionRegistry(guide);
+		var sourceResolver = new SourceResolver(
+		    guide,
+		    phases,
+		    unlocks,
+		    new StubLivePositionProvider(),
+		    positionRegistry
+		);
+		var service = ResolutionTestFactory.BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			zoneRouter: null,
+			dependencies: dependencies,
+			positionRegistry: positionRegistry
+		);
+		var resolver = new NavigationTargetResolver(
+			guide,
+			service,
+			null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+		);
 
 		var initial = resolver.Resolve("quest:root", "Forest");
 		var initialTarget = Assert.Single(initial);
@@ -300,6 +308,13 @@ public sealed class NavigationTargetResolverTests
 			new[] { "ROOT" },
 			new Dictionary<string, int>(),
 			Array.Empty<string>()
+		);
+		service.InvalidateFacts(
+			new[]
+			{
+				new GuideFactKey(GuideFactKind.QuestActive, "ROOT"),
+				new GuideFactKey(GuideFactKind.QuestCompleted, "ROOT"),
+			}
 		);
 
 		var refreshed = resolver.Resolve("quest:root", "Forest");

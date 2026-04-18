@@ -18,7 +18,6 @@ public sealed class QuestResolutionService
     private readonly GuideDependencyEngine? _dependencies;
     private readonly Func<int> _versionProvider;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
-    private int _cachedVersion = -1;
     private int _lastBatchKeyCount;
     private IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> _topQuestCosts = Array.Empty<AdventureGuide.Diagnostics.QuestCostSample>();
 
@@ -66,7 +65,6 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
-        EnsureCacheCurrent();
         var resolutionSession = session ?? new SourceResolver.ResolutionSession();
         var record = ResolveOrBuildRecord(questKey, currentScene, resolutionSession, tracer);
         if (record == null)
@@ -90,8 +88,6 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
-        EnsureCacheCurrent();
-
         var results = new Dictionary<string, QuestResolutionRecord>(StringComparer.Ordinal);
         var resolutionSession = session ?? new SourceResolver.ResolutionSession();
         var seenKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -189,14 +185,16 @@ public sealed class QuestResolutionService
         );
     }
 
-    private void EnsureCacheCurrent()
+    /// <summary>
+    /// Clears the entire maintained-view cache. Reserved for scene changes and
+    /// other events that make every prior quest-resolution answer structurally
+    /// invalid. Per-fact events must call <see cref="InvalidateFacts"/> instead.
+    /// </summary>
+    public void InvalidateAll(GuideChangeSet reason)
     {
-        int version = Version;
-        if (_cachedVersion == version)
-            return;
-
         _cache.Clear();
-        _cachedVersion = version;
+        _dependencies?.Clear();
+        _ = reason;
     }
 
     private static string BuildCacheKey(string questKey, string currentScene) =>
