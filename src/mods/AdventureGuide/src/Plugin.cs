@@ -74,7 +74,6 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
-    private QuestTargetResolver? _compiledQuestTargetResolver;
     private MarkerQuestTargetResolver? _markerQuestTargetResolver;
     private NavigationTargetResolver? _navigationTargetResolver;
     private DiagnosticsCore? _diagnostics;
@@ -205,13 +204,7 @@ public sealed class Plugin : BaseUnityPlugin
             positionRegistry,
             _zoneRouter
         );
-        _compiledQuestTargetResolver = new QuestTargetResolver(
-            _compiledGuide,
-            _compiledFrontier,
-            _compiledSourceResolver,
-            _zoneRouter,
-            () => _compiledQuestTracker.Version
-        );
+
         var questResolutionService = new QuestResolutionService(
             _compiledGuide,
             _compiledFrontier,
