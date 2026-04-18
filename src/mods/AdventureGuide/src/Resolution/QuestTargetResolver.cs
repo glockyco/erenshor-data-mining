@@ -41,11 +41,29 @@ public sealed class QuestTargetResolver
 		int questIndex,
 		string currentScene,
 		IResolutionTracer? tracer = null
-	) => Resolve(questIndex, currentScene, session: null, tracer);
+	)
+	{
+		var frontier = new List<FrontierEntry>();
+		_frontier.Resolve(questIndex, frontier, -1, tracer);
+		return Resolve(questIndex, currentScene, frontier, session: null, tracer);
+	}
 
 	internal IReadOnlyList<ResolvedTarget> Resolve(
 		int questIndex,
 		string currentScene,
+		SourceResolver.ResolutionSession? session,
+		IResolutionTracer? tracer = null
+	)
+	{
+		var frontier = new List<FrontierEntry>();
+		_frontier.Resolve(questIndex, frontier, -1, tracer);
+		return Resolve(questIndex, currentScene, frontier, session, tracer);
+	}
+
+	internal IReadOnlyList<ResolvedTarget> Resolve(
+		int questIndex,
+		string currentScene,
+		IReadOnlyList<FrontierEntry> frontier,
 		SourceResolver.ResolutionSession? session,
 		IResolutionTracer? tracer = null
 	)
@@ -64,9 +82,6 @@ public sealed class QuestTargetResolver
 		var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
 		tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
 
-		var frontier = new List<FrontierEntry>();
-		_frontier.Resolve(questIndex, frontier, -1, tracer);
-
 		var results = new List<ResolvedTarget>();
 		var seenTargets = new HashSet<string>(StringComparer.Ordinal);
 		var resolutionSession = session ?? new SourceResolver.ResolutionSession();
@@ -82,16 +97,16 @@ public sealed class QuestTargetResolver
 
 		if (results.Count > 1)
 		{
-		    results.Sort((left, right) =>
-		        left.AvailabilityPriority == right.AvailabilityPriority
-		            ? 0
-		            : left.AvailabilityPriority < right.AvailabilityPriority ? -1 : 1
-		    );
+			results.Sort((left, right) =>
+				left.AvailabilityPriority == right.AvailabilityPriority
+					? 0
+					: left.AvailabilityPriority < right.AvailabilityPriority ? -1 : 1
+			);
 		}
 
 		IReadOnlyList<ResolvedTarget> frozen = results.Count == 0
-		    ? Array.Empty<ResolvedTarget>()
-		    : results;
+			? Array.Empty<ResolvedTarget>()
+			: results;
 		_questTargetCache[cacheKey] = frozen;
 		return frozen;
 	}

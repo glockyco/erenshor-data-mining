@@ -173,7 +173,7 @@ public sealed class QuestResolutionService
     {
         var frontier = new List<FrontierEntry>();
         _frontier.Resolve(questIndex, frontier, -1, tracer);
-        var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, session, tracer);
+        var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, frontier, session, tracer);
         return new QuestResolutionRecord(questKey, currentScene, questIndex, frontier, compiledTargets);
     }
 

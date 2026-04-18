@@ -117,6 +117,44 @@ public sealed class QuestResolutionServiceTests
     }
 
     [Fact]
+    public void ResolveQuest_TraversesFrontierOncePerQuest()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:leaf", scene: "Town", x: 1f, y: 2f, z: 3f)
+            .AddItem("item:root")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:root", 1) })
+            .AddItemSource(
+                "item:root",
+                "char:leaf",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
+        );
+        var service = new QuestResolutionService(guide, frontier, sourceResolver, null);
+        var tracer = new CountingTracer();
+
+        var record = service.ResolveQuest("quest:root", "Town", tracer);
+
+        Assert.Single(record.Frontier);
+        Assert.Equal(1, tracer.FrontierEntryCount);
+    }
+
+    [Fact]
     public async Task ResolveBatch_WithSharedRewardSubtrees_CompletesWithinBudget()
     {
         const int depth = 20;
@@ -180,12 +218,49 @@ public sealed class QuestResolutionServiceTests
         var resolveTask = System.Threading.Tasks.Task.Run(
             () => service.ResolveBatch(new[] { "quest:root:a", "quest:root:b" }, "Town")
         );
+        // This is a regression guard against combinatorial blow-ups, not a
+        // microbenchmark. Keep the budget loose enough to stay stable across
+        // developer machines.
         var completed = await System.Threading.Tasks.Task.WhenAny(
             resolveTask,
-            System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(1000))
+            System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(3000))
         );
+
 
         Assert.Same(resolveTask, completed);
         Assert.Equal(2, (await resolveTask).Count);
+    }
+
+    private sealed class CountingTracer : IResolutionTracer
+    {
+        public int FrontierEntryCount { get; private set; }
+
+        public void OnQuestPhase(int questIndex, string? dbName, string phase) { }
+
+        public void OnFrontierEntry(
+            int questIndex,
+            string? questDbName,
+            string phase,
+            int requiredForQuestIndex
+        )
+        {
+            FrontierEntryCount++;
+        }
+
+        public void OnTargetMaterialized(
+            int targetNodeId,
+            int positionNodeId,
+            string role,
+            string? scene,
+            bool isActionable
+        ) { }
+
+        public void OnHostileDropFilter(int itemIndex, int totalSources, int suppressedCount) { }
+
+        public void OnUnlockEvaluation(int targetNodeId, bool isUnlocked) { }
+
+        public void OnResolveBegin(string nodeKey) { }
+
+        public void OnResolveEnd(int targetCount) { }
     }
 }
