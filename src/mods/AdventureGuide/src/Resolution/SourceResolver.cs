@@ -135,6 +135,12 @@ public sealed class SourceResolver
             (byte Phase, int RequiredForQuestIndex, int RecipeNodeId)
         > ActiveRecipeMaterials = new();
 
+        // UnlockPredicateEvaluator.GetBlockingRequirementGroups is a pure function
+        // of targetNodeId + the current QuestPhaseTracker snapshot. Phase state is
+        // stable across one resolution batch, so each unique node ID resolves once
+        // per batch instead of once per emission site (thousands -> tens in the
+        // evidence from F6 profiling).
+        public readonly Dictionary<int, IReadOnlyList<IReadOnlyList<UnlockConditionEntry>>> BlockingGroupsCache = new();
     }
 
     private enum ItemRequirementSemanticKind : byte
@@ -797,7 +803,7 @@ public sealed class SourceResolver
             IResolutionTracer? tracer = null
         )
         {
-            var directGroups = _unlocks.GetBlockingRequirementGroups(targetNodeId);
+            var directGroups = GetBlockingGroupsCached(session, targetNodeId);
             int routeNodeId = NoBlockedRouteNodeId;
             IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> routeGroups =
                 Array.Empty<IReadOnlyList<UnlockConditionEntry>>();
@@ -805,7 +811,7 @@ public sealed class SourceResolver
                 TryGetBlockedRouteNodeId(currentScene, targetScene, out routeNodeId)
                 && routeNodeId != targetNodeId
             )
-                routeGroups = _unlocks.GetBlockingRequirementGroups(routeNodeId);
+                routeGroups = GetBlockingGroupsCached(session, routeNodeId);
             if (directGroups.Count == 0 && routeGroups.Count == 0)
                 return null;
 
@@ -849,6 +855,18 @@ public sealed class SourceResolver
                 ResolvedTargetAvailabilityPriority.PrerequisiteFallback
             );
         }
+
+    private IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> GetBlockingGroupsCached(
+        ResolutionSession session,
+        int nodeId
+    )
+    {
+        if (session.BlockingGroupsCache.TryGetValue(nodeId, out var cached))
+            return cached;
+        var groups = _unlocks.GetBlockingRequirementGroups(nodeId);
+        session.BlockingGroupsCache[nodeId] = groups;
+        return groups;
+    }
 
     private void AppendUnlockConditionTargets(
         IReadOnlyList<IReadOnlyList<UnlockConditionEntry>> groups,
