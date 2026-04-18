@@ -19,6 +19,7 @@ public sealed class QuestResolutionService
     private readonly ZoneRouter? _zoneRouter;
     private readonly Func<int> _versionProvider;
     private readonly Func<SourceResolver.ResolutionSession> _sessionFactory;
+    private readonly AdventureGuide.Diagnostics.DiagnosticsCore? _diagnostics;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
     private int _lastBatchKeyCount;
     private int _lastObservedVersion = int.MinValue;
@@ -40,7 +41,8 @@ public sealed class QuestResolutionService
         projector,
         dependencies,
         versionProvider,
-        sessionFactory: null
+        sessionFactory: null,
+        diagnostics: null
     ) { }
 
     internal QuestResolutionService(
@@ -51,7 +53,8 @@ public sealed class QuestResolutionService
         QuestTargetProjector projector,
         GuideDependencyEngine? dependencies,
         Func<int>? versionProvider,
-        Func<SourceResolver.ResolutionSession>? sessionFactory
+        Func<SourceResolver.ResolutionSession>? sessionFactory,
+        AdventureGuide.Diagnostics.DiagnosticsCore? diagnostics = null
     )
     {
         _guide = guide;
@@ -61,6 +64,7 @@ public sealed class QuestResolutionService
         _zoneRouter = zoneRouter;
         _versionProvider = versionProvider ?? (() => 0);
         _sessionFactory = sessionFactory ?? (() => new SourceResolver.ResolutionSession());
+        _diagnostics = diagnostics;
         _questTargetResolver = new QuestTargetResolver(
             guide,
             frontier,
@@ -203,48 +207,90 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer
     )
     {
-        var frontier = new List<FrontierEntry>();
-        _frontier.Resolve(questIndex, frontier, -1, tracer);
-        var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, frontier, session, tracer);
-        var navigationTargets = _projector.Project(compiledTargets, currentScene);
-        var phases = _frontier.Phases;
-        var questPhases = phases.SnapshotPhases();
-        var itemCounts = phases.SnapshotItemCounts();
-        var blockingZoneLineByScene = BuildBlockingZoneLineByScene(currentScene);
-        return new QuestResolutionRecord(
-            questKey,
-            currentScene,
-            questIndex,
-            frontier,
-            compiledTargets,
-            navigationTargets,
-            questPhases,
-            itemCounts,
-            blockingZoneLineByScene
+        var token = _diagnostics?.BeginSpan(
+            AdventureGuide.Diagnostics.DiagnosticSpanKind.MarkerServiceBuildRecord,
+            AdventureGuide.Diagnostics.DiagnosticsContext.Root(AdventureGuide.Diagnostics.DiagnosticTrigger.Unknown),
+            primaryKey: questKey
         );
+        long startTick = System.Diagnostics.Stopwatch.GetTimestamp();
+        try
+        {
+            var frontier = new List<FrontierEntry>();
+            _frontier.Resolve(questIndex, frontier, -1, tracer);
+            var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, frontier, session, tracer);
+            var navigationTargets = _projector.Project(compiledTargets, currentScene);
+            var phases = _frontier.Phases;
+            var questPhases = phases.SnapshotPhases();
+            var itemCounts = phases.SnapshotItemCounts();
+            var blockingZoneLineByScene = BuildBlockingZoneLineByScene(currentScene);
+            return new QuestResolutionRecord(
+                questKey,
+                currentScene,
+                questIndex,
+                frontier,
+                compiledTargets,
+                navigationTargets,
+                questPhases,
+                itemCounts,
+                blockingZoneLineByScene
+            );
+        }
+        finally
+        {
+            if (token != null)
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    System.Diagnostics.Stopwatch.GetTimestamp() - startTick
+                );
+        }
     }
 
     private IReadOnlyDictionary<string, int> BuildBlockingZoneLineByScene(string currentScene)
     {
-        if (_zoneRouter == null || string.IsNullOrWhiteSpace(currentScene))
-            return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-        var blockedByScene = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        foreach (var zone in _guide.NodesOfType(Graph.NodeType.Zone))
+        var token = _diagnostics?.BeginSpan(
+            AdventureGuide.Diagnostics.DiagnosticSpanKind.MarkerServiceBuildBlockingZones,
+            AdventureGuide.Diagnostics.DiagnosticsContext.Root(AdventureGuide.Diagnostics.DiagnosticTrigger.Unknown),
+            primaryKey: currentScene
+        );
+        long startTick = System.Diagnostics.Stopwatch.GetTimestamp();
+        int zonesScanned = 0;
+        int blockedCount = 0;
+        try
         {
-            if (string.IsNullOrWhiteSpace(zone.Scene))
-                continue;
-            if (string.Equals(zone.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
-                continue;
+            if (_zoneRouter == null || string.IsNullOrWhiteSpace(currentScene))
+                return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, zone.Scene);
-            if (lockedHop == null)
-                continue;
-            if (_guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId))
-                blockedByScene[zone.Scene] = zoneLineNodeId;
+            var blockedByScene = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var zone in _guide.NodesOfType(Graph.NodeType.Zone))
+            {
+                if (string.IsNullOrWhiteSpace(zone.Scene))
+                    continue;
+                if (string.Equals(zone.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                zonesScanned++;
+                var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, zone.Scene);
+                if (lockedHop == null)
+                    continue;
+                if (_guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId))
+                {
+                    blockedByScene[zone.Scene] = zoneLineNodeId;
+                    blockedCount++;
+                }
+            }
+
+            return blockedByScene;
         }
-
-        return blockedByScene;
+        finally
+        {
+            if (token != null)
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    System.Diagnostics.Stopwatch.GetTimestamp() - startTick,
+                    value0: zonesScanned,
+                    value1: blockedCount
+                );
+        }
     }
 
     /// <summary>

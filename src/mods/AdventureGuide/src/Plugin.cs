@@ -169,7 +169,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _liveState = new LiveStateTracker(_compiledGuide, _dependencyEngine, _unlockEvaluator);
-        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator, _dependencyEngine);
+        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator, _dependencyEngine) { Diagnostics = _diagnostics };
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
@@ -213,13 +213,16 @@ public sealed class Plugin : BaseUnityPlugin
             positionRegistry
         );
         var questResolutionService = _questResolutionService = new QuestResolutionService(
-    _compiledGuide,
-    _compiledFrontier,
-    _compiledSourceResolver,
-    _zoneRouter,
-    projector,
-    _dependencyEngine
-);
+            _compiledGuide,
+            _compiledFrontier,
+            _compiledSourceResolver,
+            _zoneRouter,
+            projector,
+            _dependencyEngine,
+            versionProvider: null,
+            sessionFactory: null,
+            diagnostics: _diagnostics
+        );
         _navigationTargetResolver = new NavigationTargetResolver(
             _compiledGuide,
             questResolutionService,
@@ -425,6 +428,12 @@ public sealed class Plugin : BaseUnityPlugin
         Log.LogInfo("Adventure Guide startup: beginning first marker recompute");
         syncSw.Restart();
         _markerComputer.Recompute();
+
+        // Capture the tracker version now so the first Update() tick does not
+        // re-replay Awake's scene-change event, wipe the warm resolution cache,
+        // and pay the full ~5 s marker batch cost a second time.
+        _lastObservedQuestTrackerVersion = _questTracker.Version;
+
         var firstRecomputeMs = syncSw.Elapsed.TotalMilliseconds;
         Log.LogInfo(
             $"Adventure Guide startup: first marker recompute finished in {firstRecomputeMs:F0} ms"

@@ -104,6 +104,8 @@ public sealed class ZoneRouter
 	internal IReadOnlyDictionary<string, string> DebugZoneKeyToScene => _zoneKeyToScene;
 	public int RebuildCount { get; private set; }
 
+	internal AdventureGuide.Diagnostics.DiagnosticsCore? Diagnostics { get; set; }
+
 	internal readonly struct ZoneEdge
 	{
 		public readonly string DestScene;
@@ -305,10 +307,28 @@ public sealed class ZoneRouter
 	/// Find the first locked hop on the best route from currentScene to targetScene.
 	/// Returns null when an accessible-only route exists or no route exists at all.
 	/// </summary>
+
 	public LockedHop? FindFirstLockedHop(string currentScene, string targetScene)
 	{
-		var lockedHops = FindLockedHops(currentScene, targetScene);
-		return lockedHops.Count == 0 ? null : lockedHops[0];
+		var token = Diagnostics?.BeginSpan(
+			AdventureGuide.Diagnostics.DiagnosticSpanKind.ZoneRouterFindLockedHop,
+			AdventureGuide.Diagnostics.DiagnosticsContext.Root(AdventureGuide.Diagnostics.DiagnosticTrigger.Unknown),
+			primaryKey: currentScene + "->" + targetScene
+		);
+		long startTick = System.Diagnostics.Stopwatch.GetTimestamp();
+		try
+		{
+			var lockedHops = FindLockedHops(currentScene, targetScene);
+			return lockedHops.Count == 0 ? null : lockedHops[0];
+		}
+		finally
+		{
+			if (token != null)
+				Diagnostics!.EndSpan(
+					token.Value,
+					System.Diagnostics.Stopwatch.GetTimestamp() - startTick
+				);
+		}
 	}
 
 	public IReadOnlyList<LockedHop> FindLockedHops(string currentScene, string targetScene)

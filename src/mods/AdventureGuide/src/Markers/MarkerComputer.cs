@@ -291,11 +291,24 @@ public sealed class MarkerComputer
                 );
 
             var resolutionSession = new SourceResolver.ResolutionSession();
+            var batchToken = _diagnostics?.BeginSpan(
+                DiagnosticSpanKind.MarkerBatchResolveQuests,
+                DiagnosticsContext.Root(_lastDiagnosticTrigger),
+                primaryKey: _tracker.CurrentZone
+            );
+            long batchStart = Stopwatch.GetTimestamp();
             var compiledTargetsByQuestKey = _questTargetResolver.ResolveQuestKeys(
                 sceneQuestKeys,
                 _tracker.CurrentZone,
                 resolutionSession
             );
+            if (batchToken != null)
+                _diagnostics!.EndSpan(
+                    batchToken.Value,
+                    Stopwatch.GetTimestamp() - batchStart,
+                    value0: sceneQuestKeys.Count,
+                    value1: compiledTargetsByQuestKey.Count
+                );
             var sw = Stopwatch.StartNew();
             _recentQuestCosts.Clear();
             var rebuildToken = _diagnostics?.BeginSpan(

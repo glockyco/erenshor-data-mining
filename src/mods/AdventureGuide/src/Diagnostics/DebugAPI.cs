@@ -351,6 +351,21 @@ public static class DebugAPI
     public static string DumpPerfSummary() =>
         Diagnostics?.FormatRecentSummary() ?? "Not initialized";
 
+    public static string DumpAllSpans()
+    {
+        if (Diagnostics == null)
+            return "Not initialized";
+        var spans = Diagnostics.GetRecentSpans();
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Recent spans ({spans.Count}):");
+        foreach (var span in spans)
+        {
+            double ms = span.ElapsedTicks * 1000.0 / Stopwatch.Frequency;
+            sb.AppendLine($"  {span.Kind} | {span.PrimaryKey} | {ms:F3} ms | v0={span.Value0} v1={span.Value1}");
+        }
+        return sb.ToString();
+    }
+
     public static string DumpPerfReport() => DumpPerfSummary();
 
     public static string ProfileTrackedQuestRefresh()
