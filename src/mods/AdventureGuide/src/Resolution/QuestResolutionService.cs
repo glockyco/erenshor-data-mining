@@ -21,6 +21,11 @@ public sealed class QuestResolutionService
     private readonly Func<SourceResolver.ResolutionSession> _sessionFactory;
     private readonly AdventureGuide.Diagnostics.DiagnosticsCore? _diagnostics;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
+    // BuildBlockingZoneLineByScene is a function of (currentScene, phase-state).
+    // Phase state only changes on version bumps, and every quest resolved within a
+    // batch observes the same currentScene, so the result is identical across all
+    // records in one (scene, version) snapshot. Cache and share.
+    private readonly Dictionary<string, IReadOnlyDictionary<string, int>> _blockingZoneCache = new(StringComparer.OrdinalIgnoreCase);
     private int _lastBatchKeyCount;
     private int _lastObservedVersion = int.MinValue;
     private IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> _topQuestCosts = Array.Empty<AdventureGuide.Diagnostics.QuestCostSample>();
@@ -88,6 +93,7 @@ public sealed class QuestResolutionService
             return;
 
         _cache.Clear();
+        _blockingZoneCache.Clear();
         _lastObservedVersion = version;
     }
 
@@ -247,6 +253,10 @@ public sealed class QuestResolutionService
 
     private IReadOnlyDictionary<string, int> BuildBlockingZoneLineByScene(string currentScene)
     {
+        string sceneKey = currentScene ?? string.Empty;
+        if (_blockingZoneCache.TryGetValue(sceneKey, out var cached))
+            return cached;
+
         var token = _diagnostics?.BeginSpan(
             AdventureGuide.Diagnostics.DiagnosticSpanKind.MarkerServiceBuildBlockingZones,
             AdventureGuide.Diagnostics.DiagnosticsContext.Root(AdventureGuide.Diagnostics.DiagnosticTrigger.Unknown),
@@ -257,29 +267,35 @@ public sealed class QuestResolutionService
         int blockedCount = 0;
         try
         {
+            IReadOnlyDictionary<string, int> result;
             if (_zoneRouter == null || string.IsNullOrWhiteSpace(currentScene))
-                return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-            var blockedByScene = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (var zone in _guide.NodesOfType(Graph.NodeType.Zone))
             {
-                if (string.IsNullOrWhiteSpace(zone.Scene))
-                    continue;
-                if (string.Equals(zone.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                zonesScanned++;
-                var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, zone.Scene);
-                if (lockedHop == null)
-                    continue;
-                if (_guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId))
-                {
-                    blockedByScene[zone.Scene] = zoneLineNodeId;
-                    blockedCount++;
-                }
+                result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             }
+            else
+            {
+                var blockedByScene = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var zone in _guide.NodesOfType(Graph.NodeType.Zone))
+                {
+                    if (string.IsNullOrWhiteSpace(zone.Scene))
+                        continue;
+                    if (string.Equals(zone.Scene, currentScene, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
-            return blockedByScene;
+                    zonesScanned++;
+                    var lockedHop = _zoneRouter.FindFirstLockedHop(currentScene, zone.Scene);
+                    if (lockedHop == null)
+                        continue;
+                    if (_guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId))
+                    {
+                        blockedByScene[zone.Scene] = zoneLineNodeId;
+                        blockedCount++;
+                    }
+                }
+                result = blockedByScene;
+            }
+            _blockingZoneCache[sceneKey] = result;
+            return result;
         }
         finally
         {
@@ -301,6 +317,7 @@ public sealed class QuestResolutionService
     public void InvalidateAll(GuideChangeSet reason)
     {
         _cache.Clear();
+        _blockingZoneCache.Clear();
         _dependencies?.Clear();
         _lastObservedVersion = _versionProvider();
         _ = reason;
