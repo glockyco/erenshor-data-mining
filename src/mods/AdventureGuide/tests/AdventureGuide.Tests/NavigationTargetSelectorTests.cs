@@ -415,7 +415,20 @@ public sealed class NavigationTargetSelectorTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var navigationResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, harness.Router), harness.Router, TestPositionResolvers.Create(guide));
+        var positionRegistry = TestPositionResolvers.Create(guide);
+        var navigationResolver = new NavigationTargetResolver(
+            guide,
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: harness.Router,
+                positionRegistry: positionRegistry
+            ),
+            harness.Router,
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, harness.Router)
+        );
 
         var selector = MakeSelector((nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
         harness.Router);

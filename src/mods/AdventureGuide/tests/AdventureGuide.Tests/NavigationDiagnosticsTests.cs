@@ -64,11 +64,20 @@ public sealed class NavigationDiagnosticsTests
             TestPositionResolvers.Create(guide)
         );
         var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
+        var positionRegistry = TestPositionResolvers.Create(guide);
         var resolver = new NavigationTargetResolver(
             guide,
-            new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => 0),
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: null,
+                versionProvider: () => 0,
+                positionRegistry: positionRegistry
+            ),
             null,
-            TestPositionResolvers.Create(guide),
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null),
             core
         );
 

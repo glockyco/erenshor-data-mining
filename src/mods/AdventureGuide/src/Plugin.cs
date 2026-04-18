@@ -205,11 +205,17 @@ public sealed class Plugin : BaseUnityPlugin
             _zoneRouter
         );
 
+        var projector = new QuestTargetProjector(
+            _compiledGuide,
+            _zoneRouter,
+            positionRegistry
+        );
         var questResolutionService = new QuestResolutionService(
             _compiledGuide,
             _compiledFrontier,
             _compiledSourceResolver,
             _zoneRouter,
+            projector,
             _dependencyEngine,
             () => _compiledQuestTracker.Version
         );
@@ -218,6 +224,7 @@ public sealed class Plugin : BaseUnityPlugin
             questResolutionService,
             _zoneRouter,
             positionRegistry,
+            projector,
             _diagnostics
         );
 

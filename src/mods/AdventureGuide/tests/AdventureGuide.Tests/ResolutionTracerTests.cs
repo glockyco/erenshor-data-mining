@@ -28,7 +28,20 @@ public sealed class ResolutionTracerTests
             new NullLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, TestPositionResolvers.Create(guide));
+        var positionRegistry = TestPositionResolvers.Create(guide);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: null,
+                positionRegistry: positionRegistry
+            ),
+            null,
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+        );
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:a", "TestScene", tracer);
@@ -64,7 +77,20 @@ public sealed class ResolutionTracerTests
             new NullLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, TestPositionResolvers.Create(guide));
+        var positionRegistry = TestPositionResolvers.Create(guide);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: null,
+                positionRegistry: positionRegistry
+            ),
+            null,
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+        );
 
         var tracer = new TextResolutionTracer();
         resolver.Resolve("quest:b", "Zone1", tracer);
@@ -93,7 +119,20 @@ public sealed class ResolutionTracerTests
             new NullLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, TestPositionResolvers.Create(guide));
+        var positionRegistry = TestPositionResolvers.Create(guide);
+        var resolver = new NavigationTargetResolver(
+            guide,
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: null,
+                positionRegistry: positionRegistry
+            ),
+            null,
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+        );
 
         // Should not throw with null tracer (default)
         var results = resolver.Resolve("quest:c", "TestScene");

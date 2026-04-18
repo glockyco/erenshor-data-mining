@@ -14,38 +14,18 @@ public sealed class QuestTargetResolver
 	private readonly EffectiveFrontier _frontier;
 	private readonly SourceResolver _sourceResolver;
 	private readonly ZoneRouter? _zoneRouter;
-	private readonly Func<int> _versionProvider;
-	private readonly Dictionary<string, IReadOnlyList<ResolvedTarget>> _questTargetCache = new(
-		StringComparer.Ordinal
-	);
-	private int _cachedQuestTargetVersion = -1;
 
 	public QuestTargetResolver(
 		CompiledGuideModel guide,
 		EffectiveFrontier frontier,
 		SourceResolver sourceResolver,
-		ZoneRouter? zoneRouter,
-		Func<int>? versionProvider = null
+		ZoneRouter? zoneRouter
 	)
 	{
 		_guide = guide;
 		_frontier = frontier;
 		_sourceResolver = sourceResolver;
 		_zoneRouter = zoneRouter;
-		_versionProvider = versionProvider ?? (() => 0);
-	}
-
-	public int Version => _versionProvider();
-
-	public IReadOnlyList<ResolvedTarget> Resolve(
-		int questIndex,
-		string currentScene,
-		IResolutionTracer? tracer = null
-	)
-	{
-		var frontier = new List<FrontierEntry>();
-		_frontier.Resolve(questIndex, frontier, -1, tracer);
-		return Resolve(questIndex, currentScene, frontier, session: null, tracer);
 	}
 
 	internal IReadOnlyList<ResolvedTarget> Resolve(
@@ -68,17 +48,6 @@ public sealed class QuestTargetResolver
 		IResolutionTracer? tracer = null
 	)
 	{
-		int version = Version;
-		if (_cachedQuestTargetVersion != version)
-		{
-			_questTargetCache.Clear();
-			_cachedQuestTargetVersion = version;
-		}
-
-		string cacheKey = BuildQuestCacheKey(_guide.GetNodeKey(_guide.QuestNodeId(questIndex)), currentScene);
-		if (_questTargetCache.TryGetValue(cacheKey, out var cached))
-			return cached;
-
 		var questNode = _guide.GetNode(_guide.QuestNodeId(questIndex));
 		tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
 
@@ -104,11 +73,7 @@ public sealed class QuestTargetResolver
 			);
 		}
 
-		IReadOnlyList<ResolvedTarget> frozen = results.Count == 0
-			? Array.Empty<ResolvedTarget>()
-			: results;
-		_questTargetCache[cacheKey] = frozen;
-		return frozen;
+		return results.Count == 0 ? Array.Empty<ResolvedTarget>() : results;
 	}
 
 	private void TryAddResolvedTarget(
@@ -180,7 +145,4 @@ public sealed class QuestTargetResolver
 			return false;
 		return _zoneRouter.FindFirstLockedHop(currentScene, targetScene) != null;
 	}
-
-	private static string BuildQuestCacheKey(string nodeKey, string currentScene) =>
-		nodeKey + "\n" + (currentScene ?? string.Empty).ToUpperInvariant();
 }

@@ -36,7 +36,19 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, positionRegistry);
+		var targetResolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		var targets = targetResolver.Resolve("quest:a", "Forest");
 
@@ -114,7 +126,20 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
+		var targetResolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => version,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		Assert.Equal(1, targetResolver.Version);
 		version = 2;
@@ -148,7 +173,20 @@ public sealed class NavigationTargetResolverTests
 	        new StubLivePositionProvider(),
 	        positionRegistry
 	    );
-	    var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
+	    var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => version,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 	    var first = resolver.Resolve("quest:root", "Lake");
 	    var second = resolver.Resolve("quest:root", "Lake");
@@ -183,7 +221,20 @@ public sealed class NavigationTargetResolverTests
 	        new StubLivePositionProvider(),
 	        positionRegistry
 	    );
-	    var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
+	    var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => version,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 	    var first = resolver.Resolve("quest:root", "Lake");
 	    version = 2;
@@ -224,7 +275,20 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => phases.Version), null, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => phases.Version,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		var initial = resolver.Resolve("quest:root", "Forest");
 		var initialTarget = Assert.Single(initial);
@@ -410,7 +474,19 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		var targets = resolver.Resolve("quest:root", "Azure");
 
@@ -512,7 +588,19 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+		var targetResolver = new NavigationTargetResolver(
+    harness.Guide,
+    ResolutionTestFactory.BuildService(
+        harness.Guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: harness.Router,
+        positionRegistry: positionRegistry
+    ),
+    harness.Router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+);
 
 		var targets = targetResolver.Resolve("quest:root", "ZoneA");
 
@@ -602,7 +690,19 @@ public sealed class NavigationTargetResolverTests
 		    positionRegistry,
 		    harness.Router
 		);
-		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    harness.Guide,
+    ResolutionTestFactory.BuildService(
+        harness.Guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: harness.Router,
+        positionRegistry: positionRegistry
+    ),
+    harness.Router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
@@ -675,7 +775,19 @@ public sealed class NavigationTargetResolverTests
 		    positionRegistry,
 		    harness.Router
 		);
-		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    harness.Guide,
+    ResolutionTestFactory.BuildService(
+        harness.Guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: harness.Router,
+        positionRegistry: positionRegistry
+    ),
+    harness.Router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
@@ -711,7 +823,20 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, zoneRouter: null, versionProvider: () => phases.Version), zoneRouter: null, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => phases.Version,
+        positionRegistry: positionRegistry
+    ),
+    zoneRouter: null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		var targets = resolver.Resolve("quest:a", "Forest");
 
@@ -752,7 +877,20 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => phases.Version), null, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: null,
+        versionProvider: () => phases.Version,
+        positionRegistry: positionRegistry
+    ),
+    null,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+);
 
 		var targets = resolver.Resolve("quest:root", "Forest");
 		var availabilityPriority = typeof(ResolvedQuestTarget).GetProperty("AvailabilityPriority");
@@ -814,7 +952,19 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry,
 			harness.Router
 		);
-		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    harness.Guide,
+    ResolutionTestFactory.BuildService(
+        harness.Guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: harness.Router,
+        positionRegistry: positionRegistry
+    ),
+    harness.Router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+);
 
 		var targets = resolver.Resolve("quest:eldrich", zoneA);
 		var target = Assert.Single(targets);
@@ -873,7 +1023,19 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+		var resolver = new NavigationTargetResolver(
+    harness.Guide,
+    ResolutionTestFactory.BuildService(
+        harness.Guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: harness.Router,
+        positionRegistry: positionRegistry
+    ),
+    harness.Router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+);
 
 		var targets = resolver.Resolve("quest:root", zoneA);
 
@@ -907,7 +1069,20 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry,
 			router
 		);
-		return new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, router, versionProvider: () => phases.Version), router, positionRegistry);
+		return new NavigationTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter: router,
+        versionProvider: () => phases.Version,
+        positionRegistry: positionRegistry
+    ),
+    router,
+    positionRegistry,
+    ResolutionTestFactory.BuildProjector(guide, positionRegistry, router)
+);
 	}
 
 	private static PositionResolverRegistry CreatePositionRegistry(

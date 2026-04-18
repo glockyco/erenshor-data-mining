@@ -33,7 +33,12 @@ public sealed class TrackerDiagnosticsTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null), new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled));
+        var resolver = new TrackerSummaryResolver(
+    guide,
+    phases,
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null),
+    new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
+);
         var dependencyEngine = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, dependencyEngine);
         tracker.LoadState(

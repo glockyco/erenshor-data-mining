@@ -14,6 +14,7 @@ public sealed class QuestResolutionService
     private readonly CompiledGuideModel _guide;
     private readonly EffectiveFrontier _frontier;
     private readonly QuestTargetResolver _questTargetResolver;
+    private readonly QuestTargetProjector _projector;
     private readonly GuideDependencyEngine? _dependencies;
     private readonly Func<int> _versionProvider;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
@@ -26,26 +27,29 @@ public sealed class QuestResolutionService
         EffectiveFrontier frontier,
         SourceResolver sourceResolver,
         ZoneRouter? zoneRouter,
+        QuestTargetProjector projector,
         GuideDependencyEngine? dependencies = null,
         Func<int>? versionProvider = null
     )
     {
         _guide = guide;
         _frontier = frontier;
+        _projector = projector;
         _dependencies = dependencies;
         _versionProvider = versionProvider ?? (() => 0);
         _questTargetResolver = new QuestTargetResolver(
             guide,
             frontier,
             sourceResolver,
-            zoneRouter,
-            _versionProvider
+            zoneRouter
         );
     }
 
     public int Version => _versionProvider();
 
     public int LastBatchKeyCount => _lastBatchKeyCount;
+
+    internal int CacheEntryCount => _cache.Count;
 
     internal IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> TopQuestCosts => _topQuestCosts;
 
@@ -174,7 +178,15 @@ public sealed class QuestResolutionService
         var frontier = new List<FrontierEntry>();
         _frontier.Resolve(questIndex, frontier, -1, tracer);
         var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, frontier, session, tracer);
-        return new QuestResolutionRecord(questKey, currentScene, questIndex, frontier, compiledTargets);
+        var navigationTargets = _projector.Project(compiledTargets, currentScene);
+        return new QuestResolutionRecord(
+            questKey,
+            currentScene,
+            questIndex,
+            frontier,
+            compiledTargets,
+            navigationTargets
+        );
     }
 
     private void EnsureCacheCurrent()

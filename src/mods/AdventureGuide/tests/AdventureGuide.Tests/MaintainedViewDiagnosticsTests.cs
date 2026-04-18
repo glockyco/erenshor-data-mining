@@ -32,11 +32,19 @@ public sealed class MaintainedViewDiagnosticsTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
+        var positionRegistry = TestPositionResolvers.Create(guide);
         var resolver = new NavigationTargetResolver(
             guide,
-            new QuestResolutionService(guide, frontier, sourceResolver, null),
+            ResolutionTestFactory.BuildService(
+                guide,
+                frontier,
+                sourceResolver,
+                zoneRouter: null,
+                positionRegistry: positionRegistry
+            ),
             null,
-            TestPositionResolvers.Create(guide)
+            positionRegistry,
+            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
         );
         var selector = new NavigationTargetSelector(
             (keys, scene) => resolver.ResolveBatch(keys, scene),

@@ -32,7 +32,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:a", "QUESTA", "Forest");
 
@@ -65,7 +65,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:a", "QUESTA", "Tutorial");
 
@@ -99,7 +99,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:a", "QUESTA", "Forest");
 
@@ -137,7 +137,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Forest");
         var resolved = Assert.IsType<TrackerSummary>(summary);
@@ -169,7 +169,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:root", "ROOT", "");
 
@@ -204,7 +204,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Town");
 
@@ -234,7 +234,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
         var deps = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, deps);
         tracker.LoadState(
@@ -318,7 +318,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new TrackerSummaryResolver(guide, phases, ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null));
 
         var summary = resolver.Resolve("quest:missing", "MISSING", "");
 

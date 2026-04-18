@@ -145,7 +145,12 @@ public sealed class QuestResolutionServiceTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var service = new QuestResolutionService(guide, frontier, sourceResolver, null);
+        var service = ResolutionTestFactory.BuildService(
+    guide,
+    frontier,
+    sourceResolver,
+    zoneRouter: null
+);
         var tracer = new CountingTracer();
 
         var record = service.ResolveQuest("quest:root", "Town", tracer);
@@ -213,7 +218,12 @@ public sealed class QuestResolutionServiceTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var service = new QuestResolutionService(guide, frontier, sourceResolver, null);
+        var service = ResolutionTestFactory.BuildService(
+    guide,
+    frontier,
+    sourceResolver,
+    zoneRouter: null
+);
 
         var resolveTask = System.Threading.Tasks.Task.Run(
             () => service.ResolveBatch(new[] { "quest:root:a", "quest:root:b" }, "Town")
@@ -226,9 +236,82 @@ public sealed class QuestResolutionServiceTests
             System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(3000))
         );
 
-
         Assert.Same(resolveTask, completed);
         Assert.Equal(2, (await resolveTask).Count);
+    }
+
+    [Fact]
+    public void BuildRecord_ExposesNavigationTargets()
+    {
+        var (service, _, scene) = BuildService();
+
+        var record = service.ResolveQuest("quest:fetch-water", scene);
+
+        Assert.NotEmpty(record.CompiledTargets);
+        Assert.NotEmpty(record.NavigationTargets);
+        Assert.Equal(record.CompiledTargets.Count, record.NavigationTargets.Count);
+    }
+
+    [Fact]
+    public void NavigationTargetsStableAcrossCacheHits()
+    {
+        var (service, _, scene) = BuildService();
+
+        var first = service.ResolveQuest("quest:fetch-water", scene);
+        var second = service.ResolveQuest("quest:fetch-water", scene);
+
+        Assert.Same(first, second);
+        Assert.Same(first.NavigationTargets, second.NavigationTargets);
+    }
+
+    [Fact]
+    public void QuestTargetResolver_OwnsNoCache()
+    {
+        var fields = typeof(QuestTargetResolver).GetFields(
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+        );
+        Assert.DoesNotContain(
+            fields,
+            f => typeof(System.Collections.IDictionary).IsAssignableFrom(f.FieldType)
+        );
+    }
+
+    private static (QuestResolutionService Service, CompiledGuideModel Guide, string Scene) BuildService()
+    {
+        const string scene = "Forest";
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:water")
+            .AddCharacter("char:well", scene: scene, x: 10f, y: 20f, z: 30f)
+            .AddItemSource(
+                "item:water",
+                "char:well",
+                edgeType: (byte)EdgeType.GivesItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddQuest("quest:fetch-water", dbName: "FETCHWATER", requiredItems: new[] { ("item:water", 1) })
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "FETCHWATER" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
+        );
+        var service = ResolutionTestFactory.BuildService(
+    guide,
+    frontier,
+    sourceResolver,
+    zoneRouter: null
+);
+        return (service, guide, scene);
     }
 
     private sealed class CountingTracer : IResolutionTracer

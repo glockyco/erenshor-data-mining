@@ -32,7 +32,10 @@ public sealed class MarkerQuestTargetResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new MarkerQuestTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null)
+);
 
         var targets = resolver.Resolve("QUESTA", "Forest");
 
@@ -73,7 +76,10 @@ public sealed class MarkerQuestTargetResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new MarkerQuestTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null)
+);
 
         var targets = resolver.Resolve("ROOT", "Forest");
 
@@ -104,7 +110,10 @@ public sealed class MarkerQuestTargetResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null));
+        var resolver = new MarkerQuestTargetResolver(
+    guide,
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null)
+);
 
         var ex = Assert.Throws<InvalidOperationException>(
             () => resolver.Resolve("MISSING", "Forest")
@@ -173,9 +182,9 @@ public sealed class MarkerQuestTargetResolverTests
             TestPositionResolvers.Create(guide)
         );
         var resolver = new MarkerQuestTargetResolver(
-            guide,
-            new QuestResolutionService(guide, frontier, sourceResolver, null)
-        );
+    guide,
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null)
+);
         var session = new SourceResolver.ResolutionSession();
 
         var resolveTask = System.Threading.Tasks.Task.Run(() =>

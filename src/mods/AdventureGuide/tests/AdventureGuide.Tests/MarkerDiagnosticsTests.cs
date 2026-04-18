@@ -100,7 +100,7 @@ public sealed class MarkerDiagnosticsTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var markerResolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, effectiveFrontier, sourceResolver, null));
+        var markerResolver = new MarkerQuestTargetResolver(guide, ResolutionTestFactory.BuildService(guide, effectiveFrontier, sourceResolver, zoneRouter: null));
 
         return new MarkerComputer(
             guide,
