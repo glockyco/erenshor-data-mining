@@ -200,7 +200,20 @@ public sealed class TrackerPanel
             if (_compact)
                 ImGui.PopStyleVar();
 
+            if (_sorted.Count > 0)
+            {
+                var questKeys = new List<string>(_sorted.Count);
+                for (int i = 0; i < _sorted.Count; i++)
+                {
+                    var trackedQuest = _guide.GetQuestByDbName(_sorted[i]);
+                    if (trackedQuest != null)
+                        questKeys.Add(trackedQuest.Key);
+                }
+                _summaryResolver.WarmBatch(questKeys, _tracker.CurrentZone);
+            }
+
             DrawQuestList();
+
 
             bool hovered = ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows);
             bool activeInteraction =

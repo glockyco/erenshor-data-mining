@@ -18,6 +18,7 @@ public sealed class QuestResolutionService
     private readonly GuideDependencyEngine? _dependencies;
     private readonly ZoneRouter? _zoneRouter;
     private readonly Func<int> _versionProvider;
+    private readonly Func<SourceResolver.ResolutionSession> _sessionFactory;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
     private int _lastBatchKeyCount;
     private IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> _topQuestCosts = Array.Empty<AdventureGuide.Diagnostics.QuestCostSample>();
@@ -30,6 +31,26 @@ public sealed class QuestResolutionService
         QuestTargetProjector projector,
         GuideDependencyEngine? dependencies = null,
         Func<int>? versionProvider = null
+    ) : this(
+        guide,
+        frontier,
+        sourceResolver,
+        zoneRouter,
+        projector,
+        dependencies,
+        versionProvider,
+        sessionFactory: null
+    ) { }
+
+    internal QuestResolutionService(
+        CompiledGuideModel guide,
+        EffectiveFrontier frontier,
+        SourceResolver sourceResolver,
+        ZoneRouter? zoneRouter,
+        QuestTargetProjector projector,
+        GuideDependencyEngine? dependencies,
+        Func<int>? versionProvider,
+        Func<SourceResolver.ResolutionSession>? sessionFactory
     )
     {
         _guide = guide;
@@ -38,6 +59,7 @@ public sealed class QuestResolutionService
         _dependencies = dependencies;
         _zoneRouter = zoneRouter;
         _versionProvider = versionProvider ?? (() => 0);
+        _sessionFactory = sessionFactory ?? (() => new SourceResolver.ResolutionSession());
         _questTargetResolver = new QuestTargetResolver(
             guide,
             frontier,
@@ -67,9 +89,8 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
-
-        var resolutionSession = session ?? new SourceResolver.ResolutionSession();
-        var record = ResolveOrBuildRecord(questKey, currentScene, resolutionSession, tracer);
+        SourceResolver.ResolutionSession? resolutionSession = session;
+        var record = ResolveOrBuildRecord(questKey, currentScene, ref resolutionSession, tracer);
         if (record == null)
             throw new InvalidOperationException($"Quest '{questKey}' did not resolve.");
 
@@ -91,9 +112,8 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
-
         var results = new Dictionary<string, QuestResolutionRecord>(StringComparer.Ordinal);
-        var resolutionSession = session ?? new SourceResolver.ResolutionSession();
+        SourceResolver.ResolutionSession? resolutionSession = session;
         var seenKeys = new HashSet<string>(StringComparer.Ordinal);
         var questCosts = new List<AdventureGuide.Diagnostics.QuestCostSample>();
         foreach (var questKey in questKeys)
@@ -102,7 +122,7 @@ public sealed class QuestResolutionService
                 continue;
 
             long start = System.Diagnostics.Stopwatch.GetTimestamp();
-            var record = ResolveOrBuildRecord(questKey, currentScene, resolutionSession, tracer);
+            var record = ResolveOrBuildRecord(questKey, currentScene, ref resolutionSession, tracer);
             long elapsed = System.Diagnostics.Stopwatch.GetTimestamp() - start;
             questCosts.Add(new AdventureGuide.Diagnostics.QuestCostSample(questKey, elapsed));
             if (record != null)
@@ -131,7 +151,7 @@ public sealed class QuestResolutionService
     private QuestResolutionRecord? ResolveOrBuildRecord(
         string questKey,
         string currentScene,
-        SourceResolver.ResolutionSession session,
+        ref SourceResolver.ResolutionSession? session,
         IResolutionTracer? tracer
     )
     {
@@ -145,15 +165,16 @@ public sealed class QuestResolutionService
         if (questIndex < 0)
             return null;
 
+        var resolutionSession = session ??= _sessionFactory();
         QuestResolutionRecord record;
         if (_dependencies == null)
         {
-            record = BuildRecord(questKey, currentScene, questIndex, session, tracer);
+            record = BuildRecord(questKey, currentScene, questIndex, resolutionSession, tracer);
         }
         else
         {
             using (_dependencies.BeginCollection(new GuideDerivedKey(GuideDerivedKind.QuestTargets, cacheKey)))
-                record = BuildRecord(questKey, currentScene, questIndex, session, tracer);
+                record = BuildRecord(questKey, currentScene, questIndex, resolutionSession, tracer);
         }
 
         _cache[cacheKey] = record;

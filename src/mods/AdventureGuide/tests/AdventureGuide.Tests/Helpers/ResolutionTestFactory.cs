@@ -28,7 +28,8 @@ internal static class ResolutionTestFactory
         ZoneRouter? zoneRouter = null,
         GuideDependencyEngine? dependencies = null,
         Func<int>? versionProvider = null,
-        PositionResolverRegistry? positionRegistry = null
+        PositionResolverRegistry? positionRegistry = null,
+        Func<SourceResolver.ResolutionSession>? sessionFactory = null
     )
     {
         var projector = BuildProjector(guide, positionRegistry, zoneRouter);
@@ -39,7 +40,8 @@ internal static class ResolutionTestFactory
             zoneRouter,
             projector,
             dependencies,
-            versionProvider
+            versionProvider,
+            sessionFactory
         );
     }
 
@@ -121,6 +123,7 @@ internal static class ResolutionTestFactory
     {
         const string scene = "Forest";
         int version = 1;
+        int observedSessionCount = 0;
         var guide = new CompiledGuideBuilder()
             .AddItem("item:water-flask")
             .AddCharacter("char:well", scene: scene, x: 10f, y: 20f, z: 30f)
@@ -173,10 +176,18 @@ internal static class ResolutionTestFactory
             zoneRouter: null,
             dependencies: dependencies,
             versionProvider: () => version,
-            positionRegistry: positionRegistry
+            positionRegistry: positionRegistry,
+            sessionFactory: () =>
+            {
+                observedSessionCount++;
+                return new SourceResolver.ResolutionSession();
+            }
         );
         var harness = new InvalidationHarness(
             scene,
+            guide,
+            phases,
+            observedSessionCount: () => observedSessionCount,
             emit: changeSet => service.InvalidateAffected(dependencies.InvalidateFacts(changeSet.ChangedFacts)),
             bumpVersionWithoutFacts: () => version++
         );
@@ -187,19 +198,32 @@ internal static class ResolutionTestFactory
     {
         private readonly Action<GuideChangeSet> _emit;
         private readonly Action _bumpVersionWithoutFacts;
+        private readonly Func<int> _observedSessionCount;
 
         public InvalidationHarness(
             string scene,
+            CompiledGuideModel guide,
+            QuestPhaseTracker phases,
+            Func<int> observedSessionCount,
             Action<GuideChangeSet> emit,
             Action bumpVersionWithoutFacts
         )
         {
             Scene = scene;
+            Guide = guide;
+            Phases = phases;
+            _observedSessionCount = observedSessionCount;
             _emit = emit;
             _bumpVersionWithoutFacts = bumpVersionWithoutFacts;
         }
 
         public string Scene { get; }
+
+        public CompiledGuideModel Guide { get; }
+
+        public QuestPhaseTracker Phases { get; }
+
+        public int ObservedSessionCount => _observedSessionCount();
 
         public void Emit(GuideChangeSet changeSet) => _emit(changeSet);
 

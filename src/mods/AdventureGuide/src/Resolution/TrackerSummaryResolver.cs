@@ -28,6 +28,16 @@ public sealed class TrackerSummaryResolver
         _diagnostics = diagnostics;
     }
 
+    /// <summary>
+    /// Pre-populates the shared <see cref="QuestResolutionService"/> cache for
+    /// the supplied tracked quest keys using a single resolution session so
+    /// per-quest resolve calls during the same frame hit cached records.
+    /// </summary>
+    public void WarmBatch(IEnumerable<string> questKeys, string currentScene)
+    {
+        _questResolutionService.ResolveBatch(questKeys, currentScene);
+    }
+
     public TrackerSummary? Resolve(
         string questKey,
         string? questDbName,

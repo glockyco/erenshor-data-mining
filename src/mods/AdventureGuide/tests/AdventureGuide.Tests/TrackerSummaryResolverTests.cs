@@ -11,6 +11,22 @@ namespace AdventureGuide.Tests;
 public sealed class TrackerSummaryResolverTests
 {
     [Fact]
+    public void WarmBatch_SingleSessionReused()
+    {
+        var (service, harness) = ResolutionTestFactory.BuildInvalidationHarness();
+        var resolver = new TrackerSummaryResolver(harness.Guide, harness.Phases, service);
+        var keys = new[] { "quest:fetch-water", "quest:slay-wolves" };
+
+        int sessionsBefore = harness.ObservedSessionCount;
+        resolver.WarmBatch(keys, harness.Scene);
+        resolver.Resolve("quest:fetch-water", "FETCHWATER", harness.Scene);
+        resolver.Resolve("quest:slay-wolves", "SLAYWOLVES", harness.Scene);
+        int sessionsAfter = harness.ObservedSessionCount;
+
+        Assert.Equal(1, sessionsAfter - sessionsBefore);
+    }
+
+    [Fact]
     public void Resolve_UsesCompiledFrontierSummaryWhenQuestIsPresent()
     {
         var guide = new CompiledGuideBuilder()
