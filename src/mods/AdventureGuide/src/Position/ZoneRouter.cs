@@ -100,6 +100,30 @@ public sealed class ZoneRouter
 	private Dictionary<string, int>? _hopCache;
 	private string? _hopCacheFrom;
 
+	// Locked-hop memo keyed by (from, to) scene pair. Invariant for a given
+	// adjacency snapshot: FindFirstLockedHop is a pure function of the zone-line
+	// unlock graph. Marker batches issue the same query hundreds of times per
+	// startup (548× Stowaway->Tutorial observed); this memo reduces that to one
+	// BFS pair per unique scene pair. Null-valued entries record "no locked hop"
+	// so negative results short-circuit too.
+	private readonly Dictionary<(string From, string To), LockedHop?> _lockedHopCache
+		= new(SceneHopKeyComparer.Instance);
+
+	private sealed class SceneHopKeyComparer : IEqualityComparer<(string From, string To)>
+	{
+		public static readonly SceneHopKeyComparer Instance = new();
+
+		public bool Equals((string From, string To) x, (string From, string To) y) =>
+			string.Equals(x.From, y.From, StringComparison.OrdinalIgnoreCase)
+			&& string.Equals(x.To, y.To, StringComparison.OrdinalIgnoreCase);
+
+		public int GetHashCode((string From, string To) obj) =>
+			HashCode.Combine(
+				StringComparer.OrdinalIgnoreCase.GetHashCode(obj.From),
+				StringComparer.OrdinalIgnoreCase.GetHashCode(obj.To)
+			);
+	}
+
 	internal IReadOnlyDictionary<string, List<ZoneEdge>> DebugAdj => _adj;
 	internal IReadOnlyDictionary<string, string> DebugZoneKeyToScene => _zoneKeyToScene;
 	public int RebuildCount { get; private set; }
@@ -167,6 +191,8 @@ public sealed class ZoneRouter
 		_adj.Clear();
 		_hopCache = null; // invalidate cached hop counts — adjacency changed
 		_hopCacheFrom = null;
+
+		_lockedHopCache.Clear(); // adjacency change invalidates memoized routes
 
 		foreach (var zl in _guide.NodesOfType(NodeType.ZoneLine))
 		{
@@ -318,8 +344,14 @@ public sealed class ZoneRouter
 		long startTick = System.Diagnostics.Stopwatch.GetTimestamp();
 		try
 		{
+			var cacheKey = (currentScene, targetScene);
+			if (_lockedHopCache.TryGetValue(cacheKey, out var cached))
+				return cached;
+
 			var lockedHops = FindLockedHops(currentScene, targetScene);
-			return lockedHops.Count == 0 ? null : lockedHops[0];
+			var result = lockedHops.Count == 0 ? null : lockedHops[0];
+			_lockedHopCache[cacheKey] = result;
+			return result;
 		}
 		finally
 		{
@@ -367,15 +399,21 @@ public sealed class ZoneRouter
 
 	private Route? BFS(string start, string goal, bool accessibleOnly)
 	{
-		var queue = new Queue<(string scene, List<string> path)>();
-		var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-		queue.Enqueue((start, new List<string> { start }));
-		visited.Add(start);
+		// Parent-map BFS: record each visited scene's predecessor instead of
+		// carrying per-edge List<string> copies. Path is reconstructed once at
+		// the goal by walking parent pointers back to start. Drops per-edge
+		// allocation from O(edges × path-length) to a single Dictionary sized
+		// by reachable-zones.
+		var parent = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+		{
+			[start] = null,
+		};
+		var queue = new Queue<string>();
+		queue.Enqueue(start);
 
 		while (queue.Count > 0)
 		{
-			var (current, path) = queue.Dequeue();
+			var current = queue.Dequeue();
 
 			if (!_adj.TryGetValue(current, out var edges))
 				continue;
@@ -384,15 +422,15 @@ public sealed class ZoneRouter
 			{
 				if (accessibleOnly && !edge.Accessible)
 					continue;
-				if (visited.Contains(edge.DestScene))
+				if (parent.ContainsKey(edge.DestScene))
 					continue;
 
-				var newPath = new List<string>(path) { edge.DestScene };
+				parent[edge.DestScene] = current;
 
 				if (string.Equals(edge.DestScene, goal, StringComparison.OrdinalIgnoreCase))
 				{
-					// Found the route — get the first-hop zone line from start
-					var firstHopScene = newPath[1];
+					var path = ReconstructPath(parent, edge.DestScene);
+					var firstHopScene = path[1];
 					var firstEdge = FindEdge(start, firstHopScene, accessibleOnly);
 					if (firstEdge == null)
 						return null;
@@ -412,16 +450,34 @@ public sealed class ZoneRouter
 						firstEdge.Value.Y,
 						firstEdge.Value.Z,
 						locked,
-						newPath
+						path
 					);
 				}
 
-				visited.Add(edge.DestScene);
-				queue.Enqueue((edge.DestScene, newPath));
+				queue.Enqueue(edge.DestScene);
 			}
 		}
 
 		return null;
+	}
+
+	private static IReadOnlyList<string> ReconstructPath(
+		Dictionary<string, string?> parent,
+		string goal
+	)
+	{
+		// Walk predecessors goal → start, then reverse to produce start → goal.
+		var reversed = new List<string>();
+		var cursor = goal;
+		while (cursor != null)
+		{
+			reversed.Add(cursor);
+			if (!parent.TryGetValue(cursor, out var prev))
+				break;
+			cursor = prev;
+		}
+		reversed.Reverse();
+		return reversed;
 	}
 
 	private ZoneEdge? FindEdge(string fromScene, string toScene, bool accessibleOnly)
