@@ -9,32 +9,14 @@ namespace AdventureGuide.Position.Resolvers;
 /// show "re-enter zone" text. The game recreates all non-unique bags on scene
 /// reload, so bags are never permanently gone.
 /// </summary>
-public sealed class ItemBagPositionResolver : IPositionResolver
+internal sealed class ItemBagPositionResolver : LiveStateBackedPositionResolver
 {
-    private readonly LiveStateTracker _liveState;
+	public ItemBagPositionResolver(LiveStateTracker liveState)
+		: base(liveState) { }
 
-    public ItemBagPositionResolver(LiveStateTracker liveState)
-    {
-        _liveState = liveState;
-    }
+	protected override bool? TryGetCachedAvailability(Node node) =>
+		LiveState.TryGetCachedItemBagAvailability(node, out bool available) ? available : null;
 
-    public void Resolve(Node node, List<ResolvedPosition> results)
-    {
-        if (node.X is null || node.Y is null || node.Z is null)
-            return;
-
-        bool actionable = _liveState.TryGetCachedItemBagAvailability(node, out bool available)
-            ? available
-            : _liveState.GetItemBagState(node) is ItemBagAvailable;
-        results.Add(
-            new ResolvedPosition(
-                node.X.Value,
-                node.Y.Value,
-                node.Z.Value,
-                node.Scene,
-                node.Key,
-                actionable
-            )
-        );
-    }
+	protected override bool QueryLiveAvailability(Node node) =>
+		LiveState.GetItemBagState(node) is ItemBagAvailable;
 }

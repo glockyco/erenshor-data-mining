@@ -8,32 +8,14 @@ namespace AdventureGuide.Position.Resolvers;
 /// Available nodes are actionable; mined nodes are non-actionable so NAV
 /// deprioritises them while markers show respawn timers.
 /// </summary>
-public sealed class MiningNodePositionResolver : IPositionResolver
+internal sealed class MiningNodePositionResolver : LiveStateBackedPositionResolver
 {
-    private readonly LiveStateTracker _liveState;
+	public MiningNodePositionResolver(LiveStateTracker liveState)
+		: base(liveState) { }
 
-    public MiningNodePositionResolver(LiveStateTracker liveState)
-    {
-        _liveState = liveState;
-    }
+	protected override bool? TryGetCachedAvailability(Node node) =>
+		LiveState.TryGetCachedMiningAvailability(node, out bool available) ? available : null;
 
-    public void Resolve(Node node, List<ResolvedPosition> results)
-    {
-        if (node.X is null || node.Y is null || node.Z is null)
-            return;
-
-        bool actionable = _liveState.TryGetCachedMiningAvailability(node, out bool available)
-            ? available
-            : _liveState.GetMiningState(node).State is MiningAvailable;
-        results.Add(
-            new ResolvedPosition(
-                node.X.Value,
-                node.Y.Value,
-                node.Z.Value,
-                node.Scene,
-                node.Key,
-                actionable
-            )
-        );
-    }
+	protected override bool QueryLiveAvailability(Node node) =>
+		LiveState.GetMiningState(node).State is MiningAvailable;
 }
