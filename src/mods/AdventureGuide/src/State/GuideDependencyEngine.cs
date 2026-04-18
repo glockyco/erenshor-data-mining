@@ -37,7 +37,7 @@ public sealed class GuideDependencyEngine
         foreach (var derivedKey in affected)
             RemoveDerivedSubscriptions(derivedKey);
 
-        return affected.Count == 0 ? Array.Empty<GuideDerivedKey>() : affected.ToArray();
+        return affected;
     }
 
     public void Clear()

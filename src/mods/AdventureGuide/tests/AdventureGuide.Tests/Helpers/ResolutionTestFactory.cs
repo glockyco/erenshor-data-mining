@@ -134,7 +134,7 @@ internal static class ResolutionTestFactory
         );
         var harness = new InvalidationHarness(
             scene,
-            emit: changeSet => service.InvalidateFacts(changeSet.ChangedFacts),
+            emit: changeSet => service.InvalidateAffected(dependencies.InvalidateFacts(changeSet.ChangedFacts)),
             bumpVersionWithoutFacts: () => version++
         );
         return (service, harness);

@@ -115,16 +115,9 @@ public sealed class QuestResolutionService
         return results;
     }
 
-    public void InvalidateFacts(IEnumerable<GuideFactKey> factKeys)
+    public void InvalidateAffected(IReadOnlyCollection<GuideDerivedKey> affectedDerivedKeys)
     {
-        if (_dependencies == null)
-        {
-            _cache.Clear();
-            return;
-        }
-
-        var affected = _dependencies.InvalidateFacts(factKeys);
-        foreach (var derivedKey in affected)
+        foreach (var derivedKey in affectedDerivedKeys)
         {
             if (derivedKey.Kind == GuideDerivedKind.QuestTargets)
                 _cache.Remove(derivedKey.Key);
@@ -188,7 +181,7 @@ public sealed class QuestResolutionService
     /// <summary>
     /// Clears the entire maintained-view cache. Reserved for scene changes and
     /// other events that make every prior quest-resolution answer structurally
-    /// invalid. Per-fact events must call <see cref="InvalidateFacts"/> instead.
+    /// invalid. Per-fact events must call <see cref="InvalidateAffected"/> instead.
     /// </summary>
     public void InvalidateAll(GuideChangeSet reason)
     {

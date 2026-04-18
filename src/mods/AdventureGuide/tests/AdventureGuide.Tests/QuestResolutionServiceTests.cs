@@ -13,7 +13,7 @@ namespace AdventureGuide.Tests;
 public sealed class QuestResolutionServiceTests
 {
     [Fact]
-    public void QuestResolutionService_ExposesBatchResolveAndFactInvalidationApis()
+    public void QuestResolutionService_ExposesBatchResolveAndAffectedInvalidationApis()
     {
         var serviceType = typeof(NavigationTargetResolver).Assembly.GetType(
             "AdventureGuide.Resolution.QuestResolutionService"
@@ -36,7 +36,7 @@ public sealed class QuestResolutionServiceTests
         );
         Assert.NotNull(
             serviceType.GetMethod(
-                "InvalidateFacts",
+                "InvalidateAffected",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
             )
         );

@@ -168,7 +168,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _liveState = new LiveStateTracker(_compiledGuide, _dependencyEngine, _unlockEvaluator);
-        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator);
+        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator, _dependencyEngine);
 
         // Register remaining state resolvers (character, spawn, mining, bag, door)
         _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
@@ -522,9 +522,17 @@ public sealed class Plugin : BaseUnityPlugin
         var selectorChangeSet = stateChangeSet.Merge(liveChangeSet);
 
         if (selectorChangeSet.SceneChanged)
-            _questResolutionService?.InvalidateAll(selectorChangeSet);
-        else if (selectorChangeSet.HasMeaningfulChanges)
-            _questResolutionService?.InvalidateFacts(selectorChangeSet.ChangedFacts);
+                {
+                    _questResolutionService?.InvalidateAll(selectorChangeSet);
+                    _zoneRouter?.Rebuild();
+                }
+                else if (selectorChangeSet.HasMeaningfulChanges)
+                {
+                    var affected = _dependencyEngine?.InvalidateFacts(selectorChangeSet.ChangedFacts)
+                        ?? new HashSet<GuideDerivedKey>();
+                    _questResolutionService?.InvalidateAffected(affected);
+                    _zoneRouter?.ObserveInvalidation(affected);
+                }
 
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);

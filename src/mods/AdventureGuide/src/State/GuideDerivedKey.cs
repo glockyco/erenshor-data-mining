@@ -3,6 +3,7 @@ namespace AdventureGuide.State;
 public enum GuideDerivedKind
 {
     QuestTargets,
+    ZoneRoutes,
 }
 
 /// <summary>

@@ -309,13 +309,15 @@ public sealed class NavigationTargetResolverTests
 			new Dictionary<string, int>(),
 			Array.Empty<string>()
 		);
-		service.InvalidateFacts(
-			new[]
-			{
-				new GuideFactKey(GuideFactKind.QuestActive, "ROOT"),
-				new GuideFactKey(GuideFactKind.QuestCompleted, "ROOT"),
-			}
-		);
+		service.InvalidateAffected(
+            dependencies.InvalidateFacts(
+                new[]
+                {
+                    new GuideFactKey(GuideFactKind.QuestActive, "ROOT"),
+                    new GuideFactKey(GuideFactKind.QuestCompleted, "ROOT"),
+                }
+            )
+        );
 
 		var refreshed = resolver.Resolve("quest:root", "Forest");
 		var refreshedTarget = Assert.Single(refreshed);

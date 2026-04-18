@@ -13,395 +13,422 @@ namespace AdventureGuide.Position;
 /// </summary>
 public sealed class ZoneRouter
 {
-    /// <summary>Result of a route query.</summary>
-    public sealed class Route
-    {
-        /// <summary>Zone key of the first hop (the destination zone to head toward).</summary>
-        public string NextHopZoneKey { get; }
+	/// <summary>Result of a route query.</summary>
+	public sealed class Route
+	{
+		/// <summary>Zone key of the first hop (the destination zone to head toward).</summary>
+		public string NextHopZoneKey { get; }
 
-        /// <summary>Scene name of the zone line in current zone to navigate to.</summary>
-        public string ZoneLineScene { get; }
+		/// <summary>Scene name of the zone line in current zone to navigate to.</summary>
+		public string ZoneLineScene { get; }
 
-        /// <summary>World position of the zone line to navigate to.</summary>
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
+		/// <summary>World position of the zone line to navigate to.</summary>
+		public float X { get; }
+		public float Y { get; }
+		public float Z { get; }
 
-        /// <summary>Whether the first hop is through a locked zone line.</summary>
-        public bool IsLocked { get; }
+		/// <summary>Whether the first hop is through a locked zone line.</summary>
+		public bool IsLocked { get; }
 
-        /// <summary>Full path as scene names (including start and end).</summary>
-        public IReadOnlyList<string> Path { get; }
+		/// <summary>Full path as scene names (including start and end).</summary>
+		public IReadOnlyList<string> Path { get; }
 
-        public Route(
-            string nextHopZoneKey,
-            string zoneLineScene,
-            float x,
-            float y,
-            float z,
-            bool isLocked,
-            IReadOnlyList<string> path
-        )
-        {
-            NextHopZoneKey = nextHopZoneKey;
-            ZoneLineScene = zoneLineScene;
-            X = x;
-            Y = y;
-            Z = z;
-            IsLocked = isLocked;
-            Path = path;
-        }
-    }
+		public Route(
+			string nextHopZoneKey,
+			string zoneLineScene,
+			float x,
+			float y,
+			float z,
+			bool isLocked,
+			IReadOnlyList<string> path
+		)
+		{
+			NextHopZoneKey = nextHopZoneKey;
+			ZoneLineScene = zoneLineScene;
+			X = x;
+			Y = y;
+			Z = z;
+			IsLocked = isLocked;
+			Path = path;
+		}
+	}
 
-    /// <summary>First locked hop on a route that otherwise exists.</summary>
-    public sealed class LockedHop
-    {
-        public string ZoneLineKey { get; }
-        public string FromScene { get; }
-        public string ToScene { get; }
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
+	/// <summary>First locked hop on a route that otherwise exists.</summary>
+	public sealed class LockedHop
+	{
+		public string ZoneLineKey { get; }
+		public string FromScene { get; }
+		public string ToScene { get; }
+		public float X { get; }
+		public float Y { get; }
+		public float Z { get; }
 
-        public LockedHop(
-            string zoneLineKey,
-            string fromScene,
-            string toScene,
-            float x,
-            float y,
-            float z
-        )
-        {
-            ZoneLineKey = zoneLineKey;
-            FromScene = fromScene;
-            ToScene = toScene;
-            X = x;
-            Y = y;
-            Z = z;
-        }
-    }
+		public LockedHop(
+			string zoneLineKey,
+			string fromScene,
+			string toScene,
+			float x,
+			float y,
+			float z
+		)
+		{
+			ZoneLineKey = zoneLineKey;
+			FromScene = fromScene;
+			ToScene = toScene;
+			X = x;
+			Y = y;
+			Z = z;
+		}
+	}
 
-    private readonly CompiledGuideModel _guide;
-    private readonly UnlockEvaluator _unlocks;
+	private readonly CompiledGuideModel _guide;
+	private readonly UnlockEvaluator _unlocks;
+	private readonly GuideDependencyEngine? _dependencies;
 
-    // scene -> list of (destScene, zoneLineNodeKey, accessible)
-    private readonly Dictionary<string, List<ZoneEdge>> _adj = new(
-        StringComparer.OrdinalIgnoreCase
-    );
+	// scene -> list of (destScene, zoneLineNodeKey, accessible)
+	private readonly Dictionary<string, List<ZoneEdge>> _adj = new(
+		StringComparer.OrdinalIgnoreCase
+	);
 
-    // zone_key -> scene name
-    private readonly Dictionary<string, string> _zoneKeyToScene = new(
-        StringComparer.OrdinalIgnoreCase
-    );
+	// zone_key -> scene name
+	private readonly Dictionary<string, string> _zoneKeyToScene = new(
+		StringComparer.OrdinalIgnoreCase
+	);
 
-    // Hop-count cache: fromScene -> (scene -> hop count). Invalidated on Rebuild().
-    // Computed lazily on first GetHopCount call for a given source scene.
-    private Dictionary<string, int>? _hopCache;
-    private string? _hopCacheFrom;
+	// Hop-count cache: fromScene -> (scene -> hop count). Invalidated on Rebuild().
+	// Computed lazily on first GetHopCount call for a given source scene.
+	private Dictionary<string, int>? _hopCache;
+	private string? _hopCacheFrom;
 
-    internal IReadOnlyDictionary<string, List<ZoneEdge>> DebugAdj => _adj;
-    internal IReadOnlyDictionary<string, string> DebugZoneKeyToScene => _zoneKeyToScene;
+	internal IReadOnlyDictionary<string, List<ZoneEdge>> DebugAdj => _adj;
+	internal IReadOnlyDictionary<string, string> DebugZoneKeyToScene => _zoneKeyToScene;
+	public int RebuildCount { get; private set; }
 
-    internal readonly struct ZoneEdge
-    {
-        public readonly string DestScene;
-        public readonly string ZoneLineKey;
-        public readonly bool Accessible;
-        public readonly float X,
-            Y,
-            Z;
+	internal readonly struct ZoneEdge
+	{
+		public readonly string DestScene;
+		public readonly string ZoneLineKey;
+		public readonly bool Accessible;
+		public readonly float X,
+			Y,
+			Z;
 
-        public ZoneEdge(
-            string destScene,
-            string zoneLineKey,
-            bool accessible,
-            float x,
-            float y,
-            float z
-        )
-        {
-            DestScene = destScene;
-            ZoneLineKey = zoneLineKey;
-            Accessible = accessible;
-            X = x;
-            Y = y;
-            Z = z;
-        }
-    }
+		public ZoneEdge(
+			string destScene,
+			string zoneLineKey,
+			bool accessible,
+			float x,
+			float y,
+			float z
+		)
+		{
+			DestScene = destScene;
+			ZoneLineKey = zoneLineKey;
+			Accessible = accessible;
+			X = x;
+			Y = y;
+			Z = z;
+		}
+	}
 
-    public ZoneRouter(CompiledGuideModel guide, UnlockEvaluator unlocks)
-    {
-        _guide = guide;
-        _unlocks = unlocks;
+	public ZoneRouter(
+		CompiledGuideModel guide,
+		UnlockEvaluator unlocks,
+		GuideDependencyEngine? dependencies = null
+	)
+	{
+		_guide = guide;
+		_unlocks = unlocks;
+		_dependencies = dependencies;
 
-        // Build zone_key -> scene mapping from zone nodes
-        foreach (var zone in guide.NodesOfType(NodeType.Zone))
-        {
-            if (zone.Scene != null)
-                _zoneKeyToScene[zone.Key] = zone.Scene;
-        }
+		// Build zone_key -> scene mapping from zone nodes
+		foreach (var zone in guide.NodesOfType(NodeType.Zone))
+		{
+			if (zone.Scene != null)
+				_zoneKeyToScene[zone.Key] = zone.Scene;
+		}
 
-        Rebuild();
-    }
+		Rebuild();
+		RebuildCount = 0;
+	}
 
-    /// <summary>
-    /// Rebuild the adjacency graph from current zone line data and unlock state.
-    /// Call when tracked unlock facts change.
-    /// </summary>
-    public void Rebuild()
-    {
-        _adj.Clear();
-        _hopCache = null; // invalidate cached hop counts — adjacency changed
+	/// <summary>
+	/// Rebuild the adjacency graph from current zone line data and unlock state.
+	/// Call when tracked unlock facts change.
+	/// </summary>
+	public void Rebuild()
+	{
+		using var scope = _dependencies?.BeginCollection(
+			new GuideDerivedKey(GuideDerivedKind.ZoneRoutes, "routes")
+		);
 
-        foreach (var zl in _guide.NodesOfType(NodeType.ZoneLine))
-        {
-            if (zl.Scene == null || zl.DestinationZoneKey == null)
-                continue;
-            if (!zl.X.HasValue || !zl.Y.HasValue || !zl.Z.HasValue)
-                continue;
-            if (!_zoneKeyToScene.TryGetValue(zl.DestinationZoneKey, out var destScene))
-                continue;
+		_adj.Clear();
+		_hopCache = null; // invalidate cached hop counts — adjacency changed
+		_hopCacheFrom = null;
 
-            bool accessible = IsZoneLineAccessible(zl.Key);
+		foreach (var zl in _guide.NodesOfType(NodeType.ZoneLine))
+		{
+			if (zl.Scene == null || zl.DestinationZoneKey == null)
+				continue;
+			if (!zl.X.HasValue || !zl.Y.HasValue || !zl.Z.HasValue)
+				continue;
+			if (!_zoneKeyToScene.TryGetValue(zl.DestinationZoneKey, out var destScene))
+				continue;
 
-            if (!_adj.TryGetValue(zl.Scene, out var edges))
-            {
-                edges = new List<ZoneEdge>();
-                _adj[zl.Scene] = edges;
-            }
+			bool accessible = IsZoneLineAccessible(zl.Key);
 
-            // Avoid duplicate edges to same destination — keep most permissive
-            bool found = false;
-            for (int i = 0; i < edges.Count; i++)
-            {
-                if (
-                    string.Equals(edges[i].DestScene, destScene, StringComparison.OrdinalIgnoreCase)
-                )
-                {
-                    if (accessible && !edges[i].Accessible)
-                        edges[i] = new ZoneEdge(
-                            destScene,
-                            zl.Key,
-                            true,
-                            zl.X.Value,
-                            zl.Y.Value,
-                            zl.Z.Value
-                        );
-                    found = true;
-                    break;
-                }
-            }
+			if (!_adj.TryGetValue(zl.Scene, out var edges))
+			{
+				edges = new List<ZoneEdge>();
+				_adj[zl.Scene] = edges;
+			}
 
-            if (!found)
-                edges.Add(
-                    new ZoneEdge(destScene, zl.Key, accessible, zl.X.Value, zl.Y.Value, zl.Z.Value)
-                );
-        }
-    }
+			// Avoid duplicate edges to same destination — keep most permissive
+			bool found = false;
+			for (int i = 0; i < edges.Count; i++)
+			{
+				if (
+					string.Equals(edges[i].DestScene, destScene, StringComparison.OrdinalIgnoreCase)
+				)
+				{
+					if (accessible && !edges[i].Accessible)
+						edges[i] = new ZoneEdge(
+							destScene,
+							zl.Key,
+							true,
+							zl.X.Value,
+							zl.Y.Value,
+							zl.Z.Value
+						);
+					found = true;
+					break;
+				}
+			}
 
-    /// <summary>
-    /// Find the best route from currentScene to targetScene.
-    /// Returns null if no route exists or both are the same zone.
-    /// </summary>
-    /// <summary>
-    /// Minimum hop count from <paramref name="fromScene"/> to
-    /// <paramref name="toScene"/>. Returns <see cref="int.MaxValue"/> when
-    /// unreachable.
-    ///
-    /// Results are computed once per source scene via a single BFS over all
-    /// zones and cached until the next <see cref="Rebuild"/> call. Use this
-    /// instead of <see cref="FindRoute"/> when only the distance matters.
-    /// </summary>
-    public int GetHopCount(string fromScene, string toScene)
-    {
-        if (string.Equals(fromScene, toScene, StringComparison.OrdinalIgnoreCase))
-            return 0;
+			if (!found)
+				edges.Add(
+					new ZoneEdge(destScene, zl.Key, accessible, zl.X.Value, zl.Y.Value, zl.Z.Value)
+				);
+		}
 
-        if (
-            _hopCache == null
-            || !string.Equals(_hopCacheFrom, fromScene, StringComparison.OrdinalIgnoreCase)
-        )
-        {
-            _hopCache = ComputeHopsFrom(fromScene);
-            _hopCacheFrom = fromScene;
-        }
+		RebuildCount++;
+	}
 
-        return _hopCache.TryGetValue(toScene, out var h) ? h : int.MaxValue;
-    }
+	public void ObserveInvalidation(IReadOnlyCollection<GuideDerivedKey> affectedDerivedKeys)
+	{
+		foreach (var key in affectedDerivedKeys)
+		{
+			if (key.Kind == GuideDerivedKind.ZoneRoutes)
+			{
+				Rebuild();
+				return;
+			}
+		}
+	}
 
-    /// <summary>
-    /// BFS from <paramref name="fromScene"/> across all edges (accessible and
-    /// locked) to compute minimum hop counts to every reachable zone.
-    /// </summary>
-    private Dictionary<string, int> ComputeHopsFrom(string fromScene)
-    {
-        var hops = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var queue = new Queue<string>();
+	/// <summary>
+	/// Find the best route from currentScene to targetScene.
+	/// Returns null if no route exists or both are the same zone.
+	/// </summary>
+	/// <summary>
+	/// Minimum hop count from <paramref name="fromScene"/> to
+	/// <paramref name="toScene"/>. Returns <see cref="int.MaxValue"/> when
+	/// unreachable.
+	///
+	/// Results are computed once per source scene via a single BFS over all
+	/// zones and cached until the next <see cref="Rebuild"/> call. Use this
+	/// instead of <see cref="FindRoute"/> when only the distance matters.
+	/// </summary>
+	public int GetHopCount(string fromScene, string toScene)
+	{
+		if (string.Equals(fromScene, toScene, StringComparison.OrdinalIgnoreCase))
+			return 0;
 
-        hops[fromScene] = 0;
-        queue.Enqueue(fromScene);
+		if (
+			_hopCache == null
+			|| !string.Equals(_hopCacheFrom, fromScene, StringComparison.OrdinalIgnoreCase)
+		)
+		{
+			_hopCache = ComputeHopsFrom(fromScene);
+			_hopCacheFrom = fromScene;
+		}
 
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-            int depth = hops[current];
+		return _hopCache.TryGetValue(toScene, out var h) ? h : int.MaxValue;
+	}
 
-            if (!_adj.TryGetValue(current, out var edges))
-                continue;
+	/// <summary>
+	/// BFS from <paramref name="fromScene"/> across all edges (accessible and
+	/// locked) to compute minimum hop counts to every reachable zone.
+	/// </summary>
+	private Dictionary<string, int> ComputeHopsFrom(string fromScene)
+	{
+		var hops = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+		var queue = new Queue<string>();
 
-            foreach (var edge in edges)
-            {
-                if (!hops.ContainsKey(edge.DestScene))
-                {
-                    hops[edge.DestScene] = depth + 1;
-                    queue.Enqueue(edge.DestScene);
-                }
-            }
-        }
+		hops[fromScene] = 0;
+		queue.Enqueue(fromScene);
 
-        return hops;
-    }
+		while (queue.Count > 0)
+		{
+			var current = queue.Dequeue();
+			int depth = hops[current];
 
-    public Route? FindRoute(string currentScene, string targetScene)
-    {
-        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
-            return null;
+			if (!_adj.TryGetValue(current, out var edges))
+				continue;
 
-        // Try accessible-only path first
-        var result = BFS(currentScene, targetScene, accessibleOnly: true);
-        if (result == null)
-            result = BFS(currentScene, targetScene, accessibleOnly: false);
-        return result;
-    }
+			foreach (var edge in edges)
+			{
+				if (!hops.ContainsKey(edge.DestScene))
+				{
+					hops[edge.DestScene] = depth + 1;
+					queue.Enqueue(edge.DestScene);
+				}
+			}
+		}
 
-    /// <summary>
-    /// Find the first locked hop on the best route from currentScene to targetScene.
-    /// Returns null when an accessible-only route exists or no route exists at all.
-    /// </summary>
-    public LockedHop? FindFirstLockedHop(string currentScene, string targetScene)
-    {
-        var lockedHops = FindLockedHops(currentScene, targetScene);
-        return lockedHops.Count == 0 ? null : lockedHops[0];
-    }
+		return hops;
+	}
 
-    public IReadOnlyList<LockedHop> FindLockedHops(string currentScene, string targetScene)
-    {
-        if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
-            return Array.Empty<LockedHop>();
+	public Route? FindRoute(string currentScene, string targetScene)
+	{
+		if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+			return null;
 
-        if (BFS(currentScene, targetScene, accessibleOnly: true) != null)
-            return Array.Empty<LockedHop>();
+		// Try accessible-only path first
+		var result = BFS(currentScene, targetScene, accessibleOnly: true);
+		if (result == null)
+			result = BFS(currentScene, targetScene, accessibleOnly: false);
+		return result;
+	}
 
-        var route = BFS(currentScene, targetScene, accessibleOnly: false);
-        if (route == null)
-            return Array.Empty<LockedHop>();
+	/// <summary>
+	/// Find the first locked hop on the best route from currentScene to targetScene.
+	/// Returns null when an accessible-only route exists or no route exists at all.
+	/// </summary>
+	public LockedHop? FindFirstLockedHop(string currentScene, string targetScene)
+	{
+		var lockedHops = FindLockedHops(currentScene, targetScene);
+		return lockedHops.Count == 0 ? null : lockedHops[0];
+	}
 
-        var lockedHops = new List<LockedHop>();
-        for (int i = 0; i < route.Path.Count - 1; i++)
-        {
-            var edge = FindEdge(route.Path[i], route.Path[i + 1], accessibleOnly: false);
-            if (edge == null || edge.Value.Accessible)
-                continue;
+	public IReadOnlyList<LockedHop> FindLockedHops(string currentScene, string targetScene)
+	{
+		if (string.Equals(currentScene, targetScene, StringComparison.OrdinalIgnoreCase))
+			return Array.Empty<LockedHop>();
 
-            lockedHops.Add(
-                new LockedHop(
-                    edge.Value.ZoneLineKey,
-                    route.Path[i],
-                    route.Path[i + 1],
-                    edge.Value.X,
-                    edge.Value.Y,
-                    edge.Value.Z
-                )
-            );
-        }
+		if (BFS(currentScene, targetScene, accessibleOnly: true) != null)
+			return Array.Empty<LockedHop>();
 
-        return lockedHops;
-    }
+		var route = BFS(currentScene, targetScene, accessibleOnly: false);
+		if (route == null)
+			return Array.Empty<LockedHop>();
 
-    private Route? BFS(string start, string goal, bool accessibleOnly)
-    {
-        var queue = new Queue<(string scene, List<string> path)>();
-        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		var lockedHops = new List<LockedHop>();
+		for (int i = 0; i < route.Path.Count - 1; i++)
+		{
+			var edge = FindEdge(route.Path[i], route.Path[i + 1], accessibleOnly: false);
+			if (edge == null || edge.Value.Accessible)
+				continue;
 
-        queue.Enqueue((start, new List<string> { start }));
-        visited.Add(start);
+			lockedHops.Add(
+				new LockedHop(
+					edge.Value.ZoneLineKey,
+					route.Path[i],
+					route.Path[i + 1],
+					edge.Value.X,
+					edge.Value.Y,
+					edge.Value.Z
+				)
+			);
+		}
 
-        while (queue.Count > 0)
-        {
-            var (current, path) = queue.Dequeue();
+		return lockedHops;
+	}
 
-            if (!_adj.TryGetValue(current, out var edges))
-                continue;
+	private Route? BFS(string start, string goal, bool accessibleOnly)
+	{
+		var queue = new Queue<(string scene, List<string> path)>();
+		var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var edge in edges)
-            {
-                if (accessibleOnly && !edge.Accessible)
-                    continue;
-                if (visited.Contains(edge.DestScene))
-                    continue;
+		queue.Enqueue((start, new List<string> { start }));
+		visited.Add(start);
 
-                var newPath = new List<string>(path) { edge.DestScene };
+		while (queue.Count > 0)
+		{
+			var (current, path) = queue.Dequeue();
 
-                if (string.Equals(edge.DestScene, goal, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Found the route — get the first-hop zone line from start
-                    var firstHopScene = newPath[1];
-                    var firstEdge = FindEdge(start, firstHopScene, accessibleOnly);
-                    if (firstEdge == null)
-                        return null;
+			if (!_adj.TryGetValue(current, out var edges))
+				continue;
 
-                    // A route from the fallback (accessibleOnly=false) pass is locked
-                    // if any hop is inaccessible. The first hop is the only one we
-                    // know for certain here, but any fallback route implies at least
-                    // one locked hop — we would have returned from the accessible-only
-                    // pass otherwise.
-                    bool locked = !accessibleOnly || !firstEdge.Value.Accessible;
-                    var destZoneKey =
-                        _guide.GetNode(firstEdge.Value.ZoneLineKey)?.DestinationZoneKey ?? "";
-                    return new Route(
-                        destZoneKey,
-                        start,
-                        firstEdge.Value.X,
-                        firstEdge.Value.Y,
-                        firstEdge.Value.Z,
-                        locked,
-                        newPath
-                    );
-                }
+			foreach (var edge in edges)
+			{
+				if (accessibleOnly && !edge.Accessible)
+					continue;
+				if (visited.Contains(edge.DestScene))
+					continue;
 
-                visited.Add(edge.DestScene);
-                queue.Enqueue((edge.DestScene, newPath));
-            }
-        }
+				var newPath = new List<string>(path) { edge.DestScene };
 
-        return null;
-    }
+				if (string.Equals(edge.DestScene, goal, StringComparison.OrdinalIgnoreCase))
+				{
+					// Found the route — get the first-hop zone line from start
+					var firstHopScene = newPath[1];
+					var firstEdge = FindEdge(start, firstHopScene, accessibleOnly);
+					if (firstEdge == null)
+						return null;
 
-    private ZoneEdge? FindEdge(string fromScene, string toScene, bool accessibleOnly)
-    {
-        if (!_adj.TryGetValue(fromScene, out var edges))
-            return null;
+					// A route from the fallback (accessibleOnly=false) pass is locked
+					// if any hop is inaccessible. The first hop is the only one we
+					// know for certain here, but any fallback route implies at least
+					// one locked hop — we would have returned from the accessible-only
+					// pass otherwise.
+					bool locked = !accessibleOnly || !firstEdge.Value.Accessible;
+					var destZoneKey =
+						_guide.GetNode(firstEdge.Value.ZoneLineKey)?.DestinationZoneKey ?? "";
+					return new Route(
+						destZoneKey,
+						start,
+						firstEdge.Value.X,
+						firstEdge.Value.Y,
+						firstEdge.Value.Z,
+						locked,
+						newPath
+					);
+				}
 
-        foreach (var edge in edges)
-        {
-            if (string.Equals(edge.DestScene, toScene, StringComparison.OrdinalIgnoreCase))
-            {
-                if (!accessibleOnly || edge.Accessible)
-                    return edge;
-            }
-        }
-        return null;
-    }
+				visited.Add(edge.DestScene);
+				queue.Enqueue((edge.DestScene, newPath));
+			}
+		}
 
-    /// <summary>
-    /// Check zone line accessibility via the shared incoming-unlock evaluator.
-    /// </summary>
-    private bool IsZoneLineAccessible(string zoneLineKey)
-    {
-        var node = _guide.GetNode(zoneLineKey);
-        if (node == null || !node.IsEnabled)
-            return false;
+		return null;
+	}
 
-        return _unlocks.Evaluate(node).IsUnlocked;
-    }
+	private ZoneEdge? FindEdge(string fromScene, string toScene, bool accessibleOnly)
+	{
+		if (!_adj.TryGetValue(fromScene, out var edges))
+			return null;
+
+		foreach (var edge in edges)
+		{
+			if (string.Equals(edge.DestScene, toScene, StringComparison.OrdinalIgnoreCase))
+			{
+				if (!accessibleOnly || edge.Accessible)
+					return edge;
+			}
+		}
+		return null;
+	}
+
+	/// <summary>
+	/// Check zone line accessibility via the shared incoming-unlock evaluator.
+	/// </summary>
+	private bool IsZoneLineAccessible(string zoneLineKey)
+	{
+		var node = _guide.GetNode(zoneLineKey);
+		if (node == null || !node.IsEnabled)
+			return false;
+
+		return _unlocks.Evaluate(node).IsUnlocked;
+	}
 }
