@@ -8,16 +8,41 @@ namespace AdventureGuide.Patches;
 /// Notifies live-state and guide systems when a mining node changes so marker
 /// and navigation invalidation can stay source-local.
 /// </summary>
-[HarmonyPatch(typeof(MiningNode), nameof(MiningNode.Mine))]
 internal static class MiningNodePatch
 {
-    internal static LiveStateTracker? LiveState;
-    internal static MarkerComputer? Markers;
+	internal static LiveStateTracker? LiveState;
+	internal static MarkerComputer? Markers;
 
-    [HarmonyPostfix]
-    private static void Postfix(MiningNode __instance)
-    {
-        var changeSet = LiveState?.OnMiningChanged(__instance) ?? GuideChangeSet.None;
-        Markers?.ApplyGuideChangeSet(changeSet);
-    }
+	[HarmonyPatch(typeof(MiningNode), nameof(MiningNode.Mine))]
+	[HarmonyPostfix]
+	private static void MinePostfix(MiningNode __instance)
+	{
+		NotifyChanged(__instance);
+	}
+
+	[HarmonyPatch(typeof(MiningNode), "Update")]
+	[HarmonyPrefix]
+	private static void UpdatePrefix(MiningNode __instance, out bool __state)
+	{
+		__state = IsAvailable(__instance);
+	}
+
+	[HarmonyPatch(typeof(MiningNode), "Update")]
+	[HarmonyPostfix]
+	private static void UpdatePostfix(MiningNode __instance, bool __state)
+	{
+		if (__state == IsAvailable(__instance))
+			return;
+
+		NotifyChanged(__instance);
+	}
+
+	private static void NotifyChanged(MiningNode miningNode)
+	{
+		var changeSet = LiveState?.OnMiningChanged(miningNode) ?? GuideChangeSet.None;
+		Markers?.ApplyGuideChangeSet(changeSet);
+	}
+
+	private static bool IsAvailable(MiningNode miningNode) =>
+		miningNode.MyRender == null || miningNode.MyRender.enabled;
 }

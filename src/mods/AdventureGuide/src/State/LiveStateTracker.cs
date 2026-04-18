@@ -210,23 +210,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
             timeChanged = true;
         }
 
-        foreach (var mn in _miningNodes)
-        {
-            if (mn == null)
-                continue;
 
-            var key = NodePosKey(mn.transform.position);
-            bool available = IsMiningNodeAvailable(mn);
-            if (_miningAvailable.TryGetValue(key, out var previous) && previous == available)
-                continue;
-
-            _miningAvailable[key] = available;
-            changed = true;
-
-            var sourceKey = ResolveMiningSourceKey(mn);
-            if (!string.IsNullOrEmpty(sourceKey))
-                changedSourceKeys.Add(sourceKey);
-        }
 
         foreach (var door in _doors)
         {

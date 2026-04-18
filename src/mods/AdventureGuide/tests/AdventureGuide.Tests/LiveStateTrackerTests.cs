@@ -45,4 +45,45 @@ public sealed class LiveStateTrackerTests
 
 		Assert.Equal(-1, index);
 	}
+
+	[Fact]
+	public void UpdateFrameState_DoesNotScanMiningNodes()
+	{
+		string source = ReadRepoFile("src/mods/AdventureGuide/src/State/LiveStateTracker.cs");
+		string updateBody = ExtractBetween(
+			source,
+			"public GuideChangeSet UpdateFrameState()",
+			"public SpawnInfo GetSpawnState"
+		);
+
+		Assert.DoesNotContain("foreach (var mn in _miningNodes)", updateBody);
+	}
+
+	[Fact]
+	public void MiningNodePatch_CoversMineAndRespawnTransitions()
+	{
+		string source = ReadRepoFile("src/mods/AdventureGuide/src/Patches/MiningNodePatch.cs");
+
+		Assert.Contains("nameof(MiningNode.Mine)", source);
+		Assert.Contains("\"Update\"", source);
+	}
+
+	private static string ReadRepoFile(string relativePath)
+	{
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory != null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+			directory = directory.Parent;
+
+		Assert.NotNull(directory);
+		return File.ReadAllText(Path.Combine(directory!.FullName, relativePath));
+	}
+
+	private static string ExtractBetween(string content, string start, string end)
+	{
+		int startIndex = content.IndexOf(start, StringComparison.Ordinal);
+		Assert.True(startIndex >= 0, $"Could not find '{start}'.");
+		int endIndex = content.IndexOf(end, startIndex, StringComparison.Ordinal);
+		Assert.True(endIndex >= 0, $"Could not find '{end}'.");
+		return content[startIndex..endIndex];
+	}
 }
