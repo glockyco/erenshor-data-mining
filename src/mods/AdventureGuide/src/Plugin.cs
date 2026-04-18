@@ -74,12 +74,15 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
+    private QuestTargetResolver? _compiledQuestTargetResolver;
     private MarkerQuestTargetResolver? _markerQuestTargetResolver;
     private NavigationTargetResolver? _navigationTargetResolver;
     private DiagnosticsCore? _diagnostics;
     private int _lastCompiledQuestTrackerVersion = -1;
+    private int _lastObservedQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
     private int _lastNavSetVersion = -1;
+
 
     static Plugin()
     {
@@ -199,23 +202,37 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledQuestTracker,
             _compiledUnlocks,
             new CompiledGuideLivePositionProvider(_compiledGuide, _liveState),
-            positionRegistry
+            positionRegistry,
+            _zoneRouter
         );
-        _navigationTargetResolver = new NavigationTargetResolver(
+        _compiledQuestTargetResolver = new QuestTargetResolver(
             _compiledGuide,
             _compiledFrontier,
             _compiledSourceResolver,
             _zoneRouter,
+            () => _compiledQuestTracker.Version
+        );
+        var questResolutionService = new QuestResolutionService(
+            _compiledGuide,
+            _compiledFrontier,
+            _compiledSourceResolver,
+            _zoneRouter,
+            _dependencyEngine,
+            () => _compiledQuestTracker.Version
+        );
+        _navigationTargetResolver = new NavigationTargetResolver(
+            _compiledGuide,
+            questResolutionService,
+            _zoneRouter,
             positionRegistry,
-            () => _compiledQuestTracker.Version,
             _diagnostics
         );
 
         _markerQuestTargetResolver = new MarkerQuestTargetResolver(
             _compiledGuide,
-            _compiledFrontier,
-            _compiledSourceResolver
+            questResolutionService
         );
+
 
         _targetSelector = new NavigationTargetSelector(
             _navigationTargetResolver,
@@ -306,10 +323,10 @@ public sealed class Plugin : BaseUnityPlugin
         var trackerSummaryResolver = new TrackerSummaryResolver(
             _compiledGuide,
             _compiledQuestTracker,
-            _compiledFrontier,
-            _compiledSourceResolver,
+            questResolutionService,
             _diagnostics
         );
+
         _trackerPanel = new TrackerPanel(
             _compiledGuide,
             _questTracker,
@@ -495,6 +512,14 @@ public sealed class Plugin : BaseUnityPlugin
             );
         }
 
+        GuideChangeSet stateChangeSet = GuideChangeSet.None;
+        if (_questTracker != null && _lastObservedQuestTrackerVersion != _questTracker.Version)
+        {
+            stateChangeSet = _questTracker.LastChangeSet;
+            _lastObservedQuestTrackerVersion = _questTracker.Version;
+        }
+        var selectorChangeSet = stateChangeSet.Merge(liveChangeSet);
+
         if (liveChangeSet.HasMeaningfulChanges)
             _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
 
@@ -509,6 +534,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navSet!.Version,
             _lastNavSetVersion
         );
+
         bool forceSelector = selectorDecision.Force;
         bool preserveUntouchedEntries = false;
         string[] selectorKeys = Array.Empty<string>();
@@ -517,10 +543,11 @@ public sealed class Plugin : BaseUnityPlugin
             _lastResolutionVersion = targetSourceVersion;
             _lastNavSetVersion = _navSet.Version;
             selectorKeys = GetSelectorRefreshKeys(
-                liveChangeSet,
+                selectorChangeSet,
                 selectorDecision.Reason,
                 out preserveUntouchedEntries
             );
+
         }
 
         _targetSelector?.Tick(
@@ -565,25 +592,13 @@ public sealed class Plugin : BaseUnityPlugin
         out bool preserveUntouchedEntries
     )
     {
-        var activeKeySet = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var key in AllNavigableNodeKeys())
-            activeKeySet.Add(key);
-
-        string[] activeKeys = activeKeySet.Count == 0 ? Array.Empty<string>() : activeKeySet.ToArray();
-        preserveUntouchedEntries = false;
-        if (reason != DiagnosticTrigger.LiveWorldChanged || liveChangeSet.AffectedQuestKeys.Count == 0)
-            return activeKeys;
-
-        var affected = new List<string>();
-        foreach (var key in liveChangeSet.AffectedQuestKeys)
-            if (activeKeySet.Contains(key))
-                affected.Add(key);
-
-        if (affected.Count == 0 || affected.Count == activeKeys.Length)
-            return activeKeys;
-
-        preserveUntouchedEntries = true;
-        return affected.ToArray();
+        var plan = MaintainedViewRefreshPlanner.Plan(
+            AllNavigableNodeKeys(),
+            liveChangeSet,
+            reason
+        );
+        preserveUntouchedEntries = plan.PreserveUntouchedEntries;
+        return plan.Keys;
     }
 
     private IEnumerable<string> AllNavigableNodeKeys()

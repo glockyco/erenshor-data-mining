@@ -32,13 +32,118 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
 
         var summary = resolver.Resolve("quest:a", "QUESTA", "Forest");
 
         var resolved = Assert.IsType<TrackerSummary>(summary);
         Assert.Equal("Talk to char:giver", resolved.PrimaryText);
         Assert.Null(resolved.SecondaryText);
+    }
+
+    [Fact]
+    public void Resolve_ReadyToAcceptItemGiverWithoutItem_UsesAcquisitionSummary()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:ghost", scene: "Tutorial", x: 10f, y: 20f, z: 30f)
+            .AddItemSource("item:note", "char:ghost")
+            .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "item:note" })
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
+        );
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+
+        var summary = resolver.Resolve("quest:a", "QUESTA", "Tutorial");
+
+        var resolved = Assert.IsType<TrackerSummary>(summary);
+        Assert.Equal("Kill char:ghost", resolved.PrimaryText);
+        Assert.Equal("Drops item:note", resolved.SecondaryText);
+    }
+
+    [Fact]
+    public void Resolve_AcceptedUnreadStepItem_UsesAcquisitionSummary()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:note")
+            .AddCharacter("char:ghost", scene: "Forest", x: 40f, y: 50f, z: 60f)
+            .AddItemSource("item:note", "char:ghost")
+            .AddQuest("quest:a", dbName: "QUESTA")
+            .AddStep("quest:a", StepLabels.Read, "item:note")
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
+        );
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+
+        var summary = resolver.Resolve("quest:a", "QUESTA", "Forest");
+
+        var resolved = Assert.IsType<TrackerSummary>(summary);
+        Assert.Equal("Kill char:ghost", resolved.PrimaryText);
+        Assert.Equal("Drops item:note", resolved.SecondaryText);
+    }
+
+    [Fact]
+    public void Resolve_MixedDirectAndBlockedSources_UsesDirectSummaryWithoutPreferredTarget()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:spice")
+            .AddCharacter("char:elder", scene: "Forest", x: 5f, y: 6f, z: 7f)
+            .AddQuest("quest:key", dbName: "KEY", givers: new[] { "char:elder" })
+            .AddCharacter("char:crypt", scene: "Vault", x: 10f, y: 20f, z: 30f)
+            .AddItemSource("item:spice", "char:crypt")
+            .AddUnlockPredicate("char:crypt", "quest:key")
+            .AddCharacter("char:plax", scene: "Forest", x: 40f, y: 50f, z: 60f)
+            .AddItemSource("item:spice", "char:plax")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:spice", 1) })
+            .Build();
+        var phases = new QuestPhaseTracker(guide);
+        phases.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            TestPositionResolvers.Create(guide)
+        );
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
+
+        var summary = resolver.Resolve("quest:root", "ROOT", "Forest");
+        var resolved = Assert.IsType<TrackerSummary>(summary);
+
+        Assert.Equal("Kill char:plax", resolved.PrimaryText);
+        Assert.Null(resolved.RequiredForContext);
     }
 
     [Fact]
@@ -64,7 +169,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
 
         var summary = resolver.Resolve("quest:root", "ROOT", "");
 
@@ -99,7 +204,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
 
         var summary = resolver.Resolve("quest:root", "ROOT", "Town");
 
@@ -129,7 +234,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
         var deps = new GuideDependencyEngine();
         var tracker = new QuestStateTracker(guide, deps);
         tracker.LoadState(
@@ -213,7 +318,7 @@ public sealed class TrackerSummaryResolverTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var resolver = new TrackerSummaryResolver(guide, phases, frontier, sourceResolver);
+        var resolver = new TrackerSummaryResolver(guide, phases, new QuestResolutionService(guide, frontier, sourceResolver, null));
 
         var summary = resolver.Resolve("quest:missing", "MISSING", "");
 

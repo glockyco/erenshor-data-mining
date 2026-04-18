@@ -101,7 +101,37 @@ public sealed class NavigationTargetSelectorTests
         PY = 0f,
         PZ = 0f;
 
+    private static NavigationTargetSelector MakeSelector(
+        Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
+        ZoneRouter router,
+        AdventureGuide.CompiledGuide.CompiledGuide? guide = null,
+        INavigationSelectorLiveState? liveState = null,
+        DiagnosticsCore? diagnostics = null,
+        Func<float>? clock = null,
+        float rerankInterval = 0f
+    )
+    {
+        return new NavigationTargetSelector(
+            (keys, scene) =>
+            {
+                var results = new Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>(
+                    StringComparer.Ordinal
+                );
+                foreach (var key in keys)
+                    results[key] = resolver(key, scene);
+                return results;
+            },
+            router,
+            guide,
+            liveState,
+            diagnostics,
+            clock,
+            rerankInterval
+        );
+    }
+
     // -- Tests -------------------------------------------------------------------
+
 
     [Fact]
     public void SelectBest_EmptyTargets_ReturnsNull()
@@ -385,18 +415,10 @@ public sealed class NavigationTargetSelectorTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var navigationResolver = new NavigationTargetResolver(
-            guide,
-            frontier,
-            sourceResolver,
-            harness.Router,
-            TestPositionResolvers.Create(guide)
-        );
+        var navigationResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, harness.Router), harness.Router, TestPositionResolvers.Create(guide));
 
-        var selector = new NavigationTargetSelector(
-            (nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
-            harness.Router
-        );
+        var selector = MakeSelector((nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
+        harness.Router);
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:a" }, force: true);
 
@@ -419,13 +441,11 @@ public sealed class NavigationTargetSelectorTests
         var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
         var targets = new[] { nodeA, nodeB };
 
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
-                key == "quest:test"
-                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                    : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter()
-        );
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+        EmptyRouter());
 
         // Force tick near A.
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
@@ -462,13 +482,11 @@ public sealed class NavigationTargetSelectorTests
         );
         var targets = new[] { nearSpawn, farSpawn };
 
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
-                key == "quest:test"
-                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                    : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter()
-        );
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+        EmptyRouter());
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
         Assert.True(selector.TryGet("quest:test", out var first));
@@ -492,13 +510,11 @@ public sealed class NavigationTargetSelectorTests
         var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
         var targets = new[] { nodeA, nodeB };
 
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
-                key == "quest:test"
-                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                    : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter()
-        );
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+        EmptyRouter());
 
         selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
         int v1 = selector.Version;
@@ -514,25 +530,23 @@ public sealed class NavigationTargetSelectorTests
     {
         int aCalls = 0;
         int bCalls = 0;
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
+        var selector = MakeSelector((key, _) =>
+        {
+            if (key == "quest:a")
             {
-                if (key == "quest:a")
-                {
-                    aCalls++;
-                    return new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "a") };
-                }
-
-                if (key == "quest:b")
-                {
-                    bCalls++;
-                    return new[] { MakeTarget(ZoneA, x: 20f, targetNodeKey: "b") };
-                }
-
-                return Array.Empty<ResolvedQuestTarget>();
-            },
-            EmptyRouter()
-        );
+                aCalls++;
+                return new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "a") };
+            }
+        
+            if (key == "quest:b")
+            {
+                bCalls++;
+                return new[] { MakeTarget(ZoneA, x: 20f, targetNodeKey: "b") };
+            }
+        
+            return Array.Empty<ResolvedQuestTarget>();
+        },
+        EmptyRouter());
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a", "quest:b", "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out _));
@@ -585,15 +599,13 @@ public sealed class NavigationTargetSelectorTests
         var liveState = new FakeSelectorLiveState();
         liveState.MiningAvailability["mine:mined"] = true;
         liveState.MiningAvailability["mine:available"] = true;
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
-                key == "quest:test"
-                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                    : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter(),
-            guide: guide,
-            liveState: liveState
-        );
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+        EmptyRouter(),
+        guide: guide,
+        liveState: liveState);
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
         Assert.True(selector.TryGet("quest:test", out var first));
@@ -635,14 +647,12 @@ public sealed class NavigationTargetSelectorTests
         var liveState = new FakeSelectorLiveState();
         liveState.ItemBagAvailability["bag:spent"] = true;
         liveState.ItemBagAvailability["bag:fresh"] = true;
-        var selector = new NavigationTargetSelector(
-            (key, _) =>
-                key == "quest:test"
-                    ? (IReadOnlyList<ResolvedQuestTarget>)targets
-                    : Array.Empty<ResolvedQuestTarget>(),
-            EmptyRouter(),
-            liveState: liveState
-        );
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+        EmptyRouter(),
+        liveState: liveState);
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
         Assert.True(selector.TryGet("quest:test", out var first));
@@ -678,6 +688,76 @@ public sealed class NavigationTargetSelectorTests
         Assert.True(result!.Value.IsSameZone);
         Assert.Equal(20f, result.Value.Target.X);
         Assert.False(result.Value.IsBlockedPath);
+    }
+
+    [Fact]
+    public void ResolvedQuestTarget_exposes_availability_priority_for_selector_ranking()
+    {
+        var property = typeof(ResolvedQuestTarget).GetProperty("AvailabilityPriority");
+
+        Assert.NotNull(property);
+        Assert.Contains("Immediate", System.Enum.GetNames(property!.PropertyType));
+        Assert.Contains("PrerequisiteFallback", System.Enum.GetNames(property.PropertyType));
+    }
+
+    [Fact]
+    public void SelectBest_DirectSameZoneActionableBeatsCloserPrerequisiteDerivedTarget()
+    {
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                goalKind: NavigationGoalKind.CollectItem,
+                targetNodeKey: "prereq-source",
+                requiredForQuestKey: "quest:wyland's note"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 100f,
+                goalKind: NavigationGoalKind.CollectItem,
+                targetNodeKey: "direct-source"
+            ),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.Equal("direct-source", result!.Value.Target.TargetNodeKey);
+    }
+
+    [Fact]
+    public void SelectBest_SkipsSameZoneTargetsWithoutFiniteWorldPosition()
+    {
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: float.NaN,
+                y: float.NaN,
+                z: float.NaN,
+                goalKind: NavigationGoalKind.CollectItem,
+                targetNodeKey: "invalid-direct"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 100f,
+                goalKind: NavigationGoalKind.CollectItem,
+                targetNodeKey: "valid-direct"
+            ),
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                goalKind: NavigationGoalKind.CollectItem,
+                targetNodeKey: "prereq-near",
+                requiredForQuestKey: "quest:wyland's note"
+            ),
+        };
+
+        var result = NavigationTargetSelector.SelectBest(targets, PX, PY, PZ, ZoneA, EmptyRouter());
+
+        Assert.NotNull(result);
+        Assert.Equal("valid-direct", result!.Value.Target.TargetNodeKey);
     }
 
     [Fact]
@@ -874,12 +954,10 @@ public sealed class NavigationTargetSelectorTests
             MakeTarget(ZoneA, x: 0f, targetNodeKey: "near"),
             MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
         };
-        var selector = new NavigationTargetSelector(
-            (_, _) => targets,
-            EmptyRouter(),
-            clock: () => now,
-            rerankInterval: 1.0f
-        );
+        var selector = MakeSelector((_, _) => targets,
+        EmptyRouter(),
+        clock: () => now,
+        rerankInterval: 1.0f);
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out var selected));
@@ -905,12 +983,10 @@ public sealed class NavigationTargetSelectorTests
             MakeTarget(ZoneA, x: 0f, targetNodeKey: "near"),
             MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
         };
-        var selector = new NavigationTargetSelector(
-            (_, _) => targets,
-            EmptyRouter(),
-            clock: () => now,
-            rerankInterval: 1.0f
-        );
+        var selector = MakeSelector((_, _) => targets,
+        EmptyRouter(),
+        clock: () => now,
+        rerankInterval: 1.0f);
 
         selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
         Assert.True(selector.TryGet("quest:a", out var selected));
@@ -942,7 +1018,7 @@ public sealed class NavigationTargetSelectorTests
                 isActionable: true
             ),
         };
-        var selector = new NavigationTargetSelector((_, _) => targets, EmptyRouter());
+        var selector = MakeSelector((_, _) => targets, EmptyRouter());
 
         selector.Tick(PX, PY, PZ, ZoneA, new[] { "quest:a" }, force: true);
         string text = selector.DumpCandidates(PX, PY, PZ, ZoneA, "available");
@@ -971,5 +1047,36 @@ public sealed class NavigationTargetSelectorTests
 
         public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available) =>
             ItemBagAvailability.TryGetValue(itemBagNode.Key, out available);
+    }
+
+    [Fact]
+    public void SelectorType_NoLongerExposesPerKeyResolverConstructor()
+    {
+        Assert.DoesNotContain(
+            typeof(NavigationTargetSelector).GetConstructors(
+                System.Reflection.BindingFlags.Instance
+                    | System.Reflection.BindingFlags.Public
+                    | System.Reflection.BindingFlags.NonPublic
+            ),
+            ctor => ctor
+                .GetParameters()
+                .Any(
+                    parameter => parameter.ParameterType
+                        == typeof(Func<string, string, IReadOnlyList<ResolvedQuestTarget>>)
+                )
+        );
+    }
+
+    [Fact]
+    public void NavigationTargetResolver_ExposesBatchResolveApi()
+    {
+        Assert.NotNull(
+            typeof(NavigationTargetResolver).GetMethod(
+                "ResolveBatch",
+                System.Reflection.BindingFlags.Instance
+                    | System.Reflection.BindingFlags.Public
+                    | System.Reflection.BindingFlags.NonPublic
+            )
+        );
     }
 }

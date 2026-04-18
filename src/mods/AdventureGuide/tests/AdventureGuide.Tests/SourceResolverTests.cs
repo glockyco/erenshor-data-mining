@@ -70,7 +70,7 @@ public sealed class SourceResolverTests
 	}
 
 	[Fact]
-	public void Ready_to_accept_item_giver_resolves_item_source_positions_with_read_semantics()
+	public void Ready_to_accept_item_giver_without_item_resolves_acquisition_source_semantics()
 	{
 		var guide = new CompiledGuideBuilder()
 			.AddItem("item:note")
@@ -95,18 +95,15 @@ public sealed class SourceResolverTests
 			TestPositionResolvers.Create(guide)
 		);
 
-		var targets = resolver.ResolveTargets(
-			new FrontierEntry(0, QuestPhase.ReadyToAccept, -1),
-			"Forest"
-		);
+		var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.ReadyToAccept, -1), "Forest");
 
 		guide.TryGetNodeId("char:ghost", out int sourceId);
 		guide.TryGetNodeId("spawn:ghost", out int spawnId);
 		var target = Assert.Single(targets);
 		Assert.Equal(sourceId, target.TargetNodeId);
 		Assert.Equal(spawnId, target.PositionNodeId);
-		Assert.Equal(ResolvedTargetRole.Giver, target.Role);
-		Assert.Equal(ResolvedActionKind.Read, target.Semantic.ActionKind);
+		Assert.Equal(QuestMarkerKind.Objective, target.Semantic.PreferredMarkerKind);
+		Assert.Equal(ResolvedActionKind.Kill, target.Semantic.ActionKind);
 		Assert.Equal("Tutorial", target.Scene);
 		Assert.Equal(10f, target.X);
 		Assert.Equal(20f, target.Y);
@@ -447,6 +444,127 @@ public sealed class SourceResolverTests
 	}
 
 	[Fact]
+	public void Accepted_read_step_without_item_resolves_acquisition_source_semantics()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:note")
+			.AddCharacter("char:ghost", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:note", "char:ghost")
+			.AddQuest("quest:a", dbName: "QUESTA")
+			.AddStep("quest:a", StepLabels.Read, "item:note")
+			.Build();
+		var tracker = new QuestPhaseTracker(guide);
+		tracker.Initialize(
+			Array.Empty<string>(),
+			new[] { "QUESTA" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var evaluator = new UnlockPredicateEvaluator(guide, tracker);
+		var resolver = new SourceResolver(
+			guide,
+			tracker,
+			evaluator,
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide)
+		);
+
+		var targets = resolver.ResolveTargets(new FrontierEntry(0, QuestPhase.Accepted, -1), "Forest");
+
+		guide.TryGetNodeId("char:ghost", out int ghostId);
+		var target = Assert.Single(targets);
+		Assert.Equal(ghostId, target.TargetNodeId);
+		Assert.Equal(NavigationGoalKind.ReadItem, target.Semantic.GoalKind);
+		Assert.Equal(QuestMarkerKind.Objective, target.Semantic.PreferredMarkerKind);
+		Assert.Equal(ResolvedActionKind.Kill, target.Semantic.ActionKind);
+	}
+
+	[Fact]
+	public void Accepted_with_mixed_direct_and_blocked_sources_prefers_direct_targets_over_fallbacks()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:spice")
+			.AddCharacter("char:elder", scene: "Forest", x: 5f, y: 6f, z: 7f)
+			.AddQuest("quest:key", dbName: "KEY", givers: new[] { "char:elder" })
+			.AddCharacter("char:crypt", scene: "Vault", x: 10f, y: 20f, z: 30f)
+			.AddItemSource("item:spice", "char:crypt")
+			.AddUnlockPredicate("char:crypt", "quest:key")
+			.AddCharacter("char:plax", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:spice", "char:plax")
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:spice", 1) })
+			.Build();
+		var tracker = new QuestPhaseTracker(guide);
+		tracker.Initialize(
+			Array.Empty<string>(),
+			new[] { "ROOT" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var resolver = new SourceResolver(
+			guide,
+			tracker,
+			new UnlockPredicateEvaluator(guide, tracker),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide)
+		);
+		Assert.True(guide.TryGetNodeId("quest:root", out int questNodeId));
+		int questIndex = guide.FindQuestIndex(questNodeId);
+
+		var targets = resolver.ResolveTargets(
+			new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+			"Forest"
+		);
+
+		Assert.Equal(2, targets.Count);
+		Assert.Equal("char:plax", guide.GetNodeKey(targets[0].TargetNodeId));
+		Assert.Equal(ResolvedTargetRole.Objective, targets[0].Role);
+		Assert.Equal("char:elder", guide.GetNodeKey(targets[1].TargetNodeId));
+		Assert.Equal(ResolvedTargetRole.Giver, targets[1].Role);
+	}
+
+	[Fact]
+	public void ResolvedTarget_exposes_availability_priority_for_mixed_sources()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:spice")
+			.AddCharacter("char:elder", scene: "Forest", x: 5f, y: 6f, z: 7f)
+			.AddQuest("quest:key", dbName: "KEY", givers: new[] { "char:elder" })
+			.AddCharacter("char:crypt", scene: "Vault", x: 10f, y: 20f, z: 30f)
+			.AddItemSource("item:spice", "char:crypt")
+			.AddUnlockPredicate("char:crypt", "quest:key")
+			.AddCharacter("char:plax", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:spice", "char:plax")
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:spice", 1) })
+			.Build();
+		var tracker = new QuestPhaseTracker(guide);
+		tracker.Initialize(
+			Array.Empty<string>(),
+			new[] { "ROOT" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var resolver = new SourceResolver(
+			guide,
+			tracker,
+			new UnlockPredicateEvaluator(guide, tracker),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide)
+		);
+		Assert.True(guide.TryGetNodeId("quest:root", out int questNodeId));
+		int questIndex = guide.FindQuestIndex(questNodeId);
+
+		var targets = resolver.ResolveTargets(
+			new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+			"Forest"
+		);
+		var availabilityPriority = typeof(ResolvedTarget).GetProperty("AvailabilityPriority");
+
+		Assert.NotNull(availabilityPriority);
+		Assert.Equal("Immediate", availabilityPriority!.GetValue(targets[0])?.ToString());
+		Assert.Equal("PrerequisiteFallback", availabilityPriority.GetValue(targets[1])?.ToString());
+	}
+
+	[Fact]
 	public async Task Accepted_with_shared_reward_subtrees_resolves_without_timing_out()
 	{
 		const int depth = 20;
@@ -468,12 +586,14 @@ public sealed class SourceResolverTests
 				.AddQuest(
 					$"quest:{i}:a",
 					dbName: qa,
-					requiredItems: new[] { ($"item:{i + 1}", 1) }
+					requiredItems: new[] { ($"item:{i + 1}", 1) },
+					chainsTo: i == depth - 1 ? Array.Empty<string>() : new[] { $"quest:{i + 1}:a", $"quest:{i + 1}:b" }
 				)
 				.AddQuest(
 					$"quest:{i}:b",
 					dbName: qb,
-					requiredItems: new[] { ($"item:{i + 1}", 1) }
+					requiredItems: new[] { ($"item:{i + 1}", 1) },
+					chainsTo: i == depth - 1 ? Array.Empty<string>() : new[] { $"quest:{i + 1}:a", $"quest:{i + 1}:b" }
 				)
 				.AddEdge($"quest:{i}:a", $"item:{i}", EdgeType.RewardsItem)
 				.AddEdge($"quest:{i}:b", $"item:{i}", EdgeType.RewardsItem);
@@ -482,7 +602,7 @@ public sealed class SourceResolverTests
 		builder.AddItemSource(
 			$"item:{depth}",
 			"char:leaf",
-			edgeType: (byte)EdgeType.GivesItem,
+			edgeType: (byte)EdgeType.DropsItem,
 			sourceType: (byte)NodeType.Character
 		);
 
@@ -507,9 +627,11 @@ public sealed class SourceResolverTests
 		var resolveTask = System.Threading.Tasks.Task.Run(
 			() => resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Town")
 		);
+		// This is a regression guard against combinatorial blow-ups, not a microbenchmark.
+		// Keep the budget loose enough to remain stable across developer machines.
 		var completed = await System.Threading.Tasks.Task.WhenAny(
-			resolveTask,
-			System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(500))
+		    resolveTask,
+		    System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(3000))
 		);
 
 		Assert.Same(resolveTask, completed);

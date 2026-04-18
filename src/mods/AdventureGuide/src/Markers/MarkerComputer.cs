@@ -184,7 +184,7 @@ public sealed class MarkerComputer
             if (string.IsNullOrEmpty(_tracker.CurrentZone))
             {
                 ClearAll();
-                PublishMarkers();
+                PublishMarkersWithDiagnostics(context);
                 return;
             }
 
@@ -196,12 +196,14 @@ public sealed class MarkerComputer
             }
             else
             {
+                var resolutionSession = new SourceResolver.ResolutionSession();
                 foreach (var questKey in _pendingQuestKeys)
-                    RebuildQuestMarkers(questKey);
+                    RebuildQuestMarkers(questKey, resolutionSession, compiledTargetsByQuestKey: null);
+
                 _pendingQuestKeys.Clear();
             }
 
-            PublishMarkers();
+            PublishMarkersWithDiagnostics(context);
         }
         finally
         {
@@ -229,6 +231,12 @@ public sealed class MarkerComputer
         {
             ClearAll();
 
+            var collectionToken = _diagnostics?.BeginSpan(
+                DiagnosticSpanKind.MarkerCollectSceneQuestKeys,
+                DiagnosticsContext.Root(_lastDiagnosticTrigger),
+                primaryKey: _tracker.CurrentZone
+            );
+            long collectionStart = Stopwatch.GetTimestamp();
             var sceneQuestKeys = new HashSet<string>(StringComparer.Ordinal);
             foreach (var blueprint in GetQuestGiversInCurrentScene())
                 sceneQuestKeys.Add(blueprint.QuestKey);
@@ -260,17 +268,43 @@ public sealed class MarkerComputer
                 if (quest != null)
                     sceneQuestKeys.Add(quest.Key);
             }
+            if (collectionToken != null)
+                _diagnostics!.EndSpan(
+                    collectionToken.Value,
+                    Stopwatch.GetTimestamp() - collectionStart,
+                    value0: sceneQuestKeys.Count,
+                    value1: 0
+                );
 
+            var resolutionSession = new SourceResolver.ResolutionSession();
+            var compiledTargetsByQuestKey = _questTargetResolver.ResolveQuestKeys(
+                sceneQuestKeys,
+                _tracker.CurrentZone,
+                resolutionSession
+            );
             var sw = Stopwatch.StartNew();
             _recentQuestCosts.Clear();
-
+            var rebuildToken = _diagnostics?.BeginSpan(
+                DiagnosticSpanKind.MarkerRebuildSceneQuestTargets,
+                DiagnosticsContext.Root(_lastDiagnosticTrigger),
+                primaryKey: _tracker.CurrentZone
+            );
+            long rebuildStart = Stopwatch.GetTimestamp();
             foreach (var questKey in sceneQuestKeys)
             {
                 sw.Restart();
-                RebuildQuestMarkers(questKey);
+                RebuildQuestMarkers(questKey, resolutionSession, compiledTargetsByQuestKey);
                 sw.Stop();
                 AddQuestCostSample(questKey, sw.ElapsedTicks);
             }
+
+            if (rebuildToken != null)
+                _diagnostics!.EndSpan(
+                    rebuildToken.Value,
+                    Stopwatch.GetTimestamp() - rebuildStart,
+                    value0: sceneQuestKeys.Count,
+                    value1: 0
+                );
         }
         finally
         {
@@ -284,7 +318,11 @@ public sealed class MarkerComputer
         }
     }
 
-    private void RebuildQuestMarkers(string questKey)
+    private void RebuildQuestMarkers(
+        string questKey,
+        SourceResolver.ResolutionSession resolutionSession,
+        IReadOnlyDictionary<string, IReadOnlyList<ResolvedTarget>>? compiledTargetsByQuestKey
+    )
     {
         var token = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.MarkerRebuildQuest,
@@ -305,10 +343,18 @@ public sealed class MarkerComputer
 
             if (explicitlySelected || _tracker.IsActive(quest.DbName))
             {
-                var compiledTargets = _questTargetResolver.Resolve(
-                    quest.DbName,
-                    _tracker.CurrentZone
-                );
+                IReadOnlyList<ResolvedTarget> compiledTargets;
+                if (
+                    compiledTargetsByQuestKey != null
+                    && compiledTargetsByQuestKey.TryGetValue(quest.Key, out var precomputedTargets)
+                )
+                    compiledTargets = precomputedTargets;
+                else
+                    compiledTargets = _questTargetResolver.Resolve(
+                        quest.DbName,
+                        _tracker.CurrentZone,
+                        resolutionSession
+                    );
                 EmitActiveQuestMarkers(quest, compiledTargets);
                 return;
             }
@@ -331,9 +377,10 @@ public sealed class MarkerComputer
 
     private void EmitActiveQuestMarkers(Node quest, IReadOnlyList<ResolvedQuestTarget> targets)
     {
-        for (int i = 0; i < targets.Count; i++)
+        var markerTargets = SelectMarkerTargets(targets);
+        for (int i = 0; i < markerTargets.Count; i++)
         {
-            var target = targets[i];
+            var target = markerTargets[i];
             var entry = CreateActiveMarkerEntry(quest, target);
             if (entry != null)
                 AddContribution(quest.Key, entry.NodeKey, entry);
@@ -344,6 +391,47 @@ public sealed class MarkerComputer
         }
 
         EmitPendingCompletionMarkers(quest, targets);
+    }
+
+    private IReadOnlyList<ResolvedQuestTarget> SelectMarkerTargets(
+        IReadOnlyList<ResolvedQuestTarget> targets
+    )
+    {
+        if (targets.Count < 2)
+            return targets;
+
+        var bestByInstance = new Dictionary<string, ResolvedQuestTarget>(StringComparer.Ordinal);
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var target = targets[i];
+            if (!IsCurrentScene(target.Scene))
+                continue;
+
+            string instanceKey = target.TargetInstanceKey;
+            if (
+                !bestByInstance.TryGetValue(instanceKey, out var existing)
+                || IsBetterMarkerTarget(target, existing)
+            )
+                bestByInstance[instanceKey] = target;
+        }
+
+        return bestByInstance.Count == 0 ? targets : bestByInstance.Values.ToArray();
+    }
+
+    private static bool IsBetterMarkerTarget(
+        ResolvedQuestTarget candidate,
+        ResolvedQuestTarget existing
+    )
+    {
+        if (candidate.AvailabilityPriority != existing.AvailabilityPriority)
+            return candidate.AvailabilityPriority < existing.AvailabilityPriority;
+        if (candidate.Semantic.MarkerPriority != existing.Semantic.MarkerPriority)
+            return candidate.Semantic.MarkerPriority < existing.Semantic.MarkerPriority;
+        if (candidate.IsActionable != existing.IsActionable)
+            return candidate.IsActionable;
+        if (candidate.IsGuaranteedLoot != existing.IsGuaranteedLoot)
+            return candidate.IsGuaranteedLoot;
+        return string.CompareOrdinal(candidate.RequiredForQuestKey, existing.RequiredForQuestKey) < 0;
     }
 
     private void EmitActiveQuestMarkers(Node quest, IReadOnlyList<ResolvedTarget> targets)
@@ -727,94 +815,11 @@ public sealed class MarkerComputer
         }
     }
 
-    private IReadOnlyList<QuestGiverBlueprint> GetQuestGiversInCurrentScene()
-    {
-        var results = new List<QuestGiverBlueprint>();
-        var blueprints = _compiledGuide.GiverBlueprints;
-        for (int i = 0; i < blueprints.Length; i++)
-        {
-            var blueprint = blueprints[i];
-            var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _compiledGuide.GetNode(
-                _compiledGuide.GetNodeKey(blueprint.PositionId)
-            );
-            if (questNode?.DbName == null || positionNode == null)
-                continue;
-            if (
-                !string.Equals(
-                    positionNode.Scene,
-                    _tracker.CurrentZone,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
-                continue;
+    private IReadOnlyList<QuestGiverBlueprint> GetQuestGiversInCurrentScene() =>
+        _compiledGuide.GetQuestGiversInScene(_tracker.CurrentZone);
 
-            results.Add(
-                new QuestGiverBlueprint(
-                    questNode.Key,
-                    questNode.DbName,
-                    questNode.DisplayName,
-                    _compiledGuide.GetNodeKey(blueprint.CharacterId),
-                    positionNode.Key,
-                    positionNode.Scene ?? _tracker.CurrentZone,
-                    new MarkerInteraction(
-                        blueprint.InteractionType == 1
-                            ? MarkerInteractionKind.SayKeyword
-                            : MarkerInteractionKind.TalkTo,
-                        blueprint.Keyword
-                    ),
-                    questNode.Repeatable,
-                    blueprint.RequiredQuestDbNames
-                )
-            );
-        }
-
-        return results;
-    }
-
-    private IReadOnlyList<QuestCompletionBlueprint> GetQuestCompletionsInCurrentScene()
-    {
-        var results = new List<QuestCompletionBlueprint>();
-        var blueprints = _compiledGuide.CompletionBlueprints;
-        for (int i = 0; i < blueprints.Length; i++)
-        {
-            var blueprint = blueprints[i];
-            var questNode = _compiledGuide.GetNode(_compiledGuide.GetNodeKey(blueprint.QuestId));
-            var positionNode = _compiledGuide.GetNode(
-                _compiledGuide.GetNodeKey(blueprint.PositionId)
-            );
-            if (questNode?.DbName == null || positionNode == null)
-                continue;
-            if (
-                !string.Equals(
-                    positionNode.Scene,
-                    _tracker.CurrentZone,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
-                continue;
-
-            results.Add(
-                new QuestCompletionBlueprint(
-                    questNode.Key,
-                    questNode.DbName,
-                    questNode.DisplayName,
-                    _compiledGuide.GetNodeKey(blueprint.CharacterId),
-                    positionNode.Key,
-                    positionNode.Scene ?? _tracker.CurrentZone,
-                    new MarkerInteraction(
-                        blueprint.InteractionType == 1
-                            ? MarkerInteractionKind.SayKeyword
-                            : MarkerInteractionKind.TalkTo,
-                        blueprint.Keyword
-                    ),
-                    questNode.Repeatable
-                )
-            );
-        }
-
-        return results;
-    }
+    private IReadOnlyList<QuestCompletionBlueprint> GetQuestCompletionsInCurrentScene() =>
+        _compiledGuide.GetQuestCompletionsInScene(_tracker.CurrentZone);
 
     private MarkerEntry? CreateQuestGiverEntry(Node quest, QuestGiverBlueprint blueprint)
     {
@@ -1163,7 +1168,7 @@ public sealed class MarkerComputer
         _nodesByQuest.Remove(questKey);
     }
 
-    private void PublishMarkers()
+    private int PublishMarkers()
     {
         _markers.Clear();
         foreach (var byQuest in _contributionsByNode.Values)
@@ -1185,21 +1190,13 @@ public sealed class MarkerComputer
                 _markers.Add(CloneEntry(best));
         }
 
-        SuppressBlockedMarkersAtOccupiedPositions();
+        int suppressedMarkers = SuppressBlockedMarkersAtOccupiedPositions();
 
         Version++;
+        return suppressedMarkers;
     }
 
-    /// <summary>
-    /// Removes QuestGiverBlocked and QuestLocked markers whose spawn point is
-    /// already occupied by a non-blocked marker. Spawn point positions from the
-    /// graph are used for comparison — not the rendered marker coordinates, which
-    /// may differ between static and live-NPC paths. Exact float equality is
-    /// correct: co-located NPCs share the same exported spawn node coordinates.
-    /// A blocked variant at the same spot adds no value when the player can
-    /// already act there, and suppression must be stable even if an NPC has moved.
-    /// </summary>
-    private void SuppressBlockedMarkersAtOccupiedPositions()
+    private int SuppressBlockedMarkersAtOccupiedPositions()
     {
         static bool IsBlocked(MarkerType t) =>
             t is MarkerType.QuestGiverBlocked or MarkerType.QuestLocked;
@@ -1220,10 +1217,11 @@ public sealed class MarkerComputer
         }
 
         if (occupiedByNonBlocked.Count == 0)
-            return;
+            return 0;
 
         // Second pass: remove blocked entries whose spawn point is in that set.
         int write = 0;
+        int suppressed = 0;
         for (int read = 0; read < _markers.Count; read++)
         {
             var m = _markers[read];
@@ -1237,19 +1235,39 @@ public sealed class MarkerComputer
                     && occupiedByNonBlocked.Contains((node.X.Value, node.Y.Value, node.Z.Value))
                 )
                 {
+                    suppressed++;
                     continue;
                 }
             }
             _markers[write++] = m;
         }
         _markers.RemoveRange(write, _markers.Count - write);
+        return suppressed;
     }
 
-    private void ClearAll()
-    {
-        _contributionsByNode.Clear();
-        _nodesByQuest.Clear();
-    }
+    private void PublishMarkersWithDiagnostics(DiagnosticsContext context)
+{
+    var token = _diagnostics?.BeginSpan(
+        DiagnosticSpanKind.MarkerPublishMarkers,
+        context,
+        primaryKey: _tracker.CurrentZone
+    );
+    long startTick = Stopwatch.GetTimestamp();
+    int suppressedMarkers = PublishMarkers();
+    if (token != null)
+        _diagnostics!.EndSpan(
+            token.Value,
+            Stopwatch.GetTimestamp() - startTick,
+            value0: _markers.Count,
+            value1: suppressedMarkers
+        );
+}
+
+private void ClearAll()
+{
+    _contributionsByNode.Clear();
+    _nodesByQuest.Clear();
+}
 
     private bool IsCurrentScene(string? scene) =>
         string.IsNullOrEmpty(scene)

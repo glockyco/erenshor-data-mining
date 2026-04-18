@@ -36,13 +36,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(
-			guide,
-			frontier,
-			sourceResolver,
-			null,
-			positionRegistry
-		);
+		var targetResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, positionRegistry);
 
 		var targets = targetResolver.Resolve("quest:a", "Forest");
 
@@ -60,7 +54,7 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
-	public void Resolve_QuestKey_WithItemGiver_UsesSourcePositionAndScene()
+	public void Resolve_QuestKey_WithItemGiverWithoutItem_UsesAcquisitionSourceSemantics()
 	{
 		var guide = new CompiledGuideBuilder()
 			.AddItem("item:note")
@@ -77,7 +71,9 @@ public sealed class NavigationTargetResolverTests
 		Assert.Equal("char:ghost", target.TargetNodeKey);
 		Assert.Equal("spawn:ghost", target.SourceKey);
 		Assert.Equal("Tutorial", target.Scene);
-		Assert.Equal(ResolvedActionKind.Read, target.Semantic.ActionKind);
+		Assert.Equal(QuestMarkerKind.Objective, target.Semantic.PreferredMarkerKind);
+		Assert.Equal(ResolvedActionKind.Kill, target.Semantic.ActionKind);
+		Assert.Equal("Kill char:ghost", target.Explanation.PrimaryText);
 		Assert.Equal(10f, target.X);
 		Assert.Equal(20f, target.Y);
 		Assert.Equal(30f, target.Z);
@@ -118,14 +114,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(
-			guide,
-			frontier,
-			sourceResolver,
-			null,
-			positionRegistry,
-			() => version
-		);
+		var targetResolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
 
 		Assert.Equal(1, targetResolver.Version);
 		version = 2;
@@ -159,14 +148,7 @@ public sealed class NavigationTargetResolverTests
 	        new StubLivePositionProvider(),
 	        positionRegistry
 	    );
-	    var resolver = new NavigationTargetResolver(
-	        guide,
-	        frontier,
-	        sourceResolver,
-	        null,
-	        positionRegistry,
-	        () => version
-	    );
+	    var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
 
 	    var first = resolver.Resolve("quest:root", "Lake");
 	    var second = resolver.Resolve("quest:root", "Lake");
@@ -201,14 +183,7 @@ public sealed class NavigationTargetResolverTests
 	        new StubLivePositionProvider(),
 	        positionRegistry
 	    );
-	    var resolver = new NavigationTargetResolver(
-	        guide,
-	        frontier,
-	        sourceResolver,
-	        null,
-	        positionRegistry,
-	        () => version
-	    );
+	    var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => version), null, positionRegistry);
 
 	    var first = resolver.Resolve("quest:root", "Lake");
 	    version = 2;
@@ -249,14 +224,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(
-			guide,
-			frontier,
-			sourceResolver,
-			null,
-			positionRegistry,
-			() => phases.Version
-		);
+		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => phases.Version), null, positionRegistry);
 
 		var initial = resolver.Resolve("quest:root", "Forest");
 		var initialTarget = Assert.Single(initial);
@@ -442,13 +410,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(
-			guide,
-			frontier,
-			sourceResolver,
-			null,
-			positionRegistry
-		);
+		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null), null, positionRegistry);
 
 		var targets = resolver.Resolve("quest:root", "Azure");
 
@@ -550,13 +512,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var targetResolver = new NavigationTargetResolver(
-			harness.Guide,
-			frontier,
-			sourceResolver,
-			harness.Router,
-			positionRegistry
-		);
+		var targetResolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
 
 		var targets = targetResolver.Resolve("quest:root", "ZoneA");
 
@@ -639,19 +595,14 @@ public sealed class NavigationTargetResolverTests
 		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
 		var positionRegistry = CreatePositionRegistry(harness.Guide);
 		var sourceResolver = new SourceResolver(
-			harness.Guide,
-			phases,
-			unlocks,
-			new StubLivePositionProvider(),
-			positionRegistry
+		    harness.Guide,
+		    phases,
+		    unlocks,
+		    new StubLivePositionProvider(),
+		    positionRegistry,
+		    harness.Router
 		);
-		var resolver = new NavigationTargetResolver(
-			harness.Guide,
-			frontier,
-			sourceResolver,
-			harness.Router,
-			positionRegistry
-		);
+		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
@@ -717,25 +668,162 @@ public sealed class NavigationTargetResolverTests
 		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
 		var positionRegistry = CreatePositionRegistry(harness.Guide);
 		var sourceResolver = new SourceResolver(
-			harness.Guide,
-			phases,
-			unlocks,
-			new StubLivePositionProvider(),
-			positionRegistry
+		    harness.Guide,
+		    phases,
+		    unlocks,
+		    new StubLivePositionProvider(),
+		    positionRegistry,
+		    harness.Router
 		);
-		var resolver = new NavigationTargetResolver(
-			harness.Guide,
-			frontier,
-			sourceResolver,
-			harness.Router,
-			positionRegistry
-		);
+		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
 		var target = Assert.Single(targets);
 		Assert.Equal("char:keykeeper", target.TargetNodeKey);
 		Assert.Equal("item:key", target.GoalNode.Node.Key);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_WithUnreadStepItem_UsesAcquisitionSourceSemantics()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:note")
+			.AddCharacter("char:ghost", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:note", "char:ghost")
+			.AddQuest("quest:a", dbName: "QUESTA")
+			.AddStep("quest:a", StepLabels.Read, "item:note")
+			.Build();
+		var phases = new QuestPhaseTracker(guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			new[] { "QUESTA" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(guide, phases);
+		var positionRegistry = CreatePositionRegistry(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry
+		);
+		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, zoneRouter: null, versionProvider: () => phases.Version), zoneRouter: null, positionRegistry);
+
+		var targets = resolver.Resolve("quest:a", "Forest");
+
+		var target = Assert.Single(targets);
+		Assert.Equal("char:ghost", target.TargetNodeKey);
+		Assert.Equal(ResolvedActionKind.Kill, target.Semantic.ActionKind);
+		Assert.Equal("Kill char:ghost", target.Explanation.PrimaryText);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_WithMixedDirectAndBlockedSources_PrefersDirectTargetAndProjectsAvailabilityPriority()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:spice")
+			.AddCharacter("char:elder", scene: "Forest", x: 5f, y: 6f, z: 7f)
+			.AddQuest("quest:key", dbName: "KEY", givers: new[] { "char:elder" })
+			.AddCharacter("char:crypt", scene: "Vault", x: 10f, y: 20f, z: 30f)
+			.AddItemSource("item:spice", "char:crypt")
+			.AddUnlockPredicate("char:crypt", "quest:key")
+			.AddCharacter("char:plax", scene: "Forest", x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:spice", "char:plax")
+			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:spice", 1) })
+			.Build();
+		var phases = new QuestPhaseTracker(guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			new[] { "ROOT" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(guide, phases);
+		var positionRegistry = CreatePositionRegistry(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry
+		);
+		var resolver = new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, null, versionProvider: () => phases.Version), null, positionRegistry);
+
+		var targets = resolver.Resolve("quest:root", "Forest");
+		var availabilityPriority = typeof(ResolvedQuestTarget).GetProperty("AvailabilityPriority");
+
+		Assert.Equal(2, targets.Count);
+		Assert.Equal("char:plax", targets[0].TargetNodeKey);
+		Assert.Null(targets[0].RequiredForQuestKey);
+		Assert.Equal("char:elder", targets[1].TargetNodeKey);
+		Assert.Equal("quest:key", targets[1].GoalNode.Node.Key);
+		Assert.Equal("quest:key", targets[1].RequiredForQuestKey);
+		Assert.NotNull(availabilityPriority);
+		Assert.Equal("Immediate", availabilityPriority!.GetValue(targets[0])?.ToString());
+		Assert.Equal("PrerequisiteFallback", availabilityPriority.GetValue(targets[1])?.ToString());
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_WithLockedRouteToQuestUnlock_CutsOverToUnlockQuestFrontier()
+	{
+		const string zoneA = "Stowaway";
+		const string zoneB = "StowawayPortal";
+		var builder = new CompiledGuideBuilder()
+			.AddZone("zone:stowaway", scene: zoneA)
+			.AddZone("zone:stowawayportal", scene: zoneB)
+			.AddZoneLine(
+				"zl:portal",
+				scene: zoneA,
+				destinationZoneKey: "zone:stowawayportal",
+				x: 425.15f,
+				y: 71.73f,
+				z: 532.23f
+			)
+			.AddItem("item:eldrich")
+			.AddCharacter("char:keeper", scene: zoneB, x: 40f, y: 50f, z: 60f)
+			.AddItemSource("item:eldrich", "char:keeper", edgeType: (byte)EdgeType.DropsItem)
+			.AddCharacter("char:lucian", scene: zoneA, x: 10f, y: 11f, z: 12f)
+			.AddQuest("quest:ritual", dbName: "RITUAL", givers: new[] { "char:lucian" })
+			.AddEdge("quest:ritual", "zl:portal", EdgeType.UnlocksZoneLine)
+			.AddUnlockPredicate("zl:portal", "quest:ritual")
+			.AddQuest("quest:eldrich", dbName: "ELDRICH", requiredItems: new[] { ("item:eldrich", 1) });
+		var harness = SnapshotHarness.FromSnapshot(
+			builder.Build(),
+			new StateSnapshot { CurrentZone = zoneA, ActiveQuests = ["ELDRICH"] }
+		);
+		var phases = new QuestPhaseTracker(harness.Guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			new[] { "ELDRICH" },
+			new Dictionary<string, int>(),
+			Array.Empty<string>()
+		);
+		var frontier = new EffectiveFrontier(harness.Guide, phases);
+		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
+		var positionRegistry = CreatePositionRegistry(harness.Guide);
+		var sourceResolver = new SourceResolver(
+			harness.Guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry,
+			harness.Router
+		);
+		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
+
+		var targets = resolver.Resolve("quest:eldrich", zoneA);
+		var target = Assert.Single(targets);
+
+		Assert.Equal("char:lucian", target.TargetNodeKey);
+		Assert.Equal(zoneA, target.Scene);
+		Assert.Equal("quest:ritual", target.GoalNode.Node.Key);
+		Assert.Equal("quest:ritual", target.RequiredForQuestKey);
+		Assert.False(target.IsBlockedPath);
 	}
 
 	[Fact]
@@ -785,13 +873,7 @@ public sealed class NavigationTargetResolverTests
 			new StubLivePositionProvider(),
 			positionRegistry
 		);
-		var resolver = new NavigationTargetResolver(
-			harness.Guide,
-			frontier,
-			sourceResolver,
-			harness.Router,
-			positionRegistry
-		);
+		var resolver = new NavigationTargetResolver(harness.Guide, new QuestResolutionService(harness.Guide, frontier, sourceResolver, harness.Router), harness.Router, positionRegistry);
 
 		var targets = resolver.Resolve("quest:root", zoneA);
 
@@ -822,15 +904,10 @@ public sealed class NavigationTargetResolverTests
 			phases,
 			unlocks,
 			new StubLivePositionProvider(),
-			positionRegistry
+			positionRegistry,
+			router
 		);
-		return new NavigationTargetResolver(
-			guide,
-			frontier,
-			sourceResolver,
-			router,
-			positionRegistry
-		);
+		return new NavigationTargetResolver(guide, new QuestResolutionService(guide, frontier, sourceResolver, router, versionProvider: () => phases.Version), router, positionRegistry);
 	}
 
 	private static PositionResolverRegistry CreatePositionRegistry(

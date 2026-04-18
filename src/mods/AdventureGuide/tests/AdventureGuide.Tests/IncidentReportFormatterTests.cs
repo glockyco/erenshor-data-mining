@@ -76,6 +76,64 @@ public sealed class IncidentReportFormatterTests
     }
 
     [Fact]
+    public void FormatDetailed_IncludesMarkerSegmentMetrics()
+    {
+        var incident = new DiagnosticIncident(
+            DiagnosticIncidentKind.FrameHitch,
+            timestampTicks: 200,
+            summary: "Marker rebuild incident",
+            triggerSpanKind: (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "MarkerRebuildCurrentScene"),
+            triggerPrimaryKey: "Forest",
+            triggerElapsedTicks: 50,
+            thresholdTicks: 30,
+            correlationId: 12,
+            parentSpanId: 0
+        );
+        var bundle = IncidentBundle.Create(
+            incident,
+            Array.Empty<DiagnosticEvent>(),
+            new[]
+            {
+                new DiagnosticSpan(
+                    (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "MarkerCollectSceneQuestKeys"),
+                    DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged, correlationId: 12),
+                    startTicks: 100,
+                    endTicks: 150,
+                    primaryKey: "Forest",
+                    value0: 3,
+                    value1: 0
+                ),
+                new DiagnosticSpan(
+                    (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "MarkerRebuildSceneQuestTargets"),
+                    DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged, correlationId: 12),
+                    startTicks: 150,
+                    endTicks: 190,
+                    primaryKey: "Forest",
+                    value0: 2,
+                    value1: 0
+                ),
+                new DiagnosticSpan(
+                    (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "MarkerPublishMarkers"),
+                    DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged, correlationId: 12),
+                    startTicks: 190,
+                    endTicks: 210,
+                    primaryKey: "Forest",
+                    value0: 5,
+                    value1: 1
+                )
+            },
+            Array.Empty<SnapshotEnvelope>()
+        );
+
+        string text = IncidentReportFormatter.FormatDetailed(bundle);
+
+        Assert.Contains("quest keys=3", text, StringComparison.Ordinal);
+        Assert.Contains("quests rebuilt=2", text, StringComparison.Ordinal);
+        Assert.Contains("markers=5", text, StringComparison.Ordinal);
+        Assert.Contains("suppressed=1", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void FormatDetailed_ReturnsUsefulMessage_WhenIncidentHasNoSpans()
     {
         var incident = new DiagnosticIncident(
@@ -100,5 +158,52 @@ public sealed class IncidentReportFormatterTests
 
         Assert.NotEmpty(text);
         Assert.Contains("FrameHitch", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FormatDetailed_IncludesMaintainedViewBatchMetrics()
+    {
+        var incident = new DiagnosticIncident(
+            DiagnosticIncidentKind.FrameStall,
+            timestampTicks: 200,
+            summary: "Navigation batch incident",
+            triggerSpanKind: (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "NavSelectorBatchResolve"),
+            triggerPrimaryKey: "Stowaway",
+            triggerElapsedTicks: 50,
+            thresholdTicks: 30,
+            correlationId: 12,
+            parentSpanId: 0
+        );
+        var bundle = IncidentBundle.Create(
+            incident,
+            Array.Empty<DiagnosticEvent>(),
+            new[]
+            {
+                new DiagnosticSpan(
+                    (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "NavSelectorCollectKeys"),
+                    DiagnosticsContext.Root(DiagnosticTrigger.TargetSourceVersionChanged, correlationId: 12),
+                    startTicks: 100,
+                    endTicks: 120,
+                    primaryKey: "Stowaway",
+                    value0: 12,
+                    value1: 0
+                ),
+                new DiagnosticSpan(
+                    (DiagnosticSpanKind)System.Enum.Parse(typeof(DiagnosticSpanKind), "NavSelectorBatchResolve"),
+                    DiagnosticsContext.Root(DiagnosticTrigger.TargetSourceVersionChanged, correlationId: 12),
+                    startTicks: 120,
+                    endTicks: 180,
+                    primaryKey: "Stowaway",
+                    value0: 12,
+                    value1: 47
+                )
+            },
+            Array.Empty<SnapshotEnvelope>()
+        );
+
+        string text = IncidentReportFormatter.FormatDetailed(bundle);
+
+        Assert.Contains("quest keys=12", text, StringComparison.Ordinal);
+        Assert.Contains("resolved targets=47", text, StringComparison.Ordinal);
     }
 }

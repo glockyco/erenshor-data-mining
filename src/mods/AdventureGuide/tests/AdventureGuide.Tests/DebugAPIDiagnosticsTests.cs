@@ -110,4 +110,11 @@ public sealed class DebugAPIDiagnosticsTests
         );
         DebugAPI.Diagnostics = null;
     }
+
+    [Fact]
+    public void DebugAPI_ExposesMaintainedViewProfilingHelpers()
+    {
+        Assert.NotNull(typeof(DebugAPI).GetMethod("ProfileTrackedQuestRefresh"));
+        Assert.NotNull(typeof(DebugAPI).GetMethod("ProfileDetailProjectionRefresh"));
+    }
 }

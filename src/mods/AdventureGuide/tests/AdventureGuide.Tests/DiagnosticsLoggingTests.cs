@@ -66,11 +66,7 @@ public sealed class DiagnosticsLoggingTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var markerResolver = new MarkerQuestTargetResolver(
-            guide,
-            effectiveFrontier,
-            sourceResolver
-        );
+        var markerResolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, effectiveFrontier, sourceResolver, null));
 
         return new MarkerComputer(
             guide,

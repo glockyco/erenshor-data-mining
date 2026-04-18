@@ -51,6 +51,21 @@ public sealed class MarkerDiagnosticsTests
         Assert.NotEmpty(snapshot.TopQuestCosts);
     }
 
+    [Fact]
+    public void Recompute_RecordsSegmentedSceneRebuildSpans()
+    {
+        var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
+        var marker = CreateMarkerComputer(core);
+
+        marker.MarkDirty();
+        marker.Recompute();
+
+        var spanKinds = core.GetRecentSpans().Select(span => span.Kind.ToString()).ToArray();
+        Assert.Contains("MarkerCollectSceneQuestKeys", spanKinds);
+        Assert.Contains("MarkerRebuildSceneQuestTargets", spanKinds);
+        Assert.Contains("MarkerPublishMarkers", spanKinds);
+    }
+
     private static MarkerComputer CreateMarkerComputer(DiagnosticsCore core)
     {
         var guide = new Helpers.CompiledGuideBuilder()
@@ -85,11 +100,7 @@ public sealed class MarkerDiagnosticsTests
             new StubLivePositionProvider(),
             TestPositionResolvers.Create(guide)
         );
-        var markerResolver = new MarkerQuestTargetResolver(
-            guide,
-            effectiveFrontier,
-            sourceResolver
-        );
+        var markerResolver = new MarkerQuestTargetResolver(guide, new QuestResolutionService(guide, effectiveFrontier, sourceResolver, null));
 
         return new MarkerComputer(
             guide,

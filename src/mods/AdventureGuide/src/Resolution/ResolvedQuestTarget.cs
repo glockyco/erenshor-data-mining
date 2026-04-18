@@ -36,6 +36,13 @@ public sealed class ResolvedQuestTarget
     public bool IsActionable { get; internal set; }
 
     /// <summary>
+    /// Canonical rank for source selection. Immediate targets are actionable for the
+    /// current goal itself; prerequisite fallbacks only exist because some other
+    /// quest/item/unlock chain must be satisfied first.
+    /// </summary>
+    public ResolvedTargetAvailabilityPriority AvailabilityPriority { get; }
+
+    /// <summary>
     /// True when this target belongs to a blocked-but-feasible route that must
     /// first resolve some unlock chain before it reaches the original source.
     /// Ranking uses this to prefer easier direct alternatives while still
@@ -51,9 +58,9 @@ public sealed class ResolvedQuestTarget
     public bool IsGuaranteedLoot { get; }
 
     /// <summary>
-    /// Key of the immediate sub-quest within the tracked chain that this target
-    /// is working toward. Null when the target is a direct step of the tracked
-    /// quest itself. Used by the tracker to show "Needed for {sub-quest}".
+    /// Key of the immediate prerequisite quest within the tracked chain that this
+    /// target is directly working toward. Null when the target is a direct step of
+    /// the tracked quest itself. Used by the tracker to show "Needed for {quest}".
     /// </summary>
     public string? RequiredForQuestKey { get; }
 
@@ -71,7 +78,8 @@ public sealed class ResolvedQuestTarget
         bool isActionable = true,
         string? requiredForQuestKey = null,
         bool isBlockedPath = false,
-        bool isGuaranteedLoot = false
+        bool isGuaranteedLoot = false,
+        ResolvedTargetAvailabilityPriority availabilityPriority = ResolvedTargetAvailabilityPriority.Immediate
     )
     {
         TargetNodeKey = targetNodeKey;
@@ -85,9 +93,10 @@ public sealed class ResolvedQuestTarget
         Y = y;
         Z = z;
         IsActionable = isActionable;
-        // Any quest-tagged target is necessarily on a blocked path. The
-        // explicit flag additionally covers item/door unlock chains.
-        IsBlockedPath = isBlockedPath || requiredForQuestKey != null;
+        AvailabilityPriority = availabilityPriority;
+        // Physical route blocking is distinct from quest-chain context. A target can
+        // be required for a sub-quest without itself living behind a blocked route.
+        IsBlockedPath = isBlockedPath;
         RequiredForQuestKey = requiredForQuestKey;
         IsGuaranteedLoot = isGuaranteedLoot;
     }

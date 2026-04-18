@@ -148,10 +148,12 @@ public sealed class ViewRenderer
             return;
 
         _cachedDetailStateVersion = stateVersion;
+        int invalidatedQuestCount = _cachedRootChildrenByQuest.Count;
         _cachedRootChildrenByQuest.Clear();
         _cachedChildren.Clear();
         _cachedUnlockChildren.Clear();
-        _specProjector.ResetProjectionCaches();
+        _specProjector.ResetProjectionCaches(invalidatedQuestCount, full: true);
+
     }
 
     private static string BuildDetailProjectionKey(string scope, SpecTreeRef treeRef)

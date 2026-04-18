@@ -37,6 +37,9 @@ public sealed class SpecTreeProjector
     private int _lastChildCount;
     private int _lastPrunedCount;
     private int _lastCyclePruneCount;
+    private int _lastInvalidatedQuestCount;
+    private bool _lastInvalidationWasFull;
+
 
     internal SpecTreeProjector(
         CompiledGuide.CompiledGuide guide,
@@ -752,12 +755,14 @@ public sealed class SpecTreeProjector
         return false;
     }
 
-    internal void ResetProjectionCaches()
+    internal void ResetProjectionCaches(int invalidatedQuestCount = 0, bool full = true)
     {
         _childCache.Clear();
         _unlockCache.Clear();
         _visibilityCache.Clear();
         _activeProjectionKeys.Clear();
+        _lastInvalidatedQuestCount = invalidatedQuestCount;
+        _lastInvalidationWasFull = full;
     }
 
     private void EnterProjection()
@@ -1028,7 +1033,9 @@ public sealed class SpecTreeProjector
             lastProjectedNodeCount: _lastProjectedNodeCount,
             lastChildCount: _lastChildCount,
             lastPrunedCount: _lastPrunedCount,
-            lastCyclePruneCount: _lastCyclePruneCount
+            lastCyclePruneCount: _lastCyclePruneCount,
+            lastInvalidatedQuestCount: _lastInvalidatedQuestCount,
+            lastInvalidationWasFull: _lastInvalidationWasFull
         );
     }
 }

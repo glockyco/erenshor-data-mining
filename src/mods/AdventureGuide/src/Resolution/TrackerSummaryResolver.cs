@@ -9,8 +9,7 @@ public sealed class TrackerSummaryResolver
 {
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestPhaseTracker _phases;
-    private readonly EffectiveFrontier _frontier;
-    private readonly SourceResolver _sourceResolver;
+    private readonly QuestResolutionService _questResolutionService;
     private readonly DiagnosticsCore? _diagnostics;
     private string? _lastResolveQuestKey;
     private bool _lastResolveUsedPreferredTarget;
@@ -19,15 +18,13 @@ public sealed class TrackerSummaryResolver
     internal TrackerSummaryResolver(
         CompiledGuide.CompiledGuide guide,
         QuestPhaseTracker phases,
-        EffectiveFrontier frontier,
-        SourceResolver sourceResolver,
+        QuestResolutionService questResolutionService,
         DiagnosticsCore? diagnostics = null
     )
     {
         _guide = guide;
         _phases = phases;
-        _frontier = frontier;
-        _sourceResolver = sourceResolver;
+        _questResolutionService = questResolutionService;
         _diagnostics = diagnostics;
     }
 
@@ -61,34 +58,17 @@ public sealed class TrackerSummaryResolver
             }
 
             var questNode = _guide.GetQuestByDbName(questDbName);
-            if (questNode == null || !_guide.TryGetNodeId(questNode.Key, out int nodeId))
+            if (questNode == null)
             {
                 Remember(null, usedPreferredTarget: false);
                 return null;
             }
 
-            int questIndex = _guide.FindQuestIndex(nodeId);
-            if (questIndex < 0)
+            var record = _questResolutionService.ResolveQuest(questNode.Key, currentScene);
+            var targets = record.CompiledTargets;
+            if (targets.Count > 0)
             {
-                Remember(null, usedPreferredTarget: false);
-                return null;
-            }
-
-            var frontier = new List<FrontierEntry>();
-            _frontier.Resolve(questIndex, frontier, -1);
-            if (frontier.Count == 0)
-            {
-                Remember(null, usedPreferredTarget: false);
-                return null;
-            }
-
-            for (int i = 0; i < frontier.Count; i++)
-            {
-                var targets = _sourceResolver.ResolveTargets(frontier[i], currentScene);
-                if (targets.Count == 0)
-                    continue;
-
-                var target = targets[0];
+                var target = SelectBestTarget(targets);
                 var goalNode = BuildGoalContext(target);
                 var targetNode = new ResolvedNodeContext(
                     _guide.GetNodeKey(target.TargetNodeId),
@@ -101,8 +81,10 @@ public sealed class TrackerSummaryResolver
                 );
                 string? requiredForContext = null;
                 if (target.RequiredForQuestIndex >= 0)
+                {
                     requiredForContext =
                         $"Needed for: {_guide.GetDisplayName(_guide.QuestNodeId(target.RequiredForQuestIndex))}";
+                }
                 var summary = new TrackerSummary(
                     explanation.PrimaryText,
                     target.Semantic.RationaleText,
@@ -112,7 +94,13 @@ public sealed class TrackerSummaryResolver
                 return summary;
             }
 
-            var fallback = TrackerSummaryBuilder.Build(_guide, _phases, frontier[0]);
+            if (record.Frontier.Count == 0)
+            {
+                Remember(null, usedPreferredTarget: false);
+                return null;
+            }
+
+            var fallback = TrackerSummaryBuilder.Build(_guide, _phases, record.Frontier[0]);
             Remember(fallback, usedPreferredTarget: false);
             return fallback;
         }
@@ -149,6 +137,18 @@ public sealed class TrackerSummaryResolver
             additionalCount: 0,
             prerequisiteQuestName
         );
+    }
+
+    private static ResolvedTarget SelectBestTarget(IReadOnlyList<ResolvedTarget> targets)
+    {
+        var best = targets[0];
+        for (int i = 1; i < targets.Count; i++)
+        {
+            if (targets[i].AvailabilityPriority < best.AvailabilityPriority)
+                best = targets[i];
+        }
+
+        return best;
     }
 
     private ResolvedNodeContext BuildGoalContext(ResolvedTarget target)

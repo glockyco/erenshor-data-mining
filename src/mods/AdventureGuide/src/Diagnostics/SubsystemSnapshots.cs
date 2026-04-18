@@ -82,13 +82,19 @@ internal sealed class NavigationDiagnosticsSnapshot
         DiagnosticTrigger lastForceReason,
         int cacheEntryCount,
         string? currentTargetKey,
-        int lastResolvedTargetCount
+        int lastResolvedTargetCount,
+        int lastBatchKeyCount,
+        bool lastBatchWasPartialRefresh,
+        IReadOnlyList<QuestCostSample> topQuestCosts
     )
     {
         LastForceReason = lastForceReason;
         CacheEntryCount = cacheEntryCount;
         CurrentTargetKey = currentTargetKey;
         LastResolvedTargetCount = lastResolvedTargetCount;
+        LastBatchKeyCount = lastBatchKeyCount;
+        LastBatchWasPartialRefresh = lastBatchWasPartialRefresh;
+        TopQuestCosts = topQuestCosts;
     }
 
     public DiagnosticTrigger LastForceReason { get; }
@@ -98,6 +104,12 @@ internal sealed class NavigationDiagnosticsSnapshot
     public string? CurrentTargetKey { get; }
 
     public int LastResolvedTargetCount { get; }
+
+    public int LastBatchKeyCount { get; }
+
+    public bool LastBatchWasPartialRefresh { get; }
+
+    public IReadOnlyList<QuestCostSample> TopQuestCosts { get; }
 }
 
 internal sealed class TrackerDiagnosticsSnapshot
@@ -130,13 +142,17 @@ internal sealed class SpecTreeDiagnosticsSnapshot
         int lastProjectedNodeCount,
         int lastChildCount,
         int lastPrunedCount,
-        int lastCyclePruneCount
+        int lastCyclePruneCount,
+        int lastInvalidatedQuestCount,
+        bool lastInvalidationWasFull
     )
     {
         LastProjectedNodeCount = lastProjectedNodeCount;
         LastChildCount = lastChildCount;
         LastPrunedCount = lastPrunedCount;
         LastCyclePruneCount = lastCyclePruneCount;
+        LastInvalidatedQuestCount = lastInvalidatedQuestCount;
+        LastInvalidationWasFull = lastInvalidationWasFull;
     }
 
     public int LastProjectedNodeCount { get; }
@@ -146,4 +162,8 @@ internal sealed class SpecTreeDiagnosticsSnapshot
     public int LastPrunedCount { get; }
 
     public int LastCyclePruneCount { get; }
+
+    public int LastInvalidatedQuestCount { get; }
+
+    public bool LastInvalidationWasFull { get; }
 }

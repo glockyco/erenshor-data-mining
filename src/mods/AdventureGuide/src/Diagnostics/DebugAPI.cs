@@ -353,9 +353,56 @@ public static class DebugAPI
 
     public static string DumpPerfReport() => DumpPerfSummary();
 
+    public static string ProfileTrackedQuestRefresh()
+    {
+        if (NavSnapshot == null)
+            return "Not initialized";
+
+        var snapshot = NavSnapshot();
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Tracked quest refresh snapshot");
+        sb.AppendLine($"Reason: {snapshot.LastForceReason}");
+        sb.AppendLine($"Key count: {snapshot.LastBatchKeyCount}");
+        sb.AppendLine($"Partial refresh: {snapshot.LastBatchWasPartialRefresh}");
+        sb.AppendLine($"Resolved targets: {snapshot.LastResolvedTargetCount}");
+        if (snapshot.TopQuestCosts.Count > 0)
+        {
+            sb.AppendLine("Top quest costs:");
+            foreach (var sample in snapshot.TopQuestCosts)
+            {
+                sb.AppendLine(
+                    $"  {sample.QuestKey}: {(sample.ElapsedTicks * 1000.0 / Stopwatch.Frequency):F3} ms"
+                );
+            }
+        }
+        return sb.ToString().TrimEnd();
+    }
+
+    public static string ProfileDetailProjectionRefresh()
+    {
+        if (TreeSnapshot == null)
+            return "Not initialized";
+
+        var snapshot = TreeSnapshot();
+        return string.Join(
+            "\n",
+            new[]
+            {
+                "Detail projection snapshot",
+                $"Projected nodes: {snapshot.LastProjectedNodeCount}",
+                $"Children: {snapshot.LastChildCount}",
+                $"Pruned: {snapshot.LastPrunedCount}",
+                $"Cycle prunes: {snapshot.LastCyclePruneCount}",
+                $"Invalidated quests: {snapshot.LastInvalidatedQuestCount}",
+                $"Full invalidation: {snapshot.LastInvalidationWasFull}",
+            }
+        );
+    }
+
     /// <summary>
     /// Zero all diagnostics buffers so the next report reflects fresh data.
     /// </summary>
+
     public static string ResetPerfCounters()
     {
         if (Diagnostics == null)

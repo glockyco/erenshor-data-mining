@@ -39,7 +39,7 @@ internal static class IncidentReportFormatter
         sb.AppendLine($"Duration: {FormatMilliseconds(bundle.Incident.TriggerElapsedTicks)}");
         sb.AppendLine($"Threshold: {FormatMilliseconds(bundle.Incident.ThresholdTicks)}");
         sb.AppendLine($"Correlation: {bundle.Incident.CorrelationId}");
-        
+
         if (bundle.Spans.Count > 0)
         {
             sb.AppendLine("Related spans:");
@@ -61,9 +61,22 @@ internal static class IncidentReportFormatter
     }
 
     private static string DescribeSpanMetrics(DiagnosticSpan span) =>
-        span.Kind == DiagnosticSpanKind.SpecTreeProjectRoot
-            ? $" projected nodes={span.Value0}, cycle prunes={span.Value1}"
-            : string.Empty;
+        span.Kind switch
+        {
+            DiagnosticSpanKind.SpecTreeProjectRoot =>
+                $" projected nodes={span.Value0}, cycle prunes={span.Value1}",
+            DiagnosticSpanKind.MarkerCollectSceneQuestKeys =>
+                $" quest keys={span.Value0}",
+            DiagnosticSpanKind.MarkerRebuildSceneQuestTargets =>
+                $" quests rebuilt={span.Value0}",
+            DiagnosticSpanKind.MarkerPublishMarkers =>
+                $" markers={span.Value0}, suppressed={span.Value1}",
+            DiagnosticSpanKind.NavSelectorCollectKeys =>
+                $" quest keys={span.Value0}",
+            DiagnosticSpanKind.NavSelectorBatchResolve =>
+                $" quest keys={span.Value0}, resolved targets={span.Value1}",
+            _ => string.Empty,
+        };
 
     private static string FormatMilliseconds(long ticks)
     {

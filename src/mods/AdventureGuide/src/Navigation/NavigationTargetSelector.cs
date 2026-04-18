@@ -42,13 +42,13 @@ public struct SelectedNavTarget
 ///
 /// Priority algorithm (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
 /// <list type="number">
-///   <item>Direct + same-zone, guaranteed loot — closest</item>
-///   <item>Direct + same-zone, actionable — closest</item>
-///   <item>Direct + same-zone, non-actionable — closest</item>
+///   <item>Direct + same-zone, guaranteed loot — prefer non-prerequisite targets, then closest</item>
+///   <item>Direct + same-zone, actionable — prefer non-prerequisite targets, then closest</item>
+///   <item>Direct + same-zone, non-actionable — prefer non-prerequisite targets, then closest</item>
 ///   <item>Direct + cross-zone — fewest zone hops</item>
-///   <item>Blocked-path + same-zone, guaranteed loot — closest</item>
-///   <item>Blocked-path + same-zone, actionable — closest</item>
-///   <item>Blocked-path + same-zone, non-actionable — closest</item>
+///   <item>Blocked-path + same-zone, guaranteed loot — prefer non-prerequisite targets, then closest</item>
+///   <item>Blocked-path + same-zone, actionable — prefer non-prerequisite targets, then closest</item>
+///   <item>Blocked-path + same-zone, non-actionable — prefer non-prerequisite targets, then closest</item>
 ///   <item>Blocked-path + cross-zone — fewest zone hops</item>
 /// </list>
 /// TravelToZone candidates are always skipped.
@@ -57,7 +57,8 @@ public sealed class NavigationTargetSelector
 {
     private const float DefaultRerankIntervalSeconds = 1f;
 
-    private readonly Func<string, string, IReadOnlyList<ResolvedQuestTarget>> _resolver;
+    private readonly Func<IEnumerable<string>, string, IReadOnlyDictionary<string, IReadOnlyList<ResolvedQuestTarget>>> _batchResolver;
+
     private readonly ZoneRouter _router;
     private readonly CompiledGuideModel? _guide;
     private readonly INavigationSelectorLiveState? _liveState;
@@ -73,9 +74,15 @@ public sealed class NavigationTargetSelector
     private readonly List<string> _keysToEvict = new();
     private readonly Func<float> _clock;
     private readonly float _rerankInterval;
+    private readonly Func<IReadOnlyList<QuestCostSample>>? _topQuestCostProvider;
+
     private float _lastRerankTime = float.NegativeInfinity;
     private DiagnosticTrigger _lastForceReason = DiagnosticTrigger.Unknown;
     private int _lastResolvedTargetCount;
+    private int _lastBatchKeyCount;
+    private bool _lastBatchWasPartialRefresh;
+    private IReadOnlyList<QuestCostSample> _topQuestCosts = Array.Empty<QuestCostSample>();
+
 
     /// <summary>
     /// Monotonically increasing version. Incremented after each cache refresh so
@@ -91,33 +98,37 @@ public sealed class NavigationTargetSelector
         DiagnosticsCore? diagnostics = null
     )
         : this(
-            (key, scene) => resolution.Resolve(key, scene),
+            (keys, scene) => resolution.ResolveBatch(keys, scene),
             router,
             guide,
             liveState,
             diagnostics,
             () => UnityEngine.Time.time,
-            DefaultRerankIntervalSeconds
+            DefaultRerankIntervalSeconds,
+            () => resolution.ExportDiagnosticsSnapshot().TopQuestCosts
         ) { }
 
     internal NavigationTargetSelector(
-        Func<string, string, IReadOnlyList<ResolvedQuestTarget>> resolver,
+        Func<IEnumerable<string>, string, IReadOnlyDictionary<string, IReadOnlyList<ResolvedQuestTarget>>> batchResolver,
         ZoneRouter router,
         CompiledGuideModel? guide = null,
         INavigationSelectorLiveState? liveState = null,
         DiagnosticsCore? diagnostics = null,
         Func<float>? clock = null,
-        float rerankInterval = 0f
+        float rerankInterval = 0f,
+        Func<IReadOnlyList<QuestCostSample>>? topQuestCostProvider = null
     )
     {
-        _resolver = resolver;
+        _batchResolver = batchResolver;
         _router = router;
         _guide = guide;
         _liveState = liveState;
         _diagnostics = diagnostics;
         _clock = clock ?? (() => 0f);
         _rerankInterval = rerankInterval;
+        _topQuestCostProvider = topQuestCostProvider;
     }
+
 
     /// <summary>
     /// Called once per frame by Plugin before consumers read.
@@ -170,6 +181,9 @@ public sealed class NavigationTargetSelector
             {
                 _lastForceReason = forceReason;
                 _lastResolvedTargetCount = 0;
+                _lastBatchKeyCount = 0;
+                _lastBatchWasPartialRefresh = preserveUntouchedEntries;
+                _topQuestCosts = Array.Empty<QuestCostSample>();
                 _diagnostics?.RecordEvent(
                     new DiagnosticEvent(
                         DiagnosticEventKind.SelectorRefreshForced,
@@ -182,26 +196,74 @@ public sealed class NavigationTargetSelector
                 );
 
                 _activeKeys.Clear();
-                foreach (var key in nodeKeys)
+                var refreshKeys = new List<string>();
+                var collectionToken = _diagnostics?.BeginSpan(
+                    DiagnosticSpanKind.NavSelectorCollectKeys,
+                    context,
+                    primaryKey: currentZone
+                );
+                long collectionStart = Stopwatch.GetTimestamp();
+                try
                 {
-                    if (!_activeKeys.Add(key))
-                        continue;
-
-                    var targets = _resolver(key, currentZone);
-                    _lastResolvedTargetCount += targets.Count;
-                    if (targets.Count == 0)
+                    foreach (var key in nodeKeys)
                     {
-                        _entries.Remove(key);
-                        _cache.Remove(key);
-                        continue;
+                        if (!_activeKeys.Add(key))
+                            continue;
+                        refreshKeys.Add(key);
                     }
+                }
+                finally
+                {
+                    _lastBatchKeyCount = refreshKeys.Count;
+                    if (collectionToken != null)
+                        _diagnostics!.EndSpan(
+                            collectionToken.Value,
+                            Stopwatch.GetTimestamp() - collectionStart,
+                            value0: _lastBatchKeyCount,
+                            value1: 0
+                        );
+                }
 
-                    if (!_entries.TryGetValue(key, out var entry))
+                var batchToken = _diagnostics?.BeginSpan(
+                    DiagnosticSpanKind.NavSelectorBatchResolve,
+                    context,
+                    primaryKey: currentZone
+                );
+                long batchStart = Stopwatch.GetTimestamp();
+                try
+                {
+                    var targetsByKey = _batchResolver(refreshKeys, currentZone);
+                    for (int i = 0; i < refreshKeys.Count; i++)
                     {
-                        entry = new TargetEntry();
-                        _entries[key] = entry;
+                        string key = refreshKeys[i];
+                        targetsByKey.TryGetValue(key, out var targets);
+                        targets ??= Array.Empty<ResolvedQuestTarget>();
+                        _lastResolvedTargetCount += targets.Count;
+                        if (targets.Count == 0)
+                        {
+                            _entries.Remove(key);
+                            _cache.Remove(key);
+                            continue;
+                        }
+
+                        if (!_entries.TryGetValue(key, out var entry))
+                        {
+                            entry = new TargetEntry();
+                            _entries[key] = entry;
+                        }
+                        entry.Rebuild(targets, currentZone);
                     }
-                    entry.Rebuild(targets, currentZone);
+                }
+                finally
+                {
+                    _topQuestCosts = _topQuestCostProvider?.Invoke() ?? Array.Empty<QuestCostSample>();
+                    if (batchToken != null)
+                        _diagnostics!.EndSpan(
+                            batchToken.Value,
+                            Stopwatch.GetTimestamp() - batchStart,
+                            value0: _lastBatchKeyCount,
+                            value1: _lastResolvedTargetCount
+                        );
                 }
 
                 if (!preserveUntouchedEntries)
@@ -327,7 +389,10 @@ public sealed class NavigationTargetSelector
             lastForceReason: _lastForceReason,
             cacheEntryCount: _entries.Count,
             currentTargetKey: null,
-            lastResolvedTargetCount: _lastResolvedTargetCount
+            lastResolvedTargetCount: _lastResolvedTargetCount,
+            lastBatchKeyCount: _lastBatchKeyCount,
+            lastBatchWasPartialRefresh: _lastBatchWasPartialRefresh,
+            topQuestCosts: _topQuestCosts
         );
     }
 
@@ -492,6 +557,8 @@ public sealed class NavigationTargetSelector
         for (int i = 0; i < entry.SameZone.Count; i++)
         {
             var t = entry.SameZone[i];
+            if (!float.IsFinite(t.X) || !float.IsFinite(t.Y) || !float.IsFinite(t.Z))
+                continue;
             float dx = playerX - t.X,
                 dy = playerY - t.Y,
                 dz = playerZ - t.Z;
@@ -605,44 +672,60 @@ public sealed class NavigationTargetSelector
                 BlockedGuaranteedLootDist = float.MaxValue,
             };
 
-        public void Consider(ResolvedQuestTarget t, float dist)
+        public void Consider(ResolvedQuestTarget target, float distance)
         {
-            if (t.IsGuaranteedLoot)
+            if (target.IsGuaranteedLoot)
             {
-                if (!t.IsBlockedPath)
+                if (!target.IsBlockedPath)
                 {
-                    if (dist < DirectGuaranteedLootDist)
+                    if (IsBetterCandidate(target, distance, DirectGuaranteedLoot, DirectGuaranteedLootDist))
                     {
-                        DirectGuaranteedLoot = t;
-                        DirectGuaranteedLootDist = dist;
+                        DirectGuaranteedLoot = target;
+                        DirectGuaranteedLootDist = distance;
                     }
                 }
-                else
+                else if (IsBetterCandidate(target, distance, BlockedGuaranteedLoot, BlockedGuaranteedLootDist))
                 {
-                    if (dist < BlockedGuaranteedLootDist)
-                    {
-                        BlockedGuaranteedLoot = t;
-                        BlockedGuaranteedLootDist = dist;
-                    }
+                    BlockedGuaranteedLoot = target;
+                    BlockedGuaranteedLootDist = distance;
                 }
-                return; // Do not also populate the regular actionable slot.
+                return;
             }
-            if (!t.IsBlockedPath)
+
+            if (!target.IsBlockedPath)
             {
-                if (dist < DirectDist)
+                if (IsBetterCandidate(target, distance, Direct, DirectDist))
                 {
-                    Direct = t;
-                    DirectDist = dist;
+                    Direct = target;
+                    DirectDist = distance;
                 }
             }
-            else
+            else if (IsBetterCandidate(target, distance, Blocked, BlockedDist))
             {
-                if (dist < BlockedDist)
-                {
-                    Blocked = t;
-                    BlockedDist = dist;
-                }
+                Blocked = target;
+                BlockedDist = distance;
             }
+        }
+
+        private static bool IsBetterCandidate(
+            ResolvedQuestTarget candidate,
+            float candidateDistance,
+            ResolvedQuestTarget? currentBest,
+            float currentBestDistance
+        )
+        {
+            if (currentBest == null)
+                return true;
+
+            if (candidate.AvailabilityPriority != currentBest.AvailabilityPriority)
+                return candidate.AvailabilityPriority < currentBest.AvailabilityPriority;
+
+            bool candidateIsDirectSource = string.IsNullOrEmpty(candidate.RequiredForQuestKey);
+            bool bestIsDirectSource = string.IsNullOrEmpty(currentBest.RequiredForQuestKey);
+            if (candidateIsDirectSource != bestIsDirectSource)
+                return candidateIsDirectSource;
+
+            return candidateDistance < currentBestDistance;
         }
     }
 
@@ -723,7 +806,8 @@ public sealed class NavigationTargetSelector
                 {
                     // One representative per destination zone, split by blocking.
                     var dict = t.IsBlockedPath ? CrossZoneBlocked : CrossZoneDirect;
-                    if (!dict.ContainsKey(t.Scene!))
+                    if (!dict.TryGetValue(t.Scene!, out var existing)
+                        || t.AvailabilityPriority < existing.AvailabilityPriority)
                         dict[t.Scene!] = t;
                 }
             }
