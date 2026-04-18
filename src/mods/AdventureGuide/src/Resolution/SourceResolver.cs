@@ -1256,34 +1256,18 @@ public sealed class SourceResolver
     )
     {
         ReadOnlySpan<SourceSiteEntry> sources = _guide.GetItemSources(itemIndex);
-        bool hasHostileDrop = false;
-        for (int i = 0; i < sources.Length && !hasHostileDrop; i++)
-        {
-            if (sources[i].EdgeType == EdgeDropsItem && IsHostileDropSource(sources[i]))
-                hasHostileDrop = true;
-        }
-
-        var visible = new List<SourceSiteEntry>(sources.Length);
-        int suppressed = 0;
-        for (int i = 0; i < sources.Length; i++)
-        {
-            var source = sources[i];
-            if (hasHostileDrop && source.EdgeType == EdgeDropsItem && !IsHostileDropSource(source))
-            {
-                suppressed++;
-                continue;
-            }
-            visible.Add(source);
-        }
-
+        var visible = ItemSourceVisibilityPolicy.Filter(
+            sources.ToArray(),
+            source => (EdgeType)source.EdgeType,
+            source => !_guide.GetNode(source.SourceId).IsFriendly
+        );
+        int suppressed = sources.Length - visible.Count;
         if (suppressed > 0)
             tracer?.OnHostileDropFilter(itemIndex, sources.Length, suppressed);
-
         return visible;
     }
 
-    private bool IsHostileDropSource(SourceSiteEntry source) =>
-        !_guide.GetNode(source.SourceId).IsFriendly;
+    
 
     private ResolvedActionSemantic BuildGiverSemantic(int questIndex, int giverId)
     {

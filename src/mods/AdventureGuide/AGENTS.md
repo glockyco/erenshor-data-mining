@@ -39,7 +39,10 @@ etc.) are always shown.
 
 ### Where it lives
 
-Hostile-drop suppression now exists in two compiled-guide projections:
+Hostile-drop suppression now has one owner:
+- `Resolution/ItemSourceVisibilityPolicy.Filter`
+
+Both compiled-guide projections delegate to that policy:
 - `Resolution/SourceResolver.GetVisibleItemSources` for runtime targets consumed
   by markers, NAV, and tracker
 - `UI/Tree/SpecTreeProjector.ApplyHostileDropFilter` for the detail panel's item
@@ -49,23 +52,23 @@ Hostile-drop suppression now exists in two compiled-guide projections:
 
 | Surface | Code path | Filter mechanism |
 |---|---|---|
-| Markers, NAV arrow, tracker | `SourceResolver.ResolveTargets` | `GetVisibleItemSources` suppresses friendly `DropsItem` sources when any hostile drop source exists |
-| Quest detail panel | `SpecTreeProjector.GetChildren` | `ApplyHostileDropFilter` applies the same hostile-drop rule to item source refs |
+| Markers, NAV arrow, tracker | `SourceResolver.ResolveTargets` | `GetVisibleItemSources` delegates hostile-drop suppression to `ItemSourceVisibilityPolicy.Filter` |
+| Quest detail panel | `SpecTreeProjector.GetChildren` | `ApplyHostileDropFilter` delegates the same rule to `ItemSourceVisibilityPolicy.Filter` |
 
 ### Adding a new visibility rule
 
-1. Add the rule in `SourceResolver` for runtime target resolution.
-2. Apply the same rule in `SpecTreeProjector` for detail-tree projection.
-3. Add regression coverage in both `SourceResolverTests.cs` and
+1. Add the rule in `Resolution/ItemSourceVisibilityPolicy`.
+2. Keep `SourceResolver` and `SpecTreeProjector` as delegating call sites only.
+3. Add direct regression coverage in `ItemSourceVisibilityPolicyTests.cs` and
+   keep integration coverage in both `SourceResolverTests.cs` and
    `SpecTreeProjectorTests.cs`.
 4. Update this AGENTS.md if the topology changes.
 
-
 ### Do not add filter logic elsewhere
 
-Compiled-guide source visibility is projection logic. Keep it in
-`SourceResolver` and `SpecTreeProjector`; do not reintroduce a separate
-fallback-only policy layer.
+Compiled-guide source visibility is projection logic. Keep the rule in
+`ItemSourceVisibilityPolicy` and let `SourceResolver` plus `SpecTreeProjector`
+delegate to it; do not duplicate filter logic at call sites.
 
 ---
 

@@ -546,33 +546,14 @@ public sealed class SpecTreeProjector
 
     private List<SourceSiteEntry> ApplyHostileDropFilter(ReadOnlySpan<SourceSiteEntry> sources)
     {
-        bool hasHostileDrop = false;
-        for (int i = 0; i < sources.Length && !hasHostileDrop; i++)
-        {
-            if (sources[i].EdgeType == EdgeDropsItem && IsHostileDropSource(sources[i]))
-                hasHostileDrop = true;
-        }
-
-        var visible = new List<SourceSiteEntry>(sources.Length);
-        for (int i = 0; i < sources.Length; i++)
-        {
-            var source = sources[i];
-            if (hasHostileDrop && source.EdgeType == EdgeDropsItem && !IsHostileDropSource(source))
-                continue;
-            visible.Add(source);
-        }
-
-        return visible;
+        return ItemSourceVisibilityPolicy.Filter(
+            sources.ToArray(),
+            source => (EdgeType)source.EdgeType,
+            source => !_guide.GetNode(source.SourceId).IsFriendly
+        );
     }
 
-    private bool IsHostileDropSource(SourceSiteEntry source)
-    {
-        if (source.EdgeType != EdgeDropsItem)
-            return false;
-
-        var node = _guide.GetNode(source.SourceId);
-        return !node.IsFriendly;
-    }
+    
 
     private int? FindBlockingZoneLineNodeId(string? targetScene)
     {
