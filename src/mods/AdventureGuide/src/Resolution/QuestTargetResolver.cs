@@ -52,8 +52,9 @@ public sealed class QuestTargetResolver
 		tracer?.OnQuestPhase(questIndex, questNode.DbName, "resolving");
 
 		var results = new List<ResolvedTarget>();
-		var seenTargets = new HashSet<string>(StringComparer.Ordinal);
 		var resolutionSession = session ?? new SourceResolver.ResolutionSession();
+		var seenTargets = resolutionSession.SeenTargetsScratch;
+		seenTargets.Clear();
 		for (int i = 0; i < frontier.Count; i++)
 		{
 			var compiledTargets = CollapseCrossZoneTargets(

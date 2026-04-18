@@ -168,6 +168,13 @@ public sealed class SourceResolver
         // their own HashSets via new HashSet<int>() at their own boundaries.
         public readonly HashSet<int> QuestTrailScratch = new();
         public readonly HashSet<int> ItemTrailScratch = new();
+
+        // QuestTargetResolver.Resolve dedupes per call by
+        // (questKey, goalKey, targetKey, scene, positionKey). Pool the dedupe
+        // set on the session so the per-batch fan-out across quests doesn't
+        // allocate a fresh HashSet for every call. Same correctness contract
+        // as the trail scratches: caller clears before use.
+        public readonly HashSet<string> SeenTargetsScratch = new(StringComparer.Ordinal);
     }
 
     private enum ItemRequirementSemanticKind : byte
