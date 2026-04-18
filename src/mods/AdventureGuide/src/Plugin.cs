@@ -275,8 +275,6 @@ public sealed class Plugin : BaseUnityPlugin
             _navSet,
             _trackerState,
             _markerQuestTargetResolver,
-            _compiledFrontier,
-            _compiledSourceResolver,
             _diagnostics
         );
         _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);

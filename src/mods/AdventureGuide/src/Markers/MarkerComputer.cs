@@ -26,8 +26,6 @@ public sealed class MarkerComputer
     private readonly TrackerState _trackerState;
     private readonly MarkerQuestTargetResolver _questTargetResolver;
     private readonly CompiledGuideModel _compiledGuide;
-    private readonly EffectiveFrontier _effectiveFrontier;
-    private readonly SourceResolver _sourceResolver;
     private readonly DiagnosticsCore? _diagnostics;
 
     private readonly List<MarkerEntry> _markers = new();
@@ -56,8 +54,6 @@ public sealed class MarkerComputer
         NavigationSet navSet,
         TrackerState trackerState,
         MarkerQuestTargetResolver questTargetResolver,
-        EffectiveFrontier effectiveFrontier,
-        SourceResolver sourceResolver,
         DiagnosticsCore? diagnostics = null
     )
     {
@@ -67,8 +63,6 @@ public sealed class MarkerComputer
         _navSet = navSet;
         _trackerState = trackerState;
         _questTargetResolver = questTargetResolver;
-        _effectiveFrontier = effectiveFrontier;
-        _sourceResolver = sourceResolver;
         _diagnostics = diagnostics;
 
         _navSet.Changed += OnExternalSelectionChanged;

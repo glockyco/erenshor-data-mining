@@ -78,8 +78,6 @@ public sealed class DiagnosticsLoggingTests
             navSet,
             trackerState,
             markerResolver,
-            effectiveFrontier,
-            sourceResolver,
             core
         );
     }

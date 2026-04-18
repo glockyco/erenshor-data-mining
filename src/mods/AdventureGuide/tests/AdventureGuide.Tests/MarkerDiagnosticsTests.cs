@@ -150,8 +150,6 @@ public sealed class MarkerDiagnosticsTests
             navSet,
             trackerState,
             markerResolver,
-            effectiveFrontier,
-            sourceResolver,
             core
         );
     }
