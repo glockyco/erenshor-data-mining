@@ -21,6 +21,7 @@ public sealed class QuestResolutionService
     private readonly Func<SourceResolver.ResolutionSession> _sessionFactory;
     private readonly Dictionary<string, QuestResolutionRecord> _cache = new(StringComparer.Ordinal);
     private int _lastBatchKeyCount;
+    private int _lastObservedVersion = int.MinValue;
     private IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> _topQuestCosts = Array.Empty<AdventureGuide.Diagnostics.QuestCostSample>();
 
     public QuestResolutionService(
@@ -76,6 +77,16 @@ public sealed class QuestResolutionService
 
     internal IReadOnlyList<AdventureGuide.Diagnostics.QuestCostSample> TopQuestCosts => _topQuestCosts;
 
+    private void EnsureVersionCurrent()
+    {
+        int version = _versionProvider();
+        if (version == _lastObservedVersion)
+            return;
+
+        _cache.Clear();
+        _lastObservedVersion = version;
+    }
+
     public QuestResolutionRecord ResolveQuest(
         string questKey,
         string currentScene,
@@ -89,6 +100,7 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
+        EnsureVersionCurrent();
         SourceResolver.ResolutionSession? resolutionSession = session;
         var record = ResolveOrBuildRecord(questKey, currentScene, ref resolutionSession, tracer);
         if (record == null)
@@ -112,6 +124,7 @@ public sealed class QuestResolutionService
         IResolutionTracer? tracer = null
     )
     {
+        EnsureVersionCurrent();
         var results = new Dictionary<string, QuestResolutionRecord>(StringComparer.Ordinal);
         SourceResolver.ResolutionSession? resolutionSession = session;
         var seenKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -141,6 +154,7 @@ public sealed class QuestResolutionService
 
     public void InvalidateAffected(IReadOnlyCollection<GuideDerivedKey> affectedDerivedKeys)
     {
+        EnsureVersionCurrent();
         foreach (var derivedKey in affectedDerivedKeys)
         {
             if (derivedKey.Kind == GuideDerivedKind.QuestTargets)
@@ -242,6 +256,7 @@ public sealed class QuestResolutionService
     {
         _cache.Clear();
         _dependencies?.Clear();
+        _lastObservedVersion = _versionProvider();
         _ = reason;
     }
 

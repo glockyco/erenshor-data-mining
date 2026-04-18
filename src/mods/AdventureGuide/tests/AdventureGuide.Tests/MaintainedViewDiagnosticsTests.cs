@@ -2,6 +2,7 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Navigation;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using AdventureGuide.UI.Tree;
 using Xunit;
@@ -98,6 +99,40 @@ public sealed class MaintainedViewDiagnosticsTests
 
         Assert.NotNull(snapshotType.GetProperty("LastInvalidatedQuestCount"));
         Assert.NotNull(snapshotType.GetProperty("LastInvalidationWasFull"));
+    }
+
+    [Fact]
+    public void SpecTreeSnapshot_DoesNotInvalidateResolutionServiceOnTrackerVersionChangeAlone()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:lucian")
+            .AddUnlockPredicate("char:lucian", "quest:root")
+            .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:lucian" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var (service, projector) = ResolutionTestFactory.BuildSpecTreeProjector(
+            guide,
+            tracker,
+            currentSceneProvider: () => string.Empty,
+            diagnostics: new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
+        );
+
+        int questIndex = FindQuestIndex(guide, "quest:root");
+        var before = projector.GetRecord(questIndex);
+        service.InvalidateAll(GuideChangeSet.None);
+        var after = projector.GetRecord(questIndex);
+        var snapshot = projector.ExportDiagnosticsSnapshot();
+
+        Assert.NotSame(before, after);
+        Assert.Equal(0, snapshot.LastInvalidatedQuestCount);
+        Assert.False(snapshot.LastInvalidationWasFull);
+        Assert.Equal(after, service.ResolveQuest("quest:root", string.Empty));
     }
 
     private static int FindQuestIndex(AdventureGuide.CompiledGuide.CompiledGuide guide, string key)

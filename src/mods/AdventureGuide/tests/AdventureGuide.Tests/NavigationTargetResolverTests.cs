@@ -196,7 +196,7 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
-	public void Resolve_QuestKey_DoesNotClearCachedResultsWhenVersionChanges()
+	public void Resolve_QuestKey_RefreshesCachedResultsWhenVersionChanges()
 	{
 		int version = 1;
 		var guide = new CompiledGuideBuilder()
@@ -246,8 +246,7 @@ public sealed class NavigationTargetResolverTests
 		version = 2;
 		var second = resolver.Resolve("quest:root", "Lake");
 
-		Assert.Same(first, second);
-	}
+		Assert.NotSame(first, second);	}
 
 	[Fact]
 	public void Resolve_QuestKey_RefreshesAfterFactInvalidation()

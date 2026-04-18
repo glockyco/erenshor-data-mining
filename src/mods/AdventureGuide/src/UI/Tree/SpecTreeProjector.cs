@@ -4,7 +4,6 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
-using AdventureGuide.State;
 
 namespace AdventureGuide.UI.Tree;
 
@@ -38,7 +37,6 @@ public sealed class SpecTreeProjector
     private int _lastCyclePruneCount;
     private int _lastInvalidatedQuestCount;
     private bool _lastInvalidationWasFull;
-    private int _lastObservedResolutionVersion;
 
 
     internal SpecTreeProjector(
@@ -52,19 +50,6 @@ public sealed class SpecTreeProjector
         _questResolutionService = questResolutionService;
         _currentSceneProvider = currentSceneProvider ?? (() => string.Empty);
         _diagnostics = diagnostics;
-        _lastObservedResolutionVersion = questResolutionService.Version;
-    }
-
-
-    private void EnsureResolutionCacheCurrent()
-    {
-        int version = _questResolutionService.Version;
-        if (version == _lastObservedResolutionVersion)
-            return;
-
-        _questResolutionService.InvalidateAll(GuideChangeSet.None);
-        ResetProjectionCaches(full: true);
-        _lastObservedResolutionVersion = version;
     }
 
     public IReadOnlyList<SpecTreeRef> GetRootChildren(int questIndex)
@@ -75,7 +60,6 @@ public sealed class SpecTreeProjector
 
 internal QuestResolutionRecord GetRecord(int questIndex)
 {
-    EnsureResolutionCacheCurrent();
     string questKey = _guide.GetNodeKey(_guide.QuestNodeId(questIndex));
     return _questResolutionService.ResolveQuest(questKey, _currentSceneProvider());
 }

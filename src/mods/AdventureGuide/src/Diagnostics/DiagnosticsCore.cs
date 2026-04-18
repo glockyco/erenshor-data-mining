@@ -20,6 +20,8 @@ internal sealed class DiagnosticsCore
     private int _nextSpanId = 1;
     private readonly Queue<long> _recentMarkerRebuilds = new();
     private DiagnosticIncident? _lastIncident;
+    private DiagnosticSpan? _lastThresholdIncidentSpan;
+    private DiagnosticIncidentKind? _lastThresholdIncidentKind;
 
     public DiagnosticsCore(
         int eventCapacity,
@@ -229,10 +231,24 @@ internal sealed class DiagnosticsCore
         _incidentCount = 0;
         _recentMarkerRebuilds.Clear();
         _lastIncident = null;
+        _lastThresholdIncidentSpan = null;
+        _lastThresholdIncidentKind = null;
     }
 
     private void CaptureFrameIncident(DiagnosticSpan span, DiagnosticIncidentKind kind, long thresholdTicks)
     {
+        if (
+            _lastThresholdIncidentKind == kind
+            && _lastThresholdIncidentSpan is { } previous
+            && previous.Kind == span.Kind
+            && previous.PrimaryKey == span.PrimaryKey
+            && previous.StartTicks == span.StartTicks
+            && previous.EndTicks == span.EndTicks
+        )
+        {
+            return;
+        }
+
         string label = string.IsNullOrEmpty(span.PrimaryKey)
             ? span.Kind.ToString()
             : $"{span.Kind} ({span.PrimaryKey})";
@@ -248,6 +264,8 @@ internal sealed class DiagnosticsCore
             parentSpanId: span.Context.ParentSpanId
         );
         _lastIncident = incident;
+        _lastThresholdIncidentSpan = span;
+        _lastThresholdIncidentKind = kind;
         var bundle = IncidentBundle.Create(
             incident,
             CaptureRelatedEvents(span.Context.CorrelationId),

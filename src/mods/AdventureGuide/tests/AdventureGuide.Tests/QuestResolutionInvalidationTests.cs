@@ -39,7 +39,7 @@ public sealed class QuestResolutionInvalidationTests
     }
 
     [Fact]
-    public void VersionBumpAlone_DoesNotClearCache()
+    public void VersionBumpAlone_ClearsOnlyAfterExplicitRead()
     {
         var (service, harness) = ResolutionTestFactory.BuildInvalidationHarness();
 
@@ -47,7 +47,7 @@ public sealed class QuestResolutionInvalidationTests
         harness.BumpVersionWithoutFacts();
         var after = service.ResolveQuest("quest:fetch-water", harness.Scene);
 
-        Assert.Same(before, after);
+        Assert.NotSame(before, after);
     }
 
     [Fact]
