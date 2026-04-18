@@ -1100,6 +1100,10 @@ public sealed class SourceResolver
         )
             return;
 
+        // Node has no pinned coordinates: no consumer can navigate to it. Skip.
+        if (!node.X.HasValue || !node.Y.HasValue || !node.Z.HasValue)
+            return;
+
         var scene = _guide.GetScene(positionNodeId);
         results.Add(
             new ResolvedTarget(
@@ -1107,9 +1111,9 @@ public sealed class SourceResolver
                 positionNodeId,
                 role,
                 semantic,
-                node.X ?? float.NaN,
-                node.Y ?? float.NaN,
-                node.Z ?? float.NaN,
+                node.X.Value,
+                node.Y.Value,
+                node.Z.Value,
                 scene,
                 false,
                 true,
@@ -1211,6 +1215,12 @@ public sealed class SourceResolver
                 sourceNode.Type == NodeType.Character
                 && TryEmitCharacterSpawnTargets(source.SourceId, role, semantic, entry, results, tracer)
             )
+                return;
+
+            // No spawn positions, no character-spawn fallback, no pinned source
+            // coordinates: no navigable target exists. Tracker summaries fall back
+            // to frontier-entry text when CompiledTargets is empty.
+            if (!sourceNode.X.HasValue || !sourceNode.Y.HasValue || !sourceNode.Z.HasValue)
                 return;
 
             EmitNodePosition(
