@@ -224,7 +224,12 @@ public sealed class QuestResolutionService
             var frontier = new List<FrontierEntry>();
             _frontier.Resolve(questIndex, frontier, -1, tracer);
             var compiledTargets = _questTargetResolver.Resolve(questIndex, currentScene, frontier, session, tracer);
-            var navigationTargets = _projector.Project(compiledTargets, currentScene);
+            // Projection is deferred: markers and tracker-summary never read
+            // NavigationTargets, so most records never pay the projection cost.
+            var capturedTargets = compiledTargets;
+            var capturedScene = currentScene;
+            Func<IReadOnlyList<ResolvedQuestTarget>> navigationTargetsFactory =
+                () => _projector.Project(capturedTargets, capturedScene);
             var phases = _frontier.Phases;
             var questPhases = phases.SnapshotPhases();
             var itemCounts = phases.SnapshotItemCounts();
@@ -235,7 +240,7 @@ public sealed class QuestResolutionService
                 questIndex,
                 frontier,
                 compiledTargets,
-                navigationTargets,
+                navigationTargetsFactory,
                 questPhases,
                 itemCounts,
                 blockingZoneLineByScene
