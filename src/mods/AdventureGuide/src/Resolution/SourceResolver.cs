@@ -160,6 +160,14 @@ public sealed class SourceResolver
         // per batch instead of once per emission site (thousands -> tens in the
         // evidence from F6 profiling).
         public readonly Dictionary<int, IReadOnlyList<IReadOnlyList<UnlockConditionEntry>>> BlockingGroupsCache = new();
+
+        // Scratch trails reused across ResolveTargets entry-point calls within a
+        // batch. Safe to pool because ResolveTargets is a top-level method (not
+        // recursive): each call runs its recursion with these owned trails and
+        // clears them before returning. Nested cache-miss builders allocate
+        // their own HashSets via new HashSet<int>() at their own boundaries.
+        public readonly HashSet<int> QuestTrailScratch = new();
+        public readonly HashSet<int> ItemTrailScratch = new();
     }
 
     private enum ItemRequirementSemanticKind : byte
@@ -280,13 +288,15 @@ public sealed class SourceResolver
     )
     {
         var results = new List<ResolvedTarget>();
+        session.QuestTrailScratch.Clear();
+        session.ItemTrailScratch.Clear();
         ResolveEntry(
             entry,
             currentScene,
             results,
             session,
-            new HashSet<int>(),
-            new HashSet<int>(),
+            session.QuestTrailScratch,
+            session.ItemTrailScratch,
             tracer
         );
         return FreezeResultsByAvailabilityPriority(results);
@@ -301,14 +311,16 @@ public sealed class SourceResolver
     )
     {
         string? targetScene = _guide.GetNode(targetNodeId)?.Scene;
+        session.QuestTrailScratch.Clear();
+        session.ItemTrailScratch.Clear();
         var results = ResolveBlockingRequirements(
             targetNodeId,
             targetScene,
             entry,
             currentScene,
             session,
-            new HashSet<int>(),
-            new HashSet<int>(),
+            session.QuestTrailScratch,
+            session.ItemTrailScratch,
             tracer
         );
         return results == null
