@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 using AdventureGuide.State;
 using HarmonyLib;
 
@@ -11,13 +10,11 @@ namespace AdventureGuide.Patches;
 [HarmonyPatch(typeof(ItemBag), nameof(ItemBag.PickUp))]
 internal static class ItemBagPatch
 {
-    internal static LiveStateTracker? LiveState;
-    internal static MarkerComputer? Markers;
+	internal static LiveStateTracker? LiveState;
 
-    [HarmonyPostfix]
-    private static void Postfix(ItemBag __instance)
-    {
-        var changeSet = LiveState?.OnItemBagChanged(__instance) ?? GuideChangeSet.None;
-        Markers?.ApplyGuideChangeSet(changeSet);
-    }
+	[HarmonyPostfix]
+	private static void Postfix(ItemBag __instance)
+	{
+		LiveState?.OnItemBagChanged(__instance);
+	}
 }

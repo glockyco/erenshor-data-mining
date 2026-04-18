@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 using AdventureGuide.State;
 using HarmonyLib;
 
@@ -11,13 +10,11 @@ namespace AdventureGuide.Patches;
 [HarmonyPatch(typeof(SpawnPoint), "SpawnNPC")]
 internal static class SpawnPatch
 {
-    internal static LiveStateTracker? LiveState;
-    internal static MarkerComputer? Markers;
+	internal static LiveStateTracker? LiveState;
 
-    [HarmonyPostfix]
-    private static void Postfix(SpawnPoint __instance)
-    {
-        var changeSet = LiveState?.OnNPCSpawn(__instance) ?? GuideChangeSet.None;
-        Markers?.ApplyGuideChangeSet(changeSet);
-    }
+	[HarmonyPostfix]
+	private static void Postfix(SpawnPoint __instance)
+	{
+		LiveState?.OnNPCSpawn(__instance);
+	}
 }

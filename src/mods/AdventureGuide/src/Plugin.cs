@@ -377,23 +377,23 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Harmony patches ---
         QuestAssignPatch.Tracker = _questTracker;
-        QuestAssignPatch.Markers = _markerComputer;
+
         QuestAssignPatch.TrackerPins = _trackerState;
         QuestFinishPatch.Tracker = _questTracker;
-        QuestFinishPatch.Markers = _markerComputer;
+
         QuestFinishPatch.TrackerPins = _trackerState;
         InventoryPatch.Tracker = _questTracker;
-        InventoryPatch.Markers = _markerComputer;
+
         SpawnPatch.LiveState = _liveState;
-        SpawnPatch.Markers = _markerComputer;
+
         DeathPatch.LiveState = _liveState;
-        DeathPatch.Markers = _markerComputer;
+
         MiningNodePatch.LiveState = _liveState;
-        MiningNodePatch.Markers = _markerComputer;
+
         ItemBagPatch.LiveState = _liveState;
-        ItemBagPatch.Markers = _markerComputer;
+
         CorpseChestPatch.LiveState = _liveState;
-        CorpseChestPatch.Markers = _markerComputer;
+
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
@@ -530,8 +530,9 @@ public sealed class Plugin : BaseUnityPlugin
                     _zoneRouter?.ObserveInvalidation(affected);
                 }
 
-        if (liveChangeSet.HasMeaningfulChanges)
-            _markerComputer?.ApplyGuideChangeSet(liveChangeSet);
+        if (selectorChangeSet.HasMeaningfulChanges)
+            _markerComputer?.ApplyGuideChangeSet(selectorChangeSet);
+
 
         _markerComputer?.Recompute();
 

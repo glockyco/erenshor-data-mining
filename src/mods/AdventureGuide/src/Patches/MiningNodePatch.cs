@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 using AdventureGuide.State;
 using HarmonyLib;
 
@@ -11,7 +10,6 @@ namespace AdventureGuide.Patches;
 internal static class MiningNodePatch
 {
 	internal static LiveStateTracker? LiveState;
-	internal static MarkerComputer? Markers;
 
 	[HarmonyPatch(typeof(MiningNode), nameof(MiningNode.Mine))]
 	[HarmonyPostfix]
@@ -39,8 +37,7 @@ internal static class MiningNodePatch
 
 	private static void NotifyChanged(MiningNode miningNode)
 	{
-		var changeSet = LiveState?.OnMiningChanged(miningNode) ?? GuideChangeSet.None;
-		Markers?.ApplyGuideChangeSet(changeSet);
+		LiveState?.OnMiningChanged(miningNode);
 	}
 
 	private static bool IsAvailable(MiningNode miningNode) =>

@@ -2,6 +2,7 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
+using AdventureGuide.Patches;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
@@ -35,6 +36,46 @@ public sealed class MarkerDiagnosticsTests
         var snapshot = marker.ExportDiagnosticsSnapshot();
         Assert.True(snapshot.FullRebuild);
         Assert.Equal(DiagnosticTrigger.SceneChanged, snapshot.LastReason);
+    }
+
+    [Fact]
+    public void QuestAssignPatch_DoesNotApplyMarkersDirectly()
+    {
+        var marker = CreateMarkerComputer(
+            new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
+        );
+        var guide = new Helpers.CompiledGuideBuilder()
+            .AddQuest("quest:a", dbName: "QUESTA")
+            .Build();
+        var tracker = new QuestStateTracker(guide, new GuideDependencyEngine());
+        tracker.LoadState(
+            currentZone: "Forest",
+            activeQuests: Array.Empty<string>(),
+            completedQuests: Array.Empty<string>(),
+            inventoryCounts: new Dictionary<string, int>(),
+            keyringItemKeys: Array.Empty<string>()
+        );
+
+        QuestAssignPatch.Tracker = tracker;
+        QuestAssignPatch.TrackerPins = null;
+
+        try
+        {
+            typeof(QuestAssignPatch)
+                .GetMethod(
+                    "Postfix",
+                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic
+                )!
+                .Invoke(null, new object?[] { "QUESTA" });
+            var snapshot = marker.ExportDiagnosticsSnapshot();
+            Assert.Equal(DiagnosticTrigger.Unknown, snapshot.LastReason);
+        }
+        finally
+        {
+            QuestAssignPatch.Tracker = null;
+            QuestAssignPatch.TrackerPins = null;
+
+        }
     }
 
     [Fact]
