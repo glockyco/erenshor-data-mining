@@ -89,14 +89,7 @@ public sealed class MaintainedViewDiagnosticsTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty,
-            new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty, diagnostics: new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)).Projector;
 
         projector.GetRootChildren(FindQuestIndex(guide, "quest:root"));
 

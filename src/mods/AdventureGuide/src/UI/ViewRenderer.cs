@@ -1,5 +1,6 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.UI.Tree;
 using ImGuiNET;
@@ -15,8 +16,7 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
-    private readonly Func<(int PhaseVersion, int SceneVersion)> _detailStateVersionProvider;
-    private (int PhaseVersion, int SceneVersion)? _cachedDetailStateVersion;
+    private readonly Dictionary<int, QuestResolutionRecord> _lastRecordByQuest = new();
     private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _cachedRootChildrenByQuest = new();
     private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedChildren = new(
         StringComparer.Ordinal
@@ -31,8 +31,7 @@ public sealed class ViewRenderer
         NavigationSet navSet,
         QuestStateTracker tracker,
         TrackerState trackerState,
-        SpecTreeProjector specProjector,
-        Func<(int PhaseVersion, int SceneVersion)>? detailStateVersionProvider = null
+        SpecTreeProjector specProjector
     )
     {
         _guide = guide;
@@ -41,7 +40,6 @@ public sealed class ViewRenderer
         _tracker = tracker;
         _trackerState = trackerState;
         _specProjector = specProjector;
-        _detailStateVersionProvider = detailStateVersionProvider ?? (() => (tracker.Version, 0));
     }
 
     public void Draw(int? questIndex)
@@ -108,18 +106,18 @@ public sealed class ViewRenderer
 
     internal IReadOnlyList<SpecTreeRef> GetRootChildrenForDetail(int questIndex)
     {
-        EnsureDetailProjectionCacheCurrent();
+        var record = EnsureDetailProjectionCacheCurrent(questIndex);
         if (_cachedRootChildrenByQuest.TryGetValue(questIndex, out var cachedRoots))
             return cachedRoots;
 
-        cachedRoots = _specProjector.GetRootChildren(questIndex);
+        cachedRoots = _specProjector.GetRootChildren(record);
         _cachedRootChildrenByQuest[questIndex] = cachedRoots;
         return cachedRoots;
     }
 
     internal IReadOnlyList<SpecTreeRef> GetUnlockChildrenForDetail(SpecTreeRef treeRef)
     {
-        EnsureDetailProjectionCacheCurrent();
+        EnsureDetailProjectionCacheCurrent(treeRef.QuestIndex);
         string cacheKey = BuildDetailProjectionKey("unlock", treeRef);
         if (_cachedUnlockChildren.TryGetValue(cacheKey, out var cachedChildren))
             return cachedChildren;
@@ -131,7 +129,7 @@ public sealed class ViewRenderer
 
     internal IReadOnlyList<SpecTreeRef> GetChildrenForDetail(SpecTreeRef treeRef)
     {
-        EnsureDetailProjectionCacheCurrent();
+        EnsureDetailProjectionCacheCurrent(treeRef.QuestIndex);
         string cacheKey = BuildDetailProjectionKey("children", treeRef);
         if (_cachedChildren.TryGetValue(cacheKey, out var cachedChildren))
             return cachedChildren;
@@ -141,19 +139,38 @@ public sealed class ViewRenderer
         return cachedChildren;
     }
 
-    private void EnsureDetailProjectionCacheCurrent()
+    private QuestResolutionRecord EnsureDetailProjectionCacheCurrent(int questIndex)
     {
-        var stateVersion = _detailStateVersionProvider();
-        if (_cachedDetailStateVersion == stateVersion)
-            return;
+        var record = _specProjector.GetRecord(questIndex);
+        if (
+            _lastRecordByQuest.TryGetValue(questIndex, out var cachedRecord)
+            && ReferenceEquals(cachedRecord, record)
+        )
+            return record;
 
-        _cachedDetailStateVersion = stateVersion;
-        int invalidatedQuestCount = _cachedRootChildrenByQuest.Count;
-        _cachedRootChildrenByQuest.Clear();
-        _cachedChildren.Clear();
-        _cachedUnlockChildren.Clear();
-        _specProjector.ResetProjectionCaches(invalidatedQuestCount, full: true);
+        InvalidateDetailProjectionCacheFor(questIndex);
+        _lastRecordByQuest[questIndex] = record;
+        return record;
+    }
 
+    private void InvalidateDetailProjectionCacheFor(int questIndex)
+    {
+        _cachedRootChildrenByQuest.Remove(questIndex);
+        RemoveDetailProjectionEntries(_cachedChildren, questIndex, "children");
+        RemoveDetailProjectionEntries(_cachedUnlockChildren, questIndex, "unlock");
+        _specProjector.ResetProjectionCaches(1, full: false);
+    }
+
+    private static void RemoveDetailProjectionEntries(
+        Dictionary<string, IReadOnlyList<SpecTreeRef>> cache,
+        int questIndex,
+        string scope
+    )
+    {
+        string prefix = $"{scope}|{questIndex}|";
+        var keys = cache.Keys.Where(key => key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
+        for (int i = 0; i < keys.Length; i++)
+            cache.Remove(keys[i]);
     }
 
     private static string BuildDetailProjectionKey(string scope, SpecTreeRef treeRef)
@@ -161,10 +178,10 @@ public sealed class ViewRenderer
         return string.Join(
             "|",
             scope,
+            treeRef.QuestIndex.ToString(),
             ((byte)treeRef.Kind).ToString(),
             treeRef.StableId,
             treeRef.GraphNodeId?.ToString() ?? string.Empty,
-            treeRef.QuestIndex.ToString(),
             treeRef.Label,
             treeRef.IsCompleted ? "1" : "0",
             treeRef.IsBlocked ? "1" : "0",

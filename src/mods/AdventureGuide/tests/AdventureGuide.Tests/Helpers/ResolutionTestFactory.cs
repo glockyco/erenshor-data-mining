@@ -4,6 +4,7 @@ using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
+using AdventureGuide.UI.Tree;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Tests.Helpers;
@@ -39,6 +40,48 @@ internal static class ResolutionTestFactory
             projector,
             dependencies,
             versionProvider
+        );
+    }
+
+    public static (QuestResolutionService Service, SpecTreeProjector Projector) BuildSpecTreeProjector(
+        CompiledGuideModel guide,
+        QuestPhaseTracker phases,
+        ZoneRouter? zoneRouter = null,
+        Func<string>? currentSceneProvider = null,
+        DiagnosticsCore? diagnostics = null,
+        PositionResolverRegistry? positionRegistry = null,
+        GuideDependencyEngine? dependencies = null,
+        Func<int>? versionProvider = null
+    )
+    {
+        var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
+        var sourceResolver = new SourceResolver(
+            guide,
+            phases,
+            new UnlockPredicateEvaluator(guide, phases),
+            new StubLivePositionProvider(),
+            registry,
+            zoneRouter
+        );
+        var frontier = new EffectiveFrontier(guide, phases);
+        var effectiveVersionProvider = versionProvider ?? (() => phases.Version);
+        var service = BuildService(
+            guide,
+            frontier,
+            sourceResolver,
+            zoneRouter,
+            dependencies,
+            effectiveVersionProvider,
+            registry
+        );
+        return (
+            service,
+            new SpecTreeProjector(
+                guide,
+                service,
+                currentSceneProvider: currentSceneProvider,
+                diagnostics: diagnostics
+            )
         );
     }
 

@@ -25,6 +25,33 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void GetRootChildren_MatchesResolutionRecordFrontierPhases()
+    {
+        var harness = SpecTreeProjectorHarness.Build();
+        int questIndex = harness.QuestIndex("RootQuest");
+        var record = harness.ResolutionService.ResolveQuest("quest:root", "SceneA");
+
+        var roots = harness.Projector.GetRootChildren(questIndex);
+
+        Assert.Contains(
+            roots,
+            root =>
+                root.Kind == SpecTreeKind.Prerequisite
+                && root.StableId == $"node:{harness.Guide.QuestNodeId(record.Frontier[0].QuestIndex)}"
+        );
+    }
+
+    [Fact]
+    public void GetRootChildren_UsesResolutionServiceBackedProjectorConstruction()
+    {
+        var harness = SpecTreeProjectorHarness.Build();
+
+        var roots = harness.Projector.GetRootChildren(harness.QuestIndex("RootQuest"));
+
+        Assert.NotEmpty(roots);
+    }
+
+    [Fact]
     public void Root_children_format_player_facing_labels()
     {
         var guide = new CompiledGuideBuilder()
@@ -50,13 +77,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);
@@ -103,13 +124,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector
@@ -140,13 +155,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector
@@ -187,7 +196,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int questIndex = FindQuestIndex(guide, "quest:a");
         var roots = projector.GetRootChildren(questIndex);
@@ -219,7 +228,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int questIndex = FindQuestIndex(guide, "quest:a");
         var roots = projector.GetRootChildren(questIndex);
@@ -249,7 +258,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int questIndex = FindQuestIndex(guide, "quest:root");
         var completerRef = projector
@@ -280,7 +289,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootIndex);
@@ -330,13 +339,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(harness.Guide, tracker);
-        var projector = new SpecTreeProjector(
-            harness.Guide,
-            tracker,
-            evaluator,
-            harness.Router,
-            () => harness.Tracker.CurrentZone
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(harness.Guide, tracker, zoneRouter: harness.Router, currentSceneProvider: () => harness.Tracker.CurrentZone).Projector;
 
         int rootQuestIndex = FindQuestIndex(harness.Guide, "quest:root");
         var itemRef = projector
@@ -380,13 +383,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRef = projector
@@ -418,13 +415,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRef = projector
@@ -456,13 +447,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRef = projector
@@ -494,13 +479,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var giverRef = Assert.Single(
@@ -558,13 +537,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var projectionTask = Task.Run(() => projector.GetRootChildren(rootQuestIndex));
@@ -603,13 +576,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var completers = projector
@@ -636,13 +603,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);
@@ -669,13 +630,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var giverRef = projector
@@ -710,13 +665,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var roots = projector.GetRootChildren(rootQuestIndex);
@@ -742,13 +691,7 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int> { ["item:gem"] = 1 },
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var completedItem = projector
@@ -790,14 +733,7 @@ public sealed class SpecTreeProjectorTests
             incidentCapacity: 4,
             incidentThresholds: IncidentThresholds.Disabled
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            tracker,
-            new UnlockPredicateEvaluator(guide, tracker),
-            null,
-            () => string.Empty,
-            diagnostics
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty, diagnostics: diagnostics).Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var itemRoot = projector
@@ -843,13 +779,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(harness.Guide, tracker);
-        var projector = new SpecTreeProjector(
-            harness.Guide,
-            tracker,
-            evaluator,
-            harness.Router,
-            () => harness.Tracker.CurrentZone
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(harness.Guide, tracker, zoneRouter: harness.Router, currentSceneProvider: () => harness.Tracker.CurrentZone).Projector;
 
         int rootQuestIndex = FindQuestIndex(harness.Guide, "quest:root");
         var completerRef = projector
@@ -904,7 +834,7 @@ public sealed class SpecTreeProjectorTests
             Array.Empty<string>()
         );
         var evaluator = new UnlockPredicateEvaluator(guide, tracker);
-        var projector = new SpecTreeProjector(guide, tracker, evaluator, null, () => string.Empty);
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
 
         var completerRef = projector
             .GetRootChildren(0)

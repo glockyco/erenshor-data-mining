@@ -150,22 +150,8 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            phases,
-            new UnlockPredicateEvaluator(guide, phases),
-            null,
-            () => string.Empty
-        );
-        var renderer = new ViewRenderer(
-            guide,
-            new GameState(guide),
-            new NavigationSet(),
-            tracker,
-            new TrackerState(),
-            projector,
-            () => (phases.Version, tracker.SceneVersion)
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
+        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
 
         var first = renderer.GetRootChildrenForDetail(0);
         var second = renderer.GetRootChildrenForDetail(0);
@@ -209,22 +195,8 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            phases,
-            new UnlockPredicateEvaluator(guide, phases),
-            null,
-            () => string.Empty
-        );
-        var renderer = new ViewRenderer(
-            guide,
-            new GameState(guide),
-            new NavigationSet(),
-            tracker,
-            new TrackerState(),
-            projector,
-            () => (phases.Version, tracker.SceneVersion)
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
+        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
 
         var initial = renderer.GetRootChildrenForDetail(0);
         var initialGiver = Assert.Single(initial, root => root.Kind == SpecTreeKind.Giver);
@@ -370,22 +342,8 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = new SpecTreeProjector(
-            guide,
-            phases,
-            new UnlockPredicateEvaluator(guide, phases),
-            null,
-            () => string.Empty
-        );
-        var renderer = new ViewRenderer(
-            guide,
-            new GameState(guide),
-            new NavigationSet(),
-            tracker,
-            new TrackerState(),
-            projector,
-            () => (phases.Version, tracker.SceneVersion)
-        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
+        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
         return (tracker, phases, renderer);
     }
 

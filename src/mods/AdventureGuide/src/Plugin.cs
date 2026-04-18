@@ -295,11 +295,9 @@ public sealed class Plugin : BaseUnityPlugin
         var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         _specTreeProjector = new SpecTreeProjector(
             _compiledGuide,
-            _compiledQuestTracker,
-            _compiledUnlocks,
-            _zoneRouter,
-            () => _questTracker.CurrentZone,
-            _diagnostics
+            questResolutionService,
+            currentSceneProvider: () => _navEngine?.CurrentScene ?? string.Empty,
+            diagnostics: _diagnostics
         );
         viewRenderer = new ViewRenderer(
             _compiledGuide,
@@ -307,8 +305,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navSet,
             _questTracker,
             _trackerState,
-            _specTreeProjector,
-            () => (_compiledQuestTracker.Version, _questTracker.SceneVersion)
+            _specTreeProjector
         );
         _window = new GuideWindow(
             _questTracker,

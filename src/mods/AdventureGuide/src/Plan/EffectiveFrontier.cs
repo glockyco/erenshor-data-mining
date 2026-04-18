@@ -5,6 +5,8 @@ public sealed class EffectiveFrontier
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestPhaseTracker _phases;
 
+    internal QuestPhaseTracker Phases => _phases;
+
     public EffectiveFrontier(CompiledGuide.CompiledGuide guide, QuestPhaseTracker phases)
     {
         _guide = guide;

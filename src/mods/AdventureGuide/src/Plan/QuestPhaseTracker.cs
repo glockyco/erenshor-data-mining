@@ -67,6 +67,10 @@ public sealed class QuestPhaseTracker : IDisposable
         return _itemCounts[itemIndex];
     }
 
+    internal QuestPhase[] SnapshotPhases() => (QuestPhase[])_phases.Clone();
+
+    internal int[] SnapshotItemCounts() => (int[])_itemCounts.Clone();
+
     public void Dispose()
     {
         if (_disposed)
