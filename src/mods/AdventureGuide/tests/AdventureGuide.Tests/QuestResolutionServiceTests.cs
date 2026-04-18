@@ -151,7 +151,7 @@ public sealed class QuestResolutionServiceTests
     sourceResolver,
     zoneRouter: null
 );
-        var tracer = new CountingTracer();
+        var tracer = new CountingResolutionTracer();
 
         var record = service.ResolveQuest("quest:root", "Town", tracer);
 
@@ -160,7 +160,7 @@ public sealed class QuestResolutionServiceTests
     }
 
     [Fact]
-    public async Task ResolveBatch_WithSharedRewardSubtrees_CompletesWithinBudget()
+    public void ResolveBatch_WithSharedRewardSubtrees_MemoizesQuestFrontiers()
     {
         const int depth = 20;
         var builder = new CompiledGuideBuilder()
@@ -219,25 +219,35 @@ public sealed class QuestResolutionServiceTests
             TestPositionResolvers.Create(guide)
         );
         var service = ResolutionTestFactory.BuildService(
-    guide,
-    frontier,
-    sourceResolver,
-    zoneRouter: null
-);
-
-        var resolveTask = System.Threading.Tasks.Task.Run(
-            () => service.ResolveBatch(new[] { "quest:root:a", "quest:root:b" }, "Town")
-        );
-        // This is a regression guard against combinatorial blow-ups, not a
-        // microbenchmark. Keep the budget loose enough to stay stable across
-        // developer machines.
-        var completed = await System.Threading.Tasks.Task.WhenAny(
-            resolveTask,
-            System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(3000))
+            guide,
+            frontier,
+            sourceResolver,
+            zoneRouter: null
         );
 
-        Assert.Same(resolveTask, completed);
-        Assert.Equal(2, (await resolveTask).Count);
+        // Structural regression guard against combinatorial blow-up in
+        // shared-reward subtree resolution. Without caching, the paired
+        // quest-chain structure would visit Q(i)A and Q(i)B exponentially many
+        // times through the reward dependency graph (2^depth traversals). With
+        // the session cache, each quest's frontier resolves at most once, so the
+        // tracer's OnFrontierEntry count is bounded by total quest count
+        // (2*depth + 2 = 42 here).
+        var tracer = new CountingResolutionTracer();
+        var results = service.ResolveBatch(
+            new[] { "quest:root:a", "quest:root:b" },
+            "Town",
+            tracer
+        );
+
+        Assert.Equal(2, results.Count);
+        // Total quests in the fixture: 2*depth + 2 = 42. A ~10x safety margin
+        // catches any regression that revisits even a small fraction of the
+        // combinatorial paths while tolerating incidental growth in the tracer
+        // fan-out from prerequisite recursion.
+        Assert.True(
+            tracer.FrontierEntryCount < 500,
+            $"FrontierEntryCount={tracer.FrontierEntryCount}; combinatorial blow-up suspected (expected O(depth), not O(2^depth))."
+        );
     }
 
     [Fact]
@@ -312,38 +322,5 @@ public sealed class QuestResolutionServiceTests
     zoneRouter: null
 );
         return (service, guide, scene);
-    }
-
-    private sealed class CountingTracer : IResolutionTracer
-    {
-        public int FrontierEntryCount { get; private set; }
-
-        public void OnQuestPhase(int questIndex, string? dbName, string phase) { }
-
-        public void OnFrontierEntry(
-            int questIndex,
-            string? questDbName,
-            string phase,
-            int requiredForQuestIndex
-        )
-        {
-            FrontierEntryCount++;
-        }
-
-        public void OnTargetMaterialized(
-            int targetNodeId,
-            int positionNodeId,
-            string role,
-            string? scene,
-            bool isActionable
-        ) { }
-
-        public void OnHostileDropFilter(int itemIndex, int totalSources, int suppressedCount) { }
-
-        public void OnUnlockEvaluation(int targetNodeId, bool isUnlocked) { }
-
-        public void OnResolveBegin(string nodeKey) { }
-
-        public void OnResolveEnd(int targetCount) { }
     }
 }

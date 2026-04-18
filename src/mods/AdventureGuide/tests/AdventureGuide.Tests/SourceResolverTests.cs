@@ -565,7 +565,7 @@ public sealed class SourceResolverTests
 	}
 
 	[Fact]
-	public async Task Accepted_with_shared_reward_subtrees_resolves_without_timing_out()
+	public void Accepted_with_shared_reward_subtrees_memoizes_quest_frontiers()
 	{
 		const int depth = 20;
 		var builder = new CompiledGuideBuilder()
@@ -624,17 +624,24 @@ public sealed class SourceResolverTests
 		Assert.True(guide.TryGetNodeId("quest:root", out int questNodeId));
 		int questIndex = guide.FindQuestIndex(questNodeId);
 
-		var resolveTask = System.Threading.Tasks.Task.Run(
-			() => resolver.ResolveTargets(new FrontierEntry(questIndex, QuestPhase.Accepted, -1), "Town")
-		);
-		// This is a regression guard against combinatorial blow-ups, not a microbenchmark.
-		// Keep the budget loose enough to remain stable across developer machines.
-		var completed = await System.Threading.Tasks.Task.WhenAny(
-		    resolveTask,
-		    System.Threading.Tasks.Task.Delay(System.TimeSpan.FromMilliseconds(3000))
+		// Structural regression guard against combinatorial blow-up in
+		// shared-reward subtree resolution. Without caching, the paired
+		// quest-chain structure would visit Q(i)A and Q(i)B exponentially many
+		// times through the reward dependency graph (2^depth traversals). With
+		// the session cache, each quest's frontier resolves at most once, so the
+		// tracer's OnFrontierEntry count is bounded by total quest count
+		// (2*depth + 1 = 41 here).
+		var tracer = new CountingResolutionTracer();
+		var targets = resolver.ResolveTargets(
+			new FrontierEntry(questIndex, QuestPhase.Accepted, -1),
+			"Town",
+			tracer
 		);
 
-		Assert.Same(resolveTask, completed);
-		Assert.NotEmpty(await resolveTask);
+		Assert.NotEmpty(targets);
+		Assert.True(
+			tracer.FrontierEntryCount < 500,
+			$"FrontierEntryCount={tracer.FrontierEntryCount}; combinatorial blow-up suspected (expected O(depth), not O(2^depth))."
+		);
 	}
 }
