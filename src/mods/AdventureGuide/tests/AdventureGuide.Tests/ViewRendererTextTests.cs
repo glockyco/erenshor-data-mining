@@ -1,4 +1,5 @@
 using AdventureGuide.Frontier;
+using AdventureGuide.Incremental;
 using AdventureGuide.Graph;
 using AdventureGuide.Plan;
 using AdventureGuide.Resolution;
@@ -134,8 +135,7 @@ public sealed class ViewRendererTextTests
             .AddCharacter("char:giver")
             .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "char:giver" })
             .Build();
-        var dependencies = new GuideDependencyEngine();
-        var tracker = new QuestStateTracker(guide, dependencies);
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: string.Empty,
             activeQuests: Array.Empty<string>(),
@@ -150,23 +150,39 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
-        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
+        var (reader, projector) = ResolutionTestFactory.BuildSpecTreeProjector(
+            guide, phases, currentSceneProvider: () => string.Empty);
+        var renderer = new ViewRenderer(
+            guide, new GameState(guide), new NavigationSet(), tracker,
+            new TrackerState(), projector);
 
         var first = renderer.GetRootChildrenForDetail(0);
         var second = renderer.GetRootChildrenForDetail(0);
         Assert.Same(first, second);
 
+        // Simulate Plugin.Update: tracker mutation flows into the engine via the
+        // emitted ChangeSet's facts. Backdating preserves the cached projection
+        // because the compiled phases tracker has not been advanced yet, so the
+        // recomputed value equals the previous one.
         tracker.OnQuestAssigned("ROOT");
+        reader.Engine.InvalidateFacts(tracker.LastChangeSet.ChangedFacts);
         var beforeCompiledSync = renderer.GetRootChildrenForDetail(0);
         Assert.Same(first, beforeCompiledSync);
 
+        // Phases.Initialize bypasses the change-tracking path. Mimic Plugin's
+        // invalidation by emitting the QuestActive/QuestCompleted wildcards so
+        // the engine recomputes; the phase change shifts the resolved children.
         phases.Initialize(
             Array.Empty<string>(),
             new[] { "ROOT" },
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
+        reader.Engine.InvalidateFacts(new[]
+        {
+            new FactKey(FactKind.QuestActive, "*"),
+            new FactKey(FactKind.QuestCompleted, "*"),
+        });
 
         var afterCompiledChange = renderer.GetRootChildrenForDetail(0);
         Assert.NotSame(first, afterCompiledChange);
@@ -179,8 +195,7 @@ public sealed class ViewRendererTextTests
             .AddCharacter("char:giver")
             .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "char:giver" })
             .Build();
-        var dependencies = new GuideDependencyEngine();
-        var tracker = new QuestStateTracker(guide, dependencies);
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: string.Empty,
             activeQuests: Array.Empty<string>(),
@@ -195,14 +210,18 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
-        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
+        var (reader, projector) = ResolutionTestFactory.BuildSpecTreeProjector(
+            guide, phases, currentSceneProvider: () => string.Empty);
+        var renderer = new ViewRenderer(
+            guide, new GameState(guide), new NavigationSet(), tracker,
+            new TrackerState(), projector);
 
         var initial = renderer.GetRootChildrenForDetail(0);
         var initialGiver = Assert.Single(initial, root => root.Kind == SpecTreeKind.Giver);
         Assert.False(initialGiver.IsCompleted);
 
         tracker.OnQuestAssigned("ROOT");
+        reader.Engine.InvalidateFacts(tracker.LastChangeSet.ChangedFacts);
         var stale = renderer.GetRootChildrenForDetail(0);
         var staleGiver = Assert.Single(stale, root => root.Kind == SpecTreeKind.Giver);
         Assert.False(staleGiver.IsCompleted);
@@ -213,6 +232,11 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
+        reader.Engine.InvalidateFacts(new[]
+        {
+            new FactKey(FactKind.QuestActive, "*"),
+            new FactKey(FactKind.QuestCompleted, "*"),
+        });
 
         var refreshed = renderer.GetRootChildrenForDetail(0);
         var refreshedGiver = Assert.Single(refreshed, root => root.Kind == SpecTreeKind.Giver);
@@ -261,17 +285,23 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestAssigned("ROOT");
-        var beforeCompiledSync = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+                fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
+                var beforeCompiledSync = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
         Assert.Same(first, beforeCompiledSync);
 
         fixture.Phases.Initialize(
-            Array.Empty<string>(),
-            new[] { "ROOT" },
-            new Dictionary<string, int>(),
-            Array.Empty<string>()
-        );
+                    Array.Empty<string>(),
+                    new[] { "ROOT" },
+                    new Dictionary<string, int>(),
+                    Array.Empty<string>()
+                );
+                fixture.Engine.InvalidateFacts(new[]
+                {
+                    new FactKey(FactKind.QuestActive, "*"),
+                    new FactKey(FactKind.QuestCompleted, "*"),
+                });
 
-        var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+                var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
         Assert.NotSame(first, afterCompiledChange);
     }
 
@@ -302,32 +332,38 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestCompleted("QUESTA");
-        var beforeCompiledSync = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+                fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
+                var beforeCompiledSync = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
         Assert.Same(first, beforeCompiledSync);
 
         fixture.Phases.Initialize(
-            new[] { "QUESTA" },
-            Array.Empty<string>(),
-            new Dictionary<string, int>(),
-            Array.Empty<string>()
-        );
+                    new[] { "QUESTA" },
+                    Array.Empty<string>(),
+                    new Dictionary<string, int>(),
+                    Array.Empty<string>()
+                );
+                fixture.Engine.InvalidateFacts(new[]
+                {
+                    new FactKey(FactKind.QuestActive, "*"),
+                    new FactKey(FactKind.QuestCompleted, "*"),
+                });
 
-        var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+                var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
         Assert.NotSame(first, afterCompiledChange);
     }
 
     private static (
         QuestStateTracker Tracker,
         QuestPhaseTracker Phases,
-        ViewRenderer Renderer
+        ViewRenderer Renderer,
+        Engine<FactKey> Engine
     ) CreateRendererFixture(
         AdventureGuide.CompiledGuide.CompiledGuide guide,
         string[]? activeQuestDbNames = null,
         string[]? completedQuestDbNames = null
     )
     {
-        var dependencies = new GuideDependencyEngine();
-        var tracker = new QuestStateTracker(guide, dependencies);
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: string.Empty,
             activeQuests: activeQuestDbNames ?? Array.Empty<string>(),
@@ -342,9 +378,12 @@ public sealed class ViewRendererTextTests
             new Dictionary<string, int>(),
             Array.Empty<string>()
         );
-        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, phases, currentSceneProvider: () => string.Empty).Projector;
-        var renderer = new ViewRenderer(guide, new GameState(guide), new NavigationSet(), tracker, new TrackerState(), projector);
-        return (tracker, phases, renderer);
+        var (reader, projector) = ResolutionTestFactory.BuildSpecTreeProjector(
+            guide, phases, currentSceneProvider: () => string.Empty);
+        var renderer = new ViewRenderer(
+            guide, new GameState(guide), new NavigationSet(), tracker,
+            new TrackerState(), projector);
+        return (tracker, phases, renderer, reader.Engine);
     }
 
     private static int FindQuestIndex(

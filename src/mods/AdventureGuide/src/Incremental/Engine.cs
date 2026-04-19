@@ -12,11 +12,19 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	private readonly Dictionary<TFactKey, int> _factRevisions = new();
 	private readonly Dictionary<(int, object), Entry> _entries = new();
 	private readonly Dictionary<TFactKey, HashSet<(int, object)>> _entriesByFact = new();
+
+	// Ambient read context for the compute currently running on this thread.
+	// Trackers call Ambient?.RecordFact(...) to subscribe the current compute to
+	// a fact without the query needing to know which keys will be touched.
+	[ThreadStatic]
+	private static ReadContext<TFactKey>? _ambient;
+	internal static ReadContext<TFactKey>? Ambient => _ambient;
 	// Per-query recomputer so IsStale can refresh a dep entry by (queryId, key)
 	// without knowing its concrete type. One delegate per query, not per entry.
 	private readonly Dictionary<int, Action<object>> _recomputers = new();
 	private readonly Stack<(int, object)> _computeStack = new();
 
+	public int Revision => _revision;
 	public Query<TKey, TValue> DefineQuery<TKey, TValue>(
 		string name,
 		Func<ReadContext<TFactKey>, TKey, TValue> compute) where TKey : notnull
@@ -41,6 +49,24 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 
 		if (_entries.TryGetValue(entryKey, out var entry) && !IsStale(entry))
 			return (TValue)entry.Value!;
+
+		return (TValue)Recompute(query, key, entryKey)!;
+	}
+
+	/// <summary>Forces recompute of <c>(query, key)</c> regardless of cache state,
+	/// rebinds fact/sub-query deps from the new compute, and returns the fresh
+	/// value. Used for diagnostic reads that must walk compute paths even when the
+	/// cached entry is still valid (e.g. tracing with a tracer attached).</summary>
+	public TValue ReadUncached<TKey, TValue>(Query<TKey, TValue> query, TKey key) where TKey : notnull
+	{
+		if (!ReferenceEquals(query.OwnerToken, _ownerToken))
+			throw new InvalidOperationException(
+				$"Query '{query.Name}' does not belong to this engine.");
+
+		var entryKey = (query.Id, (object)key);
+		if (_computeStack.Contains(entryKey))
+			throw new InvalidOperationException(
+				$"Cycle detected: query '{query.Name}' with key '{key}' is already being computed.");
 
 		return (TValue)Recompute(query, key, entryKey)!;
 	}
@@ -106,6 +132,8 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	{
 		_computeStack.Push(entryKey);
 		var ctx = new ReadContext<TFactKey>(this);
+		var priorAmbient = _ambient;
+		_ambient = ctx;
 		TValue value;
 		try
 		{
@@ -113,6 +141,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		}
 		finally
 		{
+			_ambient = priorAmbient;
 			_computeStack.Pop();
 		}
 

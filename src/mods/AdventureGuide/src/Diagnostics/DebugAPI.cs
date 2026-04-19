@@ -33,6 +33,7 @@ public static class DebugAPI
     internal static GameState? GameStateInstance { get; set; }
 
     internal static AdventureGuide.Resolution.NavigationTargetResolver? Resolver { get; set; }
+    internal static AdventureGuide.State.GuideReader? Reader { get; set; }
     internal static DiagnosticsCore? Diagnostics { get; set; }
     internal static Func<MarkerDiagnosticsSnapshot>? MarkerSnapshot { get; set; }
     internal static Func<NavigationDiagnosticsSnapshot>? NavSnapshot { get; set; }
@@ -135,7 +136,7 @@ public static class DebugAPI
     /// </summary>
     public static string TraceQuest(string name)
     {
-        if (Guide == null || Resolver == null)
+        if (Guide == null || Reader == null)
             return "Not initialized";
 
         var node = FindQuestNode(name);
@@ -143,7 +144,7 @@ public static class DebugAPI
             return $"Quest '{name}' not found";
 
         var tracer = new TextResolutionTracer();
-        Resolver.Resolve(node.Key, State?.CurrentZone ?? "", tracer);
+        Reader.ReadQuestResolutionForTrace(node.Key, State?.CurrentZone ?? "", tracer);
         return tracer.GetTrace();
     }
 

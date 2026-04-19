@@ -1,4 +1,5 @@
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 
 namespace AdventureGuide.Markers;
 
@@ -8,15 +9,14 @@ namespace AdventureGuide.Markers;
 public sealed class MarkerQuestTargetResolver
 {
 	private readonly CompiledGuide.CompiledGuide _guide;
-	private readonly QuestResolutionService _questResolutionService;
+	private readonly GuideReader _reader;
 
 	public MarkerQuestTargetResolver(
 		CompiledGuide.CompiledGuide guide,
-		QuestResolutionService questResolutionService
-	)
+		GuideReader reader)
 	{
 		_guide = guide;
-		_questResolutionService = questResolutionService;
+		_reader = reader;
 	}
 
 	public IReadOnlyList<ResolvedTarget> Resolve(string questDbName, string currentScene) =>
@@ -25,28 +25,26 @@ public sealed class MarkerQuestTargetResolver
 	internal IReadOnlyList<ResolvedTarget> Resolve(
 		string questDbName,
 		string currentScene,
-		SourceResolver.ResolutionSession? session
-	)
+		SourceResolver.ResolutionSession? session)
 	{
 		int questIndex =
 			FindQuestIndexByDbName(questDbName)
 			?? throw new InvalidOperationException(
-				$"Compiled guide does not contain quest DB name '{questDbName}'."
-			);
+				$"Compiled guide does not contain quest DB name '{questDbName}'.");
 		string questKey = _guide.GetNodeKey(_guide.QuestNodeId(questIndex));
-		return _questResolutionService.ResolveQuest(questKey, currentScene, session).CompiledTargets;
+		_ = session;
+		return _reader.ReadQuestResolution(questKey, currentScene).CompiledTargets;
 	}
 
 	internal IReadOnlyDictionary<string, IReadOnlyList<ResolvedTarget>> ResolveQuestKeys(
 		IEnumerable<string> questKeys,
 		string currentScene,
-		SourceResolver.ResolutionSession? session
-	)
+		SourceResolver.ResolutionSession? session)
 	{
-		var records = _questResolutionService.ResolveBatch(questKeys, currentScene, session);
+		_ = session;
 		var results = new Dictionary<string, IReadOnlyList<ResolvedTarget>>(StringComparer.Ordinal);
-		foreach (var entry in records)
-			results[entry.Key] = entry.Value.CompiledTargets;
+		foreach (var questKey in questKeys)
+			results[questKey] = _reader.ReadQuestResolution(questKey, currentScene).CompiledTargets;
 		return results;
 	}
 

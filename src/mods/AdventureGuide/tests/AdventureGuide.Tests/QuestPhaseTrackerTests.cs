@@ -47,7 +47,7 @@ public sealed class QuestPhaseTrackerTests
             .AddQuest("quest:a", dbName: "QUESTA", prereqs: new[] { "quest:b" })
             .AddQuest("quest:b", dbName: "QUESTB")
             .Build();
-        var (state, tracker, _) = QuestPhaseTrackerFactory.BuildWithState(
+        var (state, tracker) = QuestPhaseTrackerFactory.BuildWithState(
             guide,
             Array.Empty<string>(),
             Array.Empty<string>(),

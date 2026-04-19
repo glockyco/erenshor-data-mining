@@ -60,32 +60,6 @@ public sealed class LiveStateTrackerTests
 	}
 
 	[Fact]
-	public void TimeOfDay_EmitterAndSubscriberUseCurrentSubKey()
-	{
-		string source = ReadRepoFile("src/mods/AdventureGuide/src/State/LiveStateTracker.cs");
-
-		string buildLiveChange = ExtractBetween(
-			source,
-			"private ChangeSet BuildLiveChange(",
-			"private void RebuildMiningAvailability()"
-		);
-
-		string classifySpawnPoint = ExtractBetween(
-			source,
-			"private SpawnInfo ClassifySpawnPoint(",
-			"private MiningInfo ClassifyMiningNode("
-		);
-
-		// Both emitter and subscriber must agree on "current" — matching the
-		// Scene fact pattern — so any time-of-day transition invalidates
-		// NightSpawn dependents regardless of direction.
-		Assert.Contains("TimeOfDay, \"current\"", buildLiveChange);
-		Assert.DoesNotContain("TimeOfDay, \"night\"", buildLiveChange);
-		Assert.Contains("TimeOfDay, \"current\"", classifySpawnPoint);
-		Assert.DoesNotContain("TimeOfDay, \"night\"", classifySpawnPoint);
-	}
-
-	[Fact]
 	public void MiningNodePatch_CoversMineAndRespawnTransitions()
 	{
 		string source = ReadRepoFile("src/mods/AdventureGuide/src/Patches/MiningNodePatch.cs");

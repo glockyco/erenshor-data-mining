@@ -1,8 +1,12 @@
 using AdventureGuide.Diagnostics;
+using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Incremental;
+using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
+using AdventureGuide.Resolution.Queries;
 using AdventureGuide.State;
 using AdventureGuide.UI.Tree;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
@@ -11,222 +15,200 @@ namespace AdventureGuide.Tests.Helpers;
 
 internal static class ResolutionTestFactory
 {
-    public static QuestTargetProjector BuildProjector(
-        CompiledGuideModel guide,
-        PositionResolverRegistry? positionRegistry = null,
-        ZoneRouter? zoneRouter = null
-    )
-    {
-        var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
-        return new QuestTargetProjector(guide, zoneRouter, registry);
-    }
+	public static QuestTargetProjector BuildProjector(
+		CompiledGuideModel guide,
+		PositionResolverRegistry? positionRegistry = null,
+		ZoneRouter? zoneRouter = null)
+	{
+		var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
+		return new QuestTargetProjector(guide, zoneRouter, registry);
+	}
 
-    public static QuestResolutionService BuildService(
-        CompiledGuideModel guide,
-        EffectiveFrontier frontier,
-        SourceResolver sourceResolver,
-        ZoneRouter? zoneRouter = null,
-        GuideDependencyEngine? dependencies = null,
-        Func<int>? versionProvider = null,
-        PositionResolverRegistry? positionRegistry = null,
-        Func<SourceResolver.ResolutionSession>? sessionFactory = null
-    )
-    {
-        var projector = BuildProjector(guide, positionRegistry, zoneRouter);
-        return new QuestResolutionService(
-            guide,
-            frontier,
-            sourceResolver,
-            zoneRouter,
-            projector,
-            dependencies,
-            versionProvider,
-            sessionFactory
-        );
-    }
+	public static GuideReader BuildService(
+		CompiledGuideModel guide,
+		EffectiveFrontier frontier,
+		SourceResolver sourceResolver,
+		ZoneRouter? zoneRouter = null,
+		Engine<FactKey>? engine = null,
+		PositionResolverRegistry? positionRegistry = null,
+		QuestStateTracker? questTracker = null,
+		TrackerState? trackerState = null,
+		NavigationSet? navSet = null)
+	{
+		var questState = questTracker ?? new QuestStateTracker(guide);
+		if (questTracker == null)
+		{
+			questState.LoadState(
+				currentZone: string.Empty,
+				activeQuests: Array.Empty<string>(),
+				completedQuests: Array.Empty<string>(),
+				inventoryCounts: new Dictionary<string, int>(StringComparer.Ordinal),
+				keyringItemKeys: Array.Empty<string>());
+		}
 
-    public static (QuestResolutionService Service, SpecTreeProjector Projector) BuildSpecTreeProjector(
-        CompiledGuideModel guide,
-        QuestPhaseTracker phases,
-        ZoneRouter? zoneRouter = null,
-        Func<string>? currentSceneProvider = null,
-        DiagnosticsCore? diagnostics = null,
-        PositionResolverRegistry? positionRegistry = null,
-        GuideDependencyEngine? dependencies = null,
-        Func<int>? versionProvider = null
-    )
-    {
-        var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
-        var sourceResolver = new SourceResolver(
-            guide,
-            phases,
-            new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider(),
-            registry,
-            zoneRouter
-        );
-        var frontier = new EffectiveFrontier(guide, phases);
-        var effectiveVersionProvider = versionProvider ?? (() => phases.Version);
-        var service = BuildService(
-            guide,
-            frontier,
-            sourceResolver,
-            zoneRouter,
-            dependencies,
-            effectiveVersionProvider,
-            registry
-        );
-        return (
-            service,
-            new SpecTreeProjector(
-                guide,
-                service,
-                currentSceneProvider: currentSceneProvider,
-                diagnostics: diagnostics
-            )
-        );
-    }
+		var state = trackerState ?? new TrackerState();
+		var navigationSet = navSet ?? new NavigationSet();
+		var engineValue = engine ?? new Engine<FactKey>();
+		var reader = new GuideReader(engineValue, questState, questState, state, navigationSet);
+		var projector = BuildProjector(guide, positionRegistry, zoneRouter);
+		var compiledTargets = new CompiledTargetsQuery(
+			engineValue,
+			guide,
+			frontier,
+			new QuestTargetResolver(guide, frontier, sourceResolver, zoneRouter),
+			reader);
+		var blockingZones = new BlockingZonesQuery(engineValue, guide, zoneRouter);
+		var resolutionQuery = new QuestResolutionQuery(engineValue, compiledTargets, blockingZones, projector);
+		reader.SetQuestResolutionQuery(resolutionQuery);
+		return reader;
+	}
 
-    public static NavigationTargetResolver BuildNavigationResolver(
-        CompiledGuideModel guide,
-        EffectiveFrontier frontier,
-        SourceResolver sourceResolver,
-        ZoneRouter? zoneRouter = null,
-        Func<int>? versionProvider = null,
-        DiagnosticsCore? diagnostics = null,
-        PositionResolverRegistry? positionRegistry = null,
-        GuideDependencyEngine? dependencies = null
-    )
-    {
-        var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
-        var projector = BuildProjector(guide, registry, zoneRouter);
-        var service = new QuestResolutionService(
-            guide,
-            frontier,
-            sourceResolver,
-            zoneRouter,
-            projector,
-            dependencies,
-            versionProvider
-        );
-        return new NavigationTargetResolver(
-            guide,
-            service,
-            zoneRouter,
-            registry,
-            projector,
-            diagnostics
-        );
-    }
+	public static (GuideReader Reader, SpecTreeProjector Projector) BuildSpecTreeProjector(
+		CompiledGuideModel guide,
+		QuestPhaseTracker phases,
+		ZoneRouter? zoneRouter = null,
+		Func<string>? currentSceneProvider = null,
+		DiagnosticsCore? diagnostics = null,
+		PositionResolverRegistry? positionRegistry = null)
+	{
+		var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			registry,
+			zoneRouter);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var reader = BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			zoneRouter,
+			positionRegistry: registry,
+			questTracker: phases.State,
+			trackerState: new TrackerState(),
+			navSet: new NavigationSet());
+		return (
+			reader,
+			new SpecTreeProjector(
+				guide,
+				reader,
+				phases,
+				phases.State,
+				currentSceneProvider: currentSceneProvider,
+				diagnostics: diagnostics));
+	}
 
-    public static (QuestResolutionService Service, InvalidationHarness Harness) BuildInvalidationHarness()
-    {
-        const string scene = "Forest";
-        int version = 1;
-        int observedSessionCount = 0;
-        var guide = new CompiledGuideBuilder()
-            .AddItem("item:water-flask")
-            .AddCharacter("char:well", scene: scene, x: 10f, y: 20f, z: 30f)
-            .AddItemSource(
-                "item:water-flask",
-                "char:well",
-                edgeType: (byte)EdgeType.GivesItem,
-                sourceType: (byte)NodeType.Character
-            )
-            .AddQuest(
-                "quest:fetch-water",
-                dbName: "FETCHWATER",
-                requiredItems: new[] { ("item:water-flask", 1) }
-            )
-            .AddItem("item:wolf-pelt")
-            .AddCharacter("char:wolf", scene: scene, x: 40f, y: 50f, z: 60f)
-            .AddItemSource(
-                "item:wolf-pelt",
-                "char:wolf",
-                edgeType: (byte)EdgeType.DropsItem,
-                sourceType: (byte)NodeType.Character
-            )
-            .AddQuest(
-                "quest:slay-wolves",
-                dbName: "SLAYWOLVES",
-                requiredItems: new[] { ("item:wolf-pelt", 1) }
-            )
-            .Build();
-        var dependencies = new GuideDependencyEngine();
-        var phases = new QuestPhaseTracker(guide, dependencies);
-        phases.Initialize(
-            Array.Empty<string>(),
-            new[] { "FETCHWATER", "SLAYWOLVES" },
-            new Dictionary<string, int>(),
-            Array.Empty<string>()
-        );
-        var frontier = new EffectiveFrontier(guide, phases);
-        var positionRegistry = TestPositionResolvers.Create(guide);
-        var sourceResolver = new SourceResolver(
-            guide,
-            phases,
-            new UnlockPredicateEvaluator(guide, phases),
-            new StubLivePositionProvider(),
-            positionRegistry
-        );
-        var service = BuildService(
-            guide,
-            frontier,
-            sourceResolver,
-            zoneRouter: null,
-            dependencies: dependencies,
-            versionProvider: () => version,
-            positionRegistry: positionRegistry,
-            sessionFactory: () =>
-            {
-                observedSessionCount++;
-                return new SourceResolver.ResolutionSession();
-            }
-        );
-        var harness = new InvalidationHarness(
-            scene,
-            guide,
-            phases,
-            observedSessionCount: () => observedSessionCount,
-            emit: changeSet => service.InvalidateAffected(dependencies.InvalidateFacts(changeSet.ChangedFacts)),
-            bumpVersionWithoutFacts: () => version++
-        );
-        return (service, harness);
-    }
+	public static NavigationTargetResolver BuildNavigationResolver(
+		CompiledGuideModel guide,
+		EffectiveFrontier frontier,
+		SourceResolver sourceResolver,
+		ZoneRouter? zoneRouter = null,
+		DiagnosticsCore? diagnostics = null,
+		PositionResolverRegistry? positionRegistry = null,
+		QuestStateTracker? questTracker = null,
+		TrackerState? trackerState = null,
+		NavigationSet? navSet = null,
+		Engine<FactKey>? engine = null)
+	{
+		var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
+		var reader = BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			zoneRouter,
+			engine,
+			registry,
+			questTracker,
+			trackerState,
+			navSet);
+		return new NavigationTargetResolver(
+			guide,
+			reader,
+			zoneRouter,
+			registry,
+			BuildProjector(guide, registry, zoneRouter),
+			diagnostics);
+	}
 
-    internal sealed class InvalidationHarness
-    {
-        private readonly Action<ChangeSet> _emit;
-        private readonly Action _bumpVersionWithoutFacts;
-        private readonly Func<int> _observedSessionCount;
+	public static (GuideReader Reader, InvalidationHarness Harness) BuildInvalidationHarness()
+	{
+		const string scene = "Forest";
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:water-flask")
+			.AddCharacter("char:well", scene: scene, x: 10f, y: 20f, z: 30f)
+			.AddItemSource(
+				"item:water-flask",
+				"char:well",
+				edgeType: (byte)EdgeType.GivesItem,
+				sourceType: (byte)NodeType.Character)
+			.AddQuest(
+				"quest:fetch-water",
+				dbName: "FETCHWATER",
+				requiredItems: new[] { ("item:water-flask", 1) })
+			.AddItem("item:wolf-pelt")
+			.AddCharacter("char:wolf", scene: scene, x: 40f, y: 50f, z: 60f)
+			.AddItemSource(
+				"item:wolf-pelt",
+				"char:wolf",
+				edgeType: (byte)EdgeType.DropsItem,
+				sourceType: (byte)NodeType.Character)
+			.AddQuest(
+				"quest:slay-wolves",
+				dbName: "SLAYWOLVES",
+				requiredItems: new[] { ("item:wolf-pelt", 1) })
+			.Build();
+		var state = new QuestStateTracker(guide);
+		state.LoadState(
+			currentZone: scene,
+			activeQuests: Array.Empty<string>(),
+			completedQuests: new[] { "FETCHWATER", "SLAYWOLVES" },
+			inventoryCounts: new Dictionary<string, int>(),
+			keyringItemKeys: Array.Empty<string>());
+		var phases = new QuestPhaseTracker(guide, state);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var positionRegistry = TestPositionResolvers.Create(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			positionRegistry);
+		var engine = new Engine<FactKey>();
+		var reader = BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			zoneRouter: null,
+			engine: engine,
+			positionRegistry: positionRegistry,
+			questTracker: state,
+			trackerState: new TrackerState(),
+			navSet: new NavigationSet());
+		var harness = new InvalidationHarness(scene, guide, phases, engine);
+		return (reader, harness);
+	}
 
-        public InvalidationHarness(
-            string scene,
-            CompiledGuideModel guide,
-            QuestPhaseTracker phases,
-            Func<int> observedSessionCount,
-            Action<ChangeSet> emit,
-            Action bumpVersionWithoutFacts
-        )
-        {
-            Scene = scene;
-            Guide = guide;
-            Phases = phases;
-            _observedSessionCount = observedSessionCount;
-            _emit = emit;
-            _bumpVersionWithoutFacts = bumpVersionWithoutFacts;
-        }
+	internal sealed class InvalidationHarness
+	{
+		public InvalidationHarness(
+			string scene,
+			CompiledGuideModel guide,
+			QuestPhaseTracker phases,
+			Engine<FactKey> engine)
+		{
+			Scene = scene;
+			Guide = guide;
+			Phases = phases;
+			Engine = engine;
+		}
 
-        public string Scene { get; }
+		public string Scene { get; }
+		public CompiledGuideModel Guide { get; }
+		public QuestPhaseTracker Phases { get; }
+		public Engine<FactKey> Engine { get; }
 
-        public CompiledGuideModel Guide { get; }
-
-        public QuestPhaseTracker Phases { get; }
-
-        public int ObservedSessionCount => _observedSessionCount();
-
-        public void Emit(ChangeSet changeSet) => _emit(changeSet);
-
-        public void BumpVersionWithoutFacts() => _bumpVersionWithoutFacts();
-    }
+		public void Emit(ChangeSet changeSet) => Engine.InvalidateFacts(changeSet.ChangedFacts);
+	}
 }

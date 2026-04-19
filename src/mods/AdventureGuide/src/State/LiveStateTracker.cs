@@ -1,5 +1,6 @@
 using System.Reflection;
 using AdventureGuide.Graph;
+using AdventureGuide.Incremental;
 using UnityEngine;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -23,7 +24,6 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
     );
 
     private readonly CompiledGuideModel _guide;
-    private readonly GuideDependencyEngine _dependencies;
     private readonly UnlockEvaluator _unlocks;
 
     private Dictionary<PosKey, SpawnPoint> _spawnIndex = new();
@@ -51,12 +51,10 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
 
     public LiveStateTracker(
         CompiledGuideModel guide,
-        GuideDependencyEngine dependencies,
         UnlockEvaluator unlocks
     )
     {
         _guide = guide;
-        _dependencies = dependencies;
         _unlocks = unlocks;
     }
 
@@ -244,7 +242,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (spawnNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        _dependencies.RecordFact(new FactKey(FactKind.SourceState, spawnNode.Key));
+        RecordLiveStateDeps(spawnNode);
 
         if (!LiveSceneScope.CanUseLiveSceneState(spawnNode.Scene, CurrentSceneName()))
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -272,7 +270,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (characterNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        _dependencies.RecordFact(new FactKey(FactKind.SourceState, characterNode.Key));
+        RecordLiveStateDeps(characterNode);
 
         string? unlockReason = GetCharacterUnlockRequirement(characterNode);
         if (
@@ -328,7 +326,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (miningNode == null)
             return new MiningInfo(NodeState.Unknown, null);
 
-        _dependencies.RecordFact(new FactKey(FactKind.SourceState, miningNode.Key));
+        RecordLiveStateDeps(miningNode);
 
         if (!LiveSceneScope.CanUseLiveSceneState(miningNode.Scene, CurrentSceneName()))
             return new MiningInfo(NodeState.Unknown, null);
@@ -355,7 +353,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (itemBagNode == null)
             return NodeState.Unknown;
 
-        _dependencies.RecordFact(new FactKey(FactKind.SourceState, itemBagNode.Key));
+        RecordLiveStateDeps(itemBagNode);
 
         if (!LiveSceneScope.CanUseLiveSceneState(itemBagNode.Scene, CurrentSceneName()))
             return NodeState.Unknown;
@@ -385,7 +383,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (doorNode == null)
             return new DoorInfo(NodeState.Unknown, null, false);
 
-        _dependencies.RecordFact(new FactKey(FactKind.SourceState, doorNode.Key));
+        RecordLiveStateDeps(doorNode);
 
         if (!LiveSceneScope.CanUseLiveSceneState(doorNode.Scene, CurrentSceneName()))
             return new DoorInfo(NodeState.Unknown, null, false);
@@ -502,6 +500,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
     /// </summary>
     public (float x, float y, float z)? GetLiveNpcPosition(Node spawnNode)
     {
+        RecordLiveStateDeps(spawnNode);
         var npc = GetLiveNpcForTracking(spawnNode);
         if (npc == null)
             return null;
@@ -558,7 +557,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
 
         if (sp.NightSpawn)
         {
-            _dependencies.RecordFact(new FactKey(FactKind.TimeOfDay, "current"));
+
             if (!IsNight())
                 return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
         }
@@ -948,6 +947,8 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         var changedFacts = new List<FactKey>();
         foreach (var sourceKey in sourceKeys)
             changedFacts.Add(new FactKey(FactKind.SourceState, sourceKey));
+        if (sourceKeys.Count > 0)
+            changedFacts.Add(new FactKey(FactKind.SourceState, "*"));
         if (timeChanged)
             changedFacts.Add(new FactKey(FactKind.TimeOfDay, "current"));
 
@@ -1082,6 +1083,29 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
     }
 
     private static PosKey NodePosKey(Vector3 pos) => new PosKey(pos.x, pos.y, pos.z);
+
+    // Records ambient fact deps for a live-state read. Scene("current") is always
+    // relevant (the scope check filters by current zone). SourceState is recorded
+    // per-node only for graph node types that map to a source key; characters have
+    // no source of their own and rely on their spawn children recording via
+    // GetSpawnState.
+    private static void RecordLiveStateDeps(Node node)
+    {
+        var ambient = Engine<FactKey>.Ambient;
+        if (ambient == null)
+            return;
+
+        ambient.RecordFact(new FactKey(FactKind.Scene, "current"));
+        switch (node.Type)
+        {
+            case NodeType.SpawnPoint:
+            case NodeType.MiningNode:
+            case NodeType.ItemBag:
+            case NodeType.Door:
+                ambient.RecordFact(new FactKey(FactKind.SourceState, node.Key));
+                break;
+        }
+    }
 
     private readonly struct PosKey : System.IEquatable<PosKey>
     {

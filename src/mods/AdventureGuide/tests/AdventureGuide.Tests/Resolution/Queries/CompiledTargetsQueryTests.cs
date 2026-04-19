@@ -41,7 +41,7 @@ public sealed class CompiledTargetsQueryTests
 		var fixture = CompiledTargetsFixture.Create();
 		var first = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
 
-		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "quest:root") });
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "ROOT") });
 		var second = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
 
 		Assert.NotSame(first, second);

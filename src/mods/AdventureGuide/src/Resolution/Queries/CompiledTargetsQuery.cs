@@ -34,29 +34,29 @@ public sealed class CompiledTargetsQuery
 		ReadContext<FactKey> ctx,
 		(string QuestKey, string Scene) key)
 	{
-		_reader.AttachContext(ctx);
-		try
+		if (!_guide.TryGetNodeId(key.QuestKey, out int questNodeId))
+			return CompiledTargetsResult.Empty;
+
+		int questIndex = _guide.FindQuestIndex(questNodeId);
+		if (questIndex < 0)
+			return CompiledTargetsResult.Empty;
+
+		// Ambient recording on Engine<FactKey> makes the frontier/resolver stack
+		// record fact deps transparently: trackers consulted during the walk subscribe
+		// the current compute to the exact keys read.
+		string? questDbName = _guide.GetDbName(questNodeId);
+		if (!string.IsNullOrEmpty(questDbName))
 		{
-			_reader.ReadQuestActive(key.QuestKey);
-			_reader.ReadQuestCompleted(key.QuestKey);
-
-			if (!_guide.TryGetNodeId(key.QuestKey, out int questNodeId))
-				return CompiledTargetsResult.Empty;
-
-			int questIndex = _guide.FindQuestIndex(questNodeId);
-			if (questIndex < 0)
-				return CompiledTargetsResult.Empty;
-
-			var frontier = new List<FrontierEntry>();
-			_frontier.Resolve(questIndex, frontier, -1, tracer: null);
-			var targets = _resolver.Resolve(questIndex, key.Scene, frontier, session: null, tracer: null);
-
-			return new CompiledTargetsResult(frontier.ToArray(), targets.ToArray());
+			_reader.ReadQuestActive(questDbName);
+			_reader.ReadQuestCompleted(questDbName);
 		}
-		finally
-		{
-			_reader.DetachContext();
-		}
+
+		var tracer = _reader.ActiveTracer;
+		var frontier = new List<FrontierEntry>();
+		_frontier.Resolve(questIndex, frontier, -1, tracer);
+		var targets = _resolver.Resolve(questIndex, key.Scene, frontier, session: null, tracer);
+
+		return new CompiledTargetsResult(frontier.ToArray(), targets.ToArray());
 	}
 }
 

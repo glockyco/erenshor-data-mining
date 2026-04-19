@@ -2,6 +2,7 @@ using System.Diagnostics;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
+using AdventureGuide.State;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Resolution;
@@ -14,7 +15,7 @@ namespace AdventureGuide.Resolution;
 public sealed class NavigationTargetResolver
 {
 	private readonly CompiledGuideModel _guide;
-	private readonly QuestResolutionService _questResolutionService;
+	private readonly GuideReader _reader;
 	private readonly PositionResolverRegistry _positionResolvers;
 	private readonly QuestTargetProjector _projector;
 	private readonly DiagnosticsCore? _diagnostics;
@@ -23,19 +24,18 @@ public sealed class NavigationTargetResolver
 	private int _lastBatchKeyCount;
 	private IReadOnlyList<QuestCostSample> _topQuestCosts = Array.Empty<QuestCostSample>();
 
-	public int Version => _questResolutionService.Version;
+	public int Version => _reader.Engine.Revision;
 
 	internal NavigationTargetResolver(
 		CompiledGuideModel guide,
-		QuestResolutionService questResolutionService,
+		GuideReader reader,
 		ZoneRouter? zoneRouter,
 		PositionResolverRegistry positionResolvers,
 		QuestTargetProjector projector,
-		DiagnosticsCore? diagnostics = null
-	)
+		DiagnosticsCore? diagnostics = null)
 	{
 		_guide = guide;
-		_questResolutionService = questResolutionService;
+		_reader = reader;
 		_positionResolvers = positionResolvers;
 		_projector = projector;
 		_diagnostics = diagnostics;
@@ -45,14 +45,12 @@ public sealed class NavigationTargetResolver
 	public IReadOnlyList<ResolvedQuestTarget> Resolve(
 		string nodeKey,
 		string currentScene,
-		IResolutionTracer? tracer = null
-	)
+		IResolutionTracer? tracer = null)
 	{
 		var token = _diagnostics?.BeginSpan(
 			DiagnosticSpanKind.NavResolverResolve,
 			DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
-			primaryKey: nodeKey
-		);
+			primaryKey: nodeKey);
 		long startTick = Stopwatch.GetTimestamp();
 		try
 		{
@@ -66,7 +64,9 @@ public sealed class NavigationTargetResolver
 
 			var node = _guide.GetNode(nodeId);
 			IReadOnlyList<ResolvedQuestTarget> results = node.Type == NodeType.Quest
-				? _questResolutionService.ResolveQuest(nodeKey, currentScene, tracer).NavigationTargets
+				? (tracer != null
+					? _reader.ReadQuestResolutionForTrace(nodeKey, currentScene, tracer).NavigationTargets
+					: _reader.ReadQuestResolution(nodeKey, currentScene).NavigationTargets)
 				: ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
 
 			_lastResolvedNodeKey = nodeKey;
@@ -83,16 +83,14 @@ public sealed class NavigationTargetResolver
 					token.Value,
 					Stopwatch.GetTimestamp() - startTick,
 					value0: _lastResolvedTargetCount,
-					value1: 0
-				);
+					value1: 0);
 		}
 	}
 
 	internal IReadOnlyDictionary<string, IReadOnlyList<ResolvedQuestTarget>> ResolveBatch(
 		IEnumerable<string> nodeKeys,
 		string currentScene,
-		IResolutionTracer? tracer = null
-	)
+		IResolutionTracer? tracer = null)
 	{
 		var results = new Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>(StringComparer.Ordinal);
 		var questKeys = new List<string>();
@@ -120,20 +118,18 @@ public sealed class NavigationTargetResolver
 			totalResolvedTargets += nonQuestResults.Count;
 		}
 
-		var records = _questResolutionService.ResolveBatch(questKeys, currentScene, tracer);
 		_lastBatchKeyCount = seen.Count;
-		_topQuestCosts = _questResolutionService.TopQuestCosts;
+		_topQuestCosts = Array.Empty<QuestCostSample>();
 		for (int i = 0; i < questKeys.Count; i++)
 		{
 			string questKey = questKeys[i];
-			var navigationTargets = records.TryGetValue(questKey, out var record)
-				? record.NavigationTargets
-				: Array.Empty<ResolvedQuestTarget>();
+			var navigationTargets = _reader.ReadQuestResolution(questKey, currentScene).NavigationTargets;
 			results[questKey] = navigationTargets;
 			totalResolvedTargets += navigationTargets.Count;
 		}
 
 		_lastResolvedTargetCount = totalResolvedTargets;
+		_ = tracer;
 		return results;
 	}
 
@@ -141,32 +137,25 @@ public sealed class NavigationTargetResolver
 	{
 		return new NavigationDiagnosticsSnapshot(
 			lastForceReason: DiagnosticTrigger.Unknown,
-			cacheEntryCount: _questResolutionService.CacheEntryCount,
+			cacheEntryCount: 0,
 			currentTargetKey: _lastResolvedNodeKey,
 			lastResolvedTargetCount: _lastResolvedTargetCount,
 			lastBatchKeyCount: _lastBatchKeyCount,
 			lastBatchWasPartialRefresh: false,
-			topQuestCosts: _topQuestCosts
-		);
+			topQuestCosts: _topQuestCosts);
 	}
-
-	// ---------------------------------------------------------------
-	// Non-quest entity resolution
-	// ---------------------------------------------------------------
 
 	private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuestEntity(
 		int nodeId,
 		string nodeKey,
 		Node node,
-		string currentScene
-	)
+		string currentScene)
 	{
 		return node.Type switch
 		{
 			NodeType.Character => ResolveCharacterTargets(nodeKey, node, currentScene),
 			NodeType.Item => ResolveItemTargets(nodeId, nodeKey, node, currentScene),
-			NodeType.MiningNode
-			or NodeType.ItemBag when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
+			NodeType.MiningNode or NodeType.ItemBag when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
 				ResolveMutablePositionedEntityTargets(nodeKey, node, currentScene),
 			_ when node.X.HasValue && node.Y.HasValue && node.Z.HasValue =>
 				ResolvePositionedEntityTargets(nodeKey, node, currentScene),
@@ -186,8 +175,7 @@ public sealed class NavigationTargetResolver
 	private IReadOnlyList<ResolvedQuestTarget> ResolveCharacterTargets(
 		string nodeKey,
 		Node node,
-		string currentScene
-	)
+		string currentScene)
 	{
 		var spawnEdges = _guide.OutEdges(nodeKey, EdgeType.HasSpawn);
 		if (spawnEdges.Count == 0)
@@ -204,25 +192,15 @@ public sealed class NavigationTargetResolver
 		{
 			string spawnKey = spawnEdges[i].Target;
 			var spawnNode = _guide.GetNode(spawnKey);
-			if (
-				spawnNode == null
-				|| !spawnNode.X.HasValue
-				|| !spawnNode.Y.HasValue
-				|| !spawnNode.Z.HasValue
-			)
+			if (spawnNode == null || !spawnNode.X.HasValue || !spawnNode.Y.HasValue || !spawnNode.Z.HasValue)
 				continue;
 
 			var semantic = BuildDirectNavigationSemantic(
 				node,
 				targetKind,
 				actionKind,
-				_guide.GetZoneDisplay(spawnNode.Scene)
-			);
-			var explanation = NavigationExplanationBuilder.Build(
-				semantic,
-				nodeContext,
-				nodeContext
-			);
+				_guide.GetZoneDisplay(spawnNode.Scene));
+			var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 
 			results.Add(
 				new ResolvedQuestTarget(
@@ -237,9 +215,7 @@ public sealed class NavigationTargetResolver
 					spawnNode.Y.Value,
 					spawnNode.Z.Value,
 					isActionable: true,
-					isBlockedPath: _projector.IsSceneBlocked(currentScene, spawnNode.Scene)
-				)
-			);
+					isBlockedPath: _projector.IsSceneBlocked(currentScene, spawnNode.Scene)));
 		}
 
 		return results;
@@ -249,8 +225,7 @@ public sealed class NavigationTargetResolver
 		int nodeId,
 		string nodeKey,
 		Node node,
-		string currentScene
-	)
+		string currentScene)
 	{
 		int itemIndex = _guide.FindItemIndex(nodeId);
 		if (itemIndex < 0)
@@ -274,13 +249,8 @@ public sealed class NavigationTargetResolver
 				node,
 				NavigationTargetKind.Item,
 				ResolvedActionKind.Collect,
-				_guide.GetZoneDisplay(sourceScene)
-			);
-			var explanation = NavigationExplanationBuilder.Build(
-				semantic,
-				nodeContext,
-				sourceContext
-			);
+				_guide.GetZoneDisplay(sourceScene));
+			var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, sourceContext);
 
 			if (sourceNode.Type is NodeType.MiningNode or NodeType.ItemBag)
 			{
@@ -302,9 +272,7 @@ public sealed class NavigationTargetResolver
 							position.Y,
 							position.Z,
 							isActionable: position.IsActionable,
-							isBlockedPath: _projector.IsSceneBlocked(currentScene, position.Scene)
-						)
-					);
+							isBlockedPath: _projector.IsSceneBlocked(currentScene, position.Scene)));
 				}
 				continue;
 			}
@@ -327,9 +295,7 @@ public sealed class NavigationTargetResolver
 							pos.Y,
 							pos.Z,
 							isActionable: true,
-							isBlockedPath: _projector.IsSceneBlocked(currentScene, sourceScene)
-						)
-					);
+							isBlockedPath: _projector.IsSceneBlocked(currentScene, sourceScene)));
 				}
 			}
 			else if (sourceNode.Type == NodeType.Character && TryResolveCharacterSpawnTargets(
@@ -339,8 +305,7 @@ public sealed class NavigationTargetResolver
 				semantic,
 				explanation,
 				currentScene,
-				results
-			))
+				results))
 			{
 				continue;
 			}
@@ -359,9 +324,7 @@ public sealed class NavigationTargetResolver
 						sourceNode.Y.Value,
 						sourceNode.Z.Value,
 						isActionable: true,
-						isBlockedPath: _projector.IsSceneBlocked(currentScene, sourceScene)
-					)
-				);
+						isBlockedPath: _projector.IsSceneBlocked(currentScene, sourceScene)));
 			}
 		}
 
@@ -375,8 +338,7 @@ public sealed class NavigationTargetResolver
 		ResolvedActionSemantic semantic,
 		NavigationExplanation explanation,
 		string currentScene,
-		List<ResolvedQuestTarget> results
-	)
+		List<ResolvedQuestTarget> results)
 	{
 		var spawnEdges = _guide.OutEdges(sourceKey, EdgeType.HasSpawn);
 		if (spawnEdges.Count == 0)
@@ -387,12 +349,7 @@ public sealed class NavigationTargetResolver
 		{
 			string spawnKey = spawnEdges[i].Target;
 			var spawnNode = _guide.GetNode(spawnKey);
-			if (
-				spawnNode == null
-				|| !spawnNode.X.HasValue
-				|| !spawnNode.Y.HasValue
-				|| !spawnNode.Z.HasValue
-			)
+			if (spawnNode == null || !spawnNode.X.HasValue || !spawnNode.Y.HasValue || !spawnNode.Z.HasValue)
 				continue;
 
 			results.Add(
@@ -408,9 +365,7 @@ public sealed class NavigationTargetResolver
 					spawnNode.Y.Value,
 					spawnNode.Z.Value,
 					isActionable: true,
-					isBlockedPath: _projector.IsSceneBlocked(currentScene, spawnNode.Scene)
-				)
-			);
+					isBlockedPath: _projector.IsSceneBlocked(currentScene, spawnNode.Scene)));
 			emitted = true;
 		}
 
@@ -420,8 +375,7 @@ public sealed class NavigationTargetResolver
 	private IReadOnlyList<ResolvedQuestTarget> ResolveMutablePositionedEntityTargets(
 		string nodeKey,
 		Node node,
-		string currentScene
-	)
+		string currentScene)
 	{
 		var positions = new List<ResolvedPosition>();
 		_positionResolvers.Resolve(nodeKey, positions);
@@ -429,15 +383,12 @@ public sealed class NavigationTargetResolver
 			return Array.Empty<ResolvedQuestTarget>();
 
 		var nodeContext = _projector.BuildNodeContext(nodeKey);
-		var actionKind = node.Type == NodeType.MiningNode
-			? ResolvedActionKind.Mine
-			: ResolvedActionKind.Collect;
+		var actionKind = node.Type == NodeType.MiningNode ? ResolvedActionKind.Mine : ResolvedActionKind.Collect;
 		var semantic = BuildDirectNavigationSemantic(
 			node,
 			NavigationTargetKind.Object,
 			actionKind,
-			_guide.GetZoneDisplay(node.Scene)
-		);
+			_guide.GetZoneDisplay(node.Scene));
 		var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 		var results = new List<ResolvedQuestTarget>(positions.Count);
 		for (int i = 0; i < positions.Count; i++)
@@ -456,9 +407,7 @@ public sealed class NavigationTargetResolver
 					position.Y,
 					position.Z,
 					isActionable: position.IsActionable,
-					isBlockedPath: _projector.IsSceneBlocked(currentScene, position.Scene)
-				)
-			);
+					isBlockedPath: _projector.IsSceneBlocked(currentScene, position.Scene)));
 		}
 		return results;
 	}
@@ -466,8 +415,7 @@ public sealed class NavigationTargetResolver
 	private IReadOnlyList<ResolvedQuestTarget> ResolvePositionedEntityTargets(
 		string nodeKey,
 		Node node,
-		string currentScene
-	)
+		string currentScene)
 	{
 		var nodeContext = _projector.BuildNodeContext(nodeKey);
 		var actionKind = node.Type == NodeType.MiningNode
@@ -480,8 +428,7 @@ public sealed class NavigationTargetResolver
 			node,
 			targetKind,
 			actionKind,
-			_guide.GetZoneDisplay(node.Scene)
-		);
+			_guide.GetZoneDisplay(node.Scene));
 		var explanation = NavigationExplanationBuilder.Build(semantic, nodeContext, nodeContext);
 
 		return new[]
@@ -498,8 +445,7 @@ public sealed class NavigationTargetResolver
 				node.Y!.Value,
 				node.Z!.Value,
 				isActionable: true,
-				isBlockedPath: _projector.IsSceneBlocked(currentScene, node.Scene)
-			),
+				isBlockedPath: _projector.IsSceneBlocked(currentScene, node.Scene))
 		};
 	}
 
@@ -507,8 +453,7 @@ public sealed class NavigationTargetResolver
 		Node targetNode,
 		NavigationTargetKind targetKind,
 		ResolvedActionKind actionKind,
-		string? zoneText
-	)
+		string? zoneText)
 	{
 		return new ResolvedActionSemantic(
 			NavigationGoalKind.Generic,
@@ -524,9 +469,6 @@ public sealed class NavigationTargetResolver
 			zoneText: zoneText,
 			availabilityText: null,
 			preferredMarkerKind: QuestMarkerKind.Objective,
-			markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(
-				QuestMarkerKind.Objective
-			)
-		);
+			markerPriority: ResolvedActionSemanticBuilder.GetMarkerPriority(QuestMarkerKind.Objective));
 	}
 }

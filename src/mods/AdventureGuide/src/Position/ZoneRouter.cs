@@ -83,8 +83,6 @@ public sealed class ZoneRouter
 
 	private readonly CompiledGuideModel _guide;
 	private readonly UnlockEvaluator _unlocks;
-	private readonly GuideDependencyEngine? _dependencies;
-
 	// scene -> list of (destScene, zoneLineNodeKey, accessible)
 	private readonly Dictionary<string, List<ZoneEdge>> _adj = new(
 		StringComparer.OrdinalIgnoreCase
@@ -158,15 +156,11 @@ public sealed class ZoneRouter
 	}
 
 	public ZoneRouter(
-		CompiledGuideModel guide,
-		UnlockEvaluator unlocks,
-		GuideDependencyEngine? dependencies = null
-	)
+	    CompiledGuideModel guide,
+	    UnlockEvaluator unlocks)
 	{
-		_guide = guide;
-		_unlocks = unlocks;
-		_dependencies = dependencies;
-
+	    _guide = guide;
+	    _unlocks = unlocks;
 		// Build zone_key -> scene mapping from zone nodes
 		foreach (var zone in guide.NodesOfType(NodeType.Zone))
 		{
@@ -184,10 +178,6 @@ public sealed class ZoneRouter
 	/// </summary>
 	public void Rebuild()
 	{
-		using var scope = _dependencies?.BeginCollection(
-			new GuideDerivedKey(GuideDerivedKind.ZoneRoutes, "routes")
-		);
-
 		_adj.Clear();
 		_hopCache = null; // invalidate cached hop counts — adjacency changed
 		_hopCacheFrom = null;
@@ -242,18 +232,27 @@ public sealed class ZoneRouter
 		RebuildCount++;
 	}
 
-	public void ObserveInvalidation(IReadOnlyCollection<GuideDerivedKey> affectedDerivedKeys)
+	public void ObserveInvalidation(IReadOnlyCollection<FactKey> changedFacts)
 	{
-		foreach (var key in affectedDerivedKeys)
+		// The route graph depends on zone-line unlock state. That state is gated by
+		// item possession (keyring/unlock items), source state (live spawns / NPC
+		// presence affecting yielders/givers), and quest completion (quest-gated
+		// zones). Plain inventory-count changes that do not flip an unlock are
+		// covered by UnlockItemPossessed; reacting to InventoryItemCount as well
+		// would over-rebuild on every loot pickup. Scene changes go through Rebuild
+		// directly from the Plugin's scene-changed branch, so they are not handled
+		// here.
+		foreach (var fact in changedFacts)
 		{
-			if (key.Kind == GuideDerivedKind.ZoneRoutes)
+			if (fact.Kind is FactKind.UnlockItemPossessed
+				or FactKind.SourceState
+				or FactKind.QuestCompleted)
 			{
 				Rebuild();
 				return;
 			}
 		}
 	}
-
 	/// <summary>
 	/// Find the best route from currentScene to targetScene.
 	/// Returns null if no route exists or both are the same zone.

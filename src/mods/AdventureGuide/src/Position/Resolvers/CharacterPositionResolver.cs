@@ -18,17 +18,14 @@ public sealed class CharacterPositionResolver : IPositionResolver
 {
     private readonly CompiledGuideModel _guide;
     private readonly LiveStateTracker _liveState;
-    private readonly GuideDependencyEngine _dependencies;
 
     public CharacterPositionResolver(
         CompiledGuideModel guide,
-        LiveStateTracker liveState,
-        GuideDependencyEngine dependencies
+        LiveStateTracker liveState
     )
     {
         _guide = guide;
         _liveState = liveState;
-        _dependencies = dependencies;
     }
 
     public void Resolve(Node node, List<ResolvedPosition> results)
@@ -67,51 +64,51 @@ public sealed class CharacterPositionResolver : IPositionResolver
             switch (info.State)
             {
                 case SpawnAlive:
-                {
-                    // Prefer the live NPC transform; fall back to static spawn coords.
-                    var pos =
-                        info.LiveNPC != null && info.LiveNPC.gameObject != null
-                            ? info.LiveNPC.transform.position
-                            : staticPos;
-                    var scene =
-                        info.LiveNPC != null && info.LiveNPC.gameObject != null
-                            ? currentScene
-                            : spawnNode.Scene;
-                    results.Add(
-                        new ResolvedPosition(
-                            pos.x,
-                            pos.y,
-                            pos.z,
-                            scene,
-                            spawnNode.Key,
-                            isActionable: true
-                        )
-                    );
-                    anyFromSpawns = true;
-                    break;
-                }
+                    {
+                        // Prefer the live NPC transform; fall back to static spawn coords.
+                        var pos =
+                            info.LiveNPC != null && info.LiveNPC.gameObject != null
+                                ? info.LiveNPC.transform.position
+                                : staticPos;
+                        var scene =
+                            info.LiveNPC != null && info.LiveNPC.gameObject != null
+                                ? currentScene
+                                : spawnNode.Scene;
+                        results.Add(
+                            new ResolvedPosition(
+                                pos.x,
+                                pos.y,
+                                pos.z,
+                                scene,
+                                spawnNode.Key,
+                                isActionable: true
+                            )
+                        );
+                        anyFromSpawns = true;
+                        break;
+                    }
 
                 case SpawnDead:
-                {
-                    // Corpse still present: navigate to it (actionable).
-                    // No corpse: show static spawn position (non-actionable respawn timer).
-                    bool corpsePresent = info.LiveNPC != null && info.LiveNPC.gameObject != null;
-                    var pos = corpsePresent ? info.LiveNPC!.transform.position : staticPos;
-                    var scene = corpsePresent ? currentScene : spawnNode.Scene;
-                    results.Add(
-                        new ResolvedPosition(
-                            pos.x,
-                            pos.y,
-                            pos.z,
-                            scene,
-                            spawnNode.Key,
-                            isActionable: corpsePresent,
-                            isCorpse: corpsePresent
-                        )
-                    );
-                    anyFromSpawns = true;
-                    break;
-                }
+                    {
+                        // Corpse still present: navigate to it (actionable).
+                        // No corpse: show static spawn position (non-actionable respawn timer).
+                        bool corpsePresent = info.LiveNPC != null && info.LiveNPC.gameObject != null;
+                        var pos = corpsePresent ? info.LiveNPC!.transform.position : staticPos;
+                        var scene = corpsePresent ? currentScene : spawnNode.Scene;
+                        results.Add(
+                            new ResolvedPosition(
+                                pos.x,
+                                pos.y,
+                                pos.z,
+                                scene,
+                                spawnNode.Key,
+                                isActionable: corpsePresent,
+                                isCorpse: corpsePresent
+                            )
+                        );
+                        anyFromSpawns = true;
+                        break;
+                    }
 
                 default:
                     // NightLocked, QuestGated, Disabled, Unknown — static position, non-actionable.
@@ -152,8 +149,8 @@ public sealed class CharacterPositionResolver : IPositionResolver
             return;
         }
 
-        // No spawn edges — fall back to character state. Fact recording is correct here:
-        // this is resolution time, inside a BeginCollection/EndCollection pass.
+        // No spawn edges — fall back to character state.
+
         var charState = _liveState.GetCharacterState(node);
         if (charState.LiveNPC != null && charState.LiveNPC.gameObject != null)
         {

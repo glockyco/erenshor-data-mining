@@ -44,10 +44,8 @@ public sealed class QuestPhaseTracker : IDisposable
         OnStateLoaded(state.LastChangeSet);
     }
 
-    public QuestPhaseTracker(
-        CompiledGuide.CompiledGuide guide,
-        GuideDependencyEngine? dependencies = null
-    ) : this(guide, CreateDetachedState(guide, dependencies)) { }
+    public QuestPhaseTracker(CompiledGuide.CompiledGuide guide)
+        : this(guide, CreateDetachedState(guide)) { }
 
     public QuestPhase GetPhase(int questIndex)
     {
@@ -245,12 +243,10 @@ public sealed class QuestPhaseTracker : IDisposable
     }
 
     private static QuestStateTracker CreateDetachedState(
-        CompiledGuide.CompiledGuide guide,
-        GuideDependencyEngine? dependencies
-    )
+        CompiledGuide.CompiledGuide guide)
     {
-        var engine = dependencies ?? new GuideDependencyEngine();
-        var state = new QuestStateTracker(guide, engine);
+        var state = new QuestStateTracker(guide);
+
         state.LoadState(
             currentZone: string.Empty,
             activeQuests: Array.Empty<string>(),

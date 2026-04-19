@@ -85,7 +85,7 @@ public sealed class BlockingZonesQueryTests
 		{
 			Harness.AddToInventory("item:silver-key");
 			var changeSet = Harness.ForInventoryChange("item:silver-key", Array.Empty<string>());
-			Harness.Router.ObserveInvalidation(Harness.DependencyEngine.InvalidateFacts(changeSet.ChangedFacts));
+			Harness.Router.ObserveInvalidation(changeSet.ChangedFacts);
 		}
 	}
 }

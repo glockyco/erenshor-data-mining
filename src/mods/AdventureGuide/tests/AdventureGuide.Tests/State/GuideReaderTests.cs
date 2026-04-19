@@ -18,15 +18,10 @@ public sealed class GuideReaderTests
 
 		var query = engine.DefineQuery<string, int>(
 			name: "Count",
-			compute: (ctx, key) =>
+			compute: (_, key) =>
 			{
-				reader.AttachContext(ctx);
-				try
-				{
-					computeCount++;
-					return reader.ReadInventoryCount(key);
-				}
-				finally { reader.DetachContext(); }
+				computeCount++;
+				return reader.ReadInventoryCount(key);
 			});
 
 		Assert.Equal(3, engine.Read(query, "item:flask"));

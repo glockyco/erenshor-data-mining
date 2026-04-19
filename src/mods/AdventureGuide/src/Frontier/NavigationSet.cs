@@ -6,7 +6,7 @@ namespace AdventureGuide.Frontier;
 /// mining nodes, etc.). Click = override (clear + add single),
 /// Shift+click = toggle (add/remove without affecting others).
 /// </summary>
-public sealed class NavigationSet
+public sealed class NavigationSet : AdventureGuide.State.INavigationSetFactSource
 {
     private readonly HashSet<string> _keys = new();
 

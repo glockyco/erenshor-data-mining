@@ -10,7 +10,7 @@ public sealed class QuestStateTrackerTests
     public void OnQuestAssigned_FiresQuestLogChangedEventAfterStateCommit()
     {
         var guide = new CompiledGuideBuilder().AddQuest("quest:a", dbName: "QUESTA").Build();
-        var tracker = new QuestStateTracker(guide, new GuideDependencyEngine());
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: "Forest",
             activeQuests: Array.Empty<string>(),
@@ -41,7 +41,7 @@ public sealed class QuestStateTrackerTests
     public void LoadState_FiresLoadedEventAfterStateCommit()
     {
         var guide = new CompiledGuideBuilder().AddItem("item:wood").Build();
-        var tracker = new QuestStateTracker(guide, new GuideDependencyEngine());
+        var tracker = new QuestStateTracker(guide);
 
         string observedZone = string.Empty;
         int observedCount = -1;

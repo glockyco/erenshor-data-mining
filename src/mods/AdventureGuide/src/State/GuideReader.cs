@@ -1,12 +1,16 @@
 using AdventureGuide.Incremental;
+using AdventureGuide.Resolution;
+using AdventureGuide.Resolution.Queries;
 
 namespace AdventureGuide.State;
 
-/// <summary>Erenshor-specific wrapper over <see cref="Engine{TFactKey}"/> with
-/// <see cref="FactKey"/>. Typed accessors record the appropriate fact key on
-/// the active <see cref="ReadContext{TFactKey}"/> (for deps) and forward to the
-/// underlying tracker (for values). Each tracker implements a narrow interface
-/// so the wrapper can be unit-tested with fakes.</summary>
+/// <summary>Erenshor-specific facade over <see cref="Engine{TFactKey}"/> with
+/// <see cref="FactKey"/>. Typed accessors record their fact dependency on the
+/// engine's ambient <see cref="ReadContext{TFactKey}"/> and forward the read to
+/// the underlying tracker. Trackers also self-record on direct reads via
+/// <see cref="Engine{TFactKey}.Ambient"/>, so deep code paths that bypass the
+/// facade still subscribe the current compute. Each fact source is a narrow
+/// interface so the facade can be unit-tested with fakes.</summary>
 public sealed class GuideReader
 {
 	private readonly Engine<FactKey> _engine;
@@ -14,7 +18,8 @@ public sealed class GuideReader
 	private readonly IQuestStateFactSource? _questState;
 	private readonly ITrackerStateFactSource? _trackerState;
 	private readonly INavigationSetFactSource? _navSet;
-	private ReadContext<FactKey>? _activeContext;
+	private QuestResolutionQuery? _questResolutionQuery;
+	private IResolutionTracer? _activeTracer;
 
 	public GuideReader(Engine<FactKey> engine, IInventoryFactSource inventory)
 	{
@@ -27,66 +32,92 @@ public sealed class GuideReader
 		IInventoryFactSource inventory,
 		IQuestStateFactSource questState,
 		ITrackerStateFactSource trackerState,
-		INavigationSetFactSource navSet)
+		INavigationSetFactSource navSet,
+		QuestResolutionQuery? questResolutionQuery = null)
 	{
 		_engine = engine;
 		_inventory = inventory;
 		_questState = questState;
 		_trackerState = trackerState;
 		_navSet = navSet;
+		_questResolutionQuery = questResolutionQuery;
 	}
 
 	public Engine<FactKey> Engine => _engine;
 
-	internal void AttachContext(ReadContext<FactKey> ctx) => _activeContext = ctx;
-	internal void DetachContext() => _activeContext = null;
+	internal void SetQuestResolutionQuery(QuestResolutionQuery questResolutionQuery) =>
+		_questResolutionQuery = questResolutionQuery;
 
 	public int ReadInventoryCount(string itemId)
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.InventoryItemCount, itemId));
+		RequireAmbient().RecordFact(new FactKey(FactKind.InventoryItemCount, itemId));
 		return _inventory.GetCount(itemId);
 	}
 
 	public bool ReadQuestActive(string dbName)
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestActive, dbName));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, dbName));
 		return RequireQuestState().IsActive(dbName);
 	}
 
 	public bool ReadQuestCompleted(string dbName)
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
 		return RequireQuestState().IsCompleted(dbName);
 	}
 
 	public string ReadCurrentScene()
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.Scene, "current"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.Scene, "current"));
 		return RequireQuestState().CurrentScene;
 	}
 
-	// Records a coarse fact covering the whole tracked-quest list.
+	public QuestResolutionRecord ReadQuestResolution(string questKey, string scene)
+	{
+		if (_questResolutionQuery == null)
+			throw new InvalidOperationException("GuideReader not wired with QuestResolutionQuery.");
+		return _engine.Read(_questResolutionQuery.Query, (questKey, scene));
+	}
+
+	// Forces a fresh resolution bypassing any cached entry, with a tracer attached
+	// for the duration of the call. Queries read ActiveTracer during compute and
+	// pass it down to the resolver.
+	public QuestResolutionRecord ReadQuestResolutionForTrace(
+		string questKey, string scene, IResolutionTracer? tracer)
+	{
+		if (_questResolutionQuery == null)
+			throw new InvalidOperationException("GuideReader not wired with QuestResolutionQuery.");
+		_activeTracer = tracer;
+		try
+		{
+			return _engine.ReadUncached(_questResolutionQuery.Query, (questKey, scene));
+		}
+		finally { _activeTracer = null; }
+	}
+
+	internal IResolutionTracer? ActiveTracer => _activeTracer;
+
 	public IReadOnlyList<string> ReadTrackedQuests()
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
 		return RequireTrackerState().TrackedQuests;
 	}
 
 	internal IEnumerable<string> ReadActionableQuestDbNames()
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
 		return RequireQuestState().GetActionableQuestDbNames();
 	}
 
 	internal IEnumerable<string> ReadImplicitlyAvailableQuestDbNames()
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
 		return RequireQuestState().GetImplicitlyAvailableQuestDbNames();
 	}
 
 	internal IReadOnlyCollection<string> ReadNavSetKeys()
 	{
-		RequireContext().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
 		return RequireNavSet().Keys;
 	}
 
@@ -99,8 +130,8 @@ public sealed class GuideReader
 	private INavigationSetFactSource RequireNavSet() =>
 		_navSet ?? throw new InvalidOperationException("GuideReader navigation set source is unavailable.");
 
-	private ReadContext<FactKey> RequireContext() =>
-		_activeContext ?? throw new InvalidOperationException(
+	private static ReadContext<FactKey> RequireAmbient() =>
+		Engine<FactKey>.Ambient ?? throw new InvalidOperationException(
 			"GuideReader.Read* called outside a query compute. Use engine.Read at the top level.");
 }
 

@@ -26,47 +26,39 @@ public sealed class NavigableQuestsQuery
 
 	private NavigableQuestsResult Compute(ReadContext<FactKey> ctx, Unit _)
 	{
-		_reader.AttachContext(ctx);
-		try
+		var keys = new HashSet<string>(StringComparer.Ordinal);
+
+		foreach (var dbName in _reader.ReadActionableQuestDbNames())
 		{
-			var keys = new HashSet<string>(StringComparer.Ordinal);
-
-			foreach (var dbName in _reader.ReadActionableQuestDbNames())
-			{
-				_reader.ReadQuestActive(dbName);
-				var quest = _guide.GetQuestByDbName(dbName);
-				if (quest != null)
-					keys.Add(quest.Key);
-			}
-
-			foreach (var nodeKey in _reader.ReadNavSetKeys())
-			{
-				var node = _guide.GetNode(nodeKey);
-				if (node?.Type == NodeType.Quest)
-					keys.Add(node.Key);
-			}
-
-			foreach (var dbName in _reader.ReadTrackedQuests())
-			{
-				var quest = _guide.GetQuestByDbName(dbName);
-				if (quest != null)
-					keys.Add(quest.Key);
-			}
-
-			foreach (var dbName in _reader.ReadImplicitlyAvailableQuestDbNames())
-			{
-				_reader.ReadQuestActive(dbName);
-				var quest = _guide.GetQuestByDbName(dbName);
-				if (quest != null)
-					keys.Add(quest.Key);
-			}
-
-			return new NavigableQuestsResult(keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+			_reader.ReadQuestActive(dbName);
+			var quest = _guide.GetQuestByDbName(dbName);
+			if (quest != null)
+				keys.Add(quest.Key);
 		}
-		finally
+
+		foreach (var nodeKey in _reader.ReadNavSetKeys())
 		{
-			_reader.DetachContext();
+			var node = _guide.GetNode(nodeKey);
+			if (node?.Type == NodeType.Quest)
+				keys.Add(node.Key);
 		}
+
+		foreach (var dbName in _reader.ReadTrackedQuests())
+		{
+			var quest = _guide.GetQuestByDbName(dbName);
+			if (quest != null)
+				keys.Add(quest.Key);
+		}
+
+		foreach (var dbName in _reader.ReadImplicitlyAvailableQuestDbNames())
+		{
+			_reader.ReadQuestActive(dbName);
+			var quest = _guide.GetQuestByDbName(dbName);
+			if (quest != null)
+				keys.Add(quest.Key);
+		}
+
+		return new NavigableQuestsResult(keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
 	}
 }
 

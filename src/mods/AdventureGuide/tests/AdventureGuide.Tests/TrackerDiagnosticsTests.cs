@@ -40,7 +40,7 @@ public sealed class TrackerDiagnosticsTests
     new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
 );
         var dependencyEngine = new GuideDependencyEngine();
-        var tracker = new QuestStateTracker(guide, dependencyEngine);
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             "Forest",
             new[] { "ROOT" },

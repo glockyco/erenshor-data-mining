@@ -12,7 +12,7 @@ namespace AdventureGuide.State;
 /// Tracked quests are stored per character (keyed by save slot index).
 /// Global preferences (auto-track, sort mode) are shared.
 /// </summary>
-public sealed class TrackerState
+public sealed class TrackerState : ITrackerStateFactSource
 {
     private readonly HashSet<string> _tracked = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _orderedList = new();

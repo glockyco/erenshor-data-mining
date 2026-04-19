@@ -1,4 +1,5 @@
 using AdventureGuide.Graph;
+using AdventureGuide.Incremental;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;
@@ -10,10 +11,9 @@ namespace AdventureGuide.State;
 /// systems can invalidate maintained views from precise fact changes rather than
 /// broad version bumps.
 /// </summary>
-public sealed class QuestStateTracker
+public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSource
 {
     private readonly CompiledGuideModel _guide;
-    private readonly GuideDependencyEngine _dependencies;
 
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
@@ -39,14 +39,18 @@ public sealed class QuestStateTracker
 
     public string CurrentZone
     {
-        get
-        {
-            _dependencies.RecordFact(new FactKey(FactKind.Scene, "current"));
-            return _currentZone;
-        }
+        get => _currentZone;
         private set => _currentZone = value ?? string.Empty;
     }
 
+    public string CurrentScene
+    {
+        get
+        {
+            Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.Scene, "current"));
+            return CurrentZone;
+        }
+    }
     public string? SelectedQuestDBName { get; set; }
     public ChangeSet LastChangeSet { get; private set; } = ChangeSet.None;
 
@@ -55,10 +59,9 @@ public sealed class QuestStateTracker
     public IReadOnlyDictionary<string, int> InventoryCounts => _inventoryCounts;
     public IReadOnlyCollection<string> KeyringItems => _keyringItemKeys;
 
-    public QuestStateTracker(CompiledGuideModel guide, GuideDependencyEngine dependencies)
+    public QuestStateTracker(CompiledGuideModel guide)
     {
         _guide = guide;
-        _dependencies = dependencies;
         _implicitQuests = BuildImplicitQuestIndex(guide);
     }
 
@@ -108,46 +111,61 @@ public sealed class QuestStateTracker
 
     public bool IsActive(string dbName)
     {
-        _dependencies.RecordFact(new FactKey(FactKind.QuestActive, dbName));
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestActive, dbName));
         return _activeQuests.Contains(dbName);
     }
 
+
     public bool IsImplicitlyAvailable(string dbName)
     {
-        _dependencies.RecordFact(new FactKey(FactKind.Scene, "current"));
+        var ambient = Engine<FactKey>.Ambient;
+        if (ambient != null)
+        {
+            ambient.RecordFact(new FactKey(FactKind.QuestActive, dbName));
+            ambient.RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
+            ambient.RecordFact(new FactKey(FactKind.Scene, "current"));
+        }
         return !_activeQuests.Contains(dbName) && _implicitlyAvailableQuests.Contains(dbName);
     }
+
 
     public bool IsActionable(string dbName) => IsActive(dbName);
 
     public bool IsCompleted(string dbName)
     {
-        _dependencies.RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
         return _completedQuests.Contains(dbName);
     }
 
-    public int CountItem(string itemStableKey)
+
+    public int CountItem(string itemStableKey) => GetCount(itemStableKey);
+
+    public int GetCount(string itemId)
     {
-        _dependencies.RecordFact(new FactKey(FactKind.InventoryItemCount, itemStableKey));
-        return _inventoryCounts.TryGetValue(itemStableKey, out var count) ? count : 0;
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.InventoryItemCount, itemId));
+        return _inventoryCounts.TryGetValue(itemId, out var count) ? count : 0;
     }
+
 
     public bool HasUnlockItem(string itemStableKey)
     {
-        _dependencies.RecordFact(
-            new FactKey(FactKind.UnlockItemPossessed, itemStableKey)
-        );
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.UnlockItemPossessed, itemStableKey));
         return (_inventoryCounts.TryGetValue(itemStableKey, out var count) && count > 0)
             || _keyringItemKeys.Contains(itemStableKey);
     }
 
+
     public IEnumerable<string> GetActionableQuestDbNames()
     {
-        foreach (var quest in _activeQuests)
-            yield return quest;
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestActive, "*"));
+        return _activeQuests;
     }
 
-    public IEnumerable<string> GetImplicitlyAvailableQuestDbNames() => _implicitlyAvailableQuests;
+    public IEnumerable<string> GetImplicitlyAvailableQuestDbNames()
+    {
+        Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestActive, "*"));
+        return _implicitlyAvailableQuests;
+    }
 
     public ChangeSet SyncFromGameData() => FinalizeChange(BuildSyncChangeSet());
 
@@ -172,6 +190,8 @@ public sealed class QuestStateTracker
                 {
                     new FactKey(FactKind.QuestActive, dbName),
                     new FactKey(FactKind.QuestCompleted, dbName),
+                    new FactKey(FactKind.QuestActive, "*"),
+                    new FactKey(FactKind.QuestCompleted, "*"),
                 }
             )
         );
@@ -199,6 +219,8 @@ public sealed class QuestStateTracker
                 {
                     new FactKey(FactKind.QuestActive, dbName),
                     new FactKey(FactKind.QuestCompleted, dbName),
+                    new FactKey(FactKind.QuestActive, "*"),
+                    new FactKey(FactKind.QuestCompleted, "*"),
                 }
             )
         );
@@ -227,6 +249,8 @@ public sealed class QuestStateTracker
             changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in changedUnlockItemKeys)
             changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
+        if (changedUnlockItemKeys.Count > 0)
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, "*"));
 
         return FinalizeChange(
             new ChangeSet(
@@ -308,11 +332,18 @@ public sealed class QuestStateTracker
             changedFacts.Add(new FactKey(FactKind.QuestActive, dbName));
             changedFacts.Add(new FactKey(FactKind.QuestCompleted, dbName));
         }
+        if (changedQuestDbNames.Count > 0)
+        {
+            changedFacts.Add(new FactKey(FactKind.QuestActive, "*"));
+            changedFacts.Add(new FactKey(FactKind.QuestCompleted, "*"));
+        }
 
         foreach (var itemKey in changedItemKeys)
             changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in changedUnlockItemKeys)
             changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
+        if (changedUnlockItemKeys.Count > 0)
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, "*"));
 
         return new ChangeSet(
             inventoryChanged,
@@ -350,11 +381,18 @@ public sealed class QuestStateTracker
             changedFacts.Add(new FactKey(FactKind.QuestActive, dbName));
             changedFacts.Add(new FactKey(FactKind.QuestCompleted, dbName));
         }
+        if (changedQuestDbNames.Count > 0)
+        {
+            changedFacts.Add(new FactKey(FactKind.QuestActive, "*"));
+            changedFacts.Add(new FactKey(FactKind.QuestCompleted, "*"));
+        }
 
         foreach (var itemKey in changedItemKeys)
             changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in _keyringItemKeys)
             changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
+        if (_keyringItemKeys.Count > 0)
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, "*"));
         if (!string.IsNullOrWhiteSpace(_currentZone))
             changedFacts.Add(new FactKey(FactKind.Scene, "current"));
 

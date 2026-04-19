@@ -29,7 +29,7 @@ public sealed class SpecTreeProjectorTests
     {
         var harness = SpecTreeProjectorHarness.Build();
         int questIndex = harness.QuestIndex("RootQuest");
-        var record = harness.ResolutionService.ResolveQuest("quest:root", "SceneA");
+        var record = harness.Reader.ReadQuestResolution("quest:root", "SceneA");
 
         var roots = harness.Projector.GetRootChildren(questIndex);
 

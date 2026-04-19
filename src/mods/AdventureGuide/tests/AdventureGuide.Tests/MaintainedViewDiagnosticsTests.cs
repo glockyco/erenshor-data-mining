@@ -125,14 +125,17 @@ public sealed class MaintainedViewDiagnosticsTests
 
         int questIndex = FindQuestIndex(guide, "quest:root");
         var before = projector.GetRecord(questIndex);
-        service.InvalidateAll(ChangeSet.None);
+        // An empty invalidation touches nothing: no fact revision changes, no entry
+        // is marked stale, and the engine returns the same cached record. The
+        // planner-diagnostics counters under test must stay at zero.
+        service.Engine.InvalidateFacts(Array.Empty<FactKey>());
         var after = projector.GetRecord(questIndex);
         var snapshot = projector.ExportDiagnosticsSnapshot();
 
-        Assert.NotSame(before, after);
+        Assert.Same(before, after);
         Assert.Equal(0, snapshot.LastInvalidatedQuestCount);
         Assert.False(snapshot.LastInvalidationWasFull);
-        Assert.Equal(after, service.ResolveQuest("quest:root", string.Empty));
+        Assert.Equal(after, service.ReadQuestResolution("quest:root", string.Empty));
     }
 
     private static int FindQuestIndex(AdventureGuide.CompiledGuide.CompiledGuide guide, string key)

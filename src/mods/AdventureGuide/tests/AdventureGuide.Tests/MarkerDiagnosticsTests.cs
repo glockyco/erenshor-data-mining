@@ -47,7 +47,7 @@ public sealed class MarkerDiagnosticsTests
         var guide = new Helpers.CompiledGuideBuilder()
             .AddQuest("quest:a", dbName: "QUESTA")
             .Build();
-        var tracker = new QuestStateTracker(guide, new GuideDependencyEngine());
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: "Forest",
             activeQuests: Array.Empty<string>(),
@@ -113,7 +113,7 @@ public sealed class MarkerDiagnosticsTests
             .AddQuest("quest:a", dbName: "QUESTA")
             .Build();
         var dependencies = new GuideDependencyEngine();
-        var tracker = new QuestStateTracker(guide, dependencies);
+        var tracker = new QuestStateTracker(guide);
         tracker.LoadState(
             currentZone: "Forest",
             activeQuests: Array.Empty<string>(),

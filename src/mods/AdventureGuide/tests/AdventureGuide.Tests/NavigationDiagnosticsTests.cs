@@ -72,7 +72,6 @@ public sealed class NavigationDiagnosticsTests
                 frontier,
                 sourceResolver,
                 zoneRouter: null,
-                versionProvider: () => 0,
                 positionRegistry: positionRegistry
             ),
             null,

@@ -27,7 +27,13 @@ public sealed class BlockingZonesQuery
 
 	private BlockingZonesResult Compute(ReadContext<FactKey> ctx, string scene)
 	{
+		// ZoneRouter's accessibility graph depends on zone-line unlock state, which
+		// is gated by unlock-item possession, live source state, and quest
+		// completion. Subscribe to the set-identity key for each kind so any emitter
+		// mutation forces this query to recompute.
 		ctx.RecordFact(new FactKey(FactKind.SourceState, "*"));
+		ctx.RecordFact(new FactKey(FactKind.UnlockItemPossessed, "*"));
+		ctx.RecordFact(new FactKey(FactKind.QuestCompleted, "*"));
 		if (_zoneRouter == null || string.IsNullOrWhiteSpace(scene))
 			return BlockingZonesResult.Empty;
 
