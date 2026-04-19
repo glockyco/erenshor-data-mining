@@ -558,7 +558,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
 
         if (sp.NightSpawn)
         {
-            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.TimeOfDay, "night"));
+            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.TimeOfDay, "current"));
             if (!IsNight())
                 return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
         }
@@ -949,7 +949,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         foreach (var sourceKey in sourceKeys)
             changedFacts.Add(new GuideFactKey(GuideFactKind.SourceState, sourceKey));
         if (timeChanged)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.TimeOfDay, "night"));
+            changedFacts.Add(new GuideFactKey(GuideFactKind.TimeOfDay, "current"));
 
         if (!forceChanged && changedFacts.Count == 0)
             return GuideChangeSet.None;
