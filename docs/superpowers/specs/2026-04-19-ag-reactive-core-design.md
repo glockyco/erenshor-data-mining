@@ -26,6 +26,8 @@ The engine is also designed under the program's extraction constraints (§ 8 of 
 
 Under the new model the update loop is synchronous and single-threaded. Consumers reading computed state read engine queries; the engine records fact dependencies for whatever the query touches. The record no longer owns snapshots — it holds only the composed result for one `(questKey, currentScene)` pair. Staleness is impossible because the engine invalidates the record when any fact it depended on changes.
 
+Consequence: `QuestResolutionService` disappears. Its cache becomes the `QuestResolution` query; consumers call `guideReader.ReadQuestResolution(questKey, scene)` directly.
+
 ### Q5 — `MaintainedViewPlanner`
 
 **Resolved: retire entirely.**
@@ -36,7 +38,7 @@ The planner's job today is to decide full-vs-partial marker rebuild from a coars
 
 ### 3.1 Shape
 
-Salsa-shaped, not signals-shaped. The engine holds a collection of **query definitions**. A query is a function `(QueryContext, TKey) -> TValue`. The engine memoises each `(query, key)` pair and recomputes it on read iff some fact the last computation depended on has changed since.
+Salsa-shaped, not signals-shaped. The engine holds a collection of **query definitions**. A query is a function `(ReadContext, TKey) -> TValue`. The engine memoises each `(query, key)` pair and recomputes it on read iff some fact the last computation depended on has changed since.
 
 Parametric views (one query per quest, one per scene) map onto `(query, key)` cache entries naturally. Signal/atom models would need a memo-factory per parameterised family and lose the uniform cache shape.
 
@@ -45,32 +47,32 @@ Parametric views (one query per quest, one per scene) map onto `(query, key)` ca
 ```csharp
 namespace AdventureGuide.Incremental;
 
-public sealed class IncrementalEngine<TFactKey> where TFactKey : notnull
+public sealed class Engine<TFactKey> where TFactKey : notnull
 {
     public Query<TKey, TValue> DefineQuery<TKey, TValue>(
         string name,
-        Func<QueryContext<TFactKey>, TKey, TValue> compute);
+        Func<ReadContext<TFactKey>, TKey, TValue> compute);
 
     public TValue Read<TKey, TValue>(Query<TKey, TValue> query, TKey key);
 
     public IReadOnlyCollection<QueryRef> InvalidateFacts(IEnumerable<TFactKey> changed);
 }
 
-public sealed class QueryContext<TFactKey>
+public sealed class ReadContext<TFactKey>
 {
     public void RecordFact(TFactKey fact);
     public TValue Read<TKey, TValue>(Query<TKey, TValue> query, TKey key);
 }
 ```
 
-The engine is generic over the fact key type. Erenshor's `GuideFactKey` appears nowhere on this surface. An Erenshor-specific thin wrapper in `AdventureGuide.State` (working name `GuideQueryReader`) holds a `QueryContext<GuideFactKey>` and exposes typed accessors per fact kind (e.g. `ReadInventoryCount(string itemId)`), which call `RecordFact` under the hood.
+The engine is generic over the fact key type. Erenshor's `FactKey` appears nowhere on this surface. An Erenshor-specific thin wrapper `GuideReader` in `AdventureGuide.State` holds a `ReadContext<FactKey>` and exposes typed accessors per fact kind (e.g. `ReadInventoryCount(string itemId)`), which call `RecordFact` under the hood.
 
 ### 3.3 Recording facts
 
 Fact reads and query reads are asymmetric by design:
 
-- **Facts are recorded explicitly** via `RecordFact(TFactKey)`. Fact values live in the trackers — the engine does not own them. The wrapper pattern (`GuideQueryReader.ReadQuestPhase(key)`) makes the explicit record ergonomic: the wrapper records the dep and forwards to the tracker.
-- **Query-to-query reads are transparent** via `QueryContext.Read(query, key)`. The engine sees every query read and stitches the dependency automatically. Query return types are strongly typed.
+- **Facts are recorded explicitly** via `RecordFact(TFactKey)`. Fact values live in the trackers — the engine does not own them. The wrapper pattern (`GuideReader.ReadQuestPhase(key)`) makes the explicit record ergonomic: the wrapper records the dep and forwards to the tracker.
+- **Query-to-query reads are transparent** via `ReadContext.Read(query, key)`. The engine sees every query read and stitches the dependency automatically. Query return types are strongly typed.
 
 Heterogeneous fact value types (ints, strings, bools, structs) would force the engine into an untyped `object`-based API if it owned facts. Keeping fact values in trackers preserves the typed accessor pattern where each accessor returns the natural type.
 
@@ -106,48 +108,48 @@ Cycles in the dependency graph indicate a design bug, not a runtime condition to
 
 ## 4. The five queries
 
-The current quest-resolution pipeline becomes five engine queries. Names are illustrative; final names are decided during implementation.
+The current quest-resolution pipeline becomes five engine queries.
 
-### 4.1 `QuestCompiledTargets(questKey)` — frontier and compiled targets
+### 4.1 `CompiledTargets(questKey)` — frontier and compiled targets
 
 Walks the frontier for one quest and produces the compiled target list. Reads facts: `QuestActive(questKey)`, `QuestCompleted(questKey)`, `InventoryItemCount(*)` and `UnlockItemPossessed(*)` touched during the walk, `SourceState(*)` for nodes visited.
 
 **No `Scene` dependency.** The frontier walk is scene-independent; scene filtering happens downstream. This is an audit pre-req (see § 7) — confirmed by reading `QuestTargetResolver.Resolve` during implementation.
 
-### 4.2 `BlockingZonesForScene(currentScene)` — zone-line blockers
+### 4.2 `BlockingZones(scene)` — zone-line blockers
 
 For a given scene, returns the map of zone-line nodes the player currently cannot cross, keyed by target scene with the blocking reason. Reads facts: `SourceState(zoneLineNodeKey)` for each zone line in the scene, plus whatever the blocker evaluation touches (item possession, unlock state).
 
 Keyed on scene. One cache entry per scene the player visits.
 
-### 4.3 `NavigableQuestKeys()` — singleton quest set
+### 4.3 `NavigableQuests()` — singleton quest set
 
 The set of quest keys that contribute navigation targets. Reads facts: all `QuestActive(*)` plus tracker-state facts that gate inclusion. Singleton (no key parameter).
 
-### 4.4 `QuestResolution(questKey, currentScene)` — composed record
+### 4.4 `QuestResolution(questKey, scene)` — composed record
 
-Composes `QuestCompiledTargets(questKey)` and `BlockingZonesForScene(currentScene)` into a `QuestResolutionRecord` for the requested `(quest, scene)` pair. Reads no facts directly — its deps are exactly the two sub-queries. This is where scene filtering collapses the scene-independent frontier into a scene-specific resolution.
+Composes `CompiledTargets(questKey)` and `BlockingZones(scene)` into a `QuestResolutionRecord` for the requested `(quest, scene)` pair. Reads no facts directly — its deps are exactly the two sub-queries. This is where scene filtering collapses the scene-independent frontier into a scene-specific resolution.
 
-### 4.5 `MarkerCandidatesForScene(currentScene)` — marker projection
+### 4.5 `MarkerCandidates(scene)` — marker projection
 
-Produces the marker-candidate list for the current scene. Reads `NavigableQuestKeys()` to iterate navigable quests, reads `QuestResolution(questKey, currentScene)` for each, plus `SourceState` for each scene node it considers materialising as a marker.
+Produces the marker-candidate list for the current scene. Reads `NavigableQuests()` to iterate navigable quests, reads `QuestResolution(questKey, scene)` for each, plus `SourceState` for each scene node it considers materialising as a marker.
 
 Keyed on scene.
 
 ### 4.6 Dependency topology
 
 ```
-MarkerCandidatesForScene(scene)
-  ├── NavigableQuestKeys()
+MarkerCandidates(scene)
+  ├── NavigableQuests()
   │     └── facts: QuestActive(*), TrackerState(*)
   └── QuestResolution(questKey, scene)
-        ├── QuestCompiledTargets(questKey)
+        ├── CompiledTargets(questKey)
         │     └── facts: QuestActive, QuestCompleted, Inventory, Unlock, SourceState
-        └── BlockingZonesForScene(scene)
+        └── BlockingZones(scene)
               └── facts: SourceState(zoneLineNode)
 ```
 
-`MarkerComputer` no longer holds `_dirty`, `_fullRebuild`, `MarkDirty`, or `ApplyGuideChangeSet`. Its per-frame work is: read `MarkerCandidatesForScene(currentScene)` from the engine, apply the result to the rendering layer.
+`MarkerProjector` (renamed from `MarkerComputer` — see § 6) no longer holds `_dirty`, `_fullRebuild`, `MarkDirty`, or `ApplyGuideChangeSet`. Its per-frame work is: read `MarkerCandidates(scene)` from the engine, apply the result to the rendering layer.
 
 ## 5. The Plugin update orchestrator
 
@@ -156,43 +158,71 @@ MarkerCandidatesForScene(scene)
 `Plugin.Update` becomes an orchestrator that runs five named phases per frame, in order:
 
 1. **Capture** — trackers read live game state into their internal representations. No engine interaction.
-2. **Publish** — trackers emit the `GuideFactKey` set that changed this frame. Scene change is part of this set (`GuideFactKey(Scene, "current")`) — it is not a special path.
+2. **Publish** — trackers emit the `FactKey` set that changed this frame. Scene change is part of this set (`FactKey(Scene, "current")`) — it is not a special path.
 3. **Invalidate** — `engine.InvalidateFacts(changedFacts)` marks affected entries stale. Returns the affected set for diagnostics only; no branching logic depends on it.
-4. **Recompute (lazy)** — consumers read what they need. Each read triggers recomputation only for entries whose deps are actually stale, with backdating cutting ripples.
+4. **Consume** — consumers read the queries they need through `GuideReader`. Each read triggers recomputation only for entries whose deps are actually stale, with backdating cutting ripples.
 5. **Render** — per-frame rendering/UI work consumes the results.
 
 Each phase is a method; each method gets a diagnostics span. Phase boundaries become the seam Group 4 builds on.
 
+The phase names describe orchestration actions, not engine internals. "Consume" is named after what downstream subsystems do, not what the engine does underneath — the engine's recomputation is a mechanism, not a phase.
+
 ### 5.2 Scene change handling
 
-Scene change is a fact, not a special path. `Plugin.Update` today branches on scene equality to call `InvalidateAll`; that branch is deleted. The trackers emit `GuideFactKey(Scene, "current")` when the scene changes; the engine invalidates every cached entry that read the `Scene` fact; next read produces a fresh resolution against the new scene. Entries for other scenes stay cached.
+Scene change is a fact, not a special path. `Plugin.Update` today branches on scene equality to call `InvalidateAll`; that branch is deleted. The trackers emit `FactKey(Scene, "current")` when the scene changes; the engine invalidates every cached entry that read the `Scene` fact; next read produces a fresh resolution against the new scene. Entries for other scenes stay cached.
 
 ### 5.3 Version counters and dirty flags removed
 
 Every version counter and dirty flag currently coordinating cache freshness across `Plugin`, `QuestResolutionService`, `MaintainedViewPlanner`, `MarkerComputer`, `NavigationTargetSelector` is deleted. The engine's revision-based invalidation replaces all of them.
 
-## 6. Extraction-friendliness (reiterated)
+## 6. Naming discipline
+
+The existing codebase grew ad-hoc prefixes and suffixes. This section records the rules new types in Group 1 follow and the minimum set of existing renames that ride along.
+
+**Prefix rule.** The `Guide*` prefix survives only where the simple name would collide with a non-mod type (BepInEx `ConfigFile`, Unity windows, `System.Diagnostics`). Inside the mod namespace the prefix is dead weight — the namespace already disambiguates. New types follow this rule; existing types are only renamed when Group 1 is already touching them.
+
+**Suffix rule.** For new types, pick either a role noun (`Engine`, `Query`, `Reader`, `Context`) or the codebase's existing dominant suffix if it fits (`Resolver` for "compute from state", `Tracker` for "observe live state", `Projector` for "read a computed view, emit rendering primitives"). The one-off suffixes (`Service`, `Computer`, `Planner`) are the inconsistency — they are not extended.
+
+**Query naming rule.** Queries are noun phrases over their keys. Parametric-suffixes like `ForScene` are redundant when the scene is already the key parameter.
+
+**Renames in Group 1:**
+
+| Today | New name | Reason |
+|---|---|---|
+| `GuideFactKey` | `FactKey` | Prefix is habit; namespace disambiguates |
+| `GuideFactKind` | `FactKind` | Same |
+| `GuideChangeSet` | `ChangeSet` | Same |
+| `MarkerComputer` | `MarkerProjector` | Joins the `SpecTreeProjector`/`QuestTargetProjector` family; accurately names its new role |
+| `QuestResolutionService` | *deleted* | Cache becomes `QuestResolution` query |
+| `GuideDependencyEngine` | *deleted* | Replaced by `Engine<FactKey>` |
+| `GuideDerivedKey`/`GuideDerivedKind` | *deleted* | Replaced by `Query<,>` handles |
+| `MaintainedViewPlanner`/`MaintainedViewPlan` | *deleted* | Q5 resolution |
+
+**Deliberately out of scope:** the ~19 `*Resolver`, ~4 `*Builder`, ~3 `*Tracker`, ~4 `*Renderer` families are consistent internally. The `GuideConfig`/`GuideWindow`/`GuideProfiler`/`GuideDiagnostics` prefixes are collision-justified and stay.
+
+## 7. Extraction-friendliness
 
 The engine lives in its own namespace `AdventureGuide.Incremental`. Its public API (§ 3.2) is generic over `TFactKey` and names no Erenshor types. Internal implementation details may reference whatever is convenient — the constraint is about the surface an external consumer would depend on.
 
-The thin wrapper `GuideQueryReader` in `AdventureGuide.State` is the single location that binds the engine to Erenshor. Query *definitions* live in mod code (e.g. `AdventureGuide.Resolution.Queries`); they are consumers of the engine, not part of it.
+The thin wrapper `GuideReader` in `AdventureGuide.State` is the single location that binds the engine to Erenshor. Query *definitions* live with their consuming subsystem (`Resolution/`, `Navigation/`, `Markers/`); they are consumers of the engine, not part of it.
 
 Extraction itself is not a goal of Group 1 or of the overhaul program. The constraint only ensures that an extraction decision, if made later, is not blocked by incidental coupling.
 
-## 7. Audit pre-requisite
+## 8. Audit pre-requisite
 
-Before the query signatures are finalised, one detail must be confirmed by reading the source: `QuestTargetResolver.Resolve(questIndex, currentScene, ...)` receives `currentScene` as a parameter. If it uses scene only for filtering the compiled target list, § 4.1 stands — `QuestCompiledTargets(questKey)` is truly scene-independent, scene filtering lives in `QuestResolution(questKey, scene)`. If it uses scene during emission (the walk itself differs by scene), `QuestCompiledTargets` must key on `(questKey, scene)` instead, multiplying cache entries by scene count.
+Before the query signatures are finalised, one detail must be confirmed by reading the source: `QuestTargetResolver.Resolve(questIndex, currentScene, ...)` receives `currentScene` as a parameter. If it uses scene only for filtering the compiled target list, § 4.1 stands — `CompiledTargets(questKey)` is truly scene-independent, scene filtering lives in `QuestResolution(questKey, scene)`. If it uses scene during emission (the walk itself differs by scene), `CompiledTargets` must key on `(questKey, scene)` instead, multiplying cache entries by scene count.
 
 This is a short, bounded read during implementation. The outcome shapes cache structure, not the rest of the design.
 
-## 8. Acceptance criteria
+## 9. Acceptance criteria
 
 Group 1 is complete when all of the following hold against a running mod:
 
 - `AdventureGuide.Incremental` namespace exists; its public API references no Erenshor types.
 - Every invalidation path in the mod goes through the engine. No version counters, dirty flags, reference-identity checks, or implicit-detection patterns remain coordinating cache freshness.
-- `GuideDependencyEngine`, `GuideDerivedKey`, `GuideDerivedKind`, `MaintainedViewPlanner`, and `MaintainedViewPlan` are deleted. `QuestResolutionRecord` no longer holds phase or item-count snapshots.
-- `Plugin.Update` is a five-phase orchestrator; each phase is a named method; each has a diagnostics span.
+- `GuideDependencyEngine`, `GuideDerivedKey`, `GuideDerivedKind`, `QuestResolutionService`, `MaintainedViewPlanner`, and `MaintainedViewPlan` are deleted. `QuestResolutionRecord` no longer holds phase or item-count snapshots.
+- `GuideFactKey`/`GuideFactKind`/`GuideChangeSet` are renamed to `FactKey`/`FactKind`/`ChangeSet`. `MarkerComputer` is renamed to `MarkerProjector`.
+- `Plugin.Update` is a five-phase orchestrator (Capture, Publish, Invalidate, Consume, Render); each phase is a named method; each has a diagnostics span.
 - Every type used as a query return value provides value equality.
 - Test suite stays green. New tests cover engine semantics (memoisation, lazy recompute, backdating, fact invalidation, cycle detection throw) and at least one query end-to-end.
 - Incident dump under representative scene load shows no new `FrameStall` or `FrameHitch` compared to program-start behaviour.
@@ -208,7 +238,7 @@ Each derived view an atom; reading an atom inside another subscribes transparent
 
 ### Engine owns fact values
 
-The engine would expose `GetFact<T>(key)` and trackers would push values in. Rejected: `GuideFactKey` carries heterogeneous value types. A generic `T` on the key type forces boxing or an untyped `object`-valued API. Keeping values in trackers preserves natural typed accessors.
+The engine would expose `GetFact<T>(key)` and trackers would push values in. Rejected: `FactKey` carries heterogeneous value types. A generic `T` on the key type forces boxing or an untyped `object`-valued API. Keeping values in trackers preserves natural typed accessors.
 
 ### Eager recomputation on invalidation
 
@@ -217,6 +247,14 @@ The engine would expose `GetFact<T>(key)` and trackers would push values in. Rej
 ### `MaintainedViewPlanner` as thin translator
 
 Keep the planner as a translator between engine affected-sets and marker-system rebuild hints. Rejected: the engine already returns the affected-views set; the planner would forward it untouched. Every line of the planner becomes dead.
+
+### `QuestResolutionService` as thin façade
+
+Keep the service as a renamed façade holding the engine and the `QuestResolution` query handle, exposing `GetResolution(questKey, scene)`. Rejected: the façade would forward unchanged to the engine. `GuideReader` already provides the typed accessor; an extra domain-noun indirection would be ceremony.
+
+### `Recompute` as the fourth phase name
+
+Name the phase after what the engine does (recompute stale entries). Rejected: the engine's recomputation is an internal mechanism triggered by consumer reads; the phase is defined by what the orchestrator does (drive consumers to read). `Consume` names the orchestration action.
 
 ## Appendix B — Related documents
 
