@@ -430,7 +430,9 @@ public sealed class Plugin : BaseUnityPlugin
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
         var initialChangeSet = _questTracker.OnSceneChanged(currentScene);
-        _engine?.InvalidateFacts(initialChangeSet.ChangedFacts);
+        // Fact publication is deferred below so NavSet/TrackerSet mutations from
+        // OnCharacterLoaded are combined with the quest-tracker scene change in one
+        // invalidation batch.
 
         _liveState.OnSceneLoaded();
         _waterResolver.OnSceneLoaded();
@@ -441,6 +443,12 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _navEngine.OnSceneChanged(currentScene);
         _markerComputer.ApplyChangeSet(initialChangeSet);
+
+        var initialFacts = initialChangeSet.ChangedFacts
+            .Concat(_navSet.DrainPendingFacts())
+            .Concat(_trackerState.DrainPendingFacts());
+        _engine?.InvalidateFacts(initialFacts);
+
         var syncMs = syncSw.Elapsed.TotalMilliseconds;
 
         // First marker recompute — this triggers cold quest resolution for all
@@ -546,9 +554,14 @@ public sealed class Plugin : BaseUnityPlugin
         }
         var selectorChangeSet = stateChangeSet.Merge(liveChangeSet);
 
-        if (selectorChangeSet.HasMeaningfulChanges)
+        var navFacts = _navSet?.DrainPendingFacts() ?? Array.Empty<FactKey>();
+        var trackerFacts = _trackerState?.DrainPendingFacts() ?? Array.Empty<FactKey>();
+        bool hasSetFacts = navFacts.Count > 0 || trackerFacts.Count > 0;
+
+        if (selectorChangeSet.HasMeaningfulChanges || hasSetFacts)
         {
-            _engine?.InvalidateFacts(selectorChangeSet.ChangedFacts);
+            var combinedFacts = selectorChangeSet.ChangedFacts.Concat(navFacts).Concat(trackerFacts);
+            _engine?.InvalidateFacts(combinedFacts);
             _zoneRouter?.ObserveInvalidation(selectorChangeSet.ChangedFacts);
             if (selectorChangeSet.SceneChanged)
                 _zoneRouter?.Rebuild();

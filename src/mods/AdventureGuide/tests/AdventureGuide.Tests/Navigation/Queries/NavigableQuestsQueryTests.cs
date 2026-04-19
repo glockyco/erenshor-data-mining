@@ -44,6 +44,32 @@ public sealed class NavigableQuestsQueryTests
 		Assert.Equal(first, second);
 	}
 
+	[Fact]
+	public void Read_Recomputes_WhenNavSetWildcardInvalidatesEntry()
+	{
+		var fixture = NavigableQuestsFixture.Create();
+		var first = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
+
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.NavSet, "*") });
+		var second = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
+
+		Assert.NotSame(first, second);
+		Assert.Equal(first, second);
+	}
+
+	[Fact]
+	public void Read_Recomputes_WhenTrackerSetWildcardInvalidatesEntry()
+	{
+		var fixture = NavigableQuestsFixture.Create();
+		var first = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
+
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.TrackerSet, "*") });
+		var second = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
+
+		Assert.NotSame(first, second);
+		Assert.Equal(first, second);
+	}
+
 	private sealed class NavigableQuestsFixture
 	{
 		private NavigableQuestsFixture(

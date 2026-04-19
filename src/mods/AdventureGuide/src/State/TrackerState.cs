@@ -20,6 +20,7 @@ public sealed class TrackerState : ITrackerStateFactSource
     private ConfigEntry<string>? _trackedEntry;
     private int _boundSlotIndex = -1;
     private bool _dirty;
+    private bool _factPending;
 
     public bool Enabled { get; set; } = true;
     public bool AutoTrackEnabled { get; set; } = true;
@@ -67,6 +68,7 @@ public sealed class TrackerState : ITrackerStateFactSource
         _orderedList.Add(dbName);
         PersistTrackedQuests();
         _dirty = true;
+        _factPending = true;
         Tracked?.Invoke(dbName);
     }
 
@@ -77,6 +79,7 @@ public sealed class TrackerState : ITrackerStateFactSource
         _orderedList.Remove(dbName);
         PersistTrackedQuests();
         _dirty = true;
+        _factPending = true;
         Untracked?.Invoke(dbName);
     }
 
@@ -145,6 +148,7 @@ public sealed class TrackerState : ITrackerStateFactSource
             }
         }
         _dirty = true;
+        _factPending = true;
     }
 
     public void SaveToConfig()
@@ -155,6 +159,20 @@ public sealed class TrackerState : ITrackerStateFactSource
         _config.TrackerAutoTrack.Value = AutoTrackEnabled;
         _config.TrackerSortMode.Value = SortMode.ToString();
         PersistTrackedQuests();
+    }
+
+    /// <summary>Drains the pending fact emission caused by tracked-set
+    /// membership changes (Track/Untrack/OnCharacterLoaded). Returns
+    /// <c>FactKey(TrackerSet, "*")</c> once per change batch, empty otherwise.
+    /// Plugin's update loop drains once per frame and feeds the result into
+    /// <c>Engine.InvalidateFacts</c> so queries that read the tracker set via
+    /// <c>GuideReader.ReadTrackedQuests</c> invalidate correctly.</summary>
+    public IReadOnlyCollection<FactKey> DrainPendingFacts()
+    {
+        if (!_factPending)
+            return Array.Empty<FactKey>();
+        _factPending = false;
+        return new[] { new FactKey(FactKind.TrackerSet, "*") };
     }
 
     private void PersistTrackedQuests()

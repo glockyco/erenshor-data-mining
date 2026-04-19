@@ -9,6 +9,8 @@ public enum FactKind
     Scene,
     SourceState,
     TimeOfDay,
+    NavSet,
+    TrackerSet,
 }
 
 /// <summary>

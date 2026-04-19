@@ -1,29 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+    <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+    </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="xunit" Version="2.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="coverlet.collector" Version="6.*">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="BepInEx.Core" Version="5.*" />
-  </ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.*" GeneratePathProperty="true" />
+    <PackageReference Include="BepInEx.BaseLib" Version="5.*" GeneratePathProperty="true" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="../../AdventureGuide.csproj" />
-  </ItemGroup>
+    <!-- BepInEx.BaseLib ships BepInEx.dll but NuGet's runtime copy does not flow
+        through the main project's PrivateAssets="all" chain. Copy it explicitly
+        so TrackerState tests that hit ConfigEntry can JIT-load the type. -->
+    <Target Name="CopyBepInExRuntime" AfterTargets="Build">
+    <Copy SourceFiles="$(PkgBepInEx_BaseLib)/lib/netstandard2.0/BepInEx.dll"
+            DestinationFolder="$(OutDir)"
+            SkipUnchangedFiles="true" />
+    </Target>
+
+    <ItemGroup>
+        <ProjectReference Include="../../AdventureGuide.csproj" />
+    </ItemGroup>
+
 </Project>

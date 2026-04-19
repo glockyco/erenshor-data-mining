@@ -9,6 +9,7 @@ namespace AdventureGuide.Frontier;
 public sealed class NavigationSet : AdventureGuide.State.INavigationSetFactSource
 {
     private readonly HashSet<string> _keys = new();
+    private bool _factPending;
 
     /// <summary>Fired after the selected navigation target set changes.</summary>
     public event Action? Changed;
@@ -66,9 +67,23 @@ public sealed class NavigationSet : AdventureGuide.State.INavigationSetFactSourc
     /// </summary>
     public int Version { get; private set; }
 
+    /// <summary>Drains the pending fact emission caused by membership changes
+    /// since the last drain. Returns <c>FactKey(NavSet, "*")</c> once per change
+    /// batch, empty otherwise. Plugin's update loop drains once per frame and
+    /// feeds the result into <c>Engine.InvalidateFacts</c> so queries that read
+    /// the nav set via <c>GuideReader.ReadNavSetKeys</c> invalidate correctly.</summary>
+    public IReadOnlyCollection<AdventureGuide.State.FactKey> DrainPendingFacts()
+    {
+        if (!_factPending)
+            return Array.Empty<AdventureGuide.State.FactKey>();
+        _factPending = false;
+        return new[] { new AdventureGuide.State.FactKey(AdventureGuide.State.FactKind.NavSet, "*") };
+    }
+
     private void MarkChanged()
     {
         Version++;
+        _factPending = true;
         Changed?.Invoke();
     }
 }

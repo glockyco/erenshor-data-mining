@@ -99,7 +99,7 @@ public sealed class GuideReader
 
 	public IReadOnlyList<string> ReadTrackedQuests()
 	{
-		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.TrackerSet, "*"));
 		return RequireTrackerState().TrackedQuests;
 	}
 
@@ -117,7 +117,7 @@ public sealed class GuideReader
 
 	internal IReadOnlyCollection<string> ReadNavSetKeys()
 	{
-		RequireAmbient().RecordFact(new FactKey(FactKind.QuestActive, "*"));
+		RequireAmbient().RecordFact(new FactKey(FactKind.NavSet, "*"));
 		return RequireNavSet().Keys;
 	}
 
