@@ -57,7 +57,8 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideReader? _reader;
     private NavigationSet? _navSet;
     private NavigationEngine? _navEngine;
-    private MarkerComputer? _markerComputer;
+    private MarkerProjector? _markerProjector;
+
     private MarkerPool? _markerPool;
     private ZoneRouter? _zoneRouter;
     private ArrowRenderer? _arrow;
@@ -69,7 +70,8 @@ public sealed class Plugin : BaseUnityPlugin
     private DiagnosticOverlay? _diagnosticOverlay;
     private IncidentPanel? _incidentPanel;
     private LiveStateTracker? _liveState;
-    private MarkerSystem? _markerSystem;
+    private MarkerRenderer? _markerRenderer;
+
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
     private NavigationTargetSelector? _targetSelector;
@@ -79,7 +81,7 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
-    private MarkerQuestTargetResolver? _markerQuestTargetResolver;
+
     private NavigationTargetResolver? _navigationTargetResolver;
     private CompiledTargetsQuery? _compiledTargetsQuery;
     private BlockingZonesQuery? _blockingZonesQuery;
@@ -252,7 +254,9 @@ public sealed class Plugin : BaseUnityPlugin
             _reader,
             _navigableQuestsQuery,
             _questResolutionQuery);
+        _reader.SetMarkerCandidatesQuery(_markerCandidatesQuery);
         _navigationTargetResolver = new NavigationTargetResolver(
+
             _compiledGuide,
             _reader,
             _zoneRouter,
@@ -261,10 +265,7 @@ public sealed class Plugin : BaseUnityPlugin
             _diagnostics
         );
 
-        _markerQuestTargetResolver = new MarkerQuestTargetResolver(
-            _compiledGuide,
-            _reader
-        );
+
 
         _targetSelector = new NavigationTargetSelector(
             _navigationTargetResolver,
@@ -295,17 +296,10 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerComputer = new MarkerComputer(
-            _compiledGuide,
-            _questTracker,
-            _liveState,
-            _navSet,
-            _trackerState,
-            _markerQuestTargetResolver,
-            _diagnostics
-        );
-        _markerSystem = new MarkerSystem(_markerComputer, _markerPool, _config);
-        _markerSystem.Enabled = _config.ShowWorldMarkers.Value;
+        _markerProjector = new MarkerProjector(_reader, _liveState, _compiledGuide);
+        _markerRenderer = new MarkerRenderer(_markerProjector, _markerPool, _config);
+        _markerRenderer.Enabled = _config.ShowWorldMarkers.Value;
+
 
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
         _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
@@ -368,7 +362,8 @@ public sealed class Plugin : BaseUnityPlugin
 
         _diagnosticOverlay = new DiagnosticOverlay(
             _questTracker,
-            _markerComputer,
+            _markerProjector,
+
             _navSet,
             _config,
             _compiledGuide,
@@ -396,14 +391,16 @@ public sealed class Plugin : BaseUnityPlugin
 
         DebugAPI.Router = _zoneRouter;
         DebugAPI.Unlocks = _unlockEvaluator;
-        DebugAPI.Markers = _markerComputer;
+        DebugAPI.Markers = _markerProjector;
+
         DebugAPI.GameStateInstance = _gameState;
 
         DebugAPI.Reader = _reader;
 
         DebugAPI.Resolver = _navigationTargetResolver;
         DebugAPI.Diagnostics = _diagnostics;
-        DebugAPI.MarkerSnapshot = _markerComputer.ExportDiagnosticsSnapshot;
+        DebugAPI.MarkerSnapshot = _markerProjector.ExportDiagnosticsSnapshot;
+
         DebugAPI.NavSnapshot = _targetSelector!.ExportDiagnosticsSnapshot;
         DebugAPI.TrackerSnapshot = trackerSummaryResolver.ExportDiagnosticsSnapshot;
         DebugAPI.TreeSnapshot = _specTreeProjector.ExportDiagnosticsSnapshot;
@@ -453,32 +450,29 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence.OnCharacterLoaded(_compiledGuide);
         }
         _navEngine.OnSceneChanged(currentScene);
-        _markerComputer.ApplyChangeSet(initialChangeSet);
 
         var initialFacts = initialChangeSet.ChangedFacts
+
             .Concat(_navSet.DrainPendingFacts())
             .Concat(_trackerState.DrainPendingFacts());
         _engine?.InvalidateFacts(initialFacts);
 
         var syncMs = syncSw.Elapsed.TotalMilliseconds;
 
-        // First marker recompute — this triggers cold quest resolution for all
-        // actionable quests. Timed separately because it dominates cold start.
-        Log.LogInfo("Adventure Guide startup: beginning first marker recompute");
         syncSw.Restart();
-        _markerComputer.Recompute();
+        _reader.ReadMarkerCandidates(currentScene);
+
 
         // Capture the tracker version now so the first Update() tick does not
         // re-replay Awake's scene-change event, wipe the warm resolution cache,
         // and pay the full ~5 s marker batch cost a second time.
         _lastObservedQuestTrackerVersion = _questTracker.Version;
 
-        var firstRecomputeMs = syncSw.Elapsed.TotalMilliseconds;
-        Log.LogInfo(
-            $"Adventure Guide startup: first marker recompute finished in {firstRecomputeMs:F0} ms"
-        );
+        var firstProjectionMs = syncSw.Elapsed.TotalMilliseconds;
+        Log.LogInfo($"Adventure Guide startup: first projection: {firstProjectionMs:F0} ms");
 
-        _markerSystem.OnSceneChanged(currentScene);
+        _markerRenderer.OnSceneChanged(currentScene);
+
         startupSw.Stop();
 
         var questCount = _compiledGuide.NodesOfType(NodeType.Quest).Count;
@@ -491,7 +485,8 @@ public sealed class Plugin : BaseUnityPlugin
                 + $"  Startup: {startupSw.Elapsed.TotalMilliseconds:F0} ms total\n"
                 + $"    data load:     {graphLoadMs:F0} ms\n"
                 + $"    state sync:    {syncMs:F0} ms\n"
-                + $"    first markers: {firstRecomputeMs:F0} ms\n"
+                + $"    first markers: {firstProjectionMs:F0} ms\n"
+
                 + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
                 + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
                 + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)"
@@ -578,10 +573,7 @@ public sealed class Plugin : BaseUnityPlugin
                 _zoneRouter?.Rebuild();
         }
 
-        if (selectorChangeSet.HasMeaningfulChanges)
-            _markerComputer?.ApplyChangeSet(selectorChangeSet);
 
-        _markerComputer?.Recompute();
 
         int targetSourceVersion = _navigationTargetResolver!.Version;
         int navSetVersion = _navSet!.Version;
@@ -613,7 +605,9 @@ public sealed class Plugin : BaseUnityPlugin
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
-        _markerSystem?.Update();
+        _markerProjector?.Project();
+        _markerRenderer?.Render();
+
 
         if (_config == null || _window == null)
             return;
@@ -685,8 +679,8 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence?.OnCharacterLoaded(_compiledGuide!);
         }
         _navEngine?.OnSceneChanged(scene.name);
-        _markerComputer?.ApplyChangeSet(sceneChangeSet);
-        _markerSystem?.OnSceneChanged(scene.name);
+        _markerRenderer?.OnSceneChanged(scene.name);
+
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
@@ -740,8 +734,8 @@ public sealed class Plugin : BaseUnityPlugin
         bool ui = _gameUIVisible;
         _arrow!.Enabled = ui && _config!.ShowArrow.Value;
         _groundPath!.Enabled = ui && _config!.ShowGroundPath.Value;
-        if (_markerSystem != null)
-            _markerSystem.Enabled = ui && _config!.ShowWorldMarkers.Value;
+        if (_markerRenderer != null)
+            _markerRenderer.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
     private void OnDestroy()
@@ -767,8 +761,7 @@ public sealed class Plugin : BaseUnityPlugin
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
-        _markerComputer?.Destroy();
-        _markerSystem?.Destroy();
+        _markerRenderer?.Destroy();
         MarkerFonts.Destroy();
         GuideDiagnostics.LogInfo = null;
         GuideDiagnostics.LogWarning = null;
@@ -779,14 +772,11 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Nav = null;
         DebugAPI.TargetSelector = null;
         DebugAPI.GroundPath = null;
-
         DebugAPI.Router = null;
         DebugAPI.Unlocks = null;
         DebugAPI.Markers = null;
         DebugAPI.GameStateInstance = null;
-
         DebugAPI.Reader = null;
-
         DebugAPI.Resolver = null;
         DebugAPI.Diagnostics = null;
         DebugAPI.MarkerSnapshot = null;

@@ -17,17 +17,19 @@ public sealed class DebugAPIDiagnosticsTests
         );
         var core = new DiagnosticsCore(16, 16, 8, thresholds);
         var token = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRecompute,
+            DiagnosticSpanKind.NavSelectorTick,
             DiagnosticsContext.Root(DiagnosticTrigger.SceneChanged),
-            primaryKey: "MarkerComputer"
+            primaryKey: "nav"
         );
+
         core.EndSpan(token, elapsedTicks: 20, value0: 1, value1: 0);
         DebugAPI.Diagnostics = core;
 
         string text = DebugAPI.DumpPerfSummary();
 
         Assert.Contains("last incident", text, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("MarkerRecompute", text, StringComparison.Ordinal);
+        Assert.Contains("NavSelectorTick", text, StringComparison.Ordinal);
+
         DebugAPI.Diagnostics = null;
     }
 

@@ -29,7 +29,8 @@ public static class DebugAPI
 
     internal static ZoneRouter? Router { get; set; }
     internal static UnlockEvaluator? Unlocks { get; set; }
-    internal static MarkerComputer? Markers { get; set; }
+    internal static MarkerProjector? Markers { get; set; }
+
     internal static GameState? GameStateInstance { get; set; }
 
     internal static AdventureGuide.Resolution.NavigationTargetResolver? Resolver { get; set; }
@@ -282,39 +283,6 @@ public static class DebugAPI
         }
 
         return null;
-    }
-
-    /// <summary>Profile MarkerComputer.Recompute() cold and hot.</summary>
-    public static string ProfileMarkerRecompute(int iterations = 5)
-    {
-        if (Markers == null)
-            return "Not initialized";
-
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("Profiling MarkerComputer.Recompute()");
-        sb.AppendLine($"Iterations: {iterations}");
-        sb.AppendLine();
-
-        Markers.MarkDirty();
-        var sw = Stopwatch.StartNew();
-        Markers.Recompute();
-        sw.Stop();
-        sb.AppendLine($"Cold: {sw.Elapsed.TotalMilliseconds:F3} ms");
-
-        double totalHot = 0;
-        for (int i = 0; i < iterations; i++)
-        {
-            Markers.MarkDirty();
-            sw.Restart();
-            Markers.Recompute();
-            sw.Stop();
-            double ms = sw.Elapsed.TotalMilliseconds;
-            totalHot += ms;
-            sb.AppendLine($"Hot[{i}]: {ms:F3} ms");
-        }
-
-        sb.AppendLine($"Hot avg: {totalHot / iterations:F3} ms");
-        return sb.ToString();
     }
 
     private static readonly NodeType[] SnapshotNodeTypes =

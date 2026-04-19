@@ -44,6 +44,15 @@ public sealed class GuideReaderTests
 		Assert.Throws<InvalidOperationException>(() => reader.ReadInventoryCount("item:flask"));
 	}
 
+	[Fact]
+	public void ReadMarkerCandidates_ThrowsIfQueryIsNotWired()
+	{
+		var engine = new Engine<FactKey>();
+		var reader = new GuideReader(engine, new FakeInventory());
+
+		Assert.Throws<InvalidOperationException>(() => reader.ReadMarkerCandidates("Town"));
+	}
+
 	private sealed class FakeInventory : IInventoryFactSource
 	{
 		private readonly Dictionary<string, int> _counts = new();

@@ -1,6 +1,7 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
 using AdventureGuide.Markers;
+using AdventureGuide.Markers.Queries;
 using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Resolution;
 using AdventureGuide.Resolution.Queries;
@@ -24,6 +25,7 @@ public sealed class GuideReader
 	private readonly ISourceStateFactSource? _sourceState;
 	private QuestResolutionQuery? _questResolutionQuery;
 	private NavigableQuestsQuery? _navigableQuestsQuery;
+	private MarkerCandidatesQuery? _markerCandidatesQuery;
 	private IResolutionTracer? _activeTracer;
 
 	public GuideReader(Engine<FactKey> engine, IInventoryFactSource inventory)
@@ -40,7 +42,8 @@ public sealed class GuideReader
 		INavigationSetFactSource navSet,
 		ISourceStateFactSource? sourceState = null,
 		QuestResolutionQuery? questResolutionQuery = null,
-		NavigableQuestsQuery? navigableQuestsQuery = null)
+		NavigableQuestsQuery? navigableQuestsQuery = null,
+		MarkerCandidatesQuery? markerCandidatesQuery = null)
 	{
 		_engine = engine;
 		_inventory = inventory;
@@ -50,6 +53,7 @@ public sealed class GuideReader
 		_sourceState = sourceState;
 		_questResolutionQuery = questResolutionQuery;
 		_navigableQuestsQuery = navigableQuestsQuery;
+		_markerCandidatesQuery = markerCandidatesQuery;
 	}
 
 	public Engine<FactKey> Engine => _engine;
@@ -60,9 +64,12 @@ public sealed class GuideReader
 	internal void SetNavigableQuestsQuery(NavigableQuestsQuery navigableQuestsQuery) =>
 		_navigableQuestsQuery = navigableQuestsQuery;
 
+	internal void SetMarkerCandidatesQuery(MarkerCandidatesQuery markerCandidatesQuery) =>
+		_markerCandidatesQuery = markerCandidatesQuery;
+
 	/// <summary>Non-recording accessor for top-level callers that need the
 	/// current scene string without establishing a fact dependency. Use this
-	/// in <c>Plugin.Update</c> phases, <c>MarkerSystem</c>, and
+	/// in <c>Plugin.Update</c> phases, <c>MarkerRenderer</c>, and
 	/// <c>NavigationTargetSelector.Tick</c>. Inside a query compute, call
 	/// <see cref="ReadCurrentScene"/> instead so the Scene fact is recorded.</summary>
 	public string CurrentScene => RequireQuestState().CurrentScene;
@@ -114,6 +121,16 @@ public sealed class GuideReader
 		if (_navigableQuestsQuery == null)
 			throw new InvalidOperationException("GuideReader not wired with NavigableQuestsQuery.");
 		return _engine.Read(_navigableQuestsQuery.Query, Unit.Value);
+	}
+
+	/// <summary>Top-level read. Do not call from inside a query compute —
+	/// use <c>ctx.Read(markerCandidatesQuery.Query, scene)</c> instead so the
+	/// query-to-query dependency is recorded.</summary>
+	public MarkerCandidateList ReadMarkerCandidates(string scene)
+	{
+		if (_markerCandidatesQuery == null)
+			throw new InvalidOperationException("GuideReader not wired with MarkerCandidatesQuery.");
+		return _engine.Read(_markerCandidatesQuery.Query, scene);
 	}
 
 	/// <summary>Top-level read. Do not call from inside a query compute —

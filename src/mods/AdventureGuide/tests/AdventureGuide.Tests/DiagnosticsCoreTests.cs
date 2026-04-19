@@ -54,7 +54,8 @@ public sealed class DiagnosticsCoreTests
         );
 
         var token = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRecompute,
+            DiagnosticSpanKind.NavSelectorTick,
+
             context,
             primaryKey: "quest:a"
         );
@@ -138,7 +139,8 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(16, 16, 8, thresholds);
         var context = DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged);
         var token = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRebuildCurrentScene,
+            DiagnosticSpanKind.SpecTreeProjectRoot,
+
             context,
             primaryKey: "Forest"
         );
@@ -164,16 +166,18 @@ public sealed class DiagnosticsCoreTests
         var core = new DiagnosticsCore(16, 16, 8, thresholds);
         var context = DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged);
         var first = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRecompute,
+            DiagnosticSpanKind.NavSelectorTick,
             context,
-            primaryKey: "MarkerComputer"
+            primaryKey: "nav"
         );
+
         core.EndSpan(first, elapsedTicks: 5000, value0: 23, value1: 44);
         var second = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRecompute,
+            DiagnosticSpanKind.NavSelectorTick,
             context,
-            primaryKey: "MarkerComputer"
+            primaryKey: "nav"
         );
+
         core.EndSpan(second, elapsedTicks: 5000, value0: 23, value1: 44);
 
         var incidents = core.GetRecentIncidents();
@@ -201,14 +205,15 @@ public sealed class DiagnosticsCoreTests
         {
             core.RecordEvent(
                 new DiagnosticEvent(
-                    DiagnosticEventKind.MarkerRebuildRequested,
+                    DiagnosticEventKind.SelectorRefreshForced,
                     DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged),
                     timestampTicks: i * 10,
-                    primaryKey: "MarkerComputer",
+                    primaryKey: "nav",
                     value0: 1,
                     value1: 0
                 )
             );
+
         }
 
         var incident = core.TryGetLastIncident();
@@ -274,7 +279,8 @@ public sealed class DiagnosticsCoreTests
         for (int i = 0; i < 3; i++)
         {
             var token = core.BeginSpan(
-                DiagnosticSpanKind.MarkerRecompute,
+                DiagnosticSpanKind.NavSelectorTick,
+
                 DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged),
                 primaryKey: $"quest:{i}"
             );
@@ -301,7 +307,8 @@ public sealed class DiagnosticsCoreTests
         );
         var core = new DiagnosticsCore(16, 16, 4, thresholds);
         var token = core.BeginSpan(
-            DiagnosticSpanKind.MarkerRecompute,
+            DiagnosticSpanKind.NavSelectorTick,
+
             DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged),
             primaryKey: "quest:formatted"
         );

@@ -21,11 +21,27 @@ public sealed class MarkerCandidatesQueryTests
 
 		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
 
-		var candidate = Assert.Single(list.Candidates);
-		Assert.Equal("quest:a", candidate.QuestKey);
-		Assert.Equal("char:leaf", candidate.TargetNodeKey);
-		Assert.Equal("spawn:leaf-1", candidate.PositionNodeKey);
-		Assert.Equal(SpawnCategory.Alive, candidate.SpawnCategory);
+		var active = Assert.Single(list.Candidates, c => !c.IsSpawnTimerSlot);		Assert.Equal("quest:a", active.QuestKey);
+		Assert.Equal("char:leaf", active.TargetNodeKey);
+		Assert.Equal("spawn:leaf-1", active.PositionNodeKey);
+		Assert.Equal(SpawnCategory.Alive, active.SpawnCategory);
+	}
+
+	[Fact]
+	public void Read_EmitsRespawnTimerSibling_ForSpawnBackedTarget()
+	{
+		var fixture = MarkerCandidatesFixture.CreateActiveQuest();
+
+		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
+
+		Assert.Equal(2, list.Candidates.Count);
+		var timer = Assert.Single(list.Candidates, c => c.IsSpawnTimerSlot);		Assert.Equal("quest:a", timer.QuestKey);
+		Assert.Equal("char:leaf", timer.TargetNodeKey);
+		Assert.Equal("spawn:leaf-1|respawn", timer.PositionNodeKey);
+		Assert.Equal("spawn:leaf-1", timer.SourceNodeKey);
+		Assert.Equal(QuestMarkerKind.Objective, timer.QuestKind);
+		Assert.Equal(SpawnCategory.Alive, timer.SpawnCategory);
+		Assert.Equal(string.Empty, timer.SubText);
 	}
 
 	[Fact]
@@ -67,7 +83,7 @@ public sealed class MarkerCandidatesQueryTests
 		var second = fixture.Engine.Read(fixture.Query.Query, "Town");
 
 		Assert.NotSame(first, second);
-		Assert.Equal(SpawnCategory.Dead, second.Candidates[0].SpawnCategory);
+		Assert.All(second.Candidates, c => Assert.Equal(SpawnCategory.Dead, c.SpawnCategory));
 	}
 
 	[Fact]
@@ -257,18 +273,10 @@ public sealed class MarkerCandidatesQueryTests
 
 			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestsResult>(
 				"NavigableQuestsStub",
-				(ctx, _) => new NavigableQuestsResult(Array.Empty<string>()));
-
+				(_, _) => new NavigableQuestsResult(Array.Empty<string>()));
 			var questResolutionQuery = engine.DefineQuery<(string, string), QuestResolutionRecord>(
 				"QuestResolutionStub",
-				(ctx, key) => new QuestResolutionRecord(
-					questKey: key.Item1,
-					currentScene: key.Item2,
-					frontier: Array.Empty<FrontierEntry>(),
-					compiledTargets: Array.Empty<ResolvedTarget>(),
-					navigationTargetsFactory: () => Array.Empty<ResolvedQuestTarget>(),
-					blockingZoneLineByScene: new Dictionary<string, int>()));
-
+				(_, _) => throw new InvalidOperationException("QuestResolution should not run for giver-only overlap"));
 			var query = new MarkerCandidatesQuery(
 				engine,
 				guide,
@@ -288,7 +296,7 @@ public sealed class MarkerCandidatesQueryTests
 	private sealed class FakeQuestState : IQuestStateFactSource
 	{
 		private readonly HashSet<string> _actionable;
-		private readonly HashSet<string> _implicit;
+		private readonly HashSet<string> _implicitAvail;
 		private readonly HashSet<string> _completed;
 
 		public FakeQuestState(
@@ -299,7 +307,7 @@ public sealed class MarkerCandidatesQueryTests
 		{
 			CurrentScene = currentScene;
 			_actionable = new HashSet<string>(actionable, StringComparer.OrdinalIgnoreCase);
-			_implicit = new HashSet<string>(implicitAvail, StringComparer.OrdinalIgnoreCase);
+			_implicitAvail = new HashSet<string>(implicitAvail, StringComparer.OrdinalIgnoreCase);
 			_completed = new HashSet<string>(completed, StringComparer.OrdinalIgnoreCase);
 		}
 
@@ -307,12 +315,12 @@ public sealed class MarkerCandidatesQueryTests
 		public bool IsActive(string dbName) => _actionable.Contains(dbName);
 		public bool IsCompleted(string dbName) => _completed.Contains(dbName);
 		public IEnumerable<string> GetActionableQuestDbNames() => _actionable;
-		public IEnumerable<string> GetImplicitlyAvailableQuestDbNames() => _implicit;
+		public IEnumerable<string> GetImplicitlyAvailableQuestDbNames() => _implicitAvail;
 	}
 
 	private sealed class FakeTrackerState : ITrackerStateFactSource
 	{
-		public FakeTrackerState(IReadOnlyList<string> tracked) => TrackedQuests = tracked;
+		public FakeTrackerState(IReadOnlyList<string> trackedQuests) => TrackedQuests = trackedQuests;
 		public IReadOnlyList<string> TrackedQuests { get; }
 	}
 

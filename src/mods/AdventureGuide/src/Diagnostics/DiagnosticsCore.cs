@@ -327,7 +327,7 @@ internal sealed class DiagnosticsCore
 
     private void DetectIncident(DiagnosticEvent evt)
     {
-        if (evt.Kind != DiagnosticEventKind.MarkerRebuildRequested)
+        if (evt.Kind != DiagnosticEventKind.SelectorRefreshForced)
             return;
 
         _recentMarkerRebuilds.Enqueue(evt.TimestampTicks);
@@ -345,7 +345,15 @@ internal sealed class DiagnosticsCore
             _lastIncident = new DiagnosticIncident(
                 DiagnosticIncidentKind.RebuildStorm,
                 evt.TimestampTicks,
-                summary: "Repeated marker rebuild requests exceeded the configured window."
+                summary: "Repeated selector refreshes exceeded the configured window."
+            );
+            AppendIncident(
+                IncidentBundle.Create(
+                    _lastIncident,
+                    CaptureRelatedEvents(evt.Context.CorrelationId),
+                    CaptureRelatedSpans(evt.Context.CorrelationId),
+                    Array.Empty<SnapshotEnvelope>()
+                )
             );
         }
     }

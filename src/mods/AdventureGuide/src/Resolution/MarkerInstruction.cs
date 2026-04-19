@@ -2,7 +2,7 @@ namespace AdventureGuide.Resolution;
 
 /// <summary>
 /// Marker-facing projection of a resolved semantic action.
-/// MarkerComputer uses the same projected instruction for both text and icon
+/// MarkerProjector uses the same projected instruction for both text and icon
 /// selection, then preserves its priority when multiple quests compete for one
 /// world target.
 /// </summary>

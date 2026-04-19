@@ -183,7 +183,7 @@ public sealed class LiveStateTracker
     /// <summary>
     /// Returns the first RotChest within <paramref name="maxDistance"/> of
     /// <paramref name="position"/>, or null if none is found. Used by
-    /// MarkerComputer to bind a live chest reference to a marker entry.
+    /// MarkerProjector to bind a live chest reference to a marker entry.
     /// </summary>
     public RotChest? GetRotChestNear(Vector3 position, float maxDistance = 1f)
     {

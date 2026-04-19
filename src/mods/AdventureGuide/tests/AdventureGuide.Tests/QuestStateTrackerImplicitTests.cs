@@ -7,7 +7,7 @@ namespace AdventureGuide.Tests;
 
 /// <summary>
 /// Verifies the post-refactor contract: implicit quests are separated from
-/// actionable quests so that MarkerComputer routes them through
+/// actionable quests so that MarkerCandidatesQuery routes them through
 /// EmitImplicitCompletionMarkers rather than full plan resolution.
 /// </summary>
 public sealed class QuestStateTrackerImplicitTests
@@ -31,7 +31,7 @@ public sealed class QuestStateTrackerImplicitTests
         var implicitNames = harness.Tracker.GetImplicitlyAvailableQuestDbNames().ToList();
 
         // Assert: implicit quest is available but NOT in the actionable set.
-        // This is the gate that routes it through EmitImplicitCompletionMarkers
+        // This is the gate that routes it through implicit completion candidates
         // instead of full plan resolution.
         Assert.True(
             implicitlyAvailable,

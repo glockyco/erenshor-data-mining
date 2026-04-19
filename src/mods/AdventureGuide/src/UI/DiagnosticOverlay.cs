@@ -15,148 +15,137 @@ namespace AdventureGuide.UI;
 /// </summary>
 internal sealed class DiagnosticOverlay
 {
-    private const float HoverRadiusPx = 30f;
-    private const float StatusBarHeightPx = 24f;
+	private const float HoverRadiusPx = 30f;
+	private const float StatusBarHeightPx = 24f;
 
-    private readonly QuestStateTracker _questTracker;
-    private readonly MarkerComputer _markerComputer;
-    private readonly NavigationSet _navSet;
-    private readonly GuideConfig _config;
-    private readonly CompiledGuideModel _guide;
-    private readonly DiagnosticsCore _diagnostics;
+	private readonly QuestStateTracker _questTracker;
+	private readonly MarkerProjector _markerProjector;
+	private readonly NavigationSet _navSet;
+	private readonly GuideConfig _config;
+	private readonly CompiledGuideModel _guide;
+	private readonly DiagnosticsCore _diagnostics;
 
-    internal DiagnosticOverlay(
-        QuestStateTracker questTracker,
-        MarkerComputer markerComputer,
-        NavigationSet navSet,
-        GuideConfig config,
-        CompiledGuideModel guide,
-        DiagnosticsCore diagnostics
-    )
-    {
-        _questTracker = questTracker;
-        _markerComputer = markerComputer;
-        _navSet = navSet;
-        _config = config;
-        _guide = guide;
-        _diagnostics = diagnostics;
-    }
+	internal DiagnosticOverlay(
+		QuestStateTracker questTracker,
+		MarkerProjector markerProjector,
+		NavigationSet navSet,
+		GuideConfig config,
+		CompiledGuideModel guide,
+		DiagnosticsCore diagnostics)
+	{
+		_questTracker = questTracker;
+		_markerProjector = markerProjector;
+		_navSet = navSet;
+		_config = config;
+		_guide = guide;
+		_diagnostics = diagnostics;
+	}
 
-    internal void Render()
-    {
-        if (!_config.DiagnosticOverlay.Value)
-            return;
+	internal void Render()
+	{
+		if (!_config.DiagnosticOverlay.Value)
+			return;
 
-        DrawStatusBar();
+		DrawStatusBar();
 
-        if (Input.GetKey(KeyCode.LeftAlt))
-            DrawMarkerTooltip();
-    }
+		if (Input.GetKey(KeyCode.LeftAlt))
+			DrawMarkerTooltip();
+	}
 
-    private void DrawStatusBar()
-    {
-        var display = ImGui.GetIO().DisplaySize;
-        float barHeight = StatusBarHeightPx * _config.ResolvedUiScale;
+	private void DrawStatusBar()
+	{
+		var display = ImGui.GetIO().DisplaySize;
+		float barHeight = StatusBarHeightPx * _config.ResolvedUiScale;
 
-        ImGui.SetNextWindowPos(
-            new System.Numerics.Vector2(0, display.Y - barHeight),
-            ImGuiCond.Always
-        );
-        ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(display.X, barHeight),
-            ImGuiCond.Always
-        );
+		ImGui.SetNextWindowPos(
+			new System.Numerics.Vector2(0, display.Y - barHeight),
+			ImGuiCond.Always);
+		ImGui.SetNextWindowSize(
+			new System.Numerics.Vector2(display.X, barHeight),
+			ImGuiCond.Always);
 
-        var flags =
-            ImGuiWindowFlags.NoDecoration
-            | ImGuiWindowFlags.NoInputs
-            | ImGuiWindowFlags.NoNav
-            | ImGuiWindowFlags.NoBringToFrontOnFocus
-            | ImGuiWindowFlags.NoFocusOnAppearing
-            | ImGuiWindowFlags.NoSavedSettings;
+		var flags =
+			ImGuiWindowFlags.NoDecoration
+			| ImGuiWindowFlags.NoInputs
+			| ImGuiWindowFlags.NoNav
+			| ImGuiWindowFlags.NoBringToFrontOnFocus
+			| ImGuiWindowFlags.NoFocusOnAppearing
+			| ImGuiWindowFlags.NoSavedSettings;
 
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, Theme.Background);
+		ImGui.PushStyleColor(ImGuiCol.WindowBg, Theme.Background);
 
-        if (ImGui.Begin("###DiagnosticOverlay", flags))
-        {
-            int activeCount = _questTracker.ActiveQuests.Count;
-            int markerCount = _markerComputer.Markers.Count;
-            int navCount = _navSet.Count;
-            double markerMs = _diagnostics.GetLastSpanMilliseconds(
-                DiagnosticSpanKind.MarkerRecompute
-            );
-            var markerSnapshot = _markerComputer.ExportDiagnosticsSnapshot();
-            string modeText =
-                markerSnapshot.RecentModes.Count == 0
-                    ? "n/a"
-                    : markerSnapshot.RecentModes[^1].Mode.ToString();
-            string incidentText = _diagnostics.TryGetLastIncident()?.Kind.ToString() ?? "none";
+		if (ImGui.Begin("###DiagnosticOverlay", flags))
+		{
+			int activeCount = _questTracker.ActiveQuests.Count;
+			int markerCount = _markerProjector.Markers.Count;
+			int navCount = _navSet.Count;
+			var markerSnapshot = _markerProjector.ExportDiagnosticsSnapshot();
+			string incidentText = _diagnostics.TryGetLastIncident()?.Kind.ToString() ?? "none";
 
-            ImGui.TextUnformatted(
-                $"AG: {activeCount} active, {markerCount} markers, {navCount} NAV, marker={markerMs:F1}ms, mode={modeText}, incident={incidentText}"
-            );
-        }
+			ImGui.TextUnformatted(
+				$"AG: {activeCount} active, {markerCount} markers, {navCount} NAV, candidates={markerSnapshot.CandidateCount}, incident={incidentText}");
+		}
 
-        ImGui.End();
-        ImGui.PopStyleColor();
-    }
+		ImGui.End();
+		ImGui.PopStyleColor();
+	}
 
-    private void DrawMarkerTooltip()
-    {
-        var cam = Camera.main;
-        if (cam == null)
-            return;
+	private void DrawMarkerTooltip()
+	{
+		var cam = Camera.main;
+		if (cam == null)
+			return;
 
-        var mousePos = ImGui.GetIO().MousePos;
-        var markers = _markerComputer.Markers;
-        float bestDistSq = HoverRadiusPx * HoverRadiusPx;
-        MarkerEntry? closest = null;
+		var mousePos = ImGui.GetIO().MousePos;
+		var markers = _markerProjector.Markers;
+		float bestDistSq = HoverRadiusPx * HoverRadiusPx;
+		MarkerEntry? closest = null;
 
-        for (int i = 0; i < markers.Count; i++)
-        {
-            var entry = markers[i];
-            var worldPos = new Vector3(entry.X, entry.Y, entry.Z);
-            var screenPos = cam.WorldToScreenPoint(worldPos);
-            if (screenPos.z <= 0)
-                continue;
+		for (int i = 0; i < markers.Count; i++)
+		{
+			var entry = markers[i];
+			var worldPos = new Vector3(entry.X, entry.Y, entry.Z);
+			var screenPos = cam.WorldToScreenPoint(worldPos);
+			if (screenPos.z <= 0)
+				continue;
 
-            float sx = screenPos.x;
-            float sy = Screen.height - screenPos.y;
-            float dx = mousePos.X - sx;
-            float dy = mousePos.Y - sy;
-            float distSq = dx * dx + dy * dy;
+			float sx = screenPos.x;
+			float sy = Screen.height - screenPos.y;
+			float dx = mousePos.X - sx;
+			float dy = mousePos.Y - sy;
+			float distSq = dx * dx + dy * dy;
 
-            if (distSq < bestDistSq)
-            {
-                bestDistSq = distSq;
-                closest = entry;
-            }
-        }
+			if (distSq < bestDistSq)
+			{
+				bestDistSq = distSq;
+				closest = entry;
+			}
+		}
 
-        if (closest == null)
-            return;
+		if (closest == null)
+			return;
 
-        ImGui.BeginTooltip();
-        ImGui.TextUnformatted($"Node: {closest.NodeKey}");
-        ImGui.TextUnformatted($"Type: {closest.Type}");
-        ImGui.TextUnformatted($"Quest: {closest.QuestKey}");
+		ImGui.BeginTooltip();
+		ImGui.TextUnformatted($"Node: {closest.PositionNodeKey}");
+		ImGui.TextUnformatted($"Type: {closest.Type}");
+		ImGui.TextUnformatted($"Quest: {closest.QuestKey}");
 
-        if (closest.SourceNodeKey != null)
-            ImGui.TextUnformatted($"Source: {closest.SourceNodeKey}");
+		if (closest.SourceNodeKey != null)
+			ImGui.TextUnformatted($"Source: {closest.SourceNodeKey}");
 
-        var contributingKeys = _markerComputer.GetContributingQuestKeys(closest.NodeKey);
-        if (contributingKeys != null && contributingKeys.Count > 0)
-        {
-            ImGui.Separator();
-            ImGui.TextUnformatted("Contributing quests:");
-            foreach (var questKey in contributingKeys)
-            {
-                var node = _guide.GetNode(questKey);
-                string label = node?.DisplayName ?? questKey;
-                ImGui.TextUnformatted($"  {label}");
-            }
-        }
+		var contributingKeys = _markerProjector.GetContributingQuestKeys(closest.PositionNodeKey);
+		if (contributingKeys != null && contributingKeys.Count > 0)
+		{
+			ImGui.Separator();
+			ImGui.TextUnformatted("Contributing quests:");
+			foreach (var questKey in contributingKeys)
+			{
+				var node = _guide.GetNode(questKey);
+				string label = node?.DisplayName ?? questKey;
+				ImGui.TextUnformatted($"  {label}");
+			}
+		}
 
-        ImGui.EndTooltip();
-    }
+		ImGui.EndTooltip();
+	}
 }

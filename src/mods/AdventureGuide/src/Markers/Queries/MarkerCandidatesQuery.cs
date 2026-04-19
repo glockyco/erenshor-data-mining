@@ -141,6 +141,8 @@ public sealed class MarkerCandidatesQuery
 			bool keepWhileCorpse = target.Semantic.ActionKind == ResolvedActionKind.Kill;
 
 			var (x, y, z) = ResolveStaticPosition(positionNode, target.X, target.Y, target.Z);
+			string displayName = targetNode.DisplayName;
+			string? blockedReason = ExtractBlockedReason(category, target.Semantic);
 
 			sink.Add(new MarkerCandidate(
 				questKey: quest.Key,
@@ -159,8 +161,31 @@ public sealed class MarkerCandidatesQuery
 				corpseSubText: corpseSubText,
 				isNightSpawnNode: positionNode.NightSpawn,
 				isSpawnTimerSlot: false,
-				displayName: targetNode.DisplayName,
-				unlockBlockedReason: ExtractBlockedReason(category, target.Semantic)));
+				displayName: displayName,
+				unlockBlockedReason: blockedReason));
+
+			if (positionNode.Type != NodeType.SpawnPoint && !positionNode.IsDirectlyPlaced)
+				continue;
+
+			sink.Add(new MarkerCandidate(
+				questKey: quest.Key,
+				targetNodeKey: targetNode.Key,
+				positionNodeKey: positionNode.Key + "|respawn",
+				sourceNodeKey: positionNode.Key,
+				scene: positionNode.Scene ?? targetNode.Scene ?? scene,
+				questKind: QuestMarkerKind.Objective,
+				spawnCategory: category,
+				priority: 0,
+				subText: string.Empty,
+				x: x,
+				y: y,
+				z: z,
+				keepWhileCorpsePresent: false,
+				corpseSubText: null,
+				isNightSpawnNode: positionNode.NightSpawn,
+				isSpawnTimerSlot: true,
+				displayName: displayName,
+				unlockBlockedReason: null));
 		}
 	}
 

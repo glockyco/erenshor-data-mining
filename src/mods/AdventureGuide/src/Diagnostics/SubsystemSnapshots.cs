@@ -2,168 +2,121 @@ namespace AdventureGuide.Diagnostics;
 
 internal readonly struct SnapshotEnvelope
 {
-    public SnapshotEnvelope(string name, object payload)
-    {
-        Name = name;
-        Payload = payload;
-    }
+	public SnapshotEnvelope(string name, object payload)
+	{
+		Name = name;
+		Payload = payload;
+	}
 
-    public string Name { get; }
+	public string Name { get; }
+	public object Payload { get; }
 
-    public object Payload { get; }
-
-    public static SnapshotEnvelope Create(string name, object payload)
-    {
-        return new SnapshotEnvelope(name, payload);
-    }
+	public static SnapshotEnvelope Create(string name, object payload)
+	{
+		return new SnapshotEnvelope(name, payload);
+	}
 }
 
 internal readonly struct QuestCostSample
 {
-    public QuestCostSample(string questKey, long elapsedTicks)
-    {
-        QuestKey = questKey;
-        ElapsedTicks = elapsedTicks;
-    }
+	public QuestCostSample(string questKey, long elapsedTicks)
+	{
+		QuestKey = questKey;
+		ElapsedTicks = elapsedTicks;
+	}
 
-    public string QuestKey { get; }
-
-    public long ElapsedTicks { get; }
-}
-
-internal readonly struct MarkerRebuildModeSample
-{
-    public MarkerRebuildModeSample(MarkerRebuildMode mode, long timestampTicks)
-    {
-        Mode = mode;
-        TimestampTicks = timestampTicks;
-    }
-
-    public MarkerRebuildMode Mode { get; }
-
-    public long TimestampTicks { get; }
+	public string QuestKey { get; }
+	public long ElapsedTicks { get; }
 }
 
 internal sealed class MarkerDiagnosticsSnapshot
 {
-    public MarkerDiagnosticsSnapshot(
-        bool fullRebuild,
-        int pendingQuestCount,
-        DiagnosticTrigger lastReason,
-        long lastDurationTicks,
-        IReadOnlyList<QuestCostSample> topQuestCosts,
-        IReadOnlyList<MarkerRebuildModeSample> recentModes
-    )
-    {
-        FullRebuild = fullRebuild;
-        PendingQuestCount = pendingQuestCount;
-        LastReason = lastReason;
-        LastDurationTicks = lastDurationTicks;
-        TopQuestCosts = topQuestCosts;
-        RecentModes = recentModes;
-    }
+	public MarkerDiagnosticsSnapshot(int candidateCount, int entryCount, long lastProjectionTicks)
+	{
+		CandidateCount = candidateCount;
+		EntryCount = entryCount;
+		LastProjectionTicks = lastProjectionTicks;
+	}
 
-    public bool FullRebuild { get; }
-
-    public int PendingQuestCount { get; }
-
-    public DiagnosticTrigger LastReason { get; }
-
-    public long LastDurationTicks { get; }
-
-    public IReadOnlyList<QuestCostSample> TopQuestCosts { get; }
-
-    public IReadOnlyList<MarkerRebuildModeSample> RecentModes { get; }
+	public int CandidateCount { get; }
+	public int EntryCount { get; }
+	public long LastProjectionTicks { get; }
 }
 
 internal sealed class NavigationDiagnosticsSnapshot
 {
-    public NavigationDiagnosticsSnapshot(
-        DiagnosticTrigger lastForceReason,
-        int cacheEntryCount,
-        string? currentTargetKey,
-        int lastResolvedTargetCount,
-        int lastBatchKeyCount,
-        bool lastBatchWasPartialRefresh,
-        IReadOnlyList<QuestCostSample> topQuestCosts
-    )
-    {
-        LastForceReason = lastForceReason;
-        CacheEntryCount = cacheEntryCount;
-        CurrentTargetKey = currentTargetKey;
-        LastResolvedTargetCount = lastResolvedTargetCount;
-        LastBatchKeyCount = lastBatchKeyCount;
-        LastBatchWasPartialRefresh = lastBatchWasPartialRefresh;
-        TopQuestCosts = topQuestCosts;
-    }
+	public NavigationDiagnosticsSnapshot(
+		DiagnosticTrigger lastForceReason,
+		int cacheEntryCount,
+		string? currentTargetKey,
+		int lastResolvedTargetCount,
+		int lastBatchKeyCount,
+		bool lastBatchWasPartialRefresh,
+		IReadOnlyList<QuestCostSample> topQuestCosts
+	)
+	{
+		LastForceReason = lastForceReason;
+		CacheEntryCount = cacheEntryCount;
+		CurrentTargetKey = currentTargetKey;
+		LastResolvedTargetCount = lastResolvedTargetCount;
+		LastBatchKeyCount = lastBatchKeyCount;
+		LastBatchWasPartialRefresh = lastBatchWasPartialRefresh;
+		TopQuestCosts = topQuestCosts;
+	}
 
-    public DiagnosticTrigger LastForceReason { get; }
-
-    public int CacheEntryCount { get; }
-
-    public string? CurrentTargetKey { get; }
-
-    public int LastResolvedTargetCount { get; }
-
-    public int LastBatchKeyCount { get; }
-
-    public bool LastBatchWasPartialRefresh { get; }
-
-    public IReadOnlyList<QuestCostSample> TopQuestCosts { get; }
+	public DiagnosticTrigger LastForceReason { get; }
+	public int CacheEntryCount { get; }
+	public string? CurrentTargetKey { get; }
+	public int LastResolvedTargetCount { get; }
+	public int LastBatchKeyCount { get; }
+	public bool LastBatchWasPartialRefresh { get; }
+	public IReadOnlyList<QuestCostSample> TopQuestCosts { get; }
 }
 
 internal sealed class TrackerDiagnosticsSnapshot
 {
-    public TrackerDiagnosticsSnapshot(
-        int trackedQuestCount,
-        string? lastResolveQuestKey,
-        bool lastResolveUsedPreferredTarget,
-        string? lastSummaryText
-    )
-    {
-        TrackedQuestCount = trackedQuestCount;
-        LastResolveQuestKey = lastResolveQuestKey;
-        LastResolveUsedPreferredTarget = lastResolveUsedPreferredTarget;
-        LastSummaryText = lastSummaryText;
-    }
+	public TrackerDiagnosticsSnapshot(
+		int trackedQuestCount,
+		string? lastResolveQuestKey,
+		bool lastResolveUsedPreferredTarget,
+		string? lastSummaryText
+	)
+	{
+		TrackedQuestCount = trackedQuestCount;
+		LastResolveQuestKey = lastResolveQuestKey;
+		LastResolveUsedPreferredTarget = lastResolveUsedPreferredTarget;
+		LastSummaryText = lastSummaryText;
+	}
 
-    public int TrackedQuestCount { get; }
-
-    public string? LastResolveQuestKey { get; }
-
-    public bool LastResolveUsedPreferredTarget { get; }
-
-    public string? LastSummaryText { get; }
+	public int TrackedQuestCount { get; }
+	public string? LastResolveQuestKey { get; }
+	public bool LastResolveUsedPreferredTarget { get; }
+	public string? LastSummaryText { get; }
 }
 
 internal sealed class SpecTreeDiagnosticsSnapshot
 {
-    public SpecTreeDiagnosticsSnapshot(
-        int lastProjectedNodeCount,
-        int lastChildCount,
-        int lastPrunedCount,
-        int lastCyclePruneCount,
-        int lastInvalidatedQuestCount,
-        bool lastInvalidationWasFull
-    )
-    {
-        LastProjectedNodeCount = lastProjectedNodeCount;
-        LastChildCount = lastChildCount;
-        LastPrunedCount = lastPrunedCount;
-        LastCyclePruneCount = lastCyclePruneCount;
-        LastInvalidatedQuestCount = lastInvalidatedQuestCount;
-        LastInvalidationWasFull = lastInvalidationWasFull;
-    }
+	public SpecTreeDiagnosticsSnapshot(
+		int lastProjectedNodeCount,
+		int lastChildCount,
+		int lastPrunedCount,
+		int lastCyclePruneCount,
+		int lastInvalidatedQuestCount,
+		bool lastInvalidationWasFull
+	)
+	{
+		LastProjectedNodeCount = lastProjectedNodeCount;
+		LastChildCount = lastChildCount;
+		LastPrunedCount = lastPrunedCount;
+		LastCyclePruneCount = lastCyclePruneCount;
+		LastInvalidatedQuestCount = lastInvalidatedQuestCount;
+		LastInvalidationWasFull = lastInvalidationWasFull;
+	}
 
-    public int LastProjectedNodeCount { get; }
-
-    public int LastChildCount { get; }
-
-    public int LastPrunedCount { get; }
-
-    public int LastCyclePruneCount { get; }
-
-    public int LastInvalidatedQuestCount { get; }
-
-    public bool LastInvalidationWasFull { get; }
+	public int LastProjectedNodeCount { get; }
+	public int LastChildCount { get; }
+	public int LastPrunedCount { get; }
+	public int LastCyclePruneCount { get; }
+	public int LastInvalidatedQuestCount { get; }
+	public bool LastInvalidationWasFull { get; }
 }
