@@ -182,4 +182,14 @@ public sealed class EngineTests
 
 		Assert.Equal(2, affected.Count);
 	}
+
+	[Fact]
+	public void Read_ThrowsWhenQueryBelongsToDifferentEngine()
+	{
+		var engineA = new Engine<TestFact>();
+		var engineB = new Engine<TestFact>();
+		var queryFromA = engineA.DefineQuery<int, int>(name: "Q", compute: (ctx, key) => key);
+
+		Assert.Throws<InvalidOperationException>(() => engineB.Read(queryFromA, 0));
+	}
 }
