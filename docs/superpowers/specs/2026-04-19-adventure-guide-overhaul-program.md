@@ -211,7 +211,7 @@ Extraction itself is **not a goal of this program.** After all 4 groups + cleanu
 | Frontier walk | The quest-resolution algorithm that walks forward from a quest's current phase to compute reachable targets, implemented in `SourceResolver` |
 | FrameStall | Incident class: a single frame > 250 ms |
 | FrameHitch | Incident class: a single frame > 100 ms (but ≤ 250 ms) |
-| HotRepl | The in-game C# REPL provided by BepInEx ScriptEngine |
+| HotRepl | A separate companion project providing a runtime C# REPL over WebSocket for Mono-based games. Compiles and executes C# on the game's main thread and returns structured JSON. Used here for runtime inspection and prototyping without a build cycle. |
 | F6 hot-reload | ScriptEngine hotkey that reloads mod DLLs without restarting the game |
 | GuideChangeSet | The per-frame bag of changes published by trackers (coarse flags plus fine `ChangedFacts` list) |
 | Golden diff | Output comparison against `tests/golden/` baselines — verifies data-pipeline changes don't silently alter outputs |
