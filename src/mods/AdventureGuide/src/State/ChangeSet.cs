@@ -5,9 +5,9 @@ namespace AdventureGuide.State;
 /// Downstream systems consume typed fact changes plus coarse domain flags to
 /// invalidate only the maintained views actually affected by an event.
 /// </summary>
-public sealed class GuideChangeSet
+public sealed class ChangeSet
 {
-    public static readonly GuideChangeSet None = new(
+    public static readonly ChangeSet None = new(
         inventoryChanged: false,
         questLogChanged: false,
         sceneChanged: false,
@@ -15,7 +15,7 @@ public sealed class GuideChangeSet
         changedItemKeys: Array.Empty<string>(),
         changedQuestDbNames: Array.Empty<string>(),
         affectedQuestKeys: Array.Empty<string>(),
-        changedFacts: Array.Empty<GuideFactKey>()
+        changedFacts: Array.Empty<FactKey>()
     );
 
     public bool InventoryChanged { get; }
@@ -26,7 +26,7 @@ public sealed class GuideChangeSet
     public IReadOnlyCollection<string> ChangedItemKeys { get; }
     public IReadOnlyCollection<string> ChangedQuestDbNames { get; }
     public IReadOnlyCollection<string> AffectedQuestKeys { get; }
-    public IReadOnlyCollection<GuideFactKey> ChangedFacts { get; }
+    public IReadOnlyCollection<FactKey> ChangedFacts { get; }
 
     public bool HasMeaningfulChanges =>
         InventoryChanged
@@ -38,7 +38,7 @@ public sealed class GuideChangeSet
         || AffectedQuestKeys.Count > 0
         || ChangedFacts.Count > 0;
 
-    public GuideChangeSet(
+    public ChangeSet(
         bool inventoryChanged,
         bool questLogChanged,
         bool sceneChanged,
@@ -46,7 +46,7 @@ public sealed class GuideChangeSet
         IEnumerable<string> changedItemKeys,
         IEnumerable<string> changedQuestDbNames,
         IEnumerable<string> affectedQuestKeys,
-        IEnumerable<GuideFactKey> changedFacts
+        IEnumerable<FactKey> changedFacts
     )
     {
         InventoryChanged = inventoryChanged;
@@ -59,7 +59,7 @@ public sealed class GuideChangeSet
         ChangedFacts = FreezeFacts(changedFacts);
     }
 
-    public GuideChangeSet WithAffectedQuestKeys(IEnumerable<string> affectedQuestKeys) =>
+    public ChangeSet WithAffectedQuestKeys(IEnumerable<string> affectedQuestKeys) =>
         new(
             InventoryChanged,
             QuestLogChanged,
@@ -71,7 +71,7 @@ public sealed class GuideChangeSet
             ChangedFacts
         );
 
-    public GuideChangeSet Merge(GuideChangeSet other) =>
+    public ChangeSet Merge(ChangeSet other) =>
         new(
             InventoryChanged || other.InventoryChanged,
             QuestLogChanged || other.QuestLogChanged,
@@ -101,15 +101,15 @@ public sealed class GuideChangeSet
         return set.Count == 0 ? Array.Empty<string>() : set.ToArray();
     }
 
-    private static IReadOnlyCollection<GuideFactKey> FreezeFacts(IEnumerable<GuideFactKey> values)
+    private static IReadOnlyCollection<FactKey> FreezeFacts(IEnumerable<FactKey> values)
     {
         if (values == null)
-            return Array.Empty<GuideFactKey>();
+            return Array.Empty<FactKey>();
 
-        var set = new HashSet<GuideFactKey>();
+        var set = new HashSet<FactKey>();
         foreach (var value in values)
             set.Add(value);
 
-        return set.Count == 0 ? Array.Empty<GuideFactKey>() : set.ToArray();
+        return set.Count == 0 ? Array.Empty<FactKey>() : set.ToArray();
     }
 }

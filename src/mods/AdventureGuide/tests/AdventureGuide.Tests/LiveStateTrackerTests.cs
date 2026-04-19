@@ -52,7 +52,7 @@ public sealed class LiveStateTrackerTests
 		string source = ReadRepoFile("src/mods/AdventureGuide/src/State/LiveStateTracker.cs");
 		string updateBody = ExtractBetween(
 			source,
-			"public GuideChangeSet UpdateFrameState()",
+			"public ChangeSet UpdateFrameState()",
 			"public SpawnInfo GetSpawnState"
 		);
 
@@ -66,7 +66,7 @@ public sealed class LiveStateTrackerTests
 
 		string buildLiveChange = ExtractBetween(
 			source,
-			"private GuideChangeSet BuildLiveChange(",
+			"private ChangeSet BuildLiveChange(",
 			"private void RebuildMiningAvailability()"
 		);
 

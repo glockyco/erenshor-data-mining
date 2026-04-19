@@ -16,7 +16,7 @@ public sealed class QuestResolutionInvalidationTests
         var unrelated = service.ResolveQuest("quest:slay-wolves", harness.Scene);
 
         harness.Emit(
-            new GuideChangeSet(
+            new ChangeSet(
                 inventoryChanged: true,
                 questLogChanged: false,
                 sceneChanged: false,
@@ -26,7 +26,7 @@ public sealed class QuestResolutionInvalidationTests
                 affectedQuestKeys: new[] { "quest:fetch-water" },
                 changedFacts: new[]
                 {
-                    new GuideFactKey(GuideFactKind.InventoryItemCount, "item:water-flask"),
+                    new FactKey(FactKind.InventoryItemCount, "item:water-flask"),
                 }
             )
         );
@@ -58,7 +58,7 @@ public sealed class QuestResolutionInvalidationTests
         var before = service.ResolveQuest("quest:fetch-water", harness.Scene);
 
         service.InvalidateAll(
-            new GuideChangeSet(
+            new ChangeSet(
                 inventoryChanged: false,
                 questLogChanged: false,
                 sceneChanged: true,
@@ -66,7 +66,7 @@ public sealed class QuestResolutionInvalidationTests
                 changedItemKeys: Array.Empty<string>(),
                 changedQuestDbNames: Array.Empty<string>(),
                 affectedQuestKeys: Array.Empty<string>(),
-                changedFacts: new[] { new GuideFactKey(GuideFactKind.Scene, "current") }
+                changedFacts: new[] { new FactKey(FactKind.Scene, "current") }
             )
         );
 

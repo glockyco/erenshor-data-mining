@@ -81,12 +81,12 @@ public sealed class MarkerComputer
 
     private void OnTrackedChanged(string _) => MarkDirty(DiagnosticTrigger.TrackedQuestSetChanged);
 
-    public void ApplyGuideChangeSet(GuideChangeSet changeSet)
+    public void ApplyChangeSet(ChangeSet changeSet)
     {
         var trigger = ResolveTrigger(changeSet);
         var context = DiagnosticsContext.Root(trigger);
         var token = _diagnostics?.BeginSpan(
-            DiagnosticSpanKind.MarkerApplyGuideChangeSet,
+            DiagnosticSpanKind.MarkerApplyChangeSet,
             context,
             primaryKey: "MarkerComputer"
         );
@@ -1080,7 +1080,7 @@ private void ClearAll()
             IsLootChestTarget = entry.IsLootChestTarget,
         };
 
-    private static DiagnosticTrigger ResolveTrigger(GuideChangeSet changeSet)
+    private static DiagnosticTrigger ResolveTrigger(ChangeSet changeSet)
     {
         if (changeSet.SceneChanged)
             return DiagnosticTrigger.SceneChanged;

@@ -7,7 +7,7 @@ internal enum DiagnosticEventKind
     SceneChanged,
     NavSetChanged,
     TrackedQuestSetChanged,
-    GuideChangeSetProduced,
+    ChangeSetProduced,
     MarkerRebuildRequested,
     SelectorRefreshForced,
     IncidentTriggered,
@@ -16,7 +16,7 @@ internal enum DiagnosticEventKind
 internal enum DiagnosticSpanKind
 {
     LiveStateUpdateFrame,
-    MarkerApplyGuideChangeSet,
+    MarkerApplyChangeSet,
     MarkerRecompute,
     MarkerRebuildCurrentScene,
     MarkerCollectSceneQuestKeys,

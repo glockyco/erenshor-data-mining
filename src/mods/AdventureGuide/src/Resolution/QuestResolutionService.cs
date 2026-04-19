@@ -319,7 +319,7 @@ public sealed class QuestResolutionService
     /// other events that make every prior quest-resolution answer structurally
     /// invalid. Per-fact events must call <see cref="InvalidateAffected"/> instead.
     /// </summary>
-    public void InvalidateAll(GuideChangeSet reason)
+    public void InvalidateAll(ChangeSet reason)
     {
         _cache.Clear();
         _blockingZoneCache.Clear();

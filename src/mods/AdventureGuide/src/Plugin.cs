@@ -418,7 +418,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence.OnCharacterLoaded(_compiledGuide);
         }
         _navEngine.OnSceneChanged(currentScene);
-        _markerComputer.ApplyGuideChangeSet(initialChangeSet);
+        _markerComputer.ApplyChangeSet(initialChangeSet);
         var syncMs = syncSw.Elapsed.TotalMilliseconds;
 
         // First marker recompute — this triggers cold quest resolution for all
@@ -505,7 +505,7 @@ public sealed class Plugin : BaseUnityPlugin
             primaryKey: _navEngine?.CurrentScene ?? string.Empty
         );
         long liveStateStart = Stopwatch.GetTimestamp();
-        var liveChangeSet = _liveState?.UpdateFrameState() ?? GuideChangeSet.None;
+        var liveChangeSet = _liveState?.UpdateFrameState() ?? ChangeSet.None;
         if (liveStateToken != null)
         {
             _diagnostics!.EndSpan(
@@ -516,7 +516,7 @@ public sealed class Plugin : BaseUnityPlugin
             );
         }
 
-        GuideChangeSet stateChangeSet = GuideChangeSet.None;
+        ChangeSet stateChangeSet = ChangeSet.None;
         if (_questTracker != null && _lastObservedQuestTrackerVersion != _questTracker.Version)
         {
             stateChangeSet = _questTracker.LastChangeSet;
@@ -538,7 +538,7 @@ public sealed class Plugin : BaseUnityPlugin
                 }
 
         if (selectorChangeSet.HasMeaningfulChanges)
-            _markerComputer?.ApplyGuideChangeSet(selectorChangeSet);
+            _markerComputer?.ApplyChangeSet(selectorChangeSet);
 
 
         _markerComputer?.Recompute();
@@ -639,7 +639,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         _liveState?.OnSceneLoaded();
         _waterResolver?.OnSceneLoaded();
-        var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? GuideChangeSet.None;
+        var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? ChangeSet.None;
         _questResolutionService?.InvalidateAll(sceneChangeSet);
         if (_inGameplay)
         {
@@ -647,7 +647,7 @@ public sealed class Plugin : BaseUnityPlugin
             _navPersistence?.OnCharacterLoaded(_compiledGuide!);
         }
         _navEngine?.OnSceneChanged(scene.name);
-        _markerComputer?.ApplyGuideChangeSet(sceneChangeSet);
+        _markerComputer?.ApplyChangeSet(sceneChangeSet);
         _markerSystem?.OnSceneChanged(scene.name);
     }
 

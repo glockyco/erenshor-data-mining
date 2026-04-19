@@ -196,7 +196,7 @@ internal static class ResolutionTestFactory
 
     internal sealed class InvalidationHarness
     {
-        private readonly Action<GuideChangeSet> _emit;
+        private readonly Action<ChangeSet> _emit;
         private readonly Action _bumpVersionWithoutFacts;
         private readonly Func<int> _observedSessionCount;
 
@@ -205,7 +205,7 @@ internal static class ResolutionTestFactory
             CompiledGuideModel guide,
             QuestPhaseTracker phases,
             Func<int> observedSessionCount,
-            Action<GuideChangeSet> emit,
+            Action<ChangeSet> emit,
             Action bumpVersionWithoutFacts
         )
         {
@@ -225,7 +225,7 @@ internal static class ResolutionTestFactory
 
         public int ObservedSessionCount => _observedSessionCount();
 
-        public void Emit(GuideChangeSet changeSet) => _emit(changeSet);
+        public void Emit(ChangeSet changeSet) => _emit(changeSet);
 
         public void BumpVersionWithoutFacts() => _bumpVersionWithoutFacts();
     }

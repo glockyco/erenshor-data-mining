@@ -312,8 +312,8 @@ public sealed class NavigationTargetResolverTests
             dependencies.InvalidateFacts(
                 new[]
                 {
-                    new GuideFactKey(GuideFactKind.QuestActive, "ROOT"),
-                    new GuideFactKey(GuideFactKind.QuestCompleted, "ROOT"),
+                    new FactKey(FactKind.QuestActive, "ROOT"),
+                    new FactKey(FactKind.QuestCompleted, "ROOT"),
                 }
             )
         );

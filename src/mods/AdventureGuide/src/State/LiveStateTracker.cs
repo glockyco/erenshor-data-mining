@@ -76,20 +76,20 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         BumpVersion();
     }
 
-    public GuideChangeSet OnNPCSpawn(SpawnPoint sp)
+    public ChangeSet OnNPCSpawn(SpawnPoint sp)
     {
         if (sp == null)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         BumpVersion();
         var sourceKey = ResolveSpawnSourceKey(sp);
         return BuildSourceChange(sourceKey);
     }
 
-    public GuideChangeSet OnNPCDeath(NPC npc)
+    public ChangeSet OnNPCDeath(NPC npc)
     {
         if (npc == null)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         BumpVersion();
 
@@ -97,20 +97,20 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         return BuildSourceChange(sourceKey);
     }
 
-    public GuideChangeSet OnMiningChanged(MiningNode mn)
+    public ChangeSet OnMiningChanged(MiningNode mn)
     {
         if (mn == null)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
         BumpVersion();
         return BuildSourceChange(ResolveMiningSourceKey(mn));
     }
 
-    public GuideChangeSet OnItemBagChanged(ItemBag bag)
+    public ChangeSet OnItemBagChanged(ItemBag bag)
     {
         if (bag == null)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         _itemBagAvailable[NodePosKey(bag.transform.position)] = false;
         BumpVersion();
@@ -122,7 +122,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
     /// objects created from saved corpse data. Returns a liveWorldChanged changeset
     /// so the resolution service rebuilds targets that may include chest loot.
     /// </summary>
-    public GuideChangeSet OnAllCorpsesSpawned()
+    public ChangeSet OnAllCorpsesSpawned()
     {
         _rotChests.Clear();
         var chests = UnityEngine.Object.FindObjectsOfType<RotChest>();
@@ -133,7 +133,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         }
 
         if (_rotChests.Count == 0)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         // Mark all quests in the current scene as potentially affected — any active
         // quest that needs an item from a DropsItem source could now find the item
@@ -196,7 +196,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         return null;
     }
 
-    public GuideChangeSet UpdateFrameState()
+    public ChangeSet UpdateFrameState()
     {
         bool changed = false;
         bool timeChanged = false;
@@ -231,7 +231,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         }
 
         if (!changed)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         BumpVersion();
         // forceChanged: a state change was detected above; emit the signal even
@@ -244,7 +244,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (spawnNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, spawnNode.Key));
+        _dependencies.RecordFact(new FactKey(FactKind.SourceState, spawnNode.Key));
 
         if (!LiveSceneScope.CanUseLiveSceneState(spawnNode.Scene, CurrentSceneName()))
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
@@ -272,7 +272,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (characterNode == null)
             return new SpawnInfo(NodeState.Unknown, null, null, 0f);
 
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, characterNode.Key));
+        _dependencies.RecordFact(new FactKey(FactKind.SourceState, characterNode.Key));
 
         string? unlockReason = GetCharacterUnlockRequirement(characterNode);
         if (
@@ -328,7 +328,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (miningNode == null)
             return new MiningInfo(NodeState.Unknown, null);
 
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, miningNode.Key));
+        _dependencies.RecordFact(new FactKey(FactKind.SourceState, miningNode.Key));
 
         if (!LiveSceneScope.CanUseLiveSceneState(miningNode.Scene, CurrentSceneName()))
             return new MiningInfo(NodeState.Unknown, null);
@@ -355,7 +355,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (itemBagNode == null)
             return NodeState.Unknown;
 
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, itemBagNode.Key));
+        _dependencies.RecordFact(new FactKey(FactKind.SourceState, itemBagNode.Key));
 
         if (!LiveSceneScope.CanUseLiveSceneState(itemBagNode.Scene, CurrentSceneName()))
             return NodeState.Unknown;
@@ -385,7 +385,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         if (doorNode == null)
             return new DoorInfo(NodeState.Unknown, null, false);
 
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.SourceState, doorNode.Key));
+        _dependencies.RecordFact(new FactKey(FactKind.SourceState, doorNode.Key));
 
         if (!LiveSceneScope.CanUseLiveSceneState(doorNode.Scene, CurrentSceneName()))
             return new DoorInfo(NodeState.Unknown, null, false);
@@ -558,7 +558,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
 
         if (sp.NightSpawn)
         {
-            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.TimeOfDay, "current"));
+            _dependencies.RecordFact(new FactKey(FactKind.TimeOfDay, "current"));
             if (!IsNight())
                 return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
         }
@@ -921,7 +921,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         return null;
     }
 
-    private GuideChangeSet BuildSourceChange(string? sourceKey)
+    private ChangeSet BuildSourceChange(string? sourceKey)
     {
         // Always emit a meaningful changeset so the downstream system rebuilds.
         // When the source key is unknown (position not in graph), emit a generic
@@ -931,7 +931,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
             : BuildLiveChange(new[] { sourceKey }, timeChanged: false);
     }
 
-    private GuideChangeSet BuildLiveChange(
+    private ChangeSet BuildLiveChange(
         IEnumerable<string> changedSourceKeys,
         bool timeChanged,
         // forceChanged: emit a liveWorldChanged changeset even when no specific
@@ -945,14 +945,14 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
             changedSourceKeys.Where(k => !string.IsNullOrWhiteSpace(k)),
             StringComparer.Ordinal
         );
-        var changedFacts = new List<GuideFactKey>();
+        var changedFacts = new List<FactKey>();
         foreach (var sourceKey in sourceKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.SourceState, sourceKey));
+            changedFacts.Add(new FactKey(FactKind.SourceState, sourceKey));
         if (timeChanged)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.TimeOfDay, "current"));
+            changedFacts.Add(new FactKey(FactKind.TimeOfDay, "current"));
 
         if (!forceChanged && changedFacts.Count == 0)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var sourceKey in sourceKeys)
@@ -961,7 +961,7 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
                 affectedQuestKeys.Add(questKey);
         }
 
-        return new GuideChangeSet(
+        return new ChangeSet(
             inventoryChanged: false,
             questLogChanged: false,
             sceneChanged: false,

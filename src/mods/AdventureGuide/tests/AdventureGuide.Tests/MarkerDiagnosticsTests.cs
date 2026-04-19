@@ -14,14 +14,14 @@ namespace AdventureGuide.Tests;
 public sealed class MarkerDiagnosticsTests
 {
     [Fact]
-    public void ApplyGuideChangeSet_RecordsFullRebuildReasonForSceneChanges()
+    public void ApplyChangeSet_RecordsFullRebuildReasonForSceneChanges()
     {
         var marker = CreateMarkerComputer(
             new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
         );
 
-        marker.ApplyGuideChangeSet(
-            new GuideChangeSet(
+        marker.ApplyChangeSet(
+            new ChangeSet(
                 inventoryChanged: false,
                 questLogChanged: false,
                 sceneChanged: true,
@@ -29,7 +29,7 @@ public sealed class MarkerDiagnosticsTests
                 changedItemKeys: Array.Empty<string>(),
                 changedQuestDbNames: Array.Empty<string>(),
                 affectedQuestKeys: Array.Empty<string>(),
-                changedFacts: Array.Empty<GuideFactKey>()
+                changedFacts: Array.Empty<FactKey>()
             )
         );
 

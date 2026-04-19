@@ -52,7 +52,7 @@ public sealed class ZoneRouterInvalidationTests
     private static void ApplyPluginStyleInvalidation(
         AdventureGuide.Position.ZoneRouter router,
         GuideDependencyEngine dependencies,
-        GuideChangeSet changeSet
+        ChangeSet changeSet
     )
     {
         if (changeSet.SceneChanged)

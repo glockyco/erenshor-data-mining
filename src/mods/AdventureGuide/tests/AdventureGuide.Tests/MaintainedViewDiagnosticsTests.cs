@@ -125,7 +125,7 @@ public sealed class MaintainedViewDiagnosticsTests
 
         int questIndex = FindQuestIndex(guide, "quest:root");
         var before = projector.GetRecord(questIndex);
-        service.InvalidateAll(GuideChangeSet.None);
+        service.InvalidateAll(ChangeSet.None);
         var after = projector.GetRecord(questIndex);
         var snapshot = projector.ExportDiagnosticsSnapshot();
 

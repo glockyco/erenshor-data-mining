@@ -13,7 +13,7 @@ internal static class MaintainedViewPlanner
 {
 	public static MaintainedViewPlan Plan(
 		IEnumerable<string> activeKeys,
-		GuideChangeSet changeSet,
+		ChangeSet changeSet,
 		bool liveWorldChanged,
 		bool targetSourceVersionChanged,
 		bool navSetVersionChanged
@@ -72,7 +72,7 @@ internal static class MaintainedViewPlanner
 		return new MaintainedViewPlan(MaintainedViewRefreshKind.Full, keys, reason);
 	}
 
-	private static DiagnosticTrigger DetermineReason(GuideChangeSet changeSet, bool liveWorldChanged)
+	private static DiagnosticTrigger DetermineReason(ChangeSet changeSet, bool liveWorldChanged)
 	{
 		if (changeSet.InventoryChanged)
 			return DiagnosticTrigger.InventoryChanged;

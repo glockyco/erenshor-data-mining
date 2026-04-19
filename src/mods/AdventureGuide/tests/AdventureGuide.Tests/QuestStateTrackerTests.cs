@@ -21,7 +21,7 @@ public sealed class QuestStateTrackerTests
 
         bool sawCommittedState = false;
         int observedVersion = -1;
-        GuideChangeSet? observedChangeSet = null;
+        ChangeSet? observedChangeSet = null;
         tracker.QuestLogChangedEvent += changeSet =>
         {
             observedChangeSet = changeSet;
@@ -45,7 +45,7 @@ public sealed class QuestStateTrackerTests
 
         string observedZone = string.Empty;
         int observedCount = -1;
-        GuideChangeSet? observedChangeSet = null;
+        ChangeSet? observedChangeSet = null;
         tracker.LoadedEvent += changeSet =>
         {
             observedChangeSet = changeSet;

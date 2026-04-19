@@ -15,7 +15,7 @@ public sealed class MaintainedViewPlannerTests
 	{
 		var plan = MaintainedViewPlanner.Plan(
 			ActiveKeys,
-			GuideChangeSet.None,
+			ChangeSet.None,
 			liveWorldChanged: false,
 			targetSourceVersionChanged: false,
 			navSetVersionChanged: false
@@ -28,7 +28,7 @@ public sealed class MaintainedViewPlannerTests
 	[Fact]
 	public void SceneChanged_ReturnsFull()
 	{
-		var changeSet = new GuideChangeSet(
+		var changeSet = new ChangeSet(
 			inventoryChanged: false,
 			questLogChanged: false,
 			sceneChanged: true,
@@ -36,7 +36,7 @@ public sealed class MaintainedViewPlannerTests
 			changedItemKeys: Array.Empty<string>(),
 			changedQuestDbNames: Array.Empty<string>(),
 			affectedQuestKeys: Array.Empty<string>(),
-			changedFacts: Array.Empty<GuideFactKey>()
+			changedFacts: Array.Empty<FactKey>()
 		);
 
 		var plan = MaintainedViewPlanner.Plan(
@@ -56,7 +56,7 @@ public sealed class MaintainedViewPlannerTests
 	{
 		var plan = MaintainedViewPlanner.Plan(
 			ActiveKeys,
-			GuideChangeSet.None,
+			ChangeSet.None,
 			liveWorldChanged: false,
 			targetSourceVersionChanged: false,
 			navSetVersionChanged: true
@@ -71,7 +71,7 @@ public sealed class MaintainedViewPlannerTests
 	{
 		var plan = MaintainedViewPlanner.Plan(
 			ActiveKeys,
-			GuideChangeSet.None,
+			ChangeSet.None,
 			liveWorldChanged: false,
 			targetSourceVersionChanged: true,
 			navSetVersionChanged: false
@@ -84,7 +84,7 @@ public sealed class MaintainedViewPlannerTests
 	[Fact]
 	public void LiveWorldChanged_NoAffectedKeys_ReturnsFull()
 	{
-		var changeSet = new GuideChangeSet(
+		var changeSet = new ChangeSet(
 			inventoryChanged: false,
 			questLogChanged: false,
 			sceneChanged: false,
@@ -92,7 +92,7 @@ public sealed class MaintainedViewPlannerTests
 			changedItemKeys: Array.Empty<string>(),
 			changedQuestDbNames: Array.Empty<string>(),
 			affectedQuestKeys: Array.Empty<string>(),
-			changedFacts: Array.Empty<GuideFactKey>()
+			changedFacts: Array.Empty<FactKey>()
 		);
 
 		var plan = MaintainedViewPlanner.Plan(
@@ -110,7 +110,7 @@ public sealed class MaintainedViewPlannerTests
 	[Fact]
 	public void AffectedKeysSubset_ReturnsPartialForSubset()
 	{
-		var changeSet = new GuideChangeSet(
+		var changeSet = new ChangeSet(
 			inventoryChanged: true,
 			questLogChanged: false,
 			sceneChanged: false,
@@ -118,7 +118,7 @@ public sealed class MaintainedViewPlannerTests
 			changedItemKeys: new[] { "item:x" },
 			changedQuestDbNames: Array.Empty<string>(),
 			affectedQuestKeys: new[] { "quest:a", "quest:unrelated" },
-			changedFacts: new[] { new GuideFactKey(GuideFactKind.InventoryItemCount, "item:x") }
+			changedFacts: new[] { new FactKey(FactKind.InventoryItemCount, "item:x") }
 		);
 
 		var plan = MaintainedViewPlanner.Plan(
@@ -136,7 +136,7 @@ public sealed class MaintainedViewPlannerTests
 	[Fact]
 	public void AffectedKeysExhaustActive_ReturnsFull()
 	{
-		var changeSet = new GuideChangeSet(
+		var changeSet = new ChangeSet(
 			inventoryChanged: true,
 			questLogChanged: false,
 			sceneChanged: false,
@@ -144,7 +144,7 @@ public sealed class MaintainedViewPlannerTests
 			changedItemKeys: new[] { "item:x" },
 			changedQuestDbNames: Array.Empty<string>(),
 			affectedQuestKeys: new[] { "quest:a", "quest:b", "quest:c" },
-			changedFacts: new[] { new GuideFactKey(GuideFactKind.InventoryItemCount, "item:x") }
+			changedFacts: new[] { new FactKey(FactKind.InventoryItemCount, "item:x") }
 		);
 
 		var plan = MaintainedViewPlanner.Plan(
@@ -161,7 +161,7 @@ public sealed class MaintainedViewPlannerTests
 	[Fact]
 	public void EmptyActiveKeys_ReturnsNone()
 	{
-		var changeSet = new GuideChangeSet(
+		var changeSet = new ChangeSet(
 			inventoryChanged: false,
 			questLogChanged: false,
 			sceneChanged: true,
@@ -169,7 +169,7 @@ public sealed class MaintainedViewPlannerTests
 			changedItemKeys: Array.Empty<string>(),
 			changedQuestDbNames: Array.Empty<string>(),
 			affectedQuestKeys: Array.Empty<string>(),
-			changedFacts: Array.Empty<GuideFactKey>()
+			changedFacts: Array.Empty<FactKey>()
 		);
 
 		var plan = MaintainedViewPlanner.Plan(

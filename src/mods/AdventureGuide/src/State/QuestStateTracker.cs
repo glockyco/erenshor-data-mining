@@ -32,23 +32,23 @@ public sealed class QuestStateTracker
     public int InventoryVersion { get; private set; }
     public int SceneVersion { get; private set; }
 
-    public event Action<GuideChangeSet>? QuestLogChangedEvent;
-    public event Action<GuideChangeSet>? InventoryChangedEvent;
-    public event Action<GuideChangeSet>? SceneChangedEvent;
-    public event Action<GuideChangeSet>? LoadedEvent;
+    public event Action<ChangeSet>? QuestLogChangedEvent;
+    public event Action<ChangeSet>? InventoryChangedEvent;
+    public event Action<ChangeSet>? SceneChangedEvent;
+    public event Action<ChangeSet>? LoadedEvent;
 
     public string CurrentZone
     {
         get
         {
-            _dependencies.RecordFact(new GuideFactKey(GuideFactKind.Scene, "current"));
+            _dependencies.RecordFact(new FactKey(FactKind.Scene, "current"));
             return _currentZone;
         }
         private set => _currentZone = value ?? string.Empty;
     }
 
     public string? SelectedQuestDBName { get; set; }
-    public GuideChangeSet LastChangeSet { get; private set; } = GuideChangeSet.None;
+    public ChangeSet LastChangeSet { get; private set; } = ChangeSet.None;
 
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
@@ -108,13 +108,13 @@ public sealed class QuestStateTracker
 
     public bool IsActive(string dbName)
     {
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.QuestActive, dbName));
+        _dependencies.RecordFact(new FactKey(FactKind.QuestActive, dbName));
         return _activeQuests.Contains(dbName);
     }
 
     public bool IsImplicitlyAvailable(string dbName)
     {
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.Scene, "current"));
+        _dependencies.RecordFact(new FactKey(FactKind.Scene, "current"));
         return !_activeQuests.Contains(dbName) && _implicitlyAvailableQuests.Contains(dbName);
     }
 
@@ -122,20 +122,20 @@ public sealed class QuestStateTracker
 
     public bool IsCompleted(string dbName)
     {
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+        _dependencies.RecordFact(new FactKey(FactKind.QuestCompleted, dbName));
         return _completedQuests.Contains(dbName);
     }
 
     public int CountItem(string itemStableKey)
     {
-        _dependencies.RecordFact(new GuideFactKey(GuideFactKind.InventoryItemCount, itemStableKey));
+        _dependencies.RecordFact(new FactKey(FactKind.InventoryItemCount, itemStableKey));
         return _inventoryCounts.TryGetValue(itemStableKey, out var count) ? count : 0;
     }
 
     public bool HasUnlockItem(string itemStableKey)
     {
         _dependencies.RecordFact(
-            new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemStableKey)
+            new FactKey(FactKind.UnlockItemPossessed, itemStableKey)
         );
         return (_inventoryCounts.TryGetValue(itemStableKey, out var count) && count > 0)
             || _keyringItemKeys.Contains(itemStableKey);
@@ -149,18 +149,18 @@ public sealed class QuestStateTracker
 
     public IEnumerable<string> GetImplicitlyAvailableQuestDbNames() => _implicitlyAvailableQuests;
 
-    public GuideChangeSet SyncFromGameData() => FinalizeChange(BuildSyncChangeSet());
+    public ChangeSet SyncFromGameData() => FinalizeChange(BuildSyncChangeSet());
 
-    public GuideChangeSet OnQuestAssigned(string dbName)
+    public ChangeSet OnQuestAssigned(string dbName)
     {
         bool changed = _activeQuests.Add(dbName);
         if (!changed)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         RebuildImplicitlyAvailableQuests();
 
         return FinalizeChange(
-            new GuideChangeSet(
+            new ChangeSet(
                 inventoryChanged: false,
                 questLogChanged: true,
                 sceneChanged: false,
@@ -170,24 +170,24 @@ public sealed class QuestStateTracker
                 affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
                 changedFacts: new[]
                 {
-                    new GuideFactKey(GuideFactKind.QuestActive, dbName),
-                    new GuideFactKey(GuideFactKind.QuestCompleted, dbName),
+                    new FactKey(FactKind.QuestActive, dbName),
+                    new FactKey(FactKind.QuestCompleted, dbName),
                 }
             )
         );
     }
 
-    public GuideChangeSet OnQuestCompleted(string dbName)
+    public ChangeSet OnQuestCompleted(string dbName)
     {
         bool removed = _activeQuests.Remove(dbName);
         bool added = _completedQuests.Add(dbName);
         if (!removed && !added)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         RebuildImplicitlyAvailableQuests();
 
         return FinalizeChange(
-            new GuideChangeSet(
+            new ChangeSet(
                 inventoryChanged: false,
                 questLogChanged: true,
                 sceneChanged: false,
@@ -197,17 +197,17 @@ public sealed class QuestStateTracker
                 affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
                 changedFacts: new[]
                 {
-                    new GuideFactKey(GuideFactKind.QuestActive, dbName),
-                    new GuideFactKey(GuideFactKind.QuestCompleted, dbName),
+                    new FactKey(FactKind.QuestActive, dbName),
+                    new FactKey(FactKind.QuestCompleted, dbName),
                 }
             )
         );
     }
 
-    public GuideChangeSet OnInventoryChanged()
+    public ChangeSet OnInventoryChanged()
     {
         if (!TryBuildInventorySnapshot(out var snapshot))
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         var changedItemKeys = CollectChangedItemKeys(snapshot.Counts);
         var changedUnlockItemKeys = CollectChangedUnlockItemKeys(
@@ -215,21 +215,21 @@ public sealed class QuestStateTracker
             snapshot.KeyringItemKeys
         );
         if (changedItemKeys.Count == 0 && changedUnlockItemKeys.Count == 0)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         ReplaceInventoryCounts(snapshot.Counts);
         ReplaceKeyringItemKeys(snapshot.KeyringItemKeys);
 
-        var changedFacts = new List<GuideFactKey>(
+        var changedFacts = new List<FactKey>(
             changedItemKeys.Count + changedUnlockItemKeys.Count
         );
         foreach (var itemKey in changedItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+            changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in changedUnlockItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
 
         return FinalizeChange(
-            new GuideChangeSet(
+            new ChangeSet(
                 inventoryChanged: true,
                 questLogChanged: false,
                 sceneChanged: false,
@@ -242,7 +242,7 @@ public sealed class QuestStateTracker
         );
     }
 
-    public GuideChangeSet OnSceneChanged(string sceneName)
+    public ChangeSet OnSceneChanged(string sceneName)
     {
         bool sceneChanged = !string.Equals(
             CurrentZone,
@@ -255,7 +255,7 @@ public sealed class QuestStateTracker
         if (!sceneChanged)
             return FinalizeChange(sync);
 
-        var sceneChange = new GuideChangeSet(
+        var sceneChange = new ChangeSet(
             sync.InventoryChanged,
             sync.QuestLogChanged,
             sceneChanged: true,
@@ -263,13 +263,13 @@ public sealed class QuestStateTracker
             sync.ChangedItemKeys,
             sync.ChangedQuestDbNames,
             sync.AffectedQuestKeys,
-            sync.ChangedFacts.Concat(new[] { new GuideFactKey(GuideFactKind.Scene, "current") })
+            sync.ChangedFacts.Concat(new[] { new FactKey(FactKind.Scene, "current") })
         );
 
         return FinalizeChange(sceneChange);
     }
 
-    private GuideChangeSet BuildSyncChangeSet()
+    private ChangeSet BuildSyncChangeSet()
     {
         var nextActive = SnapshotQuestSet(GameData.HasQuest);
         var nextCompleted = SnapshotQuestSet(GameData.CompletedQuests);
@@ -300,21 +300,21 @@ public sealed class QuestStateTracker
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
 
-        var changedFacts = new List<GuideFactKey>(
+        var changedFacts = new List<FactKey>(
             changedQuestDbNames.Count * 2 + changedItemKeys.Count + changedUnlockItemKeys.Count
         );
         foreach (var dbName in changedQuestDbNames)
         {
-            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestActive, dbName));
-            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+            changedFacts.Add(new FactKey(FactKind.QuestActive, dbName));
+            changedFacts.Add(new FactKey(FactKind.QuestCompleted, dbName));
         }
 
         foreach (var itemKey in changedItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+            changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in changedUnlockItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
 
-        return new GuideChangeSet(
+        return new ChangeSet(
             inventoryChanged,
             questLogChanged,
             sceneChanged: false,
@@ -326,7 +326,7 @@ public sealed class QuestStateTracker
         );
     }
 
-    private GuideChangeSet BuildLoadedChangeSet()
+    private ChangeSet BuildLoadedChangeSet()
     {
         var changedQuestDbNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         changedQuestDbNames.UnionWith(_activeQuests);
@@ -339,7 +339,7 @@ public sealed class QuestStateTracker
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
         affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
 
-        var changedFacts = new List<GuideFactKey>(
+        var changedFacts = new List<FactKey>(
             changedQuestDbNames.Count * 2
                 + changedItemKeys.Count
                 + _keyringItemKeys.Count
@@ -347,18 +347,18 @@ public sealed class QuestStateTracker
         );
         foreach (var dbName in changedQuestDbNames)
         {
-            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestActive, dbName));
-            changedFacts.Add(new GuideFactKey(GuideFactKind.QuestCompleted, dbName));
+            changedFacts.Add(new FactKey(FactKind.QuestActive, dbName));
+            changedFacts.Add(new FactKey(FactKind.QuestCompleted, dbName));
         }
 
         foreach (var itemKey in changedItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.InventoryItemCount, itemKey));
+            changedFacts.Add(new FactKey(FactKind.InventoryItemCount, itemKey));
         foreach (var itemKey in _keyringItemKeys)
-            changedFacts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
+            changedFacts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
         if (!string.IsNullOrWhiteSpace(_currentZone))
-            changedFacts.Add(new GuideFactKey(GuideFactKind.Scene, "current"));
+            changedFacts.Add(new FactKey(FactKind.Scene, "current"));
 
-        return new GuideChangeSet(
+        return new ChangeSet(
             inventoryChanged: changedItemKeys.Count > 0 || _keyringItemKeys.Count > 0,
             questLogChanged: changedQuestDbNames.Count > 0,
             sceneChanged: !string.IsNullOrWhiteSpace(_currentZone),
@@ -370,10 +370,10 @@ public sealed class QuestStateTracker
         );
     }
 
-    private GuideChangeSet FinalizeChange(GuideChangeSet changeSet)
+    private ChangeSet FinalizeChange(ChangeSet changeSet)
     {
         if (changeSet == null || !changeSet.HasMeaningfulChanges)
-            return GuideChangeSet.None;
+            return ChangeSet.None;
 
         if (changeSet.QuestLogChanged)
             QuestLogVersion++;

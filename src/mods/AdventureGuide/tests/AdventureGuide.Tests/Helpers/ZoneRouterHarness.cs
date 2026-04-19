@@ -77,9 +77,9 @@ internal sealed class ZoneRouterHarness
         );
     }
 
-    public GuideChangeSet ForInventoryChange(string changedItemKey, IReadOnlyCollection<string> affectedQuestKeys)
+    public ChangeSet ForInventoryChange(string changedItemKey, IReadOnlyCollection<string> affectedQuestKeys)
     {
-        return new GuideChangeSet(
+        return new ChangeSet(
             inventoryChanged: true,
             questLogChanged: false,
             sceneChanged: false,
@@ -91,7 +91,7 @@ internal sealed class ZoneRouterHarness
         );
     }
 
-    public GuideChangeSet ForSceneChange(string sceneName)
+    public ChangeSet ForSceneChange(string sceneName)
     {
         Tracker.LoadState(
             currentZone: sceneName,
@@ -101,7 +101,7 @@ internal sealed class ZoneRouterHarness
             keyringItemKeys: Array.Empty<string>()
         );
 
-        return new GuideChangeSet(
+        return new ChangeSet(
             inventoryChanged: false,
             questLogChanged: false,
             sceneChanged: true,
@@ -109,15 +109,15 @@ internal sealed class ZoneRouterHarness
             changedItemKeys: Array.Empty<string>(),
             changedQuestDbNames: Array.Empty<string>(),
             affectedQuestKeys: Array.Empty<string>(),
-            changedFacts: new[] { new GuideFactKey(GuideFactKind.Scene, "current") }
+            changedFacts: new[] { new FactKey(FactKind.Scene, "current") }
         );
     }
 
-    private static IReadOnlyCollection<GuideFactKey> BuildInventoryFacts(string itemKey)
+    private static IReadOnlyCollection<FactKey> BuildInventoryFacts(string itemKey)
     {
-        var facts = new List<GuideFactKey> { new(GuideFactKind.InventoryItemCount, itemKey) };
+        var facts = new List<FactKey> { new(FactKind.InventoryItemCount, itemKey) };
         if (string.Equals(itemKey, "item:silver-key", StringComparison.Ordinal))
-            facts.Add(new GuideFactKey(GuideFactKind.UnlockItemPossessed, itemKey));
+            facts.Add(new FactKey(FactKind.UnlockItemPossessed, itemKey));
 
         return facts;
     }

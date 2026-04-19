@@ -7,8 +7,8 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class GuideDependencyEngine
 {
-    private readonly Dictionary<GuideDerivedKey, HashSet<GuideFactKey>> _factsByDerived = new();
-    private readonly Dictionary<GuideFactKey, HashSet<GuideDerivedKey>> _derivedByFact = new();
+    private readonly Dictionary<GuideDerivedKey, HashSet<FactKey>> _factsByDerived = new();
+    private readonly Dictionary<FactKey, HashSet<GuideDerivedKey>> _derivedByFact = new();
     private readonly Stack<Collector> _stack = new();
 
     public IDisposable BeginCollection(GuideDerivedKey derivedKey)
@@ -17,7 +17,7 @@ public sealed class GuideDependencyEngine
         return new Scope(this);
     }
 
-    public void RecordFact(GuideFactKey factKey)
+    public void RecordFact(FactKey factKey)
     {
         if (_stack.Count == 0)
             return;
@@ -25,7 +25,7 @@ public sealed class GuideDependencyEngine
         _stack.Peek().Facts.Add(factKey);
     }
 
-    public IReadOnlyCollection<GuideDerivedKey> InvalidateFacts(IEnumerable<GuideFactKey> factKeys)
+    public IReadOnlyCollection<GuideDerivedKey> InvalidateFacts(IEnumerable<FactKey> factKeys)
     {
         var affected = new HashSet<GuideDerivedKey>();
         foreach (var factKey in factKeys)
@@ -105,12 +105,12 @@ public sealed class GuideDependencyEngine
     private sealed class Collector
     {
         public GuideDerivedKey DerivedKey { get; }
-        public HashSet<GuideFactKey> Facts { get; }
+        public HashSet<FactKey> Facts { get; }
 
         public Collector(GuideDerivedKey derivedKey)
         {
             DerivedKey = derivedKey;
-            Facts = new HashSet<GuideFactKey>();
+            Facts = new HashSet<FactKey>();
         }
     }
 }

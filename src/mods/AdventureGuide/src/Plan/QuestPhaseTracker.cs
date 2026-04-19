@@ -82,7 +82,7 @@ public sealed class QuestPhaseTracker : IDisposable
         _state.InventoryChangedEvent -= OnInventoryChanged;
     }
 
-    private void OnStateLoaded(GuideChangeSet _)
+    private void OnStateLoaded(ChangeSet _)
     {
         Array.Fill(_phases, QuestPhase.NotReady);
         Array.Clear(_completed, 0, _completed.Length);
@@ -132,7 +132,7 @@ public sealed class QuestPhaseTracker : IDisposable
         Version++;
     }
 
-    private void OnQuestLogChanged(GuideChangeSet changeSet)
+    private void OnQuestLogChanged(ChangeSet changeSet)
     {
         bool changed = false;
         foreach (var dbName in changeSet.ChangedQuestDbNames)
@@ -161,7 +161,7 @@ public sealed class QuestPhaseTracker : IDisposable
             Version++;
     }
 
-    private void OnInventoryChanged(GuideChangeSet changeSet)
+    private void OnInventoryChanged(ChangeSet changeSet)
     {
         bool changed = false;
         foreach (var itemKey in changeSet.ChangedItemKeys)
