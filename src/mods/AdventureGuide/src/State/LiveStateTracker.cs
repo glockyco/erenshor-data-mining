@@ -1,6 +1,7 @@
 using System.Reflection;
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
+using AdventureGuide.Markers;
 using UnityEngine;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -11,7 +12,10 @@ namespace AdventureGuide.State;
 /// Emits precise live-world fact deltas so downstream maintained views can
 /// invalidate only derivations that depend on changed sources.
 /// </summary>
-public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelectorLiveState
+public sealed class LiveStateTracker
+    : IResolutionLiveState,
+        INavigationSelectorLiveState,
+        ISourceStateFactSource
 {
     private static readonly FieldInfo? NpcSpawnPointField = typeof(NPC).GetField(
         "MySpawnPoint",
@@ -1125,6 +1129,30 @@ public sealed class LiveStateTracker : IResolutionLiveState, INavigationSelector
         public override bool Equals(object? obj) => obj is PosKey other && Equals(other);
 
         public override int GetHashCode() => (_x * 397) ^ (_y * 17) ^ _z;
+    }
+
+    public SpawnCategory GetCategory(Node node)
+    {
+        if (node == null)
+            return SpawnCategory.NotApplicable;
+
+        NodeState state;
+        if (node.Type == NodeType.SpawnPoint || node.IsDirectlyPlaced)
+            state = GetSpawnState(node).State;
+        else if (node.Type == NodeType.Character)
+            state = GetCharacterState(node).State;
+        else
+            return SpawnCategory.NotApplicable;
+
+        return state switch
+        {
+            SpawnAlive => SpawnCategory.Alive,
+            SpawnDead => SpawnCategory.Dead,
+            SpawnDisabled => SpawnCategory.Disabled,
+            SpawnNightLocked => SpawnCategory.NightLocked,
+            SpawnUnlockBlocked => SpawnCategory.UnlockBlocked,
+            _ => SpawnCategory.NotApplicable,
+        };
     }
 }
 

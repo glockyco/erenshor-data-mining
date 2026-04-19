@@ -1,4 +1,7 @@
+using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
+using AdventureGuide.Markers;
+using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Resolution;
 using AdventureGuide.Resolution.Queries;
 
@@ -18,7 +21,9 @@ public sealed class GuideReader
 	private readonly IQuestStateFactSource? _questState;
 	private readonly ITrackerStateFactSource? _trackerState;
 	private readonly INavigationSetFactSource? _navSet;
+	private readonly ISourceStateFactSource? _sourceState;
 	private QuestResolutionQuery? _questResolutionQuery;
+	private NavigableQuestsQuery? _navigableQuestsQuery;
 	private IResolutionTracer? _activeTracer;
 
 	public GuideReader(Engine<FactKey> engine, IInventoryFactSource inventory)
@@ -33,20 +38,34 @@ public sealed class GuideReader
 		IQuestStateFactSource questState,
 		ITrackerStateFactSource trackerState,
 		INavigationSetFactSource navSet,
-		QuestResolutionQuery? questResolutionQuery = null)
+		ISourceStateFactSource? sourceState = null,
+		QuestResolutionQuery? questResolutionQuery = null,
+		NavigableQuestsQuery? navigableQuestsQuery = null)
 	{
 		_engine = engine;
 		_inventory = inventory;
 		_questState = questState;
 		_trackerState = trackerState;
 		_navSet = navSet;
+		_sourceState = sourceState;
 		_questResolutionQuery = questResolutionQuery;
+		_navigableQuestsQuery = navigableQuestsQuery;
 	}
 
 	public Engine<FactKey> Engine => _engine;
 
 	internal void SetQuestResolutionQuery(QuestResolutionQuery questResolutionQuery) =>
 		_questResolutionQuery = questResolutionQuery;
+
+	internal void SetNavigableQuestsQuery(NavigableQuestsQuery navigableQuestsQuery) =>
+		_navigableQuestsQuery = navigableQuestsQuery;
+
+	/// <summary>Non-recording accessor for top-level callers that need the
+	/// current scene string without establishing a fact dependency. Use this
+	/// in <c>Plugin.Update</c> phases, <c>MarkerSystem</c>, and
+	/// <c>NavigationTargetSelector.Tick</c>. Inside a query compute, call
+	/// <see cref="ReadCurrentScene"/> instead so the Scene fact is recorded.</summary>
+	public string CurrentScene => RequireQuestState().CurrentScene;
 
 	public int ReadInventoryCount(string itemId)
 	{
@@ -72,6 +91,34 @@ public sealed class GuideReader
 		return RequireQuestState().CurrentScene;
 	}
 
+	/// <summary>Ambient-recording accessor for the <see cref="SpawnCategory"/>
+	/// of a graph node. Records <c>(SourceState, node.Key)</c> so the calling
+	/// compute invalidates when the source's live state transitions.
+	/// Non-spawn nodes (item bag, mining, character-without-spawn, or any node
+	/// outside the current scene) return <see cref="SpawnCategory.NotApplicable"/>
+	/// but still record the fact, so renderers that branch on spawn state get
+	/// re-evaluated when it becomes known.</summary>
+	public SpawnCategory ReadSourceCategory(Node node)
+	{
+		if (node == null)
+			throw new ArgumentNullException(nameof(node));
+		RequireAmbient().RecordFact(new FactKey(FactKind.SourceState, node.Key));
+		return RequireSourceState().GetCategory(node);
+	}
+
+	/// <summary>Top-level read. Do not call from inside a query compute —
+	/// use <c>ctx.Read(navigableQuestsQuery.Query, Unit.Value)</c> instead so
+	/// the query-to-query dependency is recorded on the current compute.</summary>
+	public NavigableQuestsResult ReadNavigableQuests()
+	{
+		if (_navigableQuestsQuery == null)
+			throw new InvalidOperationException("GuideReader not wired with NavigableQuestsQuery.");
+		return _engine.Read(_navigableQuestsQuery.Query, Unit.Value);
+	}
+
+	/// <summary>Top-level read. Do not call from inside a query compute —
+	/// use <c>ctx.Read(questResolutionQuery.Query, (questKey, scene))</c>
+	/// instead so the query-to-query dependency is recorded.</summary>
 	public QuestResolutionRecord ReadQuestResolution(string questKey, string scene)
 	{
 		if (_questResolutionQuery == null)
@@ -130,6 +177,9 @@ public sealed class GuideReader
 	private INavigationSetFactSource RequireNavSet() =>
 		_navSet ?? throw new InvalidOperationException("GuideReader navigation set source is unavailable.");
 
+	private ISourceStateFactSource RequireSourceState() =>
+		_sourceState ?? throw new InvalidOperationException("GuideReader source state source is unavailable.");
+
 	private static ReadContext<FactKey> RequireAmbient() =>
 		Engine<FactKey>.Ambient ?? throw new InvalidOperationException(
 			"GuideReader.Read* called outside a query compute. Use engine.Read at the top level.");
@@ -157,4 +207,9 @@ public interface ITrackerStateFactSource
 public interface INavigationSetFactSource
 {
 	IReadOnlyCollection<string> Keys { get; }
+}
+
+public interface ISourceStateFactSource
+{
+	SpawnCategory GetCategory(Node node);
 }

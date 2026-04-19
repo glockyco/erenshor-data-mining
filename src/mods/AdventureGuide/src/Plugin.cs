@@ -6,6 +6,7 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Incremental;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
+using AdventureGuide.Markers.Queries;
 using AdventureGuide.Navigation;
 using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Patches;
@@ -84,7 +85,9 @@ public sealed class Plugin : BaseUnityPlugin
     private BlockingZonesQuery? _blockingZonesQuery;
     private NavigableQuestsQuery? _navigableQuestsQuery;
     private QuestResolutionQuery? _questResolutionQuery;
+    private MarkerCandidatesQuery? _markerCandidatesQuery;
     private DiagnosticsCore? _diagnostics;
+
 
     private int _lastObservedQuestTrackerVersion = -1;
     private int _lastResolutionVersion = -1;
@@ -226,7 +229,8 @@ public sealed class Plugin : BaseUnityPlugin
             inventory: _questTracker,
             questState: _questTracker,
             trackerState: _trackerState,
-            navSet: _navSet);
+            navSet: _navSet,
+            sourceState: _liveState);
         _compiledTargetsQuery = new CompiledTargetsQuery(
             _engine,
             _compiledGuide,
@@ -241,6 +245,13 @@ public sealed class Plugin : BaseUnityPlugin
             _blockingZonesQuery,
             projector);
         _reader.SetQuestResolutionQuery(_questResolutionQuery);
+        _reader.SetNavigableQuestsQuery(_navigableQuestsQuery);
+        _markerCandidatesQuery = new MarkerCandidatesQuery(
+            _engine,
+            _compiledGuide,
+            _reader,
+            _navigableQuestsQuery,
+            _questResolutionQuery);
         _navigationTargetResolver = new NavigationTargetResolver(
             _compiledGuide,
             _reader,
