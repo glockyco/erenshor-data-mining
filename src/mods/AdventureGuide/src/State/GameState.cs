@@ -4,13 +4,13 @@ using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 namespace AdventureGuide.State;
 
 /// <summary>
-/// Central registry that delegates state resolution to per-<see cref="NodeType"/> resolvers.
-/// Lazy — resolves state on query, no internal caching.
+/// Central registry that delegates state resolution to per-<see cref="NodeType"/>
+/// callbacks. Lazy — resolves state on query, no internal caching.
 /// </summary>
 public sealed class GameState
 {
     private readonly CompiledGuideModel _guide;
-    private readonly Dictionary<NodeType, INodeStateResolver> _resolvers = new();
+    private readonly Dictionary<NodeType, Func<Node, NodeState>> _resolvers = new();
 
     public GameState(CompiledGuideModel guide)
     {
@@ -18,7 +18,7 @@ public sealed class GameState
     }
 
     /// <summary>Register (or replace) the resolver for a given node type.</summary>
-    public void Register(NodeType type, INodeStateResolver resolver)
+    public void Register(NodeType type, Func<Node, NodeState> resolver)
     {
         _resolvers[type] = resolver;
     }
@@ -36,6 +36,6 @@ public sealed class GameState
         if (!_resolvers.TryGetValue(node.Type, out var resolver))
             return NodeState.Unknown;
 
-        return resolver.Resolve(node);
+        return resolver(node);
     }
 }

@@ -147,9 +147,9 @@ public sealed class Plugin : BaseUnityPlugin
         _compiledQuestTracker = new QuestPhaseTracker(_compiledGuide, _questTracker);
         _gameState = new GameState(_compiledGuide);
         _unlockEvaluator = new UnlockEvaluator(_compiledGuide, _gameState, _questTracker);
-        _gameState.Register(NodeType.Quest, new QuestStateResolver(_questTracker));
-        _gameState.Register(NodeType.Item, new ItemStateResolver(_questTracker));
-        _gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(_unlockEvaluator));
+        _gameState.Register(NodeType.Quest, NodeStateResolvers.Quest(_questTracker));
+        _gameState.Register(NodeType.Item, NodeStateResolvers.Item(_questTracker));
+        _gameState.Register(NodeType.ZoneLine, NodeStateResolvers.ZoneLine(_unlockEvaluator));
 
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
@@ -181,14 +181,13 @@ public sealed class Plugin : BaseUnityPlugin
         _liveState = new LiveStateTracker(_compiledGuide, _unlockEvaluator);
         _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator) { Diagnostics = _diagnostics };
 
-        // Register remaining state resolvers (character, spawn, mining, bag, door)
-        _gameState.Register(NodeType.Character, new CharacterStateResolver(_liveState));
-        _gameState.Register(NodeType.SpawnPoint, new SpawnPointStateResolver(_liveState));
-        _gameState.Register(NodeType.MiningNode, new MiningNodeStateResolver(_liveState));
-        _gameState.Register(NodeType.ItemBag, new ItemBagStateResolver(_liveState));
+        _gameState.Register(NodeType.Character, NodeStateResolvers.Character(_liveState));
+        _gameState.Register(NodeType.SpawnPoint, NodeStateResolvers.SpawnPoint(_liveState));
+        _gameState.Register(NodeType.MiningNode, NodeStateResolvers.MiningNode(_liveState));
+        _gameState.Register(NodeType.ItemBag, NodeStateResolvers.ItemBag(_liveState));
         _gameState.Register(
             NodeType.Door,
-            new DoorStateResolver(_compiledGuide, _questTracker, _liveState)
+            NodeStateResolvers.Door(_compiledGuide, _questTracker, _liveState)
         );
 
         var positionRegistry = new PositionResolverRegistry(_compiledGuide);

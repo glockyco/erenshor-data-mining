@@ -1,7 +1,6 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
 using AdventureGuide.State;
-using AdventureGuide.State.Resolvers;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Tests.Helpers;
@@ -48,11 +47,11 @@ internal sealed class ZoneRouterHarness
 			keyringItemKeys: Array.Empty<string>());
 
 		var gameState = new GameState(guide);
-		gameState.Register(NodeType.Quest, new QuestStateResolver(tracker));
-		gameState.Register(NodeType.Item, new ItemStateResolver(tracker));
+		gameState.Register(NodeType.Quest, NodeStateResolvers.Quest(tracker));
+		gameState.Register(NodeType.Item, NodeStateResolvers.Item(tracker));
 
 		var unlocks = new UnlockEvaluator(guide, gameState, tracker);
-		gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(unlocks));
+		gameState.Register(NodeType.ZoneLine, NodeStateResolvers.ZoneLine(unlocks));
 
 		var router = new ZoneRouter(guide, unlocks);
 		var harness = new ZoneRouterHarness(guide, tracker, unlocks, router);

@@ -2,7 +2,6 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
 using AdventureGuide.State;
-using AdventureGuide.State.Resolvers;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Tests.Helpers;
@@ -45,18 +44,18 @@ public sealed class SnapshotHarness
 			snapshot.Keyring);
 
 		var gameState = new GameState(guide);
-		gameState.Register(NodeType.Quest, new QuestStateResolver(tracker));
-		gameState.Register(NodeType.Item, new ItemStateResolver(tracker));
+		gameState.Register(NodeType.Quest, NodeStateResolvers.Quest(tracker));
+		gameState.Register(NodeType.Item, NodeStateResolvers.Item(tracker));
 
 		var liveResolver = new SnapshotLiveResolver(snapshot.LiveNodeStates);
-		gameState.Register(NodeType.Character, liveResolver);
-		gameState.Register(NodeType.SpawnPoint, liveResolver);
-		gameState.Register(NodeType.MiningNode, liveResolver);
-		gameState.Register(NodeType.ItemBag, liveResolver);
-		gameState.Register(NodeType.Door, liveResolver);
+		gameState.Register(NodeType.Character, liveResolver.Resolve);
+		gameState.Register(NodeType.SpawnPoint, liveResolver.Resolve);
+		gameState.Register(NodeType.MiningNode, liveResolver.Resolve);
+		gameState.Register(NodeType.ItemBag, liveResolver.Resolve);
+		gameState.Register(NodeType.Door, liveResolver.Resolve);
 
 		var unlocks = new UnlockEvaluator(guide, gameState, tracker);
-		gameState.Register(NodeType.ZoneLine, new ZoneLineStateResolver(unlocks));
+		gameState.Register(NodeType.ZoneLine, NodeStateResolvers.ZoneLine(unlocks));
 
 		var router = new ZoneRouter(guide, unlocks);
 		router.Rebuild();
@@ -68,7 +67,7 @@ public sealed class SnapshotHarness
 		FromSnapshot(builder.Build(), new StateSnapshot());
 }
 
-internal sealed class SnapshotLiveResolver : INodeStateResolver
+internal sealed class SnapshotLiveResolver
 {
 	private readonly Dictionary<string, LiveNodeState> _states;
 
