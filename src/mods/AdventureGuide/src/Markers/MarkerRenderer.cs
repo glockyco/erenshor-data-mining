@@ -1,4 +1,5 @@
 using AdventureGuide.Config;
+using AdventureGuide.Diagnostics;
 using UnityEngine;
 
 namespace AdventureGuide.Markers;
@@ -7,7 +8,7 @@ namespace AdventureGuide.Markers;
 /// Renders world-space billboard markers from <see cref="MarkerProjector"/>
 /// output using <see cref="MarkerPool"/>.
 /// </summary>
-public sealed class MarkerRenderer
+internal sealed class MarkerRenderer
 {
 	private const float StaticHeightOffset = 2.5f;
 	private const float LiveHeightAboveCollider = 0.8f;
@@ -15,6 +16,7 @@ public sealed class MarkerRenderer
 	private readonly MarkerProjector _projector;
 	private readonly MarkerPool _pool;
 	private readonly GuideConfig _config;
+	private readonly DiagnosticsCore? _diagnostics;
 
 	private bool _enabled;
 	private bool _configDirty;
@@ -34,11 +36,16 @@ public sealed class MarkerRenderer
 		}
 	}
 
-	public MarkerRenderer(MarkerProjector projector, MarkerPool pool, GuideConfig config)
+	public MarkerRenderer(
+		MarkerProjector projector,
+		MarkerPool pool,
+		GuideConfig config,
+		DiagnosticsCore? diagnostics = null)
 	{
 		_projector = projector;
 		_pool = pool;
 		_config = config;
+		_diagnostics = diagnostics;
 
 		config.MarkerScale.SettingChanged += OnConfigChanged;
 		config.IconSize.SettingChanged += OnConfigChanged;
@@ -52,6 +59,8 @@ public sealed class MarkerRenderer
 	/// </summary>
 	public void Render()
 	{
+		using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.MarkerRendererRender);
+
 		if (!_enabled || GameData.PlayerControl == null || !MarkerFonts.IsReady)
 			return;
 

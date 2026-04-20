@@ -1,3 +1,4 @@
+using AdventureGuide.Diagnostics;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -25,7 +26,7 @@ namespace AdventureGuide.Navigation;
 /// the direct line. When there is exactly one interior node (N=3), stub and
 /// tail share that node and mid is suppressed.
 /// </summary>
-public sealed class GroundPathRenderer
+internal sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
     private const float PlayerNavSampleRadius = 5f;
@@ -40,6 +41,7 @@ public sealed class GroundPathRenderer
     private static readonly Color GlowColor = new(1.00f, 0.75f, 0.20f, 0.15f);
 
     private readonly NavigationEngine _nav;
+    private readonly DiagnosticsCore? _diagnostics;
     private readonly NavMeshPath _path = new();
     private Vector3[] _corners = new Vector3[64];
     private int _cornerCount;
@@ -66,9 +68,10 @@ public sealed class GroundPathRenderer
         }
     }
 
-    public GroundPathRenderer(NavigationEngine nav)
+    public GroundPathRenderer(NavigationEngine nav, DiagnosticsCore? diagnostics = null)
     {
         _nav = nav;
+        _diagnostics = diagnostics;
     }
 
     /// <summary>
@@ -78,6 +81,8 @@ public sealed class GroundPathRenderer
     /// </summary>
     public void Update()
     {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.GroundPathUpdate);
+
         if (!_enabled || !_nav.HasTarget)
         {
             _pathValid = false;

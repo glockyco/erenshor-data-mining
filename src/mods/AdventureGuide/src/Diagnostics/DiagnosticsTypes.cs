@@ -28,6 +28,9 @@ internal enum DiagnosticSpanKind
 	UpdatePhaseInvalidate,
 	UpdatePhaseConsume,
 	UpdatePhaseRender,
+	GroundPathUpdate,
+	MarkerProjectorProject,
+	MarkerRendererRender,
 	}
 
 internal enum DiagnosticTrigger

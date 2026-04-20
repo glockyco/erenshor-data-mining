@@ -281,14 +281,14 @@ public sealed class Plugin : BaseUnityPlugin
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
-        _groundPath = new GroundPathRenderer(_navEngine);
+        _groundPath = new GroundPathRenderer(_navEngine, _diagnostics);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerProjector = new MarkerProjector(_reader, _liveState, _compiledGuide);
-        _markerRenderer = new MarkerRenderer(_markerProjector, _markerPool, _config);
+        _markerProjector = new MarkerProjector(_reader, _liveState, _compiledGuide, _diagnostics);
+        _markerRenderer = new MarkerRenderer(_markerProjector, _markerPool, _config, _diagnostics);
         _markerRenderer.Enabled = _config.ShowWorldMarkers.Value;
 
 

@@ -11,13 +11,14 @@ namespace AdventureGuide.Markers;
 /// scene and materialises live <see cref="MarkerEntry"/> instances when the
 /// candidate-list reference changes.
 /// </summary>
-public sealed class MarkerProjector
+internal sealed class MarkerProjector
 {
 	private const float StaticHeightOffset = 2.5f;
 
 	private readonly GuideReader _reader;
 	private readonly LiveStateTracker _liveState;
 	private readonly CompiledGuideModel _guide;
+	private readonly DiagnosticsCore? _diagnostics;
 
 	private MarkerCandidateList? _lastCandidates;
 	private readonly List<MarkerEntry> _entries = new();
@@ -26,11 +27,16 @@ public sealed class MarkerProjector
 	public IReadOnlyList<MarkerEntry> Markers => _entries;
 	public MarkerCandidateList? LastCandidates => _lastCandidates;
 
-	public MarkerProjector(GuideReader reader, LiveStateTracker liveState, CompiledGuideModel guide)
+	public MarkerProjector(
+		GuideReader reader,
+		LiveStateTracker liveState,
+		CompiledGuideModel guide,
+		DiagnosticsCore? diagnostics = null)
 	{
 		_reader = reader;
 		_liveState = liveState;
 		_guide = guide;
+		_diagnostics = diagnostics;
 	}
 
 	/// <summary>Reads <see cref="MarkerCandidateList"/> through the engine. When
@@ -38,6 +44,8 @@ public sealed class MarkerProjector
 	/// game-object references for per-frame rendering.</summary>
 	public void Project()
 	{
+		using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.MarkerProjectorProject);
+
 		var candidates = _reader.ReadMarkerCandidates(_reader.CurrentScene);
 		if (ReferenceEquals(candidates, _lastCandidates))
 			return;
