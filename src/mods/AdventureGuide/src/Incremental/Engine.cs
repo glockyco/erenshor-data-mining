@@ -34,6 +34,12 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	private readonly Stack<(int, object)> _computeStack = new();
 
 	public int Revision => _revision;
+
+	/// <summary>Test-only view of the fact-to-dependent-entries reverse index.
+	/// Consumers must not read this in production code; it is exposed via
+	/// InternalsVisibleTo to pin invariants like "empty sets are cleaned up."</summary>
+	internal IReadOnlyDictionary<TFactKey, HashSet<(int, object)>> EntriesByFactForTests => _entriesByFact;
+
 	public Query<TKey, TValue> DefineQuery<TKey, TValue>(
 		string name,
 		Func<ReadContext<TFactKey>, TKey, TValue> compute) where TKey : notnull
@@ -165,12 +171,20 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		bool existed = _entries.TryGetValue(entryKey, out var prior);
 		bool changed = !existed || !Equals(prior.Value, value);
 
-		// Unsubscribe old fact→entry reverse deps before re-subscribing.
+		// Unsubscribe old fact→entry reverse deps before re-subscribing. When an
+		// old fact's dependent set drops to zero, remove the outer dictionary
+		// entry too so `_entriesByFact` does not accumulate orphan keys as
+		// queries' fact sets drift over their lifetime.
 		if (existed)
 		{
-		    foreach (var oldFact in prior.Facts)
-		        if (_entriesByFact.TryGetValue(oldFact, out var set))
-		            set.Remove(entryKey);
+			foreach (var oldFact in prior!.Facts)
+			{
+				if (!_entriesByFact.TryGetValue(oldFact, out var set))
+					continue;
+				set.Remove(entryKey);
+				if (set.Count == 0)
+					_entriesByFact.Remove(oldFact);
+			}
 		}
 
 		// When the recomputed value equals the prior, return the prior

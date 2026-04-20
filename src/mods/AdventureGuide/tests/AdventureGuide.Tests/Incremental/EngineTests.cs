@@ -237,6 +237,33 @@ public sealed class EngineTests
 		Assert.Equal(2, computeCount);
 	}
 
+	[Fact]
+	public void Unsubscribing_RemovesEmptyFactSet_FromEntriesByFact()
+	{
+		var engine = new Engine<TestFact>();
+		var factA = new TestFact("A");
+		var factB = new TestFact("B");
+		bool readA = true;
+
+		var query = engine.DefineQuery<int, int>(
+			name: "Switcher",
+			compute: (ctx, key) =>
+			{
+				ctx.RecordFact(readA ? factA : factB);
+				return readA ? 1 : 2;
+			});
+
+		engine.Read(query, 0);
+		Assert.True(engine.EntriesByFactForTests.ContainsKey(factA));
+
+		readA = false;
+		engine.InvalidateFacts(new[] { factA });
+		engine.Read(query, 0);
+
+		Assert.False(engine.EntriesByFactForTests.ContainsKey(factA));
+		Assert.True(engine.EntriesByFactForTests.ContainsKey(factB));
+	}
+
 	private sealed class Box : IEquatable<Box>
 	{
 		public Box(int payload) => Payload = payload;
