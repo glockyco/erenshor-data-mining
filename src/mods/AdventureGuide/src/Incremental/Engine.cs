@@ -32,6 +32,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	// without knowing its concrete type. One delegate per query, not per entry.
 	private readonly Dictionary<int, Action<object>> _recomputers = new();
 	private readonly Stack<(int, object)> _computeStack = new();
+	private readonly HashSet<string> _queryNames = new(StringComparer.Ordinal);
 
 	public long Revision => _revision;
 
@@ -40,10 +41,17 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	/// InternalsVisibleTo to pin invariants like "empty sets are cleaned up."</summary>
 	internal IReadOnlyDictionary<TFactKey, HashSet<(int, object)>> EntriesByFactForTests => _entriesByFact;
 
+	/// <summary>Registers a new query. Query names must be unique within an
+	/// engine; a duplicate name throws <see cref="InvalidOperationException"/>
+	/// so diagnostic output (<see cref="QueryRef.ToString"/>, tracer
+	/// callbacks) is unambiguous.</summary>
 	public Query<TKey, TValue> DefineQuery<TKey, TValue>(
 		string name,
 		Func<ReadContext<TFactKey>, TKey, TValue> compute) where TKey : notnull
 	{
+		if (!_queryNames.Add(name))
+			throw new InvalidOperationException(
+				$"A query named '{name}' is already registered on this engine.");
 		int id = _nextQueryId++;
 		var query = new Query<TKey, TValue>(name, id, _ownerToken,
 			(ctxObj, key) => compute((ReadContext<TFactKey>)ctxObj, (TKey)key));
@@ -89,9 +97,19 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	/// <summary>Marks cache entries whose recorded facts were bumped. Returned set
 	/// lists directly-affected entries only; transitive dependents become stale
 	/// lazily on the next read via <see cref="IsStale"/>. The return value is
-	/// diagnostic; no branching logic depends on its completeness.</summary>
+	/// diagnostic; no branching logic depends on its completeness.
+	///
+	/// <para>Must not be called from inside a query compute. Invalidation is an
+	/// at-rest operation; mid-compute calls would bump <c>_revision</c> under an
+	/// active ambient <see cref="ReadContext{TFactKey}"/> and produce surprising
+	/// staleness semantics for the currently-running query. A re-entrant call
+	/// throws <see cref="InvalidOperationException"/>.</para></summary>
 	public IReadOnlyCollection<QueryRef> InvalidateFacts(IEnumerable<TFactKey> changed)
 	{
+		if (_computeStack.Count > 0)
+			throw new InvalidOperationException(
+				"InvalidateFacts may not be called from inside a query compute.");
+
 		var affected = new HashSet<(int, object)>();
 		foreach (var fact in changed)
 		{

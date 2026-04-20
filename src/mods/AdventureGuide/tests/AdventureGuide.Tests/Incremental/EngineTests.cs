@@ -264,6 +264,34 @@ public sealed class EngineTests
 		Assert.True(engine.EntriesByFactForTests.ContainsKey(factB));
 	}
 
+	[Fact]
+	public void InvalidateFacts_DuringCompute_Throws()
+	{
+		var engine = new Engine<TestFact>();
+		var fact = new TestFact("source");
+
+		var query = engine.DefineQuery<int, int>(
+			name: "Reentrant",
+			compute: (ctx, key) =>
+			{
+				ctx.RecordFact(fact);
+				engine.InvalidateFacts(new[] { fact });
+				return 0;
+			});
+
+		Assert.Throws<InvalidOperationException>(() => engine.Read(query, 0));
+	}
+
+	[Fact]
+	public void DefineQuery_WithDuplicateName_Throws()
+	{
+		var engine = new Engine<TestFact>();
+		engine.DefineQuery<int, int>(name: "Q", compute: (ctx, key) => key);
+
+		Assert.Throws<InvalidOperationException>(() =>
+			engine.DefineQuery<int, int>(name: "Q", compute: (ctx, key) => key + 1));
+	}
+
 	private sealed class Box : IEquatable<Box>
 	{
 		public Box(int payload) => Payload = payload;
