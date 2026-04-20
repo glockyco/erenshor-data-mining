@@ -10,9 +10,36 @@ namespace AdventureGuide.Incremental;
 /// to the prior cached value, the engine returns the <i>prior instance</i>, not
 /// the freshly-computed one. Consumers may rely on reference identity as a
 /// proxy for value identity: a returned reference that equals the last
-/// reference observed implies no content change. Returned values must be
-/// treated as immutable — the engine reuses instances, and mutating one
-/// corrupts the cache.</para></summary>
+/// reference observed implies no content change.</para>
+///
+/// <para><b>Invalidation semantics.</b> <see cref="InvalidateFacts"/> marks
+/// entries whose recorded facts were bumped as stale; it is an at-rest
+/// operation and must not be called from inside a compute (doing so throws
+/// <see cref="InvalidOperationException"/>). Staleness propagates lazily:
+/// the next <see cref="Read{TKey,TValue}"/> walks the dependent entry's
+/// fact and sub-query deps against its <c>LastVerifiedRevision</c> and
+/// recomputes only when a bumped revision is newer. Transitive dependents
+/// become stale through `IsStale`'s sub-query recursion, not through a
+/// greedy sweep during <c>InvalidateFacts</c>.</para>
+///
+/// <para><b>Threading.</b> Not thread-safe. All public methods must be
+/// serialised by the caller. The typical deployment (Unity main thread)
+/// satisfies this by construction. Internal state — <c>_entries</c>,
+/// <c>_entriesByFact</c>, <c>_computeStack</c>, fact revisions, per-query
+/// counters — is unguarded. The <c>[ThreadStatic]</c> ambient
+/// <see cref="ReadContext{TFactKey}"/> is safe across threads but does not
+/// make the engine itself thread-safe.</para>
+///
+/// <para><b>Value lifetimes.</b> Returned values must be treated as
+/// immutable. The engine reuses instances across reads under the read
+/// semantics described above, and it caches the prior instance inside the
+/// <c>Entry</c> record while the entry exists. Mutating a returned value
+/// therefore corrupts both the live caller's view and the cache. Query
+/// compute functions must produce values whose <see cref="object.Equals(object)"/>
+/// implementation reflects every observable field the caller cares about;
+/// a loose equality implementation (for example, comparing only a collection's
+/// length) will cause the engine to silently return stale content when
+/// content actually changed.</para></summary>
 public sealed class Engine<TFactKey> where TFactKey : notnull
 {
 	private readonly object _ownerToken = new();
