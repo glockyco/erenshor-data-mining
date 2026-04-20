@@ -13,8 +13,6 @@ public sealed class QuestPhaseTracker : IDisposable
     private readonly Dictionary<string, int> _dbNameToQuestIndex;
     private bool _disposed;
 
-    public int Version { get; private set; }
-
     internal CompiledGuide.CompiledGuide Guide => _guide;
     internal QuestStateTracker State => _state;
 
@@ -126,13 +124,10 @@ public sealed class QuestPhaseTracker : IDisposable
                 _phases[questIndex] = QuestPhase.Accepted;
             }
         }
-
-        Version++;
     }
 
     private void OnQuestLogChanged(ChangeSet changeSet)
     {
-        bool changed = false;
         foreach (var dbName in changeSet.ChangedQuestDbNames)
         {
             if (!_dbNameToQuestIndex.TryGetValue(dbName, out int questIndex))
@@ -144,24 +139,16 @@ public sealed class QuestPhaseTracker : IDisposable
                     continue;
 
                 ApplyCompleted(questIndex);
-                changed = true;
                 continue;
             }
 
             if (_state.ActiveQuests.Contains(dbName) && _phases[questIndex] == QuestPhase.ReadyToAccept)
-            {
                 _phases[questIndex] = QuestPhase.Accepted;
-                changed = true;
-            }
         }
-
-        if (changed)
-            Version++;
     }
 
     private void OnInventoryChanged(ChangeSet changeSet)
     {
-        bool changed = false;
         foreach (var itemKey in changeSet.ChangedItemKeys)
         {
             if (!_guide.TryGetNodeId(itemKey, out int itemNodeId))
@@ -176,11 +163,7 @@ public sealed class QuestPhaseTracker : IDisposable
                 continue;
 
             _itemCounts[itemIndex] = newCount;
-            changed = true;
         }
-
-        if (changed)
-            Version++;
     }
 
     private void ApplyCompleted(int questIndex)

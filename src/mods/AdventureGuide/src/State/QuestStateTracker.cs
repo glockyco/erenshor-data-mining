@@ -27,10 +27,18 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
     private NavigationHistory? _history;
     private string _currentZone = string.Empty;
 
+    /// <summary>
+    /// Monotonic event counter. Tracker-internal revision, not a
+    /// cache-freshness coordinator. Bumped in <see cref="FinalizeChange"/> on
+    /// any meaningful <see cref="ChangeSet"/>; Plugin's update loop uses the
+    /// delta (<c>_lastObservedQuestTrackerVersion</c>) to detect that the
+    /// tracker observed a game event this frame and forward its
+    /// <see cref="LastChangeSet"/> into the engine. This is the outside edge
+    /// between external game events and the engine's fact model, not
+    /// internal cache coordination.
+    /// </summary>
     public int Version { get; private set; }
-    public int QuestLogVersion { get; private set; }
-    public int InventoryVersion { get; private set; }
-    public int SceneVersion { get; private set; }
+
 
     public event Action<ChangeSet>? QuestLogChangedEvent;
     public event Action<ChangeSet>? InventoryChangedEvent;
@@ -89,9 +97,7 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
 
         SelectedQuestDBName = null;
         Version = 0;
-        QuestLogVersion = 0;
-        InventoryVersion = 0;
-        SceneVersion = 0;
+
 
         var loadedChangeSet = BuildLoadedChangeSet();
         LastChangeSet = loadedChangeSet;
@@ -412,13 +418,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
     {
         if (changeSet == null || !changeSet.HasMeaningfulChanges)
             return ChangeSet.None;
-
-        if (changeSet.QuestLogChanged)
-            QuestLogVersion++;
-        if (changeSet.InventoryChanged)
-            InventoryVersion++;
-        if (changeSet.SceneChanged)
-            SceneVersion++;
 
         Version++;
         LastChangeSet = changeSet;

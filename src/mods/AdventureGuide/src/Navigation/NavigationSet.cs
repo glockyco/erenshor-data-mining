@@ -61,12 +61,6 @@ public sealed class NavigationSet : AdventureGuide.State.INavigationSetFactSourc
         MarkChanged();
     }
 
-    /// <summary>
-    /// Monotonically increasing version for change detection.
-    /// Consumers compare against their snapshot to know if the set changed.
-    /// </summary>
-    public int Version { get; private set; }
-
     /// <summary>Drains the pending fact emission caused by membership changes
     /// since the last drain. Returns <c>FactKey(NavSet, "*")</c> once per change
     /// batch, empty otherwise. Plugin's update loop drains once per frame and
@@ -82,7 +76,6 @@ public sealed class NavigationSet : AdventureGuide.State.INavigationSetFactSourc
 
     private void MarkChanged()
     {
-        Version++;
         _factPending = true;
         Changed?.Invoke();
     }

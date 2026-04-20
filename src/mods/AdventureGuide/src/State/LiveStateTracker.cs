@@ -50,7 +50,6 @@ public sealed class LiveStateTracker
         System.StringComparer.OrdinalIgnoreCase
     );
 
-    public int Version { get; private set; }
     private bool _isNight;
 
     public LiveStateTracker(
@@ -75,7 +74,7 @@ public sealed class LiveStateTracker
         RebuildMiningAvailability();
         RebuildItemBagAvailability();
         RebuildDoorStates();
-        BumpVersion();
+        
     }
 
     public ChangeSet OnNPCSpawn(SpawnPoint sp)
@@ -83,7 +82,7 @@ public sealed class LiveStateTracker
         if (sp == null)
             return ChangeSet.None;
 
-        BumpVersion();
+        
         var sourceKey = ResolveSpawnSourceKey(sp);
         return BuildSourceChange(sourceKey);
     }
@@ -93,7 +92,7 @@ public sealed class LiveStateTracker
         if (npc == null)
             return ChangeSet.None;
 
-        BumpVersion();
+        
 
         var sourceKey = ResolveNpcSourceKey(npc);
         return BuildSourceChange(sourceKey);
@@ -105,7 +104,7 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
-        BumpVersion();
+        
         return BuildSourceChange(ResolveMiningSourceKey(mn));
     }
 
@@ -115,7 +114,7 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         _itemBagAvailable[NodePosKey(bag.transform.position)] = false;
-        BumpVersion();
+        
         return BuildSourceChange(ResolveItemBagSourceKey(bag));
     }
 
@@ -140,7 +139,7 @@ public sealed class LiveStateTracker
         // Mark all quests in the current scene as potentially affected — any active
         // quest that needs an item from a DropsItem source could now find the item
         // in a loot chest.
-        BumpVersion();
+        
         return BuildLiveChange(_graphSpawnSourcesByPos.Values, timeChanged: false);
     }
 
@@ -235,7 +234,7 @@ public sealed class LiveStateTracker
         if (!changed)
             return ChangeSet.None;
 
-        BumpVersion();
+        
         // forceChanged: a state change was detected above; emit the signal even
         // when no specific source key could be resolved from the changed nodes.
         return BuildLiveChange(changedSourceKeys, timeChanged, forceChanged: true);
@@ -1013,8 +1012,6 @@ public sealed class LiveStateTracker
             _doorClosed[NodePosKey(door.transform.position)] = door.isClosed && !door.swinging;
         }
     }
-
-    private void BumpVersion() => Version++;
 
     private static bool IsNight()
     {

@@ -24,8 +24,6 @@ public sealed class NavigationTargetResolver
 	private int _lastBatchKeyCount;
 	private IReadOnlyList<QuestCostSample> _topQuestCosts = Array.Empty<QuestCostSample>();
 
-	public long Version => _reader.Engine.Revision;
-
 	internal NavigationTargetResolver(
 		CompiledGuideModel guide,
 		GuideReader reader,

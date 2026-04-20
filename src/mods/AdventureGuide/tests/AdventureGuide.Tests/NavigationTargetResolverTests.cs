@@ -107,39 +107,6 @@ public sealed class NavigationTargetResolverTests
 	}
 
 	[Fact]
-	public void Version_ReflectsEngineRevision()
-	{
-		var guide = new CompiledGuideBuilder().Build();
-		var phases = new QuestPhaseTracker(guide);
-		phases.Initialize(
-			Array.Empty<string>(),
-			Array.Empty<string>(),
-			new Dictionary<string, int>(),
-			Array.Empty<string>()
-		);
-		var frontier = new EffectiveFrontier(guide, phases);
-		var unlocks = new UnlockPredicateEvaluator(guide, phases);
-		var positionRegistry = CreatePositionRegistry(guide);
-		var sourceResolver = new SourceResolver(
-			guide, phases, unlocks, new StubLivePositionProvider(), positionRegistry);
-		var engine = new Engine<FactKey>();
-		var targetResolver = new NavigationTargetResolver(
-			guide,
-			ResolutionTestFactory.BuildService(
-				guide, frontier, sourceResolver,
-				zoneRouter: null,
-				engine: engine,
-				positionRegistry: positionRegistry),
-			null,
-			positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null));
-
-		long before = targetResolver.Version;
-		engine.InvalidateFacts(new[] { new FactKey(FactKind.Scene, "current") });
-		Assert.True(targetResolver.Version > before);
-	}
-
-	[Fact]
 	public void Resolve_QuestKey_ReusesCachedResultsWhenVersionUnchanged()
 	{
 		var guide = new CompiledGuideBuilder()

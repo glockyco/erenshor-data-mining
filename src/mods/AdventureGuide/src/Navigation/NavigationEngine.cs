@@ -34,7 +34,6 @@ public sealed class NavigationEngine
     public string CurrentScene { get; private set; } = "";
     public int HopCount { get; private set; }
 
-    private int _lastNavSetVersion = -1;
     private string _lastResolveScene = "";
 
     private string? _cachedRouteFrom;
@@ -91,24 +90,18 @@ public sealed class NavigationEngine
                 return;
             }
 
-            bool navChanged = _navSet.Version != _lastNavSetVersion;
             bool sceneChanged = !string.Equals(
                 CurrentScene,
                 _lastResolveScene,
                 StringComparison.OrdinalIgnoreCase
             );
 
-            if (navChanged || sceneChanged)
+            if (sceneChanged)
             {
-                if (sceneChanged)
-                {
-                    _cachedRouteFrom = null;
-                    _cachedRouteTo = null;
-                    _cachedRoute = null;
-                    _router.Rebuild();
-                }
-
-                _lastNavSetVersion = _navSet.Version;
+                _cachedRouteFrom = null;
+                _cachedRouteTo = null;
+                _cachedRoute = null;
+                _router.Rebuild();
                 _lastResolveScene = CurrentScene;
             }
 
