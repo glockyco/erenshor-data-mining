@@ -413,8 +413,13 @@ public sealed class Plugin : BaseUnityPlugin
         ItemBagPatch.LiveState = _liveState;
 
         CorpseChestPatch.LiveState = _liveState;
+        LootWindowCloseWindowPatch.LiveState = _liveState;
+        LootWindowCloseWindowPatch.Engine = _engine;
+        LootWindowCloseWindowPatch.ZoneRouter = _zoneRouter;
+        LootWindowCloseWindowPatch.Selector = _targetSelector;
 
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
+
         PointerOverUIPatch.Renderer = _imgui;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
         SceneManager.sceneLoaded += OnSceneLoaded;

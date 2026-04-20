@@ -121,11 +121,19 @@ public sealed class NavigationTargetSelector
         _topQuestCostProvider = topQuestCostProvider;
     }
 
+/// <summary>
+/// Forces the next <see cref="Tick"/> to rebuild per-quest cached targets even
+/// when the engine reuses the same navigable-set reference.
+/// </summary>
+internal void InvalidateTargets()
+{
+    _lastNavigable = null;
+}
 
-    /// <summary>
-    /// Called once per frame by Plugin before consumers read.
-    ///
-    /// Re-scores cached targets against the current player position and live-state
+/// <summary>
+/// Called once per frame by Plugin before consumers read.
+///
+/// Re-scores cached targets against the current player position and live-state
     /// overlays. When the engine-owned <paramref name="navigable"/> reference
     /// changes, the selector performs a full rebuild from <see cref="NavigableQuestSet.Keys"/>.
     /// When the same reference is reused, <paramref name="liveWorldChanged"/> forces

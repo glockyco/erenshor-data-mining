@@ -93,7 +93,14 @@ public sealed class LiveStateTracker
         if (npc == null)
             return ChangeSet.None;
 
-        
+        var sourceKey = ResolveNpcSourceKey(npc);
+        return BuildSourceChange(sourceKey);
+    }
+
+    public ChangeSet OnCorpseLooted(NPC npc)
+    {
+        if (npc == null)
+            return ChangeSet.None;
 
         var sourceKey = ResolveNpcSourceKey(npc);
         return BuildSourceChange(sourceKey);

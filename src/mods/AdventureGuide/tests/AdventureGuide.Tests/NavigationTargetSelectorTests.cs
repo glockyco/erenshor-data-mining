@@ -564,6 +564,42 @@ public sealed class NavigationTargetSelectorTests
     }
 
     [Fact]
+    public void Tick_InvalidateTargets_ForcesBatchResolve_WhenNavigableRefIsUnchanged()
+    {
+        var near = new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "near") };
+        var far = new[] { MakeTarget(ZoneA, x: 100f, targetNodeKey: "far") };
+        var navigable = Navigable("quest:test");
+        int resolverCalls = 0;
+        var selector = MakeSelector(
+            (key, _) =>
+            {
+                resolverCalls++;
+                return key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)(resolverCalls == 1 ? near : far)
+                    : Array.Empty<ResolvedQuestTarget>();
+            },
+            EmptyRouter()
+        );
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("near", first.Target.TargetNodeKey);
+        Assert.Equal(1, resolverCalls);
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        Assert.True(selector.TryGet("quest:test", out var second));
+        Assert.Equal("near", second.Target.TargetNodeKey);
+        Assert.Equal(1, resolverCalls);
+
+        selector.InvalidateTargets();
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+
+        Assert.True(selector.TryGet("quest:test", out var third));
+        Assert.Equal("far", third.Target.TargetNodeKey);
+        Assert.Equal(2, resolverCalls);
+    }
+
+    [Fact]
     public void Tick_NoForce_RefreshesCachedMiningActionabilityFromLiveStateCache()
     {
         var guide = new CompiledGuideBuilder()
