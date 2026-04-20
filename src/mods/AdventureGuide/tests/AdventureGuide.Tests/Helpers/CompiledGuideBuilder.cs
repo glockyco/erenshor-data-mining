@@ -455,18 +455,97 @@ public sealed class CompiledGuideBuilder
         var itemIndexByNodeId = itemNodeIds
             .Select((id, index) => (id, index))
             .ToDictionary(p => p.id, p => p.index);
-        var i2qRows = Enumerable
+        var directQuestRows = Enumerable
             .Range(0, itemNodeIds.Length)
-            .Select(_ => new List<int>())
+            .Select(_ => new HashSet<int>())
             .ToArray();
         for (int qi = 0; qi < questNodeIds.Length; qi++)
         {
             foreach (CompiledItemRequirementData item in questSpecs[qi].RequiredItems)
             {
                 if (itemIndexByNodeId.TryGetValue(item.ItemId, out int itemIndex))
-                    i2qRows[itemIndex].Add(qi);
+                    directQuestRows[itemIndex].Add(qi);
             }
         }
+
+        var ingredientToProducts = Enumerable
+            .Range(0, itemNodeIds.Length)
+            .Select(_ => new HashSet<int>())
+            .ToArray();
+        var ingredientsByRecipe = new Dictionary<int, HashSet<int>>();
+        var productsByRecipe = new Dictionary<int, HashSet<int>>();
+        foreach (EdgeDef edge in _edges)
+        {
+            int sourceId = keyToId[edge.Source];
+            int targetId = keyToId[edge.Target];
+            int sourceType = nodes[sourceId].NodeType;
+            int targetType = nodes[targetId].NodeType;
+            if (sourceType == (int)NodeType.Recipe && targetType == (int)NodeType.Item)
+            {
+                if (edge.Type == EdgeType.RequiresMaterial
+                    && itemIndexByNodeId.TryGetValue(targetId, out int ingredientIndex))
+                {
+                    (ingredientsByRecipe.TryGetValue(sourceId, out var ingredients)
+                        ? ingredients
+                        : ingredientsByRecipe[sourceId] = new HashSet<int>())
+                    .Add(ingredientIndex);
+                }
+                else if (edge.Type == EdgeType.Produces
+                    && itemIndexByNodeId.TryGetValue(targetId, out int productIndex))
+                {
+                    (productsByRecipe.TryGetValue(sourceId, out var products)
+                        ? products
+                        : productsByRecipe[sourceId] = new HashSet<int>())
+                    .Add(productIndex);
+                }
+            }
+            else if (edge.Type == EdgeType.CraftedFrom
+                && sourceType == (int)NodeType.Item
+                && targetType == (int)NodeType.Recipe
+                && itemIndexByNodeId.TryGetValue(sourceId, out int productIndex))
+            {
+                (productsByRecipe.TryGetValue(targetId, out var products)
+                    ? products
+                    : productsByRecipe[targetId] = new HashSet<int>())
+                .Add(productIndex);
+            }
+        }
+
+        foreach (var (recipeId, ingredients) in ingredientsByRecipe)
+        {
+            if (!productsByRecipe.TryGetValue(recipeId, out var products))
+                continue;
+            foreach (int ingredientIndex in ingredients)
+            {
+                foreach (int productIndex in products)
+                    ingredientToProducts[ingredientIndex].Add(productIndex);
+            }
+        }
+
+        var i2qRows = Enumerable
+            .Range(0, itemNodeIds.Length)
+            .Select(_ => new List<int>())
+            .ToArray();
+        for (int itemIndex = 0; itemIndex < itemNodeIds.Length; itemIndex++)
+        {
+            var impactedQuests = new HashSet<int>();
+            var visitedItems = new HashSet<int> { itemIndex };
+            var queue = new Queue<int>();
+            queue.Enqueue(itemIndex);
+            while (queue.Count > 0)
+            {
+                int currentItemIndex = queue.Dequeue();
+                impactedQuests.UnionWith(directQuestRows[currentItemIndex]);
+                foreach (int productIndex in ingredientToProducts[currentItemIndex])
+                {
+                    if (visitedItems.Add(productIndex))
+                        queue.Enqueue(productIndex);
+                }
+            }
+            foreach (int questIndex in impactedQuests.OrderBy(index => index))
+                i2qRows[itemIndex].Add(questIndex);
+        }
+
 
         var giverBlueprints = new List<CompiledGiverBlueprintData>();
         var completionBlueprints = new List<CompiledCompletionBlueprintData>();

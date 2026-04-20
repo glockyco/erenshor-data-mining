@@ -261,6 +261,27 @@ def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
     assert compiled.item_to_quest_indices[key_ii] == [needs_qi]
 
 
+def test_compile_graph_builds_transitive_item_reverse_deps_through_crafting() -> None:
+    graph = _graph(
+        _quest("quest:wyland", db_name="WYLAND"),
+        _item("item:iron-ore"),
+        _item("item:ghostly-key"),
+        Node(key="recipe:ghostly-key", type=NodeType.RECIPE, display_name="Recipe: Ghostly Key"),
+        edges=[
+            Edge(source="quest:wyland", target="item:ghostly-key", type=EdgeType.REQUIRES_ITEM, quantity=1),
+            Edge(source="item:ghostly-key", target="recipe:ghostly-key", type=EdgeType.CRAFTED_FROM),
+            Edge(source="recipe:ghostly-key", target="item:iron-ore", type=EdgeType.REQUIRES_MATERIAL, quantity=1),
+            Edge(source="recipe:ghostly-key", target="item:ghostly-key", type=EdgeType.PRODUCES, quantity=1),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    wyland_qi = compiled.node_quest_index[compiled.node_key_to_id["quest:wyland"]]
+    ore_ii = compiled.node_item_index[compiled.node_key_to_id["item:iron-ore"]]
+
+    assert compiled.item_to_quest_indices[ore_ii] == [wyland_qi]
+
+
 def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> None:
     graph = _graph(
         _quest("quest:pre", db_name="PREQ"),

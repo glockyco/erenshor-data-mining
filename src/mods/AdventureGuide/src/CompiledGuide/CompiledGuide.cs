@@ -433,7 +433,8 @@ public sealed class CompiledGuide
     // Dependency lookups (string-keyed, high-level API)
     // ---------------------------------------------------------------
 
-    /// <summary>Returns quest keys that depend on the given item key.</summary>
+    /// <summary>Returns quest keys whose resolution depends on the given item key,
+    /// either directly or through transitive crafting chains.</summary>
     public IReadOnlyCollection<string> GetQuestsDependingOnItem(string itemKey) =>
         _questKeysByItemKey.TryGetValue(itemKey, out var quests) ? quests : EmptyKeySet;
 
@@ -581,22 +582,100 @@ public sealed class CompiledGuide
 
     private Dictionary<string, IReadOnlyCollection<string>> BuildQuestKeysByItemKey()
     {
-        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        for (int ii = 0; ii < _itemNodeIds.Length; ii++)
+        var directQuestIndicesByItem = _itemToQuestIndices
+            .Select(indices => new HashSet<int>(indices))
+            .ToArray();
+        var productIndicesByIngredient = new HashSet<int>[_itemNodeIds.Length];
+        for (int i = 0; i < productIndicesByIngredient.Length; i++)
+            productIndicesByIngredient[i] = new HashSet<int>();
+
+        var ingredientIndicesByRecipe = new Dictionary<int, HashSet<int>>();
+        var productIndicesByRecipe = new Dictionary<int, HashSet<int>>();
+        for (int i = 0; i < _edges.Length; i++)
         {
-            string itemKey = _nodes[_itemNodeIds[ii]].Key;
-            var questIndices = _itemToQuestIndices[ii];
-            for (int q = 0; q < questIndices.Length; q++)
+            var edge = _edges[i];
+            if (!_nodeIdToItemIndex.TryGetValue(edge.TargetId, out int targetItemIndex)
+                && !_nodeIdToItemIndex.TryGetValue(edge.SourceId, out _))
             {
-                string questKey = _nodes[_questNodeIds[questIndices[q]]].Key;
-                if (!map.TryGetValue(itemKey, out var set))
+                continue;
+            }
+
+            int sourceType = _nodes[edge.SourceId].NodeType;
+            int targetType = _nodes[edge.TargetId].NodeType;
+            if (sourceType == (int)NodeType.Recipe && targetType == (int)NodeType.Item)
+            {
+                if (edge.EdgeType == (int)EdgeType.RequiresMaterial)
                 {
-                    set = new HashSet<string>(StringComparer.Ordinal);
-                    map[itemKey] = set;
+                    if (_nodeIdToItemIndex.TryGetValue(edge.TargetId, out targetItemIndex))
+                        (ingredientIndicesByRecipe.TryGetValue(edge.SourceId, out var ingredients)
+                            ? ingredients
+                            : ingredientIndicesByRecipe[edge.SourceId] = new HashSet<int>())
+                        .Add(targetItemIndex);
                 }
-                set.Add(questKey);
+                else if (edge.EdgeType == (int)EdgeType.Produces)
+                {
+                    if (_nodeIdToItemIndex.TryGetValue(edge.TargetId, out targetItemIndex))
+                        (productIndicesByRecipe.TryGetValue(edge.SourceId, out var products)
+                            ? products
+                            : productIndicesByRecipe[edge.SourceId] = new HashSet<int>())
+                        .Add(targetItemIndex);
+                }
+            }
+            else if (
+                edge.EdgeType == (int)EdgeType.CraftedFrom
+                && sourceType == (int)NodeType.Item
+                && targetType == (int)NodeType.Recipe
+                && _nodeIdToItemIndex.TryGetValue(edge.SourceId, out int sourceItemIndex)
+            )
+            {
+                (productIndicesByRecipe.TryGetValue(edge.TargetId, out var products)
+                    ? products
+                    : productIndicesByRecipe[edge.TargetId] = new HashSet<int>())
+                .Add(sourceItemIndex);
             }
         }
+
+        foreach (var (recipeId, ingredients) in ingredientIndicesByRecipe)
+        {
+            if (!productIndicesByRecipe.TryGetValue(recipeId, out var products))
+                continue;
+
+            foreach (int ingredientIndex in ingredients)
+            {
+                foreach (int productIndex in products)
+                    productIndicesByIngredient[ingredientIndex].Add(productIndex);
+            }
+        }
+
+        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        for (int itemIndex = 0; itemIndex < _itemNodeIds.Length; itemIndex++)
+        {
+            var impactedQuestIndices = new HashSet<int>();
+            var visitedItems = new HashSet<int>();
+            var queue = new Queue<int>();
+            visitedItems.Add(itemIndex);
+            queue.Enqueue(itemIndex);
+            while (queue.Count > 0)
+            {
+                int currentItemIndex = queue.Dequeue();
+                impactedQuestIndices.UnionWith(directQuestIndicesByItem[currentItemIndex]);
+                foreach (int productIndex in productIndicesByIngredient[currentItemIndex])
+                {
+                    if (visitedItems.Add(productIndex))
+                        queue.Enqueue(productIndex);
+                }
+            }
+
+            if (impactedQuestIndices.Count == 0)
+                continue;
+
+            string itemKey = _nodes[_itemNodeIds[itemIndex]].Key;
+            var questKeys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (int questIndex in impactedQuestIndices)
+                questKeys.Add(_nodes[_questNodeIds[questIndex]].Key);
+            map[itemKey] = questKeys;
+        }
+
         return FreezeSetMap(map);
     }
 
@@ -643,19 +722,16 @@ public sealed class CompiledGuide
 
         for (int itemIndex = 0; itemIndex < _itemSources.Length; itemIndex++)
         {
-            var questIndices = _itemToQuestIndices[itemIndex];
-            if (questIndices.Length == 0)
+            string itemKey = _nodes[_itemNodeIds[itemIndex]].Key;
+            if (!_questKeysByItemKey.TryGetValue(itemKey, out var questKeys) || questKeys.Count == 0)
                 continue;
 
             var sources = _itemSources[itemIndex];
             for (int sourceIndex = 0; sourceIndex < sources.Length; sourceIndex++)
             {
                 string sourceKey = _nodes[sources[sourceIndex].SourceId].Key;
-                for (int questOffset = 0; questOffset < questIndices.Length; questOffset++)
-                {
-                    string questKey = _nodes[_questNodeIds[questIndices[questOffset]]].Key;
+                foreach (var questKey in questKeys)
                     AddToSetMap(map, sourceKey, questKey);
-                }
             }
         }
 

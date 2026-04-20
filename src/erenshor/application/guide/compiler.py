@@ -580,16 +580,67 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
 
 
 def _compile_reverse_dependencies(compiled: CompiledData) -> None:
+    """Compile reverse dependency indexes for quest invalidation.
+
+    `item_to_quest_indices` is intentionally broader than direct REQUIRES_ITEM
+    edges: it includes quests whose required items are craftable from the changed
+    item through one or more recipe steps. Runtime consumers use this index to
+    invalidate cached quest targets when inventory changes alter resolution for an
+    existing navigable quest key.
+    """
     compiled.item_to_quest_indices = [[] for _ in compiled.item_node_ids]
     compiled.quest_to_dependent_quest_indices = [[] for _ in compiled.quest_node_ids]
 
+    direct_item_to_quest_indices: list[set[int]] = [set() for _ in compiled.item_node_ids]
     for spec in compiled.quest_specs:
         for requirement in spec.required_items:
             item_index = compiled.node_item_index[requirement.item_id]
             if item_index != -1:
-                compiled.item_to_quest_indices[item_index].append(spec.quest_index)
+                direct_item_to_quest_indices[item_index].add(spec.quest_index)
         for prereq_index in spec.prereq_quest_indices:
             compiled.quest_to_dependent_quest_indices[prereq_index].append(spec.quest_index)
+
+    ingredient_to_products: list[set[int]] = [set() for _ in compiled.item_node_ids]
+    ingredients_by_recipe: dict[int, set[int]] = {}
+    products_by_recipe: dict[int, set[int]] = {}
+    item_type = node_type_byte(NodeType.ITEM)
+    recipe_type = node_type_byte(NodeType.RECIPE)
+    crafted_from_type = edge_type_byte(EdgeType.CRAFTED_FROM)
+    requires_material_type = edge_type_byte(EdgeType.REQUIRES_MATERIAL)
+    produces_type = edge_type_byte(EdgeType.PRODUCES)
+    for edge in compiled.edges:
+        source_type = compiled.nodes[edge.source_id].node_type
+        target_type = compiled.nodes[edge.target_id].node_type
+        if source_type == recipe_type and target_type == item_type:
+            target_item_index = compiled.node_item_index[edge.target_id]
+            if target_item_index == -1:
+                continue
+            if edge.edge_type == requires_material_type:
+                ingredients_by_recipe.setdefault(edge.source_id, set()).add(target_item_index)
+            elif edge.edge_type == produces_type:
+                products_by_recipe.setdefault(edge.source_id, set()).add(target_item_index)
+        elif edge.edge_type == crafted_from_type and source_type == item_type and target_type == recipe_type:
+            source_item_index = compiled.node_item_index[edge.source_id]
+            if source_item_index != -1:
+                products_by_recipe.setdefault(edge.target_id, set()).add(source_item_index)
+
+    for recipe_id, ingredient_indices in ingredients_by_recipe.items():
+        for ingredient_index in ingredient_indices:
+            for product_index in products_by_recipe.get(recipe_id, ()):
+                ingredient_to_products[ingredient_index].add(product_index)
+
+    for item_index in range(len(compiled.item_node_ids)):
+        impacted_quests: set[int] = set()
+        visited_items = {item_index}
+        queue = [item_index]
+        while queue:
+            current_item_index = queue.pop(0)
+            impacted_quests.update(direct_item_to_quest_indices[current_item_index])
+            for product_index in ingredient_to_products[current_item_index]:
+                if product_index not in visited_items:
+                    visited_items.add(product_index)
+                    queue.append(product_index)
+        compiled.item_to_quest_indices[item_index] = sorted(impacted_quests)
 
 
 def _compile_zones(compiled: CompiledData) -> None:
