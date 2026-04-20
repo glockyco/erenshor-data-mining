@@ -32,6 +32,26 @@ public sealed class MarkerProjectorTests
 		Assert.Equal(initialSpawnCalls * 2, fixture.LiveState.SpawnCallCount("spawn:leaf-1"));
 	}
 
+	[Fact]
+	public void Project_CollapsesSharedSourceObjectiveMarkers()
+	{
+		var fixture = MarkerProjectorFixture.CreateTwoActiveQuestsSameSource();
+
+		fixture.Projector.Project();
+
+		var objectiveEntries = fixture.Projector.Markers
+			.Where(e => e.Type == MarkerType.Objective && !e.IsSpawnTimerSlot)
+			.ToList();
+
+		var entry = Assert.Single(objectiveEntries);
+		Assert.Equal("spawn:leaf-1", entry.SourceNodeKey);
+		Assert.Equal(
+			new[] { "quest:a", "quest:b" },
+			fixture.Projector.GetContributingQuestKeys(entry.PositionNodeKey)!
+				.OrderBy(x => x, StringComparer.Ordinal)
+				.ToArray());
+	}
+
 	private sealed class MarkerProjectorFixture
 	{
 		private MarkerProjectorFixture(
@@ -129,6 +149,114 @@ public sealed class MarkerProjectorTests
 				{
 					ctx.RecordFact(new FactKey(FactKind.QuestActive, key.Item1));
 					return resolutionRecord;
+				});
+
+			var query = new MarkerCandidatesQuery(
+				engine,
+				guide,
+				reader,
+				navigableQuery,
+				questResolutionQuery);
+			reader.SetMarkerCandidatesQuery(query);
+
+			var liveState = new FakeMarkerLiveStateProvider();
+			var projector = new MarkerProjector(reader, liveState, guide);
+			return new MarkerProjectorFixture(projector, liveState);
+		}
+
+		public static MarkerProjectorFixture CreateTwoActiveQuestsSameSource()
+		{
+			var guide = new CompiledGuideBuilder()
+				.AddQuest("quest:a", dbName: "QUESTA")
+				.AddQuest("quest:b", dbName: "QUESTB")
+				.AddCharacter("char:leaf", scene: "Town", x: 1f, y: 2f, z: 3f)
+				.AddSpawnPoint("spawn:leaf-1", scene: "Town", x: 1f, y: 2f, z: 3f)
+				.Build();
+
+			var engine = new Engine<FactKey>();
+			var sourceStates = new Dictionary<string, SpawnCategory>(StringComparer.Ordinal)
+			{
+				["spawn:leaf-1"] = SpawnCategory.Alive,
+				["char:leaf"] = SpawnCategory.Alive,
+			};
+
+			var reader = new GuideReader(
+				engine,
+				new FakeInventory(),
+				new FakeQuestState(
+					currentScene: "Town",
+					actionable: new[] { "QUESTA", "QUESTB" },
+					implicitAvail: Array.Empty<string>(),
+					completed: Array.Empty<string>()),
+				new FakeTrackerState(Array.Empty<string>()),
+				new FakeNavigationSet(new[] { "quest:a", "quest:b" }),
+				new FakeSourceState(sourceStates));
+
+			guide.TryGetNodeId("char:leaf", out int leafNodeId);
+			guide.TryGetNodeId("spawn:leaf-1", out int spawnNodeId);
+
+			var semantic = new ResolvedActionSemantic(
+				NavigationGoalKind.Generic,
+				NavigationTargetKind.Character,
+				ResolvedActionKind.Talk,
+				goalNodeKey: null,
+				goalQuantity: null,
+				keywordText: null,
+				payloadText: null,
+				targetIdentityText: "char:leaf",
+				contextText: null,
+				rationaleText: null,
+				zoneText: "Town",
+				availabilityText: null,
+				preferredMarkerKind: QuestMarkerKind.Objective,
+				markerPriority: 0);
+
+			QuestResolutionRecord BuildRecord(string questKey) => new(
+				questKey: questKey,
+				currentScene: "Town",
+				frontier: Array.Empty<FrontierEntry>(),
+				compiledTargets: new[]
+				{
+					new ResolvedTarget(
+						targetNodeId: leafNodeId,
+						positionNodeId: spawnNodeId,
+						role: ResolvedTargetRole.Objective,
+						semantic: semantic,
+						x: 1f,
+						y: 2f,
+						z: 3f,
+						scene: "Town",
+						isLive: false,
+						isActionable: true,
+						questIndex: 0,
+						requiredForQuestIndex: -1),
+				},
+				navigationTargetsFactory: () => Array.Empty<ResolvedQuestTarget>(),
+				blockingZoneLineByScene: new Dictionary<string, int>());
+
+			var records = new Dictionary<string, QuestResolutionRecord>(StringComparer.Ordinal)
+			{
+				["quest:a"] = BuildRecord("quest:a"),
+				["quest:b"] = BuildRecord("quest:b"),
+			};
+
+			var navigable = new NavigableQuestSet(new[] { "quest:a", "quest:b" });
+			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestSet>(
+				"NavigableQuestsStub",
+				(ctx, _) =>
+				{
+					ctx.RecordFact(new FactKey(FactKind.NavSet, "*"));
+					ctx.RecordFact(new FactKey(FactKind.TrackerSet, "*"));
+					ctx.RecordFact(new FactKey(FactKind.QuestActive, "*"));
+					return navigable;
+				});
+
+			var questResolutionQuery = engine.DefineQuery<(string, string), QuestResolutionRecord>(
+				"QuestResolutionStub",
+				(ctx, key) =>
+				{
+					ctx.RecordFact(new FactKey(FactKind.QuestActive, key.Item1));
+					return records[key.Item1];
 				});
 
 			var query = new MarkerCandidatesQuery(

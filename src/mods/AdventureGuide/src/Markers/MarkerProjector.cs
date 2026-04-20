@@ -52,8 +52,25 @@ internal sealed class MarkerProjector
 
 		long start = Stopwatch.GetTimestamp();
 		_entries.Clear();
+
+		var selectedCandidates = new Dictionary<string, MarkerCandidate>(StringComparer.Ordinal);
 		foreach (var candidate in candidates.Candidates)
+		{
+			string dedupeKey = BuildRenderDedupeKey(candidate);
+			if (!selectedCandidates.TryGetValue(dedupeKey, out var existing)
+				|| candidate.Priority > existing.Priority)
+			{
+				selectedCandidates[dedupeKey] = candidate;
+			}
+		}
+
+		foreach (var candidate in selectedCandidates.Values
+			.OrderBy(candidate => candidate.Priority)
+			.ThenBy(candidate => candidate.PositionNodeKey, StringComparer.Ordinal))
+		{
 			_entries.Add(BuildEntry(candidate));
+		}
+
 		_lastCandidates = candidates;
 		_lastProjectionTicks = Stopwatch.GetTimestamp() - start;
 	}
@@ -180,6 +197,20 @@ internal sealed class MarkerProjector
 			entry.SubText = $"{candidate.DisplayName}\n{blocked.Reason}";
 
 		return entry;
+	}
+
+	private static string BuildRenderDedupeKey(MarkerCandidate candidate)
+	{
+		return string.Join(
+			"|",
+			new[]
+			{
+				candidate.Scene,
+				candidate.SourceNodeKey ?? candidate.PositionNodeKey,
+				candidate.IsSpawnTimerSlot ? "timer" : "active",
+				candidate.QuestKind.ToString(),
+				candidate.SpawnCategory.ToString(),
+			});
 	}
 
 	private static string BuildNightLockedText(string displayName)
