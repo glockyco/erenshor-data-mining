@@ -391,3 +391,43 @@ internal sealed class DiagnosticsCore
         return result;
     }
 }
+
+internal readonly struct SpanScope : IDisposable
+{
+    private readonly DiagnosticsCore? _core;
+    private readonly SpanToken _token;
+
+    internal SpanScope(DiagnosticsCore core, SpanToken token)
+    {
+        _core = core;
+        _token = token;
+    }
+
+    public void Dispose()
+    {
+        if (_core is null)
+            return;
+        _core.EndSpan(_token, Stopwatch.GetTimestamp() - _token.StartTicks);
+    }
+}
+
+internal static class DiagnosticsCoreExtensions
+{
+    /// <summary>
+    /// Opens a span and returns an <see cref="IDisposable"/> that closes it when
+    /// disposed. Tolerates a null <paramref name="core"/> — returns a default
+    /// no-op scope — so callers can write <c>using var _ = _diagnostics.OpenSpan(...)</c>
+    /// without a null guard.
+    /// </summary>
+    public static SpanScope OpenSpan(
+        this DiagnosticsCore? core,
+        DiagnosticSpanKind kind,
+        DiagnosticTrigger trigger = DiagnosticTrigger.Unknown,
+        string? primaryKey = null
+    )
+    {
+        if (core is null)
+            return default;
+        return new SpanScope(core, core.BeginSpan(kind, DiagnosticsContext.Root(trigger), primaryKey));
+    }
+}

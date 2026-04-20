@@ -23,7 +23,12 @@ internal enum DiagnosticSpanKind
 	NavEngineUpdate,
 	TrackerSummaryResolve,
 	SpecTreeProjectRoot,
-}
+	UpdatePhaseCapture,
+	UpdatePhasePublish,
+	UpdatePhaseInvalidate,
+	UpdatePhaseConsume,
+	UpdatePhaseRender,
+	}
 
 internal enum DiagnosticTrigger
 {

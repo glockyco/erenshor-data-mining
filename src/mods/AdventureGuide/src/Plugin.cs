@@ -496,79 +496,149 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Update()
     {
-        bool gameUIVisible = GameUIVisibility.IsVisible;
-        if (gameUIVisible != _gameUIVisible)
-        {
-            _gameUIVisible = gameUIVisible;
-            SyncVisibility();
-            if (!gameUIVisible)
-            {
-                _imgui?.ClearCaptureState();
-                if (_wasTextInputActive)
-                {
-                    GameData.PlayerTyping = false;
-                    _wasTextInputActive = false;
-                }
-            }
-        }
+        UpdateGameUiVisibility();
+        UpdateEditUiMode();
+        UpdatePlayerTyping();
 
+        var (change, liveWorldChanged) = CapturePhase();
+        PublishPhase(change);
+        InvalidatePhase(change);
+        ConsumePhase(liveWorldChanged);
+        RenderPhase();
+    }
+
+    private void UpdateGameUiVisibility()
+    {
+        bool gameUIVisible = GameUIVisibility.IsVisible;
+        if (gameUIVisible == _gameUIVisible)
+            return;
+
+        _gameUIVisible = gameUIVisible;
+        SyncVisibility();
+        if (gameUIVisible)
+            return;
+
+        _imgui?.ClearCaptureState();
+        if (_wasTextInputActive)
+        {
+            GameData.PlayerTyping = false;
+            _wasTextInputActive = false;
+        }
+    }
+
+    private void UpdateEditUiMode()
+    {
         bool editMode = GameData.EditUIMode;
         if (_wasEditUIMode && !editMode)
             GameWindowOverlap.InvalidateRects();
         _wasEditUIMode = editMode;
+    }
 
-        if (_gameUIVisible)
-        {
-            bool textActive = _imgui?.WantTextInput ?? false;
-            if (textActive && !_wasTextInputActive)
-                GameData.PlayerTyping = true;
-            else if (!textActive && _wasTextInputActive)
-                GameData.PlayerTyping = false;
-            _wasTextInputActive = textActive;
-        }
+    private void UpdatePlayerTyping()
+    {
+        if (!_gameUIVisible)
+            return;
 
-        var playerPos =
-            GameData.PlayerControl != null
-                ? GameData.PlayerControl.transform.position
-                : Vector3.zero;
+        bool textActive = _imgui?.WantTextInput ?? false;
+        if (textActive && !_wasTextInputActive)
+            GameData.PlayerTyping = true;
+        else if (!textActive && _wasTextInputActive)
+            GameData.PlayerTyping = false;
+        _wasTextInputActive = textActive;
+    }
+
+    /// <summary>
+    /// Observe frame-scoped state: live world, quest-tracker delta, and
+    /// pending nav/tracker set facts. Returns the merged change set plus
+    /// whether the live world moved this frame (used by the target selector
+    /// to force an immediate re-score).
+    /// </summary>
+    private (ChangeSet Change, bool LiveWorldChanged) CapturePhase()
+    {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhaseCapture);
+
         var liveStateToken = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.LiveStateUpdateFrame,
             DiagnosticsContext.Root(DiagnosticTrigger.LiveWorldChanged),
             primaryKey: _navEngine?.CurrentScene ?? string.Empty
         );
         long liveStateStart = Stopwatch.GetTimestamp();
-        var liveChangeSet = _liveState?.UpdateFrameState() ?? ChangeSet.None;
+        var liveChange = _liveState?.UpdateFrameState() ?? ChangeSet.None;
         if (liveStateToken != null)
         {
             _diagnostics!.EndSpan(
                 liveStateToken.Value,
                 Stopwatch.GetTimestamp() - liveStateStart,
-                value0: liveChangeSet.HasMeaningfulChanges ? 1 : 0,
+                value0: liveChange.HasMeaningfulChanges ? 1 : 0,
                 value1: 0
             );
         }
 
-        ChangeSet stateChangeSet = ChangeSet.None;
+        ChangeSet stateChange = ChangeSet.None;
         if (_questTracker != null && _lastObservedQuestTrackerVersion != _questTracker.Version)
         {
-            stateChangeSet = _questTracker.LastChangeSet;
+            stateChange = _questTracker.LastChangeSet;
             _lastObservedQuestTrackerVersion = _questTracker.Version;
         }
-        var selectorChangeSet = stateChangeSet.Merge(liveChangeSet);
 
         var navFacts = _navSet?.DrainPendingFacts() ?? Array.Empty<FactKey>();
         var trackerFacts = _trackerState?.DrainPendingFacts() ?? Array.Empty<FactKey>();
-        bool hasSetFacts = navFacts.Count > 0 || trackerFacts.Count > 0;
-
-        if (selectorChangeSet.HasMeaningfulChanges || hasSetFacts)
+        var combined = stateChange.Merge(liveChange);
+        if (navFacts.Count > 0 || trackerFacts.Count > 0)
         {
-            var combinedFacts = selectorChangeSet.ChangedFacts.Concat(navFacts).Concat(trackerFacts);
-            _engine?.InvalidateFacts(combinedFacts);
-            _zoneRouter?.ObserveInvalidation(selectorChangeSet.ChangedFacts);
-            if (selectorChangeSet.SceneChanged)
-                _zoneRouter?.Rebuild();
+            combined = combined.Merge(new ChangeSet(
+                inventoryChanged: false,
+                questLogChanged: false,
+                sceneChanged: false,
+                liveWorldChanged: false,
+                changedItemKeys: Array.Empty<string>(),
+                changedQuestDbNames: Array.Empty<string>(),
+                affectedQuestKeys: Array.Empty<string>(),
+                changedFacts: navFacts.Concat(trackerFacts)
+            ));
         }
 
+        return (combined, liveChange.HasMeaningfulChanges);
+    }
+
+    /// <summary>
+    /// Publish the captured change set: feed facts to the engine for
+    /// invalidation, let the zone router observe fact flips that may
+    /// affect route connectivity, and rebuild the router on scene change.
+    /// </summary>
+    private void PublishPhase(ChangeSet change)
+    {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhasePublish);
+        if (!change.HasMeaningfulChanges)
+            return;
+        _engine?.InvalidateFacts(change.ChangedFacts);
+        _zoneRouter?.ObserveInvalidation(change.ChangedFacts);
+        if (change.SceneChanged)
+            _zoneRouter?.Rebuild();
+    }
+
+    /// <summary>
+    /// Reserved phase for signals the trackers do not express as facts.
+    /// Empty in Plan B. The span still fires so frame-budget telemetry has
+    /// a stable slot for Group 2+ work.
+    /// </summary>
+    private void InvalidatePhase(ChangeSet change)
+    {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhaseInvalidate);
+        _ = change;
+    }
+
+    /// <summary>
+    /// Read the post-invalidation maintained views and advance per-frame
+    /// consumers: target selector, navigation engine, ground path,
+    /// marker projector, and marker renderer.
+    /// </summary>
+    private void ConsumePhase(bool liveWorldChanged)
+    {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhaseConsume);
+        var playerPos = GameData.PlayerControl != null
+            ? GameData.PlayerControl.transform.position
+            : Vector3.zero;
         var navigable = _reader!.ReadNavigableQuests();
         _targetSelector?.Tick(
             playerPos.x,
@@ -576,14 +646,22 @@ public sealed class Plugin : BaseUnityPlugin
             playerPos.z,
             _navEngine!.CurrentScene,
             navigable,
-            liveChangeSet.HasMeaningfulChanges
+            liveWorldChanged
         );
-
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
         _markerProjector?.Project();
         _markerRenderer?.Render();
+    }
 
+    /// <summary>
+    /// Handle keybind input that affects next-frame rendering state.
+    /// Gated on gameplay visibility and player-typing; does nothing when
+    /// config or window are not yet initialised.
+    /// </summary>
+    private void RenderPhase()
+    {
+        using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhaseRender);
         if (_config == null || _window == null)
             return;
         if (!_inGameplay)
@@ -610,6 +688,13 @@ public sealed class Plugin : BaseUnityPlugin
             return;
         _imgui?.OnGUI();
     }
+
+    /// <summary>
+    /// Out-of-band fact publication for scene load. Mirrors
+    /// <see cref="CapturePhase"/> / <see cref="PublishPhase"/> without phase
+    /// spans: scene change facts must reach the engine before the next
+    /// <c>Update</c> tick so marker/selector reads observe the new scene.
+    /// </summary>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
