@@ -49,7 +49,7 @@ public sealed class NavigationTargetResolverTests
     ),
     null,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+    ResolutionTestFactory.BuildProjector(guide, null)
 );
 
 		var targets = targetResolver.Resolve("quest:a", "Forest");
@@ -135,7 +135,7 @@ public sealed class NavigationTargetResolverTests
 				positionRegistry: positionRegistry),
 			null,
 			positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null));
+			ResolutionTestFactory.BuildProjector(guide, null));
 
 		var first = resolver.Resolve("quest:root", "Lake");
 		var second = resolver.Resolve("quest:root", "Lake");
@@ -178,7 +178,7 @@ public sealed class NavigationTargetResolverTests
 				questTracker: phases.State),
 			null,
 			positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null));
+			ResolutionTestFactory.BuildProjector(guide, null));
 
 		var first = resolver.Resolve("quest:root", "Lake");
 
@@ -229,7 +229,7 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry: positionRegistry);
 		var resolver = new NavigationTargetResolver(
 			guide, service, null, positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null));
+			ResolutionTestFactory.BuildProjector(guide, null));
 
 		var initial = resolver.Resolve("quest:root", "Forest");
 		var initialTarget = Assert.Single(initial);
@@ -431,7 +431,7 @@ public sealed class NavigationTargetResolverTests
     ),
     null,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+    ResolutionTestFactory.BuildProjector(guide, null)
 );
 
 		var targets = resolver.Resolve("quest:root", "Azure");
@@ -545,7 +545,7 @@ public sealed class NavigationTargetResolverTests
     ),
     harness.Router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
 );
 
 		var targets = targetResolver.Resolve("quest:root", "ZoneA");
@@ -647,7 +647,7 @@ public sealed class NavigationTargetResolverTests
     ),
     harness.Router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
 );
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
@@ -732,7 +732,7 @@ public sealed class NavigationTargetResolverTests
     ),
     harness.Router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
 );
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
@@ -780,7 +780,7 @@ public sealed class NavigationTargetResolverTests
     ),
     zoneRouter: null,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+    ResolutionTestFactory.BuildProjector(guide, null)
 );
 
 		var targets = resolver.Resolve("quest:a", "Forest");
@@ -833,7 +833,7 @@ public sealed class NavigationTargetResolverTests
     ),
     null,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+    ResolutionTestFactory.BuildProjector(guide, null)
 );
 
 		var targets = resolver.Resolve("quest:root", "Forest");
@@ -907,7 +907,7 @@ public sealed class NavigationTargetResolverTests
     ),
     harness.Router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
 );
 
 		var targets = resolver.Resolve("quest:eldrich", zoneA);
@@ -978,7 +978,7 @@ public sealed class NavigationTargetResolverTests
     ),
     harness.Router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, positionRegistry, harness.Router)
+    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
 );
 
 		var targets = resolver.Resolve("quest:root", zoneA);
@@ -1024,7 +1024,7 @@ public sealed class NavigationTargetResolverTests
     ),
     router,
     positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, positionRegistry, router)
+    ResolutionTestFactory.BuildProjector(guide, router)
 );
 	}
 

@@ -17,11 +17,9 @@ internal static class ResolutionTestFactory
 {
 	public static QuestTargetProjector BuildProjector(
 		CompiledGuideModel guide,
-		PositionResolverRegistry? positionRegistry = null,
 		ZoneRouter? zoneRouter = null)
 	{
-		var registry = positionRegistry ?? TestPositionResolvers.Create(guide);
-		return new QuestTargetProjector(guide, zoneRouter, registry);
+		return new QuestTargetProjector(guide, zoneRouter);
 	}
 
 	public static GuideReader BuildService(
@@ -50,7 +48,7 @@ internal static class ResolutionTestFactory
 		var navigationSet = navSet ?? new NavigationSet();
 		var engineValue = engine ?? new Engine<FactKey>();
 		var reader = new GuideReader(engineValue, questState, questState, state, navigationSet);
-		var projector = BuildProjector(guide, positionRegistry, zoneRouter);
+		var projector = BuildProjector(guide, zoneRouter);
 		var compiledTargets = new CompiledTargetsQuery(
 			engineValue,
 			guide,
@@ -128,7 +126,7 @@ internal static class ResolutionTestFactory
 			reader,
 			zoneRouter,
 			registry,
-			BuildProjector(guide, registry, zoneRouter),
+			BuildProjector(guide, zoneRouter),
 			diagnostics);
 	}
 

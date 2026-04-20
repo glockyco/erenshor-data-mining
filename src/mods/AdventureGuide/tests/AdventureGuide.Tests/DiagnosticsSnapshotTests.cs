@@ -46,7 +46,7 @@ public sealed class DiagnosticsSnapshotTests
 			),
 			null,
 			positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+			ResolutionTestFactory.BuildProjector(guide, null)
 		);
 		var selector = new NavigationTargetSelector(
 			(keys, scene) => resolver.ResolveBatch(keys, scene),

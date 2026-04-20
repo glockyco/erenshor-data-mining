@@ -76,7 +76,7 @@ public sealed class NavigationDiagnosticsTests
 			),
 			null,
 			positionRegistry,
-			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null),
+			ResolutionTestFactory.BuildProjector(guide, null),
 			core
 		);
 

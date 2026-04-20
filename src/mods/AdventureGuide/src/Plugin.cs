@@ -218,11 +218,7 @@ public sealed class Plugin : BaseUnityPlugin
             _zoneRouter
         );
 
-        var projector = new QuestTargetProjector(
-            _compiledGuide,
-            _zoneRouter,
-            positionRegistry
-        );
+        var projector = new QuestTargetProjector(_compiledGuide, _zoneRouter);
         _reader = new GuideReader(
             _engine,
             inventory: _questTracker,

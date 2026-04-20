@@ -429,7 +429,7 @@ public sealed class NavigationTargetSelectorTests
             ),
             harness.Router,
             positionRegistry,
-            ResolutionTestFactory.BuildProjector(guide, positionRegistry, harness.Router)
+            ResolutionTestFactory.BuildProjector(guide, harness.Router)
         );
 
         var selector = MakeSelector((nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene), harness.Router);

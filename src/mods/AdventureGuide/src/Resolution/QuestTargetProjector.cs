@@ -14,15 +14,10 @@ public sealed class QuestTargetProjector
     private readonly CompiledGuideModel _guide;
     private readonly ZoneRouter? _zoneRouter;
 
-    public QuestTargetProjector(
-        CompiledGuideModel guide,
-        ZoneRouter? zoneRouter,
-        PositionResolverRegistry positionResolvers
-    )
+    public QuestTargetProjector(CompiledGuideModel guide, ZoneRouter? zoneRouter)
     {
         _guide = guide;
         _zoneRouter = zoneRouter;
-        _ = positionResolvers;
     }
 
     public IReadOnlyList<ResolvedQuestTarget> Project(

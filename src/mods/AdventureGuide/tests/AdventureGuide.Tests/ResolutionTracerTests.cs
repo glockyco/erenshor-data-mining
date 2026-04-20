@@ -40,7 +40,7 @@ public sealed class ResolutionTracerTests
             ),
             null,
             positionRegistry,
-            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+            ResolutionTestFactory.BuildProjector(guide, null)
         );
 
         var tracer = new TextResolutionTracer();
@@ -89,7 +89,7 @@ public sealed class ResolutionTracerTests
             ),
             null,
             positionRegistry,
-            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+            ResolutionTestFactory.BuildProjector(guide, null)
         );
 
         var tracer = new TextResolutionTracer();
@@ -131,7 +131,7 @@ public sealed class ResolutionTracerTests
             ),
             null,
             positionRegistry,
-            ResolutionTestFactory.BuildProjector(guide, positionRegistry, null)
+            ResolutionTestFactory.BuildProjector(guide, null)
         );
 
         var results = resolver.Resolve("quest:c", "TestScene");
