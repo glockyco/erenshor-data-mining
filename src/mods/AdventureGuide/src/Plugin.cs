@@ -712,6 +712,7 @@ public sealed class Plugin : BaseUnityPlugin
         _waterResolver?.OnSceneLoaded();
         var sceneChangeSet = _questTracker?.OnSceneChanged(scene.name) ?? ChangeSet.None;
         _engine?.InvalidateFacts(sceneChangeSet.ChangedFacts);
+        _markerProjector?.InvalidateProjection();
 
         if (_inGameplay)
         {

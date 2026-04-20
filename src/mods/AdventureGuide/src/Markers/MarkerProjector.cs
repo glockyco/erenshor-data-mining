@@ -58,6 +58,18 @@ internal sealed class MarkerProjector
 		_lastProjectionTicks = Stopwatch.GetTimestamp() - start;
 	}
 
+	/// <summary>
+	/// Clears the reference-identity memo used by <see cref="Project"/> so the
+	/// next call rebuilds <see cref="MarkerEntry"/> instances against freshly
+	/// bound Unity objects. Intended for the scene-load hook; emits no engine
+	/// invalidation so the reactive fact graph stays untouched.
+	/// </summary>
+	internal void InvalidateProjection()
+	{
+		_lastCandidates = null;
+		_entries.Clear();
+	}
+
 	private MarkerEntry BuildEntry(MarkerCandidate candidate)
 	{
 		var entry = new MarkerEntry(candidate)
