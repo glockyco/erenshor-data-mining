@@ -524,6 +524,45 @@ public sealed class NavigationTargetSelectorTests
         Assert.Equal("node:a", selected.Target.TargetNodeKey);
     }
 
+    /// <summary>
+    /// Pins the engine's reference-identity contract at the selector consumer.
+    /// When <see cref="Engine{T}.Read"/> recomputes a value-equal entry it
+    /// returns the prior instance; the selector's force-rebuild check uses
+    /// <c>ReferenceEquals(navigable, _lastNavigable)</c> and must not emit
+    /// <see cref="DiagnosticEventKind.SelectorRefreshForced"/> on reads that
+    /// produce the same reference. Three ticks with the same navigable ref
+    /// must emit exactly one forced-refresh event (from the first tick, when
+    /// _lastNavigable was null).
+    /// </summary>
+    [Fact]
+    public void Tick_DoesNotEmitForcedRefresh_WhenNavigableRefIsUnchanged()
+    {
+        var nodeA = MakeTarget(ZoneA, x: 10f, targetNodeKey: "node:a");
+        var targets = new[] { nodeA };
+        var navigable = Navigable("quest:test");
+        var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
+
+        var selector = MakeSelector((key, _) =>
+            key == "quest:test"
+                ? (IReadOnlyList<ResolvedQuestTarget>)targets
+                : Array.Empty<ResolvedQuestTarget>(),
+            EmptyRouter(),
+            diagnostics: core);
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+
+        var events = core.GetRecentEvents();
+        int forcedCount = 0;
+        foreach (var evt in events)
+        {
+            if (evt.Kind == DiagnosticEventKind.SelectorRefreshForced)
+                forcedCount++;
+        }
+        Assert.Equal(1, forcedCount);
+    }
+
     [Fact]
     public void Tick_NoForce_RefreshesCachedMiningActionabilityFromLiveStateCache()
     {
