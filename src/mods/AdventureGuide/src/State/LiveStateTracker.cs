@@ -15,6 +15,7 @@ namespace AdventureGuide.State;
 public sealed class LiveStateTracker
     : IResolutionLiveState,
         INavigationSelectorLiveState,
+        IMarkerLiveStateProvider,
         ISourceStateFactSource
 {
     private static readonly FieldInfo? NpcSpawnPointField = typeof(NPC).GetField(

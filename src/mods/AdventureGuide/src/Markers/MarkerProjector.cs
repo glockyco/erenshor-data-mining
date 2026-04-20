@@ -16,7 +16,7 @@ internal sealed class MarkerProjector
 	private const float StaticHeightOffset = 2.5f;
 
 	private readonly GuideReader _reader;
-	private readonly LiveStateTracker _liveState;
+	private readonly IMarkerLiveStateProvider _liveState;
 	private readonly CompiledGuideModel _guide;
 	private readonly DiagnosticsCore? _diagnostics;
 
@@ -29,7 +29,7 @@ internal sealed class MarkerProjector
 
 	public MarkerProjector(
 		GuideReader reader,
-		LiveStateTracker liveState,
+		IMarkerLiveStateProvider liveState,
 		CompiledGuideModel guide,
 		DiagnosticsCore? diagnostics = null)
 	{
