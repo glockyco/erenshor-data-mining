@@ -111,8 +111,9 @@ public sealed class SourceResolver
 
     internal sealed class ResolutionSession
     {
-        public readonly Dictionary<int, IReadOnlyList<ResolvedTarget>> QuestFrontierCache = new();
-        public readonly HashSet<int> ActiveQuestFrontiers = new();
+        internal readonly Dictionary<int, IReadOnlyList<ResolvedTarget>> QuestFrontierCache = new();
+        internal readonly HashSet<int> ActiveQuestFrontiers = new();
+
         // ItemRequirementCache semantics depend on entry.QuestIndex through
         // BuildGiverSemantic / BuildGiverAcquisitionSemantic (ReadyToAccept giver
         // paths). Two sibling quests sharing the same (Phase, RequiredForQuestIndex,
@@ -121,13 +122,14 @@ public sealed class SourceResolver
         // the key makes the cache per-caller correct; callers with genuinely
         // identical requirements still hit shared results via QuestFrontierCache
         // at the outer layer.
-        public readonly Dictionary<
+        internal readonly Dictionary<
             (byte Phase, int QuestIndex, int RequiredForQuestIndex, int ItemNodeId, byte SemanticKind, int GiverNodeId),
             IReadOnlyList<ResolvedTarget>
         > ItemRequirementCache = new();
-        public readonly HashSet<
+        internal readonly HashSet<
             (byte Phase, int QuestIndex, int RequiredForQuestIndex, int ItemNodeId, byte SemanticKind, int GiverNodeId)
         > ActiveItemRequirements = new();
+
         // UnlockRequirementCache output depends only on (phase, target node, route
         // node) and the downstream ResolveQuestFrontier / ResolveItemRequirement
         // results, which encode their own caller-dependence. Sharing across callers
@@ -135,22 +137,23 @@ public sealed class SourceResolver
         // DeferredRequiredForQuestIndex sentinel in the key and rebind the returned
         // targets' RequiredForQuestIndex at the caller boundary via
         // ApplyRequiredForQuestIndex.
-        public readonly Dictionary<
+        internal readonly Dictionary<
             (byte Phase, int TargetNodeId, int RouteNodeId),
             IReadOnlyList<ResolvedTarget>
         > UnlockRequirementCache = new();
-        public readonly HashSet<
+        internal readonly HashSet<
             (byte Phase, int TargetNodeId, int RouteNodeId)
         > ActiveUnlockRequirements = new();
+
         // RecipeMaterialCache is similarly caller-independent: its inner
         // ResolveItemRequirement calls use ItemRequirementSemanticKind.Objective
         // which relies on BuildSourceSemantic (item + source, no QuestIndex). Share
         // across RequiredForQuestIndex via the deferred-sentinel pattern.
-        public readonly Dictionary<
+        internal readonly Dictionary<
             (byte Phase, int RecipeNodeId),
             IReadOnlyList<ResolvedTarget>
         > RecipeMaterialCache = new();
-        public readonly HashSet<
+        internal readonly HashSet<
             (byte Phase, int RecipeNodeId)
         > ActiveRecipeMaterials = new();
 
@@ -159,22 +162,22 @@ public sealed class SourceResolver
         // stable across one resolution batch, so each unique node ID resolves once
         // per batch instead of once per emission site (thousands -> tens in the
         // evidence from F6 profiling).
-        public readonly Dictionary<int, IReadOnlyList<IReadOnlyList<UnlockConditionEntry>>> BlockingGroupsCache = new();
+        internal readonly Dictionary<int, IReadOnlyList<IReadOnlyList<UnlockConditionEntry>>> BlockingGroupsCache = new();
 
         // Scratch trails reused across ResolveTargets entry-point calls within a
         // batch. Safe to pool because ResolveTargets is a top-level method (not
         // recursive): each call runs its recursion with these owned trails and
         // clears them before returning. Nested cache-miss builders allocate
         // their own HashSets via new HashSet<int>() at their own boundaries.
-        public readonly HashSet<int> QuestTrailScratch = new();
-        public readonly HashSet<int> ItemTrailScratch = new();
+        internal readonly HashSet<int> QuestTrailScratch = new();
+        internal readonly HashSet<int> ItemTrailScratch = new();
 
         // QuestTargetResolver.Resolve dedupes per call by
         // (questKey, goalKey, targetKey, scene, positionKey). Pool the dedupe
         // set on the session so the per-batch fan-out across quests doesn't
         // allocate a fresh HashSet for every call. Same correctness contract
         // as the trail scratches: caller clears before use.
-        public readonly HashSet<string> SeenTargetsScratch = new(StringComparer.Ordinal);
+        internal readonly HashSet<string> SeenTargetsScratch = new(StringComparer.Ordinal);
     }
 
     private enum ItemRequirementSemanticKind : byte
