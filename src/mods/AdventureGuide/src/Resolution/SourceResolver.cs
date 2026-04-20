@@ -302,6 +302,28 @@ public sealed class SourceResolver
         return FreezeResultsByAvailabilityPriority(results);
     }
 
+    /// <summary>
+    /// Walk one frontier entry and emit every <see cref="ResolvedTarget"/> the
+    /// player needs to act on to advance the quest.
+    ///
+    /// Dispatches on <see cref="FrontierEntry.Phase"/>:
+    /// <list type="bullet">
+    ///   <item><see cref="QuestPhase.ReadyToAccept"/> — walk the quest's givers.
+    ///     Item/book givers route through <see cref="ResolveItemRequirement"/>
+    ///     with <c>GiverInteraction</c> when the player already holds the token
+    ///     or <c>GiverAcquisition</c> otherwise. Quest givers recurse into the
+    ///     giver quest via <see cref="ResolveQuestFrontier"/>. Character/world
+    ///     givers emit directly.</item>
+    ///   <item><see cref="QuestPhase.Accepted"/> — walk required items first,
+    ///     routing each missing item through <see cref="ResolveItemRequirement"/>
+    ///     as an <c>Objective</c>. If every requirement is met, emit the quest's
+    ///     completers as turn-in targets.</item>
+    /// </list>
+    ///
+    /// <paramref name="questTrail"/> prevents infinite recursion through quest
+    /// prerequisites; the entry returns early if its quest is already on the
+    /// trail and pops itself in the finally block.
+    /// </summary>
     private void ResolveEntry(
             FrontierEntry entry,
             string currentScene,
