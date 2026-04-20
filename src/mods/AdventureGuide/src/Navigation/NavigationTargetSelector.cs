@@ -131,6 +131,16 @@ internal void InvalidateTargets()
 }
 
 /// <summary>
+/// Drops cached quest targets when invalidation changed resolution for existing
+/// navigable quest keys without changing set membership.
+/// </summary>
+internal void ObserveInvalidation(ChangeSet change)
+{
+    if (change.AffectedQuestKeys.Count > 0)
+        InvalidateTargets();
+}
+
+/// <summary>
 /// Called once per frame by Plugin before consumers read.
 ///
 /// Re-scores cached targets against the current player position and live-state

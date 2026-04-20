@@ -600,6 +600,49 @@ public sealed class NavigationTargetSelectorTests
     }
 
     [Fact]
+    public void ObserveInvalidation_AffectedQuestKeys_ForceBatchResolve_WhenNavigableRefIsUnchanged()
+    {
+        var near = new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "near") };
+        var far = new[] { MakeTarget(ZoneA, x: 100f, targetNodeKey: "far") };
+        var navigable = Navigable("quest:test");
+        int resolverCalls = 0;
+        var selector = MakeSelector(
+            (key, _) =>
+            {
+                resolverCalls++;
+                return key == "quest:test"
+                    ? (IReadOnlyList<ResolvedQuestTarget>)(resolverCalls == 1 ? near : far)
+                    : Array.Empty<ResolvedQuestTarget>();
+            },
+            EmptyRouter()
+        );
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        Assert.True(selector.TryGet("quest:test", out var first));
+        Assert.Equal("near", first.Target.TargetNodeKey);
+        Assert.Equal(1, resolverCalls);
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        Assert.Equal(1, resolverCalls);
+
+        selector.ObserveInvalidation(new ChangeSet(
+            inventoryChanged: true,
+            questLogChanged: false,
+            sceneChanged: false,
+            liveWorldChanged: false,
+            changedItemKeys: new[] { "item:eye-of-plaxitheris" },
+            changedQuestDbNames: Array.Empty<string>(),
+            affectedQuestKeys: new[] { "quest:test" },
+            changedFacts: new[] { new FactKey(FactKind.InventoryItemCount, "item:eye-of-plaxitheris") }
+        ));
+
+        selector.Tick(PX, PY, PZ, ZoneA, navigable, liveWorldChanged: false);
+        Assert.True(selector.TryGet("quest:test", out var third));
+        Assert.Equal("far", third.Target.TargetNodeKey);
+        Assert.Equal(2, resolverCalls);
+    }
+
+    [Fact]
     public void Tick_NoForce_RefreshesCachedMiningActionabilityFromLiveStateCache()
     {
         var guide = new CompiledGuideBuilder()

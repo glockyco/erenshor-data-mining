@@ -610,6 +610,7 @@ public sealed class Plugin : BaseUnityPlugin
         using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhasePublish);
         if (!change.HasMeaningfulChanges)
             return;
+        _targetSelector?.ObserveInvalidation(change);
         _engine?.InvalidateFacts(change.ChangedFacts);
         _zoneRouter?.ObserveInvalidation(change.ChangedFacts);
         if (change.SceneChanged)
