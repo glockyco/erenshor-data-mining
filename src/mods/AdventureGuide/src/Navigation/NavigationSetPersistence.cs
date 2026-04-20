@@ -1,8 +1,7 @@
 using AdventureGuide.Config;
-using AdventureGuide.Navigation;
 using BepInEx.Configuration;
 
-namespace AdventureGuide.State;
+namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Persists the player's selected navigation target set per character slot.

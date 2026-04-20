@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AdventureGuide.State;
+namespace AdventureGuide.UI;
 
 /// <summary>
 /// Detects when non-permanent game UI windows overlap the quest tracker.

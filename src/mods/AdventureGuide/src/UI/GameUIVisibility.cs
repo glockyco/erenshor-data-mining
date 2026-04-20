@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AdventureGuide.State;
+namespace AdventureGuide.UI;
 
 /// <summary>
 /// Tracks the game's HUD Canvas visibility state.

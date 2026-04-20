@@ -1,5 +1,6 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
+using AdventureGuide.Navigation;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.State;

@@ -1,5 +1,6 @@
 using System.Numerics;
 using AdventureGuide.Config;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using ImGuiNET;
 

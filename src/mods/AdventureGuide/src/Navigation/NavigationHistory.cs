@@ -1,4 +1,4 @@
-namespace AdventureGuide.State;
+namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Browser-like back/forward navigation history for quest guide pages.
