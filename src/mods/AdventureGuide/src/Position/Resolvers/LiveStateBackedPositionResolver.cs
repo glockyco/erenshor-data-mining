@@ -4,17 +4,24 @@ using AdventureGuide.State;
 namespace AdventureGuide.Position.Resolvers;
 
 /// <summary>
-/// Shared base for position resolvers that read availability from a
-/// <see cref="LiveStateTracker"/> position-keyed cache and fall back to a live
-/// query on cache miss.
+/// Position resolver that reads actionability from a
+/// <see cref="LiveStateTracker"/> position-keyed cache and falls back to a live
+/// query on cache miss. Construction supplies both callbacks so the same
+/// machinery handles mining nodes, item bags, and test stubs without a
+/// subclass hierarchy.
 /// </summary>
-internal abstract class LiveStateBackedPositionResolver : IPositionResolver
+internal sealed class LiveStateBackedPositionResolver : IPositionResolver
 {
-	protected readonly LiveStateTracker LiveState;
+	private readonly Func<Node, bool?> _tryGetCachedAvailability;
+	private readonly Func<Node, bool> _queryLiveAvailability;
 
-	protected LiveStateBackedPositionResolver(LiveStateTracker liveState)
+	public LiveStateBackedPositionResolver(
+		Func<Node, bool?> tryGetCachedAvailability,
+		Func<Node, bool> queryLiveAvailability
+	)
 	{
-		LiveState = liveState;
+		_tryGetCachedAvailability = tryGetCachedAvailability;
+		_queryLiveAvailability = queryLiveAvailability;
 	}
 
 	public void Resolve(Node node, List<ResolvedPosition> results)
@@ -22,7 +29,7 @@ internal abstract class LiveStateBackedPositionResolver : IPositionResolver
 		if (node.X is null || node.Y is null || node.Z is null)
 			return;
 
-		bool actionable = TryGetCachedAvailability(node) ?? QueryLiveAvailability(node);
+		bool actionable = _tryGetCachedAvailability(node) ?? _queryLiveAvailability(node);
 		results.Add(
 			new ResolvedPosition(
 				node.X.Value,
@@ -35,7 +42,21 @@ internal abstract class LiveStateBackedPositionResolver : IPositionResolver
 		);
 	}
 
-	protected abstract bool? TryGetCachedAvailability(Node node);
+	/// <summary>Resolver for mining nodes: cache → live state lookup.</summary>
+	public static LiveStateBackedPositionResolver MiningNode(LiveStateTracker liveState) =>
+		new(
+			tryGetCachedAvailability: node =>
+				liveState.TryGetCachedMiningAvailability(node, out bool available) ? available : null,
+			queryLiveAvailability: node =>
+				liveState.GetMiningState(node).State is MiningAvailable
+		);
 
-	protected abstract bool QueryLiveAvailability(Node node);
+	/// <summary>Resolver for item bags: cache → live state lookup.</summary>
+	public static LiveStateBackedPositionResolver ItemBag(LiveStateTracker liveState) =>
+		new(
+			tryGetCachedAvailability: node =>
+				liveState.TryGetCachedItemBagAvailability(node, out bool available) ? available : null,
+			queryLiveAvailability: node =>
+				liveState.GetItemBagState(node) is ItemBagAvailable
+		);
 }

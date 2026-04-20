@@ -197,8 +197,8 @@ public sealed class Plugin : BaseUnityPlugin
             new CharacterPositionResolver(_compiledGuide, _liveState)
         );
 
-        positionRegistry.Register(NodeType.MiningNode, new MiningNodePositionResolver(_liveState));
-        positionRegistry.Register(NodeType.ItemBag, new ItemBagPositionResolver(_liveState));
+        positionRegistry.Register(NodeType.MiningNode, LiveStateBackedPositionResolver.MiningNode(_liveState));
+        positionRegistry.Register(NodeType.ItemBag, LiveStateBackedPositionResolver.ItemBag(_liveState));
         positionRegistry.Register(NodeType.Zone, new ZonePositionResolver(_compiledGuide));
         _waterResolver = new WaterPositionResolver(_compiledGuide);
         positionRegistry.Register(NodeType.Water, _waterResolver);
