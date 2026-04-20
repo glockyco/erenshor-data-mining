@@ -134,7 +134,7 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry,
 			ResolutionTestFactory.BuildProjector(guide, positionRegistry, null));
 
-		int before = targetResolver.Version;
+		long before = targetResolver.Version;
 		engine.InvalidateFacts(new[] { new FactKey(FactKind.Scene, "current") });
 		Assert.True(targetResolver.Version > before);
 	}

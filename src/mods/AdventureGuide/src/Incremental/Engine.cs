@@ -16,9 +16,9 @@ namespace AdventureGuide.Incremental;
 public sealed class Engine<TFactKey> where TFactKey : notnull
 {
 	private readonly object _ownerToken = new();
-	private int _revision;
+	private long _revision;
 	private int _nextQueryId;
-	private readonly Dictionary<TFactKey, int> _factRevisions = new();
+	private readonly Dictionary<TFactKey, long> _factRevisions = new();
 	private readonly Dictionary<(int, object), Entry> _entries = new();
 	private readonly Dictionary<TFactKey, HashSet<(int, object)>> _entriesByFact = new();
 
@@ -33,7 +33,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	private readonly Dictionary<int, Action<object>> _recomputers = new();
 	private readonly Stack<(int, object)> _computeStack = new();
 
-	public int Revision => _revision;
+	public long Revision => _revision;
 
 	/// <summary>Test-only view of the fact-to-dependent-entries reverse index.
 	/// Consumers must not read this in production code; it is exposed via
@@ -129,7 +129,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	private bool IsStale(Entry entry)
 	{
 		foreach (var fact in entry.Facts)
-			if (_factRevisions.TryGetValue(fact, out int rev) && rev > entry.LastVerifiedRevision)
+			if (_factRevisions.TryGetValue(fact, out long rev) && rev > entry.LastVerifiedRevision)
 				return true;
 
 		foreach (var depKey in entry.QueryDeps)
@@ -194,7 +194,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		// change". Treating returned values as immutable is a prerequisite
 		// (documented on Engine<T>).
 		object? storedValue = changed ? value : prior!.Value;
-		int newRevision = changed ? ++_revision : prior!.Revision;
+		long newRevision = changed ? ++_revision : prior!.Revision;
 		var entry = new Entry(query.Name, ctx.Facts, ctx.QueryDeps, storedValue, newRevision, lastVerifiedRevision: _revision);
 		_entries[entryKey] = entry;
 
@@ -215,8 +215,8 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 			HashSet<TFactKey> facts,
 			HashSet<(int QueryId, object Key)> queryDeps,
 			object? value,
-			int revision,
-			int lastVerifiedRevision)
+			long revision,
+			long lastVerifiedRevision)
 		{
 			QueryName = queryName;
 			Facts = facts;
@@ -234,13 +234,13 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		/// <summary>Global revision at the time this entry's value last changed.
 		/// Dependents compare their own <see cref="Revision"/> against this to
 		/// decide whether they need to ripple-recompute.</summary>
-		public int Revision { get; }
+		public long Revision { get; }
 
 		/// <summary>Global revision at the time this entry's recorded facts and
 		/// sub-query deps were last verified to be current. Used by
 		/// <see cref="Engine{TFactKey}.IsStale"/> to skip redundant recomputes
 		/// when an entry has already been verified against a fact bump that did
 		/// not produce a value change.</summary>
-		public int LastVerifiedRevision { get; }
+		public long LastVerifiedRevision { get; }
 	}
 }
