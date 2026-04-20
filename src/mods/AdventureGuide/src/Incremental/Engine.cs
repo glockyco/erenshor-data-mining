@@ -34,6 +34,20 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	private readonly Stack<(int, object)> _computeStack = new();
 	private readonly HashSet<string> _queryNames = new(StringComparer.Ordinal);
 
+	// Per-query counters. Keyed by queryId so lookups stay O(1) on the hot
+	// path; surfaced by GetStatistics with the name mapping.
+	private readonly Dictionary<int, string> _queryNamesById = new();
+	private readonly Dictionary<int, long> _queryComputes = new();
+	private readonly Dictionary<int, long> _queryBackdates = new();
+	private readonly Dictionary<int, long> _queryStaleReads = new();
+	private readonly Dictionary<int, long> _queryFreshReads = new();
+	private long _totalComputes;
+	private long _totalBackdates;
+	private long _totalStaleReads;
+	private long _totalFreshReads;
+	private long _totalInvalidations;
+	private IEngineTracer<TFactKey>? _tracer;
+
 	public long Revision => _revision;
 
 	/// <summary>Test-only view of the fact-to-dependent-entries reverse index.
@@ -53,6 +67,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 			throw new InvalidOperationException(
 				$"A query named '{name}' is already registered on this engine.");
 		int id = _nextQueryId++;
+		_queryNamesById[id] = name;
 		var query = new Query<TKey, TValue>(name, id, _ownerToken,
 			(ctxObj, key) => compute((ReadContext<TFactKey>)ctxObj, (TKey)key));
 		_recomputers[id] = keyObj => Recompute(query, (TKey)keyObj, (id, keyObj));
@@ -71,8 +86,14 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 				$"Cycle detected: query '{query.Name}' with key '{key}' is already being computed.");
 
 		if (_entries.TryGetValue(entryKey, out var entry) && !IsStale(entry))
+		{
+			_totalFreshReads++;
+			IncrementPerQuery(_queryFreshReads, query.Id);
 			return (TValue)entry.Value!;
+		}
 
+		_totalStaleReads++;
+		IncrementPerQuery(_queryStaleReads, query.Id);
 		return (TValue)Recompute(query, key, entryKey)!;
 	}
 
@@ -110,11 +131,13 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 			throw new InvalidOperationException(
 				"InvalidateFacts may not be called from inside a query compute.");
 
+		var materialised = changed as IReadOnlyCollection<TFactKey> ?? changed.ToList();
 		var affected = new HashSet<(int, object)>();
-		foreach (var fact in changed)
+		foreach (var fact in materialised)
 		{
 			_revision++;
 			_factRevisions[fact] = _revision;
+			_totalInvalidations++;
 			if (_entriesByFact.TryGetValue(fact, out var dependents))
 				affected.UnionWith(dependents);
 		}
@@ -125,6 +148,8 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 			if (_entries.TryGetValue((queryId, key), out var entry))
 				refs.Add(new QueryRef(entry.QueryName, key));
 		}
+
+		_tracer?.OnInvalidate(materialised, affected.Count);
 		return refs;
 	}
 
@@ -199,9 +224,10 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	}
 
 	/// <summary>Drops all cache state while preserving query definitions. Clears
-	/// entries, fact revisions, the reverse index, and resets <c>_revision</c>
-	/// to zero. Intended for scenarios that reset all external state the engine
-	/// observes (for example character reload); not a routine operation.</summary>
+	/// entries, fact revisions, the reverse index, per-query and total
+	/// counters, and resets <c>_revision</c> to zero. Intended for scenarios
+	/// that reset all observed external state (for example character reload);
+	/// not a routine operation.</summary>
 	public void Reset()
 	{
 		if (_computeStack.Count > 0)
@@ -211,6 +237,46 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		_entriesByFact.Clear();
 		_factRevisions.Clear();
 		_revision = 0;
+		_queryComputes.Clear();
+		_queryBackdates.Clear();
+		_queryStaleReads.Clear();
+		_queryFreshReads.Clear();
+		_totalComputes = 0;
+		_totalBackdates = 0;
+		_totalStaleReads = 0;
+		_totalFreshReads = 0;
+		_totalInvalidations = 0;
+	}
+
+	/// <summary>Installs an optional tracer that receives hooks for every
+	/// recompute and invalidation. Pass <c>null</c> to remove. The engine
+	/// holds a single tracer at a time; callers that need fan-out should
+	/// compose their own broadcasting implementation.</summary>
+	public void SetTracer(IEngineTracer<TFactKey>? tracer) => _tracer = tracer;
+
+	/// <summary>Returns a read-only snapshot of engine telemetry. Counters
+	/// are monotonic for the lifetime of the engine except <c>EntryCount</c>,
+	/// which reflects the live cache size at snapshot time. <c>Reset</c>
+	/// zeroes all counters.</summary>
+	public EngineStatistics GetStatistics()
+	{
+		var perQuery = new Dictionary<string, EngineQueryStatistics>(StringComparer.Ordinal);
+		foreach (var kvp in _queryNamesById)
+		{
+			_queryComputes.TryGetValue(kvp.Key, out long computes);
+			_queryBackdates.TryGetValue(kvp.Key, out long backdates);
+			_queryStaleReads.TryGetValue(kvp.Key, out long stale);
+			_queryFreshReads.TryGetValue(kvp.Key, out long fresh);
+			perQuery[kvp.Value] = new EngineQueryStatistics(computes, backdates, stale, fresh);
+		}
+		return new EngineStatistics(
+			_entries.Count,
+			_totalComputes,
+			_totalBackdates,
+			_totalStaleReads,
+			_totalFreshReads,
+			_totalInvalidations,
+			perQuery);
 	}
 
 	private void UnsubscribeEntry((int, object) entryKey, Entry entry)
@@ -272,6 +338,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		var ctx = new ReadContext<TFactKey>(this);
 		var priorAmbient = _ambient;
 		_ambient = ctx;
+		long computeStart = System.Diagnostics.Stopwatch.GetTimestamp();
 		TValue value;
 		try
 		{
@@ -282,6 +349,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 			_ambient = priorAmbient;
 			_computeStack.Pop();
 		}
+		long computeTicks = System.Diagnostics.Stopwatch.GetTimestamp() - computeStart;
 
 		bool existed = _entries.TryGetValue(entryKey, out var prior);
 		bool changed = !existed || !Equals(prior.Value, value);
@@ -305,12 +373,27 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 
 		foreach (var fact in ctx.Facts)
 		{
-		    if (!_entriesByFact.TryGetValue(fact, out var set))
-		        _entriesByFact[fact] = set = new HashSet<(int, object)>();
-		    set.Add(entryKey);
+			if (!_entriesByFact.TryGetValue(fact, out var set))
+				_entriesByFact[fact] = set = new HashSet<(int, object)>();
+			set.Add(entryKey);
 		}
 
+		_totalComputes++;
+		IncrementPerQuery(_queryComputes, query.Id);
+		if (!changed)
+		{
+			_totalBackdates++;
+			IncrementPerQuery(_queryBackdates, query.Id);
+		}
+		_tracer?.OnRecompute(query.Name, key, backdated: !changed, computeTicks);
+
 		return storedValue;
+	}
+
+	private static void IncrementPerQuery(Dictionary<int, long> counters, int queryId)
+	{
+		counters.TryGetValue(queryId, out long current);
+		counters[queryId] = current + 1;
 	}
 
 	private sealed class Entry

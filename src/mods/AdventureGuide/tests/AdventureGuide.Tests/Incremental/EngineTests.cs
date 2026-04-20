@@ -378,6 +378,72 @@ public sealed class EngineTests
 		Assert.Equal(2, computeCount);
 	}
 
+	[Fact]
+	public void Statistics_RecordsComputeBackdateStaleFreshCounts()
+	{
+		var engine = new Engine<TestFact>();
+		var fact = new TestFact("source");
+		int sourceValue = 42;
+		var query = engine.DefineQuery<int, int>(
+			name: "S",
+			compute: (ctx, key) => { ctx.RecordFact(fact); return sourceValue; });
+
+		engine.Read(query, 0);
+		engine.Read(query, 0);
+		engine.InvalidateFacts(new[] { fact });
+		engine.Read(query, 0);
+
+		var s = engine.GetStatistics();
+		Assert.Equal(2, s.TotalComputes);
+		Assert.Equal(1, s.TotalBackdates);
+		Assert.Equal(2, s.TotalStaleReads);
+		Assert.Equal(1, s.TotalFreshReads);
+		Assert.Equal(1, s.TotalInvalidations);
+		Assert.Equal(1, s.EntryCount);
+
+		var q = s.PerQuery["S"];
+		Assert.Equal(2, q.Computes);
+		Assert.Equal(1, q.Backdates);
+		Assert.Equal(2, q.StaleReads);
+		Assert.Equal(1, q.FreshReads);
+	}
+
+	[Fact]
+	public void Tracer_IsCalledOnRecomputeAndInvalidate()
+	{
+		var engine = new Engine<TestFact>();
+		var fact = new TestFact("source");
+		var query = engine.DefineQuery<int, int>(
+			name: "T",
+			compute: (ctx, key) => { ctx.RecordFact(fact); return key; });
+
+		var tracer = new RecordingTracer();
+		engine.SetTracer(tracer);
+
+		engine.Read(query, 5);
+		engine.InvalidateFacts(new[] { fact });
+		engine.Read(query, 5);
+
+		Assert.Equal(2, tracer.Recomputes.Count);
+		Assert.Equal("T", tracer.Recomputes[0].QueryName);
+		Assert.False(tracer.Recomputes[0].Backdated);
+		Assert.True(tracer.Recomputes[1].Backdated);
+		Assert.Single(tracer.Invalidations);
+		Assert.Equal(1, tracer.Invalidations[0].DirectAffected);
+	}
+
+	private sealed class RecordingTracer : IEngineTracer<TestFact>
+	{
+		public List<(string QueryName, object Key, bool Backdated, long Ticks)> Recomputes { get; } = new();
+		public List<(IReadOnlyCollection<TestFact> Facts, int DirectAffected)> Invalidations { get; } = new();
+
+		public void OnRecompute(string queryName, object key, bool backdated, long computeTicks) =>
+			Recomputes.Add((queryName, key, backdated, computeTicks));
+
+		public void OnInvalidate(IReadOnlyCollection<TestFact> facts, int directAffected) =>
+			Invalidations.Add((facts, directAffected));
+	}
+
 	private sealed class Box : IEquatable<Box>
 	{
 		public Box(int payload) => Payload = payload;
