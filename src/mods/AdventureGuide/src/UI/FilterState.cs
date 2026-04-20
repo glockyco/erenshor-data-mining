@@ -12,7 +12,7 @@ namespace AdventureGuide.UI;
 /// </summary>
 public class FilterState
 {
-    private GuideConfig? _config;
+    private readonly GuideConfig _config;
 
     /// <summary>
     /// Monotonically increasing version. Consumers compare against a snapshot
@@ -20,10 +20,24 @@ public class FilterState
     /// </summary>
     public int Version { get; private set; }
 
-    private QuestFilterMode _filterMode = QuestFilterMode.Active;
+    private QuestFilterMode _filterMode;
     private string _searchText = string.Empty;
     private string? _zoneFilter;
-    private QuestSortMode _sortMode = QuestSortMode.Alphabetical;
+    private QuestSortMode _sortMode;
+
+    /// <summary>
+    /// Construct with a bound config. Loads persisted filter, sort, and zone
+    /// filter settings immediately so the window opens with the player's saved
+    /// preferences rather than the struct defaults.
+    /// </summary>
+    public FilterState(GuideConfig config)
+    {
+        _config = config;
+        _filterMode = config.FilterMode.Value;
+        _sortMode = config.SortMode.Value;
+        var zone = config.ZoneFilter.Value;
+        _zoneFilter = string.IsNullOrEmpty(zone) ? null : zone;
+    }
 
     public QuestFilterMode FilterMode
     {
@@ -34,7 +48,7 @@ public class FilterState
             {
                 _filterMode = value;
                 Version++;
-                _config?.FilterMode.SetSerializedValue(value.ToString());
+                _config.FilterMode.SetSerializedValue(value.ToString());
             }
         }
     }
@@ -62,7 +76,7 @@ public class FilterState
             {
                 _zoneFilter = value;
                 Version++;
-                _config?.ZoneFilter.SetSerializedValue(value ?? "");
+                _config.ZoneFilter.SetSerializedValue(value ?? "");
             }
         }
     }
@@ -76,22 +90,8 @@ public class FilterState
             {
                 _sortMode = value;
                 Version++;
-                _config?.SortMode.SetSerializedValue(value.ToString());
+                _config.SortMode.SetSerializedValue(value.ToString());
             }
         }
-    }
-
-    /// <summary>
-    /// Load persisted filter/sort settings from BepInEx config.
-    /// Call once after construction.
-    /// </summary>
-    public void LoadFrom(GuideConfig config)
-    {
-        _config = config;
-        _filterMode = config.FilterMode.Value;
-        _sortMode = config.SortMode.Value;
-        var zone = config.ZoneFilter.Value;
-        _zoneFilter = string.IsNullOrEmpty(zone) ? null : zone;
-        Version++;
     }
 }

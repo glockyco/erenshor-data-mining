@@ -303,8 +303,7 @@ public sealed class Plugin : BaseUnityPlugin
         _questTracker.SetHistory(history);
 
         ViewRenderer viewRenderer;
-        var filter = new FilterState();
-        filter.LoadFrom(_config);
+        var filter = new FilterState(_config);
         var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         _specTreeProjector = new SpecTreeProjector(
             _compiledGuide,
