@@ -39,7 +39,7 @@ public sealed class CompiledGuideTypesTests
             QuestToDependentQuestIndices = new[] { Array.Empty<int>() },
             ZoneNodeIds = Array.Empty<int>(),
             ZoneAdjacency = Array.Empty<int[]>(),
-            ZoneLineIds = Array.Empty<int[]>(),
+
             GiverBlueprints = Array.Empty<CompiledGiverBlueprintData>(),
             CompletionBlueprints = Array.Empty<CompiledCompletionBlueprintData>(),
             InfeasibleNodeIds = Array.Empty<int>(),

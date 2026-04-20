@@ -135,7 +135,7 @@ public sealed class CompiledGuideLoaderTests
                 "quest_to_dependent_quest_indices": [[]],
                 "zone_node_ids": [],
                 "zone_adjacency": [],
-                "zone_line_ids": [],
+
                 "giver_blueprints": [],
                 "completion_blueprints": [],
                 "infeasible_node_ids": []
@@ -166,7 +166,7 @@ public sealed class CompiledGuideLoaderTests
                 "quest_to_dependent_quest_indices": [[]],
                 "zone_node_ids": [],
                 "zone_adjacency": [],
-                "zone_line_ids": [],
+
                 "giver_blueprints": [
                     {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"hail","required_quest_db_names":["PRE","CHAIN"]}
                 ],

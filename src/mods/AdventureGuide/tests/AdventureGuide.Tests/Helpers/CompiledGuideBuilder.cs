@@ -571,7 +571,7 @@ public sealed class CompiledGuideBuilder
             QuestToDependentQuestIndices = q2qRows.Select(l => l.ToArray()).ToArray(),
             ZoneNodeIds = _zones.Select(z => keyToId[z.Key]).ToArray(),
             ZoneAdjacency = Array.Empty<int[]>(),
-            ZoneLineIds = Array.Empty<int[]>(),
+
             GiverBlueprints = giverBlueprints.ToArray(),
             CompletionBlueprints = completionBlueprints.ToArray(),
             InfeasibleNodeIds = Array.Empty<int>(),

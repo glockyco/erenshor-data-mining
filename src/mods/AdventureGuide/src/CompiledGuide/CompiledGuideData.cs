@@ -52,9 +52,6 @@ public sealed class CompiledGuideData
     [JsonProperty("zone_adjacency")]
     public int[][] ZoneAdjacency { get; set; } = Array.Empty<int[]>();
 
-    [JsonProperty("zone_line_ids")]
-    public int[][] ZoneLineIds { get; set; } = Array.Empty<int[]>();
-
     [JsonProperty("giver_blueprints")]
     public CompiledGiverBlueprintData[] GiverBlueprints { get; set; } =
         Array.Empty<CompiledGiverBlueprintData>();
