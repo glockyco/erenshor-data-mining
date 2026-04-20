@@ -24,14 +24,10 @@ public sealed class SpecTreeProjector
     private readonly Func<string> _currentSceneProvider;
     private readonly DiagnosticsCore? _diagnostics;
 
-    private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _childCache = new(
-        StringComparer.Ordinal
-    );
-    private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _unlockCache = new(
-        StringComparer.Ordinal
-    );
-    private readonly Dictionary<string, bool> _visibilityCache = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _activeProjectionKeys = new(StringComparer.Ordinal);
+    private readonly Dictionary<ProjectionCacheKey, IReadOnlyList<SpecTreeRef>> _childCache = new();
+    private readonly Dictionary<ProjectionCacheKey, IReadOnlyList<SpecTreeRef>> _unlockCache = new();
+    private readonly Dictionary<ProjectionCacheKey, bool> _visibilityCache = new();
+    private readonly HashSet<ProjectionCacheKey> _activeProjectionKeys = new();
     private int _projectionDepth;
     private int _lastProjectedNodeCount;
 
@@ -121,7 +117,7 @@ public sealed class SpecTreeProjector
         if (HasAncestryCycle(parent))
             return Array.Empty<SpecTreeRef>();
 
-        string cacheKey = BuildProjectionKey("children", parent);
+        var cacheKey = BuildProjectionKey("children", parent);
         if (_childCache.TryGetValue(cacheKey, out var cachedChildren))
             return cachedChildren;
         if (!_activeProjectionKeys.Add(cacheKey))
@@ -261,7 +257,7 @@ public sealed class SpecTreeProjector
         if (HasAncestryCycle(parent))
             return Array.Empty<SpecTreeRef>();
 
-        string cacheKey = BuildProjectionKey("unlock", parent);
+        var cacheKey = BuildProjectionKey("unlock", parent);
         if (_unlockCache.TryGetValue(cacheKey, out var cachedUnlocks))
             return cachedUnlocks;
         if (!_activeProjectionKeys.Add(cacheKey))
@@ -740,7 +736,7 @@ public sealed class SpecTreeProjector
 
     private bool IsMeaningfullyVisible(SpecTreeRef candidate)
     {
-        string cacheKey = BuildProjectionKey("visible", candidate);
+        var cacheKey = BuildProjectionKey("visible", candidate);
         if (_visibilityCache.TryGetValue(cacheKey, out bool cachedVisible))
             return cachedVisible;
         if (!_activeProjectionKeys.Add(cacheKey))
@@ -824,31 +820,44 @@ public sealed class SpecTreeProjector
             _projectionDepth--;
     }
 
-    private static string BuildProjectionKey(string scope, SpecTreeRef candidate)
-    {
-        return string.Join(
-            "|",
-            new object?[]
-            {
-                scope,
-                candidate.Kind,
-                candidate.QuestIndex,
-                candidate.StableId,
-                candidate.GraphNodeId,
-                candidate.BlockedByGraphNodeId,
-                candidate.IsCompleted,
-                candidate.IsBlocked,
-                candidate.RequiresVisibleChildren,
-                candidate.Label,
-                candidate.DisplayName,
-                candidate.SyntheticChildren?.Length,
-                candidate.Ancestry.Length,
-                candidate.Ancestry.Length > 0 ? candidate.Ancestry[^1] : null,
-                candidate.Ancestry.Length > 1 ? candidate.Ancestry[^2] : null,
-                candidate.Ancestry.Length > 2 ? candidate.Ancestry[^3] : null,
-            }
+    private static ProjectionCacheKey BuildProjectionKey(string scope, SpecTreeRef candidate) =>
+        new(
+            Scope: scope,
+            Kind: candidate.Kind,
+            QuestIndex: candidate.QuestIndex,
+            StableId: candidate.StableId,
+            GraphNodeId: candidate.GraphNodeId,
+            BlockedByGraphNodeId: candidate.BlockedByGraphNodeId,
+            IsCompleted: candidate.IsCompleted,
+            IsBlocked: candidate.IsBlocked,
+            RequiresVisibleChildren: candidate.RequiresVisibleChildren,
+            Label: candidate.Label,
+            DisplayName: candidate.DisplayName,
+            SyntheticChildCount: candidate.SyntheticChildren?.Length,
+            AncestryLength: candidate.Ancestry.Length,
+            AncestryLast1: candidate.Ancestry.Length > 0 ? candidate.Ancestry[^1] : null,
+            AncestryLast2: candidate.Ancestry.Length > 1 ? candidate.Ancestry[^2] : null,
+            AncestryLast3: candidate.Ancestry.Length > 2 ? candidate.Ancestry[^3] : null
         );
-    }
+
+    private readonly record struct ProjectionCacheKey(
+        string Scope,
+        SpecTreeKind Kind,
+        int QuestIndex,
+        string StableId,
+        int? GraphNodeId,
+        int? BlockedByGraphNodeId,
+        bool IsCompleted,
+        bool IsBlocked,
+        bool RequiresVisibleChildren,
+        string Label,
+        string DisplayName,
+        int? SyntheticChildCount,
+        int AncestryLength,
+        int? AncestryLast1,
+        int? AncestryLast2,
+        int? AncestryLast3
+    );
 
     private SpecTreeRef[] BuildUnlockGroupChildren(
         QuestResolutionRecord record,
