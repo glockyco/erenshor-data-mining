@@ -280,9 +280,6 @@ public sealed class CompiledGuide
 
     public string? GetDbName(int nodeId) => _nodes[nodeId].DbName;
 
-    /// <summary>Returns the raw DTO node type as int for low-level consumers.</summary>
-    public int GetNodeType(int nodeId) => _nodes[nodeId].NodeType;
-
     // ---------------------------------------------------------------
     // Node access (string-keyed, high-level API)
     // ---------------------------------------------------------------
