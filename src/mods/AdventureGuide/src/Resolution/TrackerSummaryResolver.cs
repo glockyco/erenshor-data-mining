@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using AdventureGuide.Diagnostics;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.State;
 
 namespace AdventureGuide.Resolution;

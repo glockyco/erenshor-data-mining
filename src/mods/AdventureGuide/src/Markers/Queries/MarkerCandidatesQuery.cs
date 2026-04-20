@@ -20,7 +20,7 @@ public sealed class MarkerCandidatesQuery
 {
 	private readonly CompiledGuideModel _guide;
 	private readonly GuideReader _reader;
-	private readonly Query<Unit, NavigableQuestsResult> _navigableQuests;
+	private readonly Query<Unit, NavigableQuestSet> _navigableQuests;
 	private readonly Query<(string QuestKey, string Scene), QuestResolutionRecord> _questResolution;
 
 	public Query<string, MarkerCandidateList> Query { get; }
@@ -39,7 +39,7 @@ public sealed class MarkerCandidatesQuery
 		Engine<FactKey> engine,
 		CompiledGuideModel guide,
 		GuideReader reader,
-		Query<Unit, NavigableQuestsResult> navigableQuests,
+		Query<Unit, NavigableQuestSet> navigableQuests,
 		Query<(string QuestKey, string Scene), QuestResolutionRecord> questResolution)
 	{
 		_guide = guide;

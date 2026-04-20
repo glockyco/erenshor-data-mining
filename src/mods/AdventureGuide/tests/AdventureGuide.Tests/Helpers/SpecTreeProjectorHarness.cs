@@ -1,7 +1,7 @@
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
-using AdventureGuide.Plan;
+using AdventureGuide.Navigation;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.UI.Tree;

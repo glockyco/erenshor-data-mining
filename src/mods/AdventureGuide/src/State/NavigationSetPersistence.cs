@@ -1,5 +1,5 @@
 using AdventureGuide.Config;
-using AdventureGuide.Frontier;
+using AdventureGuide.Navigation;
 using BepInEx.Configuration;
 
 namespace AdventureGuide.State;

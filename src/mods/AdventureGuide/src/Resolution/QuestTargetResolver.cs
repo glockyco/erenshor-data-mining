@@ -1,4 +1,4 @@
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Position;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 

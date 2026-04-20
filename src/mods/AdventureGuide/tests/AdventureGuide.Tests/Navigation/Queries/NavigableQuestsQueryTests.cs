@@ -1,6 +1,6 @@
 using AdventureGuide.CompiledGuide;
-using AdventureGuide.Frontier;
 using AdventureGuide.Incremental;
+using AdventureGuide.Navigation;
 using AdventureGuide.Navigation.Queries;
 using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;

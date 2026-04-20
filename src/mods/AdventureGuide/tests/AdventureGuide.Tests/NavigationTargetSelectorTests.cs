@@ -2,7 +2,8 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
-using AdventureGuide.Plan;
+using AdventureGuide.Navigation.Queries;
+using AdventureGuide.Frontier;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
@@ -18,6 +19,8 @@ public sealed class NavigationTargetSelectorTests
     /// <summary>A ZoneRouter built from an empty guide -- knows no zones or routes.</summary>
     private static ZoneRouter EmptyRouter() =>
         SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router;
+
+    private static NavigableQuestSet Navigable(params string[] keys) => new(keys);
 
     /// <summary>
     /// Builds a minimal <see cref="ResolvedQuestTarget"/> with only the fields that
@@ -394,11 +397,6 @@ public sealed class NavigationTargetSelectorTests
             .AddCharacter("char:giver", scene: ZoneA, x: 10f, y: 20f, z: 30f)
             .AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "char:giver" })
             .Build();
-        var harness = SnapshotHarness.FromSnapshot(
-            guide,
-            new StateSnapshot { CurrentZone = ZoneA }
-        );
-
         var phases = new QuestPhaseTracker(guide);
         phases.Initialize(
             Array.Empty<string>(),
@@ -408,14 +406,18 @@ public sealed class NavigationTargetSelectorTests
         );
         var frontier = new EffectiveFrontier(guide, phases);
         var unlocks = new UnlockPredicateEvaluator(guide, phases);
+        var positionRegistry = TestPositionResolvers.Create(guide);
+        var harness = SnapshotHarness.FromSnapshot(
+            guide,
+            new StateSnapshot { CurrentZone = ZoneA }
+        );
         var sourceResolver = new SourceResolver(
             guide,
             phases,
             unlocks,
             new StubLivePositionProvider(),
-            TestPositionResolvers.Create(guide)
+            positionRegistry
         );
-        var positionRegistry = TestPositionResolvers.Create(guide);
         var navigationResolver = new NavigationTargetResolver(
             guide,
             ResolutionTestFactory.BuildService(
@@ -430,10 +432,9 @@ public sealed class NavigationTargetSelectorTests
             ResolutionTestFactory.BuildProjector(guide, positionRegistry, harness.Router)
         );
 
-        var selector = MakeSelector((nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene),
-        harness.Router);
+        var selector = MakeSelector((nodeKey, scene) => navigationResolver.Resolve(nodeKey, scene), harness.Router);
 
-        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:a" }, force: true);
+        selector.Tick(0, 0, 0, ZoneA, Navigable("quest:a"), liveWorldChanged: false);
 
         Assert.True(selector.TryGet("quest:a", out var selected));
         Assert.Equal("char:giver", selected.Target.TargetNodeKey);
@@ -447,12 +448,10 @@ public sealed class NavigationTargetSelectorTests
     [Fact]
     public void Tick_SameZone_PlayerMoves_ReroutesToCloserTarget()
     {
-        // Two same-zone nodes: A at x=10, B at x=100.
-        // After a force tick with the player at origin, A is closer (D=10 < D=100).
-        // A non-force tick with the player at x=150 should reroute to B (D=50 < D=140).
         var nodeA = MakeTarget(ZoneA, x: 10f, targetNodeKey: "node:a");
         var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
         var targets = new[] { nodeA, nodeB };
+        var navigable = Navigable("quest:test");
 
         var selector = MakeSelector((key, _) =>
             key == "quest:test"
@@ -460,27 +459,18 @@ public sealed class NavigationTargetSelectorTests
                 : Array.Empty<ResolvedQuestTarget>(),
         EmptyRouter());
 
-        // Force tick near A.
-        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
+        selector.Tick(0, 0, 0, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var first));
         Assert.Equal("node:a", first.Target.TargetNodeKey);
 
-        int versionAfterForce = selector.Version;
-
-        // Non-force tick near B -- nodeKeys is empty but _targetLists already cached.
-        selector.Tick(150, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(150, 0, 0, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("node:b", second.Target.TargetNodeKey);
-        // Version must increment because the selected identity changed.
-        Assert.True(selector.Version > versionAfterForce);
     }
 
     [Fact]
     public void Tick_SameTargetNode_DifferentSource_ReroutesToNewSource()
     {
-        // Same conceptual character, two physical spawns. The selector must switch
-        // when proximity makes a different source better, even though TargetNodeKey
-        // stays the same.
         var nearSpawn = MakeTarget(
             ZoneA,
             x: 10f,
@@ -494,6 +484,7 @@ public sealed class NavigationTargetSelectorTests
             sourceKey: "spawn:b"
         );
         var targets = new[] { nearSpawn, farSpawn };
+        var navigable = Navigable("quest:test");
 
         var selector = MakeSelector((key, _) =>
             key == "quest:test"
@@ -501,27 +492,23 @@ public sealed class NavigationTargetSelectorTests
                 : Array.Empty<ResolvedQuestTarget>(),
         EmptyRouter());
 
-        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
+        selector.Tick(0, 0, 0, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var first));
         Assert.Equal("spawn:a", first.Target.SourceKey);
 
-        int versionAfterForce = selector.Version;
-
-        selector.Tick(150, 0, 0, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(150, 0, 0, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("spawn:b", second.Target.SourceKey);
         Assert.Equal("character:bandit", second.Target.TargetNodeKey);
-        Assert.True(selector.Version > versionAfterForce);
     }
 
     [Fact]
-    public void Tick_NoForce_NoChange_DoesNotIncrementVersion()
+    public void Tick_ReferenceEqualNavigableSet_KeepsSameWinnerWhenInputsDoNotChange()
     {
-        // When the player stays near A and nothing moves, Version must not tick up
-        // on every frame (avoids unnecessary NavigationEngine selectorChanged triggers).
         var nodeA = MakeTarget(ZoneA, x: 10f, targetNodeKey: "node:a");
         var nodeB = MakeTarget(ZoneA, x: 100f, targetNodeKey: "node:b");
         var targets = new[] { nodeA, nodeB };
+        var navigable = Navigable("quest:test");
 
         var selector = MakeSelector((key, _) =>
             key == "quest:test"
@@ -529,58 +516,12 @@ public sealed class NavigationTargetSelectorTests
                 : Array.Empty<ResolvedQuestTarget>(),
         EmptyRouter());
 
-        selector.Tick(0, 0, 0, ZoneA, new[] { "quest:test" }, force: true);
-        int v1 = selector.Version;
+        selector.Tick(0, 0, 0, ZoneA, navigable, liveWorldChanged: false);
+        selector.Tick(0, 0, 0, ZoneA, navigable, liveWorldChanged: false);
+        selector.Tick(0, 0, 0, ZoneA, navigable, liveWorldChanged: false);
 
-        // Multiple non-force ticks at the same position -- same winner, no version bump.
-        selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
-        selector.Tick(0, 0, 0, ZoneA, Array.Empty<string>(), force: false);
-        Assert.Equal(v1, selector.Version);
-    }
-
-    [Fact]
-    public void Tick_ForcePartialRefresh_PreservesUntouchedEntries()
-    {
-        int aCalls = 0;
-        int bCalls = 0;
-        var selector = MakeSelector((key, _) =>
-        {
-            if (key == "quest:a")
-            {
-                aCalls++;
-                return new[] { MakeTarget(ZoneA, x: 10f, targetNodeKey: "a") };
-            }
-        
-            if (key == "quest:b")
-            {
-                bCalls++;
-                return new[] { MakeTarget(ZoneA, x: 20f, targetNodeKey: "b") };
-            }
-        
-            return Array.Empty<ResolvedQuestTarget>();
-        },
-        EmptyRouter());
-
-        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a", "quest:b", "quest:a" }, force: true);
-        Assert.True(selector.TryGet("quest:a", out _));
-        Assert.True(selector.TryGet("quest:b", out _));
-        Assert.Equal(1, aCalls);
-        Assert.Equal(1, bCalls);
-
-        selector.Tick(
-            0f,
-            0f,
-            0f,
-            ZoneA,
-            new[] { "quest:a", "quest:a" },
-            force: true,
-            preserveUntouchedEntries: true
-        );
-
-        Assert.True(selector.TryGet("quest:a", out _));
-        Assert.True(selector.TryGet("quest:b", out _));
-        Assert.Equal(2, aCalls);
-        Assert.Equal(1, bCalls);
+        Assert.True(selector.TryGet("quest:test", out var selected));
+        Assert.Equal("node:a", selected.Target.TargetNodeKey);
     }
 
     [Fact]
@@ -612,6 +553,7 @@ public sealed class NavigationTargetSelectorTests
         var liveState = new FakeSelectorLiveState();
         liveState.MiningAvailability["mine:mined"] = true;
         liveState.MiningAvailability["mine:available"] = true;
+        var navigable = Navigable("quest:test");
         var selector = MakeSelector((key, _) =>
             key == "quest:test"
                 ? (IReadOnlyList<ResolvedQuestTarget>)targets
@@ -620,19 +562,16 @@ public sealed class NavigationTargetSelectorTests
         guide: guide,
         liveState: liveState);
 
-        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
+        selector.Tick(0f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var first));
         Assert.Equal("mine:mined", first.Target.TargetNodeKey);
 
-        int versionAfterForce = selector.Version;
         liveState.MiningAvailability["mine:mined"] = false;
-
-        selector.Tick(0f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(0f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
 
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("mine:available", second.Target.TargetNodeKey);
         Assert.False(targets[0].IsActionable);
-        Assert.True(selector.Version > versionAfterForce);
     }
 
     [Fact]
@@ -660,6 +599,7 @@ public sealed class NavigationTargetSelectorTests
         var liveState = new FakeSelectorLiveState();
         liveState.ItemBagAvailability["bag:spent"] = true;
         liveState.ItemBagAvailability["bag:fresh"] = true;
+        var navigable = Navigable("quest:test");
         var selector = MakeSelector((key, _) =>
             key == "quest:test"
                 ? (IReadOnlyList<ResolvedQuestTarget>)targets
@@ -667,19 +607,16 @@ public sealed class NavigationTargetSelectorTests
         EmptyRouter(),
         liveState: liveState);
 
-        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:test" }, force: true);
+        selector.Tick(0f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:test", out var first));
         Assert.Equal("bag:spent", first.Target.TargetNodeKey);
 
-        int versionAfterForce = selector.Version;
         liveState.ItemBagAvailability["bag:spent"] = false;
-
-        selector.Tick(0f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(0f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
 
         Assert.True(selector.TryGet("quest:test", out var second));
         Assert.Equal("bag:fresh", second.Target.TargetNodeKey);
         Assert.False(targets[0].IsActionable);
-        Assert.True(selector.Version > versionAfterForce);
     }
 
     // -- Blocked-path priority tests -----------------------------------------------
@@ -967,28 +904,29 @@ public sealed class NavigationTargetSelectorTests
             MakeTarget(ZoneA, x: 0f, targetNodeKey: "near"),
             MakeTarget(ZoneA, x: 100f, targetNodeKey: "far"),
         };
+        var navigable = Navigable("quest:a");
         var selector = MakeSelector((_, _) => targets,
         EmptyRouter(),
         clock: () => now,
         rerankInterval: 1.0f);
 
-        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        selector.Tick(0f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:a", out var selected));
         Assert.Equal("near", selected.Target.TargetNodeKey);
 
         now = 0.5f;
-        selector.Tick(100f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(100f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:a", out selected));
         Assert.Equal("near", selected.Target.TargetNodeKey);
 
         now = 1.1f;
-        selector.Tick(100f, 0f, 0f, ZoneA, Array.Empty<string>(), force: false);
+        selector.Tick(100f, 0f, 0f, ZoneA, navigable, liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:a", out selected));
         Assert.Equal("far", selected.Target.TargetNodeKey);
     }
 
     [Fact]
-    public void Tick_ForceBypassesInterval()
+    public void Tick_NavSetReferenceChange_BypassesInterval()
     {
         float now = 0f;
         var targets = new[]
@@ -1001,12 +939,12 @@ public sealed class NavigationTargetSelectorTests
         clock: () => now,
         rerankInterval: 1.0f);
 
-        selector.Tick(0f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        selector.Tick(0f, 0f, 0f, ZoneA, Navigable("quest:a"), liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:a", out var selected));
         Assert.Equal("near", selected.Target.TargetNodeKey);
 
         now = 0.2f;
-        selector.Tick(100f, 0f, 0f, ZoneA, new[] { "quest:a" }, force: true);
+        selector.Tick(100f, 0f, 0f, ZoneA, Navigable("quest:a"), liveWorldChanged: false);
         Assert.True(selector.TryGet("quest:a", out selected));
         Assert.Equal("far", selected.Target.TargetNodeKey);
     }
@@ -1033,7 +971,7 @@ public sealed class NavigationTargetSelectorTests
         };
         var selector = MakeSelector((_, _) => targets, EmptyRouter());
 
-        selector.Tick(PX, PY, PZ, ZoneA, new[] { "quest:a" }, force: true);
+        selector.Tick(PX, PY, PZ, ZoneA, Navigable("quest:a"), liveWorldChanged: false);
         string text = selector.DumpCandidates(PX, PY, PZ, ZoneA, "available");
 
         Assert.Contains("RequestKey: quest:a", text, StringComparison.Ordinal);

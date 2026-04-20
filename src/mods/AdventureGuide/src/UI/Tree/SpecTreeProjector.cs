@@ -2,7 +2,7 @@ using System.Diagnostics;
 using AdventureGuide.CompiledGuide;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 

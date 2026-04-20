@@ -1,6 +1,6 @@
 using AdventureGuide.CompiledGuide;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Position;
 
 namespace AdventureGuide.Resolution;

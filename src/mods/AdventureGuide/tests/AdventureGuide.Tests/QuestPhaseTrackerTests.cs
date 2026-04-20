@@ -1,4 +1,4 @@
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
 

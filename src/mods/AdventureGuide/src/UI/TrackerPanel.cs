@@ -1,5 +1,4 @@
 using AdventureGuide.Config;
-using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
 using AdventureGuide.Rendering;

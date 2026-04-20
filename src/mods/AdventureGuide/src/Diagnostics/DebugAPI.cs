@@ -347,7 +347,7 @@ public static class DebugAPI
         sb.AppendLine("Tracked quest refresh snapshot");
         sb.AppendLine($"Reason: {snapshot.LastForceReason}");
         sb.AppendLine($"Key count: {snapshot.LastBatchKeyCount}");
-        sb.AppendLine($"Partial refresh: {snapshot.LastBatchWasPartialRefresh}");
+
         sb.AppendLine($"Resolved targets: {snapshot.LastResolvedTargetCount}");
         if (snapshot.TopQuestCosts.Count > 0)
         {

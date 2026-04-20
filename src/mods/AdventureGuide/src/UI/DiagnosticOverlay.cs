@@ -1,7 +1,7 @@
 using AdventureGuide.Config;
 using AdventureGuide.Diagnostics;
-using AdventureGuide.Frontier;
 using AdventureGuide.Markers;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using ImGuiNET;
 using UnityEngine;

@@ -2,7 +2,7 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Incremental;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;

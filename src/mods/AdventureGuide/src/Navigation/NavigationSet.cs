@@ -1,4 +1,4 @@
-namespace AdventureGuide.Frontier;
+namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// The player's selected navigation targets — a set of node keys.

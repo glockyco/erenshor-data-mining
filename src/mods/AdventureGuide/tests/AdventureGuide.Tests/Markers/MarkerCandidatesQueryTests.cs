@@ -3,7 +3,7 @@ using AdventureGuide.Incremental;
 using AdventureGuide.Markers;
 using AdventureGuide.Markers.Queries;
 using AdventureGuide.Navigation.Queries;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
@@ -21,7 +21,8 @@ public sealed class MarkerCandidatesQueryTests
 
 		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
 
-		var active = Assert.Single(list.Candidates, c => !c.IsSpawnTimerSlot);		Assert.Equal("quest:a", active.QuestKey);
+		var active = Assert.Single(list.Candidates, c => !c.IsSpawnTimerSlot);
+		Assert.Equal("quest:a", active.QuestKey);
 		Assert.Equal("char:leaf", active.TargetNodeKey);
 		Assert.Equal("spawn:leaf-1", active.PositionNodeKey);
 		Assert.Equal(SpawnCategory.Alive, active.SpawnCategory);
@@ -35,7 +36,8 @@ public sealed class MarkerCandidatesQueryTests
 		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
 
 		Assert.Equal(2, list.Candidates.Count);
-		var timer = Assert.Single(list.Candidates, c => c.IsSpawnTimerSlot);		Assert.Equal("quest:a", timer.QuestKey);
+		var timer = Assert.Single(list.Candidates, c => c.IsSpawnTimerSlot);
+		Assert.Equal("quest:a", timer.QuestKey);
 		Assert.Equal("char:leaf", timer.TargetNodeKey);
 		Assert.Equal("spawn:leaf-1|respawn", timer.PositionNodeKey);
 		Assert.Equal("spawn:leaf-1", timer.SourceNodeKey);
@@ -89,21 +91,21 @@ public sealed class MarkerCandidatesQueryTests
 	[Fact]
 	public void Read_Backdates_ThroughSubQuery_WhenQuestResolutionResultUnchanged()
 	{
-	    var fixture = MarkerCandidatesFixture.CreateActiveQuest();
+		var fixture = MarkerCandidatesFixture.CreateActiveQuest();
 
-	    var first = fixture.Engine.Read(fixture.Query.Query, "Town");
-	    int countBefore = fixture.QuestResolutionComputeCount;
+		var first = fixture.Engine.Read(fixture.Query.Query, "Town");
+		int countBefore = fixture.QuestResolutionComputeCount;
 
-	    // Per-quest QuestActive fact is recorded by the QuestResolution sub-query
-	    // stub but not directly by the parent. Invalidating it forces the sub-query
-	    // to recompute; because the stub returns the same QuestResolutionRecord
-	    // instance, value-equality backdating preserves its revision and the
-	    // parent (MarkerCandidates) entry stays fresh — same reference returned.
-	    fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "quest:a") });
-	    var second = fixture.Engine.Read(fixture.Query.Query, "Town");
+		// Per-quest QuestActive fact is recorded by the QuestResolution sub-query
+		// stub but not directly by the parent. Invalidating it forces the sub-query
+		// to recompute; because the stub returns the same QuestResolutionRecord
+		// instance, value-equality backdating preserves its revision and the
+		// parent (MarkerCandidates) entry stays fresh — same reference returned.
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "quest:a") });
+		var second = fixture.Engine.Read(fixture.Query.Query, "Town");
 
-	    Assert.True(fixture.QuestResolutionComputeCount > countBefore);
-	    Assert.Same(first, second);
+		Assert.True(fixture.QuestResolutionComputeCount > countBefore);
+		Assert.Same(first, second);
 	}
 
 	[Fact]
@@ -124,6 +126,7 @@ public sealed class MarkerCandidatesQueryTests
 		public MarkerCandidatesQuery Query { get; }
 		public Dictionary<string, SpawnCategory> SourceStates { get; }
 		public int SubQueryComputeCount { get; private set; }
+		public int QuestResolutionComputeCount { get; private set; }
 
 		private MarkerCandidatesFixture(
 			Engine<FactKey> engine,
@@ -137,7 +140,6 @@ public sealed class MarkerCandidatesQueryTests
 
 		public void BumpSubQueryComputeCount() => SubQueryComputeCount++;
 		public void BumpQuestResolutionComputeCount() => QuestResolutionComputeCount++;
-		public int QuestResolutionComputeCount { get; private set; }
 
 		public static MarkerCandidatesFixture CreateActiveQuest()
 		{
@@ -199,10 +201,10 @@ public sealed class MarkerCandidatesQueryTests
 				questIndex: 0,
 				requiredForQuestIndex: -1);
 
-			var navigable = new NavigableQuestsResult(new[] { "quest:a" });
+			var navigable = new NavigableQuestSet(new[] { "quest:a" });
 
 			MarkerCandidatesFixture? fixture = null;
-			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestsResult>(
+			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestSet>(
 				"NavigableQuestsStub",
 				(ctx, _) =>
 				{
@@ -271,9 +273,9 @@ public sealed class MarkerCandidatesQueryTests
 				new FakeNavigationSet(Array.Empty<string>()),
 				new FakeSourceState(sourceStates));
 
-			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestsResult>(
+			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestSet>(
 				"NavigableQuestsStub",
-				(_, _) => new NavigableQuestsResult(Array.Empty<string>()));
+				(_, _) => new NavigableQuestSet(Array.Empty<string>()));
 			var questResolutionQuery = engine.DefineQuery<(string, string), QuestResolutionRecord>(
 				"QuestResolutionStub",
 				(_, _) => throw new InvalidOperationException("QuestResolution should not run for giver-only overlap"));

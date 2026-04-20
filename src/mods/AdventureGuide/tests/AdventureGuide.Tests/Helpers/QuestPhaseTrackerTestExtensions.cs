@@ -1,4 +1,4 @@
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 
 namespace AdventureGuide.Tests.Helpers;
 

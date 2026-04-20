@@ -1,6 +1,6 @@
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;

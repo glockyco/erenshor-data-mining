@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
+using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
@@ -31,14 +32,13 @@ public struct SelectedNavTarget
     public bool IsBlockedPath;
 }
 
-/// <summary>
 /// Per-key best-target selection shared by <see cref="NavigationEngine"/> and
 /// <c>TrackerPanel</c>.
 ///
-/// <see cref="Tick"/> re-evaluates the best target for every cached key on each
-/// call. Callers that need a fresh target-list fetch (e.g. after a resolution or
-/// scene change) pass <c>force=true</c>. Consumers compute distance inline from
-/// <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does not carry a distance snapshot.
+/// <see cref="Tick"/> re-evaluates cached quest targets against the current
+/// player position and engine-owned navigable quest set. Consumers compute
+/// distance inline from <c>SelectedNavTarget.Target.X/Y/Z</c> — the struct does
+/// not carry a distance snapshot.
 ///
 /// Priority algorithm (eight tiers; "direct" means <c>IsBlockedPath</c> is false):
 /// <list type="number">
@@ -52,7 +52,6 @@ public struct SelectedNavTarget
 ///   <item>Blocked-path + cross-zone — fewest zone hops</item>
 /// </list>
 /// TravelToZone candidates are always skipped.
-/// </summary>
 public sealed class NavigationTargetSelector
 {
     private const float DefaultRerankIntervalSeconds = 1f;
@@ -69,26 +68,19 @@ public sealed class NavigationTargetSelector
     // ticks so their inner lists can be cleared and refilled without reallocation.
     private readonly Dictionary<string, TargetEntry> _entries = new(StringComparer.Ordinal);
 
-    // Scratch collections for key-set management during forced ticks.
+    // Scratch collections for key-set management during full rebuilds.
     private readonly HashSet<string> _activeKeys = new(StringComparer.Ordinal);
     private readonly List<string> _keysToEvict = new();
     private readonly Func<float> _clock;
     private readonly float _rerankInterval;
     private readonly Func<IReadOnlyList<QuestCostSample>>? _topQuestCostProvider;
 
+    private NavigableQuestSet? _lastNavigable;
     private float _lastRerankTime = float.NegativeInfinity;
     private DiagnosticTrigger _lastForceReason = DiagnosticTrigger.Unknown;
     private int _lastResolvedTargetCount;
     private int _lastBatchKeyCount;
-    private bool _lastBatchWasPartialRefresh;
     private IReadOnlyList<QuestCostSample> _topQuestCosts = Array.Empty<QuestCostSample>();
-
-
-    /// <summary>
-    /// Monotonically increasing version. Incremented after each cache refresh so
-    /// <see cref="NavigationEngine"/> can detect when new data is available.
-    /// </summary>
-    public int Version { get; private set; }
 
     internal NavigationTargetSelector(
         NavigationTargetResolver resolution,
@@ -133,36 +125,22 @@ public sealed class NavigationTargetSelector
     /// <summary>
     /// Called once per frame by Plugin before consumers read.
     ///
-    /// <b>Every tick</b>: re-runs <see cref="SelectBestCore"/> for all cached keys
-    /// using the current player position. <see cref="Version"/> is incremented when
-    /// the selected target identity changes for any key, or when <paramref name="force"/>
-    /// is true.
-    ///
-    /// <b>Forced tick</b> (<paramref name="force"/> is true): resolves fresh target lists
-    /// from <paramref name="nodeKeys"/> and decomposes each into same-zone and cross-zone
-    /// partitions stored in the per-key <see cref="TargetEntry"/>. Cross-zone reps are
-    /// pre-built here so <see cref="SelectBestCore"/> never allocates on regular ticks.
-    ///
-    /// When <paramref name="preserveUntouchedEntries"/> is true, the forced refresh updates
-    /// only the requested keys and leaves unrelated cached entries intact. Use this for
-    /// source-local live-world deltas such as mining or bag state changes. Full refreshes
-    /// still rebuild the complete active key set and evict stale entries.
-    ///
-    /// <paramref name="nodeKeys"/> is only consumed on forced ticks, so passing a lazy
-    /// iterator avoids allocation on non-forced frames.
+    /// Re-scores cached targets against the current player position and live-state
+    /// overlays. When the engine-owned <paramref name="navigable"/> reference
+    /// changes, the selector performs a full rebuild from <see cref="NavigableQuestSet.Keys"/>.
+    /// When the same reference is reused, <paramref name="liveWorldChanged"/> forces
+    /// an immediate re-score; otherwise the selector honors <see cref="_rerankInterval"/>.
     /// </summary>
     internal void Tick(
         float playerX,
         float playerY,
         float playerZ,
         string currentZone,
-        IEnumerable<string> nodeKeys,
-        bool force = false,
-        DiagnosticTrigger forceReason = DiagnosticTrigger.Unknown,
-        bool preserveUntouchedEntries = false
-    )
+        NavigableQuestSet navigable,
+        bool liveWorldChanged)
     {
-        var context = DiagnosticsContext.Root(force ? forceReason : DiagnosticTrigger.Unknown);
+        bool referenceChanged = !ReferenceEquals(navigable, _lastNavigable);
+        var context = DiagnosticsContext.Root(referenceChanged ? DiagnosticTrigger.NavSetChanged : DiagnosticTrigger.Unknown);
         var token = _diagnostics?.BeginSpan(
             DiagnosticSpanKind.NavSelectorTick,
             context,
@@ -173,16 +151,17 @@ public sealed class NavigationTargetSelector
         {
             float now = _clock();
             bool due = now - _lastRerankTime >= _rerankInterval;
-            if (!force && !due)
+            if (!referenceChanged && !liveWorldChanged && !due)
                 return;
+
+            _lastNavigable = navigable;
             _lastRerankTime = now;
 
-            if (force)
+            if (referenceChanged)
             {
-                _lastForceReason = forceReason;
+                _lastForceReason = DiagnosticTrigger.NavSetChanged;
                 _lastResolvedTargetCount = 0;
                 _lastBatchKeyCount = 0;
-                _lastBatchWasPartialRefresh = preserveUntouchedEntries;
                 _topQuestCosts = Array.Empty<QuestCostSample>();
                 _diagnostics?.RecordEvent(
                     new DiagnosticEvent(
@@ -205,7 +184,7 @@ public sealed class NavigationTargetSelector
                 long collectionStart = Stopwatch.GetTimestamp();
                 try
                 {
-                    foreach (var key in nodeKeys)
+                    foreach (var key in navigable.Keys)
                     {
                         if (!_activeKeys.Add(key))
                             continue;
@@ -242,7 +221,6 @@ public sealed class NavigationTargetSelector
                         if (targets.Count == 0)
                         {
                             _entries.Remove(key);
-                            _cache.Remove(key);
                             continue;
                         }
 
@@ -266,19 +244,15 @@ public sealed class NavigationTargetSelector
                         );
                 }
 
-                if (!preserveUntouchedEntries)
-                {
-                    _keysToEvict.Clear();
-                    foreach (var k in _entries.Keys)
-                        if (!_activeKeys.Contains(k))
-                            _keysToEvict.Add(k);
-                    foreach (var k in _keysToEvict)
-                        _entries.Remove(k);
-                    _cache.Clear();
-                }
+                _keysToEvict.Clear();
+                foreach (var key in _entries.Keys)
+                    if (!_activeKeys.Contains(key))
+                        _keysToEvict.Add(key);
+                foreach (var key in _keysToEvict)
+                    _entries.Remove(key);
+                _cache.Clear();
             }
 
-            bool changed = false;
             foreach (var kv in _entries)
             {
                 UpdateLivePositions(kv.Value, currentZone);
@@ -292,25 +266,13 @@ public sealed class NavigationTargetSelector
                 );
                 if (selected.HasValue)
                 {
-                    bool targetChanged =
-                        !_cache.TryGetValue(kv.Key, out var existing)
-                        || !string.Equals(
-                            existing.Target.TargetInstanceKey,
-                            selected.Value.Target.TargetInstanceKey,
-                            StringComparison.Ordinal
-                        );
                     _cache[kv.Key] = selected.Value;
-                    if (targetChanged)
-                        changed = true;
                 }
-                else if (_cache.Remove(kv.Key))
+                else
                 {
-                    changed = true;
+                    _cache.Remove(kv.Key);
                 }
             }
-
-            if (force || changed)
-                Version++;
         }
         finally
         {
@@ -383,7 +345,6 @@ public sealed class NavigationTargetSelector
     }
 
     internal NavigationDiagnosticsSnapshot ExportDiagnosticsSnapshot()
-
     {
         return new NavigationDiagnosticsSnapshot(
             lastForceReason: _lastForceReason,
@@ -391,7 +352,6 @@ public sealed class NavigationTargetSelector
             currentTargetKey: null,
             lastResolvedTargetCount: _lastResolvedTargetCount,
             lastBatchKeyCount: _lastBatchKeyCount,
-            lastBatchWasPartialRefresh: _lastBatchWasPartialRefresh,
             topQuestCosts: _topQuestCosts
         );
     }

@@ -51,7 +51,6 @@ internal sealed class NavigationDiagnosticsSnapshot
 		string? currentTargetKey,
 		int lastResolvedTargetCount,
 		int lastBatchKeyCount,
-		bool lastBatchWasPartialRefresh,
 		IReadOnlyList<QuestCostSample> topQuestCosts
 	)
 	{
@@ -60,7 +59,6 @@ internal sealed class NavigationDiagnosticsSnapshot
 		CurrentTargetKey = currentTargetKey;
 		LastResolvedTargetCount = lastResolvedTargetCount;
 		LastBatchKeyCount = lastBatchKeyCount;
-		LastBatchWasPartialRefresh = lastBatchWasPartialRefresh;
 		TopQuestCosts = topQuestCosts;
 	}
 
@@ -69,7 +67,6 @@ internal sealed class NavigationDiagnosticsSnapshot
 	public string? CurrentTargetKey { get; }
 	public int LastResolvedTargetCount { get; }
 	public int LastBatchKeyCount { get; }
-	public bool LastBatchWasPartialRefresh { get; }
 	public IReadOnlyList<QuestCostSample> TopQuestCosts { get; }
 }
 

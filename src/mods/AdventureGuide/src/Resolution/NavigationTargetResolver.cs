@@ -141,7 +141,6 @@ public sealed class NavigationTargetResolver
 			currentTargetKey: _lastResolvedNodeKey,
 			lastResolvedTargetCount: _lastResolvedTargetCount,
 			lastBatchKeyCount: _lastBatchKeyCount,
-			lastBatchWasPartialRefresh: false,
 			topQuestCosts: _topQuestCosts);
 	}
 

@@ -1,5 +1,5 @@
 using AdventureGuide.CompiledGuide;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 
 namespace AdventureGuide.Resolution;
 

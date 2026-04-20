@@ -1,5 +1,5 @@
 using AdventureGuide.Incremental;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.State;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 

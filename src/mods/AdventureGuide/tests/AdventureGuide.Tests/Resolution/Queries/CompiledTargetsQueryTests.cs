@@ -1,6 +1,6 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.Resolution.Queries;

@@ -1,4 +1,4 @@
-using AdventureGuide.Frontier;
+using AdventureGuide.Navigation;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;

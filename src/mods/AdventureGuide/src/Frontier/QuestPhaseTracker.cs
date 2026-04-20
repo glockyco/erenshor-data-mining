@@ -1,6 +1,6 @@
 using AdventureGuide.State;
 
-namespace AdventureGuide.Plan;
+namespace AdventureGuide.Frontier;
 
 public sealed class QuestPhaseTracker : IDisposable
 {

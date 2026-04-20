@@ -116,7 +116,7 @@ public sealed class GuideReader
 	/// <summary>Top-level read. Do not call from inside a query compute —
 	/// use <c>ctx.Read(navigableQuestsQuery.Query, Unit.Value)</c> instead so
 	/// the query-to-query dependency is recorded on the current compute.</summary>
-	public NavigableQuestsResult ReadNavigableQuests()
+	public NavigableQuestSet ReadNavigableQuests()
 	{
 		if (_navigableQuestsQuery == null)
 			throw new InvalidOperationException("GuideReader not wired with NavigableQuestsQuery.");

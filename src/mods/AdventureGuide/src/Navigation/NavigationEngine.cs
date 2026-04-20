@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using AdventureGuide.Diagnostics;
-using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
@@ -19,7 +18,6 @@ public sealed class NavigationEngine
 {
     private readonly NavigationSet _navSet;
     private readonly CompiledGuideModel _guide;
-    private readonly Func<int> _targetSourceVersion;
     private readonly NavigationTargetSelector _selector;
     private readonly ZoneRouter _router;
     private readonly LiveStateTracker _liveState;
@@ -37,8 +35,6 @@ public sealed class NavigationEngine
     public int HopCount { get; private set; }
 
     private int _lastNavSetVersion = -1;
-    private int _lastSelectorVersion = -1;
-    private int _lastResolutionVersion = -1;
     private string _lastResolveScene = "";
 
     private string? _cachedRouteFrom;
@@ -53,7 +49,6 @@ public sealed class NavigationEngine
     internal NavigationEngine(
         NavigationSet navSet,
         CompiledGuideModel guide,
-        Func<int> targetSourceVersion,
         NavigationTargetSelector selector,
         ZoneRouter router,
         LiveStateTracker liveState,
@@ -63,7 +58,6 @@ public sealed class NavigationEngine
     {
         _navSet = navSet;
         _guide = guide;
-        _targetSourceVersion = targetSourceVersion;
         _selector = selector;
         _router = router;
         _liveState = liveState;
@@ -98,18 +92,15 @@ public sealed class NavigationEngine
             }
 
             bool navChanged = _navSet.Version != _lastNavSetVersion;
-            bool selectorChanged = _selector.Version != _lastSelectorVersion;
-            int targetSourceVersion = _targetSourceVersion();
-            bool sourceChanged = targetSourceVersion != _lastResolutionVersion;
             bool sceneChanged = !string.Equals(
                 CurrentScene,
                 _lastResolveScene,
                 StringComparison.OrdinalIgnoreCase
             );
 
-            if (navChanged || selectorChanged || sceneChanged)
+            if (navChanged || sceneChanged)
             {
-                if (sourceChanged || sceneChanged)
+                if (sceneChanged)
                 {
                     _cachedRouteFrom = null;
                     _cachedRouteTo = null;
@@ -118,8 +109,6 @@ public sealed class NavigationEngine
                 }
 
                 _lastNavSetVersion = _navSet.Version;
-                _lastSelectorVersion = _selector.Version;
-                _lastResolutionVersion = targetSourceVersion;
                 _lastResolveScene = CurrentScene;
             }
 

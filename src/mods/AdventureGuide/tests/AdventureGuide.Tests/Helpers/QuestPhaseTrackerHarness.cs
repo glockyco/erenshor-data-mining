@@ -1,5 +1,5 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.State;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 

@@ -1,5 +1,5 @@
 using AdventureGuide.Graph;
-using AdventureGuide.Plan;
+using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
 using AdventureGuide.Tests.Helpers;
 using Xunit;

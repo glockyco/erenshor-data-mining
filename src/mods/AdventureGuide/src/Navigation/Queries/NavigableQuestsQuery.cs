@@ -10,7 +10,7 @@ public sealed class NavigableQuestsQuery
 	private readonly CompiledGuideModel _guide;
 	private readonly GuideReader _reader;
 
-	public Query<Unit, NavigableQuestsResult> Query { get; }
+	public Query<Unit, NavigableQuestSet> Query { get; }
 
 	public NavigableQuestsQuery(
 		Engine<FactKey> engine,
@@ -19,12 +19,12 @@ public sealed class NavigableQuestsQuery
 	{
 		_guide = guide;
 		_reader = reader;
-		Query = engine.DefineQuery<Unit, NavigableQuestsResult>(
+		Query = engine.DefineQuery<Unit, NavigableQuestSet>(
 			name: "NavigableQuests",
 			compute: Compute);
 	}
 
-	private NavigableQuestsResult Compute(ReadContext<FactKey> ctx, Unit _)
+	private NavigableQuestSet Compute(ReadContext<FactKey> ctx, Unit _)
 	{
 		var keys = new HashSet<string>(StringComparer.Ordinal);
 
@@ -58,18 +58,18 @@ public sealed class NavigableQuestsQuery
 				keys.Add(quest.Key);
 		}
 
-		return new NavigableQuestsResult(keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+		return new NavigableQuestSet(keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
 	}
 }
 
-public sealed class NavigableQuestsResult
+public sealed class NavigableQuestSet
 {
 	public IReadOnlyList<string> Keys { get; }
 
-	public NavigableQuestsResult(IReadOnlyList<string> keys) => Keys = keys;
+	public NavigableQuestSet(IReadOnlyList<string> keys) => Keys = keys;
 
 	public override bool Equals(object? obj) =>
-		obj is NavigableQuestsResult other && Keys.SequenceEqual(other.Keys);
+		obj is NavigableQuestSet other && Keys.SequenceEqual(other.Keys);
 
 	public override int GetHashCode() => Keys.Count;
 }

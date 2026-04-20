@@ -10,7 +10,6 @@ using AdventureGuide.Markers.Queries;
 using AdventureGuide.Navigation;
 using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Patches;
-using AdventureGuide.Plan;
 using AdventureGuide.Position;
 using AdventureGuide.Position.Resolvers;
 using AdventureGuide.Rendering;
@@ -92,8 +91,6 @@ public sealed class Plugin : BaseUnityPlugin
 
 
     private int _lastObservedQuestTrackerVersion = -1;
-    private int _lastResolutionVersion = -1;
-    private int _lastNavSetVersion = -1;
 
     static Plugin()
     {
@@ -278,7 +275,6 @@ public sealed class Plugin : BaseUnityPlugin
         _navEngine = new NavigationEngine(
             _navSet,
             _compiledGuide,
-            () => _navigationTargetResolver.Version,
             _targetSelector,
             _zoneRouter,
             _liveState,
@@ -573,41 +569,20 @@ public sealed class Plugin : BaseUnityPlugin
                 _zoneRouter?.Rebuild();
         }
 
-
-
-        int targetSourceVersion = _navigationTargetResolver!.Version;
-        int navSetVersion = _navSet!.Version;
-
-        var plan = MaintainedViewPlanner.Plan(
-            AllNavigableNodeKeys(),
-            selectorChangeSet,
-            liveWorldChanged: liveChangeSet.HasMeaningfulChanges,
-            targetSourceVersionChanged: targetSourceVersion != _lastResolutionVersion,
-            navSetVersionChanged: navSetVersion != _lastNavSetVersion
-        );
-
-        if (plan.RequiresRefresh)
-        {
-            _lastResolutionVersion = targetSourceVersion;
-            _lastNavSetVersion = navSetVersion;
-        }
-
+        var navigable = _reader!.ReadNavigableQuests();
         _targetSelector?.Tick(
             playerPos.x,
             playerPos.y,
             playerPos.z,
             _navEngine!.CurrentScene,
-            plan.Keys,
-            plan.RequiresRefresh,
-            plan.Reason,
-            preserveUntouchedEntries: plan.IsPartial
+            navigable,
+            liveChangeSet.HasMeaningfulChanges
         );
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
         _markerProjector?.Project();
         _markerRenderer?.Render();
-
 
         if (_config == null || _window == null)
             return;
@@ -627,20 +602,6 @@ public sealed class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(_config.GroundPathToggleKey.Value))
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
-    }
-
-
-    private IEnumerable<string> AllNavigableNodeKeys()
-    {
-        foreach (var key in _navSet!.Keys)
-            yield return key;
-
-        foreach (var db in _trackerState!.TrackedQuests)
-        {
-            var node = _compiledGuide!.GetQuestByDbName(db);
-            if (node != null)
-                yield return node.Key;
-        }
     }
 
     private void OnGUI()
