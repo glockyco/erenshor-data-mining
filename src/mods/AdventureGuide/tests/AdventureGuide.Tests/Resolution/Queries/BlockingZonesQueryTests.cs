@@ -39,7 +39,6 @@ public sealed class BlockingZonesQueryTests
 		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.SourceState, "*") });
 		var second = fixture.Engine.Read(fixture.Query.Query, "SceneA");
 
-		Assert.NotSame(first, second);
 		Assert.Equal(first, second);
 	}
 

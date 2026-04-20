@@ -192,4 +192,31 @@ public sealed class EngineTests
 
 		Assert.Throws<InvalidOperationException>(() => engineB.Read(queryFromA, 0));
 	}
+
+	[Fact]
+	public void Backdating_PreservesReferenceIdentity_WhenValueUnchanged()
+	{
+		var engine = new Engine<TestFact>();
+		var fact = new TestFact("source");
+		var value = new Box(42);
+
+		var query = engine.DefineQuery<int, Box>(
+			name: "Source",
+			compute: (ctx, key) => { ctx.RecordFact(fact); return new Box(value.Payload); });
+
+		var first = engine.Read(query, 0);
+		engine.InvalidateFacts(new[] { fact });
+		var second = engine.Read(query, 0);
+
+		Assert.Same(first, second);
+	}
+
+	private sealed class Box : IEquatable<Box>
+	{
+		public Box(int payload) => Payload = payload;
+		public int Payload { get; }
+		public bool Equals(Box? other) => other is not null && other.Payload == Payload;
+		public override bool Equals(object? obj) => Equals(obj as Box);
+		public override int GetHashCode() => Payload;
+	}
 }

@@ -3,7 +3,16 @@ namespace AdventureGuide.Incremental;
 /// <summary>Salsa-shaped incremental query engine. Memoises <c>(query, key)</c>
 /// entries; recomputes lazily on read when a recorded fact or sub-query dep has
 /// a newer revision than the entry. Backdating (value-equality on recomputed
-/// outputs) suppresses ripples when a recompute produces an unchanged value.</summary>
+/// outputs) suppresses ripples when a recompute produces an unchanged value.
+///
+/// <para><b>Read semantics.</b> When <see cref="Read{TKey,TValue}"/> recomputes
+/// an entry and finds the new value equal (via <see cref="object.Equals(object,object)"/>)
+/// to the prior cached value, the engine returns the <i>prior instance</i>, not
+/// the freshly-computed one. Consumers may rely on reference identity as a
+/// proxy for value identity: a returned reference that equals the last
+/// reference observed implies no content change. Returned values must be
+/// treated as immutable — the engine reuses instances, and mutating one
+/// corrupts the cache.</para></summary>
 public sealed class Engine<TFactKey> where TFactKey : notnull
 {
 	private readonly object _ownerToken = new();
@@ -151,23 +160,30 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		// Unsubscribe old fact→entry reverse deps before re-subscribing.
 		if (existed)
 		{
-			foreach (var oldFact in prior.Facts)
-				if (_entriesByFact.TryGetValue(oldFact, out var set))
-					set.Remove(entryKey);
+		    foreach (var oldFact in prior.Facts)
+		        if (_entriesByFact.TryGetValue(oldFact, out var set))
+		            set.Remove(entryKey);
 		}
 
-		int newRevision = changed ? ++_revision : prior.Revision;
-		var entry = new Entry(query.Name, ctx.Facts, ctx.QueryDeps, value, newRevision);
+		// When the recomputed value equals the prior, return the prior
+		// instance. This is the engine's identity-preservation contract:
+		// Equals(prior, new) implies the caller sees the same reference across
+		// reads, so ReferenceEquals is a correct proxy for "did this value
+		// change". Treating returned values as immutable is a prerequisite
+		// (documented on Engine<T>).
+		object? storedValue = changed ? value : prior!.Value;
+		int newRevision = changed ? ++_revision : prior!.Revision;
+		var entry = new Entry(query.Name, ctx.Facts, ctx.QueryDeps, storedValue, newRevision);
 		_entries[entryKey] = entry;
 
 		foreach (var fact in ctx.Facts)
 		{
-			if (!_entriesByFact.TryGetValue(fact, out var set))
-				_entriesByFact[fact] = set = new HashSet<(int, object)>();
-			set.Add(entryKey);
+		    if (!_entriesByFact.TryGetValue(fact, out var set))
+		        _entriesByFact[fact] = set = new HashSet<(int, object)>();
+		    set.Add(entryKey);
 		}
 
-		return value;
+		return storedValue;
 	}
 
 	private sealed class Entry

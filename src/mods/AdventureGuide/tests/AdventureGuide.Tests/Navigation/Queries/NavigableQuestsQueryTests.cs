@@ -40,7 +40,6 @@ public sealed class NavigableQuestsQueryTests
 		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "*") });
 		var second = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
 
-		Assert.NotSame(first, second);
 		Assert.Equal(first, second);
 	}
 
@@ -53,7 +52,6 @@ public sealed class NavigableQuestsQueryTests
 		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.NavSet, "*") });
 		var second = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
 
-		Assert.NotSame(first, second);
 		Assert.Equal(first, second);
 	}
 
@@ -66,7 +64,6 @@ public sealed class NavigableQuestsQueryTests
 		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.TrackerSet, "*") });
 		var second = fixture.Engine.Read(fixture.Query.Query, Unit.Value);
 
-		Assert.NotSame(first, second);
 		Assert.Equal(first, second);
 	}
 
