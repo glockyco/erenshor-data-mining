@@ -292,6 +292,92 @@ public sealed class EngineTests
 			engine.DefineQuery<int, int>(name: "Q", compute: (ctx, key) => key + 1));
 	}
 
+	[Fact]
+	public void TryPeek_DoesNotRecompute_EvenIfStale()
+	{
+		var engine = new Engine<TestFact>();
+		int computeCount = 0;
+		var fact = new TestFact("source");
+		var query = engine.DefineQuery<int, int>(
+			name: "Peek",
+			compute: (ctx, key) => { computeCount++; ctx.RecordFact(fact); return key; });
+
+		engine.Read(query, 7);
+		Assert.Equal(1, computeCount);
+
+		engine.InvalidateFacts(new[] { fact });
+		Assert.True(engine.TryPeek(query, 7, out int peeked));
+		Assert.Equal(7, peeked);
+		Assert.Equal(1, computeCount);
+	}
+
+	[Fact]
+	public void TryPeek_ReturnsFalse_WhenEntryMissing()
+	{
+		var engine = new Engine<TestFact>();
+		var query = engine.DefineQuery<int, int>(name: "Peek", compute: (ctx, key) => key);
+
+		Assert.False(engine.TryPeek(query, 0, out int _));
+	}
+
+	[Fact]
+	public void Evict_RemovesEntry_AndSubscriptions()
+	{
+		var engine = new Engine<TestFact>();
+		int computeCount = 0;
+		var fact = new TestFact("source");
+		var query = engine.DefineQuery<int, int>(
+			name: "Evict",
+			compute: (ctx, key) => { computeCount++; ctx.RecordFact(fact); return key; });
+
+		engine.Read(query, 0);
+		Assert.True(engine.EntriesByFactForTests.ContainsKey(fact));
+
+		Assert.True(engine.Evict(query, 0));
+		Assert.False(engine.EntriesByFactForTests.ContainsKey(fact));
+
+		engine.Read(query, 0);
+		Assert.Equal(2, computeCount);
+	}
+
+	[Fact]
+	public void EvictQuery_RemovesAllEntriesForQuery()
+	{
+		var engine = new Engine<TestFact>();
+		var fact = new TestFact("source");
+		var query = engine.DefineQuery<int, int>(
+			name: "EvictAll",
+			compute: (ctx, key) => { ctx.RecordFact(fact); return key; });
+
+		engine.Read(query, 0);
+		engine.Read(query, 1);
+		engine.Read(query, 2);
+
+		Assert.Equal(3, engine.EvictQuery(query));
+		Assert.False(engine.EntriesByFactForTests.ContainsKey(fact));
+	}
+
+	[Fact]
+	public void Reset_ClearsAllState_AndPreservesDefinitions()
+	{
+		var engine = new Engine<TestFact>();
+		int computeCount = 0;
+		var fact = new TestFact("source");
+		var query = engine.DefineQuery<int, int>(
+			name: "Reset",
+			compute: (ctx, key) => { computeCount++; ctx.RecordFact(fact); return key; });
+
+		engine.Read(query, 0);
+		Assert.Equal(1, computeCount);
+
+		engine.Reset();
+		Assert.Equal(0, engine.Revision);
+		Assert.False(engine.EntriesByFactForTests.ContainsKey(fact));
+
+		engine.Read(query, 0);
+		Assert.Equal(2, computeCount);
+	}
+
 	private sealed class Box : IEquatable<Box>
 	{
 		public Box(int payload) => Payload = payload;

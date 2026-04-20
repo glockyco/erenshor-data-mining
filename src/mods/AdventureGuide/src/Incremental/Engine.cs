@@ -128,6 +128,103 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		return refs;
 	}
 
+	/// <summary>Returns the cached value for <c>(query, key)</c> without forcing
+	/// recompute. Returns <c>false</c> when no entry exists. Returns <c>true</c>
+	/// and the cached value when an entry exists, regardless of staleness — the
+	/// caller is responsible for deciding whether the value is fresh enough.
+	///
+	/// <para>Intended for diagnostic overlays and tests that want to inspect the
+	/// cache without triggering side-effects. Production hot-paths that need a
+	/// current value should use <see cref="Read{TKey,TValue}"/>.</para></summary>
+	public bool TryPeek<TKey, TValue>(Query<TKey, TValue> query, TKey key, out TValue value) where TKey : notnull
+	{
+		if (!ReferenceEquals(query.OwnerToken, _ownerToken))
+			throw new InvalidOperationException(
+				$"Query '{query.Name}' does not belong to this engine.");
+
+		if (_entries.TryGetValue((query.Id, (object)key), out var entry))
+		{
+			value = (TValue)entry.Value!;
+			return true;
+		}
+		value = default!;
+		return false;
+	}
+
+	/// <summary>Removes the cached entry for <c>(query, key)</c> and unsubscribes
+	/// it from every recorded fact. Returns <c>true</c> if an entry was
+	/// removed. Consumers drive eviction; the engine performs no automatic
+	/// eviction and is not a general-purpose cache.</summary>
+	public bool Evict<TKey, TValue>(Query<TKey, TValue> query, TKey key) where TKey : notnull
+	{
+		if (!ReferenceEquals(query.OwnerToken, _ownerToken))
+			throw new InvalidOperationException(
+				$"Query '{query.Name}' does not belong to this engine.");
+		if (_computeStack.Count > 0)
+			throw new InvalidOperationException(
+				"Evict may not be called from inside a query compute.");
+
+		var entryKey = (query.Id, (object)key);
+		if (!_entries.TryGetValue(entryKey, out var entry))
+			return false;
+
+		UnsubscribeEntry(entryKey, entry);
+		_entries.Remove(entryKey);
+		return true;
+	}
+
+	/// <summary>Removes every cached entry for the given query. Returns the number
+	/// of entries removed. Unsubscribes each from its recorded facts.</summary>
+	public int EvictQuery<TKey, TValue>(Query<TKey, TValue> query) where TKey : notnull
+	{
+		if (!ReferenceEquals(query.OwnerToken, _ownerToken))
+			throw new InvalidOperationException(
+				$"Query '{query.Name}' does not belong to this engine.");
+		if (_computeStack.Count > 0)
+			throw new InvalidOperationException(
+				"EvictQuery may not be called from inside a query compute.");
+
+		var victims = new List<(int, object)>();
+		foreach (var kvp in _entries)
+		{
+			if (kvp.Key.Item1 == query.Id)
+				victims.Add(kvp.Key);
+		}
+		foreach (var entryKey in victims)
+		{
+			UnsubscribeEntry(entryKey, _entries[entryKey]);
+			_entries.Remove(entryKey);
+		}
+		return victims.Count;
+	}
+
+	/// <summary>Drops all cache state while preserving query definitions. Clears
+	/// entries, fact revisions, the reverse index, and resets <c>_revision</c>
+	/// to zero. Intended for scenarios that reset all external state the engine
+	/// observes (for example character reload); not a routine operation.</summary>
+	public void Reset()
+	{
+		if (_computeStack.Count > 0)
+			throw new InvalidOperationException(
+				"Reset may not be called from inside a query compute.");
+		_entries.Clear();
+		_entriesByFact.Clear();
+		_factRevisions.Clear();
+		_revision = 0;
+	}
+
+	private void UnsubscribeEntry((int, object) entryKey, Entry entry)
+	{
+		foreach (var fact in entry.Facts)
+		{
+			if (!_entriesByFact.TryGetValue(fact, out var set))
+				continue;
+			set.Remove(entryKey);
+			if (set.Count == 0)
+				_entriesByFact.Remove(fact);
+		}
+	}
+
 	// Deep verification: a stale dep is refreshed in place so its post-recompute
 	// revision reflects backdating. This keeps the "backdating suppresses ripple"
 	// property: if a dep recomputes to the same value, its revision is unchanged,
@@ -189,21 +286,11 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		bool existed = _entries.TryGetValue(entryKey, out var prior);
 		bool changed = !existed || !Equals(prior.Value, value);
 
-		// Unsubscribe old fact→entry reverse deps before re-subscribing. When an
-		// old fact's dependent set drops to zero, remove the outer dictionary
-		// entry too so `_entriesByFact` does not accumulate orphan keys as
-		// queries' fact sets drift over their lifetime.
+		// Unsubscribe old fact→entry reverse deps before re-subscribing. Shared
+		// with `Evict` / `EvictQuery` via `UnsubscribeEntry` so orphan cleanup
+		// logic lives in one place.
 		if (existed)
-		{
-			foreach (var oldFact in prior!.Facts)
-			{
-				if (!_entriesByFact.TryGetValue(oldFact, out var set))
-					continue;
-				set.Remove(entryKey);
-				if (set.Count == 0)
-					_entriesByFact.Remove(oldFact);
-			}
-		}
+			UnsubscribeEntry(entryKey, prior!);
 
 		// When the recomputed value equals the prior, return the prior
 		// instance. This is the engine's identity-preservation contract:
