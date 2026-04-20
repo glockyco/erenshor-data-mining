@@ -5,6 +5,15 @@ public sealed class EffectiveFrontier
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestPhaseTracker _phases;
 
+    /// <summary>
+    /// Direct handle on the same <see cref="QuestPhaseTracker"/> instance the
+    /// frontier was constructed with — <b>not</b> a snapshot. Consumers that
+    /// mutate phase state through this reference observe those mutations on
+    /// subsequent <see cref="Resolve"/> calls without any intervening
+    /// invalidation. Exposed only to callers inside the assembly that already
+    /// own the tracker lifecycle (notably test fixtures that seed phases
+    /// before resolution).
+    /// </summary>
     internal QuestPhaseTracker Phases => _phases;
 
     public EffectiveFrontier(CompiledGuide.CompiledGuide guide, QuestPhaseTracker phases)
