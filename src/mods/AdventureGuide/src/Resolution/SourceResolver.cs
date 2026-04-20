@@ -268,24 +268,14 @@ public sealed class SourceResolver
             availabilityPriority
         );
 
-    public IReadOnlyList<ResolvedTarget> ResolveTargets(
-            FrontierEntry entry,
-            string currentScene,
-            IResolutionTracer? tracer = null
-        )
-        {
-            return ResolveTargets(entry, currentScene, new ResolutionSession(), tracer);
-        }
-
-    public IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(
-            int targetNodeId,
-            FrontierEntry entry,
-            string currentScene,
-            IResolutionTracer? tracer = null
-        )
-        {
-            return ResolveUnlockTargets(targetNodeId, entry, currentScene, new ResolutionSession(), tracer);
-        }
+    internal IReadOnlyList<ResolvedTarget> ResolveTargets(
+        FrontierEntry entry,
+        string currentScene,
+        IResolutionTracer? tracer = null
+    )
+    {
+        return ResolveTargets(entry, currentScene, new ResolutionSession(), tracer);
+    }
 
     internal IReadOnlyList<ResolvedTarget> ResolveTargets(
         FrontierEntry entry,
@@ -307,32 +297,6 @@ public sealed class SourceResolver
             tracer
         );
         return FreezeResultsByAvailabilityPriority(results);
-    }
-
-    internal IReadOnlyList<ResolvedTarget> ResolveUnlockTargets(
-        int targetNodeId,
-        FrontierEntry entry,
-        string currentScene,
-        ResolutionSession session,
-        IResolutionTracer? tracer = null
-    )
-    {
-        string? targetScene = _guide.GetNode(targetNodeId)?.Scene;
-        session.QuestTrailScratch.Clear();
-        session.ItemTrailScratch.Clear();
-        var results = ResolveBlockingRequirements(
-            targetNodeId,
-            targetScene,
-            entry,
-            currentScene,
-            session,
-            session.QuestTrailScratch,
-            session.ItemTrailScratch,
-            tracer
-        );
-        return results == null
-            ? Array.Empty<ResolvedTarget>()
-            : RebindAvailabilityPriority(results, ResolvedTargetAvailabilityPriority.PrerequisiteFallback);
     }
 
     private void ResolveEntry(
