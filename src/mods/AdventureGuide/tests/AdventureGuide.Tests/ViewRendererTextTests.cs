@@ -182,6 +182,8 @@ public sealed class ViewRendererTextTests
         {
             new FactKey(FactKind.QuestActive, "*"),
             new FactKey(FactKind.QuestCompleted, "*"),
+            new FactKey(FactKind.QuestActive, "ROOT"),
+            new FactKey(FactKind.QuestCompleted, "ROOT"),
         });
 
         var afterCompiledChange = renderer.GetRootChildrenForDetail(0);
@@ -236,6 +238,8 @@ public sealed class ViewRendererTextTests
         {
             new FactKey(FactKind.QuestActive, "*"),
             new FactKey(FactKind.QuestCompleted, "*"),
+            new FactKey(FactKind.QuestActive, "ROOT"),
+            new FactKey(FactKind.QuestCompleted, "ROOT"),
         });
 
         var refreshed = renderer.GetRootChildrenForDetail(0);
@@ -299,6 +303,8 @@ public sealed class ViewRendererTextTests
                 {
                     new FactKey(FactKind.QuestActive, "*"),
                     new FactKey(FactKind.QuestCompleted, "*"),
+                    new FactKey(FactKind.QuestActive, "ROOT"),
+                    new FactKey(FactKind.QuestCompleted, "ROOT"),
                 });
 
                 var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
@@ -346,6 +352,8 @@ public sealed class ViewRendererTextTests
                 {
                     new FactKey(FactKind.QuestActive, "*"),
                     new FactKey(FactKind.QuestCompleted, "*"),
+                    new FactKey(FactKind.QuestActive, "QUESTA"),
+                    new FactKey(FactKind.QuestCompleted, "QUESTA"),
                 });
 
                 var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);

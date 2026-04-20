@@ -211,6 +211,32 @@ public sealed class EngineTests
 		Assert.Same(first, second);
 	}
 
+	[Fact]
+	public void Read_SkipsRecompute_WhenEntryAlreadyVerifiedForBumpedFact()
+	{
+		var engine = new Engine<TestFact>();
+		int computeCount = 0;
+		var fact = new TestFact("source");
+		int sourceValue = 42;
+
+		var query = engine.DefineQuery<int, int>(
+			name: "Source",
+			compute: (ctx, key) => { computeCount++; ctx.RecordFact(fact); return sourceValue; });
+
+		engine.Read(query, 0);
+		Assert.Equal(1, computeCount);
+
+		// One invalidation, many reads. Before verified-at-tick, every read after
+		// the bump ran compute. After the fix, one recompute verifies the entry
+		// against the bumped fact's revision and subsequent reads skip.
+		engine.InvalidateFacts(new[] { fact });
+		engine.Read(query, 0);
+		engine.Read(query, 0);
+		engine.Read(query, 0);
+
+		Assert.Equal(2, computeCount);
+	}
+
 	private sealed class Box : IEquatable<Box>
 	{
 		public Box(int payload) => Payload = payload;

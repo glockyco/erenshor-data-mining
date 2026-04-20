@@ -109,13 +109,21 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 	// property: if a dep recomputes to the same value, its revision is unchanged,
 	// and we stay fresh without a speculative recompute of our own.
 	//
+	// Staleness compares fact and dep revisions against the entry's
+	// LastVerifiedRevision — the global tick at which this entry was last
+	// confirmed current. After a backdated recompute, LastVerifiedRevision
+	// advances even though Revision stays put, so subsequent reads with no
+	// further fact bumps skip the recompute entirely. Without this split,
+	// every Read after a fact bump would recompute the entry forever, since
+	// the entry's Revision stays behind the bumped fact's revision.
+	//
 	// The recursion depth is bounded by the query graph's depth (shallow in
 	// practice — Plan A tops out at 3). The side-effect is contained: recompute
 	// itself is idempotent on stable inputs and the compute stack catches cycles.
 	private bool IsStale(Entry entry)
 	{
 		foreach (var fact in entry.Facts)
-			if (_factRevisions.TryGetValue(fact, out int rev) && rev > entry.Revision)
+			if (_factRevisions.TryGetValue(fact, out int rev) && rev > entry.LastVerifiedRevision)
 				return true;
 
 		foreach (var depKey in entry.QueryDeps)
@@ -130,7 +138,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 				depEntry = _entries[lookupKey];
 			}
 
-			if (depEntry.Revision > entry.Revision)
+			if (depEntry.Revision > entry.LastVerifiedRevision)
 				return true;
 		}
 		return false;
@@ -173,7 +181,7 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		// (documented on Engine<T>).
 		object? storedValue = changed ? value : prior!.Value;
 		int newRevision = changed ? ++_revision : prior!.Revision;
-		var entry = new Entry(query.Name, ctx.Facts, ctx.QueryDeps, storedValue, newRevision);
+		var entry = new Entry(query.Name, ctx.Facts, ctx.QueryDeps, storedValue, newRevision, lastVerifiedRevision: _revision);
 		_entries[entryKey] = entry;
 
 		foreach (var fact in ctx.Facts)
@@ -188,19 +196,37 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 
 	private sealed class Entry
 	{
-		public Entry(string queryName, HashSet<TFactKey> facts, HashSet<(int QueryId, object Key)> queryDeps, object? value, int revision)
+		public Entry(
+			string queryName,
+			HashSet<TFactKey> facts,
+			HashSet<(int QueryId, object Key)> queryDeps,
+			object? value,
+			int revision,
+			int lastVerifiedRevision)
 		{
 			QueryName = queryName;
 			Facts = facts;
 			QueryDeps = queryDeps;
 			Value = value;
 			Revision = revision;
+			LastVerifiedRevision = lastVerifiedRevision;
 		}
 
 		public string QueryName { get; }
 		public HashSet<TFactKey> Facts { get; }
 		public HashSet<(int QueryId, object Key)> QueryDeps { get; }
 		public object? Value { get; }
+
+		/// <summary>Global revision at the time this entry's value last changed.
+		/// Dependents compare their own <see cref="Revision"/> against this to
+		/// decide whether they need to ripple-recompute.</summary>
 		public int Revision { get; }
+
+		/// <summary>Global revision at the time this entry's recorded facts and
+		/// sub-query deps were last verified to be current. Used by
+		/// <see cref="Engine{TFactKey}.IsStale"/> to skip redundant recomputes
+		/// when an entry has already been verified against a fact bump that did
+		/// not produce a value change.</summary>
+		public int LastVerifiedRevision { get; }
 	}
 }
