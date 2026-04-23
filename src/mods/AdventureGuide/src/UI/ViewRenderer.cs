@@ -17,6 +17,7 @@ public sealed class ViewRenderer
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
     private readonly Dictionary<int, QuestResolutionRecord> _lastRecordByQuest = new();
+    private readonly Dictionary<int, QuestDetailState> _lastDetailStateByQuest = new();
     private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _cachedRootChildrenByQuest = new();
     private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedChildren = new(
         StringComparer.Ordinal
@@ -142,14 +143,17 @@ public sealed class ViewRenderer
     private QuestResolutionRecord EnsureDetailProjectionCacheCurrent(int questIndex)
     {
         var record = _specProjector.GetRecord(questIndex);
+        var detailState = record.DetailState;
         if (
             _lastRecordByQuest.TryGetValue(questIndex, out var cachedRecord)
-            && ReferenceEquals(cachedRecord, record)
+            && _lastDetailStateByQuest.TryGetValue(questIndex, out var cachedDetailState)
+            && cachedRecord.HasSameDetailProjectionState(record, cachedDetailState, detailState)
         )
             return record;
 
         InvalidateDetailProjectionCacheFor(questIndex);
         _lastRecordByQuest[questIndex] = record;
+        _lastDetailStateByQuest[questIndex] = detailState;
         return record;
     }
 

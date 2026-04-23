@@ -2,7 +2,6 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Incremental;
 using AdventureGuide.Graph;
 using AdventureGuide.Navigation;
-using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using AdventureGuide.UI;
@@ -250,6 +249,33 @@ public sealed class ViewRendererTextTests
     }
 
     [Fact]
+    public void GetRootChildrenForDetail_RefreshesWhenDetailStateChangesWithoutResolutionRecordChange()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:gem")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:gem", 1) })
+            .Build();
+        var fixture = CreateRendererFixture(guide, activeQuestDbNames: new[] { "ROOT" });
+        Assert.True(guide.TryGetNodeId("item:gem", out int itemNodeId));
+        int itemIndex = guide.FindItemIndex(itemNodeId);
+        fixture.Phases.OnInventoryChanged(itemIndex, 1);
+
+        int questIndex = FindQuestIndex(guide, "ROOT");
+        var completedItem = fixture.Renderer
+            .GetRootChildrenForDetail(questIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        Assert.True(completedItem.IsCompleted);
+
+        fixture.Phases.OnInventoryChanged(itemIndex, 0);
+        fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.InventoryItemCount, "item:gem") });
+
+        var incompleteItem = fixture.Renderer
+            .GetRootChildrenForDetail(questIndex)
+            .Single(r => r.Kind == SpecTreeKind.Item);
+        Assert.False(incompleteItem.IsCompleted);
+    }
+
+    [Fact]
     public void GetRootChildrenForDetail_ReusesQuestRootAfterSwitchingBack()
     {
         var guide = new CompiledGuideBuilder()
@@ -289,8 +315,8 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestAssigned("ROOT");
-                fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
-                var beforeCompiledSync = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+        fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
+        var beforeCompiledSync = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
         Assert.Same(first, beforeCompiledSync);
 
         fixture.Phases.Initialize(
@@ -299,15 +325,15 @@ public sealed class ViewRendererTextTests
                     new Dictionary<string, int>(),
                     Array.Empty<string>()
                 );
-                fixture.Engine.InvalidateFacts(new[]
-                {
+        fixture.Engine.InvalidateFacts(new[]
+        {
                     new FactKey(FactKind.QuestActive, "*"),
                     new FactKey(FactKind.QuestCompleted, "*"),
                     new FactKey(FactKind.QuestActive, "ROOT"),
                     new FactKey(FactKind.QuestCompleted, "ROOT"),
                 });
 
-                var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
+        var afterCompiledChange = fixture.Renderer.GetChildrenForDetail(prerequisiteRef);
         Assert.NotSame(first, afterCompiledChange);
     }
 
@@ -338,8 +364,8 @@ public sealed class ViewRendererTextTests
         Assert.Same(first, second);
 
         fixture.Tracker.OnQuestCompleted("QUESTA");
-                fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
-                var beforeCompiledSync = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+        fixture.Engine.InvalidateFacts(fixture.Tracker.LastChangeSet.ChangedFacts);
+        var beforeCompiledSync = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
         Assert.Same(first, beforeCompiledSync);
 
         fixture.Phases.Initialize(
@@ -348,15 +374,15 @@ public sealed class ViewRendererTextTests
                     new Dictionary<string, int>(),
                     Array.Empty<string>()
                 );
-                fixture.Engine.InvalidateFacts(new[]
-                {
+        fixture.Engine.InvalidateFacts(new[]
+        {
                     new FactKey(FactKind.QuestActive, "*"),
                     new FactKey(FactKind.QuestCompleted, "*"),
                     new FactKey(FactKind.QuestActive, "QUESTA"),
                     new FactKey(FactKind.QuestCompleted, "QUESTA"),
                 });
 
-                var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
+        var afterCompiledChange = fixture.Renderer.GetUnlockChildrenForDetail(completerRef);
         Assert.NotSame(first, afterCompiledChange);
     }
 

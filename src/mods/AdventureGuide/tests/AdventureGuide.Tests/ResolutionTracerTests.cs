@@ -31,13 +31,8 @@ public sealed class ResolutionTracerTests
         var positionRegistry = TestPositionResolvers.Create(guide);
         var resolver = new NavigationTargetResolver(
             guide,
-            ResolutionTestFactory.BuildService(
-                guide,
-                frontier,
-                sourceResolver,
-                zoneRouter: null,
-                positionRegistry: positionRegistry
-            ),
+            ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, tracker, zoneRouter: null,
+            positionRegistry: positionRegistry),
             null,
             positionRegistry,
             ResolutionTestFactory.BuildProjector(guide, null)
@@ -80,13 +75,8 @@ public sealed class ResolutionTracerTests
         var positionRegistry = TestPositionResolvers.Create(guide);
         var resolver = new NavigationTargetResolver(
             guide,
-            ResolutionTestFactory.BuildService(
-                guide,
-                frontier,
-                sourceResolver,
-                zoneRouter: null,
-                positionRegistry: positionRegistry
-            ),
+            ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, tracker, zoneRouter: null,
+            positionRegistry: positionRegistry),
             null,
             positionRegistry,
             ResolutionTestFactory.BuildProjector(guide, null)
@@ -122,13 +112,8 @@ public sealed class ResolutionTracerTests
         var positionRegistry = TestPositionResolvers.Create(guide);
         var resolver = new NavigationTargetResolver(
             guide,
-            ResolutionTestFactory.BuildService(
-                guide,
-                frontier,
-                sourceResolver,
-                zoneRouter: null,
-                positionRegistry: positionRegistry
-            ),
+            ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, tracker, zoneRouter: null,
+            positionRegistry: positionRegistry),
             null,
             positionRegistry,
             ResolutionTestFactory.BuildProjector(guide, null)

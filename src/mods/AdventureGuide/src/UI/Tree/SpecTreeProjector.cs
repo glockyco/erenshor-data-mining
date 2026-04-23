@@ -19,8 +19,6 @@ public sealed class SpecTreeProjector
 
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly GuideReader _reader;
-    private readonly QuestPhaseTracker _phases;
-    private readonly QuestStateTracker _questTracker;
     private readonly Func<string> _currentSceneProvider;
     private readonly DiagnosticsCore? _diagnostics;
 
@@ -40,16 +38,12 @@ public sealed class SpecTreeProjector
     internal SpecTreeProjector(
         CompiledGuide.CompiledGuide guide,
         GuideReader reader,
-        QuestPhaseTracker phases,
-        QuestStateTracker questTracker,
         Func<string>? currentSceneProvider = null,
         DiagnosticsCore? diagnostics = null
     )
     {
         _guide = guide;
         _reader = reader;
-        _phases = phases;
-        _questTracker = questTracker;
         _currentSceneProvider = currentSceneProvider ?? (() => string.Empty);
         _diagnostics = diagnostics;
     }
@@ -126,12 +120,13 @@ public sealed class SpecTreeProjector
             return Array.Empty<SpecTreeRef>();
         }
 
-        var record = GetRecord(parent.QuestIndex);
         try
         {
             IReadOnlyList<SpecTreeRef> children;
             if (parent.Kind == SpecTreeKind.Group)
+            {
                 children = FilterVisible(parent.SyntheticChildren ?? Array.Empty<SpecTreeRef>());
+            }
             else if (parent.Kind == SpecTreeKind.Prerequisite)
             {
                 if (parent.GraphNodeId is not int prerequisiteNodeId)
@@ -140,12 +135,16 @@ public sealed class SpecTreeProjector
 
                 children =
                     prereqQuestIndex >= 0
-                        ? FilterVisible(GetQuestChildren(record, prereqQuestIndex, parent.Ancestry))
+                        ? FilterVisible(
+                            GetQuestChildren(
+                                GetRecord(parent.QuestIndex),
+                                prereqQuestIndex,
+                                parent.Ancestry))
                         : Array.Empty<SpecTreeRef>();
             }
             else
             {
-                children = FilterVisible(GetNodeChildren(record, parent));
+                children = FilterVisible(GetNodeChildren(GetRecord(parent.QuestIndex), parent));
             }
 
             _lastChildCount = children.Count;
@@ -190,8 +189,8 @@ public sealed class SpecTreeProjector
         {
             int questIndex = _guide.FindQuestIndex(graphNodeId);
             return questIndex >= 0
-                ? GetQuestChildren(record, questIndex, parent.Ancestry)
-                : Array.Empty<SpecTreeRef>();
+                            ? GetQuestChildren(record, questIndex, parent.Ancestry)
+                            : Array.Empty<SpecTreeRef>();
         }
 
         return Array.Empty<SpecTreeRef>();
@@ -277,13 +276,13 @@ public sealed class SpecTreeProjector
             }
 
             var groups = new List<IReadOnlyList<UnlockConditionEntry>>();
-            groups.AddRange(SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, graphNodeId));
+            groups.AddRange(record.DetailState.GetBlockingRequirementGroups(_guide, graphNodeId));
             if (
                 parent.BlockedByGraphNodeId is int blockedByNodeId
                 && blockedByNodeId != graphNodeId
             )
                 groups.AddRange(
-                    SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, blockedByNodeId)
+                    record.DetailState.GetBlockingRequirementGroups(_guide, blockedByNodeId)
                 );
             groups = DeduplicateUnlockGroups(groups);
             if (groups.Count == 0)
@@ -375,14 +374,18 @@ public sealed class SpecTreeProjector
         BuildPrerequisiteRef(record, questIndex, prereqId, Array.Empty<int>());
 
 
-    private SpecTreeRef BuildPrerequisiteRef(QuestResolutionRecord record, int questIndex, int prereqId, int[] ancestry)
-
+    private SpecTreeRef BuildPrerequisiteRef(
+        QuestResolutionRecord record,
+        int questIndex,
+        int prereqId,
+        int[] ancestry
+    )
     {
         string name = _guide.GetDisplayName(prereqId);
         int prereqQuestIndex = _guide.FindQuestIndex(prereqId);
         bool done =
-            IsQuestCompleted(questIndex)
-                        || (prereqQuestIndex >= 0 && IsQuestCompleted(prereqQuestIndex));
+            record.DetailState.IsQuestCompleted(questIndex)
+            || (prereqQuestIndex >= 0 && record.DetailState.IsQuestCompleted(prereqQuestIndex));
         return SpecTreeRef.ForGraphNode(
             prereqId,
             SpecTreeKind.Prerequisite,
@@ -408,15 +411,12 @@ public sealed class SpecTreeProjector
     {
         string name = _guide.GetDisplayName(giverId);
         FindGiverInteraction(questIndex, giverId, out _, out string? keyword);
-        int? blockedByNodeId = SpecTreeRecordState.FindBlockingZoneLineNodeId(
-            record,
-            _guide.GetScene(giverId)
-        );
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(record, _guide.GetScene(giverId));
         bool isBlocked =
-            SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, giverId).Count > 0
+            record.DetailState.GetBlockingRequirementGroups(_guide, giverId).Count > 0
             || blockedByNodeId.HasValue;
         bool isCompleted =
-            _phases.GetPhase(questIndex) is QuestPhase.Accepted or QuestPhase.Completed;
+            record.DetailState.GetPhase(questIndex) is QuestPhase.Accepted or QuestPhase.Completed;
         return SpecTreeRef.ForGraphNode(
             giverId,
             SpecTreeKind.Giver,
@@ -450,7 +450,7 @@ public sealed class SpecTreeProjector
     {
         string name = _guide.GetDisplayName(itemId);
         int itemIndex = _guide.FindItemIndex(itemId);
-        int have = itemIndex >= 0 ? _phases.GetItemCount(itemIndex) : 0;
+        int have = itemIndex >= 0 ? record.DetailState.GetItemCount(itemIndex) : 0;
         string label = quantity > 1 ? $"Collect: {name} ({have}/{quantity})" : $"Collect: {name}";
         return SpecTreeRef.ForGraphNode(
             itemId,
@@ -458,7 +458,7 @@ public sealed class SpecTreeProjector
             questIndex,
             name,
             label,
-            IsQuestCompleted(questIndex) || have >= quantity,
+            record.DetailState.IsQuestCompleted(questIndex) || have >= quantity,
             false,
             ancestry: AppendAncestry(ancestry, itemId)
         );
@@ -475,12 +475,9 @@ public sealed class SpecTreeProjector
     )
     {
         string name = _guide.GetDisplayName(step.TargetId);
-        int? blockedByNodeId = SpecTreeRecordState.FindBlockingZoneLineNodeId(
-            record,
-            _guide.GetScene(step.TargetId)
-        );
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(record, _guide.GetScene(step.TargetId));
         bool isBlocked =
-            SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, step.TargetId).Count > 0
+            record.DetailState.GetBlockingRequirementGroups(_guide, step.TargetId).Count > 0
             || blockedByNodeId.HasValue;
         return SpecTreeRef.ForGraphNode(
             step.TargetId,
@@ -488,7 +485,7 @@ public sealed class SpecTreeProjector
             questIndex,
             name,
             FormatStepLabel(step, name),
-            IsQuestCompleted(questIndex),
+            record.DetailState.IsQuestCompleted(questIndex),
             isBlocked,
             blockedByNodeId,
             AppendAncestry(ancestry, step.TargetId)
@@ -512,12 +509,9 @@ public sealed class SpecTreeProjector
             out byte interactionType,
             out string? keyword
         );
-        int? blockedByNodeId = SpecTreeRecordState.FindBlockingZoneLineNodeId(
-            record,
-            _guide.GetScene(completerId)
-        );
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(record, _guide.GetScene(completerId));
         bool isBlocked =
-            SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, completerId).Count > 0
+            record.DetailState.GetBlockingRequirementGroups(_guide, completerId).Count > 0
             || blockedByNodeId.HasValue;
         return SpecTreeRef.ForGraphNode(
             completerId,
@@ -525,7 +519,7 @@ public sealed class SpecTreeProjector
             questIndex,
             name,
             FormatCompletionLabel(questIndex, completerId, name, interactionType, keyword),
-            IsQuestCompleted(questIndex),
+            record.DetailState.IsQuestCompleted(questIndex),
             isBlocked,
             blockedByNodeId,
             AppendAncestry(ancestry, completerId)
@@ -543,14 +537,12 @@ public sealed class SpecTreeProjector
     )
     {
         string name = _guide.GetDisplayName(source.SourceId);
-        int? blockedByNodeId = SpecTreeRecordState.FindBlockingZoneLineNodeId(
-            record,
-            _guide.GetSourceScene(source)
-        );
+        int? blockedByNodeId = FindBlockingZoneLineNodeId(record, _guide.GetSourceScene(source));
         bool isBlocked =
-            SpecTreeRecordState.GetBlockingRequirementGroups(_guide, _phases, _questTracker, source.SourceId).Count > 0
+            record.DetailState.GetBlockingRequirementGroups(_guide, source.SourceId).Count > 0
             || blockedByNodeId.HasValue;
-        bool isCompleted = IsQuestCompleted(questIndex) || IsQuestNodeCompleted(source.SourceId);
+        bool isCompleted = record.DetailState.IsQuestCompleted(questIndex)
+            || record.DetailState.IsQuestNodeCompleted(_guide, source.SourceId);
         return SpecTreeRef.ForGraphNode(
             source.SourceId,
             SpecTreeKind.Source,
@@ -573,7 +565,8 @@ public sealed class SpecTreeProjector
     )
     {
         string name = _guide.GetDisplayName(rewardQuestId);
-        bool isCompleted = IsQuestCompleted(questIndex) || IsQuestNodeCompleted(rewardQuestId);
+        bool isCompleted = record.DetailState.IsQuestCompleted(questIndex)
+            || record.DetailState.IsQuestNodeCompleted(_guide, rewardQuestId);
         return SpecTreeRef.ForGraphNode(
             rewardQuestId,
             SpecTreeKind.Source,
@@ -605,7 +598,8 @@ public sealed class SpecTreeProjector
             questIndex,
             name,
             $"Requires: {name}",
-            IsQuestCompleted(questIndex) || IsUnlockConditionSatisfied(condition),
+            record.DetailState.IsQuestCompleted(questIndex)
+                || record.DetailState.IsUnlockConditionSatisfied(_guide, condition),
             false,
             ancestry: AppendAncestry(ancestry, condition.SourceId),
             requiresVisibleChildren: kind == SpecTreeKind.Item
@@ -629,21 +623,13 @@ public sealed class SpecTreeProjector
 
     private SpecTreeKind DetermineUnlockKind(UnlockConditionEntry condition)
     {
-        if (condition.CheckType == 1)
+        if (condition.CheckType != 0 && _guide.FindItemIndex(condition.SourceId) >= 0)
             return SpecTreeKind.Item;
 
         return _guide.GetNode(condition.SourceId).Type == NodeType.Quest
             ? SpecTreeKind.Prerequisite
             : SpecTreeKind.Source;
     }
-
-    private bool IsUnlockConditionSatisfied(UnlockConditionEntry condition) =>
-        SpecTreeRecordState.IsUnlockConditionSatisfied(_guide, _phases, _questTracker, condition);
-
-    private bool IsQuestNodeCompleted(int nodeId) =>
-        SpecTreeRecordState.IsQuestNodeCompleted(_guide, _phases, nodeId);
-
-    private bool IsQuestCompleted(int questIndex) => _phases.IsCompleted(questIndex);
 
     private int FindQuestIndex(string questKey)
     {
@@ -901,7 +887,7 @@ public sealed class SpecTreeProjector
             questIndex,
             label,
             label,
-            IsQuestCompleted(questIndex),
+            record.DetailState.IsQuestCompleted(questIndex),
             false,
             ancestry: ancestry,
             syntheticChildren: children,

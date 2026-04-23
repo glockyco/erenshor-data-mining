@@ -2,6 +2,7 @@ using AdventureGuide.Diagnostics;
 using AdventureGuide.Graph;
 using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using AdventureGuide.UI.Tree;
 using Xunit;
@@ -185,7 +186,7 @@ public sealed class SpecTreeProjectorTests
                 edgeType: (byte)EdgeType.DropsItem,
                 sourceType: (byte)NodeType.Character
             )
-            .AddUnlockPredicate("char:npc", "item:key", checkType: 1)
+            .AddUnlockPredicate("char:npc", "item:key", checkType: 2)
             .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
@@ -237,6 +238,35 @@ public sealed class SpecTreeProjectorTests
 
         Assert.Single(unlockRefs);
         Assert.Equal(SpecTreeKind.Prerequisite, unlockRefs[0].Kind);
+    }
+
+    [Fact]
+    public void Non_item_inventory_key_does_not_satisfy_unlock_condition_in_detail_tree()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddCharacter("char:token")
+            .AddCharacter("char:npc")
+            .AddUnlockPredicate("char:npc", "char:token", checkType: 1)
+            .AddQuest("quest:a", dbName: "QUESTA", completers: new[] { "char:npc" })
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "QUESTA" },
+            new Dictionary<string, int> { ["char:token"] = 1 },
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
+
+        int questIndex = FindQuestIndex(guide, "quest:a");
+        var completerRef = projector
+            .GetRootChildren(questIndex)
+            .Single(r => r.Kind == SpecTreeKind.Completer);
+
+        Assert.True(completerRef.IsBlocked);
+        var unlockRef = Assert.Single(projector.GetUnlockChildren(completerRef));
+        Assert.Equal(SpecTreeKind.Source, unlockRef.Kind);
+        Assert.False(unlockRef.IsCompleted);
     }
 
     [Fact]
@@ -691,7 +721,10 @@ public sealed class SpecTreeProjectorTests
             new Dictionary<string, int> { ["item:gem"] = 1 },
             Array.Empty<string>()
         );
-        var projector = ResolutionTestFactory.BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty).Projector;
+        var (reader, projector) = ResolutionTestFactory.BuildSpecTreeProjector(
+            guide,
+            tracker,
+            currentSceneProvider: () => string.Empty);
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
         var completedItem = projector
@@ -701,6 +734,8 @@ public sealed class SpecTreeProjectorTests
 
         Assert.True(guide.TryGetNodeId("item:gem", out int itemNodeId));
         tracker.OnInventoryChanged(guide.FindItemIndex(itemNodeId), 0);
+        reader.Engine.InvalidateFacts(new[] { new FactKey(FactKind.InventoryItemCount, "item:gem") });
+        projector.ResetProjectionCaches();
 
         var incompleteItem = projector
             .GetRootChildren(rootQuestIndex)

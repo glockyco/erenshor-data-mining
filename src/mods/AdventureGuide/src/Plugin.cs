@@ -231,10 +231,12 @@ public sealed class Plugin : BaseUnityPlugin
         _blockingZonesQuery = new BlockingZonesQuery(_engine, _compiledGuide, _zoneRouter);
         _navigableQuestsQuery = new NavigableQuestsQuery(_engine, _compiledGuide, _reader);
         _questResolutionQuery = new QuestResolutionQuery(
-            _engine,
-            _compiledTargetsQuery,
-            _blockingZonesQuery,
-            projector);
+                    _engine,
+                    _compiledGuide,
+                    _compiledQuestTracker,
+                    _compiledTargetsQuery,
+                    _blockingZonesQuery,
+                    projector);
         _reader.SetQuestResolutionQuery(_questResolutionQuery);
         _reader.SetNavigableQuestsQuery(_navigableQuestsQuery);
         _navigationTargetResolver = new NavigationTargetResolver(
@@ -311,13 +313,11 @@ public sealed class Plugin : BaseUnityPlugin
         var filter = new FilterState(_config);
         var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         _specTreeProjector = new SpecTreeProjector(
-            _compiledGuide,
-            _reader,
-            _compiledQuestTracker,
-            _questTracker,
-            currentSceneProvider: () => _navEngine?.CurrentScene ?? string.Empty,
-            diagnostics: _diagnostics
-        );
+                    _compiledGuide,
+                    _reader,
+                    currentSceneProvider: () => _navEngine?.CurrentScene ?? string.Empty,
+                    diagnostics: _diagnostics
+                );
 
         viewRenderer = new ViewRenderer(
             _compiledGuide,

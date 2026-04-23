@@ -4,7 +4,6 @@ using AdventureGuide.Frontier;
 using AdventureGuide.Resolution;
 using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
-using AdventureGuide.UI.Tree;
 using Xunit;
 
 namespace AdventureGuide.Tests;
@@ -36,7 +35,7 @@ public sealed class TrackerDiagnosticsTests
         var resolver = new TrackerSummaryResolver(
     guide,
     phases,
-    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, zoneRouter: null),
+    ResolutionTestFactory.BuildService(guide, frontier, sourceResolver, phases, zoneRouter: null),
     new DiagnosticsCore(64, 64, 8, IncidentThresholds.Disabled)
 );
         var dependencyEngine = new GuideDependencyEngine();
