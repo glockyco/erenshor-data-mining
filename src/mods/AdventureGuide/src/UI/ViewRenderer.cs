@@ -16,15 +16,7 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
-    private readonly Dictionary<int, QuestResolutionRecord> _lastRecordByQuest = new();
-    private readonly Dictionary<int, QuestDetailState> _lastDetailStateByQuest = new();
-    private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _cachedRootChildrenByQuest = new();
-    private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedChildren = new(
-        StringComparer.Ordinal
-    );
-    private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _cachedUnlockChildren = new(
-        StringComparer.Ordinal
-    );
+    private readonly DetailProjectionCache _detailProjectionCache = new();
 
     public ViewRenderer(
         CompiledGuideModel guide,
@@ -108,35 +100,33 @@ public sealed class ViewRenderer
     internal IReadOnlyList<SpecTreeRef> GetRootChildrenForDetail(int questIndex)
     {
         var record = EnsureDetailProjectionCacheCurrent(questIndex);
-        if (_cachedRootChildrenByQuest.TryGetValue(questIndex, out var cachedRoots))
+        if (_detailProjectionCache.TryGetRoot(questIndex, out var cachedRoots))
             return cachedRoots;
 
         cachedRoots = _specProjector.GetRootChildren(record);
-        _cachedRootChildrenByQuest[questIndex] = cachedRoots;
+        _detailProjectionCache.StoreRoot(questIndex, cachedRoots);
         return cachedRoots;
     }
 
     internal IReadOnlyList<SpecTreeRef> GetUnlockChildrenForDetail(SpecTreeRef treeRef)
     {
         EnsureDetailProjectionCacheCurrent(treeRef.QuestIndex);
-        string cacheKey = BuildDetailProjectionKey("unlock", treeRef);
-        if (_cachedUnlockChildren.TryGetValue(cacheKey, out var cachedChildren))
+        if (_detailProjectionCache.TryGetChildren("unlock", treeRef, out var cachedChildren))
             return cachedChildren;
 
         cachedChildren = _specProjector.GetUnlockChildren(treeRef);
-        _cachedUnlockChildren[cacheKey] = cachedChildren;
+        _detailProjectionCache.StoreChildren("unlock", treeRef, cachedChildren);
         return cachedChildren;
     }
 
     internal IReadOnlyList<SpecTreeRef> GetChildrenForDetail(SpecTreeRef treeRef)
     {
         EnsureDetailProjectionCacheCurrent(treeRef.QuestIndex);
-        string cacheKey = BuildDetailProjectionKey("children", treeRef);
-        if (_cachedChildren.TryGetValue(cacheKey, out var cachedChildren))
+        if (_detailProjectionCache.TryGetChildren("children", treeRef, out var cachedChildren))
             return cachedChildren;
 
         cachedChildren = _specProjector.GetChildren(treeRef);
-        _cachedChildren[cacheKey] = cachedChildren;
+        _detailProjectionCache.StoreChildren("children", treeRef, cachedChildren);
         return cachedChildren;
     }
 
@@ -144,55 +134,12 @@ public sealed class ViewRenderer
     {
         var record = _specProjector.GetRecord(questIndex);
         var detailState = record.DetailState;
-        if (
-            _lastRecordByQuest.TryGetValue(questIndex, out var cachedRecord)
-            && _lastDetailStateByQuest.TryGetValue(questIndex, out var cachedDetailState)
-            && cachedRecord.HasSameDetailProjectionState(record, cachedDetailState, detailState)
-        )
+        if (_detailProjectionCache.IsCurrent(questIndex, record, detailState))
             return record;
 
-        InvalidateDetailProjectionCacheFor(questIndex);
-        _lastRecordByQuest[questIndex] = record;
-        _lastDetailStateByQuest[questIndex] = detailState;
-        return record;
-    }
-
-    private void InvalidateDetailProjectionCacheFor(int questIndex)
-    {
-        _cachedRootChildrenByQuest.Remove(questIndex);
-        RemoveDetailProjectionEntries(_cachedChildren, questIndex, "children");
-        RemoveDetailProjectionEntries(_cachedUnlockChildren, questIndex, "unlock");
+        _detailProjectionCache.StoreState(questIndex, record, detailState);
         _specProjector.ResetProjectionCaches(1, full: false);
-    }
-
-    private static void RemoveDetailProjectionEntries(
-        Dictionary<string, IReadOnlyList<SpecTreeRef>> cache,
-        int questIndex,
-        string scope
-    )
-    {
-        string prefix = $"{scope}|{questIndex}|";
-        var keys = cache.Keys.Where(key => key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
-        for (int i = 0; i < keys.Length; i++)
-            cache.Remove(keys[i]);
-    }
-
-    private static string BuildDetailProjectionKey(string scope, SpecTreeRef treeRef)
-    {
-        return string.Join(
-            "|",
-            scope,
-            treeRef.QuestIndex.ToString(),
-            ((byte)treeRef.Kind).ToString(),
-            treeRef.StableId,
-            treeRef.GraphNodeId?.ToString() ?? string.Empty,
-            treeRef.Label,
-            treeRef.IsCompleted ? "1" : "0",
-            treeRef.IsBlocked ? "1" : "0",
-            treeRef.BlockedByGraphNodeId?.ToString() ?? string.Empty,
-            treeRef.RequiresVisibleChildren ? "1" : "0",
-            string.Join(",", treeRef.Ancestry)
-        );
+        return record;
     }
 
     private void DrawSpecTreeRef(SpecTreeRef treeRef)
@@ -661,6 +608,72 @@ public sealed class ViewRenderer
 
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    private sealed class DetailProjectionCache
+    {
+        private readonly Dictionary<int, QuestResolutionRecord> _recordByQuest = new();
+        private readonly Dictionary<int, QuestDetailState> _detailStateByQuest = new();
+        private readonly Dictionary<int, IReadOnlyList<SpecTreeRef>> _rootsByQuest = new();
+        private readonly Dictionary<string, IReadOnlyList<SpecTreeRef>> _childrenByKey = new(StringComparer.Ordinal);
+
+        public bool IsCurrent(int questIndex, QuestResolutionRecord record, QuestDetailState detailState)
+        {
+            return _recordByQuest.TryGetValue(questIndex, out var cachedRecord)
+                && _detailStateByQuest.TryGetValue(questIndex, out var cachedDetailState)
+                && cachedRecord.HasSameDetailProjectionState(record, cachedDetailState, detailState);
+        }
+
+        public void StoreState(int questIndex, QuestResolutionRecord record, QuestDetailState detailState)
+        {
+            _rootsByQuest.Remove(questIndex);
+            RemoveChildEntries(questIndex);
+            _recordByQuest[questIndex] = record;
+            _detailStateByQuest[questIndex] = detailState;
+        }
+
+        public bool TryGetRoot(int questIndex, out IReadOnlyList<SpecTreeRef> roots) =>
+            _rootsByQuest.TryGetValue(questIndex, out roots!);
+
+        public void StoreRoot(int questIndex, IReadOnlyList<SpecTreeRef> roots) =>
+            _rootsByQuest[questIndex] = roots;
+
+        public bool TryGetChildren(string scope, SpecTreeRef treeRef, out IReadOnlyList<SpecTreeRef> children) =>
+            _childrenByKey.TryGetValue(BuildDetailProjectionKey(scope, treeRef), out children!);
+
+        public void StoreChildren(string scope, SpecTreeRef treeRef, IReadOnlyList<SpecTreeRef> children) =>
+            _childrenByKey[BuildDetailProjectionKey(scope, treeRef)] = children;
+
+        private void RemoveChildEntries(int questIndex)
+        {
+            string childrenPrefix = $"children|{questIndex}|";
+            string unlockPrefix = $"unlock|{questIndex}|";
+            var keys = _childrenByKey.Keys
+                .Where(key =>
+                    key.StartsWith(childrenPrefix, StringComparison.Ordinal)
+                    || key.StartsWith(unlockPrefix, StringComparison.Ordinal))
+                .ToArray();
+            for (int i = 0; i < keys.Length; i++)
+                _childrenByKey.Remove(keys[i]);
+        }
+
+        private static string BuildDetailProjectionKey(string scope, SpecTreeRef treeRef)
+        {
+            return string.Join(
+                "|",
+                scope,
+                treeRef.QuestIndex.ToString(),
+                ((byte)treeRef.Kind).ToString(),
+                treeRef.StableId,
+                treeRef.GraphNodeId?.ToString() ?? string.Empty,
+                treeRef.Label,
+                treeRef.IsCompleted ? "1" : "0",
+                treeRef.IsBlocked ? "1" : "0",
+                treeRef.BlockedByGraphNodeId?.ToString() ?? string.Empty,
+                treeRef.RequiresVisibleChildren ? "1" : "0",
+                string.Join(",", treeRef.Ancestry)
+            );
+        }
     }
 
     private static string FormatKeyword(string prefix, string name, string? keyword) =>
