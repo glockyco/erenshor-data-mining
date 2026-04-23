@@ -496,11 +496,17 @@ public sealed class LiveStateTracker
             : new DoorInfo(NodeState.Unknown, best, true);
     }
 
-    public bool TryGetCachedMiningAvailability(Node miningNode, out bool available) =>
-        TryGetCachedPositionFlag(miningNode, _miningAvailable, out available);
+    public bool TryGetCachedMiningAvailability(Node miningNode, out bool available)
+    {
+        RecordLiveStateDeps(miningNode);
+        return TryGetCachedPositionFlag(miningNode, _miningAvailable, out available);
+    }
 
-    public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available) =>
-        TryGetCachedPositionFlag(itemBagNode, _itemBagAvailable, out available);
+    public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available)
+    {
+        RecordLiveStateDeps(itemBagNode);
+        return TryGetCachedPositionFlag(itemBagNode, _itemBagAvailable, out available);
+    }
 
     public bool TryConsumeLiveWorldChange()
     {
@@ -626,21 +632,25 @@ public sealed class LiveStateTracker
     {
         if (!sp.canSpawn)
         {
-            if (
-                sp.SpawnUponQuestComplete != null
-                && !GameData.IsQuestDone(sp.SpawnUponQuestComplete.DBName)
-            )
+            if (sp.SpawnUponQuestComplete != null)
             {
-                string questName =
-                    sp.SpawnUponQuestComplete.QuestName
-                    ?? sp.SpawnUponQuestComplete.DBName
-                    ?? "unknown quest";
-                return new SpawnInfo(
-                    new SpawnUnlockBlocked($"Requires: {questName}"),
-                    sp,
-                    null,
-                    0f
-                );
+                string? requiredQuestDbName = sp.SpawnUponQuestComplete.DBName;
+                if (!string.IsNullOrEmpty(requiredQuestDbName))
+                    Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestCompleted, requiredQuestDbName));
+
+                if (string.IsNullOrEmpty(requiredQuestDbName) || !GameData.IsQuestDone(requiredQuestDbName))
+                {
+                    string questName =
+                        sp.SpawnUponQuestComplete.QuestName
+                        ?? requiredQuestDbName
+                        ?? "unknown quest";
+                    return new SpawnInfo(
+                        new SpawnUnlockBlocked($"Requires: {questName}"),
+                        sp,
+                        null,
+                        0f
+                    );
+                }
             }
 
             return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
@@ -648,7 +658,6 @@ public sealed class LiveStateTracker
 
         if (sp.NightSpawn)
         {
-
             if (!IsNight())
                 return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
         }
@@ -1026,8 +1035,8 @@ public sealed class LiveStateTracker
         bool timeChanged,
         // forceChanged: emit a liveWorldChanged changeset even when no specific
         // source facts are available (e.g. a node whose position is not in the
-        // graph index). Without this the caller would silently return None and the
-        // NAV system would never learn the world changed.
+        // graph index). SourceState("*") keeps wildcard subscribers fresh without
+        // requiring a concrete graph source key.
         bool forceChanged = false
     )
     {
@@ -1038,7 +1047,7 @@ public sealed class LiveStateTracker
         var changedFacts = new List<FactKey>();
         foreach (var sourceKey in sourceKeys)
             changedFacts.Add(new FactKey(FactKind.SourceState, sourceKey));
-        if (sourceKeys.Count > 0)
+        if (sourceKeys.Count > 0 || forceChanged)
             changedFacts.Add(new FactKey(FactKind.SourceState, "*"));
         if (timeChanged)
             changedFacts.Add(new FactKey(FactKind.TimeOfDay, "current"));
@@ -1047,14 +1056,14 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         return new ChangeSet(
-            inventoryChanged: false,
-            questLogChanged: false,
-            sceneChanged: false,
-            liveWorldChanged: true,
-            changedItemKeys: Array.Empty<string>(),
-            changedQuestDbNames: Array.Empty<string>(),
-            changedFacts: changedFacts
-        );
+                    inventoryChanged: false,
+                    questLogChanged: false,
+                    sceneChanged: false,
+                    liveWorldChanged: true,
+                    changedItemKeys: Array.Empty<string>(),
+                    changedQuestDbNames: Array.Empty<string>(),
+                    changedFacts: changedFacts
+                );
     }
 
     private void RebuildMiningAvailability()
@@ -1251,27 +1260,41 @@ public sealed class LiveStateTracker
 
     private static PosKey NodePosKey(Vector3 pos) => new PosKey(pos.x, pos.y, pos.z);
 
-    // Records ambient fact deps for a live-state read. Scene("current") is always
-    // relevant (the scope check filters by current zone). SourceState is recorded
-    // per-node only for graph node types that map to a source key; characters have
-    // no source of their own and rely on their spawn children recording via
-    // GetSpawnState.
-    private static void RecordLiveStateDeps(Node node)
+    private void RecordLiveStateDeps(Node node)
     {
         var ambient = Engine<FactKey>.Ambient;
         if (ambient == null)
             return;
 
         ambient.RecordFact(new FactKey(FactKind.Scene, "current"));
-        switch (node.Type)
+        foreach (var sourceKey in GetSourceFactKeys(node))
+            ambient.RecordFact(new FactKey(FactKind.SourceState, sourceKey));
+    }
+
+    public IReadOnlyCollection<string> GetSourceFactKeys(Node node)
+    {
+        if (node == null)
+            return Array.Empty<string>();
+
+        if (node.Type is NodeType.SpawnPoint or NodeType.MiningNode or NodeType.ItemBag or NodeType.Door
+            || node.IsDirectlyPlaced)
         {
-            case NodeType.SpawnPoint:
-            case NodeType.MiningNode:
-            case NodeType.ItemBag:
-            case NodeType.Door:
-                ambient.RecordFact(new FactKey(FactKind.SourceState, node.Key));
-                break;
+            return new[] { node.Key };
         }
+
+        if (node.Type == NodeType.Character)
+        {
+            var spawnEdges = _guide.OutEdges(node.Key, EdgeType.HasSpawn);
+            if (spawnEdges.Count > 0)
+            {
+                var keys = new string[spawnEdges.Count];
+                for (int i = 0; i < spawnEdges.Count; i++)
+                    keys[i] = spawnEdges[i].Target;
+                return keys;
+            }
+        }
+
+        return new[] { "*" };
     }
 
     private readonly struct PosKey : System.IEquatable<PosKey>

@@ -526,5 +526,7 @@ public sealed class MarkerProjectorTests
 
 		public SpawnCategory GetCategory(Node node) =>
 			_states.TryGetValue(node.Key, out var cat) ? cat : SpawnCategory.NotApplicable;
+
+		public IReadOnlyCollection<string> GetSourceFactKeys(Node node) => new[] { node.Key };
 	}
 }

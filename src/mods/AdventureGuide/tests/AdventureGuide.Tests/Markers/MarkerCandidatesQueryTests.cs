@@ -87,6 +87,27 @@ public sealed class MarkerCandidatesQueryTests
 	}
 
 	[Fact]
+	public void Read_RecomputesCharacterPositionCandidate_WhenPhysicalSourceStateInvalidates()
+	{
+		var fixture = MarkerCandidatesFixture.CreateActiveQuest(positionAtCharacter: true);
+
+		var first = fixture.Engine.Read(fixture.Query.Query, "Town");
+		var candidate = Assert.Single(first.Candidates);
+		Assert.Equal("char:leaf", candidate.PositionNodeKey);
+		Assert.Equal(SpawnCategory.Alive, candidate.SpawnCategory);
+
+		fixture.SourceStates["char:leaf"] = SpawnCategory.Dead;
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.SourceState, "char:leaf") });
+		Assert.Same(first, fixture.Engine.Read(fixture.Query.Query, "Town"));
+
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.SourceState, "spawn:leaf-1") });
+		var second = fixture.Engine.Read(fixture.Query.Query, "Town");
+
+		Assert.NotSame(first, second);
+		Assert.Equal(SpawnCategory.Dead, Assert.Single(second.Candidates).SpawnCategory);
+	}
+
+	[Fact]
 	public void Read_EmitsCandidate_ForDisabledActiveQuestTarget()
 	{
 		var fixture = MarkerCandidatesFixture.CreateActiveQuest();
@@ -151,7 +172,7 @@ public sealed class MarkerCandidatesQueryTests
 		public void BumpSubQueryComputeCount() => SubQueryComputeCount++;
 		public void BumpQuestResolutionComputeCount() => QuestResolutionComputeCount++;
 
-		public static MarkerCandidatesFixture CreateActiveQuest()
+		public static MarkerCandidatesFixture CreateActiveQuest(bool positionAtCharacter = false)
 		{
 			var guide = new CompiledGuideBuilder()
 				.AddQuest("quest:a", dbName: "QUESTA")
@@ -165,6 +186,12 @@ public sealed class MarkerCandidatesQueryTests
 				["spawn:leaf-1"] = SpawnCategory.Alive,
 				["char:leaf"] = SpawnCategory.Alive,
 			};
+			var sourceFactKeys = positionAtCharacter
+				? new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal)
+				{
+					["char:leaf"] = new[] { "spawn:leaf-1" },
+				}
+				: null;
 
 			var reader = new GuideReader(
 				engine,
@@ -176,7 +203,7 @@ public sealed class MarkerCandidatesQueryTests
 					completed: Array.Empty<string>()),
 				new FakeTrackerState(Array.Empty<string>()),
 				new FakeNavigationSet(Array.Empty<string>()),
-				new FakeSourceState(sourceStates));
+				new FakeSourceState(sourceStates, sourceFactKeys));
 
 			guide.TryGetNodeId("char:leaf", out int leafNodeId);
 			guide.TryGetNodeId("spawn:leaf-1", out int spawnNodeId);
@@ -199,7 +226,7 @@ public sealed class MarkerCandidatesQueryTests
 
 			var resolvedTarget = new ResolvedTarget(
 				targetNodeId: leafNodeId,
-				positionNodeId: spawnNodeId,
+				positionNodeId: positionAtCharacter ? leafNodeId : spawnNodeId,
 				role: ResolvedTargetRole.Objective,
 				semantic: semantic,
 				x: 1f,
@@ -211,8 +238,6 @@ public sealed class MarkerCandidatesQueryTests
 				questIndex: 0,
 				requiredForQuestIndex: -1);
 
-			
-
 			MarkerCandidatesFixture? fixture = null;
 			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestSet>(
 				"NavigableQuestsStub",
@@ -222,7 +247,8 @@ public sealed class MarkerCandidatesQueryTests
 					ctx.RecordFact(new FactKey(FactKind.NavSet, "*"));
 					ctx.RecordFact(new FactKey(FactKind.TrackerSet, "*"));
 					ctx.RecordFact(new FactKey(FactKind.QuestActive, "*"));
-					return new NavigableQuestSet(new[] { "quest:a" });				});
+					return new NavigableQuestSet(new[] { "quest:a" });
+				});
 
 			var resolutionRecord = new QuestResolutionRecord(
 				questKey: "quest:a",
@@ -344,10 +370,22 @@ public sealed class MarkerCandidatesQueryTests
 	private sealed class FakeSourceState : ISourceStateFactSource
 	{
 		private readonly Dictionary<string, SpawnCategory> _states;
+		private readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>>? _sourceFactKeys;
 
-		public FakeSourceState(Dictionary<string, SpawnCategory> states) => _states = states;
+		public FakeSourceState(
+			Dictionary<string, SpawnCategory> states,
+			IReadOnlyDictionary<string, IReadOnlyCollection<string>>? sourceFactKeys = null)
+		{
+			_states = states;
+			_sourceFactKeys = sourceFactKeys;
+		}
 
 		public SpawnCategory GetCategory(Node node) =>
 			_states.TryGetValue(node.Key, out var cat) ? cat : SpawnCategory.NotApplicable;
+
+		public IReadOnlyCollection<string> GetSourceFactKeys(Node node) =>
+			_sourceFactKeys != null && _sourceFactKeys.TryGetValue(node.Key, out var keys)
+				? keys
+				: new[] { node.Key };
 	}
 }

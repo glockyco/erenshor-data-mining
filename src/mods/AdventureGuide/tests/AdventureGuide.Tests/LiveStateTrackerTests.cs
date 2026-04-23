@@ -1,4 +1,5 @@
 using AdventureGuide.State;
+using AdventureGuide.Tests.Helpers;
 using Xunit;
 
 namespace AdventureGuide.Tests;
@@ -66,6 +67,26 @@ public sealed class LiveStateTrackerTests
 
 		Assert.Contains("nameof(MiningNode.Mine)", source);
 		Assert.Contains("\"Update\"", source);
+	}
+
+	[Fact]
+	public void UnknownSourceChange_InvalidatesWildcardSourceSubscribers()
+	{
+		var guide = new CompiledGuideBuilder().Build();
+		var tracker = new QuestStateTracker(guide);
+		var unlocks = new UnlockEvaluator(guide, new GameState(guide), tracker);
+		var liveState = new LiveStateTracker(guide, unlocks);
+		var method = typeof(LiveStateTracker).GetMethod(
+			"BuildSourceChange",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+		Assert.NotNull(method);
+
+		var change = Assert.IsType<ChangeSet>(method!.Invoke(liveState, new object?[] { null }));
+
+		Assert.True(change.LiveWorldChanged);
+		Assert.Contains(
+			change.ChangedFacts,
+			fact => fact.Kind == FactKind.SourceState && fact.Key == "*");
 	}
 
 	private static string ReadRepoFile(string relativePath)

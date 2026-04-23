@@ -107,8 +107,9 @@ public sealed class GuideReader
 	}
 
 	/// <summary>Ambient-recording accessor for the <see cref="SpawnCategory"/>
-	/// of a graph node. Records <c>(SourceState, node.Key)</c> so the calling
-	/// compute invalidates when the source's live state transitions.
+	/// of a graph node. Records each physical live source fact reported by the
+	/// source state so conceptual nodes invalidate when their concrete world
+	/// placements transition.
 	/// Non-spawn nodes (item bag, mining, character-without-spawn, or any node
 	/// outside the current scene) return <see cref="SpawnCategory.NotApplicable"/>
 	/// but still record the fact, so renderers that branch on spawn state get
@@ -117,8 +118,11 @@ public sealed class GuideReader
 	{
 		if (node == null)
 			throw new ArgumentNullException(nameof(node));
-		RequireAmbient().RecordFact(new FactKey(FactKind.SourceState, node.Key));
-		return RequireSourceState().GetCategory(node);
+
+		var sourceState = RequireSourceState();
+		foreach (var sourceKey in sourceState.GetSourceFactKeys(node))
+			RequireAmbient().RecordFact(new FactKey(FactKind.SourceState, sourceKey));
+		return sourceState.GetCategory(node);
 	}
 
 	/// <summary>Top-level read. Do not call from inside a query compute —
@@ -251,4 +255,5 @@ public interface INavigationSetFactSource
 public interface ISourceStateFactSource
 {
 	SpawnCategory GetCategory(Node node);
+	IReadOnlyCollection<string> GetSourceFactKeys(Node node);
 }
