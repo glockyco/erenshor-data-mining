@@ -5,13 +5,19 @@ using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
 namespace AdventureGuide.Markers;
 
+internal interface IMarkerProjection
+{
+	IReadOnlyList<MarkerEntry> Markers { get; }
+	MarkerCandidateList? LastCandidates { get; }
+}
+
 /// <summary>
 /// Reads engine-backed <see cref="MarkerCandidateList"/> values for the current
 /// scene and materialises <see cref="MarkerEntry"/> instances. Static entries are
 /// rebuilt only when the candidate-list reference changes; per-frame live-state
 /// overlays are applied on every projection.
 /// </summary>
-internal sealed class MarkerProjector
+internal sealed class MarkerProjector : IMarkerProjection
 {
 	private const float StaticHeightOffset = 2.5f;
 
@@ -123,11 +129,18 @@ internal sealed class MarkerProjector
 				break;
 
 			case MarkerLiveStatus.UnlockBlocked:
-				entry.Type = MarkerType.QuestLocked;
-				entry.Priority = 0;
-				entry.SubText = $"{entry.DisplayName}\n{state.UnlockReason ?? string.Empty}";
-				ApplyStaticPosition(entry);
-				break;
+			    entry.Type = MarkerType.QuestLocked;
+			    entry.Priority = 0;
+			    entry.SubText = $"{entry.DisplayName}\n{state.UnlockReason ?? string.Empty}";
+			    ApplyStaticPosition(entry);
+			    break;
+
+			case MarkerLiveStatus.Disabled:
+			    entry.Type = MarkerType.QuestLocked;
+			    entry.Priority = 0;
+			    entry.SubText = $"{entry.DisplayName}\nDisabled";
+			    ApplyStaticPosition(entry);
+			    break;
 
 			case MarkerLiveStatus.PickedUp:
 			case MarkerLiveStatus.ZoneReentry:
@@ -208,7 +221,7 @@ internal sealed class MarkerProjector
 	}
 
 	private static bool RequiresSourceUniqueLifecycleDedupe(MarkerEntry entry) =>
-		entry.Type is MarkerType.DeadSpawn or MarkerType.ZoneReentry;
+		entry.Type is MarkerType.DeadSpawn or MarkerType.ZoneReentry or MarkerType.QuestLocked;
 
 	private static string BuildLifecycleDedupeKey(MarkerEntry entry) =>
 		string.Join("|", new[]

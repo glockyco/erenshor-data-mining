@@ -36,6 +36,7 @@ public enum MarkerLiveStatus : byte
 	DeadNoCorpse,
 	NightLocked,
 	UnlockBlocked,
+	Disabled,
 	PickedUp,
 	MiningAvailable,
 	MiningMined,

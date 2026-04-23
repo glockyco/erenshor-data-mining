@@ -131,9 +131,6 @@ public sealed class MarkerCandidatesQuery
 				continue;
 
 			var category = ReadSpawnCategoryForPosition(positionNode, targetNode);
-			if (category == SpawnCategory.Disabled)
-				continue;
-
 			var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic);
 			// Current live snapshots own dead/corpse presentation. The candidate
 			// remains the actionable quest marker only; respawn/dead lifecycle is
@@ -187,9 +184,6 @@ public sealed class MarkerCandidatesQuery
 			var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
 			var category = ReadSpawnCategoryForPosition(positionNode, targetNode);
-			if (category == SpawnCategory.Disabled)
-				continue;
-
 			var (x, y, z) = ResolveStaticPosition(positionNode, null, null, null);
 
 			sink.Add(new MarkerCandidate(questKey: quest.Key, targetNodeKey: targetNode.Key, positionNodeKey: positionNode.Key, sourceNodeKey: positionNode.Key, scene: positionNode.Scene ?? scene, questKind: instruction.Kind, spawnCategory: category, priority: instruction.Priority, subText: instruction.SubText, x: x, y: y, z: z, keepWhileCorpsePresent: false, corpseSubText: null, isNightSpawnNode: positionNode.NightSpawn, displayName: targetNode.DisplayName, unlockBlockedReason: ExtractBlockedReason(category, semantic)));
@@ -217,9 +211,6 @@ public sealed class MarkerCandidatesQuery
 			var instruction = MarkerTextBuilder.BuildInstruction(semantic);
 
 			var category = ReadSpawnCategoryForPosition(positionNode, characterNode);
-			if (category == SpawnCategory.Disabled)
-				continue;
-
 			var (x, y, z) = ResolveStaticPosition(positionNode, null, null, null);
 
 			sink.Add(new MarkerCandidate(questKey: quest.Key, targetNodeKey: characterNode.Key, positionNodeKey: positionNode.Key, sourceNodeKey: positionNode.Key, scene: positionNode.Scene ?? characterNode.Scene ?? scene, questKind: instruction.Kind, spawnCategory: category, priority: instruction.Priority, subText: instruction.SubText, x: x, y: y, z: z, keepWhileCorpsePresent: false, corpseSubText: null, isNightSpawnNode: positionNode.NightSpawn, displayName: characterNode.DisplayName, unlockBlockedReason: ExtractBlockedReason(category, semantic)));

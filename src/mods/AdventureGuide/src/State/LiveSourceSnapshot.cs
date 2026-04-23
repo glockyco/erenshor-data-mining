@@ -105,9 +105,11 @@ public readonly struct LiveSourceSnapshot : IEquatable<LiveSourceSnapshot>
 					case LiveSourceOccupancy.NightLocked:
 						return new MarkerLiveRenderState(MarkerLiveStatus.NightLocked, null, 0f, null);
 					case LiveSourceOccupancy.UnlockBlocked:
-						return new MarkerLiveRenderState(MarkerLiveStatus.UnlockBlocked, null, 0f, UnlockReason);
+					    return new MarkerLiveRenderState(MarkerLiveStatus.UnlockBlocked, null, 0f, UnlockReason);
+					case LiveSourceOccupancy.Disabled:
+					    return new MarkerLiveRenderState(MarkerLiveStatus.Disabled, null, 0f, null);
 					default:
-						return MarkerLiveRenderState.Unknown;
+					    return MarkerLiveRenderState.Unknown;
 				}
 			case LiveSourceKind.MiningNode:
 				switch (Occupancy)

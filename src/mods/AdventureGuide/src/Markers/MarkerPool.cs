@@ -22,6 +22,31 @@ public enum MarkerType
     QuestLocked, // circle-question amber — spawn disabled, needs quest unlock
 }
 
+internal interface IMarkerPool
+{
+    int ActiveCount { get; }
+    IMarkerInstance Get(int index);
+    void SetActiveCount(int count);
+    void DeactivateAll();
+    void Destroy();
+}
+
+internal interface IMarkerInstance
+{
+    void Configure(
+        MarkerType type,
+        string? subText,
+        float markerScale,
+        float iconSize,
+        float subTextSize,
+        float iconYOffset,
+        float subTextYOffset);
+    void UpdateSubText(string? subText);
+    void SetPosition(float x, float y, float z);
+    void SetAlpha(float distance);
+    void SetActive(bool active);
+}
+
 /// <summary>
 /// Manages a pool of reusable billboard marker GameObjects. Each marker
 /// uses two TextMeshPro (world-space 3D) components: a Font Awesome icon
@@ -29,7 +54,7 @@ public enum MarkerType
 /// edges with a dark outline for contrast, and depth occlusion via the
 /// standard Distance Field shader.
 /// </summary>
-public sealed class MarkerPool
+public sealed class MarkerPool : IMarkerPool
 {
     private const int InitialCapacity = 32;
 
@@ -62,6 +87,8 @@ public sealed class MarkerPool
             CreateInstance();
         return _pool[index];
     }
+
+    IMarkerInstance IMarkerPool.Get(int index) => Get(index);
 
     /// <summary>Set the number of active markers. Deactivates extras.</summary>
     public void SetActiveCount(int count)
@@ -137,7 +164,7 @@ public sealed class MarkerPool
 /// <summary>
 /// A single marker instance with TextMeshPro icon and sub-text.
 /// </summary>
-public sealed class MarkerInstance
+public sealed class MarkerInstance : IMarkerInstance
 {
     // ── Icon sizes per marker type ──────────────────────────────
     private const float SizeTier1 = 8f; // TurnInReady, TurnInRepeatReady
@@ -258,6 +285,8 @@ public sealed class MarkerInstance
     {
         Root.transform.position = position;
     }
+
+    void IMarkerInstance.SetPosition(float x, float y, float z) => SetPosition(new Vector3(x, y, z));
 
     /// <summary>
     /// Apply distance-based fade. Icon fades 80-100m, sub-text fades

@@ -76,6 +76,44 @@ public sealed class MarkerProjectorTests
 		Assert.Equal(MarkerType.DeadSpawn, entry.Type);
 	}
 
+	[Fact]
+	public void Project_RendersDisabledCharacterAsQuestLockedMarker()
+	{
+		var fixture = MarkerProjectorFixture.CreateKillQuest();
+		fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
+			new MarkerLiveRenderState(
+				MarkerLiveStatus.Disabled,
+				livePosition: null,
+				respawnSeconds: 0f,
+				unlockReason: null);
+
+		fixture.Projector.Project();
+
+		var entry = Assert.Single(fixture.Projector.Markers, e => e.SourceNodeKey == "spawn:leaf-1");
+		Assert.Equal(MarkerType.QuestLocked, entry.Type);
+		Assert.Equal("char:leaf\nDisabled", entry.SubText);
+	}
+
+	[Fact]
+	public void Project_UsesSingleDisabledMarker_ForSharedSourceAcrossQuestKinds()
+	{
+		var fixture = MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
+		fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
+			new MarkerLiveRenderState(
+				MarkerLiveStatus.Disabled,
+				livePosition: null,
+				respawnSeconds: 0f,
+				unlockReason: null);
+
+		fixture.Projector.Project();
+
+		var entries = fixture.Projector.Markers
+			.Where(e => e.SourceNodeKey == "spawn:leaf-1")
+			.ToList();
+		var entry = Assert.Single(entries);
+		Assert.Equal(MarkerType.QuestLocked, entry.Type);
+	}
+
 	internal sealed class MarkerProjectorFixture
 	{
 		private MarkerProjectorFixture(

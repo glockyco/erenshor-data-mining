@@ -10,8 +10,8 @@ namespace AdventureGuide.Markers;
 /// </summary>
 internal sealed class MarkerRenderer
 {
-	private readonly MarkerProjector _projector;
-	private readonly MarkerPool _pool;
+	private readonly IMarkerProjection _projector;
+	private readonly IMarkerPool _pool;
 	private readonly GuideConfig _config;
 	private readonly DiagnosticsCore? _diagnostics;
 
@@ -36,6 +36,15 @@ internal sealed class MarkerRenderer
 	public MarkerRenderer(
 		MarkerProjector projector,
 		MarkerPool pool,
+		GuideConfig config,
+		DiagnosticsCore? diagnostics = null)
+		: this((IMarkerProjection)projector, pool, config, diagnostics)
+	{
+	}
+
+	internal MarkerRenderer(
+		IMarkerProjection projector,
+		IMarkerPool pool,
 		GuideConfig config,
 		DiagnosticsCore? diagnostics = null)
 	{
@@ -63,13 +72,7 @@ internal sealed class MarkerRenderer
 
 		var entries = _projector.Markers;
 		var candidates = _projector.LastCandidates;
-		if (!ReferenceEquals(candidates, _lastConfiguredCandidates) || _configDirty)
-		{
-			ConfigureMarkers(entries);
-			_lastConfiguredCandidates = candidates;
-			_configDirty = false;
-		}
-
+		EnsurePoolConfigured(entries, candidates);
 		UpdateLiveState(entries);
 	}
 
@@ -91,6 +94,25 @@ internal sealed class MarkerRenderer
 	}
 
 	private void OnConfigChanged(object sender, System.EventArgs e) => _configDirty = true;
+
+	internal void RenderForTest(string currentScene)
+	{
+		_currentScene = currentScene;
+		EnsurePoolConfigured(_projector.Markers, _projector.LastCandidates);
+	}
+
+	private void EnsurePoolConfigured(IReadOnlyList<MarkerEntry> entries, MarkerCandidateList? candidates)
+	{
+		if (!ReferenceEquals(candidates, _lastConfiguredCandidates) || _configDirty)
+		{
+			ConfigureMarkers(entries);
+			_lastConfiguredCandidates = candidates;
+			_configDirty = false;
+			return;
+		}
+
+		_pool.SetActiveCount(entries.Count);
+	}
 
 	private void ConfigureMarkers(IReadOnlyList<MarkerEntry> markers)
 	{
@@ -130,7 +152,7 @@ internal sealed class MarkerRenderer
 			ReconfigureInstance(entry, instance);
 
 			var pos = new Vector3(entry.X, entry.Y, entry.Z);
-			instance.SetPosition(pos);
+			instance.SetPosition(entry.X, entry.Y, entry.Z);
 
 			float dist = Vector3.Distance(playerPos, pos);
 			instance.SetAlpha(dist);
@@ -138,7 +160,7 @@ internal sealed class MarkerRenderer
 		}
 	}
 
-	private void ReconfigureInstance(MarkerEntry entry, MarkerInstance instance)
+	private void ReconfigureInstance(MarkerEntry entry, IMarkerInstance instance)
 	{
 		instance.Configure(
 			entry.Type,

@@ -87,6 +87,18 @@ public sealed class MarkerCandidatesQueryTests
 	}
 
 	[Fact]
+	public void Read_EmitsCandidate_ForDisabledActiveQuestTarget()
+	{
+		var fixture = MarkerCandidatesFixture.CreateActiveQuest();
+		fixture.SourceStates["spawn:leaf-1"] = SpawnCategory.Disabled;
+
+		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
+
+		var candidate = Assert.Single(list.Candidates);
+		Assert.Equal(SpawnCategory.Disabled, candidate.SpawnCategory);
+	}
+
+	[Fact]
 	public void Read_Backdates_ThroughSubQuery_WhenQuestResolutionResultUnchanged()
 	{
 		var fixture = MarkerCandidatesFixture.CreateActiveQuest();

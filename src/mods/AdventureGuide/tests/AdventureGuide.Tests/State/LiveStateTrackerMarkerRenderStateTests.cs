@@ -121,6 +121,14 @@ public sealed class LiveStateTrackerMarkerRenderStateTests
 			blocked.ToMarkerRenderState());
 	}
 
+	[Fact]
+	public void LiveSourceSnapshot_ToMarkerRenderState_MapsDisabledCharacter()
+	{
+		var disabled = LiveSourceSnapshot.Disabled("spawn:gate", "char:gate");
+
+		Assert.Equal(MarkerLiveStatus.Disabled, disabled.ToMarkerRenderState().Status);
+	}
+
 	private static LiveStateTracker CreateTracker(AdventureGuide.CompiledGuide.CompiledGuide guide)
 	{
 		var phases = new QuestStateTracker(guide);
