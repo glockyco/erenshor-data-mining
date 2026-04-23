@@ -21,7 +21,7 @@ public sealed class MarkerCandidatesQueryTests
 
 		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
 
-		var active = Assert.Single(list.Candidates, c => !c.IsSpawnTimerSlot);
+		var active = Assert.Single(list.Candidates);
 		Assert.Equal("quest:a", active.QuestKey);
 		Assert.Equal("char:leaf", active.TargetNodeKey);
 		Assert.Equal("spawn:leaf-1", active.PositionNodeKey);
@@ -29,21 +29,19 @@ public sealed class MarkerCandidatesQueryTests
 	}
 
 	[Fact]
-	public void Read_EmitsRespawnTimerSibling_ForSpawnBackedTarget()
+	public void Read_DoesNotEmitRespawnTimerSibling_ForSpawnBackedTarget()
 	{
 		var fixture = MarkerCandidatesFixture.CreateActiveQuest();
 
 		var list = fixture.Engine.Read(fixture.Query.Query, "Town");
 
-		Assert.Equal(2, list.Candidates.Count);
-		var timer = Assert.Single(list.Candidates, c => c.IsSpawnTimerSlot);
-		Assert.Equal("quest:a", timer.QuestKey);
-		Assert.Equal("char:leaf", timer.TargetNodeKey);
-		Assert.Equal("spawn:leaf-1|respawn", timer.PositionNodeKey);
-		Assert.Equal("spawn:leaf-1", timer.SourceNodeKey);
-		Assert.Equal(QuestMarkerKind.Objective, timer.QuestKind);
-		Assert.Equal(SpawnCategory.Alive, timer.SpawnCategory);
-		Assert.Equal(string.Empty, timer.SubText);
+		var candidate = Assert.Single(list.Candidates);
+		Assert.Equal("quest:a", candidate.QuestKey);
+		Assert.Equal("char:leaf", candidate.TargetNodeKey);
+		Assert.Equal("spawn:leaf-1", candidate.PositionNodeKey);
+		Assert.Equal("spawn:leaf-1", candidate.SourceNodeKey);
+		Assert.Equal(QuestMarkerKind.Objective, candidate.QuestKind);
+		Assert.Equal(SpawnCategory.Alive, candidate.SpawnCategory);
 	}
 
 	[Fact]
@@ -201,7 +199,7 @@ public sealed class MarkerCandidatesQueryTests
 				questIndex: 0,
 				requiredForQuestIndex: -1);
 
-			var navigable = new NavigableQuestSet(new[] { "quest:a" });
+			
 
 			MarkerCandidatesFixture? fixture = null;
 			var navigableQuery = engine.DefineQuery<Unit, NavigableQuestSet>(
@@ -212,8 +210,7 @@ public sealed class MarkerCandidatesQueryTests
 					ctx.RecordFact(new FactKey(FactKind.NavSet, "*"));
 					ctx.RecordFact(new FactKey(FactKind.TrackerSet, "*"));
 					ctx.RecordFact(new FactKey(FactKind.QuestActive, "*"));
-					return navigable;
-				});
+					return new NavigableQuestSet(new[] { "quest:a" });				});
 
 			var resolutionRecord = new QuestResolutionRecord(
 				questKey: "quest:a",

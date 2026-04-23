@@ -62,11 +62,10 @@ public sealed class NavigationTargetResolver
 
 			var node = _guide.GetNode(nodeId);
 			IReadOnlyList<ResolvedQuestTarget> results = node.Type == NodeType.Quest
-				? (tracer != null
-					? _reader.ReadQuestResolutionForTrace(nodeKey, currentScene, tracer).NavigationTargets
-					: _reader.ReadQuestResolution(nodeKey, currentScene).NavigationTargets)
-				: ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
-
+			    ? (tracer != null
+			        ? _reader.ReadQuestResolutionForTrace(nodeKey, currentScene, tracer).NavigationTargets
+			        : _reader.ReadQuestResolution(nodeKey, currentScene).NavigationTargets)
+			    : ResolveNonQuest(nodeId, nodeKey, node, currentScene);
 			_lastResolvedNodeKey = nodeKey;
 			_lastBatchKeyCount = 1;
 			_topQuestCosts = Array.Empty<QuestCostSample>();
@@ -111,7 +110,7 @@ public sealed class NavigationTargetResolver
 				continue;
 			}
 
-			var nonQuestResults = ResolveNonQuestEntity(nodeId, nodeKey, node, currentScene);
+			var nonQuestResults = ResolveNonQuest(nodeId, nodeKey, node, currentScene);
 			results[nodeKey] = nonQuestResults;
 			totalResolvedTargets += nonQuestResults.Count;
 		}
@@ -142,7 +141,15 @@ public sealed class NavigationTargetResolver
 			topQuestCosts: _topQuestCosts);
 	}
 
-	private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuestEntity(
+	internal IReadOnlyList<ResolvedQuestTarget> ResolveNonQuest(string nodeKey, string currentScene)
+	{
+		if (string.IsNullOrWhiteSpace(nodeKey) || !_guide.TryGetNodeId(nodeKey, out int nodeId))
+			return Array.Empty<ResolvedQuestTarget>();
+
+		var node = _guide.GetNode(nodeId);
+		return ResolveNonQuest(nodeId, nodeKey, node, currentScene);
+	}
+	private IReadOnlyList<ResolvedQuestTarget> ResolveNonQuest(
 		int nodeId,
 		string nodeKey,
 		Node node,

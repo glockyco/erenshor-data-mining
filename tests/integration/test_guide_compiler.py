@@ -39,7 +39,6 @@ EXPECTED_TOP_LEVEL_KEYS = {
     "item_sources",
     "unlock_predicates",
     "topo_order",
-    "item_to_quest_indices",
     "quest_to_dependent_quest_indices",
     "zone_node_ids",
     "zone_adjacency",
@@ -127,8 +126,7 @@ class TestCompiledDataInvariants:
         assert actual == expected, f"topo_order missing: {expected - actual}; extra: {actual - expected}"
 
     def test_reverse_deps_counts(self, compiled: CompiledData) -> None:
-        """item_to_quest_indices and quest_to_dependent_quest_indices are sized correctly."""
-        assert len(compiled.item_to_quest_indices) == len(compiled.item_node_ids)
+        """quest_to_dependent_quest_indices is sized correctly."""
         assert len(compiled.quest_to_dependent_quest_indices) == len(compiled.quest_node_ids)
 
     def test_quest_spec_prereq_indices_valid(self, compiled: CompiledData) -> None:

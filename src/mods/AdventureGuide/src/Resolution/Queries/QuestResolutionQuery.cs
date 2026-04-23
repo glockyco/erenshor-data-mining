@@ -7,7 +7,7 @@ public sealed class QuestResolutionQuery
 {
 	private readonly Query<(string QuestKey, string Scene), CompiledTargetsResult> _compiledTargets;
 	private readonly Query<string, BlockingZonesResult> _blockingZones;
-	private readonly Func<IReadOnlyList<ResolvedTarget>, string, IReadOnlyList<ResolvedQuestTarget>> _project;
+	private readonly Func<IReadOnlyList<ResolvedTarget>, string, QuestTargetProjector.PrecomputedBlockingZoneMap, IReadOnlyList<ResolvedQuestTarget>> _project;
 	private readonly Action? _onCompute;
 
 	public Query<(string QuestKey, string Scene), QuestResolutionRecord> Query { get; }
@@ -21,7 +21,7 @@ public sealed class QuestResolutionQuery
 			engine,
 			compiledTargets.Query,
 			blockingZones.Query,
-			(targets, scene) => projector.Project(targets, scene),
+			(targets, scene, blockingZoneMap) => projector.Project(targets, scene, blockingZoneMap),
 			onCompute: null)
 	{
 	}
@@ -30,7 +30,7 @@ public sealed class QuestResolutionQuery
 		Engine<FactKey> engine,
 		Query<(string QuestKey, string Scene), CompiledTargetsResult> compiledTargets,
 		Query<string, BlockingZonesResult> blockingZones,
-		Func<IReadOnlyList<ResolvedTarget>, string, IReadOnlyList<ResolvedQuestTarget>> project,
+		Func<IReadOnlyList<ResolvedTarget>, string, QuestTargetProjector.PrecomputedBlockingZoneMap, IReadOnlyList<ResolvedQuestTarget>> project,
 		Action? onCompute)
 	{
 		_compiledTargets = compiledTargets;
@@ -49,8 +49,11 @@ public sealed class QuestResolutionQuery
 		_onCompute?.Invoke();
 		var compiled = ctx.Read(_compiledTargets, key);
 		var blocking = ctx.Read(_blockingZones, key.Scene);
+		var blockingZoneMap = new QuestTargetProjector.PrecomputedBlockingZoneMap(
+			key.Scene,
+			blocking.ByTargetScene);
 		Func<IReadOnlyList<ResolvedQuestTarget>> navFactory =
-			() => _project(compiled.Targets, key.Scene);
+			() => _project(compiled.Targets, key.Scene, blockingZoneMap);
 		return new QuestResolutionRecord(
 			key.QuestKey,
 			key.Scene,

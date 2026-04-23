@@ -7,22 +7,19 @@ using Xunit;
 namespace AdventureGuide.Tests;
 
 /// <summary>
-/// Verifies that the RequiredForQuestIndex-deferred pattern on
-/// UnlockRequirementCache and RecipeMaterialCache is both (1) correctness-
-/// preserving — sibling callers see their own RequiredForQuestIndex in
-/// the returned ResolvedTargets — and (2) sharing — the cached list is
-/// looked up once and reused across callers.
+/// Verifies that UnlockRequirementCache is scoped by caller quest indices so
+/// sibling callers with distinct RequiredForQuestIndex values do not share a
+/// cached entry.
 /// </summary>
 public sealed class SourceResolverCacheSharingTests
 {
 	[Fact]
-	public void UnlockRequirement_is_shared_across_callers_with_distinct_RequiredForQuestIndex()
+	public void UnlockRequirement_is_scoped_per_caller_RequiredForQuestIndex()
 	{
 		// Two sibling quests both accept via a giver whose unlock predicate
-		// requires the same prerequisite quest to be completed. Under the old
-		// keying each sibling resolved its own UnlockRequirementCache entry;
-		// with the deferred pattern they now share, and ApplyRequiredForQuestIndex
-		// substitutes each caller's value into the returned targets.
+		// requires the same prerequisite quest to be completed. Caller-scoped
+		// RequiredForQuestIndex must now produce distinct cache entries so the
+		// cached targets remain a pure function of the cache key.
 		var guide = new CompiledGuideBuilder()
 			.AddQuest("quest:prereq", dbName: "PREREQ")
 			.AddCharacter("char:gated", scene: "Forest", x: 0f, y: 0f, z: 0f)
@@ -51,8 +48,7 @@ public sealed class SourceResolverCacheSharingTests
 
 		var session = new SourceResolver.ResolutionSession();
 
-		// Resolve quest A with RequiredForQuestIndex = 100 (distinct sentinel
-		// so we can check rebind correctness below).
+		// Resolve quest A with RequiredForQuestIndex = 100.
 		var entryA = new FrontierEntry(0, QuestPhase.Accepted, 100);
 		_ = resolver.ResolveTargets(entryA, "Forest", session, tracer: null);
 
@@ -60,10 +56,10 @@ public sealed class SourceResolverCacheSharingTests
 		Assert.True(cacheSizeAfterA > 0, "UnlockRequirementCache must be populated by first resolution");
 
 		// Resolve quest B with a different RequiredForQuestIndex. The cache
-		// must not grow — the shared entry is reused.
+		// must grow because the caller-scoped key differs.
 		var entryB = new FrontierEntry(1, QuestPhase.Accepted, 200);
 		_ = resolver.ResolveTargets(entryB, "Forest", session, tracer: null);
 
-		Assert.Equal(cacheSizeAfterA, session.UnlockRequirementCache.Count);
+		Assert.True(session.UnlockRequirementCache.Count > cacheSizeAfterA);
 	}
 }

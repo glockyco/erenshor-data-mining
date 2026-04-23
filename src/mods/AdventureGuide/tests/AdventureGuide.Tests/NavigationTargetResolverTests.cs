@@ -39,18 +39,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var targetResolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        positionRegistry: positionRegistry
-    ),
-    null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, null)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: null,
+				positionRegistry: positionRegistry
+			),
+			null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, null)
+		);
 
 		var targets = targetResolver.Resolve("quest:a", "Forest");
 
@@ -324,16 +324,13 @@ public sealed class NavigationTargetResolverTests
 				"item:coal",
 				"mine:mined",
 				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.MiningNode
-			)
+				sourceType: (byte)NodeType.MiningNode)
 			.Build();
 		var resolver = BuildResolver(
 			guide,
 			positionRegistry: CreatePositionRegistry(
 				guide,
-				new Dictionary<string, bool> { ["mine:mined"] = false }
-			)
-		);
+				new Dictionary<string, bool> { ["mine:mined"] = false }));
 
 		var targets = resolver.Resolve("item:coal", "Azure");
 
@@ -347,12 +344,10 @@ public sealed class NavigationTargetResolverTests
 	[Fact]
 	public void Resolve_ItemKey_WithNoSources_ReturnsEmpty()
 	{
-		var guide = new CompiledGuideBuilder().AddItem("item:orphan").Build();
+		var guide = new CompiledGuideBuilder().AddItem("item:none").Build();
 		var resolver = BuildResolver(guide);
 
-		var targets = resolver.Resolve("item:orphan", "Forest");
-
-		Assert.Empty(targets);
+		Assert.Empty(resolver.Resolve("item:none", "Forest"));
 	}
 
 	[Fact]
@@ -365,9 +360,7 @@ public sealed class NavigationTargetResolverTests
 			guide,
 			positionRegistry: CreatePositionRegistry(
 				guide,
-				new Dictionary<string, bool> { ["mine:copper"] = false }
-			)
-		);
+				new Dictionary<string, bool> { ["mine:copper"] = false }));
 
 		var targets = resolver.Resolve("mine:copper", "Mountain");
 
@@ -390,14 +383,12 @@ public sealed class NavigationTargetResolverTests
 				"item:coal",
 				"mine:mined",
 				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.MiningNode
-			)
+				sourceType: (byte)NodeType.MiningNode)
 			.AddItemSource(
 				"item:coal",
 				"mine:available",
 				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.MiningNode
-			)
+				sourceType: (byte)NodeType.MiningNode)
 			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:coal", 1) })
 			.Build();
 		var phases = new QuestPhaseTracker(guide);
@@ -411,8 +402,11 @@ public sealed class NavigationTargetResolverTests
 		var unlocks = new UnlockPredicateEvaluator(guide, phases);
 		var positionRegistry = CreatePositionRegistry(
 			guide,
-			new Dictionary<string, bool> { ["mine:mined"] = false, ["mine:available"] = true }
-		);
+			new Dictionary<string, bool>
+			{
+				["mine:mined"] = false,
+				["mine:available"] = true,
+			});
 		var sourceResolver = new SourceResolver(
 			guide,
 			phases,
@@ -421,18 +415,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var resolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        positionRegistry: positionRegistry
-    ),
-    null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, null)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: null,
+				positionRegistry: positionRegistry
+			),
+			null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, null)
+		);
 
 		var targets = resolver.Resolve("quest:root", "Azure");
 
@@ -447,13 +441,12 @@ public sealed class NavigationTargetResolverTests
 		);
 
 		var selected = NavigationTargetSelector.SelectBest(
-			targets,
-			0f,
-			0f,
-			0f,
-			"Azure",
-			SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router
-		);
+            targets,
+            0f,
+            0f,
+            0f,
+            "Azure",
+            SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router);
 		Assert.NotNull(selected);
 		Assert.Equal("mine:available", selected!.Value.Target.TargetNodeKey);
 	}
@@ -479,12 +472,115 @@ public sealed class NavigationTargetResolverTests
 	[Fact]
 	public void Resolve_UnknownKey_ReturnsEmpty()
 	{
-		var guide = new CompiledGuideBuilder().Build();
-		var resolver = BuildResolver(guide);
+		Assert.Empty(BuildResolver(new CompiledGuideBuilder().Build()).Resolve("missing", "Forest"));
+	}
 
-		var targets = resolver.Resolve("nonexistent:key", "Forest");
+	[Fact]
+	public void Resolve_QuestKey_UsesPrecomputedBlockingMapWhenProjectingNavigationTargets()
+	{
+		const string zoneA = "ZoneA";
+		const string zoneB = "ZoneB";
+		var guide = new CompiledGuideBuilder()
+			.AddQuest("quest:root", dbName: "ROOT")
+			.AddZone("zone:a", scene: zoneA)
+			.AddZone("zone:b", scene: zoneB)
+			.AddWater("water:pond", scene: zoneB, x: 5f, y: 6f, z: 7f)
+			.Build();
+		guide.TryGetNodeId("water:pond", out int waterNodeId);
+		var semantic = new ResolvedActionSemantic(
+			NavigationGoalKind.Generic,
+			NavigationTargetKind.Object,
+			ResolvedActionKind.Fish,
+			goalNodeKey: null,
+			goalQuantity: null,
+			keywordText: null,
+			payloadText: null,
+			targetIdentityText: "Pond",
+			contextText: null,
+			rationaleText: null,
+			zoneText: zoneB,
+			availabilityText: null,
+			preferredMarkerKind: QuestMarkerKind.Objective,
+			markerPriority: 0);
+		var projector = new QuestTargetProjector(guide, zoneRouter: null);
 
-		Assert.Empty(targets);
+		var targets = projector.Project(
+			new[]
+			{
+				new ResolvedTarget(
+					targetNodeId: waterNodeId,
+					positionNodeId: waterNodeId,
+					role: ResolvedTargetRole.Objective,
+					semantic: semantic,
+					x: 5f,
+					y: 6f,
+					z: 7f,
+					scene: zoneB,
+					isLive: false,
+					isActionable: true,
+					questIndex: 0,
+					requiredForQuestIndex: -1),
+			},
+			zoneA,
+			new QuestTargetProjector.PrecomputedBlockingZoneMap(
+				zoneA,
+				new Dictionary<string, int>(StringComparer.Ordinal) { [zoneB.ToLowerInvariant()] = 42 }));
+
+		Assert.True(Assert.Single(targets).IsBlockedPath);
+	}
+
+	[Fact]
+	public void Resolve_QuestKey_IgnoresPrecomputedBlockingMapBoundToDifferentProjectedScene()
+	{
+		const string zoneA = "ZoneA";
+		const string zoneB = "ZoneB";
+		var guide = new CompiledGuideBuilder()
+			.AddQuest("quest:root", dbName: "ROOT")
+			.AddZone("zone:a", scene: zoneA)
+			.AddZone("zone:b", scene: zoneB)
+			.AddWater("water:pond", scene: zoneB, x: 5f, y: 6f, z: 7f)
+			.Build();
+		guide.TryGetNodeId("water:pond", out int waterNodeId);
+		var semantic = new ResolvedActionSemantic(
+			NavigationGoalKind.Generic,
+			NavigationTargetKind.Object,
+			ResolvedActionKind.Fish,
+			goalNodeKey: null,
+			goalQuantity: null,
+			keywordText: null,
+			payloadText: null,
+			targetIdentityText: "Pond",
+			contextText: null,
+			rationaleText: null,
+			zoneText: zoneB,
+			availabilityText: null,
+			preferredMarkerKind: QuestMarkerKind.Objective,
+			markerPriority: 0);
+		var projector = new QuestTargetProjector(guide, zoneRouter: null);
+
+		var targets = projector.Project(
+			new[]
+			{
+				new ResolvedTarget(
+					targetNodeId: waterNodeId,
+					positionNodeId: waterNodeId,
+					role: ResolvedTargetRole.Objective,
+					semantic: semantic,
+					x: 5f,
+					y: 6f,
+					z: 7f,
+					scene: zoneB,
+					isLive: false,
+					isActionable: true,
+					questIndex: 0,
+					requiredForQuestIndex: -1),
+			},
+			zoneA,
+			new QuestTargetProjector.PrecomputedBlockingZoneMap(
+				zoneB,
+				new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { [zoneB] = 42 }));
+
+		Assert.False(Assert.Single(targets).IsBlockedPath);
 	}
 
 	[Fact]
@@ -503,20 +599,18 @@ public sealed class NavigationTargetResolverTests
 			)
 			.AddQuest("quest:gate", dbName: "GATE")
 			.AddEdge("quest:gate", "zl:ab", EdgeType.UnlocksZoneLine)
-			.AddItem("item:fish")
 			.AddWater("water:pond", scene: "ZoneB", x: 5f, y: 6f, z: 7f)
 			.AddItemSource(
 				"item:fish",
 				"water:pond",
 				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.Water
-			)
+				sourceType: (byte)NodeType.Water)
+			.AddItem("item:fish")
 			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:fish", 1) });
 		var harness = SnapshotHarness.FromSnapshot(
 			builder.Build(),
 			new StateSnapshot { CurrentZone = "ZoneA" }
 		);
-
 		var phases = new QuestPhaseTracker(harness.Guide);
 		phases.Initialize(
 			Array.Empty<string>(),
@@ -535,18 +629,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var targetResolver = new NavigationTargetResolver(
-    harness.Guide,
-    ResolutionTestFactory.BuildService(
-        harness.Guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: harness.Router,
-        positionRegistry: positionRegistry
-    ),
-    harness.Router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
-);
+			harness.Guide,
+			ResolutionTestFactory.BuildService(
+				harness.Guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: harness.Router,
+				positionRegistry: positionRegistry
+			),
+			harness.Router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
+		);
 
 		var targets = targetResolver.Resolve("quest:root", "ZoneA");
 
@@ -629,26 +723,26 @@ public sealed class NavigationTargetResolverTests
 		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
 		var positionRegistry = CreatePositionRegistry(harness.Guide);
 		var sourceResolver = new SourceResolver(
-		    harness.Guide,
-		    phases,
-		    unlocks,
-		    new StubLivePositionProvider(),
-		    positionRegistry,
-		    harness.Router
+			harness.Guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry,
+			harness.Router
 		);
 		var resolver = new NavigationTargetResolver(
-    harness.Guide,
-    ResolutionTestFactory.BuildService(
-        harness.Guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: harness.Router,
-        positionRegistry: positionRegistry
-    ),
-    harness.Router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
-);
+			harness.Guide,
+			ResolutionTestFactory.BuildService(
+				harness.Guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: harness.Router,
+				positionRegistry: positionRegistry
+			),
+			harness.Router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
+		);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
@@ -714,26 +808,26 @@ public sealed class NavigationTargetResolverTests
 		var unlocks = new UnlockPredicateEvaluator(harness.Guide, phases);
 		var positionRegistry = CreatePositionRegistry(harness.Guide);
 		var sourceResolver = new SourceResolver(
-		    harness.Guide,
-		    phases,
-		    unlocks,
-		    new StubLivePositionProvider(),
-		    positionRegistry,
-		    harness.Router
+			harness.Guide,
+			phases,
+			unlocks,
+			new StubLivePositionProvider(),
+			positionRegistry,
+			harness.Router
 		);
 		var resolver = new NavigationTargetResolver(
-    harness.Guide,
-    ResolutionTestFactory.BuildService(
-        harness.Guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: harness.Router,
-        positionRegistry: positionRegistry
-    ),
-    harness.Router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
-);
+			harness.Guide,
+			ResolutionTestFactory.BuildService(
+				harness.Guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: harness.Router,
+				positionRegistry: positionRegistry
+			),
+			harness.Router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
+		);
 
 		var targets = resolver.Resolve("quest:root", "ZoneA");
 
@@ -770,18 +864,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var resolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        positionRegistry: positionRegistry
-    ),
-    zoneRouter: null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, null)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: null,
+				positionRegistry: positionRegistry
+			),
+			zoneRouter: null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, null)
+		);
 
 		var targets = resolver.Resolve("quest:a", "Forest");
 
@@ -823,18 +917,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var resolver = new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: null,
-        positionRegistry: positionRegistry
-    ),
-    null,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, null)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: null,
+				positionRegistry: positionRegistry
+			),
+			null,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, null)
+		);
 
 		var targets = resolver.Resolve("quest:root", "Forest");
 		var availabilityPriority = typeof(ResolvedQuestTarget).GetProperty("AvailabilityPriority");
@@ -897,18 +991,18 @@ public sealed class NavigationTargetResolverTests
 			harness.Router
 		);
 		var resolver = new NavigationTargetResolver(
-    harness.Guide,
-    ResolutionTestFactory.BuildService(
-        harness.Guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: harness.Router,
-        positionRegistry: positionRegistry
-    ),
-    harness.Router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
-);
+			harness.Guide,
+			ResolutionTestFactory.BuildService(
+				harness.Guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: harness.Router,
+				positionRegistry: positionRegistry
+			),
+			harness.Router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
+		);
 
 		var targets = resolver.Resolve("quest:eldrich", zoneA);
 		var target = Assert.Single(targets);
@@ -968,18 +1062,18 @@ public sealed class NavigationTargetResolverTests
 			positionRegistry
 		);
 		var resolver = new NavigationTargetResolver(
-    harness.Guide,
-    ResolutionTestFactory.BuildService(
-        harness.Guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: harness.Router,
-        positionRegistry: positionRegistry
-    ),
-    harness.Router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
-);
+			harness.Guide,
+			ResolutionTestFactory.BuildService(
+				harness.Guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: harness.Router,
+				positionRegistry: positionRegistry
+			),
+			harness.Router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(harness.Guide, harness.Router)
+		);
 
 		var targets = resolver.Resolve("quest:root", zoneA);
 
@@ -1014,18 +1108,18 @@ public sealed class NavigationTargetResolverTests
 			router
 		);
 		return new NavigationTargetResolver(
-    guide,
-    ResolutionTestFactory.BuildService(
-        guide,
-        frontier,
-        sourceResolver,
-        zoneRouter: router,
-        positionRegistry: positionRegistry
-    ),
-    router,
-    positionRegistry,
-    ResolutionTestFactory.BuildProjector(guide, router)
-);
+			guide,
+			ResolutionTestFactory.BuildService(
+				guide,
+				frontier,
+				sourceResolver,
+				zoneRouter: router,
+				positionRegistry: positionRegistry
+			),
+			router,
+			positionRegistry,
+			ResolutionTestFactory.BuildProjector(guide, router)
+		);
 	}
 
 	private static PositionResolverRegistry CreatePositionRegistry(

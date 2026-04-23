@@ -2,6 +2,7 @@ using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
 using AdventureGuide.Markers;
 using AdventureGuide.Markers.Queries;
+using AdventureGuide.Navigation;
 using AdventureGuide.Navigation.Queries;
 using AdventureGuide.Resolution;
 using AdventureGuide.Resolution.Queries;
@@ -25,6 +26,7 @@ public sealed class GuideReader
 	private readonly ISourceStateFactSource? _sourceState;
 	private QuestResolutionQuery? _questResolutionQuery;
 	private NavigableQuestsQuery? _navigableQuestsQuery;
+	private NavigationTargetSnapshotsQuery? _navigationTargetSnapshotsQuery;
 	private MarkerCandidatesQuery? _markerCandidatesQuery;
 	private IResolutionTracer? _activeTracer;
 
@@ -43,6 +45,7 @@ public sealed class GuideReader
 		ISourceStateFactSource? sourceState = null,
 		QuestResolutionQuery? questResolutionQuery = null,
 		NavigableQuestsQuery? navigableQuestsQuery = null,
+		NavigationTargetSnapshotsQuery? navigationTargetSnapshotsQuery = null,
 		MarkerCandidatesQuery? markerCandidatesQuery = null)
 	{
 		_engine = engine;
@@ -53,6 +56,7 @@ public sealed class GuideReader
 		_sourceState = sourceState;
 		_questResolutionQuery = questResolutionQuery;
 		_navigableQuestsQuery = navigableQuestsQuery;
+		_navigationTargetSnapshotsQuery = navigationTargetSnapshotsQuery;
 		_markerCandidatesQuery = markerCandidatesQuery;
 	}
 
@@ -63,6 +67,10 @@ public sealed class GuideReader
 
 	internal void SetNavigableQuestsQuery(NavigableQuestsQuery navigableQuestsQuery) =>
 		_navigableQuestsQuery = navigableQuestsQuery;
+
+	internal void SetNavigationTargetSnapshotsQuery(
+		NavigationTargetSnapshotsQuery navigationTargetSnapshotsQuery) =>
+		_navigationTargetSnapshotsQuery = navigationTargetSnapshotsQuery;
 
 	internal void SetMarkerCandidatesQuery(MarkerCandidatesQuery markerCandidatesQuery) =>
 		_markerCandidatesQuery = markerCandidatesQuery;
@@ -131,6 +139,20 @@ public sealed class GuideReader
 		if (_markerCandidatesQuery == null)
 			throw new InvalidOperationException("GuideReader not wired with MarkerCandidatesQuery.");
 		return _engine.Read(_markerCandidatesQuery.Query, scene);
+	}
+
+	/// <summary>Top-level read. Do not call from inside a query compute —
+	/// use <c>ctx.Read(navigationTargetSnapshotsQuery.Query, scene)</c>
+	/// instead so the query-to-query dependency is recorded.</summary>
+	public NavigationTargetSnapshots ReadNavigationTargetSnapshots(string scene)
+	{
+		if (_navigationTargetSnapshotsQuery == null)
+		{
+			throw new InvalidOperationException(
+				"GuideReader not wired with NavigationTargetSnapshotsQuery.");
+		}
+
+		return _engine.Read(_navigationTargetSnapshotsQuery.Query, scene);
 	}
 
 	/// <summary>Top-level read. Do not call from inside a query compute —

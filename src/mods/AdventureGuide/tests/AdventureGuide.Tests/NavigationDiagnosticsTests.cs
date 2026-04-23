@@ -15,23 +15,12 @@ public sealed class NavigationDiagnosticsTests
 	{
 		var core = new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled);
 		var selector = new NavigationTargetSelector(
-			batchResolver: (_, _) => new Dictionary<string, IReadOnlyList<ResolvedQuestTarget>>(
-				StringComparer.Ordinal
-			),
 			router: SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router,
 			diagnostics: core,
 			clock: () => 1f,
 			rerankInterval: 0f
 		);
-
-		selector.Tick(
-			0f,
-			0f,
-			0f,
-			"Stowaway",
-			new NavigableQuestSet(new[] { "quest:a" }),
-			liveWorldChanged: false
-		);
+		selector.Tick(0f, 0f, 0f, "Stowaway", SnapshotSet("Stowaway", "quest:a", Array.Empty<ResolvedQuestTarget>()), liveWorldChanged: false);
 
 		var spans = core.GetRecentSpans();
 		Assert.Contains(spans, span => span.Kind == DiagnosticSpanKind.NavSelectorCollectKeys);
@@ -85,5 +74,18 @@ public sealed class NavigationDiagnosticsTests
 		var snapshot = resolver.ExportDiagnosticsSnapshot();
 		Assert.NotEmpty(results);
 		Assert.True(snapshot.LastResolvedTargetCount >= results.Count);
+	}
+
+	private static NavigationTargetSnapshots SnapshotSet(
+		string scene,
+		string questKey,
+		IReadOnlyList<ResolvedQuestTarget> targets)
+	{
+		return new NavigationTargetSnapshots(
+			scene,
+			new[]
+			{
+				new NavigationTargetSnapshot(questKey, scene, targets)
+			});
 	}
 }

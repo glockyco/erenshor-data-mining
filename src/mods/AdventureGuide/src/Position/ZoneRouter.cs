@@ -92,6 +92,7 @@ public sealed class ZoneRouter
 	private readonly Dictionary<string, string> _zoneKeyToScene = new(
 		StringComparer.OrdinalIgnoreCase
 	);
+	private readonly HashSet<string> _zoneLineUnlockSourceKeys = new(StringComparer.Ordinal);
 
 	// Hop-count cache: fromScene -> (scene -> hop count). Invalidated on Rebuild().
 	// Computed lazily on first GetHopCount call for a given source scene.
@@ -156,16 +157,31 @@ public sealed class ZoneRouter
 	}
 
 	public ZoneRouter(
-	    CompiledGuideModel guide,
-	    UnlockEvaluator unlocks)
+		CompiledGuideModel guide,
+		UnlockEvaluator unlocks)
 	{
-	    _guide = guide;
-	    _unlocks = unlocks;
-		// Build zone_key -> scene mapping from zone nodes
+		_guide = guide;
+		_unlocks = unlocks;
+
+		// Build zone_key -> scene mapping from zone nodes.
 		foreach (var zone in guide.NodesOfType(NodeType.Zone))
 		{
 			if (zone.Scene != null)
 				_zoneKeyToScene[zone.Key] = zone.Scene;
+		}
+
+		foreach (var zoneLine in guide.NodesOfType(NodeType.ZoneLine))
+		{
+			foreach (var edge in guide.InEdges(zoneLine.Key, EdgeType.UnlocksZoneLine))
+			{
+				var source = guide.GetNode(edge.Source);
+				if (source == null || source.Type == NodeType.Item)
+					continue;
+				if (source.Type == NodeType.Quest && !string.IsNullOrWhiteSpace(source.DbName))
+					continue;
+
+				TrackZoneLineUnlockSourceKeys(source);
+			}
 		}
 
 		Rebuild();
@@ -235,18 +251,20 @@ public sealed class ZoneRouter
 	public void ObserveInvalidation(IReadOnlyCollection<FactKey> changedFacts)
 	{
 		// The route graph depends on zone-line unlock state. That state is gated by
-		// item possession (keyring/unlock items), source state (live spawns / NPC
-		// presence affecting yielders/givers), and quest completion (quest-gated
-		// zones). Plain inventory-count changes that do not flip an unlock are
-		// covered by UnlockItemPossessed; reacting to InventoryItemCount as well
-		// would over-rebuild on every loot pickup. Scene changes go through Rebuild
-		// directly from the Plugin's scene-changed branch, so they are not handled
-		// here.
+		// item possession, quest completion, and the live state of non-item/non-quest
+		// sources that directly unlock zone lines. Generic SourceState invalidations
+		// (including the wildcard emitted by LiveStateTracker) do not imply a routing
+		// change and would over-rebuild. Scene changes go through Rebuild directly
+		// from the Plugin's scene-changed branch, so they are not handled here.
 		foreach (var fact in changedFacts)
 		{
-			if (fact.Kind is FactKind.UnlockItemPossessed
-				or FactKind.SourceState
-				or FactKind.QuestCompleted)
+			if (fact.Kind is FactKind.UnlockItemPossessed or FactKind.QuestCompleted)
+			{
+				Rebuild();
+				return;
+			}
+
+			if (fact.Kind == FactKind.SourceState && _zoneLineUnlockSourceKeys.Contains(fact.Key))
 			{
 				Rebuild();
 				return;
@@ -496,14 +514,98 @@ public sealed class ZoneRouter
 	}
 
 	/// <summary>
-	/// Check zone line accessibility via the shared incoming-unlock evaluator.
+	/// Check one zone line's accessibility directly from the guide node rather than
+	/// via deduplicated adjacency.
 	/// </summary>
-	private bool IsZoneLineAccessible(string zoneLineKey)
+	public bool IsZoneLineAccessible(string zoneLineKey)
 	{
 		var node = _guide.GetNode(zoneLineKey);
-		if (node == null || !node.IsEnabled)
+		if (node == null || node.Type != NodeType.ZoneLine || !node.IsEnabled)
 			return false;
 
 		return _unlocks.Evaluate(node).IsUnlocked;
 	}
+
+	public IReadOnlyList<string> GetRouteRelevantZoneLineKeys(string sourceScene)
+	{
+		if (string.IsNullOrWhiteSpace(sourceScene))
+			return Array.Empty<string>();
+
+		var outboundByScene = new Dictionary<string, List<Node>>(StringComparer.OrdinalIgnoreCase);
+		foreach (var zoneLine in _guide.NodesOfType(NodeType.ZoneLine))
+		{
+			if (!TryGetRoutableDestinationScene(zoneLine, out _))
+				continue;
+
+			if (!outboundByScene.TryGetValue(zoneLine.Scene!, out var zoneLines))
+			{
+				zoneLines = new List<Node>();
+				outboundByScene[zoneLine.Scene!] = zoneLines;
+			}
+
+			zoneLines.Add(zoneLine);
+		}
+
+		var reachableScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { sourceScene };
+		var queue = new Queue<string>();
+		queue.Enqueue(sourceScene);
+		var routeRelevantZoneLineKeys = new List<string>();
+		while (queue.Count > 0)
+		{
+			var currentScene = queue.Dequeue();
+			if (!outboundByScene.TryGetValue(currentScene, out var zoneLines))
+				continue;
+
+			foreach (var zoneLine in zoneLines)
+			{
+				routeRelevantZoneLineKeys.Add(zoneLine.Key);
+				if (
+					TryGetRoutableDestinationScene(zoneLine, out var destinationScene)
+					&& reachableScenes.Add(destinationScene)
+				)
+				{
+					queue.Enqueue(destinationScene);
+				}
+			}
+		}
+
+		return routeRelevantZoneLineKeys;
+	}
+
+	private bool TryGetRoutableDestinationScene(Node zoneLine, out string destinationScene)
+	{
+		destinationScene = string.Empty;
+		if (
+			zoneLine.Type != NodeType.ZoneLine
+			|| !zoneLine.IsEnabled
+			|| string.IsNullOrWhiteSpace(zoneLine.Scene)
+			|| string.IsNullOrWhiteSpace(zoneLine.DestinationZoneKey)
+			|| !zoneLine.X.HasValue
+			|| !zoneLine.Y.HasValue
+			|| !zoneLine.Z.HasValue
+		)
+		{
+			return false;
+		}
+
+		return _zoneKeyToScene.TryGetValue(zoneLine.DestinationZoneKey, out destinationScene!);
+	}
+
+	private void TrackZoneLineUnlockSourceKeys(Node source)
+	{
+		_zoneLineUnlockSourceKeys.Add(source.Key);
+		if (source.Type != NodeType.Character)
+			return;
+
+		foreach (var spawnEdge in _guide.OutEdges(source.Key, EdgeType.HasSpawn))
+		{
+			var physicalSource = _guide.GetNode(spawnEdge.Target);
+			if (physicalSource == null)
+				continue;
+
+			if (physicalSource.Type == NodeType.SpawnPoint || physicalSource.IsDirectlyPlaced)
+				_zoneLineUnlockSourceKeys.Add(physicalSource.Key);
+		}
+	}
 }
+

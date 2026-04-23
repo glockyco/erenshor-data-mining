@@ -44,7 +44,6 @@ EXPECTED_TOP_LEVEL_KEYS = {
     "item_sources",
     "unlock_predicates",
     "topo_order",
-    "item_to_quest_indices",
     "quest_to_dependent_quest_indices",
     "zone_node_ids",
     "zone_adjacency",

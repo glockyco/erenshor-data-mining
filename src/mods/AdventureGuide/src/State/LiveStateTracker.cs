@@ -52,6 +52,8 @@ public sealed class LiveStateTracker
     );
 
     private bool _isNight;
+    private int _worldChangedTickVersion;
+    private int _lastConsumedWorldChangedVersion;
 
     public LiveStateTracker(
         CompiledGuideModel guide,
@@ -60,6 +62,11 @@ public sealed class LiveStateTracker
     {
         _guide = guide;
         _unlocks = unlocks;
+    }
+
+    internal void MarkLiveWorldChanged()
+    {
+        _worldChangedTickVersion++;
     }
 
     public void OnSceneLoaded()
@@ -75,6 +82,7 @@ public sealed class LiveStateTracker
         RebuildMiningAvailability();
         RebuildItemBagAvailability();
         RebuildDoorStates();
+        MarkLiveWorldChanged();
         
     }
 
@@ -83,8 +91,9 @@ public sealed class LiveStateTracker
         if (sp == null)
             return ChangeSet.None;
 
-        
         var sourceKey = ResolveSpawnSourceKey(sp);
+        MarkLiveWorldChanged();
+        
         return BuildSourceChange(sourceKey);
     }
 
@@ -94,6 +103,8 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         var sourceKey = ResolveNpcSourceKey(npc);
+        MarkLiveWorldChanged();
+        
         return BuildSourceChange(sourceKey);
     }
 
@@ -103,6 +114,8 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         var sourceKey = ResolveNpcSourceKey(npc);
+        MarkLiveWorldChanged();
+        
         return BuildSourceChange(sourceKey);
     }
 
@@ -112,6 +125,7 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
+        MarkLiveWorldChanged();
         
         return BuildSourceChange(ResolveMiningSourceKey(mn));
     }
@@ -122,6 +136,7 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         _itemBagAvailable[NodePosKey(bag.transform.position)] = false;
+        MarkLiveWorldChanged();
         
         return BuildSourceChange(ResolveItemBagSourceKey(bag));
     }
@@ -147,6 +162,7 @@ public sealed class LiveStateTracker
         // Mark all quests in the current scene as potentially affected — any active
         // quest that needs an item from a DropsItem source could now find the item
         // in a loot chest.
+        MarkLiveWorldChanged();
         
         return BuildLiveChange(_graphSpawnSourcesByPos.Values, timeChanged: false);
     }
@@ -389,6 +405,61 @@ public sealed class LiveStateTracker
         return new ItemBagPickedUp(0f);
     }
 
+    public MarkerLiveRenderState GetMarkerLiveRenderState(MarkerCandidate candidate) =>
+        GetLiveSourceSnapshot(candidate).ToMarkerRenderState();
+
+    public LiveSourceSnapshot GetLiveSourceSnapshot(MarkerCandidate candidate)
+    {
+        var sourceNodeKey = candidate.SourceNodeKey ?? candidate.PositionNodeKey;
+        var positionNode = _guide.GetNode(candidate.PositionNodeKey);
+        if (positionNode == null)
+            return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
+
+        var targetNode = _guide.GetNode(candidate.TargetNodeKey);
+        if (targetNode == null)
+            return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
+
+        return GetLiveSourceSnapshot(sourceNodeKey, positionNode, targetNode);
+    }
+
+    public LiveSourceSnapshot GetLiveSourceSnapshot(string? sourceNodeKey, Node targetNode)
+    {
+        if (targetNode == null)
+            return LiveSourceSnapshot.Unknown(sourceNodeKey, targetNodeKey: null);
+
+        var positionNode = !string.IsNullOrEmpty(sourceNodeKey)
+            ? _guide.GetNode(sourceNodeKey!)
+            : targetNode;
+        if (positionNode == null)
+            return LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key);
+
+        return GetLiveSourceSnapshot(sourceNodeKey, positionNode, targetNode);
+    }
+
+    private LiveSourceSnapshot GetLiveSourceSnapshot(
+        string? sourceNodeKey,
+        Node positionNode,
+        Node targetNode)
+    {
+        if (targetNode.Type == NodeType.ItemBag)
+            return BuildItemBagSnapshot(sourceNodeKey ?? targetNode.Key, targetNode);
+
+        if (targetNode.Type == NodeType.MiningNode)
+            return BuildMiningSnapshot(sourceNodeKey ?? targetNode.Key, targetNode);
+
+        if (positionNode.Type == NodeType.SpawnPoint || positionNode.IsDirectlyPlaced)
+            return BuildSpawnSnapshot(
+                sourceNodeKey ?? positionNode.Key,
+                targetNode.Key,
+                GetSpawnState(positionNode),
+                useZoneReentryWhenDeadWithoutCorpse: positionNode.IsDirectlyPlaced);
+
+        if (targetNode.Type == NodeType.Character)
+            return BuildSpawnSnapshot(sourceNodeKey ?? targetNode.Key, targetNode.Key, GetCharacterState(targetNode));
+
+        return LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key);
+    }
+
     public DoorInfo GetDoorState(Node doorNode)
     {
         if (doorNode == null)
@@ -430,6 +501,15 @@ public sealed class LiveStateTracker
 
     public bool TryGetCachedItemBagAvailability(Node itemBagNode, out bool available) =>
         TryGetCachedPositionFlag(itemBagNode, _itemBagAvailable, out available);
+
+    public bool TryConsumeLiveWorldChange()
+    {
+        if (_worldChangedTickVersion == _lastConsumedWorldChangedVersion)
+            return false;
+
+        _lastConsumedWorldChangedVersion = _worldChangedTickVersion;
+        return true;
+    }
 
     public bool TryGetCachedDoorClosed(Node doorNode, out bool isClosed) =>
         TryGetCachedPositionFlag(doorNode, _doorClosed, out isClosed);
@@ -966,13 +1046,6 @@ public sealed class LiveStateTracker
         if (!forceChanged && changedFacts.Count == 0)
             return ChangeSet.None;
 
-        var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var sourceKey in sourceKeys)
-        {
-            foreach (var questKey in _guide.GetQuestsTouchingSource(sourceKey))
-                affectedQuestKeys.Add(questKey);
-        }
-
         return new ChangeSet(
             inventoryChanged: false,
             questLogChanged: false,
@@ -980,7 +1053,6 @@ public sealed class LiveStateTracker
             liveWorldChanged: true,
             changedItemKeys: Array.Empty<string>(),
             changedQuestDbNames: Array.Empty<string>(),
-            affectedQuestKeys: affectedQuestKeys,
             changedFacts: changedFacts
         );
     }
@@ -1058,6 +1130,92 @@ public sealed class LiveStateTracker
 
     private static bool IsBetterState(NodeState candidate, NodeState current) =>
         GetStatePriority(candidate) > GetStatePriority(current);
+
+    private LiveSourceSnapshot BuildSpawnSnapshot(
+        string sourceNodeKey,
+        string targetNodeKey,
+        SpawnInfo info,
+        bool useZoneReentryWhenDeadWithoutCorpse = false)
+    {
+        switch (info.State)
+        {
+            case SpawnAlive:
+            {
+                var position = TryGetLivePosition(info.LiveNPC);
+                var anchoredPosition = TryGetAnchoredLivePosition(info.LiveNPC);
+                return position.HasValue && anchoredPosition.HasValue
+                    ? LiveSourceSnapshot.Alive(sourceNodeKey, targetNodeKey, position.Value, anchoredPosition.Value)
+                    : LiveSourceSnapshot.Unknown(sourceNodeKey, targetNodeKey);
+            }
+            case SpawnDead dead:
+            {
+                var livePosition = TryGetLivePosition(info.LiveNPC);
+                var anchoredLivePosition = TryGetAnchoredLivePosition(info.LiveNPC);
+                if (useZoneReentryWhenDeadWithoutCorpse && !anchoredLivePosition.HasValue)
+                    return LiveSourceSnapshot.ZoneReentry(sourceNodeKey, targetNodeKey, dead.RespawnSeconds);
+
+                return LiveSourceSnapshot.Dead(
+                    sourceNodeKey,
+                    targetNodeKey,
+                    livePosition,
+                    anchoredLivePosition,
+                    dead.RespawnSeconds);
+            }
+            case SpawnNightLocked:
+                return LiveSourceSnapshot.NightLocked(sourceNodeKey, targetNodeKey);
+            case SpawnUnlockBlocked blocked:
+                return LiveSourceSnapshot.UnlockBlocked(sourceNodeKey, targetNodeKey, blocked.Reason);
+            case SpawnDisabled:
+                return LiveSourceSnapshot.Disabled(sourceNodeKey, targetNodeKey);
+            default:
+                return LiveSourceSnapshot.Unknown(sourceNodeKey, targetNodeKey);
+        }
+    }
+
+    private LiveSourceSnapshot BuildMiningSnapshot(string sourceNodeKey, Node targetNode)
+    {
+        var mining = GetMiningState(targetNode);
+        return mining.State switch
+        {
+            MiningMined mined => LiveSourceSnapshot.Mined(sourceNodeKey, targetNode.Key, mined.RespawnSeconds),
+            MiningAvailable => LiveSourceSnapshot.MiningAvailable(sourceNodeKey, targetNode.Key),
+            _ => LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key),
+        };
+    }
+
+    private LiveSourceSnapshot BuildItemBagSnapshot(string sourceNodeKey, Node targetNode)
+    {
+        var state = GetItemBagState(targetNode);
+        return state switch
+        {
+            ItemBagPickedUp pickedUp => LiveSourceSnapshot.PickedUp(sourceNodeKey, targetNode.Key, pickedUp.RespawnSeconds),
+            ItemBagAvailable => LiveSourceSnapshot.ItemAvailable(sourceNodeKey, targetNode.Key),
+            _ => LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key),
+        };
+    }
+
+    private static (float X, float Y, float Z)? TryGetLivePosition(NPC? npc)
+    {
+        if (npc == null || npc.gameObject == null)
+            return null;
+
+        var position = npc.transform.position;
+        return (position.x, position.y, position.z);
+    }
+
+    private static (float X, float Y, float Z)? TryGetAnchoredLivePosition(NPC? npc)
+    {
+        var position = TryGetLivePosition(npc);
+        if (!position.HasValue)
+            return null;
+
+        float y = position.Value.Y + 0.8f;
+        var capsule = npc!.GetComponent<CapsuleCollider>();
+        if (capsule != null)
+            y = position.Value.Y + (capsule.height * npc.transform.lossyScale.y) + 0.8f;
+
+        return (position.Value.X, y, position.Value.Z);
+    }
 
     private static int GetStatePriority(NodeState state)
     {

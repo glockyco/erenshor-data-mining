@@ -14,7 +14,6 @@ public sealed class ChangeSet
         liveWorldChanged: false,
         changedItemKeys: Array.Empty<string>(),
         changedQuestDbNames: Array.Empty<string>(),
-        affectedQuestKeys: Array.Empty<string>(),
         changedFacts: Array.Empty<FactKey>()
     );
 
@@ -25,7 +24,6 @@ public sealed class ChangeSet
 
     public IReadOnlyCollection<string> ChangedItemKeys { get; }
     public IReadOnlyCollection<string> ChangedQuestDbNames { get; }
-    public IReadOnlyCollection<string> AffectedQuestKeys { get; }
     public IReadOnlyCollection<FactKey> ChangedFacts { get; }
 
     public bool HasMeaningfulChanges =>
@@ -35,7 +33,6 @@ public sealed class ChangeSet
         || LiveWorldChanged
         || ChangedItemKeys.Count > 0
         || ChangedQuestDbNames.Count > 0
-        || AffectedQuestKeys.Count > 0
         || ChangedFacts.Count > 0;
 
     public ChangeSet(
@@ -45,7 +42,6 @@ public sealed class ChangeSet
         bool liveWorldChanged,
         IEnumerable<string> changedItemKeys,
         IEnumerable<string> changedQuestDbNames,
-        IEnumerable<string> affectedQuestKeys,
         IEnumerable<FactKey> changedFacts
     )
     {
@@ -55,21 +51,8 @@ public sealed class ChangeSet
         LiveWorldChanged = liveWorldChanged;
         ChangedItemKeys = FreezeStrings(changedItemKeys, StringComparer.Ordinal);
         ChangedQuestDbNames = FreezeStrings(changedQuestDbNames, StringComparer.OrdinalIgnoreCase);
-        AffectedQuestKeys = FreezeStrings(affectedQuestKeys, StringComparer.Ordinal);
         ChangedFacts = FreezeFacts(changedFacts);
     }
-
-    public ChangeSet WithAffectedQuestKeys(IEnumerable<string> affectedQuestKeys) =>
-        new(
-            InventoryChanged,
-            QuestLogChanged,
-            SceneChanged,
-            LiveWorldChanged,
-            ChangedItemKeys,
-            ChangedQuestDbNames,
-            affectedQuestKeys,
-            ChangedFacts
-        );
 
     public ChangeSet Merge(ChangeSet other) =>
         new(
@@ -79,7 +62,6 @@ public sealed class ChangeSet
             LiveWorldChanged || other.LiveWorldChanged,
             ChangedItemKeys.Concat(other.ChangedItemKeys),
             ChangedQuestDbNames.Concat(other.ChangedQuestDbNames),
-            AffectedQuestKeys.Concat(other.AffectedQuestKeys),
             ChangedFacts.Concat(other.ChangedFacts)
         );
 

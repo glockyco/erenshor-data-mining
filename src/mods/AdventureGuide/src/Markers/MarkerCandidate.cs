@@ -7,7 +7,7 @@ namespace AdventureGuide.Markers;
 /// <see cref="Queries.MarkerCandidatesQuery"/>. Carries only inputs that are
 /// static for the current quest/scene/source state; per-frame overlays (live
 /// NPC position, respawn timer seconds, night-hour clock) are applied by the
-/// renderer. Structural equality lets the engine backdate an unchanged list
+/// projector. Structural equality lets the engine backdate an unchanged list
 /// through <see cref="MarkerCandidateList"/>.
 /// </summary>
 public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
@@ -28,7 +28,6 @@ public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
 		bool keepWhileCorpsePresent,
 		string? corpseSubText,
 		bool isNightSpawnNode,
-		bool isSpawnTimerSlot,
 		string displayName,
 		string? unlockBlockedReason)
 	{
@@ -47,7 +46,6 @@ public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
 		KeepWhileCorpsePresent = keepWhileCorpsePresent;
 		CorpseSubText = corpseSubText;
 		IsNightSpawnNode = isNightSpawnNode;
-		IsSpawnTimerSlot = isSpawnTimerSlot;
 		DisplayName = displayName;
 		UnlockBlockedReason = unlockBlockedReason;
 	}
@@ -67,7 +65,6 @@ public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
 	public bool KeepWhileCorpsePresent { get; }
 	public string? CorpseSubText { get; }
 	public bool IsNightSpawnNode { get; }
-	public bool IsSpawnTimerSlot { get; }
 	public string DisplayName { get; }
 	public string? UnlockBlockedReason { get; }
 
@@ -92,7 +89,6 @@ public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
 			&& KeepWhileCorpsePresent == other.KeepWhileCorpsePresent
 			&& CorpseSubText == other.CorpseSubText
 			&& IsNightSpawnNode == other.IsNightSpawnNode
-			&& IsSpawnTimerSlot == other.IsSpawnTimerSlot
 			&& DisplayName == other.DisplayName
 			&& UnlockBlockedReason == other.UnlockBlockedReason;
 	}
@@ -117,8 +113,7 @@ public sealed class MarkerCandidate : IEquatable<MarkerCandidate>
 			Z,
 			KeepWhileCorpsePresent,
 			CorpseSubText,
-			IsNightSpawnNode,
-			IsSpawnTimerSlot);
+			IsNightSpawnNode);
 		var third = HashCode.Combine(DisplayName, UnlockBlockedReason);
 		return HashCode.Combine(first, second, third);
 	}

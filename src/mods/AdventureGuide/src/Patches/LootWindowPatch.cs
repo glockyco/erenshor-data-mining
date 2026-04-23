@@ -1,6 +1,5 @@
 using System.Reflection;
 using AdventureGuide.Incremental;
-using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 using HarmonyLib;
@@ -22,25 +21,50 @@ internal static class LootWindowCloseWindowPatch
 	internal static LiveStateTracker? LiveState;
 	internal static Engine<FactKey>? Engine;
 	internal static ZoneRouter? ZoneRouter;
-	internal static NavigationTargetSelector? Selector;
+
 	[HarmonyPostfix]
 	private static void Postfix(LootWindow __instance)
 	{
 		if (LiveState == null || Engine == null)
 			return;
 
-		if (ParentField?.GetValue(__instance) is not LootTable parent)
-			return;
+		TryHandleLootClose<LootTable, NPC>(
+			ParentField?.GetValue(__instance),
+			static parent => parent != null,
+			static parent => parent.GetComponent<NPC>(),
+			LiveState.OnCorpseLooted,
+			facts => Engine.InvalidateFacts(facts),
+			facts => ZoneRouter?.ObserveInvalidation(facts)
+		);
+	}
 
-		var npc = parent.GetComponent<NPC>();
+	internal static bool TryHandleLootClose<TParent, TNpc>(
+		object? parentCandidate,
+		Func<TParent, bool> canInspectParent,
+		Func<TParent, TNpc?> getNpc,
+		Func<TNpc, ChangeSet> onCorpseLooted,
+		Action<IReadOnlyCollection<FactKey>> invalidateFacts,
+		Action<IReadOnlyCollection<FactKey>>? observeInvalidation
+	)
+		where TParent : class
+		where TNpc : class
+	{
+		if (parentCandidate is not TParent parent)
+			return false;
+
+		if (!canInspectParent(parent))
+			return false;
+
+		var npc = getNpc(parent);
 		if (npc == null)
-			return;
+			return false;
 
-		var change = LiveState.OnCorpseLooted(npc);
+		var change = onCorpseLooted(npc);
 		if (!change.HasMeaningfulChanges)
-		    return;
+			return true;
 
-		Selector?.InvalidateTargets();
-		Engine.InvalidateFacts(change.ChangedFacts);
-		ZoneRouter?.ObserveInvalidation(change.ChangedFacts);	}
+		invalidateFacts(change.ChangedFacts);
+		observeInvalidation?.Invoke(change.ChangedFacts);
+		return true;
+	}
 }

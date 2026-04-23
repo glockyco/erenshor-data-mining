@@ -6,7 +6,6 @@ public sealed class QuestResolutionRecord
 {
 	private readonly Func<IReadOnlyList<ResolvedQuestTarget>> _navigationTargetsFactory;
 	private IReadOnlyList<ResolvedQuestTarget>? _navigationTargets;
-	private readonly IReadOnlyDictionary<string, int> _blockingZoneLineByScene;
 
 	public QuestResolutionRecord(
 		string questKey,
@@ -21,13 +20,14 @@ public sealed class QuestResolutionRecord
 		Frontier = frontier;
 		CompiledTargets = compiledTargets;
 		_navigationTargetsFactory = navigationTargetsFactory;
-		_blockingZoneLineByScene = blockingZoneLineByScene;
+		BlockingZoneLineByTargetScene = blockingZoneLineByScene;
 	}
 
 	public string QuestKey { get; }
 	public string CurrentScene { get; }
 	public IReadOnlyList<FrontierEntry> Frontier { get; }
 	public IReadOnlyList<ResolvedTarget> CompiledTargets { get; }
+	public IReadOnlyDictionary<string, int> BlockingZoneLineByTargetScene { get; }
 	public IReadOnlyList<ResolvedQuestTarget> NavigationTargets =>
 		_navigationTargets ??= _navigationTargetsFactory();
 
@@ -36,6 +36,6 @@ public sealed class QuestResolutionRecord
 		zoneLineNodeId = default;
 		if (string.IsNullOrWhiteSpace(targetScene))
 			return false;
-		return _blockingZoneLineByScene.TryGetValue(targetScene, out zoneLineNodeId);
+		return BlockingZoneLineByTargetScene.TryGetValue(targetScene, out zoneLineNodeId);
 	}
 }

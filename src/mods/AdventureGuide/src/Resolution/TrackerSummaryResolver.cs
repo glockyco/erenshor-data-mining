@@ -52,12 +52,6 @@ public sealed class TrackerSummaryResolver
 		try
 		{
 			_lastResolveQuestKey = questKey;
-			if (preferredTarget != null && tracker != null)
-			{
-				var preferredSummary = BuildPreferredTargetSummary(preferredTarget, tracker);
-				Remember(preferredSummary, usedPreferredTarget: true);
-				return preferredSummary;
-			}
 			if (string.IsNullOrEmpty(questDbName))
 			{
 				Remember(null, usedPreferredTarget: false);
@@ -72,6 +66,26 @@ public sealed class TrackerSummaryResolver
 			}
 
 			var record = _reader.ReadQuestResolution(questNode.Key, currentScene);
+			if (preferredTarget != null && tracker != null)
+			{
+				var navigationTargets = record.NavigationTargets;
+				if (navigationTargets.Count == 0)
+				{
+					var preferredSummary = BuildPreferredTargetSummary(preferredTarget, tracker);
+					Remember(preferredSummary, usedPreferredTarget: true);
+					return preferredSummary;
+				}
+
+				var currentPreferredTarget = FindCurrentPreferredTarget(navigationTargets, preferredTarget);
+				if (currentPreferredTarget != null)
+				{
+					var refreshedPreferredTarget = RefreshPreferredTarget(currentPreferredTarget, preferredTarget);
+					var preferredSummary = BuildPreferredTargetSummary(refreshedPreferredTarget, tracker);
+					Remember(preferredSummary, usedPreferredTarget: true);
+					return preferredSummary;
+				}
+			}
+
 			var targets = record.CompiledTargets;
 			if (targets.Count > 0)
 			{
@@ -119,6 +133,53 @@ public sealed class TrackerSummaryResolver
 		}
 	}
 
+	private static ResolvedQuestTarget? FindCurrentPreferredTarget(
+		IReadOnlyList<ResolvedQuestTarget> targets,
+		ResolvedQuestTarget preferredTarget)
+	{
+		for (int i = 0; i < targets.Count; i++)
+		{
+			var candidate = targets[i];
+			if (!string.Equals(candidate.TargetInstanceKey, preferredTarget.TargetInstanceKey, StringComparison.Ordinal))
+				continue;
+			if (!string.Equals(candidate.GoalNode.NodeKey, preferredTarget.GoalNode.NodeKey, StringComparison.Ordinal))
+				continue;
+			if (candidate.Semantic.ActionKind != preferredTarget.Semantic.ActionKind)
+				continue;
+
+			return candidate;
+		}
+
+		return null;
+	}
+
+	private static ResolvedQuestTarget RefreshPreferredTarget(
+		ResolvedQuestTarget currentTarget,
+		ResolvedQuestTarget preferredTarget)
+	{
+		if (!NavigationExplanationBuilder.IsZoneReentry(preferredTarget.Explanation))
+			return currentTarget;
+		if (NavigationExplanationBuilder.IsZoneReentry(currentTarget.Explanation))
+			return currentTarget;
+
+		return new ResolvedQuestTarget(
+			currentTarget.TargetNodeKey,
+			currentTarget.Scene,
+			currentTarget.SourceKey,
+			currentTarget.GoalNode,
+			currentTarget.TargetNode,
+			currentTarget.Semantic,
+			preferredTarget.Explanation,
+			currentTarget.X,
+			currentTarget.Y,
+			currentTarget.Z,
+			currentTarget.IsActionable,
+			currentTarget.RequiredForQuestKey,
+			currentTarget.IsBlockedPath,
+			currentTarget.IsGuaranteedLoot,
+			currentTarget.AvailabilityPriority);
+	}
+
 	private TrackerSummary BuildPreferredTargetSummary(
 		ResolvedQuestTarget target,
 		QuestStateTracker tracker)
@@ -130,12 +191,19 @@ public sealed class TrackerSummaryResolver
 			prerequisiteQuestName = _guide.GetDisplayName(requiredQuestNodeId);
 		}
 
-		return NavigationExplanationBuilder.BuildTrackerSummary(
+		var summary = NavigationExplanationBuilder.BuildTrackerSummary(
 			target.GoalNode,
 			target.Semantic,
 			tracker,
 			additionalCount: 0,
 			prerequisiteQuestName);
+		if (!NavigationExplanationBuilder.IsZoneReentry(target.Explanation))
+			return summary;
+
+		return new TrackerSummary(
+			target.Explanation.PrimaryText,
+			summary.SecondaryText ?? target.Explanation.SecondaryText,
+			summary.RequiredForContext);
 	}
 
 	private static ResolvedTarget SelectBestTarget(IReadOnlyList<ResolvedTarget> targets)

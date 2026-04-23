@@ -227,7 +227,7 @@ def test_compile_graph_builds_quest_specs_and_sources() -> None:
     assert source.positions == [SpawnPosition(spawn_id=spawn_id, x=10.0, y=20.0, z=30.0)]
 
 
-def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
+def test_compile_graph_builds_unlock_predicates_and_dependent_quest_indices() -> None:
     graph = _graph(
         _quest("quest:unlock", db_name="UNLOCK"),
         _quest("quest:needs", db_name="NEEDS"),
@@ -244,7 +244,6 @@ def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
     vendor_id = compiled.node_key_to_id["char:vendor"]
     unlock_id = compiled.node_key_to_id["quest:unlock"]
     needs_id = compiled.node_key_to_id["quest:needs"]
-    key_id = compiled.node_key_to_id["item:key"]
 
     assert compiled.unlock_predicates == [
         UnlockPredicate(
@@ -256,30 +255,7 @@ def test_compile_graph_builds_unlock_predicates_and_reverse_deps() -> None:
     ]
     unlock_qi = compiled.node_quest_index[unlock_id]
     needs_qi = compiled.node_quest_index[needs_id]
-    key_ii = compiled.node_item_index[key_id]
     assert compiled.quest_to_dependent_quest_indices[unlock_qi] == [needs_qi]
-    assert compiled.item_to_quest_indices[key_ii] == [needs_qi]
-
-
-def test_compile_graph_builds_transitive_item_reverse_deps_through_crafting() -> None:
-    graph = _graph(
-        _quest("quest:wyland", db_name="WYLAND"),
-        _item("item:iron-ore"),
-        _item("item:ghostly-key"),
-        Node(key="recipe:ghostly-key", type=NodeType.RECIPE, display_name="Recipe: Ghostly Key"),
-        edges=[
-            Edge(source="quest:wyland", target="item:ghostly-key", type=EdgeType.REQUIRES_ITEM, quantity=1),
-            Edge(source="item:ghostly-key", target="recipe:ghostly-key", type=EdgeType.CRAFTED_FROM),
-            Edge(source="recipe:ghostly-key", target="item:iron-ore", type=EdgeType.REQUIRES_MATERIAL, quantity=1),
-            Edge(source="recipe:ghostly-key", target="item:ghostly-key", type=EdgeType.PRODUCES, quantity=1),
-        ],
-    )
-
-    compiled = compile_graph(graph)
-    wyland_qi = compiled.node_quest_index[compiled.node_key_to_id["quest:wyland"]]
-    ore_ii = compiled.node_item_index[compiled.node_key_to_id["item:iron-ore"]]
-
-    assert compiled.item_to_quest_indices[ore_ii] == [wyland_qi]
 
 
 def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> None:

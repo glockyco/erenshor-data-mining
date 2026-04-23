@@ -59,21 +59,53 @@ public sealed class CompiledTargetsQueryTests
 		Assert.Same(first, second);
 	}
 
+	[Fact]
+	public void Read_CreatesFreshResolutionSessionPerRecompute_WithoutSharedBatchScope()
+	{
+		var fixture = CompiledTargetsFixture.Create();
+
+		fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "ROOT") });
+		fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+
+		Assert.Equal(2, fixture.UsedSessions.Count);
+		Assert.NotSame(fixture.UsedSessions[0], fixture.UsedSessions[1]);
+	}
+
+	[Fact]
+	public void Read_ReusesSharedResolutionSessionWithinBatchScope()
+	{
+		var fixture = CompiledTargetsFixture.Create();
+
+		using (CompiledTargetsQuery.BeginSharedResolutionBatchScope())
+		{
+			fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+			fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "ROOT") });
+			fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+		}
+
+		Assert.Equal(2, fixture.UsedSessions.Count);
+		Assert.Same(fixture.UsedSessions[0], fixture.UsedSessions[1]);
+	}
+
 	private sealed class CompiledTargetsFixture
 	{
 		private CompiledTargetsFixture(
 			AdventureGuide.CompiledGuide.CompiledGuide guide,
 			Engine<FactKey> engine,
-			CompiledTargetsQuery query)
+			CompiledTargetsQuery query,
+			List<SourceResolver.ResolutionSession> usedSessions)
 		{
 			Guide = guide;
 			Engine = engine;
 			Query = query;
+			UsedSessions = usedSessions;
 		}
 
 		public AdventureGuide.CompiledGuide.CompiledGuide Guide { get; }
 		public Engine<FactKey> Engine { get; }
 		public CompiledTargetsQuery Query { get; }
+		public List<SourceResolver.ResolutionSession> UsedSessions { get; }
 
 		public static CompiledTargetsFixture Create()
 		{
@@ -108,11 +140,13 @@ public sealed class CompiledTargetsQueryTests
 				new FakeQuestState(currentScene: "Town"),
 				new FakeTrackerState(),
 				new FakeNavigationSet());
+			var usedSessions = new List<SourceResolver.ResolutionSession>();
 
 			return new CompiledTargetsFixture(
 				guide,
 				engine,
-				new CompiledTargetsQuery(engine, guide, frontier, resolver, reader));
+				new CompiledTargetsQuery(engine, guide, frontier, resolver, reader, usedSessions.Add),
+				usedSessions);
 		}
 	}
 

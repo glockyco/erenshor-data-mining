@@ -53,8 +53,12 @@ public sealed class QuestTargetResolver
 
 		var results = new List<ResolvedTarget>();
 		var resolutionSession = session ?? new SourceResolver.ResolutionSession();
-		var seenTargets = resolutionSession.SeenTargetsScratch;
-		seenTargets.Clear();
+		bool useScratch = resolutionSession.ResolveCallDepth == 0;
+		var seenTargets = useScratch
+			? resolutionSession.SeenTargetsScratch
+			: new HashSet<string>(StringComparer.Ordinal);
+		if (useScratch)
+			seenTargets.Clear();
 		for (int i = 0; i < frontier.Count; i++)
 		{
 			var compiledTargets = CollapseCrossZoneTargets(

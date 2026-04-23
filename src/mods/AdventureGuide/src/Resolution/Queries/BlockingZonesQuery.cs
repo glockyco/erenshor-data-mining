@@ -1,6 +1,7 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
 using AdventureGuide.Position;
+using AdventureGuide.Position.Queries;
 using AdventureGuide.State;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -10,6 +11,7 @@ public sealed class BlockingZonesQuery
 {
 	private readonly CompiledGuideModel _guide;
 	private readonly ZoneRouter? _zoneRouter;
+	private readonly Query<string, ZoneLineAccessibilityResult> _zoneLineAccessibility;
 
 	public Query<string, BlockingZonesResult> Query { get; }
 
@@ -20,6 +22,7 @@ public sealed class BlockingZonesQuery
 	{
 		_guide = guide;
 		_zoneRouter = zoneRouter;
+		_zoneLineAccessibility = new ZoneLineAccessibilityQuery(engine, guide, zoneRouter).Query;
 		Query = engine.DefineQuery<string, BlockingZonesResult>(
 			name: "BlockingZones",
 			compute: Compute);
@@ -27,15 +30,11 @@ public sealed class BlockingZonesQuery
 
 	private BlockingZonesResult Compute(ReadContext<FactKey> ctx, string scene)
 	{
-		// ZoneRouter's accessibility graph depends on zone-line unlock state, which
-		// is gated by unlock-item possession, live source state, and quest
-		// completion. Subscribe to the set-identity key for each kind so any emitter
-		// mutation forces this query to recompute.
-		ctx.RecordFact(new FactKey(FactKind.SourceState, "*"));
-		ctx.RecordFact(new FactKey(FactKind.UnlockItemPossessed, "*"));
-		ctx.RecordFact(new FactKey(FactKind.QuestCompleted, "*"));
 		if (_zoneRouter == null || string.IsNullOrWhiteSpace(scene))
 			return BlockingZonesResult.Empty;
+
+		foreach (var zoneLineKey in _zoneRouter.GetRouteRelevantZoneLineKeys(scene))
+			ctx.Read(_zoneLineAccessibility, zoneLineKey);
 
 		var blockedByScene = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 		foreach (var zone in _guide.NodesOfType(NodeType.Zone))
@@ -49,7 +48,6 @@ public sealed class BlockingZonesQuery
 			if (lockedHop == null)
 				continue;
 
-			ctx.RecordFact(new FactKey(FactKind.SourceState, lockedHop.ZoneLineKey));
 			if (_guide.TryGetNodeId(lockedHop.ZoneLineKey, out int zoneLineNodeId))
 				blockedByScene[zone.Scene] = zoneLineNodeId;
 		}

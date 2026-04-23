@@ -4,7 +4,7 @@ namespace AdventureGuide.Markers;
 
 /// <summary>
 /// Data for a single world marker. Produced by <see cref="MarkerProjector"/>,
-/// consumed by <see cref="MarkerRenderer"/> for rendering and per-frame updates.
+/// consumed by <see cref="MarkerRenderer"/> for rendering.
 /// </summary>
 public sealed class MarkerEntry
 {
@@ -27,18 +27,12 @@ public sealed class MarkerEntry
 	public int Priority { get; set; }
 	public string SubText { get; set; }
 
-	public SpawnPoint? LiveSpawnPoint { get; set; }
-	public NPC? TrackedNPC { get; set; }
-	public MiningNode? LiveMiningNode { get; set; }
-	public RotChest? LiveRotChest { get; set; }
-	public bool IsLootChestTarget { get; set; }
-
 	public string QuestKey => Candidate.QuestKey;
 	public string Scene => Candidate.Scene;
 	public string PositionNodeKey => Candidate.PositionNodeKey;
 	public string? SourceNodeKey => Candidate.SourceNodeKey;
+	public string SourceKey => Candidate.SourceNodeKey ?? Candidate.PositionNodeKey;
 	public string DisplayName => Candidate.DisplayName;
-	public bool IsSpawnTimerSlot => Candidate.IsSpawnTimerSlot;
 
 	internal static MarkerType ToMarkerType(QuestMarkerKind kind) =>
 		kind switch

@@ -28,7 +28,6 @@ public sealed class MarkerCandidateTests
 			keepWhileCorpsePresent: false,
 			corpseSubText: null,
 			isNightSpawnNode: false,
-			isSpawnTimerSlot: false,
 			displayName: "Leaf",
 			unlockBlockedReason: unlockBlockedReason);
 

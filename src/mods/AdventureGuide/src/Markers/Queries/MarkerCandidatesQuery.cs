@@ -11,10 +11,10 @@ namespace AdventureGuide.Markers.Queries;
 /// <summary>
 /// Engine-mediated projection that, for a given scene, produces the ordered
 /// list of <see cref="MarkerCandidate"/> values covering every quest-relevant
-/// world marker the renderer must display. Static inputs (compiled blueprints,
+/// world marker the projector must display. Static inputs (compiled blueprints,
 /// resolved targets, spawn category) are baked into the candidate;
 /// per-frame overlays (respawn timers, night-hour clock, live NPC tracking)
-/// are applied by the renderer without invalidating this cache.
+/// are applied by the projector without invalidating this cache.
 /// </summary>
 public sealed class MarkerCandidatesQuery
 {
@@ -135,10 +135,11 @@ public sealed class MarkerCandidatesQuery
 				continue;
 
 			var instruction = MarkerTextBuilder.BuildInstruction(target.Semantic);
-			string? corpseSubText = target.Semantic.ActionKind == ResolvedActionKind.Kill
-				? MarkerTextBuilder.BuildCorpseSubText(target.Semantic)
-				: null;
-			bool keepWhileCorpse = target.Semantic.ActionKind == ResolvedActionKind.Kill;
+			// Current live snapshots own dead/corpse presentation. The candidate
+			// remains the actionable quest marker only; respawn/dead lifecycle is
+			// projected later from the current source snapshot.
+			string? corpseSubText = null;
+			bool keepWhileCorpse = false;
 
 			var (x, y, z) = ResolveStaticPosition(positionNode, target.X, target.Y, target.Z);
 			string displayName = targetNode.DisplayName;
@@ -160,32 +161,8 @@ public sealed class MarkerCandidatesQuery
 				keepWhileCorpsePresent: keepWhileCorpse,
 				corpseSubText: corpseSubText,
 				isNightSpawnNode: positionNode.NightSpawn,
-				isSpawnTimerSlot: false,
 				displayName: displayName,
 				unlockBlockedReason: blockedReason));
-
-			if (positionNode.Type != NodeType.SpawnPoint && !positionNode.IsDirectlyPlaced)
-				continue;
-
-			sink.Add(new MarkerCandidate(
-				questKey: quest.Key,
-				targetNodeKey: targetNode.Key,
-				positionNodeKey: positionNode.Key + "|respawn",
-				sourceNodeKey: positionNode.Key,
-				scene: positionNode.Scene ?? targetNode.Scene ?? scene,
-				questKind: QuestMarkerKind.Objective,
-				spawnCategory: category,
-				priority: 0,
-				subText: string.Empty,
-				x: x,
-				y: y,
-				z: z,
-				keepWhileCorpsePresent: false,
-				corpseSubText: null,
-				isNightSpawnNode: positionNode.NightSpawn,
-				isSpawnTimerSlot: true,
-				displayName: displayName,
-				unlockBlockedReason: null));
 		}
 	}
 
@@ -215,25 +192,7 @@ public sealed class MarkerCandidatesQuery
 
 			var (x, y, z) = ResolveStaticPosition(positionNode, null, null, null);
 
-			sink.Add(new MarkerCandidate(
-				questKey: quest.Key,
-				targetNodeKey: targetNode.Key,
-				positionNodeKey: positionNode.Key,
-				sourceNodeKey: positionNode.Key,
-				scene: positionNode.Scene ?? scene,
-				questKind: instruction.Kind,
-				spawnCategory: category,
-				priority: instruction.Priority,
-				subText: instruction.SubText,
-				x: x,
-				y: y,
-				z: z,
-				keepWhileCorpsePresent: false,
-				corpseSubText: null,
-				isNightSpawnNode: positionNode.NightSpawn,
-				isSpawnTimerSlot: false,
-				displayName: targetNode.DisplayName,
-				unlockBlockedReason: ExtractBlockedReason(category, semantic)));
+			sink.Add(new MarkerCandidate(questKey: quest.Key, targetNodeKey: targetNode.Key, positionNodeKey: positionNode.Key, sourceNodeKey: positionNode.Key, scene: positionNode.Scene ?? scene, questKind: instruction.Kind, spawnCategory: category, priority: instruction.Priority, subText: instruction.SubText, x: x, y: y, z: z, keepWhileCorpsePresent: false, corpseSubText: null, isNightSpawnNode: positionNode.NightSpawn, displayName: targetNode.DisplayName, unlockBlockedReason: ExtractBlockedReason(category, semantic)));
 		}
 	}
 
@@ -263,25 +222,7 @@ public sealed class MarkerCandidatesQuery
 
 			var (x, y, z) = ResolveStaticPosition(positionNode, null, null, null);
 
-			sink.Add(new MarkerCandidate(
-				questKey: quest.Key,
-				targetNodeKey: characterNode.Key,
-				positionNodeKey: positionNode.Key,
-				sourceNodeKey: positionNode.Key,
-				scene: positionNode.Scene ?? characterNode.Scene ?? scene,
-				questKind: instruction.Kind,
-				spawnCategory: category,
-				priority: instruction.Priority,
-				subText: instruction.SubText,
-				x: x,
-				y: y,
-				z: z,
-				keepWhileCorpsePresent: false,
-				corpseSubText: null,
-				isNightSpawnNode: positionNode.NightSpawn,
-				isSpawnTimerSlot: false,
-				displayName: characterNode.DisplayName,
-				unlockBlockedReason: ExtractBlockedReason(category, semantic)));
+			sink.Add(new MarkerCandidate(questKey: quest.Key, targetNodeKey: characterNode.Key, positionNodeKey: positionNode.Key, sourceNodeKey: positionNode.Key, scene: positionNode.Scene ?? characterNode.Scene ?? scene, questKind: instruction.Kind, spawnCategory: category, priority: instruction.Priority, subText: instruction.SubText, x: x, y: y, z: z, keepWhileCorpsePresent: false, corpseSubText: null, isNightSpawnNode: positionNode.NightSpawn, displayName: characterNode.DisplayName, unlockBlockedReason: ExtractBlockedReason(category, semantic)));
 		}
 	}
 

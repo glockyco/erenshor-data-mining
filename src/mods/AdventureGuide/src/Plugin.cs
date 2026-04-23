@@ -57,7 +57,6 @@ public sealed class Plugin : BaseUnityPlugin
     private NavigationSet? _navSet;
     private NavigationEngine? _navEngine;
     private MarkerProjector? _markerProjector;
-
     private MarkerPool? _markerPool;
     private ZoneRouter? _zoneRouter;
     private ArrowRenderer? _arrow;
@@ -70,7 +69,6 @@ public sealed class Plugin : BaseUnityPlugin
     private IncidentPanel? _incidentPanel;
     private LiveStateTracker? _liveState;
     private MarkerRenderer? _markerRenderer;
-
     private NavigationSetPersistence? _navPersistence;
     private WaterPositionResolver? _waterResolver;
     private NavigationTargetSelector? _targetSelector;
@@ -80,15 +78,14 @@ public sealed class Plugin : BaseUnityPlugin
     private SpecTreeProjector? _specTreeProjector;
     private EffectiveFrontier? _compiledFrontier;
     private SourceResolver? _compiledSourceResolver;
-
     private NavigationTargetResolver? _navigationTargetResolver;
     private CompiledTargetsQuery? _compiledTargetsQuery;
     private BlockingZonesQuery? _blockingZonesQuery;
     private NavigableQuestsQuery? _navigableQuestsQuery;
+    private NavigationTargetSnapshotsQuery? _navigationTargetSnapshotsQuery;
     private QuestResolutionQuery? _questResolutionQuery;
     private MarkerCandidatesQuery? _markerCandidatesQuery;
     private DiagnosticsCore? _diagnostics;
-
 
     private int _lastObservedQuestTrackerVersion = -1;
 
@@ -240,15 +237,7 @@ public sealed class Plugin : BaseUnityPlugin
             projector);
         _reader.SetQuestResolutionQuery(_questResolutionQuery);
         _reader.SetNavigableQuestsQuery(_navigableQuestsQuery);
-        _markerCandidatesQuery = new MarkerCandidatesQuery(
-            _engine,
-            _compiledGuide,
-            _reader,
-            _navigableQuestsQuery,
-            _questResolutionQuery);
-        _reader.SetMarkerCandidatesQuery(_markerCandidatesQuery);
         _navigationTargetResolver = new NavigationTargetResolver(
-
             _compiledGuide,
             _reader,
             _zoneRouter,
@@ -256,8 +245,24 @@ public sealed class Plugin : BaseUnityPlugin
             projector,
             _diagnostics
         );
-
-
+        var selectorTargetSetQuery = new SelectorTargetSetQuery(
+            _engine,
+            _reader,
+            _navigableQuestsQuery);
+        _navigationTargetSnapshotsQuery = new NavigationTargetSnapshotsQuery(
+            _engine,
+            _compiledGuide,
+            _navigationTargetResolver,
+            selectorTargetSetQuery,
+            _questResolutionQuery);
+        _reader.SetNavigationTargetSnapshotsQuery(_navigationTargetSnapshotsQuery);
+        _markerCandidatesQuery = new MarkerCandidatesQuery(
+            _engine,
+            _compiledGuide,
+            _reader,
+            _navigableQuestsQuery,
+            _questResolutionQuery);
+        _reader.SetMarkerCandidatesQuery(_markerCandidatesQuery);
 
         _targetSelector = new NavigationTargetSelector(
             _navigationTargetResolver,
@@ -416,7 +421,6 @@ public sealed class Plugin : BaseUnityPlugin
         LootWindowCloseWindowPatch.LiveState = _liveState;
         LootWindowCloseWindowPatch.Engine = _engine;
         LootWindowCloseWindowPatch.ZoneRouter = _zoneRouter;
-        LootWindowCloseWindowPatch.Selector = _targetSelector;
 
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
 
@@ -456,7 +460,6 @@ public sealed class Plugin : BaseUnityPlugin
 
         syncSw.Restart();
         _reader.ReadMarkerCandidates(currentScene);
-
 
         // Capture the tracker version now so the first Update() tick does not
         // re-replay Awake's scene-change event, wipe the warm resolution cache,
@@ -592,7 +595,6 @@ public sealed class Plugin : BaseUnityPlugin
                 liveWorldChanged: false,
                 changedItemKeys: Array.Empty<string>(),
                 changedQuestDbNames: Array.Empty<string>(),
-                affectedQuestKeys: Array.Empty<string>(),
                 changedFacts: navFacts.Concat(trackerFacts)
             ));
         }
@@ -610,8 +612,8 @@ public sealed class Plugin : BaseUnityPlugin
         using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhasePublish);
         if (!change.HasMeaningfulChanges)
             return;
-        _targetSelector?.ObserveInvalidation(change);
         _engine?.InvalidateFacts(change.ChangedFacts);
+
         _zoneRouter?.ObserveInvalidation(change.ChangedFacts);
         if (change.SceneChanged)
             _zoneRouter?.Rebuild();
@@ -639,15 +641,17 @@ public sealed class Plugin : BaseUnityPlugin
         var playerPos = GameData.PlayerControl != null
             ? GameData.PlayerControl.transform.position
             : Vector3.zero;
-        var navigable = _reader!.ReadNavigableQuests();
+        var navigationSnapshots = _reader!.ReadNavigationTargetSnapshots(_navEngine!.CurrentScene);
         _targetSelector?.Tick(
             playerPos.x,
             playerPos.y,
             playerPos.z,
-            _navEngine!.CurrentScene,
-            navigable,
+            _navEngine.CurrentScene,
+            navigationSnapshots,
             liveWorldChanged
         );
+
+
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
         _markerProjector?.Project();
@@ -727,7 +731,6 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _navEngine?.OnSceneChanged(scene.name);
         _markerRenderer?.OnSceneChanged(scene.name);
-
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();

@@ -56,26 +56,6 @@ public sealed class CompiledGuideTypesTests
 	}
 
 	[Fact]
-	public void GetQuestsTouchingSource_IncludesRequiredItemSourceChains()
-	{
-		var guide = new CompiledGuideBuilder()
-			.AddItem("item:coal")
-			.AddMiningNode("mine:azure", scene: "Azure", x: 1f, y: 2f, z: 3f)
-			.AddItemSource(
-				"item:coal",
-				"mine:azure",
-				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.MiningNode
-			)
-			.AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:coal", 1) })
-			.Build();
-
-		var quests = guide.GetQuestsTouchingSource("mine:azure");
-
-		Assert.Contains("quest:root", quests);
-	}
-
-	[Fact]
 	public void NodeFlags_bit_values_are_stable()
 	{
 		Assert.Equal((ushort)1, (ushort)NodeFlags.IsFriendly);
@@ -91,46 +71,4 @@ public sealed class CompiledGuideTypesTests
 		Assert.Equal((ushort)1024, (ushort)NodeFlags.IsTriggerSpawn);
 	}
 
-	[Fact]
-	public void GetQuestsDependingOnItem_IncludesTransitiveCraftingDependencies()
-	{
-		var guide = new CompiledGuideBuilder()
-			.AddItem("item:iron-ore")
-			.AddItem("item:ghostly-key")
-			.AddRecipe("recipe:ghostly-key")
-			.AddQuest("quest:wyland", dbName: "WYLAND", requiredItems: new[] { ("item:ghostly-key", 1) })
-			.AddEdge("item:ghostly-key", "recipe:ghostly-key", EdgeType.CraftedFrom)
-			.AddEdge("recipe:ghostly-key", "item:iron-ore", EdgeType.RequiresMaterial, quantity: 1)
-			.AddEdge("recipe:ghostly-key", "item:ghostly-key", EdgeType.Produces, quantity: 1)
-			.Build();
-
-		var quests = guide.GetQuestsDependingOnItem("item:iron-ore");
-
-		Assert.Contains("quest:wyland", quests);
-	}
-
-	[Fact]
-	public void GetQuestsTouchingSource_IncludesTransitiveCraftingDependencies()
-	{
-		var guide = new CompiledGuideBuilder()
-			.AddItem("item:iron-ore")
-			.AddItem("item:ghostly-key")
-			.AddRecipe("recipe:ghostly-key")
-			.AddMiningNode("mine:ore", scene: "Tomb", x: 1f, y: 2f, z: 3f)
-			.AddItemSource(
-				"item:iron-ore",
-				"mine:ore",
-				edgeType: (byte)EdgeType.YieldsItem,
-				sourceType: (byte)NodeType.MiningNode
-			)
-			.AddQuest("quest:wyland", dbName: "WYLAND", requiredItems: new[] { ("item:ghostly-key", 1) })
-			.AddEdge("item:ghostly-key", "recipe:ghostly-key", EdgeType.CraftedFrom)
-			.AddEdge("recipe:ghostly-key", "item:iron-ore", EdgeType.RequiresMaterial, quantity: 1)
-			.AddEdge("recipe:ghostly-key", "item:ghostly-key", EdgeType.Produces, quantity: 1)
-			.Build();
-
-		var quests = guide.GetQuestsTouchingSource("mine:ore");
-
-		Assert.Contains("quest:wyland", quests);
-	}
 }

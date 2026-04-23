@@ -1,13 +1,33 @@
+using System.Reflection;
 using AdventureGuide.Graph;
 using AdventureGuide.Markers;
 using AdventureGuide.Navigation;
+using AdventureGuide.Position;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
+using AdventureGuide.Tests.Helpers;
 using Xunit;
 
 namespace AdventureGuide.Tests;
 
 public sealed class NavigationEngineTests
 {
+    [Fact]
+    public void Track_FallsBackToSelectedTargetPosition_WhenLiveTrackingDisappears()
+    {
+        var engine = CreateEngine();
+        object playerPosition = CreateVector3(0f, 0f, 0f);
+
+        engine.OnSceneChanged("ZoneA");
+        InvokeSetTarget(engine, MakeTarget(scene: "ZoneA", x: 10f, isBlockedPath: false));
+        SetEffectiveTarget(engine, CreateVector3(99f, 0f, 0f));
+
+        InvokeTrack(engine, playerPosition);
+
+        AssertVector3(engine, "EffectiveTarget", 10f, 0f, 0f);
+        Assert.Equal(10f, engine.Distance);
+    }
+
     [Fact]
     public void ComputeNavScore_IgnoresBlockedPathAcrossQuests()
     {
@@ -51,6 +71,57 @@ public sealed class NavigationEngineTests
         float directScore = NavigationScore.Compute(directFar, 0f, 0f, 0f);
 
         Assert.True(blockedScore < directScore);
+    }
+
+    private static NavigationEngine CreateEngine()
+    {
+        var guide = new CompiledGuideBuilder().Build();
+        var tracker = new QuestStateTracker(guide);
+        var unlocks = new UnlockEvaluator(guide, new GameState(guide), tracker);
+        var liveState = new LiveStateTracker(guide, unlocks);
+        var router = new ZoneRouter(guide, unlocks);
+        var selector = new NavigationTargetSelector(router, guide, liveState);
+        return new NavigationEngine(new NavigationSet(), guide, selector, router, liveState, unlocks);
+    }
+
+    private static object CreateVector3(float x, float y, float z)
+    {
+        var trackMethod = typeof(NavigationEngine).GetMethod("Track", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var vectorType = trackMethod.GetParameters()[0].ParameterType;
+        return Activator.CreateInstance(vectorType, x, y, z)!;
+    }
+
+    private static void AssertVector3(NavigationEngine engine, string propertyName, float x, float y, float z)
+    {
+        object boxed = typeof(NavigationEngine)
+            .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)!
+            .GetValue(engine)!;
+        var type = boxed.GetType();
+        Assert.Equal(x, (float)type.GetField("x")!.GetValue(boxed)!);
+        Assert.Equal(y, (float)type.GetField("y")!.GetValue(boxed)!);
+        Assert.Equal(z, (float)type.GetField("z")!.GetValue(boxed)!);
+    }
+
+    private static void InvokeSetTarget(NavigationEngine engine, ResolvedQuestTarget target)
+    {
+        typeof(NavigationEngine)
+            .GetMethod("SetTarget", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(engine, new object[] { target });
+    }
+
+    private static void InvokeTrack(NavigationEngine engine, object playerPosition)
+    {
+        typeof(NavigationEngine)
+            .GetMethod("Track", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(engine, new[] { playerPosition });
+    }
+
+    private static void SetEffectiveTarget(NavigationEngine engine, object value)
+    {
+        typeof(NavigationEngine)
+            .GetProperty("EffectiveTarget", BindingFlags.Instance | BindingFlags.Public)!
+            .GetSetMethod(nonPublic: true)!
+            .Invoke(engine, new[] { value });
     }
 
     private static ResolvedQuestTarget MakeTarget(string scene, float x, bool isBlockedPath)

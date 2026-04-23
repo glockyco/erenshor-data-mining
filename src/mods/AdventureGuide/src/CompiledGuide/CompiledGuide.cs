@@ -6,7 +6,7 @@ public sealed class CompiledGuide
 {
     private static readonly IReadOnlyList<Edge> EmptyEdgeList = Array.Empty<Edge>();
     private static readonly IReadOnlyList<Node> EmptyNodeList = Array.Empty<Node>();
-    private static readonly IReadOnlyCollection<string> EmptyKeySet = Array.Empty<string>();
+
     private static readonly IReadOnlyList<QuestGiverBlueprint> EmptyGiverBlueprints =
         Array.Empty<QuestGiverBlueprint>();
     private static readonly IReadOnlyList<QuestCompletionBlueprint> EmptyCompletionBlueprints =
@@ -32,8 +32,8 @@ public sealed class CompiledGuide
     private readonly SourceSiteEntry[][] _itemSources;
     private readonly Dictionary<int, UnlockPredicateEntry> _unlocks;
     private readonly int[] _topoOrder;
-    private readonly int[][] _itemToQuestIndices;
     private readonly int[][] _questToDependentQuestIndices;
+
     private readonly int[] _zoneNodeIds;
     private readonly int[][] _zoneAdj;
     private readonly Dictionary<string, string> _sceneToZoneDisplay;
@@ -51,9 +51,7 @@ public sealed class CompiledGuide
     private readonly Dictionary<string, Node> _questsByDbName;
     private readonly Dictionary<int, int> _nodeIdToQuestIndex;
     private readonly Dictionary<int, int> _nodeIdToItemIndex;
-    private readonly Dictionary<string, IReadOnlyCollection<string>> _questKeysByItemKey;
-    private readonly Dictionary<string, IReadOnlyCollection<string>> _questKeysByQuestKey;
-    private readonly Dictionary<string, IReadOnlyCollection<string>> _questKeysBySourceKey;
+
     private readonly Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> _questGiversByScene;
     private readonly Dictionary<
         string,
@@ -72,8 +70,8 @@ public sealed class CompiledGuide
         _topoOrder = data.TopoOrder;
         _zoneNodeIds = data.ZoneNodeIds;
         _zoneAdj = data.ZoneAdjacency;
-        _itemToQuestIndices = data.ItemToQuestIndices;
         _questToDependentQuestIndices = data.QuestToDependentQuestIndices;
+
 
         // Key-to-ID lookup
         _keyToId = new Dictionary<string, int>(_nodes.Length, StringComparer.Ordinal);
@@ -212,11 +210,8 @@ public sealed class CompiledGuide
         // Quest nodes indexed by db_name
         _questsByDbName = BuildQuestsByDbName(_projectedNodes, _questNodeIds);
 
-        // String-keyed dependency indexes
-        _questKeysByItemKey = BuildQuestKeysByItemKey();
-        _questKeysByQuestKey = BuildQuestKeysByQuestKey();
-
         // Scene-indexed blueprints (projected from int-ID blueprints)
+
         _questGiversByScene = BuildQuestGiversByScene();
         _questCompletionsByScene = BuildQuestCompletionsByScene();
         _staticSourcesByScene = BuildStaticSourcesByScene();
@@ -232,9 +227,7 @@ public sealed class CompiledGuide
                 _sceneToZoneDisplay[zoneNode.Scene] = zoneNode.DisplayName;
         }
 
-        // Source → quest key reverse index (from projected blueprints)
-        _questKeysBySourceKey = BuildQuestKeysBySourceKey();
-    }
+        }
 
     // ---------------------------------------------------------------
     // Counts
@@ -424,30 +417,12 @@ public sealed class CompiledGuide
     // Dependency lookups (int-indexed)
     // ---------------------------------------------------------------
 
-    public ReadOnlySpan<int> QuestsDependingOnItem(int itemIndex) => _itemToQuestIndices[itemIndex];
-
     public ReadOnlySpan<int> QuestsDependingOnQuest(int questIndex) =>
         _questToDependentQuestIndices[questIndex];
 
     // ---------------------------------------------------------------
-    // Dependency lookups (string-keyed, high-level API)
-    // ---------------------------------------------------------------
-
-    /// <summary>Returns quest keys whose resolution depends on the given item key,
-    /// either directly or through transitive crafting chains.</summary>
-    public IReadOnlyCollection<string> GetQuestsDependingOnItem(string itemKey) =>
-        _questKeysByItemKey.TryGetValue(itemKey, out var quests) ? quests : EmptyKeySet;
-
-    /// <summary>Returns quest keys that depend on the given quest key as a prerequisite.</summary>
-    public IReadOnlyCollection<string> GetQuestsDependingOnQuest(string questKey) =>
-        _questKeysByQuestKey.TryGetValue(questKey, out var quests) ? quests : EmptyKeySet;
-
-    /// <summary>Returns quest keys whose giver/completion blueprints reference the given source key.</summary>
-    public IReadOnlyCollection<string> GetQuestsTouchingSource(string sourceKey) =>
-        _questKeysBySourceKey.TryGetValue(sourceKey, out var quests) ? quests : EmptyKeySet;
-
-    // ---------------------------------------------------------------
     // Blueprint access (int-indexed, raw)
+
     // ---------------------------------------------------------------
 
     public ReadOnlySpan<QuestGiverEntry> GiverBlueprints => _giverBlueprints;
@@ -580,163 +555,11 @@ public sealed class CompiledGuide
         return map;
     }
 
-    private Dictionary<string, IReadOnlyCollection<string>> BuildQuestKeysByItemKey()
-    {
-        var directQuestIndicesByItem = _itemToQuestIndices
-            .Select(indices => new HashSet<int>(indices))
-            .ToArray();
-        var productIndicesByIngredient = new HashSet<int>[_itemNodeIds.Length];
-        for (int i = 0; i < productIndicesByIngredient.Length; i++)
-            productIndicesByIngredient[i] = new HashSet<int>();
+    
 
-        var ingredientIndicesByRecipe = new Dictionary<int, HashSet<int>>();
-        var productIndicesByRecipe = new Dictionary<int, HashSet<int>>();
-        for (int i = 0; i < _edges.Length; i++)
-        {
-            var edge = _edges[i];
-            if (!_nodeIdToItemIndex.TryGetValue(edge.TargetId, out int targetItemIndex)
-                && !_nodeIdToItemIndex.TryGetValue(edge.SourceId, out _))
-            {
-                continue;
-            }
+    
 
-            int sourceType = _nodes[edge.SourceId].NodeType;
-            int targetType = _nodes[edge.TargetId].NodeType;
-            if (sourceType == (int)NodeType.Recipe && targetType == (int)NodeType.Item)
-            {
-                if (edge.EdgeType == (int)EdgeType.RequiresMaterial)
-                {
-                    if (_nodeIdToItemIndex.TryGetValue(edge.TargetId, out targetItemIndex))
-                        (ingredientIndicesByRecipe.TryGetValue(edge.SourceId, out var ingredients)
-                            ? ingredients
-                            : ingredientIndicesByRecipe[edge.SourceId] = new HashSet<int>())
-                        .Add(targetItemIndex);
-                }
-                else if (edge.EdgeType == (int)EdgeType.Produces)
-                {
-                    if (_nodeIdToItemIndex.TryGetValue(edge.TargetId, out targetItemIndex))
-                        (productIndicesByRecipe.TryGetValue(edge.SourceId, out var products)
-                            ? products
-                            : productIndicesByRecipe[edge.SourceId] = new HashSet<int>())
-                        .Add(targetItemIndex);
-                }
-            }
-            else if (
-                edge.EdgeType == (int)EdgeType.CraftedFrom
-                && sourceType == (int)NodeType.Item
-                && targetType == (int)NodeType.Recipe
-                && _nodeIdToItemIndex.TryGetValue(edge.SourceId, out int sourceItemIndex)
-            )
-            {
-                (productIndicesByRecipe.TryGetValue(edge.TargetId, out var products)
-                    ? products
-                    : productIndicesByRecipe[edge.TargetId] = new HashSet<int>())
-                .Add(sourceItemIndex);
-            }
-        }
-
-        foreach (var (recipeId, ingredients) in ingredientIndicesByRecipe)
-        {
-            if (!productIndicesByRecipe.TryGetValue(recipeId, out var products))
-                continue;
-
-            foreach (int ingredientIndex in ingredients)
-            {
-                foreach (int productIndex in products)
-                    productIndicesByIngredient[ingredientIndex].Add(productIndex);
-            }
-        }
-
-        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        for (int itemIndex = 0; itemIndex < _itemNodeIds.Length; itemIndex++)
-        {
-            var impactedQuestIndices = new HashSet<int>();
-            var visitedItems = new HashSet<int>();
-            var queue = new Queue<int>();
-            visitedItems.Add(itemIndex);
-            queue.Enqueue(itemIndex);
-            while (queue.Count > 0)
-            {
-                int currentItemIndex = queue.Dequeue();
-                impactedQuestIndices.UnionWith(directQuestIndicesByItem[currentItemIndex]);
-                foreach (int productIndex in productIndicesByIngredient[currentItemIndex])
-                {
-                    if (visitedItems.Add(productIndex))
-                        queue.Enqueue(productIndex);
-                }
-            }
-
-            if (impactedQuestIndices.Count == 0)
-                continue;
-
-            string itemKey = _nodes[_itemNodeIds[itemIndex]].Key;
-            var questKeys = new HashSet<string>(StringComparer.Ordinal);
-            foreach (int questIndex in impactedQuestIndices)
-                questKeys.Add(_nodes[_questNodeIds[questIndex]].Key);
-            map[itemKey] = questKeys;
-        }
-
-        return FreezeSetMap(map);
-    }
-
-    private Dictionary<string, IReadOnlyCollection<string>> BuildQuestKeysByQuestKey()
-    {
-        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        for (int qi = 0; qi < _questNodeIds.Length; qi++)
-        {
-            string questKey = _nodes[_questNodeIds[qi]].Key;
-            var dependentIndices = _questToDependentQuestIndices[qi];
-            for (int d = 0; d < dependentIndices.Length; d++)
-            {
-                string dependentKey = _nodes[_questNodeIds[dependentIndices[d]]].Key;
-                if (!map.TryGetValue(questKey, out var set))
-                {
-                    set = new HashSet<string>(StringComparer.Ordinal);
-                    map[questKey] = set;
-                }
-                set.Add(dependentKey);
-            }
-        }
-        return FreezeSetMap(map);
-    }
-
-    private Dictionary<string, IReadOnlyCollection<string>> BuildQuestKeysBySourceKey()
-    {
-        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-
-        for (int i = 0; i < _giverBlueprints.Length; i++)
-        {
-            var bp = _giverBlueprints[i];
-            string sourceKey = _nodes[bp.PositionId].Key;
-            string questKey = _nodes[bp.QuestId].Key;
-            AddToSetMap(map, sourceKey, questKey);
-        }
-
-        for (int i = 0; i < _completionBlueprints.Length; i++)
-        {
-            var bp = _completionBlueprints[i];
-            string sourceKey = _nodes[bp.PositionId].Key;
-            string questKey = _nodes[bp.QuestId].Key;
-            AddToSetMap(map, sourceKey, questKey);
-        }
-
-        for (int itemIndex = 0; itemIndex < _itemSources.Length; itemIndex++)
-        {
-            string itemKey = _nodes[_itemNodeIds[itemIndex]].Key;
-            if (!_questKeysByItemKey.TryGetValue(itemKey, out var questKeys) || questKeys.Count == 0)
-                continue;
-
-            var sources = _itemSources[itemIndex];
-            for (int sourceIndex = 0; sourceIndex < sources.Length; sourceIndex++)
-            {
-                string sourceKey = _nodes[sources[sourceIndex].SourceId].Key;
-                foreach (var questKey in questKeys)
-                    AddToSetMap(map, sourceKey, questKey);
-            }
-        }
-
-        return FreezeSetMap(map);
-    }
+    
 
     private Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> BuildQuestGiversByScene()
     {
@@ -860,29 +683,9 @@ public sealed class CompiledGuide
         return FreezeListMap(map);
     }
 
-    private static void AddToSetMap(
-        Dictionary<string, HashSet<string>> map,
-        string key,
-        string value
-    )
-    {
-        if (!map.TryGetValue(key, out var set))
-        {
-            set = new HashSet<string>(StringComparer.Ordinal);
-            map[key] = set;
-        }
-        set.Add(value);
-    }
+    
 
-    private static Dictionary<string, IReadOnlyCollection<string>> FreezeSetMap(
-        Dictionary<string, HashSet<string>> map
-    )
-    {
-        var result = new Dictionary<string, IReadOnlyCollection<string>>(map.Count, map.Comparer);
-        foreach (var pair in map)
-            result[pair.Key] = pair.Value;
-        return result;
-    }
+    
 
     private static Dictionary<string, IReadOnlyList<T>> FreezeListMap<T>(
         Dictionary<string, List<T>> map

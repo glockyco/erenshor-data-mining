@@ -192,7 +192,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
                 liveWorldChanged: false,
                 changedItemKeys: Array.Empty<string>(),
                 changedQuestDbNames: new[] { dbName },
-                affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
                 changedFacts: new[]
                 {
                     new FactKey(FactKind.QuestActive, dbName),
@@ -221,7 +220,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
                 liveWorldChanged: false,
                 changedItemKeys: Array.Empty<string>(),
                 changedQuestDbNames: new[] { dbName },
-                affectedQuestKeys: CollectAffectedQuestKeysForQuestDbNames(new[] { dbName }),
                 changedFacts: new[]
                 {
                     new FactKey(FactKind.QuestActive, dbName),
@@ -267,7 +265,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
                 liveWorldChanged: false,
                 changedItemKeys: changedItemKeys,
                 changedQuestDbNames: Array.Empty<string>(),
-                affectedQuestKeys: CollectAffectedQuestKeysForItems(changedItemKeys),
                 changedFacts: changedFacts
             )
         );
@@ -293,7 +290,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
             liveWorldChanged: false,
             sync.ChangedItemKeys,
             sync.ChangedQuestDbNames,
-            sync.AffectedQuestKeys,
             sync.ChangedFacts.Concat(new[] { new FactKey(FactKind.Scene, "current") })
         );
 
@@ -327,10 +323,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
 
         RebuildImplicitlyAvailableQuests();
 
-        var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
-        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
-
         var changedFacts = new List<FactKey>(
             changedQuestDbNames.Count * 2 + changedItemKeys.Count + changedUnlockItemKeys.Count
         );
@@ -359,7 +351,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
             liveWorldChanged: false,
             changedItemKeys,
             changedQuestDbNames,
-            affectedQuestKeys,
             changedFacts
         );
     }
@@ -372,10 +363,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
 
         var changedItemKeys = new HashSet<string>(StringComparer.Ordinal);
         changedItemKeys.UnionWith(_inventoryCounts.Keys);
-
-        var affectedQuestKeys = new HashSet<string>(StringComparer.Ordinal);
-        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForQuestDbNames(changedQuestDbNames));
-        affectedQuestKeys.UnionWith(CollectAffectedQuestKeysForItems(changedItemKeys));
 
         var changedFacts = new List<FactKey>(
             changedQuestDbNames.Count * 2
@@ -410,7 +397,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
             liveWorldChanged: false,
             changedItemKeys: changedItemKeys,
             changedQuestDbNames: changedQuestDbNames,
-            affectedQuestKeys: affectedQuestKeys,
             changedFacts: changedFacts
         );
     }
@@ -619,56 +605,6 @@ public sealed class QuestStateTracker : IInventoryFactSource, IQuestStateFactSou
         return changed;
     }
 
-    private HashSet<string> CollectAffectedQuestKeysForItems(IEnumerable<string> changedItemKeys)
-    {
-        var seeds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var itemKey in changedItemKeys)
-        {
-            foreach (var questKey in _guide.GetQuestsDependingOnItem(itemKey))
-                seeds.Add(questKey);
-        }
-
-        return ExpandDependentQuestClosure(seeds);
-    }
-
-    private HashSet<string> CollectAffectedQuestKeysForQuestDbNames(
-        IEnumerable<string> changedQuestDbNames
-    )
-    {
-        var seeds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var dbName in changedQuestDbNames)
-        {
-            var quest = _guide.GetQuestByDbName(dbName);
-            if (quest != null)
-                seeds.Add(quest.Key);
-        }
-
-        return ExpandDependentQuestClosure(seeds);
-    }
-
-    private HashSet<string> ExpandDependentQuestClosure(IEnumerable<string> seedQuestKeys)
-    {
-        var closure = new HashSet<string>(StringComparer.Ordinal);
-        var queue = new Queue<string>();
-
-        foreach (var questKey in seedQuestKeys)
-        {
-            if (closure.Add(questKey))
-                queue.Enqueue(questKey);
-        }
-
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-            foreach (var dependent in _guide.GetQuestsDependingOnQuest(current))
-            {
-                if (closure.Add(dependent))
-                    queue.Enqueue(dependent);
-            }
-        }
-
-        return closure;
-    }
 
     private HashSet<string> CollectChangedUnlockItemKeys(
         IReadOnlyDictionary<string, int> nextCounts,

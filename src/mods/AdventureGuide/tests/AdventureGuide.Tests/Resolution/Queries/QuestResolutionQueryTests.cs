@@ -21,10 +21,33 @@ public sealed class QuestResolutionQueryTests
 
 		Assert.Same(fixture.CompiledResult.Frontier, record.Frontier);
 		Assert.Same(fixture.CompiledResult.Targets, record.CompiledTargets);
+		Assert.Same(fixture.BlockingResult.ByTargetScene, record.BlockingZoneLineByTargetScene);
 		Assert.True(record.TryGetBlockingZoneLineNodeId("Forest", out int zoneLineNodeId));
 		Assert.Equal(77, zoneLineNodeId);
 		Assert.Same(fixture.NavigationTargets, record.NavigationTargets);
+		Assert.NotNull(fixture.LastProjectedBlockingMap);
+		var projectedBlockingMap = fixture.LastProjectedBlockingMap!;
+		Assert.True(projectedBlockingMap.MatchesScene("Town"));
+		Assert.True(projectedBlockingMap.TryGetBlockingZoneLineNodeId("Forest", out int projectedZoneLineNodeId));
+		Assert.Equal(77, projectedZoneLineNodeId);
 		Assert.Equal(1, fixture.ProjectCount);
+	}
+
+	[Fact]
+	public void Compute_BindsPrecomputedBlockingMapToProjectedScene_AndNormalizesTargetSceneLookup()
+	{
+		var fixture = QuestResolutionQueryFixture.Create(
+			new Dictionary<string, int>(StringComparer.Ordinal) { ["forest"] = 77 });
+
+		var record = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+		_ = record.NavigationTargets;
+
+		Assert.NotNull(fixture.LastProjectedBlockingMap);
+		var projectedBlockingMap = fixture.LastProjectedBlockingMap!;
+		Assert.True(projectedBlockingMap.MatchesScene("Town"));
+		Assert.False(projectedBlockingMap.MatchesScene("Forest"));
+		Assert.True(projectedBlockingMap.TryGetBlockingZoneLineNodeId("FOREST", out int zoneLineId));
+		Assert.Equal(77, zoneLineId);
 	}
 
 	[Fact]
@@ -75,7 +98,7 @@ public sealed class QuestResolutionQueryTests
 	}
 
 	[Fact]
-	public void BackdatingSubQuery_SuppressesComposedRecompute()
+	public void BackdatingCompiledTargetsSubQuery_SuppressesComposedRecompute()
 	{
 		var fixture = QuestResolutionQueryFixture.Create();
 		var first = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
@@ -89,10 +112,28 @@ public sealed class QuestResolutionQueryTests
 		Assert.Equal(1, fixture.BlockingComputeCount);
 	}
 
+	[Fact]
+	public void BackdatingBlockingZonesSubQuery_SuppressesComposedRecompute()
+	{
+		var fixture = QuestResolutionQueryFixture.Create();
+		var first = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+
+		fixture.BlockingResult = new BlockingZonesResult(
+			new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["Forest"] = 77 });
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.SourceState, "*") });
+		var second = fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+
+		Assert.Same(first, second);
+		Assert.Equal(1, fixture.ComposedComputeCount);
+		Assert.Equal(1, fixture.CompiledComputeCount);
+		Assert.Equal(2, fixture.BlockingComputeCount);
+	}
+
 	private sealed class QuestResolutionQueryFixture
 	{
 		private readonly IReadOnlyList<FrontierEntry> _frontier;
 		private readonly IReadOnlyList<ResolvedTarget> _compiledTargets;
+		private readonly IReadOnlyList<ResolvedQuestTarget> _navigationTargets;
 
 		private QuestResolutionQueryFixture(
 			CompiledGuideModel guide,
@@ -100,20 +141,19 @@ public sealed class QuestResolutionQueryTests
 			QuestResolutionQuery query,
 			IReadOnlyList<FrontierEntry> frontier,
 			IReadOnlyList<ResolvedTarget> compiledTargets,
-			IReadOnlyList<ResolvedQuestTarget> navigationTargets)
+			IReadOnlyList<ResolvedQuestTarget> navigationTargets,
+			IReadOnlyDictionary<string, int>? blockingMap)
 		{
 			Guide = guide;
 			Engine = engine;
 			Query = query;
-			_navigationTargets = navigationTargets;
 			_frontier = frontier;
 			_compiledTargets = compiledTargets;
+			_navigationTargets = navigationTargets;
 			CompiledResult = new CompiledTargetsResult(frontier, compiledTargets);
 			BlockingResult = new BlockingZonesResult(
-				new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["Forest"] = 77 });
+				blockingMap ?? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["Forest"] = 77 });
 		}
-
-		private readonly IReadOnlyList<ResolvedQuestTarget> _navigationTargets;
 
 		public CompiledGuideModel Guide { get; }
 		public Engine<FactKey> Engine { get; }
@@ -121,12 +161,13 @@ public sealed class QuestResolutionQueryTests
 		public CompiledTargetsResult CompiledResult { get; set; }
 		public BlockingZonesResult BlockingResult { get; set; }
 		public IReadOnlyList<ResolvedQuestTarget> NavigationTargets => _navigationTargets;
+		public QuestTargetProjector.PrecomputedBlockingZoneMap? LastProjectedBlockingMap { get; private set; }
 		public int ComposedComputeCount { get; private set; }
 		public int CompiledComputeCount { get; private set; }
 		public int BlockingComputeCount { get; private set; }
 		public int ProjectCount { get; private set; }
 
-		public static QuestResolutionQueryFixture Create()
+		public static QuestResolutionQueryFixture Create(IReadOnlyDictionary<string, int>? blockingMap = null)
 		{
 			var guide = new CompiledGuideBuilder()
 				.AddQuest("quest:root", dbName: "ROOT")
@@ -214,11 +255,12 @@ public sealed class QuestResolutionQueryTests
 				engine,
 				compiledQuery,
 				blockingQuery,
-				(targets, scene) =>
+				(targets, scene, blockingMapForScene) =>
 				{
 					fixture!.ProjectCount++;
 					Assert.Same(fixture.CompiledResult.Targets, targets);
 					Assert.Equal("Town", scene);
+					fixture.LastProjectedBlockingMap = blockingMapForScene;
 					return fixture.NavigationTargets;
 				},
 				() => fixture!.ComposedComputeCount++);
@@ -228,7 +270,8 @@ public sealed class QuestResolutionQueryTests
 				query,
 				frontier,
 				compiledTargets,
-				navigationTargets);
+				navigationTargets,
+				blockingMap);
 			return fixture;
 		}
 

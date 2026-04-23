@@ -4,6 +4,8 @@ namespace AdventureGuide.Resolution;
 
 public static class NavigationExplanationBuilder
 {
+    internal const string ZoneReentryPrimaryText = "Re-enter zone";
+
     public static NavigationExplanation Build(
         ResolvedActionSemantic semantic,
         ResolvedNodeContext goalNode,
@@ -75,6 +77,28 @@ public static class NavigationExplanationBuilder
             tertiaryText: null
         );
     }
+
+    public static NavigationExplanation BuildZoneReentryExplanation(NavigationExplanation explanation)
+    {
+        string? secondary = AppendZone(explanation.TargetIdentityText, explanation.ZoneText);
+        return new NavigationExplanation(
+            explanation.GoalKind,
+            explanation.TargetKind,
+            explanation.GoalNode,
+            explanation.TargetNode,
+            ZoneReentryPrimaryText,
+            explanation.TargetIdentityText,
+            explanation.ZoneText,
+            secondary,
+            tertiaryText: null
+        );
+    }
+
+    public static bool IsZoneReentry(NavigationExplanation explanation) =>
+        string.Equals(
+            explanation.PrimaryText,
+            ZoneReentryPrimaryText,
+            System.StringComparison.OrdinalIgnoreCase);
 
     public static TrackerSummary BuildTrackerSummary(
         ResolvedNodeContext frontierNode,

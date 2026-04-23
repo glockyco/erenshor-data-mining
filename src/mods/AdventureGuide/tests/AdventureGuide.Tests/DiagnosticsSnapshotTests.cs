@@ -49,23 +49,20 @@ public sealed class DiagnosticsSnapshotTests
 			ResolutionTestFactory.BuildProjector(guide, null)
 		);
 		var selector = new NavigationTargetSelector(
-			(keys, scene) => resolver.ResolveBatch(keys, scene),
-			SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router,
-			guide,
+			router: SnapshotHarness.FromBuilder(new CompiledGuideBuilder()).Router,
+			guide: guide,
 			liveState: null,
 			diagnostics: new DiagnosticsCore(128, 128, 8, IncidentThresholds.Disabled),
 			clock: () => 1f,
-			rerankInterval: 0f
+			rerankInterval: 0f,
+			topQuestCostProvider: () => resolver.ExportDiagnosticsSnapshot().TopQuestCosts
 		);
-
-		selector.Tick(
-			0f,
-			0f,
-			0f,
+		var snapshots = SnapshotSet(
 			"Forest",
-			new NavigableQuestSet(new[] { "quest:a" }),
-			liveWorldChanged: false
+			"quest:a",
+			resolver.Resolve("quest:a", "Forest")
 		);
+		selector.Tick(0f, 0f, 0f, "Forest", snapshots, liveWorldChanged: false);
 
 		var snapshot = selector.ExportDiagnosticsSnapshot();
 		var snapshotType = snapshot.GetType();
@@ -132,6 +129,19 @@ public sealed class DiagnosticsSnapshotTests
 		Assert.Equal(0, snapshot.LastInvalidatedQuestCount);
 		Assert.False(snapshot.LastInvalidationWasFull);
 		Assert.Equal(after, service.ReadQuestResolution("quest:root", string.Empty));
+	}
+
+	private static NavigationTargetSnapshots SnapshotSet(
+		string scene,
+		string questKey,
+		IReadOnlyList<ResolvedQuestTarget> targets)
+	{
+		return new NavigationTargetSnapshots(
+			scene,
+			new[]
+			{
+				new NavigationTargetSnapshot(questKey, scene, targets)
+			});
 	}
 
 	private static int FindQuestIndex(AdventureGuide.CompiledGuide.CompiledGuide guide, string key)

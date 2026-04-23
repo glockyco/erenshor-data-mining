@@ -224,12 +224,19 @@ public sealed class NavigationEngine
             _ => default,
         };
 
-        if (info.State is SpawnDead && info.LiveNPC != null && info.LiveNPC.gameObject != null)
-            return NavigationExplanationBuilder.BuildCorpseExplanation(
-                semantic,
-                explanation.GoalNode,
-                explanation.TargetNode
-            );
+        if (info.State is SpawnDead)
+        {
+            bool hasCorpse = info.LiveNPC != null && info.LiveNPC.gameObject != null;
+            if (sourceNode.Type == NodeType.SpawnPoint && sourceNode.IsDirectlyPlaced && !hasCorpse)
+                return NavigationExplanationBuilder.BuildZoneReentryExplanation(explanation);
+
+            if (hasCorpse)
+                return NavigationExplanationBuilder.BuildCorpseExplanation(
+                    semantic,
+                    explanation.GoalNode,
+                    explanation.TargetNode
+                );
+        }
 
         return explanation;
     }
@@ -273,8 +280,9 @@ public sealed class NavigationEngine
         if (isSameScene)
         {
             var livePos = TryGetTrackedLivePosition(playerPosition);
-            if (livePos != null)
-                EffectiveTarget = new Vector3(livePos.Value.x, livePos.Value.y, livePos.Value.z);
+            EffectiveTarget = livePos != null
+                ? new Vector3(livePos.Value.x, livePos.Value.y, livePos.Value.z)
+                : TargetPosition;
         }
 
         Distance = EffectiveTarget.HasValue
