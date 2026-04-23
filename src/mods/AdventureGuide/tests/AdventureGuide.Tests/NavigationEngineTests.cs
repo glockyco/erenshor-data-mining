@@ -73,6 +73,82 @@ public sealed class NavigationEngineTests
         Assert.True(blockedScore < directScore);
     }
 
+    [Fact]
+    public void ShouldTrackLiveSource_IncludesDirectlyPlacedSourceNodes()
+    {
+        var directNode = new Node
+        {
+            Key = "char:direct",
+            Type = NodeType.Character,
+            IsDirectlyPlaced = true,
+        };
+
+        Assert.True(NavigationEngine.ShouldTrackLiveSource(directNode));
+    }
+
+    [Fact]
+    public void ComputeNavScore_CrossZoneReachableUsesHopCountBeforeSceneLocalDistance()
+    {
+        var oneHopFar = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneB", x: 10_000f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = 1,
+        };
+        var threeHopNear = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneC", x: 1f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = 3,
+        };
+
+        Assert.True(
+            NavigationScore.Compute(oneHopFar, 0f, 0f, 0f)
+                < NavigationScore.Compute(threeHopNear, 0f, 0f, 0f));
+    }
+
+    [Fact]
+    public void ComputeNavScore_CrossZoneReachableBeatsUnreachable()
+    {
+        var reachable = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneB", x: 10_000f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = 2,
+        };
+        var unreachable = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneC", x: 1f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = -1,
+        };
+
+        Assert.True(
+            NavigationScore.Compute(reachable, 0f, 0f, 0f)
+                < NavigationScore.Compute(unreachable, 0f, 0f, 0f));
+    }
+
+    [Fact]
+    public void ComputeNavScore_EveryReachableCrossZoneRouteBeatsUnreachable()
+    {
+        var reachable = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneB", x: 0f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = int.MaxValue,
+        };
+        var unreachable = new SelectedNavTarget
+        {
+            Target = MakeTarget(scene: "ZoneC", x: 0f, isBlockedPath: false),
+            IsSameZone = false,
+            HopCount = -1,
+        };
+
+        Assert.True(
+            NavigationScore.Compute(reachable, 0f, 0f, 0f)
+                < NavigationScore.Compute(unreachable, 0f, 0f, 0f));
+    }
+
     private static NavigationEngine CreateEngine()
     {
         var guide = new CompiledGuideBuilder().Build();

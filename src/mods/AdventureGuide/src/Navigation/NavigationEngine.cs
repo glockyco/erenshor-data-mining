@@ -295,7 +295,7 @@ public sealed class NavigationEngine
         if (_targetSourceKey != null)
         {
             var sourceNode = _guide.GetNode(_targetSourceKey);
-            if (sourceNode?.Type == NodeType.SpawnPoint)
+            if (sourceNode != null && ShouldTrackLiveSource(sourceNode))
                 return _liveState.GetLiveNpcPosition(sourceNode);
         }
 
@@ -306,6 +306,9 @@ public sealed class NavigationEngine
         var pos = liveNpc.transform.position;
         return (pos.x, pos.y, pos.z);
     }
+
+    internal static bool ShouldTrackLiveSource(Node sourceNode) =>
+        sourceNode.Type == NodeType.SpawnPoint || sourceNode.IsDirectlyPlaced;
 
     /// <summary>
     /// Fallback for character targets that have no concrete spawn-source key.

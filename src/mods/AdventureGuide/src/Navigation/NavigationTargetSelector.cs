@@ -444,7 +444,7 @@ internal void Tick(
         LiveSourceSnapshot snapshot)
     {
         if (snapshot.Kind == LiveSourceKind.Unknown)
-            return currentTarget;
+            return baseTarget;
 
         var sourceNode = ResolveStaticSourceNode(baseTarget);
         switch (snapshot.Kind)

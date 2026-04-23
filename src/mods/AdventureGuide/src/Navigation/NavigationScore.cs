@@ -10,18 +10,24 @@ internal static class NavigationScore
     )
     {
         const float CrossZonePenalty = 1_000_000f;
-        const float NonActionablePenalty = 500_000f;
+        const float SameZoneNonActionablePenalty = 500_000f;
+        const float CrossZoneUnreachablePenalty = float.MaxValue / 4f;
+        const float CrossZoneHopPenalty = 10_000f;
+        const float CrossZoneNonActionablePenalty = 1_000f;
 
-        float dx = sel.Target.X - playerX;
-        float dy = sel.Target.Y - playerY;
-        float dz = sel.Target.Z - playerZ;
-        float dist2 = dx * dx + dy * dy + dz * dz;
+        if (sel.IsSameZone)
+        {
+            float dx = sel.Target.X - playerX;
+            float dy = sel.Target.Y - playerY;
+            float dz = sel.Target.Z - playerZ;
+            float dist2 = dx * dx + dy * dy + dz * dz;
+            return dist2 + (sel.Target.IsActionable ? 0f : SameZoneNonActionablePenalty);
+        }
 
-        float penalty = 0f;
-        if (!sel.IsSameZone)
-            penalty += CrossZonePenalty;
-        if (!sel.Target.IsActionable)
-            penalty += NonActionablePenalty;
-        return dist2 + penalty;
+        float hopScore = sel.HopCount < 0
+            ? CrossZoneUnreachablePenalty
+            : sel.HopCount * CrossZoneHopPenalty;
+        float actionScore = sel.Target.IsActionable ? 0f : CrossZoneNonActionablePenalty;
+        return CrossZonePenalty + hopScore + actionScore;
     }
 }

@@ -677,6 +677,44 @@ public sealed class NavigationTargetSelectorTests
     }
 
     [Fact]
+    public void Tick_UnknownLiveSnapshotResetsMutableTargetToBaseState()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddSpawnPoint("spawn:leaf", scene: ZoneA, x: 10f, y: 0f, z: 0f)
+            .Build();
+        var targets = new[]
+        {
+            MakeTarget(
+                ZoneA,
+                x: 10f,
+                targetNodeKey: "char:leaf",
+                sourceKey: "spawn:leaf",
+                isActionable: false),
+        };
+        var liveState = new FakeSelectorLiveState();
+        liveState.Snapshots["char:leaf"] = LiveSourceSnapshot.Alive(
+            "spawn:leaf",
+            "char:leaf",
+            livePosition: (99f, 0f, 0f),
+            anchoredLivePosition: (99f, 0f, 0f));
+        var snapshots = SnapshotSet(ZoneA, "quest:test", targets);
+        var selector = MakeSelector(EmptyRouter(), guide: guide, liveState: liveState);
+
+        selector.Tick(0f, 0f, 0f, ZoneA, snapshots, liveWorldChanged: true);
+        Assert.True(selector.TryGet("quest:test", out var liveSelected));
+        Assert.Equal(99f, liveSelected.Target.X);
+        Assert.True(liveSelected.Target.IsActionable);
+
+        liveState.Snapshots["char:leaf"] = LiveSourceSnapshot.Unknown("spawn:leaf", "char:leaf");
+        selector.Tick(0f, 0f, 0f, ZoneA, snapshots, liveWorldChanged: true);
+
+        Assert.True(selector.TryGet("quest:test", out var resetSelected));
+        Assert.Equal(10f, resetSelected.Target.X);
+        Assert.False(resetSelected.Target.IsActionable);
+        Assert.False(targets[0].IsActionable);
+    }
+
+    [Fact]
     public void Tick_NoForce_RefreshesCachedMiningActionabilityFromLiveStateCache()
     {
         var guide = new CompiledGuideBuilder()
