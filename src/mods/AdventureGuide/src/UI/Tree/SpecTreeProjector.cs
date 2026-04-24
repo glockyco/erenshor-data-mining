@@ -34,6 +34,9 @@ public sealed class SpecTreeProjector
     private int _lastPrunedCount;
     private int _lastCyclePruneCount;
     private int _lastInvalidatedQuestCount;
+    private int _lastViabilityEvaluationCount;
+    private int _lastViabilityMemoHitCount;
+    private int _lastMaxViabilityDepth;
     private bool _lastInvalidationWasFull;
 
     internal SpecTreeProjector(
@@ -75,6 +78,9 @@ public sealed class SpecTreeProjector
             _lastChildCount = 0;
             _lastPrunedCount = 0;
             _lastCyclePruneCount = 0;
+            _lastViabilityEvaluationCount = 0;
+            _lastViabilityMemoHitCount = 0;
+            _lastMaxViabilityDepth = 0;
             int questIndex = FindQuestIndex(record.QuestKey);
             var roots = GetQuestChildren(
                 record,
@@ -742,6 +748,8 @@ public sealed class SpecTreeProjector
 
     private bool IsMeaningfullyVisible(SpecTreeRef candidate)
     {
+        RecordViabilityEvaluation();
+
         if (HasAncestryCycle(candidate))
             return false;
 
@@ -818,6 +826,8 @@ public sealed class SpecTreeProjector
 
     private bool HasVisibleQuestCompletionPlan(SpecTreeRef candidate)
     {
+        RecordViabilityEvaluation();
+
         if (candidate.GraphNodeId is not int questNodeId)
             return false;
 
@@ -909,6 +919,14 @@ public sealed class SpecTreeProjector
         }
 
         return false;
+    }
+
+    private void RecordViabilityEvaluation()
+    {
+        _lastViabilityEvaluationCount++;
+        int depth = _activeProjectionKeys.Count + 1;
+        if (depth > _lastMaxViabilityDepth)
+            _lastMaxViabilityDepth = depth;
     }
 
     private bool HasAncestryCycle(SpecTreeRef candidate)
@@ -1227,7 +1245,10 @@ public sealed class SpecTreeProjector
             lastPrunedCount: _lastPrunedCount,
             lastCyclePruneCount: _lastCyclePruneCount,
             lastInvalidatedQuestCount: _lastInvalidatedQuestCount,
-            lastInvalidationWasFull: _lastInvalidationWasFull
+            lastInvalidationWasFull: _lastInvalidationWasFull,
+            lastViabilityEvaluationCount: _lastViabilityEvaluationCount,
+            lastViabilityMemoHitCount: _lastViabilityMemoHitCount,
+            lastMaxViabilityDepth: _lastMaxViabilityDepth
         );
     }
 }

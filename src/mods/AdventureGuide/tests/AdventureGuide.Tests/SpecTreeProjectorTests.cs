@@ -25,6 +25,57 @@ public sealed class SpecTreeProjectorTests
         throw new InvalidOperationException($"Quest '{key}' not found in compiled guide.");
     }
 
+    private static AdventureGuide.CompiledGuide.CompiledGuide BuildWylandCycleGuide()
+    {
+        return new CompiledGuideBuilder()
+            .AddItem("item:torn-note")
+            .AddItem("item:marching-orders")
+            .AddItem("item:ghostly-key")
+            .AddItem("item:aetheria")
+            .AddRecipe("recipe:ghostly-key")
+            .AddCharacter("char:ghost")
+            .AddCharacter("char:sivakayan")
+            .AddCharacter("char:gherist")
+            .AddCharacter("char:lucian")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:torn-note", 1) })
+            .AddQuest(
+                "quest:note",
+                dbName: "NOTE",
+                givers: new[] { "item:marching-orders" },
+                completers: new[] { "char:lucian" },
+                requiredItems: new[] { ("item:torn-note", 1) }
+            )
+            .AddItemSource(
+                "item:torn-note",
+                "char:ghost",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:ghost", "item:ghostly-key", checkType: 1)
+            .AddItemSource(
+                "item:ghostly-key",
+                "recipe:ghostly-key",
+                edgeType: (byte)EdgeType.Produces,
+                sourceType: (byte)NodeType.Recipe
+            )
+            .AddEdge("recipe:ghostly-key", "item:aetheria", EdgeType.RequiresMaterial, quantity: 1)
+            .AddItemSource(
+                "item:aetheria",
+                "char:sivakayan",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:sivakayan", "quest:note")
+            .AddItemSource(
+                "item:marching-orders",
+                "char:gherist",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:gherist", "quest:note")
+            .Build();
+    }
+
     [Fact]
     public void GetRootChildren_MatchesResolutionRecordFrontierPhases()
     {
@@ -1074,6 +1125,33 @@ public sealed class SpecTreeProjectorTests
         Assert.DoesNotContain(
             projector.GetChildren(aetheria),
             child => child.Label == "Drops from: char:sivakayan"
+        );
+    }
+
+    [Fact]
+    public void Wyland_cycle_projection_keeps_pruned_probe_count_bounded()
+    {
+        var guide = BuildWylandCycleGuide();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var roots = projector.GetRootChildren(rootQuestIndex);
+        var snapshot = projector.ExportDiagnosticsSnapshot();
+
+        Assert.Contains(roots, child => child.Label == "Collect: item:torn-note");
+        Assert.True(snapshot.LastProjectedNodeCount <= 3);
+        Assert.True(
+            snapshot.LastViabilityEvaluationCount <= 40,
+            $"Expected bounded viability proof, saw {snapshot.LastViabilityEvaluationCount} evaluations."
         );
     }
 

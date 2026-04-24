@@ -89,9 +89,10 @@ public static class DebugAPI
         if (!Nav.HasTarget)
             return "No active navigation target";
 
-        var playerPos = GameData.PlayerControl != null
-            ? GameData.PlayerControl.transform.position
-            : default(UnityEngine.Vector3);
+        var playerPos =
+            GameData.PlayerControl != null
+                ? GameData.PlayerControl.transform.position
+                : default(UnityEngine.Vector3);
         return TargetSelector.DumpCandidates(
             playerPos.x,
             playerPos.y,
@@ -100,7 +101,6 @@ public static class DebugAPI
             Nav.TargetNodeKey
         );
     }
-
 
     /// <summary>Dump full details for a specific quest by node key, DB name, or display name.</summary>
     public static string DumpQuest(string name)
@@ -330,7 +330,9 @@ public static class DebugAPI
         foreach (var span in spans)
         {
             double ms = span.ElapsedTicks * 1000.0 / Stopwatch.Frequency;
-            sb.AppendLine($"  {span.Kind} | {span.PrimaryKey} | {ms:F3} ms | v0={span.Value0} v1={span.Value1}");
+            sb.AppendLine(
+                $"  {span.Kind} | {span.PrimaryKey} | {ms:F3} ms | v0={span.Value0} v1={span.Value1}"
+            );
         }
         return sb.ToString();
     }
@@ -379,6 +381,9 @@ public static class DebugAPI
                 $"Cycle prunes: {snapshot.LastCyclePruneCount}",
                 $"Invalidated quests: {snapshot.LastInvalidatedQuestCount}",
                 $"Full invalidation: {snapshot.LastInvalidationWasFull}",
+                $"Viability evaluations: {snapshot.LastViabilityEvaluationCount}",
+                $"Viability memo hits: {snapshot.LastViabilityMemoHitCount}",
+                $"Max viability depth: {snapshot.LastMaxViabilityDepth}",
             }
         );
     }
