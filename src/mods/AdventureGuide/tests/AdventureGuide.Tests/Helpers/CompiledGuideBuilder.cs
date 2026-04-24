@@ -1034,22 +1034,41 @@ public sealed class CompiledGuideBuilder
         }
 
         foreach (
-            (int itemNodeId, int itemIndex) in itemNodeIds.Select(
-                (nodeId, index) => (nodeId, index)
-            )
+        	(int itemNodeId, int itemIndex) in itemNodeIds.Select(
+        		(nodeId, index) => (nodeId, index)
+        	)
         )
         {
-            var children = itemSources[itemIndex]
-                .Select(source => (Kind: DetailGoalUnlockSource, source.SourceId))
-                .ToList();
-            children.AddRange(
-                edges
-                    .Where(edge =>
-                        edge.TargetId == itemNodeId && edge.EdgeType == (int)EdgeType.RewardsItem
-                    )
-                    .Select(edge => (Kind: DetailGoalCompleteQuest, edge.SourceId))
-            );
-            AddDependency(DetailGoalAcquireItem, itemNodeId, DetailSemanticsAnyOf, children);
+        	var children = itemSources[itemIndex]
+        		.Select(source => (Kind: DetailGoalUnlockSource, source.SourceId))
+        		.ToList();
+        	children.AddRange(
+        		edges
+        			.Where(edge =>
+        				edge.TargetId == itemNodeId && edge.EdgeType == (int)EdgeType.RewardsItem
+        			)
+        			.Select(edge => (Kind: DetailGoalCompleteQuest, edge.SourceId))
+        	);
+        	AddDependency(DetailGoalAcquireItem, itemNodeId, DetailSemanticsAnyOf, children);
+        }
+
+        var recipeMaterialGroups = edges
+        	.Where(edge =>
+        		edge.EdgeType == (int)EdgeType.RequiresMaterial
+        		&& nodes[edge.SourceId].NodeType == (int)NodeType.Recipe
+        		&& nodes[edge.TargetId].NodeType == (int)NodeType.Item
+        	)
+        	.GroupBy(edge => edge.SourceId)
+        	.OrderBy(group => group.Key);
+        foreach (var group in recipeMaterialGroups)
+        {
+        	AddDependency(
+        		DetailGoalUnlockSource,
+        		group.Key,
+        		DetailSemanticsAllOf,
+        		group.OrderBy(edge => edge.TargetId)
+        			.Select(edge => (Kind: DetailGoalAcquireItem, NodeId: edge.TargetId))
+        	);
         }
 
         for (int questIndex = 0; questIndex < questNodeIds.Length; questIndex++)

@@ -129,6 +129,16 @@ internal sealed class DetailTreeViabilityEvaluator
         DetailBranchContext context
     )
     {
+        var dependencies = GetCompiledDependencies(
+            new DetailGoal(DetailGoalKind.UnlockSource, sourceNodeId)
+        );
+        if (dependencies.Length > 0)
+            return EvaluateAnyAlternative(
+                dependencies,
+                context,
+                DetailPruneReason.NoUnlockAlternative
+            );
+
         var groups = _record.DetailState.GetBlockingRequirementGroups(_guide, sourceNodeId);
         if (groups.Count == 0)
             return DetailViabilityResult.Viable(Array.Empty<DetailGoal>());

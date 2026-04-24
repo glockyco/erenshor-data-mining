@@ -119,6 +119,52 @@ public sealed class DetailTreeViabilityEvaluatorTests
         Assert.Equal(sourceNodeId, child.NodeId);
     }
 
+    [Fact]
+    public void Recipe_source_prunes_when_any_required_material_is_not_acquirable()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:ring")
+            .AddItem("item:good-material")
+            .AddItem("item:blocked-material")
+            .AddItem("item:missing-key")
+            .AddRecipe("recipe:ring")
+            .AddCharacter("char:good-source")
+            .AddCharacter("char:blocked-source")
+            .AddItemSource(
+                "item:ring",
+                "recipe:ring",
+                edgeType: (byte)EdgeType.Produces,
+                sourceType: (byte)NodeType.Recipe
+            )
+            .AddEdge("recipe:ring", "item:good-material", EdgeType.RequiresMaterial, quantity: 1)
+            .AddEdge("recipe:ring", "item:blocked-material", EdgeType.RequiresMaterial, quantity: 1)
+            .AddItemSource(
+                "item:good-material",
+                "char:good-source",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddItemSource(
+                "item:blocked-material",
+                "char:blocked-source",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:blocked-source", "item:missing-key", checkType: 1)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:ring", 1) })
+            .Build();
+        var evaluator = BuildEvaluator(guide, out int rootQuestIndex);
+        Assert.True(guide.TryGetNodeId("item:ring", out int ringNodeId));
+
+        var result = evaluator.Evaluate(
+            new DetailGoal(DetailGoalKind.AcquireItem, ringNodeId),
+            new DetailBranchContext(rootQuestIndex, new[] { guide.QuestNodeId(rootQuestIndex) })
+        );
+
+        Assert.False(result.IsViable);
+        Assert.Equal(DetailPruneReason.NoAcquisitionSource, result.Reason);
+    }
+
     private static AdventureGuide.CompiledGuide.CompiledGuide BuildCompiledDependencyOnlyGuide()
     {
         var data = new CompiledGuideData

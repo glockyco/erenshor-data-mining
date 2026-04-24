@@ -688,6 +688,24 @@ def _compile_detail_dependencies(compiled: CompiledData) -> None:
             children,
         )
 
+    recipe_type = node_type_byte(NodeType.RECIPE)
+    requires_material = edge_type_byte(EdgeType.REQUIRES_MATERIAL)
+    recipe_materials: dict[int, set[int]] = {}
+    for edge in compiled.edges:
+        if (
+            edge.edge_type == requires_material
+            and compiled.nodes[edge.source_id].node_type == recipe_type
+            and compiled.node_item_index[edge.target_id] >= 0
+        ):
+            recipe_materials.setdefault(edge.source_id, set()).add(edge.target_id)
+    for recipe_id, material_ids in sorted(recipe_materials.items()):
+        add_dependency(
+            DetailGoalKind.UNLOCK_SOURCE,
+            recipe_id,
+            DetailDependencySemantics.ALL_OF,
+            [(DetailGoalKind.ACQUIRE_ITEM, material_id) for material_id in sorted(material_ids)],
+        )
+
     for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
         spec = compiled.quest_specs[quest_index]
         core_children: list[tuple[DetailGoalKind, int]] = [
