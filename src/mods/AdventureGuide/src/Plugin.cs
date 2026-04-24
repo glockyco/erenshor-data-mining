@@ -659,8 +659,12 @@ public sealed class Plugin : BaseUnityPlugin
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();
-        _markerProjector?.Project();
-        _markerRenderer?.Render();
+
+        bool markerRendererEnabled = _markerRenderer?.Enabled == true;
+        if (markerRendererEnabled || _config?.DiagnosticOverlay.Value == true)
+            _markerProjector?.Project();
+        if (markerRendererEnabled)
+            _markerRenderer!.Render();
     }
 
     /// <summary>
