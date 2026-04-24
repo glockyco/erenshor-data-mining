@@ -149,4 +149,43 @@ public sealed class IncidentReportFormatterTests
         Assert.Contains("quest keys=12", text, StringComparison.Ordinal);
         Assert.Contains("resolved targets=47", text, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void FormatDetailed_IncludesSpecTreeExpandNodeMetrics()
+    {
+        var incident = new DiagnosticIncident(
+            DiagnosticIncidentKind.FrameHitch,
+            timestampTicks: 200,
+            summary: "Expanded detail tree node exceeded the frame hitch threshold.",
+            triggerSpanKind: DiagnosticSpanKind.SpecTreeExpandNode,
+            triggerPrimaryKey: "Item:item:eldrich-crystal",
+            triggerElapsedTicks: 50,
+            thresholdTicks: 30,
+            correlationId: 0,
+            parentSpanId: 0
+        );
+        var bundle = IncidentBundle.Create(
+            incident,
+            Array.Empty<DiagnosticEvent>(),
+            new[]
+            {
+                new DiagnosticSpan(
+                    DiagnosticSpanKind.SpecTreeExpandNode,
+                    DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+                    startTicks: 100,
+                    endTicks: 150,
+                    primaryKey: "Item:item:eldrich-crystal",
+                    value0: 2,
+                    value1: 7
+                )
+            },
+            Array.Empty<SnapshotEnvelope>()
+        );
+
+        string text = IncidentReportFormatter.FormatDetailed(bundle);
+
+        Assert.Contains("SpecTreeExpandNode", text, StringComparison.Ordinal);
+        Assert.Contains("immediate children=2", text, StringComparison.Ordinal);
+        Assert.Contains("drawn descendants=7", text, StringComparison.Ordinal);
+    }
 }

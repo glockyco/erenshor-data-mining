@@ -65,6 +65,8 @@ internal static class IncidentReportFormatter
         {
             DiagnosticSpanKind.SpecTreeProjectRoot =>
                 $" projected nodes={span.Value0}, cycle prunes={span.Value1}",
+            DiagnosticSpanKind.SpecTreeExpandNode =>
+                $" immediate children={span.Value0}, drawn descendants={span.Value1}",
             DiagnosticSpanKind.NavSelectorCollectKeys =>
                 $" quest keys={span.Value0}",
             DiagnosticSpanKind.NavSelectorBatchResolve =>

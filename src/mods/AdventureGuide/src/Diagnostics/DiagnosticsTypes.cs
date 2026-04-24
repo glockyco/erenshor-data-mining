@@ -23,6 +23,7 @@ internal enum DiagnosticSpanKind
 	NavEngineUpdate,
 	TrackerSummaryResolve,
 	SpecTreeProjectRoot,
+	SpecTreeExpandNode,
 	UpdatePhaseCapture,
 	UpdatePhasePublish,
 	UpdatePhaseInvalidate,
@@ -31,7 +32,7 @@ internal enum DiagnosticSpanKind
 	GroundPathUpdate,
 	MarkerProjectorProject,
 	MarkerRendererRender,
-	}
+}
 
 internal enum DiagnosticTrigger
 {

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using AdventureGuide.Diagnostics;
 using AdventureGuide.Navigation;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
@@ -16,15 +18,17 @@ public sealed class ViewRenderer
     private readonly QuestStateTracker _tracker;
     private readonly TrackerState _trackerState;
     private readonly SpecTreeProjector _specProjector;
+    private readonly DiagnosticsCore? _diagnostics;
     private readonly DetailProjectionCache _detailProjectionCache = new();
 
-    public ViewRenderer(
+    internal ViewRenderer(
         CompiledGuideModel guide,
         GameState state,
         NavigationSet navSet,
         QuestStateTracker tracker,
         TrackerState trackerState,
-        SpecTreeProjector specProjector
+        SpecTreeProjector specProjector,
+        DiagnosticsCore? diagnostics = null
     )
     {
         _guide = guide;
@@ -33,6 +37,7 @@ public sealed class ViewRenderer
         _tracker = tracker;
         _trackerState = trackerState;
         _specProjector = specProjector;
+        _diagnostics = diagnostics;
     }
 
     public void Draw(int? questIndex)
@@ -142,7 +147,7 @@ public sealed class ViewRenderer
         return record;
     }
 
-    private void DrawSpecTreeRef(SpecTreeRef treeRef)
+    private int DrawSpecTreeRef(SpecTreeRef treeRef)
     {
         var node = ResolveGraphNode(treeRef);
         bool navigable = node != null && IsNavigable(node);
@@ -162,26 +167,55 @@ public sealed class ViewRenderer
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             bool open = ImGui.TreeNodeEx($"{treeRef.Label}###{treeRef.Kind}:{treeRef.StableId}");
+            bool toggledOpen = open && ImGui.IsItemToggledOpen();
             ImGui.PopStyleColor();
             if (!open)
-                return;
+                return 1;
 
-            for (int i = 0; i < unlockChildren.Count; i++)
+            SpanToken? token = null;
+            long startTick = 0;
+            if (toggledOpen && _diagnostics != null)
             {
-                ImGui.PushID($"unlock_{i}");
-                DrawSpecTreeRef(unlockChildren[i]);
-                ImGui.PopID();
+                token = _diagnostics.BeginSpan(
+                    DiagnosticSpanKind.SpecTreeExpandNode,
+                    DiagnosticsContext.Root(DiagnosticTrigger.Unknown),
+                    primaryKey: BuildExpansionDiagnosticKey(treeRef, node)
+                );
+                startTick = Stopwatch.GetTimestamp();
             }
 
-            for (int i = 0; i < children.Count; i++)
+            int drawnDescendants = 0;
+            try
             {
-                ImGui.PushID($"child_{i}");
-                DrawSpecTreeRef(children[i]);
-                ImGui.PopID();
+                for (int i = 0; i < unlockChildren.Count; i++)
+                {
+                    ImGui.PushID($"unlock_{i}");
+                    drawnDescendants += DrawSpecTreeRef(unlockChildren[i]);
+                    ImGui.PopID();
+                }
+
+                for (int i = 0; i < children.Count; i++)
+                {
+                    ImGui.PushID($"child_{i}");
+                    drawnDescendants += DrawSpecTreeRef(children[i]);
+                    ImGui.PopID();
+                }
+            }
+            finally
+            {
+                if (token != null)
+                {
+                    _diagnostics!.EndSpan(
+                        token.Value,
+                        Stopwatch.GetTimestamp() - startTick,
+                        value0: unlockChildren.Count + children.Count,
+                        value1: drawnDescendants
+                    );
+                }
             }
 
             ImGui.TreePop();
-            return;
+            return 1 + drawnDescendants;
         }
 
         if (navigable)
@@ -193,6 +227,7 @@ public sealed class ViewRenderer
         ImGui.PushStyleColor(ImGuiCol.Text, color);
         ImGui.BulletText(treeRef.Label);
         ImGui.PopStyleColor();
+        return 1;
     }
 
     internal Node? ResolveGraphNode(SpecTreeRef treeRef)
@@ -202,6 +237,12 @@ public sealed class ViewRenderer
 
         string key = _guide.GetNodeKey(graphNodeId);
         return _guide.GetNode(key);
+    }
+
+    private static string BuildExpansionDiagnosticKey(SpecTreeRef treeRef, Node? node)
+    {
+        string key = node?.Key ?? treeRef.StableId;
+        return $"{treeRef.Kind}:{key}";
     }
 
     private void DrawHeader(Node quest, string questKey)

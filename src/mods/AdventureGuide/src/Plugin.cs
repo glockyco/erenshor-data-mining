@@ -350,7 +350,8 @@ public sealed class Plugin : BaseUnityPlugin
             _navSet,
             _questTracker,
             _trackerState,
-            _specTreeProjector
+            _specTreeProjector,
+            _diagnostics
         );
         _window = new GuideWindow(
             _questTracker,
