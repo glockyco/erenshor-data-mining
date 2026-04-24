@@ -1,10 +1,10 @@
-namespace AdventureGuide.Markers;
+namespace AdventureGuide.State;
 
 /// <summary>
 /// Category derived from the SourceState fact for a source node. Describes
-/// the node's availability at the moment the query ran. The renderer composes
-/// this with <see cref="AdventureGuide.Resolution.QuestMarkerKind"/> and
-/// per-frame live state to produce the final <see cref="MarkerType"/>.
+/// the node's availability at the moment the query ran. Marker presentation
+/// composes this with <see cref="AdventureGuide.Resolution.QuestMarkerKind"/>
+/// and per-frame live state to produce the final marker type.
 /// </summary>
 public enum SpawnCategory
 {

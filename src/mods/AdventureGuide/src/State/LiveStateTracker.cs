@@ -1,7 +1,6 @@
 using System.Reflection;
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
-using AdventureGuide.Markers;
 using UnityEngine;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -15,7 +14,7 @@ namespace AdventureGuide.State;
 public sealed class LiveStateTracker
     : IResolutionLiveState,
         INavigationSelectorLiveState,
-        IMarkerLiveStateProvider,
+        ILiveSourceSnapshotProvider,
         ISourceStateFactSource
 {
     private static readonly FieldInfo? NpcSpawnPointField = typeof(NPC).GetField(
@@ -405,23 +404,6 @@ public sealed class LiveStateTracker
         return new ItemBagPickedUp(0f);
     }
 
-    public MarkerLiveRenderState GetMarkerLiveRenderState(MarkerCandidate candidate) =>
-        GetLiveSourceSnapshot(candidate).ToMarkerRenderState();
-
-    public LiveSourceSnapshot GetLiveSourceSnapshot(MarkerCandidate candidate)
-    {
-        var sourceNodeKey = candidate.SourceNodeKey ?? candidate.PositionNodeKey;
-        var positionNode = _guide.GetNode(candidate.PositionNodeKey);
-        if (positionNode == null)
-            return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
-
-        var targetNode = _guide.GetNode(candidate.TargetNodeKey);
-        if (targetNode == null)
-            return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
-
-        return GetLiveSourceSnapshot(sourceNodeKey, positionNode, targetNode);
-    }
-
     public LiveSourceSnapshot GetLiveSourceSnapshot(string? sourceNodeKey, Node targetNode)
     {
         if (targetNode == null)
@@ -436,7 +418,7 @@ public sealed class LiveStateTracker
         return GetLiveSourceSnapshot(sourceNodeKey, positionNode, targetNode);
     }
 
-    private LiveSourceSnapshot GetLiveSourceSnapshot(
+    public LiveSourceSnapshot GetLiveSourceSnapshot(
         string? sourceNodeKey,
         Node positionNode,
         Node targetNode)

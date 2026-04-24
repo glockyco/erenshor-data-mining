@@ -1,4 +1,3 @@
-using AdventureGuide.Markers;
 
 namespace AdventureGuide.State;
 
@@ -86,55 +85,6 @@ public readonly struct LiveSourceSnapshot : IEquatable<LiveSourceSnapshot>
 
 	public static LiveSourceSnapshot PickedUp(string sourceNodeKey, string targetNodeKey, float respawnSeconds) =>
 		new(sourceNodeKey, targetNodeKey, LiveSourceKind.ItemBag, LiveSourceOccupancy.PickedUp, false, LiveSourceAnchor.Source, null, null, respawnSeconds, null, false);
-
-	public MarkerLiveRenderState ToMarkerRenderState()
-	{
-		switch (Kind)
-		{
-			case LiveSourceKind.Character:
-				switch (Occupancy)
-				{
-					case LiveSourceOccupancy.Alive:
-						return new MarkerLiveRenderState(MarkerLiveStatus.Alive, AnchoredLivePosition, 0f, null);
-					case LiveSourceOccupancy.Dead:
-						return new MarkerLiveRenderState(
-							RequiresZoneReentry ? MarkerLiveStatus.ZoneReentry : AnchoredLivePosition.HasValue ? MarkerLiveStatus.DeadWithCorpse : MarkerLiveStatus.DeadNoCorpse,
-							AnchoredLivePosition,
-							RespawnSeconds,
-							null);
-					case LiveSourceOccupancy.NightLocked:
-						return new MarkerLiveRenderState(MarkerLiveStatus.NightLocked, null, 0f, null);
-					case LiveSourceOccupancy.UnlockBlocked:
-					    return new MarkerLiveRenderState(MarkerLiveStatus.UnlockBlocked, null, 0f, UnlockReason);
-					case LiveSourceOccupancy.Disabled:
-					    return new MarkerLiveRenderState(MarkerLiveStatus.Disabled, null, 0f, null);
-					default:
-					    return MarkerLiveRenderState.Unknown;
-				}
-			case LiveSourceKind.MiningNode:
-				switch (Occupancy)
-				{
-					case LiveSourceOccupancy.Available:
-						return new MarkerLiveRenderState(MarkerLiveStatus.MiningAvailable, null, 0f, null);
-					case LiveSourceOccupancy.Mined:
-						return new MarkerLiveRenderState(MarkerLiveStatus.MiningMined, null, RespawnSeconds, null);
-					default:
-						return MarkerLiveRenderState.Unknown;
-				}
-			case LiveSourceKind.ItemBag:
-				switch (Occupancy)
-				{
-					case LiveSourceOccupancy.Available:
-						return new MarkerLiveRenderState(MarkerLiveStatus.Alive, null, 0f, null);
-					case LiveSourceOccupancy.PickedUp:
-						return new MarkerLiveRenderState(MarkerLiveStatus.PickedUp, null, RespawnSeconds, null);
-					default:
-						return MarkerLiveRenderState.Unknown;
-				}
-			default:
-				return MarkerLiveRenderState.Unknown;
-		}
-	}
 
 	public bool Equals(LiveSourceSnapshot other) =>
 		SourceNodeKey == other.SourceNodeKey

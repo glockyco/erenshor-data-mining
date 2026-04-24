@@ -2,7 +2,7 @@ namespace AdventureGuide.Markers;
 
 /// <summary>
 /// Pure-data render state for a single marker candidate. Produced per-frame by
-/// <see cref="AdventureGuide.State.IMarkerLiveStateProvider"/> and consumed by
+/// <see cref="MarkerProjector"/> and consumed by
 /// <see cref="MarkerProjector"/>. Carries no Unity object references.
 /// </summary>
 public readonly struct MarkerLiveRenderState

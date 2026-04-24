@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AdventureGuide.Diagnostics;
+using AdventureGuide.Markers.Queries;
 using AdventureGuide.State;
 using CompiledGuideModel = AdventureGuide.CompiledGuide.CompiledGuide;
 
@@ -22,7 +23,8 @@ internal sealed class MarkerProjector : IMarkerProjection
 	private const float StaticHeightOffset = 2.5f;
 
 	private readonly GuideReader _reader;
-	private readonly IMarkerLiveStateProvider _liveState;
+	private readonly MarkerCandidatesQuery _markerCandidatesQuery;
+	private readonly ILiveSourceSnapshotProvider _liveState;
 	private readonly CompiledGuideModel _guide;
 	private readonly DiagnosticsCore? _diagnostics;
 
@@ -36,11 +38,13 @@ internal sealed class MarkerProjector : IMarkerProjection
 
 	public MarkerProjector(
 		GuideReader reader,
-		IMarkerLiveStateProvider liveState,
+		MarkerCandidatesQuery markerCandidatesQuery,
+		ILiveSourceSnapshotProvider liveState,
 		CompiledGuideModel guide,
 		DiagnosticsCore? diagnostics = null)
 	{
 		_reader = reader;
+		_markerCandidatesQuery = markerCandidatesQuery;
 		_liveState = liveState;
 		_guide = guide;
 		_diagnostics = diagnostics;
@@ -50,7 +54,7 @@ internal sealed class MarkerProjector : IMarkerProjection
 	{
 		using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.MarkerProjectorProject);
 
-		var candidates = _reader.ReadMarkerCandidates(_reader.CurrentScene);
+		var candidates = _reader.Engine.Read(_markerCandidatesQuery.Query, _reader.CurrentScene);
 		long start = Stopwatch.GetTimestamp();
 
 		if (!ReferenceEquals(candidates, _lastCandidates))
@@ -93,10 +97,77 @@ internal sealed class MarkerProjector : IMarkerProjection
 		}
 	}
 
+	private LiveSourceSnapshot GetLiveSourceSnapshot(MarkerCandidate candidate)
+	{
+		var sourceNodeKey = candidate.SourceNodeKey ?? candidate.PositionNodeKey;
+		var positionNode = _guide.GetNode(candidate.PositionNodeKey);
+		if (positionNode == null)
+			return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
+
+		var targetNode = _guide.GetNode(candidate.TargetNodeKey);
+		if (targetNode == null)
+			return LiveSourceSnapshot.Unknown(sourceNodeKey, candidate.TargetNodeKey);
+
+		return _liveState.GetLiveSourceSnapshot(sourceNodeKey, positionNode, targetNode);
+	}
+
+	private static MarkerLiveRenderState ToMarkerRenderState(LiveSourceSnapshot snapshot)
+	{
+		switch (snapshot.Kind)
+		{
+			case LiveSourceKind.Character:
+				switch (snapshot.Occupancy)
+				{
+					case LiveSourceOccupancy.Alive:
+						return new MarkerLiveRenderState(MarkerLiveStatus.Alive, snapshot.AnchoredLivePosition, 0f, null);
+					case LiveSourceOccupancy.Dead:
+						return new MarkerLiveRenderState(
+							snapshot.RequiresZoneReentry
+								? MarkerLiveStatus.ZoneReentry
+								: snapshot.AnchoredLivePosition.HasValue
+									? MarkerLiveStatus.DeadWithCorpse
+									: MarkerLiveStatus.DeadNoCorpse,
+							snapshot.AnchoredLivePosition,
+							snapshot.RespawnSeconds,
+							null);
+					case LiveSourceOccupancy.NightLocked:
+						return new MarkerLiveRenderState(MarkerLiveStatus.NightLocked, null, 0f, null);
+					case LiveSourceOccupancy.UnlockBlocked:
+						return new MarkerLiveRenderState(MarkerLiveStatus.UnlockBlocked, null, 0f, snapshot.UnlockReason);
+					case LiveSourceOccupancy.Disabled:
+						return new MarkerLiveRenderState(MarkerLiveStatus.Disabled, null, 0f, null);
+					default:
+						return MarkerLiveRenderState.Unknown;
+				}
+			case LiveSourceKind.MiningNode:
+				switch (snapshot.Occupancy)
+				{
+					case LiveSourceOccupancy.Available:
+						return new MarkerLiveRenderState(MarkerLiveStatus.MiningAvailable, null, 0f, null);
+					case LiveSourceOccupancy.Mined:
+						return new MarkerLiveRenderState(MarkerLiveStatus.MiningMined, null, snapshot.RespawnSeconds, null);
+					default:
+						return MarkerLiveRenderState.Unknown;
+				}
+			case LiveSourceKind.ItemBag:
+				switch (snapshot.Occupancy)
+				{
+					case LiveSourceOccupancy.Available:
+						return new MarkerLiveRenderState(MarkerLiveStatus.Alive, null, 0f, null);
+					case LiveSourceOccupancy.PickedUp:
+						return new MarkerLiveRenderState(MarkerLiveStatus.PickedUp, null, snapshot.RespawnSeconds, null);
+					default:
+						return MarkerLiveRenderState.Unknown;
+				}
+			default:
+				return MarkerLiveRenderState.Unknown;
+		}
+	}
+
 	private void ApplyLiveRenderState(MarkerEntry entry)
 	{
 		var candidate = entry.Candidate;
-		var state = _liveState.GetMarkerLiveRenderState(candidate);
+		var state = ToMarkerRenderState(GetLiveSourceSnapshot(candidate));
 
 		switch (state.Status)
 		{

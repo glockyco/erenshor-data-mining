@@ -258,13 +258,13 @@ public sealed class Plugin : BaseUnityPlugin
             selectorTargetSetQuery,
             _questResolutionQuery);
         _reader.SetNavigationTargetSnapshotsQuery(_navigationTargetSnapshotsQuery);
-        _markerCandidatesQuery = new MarkerCandidatesQuery(
+        var markerCandidatesQuery = new MarkerCandidatesQuery(
             _engine,
             _compiledGuide,
             _reader,
             _navigableQuestsQuery,
             _questResolutionQuery);
-        _reader.SetMarkerCandidatesQuery(_markerCandidatesQuery);
+        _markerCandidatesQuery = markerCandidatesQuery;
 
         _targetSelector = new NavigationTargetSelector(
             _navigationTargetResolver,
@@ -294,7 +294,12 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Markers layer ---
         _markerPool = new MarkerPool();
-        _markerProjector = new MarkerProjector(_reader, _liveState, _compiledGuide, _diagnostics);
+        _markerProjector = new MarkerProjector(
+            _reader,
+            markerCandidatesQuery,
+            _liveState,
+            _compiledGuide,
+            _diagnostics);
         _markerRenderer = new MarkerRenderer(_markerProjector, _markerPool, _config, _diagnostics);
         _markerRenderer.Enabled = _config.ShowWorldMarkers.Value;
 
@@ -454,12 +459,12 @@ public sealed class Plugin : BaseUnityPlugin
 
             .Concat(_navSet.DrainPendingFacts())
             .Concat(_trackerState.DrainPendingFacts());
-        _engine?.InvalidateFacts(initialFacts);
+        _engine!.InvalidateFacts(initialFacts);
 
         var syncMs = syncSw.Elapsed.TotalMilliseconds;
 
         syncSw.Restart();
-        _reader.ReadMarkerCandidates(currentScene);
+        _engine!.Read(markerCandidatesQuery.Query, currentScene);
 
         // Capture the tracker version now so the first Update() tick does not
         // re-replay Awake's scene-change event, wipe the warm resolution cache,

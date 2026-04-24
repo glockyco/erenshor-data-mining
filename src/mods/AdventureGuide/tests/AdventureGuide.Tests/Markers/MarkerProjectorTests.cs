@@ -38,12 +38,13 @@ public sealed class MarkerProjectorTests
     {
         var fixture = MarkerProjectorFixture.CreateKillQuest();
 
-        fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
-            new MarkerLiveRenderState(
-                MarkerLiveStatus.DeadWithCorpse,
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
+            LiveSourceSnapshot.Dead(
+                "spawn:leaf-1",
+                "char:leaf",
                 livePosition: (10f, 20f, 30f),
-                respawnSeconds: 30f,
-                unlockReason: null);
+                anchoredLivePosition: (10f, 20f, 30f),
+                respawnSeconds: 30f);
 
         fixture.Projector.Project();
 
@@ -59,12 +60,13 @@ public sealed class MarkerProjectorTests
     {
         var fixture = MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
 
-        fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
-            new MarkerLiveRenderState(
-                MarkerLiveStatus.DeadWithCorpse,
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
+            LiveSourceSnapshot.Dead(
+                "spawn:leaf-1",
+                "char:leaf",
                 livePosition: (10f, 20f, 30f),
-                respawnSeconds: 30f,
-                unlockReason: null);
+                anchoredLivePosition: (10f, 20f, 30f),
+                respawnSeconds: 30f);
 
         fixture.Projector.Project();
 
@@ -80,12 +82,8 @@ public sealed class MarkerProjectorTests
     public void Project_RendersDisabledCharacterAsQuestLockedMarker()
     {
         var fixture = MarkerProjectorFixture.CreateKillQuest();
-        fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
-            new MarkerLiveRenderState(
-                MarkerLiveStatus.Disabled,
-                livePosition: null,
-                respawnSeconds: 0f,
-                unlockReason: null);
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
+            LiveSourceSnapshot.Disabled("spawn:leaf-1", "char:leaf");
 
         fixture.Projector.Project();
 
@@ -98,18 +96,15 @@ public sealed class MarkerProjectorTests
     public void Project_UsesSingleDisabledMarker_ForSharedSourceAcrossQuestKinds()
     {
         var fixture = MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
-        fixture.LiveState.RenderStatesByCandidateKey["spawn:leaf-1"] =
-            new MarkerLiveRenderState(
-                MarkerLiveStatus.Disabled,
-                livePosition: null,
-                respawnSeconds: 0f,
-                unlockReason: null);
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
+            LiveSourceSnapshot.Disabled("spawn:leaf-1", "char:leaf");
 
         fixture.Projector.Project();
 
         var entries = fixture.Projector.Markers
             .Where(e => e.SourceNodeKey == "spawn:leaf-1")
             .ToList();
+
         var entry = Assert.Single(entries);
         Assert.Equal(MarkerType.QuestLocked, entry.Type);
     }
@@ -220,10 +215,10 @@ public sealed class MarkerProjectorTests
                 reader,
                 navigableQuery,
                 questResolutionQuery);
-            reader.SetMarkerCandidatesQuery(query);
+
 
             var liveState = new FakeMarkerLiveStateProvider();
-            var projector = new MarkerProjector(reader, liveState, guide);
+            var projector = new MarkerProjector(reader, query, liveState, guide);
             return new MarkerProjectorFixture(projector, liveState);
         }
 
@@ -320,10 +315,10 @@ public sealed class MarkerProjectorTests
                 reader,
                 navigableQuery,
                 questResolutionQuery);
-            reader.SetMarkerCandidatesQuery(query);
+
 
             var liveState = new FakeMarkerLiveStateProvider();
-            var projector = new MarkerProjector(reader, liveState, guide);
+            var projector = new MarkerProjector(reader, query, liveState, guide);
             return new MarkerProjectorFixture(projector, liveState);
         }
 
@@ -453,17 +448,17 @@ public sealed class MarkerProjectorTests
                 reader,
                 navigableQuery,
                 questResolutionQuery);
-            reader.SetMarkerCandidatesQuery(query);
+
 
             var liveState = new FakeMarkerLiveStateProvider();
-            var projector = new MarkerProjector(reader, liveState, guide);
+            var projector = new MarkerProjector(reader, query, liveState, guide);
             return new MarkerProjectorFixture(projector, liveState);
         }
     }
 
-    internal sealed class FakeMarkerLiveStateProvider : IMarkerLiveStateProvider
+    internal sealed class FakeMarkerLiveStateProvider : ILiveSourceSnapshotProvider
     {
-        public Dictionary<string, MarkerLiveRenderState> RenderStatesByCandidateKey { get; } =
+        public Dictionary<string, LiveSourceSnapshot> SnapshotsByPositionNodeKey { get; } =
             new(StringComparer.Ordinal);
 
         public SpawnInfo GetSpawnState(Node spawnNode) => default;
@@ -474,10 +469,10 @@ public sealed class MarkerProjectorTests
 
         public NodeState GetItemBagState(Node itemBagNode) => NodeState.Unknown;
 
-        public MarkerLiveRenderState GetMarkerLiveRenderState(MarkerCandidate candidate) =>
-            RenderStatesByCandidateKey.TryGetValue(candidate.PositionNodeKey, out var state)
-                ? state
-                : MarkerLiveRenderState.Unknown;
+        public LiveSourceSnapshot GetLiveSourceSnapshot(string? sourceNodeKey, Node positionNode, Node targetNode) =>
+            SnapshotsByPositionNodeKey.TryGetValue(positionNode.Key, out var snapshot)
+                ? snapshot
+                : LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key);
     }
 
     private sealed class FakeInventory : IInventoryFactSource
