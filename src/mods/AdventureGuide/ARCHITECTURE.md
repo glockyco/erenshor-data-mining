@@ -88,11 +88,18 @@ viable, and must not rediscover quest/item/source viability while rendering.
 
 The Python guide compiler emits detail dependency summaries in `guide.json`.
 Those summaries are the static topology source for item acquisition, quest
-completion, read actions, and unlock groups. Runtime state supplies only the
-current quest phase, inventory counts, zone/source lock state, and live detail
-facts needed to decide which compiled alternatives remain relevant. Missing
-compiled dependency data fails fast instead of falling back to frame-time graph
-search.
+completion, read actions, recipe material requirements, and unlock groups.
+Runtime state supplies only the current quest phase, inventory counts,
+zone/source lock state, and live detail facts needed to decide which compiled
+alternatives remain relevant. Missing compiled dependency data fails fast
+instead of falling back to frame-time graph search.
+
+Recipe sources use all-of material semantics in compiled detail dependencies
+and `DetailTreeViabilityEvaluator`: if any `RequiresMaterial` item is not
+semantically acquirable, the recipe source is not viable. If that recipe source
+was the only acquisition alternative, the crafted item branch is pruned.
+`SpecTreeProjector` may expand children for visible rows, but it must not use
+recursive child expansion as a general semantic visibility proof.
 
 A candidate whose graph node already appears earlier in its ancestry is rejected
 before normal visibility checks, so self-visible items or quests cannot keep a
