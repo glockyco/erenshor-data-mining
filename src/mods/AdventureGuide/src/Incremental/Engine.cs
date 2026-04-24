@@ -371,6 +371,14 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		{
 			value = (TValue)query.Compute(ctx, key)!;
 		}
+		catch (Exception ex) when (TraceRecomputeFailure(
+			query.Name,
+			key,
+			ex,
+			System.Diagnostics.Stopwatch.GetTimestamp() - computeStart))
+		{
+			throw;
+		}
 		finally
 		{
 			_ambient = priorAmbient;
@@ -415,6 +423,12 @@ public sealed class Engine<TFactKey> where TFactKey : notnull
 		_tracer?.OnRecompute(query.Name, key, backdated: !changed, computeTicks);
 
 		return storedValue;
+	}
+
+	private bool TraceRecomputeFailure(string queryName, object key, Exception exception, long computeTicks)
+	{
+		_tracer?.OnRecomputeFailed(queryName, key, exception, computeTicks);
+		return false;
 	}
 
 	private static void IncrementPerQuery(Dictionary<int, long> counters, int queryId)

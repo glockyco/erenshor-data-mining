@@ -11,6 +11,11 @@ public interface IEngineTracer<TFactKey> where TFactKey : notnull
 	/// and the engine returned the prior instance.</summary>
 	void OnRecompute(string queryName, object key, bool backdated, long computeTicks);
 
+	/// <summary>Called when a query compute throws. The original exception still
+	/// propagates to the reader; this hook exists only to preserve diagnostic
+	/// context about the failing query and key.</summary>
+	void OnRecomputeFailed(string queryName, object key, Exception exception, long computeTicks);
+
 	/// <summary>Called once per <see cref="Engine{TFactKey}.InvalidateFacts"/>
 	/// call. <paramref name="directAffected"/> is the number of cache entries
 	/// directly subscribed to one of the bumped facts; transitive dependents
