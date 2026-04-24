@@ -26,6 +26,7 @@ public sealed class SpecTreeProjector
     private readonly Dictionary<ProjectionCacheKey, IReadOnlyList<SpecTreeRef>> _unlockCache =
         new();
     private readonly Dictionary<ProjectionCacheKey, bool> _visibilityCache = new();
+    private readonly Dictionary<int, DetailTreeViabilityEvaluator> _viabilityEvaluators = new();
     private readonly HashSet<ProjectionCacheKey> _activeProjectionKeys = new();
     private int _projectionDepth;
     private int _lastProjectedNodeCount;
@@ -81,7 +82,9 @@ public sealed class SpecTreeProjector
             _lastViabilityEvaluationCount = 0;
             _lastViabilityMemoHitCount = 0;
             _lastMaxViabilityDepth = 0;
+            _viabilityEvaluators.Clear();
             int questIndex = FindQuestIndex(record.QuestKey);
+            _viabilityEvaluators[questIndex] = new DetailTreeViabilityEvaluator(_guide, record);
             var roots = GetQuestChildren(
                 record,
                 questIndex,
@@ -771,11 +774,13 @@ public sealed class SpecTreeProjector
             }
 
             bool requiresVisibleChildren = RequiresVisibleChildren(candidate);
-            if (requiresVisibleChildren && RequiresQuestCompletionPlan(candidate))
+            if (
+                requiresVisibleChildren
+                && TryEvaluateSemanticVisibility(candidate, out bool semanticVisible)
+            )
             {
-                bool hasVisibleQuestPlan = HasVisibleQuestCompletionPlan(candidate);
-                _visibilityCache[cacheKey] = hasVisibleQuestPlan;
-                return hasVisibleQuestPlan;
+                _visibilityCache[cacheKey] = semanticVisible;
+                return semanticVisible;
             }
 
             if (!requiresVisibleChildren && !candidate.IsBlocked)
@@ -810,115 +815,65 @@ public sealed class SpecTreeProjector
             && node?.Type is NodeType.Item or NodeType.Book;
     }
 
-    private bool RequiresQuestCompletionPlan(SpecTreeRef candidate)
+    private bool TryEvaluateSemanticVisibility(SpecTreeRef candidate, out bool visible)
     {
+        visible = false;
         if (candidate.GraphNodeId is not int graphNodeId)
             return false;
 
+        if (!TryBuildDetailGoal(candidate, graphNodeId, out var goal))
+            return false;
+
+        var evaluator = GetViabilityEvaluator(candidate.QuestIndex);
+        int evaluationsBefore = evaluator.EvaluationCount;
+        int memoHitsBefore = evaluator.MemoHitCount;
+        int maxDepthBefore = evaluator.MaxDepth;
+        var result = evaluator.Evaluate(
+            goal,
+            new DetailBranchContext(candidate.QuestIndex, candidate.Ancestry)
+        );
+        _lastViabilityEvaluationCount += evaluator.EvaluationCount - evaluationsBefore;
+        _lastViabilityMemoHitCount += evaluator.MemoHitCount - memoHitsBefore;
+        if (evaluator.MaxDepth > maxDepthBefore && evaluator.MaxDepth > _lastMaxViabilityDepth)
+            _lastMaxViabilityDepth = evaluator.MaxDepth;
+
+        visible = result.IsViable;
+        return true;
+    }
+
+    private bool TryBuildDetailGoal(SpecTreeRef candidate, int graphNodeId, out DetailGoal goal)
+    {
         var node = _guide.GetNode(graphNodeId);
-        return node?.Type == NodeType.Quest
-            && candidate.Kind
-                is SpecTreeKind.Prerequisite
-                    or SpecTreeKind.Source
-                    or SpecTreeKind.Giver
-                    or SpecTreeKind.Completer;
-    }
-
-    private bool HasVisibleQuestCompletionPlan(SpecTreeRef candidate)
-    {
-        RecordViabilityEvaluation();
-
-        if (candidate.GraphNodeId is not int questNodeId)
-            return false;
-
-        int questIndex = _guide.FindQuestIndex(questNodeId);
-        if (questIndex < 0)
-            return false;
-
-        var record = GetRecord(candidate.QuestIndex);
-        return HasVisibleQuestCompletionPlan(record, questIndex, candidate.Ancestry);
-    }
-
-    private bool HasVisibleQuestCompletionPlan(
-        QuestResolutionRecord record,
-        int questIndex,
-        int[] ancestry
-    )
-    {
-        bool hasRequirement = false;
-
-        foreach (int prereqId in _guide.PrereqQuestIds(questIndex))
+        if (node.Type is NodeType.Item or NodeType.Book)
         {
-            hasRequirement = true;
-            if (
-                !IsMeaningfullyVisible(BuildPrerequisiteRef(record, questIndex, prereqId, ancestry))
-            )
-                return false;
-        }
-
-        var phase = record.DetailState.GetPhase(questIndex);
-        var giverIds = _guide.GiverIds(questIndex);
-        if (giverIds.Length > 0 && phase is not QuestPhase.Accepted and not QuestPhase.Completed)
-        {
-            hasRequirement = true;
-            if (
-                !AnyVisible(
-                    giverIds,
-                    giverId => BuildGiverRef(record, questIndex, giverId, ancestry)
-                )
-            )
-                return false;
-        }
-
-        foreach (var requirement in _guide.RequiredItems(questIndex))
-        {
-            hasRequirement = true;
-            if (
-                !IsMeaningfullyVisible(
-                    BuildItemRequirementRef(
-                        record,
-                        questIndex,
-                        requirement.ItemId,
-                        requirement.Quantity,
-                        ancestry
-                    )
-                )
-            )
-                return false;
-        }
-
-        foreach (var step in _guide.Steps(questIndex))
-        {
-            hasRequirement = true;
-            if (!IsMeaningfullyVisible(BuildStepRef(record, questIndex, step, ancestry)))
-                return false;
-        }
-
-        var completerIds = _guide.CompleterIds(questIndex);
-        if (completerIds.Length > 0)
-        {
-            hasRequirement = true;
-            if (
-                !AnyVisible(
-                    completerIds,
-                    completerId => BuildCompleterRef(record, questIndex, completerId, ancestry)
-                )
-            )
-                return false;
-        }
-
-        return hasRequirement;
-    }
-
-    private bool AnyVisible(ReadOnlySpan<int> nodeIds, Func<int, SpecTreeRef> buildRef)
-    {
-        foreach (int nodeId in nodeIds)
-        {
-            if (IsMeaningfullyVisible(buildRef(nodeId)))
+            if (candidate.Kind is SpecTreeKind.Giver or SpecTreeKind.Completer or SpecTreeKind.Step)
+            {
+                goal = new DetailGoal(DetailGoalKind.UseItemAction, graphNodeId);
                 return true;
+            }
         }
 
+        if (node.Type == NodeType.Quest)
+        {
+            if (candidate.Kind is SpecTreeKind.Prerequisite or SpecTreeKind.Source)
+            {
+                goal = new DetailGoal(DetailGoalKind.CompleteQuest, graphNodeId);
+                return true;
+            }
+        }
+
+        goal = default;
         return false;
+    }
+
+    private DetailTreeViabilityEvaluator GetViabilityEvaluator(int questIndex)
+    {
+        if (_viabilityEvaluators.TryGetValue(questIndex, out var evaluator))
+            return evaluator;
+
+        evaluator = new DetailTreeViabilityEvaluator(_guide, GetRecord(questIndex));
+        _viabilityEvaluators[questIndex] = evaluator;
+        return evaluator;
     }
 
     private void RecordViabilityEvaluation()
@@ -949,6 +904,7 @@ public sealed class SpecTreeProjector
         _childCache.Clear();
         _unlockCache.Clear();
         _visibilityCache.Clear();
+        _viabilityEvaluators.Clear();
         _activeProjectionKeys.Clear();
         _lastInvalidatedQuestCount = invalidatedQuestCount;
         _lastInvalidationWasFull = full;
