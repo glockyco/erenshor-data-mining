@@ -78,6 +78,19 @@ Consumers do not invent alternate truth.
 - `SpecTreeProjector` consumes shared resolution/query-backed data for the
   detail tree.
 
+## Detail-tree pruning
+
+`SpecTreeProjector` owns branch-local pruning for the quest detail tree. A
+candidate whose graph node already appears earlier in its ancestry is rejected
+before normal visibility checks, so self-visible items or quests cannot keep a
+cyclic branch alive.
+
+Unlock groups preserve their logical semantics after pruning: an `Any of:` group
+may keep independent viable alternatives after one option is pruned, but an
+all-of group must be removed if any required child is pruned. Showing only the
+surviving subset of an all-of requirement would misrepresent what unlocks the
+source.
+
 ## Incremental diagnostics
 
 `Incremental/Engine.cs` is the maintained-view cache. It reports successful
