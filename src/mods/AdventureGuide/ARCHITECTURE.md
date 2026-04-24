@@ -91,6 +91,16 @@ all-of group must be removed if any required child is pruned. Showing only the
 surviving subset of an all-of requirement would misrepresent what unlocks the
 source.
 
+Item/book action nodes such as read-to-accept or read-to-complete entries are
+only meaningful while completed or while at least one visible acquisition child
+remains. Pruning their last source must remove the action node too.
+
+Prerequisite quest branches are viability checks, not loose child lists. They
+must keep the quest's completion semantics: all required prerequisite quests,
+items, steps, and a visible completer must remain satisfiable, while quest giver
+alternatives are only required before the quest is accepted. A visible completer
+alone must not keep an otherwise impossible prerequisite subtree alive.
+
 ## Incremental diagnostics
 
 `Incremental/Engine.cs` is the maintained-view cache. It reports successful

@@ -960,6 +960,124 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void Item_giver_without_visible_acquisition_source_is_pruned()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:marching-orders")
+            .AddCharacter("char:gherist")
+            .AddQuest("quest:root", dbName: "ROOT", givers: new[] { "item:marching-orders" })
+            .AddItemSource(
+                "item:marching-orders",
+                "char:gherist",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:gherist", "quest:root")
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+
+        Assert.DoesNotContain(
+            projector.GetRootChildren(rootQuestIndex),
+            child => child.Label == "Read item:marching-orders"
+        );
+    }
+
+    [Fact]
+    public void Prerequisite_quest_with_only_pruned_completion_paths_prunes_locked_source()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:torn-note")
+            .AddItem("item:marching-orders")
+            .AddItem("item:ghostly-key")
+            .AddItem("item:aetheria")
+            .AddRecipe("recipe:ghostly-key")
+            .AddCharacter("char:ghost")
+            .AddCharacter("char:sivakayan")
+            .AddCharacter("char:gherist")
+            .AddCharacter("char:lucian")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:torn-note", 1) })
+            .AddQuest(
+                "quest:note",
+                dbName: "NOTE",
+                givers: new[] { "item:marching-orders" },
+                completers: new[] { "char:lucian" },
+                requiredItems: new[] { ("item:torn-note", 1) }
+            )
+            .AddItemSource(
+                "item:torn-note",
+                "char:ghost",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:ghost", "item:ghostly-key", checkType: 1)
+            .AddItemSource(
+                "item:ghostly-key",
+                "recipe:ghostly-key",
+                edgeType: (byte)EdgeType.Produces,
+                sourceType: (byte)NodeType.Recipe
+            )
+            .AddEdge("recipe:ghostly-key", "item:aetheria", EdgeType.RequiresMaterial, quantity: 1)
+            .AddItemSource(
+                "item:aetheria",
+                "char:sivakayan",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:sivakayan", "quest:note")
+            .AddItemSource(
+                "item:marching-orders",
+                "char:gherist",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:gherist", "quest:note")
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var tornNote = projector
+            .GetRootChildren(rootQuestIndex)
+            .Single(child => child.Label == "Collect: item:torn-note");
+        var ghost = projector
+            .GetChildren(tornNote)
+            .Single(child => child.Label == "Drops from: char:ghost");
+        var ghostlyKey = projector
+            .GetUnlockChildren(ghost)
+            .Single(child => child.Label == "Requires: item:ghostly-key");
+        var recipe = projector
+            .GetChildren(ghostlyKey)
+            .Single(child => child.Label == "Crafted via: recipe:ghostly-key");
+        var aetheria = projector
+            .GetChildren(recipe)
+            .Single(child => child.Label == "Collect: item:aetheria");
+
+        Assert.DoesNotContain(
+            projector.GetChildren(aetheria),
+            child => child.Label == "Drops from: char:sivakayan"
+        );
+    }
+
+    [Fact]
     public void Any_of_unlock_prunes_cyclic_option_and_keeps_viable_alternative()
     {
         var guide = new CompiledGuideBuilder()

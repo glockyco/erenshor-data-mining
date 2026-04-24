@@ -756,10 +756,21 @@ public sealed class SpecTreeProjector
 
         try
         {
+            if (candidate.IsCompleted)
+            {
+                _visibilityCache[cacheKey] = true;
+                return true;
+            }
+
             bool requiresVisibleChildren = RequiresVisibleChildren(candidate);
-            bool selfVisible =
-                candidate.IsCompleted || (!requiresVisibleChildren && !candidate.IsBlocked);
-            if (selfVisible)
+            if (requiresVisibleChildren && RequiresQuestCompletionPlan(candidate))
+            {
+                bool hasVisibleQuestPlan = HasVisibleQuestCompletionPlan(candidate);
+                _visibilityCache[cacheKey] = hasVisibleQuestPlan;
+                return hasVisibleQuestPlan;
+            }
+
+            if (!requiresVisibleChildren && !candidate.IsBlocked)
             {
                 _visibilityCache[cacheKey] = true;
                 return true;
@@ -780,13 +791,123 @@ public sealed class SpecTreeProjector
     {
         if (candidate.RequiresVisibleChildren)
             return true;
+        if (candidate.GraphNodeId is not int graphNodeId)
+            return false;
+
+        var node = _guide.GetNode(graphNodeId);
         if (candidate.Kind == SpecTreeKind.Source)
-        {
-            if (candidate.GraphNodeId is not int graphNodeId)
-                return false;
-            var node = _guide.GetNode(graphNodeId);
             return node?.Type is NodeType.Quest or NodeType.Recipe;
+
+        return candidate.Kind is SpecTreeKind.Giver or SpecTreeKind.Completer or SpecTreeKind.Step
+            && node?.Type is NodeType.Item or NodeType.Book;
+    }
+
+    private bool RequiresQuestCompletionPlan(SpecTreeRef candidate)
+    {
+        if (candidate.GraphNodeId is not int graphNodeId)
+            return false;
+
+        var node = _guide.GetNode(graphNodeId);
+        return node?.Type == NodeType.Quest
+            && candidate.Kind
+                is SpecTreeKind.Prerequisite
+                    or SpecTreeKind.Source
+                    or SpecTreeKind.Giver
+                    or SpecTreeKind.Completer;
+    }
+
+    private bool HasVisibleQuestCompletionPlan(SpecTreeRef candidate)
+    {
+        if (candidate.GraphNodeId is not int questNodeId)
+            return false;
+
+        int questIndex = _guide.FindQuestIndex(questNodeId);
+        if (questIndex < 0)
+            return false;
+
+        var record = GetRecord(candidate.QuestIndex);
+        return HasVisibleQuestCompletionPlan(record, questIndex, candidate.Ancestry);
+    }
+
+    private bool HasVisibleQuestCompletionPlan(
+        QuestResolutionRecord record,
+        int questIndex,
+        int[] ancestry
+    )
+    {
+        bool hasRequirement = false;
+
+        foreach (int prereqId in _guide.PrereqQuestIds(questIndex))
+        {
+            hasRequirement = true;
+            if (
+                !IsMeaningfullyVisible(BuildPrerequisiteRef(record, questIndex, prereqId, ancestry))
+            )
+                return false;
         }
+
+        var phase = record.DetailState.GetPhase(questIndex);
+        var giverIds = _guide.GiverIds(questIndex);
+        if (giverIds.Length > 0 && phase is not QuestPhase.Accepted and not QuestPhase.Completed)
+        {
+            hasRequirement = true;
+            if (
+                !AnyVisible(
+                    giverIds,
+                    giverId => BuildGiverRef(record, questIndex, giverId, ancestry)
+                )
+            )
+                return false;
+        }
+
+        foreach (var requirement in _guide.RequiredItems(questIndex))
+        {
+            hasRequirement = true;
+            if (
+                !IsMeaningfullyVisible(
+                    BuildItemRequirementRef(
+                        record,
+                        questIndex,
+                        requirement.ItemId,
+                        requirement.Quantity,
+                        ancestry
+                    )
+                )
+            )
+                return false;
+        }
+
+        foreach (var step in _guide.Steps(questIndex))
+        {
+            hasRequirement = true;
+            if (!IsMeaningfullyVisible(BuildStepRef(record, questIndex, step, ancestry)))
+                return false;
+        }
+
+        var completerIds = _guide.CompleterIds(questIndex);
+        if (completerIds.Length > 0)
+        {
+            hasRequirement = true;
+            if (
+                !AnyVisible(
+                    completerIds,
+                    completerId => BuildCompleterRef(record, questIndex, completerId, ancestry)
+                )
+            )
+                return false;
+        }
+
+        return hasRequirement;
+    }
+
+    private bool AnyVisible(ReadOnlySpan<int> nodeIds, Func<int, SpecTreeRef> buildRef)
+    {
+        foreach (int nodeId in nodeIds)
+        {
+            if (IsMeaningfullyVisible(buildRef(nodeId)))
+                return true;
+        }
+
         return false;
     }
 
