@@ -1,3 +1,4 @@
+using AdventureGuide.CompiledGuide;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
 using AdventureGuide.Resolution;
@@ -97,6 +98,102 @@ public sealed class DetailTreeViabilityEvaluatorTests
         Assert.False(result.IsViable);
         Assert.Equal(DetailPruneReason.NoAcquisitionSource, result.Reason);
         Assert.Empty(result.SurvivingChildren);
+    }
+
+    [Fact]
+    public void Acquire_item_uses_compiled_dependency_children_without_raw_item_sources()
+    {
+        var guide = BuildCompiledDependencyOnlyGuide();
+        var evaluator = BuildEvaluator(guide, out int rootQuestIndex);
+        Assert.True(guide.TryGetNodeId("item:note", out int itemNodeId));
+        Assert.True(guide.TryGetNodeId("char:source", out int sourceNodeId));
+
+        var result = evaluator.Evaluate(
+            new DetailGoal(DetailGoalKind.AcquireItem, itemNodeId),
+            new DetailBranchContext(rootQuestIndex, new[] { guide.QuestNodeId(rootQuestIndex) })
+        );
+
+        Assert.True(result.IsViable);
+        var child = Assert.Single(result.SurvivingChildren);
+        Assert.Equal(DetailGoalKind.UnlockSource, child.Kind);
+        Assert.Equal(sourceNodeId, child.NodeId);
+    }
+
+    private static AdventureGuide.CompiledGuide.CompiledGuide BuildCompiledDependencyOnlyGuide()
+    {
+        var data = new CompiledGuideData
+        {
+            Nodes = new[]
+            {
+                new CompiledNodeData
+                {
+                    NodeId = 0,
+                    Key = "quest:root",
+                    NodeType = (int)NodeType.Quest,
+                    DisplayName = "Root Quest",
+                    DbName = "ROOT",
+                },
+                new CompiledNodeData
+                {
+                    NodeId = 1,
+                    Key = "item:note",
+                    NodeType = (int)NodeType.Item,
+                    DisplayName = "Torn Note",
+                },
+                new CompiledNodeData
+                {
+                    NodeId = 2,
+                    Key = "char:source",
+                    NodeType = (int)NodeType.Character,
+                    DisplayName = "Source",
+                },
+            },
+            Edges = Array.Empty<CompiledEdgeData>(),
+            ForwardAdjacency = new[] { Array.Empty<int>(), Array.Empty<int>(), Array.Empty<int>() },
+            ReverseAdjacency = new[] { Array.Empty<int>(), Array.Empty<int>(), Array.Empty<int>() },
+            QuestNodeIds = new[] { 0 },
+            ItemNodeIds = new[] { 1 },
+            QuestSpecs = new[]
+            {
+                new CompiledQuestSpecData { QuestId = 0, QuestIndex = 0 },
+            },
+            ItemSources = new[] { Array.Empty<CompiledSourceSiteData>() },
+            UnlockPredicates = Array.Empty<CompiledUnlockPredicateData>(),
+            DetailGoals = new[]
+            {
+                new CompiledDetailGoalData
+                {
+                    GoalKind = (int)DetailGoalKind.AcquireItem,
+                    NodeId = 1,
+                    DependencyIndices = new[] { 0 },
+                },
+                new CompiledDetailGoalData
+                {
+                    GoalKind = (int)DetailGoalKind.UnlockSource,
+                    NodeId = 2,
+                    DependencyIndices = Array.Empty<int>(),
+                },
+            },
+            DetailDependencies = new[]
+            {
+                new CompiledDetailDependencyData
+                {
+                    GoalKind = (int)DetailGoalKind.AcquireItem,
+                    NodeId = 1,
+                    Semantics = 0,
+                    ChildGoalIndices = new[] { 1 },
+                },
+            },
+            TopoOrder = new[] { 0 },
+            QuestToDependentQuestIndices = new[] { Array.Empty<int>() },
+            ZoneNodeIds = Array.Empty<int>(),
+            ZoneAdjacency = Array.Empty<int[]>(),
+            GiverBlueprints = Array.Empty<CompiledGiverBlueprintData>(),
+            CompletionBlueprints = Array.Empty<CompiledCompletionBlueprintData>(),
+            InfeasibleNodeIds = Array.Empty<int>(),
+        };
+
+        return new AdventureGuide.CompiledGuide.CompiledGuide(data);
     }
 
     private static DetailTreeViabilityEvaluator BuildEvaluator(

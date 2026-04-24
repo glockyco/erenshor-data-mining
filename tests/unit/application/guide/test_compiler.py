@@ -374,6 +374,27 @@ def test_compile_graph_emits_item_action_detail_dependencies() -> None:
     ]
 
 
+def test_compile_graph_emits_item_action_dependencies_for_item_giver_specs() -> None:
+    graph = _graph(
+        _quest("quest:read"),
+        _item("item:note"),
+        edges=[
+            Edge(source="quest:read", target="item:note", type=EdgeType.ASSIGNED_BY),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    item_id = compiled.node_key_to_id["item:note"]
+    goal = _find_detail_goal(compiled, DetailGoalKind.USE_ITEM_ACTION, item_id)
+
+    assert len(goal.dependency_indices) == 1
+    dependency = _detail_dependency(compiled, goal.dependency_indices[0])
+    assert dependency.semantics == DetailDependencySemantics.ALL_OF
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependency)] == [
+        (DetailGoalKind.ACQUIRE_ITEM, item_id)
+    ]
+
+
 def test_compile_graph_emits_unlock_group_detail_dependencies() -> None:
     graph = _graph(
         _quest("quest:a"),

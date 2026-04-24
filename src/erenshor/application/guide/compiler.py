@@ -719,14 +719,22 @@ def _compile_detail_dependencies(compiled: CompiledData) -> None:
                 [(action_goal_kind(node_id), node_id) for node_id in spec.completer_node_ids],
             )
 
+    item_action_node_ids: set[int] = set()
     for edge in compiled.edges:
         if edge.edge_type in {assigns_quest, completes_quest}:
-            add_dependency(
-                DetailGoalKind.USE_ITEM_ACTION,
-                edge.source_id,
-                DetailDependencySemantics.ALL_OF,
-                [(DetailGoalKind.ACQUIRE_ITEM, edge.source_id)],
-            )
+            item_action_node_ids.add(edge.source_id)
+    item_action_types = {node_type_byte(NodeType.ITEM), node_type_byte(NodeType.BOOK)}
+    for spec in compiled.quest_specs:
+        for node_id in [*spec.giver_node_ids, *spec.completer_node_ids]:
+            if compiled.nodes[node_id].node_type in item_action_types:
+                item_action_node_ids.add(node_id)
+    for node_id in sorted(item_action_node_ids):
+        add_dependency(
+            DetailGoalKind.USE_ITEM_ACTION,
+            node_id,
+            DetailDependencySemantics.ALL_OF,
+            [(DetailGoalKind.ACQUIRE_ITEM, node_id)],
+        )
 
     for predicate in compiled.unlock_predicates:
         groups: dict[int, list[UnlockCondition]] = {}

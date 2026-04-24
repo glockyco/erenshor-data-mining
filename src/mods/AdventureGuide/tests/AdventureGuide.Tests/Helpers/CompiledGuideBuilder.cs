@@ -1095,17 +1095,28 @@ public sealed class CompiledGuideBuilder
                 );
         }
 
+        var itemActionNodeIds = new SortedSet<int>();
         foreach (CompiledEdgeData edge in edges)
         {
             if (edge.EdgeType is (int)EdgeType.AssignsQuest or (int)EdgeType.CompletesQuest)
+                itemActionNodeIds.Add(edge.SourceId);
+        }
+        foreach (CompiledQuestSpecData spec in questSpecs)
+        {
+            foreach (int nodeId in spec.GiverNodeIds.Concat(spec.CompleterNodeIds))
             {
-                AddDependency(
-                    DetailGoalUseItemAction,
-                    edge.SourceId,
-                    DetailSemanticsAllOf,
-                    new[] { (Kind: DetailGoalAcquireItem, NodeId: edge.SourceId) }
-                );
+                if (nodes[nodeId].NodeType is (int)NodeType.Item or (int)NodeType.Book)
+                    itemActionNodeIds.Add(nodeId);
             }
+        }
+        foreach (int nodeId in itemActionNodeIds)
+        {
+            AddDependency(
+                DetailGoalUseItemAction,
+                nodeId,
+                DetailSemanticsAllOf,
+                new[] { (Kind: DetailGoalAcquireItem, NodeId: nodeId) }
+            );
         }
 
         foreach (CompiledUnlockPredicateData predicate in unlockPredicates)

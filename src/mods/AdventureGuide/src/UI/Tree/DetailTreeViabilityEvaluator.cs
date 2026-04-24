@@ -7,10 +7,11 @@ namespace AdventureGuide.UI.Tree;
 
 internal sealed class DetailTreeViabilityEvaluator
 {
-    private const byte EdgeRewardsItem = (byte)EdgeType.RewardsItem;
+    private readonly record struct DetailGoalKey(DetailGoalKind Kind, int NodeId);
 
     private readonly CompiledGuide.CompiledGuide _guide;
     private readonly QuestResolutionRecord _record;
+    private readonly Dictionary<DetailGoalKey, DetailDependency[]> _compiledDependencies;
     private readonly Dictionary<ViabilityCacheKey, DetailViabilityResult> _memo = new();
 
     public DetailTreeViabilityEvaluator(
@@ -20,6 +21,7 @@ internal sealed class DetailTreeViabilityEvaluator
     {
         _guide = guide;
         _record = record;
+        _compiledDependencies = BuildCompiledDependencies(guide);
     }
 
     public int EvaluationCount { get; private set; }
@@ -68,32 +70,17 @@ internal sealed class DetailTreeViabilityEvaluator
 
     private DetailViabilityResult EvaluateAcquireItem(int itemNodeId, DetailBranchContext context)
     {
-        int itemIndex = _guide.FindItemIndex(itemNodeId);
-        if (itemIndex < 0)
+        if (HasItem(itemNodeId))
+            return DetailViabilityResult.Viable(Array.Empty<DetailGoal>());
+        if (_guide.FindItemIndex(itemNodeId) < 0)
             return DetailViabilityResult.Pruned(DetailPruneReason.NoAcquisitionSource);
 
-        var surviving = new List<DetailGoal>();
-        foreach (var source in _guide.GetItemSources(itemIndex))
-        {
-            var sourceGoal = new DetailGoal(DetailGoalKind.UnlockSource, source.SourceId);
-            if (Evaluate(sourceGoal, context).IsViable)
-                surviving.Add(sourceGoal);
-        }
-
-        foreach (
-            var rewardEdge in _guide.InEdges(_guide.GetNodeKey(itemNodeId), EdgeType.RewardsItem)
-        )
-        {
-            if (!_guide.TryGetNodeId(rewardEdge.Source, out int rewardQuestId))
-                continue;
-            var questGoal = new DetailGoal(DetailGoalKind.CompleteQuest, rewardQuestId);
-            if (Evaluate(questGoal, context).IsViable)
-                surviving.Add(questGoal);
-        }
-
-        return surviving.Count > 0
-            ? DetailViabilityResult.Viable(surviving)
-            : DetailViabilityResult.Pruned(DetailPruneReason.NoAcquisitionSource);
+        var dependencies = GetCompiledDependencies(
+            new DetailGoal(DetailGoalKind.AcquireItem, itemNodeId)
+        );
+        return dependencies.Length == 0
+            ? DetailViabilityResult.Pruned(DetailPruneReason.NoAcquisitionSource)
+            : EvaluateAnyAlternative(dependencies, context, DetailPruneReason.NoAcquisitionSource);
     }
 
     private DetailViabilityResult EvaluateCompleteQuest(
@@ -107,62 +94,34 @@ internal sealed class DetailTreeViabilityEvaluator
         if (_record.DetailState.IsQuestCompleted(questIndex))
             return DetailViabilityResult.Viable(Array.Empty<DetailGoal>());
 
-        var surviving = new List<DetailGoal>();
-
-        foreach (int prereqId in _guide.PrereqQuestIds(questIndex))
-        {
-            var prereqGoal = new DetailGoal(DetailGoalKind.CompleteQuest, prereqId);
-            var result = Evaluate(prereqGoal, context);
-            if (!result.IsViable)
-                return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
-            surviving.Add(prereqGoal);
-        }
+        var dependencies = GetCompiledDependencies(
+            new DetailGoal(DetailGoalKind.CompleteQuest, questNodeId)
+        );
+        if (dependencies.Length == 0)
+            return DetailViabilityResult.Pruned(DetailPruneReason.EmptySemanticGoal);
 
         var phase = _record.DetailState.GetPhase(questIndex);
-        if (phase is not QuestPhase.Accepted and not QuestPhase.Completed)
+        var surviving = new List<DetailGoal>();
+        foreach (var dependency in dependencies)
         {
-            var giverGoals = BuildGoals(_guide.GiverIds(questIndex), DetermineActionGoalKind)
-                .ToArray();
-            if (giverGoals.Length > 0)
+            if (
+                phase is QuestPhase.Accepted or QuestPhase.Completed
+                && IsQuestGiverDependency(questIndex, dependency)
+            )
+                continue;
+
+            var result = EvaluateDependency(dependency, context);
+            if (!result.IsViable)
             {
-                var viableGiver = FirstViable(giverGoals, context);
-                if (viableGiver is null)
-                    return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
-                surviving.Add(viableGiver.Value);
+                return IsQuestCompleterDependency(questIndex, dependency)
+                    ? DetailViabilityResult.Pruned(DetailPruneReason.NoCompleterPath)
+                    : DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
             }
+
+            surviving.AddRange(result.SurvivingChildren);
         }
 
-        foreach (var requirement in _guide.RequiredItems(questIndex))
-        {
-            var itemGoal = new DetailGoal(DetailGoalKind.AcquireItem, requirement.ItemId);
-            var result = Evaluate(itemGoal, context);
-            if (!result.IsViable)
-                return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
-            surviving.Add(itemGoal);
-        }
-
-        foreach (var step in _guide.Steps(questIndex))
-        {
-            var stepGoal = new DetailGoal(DetailGoalKind.UnlockSource, step.TargetId);
-            var result = Evaluate(stepGoal, context);
-            if (!result.IsViable)
-                return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
-            surviving.Add(stepGoal);
-        }
-
-        var completerGoals = BuildGoals(_guide.CompleterIds(questIndex), DetermineActionGoalKind)
-            .ToArray();
-        if (completerGoals.Length > 0)
-        {
-            var viableCompleter = FirstViable(completerGoals, context);
-            if (viableCompleter is null)
-                return DetailViabilityResult.Pruned(DetailPruneReason.NoCompleterPath);
-            surviving.Add(viableCompleter.Value);
-        }
-
-        return surviving.Count > 0
-            ? DetailViabilityResult.Viable(surviving)
-            : DetailViabilityResult.Pruned(DetailPruneReason.EmptySemanticGoal);
+        return DetailViabilityResult.Viable(surviving);
     }
 
     private DetailViabilityResult EvaluateUnlockSource(
@@ -192,11 +151,230 @@ internal sealed class DetailTreeViabilityEvaluator
         if (questIndex >= 0 && _record.DetailState.IsQuestCompleted(questIndex))
             return DetailViabilityResult.Viable(Array.Empty<DetailGoal>());
 
-        var acquireGoal = new DetailGoal(DetailGoalKind.AcquireItem, itemNodeId);
-        var result = Evaluate(acquireGoal, context);
-        return result.IsViable
-            ? DetailViabilityResult.Viable(new[] { acquireGoal })
-            : DetailViabilityResult.Pruned(DetailPruneReason.NoAcquisitionSource);
+        var dependencies = GetCompiledDependencies(
+            new DetailGoal(DetailGoalKind.UseItemAction, itemNodeId)
+        );
+        return dependencies.Length == 0
+            ? DetailViabilityResult.Pruned(DetailPruneReason.NoAcquisitionSource)
+            : EvaluateAllRequired(dependencies, context, DetailPruneReason.NoAcquisitionSource);
+    }
+
+    private DetailViabilityResult EvaluateAnyAlternative(
+        IReadOnlyList<DetailDependency> dependencies,
+        DetailBranchContext context,
+        DetailPruneReason pruneReason
+    )
+    {
+        var surviving = new List<DetailGoal>();
+        for (int i = 0; i < dependencies.Count; i++)
+        {
+            var result = EvaluateDependency(dependencies[i], context);
+            if (result.IsViable)
+                surviving.AddRange(result.SurvivingChildren);
+        }
+
+        return surviving.Count > 0
+            ? DetailViabilityResult.Viable(surviving)
+            : DetailViabilityResult.Pruned(pruneReason);
+    }
+
+    private DetailViabilityResult EvaluateAllRequired(
+        IReadOnlyList<DetailDependency> dependencies,
+        DetailBranchContext context,
+        DetailPruneReason pruneReason
+    )
+    {
+        var surviving = new List<DetailGoal>();
+        for (int i = 0; i < dependencies.Count; i++)
+        {
+            var result = EvaluateDependency(dependencies[i], context);
+            if (!result.IsViable)
+                return DetailViabilityResult.Pruned(pruneReason);
+            surviving.AddRange(result.SurvivingChildren);
+        }
+
+        return DetailViabilityResult.Viable(surviving);
+    }
+
+    private DetailViabilityResult EvaluateDependency(
+        DetailDependency dependency,
+        DetailBranchContext context
+    )
+    {
+        return dependency.Semantics switch
+        {
+            DetailDependencySemantics.AnyOf => EvaluateAnyOfDependency(dependency, context),
+            DetailDependencySemantics.AllOf => EvaluateAllOfDependency(dependency, context),
+            _ => DetailViabilityResult.Pruned(DetailPruneReason.EmptySemanticGoal),
+        };
+    }
+
+    private DetailViabilityResult EvaluateAnyOfDependency(
+        DetailDependency dependency,
+        DetailBranchContext context
+    )
+    {
+        for (int i = 0; i < dependency.Children.Length; i++)
+        {
+            var child = dependency.Children[i];
+            if (Evaluate(child, context).IsViable)
+                return DetailViabilityResult.Viable(new[] { child });
+        }
+
+        return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
+    }
+
+    private DetailViabilityResult EvaluateAllOfDependency(
+        DetailDependency dependency,
+        DetailBranchContext context
+    )
+    {
+        var surviving = new List<DetailGoal>(dependency.Children.Length);
+        for (int i = 0; i < dependency.Children.Length; i++)
+        {
+            var child = dependency.Children[i];
+            if (!Evaluate(child, context).IsViable)
+                return DetailViabilityResult.Pruned(DetailPruneReason.RequiredChildPruned);
+            surviving.Add(child);
+        }
+
+        return DetailViabilityResult.Viable(surviving);
+    }
+
+    private DetailDependency[] GetCompiledDependencies(DetailGoal goal)
+    {
+        var key = new DetailGoalKey(goal.Kind, goal.NodeId);
+        if (_compiledDependencies.TryGetValue(key, out var dependencies))
+        {
+            if (dependencies.Length > 0 || !ShouldHaveCompiledDependencies(goal))
+                return dependencies;
+        }
+        if (ShouldHaveCompiledDependencies(goal))
+        {
+            throw new InvalidOperationException(
+                $"Compiled guide is missing detail dependencies for {goal.Kind} '{_guide.GetNodeKey(goal.NodeId)}'."
+            );
+        }
+
+        return Array.Empty<DetailDependency>();
+    }
+
+    private bool ShouldHaveCompiledDependencies(DetailGoal goal)
+    {
+        return goal.Kind switch
+        {
+            DetailGoalKind.AcquireItem => _guide.FindItemIndex(goal.NodeId) >= 0,
+            DetailGoalKind.CompleteQuest => QuestHasStaticDependencies(goal.NodeId),
+            DetailGoalKind.UseItemAction => FindItemActionQuestIndex(goal.NodeId) >= 0,
+            DetailGoalKind.UnlockSource => _guide.TryGetUnlockPredicate(
+                goal.NodeId,
+                out var predicate
+            )
+                && predicate.Conditions.Length > 0,
+            _ => false,
+        };
+    }
+
+    private bool QuestHasStaticDependencies(int questNodeId)
+    {
+        int questIndex = _guide.FindQuestIndex(questNodeId);
+        return questIndex >= 0
+            && (
+                _guide.PrereqQuestIds(questIndex).Length > 0
+                || _guide.RequiredItems(questIndex).Length > 0
+                || _guide.Steps(questIndex).Length > 0
+                || _guide.GiverIds(questIndex).Length > 0
+                || _guide.CompleterIds(questIndex).Length > 0
+            );
+    }
+
+    private static Dictionary<DetailGoalKey, DetailDependency[]> BuildCompiledDependencies(
+        CompiledGuide.CompiledGuide guide
+    )
+    {
+        var result = new Dictionary<DetailGoalKey, DetailDependency[]>();
+        var goals = guide.DetailGoals;
+        var dependencies = guide.DetailDependencies;
+        for (int goalIndex = 0; goalIndex < goals.Length; goalIndex++)
+        {
+            var goal = goals[goalIndex];
+            var clauses = new DetailDependency[goal.DependencyIndices.Length];
+            for (
+                int dependencyOffset = 0;
+                dependencyOffset < goal.DependencyIndices.Length;
+                dependencyOffset++
+            )
+            {
+                int dependencyIndex = goal.DependencyIndices[dependencyOffset];
+                if (dependencyIndex < 0 || dependencyIndex >= dependencies.Length)
+                    throw new InvalidOperationException(
+                        $"Invalid detail dependency index {dependencyIndex}."
+                    );
+                var dependency = dependencies[dependencyIndex];
+                clauses[dependencyOffset] = new DetailDependency(
+                    (DetailDependencySemantics)dependency.Semantics,
+                    BuildChildGoals(goals, dependency),
+                    dependency.UnlockGroup
+                );
+            }
+
+            result[new DetailGoalKey((DetailGoalKind)goal.GoalKind, goal.NodeId)] = clauses;
+        }
+
+        return result;
+    }
+
+    private static DetailGoal[] BuildChildGoals(
+        ReadOnlySpan<DetailGoalEntry> goals,
+        DetailDependencyEntry dependency
+    )
+    {
+        var children = new DetailGoal[dependency.ChildGoalIndices.Length];
+        for (int i = 0; i < children.Length; i++)
+        {
+            int childGoalIndex = dependency.ChildGoalIndices[i];
+            if (childGoalIndex < 0 || childGoalIndex >= goals.Length)
+                throw new InvalidOperationException(
+                    $"Invalid detail child goal index {childGoalIndex}."
+                );
+            var child = goals[childGoalIndex];
+            children[i] = new DetailGoal((DetailGoalKind)child.GoalKind, child.NodeId);
+        }
+
+        return children;
+    }
+
+    private bool IsQuestGiverDependency(int questIndex, DetailDependency dependency) =>
+        DependencyTargetsOnly(dependency, _guide.GiverIds(questIndex));
+
+    private bool IsQuestCompleterDependency(int questIndex, DetailDependency dependency) =>
+        DependencyTargetsOnly(dependency, _guide.CompleterIds(questIndex));
+
+    private static bool DependencyTargetsOnly(
+        DetailDependency dependency,
+        ReadOnlySpan<int> nodeIds
+    )
+    {
+        if (dependency.Children.Length == 0 || nodeIds.Length == 0)
+            return false;
+        for (int i = 0; i < dependency.Children.Length; i++)
+        {
+            if (!Contains(nodeIds, dependency.Children[i].NodeId))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool Contains(ReadOnlySpan<int> nodeIds, int nodeId)
+    {
+        for (int i = 0; i < nodeIds.Length; i++)
+        {
+            if (nodeIds[i] == nodeId)
+                return true;
+        }
+
+        return false;
     }
 
     private bool TryEvaluateAllOfGroup(
@@ -231,36 +409,6 @@ internal sealed class DetailTreeViabilityEvaluator
         return node.Type == NodeType.Quest
             ? new DetailGoal(DetailGoalKind.CompleteQuest, condition.SourceId)
             : new DetailGoal(DetailGoalKind.UnlockSource, condition.SourceId);
-    }
-
-    private DetailGoalKind DetermineActionGoalKind(int nodeId)
-    {
-        var node = _guide.GetNode(nodeId);
-        return node.Type is NodeType.Item or NodeType.Book ? DetailGoalKind.UseItemAction
-            : node.Type == NodeType.Quest ? DetailGoalKind.CompleteQuest
-            : DetailGoalKind.UnlockSource;
-    }
-
-    private DetailGoal? FirstViable(IEnumerable<DetailGoal> goals, DetailBranchContext context)
-    {
-        foreach (var goal in goals)
-        {
-            if (Evaluate(goal, context).IsViable)
-                return goal;
-        }
-
-        return null;
-    }
-
-    private DetailGoal[] BuildGoals(
-        ReadOnlySpan<int> nodeIds,
-        Func<int, DetailGoalKind> determineKind
-    )
-    {
-        var goals = new DetailGoal[nodeIds.Length];
-        for (int i = 0; i < nodeIds.Length; i++)
-            goals[i] = new DetailGoal(determineKind(nodeIds[i]), nodeIds[i]);
-        return goals;
     }
 
     private bool IsAlreadySatisfied(DetailGoal goal)
