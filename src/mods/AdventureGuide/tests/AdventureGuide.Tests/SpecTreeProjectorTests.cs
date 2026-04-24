@@ -340,6 +340,13 @@ public sealed class SpecTreeProjectorTests
             .AddQuest("quest:unlock-a", dbName: "UNLOCKA")
             .AddItem("item:key")
             .AddCharacter("char:npc")
+            .AddCharacter("char:key-source")
+            .AddItemSource(
+                "item:key",
+                "char:key-source",
+                edgeType: (byte)EdgeType.GivesItem,
+                sourceType: (byte)NodeType.Character
+            )
             .AddUnlockPredicate("char:npc", "quest:unlock-a", group: 1, checkType: 0)
             .AddUnlockPredicate("char:npc", "item:key", group: 2, checkType: 1)
             .AddQuest("quest:root", dbName: "ROOT", completers: new[] { "char:npc" })
@@ -938,43 +945,38 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
-    public void Nested_prerequisite_that_only_cycles_to_ancestor_item_is_pruned()
+    public void Recipe_source_with_pruned_material_prunes_entire_crafted_item_branch()
     {
         var guide = new CompiledGuideBuilder()
-            .AddItem("item:torn-note")
-            .AddItem("item:ghostly-key")
-            .AddItem("item:aetheria")
-            .AddRecipe("recipe:ghostly-key")
-            .AddCharacter("char:ghost")
-            .AddCharacter("char:sivakayan")
-            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:torn-note", 1) })
-            .AddQuest(
-                "quest:note",
-                dbName: "NOTE",
-                givers: new[] { "item:torn-note" },
-                requiredItems: new[] { ("item:torn-note", 1) }
-            )
+            .AddItem("item:ring")
+            .AddItem("item:good-material")
+            .AddItem("item:blocked-material")
+            .AddItem("item:missing-key")
+            .AddRecipe("recipe:ring")
+            .AddCharacter("char:good-source")
+            .AddCharacter("char:blocked-source")
             .AddItemSource(
-                "item:torn-note",
-                "char:ghost",
-                edgeType: (byte)EdgeType.DropsItem,
-                sourceType: (byte)NodeType.Character
-            )
-            .AddUnlockPredicate("char:ghost", "item:ghostly-key", checkType: 1)
-            .AddItemSource(
-                "item:ghostly-key",
-                "recipe:ghostly-key",
+                "item:ring",
+                "recipe:ring",
                 edgeType: (byte)EdgeType.Produces,
                 sourceType: (byte)NodeType.Recipe
             )
-            .AddEdge("recipe:ghostly-key", "item:aetheria", EdgeType.RequiresMaterial, quantity: 1)
+            .AddEdge("recipe:ring", "item:good-material", EdgeType.RequiresMaterial, quantity: 1)
+            .AddEdge("recipe:ring", "item:blocked-material", EdgeType.RequiresMaterial, quantity: 1)
             .AddItemSource(
-                "item:aetheria",
-                "char:sivakayan",
+                "item:good-material",
+                "char:good-source",
                 edgeType: (byte)EdgeType.DropsItem,
                 sourceType: (byte)NodeType.Character
             )
-            .AddUnlockPredicate("char:sivakayan", "quest:note")
+            .AddItemSource(
+                "item:blocked-material",
+                "char:blocked-source",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:blocked-source", "item:missing-key", checkType: 1)
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:ring", 1) })
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(
@@ -988,25 +990,45 @@ public sealed class SpecTreeProjectorTests
             .Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
-        var tornNote = projector
-            .GetRootChildren(rootQuestIndex)
-            .Single(child => child.Label == "Collect: item:torn-note");
-        var ghost = projector
-            .GetChildren(tornNote)
-            .Single(child => child.Label == "Drops from: char:ghost");
-        var ghostlyKey = projector
-            .GetUnlockChildren(ghost)
-            .Single(child => child.Label == "Requires: item:ghostly-key");
-        var recipe = projector
-            .GetChildren(ghostlyKey)
-            .Single(child => child.Label == "Crafted via: recipe:ghostly-key");
-        var aetheria = projector
-            .GetChildren(recipe)
-            .Single(child => child.Label == "Collect: item:aetheria");
 
         Assert.DoesNotContain(
-            projector.GetChildren(aetheria),
-            child => child.Label == "Drops from: char:sivakayan"
+            projector.GetRootChildren(rootQuestIndex),
+            child => child.Label == "Collect: item:ring"
+        );
+    }
+
+    [Fact]
+    public void Item_requirement_without_visible_acquisition_source_is_pruned()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:root")
+            .AddItem("item:blocked")
+            .AddCharacter("char:source")
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:root", 1) })
+            .AddItemSource(
+                "item:root",
+                "char:source",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:source", "item:blocked", checkType: 1)
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+
+        Assert.DoesNotContain(
+            projector.GetRootChildren(rootQuestIndex),
+            child => child.Label == "Collect: item:root"
         );
     }
 
@@ -1045,54 +1067,27 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
-    public void Prerequisite_quest_with_only_pruned_completion_paths_prunes_locked_source()
+    public void Prerequisite_item_action_without_visible_acquisition_source_is_pruned()
     {
         var guide = new CompiledGuideBuilder()
-            .AddItem("item:torn-note")
             .AddItem("item:marching-orders")
-            .AddItem("item:ghostly-key")
-            .AddItem("item:aetheria")
-            .AddRecipe("recipe:ghostly-key")
-            .AddCharacter("char:ghost")
-            .AddCharacter("char:sivakayan")
+            .AddItem("item:missing-key")
             .AddCharacter("char:gherist")
             .AddCharacter("char:lucian")
-            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:torn-note", 1) })
+            .AddQuest("quest:root", dbName: "ROOT", prereqs: new[] { "quest:note" })
             .AddQuest(
                 "quest:note",
                 dbName: "NOTE",
                 givers: new[] { "item:marching-orders" },
-                completers: new[] { "char:lucian" },
-                requiredItems: new[] { ("item:torn-note", 1) }
+                completers: new[] { "char:lucian" }
             )
-            .AddItemSource(
-                "item:torn-note",
-                "char:ghost",
-                edgeType: (byte)EdgeType.DropsItem,
-                sourceType: (byte)NodeType.Character
-            )
-            .AddUnlockPredicate("char:ghost", "item:ghostly-key", checkType: 1)
-            .AddItemSource(
-                "item:ghostly-key",
-                "recipe:ghostly-key",
-                edgeType: (byte)EdgeType.Produces,
-                sourceType: (byte)NodeType.Recipe
-            )
-            .AddEdge("recipe:ghostly-key", "item:aetheria", EdgeType.RequiresMaterial, quantity: 1)
-            .AddItemSource(
-                "item:aetheria",
-                "char:sivakayan",
-                edgeType: (byte)EdgeType.DropsItem,
-                sourceType: (byte)NodeType.Character
-            )
-            .AddUnlockPredicate("char:sivakayan", "quest:note")
             .AddItemSource(
                 "item:marching-orders",
                 "char:gherist",
                 edgeType: (byte)EdgeType.DropsItem,
                 sourceType: (byte)NodeType.Character
             )
-            .AddUnlockPredicate("char:gherist", "quest:note")
+            .AddUnlockPredicate("char:gherist", "item:missing-key", checkType: 1)
             .Build();
         var tracker = new QuestPhaseTracker(guide);
         tracker.Initialize(
@@ -1106,30 +1101,17 @@ public sealed class SpecTreeProjectorTests
             .Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
-        var tornNote = projector
+        var prerequisite = projector
             .GetRootChildren(rootQuestIndex)
-            .Single(child => child.Label == "Collect: item:torn-note");
-        var ghost = projector
-            .GetChildren(tornNote)
-            .Single(child => child.Label == "Drops from: char:ghost");
-        var ghostlyKey = projector
-            .GetUnlockChildren(ghost)
-            .Single(child => child.Label == "Requires: item:ghostly-key");
-        var recipe = projector
-            .GetChildren(ghostlyKey)
-            .Single(child => child.Label == "Crafted via: recipe:ghostly-key");
-        var aetheria = projector
-            .GetChildren(recipe)
-            .Single(child => child.Label == "Collect: item:aetheria");
+            .Single(child => child.Label == "Requires: quest:note");
+        var prerequisiteChildren = projector.GetChildren(prerequisite);
 
-        Assert.DoesNotContain(
-            projector.GetChildren(aetheria),
-            child => child.Label == "Drops from: char:sivakayan"
-        );
+        Assert.DoesNotContain(prerequisiteChildren, child => child.Label == "Read item:marching-orders");
+        Assert.Contains(prerequisiteChildren, child => child.Label == "Talk to char:lucian");
     }
 
     [Fact]
-    public void Wyland_cycle_projection_keeps_pruned_probe_count_bounded()
+    public void Wyland_cycle_projection_prunes_fully_cyclic_root_and_keeps_probe_count_bounded()
     {
         var guide = BuildWylandCycleGuide();
         var tracker = new QuestPhaseTracker(guide);
@@ -1147,7 +1129,7 @@ public sealed class SpecTreeProjectorTests
         var roots = projector.GetRootChildren(rootQuestIndex);
         var snapshot = projector.ExportDiagnosticsSnapshot();
 
-        Assert.Contains(roots, child => child.Label == "Collect: item:torn-note");
+        Assert.DoesNotContain(roots, child => child.Label == "Collect: item:torn-note");
         Assert.True(snapshot.LastProjectedNodeCount <= 3);
         Assert.True(
             snapshot.LastViabilityEvaluationCount <= 40,
@@ -1156,7 +1138,7 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
-    public void Any_of_unlock_prunes_cyclic_option_and_keeps_viable_alternative()
+    public void Any_of_unlock_prunes_cyclic_option_and_collapses_single_viable_alternative()
     {
         var guide = new CompiledGuideBuilder()
             .AddItem("item:root")
@@ -1194,13 +1176,11 @@ public sealed class SpecTreeProjectorTests
         var unlockChildren = projector.GetUnlockChildren(source);
 
         var option = Assert.Single(unlockChildren);
-        Assert.Equal("Any of:", option.Label);
-        var viable = Assert.Single(option.SyntheticChildren!);
-        Assert.Equal("Requires: quest:viable", viable.Label);
+        Assert.Equal("Requires: quest:viable", option.Label);
     }
 
     [Fact]
-    public void All_of_unlock_prunes_entire_group_when_required_child_cycles()
+    public void All_of_unlock_prunes_item_when_required_child_cycles()
     {
         var guide = new CompiledGuideBuilder()
             .AddItem("item:root")
@@ -1229,13 +1209,10 @@ public sealed class SpecTreeProjectorTests
             .Projector;
 
         int rootQuestIndex = FindQuestIndex(guide, "quest:root");
-        var rootItem = projector
-            .GetRootChildren(rootQuestIndex)
-            .Single(child => child.Label == "Collect: item:root");
 
         Assert.DoesNotContain(
-            projector.GetChildren(rootItem),
-            child => child.Label == "Drops from: char:locked"
+            projector.GetRootChildren(rootQuestIndex),
+            child => child.Label == "Collect: item:root"
         );
     }
 
