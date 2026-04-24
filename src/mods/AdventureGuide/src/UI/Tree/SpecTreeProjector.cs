@@ -774,14 +774,10 @@ public sealed class SpecTreeProjector
             }
 
             bool requiresVisibleChildren = RequiresVisibleChildren(candidate);
-            if (
-                requiresVisibleChildren
-                && TryEvaluateSemanticVisibility(candidate, out bool semanticVisible)
-            )
+            if (requiresVisibleChildren && TryEvaluateSemanticVisibility(candidate, out bool semanticVisible))
             {
-                bool visible = semanticVisible && HasVisibleDescendants(candidate);
-                _visibilityCache[cacheKey] = visible;
-                return visible;
+                _visibilityCache[cacheKey] = semanticVisible;
+                return semanticVisible;
             }
 
             if (!requiresVisibleChildren && !candidate.IsBlocked)
@@ -819,46 +815,7 @@ public sealed class SpecTreeProjector
 
     private bool HasVisibleDescendants(SpecTreeRef candidate)
     {
-        if (IsRecipeSource(candidate))
-            return HasAllVisibleRecipeMaterials(candidate);
-
         return GetUnlockChildrenCore(candidate).Count > 0 || GetChildrenCore(candidate).Count > 0;
-    }
-
-    private bool IsRecipeSource(SpecTreeRef candidate)
-    {
-        if (candidate.Kind != SpecTreeKind.Source || candidate.GraphNodeId is not int graphNodeId)
-            return false;
-
-        return _guide.GetNode(graphNodeId)?.Type == NodeType.Recipe;
-    }
-
-    private bool HasAllVisibleRecipeMaterials(SpecTreeRef candidate)
-    {
-        if (candidate.GraphNodeId is not int recipeNodeId)
-            return false;
-
-        var materialEdges = _guide.OutEdges(_guide.GetNodeKey(recipeNodeId), EdgeType.RequiresMaterial);
-        if (materialEdges.Count == 0)
-            return false;
-
-        for (int i = 0; i < materialEdges.Count; i++)
-        {
-            if (!_guide.TryGetNodeId(materialEdges[i].Target, out int materialId))
-                return false;
-
-            var material = BuildItemRequirementRef(
-                GetRecord(candidate.QuestIndex),
-                candidate.QuestIndex,
-                materialId,
-                materialEdges[i].Quantity ?? 1,
-                candidate.Ancestry
-            );
-            if (!IsMeaningfullyVisible(material))
-                return false;
-        }
-
-        return true;
     }
 
     private bool TryEvaluateSemanticVisibility(SpecTreeRef candidate, out bool visible)
@@ -892,6 +849,12 @@ public sealed class SpecTreeProjector
         var node = _guide.GetNode(graphNodeId);
         if (node.Type is NodeType.Item or NodeType.Book)
         {
+            if (candidate.Kind == SpecTreeKind.Item)
+            {
+                goal = new DetailGoal(DetailGoalKind.AcquireItem, graphNodeId);
+                return true;
+            }
+
             if (candidate.Kind is SpecTreeKind.Giver or SpecTreeKind.Completer or SpecTreeKind.Step)
             {
                 goal = new DetailGoal(DetailGoalKind.UseItemAction, graphNodeId);
@@ -906,6 +869,12 @@ public sealed class SpecTreeProjector
                 goal = new DetailGoal(DetailGoalKind.CompleteQuest, graphNodeId);
                 return true;
             }
+        }
+
+        if (node.Type == NodeType.Recipe && candidate.Kind == SpecTreeKind.Source)
+        {
+            goal = new DetailGoal(DetailGoalKind.UnlockSource, graphNodeId);
+            return true;
         }
 
         goal = default;

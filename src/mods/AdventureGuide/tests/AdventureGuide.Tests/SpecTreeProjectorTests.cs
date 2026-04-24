@@ -198,9 +198,10 @@ public sealed class SpecTreeProjectorTests
     public void Blocked_nodes_expose_unlock_requirements()
     {
         var guide = new CompiledGuideBuilder()
-            .AddQuest("quest:unlock", dbName: "UNLOCK")
-            .AddItem("item:pelt")
-            .AddCharacter("char:wolf")
+        	.AddCharacter("char:unlocker")
+        	.AddQuest("quest:unlock", dbName: "UNLOCK", completers: new[] { "char:unlocker" })
+        	.AddItem("item:pelt")
+        	.AddCharacter("char:wolf")
             .AddItemSource("item:pelt", "char:wolf", edgeType: (byte)EdgeType.DropsItem)
             .AddUnlockPredicate("char:wolf", "quest:unlock")
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:pelt", 1) })
@@ -1111,6 +1112,52 @@ public sealed class SpecTreeProjectorTests
     }
 
     [Fact]
+    public void Root_item_projection_trusts_semantic_viability_without_descendant_probe()
+    {
+        var guide = new CompiledGuideBuilder()
+            .AddItem("item:root")
+            .AddCharacter("char:locked")
+            .AddCharacter("char:vendor")
+            .AddQuest("quest:cyclic", dbName: "CYCLIC", requiredItems: new[] { ("item:root", 1) })
+            .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:root", 1) })
+            .AddItemSource(
+                "item:root",
+                "char:locked",
+                edgeType: (byte)EdgeType.DropsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .AddUnlockPredicate("char:locked", "quest:cyclic")
+            .AddItemSource(
+                "item:root",
+                "char:vendor",
+                edgeType: (byte)EdgeType.SellsItem,
+                sourceType: (byte)NodeType.Character
+            )
+            .Build();
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        int rootQuestIndex = FindQuestIndex(guide, "quest:root");
+        var roots = projector.GetRootChildren(rootQuestIndex);
+        var snapshot = projector.ExportDiagnosticsSnapshot();
+
+        Assert.Contains(roots, child => child.Label == "Collect: item:root");
+        Assert.Equal(0, snapshot.LastChildCount);
+        Assert.True(
+        	snapshot.LastViabilityEvaluationCount <= 8,
+        	$"Root projection should not probe displayed descendants, saw {snapshot.LastViabilityEvaluationCount} evaluations."
+        );
+    }
+
+    [Fact]
     public void Wyland_cycle_projection_prunes_fully_cyclic_root_and_keeps_probe_count_bounded()
     {
         var guide = BuildWylandCycleGuide();
@@ -1143,8 +1190,9 @@ public sealed class SpecTreeProjectorTests
         var guide = new CompiledGuideBuilder()
             .AddItem("item:root")
             .AddCharacter("char:locked")
+            .AddCharacter("char:viable-turnin")
             .AddQuest("quest:cyclic", dbName: "CYCLIC", requiredItems: new[] { ("item:root", 1) })
-            .AddQuest("quest:viable", dbName: "VIABLE")
+            .AddQuest("quest:viable", dbName: "VIABLE", completers: new[] { "char:viable-turnin" })
             .AddQuest("quest:root", dbName: "ROOT", requiredItems: new[] { ("item:root", 1) })
             .AddItemSource(
                 "item:root",
