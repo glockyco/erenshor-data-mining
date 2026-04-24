@@ -105,6 +105,13 @@ public sealed class CompiledGuideBuilder
     private readonly List<RecipeDef> _recipes = new();
     private readonly List<EdgeDef> _edges = new();
 
+    private const byte DetailGoalAcquireItem = 0;
+    private const byte DetailGoalCompleteQuest = 1;
+    private const byte DetailGoalUnlockSource = 2;
+    private const byte DetailGoalUseItemAction = 3;
+    private const byte DetailSemanticsAnyOf = 0;
+    private const byte DetailSemanticsAllOf = 1;
+
     public CompiledGuideBuilder AddQuest(
         string key,
         string? dbName = null,
@@ -482,32 +489,41 @@ public sealed class CompiledGuideBuilder
             int targetType = nodes[targetId].NodeType;
             if (sourceType == (int)NodeType.Recipe && targetType == (int)NodeType.Item)
             {
-                if (edge.Type == EdgeType.RequiresMaterial
-                    && itemIndexByNodeId.TryGetValue(targetId, out int ingredientIndex))
+                if (
+                    edge.Type == EdgeType.RequiresMaterial
+                    && itemIndexByNodeId.TryGetValue(targetId, out int ingredientIndex)
+                )
                 {
-                    (ingredientsByRecipe.TryGetValue(sourceId, out var ingredients)
-                        ? ingredients
-                        : ingredientsByRecipe[sourceId] = new HashSet<int>())
-                    .Add(ingredientIndex);
+                    (
+                        ingredientsByRecipe.TryGetValue(sourceId, out var ingredients)
+                            ? ingredients
+                            : ingredientsByRecipe[sourceId] = new HashSet<int>()
+                    ).Add(ingredientIndex);
                 }
-                else if (edge.Type == EdgeType.Produces
-                    && itemIndexByNodeId.TryGetValue(targetId, out int productIndex))
+                else if (
+                    edge.Type == EdgeType.Produces
+                    && itemIndexByNodeId.TryGetValue(targetId, out int productIndex)
+                )
                 {
-                    (productsByRecipe.TryGetValue(sourceId, out var products)
-                        ? products
-                        : productsByRecipe[sourceId] = new HashSet<int>())
-                    .Add(productIndex);
+                    (
+                        productsByRecipe.TryGetValue(sourceId, out var products)
+                            ? products
+                            : productsByRecipe[sourceId] = new HashSet<int>()
+                    ).Add(productIndex);
                 }
             }
-            else if (edge.Type == EdgeType.CraftedFrom
+            else if (
+                edge.Type == EdgeType.CraftedFrom
                 && sourceType == (int)NodeType.Item
                 && targetType == (int)NodeType.Recipe
-                && itemIndexByNodeId.TryGetValue(sourceId, out int productIndex))
+                && itemIndexByNodeId.TryGetValue(sourceId, out int productIndex)
+            )
             {
-                (productsByRecipe.TryGetValue(targetId, out var products)
-                    ? products
-                    : productsByRecipe[targetId] = new HashSet<int>())
-                .Add(productIndex);
+                (
+                    productsByRecipe.TryGetValue(targetId, out var products)
+                        ? products
+                        : productsByRecipe[targetId] = new HashSet<int>()
+                ).Add(productIndex);
             }
         }
 
@@ -545,7 +561,6 @@ public sealed class CompiledGuideBuilder
             foreach (int questIndex in impactedQuests.OrderBy(index => index))
                 i2qRows[itemIndex].Add(questIndex);
         }
-
 
         var giverBlueprints = new List<CompiledGiverBlueprintData>();
         var completionBlueprints = new List<CompiledCompletionBlueprintData>();
@@ -632,6 +647,15 @@ public sealed class CompiledGuideBuilder
             reverseAdj[targetId].Add(edgeIndex);
         }
 
+        var detailDependencies = BuildDetailDependenciesDto(
+            nodes,
+            itemNodeIds,
+            questNodeIds,
+            questSpecs,
+            itemSourcesDto,
+            unlockPredicates,
+            edgeDataList.ToArray()
+        );
         int nodeCount = keyToId.Count;
         var data = new CompiledGuideData
         {
@@ -644,6 +668,8 @@ public sealed class CompiledGuideBuilder
             QuestSpecs = questSpecs,
             ItemSources = itemSourcesDto,
             UnlockPredicates = unlockPredicates,
+            DetailGoals = detailDependencies.Goals,
+            DetailDependencies = detailDependencies.Dependencies,
             TopoOrder = Enumerable.Range(0, questNodeIds.Length).ToArray(),
 
             ItemToQuestIndices = i2qRows.Select(l => l.ToArray()).ToArray(),
@@ -654,7 +680,6 @@ public sealed class CompiledGuideBuilder
             GiverBlueprints = giverBlueprints.ToArray(),
             CompletionBlueprints = completionBlueprints.ToArray(),
             InfeasibleNodeIds = Array.Empty<int>(),
-
         };
 
         return new CompiledGuideModel(data);
@@ -923,6 +948,185 @@ public sealed class CompiledGuideBuilder
             rows[itemIndex] = entries.ToArray();
         }
         return rows;
+    }
+
+    private static (
+        CompiledDetailGoalData[] Goals,
+        CompiledDetailDependencyData[] Dependencies
+    ) BuildDetailDependenciesDto(
+        CompiledNodeData[] nodes,
+        int[] itemNodeIds,
+        int[] questNodeIds,
+        CompiledQuestSpecData[] questSpecs,
+        CompiledSourceSiteData[][] itemSources,
+        CompiledUnlockPredicateData[] unlockPredicates,
+        CompiledEdgeData[] edges
+    )
+    {
+        var goals = new List<CompiledDetailGoalData>();
+        var dependencies = new List<CompiledDetailDependencyData>();
+        var goalLookup = new Dictionary<(int Kind, int NodeId), int>();
+
+        int GoalIndex(byte kind, int nodeId)
+        {
+            var key = ((int)kind, nodeId);
+            if (goalLookup.TryGetValue(key, out int existing))
+                return existing;
+
+            int index = goals.Count;
+            goalLookup[key] = index;
+            goals.Add(
+                new CompiledDetailGoalData
+                {
+                    GoalKind = kind,
+                    NodeId = nodeId,
+                    DependencyIndices = Array.Empty<int>(),
+                }
+            );
+            return index;
+        }
+
+        void AddDependency(
+            byte kind,
+            int nodeId,
+            byte semantics,
+            IEnumerable<(byte Kind, int NodeId)> children,
+            byte unlockGroup = 0
+        )
+        {
+            int parentIndex = GoalIndex(kind, nodeId);
+            int dependencyIndex = dependencies.Count;
+            dependencies.Add(
+                new CompiledDetailDependencyData
+                {
+                    GoalKind = kind,
+                    NodeId = nodeId,
+                    Semantics = semantics,
+                    ChildGoalIndices = children
+                        .Select(child => GoalIndex(child.Kind, child.NodeId))
+                        .ToArray(),
+                    UnlockGroup = unlockGroup,
+                }
+            );
+
+            CompiledDetailGoalData goal = goals[parentIndex];
+            goal.DependencyIndices = goal.DependencyIndices.Append(dependencyIndex).ToArray();
+        }
+
+        byte ActionGoalKind(int nodeId) =>
+            nodes[nodeId].NodeType switch
+            {
+                (int)NodeType.Quest => DetailGoalCompleteQuest,
+                (int)NodeType.Item or (int)NodeType.Book => DetailGoalUseItemAction,
+                _ => DetailGoalUnlockSource,
+            };
+
+        (byte Kind, int NodeId) UnlockConditionGoal(CompiledUnlockConditionData condition)
+        {
+            if (
+                condition.CheckType != 0
+                && nodes[condition.SourceId].NodeType == (int)NodeType.Item
+            )
+                return (DetailGoalAcquireItem, condition.SourceId);
+            if (nodes[condition.SourceId].NodeType == (int)NodeType.Quest)
+                return (DetailGoalCompleteQuest, condition.SourceId);
+            return (DetailGoalUnlockSource, condition.SourceId);
+        }
+
+        foreach (
+            (int itemNodeId, int itemIndex) in itemNodeIds.Select(
+                (nodeId, index) => (nodeId, index)
+            )
+        )
+        {
+            var children = itemSources[itemIndex]
+                .Select(source => (Kind: DetailGoalUnlockSource, source.SourceId))
+                .ToList();
+            children.AddRange(
+                edges
+                    .Where(edge =>
+                        edge.TargetId == itemNodeId && edge.EdgeType == (int)EdgeType.RewardsItem
+                    )
+                    .Select(edge => (Kind: DetailGoalCompleteQuest, edge.SourceId))
+            );
+            AddDependency(DetailGoalAcquireItem, itemNodeId, DetailSemanticsAnyOf, children);
+        }
+
+        for (int questIndex = 0; questIndex < questNodeIds.Length; questIndex++)
+        {
+            CompiledQuestSpecData spec = questSpecs[questIndex];
+            var coreChildren = spec
+                .PrereqQuestIds.Select(nodeId => (Kind: DetailGoalCompleteQuest, NodeId: nodeId))
+                .Concat(
+                    spec.RequiredItems.Select(requirement =>
+                        (Kind: DetailGoalAcquireItem, NodeId: requirement.ItemId)
+                    )
+                )
+                .Concat(
+                    spec.Steps.Select(step => (Kind: DetailGoalUnlockSource, NodeId: step.TargetId))
+                )
+                .ToArray();
+            if (coreChildren.Length > 0)
+                AddDependency(
+                    DetailGoalCompleteQuest,
+                    questNodeIds[questIndex],
+                    DetailSemanticsAllOf,
+                    coreChildren
+                );
+
+            if (spec.GiverNodeIds.Length > 0)
+                AddDependency(
+                    DetailGoalCompleteQuest,
+                    questNodeIds[questIndex],
+                    DetailSemanticsAnyOf,
+                    spec.GiverNodeIds.Select(nodeId =>
+                        (Kind: ActionGoalKind(nodeId), NodeId: nodeId)
+                    )
+                );
+
+            if (spec.CompleterNodeIds.Length > 0)
+                AddDependency(
+                    DetailGoalCompleteQuest,
+                    questNodeIds[questIndex],
+                    DetailSemanticsAnyOf,
+                    spec.CompleterNodeIds.Select(nodeId =>
+                        (Kind: ActionGoalKind(nodeId), NodeId: nodeId)
+                    )
+                );
+        }
+
+        foreach (CompiledEdgeData edge in edges)
+        {
+            if (edge.EdgeType is (int)EdgeType.AssignsQuest or (int)EdgeType.CompletesQuest)
+            {
+                AddDependency(
+                    DetailGoalUseItemAction,
+                    edge.SourceId,
+                    DetailSemanticsAllOf,
+                    new[] { (Kind: DetailGoalAcquireItem, NodeId: edge.SourceId) }
+                );
+            }
+        }
+
+        foreach (CompiledUnlockPredicateData predicate in unlockPredicates)
+        {
+            foreach (
+                var group in predicate
+                    .Conditions.GroupBy(condition => condition.Group)
+                    .OrderBy(group => group.Key)
+            )
+            {
+                AddDependency(
+                    DetailGoalUnlockSource,
+                    predicate.TargetId,
+                    DetailSemanticsAllOf,
+                    group.Select(UnlockConditionGoal),
+                    (byte)group.Key
+                );
+            }
+        }
+
+        return (goals.ToArray(), dependencies.ToArray());
     }
 
     private CompiledUnlockPredicateData[] BuildUnlockPredicatesDto(Dictionary<string, int> keyToId)

@@ -9,6 +9,10 @@ from erenshor.application.guide.compiler import (
     CompiledData,
     CompiledEdge,
     CompiledNode,
+    DetailDependency,
+    DetailDependencySemantics,
+    DetailGoalKind,
+    DetailGoalSpec,
     EdgeFlags,
     ItemRequirement,
     NodeFlags,
@@ -256,6 +260,152 @@ def test_compile_graph_builds_unlock_predicates_and_dependent_quest_indices() ->
     unlock_qi = compiled.node_quest_index[unlock_id]
     needs_qi = compiled.node_quest_index[needs_id]
     assert compiled.quest_to_dependent_quest_indices[unlock_qi] == [needs_qi]
+
+
+def _find_detail_goal(compiled: CompiledData, kind: DetailGoalKind, node_id: int) -> DetailGoalSpec:
+    for goal in compiled.detail_goals:
+        if goal.goal_kind == kind and goal.node_id == node_id:
+            return goal
+    raise AssertionError(f"Missing detail goal {kind!r} for node {node_id}")
+
+
+def _detail_dependency(compiled: CompiledData, index: int) -> DetailDependency:
+    return compiled.detail_dependencies[index]
+
+
+def _child_goals(compiled: CompiledData, dependency: DetailDependency) -> list[DetailGoalSpec]:
+    return [compiled.detail_goals[index] for index in dependency.child_goal_indices]
+
+
+def test_compile_graph_emits_item_acquisition_detail_dependencies() -> None:
+    graph = _graph(
+        _quest("quest:reward"),
+        _item("item:note"),
+        _char("char:mob"),
+        edges=[
+            Edge(source="char:mob", target="item:note", type=EdgeType.DROPS_ITEM),
+            Edge(source="quest:reward", target="item:note", type=EdgeType.REWARDS_ITEM),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    item_id = compiled.node_key_to_id["item:note"]
+    mob_id = compiled.node_key_to_id["char:mob"]
+    reward_quest_id = compiled.node_key_to_id["quest:reward"]
+    goal = _find_detail_goal(compiled, DetailGoalKind.ACQUIRE_ITEM, item_id)
+
+    assert len(goal.dependency_indices) == 1
+    dependency = _detail_dependency(compiled, goal.dependency_indices[0])
+    assert dependency == DetailDependency(
+        goal_kind=DetailGoalKind.ACQUIRE_ITEM,
+        node_id=item_id,
+        semantics=DetailDependencySemantics.ANY_OF,
+        child_goal_indices=dependency.child_goal_indices,
+    )
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependency)] == [
+        (DetailGoalKind.UNLOCK_SOURCE, mob_id),
+        (DetailGoalKind.COMPLETE_QUEST, reward_quest_id),
+    ]
+
+
+def test_compile_graph_emits_quest_completion_detail_dependencies() -> None:
+    graph = _graph(
+        _quest("quest:pre"),
+        _quest("quest:root"),
+        _item("item:key"),
+        _char("char:giver"),
+        _char("char:step"),
+        _char("char:turnin"),
+        edges=[
+            Edge(source="quest:root", target="quest:pre", type=EdgeType.REQUIRES_QUEST),
+            Edge(source="quest:root", target="item:key", type=EdgeType.REQUIRES_ITEM, quantity=1),
+            Edge(source="quest:root", target="char:giver", type=EdgeType.ASSIGNED_BY),
+            Edge(source="quest:root", target="char:step", type=EdgeType.STEP_TALK),
+            Edge(source="quest:root", target="char:turnin", type=EdgeType.COMPLETED_BY),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    root_id = compiled.node_key_to_id["quest:root"]
+    pre_id = compiled.node_key_to_id["quest:pre"]
+    item_id = compiled.node_key_to_id["item:key"]
+    giver_id = compiled.node_key_to_id["char:giver"]
+    step_id = compiled.node_key_to_id["char:step"]
+    turnin_id = compiled.node_key_to_id["char:turnin"]
+    goal = _find_detail_goal(compiled, DetailGoalKind.COMPLETE_QUEST, root_id)
+
+    dependencies = [_detail_dependency(compiled, index) for index in goal.dependency_indices]
+    assert [dependency.semantics for dependency in dependencies] == [
+        DetailDependencySemantics.ALL_OF,
+        DetailDependencySemantics.ANY_OF,
+        DetailDependencySemantics.ANY_OF,
+    ]
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependencies[0])] == [
+        (DetailGoalKind.COMPLETE_QUEST, pre_id),
+        (DetailGoalKind.ACQUIRE_ITEM, item_id),
+        (DetailGoalKind.UNLOCK_SOURCE, step_id),
+    ]
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependencies[1])] == [
+        (DetailGoalKind.UNLOCK_SOURCE, giver_id)
+    ]
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependencies[2])] == [
+        (DetailGoalKind.UNLOCK_SOURCE, turnin_id)
+    ]
+
+
+def test_compile_graph_emits_item_action_detail_dependencies() -> None:
+    graph = _graph(
+        _quest("quest:read"),
+        _item("item:note"),
+        edges=[
+            Edge(source="item:note", target="quest:read", type=EdgeType.ASSIGNS_QUEST),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    item_id = compiled.node_key_to_id["item:note"]
+    goal = _find_detail_goal(compiled, DetailGoalKind.USE_ITEM_ACTION, item_id)
+
+    assert len(goal.dependency_indices) == 1
+    dependency = _detail_dependency(compiled, goal.dependency_indices[0])
+    assert dependency.semantics == DetailDependencySemantics.ALL_OF
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependency)] == [
+        (DetailGoalKind.ACQUIRE_ITEM, item_id)
+    ]
+
+
+def test_compile_graph_emits_unlock_group_detail_dependencies() -> None:
+    graph = _graph(
+        _quest("quest:a"),
+        _quest("quest:b"),
+        _item("item:key"),
+        _char("char:target"),
+        edges=[
+            Edge(source="quest:a", target="char:target", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
+            Edge(source="item:key", target="char:target", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
+            Edge(source="quest:b", target="char:target", type=EdgeType.UNLOCKS_CHARACTER, group="route-b"),
+        ],
+    )
+
+    compiled = compile_graph(graph)
+    target_id = compiled.node_key_to_id["char:target"]
+    quest_a_id = compiled.node_key_to_id["quest:a"]
+    quest_b_id = compiled.node_key_to_id["quest:b"]
+    item_id = compiled.node_key_to_id["item:key"]
+    goal = _find_detail_goal(compiled, DetailGoalKind.UNLOCK_SOURCE, target_id)
+
+    dependencies = [_detail_dependency(compiled, index) for index in goal.dependency_indices]
+    assert [(dependency.semantics, dependency.unlock_group) for dependency in dependencies] == [
+        (DetailDependencySemantics.ALL_OF, 1),
+        (DetailDependencySemantics.ALL_OF, 2),
+    ]
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependencies[0])] == [
+        (DetailGoalKind.COMPLETE_QUEST, quest_a_id),
+        (DetailGoalKind.ACQUIRE_ITEM, item_id),
+    ]
+    assert [(child.goal_kind, child.node_id) for child in _child_goals(compiled, dependencies[1])] == [
+        (DetailGoalKind.COMPLETE_QUEST, quest_b_id)
+    ]
 
 
 def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> None:

@@ -126,6 +126,39 @@ class UnlockPredicate:
     semantics: int = 0
 
 
+class DetailGoalKind(IntEnum):
+    """Stable semantic goal IDs consumed by the AdventureGuide runtime."""
+
+    ACQUIRE_ITEM = 0
+    COMPLETE_QUEST = 1
+    UNLOCK_SOURCE = 2
+    USE_ITEM_ACTION = 3
+    SATISFY_UNLOCK_GROUP = 4
+
+
+class DetailDependencySemantics(IntEnum):
+    """Boolean semantics for one compiled detail dependency clause."""
+
+    ANY_OF = 0
+    ALL_OF = 1
+
+
+@dataclass(slots=True)
+class DetailDependency:
+    goal_kind: int
+    node_id: int
+    semantics: int
+    child_goal_indices: list[int] = field(default_factory=list)
+    unlock_group: int = 0
+
+
+@dataclass(slots=True)
+class DetailGoalSpec:
+    goal_kind: int
+    node_id: int
+    dependency_indices: list[int] = field(default_factory=list)
+
+
 @dataclass(slots=True)
 class StepSpec:
     step_type: int
@@ -210,6 +243,8 @@ class CompiledData:
     quest_specs: list[QuestSpec] = field(default_factory=list)
     item_sources: list[list[SourceSite]] = field(default_factory=list)
     unlock_predicates: list[UnlockPredicate] = field(default_factory=list)
+    detail_goals: list[DetailGoalSpec] = field(default_factory=list)
+    detail_dependencies: list[DetailDependency] = field(default_factory=list)
 
     topo_order: list[int] = field(default_factory=list)
     quest_to_dependent_quest_indices: list[list[int]] = field(default_factory=list)
@@ -257,6 +292,7 @@ def compile_graph(graph: EntityGraph) -> CompiledData:
     _compile_quest_specs(compiled)
     _compile_item_sources(compiled)
     _compile_unlock_predicates(compiled)
+    _compile_detail_dependencies(compiled)
     _compile_zones(compiled)
     _compile_blueprints(graph, compiled)
     return compiled
@@ -536,6 +572,7 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
     item_type = node_type_byte(NodeType.ITEM)
     door_type = node_type_byte(NodeType.DOOR)
     predicates: dict[int, list[UnlockCondition]] = {}
+    group_ids_by_target: dict[int, dict[str, int]] = {}
 
     for edge in compiled.edges:
         if edge.edge_type in unlock_target_edge_types:
@@ -546,7 +583,11 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
             source_id = edge.target_id
         else:
             continue
-        group = 1 if edge.group else 0
+        if edge.group:
+            group_ids = group_ids_by_target.setdefault(target_id, {})
+            group = group_ids.setdefault(edge.group, len(group_ids) + 1)
+        else:
+            group = 0
         # check_type 0 = quest completion, 1 = item possession.
         # Door nodes are transparent: resolve to their key item so the condition
         # evaluates as item possession rather than the opaque door check.
@@ -576,6 +617,129 @@ def _compile_unlock_predicates(compiled: CompiledData) -> None:
         )
         for target_id, conditions in sorted(predicates.items())
     ]
+
+
+def _compile_detail_dependencies(compiled: CompiledData) -> None:
+    goal_lookup: dict[tuple[int, int], int] = {}
+    compiled.detail_goals = []
+    compiled.detail_dependencies = []
+
+    def goal_index(kind: DetailGoalKind, node_id: int) -> int:
+        key = (int(kind), node_id)
+        if key in goal_lookup:
+            return goal_lookup[key]
+        index = len(compiled.detail_goals)
+        goal_lookup[key] = index
+        compiled.detail_goals.append(DetailGoalSpec(goal_kind=int(kind), node_id=node_id))
+        return index
+
+    def add_dependency(
+        kind: DetailGoalKind,
+        node_id: int,
+        semantics: DetailDependencySemantics,
+        children: list[tuple[DetailGoalKind, int]],
+        unlock_group: int = 0,
+    ) -> None:
+        parent_index = goal_index(kind, node_id)
+        child_indices = [goal_index(child_kind, child_node_id) for child_kind, child_node_id in children]
+        dependency_index = len(compiled.detail_dependencies)
+        compiled.detail_dependencies.append(
+            DetailDependency(
+                goal_kind=int(kind),
+                node_id=node_id,
+                semantics=int(semantics),
+                child_goal_indices=child_indices,
+                unlock_group=unlock_group,
+            )
+        )
+        compiled.detail_goals[parent_index].dependency_indices.append(dependency_index)
+
+    def action_goal_kind(node_id: int) -> DetailGoalKind:
+        node_type = compiled.nodes[node_id].node_type
+        if node_type == node_type_byte(NodeType.QUEST):
+            return DetailGoalKind.COMPLETE_QUEST
+        if node_type in {node_type_byte(NodeType.ITEM), node_type_byte(NodeType.BOOK)}:
+            return DetailGoalKind.USE_ITEM_ACTION
+        return DetailGoalKind.UNLOCK_SOURCE
+
+    def unlock_condition_goal(condition: UnlockCondition) -> tuple[DetailGoalKind, int]:
+        if condition.check_type != 0 and compiled.node_item_index[condition.source_id] >= 0:
+            return (DetailGoalKind.ACQUIRE_ITEM, condition.source_id)
+        if compiled.nodes[condition.source_id].node_type == node_type_byte(NodeType.QUEST):
+            return (DetailGoalKind.COMPLETE_QUEST, condition.source_id)
+        return (DetailGoalKind.UNLOCK_SOURCE, condition.source_id)
+
+    rewards_item = edge_type_byte(EdgeType.REWARDS_ITEM)
+    assigns_quest = edge_type_byte(EdgeType.ASSIGNS_QUEST)
+    completes_quest = edge_type_byte(EdgeType.COMPLETES_QUEST)
+
+    for item_index, item_node_id in enumerate(compiled.item_node_ids):
+        children: list[tuple[DetailGoalKind, int]] = [
+            (DetailGoalKind.UNLOCK_SOURCE, source.source_id) for source in compiled.item_sources[item_index]
+        ]
+        for edge_id in compiled.reverse_adjacency[item_node_id]:
+            edge = compiled.edges[edge_id]
+            if edge.edge_type == rewards_item:
+                children.append((DetailGoalKind.COMPLETE_QUEST, edge.source_id))
+        add_dependency(
+            DetailGoalKind.ACQUIRE_ITEM,
+            item_node_id,
+            DetailDependencySemantics.ANY_OF,
+            children,
+        )
+
+    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
+        spec = compiled.quest_specs[quest_index]
+        core_children: list[tuple[DetailGoalKind, int]] = [
+            (DetailGoalKind.COMPLETE_QUEST, prereq_id) for prereq_id in spec.prereq_quest_ids
+        ]
+        core_children.extend((DetailGoalKind.ACQUIRE_ITEM, requirement.item_id) for requirement in spec.required_items)
+        core_children.extend((DetailGoalKind.UNLOCK_SOURCE, step.target_id) for step in spec.steps)
+        if core_children:
+            add_dependency(
+                DetailGoalKind.COMPLETE_QUEST,
+                quest_node_id,
+                DetailDependencySemantics.ALL_OF,
+                core_children,
+            )
+
+        if spec.giver_node_ids:
+            add_dependency(
+                DetailGoalKind.COMPLETE_QUEST,
+                quest_node_id,
+                DetailDependencySemantics.ANY_OF,
+                [(action_goal_kind(node_id), node_id) for node_id in spec.giver_node_ids],
+            )
+
+        if spec.completer_node_ids:
+            add_dependency(
+                DetailGoalKind.COMPLETE_QUEST,
+                quest_node_id,
+                DetailDependencySemantics.ANY_OF,
+                [(action_goal_kind(node_id), node_id) for node_id in spec.completer_node_ids],
+            )
+
+    for edge in compiled.edges:
+        if edge.edge_type in {assigns_quest, completes_quest}:
+            add_dependency(
+                DetailGoalKind.USE_ITEM_ACTION,
+                edge.source_id,
+                DetailDependencySemantics.ALL_OF,
+                [(DetailGoalKind.ACQUIRE_ITEM, edge.source_id)],
+            )
+
+    for predicate in compiled.unlock_predicates:
+        groups: dict[int, list[UnlockCondition]] = {}
+        for condition in predicate.conditions:
+            groups.setdefault(condition.group, []).append(condition)
+        for group_id in sorted(groups):
+            add_dependency(
+                DetailGoalKind.UNLOCK_SOURCE,
+                predicate.target_id,
+                DetailDependencySemantics.ALL_OF,
+                [unlock_condition_goal(condition) for condition in groups[group_id]],
+                unlock_group=group_id,
+            )
 
 
 def _compile_zones(compiled: CompiledData) -> None:

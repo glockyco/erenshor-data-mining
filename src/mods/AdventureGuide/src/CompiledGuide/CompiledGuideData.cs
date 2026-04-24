@@ -37,6 +37,14 @@ public sealed class CompiledGuideData
     public CompiledUnlockPredicateData[] UnlockPredicates { get; set; } =
         Array.Empty<CompiledUnlockPredicateData>();
 
+    [JsonProperty("detail_goals")]
+    public CompiledDetailGoalData[] DetailGoals { get; set; } =
+        Array.Empty<CompiledDetailGoalData>();
+
+    [JsonProperty("detail_dependencies")]
+    public CompiledDetailDependencyData[] DetailDependencies { get; set; } =
+        Array.Empty<CompiledDetailDependencyData>();
+
     [JsonProperty("topo_order")]
     public int[] TopoOrder { get; set; } = Array.Empty<int>();
 
@@ -299,6 +307,36 @@ public sealed class CompiledUnlockConditionData
 
     [JsonProperty("group")]
     public int Group { get; set; }
+}
+
+public sealed class CompiledDetailGoalData
+{
+    [JsonProperty("goal_kind")]
+    public int GoalKind { get; set; }
+
+    [JsonProperty("node_id")]
+    public int NodeId { get; set; }
+
+    [JsonProperty("dependency_indices")]
+    public int[] DependencyIndices { get; set; } = Array.Empty<int>();
+}
+
+public sealed class CompiledDetailDependencyData
+{
+    [JsonProperty("goal_kind")]
+    public int GoalKind { get; set; }
+
+    [JsonProperty("node_id")]
+    public int NodeId { get; set; }
+
+    [JsonProperty("semantics")]
+    public int Semantics { get; set; }
+
+    [JsonProperty("child_goal_indices")]
+    public int[] ChildGoalIndices { get; set; } = Array.Empty<int>();
+
+    [JsonProperty("unlock_group")]
+    public int UnlockGroup { get; set; }
 }
 
 public sealed class CompiledGiverBlueprintData

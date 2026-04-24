@@ -31,6 +31,8 @@ public sealed class CompiledGuide
     private readonly byte[] _questFlags;
     private readonly SourceSiteEntry[][] _itemSources;
     private readonly Dictionary<int, UnlockPredicateEntry> _unlocks;
+    private readonly DetailGoalEntry[] _detailGoals;
+    private readonly DetailDependencyEntry[] _detailDependencies;
     private readonly int[] _topoOrder;
     private readonly int[][] _questToDependentQuestIndices;
 
@@ -71,7 +73,6 @@ public sealed class CompiledGuide
         _zoneNodeIds = data.ZoneNodeIds;
         _zoneAdj = data.ZoneAdjacency;
         _questToDependentQuestIndices = data.QuestToDependentQuestIndices;
-
 
         // Key-to-ID lookup
         _keyToId = new Dictionary<string, int>(_nodes.Length, StringComparer.Ordinal);
@@ -163,6 +164,23 @@ public sealed class CompiledGuide
             );
         }
 
+        _detailGoals = data
+            .DetailGoals.Select(goal => new DetailGoalEntry(
+                (byte)goal.GoalKind,
+                goal.NodeId,
+                goal.DependencyIndices
+            ))
+            .ToArray();
+        _detailDependencies = data
+            .DetailDependencies.Select(dependency => new DetailDependencyEntry(
+                (byte)dependency.GoalKind,
+                dependency.NodeId,
+                (byte)dependency.Semantics,
+                dependency.ChildGoalIndices,
+                (byte)dependency.UnlockGroup
+            ))
+            .ToArray();
+
         // Build blueprints from DTO
         _giverBlueprints = data
             .GiverBlueprints.Select(g => new QuestGiverEntry(
@@ -226,8 +244,7 @@ public sealed class CompiledGuide
             )
                 _sceneToZoneDisplay[zoneNode.Scene] = zoneNode.DisplayName;
         }
-
-        }
+    }
 
     // ---------------------------------------------------------------
     // Counts
@@ -403,6 +420,10 @@ public sealed class CompiledGuide
     public bool TryGetUnlockPredicate(int nodeId, out UnlockPredicateEntry predicate) =>
         _unlocks.TryGetValue(nodeId, out predicate);
 
+    internal ReadOnlySpan<DetailGoalEntry> DetailGoals => _detailGoals;
+
+    internal ReadOnlySpan<DetailDependencyEntry> DetailDependencies => _detailDependencies;
+
     // ---------------------------------------------------------------
     // Topological order and zone routing
     // ---------------------------------------------------------------
@@ -555,12 +576,6 @@ public sealed class CompiledGuide
         return map;
     }
 
-    
-
-    
-
-    
-
     private Dictionary<string, IReadOnlyList<QuestGiverBlueprint>> BuildQuestGiversByScene()
     {
         var map = new Dictionary<string, List<QuestGiverBlueprint>>(
@@ -683,10 +698,6 @@ public sealed class CompiledGuide
         return FreezeListMap(map);
     }
 
-    
-
-    
-
     private static Dictionary<string, IReadOnlyList<T>> FreezeListMap<T>(
         Dictionary<string, List<T>> map
     )
@@ -798,6 +809,44 @@ public readonly struct UnlockPredicateEntry
     public UnlockConditionEntry[] Conditions { get; }
     public int GroupCount { get; }
     public byte Semantics { get; }
+}
+
+public readonly struct DetailGoalEntry
+{
+    public DetailGoalEntry(byte goalKind, int nodeId, int[] dependencyIndices)
+    {
+        GoalKind = goalKind;
+        NodeId = nodeId;
+        DependencyIndices = dependencyIndices;
+    }
+
+    public byte GoalKind { get; }
+    public int NodeId { get; }
+    public int[] DependencyIndices { get; }
+}
+
+public readonly struct DetailDependencyEntry
+{
+    public DetailDependencyEntry(
+        byte goalKind,
+        int nodeId,
+        byte semantics,
+        int[] childGoalIndices,
+        byte unlockGroup
+    )
+    {
+        GoalKind = goalKind;
+        NodeId = nodeId;
+        Semantics = semantics;
+        ChildGoalIndices = childGoalIndices;
+        UnlockGroup = unlockGroup;
+    }
+
+    public byte GoalKind { get; }
+    public int NodeId { get; }
+    public byte Semantics { get; }
+    public int[] ChildGoalIndices { get; }
+    public byte UnlockGroup { get; }
 }
 
 public readonly struct QuestGiverEntry
