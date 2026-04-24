@@ -113,6 +113,35 @@ internal static class ResolvedActionSemanticBuilder
     }
 
     /// <summary>
+    /// Semantic for a present NPC corpse containing an item dropped by that NPC.
+    /// The corpse is the target; the item is the goal.
+    /// </summary>
+    public static ResolvedActionSemantic BuildForCorpseLoot(
+        Node goalItemNode,
+        Node characterNode,
+        string corpseScene
+    )
+    {
+        var markerType = QuestMarkerKind.Objective;
+        return new ResolvedActionSemantic(
+            NavigationGoalKind.CollectItem,
+            NavigationTargetKind.Character,
+            ResolvedActionKind.LootCorpse,
+            goalNodeKey: goalItemNode.Key,
+            goalQuantity: null,
+            keywordText: null,
+            payloadText: goalItemNode.DisplayName,
+            targetIdentityText: characterNode.DisplayName + "'s corpse",
+            contextText: null,
+            rationaleText: "Drops " + goalItemNode.DisplayName,
+            zoneText: corpseScene,
+            availabilityText: null,
+            preferredMarkerKind: markerType,
+            markerPriority: GetMarkerPriority(markerType)
+        );
+    }
+
+    /// <summary>
     /// Semantic for a zone-reentry loot chest containing an item dropped by a
     /// previously killed NPC. The chest is the target; the item is the goal.
     /// </summary>

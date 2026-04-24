@@ -11,6 +11,11 @@ namespace AdventureGuide.State;
 public interface IResolutionLiveState
 {
     bool CorpseContainsItem(Node spawnNode, string itemStableKey);
+    bool TryGetCorpsePositionWithItem(
+        Node spawnNode,
+        string itemStableKey,
+        out LiveChestPosition position
+    );
     IEnumerable<LiveChestPosition> GetRotChestPositionsWithItem(string itemStableKey);
 }
 

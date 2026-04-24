@@ -54,10 +54,7 @@ public sealed class LiveStateTracker
     private int _worldChangedTickVersion;
     private int _lastConsumedWorldChangedVersion;
 
-    public LiveStateTracker(
-        CompiledGuideModel guide,
-        UnlockEvaluator unlocks
-    )
+    public LiveStateTracker(CompiledGuideModel guide, UnlockEvaluator unlocks)
     {
         _guide = guide;
         _unlocks = unlocks;
@@ -82,7 +79,6 @@ public sealed class LiveStateTracker
         RebuildItemBagAvailability();
         RebuildDoorStates();
         MarkLiveWorldChanged();
-        
     }
 
     public ChangeSet OnNPCSpawn(SpawnPoint sp)
@@ -92,7 +88,7 @@ public sealed class LiveStateTracker
 
         var sourceKey = ResolveSpawnSourceKey(sp);
         MarkLiveWorldChanged();
-        
+
         return BuildSourceChange(sourceKey);
     }
 
@@ -103,7 +99,7 @@ public sealed class LiveStateTracker
 
         var sourceKey = ResolveNpcSourceKey(npc);
         MarkLiveWorldChanged();
-        
+
         return BuildSourceChange(sourceKey);
     }
 
@@ -114,7 +110,7 @@ public sealed class LiveStateTracker
 
         var sourceKey = ResolveNpcSourceKey(npc);
         MarkLiveWorldChanged();
-        
+
         return BuildSourceChange(sourceKey);
     }
 
@@ -125,7 +121,7 @@ public sealed class LiveStateTracker
 
         _miningAvailable[NodePosKey(mn.transform.position)] = IsMiningNodeAvailable(mn);
         MarkLiveWorldChanged();
-        
+
         return BuildSourceChange(ResolveMiningSourceKey(mn));
     }
 
@@ -136,7 +132,7 @@ public sealed class LiveStateTracker
 
         _itemBagAvailable[NodePosKey(bag.transform.position)] = false;
         MarkLiveWorldChanged();
-        
+
         return BuildSourceChange(ResolveItemBagSourceKey(bag));
     }
 
@@ -162,7 +158,7 @@ public sealed class LiveStateTracker
         // quest that needs an item from a DropsItem source could now find the item
         // in a loot chest.
         MarkLiveWorldChanged();
-        
+
         return BuildLiveChange(_graphSpawnSourcesByPos.Values, timeChanged: false);
     }
 
@@ -234,8 +230,6 @@ public sealed class LiveStateTracker
             timeChanged = true;
         }
 
-
-
         foreach (var door in _doors)
         {
             if (door == null)
@@ -257,7 +251,6 @@ public sealed class LiveStateTracker
         if (!changed)
             return ChangeSet.None;
 
-        
         // forceChanged: a state change was detected above; emit the signal even
         // when no specific source key could be resolved from the changed nodes.
         return BuildLiveChange(changedSourceKeys, timeChanged, forceChanged: true);
@@ -421,7 +414,8 @@ public sealed class LiveStateTracker
     public LiveSourceSnapshot GetLiveSourceSnapshot(
         string? sourceNodeKey,
         Node positionNode,
-        Node targetNode)
+        Node targetNode
+    )
     {
         if (targetNode.Type == NodeType.ItemBag)
             return BuildItemBagSnapshot(sourceNodeKey ?? targetNode.Key, targetNode);
@@ -434,10 +428,15 @@ public sealed class LiveStateTracker
                 sourceNodeKey ?? positionNode.Key,
                 targetNode.Key,
                 GetSpawnState(positionNode),
-                useZoneReentryWhenDeadWithoutCorpse: positionNode.IsDirectlyPlaced);
+                useZoneReentryWhenDeadWithoutCorpse: positionNode.IsDirectlyPlaced
+            );
 
         if (targetNode.Type == NodeType.Character)
-            return BuildSpawnSnapshot(sourceNodeKey ?? targetNode.Key, targetNode.Key, GetCharacterState(targetNode));
+            return BuildSpawnSnapshot(
+                sourceNodeKey ?? targetNode.Key,
+                targetNode.Key,
+                GetCharacterState(targetNode)
+            );
 
         return LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key);
     }
@@ -508,8 +507,16 @@ public sealed class LiveStateTracker
     /// directly-placed NPCs — GetSpawnState resolves info.LiveNPC regardless of
     /// NPC type, and the loot check is purely on the corpse game object.
     /// </summary>
-    public bool CorpseContainsItem(Node spawnNode, string itemStableKey)
+    public bool CorpseContainsItem(Node spawnNode, string itemStableKey) =>
+        TryGetCorpsePositionWithItem(spawnNode, itemStableKey, out _);
+
+    public bool TryGetCorpsePositionWithItem(
+        Node spawnNode,
+        string itemStableKey,
+        out LiveChestPosition position
+    )
     {
+        position = default;
         var info = GetSpawnState(spawnNode);
         if (!(info.State is SpawnDead))
             return false;
@@ -523,7 +530,11 @@ public sealed class LiveStateTracker
         foreach (var drop in loot.ActualDrops)
         {
             if (drop != null && "item:" + drop.name.Trim().ToLowerInvariant() == itemStableKey)
+            {
+                var pos = info.LiveNPC.transform.position;
+                position = new LiveChestPosition(pos.x, pos.y, pos.z, CurrentSceneName());
                 return true;
+            }
         }
         return false;
     }
@@ -618,9 +629,14 @@ public sealed class LiveStateTracker
             {
                 string? requiredQuestDbName = sp.SpawnUponQuestComplete.DBName;
                 if (!string.IsNullOrEmpty(requiredQuestDbName))
-                    Engine<FactKey>.Ambient?.RecordFact(new FactKey(FactKind.QuestCompleted, requiredQuestDbName));
+                    Engine<FactKey>.Ambient?.RecordFact(
+                        new FactKey(FactKind.QuestCompleted, requiredQuestDbName)
+                    );
 
-                if (string.IsNullOrEmpty(requiredQuestDbName) || !GameData.IsQuestDone(requiredQuestDbName))
+                if (
+                    string.IsNullOrEmpty(requiredQuestDbName)
+                    || !GameData.IsQuestDone(requiredQuestDbName)
+                )
                 {
                     string questName =
                         sp.SpawnUponQuestComplete.QuestName
@@ -638,14 +654,11 @@ public sealed class LiveStateTracker
             return new SpawnInfo(NodeState.Disabled, sp, null, 0f);
         }
 
-        if (sp.NightSpawn)
-        {
-            if (!IsNight())
-                return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
-        }
-
         if (IsSpawnedNPCAlive(sp))
             return new SpawnInfo(NodeState.Alive, sp, sp.SpawnedNPC, 0f);
+
+        if (sp.NightSpawn && !IsNight())
+            return new SpawnInfo(NodeState.NightLocked, sp, null, 0f);
 
         float respawnSeconds = ComputeRespawnSeconds(sp);
         return new SpawnInfo(new SpawnDead(respawnSeconds), sp, sp.SpawnedNPC, respawnSeconds);
@@ -1038,14 +1051,14 @@ public sealed class LiveStateTracker
             return ChangeSet.None;
 
         return new ChangeSet(
-                    inventoryChanged: false,
-                    questLogChanged: false,
-                    sceneChanged: false,
-                    liveWorldChanged: true,
-                    changedItemKeys: Array.Empty<string>(),
-                    changedQuestDbNames: Array.Empty<string>(),
-                    changedFacts: changedFacts
-                );
+            inventoryChanged: false,
+            questLogChanged: false,
+            sceneChanged: false,
+            liveWorldChanged: true,
+            changedItemKeys: Array.Empty<string>(),
+            changedQuestDbNames: Array.Empty<string>(),
+            changedFacts: changedFacts
+        );
     }
 
     private void RebuildMiningAvailability()
@@ -1091,8 +1104,10 @@ public sealed class LiveStateTracker
         if (GameData.Time == null)
             return false;
         int hour = GameData.Time.GetHour();
-        return hour >= 22 || hour < 4;
+        return CanNightSpawnAtHour(hour);
     }
+
+    internal static bool CanNightSpawnAtHour(int hour) => hour > 22 || hour < 4;
 
     private static bool IsSpawnedNPCAlive(SpawnPoint sp)
     {
@@ -1126,7 +1141,8 @@ public sealed class LiveStateTracker
         string sourceNodeKey,
         string targetNodeKey,
         SpawnInfo info,
-        bool useZoneReentryWhenDeadWithoutCorpse = false)
+        bool useZoneReentryWhenDeadWithoutCorpse = false
+    )
     {
         switch (info.State)
         {
@@ -1135,7 +1151,12 @@ public sealed class LiveStateTracker
                 var position = TryGetLivePosition(info.LiveNPC);
                 var anchoredPosition = TryGetAnchoredLivePosition(info.LiveNPC);
                 return position.HasValue && anchoredPosition.HasValue
-                    ? LiveSourceSnapshot.Alive(sourceNodeKey, targetNodeKey, position.Value, anchoredPosition.Value)
+                    ? LiveSourceSnapshot.Alive(
+                        sourceNodeKey,
+                        targetNodeKey,
+                        position.Value,
+                        anchoredPosition.Value
+                    )
                     : LiveSourceSnapshot.Unknown(sourceNodeKey, targetNodeKey);
             }
             case SpawnDead dead:
@@ -1143,19 +1164,28 @@ public sealed class LiveStateTracker
                 var livePosition = TryGetLivePosition(info.LiveNPC);
                 var anchoredLivePosition = TryGetAnchoredLivePosition(info.LiveNPC);
                 if (useZoneReentryWhenDeadWithoutCorpse && !anchoredLivePosition.HasValue)
-                    return LiveSourceSnapshot.ZoneReentry(sourceNodeKey, targetNodeKey, dead.RespawnSeconds);
+                    return LiveSourceSnapshot.ZoneReentry(
+                        sourceNodeKey,
+                        targetNodeKey,
+                        dead.RespawnSeconds
+                    );
 
                 return LiveSourceSnapshot.Dead(
                     sourceNodeKey,
                     targetNodeKey,
                     livePosition,
                     anchoredLivePosition,
-                    dead.RespawnSeconds);
+                    dead.RespawnSeconds
+                );
             }
             case SpawnNightLocked:
                 return LiveSourceSnapshot.NightLocked(sourceNodeKey, targetNodeKey);
             case SpawnUnlockBlocked blocked:
-                return LiveSourceSnapshot.UnlockBlocked(sourceNodeKey, targetNodeKey, blocked.Reason);
+                return LiveSourceSnapshot.UnlockBlocked(
+                    sourceNodeKey,
+                    targetNodeKey,
+                    blocked.Reason
+                );
             case SpawnDisabled:
                 return LiveSourceSnapshot.Disabled(sourceNodeKey, targetNodeKey);
             default:
@@ -1168,7 +1198,11 @@ public sealed class LiveStateTracker
         var mining = GetMiningState(targetNode);
         return mining.State switch
         {
-            MiningMined mined => LiveSourceSnapshot.Mined(sourceNodeKey, targetNode.Key, mined.RespawnSeconds),
+            MiningMined mined => LiveSourceSnapshot.Mined(
+                sourceNodeKey,
+                targetNode.Key,
+                mined.RespawnSeconds
+            ),
             MiningAvailable => LiveSourceSnapshot.MiningAvailable(sourceNodeKey, targetNode.Key),
             _ => LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key),
         };
@@ -1179,7 +1213,11 @@ public sealed class LiveStateTracker
         var state = GetItemBagState(targetNode);
         return state switch
         {
-            ItemBagPickedUp pickedUp => LiveSourceSnapshot.PickedUp(sourceNodeKey, targetNode.Key, pickedUp.RespawnSeconds),
+            ItemBagPickedUp pickedUp => LiveSourceSnapshot.PickedUp(
+                sourceNodeKey,
+                targetNode.Key,
+                pickedUp.RespawnSeconds
+            ),
             ItemBagAvailable => LiveSourceSnapshot.ItemAvailable(sourceNodeKey, targetNode.Key),
             _ => LiveSourceSnapshot.Unknown(sourceNodeKey, targetNode.Key),
         };
@@ -1258,8 +1296,14 @@ public sealed class LiveStateTracker
         if (node == null)
             return Array.Empty<string>();
 
-        if (node.Type is NodeType.SpawnPoint or NodeType.MiningNode or NodeType.ItemBag or NodeType.Door
-            || node.IsDirectlyPlaced)
+        if (
+            node.Type
+                is NodeType.SpawnPoint
+                    or NodeType.MiningNode
+                    or NodeType.ItemBag
+                    or NodeType.Door
+            || node.IsDirectlyPlaced
+        )
         {
             return new[] { node.Key };
         }

@@ -208,7 +208,7 @@ public sealed class NavigationEngine
         string? sourceKey
     )
     {
-        if (semantic.ActionKind == ResolvedActionKind.LootChest)
+        if (semantic.ActionKind is ResolvedActionKind.LootChest or ResolvedActionKind.LootCorpse)
             return explanation;
         if (semantic.ActionKind != ResolvedActionKind.Kill || sourceKey == null)
             return explanation;
@@ -229,13 +229,6 @@ public sealed class NavigationEngine
             bool hasCorpse = info.LiveNPC != null && info.LiveNPC.gameObject != null;
             if (sourceNode.Type == NodeType.SpawnPoint && sourceNode.IsDirectlyPlaced && !hasCorpse)
                 return NavigationExplanationBuilder.BuildZoneReentryExplanation(explanation);
-
-            if (hasCorpse)
-                return NavigationExplanationBuilder.BuildCorpseExplanation(
-                    semantic,
-                    explanation.GoalNode,
-                    explanation.TargetNode
-                );
         }
 
         return explanation;
@@ -280,9 +273,10 @@ public sealed class NavigationEngine
         if (isSameScene)
         {
             var livePos = TryGetTrackedLivePosition(playerPosition);
-            EffectiveTarget = livePos != null
-                ? new Vector3(livePos.Value.x, livePos.Value.y, livePos.Value.z)
-                : TargetPosition;
+            EffectiveTarget =
+                livePos != null
+                    ? new Vector3(livePos.Value.x, livePos.Value.y, livePos.Value.z)
+                    : TargetPosition;
         }
 
         Distance = EffectiveTarget.HasValue

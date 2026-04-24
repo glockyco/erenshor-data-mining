@@ -173,14 +173,20 @@ Every character source resolves to one of these effective states:
 
 Rules that must remain true:
 1. Death/spawn/corpse facts are keyed by the physical source node.
-2. `CorpseContainsItem` must run inside dependency collection so source-state
-   facts are recorded correctly.
-3. Live-state-dependent source types (`Character`, `MiningNode`, `ItemBag`)
+2. `CorpseContainsItem` and corpse/RotChest loot-position reads must run inside
+   dependency collection so source-state facts are recorded correctly.
+3. A dead character source and its loot opportunities are distinct projections:
+   spawn-point respawn markers stay at the static spawn point, directly placed
+   zone-reentry markers stay at the directly placed location, and corpse/chest
+   loot markers may appear at the corpse/chest only when that live container
+   holds a required item.
+4. Live-state-dependent source types (`Character`, `MiningNode`, `ItemBag`)
    must not be hidden behind stale position caches.
-4. Non-actionable character targets do not emit an active character marker.
+5. Non-actionable character targets do not emit an active character marker.
    Dead/empty representation belongs to the runtime overlay state.
-5. If two resolved targets share the same physical source key, NAV and markers
-   treat them as one concrete source instance.
+6. If two resolved lifecycle targets share the same physical source key, NAV and
+   markers treat them as one concrete source instance. Confirmed loot targets do
+   not collapse into the lifecycle source marker.
 
 ## Off-scene and current-scene rules
 

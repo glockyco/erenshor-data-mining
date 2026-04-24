@@ -3,8 +3,8 @@ using AdventureGuide.CompiledGuide;
 using AdventureGuide.Config;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Frontier;
-using AdventureGuide.Incremental;
 using AdventureGuide.Graph;
+using AdventureGuide.Incremental;
 using AdventureGuide.Markers;
 using AdventureGuide.Markers.Queries;
 using AdventureGuide.Navigation;
@@ -125,7 +125,6 @@ public sealed class Plugin : BaseUnityPlugin
         _engine = new Engine<FactKey>();
 
         _diagnostics = new DiagnosticsCore(
-
             eventCapacity: DiagnosticsBufferCapacity,
             spanCapacity: DiagnosticsBufferCapacity,
             incidentCapacity: DiagnosticsIncidentCapacity,
@@ -176,7 +175,10 @@ public sealed class Plugin : BaseUnityPlugin
 
         // --- Navigation layer ---
         _liveState = new LiveStateTracker(_compiledGuide, _unlockEvaluator);
-        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator) { Diagnostics = _diagnostics };
+        _zoneRouter = new ZoneRouter(_compiledGuide, _unlockEvaluator)
+        {
+            Diagnostics = _diagnostics,
+        };
 
         _gameState.Register(NodeType.Character, NodeStateResolvers.Character(_liveState));
         _gameState.Register(NodeType.SpawnPoint, NodeStateResolvers.SpawnPoint(_liveState));
@@ -194,8 +196,14 @@ public sealed class Plugin : BaseUnityPlugin
             new CharacterPositionResolver(_compiledGuide, _liveState)
         );
 
-        positionRegistry.Register(NodeType.MiningNode, LiveStateBackedPositionResolver.MiningNode(_liveState));
-        positionRegistry.Register(NodeType.ItemBag, LiveStateBackedPositionResolver.ItemBag(_liveState));
+        positionRegistry.Register(
+            NodeType.MiningNode,
+            LiveStateBackedPositionResolver.MiningNode(_liveState)
+        );
+        positionRegistry.Register(
+            NodeType.ItemBag,
+            LiveStateBackedPositionResolver.ItemBag(_liveState)
+        );
         positionRegistry.Register(NodeType.Zone, new ZonePositionResolver(_compiledGuide));
         _waterResolver = new WaterPositionResolver(_compiledGuide);
         positionRegistry.Register(NodeType.Water, _waterResolver);
@@ -211,7 +219,8 @@ public sealed class Plugin : BaseUnityPlugin
             _compiledUnlocks,
             new CompiledGuideLivePositionProvider(_compiledGuide, _liveState),
             positionRegistry,
-            _zoneRouter
+            _zoneRouter,
+            _liveState
         );
 
         var projector = new QuestTargetProjector(_compiledGuide, _zoneRouter);
@@ -221,22 +230,30 @@ public sealed class Plugin : BaseUnityPlugin
             questState: _questTracker,
             trackerState: _trackerState,
             navSet: _navSet,
-            sourceState: _liveState);
+            sourceState: _liveState
+        );
         _compiledTargetsQuery = new CompiledTargetsQuery(
             _engine,
             _compiledGuide,
             _compiledFrontier,
-            new QuestTargetResolver(_compiledGuide, _compiledFrontier, _compiledSourceResolver, _zoneRouter),
-            _reader);
+            new QuestTargetResolver(
+                _compiledGuide,
+                _compiledFrontier,
+                _compiledSourceResolver,
+                _zoneRouter
+            ),
+            _reader
+        );
         _blockingZonesQuery = new BlockingZonesQuery(_engine, _compiledGuide, _zoneRouter);
         _navigableQuestsQuery = new NavigableQuestsQuery(_engine, _compiledGuide, _reader);
         _questResolutionQuery = new QuestResolutionQuery(
-                    _engine,
-                    _compiledGuide,
-                    _compiledQuestTracker,
-                    _compiledTargetsQuery,
-                    _blockingZonesQuery,
-                    projector);
+            _engine,
+            _compiledGuide,
+            _compiledQuestTracker,
+            _compiledTargetsQuery,
+            _blockingZonesQuery,
+            projector
+        );
         _reader.SetQuestResolutionQuery(_questResolutionQuery);
         _reader.SetNavigableQuestsQuery(_navigableQuestsQuery);
         _navigationTargetResolver = new NavigationTargetResolver(
@@ -250,20 +267,23 @@ public sealed class Plugin : BaseUnityPlugin
         var selectorTargetSetQuery = new SelectorTargetSetQuery(
             _engine,
             _reader,
-            _navigableQuestsQuery);
+            _navigableQuestsQuery
+        );
         _navigationTargetSnapshotsQuery = new NavigationTargetSnapshotsQuery(
             _engine,
             _compiledGuide,
             _navigationTargetResolver,
             selectorTargetSetQuery,
-            _questResolutionQuery);
+            _questResolutionQuery
+        );
         _reader.SetNavigationTargetSnapshotsQuery(_navigationTargetSnapshotsQuery);
         var markerCandidatesQuery = new MarkerCandidatesQuery(
             _engine,
             _compiledGuide,
             _reader,
             _navigableQuestsQuery,
-            _questResolutionQuery);
+            _questResolutionQuery
+        );
         _markerCandidatesQuery = markerCandidatesQuery;
 
         _targetSelector = new NavigationTargetSelector(
@@ -299,10 +319,10 @@ public sealed class Plugin : BaseUnityPlugin
             markerCandidatesQuery,
             _liveState,
             _compiledGuide,
-            _diagnostics);
+            _diagnostics
+        );
         _markerRenderer = new MarkerRenderer(_markerProjector, _markerPool, _config, _diagnostics);
         _markerRenderer.Enabled = _config.ShowWorldMarkers.Value;
-
 
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
         _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
@@ -318,11 +338,11 @@ public sealed class Plugin : BaseUnityPlugin
         var filter = new FilterState(_config);
         var listPanel = new QuestListPanel(_compiledGuide, _questTracker, filter, _trackerState);
         _specTreeProjector = new SpecTreeProjector(
-                    _compiledGuide,
-                    _reader,
-                    currentSceneProvider: () => _navEngine?.CurrentScene ?? string.Empty,
-                    diagnostics: _diagnostics
-                );
+            _compiledGuide,
+            _reader,
+            currentSceneProvider: () => _navEngine?.CurrentScene ?? string.Empty,
+            diagnostics: _diagnostics
+        );
 
         viewRenderer = new ViewRenderer(
             _compiledGuide,
@@ -363,7 +383,6 @@ public sealed class Plugin : BaseUnityPlugin
         _diagnosticOverlay = new DiagnosticOverlay(
             _questTracker,
             _markerProjector,
-
             _navSet,
             _config,
             _compiledGuide,
@@ -455,9 +474,8 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _navEngine.OnSceneChanged(currentScene);
 
-        var initialFacts = initialChangeSet.ChangedFacts
-
-            .Concat(_navSet.DrainPendingFacts())
+        var initialFacts = initialChangeSet
+            .ChangedFacts.Concat(_navSet.DrainPendingFacts())
             .Concat(_trackerState.DrainPendingFacts());
         _engine!.InvalidateFacts(initialFacts);
 
@@ -489,7 +507,6 @@ public sealed class Plugin : BaseUnityPlugin
                 + $"    data load:     {graphLoadMs:F0} ms\n"
                 + $"    state sync:    {syncMs:F0} ms\n"
                 + $"    first markers: {firstProjectionMs:F0} ms\n"
-
                 + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker, {_config.GroundPathToggleKey.Value} = ground path\n"
                 + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
                 + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)"
@@ -593,15 +610,17 @@ public sealed class Plugin : BaseUnityPlugin
         var combined = stateChange.Merge(liveChange);
         if (navFacts.Count > 0 || trackerFacts.Count > 0)
         {
-            combined = combined.Merge(new ChangeSet(
-                inventoryChanged: false,
-                questLogChanged: false,
-                sceneChanged: false,
-                liveWorldChanged: false,
-                changedItemKeys: Array.Empty<string>(),
-                changedQuestDbNames: Array.Empty<string>(),
-                changedFacts: navFacts.Concat(trackerFacts)
-            ));
+            combined = combined.Merge(
+                new ChangeSet(
+                    inventoryChanged: false,
+                    questLogChanged: false,
+                    sceneChanged: false,
+                    liveWorldChanged: false,
+                    changedItemKeys: Array.Empty<string>(),
+                    changedQuestDbNames: Array.Empty<string>(),
+                    changedFacts: navFacts.Concat(trackerFacts)
+                )
+            );
         }
 
         return (combined, liveChange.HasMeaningfulChanges);
@@ -643,9 +662,10 @@ public sealed class Plugin : BaseUnityPlugin
     private void ConsumePhase(bool liveWorldChanged)
     {
         using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.UpdatePhaseConsume);
-        var playerPos = GameData.PlayerControl != null
-            ? GameData.PlayerControl.transform.position
-            : Vector3.zero;
+        var playerPos =
+            GameData.PlayerControl != null
+                ? GameData.PlayerControl.transform.position
+                : Vector3.zero;
         var navigationSnapshots = _reader!.ReadNavigationTargetSnapshots(_navEngine!.CurrentScene);
         _targetSelector?.Tick(
             playerPos.x,
@@ -655,7 +675,6 @@ public sealed class Plugin : BaseUnityPlugin
             navigationSnapshots,
             liveWorldChanged
         );
-
 
         _navEngine?.Update(playerPos);
         _groundPath?.Update();

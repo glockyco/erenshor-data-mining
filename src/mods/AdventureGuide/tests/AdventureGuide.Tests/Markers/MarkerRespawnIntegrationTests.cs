@@ -11,42 +11,53 @@ public sealed class MarkerRespawnIntegrationTests
     [InlineData(MarkerLiveStatus.ZoneReentry, MarkerType.ZoneReentry)]
     public void Project_RestoresAllSharedSourceMarkers_WhenLifecycleStateClears(
         MarkerLiveStatus lifecycleStatus,
-        MarkerType expectedLifecycleMarkerType)
+        MarkerType expectedLifecycleMarkerType
+    )
     {
-        var fixture = MarkerProjectorTests.MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
+        var fixture =
+            MarkerProjectorTests.MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            AliveSnapshot((10f, 20.8f, 30f));
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = AliveSnapshot(
+            (10f, 20.8f, 30f)
+        );
 
         fixture.Projector.Project();
-        var liveEntries1 = fixture.Projector.Markers
-            .Where(e => e.SourceNodeKey == "spawn:leaf-1")
+        var liveEntries1 = fixture
+            .Projector.Markers.Where(e => e.SourceNodeKey == "spawn:leaf-1")
             .OrderBy(e => e.Type)
             .ToList();
 
-        Assert.Equal(new[] { MarkerType.TurnInReady, MarkerType.Objective }, liveEntries1.Select(e => e.Type).ToArray());
+        Assert.Equal(
+            new[] { MarkerType.TurnInReady, MarkerType.Objective },
+            liveEntries1.Select(e => e.Type).ToArray()
+        );
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            LifecycleSnapshot(lifecycleStatus);
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = LifecycleSnapshot(
+            lifecycleStatus
+        );
 
         fixture.Projector.Project();
-        var lifecycleEntries2 = fixture.Projector.Markers
-            .Where(e => e.SourceNodeKey == "spawn:leaf-1")
+        var lifecycleEntries2 = fixture
+            .Projector.Markers.Where(e => e.SourceNodeKey == "spawn:leaf-1")
             .ToList();
 
         var lifecycleEntry = Assert.Single(lifecycleEntries2);
         Assert.Equal(expectedLifecycleMarkerType, lifecycleEntry.Type);
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            AliveSnapshot((40f, 50.8f, 60f));
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = AliveSnapshot(
+            (40f, 50.8f, 60f)
+        );
 
         fixture.Projector.Project();
-        var liveEntries3 = fixture.Projector.Markers
-            .Where(e => e.SourceNodeKey == "spawn:leaf-1")
+        var liveEntries3 = fixture
+            .Projector.Markers.Where(e => e.SourceNodeKey == "spawn:leaf-1")
             .OrderBy(e => e.Type)
             .ToList();
 
-        Assert.Equal(new[] { MarkerType.TurnInReady, MarkerType.Objective }, liveEntries3.Select(e => e.Type).ToArray());
+        Assert.Equal(
+            new[] { MarkerType.TurnInReady, MarkerType.Objective },
+            liveEntries3.Select(e => e.Type).ToArray()
+        );
         Assert.All(
             liveEntries3,
             entry =>
@@ -54,20 +65,22 @@ public sealed class MarkerRespawnIntegrationTests
                 Assert.Equal(40f, entry.X);
                 Assert.Equal(50.8f, entry.Y);
                 Assert.Equal(60f, entry.Z);
-            });
+            }
+        );
     }
 
     [Fact]
     public void Project_UsesSingleZoneReentryMarker_ForSharedSourceAcrossQuestKinds()
     {
-        var fixture = MarkerProjectorTests.MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
+        var fixture =
+            MarkerProjectorTests.MarkerProjectorFixture.CreateTwoActiveQuestsSameSourceDifferentKinds();
 
         fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
             LiveSourceSnapshot.ZoneReentry("spawn:leaf-1", "char:leaf", respawnSeconds: 0f);
 
         fixture.Projector.Project();
-        var entries = fixture.Projector.Markers
-            .Where(e => e.SourceNodeKey == "spawn:leaf-1")
+        var entries = fixture
+            .Projector.Markers.Where(e => e.SourceNodeKey == "spawn:leaf-1")
             .ToList();
 
         var entry = Assert.Single(entries);
@@ -79,8 +92,9 @@ public sealed class MarkerRespawnIntegrationTests
     {
         var fixture = MarkerProjectorTests.MarkerProjectorFixture.CreateKillQuest();
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            AliveSnapshot((10f, 20.8f, 30f));
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = AliveSnapshot(
+            (10f, 20.8f, 30f)
+        );
 
         fixture.Projector.Project();
         var entries1 = fixture.Projector.Markers;
@@ -90,25 +104,29 @@ public sealed class MarkerRespawnIntegrationTests
         Assert.Equal(30f, active1.Z);
         Assert.Single(entries1, e => e.SourceNodeKey == "spawn:leaf-1");
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            LiveSourceSnapshot.Dead(
-                "spawn:leaf-1",
-                "char:leaf",
-                livePosition: (14f, 24.8f, 34f),
-                anchoredLivePosition: (14f, 24.8f, 34f),
-                respawnSeconds: 30f);
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = LiveSourceSnapshot.Dead(
+            "spawn:leaf-1",
+            "char:leaf",
+            livePosition: (14f, 24.8f, 34f),
+            anchoredLivePosition: (14f, 24.8f, 34f),
+            respawnSeconds: 30f
+        );
         fixture.Projector.Project();
 
         var entries2 = fixture.Projector.Markers;
         var dead2 = Assert.Single(entries2, e => e.SourceNodeKey == "spawn:leaf-1");
         Assert.Equal(MarkerType.DeadSpawn, dead2.Type);
-        Assert.Equal(14f, dead2.X);
-        Assert.Equal(24.8f, dead2.Y);
-        Assert.Equal(34f, dead2.Z);
-        Assert.DoesNotContain(entries2, e => e.SourceNodeKey == "spawn:leaf-1" && e.Type == MarkerType.Objective);
+        Assert.Equal(1f, dead2.X);
+        Assert.Equal(4.5f, dead2.Y);
+        Assert.Equal(3f, dead2.Z);
+        Assert.DoesNotContain(
+            entries2,
+            e => e.SourceNodeKey == "spawn:leaf-1" && e.Type == MarkerType.Objective
+        );
 
-        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] =
-            AliveSnapshot((40f, 50.8f, 60f));
+        fixture.LiveState.SnapshotsByPositionNodeKey["spawn:leaf-1"] = AliveSnapshot(
+            (40f, 50.8f, 60f)
+        );
 
         fixture.Projector.Project();
         var entries3 = fixture.Projector.Markers;
@@ -132,5 +150,6 @@ public sealed class MarkerRespawnIntegrationTests
                 "char:leaf",
                 livePosition: (14f, 24.8f, 34f),
                 anchoredLivePosition: (14f, 24.8f, 34f),
-                respawnSeconds: 30f);
+                respawnSeconds: 30f
+            );
 }

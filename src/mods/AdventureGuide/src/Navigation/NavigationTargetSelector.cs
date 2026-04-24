@@ -61,7 +61,6 @@ public sealed class NavigationTargetSelector
     private readonly DiagnosticsCore? _diagnostics;
     private readonly Dictionary<string, SelectedNavTarget> _cache = new(StringComparer.Ordinal);
 
-
     // Per-key pre-decomposed target structure. Entries are retained across forced
     // ticks so their inner lists can be cleared and refilled without reallocation.
     private readonly Dictionary<string, TargetEntry> _entries = new(StringComparer.Ordinal);
@@ -117,233 +116,246 @@ public sealed class NavigationTargetSelector
         _topQuestCostProvider = topQuestCostProvider;
     }
 
-
-/// <summary>
-/// Forces the next <see cref="Tick"/> to rebuild cached targets even when the
-/// engine reuses the same maintained snapshot reference.
-/// </summary>
-internal void InvalidateTargets()
-{
-    _lastSnapshots = null;
-}
-
-
-
-private bool RefreshEntries(
-    NavigationTargetSnapshots snapshots,
-    string currentZone,
-    bool snapshotsChanged,
-    bool zoneChanged,
-    DiagnosticsContext context,
-    long startTick)
-{
-    _activeKeys.Clear();
-    var refreshKeys = new List<string>();
-    var collectionToken = _diagnostics?.BeginSpan(
-        DiagnosticSpanKind.NavSelectorCollectKeys,
-        context,
-        primaryKey: currentZone
-    );
-    long collectionStart = Stopwatch.GetTimestamp();
-    try
+    /// <summary>
+    /// Forces the next <see cref="Tick"/> to rebuild cached targets even when the
+    /// engine reuses the same maintained snapshot reference.
+    /// </summary>
+    internal void InvalidateTargets()
     {
-        for (int i = 0; i < snapshots.Snapshots.Count; i++)
-        {
-            string key = snapshots.Snapshots[i].NodeKey;
-            if (!_activeKeys.Add(key))
-                continue;
-            refreshKeys.Add(key);
-        }
-    }
-    finally
-    {
-        _lastBatchKeyCount = refreshKeys.Count;
-        if (collectionToken != null)
-            _diagnostics!.EndSpan(
-                collectionToken.Value,
-                Stopwatch.GetTimestamp() - collectionStart,
-                value0: _lastBatchKeyCount,
-                value1: 0
-            );
+        _lastSnapshots = null;
     }
 
-    bool targetsChanged = false;
-    _lastResolvedTargetCount = 0;
-    var batchToken = _diagnostics?.BeginSpan(
-        DiagnosticSpanKind.NavSelectorBatchResolve,
-        context,
-        primaryKey: currentZone
-    );
-    long batchStart = Stopwatch.GetTimestamp();
-    try
+    private bool RefreshEntries(
+        NavigationTargetSnapshots snapshots,
+        string currentZone,
+        bool snapshotsChanged,
+        bool zoneChanged,
+        DiagnosticsContext context,
+        long startTick
+    )
     {
-        for (int i = 0; i < refreshKeys.Count; i++)
-        {
-            string key = refreshKeys[i];
-            if (!snapshots.TryGet(key, out var snapshot))
-            {
-                if (_entries.Remove(key))
-                    targetsChanged = true;
-                continue;
-            }
-
-            var targets = snapshot.Targets;
-            _lastResolvedTargetCount += targets.Count;
-            if (targets.Count == 0)
-            {
-                if (_entries.Remove(key))
-                    targetsChanged = true;
-                continue;
-            }
-
-            if (!_entries.TryGetValue(key, out var entry))
-            {
-                entry = new TargetEntry();
-                _entries[key] = entry;
-                entry.Rebuild(targets, currentZone);
-                targetsChanged = true;
-                continue;
-            }
-
-            if (
-                zoneChanged
-                || !ReferenceEquals(entry.Source, targets)
-                || !string.Equals(entry.CurrentZone, currentZone, StringComparison.OrdinalIgnoreCase)
-            )
-
-            {
-                entry.Rebuild(targets, currentZone);
-                targetsChanged = true;
-            }
-        }
-    }
-    finally
-    {
-        _topQuestCosts = _topQuestCostProvider?.Invoke() ?? Array.Empty<QuestCostSample>();
-        if (batchToken != null)
-            _diagnostics!.EndSpan(
-                batchToken.Value,
-                Stopwatch.GetTimestamp() - batchStart,
-                value0: _lastBatchKeyCount,
-                value1: _lastResolvedTargetCount
-            );
-    }
-
-    _keysToEvict.Clear();
-    foreach (var key in _entries.Keys)
-        if (!_activeKeys.Contains(key))
-            _keysToEvict.Add(key);
-    foreach (var key in _keysToEvict)
-    {
-        _entries.Remove(key);
-        targetsChanged = true;
-    }
-
-    if (targetsChanged)
-    {
-        var refreshContext = DiagnosticsContext.Root(
-            snapshotsChanged ? DiagnosticTrigger.NavSetChanged : DiagnosticTrigger.TargetSourceVersionChanged
-        );
-        _lastForceReason = refreshContext.Trigger;
-        _diagnostics?.RecordEvent(
-            new DiagnosticEvent(
-                DiagnosticEventKind.SelectorRefreshForced,
-                refreshContext,
-                timestampTicks: startTick,
-                primaryKey: currentZone,
-                value0: _entries.Count,
-                value1: _lastResolvedTargetCount
-            )
-        );
-    }
-
-    return targetsChanged;
-}
-
-/// <summary>
-/// Called once per frame by Plugin before consumers read.
-///
-/// Re-scores cached targets against the current player position and live-state
-/// overlays. When the maintained <paramref name="snapshots"/> reference changes,
-/// the selector rebuilds its per-key entries from the current resolved target
-/// lists. Stable frames reuse cached entries unless live-world state or the
-/// rerank interval requires another score pass.
-/// </summary>
-internal void Tick(
-    float playerX,
-    float playerY,
-    float playerZ,
-    string currentZone,
-    NavigationTargetSnapshots snapshots,
-    bool liveWorldChanged)
-{
-    bool liveStateChannelChanged = _liveState?.TryConsumeLiveWorldChange() ?? false;
-    bool effectiveLiveWorldChanged = liveWorldChanged || liveStateChannelChanged;
-    bool snapshotsChanged = !ReferenceEquals(snapshots, _lastSnapshots);
-    bool zoneChanged = !string.Equals(currentZone, _lastCurrentZone, StringComparison.OrdinalIgnoreCase);
-    var context = DiagnosticsContext.Root(
-        snapshotsChanged ? DiagnosticTrigger.NavSetChanged : DiagnosticTrigger.Unknown
-    );
-    var token = _diagnostics?.BeginSpan(
-        DiagnosticSpanKind.NavSelectorTick,
-        context,
-        primaryKey: currentZone
-    );
-    long startTick = Stopwatch.GetTimestamp();
-
-    try
-    {
-        float now = _clock();
-        bool due = now - _lastRerankTime >= _rerankInterval;
-        if (!snapshotsChanged && !zoneChanged && !effectiveLiveWorldChanged && !due)
-            return;
-
-        bool targetsChanged = RefreshEntries(
-            snapshots,
-            currentZone,
-            snapshotsChanged,
-            zoneChanged,
+        _activeKeys.Clear();
+        var refreshKeys = new List<string>();
+        var collectionToken = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.NavSelectorCollectKeys,
             context,
-            startTick
+            primaryKey: currentZone
         );
-        if (!snapshotsChanged && !zoneChanged && !targetsChanged && !effectiveLiveWorldChanged && !due)
-            return;
-
-        _lastSnapshots = snapshots;
-        _lastCurrentZone = currentZone;
-        _lastRerankTime = now;
-        if (zoneChanged || targetsChanged)
-            _cache.Clear();
-
-
-        foreach (var kv in _entries)
+        long collectionStart = Stopwatch.GetTimestamp();
+        try
         {
-            UpdateLivePositions(kv.Value);
-            var selected = SelectBestCore(
-                kv.Value,
-                playerX,
-                playerY,
-                playerZ,
-                currentZone,
-                _router
+            for (int i = 0; i < snapshots.Snapshots.Count; i++)
+            {
+                string key = snapshots.Snapshots[i].NodeKey;
+                if (!_activeKeys.Add(key))
+                    continue;
+                refreshKeys.Add(key);
+            }
+        }
+        finally
+        {
+            _lastBatchKeyCount = refreshKeys.Count;
+            if (collectionToken != null)
+                _diagnostics!.EndSpan(
+                    collectionToken.Value,
+                    Stopwatch.GetTimestamp() - collectionStart,
+                    value0: _lastBatchKeyCount,
+                    value1: 0
+                );
+        }
+
+        bool targetsChanged = false;
+        _lastResolvedTargetCount = 0;
+        var batchToken = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.NavSelectorBatchResolve,
+            context,
+            primaryKey: currentZone
+        );
+        long batchStart = Stopwatch.GetTimestamp();
+        try
+        {
+            for (int i = 0; i < refreshKeys.Count; i++)
+            {
+                string key = refreshKeys[i];
+                if (!snapshots.TryGet(key, out var snapshot))
+                {
+                    if (_entries.Remove(key))
+                        targetsChanged = true;
+                    continue;
+                }
+
+                var targets = snapshot.Targets;
+                _lastResolvedTargetCount += targets.Count;
+                if (targets.Count == 0)
+                {
+                    if (_entries.Remove(key))
+                        targetsChanged = true;
+                    continue;
+                }
+
+                if (!_entries.TryGetValue(key, out var entry))
+                {
+                    entry = new TargetEntry();
+                    _entries[key] = entry;
+                    entry.Rebuild(targets, currentZone);
+                    targetsChanged = true;
+                    continue;
+                }
+
+                if (
+                    zoneChanged
+                    || !ReferenceEquals(entry.Source, targets)
+                    || !string.Equals(
+                        entry.CurrentZone,
+                        currentZone,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                {
+                    entry.Rebuild(targets, currentZone);
+                    targetsChanged = true;
+                }
+            }
+        }
+        finally
+        {
+            _topQuestCosts = _topQuestCostProvider?.Invoke() ?? Array.Empty<QuestCostSample>();
+            if (batchToken != null)
+                _diagnostics!.EndSpan(
+                    batchToken.Value,
+                    Stopwatch.GetTimestamp() - batchStart,
+                    value0: _lastBatchKeyCount,
+                    value1: _lastResolvedTargetCount
+                );
+        }
+
+        _keysToEvict.Clear();
+        foreach (var key in _entries.Keys)
+            if (!_activeKeys.Contains(key))
+                _keysToEvict.Add(key);
+        foreach (var key in _keysToEvict)
+        {
+            _entries.Remove(key);
+            targetsChanged = true;
+        }
+
+        if (targetsChanged)
+        {
+            var refreshContext = DiagnosticsContext.Root(
+                snapshotsChanged
+                    ? DiagnosticTrigger.NavSetChanged
+                    : DiagnosticTrigger.TargetSourceVersionChanged
             );
-            if (selected.HasValue)
-                _cache[kv.Key] = selected.Value;
-            else
-                _cache.Remove(kv.Key);
+            _lastForceReason = refreshContext.Trigger;
+            _diagnostics?.RecordEvent(
+                new DiagnosticEvent(
+                    DiagnosticEventKind.SelectorRefreshForced,
+                    refreshContext,
+                    timestampTicks: startTick,
+                    primaryKey: currentZone,
+                    value0: _entries.Count,
+                    value1: _lastResolvedTargetCount
+                )
+            );
+        }
+
+        return targetsChanged;
+    }
+
+    /// <summary>
+    /// Called once per frame by Plugin before consumers read.
+    ///
+    /// Re-scores cached targets against the current player position and live-state
+    /// overlays. When the maintained <paramref name="snapshots"/> reference changes,
+    /// the selector rebuilds its per-key entries from the current resolved target
+    /// lists. Stable frames reuse cached entries unless live-world state or the
+    /// rerank interval requires another score pass.
+    /// </summary>
+    internal void Tick(
+        float playerX,
+        float playerY,
+        float playerZ,
+        string currentZone,
+        NavigationTargetSnapshots snapshots,
+        bool liveWorldChanged
+    )
+    {
+        bool liveStateChannelChanged = _liveState?.TryConsumeLiveWorldChange() ?? false;
+        bool effectiveLiveWorldChanged = liveWorldChanged || liveStateChannelChanged;
+        bool snapshotsChanged = !ReferenceEquals(snapshots, _lastSnapshots);
+        bool zoneChanged = !string.Equals(
+            currentZone,
+            _lastCurrentZone,
+            StringComparison.OrdinalIgnoreCase
+        );
+        var context = DiagnosticsContext.Root(
+            snapshotsChanged ? DiagnosticTrigger.NavSetChanged : DiagnosticTrigger.Unknown
+        );
+        var token = _diagnostics?.BeginSpan(
+            DiagnosticSpanKind.NavSelectorTick,
+            context,
+            primaryKey: currentZone
+        );
+        long startTick = Stopwatch.GetTimestamp();
+
+        try
+        {
+            float now = _clock();
+            bool due = now - _lastRerankTime >= _rerankInterval;
+            if (!snapshotsChanged && !zoneChanged && !effectiveLiveWorldChanged && !due)
+                return;
+
+            bool targetsChanged = RefreshEntries(
+                snapshots,
+                currentZone,
+                snapshotsChanged,
+                zoneChanged,
+                context,
+                startTick
+            );
+            if (
+                !snapshotsChanged
+                && !zoneChanged
+                && !targetsChanged
+                && !effectiveLiveWorldChanged
+                && !due
+            )
+                return;
+
+            _lastSnapshots = snapshots;
+            _lastCurrentZone = currentZone;
+            _lastRerankTime = now;
+            if (zoneChanged || targetsChanged)
+                _cache.Clear();
+
+            foreach (var kv in _entries)
+            {
+                UpdateLivePositions(kv.Value);
+                var selected = SelectBestCore(
+                    kv.Value,
+                    playerX,
+                    playerY,
+                    playerZ,
+                    currentZone,
+                    _router
+                );
+                if (selected.HasValue)
+                    _cache[kv.Key] = selected.Value;
+                else
+                    _cache.Remove(kv.Key);
+            }
+        }
+        finally
+        {
+            if (token != null)
+                _diagnostics!.EndSpan(
+                    token.Value,
+                    Stopwatch.GetTimestamp() - startTick,
+                    value0: _entries.Count,
+                    value1: _lastResolvedTargetCount
+                );
         }
     }
-    finally
-    {
-        if (token != null)
-            _diagnostics!.EndSpan(
-                token.Value,
-                Stopwatch.GetTimestamp() - startTick,
-                value0: _entries.Count,
-                value1: _lastResolvedTargetCount
-            );
-    }
-}
 
     /// <summary>
     /// Returns the pre-computed best target for <paramref name="nodeKey"/>.
@@ -428,8 +440,15 @@ internal void Tick(
         for (int i = 0; i < entry.SameZoneMutableTargets.Count; i++)
         {
             var target = entry.SameZoneMutableTargets[i];
-            var snapshot = _liveState.GetLiveSourceSnapshot(target.SourceKey, target.TargetNode.Node);
-            var updatedTarget = ApplyLiveSourceSnapshot(entry.SameZoneMutableBaseTargets[i], target, snapshot);
+            var snapshot = _liveState.GetLiveSourceSnapshot(
+                target.SourceKey,
+                target.TargetNode.Node
+            );
+            var updatedTarget = ApplyLiveSourceSnapshot(
+                entry.SameZoneMutableBaseTargets[i],
+                target,
+                snapshot
+            );
             if (ReferenceEquals(updatedTarget, target))
                 continue;
 
@@ -441,7 +460,8 @@ internal void Tick(
     private ResolvedQuestTarget ApplyLiveSourceSnapshot(
         ResolvedQuestTarget baseTarget,
         ResolvedQuestTarget currentTarget,
-        LiveSourceSnapshot snapshot)
+        LiveSourceSnapshot snapshot
+    )
     {
         if (snapshot.Kind == LiveSourceKind.Unknown)
             return baseTarget;
@@ -462,47 +482,54 @@ internal void Tick(
     private ResolvedQuestTarget ApplyCharacterSnapshot(
         ResolvedQuestTarget baseTarget,
         LiveSourceSnapshot snapshot,
-        Node? sourceNode)
+        Node? sourceNode
+    )
     {
         switch (snapshot.Occupancy)
         {
             case LiveSourceOccupancy.Alive:
-                return BuildSnapshotTarget(baseTarget, target =>
-                {
-                    ApplyLivePosition(target, snapshot.LivePosition);
-                    target.IsActionable = true;
-                });
+                return BuildSnapshotTarget(
+                    baseTarget,
+                    target =>
+                    {
+                        ApplyLivePosition(target, snapshot.LivePosition);
+                        target.IsActionable = true;
+                    }
+                );
             case LiveSourceOccupancy.Dead:
                 return BuildSnapshotTarget(
                     baseTarget,
                     target =>
                     {
-                        if (snapshot.LivePosition.HasValue)
-                        {
-                            ApplyLivePosition(target, snapshot.LivePosition);
-                        }
-                        else
-                        {
-                            ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
-                        }
-
-                        bool confirmedCorpseLoot = baseTarget.IsActionable
+                        bool confirmedCorpseLoot =
+                            baseTarget.IsActionable
                             && baseTarget.IsGuaranteedLoot
                             && snapshot.AnchoredLivePosition.HasValue;
+                        if (confirmedCorpseLoot)
+                            ApplyLivePosition(target, snapshot.LivePosition);
+                        else
+                            ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
+
                         target.IsActionable = confirmedCorpseLoot;
                     },
                     explanation: snapshot.RequiresZoneReentry
-                        ? NavigationExplanationBuilder.BuildZoneReentryExplanation(baseTarget.Explanation)
+                        ? NavigationExplanationBuilder.BuildZoneReentryExplanation(
+                            baseTarget.Explanation
+                        )
                         : null,
-                    isBlockedPath: baseTarget.IsBlockedPath || snapshot.RequiresZoneReentry);
+                    isBlockedPath: baseTarget.IsBlockedPath || snapshot.RequiresZoneReentry
+                );
             case LiveSourceOccupancy.NightLocked:
             case LiveSourceOccupancy.UnlockBlocked:
             case LiveSourceOccupancy.Disabled:
-                return BuildSnapshotTarget(baseTarget, target =>
-                {
-                    ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
-                    target.IsActionable = false;
-                });
+                return BuildSnapshotTarget(
+                    baseTarget,
+                    target =>
+                    {
+                        ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
+                        target.IsActionable = false;
+                    }
+                );
             default:
                 return baseTarget;
         }
@@ -511,20 +538,25 @@ internal void Tick(
     private ResolvedQuestTarget ApplyStaticSnapshot(
         ResolvedQuestTarget baseTarget,
         LiveSourceSnapshot snapshot,
-        Node? sourceNode)
+        Node? sourceNode
+    )
     {
-        return BuildSnapshotTarget(baseTarget, target =>
-        {
-            ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
-            target.IsActionable = snapshot.IsActionable;
-        });
+        return BuildSnapshotTarget(
+            baseTarget,
+            target =>
+            {
+                ApplyStaticPosition(target, sourceNode ?? baseTarget.TargetNode.Node);
+                target.IsActionable = snapshot.IsActionable;
+            }
+        );
     }
 
     private static ResolvedQuestTarget BuildSnapshotTarget(
         ResolvedQuestTarget baseTarget,
         Action<ResolvedQuestTarget> apply,
         NavigationExplanation? explanation = null,
-        bool? isBlockedPath = null)
+        bool? isBlockedPath = null
+    )
     {
         var target = new ResolvedQuestTarget(
             baseTarget.TargetNodeKey,
@@ -541,7 +573,8 @@ internal void Tick(
             baseTarget.RequiredForQuestKey,
             isBlockedPath ?? baseTarget.IsBlockedPath,
             baseTarget.IsGuaranteedLoot,
-            baseTarget.AvailabilityPriority);
+            baseTarget.AvailabilityPriority
+        );
         apply(target);
         return target;
     }
@@ -556,7 +589,8 @@ internal void Tick(
 
     private static void ApplyLivePosition(
         ResolvedQuestTarget target,
-        (float X, float Y, float Z)? position)
+        (float X, float Y, float Z)? position
+    )
     {
         if (!position.HasValue)
             return;
@@ -749,13 +783,27 @@ internal void Tick(
             {
                 if (!target.IsBlockedPath)
                 {
-                    if (IsBetterCandidate(target, distance, DirectGuaranteedLoot, DirectGuaranteedLootDist))
+                    if (
+                        IsBetterCandidate(
+                            target,
+                            distance,
+                            DirectGuaranteedLoot,
+                            DirectGuaranteedLootDist
+                        )
+                    )
                     {
                         DirectGuaranteedLoot = target;
                         DirectGuaranteedLootDist = distance;
                     }
                 }
-                else if (IsBetterCandidate(target, distance, BlockedGuaranteedLoot, BlockedGuaranteedLootDist))
+                else if (
+                    IsBetterCandidate(
+                        target,
+                        distance,
+                        BlockedGuaranteedLoot,
+                        BlockedGuaranteedLootDist
+                    )
+                )
                 {
                     BlockedGuaranteedLoot = target;
                     BlockedGuaranteedLootDist = distance;
@@ -817,7 +865,6 @@ internal void Tick(
         /// <summary>Selector-owned target copies; objects are shared with the sub-lists.</summary>
         public IReadOnlyList<ResolvedQuestTarget> All = Array.Empty<ResolvedQuestTarget>();
         public string CurrentZone = string.Empty;
-
 
         /// <summary>
         /// Same-zone targets (Scene == null or Scene == currentZone at force time),
@@ -881,7 +928,9 @@ internal void Tick(
                     SameZone.Add(t);
                     if (
                         t.TargetNode.Node.Type
-                        is NodeType.Character or NodeType.MiningNode or NodeType.ItemBag
+                        is NodeType.Character
+                            or NodeType.MiningNode
+                            or NodeType.ItemBag
                     )
                     {
                         SameZoneMutableTargets.Add(t);
@@ -893,14 +942,18 @@ internal void Tick(
                 {
                     // One representative per destination zone, split by blocking.
                     var dict = t.IsBlockedPath ? CrossZoneBlocked : CrossZoneDirect;
-                    if (!dict.TryGetValue(t.Scene!, out var existing)
-                        || t.AvailabilityPriority < existing.AvailabilityPriority)
+                    if (
+                        !dict.TryGetValue(t.Scene!, out var existing)
+                        || t.AvailabilityPriority < existing.AvailabilityPriority
+                    )
                         dict[t.Scene!] = t;
                 }
             }
         }
 
-        private static IReadOnlyList<ResolvedQuestTarget> CloneTargets(IReadOnlyList<ResolvedQuestTarget> targets)
+        private static IReadOnlyList<ResolvedQuestTarget> CloneTargets(
+            IReadOnlyList<ResolvedQuestTarget> targets
+        )
         {
             if (targets.Count == 0)
                 return Array.Empty<ResolvedQuestTarget>();
@@ -924,7 +977,8 @@ internal void Tick(
                     target.RequiredForQuestKey,
                     target.IsBlockedPath,
                     target.IsGuaranteedLoot,
-                    target.AvailabilityPriority);
+                    target.AvailabilityPriority
+                );
             }
 
             return copies;

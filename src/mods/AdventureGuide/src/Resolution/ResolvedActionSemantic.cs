@@ -75,6 +75,9 @@ public enum ResolvedActionKind
     Give,
     CompleteQuest,
 
+    // Present corpse containing a required drop.
+    LootCorpse,
+
     // Zone-reentry corpse chest containing loot from a previous kill.
     LootChest,
 }
