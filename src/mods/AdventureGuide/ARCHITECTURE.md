@@ -80,10 +80,25 @@ Consumers do not invent alternate truth.
 
 ## Detail-tree pruning
 
-`SpecTreeProjector` owns branch-local pruning for the quest detail tree. A
-candidate whose graph node already appears earlier in its ancestry is rejected
+`DetailTreeViabilityEvaluator` owns semantic pruning for the quest detail tree.
+It reasons over typed goals such as item acquisition, quest completion, source
+unlocking, and item/book actions. `SpecTreeProjector` owns display projection:
+it builds labels and rows, asks the evaluator whether a semantic branch is
+viable, and must not rediscover quest/item/source viability while rendering.
+
+The Python guide compiler emits detail dependency summaries in `guide.json`.
+Those summaries are the static topology source for item acquisition, quest
+completion, read actions, and unlock groups. Runtime state supplies only the
+current quest phase, inventory counts, zone/source lock state, and live detail
+facts needed to decide which compiled alternatives remain relevant. Missing
+compiled dependency data fails fast instead of falling back to frame-time graph
+search.
+
+A candidate whose graph node already appears earlier in its ancestry is rejected
 before normal visibility checks, so self-visible items or quests cannot keep a
-cyclic branch alive.
+cyclic branch alive. Async or frame-budgeted projection is not the primary
+solution for detail-tree performance; the main invariant is that static graph
+proof work is compiled and memoized outside the draw path.
 
 Unlock groups preserve their logical semantics after pruning: an `Any of:` group
 may keep independent viable alternatives after one option is pruned, but an
