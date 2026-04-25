@@ -54,6 +54,14 @@ The incremental engine owns derived views. Most top-level consumers read them
 through `State/GuideReader.cs`; marker projection owns its marker-candidate query
 read directly so State does not depend upward on Markers.
 
+Cached query values must be a function of the query key plus facts recorded
+through `ReadContext`. Scratch resolution sessions, per-batch memo caches, and
+cycle guards are compute-local acceleration state; they must not become hidden
+inputs to a separately cached child query. Recursive quest prerequisite
+resolution therefore stays inside the current `SourceResolver.ResolutionSession`,
+where the ambient engine context records the exact quest, inventory, source, and
+unlock facts read during the recursive walk.
+
 Important queries:
 - `Resolution/Queries/CompiledTargetsQuery.cs`
 - `Resolution/Queries/QuestResolutionQuery.cs`

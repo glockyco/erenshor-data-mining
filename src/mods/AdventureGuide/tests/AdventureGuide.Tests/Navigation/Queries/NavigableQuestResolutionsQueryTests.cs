@@ -103,22 +103,6 @@ public sealed class NavigationTargetSnapshotsQueryTests
     }
 
     [Fact]
-    public void Read_SharesCompiledTargetsBatchSessionAcrossQuestEntries()
-    {
-        var fixture = NavigationTargetSnapshotsFixture.Create();
-        fixture.TargetKeys = new[] { "quest:a", "quest:b" };
-
-        fixture.Engine.Read(fixture.Query.Query, "Town");
-
-        Assert.Equal(2, fixture.CompiledTargetSessionsByQuest.Count);
-        Assert.NotNull(fixture.CompiledTargetSessionsByQuest["quest:a"]);
-        Assert.Same(
-            fixture.CompiledTargetSessionsByQuest["quest:a"],
-            fixture.CompiledTargetSessionsByQuest["quest:b"]);
-        Assert.Null(CompiledTargetsQuery.CurrentSharedResolutionSession);
-    }
-
-    [Fact]
     public void Read_ResolvesExplicitNonQuestNavTargets()
     {
         var fixture = NavigationTargetSnapshotsFixture.Create();
@@ -138,20 +122,17 @@ public sealed class NavigationTargetSnapshotsQueryTests
         private NavigationTargetSnapshotsFixture(
             Engine<FactKey> engine,
             NavigationTargetSnapshotsQuery query,
-            Dictionary<string, QuestResolutionRecord> resolutions,
-            Dictionary<string, SourceResolver.ResolutionSession?> compiledTargetSessionsByQuest)
+            Dictionary<string, QuestResolutionRecord> resolutions)
         {
             Engine = engine;
             Query = query;
             Resolutions = resolutions;
-            CompiledTargetSessionsByQuest = compiledTargetSessionsByQuest;
             TargetKeys = Array.Empty<string>();
         }
 
         public Engine<FactKey> Engine { get; }
         public NavigationTargetSnapshotsQuery Query { get; }
         public Dictionary<string, QuestResolutionRecord> Resolutions { get; }
-        public Dictionary<string, SourceResolver.ResolutionSession?> CompiledTargetSessionsByQuest { get; }
         public IReadOnlyList<string> TargetKeys { get; set; }
         public int ParentComputeCount { get; private set; }
         public int ChildComputeCount { get; private set; }
@@ -174,7 +155,6 @@ public sealed class NavigationTargetSnapshotsQueryTests
                 ["quest:a"] = CreateRecord("quest:a", scene),
                 ["quest:b"] = CreateRecord("quest:b", scene)
             };
-            var compiledTargetSessionsByQuest = new Dictionary<string, SourceResolver.ResolutionSession?>(StringComparer.Ordinal);
             var resolver = BuildResolver(guide, engine);
 
             NavigationTargetSnapshotsFixture? fixture = null;
@@ -190,7 +170,6 @@ public sealed class NavigationTargetSnapshotsQueryTests
                 (ctx, key) =>
                 {
                     fixture!.ChildComputeCount++;
-                    fixture.CompiledTargetSessionsByQuest[key.QuestKey] = CompiledTargetsQuery.CurrentSharedResolutionSession;
                     ctx.RecordFact(new FactKey(FactKind.QuestActive, key.QuestKey));
                     return fixture.Resolutions[key.QuestKey];
                 });
@@ -204,8 +183,7 @@ public sealed class NavigationTargetSnapshotsQueryTests
             fixture = new NavigationTargetSnapshotsFixture(
                 engine,
                 query,
-                resolutions,
-                compiledTargetSessionsByQuest);
+                resolutions);
             return fixture;
         }
 

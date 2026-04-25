@@ -13,7 +13,7 @@ namespace AdventureGuide.Tests.Resolution;
 public sealed class PrerequisiteQuestInvalidationTests
 {
     [Fact]
-    public void ParentResolution_WithoutSharedBatchScope_PreservesPrerequisiteCycleGuard()
+    public void ParentResolution_PreservesPrerequisiteCycleGuard()
     {
         const string scene = "Forest";
         var guide = new CompiledGuideBuilder()
@@ -62,7 +62,7 @@ public sealed class PrerequisiteQuestInvalidationTests
     }
 
     [Fact]
-    public void FirstParentResolution_InSharedBatchWithColdPrerequisiteQuery_RetainsPrerequisiteTargets()
+    public void FirstParentResolution_WithColdPrerequisiteWalk_RetainsPrerequisiteTargets()
     {
         const string scene = "Forest";
         var guide = new CompiledGuideBuilder()
@@ -115,17 +115,14 @@ public sealed class PrerequisiteQuestInvalidationTests
             trackerState: new TrackerState(),
             navSet: new NavigationSet());
 
-        using (CompiledTargetsQuery.BeginSharedResolutionBatchScope())
-        {
-            var firstParent = reader.ReadQuestResolution("quest:parent-a", scene);
+        var firstParent = reader.ReadQuestResolution("quest:parent-a", scene);
 
-            Assert.True(HasTarget(guide, firstParent.CompiledTargets, "char:ore-vein", requiredForQuestIndex: null));
-            Assert.Contains(firstParent.CompiledTargets, target => target.RequiredForQuestIndex == parentAIndex);
-        }
+        Assert.True(HasTarget(guide, firstParent.CompiledTargets, "char:ore-vein", requiredForQuestIndex: null));
+        Assert.Contains(firstParent.CompiledTargets, target => target.RequiredForQuestIndex == parentAIndex);
     }
 
     [Fact]
-    public void ParentResolution_TracksPrerequisiteQuestInvalidation_AfterSharedBatchReuse()
+    public void ParentResolution_TracksPrerequisiteQuestInvalidation_AfterSiblingResolution()
     {
         const string scene = "Forest";
         var guide = new CompiledGuideBuilder()
@@ -183,14 +180,11 @@ public sealed class PrerequisiteQuestInvalidationTests
             trackerState: new TrackerState(),
             navSet: new NavigationSet());
 
-        using (CompiledTargetsQuery.BeginSharedResolutionBatchScope())
-        {
-            _ = reader.ReadQuestResolution("quest:parent-a", scene);
-            var secondParent = reader.ReadQuestResolution("quest:parent-b", scene);
+        _ = reader.ReadQuestResolution("quest:parent-a", scene);
+        var secondParent = reader.ReadQuestResolution("quest:parent-b", scene);
 
-            Assert.True(HasTarget(guide, secondParent.CompiledTargets, "char:ore-vein", requiredForQuestIndex: null));
-            Assert.Contains(secondParent.CompiledTargets, target => target.RequiredForQuestIndex == parentBIndex);
-        }
+        Assert.True(HasTarget(guide, secondParent.CompiledTargets, "char:ore-vein", requiredForQuestIndex: null));
+        Assert.Contains(secondParent.CompiledTargets, target => target.RequiredForQuestIndex == parentBIndex);
 
         tracker.LoadState(
             currentZone: scene,

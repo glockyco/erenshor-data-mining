@@ -61,7 +61,7 @@ public sealed class CompiledTargetsQueryTests
 	}
 
 	[Fact]
-	public void Read_CreatesFreshResolutionSessionPerRecompute_WithoutSharedBatchScope()
+	public void Read_CreatesFreshResolutionSessionPerRecompute()
 	{
 		var fixture = CompiledTargetsFixture.Create();
 
@@ -74,19 +74,16 @@ public sealed class CompiledTargetsQueryTests
 	}
 
 	[Fact]
-	public void Read_ReusesSharedResolutionSessionWithinBatchScope()
+	public void Read_UsesFreshResolutionSessionWithinEachRecompute()
 	{
 		var fixture = CompiledTargetsFixture.Create();
 
-		using (CompiledTargetsQuery.BeginSharedResolutionBatchScope())
-		{
-			fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
-			fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "ROOT") });
-			fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
-		}
+		fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
+		fixture.Engine.InvalidateFacts(new[] { new FactKey(FactKind.QuestActive, "ROOT") });
+		fixture.Engine.Read(fixture.Query.Query, ("quest:root", "Town"));
 
 		Assert.Equal(2, fixture.UsedSessions.Count);
-		Assert.Same(fixture.UsedSessions[0], fixture.UsedSessions[1]);
+		Assert.NotSame(fixture.UsedSessions[0], fixture.UsedSessions[1]);
 	}
 
 	[Fact]
@@ -212,86 +209,6 @@ public sealed class CompiledTargetsQueryTests
 		Assert.Equal(
 			directTargets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key),
 			queryTargets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key));
-	}
-
-	[Fact]
-	public void DependencyQuery_DoesNotCacheContextPoisonedEmptyResult()
-	{
-		var guide = new CompiledGuideBuilder()
-			.AddItem("item:mold")
-			.AddItem("item:eye")
-			.AddCharacter("char:bassle", scene: "Town", x: 20f, y: 0f, z: 30f)
-			.AddCharacter("char:liani", scene: "Azure", x: 1f, y: 0f, z: 2f)
-			.AddCharacter("char:plax", scene: "Stowaway", x: 10f, y: 0f, z: 20f)
-			.AddItemSource("item:mold", "char:liani", edgeType: (byte)EdgeType.GivesItem)
-			.AddItemSource("item:eye", "char:plax", edgeType: (byte)EdgeType.DropsItem)
-			.AddQuest(
-				"quest:ring",
-				dbName: "RING",
-				implicit_: true,
-				requiredItems: new[] { ("item:mold", 1) })
-			.AddQuest(
-				"quest:meet",
-				dbName: "MEET",
-				implicit_: true,
-				completers: new[] { "char:bassle" })
-			.AddStep("quest:meet", stepType: 2, targetKey: "char:bassle")
-			.AddQuest(
-				"quest:root",
-				dbName: "ROOT",
-				implicit_: true,
-				requiredItems: new[] { ("item:eye", 1) })
-			.AddUnlockPredicate("char:bassle", "quest:ring")
-			.AddUnlockPredicate("char:plax", "quest:meet")
-			.Build();
-		var phases = new QuestPhaseTracker(guide);
-		phases.Initialize(
-			Array.Empty<string>(),
-			Array.Empty<string>(),
-			new Dictionary<string, int>(),
-			Array.Empty<string>());
-		var frontier = new EffectiveFrontier(guide, phases);
-		var sourceResolver = new SourceResolver(
-			guide,
-			phases,
-			new UnlockPredicateEvaluator(guide, phases),
-			new StubLivePositionProvider(),
-			TestPositionResolvers.Create(guide));
-		var engine = new Engine<FactKey>();
-		var reader = new GuideReader(engine, phases.State, phases.State, new TrackerState(), new NavigationSet());
-		var resolver = new QuestTargetResolver(guide, frontier, sourceResolver, zoneRouter: null);
-		Assert.True(guide.TryGetNodeId("quest:ring", out int ringQuestNodeId));
-		int ringQuestIndex = guide.FindQuestIndex(ringQuestNodeId);
-		bool poison = true;
-		var query = new CompiledTargetsQuery(
-			engine,
-			guide,
-			frontier,
-			resolver,
-			reader,
-			session =>
-			{
-				if (poison)
-					session.ActiveQuestDependencyQueries.Add(ringQuestIndex);
-			});
-		var dependencyField = typeof(CompiledTargetsQuery).GetField(
-			"_dependencyQuery",
-			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-		Assert.NotNull(dependencyField);
-		var dependencyQuery = Assert.IsType<Query<(string QuestKey, string Scene), CompiledTargetsResult>>(
-			dependencyField!.GetValue(query));
-
-		var poisoned = engine.Read(dependencyQuery, ("quest:meet", "Azure"));
-		Assert.Empty(poisoned.Targets);
-
-		poison = false;
-		var topLevel = engine.Read(query.Query, ("quest:meet", "Azure"));
-		Assert.NotEmpty(topLevel.Targets);
-		var parent = engine.Read(query.Query, ("quest:root", "Azure"));
-
-		Assert.Equal(
-			topLevel.Targets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key),
-			parent.Targets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key));
 	}
 
 	private sealed class CompiledTargetsFixture

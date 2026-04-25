@@ -19,11 +19,4 @@ public sealed class ReadContext<TFactKey> where TFactKey : notnull
 		QueryDeps.Add((query.Id, (object)key));
 		return _engine.Read(query, key);
 	}
-
-	public TValue ReadUncached<TKey, TValue>(Query<TKey, TValue> query, TKey key)
-		where TKey : notnull
-	{
-		QueryDeps.Add((query.Id, (object)key));
-		return _engine.ReadUncached(query, key);
-	}
 }

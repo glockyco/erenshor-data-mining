@@ -115,14 +115,11 @@ public sealed class SourceResolver
 
     internal sealed class ResolutionSession
     {
-        // Direct SourceResolver callers (tests and non-engine entry points) still
-        // benefit from memoizing prerequisite quest walks per batch. Engine-backed
-        // callers bind QuestDependencyProvider instead so parent quests depend on
-        // child quest queries instead of inheriting another caller's target list.
+        // Prerequisite quest walks are memoized per resolution batch. The cache is
+        // local scratch for SourceResolver's recursive walk; engine-level queries own
+        // durable maintained-view caching.
         internal readonly Dictionary<int, IReadOnlyList<ResolvedTarget>> QuestFrontierCache = new();
         internal readonly HashSet<int> ActiveQuestFrontiers = new();
-        internal readonly HashSet<int> ActiveQuestDependencyQueries = new();
-        private Func<int, string, IReadOnlyList<ResolvedTarget>>? _questDependencyProvider;
 
         // ItemRequirementCache semantics depend on entry.QuestIndex through
         // BuildGiverSemantic / BuildGiverAcquisitionSemantic (ReadyToAccept giver
@@ -204,52 +201,6 @@ public sealed class SourceResolver
         // must fall back to a local set while an outer SourceResolver walk is
         // still active, matching the trail scratch contract above.
         internal readonly HashSet<string> SeenTargetsScratch = new(StringComparer.Ordinal);
-
-        internal bool HasQuestDependencyProvider => _questDependencyProvider != null;
-
-        internal IReadOnlyList<ResolvedTarget> ResolveQuestDependency(
-            int questIndex,
-            string currentScene
-        )
-        {
-            if (_questDependencyProvider == null)
-                throw new InvalidOperationException("Quest dependency provider is not bound.");
-            return _questDependencyProvider(questIndex, currentScene);
-        }
-
-        internal IDisposable BindQuestDependencyProvider(
-            int ownerQuestIndex,
-            Func<int, string, IReadOnlyList<ResolvedTarget>> questDependencyProvider
-        )
-        {
-            return new QuestDependencyProviderScope(this, ownerQuestIndex, questDependencyProvider);
-        }
-
-        private sealed class QuestDependencyProviderScope : IDisposable
-        {
-            private readonly ResolutionSession _session;
-            private readonly int _ownerQuestIndex;
-            private readonly Func<int, string, IReadOnlyList<ResolvedTarget>>? _previousProvider;
-
-            public QuestDependencyProviderScope(
-                ResolutionSession session,
-                int ownerQuestIndex,
-                Func<int, string, IReadOnlyList<ResolvedTarget>> questDependencyProvider
-            )
-            {
-                _session = session;
-                _ownerQuestIndex = ownerQuestIndex;
-                _previousProvider = session._questDependencyProvider;
-                session._questDependencyProvider = questDependencyProvider;
-                session.ActiveQuestDependencyQueries.Add(ownerQuestIndex);
-            }
-
-            public void Dispose()
-            {
-                _session.ActiveQuestDependencyQueries.Remove(_ownerQuestIndex);
-                _session._questDependencyProvider = _previousProvider;
-            }
-        }
     }
 
     private enum ItemRequirementSemanticKind : byte
@@ -596,57 +547,40 @@ public sealed class SourceResolver
     )
     {
         IReadOnlyList<ResolvedTarget> cached;
-        if (session.HasQuestDependencyProvider)
+        // Inlined ResolveCached pattern: avoids a Func<...> closure allocation
+        // on every invocation. Same semantics as the original helper — check the
+        // cache first, guard against re-entrancy via the active set, run the
+        // builder on cache miss, then store. The finally block keeps the active
+        // set consistent even if the builder throws.
+        if (!session.QuestFrontierCache.TryGetValue(questIndex, out cached!))
         {
-            if (!session.ActiveQuestDependencyQueries.Add(questIndex))
-                return Array.Empty<ResolvedTarget>();
-
-            try
+            if (!session.ActiveQuestFrontiers.Add(questIndex))
             {
-                cached = session.ResolveQuestDependency(questIndex, currentScene);
+                cached = Array.Empty<ResolvedTarget>();
             }
-            finally
+            else
             {
-                session.ActiveQuestDependencyQueries.Remove(questIndex);
-            }
-        }
-        else
-        {
-            // Inlined ResolveCached pattern: avoids a Func<...> closure allocation
-            // on every invocation. Same semantics as the original helper — check the
-            // cache first, guard against re-entrancy via the active set, run the
-            // builder on cache miss, then store. The finally block keeps the active
-            // set consistent even if the builder throws.
-            if (!session.QuestFrontierCache.TryGetValue(questIndex, out cached!))
-            {
-                if (!session.ActiveQuestFrontiers.Add(questIndex))
+                try
                 {
-                    cached = Array.Empty<ResolvedTarget>();
+                    var frontier = new List<FrontierEntry>();
+                    _frontier.Resolve(questIndex, frontier, -1, tracer);
+                    var results = new List<ResolvedTarget>();
+                    for (int i = 0; i < frontier.Count; i++)
+                        ResolveEntry(
+                            frontier[i],
+                            currentScene,
+                            results,
+                            session,
+                            questTrail,
+                            itemTrail,
+                            tracer
+                        );
+                    cached = FreezeResults(results);
+                    session.QuestFrontierCache[questIndex] = cached;
                 }
-                else
+                finally
                 {
-                    try
-                    {
-                        var frontier = new List<FrontierEntry>();
-                        _frontier.Resolve(questIndex, frontier, -1, tracer);
-                        var results = new List<ResolvedTarget>();
-                        for (int i = 0; i < frontier.Count; i++)
-                            ResolveEntry(
-                                frontier[i],
-                                currentScene,
-                                results,
-                                session,
-                                questTrail,
-                                itemTrail,
-                                tracer
-                            );
-                        cached = FreezeResults(results);
-                        session.QuestFrontierCache[questIndex] = cached;
-                    }
-                    finally
-                    {
-                        session.ActiveQuestFrontiers.Remove(questIndex);
-                    }
+                    session.ActiveQuestFrontiers.Remove(questIndex);
                 }
             }
         }

@@ -60,7 +60,6 @@ public sealed class NavigationTargetSnapshotsQuery
 		var cache = GetSceneCache(scene);
 		var snapshots = new List<NavigationTargetSnapshot>(selectorTargetSet.Keys.Count);
 		var activeKeys = new HashSet<string>(StringComparer.Ordinal);
-		using var _ = CompiledTargetsQuery.BeginSharedResolutionBatchScope();
 		for (int i = 0; i < selectorTargetSet.Keys.Count; i++)
 		{
 			string nodeKey = selectorTargetSet.Keys[i];

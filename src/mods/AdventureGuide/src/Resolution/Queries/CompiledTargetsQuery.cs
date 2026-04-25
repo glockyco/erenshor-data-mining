@@ -12,16 +12,6 @@ public sealed class CompiledTargetsQuery
     private readonly QuestTargetResolver _resolver;
     private readonly GuideReader _reader;
     private readonly Action<SourceResolver.ResolutionSession>? _onUsingResolutionSession;
-    private readonly Query<(string QuestKey, string Scene), CompiledTargetsResult> _dependencyQuery;
-
-    [ThreadStatic]
-    private static SourceResolver.ResolutionSession? _sharedResolutionSession;
-
-    [ThreadStatic]
-    private static SourceResolver.ResolutionSession? _ambientResolutionSession;
-
-    [ThreadStatic]
-    private static int _ambientResolutionSessionDepth;
 
     public Query<(string QuestKey, string Scene), CompiledTargetsResult> Query { get; }
 
@@ -48,43 +38,17 @@ public sealed class CompiledTargetsQuery
         _resolver = resolver;
         _reader = reader;
         _onUsingResolutionSession = onUsingResolutionSession;
-        _dependencyQuery = engine.DefineQuery<
-            (string QuestKey, string Scene),
-            CompiledTargetsResult
-        >(name: "CompiledTargetsDependency", compute: Compute);
         Query = engine.DefineQuery<(string QuestKey, string Scene), CompiledTargetsResult>(
             name: "CompiledTargets",
             compute: Compute
         );
     }
 
-    internal static SourceResolver.ResolutionSession? CurrentSharedResolutionSession =>
-        _sharedResolutionSession;
-
-    internal static IDisposable BeginSharedResolutionBatchScope()
+    private SourceResolver.ResolutionSession CreateResolutionSession()
     {
-        if (_sharedResolutionSession != null)
-            return SharedResolutionBatchScope.Noop;
-
-        _sharedResolutionSession = new SourceResolver.ResolutionSession();
-        return new SharedResolutionBatchScope();
-    }
-
-    private SourceResolver.ResolutionSession GetResolutionSession()
-    {
-        var session =
-            _sharedResolutionSession
-            ?? _ambientResolutionSession
-            ?? new SourceResolver.ResolutionSession();
+        var session = new SourceResolver.ResolutionSession();
         _onUsingResolutionSession?.Invoke(session);
         return session;
-    }
-
-    private static IDisposable BeginAmbientResolutionSessionScope(
-        SourceResolver.ResolutionSession session
-    )
-    {
-        return new AmbientResolutionSessionScope(session);
     }
 
     private CompiledTargetsResult Compute(
@@ -101,7 +65,8 @@ public sealed class CompiledTargetsQuery
 
         // Ambient recording on Engine<FactKey> makes the frontier/resolver stack
         // record fact deps transparently: trackers consulted during the walk subscribe
-        // the current compute to the exact keys read.
+        // the current compute to the exact keys read, including recursive prerequisite
+        // quest and item walks inside SourceResolver.
         string? questDbName = _guide.GetDbName(questNodeId);
         if (!string.IsNullOrEmpty(questDbName))
         {
@@ -112,55 +77,10 @@ public sealed class CompiledTargetsQuery
         var tracer = _reader.ActiveTracer;
         var frontier = new List<FrontierEntry>();
         _frontier.Resolve(questIndex, frontier, -1, tracer);
-        var session = GetResolutionSession();
-        using var ambientScope = BeginAmbientResolutionSessionScope(session);
-        using var _ = session.BindQuestDependencyProvider(
-            questIndex,
-            (childQuestIndex, childScene) =>
-            {
-                string childQuestKey = _guide.GetNodeKey(_guide.QuestNodeId(childQuestIndex));
-                return ctx.ReadUncached(_dependencyQuery, (childQuestKey, childScene)).Targets;
-            }
-        );
+        var session = CreateResolutionSession();
         var targets = _resolver.Resolve(questIndex, key.Scene, frontier, session, tracer);
 
         return new CompiledTargetsResult(frontier.ToArray(), targets.ToArray());
-    }
-
-    private sealed class SharedResolutionBatchScope : IDisposable
-    {
-        internal static readonly IDisposable Noop = new NoopScope();
-
-        public void Dispose()
-        {
-            _sharedResolutionSession = null;
-        }
-
-        private sealed class NoopScope : IDisposable
-        {
-            public void Dispose() { }
-        }
-    }
-
-    private sealed class AmbientResolutionSessionScope : IDisposable
-    {
-        private readonly SourceResolver.ResolutionSession? _previousSession;
-
-        public AmbientResolutionSessionScope(SourceResolver.ResolutionSession session)
-        {
-            _previousSession = _ambientResolutionSession;
-            _ambientResolutionSession = session;
-            _ambientResolutionSessionDepth++;
-        }
-
-        public void Dispose()
-        {
-            _ambientResolutionSessionDepth--;
-            if (_ambientResolutionSessionDepth == 0)
-                _ambientResolutionSession = null;
-            else
-                _ambientResolutionSession = _previousSession;
-        }
     }
 }
 
