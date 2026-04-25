@@ -694,7 +694,12 @@ public sealed class SpecTreeProjector
                 )
             );
         foreach (var step in _guide.Steps(questIndex))
+        {
+            if (IsPlainTalkStepCoveredByKeywordCompletion(questIndex, step))
+                continue;
+
             AddIfVisible(results, BuildStepRef(record, questIndex, step, ancestry));
+        }
         foreach (int completerId in _guide.CompleterIds(questIndex))
             AddIfVisible(results, BuildCompleterRef(record, questIndex, completerId, ancestry));
         return results;
@@ -1184,6 +1189,29 @@ public sealed class SpecTreeProjector
 
         interactionType = 0;
         keyword = null;
+    }
+
+    private bool IsPlainTalkStepCoveredByKeywordCompletion(int questIndex, StepEntry step)
+    {
+        if (step.StepType != StepLabels.Talk)
+            return false;
+
+        foreach (int completerId in _guide.CompleterIds(questIndex))
+        {
+            if (completerId != step.TargetId)
+                continue;
+
+            FindCompletionInteraction(
+                questIndex,
+                completerId,
+                out byte interactionType,
+                out string? keyword
+            );
+            if (QuestCompletionSemantics.UsesKeywordInteraction(interactionType, keyword))
+                return true;
+        }
+
+        return false;
     }
 
     private void FindCompletionInteraction(

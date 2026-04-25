@@ -1315,4 +1315,55 @@ public sealed class SpecTreeProjectorTests
             .Single(r => r.Kind == SpecTreeKind.Completer);
         Assert.Equal("Talk to Bassle Wavebreaker — say \"taking\"", completerRef.Label);
     }
+
+    [Fact]
+    public void Keyword_talk_completion_suppresses_duplicate_plain_talk_step()
+    {
+        var guide = AdventureGuide.CompiledGuide.CompiledGuideLoader.ParseJson(
+            """
+            {
+                "nodes": [
+                    {"node_id":0,"key":"quest:meetbassle","node_type":0,"display_name":"Meet the Fisherman","scene":null,"x":null,"y":null,"z":null,"flags":0,"level":0,"zone_key":null,"db_name":"ROOT","description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null},
+                    {"node_id":1,"key":"char:bassle","node_type":2,"display_name":"Bassle Wavebreaker","scene":"Town","x":10.0,"y":20.0,"z":30.0,"flags":0,"level":0,"zone_key":null,"db_name":null,"description":null,"keyword":null,"zone_display":null,"xp_reward":0,"gold_reward":0,"reward_item_key":null,"disabled_text":null,"key_item_key":null,"destination_zone_key":null,"destination_display":null}
+                ],
+                "edges": [],
+                "forward_adjacency": [[],[]],
+                "reverse_adjacency": [[],[]],
+                "quest_node_ids": [0],
+                "item_node_ids": [],
+                "quest_specs": [
+                    {"quest_id":0,"quest_index":0,"prereq_quest_ids":[],"prereq_quest_indices":[],"required_items":[],"steps":[{"step_type":2,"target_id":1,"ordinal":0}],"giver_node_ids":[],"completer_node_ids":[1],"chains_to_ids":[],"is_implicit":false,"is_infeasible":false,"display_name":"Meet the Fisherman"}
+                ],
+                "item_sources": [],
+                "unlock_predicates": [],
+                "topo_order": [0],
+                "item_to_quest_indices": [],
+                "quest_to_dependent_quest_indices": [[]],
+                "zone_node_ids": [],
+                "zone_adjacency": [],
+                "giver_blueprints": [],
+                "completion_blueprints": [
+                    {"quest_id":0,"character_id":1,"position_id":1,"interaction_type":1,"keyword":"taking"}
+                ],
+                "infeasible_node_ids": []
+            }
+            """
+        );
+        var tracker = new QuestPhaseTracker(guide);
+        tracker.Initialize(
+            Array.Empty<string>(),
+            new[] { "ROOT" },
+            new Dictionary<string, int>(),
+            Array.Empty<string>()
+        );
+        var projector = ResolutionTestFactory
+            .BuildSpecTreeProjector(guide, tracker, currentSceneProvider: () => string.Empty)
+            .Projector;
+
+        var roots = projector.GetRootChildren(0);
+
+        Assert.DoesNotContain(roots, r => r.Kind == SpecTreeKind.Step && r.Label == "Talk to Bassle Wavebreaker");
+        var completer = Assert.Single(roots, r => r.Kind == SpecTreeKind.Completer);
+        Assert.Equal("Talk to Bassle Wavebreaker — say \"taking\"", completer.Label);
+    }
 }
