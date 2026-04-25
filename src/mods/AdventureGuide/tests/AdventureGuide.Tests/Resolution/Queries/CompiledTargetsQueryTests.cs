@@ -1,6 +1,7 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Incremental;
 using AdventureGuide.Frontier;
+using AdventureGuide.Navigation;
 using AdventureGuide.Position;
 using AdventureGuide.Resolution;
 using AdventureGuide.Resolution.Queries;
@@ -86,6 +87,211 @@ public sealed class CompiledTargetsQueryTests
 
 		Assert.Equal(2, fixture.UsedSessions.Count);
 		Assert.Same(fixture.UsedSessions[0], fixture.UsedSessions[1]);
+	}
+
+	[Fact]
+	public void Read_ReturnsPrerequisiteTargets_WhenRequiredItemSourceIsQuestLocked()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:eye")
+			.AddItem("item:ring")
+			.AddCharacter("char:plax", scene: "Stowaway", x: 10f, y: 0f, z: 20f)
+			.AddCharacter("char:liani", scene: "Azure", x: 1f, y: 0f, z: 2f)
+			.AddItemSource(
+				"item:eye",
+				"char:plax",
+				edgeType: (byte)EdgeType.DropsItem,
+				sourceType: (byte)NodeType.Character)
+			.AddItemSource(
+				"item:ring",
+				"char:liani",
+				edgeType: (byte)EdgeType.GivesItem,
+				sourceType: (byte)NodeType.Character)
+			.AddQuest(
+				"quest:meet",
+				dbName: "MEET",
+				implicit_: true,
+				requiredItems: new[] { ("item:ring", 1) })
+			.AddQuest(
+				"quest:root",
+				dbName: "ROOT",
+				implicit_: true,
+				requiredItems: new[] { ("item:eye", 1) })
+			.AddUnlockPredicate("char:plax", "quest:meet")
+			.Build();
+
+		var state = new QuestStateTracker(guide);
+		state.LoadState(
+			currentZone: "Azure",
+			activeQuests: new[] { "ROOT", "MEET" },
+			completedQuests: Array.Empty<string>(),
+			inventoryCounts: new Dictionary<string, int>(StringComparer.Ordinal),
+			keyringItemKeys: Array.Empty<string>());
+		var phases = new QuestPhaseTracker(guide, state);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var registry = TestPositionResolvers.Create(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			registry);
+		var reader = ResolutionTestFactory.BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			phases,
+			zoneRouter: null,
+			engine: new Engine<FactKey>(),
+			positionRegistry: registry,
+			trackerState: new TrackerState(),
+			navSet: new NavigationSet());
+
+		var record = reader.ReadQuestResolution("quest:root", "Azure");
+
+		Assert.NotEmpty(record.CompiledTargets);
+		Assert.NotEmpty(record.NavigationTargets);
+		Assert.True(guide.TryGetNodeId("char:liani", out int lianiId));
+		Assert.True(guide.TryGetNodeId("quest:root", out int rootQuestNodeId));
+		int rootQuestIndex = guide.FindQuestIndex(rootQuestNodeId);
+		var lianiTarget = Assert.Single(
+			record.CompiledTargets,
+			target => target.TargetNodeId == lianiId);
+		Assert.Equal(rootQuestIndex, lianiTarget.RequiredForQuestIndex);
+		Assert.Equal(ResolvedTargetAvailabilityPriority.PrerequisiteFallback, lianiTarget.AvailabilityPriority);
+	}
+
+	[Fact]
+	public void Read_MatchesDirectResolver_ForQuestLockedRequiredItemSources()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:eye")
+			.AddItem("item:ring")
+			.AddCharacter("char:plax", scene: "Stowaway", x: 10f, y: 0f, z: 20f)
+			.AddCharacter("char:liani", scene: "Azure", x: 1f, y: 0f, z: 2f)
+			.AddItemSource("item:eye", "char:plax", edgeType: (byte)EdgeType.DropsItem)
+			.AddItemSource("item:ring", "char:liani", edgeType: (byte)EdgeType.GivesItem)
+			.AddQuest("quest:meet", dbName: "MEET", implicit_: true, requiredItems: new[] { ("item:ring", 1) })
+			.AddQuest("quest:root", dbName: "ROOT", implicit_: true, requiredItems: new[] { ("item:eye", 1) })
+			.AddUnlockPredicate("char:plax", "quest:meet")
+			.Build();
+		var state = new QuestStateTracker(guide);
+		state.LoadState(
+			"Azure",
+			new[] { "ROOT", "MEET" },
+			Array.Empty<string>(),
+			new Dictionary<string, int>(StringComparer.Ordinal),
+			Array.Empty<string>());
+		var phases = new QuestPhaseTracker(guide, state);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var registry = TestPositionResolvers.Create(guide);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			registry);
+		var directResolver = new QuestTargetResolver(guide, frontier, sourceResolver, zoneRouter: null);
+		var reader = ResolutionTestFactory.BuildService(
+			guide,
+			frontier,
+			sourceResolver,
+			phases,
+			zoneRouter: null,
+			engine: new Engine<FactKey>(),
+			positionRegistry: registry,
+			trackerState: new TrackerState(),
+			navSet: new NavigationSet());
+
+		Assert.True(guide.TryGetNodeId("quest:root", out int rootQuestNodeId));
+		int rootQuestIndex = guide.FindQuestIndex(rootQuestNodeId);
+		var directTargets = directResolver.Resolve(rootQuestIndex, "Azure", session: null);
+		var queryTargets = reader.ReadQuestResolution("quest:root", "Azure").CompiledTargets;
+
+		Assert.NotEmpty(directTargets);
+		Assert.Equal(
+			directTargets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key),
+			queryTargets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key));
+	}
+
+	[Fact]
+	public void DependencyQuery_DoesNotCacheContextPoisonedEmptyResult()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:mold")
+			.AddItem("item:eye")
+			.AddCharacter("char:bassle", scene: "Town", x: 20f, y: 0f, z: 30f)
+			.AddCharacter("char:liani", scene: "Azure", x: 1f, y: 0f, z: 2f)
+			.AddCharacter("char:plax", scene: "Stowaway", x: 10f, y: 0f, z: 20f)
+			.AddItemSource("item:mold", "char:liani", edgeType: (byte)EdgeType.GivesItem)
+			.AddItemSource("item:eye", "char:plax", edgeType: (byte)EdgeType.DropsItem)
+			.AddQuest(
+				"quest:ring",
+				dbName: "RING",
+				implicit_: true,
+				requiredItems: new[] { ("item:mold", 1) })
+			.AddQuest(
+				"quest:meet",
+				dbName: "MEET",
+				implicit_: true,
+				completers: new[] { "char:bassle" })
+			.AddStep("quest:meet", stepType: 2, targetKey: "char:bassle")
+			.AddQuest(
+				"quest:root",
+				dbName: "ROOT",
+				implicit_: true,
+				requiredItems: new[] { ("item:eye", 1) })
+			.AddUnlockPredicate("char:bassle", "quest:ring")
+			.AddUnlockPredicate("char:plax", "quest:meet")
+			.Build();
+		var phases = new QuestPhaseTracker(guide);
+		phases.Initialize(
+			Array.Empty<string>(),
+			Array.Empty<string>(),
+			new Dictionary<string, int>(),
+			Array.Empty<string>());
+		var frontier = new EffectiveFrontier(guide, phases);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide));
+		var engine = new Engine<FactKey>();
+		var reader = new GuideReader(engine, phases.State, phases.State, new TrackerState(), new NavigationSet());
+		var resolver = new QuestTargetResolver(guide, frontier, sourceResolver, zoneRouter: null);
+		Assert.True(guide.TryGetNodeId("quest:ring", out int ringQuestNodeId));
+		int ringQuestIndex = guide.FindQuestIndex(ringQuestNodeId);
+		bool poison = true;
+		var query = new CompiledTargetsQuery(
+			engine,
+			guide,
+			frontier,
+			resolver,
+			reader,
+			session =>
+			{
+				if (poison)
+					session.ActiveQuestDependencyQueries.Add(ringQuestIndex);
+			});
+		var dependencyField = typeof(CompiledTargetsQuery).GetField(
+			"_dependencyQuery",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+		Assert.NotNull(dependencyField);
+		var dependencyQuery = Assert.IsType<Query<(string QuestKey, string Scene), CompiledTargetsResult>>(
+			dependencyField!.GetValue(query));
+
+		var poisoned = engine.Read(dependencyQuery, ("quest:meet", "Azure"));
+		Assert.Empty(poisoned.Targets);
+
+		poison = false;
+		var topLevel = engine.Read(query.Query, ("quest:meet", "Azure"));
+		Assert.NotEmpty(topLevel.Targets);
+		var parent = engine.Read(query.Query, ("quest:root", "Azure"));
+
+		Assert.Equal(
+			topLevel.Targets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key),
+			parent.Targets.Select(target => guide.GetNodeKey(target.TargetNodeId)).OrderBy(key => key));
 	}
 
 	private sealed class CompiledTargetsFixture

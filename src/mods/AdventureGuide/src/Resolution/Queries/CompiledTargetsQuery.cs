@@ -119,7 +119,7 @@ public sealed class CompiledTargetsQuery
             (childQuestIndex, childScene) =>
             {
                 string childQuestKey = _guide.GetNodeKey(_guide.QuestNodeId(childQuestIndex));
-                return ctx.Read(_dependencyQuery, (childQuestKey, childScene)).Targets;
+                return ctx.ReadUncached(_dependencyQuery, (childQuestKey, childScene)).Targets;
             }
         );
         var targets = _resolver.Resolve(questIndex, key.Scene, frontier, session, tracer);
