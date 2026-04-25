@@ -13,6 +13,11 @@ public sealed class CompiledTargetsQuery
     private readonly GuideReader _reader;
     private readonly Action<SourceResolver.ResolutionSession>? _onUsingResolutionSession;
 
+    [ThreadStatic]
+    private static SourceResolver.ResolutionSession? _sharedResolutionSession;
+    [ThreadStatic]
+    private static int _sharedResolutionSessionDepth;
+
     public Query<(string QuestKey, string Scene), CompiledTargetsResult> Query { get; }
 
     public CompiledTargetsQuery(
@@ -44,9 +49,34 @@ public sealed class CompiledTargetsQuery
         );
     }
 
+    internal static IDisposable BeginSharedResolutionBatchScope()
+    {
+        if (_sharedResolutionSessionDepth == 0)
+            _sharedResolutionSession = new SourceResolver.ResolutionSession();
+
+        _sharedResolutionSessionDepth++;
+        return new SharedResolutionBatchScope();
+    }
+
+    private sealed class SharedResolutionBatchScope : IDisposable
+    {
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _sharedResolutionSessionDepth--;
+            if (_sharedResolutionSessionDepth == 0)
+                _sharedResolutionSession = null;
+        }
+    }
+
     private SourceResolver.ResolutionSession CreateResolutionSession()
     {
-        var session = new SourceResolver.ResolutionSession();
+        var session = _sharedResolutionSession ?? new SourceResolver.ResolutionSession();
         _onUsingResolutionSession?.Invoke(session);
         return session;
     }

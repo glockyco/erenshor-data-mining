@@ -1,6 +1,7 @@
 using AdventureGuide.CompiledGuide;
 using AdventureGuide.Frontier;
 using AdventureGuide.Graph;
+using AdventureGuide.Incremental;
 using AdventureGuide.Position;
 using AdventureGuide.State;
 
@@ -117,8 +118,10 @@ public sealed class SourceResolver
     {
         // Prerequisite quest walks are memoized per resolution batch. The cache is
         // local scratch for SourceResolver's recursive walk; engine-level queries own
-        // durable maintained-view caching.
+        // durable maintained-view caching. Cached hits replay the facts observed when
+        // the value was built so sibling query computes keep complete dependencies.
         internal readonly Dictionary<int, IReadOnlyList<ResolvedTarget>> QuestFrontierCache = new();
+        internal readonly Dictionary<int, IReadOnlyList<FactKey>> QuestFrontierFacts = new();
         internal readonly HashSet<int> ActiveQuestFrontiers = new();
 
         // ItemRequirementCache semantics depend on entry.QuestIndex through
@@ -138,6 +141,17 @@ public sealed class SourceResolver
             ),
             IReadOnlyList<ResolvedTarget>
         > ItemRequirementCache = new();
+        internal readonly Dictionary<
+            (
+                byte Phase,
+                int QuestIndex,
+                int RequiredForQuestIndex,
+                int ItemNodeId,
+                byte SemanticKind,
+                int GiverNodeId
+            ),
+            IReadOnlyList<FactKey>
+        > ItemRequirementFacts = new();
         internal readonly HashSet<(
             byte Phase,
             int QuestIndex,
@@ -157,6 +171,16 @@ public sealed class SourceResolver
             ),
             IReadOnlyList<ResolvedTarget>
         > UnlockRequirementCache = new();
+        internal readonly Dictionary<
+            (
+                byte Phase,
+                int TargetNodeId,
+                int RouteNodeId,
+                int QuestIndex,
+                int RequiredForQuestIndex
+            ),
+            IReadOnlyList<FactKey>
+        > UnlockRequirementFacts = new();
         internal readonly HashSet<(
             byte Phase,
             int TargetNodeId,
@@ -169,6 +193,10 @@ public sealed class SourceResolver
             (byte Phase, int RecipeNodeId, int QuestIndex, int RequiredForQuestIndex),
             IReadOnlyList<ResolvedTarget>
         > RecipeMaterialCache = new();
+        internal readonly Dictionary<
+            (byte Phase, int RecipeNodeId, int QuestIndex, int RequiredForQuestIndex),
+            IReadOnlyList<FactKey>
+        > RecipeMaterialFacts = new();
         internal readonly HashSet<(
             byte Phase,
             int RecipeNodeId,
@@ -185,6 +213,7 @@ public sealed class SourceResolver
             int,
             IReadOnlyList<IReadOnlyList<UnlockConditionEntry>>
         > BlockingGroupsCache = new();
+        internal readonly Dictionary<int, IReadOnlyList<FactKey>> BlockingGroupsFacts = new();
 
         // Scratch trails reused across top-level ResolveTargets calls within a
         // batch. Re-entrant query-owned prerequisite reads must not reuse these
@@ -209,6 +238,41 @@ public sealed class SourceResolver
         GiverInteraction = 1,
         GiverAcquisition = 2,
         ReadStepAcquisition = 3,
+    }
+
+    private static HashSet<FactKey>? CaptureAmbientFactBaseline()
+    {
+        var ambient = Engine<FactKey>.Ambient;
+        return ambient == null ? null : new HashSet<FactKey>(ambient.Facts);
+    }
+
+    private static IReadOnlyList<FactKey> CaptureAmbientFactDelta(HashSet<FactKey>? baseline)
+    {
+        var ambient = Engine<FactKey>.Ambient;
+        if (ambient == null || baseline == null || ambient.Facts.Count == 0)
+            return Array.Empty<FactKey>();
+
+        var facts = new List<FactKey>();
+        foreach (var fact in ambient.Facts)
+        {
+            if (!baseline.Contains(fact))
+                facts.Add(fact);
+        }
+
+        return facts.Count == 0 ? Array.Empty<FactKey>() : facts;
+    }
+
+    private static void ReplayAmbientFacts(IReadOnlyList<FactKey>? facts)
+    {
+        if (facts == null || facts.Count == 0)
+            return;
+
+        var ambient = Engine<FactKey>.Ambient;
+        if (ambient == null)
+            return;
+
+        for (int i = 0; i < facts.Count; i++)
+            ambient.RecordFact(facts[i]);
     }
 
     private static IReadOnlyList<ResolvedTarget> FreezeResults(List<ResolvedTarget> results) =>
@@ -552,7 +616,12 @@ public sealed class SourceResolver
         // cache first, guard against re-entrancy via the active set, run the
         // builder on cache miss, then store. The finally block keeps the active
         // set consistent even if the builder throws.
-        if (!session.QuestFrontierCache.TryGetValue(questIndex, out cached!))
+        if (session.QuestFrontierCache.TryGetValue(questIndex, out cached!))
+        {
+            if (session.QuestFrontierFacts.TryGetValue(questIndex, out var facts))
+                ReplayAmbientFacts(facts);
+        }
+        else
         {
             if (!session.ActiveQuestFrontiers.Add(questIndex))
             {
@@ -560,6 +629,7 @@ public sealed class SourceResolver
             }
             else
             {
+                var baseline = CaptureAmbientFactBaseline();
                 try
                 {
                     var frontier = new List<FrontierEntry>();
@@ -577,6 +647,7 @@ public sealed class SourceResolver
                         );
                     cached = FreezeResults(results);
                     session.QuestFrontierCache[questIndex] = cached;
+                    session.QuestFrontierFacts[questIndex] = CaptureAmbientFactDelta(baseline);
                 }
                 finally
                 {
@@ -664,16 +735,22 @@ public sealed class SourceResolver
             giverNodeId
         );
         if (session.ItemRequirementCache.TryGetValue(key, out var cached))
+        {
+            if (session.ItemRequirementFacts.TryGetValue(key, out var facts))
+                ReplayAmbientFacts(facts);
             return cached;
+        }
         if (!session.ActiveItemRequirements.Add(key))
             return Array.Empty<ResolvedTarget>();
 
+        var baseline = CaptureAmbientFactBaseline();
         try
         {
             if (!itemTrail.Add(itemNodeId))
             {
                 var empty = Array.Empty<ResolvedTarget>();
                 session.ItemRequirementCache[key] = empty;
+                session.ItemRequirementFacts[key] = CaptureAmbientFactDelta(baseline);
                 return empty;
             }
 
@@ -742,6 +819,7 @@ public sealed class SourceResolver
 
                 var frozen = FreezeResultsByAvailabilityPriority(results);
                 session.ItemRequirementCache[key] = frozen;
+                session.ItemRequirementFacts[key] = CaptureAmbientFactDelta(baseline);
                 return frozen;
             }
             finally
@@ -902,7 +980,12 @@ public sealed class SourceResolver
             entry.RequiredForQuestIndex
         );
         IReadOnlyList<ResolvedTarget> cached;
-        if (!session.UnlockRequirementCache.TryGetValue(key, out cached!))
+        if (session.UnlockRequirementCache.TryGetValue(key, out cached!))
+        {
+            if (session.UnlockRequirementFacts.TryGetValue(key, out var facts))
+                ReplayAmbientFacts(facts);
+        }
+        else
         {
             if (!session.ActiveUnlockRequirements.Add(key))
             {
@@ -910,6 +993,7 @@ public sealed class SourceResolver
             }
             else
             {
+                var baseline = CaptureAmbientFactBaseline();
                 try
                 {
                     var results = new List<ResolvedTarget>();
@@ -935,6 +1019,7 @@ public sealed class SourceResolver
                     );
                     cached = FreezeResultsByAvailabilityPriority(results);
                     session.UnlockRequirementCache[key] = cached;
+                    session.UnlockRequirementFacts[key] = CaptureAmbientFactDelta(baseline);
                 }
                 finally
                 {
@@ -954,9 +1039,16 @@ public sealed class SourceResolver
     )
     {
         if (session.BlockingGroupsCache.TryGetValue(nodeId, out var cached))
+        {
+            if (session.BlockingGroupsFacts.TryGetValue(nodeId, out var facts))
+                ReplayAmbientFacts(facts);
             return cached;
+        }
+
+        var baseline = CaptureAmbientFactBaseline();
         var groups = _unlocks.GetBlockingRequirementGroups(nodeId);
         session.BlockingGroupsCache[nodeId] = groups;
+        session.BlockingGroupsFacts[nodeId] = CaptureAmbientFactDelta(baseline);
         return groups;
     }
 
@@ -1025,7 +1117,12 @@ public sealed class SourceResolver
         // Inlined ResolveCached pattern: avoids a Func<...> closure allocation.
         var key = ((byte)entry.Phase, recipeNodeId, entry.QuestIndex, entry.RequiredForQuestIndex);
         IReadOnlyList<ResolvedTarget> cached;
-        if (!session.RecipeMaterialCache.TryGetValue(key, out cached!))
+        if (session.RecipeMaterialCache.TryGetValue(key, out cached!))
+        {
+            if (session.RecipeMaterialFacts.TryGetValue(key, out var facts))
+                ReplayAmbientFacts(facts);
+        }
+        else
         {
             if (!session.ActiveRecipeMaterials.Add(key))
             {
@@ -1033,6 +1130,7 @@ public sealed class SourceResolver
             }
             else
             {
+                var baseline = CaptureAmbientFactBaseline();
                 try
                 {
                     var results = new List<ResolvedTarget>();
@@ -1069,6 +1167,7 @@ public sealed class SourceResolver
                     }
                     cached = FreezeResultsByAvailabilityPriority(results);
                     session.RecipeMaterialCache[key] = cached;
+                    session.RecipeMaterialFacts[key] = CaptureAmbientFactDelta(baseline);
                 }
                 finally
                 {

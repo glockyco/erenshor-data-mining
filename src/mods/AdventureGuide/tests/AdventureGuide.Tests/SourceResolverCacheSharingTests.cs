@@ -1,6 +1,8 @@
 using AdventureGuide.Graph;
 using AdventureGuide.Frontier;
+using AdventureGuide.Incremental;
 using AdventureGuide.Resolution;
+using AdventureGuide.State;
 using AdventureGuide.Tests.Helpers;
 using Xunit;
 
@@ -61,5 +63,66 @@ public sealed class SourceResolverCacheSharingTests
 		_ = resolver.ResolveTargets(entryB, "Forest", session, tracer: null);
 
 		Assert.True(session.UnlockRequirementCache.Count > cacheSizeAfterA);
+	}
+
+	[Fact]
+	public void CachedPrerequisiteQuestFrontier_ReplaysInventoryDependencies_OnCacheHit()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddItem("item:token")
+			.AddCharacter("char:source", scene: "Forest", x: 1f, y: 0f, z: 2f)
+			.AddItemSource("item:token", "char:source", edgeType: (byte)EdgeType.GivesItem)
+			.AddQuest("quest:prereq", dbName: "PREREQ", requiredItems: new[] { ("item:token", 1) })
+			.AddQuest("quest:a", dbName: "QUESTA", givers: new[] { "quest:prereq" })
+			.AddQuest("quest:b", dbName: "QUESTB", givers: new[] { "quest:prereq" })
+			.Build();
+
+		var state = new QuestStateTracker(guide);
+		state.LoadState(
+			currentZone: "Forest",
+			activeQuests: new[] { "PREREQ" },
+			completedQuests: Array.Empty<string>(),
+			inventoryCounts: new Dictionary<string, int>(StringComparer.Ordinal),
+			keyringItemKeys: Array.Empty<string>());
+		var phases = new QuestPhaseTracker(guide, state);
+		var resolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide));
+		var session = new SourceResolver.ResolutionSession();
+		var engine = new Engine<FactKey>();
+		int questBComputes = 0;
+
+		Assert.True(guide.TryGetNodeId("quest:a", out int questANodeId));
+		Assert.True(guide.TryGetNodeId("quest:b", out int questBNodeId));
+		int questAIndex = guide.FindQuestIndex(questANodeId);
+		int questBIndex = guide.FindQuestIndex(questBNodeId);
+		var questAQuery = engine.DefineQuery<Unit, IReadOnlyList<ResolvedTarget>>(
+			"QuestA",
+			(_, _) => resolver.ResolveTargets(
+				new FrontierEntry(questAIndex, QuestPhase.ReadyToAccept, -1),
+				"Forest",
+				session));
+		var questBQuery = engine.DefineQuery<Unit, IReadOnlyList<ResolvedTarget>>(
+			"QuestB",
+			(_, _) =>
+			{
+				questBComputes++;
+				return resolver.ResolveTargets(
+					new FrontierEntry(questBIndex, QuestPhase.ReadyToAccept, -1),
+					"Forest",
+					session);
+			});
+
+		_ = engine.Read(questAQuery, Unit.Value);
+		_ = engine.Read(questBQuery, Unit.Value);
+		Assert.Equal(1, questBComputes);
+
+		engine.InvalidateFacts(new[] { new FactKey(FactKind.InventoryItemCount, "item:token") });
+		_ = engine.Read(questBQuery, Unit.Value);
+
+		Assert.Equal(2, questBComputes);
 	}
 }

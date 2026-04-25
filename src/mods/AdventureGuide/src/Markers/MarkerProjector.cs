@@ -55,6 +55,7 @@ internal sealed class MarkerProjector : IMarkerProjection
     {
         using var _span = _diagnostics.OpenSpan(DiagnosticSpanKind.MarkerProjectorProject);
 
+        using var _ = Resolution.Queries.CompiledTargetsQuery.BeginSharedResolutionBatchScope();
         var candidates = _reader.Engine.Read(_markerCandidatesQuery.Query, _reader.CurrentScene);
         long start = Stopwatch.GetTimestamp();
 

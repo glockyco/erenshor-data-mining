@@ -57,6 +57,7 @@ public sealed class NavigationTargetSnapshotsQuery
 			return new NavigationTargetSnapshots(scene, Array.Empty<NavigationTargetSnapshot>());
 		}
 
+		using var _ = CompiledTargetsQuery.BeginSharedResolutionBatchScope();
 		var cache = GetSceneCache(scene);
 		var snapshots = new List<NavigationTargetSnapshot>(selectorTargetSet.Keys.Count);
 		var activeKeys = new HashSet<string>(StringComparer.Ordinal);

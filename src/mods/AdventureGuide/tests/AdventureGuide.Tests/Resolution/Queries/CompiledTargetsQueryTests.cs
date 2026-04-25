@@ -87,6 +87,61 @@ public sealed class CompiledTargetsQueryTests
 	}
 
 	[Fact]
+	public void Read_ReusesResolutionSessionWithinSharedBatchScope()
+	{
+		var guide = new CompiledGuideBuilder()
+			.AddCharacter("char:a", scene: "Town", x: 1f, y: 2f, z: 3f)
+			.AddCharacter("char:b", scene: "Town", x: 4f, y: 5f, z: 6f)
+			.AddItem("item:a")
+			.AddItem("item:b")
+			.AddQuest("quest:a", dbName: "QUESTA", requiredItems: new[] { ("item:a", 1) })
+			.AddQuest("quest:b", dbName: "QUESTB", requiredItems: new[] { ("item:b", 1) })
+			.AddItemSource("item:a", "char:a", edgeType: (byte)EdgeType.GivesItem)
+			.AddItemSource("item:b", "char:b", edgeType: (byte)EdgeType.GivesItem)
+			.Build();
+		var state = new QuestStateTracker(guide);
+		state.LoadState(
+			currentZone: "Town",
+			activeQuests: new[] { "QUESTA", "QUESTB" },
+			completedQuests: Array.Empty<string>(),
+			inventoryCounts: new Dictionary<string, int>(StringComparer.Ordinal),
+			keyringItemKeys: Array.Empty<string>());
+		var phases = new QuestPhaseTracker(guide, state);
+		var frontier = new EffectiveFrontier(guide, phases);
+		var sourceResolver = new SourceResolver(
+			guide,
+			phases,
+			new UnlockPredicateEvaluator(guide, phases),
+			new StubLivePositionProvider(),
+			TestPositionResolvers.Create(guide));
+		var resolver = new QuestTargetResolver(guide, frontier, sourceResolver, zoneRouter: null);
+		var engine = new Engine<FactKey>();
+		var reader = new GuideReader(
+			engine,
+			state,
+			state,
+			new FakeTrackerState(),
+			new FakeNavigationSet());
+		var usedSessions = new List<SourceResolver.ResolutionSession>();
+		var query = new CompiledTargetsQuery(
+			engine,
+			guide,
+			frontier,
+			resolver,
+			reader,
+			usedSessions.Add);
+
+		using (CompiledTargetsQuery.BeginSharedResolutionBatchScope())
+		{
+			_ = engine.Read(query.Query, ("quest:a", "Town"));
+			_ = engine.Read(query.Query, ("quest:b", "Town"));
+		}
+
+		Assert.Equal(2, usedSessions.Count);
+		Assert.Same(usedSessions[0], usedSessions[1]);
+	}
+
+	[Fact]
 	public void Read_ReturnsPrerequisiteTargets_WhenRequiredItemSourceIsQuestLocked()
 	{
 		var guide = new CompiledGuideBuilder()

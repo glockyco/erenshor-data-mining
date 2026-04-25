@@ -138,6 +138,7 @@ public sealed class GuideReader
 				"GuideReader not wired with NavigationTargetSnapshotsQuery.");
 		}
 
+		using var _ = CompiledTargetsQuery.BeginSharedResolutionBatchScope();
 		return _engine.Read(_navigationTargetSnapshotsQuery.Query, scene);
 	}
 

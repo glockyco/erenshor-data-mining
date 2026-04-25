@@ -60,7 +60,10 @@ cycle guards are compute-local acceleration state; they must not become hidden
 inputs to a separately cached child query. Recursive quest prerequisite
 resolution therefore stays inside the current `SourceResolver.ResolutionSession`,
 where the ambient engine context records the exact quest, inventory, source, and
-unlock facts read during the recursive walk.
+unlock facts read during the recursive walk. When batch-scoped session caches are
+shared across sibling query computes, every cache hit must replay the facts
+captured by the cache miss into the current ambient `ReadContext` before
+returning the cached value.
 
 Important queries:
 - `Resolution/Queries/CompiledTargetsQuery.cs`

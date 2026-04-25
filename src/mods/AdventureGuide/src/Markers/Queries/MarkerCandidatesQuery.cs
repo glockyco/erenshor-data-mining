@@ -81,6 +81,7 @@ public sealed class MarkerCandidatesQuery
         foreach (var bp in _guide.GetQuestCompletionsInScene(scene))
             questKeys.Add(bp.QuestKey);
 
+        using var _ = CompiledTargetsQuery.BeginSharedResolutionBatchScope();
         var candidates = new List<MarkerCandidate>();
         foreach (var questKey in questKeys.OrderBy(k => k, StringComparer.Ordinal))
         {
