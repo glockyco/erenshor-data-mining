@@ -38,7 +38,7 @@ def exported_db() -> Path:
     databases = list(variants_dir.glob("*/erenshor-*.sqlite"))
 
     # Filter out backup/temp files
-    databases = [db for db in databases if ".pre-" not in db.name]
+    databases = [db for db in databases if ".pre-" not in db.name and "-raw" not in db.name]
 
     if not databases:
         pytest.skip("No exported database found. Run 'uv run erenshor extract export' first.")

@@ -46,6 +46,8 @@ EXPECTED_TOP_LEVEL_KEYS = {
     "giver_blueprints",
     "completion_blueprints",
     "infeasible_node_ids",
+    "detail_goals",
+    "detail_dependencies",
 }
 
 
