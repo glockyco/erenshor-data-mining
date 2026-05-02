@@ -1,3 +1,9 @@
+<script lang="ts">
+    // TODO: Replace this pinned Thunderstore URL with the generated local DLL link again.
+    const adventureGuideDownloadUrl =
+        'https://thunderstore.io/package/download/WoW_Much/AdventureGuide/2026.327.2/';
+</script>
+
 <svelte:head>
     <title>Adventure Guide - Erenshor</title>
 </svelte:head>
@@ -12,9 +18,8 @@
         navigation, and floating world markers above every quest-relevant NPC.
     </p>
     <a
-        href="/mods/AdventureGuide.dll"
+        href={adventureGuideDownloadUrl}
         class="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-        download
     >
         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -126,9 +131,8 @@
                 <div class="text-slate-300 text-sm space-y-2">
                     <p>
                         <a
-                            href="/mods/AdventureGuide.dll"
-                            class="text-purple-400 hover:text-purple-300 underline"
-                            download>Download</a
+                            href={adventureGuideDownloadUrl}
+                            class="text-purple-400 hover:text-purple-300 underline">Download</a
                         >
                         <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
                             >AdventureGuide.dll</code
