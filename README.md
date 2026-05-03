@@ -1,210 +1,348 @@
-# Erenshor Data Mining & Wiki Publishing Pipeline
+# Erenshor Data Mining & Companion Tools
 
-Data mining pipeline for [Erenshor](https://store.steampowered.com/app/2382520/Erenshor/), a single-player RPG designed to capture the feel of an MMORPG. Downloads game files from Steam, extracts Unity assets, exports to SQLite, and publishes to MediaWiki and Google Sheets. Includes an interactive map website and BepInEx companion mods for real-time game integration.
+Tools for extracting Erenshor game data, building SQLite databases, publishing wiki and spreadsheet data, maintaining the interactive map, and shipping BepInEx companion mods.
 
----
+## Links
 
-## Prerequisites
+- Erenshor on Steam: <https://store.steampowered.com/app/2382520/Erenshor/>
+- Wiki: <https://erenshor.wiki.gg>
+- Interactive map: <https://erenshor-maps.wowmuch1.workers.dev>
 
-- **Unity 2021.3.45f2** (exact version required)
-- **Python 3.13+**
-- **SteamCMD**
-- **AssetRipper**
-- **uv** (Python package manager)
-- **Steam account** with Erenshor ownership
-- **8 GB+ RAM** and **20 GB+ disk space** per variant
+## What this repository provides
 
----
+- A Python CLI, `uv run erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
+- A game-data pipeline from Steam download to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
+- MediaWiki and Google Sheets publishing from the clean database.
+- A SvelteKit/deck.gl interactive map deployed with Wrangler to Cloudflare Workers.
+- BepInEx companion mods for live map integration, quest guidance, sprinting, screenshot cleanup, and map tile capture.
 
-## Quick Start
+Core data pipeline:
 
-```bash
-# Clone and install
-git clone https://github.com/glockyco/erenshor-data-mining.git
-cd erenshor-data-mining
-uv sync --dev
-
-# Configure local settings (tool paths, Steam credentials)
-cp config.toml .erenshor/config.local.toml
-# Edit .erenshor/config.local.toml — see Configuration below
-
-# Run the extraction pipeline
-uv run erenshor extract download   # Download game from Steam
-uv run erenshor extract rip        # Extract Unity project via AssetRipper
-uv run erenshor extract export     # Export assets to SQLite
-uv run erenshor extract build      # Build clean database from raw export
+```text
+SteamCMD game files
+  → AssetRipper Unity project
+  → Unity batch export
+      → raw SQLite database
+      → exported images
+  → clean SQLite database
+      → MediaWiki pages
+      → Google Sheets
+      → interactive map data
 ```
 
-Expected output: `variants/main/erenshor-main.sqlite` (~50 MB).
+Map and live integrations:
 
----
+```text
+clean SQLite database
+  → interactive map data
 
-## Architecture
+MapTileCapture
+  → map screenshots
+  → map tiles
+  → interactive map data
 
-### Components
-
-- **Python CLI** (`src/erenshor/`): orchestrates the entire pipeline via `uv run erenshor`
-- **Unity export scripts** (`src/Assets/Editor/`): C# scripts that scan game assets and write to SQLite
-- **Interactive map** (`src/maps/`): SvelteKit website deployed to Cloudflare Workers; shows live player position and entity locations when the InteractiveMapCompanion mod is installed
-- **Companion mods** (`src/mods/`): BepInEx mods that run inside the game
-  - *InteractiveMapCompanion*: streams entity positions to the map website via WebSocket
-  - *Sprint*: configurable sprint key with speed boost
-  - *JusticeForF7*: extends F7 screenshot mode to hide world-space UI
-  - *InteractiveMapsCompanion*: legacy position broadcast mod; maintained but no new features
-  - *AdventureGuide*: in-game quest guide with step-by-step objectives, item tracking, and quest chain navigation
-
-### Pipeline
-
-```mermaid
-graph TD
-    S[SteamCMD] --> A[AssetRipper]
-    A --> U[Unity Batch]
-    U --> R[(Raw DB)]
-    U --> I[Images]
-    R --> B[Build]
-    B --> C[(Clean DB)]
-    C --> W[Wiki]
-    C --> Sh[Sheets]
-    C --> M[Map Website]
-    I --> W
-    Mod[InteractiveMapCompanion] -->|WebSocket| M
-    Mod -->|Overlay| G[In-Game Map]
+InteractiveMapCompanion
+  → WebSocket live state
+  → interactive map data
 ```
 
----
+## Repository layout
 
-## Variants
+| Path | Purpose |
+| --- | --- |
+| `src/erenshor/` | Python CLI and pipeline implementation. |
+| `src/Assets/Editor/` | Unity editor export scripts run during batch export. |
+| `src/maps/` | SvelteKit interactive map website. |
+| `src/mods/` | BepInEx companion mods and mod build/publish metadata. |
+| `quest_guides/` | Generated and curated quest-guide data consumed by AdventureGuide. |
+| `variants/` | Per-game-variant outputs: game files, Unity projects, databases, logs, backups, images, wiki output, and map data. |
+| `.erenshor/` | Local state, logs, and config overrides. Gitignored. |
+| `docs/` | Project notes, plans, and design docs. |
 
-Three game variants run through separate pipelines:
+## Requirements
 
-| Variant      | App ID  | Description        |
-| ------------ | ------- | ------------------ |
-| **main**     | 2382520 | Production release |
-| **playtest** | 3090030 | Beta testing       |
-| **demo**     | 2522260 | Free demo          |
+- Python 3.13 or newer.
+- `uv` for Python dependency and tool management.
+- Unity `2021.3.45f2`.
+- AssetRipper.
+- SteamCMD.
+- A Steam account that owns Erenshor for download workflows.
+- pnpm for the map frontend workspace.
+- .NET SDK for BepInEx mod build/test workflows.
 
-Target a specific variant with `--variant`:
-
-```bash
-uv run erenshor --variant playtest extract download
-```
-
----
+Local config supplies machine-specific paths and credentials. Do not commit local credentials.
 
 ## Configuration
 
-Two-layer TOML configuration:
+Configuration is layered:
 
-1. `config.toml` — project defaults, tracked in git
-2. `.erenshor/config.local.toml` — local overrides, **not** tracked
+1. `config.toml` — project defaults, tracked in git.
+2. `.erenshor/config.local.toml` — local overrides, gitignored.
 
-**`config.toml` (project defaults):**
+Create the local config file before running workflows that need tool paths or credentials:
 
-```toml
-[global.unity]
-path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity"
-version = "2021.3.45f2"
-
-[global.mediawiki]
-api_url = "https://erenshor.wiki.gg/api.php"
-
-[global.google_sheets]
-credentials_file = "$HOME/.config/erenshor/google-credentials.json"
-
-[variants.main]
-app_id = "2382520"
-database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
+```bash
+mkdir -p .erenshor
+cp config.toml .erenshor/config.local.toml
 ```
 
-**`.erenshor/config.local.toml` (your overrides):**
+Common local values:
 
 ```toml
 [global.steam]
 username = "your_steam_username"
 
+[global.assetripper]
+path = "/path/to/AssetRipper"
+
 [global.mediawiki]
 bot_username = "YourUsername@BotName"
 bot_password = "your_bot_password"
-
-[variants.playtest]
-enabled = true
 ```
 
-### MediaWiki bot credentials
+The default variant is `main`. Use `--variant` or `-V` to target another variant:
 
-1. Log in to the wiki account
-2. Go to `Special:BotPasswords`
-3. Create a bot password with the "Edit existing pages" grant
-4. Add `bot_username` and `bot_password` to `.erenshor/config.local.toml`
+```bash
+uv run erenshor --variant playtest status
+```
 
-### Google Sheets credentials
+Configured variants:
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a project and enable the Google Sheets API
-3. Create a service account with "Editor" role
-4. Download the JSON key file to `~/.config/erenshor/google-credentials.json`
-5. Share each spreadsheet with the service account email
+| Variant | Steam app ID | Purpose |
+| --- | --- | --- |
+| `main` | `2382520` | Production release. |
+| `playtest` | `3090030` | Beta testing. |
+| `demo` | `2522260` | Free demo. |
 
----
+## Quick start
 
-## CLI Overview
+```bash
+uv sync --dev
+uv run erenshor status
+uv run erenshor extract download
+uv run erenshor extract rip
+uv run erenshor extract export
+uv run erenshor extract build
+```
 
-All commands are run via `uv run erenshor <group> <subcommand>`. Use `--help` on any group or subcommand for flags and options.
+The clean database for the default variant is written to:
 
-| Group      | Subcommands                                         | Purpose                              |
-| ---------- | --------------------------------------------------- | ------------------------------------ |
-| `extract`  | `download`, `rip`, `export`, `build`, `ide-setup`   | Game → Unity → SQLite pipeline       |
-| `wiki`     | `fetch`, `generate`, `deploy`                       | MediaWiki three-stage publish        |
-| `sheets`   | `list`, `deploy`                                    | Google Sheets publish                |
-| `images`   | `process`, `compare`, `report`, `upload`            | Game image processing and upload     |
-| `maps`     | `dev`, `preview`, `build`, `deploy`                 | Interactive map website              |
-| `mod`      | `setup`, `dev-setup`, `build`, `deploy`, `publish`, `thunderstore`, `launch` | BepInEx mod pipeline |
-| `golden`   | `capture`                                           | Snapshot expected output for diffing |
-| `backup`   | `list`                                              | List database backups                |
-| `capture`  | `tiles`, `screenshots`                              | Map tile capture pipeline            |
-| `eval`     | `run`, `ping`, `reset`, `watch`, `complete`          | Runtime C# REPL (HotRepl)            |
-| `guide`    | `generate`                                          | Quest guide generation               |
-| `config`   | `show`                                              | Inspect resolved configuration       |
-| `test`     | *(bare)*, `unit`, `integration`                     | Run test suite                       |
-| `docs`     | `generate`                                          | Generate documentation               |
-| `version`  | —                                                   | Show version                         |
-| `status`   | —                                                   | Show tool paths and database state   |
+```text
+variants/main/erenshor-main.sqlite
+```
 
----
+Run `uv run erenshor --help` and `uv run erenshor <group> --help` for the current command surface.
 
-## Common Issues
+## Common workflows
 
-Run `uv run erenshor status` first — it verifies tool paths (Unity, AssetRipper) and database presence in one shot.
+### Inspect local setup
 
-**Log locations:**
-- Global: `.erenshor/logs/`
-- Per-variant: `variants/{variant}/logs/`
-- Unity export output: `variants/{variant}/logs/export_*.log`
+```bash
+uv run erenshor status
+uv run erenshor config show
+```
 
+### Extract and build game data
 
----
+```bash
+uv run erenshor extract download
+uv run erenshor extract rip
+uv run erenshor extract export
+uv run erenshor extract build
+```
+
+### Publish wiki output
+
+```bash
+uv run erenshor wiki fetch
+uv run erenshor wiki generate
+uv run erenshor wiki deploy
+```
+
+### Publish Google Sheets
+
+```bash
+uv run erenshor sheets list
+uv run erenshor sheets deploy
+```
+
+### Process and upload images
+
+```bash
+uv run erenshor images process
+uv run erenshor images compare
+uv run erenshor images report
+uv run erenshor images upload
+```
+
+### Run and deploy the interactive map
+
+```bash
+uv run erenshor maps dev
+uv run erenshor maps build
+uv run erenshor maps preview
+uv run erenshor maps deploy
+uv run erenshor maps thumbnails
+```
+
+The map can also be run through the pnpm workspace scripts from the repository root:
+
+```bash
+pnpm dev
+pnpm build
+pnpm preview
+pnpm check
+pnpm lint
+```
+
+### Build and deploy companion mods
+
+```bash
+uv run erenshor mod setup
+uv run erenshor mod build
+uv run erenshor mod deploy
+uv run erenshor mod publish
+uv run erenshor mod thunderstore
+uv run erenshor mod launch
+```
+
+### Capture map tiles
+
+```bash
+uv run erenshor capture status
+uv run erenshor capture budget
+uv run erenshor capture run
+uv run erenshor capture tile
+```
+
+### Compile AdventureGuide data
+
+```bash
+uv run erenshor guide compile
+```
+
+The AdventureGuide mod embeds the compiled guide graph from `quest_guides/guide.json`.
+
+### Runtime C# REPL / HotRepl workflows
+
+```bash
+uv run erenshor eval ping
+uv run erenshor eval run
+uv run erenshor eval watch
+uv run erenshor eval complete
+uv run erenshor eval reset
+```
+
+## Companion mods
+
+### Player-facing mods
+
+| Mod | Purpose |
+| --- | --- |
+| `AdventureGuide` | In-game quest guide, tracker overlay, navigation arrow, optional ground path, world markers, and per-character tracking state. |
+| `InteractiveMapCompanion` | Live entity tracking for the interactive map. Runs a local WebSocket server on port `18585` by default and can render the map as an in-game overlay. |
+| `Sprint` | Configurable sprint key, hold/toggle modes, and configurable speed multiplier. |
+| `JusticeForF7` | Extends the game’s F7 hide-UI mode to hide world-space UI such as nameplates, damage numbers, target rings, XP orbs, cast bars, and loot prompts. |
+
+### Legacy and internal mods
+
+| Mod | Purpose |
+| --- | --- |
+| `InteractiveMapsCompanion` | Legacy player-position broadcast mod on port `18584`. Kept separate from the current `InteractiveMapCompanion`. |
+| `MapTileCapture` | Internal capture tool for rendering orthographic map screenshots used by the tile pipeline. |
+
+## Interactive map
+
+The map website lives in `src/maps/` and is packaged as `erenshor-maps` in the pnpm workspace. It uses SvelteKit, deck.gl, Tailwind, bits-ui, and SQLite data loaded through sql.js in the browser, with prerendered route data for static builds.
+
+Live mode connects to `InteractiveMapCompanion` over WebSocket. The default local endpoint is:
+
+```text
+ws://localhost:18585
+```
+
+Tracked live entity types include the player, SimPlayers, pets, friendly NPCs, and enemies.
 
 ## Development
 
+Install development dependencies:
+
 ```bash
-# Install dev dependencies
 uv sync --dev
-
-# Install pre-commit hooks (run once, and again if .pre-commit-config.yaml changes)
-uv run pre-commit install
-
-# Tests
-uv run pytest                    # All tests
-uv run pytest --cov              # With coverage
-uv run pytest -m integration     # Integration tests only
-
-# Code quality
-uv run ruff format src/ tests/   # Format
-uv run ruff check src/ tests/    # Lint
-uv run mypy src/                 # Type check
-uv run pre-commit run --all-files  # All hooks
 ```
 
-CI runs on every push and PR: Ruff, MyPy, Gitleaks secret scanning, and the full pytest suite. View results at [GitHub Actions](https://github.com/glockyco/erenshor-data-mining/actions).
+Install pre-commit hooks:
 
----
+```bash
+uv run pre-commit install
+```
+
+Run checks for the area you changed:
+
+```bash
+# Python
+uv run ruff format src/ tests/
+uv run ruff check src/ tests/
+uv run mypy src/
+uv run pytest
+uv run pytest tests/unit -q --tb=short
+uv run pytest tests/integration -v
+
+# Map frontend
+pnpm check
+pnpm lint
+pnpm build
+
+# C# formatting used by pre-commit
+bash src/mods/run-csharpier.sh
+```
+
+The CLI also exposes test helpers:
+
+```bash
+uv run erenshor test
+uv run erenshor test unit
+uv run erenshor test integration
+```
+
+CI runs on pushes and pull requests to `main`. The workflow covers Python linting, formatting checks, type checking, pytest, Gitleaks scanning, mod metadata validation, and targeted C# formatting/tests for `InteractiveMapCompanion`.
+
+## Troubleshooting
+
+### Check setup first
+
+```bash
+uv run erenshor status
+```
+
+This reports configured tool paths and database state.
+
+### Local logs
+
+```text
+.erenshor/logs/
+variants/{variant}/logs/
+variants/{variant}/logs/export_*.log
+```
+
+### AssetRipper or Unity paths are wrong
+
+Update `.erenshor/config.local.toml`, then rerun:
+
+```bash
+uv run erenshor status
+```
+
+### Map live mode does not connect
+
+Confirm the game is running with `InteractiveMapCompanion` installed, then check that the map is connecting to:
+
+```text
+ws://localhost:18585
+```
+
+The legacy `InteractiveMapsCompanion` uses port `18584`; do not mix the two ports.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
