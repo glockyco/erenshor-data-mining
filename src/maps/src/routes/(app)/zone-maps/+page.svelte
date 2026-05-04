@@ -20,7 +20,7 @@
 
 <!-- Maps Section -->
 <div class="text-center mb-12">
-    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Interactive Zone Maps</h2>
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Interactive Zone Maps</h1>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
     <p class="text-slate-400 mt-4">
         Legacy zone maps. For a unified experience, try the

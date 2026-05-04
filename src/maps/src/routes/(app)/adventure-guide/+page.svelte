@@ -23,7 +23,7 @@
 
 <!-- Hero -->
 <div class="text-center mb-12">
-    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Adventure Guide</h2>
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Adventure Guide</h1>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
     <p class="text-slate-300 mt-4 text-lg">Every quest. Every item source. Click and go.</p>
     <p class="text-slate-400 mt-2 max-w-2xl mx-auto">

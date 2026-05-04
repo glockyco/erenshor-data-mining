@@ -13,7 +13,7 @@
 <div class="max-w-5xl mx-auto">
     <!-- World Map Section -->
     <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Interactive World Map</h2>
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Interactive World Map</h1>
         <div
             class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"
         ></div>
