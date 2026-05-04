@@ -20,7 +20,7 @@
 
     // Derived from SvelteKit stores
     const mapName = $derived($page.params.mapName);
-    const markerKey = $derived($page.url.searchParams.get('marker'));
+    const markerKey = $derived(browser ? $page.url.searchParams.get('marker') : null);
     const config = $derived(mapName ? MAPS[mapName] : undefined);
 
     const seoTitle = $derived(
