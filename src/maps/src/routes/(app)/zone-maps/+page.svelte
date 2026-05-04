@@ -1,10 +1,22 @@
 <script lang="ts">
     import { MAPS } from '$lib/maps';
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd } from '$lib/seo/jsonld';
 
     const sortedMaps = Object.entries(MAPS).sort(([, a], [, b]) =>
         a.zoneName.localeCompare(b.zoneName)
     );
 </script>
+
+<Seo
+    path="/zone-maps"
+    title="Erenshor Zone Maps – All Zones & Area Maps"
+    description="Browse all Erenshor zone maps with interactive markers for spawn points, NPC locations, zone connections, and area details across every zone."
+    jsonLd={breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Zone Maps', path: '/zone-maps' }
+    ])}
+/>
 
 <!-- Maps Section -->
 <div class="text-center mb-12">
