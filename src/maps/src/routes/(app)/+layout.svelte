@@ -3,10 +3,6 @@
     import { page } from '$app/state';
 </script>
 
-<svelte:head>
-    <title>Erenshor Interactive Maps</title>
-</svelte:head>
-
 <div class="bg-slate-950 py-8 px-4 min-h-screen">
     <div class="max-w-7xl mx-auto">
         <!-- Tab Navigation -->
