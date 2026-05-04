@@ -1,4 +1,7 @@
 <script lang="ts">
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd } from '$lib/seo/jsonld';
+
     const sheets = [
         {
             name: 'Drop Chances',
@@ -104,6 +107,20 @@
     const sheetUrl =
         'https://docs.google.com/spreadsheets/d/1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E/edit?usp=sharing';
 </script>
+
+<Seo
+    path="/spreadsheet"
+    title="Erenshor Data Spreadsheet – Items & Drop Chances"
+    description="Erenshor data spreadsheets extracted from game files: item drop chances, characters, classes, spells, skills, and ascensions."
+    image="/spreadsheet.png"
+    imageWidth={1103}
+    imageHeight={415}
+    imageAlt="Erenshor data spreadsheet preview showing item drop chances and character stats"
+    jsonLd={breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Spreadsheet', path: '/spreadsheet' }
+    ])}
+/>
 
 <div class="text-center mb-12">
     <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Spreadsheet</h2>
