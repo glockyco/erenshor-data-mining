@@ -1,3 +1,15 @@
+<script lang="ts">
+    import Seo from '$lib/components/Seo.svelte';
+    import { videoGameJsonLd, webApplicationJsonLd, websiteJsonLd } from '$lib/seo/jsonld';
+</script>
+
+<Seo
+    path="/"
+    title="Erenshor Interactive Map – World Map & Zone Maps"
+    description="Interactive maps for Erenshor with spawn point locations, NPC markers, zone connections, level filtering, and live player tracking via the companion mod."
+    jsonLd={[websiteJsonLd(), webApplicationJsonLd(), videoGameJsonLd()]}
+/>
+
 <div class="max-w-5xl mx-auto">
     <!-- World Map Section -->
     <div class="text-center mb-12">
