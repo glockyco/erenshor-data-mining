@@ -5,8 +5,8 @@
 
 <Seo
     path="/"
-    title="Erenshor Interactive Map – World Map & Zone Maps"
-    description="Interactive maps for Erenshor with spawn point locations, NPC markers, zone connections, level filtering, and live player tracking via the companion mod."
+    title="Erenshor Community Tools – Maps, Mods & Guides"
+    description="Community tools for Erenshor with interactive maps, spawn point locations, NPC markers, companion mods, adventure guides, and reference spreadsheets."
     jsonLd={[websiteJsonLd(), webApplicationJsonLd(), videoGameJsonLd()]}
 />
 

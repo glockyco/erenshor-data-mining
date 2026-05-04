@@ -1,7 +1,7 @@
 {
-    "name": "Erenshor Maps",
-    "short_name": "Erenshor Maps",
-    "description": "Interactive world map for Erenshor",
+    "name": "Erenshor Community Tools",
+    "short_name": "Erenshor Tools",
+    "description": "Community tools for Erenshor, including interactive maps, companion mods, guides, and reference data",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0d1b2a",

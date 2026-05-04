@@ -1,6 +1,6 @@
-# Erenshor Interactive Maps
+# Erenshor Community Tools
 
-Interactive map website for Erenshor. Displays zone maps with spawn points, NPCs, and live player position (via the InteractiveMapCompanion mod).
+Community tools website for Erenshor. Includes interactive maps with spawn points, NPCs, and live player position, plus companion mods, guide tools, and reference data.
 
 Deployed to Cloudflare Workers.
 

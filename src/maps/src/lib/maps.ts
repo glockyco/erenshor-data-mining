@@ -75,7 +75,7 @@ type ZoneCaptureEntry = {
     originY: number;
     northBearing: number | null;
     captureVariants: string[];
-    cropRect: unknown;
+    cropRect?: unknown;
     exclusionRules: unknown[];
 };
 

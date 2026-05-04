@@ -9,14 +9,14 @@
 
 export const SITE_URL = 'https://erenshor-maps.wowmuch1.workers.dev';
 
-export const SITE_NAME = 'Erenshor Interactive Maps';
+export const SITE_NAME = 'Erenshor Community Tools';
 
 export const SITE_AUTHOR = 'WoW Much';
 
-export const DEFAULT_TITLE = 'Erenshor Interactive Map – World Map & Zone Maps';
+export const DEFAULT_TITLE = 'Erenshor Community Tools – Maps, Mods & Guides';
 
 export const DEFAULT_DESCRIPTION =
-    'Interactive maps for Erenshor: spawn point locations, NPC markers, zone connections, level filtering, and live player tracking via the companion mod.';
+    'Community tools for Erenshor: interactive maps, spawn point locations, NPC markers, companion mods, adventure guides, and reference spreadsheets.';
 
 export const OG_LOCALE = 'en_US';
 

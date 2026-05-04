@@ -1,5 +1,5 @@
 /**
- * Schema.org JSON-LD builders for erenshor-maps.
+ * Schema.org JSON-LD builders for Erenshor Community Tools.
  *
  * Each builder returns a plain object that the `Seo` component serializes
  * into a `<script type="application/ld+json">` tag. Shapes are kept small
@@ -29,11 +29,11 @@ export function videoGameJsonLd() {
         '@type': 'VideoGame',
         '@id': ERENSHOR_GAME_ID,
         name: 'Erenshor',
-        url: 'https://store.steampowered.com/app/2459530/Erenshor/',
-        genre: ['MMORPG', 'Role-playing game'],
+        url: 'https://store.steampowered.com/app/2382520/Erenshor/',
+        genre: ['Single-player RPG', 'Adventure', 'Role-playing game'],
         gamePlatform: 'PC',
         applicationCategory: 'Game',
-        sameAs: ['https://erenshor.wiki.gg/', 'https://erenshor.fandom.com/']
+        sameAs: ['https://erenshor.wiki.gg/']
     };
 }
 
