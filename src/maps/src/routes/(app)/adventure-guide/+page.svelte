@@ -1,12 +1,25 @@
 <script lang="ts">
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd } from '$lib/seo/jsonld';
+
     // TODO: Replace this pinned Thunderstore URL with the generated local DLL link again.
     const adventureGuideDownloadUrl =
         'https://thunderstore.io/package/download/WoW_Much/AdventureGuide/2026.327.2/';
 </script>
 
-<svelte:head>
-    <title>Adventure Guide - Erenshor</title>
-</svelte:head>
+<Seo
+    path="/adventure-guide"
+    title="Erenshor Adventure Guide – Quest Companion Mod"
+    description="In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS navigation, and world markers above every quest NPC."
+    image="/adventure-guide-window.webp"
+    imageWidth={1868}
+    imageHeight={1404}
+    imageAlt="Adventure Guide in-game window showing quest list, walkthrough, and GPS navigation"
+    jsonLd={breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Adventure Guide', path: '/adventure-guide' }
+    ])}
+/>
 
 <!-- Hero -->
 <div class="text-center mb-12">
