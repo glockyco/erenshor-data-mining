@@ -1,5 +1,7 @@
 <script lang="ts">
     import { browser } from '$app/environment';
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd, videoGameJsonLd, webApplicationJsonLd } from '$lib/seo/jsonld';
     import { tick, untrack } from 'svelte';
     import {
         INITIAL_VIEW_STATE,
@@ -1972,9 +1974,19 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<svelte:head>
-    <title>World Map | Erenshor Maps</title>
-</svelte:head>
+<Seo
+    path="/map"
+    title="Erenshor Interactive Map – Enemy Spawns & NPCs"
+    description="Explore the full Erenshor world map. Find enemy spawns, NPCs, teleports, and mining nodes. Filter by level and track your character live."
+    jsonLd={[
+        webApplicationJsonLd(),
+        videoGameJsonLd(),
+        breadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'World Map', path: '/map' }
+        ])
+    ]}
+/>
 
 <div class="relative h-screen w-full bg-zinc-900">
     <!-- Sidebar -->
