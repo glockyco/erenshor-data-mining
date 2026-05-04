@@ -1989,6 +1989,7 @@
 />
 
 <div class="relative h-screen w-full bg-zinc-900">
+    <h1 class="sr-only">Erenshor Interactive World Map</h1>
     <!-- Sidebar -->
     <MapSidebar
         visibility={layerVisibility}
