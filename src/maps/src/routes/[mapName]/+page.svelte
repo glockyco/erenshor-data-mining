@@ -7,7 +7,8 @@
     import { Repository } from '$lib/database.default';
     import { type LatLngExpression, type Map as LeafletMap } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
-
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd, zoneMapJsonLd } from '$lib/seo/jsonld';
     // Fix HTML-encoded ampersands from forum posts (e.g., Steam discussions)
     // This must run before any URL parsing to ensure $page.url is correct
     $effect(() => {
@@ -21,6 +22,27 @@
     const mapName = $derived($page.params.mapName);
     const markerKey = $derived($page.url.searchParams.get('marker'));
     const config = $derived(mapName ? MAPS[mapName] : undefined);
+
+    const seoTitle = $derived(
+        config ? `${config.zoneName} – Erenshor Zone Map` : 'Erenshor Zone Map'
+    );
+    const seoDescription = $derived(
+        config
+            ? `Interactive zone map for ${config.zoneName} in Erenshor with spawn point markers, NPC locations, and area details.`
+            : 'Interactive zone map for Erenshor with spawn point markers, NPC locations, and area details.'
+    );
+    const seoJsonLd = $derived(
+        config && mapName
+            ? [
+                  zoneMapJsonLd({ zoneKey: mapName, zoneName: config.zoneName }),
+                  breadcrumbJsonLd([
+                      { name: 'Home', path: '/' },
+                      { name: 'Zone Maps', path: '/zone-maps' },
+                      { name: config.zoneName, path: `/${mapName}` }
+                  ])
+              ]
+            : undefined
+    );
 
     type PositionData = {
         scene: string;
@@ -593,6 +615,14 @@
     });
 </script>
 
+<Seo
+    path={mapName ? `/${mapName}` : '/'}
+    title={seoTitle}
+    description={seoDescription}
+    jsonLd={seoJsonLd}
+    noindex={!config}
+/>
+
 <svelte:head>
     <link
         rel="stylesheet"
@@ -605,6 +635,7 @@
 </svelte:head>
 
 {#if config}
+    <h1 class="sr-only">{config.zoneName} – Erenshor Zone Map</h1>
     <div bind:this={mapContainer} style="height:100vh;width:100vw;"></div>
 {:else}
     <div
