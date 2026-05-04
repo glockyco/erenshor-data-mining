@@ -112,10 +112,6 @@
     path="/spreadsheet"
     title="Erenshor Data Spreadsheet – Items & Drop Chances"
     description="Erenshor data spreadsheets extracted from game files: item drop chances, characters, classes, spells, skills, and ascensions."
-    image="/spreadsheet.png"
-    imageWidth={1103}
-    imageHeight={415}
-    imageAlt="Erenshor data spreadsheet preview showing item drop chances and character stats"
     jsonLd={breadcrumbJsonLd([
         { name: 'Home', path: '/' },
         { name: 'Spreadsheet', path: '/spreadsheet' }

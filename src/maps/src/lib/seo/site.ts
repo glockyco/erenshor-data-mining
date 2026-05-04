@@ -21,16 +21,14 @@ export const DEFAULT_DESCRIPTION =
 export const OG_LOCALE = 'en_US';
 
 /**
- * Default OG card. The world-map preview is the most recognizable visual
- * for the site as a whole. Per-page Seo can override `image`/`imageAlt`/
- * dimensions to surface a more relevant card (e.g., the Adventure Guide
- * window screenshot for `/adventure-guide`).
+ * Default OG card. Shared across every page so link previews consistently
+ * present the site-wide Erenshor Community Tools brand.
  */
-export const DEFAULT_OG_IMAGE = '/world-map-preview.webp';
-export const DEFAULT_OG_IMAGE_WIDTH = 1920;
-export const DEFAULT_OG_IMAGE_HEIGHT = 1347;
+export const DEFAULT_OG_IMAGE = '/og-default.png';
+export const DEFAULT_OG_IMAGE_WIDTH = 1200;
+export const DEFAULT_OG_IMAGE_HEIGHT = 630;
 export const DEFAULT_OG_IMAGE_ALT =
-    'Erenshor world map preview showing zones, NPC markers, and spawn points';
+    'Erenshor Community Tools logo card for maps, mods, guides, and data';
 
 /**
  * Compute the absolute canonical URL for a page path.

@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite dev",
-        "prebuild": "uv run erenshor mod publish && node scripts/generate-tiles-manifest.js",
+        "prebuild": "uv run erenshor mod publish && node scripts/generate-tiles-manifest.js && node scripts/generate-og-image.mjs",
         "build": "vite build",
         "preview": "vite preview",
         "prepare": "svelte-kit sync || echo ''",
