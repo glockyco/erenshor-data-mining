@@ -1,8 +1,20 @@
 <script lang="ts">
     import type { PageData } from './$types';
+    import Seo from '$lib/components/Seo.svelte';
+    import { breadcrumbJsonLd } from '$lib/seo/jsonld';
 
     export let data: PageData;
 </script>
+
+<Seo
+    path="/mod"
+    title="Erenshor Companion Mods – Live Map Tracking"
+    description="BepInEx companion mods for Erenshor. See your character, SimPlayers, NPCs, and enemies on the interactive map in real time."
+    jsonLd={breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Companion Mods', path: '/mod' }
+    ])}
+/>
 
 <!-- Companion Mods Section -->
 <div class="text-center mb-12">
