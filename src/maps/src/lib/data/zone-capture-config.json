@@ -1267,11 +1267,11 @@
     },
     "PlaneOfBrax": {
         "sceneName": "PlaneOfBrax",
-        "baseTilesX": 10,
+        "baseTilesX": 11,
         "baseTilesY": 4,
         "tileSize": 256,
         "maxZoom": 1,
-        "originX": 150,
+        "originX": -64,
         "originY": -25,
         "northBearing": null,
         "captureVariants": ["clear"],
