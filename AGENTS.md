@@ -130,6 +130,7 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 | Working on... | Read first | Path |
 |---|---|---|
 | Unity export code (`src/Assets/Editor/`) | unity-export-system | `.agent/skills/unity-export-system/SKILL.md` |
+| Refreshing data after a new game version | refreshing-game-data | `.agent/skills/refreshing-game-data/SKILL.md` |
 | Companion mods (`src/mods/`) | mod-development | `.agent/skills/mod-development/SKILL.md` |
 | Mod build/deploy/publish | mod-pipeline | `.agent/skills/mod-pipeline/SKILL.md` |
 | Interactive map (`src/maps/`) | interactive-map | `.agent/skills/interactive-map/SKILL.md` |
