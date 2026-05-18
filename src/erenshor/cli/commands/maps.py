@@ -126,7 +126,7 @@ def dev(
     if not db_path.exists():
         console.print(f"[red]Error: Database not found: {db_path}[/red]")
         console.print("\nPlease export the database first:")
-        console.print(f"  erenshor export --variant {cli_ctx.variant}")
+        console.print(f"  erenshor -V {cli_ctx.variant} export")
         raise typer.Exit(1)
 
     # Ensure maps db directory exists
@@ -234,7 +234,7 @@ def preview(
     if not build_dir.exists():
         console.print(f"[red]Error: Build directory not found: {build_dir}[/red]")
         console.print("\nPlease build the site first:")
-        console.print(f"  erenshor maps build --variant {cli_ctx.variant}")
+        console.print(f"  erenshor -V {cli_ctx.variant} maps build")
         raise typer.Exit(1)
 
     # Show info panel
@@ -326,14 +326,14 @@ def build(
     if not db_path.exists():
         console.print(f"[red]Error: Database not found: {db_path}[/red]")
         console.print("\nPlease export the database first:")
-        console.print(f"  erenshor export --variant {cli_ctx.variant}")
+        console.print(f"  erenshor -V {cli_ctx.variant} export")
         raise typer.Exit(1)
 
     # Check if rebuild needed
     if build_dir.exists() and not force:
         console.print("[yellow]Build directory already exists[/yellow]")
         console.print("\nUse --force to rebuild:")
-        console.print(f"  erenshor maps build --variant {cli_ctx.variant} --force")
+        console.print(f"  erenshor -V {cli_ctx.variant} maps build --force")
         raise typer.Exit(1)
 
     # Ensure maps db directory exists
@@ -381,8 +381,8 @@ def build(
         console.print(f"[dim]Output: {build_dir}[/dim]")
         console.print()
         console.print("Next steps:")
-        console.print(f"  erenshor maps preview --variant {cli_ctx.variant}  # Preview locally")
-        console.print(f"  erenshor maps deploy --variant {cli_ctx.variant}   # Deploy to Cloudflare")
+        console.print(f"  erenshor -V {cli_ctx.variant} maps preview  # Preview locally")
+        console.print(f"  erenshor -V {cli_ctx.variant} maps deploy   # Deploy to Cloudflare")
         console.print()
 
     except KeyboardInterrupt:
@@ -425,7 +425,7 @@ def deploy(
     if not build_dir.exists():
         console.print(f"[red]Error: Build directory not found: {build_dir}[/red]")
         console.print("\nPlease build the site first:")
-        console.print(f"  erenshor maps build --variant {cli_ctx.variant}")
+        console.print(f"  erenshor -V {cli_ctx.variant} maps build")
         raise typer.Exit(1)
 
     # Show info panel
