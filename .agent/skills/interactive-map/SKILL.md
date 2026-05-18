@@ -62,6 +62,16 @@ await browser.close();
 
 Run with: `node src/maps/debug-markers.js`
 
+## Adding a new zone — three files, not one
+
+`zone-capture-config.json` is necessary but not sufficient:
+
+1. **`src/maps/src/lib/data/zone-capture-config.json`** — bounds + tile geometry (covered by `skill://tile-capture`).
+2. **`src/maps/src/lib/data/zone-positions.json`** — `worldX`/`worldY` placing the zone on the `/map` overview. **Missing this entry crashes `/map` server-side** with `Cannot read properties of null` in `buildZoneWorldPositions`. No autocomputed default.
+3. **`DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`** — friendly name keyed by scene name.
+
+`northBearing` in `zone-capture-config.json` is an **override slot**, not the source of truth — `"northBearing": null` means "use the DB value". The render-time bearing comes from `zones.north_bearing` in the variant clean DB (see `buildZoneConfigs` in `src/maps/src/lib/map/zone-config.ts`). When laying out a zone on the overview, account for the actual rotation: a zone with bearing 105° has a rotated AABB different from `baseTilesX * tileSize` × `baseTilesY * tileSize`.
+
 ## Common failure modes
 
 **Marker missing from all buckets** → check DB query in `getSpawnPointMarkers`:

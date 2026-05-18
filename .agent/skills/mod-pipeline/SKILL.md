@@ -56,6 +56,17 @@ Outputs:
 - `src/maps/static/mods-metadata.json` - Mirror for website
 - DLLs in `src/mods/{ModName}/bin/Debug/netstandard2.1/`
 
+### Variant targeting (`ERENSHOR_GAME_PATH` wins over `-V`)
+
+`mod deploy` and `mod launch` honour the `ERENSHOR_GAME_PATH` env var **before** the `-V` variant. With the env var pointing at main's install in the CrossOver bottle, `erenshor -V playtest mod deploy --mod <id>` lands the DLL in main's plugins/, not playtest's. To target a non-default install, override per-invocation:
+
+```bash
+ERENSHOR_GAME_PATH="$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor Playtest" \
+  uv run erenshor -V playtest mod deploy --mod map-tile-capture
+```
+
+See `_get_game_path` in `src/erenshor/cli/commands/mod.py` for the resolution order.
+
 ### Deploy to BepInEx (for local testing)
 ```bash
 uv run erenshor mod deploy             # Build + copy to game BepInEx/plugins/

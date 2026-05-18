@@ -128,6 +128,15 @@ if non_bg:
 
 Content center should be within ~50 px of image center.
 
+## Bounds must cover three things, not one
+
+The capture footprint must contain the union of:
+1. **Static geometry** — the median-filtered `MeshRenderer` AABB above.
+2. **NPC spawn positions** — `SELECT MIN/MAX(x), MIN/MAX(z) FROM map_character_spawns WHERE scene = '<Zone>'` from the variant's clean DB. NPCs use `SkinnedMeshRenderer` and are frequently clustered outside the static-mesh footprint.
+3. **Zone-line landing points** — `SELECT landing_position_x, landing_position_z FROM zone_lines WHERE destination_zone_stable_key IN (SELECT stable_key FROM zones WHERE scene_name = '<Zone>')`. The portal landing spot must be visible on the master or the entry experience reads as off-map.
+
+Take the union of all three, pad by ~64 units, then compute `baseTilesX`/`baseTilesY`/`originX`/`originY`. Geometry-only bounds cut the western NPC cluster off PlaneOfBrax by ~1100 units in the 2026-05-18 playtest refresh.
+
 ## Adding a New Zone
 
 1. Add entry to `zone-capture-config.json` (use HotRepl bounds above)

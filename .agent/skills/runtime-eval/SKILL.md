@@ -19,6 +19,21 @@ uv run erenshor eval watch 'GameData.PlayerControl.transform.position'  # Stream
 uv run erenshor eval complete 'Camera.main.'                  # Autocomplete
 ```
 
+## Plugin prerequisites
+
+HotRepl needs **two** DLLs in `BepInEx/plugins/`:
+- `HotRepl.BepInEx.dll` — the plugin itself
+- `mcs.dll` — required by `HotRepl.Evaluator.MonoCSharpEvaluator`. HotRepl loads but crashes on first eval if missing.
+
+A fresh game install (e.g. a newly-installed playtest beta) typically has neither. Copy both from a working install:
+
+```bash
+cp "$MAIN_INSTALL/BepInEx/plugins/HotRepl.BepInEx.dll" "$NEW_INSTALL/BepInEx/plugins/"
+cp "$MAIN_INSTALL/BepInEx/plugins/mcs.dll" "$NEW_INSTALL/BepInEx/plugins/"
+```
+
+Restart the game; `BepInEx/LogOutput.log` should report `HotRepl … REPL on port 18590`.
+
 ## C# 7 Limitations
 
 The Mono compiler supports C# 7.x only. These **do not work**:
