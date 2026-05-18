@@ -1265,6 +1265,58 @@
         ],
         "usingSun": true
     },
+    "PlaneOfBrax": {
+        "sceneName": "PlaneOfBrax",
+        "baseTilesX": 10,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 150,
+        "originY": -25,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "exclusionRules": [],
+        "usingSun": true
+    },
+    "PlaneOfFernalla": {
+        "sceneName": "PlaneOfFernalla",
+        "baseTilesX": 8,
+        "baseTilesY": 7,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": -151,
+        "originY": -24,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "exclusionRules": [],
+        "usingSun": true
+    },
+    "PlaneOfSoluna": {
+        "sceneName": "PlaneOfSoluna",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": -226,
+        "originY": 484,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "exclusionRules": [],
+        "usingSun": true
+    },
+    "PlaneOfVitheo": {
+        "sceneName": "PlaneOfVitheo",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 96,
+        "originY": 132,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "exclusionRules": [],
+        "usingSun": true
+    },
     "PrielPlateau": {
         "sceneName": "PrielPlateau",
         "baseTilesX": 3,

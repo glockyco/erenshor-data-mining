@@ -83,6 +83,22 @@
         "worldX": -6840.859572831913,
         "worldY": -4292.629464225765
     },
+    "PlaneOfBrax": {
+        "worldX": 18000,
+        "worldY": 0
+    },
+    "PlaneOfFernalla": {
+        "worldX": 18000,
+        "worldY": -3000
+    },
+    "PlaneOfSoluna": {
+        "worldX": 18000,
+        "worldY": -6000
+    },
+    "PlaneOfVitheo": {
+        "worldX": 18000,
+        "worldY": -9000
+    },
     "PrielPlateau": {
         "worldX": -4941.940109449064,
         "worldY": -1470.9118327113865
