@@ -11,6 +11,10 @@
     path="/adventure-guide"
     title="Erenshor Adventure Guide – Quest Companion Mod"
     description="In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS navigation, and world markers above every quest NPC."
+    image="/og-adventure-guide.png"
+    imageAlt="Adventure Guide – Every quest. Every item source. Click and go."
+    imageWidth={1731}
+    imageHeight={909}
     jsonLd={breadcrumbJsonLd([
         { name: 'Home', path: '/' },
         { name: 'Adventure Guide', path: '/adventure-guide' }
