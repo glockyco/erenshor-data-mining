@@ -28,6 +28,7 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
+from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -154,6 +155,20 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     )
 
 
+def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
+    """Create an item repository for local Lua data generation."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    db_path = variant_config.resolved_database(cli_ctx.repo_root)
+    db_connection = DatabaseConnection(db_path, read_only=True)
+    return ItemRepository(db_connection)
+
+
+def _lua_output_root(cli_ctx: CLIContext) -> Path:
+    """Return the local generated Lua module output directory."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return variant_config.resolved_wiki(cli_ctx.repo_root) / "lua"
+
+
 @app.command()
 @require_preconditions(
     database_exists,
@@ -248,6 +263,47 @@ def fetch(
     except Exception as e:
         console.print(f"[red]Error during wiki fetch: {e}[/red]")
         logger.exception("Wiki fetch failed")
+        raise typer.Exit(1) from e
+
+
+@app.command("generate-lua")
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+)
+def generate_lua(ctx: typer.Context) -> None:
+    """Generate local Lua data modules from the clean database."""
+    cli_ctx: CLIContext = ctx.obj
+    output_root = _lua_output_root(cli_ctx)
+    items_path = output_root / "Erenshor" / "Data" / "Items.lua"
+
+    console.print()
+    console.print(
+        Panel.fit(
+            "[bold cyan]Generating wiki Lua data modules[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}\n"
+            f"Output: {output_root}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: no database opened and no files written.[/yellow]")
+        console.print(f"Would write: {items_path}", soft_wrap=True)
+        return
+
+    try:
+        item_repo = _create_item_repository(cli_ctx)
+        result = generate_lua_data_modules(item_repo=item_repo, output_root=output_root)
+        for path in result.written_paths:
+            console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)
+            console.print(f"[green]Validated with:[/green] {result.validation_tools[path]}")
+    except Exception as e:
+        console.print(f"[red]Error during wiki Lua generation: {e}[/red]")
+        logger.exception("Wiki Lua generation failed")
         raise typer.Exit(1) from e
 
 

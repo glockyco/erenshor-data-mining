@@ -161,31 +161,38 @@ runner before adding more generated Lua and wiki code.
 - Create: `src/erenshor/application/wiki_lua/__init__.py`
 - Create: `src/erenshor/application/wiki_lua/lua_writer.py`
 - Create: `src/erenshor/application/wiki_lua/items.py`
+- Create: `src/erenshor/application/wiki_lua/generation.py`
+- Create: `src/erenshor/application/wiki_lua/validation.py`
+- Create: `tests/unit/application/wiki_lua/fakes.py`
 - Create: `tests/unit/application/wiki_lua/test_lua_writer.py`
 - Create: `tests/unit/application/wiki_lua/test_items_module.py`
-- Modify: `src/erenshor/cli/commands/wiki.py` or create a new CLI module if the existing command file is too large
+- Create: `tests/unit/application/wiki_lua/test_generation.py`
+- Create: `tests/unit/application/wiki_lua/test_lua_validation.py`
+- Modify: `src/erenshor/cli/commands/wiki.py`
+- Modify: `tests/unit/cli/commands/test_wiki.py`
 
-- [ ] **Step 1: Add failing serializer tests**
+- [x] **Step 1: Add failing serializer tests**
 
   Tests must cover escaping of quotes, backslashes, newlines, braces, unicode, nil omission, booleans, integers, floats, lists, and nested tables. Include a test that rejects unsupported values rather than serializing invalid Lua.
 
-- [ ] **Step 2: Implement deterministic Lua writer**
+- [x] **Step 2: Implement deterministic Lua writer**
 
   The writer must sort map keys deterministically so diffs are stable. It must emit only values accepted by `mw.loadData()`: strings, numbers, booleans, and tables.
 
-- [ ] **Step 3: Add item data module generator**
+- [x] **Step 3: Add item data module generator**
 
   Generate a compact item data module from the clean DB. Do not include long prose fields unless display requires them; large text increases Scribunto memory pressure.
 
-- [ ] **Step 4: Add CLI dry-run output**
+- [x] **Step 4: Add CLI dry-run output**
 
   Add a command that writes generated Lua modules to disk under `variants/{variant}/wiki/lua/` or another gitignored variant output path. It must not deploy to the live wiki.
 
-- [ ] **Step 5: Validate generated Lua syntax**
+- [x] **Step 5: Validate generated Lua syntax**
 
-  Prefer `luac -p` if available. If not available, at minimum run a parser/grammar validation step and document the limitation.
+  Use `luac -p` when available. Fall back to StyLua's Lua 5.1 parser with
+  `--verify` when `luac` is unavailable; this validates generated output only.
 
-- [ ] **Step 6: Run unit tests**
+- [x] **Step 6: Run unit tests**
 
   Run only the new wiki Lua unit tests. Expected: all pass.
 
