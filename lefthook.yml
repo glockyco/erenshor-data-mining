@@ -1,0 +1,59 @@
+min_version: 2.1.0
+
+output:
+  - execution
+  - failure
+
+pre-commit:
+  piped: true
+  jobs:
+    - name: whitespace
+      run: git diff --cached --check
+
+    - name: ruff format
+      glob: "*.py"
+      run: uv run ruff format {staged_files}
+      stage_fixed: true
+
+    - name: ruff check
+      glob: "*.py"
+      run: uv run ruff check --fix {staged_files}
+      stage_fixed: true
+
+    - name: mypy
+      glob: "*.py"
+      run: uv run mypy src/
+
+    - name: pytest unit
+      glob: "*.py"
+      run: uv run pytest tests/unit -q --tb=short
+
+    - name: maps lint
+      glob:
+        - "src/maps/*.{js,ts,svelte,cjs,mjs,json}"
+        - "src/maps/**/*.{js,ts,svelte,cjs,mjs,json}"
+      run: pnpm --filter erenshor-maps lint
+
+    - name: csharpier
+      glob: "src/mods/**/*.cs"
+      run: bash src/mods/run-csharpier.sh
+      stage_fixed: true
+
+    - name: stylua
+      glob: "*.lua"
+      run: pnpm exec stylua --check {staged_files}
+
+    - name: gitleaks
+      run: gitleaks protect --staged --redact --verbose
+      skip:
+        - run: "! command -v gitleaks"
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}
+
+pre-push:
+  jobs:
+    - name: pytest integration
+      run: uv run pytest tests/integration -v

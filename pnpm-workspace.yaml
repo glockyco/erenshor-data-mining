@@ -1,2 +1,4 @@
 packages:
   - "src/maps"
+onlyBuiltDependencies:
+  - lefthook

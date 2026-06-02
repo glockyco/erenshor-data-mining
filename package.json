@@ -2,7 +2,7 @@
   "name": "erenshor",
   "private": true,
   "scripts": {
-    "prepare": "husky",
+    "prepare": "lefthook install --reset-hooks-path",
     "dev": "pnpm --filter erenshor-maps dev",
     "build": "pnpm --filter erenshor-maps build",
     "preview": "pnpm --filter erenshor-maps preview",
@@ -11,14 +11,15 @@
     "lint:fix": "pnpm --filter erenshor-maps lint:fix",
     "format": "pnpm --filter erenshor-maps format"
   },
-  "lint-staged": {
-    "*.py": [
-      "uv run ruff format",
-      "uv run ruff check --fix"
-    ]
-  },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6"
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@johnnymorganz/stylua-bin": "^2.5.2",
+    "lefthook": "^2.1.9"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "lefthook"
+    ]
   }
 }

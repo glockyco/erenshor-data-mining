@@ -86,9 +86,74 @@ This plan is grounded in these observed practices and pitfalls:
 
   Commit the harness before any migration code. This keeps the testing foundation reviewable independently.
 
-### Milestone 2: Build Lua data generation without touching production templates
+### Milestone 2: Consolidate development hooks with Lefthook
 
-**Why second:** We can validate the bot-to-Lua serialization path without changing live wiki behaviour.
+**Why second:** Lua modules add another language surface to the repository. The
+current split between pre-commit and Husky/lint-staged makes it unclear which
+checks run, and it has no commit-message or Lua formatting gate. Use one hook
+runner before adding more generated Lua and wiki code.
+
+**Planned commit:** `chore(config): consolidate dev hooks with lefthook`
+
+**Files:**
+- Create: `lefthook.yml`
+- Create: `commitlint.config.cjs`
+- Create: `.stylua.toml`
+- Create: `.luacheckrc`
+- Create: `tests/unit/test_development_tooling.py`
+- Modify: `package.json`
+- Modify: `pnpm-lock.yaml`
+- Modify: `pnpm-workspace.yaml`
+- Modify: `pyproject.toml`
+- Modify: `uv.lock`
+- Modify: `src/maps/package.json`
+- Modify: `README.md`
+- Modify: `.agent/skills/mod-pipeline/SKILL.md`
+- Modify: `wiki/modules/Erenshor/Smoke.lua`
+- Delete: `.pre-commit-config.yaml`
+- Delete: `.husky/`
+
+- [x] **Step 1: Add failing tooling configuration tests**
+
+  Tests must verify that the repository has one hook runner, no pre-commit or
+  Husky/lint-staged configuration, a commit-message hook, and Lua tooling
+  configuration for source-controlled modules.
+
+- [x] **Step 2: Replace split hooks with Lefthook**
+
+  Pre-commit runs whitespace checks, Ruff formatting/checking for staged Python
+  files, mypy and unit tests for Python changes, map linting for `src/maps/`
+  changes, C# formatting for mod C# changes, StyLua checks for wiki Lua
+  modules, and Gitleaks when the binary is installed locally. Pre-push runs the
+  integration tests. Commit-msg runs commitlint.
+
+- [x] **Step 3: Add commit and Lua tool configuration**
+
+  Add commitlint rules matching the project Conventional Commits policy,
+  `.stylua.toml` for repo-owned Lua formatting, and `.luacheckrc` with
+  Scribunto globals so Luacheck can be enabled locally or in CI when the binary
+  is available.
+
+- [x] **Step 4: Update developer documentation**
+
+  Document `pnpm install` / `pnpm exec lefthook install`, the direct Lefthook
+  commands for hook validation, and the explicit area checks developers can run
+  outside hooks.
+
+- [x] **Step 5: Verify the hook cutover**
+
+  Run the new tooling configuration tests, `lefthook validate`,
+  `lefthook run commit-msg` against a temporary valid commit message,
+  and targeted formatting/lint checks for the files changed by this milestone.
+
+- [ ] **Step 6: Commit**
+
+  Commit this cleanup before continuing Lua data generation. Keep it separate
+  from wiki implementation code.
+
+### Milestone 3: Build Lua data generation without touching production templates
+
+**Why third:** We can validate the bot-to-Lua serialization path without changing live wiki behaviour.
 
 **Planned commit:** `feat(wiki): generate Lua data modules from clean database`
 
@@ -128,7 +193,7 @@ This plan is grounded in these observed practices and pitfalls:
 
   Keep data generation separate from deployment.
 
-### Milestone 3: Create the first complete vertical in local MediaWiki
+### Milestone 4: Create the first complete vertical in local MediaWiki
 
 **Recommended vertical:** Items, but only a narrow subset: one general item, one weapon with tiers, one armor with tiers, one aura/scroll/book-style tooltip item. Items are the highest-value vertical, but the initial test set must be small.
 
@@ -171,7 +236,7 @@ This plan is grounded in these observed practices and pitfalls:
 
   Do not add Cargo in the same commit as rendering. Rendering bugs and Cargo bugs need to be isolated.
 
-### Milestone 4: Add Cargo storage and prove null-edit behaviour locally
+### Milestone 5: Add Cargo storage and prove null-edit behaviour locally
 
 **Planned commit:** `feat(wiki): store resolved item data in Cargo`
 
@@ -207,7 +272,7 @@ This plan is grounded in these observed practices and pitfalls:
 
   Cargo support is not complete until this null-edit test passes.
 
-### Milestone 5: Expand the local implementation to all wiki surfaces
+### Milestone 6: Expand the local implementation to all wiki surfaces
 
 **Planned commit series:** one commit per entity/display surface, all local-only until the full system passes the verification matrix.
 
@@ -246,7 +311,7 @@ This plan is grounded in these observed practices and pitfalls:
 
   Commit only after all local surfaces pass. No production pages are changed in this milestone.
 
-### Milestone 6: Live TemplateSandbox validation for the complete cutover
+### Milestone 7: Live TemplateSandbox validation for the complete cutover
 
 **Planned commit:** `docs(wiki): record full Lua sandbox validation`
 
@@ -273,7 +338,7 @@ This plan is grounded in these observed practices and pitfalls:
 
   Commit the validation record. Do not promote production templates until the complete sandbox cutover has passed.
 
-### Milestone 7: Single coordinated production cutover
+### Milestone 8: Single coordinated production cutover
 
 **Planned commit:** `feat(wiki): deploy Lua-backed wiki data system`
 
@@ -325,4 +390,5 @@ This plan is grounded in these observed practices and pitfalls:
 
 ## Immediate next action
 
-Implement **Milestone 1 only**: the local MediaWiki/Scribunto/Cargo development harness. Until this exists, every other migration step is speculation against production behaviour.
+Complete **Milestone 2**: consolidate local development hooks with Lefthook
+before adding more Lua module and template surfaces.

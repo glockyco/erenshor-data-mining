@@ -17,8 +17,8 @@ commit history—never manually specified.
 Developer Code Changes
   ↓
 git commit
-  ↓ (pre-commit hook)
-validate-mods-metadata.py ← catches config issues early
+  ↓ (CI / website prebuild)
+generate-mods-metadata.py ← catches config issues before deployment
   ↓
 uv run erenshor mod build
   ├─ Compiles with dotnet
@@ -114,9 +114,9 @@ When adding a new NuGet dependency to a mod that has Thunderstore support:
 - Add it explicitly to `thunderstore.toml` `[[build.copy]]` so it's included in
   the Thunderstore package too
 
-### Validate Metadata (runs automatically in pre-commit + CI)
+### Validate Metadata (runs automatically in CI)
 ```bash
-uv run python3 scripts/validate-mods-metadata.py
+uv run python3 scripts/generate-mods-metadata.py
 ```
 
 Checks:
@@ -191,7 +191,7 @@ New `validate-mods` job runs on every push:
 
 ### Deploy New Mod Version
 1. Make changes to mod source
-2. `git commit` (pre-commit validates metadata)
+2. `git commit`
 3. `uv run erenshor mod publish` (stages for website)
 4. `npm run build` in src/maps/ (prebuild calls publish)
 5. Deploy website
@@ -206,7 +206,7 @@ New `validate-mods` job runs on every push:
 If metadata validation fails:
 1. `git status` to see what changed
 2. Check `src/mods/mods-config.yaml` for syntax errors
-3. `uv run python3 scripts/validate-mods-metadata.py` for details
+3. `uv run python3 scripts/generate-mods-metadata.py` for details
 4. Fix issues and commit again
 
 ## Key Design Principles
@@ -215,7 +215,7 @@ If metadata validation fails:
 
 **Atomic Metadata**: Both metadata files written together, never out of sync.
 
-**Fail Fast**: Validation in pre-commit catches issues before pushing.
+**Fail Fast**: CI metadata generation catches issues before deployment.
 
 **No Manual Steps**: Website build automatically stages mods.
 
@@ -229,7 +229,7 @@ If metadata validation fails:
 |---------|----------|
 | Build fails: "No DLLs in lib/" | Run `uv run erenshor mod setup` first |
 | Version shows "0.0.0-unknown" | Check git history exists for mod directory |
-| Metadata invalid (pre-commit blocks) | Run validation script to see details |
+| Metadata invalid (hook blocks) | Run validation script to see details |
 | Website shows stale mods | Run `npm run build` from `src/maps/` |
 | DLL not in website static/ | Run `uv run erenshor mod publish` |
 
@@ -237,9 +237,8 @@ If metadata validation fails:
 
 - `src/erenshor/cli/commands/mod.py` - CLI with setup/build/deploy/publish commands
 - `scripts/generate-mod-version.py` - CalVer generation from git
-- `scripts/generate-mods-metadata.py` - Metadata generation from config + versions
-- `scripts/validate-mods-metadata.py` - Metadata validation for CI/pre-commit
+- `scripts/generate-mods-metadata.py` - Metadata generation and CI validation
 - `src/mods/mods-config.yaml` - Master mod configuration
-- `.pre-commit-config.yaml` - Pre-commit hook definition
+- `lefthook.yml` - Git hook definition
 - `.github/workflows/ci.yml` - CI validation job
 - `src/maps/package.json` - Website prebuild integration

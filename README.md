@@ -269,13 +269,25 @@ Install development dependencies:
 
 ```bash
 uv sync --dev
+pnpm install
 ```
 
-Install pre-commit hooks:
+Install Git hooks:
 
 ```bash
-uv run pre-commit install
+pnpm exec lefthook install --reset-hooks-path
 ```
+
+Validate hook configuration and run hook groups directly:
+
+```bash
+pnpm exec lefthook validate
+pnpm exec lefthook run pre-commit
+pnpm exec lefthook run pre-push
+```
+
+The pre-commit hook runs Gitleaks when `gitleaks` is installed locally; CI
+always runs the repository security scan.
 
 Run checks for the area you changed:
 
@@ -293,7 +305,10 @@ pnpm check
 pnpm lint
 pnpm build
 
-# C# formatting used by pre-commit
+# Lua modules
+pnpm exec stylua --check wiki/modules
+
+# C# formatting used by hooks
 bash src/mods/run-csharpier.sh
 ```
 
