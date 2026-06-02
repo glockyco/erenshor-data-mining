@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Smoke|marker}}</includeonly><noinclude>Local smoke-test template for the Erenshor wiki development harness.</noinclude>

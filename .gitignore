@@ -847,6 +847,12 @@ src/Assets/Editor/Assembly-CSharp-Editor.csproj
 # Includes mods and Editor scripts for unified IDE support
 /Erenshor.sln
 
+# Local MediaWiki development runtime state
+wiki-dev/db/
+wiki-dev/images/
+wiki-dev/runtime/
+wiki-dev/extensions/
+
 # Dolt database files (added by bd init)
 .dolt/
 *.db

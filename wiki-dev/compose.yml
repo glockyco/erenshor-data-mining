@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: mediawiki
+      MYSQL_USER: wiki
+      MYSQL_PASSWORD: wiki
+      MYSQL_ROOT_PASSWORD: root
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mediawiki:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MEDIAWIKI_DB_HOST: db
+      MEDIAWIKI_DB_NAME: mediawiki
+      MEDIAWIKI_DB_USER: wiki
+      MEDIAWIKI_DB_PASSWORD: wiki
+    volumes:
+      - ./LocalSettings.extra.php:/var/www/html/LocalSettings.extra.php:ro
+      - ./runtime:/workspace/wiki-dev-runtime
+      - ./images:/var/www/html/images
+      - ../wiki:/workspace/wiki:ro

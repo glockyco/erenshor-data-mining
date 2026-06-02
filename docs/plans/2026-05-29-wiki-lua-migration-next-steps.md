@@ -37,25 +37,32 @@ This plan is grounded in these observed practices and pitfalls:
 
 **Planned commit:** `feat(wiki): add local MediaWiki Lua development harness`
 
-**Files:**
-- Create: `wiki-dev/compose.yml`
-- Create: `wiki-dev/LocalSettings.extra.php`
-- Create: `wiki-dev/README.md`
-- Create: `wiki-dev/import_pages.py`
-- Create: `wiki-dev/smoke_test.py`
-- Create: `wiki/modules/Erenshor/README.md`
-- Create: `wiki/templates/README.md`
-- Modify: `pyproject.toml` only if new dev dependencies are required
+**Implemented files:**
+- `wiki-dev/compose.yml`
+- `wiki-dev/Dockerfile`
+- `wiki-dev/bootstrap.sh`
+- `wiki-dev/LocalSettings.extra.php`
+- `wiki-dev/README.md`
+- `wiki-dev/import_pages.py`
+- `wiki-dev/smoke_test.py`
+- `wiki-dev/fixtures/pages/Smoke_Page.wiki`
+- `wiki-dev/fixtures/smoke.tsv`
+- `wiki/modules/Erenshor/README.md`
+- `wiki/modules/Erenshor/Smoke.lua`
+- `wiki/templates/README.md`
+- `wiki/templates/Smoke.wiki`
+- `tests/unit/test_wiki_dev_harness.py`
+- `.gitignore`
 
-- [ ] **Step 1: Add local MediaWiki stack**
+- [x] **Step 1: Add local MediaWiki stack**
 
   Create `wiki-dev/compose.yml` with MediaWiki, MySQL/MariaDB, and mounted extension/source directories. The first implementation should prefer MediaWiki 1.43.x to match live `MediaWiki 1.43.6`. If exact `mediawiki:1.43` image availability differs, pin the closest official image and document the mismatch in `wiki-dev/README.md`.
 
-- [ ] **Step 2: Enable required extensions**
+- [x] **Step 2: Enable required extensions**
 
   Create `wiki-dev/LocalSettings.extra.php` enabling Scribunto, ParserFunctions, Cargo or LIBRARIAN-equivalent Cargo, and TemplateSandbox. Confirm `Special:Version` locally lists them.
 
-- [ ] **Step 3: Add page import helper**
+- [x] **Step 3: Add page import helper**
 
   Create `wiki-dev/import_pages.py` that maps repository files to wiki page titles:
 
@@ -67,15 +74,15 @@ This plan is grounded in these observed practices and pitfalls:
 
   It must use MediaWiki API edit tokens and fail on edit errors.
 
-- [ ] **Step 4: Add local smoke test helper**
+- [x] **Step 4: Add local smoke test helper**
 
   Create `wiki-dev/smoke_test.py` that calls `action=parse` for one fixture article and verifies expected text in rendered HTML. Add a placeholder fixture page only if needed for the smoke test; do not generate production wiki content yet.
 
-- [ ] **Step 5: Verify locally**
+- [x] **Step 5: Verify locally**
 
   Run the stack, import a trivial module/template, and render a trivial test page. Expected result: local `action=parse` returns HTML containing a known marker from the module.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
   Commit the harness before any migration code. This keeps the testing foundation reviewable independently.
 
