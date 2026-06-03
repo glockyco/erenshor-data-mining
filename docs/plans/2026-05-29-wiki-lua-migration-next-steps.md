@@ -363,7 +363,7 @@ wiki/ownership.yml
 
 ### Milestone 5: Build shared Lua foundations
 
-**Planned commit:** `feat(wiki): add shared Lua template foundations`
+**Commit:** `c5531eaf feat(wiki): add shared Lua template foundations`
 
 **Files:**
 
@@ -380,27 +380,27 @@ wiki-dev/smoke_test.py
 tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Implement argument normalization**
+- [x] **Step 1: Implement argument normalization**
 
   `Module:Erenshor/Args` must expose helpers for parent-frame args, blank handling, trim, sentinel blanking with `-`, boolean parsing, numeric parsing, and explicit-presence checks.
 
-- [ ] **Step 2: Implement formatting helpers**
+- [x] **Step 2: Implement formatting helpers**
 
   `Module:Erenshor/Format` must expose helpers for file links, page links, class lists, currency, signed stats, resist labels, and category emission.
 
-- [ ] **Step 3: Implement render helpers**
+- [x] **Step 3: Implement render helpers**
 
   `Module:Erenshor/Render` must expose infobox/table helpers that avoid deeply nested wikitext and keep generated markup deterministic.
 
-- [ ] **Step 4: Add Lua testcase modules**
+- [x] **Step 4: Add Lua testcase modules**
 
   Add testcases for normalization, override sentinels, formatting escaping, and deterministic markup.
 
-- [ ] **Step 5: Harden local smoke tests**
+- [x] **Step 5: Harden local smoke tests**
 
   Smoke tests must fail on `Lua error`, `Script error`, parser error markers, unresolved templates, and known template-limit error comments.
 
-- [ ] **Step 6: Verify locally**
+- [x] **Step 6: Verify locally**
 
   Import modules into local MediaWiki, run Lua testcases through `{{#invoke:...|run}}`, and parse `Lua_Foundation_Smoke.wiki`.
 
@@ -791,5 +791,5 @@ README.md
 
 ## Immediate next action
 
-Complete **Milestone 5**: build shared Lua foundations for argument normalization,
-formatting, and deterministic rendering before migrating public templates.
+Complete **Milestone 6**: replace Item templates with Lua-backed compatibility
+wrappers, generated item data, item link rendering, and local Cargo validation.
