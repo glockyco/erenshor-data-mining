@@ -75,6 +75,7 @@ dev = [
     # Type stubs
     "types-pillow",
     "types-jinja2",
+    "playwright>=1.60.0",
 ]
 
 [tool.ruff]

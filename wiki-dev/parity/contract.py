@@ -1,0 +1,125 @@
+"""Authored live-vs-local parity contract.
+
+This file is committed. It declares *which* components, elements, and rendered
+properties the parity gate checks. It contains no values captured from the live
+wiki; the expected values live in the gitignored ``baseline.json`` produced by
+``parity_check.py --capture``.
+
+Property keys are interpreted by ``extract.py``:
+
+- a plain CSS property name (``color``, ``border-bottom-width``) reads
+  ``getComputedStyle(el).getPropertyValue(prop)``;
+- ``@class:NAME`` resolves to ``"true"``/``"false"`` for ``el.classList``;
+- ``@module:NAME`` resolves to ``mw.loader.getState(NAME)`` (element ignored).
+
+Each page names a live reference path and the local fixture title that exercises
+the same components, so unrelated page content never affects the comparison.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Target:
+    """One rendered element and the properties to capture from it."""
+
+    name: str
+    selector: str
+    properties: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ParityPage:
+    """A live reference page paired with the local fixture that mirrors it."""
+
+    name: str
+    live_path: str
+    local_title: str
+    targets: tuple[Target, ...]
+
+
+PAGES: tuple[ParityPage, ...] = (
+    ParityPage(
+        name="chrome",
+        live_path="/wiki/Armor",
+        local_title="Cargo_ArmorTable_Smoke",
+        targets=(
+            Target(
+                name="html",
+                selector=":root",
+                properties=(
+                    "@class:theme-dark",
+                    "@class:skin-theme-clientpref-night",
+                    "--wiki-content-background-color",
+                    "--wiki-content-border-color",
+                    "--wiki-sidebar-link-color",
+                    "@module:ext.gadget.datatables",
+                ),
+            ),
+            Target(
+                name="body",
+                selector="body",
+                properties=("@class:skin-vector-legacy", "@class:skin-vector"),
+            ),
+            Target(
+                name="sidebar-heading",
+                selector="#mw-panel .vector-menu-portal .vector-menu-heading",
+                properties=("color", "background-image"),
+            ),
+            Target(
+                name="sidebar-link",
+                selector="#mw-panel .vector-menu-portal .vector-menu-content .mw-list-item a",
+                properties=("color",),
+            ),
+            Target(
+                name="table",
+                selector="table.datatable",
+                properties=("@class:dataTable",),
+            ),
+            Target(
+                name="table-header",
+                selector="table.datatable th",
+                properties=("color", "background-color"),
+            ),
+        ),
+    ),
+    ParityPage(
+        name="infobox",
+        live_path="/wiki/A_Hermit",
+        local_title="Captain_Rowan",
+        targets=(
+            Target(
+                name="shell",
+                selector=".portable-infobox",
+                properties=("display", "float", "background-color"),
+            ),
+            Target(
+                name="title",
+                selector=".portable-infobox .pi-title",
+                properties=("font-weight", "color"),
+            ),
+            Target(
+                name="data-row",
+                selector=".portable-infobox .pi-data",
+                properties=("display", "border-bottom-width", "border-bottom-style"),
+            ),
+            Target(
+                name="section-group",
+                selector=".portable-infobox .pi-group",
+                properties=("border-bottom-width", "border-bottom-style", "border-bottom-color"),
+            ),
+            Target(
+                name="header",
+                selector=".portable-infobox .pi-header",
+                properties=("background-color", "color", "font-weight"),
+            ),
+            Target(
+                name="horizontal-divider",
+                selector=".portable-infobox .pi-horizontal-group-item:not(:first-child)",
+                properties=("border-left-width", "border-left-style", "border-left-color"),
+            ),
+        ),
+    ),
+)

@@ -292,6 +292,11 @@ Local preview rules:
 - Validate ResourceLoader and browser behavior for representative pages; HTML
   parse success alone is not enough for gadget-backed query surfaces such as
   DataTables.
+- Gate local rendering parity with an automated check (`wiki-dev/parity_check.py`)
+  that renders representative local pages in real Chromium and asserts computed
+  styles, DOM classes, and gadget state against a baseline captured from live.
+  The contract is committed; the live-captured baseline is gitignored. Capture
+  runs headed (Cloudflare); the routine check runs headless against local only.
 
 ## Completed foundation
 
