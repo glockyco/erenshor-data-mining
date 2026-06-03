@@ -71,6 +71,71 @@ def test_smoke_check_accepts_all_expected_text() -> None:
     assert result.missing == []
 
 
+def test_smoke_check_rejects_parser_health_markers() -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+
+    html = """
+    <div class="mw-parser-output">
+      <strong class="error">Lua error</strong>
+      <strong class="error">Script error</strong>
+      <p><strong class="error">Parser function failed</strong></p>
+      <a class="new" title="Template:Missing">Template:Missing</a>
+      <!-- WARNING: Post-expand include size limit exceeded. -->
+    </div>
+    """
+
+    result = smoke_test.check_rendered_html(title="Broken Item", html=html, expected=[])
+
+    assert result.ok is False
+    assert result.missing == [
+        "forbidden parser output: Lua error",
+        "forbidden parser output: Script error",
+        "forbidden parser output: parser error",
+        "forbidden parser output: unresolved template",
+        "forbidden parser output: parser limit report",
+    ]
+
+
+def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+
+    html = """
+    <div class="mw-parser-output">
+      <p>Rendered page</p>
+      <!--
+      NewPP limit report
+      Expensive parser function count: 0/100
+      -->
+    </div>
+    """
+
+    result = smoke_test.check_rendered_html(title="Healthy Page", html=html, expected=["Rendered page"])
+
+    assert result.ok is True
+    assert result.missing == []
+
+
+def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+
+    html = """
+    <div class="mw-parser-output">
+      <p>Documented TemplateSandbox page</p>
+      <a href="/wiki/Template:Item" title="Template:Item">Template:Item</a>
+      <p>A guide may describe what to do when a limit exceeded message appears.</p>
+    </div>
+    """
+
+    result = smoke_test.check_rendered_html(
+        title="Healthy Template Docs",
+        html=html,
+        expected=["Documented TemplateSandbox page"],
+    )
+
+    assert result.ok is True
+    assert result.missing == []
+
+
 def test_compose_does_not_mount_local_settings_before_install() -> None:
     compose = Path("wiki-dev/compose.yml").read_text(encoding="utf-8")
 

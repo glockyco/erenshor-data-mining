@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from typing import NamedTuple
 
@@ -23,9 +24,29 @@ def api_url(base_url: str) -> str:
     return f"{base_url.rstrip('/')}/api.php"
 
 
+FORBIDDEN_HTML_MARKERS = (
+    ("Lua error", "forbidden parser output: Lua error"),
+    ("Script error", "forbidden parser output: Script error"),
+    ('class="error"', "forbidden parser output: parser error"),
+)
+
+FORBIDDEN_HTML_PATTERNS = (
+    (
+        re.compile(r'<a\b(?=[^>]*\bclass="[^"]*\bnew\b)(?=[^>]*\btitle="Template:)', re.I),
+        "forbidden parser output: unresolved template",
+    ),
+    (
+        re.compile(r"<!--(?:(?!-->).)*\blimit exceeded\b(?:(?!-->).)*-->", re.I | re.S),
+        "forbidden parser output: parser limit report",
+    ),
+)
+
+
 def check_rendered_html(title: str, html: str, expected: list[str]) -> SmokeResult:
-    """Check that all expected strings are present in rendered HTML."""
+    """Check that expected strings are present and parser errors are absent."""
     missing = [needle for needle in expected if needle not in html]
+    missing.extend(message for marker, message in FORBIDDEN_HTML_MARKERS if marker in html)
+    missing.extend(message for pattern, message in FORBIDDEN_HTML_PATTERNS if pattern.search(html))
     return SmokeResult(title=title, ok=not missing, missing=missing)
 
 
