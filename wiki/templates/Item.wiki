@@ -1,0 +1,19 @@
+<includeonly>{{#invoke:Erenshor/Item|infobox}}{{#invoke:Erenshor/Item|cargoStore}}</includeonly><noinclude>{{#cargo_declare:
+_table=Items
+|Page=Page
+|StableKey=String
+|Name=String
+|Type=String
+|Slot=String
+|ItemLevel=Integer
+|Damage=Integer
+|Delay=Float
+|Armor=Integer
+|BuyValue=Integer
+|SellValue=Integer
+|Image=File
+|Classes=List (,) of String
+|Relic=Boolean
+|HasProc=Boolean
+|HasWornEffect=Boolean
+}}</noinclude>

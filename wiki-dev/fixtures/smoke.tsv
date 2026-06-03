@@ -2,3 +2,36 @@ Smoke Page	Erenshor local Lua smoke marker
 Lua Foundation Smoke	PASS Erenshor Args testcases
 Lua Foundation Smoke	PASS Erenshor Format testcases
 Lua Foundation Smoke	PASS Erenshor Render testcases
+Lua Item Smoke	PASS Erenshor Item testcases
+Ember Longsword	Ember Longsword
+Ember Longsword	Weapon
+Ember Longsword	erenshor-item-tooltip
+Abyssal Plate	Armor
+Lucky Charm	Charm
+Healing Draught	Consumable
+Magical Bag	General
+Copper Armor Mold	Mold
+Ember Aura	Aura
+Sword Mastery Manual	Skill Book
+Scroll of Ember	Spell Scroll
+Manual Item Override	Manual Ember Blade
+Manual Item Override	Manual quest reward
+Manual Item Override	Manual vendor
+Manual Item Override	Manual monster
+Manual Item Override	Manual quest
+Manual Item Override	Related manual quest
+Manual Item Override	Manual recipe
+Manual Item Override	Manual component
+Manual Item Override	Manual buff
+Manual Item Override	Manual spell
+Manual Item Override	Manual skill
+Manual Item Override	Manual spell type
+Manual Item Override	Manual skill type
+Manual Item Override	42
+Manual Item Override	Manual product
+Manual Item Override	Manual ingredient
+Manual Item Override	Manual guaranteed drop
+Manual Item Override	Manual drop rate
+Manual Item Override	Manual Blade
+Missing Item Data	Missing item data: Missing Relic
+Missing Item Data	Category:Pages_with_missing_Erenshor_item_data

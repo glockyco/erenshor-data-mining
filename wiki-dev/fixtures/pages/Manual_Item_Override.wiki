@@ -1,0 +1,24 @@
+{{Item
+|stablekey=item:ember_longsword
+|title=Manual Ember Blade
+|image=Manual Ember Blade.png
+|othersource=Manual quest reward
+|vendorsource=Manual vendor
+|source=Manual monster
+|questsource=Manual quest
+|relatedquest=Related manual quest
+|craftsource=Manual recipe
+|componentfor=Manual component
+|buffgiven=Manual buff
+|taughtspell=Manual spell
+|taughtskill=Manual skill
+|spelltype=Manual spell type
+|skilltype=Manual skill type
+|manacost=42
+|produces=Manual product
+|ingredients=Manual ingredient
+|guaranteeddrops=Manual guaranteed drop
+|droprates=Manual drop rate
+}}
+
+{{ItemLink|item=Ember Longsword|image=Manual Ember Blade.png|link=Manual Item Override|text=Manual Blade}}

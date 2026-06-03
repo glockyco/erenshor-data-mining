@@ -1,0 +1,3 @@
+{{Item}}
+
+{{Item/Armor|stablekey=item:abyssal_plate}}

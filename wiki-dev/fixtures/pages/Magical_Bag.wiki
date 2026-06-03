@@ -1,0 +1,3 @@
+{{Item}}
+
+{{Item/General|stablekey=item:magical_bag}}

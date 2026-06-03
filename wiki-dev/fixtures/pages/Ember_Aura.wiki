@@ -1,0 +1,3 @@
+{{Item}}
+
+{{Item/Aura|stablekey=item:ember_aura}}

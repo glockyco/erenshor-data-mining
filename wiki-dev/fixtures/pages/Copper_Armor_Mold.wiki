@@ -1,0 +1,3 @@
+{{Item}}
+
+{{Item/Mold|stablekey=item:copper_armor_mold}}

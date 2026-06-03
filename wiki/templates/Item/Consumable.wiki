@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Consumable}}</includeonly><noinclude>Consumable tooltip wrapper.</noinclude>

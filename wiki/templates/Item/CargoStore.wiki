@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Item|cargoStore}}</includeonly><noinclude>Stores resolved item rows in Cargo table <code>Items</code>.</noinclude>

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.entities.item_kind import classify_item_kind
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -146,6 +147,21 @@ def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaD
     for lua_name, attr_name in _ITEM_EFFECT_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
 
+    item_kind = classify_item_kind(
+        required_slot=item.required_slot,
+        teach_spell=item.teach_spell_stable_key,
+        teach_skill=item.teach_skill_stable_key,
+        template_flag=item.template,
+        click_effect=item.item_effect_on_click_stable_key,
+        disposable=bool(item.disposable) if item.disposable is not None else None,
+    )
+    row["type"] = _item_kind_display(str(item_kind))
+
+    summary_stat = _summary_stat(stats)
+    if summary_stat is not None:
+        _put(row, "damage", summary_stat.weapon_dmg)
+        _put(row, "armor", summary_stat.ac)
+
     if classes:
         row["classes"] = sorted(classes)
 
@@ -155,6 +171,22 @@ def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaD
         row["stats"] = stat_rows
 
     return row
+
+
+def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:
+    if not stats:
+        return None
+    for stat in stats:
+        if stat.quality in {"Normal", "0"}:
+            return stat
+    return stats[0]
+
+
+def _item_kind_display(item_kind: str) -> str:
+    return {
+        "skillbook": "Skill Book",
+        "spellscroll": "Spell Scroll",
+    }.get(item_kind, item_kind.capitalize())
 
 
 def _stat_record(stat: ItemStats) -> LuaData:

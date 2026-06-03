@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Spell Scroll}}</includeonly><noinclude>Spell scroll tooltip wrapper.</noinclude>

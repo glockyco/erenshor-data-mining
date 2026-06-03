@@ -136,6 +136,113 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
     assert result.missing == []
 
 
+def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+
+    expectations = [
+        smoke_test.CargoItemExpectation(
+            page="Ember Longsword",
+            fields={
+                "StableKey": "item:ember_longsword",
+                "Name": "Ember Longsword",
+                "Type": "Weapon",
+                "Damage": "18",
+            },
+        ),
+        smoke_test.CargoItemExpectation(
+            page="Ember Longsword",
+            fields={
+                "StableKey": "item:shared_page",
+                "Name": "Shared Page Variant",
+                "Type": "Weapon",
+                "Damage": "5",
+            },
+        ),
+        smoke_test.CargoItemExpectation(
+            page="Abyssal Plate",
+            fields={
+                "StableKey": "item:abyssal_plate",
+                "Name": "Abyssal Plate",
+                "Type": "Armor",
+                "Armor": "40",
+            },
+        ),
+    ]
+    rows = [
+        {
+            "Page": "Ember Longsword",
+            "StableKey": "item:ember_longsword",
+            "Name": "Wrong Name",
+            "Type": "Weapon",
+            "Damage": "17",
+        },
+        {
+            "Page": "Ember Longsword",
+            "StableKey": "item:duplicate",
+            "Name": "Duplicate",
+            "Type": "Weapon",
+            "Damage": "18",
+        },
+        {
+            "Page": "Ember Longsword",
+            "StableKey": "item:shared_page",
+            "Name": "Shared Page Variant",
+            "Type": "Weapon",
+            "Damage": "5",
+        },
+        {
+            "Page": "Ember Longsword",
+            "StableKey": "item:shared_page",
+            "Name": "Duplicate Shared Page Variant",
+            "Type": "Weapon",
+            "Damage": "5",
+        },
+        {
+            "Page": "Unexpected Item",
+            "StableKey": "item:unexpected",
+            "Name": "Unexpected Item",
+            "Type": "General",
+        },
+        {
+            "Page": "Scratch Sandbox Item",
+            "StableKey": "item:scratch",
+            "Name": "Scratch Sandbox Item",
+            "Type": "General",
+        },
+        {
+            "Page": "Scratch Sandbox Item",
+            "StableKey": "item:scratch",
+            "Name": "Duplicate Scratch Sandbox Item",
+            "Type": "General",
+        },
+    ]
+
+    failures = smoke_test.check_cargo_item_rows(rows, expectations, absent_pages={"Unexpected Item"})
+
+    assert failures == [
+        "Cargo Items row Ember Longsword Name: expected Ember Longsword, got Wrong Name",
+        "Cargo Items row Ember Longsword Damage: expected 18, got 17",
+        "Cargo Items missing row for Abyssal Plate",
+        "Cargo Items duplicate row for Ember Longsword / item:shared_page",
+        "Cargo Items unexpected row for Ember Longsword / item:duplicate",
+        "Cargo Items unexpected row for Unexpected Item",
+    ]
+
+
+def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Path) -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+    expectations = tmp_path / "cargo_items.tsv"
+    row = "Page\titem:duplicate\tName\tType\t\t\t\t\t\t\t\t\t\t\t\t0"
+    expectations.write_text(f"{row}\n{row}\n", encoding="utf-8")
+
+    try:
+        smoke_test.load_cargo_item_expectations(expectations)
+    except ValueError as error:
+        assert str(error) == f"{expectations}: duplicate expected Cargo row Page / item:duplicate"
+    else:
+        raise AssertionError("duplicate Cargo Page/StableKey pair was accepted")
+
+
 def test_compose_does_not_mount_local_settings_before_install() -> None:
     compose = Path("wiki-dev/compose.yml").read_text(encoding="utf-8")
 

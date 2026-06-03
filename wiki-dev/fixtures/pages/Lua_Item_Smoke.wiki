@@ -1,0 +1,3 @@
+= Lua Item Smoke =
+
+{{#invoke:Erenshor/Item/testcases|run}}

@@ -1,0 +1,3 @@
+{{Item}}
+
+{{Item/Charm|stablekey=item:lucky_charm}}

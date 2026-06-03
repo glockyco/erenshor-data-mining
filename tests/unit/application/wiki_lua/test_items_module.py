@@ -18,6 +18,7 @@ def test_builds_compact_item_data_without_long_prose_fields() -> None:
                 "weapon_dmg": 7,
                 "str": 1,
                 "dex": None,
+                "ac": 3,
             }
         )
     ]
@@ -42,11 +43,15 @@ def test_builds_compact_item_data_without_long_prose_fields() -> None:
                 "sellValue": 25,
                 "stackable": False,
                 "unique": True,
+                "type": "Weapon",
+                "damage": 7,
+                "armor": 3,
                 "classes": ["Knight", "Paladin"],
                 "stats": [
                     {
                         "quality": "Normal",
                         "weaponDamage": 7,
+                        "ac": 3,
                         "str": 1,
                     }
                 ],
@@ -54,6 +59,31 @@ def test_builds_compact_item_data_without_long_prose_fields() -> None:
         },
         "byPage": {"Sword of Flames": ["item:sword_of_flames"]},
     }
+
+
+def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
+    item = make_item()
+    blessed = ItemStats.model_validate(
+        {
+            "item_stable_key": item.stable_key,
+            "quality": "Blessed",
+            "weapon_dmg": 12,
+            "ac": 6,
+        }
+    )
+    base = ItemStats.model_validate(
+        {
+            "item_stable_key": item.stable_key,
+            "quality": "0",
+            "weapon_dmg": 7,
+            "ac": 3,
+        }
+    )
+
+    data = build_items_data(items=[item], stats_by_item={item.stable_key: [blessed, base]}, classes_by_item={})
+
+    assert data["items"][item.stable_key]["damage"] == 7
+    assert data["items"][item.stable_key]["armor"] == 3
 
 
 def test_groups_multiple_items_that_share_a_wiki_page() -> None:
