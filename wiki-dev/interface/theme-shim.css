@@ -5,6 +5,9 @@
 	--wiki-content-background-color--secondary: #272727;
 	--wiki-content-background-color--secondary--rgb: 39, 39, 39;
 	--wiki-content-border-color: #866806;
+	--background-color-interactive: #133759;
+	--border-color-base: #866806;
+	--color-base: #ededed;
 	--wiki-content-dynamic-color--inverted--rgb: 255, 255, 255;
 	--wiki-content-link-color: #d8b74a;
 	--wiki-content-link-color--rgb: 216, 183, 74;
@@ -17,6 +20,9 @@
 	--wiki-content-background-color--secondary: #efe4bd;
 	--wiki-content-background-color--secondary--rgb: 239, 228, 189;
 	--wiki-content-border-color: #866806;
+	--background-color-interactive: #efe4bd;
+	--border-color-base: #866806;
+	--color-base: #202122;
 	--wiki-content-dynamic-color--inverted--rgb: 0, 0, 0;
 	--wiki-content-link-color: #7a5600;
 	--wiki-content-link-color--rgb: 122, 86, 0;

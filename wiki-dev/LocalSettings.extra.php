@@ -29,6 +29,8 @@ $wgEnableUploads = true;
 $wgDefaultSkin = 'vector';
 $wgVectorDefaultSkinVersion = '1';
 $wgMaxArticleSize = 4096;
+$wgLogos = [ '1x' => '/images/Site-logo.png' ];
+$wgFavicon = '/images/Site-favicon.ico';
 
 
 # Show the TemplateSandbox edit box on local template and module pages.

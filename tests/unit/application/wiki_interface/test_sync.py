@@ -89,6 +89,8 @@ def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
             "MediaWiki:Gadgets-definition": "",
         },
         {
+            "File:Site-logo.png": b"site-logo",
+            "File:Site-favicon.ico": b"site-favicon",
             "File:Site-background.jpg": b"site-background",
             "File:Tooltip_border_top.png": b"tooltip-border",
         },
@@ -99,13 +101,41 @@ def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
         client=client, output_root=tmp_path / "interface", image_root=image_root, dry_run=False
     )
 
-    assert client.requested_media == ["File:Site-background.jpg", "File:Tooltip_border_top.png"]
-    assert [asset.title for asset in result.assets] == [
+    assert client.requested_media[-2:] == ["File:Site-background.jpg", "File:Tooltip_border_top.png"]
+    assert [asset.title for asset in result.assets][-2:] == [
         "File:Site-background.jpg",
         "File:Tooltip_border_top.png",
     ]
     assert (image_root / "8" / "80" / "Site-background.jpg").read_bytes() == b"site-background"
     assert (image_root / "d" / "d8" / "Tooltip_border_top.png").read_bytes() == b"tooltip-border"
+
+
+def test_sync_mirrors_fixed_live_skin_assets(tmp_path: Path) -> None:
+    client = FakeInterfaceClient(
+        {
+            "MediaWiki:Common.css": "",
+            "MediaWiki:Vector.css": "",
+            "MediaWiki:Common.js": "",
+            "MediaWiki:Vector.js": "",
+            "MediaWiki:Gadgets-definition": "",
+        }
+    )
+    client.direct_media_files = {
+        "/images/Site-logo.png": b"site-logo",
+        "/images/Site-favicon.ico": b"site-favicon",
+    }
+    image_root = tmp_path / "images"
+
+    result = sync_interface_pages(
+        client=client, output_root=tmp_path / "interface", image_root=image_root, dry_run=False
+    )
+
+    assert [asset.path for asset in result.assets] == [
+        image_root / "Site-logo.png",
+        image_root / "Site-favicon.ico",
+    ]
+    assert (image_root / "Site-logo.png").read_bytes() == b"site-logo"
+    assert (image_root / "Site-favicon.ico").read_bytes() == b"site-favicon"
 
 
 def test_sync_reports_unresolvable_live_css_assets_without_blocking(tmp_path: Path) -> None:
@@ -116,14 +146,18 @@ def test_sync_reports_unresolvable_live_css_assets_without_blocking(tmp_path: Pa
             "MediaWiki:Common.js": "",
             "MediaWiki:Vector.js": "",
             "MediaWiki:Gadgets-definition": "",
-        }
+        },
+        {
+            "File:Site-logo.png": b"site-logo",
+            "File:Site-favicon.ico": b"site-favicon",
+        },
     )
 
     result = sync_interface_pages(
         client=client, output_root=tmp_path / "interface", image_root=tmp_path / "images", dry_run=False
     )
 
-    assert result.assets == []
+    assert [asset.title for asset in result.assets] == ["File:Site-logo.png", "File:Site-favicon.ico"]
     assert [asset.source_path for asset in result.missing_assets] == ["/images/e/e0/MP_banner.jpg"]
 
 

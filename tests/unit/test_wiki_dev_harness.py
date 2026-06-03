@@ -380,3 +380,16 @@ def test_local_mediawiki_matches_live_skin_gadget_and_article_size_surface() -> 
     assert "$wgMaxArticleSize = 4096;" in settings
     assert "$wgTemplateSandboxEditNamespaces = [ NS_TEMPLATE, 828 ];" in settings
     assert "$wgTemplateSandboxEditNamespaces = true;" not in settings
+    assert "$wgLogos = [ '1x' => '/images/Site-logo.png' ];" in settings
+    assert "$wgFavicon = '/images/Site-favicon.ico';" in settings
+
+
+def test_local_theme_shims_define_live_platform_variables() -> None:
+    theme_css = Path("wiki-dev/interface/theme-shim.css").read_text(encoding="utf-8")
+    theme_js = Path("wiki-dev/interface/theme-shim.js").read_text(encoding="utf-8")
+
+    assert "--color-base: #ededed;" in theme_css
+    assert "--border-color-base: #866806;" in theme_css
+    assert "--background-color-interactive: #133759;" in theme_css
+    assert '"wgg-dom-version-1_43"' in theme_js
+    assert '"skin--responsive"' in theme_js

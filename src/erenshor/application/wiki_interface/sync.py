@@ -20,6 +20,11 @@ FIXED_INTERFACE_TITLES: tuple[str, ...] = (
     "MediaWiki:Gadgets-definition",
 )
 
+FIXED_SKIN_ASSETS: tuple[str, ...] = (
+    "/images/Site-logo.png",
+    "/images/Site-favicon.ico",
+)
+
 GADGET_SOURCE_SUFFIXES = (".css", ".js", ".json", ".vue")
 CSS_IMAGE_URL_PATTERN = re.compile(r"url\((?P<quote>['\"]?)(?P<url>/?images/[^)'\"]+)(?P=quote)\)")
 
@@ -255,6 +260,17 @@ def _fetch_assets(
     assets: list[MediaWikiInterfaceAsset] = []
     missing_assets: list[MissingInterfaceAsset] = []
     seen_paths: set[Path] = set()
+    for asset_path in FIXED_SKIN_ASSETS:
+        image_path = skin_asset_path(asset_path)
+        asset = _fetch_asset(client, image_root, image_path)
+        if asset is None:
+            missing_assets.append(
+                MissingInterfaceAsset(source_path=image_path.source_path, file_title=image_path.file_title)
+            )
+        else:
+            assets.append(asset)
+            seen_paths.add(asset.path)
+
     for page in pages:
         if not page.title.endswith(".css"):
             continue
@@ -263,24 +279,43 @@ def _fetch_assets(
             if local_path in seen_paths:
                 continue
             seen_paths.add(local_path)
-            content = client.media_file(image_path.file_title)
-            if content is None:
-                content = client.media_file_by_path(image_path.source_path)
-            if content is None:
+            asset = _fetch_asset(client, image_root, image_path)
+            if asset is None:
                 missing_assets.append(
                     MissingInterfaceAsset(source_path=image_path.source_path, file_title=image_path.file_title)
                 )
                 continue
-            previous = local_path.read_bytes() if local_path.exists() else b""
-            assets.append(
-                MediaWikiInterfaceAsset(
-                    title=image_path.file_title,
-                    path=local_path,
-                    content=content,
-                    changed=previous != content,
-                )
-            )
+            assets.append(asset)
     return assets, missing_assets
+
+
+def _fetch_asset(
+    client: InterfaceClient,
+    image_root: Path,
+    image_path: CssImagePath,
+) -> MediaWikiInterfaceAsset | None:
+    local_path = image_root / image_path.relative_path
+    content = client.media_file(image_path.file_title)
+    if content is None:
+        content = client.media_file_by_path(image_path.source_path)
+    if content is None:
+        return None
+    previous = local_path.read_bytes() if local_path.exists() else b""
+    return MediaWikiInterfaceAsset(
+        title=image_path.file_title,
+        path=local_path,
+        content=content,
+        changed=previous != content,
+    )
+
+
+def skin_asset_path(source_path: str) -> CssImagePath:
+    relative_path = Path(source_path.removeprefix("/").removeprefix("images/"))
+    return CssImagePath(
+        source_path=source_path,
+        relative_path=relative_path,
+        file_title=f"File:{relative_path.name}",
+    )
 
 
 @dataclass(frozen=True)

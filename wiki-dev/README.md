@@ -60,14 +60,15 @@ uv run erenshor wiki sync-interface
 
 The command writes gitignored mirrors under `wiki-dev/interface/MediaWiki/`
 and `wiki-dev/images/`. It prints unified diffs for interface page changes
-against any existing local mirror before overwriting, and it downloads image
-assets referenced by synced CSS so `/images/...` URLs resolve locally.
+against any existing local mirror before overwriting. It downloads fixed skin
+assets such as `Site-logo.png` plus image assets referenced by synced CSS so
+`/images/...` URLs resolve locally.
 The committed `wiki-dev/interface/theme-shim.css` and
 `wiki-dev/interface/theme-shim.js` files are authored local glue. The CSS
-provides fallback wiki.gg custom properties, and the JavaScript adds the same
-dark theme classes that wiki.gg applies on live pages. Import prepends these
-shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync never
-overwrites them.
+provides fallback wiki.gg and platform custom properties, and the JavaScript
+adds the same dark-theme and wiki.gg Vector classes that live pages use. Import
+prepends these shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync
+never overwrites them.
 
 
 ## Import local pages

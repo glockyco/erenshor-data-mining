@@ -5,4 +5,5 @@
 		"view-dark",
 		"skin-theme-clientpref-night"
 	);
+	document.body.classList.add("wgg-dom-version-1_43", "skin--responsive");
 })();
