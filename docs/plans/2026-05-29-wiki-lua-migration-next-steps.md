@@ -1,401 +1,827 @@
-# Wiki Lua/Cargo Migration Next Steps
+# Wiki Lua/Cargo Migration Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Move the wiki export system from Python-generated article wikitext to a tested Lua data-module architecture with Cargo-backed queryability and article-local overrides.
+**Goal:** Replace Python-generated wiki article wikitext with a clean Lua data-module, template/module rendering, and Cargo/LIBRARIAN query architecture.
 
-**Architecture:** Use the modern game-wiki pattern validated by Terraria/wiki.gg and PoE: bot-generated Lua data modules are the canonical game-data source; templates/modules render article content; article template parameters override generated values; Cargo is populated from resolved template/module output so non-programmer maintainers can build overview pages with queries. Build the local dev/test harness first, prove the architecture with one low-risk local vertical, then complete and verify every vertical locally before a single coordinated production cutover.
+**Architecture:** Public templates remain the stable editor-facing API. Lua modules resolve article parameters against generated game-data modules, render infoboxes/tooltips/links/categories, and store resolved values into Cargo. Python generates and deploys repo-owned modules/templates/data pages, performs null-edits, and validates output; it no longer generates or rewrites human article content after cutover.
 
-**Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua, LIBRARIAN/Cargo, TemplateSandbox, ScribuntoUnit, Docker Compose, MediaWiki API.
+**Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, MediaWiki API, Lefthook, StyLua, Luacheck.
 
 ---
 
-## Evidence and constraints
+## Source evidence
 
-This plan is grounded in these observed practices and pitfalls:
+### Erenshor production wiki
 
-- **TemplateSandbox before production:** MediaWiki's TemplateSandbox previews pages using sandboxed templates and also works with Scribunto modules. Use it for live-wiki preflight after local validation, not as the primary dev environment. Source: https://www.mediawiki.org/wiki/Extension:TemplateSandbox
-- **Test Lua modules with ScribuntoUnit:** MediaWiki's standard Lua test pattern is `Module:Name/testcases`, runnable via debug console or `{{#invoke:Name/testcases|run}}`. Source: https://www.mediawiki.org/wiki/Module:ScribuntoUnit
-- **Cargo data refresh requires null-edits:** wiki.gg documents that when data is read from Lua and stored in Cargo, purging display cache is not enough; stored Cargo rows require blank/null edits. Source: https://support.wiki.gg/wiki/Null_edit
-- **Large Cargo tables need replacement-table discipline:** Cargo documentation and experience reports warn that recreating tables can be slow/incomplete and large tables often need blank edits; replacement tables reduce downtime. Sources: https://support.wiki.gg/wiki/Cargo/recreating_tables and https://www.mediawiki.org/wiki/Extension:Cargo/Storing_data
-- **Start with non-controversial modules:** MediaWiki transition guidance recommends phased rollout beginning with basic, low-risk templates/modules. Source: https://www.mediawiki.org/wiki/Global_templates/Transition
-- **Lua data tables have sandbox limitations:** `mw.loadData()` is the right primitive for large data tables, but returned tables are read-only and must be copied before sorting/filtering. Source: https://www.mediawiki.org/wiki/Extension:Scribunto/Lua_reference_manual
+- Production template inventory: https://erenshor.wiki.gg/api.php?action=query&list=allpages&apnamespace=10&aplimit=max&format=json&formatversion=2
+- `Template:Item` raw source: https://erenshor.wiki.gg/index.php?title=Template:Item&action=raw
+- `Template:Item/Weapon` raw source: https://erenshor.wiki.gg/index.php?title=Template:Item/Weapon&action=raw
+- `Template:Item/Header` raw source: https://erenshor.wiki.gg/index.php?title=Template:Item/Header&action=raw
+- `Template:Item/CargoStore` raw source: https://erenshor.wiki.gg/index.php?title=Template:Item/CargoStore&action=raw
+- `Template:Character` raw source: https://erenshor.wiki.gg/index.php?title=Template:Character&action=raw
+- `Template:ItemLink` raw source: https://erenshor.wiki.gg/index.php?title=Template:ItemLink&action=raw
+- `Template:ArmorTable` raw source: https://erenshor.wiki.gg/index.php?title=Template:ArmorTable&action=raw
+- `Template:Item` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Item&einamespace=0%7C10&eilimit=max&format=json&formatversion=2
+- `Template:Character` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Character&einamespace=0%7C10&eilimit=max&format=json&formatversion=2
 
-## Migration principles
+### Platform and implementation references
 
-1. **Do not rewrite article pages during data refreshes.** Article pages become human-owned. The bot writes `Module:Erenshor/Data/*` and performs null-edits only to refresh Cargo.
-2. **Prototype locally by vertical; cut production over all at once.** A small Item vertical is useful for proving the architecture in local MediaWiki, but production should not run a mixed old/new article system unless explicitly chosen as an emergency fallback.
-3. **Treat wiki code as source-controlled code.** Lua modules and templates live in git and deploy through the bot with diffs and `basetimestamp`.
-4. **Keep Cargo useful for non-programmers.** Overview pages, class pages, and maintainer-built tables should use Cargo queries where possible.
-5. **Gate every phase with observable output.** A phase is complete only when local MediaWiki rendering, Cargo rows, live TemplateSandbox, and rollback path are proven.
+- Scribunto Lua reference manual: https://www.mediawiki.org/wiki/Extension:Scribunto/Lua_reference_manual
+- TemplateSandbox: https://www.mediawiki.org/wiki/Extension:TemplateSandbox
+- MediaWiki template limits: https://www.mediawiki.org/wiki/Manual:Template_limits
+- ScribuntoUnit pattern: https://www.mediawiki.org/wiki/Module:ScribuntoUnit
+- wiki.gg Cargo/LIBRARIAN guide: https://support.wiki.gg/index.php?title=Cargo&action=raw
+- Cargo storing data: https://www.mediawiki.org/wiki/Extension:Cargo/Storing_data
+- wiki.gg null-edit guide: https://support.wiki.gg/wiki/Null_edit
+- PoE module guidance: https://www.poewiki.net/wiki/Help:Modules
+- Terraria high-use data cache note: https://terraria.wiki.gg/index.php?title=Module:Iteminfo/loaddata&action=raw
+- wiki.gg LuaCache README: https://raw.githubusercontent.com/wiki-gg-oss/mediawiki-extensions-LuaCache/master/README.md
 
-## Recommended order
+## Production constraints
 
-### Milestone 1: Build the dev/test harness first
+1. `Template:Item` and `Template:Character` each have more than one API page of live transclusions. They are compatibility contracts, not optional examples.
+2. Production has overlapping template generations: old root entity infobox templates, newer `Template:Item/*` display templates, Cargo declare/store templates, link templates, gear templates, overview row templates, docs, helper templates, navboxes, and license templates.
+3. `Template:Item` exposes a broad public parameter surface: `title`, `image`, `imagecaption`, `type`, `vendorsource`, `source`, `othersource`, `questsource`, `relatedquest`, `craftsource`, `componentfor`, `relic`, `classes`, `effects`, `damage`, `delay`, `dps`, `casttime`, `duration`, `cooldown`, `effect`, `worneffect`, `proceffect`, `buffgiven`, `taughtspell`, `taughtskill`, `spelltype`, `skilltype`, `manacost`, `disposable`, `produces`, `ingredients`, `description`, `buy`, `sell`, `guaranteeddrops`, and `droprates`.
+4. `Template:Character` exposes character/enemy fields including `name`, `image`, `imagecaption`, `type`, `faction`, `factionChange`, `class`, `zones`, `coordinates`, `respawn`, `spawnchance`, `level`, `experience`, `guaranteeddrops`, `droprates`, `spells`, `health`, `ac`, and resists.
+5. The newer `Template:Item/*` templates prove the desired visual model, but they are still parser-function-heavy wikitext. They are not the target implementation style.
+6. Cargo is useful as a query/index layer, but wiki.gg warns against centralized automated Cargo data-store pages. Generated Lua modules are the source of truth for game data; Cargo stores resolved page output.
+7. MediaWiki template limits make deeply nested parser-function templates expensive and hard to debug. Public templates should invoke Lua once and avoid nested wikitext logic.
+8. High-use generated data changes can invalidate many dependent pages. Do not add LuaCache now, but keep data modules sharded and keep deployment/null-edit batching explicit so LuaCache remains a future decision gate.
 
-**Why first:** The highest-risk failure mode is making wiki-side changes without a reproducible local MediaWiki environment. Best practice is not to rely on production preview alone.
+## Ownership model
 
-**Planned commit:** `feat(wiki): add local MediaWiki Lua development harness`
+### Repo-owned pages
+
+The deployment system owns these pages and may overwrite them from git:
+
+```text
+Module:Erenshor/*
+Module:Erenshor/Data/*
+Module:Erenshor/*/testcases
+Template:Item
+Template:Character
+Template:Quest
+Template:Ability
+Template:Zone
+Template:ItemLink
+Template:AbilityLink
+Template:QuestLink
+Template:MapLink
+Template:* / CargoDeclare pages created for the new schema
+Template:* / CargoStore pages created for parser-function-compatible stores
+```
+
+### Human-owned pages
+
+The deployment system must not rewrite these pages during normal refreshes:
+
+```text
+Main namespace articles such as Sword of Flames, A Grizzly Bear, Ember, quests, zones, and guide pages
+Human prose sections
+Article-local template parameters
+Manual source/quest/crafting notes
+Manual images and captions
+```
+
+### Generated artifacts
+
+Python writes generated Lua data pages and deployment manifests, not expanded article wikitext:
+
+```text
+variants/{variant}/wiki/lua/Erenshor/Data/*.lua
+variants/{variant}/wiki/deploy-manifest.json
+variants/{variant}/wiki/null-edit-pages.txt
+```
+
+## Page classes
+
+### Generated data modules
+
+Generated modules are static tables suitable for `mw.loadData()`:
+
+```text
+Module:Erenshor/Data/Items
+Module:Erenshor/Data/Characters
+Module:Erenshor/Data/Abilities
+Module:Erenshor/Data/Quests
+Module:Erenshor/Data/Zones
+Module:Erenshor/Data/Indexes
+```
+
+Rules:
+
+- Return one Lua table.
+- Contain only booleans, numbers, strings, and tables.
+- Contain no functions, metatables, `mw` calls, or computed values.
+- Include explicit indexes such as `byPage`, `byStableKey`, `byZone`, and `byClass` where needed.
+- Avoid long prose unless a display surface requires it.
+- Split by domain so one data refresh does not create one large dependency blast radius.
+
+### Source-controlled Lua modules
+
+Use focused modules instead of one giant module:
+
+```text
+Module:Erenshor/Args        -- frame argument normalization
+Module:Erenshor/Format      -- links, files, classes, currency, booleans
+Module:Erenshor/Render      -- shared infobox/table rendering helpers
+Module:Erenshor/Item        -- item resolve/render/store
+Module:Erenshor/Character   -- NPC/enemy resolve/render/store
+Module:Erenshor/Quest       -- quest resolve/render/store
+Module:Erenshor/Ability     -- spell/skill/stance resolve/render/store
+Module:Erenshor/Zone        -- zone/map resolve/render/store
+Module:Erenshor/Link        -- item/ability/quest/map link templates
+Module:Erenshor/Table       -- query/table display helpers
+```
+
+Rules:
+
+- Invoke Lua through public templates, not directly from article pages.
+- Keep module variables and helper functions local unless they are exported for tests or reuse.
+- Resolve data once per template invocation, then render from the resolved object.
+- Use `mw.html` or table-buffered string assembly for generated markup.
+- Avoid calling parser functions from Lua except for Cargo declare/store and cases where MediaWiki requires parser-function compatibility.
+
+### Public templates
+
+Public templates are thin compatibility wrappers:
+
+```wikitext
+<includeonly>{{#invoke:Erenshor/Item|render}}</includeonly><noinclude>{{Documentation}}</noinclude>
+```
+
+They keep existing editor-facing names and parameter contracts while moving logic into Lua:
+
+```text
+Template:Item      -> Module:Erenshor/Item
+Template:Character -> Module:Erenshor/Character
+Template:Quest     -> Module:Erenshor/Quest
+Template:Ability   -> Module:Erenshor/Ability
+Template:Zone      -> Module:Erenshor/Zone
+Template:ItemLink  -> Module:Erenshor/Link
+```
+
+### Cargo/LIBRARIAN pages
+
+Cargo declaration and store pages remain in template namespace:
+
+```text
+Template:Item/CargoDeclare
+Template:Item/CargoStore
+Template:Character/CargoDeclare
+Template:Character/CargoStore
+Template:Quest/CargoDeclare
+Template:Quest/CargoStore
+Template:Ability/CargoDeclare
+Template:Ability/CargoStore
+Template:Zone/CargoDeclare
+Template:Zone/CargoStore
+```
+
+Rules:
+
+- Cargo is not the generated data source of truth.
+- Store resolved values after article overrides have been applied.
+- Declare schemas explicitly.
+- Store booleans as Cargo-compatible yes/no values.
+- Prefer indexed `String`, `Integer`, `Float`, and `Boolean` fields for query filters.
+- Use `Text` only for display-only fields that will not be filtered or joined.
+- Avoid storing wikitext unless query output specifically needs rendered wikitext.
+
+## Resolution contract
+
+Every public entity template resolves values in this order:
+
+```text
+article parameter, if explicitly present
+else generated Lua data value
+else absent
+```
+
+Parameter semantics:
+
+- Missing parameter means use generated value.
+- Non-empty parameter means override generated value.
+- A documented sentinel value such as `-` means intentionally blank the resolved value.
+- Empty string should not silently erase generated data unless the specific field documents blank-as-override semantics.
+- Missing generated entity emits visible error output and a tracking category.
+
+Tracking categories:
+
+```text
+Category:Pages with missing Erenshor item data
+Category:Pages with missing Erenshor character data
+Category:Pages with missing Erenshor quest data
+Category:Pages with missing Erenshor ability data
+Category:Pages with missing Erenshor zone data
+Category:Pages overriding generated Erenshor data
+Category:Pages using legacy Erenshor templates
+Category:Pages with unresolved Erenshor template data
+```
+
+## Data flow
+
+```text
+Clean SQLite database
+  -> Python Lua data generator
+  -> Module:Erenshor/Data/*
+  -> public template invocation on human article
+  -> Module:Erenshor/<Domain> resolves article args + generated defaults
+  -> rendered infobox/tooltip/link/categories
+  -> #cargo_store resolved fields
+  -> Cargo/LIBRARIAN query pages and overview tables
+```
+
+Python must not generate expanded article pages after production cutover.
+
+## Completed foundation
+
+### Milestone 1: Local MediaWiki/Scribunto/Cargo harness
+
+**Commit:** `9501dfbe feat(wiki): add local MediaWiki Lua harness`
 
 **Implemented files:**
-- `wiki-dev/compose.yml`
-- `wiki-dev/Dockerfile`
-- `wiki-dev/bootstrap.sh`
-- `wiki-dev/LocalSettings.extra.php`
-- `wiki-dev/README.md`
-- `wiki-dev/import_pages.py`
-- `wiki-dev/smoke_test.py`
-- `wiki-dev/fixtures/pages/Smoke_Page.wiki`
-- `wiki-dev/fixtures/smoke.tsv`
-- `wiki/modules/Erenshor/README.md`
-- `wiki/modules/Erenshor/Smoke.lua`
-- `wiki/templates/README.md`
-- `wiki/templates/Smoke.wiki`
-- `tests/unit/test_wiki_dev_harness.py`
-- `.gitignore`
 
-- [x] **Step 1: Add local MediaWiki stack**
+```text
+wiki-dev/compose.yml
+wiki-dev/Dockerfile
+wiki-dev/bootstrap.sh
+wiki-dev/LocalSettings.extra.php
+wiki-dev/README.md
+wiki-dev/import_pages.py
+wiki-dev/smoke_test.py
+wiki-dev/fixtures/pages/Smoke_Page.wiki
+wiki-dev/fixtures/smoke.tsv
+wiki/modules/Erenshor/README.md
+wiki/modules/Erenshor/Smoke.lua
+wiki/templates/README.md
+wiki/templates/Smoke.wiki
+tests/unit/test_wiki_dev_harness.py
+.gitignore
+```
 
-  Create `wiki-dev/compose.yml` with MediaWiki, MySQL/MariaDB, and mounted extension/source directories. The first implementation should prefer MediaWiki 1.43.x to match live `MediaWiki 1.43.6`. If exact `mediawiki:1.43` image availability differs, pin the closest official image and document the mismatch in `wiki-dev/README.md`.
+- [x] Build local MediaWiki 1.43 stack with Scribunto, ParserFunctions, TemplateSandbox, and Cargo.
+- [x] Import repo-owned modules/templates into local MediaWiki.
+- [x] Parse local fixture pages through the MediaWiki API.
+- [x] Verify local Scribunto works on ARM64 by using system Lua 5.1 in the container.
 
-- [x] **Step 2: Enable required extensions**
+### Milestone 2: Lefthook and Lua tooling cutover
 
-  Create `wiki-dev/LocalSettings.extra.php` enabling Scribunto, ParserFunctions, Cargo or LIBRARIAN-equivalent Cargo, and TemplateSandbox. Confirm `Special:Version` locally lists them.
+**Commit:** `6cb352d1 chore(config): consolidate dev hooks with lefthook`
 
-- [x] **Step 3: Add page import helper**
+**Implemented files:**
 
-  Create `wiki-dev/import_pages.py` that maps repository files to wiki page titles:
+```text
+lefthook.yml
+commitlint.config.cjs
+.stylua.toml
+.luacheckrc
+tests/unit/test_development_tooling.py
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+pyproject.toml
+uv.lock
+src/maps/package.json
+README.md
+.agent/skills/mod-pipeline/SKILL.md
+wiki/modules/Erenshor/Smoke.lua
+```
+
+- [x] Replace split pre-commit/Husky hooks with Lefthook.
+- [x] Add commitlint, StyLua, and Luacheck configuration.
+- [x] Keep Ruff, mypy, unit tests, map lint, C# formatting, whitespace, and local Gitleaks gates.
+
+### Milestone 3: Local Lua data generation
+
+**Commit:** `377b73d2 feat(wiki): generate Lua data modules locally`
+
+**Implemented files:**
+
+```text
+src/erenshor/application/wiki_lua/__init__.py
+src/erenshor/application/wiki_lua/lua_writer.py
+src/erenshor/application/wiki_lua/items.py
+src/erenshor/application/wiki_lua/generation.py
+src/erenshor/application/wiki_lua/validation.py
+tests/unit/application/wiki_lua/fakes.py
+tests/unit/application/wiki_lua/test_lua_writer.py
+tests/unit/application/wiki_lua/test_items_module.py
+tests/unit/application/wiki_lua/test_generation.py
+tests/unit/application/wiki_lua/test_lua_validation.py
+src/erenshor/cli/commands/wiki.py
+tests/unit/cli/commands/test_wiki.py
+```
+
+- [x] Generate deterministic Lua table text for `mw.loadData()`.
+- [x] Generate compact item data under `variants/{variant}/wiki/lua/`.
+- [x] Add `erenshor wiki generate-lua` with dry-run output.
+- [x] Validate generated Lua with `luac -p` when available and StyLua Lua 5.1 parsing fallback otherwise.
+
+## Implementation milestones
+
+### Milestone 4: Build production template inventory and ownership manifest
+
+**Planned commit:** `feat(wiki): inventory production template ownership`
+
+**Files:**
+
+```text
+src/erenshor/application/wiki_inventory/__init__.py
+src/erenshor/application/wiki_inventory/api.py
+src/erenshor/application/wiki_inventory/templates.py
+src/erenshor/cli/commands/wiki.py
+tests/unit/application/wiki_inventory/test_templates.py
+tests/unit/cli/commands/test_wiki.py
+wiki/ownership.yml
+docs/plans/2026-05-29-wiki-lua-migration-next-steps.md
+```
+
+- [ ] **Step 1: Add production template inventory client**
+
+  Implement a MediaWiki API reader that fetches template pages, raw template text, and transclusion counts with retry/backoff for `429` responses. Use explicit User-Agent headers.
+
+- [ ] **Step 2: Classify template ownership**
+
+  Generate `wiki/ownership.yml` with these classes:
 
   ```text
-  wiki/modules/Erenshor/Item.lua      -> Module:Erenshor/Item
-  wiki/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
-  wiki/templates/Item.wiki            -> Template:Item
+  repo_owned_template
+  repo_owned_module
+  generated_data_module
+  human_owned_article
+  legacy_template
+  helper_template
+  documentation_template
+  license_template
+  navbox_template
+  unknown
   ```
 
-  It must use MediaWiki API edit tokens and fail on edit errors.
+- [ ] **Step 3: Encode production compatibility surfaces**
 
-- [x] **Step 4: Add local smoke test helper**
+  Mark these as cutover-blocking public contracts:
 
-  Create `wiki-dev/smoke_test.py` that calls `action=parse` for one fixture article and verifies expected text in rendered HTML. Add a placeholder fixture page only if needed for the smoke test; do not generate production wiki content yet.
+  ```text
+  Template:Item
+  Template:Character
+  Template:Quest
+  Template:Ability
+  Template:Zone
+  Template:ItemLink
+  Template:AbilityLink
+  Template:QuestLink
+  Template:MapLink
+  ```
 
-- [x] **Step 5: Verify locally**
+- [ ] **Step 4: Test classification with recorded fixtures**
 
-  Run the stack, import a trivial module/template, and render a trivial test page. Expected result: local `action=parse` returns HTML containing a known marker from the module.
+  Unit tests must use recorded JSON/raw fixtures from the live API, not mocks of internal calls. Assert that `Template:Item` and `Template:Character` are classified as cutover-blocking because their transclusion result sets continue beyond the first API page.
 
-- [x] **Step 6: Commit**
+- [ ] **Step 5: Add CLI report**
 
-  Commit the harness before any migration code. This keeps the testing foundation reviewable independently.
+  Add `erenshor wiki inventory-templates --output wiki/ownership.yml`. The command must not edit the live wiki.
 
-### Milestone 2: Consolidate development hooks with Lefthook
+- [ ] **Step 6: Verify**
 
-**Why second:** Lua modules add another language surface to the repository. The
-current split between pre-commit and Husky/lint-staged makes it unclear which
-checks run, and it has no commit-message or Lua formatting gate. Use one hook
-runner before adding more generated Lua and wiki code.
+  Run:
 
-**Planned commit:** `chore(config): consolidate dev hooks with lefthook`
+  ```bash
+  uv run pytest tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py -q
+  uv run ruff format --check src/erenshor/application/wiki_inventory src/erenshor/cli/commands/wiki.py tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py
+  uv run ruff check src/erenshor/application/wiki_inventory src/erenshor/cli/commands/wiki.py tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py
+  uv run mypy src/
+  ```
 
-**Files:**
-- Create: `lefthook.yml`
-- Create: `commitlint.config.cjs`
-- Create: `.stylua.toml`
-- Create: `.luacheckrc`
-- Create: `tests/unit/test_development_tooling.py`
-- Modify: `package.json`
-- Modify: `pnpm-lock.yaml`
-- Modify: `pnpm-workspace.yaml`
-- Modify: `pyproject.toml`
-- Modify: `uv.lock`
-- Modify: `src/maps/package.json`
-- Modify: `README.md`
-- Modify: `.agent/skills/mod-pipeline/SKILL.md`
-- Modify: `wiki/modules/Erenshor/Smoke.lua`
-- Delete: `.pre-commit-config.yaml`
-- Delete: `.husky/`
+### Milestone 5: Build shared Lua foundations
 
-- [x] **Step 1: Add failing tooling configuration tests**
-
-  Tests must verify that the repository has one hook runner, no pre-commit or
-  Husky/lint-staged configuration, a commit-message hook, and Lua tooling
-  configuration for source-controlled modules.
-
-- [x] **Step 2: Replace split hooks with Lefthook**
-
-  Pre-commit runs whitespace checks, Ruff formatting/checking for staged Python
-  files, mypy and unit tests for Python changes, map linting for `src/maps/`
-  changes, C# formatting for mod C# changes, StyLua checks for wiki Lua
-  modules, and Gitleaks when the binary is installed locally. Pre-push runs the
-  integration tests. Commit-msg runs commitlint.
-
-- [x] **Step 3: Add commit and Lua tool configuration**
-
-  Add commitlint rules matching the project Conventional Commits policy,
-  `.stylua.toml` for repo-owned Lua formatting, and `.luacheckrc` with
-  Scribunto globals so Luacheck can be enabled locally or in CI when the binary
-  is available.
-
-- [x] **Step 4: Update developer documentation**
-
-  Document `pnpm install` / `pnpm exec lefthook install`, the direct Lefthook
-  commands for hook validation, and the explicit area checks developers can run
-  outside hooks.
-
-- [x] **Step 5: Verify the hook cutover**
-
-  Run the new tooling configuration tests, `lefthook validate`,
-  `lefthook run commit-msg` against a temporary valid commit message,
-  and targeted formatting/lint checks for the files changed by this milestone.
-
-- [ ] **Step 6: Commit**
-
-  Commit this cleanup before continuing Lua data generation. Keep it separate
-  from wiki implementation code.
-
-### Milestone 3: Build Lua data generation without touching production templates
-
-**Why third:** We can validate the bot-to-Lua serialization path without changing live wiki behaviour.
-
-**Planned commit:** `feat(wiki): generate Lua data modules from clean database`
+**Planned commit:** `feat(wiki): add shared Lua template foundations`
 
 **Files:**
-- Create: `src/erenshor/application/wiki_lua/__init__.py`
-- Create: `src/erenshor/application/wiki_lua/lua_writer.py`
-- Create: `src/erenshor/application/wiki_lua/items.py`
-- Create: `src/erenshor/application/wiki_lua/generation.py`
-- Create: `src/erenshor/application/wiki_lua/validation.py`
-- Create: `tests/unit/application/wiki_lua/fakes.py`
-- Create: `tests/unit/application/wiki_lua/test_lua_writer.py`
-- Create: `tests/unit/application/wiki_lua/test_items_module.py`
-- Create: `tests/unit/application/wiki_lua/test_generation.py`
-- Create: `tests/unit/application/wiki_lua/test_lua_validation.py`
-- Modify: `src/erenshor/cli/commands/wiki.py`
-- Modify: `tests/unit/cli/commands/test_wiki.py`
 
-- [x] **Step 1: Add failing serializer tests**
+```text
+wiki/modules/Erenshor/Args.lua
+wiki/modules/Erenshor/Format.lua
+wiki/modules/Erenshor/Render.lua
+wiki/modules/Erenshor/Args/testcases.lua
+wiki/modules/Erenshor/Format/testcases.lua
+wiki/modules/Erenshor/Render/testcases.lua
+wiki-dev/fixtures/pages/Lua_Foundation_Smoke.wiki
+wiki-dev/fixtures/smoke.tsv
+wiki-dev/smoke_test.py
+tests/unit/test_wiki_dev_harness.py
+```
 
-  Tests must cover escaping of quotes, backslashes, newlines, braces, unicode, nil omission, booleans, integers, floats, lists, and nested tables. Include a test that rejects unsupported values rather than serializing invalid Lua.
+- [ ] **Step 1: Implement argument normalization**
 
-- [x] **Step 2: Implement deterministic Lua writer**
+  `Module:Erenshor/Args` must expose helpers for parent-frame args, blank handling, trim, sentinel blanking with `-`, boolean parsing, numeric parsing, and explicit-presence checks.
 
-  The writer must sort map keys deterministically so diffs are stable. It must emit only values accepted by `mw.loadData()`: strings, numbers, booleans, and tables.
+- [ ] **Step 2: Implement formatting helpers**
 
-- [x] **Step 3: Add item data module generator**
+  `Module:Erenshor/Format` must expose helpers for file links, page links, class lists, currency, signed stats, resist labels, and category emission.
 
-  Generate a compact item data module from the clean DB. Do not include long prose fields unless display requires them; large text increases Scribunto memory pressure.
+- [ ] **Step 3: Implement render helpers**
 
-- [x] **Step 4: Add CLI dry-run output**
+  `Module:Erenshor/Render` must expose infobox/table helpers that avoid deeply nested wikitext and keep generated markup deterministic.
 
-  Add a command that writes generated Lua modules to disk under `variants/{variant}/wiki/lua/` or another gitignored variant output path. It must not deploy to the live wiki.
+- [ ] **Step 4: Add Lua testcase modules**
 
-- [x] **Step 5: Validate generated Lua syntax**
+  Add testcases for normalization, override sentinels, formatting escaping, and deterministic markup.
 
-  Use `luac -p` when available. Fall back to StyLua's Lua 5.1 parser with
-  `--verify` when `luac` is unavailable; this validates generated output only.
+- [ ] **Step 5: Harden local smoke tests**
 
-- [x] **Step 6: Run unit tests**
+  Smoke tests must fail on `Lua error`, `Script error`, parser error markers, unresolved templates, and known template-limit error comments.
 
-  Run only the new wiki Lua unit tests. Expected: all pass.
+- [ ] **Step 6: Verify locally**
 
-- [ ] **Step 7: Commit**
+  Import modules into local MediaWiki, run Lua testcases through `{{#invoke:...|run}}`, and parse `Lua_Foundation_Smoke.wiki`.
 
-  Keep data generation separate from deployment.
+### Milestone 6: Replace Item templates with Lua-backed compatibility contract
 
-### Milestone 4: Create the first complete vertical in local MediaWiki
-
-**Recommended vertical:** Items, but only a narrow subset: one general item, one weapon with tiers, one armor with tiers, one aura/scroll/book-style tooltip item. Items are the highest-value vertical, but the initial test set must be small.
-
-**Planned commit:** `feat(wiki): add local Item Lua module prototype`
+**Planned commit:** `feat(wiki): render item templates through Lua`
 
 **Files:**
-- Create: `wiki/modules/Erenshor/Item.lua`
-- Create: `wiki/modules/Erenshor/Item/testcases.lua`
-- Create: `wiki/modules/Erenshor/Data/Items.lua` fixture or generated sample
-- Create: `wiki/templates/Item.wiki`
-- Create: `wiki-dev/fixtures/pages/Sword_of_Flames.wiki`
-- Modify: `wiki-dev/smoke_test.py`
 
-- [ ] **Step 1: Implement article-local override resolution**
+```text
+wiki/modules/Erenshor/Item.lua
+wiki/modules/Erenshor/Item/testcases.lua
+wiki/modules/Erenshor/Data/Items.lua
+wiki/templates/Item.wiki
+wiki/templates/ItemLink.wiki
+wiki/templates/Item/CargoDeclare.wiki
+wiki/templates/Item/CargoStore.wiki
+wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/smoke.tsv
+src/erenshor/application/wiki_lua/items.py
+tests/unit/application/wiki_lua/test_items_module.py
+```
 
-  `Module:Erenshor/Item` must expose a testable pure function, e.g. `_resolveForTest(args, data)`, where explicit args win over data-module values. This function is the core contract.
+- [ ] **Step 1: Preserve root `Template:Item` public parameters**
 
-- [ ] **Step 2: Add ScribuntoUnit tests**
+  `Template:Item` must continue accepting the production root parameter contract listed in this plan. Existing article pages should not need bot rewrites to render after cutover.
 
-  Test at minimum:
-  - page title default lookup;
-  - `|name=` lookup override;
-  - `|image=` explicit override wins;
-  - empty override can intentionally blank a field where supported;
-  - missing entity emits loud error text and an error category.
+- [ ] **Step 2: Resolve generated data plus article overrides**
 
-- [ ] **Step 3: Render item infobox locally**
+  `Module:Erenshor/Item` must resolve by page title, explicit stable item key, or explicit display name. Article-local parameters override generated values. The sentinel `-` intentionally blanks fields that support blanking.
 
-  Use `mw.html` rather than string concatenation for table markup where practical. Avoid Cargo until rendering works.
+- [ ] **Step 3: Render item display modes**
 
-- [ ] **Step 4: Render tier/tooltips locally**
+  Render the root infobox and the item tooltip modes represented by production templates:
 
-  Add rendering paths for weapon tiers, armor tiers, and one tooltip-like subtype. These replace the current Python-side `Item/Weapon`, `Item/Armor`, and subtype template generation paths.
+  ```text
+  Item/Weapon
+  Item/Armor
+  Item/Charm
+  Item/Consumable
+  Item/General
+  Item/Mold
+  Item/Aura
+  Item/SkillBook
+  Item/SpellScroll
+  ```
 
-- [ ] **Step 5: Run local parse smoke tests**
+- [ ] **Step 4: Replace `Template:ItemLink` behavior through Lua**
 
-  Import pages into the local wiki and parse fixture article pages. Assert HTML contains expected values and override text.
+  Preserve editor-facing behavior: default image from item/page name, explicit `image`, explicit `link`, explicit `text`, and `imageonly`.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Store resolved Cargo item rows**
 
-  Do not add Cargo in the same commit as rendering. Rendering bugs and Cargo bugs need to be isolated.
+  Cargo rows must use resolved values after overrides. The initial schema must cover overview queries without storing large prose blobs:
 
-### Milestone 5: Add Cargo storage and prove null-edit behaviour locally
+  ```text
+  Page, StableKey, Name, Type, Slot, ItemLevel, Damage, Delay, Armor,
+  BuyValue, SellValue, Image, Classes, Relic, HasProc, HasWornEffect
+  ```
 
-**Planned commit:** `feat(wiki): store resolved item data in Cargo`
+- [ ] **Step 6: Test with production-shaped fixtures**
 
-**Files:**
-- Modify: `wiki/modules/Erenshor/Item.lua`
-- Modify: `wiki/templates/Item.wiki`
-- Modify: `wiki-dev/smoke_test.py`
-- Create: `wiki-dev/null_edit.py` or add a mode to existing helper
+  Local fixture pages must cover weapon, armor, charm, consumable, general item, mold, aura, skill book, spell scroll, manual image override, manual source override, and missing data tracking category.
 
-- [ ] **Step 1: Declare Cargo table**
+- [ ] **Step 7: Verify locally**
 
-  Add the minimal `Items` table schema needed for the first overview query. Keep schema small: name, page, type, slot, damage/ac range, buy/sell, image.
+  Import modules/templates/data into local MediaWiki, parse every item fixture, query Cargo item rows, and run the item null-edit refresh proof.
 
-- [ ] **Step 2: Store resolved values**
+### Milestone 7: Replace Character/Enemy templates with Lua-backed compatibility contract
 
-  Cargo rows must use resolved values after article-local overrides. If `|image=Custom.png` is on the article, Cargo must store `Custom.png`, not the raw generated default.
-
-- [ ] **Step 3: Add local Cargo query test**
-
-  Query the local `Items` table and assert expected row values.
-
-- [ ] **Step 4: Add null-edit proof test**
-
-  Implement the documented failure mode:
-  1. import data module v1;
-  2. parse article and assert Cargo row v1;
-  3. import data module v2;
-  4. assert Cargo remains v1 before null-edit;
-  5. null-edit article;
-  6. assert Cargo row updates to v2.
-
-- [ ] **Step 5: Commit**
-
-  Cargo support is not complete until this null-edit test passes.
-
-### Milestone 6: Expand the local implementation to all wiki surfaces
-
-**Planned commit series:** one commit per entity/display surface, all local-only until the full system passes the verification matrix.
+**Planned commit:** `feat(wiki): render character templates through Lua`
 
 **Files:**
-- Create/modify: `wiki/modules/Erenshor/Character.lua`
-- Create/modify: `wiki/modules/Erenshor/Spell.lua`
-- Create/modify: `wiki/modules/Erenshor/Skill.lua`
-- Create/modify: `wiki/modules/Erenshor/Stance.lua`
-- Create/modify: `wiki/modules/Erenshor/Zone.lua`
-- Create/modify: `wiki/modules/Erenshor/Tables.lua`
-- Create/modify: `wiki/modules/Erenshor/Data/*.lua`
-- Create/modify: `wiki/templates/*.wiki`
-- Modify: `src/erenshor/application/wiki_lua/*.py`
-- Modify: `wiki-dev/smoke_test.py`
-- [ ] **Step 1: Add Character/NPC and vendor inventory support**
 
-  Implement generated character data, `Module:Erenshor/Character`, `Template:Character`, Cargo storage, and local tests for ordinary NPCs, enemies, bosses, vendors, drop tables, and vendor inventories.
+```text
+wiki/modules/Erenshor/Character.lua
+wiki/modules/Erenshor/Character/testcases.lua
+wiki/modules/Erenshor/Data/Characters.lua
+wiki/templates/Character.wiki
+wiki/templates/Character/CargoDeclare.wiki
+wiki/templates/Character/CargoStore.wiki
+wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/smoke.tsv
+src/erenshor/application/wiki_lua/characters.py
+tests/unit/application/wiki_lua/test_characters_module.py
+```
 
-- [ ] **Step 2: Add spells, skills, and stances**
+- [ ] **Step 1: Preserve root `Template:Character` public parameters**
 
-  Implement generated spell/skill/stance data, display modules, templates, Cargo storage, and local tests for class restrictions, level requirements, spell/skill overview rows, and page-local overrides.
+  Keep compatibility with production fields for NPCs, enemies, bosses, drops, map links, zones, coordinates, stats, resists, and abilities.
 
-- [ ] **Step 3: Add zones and map/connection data**
+- [ ] **Step 2: Resolve characters from generated data plus article overrides**
 
-  Implement generated zone data, `Module:Erenshor/Zone`, zone templates, Cargo storage if useful for query pages, and local tests for map links, connections, and coordinates.
+  Support ordinary NPCs, enemies, bosses, vendors, simulated players, multi-zone spawns, coordinates, base respawn, spawn chance, faction, class, drops, and spells.
 
-- [ ] **Step 4: Add overview and maintainer query pages**
+- [ ] **Step 3: Generate map links in Lua**
 
-  Implement local versions of Weapons, Armor, class pages, vendor listings, spell/skill overview pages, and any other high-value query pages. Prefer Cargo queries for contributor-maintained overview pages; use Lua iteration only for tightly game-derived displays.
+  Replace parser-function map-link branching with a shared Lua helper that produces the correct `npc:` or `enemy:` selector.
 
-- [ ] **Step 5: Run the full local verification matrix**
+- [ ] **Step 4: Store resolved Cargo character rows**
 
-  In local MediaWiki, import every module/template/data page and parse representative pages for every entity type. Run ScribuntoUnit testcases. Query Cargo tables. Run the null-edit refresh proof for each table that stores data from Lua-backed templates.
+  Store query-safe fields for entity type, zones, level, class, faction, spawn data, drops summary, and map selector.
 
-- [ ] **Step 6: Commit local completion**
+- [ ] **Step 5: Verify locally**
 
-  Commit only after all local surfaces pass. No production pages are changed in this milestone.
+  Parse representative NPC, enemy, boss, vendor, and multi-zone fixtures. Query Cargo rows and run null-edit refresh proof.
 
-### Milestone 7: Live TemplateSandbox validation for the complete cutover
+### Milestone 8: Replace quest, ability, stance, zone, and link surfaces
 
-**Planned commit:** `docs(wiki): record full Lua sandbox validation`
-
-**Files:**
-- Create: `docs/wiki-sandbox-validation/full-lua-cutover.md`
-
-- [ ] **Step 1: Upload complete sandbox pages only**
-
-  Upload all candidate modules/templates/data fixtures under a user sandbox prefix, not production names. The sandbox must represent the whole cutover, not only Item.
-
-- [ ] **Step 2: Render representative production pages through TemplateSandbox**
-
-  Use real pages with current article content and sandboxed templates/modules. Cover every migrated surface: items, weapon/armor tier pages, tooltip item types, characters, vendors, spells, skills, stances, zones, overview pages, class pages, and query pages.
-
-- [ ] **Step 3: Capture validation evidence**
-
-  Record page titles tested, expected differences, unexpected differences, rendered excerpts, Cargo query checks that can be validated in sandbox, and any known local-vs-live parity gaps.
-
-- [ ] **Step 4: Fix local/source files for every issue found**
-
-  The wiki sandbox is validation, not the source of truth. Any edits made in the wiki UI must be copied back into repo files before deployment.
-
-- [ ] **Step 5: Commit validation notes**
-
-  Commit the validation record. Do not promote production templates until the complete sandbox cutover has passed.
-
-### Milestone 8: Single coordinated production cutover
-
-**Planned commit:** `feat(wiki): deploy Lua-backed wiki data system`
+**Planned commit series:** one commit per domain surface.
 
 **Files:**
-- Modify deployment code created in earlier milestones
-- Add deploy manifest output under gitignored variant/wiki deployment directory
 
-- [ ] **Step 1: Freeze the legacy deploy path**
+```text
+wiki/modules/Erenshor/Quest.lua
+wiki/modules/Erenshor/Ability.lua
+wiki/modules/Erenshor/Zone.lua
+wiki/modules/Erenshor/Link.lua
+wiki/modules/Erenshor/Data/Quests.lua
+wiki/modules/Erenshor/Data/Abilities.lua
+wiki/modules/Erenshor/Data/Zones.lua
+wiki/templates/Quest.wiki
+wiki/templates/Ability.wiki
+wiki/templates/Zone.wiki
+wiki/templates/AbilityLink.wiki
+wiki/templates/QuestLink.wiki
+wiki/templates/MapLink.wiki
+src/erenshor/application/wiki_lua/*.py
+tests/unit/application/wiki_lua/*.py
+wiki-dev/fixtures/pages/*.wiki
+```
 
-  Disable or clearly guard the current Python article-generation deploy command so it cannot run accidentally during or after cutover.
+- [ ] **Step 1: Replace quest display and query data**
 
-- [ ] **Step 2: Deploy data modules first**
+  Implement generated quest data, `Template:Quest`, `Template:QuestLink`, quest Cargo rows, and local fixtures for quest rewards, requirements, related NPCs, and related items.
 
-  Upload all `Module:Erenshor/Data/*` pages with game build number in edit summaries.
+- [ ] **Step 2: Replace ability/spell/skill/stance display and query data**
 
-- [ ] **Step 3: Deploy display modules and templates**
+  Implement generated ability data, `Template:Ability`, `Template:AbilityLink`, class/level restrictions, cost/cast/cooldown fields, and local fixtures for spells, skills, and stances.
 
-  Upload all production `Module:Erenshor/*` and `Template:*` pages with `basetimestamp` protection. Abort on any edit conflict.
+- [ ] **Step 3: Replace zone/map display and query data**
 
-- [ ] **Step 4: Recreate Cargo tables for changed schemas**
+  Implement generated zone data, `Template:Zone`, `Template:MapLink`, zone connections, map links, and local fixtures for zones with characters, enemies, and map coordinates.
 
-  Use replacement-table workflow where available. Do not rely on normal page refreshes to repopulate large tables.
+- [ ] **Step 4: Preserve helper template editor APIs**
 
-- [ ] **Step 5: Null-edit all affected article pages**
+  Keep public helper templates simple and stable for article prose. Internally they may invoke `Module:Erenshor/Link` for data defaults.
 
-  Run the null-edit pass for every page transcluding the migrated templates. Changed-only null-edit is acceptable only if the dependency graph is proven complete; otherwise do the full pass.
+- [ ] **Step 5: Verify locally per domain**
+
+  Each domain commit must include Python generation tests, Lua testcase modules, local MediaWiki parse smoke tests, Cargo query tests where Cargo is used, and null-edit refresh proof for stored rows.
+
+### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
+
+**Planned commit:** `feat(wiki): add Cargo-backed overview pages`
+
+**Files:**
+
+```text
+wiki/modules/Erenshor/Table.lua
+wiki/modules/Erenshor/Table/testcases.lua
+wiki/templates/ArmorTable.wiki
+wiki/templates/WeaponTable.wiki
+wiki/templates/MoldList.wiki
+wiki/templates/ItemTable.wiki
+wiki/templates/CharacterTable.wiki
+wiki/pages/system/*.wiki
+wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/smoke.tsv
+```
+
+- [ ] **Step 1: Identify overview pages from production usage**
+
+  Use the inventory from Milestone 4 to identify pages and templates that produce lists/tables from item, character, quest, ability, and zone data.
+
+- [ ] **Step 2: Use Cargo for maintainer-facing aggregate pages**
+
+  Overview pages should query Cargo instead of receiving bot-generated expanded wikitext. Use `format=template` row templates only when the row format is small and stable.
+
+- [ ] **Step 3: Use Lua iteration only for tightly game-derived displays**
+
+  Lua may render a table directly when the display is deterministic game data and does not need maintainer-authored query flexibility.
+
+- [ ] **Step 4: Verify query pages locally**
+
+  Recreate Cargo tables, null-edit fixture articles, render overview pages, and assert expected rows and links appear.
+
+### Milestone 10: Build clean-cut deployment and rollback pipeline
+
+**Planned commit:** `feat(wiki): deploy repo-owned wiki pages cleanly`
+
+**Files:**
+
+```text
+src/erenshor/application/wiki_deploy/__init__.py
+src/erenshor/application/wiki_deploy/manifest.py
+src/erenshor/application/wiki_deploy/pages.py
+src/erenshor/application/wiki_deploy/null_edit.py
+src/erenshor/application/wiki_deploy/rollback.py
+src/erenshor/cli/commands/wiki.py
+tests/unit/application/wiki_deploy/*.py
+tests/unit/cli/commands/test_wiki.py
+```
+
+- [ ] **Step 1: Add repo-owned page deploy manifest**
+
+  Manifest entries must include page title, source path, ownership class, sha256, old revision ID, new revision ID after deploy, and rollback text source.
+
+- [ ] **Step 2: Add safe upload command**
+
+  Upload repo-owned pages with edit tokens, `basetimestamp`, content hashes, and edit summaries containing variant and game build. Abort on edit conflicts.
+
+- [ ] **Step 3: Add null-edit command**
+
+  Null-edit affected article pages after data/template/module deploys. The page list must come from transclusion/API dependency data, not from guessed filenames.
+
+- [ ] **Step 4: Add rollback command**
+
+  Rollback uploads previous source for every changed repo-owned page and runs the same null-edit pass.
+
+- [ ] **Step 5: Guard legacy commands**
+
+  Legacy Python article generation/deployment commands must be disabled or explicitly marked legacy so they cannot run accidentally during the clean cut.
+
+- [ ] **Step 6: Verify against local MediaWiki**
+
+  Use the local harness to upload pages, capture revision IDs, null-edit articles, and roll back to previous revisions.
+
+### Milestone 11: Complete local full-system verification
+
+**Planned commit:** `test(wiki): verify local Lua Cargo cutover`
+
+**Files:**
+
+```text
+wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/smoke.tsv
+wiki-dev/smoke_test.py
+wiki-dev/null_edit.py
+wiki-dev/cargo_check.py
+docs/wiki-local-validation/full-lua-cutover.md
+```
+
+- [ ] **Step 1: Import all repo-owned pages locally**
+
+  Import every module, data module, template, Cargo declaration, Cargo store page, and fixture article into local MediaWiki.
+
+- [ ] **Step 2: Run Lua testcases**
+
+  Run every `Module:Erenshor/*/testcases` module and fail on any failed assertion.
+
+- [ ] **Step 3: Parse representative article fixtures**
+
+  Cover item subtypes, character types, quests, abilities, stances, zones, links, and overview pages.
+
+- [ ] **Step 4: Verify Cargo rows and queries**
+
+  Recreate local Cargo tables, null-edit fixture articles, query every table, and spot-check resolved values and override behavior.
+
+- [ ] **Step 5: Verify parser health**
+
+  Fail on `Lua error`, `Script error`, unresolved templates, missing data categories in pages that should resolve, parser limit errors, and unexpected tracking categories.
+
+- [ ] **Step 6: Record local validation evidence**
+
+  Save page titles, commands, expected rows, observed rows, and known local-vs-live differences in `docs/wiki-local-validation/full-lua-cutover.md`.
+
+### Milestone 12: Live TemplateSandbox validation
+
+**Planned commit:** `docs(wiki): record Lua TemplateSandbox validation`
+
+**Files:**
+
+```text
+docs/wiki-sandbox-validation/full-lua-cutover.md
+```
+
+- [ ] **Step 1: Upload sandbox-prefixed pages**
+
+  Upload the complete candidate set under a user sandbox prefix, including templates, modules, data modules, and Cargo pages where TemplateSandbox can exercise them.
+
+- [ ] **Step 2: Preview real production pages through TemplateSandbox**
+
+  Use real pages with current article content and sandboxed templates/modules. Cover item subtypes, characters, enemies, bosses, vendors, quests, abilities, stances, zones, links, and overview pages.
+
+- [ ] **Step 3: Capture rendered differences**
+
+  Record expected differences, unexpected differences, parser output, rendered excerpts, and screenshots where visual layout matters.
+
+- [ ] **Step 4: Copy any wiki-side fixes back to git**
+
+  The wiki sandbox is validation only. Every source change must land in repository files before production deploy.
+
+- [ ] **Step 5: Record validation evidence**
+
+  Save tested pages, sandbox prefix, result summaries, and blockers resolved in `docs/wiki-sandbox-validation/full-lua-cutover.md`.
+
+### Milestone 13: Single coordinated production cutover
+
+**Planned commit:** `feat(wiki): deploy Lua-backed wiki system`
+
+**Files:**
+
+```text
+variants/{variant}/wiki/deploy-manifest.json
+variants/{variant}/wiki/null-edit-pages.txt
+src/erenshor/application/wiki_deploy/*.py
+src/erenshor/cli/commands/wiki.py
+```
+
+- [ ] **Step 1: Freeze legacy article deployment**
+
+  Disable old Python article-generation deploy paths before uploading production replacements.
+
+- [ ] **Step 2: Deploy generated data modules**
+
+  Upload all `Module:Erenshor/Data/*` pages first with game build and variant in edit summaries.
+
+- [ ] **Step 3: Deploy display modules and public templates**
+
+  Upload all production `Module:Erenshor/*` and `Template:*` pages with edit conflict protection.
+
+- [ ] **Step 4: Recreate changed Cargo tables**
+
+  Use replacement-table workflow where available. Record table recreation actions in the deploy manifest.
+
+- [ ] **Step 5: Null-edit affected article pages**
+
+  Null-edit every page transcluding migrated templates. Use full transclusion-derived page lists unless a smaller dependency set is proven complete.
 
 - [ ] **Step 6: Smoke-test live pages and Cargo queries**
 
-  Check representative pages across all entity types plus overview and class pages. Query Cargo tables and verify row counts and spot-check values.
+  Check representative live pages and query Cargo tables for row counts and spot-check values.
 
 - [ ] **Step 7: Keep rollback manifest**
 
-  Record old and new revision IDs for every changed module/template. Rollback must be uploading previous module/template text, then running the same null-edit refresh.
+  Record previous and new revision IDs for every repo-owned page and preserve rollback text for every changed page.
 
-- [ ] **Step 8: Remove legacy generation only after production verification**
+### Milestone 14: Delete legacy wiki generation code
 
-  Delete or deprecate the old Python fetch/generate/merge/deploy path after the Lua/Cargo cutover is verified live, not before.
+**Planned commit:** `refactor(wiki): remove legacy article generation`
 
----
+**Files:**
 
-## What not to do
+```text
+src/erenshor/application/wiki/generators/*
+src/erenshor/application/wiki/services/*
+src/erenshor/application/wiki/templates/*
+tests/unit/application/wiki/*
+tests/golden/wiki/*
+src/erenshor/cli/commands/wiki.py
+README.md
+.agent/skills/wiki-templates/SKILL.md
+```
 
-- Do not cut production over one vertical at a time unless we explicitly choose that as an emergency fallback. Local vertical prototypes are fine; production should switch as one coordinated release after full local and sandbox verification.
-- Do not make Cargo the source of truth. Cargo is the query/index layer; Lua data modules are the generated game-data source.
-- Do not skip null-edit testing. Cargo will appear to work in simple tests and fail after real data updates.
-- Do not edit live modules/templates directly without pulling changes back into git.
-- Do not let article pages contain bot-generated expanded wikitext after cutover. Article pages should contain compact template calls plus human prose/overrides.
+- [ ] **Step 1: Remove Python article generators**
+
+  Delete Jinja2 article templates, page generators, field preservation, fetch-merge article generation, and golden baselines for generated article pages.
+
+- [ ] **Step 2: Keep API primitives that still serve the new system**
+
+  Preserve or move MediaWiki API edit, token, diff, upload, and null-edit primitives used by the new deploy pipeline.
+
+- [ ] **Step 3: Remove legacy CLI commands**
+
+  Remove or replace commands that fetch/generate/deploy article wikitext. The remaining wiki CLI should generate Lua data, inventory templates, deploy repo-owned pages, null-edit pages, validate Cargo, and roll back manifests.
+
+- [ ] **Step 4: Update documentation and skills**
+
+  Update human docs and the `wiki-templates` skill so future work uses Lua data modules and repo-owned templates/modules only.
+
+- [ ] **Step 5: Verify deletion**
+
+  Run targeted unit tests, mypy, Ruff, local wiki validation, and a search confirming no production path imports deleted article-generation modules.
+
+## Non-goals and prohibitions
+
+- Do not run production as a mixed old/new entity-template architecture except as an explicitly approved emergency fallback.
+- Do not rewrite human-owned article content during normal data refreshes.
+- Do not use Cargo as the source of truth for generated game data.
+- Do not use centralized Cargo data-store pages for generated game data.
+- Do not reimplement the old Python fetch/merge/preserve article-generation model in Lua.
+- Do not build one giant `Module:Erenshor` or one giant generated data module.
+- Do not keep legacy aliases indefinitely after usage tracking categories are empty.
+- Do not edit live modules/templates directly without copying changes back into git.
+- Do not skip null-edit proof tests for Cargo-backed templates.
+- Do not skip TemplateSandbox validation for the complete cutover set.
 
 ## Immediate next action
 
-Complete **Milestone 2**: consolidate local development hooks with Lefthook
-before adding more Lua module and template surfaces.
+Complete **Milestone 4**: build the production template inventory and ownership manifest. This replaces inferred template scope with a source-controlled compatibility map before more Lua template rendering is implemented.
