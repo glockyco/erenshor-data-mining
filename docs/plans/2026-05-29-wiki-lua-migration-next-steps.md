@@ -406,7 +406,7 @@ tests/unit/test_wiki_dev_harness.py
 
 ### Milestone 6: Replace Item templates with Lua-backed compatibility contract
 
-**Planned commit:** `feat(wiki): render item templates through Lua`
+**Commit:** `327d5685 feat(wiki): render item templates through Lua`
 
 **Files:**
 
@@ -418,23 +418,36 @@ wiki/templates/Item.wiki
 wiki/templates/ItemLink.wiki
 wiki/templates/Item/CargoDeclare.wiki
 wiki/templates/Item/CargoStore.wiki
+wiki/templates/Item/Armor.wiki
+wiki/templates/Item/Aura.wiki
+wiki/templates/Item/Charm.wiki
+wiki/templates/Item/Consumable.wiki
+wiki/templates/Item/General.wiki
+wiki/templates/Item/Mold.wiki
+wiki/templates/Item/SkillBook.wiki
+wiki/templates/Item/SpellScroll.wiki
+wiki/templates/Item/Weapon.wiki
 wiki-dev/fixtures/pages/*.wiki
 wiki-dev/fixtures/smoke.tsv
+wiki-dev/fixtures/cargo_items.tsv
+wiki-dev/fixtures/cargo_absent.tsv
+wiki-dev/smoke_test.py
 src/erenshor/application/wiki_lua/items.py
 tests/unit/application/wiki_lua/test_items_module.py
+tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Preserve root `Template:Item` public parameters**
+- [x] **Step 1: Preserve root `Template:Item` public parameters**
 
-  `Template:Item` must continue accepting the production root parameter contract listed in this plan. Existing article pages should not need bot rewrites to render after cutover.
+  `Template:Item` accepts the production root parameter contract listed in this plan. Existing article pages do not need bot rewrites to render after cutover.
 
-- [ ] **Step 2: Resolve generated data plus article overrides**
+- [x] **Step 2: Resolve generated data plus article overrides**
 
-  `Module:Erenshor/Item` must resolve by page title, explicit stable item key, or explicit display name. Article-local parameters override generated values. The sentinel `-` intentionally blanks fields that support blanking.
+  `Module:Erenshor/Item` resolves by page title, explicit stable item key, explicit item name, or positional link target where the public template supports it. Article-local parameters override generated values. The sentinel `-` intentionally blanks fields that support blanking.
 
-- [ ] **Step 3: Render item display modes**
+- [x] **Step 3: Render item display modes**
 
-  Render the root infobox and the item tooltip modes represented by production templates:
+  Lua-backed compatibility wrappers render the root infobox and item tooltip modes represented by production templates:
 
   ```text
   Item/Weapon
@@ -448,26 +461,26 @@ tests/unit/application/wiki_lua/test_items_module.py
   Item/SpellScroll
   ```
 
-- [ ] **Step 4: Replace `Template:ItemLink` behavior through Lua**
+- [x] **Step 4: Replace `Template:ItemLink` behavior through Lua**
 
-  Preserve editor-facing behavior: default image from item/page name, explicit `image`, explicit `link`, explicit `text`, and `imageonly`.
+  `Template:ItemLink` preserves editor-facing behavior for page target, default image, explicit `image`, explicit `link`, explicit `text`, and `imageonly`.
 
-- [ ] **Step 5: Store resolved Cargo item rows**
+- [x] **Step 5: Store resolved Cargo item rows**
 
-  Cargo rows must use resolved values after overrides. The initial schema must cover overview queries without storing large prose blobs:
+  Cargo rows use resolved values after overrides. The initial schema covers overview queries without storing large prose blobs:
 
   ```text
   Page, StableKey, Name, Type, Slot, ItemLevel, Damage, Delay, Armor,
   BuyValue, SellValue, Image, Classes, Relic, HasProc, HasWornEffect
   ```
 
-- [ ] **Step 6: Test with production-shaped fixtures**
+- [x] **Step 6: Test with production-shaped fixtures**
 
-  Local fixture pages must cover weapon, armor, charm, consumable, general item, mold, aura, skill book, spell scroll, manual image override, manual source override, and missing data tracking category.
+  Local fixture pages cover weapon, armor, charm, consumable, general item, mold, aura, skill book, spell scroll, manual item overrides, positional item links, boolean overrides, and missing data tracking category.
 
-- [ ] **Step 7: Verify locally**
+- [x] **Step 7: Verify locally**
 
-  Import modules/templates/data into local MediaWiki, parse every item fixture, query Cargo item rows, and run the item null-edit refresh proof.
+  Local verification imports modules/templates/data into MediaWiki, parses every item fixture, checks parser health, validates missing-data categories, and queries Cargo item rows by `(Page, StableKey)`.
 
 ### Milestone 7: Replace Character/Enemy templates with Lua-backed compatibility contract
 
@@ -789,7 +802,6 @@ README.md
 - Do not skip null-edit proof tests for Cargo-backed templates.
 - Do not skip TemplateSandbox validation for the complete cutover set.
 
-## Immediate next action
-
-Complete **Milestone 6**: replace Item templates with Lua-backed compatibility
-wrappers, generated item data, item link rendering, and local Cargo validation.
+Proceed to **Milestone 7**: replace Character/Enemy templates with Lua-backed
+compatibility wrappers, generated character data, local fixtures, Cargo row
+validation, and null-edit refresh proof.
