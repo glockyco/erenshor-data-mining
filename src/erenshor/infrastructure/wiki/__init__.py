@@ -15,6 +15,14 @@ from erenshor.infrastructure.wiki.filename_sanitizer import (
     needs_redirect,
     sanitize_wiki_filename,
 )
+from erenshor.infrastructure.wiki.rate_limit import (
+    MediaWikiRequestError,
+    MediaWikiRequestor,
+    MediaWikiRequestPolicy,
+    MediaWikiRetryableRequestError,
+    MediaWikiUnretryableRequestError,
+    RequestKind,
+)
 from erenshor.infrastructure.wiki.template_parser import (
     InvalidWikitextError,
     TemplateNotFoundError,
@@ -30,6 +38,12 @@ __all__ = [
     "MediaWikiEditError",
     "MediaWikiNetworkError",
     "MediaWikiRateLimitError",
+    "MediaWikiRequestError",
+    "MediaWikiRequestPolicy",
+    "MediaWikiRequestor",
+    "MediaWikiRetryableRequestError",
+    "MediaWikiUnretryableRequestError",
+    "RequestKind",
     "TemplateNotFoundError",
     "TemplateParser",
     "TemplateParserError",
