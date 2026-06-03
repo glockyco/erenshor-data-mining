@@ -1,0 +1,8 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "embeddedin": [
+      {"pageid": 1183, "ns": 10, "title": "Template:Item/doc"}
+    ]
+  }
+}

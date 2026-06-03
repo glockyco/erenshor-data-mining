@@ -1,0 +1,9 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "allpages": [
+      {"pageid": 6117, "ns": 10, "title": "Template:Item/Weapon"},
+      {"pageid": 1183, "ns": 10, "title": "Template:Item/doc"}
+    ]
+  }
+}

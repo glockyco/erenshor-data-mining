@@ -1,0 +1,9 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "embeddedin": [
+      {"pageid": 4, "ns": 0, "title": "Zephyra"},
+      {"pageid": 18, "ns": 0, "title": "A Grizzly Bear"}
+    ]
+  }
+}

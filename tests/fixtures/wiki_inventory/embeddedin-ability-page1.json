@@ -1,0 +1,8 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "embeddedin": [
+      {"pageid": 900, "ns": 0, "title": "Fireball"}
+    ]
+  }
+}

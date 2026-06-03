@@ -28,6 +28,8 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
+from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
+from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
@@ -305,6 +307,44 @@ def generate_lua(ctx: typer.Context) -> None:
         console.print(f"[red]Error during wiki Lua generation: {e}[/red]")
         logger.exception("Wiki Lua generation failed")
         raise typer.Exit(1) from e
+
+
+@app.command("inventory-templates")
+def inventory_templates(
+    ctx: typer.Context,
+    output: Path = typer.Option(
+        Path("wiki/ownership.yml"),
+        "--output",
+        "-o",
+        help="Path to write the template ownership manifest.",
+    ),
+    fixture_dir: Path | None = typer.Option(
+        None,
+        "--fixture-dir",
+        help="Replay recorded MediaWiki API fixtures instead of calling the live wiki.",
+    ),
+) -> None:
+    """Inventory production templates and write the ownership manifest."""
+    cli_ctx: CLIContext = ctx.obj
+    wiki_config = cli_ctx.config.global_.mediawiki
+    transport = FixtureDirectoryTransport(fixture_dir) if fixture_dir is not None else None
+    client = MediaWikiInventoryClient(
+        api_url=wiki_config.api_url,
+        transport=transport,
+        rate_limit_delay=wiki_config.api_delay,
+    )
+
+    try:
+        manifest = render_ownership_manifest(template_inventory_from_api(client))
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(manifest, encoding="utf-8")
+        console.print(f"[green]Wrote template ownership manifest:[/green] {output}", soft_wrap=True)
+    except Exception as e:
+        console.print(f"[red]Error during template inventory: {e}[/red]")
+        logger.exception("Template inventory failed")
+        raise typer.Exit(1) from e
+    finally:
+        client.close()
 
 
 @app.command()

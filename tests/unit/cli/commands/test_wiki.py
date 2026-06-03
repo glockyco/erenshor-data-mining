@@ -1,5 +1,6 @@
 """Unit tests for wiki CLI commands."""
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -166,6 +167,33 @@ class TestWikiGenerateCommand:
         assert result.exit_code == 0
         assert "Dry run" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Items.lua" in result.output
+
+
+class TestWikiInventoryTemplatesCommand:
+    """Test wiki template inventory command."""
+
+    def test_inventory_templates_writes_manifest_from_recorded_fixtures(self, tmp_path: Path):
+        """Test template inventory writes ownership manifest from recorded API fixtures."""
+        output_path = tmp_path / "ownership.yml"
+
+        result = runner.invoke(
+            app,
+            [
+                "wiki",
+                "inventory-templates",
+                "--fixture-dir",
+                "tests/fixtures/wiki_inventory",
+                "--output",
+                str(output_path),
+            ],
+        )
+
+        assert result.exit_code == 0
+        manifest = output_path.read_text(encoding="utf-8")
+        assert "title: Template:Item" in manifest
+        assert "ownership: repo_owned_template" in manifest
+        assert "cutover_blocking: true" in manifest
+        assert "Wrote template ownership manifest" in result.output
 
 
 class TestWikiDeployCommand:

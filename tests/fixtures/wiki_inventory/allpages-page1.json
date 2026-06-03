@@ -1,0 +1,14 @@
+{
+  "batchcomplete": false,
+  "continue": {
+    "apcontinue": "Item/doc",
+    "continue": "-||"
+  },
+  "query": {
+    "allpages": [
+      {"pageid": 915, "ns": 10, "title": "Template:Ability"},
+      {"pageid": 1168, "ns": 10, "title": "Template:Character"},
+      {"pageid": 1476, "ns": 10, "title": "Template:Item"}
+    ]
+  }
+}
