@@ -21,9 +21,17 @@
 - `Template:Item/CargoStore` raw source: https://erenshor.wiki.gg/index.php?title=Template:Item/CargoStore&action=raw
 - `Template:Character` raw source: https://erenshor.wiki.gg/index.php?title=Template:Character&action=raw
 - `Template:ItemLink` raw source: https://erenshor.wiki.gg/index.php?title=Template:ItemLink&action=raw
+- `Template:Quest` raw source: https://erenshor.wiki.gg/index.php?title=Template:Quest&action=raw
+- `Template:AbilityLink` raw source: https://erenshor.wiki.gg/index.php?title=Template:AbilityLink&action=raw
+- `Template:Zone` raw source: https://erenshor.wiki.gg/index.php?title=Template:Zone&action=raw
+- `Template:MapLink` raw source: https://erenshor.wiki.gg/index.php?title=Template:MapLink&action=raw
 - `Template:ArmorTable` raw source: https://erenshor.wiki.gg/index.php?title=Template:ArmorTable&action=raw
 - `Template:Item` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Item&einamespace=0%7C10&eilimit=max&format=json&formatversion=2
 - `Template:Character` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Character&einamespace=0%7C10&eilimit=max&format=json&formatversion=2
+- `Template:Quest` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Quest&eilimit=50&format=json
+- `Template:AbilityLink` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:AbilityLink&eilimit=50&format=json
+- `Template:Zone` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Zone&eilimit=50&format=json
+- `Template:MapLink` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:MapLink&eilimit=50&format=json
 
 ### Platform and implementation references
 
@@ -62,14 +70,12 @@ Module:Erenshor/*/testcases
 Template:Item
 Template:Character
 Template:Quest
-Template:Ability
 Template:Zone
 Template:ItemLink
 Template:AbilityLink
-Template:QuestLink
 Template:MapLink
-Template:* / CargoDeclare pages created for the new schema
-Template:* / CargoStore pages created for parser-function-compatible stores
+Template:* / CargoDeclare pages created for concrete query/index needs
+Template:* / CargoStore pages created for concrete query/index needs
 ```
 
 ### Human-owned pages
@@ -103,10 +109,9 @@ Generated modules are static tables suitable for `mw.loadData()`:
 ```text
 Module:Erenshor/Data/Items
 Module:Erenshor/Data/Characters
-Module:Erenshor/Data/Abilities
+Module:Erenshor/Data/AbilityLinks
 Module:Erenshor/Data/Quests
 Module:Erenshor/Data/Zones
-Module:Erenshor/Data/Indexes
 ```
 
 Rules:
@@ -128,10 +133,9 @@ Module:Erenshor/Format      -- links, files, classes, currency, booleans
 Module:Erenshor/Render      -- shared infobox/table rendering helpers
 Module:Erenshor/Item        -- item resolve/render/store
 Module:Erenshor/Character   -- NPC/enemy resolve/render/store
-Module:Erenshor/Quest       -- quest resolve/render/store
-Module:Erenshor/Ability     -- spell/skill/stance resolve/render/store
-Module:Erenshor/Zone        -- zone/map resolve/render/store
-Module:Erenshor/Link        -- item/ability/quest/map link templates
+Module:Erenshor/Quest       -- quest resolve/render
+Module:Erenshor/AbilityLink -- spell/skill/stance link resolve/render
+Module:Erenshor/Zone        -- zone/map resolve/render
 Module:Erenshor/Table       -- query/table display helpers
 ```
 
@@ -156,27 +160,24 @@ They keep existing editor-facing names and parameter contracts while moving logi
 ```text
 Template:Item      -> Module:Erenshor/Item
 Template:Character -> Module:Erenshor/Character
-Template:Quest     -> Module:Erenshor/Quest
-Template:Ability   -> Module:Erenshor/Ability
-Template:Zone      -> Module:Erenshor/Zone
-Template:ItemLink  -> Module:Erenshor/Link
+Template:Quest       -> Module:Erenshor/Quest
+Template:Zone        -> Module:Erenshor/Zone
+Template:AbilityLink -> Module:Erenshor/AbilityLink
+Template:MapLink     -> Module:Erenshor/Zone
 ```
 
 ### Cargo/LIBRARIAN pages
 
-Cargo declaration and store pages remain in template namespace:
+Cargo declaration and store pages live in template namespace only for surfaces
+with a concrete query/index requirement:
 
 ```text
 Template:Item/CargoDeclare
 Template:Item/CargoStore
 Template:Character/CargoDeclare
 Template:Character/CargoStore
-Template:Quest/CargoDeclare
-Template:Quest/CargoStore
-Template:Ability/CargoDeclare
-Template:Ability/CargoStore
-Template:Zone/CargoDeclare
-Template:Zone/CargoStore
+Template:<Domain>/CargoDeclare  -- added only when Milestone 9 needs it
+Template:<Domain>/CargoStore    -- added only when Milestone 9 needs it
 ```
 
 Rules:
@@ -540,48 +541,62 @@ tests/unit/test_wiki_dev_harness.py
 
 ### Milestone 8: Replace quest, ability, stance, zone, and link surfaces
 
-**Planned commit series:** one commit per domain surface.
-
-**Files:**
+**Commits:**
 
 ```text
-wiki/modules/Erenshor/Quest.lua
-wiki/modules/Erenshor/Ability.lua
-wiki/modules/Erenshor/Zone.lua
-wiki/modules/Erenshor/Link.lua
-wiki/modules/Erenshor/Data/Quests.lua
-wiki/modules/Erenshor/Data/Abilities.lua
-wiki/modules/Erenshor/Data/Zones.lua
-wiki/templates/Quest.wiki
-wiki/templates/Ability.wiki
-wiki/templates/Zone.wiki
-wiki/templates/AbilityLink.wiki
-wiki/templates/QuestLink.wiki
-wiki/templates/MapLink.wiki
-src/erenshor/application/wiki_lua/*.py
-tests/unit/application/wiki_lua/*.py
-wiki-dev/fixtures/pages/*.wiki
+969c7175 feat(wiki): render ability links through Lua
+bdbd992b feat(wiki): render quest templates through Lua
+8d1bdf24 feat(wiki): render zone templates through Lua
 ```
 
-- [ ] **Step 1: Replace quest display and query data**
+**Implemented files:**
 
-  Implement generated quest data, `Template:Quest`, `Template:QuestLink`, quest Cargo rows, and local fixtures for quest rewards, requirements, related NPCs, and related items.
+```text
+wiki/modules/Erenshor/AbilityLink.lua
+wiki/modules/Erenshor/AbilityLink/testcases.lua
+wiki/modules/Erenshor/Data/AbilityLinks.lua
+wiki/modules/Erenshor/Quest.lua
+wiki/modules/Erenshor/Quest/testcases.lua
+wiki/modules/Erenshor/Data/Quests.lua
+wiki/modules/Erenshor/Zone.lua
+wiki/modules/Erenshor/Zone/testcases.lua
+wiki/modules/Erenshor/Data/Zones.lua
+wiki/templates/AbilityLink.wiki
+wiki/templates/Quest.wiki
+wiki/templates/Zone.wiki
+wiki/templates/MapLink.wiki
+src/erenshor/application/wiki_lua/ability_links.py
+src/erenshor/application/wiki_lua/quests.py
+src/erenshor/application/wiki_lua/zones.py
+src/erenshor/application/wiki_lua/generation.py
+wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/smoke.tsv
+tests/unit/application/wiki_lua/test_ability_links_module.py
+tests/unit/application/wiki_lua/test_quests_module.py
+tests/unit/application/wiki_lua/test_zones_module.py
+tests/unit/application/wiki_lua/test_generation.py
+tests/unit/cli/commands/test_wiki.py
+```
 
-- [ ] **Step 2: Replace ability/spell/skill/stance display and query data**
+- [x] **Step 1: Replace production ability link surface**
 
-  Implement generated ability data, `Template:Ability`, `Template:AbilityLink`, class/level restrictions, cost/cast/cooldown fields, and local fixtures for spells, skills, and stances.
+  Production uses `Template:AbilityLink`; `Template:SkillLink`, `Template:SpellLink`, `Template:StanceLink`, and `Template:ZoneLink` do not exist and have no transclusions. `Template:AbilityLink` now invokes `Module:Erenshor/AbilityLink`, resolves spells, skills, and stances from generated Lua data, and preserves the production `image`, `link`, `text`, `imageonly`, and positional target parameters.
 
-- [ ] **Step 3: Replace zone/map display and query data**
+- [x] **Step 2: Replace quest display surface**
 
-  Implement generated zone data, `Template:Zone`, `Template:MapLink`, zone connections, map links, and local fixtures for zones with characters, enemies, and map coordinates.
+  `Template:Quest` now invokes `Module:Erenshor/Quest`, resolves by stable key, explicit quest/name/title, positional target, or current page title, and preserves production quest infobox parameters as article overrides. Missing generated quest data emits visible output and `[[Category:Pages with missing Erenshor quest data]]`.
 
-- [ ] **Step 4: Preserve helper template editor APIs**
+- [x] **Step 3: Replace zone and map-link display surfaces**
 
-  Keep public helper templates simple and stable for article prose. Internally they may invoke `Module:Erenshor/Link` for data defaults.
+  `Template:Zone` and `Template:MapLink` now invoke `Module:Erenshor/Zone`. Generated zone data includes page indexes, type, image, map selector, and raw connection page titles. Lua renders map links, connection links, zone categories, dungeon categories, manual overrides, and missing-zone tracking.
 
-- [ ] **Step 5: Verify locally per domain**
+- [x] **Step 4: Keep helper template APIs thin**
 
-  Each domain commit must include Python generation tests, Lua testcase modules, local MediaWiki parse smoke tests, Cargo query tests where Cargo is used, and null-edit refresh proof for stored rows.
+  Helper templates stay as stable editor-facing wrappers. No absent production helper templates are invented, and no new god module is introduced.
+
+- [x] **Step 5: Verify locally per domain**
+
+  Local validation imports the ability-link, quest, zone, and map-link modules/templates/data into MediaWiki, parses representative article fixtures, runs Lua testcase modules, and checks missing-data tracking through the smoke harness. Cargo rows are not added for these render-only surfaces until Milestone 9 identifies concrete query/index requirements.
 
 ### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
 
@@ -819,7 +834,5 @@ README.md
 - Do not skip null-edit proof tests for Cargo-backed templates.
 - Do not skip TemplateSandbox validation for the complete cutover set.
 
-Proceed to **Milestone 8**: replace quest, ability, stance, zone, and link
-surfaces with Lua-backed compatibility wrappers, generated data modules,
-local fixtures, Cargo row validation where needed, and null-edit proof for
-stored rows.
+Proceed to **Milestone 9**: replace overview/list pages with query surfaces
+backed by Cargo/LIBRARIAN where a concrete production query need exists.
