@@ -23,6 +23,10 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki-dev/fixtures/pages").mkdir(parents=True)
 
     (root / "wiki-dev/interface/theme-shim.css").write_text(":root { --wiki-content-border-color: #866806; }\n")
+    (root / "wiki-dev/interface/theme-shim.js").write_text(
+        "document.documentElement.classList.add('theme-dark');\n",
+        encoding="utf-8",
+    )
     (root / "wiki-dev/interface/MediaWiki/Common.css").write_text("body { color: white; }\n", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Vector.css").write_text("", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Common.js").write_text("", encoding="utf-8")
@@ -55,6 +59,8 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     common_css = pages[0]
     assert common_css.content.startswith(":root { --wiki-content-border-color: #866806; }\n")
     assert common_css.content.endswith("body { color: white; }\n")
+    common_js = pages[1]
+    assert common_js.content.startswith("document.documentElement.classList.add('theme-dark');\n")
 
 
 def test_discover_pages_fails_when_interface_mirror_is_missing(tmp_path: Path) -> None:

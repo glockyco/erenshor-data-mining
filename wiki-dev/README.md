@@ -58,11 +58,16 @@ pages. Sync the current live versions before importing local pages:
 uv run erenshor wiki sync-interface
 ```
 
-The command writes a gitignored mirror under `wiki-dev/interface/MediaWiki/`
-and prints unified diffs against any existing local mirror before overwriting.
-The committed `wiki-dev/interface/theme-shim.css` is authored local glue for
-wiki.gg theme custom properties; it is prepended to `MediaWiki:Common.css` at
-import time and is not overwritten by sync.
+The command writes gitignored mirrors under `wiki-dev/interface/MediaWiki/`
+and `wiki-dev/images/`. It prints unified diffs for interface page changes
+against any existing local mirror before overwriting, and it downloads image
+assets referenced by synced CSS so `/images/...` URLs resolve locally.
+The committed `wiki-dev/interface/theme-shim.css` and
+`wiki-dev/interface/theme-shim.js` files are authored local glue. The CSS
+provides fallback wiki.gg custom properties, and the JavaScript adds the same
+dark theme classes that wiki.gg applies on live pages. Import prepends these
+shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync never
+overwrites them.
 
 
 ## Import local pages

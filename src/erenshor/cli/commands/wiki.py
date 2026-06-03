@@ -519,13 +519,19 @@ def sync_interface(
 ) -> None:
     """Sync live MediaWiki interface pages for local preview.
 
-    Writes the gitignored local mirror to wiki-dev/interface.
+    Writes the gitignored local mirror to wiki-dev/interface and CSS assets to wiki-dev/images.
     """
     cli_ctx: CLIContext = ctx.obj
     output_root = Path("wiki-dev/interface")
+    image_root = Path("wiki-dev/images")
     client = MediaWikiInterfaceClient(api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=rate_limit_delay)
     try:
-        result = sync_interface_pages(client=client, output_root=output_root, dry_run=cli_ctx.dry_run)
+        result = sync_interface_pages(
+            client=client,
+            output_root=output_root,
+            image_root=image_root,
+            dry_run=cli_ctx.dry_run,
+        )
     except Exception as e:
         console.print(f"[red]Error during wiki interface sync: {e}[/red]")
         logger.exception("Wiki interface sync failed")
@@ -540,8 +546,14 @@ def sync_interface(
         if page.diff:
             console.print(page.diff, end="")
 
+    for asset in result.missing_assets:
+        console.print(f"[yellow]Skipped unresolved live CSS asset {asset.source_path} ({asset.file_title})[/yellow]")
+
+    changed_assets = [asset for asset in result.assets if asset.changed]
     console.print(
-        f"Synced {len(result.pages)} MediaWiki interface pages to {output_root} ({len(result.changed_pages)} changed)"
+        f"Synced {len(result.pages)} MediaWiki interface pages to {output_root} "
+        f"({len(result.changed_pages)} changed) and {len(result.assets)} CSS assets to {image_root} "
+        f"({len(changed_assets)} changed)"
     )
 
 

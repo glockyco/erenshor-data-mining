@@ -97,8 +97,10 @@ def discover_interface_pages(root: Path) -> list[PageSource]:
             "Run `uv run erenshor wiki sync-interface` before importing local pages."
         )
 
-    theme_shim_path = root / "wiki-dev" / "interface" / "theme-shim.css"
-    theme_shim = theme_shim_path.read_text(encoding="utf-8") if theme_shim_path.exists() else ""
+    theme_css_path = root / "wiki-dev" / "interface" / "theme-shim.css"
+    theme_css = theme_css_path.read_text(encoding="utf-8") if theme_css_path.exists() else ""
+    theme_js_path = root / "wiki-dev" / "interface" / "theme-shim.js"
+    theme_js = theme_js_path.read_text(encoding="utf-8") if theme_js_path.exists() else ""
 
     pages: list[PageSource] = []
     for path in sorted(interface_dir.iterdir()):
@@ -106,8 +108,10 @@ def discover_interface_pages(root: Path) -> list[PageSource]:
             continue
         title = "MediaWiki:" + path.name.replace("__", "/")
         content = None
-        if path.name == "Common.css" and theme_shim:
-            content = theme_shim + "\n" + path.read_text(encoding="utf-8")
+        if path.name == "Common.css" and theme_css:
+            content = theme_css + "\n" + path.read_text(encoding="utf-8")
+        if path.name == "Common.js" and theme_js:
+            content = theme_js + "\n" + path.read_text(encoding="utf-8")
         pages.append(PageSource(title=title, path=path, content=content))
     return pages
 

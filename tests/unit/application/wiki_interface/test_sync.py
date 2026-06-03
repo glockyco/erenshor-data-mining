@@ -13,13 +13,25 @@ from erenshor.application.wiki_interface.sync import (
 
 
 class FakeInterfaceClient:
-    def __init__(self, pages: dict[str, str]) -> None:
+    def __init__(self, pages: dict[str, str], media_files: dict[str, bytes] | None = None) -> None:
         self.pages = pages
+        self.media_files = media_files or {}
+        self.direct_media_files: dict[str, bytes] = {}
         self.requested: list[str] = []
+        self.requested_media: list[str] = []
+        self.requested_direct_media: list[str] = []
 
     def raw_page(self, title: str) -> str | None:
         self.requested.append(title)
         return self.pages.get(title)
+
+    def media_file(self, title: str) -> bytes | None:
+        self.requested_media.append(title)
+        return self.media_files.get(title)
+
+    def media_file_by_path(self, path: str) -> bytes | None:
+        self.requested_direct_media.append(path)
+        return self.direct_media_files.get(path)
 
 
 def test_gadget_source_titles_reads_definition_sources() -> None:
@@ -65,6 +77,54 @@ def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) 
     assert (tmp_path / "MediaWiki" / "Gadget-datatables.js").read_text(
         encoding="utf-8"
     ) == "window.datatables = true;\n"
+
+
+def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
+    client = FakeInterfaceClient(
+        {
+            "MediaWiki:Common.css": ".box { background: url(/images/8/80/Site-background.jpg); }\n",
+            "MediaWiki:Vector.css": ".border { border-image-source: url('images/d/d8/Tooltip_border_top.png'); }\n",
+            "MediaWiki:Common.js": "",
+            "MediaWiki:Vector.js": "",
+            "MediaWiki:Gadgets-definition": "",
+        },
+        {
+            "File:Site-background.jpg": b"site-background",
+            "File:Tooltip_border_top.png": b"tooltip-border",
+        },
+    )
+    image_root = tmp_path / "images"
+
+    result = sync_interface_pages(
+        client=client, output_root=tmp_path / "interface", image_root=image_root, dry_run=False
+    )
+
+    assert client.requested_media == ["File:Site-background.jpg", "File:Tooltip_border_top.png"]
+    assert [asset.title for asset in result.assets] == [
+        "File:Site-background.jpg",
+        "File:Tooltip_border_top.png",
+    ]
+    assert (image_root / "8" / "80" / "Site-background.jpg").read_bytes() == b"site-background"
+    assert (image_root / "d" / "d8" / "Tooltip_border_top.png").read_bytes() == b"tooltip-border"
+
+
+def test_sync_reports_unresolvable_live_css_assets_without_blocking(tmp_path: Path) -> None:
+    client = FakeInterfaceClient(
+        {
+            "MediaWiki:Common.css": ".box { background: url(/images/e/e0/MP_banner.jpg); }\n",
+            "MediaWiki:Vector.css": "",
+            "MediaWiki:Common.js": "",
+            "MediaWiki:Vector.js": "",
+            "MediaWiki:Gadgets-definition": "",
+        }
+    )
+
+    result = sync_interface_pages(
+        client=client, output_root=tmp_path / "interface", image_root=tmp_path / "images", dry_run=False
+    )
+
+    assert result.assets == []
+    assert [asset.source_path for asset in result.missing_assets] == ["/images/e/e0/MP_banner.jpg"]
 
 
 def test_sync_reports_diff_before_overwriting_existing_snapshot(tmp_path: Path) -> None:

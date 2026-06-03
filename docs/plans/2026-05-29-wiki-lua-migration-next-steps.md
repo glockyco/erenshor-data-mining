@@ -277,12 +277,18 @@ Local preview rules:
 - Print unified diffs from the existing local mirror to freshly fetched live
   content before overwriting files. Git history is not used for mirrored
   third-party interface pages.
+- Mirror local static assets referenced by synced CSS into
+  `wiki-dev/images/` so production `/images/...` URLs resolve against the
+  local MediaWiki container instead of returning file-page HTML or broken
+  backgrounds.
 - Import mirrored interface pages as real `MediaWiki:*` pages in the local
   wiki before modules, templates, and fixture articles. Fail loudly when the
   mirror is missing instead of silently rendering without site CSS/JS.
 - Keep authored local compatibility shims separate from mirrored live files.
-  A small committed theme-variable shim may provide wiki.gg CSS custom
-  properties that production skins define outside `MediaWiki:Common.css`.
+  The committed local theme shims may provide fallback wiki.gg CSS custom
+  properties and must activate the same dark theme classes that live wiki.gg
+  pages apply so synced `Vector.css` drives local colors instead of local
+  hard-coded table/body styling.
 - Validate ResourceLoader and browser behavior for representative pages; HTML
   parse success alone is not enough for gadget-backed query surfaces such as
   DataTables.
