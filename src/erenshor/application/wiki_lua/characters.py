@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
@@ -103,7 +102,6 @@ def build_characters_data(
 ) -> LuaData:
     """Build the serializable character data table for `mw.loadData()`."""
     character_rows: dict[str, object] = {}
-    by_page: defaultdict[str, list[str]] = defaultdict(list)
 
     for character in sorted(characters, key=lambda candidate: candidate.stable_key):
         page = character.wiki_page_name
@@ -115,12 +113,8 @@ def build_characters_data(
             loot_drops=loot_by_character.get(character.stable_key, []),
             spells=spells_by_character.get(character.stable_key, []),
         )
-        by_page[page].append(character.stable_key)
 
-    return {
-        "characters": character_rows,
-        "byPage": {page: sorted(stable_keys) for page, stable_keys in sorted(by_page.items())},
-    }
+    return {"characters": character_rows}
 
 
 def _character_record(

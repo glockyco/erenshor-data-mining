@@ -14,14 +14,16 @@ def load_script(path: str) -> ModuleType:
     return module
 
 
-def test_maps_repo_module_and_template_files_to_wiki_titles(tmp_path: Path) -> None:
+def test_maps_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) -> None:
     root = tmp_path
-    (root / "wiki/modules/Erenshor/Data").mkdir(parents=True)
+    (root / "wiki/modules/Erenshor").mkdir(parents=True)
     (root / "wiki/templates").mkdir(parents=True)
+    (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items").mkdir(parents=True)
     (root / "wiki-dev/fixtures/pages").mkdir(parents=True)
 
     (root / "wiki/modules/Erenshor/Item.lua").write_text("return {}\n", encoding="utf-8")
-    (root / "wiki/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
+    (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
+    (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki/templates/Item.wiki").write_text("{{#invoke:Erenshor/Item|render}}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/pages/Sword_of_Flames.wiki").write_text("{{Item}}\n", encoding="utf-8")
 
@@ -30,8 +32,9 @@ def test_maps_repo_module_and_template_files_to_wiki_titles(tmp_path: Path) -> N
     pages = import_pages.discover_pages(root)
 
     assert [(page.title, page.path.relative_to(root).as_posix()) for page in pages] == [
-        ("Module:Erenshor/Data/Items", "wiki/modules/Erenshor/Data/Items.lua"),
         ("Module:Erenshor/Item", "wiki/modules/Erenshor/Item.lua"),
+        ("Module:Erenshor/Data/Items", "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua"),
+        ("Module:Erenshor/Data/Items/Weapons", "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua"),
         ("Template:Item", "wiki/templates/Item.wiki"),
         ("Sword of Flames", "wiki-dev/fixtures/pages/Sword_of_Flames.wiki"),
     ]

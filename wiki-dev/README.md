@@ -55,10 +55,10 @@ python wiki-dev/import_pages.py
 Mappings:
 
 ```text
-wiki/modules/Erenshor/Item.lua        -> Module:Erenshor/Item
-wiki/modules/Erenshor/Data/Items.lua  -> Module:Erenshor/Data/Items
-wiki/templates/Item.wiki              -> Template:Item
-wiki-dev/fixtures/pages/Foo.wiki      -> Foo
+wiki/modules/Erenshor/Item.lua                    -> Module:Erenshor/Item
+wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
+wiki/templates/Item.wiki                          -> Template:Item
+wiki-dev/fixtures/pages/Foo.wiki                  -> Foo
 ```
 
 ## Run smoke tests

@@ -21,4 +21,4 @@
 |droprates=Manual drop rate
 }}
 
-{{ItemLink|item=Ember Longsword|image=Manual Ember Blade.png|link=Manual Item Override|text=Manual Blade}}
+{{ItemLink|stablekey=item:ember_longsword|image=Manual Ember Blade.png|link=Manual Item Override|text=Manual Blade}}

@@ -1,1 +1,1 @@
-{{Zone}}
+{{Zone|stablekey=zone:PortAzure}}

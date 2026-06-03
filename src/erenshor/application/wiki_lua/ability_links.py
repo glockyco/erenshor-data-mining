@@ -69,14 +69,11 @@ def build_ability_links_data(
 ) -> LuaData:
     """Build the serializable ability-link lookup table for `mw.loadData()`."""
     abilities: dict[str, LuaData] = {}
-    by_name: dict[str, str] = {}
 
     for stable_key, record in sorted(_iter_records(spells, skills, stances), key=lambda candidate: candidate[0]):
         abilities[stable_key] = record
-        _index_name(by_name, record.get("name"), stable_key)
-        _index_name(by_name, record.get("page"), stable_key)
 
-    return {"abilities": abilities, "byName": dict(sorted(by_name.items()))}
+    return {"abilities": abilities}
 
 
 def _iter_records(
@@ -111,8 +108,3 @@ def _record(stable_key: str, name: str | None, page: str | None, image: str | No
     else:
         record["image"] = resolved_name
     return record
-
-
-def _index_name(index: dict[str, str], name: object, stable_key: str) -> None:
-    if isinstance(name, str) and name:
-        index.setdefault(name, stable_key)

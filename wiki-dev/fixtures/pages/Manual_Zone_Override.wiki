@@ -1,5 +1,5 @@
 {{Zone
-|zone=Port Azure
+|stablekey=zone:PortAzure
 |title=Manual Zone Title
 |type=Dungeon
 |level=Manual Level

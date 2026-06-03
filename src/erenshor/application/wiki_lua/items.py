@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
 from erenshor.application.wiki_lua.lua_writer import module_text
-from erenshor.domain.entities.item_kind import classify_item_kind
+from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -27,7 +27,17 @@ class ItemDataRepository(Protocol):
 
 LuaData = dict[str, object]
 
-ITEMS_PER_SHARD = 200
+_ITEM_KIND_SHARDS = {
+    ItemKind.WEAPON: "Weapons",
+    ItemKind.ARMOR: "Armor",
+    ItemKind.CHARM: "Charms",
+    ItemKind.AURA: "Auras",
+    ItemKind.SPELL_SCROLL: "SpellScrolls",
+    ItemKind.SKILL_BOOK: "SkillBooks",
+    ItemKind.CONSUMABLE: "Consumables",
+    ItemKind.MOLD: "Molds",
+    ItemKind.GENERAL: "General",
+}
 
 _ITEM_FIELD_MAP = (
     ("name", "display_name"),
@@ -129,50 +139,42 @@ def build_items_data(
     items: Iterable[Item],
     stats_by_item: Mapping[str, list[ItemStats]],
     classes_by_item: Mapping[str, list[str]],
-    *,
-    items_per_shard: int = ITEMS_PER_SHARD,
 ) -> LuaData:
-    """Build the serializable item index and shard tables for `mw.loadData()`."""
-    if items_per_shard < 1:
-        raise ValueError("items_per_shard must be at least 1")
+    """Build the serializable item index and semantic shard tables for `mw.loadData()`."""
 
-    item_rows: dict[str, object] = {}
-    by_name: dict[str, str] = {}
-    by_page: defaultdict[str, list[str]] = defaultdict(list)
+    shards: defaultdict[str, dict[str, object]] = defaultdict(dict)
+    by_key: dict[str, str] = {}
 
     for item in sorted(items, key=lambda candidate: candidate.stable_key):
-        page = item.wiki_page_name
-        if page is None:
+        if item.wiki_page_name is None:
             continue
-        item_rows[item.stable_key] = _item_record(
+        shard_name = _item_shard_name(item)
+        shards[shard_name][item.stable_key] = _item_record(
             item=item,
             stats=stats_by_item.get(item.stable_key, []),
             classes=classes_by_item.get(item.stable_key, []),
         )
-        by_page[page].append(item.stable_key)
-        if item.display_name is not None:
-            by_name.setdefault(item.display_name, item.stable_key)
-        by_name.setdefault(page, item.stable_key)
-
-    shards: dict[str, dict[str, object]] = {}
-    item_shards: dict[str, str] = {}
-    sorted_rows = sorted(item_rows.items())
-    for start in range(0, len(sorted_rows), items_per_shard):
-        shard_name = f"{(start // items_per_shard) + 1:03d}"
-        shard_rows = dict(sorted_rows[start : start + items_per_shard])
-        shards[shard_name] = shard_rows
-        for stable_key in shard_rows:
-            item_shards[stable_key] = shard_name
+        by_key[item.stable_key] = shard_name
 
     return {
-        "index": {
-            "byName": dict(sorted(by_name.items())),
-            "byPage": {page: sorted(stable_keys) for page, stable_keys in sorted(by_page.items())},
-            "itemShards": item_shards,
-            "shards": {shard_name: f"Module:Erenshor/Data/Items/{shard_name}" for shard_name in sorted(shards)},
-        },
-        "shards": shards,
+        "index": {"byKey": dict(sorted(by_key.items()))},
+        "shards": {shard_name: dict(sorted(shard_rows.items())) for shard_name, shard_rows in sorted(shards.items())},
     }
+
+
+def _item_shard_name(item: Item) -> str:
+    return _ITEM_KIND_SHARDS[_item_kind(item)]
+
+
+def _item_kind(item: Item) -> ItemKind:
+    return classify_item_kind(
+        required_slot=item.required_slot,
+        teach_spell=item.teach_spell_stable_key,
+        teach_skill=item.teach_skill_stable_key,
+        template_flag=item.template,
+        click_effect=item.item_effect_on_click_stable_key,
+        disposable=bool(item.disposable) if item.disposable is not None else None,
+    )
 
 
 def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaData:
@@ -184,15 +186,7 @@ def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaD
     for lua_name, attr_name in _ITEM_EFFECT_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
 
-    item_kind = classify_item_kind(
-        required_slot=item.required_slot,
-        teach_spell=item.teach_spell_stable_key,
-        teach_skill=item.teach_skill_stable_key,
-        template_flag=item.template,
-        click_effect=item.item_effect_on_click_stable_key,
-        disposable=bool(item.disposable) if item.disposable is not None else None,
-    )
-    row["type"] = _item_kind_display(str(item_kind))
+    row["type"] = _item_kind_display(str(_item_kind(item)))
 
     summary_stat = _summary_stat(stats)
     if summary_stat is not None:

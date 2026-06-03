@@ -24,10 +24,10 @@ function p.run()
 	assertEqual(quest.factionChanges, "Port Azure +5<br>Sivakayans -2", "faction changes resolve")
 
 	local pageQuest = Quest.resolve({}, "A Magical Sword in Port Azure")
-	assertEqual(pageQuest.stableKey, "quest:magical_sword", "page title resolves quest")
+	assertEqual(pageQuest.missing, true, "page title does not resolve quest without stable key")
 
 	local override = Quest.resolve({
-		quest = "A Magical Sword in Port Azure",
+		stablekey = "quest:magical_sword",
 		title = "Manual Quest",
 		location = "Manual Location",
 		factionchanges = "-",

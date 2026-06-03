@@ -34,7 +34,6 @@ def test_builds_quest_data_from_clean_quests() -> None:
                 "factionChanges": "Port Azure +5<br>Sivakayans -2",
             }
         },
-        "byPage": {"A Magical Sword in Port Azure": "quest:magical_sword"},
     }
 
 
@@ -43,7 +42,7 @@ def test_generates_quests_module_from_repository() -> None:
 
     assert module.startswith("return {\n")
     assert '["quest:magical_sword"]' in module
-    assert '["byPage"]' in module
+    assert '["byPage"]' not in module
 
 
 def test_writes_quests_module_to_data_module_path(tmp_path: Path) -> None:

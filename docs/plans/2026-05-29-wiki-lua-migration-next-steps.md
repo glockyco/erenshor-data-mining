@@ -65,7 +65,6 @@ The deployment system owns these pages and may overwrite them from git:
 
 ```text
 Module:Erenshor/*
-Module:Erenshor/Data/*
 Module:Erenshor/*/testcases
 Template:Item
 Template:Character
@@ -90,14 +89,24 @@ Manual source/quest/crafting notes
 Manual images and captions
 ```
 
-### Generated artifacts
+### Generated and fixture artifacts
 
-Python writes generated Lua data pages and deployment manifests, not expanded article wikitext:
+Production-size Lua data is generated from the clean database and is not
+committed:
 
 ```text
 variants/{variant}/wiki/lua/Erenshor/Data/*.lua
+variants/{variant}/wiki/lua/Erenshor/Data/**/*.lua
 variants/{variant}/wiki/deploy-manifest.json
 variants/{variant}/wiki/null-edit-pages.txt
+```
+
+Small local smoke data fixtures are committed separately from hand-authored
+modules:
+
+```text
+wiki-dev/fixtures/modules/Erenshor/Data/*.lua
+wiki-dev/fixtures/modules/Erenshor/Data/**/*.lua
 ```
 
 ## Page classes
@@ -108,6 +117,7 @@ Generated modules are static tables suitable for `mw.loadData()`:
 
 ```text
 Module:Erenshor/Data/Items
+Module:Erenshor/Data/Items/*
 Module:Erenshor/Data/Characters
 Module:Erenshor/Data/AbilityLinks
 Module:Erenshor/Data/Quests
@@ -119,7 +129,12 @@ Rules:
 - Return one Lua table.
 - Contain only booleans, numbers, strings, and tables.
 - Contain no functions, metatables, `mw` calls, or computed values.
-- Include explicit indexes such as `byPage`, `byStableKey`, `byZone`, and `byClass` where needed.
+- Entity data modules resolve records by explicit stable key only. Do not add
+  page-title or display-name fallback indexes for entities; those create the
+  same ambiguity stable keys exist to avoid.
+- Link modules may render plain page links from explicit page/text/image
+  parameters. They may use a stable key only when generated metadata such as
+  canonical image/page/text is needed.
 - Avoid long prose unless a display surface requires it.
 - Split by domain so one data refresh does not create one large dependency blast radius.
 
@@ -444,7 +459,7 @@ tests/unit/test_wiki_dev_harness.py
 
 - [x] **Step 2: Resolve generated data plus article overrides**
 
-  `Module:Erenshor/Item` resolves by page title, explicit stable item key, explicit item name, or positional link target where the public template supports it. Article-local parameters override generated values. The sentinel `-` intentionally blanks fields that support blanking.
+  `Module:Erenshor/Item` resolves entity records by explicit stable item key only. Article-local parameters override generated values. The sentinel `-` intentionally blanks fields that support blanking. `Template:ItemLink` renders explicit page links by default and uses `stablekey` only when generated item metadata is requested.
 
 - [x] **Step 3: Render item display modes**
 
@@ -520,7 +535,7 @@ tests/unit/test_wiki_dev_harness.py
 
 - [x] **Step 2: Resolve characters from generated data plus article overrides**
 
-  `Module:Erenshor/Character` resolves by stable key, explicit character/name/title, positional target, or current page title. Missing data emits a visible error and `[[Category:Pages with missing Erenshor character data]]`.
+  `Module:Erenshor/Character` resolves character/enemy records by explicit stable key only. Missing data emits a visible error and `[[Category:Pages with missing Erenshor character data]]`.
 
 - [x] **Step 3: Generate map links in Lua**
 
@@ -584,11 +599,11 @@ tests/unit/cli/commands/test_wiki.py
 
 - [x] **Step 2: Replace quest display surface**
 
-  `Template:Quest` now invokes `Module:Erenshor/Quest`, resolves by stable key, explicit quest/name/title, positional target, or current page title, and preserves production quest infobox parameters as article overrides. Missing generated quest data emits visible output and `[[Category:Pages with missing Erenshor quest data]]`.
+  `Template:Quest` now invokes `Module:Erenshor/Quest`, resolves quest records by explicit stable key only, and preserves production quest infobox parameters as article overrides. Missing generated quest data emits visible output and `[[Category:Pages with missing Erenshor quest data]]`.
 
 - [x] **Step 3: Replace zone and map-link display surfaces**
 
-  `Template:Zone` and `Template:MapLink` now invoke `Module:Erenshor/Zone`. Generated zone data includes page indexes, type, image, map selector, and raw connection page titles. Lua renders map links, connection links, zone categories, dungeon categories, manual overrides, and missing-zone tracking.
+  `Template:Zone` and `Template:MapLink` now invoke `Module:Erenshor/Zone`. Generated zone data includes type, image, map selector, and raw connection page titles. Lua renders map links, connection links, zone categories, dungeon categories, manual overrides, and missing-zone tracking. `Template:Zone` resolves zone records by explicit stable key only; `Template:MapLink` remains a page/map-selector link surface.
 
 - [x] **Step 4: Keep helper template APIs thin**
 

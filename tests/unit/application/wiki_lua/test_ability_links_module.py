@@ -61,12 +61,6 @@ def test_builds_ability_link_data_from_spells_skills_and_stances() -> None:
                 "kind": "stance",
             },
         },
-        "byName": {
-            "Aggressive": "stance:aggressive",
-            "Aggressive Stance": "stance:aggressive",
-            "Double Attack": "skill:double_attack",
-            "Minor Lightning": "spell:minor_lightning",
-        },
     }
 
 

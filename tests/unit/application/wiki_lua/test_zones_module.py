@@ -32,7 +32,6 @@ def test_builds_zone_data_from_clean_zones() -> None:
                 "connects": ["Fernalla's Revival Plains"],
             }
         },
-        "byPage": {"Port Azure": "zone:PortAzure"},
     }
 
 
@@ -49,7 +48,7 @@ def test_generates_zones_module_from_repository() -> None:
 
     assert module.startswith("return {\n")
     assert '["zone:PortAzure"]' in module
-    assert '["byPage"]' in module
+    assert '["byPage"]' not in module
 
 
 def test_writes_zones_module_to_data_module_path(tmp_path: Path) -> None:

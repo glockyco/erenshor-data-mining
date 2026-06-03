@@ -24,16 +24,19 @@ local function assertNotContains(actual, unexpected, label)
 end
 
 function p.run()
-	local resolved = AbilityLink.resolve({ "Minor Lightning" })
+	local resolved = AbilityLink.resolve({ stablekey = "spell:minor_lightning" })
 	assertEqual(resolved.page, "Minor Lightning", "page defaults from generated spell data")
 	assertEqual(resolved.name, "Minor Lightning", "text defaults from generated spell data")
 	assertEqual(resolved.image, "Minor Lightning", "image defaults from generated spell data")
 
-	local stance = AbilityLink.resolve({ "Aggressive" })
-	assertEqual(stance.page, "Aggressive Stance", "display name can resolve a stance page")
+	local manual = AbilityLink.resolve({ "Aggressive" })
+	assertEqual(manual.page, "Aggressive", "positional target is a page link, not entity lookup")
+
+	local stance = AbilityLink.resolve({ stablekey = "stance:aggressive" })
+	assertEqual(stance.page, "Aggressive Stance", "stable key can resolve generated stance page")
 
 	local override = AbilityLink.resolve({
-		"Minor Lightning",
+		stablekey = "spell:minor_lightning",
 		image = "Manual.png",
 		link = "Manual Link",
 		text = "Manual Text",
@@ -46,7 +49,7 @@ function p.run()
 	assertEqual(unknown.page, "Prototype Ability", "unknown target falls back to target page")
 	assertEqual(unknown.name, "Prototype Ability", "unknown target falls back to target text")
 
-	local rendered = AbilityLink.render({ "Minor Lightning" })
+	local rendered = AbilityLink.render({ stablekey = "spell:minor_lightning" })
 	assertContains(
 		rendered,
 		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",
@@ -54,7 +57,7 @@ function p.run()
 	)
 	assertContains(rendered, "[[Minor Lightning]]", "rendered link contains page link")
 
-	local imageOnly = AbilityLink.render({ "Minor Lightning", imageonly = "1" })
+	local imageOnly = AbilityLink.render({ stablekey = "spell:minor_lightning", imageonly = "1" })
 	assertContains(
 		imageOnly,
 		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",

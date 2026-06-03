@@ -30,14 +30,9 @@ def test_builds_item_index_and_sharded_records_without_long_prose_fields() -> No
     )
 
     assert data == {
-        "index": {
-            "byName": {"Sword of Flames": "item:sword_of_flames"},
-            "byPage": {"Sword of Flames": ["item:sword_of_flames"]},
-            "itemShards": {"item:sword_of_flames": "001"},
-            "shards": {"001": "Module:Erenshor/Data/Items/001"},
-        },
+        "index": {"byKey": {"item:sword_of_flames": "Weapons"}},
         "shards": {
-            "001": {
+            "Weapons": {
                 "item:sword_of_flames": {
                     "name": "Sword of Flames",
                     "page": "Sword of Flames",
@@ -89,13 +84,13 @@ def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
 
     data = build_items_data(items=[item], stats_by_item={item.stable_key: [blessed, base]}, classes_by_item={})
 
-    shard = data["index"]["itemShards"][item.stable_key]
+    shard = data["index"]["byKey"][item.stable_key]
     item_data = data["shards"][shard][item.stable_key]
     assert item_data["damage"] == 7
     assert item_data["armor"] == 3
 
 
-def test_groups_multiple_items_that_share_a_wiki_page() -> None:
+def test_item_index_does_not_include_page_or_name_fallbacks() -> None:
     first = make_item(stable_key="item:first", item_name="Shared A", display_name="Shared A")
     second = make_item(stable_key="item:second", item_name="Shared B", display_name="Shared B")
 
@@ -105,7 +100,7 @@ def test_groups_multiple_items_that_share_a_wiki_page() -> None:
         classes_by_item={},
     )
 
-    assert data["index"]["byPage"] == {"Sword of Flames": ["item:first", "item:second"]}
+    assert data["index"] == {"byKey": {"item:first": "Weapons", "item:second": "Weapons"}}
 
 
 def test_generates_items_modules_from_repository_data() -> None:
@@ -115,9 +110,9 @@ def test_generates_items_modules_from_repository_data() -> None:
     modules = generate_items_modules(repo)
 
     assert modules["Items.lua"].startswith("return {\n")
-    assert '["item:sword_of_flames"] = "001"' in modules["Items.lua"]
-    assert '["item:sword_of_flames"]' in modules["Items/001.lua"]
-    assert '["classes"] = {\n      "Knight",\n    },' in modules["Items/001.lua"]
+    assert '["item:sword_of_flames"] = "Weapons"' in modules["Items.lua"]
+    assert '["item:sword_of_flames"]' in modules["Items/Weapons.lua"]
+    assert '["classes"] = {\n      "Knight",\n    },' in modules["Items/Weapons.lua"]
 
 
 def test_writes_items_modules_to_data_module_paths(tmp_path: Path) -> None:
@@ -128,7 +123,7 @@ def test_writes_items_modules_to_data_module_paths(tmp_path: Path) -> None:
 
     assert output_paths == [
         tmp_path / "Erenshor" / "Data" / "Items.lua",
-        tmp_path / "Erenshor" / "Data" / "Items" / "001.lua",
+        tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua",
     ]
     assert output_paths[0].read_text(encoding="utf-8").startswith("return {\n")
     assert output_paths[1].read_text(encoding="utf-8").startswith("return {\n")
@@ -136,22 +131,24 @@ def test_writes_items_modules_to_data_module_paths(tmp_path: Path) -> None:
     assert "item:sword_of_flames" in output_paths[1].read_text(encoding="utf-8")
 
 
-def test_splits_item_records_across_shards() -> None:
-    first = make_item(stable_key="item:first", item_name="First", display_name="First", wiki_page_name="First")
-    second = make_item(stable_key="item:second", item_name="Second", display_name="Second", wiki_page_name="Second")
-
-    data = build_items_data(
-        items=[second, first],
-        stats_by_item={},
-        classes_by_item={},
-        items_per_shard=1,
+def test_splits_item_records_across_semantic_type_shards() -> None:
+    weapon = make_item(stable_key="item:weapon", item_name="Weapon", display_name="Weapon", wiki_page_name="Weapon")
+    armor = make_item(
+        stable_key="item:armor",
+        item_name="Armor",
+        display_name="Armor",
+        wiki_page_name="Armor",
+        required_slot="Chest",
+        this_weapon_type=None,
     )
 
-    assert data["index"]["itemShards"] == {"item:first": "001", "item:second": "002"}
-    assert data["index"]["shards"] == {
-        "001": "Module:Erenshor/Data/Items/001",
-        "002": "Module:Erenshor/Data/Items/002",
-    }
-    assert set(data["shards"]) == {"001", "002"}
-    assert list(data["shards"]["001"]) == ["item:first"]
-    assert list(data["shards"]["002"]) == ["item:second"]
+    data = build_items_data(
+        items=[weapon, armor],
+        stats_by_item={},
+        classes_by_item={},
+    )
+
+    assert data["index"]["byKey"] == {"item:armor": "Armor", "item:weapon": "Weapons"}
+    assert set(data["shards"]) == {"Armor", "Weapons"}
+    assert list(data["shards"]["Armor"]) == ["item:armor"]
+    assert list(data["shards"]["Weapons"]) == ["item:weapon"]

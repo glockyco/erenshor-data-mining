@@ -38,6 +38,17 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "Module:" + "/".join(relative.parts)
             pages.append(PageSource(title=title, path=path))
 
+    fixture_modules_dir = root / "wiki-dev" / "fixtures" / "modules"
+    if fixture_modules_dir.exists():
+        fixture_paths = sorted(
+            fixture_modules_dir.rglob("*.lua"),
+            key=lambda path: (len(path.relative_to(fixture_modules_dir).parts), path.as_posix()),
+        )
+        for path in fixture_paths:
+            relative = path.relative_to(fixture_modules_dir).with_suffix("")
+            title = "Module:" + "/".join(relative.parts)
+            pages.append(PageSource(title=title, path=path))
+
     templates_dir = root / "wiki" / "templates"
     if templates_dir.exists():
         for path in sorted(templates_dir.rglob("*.wiki")):

@@ -147,31 +147,12 @@ local function ensureImageFile(image, fallbackName)
 	return value .. ".png"
 end
 
-local function firstStableKeyForPage(pageTitle)
-	local keys = Index.byPage[pageTitle]
-	if keys ~= nil and keys[1] ~= nil then
-		return keys[1]
-	end
-	return nil
-end
-
-local function stableKeyFromDisplayName(name)
-	if isBlank(name) then
-		return nil
-	end
-	return Index.byName[name]
-end
-
 local function itemForStableKey(stableKey)
-	local shardName = Index.itemShards[stableKey]
+	local shardName = Index.byKey[stableKey]
 	if shardName == nil then
 		return nil
 	end
-	local moduleName = Index.shards[shardName]
-	if moduleName == nil then
-		return nil
-	end
-	local shard = mw.loadData(moduleName)
+	local shard = mw.loadData("Module:Erenshor/Data/Items/" .. shardName)
 	return shard[stableKey]
 end
 
@@ -182,17 +163,12 @@ local function explicitStableKey(args)
 		or Args.resolve(args, "id", nil)
 end
 
-local function resolveStableKey(args, pageTitle)
+local function resolveStableKey(args)
 	local stableKey = explicitStableKey(args)
 	if stableKey ~= nil and itemForStableKey(stableKey) ~= nil then
 		return stableKey
 	end
-
-	local itemName = Args.resolve(args, "item", nil)
-		or Args.resolve(args, "name", nil)
-		or Args.resolve(args, 1, nil)
-		or Args.resolve(args, "title", nil)
-	return stableKeyFromDisplayName(itemName) or firstStableKeyForPage(pageTitle)
+	return nil
 end
 
 local function applyOverride(item, args, publicName, fieldName)
@@ -241,7 +217,7 @@ function p.resolve(args, pageTitle)
 	args = args or {}
 	pageTitle = pageTitle or currentTitleText()
 
-	local stableKey = resolveStableKey(args, pageTitle)
+	local stableKey = resolveStableKey(args)
 	if stableKey == nil then
 		return missingItem(args, pageTitle)
 	end
@@ -377,10 +353,17 @@ function p.renderLink(args, pageTitle)
 		or Args.resolve(args, "name", nil)
 		or Args.resolve(args, 1, nil)
 		or pageTitle
-	local item = p.resolve(args, pageTitle)
-	local link = Args.resolve(args, "link", nil) or item.page or itemName
-	local text = Args.resolve(args, "text", nil) or item.name or itemName
-	local image = Args.resolve(args, "image", nil) or item.image or itemName
+	local item = nil
+	local stableKey = explicitStableKey(args)
+	if stableKey ~= nil then
+		item = p.resolve(args, pageTitle)
+		if item.missing then
+			item = nil
+		end
+	end
+	local link = Args.resolve(args, "link", nil) or (item and item.page) or itemName
+	local text = Args.resolve(args, "text", nil) or (item and item.name) or itemName
+	local image = Args.resolve(args, "image", nil) or (item and item.image) or itemName
 	local imageLink =
 		Format.fileLink(ensureImageFile(image, text), { alt = text, size = "24x24px" })
 

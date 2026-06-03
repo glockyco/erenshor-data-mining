@@ -19,10 +19,4 @@ return {
 			kind = "stance",
 		},
 	},
-	byName = {
-		["Aggressive"] = "stance:aggressive",
-		["Aggressive Stance"] = "stance:aggressive",
-		["Double Attack"] = "skill:double_attack",
-		["Minor Lightning"] = "spell:minor_lightning",
-	},
 }

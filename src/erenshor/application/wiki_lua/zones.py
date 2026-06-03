@@ -38,18 +38,14 @@ def write_zones_module(zone_repo: ZoneDataRepository, output_root: Path) -> Path
 def build_zones_data(zones: Iterable[Zone], connection_repo: ZoneDataRepository) -> LuaData:
     """Build the serializable zone data table for `mw.loadData()`."""
     zone_rows: dict[str, LuaData] = {}
-    by_page: dict[str, str] = {}
 
     for zone in sorted(zones, key=lambda candidate: candidate.stable_key):
         record = _zone_record(zone, connection_repo.get_zone_connections(zone.scene_name))
         if record is None:
             continue
         zone_rows[zone.stable_key] = record
-        page = record.get("page")
-        if isinstance(page, str) and page:
-            by_page[page] = zone.stable_key
 
-    return {"zones": zone_rows, "byPage": dict(sorted(by_page.items()))}
+    return {"zones": zone_rows}
 
 
 def _zone_record(zone: Zone, connections: list[str]) -> LuaData | None:

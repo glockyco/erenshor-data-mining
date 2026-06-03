@@ -138,26 +138,6 @@ local function ensureImageFile(image, fallbackName)
 	return value .. ".png"
 end
 
-local function firstStableKeyForPage(pageTitle)
-	local keys = Data.byPage[pageTitle]
-	if keys ~= nil and keys[1] ~= nil then
-		return keys[1]
-	end
-	return nil
-end
-
-local function stableKeyFromDisplayName(name)
-	if isBlank(name) then
-		return nil
-	end
-	for stableKey, character in pairs(Data.characters) do
-		if character.name == name or character.page == name then
-			return stableKey
-		end
-	end
-	return nil
-end
-
 local function explicitStableKey(args)
 	return Args.resolve(args, "stablekey", nil)
 		or Args.resolve(args, "stableKey", nil)
@@ -165,17 +145,12 @@ local function explicitStableKey(args)
 		or Args.resolve(args, "id", nil)
 end
 
-local function resolveStableKey(args, pageTitle)
+local function resolveStableKey(args)
 	local stableKey = explicitStableKey(args)
 	if stableKey ~= nil and Data.characters[stableKey] ~= nil then
 		return stableKey
 	end
-
-	local characterName = Args.resolve(args, "character", nil)
-		or Args.resolve(args, "name", nil)
-		or Args.resolve(args, 1, nil)
-		or Args.resolve(args, "title", nil)
-	return stableKeyFromDisplayName(characterName) or firstStableKeyForPage(pageTitle)
+	return nil
 end
 
 local function applyOverride(character, args, publicName, fieldName)
@@ -205,7 +180,7 @@ function p.resolve(args, pageTitle)
 	args = args or {}
 	pageTitle = pageTitle or currentTitleText()
 
-	local stableKey = resolveStableKey(args, pageTitle)
+	local stableKey = resolveStableKey(args)
 	if stableKey == nil then
 		return missingCharacter(args, pageTitle)
 	end

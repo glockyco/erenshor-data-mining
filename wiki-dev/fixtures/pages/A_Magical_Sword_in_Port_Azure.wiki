@@ -1,1 +1,1 @@
-{{Quest}}
+{{Quest|stablekey=quest:magical_sword}}

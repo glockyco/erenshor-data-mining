@@ -24,12 +24,14 @@ function p.run()
 	assertEqual(bear.health, 2340, "health resolves")
 
 	local pageBear = Character.resolve({}, "A Grizzly Bear")
-	assertEqual(pageBear.stableKey, "character:a_grizzly_bear", "page title resolves character")
+	assertEqual(pageBear.missing, true, "page title does not resolve character without stable key")
 
-	local override = Character.resolve(
-		{ image = "Manual Bear.png", faction = "-", class = "Ranger" },
-		"A Grizzly Bear"
-	)
+	local override = Character.resolve({
+		stablekey = "character:a_grizzly_bear",
+		image = "Manual Bear.png",
+		faction = "-",
+		class = "Ranger",
+	}, "A Grizzly Bear")
 	assertEqual(override.image, "Manual Bear.png", "article image override wins")
 	assertEqual(override.faction, nil, "dash sentinel blanks supported fields")
 	assertEqual(override.class, "Ranger", "article class override wins")

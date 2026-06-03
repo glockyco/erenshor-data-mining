@@ -24,7 +24,7 @@ function p.run()
 	assertEqual(weapon.damage, 18, "weapon damage resolves")
 
 	local pageWeapon = Item.resolve({}, "Ember Longsword")
-	assertEqual(pageWeapon.stableKey, "item:ember_longsword", "page title resolves item")
+	assertEqual(pageWeapon.missing, true, "page title does not resolve item without stable key")
 
 	local override = Item.resolve({
 		stablekey = "item:ember_longsword",
@@ -57,31 +57,15 @@ function p.run()
 	assertContains(nonConsumable, "No", "disposable false override renders as human text")
 
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
-	assertContains(link, "[[Ember Longsword]]", "link defaults to item page")
-	assertContains(link, "[[File:Ember Longsword.png", "link defaults image")
+	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
+	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")
 
-	local positionalLink = Item.renderLink({ [1] = "Abyssal Plate" }, "Ember Longsword")
+	local stableKeyLink = Item.renderLink({ stablekey = "item:abyssal_plate" }, "Ember Longsword")
+	assertContains(stableKeyLink, "[[Abyssal Plate]]", "stable key link uses generated page")
 	assertContains(
-		positionalLink,
-		"[[Abyssal Plate]]",
-		"positional item target wins over current page title"
-	)
-	assertContains(
-		positionalLink,
+		stableKeyLink,
 		"[[File:Abyssal Plate.png",
-		"positional item image wins over current page title"
-	)
-
-	local crossPageLink = Item.renderLink({ item = "Abyssal Plate" }, "Ember Longsword")
-	assertContains(
-		crossPageLink,
-		"[[Abyssal Plate]]",
-		"explicit item name wins over current page title"
-	)
-	assertContains(
-		crossPageLink,
-		"[[File:Abyssal Plate.png",
-		"explicit item image wins over current page title"
+		"stable key link uses generated image"
 	)
 
 	local imageOnly = Item.renderLink({ item = "Ember Longsword", imageonly = "yes" }, "Any Page")

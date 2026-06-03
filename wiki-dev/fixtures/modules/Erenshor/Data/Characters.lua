@@ -1,9 +1,4 @@
 return {
-	byPage = {
-		["A Grizzly Bear"] = { "character:a_grizzly_bear" },
-		["Captain Rowan"] = { "character:captain_rowan" },
-		["Rare Cave Spider"] = { "character:rare_cave_spider" },
-	},
 	characters = {
 		["character:a_grizzly_bear"] = {
 			name = "A Grizzly Bear",

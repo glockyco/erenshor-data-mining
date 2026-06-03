@@ -97,7 +97,6 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
                 "hasSpells": True,
             }
         },
-        "byPage": {"A Grizzly Bear": ["character:a_grizzly_bear"]},
     }
 
 
@@ -136,7 +135,7 @@ def test_generates_characters_module_from_repository_data() -> None:
 
     assert module.startswith("return {\n")
     assert '["character:a_grizzly_bear"]' in module
-    assert '["byPage"]' in module
+    assert '["byPage"]' not in module
 
 
 def test_writes_characters_module_to_data_module_path(tmp_path: Path) -> None:

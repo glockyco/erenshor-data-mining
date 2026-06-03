@@ -1,5 +1,5 @@
 {{Quest
-|quest=A Magical Sword in Port Azure
+|stablekey=quest:magical_sword
 |title=Manual Quest Title
 |location=Manual Location
 |factionchanges=-

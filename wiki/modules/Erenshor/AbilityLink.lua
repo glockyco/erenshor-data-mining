@@ -53,19 +53,12 @@ local function templateArgs(frame)
 	return out
 end
 
-local function stableKeyForTarget(target)
-	if isBlank(target) then
-		return nil
-	end
-	return Data.byName[tostring(target)]
-end
-
 function p.resolve(args)
 	args = args or {}
 	local target = Args.resolve(args, 1, nil)
 	local stableKey = Args.resolve(args, "stablekey", nil)
+		or Args.resolve(args, "stableKey", nil)
 		or Args.resolve(args, "key", nil)
-		or stableKeyForTarget(target)
 	local ability = nil
 	if stableKey ~= nil then
 		ability = copyTable(Data.abilities[stableKey])

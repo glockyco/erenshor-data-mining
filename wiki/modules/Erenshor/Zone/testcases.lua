@@ -24,10 +24,10 @@ function p.run()
 	assertEqual(zone.map, "zone:PortAzure", "map selector resolves")
 
 	local pageZone = Zone.resolve({}, "Port Azure")
-	assertEqual(pageZone.stableKey, "zone:PortAzure", "page title resolves zone")
+	assertEqual(pageZone.missing, true, "page title does not resolve zone without stable key")
 
 	local override = Zone.resolve(
-		{ zone = "Port Azure", title = "Manual Zone", connects = "-" },
+		{ stablekey = "zone:PortAzure", title = "Manual Zone", connects = "-" },
 		"Manual Zone Override"
 	)
 	assertEqual(override.name, "Manual Zone", "article title override wins")

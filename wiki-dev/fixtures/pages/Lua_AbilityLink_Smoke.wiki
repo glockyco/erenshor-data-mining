@@ -1,9 +1,11 @@
 {{#invoke:Erenshor/AbilityLink/testcases|run}}
 
-Default: {{AbilityLink|Minor Lightning}}
+Stable key: {{AbilityLink|stablekey=spell:minor_lightning}}
 
-Stance page: {{AbilityLink|Aggressive}}
+Stance stable key: {{AbilityLink|stablekey=stance:aggressive}}
 
-Manual: {{AbilityLink|Minor Lightning|image=Manual Ability.png|link=Manual Ability Page|text=Manual Ability Text}}
+Manual page: {{AbilityLink|Minor Lightning}}
 
-Image only: {{AbilityLink|Minor Lightning|imageonly=1}}
+Manual override: {{AbilityLink|stablekey=spell:minor_lightning|image=Manual Ability.png|link=Manual Ability Page|text=Manual Ability Text}}
+
+Image only: {{AbilityLink|stablekey=spell:minor_lightning|imageonly=1}}

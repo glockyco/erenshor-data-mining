@@ -36,16 +36,12 @@ def write_quests_module(quest_repo: QuestDataRepository, output_root: Path) -> P
 def build_quests_data(quests: Iterable[Quest]) -> LuaData:
     """Build the serializable quest data table for `mw.loadData()`."""
     quest_rows: dict[str, LuaData] = {}
-    by_page: dict[str, str] = {}
     for quest in sorted(quests, key=lambda candidate: candidate.stable_key):
         record = _quest_record(quest)
         if record is None:
             continue
         quest_rows[quest.stable_key] = record
-        page = record.get("page")
-        if isinstance(page, str) and page:
-            by_page[page] = quest.stable_key
-    return {"quests": quest_rows, "byPage": dict(sorted(by_page.items()))}
+    return {"quests": quest_rows}
 
 
 def _quest_record(quest: Quest) -> LuaData | None:

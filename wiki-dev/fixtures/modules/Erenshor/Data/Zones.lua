@@ -1,8 +1,4 @@
 return {
-	["byPage"] = {
-		["Port Azure"] = "zone:PortAzure",
-		["The Elderstone Mines"] = "zone:ElderstoneMines",
-	},
 	["zones"] = {
 		["zone:ElderstoneMines"] = {
 			["image"] = "The Elderstone Mines",

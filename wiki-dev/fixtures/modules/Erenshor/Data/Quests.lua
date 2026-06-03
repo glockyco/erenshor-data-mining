@@ -1,7 +1,4 @@
 return {
-	["byPage"] = {
-		["A Magical Sword in Port Azure"] = "quest:magical_sword",
-	},
 	["quests"] = {
 		["quest:magical_sword"] = {
 			["experience"] = 450,

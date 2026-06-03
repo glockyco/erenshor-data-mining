@@ -95,22 +95,6 @@ local function ensureImageFile(image, fallbackName)
 	return value .. ".png"
 end
 
-local function stableKeyFromDisplayName(name)
-	if isBlank(name) then
-		return nil
-	end
-	local key = Data.byPage[tostring(name)]
-	if key ~= nil then
-		return key
-	end
-	for stableKey, quest in pairs(Data.quests) do
-		if quest.name == name or quest.page == name then
-			return stableKey
-		end
-	end
-	return nil
-end
-
 local function explicitStableKey(args)
 	return Args.resolve(args, "stablekey", nil)
 		or Args.resolve(args, "stableKey", nil)
@@ -118,17 +102,12 @@ local function explicitStableKey(args)
 		or Args.resolve(args, "id", nil)
 end
 
-local function resolveStableKey(args, pageTitle)
+local function resolveStableKey(args)
 	local stableKey = explicitStableKey(args)
 	if stableKey ~= nil and Data.quests[stableKey] ~= nil then
 		return stableKey
 	end
-
-	local questName = Args.resolve(args, "quest", nil)
-		or Args.resolve(args, "name", nil)
-		or Args.resolve(args, 1, nil)
-		or Args.resolve(args, "title", nil)
-	return stableKeyFromDisplayName(questName) or stableKeyFromDisplayName(pageTitle)
+	return nil
 end
 
 local function applyRootOverrides(quest, args)
@@ -152,7 +131,7 @@ function p.resolve(args, pageTitle)
 	args = args or {}
 	pageTitle = pageTitle or currentTitleText()
 
-	local stableKey = resolveStableKey(args, pageTitle)
+	local stableKey = resolveStableKey(args)
 	if stableKey == nil then
 		return missingQuest(args, pageTitle)
 	end
