@@ -319,80 +319,47 @@ tests/unit/cli/commands/test_wiki.py
 - [x] Add `erenshor wiki generate-lua` with dry-run output.
 - [x] Validate generated Lua with `luac -p` when available and StyLua Lua 5.1 parsing fallback otherwise.
 
-## Implementation milestones
+### Milestone 4: Production template inventory and ownership manifest
 
-### Milestone 4: Build production template inventory and ownership manifest
-
-**Planned commit:** `feat(wiki): inventory production template ownership`
-
-**Files:**
+**Commits:**
 
 ```text
+2c065391 feat(wiki): add MediaWiki request policy
+f75d0190 feat(wiki): inventory production template ownership
+```
+
+**Implemented files:**
+
+```text
+src/erenshor/infrastructure/wiki/rate_limit.py
+tests/unit/infrastructure/wiki/test_rate_limit.py
+src/erenshor/infrastructure/wiki/__init__.py
 src/erenshor/application/wiki_inventory/__init__.py
 src/erenshor/application/wiki_inventory/api.py
 src/erenshor/application/wiki_inventory/templates.py
 src/erenshor/cli/commands/wiki.py
+tests/fixtures/wiki_inventory/allpages-page1.json
+tests/fixtures/wiki_inventory/allpages-page2.json
+tests/fixtures/wiki_inventory/embeddedin-ability-page1.json
+tests/fixtures/wiki_inventory/embeddedin-character-page1.json
+tests/fixtures/wiki_inventory/embeddedin-item-page1.json
+tests/fixtures/wiki_inventory/embeddedin-item-page2.json
 tests/unit/application/wiki_inventory/test_templates.py
 tests/unit/cli/commands/test_wiki.py
 wiki/ownership.yml
-docs/plans/2026-05-29-wiki-lua-migration-next-steps.md
 ```
 
-- [ ] **Step 1: Add production template inventory client**
+- [x] Add shared MediaWiki request policy for serial non-interactive jobs.
+- [x] Add bounded retry handling for HTTP `429`, API `maxlag`, API `ratelimited`, and retry-signaled HTTP `503`.
+- [x] Add production template inventory client using exact MediaWiki continuation values.
+- [x] Classify production templates into the ownership model.
+- [x] Encode cutover-blocking public contracts in the ownership manifest.
+- [x] Test classification with recorded live API fixtures instead of mocks.
+- [x] Add `erenshor wiki inventory-templates --output wiki/ownership.yml`.
+- [x] Generate `wiki/ownership.yml` from the live production wiki.
+- [x] Verify inventory tests, Ruff format/check, and mypy.
 
-  Implement a MediaWiki API reader that fetches template pages, raw template text, and transclusion counts with retry/backoff for `429` responses. Use explicit User-Agent headers.
-
-- [ ] **Step 2: Classify template ownership**
-
-  Generate `wiki/ownership.yml` with these classes:
-
-  ```text
-  repo_owned_template
-  repo_owned_module
-  generated_data_module
-  human_owned_article
-  legacy_template
-  helper_template
-  documentation_template
-  license_template
-  navbox_template
-  unknown
-  ```
-
-- [ ] **Step 3: Encode production compatibility surfaces**
-
-  Mark these as cutover-blocking public contracts:
-
-  ```text
-  Template:Item
-  Template:Character
-  Template:Quest
-  Template:Ability
-  Template:Zone
-  Template:ItemLink
-  Template:AbilityLink
-  Template:QuestLink
-  Template:MapLink
-  ```
-
-- [ ] **Step 4: Test classification with recorded fixtures**
-
-  Unit tests must use recorded JSON/raw fixtures from the live API, not mocks of internal calls. Assert that `Template:Item` and `Template:Character` are classified as cutover-blocking because their transclusion result sets continue beyond the first API page.
-
-- [ ] **Step 5: Add CLI report**
-
-  Add `erenshor wiki inventory-templates --output wiki/ownership.yml`. The command must not edit the live wiki.
-
-- [ ] **Step 6: Verify**
-
-  Run:
-
-  ```bash
-  uv run pytest tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py -q
-  uv run ruff format --check src/erenshor/application/wiki_inventory src/erenshor/cli/commands/wiki.py tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py
-  uv run ruff check src/erenshor/application/wiki_inventory src/erenshor/cli/commands/wiki.py tests/unit/application/wiki_inventory tests/unit/cli/commands/test_wiki.py
-  uv run mypy src/
-  ```
+## Implementation milestones
 
 ### Milestone 5: Build shared Lua foundations
 
@@ -824,4 +791,5 @@ README.md
 
 ## Immediate next action
 
-Complete **Milestone 4**: build the production template inventory and ownership manifest. This replaces inferred template scope with a source-controlled compatibility map before more Lua template rendering is implemented.
+Complete **Milestone 5**: build shared Lua foundations for argument normalization,
+formatting, and deterministic rendering before migrating public templates.
