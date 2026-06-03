@@ -21,6 +21,11 @@ REQUIRED_INTERFACE_FILES = frozenset(
         "Common.js",
         "Vector.js",
         "Gadgets-definition",
+        "Sidebar",
+        "Mainpage-description",
+        "Recentchanges",
+        "Randompage",
+        "Help-mediawiki",
     }
 )
 

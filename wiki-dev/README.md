@@ -65,10 +65,12 @@ assets such as `Site-logo.png` plus image assets referenced by synced CSS so
 `/images/...` URLs resolve locally.
 The committed `wiki-dev/interface/theme-shim.css` and
 `wiki-dev/interface/theme-shim.js` files are authored local glue. The CSS
-provides fallback wiki.gg and platform custom properties, and the JavaScript
-adds the same dark-theme and wiki.gg Vector classes that live pages use. Import
-prepends these shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync
-never overwrites them.
+provides fallback wiki.gg/platform custom properties and local compatibility
+for live platform ResourceLoader styles that are not installed in the dev
+container, including `ext.PortableInfobox.styles`. The JavaScript adds the
+same dark-theme and wiki.gg Vector classes that live pages use. Import prepends
+these shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync never
+overwrites them.
 
 
 ## Import local pages
@@ -84,6 +86,7 @@ Mappings:
 
 ```text
 wiki-dev/interface/MediaWiki/Common.css          -> MediaWiki:Common.css
+wiki-dev/interface/MediaWiki/Sidebar             -> MediaWiki:Sidebar
 wiki-dev/interface/MediaWiki/Gadget-foo.js       -> MediaWiki:Gadget-foo.js
 wiki/modules/Erenshor/Item.lua                   -> Module:Erenshor/Item
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items

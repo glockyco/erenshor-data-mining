@@ -272,8 +272,8 @@ Local preview rules:
   is refreshed by one obvious sync command.
 - Sync fixed site interface pages plus gadget source pages discovered from
   `MediaWiki:Gadgets-definition`: `Common.css`, `Vector.css`, `Common.js`,
-  `Vector.js`, `Gadgets-definition`, and referenced `Gadget-*` CSS/JS/JSON/Vue
-  pages.
+  `Vector.js`, `Gadgets-definition`, `Sidebar`, sidebar display messages, and
+  referenced `Gadget-*` CSS/JS/JSON/Vue pages.
 - Print unified diffs from the existing local mirror to freshly fetched live
   content before overwriting files. Git history is not used for mirrored
   third-party interface pages.

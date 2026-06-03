@@ -34,6 +34,23 @@ class FakeInterfaceClient:
         return self.direct_media_files.get(path)
 
 
+def fixed_interface_pages(extra: dict[str, str]) -> dict[str, str]:
+    pages = {
+        "MediaWiki:Common.css": "",
+        "MediaWiki:Vector.css": "",
+        "MediaWiki:Common.js": "",
+        "MediaWiki:Vector.js": "",
+        "MediaWiki:Gadgets-definition": "",
+        "MediaWiki:Sidebar": "* navigation\n",
+        "MediaWiki:Mainpage-description": "Main Page",
+        "MediaWiki:Recentchanges": "Recent Changes",
+        "MediaWiki:Randompage": "Random Page",
+        "MediaWiki:Help-mediawiki": "MediaWiki Help",
+    }
+    pages.update(extra)
+    return pages
+
+
 def test_gadget_source_titles_reads_definition_sources() -> None:
     definition = """
     * datatables[ResourceLoader|dependencies=jquery|default]|datatables-lib.js|datatables.css
@@ -50,15 +67,18 @@ def test_gadget_source_titles_reads_definition_sources() -> None:
 
 def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) -> None:
     client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": "body { color: white; }\n",
-            "MediaWiki:Vector.css": "#mw-page-base { background: black; }\n",
-            "MediaWiki:Common.js": "window.erenshorCommon = true;\n",
-            "MediaWiki:Vector.js": "window.erenshorVector = true;\n",
-            "MediaWiki:Gadgets-definition": "* datatables[ResourceLoader|default]|datatables.js|datatables.css\n",
-            "MediaWiki:Gadget-datatables.js": "window.datatables = true;\n",
-            "MediaWiki:Gadget-datatables.css": ".datatable { width: 100%; }\n",
-        }
+        fixed_interface_pages(
+            {
+                "MediaWiki:Common.css": "body { color: white; }\n",
+                "MediaWiki:Vector.css": "#mw-page-base { background: black; }\n",
+                "MediaWiki:Common.js": "window.erenshorCommon = true;\n",
+                "MediaWiki:Vector.js": "window.erenshorVector = true;\n",
+                "MediaWiki:Gadgets-definition": "* datatables[ResourceLoader|default]|datatables.js|datatables.css\n",
+                "MediaWiki:Sidebar": "* navigation\n** mainpage|mainpage-description\n",
+                "MediaWiki:Gadget-datatables.js": "window.datatables = true;\n",
+                "MediaWiki:Gadget-datatables.css": ".datatable { width: 100%; }\n",
+            }
+        )
     )
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=False)
@@ -69,6 +89,11 @@ def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) 
         "MediaWiki:Common.js",
         "MediaWiki:Vector.js",
         "MediaWiki:Gadgets-definition",
+        "MediaWiki:Sidebar",
+        "MediaWiki:Mainpage-description",
+        "MediaWiki:Recentchanges",
+        "MediaWiki:Randompage",
+        "MediaWiki:Help-mediawiki",
         "MediaWiki:Gadget-datatables.js",
         "MediaWiki:Gadget-datatables.css",
     ]
@@ -81,13 +106,12 @@ def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) 
 
 def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
     client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": ".box { background: url(/images/8/80/Site-background.jpg); }\n",
-            "MediaWiki:Vector.css": ".border { border-image-source: url('images/d/d8/Tooltip_border_top.png'); }\n",
-            "MediaWiki:Common.js": "",
-            "MediaWiki:Vector.js": "",
-            "MediaWiki:Gadgets-definition": "",
-        },
+        fixed_interface_pages(
+            {
+                "MediaWiki:Common.css": ".box { background: url(/images/8/80/Site-background.jpg); }\n",
+                "MediaWiki:Vector.css": ".border { border-image-source: url('images/d/d8/Tooltip_border_top.png'); }\n",
+            }
+        ),
         {
             "File:Site-logo.png": b"site-logo",
             "File:Site-favicon.ico": b"site-favicon",
@@ -111,15 +135,7 @@ def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
 
 
 def test_sync_mirrors_fixed_live_skin_assets(tmp_path: Path) -> None:
-    client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": "",
-            "MediaWiki:Vector.css": "",
-            "MediaWiki:Common.js": "",
-            "MediaWiki:Vector.js": "",
-            "MediaWiki:Gadgets-definition": "",
-        }
-    )
+    client = FakeInterfaceClient(fixed_interface_pages({}))
     client.direct_media_files = {
         "/images/Site-logo.png": b"site-logo",
         "/images/Site-favicon.ico": b"site-favicon",
@@ -140,13 +156,11 @@ def test_sync_mirrors_fixed_live_skin_assets(tmp_path: Path) -> None:
 
 def test_sync_reports_unresolvable_live_css_assets_without_blocking(tmp_path: Path) -> None:
     client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": ".box { background: url(/images/e/e0/MP_banner.jpg); }\n",
-            "MediaWiki:Vector.css": "",
-            "MediaWiki:Common.js": "",
-            "MediaWiki:Vector.js": "",
-            "MediaWiki:Gadgets-definition": "",
-        },
+        fixed_interface_pages(
+            {
+                "MediaWiki:Common.css": ".box { background: url(/images/e/e0/MP_banner.jpg); }\n",
+            }
+        ),
         {
             "File:Site-logo.png": b"site-logo",
             "File:Site-favicon.ico": b"site-favicon",
@@ -165,15 +179,7 @@ def test_sync_reports_diff_before_overwriting_existing_snapshot(tmp_path: Path) 
     snapshot = tmp_path / "MediaWiki" / "Common.css"
     snapshot.parent.mkdir(parents=True)
     snapshot.write_text("body { color: red; }\n", encoding="utf-8")
-    client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": "body { color: white; }\n",
-            "MediaWiki:Vector.css": "",
-            "MediaWiki:Common.js": "",
-            "MediaWiki:Vector.js": "",
-            "MediaWiki:Gadgets-definition": "",
-        }
-    )
+    client = FakeInterfaceClient(fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}))
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=False)
 
@@ -188,15 +194,7 @@ def test_sync_dry_run_does_not_overwrite_existing_snapshot(tmp_path: Path) -> No
     snapshot = tmp_path / "MediaWiki" / "Common.css"
     snapshot.parent.mkdir(parents=True)
     snapshot.write_text("body { color: red; }\n", encoding="utf-8")
-    client = FakeInterfaceClient(
-        {
-            "MediaWiki:Common.css": "body { color: white; }\n",
-            "MediaWiki:Vector.css": "",
-            "MediaWiki:Common.js": "",
-            "MediaWiki:Vector.js": "",
-            "MediaWiki:Gadgets-definition": "",
-        }
-    )
+    client = FakeInterfaceClient(fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}))
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=True)
 

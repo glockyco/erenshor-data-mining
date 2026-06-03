@@ -259,26 +259,69 @@ function p.renderInfobox(args, pageTitle)
 		{ label = "Guaranteed One Of", value = character.guaranteedDrops },
 		{ label = "Overall Drop Rates", value = character.dropRates },
 		{ label = "Spells", value = character.spells },
-		{ label = "Health", value = character.health },
-		{ label = "Mana", value = character.mana },
-		{ label = "AC", value = character.ac },
-		{ label = "Strength", value = character.strength },
-		{ label = "Endurance", value = character.endurance },
-		{ label = "Dexterity", value = character.dexterity },
-		{ label = "Agility", value = character.agility },
-		{ label = "Intelligence", value = character.intelligence },
-		{ label = "Wisdom", value = character.wisdom },
-		{ label = "Charisma", value = character.charisma },
-		{ label = "Magic", value = character.magic },
-		{ label = "Poison", value = character.poison },
-		{ label = "Elemental", value = character.elemental },
-		{ label = "Void", value = character.void },
+	}
+
+	local sections = {
+		{
+			title = "Base Stats",
+			groups = {
+				{ kind = "horizontal", rows = { { label = "Health", value = character.health } } },
+				{ kind = "horizontal", rows = { { label = "Mana", value = character.mana } } },
+				{ kind = "horizontal", rows = { { label = "AC", value = character.ac } } },
+				{
+					kind = "horizontal",
+					rows = { { label = "Strength", value = character.strength } },
+				},
+				{
+					kind = "horizontal",
+					rows = { { label = "Endurance", value = character.endurance } },
+				},
+				{
+					kind = "horizontal",
+					rows = { { label = "Dexterity", value = character.dexterity } },
+				},
+				{
+					kind = "horizontal",
+					rows = { { label = "Agility", value = character.agility } },
+				},
+				{
+					kind = "horizontal",
+					rows = { { label = "Intelligence", value = character.intelligence } },
+				},
+				{ kind = "horizontal", rows = { { label = "Wisdom", value = character.wisdom } } },
+				{
+					kind = "horizontal",
+					rows = { { label = "Charisma", value = character.charisma } },
+				},
+			},
+		},
+		{
+			title = "Base Resists",
+			groups = {
+				{
+					kind = "horizontal",
+					rows = {
+						{ label = "Magic", value = character.magic },
+						{ label = "Poison", value = character.poison },
+					},
+				},
+				{
+					kind = "horizontal",
+					rows = {
+						{ label = "Elemental", value = character.elemental },
+						{ label = "Void", value = character.void },
+					},
+				},
+			},
+		},
 	}
 
 	return Render.infobox({
 		title = character.name,
+		type = "Character",
 		classes = { "erenshor-character-infobox" },
 		rows = rows,
+		sections = sections,
 	}) .. categoryForType(character.type)
 end
 

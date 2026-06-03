@@ -19,6 +19,10 @@ FORBIDDEN_HTML_MARKERS = (
     ("Lua error", "forbidden parser output: Lua error"),
     ("Script error", "forbidden parser output: Script error"),
     ('class="error"', "forbidden parser output: parser error"),
+    ('&lt;aside class="portable-infobox', "forbidden parser output: escaped PortableInfobox shell"),
+    ('&lt;section class="pi-item', "forbidden parser output: escaped PortableInfobox section"),
+    ("&lt;thead&gt;", "forbidden parser output: escaped table header section"),
+    ("&lt;tbody&gt;", "forbidden parser output: escaped table body section"),
 )
 
 FORBIDDEN_HTML_PATTERNS = (

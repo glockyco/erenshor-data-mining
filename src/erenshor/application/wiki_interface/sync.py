@@ -18,6 +18,11 @@ FIXED_INTERFACE_TITLES: tuple[str, ...] = (
     "MediaWiki:Common.js",
     "MediaWiki:Vector.js",
     "MediaWiki:Gadgets-definition",
+    "MediaWiki:Sidebar",
+    "MediaWiki:Mainpage-description",
+    "MediaWiki:Recentchanges",
+    "MediaWiki:Randompage",
+    "MediaWiki:Help-mediawiki",
 )
 
 FIXED_SKIN_ASSETS: tuple[str, ...] = (

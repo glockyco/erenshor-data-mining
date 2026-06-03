@@ -178,6 +178,7 @@ function p.renderInfobox(args, pageTitle)
 
 	return Render.infobox({
 		title = quest.name,
+		type = "Quest",
 		classes = { "erenshor-quest-infobox" },
 		rows = rows,
 	}) .. "[[Category:Quests]]"

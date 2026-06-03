@@ -204,6 +204,7 @@ function p.renderInfobox(args, pageTitle)
 
 	return Render.infobox({
 		title = zone.name,
+		type = "Zone",
 		classes = { "erenshor-zone-infobox" },
 		rows = rows,
 	}) .. zoneCategories(zone.type)

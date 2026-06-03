@@ -6,6 +6,8 @@ Lua Item Smoke	PASS Erenshor Item testcases
 Ember Longsword	Ember Longsword
 Ember Longsword	Weapon
 Ember Longsword	erenshor-item-tooltip
+Ember Longsword	portable-infobox
+Ember Longsword	pi-type-Item
 Abyssal Plate	Armor
 Lucky Charm	Charm
 Healing Draught	Consumable
@@ -43,6 +45,10 @@ A Grizzly Bear	Category:Enemies
 Captain Rowan	Captain Rowan
 Captain Rowan	NPC
 Captain Rowan	Category:Characters
+Captain Rowan	portable-infobox
+Captain Rowan	pi-type-Character
+Captain Rowan	Base Stats
+Captain Rowan	Base Resists
 Rare Cave Spider	25%
 Manual Character Override	Manual Bear
 Manual Character Override	Ranger

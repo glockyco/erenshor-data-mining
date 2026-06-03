@@ -410,7 +410,12 @@ function p.renderInfobox(args, pageTitle)
 		{ label = "Overall Item Chances", value = item.dropRates },
 	}
 
-	return Render.infobox({ title = item.name, classes = { "erenshor-item-infobox" }, rows = rows })
+	return Render.infobox({
+		title = item.name,
+		type = "Item",
+		classes = { "erenshor-item-infobox" },
+		rows = rows,
+	})
 end
 
 function p.renderTooltip(args, pageTitle)
@@ -428,6 +433,7 @@ function p.renderTooltip(args, pageTitle)
 	}
 	return Render.infobox({
 		title = item.name .. " " .. mode,
+		type = "ItemTooltip",
 		classes = { "erenshor-item-tooltip" },
 		rows = rows,
 	})

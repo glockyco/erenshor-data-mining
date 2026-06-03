@@ -32,6 +32,11 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki-dev/interface/MediaWiki/Common.js").write_text("", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Vector.js").write_text("", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Gadgets-definition").write_text("", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Sidebar").write_text("* navigation\n", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Mainpage-description").write_text("Main Page", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Recentchanges").write_text("Recent Changes", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Randompage").write_text("Random Page", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Help-mediawiki").write_text("MediaWiki Help", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Gadget-datatables.js").write_text("window.datatables = true;\n")
     (root / "wiki/modules/Erenshor/Item.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
@@ -48,6 +53,11 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
         ("MediaWiki:Common.js", "wiki-dev/interface/MediaWiki/Common.js"),
         ("MediaWiki:Gadget-datatables.js", "wiki-dev/interface/MediaWiki/Gadget-datatables.js"),
         ("MediaWiki:Gadgets-definition", "wiki-dev/interface/MediaWiki/Gadgets-definition"),
+        ("MediaWiki:Help-mediawiki", "wiki-dev/interface/MediaWiki/Help-mediawiki"),
+        ("MediaWiki:Mainpage-description", "wiki-dev/interface/MediaWiki/Mainpage-description"),
+        ("MediaWiki:Randompage", "wiki-dev/interface/MediaWiki/Randompage"),
+        ("MediaWiki:Recentchanges", "wiki-dev/interface/MediaWiki/Recentchanges"),
+        ("MediaWiki:Sidebar", "wiki-dev/interface/MediaWiki/Sidebar"),
         ("MediaWiki:Vector.css", "wiki-dev/interface/MediaWiki/Vector.css"),
         ("MediaWiki:Vector.js", "wiki-dev/interface/MediaWiki/Vector.js"),
         ("Module:Erenshor/Item", "wiki/modules/Erenshor/Item.lua"),
@@ -391,5 +401,19 @@ def test_local_theme_shims_define_live_platform_variables() -> None:
     assert "--color-base: #ededed;" in theme_css
     assert "--border-color-base: #866806;" in theme_css
     assert "--background-color-interactive: #133759;" in theme_css
+    assert "--wiki-sidebar-heading-color: #ededed;" in theme_css
+    assert ".vector-menu-portal .vector-menu-heading-label" in theme_css
+    assert ".vector-menu-portal .vector-menu-content .mw-list-item a:visited" in theme_css
+    assert "color: var(--wiki-sidebar-link-color) !important;" in theme_css
+    assert "color: var(--wiki-sidebar-heading-color) !important;" in theme_css
+    assert ".portable-infobox .pi-data {" in theme_css
+    assert "display: flex;" in theme_css
+    assert ".portable-infobox .pi-title {" in theme_css
+    assert ".portable-infobox .pi-horizontal-group {" in theme_css
+    assert ".portable-infobox .pi-group {" in theme_css
+    assert "border-bottom-style: solid;" in theme_css
+    assert ".portable-infobox .pi-horizontal-group-item:not(:first-child)" in theme_css
+    assert "border-left-style: solid;" in theme_css
+    assert "background: none !important;" in theme_css
     assert '"wgg-dom-version-1_43"' in theme_js
     assert '"skin--responsive"' in theme_js
