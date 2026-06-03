@@ -79,6 +79,13 @@ _ITEM_EFFECT_FIELD_MAP = (
     ("completeQuestOnRead", "complete_on_read_stable_key"),
 )
 
+_ITEM_EFFECT_CHANCE_FIELD_MAP = (
+    ("weaponProcChance", "weapon_proc_chance"),
+    ("wandProcChance", "wand_proc_chance"),
+    ("bowProcChance", "bow_proc_chance"),
+)
+
+
 _STAT_FIELD_MAP = (
     ("weaponDamage", "weapon_dmg"),
     ("ac", "ac"),
@@ -184,6 +191,8 @@ def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaD
     for lua_name, attr_name in _ITEM_BOOL_FIELD_MAP:
         _put_bool(row, lua_name, getattr(item, attr_name))
     for lua_name, attr_name in _ITEM_EFFECT_FIELD_MAP:
+        _put(row, lua_name, getattr(item, attr_name))
+    for lua_name, attr_name in _ITEM_EFFECT_CHANCE_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
 
     row["type"] = _item_kind_display(str(_item_kind(item)))

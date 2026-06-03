@@ -47,6 +47,18 @@ function p.run()
 	assertContains(infobox, "18", "infobox contains damage")
 	assertContains(infobox, "1g 25s", "infobox formats currency")
 
+	local cargo = Item.cargoStore({
+		args = { stablekey = "item:abyssal_plate" },
+		preprocess = function(_, text)
+			return text
+		end,
+	})
+	assertContains(cargo, "|Armor=40", "cargo store contains armor overview AC")
+	assertContains(
+		cargo,
+		"|ClassLinks=[[Paladin]], [[Warrior]]",
+		"cargo store contains class links"
+	)
 	local consumable = Item.renderInfobox({ stablekey = "item:healing_draught" }, "Healing Draught")
 	assertContains(consumable, "Yes", "consumable boolean renders as human text")
 

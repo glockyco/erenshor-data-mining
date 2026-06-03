@@ -615,38 +615,50 @@ tests/unit/cli/commands/test_wiki.py
 
 ### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
 
-**Planned commit:** `feat(wiki): add Cargo-backed overview pages`
+**Planned commit:** `feat(wiki): render armor overview from Cargo`
 
 **Files:**
 
 ```text
-wiki/modules/Erenshor/Table.lua
-wiki/modules/Erenshor/Table/testcases.lua
 wiki/templates/ArmorTable.wiki
-wiki/templates/WeaponTable.wiki
-wiki/templates/MoldList.wiki
-wiki/templates/ItemTable.wiki
-wiki/templates/CharacterTable.wiki
-wiki/pages/system/*.wiki
-wiki-dev/fixtures/pages/*.wiki
+wiki/templates/ArmorTable/Row.wiki
+wiki-dev/fixtures/pages/Cargo_ArmorTable_Smoke.wiki
 wiki-dev/fixtures/smoke.tsv
+wiki/templates/Item.wiki
+wiki/templates/Item/CargoDeclare.wiki
+wiki/modules/Erenshor/Item.lua
+wiki/modules/Erenshor/Item/testcases.lua
+tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Identify overview pages from production usage**
+- [ ] **Step 1: Replace the armor overview table surface**
 
-  Use the inventory from Milestone 4 to identify pages and templates that produce lists/tables from item, character, quest, ability, and zone data.
+  Production `Armor` is a bot-generated static overview table, and
+  production `Template:ArmorTable` exists with no live transclusions. Reuse
+  that template name as the repo-owned Cargo-backed armor overview surface.
+  The human-owned `Armor` article can call `{{ArmorTable}}` during cutover
+  instead of being rewritten by Python.
 
-- [ ] **Step 2: Use Cargo for maintainer-facing aggregate pages**
+- [ ] **Step 2: Store overview fields in the item Cargo row**
 
-  Overview pages should query Cargo instead of receiving bot-generated expanded wikitext. Use `format=template` row templates only when the row format is small and stable.
+  Item Cargo rows store resolved article values after overrides. Add the
+  normal-quality armor-table stat columns and a display-only notes column to
+  the existing `Items` table so Cargo queries can reproduce the current armor
+  overview without reading generated Lua data directly.
 
-- [ ] **Step 3: Use Lua iteration only for tightly game-derived displays**
+- [ ] **Step 3: Render armor rows through a small row template**
 
-  Lua may render a table directly when the display is deterministic game data and does not need maintainer-authored query flexibility.
+  `Template:ArmorTable` issues one Cargo query against `Items` where
+  `Type="Armor"`, ordered by slot and name. `Template:ArmorTable/Row` renders
+  a single wikitable row from named Cargo fields. Do not add a generic
+  table-helper Lua module until at least two concrete overview surfaces need
+  shared behavior.
 
-- [ ] **Step 4: Verify query pages locally**
+- [ ] **Step 4: Verify the query page locally**
 
-  Recreate Cargo tables, null-edit fixture articles, render overview pages, and assert expected rows and links appear.
+  Recreate/import local Cargo state, parse a fixture page that calls
+  `{{ArmorTable}}`, and assert expected item links, stat values, class links,
+  and generated ability notes appear without parser errors.
 
 ### Milestone 10: Build clean-cut deployment and rollback pipeline
 

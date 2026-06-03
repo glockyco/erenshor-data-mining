@@ -90,6 +90,25 @@ def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
     assert item_data["armor"] == 3
 
 
+def test_builds_effect_chance_fields_for_overview_notes() -> None:
+    item = make_item(
+        weapon_proc_on_hit_stable_key="spell:ember_proc",
+        weapon_proc_chance=33,
+        wand_effect_stable_key="spell:wand_proc",
+        wand_proc_chance=25,
+        bow_effect_stable_key="spell:bow_proc",
+        bow_proc_chance=12,
+    )
+
+    data = build_items_data(items=[item], stats_by_item={}, classes_by_item={})
+
+    shard = data["index"]["byKey"][item.stable_key]
+    item_data = data["shards"][shard][item.stable_key]
+    assert item_data["weaponProcChance"] == 33
+    assert item_data["wandProcChance"] == 25
+    assert item_data["bowProcChance"] == 12
+
+
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:
     first = make_item(stable_key="item:first", item_name="Shared A", display_name="Shared A")
     second = make_item(stable_key="item:second", item_name="Shared B", display_name="Shared B")

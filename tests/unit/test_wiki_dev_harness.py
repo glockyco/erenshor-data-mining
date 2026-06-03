@@ -235,7 +235,10 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
 def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Path) -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
     expectations = tmp_path / "cargo_items.tsv"
-    row = "Page\titem:duplicate\tName\tType\t\t\t\t\t\t\t\t\t\t\t\t0"
+    row_values = ["Page", "item:duplicate", "Name", "Type"]
+    row_values.extend([""] * (len(cargo.CARGO_ITEM_FIELDS) - len(row_values) - 1))
+    row_values.append("0")
+    row = "\t".join(row_values)
     expectations.write_text(f"{row}\n{row}\n", encoding="utf-8")
 
     try:

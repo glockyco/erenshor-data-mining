@@ -132,6 +132,24 @@ def edit_page(client: httpx.Client, endpoint: str, token: str, page: PageSource,
         raise RuntimeError(f"Edit failed for {page.title}: {payload}")
 
 
+def purge_page(client: httpx.Client, endpoint: str, token: str, title: str) -> None:
+    """Purge one page so local smoke parses do not reuse stale parser output."""
+    response = client.post(
+        endpoint,
+        data={
+            "action": "purge",
+            "titles": title,
+            "forcelinkupdate": "1",
+            "token": token,
+            "format": "json",
+        },
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if "error" in payload:
+        raise RuntimeError(f"Purge failed for {title}: {payload['error']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default="http://localhost:8088", help="Local wiki base URL")
@@ -153,6 +171,7 @@ def main() -> None:
         token = csrf_token(client, endpoint)
         for page in pages:
             edit_page(client, endpoint, token, page, "Import local dev wiki page")
+            purge_page(client, endpoint, token, page.title)
             print(f"Imported {page.title}")
 
 

@@ -1,0 +1,22 @@
+<includeonly>|-
+|style="text-align: left;"|{{ItemLink|{{{Page|}}}|text={{{Name|}}}|image={{{Image|}}}}}
+|{{{Slot|}}}
+|{{{ItemLevel|}}}
+|{{{HP|}}}
+|{{{Mana|}}}
+|{{{AC|}}}
+|{{{Str|}}}
+|{{{End|}}}
+|{{{Dex|}}}
+|{{{Agi|}}}
+|{{{Int|}}}
+|{{{Wis|}}}
+|{{{Cha|}}}
+|{{{Res|}}}
+|{{{MR|}}}
+|{{{PR|}}}
+|{{{ER|}}}
+|{{{VR|}}}
+|{{{Notes|}}}
+|{{{Classes|}}}
+</includeonly><noinclude>Renders one Cargo row for [[Template:ArmorTable]].</noinclude>

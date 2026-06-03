@@ -3,6 +3,7 @@ local Format = require("Module:Erenshor/Format")
 local Render = require("Module:Erenshor/Render")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
+local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
 
 local p = {}
 
@@ -248,6 +249,90 @@ local function classCargo(classes)
 	return tostring(classes)
 end
 
+local hasValue
+
+local function classOverviewLinks(classes)
+	if classes == nil then
+		return ""
+	end
+	if type(classes) ~= "table" then
+		return tostring(classes)
+	end
+
+	local links = {}
+	for _, class in ipairs(classes) do
+		if not isBlank(class) then
+			table.insert(links, Format.pageLink(class))
+		end
+	end
+	return table.concat(links, ", ")
+end
+
+local function normalStats(item)
+	for _, stats in ipairs(item.stats or {}) do
+		if stats.quality == "Normal" or stats.quality == "0" then
+			return stats
+		end
+	end
+	return (item.stats or {})[1] or {}
+end
+
+local function abilityPageLink(stableKey)
+	if isBlank(stableKey) then
+		return ""
+	end
+	local ability = AbilityData.abilities[stableKey]
+	if ability == nil or isBlank(ability.page) then
+		return Format.escape(stableKey)
+	end
+	return Format.pageLink(ability.page)
+end
+
+local function percent(value)
+	local amount = tonumber(value)
+	if amount == nil then
+		return ""
+	end
+	return tostring(math.floor(amount))
+end
+
+local function overviewNotes(item)
+	local notes = {}
+	if hasValue(item.weaponProc) and hasValue(item.weaponProcChance) then
+		local trigger = "on attack"
+		if item.shield then
+			trigger = "on bash"
+		end
+		table.insert(
+			notes,
+			abilityPageLink(item.weaponProc)
+				.. ", "
+				.. percent(item.weaponProcChance)
+				.. "% "
+				.. trigger
+		)
+	end
+	if hasValue(item.wandEffect) and hasValue(item.wandProcChance) then
+		table.insert(
+			notes,
+			abilityPageLink(item.wandEffect) .. ", " .. percent(item.wandProcChance) .. "% on cast"
+		)
+	end
+	if hasValue(item.bowEffect) and hasValue(item.bowProcChance) then
+		table.insert(
+			notes,
+			abilityPageLink(item.bowEffect) .. ", " .. percent(item.bowProcChance) .. "% on attack"
+		)
+	end
+	if hasValue(item.wornEffect) then
+		table.insert(notes, "Worn: " .. abilityPageLink(item.wornEffect))
+	end
+	if hasValue(item.clickEffect) then
+		table.insert(notes, "On click: " .. abilityPageLink(item.clickEffect))
+	end
+	return table.concat(notes, "<br>")
+end
+
 local function boolText(value)
 	if value == nil then
 		return ""
@@ -258,7 +343,7 @@ local function boolText(value)
 	return "No"
 end
 
-local function hasValue(value)
+function hasValue(value)
 	if type(value) == "boolean" then
 		return value
 	end
@@ -387,6 +472,7 @@ local function cargoValue(value)
 end
 
 local function cargoStoreText(item, pageTitle)
+	local stats = normalStats(item)
 	local fields = {
 		{ "_table", "Items" },
 		{ "Page", pageTitle },
@@ -398,10 +484,26 @@ local function cargoStoreText(item, pageTitle)
 		{ "Damage", item.damage },
 		{ "Delay", item.weaponDelay },
 		{ "Armor", item.armor },
+		{ "HP", stats.hp },
+		{ "Mana", stats.mana },
+		{ "Str", stats.str },
+		{ "End", stats["end"] },
+		{ "Dex", stats.dex },
+		{ "Agi", stats.agi },
+		{ "Intellect", stats["int"] },
+		{ "Wis", stats.wis },
+		{ "Cha", stats.cha },
+		{ "Res", stats.res },
+		{ "MR", stats.mr },
+		{ "PR", stats.pr },
+		{ "ER", stats.er },
+		{ "VR", stats.vr },
 		{ "BuyValue", item.buyValue },
 		{ "SellValue", item.sellValue },
 		{ "Image", ensureImageFile(item.image, item.name) },
 		{ "Classes", classCargo(item.classes) },
+		{ "ClassLinks", classOverviewLinks(item.classes) },
+		{ "OverviewNotes", overviewNotes(item) },
 		{ "Relic", item.relic },
 		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
 		{ "HasWornEffect", hasValue(item.wornEffect) },
