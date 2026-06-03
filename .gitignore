@@ -852,6 +852,7 @@ wiki-dev/db/
 wiki-dev/images/
 wiki-dev/runtime/
 wiki-dev/extensions/
+wiki-dev/interface/MediaWiki/
 
 # Dolt database files (added by bd init)
 .dolt/

@@ -1,0 +1,25 @@
+/* Local-only wiki.gg theme variables used by synced MediaWiki:Common.css. */
+:root,
+.theme-dark {
+	--wiki-content-background-color: #1c1c1c;
+	--wiki-content-background-color--secondary: #272727;
+	--wiki-content-background-color--secondary--rgb: 39, 39, 39;
+	--wiki-content-border-color: #866806;
+	--wiki-content-dynamic-color--inverted--rgb: 255, 255, 255;
+	--wiki-content-link-color: #d8b74a;
+	--wiki-content-link-color--rgb: 216, 183, 74;
+	--wiki-heading-color: #f4d06f;
+	--wiki-heading-font-family: Georgia, "Times New Roman", serif;
+}
+
+.theme-light {
+	--wiki-content-background-color: #f8f3e3;
+	--wiki-content-background-color--secondary: #efe4bd;
+	--wiki-content-background-color--secondary--rgb: 239, 228, 189;
+	--wiki-content-border-color: #866806;
+	--wiki-content-dynamic-color--inverted--rgb: 0, 0, 0;
+	--wiki-content-link-color: #7a5600;
+	--wiki-content-link-color--rgb: 122, 86, 0;
+	--wiki-heading-color: #573d00;
+	--wiki-heading-font-family: Georgia, "Times New Roman", serif;
+}

@@ -19,6 +19,7 @@ Example workflow:
 
 import sys
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from loguru import logger
@@ -28,6 +29,7 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
+from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
@@ -502,6 +504,45 @@ def generate(
         console.print(f"[red]Error during wiki generation: {e}[/red]")
         logger.exception("Wiki generation failed")
         raise typer.Exit(1) from e
+
+
+@app.command("sync-interface")
+def sync_interface(
+    ctx: typer.Context,
+    rate_limit_delay: Annotated[
+        float,
+        typer.Option(
+            help="Delay between live wiki API reads.",
+            min=0.0,
+        ),
+    ] = 1.0,
+) -> None:
+    """Sync live MediaWiki interface pages for local preview.
+
+    Writes the gitignored local mirror to wiki-dev/interface.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    output_root = Path("wiki-dev/interface")
+    client = MediaWikiInterfaceClient(api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=rate_limit_delay)
+    try:
+        result = sync_interface_pages(client=client, output_root=output_root, dry_run=cli_ctx.dry_run)
+    except Exception as e:
+        console.print(f"[red]Error during wiki interface sync: {e}[/red]")
+        logger.exception("Wiki interface sync failed")
+        raise typer.Exit(1) from e
+    finally:
+        client.close()
+
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run - no files written[/yellow]")
+
+    for page in result.changed_pages:
+        if page.diff:
+            console.print(page.diff, end="")
+
+    console.print(
+        f"Synced {len(result.pages)} MediaWiki interface pages to {output_root} ({len(result.changed_pages)} changed)"
+    )
 
 
 @app.command()

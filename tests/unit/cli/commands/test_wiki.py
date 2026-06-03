@@ -201,6 +201,18 @@ class TestWikiInventoryTemplatesCommand:
         assert "Wrote template ownership manifest" in result.output
 
 
+class TestWikiSyncInterfaceCommand:
+    """Test wiki interface sync command."""
+
+    def test_sync_interface_help_describes_live_interface_mirror(self):
+        """Test sync-interface exposes the local preview bootstrap command."""
+        result = runner.invoke(app, ["wiki", "sync-interface", "--help"])
+
+        assert result.exit_code == 0
+        assert "Sync live MediaWiki interface pages for local preview." in result.output
+        assert "wiki-dev/interface" in result.output
+
+
 class TestWikiDeployCommand:
     """Test wiki deploy command."""
 

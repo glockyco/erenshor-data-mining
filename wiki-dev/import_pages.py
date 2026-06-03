@@ -14,12 +14,23 @@ from typing import NamedTuple
 
 import httpx
 
+REQUIRED_INTERFACE_FILES = frozenset(
+    {
+        "Common.css",
+        "Vector.css",
+        "Common.js",
+        "Vector.js",
+        "Gadgets-definition",
+    }
+)
+
 
 class PageSource(NamedTuple):
-    """A repository file and the MediaWiki page title it represents."""
+    """A local file and the MediaWiki page title it represents."""
 
     title: str
     path: Path
+    content: str | None = None
 
 
 def api_url(base_url: str) -> str:
@@ -28,8 +39,10 @@ def api_url(base_url: str) -> str:
 
 
 def discover_pages(root: Path) -> list[PageSource]:
-    """Discover repo-owned module, template, and fixture article pages."""
+    """Discover interface, module, template, and fixture article pages."""
     pages: list[PageSource] = []
+
+    pages.extend(discover_interface_pages(root))
 
     modules_dir = root / "wiki" / "modules"
     if modules_dir.exists():
@@ -63,6 +76,39 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
+    return pages
+
+
+def discover_interface_pages(root: Path) -> list[PageSource]:
+    """Discover synced live MediaWiki interface pages for local preview."""
+    interface_dir = root / "wiki-dev" / "interface" / "MediaWiki"
+    if not interface_dir.exists():
+        raise RuntimeError(
+            "Local MediaWiki interface mirror is missing. "
+            "Run `uv run erenshor wiki sync-interface` before importing local pages."
+        )
+
+    existing_files = {path.name for path in interface_dir.iterdir() if path.is_file()}
+    missing_files = sorted(REQUIRED_INTERFACE_FILES - existing_files)
+    if missing_files:
+        missing = ", ".join(missing_files)
+        raise RuntimeError(
+            f"Local MediaWiki interface mirror is incomplete ({missing}). "
+            "Run `uv run erenshor wiki sync-interface` before importing local pages."
+        )
+
+    theme_shim_path = root / "wiki-dev" / "interface" / "theme-shim.css"
+    theme_shim = theme_shim_path.read_text(encoding="utf-8") if theme_shim_path.exists() else ""
+
+    pages: list[PageSource] = []
+    for path in sorted(interface_dir.iterdir()):
+        if not path.is_file():
+            continue
+        title = "MediaWiki:" + path.name.replace("__", "/")
+        content = None
+        if path.name == "Common.css" and theme_shim:
+            content = theme_shim + "\n" + path.read_text(encoding="utf-8")
+        pages.append(PageSource(title=title, path=path, content=content))
     return pages
 
 
@@ -110,14 +156,19 @@ def csrf_token(client: httpx.Client, endpoint: str) -> str:
     return str(response.json()["query"]["tokens"]["csrftoken"])
 
 
+def page_content(page: PageSource) -> str:
+    """Return the text to import for a local page source."""
+    return page.content if page.content is not None else page.path.read_text(encoding="utf-8")
+
+
 def edit_page(client: httpx.Client, endpoint: str, token: str, page: PageSource, summary: str) -> None:
-    """Upload one repo-owned page to MediaWiki."""
+    """Upload one local page to MediaWiki."""
     response = client.post(
         endpoint,
         data={
             "action": "edit",
             "title": page.title,
-            "text": page.path.read_text(encoding="utf-8"),
+            "text": page_content(page),
             "summary": summary,
             "token": token,
             "format": "json",

@@ -14,13 +14,21 @@ def load_script(path: str) -> ModuleType:
     return module
 
 
-def test_maps_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) -> None:
+def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) -> None:
     root = tmp_path
     (root / "wiki/modules/Erenshor").mkdir(parents=True)
     (root / "wiki/templates").mkdir(parents=True)
+    (root / "wiki-dev/interface/MediaWiki").mkdir(parents=True)
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items").mkdir(parents=True)
     (root / "wiki-dev/fixtures/pages").mkdir(parents=True)
 
+    (root / "wiki-dev/interface/theme-shim.css").write_text(":root { --wiki-content-border-color: #866806; }\n")
+    (root / "wiki-dev/interface/MediaWiki/Common.css").write_text("body { color: white; }\n", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Vector.css").write_text("", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Common.js").write_text("", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Vector.js").write_text("", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Gadgets-definition").write_text("", encoding="utf-8")
+    (root / "wiki-dev/interface/MediaWiki/Gadget-datatables.js").write_text("window.datatables = true;\n")
     (root / "wiki/modules/Erenshor/Item.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua").write_text("return {}\n", encoding="utf-8")
@@ -32,12 +40,32 @@ def test_maps_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) -> None:
     pages = import_pages.discover_pages(root)
 
     assert [(page.title, page.path.relative_to(root).as_posix()) for page in pages] == [
+        ("MediaWiki:Common.css", "wiki-dev/interface/MediaWiki/Common.css"),
+        ("MediaWiki:Common.js", "wiki-dev/interface/MediaWiki/Common.js"),
+        ("MediaWiki:Gadget-datatables.js", "wiki-dev/interface/MediaWiki/Gadget-datatables.js"),
+        ("MediaWiki:Gadgets-definition", "wiki-dev/interface/MediaWiki/Gadgets-definition"),
+        ("MediaWiki:Vector.css", "wiki-dev/interface/MediaWiki/Vector.css"),
+        ("MediaWiki:Vector.js", "wiki-dev/interface/MediaWiki/Vector.js"),
         ("Module:Erenshor/Item", "wiki/modules/Erenshor/Item.lua"),
         ("Module:Erenshor/Data/Items", "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua"),
         ("Module:Erenshor/Data/Items/Weapons", "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua"),
         ("Template:Item", "wiki/templates/Item.wiki"),
         ("Sword of Flames", "wiki-dev/fixtures/pages/Sword_of_Flames.wiki"),
     ]
+    common_css = pages[0]
+    assert common_css.content.startswith(":root { --wiki-content-border-color: #866806; }\n")
+    assert common_css.content.endswith("body { color: white; }\n")
+
+
+def test_discover_pages_fails_when_interface_mirror_is_missing(tmp_path: Path) -> None:
+    import_pages = load_script("wiki-dev/import_pages.py")
+
+    try:
+        import_pages.discover_pages(tmp_path)
+    except RuntimeError as error:
+        assert "uv run erenshor wiki sync-interface" in str(error)
+    else:
+        raise AssertionError("missing interface mirror did not fail")
 
 
 def test_builds_mediawiki_api_urls_without_double_slashes() -> None:
@@ -332,3 +360,17 @@ def test_scribunto_uses_system_lua_for_arm_compatible_local_rendering() -> None:
 
     assert "lua5.1" in dockerfile
     assert "$wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua5.1';" in settings
+
+
+def test_local_mediawiki_matches_live_skin_gadget_and_article_size_surface() -> None:
+    dockerfile = Path("wiki-dev/Dockerfile").read_text(encoding="utf-8")
+    settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
+
+    assert "/var/www/html/extensions/Gadgets" in dockerfile
+    assert "wfLoadSkin( 'Vector' );" in settings
+    assert "$wgDefaultSkin = 'vector';" in settings
+    assert "$wgVectorDefaultSkinVersion = '1';" in settings
+    assert "wfLoadExtension( 'Gadgets' );" in settings
+    assert "$wgMaxArticleSize = 4096;" in settings
+    assert "$wgTemplateSandboxEditNamespaces = [ NS_TEMPLATE, 828 ];" in settings
+    assert "$wgTemplateSandboxEditNamespaces = true;" not in settings

@@ -45,6 +45,9 @@
 - PoE module guidance: https://www.poewiki.net/wiki/Help:Modules
 - Terraria high-use data cache note: https://terraria.wiki.gg/index.php?title=Module:Iteminfo/loaddata&action=raw
 - wiki.gg LuaCache README: https://raw.githubusercontent.com/wiki-gg-oss/mediawiki-extensions-LuaCache/master/README.md
+- MediaWiki site CSS/JS customization: https://www.mediawiki.org/wiki/Manual:Interface/Stylesheets
+- MediaWiki Gadgets extension: https://www.mediawiki.org/wiki/Extension:Gadgets
+- MediaWiki XML import/export: https://www.mediawiki.org/wiki/Manual:Importing_XML_dumps
 
 ## Production constraints
 
@@ -250,6 +253,39 @@ Clean SQLite database
 ```
 
 Python must not generate expanded article pages after production cutover.
+
+## Local live-interface preview contract
+
+Local validation must render repo-owned templates/modules and fixture articles
+through a MediaWiki runtime that is close enough to production to catch CSS,
+JavaScript, ResourceLoader gadget, skin, Scribunto, Cargo, and parser-health
+breakage before TemplateSandbox or production changes.
+
+Local preview rules:
+
+- Match the production MediaWiki major/minor runtime surface where practical:
+  MediaWiki 1.43, Classic Vector (`skin-vector-legacy`), Scribunto,
+  ParserFunctions, TemplateSandbox, Cargo/LIBRARIAN compatibility, Gadgets,
+  and the production article-size limit.
+- Treat live interface code as a current-revision local mirror, not source
+  history. The mirror is gitignored under `wiki-dev/interface/MediaWiki/` and
+  is refreshed by one obvious sync command.
+- Sync fixed site interface pages plus gadget source pages discovered from
+  `MediaWiki:Gadgets-definition`: `Common.css`, `Vector.css`, `Common.js`,
+  `Vector.js`, `Gadgets-definition`, and referenced `Gadget-*` CSS/JS/JSON/Vue
+  pages.
+- Print unified diffs from the existing local mirror to freshly fetched live
+  content before overwriting files. Git history is not used for mirrored
+  third-party interface pages.
+- Import mirrored interface pages as real `MediaWiki:*` pages in the local
+  wiki before modules, templates, and fixture articles. Fail loudly when the
+  mirror is missing instead of silently rendering without site CSS/JS.
+- Keep authored local compatibility shims separate from mirrored live files.
+  A small committed theme-variable shim may provide wiki.gg CSS custom
+  properties that production skins define outside `MediaWiki:Common.css`.
+- Validate ResourceLoader and browser behavior for representative pages; HTML
+  parse success alone is not enough for gadget-backed query surfaces such as
+  DataTables.
 
 ## Completed foundation
 

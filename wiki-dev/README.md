@@ -11,18 +11,24 @@ This directory contains the local MediaWiki stack used to test the Lua data-modu
 
 It is not a production wiki and it is not intended to exactly reproduce wiki.gg's LIBRARIAN fork. It builds upstream Cargo as a close local compatibility layer. Final pre-production validation still happens with live TemplateSandbox on erenshor.wiki.gg.
 
-## Included extensions
+## Included skins and extensions
 
-The Dockerfile installs MediaWiki 1.43-compatible extension branches for:
+The Dockerfile installs MediaWiki 1.43-compatible branches for the local
+runtime surface used by production pages:
 
 ```text
 Cargo
+Gadgets
 ParserFunctions
 Scribunto
 TemplateSandbox
+Vector
 ```
 
-The live wiki is MediaWiki 1.43.6 with Scribunto, TemplateSandbox, and LIBRARIAN 4.21.0. Local upstream Cargo is close enough for parser/render/storage integration, but not a substitute for final live TemplateSandbox validation.
+The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
+TemplateSandbox, Gadgets/DataTables, and LIBRARIAN 4.21.0. Local upstream
+Cargo is close enough for parser/render/storage integration, but not a
+substitute for final live TemplateSandbox validation.
 
 ## Bootstrap the stack
 
@@ -43,22 +49,40 @@ password: DevWikiPassword-2026
 
 The helper scripts default to those credentials.
 
-## Import repo-owned pages
+## Sync live interface pages
+
+Local CSS and JavaScript preview depends on the live `MediaWiki:` interface
+pages. Sync the current live versions before importing local pages:
+
+```bash
+uv run erenshor wiki sync-interface
+```
+
+The command writes a gitignored mirror under `wiki-dev/interface/MediaWiki/`
+and prints unified diffs against any existing local mirror before overwriting.
+The committed `wiki-dev/interface/theme-shim.css` is authored local glue for
+wiki.gg theme custom properties; it is prepended to `MediaWiki:Common.css` at
+import time and is not overwritten by sync.
+
+
+## Import local pages
 
 From the repository root:
 
 ```bash
-python wiki-dev/import_pages.py --dry-run
-python wiki-dev/import_pages.py
+uv run python wiki-dev/import_pages.py --dry-run
+uv run python wiki-dev/import_pages.py
 ```
 
 Mappings:
 
 ```text
-wiki/modules/Erenshor/Item.lua                    -> Module:Erenshor/Item
+wiki-dev/interface/MediaWiki/Common.css          -> MediaWiki:Common.css
+wiki-dev/interface/MediaWiki/Gadget-foo.js       -> MediaWiki:Gadget-foo.js
+wiki/modules/Erenshor/Item.lua                   -> Module:Erenshor/Item
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
-wiki/templates/Item.wiki                          -> Template:Item
-wiki-dev/fixtures/pages/Foo.wiki                  -> Foo
+wiki/templates/Item.wiki                         -> Template:Item
+wiki-dev/fixtures/pages/Foo.wiki                 -> Foo
 ```
 
 ## Run smoke tests

@@ -2,10 +2,14 @@
 # Extra settings for the local Erenshor wiki development stack.
 # This file is included from wiki-dev/LocalSettings.php after install.php creates it.
 
+wfLoadSkin( 'Vector' );
+
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'Scribunto' );
 wfLoadExtension( 'TemplateSandbox' );
 wfLoadExtension( 'Cargo' );
+wfLoadExtension( 'Gadgets' );
+
 
 $wgScribuntoDefaultEngine = 'luastandalone';
 $wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua5.1';
@@ -22,6 +26,10 @@ $wgCargoDBpassword = $wgDBpassword;
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
 $wgEnableUploads = true;
+$wgDefaultSkin = 'vector';
+$wgVectorDefaultSkinVersion = '1';
+$wgMaxArticleSize = 4096;
 
-# Let TemplateSandbox appear broadly in the local dev wiki.
-$wgTemplateSandboxEditNamespaces = true;
+
+# Show the TemplateSandbox edit box on local template and module pages.
+$wgTemplateSandboxEditNamespaces = [ NS_TEMPLATE, 828 ];
