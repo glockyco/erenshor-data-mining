@@ -1,0 +1,9 @@
+{{#invoke:Erenshor/AbilityLink/testcases|run}}
+
+Default: {{AbilityLink|Minor Lightning}}
+
+Stance page: {{AbilityLink|Aggressive}}
+
+Manual: {{AbilityLink|Minor Lightning|image=Manual Ability.png|link=Manual Ability Page|text=Manual Ability Text}}
+
+Image only: {{AbilityLink|Minor Lightning|imageonly=1}}

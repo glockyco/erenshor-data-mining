@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING
 
 from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
+from erenshor.domain.entities.skill import Skill
+from erenshor.domain.entities.spell import Spell
+from erenshor.domain.entities.stance import Stance
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
@@ -58,6 +61,30 @@ class FakeSpellUsageRepository:
 
     def get_spells_used_by_character(self, stable_key: str) -> list[AbilityLink]:
         return self._spells.get(stable_key, [])
+
+
+class FakeSpellRepository:
+    def __init__(self, spells: list[Spell]) -> None:
+        self._spells = spells
+
+    def get_spells_for_wiki_generation(self) -> list[Spell]:
+        return self._spells
+
+
+class FakeSkillRepository:
+    def __init__(self, skills: list[Skill]) -> None:
+        self._skills = skills
+
+    def get_skills_for_wiki_generation(self) -> list[Skill]:
+        return self._skills
+
+
+class FakeStanceRepository:
+    def __init__(self, stances: list[Stance]) -> None:
+        self._stances = stances
+
+    def get_all(self) -> list[Stance]:
+        return self._stances
 
 
 def make_item(**overrides: object) -> Item:
@@ -118,3 +145,38 @@ def make_character(**overrides: object) -> Character:
     }
     values.update(overrides)
     return Character.model_validate(values)
+
+
+def make_spell(**overrides: object) -> Spell:
+    values = {
+        "stable_key": "spell:minor_lightning",
+        "display_name": "Minor Lightning",
+        "wiki_page_name": "Minor Lightning",
+        "image_name": "Minor Lightning",
+        "spell_name": "Minor Lightning",
+    }
+    values.update(overrides)
+    return Spell.model_validate(values)
+
+
+def make_skill(**overrides: object) -> Skill:
+    values = {
+        "stable_key": "skill:double_attack",
+        "display_name": "Double Attack",
+        "wiki_page_name": "Double Attack",
+        "image_name": "Double Attack",
+        "skill_name": "Double Attack",
+    }
+    values.update(overrides)
+    return Skill.model_validate(values)
+
+
+def make_stance(**overrides: object) -> Stance:
+    values = {
+        "stable_key": "stance:aggressive",
+        "display_name": "Aggressive",
+        "wiki_page_name": "Aggressive Stance",
+        "image_name": "Aggressive",
+    }
+    values.update(overrides)
+    return Stance.model_validate(values)
