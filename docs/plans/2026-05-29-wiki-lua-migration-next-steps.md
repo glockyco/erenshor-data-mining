@@ -484,7 +484,7 @@ tests/unit/test_wiki_dev_harness.py
 
 ### Milestone 7: Replace Character/Enemy templates with Lua-backed compatibility contract
 
-**Planned commit:** `feat(wiki): render character templates through Lua`
+**Commit:** `90238beb feat(wiki): render character templates through Lua`
 
 **Files:**
 
@@ -495,31 +495,48 @@ wiki/modules/Erenshor/Data/Characters.lua
 wiki/templates/Character.wiki
 wiki/templates/Character/CargoDeclare.wiki
 wiki/templates/Character/CargoStore.wiki
-wiki-dev/fixtures/pages/*.wiki
+wiki-dev/fixtures/pages/A_Grizzly_Bear.wiki
+wiki-dev/fixtures/pages/Captain_Rowan.wiki
+wiki-dev/fixtures/pages/Lua_Character_Smoke.wiki
+wiki-dev/fixtures/pages/Manual_Character_Override.wiki
+wiki-dev/fixtures/pages/Missing_Character_Data.wiki
+wiki-dev/fixtures/pages/Rare_Cave_Spider.wiki
 wiki-dev/fixtures/smoke.tsv
+wiki-dev/fixtures/cargo_characters.tsv
+wiki-dev/smoke_test.py
 src/erenshor/application/wiki_lua/characters.py
+src/erenshor/application/wiki_lua/generation.py
+src/erenshor/cli/commands/wiki.py
 tests/unit/application/wiki_lua/test_characters_module.py
+tests/unit/application/wiki_lua/test_generation.py
+tests/unit/cli/commands/test_wiki.py
+tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Preserve root `Template:Character` public parameters**
+- [x] **Step 1: Preserve root `Template:Character` public parameters**
 
-  Keep compatibility with production fields for NPCs, enemies, bosses, drops, map links, zones, coordinates, stats, resists, and abilities.
+  `Template:Character` accepts production-shaped fields for NPCs, enemies, drops, map links, zones, coordinates, stats, resists, spells, faction, class, respawn, and spawn chance. Article parameters remain explicit overrides over generated Lua data.
 
-- [ ] **Step 2: Resolve characters from generated data plus article overrides**
+- [x] **Step 2: Resolve characters from generated data plus article overrides**
 
-  Support ordinary NPCs, enemies, bosses, vendors, simulated players, multi-zone spawns, coordinates, base respawn, spawn chance, faction, class, drops, and spells.
+  `Module:Erenshor/Character` resolves by stable key, explicit character/name/title, positional target, or current page title. Missing data emits a visible error and `[[Category:Pages with missing Erenshor character data]]`.
 
-- [ ] **Step 3: Generate map links in Lua**
+- [x] **Step 3: Generate map links in Lua**
 
-  Replace parser-function map-link branching with a shared Lua helper that produces the correct `npc:` or `enemy:` selector.
+  Character data includes `npc:` or `enemy:` map selectors derived from character type. Lua rendering turns those selectors into interactive map links.
 
-- [ ] **Step 4: Store resolved Cargo character rows**
+- [x] **Step 4: Store resolved Cargo character rows**
 
-  Store query-safe fields for entity type, zones, level, class, faction, spawn data, drops summary, and map selector.
+  `Template:Character` declares the Cargo `Characters` table and stores resolved rows through Lua using `frame:preprocess()`. The initial query schema is:
 
-- [ ] **Step 5: Verify locally**
+  ```text
+  Page, StableKey, Name, Type, Zones, Level, Class, Faction,
+  SpawnChance, HasDrops, HasSpells, MapSelector
+  ```
 
-  Parse representative NPC, enemy, boss, vendor, and multi-zone fixtures. Query Cargo rows and run null-edit refresh proof.
+- [x] **Step 5: Verify locally**
+
+  Local validation imports modules/templates/data into MediaWiki, parses representative enemy, NPC, rare, manual override, and missing-data fixtures, runs Lua testcase modules, recreates the `Characters` Cargo table, validates Cargo rows by `(Page, StableKey)`, and proves null-edit refresh behavior for Character rows.
 
 ### Milestone 8: Replace quest, ability, stance, zone, and link surfaces
 
@@ -802,6 +819,7 @@ README.md
 - Do not skip null-edit proof tests for Cargo-backed templates.
 - Do not skip TemplateSandbox validation for the complete cutover set.
 
-Proceed to **Milestone 7**: replace Character/Enemy templates with Lua-backed
-compatibility wrappers, generated character data, local fixtures, Cargo row
-validation, and null-edit refresh proof.
+Proceed to **Milestone 8**: replace quest, ability, stance, zone, and link
+surfaces with Lua-backed compatibility wrappers, generated data modules,
+local fixtures, Cargo row validation where needed, and null-edit proof for
+stored rows.
