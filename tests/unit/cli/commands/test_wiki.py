@@ -167,6 +167,7 @@ class TestWikiGenerateCommand:
         assert result.exit_code == 0
         assert "Dry run" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Items.lua" in result.output
+        assert "variants/main/wiki/lua/Erenshor/Data/Characters.lua" in result.output
 
 
 class TestWikiInventoryTemplatesCommand:

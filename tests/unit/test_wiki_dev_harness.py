@@ -243,6 +243,67 @@ def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Pat
         raise AssertionError("duplicate Cargo Page/StableKey pair was accepted")
 
 
+def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
+    smoke_test = load_script("wiki-dev/smoke_test.py")
+    expectations = [
+        smoke_test.CargoCharacterExpectation(
+            page="A Grizzly Bear",
+            fields={
+                "StableKey": "character:a_grizzly_bear",
+                "Name": "A Grizzly Bear",
+                "Type": "Enemy",
+                "Level": "12",
+            },
+        ),
+        smoke_test.CargoCharacterExpectation(
+            page="Captain Rowan",
+            fields={
+                "StableKey": "character:captain_rowan",
+                "Name": "Captain Rowan",
+                "Type": "NPC",
+                "Level": "20",
+            },
+        ),
+    ]
+    rows = [
+        {
+            "Page": "A Grizzly Bear",
+            "StableKey": "character:a_grizzly_bear",
+            "Name": "Wrong Bear",
+            "Type": "Enemy",
+            "Level": "11",
+        },
+        {
+            "Page": "A Grizzly Bear",
+            "StableKey": "character:duplicate",
+            "Name": "Duplicate Bear",
+            "Type": "Enemy",
+        },
+        {
+            "Page": "A Grizzly Bear",
+            "StableKey": "character:duplicate",
+            "Name": "Duplicate Bear",
+            "Type": "Enemy",
+        },
+        {
+            "Page": "Scratch Character",
+            "StableKey": "character:scratch",
+            "Name": "Scratch Character",
+            "Type": "NPC",
+        },
+    ]
+
+    failures = smoke_test.check_cargo_character_rows(rows, expectations)
+
+    assert failures == [
+        "Cargo Characters row A Grizzly Bear Name: expected A Grizzly Bear, got Wrong Bear",
+        "Cargo Characters row A Grizzly Bear Level: expected 12, got 11",
+        "Cargo Characters missing row for Captain Rowan",
+        "Cargo Characters duplicate row for A Grizzly Bear / character:duplicate",
+        "Cargo Characters unexpected row for A Grizzly Bear / character:duplicate",
+    ]
+
+
 def test_compose_does_not_mount_local_settings_before_install() -> None:
     compose = Path("wiki-dev/compose.yml").read_text(encoding="utf-8")
 

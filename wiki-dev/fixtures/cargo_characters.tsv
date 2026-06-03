@@ -1,0 +1,4 @@
+A Grizzly Bear	character:a_grizzly_bear	A Grizzly Bear	Enemy	[[Blacksalt Strand]]	12		[[The Followers of Evil]]		1	0	enemy:A Grizzly Bear
+Captain Rowan	character:captain_rowan	Captain Rowan	NPC	[[Port Azure]]	20	Warrior	[[The Followers of Good]]		0	0	npc:Captain Rowan
+Rare Cave Spider	character:rare_cave_spider	Rare Cave Spider	Rare	[[Crystal Cavern]]	18			25%	0	0	enemy:Rare Cave Spider
+Manual Character Override	character:a_grizzly_bear	Manual Bear	Enemy	[[Blacksalt Strand]]	12	Ranger			1	0	enemy:A Grizzly Bear

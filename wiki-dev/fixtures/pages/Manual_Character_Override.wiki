@@ -1,0 +1,1 @@
+{{Character|name=A Grizzly Bear|title=Manual Bear|image=Manual Bear.png|faction=-|class=Ranger}}

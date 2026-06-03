@@ -165,6 +165,22 @@ def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
     return ItemRepository(db_connection)
 
 
+def _create_lua_repositories(
+    cli_ctx: CLIContext,
+) -> tuple[ItemRepository, CharacterRepository, SpawnPointRepository, LootTableRepository, SpellRepository]:
+    """Create repositories for local Lua data generation."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    db_path = variant_config.resolved_database(cli_ctx.repo_root)
+    db_connection = DatabaseConnection(db_path, read_only=True)
+    return (
+        ItemRepository(db_connection),
+        CharacterRepository(db_connection),
+        SpawnPointRepository(db_connection),
+        LootTableRepository(db_connection),
+        SpellRepository(db_connection),
+    )
+
+
 def _lua_output_root(cli_ctx: CLIContext) -> Path:
     """Return the local generated Lua module output directory."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -279,6 +295,7 @@ def generate_lua(ctx: typer.Context) -> None:
     cli_ctx: CLIContext = ctx.obj
     output_root = _lua_output_root(cli_ctx)
     items_path = output_root / "Erenshor" / "Data" / "Items.lua"
+    characters_path = output_root / "Erenshor" / "Data" / "Characters.lua"
 
     console.print()
     console.print(
@@ -295,11 +312,19 @@ def generate_lua(ctx: typer.Context) -> None:
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: no database opened and no files written.[/yellow]")
         console.print(f"Would write: {items_path}", soft_wrap=True)
+        console.print(f"Would write: {characters_path}", soft_wrap=True)
         return
 
     try:
-        item_repo = _create_item_repository(cli_ctx)
-        result = generate_lua_data_modules(item_repo=item_repo, output_root=output_root)
+        item_repo, character_repo, spawn_repo, loot_repo, spell_repo = _create_lua_repositories(cli_ctx)
+        result = generate_lua_data_modules(
+            item_repo=item_repo,
+            character_repo=character_repo,
+            spawn_repo=spawn_repo,
+            loot_repo=loot_repo,
+            spell_repo=spell_repo,
+            output_root=output_root,
+        )
         for path in result.written_paths:
             console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)
             console.print(f"[green]Validated with:[/green] {result.validation_tools[path]}")

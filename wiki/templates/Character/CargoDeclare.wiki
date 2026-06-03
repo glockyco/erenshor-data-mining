@@ -1,0 +1,14 @@
+<noinclude><pre>{{#cargo_declare:_table=Characters
+|Page=Page
+|StableKey=String
+|Name=String
+|Type=String
+|Zones=Text
+|Level=Integer
+|Class=String
+|Faction=String
+|SpawnChance=String
+|HasDrops=Boolean
+|HasSpells=Boolean
+|MapSelector=String
+}}</pre></noinclude>
