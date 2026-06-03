@@ -1,0 +1,3 @@
+{{#invoke:Erenshor/Quest|infobox}}<noinclude>
+Template parameters mirror the production Quest template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

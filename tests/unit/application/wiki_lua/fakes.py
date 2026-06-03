@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
+from erenshor.domain.entities.quest import Quest
 from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.entities.stance import Stance
@@ -85,6 +86,14 @@ class FakeStanceRepository:
 
     def get_all(self) -> list[Stance]:
         return self._stances
+
+
+class FakeQuestRepository:
+    def __init__(self, quests: list[Quest]) -> None:
+        self._quests = quests
+
+    def get_quests_for_wiki_generation(self) -> list[Quest]:
+        return self._quests
 
 
 def make_item(**overrides: object) -> Item:
@@ -180,3 +189,18 @@ def make_stance(**overrides: object) -> Stance:
     }
     values.update(overrides)
     return Stance.model_validate(values)
+
+
+def make_quest(**overrides: object) -> Quest:
+    values = {
+        "stable_key": "quest:magical_sword",
+        "display_name": "A Magical Sword in Port Azure",
+        "wiki_page_name": "A Magical Sword in Port Azure",
+        "image_name": "Magical Sword",
+        "quest_name": "A Magical Sword in Port Azure",
+        "repeatable": 0,
+        "xp_on_complete": 450,
+        "gold_on_complete": 12,
+    }
+    values.update(overrides)
+    return Quest.model_validate(values)

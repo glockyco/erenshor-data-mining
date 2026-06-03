@@ -1,0 +1,7 @@
+{{Quest
+|quest=A Magical Sword in Port Azure
+|title=Manual Quest Title
+|location=Manual Location
+|factionchanges=-
+|items=Manual Reward
+}}

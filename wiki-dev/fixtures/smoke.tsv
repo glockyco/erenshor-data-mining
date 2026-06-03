@@ -53,3 +53,12 @@ Lua AbilityLink Smoke	Minor Lightning
 Lua AbilityLink Smoke	Aggressive Stance
 Lua AbilityLink Smoke	Manual Ability Text
 Lua AbilityLink Smoke	Manual Ability Page
+Lua Quest Smoke	PASS Erenshor Quest testcases
+A Magical Sword in Port Azure	A Magical Sword in Port Azure
+A Magical Sword in Port Azure	450
+A Magical Sword in Port Azure	Category:Quests
+Manual Quest Override	Manual Quest Title
+Manual Quest Override	Manual Location
+Manual Quest Override	Manual Reward
+Missing Quest Data	Missing quest data: Missing Quest Data
+Missing Quest Data	Category:Pages_with_missing_Erenshor_quest_data

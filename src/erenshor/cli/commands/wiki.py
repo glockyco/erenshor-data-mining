@@ -175,6 +175,7 @@ def _create_lua_repositories(
     SpellRepository,
     SkillRepository,
     StanceRepository,
+    QuestRepository,
 ]:
     """Create repositories for local Lua data generation."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -188,6 +189,7 @@ def _create_lua_repositories(
         SpellRepository(db_connection),
         SkillRepository(db_connection),
         StanceRepository(db_connection),
+        QuestRepository(db_connection),
     )
 
 
@@ -307,6 +309,7 @@ def generate_lua(ctx: typer.Context) -> None:
     items_path = output_root / "Erenshor" / "Data" / "Items.lua"
     characters_path = output_root / "Erenshor" / "Data" / "Characters.lua"
     ability_links_path = output_root / "Erenshor" / "Data" / "AbilityLinks.lua"
+    quests_path = output_root / "Erenshor" / "Data" / "Quests.lua"
     console.print()
     console.print(
         Panel.fit(
@@ -324,10 +327,11 @@ def generate_lua(ctx: typer.Context) -> None:
         console.print(f"Would write: {items_path}", soft_wrap=True)
         console.print(f"Would write: {characters_path}", soft_wrap=True)
         console.print(f"Would write: {ability_links_path}", soft_wrap=True)
+        console.print(f"Would write: {quests_path}", soft_wrap=True)
         return
 
     try:
-        item_repo, character_repo, spawn_repo, loot_repo, spell_repo, skill_repo, stance_repo = (
+        item_repo, character_repo, spawn_repo, loot_repo, spell_repo, skill_repo, stance_repo, quest_repo = (
             _create_lua_repositories(cli_ctx)
         )
         result = generate_lua_data_modules(
@@ -339,6 +343,7 @@ def generate_lua(ctx: typer.Context) -> None:
             spell_repo=spell_repo,
             skill_repo=skill_repo,
             stance_repo=stance_repo,
+            quest_repo=quest_repo,
             output_root=output_root,
         )
         for path in result.written_paths:

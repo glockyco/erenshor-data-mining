@@ -6,6 +6,7 @@ from tests.unit.application.wiki_lua.fakes import (
     FakeCharacterRepository,
     FakeItemRepository,
     FakeLootRepository,
+    FakeQuestRepository,
     FakeSkillRepository,
     FakeSpawnRepository,
     FakeSpellRepository,
@@ -13,6 +14,7 @@ from tests.unit.application.wiki_lua.fakes import (
     FakeStanceRepository,
     make_character,
     make_item,
+    make_quest,
     make_skill,
     make_spell,
     make_stance,
@@ -28,6 +30,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     spell = make_spell()
     skill = make_skill()
     stance = make_stance()
+    quest = make_quest()
     item_repo = FakeItemRepository(items=[item], stats={}, classes={})
     character_repo = FakeCharacterRepository([character])
     validated_paths: list[Path] = []
@@ -45,6 +48,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         spell_repo=FakeSpellRepository([spell]),
         skill_repo=FakeSkillRepository([skill]),
         stance_repo=FakeStanceRepository([stance]),
+        quest_repo=FakeQuestRepository([quest]),
         output_root=tmp_path,
         validate=record_validation,
     )
@@ -52,13 +56,16 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     items_path = tmp_path / "Erenshor" / "Data" / "Items.lua"
     characters_path = tmp_path / "Erenshor" / "Data" / "Characters.lua"
     ability_links_path = tmp_path / "Erenshor" / "Data" / "AbilityLinks.lua"
-    assert result.written_paths == [items_path, characters_path, ability_links_path]
+    quests_path = tmp_path / "Erenshor" / "Data" / "Quests.lua"
+    assert result.written_paths == [items_path, characters_path, ability_links_path, quests_path]
     assert result.validation_tools == {
         items_path: "stylua",
         characters_path: "stylua",
         ability_links_path: "stylua",
+        quests_path: "stylua",
     }
-    assert validated_paths == [items_path, characters_path, ability_links_path]
+    assert validated_paths == [items_path, characters_path, ability_links_path, quests_path]
     assert "return {" in items_path.read_text(encoding="utf-8")
     assert "return {" in characters_path.read_text(encoding="utf-8")
     assert "return {" in ability_links_path.read_text(encoding="utf-8")
+    assert "return {" in quests_path.read_text(encoding="utf-8")

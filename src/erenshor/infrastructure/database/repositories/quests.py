@@ -16,6 +16,22 @@ class QuestRepository(BaseRepository[Quest]):
     All queries should use raw SQL via self._execute_raw().
     """
 
+    def get_quests_for_wiki_generation(self) -> list[Quest]:
+        """Get all quests for local Lua data module generation."""
+        query = """
+            SELECT *
+            FROM quests
+            ORDER BY display_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, ())
+            quests = [Quest.model_validate(dict(row)) for row in rows]
+            logger.debug(f"Retrieved {len(quests)} quests for wiki generation")
+            return quests
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve quests for wiki: {e}") from e
+
     def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]:
         """Get quests that reward the given item.
 
