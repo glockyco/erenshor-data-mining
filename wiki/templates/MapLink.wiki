@@ -1,0 +1,3 @@
+{{#invoke:Erenshor/Zone|mapLink}}<noinclude>
+[[Category:Templates]]
+</noinclude>

@@ -1,0 +1,8 @@
+{{Zone
+|zone=Port Azure
+|title=Manual Zone Title
+|type=Dungeon
+|level=Manual Level
+|maplink=-
+|connects=Manual Connection
+}}

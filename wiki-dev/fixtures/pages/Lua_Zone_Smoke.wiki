@@ -1,0 +1,2 @@
+{{#invoke:Erenshor/Zone/testcases|run}}
+{{MapLink|zone=PortAzure}}

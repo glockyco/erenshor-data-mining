@@ -1,0 +1,3 @@
+{{#invoke:Erenshor/Zone|infobox}}<noinclude>
+Template parameters mirror the production Zone template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

@@ -170,6 +170,7 @@ class TestWikiGenerateCommand:
         assert "variants/main/wiki/lua/Erenshor/Data/Characters.lua" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/AbilityLinks.lua" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Quests.lua" in result.output
+        assert "variants/main/wiki/lua/Erenshor/Data/Zones.lua" in result.output
 
 
 class TestWikiInventoryTemplatesCommand:

@@ -8,6 +8,7 @@ from erenshor.domain.entities.quest import Quest
 from erenshor.domain.entities.skill import Skill
 from erenshor.domain.entities.spell import Spell
 from erenshor.domain.entities.stance import Stance
+from erenshor.domain.entities.zone import Zone
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
@@ -94,6 +95,18 @@ class FakeQuestRepository:
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
+
+
+class FakeZoneRepository:
+    def __init__(self, zones: list[Zone], connections: dict[str, list[str]]) -> None:
+        self._zones = zones
+        self._connections = connections
+
+    def get_all_zones(self) -> list[Zone]:
+        return self._zones
+
+    def get_zone_connections(self, scene_name: str) -> list[str]:
+        return self._connections.get(scene_name, [])
 
 
 def make_item(**overrides: object) -> Item:
@@ -204,3 +217,19 @@ def make_quest(**overrides: object) -> Quest:
     }
     values.update(overrides)
     return Quest.model_validate(values)
+
+
+def make_zone(**overrides: object) -> Zone:
+    values = {
+        "stable_key": "zone:PortAzure",
+        "scene_name": "PortAzure",
+        "zone_name": "Port Azure",
+        "display_name": "Port Azure",
+        "wiki_page_name": "Port Azure",
+        "image_name": "Port Azure",
+        "is_dungeon": 0,
+        "is_wiki_generated": 1,
+        "is_map_visible": 1,
+    }
+    values.update(overrides)
+    return Zone.model_validate(values)
