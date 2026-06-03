@@ -45,9 +45,9 @@ def test_builds_mediawiki_api_urls_without_double_slashes() -> None:
 
 
 def test_smoke_check_reports_missing_expected_text() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    render = load_script("wiki-dev/smoke/render.py")
 
-    result = smoke_test.check_rendered_html(
+    result = render.check_rendered_html(
         title="Sword of Flames",
         html="<p>Rendered sword page</p>",
         expected=["Rendered sword page", "Damage"],
@@ -59,9 +59,9 @@ def test_smoke_check_reports_missing_expected_text() -> None:
 
 
 def test_smoke_check_accepts_all_expected_text() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    render = load_script("wiki-dev/smoke/render.py")
 
-    result = smoke_test.check_rendered_html(
+    result = render.check_rendered_html(
         title="Sword of Flames",
         html="<p>Rendered sword page with Damage</p>",
         expected=["Rendered sword page", "Damage"],
@@ -72,7 +72,7 @@ def test_smoke_check_accepts_all_expected_text() -> None:
 
 
 def test_smoke_check_rejects_parser_health_markers() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    render = load_script("wiki-dev/smoke/render.py")
 
     html = """
     <div class="mw-parser-output">
@@ -84,7 +84,7 @@ def test_smoke_check_rejects_parser_health_markers() -> None:
     </div>
     """
 
-    result = smoke_test.check_rendered_html(title="Broken Item", html=html, expected=[])
+    result = render.check_rendered_html(title="Broken Item", html=html, expected=[])
 
     assert result.ok is False
     assert result.missing == [
@@ -97,7 +97,7 @@ def test_smoke_check_rejects_parser_health_markers() -> None:
 
 
 def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    render = load_script("wiki-dev/smoke/render.py")
 
     html = """
     <div class="mw-parser-output">
@@ -109,14 +109,14 @@ def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
     </div>
     """
 
-    result = smoke_test.check_rendered_html(title="Healthy Page", html=html, expected=["Rendered page"])
+    result = render.check_rendered_html(title="Healthy Page", html=html, expected=["Rendered page"])
 
     assert result.ok is True
     assert result.missing == []
 
 
 def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    render = load_script("wiki-dev/smoke/render.py")
 
     html = """
     <div class="mw-parser-output">
@@ -126,7 +126,7 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
     </div>
     """
 
-    result = smoke_test.check_rendered_html(
+    result = render.check_rendered_html(
         title="Healthy Template Docs",
         html=html,
         expected=["Documented TemplateSandbox page"],
@@ -137,10 +137,10 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
 
 
 def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    cargo = load_script("wiki-dev/smoke/cargo.py")
 
     expectations = [
-        smoke_test.CargoItemExpectation(
+        cargo.CargoItemExpectation(
             page="Ember Longsword",
             fields={
                 "StableKey": "item:ember_longsword",
@@ -149,7 +149,7 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
                 "Damage": "18",
             },
         ),
-        smoke_test.CargoItemExpectation(
+        cargo.CargoItemExpectation(
             page="Ember Longsword",
             fields={
                 "StableKey": "item:shared_page",
@@ -158,7 +158,7 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
                 "Damage": "5",
             },
         ),
-        smoke_test.CargoItemExpectation(
+        cargo.CargoItemExpectation(
             page="Abyssal Plate",
             fields={
                 "StableKey": "item:abyssal_plate",
@@ -217,7 +217,7 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
         },
     ]
 
-    failures = smoke_test.check_cargo_item_rows(rows, expectations, absent_pages={"Unexpected Item"})
+    failures = cargo.check_cargo_item_rows(rows, expectations, absent_pages={"Unexpected Item"})
 
     assert failures == [
         "Cargo Items row Ember Longsword Name: expected Ember Longsword, got Wrong Name",
@@ -230,13 +230,13 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
 
 
 def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Path) -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    cargo = load_script("wiki-dev/smoke/cargo.py")
     expectations = tmp_path / "cargo_items.tsv"
     row = "Page\titem:duplicate\tName\tType\t\t\t\t\t\t\t\t\t\t\t\t0"
     expectations.write_text(f"{row}\n{row}\n", encoding="utf-8")
 
     try:
-        smoke_test.load_cargo_item_expectations(expectations)
+        cargo.load_cargo_item_expectations(expectations)
     except ValueError as error:
         assert str(error) == f"{expectations}: duplicate expected Cargo row Page / item:duplicate"
     else:
@@ -244,9 +244,9 @@ def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Pat
 
 
 def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
-    smoke_test = load_script("wiki-dev/smoke_test.py")
+    cargo = load_script("wiki-dev/smoke/cargo.py")
     expectations = [
-        smoke_test.CargoCharacterExpectation(
+        cargo.CargoCharacterExpectation(
             page="A Grizzly Bear",
             fields={
                 "StableKey": "character:a_grizzly_bear",
@@ -255,7 +255,7 @@ def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
                 "Level": "12",
             },
         ),
-        smoke_test.CargoCharacterExpectation(
+        cargo.CargoCharacterExpectation(
             page="Captain Rowan",
             fields={
                 "StableKey": "character:captain_rowan",
@@ -293,7 +293,7 @@ def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
         },
     ]
 
-    failures = smoke_test.check_cargo_character_rows(rows, expectations)
+    failures = cargo.check_cargo_character_rows(rows, expectations)
 
     assert failures == [
         "Cargo Characters row A Grizzly Bear Name: expected A Grizzly Bear, got Wrong Bear",
