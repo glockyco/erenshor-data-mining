@@ -58,20 +58,37 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     )
 
     items_path = tmp_path / "Erenshor" / "Data" / "Items.lua"
+    item_shard_path = tmp_path / "Erenshor" / "Data" / "Items" / "001.lua"
     characters_path = tmp_path / "Erenshor" / "Data" / "Characters.lua"
     ability_links_path = tmp_path / "Erenshor" / "Data" / "AbilityLinks.lua"
     quests_path = tmp_path / "Erenshor" / "Data" / "Quests.lua"
     zones_path = tmp_path / "Erenshor" / "Data" / "Zones.lua"
-    assert result.written_paths == [items_path, characters_path, ability_links_path, quests_path, zones_path]
+    assert result.written_paths == [
+        items_path,
+        item_shard_path,
+        characters_path,
+        ability_links_path,
+        quests_path,
+        zones_path,
+    ]
     assert result.validation_tools == {
         items_path: "stylua",
+        item_shard_path: "stylua",
         characters_path: "stylua",
         ability_links_path: "stylua",
         quests_path: "stylua",
         zones_path: "stylua",
     }
-    assert validated_paths == [items_path, characters_path, ability_links_path, quests_path, zones_path]
-    assert "return {" in items_path.read_text(encoding="utf-8")
+    assert validated_paths == [
+        items_path,
+        item_shard_path,
+        characters_path,
+        ability_links_path,
+        quests_path,
+        zones_path,
+    ]
+    assert "Module:Erenshor/Data/Items/001" in items_path.read_text(encoding="utf-8")
+    assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
     assert "return {" in characters_path.read_text(encoding="utf-8")
     assert "return {" in ability_links_path.read_text(encoding="utf-8")
     assert "return {" in quests_path.read_text(encoding="utf-8")

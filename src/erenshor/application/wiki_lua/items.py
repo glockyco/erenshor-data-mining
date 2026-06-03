@@ -27,6 +27,8 @@ class ItemDataRepository(Protocol):
 
 LuaData = dict[str, object]
 
+ITEMS_PER_SHARD = 200
+
 _ITEM_FIELD_MAP = (
     ("name", "display_name"),
     ("page", "wiki_page_name"),
@@ -96,29 +98,46 @@ _STAT_FIELD_MAP = (
 )
 
 
-def generate_items_module(item_repo: ItemDataRepository) -> str:
-    """Generate `Module:Erenshor/Data/Items` content from a clean DB repository."""
+def generate_items_modules(item_repo: ItemDataRepository) -> dict[str, str]:
+    """Generate `Module:Erenshor/Data/Items` index and shard module content."""
     items = item_repo.get_items_for_wiki_generation()
     stats_by_item = {item.stable_key: item_repo.get_item_stats(item.stable_key) for item in items}
     classes_by_item = {item.stable_key: item_repo.get_item_classes(item.stable_key) for item in items}
-    return module_text(build_items_data(items, stats_by_item, classes_by_item))
+    data = build_items_data(items, stats_by_item, classes_by_item)
+    modules = {"Items.lua": module_text(data["index"])}
+    shards = data["shards"]
+    if not isinstance(shards, Mapping):
+        raise TypeError("item shard data must be a mapping")
+    for shard_name, shard_data in shards.items():
+        modules[f"Items/{shard_name}.lua"] = module_text(shard_data)
+    return modules
 
 
-def write_items_module(item_repo: ItemDataRepository, output_root: Path) -> Path:
-    """Write the generated item data module below an output root."""
-    output_path = output_root / "Erenshor" / "Data" / "Items.lua"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_items_module(item_repo), encoding="utf-8")
-    return output_path
+def write_items_modules(item_repo: ItemDataRepository, output_root: Path) -> list[Path]:
+    """Write the generated item data index and shard modules below an output root."""
+    output_dir = output_root / "Erenshor" / "Data"
+    written_paths: list[Path] = []
+    for relative_path, module in generate_items_modules(item_repo).items():
+        output_path = output_dir / relative_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(module, encoding="utf-8")
+        written_paths.append(output_path)
+    return written_paths
 
 
 def build_items_data(
     items: Iterable[Item],
     stats_by_item: Mapping[str, list[ItemStats]],
     classes_by_item: Mapping[str, list[str]],
+    *,
+    items_per_shard: int = ITEMS_PER_SHARD,
 ) -> LuaData:
-    """Build the serializable item data table for `mw.loadData()`."""
+    """Build the serializable item index and shard tables for `mw.loadData()`."""
+    if items_per_shard < 1:
+        raise ValueError("items_per_shard must be at least 1")
+
     item_rows: dict[str, object] = {}
+    by_name: dict[str, str] = {}
     by_page: defaultdict[str, list[str]] = defaultdict(list)
 
     for item in sorted(items, key=lambda candidate: candidate.stable_key):
@@ -131,10 +150,28 @@ def build_items_data(
             classes=classes_by_item.get(item.stable_key, []),
         )
         by_page[page].append(item.stable_key)
+        if item.display_name is not None:
+            by_name.setdefault(item.display_name, item.stable_key)
+        by_name.setdefault(page, item.stable_key)
+
+    shards: dict[str, dict[str, object]] = {}
+    item_shards: dict[str, str] = {}
+    sorted_rows = sorted(item_rows.items())
+    for start in range(0, len(sorted_rows), items_per_shard):
+        shard_name = f"{(start // items_per_shard) + 1:03d}"
+        shard_rows = dict(sorted_rows[start : start + items_per_shard])
+        shards[shard_name] = shard_rows
+        for stable_key in shard_rows:
+            item_shards[stable_key] = shard_name
 
     return {
-        "items": item_rows,
-        "byPage": {page: sorted(stable_keys) for page, stable_keys in sorted(by_page.items())},
+        "index": {
+            "byName": dict(sorted(by_name.items())),
+            "byPage": {page: sorted(stable_keys) for page, stable_keys in sorted(by_page.items())},
+            "itemShards": item_shards,
+            "shards": {shard_name: f"Module:Erenshor/Data/Items/{shard_name}" for shard_name in sorted(shards)},
+        },
+        "shards": shards,
     }
 
 

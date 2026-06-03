@@ -19,7 +19,7 @@ from erenshor.application.wiki_lua.characters import (
     CharacterSpellRepository,
     write_characters_module,
 )
-from erenshor.application.wiki_lua.items import ItemDataRepository, write_items_module
+from erenshor.application.wiki_lua.items import ItemDataRepository, write_items_modules
 from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
@@ -53,7 +53,7 @@ def generate_lua_data_modules(
 ) -> LuaDataModuleGenerationResult:
     """Generate and validate all currently supported Lua data modules."""
     written_paths = [
-        write_items_module(item_repo, output_root),
+        *write_items_modules(item_repo, output_root),
         write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
         write_ability_links_module(spell_repo, skill_repo, stance_repo, output_root),
         write_quests_module(quest_repo, output_root),

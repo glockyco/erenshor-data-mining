@@ -2,7 +2,7 @@ local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
 local Render = require("Module:Erenshor/Render")
 
-local Data = mw.loadData("Module:Erenshor/Data/Items")
+local Index = mw.loadData("Module:Erenshor/Data/Items")
 
 local p = {}
 
@@ -148,7 +148,7 @@ local function ensureImageFile(image, fallbackName)
 end
 
 local function firstStableKeyForPage(pageTitle)
-	local keys = Data.byPage[pageTitle]
+	local keys = Index.byPage[pageTitle]
 	if keys ~= nil and keys[1] ~= nil then
 		return keys[1]
 	end
@@ -159,12 +159,20 @@ local function stableKeyFromDisplayName(name)
 	if isBlank(name) then
 		return nil
 	end
-	for stableKey, item in pairs(Data.items) do
-		if item.name == name or item.page == name then
-			return stableKey
-		end
+	return Index.byName[name]
+end
+
+local function itemForStableKey(stableKey)
+	local shardName = Index.itemShards[stableKey]
+	if shardName == nil then
+		return nil
 	end
-	return nil
+	local moduleName = Index.shards[shardName]
+	if moduleName == nil then
+		return nil
+	end
+	local shard = mw.loadData(moduleName)
+	return shard[stableKey]
 end
 
 local function explicitStableKey(args)
@@ -176,7 +184,7 @@ end
 
 local function resolveStableKey(args, pageTitle)
 	local stableKey = explicitStableKey(args)
-	if stableKey ~= nil and Data.items[stableKey] ~= nil then
+	if stableKey ~= nil and itemForStableKey(stableKey) ~= nil then
 		return stableKey
 	end
 
@@ -238,7 +246,7 @@ function p.resolve(args, pageTitle)
 		return missingItem(args, pageTitle)
 	end
 
-	local item = copyTable(Data.items[stableKey])
+	local item = copyTable(itemForStableKey(stableKey))
 	item.stableKey = stableKey
 	applyRootOverrides(item, args)
 	return item

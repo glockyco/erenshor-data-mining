@@ -309,6 +309,7 @@ def generate_lua(ctx: typer.Context) -> None:
     cli_ctx: CLIContext = ctx.obj
     output_root = _lua_output_root(cli_ctx)
     items_path = output_root / "Erenshor" / "Data" / "Items.lua"
+    item_shards_path = output_root / "Erenshor" / "Data" / "Items"
     characters_path = output_root / "Erenshor" / "Data" / "Characters.lua"
     ability_links_path = output_root / "Erenshor" / "Data" / "AbilityLinks.lua"
     quests_path = output_root / "Erenshor" / "Data" / "Quests.lua"
@@ -328,6 +329,7 @@ def generate_lua(ctx: typer.Context) -> None:
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: no database opened and no files written.[/yellow]")
         console.print(f"Would write: {items_path}", soft_wrap=True)
+        console.print(f"Would write item shards below: {item_shards_path}", soft_wrap=True)
         console.print(f"Would write: {characters_path}", soft_wrap=True)
         console.print(f"Would write: {ability_links_path}", soft_wrap=True)
         console.print(f"Would write: {quests_path}", soft_wrap=True)
