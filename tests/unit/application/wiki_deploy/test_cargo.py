@@ -6,7 +6,6 @@ from collections.abc import Sequence
 
 from erenshor.application.wiki_deploy.cargo import recreate_cargo_for_changed_declarations
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 
 
 class RecordingCargoClient:
@@ -62,32 +61,16 @@ def _declaring_entry(title: str, *tables: str) -> RepoWikiPageManifestEntry:
     )
 
 
-def _changed(title: str) -> RepoPageDeployResultEntry:
-    return RepoPageDeployResultEntry(
-        title=title,
-        status="changed",
-        old_revision_id=1,
-        old_revision_timestamp="2026-06-04T12:00:00Z",
-        new_revision_id=2,
-    )
-
-
-def _unchanged(title: str) -> RepoPageDeployResultEntry:
-    return RepoPageDeployResultEntry(
-        title=title, status="unchanged", old_revision_id=None, old_revision_timestamp=None, new_revision_id=None
-    )
-
-
 def test_changed_declaration_recreates_schema_then_repopulates_data() -> None:
     """A changed Cargo-declaring template has its schema recreated and data repopulated."""
     manifest = _manifest(_declaring_entry("Template:Item", "Items"))
-    deploy_result = RepoPageDeployResult(entries=(_changed("Template:Item"),))
+    changed_titles = {"Template:Item"}
     client = RecordingCargoClient({"Template:Item": ("Ember Longsword", "Abyssal Plate")})
 
     result = recreate_cargo_for_changed_declarations(
         client=client,
         manifest=manifest,
-        deploy_result=deploy_result,
+        changed_titles=changed_titles,
         namespaces=(0,),
         assertion="bot",
         assert_user="ErenshorBot",
@@ -116,15 +99,12 @@ def test_unchanged_or_non_cargo_pages_are_not_recreated() -> None:
             cargo_tables=(),
         ),
     )
-    deploy_result = RepoPageDeployResult(
-        entries=(_unchanged("Template:Item"), _changed("Module:Erenshor/Item")),
-    )
     client = RecordingCargoClient({})
 
     result = recreate_cargo_for_changed_declarations(
         client=client,
         manifest=manifest,
-        deploy_result=deploy_result,
+        changed_titles={"Module:Erenshor/Item"},
         namespaces=(0,),
         assertion="bot",
     )
@@ -137,14 +117,14 @@ def test_unchanged_or_non_cargo_pages_are_not_recreated() -> None:
 def test_repopulation_batches_using_pages_by_offset() -> None:
     """Data recreation advances the offset once per batch of using-pages."""
     manifest = _manifest(_declaring_entry("Template:Item", "Items"))
-    deploy_result = RepoPageDeployResult(entries=(_changed("Template:Item"),))
+    changed_titles = {"Template:Item"}
     using_pages = tuple(f"Page{i}" for i in range(5))
     client = RecordingCargoClient({"Template:Item": using_pages})
 
     recreate_cargo_for_changed_declarations(
         client=client,
         manifest=manifest,
-        deploy_result=deploy_result,
+        changed_titles=changed_titles,
         namespaces=(0,),
         assertion="bot",
         batch_size=2,
@@ -157,13 +137,13 @@ def test_repopulation_batches_using_pages_by_offset() -> None:
 def test_table_with_no_using_pages_recreates_schema_only() -> None:
     """A declaration with no transcluding pages rebuilds the schema but skips data recreation."""
     manifest = _manifest(_declaring_entry("Template:Item", "Items"))
-    deploy_result = RepoPageDeployResult(entries=(_changed("Template:Item"),))
+    changed_titles = {"Template:Item"}
     client = RecordingCargoClient({"Template:Item": ()})
 
     recreate_cargo_for_changed_declarations(
         client=client,
         manifest=manifest,
-        deploy_result=deploy_result,
+        changed_titles=changed_titles,
         namespaces=(0,),
         assertion="bot",
     )

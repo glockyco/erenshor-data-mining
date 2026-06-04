@@ -10,12 +10,12 @@ recreated explicitly after the schema is rebuilt.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol
 
 if TYPE_CHECKING:
     from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
-    from erenshor.application.wiki_deploy.pages import RepoPageDeployResult
 
 EditAssertion = Literal["user", "bot"]
 
@@ -74,19 +74,18 @@ def recreate_cargo_for_changed_declarations(
     *,
     client: CargoRecreateClient,
     manifest: RepoWikiPageManifest,
-    deploy_result: RepoPageDeployResult,
+    changed_titles: AbstractSet[str],
     namespaces: tuple[int, ...],
     assertion: EditAssertion,
     assert_user: str | None = None,
     batch_size: int = DEFAULT_CARGO_BATCH_SIZE,
 ) -> CargoRecreateResult:
     """Recreate Cargo tables for every changed Cargo-declaring template.
-
-    For each such template the schema is recreated, then the row data is
-    recreated in batches over the pages that transclude it. Templates that did
-    not change, or that declare no Cargo table, are left untouched.
+    ``changed_titles`` is the set of page titles a deploy or rollback altered.
+    For each declaring template in that set the schema is recreated, then the
+    row data is recreated in batches over the pages that transclude it.
+    Templates that did not change, or that declare no Cargo table, are skipped.
     """
-    changed_titles = {entry.title for entry in deploy_result.entries if entry.status == "changed"}
 
     result_entries: list[CargoRecreateResultEntry] = []
     for entry in manifest.entries:
