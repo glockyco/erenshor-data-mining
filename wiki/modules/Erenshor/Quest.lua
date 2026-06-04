@@ -199,6 +199,16 @@ function p.fieldValue(args, pageTitle, key)
 	end
 	local accessor = FIELD_ACCESSORS[key]
 	if accessor == nil then
+		-- Overridable params without a display accessor still resolve to their generated
+		-- data value so override review can detect article params duplicating exported data.
+		local overrideField = FIELD_OVERRIDES[key]
+		if overrideField ~= nil then
+			local raw = quest[overrideField]
+			if raw == nil then
+				return ""
+			end
+			return tostring(raw)
+		end
 		error("Unknown Quest infobox field: " .. tostring(key))
 	end
 	local value = accessor(quest)
