@@ -19,7 +19,9 @@ class RecordingWikiClient:
     def __init__(self, pages: dict[str, str | None]) -> None:
         self.pages = pages
         self.revision_requests: list[tuple[str, str, str | None]] = []
+        self.timestamp_requests: list[tuple[str, str | None]] = []
         self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
+        self.safe_creates: list[tuple[str, str, str, str, str, str | None]] = []
 
     def get_pages(self, titles: list[str]) -> dict[str, str | None]:
         return {title: self.pages.get(title) for title in titles}
@@ -39,6 +41,14 @@ class RecordingWikiClient:
             start_timestamp="2026-06-04T12:01:00Z",
         )
 
+    def get_edit_start_timestamp(
+        self,
+        assertion: str | None = None,
+        assert_user: str | None = None,
+    ) -> str:
+        self.timestamp_requests.append((assertion or "", assert_user))
+        return "2026-06-04T12:02:00Z"
+
     def safe_edit_page(
         self,
         title: str,
@@ -50,6 +60,18 @@ class RecordingWikiClient:
     ) -> int:
         self.safe_edits.append((title, content, base_revision, summary, assertion, assert_user))
         return 201
+
+    def safe_create_page(
+        self,
+        title: str,
+        content: str,
+        start_timestamp: str,
+        summary: str,
+        assertion: str,
+        assert_user: str | None,
+    ) -> int:
+        self.safe_creates.append((title, content, start_timestamp, summary, assertion, assert_user))
+        return 301
 
 
 def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
@@ -107,3 +129,40 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     assert summary == "Deploy repo-owned wiki pages"
     assert assertion == "bot"
     assert assert_user == "ErenshorBot"
+
+
+def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
+    """Missing repo-owned pages are uploaded through timestamp-guarded create-only edits."""
+    source = "return {}\n"
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", source)
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    client = RecordingWikiClient({"Module:Erenshor/Data/Items": None})
+
+    result = deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+        assert_user="ErenshorBot",
+    )
+
+    [entry] = result.entries
+    assert entry.title == "Module:Erenshor/Data/Items"
+    assert entry.status == "changed"
+    assert entry.old_revision_id is None
+    assert entry.old_revision_timestamp is None
+    assert entry.new_revision_id == 301
+    assert client.revision_requests == []
+    assert client.timestamp_requests == [("bot", "ErenshorBot")]
+    assert client.safe_edits == []
+    assert client.safe_creates == [
+        (
+            "Module:Erenshor/Data/Items",
+            source,
+            "2026-06-04T12:02:00Z",
+            "Deploy repo-owned wiki pages",
+            "bot",
+            "ErenshorBot",
+        )
+    ]

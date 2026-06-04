@@ -26,11 +26,29 @@ class WikiPageDeployClient(Protocol):
         assert_user: str | None = None,
     ) -> MediaWikiPageRevision | None: ...
 
+    def get_edit_start_timestamp(
+        self,
+        assertion: EditAssertion | None = None,
+        assert_user: str | None = None,
+    ) -> str: ...
+
     def safe_edit_page(
         self,
         title: str,
         content: str,
         base_revision: MediaWikiPageRevision,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: EditAssertion = "bot",
+        assert_user: str | None = None,
+    ) -> int: ...
+
+    def safe_create_page(
+        self,
+        title: str,
+        content: str,
+        start_timestamp: str,
         summary: str | None = None,
         minor: bool | None = None,
         bot: bool = True,
@@ -73,7 +91,8 @@ def deploy_repo_pages(
 
     for entry in manifest.entries:
         source_text = (repo_root / entry.source_path).read_text(encoding="utf-8")
-        if current_pages.get(entry.title) == source_text:
+        remote_text = current_pages.get(entry.title)
+        if remote_text == source_text:
             result_entries.append(
                 RepoPageDeployResultEntry(
                     title=entry.title,
@@ -85,9 +104,30 @@ def deploy_repo_pages(
             )
             continue
 
+        if remote_text is None:
+            start_timestamp = client.get_edit_start_timestamp(assertion=assertion, assert_user=assert_user)
+            new_revision_id = client.safe_create_page(
+                title=entry.title,
+                content=source_text,
+                start_timestamp=start_timestamp,
+                summary=summary,
+                assertion=assertion,
+                assert_user=assert_user,
+            )
+            result_entries.append(
+                RepoPageDeployResultEntry(
+                    title=entry.title,
+                    status="changed",
+                    old_revision_id=None,
+                    old_revision_timestamp=None,
+                    new_revision_id=new_revision_id,
+                )
+            )
+            continue
+
         base_revision = client.get_page_revision_metadata(entry.title, assertion=assertion, assert_user=assert_user)
         if base_revision is None:
-            raise ValueError(f"Cannot safely deploy missing repo-owned page without base revision: {entry.title}")
+            raise ValueError(f"Remote page disappeared before safe edit: {entry.title}")
 
         new_revision_id = client.safe_edit_page(
             title=entry.title,

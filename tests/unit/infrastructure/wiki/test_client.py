@@ -1,11 +1,20 @@
 """Unit tests for MediaWiki API client.
 
-These tests verify the MediaWiki client's behavior using mocks to avoid
-requiring actual network connections or MediaWiki credentials.
+These tests verify the MediaWiki client's behavior without requiring MediaWiki
+credentials. New HTTP-client behavior uses a local server instead of patching
+the httpx client internals.
 """
 
 import hashlib
+import json
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Any
 from unittest.mock import MagicMock, patch
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 import pytest
@@ -23,6 +32,69 @@ from erenshor.infrastructure.wiki import (
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
 )
+
+
+@dataclass(slots=True)
+class _CapturedWikiRequest:
+    method: str
+    path: str
+    query: dict[str, str]
+    data: dict[str, str]
+
+
+@dataclass(slots=True)
+class _FakeWikiAPI:
+    responses: list[dict[str, Any]]
+    requests: list[_CapturedWikiRequest] = field(default_factory=list)
+
+    def next_response(self) -> dict[str, Any]:
+        if not self.responses:
+            raise AssertionError("Fake MediaWiki API received more requests than configured responses")
+        return self.responses.pop(0)
+
+
+@contextmanager
+def _mediawiki_api_server(responses: list[dict[str, Any]]) -> Iterator[tuple[str, _FakeWikiAPI]]:
+    api = _FakeWikiAPI(responses=list(responses))
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            self._handle_request()
+
+        def do_POST(self) -> None:
+            self._handle_request()
+
+        def log_message(self, format: str, *args: object) -> None:
+            return
+
+        def _handle_request(self) -> None:
+            parsed = urlparse(self.path)
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length).decode() if length else ""
+            api.requests.append(
+                _CapturedWikiRequest(
+                    method=self.command,
+                    path=parsed.path,
+                    query={key: values[-1] for key, values in parse_qs(parsed.query).items()},
+                    data={key: values[-1] for key, values in parse_qs(body).items()},
+                )
+            )
+            payload = json.dumps(api.next_response()).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}/api.php", api
+    finally:
+        server.shutdown()
+        thread.join()
+        server.server_close()
 
 
 class TestMediaWikiClientInitialization:
@@ -440,6 +512,94 @@ class TestMediaWikiClientRevisionMetadata:
         client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         assert client.get_page_revision_metadata("Template:Missing") is None
+
+    def test_get_edit_start_timestamp_requests_current_timestamp_with_assertion(self) -> None:
+        """Test start timestamp fetch uses MediaWiki's current API timestamp and assertion guard."""
+        with _mediawiki_api_server([{"curtimestamp": "2026-06-04T12:00:00Z", "query": {"pages": {}}}]) as (
+            api_url,
+            api,
+        ):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            timestamp = client.get_edit_start_timestamp(assertion="bot", assert_user="ErenshorBot")
+
+        assert timestamp == "2026-06-04T12:00:00Z"
+        assert len(api.requests) == 1
+        request = api.requests[0]
+        assert request.method == "GET"
+        assert request.path == "/api.php"
+        assert request.query["action"] == "query"
+        assert request.query["curtimestamp"] == "1"
+        assert request.query["assert"] == "bot"
+        assert request.query["assertuser"] == "ErenshorBot"
+
+
+class TestMediaWikiClientSafeCreatePage:
+    """Test conflict-safe wiki page creation."""
+
+    def test_safe_create_page_sends_create_hash_timestamp_and_assertion_parameters(self) -> None:
+        """Test safe creates include create-only, start timestamp, MD5, and assertion guard."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {"edit": {"result": "Success", "newrevid": 1235}},
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            new_revision_id = client.safe_create_page(
+                title="Module:Erenshor/Data/Items",
+                content="return {}",
+                start_timestamp="2026-06-04T12:00:00Z",
+                summary="Create repo-owned module",
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert new_revision_id == 1235
+        assert len(api.requests) == 2
+        token_request, edit_request = api.requests
+        assert token_request.method == "GET"
+        assert token_request.query["action"] == "query"
+        assert token_request.query["meta"] == "tokens"
+        assert edit_request.method == "POST"
+        assert edit_request.data["action"] == "edit"
+        assert edit_request.data["title"] == "Module:Erenshor/Data/Items"
+        assert edit_request.data["text"] == "return {}"
+        assert edit_request.data["summary"] == "Create repo-owned module"
+        assert edit_request.data["token"] == "test_csrf_token"
+        assert edit_request.data["createonly"] == "1"
+        assert edit_request.data["starttimestamp"] == "2026-06-04T12:00:00Z"
+        assert edit_request.data["md5"] == hashlib.md5(b"return {}", usedforsecurity=False).hexdigest()
+        assert edit_request.data["assert"] == "bot"
+        assert edit_request.data["assertuser"] == "ErenshorBot"
+        assert edit_request.data["bot"] == "1"
+
+    def test_safe_create_page_refreshes_csrf_token_once_after_badtoken(self) -> None:
+        """Test stale CSRF tokens are refreshed once without changing the create guard."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "stale_token"}}},
+                {"error": {"code": "badtoken", "info": "Invalid token"}},
+                {"query": {"tokens": {"csrftoken": "fresh_token"}}},
+                {"edit": {"result": "Success", "newrevid": 1235}},
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            new_revision_id = client.safe_create_page(
+                title="Module:Erenshor/Data/Items",
+                content="return {}",
+                start_timestamp="2026-06-04T12:00:00Z",
+                summary="Create repo-owned module",
+            )
+
+        assert new_revision_id == 1235
+        edit_requests = [request for request in api.requests if request.method == "POST"]
+        assert len(edit_requests) == 2
+        assert edit_requests[0].data["token"] == "stale_token"
+        assert edit_requests[1].data["token"] == "fresh_token"
+        assert edit_requests[0].data["createonly"] == edit_requests[1].data["createonly"] == "1"
 
 
 class TestMediaWikiClientSafeEditPage:

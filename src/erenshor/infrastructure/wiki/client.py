@@ -651,6 +651,30 @@ class MediaWikiClient:
             start_timestamp=start_timestamp,
         )
 
+    def get_edit_start_timestamp(
+        self,
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> str:
+        """Fetch MediaWiki's current API timestamp for conflict-safe page creation."""
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        params = {
+            "action": "query",
+            "curtimestamp": "1",
+        }
+        if assertion is not None:
+            params["assert"] = assertion
+        if assert_user is not None:
+            params["assertuser"] = assert_user
+
+        result = self._request(params)
+        start_timestamp = result.get("curtimestamp")
+        if not isinstance(start_timestamp, str) or not start_timestamp:
+            raise MediaWikiAPIError("Missing curtimestamp while fetching edit start timestamp")
+        return start_timestamp
+
     def edit_page(
         self,
         title: str,
@@ -804,6 +828,74 @@ class MediaWikiClient:
             return new_revision_id
 
         raise MediaWikiEditError(f"Failed to safely edit page '{title}': {last_error}")
+
+    def safe_create_page(
+        self,
+        title: str,
+        content: str,
+        start_timestamp: str,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: Literal["user", "bot"] = "bot",
+        assert_user: str | None = None,
+    ) -> int:
+        """Create a missing page with timestamp, hash, assertion, and create-only guards."""
+        if assertion not in ("user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        if summary is None:
+            summary = self.edit_summary
+        if minor is None:
+            minor = self.minor_edit
+
+        logger.info(f"Safely creating page: {title}")
+
+        data = {
+            "action": "edit",
+            "title": title,
+            "text": content,
+            "summary": summary,
+            "createonly": "1",
+            "starttimestamp": start_timestamp,
+            "md5": hashlib.md5(content.encode(), usedforsecurity=False).hexdigest(),
+            "assert": assertion,
+        }
+        if assert_user is not None:
+            data["assertuser"] = assert_user
+        if minor:
+            data["minor"] = "1"
+        if bot:
+            data["bot"] = "1"
+
+        last_error: MediaWikiAPIError | None = None
+        for attempt in range(2):
+            data["token"] = self.get_csrf_token()
+            try:
+                result = self._request({}, method="POST", data=data.copy())
+            except MediaWikiAPIError as e:
+                last_error = e
+                if attempt == 0 and self._is_token_error(e):
+                    logger.warning(f"CSRF token rejected while safely creating {title}; refreshing once")
+                    continue
+                logger.error(f"Safe create request failed for {title}: {e}")
+                self._raise_safe_edit_api_error(title, e)
+
+            edit_result = result.get("edit", {})
+            if edit_result.get("result") != "Success":
+                error = edit_result.get("error", "Unknown error")
+                logger.error(f"Safe create failed for {title}: {error}")
+                raise MediaWikiEditError(f"Safe create failed: {error}")
+
+            try:
+                new_revision_id = int(edit_result["newrevid"])
+            except (KeyError, TypeError, ValueError) as e:
+                raise MediaWikiEditError(f"Safe create response for '{title}' did not include newrevid") from e
+
+            logger.info(f"Successfully safely created page: {title} -> revision {new_revision_id}")
+            return new_revision_id
+
+        raise MediaWikiEditError(f"Failed to safely create page '{title}': {last_error}")
 
     @staticmethod
     def _is_token_error(error: MediaWikiAPIError) -> bool:
