@@ -144,7 +144,7 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     assert entry.old_revision_id == 200
     assert entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
     assert entry.new_revision_id == 201
-    assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+    assert entry.rollback_text_source == "rollback/Module%3AErenshor%2FItem.wiki"
     assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "old source\n"
     assert client.revision_requests == [("Module:Erenshor/Item", "bot", "ErenshorBot")]
     [(title, content, base_revision, summary, assertion, assert_user)] = client.safe_edits
@@ -217,7 +217,21 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
     assert deployed_entry.old_revision_id == 200
     assert deployed_entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
     assert deployed_entry.new_revision_id == 201
-    assert deployed_entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+    assert deployed_entry.rollback_text_source == "rollback/Module%3AErenshor%2FItem.wiki"
     assert deployed_entry.deploy_action == "edited"
     # The base manifest is not mutated.
     assert base_entry.new_revision_id is None
+
+
+def test_safe_title_filename_is_injective_for_distinct_titles() -> None:
+    """Distinct titles map to distinct rollback sidecar filenames (no lossy collision)."""
+    from erenshor.application.wiki_deploy.pages import _safe_title_filename
+
+    # These collide under a "replace non-alnum with underscore" scheme.
+    first = _safe_title_filename("Template:Item/CargoDeclare")
+    second = _safe_title_filename("Template:Item:CargoDeclare")
+
+    assert first != second
+    # Filenames stay flat: title separators must not become path separators.
+    assert "/" not in first
+    assert "/" not in second

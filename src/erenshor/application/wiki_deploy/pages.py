@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
+from urllib.parse import quote
 
 from erenshor.application.wiki_deploy.manifest import DeployAction, RepoWikiPageManifest
 from erenshor.infrastructure.wiki.content import normalize_saved_text
@@ -165,8 +165,13 @@ def deploy_repo_pages(
 
 
 def _safe_title_filename(title: str) -> str:
-    """Return a deterministic filename segment for a MediaWiki title."""
-    return re.sub(r"[^A-Za-z0-9._-]+", "_", title).strip("_")
+    """Return a deterministic, collision-free filename segment for a MediaWiki title.
+
+    Percent-encoding every reserved character keeps the mapping injective (distinct
+    titles never share a sidecar file) and flat (title slashes do not become path
+    separators), unlike a lossy "replace reserved runs with underscore" scheme.
+    """
+    return quote(title, safe="")
 
 
 def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDeployResult) -> RepoWikiPageManifest:
