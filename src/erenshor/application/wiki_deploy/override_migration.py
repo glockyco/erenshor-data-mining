@@ -107,6 +107,63 @@ class TemplateExpansionClient(Protocol):
     def expand_templates(self, text: str) -> str: ...
 
 
+class ArticleReviewClient(TemplateExpansionClient, Protocol):
+    """Client surface needed to fetch articles and resolve generated values."""
+
+    def get_page(self, title: str) -> str | None: ...
+
+
+class MissingArticleError(RuntimeError):
+    """Raised when a requested article page does not exist."""
+
+
+@dataclass(frozen=True, slots=True)
+class ArticleOverrideReview:
+    """Original and minimized article text for review-only cleanup."""
+
+    title: str
+    original_wikitext: str
+    migration: ArticleMigration
+
+    @property
+    def changed(self) -> bool:
+        return self.original_wikitext != self.migration.minimized_wikitext
+
+
+def review_article_overrides(
+    *,
+    client: ArticleReviewClient,
+    titles: Sequence[str],
+    template_names: Sequence[str],
+    module: str,
+    identity_params: Sequence[str] = DEFAULT_IDENTITY_PARAMS,
+    parser: TemplateParser | None = None,
+) -> tuple[ArticleOverrideReview, ...]:
+    """Fetch article pages and produce review-only override minimization results."""
+    resolver = LiveGeneratedValueResolver(client=client, module=module)
+    reviews: list[ArticleOverrideReview] = []
+    for title in titles:
+        wikitext = client.get_page(title)
+        if wikitext is None:
+            raise MissingArticleError(f"Article page does not exist: {title}")
+        migration = migrate_article_overrides(
+            title=title,
+            wikitext=wikitext,
+            template_names=template_names,
+            resolver=resolver,
+            identity_params=identity_params,
+            parser=parser,
+        )
+        reviews.append(
+            ArticleOverrideReview(
+                title=title,
+                original_wikitext=wikitext,
+                migration=migration,
+            )
+        )
+    return tuple(reviews)
+
+
 @dataclass(frozen=True, slots=True)
 class LiveGeneratedValueResolver:
     """Resolves generated values through a deployed presentation module.

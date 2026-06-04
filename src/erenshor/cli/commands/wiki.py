@@ -17,6 +17,7 @@ Example workflow:
     $ erenshor wiki deploy --entity-type items
 """
 
+import difflib
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -34,6 +35,11 @@ from erenshor.application.wiki_deploy.manifest import (
     build_repo_page_manifest,
     read_repo_page_manifest,
     write_repo_page_manifest,
+)
+from erenshor.application.wiki_deploy.override_migration import (
+    ArticleOverrideReview,
+    MissingArticleError,
+    review_article_overrides,
 )
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
@@ -197,6 +203,33 @@ def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_t
         f"If the declared fields changed, recreate the table(s) via Special:CargoTables "
         f"(use a replacement table and 'Switch in' for no downtime).[/yellow]"
     )
+
+
+def _join_fields(fields: list[str]) -> str:
+    """Format a field list for a review report."""
+    return ", ".join(fields) if fields else "(none)"
+
+
+def _print_override_review(review: ArticleOverrideReview) -> None:
+    """Print one review-only override minimization report."""
+    decisions = review.migration.classification.decisions
+    manual_overrides = [decision.field for decision in decisions if decision.decision == "preserved_manual_override"]
+    intentional_blanks = [decision.field for decision in decisions if decision.decision == "intentional_blank"]
+
+    console.print(f"[bold]{review.title}[/bold]")
+    console.print(f"Removed generated duplicates: {_join_fields(list(review.migration.removed_fields))}", markup=False)
+    console.print(f"Preserved manual overrides: {_join_fields(manual_overrides)}", markup=False)
+    console.print(f"Intentional blanks: {_join_fields(intentional_blanks)}", markup=False)
+
+    diff = difflib.unified_diff(
+        review.original_wikitext.splitlines(),
+        review.migration.minimized_wikitext.splitlines(),
+        fromfile=f"{review.title} (current)",
+        tofile=f"{review.title} (minimized)",
+        lineterm="",
+    )
+    for line in diff:
+        console.print(line, markup=False)
 
 
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
@@ -651,6 +684,56 @@ def deploy_repo_pages_command(
 
     changed_titles = {entry.title for entry in result.entries if entry.status == "changed"}
     _report_changed_cargo_declarations(manifest, changed_titles)
+
+
+@app.command("review-overrides")
+def review_overrides_command(
+    ctx: typer.Context,
+    page_titles: Annotated[
+        list[str] | None,
+        typer.Option("--page", help="Article title to review. May be repeated."),
+    ] = None,
+    pages_file: Annotated[
+        str | None,
+        typer.Option("--pages-file", "-p", help="File containing article titles, one per line."),
+    ] = None,
+    template_names: Annotated[
+        list[str] | None,
+        typer.Option("--template", help="Root infobox template name. May be repeated."),
+    ] = None,
+    module: Annotated[
+        str,
+        typer.Option("--module", help="Lua presentation module exposing the field accessor."),
+    ] = "Erenshor/Item",
+) -> None:
+    """Review article infobox parameters that duplicate generated Lua values."""
+    titles = list(page_titles or ())
+    if pages_file:
+        titles.extend(_read_page_titles(pages_file))
+    if not titles:
+        console.print("[red]At least one --page or --pages-file entry is required.[/red]")
+        raise typer.Exit(1)
+
+    templates = tuple(template_names or ("Item",))
+    cli_ctx: CLIContext = ctx.obj
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        reviews = review_article_overrides(
+            client=client,
+            titles=tuple(titles),
+            template_names=templates,
+            module=module,
+        )
+    except MissingArticleError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
+    finally:
+        client.close()
+
+    changed = sum(1 for review in reviews if review.changed)
+    console.print(f"[green]Article override review complete[/green] Changed: {changed} Reviewed: {len(reviews)}")
+    for review in reviews:
+        _print_override_review(review)
 
 
 @app.command("refresh-embedded")

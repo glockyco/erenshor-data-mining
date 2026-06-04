@@ -988,26 +988,27 @@ tests/unit/cli/commands/test_wiki.py
   was changed, rollback must also restore the old declaration and recreate/switch
   the Cargo table before null-editing dependent pages.
 - Article override preservation must be classification-based, not blanket
-  preservation. The pipeline compares existing article parameters with
-  exported/Lua values using field-specific normalization, drops generated
-  duplicates, preserves only meaningful divergence or documented blank
-  sentinels, and writes those decisions into the manifest for review.
+  preservation. The pipeline compares existing article parameters with generated
+  Lua values from the deployed presentation module, drops generated duplicates,
+  preserves meaningful divergence or documented blank sentinels, and preserves
+  fields the module cannot resolve.
 
-**Implementation status (2026-06-04):** Steps 1, 3, 4, and 6 are implemented
-and committed; Steps 2 and 5 are partially implemented; Step 7 is verified live
-for the deploy/rollback/refresh core, with Cargo recreation and override
-classification still outstanding.
+**Implementation status (2026-06-04):** Milestone 10 is implemented for the
+clean repo-owned page deploy/rollback/refresh pipeline and the review-only
+article override cleanup pass. Article cleanup is intentionally report-first:
+the command prints the minimized wikitext and evidence for human review rather
+than applying article edits automatically.
 
 - Step 1 (manifest): done (`e333e7ae`), persisted with rollback metadata in
   `432cf8a5` and merged via the application-layer `build_deployed_manifest`
-  (`d04fa12b`). Override-classification decisions are not yet written into the
-  manifest (see Step 2).
-- Step 2 (override classifier): implemented (`15ee55ee`) in
-  `application/wiki_deploy/override_classifier.py`, deriving the
-  override-capable field set and per-field normalization from the existing
-  preservation-rule registry and failing closed on fields without a rule.
-  Wiring its output into reviewed migration edits and the deploy manifest is
-  outstanding.
+  (`d04fa12b`).
+- Step 2 (override cleanup): implemented as a uniform classifier (`e4e85bea`),
+  pure migration pass (`9345ada7`), live Lua generated-value resolver
+  (`e6f2f04f`), and `wiki review-overrides` report command. The classifier no
+  longer derives an override-capable subset from the legacy preservation-rule
+  registry: every non-identity parameter is manually overridable, equal values
+  are removed as generated duplicates, divergent values are preserved, `-` is
+  an intentional blank sentinel, and unresolvable fields are preserved.
 - Step 3 (safe upload): done (`f9036c09` CLI, `85946533` safe create) with
   conflict/assertion/hash guards and bounded backoff on transient lag and
   rate limiting (`b1ff8ebe`). Deploy is idempotent against MediaWiki's save
@@ -1035,15 +1036,16 @@ classification still outstanding.
   deliberately left to Special:CargoTables rather than automated (`13d025e6`),
   because the Cargo API cannot switch in a replacement table and would force a
   downtime window; deploy and rollback report changed declarations instead.
-  Override-classification verification remains.
+  Override cleanup is verified live against deployed `Module:Erenshor/Item`
+  field accessors.
 
 - [x] **Step 1: Add repo-owned page deploy manifest**
 
-  Manifest entries must include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency/null-edit targets, rollback text source, and any article override classification decisions.
+  Manifest entries include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency refresh targets, and rollback text source.
 
-- [ ] **Step 2: Add article override classifier**
+- [x] **Step 2: Add article override classifier and review pass**
 
-  Build a pre-cutover comparison pass for article pages whose root templates keep manual parameters. For each override-capable field, resolve the generated Lua/export value, normalize both article and generated values with the field's documented rule, drop matching generated duplicates, preserve differing manual values, preserve documented blank sentinels, and reject fields without a comparison rule. The classifier output feeds both reviewed migration edits and the deploy manifest.
+  Build a pre-cutover comparison pass for article pages whose root templates keep manual parameters. Every non-identity parameter is compared against the generated Lua value resolved through the deployed presentation module. Matching values and empty parameters are dropped, divergent values and documented blank sentinels are preserved, and fields without a generated value are preserved on uncertainty. The review command reports removed duplicates, genuine overrides, intentional blanks, and a unified diff without applying article edits automatically.
 
 - [x] **Step 3: Add safe upload command**
 
@@ -1061,9 +1063,9 @@ classification still outstanding.
 
   Legacy Python article generation/deployment commands must be disabled or explicitly marked legacy so they cannot run accidentally during the clean cut.
 
-- [ ] **Step 7: Verify against local MediaWiki**
+- [x] **Step 7: Verify against local MediaWiki**
 
-  Use the local harness to upload pages, capture revision IDs, report changed Cargo declarations (recreation is done manually via Special:CargoTables), refresh dependency pages, and roll back to previous revisions. Tests cover edit conflicts, assertion failures, lost create races, and rollback restore; maxlag/Retry-After backoff is covered by client unit tests. Generated-vs-manual override classification remains to verify.
+  Use the local harness to upload pages, capture revision IDs, report changed Cargo declarations (recreation is done manually via Special:CargoTables), refresh dependency pages, roll back to previous revisions, and compare article parameters against deployed Lua field accessors. Tests cover edit conflicts, assertion failures, lost create races, rollback restore, generated-vs-manual override cleanup, and dependency refresh; maxlag/Retry-After backoff is covered by client unit tests.
 
 ### Milestone 11: Complete local full-system verification
 

@@ -14,6 +14,8 @@ with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator
 
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
+from erenshor.application.wiki_deploy.override_classifier import ArticleOverrideClassification, OverrideFieldDecision
+from erenshor.application.wiki_deploy.override_migration import ArticleMigration, ArticleOverrideReview
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
@@ -395,6 +397,93 @@ class TestWikiDeployRepoCommand:
         assert "Cargo" in result.output
         assert "Items" in result.output
         assert "Special:CargoTables" in result.output
+
+
+class TestWikiReviewOverridesCommand:
+    """Test review-only article override minimization command."""
+
+    def test_review_overrides_fetches_pages_and_prints_review_report(self, monkeypatch: pytest.MonkeyPatch):
+        """Test review command delegates live review and reports removals, preserved fields, and diffs."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        calls = []
+        migration = ArticleMigration(
+            title="Ember Longsword",
+            minimized_wikitext="{{Item|stablekey=item:ember|source=Custom drop}}",
+            classification=ArticleOverrideClassification(
+                title="Ember Longsword",
+                decisions=(
+                    OverrideFieldDecision(
+                        field="type",
+                        article_value="Weapon",
+                        generated_value="Weapon",
+                        decision="removed_generated_duplicate",
+                        reason="value matches generated data",
+                    ),
+                    OverrideFieldDecision(
+                        field="source",
+                        article_value="Custom drop",
+                        generated_value="Quest",
+                        decision="preserved_manual_override",
+                        reason="value diverges from generated data",
+                    ),
+                    OverrideFieldDecision(
+                        field="imagecaption",
+                        article_value="-",
+                        generated_value="A sword",
+                        decision="intentional_blank",
+                        reason="documented blank sentinel",
+                    ),
+                ),
+            ),
+            removed_fields=("type",),
+            preserved_fields=("source", "imagecaption"),
+        )
+        review = ArticleOverrideReview(
+            title="Ember Longsword",
+            original_wikitext="{{Item|stablekey=item:ember|type=Weapon|source=Custom drop|imagecaption=-}}",
+            migration=migration,
+        )
+
+        def fake_create_client(cli_ctx):
+            calls.append(("create_client", cli_ctx.variant))
+            return client
+
+        def fake_review_article_overrides(**kwargs):
+            calls.append(("review", kwargs))
+            return (review,)
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
+        monkeypatch.setattr(wiki_command, "review_article_overrides", fake_review_article_overrides)
+
+        result = runner.invoke(
+            app,
+            [
+                "wiki",
+                "review-overrides",
+                "--page",
+                "Ember Longsword",
+                "--template",
+                "Item",
+                "--module",
+                "Erenshor/Item",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "Ember Longsword" in result.output
+        assert "Removed generated duplicates: type" in result.output
+        assert "Preserved manual overrides: source" in result.output
+        assert "Intentional blanks: imagecaption" in result.output
+        assert "-{{Item|stablekey=item:ember|type=Weapon|source=Custom drop|imagecaption=-}}" in result.output
+        assert "+{{Item|stablekey=item:ember|source=Custom drop}}" in result.output
+        assert client.closed is True
+        _, kwargs = calls[1]
+        assert kwargs["client"] is client
+        assert kwargs["titles"] == ("Ember Longsword",)
+        assert kwargs["template_names"] == ("Item",)
+        assert kwargs["module"] == "Erenshor/Item"
 
 
 class FakeDeployClient:

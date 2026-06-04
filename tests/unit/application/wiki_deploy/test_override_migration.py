@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
+import pytest
+
 from erenshor.application.wiki_deploy.override_migration import migrate_article_overrides
 
 
@@ -128,3 +130,57 @@ def test_live_resolver_omits_fields_the_module_cannot_read() -> None:
     resolver = LiveGeneratedValueResolver(client=client, module="Erenshor/Item")
     resolved = resolver.resolve({"stablekey": "item:ember"}, ["slot"])
     assert resolved == {}
+
+
+class FakeReviewClient(FakeExpansionClient):
+    def __init__(self, pages: dict[str, str | None], outputs: dict[str, str]) -> None:
+        super().__init__(outputs)
+        self.pages = pages
+        self.fetched_titles: list[str] = []
+
+    def get_page(self, title: str) -> str | None:
+        self.fetched_titles.append(title)
+        return self.pages.get(title)
+
+
+def test_review_article_overrides_fetches_pages_and_returns_migrations() -> None:
+    """The review service fetches real page text and classifies it through Lua expansion."""
+    from erenshor.application.wiki_deploy.override_migration import review_article_overrides
+
+    type_text = "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=type}}"
+    source_text = "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=source}}"
+    client = FakeReviewClient(
+        pages={"Ember Longsword": "{{Item|stablekey=item:ember|type=Weapon|source=Custom drop}}"},
+        outputs={type_text: "Weapon", source_text: "Quest"},
+    )
+
+    reviews = review_article_overrides(
+        client=client,
+        titles=("Ember Longsword",),
+        template_names=("Item",),
+        module="Erenshor/Item",
+    )
+
+    assert client.fetched_titles == ["Ember Longsword"]
+    assert len(reviews) == 1
+    [review] = reviews
+    assert review.title == "Ember Longsword"
+    assert review.changed is True
+    assert review.migration.removed_fields == ("type",)
+    assert review.migration.preserved_fields == ("source",)
+    assert review.migration.minimized_wikitext == "{{Item|stablekey=item:ember|source=Custom drop}}"
+
+
+def test_review_article_overrides_fails_fast_when_article_is_missing() -> None:
+    """Missing pages abort the review instead of silently producing an empty report."""
+    from erenshor.application.wiki_deploy.override_migration import MissingArticleError, review_article_overrides
+
+    client = FakeReviewClient(pages={"Missing Sword": None}, outputs={})
+
+    with pytest.raises(MissingArticleError, match="Missing Sword"):
+        review_article_overrides(
+            client=client,
+            titles=("Missing Sword",),
+            template_names=("Item",),
+            module="Erenshor/Item",
+        )

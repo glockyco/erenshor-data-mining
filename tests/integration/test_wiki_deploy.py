@@ -23,6 +23,7 @@ import httpx
 import pytest
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
+from erenshor.application.wiki_deploy.override_migration import review_article_overrides
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
@@ -364,3 +365,33 @@ def test_refresh_forces_dependent_link_update(wiki_client: MediaWikiClient, page
     assert user in result.refreshed
     # The forced link update re-parsed the dependent so its stored links follow the template change.
     assert _page_links(user) == ["ErenshorITTargetB"]
+
+
+def test_override_review_minimizes_article_params_through_lua(wiki_client: MediaWikiClient, pages: _PageScope) -> None:
+    """Override review compares article params against deployed Lua field accessors."""
+    title = pages.claim("ErenshorITOverrideItem")
+    start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
+    wiki_client.safe_create_page(
+        title=title,
+        content=(
+            "{{Item|stablekey=item:ember_longsword|type=Weapon|description=A custom flavor line|image=CustomEmber.png}}"
+        ),
+        start_timestamp=start_timestamp,
+        summary="Integration",
+        assertion="bot",
+    )
+
+    reviews = review_article_overrides(
+        client=wiki_client,
+        titles=(title,),
+        template_names=("Item",),
+        module="Erenshor/Item",
+    )
+
+    assert len(reviews) == 1
+    [review] = reviews
+    assert review.migration.removed_fields == ("type",)
+    assert review.migration.preserved_fields == ("description", "image")
+    assert "type=Weapon" not in review.migration.minimized_wikitext
+    assert "description=A custom flavor line" in review.migration.minimized_wikitext
+    assert "image=CustomEmber.png" in review.migration.minimized_wikitext
