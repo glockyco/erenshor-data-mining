@@ -119,42 +119,79 @@ stances (`SkillDB.cs`): Normal, Aggressive, Reckless, Taunting, Defensive.
 
 Live item tooltips are bespoke HTML (not PortableInfobox), built from
 `Template:Item/<type>` (Weapon, Armor, Charm, Consumable, General, Mold, Aura,
-SkillBook, SpellScroll) and sub-templates `Item/Header`, `Item/Stats`,
+SkillBook, SpellScroll) plus sub-templates (`Item/Header`, `Item/Stats`,
 `Item/Vitals`, `Item/Resists`, `Item/SpellDetails`, `Item/Categories`,
-`Item/CharmScaling`, `Item/ClassRestrictions`, `SparkleIcon`. The `item-tooltip-*`
-and `item-spell-details-*` CSS is already in the synced interface mirror.
+`Item/CharmScaling`, `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`). The
+`item-tooltip-*` / `item-spell-details-*` CSS is already in the synced interface
+mirror.
 
-**Rendering pattern:** each `Template:Item/<type>` is
-`{{#invoke:Erenshor/Item|<type>Tooltip}}`; the Lua module resolves the item and
-returns the wikitext that calls the sub-templates with resolved values. The
-sub-templates own HTML/CSS; Lua owns data and which sub-templates to call. Article
-params still override generated data; missing falls back to generated data;
-`-` blanks; missing entity emits the visible marker + tracking category.
+**We intentionally diverge from the live wiki** — item pages will NOT byte-match
+live, so the parity/smoke gate targets our new intended output (Lua testcases +
+smoke), not a live diff:
+- The live weapon/armor design renders THREE full tooltip copies
+  (Normal/Blessed/Godly) via a fancy wikitable, each invoked with ~75 flat params
+  incl. 60+ `proc_*`. We replace it with a single `{{Item}}` entry point per page
+  whose Lua module loops the tier rows into one compact Normal/Blessed/Ascended
+  multi-column stat block.
+- Tier 3 is shown as **"Ascended"** (user-facing); the stored/generated key stays
+  `"Godly"` (internal). The rename lives in the Lua render layer only (wiki now;
+  sheets/others tracked as follow-ups).
 
-- [ ] **Step 1: Recreate the sub-templates** verbatim from live (`Item/Header`,
-  `Item/Stats`, `Item/Vitals`, `Item/Resists`, `Item/SpellDetails`,
-  `Item/Categories`, `Item/CharmScaling`, `Item/ClassRestrictions`,
-  `SparkleIcon`) under `wiki/templates/`. Pure presentation wikitext; smoke-render
-  each in isolation.
-- [ ] **Step 2: Extend generated item data** (`wiki_lua/items.py`) with the
-  tooltip fields the data path currently omits: `wand_range`/`bow_range` →
-  `range`, `lore` → `description`, `book_title`, the `tier` from stat quality
-  (Normal=0/Blessed=1/Godly=2), and resolved crafting `ingredients`/`rewards`
-  (ItemLink + quantity) from `get_crafting_recipe`. Extend `ItemDataRepository`
-  with the needed repo methods. TDD the Python.
-- [ ] **Step 3: Generate a first-class Spells data module** (see M8e) and join
-  the item's effect stable keys (`weaponProc`/`wandEffect`/`bowEffect`/
-  `clickEffect`/`wornEffect`/`aura`) to render `Item/SpellDetails` — do NOT
-  denormalize the 40-field spell block into item data.
-- [ ] **Step 4: Per-class teaching levels.** SkillBook tooltips read the skill's
-  six per-class `*RequiredLevel`; SpellScroll tooltips read the spell's
-  `RequiredLevel` gated by `UsedBy` classes. Source these from the Skills/Spells
-  data modules (M8e), not item data.
-- [ ] **Step 5: Item module tooltip rendering.** Replace the four-field
-  `renderTooltip` stub with one entry point per item type that emits the live
-  sub-template calls with resolved data; wire the nine `Template:Item/<type>`.
-- [ ] **Step 6: Verify** smoke + parity for one fixture of each item type against
-  live, including proc/worn/aura spell details and charm scaling.
+**Authoritative discrepancies fixed (validated against main-variant C#):**
+- Melee weapon range is **1** (`ItemInfoWindow`: wand=`WandRange`, bow=`BowRange`,
+  else `1`); the legacy wiki left melee blank.
+- Bows are **not** "2-Handed" (game adds "- 2-Handed" only for `TwoHandMelee`/
+  `TwoHandStaff`); the legacy wiki wrongly labeled `TwoHandBow` and ×2'd its DPS.
+- Charm scaling uses the game's renamed attributes: Str→Physicality,
+  End→Hardiness, Dex→Finesse, Agi→Defense, Int→Arcanism, Wis→Restoration,
+  Cha→Mind ("/ 40"); Mitigation as "%".
+- Spell-detail duration seconds = `ticks × 3`; labels Instant / Effect Duration /
+  Damage over time; "/ tick" suffix on DoT; cast time = `chargeTime/60`, hidden
+  for worn/aura effects.
+- Price shows `ItemValue`, or "Unsellable" when `NoTradeNoDestroy` or value ≤ 0.
+
+**Base DPS:** keep the deterministic `ceil(damage/delay)` (×2 for true 2-handed)
+and the "Base DPS" label. The real game formula (`CalcDPSMelee/Bow`) is
+player-stat-dependent and cannot be a faithful item constant, so the wiki keeps a
+documented deterministic comparison metric.
+
+**Rendering pattern:** one `{{Item}}` entry point per page →
+`{{#invoke:Erenshor/Item|render}}`. The Lua module resolves the item by page
+name/stable key from `Module:Erenshor/Data/Items`, applies ALL
+presentation/derivation (Ascended, tier sparkle index, melee range=1, Base DPS,
+charm attribute names, slot/weapon-type display, spell-detail formatting), and
+emits the thin presentational sub-templates. Python data stays faithful raw only.
+Article params override generated data; missing falls back to generated; `-`
+blanks; missing entity emits the visible marker + tracking category.
+
+- [ ] **Step 1: Faithful raw item data** (`wiki_lua/items.py`): add `description`
+  (lore), `book_title`, raw `wandRange`/`bowRange`, raw per-tier stat rows
+  (quality key stays "Godly"), and resolved crafting `ingredients`/`rewards`
+  (ItemLink + qty) via `get_crafting_recipe`. NO tier/range/DPS derivation in
+  Python. Extend `ItemDataRepository`. TDD.
+- [ ] **Step 2: Thin presentational sub-templates** under `wiki/templates/`
+  (`Item/Header`, `Item/Stats` multi-column, `Item/Vitals`, `Item/Resists`,
+  `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
+  `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`), reusing the existing
+  `item-tooltip-*` CSS. Smoke-render each in isolation.
+- [ ] **Step 3: `Module:Erenshor/Item` render** with all presentation/derivation
+  and one entry point per item type; loop tier rows into the multi-column block;
+  Godly→Ascended; melee range=1; Base DPS; charm attribute names.
+- [ ] **Step 4: Spell-detail join** from `Module:Erenshor/Data/Spells` for the
+  item's effect stable keys (`weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/
+  `wornEffect`/`aura`); apply the authoritative formatting. No 40-field spell
+  block in item data.
+- [ ] **Step 5: Per-class teaching levels** from Skills/Spells modules: SkillBook
+  reads the skill's six `*RequiredLevel` (Duelist→Windblade); SpellScroll reads
+  the spell `RequiredLevel` gated by `UsedBy`.
+- [ ] **Step 6: Cut over + verify.** Replace the `renderTooltip` stub; wire the
+  nine `Template:Item/<type>`; smoke + testcases for one fixture of each type
+  (incl. proc/worn/aura spell details and charm scaling). Delete dead
+  `Module:Erenshor/Render` once the last user is gone.
+
+**Note (mw.loadData):** item shards now carry lore prose (tooltips need it),
+reversing the earlier "no prose in data" rule. Shards are per-type and loaded per
+page; acceptable — revisit only if shard size hurts parser memory.
 
 ## Milestone 8e: First-class Spell / Skill / Stance modeling
 
