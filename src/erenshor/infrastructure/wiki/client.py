@@ -598,6 +598,46 @@ class MediaWikiClient:
 
         return tuple(pages)
 
+    def purge_pages(
+        self,
+        titles: Sequence[str],
+        force_link_update: bool = True,
+        force_recursive_link_update: bool = False,
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> tuple[str, ...]:
+        """Purge pages, forcing a synchronous link/Cargo table update by default.
+        A template or module change does not refresh the pages that transclude
+        it; their stored link, category, and Cargo data stay stale until each
+        dependent page is reparsed. ``action=purge`` with ``forcelinkupdate``
+        runs that reparse and LinksUpdate synchronously, which is the reliable
+        way to refresh dependents (a no-op edit performs no save and no update).
+        """
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+        if not titles:
+            return ()
+        purged: list[str] = []
+        for i in range(0, len(titles), self.batch_size):
+            batch = titles[i : i + self.batch_size]
+            data = {"action": "purge", "titles": "|".join(batch)}
+            if force_link_update:
+                data["forcelinkupdate"] = "1"
+            if force_recursive_link_update:
+                data["forcerecursivelinkupdate"] = "1"
+            if assertion is not None:
+                data["assert"] = assertion
+            if assert_user is not None:
+                data["assertuser"] = assert_user
+            data["token"] = self.get_csrf_token()
+            result = self._request({}, method="POST", data=data)
+            for entry in result.get("purge", []):
+                page_title = entry.get("title")
+                if "purged" in entry and isinstance(page_title, str):
+                    purged.append(page_title)
+        logger.info(f"Purged {len(purged)} pages (force_link_update={force_link_update})")
+        return tuple(purged)
+
     def get_page_revision_metadata(
         self,
         title: str,

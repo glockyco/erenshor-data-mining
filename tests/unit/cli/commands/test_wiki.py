@@ -14,8 +14,8 @@ with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator
 
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.null_edit import NullEditResult, NullEditResultEntry
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
+from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 
 runner = CliRunner()
@@ -361,11 +361,11 @@ class FakeDeployClient:
         self.closed = True
 
 
-class TestWikiNullEditEmbeddedCommand:
-    """Test dependency-derived null edit command."""
+class TestWikiRefreshEmbeddedCommand:
+    """Test dependency-derived refresh command."""
 
-    def test_null_edit_embedded_uses_dependencies_and_namespace_filters(self, monkeypatch: pytest.MonkeyPatch):
-        """Test null-edit command delegates dependency discovery with explicit namespaces."""
+    def test_refresh_embedded_uses_dependencies_and_namespace_filters(self, monkeypatch: pytest.MonkeyPatch):
+        """Test refresh command delegates dependency discovery with explicit namespaces."""
         import erenshor.cli.commands.wiki as wiki_command
 
         client = FakeDeployClient()
@@ -375,27 +375,21 @@ class TestWikiNullEditEmbeddedCommand:
             calls.append(("create_client", cli_ctx.variant))
             return client
 
-        def fake_null_edit_embedded_pages(**kwargs):
-            calls.append(("null_edit", kwargs))
-            return NullEditResult(
-                entries=(
-                    NullEditResultEntry(
-                        title="Ember Longsword",
-                        old_revision_id=10,
-                        old_revision_timestamp="2026-06-04T12:00:00Z",
-                        new_revision_id=11,
-                    ),
-                )
+        def fake_refresh_embedded_pages(**kwargs):
+            calls.append(("refresh", kwargs))
+            return EmbeddedRefreshResult(
+                requested=("Ember Longsword",),
+                refreshed=("Ember Longsword",),
             )
 
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
-        monkeypatch.setattr(wiki_command, "null_edit_embedded_pages", fake_null_edit_embedded_pages)
+        monkeypatch.setattr(wiki_command, "refresh_embedded_pages", fake_refresh_embedded_pages)
 
         result = runner.invoke(
             app,
             [
                 "wiki",
-                "null-edit-embedded",
+                "refresh-embedded",
                 "--dependency-title",
                 "Template:Item",
                 "--dependency-title",
@@ -404,21 +398,18 @@ class TestWikiNullEditEmbeddedCommand:
                 "0",
                 "--namespace",
                 "10",
-                "--summary",
-                "Refresh derived pages",
                 "--assert-user",
                 "ErenshorBot",
             ],
         )
 
         assert result.exit_code == 0
-        assert "Null-edited: 1" in result.output
+        assert "Refreshed: 1" in result.output
         assert client.closed is True
         _, kwargs = calls[1]
         assert kwargs["client"] is client
         assert kwargs["dependency_titles"] == ("Template:Item", "Module:Erenshor/Item")
         assert kwargs["namespaces"] == (0, 10)
-        assert kwargs["summary"] == "Refresh derived pages"
         assert kwargs["assertion"] == "bot"
         assert kwargs["assert_user"] == "ErenshorBot"
 

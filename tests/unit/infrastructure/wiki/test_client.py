@@ -928,6 +928,47 @@ class TestMediaWikiClientEmbeddedIn:
         assert second_params["eicontinue"] == "10|123"
 
 
+class TestMediaWikiClientPurgePages:
+    """Test forced link-update purges of dependent pages."""
+
+    def test_purge_pages_forces_link_update_with_assertion(self) -> None:
+        """Test purge requests force a link-table update and carry the bot assertion."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {
+                    "purge": [
+                        {"ns": 0, "title": "Ember Longsword", "purged": "", "linkupdate": ""},
+                        {"ns": 0, "title": "Abyssal Plate", "purged": "", "linkupdate": ""},
+                    ]
+                },
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            purged = client.purge_pages(
+                ["Ember Longsword", "Abyssal Plate"],
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert purged == ("Ember Longsword", "Abyssal Plate")
+        purge_request = next(request for request in api.requests if request.method == "POST")
+        assert purge_request.data["action"] == "purge"
+        assert purge_request.data["titles"] == "Ember Longsword|Abyssal Plate"
+        assert purge_request.data["forcelinkupdate"] == "1"
+        assert purge_request.data["assert"] == "bot"
+        assert purge_request.data["assertuser"] == "ErenshorBot"
+        assert purge_request.data["token"] == "test_csrf_token"
+
+    def test_purge_pages_returns_empty_without_titles(self) -> None:
+        """Test purging no titles performs no request."""
+        with _mediawiki_api_server([]) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            assert client.purge_pages([]) == ()
+        assert api.requests == []
+
+
 class TestMediaWikiClientPageExists:
     """Test page existence checking."""
 

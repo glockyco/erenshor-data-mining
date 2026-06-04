@@ -34,8 +34,8 @@ from erenshor.application.wiki_deploy.manifest import (
     read_repo_page_manifest,
     write_repo_page_manifest,
 )
-from erenshor.application.wiki_deploy.null_edit import null_edit_embedded_pages
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
+from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
@@ -630,30 +630,26 @@ def deploy_repo_pages_command(
     )
 
 
-@app.command("null-edit-embedded")
-def null_edit_embedded_command(
+@app.command("refresh-embedded")
+def refresh_embedded_command(
     ctx: typer.Context,
     dependency_titles: Annotated[
         list[str],
         typer.Option(
             "--dependency-title",
-            help="Template or module title whose transcluding pages should be null-edited.",
+            help="Template or module title whose transcluding pages should be refreshed.",
         ),
     ],
     namespaces: Annotated[
         list[int],
         typer.Option("--namespace", help="MediaWiki namespace ID to include in embeddedin discovery."),
     ],
-    summary: Annotated[
-        str,
-        typer.Option("--summary", help="Edit summary for null edits."),
-    ] = "Refresh derived wiki data",
     assert_user: Annotated[
         str | None,
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
     ] = None,
 ) -> None:
-    """Null-edit pages discovered from explicit template/module dependencies."""
+    """Force a link/Cargo refresh on pages that transclude the given templates/modules."""
     cli_ctx: CLIContext = ctx.obj
     if not dependency_titles:
         console.print("[red]At least one --dependency-title is required.[/red]")
@@ -664,25 +660,24 @@ def null_edit_embedded_command(
 
     if cli_ctx.dry_run:
         console.print(
-            f"[yellow]Dry run: would discover embedded pages for {len(dependency_titles)} dependencies "
+            f"[yellow]Dry run: would refresh pages embedding {len(dependency_titles)} dependencies "
             f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
         )
         return
 
     client = _create_mediawiki_client(cli_ctx)
     try:
-        result = null_edit_embedded_pages(
+        result = refresh_embedded_pages(
             client=client,
             dependency_titles=tuple(dependency_titles),
             namespaces=tuple(namespaces),
-            summary=summary,
             assertion="bot",
             assert_user=assert_user,
         )
     finally:
         client.close()
 
-    console.print(f"[green]Embedded dependency refresh complete[/green] Null-edited: {len(result.entries)}")
+    console.print(f"[green]Embedded dependency refresh complete[/green] Refreshed: {len(result.refreshed)}")
 
 
 @app.command("rollback-repo-pages")
