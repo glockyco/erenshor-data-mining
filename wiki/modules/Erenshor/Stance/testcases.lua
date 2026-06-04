@@ -53,6 +53,11 @@ function p.run()
 		"Yes",
 		"stop regen formats"
 	)
+	assertContains(
+		Stance.fieldValue(aggressiveKey, "Aggressive", "activated_by"),
+		"Stance: Aggressive",
+		"activated-by derives from skills"
+	)
 	assertEqual(
 		Stance.statusText(aggressiveKey, "Aggressive"),
 		"",

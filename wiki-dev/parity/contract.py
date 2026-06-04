@@ -128,4 +128,10 @@ PAGES: tuple[ParityPage, ...] = (
         local_title="Minor_Lightning",
         targets=ENTITY_INFOBOX_TARGETS,
     ),
+    ParityPage(
+        name="skill",
+        live_path="/wiki/Backstab",
+        local_title="Backstab",
+        targets=ENTITY_INFOBOX_TARGETS,
+    ),
 )

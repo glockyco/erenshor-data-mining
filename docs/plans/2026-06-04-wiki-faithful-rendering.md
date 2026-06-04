@@ -167,13 +167,11 @@ and links all draw from one faithful source.
 PortableInfobox parity. Spell generated data, `Module:Erenshor/Spell`,
 `Template:Ability` spell rendering, smoke fixtures, and local-vs-live
 PortableInfobox parity are complete with raw C#-faithful spell fields and class
-restrictions. `Module:Erenshor/Data/Skills` is complete with raw skill fields,
-DB-derived class display names, and per-class levels. Skill Lua rendering remains
-pending. Stance `activated_by` is
-intentionally still article-override only because the relationship is not a
-Stance field in the game; it must be derived when Skills are modeled from
-`Skill.StanceToUse` (`Skill.cs`) to the target stance stable key. Do not
-denormalize that relationship into Stance data before the Skills module exists.
+restrictions. Skill generated data, `Module:Erenshor/Skill`, `Template:Ability`
+skill dispatch, smoke fixtures, and local-vs-live PortableInfobox parity are
+complete with raw C#-faithful skill fields, DB-derived class display names, and
+per-class levels. Stance `activated_by` now derives from `Skill.StanceToUse`
+through the Skills data module.
 
 
 - [ ] **Step 1: Inventory live ability templates.** Fetch the live `Template:Ability`
@@ -188,21 +186,20 @@ denormalize that relationship into Stance data before the Skills module exists.
   fields, per-class levels, DB-derived display class names, and stance/effect
   stable-key relationships. Lua owns display conversion for skill cooldown
   ticks. `wiki_lua/stances.py`, `spells.py`, and `skills.py` are done.
-- [ ] **Step 3: Lua modules.** `Module:Erenshor/Stance` is complete with
-  `resolve` + `field`/`status` accessors. `Module:Erenshor/Spell` is complete
-  for spell page fields and override handling. Add `Module:Erenshor/Skill` with
-  the same accessors, and then share/extend effect-summary builders used by
-  ability pages and `Item/SpellDetails`.
+- [ ] **Step 3: Lua modules.** `Module:Erenshor/Stance`, `Module:Erenshor/Spell`,
+  and `Module:Erenshor/Skill` are complete with `resolve` + `field`/`status`
+  accessors. Stance `activated_by` is generated from Skills data. The remaining
+  shared ability work is to extract effect-summary builders only when
+  `Item/SpellDetails` needs them.
 - [ ] **Step 4: Ability templates/pages.** Stances render through live's separate
-  `Template:Stance`; keep that surface. Spells render through live's unified
-  `Template:Ability`. Add Skill rendering through the same `Template:Ability`
-  after first-class Skill data exists.
+  `Template:Stance`; keep that surface. Spells and Skills render through live's
+  unified `Template:Ability`, dispatched by stable-key prefix.
 - [ ] **Step 5: Upgrade `AbilityLink`.** Let the link surface optionally pull
   class/level metadata from the new modules (still page-link-first).
-- [ ] **Step 6: Verify** smoke + parity for representative skill pages against
-  live. Stance smoke + parity against live `Aggressive` is complete; rerun it
-  when Skills populate `activated_by`. Spell smoke + parity against live
-  `Minor Lightning` is complete.
+- [ ] **Step 6: Verify** smoke + parity for representative ability pages against
+  live. Stance smoke + parity against live `Aggressive`, spell smoke + parity
+  against live `Minor Lightning`, and skill smoke + parity against live
+  `Backstab` are complete.
 
 ## Milestone 8f: Faithfulness verification (audit triage)
 

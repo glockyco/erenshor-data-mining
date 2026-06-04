@@ -1,7 +1,9 @@
+local AbilityLink = require("Module:Erenshor/AbilityLink")
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
 
 local Data = mw.loadData("Module:Erenshor/Data/Stances")
+local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 
 local p = {}
 
@@ -156,6 +158,36 @@ local function stopRegenText(value)
 	end
 	return ""
 end
+local skillsByStance = nil
+
+local function skillsForStance(stanceStableKey)
+	if skillsByStance == nil then
+		skillsByStance = {}
+		for skillStableKey, skill in pairs(SkillData.skills) do
+			if not isBlank(skill.stanceStableKey) then
+				if skillsByStance[skill.stanceStableKey] == nil then
+					skillsByStance[skill.stanceStableKey] = {}
+				end
+				table.insert(skillsByStance[skill.stanceStableKey], skillStableKey)
+			end
+		end
+		for _, skillKeys in pairs(skillsByStance) do
+			table.sort(skillKeys)
+		end
+	end
+	return skillsByStance[stanceStableKey] or {}
+end
+
+local function activatedByText(stance)
+	if not isBlank(stance.activatedBy) then
+		return stance.activatedBy
+	end
+	local out = {}
+	for _, skillStableKey in ipairs(skillsForStance(stance.stableKey)) do
+		table.insert(out, AbilityLink.render({ stablekey = skillStableKey }))
+	end
+	return table.concat(out, "<br>")
+end
 
 local FIELD_ACCESSORS = {
 	title = function(s)
@@ -206,9 +238,7 @@ local FIELD_ACCESSORS = {
 	stop_regen = function(s)
 		return stopRegenText(s.stopRegen)
 	end,
-	activated_by = function(s)
-		return s.activatedBy
-	end,
+	activated_by = activatedByText,
 }
 
 local function explicitStableKey(args)

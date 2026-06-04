@@ -6,6 +6,18 @@ return {
 			image = "Double Attack",
 			kind = "skill",
 		},
+		["skill:backstab"] = {
+			name = "Backstab",
+			page = "Backstab",
+			image = "Backstab",
+			kind = "skill",
+		},
+		["skill:stance - aggressive"] = {
+			name = "Stance: Aggressive",
+			page = "Stance: Aggressive",
+			image = "Stance: Aggressive",
+			kind = "skill",
+		},
 		["spell:minor_lightning"] = {
 			name = "Minor Lightning",
 			page = "Minor Lightning",

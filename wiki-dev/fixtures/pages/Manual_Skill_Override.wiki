@@ -1,0 +1,7 @@
+{{Ability
+|stablekey=skill:backstab
+|title=Manual Skill Title
+|cooldown=Manual Cooldown
+|damage_type=-
+|source=Manual Skill Source
+}}

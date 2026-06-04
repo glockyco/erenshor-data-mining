@@ -95,6 +95,21 @@ Manual Stance Override	Manual Activation
 Missing Stance Data	Missing stance data: Missing Stance Data
 Missing Stance Data	Category:Pages_with_missing_Erenshor_stance_data
 Lua Spell Smoke	PASS Erenshor Spell testcases
+Lua Skill Smoke	PASS Erenshor Skill testcases
+Backstab	Backstab
+Backstab	Windblade
+Backstab	Deal major damage to your target
+Backstab	9 seconds
+Backstab	Skill Book: Backstab
+Backstab	Category:Abilities
+Stance: Aggressive	Reaver
+Stance: Aggressive	Aggressive
+Stance: Aggressive	Skill Book: Aggressive Stance
+Manual Skill Override	Manual Skill Title
+Manual Skill Override	Manual Cooldown
+Manual Skill Override	Manual Skill Source
+Missing Skill Data	Missing skill data: Missing Skill Data
+Missing Skill Data	Category:Pages_with_missing_Erenshor_skill_data
 Minor Lightning	Minor Lightning
 Minor Lightning	Druid
 Minor Lightning	Stormcaller
