@@ -7,6 +7,8 @@ BASE_URL="${BASE_URL:-http://localhost:8088}"
 WIKI_NAME="${WIKI_NAME:-Erenshor Dev Wiki}"
 ADMIN_USER="${ADMIN_USER:-WikiSysop}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-DevWikiPassword-2026}"
+BOT_USER="${BOT_USER:-ErenshorBot}"
+BOT_PASSWORD="${BOT_PASSWORD:-BotDevPassword-2026}"
 
 mkdir -p images runtime
 
@@ -34,3 +36,8 @@ if ! docker compose exec -T mediawiki test -f /var/www/html/LocalSettings.php; t
 fi
 
 docker compose exec -T mediawiki php maintenance/run.php update --quick
+
+# Provision the deploy bot the wiki deploy pipeline and integration tests use.
+# --bot grants the bot right so assert=bot edits succeed; --force keeps the
+# password in sync on every bootstrap. The account is local-only.
+docker compose exec -T mediawiki php maintenance/run.php createAndPromote --bot --force "$BOT_USER" "$BOT_PASSWORD"

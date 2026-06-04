@@ -53,6 +53,20 @@ password: DevWikiPassword-2026
 
 The helper scripts default to those credentials.
 
+## Deploy bot account
+
+`bootstrap.sh` also provisions a local bot account used by the wiki deploy
+pipeline and the deploy integration tests. It is in the `bot` group, so
+`assert=bot` safe edits succeed against it:
+
+```text
+username: ErenshorBot
+password: BotDevPassword-2026
+```
+
+Override with `BOT_USER` / `BOT_PASSWORD` when running `bootstrap.sh`. The
+account is local-only and never mirrors a production credential.
+
 ## Sync live interface pages
 
 Local CSS and JavaScript preview depends on the live `MediaWiki:` interface

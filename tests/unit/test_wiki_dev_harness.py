@@ -362,6 +362,13 @@ def test_compose_does_not_mount_local_settings_before_install() -> None:
     assert "./LocalSettings.extra.php:/var/www/html/LocalSettings.extra.php:ro" in compose
 
 
+def test_bootstrap_provisions_deploy_bot_in_bot_group() -> None:
+    bootstrap = Path("wiki-dev/bootstrap.sh").read_text(encoding="utf-8")
+    assert 'BOT_USER="${BOT_USER:-ErenshorBot}"' in bootstrap
+    assert 'BOT_PASSWORD="${BOT_PASSWORD:-BotDevPassword-2026}"' in bootstrap
+    assert 'createAndPromote --bot --force "$BOT_USER" "$BOT_PASSWORD"' in bootstrap
+
+
 def test_local_wiki_runtime_artifacts_are_ignored() -> None:
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
