@@ -417,5 +417,7 @@ def test_local_theme_shims_define_live_platform_variables() -> None:
     assert ".portable-infobox .pi-horizontal-group-item:not(:first-child)" in theme_css
     assert "border-left-style: solid;" in theme_css
     assert "background: none !important;" in theme_css
+    assert ":root.skin-theme-clientpref-night:not(.client-darkmode)" in theme_css
+    assert "--pi-background: rgba(11, 26, 44, 0.1);" in theme_css
     assert '"wgg-dom-version-1_43"' in theme_js
     assert '"skin--responsive"' in theme_js

@@ -1,4 +1,46 @@
-<includeonly>{{#invoke:Erenshor/Character|infobox}}{{#invoke:Erenshor/Character|cargoStore}}</includeonly><noinclude>{{#cargo_declare:_table=Characters
+<includeonly><infobox type="Character">
+    <title><default>{{#invoke:Erenshor/Character|field|name}}</default></title>
+    <image><default>{{#invoke:Erenshor/Character|field|image}}</default><caption><default>{{#invoke:Erenshor/Character|field|imagecaption}}</default></caption></image>
+    <group>
+        <data><label>Type:</label><default>{{#invoke:Erenshor/Character|field|type}}</default></data>
+        <data><label>Faction:</label><default>{{#invoke:Erenshor/Character|field|faction}}</default></data>
+        <data><label>Faction Changes on Kill:</label><default>{{#invoke:Erenshor/Character|field|factionchange}}</default></data>
+        <data><label>Class:</label><default>{{#invoke:Erenshor/Character|field|class}}</default></data>
+        <data><label>Map</label><default>{{#invoke:Erenshor/Character|field|map}}</default></data>
+        <data><label>Zones:</label><default>{{#invoke:Erenshor/Character|field|zones}}</default></data>
+        <data><label>Coordinates:</label><default>{{#invoke:Erenshor/Character|field|coordinates}}</default></data>
+        <data><label>Base Respawn:</label><default>{{#invoke:Erenshor/Character|field|respawn}}</default></data>
+        <data><label>Spawn Chance:</label><default>{{#invoke:Erenshor/Character|field|spawnchance}}</default></data>
+        <data><label>Base Level:</label><default>{{#invoke:Erenshor/Character|field|level}}</default></data>
+        <data><label>Base Experience:</label><default>{{#invoke:Erenshor/Character|field|experience}}</default></data>
+        <data><label>Guaranteed One Of:</label><default>{{#invoke:Erenshor/Character|field|guaranteeddrops}}</default></data>
+        <data><label>Overall Drop Rates:</label><default>{{#invoke:Erenshor/Character|field|droprates}}</default></data>
+    </group>
+    <group collapse="open">
+        <header>Abilities</header>
+        <data><label>Spells:</label><default>{{#invoke:Erenshor/Character|field|spells}}</default></data>
+    </group>
+    <group>
+        <header>Base Stats</header>
+        <group layout="horizontal">
+            <data><label>Health:</label><default>{{#invoke:Erenshor/Character|field|health}}</default></data>
+        </group>
+        <group layout="horizontal">
+            <data><label>AC:</label><default>{{#invoke:Erenshor/Character|field|ac}}</default></data>
+        </group>
+    </group>
+    <group>
+        <header>Base Resists</header>
+        <group layout="horizontal">
+            <data><label>Magic:</label><default>{{#invoke:Erenshor/Character|field|magic}}</default></data>
+            <data><label>Poison:</label><default>{{#invoke:Erenshor/Character|field|poison}}</default></data>
+        </group>
+        <group layout="horizontal">
+            <data><label>Elemental:</label><default>{{#invoke:Erenshor/Character|field|elemental}}</default></data>
+            <data><label>Void:</label><default>{{#invoke:Erenshor/Character|field|void}}</default></data>
+        </group>
+    </group>
+</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{#invoke:Erenshor/Character|status}}</includeonly><noinclude>{{#cargo_declare:_table=Characters
 |Page=Page
 |StableKey=String
 |Name=String

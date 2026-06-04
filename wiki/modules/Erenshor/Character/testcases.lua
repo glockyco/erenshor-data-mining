@@ -36,18 +36,51 @@ function p.run()
 	assertEqual(override.faction, nil, "dash sentinel blanks supported fields")
 	assertEqual(override.class, "Ranger", "article class override wins")
 
-	local infobox =
-		Character.renderInfobox({ stablekey = "character:a_grizzly_bear" }, "A Grizzly Bear")
-	assertContains(infobox, "A Grizzly Bear", "infobox contains name")
-	assertContains(infobox, "[[Enemies|Enemy]]", "infobox formats enemy type")
-	assertContains(infobox, "2 minutes", "infobox contains respawn")
-	assertContains(infobox, "[[Category:Enemies]]", "enemy category emits")
+	local bearKey = { stablekey = "character:a_grizzly_bear" }
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "name"),
+		"A Grizzly Bear",
+		"field name resolves"
+	)
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "type"),
+		"[[Enemies|Enemy]]",
+		"field type formats enemy"
+	)
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "respawn"),
+		"2 minutes",
+		"field respawn resolves"
+	)
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "health"),
+		"2340",
+		"field health resolves"
+	)
+	assertContains(
+		Character.statusText(bearKey, "A Grizzly Bear"),
+		"[[Category:Enemies]]",
+		"enemy category emits"
+	)
 
-	local npc = Character.renderInfobox({ stablekey = "character:captain_rowan" }, "Captain Rowan")
-	assertContains(npc, "[[:Category:Characters|NPC]]", "npc type formats")
-	assertContains(npc, "[[Category:Characters]]", "npc category emits")
+	local rowanKey = { stablekey = "character:captain_rowan" }
+	assertEqual(
+		Character.fieldValue(rowanKey, "Captain Rowan", "type"),
+		"[[:Category:Characters|NPC]]",
+		"npc type formats"
+	)
+	assertContains(
+		Character.statusText(rowanKey, "Captain Rowan"),
+		"[[Category:Characters]]",
+		"npc category emits"
+	)
 
-	local missing = Character.renderInfobox({}, "Unknown Prototype")
+	assertEqual(
+		Character.fieldValue({}, "Unknown Prototype", "name"),
+		"",
+		"missing character fields are blank"
+	)
+	local missing = Character.statusText({}, "Unknown Prototype")
 	assertContains(
 		missing,
 		"Missing character data: Unknown Prototype",

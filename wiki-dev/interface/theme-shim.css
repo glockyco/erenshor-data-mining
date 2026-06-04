@@ -33,6 +33,15 @@
 }
 
 
+/* The cloned PortableInfobox build ships dark-mode --pi-* defaults that the
+   older build on the live wiki lacks, which would otherwise override wiki.gg's
+   synced :root values. Re-assert wiki.gg's values at the extension's selector
+   specificity so local infoboxes match live. */
+:root.skin-theme-clientpref-night:not(.client-darkmode) {
+	--pi-background: rgba(11, 26, 44, 0.1);
+	--pi-secondary-background: rgba(18, 52, 86, 0.1);
+}
+
 /* Local compatibility for live ext.PortableInfobox.styles. */
 :root {
 	--pi-item-spacing: 5px 10px;

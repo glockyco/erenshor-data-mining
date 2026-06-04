@@ -1,6 +1,5 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
-local Render = require("Module:Erenshor/Render")
 
 local Data = mw.loadData("Module:Erenshor/Data/Characters")
 
@@ -230,99 +229,100 @@ local function mapLink(selector)
 		.. " View on the interactive map]"
 end
 
-function p.renderInfobox(args, pageTitle)
+local FIELD_ACCESSORS = {
+	name = function(c)
+		return c.name
+	end,
+	image = function(c)
+		return ensureImageFile(c.image, c.name)
+	end,
+	imagecaption = function(c)
+		return c.imageCaption
+	end,
+	type = function(c)
+		return typeText(c.type)
+	end,
+	faction = function(c)
+		return c.faction
+	end,
+	factionchange = function(c)
+		return c.factionChange
+	end,
+	class = function(c)
+		return c.class
+	end,
+	map = function(c)
+		return mapLink(c.mapSelector)
+	end,
+	zones = function(c)
+		return c.zones
+	end,
+	coordinates = function(c)
+		return c.coordinates
+	end,
+	respawn = function(c)
+		return c.respawn
+	end,
+	spawnchance = function(c)
+		return c.spawnChance
+	end,
+	level = function(c)
+		return c.level
+	end,
+	experience = function(c)
+		return c.experience
+	end,
+	guaranteeddrops = function(c)
+		return c.guaranteedDrops
+	end,
+	droprates = function(c)
+		return c.dropRates
+	end,
+	spells = function(c)
+		return c.spells
+	end,
+	health = function(c)
+		return c.health
+	end,
+	ac = function(c)
+		return c.ac
+	end,
+	magic = function(c)
+		return c.magic
+	end,
+	poison = function(c)
+		return c.poison
+	end,
+	elemental = function(c)
+		return c.elemental
+	end,
+	void = function(c)
+		return c.void
+	end,
+}
+
+function p.fieldValue(args, pageTitle, key)
+	local character = p.resolve(args, pageTitle)
+	if character.missing then
+		return ""
+	end
+	local accessor = FIELD_ACCESSORS[key]
+	if accessor == nil then
+		error("Unknown Character infobox field: " .. tostring(key))
+	end
+	local value = accessor(character)
+	if value == nil then
+		return ""
+	end
+	return tostring(value)
+end
+
+function p.statusText(args, pageTitle)
 	local character = p.resolve(args, pageTitle)
 	if character.missing then
 		return missingOutput(character)
 	end
-
-	local rows = {
-		{
-			label = "Image",
-			value = Format.fileLink(
-				ensureImageFile(character.image, character.name),
-				{ alt = character.name, size = "64x64px" }
-			),
-		},
-		{ label = "Caption", value = character.imageCaption },
-		{ label = "Type", value = typeText(character.type) },
-		{ label = "Faction", value = character.faction },
-		{ label = "Faction Changes on Kill", value = character.factionChange },
-		{ label = "Class", value = character.class },
-		{ label = "Map", value = mapLink(character.mapSelector) },
-		{ label = "Zones", value = character.zones },
-		{ label = "Coordinates", value = character.coordinates },
-		{ label = "Base Respawn", value = character.respawn },
-		{ label = "Spawn Chance", value = character.spawnChance },
-		{ label = "Base Level", value = character.level },
-		{ label = "Base Experience", value = character.experience },
-		{ label = "Guaranteed One Of", value = character.guaranteedDrops },
-		{ label = "Overall Drop Rates", value = character.dropRates },
-		{ label = "Spells", value = character.spells },
-	}
-
-	local sections = {
-		{
-			title = "Base Stats",
-			groups = {
-				{ kind = "horizontal", rows = { { label = "Health", value = character.health } } },
-				{ kind = "horizontal", rows = { { label = "Mana", value = character.mana } } },
-				{ kind = "horizontal", rows = { { label = "AC", value = character.ac } } },
-				{
-					kind = "horizontal",
-					rows = { { label = "Strength", value = character.strength } },
-				},
-				{
-					kind = "horizontal",
-					rows = { { label = "Endurance", value = character.endurance } },
-				},
-				{
-					kind = "horizontal",
-					rows = { { label = "Dexterity", value = character.dexterity } },
-				},
-				{
-					kind = "horizontal",
-					rows = { { label = "Agility", value = character.agility } },
-				},
-				{
-					kind = "horizontal",
-					rows = { { label = "Intelligence", value = character.intelligence } },
-				},
-				{ kind = "horizontal", rows = { { label = "Wisdom", value = character.wisdom } } },
-				{
-					kind = "horizontal",
-					rows = { { label = "Charisma", value = character.charisma } },
-				},
-			},
-		},
-		{
-			title = "Base Resists",
-			groups = {
-				{
-					kind = "horizontal",
-					rows = {
-						{ label = "Magic", value = character.magic },
-						{ label = "Poison", value = character.poison },
-					},
-				},
-				{
-					kind = "horizontal",
-					rows = {
-						{ label = "Elemental", value = character.elemental },
-						{ label = "Void", value = character.void },
-					},
-				},
-			},
-		},
-	}
-
-	return Render.infobox({
-		title = character.name,
-		type = "Character",
-		classes = { "erenshor-character-infobox" },
-		rows = rows,
-		sections = sections,
-	}) .. categoryForType(character.type)
+	return categoryForType(character.type)
 end
 
 local function cargoValue(value)
@@ -362,8 +362,12 @@ local function cargoStoreText(character, pageTitle)
 	return table.concat(out)
 end
 
-function p.infobox(frame)
-	return p.renderInfobox(templateArgs(frame), currentTitleText())
+function p.field(frame)
+	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
+end
+
+function p.status(frame)
+	return p.statusText(templateArgs(frame), currentTitleText())
 end
 
 function p.cargoStore(frame)
