@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c Steps 1-4); the hand-rolled `Render` deletion (M8c Step 5) waits on M8d. Milestones 8d (item tooltips), 8e (first-class Spell/Skill/Stance modeling), and 8f (faithfulness fixes) are specified in the companion plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`, grounded in the authoritative game C#. Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips) is complete. Milestone 8e (first-class Spell/Skill/Stance modeling) is operationally complete and feeds item tooltip spell/book joins. Milestone 8f (faithfulness fixes) is the remaining audit-triage gate before Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion).
 
 ---
 
@@ -739,14 +739,15 @@ These three milestones are specified in detail, with the authoritative game C#
 formulas and field models and the full audit of wiki shortcuts, in the companion
 plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
 
-- **8d — Item tooltip subsystem.** Port the bespoke live tooltip templates
+- **8d — Item tooltip subsystem.** Complete. The bespoke live tooltip templates
   (`Item/<type>` + sub-templates `Item/Header`, `Item/Stats`, `Item/Vitals`,
   `Item/Resists`, `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
-  `Item/ClassRestrictions`, `SparkleIcon`; CSS already synced). Each
-  `Item/<type>` is `{{#invoke:Erenshor/Item|<type>Tooltip}}`; Lua resolves and
-  emits the sub-template calls. Extend generated item data with range, lore,
-  book_title, tier, and resolved crafting ingredients/rewards; the spell-effect
-  breakdown joins the new Spells data module (no denormalization).
+  `Item/ClassRestrictions`, `SparkleIcon`; CSS already synced) now render through
+  the single `{{ItemTooltip|stablekey=…}}` entry point and
+  `Module:Erenshor/Item/Tooltip`. Generated item data carries faithful raw fields
+  including range, lore, book title, per-quality stats, and resolved crafting
+  ingredients/rewards; spell-effect breakdowns join the Spells data module with
+  no denormalized 40-field spell block.
 - **8e — First-class Spell/Skill/Stance modeling.** Stance generated data,
   `Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and visual parity
   are complete. Spell generated data, `Module:Erenshor/Spell`,
@@ -756,8 +757,8 @@ plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
   smoke fixtures, and visual parity are complete with raw C#-faithful skill
   fields, DB-derived class display names, and per-class levels. Stance
   `activated_by` now derives from `Skill.StanceToUse` via the Skills data module.
-  Item tooltip spell details must join the Spells module instead of denormalizing
-  spell fields into item data.
+  Item tooltip spell details join the Spells module instead of denormalizing spell
+  fields into item data.
 - **8f — Faithfulness verification (audit triage).** The original audit
   over-reported without knowing maintainer intent; several flagged "issues" are
   correct or intentional (cooldown unit asymmetry verified against `Hotkeys.cs`,

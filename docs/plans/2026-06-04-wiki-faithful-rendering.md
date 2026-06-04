@@ -204,21 +204,21 @@ edit summaries) — reuse, do not reinvent.
   template DOM (game-correct 2-handed/DPS). `Module:Erenshor/Item/Tooltip` builds
   the HTML; `Template:ItemTooltip` is the single glue entry point and the nine
   per-type wrappers are removed.
-- [ ] **Step 3: Spell-detail join** (`Module:Erenshor/Item/Tooltip` →
+- [x] **Step 3: Spell-detail join** (`Module:Erenshor/Item/Tooltip` →
   `Module:Erenshor/Data/Spells` via `mw.loadData`) reproducing `Item/SpellDetails`
   for `weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/`wornEffect`/`aura`.
   Proc header/style, labels, and duration/cast-time formatting per the game logic
   recorded above. No 40-field spell block in item data.
-- [ ] **Step 4: Book/scroll bodies + per-class teaching levels** from Skills/Spells
+- [x] **Step 4: Book/scroll bodies + per-class teaching levels** from Skills/Spells
   data: SkillBook reads the skill's six `*RequiredLevel` (Duelist→Windblade);
   SpellScroll reads the spell `RequiredLevel` gated by `UsedBy`.
-- [ ] **Step 5: Item/Categories tracking** (weapon/armor/charm/etc. categories).
-- [ ] **Step 6: Generator migration + verify.** Emit `{{ItemTooltip|stablekey=…}}`
+- [x] **Step 5: Item/Categories tracking** (weapon/armor/charm/etc. categories).
+- [x] **Step 6: Generator migration + verify.** Emit `{{ItemTooltip|stablekey=…}}`
   from the Python item page generator; extend the `_replace_*` machinery to strip
   the old 3×table / legacy templates idempotently while preserving the infobox and
   manual content; tests for migrate-from-old and re-run-idempotent. Smoke +
-  testcases for one fixture of each item type. Delete dead `Module:Erenshor/Render`
-  once the last user is gone.
+  testcases for one fixture of each item type. Dead `Module:Erenshor/Render` is
+  deleted.
 
 **Note (mw.loadData):** item shards carry lore prose (tooltips need it); shards
 are per-type and loaded per page; revisit only if shard size hurts parser memory.
