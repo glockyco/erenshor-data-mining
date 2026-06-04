@@ -21,6 +21,7 @@ from erenshor.application.wiki_lua.characters import (
 )
 from erenshor.application.wiki_lua.items import ItemDataRepository, write_items_modules
 from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
+from erenshor.application.wiki_lua.stances import write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
 
@@ -58,6 +59,7 @@ def generate_lua_data_modules(
         write_ability_links_module(spell_repo, skill_repo, stance_repo, output_root),
         write_quests_module(quest_repo, output_root),
         write_zones_module(zone_repo, output_root),
+        write_stances_module(stance_repo, output_root),
     ]
     validation_tools: dict[Path, str] = {}
 

@@ -63,6 +63,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     ability_links_path = tmp_path / "Erenshor" / "Data" / "AbilityLinks.lua"
     quests_path = tmp_path / "Erenshor" / "Data" / "Quests.lua"
     zones_path = tmp_path / "Erenshor" / "Data" / "Zones.lua"
+    stances_path = tmp_path / "Erenshor" / "Data" / "Stances.lua"
     assert result.written_paths == [
         items_path,
         item_shard_path,
@@ -70,6 +71,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         ability_links_path,
         quests_path,
         zones_path,
+        stances_path,
     ]
     assert result.validation_tools == {
         items_path: "stylua",
@@ -78,6 +80,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         ability_links_path: "stylua",
         quests_path: "stylua",
         zones_path: "stylua",
+        stances_path: "stylua",
     }
     assert validated_paths == [
         items_path,
@@ -86,6 +89,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         ability_links_path,
         quests_path,
         zones_path,
+        stances_path,
     ]
     assert '"Weapons"' in items_path.read_text(encoding="utf-8")
     assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
@@ -93,3 +97,4 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert "return {" in ability_links_path.read_text(encoding="utf-8")
     assert "return {" in quests_path.read_text(encoding="utf-8")
     assert "return {" in zones_path.read_text(encoding="utf-8")
+    assert "return {" in stances_path.read_text(encoding="utf-8")
