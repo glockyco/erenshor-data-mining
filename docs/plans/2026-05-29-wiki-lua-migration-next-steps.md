@@ -994,7 +994,9 @@ tests/unit/cli/commands/test_wiki.py
   sentinels, and writes those decisions into the manifest for review.
 
 **Implementation status (2026-06-04):** Steps 1, 3, 4, and 6 are implemented
-and committed; Steps 2 and 5 are partially implemented; Step 7 is outstanding.
+and committed; Steps 2 and 5 are partially implemented; Step 7 is verified live
+for the deploy/rollback/refresh core, with Cargo recreation and override
+classification still outstanding.
 
 - Step 1 (manifest): done (`e333e7ae`), persisted with rollback metadata in
   `432cf8a5` and merged via the application-layer `build_deployed_manifest`
@@ -1008,19 +1010,28 @@ and committed; Steps 2 and 5 are partially implemented; Step 7 is outstanding.
   outstanding.
 - Step 3 (safe upload): done (`f9036c09` CLI, `85946533` safe create) with
   conflict/assertion/hash guards and bounded backoff on transient lag and
-  rate limiting (`b1ff8ebe`). Edit summaries do not yet embed the game build
-  because no build identifier is captured in config; that source must be added
-  first.
-- Step 4 (null edit): done (`9d2e6341`); `embeddedin`-driven with namespace
-  filters and continuation handling.
+  rate limiting (`b1ff8ebe`). Deploy is idempotent against MediaWiki's save
+  normalization (`68d5cfb0`) and no-op edits no longer crash (`f026f442`).
+  Edit summaries do not yet embed the game build because no build identifier is
+  captured in config; that source must be added first.
+- Step 4 (refresh dependents): done (`9d2e6341`, reworked in `0f4ce9fe`).
+  Renamed from null-edit to refresh: a no-op edit performs no LinksUpdate, so
+  the pass forces a synchronous link/Cargo refresh on `embeddedin` dependents
+  via `action=purge` with `forcelinkupdate`.
 - Step 5 (rollback): safe-edit rollback and CLI are done (`9455d03a`).
   Restoring prior Cargo declarations, recreating/switching Cargo tables, and
-  running the dependency-derived null-edit pass during rollback are
-  outstanding.
+  running the dependency-derived refresh pass during rollback are outstanding.
 - Step 6 (guard legacy): done (`f9036c09`); legacy article deploy now requires
   `--legacy-article-deploy`.
-- Step 7 (verify against local MediaWiki): outstanding; needs the running
-  `wiki-dev` harness and exercises Cargo recreation end to end.
+- Step 7 (verify against local MediaWiki): the deploy/rollback/refresh core is
+  verified live (`67a79cdc`) against the `wiki-dev` harness, covering create,
+  idempotent skip, safe edit, manifest-backed rollback restore, forced
+  dependency refresh, and the fail-closed paths (edit conflict, lost create
+  race, assertion failure). Live testing surfaced and fixed the safe-create
+  conflict mapping (`26466ea3`), no-op edit crash (`f026f442`), deploy
+  non-idempotency (`68d5cfb0`), and broken null-edit refresh (`0f4ce9fe`). The
+  harness now provisions a deploy bot (`a07fcea7`). Cargo table recreation and
+  override-classification verification remain.
 
 - [x] **Step 1: Add repo-owned page deploy manifest**
 
@@ -1034,13 +1045,13 @@ and committed; Steps 2 and 5 are partially implemented; Step 7 is outstanding.
 
   Upload repo-owned pages through the extended `MediaWikiClient` safe-edit path using CSRF tokens, `baserevid`, `starttimestamp`, `md5`, assertion parameters, and summaries containing variant and game build. Abort on edit conflicts, unexpected users, bad tokens after one refresh, or stale hashes.
 
-- [x] **Step 4: Add null-edit command**
+- [x] **Step 4: Add dependency refresh command**
 
-  Null-edit affected article pages after data/template/module deploys. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. Use purge only for cache refreshes where link-table/Cargo/category updates are not needed.
+  Refresh the article pages affected by a data/template/module deploy. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. The refresh forces a synchronous link/Cargo/category update via `action=purge` with `forcelinkupdate`: a no-op ("null") edit returns `nochange`, performs no save, and runs no LinksUpdate, so it does not refresh dependents. Plain purge without `forcelinkupdate` is cache-only.
 
 - [ ] **Step 5: Add rollback command**
 
-  Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived null-edit pass.
+  Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived refresh pass.
 
 - [x] **Step 6: Guard legacy commands**
 
