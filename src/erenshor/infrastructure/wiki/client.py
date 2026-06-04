@@ -549,6 +549,46 @@ class MediaWikiClient:
         logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
         return result_dict
 
+    def get_embeddedin_pages(
+        self,
+        title: str,
+        namespaces: Sequence[int] = (0,),
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> tuple[str, ...]:
+        """Return pages that transclude the given page via MediaWiki embeddedin."""
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        params = {
+            "action": "query",
+            "list": "embeddedin",
+            "eititle": title,
+            "eilimit": "max",
+        }
+        if namespaces:
+            params["einamespace"] = "|".join(str(namespace) for namespace in namespaces)
+        if assertion is not None:
+            params["assert"] = assertion
+        if assert_user is not None:
+            params["assertuser"] = assert_user
+
+        pages: list[str] = []
+        continue_params: dict[str, str] = {}
+        while True:
+            result = self._request(params | continue_params)
+            for page in result.get("query", {}).get("embeddedin", []):
+                page_title = page.get("title")
+                if isinstance(page_title, str):
+                    pages.append(page_title)
+
+            continuation = result.get("continue")
+            if not isinstance(continuation, dict):
+                break
+            continue_params = {key: str(value) for key, value in continuation.items()}
+
+        return tuple(pages)
+
     def get_page_revision_metadata(
         self,
         title: str,

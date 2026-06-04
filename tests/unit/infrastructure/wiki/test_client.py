@@ -663,6 +663,50 @@ class TestMediaWikiClientSafeEditPage:
             )
 
 
+class TestMediaWikiClientEmbeddedIn:
+    """Test reverse transclusion dependency discovery."""
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_get_embeddedin_pages_handles_continuation_and_namespace_filters(
+        self, mock_client_class: MagicMock
+    ) -> None:
+        """Test embeddedin discovery follows continuation and passes namespace filters."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        first_response = MagicMock()
+        first_response.json.return_value = {
+            "continue": {"eicontinue": "10|123", "continue": "-||"},
+            "query": {
+                "embeddedin": [
+                    {"pageid": 1, "ns": 0, "title": "Ember Longsword"},
+                    {"pageid": 2, "ns": 0, "title": "Abyssal Plate"},
+                ]
+            },
+        }
+        second_response = MagicMock()
+        second_response.json.return_value = {
+            "query": {"embeddedin": [{"pageid": 3, "ns": 10, "title": "Template:WeaponTable"}]},
+        }
+        mock_http_client.get.side_effect = [first_response, second_response]
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+
+        pages = client.get_embeddedin_pages("Template:Item", namespaces=(0, 10), assertion="bot")
+
+        assert pages == ("Ember Longsword", "Abyssal Plate", "Template:WeaponTable")
+        first_params = mock_http_client.get.call_args_list[0][1]["params"]
+        second_params = mock_http_client.get.call_args_list[1][1]["params"]
+        assert first_params["action"] == "query"
+        assert first_params["list"] == "embeddedin"
+        assert first_params["eititle"] == "Template:Item"
+        assert first_params["einamespace"] == "0|10"
+        assert first_params["eilimit"] == "max"
+        assert first_params["assert"] == "bot"
+        assert "eicontinue" not in first_params
+        assert second_params["eicontinue"] == "10|123"
+
+
 class TestMediaWikiClientPageExists:
     """Test page existence checking."""
 
