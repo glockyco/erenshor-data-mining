@@ -174,6 +174,26 @@ function p.run()
 	assertContains(spellScroll, "Mana Cost: 25", "spell scroll shows the mana cost")
 	assertContains(spellScroll, "Spell Type: Damage", "spell scroll shows the spell type")
 
+	assertContains(weaponTooltip, "[[Category:Weapons]]", "weapon emits the weapon category")
+	assertContains(weaponTooltip, "[[Category:Primary Weapons]]", "weapon emits the slot category")
+	assertContains(
+		weaponTooltip,
+		"[[Category:Proc Items]]",
+		"weapon proc emits the proc-effect category"
+	)
+	assertContains(charm, "[[Category:Charms]]", "charm emits the charm category")
+	assertContains(mold, "[[Category:Molds]]", "mold emits the mold category")
+	assertContains(
+		skillBook,
+		"[[Category:Skill Books]]",
+		"skill book emits the skill book category"
+	)
+	assertContains(
+		spellScroll,
+		"[[Category:Spell Scrolls]]",
+		"spell scroll emits the spell scroll category"
+	)
+
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
 	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")

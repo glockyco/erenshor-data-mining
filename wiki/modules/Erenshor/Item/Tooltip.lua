@@ -857,18 +857,154 @@ local function orderedStats(item)
 	return stats
 end
 
+local ITEM_TYPE_CATEGORY = {
+	Weapon = "weapon",
+	Armor = "armor",
+	Charm = "charm",
+	Consumable = "consumable",
+	General = "general",
+	Aura = "aura",
+	Mold = "mold",
+	["Skill Book"] = "skillbook",
+	["Spell Scroll"] = "spellscroll",
+}
+
+local WEAPON_TYPE_CATEGORY = {
+	["Primary - 2-Handed"] = "2-Handed Weapons",
+	["Primary"] = "Primary Weapons",
+	["Primary or Secondary"] = "Primary or Secondary Weapons",
+	["Secondary"] = "Off-Hand Equipment",
+}
+
+local ARMOR_SLOT_CATEGORY = {
+	Charm = "Charms",
+	Head = "Head Armor",
+	Neck = "Neck Items",
+	Ring = "Ring Items",
+	Hand = "Hand Armor",
+	Chest = "Chest Armor",
+	Arm = "Arm Armor",
+	Bracer = "Bracer Armor",
+	Leg = "Leg Armor",
+	Waist = "Waist Armor",
+	Foot = "Foot Armor",
+	Back = "Back Items",
+}
+
+local function category(name)
+	return "[[Category:" .. name .. "]]"
+end
+
+local function weaponTypeLabel(item)
+	local slot = slotDisplay(item)
+	if slot == nil then
+		return nil
+	end
+	if TWO_HANDED[item.weaponType] then
+		return slot .. " - 2-Handed"
+	end
+	return slot
+end
+
+-- Spell-effect buckets (subcategories of Items with Spell Effects). Consumables
+-- are intentionally excluded, matching the live template.
+local function spellEffectCategories(item)
+	local out = {}
+	local function add(name)
+		out[#out + 1] = category(name)
+	end
+	if item.type == "Weapon" or item.type == "Armor" then
+		if not isBlank(item.clickEffect) then
+			add("Activatable Items")
+			add("Items with Spell Effects")
+		elseif not isBlank(item.wornEffect) then
+			add("Worn Effect Items")
+			add("Items with Spell Effects")
+		elseif
+			not isBlank(item.weaponProc)
+			or not isBlank(item.wandEffect)
+			or not isBlank(item.bowEffect)
+		then
+			add("Proc Items")
+			add("Items with Spell Effects")
+		end
+	elseif item.type == "General" then
+		if not isBlank(item.clickEffect) then
+			add("Activatable Items")
+			add("Items with Spell Effects")
+		end
+	elseif item.type == "Aura" then
+		if not isBlank(item.aura) then
+			add("Items with Spell Effects")
+		end
+	end
+	return table.concat(out)
+end
+
+-- Tracking categories (main namespace only), reproducing Template:Item/Categories.
+local function itemCategories(item)
+	local title = mw.title.getCurrentTitle()
+	if title == nil or title.namespace ~= 0 then
+		return ""
+	end
+	local kind = ITEM_TYPE_CATEGORY[item.type]
+	if kind == nil then
+		return ""
+	end
+	local parts = {}
+	local function add(name)
+		parts[#parts + 1] = category(name)
+	end
+	if kind == "weapon" then
+		add("Weapons")
+		local range = (item.wand and item.wandRange) or (item.bow and item.bowRange) or nil
+		if range ~= nil and num(range) > 1 then
+			add("Ranged Weapons")
+		end
+		local label = weaponTypeLabel(item)
+		if label ~= nil and WEAPON_TYPE_CATEGORY[label] ~= nil then
+			add(WEAPON_TYPE_CATEGORY[label])
+		end
+	elseif kind == "armor" then
+		add("Armor")
+		if item.slot ~= nil and ARMOR_SLOT_CATEGORY[item.slot] ~= nil then
+			add(ARMOR_SLOT_CATEGORY[item.slot])
+		end
+	elseif kind == "charm" then
+		add("Charms")
+	elseif kind == "consumable" then
+		add("Consumables")
+	elseif kind == "spellscroll" then
+		add("Ability Books")
+		add("Spell Scrolls")
+	elseif kind == "skillbook" then
+		add("Ability Books")
+		add("Skill Books")
+	elseif kind == "aura" then
+		add("Auras")
+	elseif kind == "mold" then
+		add("Molds")
+	elseif kind == "general" then
+		add("Items")
+	end
+	return table.concat(parts) .. spellEffectCategories(item)
+end
+
 -- Build the full tooltip wikitext for a resolved item. Weapons and armor render
 -- one tooltip per quality (distinguished by name color); other items render one.
 function Tooltip.render(item)
 	local stats = orderedStats(item)
+	local body
 	if #stats <= 1 then
-		return renderQuality(item, stats[1] or { quality = "Normal" })
+		body = renderQuality(item, stats[1] or { quality = "Normal" })
+	else
+		local parts = {}
+		for _, row in ipairs(stats) do
+			parts[#parts + 1] = renderQuality(item, row)
+		end
+		body = table.concat(parts, "\n")
 	end
-	local parts = {}
-	for _, row in ipairs(stats) do
-		parts[#parts + 1] = renderQuality(item, row)
-	end
-	return table.concat(parts, "\n")
+	return body .. itemCategories(item)
 end
 
 return Tooltip
