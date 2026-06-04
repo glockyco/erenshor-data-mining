@@ -24,6 +24,11 @@ $wgCargoDBname = $wgDBname;
 $wgCargoDBuser = $wgDBuser;
 $wgCargoDBpassword = $wgDBpassword;
 
+# The wiki deploy pipeline runs as a bot and recreates Cargo tables when a
+# declaration changes, so the bot group needs Cargo's recreate right (default
+# sysop-only). The production deploy bot requires the same grant.
+$wgGroupPermissions['bot']['recreatecargodata'] = true;
+
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
 $wgEnableUploads = true;

@@ -369,6 +369,11 @@ def test_bootstrap_provisions_deploy_bot_in_bot_group() -> None:
     assert 'createAndPromote --bot --force "$BOT_USER" "$BOT_PASSWORD"' in bootstrap
 
 
+def test_extra_settings_grant_bot_cargo_recreate_right() -> None:
+    settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
+    assert "$wgGroupPermissions['bot']['recreatecargodata'] = true;" in settings
+
+
 def test_local_wiki_runtime_artifacts_are_ignored() -> None:
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
