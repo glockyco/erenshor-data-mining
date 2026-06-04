@@ -160,8 +160,10 @@ and links all draw from one faithful source.
 
 **Current status:** The Stance vertical slice is complete for generated data,
 `Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and local-vs-live
-PortableInfobox parity. `activated_by` is intentionally still article-override
-only in the Stance module because the relationship is not a Stance field in the
+PortableInfobox parity. `Module:Erenshor/Data/Spells` is complete with raw
+C#-faithful spell fields and class restrictions. Spell Lua rendering and Skill
+modeling remain pending. Stance `activated_by` is intentionally still
+article-override only because the relationship is not a Stance field in the
 game; it must be derived when Skills are modeled from `Skill.StanceToUse`
 (`Skill.cs`) to the target stance stable key. Do not denormalize that
 relationship into Stance data before the Skills module exists.
@@ -172,11 +174,12 @@ relationship into Stance data before the Skills module exists.
   the exact param contract before building. Record findings here.
 - [ ] **Step 2: Generated data modules.** `Module:Erenshor/Data/Stances` is
   complete, keyed by stable key with the faithful stance modifier fields from
-  `Stance.cs`. Add `Module:Erenshor/Data/Spells` and `.../Skills` keyed by
-  stable key with the full faithful field set from the C# reference above (spell
-  timing via the verified conversions; skill per-class levels and flags). Add
-  repository wiki-generation methods that select every needed column. TDD the
-  Python generators (`wiki_lua/spells.py`, `skills.py`; `stances.py` is done).
+  `Stance.cs`. `Module:Erenshor/Data/Spells` is complete, keyed by stable key
+  with raw spell timing/resource/effect/stat/CC fields plus class restrictions;
+  Lua owns display conversion for cast time, cooldown, and duration. Add
+  `Module:Erenshor/Data/Skills` keyed by stable key with the full faithful skill
+  field set from the C# reference above. TDD `wiki_lua/skills.py`; `spells.py`
+  and `stances.py` are done.
 - [ ] **Step 3: Lua modules.** `Module:Erenshor/Stance` is complete with
   `resolve` + `field`/`status` accessors. Add `Module:Erenshor/Spell` and
   `Skill` with the same accessors and an effect-summary builder used by both the

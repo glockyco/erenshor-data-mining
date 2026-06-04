@@ -66,11 +66,15 @@ class FakeSpellUsageRepository:
 
 
 class FakeSpellRepository:
-    def __init__(self, spells: list[Spell]) -> None:
+    def __init__(self, spells: list[Spell], classes: dict[str, list[str]] | None = None) -> None:
         self._spells = spells
+        self._classes = classes or {}
 
     def get_spells_for_wiki_generation(self) -> list[Spell]:
         return self._spells
+
+    def get_spell_classes(self, stable_key: str) -> list[str]:
+        return self._classes.get(stable_key, [])
 
 
 class FakeSkillRepository:
@@ -170,7 +174,7 @@ def make_character(**overrides: object) -> Character:
 
 
 def make_spell(**overrides: object) -> Spell:
-    values = {
+    values: dict[str, object] = {
         "stable_key": "spell:minor_lightning",
         "display_name": "Minor Lightning",
         "wiki_page_name": "Minor Lightning",
@@ -182,7 +186,7 @@ def make_spell(**overrides: object) -> Spell:
 
 
 def make_skill(**overrides: object) -> Skill:
-    values = {
+    values: dict[str, object] = {
         "stable_key": "skill:double_attack",
         "display_name": "Double Attack",
         "wiki_page_name": "Double Attack",
@@ -194,7 +198,7 @@ def make_skill(**overrides: object) -> Skill:
 
 
 def make_stance(**overrides: object) -> Stance:
-    values = {
+    values: dict[str, object] = {
         "stable_key": "stance:aggressive",
         "display_name": "Aggressive",
         "wiki_page_name": "Aggressive Stance",
