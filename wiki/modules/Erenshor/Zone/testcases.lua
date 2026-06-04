@@ -33,20 +33,35 @@ function p.run()
 	assertEqual(override.name, "Manual Zone", "article title override wins")
 	assertEqual(override.connects, nil, "dash sentinel blanks supported fields")
 
-	local infobox = Zone.renderInfobox({ stablekey = "zone:PortAzure" }, "Port Azure")
-	assertContains(infobox, "Port Azure", "infobox contains name")
-	assertContains(
-		infobox,
+	local zoneKey = { stablekey = "zone:PortAzure" }
+	assertEqual(Zone.fieldValue(zoneKey, "Port Azure", "name"), "Port Azure", "field name resolves")
+	assertEqual(
+		Zone.fieldValue(zoneKey, "Port Azure", "maplink"),
 		"[https://erenshor-maps.wowmuch1.workers.dev/map?sel=zone%3APortAzure Map]",
-		"infobox contains map link"
+		"field map link resolves"
 	)
-	assertContains(infobox, "[[Fernalla's Revival Plains]]", "infobox contains connections")
-	assertContains(infobox, "[[Category:Zones]]", "zone category emits")
+	assertContains(
+		Zone.fieldValue(zoneKey, "Port Azure", "connects"),
+		"[[Fernalla's Revival Plains]]",
+		"field connections resolve"
+	)
+	assertContains(
+		Zone.statusText(zoneKey, "Port Azure"),
+		"[[Category:Zones]]",
+		"zone category emits"
+	)
 
-	local dungeon =
-		Zone.renderInfobox({ stablekey = "zone:ElderstoneMines" }, "The Elderstone Mines")
-	assertContains(dungeon, "Dungeon", "dungeon type emits")
-	assertContains(dungeon, "[[Category:Dungeons]]", "dungeon category emits")
+	local dungeonKey = { stablekey = "zone:ElderstoneMines" }
+	assertEqual(
+		Zone.fieldValue(dungeonKey, "The Elderstone Mines", "type"),
+		"Dungeon",
+		"dungeon type emits"
+	)
+	assertContains(
+		Zone.statusText(dungeonKey, "The Elderstone Mines"),
+		"[[Category:Dungeons]]",
+		"dungeon category emits"
+	)
 
 	local directMap = Zone.renderMapLink({ zone = "PortAzure" }, "Anything")
 	assertEqual(
@@ -55,7 +70,12 @@ function p.run()
 		"MapLink zone parameter renders"
 	)
 
-	local missing = Zone.renderInfobox({}, "Unknown Prototype")
+	assertEqual(
+		Zone.fieldValue({}, "Unknown Prototype", "name"),
+		"",
+		"missing zone fields are blank"
+	)
+	local missing = Zone.statusText({}, "Unknown Prototype")
 	assertContains(missing, "Missing zone data: Unknown Prototype", "missing zone is visible")
 	assertContains(
 		missing,

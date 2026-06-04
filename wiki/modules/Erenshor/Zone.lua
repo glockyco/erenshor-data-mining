@@ -1,6 +1,5 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
-local Render = require("Module:Erenshor/Render")
 
 local Data = mw.loadData("Module:Erenshor/Data/Zones")
 
@@ -181,33 +180,52 @@ local function zoneCategories(zoneType)
 	return "[[Category:Zones]]"
 end
 
-function p.renderInfobox(args, pageTitle)
+local FIELD_ACCESSORS = {
+	name = function(z)
+		return z.name
+	end,
+	image = function(z)
+		return ensureImageFile(z.image, z.name)
+	end,
+	imagecaption = function(z)
+		return z.imageCaption
+	end,
+	type = function(z)
+		return z.type
+	end,
+	level = function(z)
+		return z.level
+	end,
+	maplink = function(z)
+		return z.mapLink or mapLinkForSelector(z.map)
+	end,
+	connects = function(z)
+		return connectLinks(z.connects)
+	end,
+}
+
+function p.fieldValue(args, pageTitle, key)
+	local zone = p.resolve(args, pageTitle)
+	if zone.missing then
+		return ""
+	end
+	local accessor = FIELD_ACCESSORS[key]
+	if accessor == nil then
+		error("Unknown Zone infobox field: " .. tostring(key))
+	end
+	local value = accessor(zone)
+	if value == nil then
+		return ""
+	end
+	return tostring(value)
+end
+
+function p.statusText(args, pageTitle)
 	local zone = p.resolve(args, pageTitle)
 	if zone.missing then
 		return missingOutput(zone)
 	end
-
-	local rows = {
-		{
-			label = "Image",
-			value = Format.fileLink(
-				ensureImageFile(zone.image, zone.name),
-				{ alt = zone.name, size = "64x64px" }
-			),
-		},
-		{ label = "Caption", value = zone.imageCaption },
-		{ label = "Type", value = zone.type },
-		{ label = "Level", value = zone.level },
-		{ label = "Map", value = zone.mapLink or mapLinkForSelector(zone.map) },
-		{ label = "Connects to", value = connectLinks(zone.connects) },
-	}
-
-	return Render.infobox({
-		title = zone.name,
-		type = "Zone",
-		classes = { "erenshor-zone-infobox" },
-		rows = rows,
-	}) .. zoneCategories(zone.type)
+	return zoneCategories(zone.type)
 end
 
 function p.renderMapLink(args, pageTitle)
@@ -227,8 +245,12 @@ function p.renderMapLink(args, pageTitle)
 	return mapLinkForSelector(zone.map)
 end
 
-function p.infobox(frame)
-	return p.renderInfobox(templateArgs(frame), currentTitleText())
+function p.field(frame)
+	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
+end
+
+function p.status(frame)
+	return p.statusText(templateArgs(frame), currentTitleText())
 end
 
 function p.mapLink(frame)
