@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Next: Milestone 10 deploy/rollback pipeline, then full local verification, TemplateSandbox, production cutover, and legacy deletion.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Milestone 9b now tracks the remaining generated table surfaces: Weapons, Charms, Auras, Crafting smithing recipes, Ability Books, and class ability tables. Next: implement Milestone 9b in ordered table-surface commits before Milestone 10 deploy/rollback pipeline.
 
 ---
 
@@ -812,6 +812,88 @@ tests/unit/test_wiki_dev_harness.py
   Recreated/imported local Cargo state, parsed a fixture page that calls
   `{{ArmorTable}}`, and asserted expected item links, stat values, class links,
   and generated ability notes appear without parser errors.
+
+### Milestone 9b: Generate remaining table surfaces from Cargo/Lua
+
+**Planned commits:**
+
+1. `feat(wiki): generate weapon overview from Cargo`
+2. `feat(wiki): generate charm overview from Cargo`
+3. `feat(wiki): generate aura overview from Lua data`
+4. `feat(wiki): generate crafting recipe overview`
+5. `feat(wiki): generate class ability book tables`
+
+**Files:**
+
+```text
+wiki/templates/WeaponTable.wiki
+wiki/templates/WeaponTable/Row.wiki
+wiki/templates/CharmTable.wiki
+wiki/templates/CharmTable/Row.wiki
+wiki/templates/AuraTable.wiki
+wiki/templates/AuraTable/Row.wiki
+wiki/templates/CraftingRecipes.wiki
+wiki/templates/CraftingRecipes/Row.wiki
+wiki/templates/ClassAbilities.wiki
+wiki/templates/ClassAbilities/Row.wiki
+wiki/templates/AbilityBooks.wiki
+wiki-dev/fixtures/pages/Cargo_WeaponTable_Smoke.wiki
+wiki-dev/fixtures/pages/Cargo_CharmTable_Smoke.wiki
+wiki-dev/fixtures/pages/Lua_AuraTable_Smoke.wiki
+wiki-dev/fixtures/pages/Lua_CraftingRecipes_Smoke.wiki
+wiki-dev/fixtures/pages/Lua_ClassAbilities_Smoke.wiki
+wiki-dev/fixtures/smoke.tsv
+wiki-dev/fixtures/cargo_items.tsv
+wiki/modules/Erenshor/Item.lua
+wiki/modules/Erenshor/Item/testcases.lua
+wiki/modules/Erenshor/Spell.lua
+wiki/modules/Erenshor/Skill.lua
+tests/unit/test_wiki_dev_harness.py
+```
+
+- [ ] **Step 1: Weapon overview (`Weapons`)**
+
+  Build `{{WeaponTable}}` from the existing `Items` Cargo table, matching the
+  live `Weapons` page structure: item, slot, weapon type, item level, normal
+  quality damage/delay and stat/resist columns, generated notes, and class
+  links. Reuse the same Cargo overview fields added for `ArmorTable`; extend
+  only where weapon-specific fields are missing. Verify with real local Cargo
+  using a fixture that exercises proc notes, worn/click notes, class links, and
+  weapon slot/type ordering.
+
+- [ ] **Step 2: Charm overview (`Charms`)**
+
+  Build `{{CharmTable}}` from item Lua/Cargo data with the live page columns:
+  item, proficiencies, and source. Preserve the live grouping semantics
+  (`Crafted`, `Fossils`, `Other Sources`) with explicit classification rules
+  grounded in recipe/source data. Do not infer source text from tooltip prose if
+  the clean DB exposes a structured source; if not, record the curated rule in
+  the template/module tests.
+
+- [ ] **Step 3: Aura overview (`Auras`)**
+
+  Build `{{AuraTable}}` from item aura links joined to `Module:Erenshor/Data/Spells`.
+  Match the live split between class auras and other auras. The row renderer
+  should show item link, aura ability link, aura stat summary, and class/classes.
+  Reuse spell data for ability name/page/image and effect text; avoid duplicating
+  aura effect fields in item Cargo rows unless Cargo querying needs them.
+
+- [ ] **Step 4: Crafting smithing recipes (`Crafting`)**
+
+  Build a `{{CraftingRecipes}}` surface for the Smithing recipe table from the
+  generated item recipe data (`ingredients`/`rewards`). Keep the surrounding
+  human-authored crafting explanation, warnings, mining section, pickaxes, and
+  ore-node tables manual until their data sources are modeled. The first pass
+  replaces only the Smithing Recipes table.
+
+- [ ] **Step 5: Ability book/class ability tables (`Ability_Books`, class pages)**
+
+  Build `{{ClassAbilities|class=...}}` from Spell/Skill Lua data plus item book
+  records, producing the level → spell scrolls / skill books table currently
+  duplicated on `Ability_Books` and class pages such as `Arcanist`. Then build
+  `{{AbilityBooks}}` as a thin all-class wrapper that renders each class section
+  and reuses `{{ClassAbilities}}`. Preserve class-page prose, starting gear,
+  vendors, and ascension sections as human-authored content.
 
 ### Milestone 10: Build clean-cut deployment and rollback pipeline
 
