@@ -114,6 +114,27 @@ function p.run()
 	assertContains(weaponTooltip, "Resists", "weapon tooltip shows the Resists section")
 	assertContains(weaponTooltip, "+0%", "weapon tooltip shows resists in +N% form")
 
+	local charm = Item.renderTooltip({ stablekey = "item:lucky_charm" }, "Lucky Charm")
+	assertContains(charm, "item-tooltip-charm", "charm tooltip carries the charm CSS class")
+	assertContains(charm, "Charm Item", "charm tooltip shows the charm label")
+	assertContains(charm, "Arcanism: +10 / 40", "charm scaling uses the game attribute names")
+
+	local consumable = Item.renderTooltip({ stablekey = "item:healing_draught" }, "Healing Draught")
+	assertContains(consumable, "item-tooltip-consumable", "consumable tooltip CSS class")
+	assertContains(
+		consumable,
+		"Item Consumed Upon Use.",
+		"disposable consumable shows the consumed notice"
+	)
+
+	local mold = Item.renderTooltip({ stablekey = "item:copper_armor_mold" }, "Copper Armor Mold")
+	assertContains(mold, "Ingredients:", "mold tooltip shows ingredients")
+	assertContains(mold, "Creates:", "mold tooltip shows created items")
+
+	local aura = Item.renderTooltip({ stablekey = "item:ember_aura" }, "Ember Aura")
+	assertContains(aura, "Aura Item", "aura tooltip shows the aura label")
+	assertContains(aura, "Auras effect entire party", "aura tooltip shows the party note")
+
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
 	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")

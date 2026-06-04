@@ -15,14 +15,24 @@ Abyssal Plate	Armor
 Abyssal Plate	item-tooltip-armor
 Lucky Charm	Charm
 Lucky Charm	item-tooltip-charm
+Lucky Charm	Charm Item
+Lucky Charm	Class modifiers
+Lucky Charm	Arcanism
 Healing Draught	Consumable
 Healing Draught	item-tooltip-consumable
+Healing Draught	Item Consumed Upon Use.
+Healing Draught	potent elixir
 Magical Bag	General
 Magical Bag	item-tooltip-general
+Magical Bag	surprisingly roomy
 Copper Armor Mold	Mold
 Copper Armor Mold	item-tooltip-crafting
+Copper Armor Mold	Ingredients:
+Copper Armor Mold	Creates:
 Ember Aura	Aura
 Ember Aura	item-tooltip-aura
+Ember Aura	Aura Item
+Ember Aura	Auras effect entire party
 Sword Mastery Manual	Skill Book
 Sword Mastery Manual	item-tooltip-book
 Scroll of Ember	Spell Scroll

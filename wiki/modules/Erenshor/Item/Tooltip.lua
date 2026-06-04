@@ -331,12 +331,129 @@ local function simpleTooltip(item, stats)
 	return tostring(root)
 end
 
-local function renderQuality(item, stats)
-	if item.type == "Weapon" then
-		return gearTooltip(item, stats, true, weaponTypeLine(item))
+-- Charm scaling labels (live Item/CharmScaling, matching ItemInfoWindow.cs):
+-- the renamed attributes, "/ 40" scale, mitigation as a percentage.
+local CHARM_SCALING = {
+	{ label = "Physicality", key = "strScaling", sign = "+", suffix = " / 40" },
+	{ label = "Hardiness", key = "endScaling", sign = "+", suffix = " / 40" },
+	{ label = "Finesse", key = "dexScaling", sign = "+", suffix = " / 40" },
+	{ label = "Defense", key = "agiScaling", sign = "+", suffix = " / 40" },
+	{ label = "Arcanism", key = "intScaling", sign = "+", suffix = " / 40" },
+	{ label = "Restoration", key = "wisScaling", sign = "+", suffix = " / 40" },
+	{ label = "Mind", key = "chaScaling", sign = "+", suffix = " / 40" },
+	{ label = "Resist Scaling", key = "resistScaling", sign = "", suffix = " / 40" },
+	{ label = "Mitigation Scaling", key = "mitigationScaling", sign = "+", suffix = "%" },
+}
+
+local function charmModifiers(stats)
+	local parts = { "Class modifiers:" }
+	for _, scaling in ipairs(CHARM_SCALING) do
+		local value = stats[scaling.key]
+		if num(value) ~= 0 then
+			parts[#parts + 1] = "<br/>"
+				.. scaling.label
+				.. ": "
+				.. scaling.sign
+				.. tostring(value)
+				.. scaling.suffix
+		end
 	end
-	if item.type == "Armor" then
+	return table.concat(parts)
+end
+
+local function charmTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local container = body:tag("div"):addClass("item-tooltip-charm-container")
+	container:tag("div"):addClass("item-tooltip-charm-label"):wikitext("Charm Item")
+	container:tag("div"):addClass("item-tooltip-charm-modifiers"):wikitext(charmModifiers(stats))
+	container:tag("div"):addClass("item-tooltip-charm-explanation"):wikitext(
+		"Charms do not increase stats, they modify how effectively your character utilizes stats."
+	)
+	local classes = classRestrictions(item)
+	if classes ~= nil then
+		body:node(classes)
+	end
+	return tostring(root)
+end
+
+local function consumableTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local container = body:tag("div"):addClass("item-tooltip-consumable-container")
+	local desc = description(item)
+	if desc ~= nil then
+		container:node(desc)
+	end
+	if item.disposable then
+		container
+			:tag("div")
+			:addClass("item-tooltip-consumable-usage")
+			:wikitext("Item Consumed Upon Use.")
+	end
+	container
+		:tag("div")
+		:addClass("item-tooltip-consumable-usage")
+		:wikitext("Right click or assign to hotkey to use.")
+	return tostring(root)
+end
+
+local function generalTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local desc = description(item)
+	if desc ~= nil then
+		body:node(desc)
+	end
+	return tostring(root)
+end
+
+local function auraTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local container = body:tag("div"):addClass("item-tooltip-aura-container")
+	container:tag("div"):addClass("item-tooltip-aura-type"):wikitext("Aura Item")
+	local notes = container:tag("div"):addClass("item-tooltip-aura-notes")
+	notes:tag("div"):wikitext("Auras effect entire party")
+	notes:tag("div"):wikitext("Auras of same type do not stack")
+	return tostring(root)
+end
+
+local function craftingList(entries)
+	return table.concat(entries, "<br/>")
+end
+
+local function moldTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local container = body:tag("div"):addClass("item-tooltip-crafting-container")
+	if item.ingredients ~= nil and #item.ingredients > 0 then
+		local ingredients = container:tag("div"):addClass("item-tooltip-crafting-ingredients")
+		ingredients:tag("div"):addClass("item-tooltip-crafting-header"):wikitext("Ingredients:")
+		ingredients:wikitext(craftingList(item.ingredients))
+	end
+	if item.rewards ~= nil and #item.rewards > 0 then
+		local rewards = container:tag("div"):addClass("item-tooltip-crafting-rewards")
+		rewards:tag("div"):addClass("item-tooltip-crafting-header"):wikitext("Creates:")
+		rewards:wikitext(craftingList(item.rewards))
+	end
+	local notes = container:tag("div"):addClass("item-tooltip-crafting-notes")
+	notes:tag("div"):wikitext("Note: Ingredients MUST be exact quantities")
+	notes:tag("div"):wikitext("Use CTRL + CLICK to separate stacks.")
+	return tostring(root)
+end
+
+local function renderQuality(item, stats)
+	local kind = item.type
+	if kind == "Weapon" then
+		return gearTooltip(item, stats, true, weaponTypeLine(item))
+	elseif kind == "Armor" then
 		return gearTooltip(item, stats, false, armorTypeLine(item))
+	elseif kind == "Charm" then
+		return charmTooltip(item, stats)
+	elseif kind == "Consumable" then
+		return consumableTooltip(item, stats)
+	elseif kind == "General" then
+		return generalTooltip(item, stats)
+	elseif kind == "Aura" then
+		return auraTooltip(item, stats)
+	elseif kind == "Mold" then
+		return moldTooltip(item, stats)
 	end
 	return simpleTooltip(item, stats)
 end

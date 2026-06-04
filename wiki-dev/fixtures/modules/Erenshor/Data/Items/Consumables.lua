@@ -5,6 +5,7 @@ return {
 		image = "Healing Draught.png",
 		type = "Consumable",
 		slot = "General",
+		description = "A potent elixir that knits wounds closed.",
 		buyValue = 75,
 		sellValue = 18,
 		disposable = true,
