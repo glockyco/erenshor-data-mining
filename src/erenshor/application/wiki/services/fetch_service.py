@@ -16,12 +16,31 @@ from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.registry import get_generators_by_name
 from erenshor.application.wiki.services.helpers import display_operation_summary
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki_deploy.article_identity import WikiPageEntity, build_article_identity_map
 from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
+
+
+def build_fetch_page_index(context: GeneratorContext) -> dict[str, list[str]]:
+    """Map each wiki page title to the stable keys of the entities it represents.
+
+    Mirrors the entity page generator's grouping (every wiki-generated entity kind,
+    including zones) so fetched-page metadata records the stable keys that actually
+    contribute to each page.
+    """
+    entities: list[WikiPageEntity] = [
+        *context.item_repo.get_items_for_wiki_generation(),
+        *context.character_repo.get_characters_for_wiki_generation(),
+        *context.spell_repo.get_spells_for_wiki_generation(),
+        *context.skill_repo.get_skills_for_wiki_generation(),
+        *context.stance_repo.get_all(),
+        *context.zone_repo.get_all_zones(),
+    ]
+    return {title: list(stable_keys) for title, stable_keys in build_article_identity_map(entities).items()}
+
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.application.wiki.services.storage import WikiStorage
-    from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
     from erenshor.infrastructure.database.repositories.factions import FactionRepository
     from erenshor.infrastructure.database.repositories.items import ItemRepository
@@ -96,30 +115,8 @@ class WikiFetchService:
         logger.debug("WikiFetchService initialized")
 
     def _build_page_title_index(self) -> dict[str, list[str]]:
-        """Build a mapping of wiki_page_name → [stable_keys] from all entities.
-
-        Loads all entities from repositories and groups their stable_keys by
-        wiki_page_name, mirroring what EntityPageGenerator does for generation.
-        """
-
-        index: dict[str, list[str]] = {}
-
-        all_entities: list[Character | Item | Spell | Skill | Stance] = []
-        all_entities.extend(self._context.item_repo.get_items_for_wiki_generation())
-        all_entities.extend(self._context.character_repo.get_characters_for_wiki_generation())
-        all_entities.extend(self._context.spell_repo.get_spells_for_wiki_generation())
-        all_entities.extend(self._context.skill_repo.get_skills_for_wiki_generation())
-        all_entities.extend(self._context.stance_repo.get_all())
-
-        for entity in all_entities:
-            page_title = entity.wiki_page_name
-            if page_title is None:
-                continue
-            if page_title not in index:
-                index[page_title] = []
-            index[page_title].append(entity.stable_key)
-
-        return index
+        """Build a mapping of wiki_page_name → [stable_keys] from all entities."""
+        return build_fetch_page_index(self._context)
 
     def fetch_all(
         self,
