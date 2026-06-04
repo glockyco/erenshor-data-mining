@@ -369,9 +369,11 @@ def test_bootstrap_provisions_deploy_bot_in_bot_group() -> None:
     assert 'createAndPromote --bot --force "$BOT_USER" "$BOT_PASSWORD"' in bootstrap
 
 
-def test_extra_settings_grant_bot_cargo_recreate_right() -> None:
+def test_extra_settings_do_not_grant_bot_cargo_recreate_right() -> None:
+    # Cargo recreation runs as the cargo-admin (sysop) account, not the bot,
+    # mirroring production where the deploy bot cannot hold this right.
     settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
-    assert "$wgGroupPermissions['bot']['recreatecargodata'] = true;" in settings
+    assert "$wgGroupPermissions['bot']['recreatecargodata']" not in settings
 
 
 def test_local_wiki_runtime_artifacts_are_ignored() -> None:

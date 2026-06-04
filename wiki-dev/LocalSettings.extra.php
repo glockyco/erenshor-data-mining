@@ -24,10 +24,11 @@ $wgCargoDBname = $wgDBname;
 $wgCargoDBuser = $wgDBuser;
 $wgCargoDBpassword = $wgDBpassword;
 
-# The wiki deploy pipeline runs as a bot and recreates Cargo tables when a
-# declaration changes, so the bot group needs Cargo's recreate right (default
-# sysop-only). The production deploy bot requires the same grant.
-$wgGroupPermissions['bot']['recreatecargodata'] = true;
+# Cargo's recreate right (recreatecargodata) stays sysop-only, matching
+# production wiki.gg/LIBRARIAN where the deploy bot cannot hold it and a
+# cargo-admin account performs recreation. The deploy bot is deliberately not
+# granted it, so local recreation runs as the admin account (WikiSysop) and
+# faithfully mirrors the production identity split.
 
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
