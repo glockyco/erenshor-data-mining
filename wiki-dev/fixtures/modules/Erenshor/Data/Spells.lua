@@ -1,5 +1,28 @@
 return {
 	["spells"] = {
+		["spell:ember_proc"] = {
+			["name"] = "Ember Burst",
+			["page"] = "Ember Burst",
+			["image"] = "Ember Burst",
+			["requiredLevel"] = 12,
+			["durationTicks"] = 0,
+			["type"] = "Damage",
+			["line"] = "Direct_Damage",
+			["targetDamage"] = 120,
+			["damageType"] = "Elemental",
+			["castTimeTicks"] = 0.0,
+		},
+		["spell:minor_heal"] = {
+			["name"] = "Minor Heal",
+			["page"] = "Minor Heal",
+			["image"] = "Minor Heal",
+			["requiredLevel"] = 1,
+			["durationTicks"] = 0,
+			["type"] = "Beneficial",
+			["line"] = "Generic",
+			["targetHealing"] = 150,
+			["castTimeTicks"] = 90.0,
+		},
 		["spell:ancient_presence"] = {
 			["ac"] = 0,
 			["addProcChance"] = 0,

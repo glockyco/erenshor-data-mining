@@ -9,6 +9,9 @@ Ember Longsword	item-tooltip-tier-2
 Ember Longsword	item-tooltip-weapon
 Ember Longsword	Item Stats
 Ember Longsword	Base DPS
+Ember Longsword	item-spell-details
+Ember Longsword	20% chance on ATTACK:
+Ember Longsword	Ember Burst
 Ember Longsword	portable-infobox
 Ember Longsword	pi-type-Item
 Abyssal Plate	Armor
@@ -22,6 +25,9 @@ Healing Draught	Consumable
 Healing Draught	item-tooltip-consumable
 Healing Draught	Item Consumed Upon Use.
 Healing Draught	potent elixir
+Healing Draught	Activatable: Minor Heal
+Healing Draught	item-spell-details
+Healing Draught	Healing: 150
 Magical Bag	General
 Magical Bag	item-tooltip-general
 Magical Bag	surprisingly roomy
@@ -33,6 +39,8 @@ Ember Aura	Aura
 Ember Aura	item-tooltip-aura
 Ember Aura	Aura Item
 Ember Aura	Auras effect entire party
+Ember Aura	Ancient Presence
+Ember Aura	Group Effect
 Sword Mastery Manual	Skill Book
 Sword Mastery Manual	item-tooltip-book
 Scroll of Ember	Spell Scroll

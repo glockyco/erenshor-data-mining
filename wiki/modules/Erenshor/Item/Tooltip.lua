@@ -18,6 +18,10 @@
 
 local Format = require("Module:Erenshor/Format")
 
+-- Effect spells are joined by stable key (best-practice mw.loadData: parsed once
+-- per page, cached, read-only static data).
+local SpellData = mw.loadData("Module:Erenshor/Data/Spells")
+
 local Tooltip = {}
 
 local QUALITY_RANK = { ["0"] = 0, Normal = 0, Blessed = 1, Godly = 2 }
@@ -128,6 +132,254 @@ local function relicSuffix(item)
 		return " - Relic Item"
 	end
 	return ""
+end
+
+-- Item/SpellDetails reproduction --------------------------------------------
+
+local function imageFile(name)
+	if isBlank(name) then
+		return nil
+	end
+	local file = tostring(name)
+	if not file:match("%.%a+$") then
+		file = file .. ".png"
+	end
+	return file
+end
+
+-- Stat modifier rows, in the live Item/SpellDetails order. Rendered "Label +N"
+-- (green) / "-N" (red); resists/haste/lifesteal carry a suffix.
+local SPELL_MODS = {
+	{ label = "Hitpoints", key = "hp" },
+	{ label = "Armor Class", key = "ac" },
+	{ label = "Mana", key = "mana" },
+	{ label = "Strength", key = "str" },
+	{ label = "Dexterity", key = "dex" },
+	{ label = "Endurance", key = "end" },
+	{ label = "Agility", key = "agi" },
+	{ label = "Wisdom", key = "wis" },
+	{ label = "Intelligence", key = "int" },
+	{ label = "Charisma", key = "cha" },
+	{ label = "Magic Resist", key = "mr" },
+	{ label = "Elemental Resist", key = "er" },
+	{ label = "Poison Resist", key = "pr" },
+	{ label = "Void Resist", key = "vr" },
+	{ label = "Movement Speed", key = "movementSpeed" },
+	{ label = "Damage Shield", key = "damageShield" },
+	{ label = "Haste", key = "haste", suffix = "%" },
+	{ label = "Lifesteal", key = "lifesteal", suffix = "%" },
+	{ label = "Attack Roll Modifier", key = "atkRollModifier" },
+	{ label = "Resonance", key = "resonance" },
+}
+
+local SPELL_FLAGS = {
+	{ key = "lifetap", label = "Lifetap" },
+	{ key = "groupEffect", label = "Group Effect" },
+	{ key = "stun", label = "Stuns Target" },
+	{ key = "charm", label = "Charms Target" },
+	{ key = "root", label = "Roots Target" },
+}
+
+local function truthy(value)
+	return value ~= nil and value ~= false and value ~= 0 and value ~= "0" and value ~= ""
+end
+
+local function signedMod(value, suffix)
+	local n = num(value)
+	suffix = suffix or ""
+	if n > 0 then
+		return '<span class="item-spell-positive">+' .. n .. suffix .. "</span>"
+	end
+	return '<span class="item-spell-negative">' .. n .. suffix .. "</span>"
+end
+
+-- Game-authoritative: durationTicks <= 0 is instant, else seconds = ticks * 3,
+-- labelled "Damage over time:" when the spell deals damage.
+local function spellDuration(spell)
+	local ticks = tonumber(spell.durationTicks)
+	if ticks == nil or ticks <= 0 then
+		return "Instant Effect"
+	end
+	local label = truthy(spell.targetDamage) and "Damage over time:" or "Effect Duration:"
+	return label .. " " .. (ticks * 3) .. " sec"
+end
+
+local function spellName(stableKey)
+	local spell = SpellData.spells[stableKey]
+	if spell == nil then
+		return nil
+	end
+	return spell.name
+end
+
+-- Reproduce Template:Item/SpellDetails for the spell at `stableKey`.
+-- opts = { worn = bool, procHeader = string }.
+local function spellDetails(stableKey, opts)
+	if isBlank(stableKey) then
+		return nil
+	end
+	local spell = SpellData.spells[stableKey]
+	if spell == nil then
+		return nil
+	end
+	opts = opts or {}
+	local root = mw.html.create("div"):addClass("item-spell-details")
+
+	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
+	local icon = imageFile(spell.image)
+	if icon ~= nil then
+		headerRow
+			:tag("div")
+			:addClass("item-spell-details-icon")
+			:wikitext("[[File:" .. icon .. "|48px]]")
+	end
+	local nameCell = headerRow:tag("div"):addClass("item-spell-details-name-cell")
+	if not isBlank(opts.procHeader) then
+		nameCell:tag("div"):addClass("item-spell-details-proc-header"):wikitext(opts.procHeader)
+	end
+	nameCell
+		:tag("div")
+		:addClass("item-spell-details-header")
+		:wikitext(Format.escape(spell.name or "Spell Effect"))
+	if icon ~= nil then
+		headerRow:tag("div"):addClass("item-spell-details-spacer")
+	end
+
+	local content = root:tag("div"):addClass("item-spell-details-content")
+	content
+		:tag("div")
+		:addClass("item-spell-detail-row")
+		:addClass("item-spell-level")
+		:wikitext("Spell Level: " .. num(spell.requiredLevel))
+	content
+		:tag("div")
+		:addClass("item-spell-detail-row")
+		:addClass("item-spell-duration")
+		:wikitext(spellDuration(spell))
+	content
+		:tag("div")
+		:addClass("item-spell-detail-row")
+		:wikitext("Spell Type: " .. (spell.type or ""))
+	content
+		:tag("div")
+		:addClass("item-spell-detail-row")
+		:wikitext("Spell Line: " .. (spell.line or ""))
+
+	local perTick = (tonumber(spell.durationTicks) or 0) > 0 and " / tick" or ""
+	if truthy(spell.targetDamage) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-damage")
+			:wikitext("Damage: " .. spell.targetDamage .. perTick)
+	end
+	if truthy(spell.targetHealing) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-healing")
+			:wikitext("Healing: " .. spell.targetHealing .. perTick)
+	end
+	if truthy(spell.shieldAmount) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-positive")
+			:wikitext("Shield Amount: " .. spell.shieldAmount)
+	end
+	if opts.worn ~= true then
+		local castTicks = tonumber(spell.castTimeTicks)
+		if castTicks ~= nil and castTicks > 0 then
+			content
+				:tag("div")
+				:addClass("item-spell-detail-row")
+				:wikitext(string.format("Cast Time: %.1f sec", castTicks / 60))
+		end
+	end
+	if
+		not isBlank(spell.damageType)
+		and (truthy(spell.targetDamage) or spell.type == "StatusEffect" or truthy(spell.taunt))
+	then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:wikitext("Resist Type: " .. spell.damageType)
+	end
+	for _, flag in ipairs(SPELL_FLAGS) do
+		if truthy(spell[flag.key]) then
+			content
+				:tag("div")
+				:addClass("item-spell-detail-row")
+				:addClass("item-spell-flag")
+				:wikitext(flag.label)
+		end
+	end
+	if truthy(spell.taunt) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-flag")
+			:wikitext("Taunt: " .. num(spell.aggro) .. " aggro")
+	end
+	local statusName = spellName(spell.statusEffectStableKey)
+	if not isBlank(statusName) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-flag")
+			:wikitext("Apply Effects on Target: " .. statusName)
+	end
+	for _, mod in ipairs(SPELL_MODS) do
+		if num(spell[mod.key]) ~= 0 then
+			content
+				:tag("div")
+				:addClass("item-spell-detail-row")
+				:wikitext(mod.label .. " " .. signedMod(spell[mod.key], mod.suffix))
+		end
+	end
+	local addProcName = spellName(spell.addProcStableKey)
+	if not isBlank(addProcName) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:wikitext(num(spell.addProcChance) .. "% chance to proc " .. addProcName)
+	end
+	if not isBlank(spell.specialDescriptor) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-special")
+			:wikitext(spell.specialDescriptor)
+	end
+	if truthy(spell.xpBonus) then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:addClass("item-spell-positive")
+			:wikitext("XP Bonus: +" .. spell.xpBonus .. "%")
+	end
+	return tostring(root)
+end
+
+-- Game-authoritative weapon proc trigger (ItemInfoWindow.cs:446-460): shields
+-- bash, bracers cast, otherwise attack; wand/bow effects always attack.
+local function weaponEffect(item)
+	if not isBlank(item.weaponProc) then
+		local style = "ATTACK"
+		if item.shield then
+			style = "BASH"
+		elseif item.slot == "Bracer" then
+			style = "CAST"
+		end
+		return item.weaponProc, num(item.weaponProcChance) .. "% chance on " .. style .. ":"
+	end
+	if not isBlank(item.wandEffect) then
+		return item.wandEffect, num(item.wandProcChance) .. "% chance on ATTACK:"
+	end
+	if not isBlank(item.bowEffect) then
+		return item.bowEffect, num(item.bowProcChance) .. "% chance on ATTACK:"
+	end
+	return nil
 end
 
 -- Weapon type line: slot (+ " - 2-Handed" for true 2-handed weapons), linked to
@@ -306,7 +558,16 @@ local function gearTooltip(item, stats, weapon, typeLine)
 	if classes ~= nil then
 		body:node(classes)
 	end
-	return tostring(root)
+	local details = ""
+	if weapon then
+		local effectKey, procHeader = weaponEffect(item)
+		if effectKey ~= nil then
+			details = spellDetails(effectKey, { worn = false, procHeader = procHeader }) or ""
+		end
+	elseif not isBlank(item.wornEffect) then
+		details = spellDetails(item.wornEffect, { worn = true, procHeader = "Worn Effect:" }) or ""
+	end
+	return tostring(root) .. details
 end
 
 -- Minimal tooltip for item types whose bodies are not modelled yet (charm,
@@ -379,6 +640,13 @@ end
 local function consumableTooltip(item, stats)
 	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
 	local container = body:tag("div"):addClass("item-tooltip-consumable-container")
+	local effectName = spellName(item.clickEffect)
+	if not isBlank(effectName) then
+		container
+			:tag("div")
+			:addClass("item-tooltip-consumable-type")
+			:wikitext("Activatable: " .. effectName)
+	end
 	local desc = description(item)
 	if desc ~= nil then
 		container:node(desc)
@@ -393,7 +661,8 @@ local function consumableTooltip(item, stats)
 		:tag("div")
 		:addClass("item-tooltip-consumable-usage")
 		:wikitext("Right click or assign to hotkey to use.")
-	return tostring(root)
+	local details = spellDetails(item.clickEffect, { worn = false }) or ""
+	return tostring(root) .. details
 end
 
 local function generalTooltip(item, stats)
@@ -402,7 +671,23 @@ local function generalTooltip(item, stats)
 	if desc ~= nil then
 		body:node(desc)
 	end
-	return tostring(root)
+	local effectName = spellName(item.clickEffect)
+	if not isBlank(effectName) then
+		body:tag("div")
+			:addClass("item-tooltip-activatable-name")
+			:wikitext("Activatable: " .. effectName)
+		local usage = "Right click or assign to hotkey to use."
+		if item.disposable then
+			usage = usage .. "<br>Item Consumed Upon Use."
+		end
+		body:tag("div"):addClass("item-tooltip-proc-usage"):wikitext(usage)
+	end
+	local details = ""
+	if not isBlank(effectName) then
+		details = spellDetails(item.clickEffect, { worn = false, procHeader = "Activatable:" })
+			or ""
+	end
+	return tostring(root) .. details
 end
 
 local function auraTooltip(item, stats)
@@ -412,7 +697,19 @@ local function auraTooltip(item, stats)
 	local notes = container:tag("div"):addClass("item-tooltip-aura-notes")
 	notes:tag("div"):wikitext("Auras effect entire party")
 	notes:tag("div"):wikitext("Auras of same type do not stack")
-	return tostring(root)
+	local auraName = spellName(item.aura)
+	if not isBlank(auraName) then
+		container:tag("div"):addClass("item-tooltip-aura-spell-name"):wikitext(auraName)
+		local auraSpell = SpellData.spells[item.aura]
+		if auraSpell ~= nil and not isBlank(auraSpell.description) then
+			container
+				:tag("div")
+				:addClass("item-tooltip-aura-spell-desc")
+				:wikitext(Format.escape(auraSpell.description))
+		end
+	end
+	local details = spellDetails(item.aura, { worn = true }) or ""
+	return tostring(root) .. details
 end
 
 local function craftingList(entries)

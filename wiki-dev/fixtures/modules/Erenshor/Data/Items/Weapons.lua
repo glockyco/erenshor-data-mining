@@ -15,6 +15,7 @@ return {
 		classes = { "Paladin", "Reaver" },
 		relic = true,
 		weaponProc = "spell:ember_proc",
+		weaponProcChance = 20,
 		stats = {
 			{ quality = "Normal", weaponDamage = 18, str = 5, dex = 2, mr = 3 },
 			{ quality = "Blessed", weaponDamage = 23, str = 8, dex = 3, mr = 4 },

@@ -118,6 +118,13 @@ function p.run()
 	assertContains(charm, "item-tooltip-charm", "charm tooltip carries the charm CSS class")
 	assertContains(charm, "Charm Item", "charm tooltip shows the charm label")
 	assertContains(charm, "Arcanism: +10 / 40", "charm scaling uses the game attribute names")
+	assertContains(weaponTooltip, "item-spell-details", "weapon proc shows spell details")
+	assertContains(
+		weaponTooltip,
+		"20% chance on ATTACK:",
+		"weapon proc header uses the game trigger style"
+	)
+	assertContains(weaponTooltip, "Ember Burst", "weapon proc shows the effect spell name")
 
 	local consumable = Item.renderTooltip({ stablekey = "item:healing_draught" }, "Healing Draught")
 	assertContains(consumable, "item-tooltip-consumable", "consumable tooltip CSS class")
@@ -126,6 +133,9 @@ function p.run()
 		"Item Consumed Upon Use.",
 		"disposable consumable shows the consumed notice"
 	)
+	assertContains(consumable, "Activatable: Minor Heal", "consumable shows the activatable effect")
+	assertContains(consumable, "item-spell-details", "consumable shows spell details")
+	assertContains(consumable, "Healing: 150", "consumable spell details show healing")
 
 	local mold = Item.renderTooltip({ stablekey = "item:copper_armor_mold" }, "Copper Armor Mold")
 	assertContains(mold, "Ingredients:", "mold tooltip shows ingredients")
@@ -134,6 +144,8 @@ function p.run()
 	local aura = Item.renderTooltip({ stablekey = "item:ember_aura" }, "Ember Aura")
 	assertContains(aura, "Aura Item", "aura tooltip shows the aura label")
 	assertContains(aura, "Auras effect entire party", "aura tooltip shows the party note")
+	assertContains(aura, "item-spell-details", "aura shows spell details")
+	assertContains(aura, "Group Effect", "aura spell details show the group-effect flag")
 
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")

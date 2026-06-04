@@ -1,4 +1,4 @@
-Ember Longsword	item:ember_longsword	Ember Longsword	Weapon	Primary	12	18	2.5				5		2						3				12500	3125	Ember Longsword.png	Paladin,Reaver	[[Paladin]], [[Reaver]]		1	1	0
+Ember Longsword	item:ember_longsword	Ember Longsword	Weapon	Primary	12	18	2.5				5		2						3				12500	3125	Ember Longsword.png	Paladin,Reaver	[[Paladin]], [[Reaver]]	spell:ember_proc, 20% on attack	1	1	0
 Abyssal Plate	item:abyssal_plate	Abyssal Plate	Armor	Chest	38			40															38000	9500	Abyssal Plate.png	Paladin,Warrior	[[Paladin]], [[Warrior]]			0	0
 Lucky Charm	item:lucky_charm	Lucky Charm	Charm	Charm	8																		500	125	Lucky Charm.png	Druid,Paladin	[[Druid]], [[Paladin]]			0	0
 Healing Draught	item:healing_draught	Healing Draught	Consumable	General																			75	18	Healing Draught.png			On click: spell:minor_heal		0	0
@@ -7,4 +7,4 @@ Copper Armor Mold	item:copper_armor_mold	Copper Armor Mold	Mold																	
 Ember Aura	item:ember_aura	Ember Aura	Aura	Aura	20																		2000	500	Ember Aura.png					0	0
 Sword Mastery Manual	item:sword_mastery_manual	Sword Mastery Manual	Skill Book																				355	88	Sword Mastery Manual.png					0	0
 Scroll of Ember	item:scroll_of_ember	Scroll of Ember	Spell Scroll																				300	75	Scroll of Ember.png					0	0
-Manual Item Override	item:ember_longsword	Manual Ember Blade	Weapon	Primary	12	18	2.5				5		2						3				12500	3125	Manual Ember Blade.png	Paladin,Reaver	[[Paladin]], [[Reaver]]		1	1	0
+Manual Item Override	item:ember_longsword	Manual Ember Blade	Weapon	Primary	12	18	2.5				5		2						3				12500	3125	Manual Ember Blade.png	Paladin,Reaver	[[Paladin]], [[Reaver]]	spell:ember_proc, 20% on attack	1	1	0
