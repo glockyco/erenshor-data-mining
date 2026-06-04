@@ -326,9 +326,11 @@ Local preview rules:
   DataTables.
 - Gate local rendering parity with an automated check (`wiki-dev/parity_check.py`)
   that renders representative local pages in real Chromium and asserts computed
-  styles, DOM classes, and gadget state against a baseline captured from live.
-  The contract is committed; the live-captured baseline is gitignored. Capture
-  runs headed (Cloudflare); the routine check runs headless against local only.
+  styles and DOM classes against a baseline captured from live parser output and
+  live ResourceLoader stylesheets. The contract is committed; the live-captured
+  baseline is gitignored. Capture avoids Cloudflare-protected article routes by
+  using the MediaWiki API plus static HTML; the routine check runs against the
+  local stack only.
 
 ## Completed foundation
 
@@ -707,13 +709,13 @@ tests/unit/cli/commands/test_wiki.py
 - [x] **Step 2: Add the live-vs-local parity gate**
 
   `wiki-dev/parity_check.py` renders representative local pages in Chromium and
-  asserts computed styles, DOM class families, and ResourceLoader gadget state
-  against a baseline captured from live. The contract
+  asserts computed styles and DOM class families against a baseline captured from
+  live parser output and live ResourceLoader stylesheets. The contract
   (`wiki-dev/parity/contract.py`) is committed; the captured baseline is
-  gitignored. `--capture` runs headed to clear Cloudflare; the routine check
-  runs headless against the local stack only. Pure comparison logic is unit
-  tested; the contract covers chrome, the character infobox, and the item,
-  quest, and zone infoboxes.
+  gitignored. `--capture` avoids Cloudflare-protected article routes by using the
+  MediaWiki API plus static HTML; the routine check runs against the local stack
+  only. Pure comparison logic is unit tested; the contract covers the character
+  infobox and the item, quest, zone, stance, and spell infoboxes.
 
 ### Milestone 8c: Render entity infoboxes through real PortableInfobox
 

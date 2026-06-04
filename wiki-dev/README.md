@@ -113,11 +113,11 @@ The default `wiki-dev/fixtures/smoke.tsv` renders `Smoke Page` through `action=p
 The smoke harness proves pages parse and store Cargo rows; it does not prove
 they *render* like the live wiki. The parity gate closes that gap. It renders
 representative local pages in real Chromium (via Playwright) and asserts their
-computed styles, DOM classes, and ResourceLoader gadget state against a
-baseline captured from the live wiki.
+computed styles and DOM classes against a baseline captured from live parser
+output and live ResourceLoader stylesheets.
 
 ```bash
-# Refresh the baseline from the live wiki (occasional; opens a real browser).
+# Refresh the baseline from live MediaWiki API output and live CSS.
 uv run python wiki-dev/parity_check.py --capture
 
 # Check the local stack against that baseline (routine; headless, offline).
@@ -130,10 +130,11 @@ live in `wiki-dev/parity/baseline.json`, which is **gitignored**: it is derived
 from third-party live content and must not be committed. Run `--capture` before
 the first check, and again whenever the live wiki's styling changes.
 
-`--capture` uses a headed browser because the live wiki sits behind a
-Cloudflare challenge that a headless browser does not clear; the routine check
-only touches the local stack and runs headless. Import the local pages
-(`import_pages.py`) before checking so the rendered output is current.
+`--capture` does not navigate a browser to live wiki article routes. It fetches
+live parser HTML through the MediaWiki API, wraps it in a static Vector page with
+live ResourceLoader CSS, and extracts the target styles in Chromium. The routine
+check only touches the local stack. Import the local pages (`import_pages.py`)
+before checking so the rendered output is current.
 
 ## Full local validation sequence
 
