@@ -93,3 +93,38 @@ def test_field_without_generated_value_is_kept_as_override() -> None:
 
     assert "image=Custom.png" in result.minimized_wikitext
     assert result.removed_fields == ()
+
+
+class FakeExpansionClient:
+    def __init__(self, outputs: dict[str, str]) -> None:
+        self.outputs = outputs
+        self.calls: list[str] = []
+
+    def expand_templates(self, text: str) -> str:
+        self.calls.append(text)
+        return self.outputs.get(text, "")
+
+
+def test_live_resolver_invokes_field_accessor_with_identity_only() -> None:
+    """The resolver asks the module for each field using only the identity selectors."""
+    from erenshor.application.wiki_deploy.override_migration import LiveGeneratedValueResolver
+
+    type_text = "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=type}}"
+    desc_text = "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=description}}"
+    client = FakeExpansionClient({type_text: "Weapon", desc_text: "A blade"})
+    resolver = LiveGeneratedValueResolver(client=client, module="Erenshor/Item")
+    resolved = resolver.resolve({"stablekey": "item:ember"}, ["type", "description"])
+    assert resolved == {"type": "Weapon", "description": "A blade"}
+    assert client.calls == [type_text, desc_text]
+
+
+def test_live_resolver_omits_fields_the_module_cannot_read() -> None:
+    """A Scribunto error is not a generated value; the field is left for preservation."""
+    from erenshor.application.wiki_deploy.override_migration import LiveGeneratedValueResolver
+
+    slot_text = "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=slot}}"
+    error = '<strong class="error"><span class="scribunto-error">Lua error: Unknown field.</span></strong>'
+    client = FakeExpansionClient({slot_text: error})
+    resolver = LiveGeneratedValueResolver(client=client, module="Erenshor/Item")
+    resolved = resolver.resolve({"stablekey": "item:ember"}, ["slot"])
+    assert resolved == {}

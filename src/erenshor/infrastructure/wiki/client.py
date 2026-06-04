@@ -491,6 +491,16 @@ class MediaWikiClient:
             logger.error(f"Failed to extract content for {title}: {e}")
             return None
 
+    def expand_templates(self, text: str) -> str:
+        """Expand wikitext through the parser and return the rendered result.
+        Used to resolve what a template or module invocation produces, e.g. the
+        generated value of an infobox field with no override applied.
+        """
+        result = self._request({"action": "expandtemplates", "text": text, "prop": "wikitext"})
+        expanded = result.get("expandtemplates", {})
+        wikitext = expanded.get("wikitext", "")
+        return wikitext if isinstance(wikitext, str) else ""
+
     def get_pages(self, titles: Sequence[str]) -> dict[str, str | None]:
         """Fetch content of multiple wiki pages efficiently.
 

@@ -1190,3 +1190,18 @@ class TestMediaWikiClientRequestRetry:
             with pytest.raises(MediaWikiRateLimitError):
                 client.get_page("Item:Sword")
         assert len(api.requests) == 3
+
+
+class TestMediaWikiClientExpandTemplates:
+    """Test wikitext expansion via the expandtemplates API."""
+
+    def test_expand_templates_returns_expanded_wikitext(self) -> None:
+        """Test expansion sends the text and returns the rendered wikitext."""
+        with _mediawiki_api_server([{"expandtemplates": {"wikitext": "Weapon"}}]) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            value = client.expand_templates("{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=type}}")
+        assert value == "Weapon"
+        request = api.requests[0]
+        assert request.query["action"] == "expandtemplates"
+        assert request.query["prop"] == "wikitext"
+        assert request.query["text"] == "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=type}}"

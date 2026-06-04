@@ -14,6 +14,7 @@ presentation module (the single source of truth for what a field generates).
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Protocol
@@ -94,3 +95,37 @@ def migrate_article_overrides(
         removed_fields=removed_fields,
         preserved_fields=preserved_fields,
     )
+
+
+# A Scribunto error means the module cannot read that field; it is not a value.
+_SCRIBUNTO_ERROR = re.compile(r'scribunto-error|class="error"')
+
+
+class TemplateExpansionClient(Protocol):
+    """Minimal client surface needed to resolve generated values."""
+
+    def expand_templates(self, text: str) -> str: ...
+
+
+@dataclass(frozen=True, slots=True)
+class LiveGeneratedValueResolver:
+    """Resolves generated values through a deployed presentation module.
+    Invokes ``{{#invoke:<module>|field|<identity>|1=<field>}}`` with only the
+    identity selectors, so each result is the value the module generates with no
+    override applied. Fields the module cannot read (a Scribunto error) are
+    omitted, so the migration keeps those parameters rather than dropping them.
+    """
+
+    client: TemplateExpansionClient
+    module: str
+
+    def resolve(self, identity_args: Mapping[str, str], fields: Sequence[str]) -> dict[str, str]:
+        identity = "".join(f"|{name}={value}" for name, value in identity_args.items())
+        resolved: dict[str, str] = {}
+        for field in fields:
+            text = "{{#invoke:" + self.module + "|field" + identity + "|1=" + field + "}}"
+            value = self.client.expand_templates(text)
+            if _SCRIBUNTO_ERROR.search(value):
+                continue
+            resolved[field] = value
+        return resolved
