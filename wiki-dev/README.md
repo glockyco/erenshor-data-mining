@@ -20,15 +20,19 @@ runtime surface used by production pages:
 Cargo
 Gadgets
 ParserFunctions
+PortableInfobox
 Scribunto
 TemplateSandbox
 Vector
 ```
 
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
-TemplateSandbox, Gadgets/DataTables, and LIBRARIAN 4.21.0. Local upstream
-Cargo is close enough for parser/render/storage integration, but not a
-substitute for final live TemplateSandbox validation.
+TemplateSandbox, Gadgets/DataTables, PortableInfobox, and LIBRARIAN 4.21.0
+(wiki.gg's fork of Cargo, which registers the same `#cargo_*` parser
+functions). Local upstream Cargo is the documented compatibility layer for
+LIBRARIAN, and local PortableInfobox is the same `Universal-Omega/PortableInfobox`
+build the live wiki runs. Neither is a substitute for final live
+TemplateSandbox validation.
 
 ## Bootstrap the stack
 

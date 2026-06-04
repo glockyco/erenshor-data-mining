@@ -9,6 +9,7 @@ wfLoadExtension( 'Scribunto' );
 wfLoadExtension( 'TemplateSandbox' );
 wfLoadExtension( 'Cargo' );
 wfLoadExtension( 'Gadgets' );
+wfLoadExtension( 'PortableInfobox' );
 
 
 $wgScribuntoDefaultEngine = 'luastandalone';

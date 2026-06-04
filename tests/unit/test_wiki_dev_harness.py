@@ -392,6 +392,8 @@ def test_local_mediawiki_matches_live_skin_gadget_and_article_size_surface() -> 
     assert "$wgTemplateSandboxEditNamespaces = true;" not in settings
     assert "$wgLogos = [ '1x' => '/images/Site-logo.png' ];" in settings
     assert "$wgFavicon = '/images/Site-favicon.ico';" in settings
+    assert "/var/www/html/extensions/PortableInfobox" in dockerfile
+    assert "wfLoadExtension( 'PortableInfobox' );" in settings
 
 
 def test_local_theme_shims_define_live_platform_variables() -> None:
