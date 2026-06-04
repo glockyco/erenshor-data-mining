@@ -919,21 +919,76 @@ tests/unit/application/wiki_deploy/*.py
 tests/unit/cli/commands/test_wiki.py
 ```
 
+**Research-backed deployment rules:**
+
+- MediaWiki edits must use `action=edit` via POST with CSRF tokens. Fetch the
+  current revision metadata first and send `baserevid` plus `starttimestamp`
+  (`curtimestamp`) with every upload so edit conflicts, deletions, and stale
+  page reads fail closed instead of overwriting human edits. The edit request
+  should also send `md5` for the submitted text so transport/caller corruption
+  is caught by the server. Source: [API:Edit](https://www.mediawiki.org/wiki/API:Edit).
+- Every API request in the deploy path should include `assert=user` or
+  `assert=bot`, plus `assertuser=<configured user>` when configured, to prevent
+  accidental anonymous edits, expired sessions, or deploying under the wrong
+  account. Source: [API:Assert](https://www.mediawiki.org/wiki/API:Assert).
+- Noninteractive deploy/null-edit/purge calls should include `maxlag=5` and
+  honor `Retry-After`/lag errors with bounded waits. Do not busy-loop, and do not
+  treat cache-layer 503s like normal replication-lag retries. Source:
+  [Manual:Maxlag parameter](https://www.mediawiki.org/wiki/Manual:Maxlag_parameter).
+- Purge is not a substitute for null edits. `action=purge` refreshes render
+  caches; `forcelinkupdate` updates link tables but may not update every derived
+  system. When category membership, backlinks, template dependencies, Cargo
+  stores, or parser-derived tables must be refreshed, perform null edits on
+  affected article pages. Source: [Manual:Purge](https://www.mediawiki.org/wiki/Manual:Purge)
+  and [API:Purge](https://www.mediawiki.org/wiki/API:Purge).
+- Dependency discovery must be API-driven. Use `list=embeddedin` /
+  `generator=embeddedin` for reverse transclusion lookups of changed templates
+  and modules, with continuation handling and namespace filters. Do not derive
+  null-edit page lists from filenames or guessed page titles. Source:
+  [API:Embeddedin](https://www.mediawiki.org/wiki/API:Embeddedin).
+- Cargo declaration changes require explicit Cargo table recreation after the
+  declaring template is updated. The declaring template, not attaching/storing
+  templates, is the authoritative recreation target. For production, prefer
+  Cargo's replacement-table workflow where available, wait for the replacement
+  population job to finish, then switch it in; do not save row/render templates
+  that query new fields before the replacement is switched in. Sources:
+  [Extension:Cargo](https://www.mediawiki.org/wiki/Extension:Cargo),
+  [Cargo quick start guide](https://www.mediawiki.org/wiki/Extension:Cargo/Quick_start_guide),
+  and [Cargo recreating tables](https://community.fandom.com/wiki/Help:Cargo/recreating_tables).
+
+**Implementation implications for this repo:**
+
+- Extend `MediaWikiClient` rather than creating a parallel API wrapper. Its
+  existing `edit_page()` is not safe enough for cutover deploys because it lacks
+  `baserevid`, `starttimestamp`, `md5`, and assertion parameters.
+- Deployment must produce a manifest before uploading. Each entry records title,
+  source path, source SHA-256, old revision ID/timestamp, new revision ID after
+  upload, content model, whether the page declares a Cargo table, and rollback
+  text source.
+- Upload order matters: data modules first, Lua modules/templates next, Cargo
+  declarations before Cargo stores/query templates, then query/fixture pages.
+  If a Cargo schema changes, deploy the declaration, recreate/switch the table,
+  then deploy row/query templates that rely on new fields and null-edit storing
+  pages.
+- Rollback must use the same safe edit path and manifest data. If a Cargo schema
+  was changed, rollback must also restore the old declaration and recreate/switch
+  the Cargo table before null-editing dependent pages.
+
 - [ ] **Step 1: Add repo-owned page deploy manifest**
 
-  Manifest entries must include page title, source path, ownership class, sha256, old revision ID, new revision ID after deploy, and rollback text source.
+  Manifest entries must include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency/null-edit targets, and rollback text source.
 
 - [ ] **Step 2: Add safe upload command**
 
-  Upload repo-owned pages with edit tokens, `basetimestamp`, content hashes, and edit summaries containing variant and game build. Abort on edit conflicts.
+  Upload repo-owned pages through the extended `MediaWikiClient` safe-edit path using CSRF tokens, `baserevid`, `starttimestamp`, `md5`, assertion parameters, and summaries containing variant and game build. Abort on edit conflicts, unexpected users, bad tokens after one refresh, or stale hashes.
 
 - [ ] **Step 3: Add null-edit command**
 
-  Null-edit affected article pages after data/template/module deploys. The page list must come from transclusion/API dependency data, not from guessed filenames.
+  Null-edit affected article pages after data/template/module deploys. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. Use purge only for cache refreshes where link-table/Cargo/category updates are not needed.
 
 - [ ] **Step 4: Add rollback command**
 
-  Rollback uploads previous source for every changed repo-owned page and runs the same null-edit pass.
+  Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived null-edit pass.
 
 - [ ] **Step 5: Guard legacy commands**
 
@@ -941,7 +996,7 @@ tests/unit/cli/commands/test_wiki.py
 
 - [ ] **Step 6: Verify against local MediaWiki**
 
-  Use the local harness to upload pages, capture revision IDs, null-edit articles, and roll back to previous revisions.
+  Use the local harness to upload pages, capture revision IDs, recreate Cargo tables after declaration changes, null-edit dependency pages, and roll back to previous revisions. Include tests for edit conflicts, assertion failures, maxlag retry handling, stale tokens, and rollback after partial deployment.
 
 ### Milestone 11: Complete local full-system verification
 
