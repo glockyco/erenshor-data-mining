@@ -11,6 +11,7 @@ from typing import Literal, cast
 
 ContentModel = Literal["Scribunto", "wikitext"]
 UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template"]
+DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
 _STAGE_ORDER: dict[UploadStage, int] = {
@@ -38,6 +39,7 @@ class RepoWikiPageManifestEntry:
     new_revision_id: int | None = None
     new_revision_timestamp: str | None = None
     rollback_text_source: str | None = None
+    deploy_action: DeployAction | None = None
     null_edit_targets: tuple[str, ...] = ()
 
 
@@ -91,6 +93,7 @@ def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEnt
         new_revision_id=_optional_int(raw_entry.get("new_revision_id")),
         new_revision_timestamp=_optional_str(raw_entry.get("new_revision_timestamp")),
         rollback_text_source=_optional_str(raw_entry.get("rollback_text_source")),
+        deploy_action=_optional_deploy_action(raw_entry.get("deploy_action")),
         null_edit_targets=tuple(str(title) for title in cast("list[object]", raw_entry["null_edit_targets"])),
     )
 
@@ -105,6 +108,15 @@ def _content_model(value: str) -> ContentModel:
     if value not in ("Scribunto", "wikitext"):
         raise ValueError(f"Unknown wiki deploy content model: {value}")
     return value  # type: ignore[return-value]
+
+
+def _optional_deploy_action(value: object) -> DeployAction | None:
+    if value is None:
+        return None
+    text = str(value)
+    if text not in ("unchanged", "created", "edited"):
+        raise ValueError(f"Unknown wiki deploy action: {text}")
+    return text  # type: ignore[return-value]
 
 
 def _optional_int(value: object) -> int | None:

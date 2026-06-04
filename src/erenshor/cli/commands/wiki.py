@@ -682,14 +682,15 @@ def deploy_repo_pages_command(
     deployed_manifest = build_deployed_manifest(manifest, result)
     write_repo_page_manifest(deployed_manifest, manifest_output)
 
-    changed = sum(1 for entry in result.entries if entry.status == "changed")
+    created = sum(1 for entry in result.entries if entry.status == "created")
+    edited = sum(1 for entry in result.entries if entry.status == "edited")
     unchanged = sum(1 for entry in result.entries if entry.status == "unchanged")
     console.print(
-        f"[green]Repo-owned page deploy complete[/green] Changed: {changed} Unchanged: {unchanged} "
-        f"Manifest: {manifest_output}"
+        f"[green]Repo-owned page deploy complete[/green] Created: {created} Edited: {edited} "
+        f"Unchanged: {unchanged} Manifest: {manifest_output}"
     )
 
-    changed_titles = {entry.title for entry in result.entries if entry.status == "changed"}
+    changed_titles = {entry.title for entry in result.entries if entry.status != "unchanged"}
     _report_changed_cargo_declarations(manifest, changed_titles)
 
 
@@ -856,7 +857,14 @@ def rollback_repo_pages_command(
     finally:
         client.close()
 
-    console.print(f"[green]Repo-owned page rollback complete[/green] Rolled back: {len(result.entries)}")
+    console.print(f"[green]Repo-owned page rollback complete[/green] Restored: {len(result.entries)}")
+    if result.created_titles:
+        console.print(
+            "[yellow]These pages were created by the deploy and need manual deletion "
+            "(the deploy bot cannot delete pages):[/yellow]"
+        )
+        for created_title in result.created_titles:
+            console.print(f"  {created_title}", markup=False)
 
     rolled_back_titles = {entry.title for entry in result.entries}
     _report_changed_cargo_declarations(manifest, rolled_back_titles)

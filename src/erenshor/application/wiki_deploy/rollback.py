@@ -50,6 +50,7 @@ class RollbackResult:
     """Rollback result for a deploy manifest."""
 
     entries: tuple[RollbackResultEntry, ...]
+    created_titles: tuple[str, ...] = ()
 
 
 def rollback_repo_pages(
@@ -70,7 +71,14 @@ def rollback_repo_pages(
     ``force=True`` to restore anyway.
     """
     entries: list[RollbackResultEntry] = []
+    created_titles: list[str] = []
     for entry in manifest.entries:
+        if entry.deploy_action == "created":
+            # The deploy created this page, so its prior state was non-existence.
+            # The deploy bot has no delete right, so report it for manual deletion
+            # rather than editing it to an empty or stale body.
+            created_titles.append(entry.title)
+            continue
         if entry.rollback_text_source is None:
             continue
 
@@ -101,5 +109,4 @@ def rollback_repo_pages(
                 new_revision_id=new_revision_id,
             )
         )
-
-    return RollbackResult(entries=tuple(entries))
+    return RollbackResult(entries=tuple(entries), created_titles=tuple(created_titles))

@@ -140,7 +140,7 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
 
     [entry] = result.entries
     assert entry.title == "Module:Erenshor/Item"
-    assert entry.status == "changed"
+    assert entry.status == "edited"
     assert entry.old_revision_id == 200
     assert entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
     assert entry.new_revision_id == 201
@@ -174,7 +174,7 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
 
     [entry] = result.entries
     assert entry.title == "Module:Erenshor/Data/Items"
-    assert entry.status == "changed"
+    assert entry.status == "created"
     assert entry.old_revision_id is None
     assert entry.old_revision_timestamp is None
     assert entry.new_revision_id == 301
@@ -218,5 +218,6 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
     assert deployed_entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
     assert deployed_entry.new_revision_id == 201
     assert deployed_entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+    assert deployed_entry.deploy_action == "edited"
     # The base manifest is not mutated.
     assert base_entry.new_revision_id is None

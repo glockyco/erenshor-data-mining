@@ -323,7 +323,7 @@ class TestWikiDeployRepoCommand:
                 entries=(
                     RepoPageDeployResultEntry(
                         title="Module:Erenshor/Item",
-                        status="changed",
+                        status="edited",
                         old_revision_id=10,
                         old_revision_timestamp="2026-06-04T12:00:00Z",
                         new_revision_id=11,
@@ -344,7 +344,7 @@ class TestWikiDeployRepoCommand:
         result = runner.invoke(app, ["wiki", "deploy-repo-pages", "--manifest-output", str(manifest_output)])
 
         assert result.exit_code == 0
-        assert "Changed: 1" in result.output
+        assert "Edited: 1" in result.output
         assert client.closed is True
         _, deploy_kwargs = calls[2]
         assert deploy_kwargs["rollback_root"] == tmp_path / "rollback"
@@ -389,7 +389,7 @@ class TestWikiDeployRepoCommand:
                 entries=(
                     RepoPageDeployResultEntry(
                         title="Template:Item",
-                        status="changed",
+                        status="edited",
                         old_revision_id=1,
                         old_revision_timestamp="2026-06-04T12:00:00Z",
                         new_revision_id=2,
@@ -675,7 +675,7 @@ class TestWikiRollbackRepoCommand:
         )
 
         assert result.exit_code == 0
-        assert "Rolled back: 1" in result.output
+        assert "Restored: 1" in result.output
         assert client.closed is True
         _, kwargs = calls[1]
         assert kwargs["client"] is client

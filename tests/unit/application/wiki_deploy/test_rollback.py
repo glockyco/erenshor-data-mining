@@ -156,3 +156,56 @@ def test_rollback_force_overrides_post_deploy_change(tmp_path: Path) -> None:
     [entry] = result.entries
     assert entry.new_revision_id == 778
     assert len(client.safe_edits) == 1
+
+
+def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> None:
+    """Pages the deploy created cannot be restored by editing, so they are reported, not skipped."""
+    _write_rollback_text(tmp_path)
+    manifest = RepoWikiPageManifest(
+        entries=(
+            RepoWikiPageManifestEntry(
+                title="Module:Erenshor/Data/Items",
+                source_path="variants/main/wiki/lua/Erenshor/Data/Items.lua",
+                source_sha256="0" * 64,
+                ownership_class="generated_data",
+                upload_stage="generated_data",
+                content_model="Scribunto",
+                declares_cargo_table=False,
+                cargo_tables=(),
+                old_revision_id=None,
+                old_revision_timestamp=None,
+                new_revision_id=301,
+                deploy_action="created",
+            ),
+            RepoWikiPageManifestEntry(
+                title="Template:Item",
+                source_path="wiki/templates/Item.wiki",
+                source_sha256="0" * 64,
+                ownership_class="cargo_declaration",
+                upload_stage="cargo_declaration",
+                content_model="wikitext",
+                declares_cargo_table=True,
+                cargo_tables=("Items",),
+                old_revision_id=123,
+                old_revision_timestamp="2026-06-04T12:00:00Z",
+                new_revision_id=500,
+                rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
+                deploy_action="edited",
+            ),
+        )
+    )
+    client = RecordingRollbackClient(current_revision_id=500)
+
+    result = rollback_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Rollback repo-owned wiki deploy",
+        assertion="bot",
+        assert_user="ErenshorBot",
+    )
+
+    assert [entry.title for entry in result.entries] == ["Template:Item"]
+    assert result.created_titles == ("Module:Erenshor/Data/Items",)
+    # The created page is never edited back to anything.
+    assert [edit[0] for edit in client.safe_edits] == ["Template:Item"]

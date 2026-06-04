@@ -127,6 +127,7 @@ def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> N
                 new_revision_id=101,
                 new_revision_timestamp="2026-06-04T12:01:00Z",
                 rollback_text_source="rollback/Template_Item.wiki",
+                deploy_action="edited",
                 null_edit_targets=("Ember Longsword",),
             ),
         )

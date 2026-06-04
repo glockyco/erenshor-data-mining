@@ -205,7 +205,7 @@ def test_deploy_creates_page_then_skips_unchanged(
         assert_user=BOT_USER,
         rollback_root=tmp_path / "rollback",
     )
-    assert [entry.status for entry in first.entries] == ["changed"]
+    assert [entry.status for entry in first.entries] == ["created"]
     # MediaWiki strips the trailing newline on save.
     assert wiki_client.get_page(title) == "return { it = 1 }"
 
@@ -253,7 +253,7 @@ def test_deploy_safe_edit_then_rollback_restores_previous_text(
         assert_user=BOT_USER,
         rollback_root=tmp_path / "rollback",
     )
-    assert [entry.status for entry in changed.entries] == ["changed"]
+    assert [entry.status for entry in changed.entries] == ["edited"]
     assert wiki_client.get_page(title) == "return { v = 2 }"
 
     deployed_manifest = build_deployed_manifest(manifest, changed)

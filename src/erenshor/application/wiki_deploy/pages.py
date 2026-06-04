@@ -7,13 +7,12 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 
-from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
+from erenshor.application.wiki_deploy.manifest import DeployAction, RepoWikiPageManifest
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
     from erenshor.infrastructure.wiki import MediaWikiPageRevision
 
-DeployStatus = Literal["unchanged", "changed"]
 EditAssertion = Literal["user", "bot"]
 
 
@@ -65,7 +64,7 @@ class RepoPageDeployResultEntry:
     """Deployment result for one manifest page."""
 
     title: str
-    status: DeployStatus
+    status: DeployAction
     old_revision_id: int | None
     old_revision_timestamp: str | None
     new_revision_id: int | None
@@ -123,7 +122,7 @@ def deploy_repo_pages(
             result_entries.append(
                 RepoPageDeployResultEntry(
                     title=entry.title,
-                    status="changed",
+                    status="created",
                     old_revision_id=None,
                     old_revision_timestamp=None,
                     new_revision_id=new_revision_id,
@@ -154,7 +153,7 @@ def deploy_repo_pages(
         result_entries.append(
             RepoPageDeployResultEntry(
                 title=entry.title,
-                status="changed",
+                status="edited",
                 old_revision_id=base_revision.revision_id,
                 old_revision_timestamp=base_revision.timestamp,
                 new_revision_id=new_revision_id,
@@ -185,6 +184,7 @@ def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDepl
                 old_revision_timestamp=result_by_title[entry.title].old_revision_timestamp,
                 new_revision_id=result_by_title[entry.title].new_revision_id,
                 rollback_text_source=result_by_title[entry.title].rollback_text_source,
+                deploy_action=result_by_title[entry.title].status,
             )
             for entry in manifest.entries
         )
