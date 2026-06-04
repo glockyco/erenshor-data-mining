@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.infrastructure.wiki import MediaWikiPageRevision
 
 
 class RecordingRollbackClient:
-    def __init__(self) -> None:
+    def __init__(self, current_revision_id: int = 500) -> None:
+        self.current_revision_id = current_revision_id
         self.revision_requests: list[tuple[str, str, str | None]] = []
         self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
 
@@ -24,7 +27,7 @@ class RecordingRollbackClient:
         return MediaWikiPageRevision(
             title=title,
             page_id=42,
-            revision_id=500,
+            revision_id=self.current_revision_id,
             timestamp="2026-06-04T13:00:00Z",
             start_timestamp="2026-06-04T13:01:00Z",
         )
@@ -39,7 +42,7 @@ class RecordingRollbackClient:
         assert_user: str | None,
     ) -> int:
         self.safe_edits.append((title, content, base_revision, summary, assertion, assert_user))
-        return 501
+        return self.current_revision_id + 1
 
 
 def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> None:
@@ -60,7 +63,7 @@ def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> 
                 cargo_tables=("Items",),
                 old_revision_id=123,
                 old_revision_timestamp="2026-06-04T12:00:00Z",
-                new_revision_id=124,
+                new_revision_id=500,
                 rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
             ),
         )
@@ -88,3 +91,68 @@ def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> 
     assert summary == "Rollback repo-owned wiki deploy"
     assert assertion == "bot"
     assert assert_user == "ErenshorBot"
+
+
+def _edited_manifest() -> RepoWikiPageManifest:
+    return RepoWikiPageManifest(
+        entries=(
+            RepoWikiPageManifestEntry(
+                title="Template:Item",
+                source_path="wiki/templates/Item.wiki",
+                source_sha256="0" * 64,
+                ownership_class="cargo_declaration",
+                upload_stage="cargo_declaration",
+                content_model="wikitext",
+                declares_cargo_table=True,
+                cargo_tables=("Items",),
+                old_revision_id=123,
+                old_revision_timestamp="2026-06-04T12:00:00Z",
+                new_revision_id=500,
+                rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
+            ),
+        )
+    )
+
+
+def _write_rollback_text(tmp_path: Path) -> None:
+    rollback_path = tmp_path / "variants/main/wiki/rollback/Template_Item.wiki"
+    rollback_path.parent.mkdir(parents=True)
+    rollback_path.write_text("old template source\n", encoding="utf-8")
+
+
+def test_rollback_refuses_when_page_changed_since_deploy(tmp_path: Path) -> None:
+    """A page edited after deploy is not silently overwritten by rollback."""
+    _write_rollback_text(tmp_path)
+    client = RecordingRollbackClient(current_revision_id=777)
+
+    with pytest.raises(ValueError, match="changed since deploy"):
+        rollback_repo_pages(
+            manifest=_edited_manifest(),
+            repo_root=tmp_path,
+            client=client,
+            summary="Rollback repo-owned wiki deploy",
+            assertion="bot",
+            assert_user="ErenshorBot",
+        )
+
+    assert client.safe_edits == []
+
+
+def test_rollback_force_overrides_post_deploy_change(tmp_path: Path) -> None:
+    """An explicit force restores even when the page changed after deploy."""
+    _write_rollback_text(tmp_path)
+    client = RecordingRollbackClient(current_revision_id=777)
+
+    result = rollback_repo_pages(
+        manifest=_edited_manifest(),
+        repo_root=tmp_path,
+        client=client,
+        summary="Rollback repo-owned wiki deploy",
+        assertion="bot",
+        assert_user="ErenshorBot",
+        force=True,
+    )
+
+    [entry] = result.entries
+    assert entry.new_revision_id == 778
+    assert len(client.safe_edits) == 1

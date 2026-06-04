@@ -60,8 +60,15 @@ def rollback_repo_pages(
     summary: str,
     assertion: EditAssertion,
     assert_user: str | None = None,
+    force: bool = False,
 ) -> RollbackResult:
-    """Restore previous page text recorded by a deploy manifest."""
+    """Restore previous page text recorded by a deploy manifest.
+
+    Rollback refuses to overwrite a page that has changed since the deploy it is
+    undoing: if the live revision no longer matches the revision the deploy
+    created, restoring would silently discard an intervening edit. Pass
+    ``force=True`` to restore anyway.
+    """
     entries: list[RollbackResultEntry] = []
     for entry in manifest.entries:
         if entry.rollback_text_source is None:
@@ -71,6 +78,13 @@ def rollback_repo_pages(
         base_revision = client.get_page_revision_metadata(entry.title, assertion=assertion, assert_user=assert_user)
         if base_revision is None:
             raise ValueError(f"Cannot roll back missing repo-owned page: {entry.title}")
+
+        if not force and entry.new_revision_id is not None and base_revision.revision_id != entry.new_revision_id:
+            raise ValueError(
+                f"Page changed since deploy: {entry.title} is at revision {base_revision.revision_id} "
+                f"but the deploy left revision {entry.new_revision_id}. "
+                f"Re-deploy or pass force to roll back anyway."
+            )
 
         new_revision_id = client.safe_edit_page(
             title=entry.title,

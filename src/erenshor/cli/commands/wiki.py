@@ -824,6 +824,10 @@ def rollback_repo_pages_command(
         str | None,
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
     ] = None,
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Restore even if a page changed since the deploy being rolled back."),
+    ] = False,
 ) -> None:
     """Restore repo-owned page text recorded in a deployment manifest."""
     cli_ctx: CLIContext = ctx.obj
@@ -847,6 +851,7 @@ def rollback_repo_pages_command(
             summary=summary,
             assertion="bot",
             assert_user=assert_user,
+            force=force,
         )
     finally:
         client.close()
