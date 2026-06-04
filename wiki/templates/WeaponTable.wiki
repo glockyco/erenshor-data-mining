@@ -1,0 +1,36 @@
+<includeonly>{| class="wikitable datatable compact hover" style="font-size: 14px; text-align: center;"
+!Weapon
+!Slot
+!Type
+!class="numeric"|Level
+!class="numeric"|Damage
+!class="numeric"|Delay
+!class="numeric"|HP
+!class="numeric"|Mana
+!class="numeric"|AC
+!class="numeric"|Str
+!class="numeric"|End
+!class="numeric"|Dex
+!class="numeric"|Agi
+!class="numeric"|Int
+!class="numeric"|Wis
+!class="numeric"|Cha
+!class="numeric"|Res
+!class="numeric"|MR
+!class="numeric"|PR
+!class="numeric"|ER
+!class="numeric"|VR
+!Notes
+![[Classes]]
+{{#cargo_query:
+tables=Items
+|fields=Page,Name,Image,Slot,WeaponType=Type,ItemLevel,Damage,Delay,Armor=AC,Str,End,Dex,Agi,Intellect=Int,Wis,Cha,Res,MR,PR,ER,VR,OverviewNotes=Notes,ClassLinks=Classes
+|where=Type="Weapon"
+|order by=Slot ASC,Name ASC
+|format=template
+|template=WeaponTable/Row
+|named args=yes
+|delimiter=\n
+|default=
+}}
+|}</includeonly><noinclude>Cargo-backed weapon overview table.</noinclude>

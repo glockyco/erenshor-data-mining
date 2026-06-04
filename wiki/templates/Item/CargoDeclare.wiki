@@ -6,6 +6,7 @@ _table=Items
 |Name=String
 |Type=String
 |Slot=String
+|WeaponType=String
 |ItemLevel=Integer
 |Damage=Integer
 |Delay=Float

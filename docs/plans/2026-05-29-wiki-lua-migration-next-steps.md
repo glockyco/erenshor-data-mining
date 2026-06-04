@@ -851,15 +851,16 @@ wiki/modules/Erenshor/Skill.lua
 tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Weapon overview (`Weapons`)**
+- [x] **Step 1: Weapon overview (`Weapons`)**
 
-  Build `{{WeaponTable}}` from the existing `Items` Cargo table, matching the
-  live `Weapons` page structure: item, slot, weapon type, item level, normal
-  quality damage/delay and stat/resist columns, generated notes, and class
-  links. Reuse the same Cargo overview fields added for `ArmorTable`; extend
-  only where weapon-specific fields are missing. Verify with real local Cargo
-  using a fixture that exercises proc notes, worn/click notes, class links, and
-  weapon slot/type ordering.
+  `{{WeaponTable}}` now queries the `Items` Cargo table and renders rows through
+  `Template:WeaponTable/Row`, matching the live `Weapons` page structure for
+  item link, slot, weapon type, item level, normal quality damage/delay and
+  stat/resist columns, generated notes, and class links. The `Items` Cargo
+  schema stores `WeaponType` as a first-class field instead of resolving it from
+  Lua inside the row template. Local validation recreates the `Items` Cargo table
+  from `Template:Item`'s real `#cargo_declare` and smoke-tests proc notes,
+  class links, and weapon subtype output.
 
 - [ ] **Step 2: Charm overview (`Charms`)**
 

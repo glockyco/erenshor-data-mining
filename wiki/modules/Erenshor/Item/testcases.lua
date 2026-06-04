@@ -71,6 +71,16 @@ function p.run()
 		"|ClassLinks=[[Paladin]], [[Warrior]]",
 		"cargo store contains class links"
 	)
+
+	local weaponCargo = Item.cargoStore({
+		args = { stablekey = "item:ember_longsword" },
+		preprocess = function(_, text)
+			return text
+		end,
+	})
+	assertContains(weaponCargo, "|WeaponType=OneHandMelee", "cargo store contains weapon subtype")
+	assertContains(weaponCargo, "|Damage=18", "cargo store contains normal weapon damage")
+	assertContains(weaponCargo, "|Delay=2.5", "cargo store contains weapon delay")
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

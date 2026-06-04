@@ -22,6 +22,7 @@ CARGO_ITEM_FIELDS = (
     "Name",
     "Type",
     "Slot",
+    "WeaponType",
     "ItemLevel",
     "Damage",
     "Delay",

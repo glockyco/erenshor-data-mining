@@ -549,6 +549,7 @@ local function cargoStoreText(item, pageTitle)
 		{ "Name", item.name },
 		{ "Type", item.type },
 		{ "Slot", item.slot },
+		{ "WeaponType", item.weaponType },
 		{ "ItemLevel", item.itemLevel },
 		{ "Damage", item.damage },
 		{ "Delay", item.weaponDelay },
