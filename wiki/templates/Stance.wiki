@@ -1,0 +1,33 @@
+<includeonly><infobox type="Stances">
+    <title><default>{{#invoke:Erenshor/Stance|field|title}}</default></title>
+    <image><default>{{#invoke:Erenshor/Stance|field|image}}</default><caption><default>{{#invoke:Erenshor/Stance|field|imagecaption}}</default></caption></image>
+
+    <data><label>Description</label><default>{{#invoke:Erenshor/Stance|field|description}}</default></data>
+    <data><label>Switch Message</label><default>{{#invoke:Erenshor/Stance|field|switch_message}}</default></data>
+
+    <group collapse="open">
+        <header>Combat Modifiers</header>
+        <data><label>Physical Damage</label><default>{{#invoke:Erenshor/Stance|field|damage_mod}}</default></data>
+        <data><label>Spell Damage</label><default>{{#invoke:Erenshor/Stance|field|spell_damage_mod}}</default></data>
+        <data><label>Damage Taken</label><default>{{#invoke:Erenshor/Stance|field|damage_taken_mod}}</default></data>
+        <data><label>Max HP</label><default>{{#invoke:Erenshor/Stance|field|max_hp_mod}}</default></data>
+        <data><label>Proc Rate</label><default>{{#invoke:Erenshor/Stance|field|proc_rate_mod}}</default></data>
+        <data><label>Aggro Generation</label><default>{{#invoke:Erenshor/Stance|field|aggro_gen_mod}}</default></data>
+    </group>
+
+    <group collapse="open">
+        <header>Special Effects</header>
+        <data><label>Self Damage per Attack</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_attack}}</default></data>
+        <data><label>Self Damage per Cast</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_cast}}</default></data>
+        <data><label>Lifesteal</label><default>{{#invoke:Erenshor/Stance|field|lifesteal_amount}}</default></data>
+        <data><label>Resonance</label><default>{{#invoke:Erenshor/Stance|field|resonance_amount}}</default></data>
+        <data><label>Stops Regeneration</label><default>{{#invoke:Erenshor/Stance|field|stop_regen}}</default></data>
+    </group>
+
+    <group collapse="open">
+        <header>Acquisition</header>
+        <data><label>Activated by</label><default>{{#invoke:Erenshor/Stance|field|activated_by}}</default></data>
+    </group>
+</infobox>{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}</includeonly><noinclude>
+Template parameters mirror the production Stance template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

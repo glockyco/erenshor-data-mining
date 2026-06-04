@@ -1,0 +1,1 @@
+{{Stance|stablekey=stance:reckless}}

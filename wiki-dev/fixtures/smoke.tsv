@@ -80,6 +80,20 @@ Manual Zone Override	Manual Level
 Manual Zone Override	Manual Connection
 Missing Zone Data	Missing zone data: Missing Zone Data
 Missing Zone Data	Category:Pages_with_missing_Erenshor_zone_data
+Lua Stance Smoke	PASS Erenshor Stance testcases
+Aggressive	Aggressive
+Aggressive	+40%
+Aggressive	Stops Regeneration
+Aggressive	Yes
+Aggressive	Category:Stances
+Aggressive	Stance: Aggressive
+Reckless	4% max HP
+Taunting	+1400%
+Manual Stance Override	Manual Stance Title
+Manual Stance Override	+25%
+Manual Stance Override	Manual Activation
+Missing Stance Data	Missing stance data: Missing Stance Data
+Missing Stance Data	Category:Pages_with_missing_Erenshor_stance_data
 Cargo ArmorTable Smoke	Abyssal Plate
 Cargo ArmorTable Smoke	Chest
 Cargo ArmorTable Smoke	40

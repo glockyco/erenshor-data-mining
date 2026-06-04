@@ -1,0 +1,8 @@
+{{Stance
+|stablekey=stance:aggressive
+|title=Manual Stance Title
+|damage_mod=1.25
+|spell_damage_mod=-
+|stop_regen=0
+|activated_by=Manual Activation
+}}

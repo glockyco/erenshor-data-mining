@@ -1,0 +1,4 @@
+{{Stance
+|stablekey=stance:aggressive
+|activated_by=Stance: Aggressive
+}}

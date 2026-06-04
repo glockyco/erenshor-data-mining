@@ -161,4 +161,10 @@ PAGES: tuple[ParityPage, ...] = (
         local_title="Port_Azure",
         targets=ENTITY_INFOBOX_TARGETS,
     ),
+    ParityPage(
+        name="stance",
+        live_path="/wiki/Aggressive",
+        local_title="Aggressive",
+        targets=ENTITY_INFOBOX_TARGETS,
+    ),
 )

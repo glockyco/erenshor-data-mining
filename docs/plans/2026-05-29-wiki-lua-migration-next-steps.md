@@ -140,6 +140,7 @@ Module:Erenshor/Data/Characters
 Module:Erenshor/Data/AbilityLinks
 Module:Erenshor/Data/Quests
 Module:Erenshor/Data/Zones
+Module:Erenshor/Data/Stances
 ```
 
 Rules:
@@ -171,6 +172,7 @@ Module:Erenshor/Character   -- NPC/enemy resolve + field/status accessors + Carg
 Module:Erenshor/Quest       -- quest resolve + field/status accessors
 Module:Erenshor/AbilityLink -- spell/skill/stance link resolve/render
 Module:Erenshor/Zone        -- zone/map resolve + field/status accessors
+Module:Erenshor/Stance     -- stance resolve + field/status accessors
 ```
 
 Rules:
@@ -204,6 +206,7 @@ Template:Item        -> Module:Erenshor/Item
 Template:Character   -> Module:Erenshor/Character
 Template:Quest       -> Module:Erenshor/Quest
 Template:Zone        -> Module:Erenshor/Zone
+Template:Stance      -> Module:Erenshor/Stance
 Template:AbilityLink -> Module:Erenshor/AbilityLink
 Template:MapLink     -> Module:Erenshor/Zone
 ```
@@ -261,6 +264,7 @@ Category:Pages with missing Erenshor character data
 Category:Pages with missing Erenshor quest data
 Category:Pages with missing Erenshor ability data
 Category:Pages with missing Erenshor zone data
+Category:Pages with missing Erenshor stance data
 Category:Pages overriding generated Erenshor data
 Category:Pages using legacy Erenshor templates
 Category:Pages with unresolved Erenshor template data
@@ -740,9 +744,14 @@ plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
   emits the sub-template calls. Extend generated item data with range, lore,
   book_title, tier, and resolved crafting ingredients/rewards; the spell-effect
   breakdown joins the new Spells data module (no denormalization).
-- **8e — First-class Spell/Skill/Stance modeling.** Generated data modules,
-  Lua modules, and ability pages for spells/skills/stances, faithful to the C#
-  field models, replacing bare page links and the four-field tooltip stub.
+- **8e — First-class Spell/Skill/Stance modeling.** Stance generated data,
+  `Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and visual parity
+  are complete. Spells and Skills remain pending; Skills must later derive
+  stance `activated_by` relationships from `Skill.StanceToUse` so the Stance
+  surface stops relying on article-local activation overrides. Spell/Skill data
+  modules and ability pages must stay faithful to the C# field models, replacing
+  bare page links and the four-field tooltip stub without denormalizing their
+  interdependencies into item or stance data.
 - **8f — Faithfulness verification (audit triage).** The original audit
   over-reported without knowing maintainer intent; several flagged "issues" are
   correct or intentional (cooldown unit asymmetry verified against `Hotkeys.cs`,

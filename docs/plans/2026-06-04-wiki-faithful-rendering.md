@@ -158,24 +158,37 @@ Currently spells/skills/stances exist only as `AbilityLinks` (name/page/image/
 kind) and bare page links. Model them properly so item tooltips, ability pages,
 and links all draw from one faithful source.
 
+**Current status:** The Stance vertical slice is complete for generated data,
+`Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and local-vs-live
+PortableInfobox parity. `activated_by` is intentionally still article-override
+only in the Stance module because the relationship is not a Stance field in the
+game; it must be derived when Skills are modeled from `Skill.StanceToUse`
+(`Skill.cs`) to the target stance stable key. Do not denormalize that
+relationship into Stance data before the Skills module exists.
+
+
 - [ ] **Step 1: Inventory live ability templates.** Fetch the live `Template:Ability`
   (and any `Template:Spell`/`Skill`/`Stance`) source and transclusions to learn
   the exact param contract before building. Record findings here.
-- [ ] **Step 2: Generated data modules.** Add `Module:Erenshor/Data/Spells`,
-  `.../Skills`, `.../Stances` keyed by stable key with the full faithful field set
-  from the C# reference above (spell timing via the verified conversions; skill
-  per-class levels and flags; stance float modifiers). Add repository
-  wiki-generation methods that select every needed column. TDD the Python
-  generators (`wiki_lua/spells.py`, `skills.py`, `stances.py`).
-- [ ] **Step 3: Lua modules.** Add `Module:Erenshor/Spell`, `Skill`, `Stance`
-  with `resolve` + `field`/`status` accessors and an effect-summary builder used
-  by both the ability pages and `Item/SpellDetails`.
-- [ ] **Step 4: Ability templates/pages.** Render spell/skill/stance pages
-  through live's ability template(s), fed by the new modules.
+- [ ] **Step 2: Generated data modules.** `Module:Erenshor/Data/Stances` is
+  complete, keyed by stable key with the faithful stance modifier fields from
+  `Stance.cs`. Add `Module:Erenshor/Data/Spells` and `.../Skills` keyed by
+  stable key with the full faithful field set from the C# reference above (spell
+  timing via the verified conversions; skill per-class levels and flags). Add
+  repository wiki-generation methods that select every needed column. TDD the
+  Python generators (`wiki_lua/spells.py`, `skills.py`; `stances.py` is done).
+- [ ] **Step 3: Lua modules.** `Module:Erenshor/Stance` is complete with
+  `resolve` + `field`/`status` accessors. Add `Module:Erenshor/Spell` and
+  `Skill` with the same accessors and an effect-summary builder used by both the
+  ability pages and `Item/SpellDetails`.
+- [ ] **Step 4: Ability templates/pages.** Stances render through live's separate
+  `Template:Stance`; keep that surface. Render spells and skills through live's
+  unified `Template:Ability`, fed by the new modules.
 - [ ] **Step 5: Upgrade `AbilityLink`.** Let the link surface optionally pull
   class/level metadata from the new modules (still page-link-first).
-- [ ] **Step 6: Verify** smoke + parity for representative spell, skill, and
-  stance pages against live.
+- [ ] **Step 6: Verify** smoke + parity for representative spell and skill pages
+  against live. Stance smoke + parity against live `Aggressive` is complete; rerun
+  it when Skills populate `activated_by`.
 
 ## Milestone 8f: Faithfulness verification (audit triage)
 
