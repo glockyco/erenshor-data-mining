@@ -1,5 +1,5 @@
 <includeonly>|-
-|style="text-align: left;"|{{ItemLink|{{{Page|}}}|text={{{Name|}}}|image={{{Image|}}}}}
+|style="text-align: left;"|{{ItemLink|{{{Page|}}}}}
 |{{{Slot|}}}
 |{{{ItemLevel|}}}
 |{{{HP|}}}
@@ -17,6 +17,6 @@
 |{{{PR|}}}
 |{{{ER|}}}
 |{{{VR|}}}
-|{{{Notes|}}}
+|{{#invoke:Erenshor/Item|overviewNotes|proc={{{ProcAbility|}}}|chance={{{ProcChance|}}}|trigger={{{ProcTrigger|}}}|worn={{{WornAbility|}}}|click={{{ClickAbility|}}}}}
 |{{{Classes|}}}
 </includeonly><noinclude>Renders one Cargo row for [[Template:ArmorTable]].</noinclude>

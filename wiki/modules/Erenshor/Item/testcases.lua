@@ -71,6 +71,16 @@ function p.run()
 		"|ClassLinks=[[Paladin]], [[Warrior]]",
 		"cargo store contains class links"
 	)
+	assertContains(
+		cargo,
+		"|OverviewWornAbility=Minor Lightning",
+		"cargo store contains worn ability page"
+	)
+	assertEqual(
+		Item.overviewNotes({ args = { worn = "Minor Lightning" } }),
+		"Worn: {{AbilityLink|Minor Lightning}}",
+		"overview notes render worn AbilityLink"
+	)
 
 	local weaponCargo = Item.cargoStore({
 		args = { stablekey = "item:ember_longsword" },
@@ -81,6 +91,24 @@ function p.run()
 	assertContains(weaponCargo, "|WeaponType=OneHandMelee", "cargo store contains weapon subtype")
 	assertContains(weaponCargo, "|Damage=18", "cargo store contains normal weapon damage")
 	assertContains(weaponCargo, "|Delay=2.5", "cargo store contains weapon delay")
+	assertContains(
+		weaponCargo,
+		"|OverviewProcAbility=Ember Burst",
+		"cargo store contains proc ability page"
+	)
+	assertContains(weaponCargo, "|OverviewProcChance=20", "cargo store contains proc chance")
+	assertContains(
+		weaponCargo,
+		"|OverviewProcTrigger=on attack",
+		"cargo store contains proc trigger"
+	)
+	assertEqual(
+		Item.overviewNotes({
+			args = { proc = "Ember Burst", chance = "20", trigger = "on attack" },
+		}),
+		"{{AbilityLink|Ember Burst}}, 20% on attack",
+		"overview notes render weapon proc AbilityLink"
+	)
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

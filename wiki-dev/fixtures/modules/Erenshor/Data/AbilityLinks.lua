@@ -24,6 +24,18 @@ return {
 			image = "Minor Lightning",
 			kind = "spell",
 		},
+		["spell:ember_proc"] = {
+			name = "Ember Burst",
+			page = "Ember Burst",
+			image = "Ember Burst",
+			kind = "spell",
+		},
+		["spell:minor_heal"] = {
+			name = "Minor Heal",
+			page = "Minor Heal",
+			image = "Minor Heal",
+			kind = "spell",
+		},
 		["stance:aggressive"] = {
 			name = "Aggressive",
 			page = "Aggressive Stance",

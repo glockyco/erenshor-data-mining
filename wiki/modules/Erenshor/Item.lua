@@ -277,15 +277,15 @@ local function normalStats(item)
 	return (item.stats or {})[1] or {}
 end
 
-local function abilityPageLink(stableKey)
+local function abilityPage(stableKey)
 	if isBlank(stableKey) then
-		return ""
+		return nil
 	end
 	local ability = AbilityData.abilities[stableKey]
 	if ability == nil or isBlank(ability.page) then
-		return Format.escape(stableKey)
+		return nil
 	end
-	return Format.pageLink(ability.page)
+	return ability.page
 end
 
 local function percent(value)
@@ -296,41 +296,62 @@ local function percent(value)
 	return tostring(math.floor(amount))
 end
 
-local function overviewNotes(item)
-	local notes = {}
+local function procOverview(item)
 	if hasValue(item.weaponProc) and hasValue(item.weaponProcChance) then
 		local trigger = "on attack"
 		if item.shield then
 			trigger = "on bash"
 		end
-		table.insert(
-			notes,
-			abilityPageLink(item.weaponProc)
-				.. ", "
-				.. percent(item.weaponProcChance)
-				.. "% "
-				.. trigger
-		)
+		return abilityPage(item.weaponProc), percent(item.weaponProcChance), trigger
 	end
 	if hasValue(item.wandEffect) and hasValue(item.wandProcChance) then
-		table.insert(
-			notes,
-			abilityPageLink(item.wandEffect) .. ", " .. percent(item.wandProcChance) .. "% on cast"
-		)
+		return abilityPage(item.wandEffect), percent(item.wandProcChance), "on cast"
 	end
 	if hasValue(item.bowEffect) and hasValue(item.bowProcChance) then
+		return abilityPage(item.bowEffect), percent(item.bowProcChance), "on attack"
+	end
+	return nil, nil, nil
+end
+
+local function abilityLinkMarkup(page)
+	if isBlank(page) then
+		return ""
+	end
+	return "{{AbilityLink|" .. page .. "}}"
+end
+
+function p.overviewNotes(frame)
+	local args = templateArgs(frame)
+	local notes = {}
+	local procAbility = Args.resolve(args, "proc", nil) or Args.resolve(args, "ProcAbility", nil)
+	if hasValue(procAbility) then
 		table.insert(
 			notes,
-			abilityPageLink(item.bowEffect) .. ", " .. percent(item.bowProcChance) .. "% on attack"
+			abilityLinkMarkup(procAbility)
+				.. ", "
+				.. percent(
+					Args.resolve(args, "chance", nil) or Args.resolve(args, "ProcChance", nil)
+				)
+				.. "% "
+				.. tostring(
+					Args.resolve(args, "trigger", nil)
+						or Args.resolve(args, "ProcTrigger", "on attack")
+				)
 		)
 	end
-	if hasValue(item.wornEffect) then
-		table.insert(notes, "Worn: " .. abilityPageLink(item.wornEffect))
+	local wornAbility = Args.resolve(args, "worn", nil) or Args.resolve(args, "WornAbility", nil)
+	if hasValue(wornAbility) then
+		table.insert(notes, "Worn: " .. abilityLinkMarkup(wornAbility))
 	end
-	if hasValue(item.clickEffect) then
-		table.insert(notes, "On click: " .. abilityPageLink(item.clickEffect))
+	local clickAbility = Args.resolve(args, "click", nil) or Args.resolve(args, "ClickAbility", nil)
+	if hasValue(clickAbility) then
+		table.insert(notes, "On click: " .. abilityLinkMarkup(clickAbility))
 	end
-	return table.concat(notes, "<br>")
+	local text = table.concat(notes, "<br>")
+	if frame ~= nil and frame.preprocess ~= nil then
+		return frame:preprocess(text)
+	end
+	return text
 end
 
 local function boolText(value)
@@ -542,6 +563,7 @@ end
 
 local function cargoStoreText(item, pageTitle)
 	local stats = normalStats(item)
+	local procAbility, procChance, procTrigger = procOverview(item)
 	local fields = {
 		{ "_table", "Items" },
 		{ "Page", pageTitle },
@@ -573,7 +595,11 @@ local function cargoStoreText(item, pageTitle)
 		{ "Image", ensureImageFile(item.image, item.name) },
 		{ "Classes", classCargo(item.classes) },
 		{ "ClassLinks", classOverviewLinks(item.classes) },
-		{ "OverviewNotes", overviewNotes(item) },
+		{ "OverviewProcAbility", procAbility },
+		{ "OverviewProcChance", procChance },
+		{ "OverviewProcTrigger", procTrigger },
+		{ "OverviewWornAbility", abilityPage(item.wornEffect) },
+		{ "OverviewClickAbility", abilityPage(item.clickEffect) },
 		{ "Relic", item.relic },
 		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
 		{ "HasWornEffect", hasValue(item.wornEffect) },
