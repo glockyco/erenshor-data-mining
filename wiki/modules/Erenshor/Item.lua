@@ -356,66 +356,142 @@ local function missingOutput(item)
 		.. "</span>[[Category:Pages with missing Erenshor item data]]"
 end
 
-function p.renderInfobox(args, pageTitle)
+local FIELD_ACCESSORS = {
+	name = function(i)
+		return i.name
+	end,
+	image = function(i)
+		return ensureImageFile(i.image, i.name)
+	end,
+	imagecaption = function(i)
+		return i.imageCaption
+	end,
+	type = function(i)
+		return i.type
+	end,
+	vendorsource = function(i)
+		return i.vendorSource
+	end,
+	source = function(i)
+		return i.source
+	end,
+	othersource = function(i)
+		return i.othersource
+	end,
+	questsource = function(i)
+		return i.questSource
+	end,
+	relatedquest = function(i)
+		return i.relatedQuest
+	end,
+	craftsource = function(i)
+		return i.craftSource
+	end,
+	componentfor = function(i)
+		return i.componentFor
+	end,
+	relic = function(i)
+		return i.relic == true and "Yes" or ""
+	end,
+	classes = function(i)
+		return classText(i.classes)
+	end,
+	effects = function(i)
+		return i.effects
+	end,
+	damage = function(i)
+		return i.damage
+	end,
+	delay = function(i)
+		return i.weaponDelay
+	end,
+	dps = function(i)
+		return i.dps
+	end,
+	casttime = function(i)
+		return i.castTime
+	end,
+	duration = function(i)
+		return i.duration
+	end,
+	cooldown = function(i)
+		return i.cooldown
+	end,
+	effect = function(i)
+		return i.effect
+	end,
+	worneffect = function(i)
+		return i.wornEffect
+	end,
+	proceffect = function(i)
+		return i.procEffect
+	end,
+	buffgiven = function(i)
+		return i.buffGiven
+	end,
+	taughtspell = function(i)
+		return i.taughtSpell
+	end,
+	taughtskill = function(i)
+		return i.taughtSkill
+	end,
+	spelltype = function(i)
+		return i.spellType
+	end,
+	skilltype = function(i)
+		return i.skillType
+	end,
+	manacost = function(i)
+		return i.manaCost
+	end,
+	disposable = function(i)
+		return i.disposable == true and "Yes" or ""
+	end,
+	produces = function(i)
+		return i.produces
+	end,
+	ingredients = function(i)
+		return i.ingredients
+	end,
+	description = function(i)
+		return i.description
+	end,
+	buy = function(i)
+		return Format.currency(i.buyValue)
+	end,
+	sell = function(i)
+		return Format.currency(i.sellValue)
+	end,
+	guaranteeddrops = function(i)
+		return i.guaranteedDrops
+	end,
+	droprates = function(i)
+		return i.dropRates
+	end,
+}
+
+function p.fieldValue(args, pageTitle, key)
+	local item = p.resolve(args, pageTitle)
+	if item.missing then
+		return ""
+	end
+	local accessor = FIELD_ACCESSORS[key]
+	if accessor == nil then
+		error("Unknown Item infobox field: " .. tostring(key))
+	end
+	local value = accessor(item)
+	if value == nil then
+		return ""
+	end
+	return tostring(value)
+end
+
+function p.statusText(args, pageTitle)
 	local item = p.resolve(args, pageTitle)
 	if item.missing then
 		return missingOutput(item)
 	end
-
-	local rows = {
-		{
-			label = "Image",
-			value = Format.fileLink(
-				ensureImageFile(item.image, item.name),
-				{ alt = item.name, size = "64x64px" }
-			),
-		},
-		{ label = "Caption", value = item.imageCaption },
-		{ label = "Type", value = item.type },
-		{ label = "Slot", value = item.slot },
-		{ label = "Item level", value = item.itemLevel },
-		{ label = "Damage", value = item.damage },
-		{ label = "Delay", value = item.weaponDelay },
-		{ label = "Armor", value = item.armor },
-		{ label = "Classes", value = classText(item.classes) },
-		{ label = "Relic", value = boolText(item.relic) },
-		{ label = "Buy", value = Format.currency(item.buyValue) },
-		{ label = "Sell", value = Format.currency(item.sellValue) },
-		{ label = "Sold by", value = item.vendorSource },
-		{ label = "Dropped by", value = item.source },
-		{ label = "Other source", value = item.othersource },
-		{ label = "Reward from", value = item.questSource },
-		{ label = "Related quest", value = item.relatedQuest },
-		{ label = "Crafting recipe", value = item.craftSource },
-		{ label = "Component for", value = item.componentFor },
-		{ label = "Effects", value = item.effects },
-		{ label = "DPS", value = item.dps },
-		{ label = "Casting Time", value = item.castTime },
-		{ label = "Duration", value = item.duration },
-		{ label = "Cooldown", value = item.cooldown },
-		{ label = "Activatable", value = item.effect },
-		{ label = "Worn Effect", value = item.wornEffect },
-		{ label = "Proc Effect", value = item.procEffect },
-		{ label = "Buff Given", value = item.buffGiven },
-		{ label = "Teaches Spell", value = item.taughtSpell },
-		{ label = "Teaches Skill", value = item.taughtSkill },
-		{ label = "Spell Type", value = item.spellType },
-		{ label = "Skill Type", value = item.skillType },
-		{ label = "Mana Cost", value = item.manaCost },
-		{ label = "Consumable", value = boolText(item.disposable) },
-		{ label = "Produces", value = item.produces },
-		{ label = "Ingredients", value = item.ingredients },
-		{ label = "Description", value = item.description },
-		{ label = "Provides one of", value = item.guaranteedDrops },
-		{ label = "Overall Item Chances", value = item.dropRates },
-	}
-
-	return Render.infobox({
-		title = item.name,
-		type = "Item",
-		classes = { "erenshor-item-infobox" },
-		rows = rows,
-	})
+	return ""
 end
 
 function p.renderTooltip(args, pageTitle)
@@ -522,8 +598,12 @@ local function cargoStoreText(item, pageTitle)
 	return table.concat(out)
 end
 
-function p.infobox(frame)
-	return p.renderInfobox(templateArgs(frame), currentTitleText())
+function p.field(frame)
+	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
+end
+
+function p.status(frame)
+	return p.statusText(templateArgs(frame), currentTitleText())
 end
 
 function p.tooltip(frame)

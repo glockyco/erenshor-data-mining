@@ -42,10 +42,22 @@ function p.run()
 		Item.resolve({ stablekey = "item:ember_longsword", image = "-" }, "Ember Longsword")
 	assertEqual(blanked.image, nil, "dash sentinel blanks supported fields")
 
-	local infobox = Item.renderInfobox({ stablekey = "item:ember_longsword" }, "Ember Longsword")
-	assertContains(infobox, "Ember Longsword", "infobox contains name")
-	assertContains(infobox, "18", "infobox contains damage")
-	assertContains(infobox, "1g 25s", "infobox formats currency")
+	local weaponKey = { stablekey = "item:ember_longsword" }
+	assertEqual(
+		Item.fieldValue(weaponKey, "Ember Longsword", "name"),
+		"Ember Longsword",
+		"field name resolves"
+	)
+	assertEqual(
+		Item.fieldValue(weaponKey, "Ember Longsword", "damage"),
+		"18",
+		"field damage resolves"
+	)
+	assertEqual(
+		Item.fieldValue(weaponKey, "Ember Longsword", "buy"),
+		"1g 25s",
+		"field buy formats currency"
+	)
 
 	local cargo = Item.cargoStore({
 		args = { stablekey = "item:abyssal_plate" },
@@ -59,14 +71,20 @@ function p.run()
 		"|ClassLinks=[[Paladin]], [[Warrior]]",
 		"cargo store contains class links"
 	)
-	local consumable = Item.renderInfobox({ stablekey = "item:healing_draught" }, "Healing Draught")
-	assertContains(consumable, "Yes", "consumable boolean renders as human text")
-
-	local nonConsumable = Item.renderInfobox(
-		{ stablekey = "item:healing_draught", disposable = "no" },
-		"Healing Draught"
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
+		"Yes",
+		"consumable disposable field renders Yes"
 	)
-	assertContains(nonConsumable, "No", "disposable false override renders as human text")
+	assertEqual(
+		Item.fieldValue(
+			{ stablekey = "item:healing_draught", disposable = "no" },
+			"Healing Draught",
+			"disposable"
+		),
+		"",
+		"non-consumable disposable row hides like live"
+	)
 
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
@@ -86,7 +104,12 @@ function p.run()
 		error("image-only link must not append a text link", 2)
 	end
 
-	local missing = Item.renderInfobox({}, "Unknown Prototype")
+	assertEqual(
+		Item.fieldValue({}, "Unknown Prototype", "name"),
+		"",
+		"missing item fields are blank"
+	)
+	local missing = Item.statusText({}, "Unknown Prototype")
 	assertContains(missing, "Missing item data: Unknown Prototype", "missing item is visible")
 	assertContains(
 		missing,
