@@ -4,9 +4,11 @@
 
 **Goal:** Replace Python-generated wiki article wikitext with a clean Lua data-module, template/module rendering, and Cargo/LIBRARIAN query architecture.
 
-**Architecture:** Public templates remain the stable editor-facing API. Lua modules resolve article parameters against generated game-data modules, render infoboxes/tooltips/links/categories, and store resolved values into Cargo. Python generates and deploys repo-owned modules/templates/data pages, performs null-edits, and validates output; it no longer generates or rewrites human article content after cutover.
+**Architecture:** Public templates remain the stable editor-facing API. Entity infoboxes are live's real PortableInfobox `<infobox>` markup; Lua modules resolve article parameters against generated game-data modules and feed each field through `field`/`status` accessors, and store resolved values into Cargo (LIBRARIAN on live). Item tooltips are live's bespoke HTML tooltip subsystem. Python generates and deploys repo-owned modules/templates/data pages, performs null-edits, and validates output; it no longer generates or rewrites human article content after cutover.
 
-**Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, MediaWiki API, Lefthook, StyLua, Luacheck.
+**Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
+
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox in progress (M8c: Character done; Item/Quest/Zone and Render deletion pending). Item tooltip subsystem port planned (M8d). Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
 
 ---
 
@@ -32,6 +34,19 @@
 - `Template:AbilityLink` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:AbilityLink&eilimit=50&format=json
 - `Template:Zone` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:Zone&eilimit=50&format=json
 - `Template:MapLink` transclusions: https://erenshor.wiki.gg/api.php?action=query&list=embeddedin&eititle=Template:MapLink&eilimit=50&format=json
+- Live runtime (`Special:Version`): MediaWiki 1.43.6, Classic Vector (legacy),
+  Scribunto, ParserFunctions, TemplateSandbox, Gadgets (DataTables),
+  **Portable Infobox 0.7** (`Universal-Omega/PortableInfobox`), and
+  **LIBRARIAN 4.21.0** (wiki.gg's fork of Cargo by Yaron Koren, registering the
+  same `#cargo_declare`/`#cargo_store`/`#cargo_query`/`#cargo_compound_query`
+  parser functions), plus DynamicPageList3, Arrays, and Interactive Data Maps.
+- Live entity templates (`Item`, `Character`, `Quest`, `Zone`) are param-driven
+  PortableInfobox `<infobox>` markup, not Lua.
+- Live item tooltips are a bespoke HTML subsystem, not PortableInfobox:
+  `Template:Item/Weapon|Armor|Charm|Consumable|General|Mold|Aura|SkillBook|SpellScroll`
+  built from `Item/Header`, `Item/Stats`, `Item/Vitals`, `Item/Resists`,
+  `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
+  `Item/ClassRestrictions`, and `SparkleIcon` with `item-tooltip-*` CSS.
 
 ### Platform and implementation references
 
@@ -143,41 +158,50 @@ Rules:
 
 ### Source-controlled Lua modules
 
-Use focused modules instead of one giant module:
+Entity infoboxes render through the real PortableInfobox extension. Templates
+use live's `<infobox>` markup and pull each value from a Lua field accessor;
+modules return resolved, formatted field values and a status string, and never
+build infobox HTML themselves. There is no shared hand-rolled render module.
 
 ```text
 Module:Erenshor/Args        -- frame argument normalization
 Module:Erenshor/Format      -- links, files, classes, currency, booleans
-Module:Erenshor/Render      -- shared infobox/table rendering helpers
-Module:Erenshor/Item        -- item resolve/render/store
-Module:Erenshor/Character   -- NPC/enemy resolve/render/store
-Module:Erenshor/Quest       -- quest resolve/render
+Module:Erenshor/Item        -- item resolve + field/status accessors + Cargo store
+Module:Erenshor/Character   -- NPC/enemy resolve + field/status accessors + Cargo store
+Module:Erenshor/Quest       -- quest resolve + field/status accessors
 Module:Erenshor/AbilityLink -- spell/skill/stance link resolve/render
-Module:Erenshor/Zone        -- zone/map resolve/render
-Module:Erenshor/Table       -- query/table display helpers
+Module:Erenshor/Zone        -- zone/map resolve + field/status accessors
 ```
 
 Rules:
 
 - Invoke Lua through public templates, not directly from article pages.
-- Keep module variables and helper functions local unless they are exported for tests or reuse.
-- Resolve data once per template invocation, then render from the resolved object.
-- Use `mw.html` or table-buffered string assembly for generated markup.
-- Avoid calling parser functions from Lua except for Cargo declare/store and cases where MediaWiki requires parser-function compatibility.
+- Keep module variables and helper functions local unless exported for tests or reuse.
+- Resolve data once per accessor, then return a single formatted field value; PortableInfobox hides empty rows.
+- Expose `field(frame)` (one value by name, override > generated > blank) and `status(frame)` (missing-data marker + tracking category) per entity module.
+- Avoid calling parser functions from Lua except for Cargo declare/store.
+- PortableInfobox owns infobox layout; the item tooltip subsystem owns tooltip layout. No Lua-built `pi-*` markup.
 
 ### Public templates
 
-Public templates are thin compatibility wrappers:
+Public templates mirror live's PortableInfobox `<infobox>` structure and feed
+each field from generated data via Lua `field` defaults, so human params still
+override and generated data fills the rest:
 
 ```wikitext
-<includeonly>{{#invoke:Erenshor/Item|render}}</includeonly><noinclude>{{Documentation}}</noinclude>
+<includeonly><infobox type="Item">
+    <title><default>{{#invoke:Erenshor/Item|field|name}}</default></title>
+    <data><label>Type</label><default>{{#invoke:Erenshor/Item|field|type}}</default></data>
+    <!-- ... one <data> per live field ... -->
+</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{#invoke:Erenshor/Item|status}}</includeonly><noinclude>{{Documentation}}</noinclude>
 ```
 
-They keep existing editor-facing names and parameter contracts while moving logic into Lua:
+They keep existing editor-facing names and parameter contracts while moving
+data into generated modules:
 
 ```text
-Template:Item      -> Module:Erenshor/Item
-Template:Character -> Module:Erenshor/Character
+Template:Item        -> Module:Erenshor/Item
+Template:Character   -> Module:Erenshor/Character
 Template:Quest       -> Module:Erenshor/Quest
 Template:Zone        -> Module:Erenshor/Zone
 Template:AbilityLink -> Module:Erenshor/AbilityLink
@@ -185,6 +209,9 @@ Template:MapLink     -> Module:Erenshor/Zone
 ```
 
 ### Cargo/LIBRARIAN pages
+
+Live runs LIBRARIAN 4.21.0, wiki.gg's fork of Cargo, which registers the same
+`#cargo_*` parser functions; local upstream Cargo is the compatibility proxy.
 
 Cargo declaration and store pages live in template namespace only for surfaces
 with a concrete query/index requirement:
@@ -659,6 +686,58 @@ tests/unit/cli/commands/test_wiki.py
 - [x] **Step 5: Verify locally per domain**
 
   Local validation imports the ability-link, quest, zone, and map-link modules/templates/data into MediaWiki, parses representative article fixtures, runs Lua testcase modules, and checks missing-data tracking through the smoke harness. Cargo rows are not added for these render-only surfaces until Milestone 9 identifies concrete query/index requirements.
+
+### Milestone 8b: Local PortableInfobox and visual parity gate
+
+**Commits:** `b81e162a feat(wiki): install PortableInfobox in the local harness`,
+`30c74cf2 feat(wiki): add live-vs-local rendering parity gate`,
+`ad723578 feat(wiki): gate item, quest, and zone infobox parity`
+
+- [x] **Step 1: Install the live extension locally**
+
+  The local harness installs the same `Universal-Omega/PortableInfobox` build
+  the live wiki runs, so local infoboxes render through the real extension
+  rather than an emulation.
+
+- [x] **Step 2: Add the live-vs-local parity gate**
+
+  `wiki-dev/parity_check.py` renders representative local pages in Chromium and
+  asserts computed styles, DOM class families, and ResourceLoader gadget state
+  against a baseline captured from live. The contract
+  (`wiki-dev/parity/contract.py`) is committed; the captured baseline is
+  gitignored. `--capture` runs headed to clear Cloudflare; the routine check
+  runs headless against the local stack only. Pure comparison logic is unit
+  tested; the contract covers chrome, the character infobox, and the item,
+  quest, and zone infoboxes.
+
+### Milestone 8c: Render entity infoboxes through real PortableInfobox
+
+Milestones 5-8 rendered infoboxes with hand-rolled `pi-*` markup in
+`Module:Erenshor/Render` because the local harness lacked PortableInfobox. That
+interim is replaced by live's real `<infobox>` extension. Each entity template
+mirrors live's `<infobox>` structure and feeds values from generated data
+through Lua `field`/`status` accessors. The committed theme shim re-asserts
+wiki.gg's `--pi-background`/`--pi-secondary-background` because the cloned
+extension ships newer dark-mode defaults the live build predates.
+
+- [x] **Step 1: Character** (`d63f93b4 feat(wiki): render Character through real PortableInfobox`)
+- [ ] **Step 2: Item main infobox** — mirror live's `<infobox>` (omit slot/itemlevel/armor rows, which live keeps in Cargo and tooltips); hide false-boolean rows like live.
+- [ ] **Step 3: Quest** — mirror live's `<infobox>` with Requirements/Rewards headers and the horizontal Quest Progression group.
+- [ ] **Step 4: Zone** — mirror live's `<infobox>`; map link and zone connections from the module.
+- [ ] **Step 5: Delete hand-rolled rendering** — remove `Module:Erenshor/Render` and its testcases, drop the dead theme-shim `pi-*` layout block, and remove the smoke guards for escaped infobox/table markup. Keep every commit smoke- and parity-green.
+
+### Milestone 8d: Port the item tooltip subsystem
+
+Live item tooltips are a bespoke HTML subsystem, not PortableInfobox, and our
+current `Module:Erenshor/Item` `tooltip` is a four-field stub. Port the
+subsystem faithfully; extend the export pipeline to produce any missing data
+rather than rendering fake values.
+
+- [ ] **Step 1: Recreate sub-templates** — `Item/Header`, `Item/Stats`, `Item/Vitals`, `Item/Resists`, `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`, `Item/ClassRestrictions`, and `SparkleIcon`, matching live structure and `item-tooltip-*` classes.
+- [ ] **Step 2: Recreate the nine `Template:Item/<type>` tooltips** — Weapon, Armor, Charm, Consumable, General, Mold, Aura, SkillBook, SpellScroll.
+- [ ] **Step 3: Extend the data export** — produce the missing tooltip fields (per-class book/spell levels, spell-effect breakdowns, charm scaling, sparkle tiers, weapon range) in the C#/Python pipeline. No fakes; render only real exported data, omitting fields we do not have.
+- [ ] **Step 4: Drive tooltips from generated data** — article params override, missing falls back to generated data, `-` blanks; resolved through the Item module.
+- [ ] **Step 5: Verify locally** — smoke and parity coverage for each tooltip type against live.
 
 ### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
 
