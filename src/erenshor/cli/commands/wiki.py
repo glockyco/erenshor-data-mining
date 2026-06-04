@@ -29,8 +29,8 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
-from erenshor.application.wiki_deploy.cargo import recreate_cargo_for_changed_declarations
 from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
     build_repo_page_manifest,
     read_repo_page_manifest,
     write_repo_page_manifest,
@@ -180,21 +180,23 @@ def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     return client
 
 
-def _create_cargo_admin_client(cli_ctx: CLIContext) -> MediaWikiClient | None:
-    """Create a client authenticated as the Cargo-admin account, or None if unconfigured.
-    Recreating Cargo tables requires the recreatecargodata right, which the
-    deploy bot cannot hold, so a separate cargo-admin BotPassword is used.
+def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_titles: set[str]) -> None:
+    """Report changed Cargo-declaring templates so their tables can be recreated.
+    Recreation is intentionally not automated: the Cargo API cannot switch in a
+    replacement table, so an API-driven recreate would force a downtime window
+    while the table repopulates. When a declaration's fields change, recreate the
+    table via Special:CargoTables, which builds a replacement table and switches
+    it in with no downtime.
     """
-    wiki_config = cli_ctx.config.global_.mediawiki
-    if not wiki_config.cargo_admin_username or not wiki_config.cargo_admin_password:
-        return None
-    client = MediaWikiClient(
-        api_url=wiki_config.api_url,
-        bot_username=wiki_config.cargo_admin_username,
-        bot_password=wiki_config.cargo_admin_password,
+    changed = [entry for entry in manifest.entries if entry.declares_cargo_table and entry.title in changed_titles]
+    if not changed:
+        return
+    tables = sorted({table for entry in changed for table in entry.cargo_tables})
+    console.print(
+        f"[yellow]{len(changed)} Cargo declaration(s) changed (tables: {', '.join(tables)}). "
+        f"If the declared fields changed, recreate the table(s) via Special:CargoTables "
+        f"(use a replacement table and 'Switch in' for no downtime).[/yellow]"
     )
-    client.login()
-    return client
 
 
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
@@ -647,35 +649,8 @@ def deploy_repo_pages_command(
         f"Manifest: {manifest_output}"
     )
 
-    changed_declarations = [
-        entry
-        for entry in manifest.entries
-        if entry.declares_cargo_table
-        and entry.title in {result_entry.title for result_entry in result.entries if result_entry.status == "changed"}
-    ]
-    if not changed_declarations:
-        return
-
-    cargo_client = _create_cargo_admin_client(cli_ctx)
-    if cargo_client is None:
-        console.print(
-            f"[yellow]WARNING: {len(changed_declarations)} Cargo declaration(s) changed but no cargo-admin "
-            f"credentials are configured. Their tables were NOT recreated and are now stale. Set "
-            f"mediawiki.cargo_admin_username/password and re-run, or recreate them manually.[/yellow]"
-        )
-        return
-
-    try:
-        cargo_result = recreate_cargo_for_changed_declarations(
-            client=cargo_client,
-            manifest=manifest,
-            changed_titles={entry.title for entry in changed_declarations},
-            namespaces=(0,),
-            assertion="user",
-        )
-    finally:
-        cargo_client.close()
-    console.print(f"[green]Recreated Cargo tables for {len(cargo_result.entries)} changed declaration(s)[/green]")
+    changed_titles = {entry.title for entry in result.entries if entry.status == "changed"}
+    _report_changed_cargo_declarations(manifest, changed_titles)
 
 
 @app.command("refresh-embedded")
@@ -771,6 +746,9 @@ def rollback_repo_pages_command(
         client.close()
 
     console.print(f"[green]Repo-owned page rollback complete[/green] Rolled back: {len(result.entries)}")
+
+    rolled_back_titles = {entry.title for entry in result.entries}
+    _report_changed_cargo_declarations(manifest, rolled_back_titles)
 
 
 @app.command()

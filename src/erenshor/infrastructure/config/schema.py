@@ -230,18 +230,6 @@ class MediaWikiConfig(BaseModel):
         default="",
         description="MediaWiki bot password from Special:BotPasswords (set in .erenshor/config.local.toml)",
     )
-    cargo_admin_username: str = Field(
-        default="",
-        description=(
-            "BotPassword username for an account with Cargo's recreate right "
-            "(set in .erenshor/config.local.toml). Used to recreate Cargo tables "
-            "on deploy, since the deploy bot cannot hold that right."
-        ),
-    )
-    cargo_admin_password: str = Field(
-        default="",
-        description="BotPassword password for the Cargo-admin account (set in .erenshor/config.local.toml)",
-    )
 
 
 class GoogleSheetsConfig(BaseModel):

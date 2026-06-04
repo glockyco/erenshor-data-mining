@@ -119,15 +119,6 @@ class MediaWikiPageRevision:
     start_timestamp: str
 
 
-def _strip_template_prefix(title: str) -> str:
-    """Return a template title without its ``Template:`` namespace prefix.
-    The Cargo recreate API forces the Template namespace and expects the bare
-    template name, so a prefixed title would resolve to ``Template:Template:X``.
-    """
-    prefix = "Template:"
-    return title[len(prefix) :] if title.startswith(prefix) else title
-
-
 class MediaWikiClient:
     """Client for MediaWiki API operations.
 
@@ -646,72 +637,6 @@ class MediaWikiClient:
                     purged.append(page_title)
         logger.info(f"Purged {len(purged)} pages (force_link_update={force_link_update})")
         return tuple(purged)
-
-    def recreate_cargo_tables(
-        self,
-        template_title: str,
-        create_replacement: bool = False,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> None:
-        """Recreate the Cargo table(s) declared by ``template_title``.
-        Use after deploying a changed ``#cargo_declare`` so the physical table
-        matches the new schema. The Cargo API expects the template's bare name
-        (it forces the Template namespace), so any ``Template:`` prefix is
-        stripped. ``create_replacement`` builds a ``_NEXT`` replacement table for
-        zero-downtime switchover. Recreating the schema leaves the table empty
-        until the data is repopulated (see ``recreate_cargo_data``).
-        """
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-
-        data = {"action": "cargorecreatetables", "template": _strip_template_prefix(template_title)}
-        if create_replacement:
-            data["createReplacement"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-        data["token"] = self.get_csrf_token()
-
-        logger.info(f"Recreating Cargo tables for template: {template_title}")
-        self._request({}, method="POST", data=data)
-
-    def recreate_cargo_data(
-        self,
-        template_title: str,
-        table: str,
-        offset: int = 0,
-        replace_old_rows: bool = True,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> None:
-        """Repopulate ``table`` by re-storing data from pages using ``template_title``.
-        A schema recreation leaves the table empty and a forced purge does not
-        re-store Cargo rows, so the data must be recreated explicitly. One call
-        queues store jobs for a batch of using-pages starting at ``offset``;
-        callers with more using-pages than Cargo's batch size advance ``offset``.
-        The template's bare name is used (the Template namespace is implied).
-        """
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-
-        data = {
-            "action": "cargorecreatedata",
-            "template": _strip_template_prefix(template_title),
-            "table": table,
-            "offset": str(offset),
-        }
-        if replace_old_rows:
-            data["replaceOldRows"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-        data["token"] = self.get_csrf_token()
-
-        logger.info(f"Recreating Cargo data for table {table} from template {template_title} (offset {offset})")
-        self._request({}, method="POST", data=data)
 
     def get_page_revision_metadata(
         self,

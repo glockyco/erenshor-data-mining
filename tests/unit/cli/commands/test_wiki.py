@@ -352,72 +352,8 @@ class TestWikiDeployRepoCommand:
         assert "--legacy-article-deploy" in result.output
         mock_create_service.assert_not_called()
 
-    def test_deploy_recreates_changed_cargo_declarations(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        """Test a changed Cargo declaration triggers recreation under the cargo-admin client."""
-        import erenshor.cli.commands.wiki as wiki_command
-        from erenshor.application.wiki_deploy.cargo import CargoRecreateResult, CargoRecreateResultEntry
-
-        manifest = RepoWikiPageManifest(
-            entries=(
-                RepoWikiPageManifestEntry(
-                    title="Template:Item",
-                    source_path="wiki/templates/Item.wiki",
-                    source_sha256="abc",
-                    ownership_class="cargo_declaration",
-                    upload_stage="cargo_declaration",
-                    content_model="wikitext",
-                    declares_cargo_table=True,
-                    cargo_tables=("Items",),
-                ),
-            )
-        )
-        bot_client = FakeDeployClient()
-        cargo_client = FakeDeployClient()
-        calls = []
-
-        def fake_deploy_repo_pages(**kwargs):
-            return RepoPageDeployResult(
-                entries=(
-                    RepoPageDeployResultEntry(
-                        title="Template:Item",
-                        status="changed",
-                        old_revision_id=1,
-                        old_revision_timestamp="2026-06-04T12:00:00Z",
-                        new_revision_id=2,
-                    ),
-                )
-            )
-
-        def fake_recreate(**kwargs):
-            calls.append(("recreate", kwargs))
-            return CargoRecreateResult(
-                entries=(
-                    CargoRecreateResultEntry(template_title="Template:Item", tables=("Items",), using_page_count=3),
-                )
-            )
-
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda repo_root, variant: manifest)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: bot_client)
-        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
-        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda deployed_manifest, path: None)
-        monkeypatch.setattr(wiki_command, "_create_cargo_admin_client", lambda cli_ctx: cargo_client)
-        monkeypatch.setattr(wiki_command, "recreate_cargo_for_changed_declarations", fake_recreate)
-
-        result = runner.invoke(app, ["wiki", "deploy-repo-pages", "--manifest-output", str(tmp_path / "m.json")])
-
-        assert result.exit_code == 0
-        assert len(calls) == 1
-        _, kwargs = calls[0]
-        assert kwargs["client"] is cargo_client
-        assert kwargs["changed_titles"] == {"Template:Item"}
-        assert kwargs["assertion"] == "user"
-        assert cargo_client.closed is True
-        assert "Cargo" in result.output
-
-    def test_deploy_warns_when_declaration_changed_without_cargo_admin_creds(
-        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-    ):
-        """Test a changed declaration with no cargo-admin credentials warns instead of silently skipping."""
+    def test_deploy_reports_changed_cargo_declarations(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+        """Test a changed Cargo declaration is reported with a pointer to Special:CargoTables."""
         import erenshor.cli.commands.wiki as wiki_command
 
         manifest = RepoWikiPageManifest(
@@ -434,7 +370,6 @@ class TestWikiDeployRepoCommand:
                 ),
             )
         )
-        recreate_calls = []
 
         def fake_deploy_repo_pages(**kwargs):
             return RepoPageDeployResult(
@@ -453,18 +388,13 @@ class TestWikiDeployRepoCommand:
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: FakeDeployClient())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda deployed_manifest, path: None)
-        monkeypatch.setattr(wiki_command, "_create_cargo_admin_client", lambda cli_ctx: None)
-        monkeypatch.setattr(
-            wiki_command,
-            "recreate_cargo_for_changed_declarations",
-            lambda **kwargs: recreate_calls.append(kwargs),
-        )
 
         result = runner.invoke(app, ["wiki", "deploy-repo-pages", "--manifest-output", str(tmp_path / "m.json")])
 
         assert result.exit_code == 0
-        assert recreate_calls == []
-        assert "stale" in result.output.lower() or "not recreated" in result.output.lower()
+        assert "Cargo" in result.output
+        assert "Items" in result.output
+        assert "Special:CargoTables" in result.output
 
 
 class FakeDeployClient:

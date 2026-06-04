@@ -969,60 +969,6 @@ class TestMediaWikiClientPurgePages:
         assert api.requests == []
 
 
-class TestMediaWikiClientCargoRecreate:
-    """Test Cargo table and data recreation."""
-
-    def test_recreate_cargo_tables_uses_bare_template_name_and_assertion(self) -> None:
-        """Test schema recreation strips the Template prefix and carries the bot assertion."""
-        with _mediawiki_api_server(
-            [
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"cargorecreatetables": {"success": ""}},
-            ]
-        ) as (api_url, api):
-            client = MediaWikiClient(api_url=api_url, clock=MockClock())
-            client.recreate_cargo_tables("Template:Item", assertion="bot", assert_user="ErenshorBot")
-        request = next(r for r in api.requests if r.method == "POST")
-        assert request.data["action"] == "cargorecreatetables"
-        assert request.data["template"] == "Item"
-        assert "createReplacement" not in request.data
-        assert request.data["assert"] == "bot"
-        assert request.data["assertuser"] == "ErenshorBot"
-        assert request.data["token"] == "test_csrf_token"
-
-    def test_recreate_cargo_tables_requests_replacement_table(self) -> None:
-        """Test the replacement-table option is forwarded for zero-downtime switchover."""
-        with _mediawiki_api_server(
-            [
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"cargorecreatetables": {"success": ""}},
-            ]
-        ) as (api_url, api):
-            client = MediaWikiClient(api_url=api_url, clock=MockClock())
-            client.recreate_cargo_tables("Item", create_replacement=True)
-        request = next(r for r in api.requests if r.method == "POST")
-        assert request.data["createReplacement"] == "1"
-
-    def test_recreate_cargo_data_sends_template_table_offset_and_replace(self) -> None:
-        """Test data recreation forwards the bare template, table, offset, and replace flag."""
-        with _mediawiki_api_server(
-            [
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"cargorecreatedata": {"success": ""}},
-            ]
-        ) as (api_url, api):
-            client = MediaWikiClient(api_url=api_url, clock=MockClock())
-            client.recreate_cargo_data("Template:Item", "Items", offset=500, assertion="bot")
-        request = next(r for r in api.requests if r.method == "POST")
-        assert request.data["action"] == "cargorecreatedata"
-        assert request.data["template"] == "Item"
-        assert request.data["table"] == "Items"
-        assert request.data["offset"] == "500"
-        assert request.data["replaceOldRows"] == "1"
-        assert request.data["assert"] == "bot"
-        assert request.data["token"] == "test_csrf_token"
-
-
 class TestMediaWikiClientPageExists:
     """Test page existence checking."""
 
