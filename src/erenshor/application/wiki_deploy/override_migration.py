@@ -1,0 +1,96 @@
+"""Article override migration pass for the Lua/Cargo cutover.
+
+For a single article, this parses the infobox invocation, asks a resolver for
+the generated (Lua) value of each non-identity parameter, classifies each
+against that value, and removes the parameters that merely duplicate generated
+data. What remains is the minimal set of genuine overrides plus the identity
+selector, so future data exports flow through untouched fields while real
+human edits are preserved.
+
+The generated-value resolver is a protocol so the pass is testable without a
+live wiki; the live implementation resolves values through the deployed
+presentation module (the single source of truth for what a field generates).
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from typing import Protocol
+
+from erenshor.application.wiki_deploy.override_classifier import (
+    ArticleOverrideClassification,
+    classify_article_overrides,
+)
+from erenshor.infrastructure.wiki.template_parser import TemplateParser
+
+# Selectors the presentation modules use to resolve an entity; never overrides.
+DEFAULT_IDENTITY_PARAMS = ("stablekey", "stableKey", "key", "id")
+
+
+class GeneratedValueResolver(Protocol):
+    """Resolves the generated value of each field for an entity.
+
+    ``identity_args`` are the article's identity selectors (e.g. ``stablekey``)
+    that the presentation module uses to find the entity; the resolver invokes
+    that module with only those args so each returned value is the generated
+    default, with no override applied.
+    """
+
+    def resolve(self, identity_args: Mapping[str, str], fields: Sequence[str]) -> dict[str, str]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ArticleMigration:
+    """The minimized article plus the evidence behind every decision."""
+
+    title: str
+    minimized_wikitext: str
+    classification: ArticleOverrideClassification
+    removed_fields: tuple[str, ...]
+    preserved_fields: tuple[str, ...]
+
+
+def migrate_article_overrides(
+    *,
+    title: str,
+    wikitext: str,
+    template_names: Sequence[str],
+    resolver: GeneratedValueResolver,
+    identity_params: Sequence[str] = DEFAULT_IDENTITY_PARAMS,
+    parser: TemplateParser | None = None,
+) -> ArticleMigration:
+    """Remove infobox parameters that duplicate generated data, keeping real overrides."""
+    parser = parser or TemplateParser()
+    code = parser.parse(wikitext)
+    template = parser.find_template(code, template_names)
+    params = parser.get_params(template)
+
+    identity = set(identity_params)
+    identity_args = {name: value for name, value in params.items() if name in identity}
+    candidate = {name: value for name, value in params.items() if name not in identity}
+
+    generated_values = resolver.resolve(identity_args, tuple(candidate))
+    classification = classify_article_overrides(
+        title=title,
+        article_params=candidate,
+        generated_values=generated_values,
+    )
+
+    removed_fields = tuple(
+        decision.field for decision in classification.decisions if decision.decision == "removed_generated_duplicate"
+    )
+    preserved_fields = tuple(
+        decision.field for decision in classification.decisions if decision.decision != "removed_generated_duplicate"
+    )
+
+    for field in removed_fields:
+        parser.remove_param(template, field)
+
+    return ArticleMigration(
+        title=title,
+        minimized_wikitext=parser.render(code),
+        classification=classification,
+        removed_fields=removed_fields,
+        preserved_fields=preserved_fields,
+    )
