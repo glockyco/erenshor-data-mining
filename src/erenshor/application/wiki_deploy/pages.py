@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
+from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
     from erenshor.infrastructure.wiki import MediaWikiPageRevision
@@ -96,7 +97,7 @@ def deploy_repo_pages(
     for entry in manifest.entries:
         source_text = (repo_root / entry.source_path).read_text(encoding="utf-8")
         remote_text = current_pages.get(entry.title)
-        if remote_text == source_text:
+        if remote_text is not None and normalize_saved_text(remote_text) == normalize_saved_text(source_text):
             result_entries.append(
                 RepoPageDeployResultEntry(
                     title=entry.title,

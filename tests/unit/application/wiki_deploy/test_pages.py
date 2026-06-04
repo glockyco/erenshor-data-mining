@@ -99,6 +99,28 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
     assert client.safe_edits == []
 
 
+def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_path: Path) -> None:
+    """A repo file whose only difference from the stored page is MediaWiki's save normalization is unchanged."""
+    source = "local p = {}\nreturn p\n"
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    # MediaWiki stores content with CRLF collapsed and trailing whitespace trimmed.
+    client = RecordingWikiClient({"Module:Erenshor/Item": "local p = {}\r\nreturn p"})
+    result = deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+        assert_user="ErenshorBot",
+    )
+    [entry] = result.entries
+    assert entry.status == "unchanged"
+    assert client.revision_requests == []
+    assert client.safe_edits == []
+    assert client.safe_creates == []
+
+
 def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     """Changed pages are uploaded through revision-guarded safe edits."""
     source = "local p = {}\nfunction p.field() return 'new' end\nreturn p\n"
