@@ -167,45 +167,60 @@ and the "Base DPS" label. The real game formula (`CalcDPSMelee/Bow`) is
 player-stat-dependent and cannot be a faithful item constant, so the wiki keeps a
 documented deterministic comparison metric.
 
-**Rendering pattern:** one `{{Item}}` entry point per page →
-`{{#invoke:Erenshor/Item|render}}`. The Lua module resolves the item by page
-name/stable key from `Module:Erenshor/Data/Items`, applies ALL
+**Rendering pattern (pure-Lua, separate tooltip template):** the bespoke stat
+tooltip is its own template, `{{ItemTooltip|stablekey=…}}` →
+`{{#invoke:Erenshor/Item|tooltip}}`, kept SEPARATE from the metadata `{{Item}}`
+PortableInfobox. A live item page is `{{Item|…sources/quest/buy…}}` followed by a
+wikitable of three `{{Item/Weapon|…75 flat params…}}` calls; we replace that whole
+block with one `{{ItemTooltip}}`. The Lua module resolves the item by stable key
+from `Module:Erenshor/Data/Items` and builds the three quality tooltips' HTML
+directly with `mw.html`, reusing the live `item-tooltip-*` CSS classes — NO
+presentational sub-templates, NO flat-param hand-off. Lua owns ALL
 presentation/derivation (Ascended label, per-quality color, melee range=1, Base
-DPS, charm attribute names, slot/weapon-type display, spell-detail formatting),
-and emits the thin presentational sub-templates once per quality. Python data
-stays faithful raw only. Article params override generated data; missing falls
-back to generated; `-` blanks; missing entity emits the visible marker + tracking
-category.
+DPS, charm attribute names, slot/weapon-type display, spell-detail formatting);
+Python data stays faithful raw only. The Scribunto unit tests assert the real
+final markup. Article params override generated data; `-` blanks; missing entity
+emits the visible marker + tracking category.
 
-- [ ] **Step 1: Faithful raw item data** (`wiki_lua/items.py`): add `description`
-  (lore), `book_title`, raw `wandRange`/`bowRange`, raw per-quality stat rows
-  (quality key stays "Godly"), and resolved crafting `ingredients`/`rewards`
-  (ItemLink + qty) via `get_crafting_recipe`. NO tier/range/DPS derivation in
-  Python. Extend `ItemDataRepository`. TDD.
-- [ ] **Step 2: Thin presentational sub-templates** under `wiki/templates/`
-  (`Item/Header`, `Item/Stats`, `Item/Vitals`, `Item/Resists`,
-  `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
-  `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`), reusing the live
-  `item-tooltip-*` CSS unchanged. Smoke-render each in isolation.
-- [ ] **Step 3: `Module:Erenshor/Item` render** with all presentation/derivation
-  and one entry point per item type; render the three quality tooltips (Normal,
-  Blessed, Ascended) from the per-quality stat rows; Godly→Ascended; melee
-  range=1; Base DPS; charm attribute names.
+**Generator migration (deploy path).** The Python page generator emits
+`{{ItemTooltip|stablekey=…}}` and migrates existing pages by extending the
+existing `mwparserfromhell` machinery in `generate_service` (`_replace_fancy_tables`
+/ `_replace_wiki_table` / `_replace_item_type_templates`): replace the old
+three-`{{Item/Weapon}}` table (and legacy `{{Fancy-weapon}}` / `{{Item/<type>}}`
+tooltip templates) with the single `{{ItemTooltip}}`, idempotently, preserving the
+`{{Item}}` infobox, manual content, and categories. This matches researched best
+practices (idempotent, `matches()`-based, spacing/manual-edit-preserving, dry-run +
+edit summaries) — reuse, do not reinvent.
+
+- [x] **Step 1: Faithful raw item data** (`wiki_lua/items.py`) — DONE. Adds
+  `description`, `book_title`, raw `wandRange`/`bowRange`, raw per-quality stat
+  rows (quality key "Godly"), resolved crafting `ingredients`/`rewards`. No
+  presentation in Python.
+- [ ] **Step 2: `Module:Erenshor/Item` tooltip render (pure-Lua)** — build the
+  three quality tooltips (Normal, Blessed, Ascended) with `mw.html` + live
+  `item-tooltip-*` classes; Godly→Ascended; melee range=1; Base DPS; one entry
+  point per item type. Add `Template:ItemTooltip` =
+  `{{#invoke:Erenshor/Item|tooltip}}`. Weapon vertical slice first (testcases +
+  smoke + screenshot), then fan out to the other 8 types.
+- [ ] **Step 3: Charm scaling** — render the renamed attributes
+  (Physicality/Hardiness/Finesse/Defense/Arcanism/Restoration/Mind "/ 40";
+  Mitigation "%") and the explanatory note.
 - [ ] **Step 4: Spell-detail join** from `Module:Erenshor/Data/Spells` for the
   item's effect stable keys (`weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/
-  `wornEffect`/`aura`); apply the authoritative formatting. No 40-field spell
-  block in item data.
+  `wornEffect`/`aura`); apply the authoritative formatting (duration ×3, labels,
+  "/ tick", worn hides cast-time). No 40-field spell block in item data.
 - [ ] **Step 5: Per-class teaching levels** from Skills/Spells modules: SkillBook
   reads the skill's six `*RequiredLevel` (Duelist→Windblade); SpellScroll reads
   the spell `RequiredLevel` gated by `UsedBy`.
-- [ ] **Step 6: Cut over + verify.** Replace the `renderTooltip` stub; wire the
-  nine `Template:Item/<type>`; smoke + testcases for one fixture of each type
-  (incl. proc/worn/aura spell details and charm scaling). Delete dead
-  `Module:Erenshor/Render` once the last user is gone.
+- [ ] **Step 6: Generator migration + verify.** Emit `{{ItemTooltip|stablekey=…}}`
+  from the Python item page generator; extend the `_replace_*` machinery to strip
+  the old 3×table / legacy templates idempotently while preserving the infobox and
+  manual content; tests for migrate-from-old and re-run-idempotent. Smoke +
+  testcases for one fixture of each item type. Delete dead `Module:Erenshor/Render`
+  once the last user is gone.
 
-**Note (mw.loadData):** item shards now carry lore prose (tooltips need it),
-reversing the earlier "no prose in data" rule. Shards are per-type and loaded per
-page; acceptable — revisit only if shard size hurts parser memory.
+**Note (mw.loadData):** item shards carry lore prose (tooltips need it); shards
+are per-type and loaded per page; revisit only if shard size hurts parser memory.
 
 ## Milestone 8e: First-class Spell / Skill / Stance modeling
 
