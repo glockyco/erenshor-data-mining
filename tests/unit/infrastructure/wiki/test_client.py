@@ -839,7 +839,6 @@ class TestMediaWikiClientSafeEditPage:
         token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
         permission_response = MagicMock()
         permission_response.json.return_value = {"error": {"code": "permissiondenied", "info": "Permission denied"}}
-
         mock_http_client.get.return_value = token_response
         mock_http_client.post.return_value = permission_response
 
@@ -858,6 +857,31 @@ class TestMediaWikiClientSafeEditPage:
                 content="new template source",
                 base_revision=base_revision,
             )
+
+    def test_safe_edit_page_returns_base_revision_on_no_change(self) -> None:
+        """Test an identical-content edit (nochange) reports the existing revision, not a crash."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {"edit": {"result": "Success", "pageid": 7, "title": "Template:Item", "nochange": ""}},
+            ]
+        ) as (api_url, _api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            base_revision = MediaWikiPageRevision(
+                title="Template:Item",
+                page_id=7,
+                revision_id=1234,
+                timestamp="2026-06-04T11:59:00Z",
+                start_timestamp="2026-06-04T12:00:00Z",
+            )
+
+            revision_id = client.safe_edit_page(
+                title="Template:Item",
+                content="identical source",
+                base_revision=base_revision,
+            )
+
+        assert revision_id == 1234
 
 
 class TestMediaWikiClientEmbeddedIn:

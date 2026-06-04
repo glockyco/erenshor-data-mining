@@ -828,6 +828,11 @@ class MediaWikiClient:
                 logger.error(f"Safe edit failed for {title}: {error}")
                 raise MediaWikiEditError(f"Safe edit failed: {error}")
 
+            if "nochange" in edit_result:
+                logger.info(
+                    f"Safe edit was a no-op for {title}; content already at revision {base_revision.revision_id}"
+                )
+                return base_revision.revision_id
             try:
                 new_revision_id = int(edit_result["newrevid"])
             except (KeyError, TypeError, ValueError) as e:
