@@ -17,11 +17,8 @@ from erenshor.application.sheets.service import (
     SheetsService,
     SheetsServiceError,
 )
-from erenshor.application.wiki.services.page import OperationResult, WikiPage
-from erenshor.application.wiki.services.wiki_service import (
-    WikiService,
-    WikiServiceError,
-)
+from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.wiki_service import WikiService
 
 __all__ = [
     "BackupError",
@@ -34,7 +31,5 @@ __all__ = [
     "SheetMetadata",
     "SheetsService",
     "SheetsServiceError",
-    "WikiPage",
     "WikiService",
-    "WikiServiceError",
 ]

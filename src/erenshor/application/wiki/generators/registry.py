@@ -23,7 +23,7 @@ from erenshor.application.wiki.generators.pages.weapons_overview import (
 from erenshor.application.wiki.generators.pages.zones import ZonePageGenerator
 
 if TYPE_CHECKING:
-    from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator
+    from erenshor.application.wiki.generators.base import PageGenerator
     from erenshor.application.wiki.generators.context import GeneratorContext
 
 
@@ -131,47 +131,6 @@ def get_generators_by_name(
     )
 
     return [(reg, reg.generator_class(context)) for reg in filtered_registrations]
-
-
-def detect_conflicts(pages: list[GeneratedPage]) -> dict[str, list[GeneratedPage]]:
-    """Detect page title conflicts (multiple generators producing same page).
-
-    This is called after generation to identify cases where multiple generators
-    attempt to create the same wiki page, which would be an error.
-
-    Args:
-        pages: List of all generated pages
-
-    Returns:
-        Dict mapping conflicting page titles to list of GeneratedPage objects
-        that produced them. Empty dict if no conflicts.
-
-    Example:
-        ```python
-        pages = list(chain.from_iterable(gen.generate_pages() for _, gen in pairs))
-        conflicts = detect_conflicts(pages)
-
-        if conflicts:
-            for title, conflicting_pages in conflicts.items():
-                logger.error(f"Multiple generators produced page '{title}'")
-        ```
-    """
-    title_to_pages: dict[str, list[GeneratedPage]] = {}
-
-    for page in pages:
-        if page.title not in title_to_pages:
-            title_to_pages[page.title] = []
-        title_to_pages[page.title].append(page)
-
-    # Return only pages with conflicts (>1 generator)
-    conflicts = {title: pages for title, pages in title_to_pages.items() if len(pages) > 1}
-
-    if conflicts:
-        logger.warning(f"Detected {len(conflicts)} page title conflict(s)")
-        for title, conflicting_pages in conflicts.items():
-            logger.warning(f"  - '{title}': {len(conflicting_pages)} generators")
-
-    return conflicts
 
 
 def list_generators() -> list[tuple[str, str, bool]]:

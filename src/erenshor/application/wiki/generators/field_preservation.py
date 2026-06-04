@@ -76,12 +76,6 @@ class HandlerNotFoundError(FieldPreservationError):
     pass
 
 
-class InvalidRuleError(FieldPreservationError):
-    """Raised when preservation rule is invalid."""
-
-    pass
-
-
 # Built-in handlers
 def override_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
     """Always use new database value (default behavior).

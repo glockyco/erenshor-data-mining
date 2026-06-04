@@ -62,12 +62,6 @@ from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 
-class WikiServiceError(Exception):
-    """Base exception for wiki service errors."""
-
-    pass
-
-
 class WikiService:
     """Service for orchestrating wiki page fetch/generate/deploy workflow.
 

@@ -8,7 +8,6 @@ from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerat
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.registry import (
     GeneratorRegistration,
-    detect_conflicts,
     get_generators_by_name,
     list_generators,
 )
@@ -105,72 +104,6 @@ class TestGetGeneratorsByName:
         """Test error when mixing valid and invalid names."""
         with pytest.raises(ValueError, match=r"Unknown generator.*weapons"):
             get_generators_by_name(mock_context, ["items", "weapons"])
-
-
-class TestDetectConflicts:
-    """Test detect_conflicts function."""
-
-    def test_no_conflicts(self):
-        """Test when all pages have unique titles."""
-        pages = [
-            GeneratedPage(
-                title="Page 1",
-                content="Content 1",
-                metadata=PageMetadata(summary="Update 1"),
-            ),
-            GeneratedPage(
-                title="Page 2",
-                content="Content 2",
-                metadata=PageMetadata(summary="Update 2"),
-            ),
-        ]
-
-        conflicts = detect_conflicts(pages)
-        assert conflicts == {}
-
-    def test_single_conflict(self):
-        """Test detecting a single page title conflict."""
-        page1 = GeneratedPage(
-            title="Duplicate",
-            content="Content 1",
-            metadata=PageMetadata(summary="Update 1"),
-        )
-        page2 = GeneratedPage(
-            title="Duplicate",
-            content="Content 2",
-            metadata=PageMetadata(summary="Update 2"),
-        )
-        pages = [page1, page2]
-
-        conflicts = detect_conflicts(pages)
-
-        assert len(conflicts) == 1
-        assert "Duplicate" in conflicts
-        assert conflicts["Duplicate"] == [page1, page2]
-
-    def test_multiple_conflicts(self):
-        """Test detecting multiple page title conflicts."""
-        pages = [
-            GeneratedPage("Title A", "Content 1", PageMetadata("Update 1")),
-            GeneratedPage("Title A", "Content 2", PageMetadata("Update 2")),
-            GeneratedPage("Title B", "Content 3", PageMetadata("Update 3")),
-            GeneratedPage("Title B", "Content 4", PageMetadata("Update 4")),
-            GeneratedPage("Title C", "Content 5", PageMetadata("Update 5")),
-        ]
-
-        conflicts = detect_conflicts(pages)
-
-        assert len(conflicts) == 2
-        assert "Title A" in conflicts
-        assert "Title B" in conflicts
-        assert "Title C" not in conflicts
-        assert len(conflicts["Title A"]) == 2
-        assert len(conflicts["Title B"]) == 2
-
-    def test_empty_pages_list(self):
-        """Test with empty pages list."""
-        conflicts = detect_conflicts([])
-        assert conflicts == {}
 
 
 class TestListGenerators:
