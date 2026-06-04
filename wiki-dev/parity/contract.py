@@ -40,6 +40,27 @@ class ParityPage:
     targets: tuple[Target, ...]
 
 
+# Shared infobox surface that every entity template must render. Proves the
+# template emits a real PortableInfobox (not a plain table) with a styled title
+# and bordered data rows, independent of the entity's content.
+ENTITY_INFOBOX_TARGETS: tuple[Target, ...] = (
+    Target(
+        name="shell",
+        selector=".portable-infobox",
+        properties=("display", "float", "background-color"),
+    ),
+    Target(
+        name="title",
+        selector=".portable-infobox .pi-title",
+        properties=("font-weight", "color"),
+    ),
+    Target(
+        name="data-row",
+        selector=".portable-infobox .pi-data",
+        properties=("display", "border-bottom-width", "border-bottom-style"),
+    ),
+)
+
 PAGES: tuple[ParityPage, ...] = (
     ParityPage(
         name="chrome",
@@ -121,5 +142,23 @@ PAGES: tuple[ParityPage, ...] = (
                 properties=("border-left-width", "border-left-style", "border-left-color"),
             ),
         ),
+    ),
+    ParityPage(
+        name="item",
+        live_path="/wiki/Abyssal_Plate",
+        local_title="Abyssal_Plate",
+        targets=ENTITY_INFOBOX_TARGETS,
+    ),
+    ParityPage(
+        name="quest",
+        live_path="/wiki/A_Magical_Sword_in_Port_Azure",
+        local_title="A_Magical_Sword_in_Port_Azure",
+        targets=ENTITY_INFOBOX_TARGETS,
+    ),
+    ParityPage(
+        name="zone",
+        live_path="/wiki/Port_Azure",
+        local_title="Port_Azure",
+        targets=ENTITY_INFOBOX_TARGETS,
     ),
 )

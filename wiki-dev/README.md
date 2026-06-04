@@ -131,6 +131,21 @@ Cloudflare challenge that a headless browser does not clear; the routine check
 only touches the local stack and runs headless. Import the local pages
 (`import_pages.py`) before checking so the rendered output is current.
 
+## Full local validation sequence
+
+After changing modules, templates, fixtures, or interface shims, run the local
+validation in order from the repository root:
+
+```bash
+uv run erenshor wiki sync-interface     # refresh gitignored live interface mirror
+uv run python wiki-dev/import_pages.py  # import interface, modules, templates, pages
+uv run python wiki-dev/smoke_test.py    # parse + Cargo structural checks
+uv run python wiki-dev/parity_check.py  # rendered-style parity vs captured live baseline
+```
+
+Run `uv run python wiki-dev/parity_check.py --capture` first (and after live
+styling changes) to refresh the gitignored baseline the check compares against.
+
 ## Reset local state
 
 This deletes the local wiki database, generated settings, and uploaded files:
