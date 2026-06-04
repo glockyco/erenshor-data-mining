@@ -249,13 +249,27 @@ else generated Lua data value
 else absent
 ```
 
-Parameter semantics:
+Runtime parameter semantics after migration classification:
 
 - Missing parameter means use generated value.
 - Non-empty parameter means override generated value.
 - A documented sentinel value such as `-` means intentionally blank the resolved value.
 - Empty string should not silently erase generated data unless the specific field documents blank-as-override semantics.
 - Missing generated entity emits visible error output and a tracking category.
+
+Migration/cutover preservation rule:
+
+- Existing article parameters are not automatically manual overrides. During
+  migration, compare each article-local value against the value produced from
+  exported/Lua data using field-specific normalization. If the values match,
+  remove the article parameter so future game-data exports continue to flow
+  through. Preserve only values that differ after normalization, explicit
+  documented blank sentinels, and fields classified as human-authored content.
+- Every preserved override must be auditable. The deploy/migration manifest
+  records page title, field name, article value, generated value, normalization
+  rule, decision (`removed_generated_duplicate`, `preserved_manual_override`,
+  or `intentional_blank`), and reason. A deploy must fail closed if a field is
+  override-capable but lacks a comparison rule.
 
 Tracking categories:
 
@@ -973,30 +987,39 @@ tests/unit/cli/commands/test_wiki.py
 - Rollback must use the same safe edit path and manifest data. If a Cargo schema
   was changed, rollback must also restore the old declaration and recreate/switch
   the Cargo table before null-editing dependent pages.
+- Article override preservation must be classification-based, not blanket
+  preservation. The pipeline compares existing article parameters with
+  exported/Lua values using field-specific normalization, drops generated
+  duplicates, preserves only meaningful divergence or documented blank
+  sentinels, and writes those decisions into the manifest for review.
 
 - [ ] **Step 1: Add repo-owned page deploy manifest**
 
-  Manifest entries must include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency/null-edit targets, and rollback text source.
+  Manifest entries must include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency/null-edit targets, rollback text source, and any article override classification decisions.
 
-- [ ] **Step 2: Add safe upload command**
+- [ ] **Step 2: Add article override classifier**
+
+  Build a pre-cutover comparison pass for article pages whose root templates keep manual parameters. For each override-capable field, resolve the generated Lua/export value, normalize both article and generated values with the field's documented rule, drop matching generated duplicates, preserve differing manual values, preserve documented blank sentinels, and reject fields without a comparison rule. The classifier output feeds both reviewed migration edits and the deploy manifest.
+
+- [ ] **Step 3: Add safe upload command**
 
   Upload repo-owned pages through the extended `MediaWikiClient` safe-edit path using CSRF tokens, `baserevid`, `starttimestamp`, `md5`, assertion parameters, and summaries containing variant and game build. Abort on edit conflicts, unexpected users, bad tokens after one refresh, or stale hashes.
 
-- [ ] **Step 3: Add null-edit command**
+- [ ] **Step 4: Add null-edit command**
 
   Null-edit affected article pages after data/template/module deploys. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. Use purge only for cache refreshes where link-table/Cargo/category updates are not needed.
 
-- [ ] **Step 4: Add rollback command**
+- [ ] **Step 5: Add rollback command**
 
   Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived null-edit pass.
 
-- [ ] **Step 5: Guard legacy commands**
+- [ ] **Step 6: Guard legacy commands**
 
   Legacy Python article generation/deployment commands must be disabled or explicitly marked legacy so they cannot run accidentally during the clean cut.
 
-- [ ] **Step 6: Verify against local MediaWiki**
+- [ ] **Step 7: Verify against local MediaWiki**
 
-  Use the local harness to upload pages, capture revision IDs, recreate Cargo tables after declaration changes, null-edit dependency pages, and roll back to previous revisions. Include tests for edit conflicts, assertion failures, maxlag retry handling, stale tokens, and rollback after partial deployment.
+  Use the local harness to upload pages, capture revision IDs, recreate Cargo tables after declaration changes, null-edit dependency pages, and roll back to previous revisions. Include tests for edit conflicts, assertion failures, maxlag retry handling, stale tokens, rollback after partial deployment, and generated-vs-manual override classification.
 
 ### Milestone 11: Complete local full-system verification
 
