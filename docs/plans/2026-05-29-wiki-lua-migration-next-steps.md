@@ -1018,9 +1018,10 @@ classification still outstanding.
   Renamed from null-edit to refresh: a no-op edit performs no LinksUpdate, so
   the pass forces a synchronous link/Cargo refresh on `embeddedin` dependents
   via `action=purge` with `forcelinkupdate`.
-- Step 5 (rollback): safe-edit rollback and CLI are done (`9455d03a`).
-  Restoring prior Cargo declarations, recreating/switching Cargo tables, and
-  running the dependency-derived refresh pass during rollback are outstanding.
+- Step 5 (rollback): done (`9455d03a`). Rollback restores recorded page text
+  and reports changed Cargo declarations. Cargo tables are not recreated
+  automatically (see Step 7); a dependency refresh can be run separately with
+  the refresh command when needed.
 - Step 6 (guard legacy): done (`f9036c09`); legacy article deploy now requires
   `--legacy-article-deploy`.
 - Step 7 (verify against local MediaWiki): the deploy/rollback/refresh core is
@@ -1030,8 +1031,11 @@ classification still outstanding.
   race, assertion failure). Live testing surfaced and fixed the safe-create
   conflict mapping (`26466ea3`), no-op edit crash (`f026f442`), deploy
   non-idempotency (`68d5cfb0`), and broken null-edit refresh (`0f4ce9fe`). The
-  harness now provisions a deploy bot (`a07fcea7`). Cargo table recreation and
-  override-classification verification remain.
+  harness now provisions a deploy bot (`a07fcea7`). Cargo recreation was
+  deliberately left to Special:CargoTables rather than automated (`13d025e6`),
+  because the Cargo API cannot switch in a replacement table and would force a
+  downtime window; deploy and rollback report changed declarations instead.
+  Override-classification verification remains.
 
 - [x] **Step 1: Add repo-owned page deploy manifest**
 
@@ -1049,9 +1053,9 @@ classification still outstanding.
 
   Refresh the article pages affected by a data/template/module deploy. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. The refresh forces a synchronous link/Cargo/category update via `action=purge` with `forcelinkupdate`: a no-op ("null") edit returns `nochange`, performs no save, and runs no LinksUpdate, so it does not refresh dependents. Plain purge without `forcelinkupdate` is cache-only.
 
-- [ ] **Step 5: Add rollback command**
+- [x] **Step 5: Add rollback command**
 
-  Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived refresh pass.
+  Rollback uploads previous source for every changed repo-owned page through the same safe-edit path and reports any changed Cargo declarations. Cargo tables are recreated manually via Special:CargoTables (the API cannot switch in a replacement table, so automated recreation would force a downtime window); a dependency refresh can be run with the refresh command when link/Cargo data needs updating.
 
 - [x] **Step 6: Guard legacy commands**
 
@@ -1059,7 +1063,7 @@ classification still outstanding.
 
 - [ ] **Step 7: Verify against local MediaWiki**
 
-  Use the local harness to upload pages, capture revision IDs, recreate Cargo tables after declaration changes, null-edit dependency pages, and roll back to previous revisions. Include tests for edit conflicts, assertion failures, maxlag retry handling, stale tokens, rollback after partial deployment, and generated-vs-manual override classification.
+  Use the local harness to upload pages, capture revision IDs, report changed Cargo declarations (recreation is done manually via Special:CargoTables), refresh dependency pages, and roll back to previous revisions. Tests cover edit conflicts, assertion failures, lost create races, and rollback restore; maxlag/Retry-After backoff is covered by client unit tests. Generated-vs-manual override classification remains to verify.
 
 ### Milestone 11: Complete local full-system verification
 
