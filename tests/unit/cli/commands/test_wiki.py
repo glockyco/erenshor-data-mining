@@ -223,7 +223,7 @@ class TestWikiDeployCommand:
         mock_service.deploy_all.return_value = mock_operation_result
         mock_create_service.return_value = mock_service
 
-        result = runner.invoke(app, ["wiki", "deploy"])
+        result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
@@ -235,7 +235,7 @@ class TestWikiDeployCommand:
         mock_service.deploy_all.return_value = mock_operation_result
         mock_create_service.return_value = mock_service
 
-        result = runner.invoke(app, ["wiki", "deploy", "--limit", "5"])
+        result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy", "--limit", "5"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
@@ -247,7 +247,7 @@ class TestWikiDeployCommand:
         mock_service.deploy_all.return_value = mock_operation_result
         mock_create_service.return_value = mock_service
 
-        result = runner.invoke(app, ["--dry-run", "wiki", "deploy"])
+        result = runner.invoke(app, ["--dry-run", "wiki", "deploy", "--legacy-article-deploy"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
@@ -259,8 +259,43 @@ class TestWikiDeployCommand:
         mock_service.deploy_all.return_value = mock_operation_result_with_failures
         mock_create_service.return_value = mock_service
 
-        result = runner.invoke(app, ["wiki", "deploy"])
+        result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy"])
 
         # Should exit 1 with failures
         assert result.exit_code == 1
         mock_service.deploy_all.assert_called_once()
+
+
+class TestWikiDeployRepoCommand:
+    """Test repo-owned wiki deploy command."""
+
+    @patch("erenshor.cli.commands.wiki.MediaWikiClient")
+    @patch("erenshor.cli.commands.wiki.deploy_repo_pages")
+    @patch("erenshor.cli.commands.wiki.build_repo_page_manifest")
+    def test_deploy_repo_pages(self, mock_build_manifest, mock_deploy_repo_pages, mock_client_class):
+        """Test repo-owned page deploy uses manifest and safe deploy service."""
+        mock_manifest = MagicMock()
+        mock_build_manifest.return_value = mock_manifest
+        mock_result = MagicMock()
+        mock_result.entries = [
+            MagicMock(status="unchanged"),
+            MagicMock(status="changed"),
+        ]
+        mock_deploy_repo_pages.return_value = mock_result
+
+        result = runner.invoke(app, ["wiki", "deploy-repo-pages"])
+
+        assert result.exit_code == 0
+        assert "Changed: 1" in result.output
+        mock_build_manifest.assert_called_once()
+        mock_deploy_repo_pages.assert_called_once()
+        mock_client_class.return_value.close.assert_called_once()
+
+    @patch("erenshor.cli.commands.wiki._create_wiki_service")
+    def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_service):
+        """Test legacy generated article deploy is guarded during Lua cutover."""
+        result = runner.invoke(app, ["wiki", "deploy"])
+
+        assert result.exit_code == 1
+        assert "--legacy-article-deploy" in result.output
+        mock_create_service.assert_not_called()

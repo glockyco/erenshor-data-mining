@@ -36,9 +36,11 @@ class WikiNullEditClient(Protocol):
         title: str,
         content: str,
         base_revision: MediaWikiPageRevision,
-        summary: str,
-        assertion: EditAssertion,
-        assert_user: str | None,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: EditAssertion = "bot",
+        assert_user: str | None = None,
     ) -> int: ...
 
 

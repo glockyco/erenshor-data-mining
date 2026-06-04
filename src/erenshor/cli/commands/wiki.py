@@ -29,6 +29,8 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
+from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
+from erenshor.application.wiki_deploy.pages import deploy_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
@@ -157,6 +159,18 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         class_display=class_display,
         maps_base_url=maps_base_url,
     )
+
+
+def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+    """Create an authenticated MediaWiki client for deployment commands."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    client = MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=wiki_config.bot_username,
+        bot_password=wiki_config.bot_password,
+    )
+    client.login()
+    return client
 
 
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
@@ -557,6 +571,44 @@ def sync_interface(
     )
 
 
+@app.command("deploy-repo-pages")
+def deploy_repo_pages_command(
+    ctx: typer.Context,
+    summary: Annotated[
+        str,
+        typer.Option("--summary", help="Edit summary for repo-owned page uploads."),
+    ] = "Deploy repo-owned wiki pages",
+    assert_user: Annotated[
+        str | None,
+        typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
+    ] = None,
+) -> None:
+    """Deploy repo-owned Lua modules, templates, and generated Lua data."""
+    cli_ctx: CLIContext = ctx.obj
+    manifest = build_repo_page_manifest(cli_ctx.repo_root, variant=cli_ctx.variant)
+
+    if cli_ctx.dry_run:
+        console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest[/yellow]")
+        return
+
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = deploy_repo_pages(
+            manifest=manifest,
+            repo_root=cli_ctx.repo_root,
+            client=client,
+            summary=summary,
+            assertion="bot",
+            assert_user=assert_user,
+        )
+    finally:
+        client.close()
+
+    changed = sum(1 for entry in result.entries if entry.status == "changed")
+    unchanged = sum(1 for entry in result.entries if entry.status == "unchanged")
+    console.print(f"[green]Repo-owned page deploy complete[/green] Changed: {changed} Unchanged: {unchanged}")
+
+
 @app.command()
 def deploy(
     ctx: typer.Context,
@@ -576,33 +628,31 @@ def deploy(
         "--from-dir",
         help="Deploy .txt files from this directory instead of generated storage. Title derived from filename.",
     ),
+    legacy_article_deploy: bool = typer.Option(
+        False,
+        "--legacy-article-deploy",
+        help="Allow the legacy Python-generated article deploy path during Lua cutover.",
+    ),
 ) -> None:
-    """Deploy generated wiki pages to MediaWiki.
-
-    Uploads generated pages from local storage to MediaWiki. Only pages that have
-    been generated (exist in variants/{variant}/wiki/generated/) will be deployed.
-
-    You can specify which pages to deploy using --pages-file:
-    - Deploy from file: --pages-file pages.txt
-    - Deploy from stdin: --pages-file - < pages.txt
-    - Deploy all pages: (no --pages-file option)
-
-    Use --dry-run to preview what would be uploaded without actually doing it.
-    """
+    """Deploy legacy Python-generated article pages to MediaWiki."""
     cli_ctx: CLIContext = ctx.obj
+    if not legacy_article_deploy:
+        console.print(
+            "[red]Legacy article deploy is disabled during Lua/Cargo cutover. "
+            "Use 'wiki deploy-repo-pages' for repo-owned Lua/templates, or pass "
+            "--legacy-article-deploy to run the old generated article deploy path intentionally.[/red]"
+        )
+        raise typer.Exit(1)
 
     try:
-        # Create service
         service = _create_wiki_service(cli_ctx)
 
         if from_dir:
-            # Deploy from a directory of .txt files (zone pages, templates, etc.)
             result = service.deploy_from_dir(
                 source_dir=Path(from_dir),
                 dry_run=cli_ctx.dry_run,
             )
         else:
-            # Deploy from generated storage (standard wiki deploy)
             page_titles: list[str] | None = None
             if pages_file:
                 page_titles = _read_page_titles(pages_file)
@@ -611,7 +661,7 @@ def deploy(
             console.print()
             console.print(
                 Panel.fit(
-                    f"[bold cyan]Deploying wiki pages[/bold cyan]\n"
+                    f"[bold cyan]Deploying legacy generated wiki article pages[/bold cyan]\n"
                     f"Variant: {cli_ctx.variant}\n"
                     f"Dry-run: {cli_ctx.dry_run}\n"
                     f"Pages: {'from ' + pages_file if pages_file else 'all'}",
@@ -626,7 +676,6 @@ def deploy(
                 page_titles=page_titles,
             )
 
-        # Show warnings and errors
         if result.has_warnings():
             logger.warning(f"Deployment completed with {len(result.warnings)} warnings")
 
