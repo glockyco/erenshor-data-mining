@@ -177,66 +177,50 @@ and links all draw from one faithful source.
 - [ ] **Step 6: Verify** smoke + parity for representative spell, skill, and
   stance pages against live.
 
-## Milestone 8f: Faithfulness fixes (audit remediation)
+## Milestone 8f: Faithfulness verification (audit triage)
 
-Fix the divergences found auditing the wiki against the C#. Each is a small,
-testable change; group into atomic commits by theme.
+The original audit was run by a subagent that did not know maintainer intent and
+over-reported. Each candidate below must be **verified against the game data and
+confirmed with the maintainer before any change** — several "issues" turned out to
+be correct or intentional. Do not presumptively "fix" working behavior. Only the
+production Lua path (`wiki_lua/` + `wiki/modules/`) matters; the legacy generator
+(`generators/`) is deleted in Milestone 14, so do not spend effort there.
 
-### Unit / formula correctness
-- [ ] Skill cooldown is in **seconds**, not ticks: `sections/skill.py:206-211`
-  divides by 60 — remove the division (matches `Spell.Cooldown`, `Hotkeys.cs:241`).
-- [ ] Spell duration `*3` is correct; document the two distinct tick concepts so
-  the `GAME_TICKS_PER_SECOND` constant is not misapplied to duration
-  (`sections/spell.py:195`).
-- [ ] `xp_bonus` should emit whenever nonzero, not only when the spell has a
-  duration (`sections/spell.py:165`); confirm the `*100` percent conversion
-  against the C# `XPBonus` semantics (`sections/item.py:641`).
+### Confirmed correct or intentional (do NOT change; recorded so future audits stop re-flagging)
+- **Cooldown units are correct in both paths.** Verified against `Hotkeys.cs`:
+  spells set the counter to `Spell.Cooldown * 60f` (so `Spell.Cooldown` is in
+  seconds → `spell.py` prints it directly), skills set the counter to
+  `Skill.Cooldown` with no multiply (so `Skill.Cooldown` is in 60 Hz frames →
+  `skill.py` divides by 60). The game stores the two in different units on
+  purpose. Both wiki conversions are right.
+- **Spell duration `* 3` is correct** (status tick = 3 s; distinct from the 60 Hz
+  cast-charge tick). Keep; do not "unify" the constants.
+- **Single guaranteed drop is intentionally suppressed** (`>= 2` threshold): it
+  makes no sense to list one item twice. Keep.
+- **`othersource` is a manual-only field** for sources we deliberately do not
+  auto-extract; it is correctly blank from generation.
+- **Crafting recipe uses one mold by design.** Keep.
+- **Spell class restrictions are intentionally shown only when learnable** — an
+  unlearnable/legacy spell shows none so readers are not misled. Keep.
+- **Zone type is Dungeon/Zone by design** (matches the game's distinction).
 
-### Data-driven instead of hardcoded enum strings
-- [ ] Character faction: replace the hardcoded `Villager/GoodHuman/...` →
-  "Followers of Good/Evil" lists (`sections/character.py:122`, and the missing
-  fallback in `wiki_lua/characters.py:190`) with a factions-table lookup; make
-  both code paths consistent.
-- [ ] Skill type fallback `"Passive"` is not a real `SkillType`
-  (`sections/skill.py:122`); use "Other" or blank.
-- [ ] Weapon-type 2H detection hardcodes C# enum names
-  (`sections/item.py:301`); drive from the exported `weapon_type`.
-- [ ] Item-kind display `capitalize()` fallback (`wiki_lua/items.py:225`); use an
-  explicit map for every `ItemKind`.
-- [ ] Zone type is binary Dungeon/Zone (`wiki_lua/zones.py:54`); model from richer
-  game data if available, else document the two-value domain.
+### Verify against game data; fix only if a real divergence is confirmed
+- [ ] Quest faction changes (`wiki_lua/quests.py`): confirm whether
+  `affected_factions` already holds display names or raw internal REFNAMEs. If
+  REFNAMEs leak to the page, join the factions table for display name + link;
+  if they are already display names, record as correct.
+- [ ] Character faction in the Lua path (`wiki_lua/characters.py`): confirm the
+  world-faction-only behavior is intended (it may be deliberate that characters
+  without an explicit world faction show none). Change only if the maintainer
+  wants the Good/Evil grouping surfaced.
+- [ ] Add-proc / status-effect link icons (`repositories/spells.py`): confirm
+  whether omitting icons on those links is intentional before wiring
+  `add_proc_image_name` / `status_effect_image_name` through. Relevant to M8e.
 
-### Faction-change and link fidelity
-- [ ] Quest faction changes emit raw REFNAME strings (`wiki_lua/quests.py:67`);
-  join the factions table to emit `[[FactionPage|Display]] +N`.
-- [ ] Restore discarded `add_proc_image_name` / `status_effect_image_name` so
-  add-proc and status-effect links carry icons (`repositories/spells.py:116`).
-
-### Completeness / omissions
-- [ ] Single guaranteed drop is suppressed by a `>= 2` threshold
-  (`sections/character.py:319`, `wiki_lua/characters.py:289`); show guaranteed
-  drops regardless of count.
-- [ ] Mold `station` (`sections/item.py:220`) and general `stack_size`
-  (`sections/item.py:249`) are always blank; export from C# if the data exists,
-  else omit the rows rather than render empty.
-- [ ] Item `othersource` is always blank (`sections/item.py:374`) though dialog/
-  fishing/mining sources are known; surface them.
-- [ ] Crafting recipe uses only the first mold (`pages/entities.py:285`); show all
-  molds / deduplicate materials.
-- [ ] Skill template omits `percent_dmg`, `scale_off_weapon`, `proc_shield`,
-  `guarantee_proc`, `interrupt`, `automate_attack`, `player_uses`/`npc_uses`,
-  `status_effect`, `itemswitheffect` (`sections/skill.py`); spell template omits
-  `effects`, `JoltSpell`, `GrantInvisibility`, `CannotInterrupt`,
-  `ForHardEncounters`, `NoResonate` (`sections/spell.py`). Emit the faithful set.
-- [ ] Spell `classes` only fetched when teaching items exist
-  (`pages/entities.py:332`); always fetch class restrictions.
-
-### Hygiene
-- [ ] Replace the hardcoded interactive-map URL literal in `Character.lua` /
-  `Zone.lua` with a single shared constant.
-- [ ] Remove dead `categoryForType` "Sim" branch (`Character.lua:219`).
-- [ ] Move the raw `item_repo._execute_raw` crafting-rewards query out of the page
-  generator into the repository (`pages/entities.py:329`).
+### Optional hygiene (non-behavioral; only if touching the file anyway)
+- The interactive-map URL literal is duplicated in `Character.lua` / `Zone.lua`;
+  could be a single shared constant.
+- Dead `categoryForType` "Sim" branch in `Character.lua`.
 
 ---
 

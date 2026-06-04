@@ -743,12 +743,13 @@ plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
 - **8e — First-class Spell/Skill/Stance modeling.** Generated data modules,
   Lua modules, and ability pages for spells/skills/stances, faithful to the C#
   field models, replacing bare page links and the four-field tooltip stub.
-- **8f — Faithfulness fixes.** Remediate the audited divergences from the game:
-  the skill-cooldown unit bug, hardcoded faction/enum strings, single-guaranteed-
-  drop suppression, blank station/stack/othersource, raw faction-change REFNAMEs,
-  discarded proc/status icons, omitted skill/spell fields, the hardcoded map URL,
-  and dead branches. Fix in the Lua data path (production target); touch the
-  legacy generator only where it still feeds live output before cutover.
+- **8f — Faithfulness verification (audit triage).** The original audit
+  over-reported without knowing maintainer intent; several flagged "issues" are
+  correct or intentional (cooldown unit asymmetry verified against `Hotkeys.cs`,
+  single-guaranteed-drop suppression, manual-only `othersource`, one-mold recipes,
+  learnable-only class restrictions, Dungeon/Zone typing). 8f now verifies each
+  remaining candidate against game data and maintainer intent before any change,
+  in the production Lua path only — no presumptive fixes.
 
 ### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
 
