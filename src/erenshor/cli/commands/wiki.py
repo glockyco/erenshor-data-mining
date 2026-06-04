@@ -30,6 +30,7 @@ from erenshor.application.wiki.services.class_display_service import ClassDispla
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
+from erenshor.application.wiki_deploy.null_edit import null_edit_embedded_pages
 from erenshor.application.wiki_deploy.pages import deploy_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
@@ -607,6 +608,61 @@ def deploy_repo_pages_command(
     changed = sum(1 for entry in result.entries if entry.status == "changed")
     unchanged = sum(1 for entry in result.entries if entry.status == "unchanged")
     console.print(f"[green]Repo-owned page deploy complete[/green] Changed: {changed} Unchanged: {unchanged}")
+
+
+@app.command("null-edit-embedded")
+def null_edit_embedded_command(
+    ctx: typer.Context,
+    dependency_titles: Annotated[
+        list[str],
+        typer.Option(
+            "--dependency-title",
+            help="Template or module title whose transcluding pages should be null-edited.",
+        ),
+    ],
+    namespaces: Annotated[
+        list[int],
+        typer.Option("--namespace", help="MediaWiki namespace ID to include in embeddedin discovery."),
+    ],
+    summary: Annotated[
+        str,
+        typer.Option("--summary", help="Edit summary for null edits."),
+    ] = "Refresh derived wiki data",
+    assert_user: Annotated[
+        str | None,
+        typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
+    ] = None,
+) -> None:
+    """Null-edit pages discovered from explicit template/module dependencies."""
+    cli_ctx: CLIContext = ctx.obj
+    if not dependency_titles:
+        console.print("[red]At least one --dependency-title is required.[/red]")
+        raise typer.Exit(1)
+    if not namespaces:
+        console.print("[red]At least one --namespace is required.[/red]")
+        raise typer.Exit(1)
+
+    if cli_ctx.dry_run:
+        console.print(
+            f"[yellow]Dry run: would discover embedded pages for {len(dependency_titles)} dependencies "
+            f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
+        )
+        return
+
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = null_edit_embedded_pages(
+            client=client,
+            dependency_titles=tuple(dependency_titles),
+            namespaces=tuple(namespaces),
+            summary=summary,
+            assertion="bot",
+            assert_user=assert_user,
+        )
+    finally:
+        client.close()
+
+    console.print(f"[green]Embedded dependency refresh complete[/green] Null-edited: {len(result.entries)}")
 
 
 @app.command()
