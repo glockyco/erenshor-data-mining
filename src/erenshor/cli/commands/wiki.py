@@ -33,10 +33,12 @@ from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.application.wiki_deploy.manifest import (
     RepoWikiPageManifest,
     build_repo_page_manifest,
+    read_repo_page_manifest,
     write_repo_page_manifest,
 )
 from erenshor.application.wiki_deploy.null_edit import null_edit_embedded_pages
 from erenshor.application.wiki_deploy.pages import deploy_repo_pages
+from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
@@ -695,6 +697,51 @@ def null_edit_embedded_command(
         client.close()
 
     console.print(f"[green]Embedded dependency refresh complete[/green] Null-edited: {len(result.entries)}")
+
+
+@app.command("rollback-repo-pages")
+def rollback_repo_pages_command(
+    ctx: typer.Context,
+    manifest_path: Annotated[
+        Path,
+        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages."),
+    ],
+    summary: Annotated[
+        str,
+        typer.Option("--summary", help="Edit summary for rollback edits."),
+    ] = "Rollback repo-owned wiki deploy",
+    assert_user: Annotated[
+        str | None,
+        typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
+    ] = None,
+) -> None:
+    """Restore repo-owned page text recorded in a deployment manifest."""
+    cli_ctx: CLIContext = ctx.obj
+    if not manifest_path.exists():
+        console.print(f"[red]Deployment manifest not found: {manifest_path}[/red]")
+        raise typer.Exit(1)
+
+    manifest = read_repo_page_manifest(manifest_path)
+
+    if cli_ctx.dry_run:
+        restorable = sum(1 for entry in manifest.entries if entry.rollback_text_source is not None)
+        console.print(f"[yellow]Dry run: {restorable} repo-owned pages with recorded rollback text[/yellow]")
+        return
+
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = rollback_repo_pages(
+            manifest=manifest,
+            repo_root=cli_ctx.repo_root,
+            client=client,
+            summary=summary,
+            assertion="bot",
+            assert_user=assert_user,
+        )
+    finally:
+        client.close()
+
+    console.print(f"[green]Repo-owned page rollback complete[/green] Rolled back: {len(result.entries)}")
 
 
 @app.command()

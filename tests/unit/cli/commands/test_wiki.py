@@ -16,6 +16,7 @@ from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.null_edit import NullEditResult, NullEditResultEntry
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
+from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 
 runner = CliRunner()
 
@@ -420,3 +421,72 @@ class TestWikiNullEditEmbeddedCommand:
         assert kwargs["summary"] == "Refresh derived pages"
         assert kwargs["assertion"] == "bot"
         assert kwargs["assert_user"] == "ErenshorBot"
+
+
+class TestWikiRollbackRepoCommand:
+    """Test manifest-backed rollback command."""
+
+    def test_rollback_reads_manifest_and_restores_recorded_text(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+        """Test rollback loads the persisted manifest and delegates restoration to the service."""
+        import erenshor.cli.commands.wiki as wiki_command
+        from erenshor.application.wiki_deploy.manifest import write_repo_page_manifest
+
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title="Module:Erenshor/Item",
+                    source_path="variants/main/wiki/lua/Erenshor/Item.lua",
+                    source_sha256="0" * 64,
+                    ownership_class="generated_data",
+                    upload_stage="generated_data",
+                    content_model="Scribunto",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                    old_revision_id=10,
+                    old_revision_timestamp="2026-06-04T12:00:00Z",
+                    new_revision_id=11,
+                    rollback_text_source="rollback/Module_Erenshor_Item.wiki",
+                ),
+            )
+        )
+        manifest_path = tmp_path / "deploy-manifest.json"
+        write_repo_page_manifest(manifest, manifest_path)
+
+        client = FakeDeployClient()
+        calls = []
+
+        def fake_create_client(cli_ctx):
+            calls.append(("create_client", cli_ctx.variant))
+            return client
+
+        def fake_rollback_repo_pages(**kwargs):
+            calls.append(("rollback", kwargs))
+            return RollbackResult(
+                entries=(
+                    RollbackResultEntry(
+                        title="Module:Erenshor/Item",
+                        restored_revision_id=10,
+                        new_revision_id=12,
+                    ),
+                )
+            )
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
+        monkeypatch.setattr(wiki_command, "rollback_repo_pages", fake_rollback_repo_pages)
+
+        result = runner.invoke(
+            app,
+            ["wiki", "rollback-repo-pages", "--manifest", str(manifest_path), "--assert-user", "ErenshorBot"],
+        )
+
+        assert result.exit_code == 0
+        assert "Rolled back: 1" in result.output
+        assert client.closed is True
+        _, kwargs = calls[1]
+        assert kwargs["client"] is client
+        assert kwargs["assertion"] == "bot"
+        assert kwargs["assert_user"] == "ErenshorBot"
+        [entry] = kwargs["manifest"].entries
+        assert entry.title == "Module:Erenshor/Item"
+        assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+        assert entry.old_revision_id == 10
