@@ -31,6 +31,7 @@ from erenshor.infrastructure.wiki import (
     MediaWikiPageRevision,
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
+    MediaWikiRequestPolicy,
 )
 
 
@@ -43,18 +44,32 @@ class _CapturedWikiRequest:
 
 
 @dataclass(slots=True)
+class _FakeResponse:
+    """A scripted HTTP response for the fake MediaWiki API."""
+
+    body: dict[str, Any]
+    status_code: int = 200
+    headers: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class _FakeWikiAPI:
-    responses: list[dict[str, Any]]
+    responses: list[dict[str, Any] | _FakeResponse]
     requests: list[_CapturedWikiRequest] = field(default_factory=list)
 
-    def next_response(self) -> dict[str, Any]:
+    def next_response(self) -> _FakeResponse:
         if not self.responses:
             raise AssertionError("Fake MediaWiki API received more requests than configured responses")
-        return self.responses.pop(0)
+        scripted = self.responses.pop(0)
+        if isinstance(scripted, _FakeResponse):
+            return scripted
+        return _FakeResponse(body=scripted)
 
 
 @contextmanager
-def _mediawiki_api_server(responses: list[dict[str, Any]]) -> Iterator[tuple[str, _FakeWikiAPI]]:
+def _mediawiki_api_server(
+    responses: list[dict[str, Any] | _FakeResponse],
+) -> Iterator[tuple[str, _FakeWikiAPI]]:
     api = _FakeWikiAPI(responses=list(responses))
 
     class Handler(BaseHTTPRequestHandler):
@@ -79,9 +94,12 @@ def _mediawiki_api_server(responses: list[dict[str, Any]]) -> Iterator[tuple[str
                     data={key: values[-1] for key, values in parse_qs(body).items()},
                 )
             )
-            payload = json.dumps(api.next_response()).encode()
-            self.send_response(200)
+            scripted = api.next_response()
+            payload = json.dumps(scripted.body).encode()
+            self.send_response(scripted.status_code)
             self.send_header("Content-Type", "application/json")
+            for header_name, header_value in scripted.headers.items():
+                self.send_header(header_name, header_value)
             self.send_header("Content-Length", str(len(payload)))
             self.end_headers()
             self.wfile.write(payload)
@@ -958,21 +976,6 @@ class TestMediaWikiClientErrorHandling:
             client.get_page("Item:Sword")
 
     @patch("erenshor.infrastructure.wiki.client.httpx.Client")
-    def test_rate_limit_error(self, mock_client_class: MagicMock) -> None:
-        """Test rate limit error handling."""
-        mock_http_client = MagicMock()
-        mock_client_class.return_value = mock_http_client
-
-        response = MagicMock()
-        response.status_code = 429
-        mock_http_client.get.side_effect = httpx.HTTPStatusError("Rate limited", request=MagicMock(), response=response)
-
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
-
-        with pytest.raises(MediaWikiRateLimitError, match="Rate limit exceeded"):
-            client.get_page("Item:Sword")
-
-    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
     def test_timeout_error(self, mock_client_class: MagicMock) -> None:
         """Test timeout error handling."""
         mock_http_client = MagicMock()
@@ -1055,3 +1058,51 @@ class TestMediaWikiClientCSRFToken:
 
         # Verify token was cleared
         assert client._csrf_token is None
+
+
+class TestMediaWikiClientRequestRetry:
+    """Test bounded backoff retry for transient lag and rate-limit responses."""
+
+    _FAST_POLICY = MediaWikiRequestPolicy(read_delay=0.0, write_delay=0.0, base_backoff=1.0, jitter=0.0, max_retries=2)
+
+    def test_request_retries_after_maxlag_error_then_succeeds(self) -> None:
+        """A maxlag error is honored with a bounded wait, then the request succeeds."""
+        page_payload = {"query": {"pages": {"1": {"revisions": [{"slots": {"main": {"*": "content"}}}]}}}}
+        with _mediawiki_api_server(
+            [
+                _FakeResponse(
+                    body={"error": {"code": "maxlag", "info": "Waiting for a server", "lag": 6}},
+                    headers={"Retry-After": "0"},
+                ),
+                page_payload,
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock(), request_policy=self._FAST_POLICY)
+            content = client.get_page("Item:Sword")
+        assert content == "content"
+        assert len(api.requests) == 2
+
+    def test_request_retries_after_503_with_retry_signal_then_succeeds(self) -> None:
+        """A 503 carrying a Retry-After header is retried rather than failing immediately."""
+        page_payload = {"query": {"pages": {"1": {"revisions": [{"slots": {"main": {"*": "content"}}}]}}}}
+        with _mediawiki_api_server(
+            [
+                _FakeResponse(body={}, status_code=503, headers={"Retry-After": "0"}),
+                page_payload,
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock(), request_policy=self._FAST_POLICY)
+            content = client.get_page("Item:Sword")
+        assert content == "content"
+        assert len(api.requests) == 2
+
+    def test_request_raises_after_exhausting_retries_on_persistent_rate_limit(self) -> None:
+        """Persistent 429 responses raise after the bounded retry budget is exhausted."""
+        rate_limited = _FakeResponse(
+            body={"error": {"code": "ratelimited"}}, status_code=429, headers={"Retry-After": "0"}
+        )
+        with _mediawiki_api_server([rate_limited, rate_limited, rate_limited]) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock(), request_policy=self._FAST_POLICY)
+            with pytest.raises(MediaWikiRateLimitError):
+                client.get_page("Item:Sword")
+        assert len(api.requests) == 3

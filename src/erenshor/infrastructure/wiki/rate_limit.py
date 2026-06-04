@@ -180,47 +180,82 @@ class MediaWikiRequestor:
         self._last_request_time = self.clock.time()
 
     def _retry_delay(self, response: _ResponseLike, attempt: int) -> float | None:
-        if response.status_code == 429:
-            return self._retry_after_or_backoff(response, attempt)
-        if response.status_code == 503 and _has_retry_signal(response):
-            return self._retry_after_or_backoff(response, attempt)
-        return None
+        return retry_delay_for(
+            status_code=response.status_code,
+            headers=response.headers,
+            payload={},
+            text=response.text,
+            attempt=attempt,
+            policy=self.policy,
+        )
 
     def _api_retry_delay(self, payload: JsonObject, response: _ResponseLike, attempt: int) -> float | None:
-        error = payload.get("error")
-        if not isinstance(error, dict):
-            return None
+        return retry_delay_for(
+            status_code=200,
+            headers=response.headers,
+            payload=payload,
+            text=response.text,
+            attempt=attempt,
+            policy=self.policy,
+        )
+
+
+def retry_delay_for(
+    *,
+    status_code: int,
+    headers: Mapping[str, str],
+    payload: Mapping[str, Any],
+    text: str,
+    attempt: int,
+    policy: MediaWikiRequestPolicy,
+) -> float | None:
+    """Return the bounded wait before retrying a MediaWiki response, or None.
+    Honors transport rate limiting (HTTP 429, lagging 503) and Action API
+    soft failures (``maxlag``, ``ratelimited``) per MediaWiki bot etiquette.
+    Returns None when the response is not retryable.
+    """
+    if status_code == 429:
+        return _retry_after_or_backoff(headers, attempt, policy)
+    if status_code == 503 and _has_retry_signal(headers, text):
+        return _retry_after_or_backoff(headers, attempt, policy)
+    error = payload.get("error")
+    if isinstance(error, dict):
         code = str(error.get("code", ""))
         if code == "maxlag":
-            return self._retry_after_or_lag(response, error, attempt)
+            return _retry_after_or_lag(headers, error, attempt, policy)
         if code == "ratelimited":
-            return self._retry_after_or_backoff(response, attempt)
-        return None
-
-    def _retry_after_or_lag(self, response: _ResponseLike, error: Mapping[object, object], attempt: int) -> float:
-        retry_after = _retry_after(response)
-        if retry_after is not None:
-            return retry_after
-        lag = error.get("lag")
-        if isinstance(lag, int | float):
-            return max(5.0, float(lag))
-        return self._backoff(attempt)
-
-    def _retry_after_or_backoff(self, response: _ResponseLike, attempt: int) -> float:
-        retry_after = _retry_after(response)
-        if retry_after is not None:
-            return retry_after
-        return self._backoff(attempt)
-
-    def _backoff(self, attempt: int) -> float:
-        delay = float(min(self.policy.max_backoff, self.policy.base_backoff * (2**attempt)))
-        if self.policy.jitter <= 0:
-            return delay
-        return delay + float(random.uniform(0, self.policy.jitter))
+            return _retry_after_or_backoff(headers, attempt, policy)
+    return None
 
 
-def _retry_after(response: _ResponseLike) -> float | None:
-    value = response.headers.get("Retry-After")
+def _retry_after_or_lag(
+    headers: Mapping[str, str], error: Mapping[object, object], attempt: int, policy: MediaWikiRequestPolicy
+) -> float:
+    retry_after = _retry_after_header(headers)
+    if retry_after is not None:
+        return retry_after
+    lag = error.get("lag")
+    if isinstance(lag, int | float):
+        return max(5.0, float(lag))
+    return _backoff_delay(attempt, policy)
+
+
+def _retry_after_or_backoff(headers: Mapping[str, str], attempt: int, policy: MediaWikiRequestPolicy) -> float:
+    retry_after = _retry_after_header(headers)
+    if retry_after is not None:
+        return retry_after
+    return _backoff_delay(attempt, policy)
+
+
+def _backoff_delay(attempt: int, policy: MediaWikiRequestPolicy) -> float:
+    delay = float(min(policy.max_backoff, policy.base_backoff * (2**attempt)))
+    if policy.jitter <= 0:
+        return delay
+    return delay + float(random.uniform(0, policy.jitter))
+
+
+def _retry_after_header(headers: Mapping[str, str]) -> float | None:
+    value = headers.get("Retry-After")
     if value is None:
         return None
     try:
@@ -229,9 +264,9 @@ def _retry_after(response: _ResponseLike) -> float | None:
         return None
 
 
-def _has_retry_signal(response: _ResponseLike) -> bool:
-    if response.headers.get("Retry-After") is not None:
+def _has_retry_signal(headers: Mapping[str, str], text: str) -> bool:
+    if headers.get("Retry-After") is not None:
         return True
-    if response.headers.get("X-Database-Lag") is not None:
+    if headers.get("X-Database-Lag") is not None:
         return True
-    return "Waiting for" in response.text
+    return "Waiting for" in text
