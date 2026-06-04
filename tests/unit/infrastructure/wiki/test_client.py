@@ -619,6 +619,25 @@ class TestMediaWikiClientSafeCreatePage:
         assert edit_requests[1].data["token"] == "fresh_token"
         assert edit_requests[0].data["createonly"] == edit_requests[1].data["createonly"] == "1"
 
+    def test_safe_create_page_surfaces_existing_page_as_conflict(self) -> None:
+        """Test losing the create race (articleexists) is a conflict, not a generic failure."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {"error": {"code": "articleexists", "info": "The page you tried to create has been created already."}},
+            ]
+        ) as (api_url, _api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            with pytest.raises(MediaWikiEditConflictError, match="creating") as excinfo:
+                client.safe_create_page(
+                    title="Module:Erenshor/Data/Items",
+                    content="return {}",
+                    start_timestamp="2026-06-04T12:00:00Z",
+                )
+
+        assert "Module:Erenshor/Data/Items" in str(excinfo.value)
+
 
 class TestMediaWikiClientSafeEditPage:
     """Test conflict-safe wiki page edits."""

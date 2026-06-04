@@ -820,7 +820,7 @@ class MediaWikiClient:
                     logger.warning(f"CSRF token rejected while safely editing {title}; refreshing once")
                     continue
                 logger.error(f"Safe edit request failed for {title}: {e}")
-                self._raise_safe_edit_api_error(title, e)
+                self._raise_safe_write_api_error(title, e, "editing")
 
             edit_result = result.get("edit", {})
             if edit_result.get("result") != "Success":
@@ -888,7 +888,7 @@ class MediaWikiClient:
                     logger.warning(f"CSRF token rejected while safely creating {title}; refreshing once")
                     continue
                 logger.error(f"Safe create request failed for {title}: {e}")
-                self._raise_safe_edit_api_error(title, e)
+                self._raise_safe_write_api_error(title, e, "creating")
 
             edit_result = result.get("edit", {})
             if edit_result.get("result") != "Success":
@@ -912,15 +912,29 @@ class MediaWikiClient:
         return error.code in ("badtoken", "notoken")
 
     @staticmethod
-    def _raise_safe_edit_api_error(title: str, error: MediaWikiAPIError) -> None:
-        """Raise a safe-edit-specific exception for known MediaWiki edit failures."""
+    def _raise_safe_write_api_error(title: str, error: MediaWikiAPIError, operation: str) -> None:
+        """Raise a safe-write-specific exception for known MediaWiki edit failures.
+        ``operation`` is the present participle of the attempted action
+        (``"editing"`` or ``"creating"``) so the surfaced message names what
+        actually failed.
+        """
         if error.code == "editconflict":
-            raise MediaWikiEditConflictError(f"Edit conflict while safely editing page '{title}': {error}") from error
+            raise MediaWikiEditConflictError(
+                f"Edit conflict while safely {operation} page '{title}': {error}"
+            ) from error
+        if error.code == "articleexists":
+            raise MediaWikiEditConflictError(
+                f"Lost create race while safely {operation} page '{title}': {error}"
+            ) from error
         if error.code in ("assertuserfailed", "assertbotfailed", "assertnameduserfailed"):
-            raise MediaWikiAssertionError(f"Assertion failed while safely editing page '{title}': {error}") from error
+            raise MediaWikiAssertionError(
+                f"Assertion failed while safely {operation} page '{title}': {error}"
+            ) from error
         if error.code in ("permissiondenied", "protectedpage", "cantcreate", "noedit"):
-            raise MediaWikiPermissionError(f"Permission denied while safely editing page '{title}': {error}") from error
-        raise MediaWikiEditError(f"Failed to safely edit page '{title}': {error}") from error
+            raise MediaWikiPermissionError(
+                f"Permission denied while safely {operation} page '{title}': {error}"
+            ) from error
+        raise MediaWikiEditError(f"Failed while safely {operation} page '{title}': {error}") from error
 
     def page_exists(self, title: str) -> bool:
         """Check if a page exists on the wiki.
