@@ -122,20 +122,32 @@ Live item tooltips are bespoke HTML (not PortableInfobox), built from
 SkillBook, SpellScroll) plus sub-templates (`Item/Header`, `Item/Stats`,
 `Item/Vitals`, `Item/Resists`, `Item/SpellDetails`, `Item/Categories`,
 `Item/CharmScaling`, `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`). The
-`item-tooltip-*` / `item-spell-details-*` CSS is already in the synced interface
-mirror.
+`item-tooltip-*` / `item-spell-details-*` CSS lives in the live
+`MediaWiki:Common.css`, pulled into a gitignored local mirror by
+`wiki sync-interface`; the render reuses those classes unchanged.
 
 **We intentionally diverge from the live wiki** — item pages will NOT byte-match
 live, so the parity/smoke gate targets our new intended output (Lua testcases +
 smoke), not a live diff:
-- The live weapon/armor design renders THREE full tooltip copies
-  (Normal/Blessed/Godly) via a fancy wikitable, each invoked with ~75 flat params
-  incl. 60+ `proc_*`. We replace it with a single `{{Item}}` entry point per page
-  whose Lua module loops the tier rows into one compact Normal/Blessed/Ascended
-  multi-column stat block.
-- Tier 3 is shown as **"Ascended"** (user-facing); the stored/generated key stays
-  `"Godly"` (internal). The rename lives in the Lua render layer only (wiki now;
-  sheets/others tracked as follow-ups).
+- The live weapon/armor design renders THREE full tooltip copies (Normal,
+  Blessed, Godly) as a page-level wikitable, each invoked with ~75 flat params
+  incl. 60+ `proc_*`. We keep the three-tooltip visual (reusing the live CSS
+  unchanged) but generate all three from the Lua module from one `{{Item}}` entry
+  point — eliminating the generator-side duplication, not the layout.
+- We ALWAYS render exactly three quality tooltips: Normal, Blessed, Ascended.
+- The game calls these variants **"quality"**, not "tier" — use "quality" in all
+  new code and docs. The live `item-tooltip-tier-N` CSS class is fixed external
+  naming reused only for the per-quality color.
+- Quality "Godly" is shown as **"Ascended"** (user-facing); the stored/generated
+  key stays `"Godly"` (internal). The rename lives in the Lua render layer only
+  (wiki now; sheets/others tracked as follow-ups).
+
+**Future (playtest): item upgrade stages.** The playtest build adds upgrade
+stages Normal+1..Normal+5. These layer onto the **Normal** quality tooltip ONLY
+(Blessed/Ascended stay single); the plan is a stage selector switching Normal
+between +0..+5. Not built yet (main has no upgrade data) — design the render seam
+so the Normal quality can carry an ordered list of stages without restructuring
+the other two.
 
 **Authoritative discrepancies fixed (validated against main-variant C#):**
 - Melee weapon range is **1** (`ItemInfoWindow`: wand=`WandRange`, bow=`BowRange`,
@@ -158,25 +170,27 @@ documented deterministic comparison metric.
 **Rendering pattern:** one `{{Item}}` entry point per page →
 `{{#invoke:Erenshor/Item|render}}`. The Lua module resolves the item by page
 name/stable key from `Module:Erenshor/Data/Items`, applies ALL
-presentation/derivation (Ascended, tier sparkle index, melee range=1, Base DPS,
-charm attribute names, slot/weapon-type display, spell-detail formatting), and
-emits the thin presentational sub-templates. Python data stays faithful raw only.
-Article params override generated data; missing falls back to generated; `-`
-blanks; missing entity emits the visible marker + tracking category.
+presentation/derivation (Ascended label, per-quality color, melee range=1, Base
+DPS, charm attribute names, slot/weapon-type display, spell-detail formatting),
+and emits the thin presentational sub-templates once per quality. Python data
+stays faithful raw only. Article params override generated data; missing falls
+back to generated; `-` blanks; missing entity emits the visible marker + tracking
+category.
 
 - [ ] **Step 1: Faithful raw item data** (`wiki_lua/items.py`): add `description`
-  (lore), `book_title`, raw `wandRange`/`bowRange`, raw per-tier stat rows
+  (lore), `book_title`, raw `wandRange`/`bowRange`, raw per-quality stat rows
   (quality key stays "Godly"), and resolved crafting `ingredients`/`rewards`
   (ItemLink + qty) via `get_crafting_recipe`. NO tier/range/DPS derivation in
   Python. Extend `ItemDataRepository`. TDD.
 - [ ] **Step 2: Thin presentational sub-templates** under `wiki/templates/`
-  (`Item/Header`, `Item/Stats` multi-column, `Item/Vitals`, `Item/Resists`,
+  (`Item/Header`, `Item/Stats`, `Item/Vitals`, `Item/Resists`,
   `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
-  `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`), reusing the existing
-  `item-tooltip-*` CSS. Smoke-render each in isolation.
+  `Item/ClassRestrictions`, `Item/DPS`, `SparkleIcon`), reusing the live
+  `item-tooltip-*` CSS unchanged. Smoke-render each in isolation.
 - [ ] **Step 3: `Module:Erenshor/Item` render** with all presentation/derivation
-  and one entry point per item type; loop tier rows into the multi-column block;
-  Godly→Ascended; melee range=1; Base DPS; charm attribute names.
+  and one entry point per item type; render the three quality tooltips (Normal,
+  Blessed, Ascended) from the per-quality stat rows; Godly→Ascended; melee
+  range=1; Base DPS; charm attribute names.
 - [ ] **Step 4: Spell-detail join** from `Module:Erenshor/Data/Spells` for the
   item's effect stable keys (`weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/
   `wornEffect`/`aura`); apply the authoritative formatting. No 40-field spell
