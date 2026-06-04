@@ -128,6 +128,9 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 0
         mock_service.generate_all.assert_called_once()
+        # Generated articles are the legacy path; the next step must reflect the gated cutover.
+        assert "deploy-repo-pages" in result.output
+        assert "--legacy-article-deploy" in result.output
 
     @patch("erenshor.cli.commands.wiki._create_wiki_service")
     def test_generate_with_limit(self, mock_create_service, mock_operation_result):

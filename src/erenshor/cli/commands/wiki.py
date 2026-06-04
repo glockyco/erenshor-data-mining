@@ -577,7 +577,15 @@ def generate(
             wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
             console.print("[bold]Next steps:[/bold]")
             console.print(f"  Review generated files: {wiki_dir / 'generated'}")
-            console.print("  Deploy to wiki: [cyan]erenshor wiki deploy[/cyan]")
+            console.print("  These are legacy Python-generated articles. During the Lua/Cargo cutover the article")
+            console.print(
+                "  deploy is gated: deploy repo-owned Lua data and templates with "
+                "[cyan]erenshor wiki deploy-repo-pages[/cyan],"
+            )
+            console.print(
+                "  or deploy these legacy articles intentionally with "
+                "[cyan]erenshor wiki deploy --legacy-article-deploy[/cyan]."
+            )
             console.print()
 
     except Exception as e:
