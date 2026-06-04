@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Milestone 9b now tracks the remaining generated table surfaces: Weapons, Charms, Auras, Crafting smithing recipes, Ability Books, and class ability tables. Next: implement Milestone 9b in ordered table-surface commits before Milestone 10 deploy/rollback pipeline.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Milestone 9b tracks optional follow-up generated table surfaces; only Weapons is complete because it matches the original automated overview scope, while Charms, Auras, Crafting smithing recipes, Ability Books, and class ability tables are deferred. Next: resume the base migration with Milestone 10 deploy/rollback pipeline.
 
 ---
 
@@ -813,7 +813,13 @@ tests/unit/test_wiki_dev_harness.py
   `{{ArmorTable}}`, and asserted expected item links, stat values, class links,
   and generated ability notes appear without parser errors.
 
-### Milestone 9b: Generate remaining table surfaces from Cargo/Lua
+### Deferred Milestone 9b: Generate additional table surfaces from Cargo/Lua
+
+This milestone is deferred until after the base Lua/Cargo migration is cut over.
+The base migration should focus on replacing surfaces already covered by the
+original bot/automation. New generated convenience tables are valuable, but they
+should not block deploy/rollback, full local validation, TemplateSandbox, or
+production cutover.
 
 **Planned commits:**
 
@@ -862,7 +868,7 @@ tests/unit/test_wiki_dev_harness.py
   from `Template:Item`'s real `#cargo_declare` and smoke-tests proc notes,
   class links, and weapon subtype output.
 
-- [ ] **Step 2: Charm overview (`Charms`)**
+- [ ] **Step 2: Charm overview (`Charms`) — deferred**
 
   Build `{{CharmTable}}` from item Lua/Cargo data with the live page columns:
   item, proficiencies, and source. Preserve the live grouping semantics
@@ -871,7 +877,7 @@ tests/unit/test_wiki_dev_harness.py
   the clean DB exposes a structured source; if not, record the curated rule in
   the template/module tests.
 
-- [ ] **Step 3: Aura overview (`Auras`)**
+- [ ] **Step 3: Aura overview (`Auras`) — deferred**
 
   Build `{{AuraTable}}` from item aura links joined to `Module:Erenshor/Data/Spells`.
   Match the live split between class auras and other auras. The row renderer
@@ -879,7 +885,7 @@ tests/unit/test_wiki_dev_harness.py
   Reuse spell data for ability name/page/image and effect text; avoid duplicating
   aura effect fields in item Cargo rows unless Cargo querying needs them.
 
-- [ ] **Step 4: Crafting smithing recipes (`Crafting`)**
+- [ ] **Step 4: Crafting smithing recipes (`Crafting`) — deferred**
 
   Build a `{{CraftingRecipes}}` surface for the Smithing recipe table from the
   generated item recipe data (`ingredients`/`rewards`). Keep the surrounding
@@ -887,7 +893,7 @@ tests/unit/test_wiki_dev_harness.py
   ore-node tables manual until their data sources are modeled. The first pass
   replaces only the Smithing Recipes table.
 
-- [ ] **Step 5: Ability book/class ability tables (`Ability_Books`, class pages)**
+- [ ] **Step 5: Ability book/class ability tables (`Ability_Books`, class pages) — deferred**
 
   Build `{{ClassAbilities|class=...}}` from Spell/Skill Lua data plus item book
   records, producing the level → spell scrolls / skill books table currently
