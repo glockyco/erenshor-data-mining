@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox in progress (M8c: Character done; Item/Quest/Zone and Render deletion pending). Item tooltip subsystem port planned (M8d). Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c Steps 1-4); the hand-rolled `Render` deletion (M8c Step 5) waits on M8d since the Item tooltip stub still uses it. Item tooltip subsystem port is the active milestone (M8d). Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
 
 ---
 
@@ -721,10 +721,10 @@ wiki.gg's `--pi-background`/`--pi-secondary-background` because the cloned
 extension ships newer dark-mode defaults the live build predates.
 
 - [x] **Step 1: Character** (`d63f93b4 feat(wiki): render Character through real PortableInfobox`)
-- [ ] **Step 2: Item main infobox** — mirror live's `<infobox>` (omit slot/itemlevel/armor rows, which live keeps in Cargo and tooltips); hide false-boolean rows like live.
-- [ ] **Step 3: Quest** — mirror live's `<infobox>` with Requirements/Rewards headers and the horizontal Quest Progression group.
-- [ ] **Step 4: Zone** — mirror live's `<infobox>`; map link and zone connections from the module.
-- [ ] **Step 5: Delete hand-rolled rendering** — remove `Module:Erenshor/Render` and its testcases, drop the dead theme-shim `pi-*` layout block, and remove the smoke guards for escaped infobox/table markup. Keep every commit smoke- and parity-green.
+- [x] **Step 2: Item main infobox** (`2528646a feat(wiki): render the Item infobox through real PortableInfobox`) — mirrors live's `<infobox>` (omits slot/itemlevel/armor rows, which live keeps in Cargo and tooltips); hides false-boolean rows; emits `Category:Items`.
+- [x] **Step 3: Quest** (`693aea8a feat(wiki): render the Quest infobox through real PortableInfobox`) — Requirements/Rewards headers and the horizontal Quest Progression group.
+- [x] **Step 4: Zone** (`8031cb1c feat(wiki): render the Zone infobox through real PortableInfobox`) — map link and zone connections from the module; status emits zone/dungeon categories.
+- [ ] **Step 5: Delete hand-rolled rendering** — after M8d removes the last `Render` user (the Item tooltip stub), delete `Module:Erenshor/Render` and its testcases, drop the dead theme-shim `pi-*` layout block, and remove the smoke guards for escaped infobox/table markup. Keep every commit smoke- and parity-green.
 
 ### Milestone 8d: Port the item tooltip subsystem
 
