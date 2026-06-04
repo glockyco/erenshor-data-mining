@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
-from erenshor.application.wiki_deploy.pages import deploy_repo_pages
+from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.infrastructure.wiki import MediaWikiPageRevision
 
 
@@ -169,3 +169,32 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
             "ErenshorBot",
         )
     ]
+
+
+def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Path) -> None:
+    """The deployed manifest records revision IDs and rollback sources from the deploy result."""
+    source = "local p = {}\nfunction p.field() return 'new' end\nreturn p\n"
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    client = RecordingWikiClient({"Module:Erenshor/Item": "old source\n"})
+    result = deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+        rollback_root=tmp_path / "rollback",
+    )
+    deployed = build_deployed_manifest(manifest, result)
+    [base_entry] = manifest.entries
+    [deployed_entry] = deployed.entries
+    # Source-of-truth metadata is carried over unchanged.
+    assert deployed_entry.title == base_entry.title
+    assert deployed_entry.source_sha256 == base_entry.source_sha256
+    # Deploy outcome is merged in.
+    assert deployed_entry.old_revision_id == 200
+    assert deployed_entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
+    assert deployed_entry.new_revision_id == 201
+    assert deployed_entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+    # The base manifest is not mutated.
+    assert base_entry.new_revision_id is None

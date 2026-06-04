@@ -18,7 +18,6 @@ Example workflow:
 """
 
 import sys
-from dataclasses import replace
 from pathlib import Path
 from typing import Annotated
 
@@ -31,13 +30,12 @@ from erenshor.application.wiki.services.class_display_service import ClassDispla
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.application.wiki_deploy.manifest import (
-    RepoWikiPageManifest,
     build_repo_page_manifest,
     read_repo_page_manifest,
     write_repo_page_manifest,
 )
 from erenshor.application.wiki_deploy.null_edit import null_edit_embedded_pages
-from erenshor.application.wiki_deploy.pages import deploy_repo_pages
+from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
@@ -621,19 +619,7 @@ def deploy_repo_pages_command(
     finally:
         client.close()
 
-    result_entries_by_title = {entry.title: entry for entry in result.entries}
-    deployed_manifest = RepoWikiPageManifest(
-        entries=tuple(
-            replace(
-                entry,
-                old_revision_id=result_entries_by_title[entry.title].old_revision_id,
-                old_revision_timestamp=result_entries_by_title[entry.title].old_revision_timestamp,
-                new_revision_id=result_entries_by_title[entry.title].new_revision_id,
-                rollback_text_source=result_entries_by_title[entry.title].rollback_text_source,
-            )
-            for entry in manifest.entries
-        )
-    )
+    deployed_manifest = build_deployed_manifest(manifest, result)
     write_repo_page_manifest(deployed_manifest, manifest_output)
 
     changed = sum(1 for entry in result.entries if entry.status == "changed")

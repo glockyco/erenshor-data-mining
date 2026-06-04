@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 
+from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
+
 if TYPE_CHECKING:
-    from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
     from erenshor.infrastructure.wiki import MediaWikiPageRevision
 
 DeployStatus = Literal["unchanged", "changed"]
@@ -166,3 +167,24 @@ def deploy_repo_pages(
 def _safe_title_filename(title: str) -> str:
     """Return a deterministic filename segment for a MediaWiki title."""
     return re.sub(r"[^A-Za-z0-9._-]+", "_", title).strip("_")
+
+
+def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDeployResult) -> RepoWikiPageManifest:
+    """Merge deploy outcomes into the source manifest to produce a rollback manifest.
+    Source-of-truth fields (title, source path, hash, ownership, Cargo metadata)
+    are preserved; the revision IDs and rollback text source observed during the
+    deploy are recorded so a later rollback can restore the prior page text.
+    """
+    result_by_title = {entry.title: entry for entry in result.entries}
+    return RepoWikiPageManifest(
+        entries=tuple(
+            replace(
+                entry,
+                old_revision_id=result_by_title[entry.title].old_revision_id,
+                old_revision_timestamp=result_by_title[entry.title].old_revision_timestamp,
+                new_revision_id=result_by_title[entry.title].new_revision_id,
+                rollback_text_source=result_by_title[entry.title].rollback_text_source,
+            )
+            for entry in manifest.entries
+        )
+    )
