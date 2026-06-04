@@ -263,3 +263,106 @@ Different content
 
         # Should return old content unchanged
         assert result == old_wikitext
+
+
+class TestItemTooltipMigration:
+    """Test migration to the single Lua item tooltip template."""
+
+    def test_old_weapon_table_becomes_item_tooltip_and_preserves_manual_content(self, generate_service):
+        old_wikitext = """{{Item
+|title=Ember Longsword
+|othersource=Manual note
+}}
+
+Manual page content.
+
+{| class="wikitable"
+|-
+||{{Item/Weapon
+|name=Old Normal
+|tier=0
+}}
+||{{Item/Weapon
+|name=Old Blessed
+|tier=1
+}}
+||{{Item/Weapon
+|name=Old Godly
+|tier=2
+}}
+|}
+
+[[Category:Manual Category]]
+"""
+        new_wikitext = """{{Item
+|title=Ember Longsword
+}}
+
+{{ItemTooltip|stablekey=item:ember_longsword}}
+"""
+
+        result = generate_service._replace_item_type_templates(old_wikitext, new_wikitext)
+
+        assert "{{ItemTooltip|stablekey=item:ember_longsword}}" in result
+        assert result.count("{{ItemTooltip") == 1
+        assert "{{Item/Weapon" not in result
+        assert "|othersource=Manual note" in result
+        assert "Manual page content." in result
+        assert "[[Category:Manual Category]]" in result
+
+    def test_legacy_fancy_weapon_table_becomes_item_tooltip(self, generate_service):
+        old_wikitext = """{{Item
+|title=Ember Longsword
+}}
+
+{| class="wikitable"
+|-
+||{{Fancy-weapon
+| name = Old Normal
+| tier = 0
+}}
+||{{Fancy-weapon
+| name = Old Blessed
+| tier = 1
+}}
+||{{Fancy-weapon
+| name = Old Godly
+| tier = 2
+}}
+|}
+"""
+        new_wikitext = """{{Item
+|title=Ember Longsword
+}}
+
+{{ItemTooltip|stablekey=item:ember_longsword}}
+"""
+
+        result = generate_service._replace_item_type_templates(old_wikitext, new_wikitext)
+
+        assert "{{ItemTooltip|stablekey=item:ember_longsword}}" in result
+        assert "{{Fancy-weapon" not in result
+        assert "{|" not in result
+
+    def test_item_tooltip_replacement_is_idempotent(self, generate_service):
+        old_wikitext = """{{Item
+|title=Ember Longsword
+}}
+
+{{ItemTooltip|stablekey=item:ember_longsword}}
+
+Manual page content.
+"""
+        new_wikitext = """{{Item
+|title=Ember Longsword
+}}
+
+{{ItemTooltip|stablekey=item:ember_longsword}}
+"""
+
+        first = generate_service._replace_item_type_templates(old_wikitext, new_wikitext)
+        second = generate_service._replace_item_type_templates(first, new_wikitext)
+
+        assert first == second
+        assert first.count("{{ItemTooltip") == 1
+        assert "Manual page content." in first

@@ -575,60 +575,45 @@ class WikiGenerateService:
         return None
 
     def _replace_item_type_templates(self, old_wikitext: str, new_wikitext: str) -> str:
-        """Replace or insert ALL item type tooltip templates.
+        """Replace or insert generated item tooltip templates.
 
-        These are TOOLTIP templates ({{Item/Aura}}, {{Item/SpellScroll}}, etc.) that
-        are generated alongside {{Item}} for non-weapon/armor/charm items.
-
-        For multi-item pages (multiple items sharing the same wiki page), this handles
-        multiple tooltips by matching them positionally - first new tooltip replaces
-        first old tooltip, second new replaces second old, etc.
-
-        Note: Legacy INFOBOX templates ({{Auras}}, {{Ability Books}}, {{Mold}}) are
-        handled by LegacyTemplateRemover which converts them to {{Item}}.
-
-        This method:
-        1. Finds ALL tooltip templates in new content
-        2. Finds ALL tooltip templates in old content
-        3. Replaces by position (new[0] -> old[0], new[1] -> old[1], etc.)
-        4. Inserts extras after the last {{Item}} if more new than old
-
-        Args:
-            old_wikitext: Existing page content (after legacy template removal)
-            new_wikitext: New generated content
-
-        Returns:
-            Updated wikitext with ALL tooltip templates replaced/inserted
+        Current item pages generate a single {{ItemTooltip|stablekey=...}} beside
+        the {{Item}} infobox. This also migrates legacy tooltip render paths:
+        old three-column weapon/armor tables, legacy Fancy-* tables, and the
+        standalone Item/<type> tooltip templates.
         """
         from mwparserfromhell import parse
 
-        # Tooltip template names (what we generate)
         tooltip_templates = [
+            "ItemTooltip",
             "Item/Aura",
             "Item/SpellScroll",
             "Item/SkillBook",
             "Item/Consumable",
             "Item/Mold",
             "Item/General",
+            "Item/Charm",
+            "Fancy-charm",
+        ]
+        legacy_table_templates = [
+            "Item/Weapon",
+            "Item/Armor",
+            "Fancy-weapon",
+            "Fancy-armor",
         ]
 
-        # Find ALL tooltip templates in new content (in order)
         new_code = parse(new_wikitext)
-        new_tooltip_names: list[str] = []
-        for template in new_code.filter_templates():
-            name = str(template.name).strip()
-            if name in tooltip_templates:
-                new_tooltip_names.append(name)
+        new_tooltip_names = [
+            str(template.name).strip()
+            for template in new_code.filter_templates()
+            if str(template.name).strip() in tooltip_templates
+        ]
 
         if not new_tooltip_names:
-            # No tooltip templates in new content, nothing to do
             return old_wikitext
 
-        # Extract raw template text for each new tooltip
-        # Track occurrence index for each template name to handle multiples of same type
         name_occurrence_count: dict[str, int] = {}
         new_tooltip_raw_list: list[str] = []
-
         for tooltip_name in new_tooltip_names:
             occurrence_index = name_occurrence_count.get(tooltip_name, 0)
             raw = self._extract_nth_template_raw(new_wikitext, tooltip_name, occurrence_index)
@@ -639,41 +624,50 @@ class WikiGenerateService:
         if not new_tooltip_raw_list:
             return old_wikitext
 
-        # Parse old content
         old_code = parse(old_wikitext)
 
-        # Find ALL existing tooltip templates in old content (in order)
+        removed_table = False
+        for node in list(old_code.nodes):
+            node_str = str(node)
+            if node_str.lstrip().startswith("{|") and any(name in node_str for name in legacy_table_templates):
+                old_code.replace(node, "")
+                removed_table = True
+                logger.debug("Removed legacy item tooltip table")
+
         old_tooltip_templates: list[mwparserfromhell.nodes.Template] = []
         for template in old_code.filter_templates():
             name = str(template.name).strip()
             if name in tooltip_templates:
                 old_tooltip_templates.append(template)
 
-        # If old page has NO tooltip templates but we have multiple new ones,
-        # this is a multi-item legacy page that needs proper structure.
-        # Use the new content's structure which has proper interleaving and separators.
-        if not old_tooltip_templates and len(new_tooltip_raw_list) > 1:
+        if not old_tooltip_templates and len(new_tooltip_raw_list) > 1 and not removed_table:
             logger.debug(f"Multi-item legacy page with {len(new_tooltip_raw_list)} tooltips - using new structure")
             return new_wikitext
 
-        # Replace existing tooltips by position, collect extras to append
-        extras_to_append: list[str] = []
-
+        extras_to_insert: list[str] = []
         for i, new_raw in enumerate(new_tooltip_raw_list):
             if i < len(old_tooltip_templates):
-                # Replace existing tooltip at position i
                 old_template = old_tooltip_templates[i]
                 old_name = str(old_template.name).strip()
                 old_code.replace(old_template, new_raw)
                 logger.debug(f"Replaced tooltip {i}: {{{{{old_name}}}}} with {{{{{new_tooltip_names[i]}}}}}")
             else:
-                # No more old tooltips at this position, collect for appending
-                extras_to_append.append(new_raw)
-                logger.debug(f"Will append tooltip {i}: {{{{{new_tooltip_names[i]}}}}}")
+                extras_to_insert.append(new_raw)
+                logger.debug(f"Will insert tooltip {i}: {{{{{new_tooltip_names[i]}}}}}")
 
-        # Append all extra tooltips at the end (preserves order)
-        for extra_raw in extras_to_append:
-            old_code.append(f"\n\n{extra_raw}")
+        for stale_template in old_tooltip_templates[len(new_tooltip_raw_list) :]:
+            old_code.replace(stale_template, "")
+            logger.debug(f"Removed stale tooltip {{{{{str(stale_template.name).strip()}}}}}")
+
+        if extras_to_insert:
+            item_template = self._find_item_template(old_code)
+            insertion = "".join(f"\n\n{raw}" for raw in extras_to_insert)
+            if item_template:
+                old_code.insert(old_code.index(item_template) + 1, insertion)
+                logger.debug("Inserted item tooltip after {{Item}}")
+            else:
+                old_code.append(insertion)
+                logger.debug("Appended item tooltip")
 
         return str(old_code)
 

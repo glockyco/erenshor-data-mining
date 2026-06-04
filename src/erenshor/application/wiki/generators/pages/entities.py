@@ -43,7 +43,7 @@ class EntityPageGenerator(PageGenerator):
     """
 
     def __init__(self, context: GeneratorContext) -> None:
-        self.item_generator = ItemSectionGenerator(context.class_display)
+        self.item_generator = ItemSectionGenerator()
         self.character_generator = CharacterSectionGenerator()
         self.spell_generator = SpellSectionGenerator(context.class_display)
         self.skill_generator = SkillSectionGenerator(context.class_display)
