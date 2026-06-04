@@ -747,12 +747,14 @@ plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
   breakdown joins the new Spells data module (no denormalization).
 - **8e — First-class Spell/Skill/Stance modeling.** Stance generated data,
   `Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and visual parity
-  are complete. `Module:Erenshor/Data/Spells` is complete with raw C#-faithful
-  spell fields and class restrictions. Spell rendering, Skill data/modeling, and
-  Ability pages remain pending. Skills must later derive stance `activated_by`
-  relationships from `Skill.StanceToUse` so the Stance surface stops relying on
-  article-local activation overrides. Item tooltip spell details must join the
-  Spells module instead of denormalizing spell fields into item data.
+  are complete. Spell generated data, `Module:Erenshor/Spell`,
+  `Template:Ability` spell rendering, smoke fixtures, and visual parity are
+  complete with raw C#-faithful spell fields and class restrictions. Skill
+  data/modeling and Skill use of `Template:Ability` remain pending. Skills must
+  later derive stance `activated_by` relationships from `Skill.StanceToUse` so
+  the Stance surface stops relying on article-local activation overrides. Item
+  tooltip spell details must join the Spells module instead of denormalizing
+  spell fields into item data.
 - **8f — Faithfulness verification (audit triage).** The original audit
   over-reported without knowing maintainer intent; several flagged "issues" are
   correct or intentional (cooldown unit asymmetry verified against `Hotkeys.cs`,

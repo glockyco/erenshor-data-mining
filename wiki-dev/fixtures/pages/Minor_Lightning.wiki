@@ -1,0 +1,5 @@
+{{Ability
+|stablekey=spell:minor_lightning
+|source=Spell Scroll: Minor Lightning
+|used_by=A Grassland Ogre Mystic
+}}

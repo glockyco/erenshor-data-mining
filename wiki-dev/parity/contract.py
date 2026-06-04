@@ -122,4 +122,10 @@ PAGES: tuple[ParityPage, ...] = (
         local_title="Aggressive",
         targets=ENTITY_INFOBOX_TARGETS,
     ),
+    ParityPage(
+        name="spell",
+        live_path="/wiki/Minor_Lightning",
+        local_title="Minor_Lightning",
+        targets=ENTITY_INFOBOX_TARGETS,
+    ),
 )
