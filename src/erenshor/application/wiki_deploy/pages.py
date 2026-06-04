@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -66,6 +67,7 @@ class RepoPageDeployResultEntry:
     old_revision_id: int | None
     old_revision_timestamp: str | None
     new_revision_id: int | None
+    rollback_text_source: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,6 +85,7 @@ def deploy_repo_pages(
     summary: str,
     assertion: EditAssertion,
     assert_user: str | None = None,
+    rollback_root: Path | None = None,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path."""
     titles = [entry.title for entry in manifest.entries]
@@ -100,6 +103,7 @@ def deploy_repo_pages(
                     old_revision_id=None,
                     old_revision_timestamp=None,
                     new_revision_id=None,
+                    rollback_text_source=None,
                 )
             )
             continue
@@ -121,6 +125,7 @@ def deploy_repo_pages(
                     old_revision_id=None,
                     old_revision_timestamp=None,
                     new_revision_id=new_revision_id,
+                    rollback_text_source=None,
                 )
             )
             continue
@@ -128,6 +133,13 @@ def deploy_repo_pages(
         base_revision = client.get_page_revision_metadata(entry.title, assertion=assertion, assert_user=assert_user)
         if base_revision is None:
             raise ValueError(f"Remote page disappeared before safe edit: {entry.title}")
+
+        rollback_text_source = None
+        if rollback_root is not None:
+            rollback_path = rollback_root / f"{_safe_title_filename(entry.title)}.wiki"
+            rollback_path.parent.mkdir(parents=True, exist_ok=True)
+            rollback_path.write_text(remote_text, encoding="utf-8")
+            rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
 
         new_revision_id = client.safe_edit_page(
             title=entry.title,
@@ -144,7 +156,13 @@ def deploy_repo_pages(
                 old_revision_id=base_revision.revision_id,
                 old_revision_timestamp=base_revision.timestamp,
                 new_revision_id=new_revision_id,
+                rollback_text_source=rollback_text_source,
             )
         )
 
     return RepoPageDeployResult(entries=tuple(result_entries))
+
+
+def _safe_title_filename(title: str) -> str:
+    """Return a deterministic filename segment for a MediaWiki title."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", title).strip("_")

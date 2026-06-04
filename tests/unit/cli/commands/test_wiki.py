@@ -13,7 +13,9 @@ with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator
     from erenshor.cli.main import app
 
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.null_edit import NullEditResult, NullEditResultEntry
+from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 
 runner = CliRunner()
 
@@ -270,27 +272,75 @@ class TestWikiDeployCommand:
 class TestWikiDeployRepoCommand:
     """Test repo-owned wiki deploy command."""
 
-    @patch("erenshor.cli.commands.wiki.MediaWikiClient")
-    @patch("erenshor.cli.commands.wiki.deploy_repo_pages")
-    @patch("erenshor.cli.commands.wiki.build_repo_page_manifest")
-    def test_deploy_repo_pages(self, mock_build_manifest, mock_deploy_repo_pages, mock_client_class):
-        """Test repo-owned page deploy uses manifest and safe deploy service."""
-        mock_manifest = MagicMock()
-        mock_build_manifest.return_value = mock_manifest
-        mock_result = MagicMock()
-        mock_result.entries = [
-            MagicMock(status="unchanged"),
-            MagicMock(status="changed"),
-        ]
-        mock_deploy_repo_pages.return_value = mock_result
+    def test_deploy_repo_pages_writes_deployment_manifest(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+        """Test repo-owned page deploy persists revision metadata and rollback sources."""
+        import erenshor.cli.commands.wiki as wiki_command
 
-        result = runner.invoke(app, ["wiki", "deploy-repo-pages"])
+        source_path = tmp_path / "Item.lua"
+        source_path.write_text("return {}\n", encoding="utf-8")
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title="Module:Erenshor/Item",
+                    source_path=source_path.as_posix(),
+                    source_sha256="abc",
+                    ownership_class="lua_module",
+                    upload_stage="lua_module",
+                    content_model="Scribunto",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                ),
+            )
+        )
+        client = FakeDeployClient()
+        calls = []
+
+        def fake_build_manifest(repo_root, variant):
+            calls.append(("build", repo_root, variant))
+            return manifest
+
+        def fake_create_client(cli_ctx):
+            calls.append(("create_client", cli_ctx.variant))
+            return client
+
+        def fake_deploy_repo_pages(**kwargs):
+            calls.append(("deploy", kwargs))
+            return RepoPageDeployResult(
+                entries=(
+                    RepoPageDeployResultEntry(
+                        title="Module:Erenshor/Item",
+                        status="changed",
+                        old_revision_id=10,
+                        old_revision_timestamp="2026-06-04T12:00:00Z",
+                        new_revision_id=11,
+                        rollback_text_source="rollback/Module_Erenshor_Item.wiki",
+                    ),
+                )
+            )
+
+        def fake_write_manifest(deployed_manifest, path):
+            calls.append(("write_manifest", deployed_manifest, path))
+
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", fake_build_manifest)
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
+        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
+        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", fake_write_manifest)
+
+        manifest_output = tmp_path / "deploy-manifest.json"
+        result = runner.invoke(app, ["wiki", "deploy-repo-pages", "--manifest-output", str(manifest_output)])
 
         assert result.exit_code == 0
         assert "Changed: 1" in result.output
-        mock_build_manifest.assert_called_once()
-        mock_deploy_repo_pages.assert_called_once()
-        mock_client_class.return_value.close.assert_called_once()
+        assert client.closed is True
+        _, deploy_kwargs = calls[2]
+        assert deploy_kwargs["rollback_root"] == tmp_path / "rollback"
+        _, deployed_manifest, written_path = calls[3]
+        assert written_path == manifest_output
+        [entry] = deployed_manifest.entries
+        assert entry.old_revision_id == 10
+        assert entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
+        assert entry.new_revision_id == 11
+        assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
 
     @patch("erenshor.cli.commands.wiki._create_wiki_service")
     def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_service):

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 ContentModel = Literal["Scribunto", "wikitext"]
 UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template"]
@@ -58,6 +59,68 @@ def build_repo_page_manifest(repo_root: Path, variant: str) -> RepoWikiPageManif
 
     entries.sort(key=lambda entry: (_STAGE_ORDER[entry.upload_stage], entry.title))
     return RepoWikiPageManifest(entries=tuple(entries))
+
+
+def write_repo_page_manifest(manifest: RepoWikiPageManifest, path: Path) -> None:
+    """Write a repo-owned wiki page manifest as deterministic JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"entries": [asdict(entry) for entry in manifest.entries]}
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def read_repo_page_manifest(path: Path) -> RepoWikiPageManifest:
+    """Read a repo-owned wiki page manifest written by ``write_repo_page_manifest``."""
+    payload = cast("dict[str, object]", json.loads(path.read_text(encoding="utf-8")))
+    raw_entries = cast("list[dict[str, object]]", payload["entries"])
+    entries = tuple(_entry_from_payload(raw_entry) for raw_entry in raw_entries)
+    return RepoWikiPageManifest(entries=entries)
+
+
+def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEntry:
+    return RepoWikiPageManifestEntry(
+        title=str(raw_entry["title"]),
+        source_path=str(raw_entry["source_path"]),
+        source_sha256=str(raw_entry["source_sha256"]),
+        ownership_class=_upload_stage(str(raw_entry["ownership_class"])),
+        upload_stage=_upload_stage(str(raw_entry["upload_stage"])),
+        content_model=_content_model(str(raw_entry["content_model"])),
+        declares_cargo_table=bool(raw_entry["declares_cargo_table"]),
+        cargo_tables=tuple(str(table) for table in cast("list[object]", raw_entry["cargo_tables"])),
+        old_revision_id=_optional_int(raw_entry.get("old_revision_id")),
+        old_revision_timestamp=_optional_str(raw_entry.get("old_revision_timestamp")),
+        new_revision_id=_optional_int(raw_entry.get("new_revision_id")),
+        new_revision_timestamp=_optional_str(raw_entry.get("new_revision_timestamp")),
+        rollback_text_source=_optional_str(raw_entry.get("rollback_text_source")),
+        null_edit_targets=tuple(str(title) for title in cast("list[object]", raw_entry["null_edit_targets"])),
+    )
+
+
+def _upload_stage(value: str) -> UploadStage:
+    if value not in _STAGE_ORDER:
+        raise ValueError(f"Unknown wiki deploy upload stage: {value}")
+    return value  # type: ignore[return-value]
+
+
+def _content_model(value: str) -> ContentModel:
+    if value not in ("Scribunto", "wikitext"):
+        raise ValueError(f"Unknown wiki deploy content model: {value}")
+    return value  # type: ignore[return-value]
+
+
+def _optional_int(value: object) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        return int(value)
+    raise TypeError(f"Expected int-compatible value, got {type(value).__name__}")
+
+
+def _optional_str(value: object) -> str | None:
+    if value is None:
+        return None
+    return str(value)
 
 
 def _module_entries(

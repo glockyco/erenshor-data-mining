@@ -113,6 +113,7 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
+        rollback_root=tmp_path / "rollback",
     )
 
     [entry] = result.entries
@@ -121,6 +122,8 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     assert entry.old_revision_id == 200
     assert entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
     assert entry.new_revision_id == 201
+    assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
+    assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "old source\n"
     assert client.revision_requests == [("Module:Erenshor/Item", "bot", "ErenshorBot")]
     [(title, content, base_revision, summary, assertion, assert_user)] = client.safe_edits
     assert title == "Module:Erenshor/Item"

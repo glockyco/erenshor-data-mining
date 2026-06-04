@@ -18,6 +18,7 @@ Example workflow:
 """
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import Annotated
 
@@ -29,7 +30,11 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
-from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
+from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
+    build_repo_page_manifest,
+    write_repo_page_manifest,
+)
 from erenshor.application.wiki_deploy.null_edit import null_edit_embedded_pages
 from erenshor.application.wiki_deploy.pages import deploy_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
@@ -583,10 +588,18 @@ def deploy_repo_pages_command(
         str | None,
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
     ] = None,
+    manifest_output: Annotated[
+        Path | None,
+        typer.Option("--manifest-output", help="Path for the deployment manifest JSON."),
+    ] = None,
 ) -> None:
     """Deploy repo-owned Lua modules, templates, and generated Lua data."""
     cli_ctx: CLIContext = ctx.obj
     manifest = build_repo_page_manifest(cli_ctx.repo_root, variant=cli_ctx.variant)
+    if manifest_output is None:
+        manifest_output = (
+            cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
+        )
 
     if cli_ctx.dry_run:
         console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest[/yellow]")
@@ -601,13 +614,32 @@ def deploy_repo_pages_command(
             summary=summary,
             assertion="bot",
             assert_user=assert_user,
+            rollback_root=manifest_output.parent / "rollback",
         )
     finally:
         client.close()
 
+    result_entries_by_title = {entry.title: entry for entry in result.entries}
+    deployed_manifest = RepoWikiPageManifest(
+        entries=tuple(
+            replace(
+                entry,
+                old_revision_id=result_entries_by_title[entry.title].old_revision_id,
+                old_revision_timestamp=result_entries_by_title[entry.title].old_revision_timestamp,
+                new_revision_id=result_entries_by_title[entry.title].new_revision_id,
+                rollback_text_source=result_entries_by_title[entry.title].rollback_text_source,
+            )
+            for entry in manifest.entries
+        )
+    )
+    write_repo_page_manifest(deployed_manifest, manifest_output)
+
     changed = sum(1 for entry in result.entries if entry.status == "changed")
     unchanged = sum(1 for entry in result.entries if entry.status == "unchanged")
-    console.print(f"[green]Repo-owned page deploy complete[/green] Changed: {changed} Unchanged: {unchanged}")
+    console.print(
+        f"[green]Repo-owned page deploy complete[/green] Changed: {changed} Unchanged: {unchanged} "
+        f"Manifest: {manifest_output}"
+    )
 
 
 @app.command("null-edit-embedded")

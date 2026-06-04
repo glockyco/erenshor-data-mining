@@ -3,9 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import replace
 from pathlib import Path
 
-from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
+from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
+    build_repo_page_manifest,
+    read_repo_page_manifest,
+    write_repo_page_manifest,
+)
 
 
 def write_page(root: Path, relative_path: str, content: str) -> None:
@@ -105,3 +111,29 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
         "cargo_declaration",
         "template",
     ]
+
+
+def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> None:
+    """Persisted manifests preserve deployment metadata needed for rollback."""
+    write_page(tmp_path, "wiki/templates/Item.wiki", "{{#cargo_declare:_table=Items}}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    [entry] = manifest.entries
+    deployed_manifest = RepoWikiPageManifest(
+        entries=(
+            replace(
+                entry,
+                old_revision_id=100,
+                old_revision_timestamp="2026-06-04T12:00:00Z",
+                new_revision_id=101,
+                new_revision_timestamp="2026-06-04T12:01:00Z",
+                rollback_text_source="rollback/Template_Item.wiki",
+                null_edit_targets=("Ember Longsword",),
+            ),
+        )
+    )
+    output_path = tmp_path / "deploy-manifest.json"
+
+    write_repo_page_manifest(deployed_manifest, output_path)
+    reloaded = read_repo_page_manifest(output_path)
+
+    assert reloaded == deployed_manifest
