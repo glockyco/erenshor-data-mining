@@ -2,9 +2,9 @@
 """Live-vs-local MediaWiki rendering parity gate.
 
 Default mode renders the local fixture pages and checks them against the
-committed contract's baseline, failing loudly on any divergence. ``--capture``
-renders the live wiki and refreshes the gitignored baseline; nothing captured
-from live is committed.
+captured baseline, failing loudly on any divergence. ``--capture`` fetches live
+parser HTML through the MediaWiki API and renders it with live ResourceLoader
+CSS in a static local browser document; nothing captured from live is committed.
 """
 
 from __future__ import annotations

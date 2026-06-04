@@ -1,10 +1,10 @@
 """Render pages in a real browser and extract parity properties.
 
-This is the only browser-dependent module. It loads each page in Chromium via
-Playwright, waits for MediaWiki ResourceLoader and the DataTables gadget to
-settle, and extracts the computed properties declared by the contract. It is
-validated against the running local stack and the live wiki rather than by unit
-tests, which target the pure ``compare`` module.
+This is the only browser-dependent module. URL extraction loads local pages in
+Chromium via Playwright, waits for MediaWiki ResourceLoader and the DataTables
+gadget to settle, and extracts the computed properties declared by the contract.
+HTML extraction renders already-parsed live HTML with local stylesheets, avoiding
+Cloudflare-protected browser routes during baseline capture.
 """
 
 from __future__ import annotations
@@ -58,11 +58,7 @@ _EXTRACT_JS = """
 
 
 def _navigate_until_ready(page: Page, url: str) -> None:
-    """Navigate and wait for MediaWiki readiness, retrying transient timeouts.
-    The live wiki occasionally serves a harder Cloudflare challenge that delays
-    ResourceLoader past one timeout. The clearance cookie persists in the
-    browser context, so a reload after the first attempt succeeds.
-    """
+    """Navigate and wait for local MediaWiki readiness."""
     last_error: PlaywrightTimeoutError | None = None
     for _ in range(READY_ATTEMPTS):
         page.bring_to_front()
@@ -76,22 +72,32 @@ def _navigate_until_ready(page: Page, url: str) -> None:
     raise RuntimeError(f"Page never reached MediaWiki readiness: {url}") from last_error
 
 
-def _extract_page(page: Page, url: str, targets: Sequence[Target]) -> dict[str, dict[str, str]]:
-    _navigate_until_ready(page, url)
-    specs: list[dict[str, object]] = [
+def _target_specs(targets: Sequence[Target]) -> list[dict[str, object]]:
+    return [
         {"name": target.name, "selector": target.selector, "properties": list(target.properties)} for target in targets
     ]
-    result: dict[str, dict[str, str]] = page.evaluate(_EXTRACT_JS, specs)
+
+
+def _extract_targets(page: Page, targets: Sequence[Target]) -> dict[str, dict[str, str]]:
+    result: dict[str, dict[str, str]] = page.evaluate(_EXTRACT_JS, _target_specs(targets))
     return result
+
+
+def _extract_page(page: Page, url: str, targets: Sequence[Target]) -> dict[str, dict[str, str]]:
+    _navigate_until_ready(page, url)
+    return _extract_targets(page, targets)
+
+
+def _extract_html(page: Page, html: str, targets: Sequence[Target]) -> dict[str, dict[str, str]]:
+    page.set_content(html, wait_until="networkidle")
+    return _extract_targets(page, targets)
 
 
 def extract_snapshot(pages: Sequence[tuple[str, str, Sequence[Target]]], *, headless: bool = True) -> Snapshot:
     """Render each ``(scope_name, url, targets)`` and return a parity snapshot.
-    Each page is rendered in its own freshly launched browser. The live wiki's
-    Cloudflare challenge is reliably cleared by a fresh foreground browser but
-    not by a second navigation in a reused one, and ``pages`` is short, so a
-    browser per page keeps capture robust. ``pages`` is built by the runner so
-    this module stays agnostic to live vs local URL conventions.
+    URL extraction is used for local checks. Source-based live capture uses
+    ``extract_html_snapshot`` so it never navigates Chromium to
+    Cloudflare-protected live wiki pages.
     """
     snapshot: Snapshot = {}
     with sync_playwright() as playwright:
@@ -100,6 +106,20 @@ def extract_snapshot(pages: Sequence[tuple[str, str, Sequence[Target]]], *, head
             try:
                 page = browser.new_context(viewport=VIEWPORT).new_page()
                 snapshot[scope_name] = _extract_page(page, url, targets)
+            finally:
+                browser.close()
+    return snapshot
+
+
+def extract_html_snapshot(pages: Sequence[tuple[str, str, Sequence[Target]]], *, headless: bool = True) -> Snapshot:
+    """Render each ``(scope_name, html, targets)`` static document snapshot."""
+    snapshot: Snapshot = {}
+    with sync_playwright() as playwright:
+        for scope_name, html, targets in pages:
+            browser = playwright.chromium.launch(headless=headless)
+            try:
+                page = browser.new_context(viewport=VIEWPORT).new_page()
+                snapshot[scope_name] = _extract_html(page, html, targets)
             finally:
                 browser.close()
     return snapshot

@@ -1,9 +1,10 @@
 """Capture/check orchestration for the live-vs-local parity gate.
 
-``capture`` renders the live wiki and writes the gitignored baseline.
-``check`` renders the local fixture pages and compares them against that
-baseline. ``print_report`` emits PASS/FAIL lines per contract page, matching
-the smoke harness output style.
+``capture`` fetches live parser HTML through the MediaWiki API, renders it with
+live ResourceLoader CSS in a local static document, and writes the gitignored
+baseline. ``check`` renders the local fixture pages and compares them against
+that baseline. ``print_report`` emits PASS/FAIL lines per contract page,
+matching the smoke harness output style.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from typing import TYPE_CHECKING
 from .compare import compare_snapshots, load_baseline, save_baseline
 from .contract import PAGES
 from .extract import extract_snapshot
+from .live_source import capture_live_source_snapshot
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -36,14 +38,9 @@ def _local_pages(base: str) -> list[tuple[str, str, Sequence[Target]]]:
     return [(page.name, f"{root}/index.php?title={page.local_title}", page.targets) for page in PAGES]
 
 
-def capture(*, live_base: str, baseline_path: Path, headless: bool = False) -> Snapshot:
-    """Render the live wiki and write the captured baseline.
-
-    Capture defaults to a headed browser: the live wiki sits behind a Cloudflare
-    JS challenge that a headless Chromium does not clear. Capture is an occasional
-    dev action, while ``check`` runs headless against the local stack.
-    """
-    snapshot = extract_snapshot(_live_pages(live_base), headless=headless)
+def capture(*, live_base: str, baseline_path: Path, headless: bool = True) -> Snapshot:
+    """Render live parser output without navigating a browser to live wiki pages."""
+    snapshot = capture_live_source_snapshot(PAGES, live_base=live_base, headless=headless)
     save_baseline(baseline_path, snapshot)
     return snapshot
 

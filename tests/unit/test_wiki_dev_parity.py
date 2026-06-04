@@ -18,6 +18,7 @@ def load_script(path: str) -> ModuleType:
 
 
 compare = load_script("wiki-dev/parity/compare.py")
+live_source = load_script("wiki-dev/parity/live_source.py")
 
 
 def test_identical_snapshots_have_no_divergences() -> None:
@@ -138,3 +139,28 @@ def test_load_baseline_fails_loudly_when_missing(tmp_path: Path) -> None:
         assert "wiki-dev/parity_check.py --capture" in str(error)
     else:
         raise AssertionError("missing baseline did not raise")
+
+
+def test_live_source_titles_are_derived_from_contract_paths() -> None:
+    pages = [
+        ("spell", "/wiki/Minor_Lightning"),
+        ("quest", "/wiki/A_Magical_Sword_in_Port_Azure"),
+    ]
+
+    assert live_source.live_page_titles(pages) == [
+        ("spell", "Minor Lightning"),
+        ("quest", "A Magical Sword in Port Azure"),
+    ]
+
+
+def test_static_live_document_uses_live_stylesheets_and_live_html() -> None:
+    document = live_source.static_live_document(
+        '<aside class="portable-infobox">Live infobox</aside>',
+        live_base="https://erenshor.wiki.gg/",
+    )
+
+    assert "http://localhost:8088" not in document
+    assert "https://erenshor.wiki.gg/load.php?lang=en" in document
+    assert "ext.PortableInfobox.styles%7Cskins.vector.styles.legacy" in document
+    assert "site.styles" in document
+    assert '<aside class="portable-infobox">Live infobox</aside>' in document

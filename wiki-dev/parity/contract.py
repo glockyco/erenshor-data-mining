@@ -9,8 +9,7 @@ Property keys are interpreted by ``extract.py``:
 
 - a plain CSS property name (``color``, ``border-bottom-width``) reads
   ``getComputedStyle(el).getPropertyValue(prop)``;
-- ``@class:NAME`` resolves to ``"true"``/``"false"`` for ``el.classList``;
-- ``@module:NAME`` resolves to ``mw.loader.getState(NAME)`` (element ignored).
+- ``@class:NAME`` resolves to ``"true"``/``"false"`` for ``el.classList``.
 
 Each page names a live reference path and the local fixture title that exercises
 the same components, so unrelated page content never affects the comparison.
@@ -62,50 +61,6 @@ ENTITY_INFOBOX_TARGETS: tuple[Target, ...] = (
 )
 
 PAGES: tuple[ParityPage, ...] = (
-    ParityPage(
-        name="chrome",
-        live_path="/wiki/Armor",
-        local_title="Cargo_ArmorTable_Smoke",
-        targets=(
-            Target(
-                name="html",
-                selector=":root",
-                properties=(
-                    "@class:theme-dark",
-                    "@class:skin-theme-clientpref-night",
-                    "--wiki-content-background-color",
-                    "--wiki-content-border-color",
-                    "--wiki-sidebar-link-color",
-                    "@module:ext.gadget.datatables",
-                ),
-            ),
-            Target(
-                name="body",
-                selector="body",
-                properties=("@class:skin-vector-legacy", "@class:skin-vector"),
-            ),
-            Target(
-                name="sidebar-heading",
-                selector="#mw-panel .vector-menu-portal .vector-menu-heading",
-                properties=("color", "background-image"),
-            ),
-            Target(
-                name="sidebar-link",
-                selector="#mw-panel .vector-menu-portal .vector-menu-content .mw-list-item a",
-                properties=("color",),
-            ),
-            Target(
-                name="table",
-                selector="table.datatable",
-                properties=("@class:dataTable",),
-            ),
-            Target(
-                name="table-header",
-                selector="table.datatable th",
-                properties=("color", "background-color"),
-            ),
-        ),
-    ),
     ParityPage(
         name="infobox",
         live_path="/wiki/A_Hermit",
