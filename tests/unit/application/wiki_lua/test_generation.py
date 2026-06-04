@@ -108,3 +108,49 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert "return {" in quests_path.read_text(encoding="utf-8")
     assert "return {" in zones_path.read_text(encoding="utf-8")
     assert "return {" in stances_path.read_text(encoding="utf-8")
+
+
+def _run_generation(tmp_path: Path) -> object:
+    item_repo = FakeItemRepository(items=[make_item()], stats={}, classes={})
+    return generate_lua_data_modules(
+        item_repo=item_repo,
+        character_repo=FakeCharacterRepository([make_character()]),
+        spawn_repo=FakeSpawnRepository({}),
+        loot_repo=FakeLootRepository({}),
+        spell_usage_repo=FakeSpellUsageRepository({}),
+        spell_repo=FakeSpellRepository([make_spell()]),
+        skill_repo=FakeSkillRepository([make_skill()]),
+        stance_repo=FakeStanceRepository([make_stance()]),
+        quest_repo=FakeQuestRepository([make_quest()]),
+        zone_repo=FakeZoneRepository([make_zone()], {}),
+        output_root=tmp_path,
+        validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+    )
+
+
+def test_top_level_written_paths_match_declared_plan(tmp_path: Path) -> None:
+    """The declared dry-run plan stays in sync with what generation actually writes."""
+    from erenshor.application.wiki_lua.generation import planned_top_level_module_paths
+
+    result = _run_generation(tmp_path)
+
+    data_dir = tmp_path / "Erenshor" / "Data"
+    written_top_level = [path for path in result.written_paths if path.parent == data_dir]
+    assert written_top_level == planned_top_level_module_paths(tmp_path)
+
+
+def test_generation_removes_stale_data_modules(tmp_path: Path) -> None:
+    """Files left by a previous generation that are no longer produced are removed."""
+    data_dir = tmp_path / "Erenshor" / "Data"
+    stale_shard = data_dir / "Items" / "001.lua"
+    stale_module = data_dir / "Obsolete.lua"
+    stale_shard.parent.mkdir(parents=True)
+    stale_shard.write_text("return {}\n", encoding="utf-8")
+    stale_module.write_text("return {}\n", encoding="utf-8")
+
+    result = _run_generation(tmp_path)
+
+    assert not stale_shard.exists()
+    assert not stale_module.exists()
+    assert (data_dir / "Items.lua") in result.written_paths
+    assert (data_dir / "Items.lua").exists()

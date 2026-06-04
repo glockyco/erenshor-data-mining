@@ -48,7 +48,11 @@ from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
-from erenshor.application.wiki_lua.generation import generate_lua_data_modules
+from erenshor.application.wiki_lua.generation import (
+    generate_lua_data_modules,
+    item_shard_dir,
+    planned_top_level_module_paths,
+)
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -395,12 +399,6 @@ def generate_lua(ctx: typer.Context) -> None:
     """Generate local Lua data modules from the clean database."""
     cli_ctx: CLIContext = ctx.obj
     output_root = _lua_output_root(cli_ctx)
-    items_path = output_root / "Erenshor" / "Data" / "Items.lua"
-    item_shards_path = output_root / "Erenshor" / "Data" / "Items"
-    characters_path = output_root / "Erenshor" / "Data" / "Characters.lua"
-    ability_links_path = output_root / "Erenshor" / "Data" / "AbilityLinks.lua"
-    quests_path = output_root / "Erenshor" / "Data" / "Quests.lua"
-    zones_path = output_root / "Erenshor" / "Data" / "Zones.lua"
     console.print()
     console.print(
         Panel.fit(
@@ -415,12 +413,9 @@ def generate_lua(ctx: typer.Context) -> None:
 
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: no database opened and no files written.[/yellow]")
-        console.print(f"Would write: {items_path}", soft_wrap=True)
-        console.print(f"Would write item shards below: {item_shards_path}", soft_wrap=True)
-        console.print(f"Would write: {characters_path}", soft_wrap=True)
-        console.print(f"Would write: {ability_links_path}", soft_wrap=True)
-        console.print(f"Would write: {quests_path}", soft_wrap=True)
-        console.print(f"Would write: {zones_path}", soft_wrap=True)
+        for module_path in planned_top_level_module_paths(output_root):
+            console.print(f"Would write: {module_path}", soft_wrap=True)
+        console.print(f"Would write item shards below: {item_shard_dir(output_root)}", soft_wrap=True)
         return
 
     try:

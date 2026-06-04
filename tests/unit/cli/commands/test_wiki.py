@@ -167,11 +167,22 @@ class TestWikiGenerateCommand:
         mock_service.generate_all.assert_called_once()
 
     def test_generate_lua_dry_run_reports_output_without_writing(self):
-        """Test dry-run reports Lua output paths without writing files."""
+        """Test dry-run reports every Lua data module path without writing files."""
         result = runner.invoke(app, ["--dry-run", "wiki", "generate-lua"])
 
         assert result.exit_code == 0
         assert "Dry run" in result.output
+        for module in (
+            "Items.lua",
+            "Characters.lua",
+            "AbilityLinks.lua",
+            "Spells.lua",
+            "Skills.lua",
+            "Quests.lua",
+            "Zones.lua",
+            "Stances.lua",
+        ):
+            assert module in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Items.lua" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Items" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Characters.lua" in result.output

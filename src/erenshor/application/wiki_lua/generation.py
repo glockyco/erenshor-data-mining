@@ -45,6 +45,58 @@ class SkillGenerationRepository(AbilityLinkSkillRepository, SkillModuleRepositor
 
 LuaValidator = Callable[[Path], LuaValidationResult]
 
+_DATA_SUBDIR = ("Erenshor", "Data")
+
+# Top-level data modules generation always writes, in deploy/validation order.
+# Item shards under ``Erenshor/Data/Items`` are produced dynamically per item kind.
+TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
+    "Items.lua",
+    "Characters.lua",
+    "AbilityLinks.lua",
+    "Spells.lua",
+    "Skills.lua",
+    "Quests.lua",
+    "Zones.lua",
+    "Stances.lua",
+)
+
+
+def _data_dir(output_root: Path) -> Path:
+    return output_root.joinpath(*_DATA_SUBDIR)
+
+
+def planned_top_level_module_paths(output_root: Path) -> list[Path]:
+    """Return the always-written top-level data module paths for an output root.
+
+    This is the single source of truth shared by ``generate-lua`` dry-run output
+    and generation, so the reported plan cannot drift from what is written.
+    """
+    data_dir = _data_dir(output_root)
+    return [data_dir / name for name in TOP_LEVEL_DATA_MODULES]
+
+
+def item_shard_dir(output_root: Path) -> Path:
+    """Return the directory holding generated per-kind item shard modules."""
+    return _data_dir(output_root) / "Items"
+
+
+def _remove_stale_data_modules(output_root: Path, written_paths: list[Path]) -> None:
+    """Delete previously generated data modules no longer produced by this run.
+
+    Generation is the sole owner of ``Erenshor/Data``: a renamed shard scheme or a
+    removed module must not leave orphan pages that later get deployed.
+    """
+    data_dir = _data_dir(output_root)
+    if not data_dir.exists():
+        return
+    kept = {path.resolve() for path in written_paths}
+    for path in data_dir.rglob("*.lua"):
+        if path.is_file() and path.resolve() not in kept:
+            path.unlink()
+    for path in sorted(data_dir.rglob("*"), reverse=True):
+        if path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
+
 
 def generate_lua_data_modules(
     *,
@@ -72,8 +124,9 @@ def generate_lua_data_modules(
         write_zones_module(zone_repo, output_root),
         write_stances_module(stance_repo, output_root),
     ]
-    validation_tools: dict[Path, str] = {}
+    _remove_stale_data_modules(output_root, written_paths)
 
+    validation_tools: dict[Path, str] = {}
     for path in written_paths:
         validation = validate(path)
         validation_tools[path] = validation.tool
