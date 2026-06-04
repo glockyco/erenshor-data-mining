@@ -36,14 +36,29 @@ function p.run()
 	assertEqual(override.location, "Manual Location", "article location override wins")
 	assertEqual(override.factionChanges, nil, "dash sentinel blanks supported fields")
 
-	local infobox =
-		Quest.renderInfobox({ stablekey = "quest:magical_sword" }, "A Magical Sword in Port Azure")
-	assertContains(infobox, "A Magical Sword in Port Azure", "infobox contains name")
-	assertContains(infobox, "450", "infobox contains experience")
-	assertContains(infobox, "Port Azure +5", "infobox contains faction changes")
-	assertContains(infobox, "[[Category:Quests]]", "quest category emits")
+	local questKey = { stablekey = "quest:magical_sword" }
+	assertEqual(
+		Quest.fieldValue(questKey, "A Magical Sword in Port Azure", "name"),
+		"A Magical Sword in Port Azure",
+		"field name resolves"
+	)
+	assertEqual(
+		Quest.fieldValue(questKey, "A Magical Sword in Port Azure", "experience"),
+		"450",
+		"field experience resolves"
+	)
+	assertEqual(
+		Quest.fieldValue(questKey, "A Magical Sword in Port Azure", "factionchanges"),
+		"Port Azure +5<br>Sivakayans -2",
+		"field faction changes resolve"
+	)
 
-	local missing = Quest.renderInfobox({}, "Unknown Prototype")
+	assertEqual(
+		Quest.fieldValue({}, "Unknown Prototype", "name"),
+		"",
+		"missing quest fields are blank"
+	)
+	local missing = Quest.statusText({}, "Unknown Prototype")
 	assertContains(missing, "Missing quest data: Unknown Prototype", "missing quest is visible")
 	assertContains(
 		missing,

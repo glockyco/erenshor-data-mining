@@ -1,6 +1,5 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
-local Render = require("Module:Erenshor/Render")
 
 local Data = mw.loadData("Module:Erenshor/Data/Quests")
 
@@ -148,44 +147,81 @@ local function missingOutput(quest)
 		.. "</span>[[Category:Pages with missing Erenshor quest data]]"
 end
 
-function p.renderInfobox(args, pageTitle)
+local FIELD_ACCESSORS = {
+	name = function(q)
+		return q.name
+	end,
+	image = function(q)
+		return ensureImageFile(q.image, q.name)
+	end,
+	imagecaption = function(q)
+		return q.imageCaption
+	end,
+	location = function(q)
+		return q.location
+	end,
+	repeatable = function(q)
+		return q.repeatable
+	end,
+	prerequisite = function(q)
+		return q.prerequisite
+	end,
+	level = function(q)
+		return q.level
+	end,
+	itemsrequired = function(q)
+		return q.itemsRequired
+	end,
+	experience = function(q)
+		return q.experience
+	end,
+	gold = function(q)
+		return q.gold
+	end,
+	factionchanges = function(q)
+		return q.factionChanges
+	end,
+	items = function(q)
+		return q.items
+	end,
+	previous = function(q)
+		return q.previous
+	end,
+	next = function(q)
+		return q.next
+	end,
+}
+
+function p.fieldValue(args, pageTitle, key)
+	local quest = p.resolve(args, pageTitle)
+	if quest.missing then
+		return ""
+	end
+	local accessor = FIELD_ACCESSORS[key]
+	if accessor == nil then
+		error("Unknown Quest infobox field: " .. tostring(key))
+	end
+	local value = accessor(quest)
+	if value == nil then
+		return ""
+	end
+	return tostring(value)
+end
+
+function p.statusText(args, pageTitle)
 	local quest = p.resolve(args, pageTitle)
 	if quest.missing then
 		return missingOutput(quest)
 	end
-
-	local rows = {
-		{
-			label = "Image",
-			value = Format.fileLink(
-				ensureImageFile(quest.image, quest.name),
-				{ alt = quest.name, size = "64x64px" }
-			),
-		},
-		{ label = "Caption", value = quest.imageCaption },
-		{ label = "Location", value = quest.location },
-		{ label = "Repeatable", value = quest.repeatable },
-		{ label = "Prerequisite", value = quest.prerequisite },
-		{ label = "Level", value = quest.level },
-		{ label = "Items required", value = quest.itemsRequired },
-		{ label = "Experience", value = quest.experience },
-		{ label = "Gold", value = quest.gold },
-		{ label = "Faction changes", value = quest.factionChanges },
-		{ label = "Items", value = quest.items },
-		{ label = "Previous", value = quest.previous },
-		{ label = "Next", value = quest.next },
-	}
-
-	return Render.infobox({
-		title = quest.name,
-		type = "Quest",
-		classes = { "erenshor-quest-infobox" },
-		rows = rows,
-	}) .. "[[Category:Quests]]"
+	return ""
 end
 
-function p.infobox(frame)
-	return p.renderInfobox(templateArgs(frame), currentTitleText())
+function p.field(frame)
+	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
+end
+
+function p.status(frame)
+	return p.statusText(templateArgs(frame), currentTitleText())
 end
 
 return p
