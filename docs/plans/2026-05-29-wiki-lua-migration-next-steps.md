@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips) is complete. Milestone 8e (first-class Spell/Skill/Stance modeling) is operationally complete and feeds item tooltip spell/book joins. Milestone 8f (faithfulness fixes) is the remaining audit-triage gate before Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion).
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Next: Milestone 10 deploy/rollback pipeline, then full local verification, TemplateSandbox, production cutover, and legacy deletion.
 
 ---
 
@@ -785,7 +785,7 @@ wiki/modules/Erenshor/Item/testcases.lua
 tests/unit/test_wiki_dev_harness.py
 ```
 
-- [ ] **Step 1: Replace the armor overview table surface**
+- [x] **Step 1: Replace the armor overview table surface**
 
   Production `Armor` is a bot-generated static overview table, and
   production `Template:ArmorTable` exists with no live transclusions. Reuse
@@ -793,25 +793,24 @@ tests/unit/test_wiki_dev_harness.py
   The human-owned `Armor` article can call `{{ArmorTable}}` during cutover
   instead of being rewritten by Python.
 
-- [ ] **Step 2: Store overview fields in the item Cargo row**
+- [x] **Step 2: Store overview fields in the item Cargo row**
 
   Item Cargo rows store resolved article values after overrides. Add the
   normal-quality armor-table stat columns and a display-only notes column to
   the existing `Items` table so Cargo queries can reproduce the current armor
   overview without reading generated Lua data directly.
 
-- [ ] **Step 3: Render armor rows through a small row template**
+- [x] **Step 3: Render armor rows through a small row template**
 
   `Template:ArmorTable` issues one Cargo query against `Items` where
   `Type="Armor"`, ordered by slot and name. `Template:ArmorTable/Row` renders
-  a single wikitable row from named Cargo fields. Do not add a generic
-  table-helper Lua module until at least two concrete overview surfaces need
-  shared behavior.
+  a single wikitable row from named Cargo fields. No generic table-helper Lua
+  module was added.
 
-- [ ] **Step 4: Verify the query page locally**
+- [x] **Step 4: Verify the query page locally**
 
-  Recreate/import local Cargo state, parse a fixture page that calls
-  `{{ArmorTable}}`, and assert expected item links, stat values, class links,
+  Recreated/imported local Cargo state, parsed a fixture page that calls
+  `{{ArmorTable}}`, and asserted expected item links, stat values, class links,
   and generated ability notes appear without parser errors.
 
 ### Milestone 10: Build clean-cut deployment and rollback pipeline
