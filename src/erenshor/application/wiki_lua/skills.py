@@ -1,0 +1,141 @@
+"""Generate a compact Lua data module for skill wiki pages."""
+
+from __future__ import annotations
+
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+from typing import TYPE_CHECKING, Protocol
+
+from erenshor.application.wiki_lua.lua_writer import module_text
+
+if TYPE_CHECKING:
+    from erenshor.domain.entities.skill import Skill
+
+LuaData = dict[str, object]
+
+_CLASS_LEVEL_FIELDS: tuple[tuple[str, str], ...] = (
+    ("Duelist", "duelist_required_level"),
+    ("Paladin", "paladin_required_level"),
+    ("Arcanist", "arcanist_required_level"),
+    ("Druid", "druid_required_level"),
+    ("Stormcaller", "stormcaller_required_level"),
+    ("Reaver", "reaver_required_level"),
+)
+
+_TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
+    ("image", "image_name"),
+    ("description", "skill_desc"),
+    ("type", "type_of_skill"),
+    ("stanceStableKey", "stance_to_use_stable_key"),
+    ("spawnOnUseStableKey", "spawn_on_use_stable_key"),
+    ("effectStableKey", "effect_to_apply_stable_key"),
+    ("damageType", "damage_type"),
+    ("castOnTargetStableKey", "cast_on_target_stable_key"),
+    ("skillAnimName", "skill_anim_name"),
+    ("skillIconName", "skill_icon_name"),
+    ("playerUses", "player_uses"),
+    ("npcUses", "npc_uses"),
+)
+
+_NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
+    ("cooldownTicks", "cooldown"),
+    ("range", "skill_range"),
+    ("skillPower", "skill_power"),
+    ("percentDmg", "percent_dmg"),
+)
+
+_BOOL_FIELD_MAP: tuple[tuple[str, str], ...] = (
+    ("requireBehind", "require_behind"),
+    ("require2h", "require_2h"),
+    ("requireDw", "require_dw"),
+    ("requireBow", "require_bow"),
+    ("requireShield", "require_shield"),
+    ("simPlayersAutolearn", "sim_players_autolearn"),
+    ("aeSkill", "ae_skill"),
+    ("interrupt", "interrupt"),
+    ("affectPlayer", "affect_player"),
+    ("affectTarget", "affect_target"),
+    ("scaleOffWeapon", "scale_off_weapon"),
+    ("procWeap", "proc_weap"),
+    ("procShield", "proc_shield"),
+    ("guaranteeProc", "guarantee_proc"),
+    ("automateAttack", "automate_attack"),
+)
+
+
+class SkillDataRepository(Protocol):
+    """Repository methods needed to build the skill data module."""
+
+    def get_skills_for_wiki_generation(self) -> list[Skill]: ...
+
+    def get_class_display_names(self) -> dict[str, str]: ...
+
+
+def generate_skills_module(skill_repo: SkillDataRepository) -> str:
+    """Generate `Module:Erenshor/Data/Skills` from clean DB repositories."""
+    return module_text(
+        build_skills_data(skill_repo.get_skills_for_wiki_generation(), skill_repo.get_class_display_names())
+    )
+
+
+def write_skills_module(skill_repo: SkillDataRepository, output_root: Path) -> Path:
+    """Write the generated skill data module below an output root."""
+    output_path = output_root / "Erenshor" / "Data" / "Skills.lua"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(generate_skills_module(skill_repo), encoding="utf-8")
+    return output_path
+
+
+def build_skills_data(skills: Iterable[Skill], class_display_names: Mapping[str, str]) -> LuaData:
+    """Build the serializable skill data table for `mw.loadData()`."""
+    rows: dict[str, LuaData] = {}
+    for skill in sorted(skills, key=lambda candidate: candidate.stable_key):
+        record = _skill_record(skill, class_display_names)
+        if record is not None:
+            rows[skill.stable_key] = record
+    return {"skills": rows}
+
+
+def _skill_record(skill: Skill, class_display_names: Mapping[str, str]) -> LuaData | None:
+    name = skill.display_name or skill.skill_name or skill.wiki_page_name
+    page = skill.wiki_page_name or name
+    if name is None or page is None:
+        return None
+
+    record: LuaData = {"name": name, "page": page, "classLevels": _class_levels(skill, class_display_names)}
+    for lua_key, attr in _TEXT_FIELD_MAP:
+        _put_text(record, lua_key, getattr(skill, attr))
+    for lua_key, attr in _NUMBER_FIELD_MAP:
+        _put_number(record, lua_key, getattr(skill, attr))
+    for lua_key, attr in _BOOL_FIELD_MAP:
+        _put_bool(record, lua_key, getattr(skill, attr))
+    return record
+
+
+def _class_levels(skill: Skill, class_display_names: Mapping[str, str]) -> list[LuaData]:
+    levels: list[LuaData] = []
+    for class_name, attr in _CLASS_LEVEL_FIELDS:
+        level = getattr(skill, attr)
+        if level is not None and level > 0:
+            levels.append(
+                {
+                    "className": class_name,
+                    "displayName": class_display_names.get(class_name, class_name),
+                    "level": level,
+                }
+            )
+    return sorted(levels, key=lambda row: str(row["displayName"]).casefold())
+
+
+def _put_text(row: LuaData, key: str, value: object) -> None:
+    if value is not None and value != "":
+        row[key] = value
+
+
+def _put_number(row: LuaData, key: str, value: object) -> None:
+    if value is not None:
+        row[key] = value
+
+
+def _put_bool(row: LuaData, key: str, value: object) -> None:
+    row[key] = bool(value)

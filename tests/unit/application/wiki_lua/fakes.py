@@ -78,11 +78,15 @@ class FakeSpellRepository:
 
 
 class FakeSkillRepository:
-    def __init__(self, skills: list[Skill]) -> None:
+    def __init__(self, skills: list[Skill], class_display_names: dict[str, str] | None = None) -> None:
         self._skills = skills
+        self._class_display_names = class_display_names or {}
 
     def get_skills_for_wiki_generation(self) -> list[Skill]:
         return self._skills
+
+    def get_class_display_names(self) -> dict[str, str]:
+        return self._class_display_names
 
 
 class FakeStanceRepository:

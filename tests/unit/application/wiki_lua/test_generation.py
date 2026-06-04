@@ -62,6 +62,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     characters_path = tmp_path / "Erenshor" / "Data" / "Characters.lua"
     ability_links_path = tmp_path / "Erenshor" / "Data" / "AbilityLinks.lua"
     spells_path = tmp_path / "Erenshor" / "Data" / "Spells.lua"
+    skills_path = tmp_path / "Erenshor" / "Data" / "Skills.lua"
     quests_path = tmp_path / "Erenshor" / "Data" / "Quests.lua"
     zones_path = tmp_path / "Erenshor" / "Data" / "Zones.lua"
     stances_path = tmp_path / "Erenshor" / "Data" / "Stances.lua"
@@ -71,6 +72,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         characters_path,
         ability_links_path,
         spells_path,
+        skills_path,
         quests_path,
         zones_path,
         stances_path,
@@ -81,6 +83,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         characters_path: "stylua",
         ability_links_path: "stylua",
         spells_path: "stylua",
+        skills_path: "stylua",
         quests_path: "stylua",
         zones_path: "stylua",
         stances_path: "stylua",
@@ -91,6 +94,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         characters_path,
         ability_links_path,
         spells_path,
+        skills_path,
         quests_path,
         zones_path,
         stances_path,
@@ -100,6 +104,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert "return {" in characters_path.read_text(encoding="utf-8")
     assert "return {" in ability_links_path.read_text(encoding="utf-8")
     assert "return {" in spells_path.read_text(encoding="utf-8")
+    assert "return {" in skills_path.read_text(encoding="utf-8")
     assert "return {" in quests_path.read_text(encoding="utf-8")
     assert "return {" in zones_path.read_text(encoding="utf-8")
     assert "return {" in stances_path.read_text(encoding="utf-8")

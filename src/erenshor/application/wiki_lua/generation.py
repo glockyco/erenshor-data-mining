@@ -5,9 +5,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from erenshor.application.wiki_lua.ability_links import (
-    SkillDataRepository,
+    SkillDataRepository as AbilityLinkSkillRepository,
+)
+from erenshor.application.wiki_lua.ability_links import (
     StanceDataRepository,
     write_ability_links_module,
 )
@@ -20,6 +23,8 @@ from erenshor.application.wiki_lua.characters import (
 )
 from erenshor.application.wiki_lua.items import ItemDataRepository, write_items_modules
 from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
+from erenshor.application.wiki_lua.skills import SkillDataRepository as SkillModuleRepository
+from erenshor.application.wiki_lua.skills import write_skills_module
 from erenshor.application.wiki_lua.spells import SpellDataRepository, write_spells_module
 from erenshor.application.wiki_lua.stances import write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
@@ -34,6 +39,10 @@ class LuaDataModuleGenerationResult:
     validation_tools: dict[Path, str]
 
 
+class SkillGenerationRepository(AbilityLinkSkillRepository, SkillModuleRepository, Protocol):
+    """Skill repository methods needed by all generated Lua data modules."""
+
+
 LuaValidator = Callable[[Path], LuaValidationResult]
 
 
@@ -45,7 +54,7 @@ def generate_lua_data_modules(
     loot_repo: CharacterLootRepository,
     spell_usage_repo: CharacterSpellRepository,
     spell_repo: SpellDataRepository,
-    skill_repo: SkillDataRepository,
+    skill_repo: SkillGenerationRepository,
     stance_repo: StanceDataRepository,
     quest_repo: QuestDataRepository,
     zone_repo: ZoneDataRepository,
@@ -58,6 +67,7 @@ def generate_lua_data_modules(
         write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
         write_ability_links_module(spell_repo, skill_repo, stance_repo, output_root),
         write_spells_module(spell_repo, output_root),
+        write_skills_module(skill_repo, output_root),
         write_quests_module(quest_repo, output_root),
         write_zones_module(zone_repo, output_root),
         write_stances_module(stance_repo, output_root),

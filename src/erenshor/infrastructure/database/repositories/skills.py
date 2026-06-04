@@ -70,6 +70,21 @@ class SkillRepository(BaseRepository[Skill]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skill {stable_key}: {e}") from e
 
+    def get_class_display_names(self) -> dict[str, str]:
+        """Get internal class name to wiki display name mapping."""
+        query = """
+            SELECT class_name, display_name
+            FROM classes
+            WHERE class_name != 'Default'
+            ORDER BY class_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, ())
+            return {str(row["class_name"]): str(row["display_name"] or row["class_name"]) for row in rows}
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve class display names: {e}") from e
+
     def get_skills_using_stance(self, stance_stable_key: str) -> list[AbilityLink]:
         """Get all skills that activate a specific stance.
 

@@ -30,11 +30,15 @@ All citations are `File.cs:line` under the Assembly-CSharp directory above.
   `StatusEffectIcon.cs:73`.
 - Spell **cast time**: `SpellChargeTime / 60` seconds (`SpellChargeTime` is in
   60 Hz charge ticks). Confirmed `SpellbookSlot.cs:159`, `ItemInfoWindow.cs:680`.
-- **Cooldown** (both `Spell.Cooldown` and `Skill.Cooldown`): already in
-  **seconds**. Internally multiplied by 60 for the countdown
-  (`Hotkeys.cs:241`, `SpellbookSlot.cs:160`). Display the value as-is.
-- The cast-time tick (60 Hz) and the status tick (3 s) are different concepts;
-  do not collapse them to one "ticks per second" constant.
+- **Cooldown units differ by ability kind.** Spell cooldown is already in seconds
+  and is multiplied by 60 for the hotkey counter (`Hotkeys.cs:241`,
+  `SpellbookSlot.cs:160`). Skill cooldown is stored in 60 Hz hotkey ticks and is
+  assigned directly to the counter (`Hotkeys.cs:289`, `Hotkeys.cs:298`), whose UI
+  displays `Cooldown / 60` (`Hotkeys.cs:168`). Display spells as-is and skills
+  divided by 60.
+- The cast-time tick (60 Hz), skill cooldown tick (60 Hz), and status tick (3 s)
+  are different concepts; do not collapse them to one "ticks per second"
+  constant.
 
 ### Item quality scaling (`Item.cs:237-295`)
 
@@ -163,7 +167,9 @@ and links all draw from one faithful source.
 PortableInfobox parity. Spell generated data, `Module:Erenshor/Spell`,
 `Template:Ability` spell rendering, smoke fixtures, and local-vs-live
 PortableInfobox parity are complete with raw C#-faithful spell fields and class
-restrictions. Skill modeling remains pending. Stance `activated_by` is
+restrictions. `Module:Erenshor/Data/Skills` is complete with raw skill fields,
+DB-derived class display names, and per-class levels. Skill Lua rendering remains
+pending. Stance `activated_by` is
 intentionally still article-override only because the relationship is not a
 Stance field in the game; it must be derived when Skills are modeled from
 `Skill.StanceToUse` (`Skill.cs`) to the target stance stable key. Do not
@@ -177,10 +183,11 @@ denormalize that relationship into Stance data before the Skills module exists.
   complete, keyed by stable key with the faithful stance modifier fields from
   `Stance.cs`. `Module:Erenshor/Data/Spells` is complete, keyed by stable key
   with raw spell timing/resource/effect/stat/CC fields plus class restrictions;
-  Lua owns display conversion for cast time, cooldown, and duration. Add
-  `Module:Erenshor/Data/Skills` keyed by stable key with the full faithful skill
-  field set from the C# reference above. TDD `wiki_lua/skills.py`; `spells.py`
-  and `stances.py` are done.
+  Lua owns display conversion for cast time, cooldown, and duration.
+  `Module:Erenshor/Data/Skills` is complete, keyed by stable key with raw skill
+  fields, per-class levels, DB-derived display class names, and stance/effect
+  stable-key relationships. Lua owns display conversion for skill cooldown
+  ticks. `wiki_lua/stances.py`, `spells.py`, and `skills.py` are done.
 - [ ] **Step 3: Lua modules.** `Module:Erenshor/Stance` is complete with
   `resolve` + `field`/`status` accessors. `Module:Erenshor/Spell` is complete
   for spell page fields and override handling. Add `Module:Erenshor/Skill` with

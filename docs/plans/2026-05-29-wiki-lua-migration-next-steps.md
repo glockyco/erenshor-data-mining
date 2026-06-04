@@ -751,12 +751,14 @@ plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
   `Module:Erenshor/Stance`, `Template:Stance`, smoke fixtures, and visual parity
   are complete. Spell generated data, `Module:Erenshor/Spell`,
   `Template:Ability` spell rendering, smoke fixtures, and visual parity are
-  complete with raw C#-faithful spell fields and class restrictions. Skill
-  data/modeling and Skill use of `Template:Ability` remain pending. Skills must
-  later derive stance `activated_by` relationships from `Skill.StanceToUse` so
-  the Stance surface stops relying on article-local activation overrides. Item
-  tooltip spell details must join the Spells module instead of denormalizing
-  spell fields into item data.
+  complete with raw C#-faithful spell fields and class restrictions.
+  `Module:Erenshor/Data/Skills` is complete with raw skill fields, DB-derived
+  class display names, per-class levels, and stance/effect stable-key
+  relationships. Skill Lua rendering and Skill use of `Template:Ability` remain
+  pending. Skills must later derive stance `activated_by` relationships from
+  `Skill.StanceToUse` so the Stance surface stops relying on article-local
+  activation overrides. Item tooltip spell details must join the Spells module
+  instead of denormalizing spell fields into item data.
 - **8f — Faithfulness verification (audit triage).** The original audit
   over-reported without knowing maintainer intent; several flagged "issues" are
   correct or intentional (cooldown unit asymmetry verified against `Hotkeys.cs`,
