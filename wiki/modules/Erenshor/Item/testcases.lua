@@ -147,6 +147,33 @@ function p.run()
 	assertContains(aura, "item-spell-details", "aura shows spell details")
 	assertContains(aura, "Group Effect", "aura spell details show the group-effect flag")
 
+	local skillBook =
+		Item.renderTooltip({ stablekey = "item:sword_mastery_manual" }, "Sword Mastery Manual")
+	assertContains(skillBook, "item-tooltip-book", "skill book carries the book CSS class")
+	assertContains(skillBook, "Required Level:", "skill book shows the requirement header")
+	assertContains(
+		skillBook,
+		"Windblade: 3",
+		"skill book shows per-class levels with display names"
+	)
+	assertContains(skillBook, "Skill Type: Passive", "skill book shows the skill type")
+	assertContains(
+		skillBook,
+		"SimPlayers DO NOT automatically learn",
+		"skill book warns when not auto-learned"
+	)
+
+	local spellScroll =
+		Item.renderTooltip({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember")
+	assertContains(spellScroll, "item-tooltip-book", "spell scroll carries the book CSS class")
+	assertContains(
+		spellScroll,
+		"Arcanist: 8",
+		"spell scroll shows the required level per usable class"
+	)
+	assertContains(spellScroll, "Mana Cost: 25", "spell scroll shows the mana cost")
+	assertContains(spellScroll, "Spell Type: Damage", "spell scroll shows the spell type")
+
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
 	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")

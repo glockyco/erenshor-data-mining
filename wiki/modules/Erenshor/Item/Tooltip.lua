@@ -18,9 +18,10 @@
 
 local Format = require("Module:Erenshor/Format")
 
--- Effect spells are joined by stable key (best-practice mw.loadData: parsed once
--- per page, cached, read-only static data).
+-- Effect spells and taught skills are joined by stable key (best-practice
+-- mw.loadData: parsed once per page, cached, read-only static data).
 local SpellData = mw.loadData("Module:Erenshor/Data/Spells")
+local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 
 local Tooltip = {}
 
@@ -735,6 +736,92 @@ local function moldTooltip(item, stats)
 	return tostring(root)
 end
 
+-- Shared book/scroll container: "Required Level:" + per-class levels; the caller
+-- appends type-specific detail and description rows.
+local function bookRequirements(body)
+	local container = body:tag("div"):addClass("item-tooltip-book-container")
+	container:tag("div"):addClass("item-tooltip-book-requirement"):wikitext("Required Level:")
+	return container:tag("div"):addClass("item-tooltip-book-class-requirements")
+end
+
+local function classReq(reqs, label, level)
+	reqs:tag("div"):addClass("item-tooltip-book-class-req"):wikitext(label .. ": " .. level)
+end
+
+-- SkillBook: the taught skill's per-class required levels (display names come
+-- from the data, Duelist→Windblade), skill type, description, and the SimPlayers
+-- auto-learn warning.
+local function skillBookTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local reqs = bookRequirements(body)
+	local skill = SkillData.skills[item.teachesSkill]
+	if skill ~= nil then
+		local levelByClass = {}
+		for _, entry in ipairs(skill.classLevels or {}) do
+			levelByClass[entry.displayName] = entry.level
+		end
+		for _, class in ipairs(CLASS_ORDER) do
+			if levelByClass[class] ~= nil then
+				classReq(reqs, class, levelByClass[class])
+			end
+		end
+		if not isBlank(skill.type) then
+			reqs:tag("div")
+				:addClass("item-tooltip-book-detail")
+				:wikitext("Skill Type: " .. skill.type)
+		end
+		if not isBlank(skill.description) then
+			reqs:tag("div")
+				:addClass("item-tooltip-book-description")
+				:wikitext(Format.escape(skill.description))
+		end
+		if skill.simPlayersAutolearn == false then
+			reqs:tag("div"):addClass("item-tooltip-book-warning"):wikitext(
+				"SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it."
+			)
+		end
+	end
+	return tostring(root)
+end
+
+local CLASS_INTERNAL_ALIAS = { Windblade = "Duelist" }
+
+-- SpellScroll: the taught spell's required level for each usable class, mana
+-- cost, spell type, and description.
+local function spellScrollTooltip(item, stats)
+	local root, body = tooltipShell(item, tierOf(stats.quality), nil)
+	local reqs = bookRequirements(body)
+	local spell = SpellData.spells[item.teachesSpell]
+	if spell ~= nil then
+		local usable = {}
+		for _, class in ipairs(spell.classes or {}) do
+			usable[class] = true
+		end
+		local level = num(spell.requiredLevel)
+		for _, class in ipairs(CLASS_ORDER) do
+			if usable[class] or usable[CLASS_INTERNAL_ALIAS[class]] then
+				classReq(reqs, class, level)
+			end
+		end
+		if num(spell.manaCost) ~= 0 then
+			reqs:tag("div")
+				:addClass("item-tooltip-book-detail")
+				:wikitext("Mana Cost: " .. spell.manaCost)
+		end
+		if not isBlank(spell.type) then
+			reqs:tag("div")
+				:addClass("item-tooltip-book-detail")
+				:wikitext("Spell Type: " .. spell.type)
+		end
+		if not isBlank(spell.description) then
+			reqs:tag("div")
+				:addClass("item-tooltip-book-description")
+				:wikitext(Format.escape(spell.description))
+		end
+	end
+	return tostring(root)
+end
+
 local function renderQuality(item, stats)
 	local kind = item.type
 	if kind == "Weapon" then
@@ -751,6 +838,10 @@ local function renderQuality(item, stats)
 		return auraTooltip(item, stats)
 	elseif kind == "Mold" then
 		return moldTooltip(item, stats)
+	elseif kind == "Skill Book" then
+		return skillBookTooltip(item, stats)
+	elseif kind == "Spell Scroll" then
+		return spellScrollTooltip(item, stats)
 	end
 	return simpleTooltip(item, stats)
 end

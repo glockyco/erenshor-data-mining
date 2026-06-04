@@ -1,5 +1,20 @@
 return {
 	["spells"] = {
+		["spell:ember"] = {
+			["name"] = "Ember",
+			["page"] = "Ember",
+			["image"] = "Ember",
+			["requiredLevel"] = 8,
+			["manaCost"] = 25,
+			["type"] = "Damage",
+			["line"] = "Direct_Damage",
+			["description"] = "Hurls a fiery ember at the target.",
+			["targetDamage"] = 60,
+			["damageType"] = "Elemental",
+			["durationTicks"] = 0,
+			["castTimeTicks"] = 120.0,
+			["classes"] = { "Arcanist", "Stormcaller" },
+		},
 		["spell:ember_proc"] = {
 			["name"] = "Ember Burst",
 			["page"] = "Ember Burst",

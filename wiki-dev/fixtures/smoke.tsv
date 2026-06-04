@@ -43,8 +43,13 @@ Ember Aura	Ancient Presence
 Ember Aura	Group Effect
 Sword Mastery Manual	Skill Book
 Sword Mastery Manual	item-tooltip-book
+Sword Mastery Manual	Required Level:
+Sword Mastery Manual	Windblade: 3
+Sword Mastery Manual	Skill Type: Passive
 Scroll of Ember	Spell Scroll
 Scroll of Ember	item-tooltip-book
+Scroll of Ember	Arcanist: 8
+Scroll of Ember	Mana Cost: 25
 Manual Item Override	Manual Ember Blade
 Manual Item Override	Manual quest reward
 Manual Item Override	Manual vendor

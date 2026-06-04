@@ -1,5 +1,18 @@
 return {
 	["skills"] = {
+		["skill:sword_mastery"] = {
+			["name"] = "Sword Mastery",
+			["page"] = "Sword Mastery",
+			["image"] = "Sword Mastery",
+			["type"] = "Passive",
+			["description"] = "Increases damage dealt with one-handed swords.",
+			["simPlayersAutolearn"] = false,
+			["classLevels"] = {
+				{ ["className"] = "Paladin", ["displayName"] = "Paladin", ["level"] = 1 },
+				{ ["className"] = "Reaver", ["displayName"] = "Reaver", ["level"] = 1 },
+				{ ["className"] = "Duelist", ["displayName"] = "Windblade", ["level"] = 3 },
+			},
+		},
 		["skill:backstab"] = {
 			["aeSkill"] = false,
 			["affectPlayer"] = false,
