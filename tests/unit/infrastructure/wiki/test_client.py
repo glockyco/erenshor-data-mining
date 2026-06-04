@@ -4,6 +4,7 @@ These tests verify the MediaWiki client's behavior using mocks to avoid
 requiring actual network connections or MediaWiki credentials.
 """
 
+import hashlib
 from unittest.mock import MagicMock, patch
 
 import httpx
@@ -12,10 +13,14 @@ import pytest
 from erenshor.infrastructure.time import MockClock
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
+    MediaWikiAssertionError,
     MediaWikiAuthenticationError,
     MediaWikiClient,
+    MediaWikiEditConflictError,
     MediaWikiEditError,
     MediaWikiNetworkError,
+    MediaWikiPageRevision,
+    MediaWikiPermissionError,
     MediaWikiRateLimitError,
 )
 
@@ -368,6 +373,294 @@ class TestMediaWikiClientEditPage:
         call_data = mock_http_client.post.call_args[1]["data"]
         assert call_data["summary"] == "Default summary"
         assert call_data["minor"] == "1"
+
+
+class TestMediaWikiClientRevisionMetadata:
+    """Test conflict-safe revision metadata fetching."""
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_get_page_revision_metadata_requests_revision_and_current_timestamps(
+        self, mock_client_class: MagicMock
+    ) -> None:
+        """Test metadata fetch requests base revision data and API current timestamp."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        response = MagicMock()
+        response.json.return_value = {
+            "curtimestamp": "2026-06-04T12:00:00Z",
+            "query": {
+                "pages": {
+                    "42": {
+                        "pageid": 42,
+                        "title": "Template:Item",
+                        "revisions": [
+                            {
+                                "revid": 1234,
+                                "timestamp": "2026-06-04T11:59:00Z",
+                            }
+                        ],
+                    }
+                }
+            },
+        }
+        mock_http_client.get.return_value = response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+
+        revision = client.get_page_revision_metadata("Template:Item")
+
+        assert revision == MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+        call_params = mock_http_client.get.call_args[1]["params"]
+        assert call_params["action"] == "query"
+        assert call_params["titles"] == "Template:Item"
+        assert call_params["prop"] == "revisions"
+        assert call_params["rvprop"] == "ids|timestamp"
+        assert call_params["curtimestamp"] == "1"
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_get_page_revision_metadata_returns_none_for_missing_page(self, mock_client_class: MagicMock) -> None:
+        """Test missing pages do not produce fabricated revision metadata."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        response = MagicMock()
+        response.json.return_value = {
+            "curtimestamp": "2026-06-04T12:00:00Z",
+            "query": {"pages": {"-1": {"missing": True, "title": "Template:Missing"}}},
+        }
+        mock_http_client.get.return_value = response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+
+        assert client.get_page_revision_metadata("Template:Missing") is None
+
+
+class TestMediaWikiClientSafeEditPage:
+    """Test conflict-safe wiki page edits."""
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_sends_conflict_hash_and_assertion_parameters(self, mock_client_class: MagicMock) -> None:
+        """Test safe edits include base revision, start timestamp, MD5, and assertion guard."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        token_response = MagicMock()
+        token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
+
+        edit_response = MagicMock()
+        edit_response.json.return_value = {"edit": {"result": "Success", "newrevid": 1235}}
+
+        mock_http_client.get.return_value = token_response
+        mock_http_client.post.return_value = edit_response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        new_revision_id = client.safe_edit_page(
+            title="Template:Item",
+            content="new template source",
+            base_revision=base_revision,
+            summary="Deploy repo-owned template",
+            assertion="bot",
+            assert_user="ErenshorBot",
+        )
+
+        assert new_revision_id == 1235
+        call_data = mock_http_client.post.call_args[1]["data"]
+        assert call_data["action"] == "edit"
+        assert call_data["title"] == "Template:Item"
+        assert call_data["text"] == "new template source"
+        assert call_data["summary"] == "Deploy repo-owned template"
+        assert call_data["token"] == "test_csrf_token"
+        assert call_data["baserevid"] == "1234"
+        assert call_data["starttimestamp"] == "2026-06-04T12:00:00Z"
+        assert call_data["md5"] == hashlib.md5(b"new template source", usedforsecurity=False).hexdigest()
+        assert call_data["assert"] == "bot"
+        assert call_data["assertuser"] == "ErenshorBot"
+        assert call_data["bot"] == "1"
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_refreshes_csrf_token_once_after_badtoken(self, mock_client_class: MagicMock) -> None:
+        """Test stale CSRF tokens are refreshed once without changing the base revision guard."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        first_token_response = MagicMock()
+        first_token_response.json.return_value = {"query": {"tokens": {"csrftoken": "stale_token"}}}
+
+        badtoken_response = MagicMock()
+        badtoken_response.json.return_value = {"error": {"code": "badtoken", "info": "Invalid token"}}
+
+        second_token_response = MagicMock()
+        second_token_response.json.return_value = {"query": {"tokens": {"csrftoken": "fresh_token"}}}
+
+        success_response = MagicMock()
+        success_response.json.return_value = {"edit": {"result": "Success", "newrevid": 1235}}
+
+        mock_http_client.get.side_effect = [first_token_response, second_token_response]
+        mock_http_client.post.side_effect = [badtoken_response, success_response]
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        new_revision_id = client.safe_edit_page(
+            title="Template:Item",
+            content="new template source",
+            base_revision=base_revision,
+            summary="Deploy repo-owned template",
+        )
+
+        assert new_revision_id == 1235
+        assert mock_http_client.post.call_count == 2
+        first_data = mock_http_client.post.call_args_list[0][1]["data"]
+        second_data = mock_http_client.post.call_args_list[1][1]["data"]
+        assert first_data["token"] == "stale_token"
+        assert second_data["token"] == "fresh_token"
+        assert first_data["baserevid"] == second_data["baserevid"] == "1234"
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_fails_after_second_badtoken(self, mock_client_class: MagicMock) -> None:
+        """Test token refresh is bounded to one retry."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        first_token_response = MagicMock()
+        first_token_response.json.return_value = {"query": {"tokens": {"csrftoken": "stale_token"}}}
+        second_token_response = MagicMock()
+        second_token_response.json.return_value = {"query": {"tokens": {"csrftoken": "still_bad_token"}}}
+        badtoken_response = MagicMock()
+        badtoken_response.json.return_value = {"error": {"code": "badtoken", "info": "Invalid token"}}
+
+        mock_http_client.get.side_effect = [first_token_response, second_token_response]
+        mock_http_client.post.side_effect = [badtoken_response, badtoken_response]
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        with pytest.raises(MediaWikiEditError, match="Invalid token"):
+            client.safe_edit_page(
+                title="Template:Item",
+                content="new template source",
+                base_revision=base_revision,
+                summary="Deploy repo-owned template",
+            )
+
+        assert mock_http_client.post.call_count == 2
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_surfaces_edit_conflict(self, mock_client_class: MagicMock) -> None:
+        """Test edit conflicts are raised as explicit conflict failures."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        token_response = MagicMock()
+        token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
+        conflict_response = MagicMock()
+        conflict_response.json.return_value = {"error": {"code": "editconflict", "info": "Edit conflict"}}
+
+        mock_http_client.get.return_value = token_response
+        mock_http_client.post.return_value = conflict_response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        with pytest.raises(MediaWikiEditConflictError, match="Edit conflict"):
+            client.safe_edit_page(
+                title="Template:Item",
+                content="new template source",
+                base_revision=base_revision,
+            )
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_surfaces_assertion_failure(self, mock_client_class: MagicMock) -> None:
+        """Test assertion failures are raised separately from generic edit failures."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        token_response = MagicMock()
+        token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
+        assertion_response = MagicMock()
+        assertion_response.json.return_value = {"error": {"code": "assertbotfailed", "info": "Not logged in as a bot"}}
+
+        mock_http_client.get.return_value = token_response
+        mock_http_client.post.return_value = assertion_response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        with pytest.raises(MediaWikiAssertionError, match="Not logged in as a bot"):
+            client.safe_edit_page(
+                title="Template:Item",
+                content="new template source",
+                base_revision=base_revision,
+            )
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_safe_edit_page_surfaces_permission_failure(self, mock_client_class: MagicMock) -> None:
+        """Test permission failures are raised separately from generic edit failures."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        token_response = MagicMock()
+        token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
+        permission_response = MagicMock()
+        permission_response.json.return_value = {"error": {"code": "permissiondenied", "info": "Permission denied"}}
+
+        mock_http_client.get.return_value = token_response
+        mock_http_client.post.return_value = permission_response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        base_revision = MediaWikiPageRevision(
+            title="Template:Item",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+
+        with pytest.raises(MediaWikiPermissionError, match="Permission denied"):
+            client.safe_edit_page(
+                title="Template:Item",
+                content="new template source",
+                base_revision=base_revision,
+            )
 
 
 class TestMediaWikiClientPageExists:

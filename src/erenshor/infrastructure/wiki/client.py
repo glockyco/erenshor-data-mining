@@ -16,10 +16,12 @@ The MediaWikiClient class provides a type-safe, testable interface for wiki
 operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
+import hashlib
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from loguru import logger
@@ -34,7 +36,10 @@ class MediaWikiAPIError(Exception):
     Catch this to handle all MediaWiki API failures.
     """
 
-    pass
+    def __init__(self, message: str, code: str | None = None, info: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+        self.info = info
 
 
 class MediaWikiNetworkError(MediaWikiAPIError):
@@ -77,6 +82,18 @@ class MediaWikiEditError(MediaWikiAPIError):
     pass
 
 
+class MediaWikiEditConflictError(MediaWikiEditError):
+    """Raised when MediaWiki rejects a safe edit due to an edit conflict."""
+
+
+class MediaWikiAssertionError(MediaWikiEditError):
+    """Raised when MediaWiki assertion guards reject the current session/user."""
+
+
+class MediaWikiPermissionError(MediaWikiEditError):
+    """Raised when MediaWiki rejects an edit due to page or account permissions."""
+
+
 class MediaWikiRateLimitError(MediaWikiAPIError):
     """Raised when rate limit is exceeded.
 
@@ -88,6 +105,17 @@ class MediaWikiRateLimitError(MediaWikiAPIError):
     """
 
     pass
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiPageRevision:
+    """Revision metadata used to guard conflict-safe MediaWiki edits."""
+
+    title: str
+    page_id: int
+    revision_id: int
+    timestamp: str
+    start_timestamp: str
 
 
 class MediaWikiClient:
@@ -293,8 +321,7 @@ class MediaWikiClient:
             if error_code in ("badtoken", "notoken"):
                 # Token expired, clear cached token
                 self._csrf_token = None
-
-            raise MediaWikiAPIError(f"API error ({error_code}): {error_info}")
+            raise MediaWikiAPIError(f"API error ({error_code}): {error_info}", code=error_code, info=error_info)
 
         return result
 
@@ -522,6 +549,68 @@ class MediaWikiClient:
         logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
         return result_dict
 
+    def get_page_revision_metadata(
+        self,
+        title: str,
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> MediaWikiPageRevision | None:
+        """Fetch current page revision metadata and API start timestamp.
+
+        The returned ``start_timestamp`` is MediaWiki's ``curtimestamp`` value and
+        must be sent back on safe edit requests to make stale deployment reads
+        fail closed.
+        """
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        logger.debug(f"Fetching revision metadata for page: {title}")
+
+        params = {
+            "action": "query",
+            "titles": title,
+            "prop": "revisions",
+            "rvprop": "ids|timestamp",
+            "curtimestamp": "1",
+        }
+        if assertion is not None:
+            params["assert"] = assertion
+        if assert_user is not None:
+            params["assertuser"] = assert_user
+
+        result = self._request(params)
+        start_timestamp = result.get("curtimestamp")
+        if not isinstance(start_timestamp, str) or not start_timestamp:
+            raise MediaWikiAPIError(f"Missing curtimestamp while fetching revision metadata for '{title}'")
+
+        pages = result.get("query", {}).get("pages", {})
+        if not pages:
+            raise MediaWikiAPIError(f"No page data returned while fetching revision metadata for '{title}'")
+
+        page_id_text = next(iter(pages.keys()))
+        page = pages[page_id_text]
+        page_id = int(page_id_text)
+        if page_id < 0 or page.get("missing") is True:
+            logger.debug(f"Page doesn't exist while fetching revision metadata: {title}")
+            return None
+
+        try:
+            revision = page["revisions"][0]
+            revision_id = int(revision["revid"])
+            revision_timestamp = str(revision["timestamp"])
+            revision_title = str(page["title"])
+            revision_page_id = int(page.get("pageid", page_id))
+        except (KeyError, IndexError, TypeError, ValueError) as e:
+            raise MediaWikiAPIError(f"Invalid revision metadata response for '{title}': {e}") from e
+
+        return MediaWikiPageRevision(
+            title=revision_title,
+            page_id=revision_page_id,
+            revision_id=revision_id,
+            timestamp=revision_timestamp,
+            start_timestamp=start_timestamp,
+        )
+
     def edit_page(
         self,
         title: str,
@@ -607,6 +696,90 @@ class MediaWikiClient:
         except MediaWikiAPIError as e:
             logger.error(f"Edit request failed for {title}: {e}")
             raise MediaWikiEditError(f"Failed to edit page '{title}': {e}") from e
+
+    def safe_edit_page(
+        self,
+        title: str,
+        content: str,
+        base_revision: MediaWikiPageRevision,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: Literal["user", "bot"] = "bot",
+        assert_user: str | None = None,
+    ) -> int:
+        """Edit an existing page with conflict, timestamp, hash, and user guards."""
+        if assertion not in ("user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        if summary is None:
+            summary = self.edit_summary
+        if minor is None:
+            minor = self.minor_edit
+
+        logger.info(f"Safely editing page: {title} at base revision {base_revision.revision_id}")
+
+        data = {
+            "action": "edit",
+            "title": title,
+            "text": content,
+            "summary": summary,
+            "baserevid": str(base_revision.revision_id),
+            "starttimestamp": base_revision.start_timestamp,
+            "md5": hashlib.md5(content.encode(), usedforsecurity=False).hexdigest(),
+            "assert": assertion,
+        }
+        if assert_user is not None:
+            data["assertuser"] = assert_user
+        if minor:
+            data["minor"] = "1"
+        if bot:
+            data["bot"] = "1"
+
+        last_error: MediaWikiAPIError | None = None
+        for attempt in range(2):
+            data["token"] = self.get_csrf_token()
+            try:
+                result = self._request({}, method="POST", data=data.copy())
+            except MediaWikiAPIError as e:
+                last_error = e
+                if attempt == 0 and self._is_token_error(e):
+                    logger.warning(f"CSRF token rejected while safely editing {title}; refreshing once")
+                    continue
+                logger.error(f"Safe edit request failed for {title}: {e}")
+                self._raise_safe_edit_api_error(title, e)
+
+            edit_result = result.get("edit", {})
+            if edit_result.get("result") != "Success":
+                error = edit_result.get("error", "Unknown error")
+                logger.error(f"Safe edit failed for {title}: {error}")
+                raise MediaWikiEditError(f"Safe edit failed: {error}")
+
+            try:
+                new_revision_id = int(edit_result["newrevid"])
+            except (KeyError, TypeError, ValueError) as e:
+                raise MediaWikiEditError(f"Safe edit response for '{title}' did not include newrevid") from e
+
+            logger.info(f"Successfully safely edited page: {title} -> revision {new_revision_id}")
+            return new_revision_id
+
+        raise MediaWikiEditError(f"Failed to safely edit page '{title}': {last_error}")
+
+    @staticmethod
+    def _is_token_error(error: MediaWikiAPIError) -> bool:
+        """Return whether an API error came from a rejected edit token."""
+        return error.code in ("badtoken", "notoken")
+
+    @staticmethod
+    def _raise_safe_edit_api_error(title: str, error: MediaWikiAPIError) -> None:
+        """Raise a safe-edit-specific exception for known MediaWiki edit failures."""
+        if error.code == "editconflict":
+            raise MediaWikiEditConflictError(f"Edit conflict while safely editing page '{title}': {error}") from error
+        if error.code in ("assertuserfailed", "assertbotfailed", "assertnameduserfailed"):
+            raise MediaWikiAssertionError(f"Assertion failed while safely editing page '{title}': {error}") from error
+        if error.code in ("permissiondenied", "protectedpage", "cantcreate", "noedit"):
+            raise MediaWikiPermissionError(f"Permission denied while safely editing page '{title}': {error}") from error
+        raise MediaWikiEditError(f"Failed to safely edit page '{title}': {error}") from error
 
     def page_exists(self, title: str) -> bool:
         """Check if a page exists on the wiki.

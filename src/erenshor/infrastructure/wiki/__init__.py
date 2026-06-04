@@ -5,10 +5,14 @@ This module provides clients and utilities for interacting with MediaWiki APIs.
 
 from erenshor.infrastructure.wiki.client import (
     MediaWikiAPIError,
+    MediaWikiAssertionError,
     MediaWikiAuthenticationError,
     MediaWikiClient,
+    MediaWikiEditConflictError,
     MediaWikiEditError,
     MediaWikiNetworkError,
+    MediaWikiPageRevision,
+    MediaWikiPermissionError,
     MediaWikiRateLimitError,
 )
 from erenshor.infrastructure.wiki.filename_sanitizer import (
@@ -33,10 +37,14 @@ from erenshor.infrastructure.wiki.template_parser import (
 __all__ = [
     "InvalidWikitextError",
     "MediaWikiAPIError",
+    "MediaWikiAssertionError",
     "MediaWikiAuthenticationError",
     "MediaWikiClient",
+    "MediaWikiEditConflictError",
     "MediaWikiEditError",
     "MediaWikiNetworkError",
+    "MediaWikiPageRevision",
+    "MediaWikiPermissionError",
     "MediaWikiRateLimitError",
     "MediaWikiRequestError",
     "MediaWikiRequestPolicy",
