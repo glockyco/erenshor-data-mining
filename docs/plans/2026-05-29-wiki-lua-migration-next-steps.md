@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c Steps 1-4); the hand-rolled `Render` deletion (M8c Step 5) waits on M8d since the Item tooltip stub still uses it. Item tooltip subsystem port is the active milestone (M8d). Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c Steps 1-4); the hand-rolled `Render` deletion (M8c Step 5) waits on M8d. Milestones 8d (item tooltips), 8e (first-class Spell/Skill/Stance modeling), and 8f (faithfulness fixes) are specified in the companion plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`, grounded in the authoritative game C#. Milestones 9-14 (Cargo overview, deploy/rollback, full local verification, TemplateSandbox, cutover, legacy deletion) pending.
 
 ---
 
@@ -726,18 +726,29 @@ extension ships newer dark-mode defaults the live build predates.
 - [x] **Step 4: Zone** (`8031cb1c feat(wiki): render the Zone infobox through real PortableInfobox`) — map link and zone connections from the module; status emits zone/dungeon categories.
 - [ ] **Step 5: Delete hand-rolled rendering** — after M8d removes the last `Render` user (the Item tooltip stub), delete `Module:Erenshor/Render` and its testcases, drop the dead theme-shim `pi-*` layout block, and remove the smoke guards for escaped infobox/table markup. Keep every commit smoke- and parity-green.
 
-### Milestone 8d: Port the item tooltip subsystem
+### Milestones 8d-8f: Item tooltips, Spell/Skill/Stance modeling, faithfulness fixes
 
-Live item tooltips are a bespoke HTML subsystem, not PortableInfobox, and our
-current `Module:Erenshor/Item` `tooltip` is a four-field stub. Port the
-subsystem faithfully; extend the export pipeline to produce any missing data
-rather than rendering fake values.
+These three milestones are specified in detail, with the authoritative game C#
+formulas and field models and the full audit of wiki shortcuts, in the companion
+plan `docs/plans/2026-06-04-wiki-faithful-rendering.md`. Summary:
 
-- [ ] **Step 1: Recreate sub-templates** — `Item/Header`, `Item/Stats`, `Item/Vitals`, `Item/Resists`, `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`, `Item/ClassRestrictions`, and `SparkleIcon`, matching live structure and `item-tooltip-*` classes.
-- [ ] **Step 2: Recreate the nine `Template:Item/<type>` tooltips** — Weapon, Armor, Charm, Consumable, General, Mold, Aura, SkillBook, SpellScroll.
-- [ ] **Step 3: Extend the data export** — produce the missing tooltip fields (per-class book/spell levels, spell-effect breakdowns, charm scaling, sparkle tiers, weapon range) in the C#/Python pipeline. No fakes; render only real exported data, omitting fields we do not have.
-- [ ] **Step 4: Drive tooltips from generated data** — article params override, missing falls back to generated data, `-` blanks; resolved through the Item module.
-- [ ] **Step 5: Verify locally** — smoke and parity coverage for each tooltip type against live.
+- **8d — Item tooltip subsystem.** Port the bespoke live tooltip templates
+  (`Item/<type>` + sub-templates `Item/Header`, `Item/Stats`, `Item/Vitals`,
+  `Item/Resists`, `Item/SpellDetails`, `Item/Categories`, `Item/CharmScaling`,
+  `Item/ClassRestrictions`, `SparkleIcon`; CSS already synced). Each
+  `Item/<type>` is `{{#invoke:Erenshor/Item|<type>Tooltip}}`; Lua resolves and
+  emits the sub-template calls. Extend generated item data with range, lore,
+  book_title, tier, and resolved crafting ingredients/rewards; the spell-effect
+  breakdown joins the new Spells data module (no denormalization).
+- **8e — First-class Spell/Skill/Stance modeling.** Generated data modules,
+  Lua modules, and ability pages for spells/skills/stances, faithful to the C#
+  field models, replacing bare page links and the four-field tooltip stub.
+- **8f — Faithfulness fixes.** Remediate the audited divergences from the game:
+  the skill-cooldown unit bug, hardcoded faction/enum strings, single-guaranteed-
+  drop suppression, blank station/stack/othersource, raw faction-change REFNAMEs,
+  discarded proc/status icons, omitted skill/spell fields, the hardcoded map URL,
+  and dead branches. Fix in the Lua data path (production target); touch the
+  legacy generator only where it still feeds live output before cutover.
 
 ### Milestone 9: Replace overview/list pages with Cargo-backed query surfaces
 
