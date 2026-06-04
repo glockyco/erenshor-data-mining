@@ -1,1 +1,0 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Skill Book}}</includeonly><noinclude>Skill book tooltip wrapper.</noinclude>

@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Item|tooltip}}</includeonly><noinclude>Item stat tooltip for all quality variants, driven by [[Module:Erenshor/Item]]. Resolves the item by its stable key: <code><nowiki>{{ItemTooltip|stablekey=item:...}}</nowiki></code>.</noinclude>

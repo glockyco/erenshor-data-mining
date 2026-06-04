@@ -1,1 +1,0 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=General}}</includeonly><noinclude>General item tooltip wrapper.</noinclude>

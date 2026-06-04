@@ -1,1 +1,0 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Armor}}</includeonly><noinclude>Armor tooltip wrapper.</noinclude>

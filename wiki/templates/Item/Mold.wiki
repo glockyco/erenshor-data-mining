@@ -1,1 +1,0 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Mold}}</includeonly><noinclude>Mold tooltip wrapper.</noinclude>

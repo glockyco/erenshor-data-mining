@@ -5,17 +5,28 @@ Lua Foundation Smoke	PASS Erenshor Render testcases
 Lua Item Smoke	PASS Erenshor Item testcases
 Ember Longsword	Ember Longsword
 Ember Longsword	Weapon
-Ember Longsword	erenshor-item-tooltip
+Ember Longsword	item-tooltip-tier-2
+Ember Longsword	item-tooltip-weapon
+Ember Longsword	Item Stats
+Ember Longsword	Base DPS
 Ember Longsword	portable-infobox
 Ember Longsword	pi-type-Item
 Abyssal Plate	Armor
+Abyssal Plate	item-tooltip-armor
 Lucky Charm	Charm
+Lucky Charm	item-tooltip-charm
 Healing Draught	Consumable
+Healing Draught	item-tooltip-consumable
 Magical Bag	General
+Magical Bag	item-tooltip-general
 Copper Armor Mold	Mold
+Copper Armor Mold	item-tooltip-crafting
 Ember Aura	Aura
+Ember Aura	item-tooltip-aura
 Sword Mastery Manual	Skill Book
+Sword Mastery Manual	item-tooltip-book
 Scroll of Ember	Spell Scroll
+Scroll of Ember	item-tooltip-book
 Manual Item Override	Manual Ember Blade
 Manual Item Override	Manual quest reward
 Manual Item Override	Manual vendor

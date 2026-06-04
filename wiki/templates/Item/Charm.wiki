@@ -1,1 +1,0 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip|mode=Charm}}</includeonly><noinclude>Charm tooltip wrapper.</noinclude>

@@ -1,6 +1,6 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
-local Render = require("Module:Erenshor/Render")
+local Tooltip = require("Module:Erenshor/Item/Tooltip")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
 local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
@@ -499,20 +499,7 @@ function p.renderTooltip(args, pageTitle)
 	if item.missing then
 		return missingOutput(item)
 	end
-
-	local mode = Args.resolve(args, "mode", item.type) or item.type
-	local rows = {
-		{ label = "Type", value = item.type },
-		{ label = "Slot", value = item.slot },
-		{ label = "Damage", value = item.damage },
-		{ label = "Armor", value = item.armor },
-	}
-	return Render.infobox({
-		title = item.name .. " " .. mode,
-		type = "ItemTooltip",
-		classes = { "erenshor-item-tooltip" },
-		rows = rows,
-	})
+	return Tooltip.render(item)
 end
 
 function p.renderLink(args, pageTitle)

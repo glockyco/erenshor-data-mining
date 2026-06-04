@@ -86,6 +86,34 @@ function p.run()
 		"non-consumable disposable row hides like live"
 	)
 
+	local weaponTooltip =
+		Item.renderTooltip({ stablekey = "item:ember_longsword" }, "Ember Longsword")
+	assertContains(
+		weaponTooltip,
+		"item-tooltip-weapon",
+		"weapon tooltip carries the weapon CSS class"
+	)
+	assertContains(weaponTooltip, "Ember Longsword", "weapon tooltip shows the item name")
+	assertContains(weaponTooltip, "item-tooltip-tier-0", "weapon tooltip colors the Normal quality")
+	assertContains(
+		weaponTooltip,
+		"item-tooltip-tier-2",
+		"weapon tooltip colors the Ascended quality"
+	)
+	if string.find(weaponTooltip, "Godly", 1, true) ~= nil then
+		error("weapon tooltip must not expose the internal Godly label", 2)
+	end
+	assertContains(weaponTooltip, "Base DPS:", "weapon tooltip shows base DPS")
+	assertContains(weaponTooltip, "Paladin", "weapon tooltip shows class restrictions")
+	assertContains(
+		weaponTooltip,
+		"item-tooltip-two-column",
+		"weapon tooltip uses the two-column body"
+	)
+	assertContains(weaponTooltip, "Vitals", "weapon tooltip shows the Vitals section")
+	assertContains(weaponTooltip, "Resists", "weapon tooltip shows the Resists section")
+	assertContains(weaponTooltip, "+0%", "weapon tooltip shows resists in +N% form")
+
 	local link = Item.renderLink({ item = "Ember Longsword" }, "Any Page")
 	assertContains(link, "[[Ember Longsword]]", "manual link defaults to item page")
 	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")

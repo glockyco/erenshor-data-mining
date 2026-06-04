@@ -1,5 +1,5 @@
 {{Item|stablekey=item:ember_longsword}}
 
-{{Item/Weapon|stablekey=item:ember_longsword}}
+{{ItemTooltip|stablekey=item:ember_longsword}}
 
 {{ItemLink|stablekey=item:ember_longsword}}
