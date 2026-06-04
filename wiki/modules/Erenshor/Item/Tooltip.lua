@@ -383,8 +383,9 @@ local function weaponEffect(item)
 	return nil
 end
 
--- Weapon type line: slot (+ " - 2-Handed" for true 2-handed weapons), linked to
--- the Weapons section. No "Slot:" prefix (live convention for weapons).
+-- Weapon type line, matching the game (ItemInfoWindow): "Slot: <slot>" with a
+-- " - 2-Handed" suffix for true 2-handed weapons, except PrimaryOrSecondary which
+-- the game prints without the "Slot:" prefix. Linked to the Weapons section.
 local function weaponTypeLine(item)
 	local slot = slotDisplay(item)
 	if slot == nil then
@@ -393,7 +394,11 @@ local function weaponTypeLine(item)
 	if TWO_HANDED[item.weaponType] then
 		slot = slot .. " - 2-Handed"
 	end
-	return "[[Weapons#" .. slot .. "|" .. slot .. "]]" .. relicSuffix(item)
+	local line = "[[Weapons#" .. slot .. "|" .. slot .. "]]"
+	if item.slot ~= "PrimaryOrSecondary" then
+		line = "Slot: " .. line
+	end
+	return line .. relicSuffix(item)
 end
 
 -- Armor type line: "Slot: " + slot, linked to the Armor section.
@@ -441,15 +446,14 @@ local function statsColumn(item, stats, weapon)
 		if not isBlank(item.weaponDelay) then
 			statRow(column, "Delay", tostring(item.weaponDelay) .. " sec")
 		end
-		local range = nil
+		-- The game shows range for every weapon: wand range, bow range, else 1.
+		local range = 1
 		if item.wand and not isBlank(item.wandRange) then
 			range = item.wandRange
 		elseif item.bow and not isBlank(item.bowRange) then
 			range = item.bowRange
 		end
-		if range ~= nil then
-			statRow(column, "Range", tostring(range))
-		end
+		statRow(column, "Range", tostring(range))
 	end
 	return column
 end

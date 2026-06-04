@@ -55,8 +55,8 @@ function p.run()
 	)
 	assertEqual(
 		Item.fieldValue(weaponKey, "Ember Longsword", "buy"),
-		"1g 25s",
-		"field buy formats currency"
+		"12500",
+		"field buy renders the raw gold value"
 	)
 
 	local cargo = Item.cargoStore({
@@ -113,6 +113,12 @@ function p.run()
 	assertContains(weaponTooltip, "Vitals", "weapon tooltip shows the Vitals section")
 	assertContains(weaponTooltip, "Resists", "weapon tooltip shows the Resists section")
 	assertContains(weaponTooltip, "+0%", "weapon tooltip shows resists in +N% form")
+	assertContains(
+		weaponTooltip,
+		"Slot: [[Weapons#Primary|Primary]]",
+		"weapon shows the game slot prefix"
+	)
+	assertContains(weaponTooltip, "Range", "weapon shows the range row (melee = 1)")
 
 	local charm = Item.renderTooltip({ stablekey = "item:lucky_charm" }, "Lucky Charm")
 	assertContains(charm, "item-tooltip-charm", "charm tooltip carries the charm CSS class")

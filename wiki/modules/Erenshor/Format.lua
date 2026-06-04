@@ -65,30 +65,14 @@ function p.classList(classes)
 	return table.concat(links, " / ")
 end
 
+-- Erenshor uses a single gold currency (Item.ItemValue is a flat integer the
+-- game prints verbatim); there is no silver/copper. Render the raw value.
 function p.currency(value)
 	local amount = tonumber(value)
 	if amount == nil then
 		return ""
 	end
-
-	amount = math.floor(amount)
-	local gold = math.floor(amount / 10000)
-	amount = amount % 10000
-	local silver = math.floor(amount / 100)
-	local copper = amount % 100
-
-	local parts = {}
-	if gold > 0 then
-		table.insert(parts, tostring(gold) .. "g")
-	end
-	if silver > 0 then
-		table.insert(parts, tostring(silver) .. "s")
-	end
-	if copper > 0 or #parts == 0 then
-		table.insert(parts, tostring(copper) .. "c")
-	end
-
-	return table.concat(parts, " ")
+	return tostring(math.floor(amount))
 end
 
 function p.signedStat(value)

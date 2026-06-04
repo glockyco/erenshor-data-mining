@@ -37,8 +37,8 @@ function p.run()
 		"[[Warrior]] / [[Paladin]]",
 		"class list links classes"
 	)
-	assertEqual(Format.currency(12345), "1g 23s 45c", "currency renders gold silver copper")
-	assertEqual(Format.currency(50), "50c", "currency omits empty units")
+	assertEqual(Format.currency(12345), "12345", "currency renders the raw gold value")
+	assertEqual(Format.currency(50), "50", "currency renders the raw gold value")
 	assertEqual(Format.signedStat(5), "+5", "positive stat includes sign")
 	assertEqual(Format.signedStat(-3), "-3", "negative stat keeps sign")
 	assertEqual(Format.resistLabel("fire"), "Fire Resist", "resist labels are title-cased")
