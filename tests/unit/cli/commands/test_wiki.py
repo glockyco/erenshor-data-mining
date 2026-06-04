@@ -456,6 +456,9 @@ class TestWikiReviewOverridesCommand:
 
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
         monkeypatch.setattr(wiki_command, "review_article_overrides", fake_review_article_overrides)
+        monkeypatch.setattr(
+            wiki_command, "_build_item_article_identities", lambda cli_ctx: {"Ember Longsword": ("item:ember",)}
+        )
 
         result = runner.invoke(
             app,
@@ -484,6 +487,63 @@ class TestWikiReviewOverridesCommand:
         assert kwargs["titles"] == ("Ember Longsword",)
         assert kwargs["template_names"] == ("Item",)
         assert kwargs["module"] == "Erenshor/Item"
+        assert kwargs["article_identities"] == {"Ember Longsword": ("item:ember",)}
+        assert calls[0] == ("create_client", "main")
+        assert calls[1][0] == "review"
+
+    def test_review_overrides_reports_skipped_pages(self, monkeypatch: pytest.MonkeyPatch):
+        """Test ambiguous identity pages are reported instead of minimized."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        skipped = ArticleOverrideReview(
+            title="A Lost Poem",
+            original_wikitext="{{Item|title=A Lost Poem (1)}}",
+            migration=None,
+            skipped_reason="ambiguous identity: 2 stable keys mapped to page",
+        )
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+        monkeypatch.setattr(
+            wiki_command, "_build_item_article_identities", lambda cli_ctx: {"A Lost Poem": ("item:1", "item:2")}
+        )
+        monkeypatch.setattr(wiki_command, "review_article_overrides", lambda **kwargs: (skipped,))
+
+        result = runner.invoke(app, ["wiki", "review-overrides", "--page", "A Lost Poem"])
+
+        assert result.exit_code == 0
+        assert "Skipped: 1" in result.output
+        assert "A Lost Poem" in result.output
+        assert "Skipped: ambiguous identity: 2 stable keys mapped to page" in result.output
+        assert client.closed is True
+
+    def test_review_overrides_defaults_to_identity_map_titles_with_limit(self, monkeypatch: pytest.MonkeyPatch):
+        """Test review command can audit repo-mapped item pages without a manual page list."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        calls = []
+        identities = {
+            "B Item": ("item:b",),
+            "A Item": ("item:a",),
+            "C Item": ("item:c",),
+        }
+
+        def fake_review_article_overrides(**kwargs):
+            calls.append(kwargs)
+            return ()
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+        monkeypatch.setattr(wiki_command, "_build_item_article_identities", lambda cli_ctx: identities)
+        monkeypatch.setattr(wiki_command, "review_article_overrides", fake_review_article_overrides)
+
+        result = runner.invoke(app, ["wiki", "review-overrides", "--limit", "2"])
+
+        assert result.exit_code == 0
+        [kwargs] = calls
+        assert kwargs["titles"] == ("A Item", "B Item")
+        assert kwargs["article_identities"] is identities
+        assert client.closed is True
 
 
 class FakeDeployClient:

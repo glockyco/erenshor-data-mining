@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from erenshor.application.wiki_deploy.override_classifier import (
@@ -29,6 +29,9 @@ from erenshor.infrastructure.wiki.template_parser import TemplateParser
 DEFAULT_IDENTITY_PARAMS = ("stablekey", "stableKey", "key", "id")
 
 
+_DEFAULT_IDENTITY_PARAM = "stablekey"
+
+
 class GeneratedValueResolver(Protocol):
     """Resolves the generated value of each field for an entity.
 
@@ -39,6 +42,10 @@ class GeneratedValueResolver(Protocol):
     """
 
     def resolve(self, identity_args: Mapping[str, str], fields: Sequence[str]) -> dict[str, str]: ...
+
+
+class ArticleIdentityConflictError(RuntimeError):
+    """Raised when article text disagrees with the authoritative page identity."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +66,7 @@ def migrate_article_overrides(
     template_names: Sequence[str],
     resolver: GeneratedValueResolver,
     identity_params: Sequence[str] = DEFAULT_IDENTITY_PARAMS,
+    authoritative_identity: Mapping[str, str] | None = None,
     parser: TemplateParser | None = None,
 ) -> ArticleMigration:
     """Remove infobox parameters that duplicate generated data, keeping real overrides."""
@@ -68,7 +76,19 @@ def migrate_article_overrides(
     params = parser.get_params(template)
 
     identity = set(identity_params)
-    identity_args = {name: value for name, value in params.items() if name in identity}
+    article_identity_args = {name: value for name, value in params.items() if name in identity}
+    if authoritative_identity is not None:
+        for name, value in authoritative_identity.items():
+            article_value = article_identity_args.get(name)
+            if article_value is not None and article_value != value:
+                raise ArticleIdentityConflictError(
+                    f"{title}: article {name}={article_value!r} conflicts with authoritative {name}={value!r}"
+                )
+            if article_value is None:
+                parser.set_param(template, name, value)
+        identity_args = dict(authoritative_identity)
+    else:
+        identity_args = article_identity_args
     candidate = {name: value for name, value in params.items() if name not in identity}
 
     generated_values = resolver.resolve(identity_args, tuple(candidate))
@@ -85,8 +105,8 @@ def migrate_article_overrides(
         decision.field for decision in classification.decisions if decision.decision != "removed_generated_duplicate"
     )
 
-    for field in removed_fields:
-        parser.remove_param(template, field)
+    for field_name in removed_fields:
+        parser.remove_param(template, field_name)
 
     return ArticleMigration(
         title=title,
@@ -123,11 +143,27 @@ class ArticleOverrideReview:
 
     title: str
     original_wikitext: str
-    migration: ArticleMigration
+    migration: ArticleMigration | None
+    skipped_reason: str | None = None
 
     @property
     def changed(self) -> bool:
-        return self.original_wikitext != self.migration.minimized_wikitext
+        return self.migration is not None and self.original_wikitext != self.migration.minimized_wikitext
+
+
+def _authoritative_identity_for_page(
+    title: str,
+    article_identities: Mapping[str, Sequence[str]] | None,
+    identity_param: str,
+) -> tuple[dict[str, str] | None, str | None]:
+    if article_identities is None:
+        return None, None
+    stable_keys = tuple(article_identities.get(title, ()))
+    if not stable_keys:
+        return None, "no stable key mapped to page"
+    if len(stable_keys) > 1:
+        return None, f"ambiguous identity: {len(stable_keys)} stable keys mapped to page"
+    return {identity_param: stable_keys[0]}, None
 
 
 def review_article_overrides(
@@ -137,6 +173,7 @@ def review_article_overrides(
     template_names: Sequence[str],
     module: str,
     identity_params: Sequence[str] = DEFAULT_IDENTITY_PARAMS,
+    article_identities: Mapping[str, Sequence[str]] | None = None,
     parser: TemplateParser | None = None,
 ) -> tuple[ArticleOverrideReview, ...]:
     """Fetch article pages and produce review-only override minimization results."""
@@ -146,12 +183,28 @@ def review_article_overrides(
         wikitext = client.get_page(title)
         if wikitext is None:
             raise MissingArticleError(f"Article page does not exist: {title}")
+        authoritative_identity, skipped_reason = _authoritative_identity_for_page(
+            title,
+            article_identities,
+            identity_params[0] if identity_params else _DEFAULT_IDENTITY_PARAM,
+        )
+        if skipped_reason is not None:
+            reviews.append(
+                ArticleOverrideReview(
+                    title=title,
+                    original_wikitext=wikitext,
+                    migration=None,
+                    skipped_reason=skipped_reason,
+                )
+            )
+            continue
         migration = migrate_article_overrides(
             title=title,
             wikitext=wikitext,
             template_names=template_names,
             resolver=resolver,
             identity_params=identity_params,
+            authoritative_identity=authoritative_identity,
             parser=parser,
         )
         reviews.append(
@@ -175,14 +228,44 @@ class LiveGeneratedValueResolver:
 
     client: TemplateExpansionClient
     module: str
+    _cache: dict[tuple[tuple[tuple[str, str], ...], str], str | None] = field(
+        default_factory=dict,
+        init=False,
+        repr=False,
+        compare=False,
+    )
 
     def resolve(self, identity_args: Mapping[str, str], fields: Sequence[str]) -> dict[str, str]:
-        identity = "".join(f"|{name}={value}" for name, value in identity_args.items())
+        identity_key = tuple(sorted(identity_args.items()))
+        missing_fields = [field for field in fields if (identity_key, field) not in self._cache]
+        if missing_fields:
+            identity = "".join(f"|{name}={value}" for name, value in identity_args.items())
+            snippets = []
+            for index, field_name in enumerate(missing_fields):
+                snippets.append(
+                    f"@@ERENSHOR_FIELD:{index}@@\n"
+                    "{{#invoke:" + self.module + "|field" + identity + "|1=" + field_name + "}}\n"
+                    f"@@ERENSHOR_END:{index}@@"
+                )
+            expanded = self.client.expand_templates("\n".join(snippets))
+            for index, field_name in enumerate(missing_fields):
+                match = re.search(
+                    rf"@@ERENSHOR_FIELD:{index}@@\n?(.*?)\n?@@ERENSHOR_END:{index}@@",
+                    expanded,
+                    flags=re.DOTALL,
+                )
+                if match is None:
+                    self._cache[(identity_key, field_name)] = None
+                    continue
+                value = match.group(1).strip()
+                if _SCRIBUNTO_ERROR.search(value):
+                    self._cache[(identity_key, field_name)] = None
+                    continue
+                self._cache[(identity_key, field_name)] = value
+
         resolved: dict[str, str] = {}
-        for field in fields:
-            text = "{{#invoke:" + self.module + "|field" + identity + "|1=" + field + "}}"
-            value = self.client.expand_templates(text)
-            if _SCRIBUNTO_ERROR.search(value):
-                continue
-            resolved[field] = value
+        for field_name in fields:
+            value = self._cache.get((identity_key, field_name))
+            if value is not None:
+                resolved[field_name] = value
         return resolved

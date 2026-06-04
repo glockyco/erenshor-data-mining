@@ -390,6 +390,7 @@ def test_override_review_minimizes_article_params_through_lua(wiki_client: Media
 
     assert len(reviews) == 1
     [review] = reviews
+    assert review.migration is not None
     assert review.migration.removed_fields == ("type",)
     assert review.migration.preserved_fields == ("description", "image")
     assert "type=Weapon" not in review.migration.minimized_wikitext

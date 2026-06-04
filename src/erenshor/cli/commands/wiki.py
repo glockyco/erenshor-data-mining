@@ -30,6 +30,7 @@ from rich.panel import Panel
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
+from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
 from erenshor.application.wiki_deploy.manifest import (
     RepoWikiPageManifest,
     build_repo_page_manifest,
@@ -210,8 +211,19 @@ def _join_fields(fields: list[str]) -> str:
     return ", ".join(fields) if fields else "(none)"
 
 
+def _build_item_article_identities(cli_ctx: CLIContext) -> dict[str, tuple[str, ...]]:
+    """Build the authoritative Item article title -> stable keys map."""
+    item_repo = _create_item_repository(cli_ctx)
+    return build_article_identity_map(item_repo.get_items_for_wiki_generation())
+
+
 def _print_override_review(review: ArticleOverrideReview) -> None:
     """Print one review-only override minimization report."""
+    if review.migration is None:
+        console.print(f"[bold]{review.title}[/bold]")
+        console.print(f"Skipped: {review.skipped_reason}", markup=False)
+        return
+
     decisions = review.migration.classification.decisions
     manual_overrides = [decision.field for decision in decisions if decision.decision == "preserved_manual_override"]
     intentional_blanks = [decision.field for decision in decisions if decision.decision == "intentional_blank"]
@@ -687,6 +699,11 @@ def deploy_repo_pages_command(
 
 
 @app.command("review-overrides")
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+)
 def review_overrides_command(
     ctx: typer.Context,
     page_titles: Annotated[
@@ -696,6 +713,10 @@ def review_overrides_command(
     pages_file: Annotated[
         str | None,
         typer.Option("--pages-file", "-p", help="File containing article titles, one per line."),
+    ] = None,
+    limit: Annotated[
+        int | None,
+        typer.Option("--limit", "-n", help="Limit number of pages to review."),
     ] = None,
     template_names: Annotated[
         list[str] | None,
@@ -707,15 +728,17 @@ def review_overrides_command(
     ] = "Erenshor/Item",
 ) -> None:
     """Review article infobox parameters that duplicate generated Lua values."""
+    cli_ctx: CLIContext = ctx.obj
+    article_identities = _build_item_article_identities(cli_ctx)
     titles = list(page_titles or ())
     if pages_file:
         titles.extend(_read_page_titles(pages_file))
     if not titles:
-        console.print("[red]At least one --page or --pages-file entry is required.[/red]")
-        raise typer.Exit(1)
+        titles = sorted(article_identities)
+    if limit is not None:
+        titles = titles[:limit]
 
     templates = tuple(template_names or ("Item",))
-    cli_ctx: CLIContext = ctx.obj
     client = _create_mediawiki_client(cli_ctx)
     try:
         reviews = review_article_overrides(
@@ -723,6 +746,7 @@ def review_overrides_command(
             titles=tuple(titles),
             template_names=templates,
             module=module,
+            article_identities=article_identities,
         )
     except MissingArticleError as e:
         console.print(f"[red]{e}[/red]")
@@ -731,7 +755,11 @@ def review_overrides_command(
         client.close()
 
     changed = sum(1 for review in reviews if review.changed)
-    console.print(f"[green]Article override review complete[/green] Changed: {changed} Reviewed: {len(reviews)}")
+    skipped = sum(1 for review in reviews if review.migration is None)
+    console.print(
+        f"[green]Article override review complete[/green] "
+        f"Changed: {changed} Skipped: {skipped} Reviewed: {len(reviews)}"
+    )
     for review in reviews:
         _print_override_review(review)
 
