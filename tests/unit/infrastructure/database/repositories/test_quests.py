@@ -23,3 +23,19 @@ def test_get_quests_for_wiki_generation_returns_sorted_quests(integration_db: Pa
     assert all(quest.stable_key for quest in quests)
     display_names = [quest.display_name.lower() if quest.display_name else "" for quest in quests]
     assert display_names == sorted(display_names)
+
+
+def test_get_faction_changes_for_quests_returns_display_names(integration_db: Path) -> None:
+    """Quest faction changes are joined to display names for Lua output."""
+    repo = QuestRepository(DatabaseConnection(integration_db, read_only=True))
+
+    changes = repo.get_faction_changes_for_quests(["quest:a skeleton eye for alyssa fearnon"])
+
+    assert changes["quest:a skeleton eye for alyssa fearnon"]
+    assert [
+        (change.faction_display_name, change.modifier_value)
+        for change in changes["quest:a skeleton eye for alyssa fearnon"]
+    ] == [
+        ("Fernalla's Children", 1),
+        ("The Children of Sivakaya", -1),
+    ]

@@ -5,6 +5,7 @@ from pathlib import Path
 from tests.unit.application.wiki_lua.fakes import FakeQuestRepository, make_quest
 
 from erenshor.application.wiki_lua.quests import build_quests_data, generate_quests_module, write_quests_module
+from erenshor.domain.value_objects.faction import FactionModifier
 
 
 def test_builds_quest_data_from_clean_quests() -> None:
@@ -15,12 +16,20 @@ def test_builds_quest_data_from_clean_quests() -> None:
         image_name="Magical Sword",
         xp_on_complete=450,
         gold_on_complete=12,
-        affected_factions="Port Azure, Sivakayans",
-        affected_faction_amounts="5, -2",
+        affected_factions=None,
+        affected_faction_amounts=None,
         repeatable=0,
     )
 
-    data = build_quests_data([quest])
+    data = build_quests_data(
+        [quest],
+        {
+            "quest:magical_sword": [
+                FactionModifier("faction:port_azure", 5, "Port Azure", "Port Azure"),
+                FactionModifier("faction:sivakayans", -2, "Sivakayans", "Sivakayans"),
+            ],
+        },
+    )
 
     assert data == {
         "quests": {
@@ -31,7 +40,7 @@ def test_builds_quest_data_from_clean_quests() -> None:
                 "repeatable": "No",
                 "experience": 450,
                 "gold": 12,
-                "factionChanges": "Port Azure +5<br>Sivakayans -2",
+                "factionChanges": "[[Port Azure]] +5<br>[[Sivakayans]] -2",
             }
         },
     }

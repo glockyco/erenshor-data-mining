@@ -119,6 +119,26 @@ function p.run()
 		"weapon shows the game slot prefix"
 	)
 	assertContains(weaponTooltip, "Range", "weapon shows the range row (melee = 1)")
+	assertContains(
+		weaponTooltip,
+		"item-tooltip-quality-set",
+		"weapon quality variants use a wrapping horizontal container"
+	)
+	assertContains(
+		weaponTooltip,
+		"flex-wrap:wrap",
+		"weapon quality variants wrap when horizontal space is constrained"
+	)
+	assertContains(
+		weaponTooltip,
+		"width:calc(100% - 360px)",
+		"weapon quality variants reserve horizontal space for the infobox"
+	)
+	assertContains(
+		weaponTooltip,
+		"min-width:350px",
+		"weapon quality variants keep one full tooltip visible beside the infobox"
+	)
 
 	local charm = Item.renderTooltip({ stablekey = "item:lucky_charm" }, "Lucky Charm")
 	assertContains(charm, "item-tooltip-charm", "charm tooltip carries the charm CSS class")
@@ -130,7 +150,22 @@ function p.run()
 		"20% chance on ATTACK:",
 		"weapon proc header uses the game trigger style"
 	)
-	assertContains(weaponTooltip, "Ember Burst", "weapon proc shows the effect spell name")
+	assertContains(
+		weaponTooltip,
+		"[[Ember Burst]]",
+		"weapon proc spell name links without an inline icon"
+	)
+	assertContains(
+		weaponTooltip,
+		"[[File:Ember Burst.png|48px]]",
+		"weapon proc spell box carries the spell icon"
+	)
+	if string.find(weaponTooltip, "{{AbilityLink|Ember Burst", 1, true) ~= nil then
+		error("weapon proc spell name must not render through icon-bearing AbilityLink", 2)
+	end
+	if string.find(weaponTooltip, "[[File:Ember Burst.png|30px", 1, true) ~= nil then
+		error("weapon proc spell name must not render an inline ability icon", 2)
+	end
 
 	local consumable = Item.renderTooltip({ stablekey = "item:healing_draught" }, "Healing Draught")
 	assertContains(consumable, "item-tooltip-consumable", "consumable tooltip CSS class")

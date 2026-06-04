@@ -296,17 +296,22 @@ production Lua path (`wiki_lua/` + `wiki/modules/`) matters; the legacy generato
 - **Zone type is Dungeon/Zone by design** (matches the game's distinction).
 
 ### Verify against game data; fix only if a real divergence is confirmed
-- [ ] Quest faction changes (`wiki_lua/quests.py`): confirm whether
-  `affected_factions` already holds display names or raw internal REFNAMEs. If
-  REFNAMEs leak to the page, join the factions table for display name + link;
-  if they are already display names, record as correct.
-- [ ] Character faction in the Lua path (`wiki_lua/characters.py`): confirm the
-  world-faction-only behavior is intended (it may be deliberate that characters
-  without an explicit world faction show none). Change only if the maintainer
-  wants the Good/Evil grouping surfaced.
-- [ ] Add-proc / status-effect link icons (`repositories/spells.py`): confirm
-  whether omitting icons on those links is intentional before wiring
-  `add_proc_image_name` / `status_effect_image_name` through. Relevant to M8e.
+- [x] Quest faction changes (`wiki_lua/quests.py`): confirmed real divergence.
+  The clean DB stores faction changes in `quest_faction_affects` keyed by world
+  faction stable key; `quests` rows do not carry display-ready faction strings.
+  Fixed by joining `quest_variants` → `quest_faction_affects` → `factions` in
+  `QuestRepository` and emitting linked display names in Lua data.
+- [x] Character faction in the Lua path (`wiki_lua/characters.py`): confirmed
+  correct. `MyFaction` is the exported AI/friendliness enum (`OtherEvil`,
+  `GoodHuman`, etc.), while `MyWorldFaction` is the wiki-facing reputation
+  faction. Keep world-faction-only output so internal grouping labels do not leak
+  to articles.
+- [x] Add-proc / status-effect link icons (`repositories/spells.py`): confirmed
+  correct for item tooltips. The spell-detail block owns the icon as a separate
+  spell-box cell; proc/status spell names inside that block must not render
+  `AbilityLink` inline icons. A Lua testcase now locks this structure. The legacy
+  Python repository helper still drops joined image columns, but that path is not
+  the cutover target.
 
 ### Optional hygiene (non-behavioral; only if touching the file anyway)
 - The interactive-map URL literal is duplicated in `Character.lua` / `Zone.lua`;

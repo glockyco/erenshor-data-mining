@@ -21,7 +21,11 @@ function p.run()
 	local quest = Quest.resolve({ stablekey = "quest:magical_sword" }, "Anything")
 	assertEqual(quest.name, "A Magical Sword in Port Azure", "stable key resolves quest")
 	assertEqual(quest.experience, 450, "experience resolves")
-	assertEqual(quest.factionChanges, "Port Azure +5<br>Sivakayans -2", "faction changes resolve")
+	assertEqual(
+		quest.factionChanges,
+		"[[Port Azure]] +5<br>[[Sivakayans]] -2",
+		"faction changes resolve"
+	)
 
 	local pageQuest = Quest.resolve({}, "A Magical Sword in Port Azure")
 	assertEqual(pageQuest.missing, true, "page title does not resolve quest without stable key")
@@ -49,7 +53,7 @@ function p.run()
 	)
 	assertEqual(
 		Quest.fieldValue(questKey, "A Magical Sword in Port Azure", "factionchanges"),
-		"Port Azure +5<br>Sivakayans -2",
+		"[[Port Azure]] +5<br>[[Sivakayans]] -2",
 		"field faction changes resolve"
 	)
 

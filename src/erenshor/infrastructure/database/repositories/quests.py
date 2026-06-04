@@ -3,6 +3,7 @@
 from loguru import logger
 
 from erenshor.domain.entities.quest import Quest
+from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.wiki_link import QuestLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -31,6 +32,42 @@ class QuestRepository(BaseRepository[Quest]):
             return quests
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve quests for wiki: {e}") from e
+
+    def get_faction_changes_for_quests(self, stable_keys: list[str]) -> dict[str, list[FactionModifier]]:
+        """Get display-ready faction changes for Lua quest data."""
+        if not stable_keys:
+            return {}
+
+        placeholders = ",".join("?" for _ in stable_keys)
+        query = f"""
+            SELECT
+                qv.quest_stable_key,
+                qfa.faction_stable_key,
+                qfa.modifier_value,
+                f.display_name AS faction_display_name,
+                f.wiki_page_name AS faction_wiki_page_name
+            FROM quest_variants qv
+            JOIN quest_faction_affects qfa ON qfa.quest_variant_resource_name = qv.resource_name
+            JOIN factions f ON f.stable_key = qfa.faction_stable_key
+            WHERE qv.quest_stable_key IN ({placeholders})
+            ORDER BY qv.quest_stable_key, f.display_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, tuple(stable_keys))
+            changes: dict[str, list[FactionModifier]] = {stable_key: [] for stable_key in stable_keys}
+            for row in rows:
+                changes[str(row["quest_stable_key"])].append(
+                    FactionModifier(
+                        faction_stable_key=str(row["faction_stable_key"]),
+                        modifier_value=int(row["modifier_value"]),
+                        faction_display_name=str(row["faction_display_name"]),
+                        faction_wiki_page_name=row["faction_wiki_page_name"],
+                    )
+                )
+            return changes
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve quest faction changes: {e}") from e
 
     def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]:
         """Get quests that reward the given item.

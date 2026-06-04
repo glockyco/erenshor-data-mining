@@ -213,6 +213,18 @@ local function spellName(stableKey)
 	return spell.name
 end
 
+local function spellLink(stableKey)
+	local spell = SpellData.spells[stableKey]
+	if spell == nil then
+		return nil
+	end
+	local link = Format.pageLink(spell.page, spell.name)
+	if isBlank(link) then
+		return spell.name
+	end
+	return link
+end
+
 -- Reproduce Template:Item/SpellDetails for the spell at `stableKey`.
 -- opts = { worn = bool, procHeader = string }.
 local function spellDetails(stableKey, opts)
@@ -241,7 +253,7 @@ local function spellDetails(stableKey, opts)
 	nameCell
 		:tag("div")
 		:addClass("item-spell-details-header")
-		:wikitext(Format.escape(spell.name or "Spell Effect"))
+		:wikitext(spellLink(stableKey) or "Spell Effect")
 	if icon ~= nil then
 		headerRow:tag("div"):addClass("item-spell-details-spacer")
 	end
@@ -1002,11 +1014,25 @@ function Tooltip.render(item)
 	if #stats <= 1 then
 		body = renderQuality(item, stats[1] or { quality = "Normal" })
 	else
-		local parts = {}
+		local wrapper = mw.html
+			.create("div")
+			:addClass("item-tooltip-quality-set")
+			:css("display", "flex")
+			:css("flex-wrap", "wrap")
+			:css("gap", "1em")
+			:css("align-items", "flex-start")
+			:css("width", "calc(100% - 360px)")
+			:css("min-width", "350px")
+			:css("max-width", "100%")
+			:css("overflow", "visible")
 		for _, row in ipairs(stats) do
-			parts[#parts + 1] = renderQuality(item, row)
+			wrapper
+				:tag("div")
+				:addClass("item-tooltip-quality")
+				:css("flex", "0 1 350px")
+				:wikitext(renderQuality(item, row))
 		end
-		body = table.concat(parts, "\n")
+		body = tostring(wrapper)
 	end
 	return body .. itemCategories(item)
 end

@@ -13,6 +13,7 @@ from erenshor.domain.entities.zone import Zone
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+    from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import LootDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
     from erenshor.domain.value_objects.wiki_link import AbilityLink
@@ -109,11 +110,15 @@ class FakeStanceRepository:
 
 
 class FakeQuestRepository:
-    def __init__(self, quests: list[Quest]) -> None:
+    def __init__(self, quests: list[Quest], faction_changes: dict[str, list[FactionModifier]] | None = None) -> None:
         self._quests = quests
+        self._faction_changes = faction_changes or {}
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
+
+    def get_faction_changes_for_quests(self, stable_keys: list[str]) -> dict[str, list[FactionModifier]]:
+        return {stable_key: self._faction_changes.get(stable_key, []) for stable_key in stable_keys}
 
 
 class FakeZoneRepository:
