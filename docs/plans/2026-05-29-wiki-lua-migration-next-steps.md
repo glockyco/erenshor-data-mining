@@ -993,7 +993,36 @@ tests/unit/cli/commands/test_wiki.py
   duplicates, preserves only meaningful divergence or documented blank
   sentinels, and writes those decisions into the manifest for review.
 
-- [ ] **Step 1: Add repo-owned page deploy manifest**
+**Implementation status (2026-06-04):** Steps 1, 3, 4, and 6 are implemented
+and committed; Steps 2 and 5 are partially implemented; Step 7 is outstanding.
+
+- Step 1 (manifest): done (`e333e7ae`), persisted with rollback metadata in
+  `432cf8a5` and merged via the application-layer `build_deployed_manifest`
+  (`d04fa12b`). Override-classification decisions are not yet written into the
+  manifest (see Step 2).
+- Step 2 (override classifier): implemented (`15ee55ee`) in
+  `application/wiki_deploy/override_classifier.py`, deriving the
+  override-capable field set and per-field normalization from the existing
+  preservation-rule registry and failing closed on fields without a rule.
+  Wiring its output into reviewed migration edits and the deploy manifest is
+  outstanding.
+- Step 3 (safe upload): done (`f9036c09` CLI, `85946533` safe create) with
+  conflict/assertion/hash guards and bounded backoff on transient lag and
+  rate limiting (`b1ff8ebe`). Edit summaries do not yet embed the game build
+  because no build identifier is captured in config; that source must be added
+  first.
+- Step 4 (null edit): done (`9d2e6341`); `embeddedin`-driven with namespace
+  filters and continuation handling.
+- Step 5 (rollback): safe-edit rollback and CLI are done (`9455d03a`).
+  Restoring prior Cargo declarations, recreating/switching Cargo tables, and
+  running the dependency-derived null-edit pass during rollback are
+  outstanding.
+- Step 6 (guard legacy): done (`f9036c09`); legacy article deploy now requires
+  `--legacy-article-deploy`.
+- Step 7 (verify against local MediaWiki): outstanding; needs the running
+  `wiki-dev` harness and exercises Cargo recreation end to end.
+
+- [x] **Step 1: Add repo-owned page deploy manifest**
 
   Manifest entries must include page title, source path, ownership class, source SHA-256, content model, old revision ID/timestamp, new revision ID/timestamp after deploy, Cargo declaration metadata, dependency/null-edit targets, rollback text source, and any article override classification decisions.
 
@@ -1001,11 +1030,11 @@ tests/unit/cli/commands/test_wiki.py
 
   Build a pre-cutover comparison pass for article pages whose root templates keep manual parameters. For each override-capable field, resolve the generated Lua/export value, normalize both article and generated values with the field's documented rule, drop matching generated duplicates, preserve differing manual values, preserve documented blank sentinels, and reject fields without a comparison rule. The classifier output feeds both reviewed migration edits and the deploy manifest.
 
-- [ ] **Step 3: Add safe upload command**
+- [x] **Step 3: Add safe upload command**
 
   Upload repo-owned pages through the extended `MediaWikiClient` safe-edit path using CSRF tokens, `baserevid`, `starttimestamp`, `md5`, assertion parameters, and summaries containing variant and game build. Abort on edit conflicts, unexpected users, bad tokens after one refresh, or stale hashes.
 
-- [ ] **Step 4: Add null-edit command**
+- [x] **Step 4: Add null-edit command**
 
   Null-edit affected article pages after data/template/module deploys. The page list must come from `embeddedin`/transclusion API dependency data with continuation handling and namespace filters, not from guessed filenames. Use purge only for cache refreshes where link-table/Cargo/category updates are not needed.
 
@@ -1013,7 +1042,7 @@ tests/unit/cli/commands/test_wiki.py
 
   Rollback uploads previous source for every changed repo-owned page through the same safe-edit path, restores any prior Cargo declarations, recreates/switches changed Cargo tables as needed, and runs the same dependency-derived null-edit pass.
 
-- [ ] **Step 6: Guard legacy commands**
+- [x] **Step 6: Guard legacy commands**
 
   Legacy Python article generation/deployment commands must be disabled or explicitly marked legacy so they cannot run accidentally during the clean cut.
 
