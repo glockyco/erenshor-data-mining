@@ -6,9 +6,11 @@ from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
 
 from erenshor.application.wiki_lua.items import build_items_data, generate_items_modules, write_items_modules
 from erenshor.domain.entities.item_stats import ItemStats
+from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
-def test_builds_item_index_and_sharded_records_without_long_prose_fields() -> None:
+def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> None:
     item = make_item()
     stats = [
         ItemStats.model_validate(
@@ -35,6 +37,7 @@ def test_builds_item_index_and_sharded_records_without_long_prose_fields() -> No
             "Weapons": {
                 "item:sword_of_flames": {
                     "name": "Sword of Flames",
+                    "description": "Long prose should stay out of Lua data modules.",
                     "page": "Sword of Flames",
                     "image": "Sword of Flames",
                     "slot": "Primary",
@@ -107,6 +110,62 @@ def test_builds_effect_chance_fields_for_overview_notes() -> None:
     assert item_data["weaponProcChance"] == 33
     assert item_data["wandProcChance"] == 25
     assert item_data["bowProcChance"] == 12
+
+
+def test_builds_tooltip_source_fields_and_recipe_links() -> None:
+    item = make_item(
+        lore="Forged in a reliable test furnace.",
+        is_wand=1,
+        wand_range=35,
+        book_title="The Ember Manual",
+        template=1,
+    )
+    stats = [
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": "Normal",
+                "str": 4,
+            }
+        )
+    ]
+    recipe = CraftingRecipe(
+        materials=[
+            (
+                ItemLink(
+                    page_title="Chunk of Copper Ore",
+                    display_name="Chunk of Copper Ore",
+                    image_name="Chunk of Copper Ore",
+                ),
+                2,
+            )
+        ],
+        results=[
+            (
+                ItemLink(
+                    page_title="Ember Longsword",
+                    display_name="Ember Longsword",
+                    image_name="Ember Longsword",
+                ),
+                1,
+            )
+        ],
+    )
+
+    data = build_items_data(
+        items=[item],
+        stats_by_item={item.stable_key: stats},
+        classes_by_item={},
+        recipes_by_item={item.stable_key: recipe},
+    )
+
+    shard = data["index"]["byKey"][item.stable_key]
+    item_data = data["shards"][shard][item.stable_key]
+    assert item_data["description"] == "Forged in a reliable test furnace."
+    assert item_data["bookTitle"] == "The Ember Manual"
+    assert item_data["wandRange"] == 35
+    assert item_data["ingredients"] == ["2x {{ItemLink|Chunk of Copper Ore}}"]
+    assert item_data["rewards"] == ["1x {{ItemLink|Ember Longsword}}"]
 
 
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:

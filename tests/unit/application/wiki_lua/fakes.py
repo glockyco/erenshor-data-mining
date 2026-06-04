@@ -12,16 +12,24 @@ from erenshor.domain.entities.zone import Zone
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
+    from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.loot import LootDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
     from erenshor.domain.value_objects.wiki_link import AbilityLink
 
 
 class FakeItemRepository:
-    def __init__(self, items: list[Item], stats: dict[str, list[ItemStats]], classes: dict[str, list[str]]) -> None:
+    def __init__(
+        self,
+        items: list[Item],
+        stats: dict[str, list[ItemStats]],
+        classes: dict[str, list[str]],
+        recipes: dict[str, CraftingRecipe] | None = None,
+    ) -> None:
         self._items = items
         self._stats = stats
         self._classes = classes
+        self._recipes = recipes or {}
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
@@ -31,6 +39,9 @@ class FakeItemRepository:
 
     def get_item_classes(self, stable_key: str) -> list[str]:
         return self._classes.get(stable_key, [])
+
+    def get_crafting_recipe(self, stable_key: str) -> CraftingRecipe | None:
+        return self._recipes.get(stable_key)
 
 
 class FakeCharacterRepository:

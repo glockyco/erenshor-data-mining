@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
@@ -13,6 +13,8 @@ from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
+    from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+    from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
 class ItemDataRepository(Protocol):
@@ -23,6 +25,8 @@ class ItemDataRepository(Protocol):
     def get_item_stats(self, stable_key: str) -> list[ItemStats]: ...
 
     def get_item_classes(self, stable_key: str) -> list[str]: ...
+
+    def get_crafting_recipe(self, stable_key: str) -> CraftingRecipe | None: ...
 
 
 LuaData = dict[str, object]
@@ -43,10 +47,14 @@ _ITEM_FIELD_MAP = (
     ("name", "display_name"),
     ("page", "wiki_page_name"),
     ("image", "image_name"),
+    ("description", "lore"),
+    ("bookTitle", "book_title"),
     ("slot", "required_slot"),
     ("weaponType", "this_weapon_type"),
     ("itemLevel", "item_level"),
     ("weaponDelay", "weapon_dly"),
+    ("wandRange", "wand_range"),
+    ("bowRange", "bow_range"),
     ("buyValue", "item_value"),
     ("sellValue", "sell_value"),
 )
@@ -117,14 +125,15 @@ _STAT_FIELD_MAP = (
 
 def generate_items_modules(item_repo: ItemDataRepository) -> dict[str, str]:
     """Generate `Module:Erenshor/Data/Items` index and shard module content."""
+
     items = item_repo.get_items_for_wiki_generation()
     stats_by_item = {item.stable_key: item_repo.get_item_stats(item.stable_key) for item in items}
     classes_by_item = {item.stable_key: item_repo.get_item_classes(item.stable_key) for item in items}
-    data = build_items_data(items, stats_by_item, classes_by_item)
+    recipes_by_item = {item.stable_key: item_repo.get_crafting_recipe(item.stable_key) for item in items}
+    data = build_items_data(items, stats_by_item, classes_by_item, recipes_by_item=recipes_by_item)
+
     modules = {"Items.lua": module_text(data["index"])}
-    shards = data["shards"]
-    if not isinstance(shards, Mapping):
-        raise TypeError("item shard data must be a mapping")
+    shards = cast("Mapping[str, LuaData]", data["shards"])
     for shard_name, shard_data in shards.items():
         modules[f"Items/{shard_name}.lua"] = module_text(shard_data)
     return modules
@@ -146,6 +155,7 @@ def build_items_data(
     items: Iterable[Item],
     stats_by_item: Mapping[str, list[ItemStats]],
     classes_by_item: Mapping[str, list[str]],
+    recipes_by_item: Mapping[str, CraftingRecipe | None] | None = None,
 ) -> LuaData:
     """Build the serializable item index and semantic shard tables for `mw.loadData()`."""
 
@@ -160,6 +170,7 @@ def build_items_data(
             item=item,
             stats=stats_by_item.get(item.stable_key, []),
             classes=classes_by_item.get(item.stable_key, []),
+            recipe=recipes_by_item.get(item.stable_key) if recipes_by_item is not None else None,
         )
         by_key[item.stable_key] = shard_name
 
@@ -184,7 +195,7 @@ def _item_kind(item: Item) -> ItemKind:
     )
 
 
-def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaData:
+def _item_record(item: Item, stats: list[ItemStats], classes: list[str], recipe: CraftingRecipe | None) -> LuaData:
     row: LuaData = {}
     for lua_name, attr_name in _ITEM_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
@@ -204,6 +215,14 @@ def _item_record(item: Item, stats: list[ItemStats], classes: list[str]) -> LuaD
 
     if classes:
         row["classes"] = sorted(classes)
+
+    if recipe is not None:
+        ingredients = _recipe_links(recipe.materials)
+        rewards = _recipe_links(recipe.results)
+        if ingredients:
+            row["ingredients"] = ingredients
+        if rewards:
+            row["rewards"] = rewards
 
     stat_rows = [_stat_record(stat) for stat in sorted(stats, key=lambda candidate: candidate.quality)]
     stat_rows = [stat for stat in stat_rows if len(stat) > 1]
@@ -227,6 +246,10 @@ def _item_kind_display(item_kind: str) -> str:
         "skillbook": "Skill Book",
         "spellscroll": "Spell Scroll",
     }.get(item_kind, item_kind.capitalize())
+
+
+def _recipe_links(links: list[tuple[ItemLink, int]]) -> list[str]:
+    return [f"{quantity}x {link!s}" for link, quantity in links]
 
 
 def _stat_record(stat: ItemStats) -> LuaData:
