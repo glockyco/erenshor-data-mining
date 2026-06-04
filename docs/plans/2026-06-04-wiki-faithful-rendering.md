@@ -126,21 +126,38 @@ SkillBook, SpellScroll) plus sub-templates (`Item/Header`, `Item/Stats`,
 `MediaWiki:Common.css`, pulled into a gitignored local mirror by
 `wiki sync-interface`; the render reuses those classes unchanged.
 
-**We intentionally diverge from the live wiki** — item pages will NOT byte-match
-live, so the parity/smoke gate targets our new intended output (Lua testcases +
-smoke), not a live diff:
-- The live weapon/armor design renders THREE full tooltip copies (Normal,
-  Blessed, Godly) as a page-level wikitable, each invoked with ~75 flat params
-  incl. 60+ `proc_*`. We keep the three-tooltip visual (reusing the live CSS
-  unchanged) but generate all three from the Lua module from one `{{Item}}` entry
-  point — eliminating the generator-side duplication, not the layout.
-- We ALWAYS render exactly three quality tooltips: Normal, Blessed, Ascended.
-- The game calls these variants **"quality"**, not "tier" — use "quality" in all
-  new code and docs. The live `item-tooltip-tier-N` CSS class is fixed external
-  naming reused only for the per-quality color.
-- Quality "Godly" is shown as **"Ascended"** (user-facing); the stored/generated
-  key stays `"Godly"` (internal). The rename lives in the Lua render layer only
-  (wiki now; sheets/others tracked as follow-ups).
+**Faithfulness principle.** The live item tooltips were built to match the
+in-game tooltip, so we reproduce their DOM, layout, labels, ordering, and which
+rows appear EXACTLY (two-column Item Stats | Vitals/Resists, abbreviated labels
+with no colons, all attributes shown defaulting to 0, resists as "+N%", the
+section order). We do NOT redesign or "improve" the visualization. Item pages
+therefore match live except the documented game-logic corrections below; the
+smoke/testcases are the primary gate.
+
+**The live wiki is NOT authoritative for computed logic — only the main-variant
+C# is.** Where the wiki's computed values disagree with the game, follow the
+game (the only places item output diverges from live):
+- 2-Handed classification drives both the "- 2-Handed" label and the Base DPS ×2,
+  and applies ONLY to `TwoHandMelee`/`TwoHandStaff` (`ItemInfoWindow.cs:379`,
+  `CalcDPSMelee:629`). Bows use `CalcDPSBow` with no ×2 (`:536`). The live wiki
+  keys this off a string label and wrongly 2-hands/×2s bows; drive it off the
+  `weaponType` enum.
+- Weapon proc trigger style (`ItemInfoWindow.cs:446-460`): `weaponProc` shows
+  "{chance}% chance on BASH" if `Shield`, "… on CAST" if slot `Bracer`, else
+  "… on ATTACK"; `wandEffect`/`bowEffect` are always ATTACK. Derive from the
+  item's `shield`/`slot` + proc-chance fields, not the wiki.
+- Effect labels (`ItemInfoWindow.cs:404/430`): `clickEffect` → "Activatable:",
+  `wornEffect` → "Worn Effect:", disposable → "Item Consumed Upon Use."
+- Spell-detail formatting: `duration_sec = durationTicks × 3`, `cast_time =
+  castTimeTicks / 60`, "/ tick" on DoT, cast-time hidden for worn/aura.
+- Charm scaling labels (Physicality/Hardiness/Finesse/Defense/Arcanism/
+  Restoration/Mind "/ 40", Mitigation "%") already match both the live template
+  and `ItemInfoWindow` — faithful, not a change.
+
+**Quality is shown by name color only** (live convention): the internal "Godly"
+key maps to the tier-2 color (`item-tooltip-tier-2`) and is never printed. The
+user-facing "Ascended" rename applies to non-tooltip surfaces (sheets/overview),
+tracked separately.
 
 **Future (playtest): item upgrade stages.** The playtest build adds upgrade
 stages Normal+1..Normal+5. These layer onto the **Normal** quality tooltip ONLY
@@ -149,38 +166,24 @@ between +0..+5. Not built yet (main has no upgrade data) — design the render s
 so the Normal quality can carry an ordered list of stages without restructuring
 the other two.
 
-**Authoritative discrepancies fixed (validated against main-variant C#):**
-- Melee weapon range is **1** (`ItemInfoWindow`: wand=`WandRange`, bow=`BowRange`,
-  else `1`); the legacy wiki left melee blank.
-- Bows are **not** "2-Handed" (game adds "- 2-Handed" only for `TwoHandMelee`/
-  `TwoHandStaff`); the legacy wiki wrongly labeled `TwoHandBow` and ×2'd its DPS.
-- Charm scaling uses the game's renamed attributes: Str→Physicality,
-  End→Hardiness, Dex→Finesse, Agi→Defense, Int→Arcanism, Wis→Restoration,
-  Cha→Mind ("/ 40"); Mitigation as "%".
-- Spell-detail duration seconds = `ticks × 3`; labels Instant / Effect Duration /
-  Damage over time; "/ tick" suffix on DoT; cast time = `chargeTime/60`, hidden
-  for worn/aura effects.
-- Price shows `ItemValue`, or "Unsellable" when `NoTradeNoDestroy` or value ≤ 0.
-
-**Base DPS:** keep the deterministic `ceil(damage/delay)` (×2 for true 2-handed)
-and the "Base DPS" label. The real game formula (`CalcDPSMelee/Bow`) is
-player-stat-dependent and cannot be a faithful item constant, so the wiki keeps a
-documented deterministic comparison metric.
+**Base DPS:** the deterministic `ceil(damage/delay)` (×2 for true 2-handed) with
+the "Base DPS" label. The real `CalcDPSMelee/Bow` is player-stat-dependent and
+cannot be a faithful item constant, so the wiki keeps a documented comparison
+metric — but the ×2 follows the game's weapon classification.
 
 **Rendering pattern (pure-Lua, separate tooltip template):** the bespoke stat
 tooltip is its own template, `{{ItemTooltip|stablekey=…}}` →
 `{{#invoke:Erenshor/Item|tooltip}}`, kept SEPARATE from the metadata `{{Item}}`
 PortableInfobox. A live item page is `{{Item|…sources/quest/buy…}}` followed by a
 wikitable of three `{{Item/Weapon|…75 flat params…}}` calls; we replace that whole
-block with one `{{ItemTooltip}}`. The Lua module resolves the item by stable key
-from `Module:Erenshor/Data/Items` and builds the three quality tooltips' HTML
-directly with `mw.html`, reusing the live `item-tooltip-*` CSS classes — NO
-presentational sub-templates, NO flat-param hand-off. Lua owns ALL
-presentation/derivation (Ascended label, per-quality color, melee range=1, Base
-DPS, charm attribute names, slot/weapon-type display, spell-detail formatting);
-Python data stays faithful raw only. The Scribunto unit tests assert the real
-final markup. Article params override generated data; `-` blanks; missing entity
-emits the visible marker + tracking category.
+block with one `{{ItemTooltip}}`. `Module:Erenshor/Item` resolves the item by
+stable key from `Module:Erenshor/Data/Items`; `Module:Erenshor/Item/Tooltip`
+builds the HTML with `mw.html`, reusing the live `item-tooltip-*` CSS classes —
+NO presentational sub-templates, NO flat-param hand-off. Weapons/armor render one
+tooltip per quality (by name color); other types render one. The spell-detail box
+joins `Module:Erenshor/Data/Spells` by the effect stable key via `mw.loadData`
+(loaded once per page, cached; the data module is pure static data). Python data
+stays faithful raw only; the Scribunto unit tests assert the real final markup.
 
 **Generator migration (deploy path).** The Python page generator emits
 `{{ItemTooltip|stablekey=…}}` and migrates existing pages by extending the
@@ -196,22 +199,20 @@ edit summaries) — reuse, do not reinvent.
   `description`, `book_title`, raw `wandRange`/`bowRange`, raw per-quality stat
   rows (quality key "Godly"), resolved crafting `ingredients`/`rewards`. No
   presentation in Python.
-- [ ] **Step 2: `Module:Erenshor/Item` tooltip render (pure-Lua)** — build the
-  three quality tooltips (Normal, Blessed, Ascended) with `mw.html` + live
-  `item-tooltip-*` classes; Godly→Ascended; melee range=1; Base DPS; one entry
-  point per item type. Add `Template:ItemTooltip` =
-  `{{#invoke:Erenshor/Item|tooltip}}`. Weapon vertical slice first (testcases +
-  smoke + screenshot), then fan out to the other 8 types.
-- [ ] **Step 3: Charm scaling** — render the renamed attributes
-  (Physicality/Hardiness/Finesse/Defense/Arcanism/Restoration/Mind "/ 40";
-  Mitigation "%") and the explanatory note.
-- [ ] **Step 4: Spell-detail join** from `Module:Erenshor/Data/Spells` for the
-  item's effect stable keys (`weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/
-  `wornEffect`/`aura`); apply the authoritative formatting (duration ×3, labels,
-  "/ tick", worn hides cast-time). No 40-field spell block in item data.
-- [ ] **Step 5: Per-class teaching levels** from Skills/Spells modules: SkillBook
-  reads the skill's six `*RequiredLevel` (Duelist→Windblade); SpellScroll reads
-  the spell `RequiredLevel` gated by `UsedBy`.
+- [x] **Step 2: Pure-Lua tooltip render** — DONE for weapon, armor, charm,
+  consumable, general, aura, and mold, each faithfully reproducing its live
+  template DOM (game-correct 2-handed/DPS). `Module:Erenshor/Item/Tooltip` builds
+  the HTML; `Template:ItemTooltip` is the single glue entry point and the nine
+  per-type wrappers are removed.
+- [ ] **Step 3: Spell-detail join** (`Module:Erenshor/Item/Tooltip` →
+  `Module:Erenshor/Data/Spells` via `mw.loadData`) reproducing `Item/SpellDetails`
+  for `weaponProc`/`wandEffect`/`bowEffect`/`clickEffect`/`wornEffect`/`aura`.
+  Proc header/style, labels, and duration/cast-time formatting per the game logic
+  recorded above. No 40-field spell block in item data.
+- [ ] **Step 4: Book/scroll bodies + per-class teaching levels** from Skills/Spells
+  data: SkillBook reads the skill's six `*RequiredLevel` (Duelist→Windblade);
+  SpellScroll reads the spell `RequiredLevel` gated by `UsedBy`.
+- [ ] **Step 5: Item/Categories tracking** (weapon/armor/charm/etc. categories).
 - [ ] **Step 6: Generator migration + verify.** Emit `{{ItemTooltip|stablekey=…}}`
   from the Python item page generator; extend the `_replace_*` machinery to strip
   the old 3×table / legacy templates idempotently while preserving the infobox and
