@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import LootDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-    from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink, QuestLink, StandardLink, WikiLink
+    from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, StandardLink
 
 
 class FakeItemRepository:
@@ -29,6 +29,10 @@ class FakeItemRepository:
         item_sources: dict[str, list[tuple[StandardLink, float]]] | None = None,
         items_requiring: dict[str, list[ItemLink]] | None = None,
         item_drops: dict[str, list[tuple[ItemLink, float]]] | None = None,
+        spell_teaching_items: dict[str, list[ItemLink]] | None = None,
+        skill_teaching_items: dict[str, list[ItemLink]] | None = None,
+        spell_effect_items: dict[str, list[ItemLink]] | None = None,
+        skill_effect_items: dict[str, list[ItemLink]] | None = None,
     ) -> None:
         self._items = items
         self._stats = stats
@@ -37,6 +41,10 @@ class FakeItemRepository:
         self._item_sources = item_sources or {}
         self._items_requiring = items_requiring or {}
         self._item_drops = item_drops or {}
+        self._spell_teaching_items = spell_teaching_items or {}
+        self._skill_teaching_items = skill_teaching_items or {}
+        self._spell_effect_items = spell_effect_items or {}
+        self._skill_effect_items = skill_effect_items or {}
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
@@ -59,26 +67,43 @@ class FakeItemRepository:
     def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]:
         return self._item_drops.get(source_item_stable_key, [])
 
+    def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
+        return self._spell_teaching_items.get(spell_stable_key, [])
+
+    def get_obtainable_items_that_teach_skill(self, skill_stable_key: str) -> list[ItemLink]:
+        return self._skill_teaching_items.get(skill_stable_key, [])
+
+    def get_items_with_spell_effect(self, spell_stable_key: str) -> list[ItemLink]:
+        return self._spell_effect_items.get(spell_stable_key, [])
+
+    def get_items_with_skill_effect(self, skill_stable_key: str) -> list[ItemLink]:
+        return self._skill_effect_items.get(skill_stable_key, [])
+
 
 class FakeCharacterRepository:
     def __init__(
         self,
         characters: list[Character],
-        vendors: dict[str, list[StandardLink]] | None = None,
-        drops: dict[str, list[tuple[WikiLink, float]]] | None = None,
+        vendors: dict[str, list[CharacterLink]] | None = None,
+        drops: dict[str, list[tuple[CharacterLink, float]]] | None = None,
+        spell_users: dict[str, list[CharacterLink]] | None = None,
     ) -> None:
         self._characters = characters
         self._vendors = vendors or {}
         self._drops = drops or {}
+        self._spell_users = spell_users or {}
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         return self._characters
 
-    def get_vendors_selling_item(self, item_stable_key: str) -> list[StandardLink]:
+    def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
         return self._vendors.get(item_stable_key, [])
 
-    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[WikiLink, float]]:
+    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]:
         return self._drops.get(item_stable_key, [])
+
+    def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
+        return self._spell_users.get(spell_stable_key, [])
 
 
 class FakeSpawnRepository:

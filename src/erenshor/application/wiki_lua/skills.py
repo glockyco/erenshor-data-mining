@@ -10,6 +10,7 @@ from erenshor.application.wiki_lua.lua_writer import module_text
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.skill import Skill
+    from erenshor.domain.value_objects.wiki_link import ItemLink, WikiLink
 
 LuaData = dict[str, object]
 
@@ -71,32 +72,72 @@ class SkillDataRepository(Protocol):
     def get_class_display_names(self) -> dict[str, str]: ...
 
 
-def generate_skills_module(skill_repo: SkillDataRepository) -> str:
+class SkillRelationshipItemRepository(Protocol):
+    """Item repository methods needed for skill relationship fields."""
+
+    def get_obtainable_items_that_teach_skill(self, skill_stable_key: str) -> list[ItemLink]: ...
+
+    def get_items_with_skill_effect(self, skill_stable_key: str) -> list[ItemLink]: ...
+
+
+def generate_skills_module(
+    skill_repo: SkillDataRepository,
+    item_repo: SkillRelationshipItemRepository | None = None,
+) -> str:
     """Generate `Module:Erenshor/Data/Skills` from clean DB repositories."""
+    skills = skill_repo.get_skills_for_wiki_generation()
     return module_text(
-        build_skills_data(skill_repo.get_skills_for_wiki_generation(), skill_repo.get_class_display_names())
+        build_skills_data(
+            skills,
+            skill_repo.get_class_display_names(),
+            teaching_items_by_skill=_teaching_items_by_skill(skills, item_repo),
+            items_with_effect_by_skill=_items_with_effect_by_skill(skills, item_repo),
+        )
     )
 
 
-def write_skills_module(skill_repo: SkillDataRepository, output_root: Path) -> Path:
+def write_skills_module(
+    skill_repo: SkillDataRepository,
+    output_root: Path,
+    item_repo: SkillRelationshipItemRepository | None = None,
+) -> Path:
     """Write the generated skill data module below an output root."""
     output_path = output_root / "Erenshor" / "Data" / "Skills.lua"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_skills_module(skill_repo), encoding="utf-8")
+    output_path.write_text(generate_skills_module(skill_repo, item_repo), encoding="utf-8")
     return output_path
 
 
-def build_skills_data(skills: Iterable[Skill], class_display_names: Mapping[str, str]) -> LuaData:
+def build_skills_data(
+    skills: Iterable[Skill],
+    class_display_names: Mapping[str, str],
+    teaching_items_by_skill: Mapping[str, Iterable[ItemLink]] | None = None,
+    items_with_effect_by_skill: Mapping[str, Iterable[ItemLink]] | None = None,
+) -> LuaData:
     """Build the serializable skill data table for `mw.loadData()`."""
     rows: dict[str, LuaData] = {}
     for skill in sorted(skills, key=lambda candidate: candidate.stable_key):
-        record = _skill_record(skill, class_display_names)
+        record = _skill_record(
+            skill,
+            class_display_names,
+            teaching_items=teaching_items_by_skill.get(skill.stable_key, ())
+            if teaching_items_by_skill is not None
+            else (),
+            items_with_effect=(
+                items_with_effect_by_skill.get(skill.stable_key, ()) if items_with_effect_by_skill is not None else ()
+            ),
+        )
         if record is not None:
             rows[skill.stable_key] = record
     return {"skills": rows}
 
 
-def _skill_record(skill: Skill, class_display_names: Mapping[str, str]) -> LuaData | None:
+def _skill_record(
+    skill: Skill,
+    class_display_names: Mapping[str, str],
+    teaching_items: Iterable[ItemLink] = (),
+    items_with_effect: Iterable[ItemLink] = (),
+) -> LuaData | None:
     name = skill.display_name or skill.skill_name or skill.wiki_page_name
     page = skill.wiki_page_name or name
     if name is None or page is None:
@@ -109,6 +150,8 @@ def _skill_record(skill: Skill, class_display_names: Mapping[str, str]) -> LuaDa
         _put_number(record, lua_key, getattr(skill, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(skill, attr))
+    _put_list(record, "source", _link_list(teaching_items))
+    _put_list(record, "itemsWithEffect", _link_list(items_with_effect))
     return record
 
 
@@ -139,3 +182,33 @@ def _put_number(row: LuaData, key: str, value: object) -> None:
 
 def _put_bool(row: LuaData, key: str, value: object) -> None:
     row[key] = bool(value)
+
+
+def _put_list(row: LuaData, key: str, value: list[str]) -> None:
+    if value:
+        row[key] = value
+
+
+def _link_list(links: Iterable[WikiLink]) -> list[str]:
+    return [
+        str(link)
+        for link in sorted(
+            (link for link in links if link.page_title is not None), key=lambda candidate: candidate.display_name
+        )
+    ]
+
+
+def _teaching_items_by_skill(
+    skills: Iterable[Skill], item_repo: SkillRelationshipItemRepository | None
+) -> dict[str, list[ItemLink]]:
+    if item_repo is None:
+        return {}
+    return {skill.stable_key: item_repo.get_obtainable_items_that_teach_skill(skill.stable_key) for skill in skills}
+
+
+def _items_with_effect_by_skill(
+    skills: Iterable[Skill], item_repo: SkillRelationshipItemRepository | None
+) -> dict[str, list[ItemLink]]:
+    if item_repo is None:
+        return {}
+    return {skill.stable_key: item_repo.get_items_with_skill_effect(skill.stable_key) for skill in skills}

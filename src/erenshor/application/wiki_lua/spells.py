@@ -10,6 +10,7 @@ from erenshor.application.wiki_lua.lua_writer import module_text
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.spell import Spell
+    from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, WikiLink
 
 LuaData = dict[str, object]
 
@@ -99,32 +100,85 @@ class SpellDataRepository(Protocol):
     def get_spell_classes(self, stable_key: str) -> list[str]: ...
 
 
-def generate_spells_module(spell_repo: SpellDataRepository) -> str:
+class SpellRelationshipItemRepository(Protocol):
+    """Item repository methods needed for spell relationship fields."""
+
+    def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]: ...
+
+    def get_items_with_spell_effect(self, spell_stable_key: str) -> list[ItemLink]: ...
+
+
+class SpellRelationshipCharacterRepository(Protocol):
+    """Character repository methods needed for spell relationship fields."""
+
+    def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]: ...
+
+
+def generate_spells_module(
+    spell_repo: SpellDataRepository,
+    item_repo: SpellRelationshipItemRepository | None = None,
+    character_repo: SpellRelationshipCharacterRepository | None = None,
+) -> str:
     """Generate `Module:Erenshor/Data/Spells` from clean DB repositories."""
     spells = spell_repo.get_spells_for_wiki_generation()
     classes = {spell.stable_key: spell_repo.get_spell_classes(spell.stable_key) for spell in spells}
-    return module_text(build_spells_data(spells, classes))
+    return module_text(
+        build_spells_data(
+            spells,
+            classes,
+            teaching_items_by_spell=_teaching_items_by_spell(spells, item_repo),
+            items_with_effect_by_spell=_items_with_effect_by_spell(spells, item_repo),
+            used_by_by_spell=_used_by_by_spell(spells, character_repo),
+        )
+    )
 
 
-def write_spells_module(spell_repo: SpellDataRepository, output_root: Path) -> Path:
+def write_spells_module(
+    spell_repo: SpellDataRepository,
+    output_root: Path,
+    item_repo: SpellRelationshipItemRepository | None = None,
+    character_repo: SpellRelationshipCharacterRepository | None = None,
+) -> Path:
     """Write the generated spell data module below an output root."""
     output_path = output_root / "Erenshor" / "Data" / "Spells.lua"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_spells_module(spell_repo), encoding="utf-8")
+    output_path.write_text(generate_spells_module(spell_repo, item_repo, character_repo), encoding="utf-8")
     return output_path
 
 
-def build_spells_data(spells: Iterable[Spell], classes_by_spell: Mapping[str, Iterable[str]]) -> LuaData:
+def build_spells_data(
+    spells: Iterable[Spell],
+    classes_by_spell: Mapping[str, Iterable[str]],
+    teaching_items_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
+    items_with_effect_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
+    used_by_by_spell: Mapping[str, Iterable[CharacterLink]] | None = None,
+) -> LuaData:
     """Build the serializable spell data table for `mw.loadData()`."""
     rows: dict[str, LuaData] = {}
     for spell in sorted(spells, key=lambda candidate: candidate.stable_key):
-        record = _spell_record(spell, classes_by_spell.get(spell.stable_key, ()))
+        record = _spell_record(
+            spell,
+            classes_by_spell.get(spell.stable_key, ()),
+            teaching_items=(
+                teaching_items_by_spell.get(spell.stable_key, ()) if teaching_items_by_spell is not None else ()
+            ),
+            items_with_effect=(
+                items_with_effect_by_spell.get(spell.stable_key, ()) if items_with_effect_by_spell is not None else ()
+            ),
+            used_by=used_by_by_spell.get(spell.stable_key, ()) if used_by_by_spell is not None else (),
+        )
         if record is not None:
             rows[spell.stable_key] = record
     return {"spells": rows}
 
 
-def _spell_record(spell: Spell, classes: Iterable[str]) -> LuaData | None:
+def _spell_record(
+    spell: Spell,
+    classes: Iterable[str],
+    teaching_items: Iterable[ItemLink] = (),
+    items_with_effect: Iterable[ItemLink] = (),
+    used_by: Iterable[CharacterLink] = (),
+) -> LuaData | None:
     name = spell.display_name or spell.spell_name or spell.wiki_page_name
     page = spell.wiki_page_name or name
     if name is None or page is None:
@@ -137,6 +191,9 @@ def _spell_record(spell: Spell, classes: Iterable[str]) -> LuaData | None:
         _put_number(record, lua_key, getattr(spell, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(spell, attr))
+    _put_list(record, "source", _link_list(teaching_items))
+    _put_list(record, "itemsWithEffect", _link_list(items_with_effect))
+    _put_list(record, "usedBy", _link_list(used_by))
     return record
 
 
@@ -152,3 +209,41 @@ def _put_number(row: LuaData, key: str, value: object) -> None:
 
 def _put_bool(row: LuaData, key: str, value: object) -> None:
     row[key] = bool(value)
+
+
+def _put_list(row: LuaData, key: str, value: list[str]) -> None:
+    if value:
+        row[key] = value
+
+
+def _link_list(links: Iterable[WikiLink]) -> list[str]:
+    return [
+        str(link)
+        for link in sorted(
+            (link for link in links if link.page_title is not None), key=lambda candidate: candidate.display_name
+        )
+    ]
+
+
+def _teaching_items_by_spell(
+    spells: Iterable[Spell], item_repo: SpellRelationshipItemRepository | None
+) -> dict[str, list[ItemLink]]:
+    if item_repo is None:
+        return {}
+    return {spell.stable_key: item_repo.get_obtainable_items_that_teach_spell(spell.stable_key) for spell in spells}
+
+
+def _items_with_effect_by_spell(
+    spells: Iterable[Spell], item_repo: SpellRelationshipItemRepository | None
+) -> dict[str, list[ItemLink]]:
+    if item_repo is None:
+        return {}
+    return {spell.stable_key: item_repo.get_items_with_spell_effect(spell.stable_key) for spell in spells}
+
+
+def _used_by_by_spell(
+    spells: Iterable[Spell], character_repo: SpellRelationshipCharacterRepository | None
+) -> dict[str, list[CharacterLink]]:
+    if character_repo is None:
+        return {}
+    return {spell.stable_key: character_repo.get_characters_using_spell(spell.stable_key) for spell in spells}

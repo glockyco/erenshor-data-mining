@@ -25,6 +25,7 @@ local FIELD_OVERRIDES = {
 	["pet_to_summon"] = "petToSummonOverride",
 	["special_descriptor"] = "specialDescriptorOverride",
 	["source"] = "source",
+	["itemswitheffect"] = "itemsWithEffect",
 	["used_by"] = "usedBy",
 	["casttime"] = "castTimeOverride",
 	["cooldown"] = "cooldownOverride",
@@ -48,6 +49,7 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"pet_to_summon",
 	"special_descriptor",
 	"source",
+	"itemswitheffect",
 	"used_by",
 	"casttime",
 	"cooldown",
@@ -237,6 +239,20 @@ local function selfOnlyText(skill)
 	return boolText(skill.affectPlayer and not skill.affectTarget)
 end
 
+local function lineList(values)
+	if values == nil then
+		return nil
+	end
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	for _, value in ipairs(values) do
+		table.insert(out, value)
+	end
+	return table.concat(out, "<br>")
+end
+
 local FIELD_ACCESSORS = {
 	title = function(s)
 		return s.name
@@ -275,7 +291,10 @@ local FIELD_ACCESSORS = {
 		return s.damageType
 	end,
 	target_damage = function(s)
-		return nonZeroNumberText(s.targetDamageOverride)
+		if not isBlank(s.targetDamageOverride) then
+			return s.targetDamageOverride
+		end
+		return nonZeroNumberText(s.skillPower)
 	end,
 	pet_to_summon = function(s)
 		if not isBlank(s.petToSummonOverride) then
@@ -285,10 +304,13 @@ local FIELD_ACCESSORS = {
 	end,
 	special_descriptor = equipmentText,
 	source = function(s)
-		return s.source
+		return lineList(s.source)
+	end,
+	itemswitheffect = function(s)
+		return lineList(s.itemsWithEffect)
 	end,
 	used_by = function(s)
-		return s.usedBy
+		return lineList(s.usedBy)
 	end,
 	casttime = castTimeText,
 	cooldown = cooldownText,

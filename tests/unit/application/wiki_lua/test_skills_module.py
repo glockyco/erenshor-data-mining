@@ -10,6 +10,7 @@ from erenshor.application.wiki_lua.skills import (
     generate_skills_module,
     write_skills_module,
 )
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
 def test_builds_skill_data_with_raw_authoritative_fields() -> None:
@@ -100,6 +101,24 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
             }
         }
     }
+
+
+def test_builds_skill_relationship_fields_from_repository_links() -> None:
+    skill = make_skill(stable_key="skill:backstab")
+    teaching_item = ItemLink(page_title="Backstab Manual", display_name="Backstab Manual")
+    effect_item = ItemLink(page_title="Assassin Charm", display_name="Assassin Charm")
+
+    data = build_skills_data(
+        [skill],
+        {},
+        teaching_items_by_skill={skill.stable_key: [teaching_item]},
+        items_with_effect_by_skill={skill.stable_key: [effect_item]},
+    )
+
+    skills = cast("dict[str, object]", data["skills"])
+    record = cast("dict[str, object]", skills[skill.stable_key])
+    assert record["source"] == ["{{ItemLink|Backstab Manual}}"]
+    assert record["itemsWithEffect"] == ["{{ItemLink|Assassin Charm}}"]
 
 
 def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> None:

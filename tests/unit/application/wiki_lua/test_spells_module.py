@@ -10,6 +10,7 @@ from erenshor.application.wiki_lua.spells import (
     generate_spells_module,
     write_spells_module,
 )
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
 
 
 def test_builds_spell_data_with_authoritative_raw_fields() -> None:
@@ -164,6 +165,28 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
             }
         }
     }
+
+
+def test_builds_spell_relationship_fields_from_repository_links() -> None:
+    spell = make_spell(stable_key="spell:minor_lightning")
+    teaching_item = ItemLink(page_title="Scroll of Minor Lightning", display_name="Scroll of Minor Lightning")
+    effect_item = ItemLink(page_title="Storm Wand", display_name="Storm Wand")
+    hidden_effect_item = ItemLink(page_title=None, display_name="Hidden Debug Item")
+    caster = CharacterLink(page_title="Storm Caller", display_name="Storm Caller")
+
+    data = build_spells_data(
+        [spell],
+        {spell.stable_key: []},
+        teaching_items_by_spell={spell.stable_key: [teaching_item]},
+        items_with_effect_by_spell={spell.stable_key: [hidden_effect_item, effect_item]},
+        used_by_by_spell={spell.stable_key: [caster]},
+    )
+
+    spells = cast("dict[str, object]", data["spells"])
+    record = cast("dict[str, object]", spells[spell.stable_key])
+    assert record["source"] == ["{{ItemLink|Scroll of Minor Lightning}}"]
+    assert record["itemsWithEffect"] == ["{{ItemLink|Storm Wand}}"]
+    assert record["usedBy"] == ["[[Storm Caller]]"]
 
 
 def test_omits_unrenderable_spell_records_and_blank_optional_text() -> None:

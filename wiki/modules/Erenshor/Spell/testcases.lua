@@ -80,6 +80,26 @@ function p.run()
 		"target damage formats"
 	)
 	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "aggro"), "60", "aggro formats")
+	assertEqual(
+		Spell.fieldValue(minor, "Minor Lightning", "itemswitheffect"),
+		"{{ItemLink|Abyssal Plate}}<br>{{ItemLink|Healing Draught}}",
+		"items with effect join generated relationship list"
+	)
+	assertEqual(
+		Spell.fieldValue(minor, "Minor Lightning", "source"),
+		"{{ItemLink|Scroll of Ember}}",
+		"source joins generated teaching items"
+	)
+	assertEqual(
+		Spell.fieldValue(minor, "Minor Lightning", "used_by"),
+		"[[Rare Cave Spider]]",
+		"used by joins generated caster list"
+	)
+	assertEqual(
+		Spell.fieldValue(minor, "Minor Lightning", "pet_to_summon"),
+		"[[A Grizzly Bear]]",
+		"pet stable key resolves generated character link"
+	)
 	assertEqual(Spell.statusText(minor, "Minor Lightning"), "", "present spell status is blank")
 
 	local buff = { stablekey = "spell:ancient_presence" }

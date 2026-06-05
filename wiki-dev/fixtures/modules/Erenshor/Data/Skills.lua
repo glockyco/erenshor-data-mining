@@ -27,6 +27,9 @@ return {
 			},
 			["cooldownTicks"] = 540.0,
 			["damageType"] = "Physical",
+			["itemsWithEffect"] = {
+				"{{ItemLink|Sword Mastery Manual}}",
+			},
 			["description"] = "Deal major damage to your target.. Must be behind target.",
 			["guaranteeProc"] = false,
 			["image"] = "Backstab",
@@ -44,7 +47,10 @@ return {
 			["requireShield"] = false,
 			["scaleOffWeapon"] = false,
 			["simPlayersAutolearn"] = true,
-			["skillPower"] = 0,
+			["skillPower"] = 7,
+			["source"] = {
+				"{{ItemLink|Sword Mastery Manual}}",
+			},
 			["type"] = "Attack",
 		},
 		["skill:stance - aggressive"] = {

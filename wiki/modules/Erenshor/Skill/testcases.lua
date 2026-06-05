@@ -62,6 +62,21 @@ function p.run()
 		"damage type formats"
 	)
 	assertEqual(
+		Skill.fieldValue(backstab, "Backstab", "target_damage"),
+		"7",
+		"target damage reads generated skill power"
+	)
+	assertEqual(
+		Skill.fieldValue(backstab, "Backstab", "source"),
+		"{{ItemLink|Sword Mastery Manual}}",
+		"source joins generated teaching items"
+	)
+	assertEqual(
+		Skill.fieldValue(backstab, "Backstab", "itemswitheffect"),
+		"{{ItemLink|Sword Mastery Manual}}",
+		"items with effect join generated relationship list"
+	)
+	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "special_descriptor"),
 		"Behind target",
 		"requirements format"

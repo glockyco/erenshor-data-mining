@@ -4,6 +4,7 @@ local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Spell/Tooltip")
 
 local Data = mw.loadData("Module:Erenshor/Data/Spells")
+local CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
 
 local p = {}
 
@@ -317,6 +318,31 @@ local function rangeText(spell)
 	return nonZeroNumberText(spell.range)
 end
 
+local function lineList(values)
+	if values == nil then
+		return nil
+	end
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	for _, value in ipairs(values) do
+		table.insert(out, value)
+	end
+	return table.concat(out, "<br>")
+end
+
+local function linkedCharacter(stableKey)
+	if isBlank(stableKey) then
+		return ""
+	end
+	local character = CharacterData.characters[stableKey]
+	if character == nil or isBlank(character.page) then
+		return ""
+	end
+	return Format.pageLink(character.page, character.name)
+end
+
 local function linkedSpell(stableKey)
 	if isBlank(stableKey) or Data.spells[stableKey] == nil then
 		return ""
@@ -422,7 +448,10 @@ local FIELD_ACCESSORS = {
 		return nonZeroNumberText(s.shieldAmount)
 	end,
 	pet_to_summon = function(s)
-		return s.petToSummon
+		if not isBlank(s.petToSummon) then
+			return s.petToSummon
+		end
+		return linkedCharacter(s.petToSummonStableKey)
 	end,
 	status_effect = statusEffectText,
 	add_proc = addProcText,
@@ -523,13 +552,13 @@ local FIELD_ACCESSORS = {
 		return boolText(s.inflictOnSelf)
 	end,
 	itemswitheffect = function(s)
-		return s.itemsWithEffect
+		return lineList(s.itemsWithEffect)
 	end,
 	source = function(s)
-		return s.source
+		return lineList(s.source)
 	end,
 	used_by = function(s)
-		return s.usedBy
+		return lineList(s.usedBy)
 	end,
 }
 

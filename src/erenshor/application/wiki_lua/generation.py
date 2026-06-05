@@ -30,9 +30,19 @@ from erenshor.application.wiki_lua.items import (
     write_items_modules,
 )
 from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
-from erenshor.application.wiki_lua.skills import SkillDataRepository as SkillModuleRepository
-from erenshor.application.wiki_lua.skills import write_skills_module
-from erenshor.application.wiki_lua.spells import SpellDataRepository, write_spells_module
+from erenshor.application.wiki_lua.skills import (
+    SkillDataRepository as SkillModuleRepository,
+)
+from erenshor.application.wiki_lua.skills import (
+    SkillRelationshipItemRepository,
+    write_skills_module,
+)
+from erenshor.application.wiki_lua.spells import (
+    SpellDataRepository,
+    SpellRelationshipCharacterRepository,
+    SpellRelationshipItemRepository,
+    write_spells_module,
+)
 from erenshor.application.wiki_lua.stances import write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
@@ -48,6 +58,16 @@ class WikiCharacterRepository(CharacterDataRepository, ItemProvenanceCharacterRe
 
 class WikiQuestRepository(QuestDataRepository, ItemProvenanceQuestRepository, Protocol):
     """Quest repository contract needed by full Lua data generation."""
+
+
+class WikiSpellItemRepository(
+    WikiItemRepository, SpellRelationshipItemRepository, SkillRelationshipItemRepository, Protocol
+):
+    """Item repository contract needed by spell and skill Lua data generation."""
+
+
+class WikiSpellCharacterRepository(WikiCharacterRepository, SpellRelationshipCharacterRepository, Protocol):
+    """Character repository contract needed by spell Lua data generation."""
 
 
 @dataclass(frozen=True)
@@ -119,8 +139,8 @@ def _remove_stale_data_modules(output_root: Path, written_paths: list[Path]) -> 
 
 def generate_lua_data_modules(
     *,
-    item_repo: WikiItemRepository,
-    character_repo: WikiCharacterRepository,
+    item_repo: WikiSpellItemRepository,
+    character_repo: WikiSpellCharacterRepository,
     spawn_repo: CharacterSpawnRepository,
     loot_repo: CharacterLootRepository,
     spell_usage_repo: CharacterSpellRepository,
@@ -139,8 +159,8 @@ def generate_lua_data_modules(
         *write_items_modules(item_repo, output_root, sources_by_item=item_sources_by_item),
         write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
         write_ability_links_module(spell_repo, skill_repo, stance_repo, output_root),
-        write_spells_module(spell_repo, output_root),
-        write_skills_module(skill_repo, output_root),
+        write_spells_module(spell_repo, output_root, item_repo, character_repo),
+        write_skills_module(skill_repo, output_root, item_repo),
         write_quests_module(quest_repo, output_root),
         write_zones_module(zone_repo, output_root),
         write_stances_module(stance_repo, output_root),

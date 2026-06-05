@@ -141,6 +141,10 @@ return {
 			["inflictOnSelf"] = false,
 			["instantEffect"] = true,
 			["int"] = 0,
+			["itemsWithEffect"] = {
+				"{{ItemLink|Abyssal Plate}}",
+				"{{ItemLink|Healing Draught}}",
+			},
 			["lifesteal"] = 0.0,
 			["lifetap"] = false,
 			["line"] = "Direct_Damage",
@@ -148,6 +152,7 @@ return {
 			["manaCost"] = 30,
 			["maxLevelTarget"] = 0,
 			["movementSpeed"] = 0.0,
+			["petToSummonStableKey"] = "character:a_grizzly_bear",
 			["mr"] = 0,
 			["name"] = "Minor Lightning",
 			["page"] = "Minor Lightning",
@@ -155,6 +160,9 @@ return {
 			["pr"] = 0,
 			["range"] = 30.0,
 			["reapAndRenew"] = false,
+			["source"] = {
+				"{{ItemLink|Scroll of Ember}}",
+			},
 			["requiredLevel"] = 6,
 			["resistModifier"] = 0.0,
 			["resonance"] = 0,
@@ -173,6 +181,9 @@ return {
 			["vr"] = 0,
 			["wis"] = 0,
 			["wornEffect"] = false,
+			["usedBy"] = {
+				"[[Rare Cave Spider]]",
+			},
 			["xpBonus"] = 0.0,
 		},
 	},
