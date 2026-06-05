@@ -4,6 +4,8 @@ local Tooltip = require("Module:Erenshor/Item/Tooltip")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
 local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
+local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
+local SpellData = mw.loadData("Module:Erenshor/Data/Spells")
 
 local p = {}
 
@@ -48,7 +50,7 @@ local FIELD_OVERRIDES = {
 	skilltype = "skillType",
 	spelltype = "spellType",
 	vendorsource = "vendorSource",
-	worneffect = "wornEffect",
+	worneffect = "wornEffectOverride",
 }
 
 local ROOT_PUBLIC_PARAMETERS = {
@@ -277,6 +279,50 @@ local function normalStats(item)
 	return (item.stats or {})[1] or {}
 end
 
+local function baseDps(item)
+	local damage = tonumber(item.damage)
+	local delay = tonumber(item.weaponDelay)
+	if damage == nil or delay == nil then
+		return nil
+	end
+	if delay == 0 then
+		delay = 1
+	end
+	local dps = math.ceil(damage / delay)
+	if item.weaponType == "TwoHandMelee" or item.weaponType == "TwoHandStaff" then
+		dps = dps * 2
+	end
+	return dps
+end
+
+local function publicSkillType(skillType)
+	if skillType == "Innate" then
+		return "Passive"
+	end
+	return skillType
+end
+
+local function taughtSkillType(item)
+	if hasValue(item.skillType) then
+		return publicSkillType(item.skillType)
+	end
+	local skill = SkillData.skills[item.teachesSkill]
+	if skill == nil then
+		return nil
+	end
+	return publicSkillType(skill.type)
+end
+
+local function taughtSpellType(item)
+	if hasValue(item.spellType) then
+		return item.spellType
+	end
+	local spell = SpellData.spells[item.teachesSpell]
+	if spell == nil then
+		return nil
+	end
+	return spell.type
+end
 local function abilityPage(stableKey)
 	if isBlank(stableKey) then
 		return nil
@@ -318,6 +364,21 @@ local function abilityLinkMarkup(page)
 		return ""
 	end
 	return "{{AbilityLink|" .. page .. "}}"
+end
+
+local function abilityLinkFromStableKey(stableKey)
+	return abilityLinkMarkup(abilityPage(stableKey))
+end
+
+local function lineList(values)
+	if values == nil then
+		return nil
+	end
+	local out = {}
+	for _, value in ipairs(values) do
+		table.insert(out, value)
+	end
+	return table.concat(out, "<br>")
 end
 
 function p.overviewNotes(frame)
@@ -426,9 +487,7 @@ local FIELD_ACCESSORS = {
 	delay = function(i)
 		return i.weaponDelay
 	end,
-	dps = function(i)
-		return i.dps
-	end,
+	dps = baseDps,
 	casttime = function(i)
 		return i.castTime
 	end,
@@ -439,29 +498,40 @@ local FIELD_ACCESSORS = {
 		return i.cooldown
 	end,
 	effect = function(i)
-		return i.effect
+		if hasValue(i.effect) then
+			return i.effect
+		end
+		return abilityLinkFromStableKey(i.clickEffect)
 	end,
 	worneffect = function(i)
-		return i.wornEffect
+		if hasValue(i.wornEffectOverride) then
+			return i.wornEffectOverride
+		end
+		return abilityLinkFromStableKey(i.wornEffect)
 	end,
 	proceffect = function(i)
-		return i.procEffect
+		if hasValue(i.procEffect) then
+			return i.procEffect
+		end
+		return abilityLinkFromStableKey(i.weaponProc)
 	end,
 	buffgiven = function(i)
 		return i.buffGiven
 	end,
 	taughtspell = function(i)
-		return i.taughtSpell
+		if hasValue(i.taughtSpell) then
+			return i.taughtSpell
+		end
+		return abilityLinkFromStableKey(i.teachesSpell)
 	end,
 	taughtskill = function(i)
-		return i.taughtSkill
+		if hasValue(i.taughtSkill) then
+			return i.taughtSkill
+		end
+		return abilityLinkFromStableKey(i.teachesSkill)
 	end,
-	spelltype = function(i)
-		return i.spellType
-	end,
-	skilltype = function(i)
-		return i.skillType
-	end,
+	spelltype = taughtSpellType,
+	skilltype = taughtSkillType,
 	manacost = function(i)
 		return i.manaCost
 	end,
@@ -469,7 +539,10 @@ local FIELD_ACCESSORS = {
 		return i.disposable == true and "Yes" or ""
 	end,
 	produces = function(i)
-		return i.produces
+		if hasValue(i.produces) then
+			return i.produces
+		end
+		return lineList(i.rewards)
 	end,
 	ingredients = function(i)
 		return i.ingredients

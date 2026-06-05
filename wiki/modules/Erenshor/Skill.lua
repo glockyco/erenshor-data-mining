@@ -202,6 +202,13 @@ local function effectsText(skill)
 	return table.concat(out, "<br>")
 end
 
+local function publicSkillType(skillType)
+	if skillType == "Innate" then
+		return "Passive"
+	end
+	return skillType
+end
+
 local function castTimeText(skill)
 	if not isBlank(skill.castTimeOverride) then
 		return skill.castTimeOverride
@@ -244,7 +251,7 @@ local FIELD_ACCESSORS = {
 		return s.description
 	end,
 	type = function(s)
-		return s.type
+		return publicSkillType(s.type)
 	end,
 	classes = classLevelsText,
 	is_sim_usable = function(s)

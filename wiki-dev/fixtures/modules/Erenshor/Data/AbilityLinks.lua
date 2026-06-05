@@ -30,11 +30,23 @@ return {
 			image = "Ember Burst",
 			kind = "spell",
 		},
+		["spell:ember"] = {
+			name = "Ember",
+			page = "Ember",
+			image = "Ember",
+			kind = "spell",
+		},
 		["spell:minor_heal"] = {
 			name = "Minor Heal",
 			page = "Minor Heal",
 			image = "Minor Heal",
 			kind = "spell",
+		},
+		["skill:sword_mastery"] = {
+			name = "Sword Mastery",
+			page = "Sword Mastery",
+			image = "Sword Mastery",
+			kind = "skill",
 		},
 		["stance:aggressive"] = {
 			name = "Aggressive",

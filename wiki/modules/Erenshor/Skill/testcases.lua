@@ -37,6 +37,11 @@ function p.run()
 	assertEqual(Skill.fieldValue(backstab, "Backstab", "image"), "Backstab.png", "image formats")
 	assertEqual(Skill.fieldValue(backstab, "Backstab", "type"), "Attack", "type formats")
 	assertEqual(
+		Skill.fieldValue({ stablekey = "skill:sword_mastery" }, "Sword Mastery", "type"),
+		"Passive",
+		"innate skill type displays as passive"
+	)
+	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "classes"),
 		"[[Windblade]] (2)",
 		"class levels format"

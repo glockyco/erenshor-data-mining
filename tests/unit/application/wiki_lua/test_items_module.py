@@ -7,7 +7,8 @@ from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
 from erenshor.application.wiki_lua.items import build_items_data, generate_items_modules, write_items_modules
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.wiki_link import ItemLink
+from erenshor.domain.value_objects.source_info import SourceInfo
+from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
 
 def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> None:
@@ -93,6 +94,25 @@ def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
     assert item_data["armor"] == 3
 
 
+def test_builds_item_cast_time_from_exported_spell_cast_time() -> None:
+    item = make_item(spell_cast_time=1.5, weapon_dly=2.5)
+    stats = [
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": "Normal",
+                "weapon_dmg": 18,
+            }
+        )
+    ]
+
+    data = build_items_data(items=[item], stats_by_item={item.stable_key: stats}, classes_by_item={})
+
+    shard = data["index"]["byKey"][item.stable_key]
+    item_data = data["shards"][shard][item.stable_key]
+    assert item_data["castTime"] == 1.5
+
+
 def test_builds_effect_chance_fields_for_overview_notes() -> None:
     item = make_item(
         weapon_proc_on_hit_stable_key="spell:ember_proc",
@@ -166,6 +186,61 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
     assert item_data["wandRange"] == 35
     assert item_data["ingredients"] == ["2x {{ItemLink|Chunk of Copper Ore}}"]
     assert item_data["rewards"] == ["1x {{ItemLink|Ember Longsword}}"]
+
+
+def test_builds_item_provenance_fields_from_source_info() -> None:
+    item = make_item()
+    vendor = StandardLink(page_title="B Vendor", display_name="B Vendor")
+    duplicate_vendor = StandardLink(page_title="B Vendor", display_name="B Vendor")
+    hidden_vendor = StandardLink(page_title=None, display_name="Hidden Vendor")
+    high_drop = StandardLink(page_title="A Croc", display_name="A Croc")
+    low_drop = StandardLink(page_title="Z Spider", display_name="Z Spider")
+    quest_reward = QuestLink(page_title="Reward Quest", display_name="Reward Quest")
+    quest_requirement = QuestLink(page_title="Required Quest", display_name="Required Quest")
+    component_for = ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")
+    guaranteed_drop = ItemLink(page_title="A Fossil Reward", display_name="A Fossil Reward")
+
+    data = build_items_data(
+        items=[item],
+        stats_by_item={},
+        classes_by_item={},
+        sources_by_item={
+            item.stable_key: SourceInfo(
+                vendors=[vendor, duplicate_vendor, hidden_vendor],
+                drops=[(low_drop, 12.5), (high_drop, 50.0)],
+                quest_rewards=[quest_reward],
+                quest_requirements=[quest_requirement],
+                component_for=[component_for],
+                item_drops=[(guaranteed_drop, 100.0)],
+            )
+        },
+    )
+
+    shard = data["index"]["byKey"][item.stable_key]
+    item_data = data["shards"][shard][item.stable_key]
+    assert item_data["vendorSource"] == "[[B Vendor]]"
+    assert item_data["source"] == "[[A Croc]] (50.0%)<br>[[Z Spider]] (12.5%)"
+    assert item_data["questSource"] == "{{QuestLink|Reward Quest}}"
+    assert item_data["relatedQuest"] == "{{QuestLink|Required Quest}}"
+    assert item_data["componentFor"] == "{{ItemLink|Copper Armor Mold}}"
+    assert item_data["guaranteedDrops"] == "{{ItemLink|A Fossil Reward}}"
+    assert item_data["dropRates"] == "{{ItemLink|A Fossil Reward}} (100%)"
+
+
+def test_generates_items_modules_with_provenance_data() -> None:
+    item = make_item()
+    repo = FakeItemRepository(items=[item], stats={}, classes={})
+
+    modules = generate_items_modules(
+        repo,
+        sources_by_item={
+            item.stable_key: SourceInfo(
+                vendors=[StandardLink(page_title="Ember Vendor", display_name="Ember Vendor")],
+            )
+        },
+    )
+
+    assert '["vendorSource"] = "[[Ember Vendor]]"' in modules["Items/Weapons.lua"]
 
 
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:

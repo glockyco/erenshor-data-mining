@@ -708,6 +708,12 @@ local function classReq(reqs, label, level)
 	reqs:tag("div"):addClass("item-tooltip-book-class-req"):wikitext(label .. ": " .. level)
 end
 
+local function publicSkillType(skillType)
+	if skillType == "Innate" then
+		return "Passive"
+	end
+	return skillType
+end
 -- SkillBook: the taught skill's per-class required levels (display names come
 -- from the data, Duelist→Windblade), skill type, description, and the SimPlayers
 -- auto-learn warning.
@@ -725,10 +731,11 @@ local function skillBookTooltip(item, stats)
 				classReq(reqs, class, levelByClass[class])
 			end
 		end
-		if not isBlank(skill.type) then
+		local skillType = publicSkillType(skill.type)
+		if not isBlank(skillType) then
 			reqs:tag("div")
 				:addClass("item-tooltip-book-detail")
-				:wikitext("Skill Type: " .. skill.type)
+				:wikitext("Skill Type: " .. skillType)
 		end
 		if not isBlank(skill.description) then
 			reqs:tag("div")

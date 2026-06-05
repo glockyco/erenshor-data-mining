@@ -115,6 +115,59 @@ function p.run()
 		"consumable disposable field renders Yes"
 	)
 	assertEqual(
+		Item.fieldValue({ stablekey = "item:ember_longsword" }, "Ember Longsword", "dps"),
+		"8",
+		"weapon dps is computed from base damage and delay"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:ember_longsword" }, "Ember Longsword", "proceffect"),
+		"{{AbilityLink|Ember Burst}}",
+		"weapon proc effect renders an AbilityLink from stable key data"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:abyssal_plate" }, "Abyssal Plate", "worneffect"),
+		"{{AbilityLink|Minor Lightning}}",
+		"worn effect renders an AbilityLink from stable key data"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "effect"),
+		"{{AbilityLink|Minor Heal}}",
+		"activatable effect renders an AbilityLink from stable key data"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember", "taughtspell"),
+		"{{AbilityLink|Ember}}",
+		"taught spell renders an AbilityLink from stable key data"
+	)
+	assertEqual(
+		Item.fieldValue(
+			{ stablekey = "item:sword_mastery_manual" },
+			"Sword Mastery Manual",
+			"taughtskill"
+		),
+		"{{AbilityLink|Sword Mastery}}",
+		"taught skill renders an AbilityLink from stable key data"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember", "spelltype"),
+		"Damage",
+		"spell scroll type derives from taught spell data"
+	)
+	assertEqual(
+		Item.fieldValue(
+			{ stablekey = "item:sword_mastery_manual" },
+			"Sword Mastery Manual",
+			"skilltype"
+		),
+		"Passive",
+		"skill book type derives from taught skill data"
+	)
+	assertEqual(
+		Item.fieldValue({ stablekey = "item:copper_armor_mold" }, "Copper Armor Mold", "produces"),
+		"1x [[Copper Breastplate]]",
+		"produces maps to generated crafting rewards"
+	)
+	assertEqual(
 		Item.fieldValue(
 			{ stablekey = "item:healing_draught", disposable = "no" },
 			"Healing Draught",
@@ -235,7 +288,7 @@ function p.run()
 		"Windblade: 3",
 		"skill book shows per-class levels with display names"
 	)
-	assertContains(skillBook, "Skill Type: Innate", "skill book shows the skill type")
+	assertContains(skillBook, "Skill Type: Passive", "skill book shows the public skill type")
 	assertContains(
 		skillBook,
 		"SimPlayers DO NOT automatically learn",

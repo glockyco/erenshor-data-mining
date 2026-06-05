@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import LootDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-    from erenshor.domain.value_objects.wiki_link import AbilityLink
+    from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink, QuestLink, StandardLink, WikiLink
 
 
 class FakeItemRepository:
@@ -26,11 +26,17 @@ class FakeItemRepository:
         stats: dict[str, list[ItemStats]],
         classes: dict[str, list[str]],
         recipes: dict[str, CraftingRecipe] | None = None,
+        item_sources: dict[str, list[tuple[StandardLink, float]]] | None = None,
+        items_requiring: dict[str, list[ItemLink]] | None = None,
+        item_drops: dict[str, list[tuple[ItemLink, float]]] | None = None,
     ) -> None:
         self._items = items
         self._stats = stats
         self._classes = classes
         self._recipes = recipes or {}
+        self._item_sources = item_sources or {}
+        self._items_requiring = items_requiring or {}
+        self._item_drops = item_drops or {}
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
@@ -44,13 +50,35 @@ class FakeItemRepository:
     def get_crafting_recipe(self, stable_key: str) -> CraftingRecipe | None:
         return self._recipes.get(stable_key)
 
+    def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]:
+        return self._item_sources.get(item_stable_key, [])
+
+    def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]:
+        return self._items_requiring.get(item_stable_key, [])
+
+    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]:
+        return self._item_drops.get(source_item_stable_key, [])
+
 
 class FakeCharacterRepository:
-    def __init__(self, characters: list[Character]) -> None:
+    def __init__(
+        self,
+        characters: list[Character],
+        vendors: dict[str, list[StandardLink]] | None = None,
+        drops: dict[str, list[tuple[WikiLink, float]]] | None = None,
+    ) -> None:
         self._characters = characters
+        self._vendors = vendors or {}
+        self._drops = drops or {}
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         return self._characters
+
+    def get_vendors_selling_item(self, item_stable_key: str) -> list[StandardLink]:
+        return self._vendors.get(item_stable_key, [])
+
+    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[WikiLink, float]]:
+        return self._drops.get(item_stable_key, [])
 
 
 class FakeSpawnRepository:
@@ -110,15 +138,29 @@ class FakeStanceRepository:
 
 
 class FakeQuestRepository:
-    def __init__(self, quests: list[Quest], faction_changes: dict[str, list[FactionModifier]] | None = None) -> None:
+    def __init__(
+        self,
+        quests: list[Quest],
+        faction_changes: dict[str, list[FactionModifier]] | None = None,
+        quest_rewards: dict[str, list[QuestLink]] | None = None,
+        quest_requirements: dict[str, list[QuestLink]] | None = None,
+    ) -> None:
         self._quests = quests
         self._faction_changes = faction_changes or {}
+        self._quest_rewards = quest_rewards or {}
+        self._quest_requirements = quest_requirements or {}
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
 
     def get_faction_changes_for_quests(self, stable_keys: list[str]) -> dict[str, list[FactionModifier]]:
         return {stable_key: self._faction_changes.get(stable_key, []) for stable_key in stable_keys}
+
+    def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]:
+        return self._quest_rewards.get(item_stable_key, [])
+
+    def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]:
+        return self._quest_requirements.get(item_stable_key, [])
 
 
 class FakeZoneRepository:

@@ -24,6 +24,7 @@ from tests.unit.application.wiki_lua.fakes import (
 
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.validation import LuaValidationResult
+from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
 
 def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
@@ -108,6 +109,54 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert "return {" in quests_path.read_text(encoding="utf-8")
     assert "return {" in zones_path.read_text(encoding="utf-8")
     assert "return {" in stances_path.read_text(encoding="utf-8")
+
+
+def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
+    item = make_item()
+    item_repo = FakeItemRepository(
+        items=[item],
+        stats={},
+        classes={},
+        item_sources={
+            item.stable_key: [(StandardLink(page_title="Ancient Fossil", display_name="Ancient Fossil"), 25.0)]
+        },
+        items_requiring={item.stable_key: [ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")]},
+        item_drops={item.stable_key: [(ItemLink(page_title="Dropped Relic", display_name="Dropped Relic"), 100.0)]},
+    )
+    character_repo = FakeCharacterRepository(
+        [make_character()],
+        vendors={item.stable_key: [StandardLink(page_title="B Vendor", display_name="B Vendor")]},
+        drops={item.stable_key: [(StandardLink(page_title="A Croc", display_name="A Croc"), 50.0)]},
+    )
+    quest_repo = FakeQuestRepository(
+        [make_quest()],
+        quest_rewards={item.stable_key: [QuestLink(page_title="Reward Quest", display_name="Reward Quest")]},
+        quest_requirements={item.stable_key: [QuestLink(page_title="Required Quest", display_name="Required Quest")]},
+    )
+
+    generate_lua_data_modules(
+        item_repo=item_repo,
+        character_repo=character_repo,
+        spawn_repo=FakeSpawnRepository({}),
+        loot_repo=FakeLootRepository({}),
+        spell_usage_repo=FakeSpellUsageRepository({}),
+        spell_repo=FakeSpellRepository([make_spell()]),
+        skill_repo=FakeSkillRepository([make_skill()]),
+        stance_repo=FakeStanceRepository([make_stance()]),
+        quest_repo=quest_repo,
+        zone_repo=FakeZoneRepository([make_zone()], {}),
+        output_root=tmp_path,
+        validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+    )
+
+    item_shard_text = (tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua").read_text(encoding="utf-8")
+    assert '["vendorSource"] = "[[B Vendor]]"' in item_shard_text
+    assert '["source"] = "[[A Croc]] (50.0%)<br>[[Ancient Fossil]] (25.0%)"' in item_shard_text
+    assert '["questSource"] = "{{QuestLink|Reward Quest}}"' in item_shard_text
+    assert '["relatedQuest"] = "{{QuestLink|Required Quest}}"' in item_shard_text
+    assert '["componentFor"] = "{{ItemLink|Copper Armor Mold}}"' in item_shard_text
+    assert '["guaranteedDrops"] = "{{ItemLink|Dropped Relic}}"' in item_shard_text
+    assert '["dropRates"] = "{{ItemLink|Dropped Relic}} (100%)"' in item_shard_text
 
 
 def _run_generation(tmp_path: Path) -> object:
