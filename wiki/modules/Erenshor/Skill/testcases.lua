@@ -104,6 +104,11 @@ function p.run()
 		"Deal major damage to your target",
 		"attack skill tooltip shows description"
 	)
+	assertContains(
+		backstabTip,
+		"border-top:2px solid #d0d0d0",
+		"standalone skill tooltip has a top border"
+	)
 
 	local passiveTip = Skill.renderTooltip({ stablekey = "skill:sword_mastery" }, "Sword Mastery")
 	assertContains(

@@ -46,10 +46,14 @@ end
 
 -- Build the tooltip DOM for a resolved spell record.
 function Tooltip.render(spell)
-	local root = mw.html.create("div"):addClass("item-spell-details")
+	-- Standalone tooltips need the top border the embedded item case gets from the
+	-- item tooltip's divider above it (`.item-spell-details` sets border-top: none).
+	local root =
+		mw.html.create("div"):addClass("item-spell-details"):css("border-top", "2px solid #d0d0d0")
 
 	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
-	if not Common.isBlank(spell.image) then
+	local hasIcon = not Common.isBlank(spell.image)
+	if hasIcon then
 		headerRow
 			:tag("div")
 			:addClass("item-spell-details-icon")
@@ -61,6 +65,10 @@ function Tooltip.render(spell)
 		:tag("div")
 		:addClass("item-spell-details-header")
 		:wikitext(spell.name or "Spell")
+	-- Balance the fixed-width icon so the title centers in the full width.
+	if hasIcon then
+		headerRow:tag("div"):addClass("item-spell-details-spacer")
+	end
 
 	local content = root:tag("div"):addClass("item-spell-details-content")
 

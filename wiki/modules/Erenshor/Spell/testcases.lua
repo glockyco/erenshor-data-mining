@@ -135,6 +135,16 @@ function p.run()
 		'Strength <span class="item-spell-positive">+20</span>',
 		"buff tooltip shows strength modifier"
 	)
+	assertContains(
+		buffTip,
+		"border-top:2px solid #d0d0d0",
+		"standalone spell tooltip has a top border"
+	)
+	assertContains(
+		buffTip,
+		"item-spell-details-spacer",
+		"spell tooltip balances the icon so the title centers"
+	)
 
 	local dmgTip = Spell.renderTooltip({ stablekey = "spell:minor_lightning" }, "Minor Lightning")
 	assertContains(dmgTip, "Instant Effect", "damage tooltip shows instant effect")

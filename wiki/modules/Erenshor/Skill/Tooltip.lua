@@ -29,7 +29,10 @@ function Tooltip.render(skill)
 	-- SkillbookSlot.cs:146 — Activatable unless the skill is Innate.
 	local kind = (skill.type ~= "Innate") and "Activatable" or "Passive"
 
-	local root = mw.html.create("div"):addClass("item-spell-details")
+	-- Standalone tooltips need a top border (`.item-spell-details` sets border-top: none
+	-- for the embedded item case, where the item tooltip's divider sits above it).
+	local root =
+		mw.html.create("div"):addClass("item-spell-details"):css("border-top", "2px solid #d0d0d0")
 	root:tag("div")
 		:addClass("item-spell-details-header-row")
 		:tag("div")
