@@ -1067,6 +1067,96 @@ than applying article edits automatically.
 
   Use the local harness to upload pages, capture revision IDs, report changed Cargo declarations (recreation is done manually via Special:CargoTables), refresh dependency pages, roll back to previous revisions, and compare article parameters against deployed Lua field accessors. Tests cover edit conflicts, assertion failures, lost create races, rollback restore, generated-vs-manual override cleanup, and dependency refresh; maxlag/Retry-After backoff is covered by client unit tests.
 
+### Milestone 10b: Game-faithful spell and skill tooltips
+
+**Planned commit(s):** `feat(wiki): add game-faithful spell/skill tooltips`
+
+Audit reference: `docs/plans/2026-06-04-wiki-field-parity-audit.md` (Category E).
+The item tooltip reproduces `ItemInfoWindow.cs`; spell and skill pages have no
+game-style tooltip. Detailed task breakdown lives in
+`docs/plans/2026-06-04-wiki-tooltips-and-parity-implementation.md`.
+
+**Files:**
+
+```text
+wiki/modules/Erenshor/Ability/Common.lua          (new shared primitives)
+wiki/modules/Erenshor/Item/Tooltip.lua            (refactor to use Common)
+wiki/modules/Erenshor/Spell/Tooltip.lua           (new)
+wiki/modules/Erenshor/Skill/Tooltip.lua           (new)
+wiki/modules/Erenshor/Spell.lua                   (add p.tooltip)
+wiki/modules/Erenshor/Skill.lua                   (add p.tooltip)
+wiki/templates/SpellTooltip.wiki                  (new)
+wiki/templates/SkillTooltip.wiki                  (new)
+wiki/modules/Erenshor/{Spell,Skill,Item}/testcases.lua
+```
+
+- [ ] **Step 1: Extract shared ability rendering primitives**
+
+  Move the shared spell-detail primitives (stat-modifier table, signed `+green`/
+  `-red` formatter, duration logic, damage-type colors, spell name/link helpers)
+  into `Module:Erenshor/Ability/Common` and refactor `Item/Tooltip.lua` to use
+  them with no change to item tooltip output (item testcases stay green).
+
+- [ ] **Step 2: Spell tooltip module**
+
+  `Module:Erenshor/Spell/Tooltip` reproduces `SpellbookSlot.cs:150-275` exactly
+  (duration → Spell Type → Mana Cost → Damage(`/tick`) → Cast Time → Cooldown →
+  Resist Type colored → flags → applied status effect as AbilityLink → nonzero
+  stat mods → SpecialDescriptor), reusing the `item-tooltip-*`/`item-spell-*` CSS.
+
+- [ ] **Step 3: Skill tooltip module**
+
+  `Module:Erenshor/Skill/Tooltip` reproduces `SkillbookSlot.cs:146-156`: title
+  `Name - Activatable|Passive` (Activatable when `TypeOfSkill != Innate`), body
+  `SkillDesc`, or the `Change Stance` + stance name/desc variant (stance joined
+  by stable key).
+
+- [ ] **Step 4: Wire surfaces**
+
+  `{{SpellTooltip|stablekey=…}}` → `{{#invoke:Erenshor/Spell|tooltip}}` and
+  `{{SkillTooltip|stablekey=…}}` → `{{#invoke:Erenshor/Skill|tooltip}}`, mirroring
+  `{{ItemTooltip}}`.
+
+- [ ] **Step 5: Verify on local harness**
+
+  Add `Spell/Skill` tooltip testcases (red→green) and run every affected
+  `Module:Erenshor/*/testcases` on the local MediaWiki harness, including the
+  refactored item testcases.
+
+### Milestone 10c: Close field-parity data-generation gaps
+
+**Planned commit(s):** per entity, e.g. `feat(wiki): generate item provenance data`
+
+Audit reference: `docs/plans/2026-06-04-wiki-field-parity-audit.md` (Categories A, B).
+The Lua data generators must emit every field the legacy generator produced, so
+nothing regresses at cutover and override cleanup never freezes generated data.
+
+- [ ] **Step 1: Item provenance + key/render fixes**
+
+  Wire vendor/loot/quest/component/item-drop data into the item Lua generator
+  (`vendorsource`, `source`, `questsource`, `relatedquest`, `componentfor`,
+  `guaranteeddrops`, `droprates`); fix Category B accessors (`effect`,
+  `worneffect`, `proceffect`, `taughtspell`, `taughtskill` render AbilityLinks
+  from emitted stable keys; map `castTime`; compute `dps`; map `produces` to
+  `rewards`).
+
+- [ ] **Step 2: Spell/skill relationship data**
+
+  Emit `source` (teaching items) for spells and skills, `itemswitheffect` and
+  `used_by` for spells; fix `pet_to_summon` (spell) and `target_damage` (skill)
+  key mismatches.
+
+- [ ] **Step 3: Character experience; drop class**
+
+  Generate `experience` as the `BaseXpMin–BaseXpMax` range; remove the `class`
+  row from the Character template and module (no per-character class in export).
+
+- [ ] **Step 4: Override-apply safety gate**
+
+  The override-apply path (when built) must refuse to drop any field whose
+  generated value is empty because generation is incomplete, gated per-field on
+  the corresponding data being emitted.
+
 ### Milestone 11: Complete local full-system verification
 
 **Planned commit:** `test(wiki): verify local Lua Cargo cutover`
