@@ -91,6 +91,9 @@ Template:Zone
 Template:ItemLink
 Template:AbilityLink
 Template:MapLink
+Template:ItemTooltip
+Template:SpellTooltip
+Template:SkillTooltip
 Template:* / CargoDeclare pages created for concrete query/index needs
 Template:* / CargoStore pages created for concrete query/index needs
 ```

@@ -156,6 +156,22 @@ with link conveniences (applied status effect, stance), and share rendering
 primitives via `Module:Erenshor/Ability/Common` (Item/Tooltip refactored onto it,
 verified byte-identical).
 
+**Layout refinements:** the standalone spell/skill tooltips add the
+`item-spell-details-spacer` so the title centers against the fixed-width icon,
+and an inline `border-top: 2px solid #d0d0d0` on the root so they read as a
+complete frame. The embedded item proc/worn detail keeps `border-top: none`
+(it sits under the item tooltip's divider), so only the standalone roots carry
+the inline border.
+
+**Known gap — tooltip CSS is not repo-owned.** The `item-tooltip-*` /
+`item-spell-*` classes live only in the live wiki's `MediaWiki:Common.css`,
+synced down to the gitignored `wiki-dev/interface/MediaWiki/Common.css` for the
+harness. The new tooltips deliberately reuse those existing classes (so no new
+live CSS is required) and inline the one new rule (the standalone border) in the
+module, which is why no class-based stylesheet change was made. If future tooltip
+styling needs new classes, the wiki CSS must first be brought under repo
+ownership; until then, prefer inline `mw.html:css(...)` for module-local styling.
+
 ---
 
 ## Category D — Intended manual (no action)
