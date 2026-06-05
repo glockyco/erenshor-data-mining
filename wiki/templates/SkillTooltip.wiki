@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Skill|tooltip}}</includeonly><noinclude>In-game-style skill tooltip, driven by [[Module:Erenshor/Skill]]. Resolves the skill by its stable key: <code><nowiki>{{SkillTooltip|stablekey=skill:...}}</nowiki></code>.</noinclude>

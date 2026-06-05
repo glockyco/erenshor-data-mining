@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Spell|tooltip}}</includeonly><noinclude>In-game-style spell tooltip, driven by [[Module:Erenshor/Spell]]. Resolves the spell by its stable key: <code><nowiki>{{SpellTooltip|stablekey=spell:...}}</nowiki></code>.</noinclude>
