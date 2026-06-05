@@ -137,7 +137,7 @@ function p.run()
 	)
 	assertContains(
 		buffTip,
-		"border-top:2px solid #d0d0d0",
+		"item-spell-details-standalone",
 		"standalone spell tooltip has a top border"
 	)
 	assertContains(

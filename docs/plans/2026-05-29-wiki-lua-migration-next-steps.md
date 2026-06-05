@@ -1160,6 +1160,101 @@ nothing regresses at cutover and override cleanup never freezes generated data.
   generated value is empty because generation is incomplete, gated per-field on
   the corresponding data being emitted.
 
+### Milestone 10d: Repo-own presentation CSS as a hidden|default gadget
+
+**Planned commit(s):** `feat(wiki): own presentation CSS as a gadget`
+
+The tooltip/table presentation CSS currently lives inside the shared, host-managed
+`MediaWiki:Common.css` (one clearly-marked block: the `Erenshor Item Tooltip
+Styles` header through `END OF ITEM TOOLTIP STYLES`, ~686 lines, self-contained,
+no `var(--…)` references). `Common.css` cannot be repo-owned wholesale because
+wiki.gg manages the theme there (Theme Toggle, GlobalCssJs) and the community may
+add rules. Move our block into a fully repo-owned stylesheet loaded as a CSS-only
+`[hidden|default]` gadget — loaded for everyone including anonymous users, not
+shown in Preferences, so it cannot be disabled (MediaWiki's documented modular
+alternative to Common.css). This removes the inline-`mw.html:css` border hack and
+makes the presentation layer reproducible.
+
+TemplateStyles would be the ideal (template-scoped CSS), but it is **not installed
+on wiki.gg** (verified via Special:Version); enabling it is a separate wiki.gg
+request, tracked as a future improvement.
+
+**Repo-owned vs shared:** the gadget *content* page `MediaWiki:Gadget-erenshor.css`
+is 100% ours (clean full-overwrite deploy/rollback). The gadget *registration*
+line in `MediaWiki:Gadgets-definition` and the *removal* of our block from the
+live `Common.css` are one-time edits to shared pages — coordinated cutover steps,
+not agent-automated.
+
+**Files:**
+
+```text
+wiki/gadgets/erenshor.css                         (new, repo-owned source)
+src/erenshor/application/wiki_deploy/manifest.py   (own Gadget-*.css pages)
+wiki/modules/Erenshor/Spell/Tooltip.lua            (use class, drop inline border)
+wiki/modules/Erenshor/Skill/Tooltip.lua            (use class, drop inline border)
+wiki/modules/Erenshor/{Spell,Skill}/testcases.lua  (assert class)
+wiki-dev/import_pages.py                            (load gadget on the harness)
+```
+
+- [x] **Step 1: Repo-owned gadget stylesheet**
+
+  Extract the marked Common.css block into `wiki/gadgets/erenshor.css` and add the
+  standalone-tooltip top border as a class (`.item-spell-details-standalone`).
+  Switch the spell/skill tooltip roots to that class and drop the inline border.
+
+- [x] **Step 2: Own gadget pages in the deploy manifest**
+
+  Map `wiki/gadgets/*.css` → `MediaWiki:Gadget-*` (content model `sanitized-css`,
+  a `gadget` upload stage ordered first) so the manifest owns the gadget content
+  page. Note: the standalone-border rule uses a **compound selector**
+  (`.item-spell-details.item-spell-details-standalone`) so it wins over the base
+  `.item-spell-details { border-top: none }` regardless of stylesheet load order —
+  important during the cutover window when Common.css still carries the old block.
+
+- [x] **Step 3: Load the gadget on the local harness**
+
+  `import_pages.py` creates `MediaWiki:Gadget-erenshor.css` from the repo source
+  and registers `* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css`
+  in the harness `Gadgets-definition`, so harness rendering matches the gadget
+  path. (The synced Common.css still carries the identical block until the live
+  cutover; the compound selector makes the duplicate harmless.)
+
+- [x] **Step 4: Verify on the harness**
+
+  Verified: the gadget styles module loads for all users, and the standalone
+  spell/skill tooltips compute `border-top: 2px solid #d0d0d0` from the class
+  while the embedded item detail stays borderless. Item/Spell/Skill testcases
+  stay green.
+
+**Deploy-rights constraint (found during verification):** the gadget content page
+lives in the MediaWiki namespace, so editing it needs `editinterface` +
+`editsitecss` (interface-admin). The deploy bot (bot group) is refused with
+`protectednamespace-interface`. The manifest *owns* the page (diff, rollback
+text), but its actual live upload is an **interface-admin** action — either run
+`deploy_repo_pages` under an interface-admin credential or grant the deploy bot
+`editsitecss` (and NOT `editsitejs`, keeping sitewide JS interface-admin-only).
+The harness `import_pages.py` already authenticates as the admin (`WikiSysop`),
+so it creates the gadget page without extra rights.
+
+**Live cutover steps (interface-admin, coordinated — not agent-automated):**
+
+1. Add `* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css` to
+   live `MediaWiki:Gadgets-definition`.
+2. Deploy `MediaWiki:Gadget-erenshor.css` (interface-admin credential, see above).
+3. Remove the `Erenshor Item Tooltip Styles … END OF ITEM TOOLTIP STYLES` block
+   from live `MediaWiki:Common.css`. Order matters: register + deploy the gadget
+   first, then remove from Common.css, so there is no flash of unstyled content.
+   Net visual change: zero (same classes, relocated).
+
+**Extending to JavaScript (future):** add a *separate* `general` gadget
+`* erenshor-scripts[ResourceLoader|default|hidden]|erenshor.js` (CSS and JS must
+be separate definitions; use `peers=erenshor` so the CSS still applies with JS
+off). Sitewide `[hidden|default]` JS runs for everyone and is security-sensitive
+like Common.js — keep it minimal and never build HTML/JS from user input or URL
+params. Repo-owning it (PR review + git history + the deploy pipeline) is more
+auditable than ad-hoc on-wiki editing. The content page is repo-owned; the
+`Gadgets-definition` line is the one shared-page touchpoint.
+
 ### Milestone 11: Complete local full-system verification
 
 **Planned commit:** `test(wiki): verify local Lua Cargo cutover`

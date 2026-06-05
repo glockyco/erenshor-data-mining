@@ -29,6 +29,12 @@ REQUIRED_INTERFACE_FILES = frozenset(
     }
 )
 
+# Registration line for the repo-owned presentation gadget. A CSS-only
+# `hidden|default` gadget loads for everyone and cannot be disabled, the
+# documented modular alternative to MediaWiki:Common.css. The live cutover adds
+# the same line to the production Gadgets-definition.
+GADGET_DEFINITION_LINE = "* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css"
+
 
 class PageSource(NamedTuple):
     """A local file and the MediaWiki page title it represents."""
@@ -74,6 +80,12 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
+    gadgets_dir = root / "wiki" / "gadgets"
+    if gadgets_dir.exists():
+        for path in sorted(gadgets_dir.rglob("*.css")):
+            title = "MediaWiki:Gadget-" + path.name
+            pages.append(PageSource(title=title, path=path))
+
     fixture_pages_dir = root / "wiki-dev" / "fixtures" / "pages"
     if fixture_pages_dir.exists():
         for path in sorted(fixture_pages_dir.rglob("*.wiki")):
@@ -117,6 +129,8 @@ def discover_interface_pages(root: Path) -> list[PageSource]:
             content = theme_css + "\n" + path.read_text(encoding="utf-8")
         if path.name == "Common.js" and theme_js:
             content = theme_js + "\n" + path.read_text(encoding="utf-8")
+        if path.name == "Gadgets-definition":
+            content = path.read_text(encoding="utf-8").rstrip() + "\n" + GADGET_DEFINITION_LINE + "\n"
         pages.append(PageSource(title=title, path=path, content=content))
     return pages
 

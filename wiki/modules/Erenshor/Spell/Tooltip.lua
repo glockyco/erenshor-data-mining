@@ -46,10 +46,12 @@ end
 
 -- Build the tooltip DOM for a resolved spell record.
 function Tooltip.render(spell)
-	-- Standalone tooltips need the top border the embedded item case gets from the
-	-- item tooltip's divider above it (`.item-spell-details` sets border-top: none).
-	local root =
-		mw.html.create("div"):addClass("item-spell-details"):css("border-top", "2px solid #d0d0d0")
+	-- Standalone tooltips opt into a top border (the embedded item case inherits its
+	-- top edge from the item tooltip's divider). Styled by Gadget:erenshor.css.
+	local root = mw.html
+		.create("div")
+		:addClass("item-spell-details")
+		:addClass("item-spell-details-standalone")
 
 	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
 	local hasIcon = not Common.isBlank(spell.image)

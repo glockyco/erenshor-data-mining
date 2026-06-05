@@ -1,0 +1,702 @@
+/**
+ * Erenshor Item Tooltip Styles
+ * Auto-generated from Unity game assets
+ *
+ * Source files:
+ * - ItemInfoWindow.mat (background gradient)
+ * - LoadScene.unity (tier colors, layout)
+ *
+ * Modular tooltip styles for all item types:
+ * - Item-Weapon, Item-Armor, Item-Charm
+ * - Item-Consumable, Item-Book, Item-Aura, Item-Quest, Item-Crafting, Item-General
+ *
+ * Typography Scale:
+ * - Base: 16px (1em) - body text, stats, descriptions
+ * - Subtitle: 19px (1.2em) - section headers, type labels
+ * - Title: 22px (1.375em) - item name
+ */
+
+/* ============================================================================
+   EXTRACTED UNITY COLORS
+   ============================================================================
+
+   Background Gradient (from ItemInfoWindow.mat):
+   - Top:    #191643
+   - Middle: #353C40
+   - Bottom: #375356
+   - Glow:   #FFFF00
+
+   Tier Colors:
+   - Normal:  #FFFFFF
+   - Blessed: #00F9FF
+   - Godly:   #FC87FF
+
+   ============================================================================ */
+
+/* ============================================================================
+   BASE TOOLTIP CONTAINER
+   ============================================================================ */
+
+.item-tooltip,
+.item-tooltip *,
+.item-tooltip *::before,
+.item-tooltip *::after {
+  box-sizing: border-box;
+}
+
+.item-tooltip {
+  width: 350px;
+  max-width: 100%;
+  table-layout: fixed;
+  background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
+  color: #eeeeee;
+  font-family: 'PT Sans Narrow', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  margin: 0;
+  display: inline-table;
+  vertical-align: top;
+  border: 2px solid #d0d0d0;
+  border-radius: 2px;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.5),
+     1px -1px 0 rgba(0,0,0,0.5),
+    -1px  1px 0 rgba(0,0,0,0.5),
+     1px  1px 0 rgba(0,0,0,0.5);
+}
+
+/* Item type variants (for future customization) */
+.item-tooltip-weapon { }
+.item-tooltip-armor { }
+.item-tooltip-charm { }
+.item-tooltip-consumable { }
+.item-tooltip-book { }
+.item-tooltip-aura { }
+.item-tooltip-quest { }
+.item-tooltip-crafting { }
+.item-tooltip-general { }
+
+/* ============================================================================
+   HEADER SECTION (Icon + Name + Type)
+   Uses existing .item-border-top class for border image
+   ============================================================================ */
+
+.item-tooltip-header {
+  width: 100%;
+  background: linear-gradient(180deg, #191643 0%, #353C40 100%);
+  border: 2px solid #d0d0d0;
+}
+
+.item-tooltip-icon-cell {
+  width: 80px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.item-tooltip-name-cell {
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.item-tooltip-name {
+  font-size: 1.375em;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* Quality tier colors (from Unity LoadScene) */
+.item-tooltip-tier-0 { color: #FFFFFF; } /* Normal */
+.item-tooltip-tier-1 { color: #00F9FF; } /* Blessed (cyan) */
+.item-tooltip-tier-2 { color: #FC87FF; } /* Godly (magenta) */
+
+.item-tooltip-type {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 5px 0 0 0;
+  line-height: 1.1;
+}
+
+.item-tooltip-relic {
+  color: #ffd700;
+  font-weight: bold;
+  margin: 3px 0 0 0;
+}
+
+/* ============================================================================
+   BODY SECTION (Stats Table Layout)
+   ============================================================================ */
+
+.item-tooltip-body {
+  padding: 12px;
+  width: 100%;
+}
+
+/* Two-column layout for stats/vitals/resists */
+.item-tooltip-two-column {
+  display: flex;
+  gap: 16px;
+}
+
+.item-tooltip-left-column {
+  flex: 1;
+}
+
+.item-tooltip-right-column {
+  flex: 1;
+}
+
+/* Stats/Vitals/Resists column containers */
+.item-tooltip-stats-column,
+.item-tooltip-vitals-column,
+.item-tooltip-resists-column {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 6px;
+  font-weight: bold;
+}
+
+.item-tooltip-stats-row {
+  display: contents;
+}
+
+/* Section headers (Item Stats / Vitals / Resists) */
+.item-tooltip-section-header {
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+/* Resists section wrapper */
+.item-tooltip-resists-section {
+  margin-top: 12px;
+}
+
+/* Stat label styling */
+.item-tooltip-stat-label {
+  color: #a7abba;
+  text-align: right;
+}
+
+/* Stat value styling */
+.item-tooltip-stat-value {
+  color: #ffffff;
+  text-align: left;
+}
+
+/* ============================================================================
+   WEAPON-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-weapon-stat-row {
+  display: table-row;
+}
+
+.item-tooltip-dps {
+  text-align: center;
+  margin-top: 12px;
+  font-weight: bold;
+  color: #16EC00;
+}
+
+/* ============================================================================
+   CHARM-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-charm-container {
+  text-align: center;
+}
+
+.item-tooltip-charm-label {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #16EC00;
+  line-height: 1.1;
+}
+
+.item-tooltip-charm-modifiers {
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.item-tooltip-charm-explanation {
+  font-weight: 400;
+  color: #FFFF00;
+  line-height: 1.2;
+  margin-top: 12px;
+}
+
+/* ============================================================================
+   CONSUMABLE-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-consumable-container {
+  text-align: center;
+}
+
+.item-tooltip-consumable-type {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #16EC00;
+  line-height: 1.1;
+}
+
+.item-tooltip-consumable-usage {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.2;
+}
+
+/* ============================================================================
+   BOOK-SPECIFIC SECTIONS (Spell Books & Skill Books)
+   ============================================================================ */
+
+.item-tooltip-book-container {
+  text-align: center;
+}
+
+.item-tooltip-book-requirement {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.2;
+}
+
+.item-tooltip-book-class-requirements {
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.item-tooltip-book-class-req {
+  color: #ffffff;
+}
+
+.item-tooltip-book-detail {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.2;
+}
+
+.item-tooltip-book-description {
+  color: #bbbbbb;
+  margin-top: 12px;
+  line-height: 1.3;
+}
+
+.item-tooltip-book-warning {
+  color: yellow;
+  margin-top: 12px;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+/* ============================================================================
+   AURA-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-aura-container {
+  text-align: center;
+}
+
+.item-tooltip-aura-type {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #ff88ff;
+  line-height: 1.1;
+}
+
+.item-tooltip-aura-permanent {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.2;
+}
+
+.item-tooltip-aura-notes {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.item-tooltip-aura-spell-name {
+  font-weight: 600;
+  color: #16EC00;
+  margin-top: 12px;
+  line-height: 1.2;
+}
+
+.item-tooltip-aura-spell-desc {
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* ============================================================================
+   QUEST-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-quest-container {
+  text-align: center;
+}
+
+.item-tooltip-quest-type {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #ffd700;
+  line-height: 1.1;
+}
+
+.item-tooltip-quest-context {
+  margin-top: 12px;
+  line-height: 1.3;
+}
+
+.item-tooltip-quest-flags {
+  color: #ff6666;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+/* ============================================================================
+   CRAFTING/MOLD-SPECIFIC SECTIONS
+   ============================================================================ */
+
+.item-tooltip-crafting-container {
+  text-align: center;
+}
+
+.item-tooltip-crafting-type {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #16EC00;
+  line-height: 1.1;
+}
+
+.item-tooltip-crafting-section-header {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #ffd700;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.item-tooltip-crafting-header {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #ffd700;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.item-tooltip-crafting-item {
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.item-tooltip-crafting-ingredients {
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.item-tooltip-crafting-rewards {
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.item-tooltip-crafting-notes {
+  color: #a7abba;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* ============================================================================
+   DESCRIPTION SECTION
+   ============================================================================ */
+
+.item-tooltip-description {
+  text-align: center;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-top: 12px;
+}
+
+/* ============================================================================
+   CLASS RESTRICTIONS
+   ============================================================================ */
+
+.item-tooltip-classes {
+  text-align: center;
+  font-weight: 400;
+  margin-top: 12px;
+}
+
+.item-tooltip-class {
+  display: inline-block;
+  margin: 0 0.4em;
+}
+
+/* ============================================================================
+   PROC EFFECTS SECTION
+   ============================================================================ */
+
+.item-tooltip-proc-container {
+  background-color: #191643;
+  border: 2px solid #866806;
+  border-top: none;
+  text-align: center;
+  line-height: 1.1;
+  padding: 15px;
+  margin-top: -2px;
+}
+
+.item-tooltip-proc-header {
+  font-weight: bold;
+  line-height: 1.2;
+  padding-bottom: 8px;
+}
+
+.item-tooltip-proc-name {
+  color: #00F9FF;
+}
+
+.item-tooltip-proc-desc {
+  color: #bbbbbb;
+  padding: 8px 0;
+  line-height: 1.3;
+}
+
+/* Inline spell details */
+.item-tooltip-proc-details {
+  padding-top: 8px;
+  line-height: 1.5;
+}
+
+.item-tooltip-proc-detail-row {
+  padding: 2px 0;
+}
+
+.item-tooltip-proc-damage {
+  color: #ff8800;
+}
+
+.item-tooltip-proc-heal {
+  color: #00ff00;
+}
+
+.item-tooltip-proc-duration {
+  color: #00ff00;
+}
+
+.item-tooltip-proc-cooldown {
+  color: #aaaaaa;
+}
+
+.item-tooltip-proc-target {
+  color: #cccccc;
+}
+
+.item-tooltip-proc-range {
+  color: #cccccc;
+}
+
+.item-tooltip-proc-cost {
+  color: #88ccff;
+}
+
+/* Usage instructions for procs */
+.item-tooltip-proc-usage {
+  color: #a7abba;
+  padding-top: 8px;
+  line-height: 1.2;
+}
+
+/* Worn/Activatable effect name in main tooltip */
+.item-tooltip-worn-name,
+.item-tooltip-activatable-name {
+  color: #16EC00;
+  font-weight: 600;
+  margin-top: 8px;
+  line-height: 1.2;
+}
+
+/* ============================================================================
+   SPELL DETAILS SECTION (for consumables, auras, procs)
+   ============================================================================ */
+
+/* Remove bottom border-radius from tooltip when spell details follow */
+.item-tooltip:has(+ .item-spell-details) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.item-spell-details {
+  display: block;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
+  padding: 15px;
+  text-align: center;
+  width: 350px;
+  font-size: 16px;
+  border: 2px solid #d0d0d0;
+  border-top: none;
+  margin: 0;
+  font-family: 'PT Sans Narrow', Arial, sans-serif;
+  color: #eeeeee;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.5),
+     1px -1px 0 rgba(0,0,0,0.5),
+    -1px  1px 0 rgba(0,0,0,0.5),
+     1px  1px 0 rgba(0,0,0,0.5);
+}
+
+.item-spell-details-header-row {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.item-spell-details-icon {
+  flex: 0 0 48px;
+}
+
+.item-spell-details-name-cell {
+  flex: 1;
+  text-align: center;
+}
+
+.item-spell-details-spacer {
+  flex: 0 0 48px;
+}
+
+.item-spell-details-content {
+  text-align: center;
+}
+
+.item-spell-details-proc-header {
+  font-weight: bold;
+  color: #ffffff;
+  padding-bottom: 5px;
+}
+
+.item-spell-details-header {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.item-spell-detail-row {
+  padding: 3px 0;
+  line-height: 1.4;
+}
+
+.item-spell-level {
+  color: #a7abba;
+}
+
+.item-spell-duration {
+  color: #00ff00;
+}
+
+.item-spell-damage {
+  color: #ff8800;
+}
+
+.item-spell-healing {
+  color: #00ff00;
+}
+
+.item-spell-flag {
+  color: #FFFF00;
+  font-weight: bold;
+}
+
+.item-spell-stat-modifiers {
+  padding: 8px 0;
+}
+
+.item-spell-positive {
+  color: #00ff00;
+}
+
+.item-spell-negative {
+  color: #ff6666;
+}
+
+.item-spell-other-effects {
+  padding: 8px 0;
+}
+
+.item-spell-special {
+  /* No special styling - uses default text color like in-game */
+}
+
+
+/* ============================================================================
+   SPARKLE ICON OVERLAY
+   ============================================================================ */
+
+.sparkle-icon-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 80px;
+}
+
+.sparkle-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Hide empty sections */
+.item-tooltip-hidden {
+  display: none;
+}
+
+/* Highlight important information */
+.item-tooltip-highlight {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+/* Warning/error text */
+.item-tooltip-warning {
+  color: #ff6666;
+}
+
+/* Success/positive text */
+.item-tooltip-success {
+  color: #00ff00;
+}
+
+/* Muted/secondary text */
+.item-tooltip-muted {
+  color: #a7abba;
+  margin-top: 8px;
+}
+
+/* ============================================================================
+   END OF ITEM TOOLTIP STYLES
+   ============================================================================ */
+
+/* ============================================================================
+   STANDALONE TOOLTIP FRAME (spell/skill pages)
+   ============================================================================
+
+   The embedded item proc/worn detail inherits its top edge from the item
+   tooltip's divider (.item-spell-details sets border-top: none). Standalone
+   spell and skill tooltips have nothing above them, so they opt into a top
+   border via this modifier class. The selector is compound (both classes) so it
+   wins over the base `.item-spell-details { border-top: none }` regardless of
+   stylesheet load order — including the cutover window where Common.css still
+   carries the old block. */
+
+.item-spell-details.item-spell-details-standalone {
+	border-top: 2px solid #d0d0d0;
+}

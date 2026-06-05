@@ -106,7 +106,7 @@ function p.run()
 	)
 	assertContains(
 		backstabTip,
-		"border-top:2px solid #d0d0d0",
+		"item-spell-details-standalone",
 		"standalone skill tooltip has a top border"
 	)
 
