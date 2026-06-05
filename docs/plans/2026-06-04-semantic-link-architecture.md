@@ -54,16 +54,16 @@ The fix is to keep semantic links, but render them directly in Lua instead of re
 
 ### Steps
 
-- [ ] Add `Module:Erenshor/Link/testcases.lua` with failing tests for:
+- [x] Add `Module:Erenshor/Link/testcases.lua` with failing tests for:
   - `Link.render({ kind = "item", page = "Abyssal Plate" })` includes `class="erenshor-link erenshor-link--item"`, `data-erenshor-kind="item"`, item icon markup, and `[[Abyssal Plate]]`.
   - `Link.render({ kind = "ability", stableKey = "spell:minor_lightning" })` matches current `AbilityLink` behavior: icon plus styled link.
   - `Link.render({ kind = "quest", page = "Reward Quest" })` matches live `QuestLink`: quest icon plus quest page link.
   - `character`, `zone`, `faction`, and `class` render semantic spans with normal page links and kind-specific CSS/data attributes.
   - `imageonly = "1"` suppresses text for item and ability links.
 
-- [ ] Run local smoke after importing the testcase fixture and confirm the new testcase fails because `Module:Erenshor/Link` does not exist.
+- [x] Run local smoke after importing the testcase fixture and confirm the new testcase fails because `Module:Erenshor/Link` does not exist.
 
-- [ ] Implement `Module:Erenshor/Link.lua`:
+- [x] Implement `Module:Erenshor/Link.lua`:
   - Parse template args via `Module:Erenshor/Args`.
   - Render one semantic wrapper `<span>` per link with `erenshor-link erenshor-link--KIND` and `data-erenshor-kind`.
   - Include `data-erenshor-key` when `stableKey` is present.
@@ -72,15 +72,15 @@ The fix is to keep semantic links, but render them directly in Lua instead of re
   - Resolve item stable keys if present through `Module:Erenshor/Data/Items` shards; fall back to explicit page/text/image.
   - Avoid requiring `Module:Erenshor/Item` from `Link.lua` so `Item.lua` can require `Link.lua` later without a circular dependency.
 
-- [ ] Update `ItemLink.wiki` and `AbilityLink.wiki` to delegate to `Module:Erenshor/Link|item` and `Module:Erenshor/Link|ability`.
+- [x] Update `ItemLink.wiki` and `AbilityLink.wiki` to delegate to `Module:Erenshor/Link|item` and `Module:Erenshor/Link|ability`.
 
-- [ ] Add `QuestLink`, `CharacterLink`, `ZoneLink`, `FactionLink`, and `ClassLink` wrapper templates that delegate to `Module:Erenshor/Link`.
+- [x] Add `QuestLink`, `CharacterLink`, `ZoneLink`, `FactionLink`, and `ClassLink` wrapper templates that delegate to `Module:Erenshor/Link`.
 
-- [ ] Add a smoke entry for `Module:Erenshor/Link/testcases`.
+- [x] Add a smoke entry for `Module:Erenshor/Link/testcases`.
 
-- [ ] Run `uv run python wiki-dev/import_pages.py` and `uv run python wiki-dev/smoke_test.py`; expect all link testcase assertions to pass.
+- [x] Run `uv run python wiki-dev/import_pages.py` and `uv run python wiki-dev/smoke_test.py`; expect all link testcase assertions to pass.
 
-- [ ] Run targeted style checks for Lua via the commit helper, or manually match existing stylua output if the standalone command is unavailable.
+- [x] Run targeted style checks for Lua via the commit helper, or manually match existing stylua output if the standalone command is unavailable.
 
 ---
 
@@ -96,26 +96,26 @@ The fix is to keep semantic links, but render them directly in Lua instead of re
 
 ### Steps
 
-- [ ] Add failing Python tests that expect typed refs instead of strings:
+- [x] Add failing Python tests that expect typed refs instead of strings:
   - Item provenance `questSource` is a list/table of quest refs, not `"{{QuestLink|...}}"`.
   - Item `componentFor`, `guaranteedDrops`, `dropRates`, and recipe links use item refs.
   - Spell `source` and `itemsWithEffect` use item refs; `usedBy` uses character refs.
   - Skill `source` and `itemsWithEffect` use item refs.
   - Character `spells` uses ability refs and `dropRates` uses item refs.
 
-- [ ] Run the targeted unit tests and confirm they fail on the old string format.
+- [x] Run the targeted unit tests and confirm they fail on the old string format.
 
-- [ ] Implement `src/erenshor/application/wiki_lua/links.py` with helpers:
+- [x] Implement `src/erenshor/application/wiki_lua/links.py` with helpers:
   - `link_ref(kind, link, stable_key=None, image=None) -> dict[str, object]`
   - `item_ref(link)`, `quest_ref(link)`, `character_ref(link)`, `zone_ref(link)`, `faction_ref(link)`, `class_ref(name)`.
   - Keep returned tables primitive/static: strings, numbers, booleans, lists, dictionaries.
 
-- [ ] Update generators to store relationship fields as lists of refs or small row tables:
+- [x] Update generators to store relationship fields as lists of refs or small row tables:
   - Simple list fields: `source`, `itemsWithEffect`, `usedBy`, `spells`, `vendorSource`, `questSource`, `relatedQuest`, `componentFor`, `guaranteedDrops`.
   - Probability fields: rows like `{ link = item_ref(...), probability = 28.3 }`.
   - Quantity fields: rows like `{ link = item_ref(...), quantity = 2 }`.
 
-- [ ] Update Python tests to pass with the typed model.
+- [x] Update Python tests to pass with the typed model.
 
 ---
 
@@ -131,23 +131,23 @@ The fix is to keep semantic links, but render them directly in Lua instead of re
 
 ### Steps
 
-- [ ] Add failing Lua testcase assertions that field accessors render semantic link markup, not raw template strings:
+- [x] Add failing Lua testcase assertions that field accessors render semantic link markup, not raw template strings:
   - Ember Longsword `proceffect` includes `erenshor-link--ability` and `Ember Burst`.
   - Minor Lightning `itemswitheffect` includes two `erenshor-link--item` links.
   - Minor Lightning `used_by` includes `erenshor-link--character`.
   - Quest relationship fields render `erenshor-link--quest`.
 
-- [ ] Run `uv run python wiki-dev/import_pages.py` and `uv run python wiki-dev/smoke_test.py`; confirm the new assertions fail.
+- [x] Run `uv run python wiki-dev/import_pages.py` and `uv run python wiki-dev/smoke_test.py`; confirm the new assertions fail.
 
-- [ ] Require `Module:Erenshor/Link` from the entity modules and render typed refs via a small local join helper:
+- [x] Require `Module:Erenshor/Link` from the entity modules and render typed refs via a small local join helper:
   - `Link.render(ref)` for each typed ref.
   - `Link.join(refs, "<br>")` for lists.
   - `quantity .. "x " .. Link.render(row.link)` for recipes.
   - `Link.render(row.link) .. " (" .. probability .. "%)"` for drop-rate rows.
 
-- [ ] Update fixture data to typed refs, matching the new generated structure.
+- [x] Update fixture data to typed refs, matching the new generated structure.
 
-- [ ] Update Lua testcases to assert rendered semantic link markup and absence of raw template strings.
+- [x] Update Lua testcases to assert rendered semantic link markup and absence of raw template strings.
 
 ---
 
@@ -161,26 +161,45 @@ The fix is to keep semantic links, but render them directly in Lua instead of re
 
 ### Steps
 
-- [ ] Add failing harness test: rendered HTML containing raw `{{ItemLink|`, `{{AbilityLink|`, `{{QuestLink|`, `{{CharacterLink|`, `{{ZoneLink|`, `{{FactionLink|`, or `{{ClassLink|` is rejected.
+- [x] Add failing harness test: rendered HTML containing raw `{{ItemLink|`, `{{AbilityLink|`, `{{QuestLink|`, `{{CharacterLink|`, `{{ZoneLink|`, `{{FactionLink|`, or `{{ClassLink|` is rejected.
 
-- [ ] Add smoke expectations for representative pages:
+- [x] Add smoke expectations for representative pages:
   - `Ember Longsword` contains `erenshor-link--ability` and `Ember_Burst`.
   - `Minor Lightning` contains `erenshor-link--item`, `Abyssal_Plate`, `Healing_Draught`, `erenshor-link--character`, and `A_Grassland_Ogre_Mystic`.
   - A quest relationship page contains `erenshor-link--quest` once a fixture exists.
 
-- [ ] Run the harness test and smoke command to confirm red.
+- [x] Run the harness test and smoke command to confirm red.
 
-- [ ] Implement the forbidden raw-template marker checks in `wiki-dev/smoke/render.py`.
+- [x] Implement the forbidden raw-template marker checks in `wiki-dev/smoke/render.py`.
 
-- [ ] Import pages and validate local rendering:
+- [x] Import pages and validate local rendering:
   - `uv run python wiki-dev/import_pages.py`
   - `uv run python wiki-dev/null_edit.py`
   - `uv run python wiki-dev/smoke_test.py`
   - `uv run python wiki-dev/cargo_check.py`
 
-- [ ] Update `docs/wiki-local-validation/full-lua-cutover.md` with the semantic link validation evidence if this materially changes the cutover gate.
+- [x] Update `docs/wiki-local-validation/full-lua-cutover.md` with the semantic link validation evidence if this materially changes the cutover gate.
 
 ---
+
+## Local validation evidence
+
+Observed on 2026-06-04 after `feat(wiki): emit typed semantic references`:
+
+```bash
+uv run python wiki-dev/import_pages.py
+uv run python wiki-dev/null_edit.py
+uv run python wiki-dev/smoke_test.py
+uv run python wiki-dev/cargo_check.py
+uv run pytest tests/unit/application/wiki_lua tests/unit/test_wiki_dev_harness.py -q
+uv run ruff check src/erenshor/application/wiki_lua tests/unit/application/wiki_lua wiki-dev tests/unit/test_wiki_dev_harness.py
+uv run mypy src
+```
+
+Results: import and null-edit completed; smoke reported every fixture and Cargo
+check as `PASS`; Cargo reported `PASS Cargo local validation`; targeted pytest
+reported `81 passed`; Ruff reported `All checks passed!`; mypy reported
+`Success: no issues found in 191 source files`.
 
 ## Verification commands
 
