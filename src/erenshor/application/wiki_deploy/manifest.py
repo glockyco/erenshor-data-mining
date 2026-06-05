@@ -9,16 +9,17 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, cast
 
-ContentModel = Literal["Scribunto", "wikitext"]
-UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template"]
+ContentModel = Literal["Scribunto", "wikitext", "sanitized-css"]
+UploadStage = Literal["gadget", "generated_data", "lua_module", "cargo_declaration", "template"]
 DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
 _STAGE_ORDER: dict[UploadStage, int] = {
-    "generated_data": 0,
-    "lua_module": 1,
-    "cargo_declaration": 2,
-    "template": 3,
+    "gadget": 0,
+    "generated_data": 1,
+    "lua_module": 2,
+    "cargo_declaration": 3,
+    "template": 4,
 }
 
 
@@ -55,6 +56,7 @@ def build_repo_page_manifest(repo_root: Path, variant: str) -> RepoWikiPageManif
     root = repo_root.resolve()
     entries: list[RepoWikiPageManifestEntry] = []
 
+    entries.extend(_gadget_entries(root, root / "wiki" / "gadgets"))
     entries.extend(_module_entries(root, root / "variants" / variant / "wiki" / "lua", "generated_data"))
     entries.extend(_module_entries(root, root / "wiki" / "modules", "lua_module"))
     entries.extend(_template_entries(root, root / "wiki" / "templates"))
@@ -105,7 +107,7 @@ def _upload_stage(value: str) -> UploadStage:
 
 
 def _content_model(value: str) -> ContentModel:
-    if value not in ("Scribunto", "wikitext"):
+    if value not in ("Scribunto", "wikitext", "sanitized-css"):
         raise ValueError(f"Unknown wiki deploy content model: {value}")
     return value  # type: ignore[return-value]
 
@@ -133,6 +135,30 @@ def _optional_str(value: object) -> str | None:
     if value is None:
         return None
     return str(value)
+
+
+def _gadget_entries(root: Path, source_root: Path) -> list[RepoWikiPageManifestEntry]:
+    if not source_root.exists():
+        return []
+
+    entries: list[RepoWikiPageManifestEntry] = []
+    for path in sorted(source_root.rglob("*.css")):
+        if not path.is_file():
+            continue
+        title = "MediaWiki:Gadget-" + path.name
+        entries.append(
+            _entry(
+                root=root,
+                path=path,
+                title=title,
+                content_model="sanitized-css",
+                ownership_class="gadget",
+                upload_stage="gadget",
+                declares_cargo_table=False,
+                cargo_tables=(),
+            )
+        )
+    return entries
 
 
 def _module_entries(
