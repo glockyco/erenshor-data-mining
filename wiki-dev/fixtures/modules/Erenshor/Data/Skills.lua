@@ -4,7 +4,7 @@ return {
 			["name"] = "Sword Mastery",
 			["page"] = "Sword Mastery",
 			["image"] = "Sword Mastery",
-			["type"] = "Passive",
+			["type"] = "Innate",
 			["description"] = "Increases damage dealt with one-handed swords.",
 			["simPlayersAutolearn"] = false,
 			["classLevels"] = {

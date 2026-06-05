@@ -93,6 +93,43 @@ function p.run()
 		"missing skill is tracked"
 	)
 
+	local backstabTip = Skill.renderTooltip({ stablekey = "skill:backstab" }, "Backstab")
+	assertContains(
+		backstabTip,
+		"Backstab - Activatable",
+		"attack skill tooltip title shows activatable"
+	)
+	assertContains(
+		backstabTip,
+		"Deal major damage to your target",
+		"attack skill tooltip shows description"
+	)
+
+	local passiveTip = Skill.renderTooltip({ stablekey = "skill:sword_mastery" }, "Sword Mastery")
+	assertContains(
+		passiveTip,
+		"Sword Mastery - Passive",
+		"innate skill tooltip title shows passive"
+	)
+
+	local stanceTip =
+		Skill.renderTooltip({ stablekey = "skill:stance - aggressive" }, "Stance: Aggressive")
+	assertContains(stanceTip, "Stance: Aggressive - Activatable", "stance skill tooltip title")
+	assertContains(stanceTip, "Change Stance", "stance skill tooltip shows change stance")
+	assertContains(stanceTip, "Aggressive", "stance skill tooltip shows stance name")
+	assertContains(
+		stanceTip,
+		"Gain a 40% increase to physical damage",
+		"stance skill tooltip shows stance description"
+	)
+
+	local missingTip = Skill.renderTooltip({}, "Unknown Skill")
+	assertContains(
+		missingTip,
+		"Missing skill data: Unknown Skill",
+		"missing skill tooltip is visible"
+	)
+
 	return "PASS Erenshor Skill testcases"
 end
 

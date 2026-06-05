@@ -235,7 +235,7 @@ function p.run()
 		"Windblade: 3",
 		"skill book shows per-class levels with display names"
 	)
-	assertContains(skillBook, "Skill Type: Passive", "skill book shows the skill type")
+	assertContains(skillBook, "Skill Type: Innate", "skill book shows the skill type")
 	assertContains(
 		skillBook,
 		"SimPlayers DO NOT automatically learn",
