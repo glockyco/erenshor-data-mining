@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), 8e (first-class Spell/Skill/Stance modeling), 8f (faithfulness fixes), and 9 (Cargo-backed armor overview) are complete. Milestone 9b (extra generated table surfaces: Charms, Auras, Crafting recipes, Ability Books, class ability tables) is deferred until after cutover; only Weapons is done. Milestone 10 (clean deploy/rollback/refresh pipeline plus the report-only article override-cleanup pass) is implemented; the override-*apply* path is intentionally still blocked. Milestone 10b (game-faithful spell/skill tooltips), 10c (field-parity data-generation gaps plus guarded override-apply safety), and 10d (repo-owned presentation CSS as a `hidden|default` gadget) are complete. Next: Milestones 11-14 (local full-system verification, live TemplateSandbox, production cutover, delete legacy generation).
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), 8e (first-class Spell/Skill/Stance modeling), 8f (faithfulness fixes), and 9 (Cargo-backed armor overview) are complete. Milestone 9b (extra generated table surfaces: Charms, Auras, Crafting recipes, Ability Books, class ability tables) is deferred until after cutover; only Weapons is done. Milestone 10 (clean deploy/rollback/refresh pipeline plus the report-only article override-cleanup pass) is implemented; the override-*apply* path is intentionally still blocked. Milestone 10b (game-faithful spell/skill tooltips), 10c (field-parity data-generation gaps plus guarded override-apply safety), 10d (repo-owned presentation CSS as a `hidden|default` gadget), and 11 (local full-system verification) are complete. Next: Milestones 12-14 (live TemplateSandbox validation, production cutover, delete legacy generation).
 
 ---
 
@@ -1272,27 +1272,27 @@ wiki-dev/cargo_check.py
 docs/wiki-local-validation/full-lua-cutover.md
 ```
 
-- [ ] **Step 1: Import all repo-owned pages locally**
+- [x] **Step 1: Import all repo-owned pages locally**
 
   Import every module, data module, template, Cargo declaration, Cargo store page, and fixture article into local MediaWiki.
 
-- [ ] **Step 2: Run Lua testcases**
+- [x] **Step 2: Run Lua testcases**
 
   Run every `Module:Erenshor/*/testcases` module and fail on any failed assertion.
 
-- [ ] **Step 3: Parse representative article fixtures**
+- [x] **Step 3: Parse representative article fixtures**
 
   Cover item subtypes, character types, quests, abilities, stances, zones, links, and overview pages.
 
-- [ ] **Step 4: Verify Cargo rows and queries**
+- [x] **Step 4: Verify Cargo rows and queries**
 
   Recreate local Cargo tables, null-edit fixture articles, query every table, and spot-check resolved values and override behavior.
 
-- [ ] **Step 5: Verify parser health**
+- [x] **Step 5: Verify parser health**
 
   Fail on `Lua error`, `Script error`, unresolved templates, missing data categories in pages that should resolve, parser limit errors, and unexpected tracking categories.
 
-- [ ] **Step 6: Record local validation evidence**
+- [x] **Step 6: Record local validation evidence**
 
   Save page titles, commands, expected rows, observed rows, and known local-vs-live differences in `docs/wiki-local-validation/full-lua-cutover.md`.
 
