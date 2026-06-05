@@ -36,12 +36,21 @@ FORBIDDEN_HTML_PATTERNS = (
     ),
 )
 
+FORBIDDEN_CATEGORY_PREFIXES = (
+    ("Category:Pages_with_missing_Erenshor_", "forbidden parser output: unexpected missing-data category"),
+)
+
 
 def check_rendered_html(title: str, html: str, expected: list[str]) -> SmokeResult:
     """Check that expected strings are present and parser errors are absent."""
     missing = [needle for needle in expected if needle not in html]
     missing.extend(message for marker, message in FORBIDDEN_HTML_MARKERS if marker in html)
     missing.extend(message for pattern, message in FORBIDDEN_HTML_PATTERNS if pattern.search(html))
+    missing.extend(
+        message
+        for marker, message in FORBIDDEN_CATEGORY_PREFIXES
+        if marker in html and not any(marker in needle for needle in expected)
+    )
     return SmokeResult(title=title, ok=not missing, missing=missing)
 
 

@@ -183,6 +183,92 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
     assert result.missing == []
 
 
+def test_smoke_check_rejects_unexpected_missing_data_categories() -> None:
+    render = load_script("wiki-dev/smoke/render.py")
+
+    result = render.check_rendered_html(
+        title="Ember Longsword",
+        html="<p>Rendered item</p>\nCategory:Pages_with_missing_Erenshor_item_data",
+        expected=["Rendered item"],
+    )
+
+    assert result.ok is False
+    assert result.missing == ["forbidden parser output: unexpected missing-data category"]
+
+
+def test_smoke_fixture_runs_every_lua_testcase_module() -> None:
+    expectations = Path("wiki-dev/fixtures/smoke.tsv").read_text(encoding="utf-8")
+    testcase_modules = sorted(Path("wiki/modules/Erenshor").glob("**/testcases.lua"))
+
+    expected_markers = {
+        "PASS Erenshor " + "/".join(path.relative_to("wiki/modules/Erenshor").parts[:-1]) + " testcases"
+        for path in testcase_modules
+    }
+
+    for marker in expected_markers:
+        assert marker in expectations
+
+
+def test_every_fixture_article_has_smoke_expectation() -> None:
+    expectations = {
+        line.split("\t", 1)[0]
+        for line in Path("wiki-dev/fixtures/smoke.tsv").read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    }
+    fixture_titles = {
+        path.with_suffix("").relative_to("wiki-dev/fixtures/pages").as_posix().replace("_", " ")
+        for path in Path("wiki-dev/fixtures/pages").glob("*.wiki")
+    }
+
+    assert sorted(fixture_titles - expectations) == []
+
+
+def test_null_edit_discovers_pages_from_render_and_cargo_fixtures() -> None:
+    null_edit = load_script("wiki-dev/null_edit.py")
+
+    titles = null_edit.load_titles(
+        smoke_path=Path("wiki-dev/fixtures/smoke.tsv"),
+        cargo_item_path=Path("wiki-dev/fixtures/cargo_items.tsv"),
+        cargo_character_path=Path("wiki-dev/fixtures/cargo_characters.tsv"),
+    )
+
+    assert titles[:3] == ["A Grizzly Bear", "A Magical Sword in Port Azure", "Abyssal Plate"]
+    assert "Manual Item Override" in titles
+    assert "Captain Rowan" in titles
+    assert len(titles) == len(set(titles))
+
+
+def test_null_edit_purges_after_all_pages_refresh(monkeypatch) -> None:
+    null_edit = load_script("wiki-dev/null_edit.py")
+    calls: list[tuple[str, str]] = []
+
+    monkeypatch.setattr(
+        null_edit,
+        "null_edit_page",
+        lambda client, endpoint, token, title: calls.append(("edit", title)),
+    )
+    monkeypatch.setattr(
+        null_edit,
+        "purge_page",
+        lambda client, endpoint, token, title: calls.append(("purge", title)),
+    )
+
+    null_edit.refresh_pages(object(), "api.php", "csrf", ["Cargo WeaponTable Smoke", "Ember Longsword"])
+
+    assert calls == [
+        ("edit", "Cargo WeaponTable Smoke"),
+        ("edit", "Ember Longsword"),
+        ("purge", "Cargo WeaponTable Smoke"),
+        ("purge", "Ember Longsword"),
+    ]
+
+
+def test_cargo_check_declares_local_tables_to_recreate() -> None:
+    cargo_check = load_script("wiki-dev/cargo_check.py")
+
+    assert cargo_check.CARGO_TABLES == ("Items", "Characters")
+
+
 def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
 
