@@ -48,6 +48,10 @@ class ArticleIdentityConflictError(RuntimeError):
     """Raised when article text disagrees with the authoritative page identity."""
 
 
+class UnsafeOverrideApplyError(RuntimeError):
+    """Raised when override apply would freeze known-unemitted generated data."""
+
+
 @dataclass(frozen=True, slots=True)
 class ArticleMigration:
     """The minimized article plus the evidence behind every decision."""
@@ -67,6 +71,7 @@ def migrate_article_overrides(
     resolver: GeneratedValueResolver,
     identity_params: Sequence[str] = DEFAULT_IDENTITY_PARAMS,
     authoritative_identity: Mapping[str, str] | None = None,
+    apply_guard_fields: Sequence[str] = (),
     parser: TemplateParser | None = None,
 ) -> ArticleMigration:
     """Remove infobox parameters that duplicate generated data, keeping real overrides."""
@@ -97,6 +102,12 @@ def migrate_article_overrides(
         article_params=candidate,
         generated_values=generated_values,
     )
+    _raise_for_unsafe_apply_fields(
+        title=title,
+        article_params=candidate,
+        generated_values=generated_values,
+        guarded_fields=apply_guard_fields,
+    )
 
     removed_fields = tuple(
         decision.field for decision in classification.decisions if decision.decision == "removed_generated_duplicate"
@@ -115,6 +126,28 @@ def migrate_article_overrides(
         removed_fields=removed_fields,
         preserved_fields=preserved_fields,
     )
+
+
+def _raise_for_unsafe_apply_fields(
+    *,
+    title: str,
+    article_params: Mapping[str, str],
+    generated_values: Mapping[str, str],
+    guarded_fields: Sequence[str],
+) -> None:
+    guarded = set(guarded_fields)
+    if not guarded:
+        return
+    unsafe_fields = tuple(
+        field
+        for field, article_value in article_params.items()
+        if field in guarded and article_value.strip() not in ("", "-") and not generated_values.get(field, "").strip()
+    )
+    if unsafe_fields:
+        fields = ", ".join(unsafe_fields)
+        raise UnsafeOverrideApplyError(
+            f"{title}: override apply is unsafe because generated values are empty for guarded fields: {fields}"
+        )
 
 
 # A Scribunto error means the module cannot read that field; it is not a value.

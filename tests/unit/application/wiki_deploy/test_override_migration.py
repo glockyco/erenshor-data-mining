@@ -97,6 +97,22 @@ def test_field_without_generated_value_is_kept_as_override() -> None:
     assert result.removed_fields == ()
 
 
+def test_apply_safety_gate_rejects_guarded_empty_generated_value() -> None:
+    """Apply mode refuses to freeze known-unemitted generated fields as overrides."""
+    wikitext = "{{Quest|stablekey=quest:lost_blade|name=Lost Blade|location=[[Port Azure]]}}"
+    resolver = FakeResolver({"name": "Lost Blade", "location": ""})
+
+    with pytest.raises(RuntimeError, match="location"):
+        migrate_article_overrides(
+            title="Lost Blade",
+            wikitext=wikitext,
+            template_names=["Quest"],
+            identity_params=("stablekey",),
+            resolver=resolver,
+            apply_guard_fields=("location",),
+        )
+
+
 class FakeExpansionClient:
     def __init__(self, outputs: dict[str, str]) -> None:
         self.outputs = outputs
