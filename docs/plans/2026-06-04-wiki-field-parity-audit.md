@@ -128,11 +128,20 @@ so the wiki item tooltip must too (it does, via `Item/Tooltip.lua`'s
 emitted crafting `rewards`. The rest are honored where data/tooltip provide them;
 nothing is pruned deferentially.
 
-## Category E — Missing in-game tooltips for spells and skills (NEW)
+**Item tooltip vs game (verified `ItemInfoWindow.cs:661-805`):** the item proc/
+click/worn detail matches the game row-for-row, with three deliberate additions
+the game's `LoadSpellDetails` omits — `Healing` (targetHealing), `Shield Amount`
+(shieldAmount), and `XP Bonus` (xpBonus). These are kept as intentional
+enhancements (a healing-proc item should show its healing); decision confirmed
+with the maintainer. The shared-primitives refactor introduced zero drift
+(byte-identical output verified on the harness).
 
-The item tooltip (`Item/Tooltip.lua`) faithfully reproduces `ItemInfoWindow.cs`.
-There is **no** `SpellTooltip`/`SkillTooltip` — spell and skill pages have no
-game-style tooltip. The game renders them in:
+## Category E — Spell and skill tooltips (DONE)
+
+Implemented in Milestone 10b: `Module:Erenshor/Spell/Tooltip`,
+`Module:Erenshor/Skill/Tooltip`, `{{SpellTooltip}}`/`{{SkillTooltip}}`, and the
+shared `Module:Erenshor/Ability/Common`. The item tooltip (`Item/Tooltip.lua`)
+faithfully reproduces `ItemInfoWindow.cs`. The game renders the new tooltips in:
 - **Spell:** `SpellbookSlot.cs:150-275` — duration line → Spell Type → Mana Cost
   → Damage(`/tick`) → Cast Time → Cooldown → Resist Type (colored) → flags
   (Lifetap/Group/Stun/Charm/Root/Taunt) → applied status effect → nonzero stat
@@ -142,11 +151,10 @@ game-style tooltip. The game renders them in:
   `Change Stance` + stance name/desc variant. No numeric block — authoritative
   reason skills have no stat block.
 
-Add `{{SpellTooltip|stablekey=…}}` and `{{SkillTooltip|stablekey=…}}` surfaces
-mirroring `{{ItemTooltip}}`, reusing the `item-tooltip-*`/`item-spell-*` CSS for
-visual parity, with AbilityLink/stance-link conveniences. Shared rendering
-primitives extract to `Module:Erenshor/Ability/Common` (Item/Tooltip refactored
-to use it).
+Both surfaces reuse the `item-tooltip-*`/`item-spell-*` CSS for visual parity,
+with link conveniences (applied status effect, stance), and share rendering
+primitives via `Module:Erenshor/Ability/Common` (Item/Tooltip refactored onto it,
+verified byte-identical).
 
 ---
 

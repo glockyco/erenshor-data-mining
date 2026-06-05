@@ -1067,7 +1067,7 @@ than applying article edits automatically.
 
   Use the local harness to upload pages, capture revision IDs, report changed Cargo declarations (recreation is done manually via Special:CargoTables), refresh dependency pages, roll back to previous revisions, and compare article parameters against deployed Lua field accessors. Tests cover edit conflicts, assertion failures, lost create races, rollback restore, generated-vs-manual override cleanup, and dependency refresh; maxlag/Retry-After backoff is covered by client unit tests.
 
-### Milestone 10b: Game-faithful spell and skill tooltips
+### Milestone 10b: Game-faithful spell and skill tooltips — DONE
 
 **Planned commit(s):** `feat(wiki): add game-faithful spell/skill tooltips`
 
@@ -1090,34 +1090,34 @@ wiki/templates/SkillTooltip.wiki                  (new)
 wiki/modules/Erenshor/{Spell,Skill,Item}/testcases.lua
 ```
 
-- [ ] **Step 1: Extract shared ability rendering primitives**
+- [x] **Step 1: Extract shared ability rendering primitives**
 
   Move the shared spell-detail primitives (stat-modifier table, signed `+green`/
   `-red` formatter, duration logic, damage-type colors, spell name/link helpers)
   into `Module:Erenshor/Ability/Common` and refactor `Item/Tooltip.lua` to use
   them with no change to item tooltip output (item testcases stay green).
 
-- [ ] **Step 2: Spell tooltip module**
+- [x] **Step 2: Spell tooltip module**
 
   `Module:Erenshor/Spell/Tooltip` reproduces `SpellbookSlot.cs:150-275` exactly
   (duration → Spell Type → Mana Cost → Damage(`/tick`) → Cast Time → Cooldown →
   Resist Type colored → flags → applied status effect as AbilityLink → nonzero
   stat mods → SpecialDescriptor), reusing the `item-tooltip-*`/`item-spell-*` CSS.
 
-- [ ] **Step 3: Skill tooltip module**
+- [x] **Step 3: Skill tooltip module**
 
   `Module:Erenshor/Skill/Tooltip` reproduces `SkillbookSlot.cs:146-156`: title
   `Name - Activatable|Passive` (Activatable when `TypeOfSkill != Innate`), body
   `SkillDesc`, or the `Change Stance` + stance name/desc variant (stance joined
   by stable key).
 
-- [ ] **Step 4: Wire surfaces**
+- [x] **Step 4: Wire surfaces**
 
   `{{SpellTooltip|stablekey=…}}` → `{{#invoke:Erenshor/Spell|tooltip}}` and
   `{{SkillTooltip|stablekey=…}}` → `{{#invoke:Erenshor/Skill|tooltip}}`, mirroring
   `{{ItemTooltip}}`.
 
-- [ ] **Step 5: Verify on local harness**
+- [x] **Step 5: Verify on local harness**
 
   Add `Spell/Skill` tooltip testcases (red→green) and run every affected
   `Module:Erenshor/*/testcases` on the local MediaWiki harness, including the
