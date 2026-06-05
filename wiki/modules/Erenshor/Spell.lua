@@ -1,6 +1,7 @@
 local AbilityLink = require("Module:Erenshor/AbilityLink")
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
+local Tooltip = require("Module:Erenshor/Spell/Tooltip")
 
 local Data = mw.loadData("Module:Erenshor/Data/Spells")
 
@@ -615,6 +616,18 @@ end
 
 function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
+end
+
+function p.renderTooltip(args, pageTitle)
+	local spell = p.resolve(args, pageTitle)
+	if spell.missing then
+		return missingOutput(spell)
+	end
+	return Tooltip.render(spell)
+end
+
+function p.tooltip(frame)
+	return p.renderTooltip(templateArgs(frame), currentTitleText())
 end
 
 return p

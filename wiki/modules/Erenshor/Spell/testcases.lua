@@ -112,6 +112,49 @@ function p.run()
 		"missing spell is tracked"
 	)
 
+	local buffTip =
+		Spell.renderTooltip({ stablekey = "spell:ancient_presence" }, "Ancient Presence")
+	assertContains(buffTip, "Effect Duration: 12 sec", "buff tooltip shows effect duration")
+	assertContains(buffTip, "Spell Type: Beneficial", "buff tooltip shows spell type")
+	assertContains(buffTip, "Mana Cost: 0", "buff tooltip shows mana cost")
+	assertContains(buffTip, "Cast Time: 0.0 sec", "buff tooltip shows cast time")
+	assertContains(buffTip, "Cooldown: 0 sec", "buff tooltip shows cooldown")
+	assertContains(buffTip, "Group Effect", "buff tooltip shows group effect flag")
+	assertContains(
+		buffTip,
+		'Hitpoints <span class="item-spell-positive">+500</span>',
+		"buff tooltip shows hp modifier"
+	)
+	assertContains(
+		buffTip,
+		'Damage Shield <span class="item-spell-positive">+40</span>',
+		"buff tooltip shows damage shield modifier"
+	)
+	assertContains(
+		buffTip,
+		'Strength <span class="item-spell-positive">+20</span>',
+		"buff tooltip shows strength modifier"
+	)
+
+	local dmgTip = Spell.renderTooltip({ stablekey = "spell:minor_lightning" }, "Minor Lightning")
+	assertContains(dmgTip, "Instant Effect", "damage tooltip shows instant effect")
+	assertContains(dmgTip, "Mana Cost: 30", "damage tooltip shows mana cost")
+	assertContains(dmgTip, "Damage: 85", "damage tooltip shows damage")
+	assertContains(dmgTip, "Cast Time: 2.3 sec", "damage tooltip shows cast time")
+	assertContains(dmgTip, "Cooldown: 8 sec", "damage tooltip shows cooldown")
+	assertContains(
+		dmgTip,
+		'Resist Type: <span style="color:#8080FF">Magic</span>',
+		"damage tooltip shows colored resist type"
+	)
+
+	local missingTip = Spell.renderTooltip({}, "Unknown Spell")
+	assertContains(
+		missingTip,
+		"Missing spell data: Unknown Spell",
+		"missing spell tooltip is visible"
+	)
+
 	return "PASS Erenshor Spell testcases"
 end
 
