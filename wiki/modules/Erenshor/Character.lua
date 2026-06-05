@@ -1,4 +1,5 @@
 local Args = require("Module:Erenshor/Args")
+local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 
 local Data = mw.loadData("Module:Erenshor/Data/Characters")
@@ -246,6 +247,62 @@ local function experienceRange(c)
 	return tostring(minimum) .. "–" .. tostring(maximum)
 end
 
+local function linkList(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	return Link.join(values, "<br>")
+end
+
+local function factionChangeList(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and row.link ~= nil then
+			local modifier = tonumber(row.modifier)
+			local sign = ""
+			if modifier ~= nil and modifier > 0 then
+				sign = "+"
+			end
+			table.insert(out, Link.render(row.link) .. " " .. sign .. tostring(row.modifier))
+		end
+	end
+	return table.concat(out, "<br>")
+end
+
+local function dropRateList(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and row.link ~= nil then
+			local rendered = Link.render(row.link)
+			local probability = tonumber(row.probability)
+			if probability ~= nil then
+				local line = rendered .. " (" .. string.format("%.1f", probability) .. "%)"
+				for _, refKind in ipairs(row.refs or {}) do
+					if refKind == "visible_equipped" then
+						line = line
+							.. "<ref>If "
+							.. rendered
+							.. " is equipped, it is guaranteed to drop.</ref>"
+					elseif refKind == "unique_inventory" then
+						line = line
+							.. "<ref>If the player is already holding "
+							.. rendered
+							.. " in their inventory, another will not drop.</ref>"
+					end
+				end
+				table.insert(out, line)
+			end
+		end
+	end
+	return table.concat(out, "<br>")
+end
+
 local FIELD_ACCESSORS = {
 	name = function(c)
 		return c.name
@@ -260,16 +317,19 @@ local FIELD_ACCESSORS = {
 		return typeText(c.type)
 	end,
 	faction = function(c)
+		if type(c.faction) == "table" then
+			return Link.render(c.faction)
+		end
 		return c.faction
 	end,
 	factionchange = function(c)
-		return c.factionChange
+		return factionChangeList(c.factionChange)
 	end,
 	map = function(c)
 		return mapLink(c.mapSelector)
 	end,
 	zones = function(c)
-		return c.zones
+		return linkList(c.zones)
 	end,
 	coordinates = function(c)
 		return c.coordinates
@@ -287,13 +347,13 @@ local FIELD_ACCESSORS = {
 		return experienceRange(c)
 	end,
 	guaranteeddrops = function(c)
-		return c.guaranteedDrops
+		return linkList(c.guaranteedDrops)
 	end,
 	droprates = function(c)
-		return c.dropRates
+		return dropRateList(c.dropRates)
 	end,
 	spells = function(c)
-		return c.spells
+		return linkList(c.spells)
 	end,
 	health = function(c)
 		return c.health
@@ -369,9 +429,13 @@ local function cargoStoreText(character, pageTitle)
 		{ "StableKey", character.stableKey },
 		{ "Name", character.name },
 		{ "Type", character.type },
-		{ "Zones", character.zones },
+		{ "Zones", linkList(character.zones) },
 		{ "Level", character.level },
-		{ "Faction", character.faction },
+		{
+			"Faction",
+			type(character.faction) == "table" and Link.render(character.faction)
+				or character.faction,
+		},
 		{ "SpawnChance", character.spawnChance },
 		{ "HasDrops", character.hasDrops },
 		{ "HasSpells", character.hasSpells },

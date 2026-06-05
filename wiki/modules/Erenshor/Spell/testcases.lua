@@ -48,11 +48,11 @@ function p.run()
 		"You are overcome by electricity.",
 		"image caption formats from player message"
 	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "classes"),
-		"[[Druid]] (6)<br>[[Stormcaller]] (6)",
-		"classes include required level"
-	)
+	local classes = Spell.fieldValue(minor, "Minor Lightning", "classes")
+	assertContains(classes, "erenshor-link--class", "classes render semantic class links")
+	assertContains(classes, "Druid", "classes include Druid")
+	assertContains(classes, "Stormcaller", "classes include Stormcaller")
+	assertContains(classes, "(6)", "classes include required level")
 	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "manacost"), "30", "mana formats")
 	assertEqual(
 		Spell.fieldValue(minor, "Minor Lightning", "casttime"),
@@ -80,26 +80,27 @@ function p.run()
 		"target damage formats"
 	)
 	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "aggro"), "60", "aggro formats")
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "itemswitheffect"),
-		"{{ItemLink|Abyssal Plate}}<br>{{ItemLink|Healing Draught}}",
-		"items with effect join generated relationship list"
+	local itemsWithEffect = Spell.fieldValue(minor, "Minor Lightning", "itemswitheffect")
+	assertContains(
+		itemsWithEffect,
+		"erenshor-link--item",
+		"items with effect render semantic item links"
 	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "source"),
-		"{{ItemLink|Scroll of Ember}}",
-		"source joins generated teaching items"
+	assertContains(itemsWithEffect, "[[Abyssal Plate]]", "items with effect include Abyssal Plate")
+	assertContains(
+		itemsWithEffect,
+		"[[Healing Draught]]",
+		"items with effect include Healing Draught"
 	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "used_by"),
-		"[[Rare Cave Spider]]",
-		"used by joins generated caster list"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "pet_to_summon"),
-		"[[A Grizzly Bear]]",
-		"pet stable key resolves generated character link"
-	)
+	local source = Spell.fieldValue(minor, "Minor Lightning", "source")
+	assertContains(source, "erenshor-link--item", "source renders semantic item link")
+	assertContains(source, "[[Scroll of Ember]]", "source includes teaching item")
+	local usedBy = Spell.fieldValue(minor, "Minor Lightning", "used_by")
+	assertContains(usedBy, "erenshor-link--character", "used by renders semantic character link")
+	assertContains(usedBy, "[[Rare Cave Spider]]", "used by includes caster page")
+	local pet = Spell.fieldValue(minor, "Minor Lightning", "pet_to_summon")
+	assertContains(pet, "erenshor-link--character", "pet summon renders semantic character link")
+	assertContains(pet, "[[A Grizzly Bear]]", "pet summon includes character page")
 	assertEqual(Spell.statusText(minor, "Minor Lightning"), "", "present spell status is blank")
 
 	local buff = { stablekey = "spell:ancient_presence" }

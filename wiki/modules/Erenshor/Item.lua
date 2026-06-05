@@ -237,7 +237,13 @@ local function classText(classes)
 		return ""
 	end
 	if type(classes) == "table" then
-		return Format.classList(classes)
+		local links = {}
+		for _, class in ipairs(classes) do
+			if not isBlank(class) then
+				table.insert(links, Link.render({ kind = "class", page = class }))
+			end
+		end
+		return table.concat(links, " / ")
 	end
 	return tostring(classes)
 end
@@ -265,7 +271,7 @@ local function classOverviewLinks(classes)
 	local links = {}
 	for _, class in ipairs(classes) do
 		if not isBlank(class) then
-			table.insert(links, Format.pageLink(class))
+			table.insert(links, Link.render({ kind = "class", page = class }))
 		end
 	end
 	return table.concat(links, ", ")
@@ -364,7 +370,7 @@ local function abilityLinkMarkup(page)
 	if isBlank(page) then
 		return ""
 	end
-	return "{{AbilityLink|" .. page .. "}}"
+	return Link.render({ kind = "ability", page = page })
 end
 
 local function abilityLinkFromStableKey(stableKey)
@@ -375,9 +381,53 @@ local function lineList(values)
 	if values == nil then
 		return nil
 	end
+	if type(values) ~= "table" then
+		return values
+	end
 	local out = {}
 	for _, value in ipairs(values) do
-		table.insert(out, value)
+		if type(value) == "table" and value.link ~= nil then
+			local quantity = tonumber(value.quantity)
+			local rendered = Link.render(value.link)
+			if quantity ~= nil then
+				table.insert(out, tostring(quantity) .. "x " .. rendered)
+			else
+				table.insert(out, rendered)
+			end
+		elseif type(value) == "table" and value.kind ~= nil then
+			table.insert(out, Link.render(value))
+		else
+			table.insert(out, value)
+		end
+	end
+	return table.concat(out, "<br>")
+end
+
+local function linkList(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	return Link.join(values, "<br>")
+end
+
+local function probabilityList(values, decimals)
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and row.link ~= nil then
+			local probability = tonumber(row.probability)
+			if probability ~= nil then
+				table.insert(
+					out,
+					Link.render(row.link)
+						.. " ("
+						.. string.format("%." .. decimals .. "f", probability)
+						.. "%)"
+				)
+			end
+		end
 	end
 	return table.concat(out, "<br>")
 end
@@ -453,25 +503,25 @@ local FIELD_ACCESSORS = {
 		return i.type
 	end,
 	vendorsource = function(i)
-		return i.vendorSource
+		return linkList(i.vendorSource)
 	end,
 	source = function(i)
-		return i.source
+		return probabilityList(i.source, 1)
 	end,
 	othersource = function(i)
 		return i.othersource
 	end,
 	questsource = function(i)
-		return i.questSource
+		return linkList(i.questSource)
 	end,
 	relatedquest = function(i)
-		return i.relatedQuest
+		return linkList(i.relatedQuest)
 	end,
 	craftsource = function(i)
 		return i.craftSource
 	end,
 	componentfor = function(i)
-		return i.componentFor
+		return linkList(i.componentFor)
 	end,
 	relic = function(i)
 		return i.relic == true and "Yes" or ""
@@ -546,7 +596,7 @@ local FIELD_ACCESSORS = {
 		return lineList(i.rewards)
 	end,
 	ingredients = function(i)
-		return i.ingredients
+		return lineList(i.ingredients)
 	end,
 	description = function(i)
 		return i.description
@@ -558,10 +608,10 @@ local FIELD_ACCESSORS = {
 		return Format.currency(i.sellValue)
 	end,
 	guaranteeddrops = function(i)
-		return i.guaranteedDrops
+		return linkList(i.guaranteedDrops)
 	end,
 	droprates = function(i)
-		return i.dropRates
+		return probabilityList(i.dropRates, 0)
 	end,
 }
 

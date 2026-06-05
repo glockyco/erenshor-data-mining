@@ -13,6 +13,8 @@ Ember Longsword	Base DPS
 Ember Longsword	item-spell-details
 Ember Longsword	20% chance on ATTACK:
 Ember Longsword	Ember Burst
+Ember Longsword	erenshor-link--ability
+Ember Longsword	Ember_Burst
 Ember Longsword	portable-infobox
 Ember Longsword	pi-type-Item
 Abyssal Plate	Armor
@@ -77,6 +79,9 @@ A Grizzly Bear	A Grizzly Bear
 A Grizzly Bear	Enemy
 A Grizzly Bear	2 minutes
 A Grizzly Bear	Category:Enemies
+A Grizzly Bear	erenshor-link--faction
+A Grizzly Bear	erenshor-link--zone
+A Grizzly Bear	erenshor-link--item
 Captain Rowan	Captain Rowan
 Captain Rowan	NPC
 Captain Rowan	Category:Characters
@@ -159,6 +164,11 @@ Minor Lightning	85 Magical damage on target
 Minor Lightning	2.3 seconds
 Minor Lightning	8 seconds
 Minor Lightning	Spell Scroll: Minor Lightning
+Minor Lightning	erenshor-link--item
+Minor Lightning	Abyssal_Plate
+Minor Lightning	Healing_Draught
+Minor Lightning	erenshor-link--character
+Minor Lightning	A_Grassland_Ogre_Mystic
 Minor Lightning	Category:Abilities
 Ancient Presence	12 seconds
 Ancient Presence	Damage Shield

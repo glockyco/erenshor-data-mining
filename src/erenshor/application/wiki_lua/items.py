@@ -7,6 +7,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
+from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.source_info import SourceInfo
@@ -319,63 +320,72 @@ def _visible_links(links: Iterable[WikiLink]) -> list[WikiLink]:
     return [link for link in links if link.page_title is not None]
 
 
-def _format_unique_sorted_links(links: Iterable[WikiLink]) -> str:
+def _format_unique_sorted_links(links: Iterable[WikiLink]) -> list[LuaData]:
     visible = _visible_links(links)
     visible.sort()
-    seen: set[str] = set()
-    result: list[str] = []
+    seen: set[tuple[str, str, str]] = set()
+    result: list[LuaData] = []
     for link in visible:
-        rendered = str(link)
-        if rendered in seen:
+        ref = link_ref(link)
+        if ref is None:
             continue
-        seen.add(rendered)
-        result.append(rendered)
-    return "<br>".join(result)
-
-
-def _format_vendor_sources(sources: SourceInfo) -> str:
-    return _format_unique_sorted_links(sources.vendors)
-
-
-def _format_drop_sources(sources: SourceInfo) -> str:
-    drop_data = [(link, probability) for link, probability in sources.drops if link.page_title is not None]
-    drop_data.sort(key=lambda pair: (-pair[1], pair[0]))
-    seen: set[tuple[str, float]] = set()
-    result: list[str] = []
-    for link, probability in drop_data:
-        rendered = str(link)
-        key = (rendered, probability)
+        key = (str(ref["kind"]), str(ref["page"]), str(ref["text"]))
         if key in seen:
             continue
         seen.add(key)
-        result.append(f"{rendered} ({probability:.1f}%)")
-    return "<br>".join(result)
+        result.append(ref)
+    return result
 
 
-def _format_quest_sources(sources: SourceInfo) -> str:
+def _format_vendor_sources(sources: SourceInfo) -> list[LuaData]:
+    return _format_unique_sorted_links(sources.vendors)
+
+
+def _format_drop_sources(sources: SourceInfo) -> list[LuaData]:
+    drop_data = [(link, probability) for link, probability in sources.drops if link.page_title is not None]
+    drop_data.sort(key=lambda pair: (-pair[1], pair[0]))
+    seen: set[tuple[str, str, str, float]] = set()
+    result: list[LuaData] = []
+    for link, probability in drop_data:
+        ref = link_ref(link)
+        if ref is None:
+            continue
+        key = (str(ref["kind"]), str(ref["page"]), str(ref["text"]), probability)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append({"link": ref, "probability": probability})
+    return result
+
+
+def _format_quest_sources(sources: SourceInfo) -> list[LuaData]:
     return _format_unique_sorted_links(sources.quest_rewards)
 
 
-def _format_related_quests(sources: SourceInfo) -> str:
+def _format_related_quests(sources: SourceInfo) -> list[LuaData]:
     return _format_unique_sorted_links(sources.quest_requirements)
 
 
-def _format_component_for(sources: SourceInfo) -> str:
-    return "<br>".join(str(link) for link in sources.component_for if link.page_title is not None)
+def _format_component_for(sources: SourceInfo) -> list[LuaData]:
+    return link_refs(sources.component_for, "item")
 
 
-def _format_guaranteed_drops(sources: SourceInfo) -> str:
+def _format_guaranteed_drops(sources: SourceInfo) -> list[LuaData]:
     items_with_names = [
-        (link.display_name.lower(), str(link)) for link, _ in sources.item_drops if link.page_title is not None
+        (link.display_name.lower(), ref)
+        for link, _ in sources.item_drops
+        if (ref := link_ref(link, "item")) is not None
     ]
     items_with_names.sort(key=lambda pair: pair[0])
-    return "<br>".join(link for _, link in items_with_names)
+    return [link for _, link in items_with_names]
 
 
-def _format_drop_rates(sources: SourceInfo) -> str:
-    return "<br>".join(
-        f"{link!s} ({probability:.0f}%)" for link, probability in sources.item_drops if link.page_title is not None
-    )
+def _format_drop_rates(sources: SourceInfo) -> list[LuaData]:
+    return [
+        {"link": ref, "probability": probability}
+        for link, probability in sources.item_drops
+        if (ref := link_ref(link, "item")) is not None
+    ]
 
 
 def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:
@@ -394,8 +404,10 @@ def _item_kind_display(item_kind: str) -> str:
     }.get(item_kind, item_kind.capitalize())
 
 
-def _recipe_links(links: list[tuple[ItemLink, int]]) -> list[str]:
-    return [f"{quantity}x {link!s}" for link, quantity in links]
+def _recipe_links(links: list[tuple[ItemLink, int]]) -> list[LuaData]:
+    return [
+        {"quantity": quantity, "link": ref} for link, quantity in links if (ref := link_ref(link, "item")) is not None
+    ]
 
 
 def _stat_record(stat: ItemStats) -> LuaData:
@@ -406,7 +418,7 @@ def _stat_record(stat: ItemStats) -> LuaData:
 
 
 def _put(row: LuaData, key: str, value: object) -> None:
-    if value is not None and value != "":
+    if value is not None and value not in ("", []):
         row[key] = value
 
 

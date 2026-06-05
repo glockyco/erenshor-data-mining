@@ -184,8 +184,23 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
     assert item_data["description"] == "Forged in a reliable test furnace."
     assert item_data["bookTitle"] == "The Ember Manual"
     assert item_data["wandRange"] == 35
-    assert item_data["ingredients"] == ["2x {{ItemLink|Chunk of Copper Ore}}"]
-    assert item_data["rewards"] == ["1x {{ItemLink|Ember Longsword}}"]
+    assert item_data["ingredients"] == [
+        {
+            "quantity": 2,
+            "link": {
+                "kind": "item",
+                "page": "Chunk of Copper Ore",
+                "text": "Chunk of Copper Ore",
+                "image": "Chunk of Copper Ore",
+            },
+        }
+    ]
+    assert item_data["rewards"] == [
+        {
+            "quantity": 1,
+            "link": {"kind": "item", "page": "Ember Longsword", "text": "Ember Longsword", "image": "Ember Longsword"},
+        }
+    ]
 
 
 def test_builds_item_provenance_fields_from_source_info() -> None:
@@ -218,13 +233,18 @@ def test_builds_item_provenance_fields_from_source_info() -> None:
 
     shard = data["index"]["byKey"][item.stable_key]
     item_data = data["shards"][shard][item.stable_key]
-    assert item_data["vendorSource"] == "[[B Vendor]]"
-    assert item_data["source"] == "[[A Croc]] (50.0%)<br>[[Z Spider]] (12.5%)"
-    assert item_data["questSource"] == "{{QuestLink|Reward Quest}}"
-    assert item_data["relatedQuest"] == "{{QuestLink|Required Quest}}"
-    assert item_data["componentFor"] == "{{ItemLink|Copper Armor Mold}}"
-    assert item_data["guaranteedDrops"] == "{{ItemLink|A Fossil Reward}}"
-    assert item_data["dropRates"] == "{{ItemLink|A Fossil Reward}} (100%)"
+    assert item_data["vendorSource"] == [{"kind": "page", "page": "B Vendor", "text": "B Vendor"}]
+    assert item_data["source"] == [
+        {"link": {"kind": "page", "page": "A Croc", "text": "A Croc"}, "probability": 50.0},
+        {"link": {"kind": "page", "page": "Z Spider", "text": "Z Spider"}, "probability": 12.5},
+    ]
+    assert item_data["questSource"] == [{"kind": "quest", "page": "Reward Quest", "text": "Reward Quest"}]
+    assert item_data["relatedQuest"] == [{"kind": "quest", "page": "Required Quest", "text": "Required Quest"}]
+    assert item_data["componentFor"] == [{"kind": "item", "page": "Copper Armor Mold", "text": "Copper Armor Mold"}]
+    assert item_data["guaranteedDrops"] == [{"kind": "item", "page": "A Fossil Reward", "text": "A Fossil Reward"}]
+    assert item_data["dropRates"] == [
+        {"link": {"kind": "item", "page": "A Fossil Reward", "text": "A Fossil Reward"}, "probability": 100.0}
+    ]
 
 
 def test_generates_items_modules_with_provenance_data() -> None:
@@ -240,7 +260,9 @@ def test_generates_items_modules_with_provenance_data() -> None:
         },
     )
 
-    assert '["vendorSource"] = "[[Ember Vendor]]"' in modules["Items/Weapons.lua"]
+    assert '["vendorSource"] = {' in modules["Items/Weapons.lua"]
+    assert '["kind"] = "page"' in modules["Items/Weapons.lua"]
+    assert '["page"] = "Ember Vendor"' in modules["Items/Weapons.lua"]
 
 
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:

@@ -1,4 +1,4 @@
-A Grizzly Bear	character:a_grizzly_bear	A Grizzly Bear	Enemy	[[Blacksalt Strand]]	12	[[The Followers of Evil]]		1	0	enemy:A Grizzly Bear
-Captain Rowan	character:captain_rowan	Captain Rowan	NPC	[[Port Azure]]	20	[[The Followers of Good]]		0	0	npc:Captain Rowan
-Rare Cave Spider	character:rare_cave_spider	Rare Cave Spider	Rare	[[Crystal Cavern]]	18		25%	0	0	enemy:Rare Cave Spider
-Manual Character Override	character:a_grizzly_bear	Manual Bear	Enemy	[[Blacksalt Strand]]	12			1	0	enemy:A Grizzly Bear
+A Grizzly Bear	character:a_grizzly_bear	A Grizzly Bear	Enemy	<span class="erenshor-link erenshor-link--zone" data-erenshor-kind="zone">[[Blacksalt Strand]]</span>	12	<span class="erenshor-link erenshor-link--faction" data-erenshor-kind="faction">[[The Followers of Evil]]</span>		1	0	enemy:A Grizzly Bear
+Captain Rowan	character:captain_rowan	Captain Rowan	NPC	<span class="erenshor-link erenshor-link--zone" data-erenshor-kind="zone">[[Port Azure]]</span>	20	<span class="erenshor-link erenshor-link--faction" data-erenshor-kind="faction">[[The Followers of Good]]</span>		0	0	npc:Captain Rowan
+Rare Cave Spider	character:rare_cave_spider	Rare Cave Spider	Rare	<span class="erenshor-link erenshor-link--zone" data-erenshor-kind="zone">[[Crystal Cavern]]</span>	18		25%	0	0	enemy:Rare Cave Spider
+Manual Character Override	character:a_grizzly_bear	Manual Bear	Enemy	<span class="erenshor-link erenshor-link--zone" data-erenshor-kind="zone">[[Blacksalt Strand]]</span>	12			1	0	enemy:A Grizzly Bear

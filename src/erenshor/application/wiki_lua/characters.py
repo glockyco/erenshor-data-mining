@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 
+from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.value_objects.wiki_link import StandardLink
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
@@ -187,39 +189,37 @@ def _character_type(character: Character) -> str:
     return "Enemy"
 
 
-def _format_faction(character: Character) -> str:
+def _format_faction(character: Character) -> LuaData | str:
     display_name = character.my_world_faction_display_name
     if not display_name:
         return ""
     page_name = character.my_world_faction_wiki_page_name
     if not page_name:
         return display_name
-    if page_name == display_name:
-        return f"[[{page_name}]]"
-    return f"[[{page_name}|{display_name}]]"
+    return link_ref(StandardLink(page_title=page_name, display_name=display_name), "faction") or ""
 
 
-def _format_faction_modifiers(faction_modifiers: list[FactionModifier]) -> str:
-    entries: list[tuple[str, str]] = []
+def _format_faction_modifiers(faction_modifiers: list[FactionModifier]) -> list[LuaData]:
+    entries: list[tuple[str, LuaData]] = []
     for modifier in faction_modifiers:
         display = modifier.faction_display_name
         page = modifier.faction_wiki_page_name
-        if page is None:
-            link = display
-        elif page == display:
-            link = f"[[{page}]]"
-        else:
-            link = f"[[{page}|{display}]]"
-        sign = "+" if modifier.modifier_value > 0 else ""
-        entries.append((display.lower(), f"{link} {sign}{modifier.modifier_value}"))
-    return "<br>".join(line for _, line in sorted(entries))
+        ref = None
+        if page is not None:
+            ref = link_ref(StandardLink(page_title=page, display_name=display), "faction")
+        if ref is None:
+            ref = {"kind": "page", "page": display, "text": display}
+        entries.append((display.lower(), {"link": ref, "modifier": modifier.modifier_value}))
+    return [entry for _, entry in sorted(entries)]
 
 
-def _format_zones(spawn_infos: list[CharacterSpawnInfo]) -> str:
-    seen: dict[str, str] = {}
+def _format_zones(spawn_infos: list[CharacterSpawnInfo]) -> list[LuaData]:
+    seen: dict[str, LuaData] = {}
     for info in spawn_infos:
-        seen.setdefault(info.zone_link.display_name, str(info.zone_link))
-    return "<br>".join(seen[name] for name in sorted(seen, key=str.lower))
+        ref = link_ref(info.zone_link, "zone")
+        if ref is not None:
+            seen.setdefault(info.zone_link.display_name, ref)
+    return [seen[name] for name in sorted(seen, key=str.lower)]
 
 
 def _format_coordinates(spawn_infos: list[CharacterSpawnInfo]) -> str:
@@ -284,39 +284,60 @@ def _minutes_to_duration(minutes: int) -> str:
     return f"{minutes} minutes"
 
 
-def _format_guaranteed_drops(loot_drops: list[LootDropInfo]) -> str:
-    entries = sorted({str(drop.item_link) for drop in loot_drops if drop.is_guaranteed and drop.drop_probability > 0})
-    if len(entries) < 2:
-        return ""
-    return "<br>".join(entries)
-
-
-def _format_drop_rates(loot_drops: list[LootDropInfo], character_display_name: str) -> str:
-    entries: list[tuple[tuple[float, str], str]] = []
+def _format_guaranteed_drops(loot_drops: list[LootDropInfo]) -> list[LuaData]:
+    entries: set[tuple[str, str, str, tuple[tuple[str, object], ...]]] = set()
     for drop in loot_drops:
-        if drop.item_link.page_title is None or drop.drop_probability <= 0:
+        if not drop.is_guaranteed or drop.drop_probability <= 0:
             continue
-        entry = f"{drop.item_link} ({drop.drop_probability:.1f}%)"
+        ref = link_ref(drop.item_link, "item")
+        if ref is None:
+            continue
+        entries.add(
+            (
+                drop.item_link.display_name.lower(),
+                str(ref["page"]),
+                str(ref["text"]),
+                tuple(sorted(ref.items())),
+            )
+        )
+    sorted_entries = sorted(entries)
+    if len(sorted_entries) < 2:
+        return []
+    return [dict(ref_items) for _, _, _, ref_items in sorted_entries]
+
+
+def _format_drop_rates(loot_drops: list[LootDropInfo], _character_display_name: str) -> list[LuaData]:
+    entries: list[tuple[tuple[float, str], LuaData]] = []
+    for drop in loot_drops:
+        if drop.drop_probability <= 0:
+            continue
+        ref = link_ref(drop.item_link, "item")
+        if ref is None:
+            continue
         refs: list[str] = []
         if drop.is_visible:
-            refs.append(
-                f"<ref>If {character_display_name} has {drop.item_link} equipped, it is guaranteed to drop.</ref>"
-            )
+            refs.append("visible_equipped")
         if drop.item_unique:
-            refs.append(
-                f"<ref>If the player is already holding {drop.item_link} in their inventory, "
-                "another will not drop.</ref>"
+            refs.append("unique_inventory")
+        entries.append(
+            (
+                (-drop.drop_probability, drop.item_link.display_name.lower()),
+                {
+                    "link": ref,
+                    "probability": drop.drop_probability,
+                    "refs": refs,
+                },
             )
-        if refs:
-            entry += "".join(refs)
-        entries.append(((-drop.drop_probability, drop.item_link.display_name.lower()), entry))
-    seen: set[str] = set()
-    out: list[str] = []
+        )
+    seen: set[tuple[str, float, tuple[str, ...]]] = set()
+    out: list[LuaData] = []
     for _, entry in sorted(entries):
-        if entry not in seen:
-            seen.add(entry)
+        link = cast("LuaData", entry["link"])
+        key = (str(link["page"]), cast("float", entry["probability"]), tuple(cast("list[str]", entry["refs"])))
+        if key not in seen:
+            seen.add(key)
             out.append(entry)
-    return "<br>".join(out)
+    return out
 
 
 def _level_mod_range(spawn_infos: list[CharacterSpawnInfo]) -> tuple[int, int]:
@@ -342,9 +363,8 @@ def _format_resistance(
     return f"{minimum}-{maximum}" if minimum != maximum else str(minimum)
 
 
-def _format_ability_links(spells: list[AbilityLink]) -> str:
-    visible = sorted((spell for spell in spells if spell.page_title is not None), key=lambda spell: spell.display_name)
-    return "<br>".join(str(spell) for spell in visible)
+def _format_ability_links(spells: list[AbilityLink]) -> list[LuaData]:
+    return link_refs(spells, "ability")
 
 
 def _map_selector(character_type: object, display_name: str) -> str:
@@ -353,5 +373,5 @@ def _map_selector(character_type: object, display_name: str) -> str:
 
 
 def _put(row: LuaData, key: str, value: object) -> None:
-    if value is not None and value != "":
+    if value is not None and value not in ("", []):
         row[key] = value

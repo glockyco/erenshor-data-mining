@@ -1,5 +1,6 @@
 local AbilityLink = require("Module:Erenshor/AbilityLink")
 local Args = require("Module:Erenshor/Args")
+local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Skill/Tooltip")
 
@@ -156,7 +157,10 @@ local function classLevelsText(skill)
 		then
 			table.insert(
 				out,
-				Format.pageLink(displayName, displayName) .. " (" .. numberText(entry.level) .. ")"
+				Link.render({ kind = "class", page = displayName })
+					.. " ("
+					.. numberText(entry.level)
+					.. ")"
 			)
 		end
 	end
@@ -248,7 +252,11 @@ local function lineList(values)
 	end
 	local out = {}
 	for _, value in ipairs(values) do
-		table.insert(out, value)
+		if type(value) == "table" and value.kind ~= nil then
+			table.insert(out, Link.render(value))
+		else
+			table.insert(out, value)
+		end
 	end
 	return table.concat(out, "<br>")
 end

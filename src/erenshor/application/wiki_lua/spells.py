@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
+from erenshor.application.wiki_lua.links import link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
 
 if TYPE_CHECKING:
@@ -191,9 +192,9 @@ def _spell_record(
         _put_number(record, lua_key, getattr(spell, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(spell, attr))
-    _put_list(record, "source", _link_list(teaching_items))
-    _put_list(record, "itemsWithEffect", _link_list(items_with_effect))
-    _put_list(record, "usedBy", _link_list(used_by))
+    _put_list(record, "source", _link_list(teaching_items, "item"))
+    _put_list(record, "itemsWithEffect", _link_list(items_with_effect, "item"))
+    _put_list(record, "usedBy", _link_list(used_by, "character"))
     return record
 
 
@@ -211,18 +212,13 @@ def _put_bool(row: LuaData, key: str, value: object) -> None:
     row[key] = bool(value)
 
 
-def _put_list(row: LuaData, key: str, value: list[str]) -> None:
+def _put_list(row: LuaData, key: str, value: list[LuaData]) -> None:
     if value:
         row[key] = value
 
 
-def _link_list(links: Iterable[WikiLink]) -> list[str]:
-    return [
-        str(link)
-        for link in sorted(
-            (link for link in links if link.page_title is not None), key=lambda candidate: candidate.display_name
-        )
-    ]
+def _link_list(links: Iterable[WikiLink], kind: str | None = None) -> list[LuaData]:
+    return link_refs(links, kind)
 
 
 def _teaching_items_by_spell(

@@ -184,9 +184,11 @@ def test_builds_spell_relationship_fields_from_repository_links() -> None:
 
     spells = cast("dict[str, object]", data["spells"])
     record = cast("dict[str, object]", spells[spell.stable_key])
-    assert record["source"] == ["{{ItemLink|Scroll of Minor Lightning}}"]
-    assert record["itemsWithEffect"] == ["{{ItemLink|Storm Wand}}"]
-    assert record["usedBy"] == ["[[Storm Caller]]"]
+    assert record["source"] == [
+        {"kind": "item", "page": "Scroll of Minor Lightning", "text": "Scroll of Minor Lightning"}
+    ]
+    assert record["itemsWithEffect"] == [{"kind": "item", "page": "Storm Wand", "text": "Storm Wand"}]
+    assert record["usedBy"] == [{"kind": "character", "page": "Storm Caller", "text": "Storm Caller"}]
 
 
 def test_omits_unrenderable_spell_records_and_blank_optional_text() -> None:

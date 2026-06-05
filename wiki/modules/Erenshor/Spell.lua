@@ -1,5 +1,6 @@
 local AbilityLink = require("Module:Erenshor/AbilityLink")
 local Args = require("Module:Erenshor/Args")
+local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Spell/Tooltip")
 
@@ -304,7 +305,10 @@ local function classesText(spell)
 		if not isBlank(className) then
 			table.insert(
 				out,
-				Format.pageLink(className, className) .. " (" .. numberText(level) .. ")"
+				Link.render({ kind = "class", page = className })
+					.. " ("
+					.. numberText(level)
+					.. ")"
 			)
 		end
 	end
@@ -327,7 +331,11 @@ local function lineList(values)
 	end
 	local out = {}
 	for _, value in ipairs(values) do
-		table.insert(out, value)
+		if type(value) == "table" and value.kind ~= nil then
+			table.insert(out, Link.render(value))
+		else
+			table.insert(out, value)
+		end
 	end
 	return table.concat(out, "<br>")
 end
@@ -340,7 +348,7 @@ local function linkedCharacter(stableKey)
 	if character == nil or isBlank(character.page) then
 		return ""
 	end
-	return Format.pageLink(character.page, character.name)
+	return Link.render({ kind = "character", page = character.page, text = character.name })
 end
 
 local function linkedSpell(stableKey)

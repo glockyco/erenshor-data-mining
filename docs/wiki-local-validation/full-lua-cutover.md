@@ -33,7 +33,7 @@ uv run pytest tests/unit/test_wiki_dev_harness.py -q
 uv run ruff check wiki-dev tests/unit/test_wiki_dev_harness.py
 ```
 
-Result: `24 passed`; Ruff reported `All checks passed!`.
+Result: `25 passed`; Ruff reported `All checks passed!`.
 
 ## Coverage
 
@@ -43,6 +43,7 @@ Lua testcase smoke pages execute all current testcase modules:
 - `Module:Erenshor/Args/testcases`
 - `Module:Erenshor/Character/testcases`
 - `Module:Erenshor/Format/testcases`
+- `Module:Erenshor/Link/testcases`
 - `Module:Erenshor/Item/testcases`
 - `Module:Erenshor/Quest/testcases`
 - `Module:Erenshor/Skill/testcases`
@@ -50,11 +51,11 @@ Lua testcase smoke pages execute all current testcase modules:
 - `Module:Erenshor/Stance/testcases`
 - `Module:Erenshor/Zone/testcases`
 
-Rendered fixture coverage includes item subtypes, character types, quests, zones, stances, spells, skills, ability links, manual overrides, missing-data tracking pages, and Cargo-backed armor/weapon overview pages.
+Rendered fixture coverage includes item subtypes, character types, quests, zones, stances, spells, skills, semantic link wrappers, ability links, manual overrides, missing-data tracking pages, and Cargo-backed armor/weapon overview pages.
 
-Cargo validation covers the local `Items` and `Characters` tables, including expected rows for generated pages, manual override pages, and absence checks for pages that must not store item rows.
+Cargo validation covers the local `Items` and `Characters` tables, including expected rows for generated pages, manual override pages, semantic class/faction/zone display fields, and absence checks for pages that must not store item rows.
 
-Parser-health checks fail smoke validation on Lua errors, script errors, parser errors, unresolved template links, parser-limit failures, escaped PortableInfobox/table shells, and unexpected missing-data tracking categories.
+Parser-health checks fail smoke validation on Lua errors, script errors, parser errors, unresolved template links, parser-limit failures, escaped PortableInfobox/table shells, unexpected missing-data tracking categories, and raw semantic link template calls returned from Lua output (`{{ItemLink|...}}`, `{{AbilityLink|...}}`, `{{QuestLink|...}}`, `{{CharacterLink|...}}`, `{{ZoneLink|...}}`, `{{FactionLink|...}}`, or `{{ClassLink|...}}`).
 
 ## Local-vs-live notes
 

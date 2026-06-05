@@ -150,13 +150,16 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
     )
 
     item_shard_text = (tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua").read_text(encoding="utf-8")
-    assert '["vendorSource"] = "[[B Vendor]]"' in item_shard_text
-    assert '["source"] = "[[A Croc]] (50.0%)<br>[[Ancient Fossil]] (25.0%)"' in item_shard_text
-    assert '["questSource"] = "{{QuestLink|Reward Quest}}"' in item_shard_text
-    assert '["relatedQuest"] = "{{QuestLink|Required Quest}}"' in item_shard_text
-    assert '["componentFor"] = "{{ItemLink|Copper Armor Mold}}"' in item_shard_text
-    assert '["guaranteedDrops"] = "{{ItemLink|Dropped Relic}}"' in item_shard_text
-    assert '["dropRates"] = "{{ItemLink|Dropped Relic}} (100%)"' in item_shard_text
+    assert '["vendorSource"] = {' in item_shard_text
+    assert '["kind"] = "page"' in item_shard_text
+    assert '["page"] = "B Vendor"' in item_shard_text
+    assert '["source"] = {' in item_shard_text
+    assert '["probability"] = 50.0' in item_shard_text
+    assert '["questSource"] = {' in item_shard_text
+    assert '["kind"] = "quest"' in item_shard_text
+    assert '["componentFor"] = {' in item_shard_text
+    assert '["kind"] = "item"' in item_shard_text
+    assert '["dropRates"] = {' in item_shard_text
 
 
 def _run_generation(tmp_path: Path) -> object:

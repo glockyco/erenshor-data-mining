@@ -71,6 +71,15 @@ function p.run()
 		"288–648",
 		"field experience folds boss XP multiplier into base range"
 	)
+	local faction = Character.fieldValue(bearKey, "A Grizzly Bear", "faction")
+	assertContains(faction, "erenshor-link--faction", "faction renders semantic link")
+	assertContains(faction, "[[The Followers of Evil]]", "faction includes page link")
+	local zones = Character.fieldValue(bearKey, "A Grizzly Bear", "zones")
+	assertContains(zones, "erenshor-link--zone", "zones render semantic links")
+	assertContains(zones, "[[Blacksalt Strand]]", "zones include page link")
+	local dropRates = Character.fieldValue(bearKey, "A Grizzly Bear", "droprates")
+	assertContains(dropRates, "erenshor-link--item", "drop rates render semantic item links")
+	assertContains(dropRates, "[[Bear Meat]]", "drop rates include item page link")
 	assertContains(
 		Character.statusText(bearKey, "A Grizzly Bear"),
 		"[[Category:Enemies]]",

@@ -6,7 +6,18 @@ return {
 		type = "Mold",
 		buyValue = 250,
 		sellValue = 62,
-		ingredients = { "2x [[Chunk of Copper Ore]]", "1x [[Tanned Hide]]" },
-		rewards = { "1x [[Copper Breastplate]]" },
+		ingredients = {
+			{
+				quantity = 2,
+				link = { kind = "item", page = "Chunk of Copper Ore", text = "Chunk of Copper Ore" },
+			},
+			{ quantity = 1, link = { kind = "item", page = "Tanned Hide", text = "Tanned Hide" } },
+		},
+		rewards = {
+			{
+				quantity = 1,
+				link = { kind = "item", page = "Copper Breastplate", text = "Copper Breastplate" },
+			},
+		},
 	},
 }

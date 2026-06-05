@@ -142,8 +142,8 @@ return {
 			["instantEffect"] = true,
 			["int"] = 0,
 			["itemsWithEffect"] = {
-				"{{ItemLink|Abyssal Plate}}",
-				"{{ItemLink|Healing Draught}}",
+				{ kind = "item", page = "Abyssal Plate", text = "Abyssal Plate" },
+				{ kind = "item", page = "Healing Draught", text = "Healing Draught" },
 			},
 			["lifesteal"] = 0.0,
 			["lifetap"] = false,
@@ -161,7 +161,7 @@ return {
 			["range"] = 30.0,
 			["reapAndRenew"] = false,
 			["source"] = {
-				"{{ItemLink|Scroll of Ember}}",
+				{ kind = "item", page = "Scroll of Ember", text = "Scroll of Ember" },
 			},
 			["requiredLevel"] = 6,
 			["resistModifier"] = 0.0,
@@ -182,7 +182,7 @@ return {
 			["wis"] = 0,
 			["wornEffect"] = false,
 			["usedBy"] = {
-				"[[Rare Cave Spider]]",
+				{ kind = "character", page = "Rare Cave Spider", text = "Rare Cave Spider" },
 			},
 			["xpBonus"] = 0.0,
 		},

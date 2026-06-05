@@ -66,21 +66,22 @@ function p.run()
 		end,
 	})
 	assertContains(cargo, "|Armor=40", "cargo store contains armor overview AC")
-	assertContains(
-		cargo,
-		"|ClassLinks=[[Paladin]], [[Warrior]]",
-		"cargo store contains class links"
-	)
+	assertContains(cargo, "erenshor-link--class", "cargo store contains semantic class links")
+	assertContains(cargo, "[[Paladin]]", "cargo store contains Paladin class link")
+	assertContains(cargo, "[[Warrior]]", "cargo store contains Warrior class link")
 	assertContains(
 		cargo,
 		"|OverviewWornAbility=Minor Lightning",
 		"cargo store contains worn ability page"
 	)
-	assertEqual(
-		Item.overviewNotes({ args = { worn = "Minor Lightning" } }),
-		"Worn: {{AbilityLink|Minor Lightning}}",
-		"overview notes render worn AbilityLink"
+	local wornNotes = Item.overviewNotes({ args = { worn = "Minor Lightning" } })
+	assertContains(wornNotes, "Worn: ", "overview notes include worn prefix")
+	assertContains(
+		wornNotes,
+		"erenshor-link--ability",
+		"overview notes render semantic worn ability link"
 	)
+	assertContains(wornNotes, "[[Minor Lightning]]", "overview notes render worn ability page")
 
 	local weaponCargo = Item.cargoStore({
 		args = { stablekey = "item:ember_longsword" },
@@ -102,13 +103,16 @@ function p.run()
 		"|OverviewProcTrigger=on attack",
 		"cargo store contains proc trigger"
 	)
-	assertEqual(
-		Item.overviewNotes({
-			args = { proc = "Ember Burst", chance = "20", trigger = "on attack" },
-		}),
-		"{{AbilityLink|Ember Burst}}, 20% on attack",
-		"overview notes render weapon proc AbilityLink"
+	local procNotes = Item.overviewNotes({
+		args = { proc = "Ember Burst", chance = "20", trigger = "on attack" },
+	})
+	assertContains(
+		procNotes,
+		"erenshor-link--ability",
+		"overview notes render semantic weapon proc link"
 	)
+	assertContains(procNotes, "[[Ember Burst]]", "overview notes render weapon proc page")
+	assertContains(procNotes, "20% on attack", "overview notes render proc chance and trigger")
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",
@@ -119,35 +123,49 @@ function p.run()
 		"8",
 		"weapon dps is computed from base damage and delay"
 	)
-	assertEqual(
-		Item.fieldValue({ stablekey = "item:ember_longsword" }, "Ember Longsword", "proceffect"),
-		"{{AbilityLink|Ember Burst}}",
-		"weapon proc effect renders an AbilityLink from stable key data"
+	local procEffect =
+		Item.fieldValue({ stablekey = "item:ember_longsword" }, "Ember Longsword", "proceffect")
+	assertContains(
+		procEffect,
+		"erenshor-link--ability",
+		"weapon proc effect renders semantic ability link"
 	)
-	assertEqual(
-		Item.fieldValue({ stablekey = "item:abyssal_plate" }, "Abyssal Plate", "worneffect"),
-		"{{AbilityLink|Minor Lightning}}",
-		"worn effect renders an AbilityLink from stable key data"
+	assertContains(procEffect, "[[Ember Burst]]", "weapon proc effect renders linked ability page")
+	local wornEffect =
+		Item.fieldValue({ stablekey = "item:abyssal_plate" }, "Abyssal Plate", "worneffect")
+	assertContains(
+		wornEffect,
+		"erenshor-link--ability",
+		"worn effect renders semantic ability link"
 	)
-	assertEqual(
-		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "effect"),
-		"{{AbilityLink|Minor Heal}}",
-		"activatable effect renders an AbilityLink from stable key data"
+	assertContains(wornEffect, "[[Minor Lightning]]", "worn effect renders linked ability page")
+	local clickEffect =
+		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "effect")
+	assertContains(
+		clickEffect,
+		"erenshor-link--ability",
+		"activatable effect renders semantic ability link"
 	)
-	assertEqual(
-		Item.fieldValue({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember", "taughtspell"),
-		"{{AbilityLink|Ember}}",
-		"taught spell renders an AbilityLink from stable key data"
+	assertContains(clickEffect, "[[Minor Heal]]", "activatable effect renders linked ability page")
+	local taughtSpell =
+		Item.fieldValue({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember", "taughtspell")
+	assertContains(
+		taughtSpell,
+		"erenshor-link--ability",
+		"taught spell renders semantic ability link"
 	)
-	assertEqual(
-		Item.fieldValue(
-			{ stablekey = "item:sword_mastery_manual" },
-			"Sword Mastery Manual",
-			"taughtskill"
-		),
-		"{{AbilityLink|Sword Mastery}}",
-		"taught skill renders an AbilityLink from stable key data"
+	assertContains(taughtSpell, "[[Ember]]", "taught spell renders linked ability page")
+	local taughtSkill = Item.fieldValue(
+		{ stablekey = "item:sword_mastery_manual" },
+		"Sword Mastery Manual",
+		"taughtskill"
 	)
+	assertContains(
+		taughtSkill,
+		"erenshor-link--ability",
+		"taught skill renders semantic ability link"
+	)
+	assertContains(taughtSkill, "[[Sword Mastery]]", "taught skill renders linked ability page")
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:scroll_of_ember" }, "Scroll of Ember", "spelltype"),
 		"Damage",
@@ -162,9 +180,13 @@ function p.run()
 		"Passive",
 		"skill book type derives from taught skill data"
 	)
-	assertEqual(
-		Item.fieldValue({ stablekey = "item:copper_armor_mold" }, "Copper Armor Mold", "produces"),
-		"1x [[Copper Breastplate]]",
+	local produces =
+		Item.fieldValue({ stablekey = "item:copper_armor_mold" }, "Copper Armor Mold", "produces")
+	assertContains(produces, "1x ", "produces includes quantity")
+	assertContains(produces, "erenshor-link--item", "produces renders semantic item link")
+	assertContains(
+		produces,
+		"[[Copper Breastplate]]",
 		"produces maps to generated crafting rewards"
 	)
 	assertEqual(

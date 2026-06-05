@@ -17,6 +17,7 @@
 --     "Godly" key maps to the tier-2 color and never reaches output.
 
 local Format = require("Module:Erenshor/Format")
+local Link = require("Module:Erenshor/Link")
 local Common = require("Module:Erenshor/Ability/Common")
 
 -- Effect spells and taught skills are joined by stable key (best-practice
@@ -674,7 +675,23 @@ local function auraTooltip(item, stats)
 end
 
 local function craftingList(entries)
-	return table.concat(entries, "<br/>")
+	local out = {}
+	for _, entry in ipairs(entries or {}) do
+		if type(entry) == "table" and entry.link ~= nil then
+			local quantity = tonumber(entry.quantity)
+			local rendered = Link.render(entry.link)
+			if quantity ~= nil then
+				table.insert(out, tostring(quantity) .. "x " .. rendered)
+			else
+				table.insert(out, rendered)
+			end
+		elseif type(entry) == "table" and entry.kind ~= nil then
+			table.insert(out, Link.render(entry))
+		else
+			table.insert(out, entry)
+		end
+	end
+	return table.concat(out, "<br/>")
 end
 
 local function moldTooltip(item, stats)

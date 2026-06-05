@@ -41,11 +41,10 @@ function p.run()
 		"Passive",
 		"innate skill type displays as passive"
 	)
-	assertEqual(
-		Skill.fieldValue(backstab, "Backstab", "classes"),
-		"[[Windblade]] (2)",
-		"class levels format"
-	)
+	local classes = Skill.fieldValue(backstab, "Backstab", "classes")
+	assertContains(classes, "erenshor-link--class", "class levels render semantic class links")
+	assertContains(classes, "Windblade", "class levels include display name")
+	assertContains(classes, "(2)", "class levels include level")
 	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "casttime"),
 		"Instant",
@@ -66,15 +65,19 @@ function p.run()
 		"7",
 		"target damage reads generated skill power"
 	)
-	assertEqual(
-		Skill.fieldValue(backstab, "Backstab", "source"),
-		"{{ItemLink|Sword Mastery Manual}}",
-		"source joins generated teaching items"
+	local source = Skill.fieldValue(backstab, "Backstab", "source")
+	assertContains(source, "erenshor-link--item", "source renders semantic item link")
+	assertContains(source, "[[Sword Mastery Manual]]", "source includes teaching item")
+	local itemsWithEffect = Skill.fieldValue(backstab, "Backstab", "itemswitheffect")
+	assertContains(
+		itemsWithEffect,
+		"erenshor-link--item",
+		"items with effect render semantic item link"
 	)
-	assertEqual(
-		Skill.fieldValue(backstab, "Backstab", "itemswitheffect"),
-		"{{ItemLink|Sword Mastery Manual}}",
-		"items with effect join generated relationship list"
+	assertContains(
+		itemsWithEffect,
+		"[[Sword Mastery Manual]]",
+		"items with effect include source item"
 	)
 	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "special_descriptor"),
@@ -84,11 +87,14 @@ function p.run()
 	assertEqual(Skill.statusText(backstab, "Backstab"), "", "present skill status is blank")
 
 	local stance = { stablekey = "skill:stance - aggressive" }
-	assertEqual(
-		Skill.fieldValue(stance, "Stance: Aggressive", "classes"),
-		"[[Reaver]] (1)",
-		"stance skill class formats"
+	local stanceClasses = Skill.fieldValue(stance, "Stance: Aggressive", "classes")
+	assertContains(
+		stanceClasses,
+		"erenshor-link--class",
+		"stance skill class renders semantic class link"
 	)
+	assertContains(stanceClasses, "Reaver", "stance skill class includes display name")
+	assertContains(stanceClasses, "(1)", "stance skill class includes level")
 	assertContains(
 		Skill.fieldValue(stance, "Stance: Aggressive", "effects"),
 		"Aggressive",

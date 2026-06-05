@@ -117,8 +117,8 @@ def test_builds_skill_relationship_fields_from_repository_links() -> None:
 
     skills = cast("dict[str, object]", data["skills"])
     record = cast("dict[str, object]", skills[skill.stable_key])
-    assert record["source"] == ["{{ItemLink|Backstab Manual}}"]
-    assert record["itemsWithEffect"] == ["{{ItemLink|Assassin Charm}}"]
+    assert record["source"] == [{"kind": "item", "page": "Backstab Manual", "text": "Backstab Manual"}]
+    assert record["itemsWithEffect"] == [{"kind": "item", "page": "Assassin Charm", "text": "Assassin Charm"}]
 
 
 def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> None:

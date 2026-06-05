@@ -28,7 +28,7 @@ return {
 			["cooldownTicks"] = 540.0,
 			["damageType"] = "Physical",
 			["itemsWithEffect"] = {
-				"{{ItemLink|Sword Mastery Manual}}",
+				{ kind = "item", page = "Sword Mastery Manual", text = "Sword Mastery Manual" },
 			},
 			["description"] = "Deal major damage to your target.. Must be behind target.",
 			["guaranteeProc"] = false,
@@ -49,7 +49,7 @@ return {
 			["simPlayersAutolearn"] = true,
 			["skillPower"] = 7,
 			["source"] = {
-				"{{ItemLink|Sword Mastery Manual}}",
+				{ kind = "item", page = "Sword Mastery Manual", text = "Sword Mastery Manual" },
 			},
 			["type"] = "Attack",
 		},

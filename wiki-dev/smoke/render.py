@@ -23,6 +23,13 @@ FORBIDDEN_HTML_MARKERS = (
     ('&lt;section class="pi-item', "forbidden parser output: escaped PortableInfobox section"),
     ("&lt;thead&gt;", "forbidden parser output: escaped table header section"),
     ("&lt;tbody&gt;", "forbidden parser output: escaped table body section"),
+    ("{{ItemLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{AbilityLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{QuestLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{CharacterLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{ZoneLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{FactionLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{ClassLink|", "forbidden parser output: raw cross-reference template"),
 )
 
 FORBIDDEN_HTML_PATTERNS = (

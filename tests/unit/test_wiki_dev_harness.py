@@ -196,6 +196,22 @@ def test_smoke_check_rejects_unexpected_missing_data_categories() -> None:
     assert result.missing == ["forbidden parser output: unexpected missing-data category"]
 
 
+def test_smoke_check_rejects_raw_semantic_link_templates() -> None:
+    render = load_script("wiki-dev/smoke/render.py")
+
+    result = render.check_rendered_html(
+        title="Minor Lightning",
+        html="<p>{{ItemLink|Abyssal Plate}} {{AbilityLink|Minor Lightning}}</p>",
+        expected=[],
+    )
+
+    assert result.ok is False
+    assert result.missing == [
+        "forbidden parser output: raw cross-reference template",
+        "forbidden parser output: raw cross-reference template",
+    ]
+
+
 def test_smoke_fixture_runs_every_lua_testcase_module() -> None:
     expectations = Path("wiki-dev/fixtures/smoke.tsv").read_text(encoding="utf-8")
     testcase_modules = sorted(Path("wiki/modules/Erenshor").glob("**/testcases.lua"))
