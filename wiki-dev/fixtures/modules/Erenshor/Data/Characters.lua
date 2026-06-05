@@ -40,7 +40,6 @@ return {
 			image = "Captain Rowan.png",
 			type = "NPC",
 			faction = "[[The Followers of Good]]",
-			class = "Warrior",
 			zones = "[[Port Azure]]",
 			coordinates = "10.0 x 0.0 x 5.0",
 			level = 20,

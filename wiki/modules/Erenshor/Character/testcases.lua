@@ -34,7 +34,7 @@ function p.run()
 	}, "A Grizzly Bear")
 	assertEqual(override.image, "Manual Bear.png", "article image override wins")
 	assertEqual(override.faction, nil, "dash sentinel blanks supported fields")
-	assertEqual(override.class, "Ranger", "article class override wins")
+	assertEqual(override.class, nil, "article class override is not supported")
 
 	local bearKey = { stablekey = "character:a_grizzly_bear" }
 	assertEqual(
@@ -56,6 +56,20 @@ function p.run()
 		Character.fieldValue(bearKey, "A Grizzly Bear", "health"),
 		"2340",
 		"field health resolves"
+	)
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "experience"),
+		"48–108",
+		"field experience resolves base XP range"
+	)
+	assertEqual(
+		Character.fieldValue(
+			{ stablekey = "character:a_grizzly_bear", xpmultiplier = 6 },
+			"A Grizzly Bear",
+			"experience"
+		),
+		"288–648",
+		"field experience folds boss XP multiplier into base range"
 	)
 	assertContains(
 		Character.statusText(bearKey, "A Grizzly Bear"),

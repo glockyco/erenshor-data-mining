@@ -100,6 +100,16 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
     }
 
 
+def test_character_template_drops_ungenerated_class_field() -> None:
+    template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
+    cargo_declare = Path("wiki/templates/Character/CargoDeclare.wiki").read_text(encoding="utf-8")
+
+    assert "|field|class" not in template
+    assert "<label>Class:</label>" not in template
+    assert "|Class=String" not in template
+    assert "|Class=String" not in cargo_declare
+
+
 def test_character_type_prefers_npc_then_boss_then_rare() -> None:
     npc = make_character(stable_key="character:npc", wiki_page_name="Helpful NPC", is_friendly=1, is_unique=1)
     boss = make_character(stable_key="character:boss", wiki_page_name="Boss Page", is_friendly=0, is_unique=1)

@@ -9,12 +9,10 @@ local FIELD_OVERRIDES = {
 	ac = "ac",
 	agility = "agility",
 	charisma = "charisma",
-	class = "class",
 	coordinates = "coordinates",
 	droprates = "dropRates",
 	elemental = "elemental",
 	endurance = "endurance",
-	experience = "experience",
 	faction = "faction",
 	factionchange = "factionChange",
 	guaranteeddrops = "guaranteedDrops",
@@ -51,13 +49,11 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"type",
 	"faction",
 	"factionchange",
-	"class",
 	"zones",
 	"coordinates",
 	"respawn",
 	"spawnchance",
 	"level",
-	"experience",
 	"guaranteeddrops",
 	"droprates",
 	"spells",
@@ -229,6 +225,27 @@ local function mapLink(selector)
 		.. " View on the interactive map]"
 end
 
+local function roundedPositive(value)
+	return math.floor(value + 0.5)
+end
+
+local function xpMultiplier(c)
+	if c.xpMultiplier == nil or c.xpMultiplier == 0 then
+		return 1
+	end
+	return c.xpMultiplier
+end
+
+local function experienceRange(c)
+	if c.level == nil then
+		return nil
+	end
+	local multiplier = xpMultiplier(c)
+	local minimum = roundedPositive(c.level * 4 * multiplier)
+	local maximum = roundedPositive(c.level * 9 * multiplier)
+	return tostring(minimum) .. "–" .. tostring(maximum)
+end
+
 local FIELD_ACCESSORS = {
 	name = function(c)
 		return c.name
@@ -247,9 +264,6 @@ local FIELD_ACCESSORS = {
 	end,
 	factionchange = function(c)
 		return c.factionChange
-	end,
-	class = function(c)
-		return c.class
 	end,
 	map = function(c)
 		return mapLink(c.mapSelector)
@@ -270,7 +284,7 @@ local FIELD_ACCESSORS = {
 		return c.level
 	end,
 	experience = function(c)
-		return c.experience
+		return experienceRange(c)
 	end,
 	guaranteeddrops = function(c)
 		return c.guaranteedDrops
@@ -357,7 +371,6 @@ local function cargoStoreText(character, pageTitle)
 		{ "Type", character.type },
 		{ "Zones", character.zones },
 		{ "Level", character.level },
-		{ "Class", character.class },
 		{ "Faction", character.faction },
 		{ "SpawnChance", character.spawnChance },
 		{ "HasDrops", character.hasDrops },

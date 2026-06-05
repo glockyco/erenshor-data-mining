@@ -5,7 +5,6 @@
         <data><label>Type:</label><default>{{#invoke:Erenshor/Character|field|type}}</default></data>
         <data><label>Faction:</label><default>{{#invoke:Erenshor/Character|field|faction}}</default></data>
         <data><label>Faction Changes on Kill:</label><default>{{#invoke:Erenshor/Character|field|factionchange}}</default></data>
-        <data><label>Class:</label><default>{{#invoke:Erenshor/Character|field|class}}</default></data>
         <data><label>Map</label><default>{{#invoke:Erenshor/Character|field|map}}</default></data>
         <data><label>Zones:</label><default>{{#invoke:Erenshor/Character|field|zones}}</default></data>
         <data><label>Coordinates:</label><default>{{#invoke:Erenshor/Character|field|coordinates}}</default></data>
@@ -47,7 +46,6 @@
 |Type=String
 |Zones=Text
 |Level=Integer
-|Class=String
 |Faction=String
 |SpawnChance=String
 |HasDrops=Boolean

@@ -63,7 +63,6 @@ CARGO_CHARACTER_FIELDS = (
     "Type",
     "Zones",
     "Level",
-    "Class",
     "Faction",
     "SpawnChance",
     "HasDrops",

@@ -5,7 +5,6 @@
 |Type=String
 |Zones=Text
 |Level=Integer
-|Class=String
 |Faction=String
 |SpawnChance=String
 |HasDrops=Boolean
