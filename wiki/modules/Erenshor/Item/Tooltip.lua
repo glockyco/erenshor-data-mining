@@ -17,6 +17,7 @@
 --     "Godly" key maps to the tier-2 color and never reaches output.
 
 local Format = require("Module:Erenshor/Format")
+local Common = require("Module:Erenshor/Ability/Common")
 
 -- Effect spells and taught skills are joined by stable key (best-practice
 -- mw.loadData: parsed once per page, cached, read-only static data).
@@ -80,13 +81,13 @@ local RESISTS = {
 	{ label = "Void", key = "vr" },
 }
 
-local function isBlank(value)
-	return value == nil or tostring(value):match("^%s*$") ~= nil
-end
-
-local function num(value)
-	return tonumber(value) or 0
-end
+local isBlank = Common.isBlank
+local num = Common.num
+local truthy = Common.truthy
+local signedMod = Common.signedMod
+local spellDuration = Common.spellDuration
+local spellName = Common.spellName
+local spellLink = Common.spellLink
 
 local function tierOf(quality)
 	return QUALITY_RANK[quality] or 0
@@ -150,28 +151,9 @@ end
 
 -- Stat modifier rows, in the live Item/SpellDetails order. Rendered "Label +N"
 -- (green) / "-N" (red); resists/haste/lifesteal carry a suffix.
-local SPELL_MODS = {
-	{ label = "Hitpoints", key = "hp" },
-	{ label = "Armor Class", key = "ac" },
-	{ label = "Mana", key = "mana" },
-	{ label = "Strength", key = "str" },
-	{ label = "Dexterity", key = "dex" },
-	{ label = "Endurance", key = "end" },
-	{ label = "Agility", key = "agi" },
-	{ label = "Wisdom", key = "wis" },
-	{ label = "Intelligence", key = "int" },
-	{ label = "Charisma", key = "cha" },
-	{ label = "Magic Resist", key = "mr" },
-	{ label = "Elemental Resist", key = "er" },
-	{ label = "Poison Resist", key = "pr" },
-	{ label = "Void Resist", key = "vr" },
-	{ label = "Movement Speed", key = "movementSpeed" },
-	{ label = "Damage Shield", key = "damageShield" },
-	{ label = "Haste", key = "haste", suffix = "%" },
-	{ label = "Lifesteal", key = "lifesteal", suffix = "%" },
-	{ label = "Attack Roll Modifier", key = "atkRollModifier" },
-	{ label = "Resonance", key = "resonance" },
-}
+-- Item proc-detail mod suffixes (haste/lifesteal render as %); the Resonance row
+-- is appended after the shared list, matching the live Item/SpellDetails.
+local ITEM_MOD_SUFFIX = { haste = "%", lifesteal = "%" }
 
 local SPELL_FLAGS = {
 	{ key = "lifetap", label = "Lifetap" },
@@ -180,50 +162,6 @@ local SPELL_FLAGS = {
 	{ key = "charm", label = "Charms Target" },
 	{ key = "root", label = "Roots Target" },
 }
-
-local function truthy(value)
-	return value ~= nil and value ~= false and value ~= 0 and value ~= "0" and value ~= ""
-end
-
-local function signedMod(value, suffix)
-	local n = num(value)
-	suffix = suffix or ""
-	if n > 0 then
-		return '<span class="item-spell-positive">+' .. n .. suffix .. "</span>"
-	end
-	return '<span class="item-spell-negative">' .. n .. suffix .. "</span>"
-end
-
--- Game-authoritative: durationTicks <= 0 is instant, else seconds = ticks * 3,
--- labelled "Damage over time:" when the spell deals damage.
-local function spellDuration(spell)
-	local ticks = tonumber(spell.durationTicks)
-	if ticks == nil or ticks <= 0 then
-		return "Instant Effect"
-	end
-	local label = truthy(spell.targetDamage) and "Damage over time:" or "Effect Duration:"
-	return label .. " " .. (ticks * 3) .. " sec"
-end
-
-local function spellName(stableKey)
-	local spell = SpellData.spells[stableKey]
-	if spell == nil then
-		return nil
-	end
-	return spell.name
-end
-
-local function spellLink(stableKey)
-	local spell = SpellData.spells[stableKey]
-	if spell == nil then
-		return nil
-	end
-	local link = Format.pageLink(spell.page, spell.name)
-	if isBlank(link) then
-		return spell.name
-	end
-	return link
-end
 
 -- Reproduce Template:Item/SpellDetails for the spell at `stableKey`.
 -- opts = { worn = bool, procHeader = string }.
@@ -342,13 +280,19 @@ local function spellDetails(stableKey, opts)
 			:addClass("item-spell-flag")
 			:wikitext("Apply Effects on Target: " .. statusName)
 	end
-	for _, mod in ipairs(SPELL_MODS) do
+	for _, mod in ipairs(Common.STAT_MODS) do
 		if num(spell[mod.key]) ~= 0 then
 			content
 				:tag("div")
 				:addClass("item-spell-detail-row")
-				:wikitext(mod.label .. " " .. signedMod(spell[mod.key], mod.suffix))
+				:wikitext(mod.label .. " " .. signedMod(spell[mod.key], ITEM_MOD_SUFFIX[mod.key]))
 		end
+	end
+	if num(spell.resonance) ~= 0 then
+		content
+			:tag("div")
+			:addClass("item-spell-detail-row")
+			:wikitext("Resonance " .. signedMod(spell.resonance))
 	end
 	local addProcName = spellName(spell.addProcStableKey)
 	if not isBlank(addProcName) then
