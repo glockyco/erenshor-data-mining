@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python/uv/Typer, MediaWiki 1.43.x, Scribunto Lua 5.1, ParserFunctions, TemplateSandbox, PortableInfobox, Gadgets/DataTables, ScribuntoUnit-style Lua tests, Cargo/LIBRARIAN, Docker Compose, Playwright parity gate, MediaWiki API, Lefthook, StyLua, Luacheck.
 
-**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), Milestone 8e (first-class Spell/Skill/Stance modeling), Milestone 8f (faithfulness fixes), and Milestone 9 (Cargo-backed armor overview) are complete. Milestone 9b tracks optional follow-up generated table surfaces; only Weapons is complete because it matches the original automated overview scope, while Charms, Auras, Crafting smithing recipes, Ability Books, and class ability tables are deferred. Next: resume the base migration with Milestone 10 deploy/rollback pipeline.
+**Current status:** Foundation (M1-8) complete. Local PortableInfobox + visual parity gate complete (M8b). Entity infobox cutover to real PortableInfobox complete for Character, Item, Quest, and Zone (M8c), including deletion of the hand-rolled `Render` module after the item tooltip cutover. Milestone 8d (item tooltips), 8e (first-class Spell/Skill/Stance modeling), 8f (faithfulness fixes), and 9 (Cargo-backed armor overview) are complete. Milestone 9b (extra generated table surfaces: Charms, Auras, Crafting recipes, Ability Books, class ability tables) is deferred until after cutover; only Weapons is done. Milestone 10 (clean deploy/rollback/refresh pipeline plus the report-only article override-cleanup pass) is implemented; the override-*apply* path is intentionally still blocked. Milestone 10b (game-faithful spell/skill tooltips), 10c (field-parity data-generation gaps plus guarded override-apply safety), and 10d (repo-owned presentation CSS as a `hidden|default` gadget) are complete. Next: Milestones 11-14 (local full-system verification, live TemplateSandbox, production cutover, delete legacy generation).
 
 ---
 
@@ -1134,7 +1134,7 @@ Audit reference: `docs/plans/2026-06-04-wiki-field-parity-audit.md` (Categories 
 The Lua data generators must emit every field the legacy generator produced, so
 nothing regresses at cutover and override cleanup never freezes generated data.
 
-- [ ] **Step 1: Item provenance + key/render fixes**
+- [x] **Step 1: Item provenance + key/render fixes**
 
   Wire vendor/loot/quest/component/item-drop data into the item Lua generator
   (`vendorsource`, `source`, `questsource`, `relatedquest`, `componentfor`,
@@ -1143,22 +1143,24 @@ nothing regresses at cutover and override cleanup never freezes generated data.
   from emitted stable keys; map `castTime`; compute `dps`; map `produces` to
   `rewards`).
 
-- [ ] **Step 2: Spell/skill relationship data**
+- [x] **Step 2: Spell/skill relationship data**
 
   Emit `source` (teaching items) for spells and skills, `itemswitheffect` and
   `used_by` for spells; fix `pet_to_summon` (spell) and `target_damage` (skill)
   key mismatches.
 
-- [ ] **Step 3: Character experience; drop class**
+- [x] **Step 3: Character experience; drop class**
 
-  Generate `experience` as the `BaseXpMin–BaseXpMax` range; remove the `class`
-  row from the Character template and module (no per-character class in export).
+  Compute `experience` in Lua from character `level` and the normalized boss XP
+  multiplier (`level * 4 * multiplier` through `level * 9 * multiplier`);
+  remove the `class` row from the Character template and module (no
+  per-character class in export).
 
-- [ ] **Step 4: Override-apply safety gate**
+- [x] **Step 4: Override-apply safety gate**
 
-  The override-apply path (when built) must refuse to drop any field whose
-  generated value is empty because generation is incomplete, gated per-field on
-  the corresponding data being emitted.
+  The override-apply migration API refuses to proceed for guarded fields whose
+  article value is nonblank while the generated value is empty or unavailable,
+  so deferred fields cannot be frozen as fake manual overrides.
 
 ### Milestone 10d: Repo-own presentation CSS as a hidden|default gadget
 
