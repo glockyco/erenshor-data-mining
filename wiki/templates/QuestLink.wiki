@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Link|quest}}</includeonly><noinclude>Renders a semantic quest link through [[Module:Erenshor/Link]].</noinclude>

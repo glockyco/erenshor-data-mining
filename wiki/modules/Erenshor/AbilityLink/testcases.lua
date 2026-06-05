@@ -52,12 +52,19 @@ function p.run()
 	local rendered = AbilityLink.render({ stablekey = "spell:minor_lightning" })
 	assertContains(
 		rendered,
+		"erenshor-link erenshor-link--ability",
+		"rendered link has semantic wrapper"
+	)
+	assertContains(rendered, 'data-erenshor-kind="ability"', "rendered link has kind data")
+	assertContains(
+		rendered,
 		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",
 		"rendered link contains image"
 	)
 	assertContains(rendered, "[[Minor Lightning]]", "rendered link contains page link")
 
 	local imageOnly = AbilityLink.render({ stablekey = "spell:minor_lightning", imageonly = "1" })
+	assertContains(imageOnly, "erenshor-link--ability", "image-only link has semantic wrapper")
 	assertContains(
 		imageOnly,
 		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",

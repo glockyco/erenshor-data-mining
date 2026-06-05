@@ -45,6 +45,9 @@ function p.fileLink(file, options)
 	if not isBlank(options.alt) then
 		table.insert(parts, "alt=" .. tostring(options.alt))
 	end
+	if not isBlank(options.link) then
+		table.insert(parts, "link=" .. tostring(options.link))
+	end
 	appendNonBlank(parts, options.caption)
 
 	return table.concat(parts, "|") .. "]]"

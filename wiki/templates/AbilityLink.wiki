@@ -1,1 +1,1 @@
-<onlyinclude>{{#invoke:Erenshor/AbilityLink|link}}</onlyinclude><noinclude>{{Documentation}}</noinclude>
+<onlyinclude>{{#invoke:Erenshor/Link|ability}}</onlyinclude><noinclude>{{Documentation}}</noinclude>

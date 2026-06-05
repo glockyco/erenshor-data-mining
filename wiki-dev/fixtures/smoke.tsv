@@ -93,6 +93,14 @@ Lua AbilityLink Smoke	Minor Lightning
 Lua AbilityLink Smoke	Aggressive Stance
 Lua AbilityLink Smoke	Manual Ability Text
 Lua AbilityLink Smoke	Manual Ability Page
+Lua Link Smoke	PASS Erenshor Link testcases
+Lua Link Smoke	erenshor-link--item
+Lua Link Smoke	erenshor-link--ability
+Lua Link Smoke	erenshor-link--quest
+Lua Link Smoke	erenshor-link--character
+Lua Link Smoke	erenshor-link--zone
+Lua Link Smoke	erenshor-link--faction
+Lua Link Smoke	erenshor-link--class
 Lua Quest Smoke	PASS Erenshor Quest testcases
 A Magical Sword in Port Azure	A Magical Sword in Port Azure
 A Magical Sword in Port Azure	450

@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Link|zone}}</includeonly><noinclude>Renders a semantic zone link through [[Module:Erenshor/Link]].</noinclude>

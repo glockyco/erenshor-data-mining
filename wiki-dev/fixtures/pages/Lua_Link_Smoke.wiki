@@ -1,0 +1,17 @@
+= Lua Link Smoke =
+
+{{#invoke:Erenshor/Link/testcases|run}}
+
+Item: {{ItemLink|Abyssal Plate}}
+
+Ability: {{AbilityLink|stablekey=spell:minor_lightning}}
+
+Quest: {{QuestLink|Reward Quest}}
+
+Character: {{CharacterLink|A Grizzly Bear}}
+
+Zone: {{ZoneLink|Blacksalt Strand}}
+
+Faction: {{FactionLink|The Followers of Good}}
+
+Class: {{ClassLink|Duelist}}

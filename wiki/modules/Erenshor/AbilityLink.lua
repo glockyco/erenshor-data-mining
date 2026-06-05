@@ -1,32 +1,9 @@
 local Args = require("Module:Erenshor/Args")
-local Format = require("Module:Erenshor/Format")
+local Link = require("Module:Erenshor/Link")
 
 local Data = mw.loadData("Module:Erenshor/Data/AbilityLinks")
 
 local p = {}
-
-local function isBlank(value)
-	return value == nil or tostring(value):match("^%s*$") ~= nil
-end
-
-local function ensureImageFile(image, fallbackName)
-	local value = image
-	if isBlank(value) then
-		value = fallbackName
-	end
-	if isBlank(value) then
-		return nil
-	end
-	value = tostring(value)
-	if
-		value:match("%.[Pp][Nn][Gg]$")
-		or value:match("%.[Jj][Pp][Gg]$")
-		or value:match("%.[Jj][Pp][Ee][Gg]$")
-	then
-		return value
-	end
-	return value .. ".png"
-end
 
 local function copyTable(value)
 	local out = {}
@@ -77,30 +54,10 @@ function p.resolve(args)
 	return ability
 end
 
-local function linkedImage(ability)
-	local image = ensureImageFile(ability.image, ability.name)
-	if isBlank(image) then
-		return ""
-	end
-	local page = ability.page
-	if isBlank(page) then
-		return Format.fileLink(image, { size = "30px", alt = ability.name })
-	end
-	return string.format("[[File:%s|30px|link=%s]]", tostring(image), tostring(page))
-end
-
 function p.render(args)
-	local ability = p.resolve(args)
-	local parts = {
-		'<span style="color:#fff;text-shadow:1px 1px 10px red, 1px 1px 10px orange;">',
-		linkedImage(ability),
-	}
-	if Args.resolve(args or {}, "imageonly", nil) ~= "1" then
-		table.insert(parts, " ")
-		table.insert(parts, Format.pageLink(ability.page, ability.name))
-	end
-	table.insert(parts, "</span>")
-	return table.concat(parts)
+	args = copyTable(args or {})
+	args.kind = "ability"
+	return Link.render(args)
 end
 
 function p.link(frame)

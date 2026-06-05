@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Link|faction}}</includeonly><noinclude>Renders a semantic faction link through [[Module:Erenshor/Link]].</noinclude>

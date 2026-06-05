@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Link|character}}</includeonly><noinclude>Renders a semantic character link through [[Module:Erenshor/Link]].</noinclude>

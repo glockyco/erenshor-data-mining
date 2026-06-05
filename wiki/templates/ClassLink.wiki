@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Link|class}}</includeonly><noinclude>Renders a semantic class link through [[Module:Erenshor/Link]].</noinclude>

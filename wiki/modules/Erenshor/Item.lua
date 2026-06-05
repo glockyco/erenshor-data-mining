@@ -1,4 +1,5 @@
 local Args = require("Module:Erenshor/Args")
+local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Item/Tooltip")
 
@@ -608,28 +609,20 @@ function p.renderTooltip(args, pageTitle)
 end
 
 function p.renderLink(args, pageTitle)
-	local itemName = Args.resolve(args, "item", nil)
-		or Args.resolve(args, "name", nil)
-		or Args.resolve(args, 1, nil)
-		or pageTitle
-	local item = nil
-	local stableKey = explicitStableKey(args)
-	if stableKey ~= nil then
-		item = p.resolve(args, pageTitle)
-		if item.missing then
-			item = nil
-		end
+	args = args or {}
+	local out = {}
+	for key, value in pairs(args) do
+		out[key] = value
 	end
-	local link = Args.resolve(args, "link", nil) or (item and item.page) or itemName
-	local text = Args.resolve(args, "text", nil) or (item and item.name) or itemName
-	local image = Args.resolve(args, "image", nil) or (item and item.image) or itemName
-	local imageLink =
-		Format.fileLink(ensureImageFile(image, text), { alt = text, size = "24x24px" })
-
-	if Args.bool(args, "imageonly", false) then
-		return imageLink
+	out.kind = "item"
+	if
+		Args.resolve(out, 1, nil) == nil
+		and Args.resolve(out, "item", nil) == nil
+		and Args.resolve(out, "name", nil) == nil
+	then
+		out[1] = pageTitle
 	end
-	return imageLink .. " " .. Format.pageLink(link, text)
+	return Link.render(out)
 end
 
 local function cargoValue(value)
