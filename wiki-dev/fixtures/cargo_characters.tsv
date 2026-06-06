@@ -2,3 +2,5 @@ A Grizzly Bear	character:a_grizzly_bear	A Grizzly Bear	Enemy	Blacksalt Strand	12
 Captain Rowan	character:captain_rowan	Captain Rowan	NPC	Port Azure	20	faction:the_followers_of_good	0	0	npc:Captain Rowan
 Rare Cave Spider	character:rare_cave_spider	Rare Cave Spider	Rare	Crystal Cavern	18		0	0	enemy:Rare Cave Spider
 Manual Character Override	character:a_grizzly_bear	Manual Bear	Enemy	Blacksalt Strand	12		1	0	enemy:A Grizzly Bear
+Dire Wolf	character:dire_wolf_young	Dire Wolf	Enemy	Loomingwood Forest	8	faction:the_followers_of_evil	0	0	enemy:Dire Wolf Young
+Dire Wolf	character:dire_wolf_alpha	Dire Wolf	Rare	Loomingwood Forest	15	faction:the_followers_of_good	0	0	enemy:Dire Wolf Alpha

@@ -99,5 +99,43 @@ return {
 			hasDrops = false,
 			hasSpells = false,
 		},
+		["character:dire_wolf_young"] = {
+			name = "Dire Wolf",
+			page = "Dire Wolf",
+			image = "Dire Wolf.png",
+			type = "Enemy",
+			faction = {
+				kind = "faction",
+				page = "The Followers of Evil",
+				text = "The Followers of Evil",
+				stablekey = "faction:the_followers_of_evil",
+			},
+			zones = {
+				{ kind = "zone", page = "Loomingwood Forest", text = "Loomingwood Forest" },
+			},
+			level = 8,
+			mapSelector = "enemy:Dire Wolf Young",
+			hasDrops = false,
+			hasSpells = false,
+		},
+		["character:dire_wolf_alpha"] = {
+			name = "Dire Wolf",
+			page = "Dire Wolf",
+			image = "Dire Wolf.png",
+			type = "Rare",
+			faction = {
+				kind = "faction",
+				page = "The Followers of Good",
+				text = "The Followers of Good",
+				stablekey = "faction:the_followers_of_good",
+			},
+			zones = {
+				{ kind = "zone", page = "Loomingwood Forest", text = "Loomingwood Forest" },
+			},
+			level = 15,
+			mapSelector = "enemy:Dire Wolf Alpha",
+			hasDrops = false,
+			hasSpells = false,
+		},
 	},
 }
