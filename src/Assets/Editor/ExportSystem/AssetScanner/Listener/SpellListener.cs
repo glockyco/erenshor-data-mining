@@ -156,6 +156,10 @@ public class SpellListener : IAssetScanListener<Spell>
             XPBonus = spell.XPBonus,
             AutomateAttack = spell.AutomateAttack,
             WornEffect = spell.WornEffect,
+            GrantInvisibility = spell.GrantInvisibility,
+            CannotInterrupt = spell.CannotInterrupt,
+            JoltSpell = spell.JoltSpell,
+            NoResonate = spell.NoResonate,
 
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,

@@ -99,6 +99,10 @@ public class SpellRecord
     public float XPBonus { get; set; } // From Spell.XPBonus
     public bool AutomateAttack { get; set; } // From Spell.AutomateAttack
     public bool WornEffect { get; set; } // From Spell.WornEffect
+    public bool GrantInvisibility { get; set; } // From Spell.GrantInvisibility
+    public bool CannotInterrupt { get; set; } // From Spell.CannotInterrupt
+    public bool JoltSpell { get; set; } // From Spell.JoltSpell
+    public bool NoResonate { get; set; } // From Spell.NoResonate
 
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex
