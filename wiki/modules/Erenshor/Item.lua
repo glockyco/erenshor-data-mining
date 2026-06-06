@@ -260,23 +260,6 @@ end
 
 local hasValue
 
-local function classOverviewLinks(classes)
-	if classes == nil then
-		return ""
-	end
-	if type(classes) ~= "table" then
-		return tostring(classes)
-	end
-
-	local links = {}
-	for _, class in ipairs(classes) do
-		if not isBlank(class) then
-			table.insert(links, Link.render({ kind = "class", page = class }))
-		end
-	end
-	return table.concat(links, ", ")
-end
-
 local function normalStats(item)
 	for _, stats in ipairs(item.stats or {}) do
 		if stats.quality == "Normal" or stats.quality == "0" then
@@ -721,7 +704,6 @@ local function cargoStoreText(item, pageTitle)
 		{ "SellValue", item.sellValue },
 		{ "Image", ensureImageFile(item.image, item.name) },
 		{ "Classes", classCargo(item.classes) },
-		{ "ClassLinks", classOverviewLinks(item.classes) },
 		{ "OverviewProcAbility", procAbility },
 		{ "OverviewProcChance", procChance },
 		{ "OverviewProcTrigger", procTrigger },
@@ -741,6 +723,21 @@ end
 
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
+end
+
+function p.classLinks(frame)
+	local value = frame.args[1]
+	if value == nil or isBlank(value) then
+		return ""
+	end
+	local links = {}
+	for class in string.gmatch(value, "[^,]+") do
+		local trimmed = mw.text.trim(class)
+		if not isBlank(trimmed) then
+			table.insert(links, Link.render({ kind = "class", page = trimmed }))
+		end
+	end
+	return table.concat(links, ", ")
 end
 
 function p.status(frame)

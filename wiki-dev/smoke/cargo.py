@@ -45,7 +45,6 @@ CARGO_ITEM_FIELDS = (
     "SellValue",
     "Image",
     "Classes",
-    "ClassLinks",
     "OverviewProcAbility",
     "OverviewProcChance",
     "OverviewProcTrigger",

@@ -18,5 +18,5 @@
 |{{{ER|}}}
 |{{{VR|}}}
 |{{#invoke:Erenshor/Item|overviewNotes|proc={{{ProcAbility|}}}|chance={{{ProcChance|}}}|trigger={{{ProcTrigger|}}}|worn={{{WornAbility|}}}|click={{{ClickAbility|}}}}}
-|{{{Classes|}}}
+|{{#invoke:Erenshor/Item|classLinks|{{{Classes|}}}}}
 </includeonly><noinclude>Renders one Cargo row for [[Template:ArmorTable]].</noinclude>

@@ -65,7 +65,6 @@ _table=Items
 |SellValue=Integer
 |Image=File
 |Classes=List (,) of String
-|ClassLinks=Wikitext
 |OverviewProcAbility=Page
 |OverviewProcChance=Integer
 |OverviewProcTrigger=String

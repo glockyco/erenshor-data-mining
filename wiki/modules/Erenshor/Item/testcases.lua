@@ -66,9 +66,10 @@ function p.run()
 		end,
 	})
 	assertContains(cargo, "|Armor=40", "cargo store contains armor overview AC")
-	assertContains(cargo, "erenshor-link--class", "cargo store contains semantic class links")
-	assertContains(cargo, "[[Paladin]]", "cargo store contains Paladin class link")
-	assertContains(cargo, "[[Warrior]]", "cargo store contains Warrior class link")
+	assertContains(cargo, "|Classes=Paladin,Warrior", "cargo store contains plain class names")
+	local classRender = Item.classLinks({ args = { "Paladin,Warrior" } })
+	assertContains(classRender, "erenshor-link--class", "classLinks renders semantic class links")
+	assertContains(classRender, "[[Paladin]]", "classLinks renders Paladin link")
 	assertContains(
 		cargo,
 		"|OverviewWornAbility=Minor Lightning",
