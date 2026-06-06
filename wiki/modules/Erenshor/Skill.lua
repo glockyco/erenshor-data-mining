@@ -229,11 +229,11 @@ local function cooldownText(skill)
 	if not isBlank(skill.cooldownOverride) then
 		return skill.cooldownOverride
 	end
-	local ticks = tonumber(skill.cooldownTicks)
-	if ticks == nil or ticks == 0 then
+	local seconds = tonumber(skill.cooldownSeconds)
+	if seconds == nil or seconds == 0 then
 		return ""
 	end
-	return numberText(ticks / 60) .. " seconds"
+	return numberText(seconds) .. " seconds"
 end
 
 local function selfOnlyText(skill)

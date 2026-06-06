@@ -68,7 +68,7 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
                 "image": "Backstab",
                 "description": "Deal major damage to your target.. Must be behind target.",
                 "type": "Attack",
-                "cooldownTicks": 540.0,
+                "cooldownSeconds": 9.0,
                 "classLevels": [
                     {"className": "Duelist", "displayName": "Windblade", "level": 2},
                 ],

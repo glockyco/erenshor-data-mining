@@ -31,8 +31,8 @@ end
 
 -- Cast time uses one-decimal formatting (ItemInfoWindow.cs:680 ToString("F1")),
 -- the clean game convention, rather than the raw float SpellbookSlot prints.
-local function castSeconds(ticks)
-	return string.format("%.1f", Common.num(ticks) / 60) .. " sec"
+local function castSeconds(seconds)
+	return string.format("%.1f", Common.num(seconds)) .. " sec"
 end
 
 local function detailRow(content, text, class)
@@ -79,11 +79,11 @@ function Tooltip.render(spell)
 	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost))
 
 	if Common.truthy(spell.targetDamage) then
-		local perTick = (Common.num(spell.durationTicks) > 0) and " / tick" or ""
+		local perTick = (Common.num(spell.durationSeconds) > 0) and " / 3 sec" or ""
 		detailRow(content, "Damage: " .. spell.targetDamage .. perTick, "item-spell-damage")
 	end
 
-	detailRow(content, "Cast Time: " .. castSeconds(spell.castTimeTicks))
+	detailRow(content, "Cast Time: " .. castSeconds(spell.castTimeSeconds))
 	detailRow(content, "Cooldown: " .. seconds(spell.cooldownSeconds))
 
 	if

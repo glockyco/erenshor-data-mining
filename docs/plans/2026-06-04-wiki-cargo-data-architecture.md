@@ -17,7 +17,13 @@ Each increment lands via TDD + local smoke + the full commit gate.
   faction ref), `Zones`→bare names, drop `SpawnChance` from Cargo.
 - [x] Phase 1c — multi-entity regression fixture (same-name two-`character`
   page `Dire Wolf`: two Cargo rows, shared Page, distinct StableKey).
-- [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`.
+- [x] Phase 2 prereq A — convert spell/skill times to seconds at generation
+  (cast `/60`, duration `*3`, skill cooldown `/60`, per the game C#); remove all
+  tick storage/display from the wiki. See `2026-06-06-wiki-cargo-phase2-abilities.md`.
+- [ ] Phase 2 prereq B — split `{{Ability}}`→`{{Spell}}`/`{{Skill}}`, retire
+  `Template:Ability` + `Module:Erenshor/Ability` dispatcher.
+- [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`
+  (symmetric three-template Cargo via `#cargo_attach`).
 - [ ] Phase 3 — relationship junction tables + `Spawns` (§6) + item→ability scalar
   columns + reverse-query rendering.
 - [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).

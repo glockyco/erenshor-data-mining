@@ -217,7 +217,7 @@ local function spellDetails(stableKey, opts)
 		:addClass("item-spell-detail-row")
 		:wikitext("Spell Line: " .. (spell.line or ""))
 
-	local perTick = (tonumber(spell.durationTicks) or 0) > 0 and " / tick" or ""
+	local perTick = (tonumber(spell.durationSeconds) or 0) > 0 and " / 3 sec" or ""
 	if truthy(spell.targetDamage) then
 		content
 			:tag("div")
@@ -240,12 +240,12 @@ local function spellDetails(stableKey, opts)
 			:wikitext("Shield Amount: " .. spell.shieldAmount)
 	end
 	if opts.worn ~= true then
-		local castTicks = tonumber(spell.castTimeTicks)
-		if castTicks ~= nil and castTicks > 0 then
+		local castSeconds = tonumber(spell.castTimeSeconds)
+		if castSeconds ~= nil and castSeconds > 0 then
 			content
 				:tag("div")
 				:addClass("item-spell-detail-row")
-				:wikitext(string.format("Cast Time: %.1f sec", castTicks / 60))
+				:wikitext(string.format("Cast Time: %.1f sec", castSeconds))
 		end
 	end
 	if

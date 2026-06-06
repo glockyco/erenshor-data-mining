@@ -33,9 +33,7 @@ _NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("requiredLevel", "required_level"),
     ("manaCost", "mana_cost"),
     ("aggro", "aggro"),
-    ("castTimeTicks", "spell_charge_time"),
     ("cooldownSeconds", "cooldown"),
-    ("durationTicks", "spell_duration_in_ticks"),
     ("range", "spell_range"),
     ("maxLevelTarget", "max_level_target"),
     ("targetDamage", "target_damage"),
@@ -196,6 +194,10 @@ def _spell_record(
         _put_number(record, lua_key, getattr(spell, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(spell, attr))
+    if spell.spell_charge_time is not None:
+        _put_number(record, "castTimeSeconds", round(spell.spell_charge_time / 60, 2))
+    if spell.spell_duration_in_ticks is not None:
+        _put_number(record, "durationSeconds", spell.spell_duration_in_ticks * 3)
     _put_list(record, "source", _link_list(teaching_items, "item"))
     _put_list(record, "itemsWithEffect", _link_list(items_with_effect, "item"))
     _put_list(record, "usedBy", _link_list(used_by, "character"))

@@ -24,7 +24,6 @@ local FIELD_OVERRIDES = {
 	["casttime"] = "castTimeOverride",
 	["cooldown"] = "cooldownOverride",
 	["duration"] = "durationOverride",
-	["duration_in_ticks"] = "durationTicksOverride",
 	["has_unstable_duration"] = "unstableDuration",
 	["is_instant_effect"] = "instantEffect",
 	["is_reap_and_renew"] = "reapAndRenew",
@@ -96,7 +95,6 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"casttime",
 	"cooldown",
 	"duration",
-	"duration_in_ticks",
 	"has_unstable_duration",
 	"is_instant_effect",
 	"is_reap_and_renew",
@@ -242,12 +240,8 @@ local function castTimeText(spell)
 	if not isBlank(spell.castTimeOverride) then
 		return spell.castTimeOverride
 	end
-	local ticks = tonumber(spell.castTimeTicks)
-	if ticks == nil or ticks == 0 then
-		return "Instant"
-	end
-	local seconds = ticks / 60
-	if seconds < 0.05 then
+	local seconds = tonumber(spell.castTimeSeconds)
+	if seconds == nil or seconds < 0.05 then
 		return "Instant"
 	end
 	return string.format("%.1f seconds", seconds)
@@ -264,22 +258,11 @@ local function durationText(spell)
 	if not isBlank(spell.durationOverride) then
 		return spell.durationOverride
 	end
-	local ticks = tonumber(spell.durationTicks)
-	if ticks == nil or ticks == 0 then
+	local seconds = tonumber(spell.durationSeconds)
+	if seconds == nil or seconds == 0 then
 		return ""
 	end
-	return numberText(ticks * 3) .. " seconds"
-end
-
-local function durationTicksText(spell)
-	if not isBlank(spell.durationTicksOverride) then
-		return spell.durationTicksOverride
-	end
-	local ticks = tonumber(spell.durationTicks)
-	if ticks == nil or ticks == 0 then
-		return ""
-	end
-	return numberText(ticks) .. " ticks"
+	return numberText(seconds) .. " seconds"
 end
 
 local function imageCaptionText(spell)
@@ -405,7 +388,6 @@ local FIELD_ACCESSORS = {
 	casttime = castTimeText,
 	cooldown = cooldownText,
 	duration = durationText,
-	duration_in_ticks = durationTicksText,
 	has_unstable_duration = function(s)
 		return boolText(s.unstableDuration)
 	end,

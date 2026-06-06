@@ -53,7 +53,7 @@ function p.run()
 	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "cooldown"),
 		"9 seconds",
-		"skill cooldown ticks convert"
+		"skill cooldown in seconds"
 	)
 	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "damage_type"),

@@ -107,12 +107,7 @@ function p.run()
 	assertEqual(
 		Spell.fieldValue(buff, "Ancient Presence", "duration"),
 		"12 seconds",
-		"duration ticks convert"
-	)
-	assertEqual(
-		Spell.fieldValue(buff, "Ancient Presence", "duration_in_ticks"),
-		"4 ticks",
-		"duration ticks expose raw value"
+		"duration in seconds"
 	)
 	assertEqual(
 		Spell.fieldValue(buff, "Ancient Presence", "damage_shield"),

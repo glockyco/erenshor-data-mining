@@ -81,15 +81,15 @@ function Common.colorDamageType(damageType)
 	return tostring(damageType)
 end
 
--- durationTicks <= 0 -> instant; else seconds = ticks * 3, labelled
--- "Damage over time:" when the spell deals damage, else "Effect Duration:".
+-- durationSeconds <= 0 -> instant; else labelled "Damage over time:" when the
+-- spell deals damage, else "Effect Duration:".
 function Common.spellDuration(spell)
-	local ticks = tonumber(spell.durationTicks)
-	if ticks == nil or ticks <= 0 then
+	local seconds = tonumber(spell.durationSeconds)
+	if seconds == nil or seconds <= 0 then
 		return "Instant Effect"
 	end
 	local label = Common.truthy(spell.targetDamage) and "Damage over time:" or "Effect Duration:"
-	return label .. " " .. (ticks * 3) .. " sec"
+	return label .. " " .. seconds .. " sec"
 end
 
 function Common.spellName(stableKey)

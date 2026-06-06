@@ -25,7 +25,7 @@ return {
 					["level"] = 2,
 				},
 			},
-			["cooldownTicks"] = 540.0,
+			["cooldownSeconds"] = 9.0,
 			["damageType"] = "Physical",
 			["itemsWithEffect"] = {
 				{ kind = "item", page = "Sword Mastery Manual", text = "Sword Mastery Manual" },
@@ -65,7 +65,7 @@ return {
 					["level"] = 1,
 				},
 			},
-			["cooldownTicks"] = 0.0,
+			["cooldownSeconds"] = 0.0,
 			["damageType"] = "Physical",
 			["description"] = "Gain a 50% increase to physical damage dealt, but take 50% more incoming damage from all sources. Your focus on offense stops all natural health regeneration.",
 			["guaranteeProc"] = false,

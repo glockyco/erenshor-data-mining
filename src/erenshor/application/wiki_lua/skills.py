@@ -40,7 +40,6 @@ _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
 )
 
 _NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
-    ("cooldownTicks", "cooldown"),
     ("range", "skill_range"),
     ("skillPower", "skill_power"),
     ("percentDmg", "percent_dmg"),
@@ -151,6 +150,8 @@ def _skill_record(
         _put_number(record, lua_key, getattr(skill, attr))
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(skill, attr))
+    if skill.cooldown is not None:
+        _put_number(record, "cooldownSeconds", round(skill.cooldown / 60, 2))
     _put_list(record, "source", _link_list(teaching_items, "item"))
     _put_list(record, "itemsWithEffect", _link_list(items_with_effect, "item"))
     return record
