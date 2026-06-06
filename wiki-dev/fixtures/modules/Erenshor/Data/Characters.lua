@@ -9,6 +9,7 @@ return {
 				kind = "faction",
 				page = "The Followers of Evil",
 				text = "The Followers of Evil",
+				stablekey = "faction:the_followers_of_evil",
 			},
 			zones = {
 				{ kind = "zone", page = "Blacksalt Strand", text = "Blacksalt Strand" },
@@ -60,6 +61,7 @@ return {
 				kind = "faction",
 				page = "The Followers of Good",
 				text = "The Followers of Good",
+				stablekey = "faction:the_followers_of_good",
 			},
 			zones = {
 				{ kind = "zone", page = "Port Azure", text = "Port Azure" },

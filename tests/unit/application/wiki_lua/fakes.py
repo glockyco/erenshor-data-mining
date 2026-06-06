@@ -231,6 +231,7 @@ def make_character(**overrides: object) -> Character:
         "image_name": "A Grizzly Bear",
         "my_world_faction_display_name": "The Followers of Evil",
         "my_world_faction_wiki_page_name": "The Followers of Evil",
+        "my_world_faction_stable_key": "faction:the_followers_of_evil",
         "is_common": 1,
         "is_rare": 0,
         "is_unique": 0,

@@ -44,10 +44,9 @@
 |StableKey=String
 |Name=String
 |Type=String
-|Zones=Text
+|Zones=List (,) of String
 |Level=Integer
 |Faction=String
-|SpawnChance=String
 |HasDrops=Boolean
 |HasSpells=Boolean
 |MapSelector=String

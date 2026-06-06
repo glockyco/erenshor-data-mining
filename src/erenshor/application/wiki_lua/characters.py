@@ -196,7 +196,12 @@ def _format_faction(character: Character) -> LuaData | str:
     page_name = character.my_world_faction_wiki_page_name
     if not page_name:
         return display_name
-    return link_ref(StandardLink(page_title=page_name, display_name=display_name), "faction") or ""
+    ref = link_ref(StandardLink(page_title=page_name, display_name=display_name), "faction")
+    if ref is None:
+        return ""
+    if character.my_world_faction_stable_key:
+        ref["stablekey"] = character.my_world_faction_stable_key
+    return ref
 
 
 def _format_faction_modifiers(faction_modifiers: list[FactionModifier]) -> list[LuaData]:

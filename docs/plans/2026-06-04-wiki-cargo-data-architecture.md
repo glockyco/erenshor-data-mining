@@ -1,9 +1,27 @@
 # Wiki Cargo Data Architecture
 
-Status: DRAFT — design/spec for review. Implementation plan (writing-plans) follows approval.
+Status: IN PROGRESS — approved spec; implementing per §13 sequencing. See Progress.
 Date: 2026-06-04
 Scope: the repo-owned MediaWiki (LIBRARIAN/Cargo) data layer — entity tables,
 relationship tables, the community-contribution layer, freshness, and removals.
+
+## Progress
+
+Each increment lands via TDD + local smoke + the full commit gate.
+
+- [x] Phase 0 — export wiki-relevant Spell flags (`GrantInvisibility`,
+  `CannotInterrupt`, `JoltSpell`, `NoResonate`). Commits `79f3d71f`, `f66c287d`.
+- [x] Phase 1a — drop `Items.ClassLinks` rendered markup; render class links at
+  display from `Classes`. Commit `9bb6495a`.
+- [x] Phase 1b — Characters §5.1: `Faction`→WorldFaction stablekey (enriched
+  faction ref), `Zones`→bare names, drop `SpawnChance` from Cargo.
+- [ ] Phase 1c — multi-entity regression fixtures.
+- [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`.
+- [ ] Phase 3 — relationship junction tables + `Spawns` (§6) + item→ability scalar
+  columns + reverse-query rendering.
+- [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).
+- [ ] Phase 5 — freshness/orphans (recreate + refresh sets, drop-and-recreate).
+- [ ] Phase 6 — editor/template documentation (TemplateData + `/doc`).
 
 ## 1. Purpose
 

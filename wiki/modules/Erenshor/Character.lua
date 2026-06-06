@@ -254,6 +254,21 @@ local function linkList(values)
 	return Link.join(values, "<br>")
 end
 
+local function zoneNames(values)
+	if type(values) ~= "table" then
+		return values or ""
+	end
+	local names = {}
+	for _, zone in ipairs(values) do
+		if type(zone) == "table" and zone.page ~= nil then
+			table.insert(names, zone.page)
+		elseif type(zone) == "string" then
+			table.insert(names, zone)
+		end
+	end
+	return table.concat(names, ",")
+end
+
 local function factionChangeList(values)
 	if type(values) ~= "table" then
 		return values
@@ -429,14 +444,12 @@ local function cargoStoreText(character, pageTitle)
 		{ "StableKey", character.stableKey },
 		{ "Name", character.name },
 		{ "Type", character.type },
-		{ "Zones", linkList(character.zones) },
+		{ "Zones", zoneNames(character.zones) },
 		{ "Level", character.level },
 		{
 			"Faction",
-			type(character.faction) == "table" and Link.render(character.faction)
-				or character.faction,
+			type(character.faction) == "table" and (character.faction.stablekey or "") or "",
 		},
-		{ "SpawnChance", character.spawnChance },
 		{ "HasDrops", character.hasDrops },
 		{ "HasSpells", character.hasSpells },
 		{ "MapSelector", character.mapSelector },

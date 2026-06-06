@@ -66,7 +66,12 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
                 "page": "A Grizzly Bear",
                 "image": "A Grizzly Bear",
                 "type": "Enemy",
-                "faction": {"kind": "faction", "page": "The Followers of Evil", "text": "The Followers of Evil"},
+                "faction": {
+                    "kind": "faction",
+                    "page": "The Followers of Evil",
+                    "text": "The Followers of Evil",
+                    "stablekey": "faction:the_followers_of_evil",
+                },
                 "zones": [{"kind": "zone", "page": "Blacksalt Strand", "text": "Blacksalt Strand"}],
                 "coordinates": "1.2 x 2.5 x 3.8",
                 "respawn": "2 minutes",
