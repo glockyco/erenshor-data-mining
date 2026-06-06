@@ -160,6 +160,10 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
                 "xpBonus": 0.0,
                 "automateAttack": True,
                 "wornEffect": False,
+                "grantInvisibility": False,
+                "cannotInterrupt": False,
+                "jolt": False,
+                "noResonate": False,
                 "statusEffectMessageOnPlayer": "are jolted by lightning.",
                 "statusEffectMessageOnNpc": "is jolted by lightning.",
             }

@@ -134,6 +134,10 @@ class Spell(BaseEntity):
     xp_bonus: float | None = Field(default=None, description="XP bonus multiplier")
     automate_attack: int | None = Field(default=None, description="Start auto-attacking when used (boolean)")
     worn_effect: int | None = Field(default=None, description="Worn as passive (boolean)")
+    grant_invisibility: int | None = Field(default=None, description="Makes the target invisible (boolean)")
+    cannot_interrupt: int | None = Field(default=None, description="Casting cannot be interrupted (boolean)")
+    jolt_spell: int | None = Field(default=None, description="Jolts/interrupts the target on resolve (boolean)")
+    no_resonate: int | None = Field(default=None, description="Suppresses the resonate proc chain (boolean)")
 
     # Visual effects
     spell_charge_fx_index: int | None = Field(default=None, description="Charge VFX index")

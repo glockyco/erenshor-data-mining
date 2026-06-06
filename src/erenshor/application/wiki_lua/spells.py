@@ -90,6 +90,10 @@ _BOOL_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("reapAndRenew", "reap_and_renew"),
     ("automateAttack", "automate_attack"),
     ("wornEffect", "worn_effect"),
+    ("grantInvisibility", "grant_invisibility"),
+    ("cannotInterrupt", "cannot_interrupt"),
+    ("jolt", "jolt_spell"),
+    ("noResonate", "no_resonate"),
 )
 
 
