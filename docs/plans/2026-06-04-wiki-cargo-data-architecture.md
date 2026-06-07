@@ -225,7 +225,7 @@ wiki.gg 1-declare + 1-attach budget, so **no attach-trick is needed for abilitie
 
 `Spells` (from `spells`): `StableKey`, `Page`, `Name`, `Image`, `Type`, `Line`,
 `RequiredLevel`, `ManaCost`, `CastTimeSeconds`, `CooldownSeconds`,
-`DurationSeconds`, `Range`, `DamageType`, `TargetDamage`, `TargetHealing`,
+`DurationSeconds`, `CastRange`, `DamageType`, `TargetDamage`, `TargetHealing`,
 `CasterHealing`, `ShieldingAmt`, `SimUsable`, `SelfOnly`, `GroupEffect`, `Aggro`,
 `CrowdControl`, `GrantInvisibility`, `CannotInterrupt`, `Jolt`, `NoResonate`, plus
 single-reference relation StableKeys `StatusEffect` (`status_effect_to_apply_stable_key`),
@@ -233,7 +233,7 @@ single-reference relation StableKeys `StatusEffect` (`status_effect_to_apply_sta
 (Times are seconds — Phase 2 prereq A.)
 
 `Skills` (from `skills`): `StableKey`, `Page`, `Name`, `Image`, `Type` (`Innate`→"Passive"),
-`CooldownSeconds`, `Range`, `SkillPower`, `PercentDmg`, `DamageType`, `Require2H`,
+`CooldownSeconds`, `CastRange`, `SkillPower`, `PercentDmg`, `DamageType`, `Require2H`,
 `RequireDualWield`, `RequireBow`, `RequireShield`, `RequireBehind`, plus relation
 StableKeys `StanceToUse`, `EffectToApply`, `CastOnTarget`, `SpawnOnUse`.
 

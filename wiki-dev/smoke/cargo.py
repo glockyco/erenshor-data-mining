@@ -68,26 +68,79 @@ CARGO_CHARACTER_FIELDS = (
     "MapSelector",
 )
 
+CARGO_SPELL_FIELDS = (
+    "Page",
+    "StableKey",
+    "Name",
+    "Image",
+    "Type",
+    "Line",
+    "RequiredLevel",
+    "ManaCost",
+    "CastTimeSeconds",
+    "CooldownSeconds",
+    "DurationSeconds",
+    "CastRange",
+    "DamageType",
+    "TargetDamage",
+    "TargetHealing",
+    "CasterHealing",
+    "ShieldingAmt",
+    "Aggro",
+    "SimUsable",
+    "SelfOnly",
+    "GroupEffect",
+    "CrowdControl",
+    "GrantInvisibility",
+    "CannotInterrupt",
+    "Jolt",
+    "NoResonate",
+    "StatusEffect",
+    "AddProc",
+    "PetToSummon",
+)
 
-def load_cargo_expectations(path: Path, fields: tuple[str, ...]) -> list[CargoExpectation]:
-    """Load expected Cargo rows from a tab-separated file."""
+CARGO_ABILITY_CLASS_FIELDS = (
+    "Page",
+    "StableKey",
+    "Class",
+    "RequiredLevel",
+)
+# AbilityClasses is a child table: a page holds one row per (ability, class), so its
+# row identity is the StableKey plus the Class, not the StableKey alone.
+ABILITY_CLASS_KEY = ("StableKey", "Class")
+# AbilityClasses stores no Page column; the cargoquery API needs the implicit
+# _pageName aliased (any underscore-prefixed field must be aliased on wiki.gg).
+CARGO_ABILITY_CLASS_QUERY_FIELDS = ("_pageName=Page", "StableKey", "Class", "RequiredLevel")
+
+
+def load_cargo_expectations(
+    path: Path,
+    fields: tuple[str, ...],
+    key_fields: tuple[str, ...] = ("StableKey",),
+) -> list[CargoExpectation]:
+    """Load expected Cargo rows from a tab-separated file.
+
+    ``key_fields`` are the row-identity columns within a page (default the single
+    ``StableKey``; child tables such as AbilityClasses pass a composite).
+    """
     if not path.exists():
         return []
     expectations: list[CargoExpectation] = []
-    seen_rows: set[tuple[str, str]] = set()
+    seen_rows: set[tuple[str, ...]] = set()
     for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
+        # splitlines() already drops the newline; do NOT strip the row itself, or
+        # trailing empty tab-separated fields (legitimate empty columns) are lost.
+        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
             continue
-        values = line.split("\t")
+        values = raw_line.split("\t")
         if len(values) != len(fields):
             raise ValueError(f"{path}: expected {len(fields)} tab-separated fields, got {len(values)}")
         row = dict(zip(fields, values, strict=True))
         page = row.pop("Page")
-        stable_key = row["StableKey"]
-        row_key = (page, stable_key)
+        row_key = (page, *(row[name] for name in key_fields))
         if row_key in seen_rows:
-            raise ValueError(f"{path}: duplicate expected Cargo row {page} / {stable_key}")
+            raise ValueError(f"{path}: duplicate expected Cargo row {' / '.join(row_key)}")
         seen_rows.add(row_key)
         expectations.append(CargoExpectation(page=page, fields=row))
     return expectations
@@ -101,6 +154,16 @@ def load_cargo_item_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_character_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo Characters rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_CHARACTER_FIELDS)
+
+
+def load_cargo_spell_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo Spells rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_SPELL_FIELDS)
+
+
+def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo AbilityClasses rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_ABILITY_CLASS_FIELDS, ABILITY_CLASS_KEY)
 
 
 def load_absent_pages(path: Path) -> set[str]:
@@ -119,14 +182,14 @@ def check_cargo_rows(
     expectations: list[CargoExpectation],
     table_label: str,
     absent_pages: set[str] | None = None,
+    key_fields: tuple[str, ...] = ("StableKey",),
 ) -> list[str]:
-    rows_by_key: dict[tuple[str, str], dict[str, str]] = {}
+    rows_by_key: dict[tuple[str, ...], dict[str, str]] = {}
     rows_by_page: dict[str, list[dict[str, str]]] = {}
-    duplicate_keys: set[tuple[str, str]] = set()
+    duplicate_keys: set[tuple[str, ...]] = set()
     for row in rows:
         page = row.get("Page", "")
-        stable_key = row.get("StableKey", "")
-        key = (page, stable_key)
+        key = (page, *(row.get(name, "") for name in key_fields))
         rows_by_page.setdefault(page, []).append(row)
         if key in rows_by_key:
             duplicate_keys.add(key)
@@ -134,10 +197,10 @@ def check_cargo_rows(
         rows_by_key[key] = row
     failures: list[str] = []
     absent_pages = absent_pages or set()
-    expected_keys = {(expected.page, expected.fields["StableKey"]) for expected in expectations}
+    expected_keys = {(expected.page, *(expected.fields[name] for name in key_fields)) for expected in expectations}
     expected_pages = {expected.page for expected in expectations}
     for expected in expectations:
-        key = (expected.page, expected.fields["StableKey"])
+        key = (expected.page, *(expected.fields[name] for name in key_fields))
         row = rows_by_key.get(key)
         if row is None:
             failures.append(f"Cargo {table_label} missing row for {expected.page}")
@@ -148,12 +211,12 @@ def check_cargo_rows(
                 failures.append(
                     f"Cargo {table_label} row {expected.page} {field}: expected {expected_value}, got {actual_value}"
                 )
-    for page, stable_key in sorted(duplicate_keys):
-        if page in expected_pages:
-            failures.append(f"Cargo {table_label} duplicate row for {page} / {stable_key}")
-    for page, stable_key in sorted(rows_by_key):
-        if page in expected_pages and (page, stable_key) not in expected_keys:
-            failures.append(f"Cargo {table_label} unexpected row for {page} / {stable_key}")
+    for key in sorted(duplicate_keys):
+        if key[0] in expected_pages:
+            failures.append(f"Cargo {table_label} duplicate row for {' / '.join(key)}")
+    for key in sorted(rows_by_key):
+        if key[0] in expected_pages and key not in expected_keys:
+            failures.append(f"Cargo {table_label} unexpected row for {' / '.join(key)}")
     for page in sorted(page for page in absent_pages if page in rows_by_page):
         failures.append(f"Cargo {table_label} unexpected row for {page}")
     return failures
@@ -173,3 +236,19 @@ def check_cargo_character_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "Characters", absent_pages)
+
+
+def check_cargo_spell_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "Spells", absent_pages)
+
+
+def check_cargo_ability_class_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "AbilityClasses", absent_pages, ABILITY_CLASS_KEY)

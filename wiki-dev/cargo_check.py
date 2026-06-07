@@ -32,13 +32,21 @@ check_cargo_item_rows = _cargo.check_cargo_item_rows
 load_absent_pages = _cargo.load_absent_pages
 load_cargo_character_expectations = _cargo.load_cargo_character_expectations
 load_cargo_item_expectations = _cargo.load_cargo_item_expectations
+CARGO_SPELL_FIELDS = _cargo.CARGO_SPELL_FIELDS
+CARGO_ABILITY_CLASS_QUERY_FIELDS = _cargo.CARGO_ABILITY_CLASS_QUERY_FIELDS
+check_cargo_spell_rows = _cargo.check_cargo_spell_rows
+check_cargo_ability_class_rows = _cargo.check_cargo_ability_class_rows
+load_cargo_spell_expectations = _cargo.load_cargo_spell_expectations
+load_cargo_ability_class_expectations = _cargo.load_cargo_ability_class_expectations
 api_url = _mediawiki.api_url
 query_cargo_table = _mediawiki.query_cargo_table
 
-CARGO_TABLES = ("Items", "Characters")
+CARGO_TABLES = ("Items", "Characters", "Spells", "AbilityClasses")
 CARGO_TEMPLATES_BY_TABLE = {
     "Items": "Item",
     "Characters": "Character",
+    "Spells": "Spell",
+    "AbilityClasses": "AbilityClasses",
 }
 
 
@@ -102,22 +110,39 @@ def validate_cargo_rows(
     endpoint: str,
     cargo_items_path: Path,
     cargo_characters_path: Path,
+    cargo_spells_path: Path,
+    cargo_ability_classes_path: Path,
     cargo_absent_path: Path,
 ) -> list[str]:
     """Validate local Cargo rows against the smoke fixture expectations."""
+    absent_pages = load_absent_pages(cargo_absent_path)
     failures: list[str] = []
     failures.extend(
         check_cargo_item_rows(
             rows=query_cargo_table(client, endpoint, "Items", CARGO_ITEM_FIELDS),
             expectations=load_cargo_item_expectations(cargo_items_path),
-            absent_pages=load_absent_pages(cargo_absent_path),
+            absent_pages=absent_pages,
         )
     )
     failures.extend(
         check_cargo_character_rows(
             rows=query_cargo_table(client, endpoint, "Characters", CARGO_CHARACTER_FIELDS),
             expectations=load_cargo_character_expectations(cargo_characters_path),
-            absent_pages=load_absent_pages(cargo_absent_path),
+            absent_pages=absent_pages,
+        )
+    )
+    failures.extend(
+        check_cargo_spell_rows(
+            rows=query_cargo_table(client, endpoint, "Spells", CARGO_SPELL_FIELDS),
+            expectations=load_cargo_spell_expectations(cargo_spells_path),
+            absent_pages=absent_pages,
+        )
+    )
+    failures.extend(
+        check_cargo_ability_class_rows(
+            rows=query_cargo_table(client, endpoint, "AbilityClasses", CARGO_ABILITY_CLASS_QUERY_FIELDS),
+            expectations=load_cargo_ability_class_expectations(cargo_ability_classes_path),
+            absent_pages=absent_pages,
         )
     )
     return failures
@@ -135,6 +160,12 @@ def main() -> None:
     )
     parser.add_argument("--cargo-items", type=Path, default=Path("wiki-dev/fixtures/cargo_items.tsv"))
     parser.add_argument("--cargo-characters", type=Path, default=Path("wiki-dev/fixtures/cargo_characters.tsv"))
+    parser.add_argument("--cargo-spells", type=Path, default=Path("wiki-dev/fixtures/cargo_spells.tsv"))
+    parser.add_argument(
+        "--cargo-ability-classes",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
+    )
     parser.add_argument("--cargo-absent", type=Path, default=Path("wiki-dev/fixtures/cargo_absent.tsv"))
     args = parser.parse_args()
 
@@ -153,6 +184,8 @@ def main() -> None:
             endpoint=endpoint,
             cargo_items_path=args.cargo_items,
             cargo_characters_path=args.cargo_characters,
+            cargo_spells_path=args.cargo_spells,
+            cargo_ability_classes_path=args.cargo_ability_classes,
             cargo_absent_path=args.cargo_absent,
         )
     if failures:

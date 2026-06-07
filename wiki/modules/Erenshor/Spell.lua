@@ -3,6 +3,7 @@ local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Spell/Tooltip")
+local Cargo = require("Module:Erenshor/Cargo")
 
 local Data = mw.loadData("Module:Erenshor/Data/Spells")
 local CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
@@ -629,12 +630,100 @@ function p.statusText(args, pageTitle)
 	return ""
 end
 
+local function cargoFields(spell, pageTitle)
+	return {
+		{ "StableKey", spell.stableKey },
+		{ "Page", pageTitle },
+		{ "Name", spell.name },
+		{ "Image", ensureImageFile(spell.image, spell.name) },
+		{ "Type", spell.type },
+		{ "Line", spell.line },
+		{ "RequiredLevel", spell.requiredLevel },
+		{ "ManaCost", spell.manaCost },
+		{ "CastTimeSeconds", spell.castTimeSeconds },
+		{ "CooldownSeconds", spell.cooldownSeconds },
+		{ "DurationSeconds", spell.durationSeconds },
+		{ "CastRange", spell.range },
+		{ "DamageType", spell.damageType },
+		{ "TargetDamage", spell.targetDamage },
+		{ "TargetHealing", spell.targetHealing },
+		{ "CasterHealing", spell.casterHealing },
+		{ "ShieldingAmt", spell.shieldAmount },
+		{ "Aggro", spell.aggro },
+		{ "SimUsable", spell.simUsable },
+		{ "SelfOnly", spell.selfOnly },
+		{ "GroupEffect", spell.groupEffect },
+		{ "CrowdControl", spell.crowdControl },
+		{ "GrantInvisibility", spell.grantInvisibility },
+		{ "CannotInterrupt", spell.cannotInterrupt },
+		{ "Jolt", spell.jolt },
+		{ "NoResonate", spell.noResonate },
+		{ "StatusEffect", spell.statusEffectStableKey },
+		{ "AddProc", spell.addProcStableKey },
+		{ "PetToSummon", spell.petToSummonStableKey },
+	}
+end
+
+local function classFields(spell, className)
+	return {
+		{ "StableKey", spell.stableKey },
+		{ "Class", className },
+		{ "RequiredLevel", spell.requiredLevel },
+	}
+end
+
+-- A spell's classes are a flat name list; each becomes one AbilityClasses row that
+-- broadcasts the spell's single requiredLevel.
+local function eachClass(spell, callback)
+	if type(spell.classes) ~= "table" then
+		return
+	end
+	for _, className in ipairs(spell.classes) do
+		if not isBlank(className) then
+			callback(className)
+		end
+	end
+end
+
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
 end
 
 function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
+end
+
+function p.cargoArgs(frame)
+	local pageTitle = currentTitleText()
+	local spell = p.resolve(templateArgs(frame), pageTitle)
+	if spell.missing then
+		return {}
+	end
+	return Cargo.buildArgs("Spells", cargoFields(spell, pageTitle))
+end
+
+function p.cargoClassRows(frame)
+	local spell = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not spell.missing then
+		eachClass(spell, function(className)
+			table.insert(rows, Cargo.buildArgs("AbilityClasses", classFields(spell, className)))
+		end)
+	end
+	return rows
+end
+
+function p.cargoStore(frame)
+	local pageTitle = currentTitleText()
+	local spell = p.resolve(templateArgs(frame), pageTitle)
+	if spell.missing then
+		return ""
+	end
+	Cargo.store("Spells", cargoFields(spell, pageTitle))
+	eachClass(spell, function(className)
+		Cargo.store("AbilityClasses", classFields(spell, className))
+	end)
+	return ""
 end
 
 function p.renderTooltip(args, pageTitle)

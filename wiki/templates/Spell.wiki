@@ -57,6 +57,36 @@
           <header>Used By</header>
           <data><label>Characters</label><default>{{#invoke:Erenshor/Spell|field|used_by}}</default></data>
       </group>
-  </infobox>{{#invoke:Erenshor/Spell|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>
-Spell infobox rendered from generated Lua spell data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field.
+  </infobox>{{#invoke:Erenshor/Spell|cargoStore}}{{#invoke:Erenshor/Spell|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Spells
+|StableKey=String
+|Page=Page
+|Name=String
+|Image=File
+|Type=String
+|Line=String
+|RequiredLevel=Integer
+|ManaCost=Integer
+|CastTimeSeconds=Float
+|CooldownSeconds=Float
+|DurationSeconds=Integer
+|CastRange=Float
+|DamageType=String
+|TargetDamage=Integer
+|TargetHealing=Integer
+|CasterHealing=Integer
+|ShieldingAmt=Integer
+|Aggro=Integer
+|SimUsable=Boolean
+|SelfOnly=Boolean
+|GroupEffect=Boolean
+|CrowdControl=Boolean
+|GrantInvisibility=Boolean
+|CannotInterrupt=Boolean
+|Jolt=Boolean
+|NoResonate=Boolean
+|StatusEffect=String
+|AddProc=String
+|PetToSummon=String
+}}{{#cargo_attach:_table=AbilityClasses}}
+Spell infobox rendered from generated Lua spell data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field. Stores one <code>Spells</code> row plus one <code>AbilityClasses</code> row per class.
 </noinclude>

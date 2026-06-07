@@ -1,0 +1,7 @@
+<includeonly></includeonly><noinclude>{{#cargo_declare:_table=AbilityClasses
+|StableKey=String
+|Class=String
+|RequiredLevel=Integer
+}}
+Declare-only owner of the <code>AbilityClasses</code> junction (one row per ability×class, with the per-class required level). Rows are written by the ability templates ({{tl|Spell}}, {{tl|Skill}}), which <code>#cargo_attach</code> this table; this template stores nothing itself.
+</noinclude>

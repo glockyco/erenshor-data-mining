@@ -243,9 +243,9 @@ def test_null_edit_discovers_pages_from_render_and_cargo_fixtures() -> None:
     null_edit = load_script("wiki-dev/null_edit.py")
 
     titles = null_edit.load_titles(
-        smoke_path=Path("wiki-dev/fixtures/smoke.tsv"),
-        cargo_item_path=Path("wiki-dev/fixtures/cargo_items.tsv"),
-        cargo_character_path=Path("wiki-dev/fixtures/cargo_characters.tsv"),
+        Path("wiki-dev/fixtures/smoke.tsv"),
+        Path("wiki-dev/fixtures/cargo_items.tsv"),
+        Path("wiki-dev/fixtures/cargo_characters.tsv"),
     )
 
     assert titles[:3] == ["A Grizzly Bear", "A Magical Sword in Port Azure", "Abyssal Plate"]
@@ -282,7 +282,13 @@ def test_null_edit_purges_after_all_pages_refresh(monkeypatch) -> None:
 def test_cargo_check_declares_local_tables_to_recreate() -> None:
     cargo_check = load_script("wiki-dev/cargo_check.py")
 
-    assert cargo_check.CARGO_TABLES == ("Items", "Characters")
+    # Every recreatable table must map to exactly one declaring template, and the
+    # recreate set must be in sync with that mapping (the invariant, not a literal
+    # snapshot that breaks whenever a table is added).
+    assert set(cargo_check.CARGO_TABLES) == set(cargo_check.CARGO_TEMPLATES_BY_TABLE)
+    assert "Items" in cargo_check.CARGO_TABLES
+    assert "AbilityClasses" in cargo_check.CARGO_TABLES
+    assert cargo_check.CARGO_TEMPLATES_BY_TABLE["AbilityClasses"] == "AbilityClasses"
 
 
 def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:

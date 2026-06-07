@@ -15,12 +15,11 @@ def api_url(base_url: str) -> str:
     return f"{base_url.rstrip('/')}/api.php"
 
 
-def load_titles(*, smoke_path: Path, cargo_item_path: Path, cargo_character_path: Path) -> list[str]:
+def load_titles(*paths: Path) -> list[str]:
     """Load unique article titles from rendered and Cargo smoke fixtures."""
     titles: set[str] = set()
-    titles.update(_load_first_column(smoke_path))
-    titles.update(_load_first_column(cargo_item_path))
-    titles.update(_load_first_column(cargo_character_path))
+    for path in paths:
+        titles.update(_load_first_column(path))
     return sorted(titles)
 
 
@@ -161,12 +160,20 @@ def main() -> None:
     parser.add_argument("--smoke", type=Path, default=Path("wiki-dev/fixtures/smoke.tsv"))
     parser.add_argument("--cargo-items", type=Path, default=Path("wiki-dev/fixtures/cargo_items.tsv"))
     parser.add_argument("--cargo-characters", type=Path, default=Path("wiki-dev/fixtures/cargo_characters.tsv"))
+    parser.add_argument("--cargo-spells", type=Path, default=Path("wiki-dev/fixtures/cargo_spells.tsv"))
+    parser.add_argument(
+        "--cargo-ability-classes",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
+    )
     args = parser.parse_args()
 
     titles = load_titles(
-        smoke_path=args.smoke,
-        cargo_item_path=args.cargo_items,
-        cargo_character_path=args.cargo_characters,
+        args.smoke,
+        args.cargo_items,
+        args.cargo_characters,
+        args.cargo_spells,
+        args.cargo_ability_classes,
     )
     endpoint = api_url(args.base_url)
     with httpx.Client(timeout=30.0) as client:

@@ -8,8 +8,10 @@ from pathlib import Path
 
 from smoke.cargo import (
     load_absent_pages,
+    load_cargo_ability_class_expectations,
     load_cargo_character_expectations,
     load_cargo_item_expectations,
+    load_cargo_spell_expectations,
 )
 from smoke.mediawiki import api_url
 from smoke.render import load_expectations
@@ -43,11 +45,25 @@ def main() -> None:
         default=Path("wiki-dev/fixtures/cargo_characters.tsv"),
         help="Tab-separated Cargo Characters smoke expectations",
     )
+    parser.add_argument(
+        "--cargo-spells",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_spells.tsv"),
+        help="Tab-separated Cargo Spells smoke expectations",
+    )
+    parser.add_argument(
+        "--cargo-ability-classes",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
+        help="Tab-separated Cargo AbilityClasses smoke expectations",
+    )
     args = parser.parse_args()
 
     expectations = load_expectations(args.expectations)
     cargo_item_expectations = load_cargo_item_expectations(args.cargo_items)
     cargo_character_expectations = load_cargo_character_expectations(args.cargo_characters)
+    cargo_spell_expectations = load_cargo_spell_expectations(args.cargo_spells)
+    cargo_ability_class_expectations = load_cargo_ability_class_expectations(args.cargo_ability_classes)
     cargo_absent_pages = load_absent_pages(args.cargo_absent)
     if not expectations and not cargo_item_expectations and not cargo_character_expectations:
         raise SystemExit(
@@ -59,6 +75,8 @@ def main() -> None:
         expectations=expectations,
         cargo_item_expectations=cargo_item_expectations,
         cargo_character_expectations=cargo_character_expectations,
+        cargo_spell_expectations=cargo_spell_expectations,
+        cargo_ability_class_expectations=cargo_ability_class_expectations,
         cargo_absent_pages=cargo_absent_pages,
     )
     if failures:

@@ -80,6 +80,16 @@ integers (no decimal point, no `+`, no markup); Float columns must be plain numb
 table and every field); for `format=template`, field names with underscores get mangled,
 so **CamelCase field names** are preferred (we already use these). (wiki.gg troubleshooting.)
 
+**F7a — wiki.gg's Cargo fork rejects SQL-keyword field names (verified empirically).**
+Declaring a `Range` column makes table creation fail silently: `#cargo_declare`
+renders `Error: "Range" cannot be used as a Cargo Field name, because it is an SQL
+keyword`, the table is never created, and `cargorecreatetables` still returns
+`success:true`, so `#cargo_store` to it is a no-op (the row vanishes with no error —
+cf. F7 "Cargo has almost no error state logging"). The blocklist is selective (`End`
+is accepted, as the `Items` table proves), so the only safe rule is to avoid SQL
+keywords in column names. The spell/skill range column is therefore stored as
+`CastRange`. (Found while debugging an empty `Spells` table on the local harness.)
+
 ## Decisions
 
 **D1 — Drop the shared `Abilities` base table.** Use three independent per-type tables —

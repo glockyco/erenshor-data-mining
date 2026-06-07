@@ -28,6 +28,10 @@ cli/bin/erenshor text eol=lf
 # Documentation
 *.md text diff=markdown
 *.txt text
+# Tab-separated data files (e.g. Cargo smoke fixtures): a trailing tab is a
+# meaningful empty trailing column, not whitespace cruft, so exempt TSV from the
+# whitespace error check (git diff --check / the pre-commit whitespace job).
+*.tsv text eol=lf -whitespace
 *.rst text
 *.adoc text
 *.tex text

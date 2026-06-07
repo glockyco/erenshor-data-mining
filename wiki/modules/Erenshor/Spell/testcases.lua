@@ -181,6 +181,37 @@ function p.run()
 		"missing spell tooltip is visible"
 	)
 
+	local cargo = Spell.cargoArgs({ args = { stablekey = "spell:minor_lightning" } })
+	assertEqual(cargo.Name, "Minor Lightning", "spell cargo row name")
+	assertEqual(cargo.Type, "AE", "spell cargo row type")
+	assertEqual(cargo.Line, "Direct_Damage", "spell cargo row line")
+	assertEqual(cargo.RequiredLevel, "6", "spell cargo row required level")
+	assertEqual(cargo.ManaCost, "30", "spell cargo row mana cost")
+	assertEqual(cargo.CastTimeSeconds, "2.33", "spell cargo row cast time in seconds")
+	assertEqual(cargo.CooldownSeconds, "8", "spell cargo row cooldown in seconds")
+	assertEqual(cargo.CastRange, "30", "spell cargo row range")
+	assertEqual(cargo.DamageType, "Magic", "spell cargo row damage type")
+	assertEqual(cargo.TargetDamage, "85", "spell cargo row target damage")
+	assertEqual(cargo.Aggro, "60", "spell cargo row aggro")
+	assertEqual(cargo.SimUsable, "yes", "spell cargo row true boolean casts to yes")
+	assertEqual(cargo.SelfOnly, "no", "spell cargo row false boolean casts to no")
+	assertEqual(
+		cargo.PetToSummon,
+		"character:a_grizzly_bear",
+		"spell cargo row stores the pet stable key"
+	)
+	assertEqual(cargo.GrantInvisibility, nil, "spell cargo row omits absent boolean flags")
+
+	local classRows = Spell.cargoClassRows({ args = { stablekey = "spell:minor_lightning" } })
+	assertEqual(#classRows, 2, "spell emits one AbilityClasses row per class")
+	assertEqual(classRows[1].StableKey, "spell:minor_lightning", "class row carries the stable key")
+	assertEqual(classRows[1].Class, "Druid", "first class row is Druid")
+	assertEqual(classRows[1].RequiredLevel, "6", "class row broadcasts the spell required level")
+	assertEqual(classRows[2].Class, "Stormcaller", "second class row is Stormcaller")
+
+	local noClassRows = Spell.cargoClassRows({ args = { stablekey = "spell:ancient_presence" } })
+	assertEqual(#noClassRows, 0, "a spell with no classes emits no AbilityClasses rows")
+
 	return "PASS Erenshor Spell testcases"
 end
 
