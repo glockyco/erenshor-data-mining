@@ -4,6 +4,7 @@ local Format = require("Module:Erenshor/Format")
 
 local Data = mw.loadData("Module:Erenshor/Data/Stances")
 local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
+local Cargo = require("Module:Erenshor/Cargo")
 
 local p = {}
 
@@ -318,12 +319,50 @@ function p.statusText(args, pageTitle)
 	return ""
 end
 
+local function cargoFields(stance, pageTitle)
+	return {
+		{ "StableKey", stance.stableKey },
+		{ "Page", pageTitle },
+		{ "Name", stance.name },
+		{ "Image", ensureImageFile(stance.image, stance.name) },
+		{ "MaxHpMod", stance.maxHpMod },
+		{ "DamageMod", stance.damageMod },
+		{ "ProcRateMod", stance.procRateMod },
+		{ "DamageTakenMod", stance.damageTakenMod },
+		{ "SelfDamagePerAttack", stance.selfDamagePerAttack },
+		{ "AggroGenMod", stance.aggroGenMod },
+		{ "SpellDamageMod", stance.spellDamageMod },
+		{ "SelfDamagePerCast", stance.selfDamagePerCast },
+		{ "LifestealAmount", stance.lifestealAmount },
+		{ "ResonanceAmount", stance.resonanceAmount },
+		{ "StopRegen", stance.stopRegen },
+	}
+end
+
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
 end
 
 function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
+end
+
+function p.cargoArgs(frame)
+	local pageTitle = currentTitleText()
+	local stance = p.resolve(templateArgs(frame), pageTitle)
+	if stance.missing then
+		return {}
+	end
+	return Cargo.buildArgs("Stances", cargoFields(stance, pageTitle))
+end
+
+function p.cargoStore(frame)
+	local pageTitle = currentTitleText()
+	local stance = p.resolve(templateArgs(frame), pageTitle)
+	if stance.missing then
+		return ""
+	end
+	return Cargo.store("Stances", cargoFields(stance, pageTitle))
 end
 
 return p

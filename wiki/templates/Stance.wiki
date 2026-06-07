@@ -28,6 +28,22 @@
         <header>Acquisition</header>
         <data><label>Activated by</label><default>{{#invoke:Erenshor/Stance|field|activated_by}}</default></data>
     </group>
-</infobox>{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}</includeonly><noinclude>
+</infobox>{{#invoke:Erenshor/Stance|cargoStore}}{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}</includeonly><noinclude>{{#cargo_declare:_table=Stances
+|StableKey=String
+|Page=Page
+|Name=String
+|Image=File
+|MaxHpMod=Float
+|DamageMod=Float
+|ProcRateMod=Float
+|DamageTakenMod=Float
+|SelfDamagePerAttack=Float
+|AggroGenMod=Float
+|SpellDamageMod=Float
+|SelfDamagePerCast=Float
+|LifestealAmount=Float
+|ResonanceAmount=Float
+|StopRegen=Boolean
+}}
 Template parameters mirror the production Stance template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
 </noinclude>

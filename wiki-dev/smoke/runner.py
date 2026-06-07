@@ -10,12 +10,14 @@ from .cargo import (
     CARGO_ITEM_FIELDS,
     CARGO_SKILL_FIELDS,
     CARGO_SPELL_FIELDS,
+    CARGO_STANCE_FIELDS,
     CargoExpectation,
     check_cargo_ability_class_rows,
     check_cargo_character_rows,
     check_cargo_item_rows,
     check_cargo_skill_rows,
     check_cargo_spell_rows,
+    check_cargo_stance_rows,
 )
 from .mediawiki import parse_page, query_cargo_table
 from .render import SmokeResult, check_rendered_html
@@ -28,6 +30,7 @@ def run_smoke_checks(
     cargo_character_expectations: list[CargoExpectation],
     cargo_spell_expectations: list[CargoExpectation],
     cargo_skill_expectations: list[CargoExpectation],
+    cargo_stance_expectations: list[CargoExpectation],
     cargo_ability_class_expectations: list[CargoExpectation],
     cargo_absent_pages: set[str],
 ) -> list[SmokeResult]:
@@ -74,6 +77,14 @@ def run_smoke_checks(
                 absent_pages=cargo_absent_pages,
             )
             _record_cargo_result("Cargo Skills", cargo_failures, failures)
+
+        if cargo_stance_expectations:
+            cargo_failures = check_cargo_stance_rows(
+                rows=query_cargo_table(client, endpoint, "Stances", CARGO_STANCE_FIELDS),
+                expectations=cargo_stance_expectations,
+                absent_pages=cargo_absent_pages,
+            )
+            _record_cargo_result("Cargo Stances", cargo_failures, failures)
 
         if cargo_ability_class_expectations:
             cargo_failures = check_cargo_ability_class_rows(

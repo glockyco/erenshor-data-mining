@@ -162,6 +162,7 @@ def main() -> None:
     parser.add_argument("--cargo-characters", type=Path, default=Path("wiki-dev/fixtures/cargo_characters.tsv"))
     parser.add_argument("--cargo-spells", type=Path, default=Path("wiki-dev/fixtures/cargo_spells.tsv"))
     parser.add_argument("--cargo-skills", type=Path, default=Path("wiki-dev/fixtures/cargo_skills.tsv"))
+    parser.add_argument("--cargo-stances", type=Path, default=Path("wiki-dev/fixtures/cargo_stances.tsv"))
     parser.add_argument(
         "--cargo-ability-classes",
         type=Path,
@@ -175,6 +176,7 @@ def main() -> None:
         args.cargo_characters,
         args.cargo_spells,
         args.cargo_skills,
+        args.cargo_stances,
         args.cargo_ability_classes,
     )
     endpoint = api_url(args.base_url)

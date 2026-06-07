@@ -89,6 +89,24 @@ function p.run()
 		"missing stance is tracked"
 	)
 
+	local cargo = Stance.cargoArgs({ args = { stablekey = "stance:aggressive" } })
+	assertEqual(cargo.Name, "Aggressive", "stance cargo row name")
+	assertEqual(
+		cargo.Image,
+		"Stance: Aggressive.png",
+		"stance cargo image derives from the activating skill"
+	)
+	assertEqual(cargo.DamageMod, "1.4", "stance cargo stores the raw damage multiplier")
+	assertEqual(cargo.DamageTakenMod, "1.4", "stance cargo stores the raw damage-taken multiplier")
+	assertEqual(cargo.MaxHpMod, "1", "stance cargo stores a neutral multiplier as 1")
+	assertEqual(cargo.SelfDamagePerAttack, "0", "stance cargo stores zero self-damage")
+	assertEqual(cargo.StopRegen, "yes", "stance cargo true boolean casts to yes")
+
+	local reckless = Stance.cargoArgs({ args = { stablekey = "stance:reckless" } })
+	assertEqual(reckless.DamageMod, "2", "reckless stance damage multiplier")
+	assertEqual(reckless.SelfDamagePerAttack, "4", "reckless self-damage per attack")
+	assertEqual(reckless.StopRegen, "no", "reckless false boolean casts to no")
+
 	return "PASS Erenshor Stance testcases"
 end
 

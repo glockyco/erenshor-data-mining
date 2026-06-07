@@ -122,6 +122,24 @@ CARGO_SKILL_FIELDS = (
     "SpawnOnUse",
 )
 
+CARGO_STANCE_FIELDS = (
+    "Page",
+    "StableKey",
+    "Name",
+    "Image",
+    "MaxHpMod",
+    "DamageMod",
+    "ProcRateMod",
+    "DamageTakenMod",
+    "SelfDamagePerAttack",
+    "AggroGenMod",
+    "SpellDamageMod",
+    "SelfDamagePerCast",
+    "LifestealAmount",
+    "ResonanceAmount",
+    "StopRegen",
+)
+
 CARGO_ABILITY_CLASS_FIELDS = (
     "Page",
     "StableKey",
@@ -186,6 +204,11 @@ def load_cargo_spell_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_skill_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo Skills rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_SKILL_FIELDS)
+
+
+def load_cargo_stance_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo Stances rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_STANCE_FIELDS)
 
 
 def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
@@ -279,6 +302,14 @@ def check_cargo_skill_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "Skills", absent_pages)
+
+
+def check_cargo_stance_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "Stances", absent_pages)
 
 
 def check_cargo_ability_class_rows(
