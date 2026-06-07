@@ -1,4 +1,6 @@
 Backstab	skill:backstab	Duelist	2
+Flame Bolt	spell:flame_bolt	Druid	4
+Flame Bolt	spell:flame_bolt_greater	Arcanist	12
 Minor Lightning	spell:minor_lightning	Druid	6
 Minor Lightning	spell:minor_lightning	Stormcaller	6
 Stance: Aggressive	skill:stance - aggressive	Reaver	1

@@ -1,0 +1,2 @@
+{{Spell|stablekey=spell:flame_bolt}}
+{{Spell|stablekey=spell:flame_bolt_greater}}

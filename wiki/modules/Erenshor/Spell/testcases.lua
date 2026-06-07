@@ -212,6 +212,21 @@ function p.run()
 	local noClassRows = Spell.cargoClassRows({ args = { stablekey = "spell:ancient_presence" } })
 	assertEqual(#noClassRows, 0, "a spell with no classes emits no AbilityClasses rows")
 
+	-- Multi-entity: two spells share a display name but are distinct stable keys, so
+	-- one page can store two independent Spells rows keyed by StableKey, not Name.
+	local lesser = Spell.cargoArgs({ args = { stablekey = "spell:flame_bolt" } })
+	local greater = Spell.cargoArgs({ args = { stablekey = "spell:flame_bolt_greater" } })
+	assertEqual(lesser.Name, "Flame Bolt", "lesser flame bolt name")
+	assertEqual(greater.Name, "Flame Bolt", "greater flame bolt shares the display name")
+	assertEqual(lesser.StableKey, "spell:flame_bolt", "lesser flame bolt stable key")
+	assertEqual(
+		greater.StableKey,
+		"spell:flame_bolt_greater",
+		"greater flame bolt distinct stable key"
+	)
+	assertEqual(lesser.TargetDamage, "50", "lesser flame bolt damage")
+	assertEqual(greater.TargetDamage, "130", "greater flame bolt damage")
+
 	return "PASS Erenshor Spell testcases"
 end
 

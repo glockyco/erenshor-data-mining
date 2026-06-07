@@ -34,7 +34,12 @@ Items+Characters Cargo (validated locally only). Live wiki is still 100% legacy.
   (kept `Module:Erenshor/Ability/Common` shared tooltip primitives and
   `Module:Erenshor/AbilityLink`). Fixtures repointed; orphaned live `Template:Ability`
   is a one-time manual delete at cutover.
-- [ ] Phase 2 — per-type `Spells`/`Skills`/`Stances` tables + `AbilityClasses` junction (no base table; centralized `Module:Erenshor/Cargo` store — see `2026-06-07-cargo-storage-architecture-research.md`).
+- [x] Phase 2 — per-type `Spells`/`Skills`/`Stances` tables + `AbilityClasses` junction
+  (no base table; centralized `Module:Erenshor/Cargo` store via `frame:callParserFunction`).
+  Columns verified against `Spell.cs`/`Skill.cs`/`Stance.cs`. Spells broadcast one
+  required level per class; skills use the six per-class `*RequiredLevel` fields; stances
+  carry no classes. `Range`→`CastRange` (wiki.gg SQL-keyword block). Multi-entity proven:
+  the two same-name `Flame Bolt` spells store two distinct-stable-key rows on one page.
 - [ ] Phase 3 — junction tables + `Spawns` + item→ability scalar columns + reverse-query rendering.
 - [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).
 - [ ] Phase 5 — dual-path templates (`{{#if:stablekey|new|legacy}}`) for every entity type (§5).
