@@ -2,6 +2,7 @@ local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Item/Tooltip")
+local Cargo = require("Module:Erenshor/Cargo")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
 local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
@@ -658,24 +659,10 @@ function p.renderLink(args, pageTitle)
 	return Link.render(out)
 end
 
-local function cargoValue(value)
-	if value == nil then
-		return ""
-	end
-	if type(value) == "boolean" then
-		if value then
-			return "yes"
-		end
-		return "no"
-	end
-	return tostring(value):gsub("|", "&#124;"):gsub("\n", " ")
-end
-
-local function cargoStoreText(item, pageTitle)
+local function cargoFields(item, pageTitle)
 	local stats = normalStats(item)
 	local procAbility, procChance, procTrigger = procOverview(item)
-	local fields = {
-		{ "_table", "Items" },
+	return {
 		{ "Page", pageTitle },
 		{ "StableKey", item.stableKey },
 		{ "Name", item.name },
@@ -713,12 +700,6 @@ local function cargoStoreText(item, pageTitle)
 		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
 		{ "HasWornEffect", hasValue(item.wornEffect) },
 	}
-	local out = { "{{#cargo_store:" }
-	for _, field in ipairs(fields) do
-		table.insert(out, "|" .. field[1] .. "=" .. cargoValue(field[2]))
-	end
-	table.insert(out, "}}")
-	return table.concat(out)
 end
 
 function p.field(frame)
@@ -752,6 +733,16 @@ function p.link(frame)
 	return p.renderLink(templateArgs(frame), currentTitleText())
 end
 
+function p.cargoArgs(frame)
+	local args = templateArgs(frame)
+	local pageTitle = currentTitleText()
+	local item = p.resolve(args, pageTitle)
+	if item.missing then
+		return {}
+	end
+	return Cargo.buildArgs("Items", cargoFields(item, pageTitle))
+end
+
 function p.cargoStore(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -759,11 +750,7 @@ function p.cargoStore(frame)
 	if item.missing then
 		return ""
 	end
-	local text = cargoStoreText(item, pageTitle)
-	if frame ~= nil and frame.preprocess ~= nil then
-		return frame:preprocess(text)
-	end
-	return text
+	return Cargo.store("Items", cargoFields(item, pageTitle))
 end
 
 return p

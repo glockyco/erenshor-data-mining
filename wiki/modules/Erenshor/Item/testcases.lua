@@ -59,20 +59,15 @@ function p.run()
 		"field buy renders the raw gold value"
 	)
 
-	local cargo = Item.cargoStore({
-		args = { stablekey = "item:abyssal_plate" },
-		preprocess = function(_, text)
-			return text
-		end,
-	})
-	assertContains(cargo, "|Armor=40", "cargo store contains armor overview AC")
-	assertContains(cargo, "|Classes=Paladin,Warrior", "cargo store contains plain class names")
+	local cargo = Item.cargoArgs({ args = { stablekey = "item:abyssal_plate" } })
+	assertEqual(cargo.Armor, "40", "cargo store contains armor overview AC")
+	assertEqual(cargo.Classes, "Paladin,Warrior", "cargo store contains plain class names")
 	local classRender = Item.classLinks({ args = { "Paladin,Warrior" } })
 	assertContains(classRender, "erenshor-link--class", "classLinks renders semantic class links")
 	assertContains(classRender, "[[Paladin]]", "classLinks renders Paladin link")
-	assertContains(
-		cargo,
-		"|OverviewWornAbility=Minor Lightning",
+	assertEqual(
+		cargo.OverviewWornAbility,
+		"Minor Lightning",
 		"cargo store contains worn ability page"
 	)
 	local wornNotes = Item.overviewNotes({ args = { worn = "Minor Lightning" } })
@@ -84,26 +79,17 @@ function p.run()
 	)
 	assertContains(wornNotes, "[[Minor Lightning]]", "overview notes render worn ability page")
 
-	local weaponCargo = Item.cargoStore({
-		args = { stablekey = "item:ember_longsword" },
-		preprocess = function(_, text)
-			return text
-		end,
-	})
-	assertContains(weaponCargo, "|WeaponType=OneHandMelee", "cargo store contains weapon subtype")
-	assertContains(weaponCargo, "|Damage=18", "cargo store contains normal weapon damage")
-	assertContains(weaponCargo, "|Delay=2.5", "cargo store contains weapon delay")
-	assertContains(
-		weaponCargo,
-		"|OverviewProcAbility=Ember Burst",
+	local weaponCargo = Item.cargoArgs({ args = { stablekey = "item:ember_longsword" } })
+	assertEqual(weaponCargo.WeaponType, "OneHandMelee", "cargo store contains weapon subtype")
+	assertEqual(weaponCargo.Damage, "18", "cargo store contains normal weapon damage")
+	assertEqual(weaponCargo.Delay, "2.5", "cargo store contains weapon delay")
+	assertEqual(
+		weaponCargo.OverviewProcAbility,
+		"Ember Burst",
 		"cargo store contains proc ability page"
 	)
-	assertContains(weaponCargo, "|OverviewProcChance=20", "cargo store contains proc chance")
-	assertContains(
-		weaponCargo,
-		"|OverviewProcTrigger=on attack",
-		"cargo store contains proc trigger"
-	)
+	assertEqual(weaponCargo.OverviewProcChance, "20", "cargo store contains proc chance")
+	assertEqual(weaponCargo.OverviewProcTrigger, "on attack", "cargo store contains proc trigger")
 	local procNotes = Item.overviewNotes({
 		args = { proc = "Ember Burst", chance = "20", trigger = "on attack" },
 	})

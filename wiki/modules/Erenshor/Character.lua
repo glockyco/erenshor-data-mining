@@ -1,6 +1,7 @@
 local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
+local Cargo = require("Module:Erenshor/Cargo")
 
 local Data = mw.loadData("Module:Erenshor/Data/Characters")
 
@@ -424,22 +425,8 @@ function p.statusText(args, pageTitle)
 	return categoryForType(character.type)
 end
 
-local function cargoValue(value)
-	if value == nil then
-		return ""
-	end
-	if type(value) == "boolean" then
-		if value then
-			return "yes"
-		end
-		return "no"
-	end
-	return tostring(value):gsub("|", "&#124;"):gsub("\n", " ")
-end
-
-local function cargoStoreText(character, pageTitle)
-	local fields = {
-		{ "_table", "Characters" },
+local function cargoFields(character, pageTitle)
+	return {
 		{ "Page", pageTitle },
 		{ "StableKey", character.stableKey },
 		{ "Name", character.name },
@@ -454,12 +441,6 @@ local function cargoStoreText(character, pageTitle)
 		{ "HasSpells", character.hasSpells },
 		{ "MapSelector", character.mapSelector },
 	}
-	local out = { "{{#cargo_store:" }
-	for _, field in ipairs(fields) do
-		table.insert(out, "|" .. field[1] .. "=" .. cargoValue(field[2]))
-	end
-	table.insert(out, "}}")
-	return table.concat(out)
 end
 
 function p.field(frame)
@@ -470,6 +451,16 @@ function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
 end
 
+function p.cargoArgs(frame)
+	local args = templateArgs(frame)
+	local pageTitle = currentTitleText()
+	local character = p.resolve(args, pageTitle)
+	if character.missing then
+		return {}
+	end
+	return Cargo.buildArgs("Characters", cargoFields(character, pageTitle))
+end
+
 function p.cargoStore(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -477,11 +468,7 @@ function p.cargoStore(frame)
 	if character.missing then
 		return ""
 	end
-	local text = cargoStoreText(character, pageTitle)
-	if frame ~= nil and frame.preprocess ~= nil then
-		return frame:preprocess(text)
-	end
-	return text
+	return Cargo.store("Characters", cargoFields(character, pageTitle))
 end
 
 return p
