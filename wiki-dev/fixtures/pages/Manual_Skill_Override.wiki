@@ -1,4 +1,4 @@
-{{Ability
+{{Skill
 |stablekey=skill:backstab
 |title=Manual Skill Title
 |cooldown=Manual Cooldown

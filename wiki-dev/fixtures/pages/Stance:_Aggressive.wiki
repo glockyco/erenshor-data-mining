@@ -1,4 +1,4 @@
-{{Ability
+{{Skill
 |stablekey=skill:stance - aggressive
 |source=Skill Book: Aggressive Stance
 }}

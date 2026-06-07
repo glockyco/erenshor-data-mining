@@ -1,1 +1,1 @@
-{{Ability|stablekey=skill:missing}}
+{{Skill|stablekey=skill:missing}}

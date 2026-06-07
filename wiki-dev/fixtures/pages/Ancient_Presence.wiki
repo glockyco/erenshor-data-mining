@@ -1,1 +1,1 @@
-{{Ability|stablekey=spell:ancient_presence}}
+{{Spell|stablekey=spell:ancient_presence}}

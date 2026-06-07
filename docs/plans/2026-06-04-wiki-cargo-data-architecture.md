@@ -27,7 +27,13 @@ Items+Characters Cargo (validated locally only). Live wiki is still 100% legacy.
   inline-param page (no stablekey) → verbatim legacy infobox + zero Cargo rows;
   thin page with a dead stablekey → loud missing-data span + tracking category +
   zero rows. Cargo absent-row assertions generalized to the Characters table.
-- [ ] Phase 2 prereq B — split `{{Ability}}`→`{{Spell}}`/`{{Skill}}`, retire `Module:Erenshor/Ability`.
+- [x] Phase 2 prereq B — split `{{Ability}}`→`{{Spell}}` (clean rename of the shared
+  infobox) + `{{Skill}}` (new infobox driven by the Skill module's declared public
+  field set, surfacing range/requirements/flags the spell-shaped infobox omitted);
+  retired `Template:Ability` + the `Module:Erenshor/Ability` stablekey dispatcher
+  (kept `Module:Erenshor/Ability/Common` shared tooltip primitives and
+  `Module:Erenshor/AbilityLink`). Fixtures repointed; orphaned live `Template:Ability`
+  is a one-time manual delete at cutover.
 - [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`.
 - [ ] Phase 3 — junction tables + `Spawns` + item→ability scalar columns + reverse-query rendering.
 - [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).

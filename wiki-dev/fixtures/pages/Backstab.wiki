@@ -1,4 +1,4 @@
-{{Ability
+{{Skill
 |stablekey=skill:backstab
 |source=Skill Book: Backstab
 }}

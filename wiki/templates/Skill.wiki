@@ -1,0 +1,33 @@
+<includeonly><infobox type="Abilities">
+      <title><default>{{#invoke:Erenshor/Skill|field|title}}</default></title>
+      <image><default>{{#invoke:Erenshor/Skill|field|image}}</default><caption><default>{{#invoke:Erenshor/Skill|field|imagecaption}}</default></caption></image>
+
+      <data><label>Skill Type</label><default>{{#invoke:Erenshor/Skill|field|type}}</default></data>
+      <data><label>Classes</label><default>{{#invoke:Erenshor/Skill|field|classes}}</default></data>
+      <data><label>Description</label><default>{{#invoke:Erenshor/Skill|field|description}}</default></data>
+      <data><label>Effects</label><default>{{#invoke:Erenshor/Skill|field|effects}}</default></data>
+      <data><label>Damage Type</label><default>{{#invoke:Erenshor/Skill|field|damage_type}}</default></data>
+      <data><label>Target Damage</label><default>{{#invoke:Erenshor/Skill|field|target_damage}}</default></data>
+      <data><label>Cooldown</label><default>{{#invoke:Erenshor/Skill|field|cooldown}}</default></data>
+      <data><label>Casting Time</label><default>{{#invoke:Erenshor/Skill|field|casttime}}</default></data>
+      <data><label>Range</label><default>{{#invoke:Erenshor/Skill|field|range}}</default></data>
+      <data><label>Requirements</label><default>{{#invoke:Erenshor/Skill|field|special_descriptor}}</default></data>
+      <data><label>Self Only</label><default>{{#invoke:Erenshor/Skill|field|is_self_only}}</default></data>
+      <data><label>Group Effect</label><default>{{#invoke:Erenshor/Skill|field|is_group_effect}}</default></data>
+      <data><label>Affects Caster</label><default>{{#invoke:Erenshor/Skill|field|is_applied_to_caster}}</default></data>
+      <data><label>Sim Usable</label><default>{{#invoke:Erenshor/Skill|field|is_sim_usable}}</default></data>
+      <data><label>Summons</label><default>{{#invoke:Erenshor/Skill|field|pet_to_summon}}</default></data>
+
+      <group collapse="open">
+          <header>Acquisition</header>
+          <data><label>Taught by</label><default>{{#invoke:Erenshor/Skill|field|source}}</default></data>
+          <data><label>Items with this effect</label><default>{{#invoke:Erenshor/Skill|field|itemswitheffect}}</default></data>
+      </group>
+
+      <group collapse="closed">
+          <header>Used By</header>
+          <data><label>Characters</label><default>{{#invoke:Erenshor/Skill|field|used_by}}</default></data>
+      </group>
+  </infobox>{{#invoke:Erenshor/Skill|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>
+Skill infobox rendered from generated Lua skill data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

@@ -1,0 +1,62 @@
+<includeonly><infobox type="Abilities">
+      <title><default>{{#invoke:Erenshor/Spell|field|title}}</default></title>
+      <image><default>{{#invoke:Erenshor/Spell|field|image}}</default><caption><default>{{#invoke:Erenshor/Spell|field|imagecaption}}</default></caption></image>
+
+      <data><label>Spell Type</label><default>{{#invoke:Erenshor/Spell|field|type}}</default></data>
+      <data><label>Classes</label><default>{{#invoke:Erenshor/Spell|field|classes}}</default></data>
+      <data><label>Effects</label><default>{{#invoke:Erenshor/Spell|field|description}}</default></data>
+      <data><label>Effects</label><default>{{#invoke:Erenshor/Spell|field|effects}}</default></data>
+      <data><label>Mana Cost</label><default>{{#invoke:Erenshor/Spell|field|manacost}}</default></data>
+      <data><label>Casting Time</label><default>{{#invoke:Erenshor/Spell|field|casttime}}</default></data>
+      <data><label>Duration</label><default>{{#invoke:Erenshor/Spell|field|duration}}</default></data>
+      <data><label>Cooldown</label><default>{{#invoke:Erenshor/Spell|field|cooldown}}</default></data>
+      <data><label>Damage Type</label><default>{{#invoke:Erenshor/Spell|field|damage_type}}</default></data>
+      <data><label>Target Damage</label><default>{{#invoke:Erenshor/Spell|field|target_damage}}</default></data>
+      <data><label>Bleed</label><default>{{#invoke:Erenshor/Spell|field|bleed_damage_percent}}</default></data>
+      <data><label>Target Healing</label><default>{{#invoke:Erenshor/Spell|field|target_healing}}</default></data>
+      <data><label>Caster Healing</label><default>{{#invoke:Erenshor/Spell|field|caster_healing}}</default></data>
+      <data><label>Shield Amount</label><default>{{#invoke:Erenshor/Spell|field|shield_amount}}</default></data>
+      <data><label>Aggro Generated</label><default>{{#invoke:Erenshor/Spell|field|aggro}}</default></data>
+      <data><label>Lifesteal</label><default>{{#invoke:Erenshor/Spell|field|lifesteal}}</default></data>
+      <data><label>Damage Shield</label><default>{{#invoke:Erenshor/Spell|field|damage_shield}}</default></data>
+      <data><label>Status Effect</label><default>{{#invoke:Erenshor/Spell|field|status_effect}}</default></data>
+      <data><label>Proc</label><default>{{#invoke:Erenshor/Spell|field|add_proc}}</default></data>
+      <data><label>Proc Chance</label><default>{{#invoke:Erenshor/Spell|field|add_proc_chance}}</default></data>
+      <data><label>Summons</label><default>{{#invoke:Erenshor/Spell|field|pet_to_summon}}</default></data>
+
+      <group collapse="open">
+          <header>Stat Modifiers</header>
+          <data><label>Health</label><default>{{#invoke:Erenshor/Spell|field|hp}}</default></data>
+          <data><label>Mana</label><default>{{#invoke:Erenshor/Spell|field|mana}}</default></data>
+          <data><label>Armor</label><default>{{#invoke:Erenshor/Spell|field|ac}}</default></data>
+          <data><label>Strength</label><default>{{#invoke:Erenshor/Spell|field|str}}</default></data>
+          <data><label>Dexterity</label><default>{{#invoke:Erenshor/Spell|field|dex}}</default></data>
+          <data><label>Endurance</label><default>{{#invoke:Erenshor/Spell|field|end}}</default></data>
+          <data><label>Agility</label><default>{{#invoke:Erenshor/Spell|field|agi}}</default></data>
+          <data><label>Wisdom</label><default>{{#invoke:Erenshor/Spell|field|wis}}</default></data>
+          <data><label>Intelligence</label><default>{{#invoke:Erenshor/Spell|field|int}}</default></data>
+          <data><label>Charisma</label><default>{{#invoke:Erenshor/Spell|field|cha}}</default></data>
+          <data><label>Magic Resist</label><default>{{#invoke:Erenshor/Spell|field|mr}}</default></data>
+          <data><label>Elemental Resist</label><default>{{#invoke:Erenshor/Spell|field|er}}</default></data>
+          <data><label>Void Resist</label><default>{{#invoke:Erenshor/Spell|field|vr}}</default></data>
+          <data><label>Poison Resist</label><default>{{#invoke:Erenshor/Spell|field|pr}}</default></data>
+          <data><label>Attack Speed</label><default>{{#invoke:Erenshor/Spell|field|haste}}</default></data>
+          <data><label>Resonance</label><default>{{#invoke:Erenshor/Spell|field|resonance}}</default></data>
+          <data><label>Movement Speed</label><default>{{#invoke:Erenshor/Spell|field|movement_speed}}</default></data>
+          <data><label>Attack Roll Modifier</label><default>{{#invoke:Erenshor/Spell|field|atk_roll_modifier}}</default></data>
+          <data><label>XP Bonus</label><default>{{#invoke:Erenshor/Spell|field|xp_bonus}}</default></data>
+      </group>
+
+      <group collapse="open">
+          <header>Acquisition</header>
+          <data><label>Taught by</label><default>{{#invoke:Erenshor/Spell|field|source}}</default></data>
+          <data><label>Items with this effect</label><default>{{#invoke:Erenshor/Spell|field|itemswitheffect}}</default></data>
+      </group>
+
+      <group collapse="closed">
+          <header>Used By</header>
+          <data><label>Characters</label><default>{{#invoke:Erenshor/Spell|field|used_by}}</default></data>
+      </group>
+  </infobox>{{#invoke:Erenshor/Spell|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>
+Spell infobox rendered from generated Lua spell data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>
