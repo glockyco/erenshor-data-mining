@@ -3,6 +3,7 @@ local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Skill/Tooltip")
+local Cargo = require("Module:Erenshor/Cargo")
 
 local Data = mw.loadData("Module:Erenshor/Data/Skills")
 
@@ -401,12 +402,90 @@ function p.statusText(args, pageTitle)
 	return ""
 end
 
+local function cargoFields(skill, pageTitle)
+	return {
+		{ "StableKey", skill.stableKey },
+		{ "Page", pageTitle },
+		{ "Name", skill.name },
+		{ "Image", ensureImageFile(skill.image, skill.name) },
+		{ "Type", publicSkillType(skill.type) },
+		{ "CooldownSeconds", skill.cooldownSeconds },
+		{ "CastRange", skill.range },
+		{ "SkillPower", skill.skillPower },
+		{ "PercentDmg", skill.percentDmg },
+		{ "DamageType", skill.damageType },
+		{ "Require2H", skill.require2h },
+		{ "RequireDualWield", skill.requireDw },
+		{ "RequireBow", skill.requireBow },
+		{ "RequireShield", skill.requireShield },
+		{ "RequireBehind", skill.requireBehind },
+		{ "StanceToUse", skill.stanceStableKey },
+		{ "EffectToApply", skill.effectStableKey },
+		{ "CastOnTarget", skill.castOnTargetStableKey },
+		{ "SpawnOnUse", skill.spawnOnUseStableKey },
+	}
+end
+
+local function classFields(skill, classLevel)
+	return {
+		{ "StableKey", skill.stableKey },
+		{ "Class", classLevel.className },
+		{ "RequiredLevel", classLevel.level },
+	}
+end
+
+-- Each skill class carries its own required level (the six per-class C# RequiredLevel
+-- fields), so AbilityClasses rows use the per-class level, not a broadcast value.
+local function eachClassLevel(skill, callback)
+	if type(skill.classLevels) ~= "table" then
+		return
+	end
+	for _, classLevel in ipairs(skill.classLevels) do
+		if not isBlank(classLevel.className) then
+			callback(classLevel)
+		end
+	end
+end
+
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
 end
 
 function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
+end
+
+function p.cargoArgs(frame)
+	local pageTitle = currentTitleText()
+	local skill = p.resolve(templateArgs(frame), pageTitle)
+	if skill.missing then
+		return {}
+	end
+	return Cargo.buildArgs("Skills", cargoFields(skill, pageTitle))
+end
+
+function p.cargoClassRows(frame)
+	local skill = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not skill.missing then
+		eachClassLevel(skill, function(classLevel)
+			table.insert(rows, Cargo.buildArgs("AbilityClasses", classFields(skill, classLevel)))
+		end)
+	end
+	return rows
+end
+
+function p.cargoStore(frame)
+	local pageTitle = currentTitleText()
+	local skill = p.resolve(templateArgs(frame), pageTitle)
+	if skill.missing then
+		return ""
+	end
+	Cargo.store("Skills", cargoFields(skill, pageTitle))
+	eachClassLevel(skill, function(classLevel)
+		Cargo.store("AbilityClasses", classFields(skill, classLevel))
+	end)
+	return ""
 end
 
 function p.renderTooltip(args, pageTitle)

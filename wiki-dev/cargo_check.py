@@ -38,14 +38,18 @@ check_cargo_spell_rows = _cargo.check_cargo_spell_rows
 check_cargo_ability_class_rows = _cargo.check_cargo_ability_class_rows
 load_cargo_spell_expectations = _cargo.load_cargo_spell_expectations
 load_cargo_ability_class_expectations = _cargo.load_cargo_ability_class_expectations
+CARGO_SKILL_FIELDS = _cargo.CARGO_SKILL_FIELDS
+check_cargo_skill_rows = _cargo.check_cargo_skill_rows
+load_cargo_skill_expectations = _cargo.load_cargo_skill_expectations
 api_url = _mediawiki.api_url
 query_cargo_table = _mediawiki.query_cargo_table
 
-CARGO_TABLES = ("Items", "Characters", "Spells", "AbilityClasses")
+CARGO_TABLES = ("Items", "Characters", "Spells", "Skills", "AbilityClasses")
 CARGO_TEMPLATES_BY_TABLE = {
     "Items": "Item",
     "Characters": "Character",
     "Spells": "Spell",
+    "Skills": "Skill",
     "AbilityClasses": "AbilityClasses",
 }
 
@@ -111,6 +115,7 @@ def validate_cargo_rows(
     cargo_items_path: Path,
     cargo_characters_path: Path,
     cargo_spells_path: Path,
+    cargo_skills_path: Path,
     cargo_ability_classes_path: Path,
     cargo_absent_path: Path,
 ) -> list[str]:
@@ -139,6 +144,13 @@ def validate_cargo_rows(
         )
     )
     failures.extend(
+        check_cargo_skill_rows(
+            rows=query_cargo_table(client, endpoint, "Skills", CARGO_SKILL_FIELDS),
+            expectations=load_cargo_skill_expectations(cargo_skills_path),
+            absent_pages=absent_pages,
+        )
+    )
+    failures.extend(
         check_cargo_ability_class_rows(
             rows=query_cargo_table(client, endpoint, "AbilityClasses", CARGO_ABILITY_CLASS_QUERY_FIELDS),
             expectations=load_cargo_ability_class_expectations(cargo_ability_classes_path),
@@ -161,6 +173,7 @@ def main() -> None:
     parser.add_argument("--cargo-items", type=Path, default=Path("wiki-dev/fixtures/cargo_items.tsv"))
     parser.add_argument("--cargo-characters", type=Path, default=Path("wiki-dev/fixtures/cargo_characters.tsv"))
     parser.add_argument("--cargo-spells", type=Path, default=Path("wiki-dev/fixtures/cargo_spells.tsv"))
+    parser.add_argument("--cargo-skills", type=Path, default=Path("wiki-dev/fixtures/cargo_skills.tsv"))
     parser.add_argument(
         "--cargo-ability-classes",
         type=Path,
@@ -185,6 +198,7 @@ def main() -> None:
             cargo_items_path=args.cargo_items,
             cargo_characters_path=args.cargo_characters,
             cargo_spells_path=args.cargo_spells,
+            cargo_skills_path=args.cargo_skills,
             cargo_ability_classes_path=args.cargo_ability_classes,
             cargo_absent_path=args.cargo_absent,
         )

@@ -28,6 +28,26 @@
           <header>Used By</header>
           <data><label>Characters</label><default>{{#invoke:Erenshor/Skill|field|used_by}}</default></data>
       </group>
-  </infobox>{{#invoke:Erenshor/Skill|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>
-Skill infobox rendered from generated Lua skill data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field.
+  </infobox>{{#invoke:Erenshor/Skill|cargoStore}}{{#invoke:Erenshor/Skill|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Skills
+|StableKey=String
+|Page=Page
+|Name=String
+|Image=File
+|Type=String
+|CooldownSeconds=Float
+|CastRange=Float
+|SkillPower=Integer
+|PercentDmg=Float
+|DamageType=String
+|Require2H=Boolean
+|RequireDualWield=Boolean
+|RequireBow=Boolean
+|RequireShield=Boolean
+|RequireBehind=Boolean
+|StanceToUse=String
+|EffectToApply=String
+|CastOnTarget=String
+|SpawnOnUse=String
+}}{{#cargo_attach:_table=AbilityClasses}}
+Skill infobox rendered from generated Lua skill data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field. Stores one <code>Skills</code> row plus one <code>AbilityClasses</code> row per class.
 </noinclude>

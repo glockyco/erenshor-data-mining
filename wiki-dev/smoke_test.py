@@ -11,6 +11,7 @@ from smoke.cargo import (
     load_cargo_ability_class_expectations,
     load_cargo_character_expectations,
     load_cargo_item_expectations,
+    load_cargo_skill_expectations,
     load_cargo_spell_expectations,
 )
 from smoke.mediawiki import api_url
@@ -52,6 +53,12 @@ def main() -> None:
         help="Tab-separated Cargo Spells smoke expectations",
     )
     parser.add_argument(
+        "--cargo-skills",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_skills.tsv"),
+        help="Tab-separated Cargo Skills smoke expectations",
+    )
+    parser.add_argument(
         "--cargo-ability-classes",
         type=Path,
         default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
@@ -63,6 +70,7 @@ def main() -> None:
     cargo_item_expectations = load_cargo_item_expectations(args.cargo_items)
     cargo_character_expectations = load_cargo_character_expectations(args.cargo_characters)
     cargo_spell_expectations = load_cargo_spell_expectations(args.cargo_spells)
+    cargo_skill_expectations = load_cargo_skill_expectations(args.cargo_skills)
     cargo_ability_class_expectations = load_cargo_ability_class_expectations(args.cargo_ability_classes)
     cargo_absent_pages = load_absent_pages(args.cargo_absent)
     if not expectations and not cargo_item_expectations and not cargo_character_expectations:
@@ -76,6 +84,7 @@ def main() -> None:
         cargo_item_expectations=cargo_item_expectations,
         cargo_character_expectations=cargo_character_expectations,
         cargo_spell_expectations=cargo_spell_expectations,
+        cargo_skill_expectations=cargo_skill_expectations,
         cargo_ability_class_expectations=cargo_ability_class_expectations,
         cargo_absent_pages=cargo_absent_pages,
     )

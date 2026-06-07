@@ -161,6 +161,41 @@ function p.run()
 		"missing skill tooltip is visible"
 	)
 
+	local cargo = Skill.cargoArgs({ args = { stablekey = "skill:backstab" } })
+	assertEqual(cargo.Name, "Backstab", "skill cargo row name")
+	assertEqual(cargo.Type, "Attack", "skill cargo row type")
+	assertEqual(cargo.CooldownSeconds, "9", "skill cargo row cooldown in seconds")
+	assertEqual(cargo.CastRange, "0", "skill cargo row range")
+	assertEqual(cargo.SkillPower, "7", "skill cargo row skill power")
+	assertEqual(cargo.PercentDmg, "0.06", "skill cargo row percent damage")
+	assertEqual(cargo.DamageType, "Physical", "skill cargo row damage type")
+	assertEqual(cargo.RequireBehind, "yes", "skill cargo row require-behind flag casts to yes")
+	assertEqual(cargo.Require2H, "no", "skill cargo row false require flag casts to no")
+	assertEqual(cargo.StanceToUse, nil, "skill cargo row omits absent relation refs")
+
+	local classRows = Skill.cargoClassRows({ args = { stablekey = "skill:backstab" } })
+	assertEqual(#classRows, 1, "backstab emits one AbilityClasses row")
+	assertEqual(classRows[1].StableKey, "skill:backstab", "class row carries the skill stable key")
+	assertEqual(classRows[1].Class, "Duelist", "class row stores the canonical class name")
+	assertEqual(classRows[1].RequiredLevel, "2", "class row uses the per-class level")
+
+	-- A stance-activating skill stores its stance ref; an innate skill renders as Passive
+	-- and broadcasts each class's own required level (Paladin/Reaver 1, Duelist 3).
+	local stanceSkill = Skill.cargoArgs({ args = { stablekey = "skill:stance - aggressive" } })
+	assertEqual(stanceSkill.Type, "Utility", "stance skill cargo type")
+	assertEqual(stanceSkill.StanceToUse, "stance:aggressive", "stance skill stores the stance ref")
+
+	local passiveSkill = Skill.cargoArgs({ args = { stablekey = "skill:sword_mastery" } })
+	assertEqual(passiveSkill.Type, "Passive", "innate skill cargo type renders as Passive")
+	local passiveClassRows = Skill.cargoClassRows({ args = { stablekey = "skill:sword_mastery" } })
+	assertEqual(#passiveClassRows, 3, "sword mastery emits one row per class")
+	assertEqual(passiveClassRows[3].Class, "Duelist", "third class row is Duelist")
+	assertEqual(
+		passiveClassRows[3].RequiredLevel,
+		"3",
+		"duelist learns sword mastery at its own level"
+	)
+
 	return "PASS Erenshor Skill testcases"
 end
 
