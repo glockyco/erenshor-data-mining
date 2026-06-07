@@ -66,11 +66,11 @@ function p.run()
 	assertContains(classRender, "erenshor-link--class", "classLinks renders semantic class links")
 	assertContains(classRender, "[[Paladin]]", "classLinks renders Paladin link")
 	assertEqual(
-		cargo.OverviewWornAbility,
-		"Minor Lightning",
-		"cargo store contains worn ability page"
+		cargo.WornEffect,
+		"spell:minor_lightning",
+		"cargo store contains worn ability stable key"
 	)
-	local wornNotes = Item.overviewNotes({ args = { worn = "Minor Lightning" } })
+	local wornNotes = Item.overviewNotes({ args = { stablekey = "item:abyssal_plate" } })
 	assertContains(wornNotes, "Worn: ", "overview notes include worn prefix")
 	assertContains(
 		wornNotes,
@@ -84,15 +84,12 @@ function p.run()
 	assertEqual(weaponCargo.Damage, "18", "cargo store contains normal weapon damage")
 	assertEqual(weaponCargo.Delay, "2.5", "cargo store contains weapon delay")
 	assertEqual(
-		weaponCargo.OverviewProcAbility,
-		"Ember Burst",
-		"cargo store contains proc ability page"
+		weaponCargo.WeaponProc,
+		"spell:ember_proc",
+		"cargo store contains weapon proc stable key"
 	)
-	assertEqual(weaponCargo.OverviewProcChance, "20", "cargo store contains proc chance")
-	assertEqual(weaponCargo.OverviewProcTrigger, "on attack", "cargo store contains proc trigger")
-	local procNotes = Item.overviewNotes({
-		args = { proc = "Ember Burst", chance = "20", trigger = "on attack" },
-	})
+	assertEqual(weaponCargo.WeaponProcChance, "20", "cargo store contains weapon proc chance")
+	local procNotes = Item.overviewNotes({ args = { stablekey = "item:ember_longsword" } })
 	assertContains(
 		procNotes,
 		"erenshor-link--ability",
@@ -100,6 +97,26 @@ function p.run()
 	)
 	assertContains(procNotes, "[[Ember Burst]]", "overview notes render weapon proc page")
 	assertContains(procNotes, "20% on attack", "overview notes render proc chance and trigger")
+	local scrollCargo = Item.cargoArgs({ args = { stablekey = "item:scroll_of_ember" } })
+	assertEqual(
+		scrollCargo.TeachesSpell,
+		"spell:ember",
+		"cargo store contains taught spell stable key"
+	)
+	local manualCargo = Item.cargoArgs({ args = { stablekey = "item:sword_mastery_manual" } })
+	assertEqual(
+		manualCargo.TeachesSkill,
+		"skill:sword_mastery",
+		"cargo store contains taught skill stable key"
+	)
+	local draughtCargo = Item.cargoArgs({ args = { stablekey = "item:healing_draught" } })
+	assertEqual(
+		draughtCargo.ClickEffect,
+		"spell:minor_heal",
+		"cargo store contains click effect stable key"
+	)
+	local auraCargo = Item.cargoArgs({ args = { stablekey = "item:ember_aura" } })
+	assertEqual(auraCargo.Aura, "spell:ancient_presence", "cargo store contains aura stable key")
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

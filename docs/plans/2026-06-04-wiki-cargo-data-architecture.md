@@ -15,12 +15,14 @@ Built and validated on the local Cargo harness (the live wiki is still legacy):
 - Per-type ability templates `{{Spell}}`/`{{Skill}}`/`{{Stance}}`.
 - Cargo detail tables `Items`, `Characters`, `Spells`, `Skills`, `Stances` plus the
   `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
+- Item→ability links as scalar StableKey columns on `Items` (§8); the overview
+  proc/worn/click cell coalesces them at display time.
 
 Remaining work (sequenced in §15):
 
 - Phase 3 — relationship junction tables (`Drops`, `ContainerDrops`,
-  `CraftingMaterials`, `CraftingRewards`, `CharacterAbilities`, `Spawns`),
-  item→ability scalar columns, and reverse-query rendering.
+  `CraftingMaterials`, `CraftingRewards`, `CharacterAbilities`, `Spawns`) and
+  reverse-query rendering.
 - Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
   stablekey validation).
 - Phase 5 — dual-path templates for the remaining entity types.
@@ -205,9 +207,10 @@ thin pages.
 - **Drop `ClassLinks` (`Wikitext`).** Overview rows render class links at display
   time from `Classes` via `Module:Erenshor/Link`. Keep `Classes = List (,) of
   String` (bare names from `item_classes`).
-- **Replace the `Overview*` ability columns** (which stored a resolved page title
-  and collapsed weapon/wand/bow procs into one slot) with per-relationship scalar
-  StableKey columns — see §8.
+- Item→ability links are per-relationship scalar StableKey columns (§8), each
+  storing the related ability's StableKey. The overview proc/worn/click cell
+  coalesces them at display time (pick the set weapon/wand/bow proc, derive the
+  trigger from the item slot), so no conflated or page-resolved proc column is stored.
 
 `Characters`:
 - **Replace the `Zones`/`SpawnChance` markup hack with the `Spawns` table (§8).**

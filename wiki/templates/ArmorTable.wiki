@@ -21,7 +21,7 @@
 ![[Classes]]
 {{#cargo_query:
 tables=Items
-|fields=Page,Name,Image,Slot,ItemLevel,HP,Mana,Armor=AC,Str,End,Dex,Agi,Intellect=Int,Wis,Cha,Res,MR,PR,ER,VR,OverviewProcAbility=ProcAbility,OverviewProcChance=ProcChance,OverviewProcTrigger=ProcTrigger,OverviewWornAbility=WornAbility,OverviewClickAbility=ClickAbility,Classes
+|fields=Page,Name,Image,Slot,ItemLevel,HP,Mana,Armor=AC,Str,End,Dex,Agi,Intellect=Int,Wis,Cha,Res,MR,PR,ER,VR,StableKey,Classes
 |where=Type="Armor"
 |order by=Slot ASC,Name ASC
 |format=template

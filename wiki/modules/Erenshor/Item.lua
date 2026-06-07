@@ -333,16 +333,24 @@ local function percent(value)
 	return tostring(math.floor(amount))
 end
 
+local function weaponProcTrigger(item)
+	-- Faithful to ItemInfoWindow.cs: shields proc on bash, bracers on cast,
+	-- ordinary weapons on attack.
+	if item.shield then
+		return "on bash"
+	end
+	if item.slot == "Bracer" then
+		return "on cast"
+	end
+	return "on attack"
+end
+
 local function procOverview(item)
 	if hasValue(item.weaponProc) and hasValue(item.weaponProcChance) then
-		local trigger = "on attack"
-		if item.shield then
-			trigger = "on bash"
-		end
-		return abilityPage(item.weaponProc), percent(item.weaponProcChance), trigger
+		return abilityPage(item.weaponProc), percent(item.weaponProcChance), weaponProcTrigger(item)
 	end
 	if hasValue(item.wandEffect) and hasValue(item.wandProcChance) then
-		return abilityPage(item.wandEffect), percent(item.wandProcChance), "on cast"
+		return abilityPage(item.wandEffect), percent(item.wandProcChance), "on attack"
 	end
 	if hasValue(item.bowEffect) and hasValue(item.bowProcChance) then
 		return abilityPage(item.bowEffect), percent(item.bowProcChance), "on attack"
@@ -417,31 +425,26 @@ local function probabilityList(values, decimals)
 end
 
 function p.overviewNotes(frame)
-	local args = templateArgs(frame)
+	-- The overview "Notes" cell coalesces an item's own proc/worn/click abilities
+	-- at display time from the Lua data module; Cargo stores the scalar ability
+	-- StableKeys (for reverse queries), never this rendered conflation.
+	local item = itemForStableKey(explicitStableKey(templateArgs(frame)))
+	if item == nil then
+		return ""
+	end
 	local notes = {}
-	local procAbility = Args.resolve(args, "proc", nil) or Args.resolve(args, "ProcAbility", nil)
-	if hasValue(procAbility) then
+	local procPage, procChance, procTrigger = procOverview(item)
+	if hasValue(procPage) then
 		table.insert(
 			notes,
-			abilityLinkMarkup(procAbility)
-				.. ", "
-				.. percent(
-					Args.resolve(args, "chance", nil) or Args.resolve(args, "ProcChance", nil)
-				)
-				.. "% "
-				.. tostring(
-					Args.resolve(args, "trigger", nil)
-						or Args.resolve(args, "ProcTrigger", "on attack")
-				)
+			abilityLinkMarkup(procPage) .. ", " .. procChance .. "% " .. procTrigger
 		)
 	end
-	local wornAbility = Args.resolve(args, "worn", nil) or Args.resolve(args, "WornAbility", nil)
-	if hasValue(wornAbility) then
-		table.insert(notes, "Worn: " .. abilityLinkMarkup(wornAbility))
+	if hasValue(item.wornEffect) then
+		table.insert(notes, "Worn: " .. abilityLinkFromStableKey(item.wornEffect))
 	end
-	local clickAbility = Args.resolve(args, "click", nil) or Args.resolve(args, "ClickAbility", nil)
-	if hasValue(clickAbility) then
-		table.insert(notes, "On click: " .. abilityLinkMarkup(clickAbility))
+	if hasValue(item.clickEffect) then
+		table.insert(notes, "On click: " .. abilityLinkFromStableKey(item.clickEffect))
 	end
 	local text = table.concat(notes, "<br>")
 	if frame ~= nil and frame.preprocess ~= nil then
@@ -661,7 +664,6 @@ end
 
 local function cargoFields(item, pageTitle)
 	local stats = normalStats(item)
-	local procAbility, procChance, procTrigger = procOverview(item)
 	return {
 		{ "Page", pageTitle },
 		{ "StableKey", item.stableKey },
@@ -691,11 +693,18 @@ local function cargoFields(item, pageTitle)
 		{ "SellValue", item.sellValue },
 		{ "Image", ensureImageFile(item.image, item.name) },
 		{ "Classes", classCargo(item.classes) },
-		{ "OverviewProcAbility", procAbility },
-		{ "OverviewProcChance", procChance },
-		{ "OverviewProcTrigger", procTrigger },
-		{ "OverviewWornAbility", abilityPage(item.wornEffect) },
-		{ "OverviewClickAbility", abilityPage(item.clickEffect) },
+		{ "TeachesSpell", item.teachesSpell },
+		{ "TeachesSkill", item.teachesSkill },
+		{ "WeaponProc", item.weaponProc },
+		{ "WeaponProcChance", item.weaponProcChance },
+		{ "WandEffect", item.wandEffect },
+		{ "WandProcChance", item.wandProcChance },
+		{ "BowEffect", item.bowEffect },
+		{ "BowProcChance", item.bowProcChance },
+		{ "WornEffect", item.wornEffect },
+		{ "ClickEffect", item.clickEffect },
+		{ "SkillUse", item.skillUse },
+		{ "Aura", item.aura },
 		{ "Relic", item.relic },
 		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
 		{ "HasWornEffect", hasValue(item.wornEffect) },
