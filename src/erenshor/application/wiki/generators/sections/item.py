@@ -123,9 +123,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 )
             )
 
-        guaranteed_drops = self._format_guaranteed_drops(enriched)
-        drop_rates = self._format_drop_rates(enriched)
-
         return {
             "title": display_name,
             "type": item_type,
@@ -140,8 +137,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "sell": safe_str(item.sell_value) if item.sell_value else "",
             "taughtspell": taughtspell,
             "taughtskill": taughtskill,
-            "guaranteeddrops": guaranteed_drops,
-            "droprates": drop_rates,
         }
 
     def _format_vendor_sources(self, enriched: EnrichedItemData) -> str:
@@ -208,26 +203,3 @@ class ItemSectionGenerator(SectionGeneratorBase):
         craft_links = [f"{qty}x {link!s}" for link, qty in enriched.sources.craft_recipe]
         component_links = [str(link) for link in enriched.sources.component_for]
         return ("<br>".join(craft_links), "<br>".join(component_links))
-
-    def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
-        """Format guaranteed drop pool from pre-built ItemLink objects."""
-        if not enriched.sources or not enriched.sources.item_drops:
-            return ""
-        items_with_names = [
-            (link.display_name.lower(), str(link))
-            for link, _ in enriched.sources.item_drops
-            if link.page_title is not None
-        ]
-        items_with_names.sort(key=lambda x: x[0])
-        return "<br>".join(link for _, link in items_with_names)
-
-    def _format_drop_rates(self, enriched: EnrichedItemData) -> str:
-        """Format drop rates from pre-built ItemLink objects with probabilities."""
-        if not enriched.sources or not enriched.sources.item_drops:
-            return ""
-        links = [
-            f"{link!s} ({probability:.0f}%)"
-            for link, probability in enriched.sources.item_drops
-            if link.page_title is not None
-        ]
-        return "<br>".join(links)

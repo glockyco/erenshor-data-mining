@@ -343,8 +343,10 @@ end
 -- the guaranteed entries, deduplicated by page, shown only when the pool has 2+ so
 -- "one of these" is meaningful (a lone guaranteed item simply drops at 100%).
 local function guaranteedDropList(values)
+	-- An override string belongs to droprates, not the guaranteed pool, which is
+	-- derivable only from the structured drop list.
 	if type(values) ~= "table" then
-		return values
+		return ""
 	end
 	local out = {}
 	local seen = {}

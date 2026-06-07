@@ -117,4 +117,4 @@ _table=Items
 |Relic=Boolean
 |HasProc=Boolean
 |HasWornEffect=Boolean
-}}</noinclude>
+}}{{#cargo_attach:_table=ContainerDrops}}</noinclude>

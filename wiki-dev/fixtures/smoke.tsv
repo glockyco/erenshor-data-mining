@@ -34,6 +34,8 @@ Healing Draught	Healing: 150
 Magical Bag	General
 Magical Bag	item-tooltip-general
 Magical Bag	surprisingly roomy
+Magical Bag	Bear Pelt
+Magical Bag	Bear Meat
 Copper Armor Mold	Mold
 Copper Armor Mold	item-tooltip-crafting
 Copper Armor Mold	Ingredients:
@@ -69,7 +71,6 @@ Manual Item Override	Manual skill type
 Manual Item Override	42
 Manual Item Override	Manual product
 Manual Item Override	Manual ingredient
-Manual Item Override	Manual guaranteed drop
 Manual Item Override	Manual drop rate
 Manual Item Override	Manual Blade
 Missing Item Data	Missing item data: Missing Item Data

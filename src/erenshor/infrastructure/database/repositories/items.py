@@ -5,6 +5,7 @@ from loguru import logger
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -524,31 +525,41 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get items with skill effect '{skill_stable_key}': {e}") from e
 
-    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]:
+    def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]:
         """Get items that can drop from using this item (e.g., fossil).
 
-        Returns pre-built ItemLink objects with drop probabilities.
+        Returns drop-edge data keyed by the dropped item's StableKey; the link,
+        name, and image resolve from the item record at the display layer.
 
         Args:
             source_item_stable_key: Item stable key of the source item
 
         Returns:
-            List of (ItemLink, drop_probability) tuples sorted by probability descending.
+            List of ItemDropInfo sorted by drop probability descending, then name.
+            Only drops whose item exists with a display name are returned.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, i.image_name, id.drop_probability
+            SELECT id.dropped_item_stable_key, id.drop_probability, id.is_guaranteed
             FROM item_drops id
             JOIN items i ON i.stable_key = id.dropped_item_stable_key
             WHERE id.source_item_stable_key = ?
-            ORDER BY id.drop_probability DESC, i.display_name COLLATE NOCASE
+              AND i.display_name IS NOT NULL
+            ORDER BY id.drop_probability DESC, i.display_name COLLATE NOCASE, id.dropped_item_stable_key
         """
 
         try:
             rows = self._execute_raw(query, (source_item_stable_key,))
-            result = [(_item_link_from_row(row), float(row["drop_probability"])) for row in rows]
+            result = [
+                ItemDropInfo(
+                    dropped_item_stable_key=str(row["dropped_item_stable_key"]),
+                    drop_probability=float(row["drop_probability"]),
+                    is_guaranteed=bool(row["is_guaranteed"]),
+                )
+                for row in rows
+            ]
             logger.debug(f"Found {len(result)} item drops for '{source_item_stable_key}'")
             return result
         except Exception as e:

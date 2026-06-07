@@ -34,9 +34,8 @@ local FIELD_OVERRIDES = {
 	othersource = "othersource",
 	disposable = "disposable",
 	dps = "dps",
-	droprates = "dropRates",
+	droprates = "containerDrops",
 	duration = "duration",
-	guaranteeddrops = "guaranteedDrops",
 	proceffect = "procEffect",
 	produces = "produces",
 	relic = "relic",
@@ -93,7 +92,6 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"description",
 	"buy",
 	"sell",
-	"guaranteeddrops",
 	"droprates",
 }
 
@@ -424,6 +422,62 @@ local function probabilityList(values, decimals)
 	return table.concat(out, "<br>")
 end
 
+-- Render a source item's "opens into" list from StableKey-keyed container-drop edges,
+-- resolving each dropped item's link at display time and collapsing shared pages. A
+-- manual droprates override replaces containerDrops with a display string, returned
+-- verbatim.
+local function containerDropRates(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	local seen = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and hasValue(row.item) then
+			local probability = tonumber(row.probability)
+			local record = Link.itemRecord(row.item)
+			if probability ~= nil and record ~= nil then
+				local key = tostring(record.page) .. "|" .. tostring(row.probability)
+				if not seen[key] then
+					seen[key] = true
+					table.insert(
+						out,
+						Link.render({ kind = "item", stablekey = row.item })
+							.. " ("
+							.. string.format("%.0f", probability)
+							.. "%)"
+					)
+				end
+			end
+		end
+	end
+	return table.concat(out, "<br>")
+end
+
+-- The "Guaranteed One Of" pool: guaranteed container entries, deduplicated by page,
+-- shown only when 2+ share the pool so "one of these" is meaningful. Derived from the
+-- structured data only; a droprates display override yields no pool.
+local function containerGuaranteedList(values)
+	if type(values) ~= "table" then
+		return ""
+	end
+	local out = {}
+	local seen = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and row.guaranteed == true and hasValue(row.item) then
+			local record = Link.itemRecord(row.item)
+			if record ~= nil and not seen[tostring(record.page)] then
+				seen[tostring(record.page)] = true
+				table.insert(out, Link.render({ kind = "item", stablekey = row.item }))
+			end
+		end
+	end
+	if #out < 2 then
+		return ""
+	end
+	return table.concat(out, "<br>")
+end
+
 function p.overviewNotes(frame)
 	-- The overview "Notes" cell coalesces an item's own proc/worn/click abilities
 	-- at display time from the Lua data module; Cargo stores the scalar ability
@@ -595,10 +649,10 @@ local FIELD_ACCESSORS = {
 		return Format.currency(i.sellValue)
 	end,
 	guaranteeddrops = function(i)
-		return linkList(i.guaranteedDrops)
+		return containerGuaranteedList(i.containerDrops)
 	end,
 	droprates = function(i)
-		return probabilityList(i.dropRates, 0)
+		return containerDropRates(i.containerDrops)
 	end,
 }
 
@@ -742,6 +796,27 @@ function p.link(frame)
 	return p.renderLink(templateArgs(frame), currentTitleText())
 end
 
+-- One Cargo ContainerDrops row per produced item, keyed by the dropped item's
+-- StableKey. A manual droprates override replaces containerDrops with a display
+-- string, which yields no rows (the curator controls that relationship).
+local function containerDropRows(item)
+	local rows = {}
+	if type(item.containerDrops) ~= "table" then
+		return rows
+	end
+	for _, drop in ipairs(item.containerDrops) do
+		if type(drop) == "table" and hasValue(drop.item) then
+			table.insert(rows, {
+				{ "SourceItemKey", item.stableKey },
+				{ "DroppedItemKey", drop.item },
+				{ "DropProbability", drop.probability },
+				{ "IsGuaranteed", drop.guaranteed == true },
+			})
+		end
+	end
+	return rows
+end
+
 function p.cargoArgs(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -752,6 +827,17 @@ function p.cargoArgs(frame)
 	return Cargo.buildArgs("Items", cargoFields(item, pageTitle))
 end
 
+function p.cargoContainerDropRows(frame)
+	local item = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not item.missing then
+		for _, fields in ipairs(containerDropRows(item)) do
+			table.insert(rows, Cargo.buildArgs("ContainerDrops", fields))
+		end
+	end
+	return rows
+end
+
 function p.cargoStore(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -759,7 +845,11 @@ function p.cargoStore(frame)
 	if item.missing then
 		return ""
 	end
-	return Cargo.store("Items", cargoFields(item, pageTitle))
+	Cargo.store("Items", cargoFields(item, pageTitle))
+	for _, fields in ipairs(containerDropRows(item)) do
+		Cargo.store("ContainerDrops", fields)
+	end
+	return ""
 end
 
 return p

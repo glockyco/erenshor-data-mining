@@ -308,8 +308,6 @@ class EntityPageGenerator(PageGenerator):
             crafting_results = own_recipe.results
             recipe_ingredients = own_recipe.materials
 
-        item_drops = self.context.item_repo.get_item_drops(item.stable_key)
-
         return SourceInfo(
             vendors=vendors,
             drops=drops,
@@ -320,7 +318,6 @@ class EntityPageGenerator(PageGenerator):
             component_for=component_for,
             crafting_results=crafting_results,
             recipe_ingredients=recipe_ingredients,
-            item_drops=item_drops,
         )
 
     def _execute_raw_direct(self, query: str, params: tuple) -> list:  # type: ignore[type-arg]

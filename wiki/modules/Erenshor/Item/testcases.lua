@@ -117,6 +117,35 @@ function p.run()
 	)
 	local auraCargo = Item.cargoArgs({ args = { stablekey = "item:ember_aura" } })
 	assertEqual(auraCargo.AuraKey, "spell:ancient_presence", "cargo store contains aura stable key")
+	local bagDrops = Item.cargoContainerDropRows({ args = { stablekey = "item:magical_bag" } })
+	assertEqual(#bagDrops, 3, "container drop rows cover every produced item")
+	assertEqual(
+		bagDrops[1].SourceItemKey,
+		"item:magical_bag",
+		"container drop row carries the source item key"
+	)
+	assertEqual(
+		bagDrops[1].DroppedItemKey,
+		"item:bear_pelt",
+		"container drop connects to the produced item by stable key"
+	)
+	assertEqual(bagDrops[1].IsGuaranteed, "yes", "guaranteed container drop is flagged")
+	assertEqual(
+		bagDrops[3].DroppedItemKey,
+		"item:bear_meat",
+		"non-guaranteed container drop is stored"
+	)
+	assertEqual(bagDrops[3].IsGuaranteed, "no", "non-guaranteed container drop is unflagged")
+	local bagRates = Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "droprates")
+	assertContains(bagRates, "[[Bear Pelt]]", "container droprates resolves the dropped item link")
+	assertContains(bagRates, "50%", "container droprates shows the probability")
+	local bagGuaranteed =
+		Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "guaranteeddrops")
+	assertContains(
+		bagGuaranteed,
+		"[[Bear Claw]]",
+		"guaranteed pool lists guaranteed container drops"
+	)
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

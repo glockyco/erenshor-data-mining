@@ -175,6 +175,24 @@ DROP_KEY = ("CharacterKey", "ItemKey")
 # Drops stores no Page column; alias the implicit _pageName for the cargoquery API.
 CARGO_DROP_QUERY_FIELDS = ("_pageName=Page", "CharacterKey", "ItemKey", "DropProbability", "IsGuaranteed")
 
+CARGO_CONTAINER_DROP_FIELDS = (
+    "Page",
+    "SourceItemKey",
+    "DroppedItemKey",
+    "DropProbability",
+    "IsGuaranteed",
+)
+# ContainerDrops is a child table written on the source item's page: one row per
+# (source item, produced item), both StableKeys.
+CONTAINER_DROP_KEY = ("SourceItemKey", "DroppedItemKey")
+CARGO_CONTAINER_DROP_QUERY_FIELDS = (
+    "_pageName=Page",
+    "SourceItemKey",
+    "DroppedItemKey",
+    "DropProbability",
+    "IsGuaranteed",
+)
+
 
 def load_cargo_expectations(
     path: Path,
@@ -241,6 +259,11 @@ def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_drop_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo Drops rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_DROP_FIELDS, DROP_KEY)
+
+
+def load_cargo_container_drop_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo ContainerDrops rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_CONTAINER_DROP_FIELDS, CONTAINER_DROP_KEY)
 
 
 def load_absent_pages(path: Path) -> set[str]:
@@ -353,3 +376,11 @@ def check_cargo_drop_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "Drops", absent_pages, DROP_KEY)
+
+
+def check_cargo_container_drop_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "ContainerDrops", absent_pages, CONTAINER_DROP_KEY)

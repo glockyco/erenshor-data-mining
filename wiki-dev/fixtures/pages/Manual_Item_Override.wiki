@@ -17,7 +17,6 @@
 |manacost=42
 |produces=Manual product
 |ingredients=Manual ingredient
-|guaranteeddrops=Manual guaranteed drop
 |droprates=Manual drop rate
 }}
 

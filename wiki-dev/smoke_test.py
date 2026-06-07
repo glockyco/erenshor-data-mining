@@ -10,6 +10,7 @@ from smoke.cargo import (
     load_absent_pages,
     load_cargo_ability_class_expectations,
     load_cargo_character_expectations,
+    load_cargo_container_drop_expectations,
     load_cargo_drop_expectations,
     load_cargo_item_expectations,
     load_cargo_skill_expectations,
@@ -78,6 +79,12 @@ def main() -> None:
         default=Path("wiki-dev/fixtures/cargo_drops.tsv"),
         help="Tab-separated Cargo Drops smoke expectations",
     )
+    parser.add_argument(
+        "--cargo-container-drops",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_container_drops.tsv"),
+        help="Tab-separated Cargo ContainerDrops smoke expectations",
+    )
     args = parser.parse_args()
 
     expectations = load_expectations(args.expectations)
@@ -88,6 +95,7 @@ def main() -> None:
     cargo_stance_expectations = load_cargo_stance_expectations(args.cargo_stances)
     cargo_ability_class_expectations = load_cargo_ability_class_expectations(args.cargo_ability_classes)
     cargo_drop_expectations = load_cargo_drop_expectations(args.cargo_drops)
+    cargo_container_drop_expectations = load_cargo_container_drop_expectations(args.cargo_container_drops)
     cargo_absent_pages = load_absent_pages(args.cargo_absent)
     if not expectations and not cargo_item_expectations and not cargo_character_expectations:
         raise SystemExit(
@@ -104,6 +112,7 @@ def main() -> None:
         cargo_stance_expectations=cargo_stance_expectations,
         cargo_ability_class_expectations=cargo_ability_class_expectations,
         cargo_drop_expectations=cargo_drop_expectations,
+        cargo_container_drop_expectations=cargo_container_drop_expectations,
         cargo_absent_pages=cargo_absent_pages,
     )
     if failures:

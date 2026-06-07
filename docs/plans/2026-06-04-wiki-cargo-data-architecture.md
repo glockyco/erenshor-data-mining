@@ -17,13 +17,14 @@ Built and validated on the local Cargo harness (the live wiki is still legacy):
   `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
 - Item→ability links as scalar StableKey columns on `Items` (§8); the overview
   proc/worn/click cell coalesces them at display time.
-- Character→item drops as the `Drops` junction (owner = character), via the
+- Character→item drops as the `Drops` junction (owner = character) and item→item
+  container drops as the `ContainerDrops` junction (owner = source item), via the
   attach-trick; every StableKey column follows the `Key`-suffix convention (§2.1).
 
 Remaining work (sequenced in §15):
 
-- Phase 3 — relationship junction tables (`ContainerDrops`, `CraftingMaterials`,
-  `CraftingRewards`, `CharacterAbilities`, `Spawns`) and reverse-query rendering.
+- Phase 3 — relationship junction tables (`CraftingMaterials`, `CraftingRewards`,
+  `CharacterAbilities`, `Spawns`) and reverse-query rendering.
 - Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
   stablekey validation).
 - Phase 5 — dual-path templates for the remaining entity types.

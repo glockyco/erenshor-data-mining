@@ -24,6 +24,7 @@ from tests.unit.application.wiki_lua.fakes import (
 
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.validation import LuaValidationResult
+from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
 
@@ -121,7 +122,11 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
             item.stable_key: [(StandardLink(page_title="Ancient Fossil", display_name="Ancient Fossil"), 25.0)]
         },
         items_requiring={item.stable_key: [ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")]},
-        item_drops={item.stable_key: [(ItemLink(page_title="Dropped Relic", display_name="Dropped Relic"), 100.0)]},
+        item_drops={
+            item.stable_key: [
+                ItemDropInfo(dropped_item_stable_key="item:dropped_relic", drop_probability=100.0, is_guaranteed=True)
+            ]
+        },
     )
     character_repo = FakeCharacterRepository(
         [make_character()],
@@ -159,7 +164,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
     assert '["kind"] = "quest"' in item_shard_text
     assert '["componentFor"] = {' in item_shard_text
     assert '["kind"] = "item"' in item_shard_text
-    assert '["dropRates"] = {' in item_shard_text
+    assert '["containerDrops"] = {' in item_shard_text
 
 
 def _run_generation(tmp_path: Path) -> object:

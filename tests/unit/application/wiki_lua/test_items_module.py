@@ -7,6 +7,7 @@ from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
 from erenshor.application.wiki_lua.items import build_items_data, generate_items_modules, write_items_modules
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
@@ -213,7 +214,9 @@ def test_builds_item_provenance_fields_from_source_info() -> None:
     quest_reward = QuestLink(page_title="Reward Quest", display_name="Reward Quest")
     quest_requirement = QuestLink(page_title="Required Quest", display_name="Required Quest")
     component_for = ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")
-    guaranteed_drop = ItemLink(page_title="A Fossil Reward", display_name="A Fossil Reward")
+    guaranteed_drop = ItemDropInfo(
+        dropped_item_stable_key="item:a_fossil_reward", drop_probability=100.0, is_guaranteed=True
+    )
 
     data = build_items_data(
         items=[item],
@@ -226,7 +229,7 @@ def test_builds_item_provenance_fields_from_source_info() -> None:
                 quest_rewards=[quest_reward],
                 quest_requirements=[quest_requirement],
                 component_for=[component_for],
-                item_drops=[(guaranteed_drop, 100.0)],
+                item_drops=[guaranteed_drop],
             )
         },
     )
@@ -241,10 +244,7 @@ def test_builds_item_provenance_fields_from_source_info() -> None:
     assert item_data["questSource"] == [{"kind": "quest", "page": "Reward Quest", "text": "Reward Quest"}]
     assert item_data["relatedQuest"] == [{"kind": "quest", "page": "Required Quest", "text": "Required Quest"}]
     assert item_data["componentFor"] == [{"kind": "item", "page": "Copper Armor Mold", "text": "Copper Armor Mold"}]
-    assert item_data["guaranteedDrops"] == [{"kind": "item", "page": "A Fossil Reward", "text": "A Fossil Reward"}]
-    assert item_data["dropRates"] == [
-        {"link": {"kind": "item", "page": "A Fossil Reward", "text": "A Fossil Reward"}, "probability": 100.0}
-    ]
+    assert item_data["containerDrops"] == [{"item": "item:a_fossil_reward", "probability": 100.0, "guaranteed": True}]
 
 
 def test_generates_items_modules_with_provenance_data() -> None:

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+    from erenshor.domain.value_objects.loot import ItemDropInfo
     from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, StandardLink, WikiLink
 
 
@@ -38,7 +39,7 @@ class ItemProvenanceItemRepository(Protocol):
 
     def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]: ...
 
-    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]: ...
+    def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]: ...
 
 
 class ItemProvenanceCharacterRepository(Protocol):
@@ -298,8 +299,7 @@ def _item_record(
         _put(row, "questSource", _format_quest_sources(sources))
         _put(row, "relatedQuest", _format_related_quests(sources))
         _put(row, "componentFor", _format_component_for(sources))
-        _put(row, "guaranteedDrops", _format_guaranteed_drops(sources))
-        _put(row, "dropRates", _format_drop_rates(sources))
+        _put(row, "containerDrops", _format_container_drops(sources))
 
     if recipe is not None:
         ingredients = _recipe_links(recipe.materials)
@@ -370,22 +370,21 @@ def _format_component_for(sources: SourceInfo) -> list[LuaData]:
     return link_refs(sources.component_for, "item")
 
 
-def _format_guaranteed_drops(sources: SourceInfo) -> list[LuaData]:
-    items_with_names = [
-        (link.display_name.lower(), ref)
-        for link, _ in sources.item_drops
-        if (ref := link_ref(link, "item")) is not None
-    ]
-    items_with_names.sort(key=lambda pair: pair[0])
-    return [link for _, link in items_with_names]
+def _format_container_drops(sources: SourceInfo) -> list[LuaData]:
+    """One entry per item this source item drops, connected by the dropped StableKey.
 
-
-def _format_drop_rates(sources: SourceInfo) -> list[LuaData]:
-    return [
-        {"link": ref, "probability": probability}
-        for link, probability in sources.item_drops
-        if (ref := link_ref(link, "item")) is not None
-    ]
+    Mirrors the character drop list: each entry carries the dropped item's StableKey
+    (the connection consumed by the Cargo ContainerDrops store and resolved to a link
+    at render time), the drop probability, and the guaranteed-pool flag. Order is set
+    by the repository query (probability desc, then name).
+    """
+    out: list[LuaData] = []
+    for drop in sources.item_drops:
+        entry: LuaData = {"item": drop.dropped_item_stable_key, "probability": drop.drop_probability}
+        if drop.is_guaranteed:
+            entry["guaranteed"] = True
+        out.append(entry)
+    return out
 
 
 def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:

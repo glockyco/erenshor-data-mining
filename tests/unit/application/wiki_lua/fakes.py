@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
-    from erenshor.domain.value_objects.loot import LootDropInfo
+    from erenshor.domain.value_objects.loot import ItemDropInfo, LootDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
     from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, StandardLink
 
@@ -28,7 +28,7 @@ class FakeItemRepository:
         recipes: dict[str, CraftingRecipe] | None = None,
         item_sources: dict[str, list[tuple[StandardLink, float]]] | None = None,
         items_requiring: dict[str, list[ItemLink]] | None = None,
-        item_drops: dict[str, list[tuple[ItemLink, float]]] | None = None,
+        item_drops: dict[str, list[ItemDropInfo]] | None = None,
         spell_teaching_items: dict[str, list[ItemLink]] | None = None,
         skill_teaching_items: dict[str, list[ItemLink]] | None = None,
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
@@ -64,7 +64,7 @@ class FakeItemRepository:
     def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]:
         return self._items_requiring.get(item_stable_key, [])
 
-    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]:
+    def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]:
         return self._item_drops.get(source_item_stable_key, [])
 
     def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
