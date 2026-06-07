@@ -1,51 +1,33 @@
 # Wiki Lua Migration & Cargo Data Architecture
 
-Status: IN PROGRESS — approved umbrella spec for the full legacy→Lua wiki cutover.
-Date: 2026-06-04 (rewritten 2026-06-06 to cover the full migration, not just Cargo).
-Supersedes the cutover/retirement model of `2026-05-29-wiki-lua-migration-next-steps.md`
-(its M1–M11 built the Lua rendering + repo-page deploy foundation; its M12–M14
-cutover model is replaced by the dual-path / incremental model in §5–§6 here).
+Umbrella spec for the legacy→Lua wiki cutover across all seven entity types
+(items, characters, spells, skills, stances, zones, quests).
 
-## Progress
+## Status
 
-Each increment lands via TDD + local smoke + the full commit gate.
+Built and validated on the local Cargo harness (the live wiki is still legacy):
 
-Built foundation (2026-05-29 M1–M11): Lua presentation modules, PortableInfobox
-templates, repo-page deploy/rollback/refresh, local smoke/parity harness, and
-Items+Characters Cargo (validated locally only). Live wiki is still 100% legacy.
+- Lua presentation modules + PortableInfobox templates; repo-page deploy /
+  rollback / refresh; local smoke + parity harness.
+- Dual-path `{{Item}}`/`{{Character}}` templates (§5): a stablekey selects the new
+  path (data module + Cargo); no stablekey selects the verbatim legacy infobox
+  with no Cargo write.
+- Per-type ability templates `{{Spell}}`/`{{Skill}}`/`{{Stance}}`.
+- Cargo detail tables `Items`, `Characters`, `Spells`, `Skills`, `Stances` plus the
+  `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
 
-- [x] Phase 0 — export wiki-relevant Spell flags. Commits `79f3d71f`, `f66c287d`.
-- [x] Phase 1a — drop `Items.ClassLinks` markup; render class links from `Classes`. `9bb6495a`.
-- [x] Phase 1b — Characters `Faction`→WorldFaction stablekey, `Zones`→names, drop `SpawnChance`. `f063bcd4`.
-- [x] Phase 1c — multi-entity Cargo regression fixture (`Dire Wolf`). `5ef8c16e`.
-- [x] Phase 2 prereq A — spell/skill times to seconds at generation; zero ticks. `0f522eb1`.
-- [~] Phase 5 de-risk — dual-path `{{Item}}`/`{{Character}}` proof landed ahead of
-  schedule to validate the §5 cutover linchpin. **Plan A holds** (inline
-  `<infobox>` inside `{{#if:{{{stablekey|}}}|new|legacy}}` expands as a real
-  extension tag, not escaped); Plan B (sub-template transclusion) is unneeded.
-  Harness now proves all three branches: thin page → new branch + Cargo row; fat
-  inline-param page (no stablekey) → verbatim legacy infobox + zero Cargo rows;
-  thin page with a dead stablekey → loud missing-data span + tracking category +
-  zero rows. Cargo absent-row assertions generalized to the Characters table.
-- [x] Phase 2 prereq B — split `{{Ability}}`→`{{Spell}}` (clean rename of the shared
-  infobox) + `{{Skill}}` (new infobox driven by the Skill module's declared public
-  field set, surfacing range/requirements/flags the spell-shaped infobox omitted);
-  retired `Template:Ability` + the `Module:Erenshor/Ability` stablekey dispatcher
-  (kept `Module:Erenshor/Ability/Common` shared tooltip primitives and
-  `Module:Erenshor/AbilityLink`). Fixtures repointed; orphaned live `Template:Ability`
-  is a one-time manual delete at cutover.
-- [x] Phase 2 — per-type `Spells`/`Skills`/`Stances` tables + `AbilityClasses` junction
-  (no base table; centralized `Module:Erenshor/Cargo` store via `frame:callParserFunction`).
-  Columns verified against `Spell.cs`/`Skill.cs`/`Stance.cs`. Spells broadcast one
-  required level per class; skills use the six per-class `*RequiredLevel` fields; stances
-  carry no classes. `Range`→`CastRange` (wiki.gg SQL-keyword block). Multi-entity proven:
-  the two same-name `Flame Bolt` spells store two distinct-stable-key rows on one page.
-- [ ] Phase 3 — junction tables + `Spawns` + item→ability scalar columns + reverse-query rendering.
-- [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).
-- [ ] Phase 5 — dual-path templates (`{{#if:stablekey|new|legacy}}`) for every entity type (§5).
-- [ ] Phase 6 — thin-page article generator + automated article deploy (§6).
-- [ ] Phase 7 — production cutover: deploy → incremental thin-page conversion → per-type legacy retirement (§5, §15).
-- [ ] Phase 8 — freshness/orphans + editor/template documentation.
+Remaining work (sequenced in §15):
+
+- Phase 3 — relationship junction tables (`Drops`, `ContainerDrops`,
+  `CraftingMaterials`, `CraftingRewards`, `CharacterAbilities`, `Spawns`),
+  item→ability scalar columns, and reverse-query rendering.
+- Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
+  stablekey validation).
+- Phase 5 — dual-path templates for the remaining entity types.
+- Phase 6 — thin-page article generator + automated article deploy.
+- Phase 7 — production cutover: deploy → incremental thin-page conversion →
+  per-type legacy retirement.
+- Phase 8 — freshness / orphan reconciliation + editor and template documentation.
 
 ## 1. Purpose & scope
 
@@ -97,6 +79,30 @@ Non-goals / out of scope:
   `item_drops`, `crafting_recipes`, `crafting_rewards`, `item_classes`,
   `spell_classes`, `character_spawns`, `character_attack_spells` + siblings,
   `spell_created_items`.
+
+### 2.1 Cargo platform constraints (wiki.gg / LIBRARIAN)
+
+These shape every Cargo decision below:
+
+- **A template declares ≤1 table and attaches ≤1 table** (max two without a
+  workaround). To write more tables from one template, transclude zero-output
+  attach-only helper templates (`<noinclude>{{#cargo_attach:_table=X}}</noinclude>`,
+  the "attach trick") from the storing template's `<includeonly>`.
+- **Native Lua `cargo_store`/`cargo_declare` are disabled.** Rows are written
+  through the `#cargo_store` parser function via `frame:callParserFunction`,
+  centralized in `Module:Erenshor/Cargo` (`buildArgs` casts a field list,
+  booleans → `yes`/`no`, nil omitted; `store` hands the map to the parser
+  function). One call per row; loop for multiple rows.
+- **No `UNION`.** Cross-table "everything of kind X" scans run one query per table
+  and merge in Lua.
+- **One-to-many → a separate junction table** (one row per relationship), never a
+  list field or numbered columns.
+- **Column names must avoid SQL keywords.** A keyword column (e.g. `Range`) is
+  rejected at declare time, the table is silently not created, and stores become
+  no-ops — so the ability range column is `CastRange`.
+- **Types:** Integer columns must be true integers (no decimals); Boolean columns
+  accept `yes`/`no` and query back as `1`/`0`. Query the implicit page via an alias
+  (`_pageName=Page`) on tables that do not store a `Page` column.
 
 ## 3. Core principles
 
@@ -198,7 +204,7 @@ thin pages.
 `Items`:
 - **Drop `ClassLinks` (`Wikitext`).** Overview rows render class links at display
   time from `Classes` via `Module:Erenshor/Link`. Keep `Classes = List (,) of
-  String` (bare names from `item_classes`). *(done — Phase 1a)*
+  String` (bare names from `item_classes`).
 - **Replace the `Overview*` ability columns** (which stored a resolved page title
   and collapsed weapon/wand/bow procs into one slot) with per-relationship scalar
   StableKey columns — see §8.
@@ -208,7 +214,6 @@ thin pages.
   Keep an optional derived `Zones = List (,) of String` (distinct zone names) as a
   cheap filter convenience. **`Faction`: store the WorldFaction `stablekey`** (the
   only joinable faction; the combat `Faction` enum is name-only, not a link).
-  *(done — Phase 1b)*
 
 All-6-classes → "All" is a display-only collapse in `Module:Erenshor/Link`
 (store all class names; render "All" when the set is the full 6-class roster).
@@ -216,8 +221,7 @@ All-6-classes → "All" is a display-only collapse in `Module:Erenshor/Link`
 ### 7.2 Abilities: per-type detail tables + class junction (no base table)
 
 Spells, skills, and stances are three independent per-type tables. There is **no
-shared `Abilities` base table** — rejected after research (see
-`2026-06-07-cargo-storage-architecture-research.md`). A base table's only unique
+shared `Abilities` base table**. A base table's only unique
 benefit is a single-query cross-type "all abilities" scan (Cargo has no `UNION`),
 which is rare and Lua-mergeable; ability links already resolve from the Lua data
 modules, not Cargo. It would cost a redundant `Name`/`Image` row per ability, an
@@ -235,7 +239,7 @@ wiki.gg 1-declare + 1-attach budget, so **no attach-trick is needed for abilitie
 `CrowdControl`, `GrantInvisibility`, `CannotInterrupt`, `Jolt`, `NoResonate`, plus
 single-reference relation StableKeys `StatusEffect` (`status_effect_to_apply_stable_key`),
 `AddProc` (`add_proc_stable_key`), `PetToSummon` (`pet_to_summon_stable_key`).
-(Times are seconds — Phase 2 prereq A.)
+(Times are in seconds.)
 
 `Skills` (from `skills`): `StableKey`, `Page`, `Name`, `Image`, `Type` (`Innate`→"Passive"),
 `CooldownSeconds`, `CastRange`, `SkillPower`, `PercentDmg`, `DamageType`, `Require2H`,
@@ -300,7 +304,7 @@ Reverse/cross-page relationships ("dropped by", "used by", "taught by") are
 **rendered via Cargo query** against the junction tables / item→ability columns —
 in list pages and in the infobox — and the denormalized reverse arrays (`usedBy`,
 `itemsWithEffect`, `source`) are **removed from the Lua data modules**. Single
-source, removal-correct. **Confirmed** (Leaguepedia's model).
+source, removal-correct (Leaguepedia's model).
 
 ## 9. Community contribution layer (non-extractable relationships)
 
@@ -343,7 +347,7 @@ touch article pages at all (§6).
   removed from the data module → on reparse, resolve=missing → store nothing →
   row dropped. Whole page gone → delete page → rows dropped.
 - Reverse-query rendering (§8.1) makes removals correct (no ghost rows).
-- **Confirmed: drop-and-recreate** of generated tables from the authoritative set,
+- **Drop-and-recreate** of generated tables from the authoritative set,
   gated by `cargo_check`. The deploy bot cannot get page-delete rights, so orphan
   removal relies on this deterministic rebuild + the orphan-page reconciliation
   the cutover deploy performs (it owns the authoritative page set). Community rows
@@ -382,47 +386,37 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
 - Extend `wiki-dev/smoke/cargo.py` + fixtures + `cargo_check.py` recreate set to
   every new table.
 
-## 15. Phased sequencing (for the implementation plans)
+## 15. Phased sequencing
 
-Cargo new-path completion (local harness) comes first so the dual-path new branch
-is whole before any page is converted; then dual-path + generator + cutover.
+Cargo for every type is completed on the local harness before any page is converted,
+so the dual-path new branch is whole before cutover. Each phase is TDD-first and
+atomic; `writing-plans` turns each into a step-by-step plan.
 
-0. *(done)* Spell-flag export.
-1. *(done)* Items/Characters Cargo fixes + multi-entity fixture.
-2. *(done)* Times→seconds at generation.
-3. Phase 2 prereq B + Phase 2: split `{{Ability}}`→`{{Spell}}`/`{{Skill}}` (retire
-   `Module:Erenshor/Ability`); per-type `Spells`/`Skills`/`Stances` + `AbilityClasses` junction Cargo (no base; storage via `Module:Erenshor/Cargo`+`callParserFunction`).
-4. Phase 3: junction tables + item→ability scalar columns; move reverse relations
-   to Cargo queries; drop denormalized arrays.
-5. Phase 4: community layer.
-6. Phase 5: dual-path templates for all seven types (embed verbatim legacy
-   fallback branches; new branch unchanged); both-branch harness tests.
-7. Phase 6: thin-page article generator + automated article deploy + generalized
+3. Phase 3 — relationship junction tables + item→ability scalar columns; reverse
+   relations move to Cargo queries; denormalized arrays dropped.
+4. Phase 4 — community contribution layer.
+5. Phase 5 — dual-path templates for all seven types (verbatim legacy fallback
+   branch; new branch unchanged); both-branch harness tests.
+6. Phase 6 — thin-page article generator + automated article deploy + generalized
    override-preserving conversion (all seven types).
-8. Phase 7: production cutover — TemplateSandbox gate → deploy dual-path
+7. Phase 7 — production cutover: TemplateSandbox gate → deploy dual-path
    templates/modules → recreate Cargo → incrementally convert pages to thin →
-   per-type, delete the legacy branch + retire that type's Jinja2 generator →
-   live smoke + rollback manifest.
-9. Phase 8: freshness/orphan drop-and-recreate automation + documentation.
+   per-type, delete the legacy branch + retire that type's Jinja2 generator → live
+   smoke + rollback manifest.
+8. Phase 8 — freshness / orphan drop-and-recreate automation + documentation.
 
-Each step is TDD (failing test first) and atomic; writing-plans turns each phase
-into a step-by-step plan.
+## 16. Key decisions
 
-## 16. Resolved decisions
 - Dual-path `{{#if:stablekey|new|legacy}}` cutover; all-or-nothing per page; Cargo
-  pure (new branch only); legacy branch = verbatim legacy infobox, deleted per
-  type after conversion. **Confirmed.**
-- Thin generated `{{Type|stablekey=}}` pages (community content preserved) as the
-  cutover mechanism, replacing the M13 null-edit model. **Confirmed.**
-- Store forward / query reverse; drop denormalized arrays. **Confirmed.**
-- Orphan reconciliation = drop-and-recreate (bot cannot get page-delete rights).
-  **Confirmed.**
-- Per-type `Spells`/`Skills`/`Stances` + `AbilityClasses` junction; **no** base table;
-  distinct `{{Spell}}`/`{{Skill}}` templates; storage centralized in
-  `Module:Erenshor/Cargo` via `frame:callParserFunction`. **Revised 2026-06-07 per
-  research (`2026-06-07-cargo-storage-architecture-research.md`); supersedes the
-  earlier base-`Abilities`-table decision.**
-- All times in seconds; no tick storage/display anywhere. **Confirmed.**
+  written only in the new branch; legacy branch = verbatim legacy infobox, deleted
+  per type after conversion.
+- Thin generated `{{Type|stablekey=}}` pages are the cutover mechanism; community
+  content is preserved on-page.
+- Store forward / query reverse; no denormalized reverse arrays.
+- Orphan reconciliation = drop-and-recreate (the bot cannot get page-delete rights).
+- Abilities use per-type `Spells`/`Skills`/`Stances` tables + the `AbilityClasses`
+  junction; no shared base table; distinct `{{Spell}}`/`{{Skill}}` templates.
+- All Cargo storage goes through `Module:Erenshor/Cargo`; all times in seconds (no ticks).
 
 ## 17. References
 - Cargo — Storing data: https://www.mediawiki.org/wiki/Extension:Cargo/Storing_data
@@ -435,3 +429,7 @@ into a step-by-step plan.
 - Help:Multiple-instance templates: https://www.mediawiki.org/wiki/Help:Multiple-instance_templates
 - MediaWiki Help:TemplateData: https://www.mediawiki.org/wiki/Help:TemplateData
 - Expand/contract (parallel change) migration: https://martinfowler.com/bliki/ParallelChange.html
+- Cargo — Other features (Lua interface): https://www.mediawiki.org/wiki/Extension:Cargo/Other_features
+- wiki.gg — Cargo troubleshooting: https://support.wiki.gg/wiki/Cargo/troubleshooting
+- wiki.gg — Cargo attaching tables: https://support.wiki.gg/wiki/Cargo/attaching_tables
+- PoE wiki — Module:Cargo (Lua store pattern): https://www.poewiki.net/wiki/Module:Cargo
