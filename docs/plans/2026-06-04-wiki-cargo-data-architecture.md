@@ -19,6 +19,14 @@ Items+Characters Cargo (validated locally only). Live wiki is still 100% legacy.
 - [x] Phase 1b — Characters `Faction`→WorldFaction stablekey, `Zones`→names, drop `SpawnChance`. `f063bcd4`.
 - [x] Phase 1c — multi-entity Cargo regression fixture (`Dire Wolf`). `5ef8c16e`.
 - [x] Phase 2 prereq A — spell/skill times to seconds at generation; zero ticks. `0f522eb1`.
+- [~] Phase 5 de-risk — dual-path `{{Item}}`/`{{Character}}` proof landed ahead of
+  schedule to validate the §5 cutover linchpin. **Plan A holds** (inline
+  `<infobox>` inside `{{#if:{{{stablekey|}}}|new|legacy}}` expands as a real
+  extension tag, not escaped); Plan B (sub-template transclusion) is unneeded.
+  Harness now proves all three branches: thin page → new branch + Cargo row; fat
+  inline-param page (no stablekey) → verbatim legacy infobox + zero Cargo rows;
+  thin page with a dead stablekey → loud missing-data span + tracking category +
+  zero rows. Cargo absent-row assertions generalized to the Characters table.
 - [ ] Phase 2 prereq B — split `{{Ability}}`→`{{Spell}}`/`{{Skill}}`, retire `Module:Erenshor/Ability`.
 - [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`.
 - [ ] Phase 3 — junction tables + `Spawns` + item→ability scalar columns + reverse-query rendering.

@@ -1,4 +1,4 @@
-<includeonly><infobox type="Item">
+<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Item">
     <title><default>{{#invoke:Erenshor/Item|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Item|field|image}}</default><caption><default>{{#invoke:Erenshor/Item|field|imagecaption}}</default></caption></image>
     <data><label>Type</label><default>{{#invoke:Erenshor/Item|field|type}}</default></data>
@@ -35,7 +35,44 @@
     <data><label>Sell</label><default>{{#invoke:Erenshor/Item|field|sell}}</default></data>
     <data><label>Provides one of</label><default>{{#invoke:Erenshor/Item|field|guaranteeddrops}}</default></data>
     <data><label>Overall Item Chances</label><default>{{#invoke:Erenshor/Item|field|droprates}}</default></data>
-</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}</includeonly><noinclude>{{#cargo_declare:
+</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
+    <title source="title"/>
+    <image source="image"><caption source="imagecaption"/></image>
+    <data source="type"><label>Type</label></data>
+    <data source="vendorsource"><label>Sold by</label></data>
+    <data source="source"><label>Dropped by</label></data>
+    <data source="othersource"><label>Other sources</label></data>
+    <data source="questsource"><label>Reward from</label></data>
+    <data source="relatedquest"><label>Related quest(s)</label></data>
+    <data source="craftsource"><label>[[Crafting|Crafting recipe]]</label></data>
+    <data source="componentfor"><label>Component for</label></data>
+    <data source="relic"><label>[[Relic]]</label></data>
+    <data source="classes"><label>[[Classes]]</label></data>
+    <data source="effects"><label>Effects</label></data>
+    <data source="damage"><label>Damage</label></data>
+    <data source="delay"><label>Delay</label></data>
+    <data source="dps"><label>DPS</label></data>
+    <data source="casttime"><label>Casting Time</label></data>
+    <data source="duration"><label>Duration</label></data>
+    <data source="cooldown"><label>Cooldown</label></data>
+    <data source="effect"><label>Activatable</label></data>
+    <data source="worneffect"><label>Worn Effect</label></data>
+    <data source="proceffect"><label>Proc Effect</label></data>
+    <data source="buffgiven"><label>Buff Given</label></data>
+    <data source="taughtspell"><label>Teaches Spell</label></data>
+    <data source="taughtskill"><label>Teaches Skill</label></data>
+    <data source="spelltype"><label>Spell Type</label></data>
+    <data source="skilltype"><label>Skill Type</label></data>
+    <data source="manacost"><label>Mana Cost</label></data>
+    <data source="disposable"><label>Consumable</label></data>
+    <data source="produces"><label>Produces</label></data>
+    <data source="ingredients"><label>Ingredients</label></data>
+    <data source="description"><label>Description</label></data>
+    <data source="buy"><label>Buy</label></data>
+    <data source="sell"><label>Sell</label></data>
+    <data source="guaranteeddrops"><label>Provides one of</label></data>
+    <data source="droprates"><label>Overall Item Chances</label></data>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}}}</includeonly><noinclude>{{#cargo_declare:
 _table=Items
 |Page=Page
 |StableKey=String

@@ -1,0 +1,9 @@
+{{Character
+|name=Legacy Beast Fixture
+|image=Legacy Beast Fixture.png
+|type=Enemy
+|faction=Legacy Faction
+|level=33
+|health=999
+|zones=Legacy Zone
+}}

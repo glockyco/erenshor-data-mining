@@ -46,6 +46,7 @@ def run_smoke_checks(
             cargo_failures = check_cargo_character_rows(
                 rows=query_cargo_table(client, endpoint, "Characters", CARGO_CHARACTER_FIELDS),
                 expectations=cargo_character_expectations,
+                absent_pages=cargo_absent_pages,
             )
             _record_cargo_result("Cargo Characters", cargo_failures, failures)
     return failures

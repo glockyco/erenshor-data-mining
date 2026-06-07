@@ -445,7 +445,7 @@ def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
         },
     ]
 
-    failures = cargo.check_cargo_character_rows(rows, expectations)
+    failures = cargo.check_cargo_character_rows(rows, expectations, absent_pages={"Scratch Character"})
 
     assert failures == [
         "Cargo Characters row A Grizzly Bear Name: expected A Grizzly Bear, got Wrong Bear",
@@ -453,6 +453,7 @@ def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
         "Cargo Characters missing row for Captain Rowan",
         "Cargo Characters duplicate row for A Grizzly Bear / character:duplicate",
         "Cargo Characters unexpected row for A Grizzly Bear / character:duplicate",
+        "Cargo Characters unexpected row for Scratch Character",
     ]
 
 

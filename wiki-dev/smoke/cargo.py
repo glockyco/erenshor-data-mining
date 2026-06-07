@@ -170,5 +170,6 @@ def check_cargo_item_rows(
 def check_cargo_character_rows(
     rows: list[dict[str, str]],
     expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
 ) -> list[str]:
-    return check_cargo_rows(rows, expectations, "Characters")
+    return check_cargo_rows(rows, expectations, "Characters", absent_pages)

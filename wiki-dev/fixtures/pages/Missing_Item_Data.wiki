@@ -1,1 +1,1 @@
-{{Item|title=Missing Relic}}
+{{Item|stablekey=item:missing_relic}}

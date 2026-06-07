@@ -72,7 +72,7 @@ Manual Item Override	Manual ingredient
 Manual Item Override	Manual guaranteed drop
 Manual Item Override	Manual drop rate
 Manual Item Override	Manual Blade
-Missing Item Data	Missing item data: Missing Relic
+Missing Item Data	Missing item data: Missing Item Data
 Missing Item Data	Category:Pages_with_missing_Erenshor_item_data
 Lua Character Smoke	PASS Erenshor Character testcases
 A Grizzly Bear	A Grizzly Bear
@@ -195,3 +195,19 @@ Cargo WeaponTable Smoke	Reaver
 Dire Wolf	Dire Wolf
 Dire Wolf	The Followers of Evil
 Dire Wolf	The Followers of Good
+Legacy Item Fixture	Legacy Sword Fixture
+Legacy Item Fixture	Weapon
+Legacy Item Fixture	Legacy Vendor
+Legacy Item Fixture	Legacy Monster
+Legacy Item Fixture	Legacy inline-param item, no stablekey.
+Legacy Item Fixture	portable-infobox
+Legacy Item Fixture	pi-type-Item
+Legacy Item Fixture	Category:Items
+Legacy Character Fixture	Legacy Beast Fixture
+Legacy Character Fixture	Enemy
+Legacy Character Fixture	Legacy Faction
+Legacy Character Fixture	Legacy Zone
+Legacy Character Fixture	View on the interactive map
+Legacy Character Fixture	portable-infobox
+Legacy Character Fixture	pi-type-Character
+Legacy Character Fixture	Category:Enemies

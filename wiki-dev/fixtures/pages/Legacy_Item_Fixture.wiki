@@ -1,0 +1,10 @@
+{{Item
+|title=Legacy Sword Fixture
+|image=Legacy Sword Fixture.png
+|type=Weapon
+|vendorsource=Legacy Vendor
+|source=Legacy Monster
+|damage=42
+|delay=2.5
+|description=Legacy inline-param item, no stablekey.
+}}

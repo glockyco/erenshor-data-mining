@@ -117,6 +117,7 @@ def validate_cargo_rows(
         check_cargo_character_rows(
             rows=query_cargo_table(client, endpoint, "Characters", CARGO_CHARACTER_FIELDS),
             expectations=load_cargo_character_expectations(cargo_characters_path),
+            absent_pages=load_absent_pages(cargo_absent_path),
         )
     )
     return failures

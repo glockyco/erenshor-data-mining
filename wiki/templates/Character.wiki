@@ -1,4 +1,4 @@
-<includeonly><infobox type="Character">
+<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Character">
     <title><default>{{#invoke:Erenshor/Character|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Character|field|image}}</default><caption><default>{{#invoke:Erenshor/Character|field|imagecaption}}</default></caption></image>
     <group>
@@ -39,7 +39,68 @@
             <data><label>Void:</label><default>{{#invoke:Erenshor/Character|field|void}}</default></data>
         </group>
     </group>
-</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{#invoke:Erenshor/Character|status}}</includeonly><noinclude>{{#cargo_declare:_table=Characters
+</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{#invoke:Erenshor/Character|status}}|<infobox type="Character">
+    <title source="name"/>
+    <image source="image">
+        <caption source="imagecaption" />
+    </image>
+    <group>
+        <data source="type">
+            <label>Type:</label>
+            <format>{{#switch:{{{type|}}}
+| NPC    = [[:Category:Characters|NPC]]
+| Boss   = [[Enemies|Boss]]
+| Rare   = [[Enemies|Rare]]
+| Enemy  = [[Enemies|Enemy]]
+| {{{type|}}}
+}}</format>
+        </data>
+        <data source="faction"><label>Faction:</label></data>
+        <data source="factionChange"><label>Faction Changes on Kill:</label></data>
+        <data source="class"><label>Class:</label></data>
+        <data>
+            <label>Map</label>
+            <default>{{#if:{{{name|}}}|[https://erenshor-maps.wowmuch1.workers.dev/map?sel={{#ifeq:{{{type|}}}|NPC|npc|enemy}}:{{urlencode:{{{name|}}}}} View on the interactive map]}}</default>
+        </data>
+        <data source="zones"><label>Zones:</label></data>
+        <data source="coordinates"><label>Coordinates:</label></data>
+        <data source="respawn"><label>Base Respawn:</label></data>
+        <data source="spawnchance"><label>Spawn Chance:</label></data>
+        <data source="level"><label>Base Level:</label></data>
+        <data source="experience"><label>Base Experience:</label></data>
+        <data source="guaranteeddrops"><label>Guaranteed One Of:</label></data>
+        <data source="droprates"><label>Overall Drop Rates:</label></data>
+    </group>
+    <group collapse="open">
+        <header>Abilities</header>
+        <data source="spells"><label>Spells:</label></data>
+    </group>
+    <group>
+        <header>Base Stats</header>
+        <group layout="horizontal">
+            <data source="health"><label>Health:</label></data>
+        </group>
+        <group layout="horizontal">
+            <data source="ac"><label>AC:</label></data>
+        </group>
+    </group>
+    <group>
+        <header>Base Resists</header>
+        <group layout="horizontal">
+            <data source="magic"><label>Magic:</label></data>
+            <data source="poison"><label>Poison:</label></data>
+        </group>
+        <group layout="horizontal">
+            <data source="elemental"><label>Elemental:</label></data>
+            <data source="void"><label>Void:</label></data>
+        </group>
+    </group>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | {{#switch: {{{type|}}}
+| Boss                      = [[Category:Bosses]]
+| NPC                       = [[Category:Characters]]
+| [[Simulated Players|Sim]] =
+| #default                  = [[Category:Enemies]]
+}} }}}}</includeonly><noinclude>{{#cargo_declare:_table=Characters
 |Page=Page
 |StableKey=String
 |Name=String
