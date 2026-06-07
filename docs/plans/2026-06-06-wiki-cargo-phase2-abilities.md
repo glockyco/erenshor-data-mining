@@ -1,5 +1,16 @@
 # Cargo Phase 2: Abilities schema (base + per-type detail) — Implementation Plan
 
+> **⚠ Superseded (2026-06-07) on the Cargo storage model.** Research against the
+> wiki.gg platform docs + production wikis (River/Leaguepedia, PoE) reversed two
+> choices below: there is **no shared `Abilities` base table** (per-type `Spells`/
+> `Skills`/`Stances` + an `AbilityClasses` junction declared by a dedicated
+> `Template:AbilityClasses`), and storage is **centralized in `Module:Erenshor/Cargo`
+> via `frame:callParserFunction('#cargo_store:', …)`** (wiki.gg disables the native Lua
+> store; the hand-built-wikitext + `frame:preprocess` path is fragile). The authoritative
+> design is now `2026-06-07-cargo-storage-architecture-research.md` + umbrella spec
+> §7.2/§8. Prereqs A and B below are done and unaffected; the per-type detail column
+> lists below remain valid. Ignore the "base table / `Spell` declares Abilities /
+> `#cargo_attach` the base" wording.
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans. Steps use checkbox (`- [ ]`).
 
 **Goal:** Give spells, skills, and stances Cargo storage via a thin shared `Abilities` base table + per-type `Spells`/`Skills`/`Stances` detail tables joined on `StableKey`, plus an `AbilityClasses(StableKey, Class, RequiredLevel)` child table — implementing spec §5.2 + §6.

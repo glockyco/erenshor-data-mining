@@ -34,7 +34,7 @@ Items+Characters Cargo (validated locally only). Live wiki is still 100% legacy.
   (kept `Module:Erenshor/Ability/Common` shared tooltip primitives and
   `Module:Erenshor/AbilityLink`). Fixtures repointed; orphaned live `Template:Ability`
   is a one-time manual delete at cutover.
-- [ ] Phase 2 — abilities base + `Spells`/`Skills`/`Stances` detail + `AbilityClasses`.
+- [ ] Phase 2 — per-type `Spells`/`Skills`/`Stances` tables + `AbilityClasses` junction (no base table; centralized `Module:Erenshor/Cargo` store — see `2026-06-07-cargo-storage-architecture-research.md`).
 - [ ] Phase 3 — junction tables + `Spawns` + item→ability scalar columns + reverse-query rendering.
 - [ ] Phase 4 — community layer (`ItemSource`/`SpawnPoint`, `Origin`, validation).
 - [ ] Phase 5 — dual-path templates (`{{#if:stablekey|new|legacy}}`) for every entity type (§5).
@@ -208,17 +208,22 @@ thin pages.
 All-6-classes → "All" is a display-only collapse in `Module:Erenshor/Link`
 (store all class names; render "All" when the set is the full 6-class roster).
 
-### 7.2 Abilities: thin base + per-type detail (class-table-inheritance)
+### 7.2 Abilities: per-type detail tables + class junction (no base table)
 
-A single wide `Abilities` table is rejected (sparse single-table inheritance).
-Instead a thin base + three per-type detail tables, joined on `StableKey`, written
-from the split `{{Spell}}`/`{{Skill}}`/`{{Stance}}` templates (`Spell` declares
-the base + `AbilityClasses`; `Skill`/`Stance` `#cargo_attach`).
+Spells, skills, and stances are three independent per-type tables. There is **no
+shared `Abilities` base table** — rejected after research (see
+`2026-06-07-cargo-storage-architecture-research.md`). A base table's only unique
+benefit is a single-query cross-type "all abilities" scan (Cargo has no `UNION`),
+which is rare and Lua-mergeable; ability links already resolve from the Lua data
+modules, not Cargo. It would cost a redundant `Name`/`Image` row per ability, an
+extra store per page, and push `{{Spell}}`/`{{Skill}}` to three tables (needing the
+attach-trick) for marginal value. Each type's template declares its own detail table;
+class membership is the `AbilityClasses` junction (§8). `{{Spell}}` and `{{Skill}}`
+each declare their detail table and directly attach `AbilityClasses` — exactly the
+wiki.gg 1-declare + 1-attach budget, so **no attach-trick is needed for abilities**
+(the trick first applies in Phase 3, e.g. `{{Character}}` writing several junctions).
 
-`Abilities` (base; one row per spell/skill/stance): `StableKey`, `Page`, `Name`,
-`AbilityType` (`Spell`|`Skill`|`Stance`), `Image`, `Description`.
-
-`Spells` (from `spells`): `StableKey`, `Page`, `Name`, `Type`, `Line`,
+`Spells` (from `spells`): `StableKey`, `Page`, `Name`, `Image`, `Type`, `Line`,
 `RequiredLevel`, `ManaCost`, `CastTimeSeconds`, `CooldownSeconds`,
 `DurationSeconds`, `Range`, `DamageType`, `TargetDamage`, `TargetHealing`,
 `CasterHealing`, `ShieldingAmt`, `SimUsable`, `SelfOnly`, `GroupEffect`, `Aggro`,
@@ -227,20 +232,20 @@ single-reference relation StableKeys `StatusEffect` (`status_effect_to_apply_sta
 `AddProc` (`add_proc_stable_key`), `PetToSummon` (`pet_to_summon_stable_key`).
 (Times are seconds — Phase 2 prereq A.)
 
-`Skills` (from `skills`): `StableKey`, `Page`, `Name`, `Type` (`Innate`→"Passive"),
+`Skills` (from `skills`): `StableKey`, `Page`, `Name`, `Image`, `Type` (`Innate`→"Passive"),
 `CooldownSeconds`, `Range`, `SkillPower`, `PercentDmg`, `DamageType`, `Require2H`,
 `RequireDualWield`, `RequireBow`, `RequireShield`, `RequireBehind`, plus relation
 StableKeys `StanceToUse`, `EffectToApply`, `CastOnTarget`, `SpawnOnUse`.
 
-`Stances` (from `stances`; all columns real): `StableKey`, `Page`, `Name`,
+`Stances` (from `stances`; all columns real): `StableKey`, `Page`, `Name`, `Image`,
 `MaxHpMod`, `DamageMod`, `ProcRateMod`, `DamageTakenMod`, `SelfDamagePerAttack`,
 `AggroGenMod`, `SpellDamageMod`, `SelfDamagePerCast`, `LifestealAmount`,
 `ResonanceAmount`, `StopRegen`.
 
-`Page`/`Name` are denormalized onto detail tables so per-type list pages need no
-base join. Detail tables carry the curated *queryable* subset; the full per-entity
-field set stays in the Lua module for the infobox. Field coverage verified against
-`Spell.cs`/`Skill.cs`/`Stance.cs`.
+Each detail table is self-contained (`Page`/`Name`/`Image` denormalized) so per-type
+list pages need no join. Detail tables carry the curated *queryable* subset; the full
+per-entity field set (incl. descriptions/long text) stays in the Lua module for the
+infobox. Field coverage verified against `Spell.cs`/`Skill.cs`/`Stance.cs`.
 
 ## 8. Relationship (junction) tables
 
@@ -259,6 +264,8 @@ One table per relationship shape, FK by `StableKey`, attributes as columns,
   columns; owner = ability): `StableKey`, `Class`, `RequiredLevel`, `Origin`.
   `RequiredLevel` resolved per (ability, class): spells broadcast their single
   `required_level`; skills use the per-class column. `Class` = canonical class name.
+  Declared by a dedicated declare-only `Template:AbilityClasses`; `{{Spell}}` and
+  `{{Skill}}` each directly attach it (`Origin` is added in Phase 4).
 - `CharacterAbilities` (from `character_attack_spells` + siblings + `character_attack_skills`;
   owner = character): `Character`, `Ability`, `Usage`, `Origin`.
 - `Spawns` (from `character_spawns` + `character_chained_spawns` expanded per
@@ -379,7 +386,7 @@ is whole before any page is converted; then dual-path + generator + cutover.
 1. *(done)* Items/Characters Cargo fixes + multi-entity fixture.
 2. *(done)* Times→seconds at generation.
 3. Phase 2 prereq B + Phase 2: split `{{Ability}}`→`{{Spell}}`/`{{Skill}}` (retire
-   `Module:Erenshor/Ability`); abilities base + detail + `AbilityClasses` Cargo.
+   `Module:Erenshor/Ability`); per-type `Spells`/`Skills`/`Stances` + `AbilityClasses` junction Cargo (no base; storage via `Module:Erenshor/Cargo`+`callParserFunction`).
 4. Phase 3: junction tables + item→ability scalar columns; move reverse relations
    to Cargo queries; drop denormalized arrays.
 5. Phase 4: community layer.
@@ -405,8 +412,11 @@ into a step-by-step plan.
 - Store forward / query reverse; drop denormalized arrays. **Confirmed.**
 - Orphan reconciliation = drop-and-recreate (bot cannot get page-delete rights).
   **Confirmed.**
-- Base `Abilities` table + per-type detail; distinct `{{Spell}}`/`{{Skill}}`
-  templates. **Confirmed.**
+- Per-type `Spells`/`Skills`/`Stances` + `AbilityClasses` junction; **no** base table;
+  distinct `{{Spell}}`/`{{Skill}}` templates; storage centralized in
+  `Module:Erenshor/Cargo` via `frame:callParserFunction`. **Revised 2026-06-07 per
+  research (`2026-06-07-cargo-storage-architecture-research.md`); supersedes the
+  earlier base-`Abilities`-table decision.**
 - All times in seconds; no tick storage/display anywhere. **Confirmed.**
 
 ## 17. References
