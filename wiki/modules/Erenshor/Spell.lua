@@ -658,15 +658,15 @@ local function cargoFields(spell, pageTitle)
 		{ "CannotInterrupt", spell.cannotInterrupt },
 		{ "Jolt", spell.jolt },
 		{ "NoResonate", spell.noResonate },
-		{ "StatusEffect", spell.statusEffectStableKey },
-		{ "AddProc", spell.addProcStableKey },
-		{ "PetToSummon", spell.petToSummonStableKey },
+		{ "StatusEffectKey", spell.statusEffectStableKey },
+		{ "AddProcKey", spell.addProcStableKey },
+		{ "PetToSummonKey", spell.petToSummonStableKey },
 	}
 end
 
 local function classFields(spell, className)
 	return {
-		{ "StableKey", spell.stableKey },
+		{ "AbilityKey", spell.stableKey },
 		{ "Class", className },
 		{ "RequiredLevel", spell.requiredLevel },
 	}

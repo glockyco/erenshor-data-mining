@@ -17,7 +17,6 @@ local FIELD_OVERRIDES = {
 	endurance = "endurance",
 	faction = "faction",
 	factionchange = "factionChange",
-	guaranteeddrops = "guaranteedDrops",
 	health = "health",
 	image = "image",
 	imagecaption = "imageCaption",
@@ -56,7 +55,6 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"respawn",
 	"spawnchance",
 	"level",
-	"guaranteeddrops",
 	"droprates",
 	"spells",
 	"health",
@@ -288,33 +286,79 @@ local function factionChangeList(values)
 	return table.concat(out, "<br>")
 end
 
+-- Resolve and render one drop's item link from its StableKey. Returns the rendered
+-- link plus the item record (so callers can read the page for dedup and the unique
+-- flag for the inventory footnote) — nil when the item cannot be resolved.
+local function renderDropLink(drop)
+	if type(drop) ~= "table" or isBlank(drop.item) then
+		return nil, nil
+	end
+	local item = Link.itemRecord(drop.item)
+	if item == nil then
+		return nil, nil
+	end
+	return Link.render({ kind = "item", stablekey = drop.item }), item
+end
+
 local function dropRateList(values)
 	if type(values) ~= "table" then
 		return values
 	end
 	local out = {}
+	local seen = {}
 	for _, row in ipairs(values) do
-		if type(row) == "table" and row.link ~= nil then
-			local rendered = Link.render(row.link)
-			local probability = tonumber(row.probability)
-			if probability ~= nil then
+		local rendered, item = renderDropLink(row)
+		local probability = tonumber(row.probability)
+		if rendered ~= nil and probability ~= nil then
+			-- Distinct StableKeys can share a page; collapse identical display rows
+			-- (same page, probability, and footnotes) so the infobox lists each once.
+			local key = tostring(item.page)
+				.. "|"
+				.. tostring(row.probability)
+				.. "|"
+				.. tostring(row.visible == true)
+			if not seen[key] then
+				seen[key] = true
 				local line = rendered .. " (" .. string.format("%.1f", probability) .. "%)"
-				for _, refKind in ipairs(row.refs or {}) do
-					if refKind == "visible_equipped" then
-						line = line
-							.. "<ref>If "
-							.. rendered
-							.. " is equipped, it is guaranteed to drop.</ref>"
-					elseif refKind == "unique_inventory" then
-						line = line
-							.. "<ref>If the player is already holding "
-							.. rendered
-							.. " in their inventory, another will not drop.</ref>"
-					end
+				if row.visible == true then
+					line = line
+						.. "<ref>If "
+						.. rendered
+						.. " is equipped, it is guaranteed to drop.</ref>"
+				end
+				if item.unique == true then
+					line = line
+						.. "<ref>If the player is already holding "
+						.. rendered
+						.. " in their inventory, another will not drop.</ref>"
 				end
 				table.insert(out, line)
 			end
 		end
+	end
+	return table.concat(out, "<br>")
+end
+
+-- The guaranteed-pool ("Guaranteed One Of") row is derived from the same drop list:
+-- the guaranteed entries, deduplicated by page, shown only when the pool has 2+ so
+-- "one of these" is meaningful (a lone guaranteed item simply drops at 100%).
+local function guaranteedDropList(values)
+	if type(values) ~= "table" then
+		return values
+	end
+	local out = {}
+	local seen = {}
+	for _, row in ipairs(values) do
+		if type(row) == "table" and row.guaranteed == true then
+			local rendered, item = renderDropLink(row)
+			if rendered ~= nil and not seen[tostring(item.page)] then
+				seen[tostring(item.page)] = true
+				table.insert(out, rendered)
+			end
+		end
+	end
+	if #out < 2 then
+		return ""
 	end
 	return table.concat(out, "<br>")
 end
@@ -363,7 +407,7 @@ local FIELD_ACCESSORS = {
 		return experienceRange(c)
 	end,
 	guaranteeddrops = function(c)
-		return linkList(c.guaranteedDrops)
+		return guaranteedDropList(c.dropRates)
 	end,
 	droprates = function(c)
 		return dropRateList(c.dropRates)
@@ -434,13 +478,34 @@ local function cargoFields(character, pageTitle)
 		{ "Zones", zoneNames(character.zones) },
 		{ "Level", character.level },
 		{
-			"Faction",
+			"FactionKey",
 			type(character.faction) == "table" and (character.faction.stablekey or "") or "",
 		},
 		{ "HasDrops", character.hasDrops },
 		{ "HasSpells", character.hasSpells },
 		{ "MapSelector", character.mapSelector },
 	}
+end
+
+-- One Cargo Drops row per dropped item, keyed by the item StableKey. A manual
+-- droprates override replaces dropRates with a display string, which yields no
+-- rows (the curator has taken manual control of that relationship).
+local function dropCargoRows(character)
+	local rows = {}
+	if type(character.dropRates) ~= "table" then
+		return rows
+	end
+	for _, drop in ipairs(character.dropRates) do
+		if type(drop) == "table" and not isBlank(drop.item) then
+			table.insert(rows, {
+				{ "CharacterKey", character.stableKey },
+				{ "ItemKey", drop.item },
+				{ "DropProbability", drop.probability },
+				{ "IsGuaranteed", drop.guaranteed == true },
+			})
+		end
+	end
+	return rows
 end
 
 function p.field(frame)
@@ -461,6 +526,17 @@ function p.cargoArgs(frame)
 	return Cargo.buildArgs("Characters", cargoFields(character, pageTitle))
 end
 
+function p.cargoDropRows(frame)
+	local character = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not character.missing then
+		for _, fields in ipairs(dropCargoRows(character)) do
+			table.insert(rows, Cargo.buildArgs("Drops", fields))
+		end
+	end
+	return rows
+end
+
 function p.cargoStore(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -468,7 +544,11 @@ function p.cargoStore(frame)
 	if character.missing then
 		return ""
 	end
-	return Cargo.store("Characters", cargoFields(character, pageTitle))
+	Cargo.store("Characters", cargoFields(character, pageTitle))
+	for _, fields in ipairs(dropCargoRows(character)) do
+		Cargo.store("Drops", fields)
+	end
+	return ""
 end
 
 return p

@@ -17,16 +17,9 @@ return {
 			coordinates = "1.2 x 2.5 x 3.8",
 			respawn = "2 minutes",
 			dropRates = {
-				{
-					link = {
-						kind = "item",
-						page = "Bear Meat",
-						text = "Bear Meat",
-						image = "Bear Meat",
-					},
-					probability = 28.3,
-					refs = {},
-				},
+				{ item = "item:bear_pelt", probability = 50.0, guaranteed = true },
+				{ item = "item:bear_claw", probability = 50.0, guaranteed = true },
+				{ item = "item:bear_meat", probability = 28.3 },
 			},
 			level = 12,
 			levelModMin = 1,

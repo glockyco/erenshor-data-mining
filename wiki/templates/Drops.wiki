@@ -1,0 +1,8 @@
+<includeonly></includeonly><noinclude>{{#cargo_declare:_table=Drops
+|CharacterKey=String
+|ItemKey=String
+|DropProbability=Float
+|IsGuaranteed=Boolean
+}}
+Declare-only owner of the <code>Drops</code> junction (one row per character × dropped item, carrying the drop probability and the guaranteed-pool flag). Rows are written by {{tl|Character}}, which <code>#cargo_attach</code>es this table; this template stores nothing itself. <code>CharacterKey</code> (the dropping character) and <code>ItemKey</code> (the dropped item) are both StableKeys; the character column is <code>CharacterKey</code> rather than <code>Character</code> because <code>CHARACTER</code> is a reserved SQL word the Cargo fork rejects.
+</noinclude>

@@ -45,18 +45,18 @@ CARGO_ITEM_FIELDS = (
     "SellValue",
     "Image",
     "Classes",
-    "TeachesSpell",
-    "TeachesSkill",
-    "WeaponProc",
+    "TeachesSpellKey",
+    "TeachesSkillKey",
+    "WeaponProcKey",
     "WeaponProcChance",
-    "WandEffect",
+    "WandEffectKey",
     "WandProcChance",
-    "BowEffect",
+    "BowEffectKey",
     "BowProcChance",
-    "WornEffect",
-    "ClickEffect",
-    "SkillUse",
-    "Aura",
+    "WornEffectKey",
+    "ClickEffectKey",
+    "SkillUseKey",
+    "AuraKey",
     "Relic",
     "HasProc",
     "HasWornEffect",
@@ -69,7 +69,7 @@ CARGO_CHARACTER_FIELDS = (
     "Type",
     "Zones",
     "Level",
-    "Faction",
+    "FactionKey",
     "HasDrops",
     "HasSpells",
     "MapSelector",
@@ -102,9 +102,9 @@ CARGO_SPELL_FIELDS = (
     "CannotInterrupt",
     "Jolt",
     "NoResonate",
-    "StatusEffect",
-    "AddProc",
-    "PetToSummon",
+    "StatusEffectKey",
+    "AddProcKey",
+    "PetToSummonKey",
 )
 
 CARGO_SKILL_FIELDS = (
@@ -123,10 +123,10 @@ CARGO_SKILL_FIELDS = (
     "RequireBow",
     "RequireShield",
     "RequireBehind",
-    "StanceToUse",
-    "EffectToApply",
-    "CastOnTarget",
-    "SpawnOnUse",
+    "StanceToUseKey",
+    "EffectToApplyKey",
+    "CastOnTargetKey",
+    "SpawnOnUseKey",
 )
 
 CARGO_STANCE_FIELDS = (
@@ -149,16 +149,31 @@ CARGO_STANCE_FIELDS = (
 
 CARGO_ABILITY_CLASS_FIELDS = (
     "Page",
-    "StableKey",
+    "AbilityKey",
     "Class",
     "RequiredLevel",
 )
 # AbilityClasses is a child table: a page holds one row per (ability, class), so its
-# row identity is the StableKey plus the Class, not the StableKey alone.
-ABILITY_CLASS_KEY = ("StableKey", "Class")
+# row identity is the ability key plus the Class, not the key alone.
+ABILITY_CLASS_KEY = ("AbilityKey", "Class")
 # AbilityClasses stores no Page column; the cargoquery API needs the implicit
 # _pageName aliased (any underscore-prefixed field must be aliased on wiki.gg).
-CARGO_ABILITY_CLASS_QUERY_FIELDS = ("_pageName=Page", "StableKey", "Class", "RequiredLevel")
+CARGO_ABILITY_CLASS_QUERY_FIELDS = ("_pageName=Page", "AbilityKey", "Class", "RequiredLevel")
+
+CARGO_DROP_FIELDS = (
+    "Page",
+    "CharacterKey",
+    "ItemKey",
+    "DropProbability",
+    "IsGuaranteed",
+)
+# Drops is a child table written on character pages: one row per (character, item),
+# so its row identity is the dropping character plus the dropped item (both StableKeys).
+# The character column is CharacterKey, not Character: CHARACTER is a reserved SQL word
+# the Cargo fork silently rejects (the whole declare no-ops, the table is never created).
+DROP_KEY = ("CharacterKey", "ItemKey")
+# Drops stores no Page column; alias the implicit _pageName for the cargoquery API.
+CARGO_DROP_QUERY_FIELDS = ("_pageName=Page", "CharacterKey", "ItemKey", "DropProbability", "IsGuaranteed")
 
 
 def load_cargo_expectations(
@@ -221,6 +236,11 @@ def load_cargo_stance_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo AbilityClasses rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_ABILITY_CLASS_FIELDS, ABILITY_CLASS_KEY)
+
+
+def load_cargo_drop_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo Drops rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_DROP_FIELDS, DROP_KEY)
 
 
 def load_absent_pages(path: Path) -> set[str]:
@@ -325,3 +345,11 @@ def check_cargo_ability_class_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "AbilityClasses", absent_pages, ABILITY_CLASS_KEY)
+
+
+def check_cargo_drop_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "Drops", absent_pages, DROP_KEY)

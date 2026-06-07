@@ -196,7 +196,7 @@ function p.run()
 	assertEqual(cargo.SimUsable, "yes", "spell cargo row true boolean casts to yes")
 	assertEqual(cargo.SelfOnly, "no", "spell cargo row false boolean casts to no")
 	assertEqual(
-		cargo.PetToSummon,
+		cargo.PetToSummonKey,
 		"character:a_grizzly_bear",
 		"spell cargo row stores the pet stable key"
 	)
@@ -204,7 +204,11 @@ function p.run()
 
 	local classRows = Spell.cargoClassRows({ args = { stablekey = "spell:minor_lightning" } })
 	assertEqual(#classRows, 2, "spell emits one AbilityClasses row per class")
-	assertEqual(classRows[1].StableKey, "spell:minor_lightning", "class row carries the stable key")
+	assertEqual(
+		classRows[1].AbilityKey,
+		"spell:minor_lightning",
+		"class row carries the stable key"
+	)
 	assertEqual(classRows[1].Class, "Druid", "first class row is Druid")
 	assertEqual(classRows[1].RequiredLevel, "6", "class row broadcasts the spell required level")
 	assertEqual(classRows[2].Class, "Stormcaller", "second class row is Stormcaller")

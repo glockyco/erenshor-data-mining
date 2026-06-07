@@ -419,16 +419,16 @@ local function cargoFields(skill, pageTitle)
 		{ "RequireBow", skill.requireBow },
 		{ "RequireShield", skill.requireShield },
 		{ "RequireBehind", skill.requireBehind },
-		{ "StanceToUse", skill.stanceStableKey },
-		{ "EffectToApply", skill.effectStableKey },
-		{ "CastOnTarget", skill.castOnTargetStableKey },
-		{ "SpawnOnUse", skill.spawnOnUseStableKey },
+		{ "StanceToUseKey", skill.stanceStableKey },
+		{ "EffectToApplyKey", skill.effectStableKey },
+		{ "CastOnTargetKey", skill.castOnTargetStableKey },
+		{ "SpawnOnUseKey", skill.spawnOnUseStableKey },
 	}
 end
 
 local function classFields(skill, classLevel)
 	return {
-		{ "StableKey", skill.stableKey },
+		{ "AbilityKey", skill.stableKey },
 		{ "Class", classLevel.className },
 		{ "RequiredLevel", classLevel.level },
 	}

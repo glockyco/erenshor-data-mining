@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
@@ -137,8 +137,7 @@ def _character_record(
     _put(row, "coordinates", _format_coordinates(spawn_infos))
     _put(row, "spawnChance", _format_spawn_chance(spawn_infos))
     _put(row, "respawn", _format_respawn(spawn_infos))
-    _put(row, "guaranteedDrops", _format_guaranteed_drops(loot_drops))
-    _put(row, "dropRates", _format_drop_rates(loot_drops, display_name))
+    _put(row, "dropRates", _format_drop_rates(loot_drops))
     _put(row, "spells", _format_ability_links(spells))
     _put(row, "levelModMin", _level_mod_range(spawn_infos)[0])
     _put(row, "levelModMax", _level_mod_range(spawn_infos)[1])
@@ -289,59 +288,25 @@ def _minutes_to_duration(minutes: int) -> str:
     return f"{minutes} minutes"
 
 
-def _format_guaranteed_drops(loot_drops: list[LootDropInfo]) -> list[LuaData]:
-    entries: set[tuple[str, str, str, tuple[tuple[str, object], ...]]] = set()
-    for drop in loot_drops:
-        if not drop.is_guaranteed or drop.drop_probability <= 0:
-            continue
-        ref = link_ref(drop.item_link, "item")
-        if ref is None:
-            continue
-        entries.add(
-            (
-                drop.item_link.display_name.lower(),
-                str(ref["page"]),
-                str(ref["text"]),
-                tuple(sorted(ref.items())),
-            )
-        )
-    sorted_entries = sorted(entries)
-    if len(sorted_entries) < 2:
-        return []
-    return [dict(ref_items) for _, _, _, ref_items in sorted_entries]
+def _format_drop_rates(loot_drops: list[LootDropInfo]) -> list[LuaData]:
+    """One entry per loot drop, connected to the item by StableKey.
 
-
-def _format_drop_rates(loot_drops: list[LootDropInfo], _character_display_name: str) -> list[LuaData]:
-    entries: list[tuple[tuple[float, str], LuaData]] = []
-    for drop in loot_drops:
-        if drop.drop_probability <= 0:
-            continue
-        ref = link_ref(drop.item_link, "item")
-        if ref is None:
-            continue
-        refs: list[str] = []
-        if drop.is_visible:
-            refs.append("visible_equipped")
-        if drop.item_unique:
-            refs.append("unique_inventory")
-        entries.append(
-            (
-                (-drop.drop_probability, drop.item_link.display_name.lower()),
-                {
-                    "link": ref,
-                    "probability": drop.drop_probability,
-                    "refs": refs,
-                },
-            )
-        )
-    seen: set[tuple[str, float, tuple[str, ...]]] = set()
+    Each entry carries only drop-edge facts: the dropped item's StableKey (the
+    canonical connection, consumed both by the Cargo ``Drops`` store and by the
+    infobox, which resolves the item's link and uniqueness at render time), the
+    drop probability, and the guaranteed-pool / visible-equipped flags. Order is
+    set by the repository query (probability desc, then item name); the infobox
+    derives both the "Overall Drop Rates" and "Guaranteed One Of" rows from this
+    single list.
+    """
     out: list[LuaData] = []
-    for _, entry in sorted(entries):
-        link = cast("LuaData", entry["link"])
-        key = (str(link["page"]), cast("float", entry["probability"]), tuple(cast("list[str]", entry["refs"])))
-        if key not in seen:
-            seen.add(key)
-            out.append(entry)
+    for drop in loot_drops:
+        entry: LuaData = {"item": drop.item_stable_key, "probability": drop.drop_probability}
+        if drop.is_guaranteed:
+            entry["guaranteed"] = True
+        if drop.is_visible:
+            entry["visible"] = True
+        out.append(entry)
     return out
 
 

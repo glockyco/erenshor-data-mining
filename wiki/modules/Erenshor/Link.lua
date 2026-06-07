@@ -199,6 +199,13 @@ function p.join(values, separator)
 	return table.concat(out, separator or "<br>")
 end
 
+-- Resolve an item record (page, name, image, unique, …) by StableKey. Lets other
+-- modules read item-owned facts at the display layer instead of denormalizing them
+-- into every relationship that references the item.
+function p.itemRecord(stableKey)
+	return itemByStableKey(stableKey)
+end
+
 local function renderFrame(frame, kind)
 	local args = templateArgs(frame)
 	args.kind = kind

@@ -80,6 +80,24 @@ function p.run()
 	local dropRates = Character.fieldValue(bearKey, "A Grizzly Bear", "droprates")
 	assertContains(dropRates, "erenshor-link--item", "drop rates render semantic item links")
 	assertContains(dropRates, "[[Bear Meat]]", "drop rates include item page link")
+	local guaranteed = Character.fieldValue(bearKey, "A Grizzly Bear", "guaranteeddrops")
+	assertContains(guaranteed, "[[Bear Pelt]]", "guaranteed pool lists guaranteed items")
+	local dropRows = Character.cargoDropRows({ args = { stablekey = "character:a_grizzly_bear" } })
+	assertEqual(#dropRows, 3, "cargo drop rows cover every dropped item stable key")
+	assertEqual(
+		dropRows[1].CharacterKey,
+		"character:a_grizzly_bear",
+		"drop row carries the owning character key"
+	)
+	assertEqual(
+		dropRows[1].ItemKey,
+		"item:bear_pelt",
+		"drop row connects to the item by stable key"
+	)
+	assertEqual(dropRows[1].IsGuaranteed, "yes", "guaranteed-pool drop is flagged")
+	assertEqual(dropRows[3].ItemKey, "item:bear_meat", "non-guaranteed drop is stored")
+	assertEqual(dropRows[3].IsGuaranteed, "no", "non-guaranteed drop is unflagged")
+	assertEqual(dropRows[3].DropProbability, "28.3", "drop row carries the probability")
 	assertContains(
 		Character.statusText(bearKey, "A Grizzly Bear"),
 		"[[Category:Enemies]]",

@@ -1,6 +1,9 @@
 return {
 	byKey = {
 		["item:abyssal_plate"] = "Armor",
+		["item:bear_claw"] = "General",
+		["item:bear_meat"] = "General",
+		["item:bear_pelt"] = "General",
 		["item:copper_armor_mold"] = "Molds",
 		["item:ember_aura"] = "Auras",
 		["item:ember_longsword"] = "Weapons",

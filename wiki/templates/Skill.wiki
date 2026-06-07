@@ -44,10 +44,10 @@
 |RequireBow=Boolean
 |RequireShield=Boolean
 |RequireBehind=Boolean
-|StanceToUse=String
-|EffectToApply=String
-|CastOnTarget=String
-|SpawnOnUse=String
+|StanceToUseKey=String
+|EffectToApplyKey=String
+|CastOnTargetKey=String
+|SpawnOnUseKey=String
 }}{{#cargo_attach:_table=AbilityClasses}}
 Skill infobox rendered from generated Lua skill data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field. Stores one <code>Skills</code> row plus one <code>AbilityClasses</code> row per class.
 </noinclude>

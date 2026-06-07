@@ -2,30 +2,20 @@
 
 from dataclasses import dataclass
 
-from erenshor.domain.value_objects.wiki_link import ItemLink
-
 __all__ = ["LootDropInfo"]
 
 
 @dataclass(frozen=True)
 class LootDropInfo:
-    """Loot drop information for a character.
+    """One item that can drop from a character.
 
-    Represents one item that can drop from a character, with drop probability
-    and rarity flags.
-
-    The item_link is a pre-built ItemLink constructed by the repository
-    from JOIN columns. Section generators call str(item_link) to render it.
+    Pure drop-edge data: the dropped item is identified by its StableKey, and the
+    drop's own facts (probability, guaranteed-pool membership, visible-equipped
+    piece). Everything about the *item* — its page, name, image, uniqueness — is
+    resolved from the item record at the display layer, never duplicated here.
     """
 
-    item_link: ItemLink
+    item_stable_key: str
     drop_probability: float
     is_guaranteed: bool
-    is_actual: bool
-    is_common: bool
-    is_uncommon: bool
-    is_rare: bool
-    is_legendary: bool
-    is_unique: bool
     is_visible: bool
-    item_unique: bool

@@ -84,9 +84,9 @@
 |CannotInterrupt=Boolean
 |Jolt=Boolean
 |NoResonate=Boolean
-|StatusEffect=String
-|AddProc=String
-|PetToSummon=String
+|StatusEffectKey=String
+|AddProcKey=String
+|PetToSummonKey=String
 }}{{#cargo_attach:_table=AbilityClasses}}
 Spell infobox rendered from generated Lua spell data. Article parameters override generated values; use <code>-</code> to intentionally blank a supported generated field. Stores one <code>Spells</code> row plus one <code>AbilityClasses</code> row per class.
 </noinclude>

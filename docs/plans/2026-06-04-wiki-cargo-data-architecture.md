@@ -17,12 +17,13 @@ Built and validated on the local Cargo harness (the live wiki is still legacy):
   `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
 - Item→ability links as scalar StableKey columns on `Items` (§8); the overview
   proc/worn/click cell coalesces them at display time.
+- Character→item drops as the `Drops` junction (owner = character), via the
+  attach-trick; every StableKey column follows the `Key`-suffix convention (§2.1).
 
 Remaining work (sequenced in §15):
 
-- Phase 3 — relationship junction tables (`Drops`, `ContainerDrops`,
-  `CraftingMaterials`, `CraftingRewards`, `CharacterAbilities`, `Spawns`) and
-  reverse-query rendering.
+- Phase 3 — relationship junction tables (`ContainerDrops`, `CraftingMaterials`,
+  `CraftingRewards`, `CharacterAbilities`, `Spawns`) and reverse-query rendering.
 - Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
   stablekey validation).
 - Phase 5 — dual-path templates for the remaining entity types.
@@ -99,9 +100,16 @@ These shape every Cargo decision below:
   and merge in Lua.
 - **One-to-many → a separate junction table** (one row per relationship), never a
   list field or numbered columns.
-- **Column names must avoid SQL keywords.** A keyword column (e.g. `Range`) is
-  rejected at declare time, the table is silently not created, and stores become
-  no-ops — so the ability range column is `CastRange`.
+- **Column names must avoid SQL keywords.** A keyword column is rejected at declare
+  time, the table is silently not created, and stores become no-ops. Known traps hit
+  so far: `Range` → use `CastRange`; `Character` (`CHARACTER`) → use `CharacterKey`.
+- **StableKey columns end in `Key`.** Every column whose value is an entity StableKey
+  is suffixed `Key`, so the schema self-documents which columns are join keys vs.
+  display values. A base table's own identity stays `StableKey`; a foreign single
+  reference is `<EntityType>Key` (`ItemKey`, `CharacterKey`, `AbilityKey`,
+  `FactionKey`); a relationship-specific reference is `<Relationship>Key`
+  (`TeachesSpellKey`, `WeaponProcKey`, `WornEffectKey`, …). Names, pages, numbers,
+  booleans, and name-lists carry no `Key` suffix.
 - **Types:** Integer columns must be true integers (no decimals); Boolean columns
   accept `yes`/`no` and query back as `1`/`0`. Query the implicit page via an alias
   (`_pageName=Page`) on tables that do not store a `Page` column.
@@ -240,14 +248,15 @@ wiki.gg 1-declare + 1-attach budget, so **no attach-trick is needed for abilitie
 `DurationSeconds`, `CastRange`, `DamageType`, `TargetDamage`, `TargetHealing`,
 `CasterHealing`, `ShieldingAmt`, `SimUsable`, `SelfOnly`, `GroupEffect`, `Aggro`,
 `CrowdControl`, `GrantInvisibility`, `CannotInterrupt`, `Jolt`, `NoResonate`, plus
-single-reference relation StableKeys `StatusEffect` (`status_effect_to_apply_stable_key`),
-`AddProc` (`add_proc_stable_key`), `PetToSummon` (`pet_to_summon_stable_key`).
+single-reference relation StableKey columns `StatusEffectKey`
+(`status_effect_to_apply_stable_key`), `AddProcKey` (`add_proc_stable_key`),
+`PetToSummonKey` (`pet_to_summon_stable_key`).
 (Times are in seconds.)
 
 `Skills` (from `skills`): `StableKey`, `Page`, `Name`, `Image`, `Type` (`Innate`→"Passive"),
 `CooldownSeconds`, `CastRange`, `SkillPower`, `PercentDmg`, `DamageType`, `Require2H`,
 `RequireDualWield`, `RequireBow`, `RequireShield`, `RequireBehind`, plus relation
-StableKeys `StanceToUse`, `EffectToApply`, `CastOnTarget`, `SpawnOnUse`.
+StableKey columns `StanceToUseKey`, `EffectToApplyKey`, `CastOnTargetKey`, `SpawnOnUseKey`.
 
 `Stances` (from `stances`; all columns real): `StableKey`, `Page`, `Name`, `Image`,
 `MaxHpMod`, `DamageMod`, `ProcRateMod`, `DamageTakenMod`, `SelfDamagePerAttack`,
@@ -261,33 +270,40 @@ infobox. Field coverage verified against `Spell.cs`/`Skill.cs`/`Stance.cs`.
 
 ## 8. Relationship (junction) tables
 
-One table per relationship shape, FK by `StableKey`, attributes as columns,
-`Origin` provenance. Stored forward on the owner page; reverse is a query.
+One table per relationship shape, foreign keys as `<EntityType>Key` StableKey
+columns, attributes as columns. Stored forward on the owner page; reverse is a
+query. Generated rows are the only rows today; each table gains the `Origin`
+provenance column with the Phase 4 community layer.
 
-- `Drops` (from `loot_drops`; owner = character): `Character`, `Item`,
-  `DropProbability`, `ExpectedPerKill`, `IsGuaranteed`, `Zone`, `Rarity`, `Origin`.
-- `ContainerDrops` (from `item_drops`; owner = source item): `SourceItem`,
-  `DroppedItem`, `DropProbability`, `IsGuaranteed`, `Origin`.
-- `CraftingMaterials` (from `crafting_recipes`; owner = recipe): `Recipe`,
-  `Material`, `Quantity`, `Slot`, `Origin`.
-- `CraftingRewards` (from `crafting_rewards`; owner = recipe): `Recipe`, `Reward`,
-  `Quantity`, `Slot`, `Origin`.
+- `Drops` (from `loot_drops`; owner = character): `CharacterKey`, `ItemKey`,
+  `DropProbability`, `IsGuaranteed`. The drop probability is the faithful chance —
+  rarity tiers and expected-per-kill are redundant projections of it, and
+  `loot_drops.zone` has no wiki consumer, so all three are omitted. The item's
+  page/name/uniqueness resolve from the item record at render time, never stored
+  on the drop. (`Character` would be the reserved word `CHARACTER`, hence
+  `CharacterKey`.)
+- `ContainerDrops` (from `item_drops`; owner = source item): `SourceItemKey`,
+  `DroppedItemKey`, `DropProbability`, `IsGuaranteed`.
+- `CraftingMaterials` (from `crafting_recipes`; owner = recipe): `RecipeKey`,
+  `MaterialKey`, `Quantity`, `Slot`.
+- `CraftingRewards` (from `crafting_rewards`; owner = recipe): `RecipeKey`,
+  `RewardKey`, `Quantity`, `Slot`.
 - `AbilityClasses` (from `spell_classes` + the six `*_required_level` skill
-  columns; owner = ability): `StableKey`, `Class`, `RequiredLevel`, `Origin`.
+  columns; owner = ability): `AbilityKey`, `Class`, `RequiredLevel`.
   `RequiredLevel` resolved per (ability, class): spells broadcast their single
   `required_level`; skills use the per-class column. `Class` = canonical class name.
   Declared by a dedicated declare-only `Template:AbilityClasses`; `{{Spell}}` and
-  `{{Skill}}` each directly attach it (`Origin` is added in Phase 4).
+  `{{Skill}}` each directly attach it.
 - `CharacterAbilities` (from `character_attack_spells` + siblings + `character_attack_skills`;
-  owner = character): `Character`, `Ability`, `Usage`, `Origin`.
+  owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
 - `Spawns` (from `character_spawns` + `character_chained_spawns` expanded per
   `docs/superpowers/specs/2026-05-28-dynamic-spawn-coverage-design.md`; owner =
-  character): `Character`, `Zone`, `Scene`, `X`, `Y`, `Z`, `SpawnChance`,
+  character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`, `SpawnChance`,
   `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`, `SpawnType`
-  (`spawn_point`|`direct`|`trigger`|`event_script`|`chained`), `Origin`. Replaces
-  the flat character `Zones`/`SpawnChance`. Upgrade path: Category-C zone-random
-  spawners → future `zone_random_spawns` table. Community spawns use `{{SpawnPoint}}`
-  (§9) into this same table with `Origin=community`.
+  (`spawn_point`|`direct`|`trigger`|`event_script`|`chained`). Replaces the flat
+  character `Zones`/`SpawnChance`. Upgrade path: Category-C zone-random spawners →
+  future `zone_random_spawns` table. Community spawns use `{{SpawnPoint}}` (§9) into
+  this same table with `Origin=community`.
 
 Faction relationships are deliberately not one shape: only the WorldFaction is
 stable-keyed/joinable (`my_world_faction_stable_key`, `character_faction_modifiers`);
@@ -295,9 +311,10 @@ the combat `Faction` enum (`my_faction`, aggressive/allied lists) is name-only.
 
 **Item→ability links are 1:1 scalar columns on `Items`, not junction tables**
 (`Item.cs` exposes each as a single reference), each storing the ability
-**StableKey**: `TeachesSpell`, `TeachesSkill`, `WeaponProc` (+`WeaponProcChance`),
-`WandEffect` (+`WandProcChance`), `BowEffect` (+`BowProcChance`), `WornEffect`,
-`ClickEffect`, `SkillUse`, `Aura`. Reverses are queries on the column. The overview
+**StableKey** in a `Key`-suffixed column: `TeachesSpellKey`, `TeachesSkillKey`,
+`WeaponProcKey` (+`WeaponProcChance`), `WandEffectKey` (+`WandProcChance`),
+`BowEffectKey` (+`BowProcChance`), `WornEffectKey`, `ClickEffectKey`, `SkillUseKey`,
+`AuraKey`. Reverses are queries on the column. The overview
 "Proc" cell is display-time coalescing (pick whichever of weapon/wand/bow is set;
 derive trigger from item type), not a stored conflated column.
 

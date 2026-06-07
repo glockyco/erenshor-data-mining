@@ -171,11 +171,11 @@ function p.run()
 	assertEqual(cargo.DamageType, "Physical", "skill cargo row damage type")
 	assertEqual(cargo.RequireBehind, "yes", "skill cargo row require-behind flag casts to yes")
 	assertEqual(cargo.Require2H, "no", "skill cargo row false require flag casts to no")
-	assertEqual(cargo.StanceToUse, nil, "skill cargo row omits absent relation refs")
+	assertEqual(cargo.StanceToUseKey, nil, "skill cargo row omits absent relation refs")
 
 	local classRows = Skill.cargoClassRows({ args = { stablekey = "skill:backstab" } })
 	assertEqual(#classRows, 1, "backstab emits one AbilityClasses row")
-	assertEqual(classRows[1].StableKey, "skill:backstab", "class row carries the skill stable key")
+	assertEqual(classRows[1].AbilityKey, "skill:backstab", "class row carries the skill stable key")
 	assertEqual(classRows[1].Class, "Duelist", "class row stores the canonical class name")
 	assertEqual(classRows[1].RequiredLevel, "2", "class row uses the per-class level")
 
@@ -183,7 +183,11 @@ function p.run()
 	-- and broadcasts each class's own required level (Paladin/Reaver 1, Duelist 3).
 	local stanceSkill = Skill.cargoArgs({ args = { stablekey = "skill:stance - aggressive" } })
 	assertEqual(stanceSkill.Type, "Utility", "stance skill cargo type")
-	assertEqual(stanceSkill.StanceToUse, "stance:aggressive", "stance skill stores the stance ref")
+	assertEqual(
+		stanceSkill.StanceToUseKey,
+		"stance:aggressive",
+		"stance skill stores the stance ref"
+	)
 
 	local passiveSkill = Skill.cargoArgs({ args = { stablekey = "skill:sword_mastery" } })
 	assertEqual(passiveSkill.Type, "Passive", "innate skill cargo type renders as Passive")

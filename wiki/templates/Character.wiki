@@ -107,8 +107,8 @@
 |Type=String
 |Zones=List (,) of String
 |Level=Integer
-|Faction=String
+|FactionKey=String
 |HasDrops=Boolean
 |HasSpells=Boolean
 |MapSelector=String
-}}{{Documentation}}</noinclude>
+}}{{#cargo_attach:_table=Drops}}{{Documentation}}</noinclude>

@@ -17,7 +17,7 @@ from erenshor.application.wiki_lua.characters import (
 )
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink, ZoneLink
+from erenshor.domain.value_objects.wiki_link import AbilityLink, ZoneLink
 
 
 def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
@@ -37,18 +37,17 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
     ]
     loot_drops = [
         LootDropInfo(
-            item_link=ItemLink(page_title="Bear Meat", display_name="Bear Meat", image_name="Bear Meat"),
+            item_stable_key="item:bear_hide",
+            drop_probability=50.0,
+            is_guaranteed=True,
+            is_visible=False,
+        ),
+        LootDropInfo(
+            item_stable_key="item:bear_meat",
             drop_probability=28.3,
             is_guaranteed=False,
-            is_actual=True,
-            is_common=True,
-            is_uncommon=False,
-            is_rare=False,
-            is_legendary=False,
-            is_unique=False,
-            is_visible=False,
-            item_unique=False,
-        )
+            is_visible=True,
+        ),
     ]
     spells = [AbilityLink(page_title="Claw Swipe", display_name="Claw Swipe", image_name="Claw Swipe")]
 
@@ -76,11 +75,8 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
                 "coordinates": "1.2 x 2.5 x 3.8",
                 "respawn": "2 minutes",
                 "dropRates": [
-                    {
-                        "link": {"kind": "item", "page": "Bear Meat", "text": "Bear Meat", "image": "Bear Meat"},
-                        "probability": 28.3,
-                        "refs": [],
-                    }
+                    {"item": "item:bear_hide", "probability": 50.0, "guaranteed": True},
+                    {"item": "item:bear_meat", "probability": 28.3, "visible": True},
                 ],
                 "level": 12,
                 "levelModMin": 1,
