@@ -1,5 +1,13 @@
 # Wiki Lua/Cargo Migration Plan
 
+> **SUPERSEDED (cutover model):** M12–M14 here (TemplateSandbox gate, production
+> cutover, legacy retirement) assumed a "keep live pages + null-edit" cutover.
+> That model is broken — the Lua modules resolve by `stablekey` only and live
+> pages have none. The cutover/retirement is replaced by the dual-path +
+> thin-page-generator model in `docs/plans/2026-06-04-wiki-cargo-data-architecture.md`
+> (the umbrella migration spec). M1–M11 here remain the accurate record of the
+> built rendering/deploy foundation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace Python-generated wiki article wikitext with a clean Lua data-module, template/module rendering, and Cargo/LIBRARIAN query architecture.
