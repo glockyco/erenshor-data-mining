@@ -17,14 +17,17 @@ Built and validated on the local Cargo harness (the live wiki is still legacy):
   `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
 - Item→ability links as scalar StableKey columns on `Items` (§8); the overview
   proc/worn/click cell coalesces them at display time.
-- Character→item drops as the `Drops` junction (owner = character) and item→item
-  container drops as the `ContainerDrops` junction (owner = source item), via the
+- Character→item drops and item→item container drops (the first acquisition
+  relationships), built as the `Drops`/`ContainerDrops` junctions via the
   attach-trick; every StableKey column follows the `Key`-suffix convention (§2.1).
+  These consolidate into the unified `ObtainedFrom` table in Phase 3 (§8).
 
 Remaining work (sequenced in §15):
 
-- Phase 3 — relationship junction tables (`CraftingMaterials`, `CraftingRewards`,
-  `CharacterAbilities`, `Spawns`) and reverse-query rendering.
+- Phase 3 — unified `ObtainedFrom`/`UsedIn` relationship model (§8), consolidating
+  `Drops`/`ContainerDrops` and covering every acquisition/usage mechanism; the
+  `IsAuctionable`/`IsRare` item flags; the `class_starting_items` export; the
+  `CharacterAbilities`/`Spawns` junctions; and reverse-query rendering.
 - Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
   stablekey validation).
 - Phase 5 — dual-path templates for the remaining entity types.
@@ -220,6 +223,10 @@ thin pages.
   storing the related ability's StableKey. The overview proc/worn/click cell
   coalesces them at display time (pick the set weapon/wand/bow proc, derive the
   trigger from the item slot), so no conflated or page-resolved proc column is stored.
+- `IsAuctionable` (Boolean, derived): `NOT sim_players_cant_get AND item_level
+  BETWEEN 1 AND 39 AND item_value > 0` (§8 auction house). `IsRare` (Boolean): the
+  authored `Item.RareItem` flag (newly exported) — independent of loot tiers, set
+  in the Unity Inspector; drives the ×20 auction markup and a "prized item" qualifier.
 
 `Characters`:
 - **Replace the `Zones`/`SpawnChance` markup hack with the `Spawns` table (§8).**
@@ -271,40 +278,67 @@ infobox. Field coverage verified against `Spell.cs`/`Skill.cs`/`Stance.cs`.
 
 ## 8. Relationship (junction) tables
 
-One table per relationship shape, foreign keys as `<EntityType>Key` StableKey
-columns, attributes as columns. Stored forward on the owner page; reverse is a
-query. Generated rows are the only rows today; each table gains the `Origin`
-provenance column with the Phase 4 community layer.
+Item **obtainability** and **usage** are each one unified, typed table. The reverse
+query on an item page is the main consumer and Cargo has no `UNION`, so a single
+typed table beats one-table-per-mechanism: one reverse query, fewer attaches,
+uniform rendering. Foreign keys are `<Entity>Key` StableKey columns resolved to
+links by type at display; rows are stored forward on the owner page. `Origin` is
+added to every generated relationship table with the Phase 4 community layer.
 
-- `Drops` (from `loot_drops`; owner = character): `CharacterKey`, `ItemKey`,
-  `DropProbability`, `IsGuaranteed`. The drop probability is the faithful chance —
-  rarity tiers and expected-per-kill are redundant projections of it, and
-  `loot_drops.zone` has no wiki consumer, so all three are omitted. The item's
-  page/name/uniqueness resolve from the item record at render time, never stored
-  on the drop. (`Character` would be the reserved word `CHARACTER`, hence
-  `CharacterKey`.)
-- `ContainerDrops` (from `item_drops`; owner = source item): `SourceItemKey`,
-  `DroppedItemKey`, `DropProbability`, `IsGuaranteed`.
-- `CraftingMaterials` (from `crafting_recipes`; owner = recipe): `RecipeKey`,
-  `MaterialKey`, `Quantity`, `Slot`.
-- `CraftingRewards` (from `crafting_rewards`; owner = recipe): `RecipeKey`,
-  `RewardKey`, `Quantity`, `Slot`.
-- `AbilityClasses` (from `spell_classes` + the six `*_required_level` skill
-  columns; owner = ability): `AbilityKey`, `Class`, `RequiredLevel`.
-  `RequiredLevel` resolved per (ability, class): spells broadcast their single
-  `required_level`; skills use the per-class column. `Class` = canonical class name.
-  Declared by a dedicated declare-only `Template:AbilityClasses`; `{{Spell}}` and
-  `{{Skill}}` each directly attach it.
-- `CharacterAbilities` (from `character_attack_spells` + siblings + `character_attack_skills`;
-  owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
-- `Spawns` (from `character_spawns` + `character_chained_spawns` expanded per
+**`ObtainedFrom`** — how an item is acquired (item ← source): `ItemKey`,
+`SourceType`, `SourceKey`, `Probability` (Float; null = deterministic),
+`IsGuaranteed` (Boolean), `Quantity` (Integer), `Condition` (String: day/night,
+quest-gate, chest tier). `SourceKey` resolves by `SourceType`:
+
+| `SourceType` | from | writer | `SourceKey` → |
+|---|---|---|---|
+| `drop` | `loot_drops` (treasure chests are characters) | character | CharacterLink |
+| `vendor` | `character_vendor_items` (+quest unlock → `Condition`) | character | CharacterLink |
+| `dialog` | `character_dialogs.give_item_stable_key` | character | CharacterLink |
+| `quest` | quest reward (`Quest.ItemOnComplete`) | quest | QuestLink |
+| `craft` | `crafting_rewards` (`Quantity`) | recipe item | ItemLink |
+| `item_use` | `item_drops` (fossil) + `spell_created_items` (offering bag) | source item | ItemLink |
+| `mining` | `mining_nodes`+`mining_node_items` | zone | ZoneLink |
+| `fishing` | `water_fishables` (day/night → `Condition`) | zone | ZoneLink |
+| `item_bag` | `item_bags` (ground pickups) | zone | ZoneLink |
+| `starting` | `class_starting_items` (new export from `CharSelectManager`) | class | ClassLink |
+
+World-point sources (`mining`/`fishing`/`item_bag`) have no pages of their own, so
+the **zone** owns them (dedup to one row per item×type×zone).
+
+**`UsedIn`** — what an item is consumed for (item → consumer): `ItemKey`, `UseType`,
+`TargetKey`, `Quantity`, `Slot`:
+
+| `UseType` | from | writer | `TargetKey` → |
+|---|---|---|---|
+| `craft_material` | `crafting_recipes` | recipe item | ItemLink (recipe) |
+| `quest_requirement` | `quest_required_items` | quest | QuestLink |
+| `upgrade_material` | hardcoded quality recipes (golden `31377423`/fuel `46289586`, blessing-removal `2298018`), curated from `Smithing.cs` | recipe item | ItemLink |
+
+`craft` (result → `ObtainedFrom`) and `craft_material`/`upgrade_material` (inputs →
+`UsedIn`) make dedicated crafting tables unnecessary; the recipe item renders its
+forward ingredient/result list from its Lua module, while `ObtainedFrom`/`UsedIn`
+are the reverse indices.
+
+**Auction house** is a derived per-item flag, not an `ObtainedFrom` row (no discrete
+source): `Items.IsAuctionable` (§7.1). `RareItem` (`IsRare`) only soft-rejects the
+SimPlayer draw (98%) and ×20-prices, so rare items stay auctionable — qualified, not
+excluded. Rendered as an "Auction House" line in How to Obtain.
+
+**Non-item junctions** keep their own per-shape tables (not obtainability/usage):
+
+- `AbilityClasses` (from `spell_classes` + the six `*_required_level` skill columns;
+  owner = ability): `AbilityKey`, `Class`, `RequiredLevel`. Spells broadcast their
+  single `required_level`; skills use the per-class column. Declared by a
+  declare-only `Template:AbilityClasses`; `{{Spell}}`/`{{Skill}}` attach it.
+- `CharacterAbilities` (from `character_attack_spells` + siblings +
+  `character_attack_skills`; owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
+- `Spawns` (from `character_spawns` + `character_chained_spawns` per
   `docs/superpowers/specs/2026-05-28-dynamic-spawn-coverage-design.md`; owner =
   character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`, `SpawnChance`,
-  `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`, `SpawnType`
-  (`spawn_point`|`direct`|`trigger`|`event_script`|`chained`). Replaces the flat
-  character `Zones`/`SpawnChance`. Upgrade path: Category-C zone-random spawners →
-  future `zone_random_spawns` table. Community spawns use `{{SpawnPoint}}` (§9) into
-  this same table with `Origin=community`.
+  `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`, `SpawnType`.
+  Replaces the flat character `Zones`/`SpawnChance`. Community spawns use
+  `{{SpawnPoint}}` (§9) with `Origin=community`.
 
 Faction relationships are deliberately not one shape: only the WorldFaction is
 stable-keyed/joinable (`my_world_faction_stable_key`, `character_faction_modifiers`);
@@ -315,17 +349,22 @@ the combat `Faction` enum (`my_faction`, aggressive/allied lists) is name-only.
 **StableKey** in a `Key`-suffixed column: `TeachesSpellKey`, `TeachesSkillKey`,
 `WeaponProcKey` (+`WeaponProcChance`), `WandEffectKey` (+`WandProcChance`),
 `BowEffectKey` (+`BowProcChance`), `WornEffectKey`, `ClickEffectKey`, `SkillUseKey`,
-`AuraKey`. Reverses are queries on the column. The overview
-"Proc" cell is display-time coalescing (pick whichever of weapon/wand/bow is set;
-derive trigger from item type), not a stored conflated column.
+`AuraKey`. Reverses are queries on the column. The overview "Proc" cell is
+display-time coalescing (pick whichever of weapon/wand/bow is set; derive trigger
+from item slot), not a stored conflated column.
+
+**Deferred / known gaps:** the global random world-drop pool (`GameManager` injects
+Maps/Molds/etc. into every NPC at runtime — not per-source), and two 1-off hardcoded
+obtainability specials (Chessboard Candlekeeper→mold, Time Stone). Documented, not modeled.
 
 ### 8.1 Forward-store / reverse-query rendering
 
-Reverse/cross-page relationships ("dropped by", "used by", "taught by") are
-**rendered via Cargo query** against the junction tables / item→ability columns —
-in list pages and in the infobox — and the denormalized reverse arrays (`usedBy`,
-`itemsWithEffect`, `source`) are **removed from the Lua data modules**. Single
-source, removal-correct (Leaguepedia's model).
+Reverse/cross-page relationships — the item's "How to Obtain" (`ObtainedFrom`) and
+"Used For" (`UsedIn`), plus "dropped by"/"used by"/"taught by" on other pages — are
+**rendered via Cargo query** against the unified tables, the non-item junctions, and
+the item→ability columns, in list pages and infoboxes. The denormalized reverse
+arrays (`usedBy`, `itemsWithEffect`, `source`) are **removed from the Lua data
+modules**. Single source, removal-correct (Leaguepedia's model).
 
 ## 9. Community contribution layer (non-extractable relationships)
 
@@ -413,8 +452,12 @@ Cargo for every type is completed on the local harness before any page is conver
 so the dual-path new branch is whole before cutover. Each phase is TDD-first and
 atomic; `writing-plans` turns each into a step-by-step plan.
 
-3. Phase 3 — relationship junction tables + item→ability scalar columns; reverse
-   relations move to Cargo queries; denormalized arrays dropped.
+3. Phase 3 — unified item-relationship model: `ObtainedFrom` (consolidating the
+   built `Drops`/`ContainerDrops`) + `UsedIn`, covering every acquisition/usage
+   mechanism; the `IsAuctionable` derived flag + newly-exported `IsRare`; the
+   `class_starting_items` export (`starting` source); the `CharacterAbilities` and
+   `Spawns` junctions; item→ability scalar columns. Reverse relations move to Cargo
+   queries; denormalized arrays dropped.
 4. Phase 4 — community contribution layer.
 5. Phase 5 — dual-path templates for all seven types (verbatim legacy fallback
    branch; new branch unchanged); both-branch harness tests.
@@ -434,6 +477,12 @@ atomic; `writing-plans` turns each into a step-by-step plan.
 - Thin generated `{{Type|stablekey=}}` pages are the cutover mechanism; community
   content is preserved on-page.
 - Store forward / query reverse; no denormalized reverse arrays.
+- Item obtainability and usage are two unified typed tables — `ObtainedFrom`
+  (item ← source) keyed by `SourceType`, `UsedIn` (item → consumer) keyed by
+  `UseType` — not one table per mechanism: the item's reverse "how to obtain" /
+  "used for" is the main consumer and Cargo has no `UNION`, so one typed table = one
+  query + fewer attaches. World-point sources (mining/fishing/item_bag) are owned by
+  the zone; the auction house is a derived `IsAuctionable` flag, not a row.
 - Orphan reconciliation = drop-and-recreate (the bot cannot get page-delete rights).
 - Abilities use per-type `Spells`/`Skills`/`Stances` tables + the `AbilityClasses`
   junction; no shared base table; distinct `{{Spell}}`/`{{Skill}}` templates.
