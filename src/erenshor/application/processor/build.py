@@ -5,15 +5,16 @@ writes the clean SQLite database consumed by all downstream pipeline
 components (wiki, sheets, map).
 
 Processing order:
-    1. World/placement tables  (no dependencies)
-    2. Zones                   (no dependencies)
-    3. Factions                (no dependencies)
-    4. Items                   (no dependencies)
-    5. Spells                  (no dependencies)
-    6. Skills                  (no dependencies)
-    7. Stances                 (no dependencies)
-    8. Quests                  (depends on items, factions)
-    9. Characters              (depends on all above)
+    1. Code facts             (no dependencies; gates on extract code-facts)
+    2. World/placement tables (no dependencies)
+    3. Zones                  (no dependencies)
+    4. Factions               (no dependencies)
+    5. Items                  (no dependencies)
+    6. Spells                 (no dependencies)
+    7. Skills                 (no dependencies)
+    8. Stances                (no dependencies)
+    9. Quests                 (depends on items, factions)
+   10. Characters             (depends on all above)
 
 Each step logs the entity counts so progress is visible.
 """
@@ -26,6 +27,7 @@ from pathlib import Path
 from loguru import logger
 
 from .characters import process_characters
+from .code_facts import process_code_facts
 from .entities import (
     process_factions,
     process_items,
@@ -79,6 +81,9 @@ def build(
     try:
         writer = Writer(clean_db_path)
         writer.create_schema()
+
+        logger.info("Processing code facts...")
+        process_code_facts(raw, writer)
 
         logger.info("Processing world/placement tables...")
         process_world_tables(raw, writer)

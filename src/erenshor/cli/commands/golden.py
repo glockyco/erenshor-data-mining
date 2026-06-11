@@ -91,6 +91,11 @@ GROUP BY cs.spawn_point_stable_key, rep.stable_key
 ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
 """
 
+# Code facts are hardcoded game constants carried verbatim into the clean DB.
+# code_facts_meta (assembly sha + extraction timestamp) is deliberately
+# excluded — it is volatile and would reintroduce capture thrash.
+_CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
+
 
 def _golden_dir(repo_root: Path) -> Path:
     return repo_root / "tests" / "golden"
@@ -170,6 +175,32 @@ def _capture_map(db_path: Path, golden_map_dir: Path, dry_run: bool) -> int:
     return len(data_rows)
 
 
+def _capture_code_facts(db_path: Path, golden_code_facts_dir: Path, dry_run: bool) -> int:
+    """Run the code-facts query and write to golden/code_facts/code_facts.csv."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.execute(_CODE_FACTS_SQL)
+        rows = cursor.fetchall()
+        if not rows:
+            raise ValueError("Code-facts query returned no rows — run 'erenshor extract code-facts'?")
+
+        headers = list(rows[0].keys())
+        data_rows = [list(row) for row in rows]
+
+        if not dry_run:
+            golden_code_facts_dir.mkdir(parents=True, exist_ok=True)
+            csv_path = golden_code_facts_dir / "code_facts.csv"
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(headers)
+                writer.writerows(data_rows)
+    finally:
+        conn.close()
+
+    return len(data_rows)
+
+
 @app.command()
 @require_preconditions(
     database_exists,
@@ -181,7 +212,7 @@ def capture(
 ) -> None:
     """Capture current pipeline output as golden regression baseline.
 
-    Snapshots three output types into tests/golden/ before any pipeline
+    Snapshots four output types into tests/golden/ before any pipeline
     changes are made. The captured files are committed to the repository
     and used by regression tests to detect unintended changes.
 
@@ -193,6 +224,7 @@ def capture(
       - tests/golden/wiki/    — one .txt per wiki page (from wiki/generated/)
       - tests/golden/sheets/  — one CSV per SQL query (23 files)
       - tests/golden/map/     — spawn-points.csv (full map query output)
+      - tests/golden/code_facts/ — code_facts.csv (hardcoded game constants)
 
     Safe to re-run: overwrites any existing golden files.
     """
@@ -214,6 +246,7 @@ def capture(
     golden_wiki_dir = golden_dir / "wiki"
     golden_sheets_dir = golden_dir / "sheets"
     golden_map_dir = golden_dir / "map"
+    golden_code_facts_dir = golden_dir / "code_facts"
 
     console.print()
     console.print(
@@ -268,6 +301,20 @@ def capture(
         console.print(f"  [red]failed[/red] — {e}")
         logger.exception("Map golden capture failed")
         errors.append(f"map: {e}")
+    console.print()
+
+    # Code facts
+    console.print("[bold]Code facts[/bold]")
+    console.print(f"  Source:      {db_path}")
+    console.print(f"  Destination: {golden_code_facts_dir / 'code_facts.csv'}")
+    try:
+        count = _capture_code_facts(db_path, golden_code_facts_dir, dry_run)
+        status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
+        console.print(f"  {status} — {count} rows")
+    except Exception as e:
+        console.print(f"  [red]failed[/red] — {e}")
+        logger.exception("Code-facts golden capture failed")
+        errors.append(f"code_facts: {e}")
     console.print()
 
     if errors:

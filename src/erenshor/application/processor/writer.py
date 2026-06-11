@@ -174,6 +174,23 @@ CREATE TABLE game_constants (
     description TEXT
 );
 
+-- -------------------------------------------------------------------------
+-- Code facts (hardcoded game logic extracted from the assembly)
+-- -------------------------------------------------------------------------
+
+CREATE TABLE code_facts (
+    fact_id     TEXT NOT NULL,
+    key         TEXT NOT NULL,
+    value       TEXT,
+    value_type  TEXT,
+    PRIMARY KEY (fact_id, key)
+);
+
+CREATE TABLE code_facts_meta (
+    assembly_sha256 TEXT,
+    extracted_at    TEXT
+);
+
 CREATE TABLE secret_passages (
     stable_key  TEXT PRIMARY KEY NOT NULL,
     scene       TEXT,
@@ -1169,6 +1186,12 @@ class Writer:
 
     def insert_game_constants(self, rows: list[dict[str, object]]) -> int:
         return self._insert("game_constants", rows)
+
+    def insert_code_facts(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("code_facts", rows)
+
+    def insert_code_facts_meta(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("code_facts_meta", rows)
 
     def insert_secret_passages(self, rows: list[dict[str, object]]) -> int:
         return self._insert("secret_passages", rows)

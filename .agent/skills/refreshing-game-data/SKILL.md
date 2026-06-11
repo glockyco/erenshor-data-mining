@@ -31,7 +31,7 @@ It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Da
 
 ## Canonical order
 
-`rip → export → build → validate → republish`. Each gate must pass before the next.
+`rip → export → code-facts → build → validate → republish`. Each gate must pass before the next.
 
 ### 1. Re-rip if stale
 `erenshor -V {v} extract rip` — wipes the Unity project, runs AssetRipper, recreates the `Assets/Editor` symlink and `Packages/` copy, and restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today). See `skill://unity-export-system` for the listener architecture.
@@ -39,18 +39,21 @@ It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Da
 ### 2. Unity batch export
 `erenshor -V {v} extract export` — writes raw SQLite. Compilation errors usually mean new content needs a listener field (see `skill://unity-export-system`). Unity license expiry (`Unity licensing validation failed`) is a recurring hands-on step: `open -a "Unity Hub"`, wait, retry.
 
-### 3. Python build
+### 3. Code facts
+`erenshor -V {v} extract code-facts` — extracts hardcoded game constants from the assembly into raw SQLite. Fails loudly if hardcoded game logic changed shape; re-derive the affected specs in src/tools/CodeFacts/specs/erenshor-facts.json (see the code-facts skill).
+
+### 4. Python build
 `erenshor -V {v} extract build` — produces clean DB. Watch the log for `mapping.json` warnings about new entities lacking overrides; add minimal entries and re-run. Schema/processor errors surface here — fix at the source under `src/erenshor/application/processor/`.
 
-### 4. Validate
+### 5. Validate
 Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules.
 
-### 5. Republish only the variant-safe outputs
+### 6. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
 - **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). The teardown script restores the main symlink at end of session.
 - **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
 
-### 6. Tile capture for new zones
+### 7. Tile capture for new zones
 Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `zone-capture-config.json`. For each new scene, follow `skill://tile-capture` end-to-end: bounds discovery, config entry, `DISPLAY_NAMES`, `capture run`, verification, commit per zone. New zones also need a `zone-positions.json` entry — see `skill://interactive-map`.
 
 ## Variant safety rules

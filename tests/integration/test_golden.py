@@ -36,6 +36,7 @@ GOLDEN_DIR = REPO_ROOT / "tests" / "golden"
 GOLDEN_WIKI_DIR = GOLDEN_DIR / "wiki"
 GOLDEN_SHEETS_DIR = GOLDEN_DIR / "sheets"
 GOLDEN_MAP_DIR = GOLDEN_DIR / "map"
+GOLDEN_CODE_FACTS_DIR = GOLDEN_DIR / "code_facts"
 
 QUERIES_DIR = REPO_ROOT / "src" / "erenshor" / "application" / "sheets" / "queries"
 WIKI_GENERATED_DIR = REPO_ROOT / "variants" / "main" / "wiki" / "generated"
@@ -90,6 +91,10 @@ WHERE cs.spawn_chance > 0
 GROUP BY cs.spawn_point_stable_key, rep.stable_key
 ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
 """
+
+# Code facts: hardcoded game constants carried verbatim into the clean DB.
+# Excludes code_facts_meta (volatile sha + timestamp) to avoid capture thrash.
+_CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -310,5 +315,42 @@ class TestMapGolden:
 
         assert actual_rows == golden_rows, (
             f"Map spawn-points output differs from golden baseline.\n"
+            f"Actual rows: {len(actual_rows) - 1}, Golden rows: {len(golden_rows) - 1}"
+        )
+
+
+@pytest.mark.integration
+class TestCodeFactsGolden:
+    """Regression tests for the code-facts passthrough output."""
+
+    def test_golden_file_exists(self):
+        """Skip clearly if golden capture has not been run."""
+        golden_path = GOLDEN_CODE_FACTS_DIR / "code_facts.csv"
+        if not golden_path.exists():
+            pytest.skip(
+                f"Golden code-facts file not found: {golden_path}\n"
+                "Run 'uv run erenshor golden capture' before running regression tests."
+            )
+
+    def test_code_facts_match_golden(self):
+        """The code-facts query result must match the golden CSV exactly."""
+        _skip_if_missing(DB_PATH, "Main variant database")
+        golden_path = GOLDEN_CODE_FACTS_DIR / "code_facts.csv"
+        _skip_if_missing(golden_path, "Golden code-facts CSV")
+
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute(_CODE_FACTS_SQL)
+            rows = cursor.fetchall()
+            headers = list(rows[0].keys()) if rows else []
+            actual_rows = [headers, *_rows_to_strings([list(row) for row in rows])]
+        finally:
+            conn.close()
+
+        golden_rows = _read_golden_csv(golden_path)
+
+        assert actual_rows == golden_rows, (
+            f"Code-facts output differs from golden baseline.\n"
             f"Actual rows: {len(actual_rows) - 1}, Golden rows: {len(golden_rows) - 1}"
         )
