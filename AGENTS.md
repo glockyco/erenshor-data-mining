@@ -46,6 +46,7 @@ sqlite3 variants/main/erenshor-main.sqlite ".tables"
 ```bash
 uv run erenshor --help                          # All command groups
 uv run erenshor extract export                  # Unity -> raw SQLite
+uv run erenshor extract code-facts              # Shipped DLL -> raw code_facts (between export and build)
 uv run erenshor guide compile                   # Compile entity graph to guide.json
 uv run erenshor mod setup                       # Copy game DLLs (first time)
 uv run erenshor mod dev-setup                   # Install ScriptEngine + ConfigManager (first time)
@@ -131,6 +132,7 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 |---|---|---|
 | Unity export code (`src/Assets/Editor/`) | unity-export-system | `.agent/skills/unity-export-system/SKILL.md` |
 | Refreshing data after a new game version | refreshing-game-data | `.agent/skills/refreshing-game-data/SKILL.md` |
+| Code-facts analyzer / hardcoded constants | code-facts | `.agent/skills/code-facts/SKILL.md` |
 | Companion mods (`src/mods/`) | mod-development | `.agent/skills/mod-development/SKILL.md` |
 | Mod build/deploy/publish | mod-pipeline | `.agent/skills/mod-pipeline/SKILL.md` |
 | Interactive map (`src/maps/`) | interactive-map | `.agent/skills/interactive-map/SKILL.md` |

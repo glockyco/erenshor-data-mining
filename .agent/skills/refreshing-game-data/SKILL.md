@@ -36,6 +36,13 @@ It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Da
 ### 1. Re-rip if stale
 `erenshor -V {v} extract rip` — wipes the Unity project, runs AssetRipper, recreates the `Assets/Editor` symlink and `Packages/` copy, and restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today). See `skill://unity-export-system` for the listener architecture.
 
+After re-ripping, commit the freshly-decompiled tree in its detached discovery repo and diff against the prior build to surface mechanics changes outside the code-facts registry (see `skill://code-facts`). The git-dir lives outside the work tree because `extract rip` `rmtree`s the whole Unity project; explicit flags need no `.git` inside the wiped dir, so history survives the rip:
+```bash
+G="git --git-dir=variants/{v}/decompile-history.git --work-tree=variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
+$G add -A && $G commit -m "game build <version>"
+$G diff HEAD~1 --stat   # churn outside known fact targets = new mechanics to model
+```
+
 ### 2. Unity batch export
 `erenshor -V {v} extract export` — writes raw SQLite. Compilation errors usually mean new content needs a listener field (see `skill://unity-export-system`). Unity license expiry (`Unity licensing validation failed`) is a recurring hands-on step: `open -a "Unity Hub"`, wait, retry.
 
