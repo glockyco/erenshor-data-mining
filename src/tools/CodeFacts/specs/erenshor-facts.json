@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "deferred": [
+    "loot.common_world_items_substitution: `Random.Range(0, 10) > 8` in LootTable.InitLootTable swaps CommonDrop for CommonWorldItems, but int_comparisons on `Range` would also bind the masks `Random.Range(0, 100) > 1` in the same method - cannot bind unambiguously with current matchers; revisit when a scoped (per-statement) matcher exists.",
+    "auction.SimPlayersCantGet: boolean gate, no integer literal; sites AuctionHouse.ReplaceBag:94 and SimPlayer.cs:3283; consumed directly by the Phase 3 wiki derivation from the exported item flag",
+    "auction.rare_markup_x20: AuctionHouse.GetItemList line 76 `num2 *= 20f` - float multiply inside RareItem if, no current matcher fits; add a scoped matcher when Phase 3 consumes it",
+    "simplayer.gear_draw: SimPlayer.cs:3283 98% rare soft-reject + dynamic level bands relative to MyStats.Level - bounds are non-literal, revisit if ever needed",
+    "loot.common_drop_tiers: the num2 rarity ladder (UltraRare/Legendary/Rare/Uncommon/Common at 0.33/2.3/7/15/70) is roll-on-a-0..100 scale, not a per-member float guard; out of scope for guarded_member_roll, modeled elsewhere."
+  ],
+  "facts": [
+    { "id": "loot.world_drop.world_drop_molds", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "WorldDropMolds" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.maps", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "Maps" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.sivak", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "Sivak" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.xp_pot", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "XPPot" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.inert_diamond", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "InertDiamond" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.planar_shard", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "PlanarShard" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.crystallized_balance", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "CrystallizedBalance" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.planar", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "Planar" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.masks", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "Masks" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.molorai_mask", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "MoloraiMask" }, "keys": ["rate", "min_level"] },
+    { "id": "loot.world_drop.empty2", "mode": "extract", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "guarded_member_roll", "args": { "member": "Empty2" }, "keys": ["rate", "min_level"] },
+    { "id": "smithing.upgrade_ids", "mode": "extract", "type": "Smithing", "method": "Combine",
+      "matcher": "string_constants", "args": {}, "keys": ["strings"] },
+    { "id": "auction.updateah_gates", "mode": "extract", "type": "AuctionHouse", "method": "UpdateAH",
+      "matcher": "int_comparisons", "args": { "ItemLevel": "item_level", "ItemValue": "item_value" }, "keys": ["item_level", "item_value"] },
+    { "id": "auction.replacebag_gates", "mode": "extract", "type": "AuctionHouse", "method": "ReplaceBag",
+      "matcher": "int_comparisons", "args": { "ItemLevel": "item_level", "Range": "rare_reject_roll" }, "keys": ["item_level", "rare_reject_roll"] }
+  ]
+}

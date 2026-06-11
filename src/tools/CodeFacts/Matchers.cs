@@ -108,8 +108,11 @@ internal static class Matchers
         return new() { ["strings"] = string.Join(",", strings) };
     }
 
-    /// For each args entry "<MemberName>" -> "<key>", finds the unique integer
-    /// comparison against that member and emits "<key>" = "<op> <int>".
+    /// For each args entry "<MemberName>" -> "<key>", collects every distinct
+    /// integer comparison against that member in source order and emits
+    /// "<key>" = "<op> <int>[,<op> <int>...]". Requires at least one comparison
+    /// (a member with two legitimate bounds, e.g. `> 0` and `< 40`, yields both);
+    /// zero comparisons throws.
     public static Dictionary<string, string> IntComparisons(MethodDeclaration method, FactSpec fact)
     {
         var values = new Dictionary<string, string>();
@@ -124,10 +127,10 @@ internal static class Matchers
                     return $"{OpName(b.Operator)} {lit}";
                 })
                 .Distinct().ToList();
-            if (cmps.Count != 1)
+            if (cmps.Count == 0)
                 throw new InvalidDataException(
-                    $"int_comparisons('{memberName}') bound {cmps.Count} times (need exactly 1)");
-            values[key] = cmps[0];
+                    $"int_comparisons('{memberName}') bound 0 times (need >= 1)");
+            values[key] = string.Join(",", cmps);
         }
         return values;
     }

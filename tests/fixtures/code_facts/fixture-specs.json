@@ -6,6 +6,8 @@
     { "id": "fixture.singleton_b", "mode": "extract", "type": "FixtureLib.FixtureLoot", "method": "Init",
       "matcher": "guarded_member_roll", "args": { "member": "SingletonB" }, "keys": ["rate", "min_level"] },
     { "id": "fixture.combine_ids", "mode": "extract", "type": "FixtureLib.FixtureLoot", "method": "Combine",
-      "matcher": "string_constants", "args": {}, "keys": ["strings"] }
+      "matcher": "string_constants", "args": {}, "keys": ["strings"] },
+    { "id": "fixture.auction_envelope", "mode": "extract", "type": "FixtureLib.FixtureLoot", "method": "Auctionable",
+      "matcher": "int_comparisons", "args": { "level": "level", "value": "value" }, "keys": ["level", "value"] }
   ]
 }

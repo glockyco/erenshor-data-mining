@@ -29,5 +29,10 @@ namespace FixtureLib
         {
             return template == "31377423" && fuel == "46289586";
         }
+
+        public bool Auctionable(int level, int value)
+        {
+            return level > 0 && level < 40 && value > 0;
+        }
     }
 }

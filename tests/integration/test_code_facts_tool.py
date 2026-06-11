@@ -56,6 +56,7 @@ def test_extracts_guarded_rolls_and_strings(fixture_dll: Path) -> None:
     assert facts["fixture.pool_a"]["values"] == {"rate": "0.005", "min_level": "0"}
     assert facts["fixture.singleton_b"]["values"] == {"rate": "0.0125", "min_level": "20"}
     assert facts["fixture.combine_ids"]["values"] == {"strings": "31377423,46289586"}
+    assert facts["fixture.auction_envelope"]["values"] == {"level": "> 0,< 40", "value": "> 0"}
 
 
 def test_unmatched_spec_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
