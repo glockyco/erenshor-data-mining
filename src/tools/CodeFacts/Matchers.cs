@@ -24,6 +24,8 @@ internal static class Runner
                     "guarded_member_roll" => Matchers.GuardedMemberRoll(method, fact),
                     "string_constants" => Matchers.StringConstants(method, fact),
                     "int_comparisons" => Matchers.IntComparisons(method, fact),
+                    "statement_shape" => Matchers.StatementShape(method, fact),
+                    "string_set" => Matchers.StringSet(method, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
                 result.Facts.Add(fact.Mode == "assert"
@@ -108,10 +110,10 @@ internal static class Matchers
         return new() { ["strings"] = string.Join(",", strings) };
     }
 
-    /// For each args entry "<MemberName>" -> "<key>", collects every distinct
+    /// For each args entry `member` -> `key`, collects every distinct
     /// integer comparison against that member in source order and emits
-    /// "<key>" = "<op> <int>[,<op> <int>...]". Requires at least one comparison
-    /// (a member with two legitimate bounds, e.g. `> 0` and `< 40`, yields both);
+    /// `key` = `op int[,op int...]`. Requires at least one comparison
+    /// (a member with both a lower and an upper bound yields two entries);
     /// zero comparisons throws.
     public static Dictionary<string, string> IntComparisons(MethodDeclaration method, FactSpec fact)
     {
@@ -134,6 +136,44 @@ internal static class Matchers
         }
         return values;
     }
+
+    /// Assert mode. Asserts the method contains EXACTLY ONE statement whose
+    /// whitespace-normalized text equals args["statement"]. One statement, not
+    /// a body snapshot: stable under the pinned decompiler and immune to edits
+    /// in neighboring statements. The spec arg MUST match the DECOMPILER's
+    /// rendering (e.g. `Foo.Add (Bar [Baz (0)]);` — note the spaces the
+    /// decompiler emits before `(`/`[`), not the original source spelling.
+    /// Binding zero or multiple times throws (lands in errors[] -> exit 1).
+    public static Dictionary<string, string> StatementShape(MethodDeclaration method, FactSpec fact)
+    {
+        string wanted = Normalize(fact.Args["statement"]);
+        int count = method.Descendants.OfType<ExpressionStatement>()
+            .Count(s => Normalize(s.ToString()) == wanted);
+        if (count != 1)
+            throw new InvalidDataException(
+                $"statement_shape bound {count} times (need exactly 1): {fact.Args["statement"]}");
+        return new();
+    }
+
+    /// Assert mode. Asserts the method's set of `==`-compared string literals
+    /// EQUALS the expected set in args["strings"] (comma-separated) exactly.
+    /// Reuses the StringConstants collector, so it only sees literals that
+    /// participate in `==` comparisons; literals that are merely ASSIGNED are
+    /// invisible here (pin those with statement_shape instead). A mismatch in
+    /// either direction throws (lands in errors[] -> exit 1).
+    public static Dictionary<string, string> StringSet(MethodDeclaration method, FactSpec fact)
+    {
+        var expected = fact.Args["strings"].Split(',').ToHashSet();
+        var actual = StringConstants(method, fact)["strings"].Split(',').ToHashSet();
+        if (!expected.SetEquals(actual))
+            throw new InvalidDataException(
+                $"string_set mismatch: expected [{string.Join(",", expected.Order())}], "
+                + $"got [{string.Join(",", actual.Order())}]");
+        return new();
+    }
+
+    private static string Normalize(string s) =>
+        string.Join(" ", s.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
 
     private static bool NodeMentions(AstNode node, string member) =>
         node.DescendantsAndSelf.Any(n =>

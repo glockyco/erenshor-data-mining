@@ -67,3 +67,37 @@ def test_unmatched_spec_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
     rc, out = run_tool(fixture_dll, bad)
     assert rc == 1
     assert any("fixture.pool_a" in e for e in out["errors"])
+
+
+def test_assert_facts_pass_on_matching_shapes(fixture_dll: Path) -> None:
+    rc, out = run_tool(fixture_dll, SPECS)
+    assert rc == 0, out
+    facts = {f["id"]: f for f in out["facts"]}
+    assert facts["fixture.guarantee_shape"]["ok"] is True
+    assert facts["fixture.guarantee_shape"]["values"] is None
+    assert facts["fixture.trigger_strings"]["ok"] is True
+    assert out["errors"] == []
+
+
+def test_statement_shape_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
+    specs = json.loads(SPECS.read_text())
+    for fact in specs["facts"]:
+        if fact["id"] == "fixture.guarantee_shape":
+            fact["args"]["statement"] = "Drops.Add(NoSuchPool[0]);"
+    bad = tmp_path / "bad-statement.json"
+    bad.write_text(json.dumps(specs))
+    rc, out = run_tool(fixture_dll, bad)
+    assert rc == 1
+    assert any("fixture.guarantee_shape" in e for e in out["errors"])
+
+
+def test_string_set_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
+    specs = json.loads(SPECS.read_text())
+    for fact in specs["facts"]:
+        if fact["id"] == "fixture.trigger_strings":
+            fact["args"]["strings"] = "31377423,46289586,99999999"
+    bad = tmp_path / "bad-stringset.json"
+    bad.write_text(json.dumps(specs))
+    rc, out = run_tool(fixture_dll, bad)
+    assert rc == 1
+    assert any("fixture.trigger_strings" in e for e in out["errors"])

@@ -8,6 +8,10 @@
     { "id": "fixture.combine_ids", "mode": "extract", "type": "FixtureLib.FixtureLoot", "method": "Combine",
       "matcher": "string_constants", "args": {}, "keys": ["strings"] },
     { "id": "fixture.auction_envelope", "mode": "extract", "type": "FixtureLib.FixtureLoot", "method": "Auctionable",
-      "matcher": "int_comparisons", "args": { "level": "level", "value": "value" }, "keys": ["level", "value"] }
+      "matcher": "int_comparisons", "args": { "level": "level", "value": "value" }, "keys": ["level", "value"] },
+    { "id": "fixture.guarantee_shape", "mode": "assert", "type": "FixtureLib.FixtureLoot", "method": "GuaranteeLike",
+      "matcher": "statement_shape", "args": { "statement": "Drops.Add (PoolA [Rng.Next (0, PoolA.Count)]);" } },
+    { "id": "fixture.trigger_strings", "mode": "assert", "type": "FixtureLib.FixtureLoot", "method": "Combine",
+      "matcher": "string_set", "args": { "strings": "31377423,46289586" } }
   ]
 }

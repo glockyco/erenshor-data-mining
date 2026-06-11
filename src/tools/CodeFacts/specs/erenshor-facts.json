@@ -35,6 +35,18 @@
     { "id": "auction.updateah_gates", "mode": "extract", "type": "AuctionHouse", "method": "UpdateAH",
       "matcher": "int_comparisons", "args": { "ItemLevel": "item_level", "ItemValue": "item_value" }, "keys": ["item_level", "item_value"] },
     { "id": "auction.replacebag_gates", "mode": "extract", "type": "AuctionHouse", "method": "ReplaceBag",
-      "matcher": "int_comparisons", "args": { "ItemLevel": "item_level", "Range": "rare_reject_roll" }, "keys": ["item_level", "rare_reject_roll"] }
+      "matcher": "int_comparisons", "args": { "ItemLevel": "item_level", "Range": "rare_reject_roll" }, "keys": ["item_level", "rare_reject_roll"] },
+    { "id": "loot.guarantee_one_drop", "mode": "assert", "type": "LootTable", "method": "InitLootTable",
+      "matcher": "statement_shape", "args": { "statement": "ActualDrops.Add (GuaranteeOneDrop [Random.Range (0, GuaranteeOneDrop.Count)]);" },
+      "note": "GuaranteeOneDrop semantics (one random member of the pool drops per kill). Re-implemented by the wiki Drops builder via the IsGuaranteed flag; if InitLootTable stops adding exactly one random GuaranteeOneDrop element, that derivation is silently wrong, so this hard-fails the refresh." },
+    { "id": "iteminfo.proc_trigger_attack", "mode": "assert", "type": "ItemInfoWindow", "method": "DisplayItem",
+      "matcher": "statement_shape", "args": { "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on ATTACK: \\n\" + item.WeaponProcOnHit.SpellName;" },
+      "note": "Weapon proc-trigger display wording (default ATTACK branch). Re-implemented by Module:Erenshor/Item (weaponProcTrigger / weaponEffect): shield -> bash, Bracer -> cast, else -> attack. Pins the exact wording string so a game-side rename stops the refresh instead of desyncing the Lua trigger table." },
+    { "id": "iteminfo.proc_trigger_bash", "mode": "assert", "type": "ItemInfoWindow", "method": "DisplayItem",
+      "matcher": "statement_shape", "args": { "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on BASH: \\n\" + item.WeaponProcOnHit.SpellName;" },
+      "note": "Weapon proc-trigger display wording (shield BASH branch). Same Lua re-implementation as iteminfo.proc_trigger_attack." },
+    { "id": "iteminfo.proc_trigger_cast", "mode": "assert", "type": "ItemInfoWindow", "method": "DisplayItem",
+      "matcher": "statement_shape", "args": { "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on CAST: \\n\" + item.WeaponProcOnHit.SpellName;" },
+      "note": "Weapon proc-trigger display wording (Bracer CAST branch). Same Lua re-implementation as iteminfo.proc_trigger_attack." }
   ]
 }
