@@ -18,6 +18,7 @@ import typer
 from loguru import logger
 from rich.console import Console
 
+from erenshor.application.code_facts import extract_code_facts
 from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
@@ -363,6 +364,37 @@ def build(ctx: typer.Context) -> None:
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
         logger.exception("Clean DB build failed")
+        raise typer.Exit(1) from e
+
+
+@app.command("code-facts")
+@require_preconditions(game_files_exist, raw_database_exists)
+def code_facts(ctx: typer.Context) -> None:
+    """Extract hardcoded game constants from the shipped assembly into the raw DB.
+
+    Runs the CodeFacts analyzer against the shipped Assembly-CSharp.dll and
+    writes the results into the writer-owned ``code_facts`` tables of the raw
+    database. The analyzer's exit code stops the pipeline when the game code
+    changed shape, so hardcoded constants flow through the same review gates
+    as asset data.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    assembly = (
+        variant_config.resolved_game_files(cli_ctx.repo_root) / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
+    )
+    raw_db_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
+
+    if cli_ctx.dry_run:
+        logger.info(f"[Dry-run] Would extract code facts: assembly={assembly}, raw_db={raw_db_path}")
+        return
+
+    try:
+        count = extract_code_facts(cli_ctx.repo_root, assembly, raw_db_path)
+        logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
+    except Exception as e:
+        console.print(f"[red]Error during code-facts extraction: {e}[/red]")
+        logger.exception("Code-facts extraction failed")
         raise typer.Exit(1) from e
 
 

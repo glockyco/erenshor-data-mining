@@ -1,0 +1,97 @@
+"""Run the CodeFacts analyzer and persist results into the raw database."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sqlite3
+import subprocess
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, cast
+
+from loguru import logger
+
+TOOL_PROJECT = Path("src") / "tools" / "CodeFacts"
+
+
+def run_tool(repo_root: Path, assembly: Path) -> dict[str, Any]:
+    """Invoke the analyzer; raise on any failure (fail fast, no fallbacks)."""
+    if not assembly.exists():
+        raise FileNotFoundError(f"shipped game assembly not found: {assembly}")
+    project = repo_root / TOOL_PROJECT
+    specs = project / "specs" / "erenshor-facts.json"
+    if not specs.exists():
+        raise FileNotFoundError(f"fact specs not found: {specs}")
+    subprocess.run(
+        ["dotnet", "build", str(project), "-c", "Release"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    proc = subprocess.run(
+        [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--no-build",
+            "--project",
+            str(project),
+            "--",
+            str(assembly),
+            str(specs),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"CodeFacts analyzer failed (exit {proc.returncode}).\n"
+            f"stderr: {proc.stderr.strip()}\n"
+            f"output: {proc.stdout.strip()}\n"
+            "A binding failure means the game code changed shape: re-derive the "
+            "affected fact spec in src/tools/CodeFacts/specs/erenshor-facts.json."
+        )
+    return cast("dict[str, Any]", json.loads(proc.stdout))
+
+
+def write_code_facts(raw_db_path: Path, payload: dict[str, Any], assembly_sha256: str) -> int:
+    """Replace the writer-owned `code_facts` tables with the analyzer payload.
+
+    Drops and recreates only ``code_facts`` and ``code_facts_meta``; all other
+    raw tables (owned by the Unity export) are left untouched.
+    """
+    rows: list[tuple[str, str, str, str]] = []
+    for fact in payload["facts"]:
+        if fact["mode"] == "extract":
+            for key, value in fact["values"].items():
+                rows.append((fact["id"], key, value, "text"))
+        else:
+            rows.append((fact["id"], "ok", "true" if fact["ok"] else "false", "bool"))
+
+    with sqlite3.connect(raw_db_path) as conn:
+        conn.execute("DROP TABLE IF EXISTS code_facts")
+        conn.execute("DROP TABLE IF EXISTS code_facts_meta")
+        conn.execute(
+            "CREATE TABLE code_facts ("
+            "fact_id TEXT NOT NULL, key TEXT NOT NULL, "
+            "value TEXT NOT NULL, value_type TEXT NOT NULL, "
+            "PRIMARY KEY (fact_id, key))"
+        )
+        conn.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT NOT NULL, extracted_at TEXT NOT NULL)")
+        conn.executemany("INSERT INTO code_facts VALUES (?, ?, ?, ?)", rows)
+        conn.execute(
+            "INSERT INTO code_facts_meta VALUES (?, ?)",
+            (assembly_sha256, datetime.now(UTC).isoformat()),
+        )
+    logger.info(f"code_facts written: {len(rows)} rows")
+    return len(rows)
+
+
+def extract_code_facts(repo_root: Path, assembly: Path, raw_db_path: Path) -> int:
+    """Run the analyzer against ``assembly`` and persist the facts into the raw DB."""
+    payload = run_tool(repo_root, assembly)
+    sha = hashlib.sha256(assembly.read_bytes()).hexdigest()
+    return write_code_facts(raw_db_path, payload, assembly_sha256=sha)
