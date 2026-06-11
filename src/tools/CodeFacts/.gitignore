@@ -4,3 +4,6 @@ obj/
 # files). This csproj is hand-authored with a pinned decompiler version and
 # MUST be tracked, so re-include it here.
 !CodeFacts.csproj
+# Hand-authored fixture library project for hermetic matcher tests; same
+# rationale as above (root .gitignore ignores *.csproj).
+!tests/FixtureLib/FixtureLib.csproj
