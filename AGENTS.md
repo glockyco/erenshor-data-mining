@@ -7,8 +7,8 @@ game data via AssetRipper + Unity Editor scripts, exports to SQLite, deploys
 to MediaWiki, Google Sheets, interactive maps, and in-game companion mods.
 Solo developer. Hobby project.
 
-**Only modify code in `src/Assets/Editor/`, `src/erenshor/`, `src/mods/`, and
-`src/maps/`.** All other files are from the original game and must not be changed.
+**Only modify code in `src/Assets/Editor/`, `src/erenshor/`, `src/mods/`,
+`src/maps/`, and `src/tools/`.** All other files are from the original game and must not be changed.
 
 ## Directory Map
 
