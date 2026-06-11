@@ -335,11 +335,14 @@ local function weaponProcTrigger(item)
 	-- Faithful to ItemInfoWindow.cs: shields proc on bash, bracers on cast,
 	-- ordinary weapons on attack.
 	if item.shield then
+		-- code-fact: iteminfo.proc_trigger_bash
 		return "on bash"
 	end
 	if item.slot == "Bracer" then
+		-- code-fact: iteminfo.proc_trigger_cast
 		return "on cast"
 	end
+	-- code-fact: iteminfo.proc_trigger_attack
 	return "on attack"
 end
 

@@ -302,6 +302,7 @@ def _format_drop_rates(loot_drops: list[LootDropInfo]) -> list[LuaData]:
     out: list[LuaData] = []
     for drop in loot_drops:
         entry: LuaData = {"item": drop.item_stable_key, "probability": drop.drop_probability}
+        # code-fact: loot.guarantee_one_drop
         if drop.is_guaranteed:
             entry["guaranteed"] = True
         if drop.is_visible:

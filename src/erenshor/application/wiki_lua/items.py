@@ -381,6 +381,7 @@ def _format_container_drops(sources: SourceInfo) -> list[LuaData]:
     out: list[LuaData] = []
     for drop in sources.item_drops:
         entry: LuaData = {"item": drop.dropped_item_stable_key, "probability": drop.drop_probability}
+        # code-fact: loot.guarantee_one_drop
         if drop.is_guaranteed:
             entry["guaranteed"] = True
         out.append(entry)

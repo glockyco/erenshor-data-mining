@@ -323,10 +323,13 @@ end
 -- bash, bracers cast, otherwise attack; wand/bow effects always attack.
 local function weaponEffect(item)
 	if not isBlank(item.weaponProc) then
+		-- code-fact: iteminfo.proc_trigger_attack
 		local style = "ATTACK"
 		if item.shield then
+			-- code-fact: iteminfo.proc_trigger_bash
 			style = "BASH"
 		elseif item.slot == "Bracer" then
+			-- code-fact: iteminfo.proc_trigger_cast
 			style = "CAST"
 		end
 		return item.weaponProc, num(item.weaponProcChance) .. "% chance on " .. style .. ":"
