@@ -2,6 +2,7 @@ using System.Globalization;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.CSharp.Syntax;
+using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.Decompiler.TypeSystem;
 
 namespace CodeFacts;
@@ -12,7 +13,14 @@ internal static class Runner
     {
         var specs = RunResult.LoadSpecs(specsPath);
         var result = new RunResult { Assembly = assemblyPath };
-        var decompiler = new CSharpDecompiler(assemblyPath, new DecompilerSettings());
+        // Resolve only against the assembly's own directory -- the game's
+        // Managed/ folder ships its full dependency closure -- and tolerate
+        // anything missing. Decompilation stays hermetic: it never reaches into
+        // the host .NET runtime for a core library, so the pinned decompiler
+        // renders identically on any SDK/runtime. The spec-pinned output is a
+        // function of the input DLL, not the toolchain that runs this tool.
+        var resolver = new UniversalAssemblyResolver(assemblyPath, throwOnError: false, targetFramework: null);
+        var decompiler = new CSharpDecompiler(assemblyPath, resolver, new DecompilerSettings());
 
         foreach (var fact in specs.Facts)
         {
