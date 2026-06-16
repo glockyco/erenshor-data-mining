@@ -19,15 +19,9 @@ pytestmark = [
 ]
 
 
-def test_all_facts_extract_with_sane_shapes() -> None:
-    subprocess.run(
-        ["dotnet", "build", str(TOOL), "-c", "Release"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:
     proc = subprocess.run(
-        ["dotnet", "run", "-c", "Release", "--no-build", "--project", str(TOOL), "--", str(DLL), str(SPECS)],
+        ["dotnet", "run", "-c", "Release", "--no-build", "--project", str(code_facts_tool), "--", str(DLL), str(SPECS)],
         capture_output=True,
         text=True,
         check=False,

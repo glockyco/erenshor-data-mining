@@ -3,6 +3,7 @@
 import json
 import shutil
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -19,22 +20,13 @@ SPECS = REPO_ROOT / "tests" / "fixtures" / "code_facts" / "fixture-specs.json"
 
 
 @pytest.fixture(scope="module")
-def fixture_dll(tmp_path_factory: pytest.TempPathFactory) -> Path:
+def fixture_dll(
+    tmp_path_factory: pytest.TempPathFactory,
+    code_facts_tool: Path,  # builds the analyzer once per session (shared)
+    dotnet_build: Callable[..., None],
+) -> Path:
     out = tmp_path_factory.mktemp("fixture") / "Managed"  # satisfies the /Managed/ path gate
-    subprocess.run(
-        ["dotnet", "build", str(FIXTURE_PROJ), "-c", "Release", "-o", str(out)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    # Pre-build the analyzer so `dotnet run --no-build` emits only the tool's
-    # JSON on stdout (a lazy build would interleave MSBuild output there).
-    subprocess.run(
-        ["dotnet", "build", str(TOOL), "-c", "Release"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    dotnet_build(FIXTURE_PROJ, "-o", str(out))
     return out / "FixtureLib.dll"
 
 
