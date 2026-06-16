@@ -1,0 +1,19 @@
+{
+  "name": "erenshor-item-export",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HotRepl-driven export of Erenshor equippable gear at or above an item level.",
+  "scripts": {
+    "export": "bun export-items.ts",
+    "render": "bun render-items.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hotrepl/sdk": "4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
