@@ -933,6 +933,22 @@ CREATE TABLE loot_drops (
     PRIMARY KEY (character_stable_key, item_stable_key)
 );
 
+CREATE TABLE arena_rounds (
+    stable_key                        TEXT PRIMARY KEY,
+    scene                             TEXT,
+    arena_object_name                 TEXT,
+    round_index                       INTEGER NOT NULL,
+    coin_item_stable_key              TEXT NOT NULL,
+    award_chest_character_stable_key  TEXT NOT NULL
+);
+
+CREATE TABLE arena_round_enemies (
+    arena_round_stable_key  TEXT NOT NULL,
+    sequence_index          INTEGER NOT NULL,
+    enemy_character_stable_key TEXT NOT NULL,
+    PRIMARY KEY (arena_round_stable_key, sequence_index)
+);
+
 CREATE TABLE character_dialogs (
     character_stable_key        TEXT NOT NULL,
     dialog_index                INTEGER NOT NULL,
@@ -1297,6 +1313,12 @@ class Writer:
 
     def insert_loot_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("loot_drops", rows)
+
+    def insert_arena_rounds(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("arena_rounds", rows)
+
+    def insert_arena_round_enemies(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("arena_round_enemies", rows)
 
     def insert_character_dialogs(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_dialogs", rows)

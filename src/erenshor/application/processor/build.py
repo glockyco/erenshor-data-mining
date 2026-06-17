@@ -95,7 +95,7 @@ def build(
         process_factions(raw, writer, mapping)
 
         logger.info("Processing items...")
-        process_items(raw, writer, mapping)
+        item_keys = process_items(raw, writer, mapping)
 
         logger.info("Processing spells...")
         process_spells(raw, writer, mapping)
@@ -110,7 +110,7 @@ def build(
         process_quests(raw, writer, mapping)
 
         logger.info("Processing characters...")
-        process_characters(raw, writer, mapping, spawn_mapping)
+        process_characters(raw, writer, mapping, item_keys, spawn_mapping)
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()

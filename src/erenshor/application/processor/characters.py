@@ -179,6 +179,14 @@ def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = 
     return [dict(zip(cols, row, strict=False)) for row in cur.fetchall()]
 
 
+def _table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
 def _load_junction_set(
     conn: sqlite3.Connection,
     table: str,
@@ -202,6 +210,60 @@ def _load_zone_by_scene(conn: sqlite3.Connection) -> dict[str, str]:
     return {str(r["SceneName"]): str(r["StableKey"]) for r in rows if r["SceneName"]}
 
 
+def process_arena_rounds(
+    raw: sqlite3.Connection,
+    writer: Writer,
+    *,
+    valid_character_keys: set[str],
+    valid_item_keys: set[str],
+) -> None:
+    """Copy scripted arena rounds whose item/character references survived cleaning."""
+    if not _table_exists(raw, "ArenaRounds"):
+        writer.insert_arena_rounds([])
+        writer.insert_arena_round_enemies([])
+        return
+
+    round_rows = _load_rows(raw, "SELECT * FROM ArenaRounds")
+    kept_round_keys: set[str] = set()
+    arena_rounds: list[dict[str, object]] = []
+    for row in round_rows:
+        stable_key = str(row["StableKey"])
+        coin_item_stable_key = str(row["CoinItemStableKey"])
+        award_chest_character_stable_key = str(row["AwardChestCharacterStableKey"])
+        if coin_item_stable_key not in valid_item_keys:
+            continue
+        if award_chest_character_stable_key not in valid_character_keys:
+            continue
+
+        kept_round_keys.add(stable_key)
+        arena_rounds.append(
+            {
+                "stable_key": stable_key,
+                "scene": row["Scene"],
+                "arena_object_name": row["ArenaObjectName"],
+                "round_index": row["RoundIndex"],
+                "coin_item_stable_key": coin_item_stable_key,
+                "award_chest_character_stable_key": award_chest_character_stable_key,
+            }
+        )
+
+    writer.insert_arena_rounds(arena_rounds)
+
+    enemy_rows = _load_rows(raw, "SELECT * FROM ArenaRoundEnemies") if _table_exists(raw, "ArenaRoundEnemies") else []
+    writer.insert_arena_round_enemies(
+        [
+            {
+                "arena_round_stable_key": str(row["ArenaRoundStableKey"]),
+                "sequence_index": row["SequenceIndex"],
+                "enemy_character_stable_key": str(row["EnemyCharacterStableKey"]),
+            }
+            for row in enemy_rows
+            if str(row["ArenaRoundStableKey"]) in kept_round_keys
+            and str(row["EnemyCharacterStableKey"]) in valid_character_keys
+        ]
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main processor
 # ---------------------------------------------------------------------------
@@ -211,6 +273,7 @@ def process_characters(
     raw: sqlite3.Connection,
     writer: Writer,
     mapping: dict[str, MappingOverride],
+    item_keys: set[str],
     spawn_mapping: dict[str, SpawnMappingOverride] | None = None,
 ) -> None:
     """Full character processing pipeline. Writes to writer."""
@@ -279,10 +342,10 @@ def process_characters(
                 spawn_point_stable_key=None,
                 zone_stable_key=zone_by_scene.get(str(scene)),
                 scene=str(scene) if scene else None,
-                x=row.get("X"),  # type: ignore[arg-type]
-                y=row.get("Y"),  # type: ignore[arg-type]
-                z=row.get("Z"),  # type: ignore[arg-type]
-                is_enabled=row.get("IsEnabled"),  # type: ignore[arg-type]
+                x=cast("float | None", row.get("X")),
+                y=cast("float | None", row.get("Y")),
+                z=cast("float | None", row.get("Z")),
+                is_enabled=cast("int | None", row.get("IsEnabled")),
                 is_directly_placed=1,
                 is_trigger_spawn=0,
                 rare_npc_chance=None,
@@ -876,6 +939,14 @@ def process_characters(
             }
             for r in ld_rows
         ]
+    )
+
+    # Scripted arena reward rounds
+    process_arena_rounds(
+        raw,
+        writer,
+        valid_character_keys=all_keys,
+        valid_item_keys=item_keys,
     )
 
     # Dialogs (full dialog rows, not just quest keys)

@@ -383,6 +383,22 @@ public static class StableKeyGenerator
         return $"treasure:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
     }
 
+    /// <summary>
+    /// Generate stable key for a scripted arena round.
+    /// Format: "arenaround:scene:object_name:round_index"
+    /// </summary>
+    public static string ForArenaRound(string scene, string objectName, int roundIndex)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+        if (string.IsNullOrEmpty(objectName))
+            throw new ArgumentException("Object name cannot be null or empty", nameof(objectName));
+        if (roundIndex <= 0)
+            throw new ArgumentOutOfRangeException(nameof(roundIndex), "Round index must be positive");
+
+        return $"arenaround:{Normalize(scene)}:{Normalize(objectName)}:{roundIndex}";
+    }
+
     // ========================================================================
     // Helper methods
     // ========================================================================

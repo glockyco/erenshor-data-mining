@@ -293,6 +293,7 @@ public static class ExportBatch
             ["forges"] = () => scanner.RegisterComponentListener(new ForgeListener(db)),
             ["itembags"] = () => scanner.RegisterComponentListener(new ItemBagListener(db)),
             ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db, characterKeyResolver)),
+            ["arenarounds"] = () => scanner.RegisterComponentListener(new VithArenaListener(db, characterKeyResolver)),
             ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),
             ["miningnodes"] = () => scanner.RegisterComponentListener(new MiningNodeListener(db)),
             ["spawnpoints"] = () =>
