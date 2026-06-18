@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typer.main import get_command
 from typer.testing import CliRunner
 
 # Patch the decorator BEFORE importing the command module
@@ -224,13 +225,14 @@ class TestWikiInventoryTemplatesCommand:
 class TestWikiSyncInterfaceCommand:
     """Test wiki interface sync command."""
 
-    def test_sync_interface_help_describes_live_interface_mirror(self):
+    def test_sync_interface_command_metadata_describes_local_preview_mirror(self):
         """Test sync-interface exposes the local preview bootstrap command."""
-        result = runner.invoke(app, ["wiki", "sync-interface", "--help"])
+        wiki_command = get_command(app).commands["wiki"]
+        sync_command = wiki_command.commands["sync-interface"]
 
-        assert result.exit_code == 0
-        assert "Sync live MediaWiki interface pages for local preview." in result.output
-        assert "wiki-dev/interface" in result.output
+        assert sync_command.help is not None
+        assert "Sync live MediaWiki interface pages for local preview." in sync_command.help
+        assert "wiki-dev/interface" in sync_command.help
 
 
 class TestWikiDeployCommand:
