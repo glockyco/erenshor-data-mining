@@ -89,12 +89,13 @@ public sealed class MarkerPool
     {
         var obj = new GameObject($"Marker_{_pool.Count}");
         obj.transform.SetParent(_root.transform);
-        // Billboard via game's NamePlate component on the root so both
-        // children rotate together. Root uses POSITIVE scale (LookAt breaks
-        // with negative scale). Each TMP child gets localScale (-1,1,1)
-        // to correct the text mirroring that LookAt introduces.
+        // Billboard via AG's own MarkerBillboard so both children rotate
+        // together. Root uses POSITIVE scale (LookAt breaks with negative
+        // scale). Each TMP child gets localScale (-1,1,1) to correct the text
+        // mirroring that LookAt introduces. We do not borrow the game's
+        // NamePlate: its Start() dereferences a TextMeshPro this root lacks.
         obj.transform.localScale = Vector3.one;
-        obj.AddComponent<NamePlate>();
+        obj.AddComponent<MarkerBillboard>();
         // Icon: Font Awesome glyph via TextMeshPro SDF
         var iconObj = new GameObject("Icon");
         iconObj.transform.SetParent(obj.transform);
