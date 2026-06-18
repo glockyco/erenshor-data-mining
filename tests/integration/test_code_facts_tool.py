@@ -71,6 +71,26 @@ def test_assert_facts_pass_on_matching_shapes(fixture_dll: Path) -> None:
     assert out["errors"] == []
 
 
+def test_node_shape_asserts_compound_statement(fixture_dll: Path) -> None:
+    rc, out = run_tool(fixture_dll, SPECS)
+    assert rc == 0, out
+    facts = {f["id"]: f for f in out["facts"]}
+    assert facts["fixture.guarantee_retry_loop"]["ok"] is True
+    assert facts["fixture.guarantee_retry_loop"]["values"] is None
+
+
+def test_node_shape_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
+    specs = json.loads(SPECS.read_text())
+    for fact in specs["facts"]:
+        if fact["id"] == "fixture.guarantee_retry_loop":
+            fact["args"]["shape"] = "for (int i = 0; i < numberOfGuaranteedDrops; i++) { Drops.Add (PoolA [0]); }"
+    bad = tmp_path / "bad-node-shape.json"
+    bad.write_text(json.dumps(specs))
+    rc, out = run_tool(fixture_dll, bad)
+    assert rc == 1
+    assert any("fixture.guarantee_retry_loop" in e for e in out["errors"])
+
+
 def test_statement_shape_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
     specs = json.loads(SPECS.read_text())
     for fact in specs["facts"]:

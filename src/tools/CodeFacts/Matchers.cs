@@ -34,6 +34,7 @@ internal static class Runner
                     "int_comparisons" => Matchers.IntComparisons(method, fact),
                     "statement_shape" => Matchers.StatementShape(method, fact),
                     "string_set" => Matchers.StringSet(method, fact),
+                    "node_shape" => Matchers.NodeShape(method, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
                 result.Facts.Add(fact.Mode == "assert"
@@ -160,6 +161,32 @@ internal static class Matchers
         if (count != 1)
             throw new InvalidDataException(
                 $"statement_shape bound {count} times (need exactly 1): {fact.Args["statement"]}");
+        return new();
+    }
+
+    /// Assert mode. Asserts the method contains EXACTLY ONE AST node of
+    /// args["kind"] whose whitespace-normalized text equals args["shape"].
+    /// Unlike statement_shape, this pins compound nodes such as for/do loops.
+    public static Dictionary<string, string> NodeShape(MethodDeclaration method, FactSpec fact)
+    {
+        string kind = fact.Args["kind"];
+        string wanted = Normalize(fact.Args["shape"]);
+        var candidates = method.DescendantsAndSelf
+            .Where(node => node.GetType().Name == kind)
+            .Select(node => Normalize(node.ToString()))
+            .ToList();
+
+        int count = candidates.Count(candidate => candidate == wanted);
+        if (count != 1)
+        {
+            string sample = candidates.Count == 0
+                ? "no candidates"
+                : string.Join(" | ", candidates.Take(5));
+            throw new InvalidDataException(
+                $"node_shape('{kind}') bound {count} times (need exactly 1): {fact.Args["shape"]}; "
+                + $"candidates: {sample}");
+        }
+
         return new();
     }
 

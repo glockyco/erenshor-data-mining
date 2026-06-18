@@ -38,6 +38,25 @@ namespace FixtureLib
             }
         }
 
+        public void GuaranteeRetryLike(int numberOfGuaranteedDrops)
+        {
+            for (int i = 0; i < numberOfGuaranteedDrops; i++)
+            {
+                string item = null;
+                int attempts = 0;
+                do
+                {
+                    item = PoolA[Rng.Next(0, PoolA.Count)];
+                    attempts++;
+                }
+                while (attempts < 10 && (item == null || Drops.Contains(item)));
+                if (item != null)
+                {
+                    Drops.Add(item);
+                }
+            }
+        }
+
         public bool Auctionable(int level, int value)
         {
             return level > 0 && level < 40 && value > 0;

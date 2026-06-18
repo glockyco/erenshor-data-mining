@@ -11,6 +11,8 @@
       "matcher": "int_comparisons", "args": { "level": "level", "value": "value" }, "keys": ["level", "value"] },
     { "id": "fixture.guarantee_shape", "mode": "assert", "type": "FixtureLib.FixtureLoot", "method": "GuaranteeLike",
       "matcher": "statement_shape", "args": { "statement": "Drops.Add (PoolA [Rng.Next (0, PoolA.Count)]);" } },
+    { "id": "fixture.guarantee_retry_loop", "mode": "assert", "type": "FixtureLib.FixtureLoot", "method": "GuaranteeRetryLike",
+      "matcher": "node_shape", "args": { "kind": "ForStatement", "shape": "for (int i = 0; i < numberOfGuaranteedDrops; i++) { string text = null; int num = 0; do { text = PoolA [Rng.Next (0, PoolA.Count)]; num++; } while (num < 10 && (text == null || Drops.Contains (text))); if (text != null) { Drops.Add (text); } }" } },
     { "id": "fixture.trigger_strings", "mode": "assert", "type": "FixtureLib.FixtureLoot", "method": "Combine",
       "matcher": "string_set", "args": { "strings": "31377423,46289586" } }
   ]
