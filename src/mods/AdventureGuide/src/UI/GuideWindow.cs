@@ -1,0 +1,140 @@
+extern alias Vectors;
+using AdventureGuide.Config;
+using AdventureGuide.Data;
+using AdventureGuide.Navigation;
+using AdventureGuide.State;
+using ImGuiNET;
+
+using Vector2 = Vectors::System.Numerics.Vector2;
+
+namespace AdventureGuide.UI;
+
+/// <summary>
+/// Main AdventureGuide window rendered via Dear ImGui.
+/// Orchestrates QuestListPanel and QuestDetailPanel.
+/// </summary>
+public sealed class GuideWindow
+{
+    private readonly GuideData _data;
+    private readonly QuestStateTracker _state;
+    private readonly FilterState _filter = new();
+    private readonly QuestListPanel _listPanel;
+    private readonly QuestDetailPanel _detailPanel;
+    private readonly NavigationHistory _history;
+    private readonly GuideConfig _config;
+
+    private bool _visible;
+
+    public bool Visible => _visible;
+
+    public FilterState Filter => _filter;
+
+    public GuideWindow(
+        GuideData data,
+        QuestStateTracker state,
+        NavigationController nav,
+        NavigationHistory history,
+        TrackerState tracker,
+        GuideConfig config
+    )
+    {
+        _data = data;
+        _state = state;
+        _history = history;
+        _config = config;
+        _listPanel = new QuestListPanel(data, state, _filter, tracker);
+        _detailPanel = new QuestDetailPanel(data, state, nav, tracker, config);
+    }
+
+    public void Toggle() => _visible = !_visible;
+
+    public void Show() => _visible = true;
+
+    public void Hide() => _visible = false;
+
+    /// <summary>
+    /// Renders the full guide window when visible.
+    /// Called from Lunaris' ImGui draw callback.
+    /// </summary>
+    public void Draw()
+    {
+        if (!_visible)
+            return;
+
+        var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
+        var scale = _config.ResolvedUiScale;
+        var display = Theme.DisplaySize();
+        ImGui.SetNextWindowSize(new Vector2(780f * scale, 530f * scale), cond);
+        ImGui.SetNextWindowPos(
+            new Vector2(display.X * 0.5f, display.Y * 0.5f),
+            cond,
+            new Vector2(0.5f, 0.5f)
+        );
+
+        using var style = Theme.WindowStyleScope();
+        var windowStarted = false;
+        try
+        {
+            var beginOpen = ImGui.Begin(
+                "Adventure Guide",
+                ref _visible,
+                ImGuiWindowFlags.NoCollapse
+            );
+            windowStarted = true;
+            if (beginOpen)
+                DrawTabBar();
+
+            Theme.ClampWindowPosition();
+        }
+        finally
+        {
+            if (windowStarted)
+                ImGui.End();
+        }
+    }
+
+    private void DrawTabBar()
+    {
+        if (ImGui.BeginTabBar("##GuideTabs"))
+        {
+            if (ImGui.BeginTabItem("Quests"))
+            {
+                DrawQuestsTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.TabItemButton("<"))
+            {
+                var page = _history.Back();
+                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                    _state.SelectedQuestDBName = page.Value.Key;
+            }
+            if (ImGui.TabItemButton(">"))
+            {
+                var page = _history.Forward();
+                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                    _state.SelectedQuestDBName = page.Value.Key;
+            }
+
+            ImGui.EndTabBar();
+        }
+    }
+
+    private void DrawQuestsTab()
+    {
+        var contentRegion = ImGui.GetContentRegionAvail();
+        float leftWidth = contentRegion.X * Theme.LeftPanelRatio;
+
+        // Left panel: quest list
+        ImGui.BeginChild("##LeftPanel", new Vector2(leftWidth, 0), true);
+        _listPanel.Draw(leftWidth);
+        ImGui.EndChild();
+
+        ImGui.SameLine();
+
+        // Right panel: quest detail
+        ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
+        _detailPanel.Draw();
+        ImGui.EndChild();
+    }
+}

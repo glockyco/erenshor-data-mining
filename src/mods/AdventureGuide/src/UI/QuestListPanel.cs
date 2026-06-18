@@ -1,0 +1,415 @@
+extern alias Vectors;
+using AdventureGuide.Data;
+using AdventureGuide.State;
+using ImGuiNET;
+
+using Vector2 = Vectors::System.Numerics.Vector2;
+
+namespace AdventureGuide.UI;
+
+/// <summary>
+/// Renders the left panel: filter dropdown, search bar, and scrollable quest list.
+/// </summary>
+public sealed class QuestListPanel
+{
+    private readonly GuideData _data;
+    private readonly QuestStateTracker _state;
+    private readonly FilterState _filter;
+    private readonly TrackerState _tracker;
+
+    private string _searchBuf = string.Empty;
+    private readonly List<QuestEntry> _sorted = new();
+
+    // Dirty-checking: skip re-filter/sort when nothing changed
+    private int _lastFilterVersion = -1;
+    private int _lastStateVersion = -1;
+
+    private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
+    private const string QuestTrackedMarker = "\u00b7";
+    private int _filterIndex;
+
+    // Zone filter: index 0 = "All Zones", 1 = "Current Zone", 2+ = sorted zone names
+    private const string CurrentZoneSentinel = "\x01current";
+    private readonly string[] _zoneNames;
+    private int _zoneIndex;
+
+    private static float QuestListMarkerStartX(float contentStartX)
+    {
+        var style = ImGui.GetStyle();
+        return contentStartX + style.FramePadding.X;
+    }
+
+    private static float QuestListMarkerColumnWidth()
+    {
+        var style = ImGui.GetStyle();
+        return ImGui.CalcTextSize(QuestTrackedMarker).X + style.ItemInnerSpacing.X;
+    }
+
+    public QuestListPanel(
+        GuideData data,
+        QuestStateTracker state,
+        FilterState filter,
+        TrackerState tracker
+    )
+    {
+        _data = data;
+        _state = state;
+        _filter = filter;
+        _tracker = tracker;
+
+        // Build sorted zone list from quest data
+        var zones = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var quest in data.All)
+            if (quest.ZoneContext != null)
+                zones.Add(quest.ZoneContext);
+        _zoneNames = new string[zones.Count + 2];
+        _zoneNames[0] = "All Zones";
+        _zoneNames[1] = "Current Zone";
+        int idx = 2;
+        foreach (var z in zones)
+            _zoneNames[idx++] = z;
+    }
+
+    public void Draw(float width)
+    {
+        // Fixed header: filter + sort + zone + search (not scrollable)
+        DrawFilterRow(width);
+        DrawZoneFilter();
+        DrawSearchBar();
+
+        ImGui.Separator();
+
+        // Scrollable quest list fills remaining height
+        ImGui.BeginChild("##QuestScroll");
+        int count = DrawQuestList();
+
+        // Empty state
+        if (count == 0)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            if (_data.Count == 0)
+                ImGui.TextWrapped("No quest data loaded.");
+            else if (!string.IsNullOrEmpty(_filter.SearchText))
+                ImGui.TextWrapped("No quests match your search.");
+            else
+                ImGui.TextWrapped("No quests in this category.");
+            ImGui.PopStyleColor();
+        }
+
+        ImGui.EndChild();
+    }
+
+    private void DrawFilterRow(float width)
+    {
+        _filterIndex = (int)_filter.FilterMode;
+
+        // Filter combo takes ~55% of panel width, sort buttons fill the rest
+        ImGui.SetNextItemWidth(width * 0.55f);
+        if (ImGui.Combo("##Filter", ref _filterIndex, FilterNames, FilterNames.Length))
+            _filter.FilterMode = (QuestFilterMode)_filterIndex;
+
+        ImGui.SameLine();
+        DrawSortButton("Az", QuestSortMode.Alphabetical, "Sort alphabetically");
+        ImGui.SameLine(0, 2);
+        DrawSortButton("Lv", QuestSortMode.ByLevel, "Sort by level");
+        ImGui.SameLine(0, 2);
+        DrawSortButton("Zn", QuestSortMode.ByZone, "Sort by zone");
+
+        ImGui.Spacing();
+    }
+
+    private void DrawSortButton(string label, QuestSortMode mode, string tooltip)
+    {
+        bool active = _filter.SortMode == mode;
+        if (active)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+
+        if (ImGui.SmallButton(label + "##sort"))
+            _filter.SortMode = mode;
+
+        if (active)
+            ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(tooltip);
+            ImGui.EndTooltip();
+        }
+    }
+
+    private void DrawZoneFilter()
+    {
+        // Sync index from filter state
+        _zoneIndex = 0;
+        if (_filter.ZoneFilter != null)
+        {
+            if (_filter.ZoneFilter == CurrentZoneSentinel)
+            {
+                _zoneIndex = 1;
+            }
+            else
+            {
+                for (int i = 2; i < _zoneNames.Length; i++)
+                    if (
+                        string.Equals(
+                            _zoneNames[i],
+                            _filter.ZoneFilter,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                    {
+                        _zoneIndex = i;
+                        break;
+                    }
+            }
+        }
+
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.Combo("##Zone", ref _zoneIndex, _zoneNames, _zoneNames.Length))
+        {
+            _filter.ZoneFilter = _zoneIndex switch
+            {
+                0 => null,
+                1 => CurrentZoneSentinel,
+                _ => _zoneNames[_zoneIndex],
+            };
+        }
+
+        ImGui.Spacing();
+    }
+
+    private void DrawSearchBar()
+    {
+        if (_searchBuf != _filter.SearchText)
+            _searchBuf = _filter.SearchText;
+
+        ImGui.SetNextItemWidth(-1);
+
+        if (ImGui.InputTextWithHint("##QuestSearch", "Search quests...", ref _searchBuf, 256))
+            _filter.SearchText = _searchBuf;
+
+        ImGui.Spacing();
+    }
+
+    /// <summary>Draw filtered, sorted quest list. Returns count of visible quests.</summary>
+    private int DrawQuestList()
+    {
+        // Rebuild only when filter state or quest state changed
+        bool filterChanged = _filter.Version != _lastFilterVersion;
+        bool stateChanged = _state.Version != _lastStateVersion;
+        if (filterChanged || stateChanged)
+        {
+            _lastFilterVersion = _filter.Version;
+            _lastStateVersion = _state.Version;
+
+            _sorted.Clear();
+            var all = _data.All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                var quest = all[i];
+                if (PassesFilter(quest) && PassesSearch(quest))
+                    _sorted.Add(quest);
+            }
+            _sorted.Sort(CompareQuests);
+        }
+
+        foreach (var quest in _sorted)
+            DrawQuestEntry(quest);
+
+        return _sorted.Count;
+    }
+
+    private int CompareQuests(QuestEntry a, QuestEntry b)
+    {
+        return _filter.SortMode switch
+        {
+            QuestSortMode.ByLevel => CompareLevels(a, b),
+            QuestSortMode.ByZone => CompareZones(a, b),
+            _ => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase),
+        };
+    }
+
+    private static int CompareLevels(QuestEntry a, QuestEntry b)
+    {
+        int? la = a.LevelEstimate?.Recommended;
+        int? lb = b.LevelEstimate?.Recommended;
+        if (la == null && lb == null)
+            return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        if (la == null)
+            return 1; // null sorts to end
+        if (lb == null)
+            return -1;
+        int cmp = la.Value.CompareTo(lb.Value);
+        return cmp != 0
+            ? cmp
+            : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int CompareZones(QuestEntry a, QuestEntry b)
+    {
+        if (a.ZoneContext == null && b.ZoneContext == null)
+            return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        if (a.ZoneContext == null)
+            return 1; // null sorts to end
+        if (b.ZoneContext == null)
+            return -1;
+        int cmp = string.Compare(a.ZoneContext, b.ZoneContext, StringComparison.OrdinalIgnoreCase);
+        return cmp != 0
+            ? cmp
+            : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool PassesFilter(QuestEntry quest)
+    {
+        bool statusOk = _filter.FilterMode switch
+        {
+            QuestFilterMode.Active => _state.IsActive(quest.DBName),
+            QuestFilterMode.Available => !_state.IsActive(quest.DBName)
+                && !_state.IsCompleted(quest.DBName),
+            QuestFilterMode.Completed => _state.IsCompleted(quest.DBName),
+            QuestFilterMode.All => true,
+            _ => true,
+        };
+        if (!statusOk)
+            return false;
+
+        // Zone filter
+        if (_filter.ZoneFilter != null)
+        {
+            string? targetZone =
+                _filter.ZoneFilter == CurrentZoneSentinel
+                    ? _data.GetZoneDisplayName(_state.CurrentZone)
+                    : _filter.ZoneFilter;
+            if (targetZone == null)
+                return true; // current zone not resolvable
+            return string.Equals(quest.ZoneContext, targetZone, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Search matches against quest name, zone, NPC names, and item names.
+    /// </summary>
+    private bool PassesSearch(QuestEntry quest)
+    {
+        if (string.IsNullOrEmpty(_filter.SearchText))
+            return true;
+
+        var term = _filter.SearchText;
+
+        if (quest.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (
+            quest.ZoneContext != null
+            && quest.ZoneContext.Contains(term, StringComparison.OrdinalIgnoreCase)
+        )
+            return true;
+
+        if (quest.Acquisition != null)
+        {
+            foreach (var acq in quest.Acquisition)
+            {
+                if (
+                    acq.SourceName != null
+                    && acq.SourceName.Contains(term, StringComparison.OrdinalIgnoreCase)
+                )
+                    return true;
+            }
+        }
+
+        if (quest.RequiredItems != null)
+        {
+            foreach (var item in quest.RequiredItems)
+            {
+                if (item.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        if (quest.Steps != null)
+        {
+            foreach (var step in quest.Steps)
+            {
+                if (
+                    step.TargetName != null
+                    && step.TargetName.Contains(term, StringComparison.OrdinalIgnoreCase)
+                )
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void DrawQuestEntry(QuestEntry quest)
+    {
+        bool isSelected = quest.DBName == _state.SelectedQuestDBName;
+        uint statusColor = GetQuestColor(quest);
+
+        if (isSelected)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+
+        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
+        bool isRepeatable = quest.Flags is { Repeatable: true };
+        string suffix = isRepeatable ? " [R]" : "";
+        string label = quest.LevelEstimate?.Recommended is int lvl
+            ? $"{lvl, 2}  {quest.DisplayName}{suffix}"
+            : $"    {quest.DisplayName}{suffix}";
+
+        ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
+
+        var contentStart = ImGui.GetCursorPos();
+        var rowAfter = contentStart;
+        var rowSize = new Vector2(
+            ImGui.GetContentRegionAvail().X + contentStart.X,
+            ImGui.GetTextLineHeight()
+        );
+        ImGui.SetCursorPos(new Vector2(0f, contentStart.Y));
+        bool clicked = ImGui.Selectable(
+            "##" + quest.DBName,
+            isSelected,
+            ImGuiSelectableFlags.None,
+            rowSize
+        );
+        bool rowHovered = ImGui.IsItemHovered();
+        rowAfter = ImGui.GetCursorPos();
+
+        if (clicked)
+            _state.SelectQuest(quest.DBName);
+
+        var markerStart = QuestListMarkerStartX(contentStart.X);
+        var markerWidth = QuestListMarkerColumnWidth();
+        if (isTracked)
+        {
+            ImGui.SetCursorPos(new Vector2(markerStart, contentStart.Y));
+            ImGui.TextUnformatted(QuestTrackedMarker);
+        }
+        ImGui.SetCursorPos(new Vector2(markerStart + markerWidth, contentStart.Y));
+        ImGui.TextUnformatted(label);
+        ImGui.SetCursorPos(rowAfter);
+
+        // Tooltip on hover: zone + status + level
+        if (rowHovered)
+        {
+            ImGui.BeginTooltip();
+            if (quest.ZoneContext != null)
+                ImGui.Text(quest.ZoneContext);
+            string status =
+                _state.IsCompleted(quest.DBName) ? "Completed"
+                : _state.IsImplicitlyActive(quest.DBName) ? "Completable here"
+                : _state.IsActive(quest.DBName) ? "Active"
+                : "Available";
+            ImGui.Text(status);
+            if (quest.LevelEstimate?.Recommended is int tipLvl)
+                ImGui.Text($"Level {tipLvl}");
+            ImGui.EndTooltip();
+        }
+
+        ImGui.PopStyleColor(isSelected ? 2 : 1);
+    }
+
+    private uint GetQuestColor(QuestEntry quest) => Theme.GetQuestColor(_state, quest.DBName);
+}

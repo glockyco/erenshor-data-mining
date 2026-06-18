@@ -1,0 +1,29 @@
+# Erenshor Vault listing for Adventure Guide.
+#
+# Source of truth for the Vault mod listing. Used manually today (paste into
+# erenshorvault.app/new-mod, then Versions -> new); a future `erenshor mod
+# vault` command will read it once the Vault's write API (Personal Access
+# Token) ships. See AGENTS.md in this directory.
+
+[mod]
+# POST /api/mods create fields.
+name = "Adventure Guide"
+mod_ref = "adventure-guide"
+short_description = "In-game quest companion with GPS navigation. 170+ quests with walkthroughs, item sources, and world markers. Click any step, follow the arrow."
+# Public source repository, or "" to omit. Adventure Guide source is not public.
+source_url = ""
+hidden = false
+# Tag slugs; resolve to tagIds via GET https://erenshorvault.app/api/tags.
+tags = ["utility", "ui", "quality-of-life"]
+
+[assets]
+full_description = "README.md"
+changelog = "CHANGELOG.md"
+icon = "icon.png"
+
+[package]
+# Vault package zip layout: <mod_ref>/manifest.json + these files.
+# Lunaris provides ImGui.NET, Newtonsoft.Json, and System.Numerics.Vectors, so
+# the package ships only the plugin assembly (verified against AmarionCodex).
+main_file = "AdventureGuide.dll"
+asset_files = []

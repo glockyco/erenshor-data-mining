@@ -1,0 +1,130 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AdventureGuide</AssemblyName>
+    <RootNamespace>AdventureGuide</RootNamespace>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+
+  <!-- Embedded resources -->
+  <ItemGroup>
+    <EmbeddedResource Include="../../../quest_guides/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
+    <EmbeddedResource Include="resources/Roboto-Regular.ttf" LogicalName="AdventureGuide.Roboto-Regular.ttf" />
+  </ItemGroup>
+
+  <!-- Version generation targets -->
+  <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
+    <PropertyGroup>
+      <Version>$(ModVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' == ''">
+    <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
+          ConsoleToMSBuild="true" IgnoreExitCode="false"
+          StandardOutputImportance="low" EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
+    </Exec>
+    <PropertyGroup>
+      <Version>$(GitVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile" DependsOnTargets="SetModVersion;GetGitVersion">
+    <PropertyGroup>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+      <PluginInfoLine1>namespace AdventureGuide%3B</PluginInfoLine1>
+      <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Loader and Lunaris-provided shared assembly references -->
+  <ItemGroup>
+    <Reference Include="Lunaris">
+      <HintPath>lib/Lunaris.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>lib/ImGui.NET.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <Aliases>Vectors</Aliases>
+      <HintPath>lib/System.Numerics.Vectors.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Game assembly references -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>lib/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>lib/UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>lib/UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>lib/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>lib/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
