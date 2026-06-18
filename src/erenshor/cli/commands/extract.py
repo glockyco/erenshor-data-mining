@@ -37,7 +37,7 @@ from erenshor.infrastructure.csproj_generator import (
     generate_root_solution,
     generate_solution_file,
 )
-from erenshor.infrastructure.export_profile import ExportProfileRecorder
+from erenshor.infrastructure.export_profile import ExportProfileRecorder, ExportProfileReport
 from erenshor.infrastructure.steam.steamcmd import SteamCMD
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
@@ -49,6 +49,9 @@ app = typer.Typer(
     help="Extract game data from Steam, AssetRipper, and Unity",
     no_args_is_help=True,
 )
+profile_app = typer.Typer(name="profile", help="Inspect extraction profile runs", no_args_is_help=True)
+app.add_typer(profile_app, name="profile")
+
 
 # UPM packages always added to ExportedProject/Packages/manifest.json after a
 # fresh rip. AssetRipper writes only `com.unity.modules.*` entries, but the
@@ -145,6 +148,12 @@ def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
     return None
 
 
+def _profile_root(cli_ctx: CLIContext) -> Path:
+    """Return the durable profile root for the selected variant."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return Path(variant_config.resolved_profiles(cli_ctx.repo_root))
+
+
 def _open_profile(
     cli_ctx: CLIContext,
     variant_config: Any,
@@ -154,7 +163,7 @@ def _open_profile(
     assetripper_version: str | None,
 ) -> ExportProfileRecorder:
     """Open the active extraction profile run for a subcommand."""
-    profile_root = Path(variant_config.resolved_profiles(cli_ctx.repo_root))
+    profile_root = _profile_root(cli_ctx)
     return ExportProfileRecorder.open_or_create(
         root=profile_root,
         variant=cli_ctx.variant,
@@ -213,6 +222,19 @@ def _import_unity_profile_output(profile: ExportProfileRecorder, output_path: Pa
                 "max_ms": float(row["max_ms"]),
             },
         )
+
+
+@profile_app.command("report")
+def profile_report(
+    ctx: typer.Context,
+    latest: bool = typer.Option(True, "--latest", help="Report the latest profile run"),
+) -> None:
+    """Print a Markdown summary for an extraction profile run."""
+    cli_ctx: CLIContext = ctx.obj
+    if not latest:
+        raise typer.BadParameter("Only --latest is currently supported")
+    report = ExportProfileReport.load_latest(_profile_root(cli_ctx))
+    console.print(report.to_markdown(), soft_wrap=True)
 
 
 @app.command()

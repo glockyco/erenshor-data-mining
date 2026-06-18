@@ -296,12 +296,44 @@ class UnityBatchMode:
 
             # Parse log file for errors
             self._check_execution_result(returncode, log_file)
+            if profile is not None:
+                self._record_export_batch_span(profile, log_file, start_time)
 
             logger.info("Unity execution completed successfully")
             logger.debug(f"Log file: {log_file}")
 
         except FileNotFoundError as e:
             raise UnityNotFoundError(f"Unity executable not found: {self.unity_path}") from e
+
+    def _record_export_batch_span(
+        self,
+        profile: ExportProfileRecorder,
+        log_file: Path,
+        started_at: float,
+    ) -> None:
+        """Record the C# ExportBatch runtime when Unity logged one."""
+        duration_ms = self._extract_export_batch_duration_ms(log_file)
+        if duration_ms is None:
+            return
+        profile.record_external_span(
+            "unity.ExportBatch",
+            category="unity",
+            started_at=started_at,
+            duration_ms=duration_ms,
+            attributes={"log_file": str(log_file)},
+        )
+
+    @staticmethod
+    def _extract_export_batch_duration_ms(log_file: Path) -> float | None:
+        if not log_file.exists():
+            return None
+        match = re.search(
+            r"\[EXPORT_COMPLETE\] Export completed successfully in ([0-9]+(?:\.[0-9]+)?)s",
+            log_file.read_text(),
+        )
+        if match is None:
+            return None
+        return float(match.group(1)) * 1000.0
 
     def _check_execution_result(self, exit_code: int, log_file: Path) -> None:
         """Check Unity execution result for errors.

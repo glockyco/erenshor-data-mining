@@ -264,6 +264,9 @@ class TestUnityBatchModeExecuteMethod:
         span = next(span for span in profile.spans if span.name == "unity.batch_subprocess")
         assert span.duration_ms == 5000.0
         assert span.attributes["log_file"] == str(log_file)
+        export_batch_span = next(span for span in profile.spans if span.name == "unity.ExportBatch")
+        assert export_batch_span.duration_ms == 3000.0
+        assert export_batch_span.attributes["log_file"] == str(log_file)
 
 
 class TestUnityBatchModeErrorDetection:

@@ -259,3 +259,42 @@ def test_profile_recorder_persists_external_unity_span(tmp_path):
 
     assert row[:3] == ("listener.OnAssetFound.CharacterListener", "listener.OnAssetFound", 3000.0)
     assert json.loads(row[3]) == {"calls": 100, "avg_ms": 30.0, "max_ms": 50.0}
+
+
+def test_latest_report_prioritizes_stages_and_listener_buckets(tmp_path):
+    clock = MockClock()
+    recorder = ExportProfileRecorder.open_or_create(
+        root=tmp_path / "profiles",
+        variant="playtest",
+        command="extract export --profile",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version="1.2.3",
+        machine="darwin-arm64",
+        clock=clock,
+    )
+    with recorder.span("extract.export.unity_subprocess", category="unity"):
+        clock.advance(10.0)
+    with recorder.span("unity.ExportBatch", category="unity"):
+        clock.advance(4.0)
+    with recorder.span(
+        "listener.OnAssetFound.CharacterListener",
+        category="listener.OnAssetFound",
+        attributes={"calls": 100},
+    ):
+        clock.advance(3.0)
+    with recorder.span(
+        "listener.OnScanFinished.CharacterListener",
+        category="listener.OnScanFinished",
+        attributes={"calls": 1},
+    ):
+        clock.advance(2.0)
+    recorder.finish("ok")
+
+    report = recorder.latest_summary_markdown()
+
+    assert "Unity overhead before/after ExportBatch" in report
+    assert "listener.OnAssetFound.CharacterListener" in report
+    assert "listener.OnScanFinished.CharacterListener" in report
+    assert f"{recorder.run_id}.trace.json" in report

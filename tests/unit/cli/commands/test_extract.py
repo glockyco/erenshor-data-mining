@@ -44,6 +44,44 @@ def test_export_help_lists_profile_option() -> None:
     assert "--profile" in result.stdout
 
 
+def test_profile_report_help_lists_latest_option() -> None:
+    result = CliRunner().invoke(extract.app, ["profile", "report", "--help"])
+
+    assert result.exit_code == 0
+    assert "--latest" in result.stdout
+
+
+def test_profile_report_prints_latest_profile(tmp_path: Path) -> None:
+    clock = MockClock()
+    variant = VariantStub(tmp_path)
+    profile = ExportProfileRecorder.open_or_create(
+        root=variant.resolved_profiles(tmp_path),
+        variant="playtest",
+        command="extract export",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version=None,
+        machine="darwin-arm64",
+        clock=clock,
+    )
+    with profile.span("unity.batch_subprocess", category="unity"):
+        clock.advance(10.0)
+    with profile.span("unity.ExportBatch", category="unity"):
+        clock.advance(8.0)
+    profile.finish("ok")
+
+    result = CliRunner().invoke(
+        extract.app,
+        ["profile", "report", "--latest"],
+        obj=_context(tmp_path, variant),
+    )
+
+    assert result.exit_code == 0
+    assert profile.run_id in result.stdout
+    assert "Unity overhead before/after ExportBatch: 2000.00 ms" in result.stdout
+
+
 def _write_manifest(game_files: Path, app_id: str, build_id: str) -> None:
     steamapps = game_files / "steamapps"
     steamapps.mkdir(parents=True)

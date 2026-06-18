@@ -214,21 +214,32 @@ class ExportProfileRecorder:
         self._write_artifacts()
 
     def latest_summary_markdown(self) -> str:
-        """Return a compact Markdown summary for the current run."""
-        ordered = sorted(self.spans, key=lambda span: span.duration_ms, reverse=True)
-        lines = [
-            f"# Export Profile {self.run_id}",
-            "",
-            f"Variant: `{self.variant}`",
-            f"Status: `{self.status}`",
-            "",
-            "## Top spans",
-            "",
-        ]
-        for span in ordered[:20]:
-            lines.append(f"- `{span.name}` — {span.duration_ms:.2f} ms")
-        lines.append("")
-        return "\n".join(lines)
+        """Return a Markdown summary for the current run."""
+        report = ExportProfileReport(
+            root=self.root,
+            run={
+                "run_id": self.run_id,
+                "variant": self.variant,
+                "status": self.status,
+                "started_at": self._iso(self.started_at),
+                "ended_at": self._iso(self.ended_at) if self.ended_at is not None else None,
+            },
+            spans=[
+                {
+                    "name": span.name,
+                    "category": span.category,
+                    "duration_ms": span.duration_ms,
+                    "attributes": span.attributes,
+                }
+                for span in self.spans
+            ],
+        )
+        return report.to_markdown()
+
+    @classmethod
+    def load_latest(cls, root: Path) -> ExportProfileReport:
+        """Load the latest durable profile report from a profile root."""
+        return ExportProfileReport.load_latest(root)
 
     @staticmethod
     def _make_run_id(variant: str, game_build_id: str | None) -> str:
@@ -504,3 +515,116 @@ class ExportProfileRecorder:
     @staticmethod
     def _from_iso(timestamp: str) -> float:
         return datetime.fromisoformat(timestamp).timestamp()
+
+
+class ExportProfileReport:
+    """Render durable extraction profile runs for humans and agents."""
+
+    def __init__(self, root: Path, run: dict[str, Any], spans: list[dict[str, Any]]) -> None:
+        self.root = root
+        self.run = run
+        self.spans = sorted(spans, key=lambda span: float(span["duration_ms"]), reverse=True)
+
+    @classmethod
+    def load_latest(cls, root: Path) -> ExportProfileReport:
+        """Load the active profile run, or the most recent finished run."""
+        db_path = root / "export-runs.sqlite"
+        if not db_path.exists():
+            raise FileNotFoundError(f"No profile runs found in {root}")
+
+        active_path = root / "current-run.json"
+        active = json.loads(active_path.read_text()) if active_path.exists() else None
+        with closing(sqlite3.connect(db_path)) as conn:
+            conn.row_factory = sqlite3.Row
+            if active is not None:
+                run = conn.execute(
+                    "SELECT * FROM export_profile_runs WHERE run_id = ?",
+                    (active["run_id"],),
+                ).fetchone()
+            else:
+                run = conn.execute("SELECT * FROM export_profile_runs ORDER BY started_at DESC LIMIT 1").fetchone()
+            if run is None:
+                raise FileNotFoundError(f"No profile runs found in {root}")
+            spans = conn.execute(
+                "SELECT * FROM export_profile_spans WHERE run_id = ? ORDER BY duration_ms DESC",
+                (run["run_id"],),
+            ).fetchall()
+        return cls(root, dict(run), [dict(span) for span in spans])
+
+    def to_markdown(self) -> str:
+        run_id = str(self.run["run_id"])
+        unity_subprocess = self._duration("unity.batch_subprocess")
+        export_batch = self._duration("unity.ExportBatch")
+        overhead = max(0.0, unity_subprocess - export_batch)
+        lines = [
+            f"# Export Profile {run_id}",
+            "",
+            f"Variant: `{self.run['variant']}`",
+            f"Status: `{self.run['status']}`",
+            "",
+            "## Top stages",
+            "",
+        ]
+        for index, span in enumerate(self.spans[:10], start=1):
+            lines.append(f"{index}. `{span['name']}` — {float(span['duration_ms']):.2f} ms")
+        lines.extend(
+            [
+                "",
+                "## Unity overhead",
+                "",
+                f"Unity subprocess: {unity_subprocess:.2f} ms",
+                f"Unity ExportBatch: {export_batch:.2f} ms",
+                f"Unity overhead before/after ExportBatch: {overhead:.2f} ms",
+                "",
+                "## Top listener OnAssetFound",
+                "",
+            ]
+        )
+        self._append_listener_rows(lines, "listener.OnAssetFound")
+        lines.extend(["", "## Top listener OnScanFinished", ""])
+        self._append_listener_rows(lines, "listener.OnScanFinished")
+        lines.extend(
+            [
+                "",
+                "## Artifacts",
+                "",
+                f"- JSONL: `{self.root / 'runs' / (run_id + '.jsonl')}`",
+                f"- Trace: `{self.root / 'runs' / (run_id + '.trace.json')}`",
+                f"- Markdown: `{self.root / 'runs' / (run_id + '.md')}`",
+                "",
+            ]
+        )
+        return "\n".join(lines)
+
+    def _append_listener_rows(self, lines: list[str], category: str) -> None:
+        listener_spans = [span for span in self.spans if span["category"] == category]
+        if not listener_spans:
+            lines.append("- None recorded")
+            return
+        for index, span in enumerate(listener_spans[:10], start=1):
+            attributes = self._attributes(span)
+            calls = attributes.get("calls")
+            avg_ms = attributes.get("avg_ms")
+            max_ms = attributes.get("max_ms")
+            detail = f"{int(calls):,} calls" if calls is not None else "calls unknown"
+            if avg_ms is not None:
+                detail += f" avg {float(avg_ms):.3f} ms"
+            if max_ms is not None:
+                detail += f" max {float(max_ms):.3f} ms"
+            lines.append(f"{index}. `{span['name']}` — {float(span['duration_ms']):.2f} ms ({detail})")
+
+    def _duration(self, name: str) -> float:
+        for span in self.spans:
+            if span["name"] == name:
+                return float(span["duration_ms"])
+        return 0.0
+
+    @staticmethod
+    def _attributes(span: dict[str, Any]) -> dict[str, Any]:
+        attributes = span.get("attributes")
+        if isinstance(attributes, dict):
+            return attributes
+        raw_attributes = span.get("attributes_json")
+        if isinstance(raw_attributes, str):
+            return cast("dict[str, Any]", json.loads(raw_attributes))
+        return {}
