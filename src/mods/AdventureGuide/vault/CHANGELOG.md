@@ -2,8 +2,8 @@
 
 ## v2026.618.1
 
-- Fix world markers logging a NullReferenceException per marker on some game
-  versions; markers now use their own camera-facing billboard.
+- Fix world markers causing a NullReferenceException on the playtest version of
+  the game.
 
 ## v2026.618.0
 
