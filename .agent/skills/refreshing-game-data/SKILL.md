@@ -63,6 +63,30 @@ Run `pytest tests/integration -v` against this variant. **Do not** run `golden c
 ### 7. Tile capture for new zones
 Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `zone-capture-config.json`. For each new scene, follow `skill://tile-capture` end-to-end: bounds discovery, config entry, `DISPLAY_NAMES`, `capture run`, verification, commit per zone. New zones also need a `zone-positions.json` entry — see `skill://interactive-map`.
 
+## Timing and profiling refreshes
+
+Extraction commands persist profile runs under `variants/{variant}/profiles/`.
+Use them to separate Steam download, AssetRipper, Unity subprocess overhead,
+Unity C# export, listener `OnAssetFound`, listener `OnScanFinished`, code-facts,
+and clean build cost before optimizing.
+
+```bash
+uv run erenshor -V playtest extract profile report --latest
+```
+
+For slow Unity exports, rerun only the export with listener profiling:
+
+```bash
+uv run erenshor -V playtest extract export --profile
+```
+
+Compare `unity.batch_subprocess` against Unity's `[EXPORT_COMPLETE]` or
+`unity.ExportBatch` span. Large gaps before the C# export usually mean Unity
+license refresh, package restore, asset import, or script compilation rather
+than listener work. Use `listener.OnAssetFound.*` rows for per-asset extraction
+cost and `listener.OnScanFinished.*` rows for table creation/delete/insert cost.
+Open the `.trace.json` artifact in Perfetto when the nested timeline matters.
+
 ## Variant safety rules
 
 Three actions, when run with a non-main variant, silently affect main. Confirm the variant is the canonical shipping variant before running, or skip:
