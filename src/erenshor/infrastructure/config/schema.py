@@ -334,7 +334,17 @@ class ModsConfig(BaseModel):
             "Directory with the Lunaris compile libraries (ImGui.NET.dll, "
             "Newtonsoft.Json.dll, 0Harmony.dll, ...) extracted from LunarisLibs.zip. "
             "Overridden by the ERENSHOR_LUNARIS_LIB_DIR environment variable. Set in "
-            ".erenshor/config.local.toml to point at your extracted copy."
+            ".erenshor/config.local.toml to point at your extracted copy, or leave it "
+            "empty to auto-fetch LunarisLibs.zip into .erenshor/cache."
+        ),
+    )
+
+    lunaris_libs_url: str = Field(
+        default="https://github.com/MizukiBelhi/Lunaris/releases/download/Libs/LunarisLibs.zip",
+        description=(
+            "URL of the LunarisLibs.zip archive (ImGui.NET, Newtonsoft.Json, "
+            "0Harmony, ...). Auto-fetched and cached under .erenshor/cache when "
+            "lunaris_lib_dir is empty and ERENSHOR_LUNARIS_LIB_DIR is unset."
         ),
     )
 

@@ -681,3 +681,9 @@ class TestModsConfig:
         resolved = config.resolved_lunaris_lib_dir(tmp_path)
         assert resolved == Path.home() / "Projects/Lunaris/Lunaris/Embeds"
         assert resolved.is_absolute()
+
+    def test_default_lunaris_libs_url_points_at_lunaris_release(self):
+        """The default auto-fetch URL targets the published LunarisLibs.zip."""
+        config = ModsConfig()
+        assert config.lunaris_libs_url.endswith("/LunarisLibs.zip")
+        assert "MizukiBelhi/Lunaris" in config.lunaris_libs_url

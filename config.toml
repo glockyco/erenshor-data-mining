@@ -62,7 +62,7 @@ config_manager_url = "https://github.com/BepInEx/BepInEx.ConfigurationManager/re
 # Directory with the Lunaris compile libraries (ImGui.NET.dll, Newtonsoft.Json.dll,
 # 0Harmony.dll, ...) extracted from LunarisLibs.zip. Overridden by the
 # ERENSHOR_LUNARIS_LIB_DIR environment variable. Set in .erenshor/config.local.toml
-# to point at your extracted copy.
+# to point at your extracted copy. Leave empty to auto-fetch and cache it (see lunaris_libs_url).
 # Example: lunaris_lib_dir = "$HOME/Projects/Lunaris/Lunaris/Embeds"
 lunaris_lib_dir = ""
 

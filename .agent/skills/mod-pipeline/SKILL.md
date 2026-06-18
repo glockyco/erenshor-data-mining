@@ -86,10 +86,13 @@ are incomplete (no `ImGui.NET.dll`) and may differ from what Lunaris loads at ru
 Resolution order (highest first):
 1. `ERENSHOR_LUNARIS_LIB_DIR` environment variable
 2. `[global.mods] lunaris_lib_dir` in `.erenshor/config.local.toml`
+3. Auto-fetched cache: `mod setup` downloads `LunarisLibs.zip` (from `[global.mods]
+   lunaris_libs_url`) and extracts the DLLs to `.erenshor/cache/lunaris-libs/`
 
 `Lunaris.dll` itself is the loader and is **not** in `LunarisLibs.zip`; it resolves
-from the game install (or `ERENSHOR_LUNARIS_DLL`). Download `LunarisLibs.zip` from
-the Lunaris releases and extract it, then point one of the above at that directory.
+from the game install (or `ERENSHOR_LUNARIS_DLL`). With neither env var nor config
+set, `mod setup` just works by auto-fetching the cache; set `lunaris_lib_dir` only
+to point at a pre-extracted copy (e.g. a local Lunaris source checkout).
 
 ### Publish to Website (CI calls this via prebuild)
 ```bash

@@ -246,6 +246,49 @@ def _configured_lunaris_lib_dir(configured_dir: Path | None) -> Path | None:
     return configured_dir
 
 
+def _ensure_lunaris_libs_cached(repo_root: Path, libs_url: str) -> Path:
+    """Download and extract LunarisLibs.zip into a cached lib directory.
+
+    Lunaris ships its compile libraries in a single LunarisLibs.zip. When neither
+    ERENSHOR_LUNARIS_LIB_DIR nor ``[global.mods] lunaris_lib_dir`` is set, fetch that
+    archive once and cache the extracted DLLs under ``.erenshor/cache`` so that
+    ``mod setup`` works without manual setup. Extraction is atomic, so an interrupted
+    download never leaves a half-populated cache.
+    """
+    import io
+    import tempfile
+    import zipfile
+
+    cache_dir = repo_root / ".erenshor" / "cache" / "lunaris-libs"
+    if cache_dir.is_dir() and any(cache_dir.glob("*.dll")):
+        return cache_dir
+
+    console.print(f"  Downloading Lunaris libraries from {libs_url} ...")
+    req = Request(libs_url, headers={"User-Agent": "erenshor-cli"})
+    try:
+        with urlopen(req, timeout=60) as resp:
+            zip_data = resp.read()
+    except (HTTPError, URLError, TimeoutError) as e:
+        console.print(f"  [red]✗[/red] Failed to download Lunaris libraries: {e}")
+        console.print("  Set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_LIB_DIR instead.")
+        raise typer.Exit(1) from e
+
+    cache_dir.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=cache_dir.parent) as tmp:
+        staging = Path(tmp) / "lunaris-libs"
+        staging.mkdir()
+        with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
+            for entry in zf.namelist():
+                if entry.endswith(".dll"):
+                    (staging / Path(entry).name).write_bytes(zf.read(entry))
+        if cache_dir.exists():
+            shutil.rmtree(cache_dir)
+        staging.replace(cache_dir)
+
+    console.print(f"  [green]✓[/green] Lunaris libraries cached at {cache_dir}")
+    return cache_dir
+
+
 def _build_mods_internal(
     cli_ctx: CLIContext,
     mod: str | None = None,
@@ -374,7 +417,9 @@ def setup(ctx: typer.Context) -> None:
 
     mods_cfg = cli_ctx.config.global_.mods
     configured_lunaris_dir = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
-    lunaris_lib_dir = _configured_lunaris_lib_dir(configured_lunaris_dir)
+    lunaris_lib_dir = _configured_lunaris_lib_dir(configured_lunaris_dir) or _ensure_lunaris_libs_cached(
+        cli_ctx.repo_root, mods_cfg.lunaris_libs_url
+    )
 
     # Copy DLLs to all mod lib directories
     for mod_id, mod_info in MODS.items():

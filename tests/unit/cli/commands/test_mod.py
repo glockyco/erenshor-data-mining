@@ -98,3 +98,42 @@ def test_configured_lunaris_lib_dir_falls_back_to_config(tmp_path: Path, monkeyp
     monkeypatch.delenv("ERENSHOR_LUNARIS_LIB_DIR", raising=False)
     assert _configured_lunaris_lib_dir(config_dir) == config_dir
     assert _configured_lunaris_lib_dir(None) is None
+
+
+def test_ensure_lunaris_libs_cached_extracts_dlls(tmp_path: Path) -> None:
+    """An empty cache is populated by downloading and extracting LunarisLibs.zip."""
+    import zipfile
+
+    from erenshor.cli.commands.mod import _ensure_lunaris_libs_cached
+
+    # Build a stand-in LunarisLibs.zip and serve it over a file:// URL.
+    archive = tmp_path / "LunarisLibs.zip"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("ImGui.NET.dll", b"imgui")
+        zf.writestr("Newtonsoft.Json.dll", b"json")
+        zf.writestr("README.txt", b"ignored")  # non-DLL entries are skipped
+
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    cache_dir = _ensure_lunaris_libs_cached(repo_root, archive.as_uri())
+
+    assert cache_dir == repo_root / ".erenshor" / "cache" / "lunaris-libs"
+    assert (cache_dir / "ImGui.NET.dll").read_bytes() == b"imgui"
+    assert (cache_dir / "Newtonsoft.Json.dll").read_bytes() == b"json"
+    assert not (cache_dir / "README.txt").exists()
+
+
+def test_ensure_lunaris_libs_cached_reuses_populated_cache(tmp_path: Path) -> None:
+    """A populated cache short-circuits without any download attempt."""
+    from erenshor.cli.commands.mod import _ensure_lunaris_libs_cached
+
+    repo_root = tmp_path / "repo"
+    cache_dir = repo_root / ".erenshor" / "cache" / "lunaris-libs"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "ImGui.NET.dll").write_bytes(b"cached")
+
+    # A bogus URL would raise if a download were attempted; it must not be.
+    result = _ensure_lunaris_libs_cached(repo_root, "https://invalid.invalid/missing.zip")
+
+    assert result == cache_dir
+    assert (cache_dir / "ImGui.NET.dll").read_bytes() == b"cached"
