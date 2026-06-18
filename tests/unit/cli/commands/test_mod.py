@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from erenshor.cli.commands.mod import REQUIRED_DLLS
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_required_dlls_cover_adventure_guide_unity_modules() -> None:
@@ -54,3 +58,43 @@ def test_latest_calver_for_prefix_picks_max_revision_order_independent() -> None
     assert _latest_calver_for_prefix(versions, "2026.618") == "2026.618.2"
     assert _latest_calver_for_prefix(versions, "2026.619") is None
     assert _latest_calver_for_prefix([], "2026.618") is None
+
+
+def test_lunaris_shared_lib_sourced_only_from_lib_dir(tmp_path: Path) -> None:
+    """Compile libs come from the resolved lib dir, never scavenged elsewhere."""
+    from erenshor.cli.commands.mod import _find_lunaris_shared_lib
+
+    lib_dir = tmp_path / "libs"
+    lib_dir.mkdir()
+    (lib_dir / "ImGui.NET.dll").write_bytes(b"stub")
+
+    # Present in the lib dir -> found there.
+    assert _find_lunaris_shared_lib("ImGui.NET.dll", lib_dir) == lib_dir / "ImGui.NET.dll"
+
+    # Present in the game install but absent from the lib dir -> NOT found
+    # (the old behaviour scavenged the game/BepInEx install; it no longer does).
+    game = tmp_path / "game"
+    game.mkdir()
+    (game / "Newtonsoft.Json.dll").write_bytes(b"stub")
+    assert _find_lunaris_shared_lib("Newtonsoft.Json.dll", lib_dir) is None
+
+    # No lib dir resolved -> nothing found.
+    assert _find_lunaris_shared_lib("ImGui.NET.dll", None) is None
+
+
+def test_configured_lunaris_lib_dir_prefers_env_over_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from erenshor.cli.commands.mod import _configured_lunaris_lib_dir
+
+    env_dir = tmp_path / "env"
+    config_dir = tmp_path / "config"
+    monkeypatch.setenv("ERENSHOR_LUNARIS_LIB_DIR", str(env_dir))
+    assert _configured_lunaris_lib_dir(config_dir) == env_dir
+
+
+def test_configured_lunaris_lib_dir_falls_back_to_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from erenshor.cli.commands.mod import _configured_lunaris_lib_dir
+
+    config_dir = tmp_path / "config"
+    monkeypatch.delenv("ERENSHOR_LUNARIS_LIB_DIR", raising=False)
+    assert _configured_lunaris_lib_dir(config_dir) == config_dir
+    assert _configured_lunaris_lib_dir(None) is None

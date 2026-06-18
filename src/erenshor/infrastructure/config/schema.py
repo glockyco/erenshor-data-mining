@@ -331,10 +331,10 @@ class ModsConfig(BaseModel):
     lunaris_lib_dir: str = Field(
         default="",
         description=(
-            "Directory with Lunaris build libraries (e.g. ImGui.NET.dll) used to "
-            "compile native Lunaris mods. Empty by default; set in "
-            ".erenshor/config.local.toml for libraries the game install does not "
-            "ship. DLLs present in the game install are sourced from there first."
+            "Directory with the Lunaris compile libraries (ImGui.NET.dll, "
+            "Newtonsoft.Json.dll, 0Harmony.dll, ...) extracted from LunarisLibs.zip. "
+            "Overridden by the ERENSHOR_LUNARIS_LIB_DIR environment variable. Set in "
+            ".erenshor/config.local.toml to point at your extracted copy."
         ),
     )
 

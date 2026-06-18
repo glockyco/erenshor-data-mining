@@ -74,6 +74,23 @@ uv run erenshor mod setup              # Copy game DLLs to mod lib/ dirs first
 uv run erenshor mod launch             # Launch the game
 ```
 
+### Lunaris compile libraries (Adventure Guide)
+
+The Adventure Guide is a native **Lunaris** plugin (`loader: "lunaris"`), not a
+BepInEx mod. Its compile-time references — `ImGui.NET.dll`, `Newtonsoft.Json.dll`,
+`System.Numerics.Vectors.dll`, `0Harmony.dll` — are all shipped by Lunaris in a
+single `LunarisLibs.zip`. `mod setup` sources them **only** from the resolved
+Lunaris lib directory; it never scavenges the game or BepInEx install, whose copies
+are incomplete (no `ImGui.NET.dll`) and may differ from what Lunaris loads at runtime.
+
+Resolution order (highest first):
+1. `ERENSHOR_LUNARIS_LIB_DIR` environment variable
+2. `[global.mods] lunaris_lib_dir` in `.erenshor/config.local.toml`
+
+`Lunaris.dll` itself is the loader and is **not** in `LunarisLibs.zip`; it resolves
+from the game install (or `ERENSHOR_LUNARIS_DLL`). Download `LunarisLibs.zip` from
+the Lunaris releases and extract it, then point one of the above at that directory.
+
 ### Publish to Website (CI calls this via prebuild)
 ```bash
 uv run erenshor mod publish            # Build + stage for website deployment

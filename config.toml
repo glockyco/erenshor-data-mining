@@ -59,10 +59,11 @@ script_engine_url = "https://github.com/BepInEx/BepInEx.Debug/releases/download/
 config_manager_url = "https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/download/v18.4.1/BepInEx.ConfigurationManager_BepInEx5_v18.4.1.zip"
 
 [global.mods]
-# Directory with Lunaris build libraries (e.g. ImGui.NET.dll) used to compile
-# native Lunaris mods. Leave empty to source from the game install where
-# possible; set in .erenshor/config.local.toml for libraries the game install
-# does not ship. Example: lunaris_lib_dir = "$HOME/Projects/Lunaris/Lunaris/Embeds"
+# Directory with the Lunaris compile libraries (ImGui.NET.dll, Newtonsoft.Json.dll,
+# 0Harmony.dll, ...) extracted from LunarisLibs.zip. Overridden by the
+# ERENSHOR_LUNARIS_LIB_DIR environment variable. Set in .erenshor/config.local.toml
+# to point at your extracted copy.
+# Example: lunaris_lib_dir = "$HOME/Projects/Lunaris/Lunaris/Embeds"
 lunaris_lib_dir = ""
 
 [variants.main]

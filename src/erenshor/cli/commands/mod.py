@@ -220,26 +220,30 @@ def _find_lunaris_dll(game_path: Path, lunaris_lib_dir: Path | None) -> Path | N
     return next((c for c in candidates if c.is_file()), None)
 
 
-def _find_lunaris_shared_lib(dll_name: str, game_path: Path, lunaris_lib_dir: Path | None) -> Path | None:
-    """Locate a Lunaris-provided shared library for compilation.
+def _find_lunaris_shared_lib(dll_name: str, lib_dir: Path | None) -> Path | None:
+    """Locate a Lunaris-provided compile library in the resolved lib directory.
 
-    Resolution order: the ERENSHOR_LUNARIS_LIB_DIR override, then the per-machine
-    game install (root, BepInEx, Managed), then the configured Lunaris build
-    directory for libraries the game does not ship (e.g. ImGui.NET.dll).
+    Lunaris ships these libraries (ImGui.NET, Newtonsoft.Json, 0Harmony, ...) in a
+    single LunarisLibs.zip, so they are sourced only from the resolved Lunaris lib
+    directory -- never scavenged from the game or BepInEx install, whose copies may
+    be absent (ImGui.NET) or a different version than Lunaris loads at runtime.
     """
-    candidates: list[Path] = []
+    if lib_dir is None:
+        return None
+    source = lib_dir / dll_name
+    return source if source.is_file() else None
+
+
+def _configured_lunaris_lib_dir(configured_dir: Path | None) -> Path | None:
+    """Resolve the Lunaris compile-library directory from env or config.
+
+    The ERENSHOR_LUNARIS_LIB_DIR environment variable overrides the configured
+    ``[global.mods] lunaris_lib_dir``. Returns ``None`` when neither is set.
+    """
     env_dir = os.environ.get("ERENSHOR_LUNARIS_LIB_DIR")
     if env_dir:
-        candidates.append(Path(env_dir) / dll_name)
-    candidates += [
-        game_path / dll_name,
-        game_path / "BepInEx" / "plugins" / dll_name,
-        game_path / "BepInEx" / "core" / dll_name,
-        _get_managed_dir(game_path) / dll_name,
-    ]
-    if lunaris_lib_dir is not None:
-        candidates.append(lunaris_lib_dir / dll_name)
-    return next((c for c in candidates if c.is_file()), None)
+        return Path(env_dir)
+    return configured_dir
 
 
 def _build_mods_internal(
@@ -369,7 +373,8 @@ def setup(ctx: typer.Context) -> None:
     bepinex_core_dir = game_path / "BepInEx" / "core"
 
     mods_cfg = cli_ctx.config.global_.mods
-    lunaris_lib_dir = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
+    configured_lunaris_dir = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
+    lunaris_lib_dir = _configured_lunaris_lib_dir(configured_lunaris_dir)
 
     # Copy DLLs to all mod lib directories
     for mod_id, mod_info in MODS.items():
@@ -409,7 +414,7 @@ def setup(ctx: typer.Context) -> None:
                 console.print(f"  [green]✓[/green] Lunaris.dll (from {lunaris_dll.parent})")
 
             for dll_name in mod_info.get("lunaris_dlls", []):
-                lunaris_source = _find_lunaris_shared_lib(dll_name, game_path, lunaris_lib_dir)
+                lunaris_source = _find_lunaris_shared_lib(dll_name, lunaris_lib_dir)
                 if lunaris_source is None:
                     missing.append(dll_name)
                     console.print(
