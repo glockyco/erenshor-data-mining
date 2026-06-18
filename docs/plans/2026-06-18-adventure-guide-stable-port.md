@@ -23,8 +23,8 @@
 ## Design Decisions & Improvements
 
 1. **First-class loader field (keep).** `ModInfo.loader: "lunaris" | "bepinex"` (absent ⇒ bepinex) with `lunaris_dlls`. This is the branch's design and is clean; keep it.
-2. **IMPROVEMENT — no machine-specific paths.** The branch's `_find_lunaris_dll`/`_find_lunaris_shared_lib` hardcode `~/Projects/Lunaris/...`. Replace with: (a) the game's Lunaris install (`game_path`) where available, (b) a configured `lunaris_lib_dir` resolved through the existing config system (`resolved_*` pattern, per AGENTS.md), (c) env override (`ERENSHOR_LUNARIS_DLL` / `ERENSHOR_LUNARIS_LIB_DIR`). No `~/Projects` literals in code. (Task 6.)
-3. **IMPROVEMENT — 0Harmony provenance.** The stable AG needs `0Harmony.dll` in `lib/` at compile time. main's `setup` copies it from `BepInEx/core`, which a Lunaris-only install may lack. `setup` for a Lunaris mod must source `0Harmony.dll` from the configured Lunaris lib dir (Lunaris bundles Harmony), falling back to BepInEx if present. (Task 6.)
+2. **IMPROVEMENT — no machine-specific paths.** The branch's `_find_lunaris_dll`/`_find_lunaris_shared_lib` hardcode `~/Projects/Lunaris/...`. Replace with: (a) the game's Lunaris install (`game_path`) where available, (b) a configured `lunaris_lib_dir` resolved through the existing config system (`resolved_*` pattern, per AGENTS.md), (c) env override (`ERENSHOR_LUNARIS_DLL` / `ERENSHOR_LUNARIS_LIB_DIR`). No `~/Projects` literals in code. (Task 5.)
+3. **IMPROVEMENT — 0Harmony provenance.** The stable AG needs `0Harmony.dll` in `lib/` at compile time. main's `setup` copies it from `BepInEx/core`, which a Lunaris-only install may lack. `setup` for a Lunaris mod must source `0Harmony.dll` from the configured Lunaris lib dir (Lunaris bundles Harmony), falling back to BepInEx if present. (Task 5.)
 4. **No private ImGui binaries.** The stable AG must NOT ship `resources/cimgui.dll` or reference `ImGui.NET` as a NuGet package; it uses Lunaris-provided `ImGui.NET.dll`/`cimgui`. The branch's csproj already does this — bring it verbatim.
 5. **Test surface swap (lightweight by design).** Delete main's `src/mods/AdventureGuide/tests/AdventureGuide.Tests/` (it tests the deleted rewrite) and bring the stable AG's Python tests (`tests/unit/mods/test_adventure_guide_*.py`). Do NOT recreate a C# test project: main's harness needed a `CopyBepInExRuntime` target and `GeneratePathProperty` shims just to JIT-load types — a setup more complex than the code it guarded. The mod's Unity/ImGui-coupled behavior is verified by the in-game smoke (Task 8 Step 2); the JSON data contract by a lightweight Python schema test (Task 8 Step 1). That boundary is deliberate, not an oversight.
 6. **Rewrite design docs are historical.** Leave main's `docs/superpowers/specs/*adventure-guide*` and related plan docs in place (project history). The mod's own `README.md`/`AGENTS.md` are replaced with the stable Lunaris versions.
@@ -54,6 +54,8 @@
 - `tests/unit/cli/commands/test_mod.py` (loader behavior)
 
 ---
+
+**Commit invariant:** the pre-commit hook runs ruff, `mypy src/`, and `pytest tests/unit` on any staged `*.py`. Any task that stages a `.py` file MUST leave `uv run pytest tests/unit -q` green before committing; tasks staging only non-`.py` files (C#, toml, md) skip the pytest gate. The ported AG Python tests assert the Lunaris/Thunderstore-flipped registry, so they are imported and committed in Task 6 — after the `mod.py` change (Task 4).
 
 ### Task 1: Remove main's AdventureGuide rewrite
 
@@ -110,36 +112,7 @@ git add src/mods/AdventureGuide
 git commit -m "feat(mod): add stable Lunaris Adventure Guide"
 ```
 
-### Task 3: Port the AdventureGuide Python tests
-
-**Files:**
-- Create (from branch): `tests/unit/mods/test_adventure_guide_*.py`
-- Verify: no orphaned references to the removed C# tests
-
-- [ ] **Step 1: Bring the stable AG Python tests**
-
-```bash
-git checkout adventure-guide-thunderstore-lunaris -- tests/unit/mods
-```
-
-- [ ] **Step 2: Confirm the test files arrived**
-
-Run: `ls tests/unit/mods/`
-Expected: `test_adventure_guide_font.py`, `test_adventure_guide_lunaris.py`, `test_adventure_guide_quest_list.py`, `test_adventure_guide_renderer.py`, `test_adventure_guide_shortcuts.py`, `test_adventure_guide_style.py`, `test_adventure_guide_vault.py`.
-
-- [ ] **Step 3: Run them (some will fail until Task 4-6 land registry/loader changes)**
-
-Run: `uv run pytest tests/unit/mods -q`
-Expected: `test_adventure_guide_vault.py` passes (asserts vault assets + no Thunderstore wiring — the latter depends on Task 5); renderer/shortcut/style/quest-list/font tests assert AG source content and should pass now. Note any failures tied to `mod.py` (resolved in Task 5).
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add tests/unit/mods
-git commit -m "test(mod): port stable Adventure Guide tests"
-```
-
-### Task 4: Add a failing test for Lunaris loader support in the CLI
+### Task 3: Add a failing test for Lunaris loader support in the CLI
 
 **Files:**
 - Test: `tests/unit/cli/commands/test_mod.py`
@@ -177,7 +150,7 @@ def test_lunaris_mods_deploy_to_plugins_not_bepinex(tmp_path) -> None:
 Run: `uv run pytest tests/unit/cli/commands/test_mod.py -q`
 Expected: FAIL — `KeyError: 'loader'` / `_get_deploy_target_dir` not defined.
 
-### Task 5: Port the Lunaris loader support onto main's mod.py
+### Task 4: Port the Lunaris loader support onto main's mod.py
 
 **Files:**
 - Modify: `src/erenshor/cli/commands/mod.py`
@@ -222,24 +195,19 @@ Reference implementation: `git show adventure-guide-thunderstore-lunaris:src/ere
 
 - [ ] **Step 5: Rewrite `deploy`** to compute the target per-mod via `_get_deploy_target_dir` inside the loop and gate `--scripts` for lunaris mods (verbatim from the reference diff).
 
-- [ ] **Step 6: Run the Task 4 tests to verify they pass**
+- [ ] **Step 6: Run the Task 3 tests to verify they pass**
 
 Run: `uv run pytest tests/unit/cli/commands/test_mod.py -q`
 Expected: PASS.
 
-- [ ] **Step 7: Run the AG vault test (Thunderstore-removal assertion now satisfied)**
-
-Run: `uv run pytest tests/unit/mods/test_adventure_guide_vault.py -q`
-Expected: PASS.
-
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/erenshor/cli/commands/mod.py tests/unit/cli/commands/test_mod.py
 git commit -m "feat(cli): add Lunaris loader support for mod build/deploy"
 ```
 
-### Task 6: Configure Lunaris lib sourcing (no machine-specific paths)
+### Task 5: Configure Lunaris lib sourcing (no machine-specific paths)
 
 **Files:**
 - Modify: `src/erenshor/infrastructure/config/schema.py`, `src/erenshor/infrastructure/config/paths.py` (or wherever `resolved_*` path accessors live — confirm by reading)
@@ -272,6 +240,39 @@ Expected: PASS.
 ```bash
 git add src/erenshor/infrastructure/config config.toml src/erenshor/cli/commands/mod.py tests/unit/infrastructure/config
 git commit -m "feat(config): resolve Lunaris build libraries from config not hardcoded paths"
+```
+
+### Task 6: Port the AdventureGuide Python tests
+
+**Files:**
+- Create (from branch): `tests/unit/mods/test_adventure_guide_*.py`
+
+- [ ] **Step 1: Bring the stable AG Python tests**
+
+```bash
+git checkout adventure-guide-thunderstore-lunaris -- tests/unit/mods
+```
+
+- [ ] **Step 2: Confirm the files arrived**
+
+Run: `ls tests/unit/mods/`
+Expected: `test_adventure_guide_font.py`, `test_adventure_guide_lunaris.py`, `test_adventure_guide_quest_list.py`, `test_adventure_guide_renderer.py`, `test_adventure_guide_shortcuts.py`, `test_adventure_guide_style.py`, `test_adventure_guide_vault.py`.
+
+- [ ] **Step 3: Run them — all should pass now**
+
+Run: `uv run pytest tests/unit/mods -q`
+Expected: PASS. `test_adventure_guide_vault.py`'s Thunderstore-removal + Lunaris assertions hold because Task 4 flipped the registry; the renderer/shortcut/style/quest-list/font tests assert the AG source brought in Task 2. If anything fails, STOP — a prior task is incomplete.
+
+- [ ] **Step 4: Confirm the whole unit suite is green before committing**
+
+Run: `uv run pytest tests/unit -q`
+Expected: PASS (this is exactly what the pre-commit hook runs on the staged `.py` files).
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tests/unit/mods
+git commit -m "test(mod): port stable Adventure Guide tests"
 ```
 
 ### Task 7: Set up libs and build the mod
@@ -371,7 +372,7 @@ The port does not change the data pipeline, so golden baselines should be unaffe
 
 ## Self-Review Checklist (author runs before handoff)
 
-1. **Spec coverage:** loader swap (T1-T2), test swap (T1,T3), CLI Lunaris support (T4-T5), no-hardcoded-paths + 0Harmony (T6), build (T7), data validation + runtime (T8), docs (T9), full verify (T10). ✓
+1. **Spec coverage:** loader swap (T1-T2), CLI Lunaris support (T3-T4), config no-hardcoded-paths + 0Harmony (T5), test swap (T1, T6), build (T7), data validation + runtime (T8), docs (T9), full verify (T10). ✓
 2. **Placeholders:** none — file moves use exact `git checkout` commands; mod.py changes are quoted; config task references the real files to read first.
 3. **Type/name consistency:** `loader`, `lunaris_dlls`, `_get_deploy_target_dir`, `_get_lunaris_plugins_dir`, `_find_lunaris_dll`, `_find_lunaris_shared_lib`, `resolved_lunaris_lib_dir` used consistently.
 4. **Preserve-everything-else:** only `src/mods/AdventureGuide/**`, `tests/unit/mods/test_adventure_guide_*`, `mod.py`, config files, and minimal docs are touched. No wiki/export/pipeline/maps files. ✓
