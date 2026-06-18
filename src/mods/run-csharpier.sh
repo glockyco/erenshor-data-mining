@@ -4,8 +4,9 @@ set -euo pipefail
 repo_root=$(git rev-parse --show-toplevel)
 
 if [ "$#" -eq 0 ]; then
-	echo "run-csharpier.sh expects one or more repo-relative C# file paths" >&2
-	exit 1
+	# No C# files to format (e.g. a deletion-only commit, where lefthook
+	# filters out the removed paths). Nothing to do.
+	exit 0
 fi
 
 mod_dirs=()
