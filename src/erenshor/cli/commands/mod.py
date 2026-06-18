@@ -39,6 +39,8 @@ class ModInfo(TypedDict):
     dll_name: str
     thunderstore: NotRequired[str]
     bepinex_dlls: NotRequired[list[str]]
+    loader: NotRequired[str]
+    lunaris_dlls: NotRequired[list[str]]
 
 
 app = typer.Typer(
@@ -85,8 +87,13 @@ MODS: dict[str, ModInfo] = {
         "dir": "src/mods/AdventureGuide",
         "name": "Adventure Guide",
         "dll_name": "AdventureGuide.dll",
+        "loader": "lunaris",
         "bepinex_dlls": ["0Harmony.dll"],
-        "thunderstore": "WoW_Much/AdventureGuide",
+        "lunaris_dlls": [
+            "ImGui.NET.dll",
+            "Newtonsoft.Json.dll",
+            "System.Numerics.Vectors.dll",
+        ],
     },
 }
 
@@ -148,6 +155,11 @@ def _get_bepinex_plugins_dir(game_path: Path) -> Path:
     return game_path / "BepInEx" / "plugins"
 
 
+def _get_lunaris_plugins_dir(game_path: Path) -> Path:
+    """Get the native Lunaris plugins directory (next to Erenshor.exe)."""
+    return game_path / "plugins"
+
+
 def _get_bepinex_scripts_dir(game_path: Path) -> Path:
     """Get the BepInEx scripts directory (for ScriptEngine hot reload)."""
     return game_path / "BepInEx" / "scripts"
@@ -173,6 +185,23 @@ def _get_mod_output_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
 def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
     """Get the web publish directory for mod downloads."""
     return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
+
+
+def _get_deploy_target_dir(mod_id: str, game_path: Path, *, scripts: bool) -> tuple[Path, str, bool]:
+    """Return the deploy target directory, a human label, and whether to copy PDBs.
+
+    Native Lunaris mods deploy to ``plugins/`` next to Erenshor.exe and do not
+    support ``--scripts``. BepInEx mods deploy to ``BepInEx/plugins`` (or
+    ``BepInEx/scripts`` with ``--scripts`` for ScriptEngine hot reload).
+    """
+    if MODS[mod_id].get("loader") == "lunaris":
+        if scripts:
+            raise ValueError("--scripts is only supported for BepInEx mods")
+        return _get_lunaris_plugins_dir(game_path), "Lunaris plugins", False
+
+    if scripts:
+        return _get_bepinex_scripts_dir(game_path), "BepInEx/scripts (hot reload)", True
+    return _get_bepinex_plugins_dir(game_path), "BepInEx/plugins", False
 
 
 def _build_mods_internal(
@@ -458,13 +487,11 @@ def deploy(
         False, "--scripts", help="Deploy to BepInEx/scripts/ for hot reload (requires ScriptEngine)"
     ),
 ) -> None:
-    """Build and deploy mods to BepInEx.
+    """Build and deploy mods to their configured loader directory.
 
-    Copies the built DLL to the BepInEx plugins folder (default) or the
-    scripts folder (--scripts) for hot reload via ScriptEngine.
-
-    Use --scripts during development: build, deploy, press F6 in game.
-    Use default for production: deploy to plugins, restart game.
+    Native Lunaris mods deploy to ``plugins/`` next to Erenshor.exe. BepInEx
+    mods deploy to ``BepInEx/plugins`` by default, or ``BepInEx/scripts`` with
+    ``--scripts`` for ScriptEngine hot reload (BepInEx only).
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -483,24 +510,20 @@ def deploy(
         console.print("Set ERENSHOR_GAME_PATH environment variable.")
         raise typer.Exit(1)
 
-    if scripts:
-        target_dir = _get_bepinex_scripts_dir(game_path)
-        target_dir.mkdir(parents=True, exist_ok=True)
-        deploy_label = "BepInEx/scripts (hot reload)"
-    else:
-        target_dir = _get_bepinex_plugins_dir(game_path)
-        target_dir.mkdir(parents=True, exist_ok=True)
-        deploy_label = "BepInEx/plugins"
-
-    console.print()
-    console.print(f"[bold]Deploying to {deploy_label}...[/bold]")
-    console.print(f"[dim]Target: {target_dir}[/dim]")
-    console.print()
-
-    # Determine which mods to deploy
     mods_to_deploy = [mod] if mod else list(MODS.keys())
+    if scripts and any(MODS[mod_id].get("loader") == "lunaris" for mod_id in mods_to_deploy):
+        console.print("[red]Error: --scripts is only supported for BepInEx mods[/red]")
+        raise typer.Exit(1)
+
+    console.print()
+    console.print("[bold]Deploying...[/bold]")
+    console.print()
 
     for mod_id in mods_to_deploy:
+        target_dir, deploy_label, copy_pdb = _get_deploy_target_dir(mod_id, game_path, scripts=scripts)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        console.print(f"[bold]{MODS[mod_id]['name']} → {deploy_label}[/bold]")
+        console.print(f"[dim]Target: {target_dir}[/dim]")
         output_dir = _get_mod_output_dir(cli_ctx, mod_id)
         if not output_dir.exists():
             console.print(f"[red]Error: Build output not found: {output_dir}[/red]")
@@ -516,7 +539,7 @@ def deploy(
         shutil.copy2(mod_dll, target)
 
         # Also copy PDB for ScriptEngine debug symbols
-        if scripts:
+        if copy_pdb:
             pdb_name = dll_name.replace(".dll", ".pdb")
             mod_pdb = output_dir / pdb_name
             if mod_pdb.exists():
@@ -527,7 +550,7 @@ def deploy(
 
     console.print()
     console.print("[green]Deploy complete![/green]")
-    console.print("[dim]Note: All dependencies are merged into DLLs via ILRepack[/dim]")
+    console.print("[dim]Native Lunaris mods rely on loader-provided shared libraries[/dim]")
     console.print()
 
 
