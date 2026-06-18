@@ -30,6 +30,8 @@ using Debug = UnityEngine.Debug;
 /// - `-dbPath <path>`: Database output path (required)
 /// - `-entities <list>`: Comma-separated entity types to export (optional, default: all)
 /// - `-logLevel <level>`: Logging verbosity - quiet, normal, verbose (optional, default: normal)
+/// - `-profile <true|false>`: Enables listener profiling (optional, default: false)
+/// - `-profileOutput <path>`: Writes listener profile JSON when profiling is enabled
 ///
 /// Available entity types:
 /// achievementtriggers, ascensions, books, characters, classes, doors, forges,
@@ -79,7 +81,8 @@ public static class ExportBatch
             ValidateDatabasePath(args.dbPath);
 
             // Create scanner and database connection
-            AssetScanner scanner = new AssetScanner();
+            AssetScanProfiler profiler = new AssetScanProfiler(args.profile, args.profileOutput);
+            AssetScanner scanner = new AssetScanner(profiler);
 
             using (SQLiteConnection db = new SQLiteConnection(args.dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             {
@@ -138,6 +141,8 @@ public static class ExportBatch
         public string dbPath;
         public HashSet<string> entityTypes;
         public LogLevel logLevel;
+        public bool profile;
+        public string profileOutput;
     }
 
     /// <summary>
@@ -152,7 +157,9 @@ public static class ExportBatch
         {
             dbPath = string.Empty,
             entityTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase),
-            logLevel = LogLevel.Normal
+            logLevel = LogLevel.Normal,
+            profile = false,
+            profileOutput = string.Empty
         };
 
         for (int i = 0; i < args.Length - 1; i++)
@@ -187,6 +194,16 @@ public static class ExportBatch
                         "verbose" => LogLevel.Verbose,
                         _ => throw new ArgumentException($"Invalid log level: {args[i + 1]}. Valid options: quiet, normal, verbose")
                     };
+                    i++;
+                    break;
+
+                case "-profile":
+                    result.profile = string.Equals(args[i + 1], "true", StringComparison.OrdinalIgnoreCase);
+                    i++;
+                    break;
+
+                case "-profileOutput":
+                    result.profileOutput = args[i + 1];
                     i++;
                     break;
             }

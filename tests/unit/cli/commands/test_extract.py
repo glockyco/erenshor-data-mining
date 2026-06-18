@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from contextlib import closing
 from pathlib import Path
@@ -7,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typer.testing import CliRunner
 
 from erenshor.cli.commands import extract
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
@@ -33,6 +35,13 @@ def _context(tmp_path: Path, variant: VariantStub) -> SimpleNamespace:
         dry_run=False,
         config=SimpleNamespace(variants={"playtest": variant}),
     )
+
+
+def test_export_help_lists_profile_option() -> None:
+    result = CliRunner().invoke(extract.app, ["export", "--help"])
+
+    assert result.exit_code == 0
+    assert "--profile" in result.stdout
 
 
 def _write_manifest(game_files: Path, app_id: str, build_id: str) -> None:
@@ -137,3 +146,51 @@ def test_profile_command_marks_failed_run(tmp_path: Path) -> None:
 
     assert run == ("failed", "extract export", "failed")
     assert span == ("extract export", 500.0, "failed")
+
+
+def test_import_unity_profile_output_records_listener_spans(tmp_path: Path) -> None:
+    clock = MockClock()
+    variant = VariantStub(tmp_path)
+    profile = ExportProfileRecorder.open_or_create(
+        root=variant.resolved_profiles(tmp_path),
+        variant="playtest",
+        command="extract export",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version=None,
+        machine="darwin-arm64",
+        clock=clock,
+    )
+    with profile.span("unity.batch_subprocess", category="unity"):
+        clock.advance(10.0)
+    output_path = tmp_path / "unity-profile.json"
+    output_path.write_text(
+        json.dumps(
+            [
+                {
+                    "category": "listener.OnAssetFound",
+                    "name": "CharacterListener",
+                    "calls": 100,
+                    "total_ms": 3000.0,
+                    "avg_ms": 30.0,
+                    "max_ms": 50.0,
+                    "first_start_ms": 2000.0,
+                }
+            ]
+        )
+    )
+
+    extract._import_unity_profile_output(profile, output_path)
+
+    with closing(sqlite3.connect(profile.root / "export-runs.sqlite")) as conn:
+        row = conn.execute(
+            """
+            SELECT name, category, duration_ms, attributes_json
+            FROM export_profile_spans
+            WHERE name = 'listener.OnAssetFound.CharacterListener'
+            """,
+        ).fetchone()
+
+    assert row[:3] == ("listener.OnAssetFound.CharacterListener", "listener.OnAssetFound", 3000.0)
+    assert json.loads(row[3]) == {"calls": 100, "avg_ms": 30.0, "max_ms": 50.0}

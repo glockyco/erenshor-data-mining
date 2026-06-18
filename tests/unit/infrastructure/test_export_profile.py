@@ -223,3 +223,39 @@ def test_profile_recorder_marks_failed_runs(tmp_path):
 
     assert status == "failed"
     assert span_status == "failed"
+
+
+def test_profile_recorder_persists_external_unity_span(tmp_path):
+    clock = MockClock()
+    recorder = ExportProfileRecorder.open_or_create(
+        root=tmp_path / "profiles",
+        variant="playtest",
+        command="extract export",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version="1.2.3",
+        machine="darwin-arm64",
+        clock=clock,
+    )
+
+    recorder.record_external_span(
+        "listener.OnAssetFound.CharacterListener",
+        category="listener.OnAssetFound",
+        started_at=recorder.started_at + 2.0,
+        duration_ms=3000.0,
+        attributes={"calls": 100, "avg_ms": 30.0, "max_ms": 50.0},
+    )
+
+    with closing(sqlite3.connect(tmp_path / "profiles" / "export-runs.sqlite")) as conn:
+        row = conn.execute(
+            """
+            SELECT name, category, duration_ms, attributes_json
+            FROM export_profile_spans
+            WHERE run_id = ?
+            """,
+            (recorder.run_id,),
+        ).fetchone()
+
+    assert row[:3] == ("listener.OnAssetFound.CharacterListener", "listener.OnAssetFound", 3000.0)
+    assert json.loads(row[3]) == {"calls": 100, "avg_ms": 30.0, "max_ms": 50.0}

@@ -15,7 +15,7 @@ import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import typer
 from loguru import logger
@@ -189,6 +189,32 @@ def _profile_command(
             profile.finish("ok")
 
 
+def _import_unity_profile_output(profile: ExportProfileRecorder, output_path: Path) -> None:
+    """Import Unity scanner profile rows into the durable profile run."""
+    if not output_path.exists():
+        return
+
+    rows = cast("list[dict[str, Any]]", json.loads(output_path.read_text()))
+    base_started_at = max(
+        (span.started_at for span in profile.spans if span.name == "unity.batch_subprocess"),
+        default=profile.started_at,
+    )
+    for row in rows:
+        category = str(row["category"])
+        name = str(row["name"])
+        profile.record_external_span(
+            f"{category}.{name}",
+            category=category,
+            started_at=base_started_at + (float(row.get("first_start_ms", 0.0)) / 1000.0),
+            duration_ms=float(row["total_ms"]),
+            attributes={
+                "calls": int(row["calls"]),
+                "avg_ms": float(row["avg_ms"]),
+                "max_ms": float(row["max_ms"]),
+            },
+        )
+
+
 @app.command()
 @require_preconditions(steam_credentials_exist)
 def download(
@@ -358,7 +384,14 @@ def rip(ctx: typer.Context) -> None:
     editor_scripts_linked,
     unity_version_matches,
 )
-def export(ctx: typer.Context) -> None:
+def export(
+    ctx: typer.Context,
+    profile: bool = typer.Option(
+        False,
+        "--profile",
+        help="Enable Unity scanner listener profiling and import the rows into the profile run",
+    ),
+) -> None:
     """Export data to SQLite via Unity batch mode.
 
     Runs Unity Editor in batch mode to scan game assets and
@@ -384,16 +417,19 @@ def export(ctx: typer.Context) -> None:
         timeout=unity_config.timeout,
     )
     command_name = "extract export"
-    profile = _open_profile(
+    recorder = _open_profile(
         cli_ctx,
         variant_config,
         command_name,
         unity_version=unity.get_version(),
         assetripper_version=None,
     )
+    profile_output_path = (
+        Path(variant_config.resolved_profiles(cli_ctx.repo_root)) / "runs" / f"{recorder.run_id}.unity.json"
+    )
 
     try:
-        with _profile_command(profile, command_name, cli_ctx):
+        with _profile_command(recorder, command_name, cli_ctx):
             # Clean up old raw database before export
             if database_path.exists():
                 logger.info(f"Removing old raw database: {database_path}")
@@ -425,9 +461,13 @@ def export(ctx: typer.Context) -> None:
                 arguments={
                     "dbPath": str(database_path.absolute()),
                     "logLevel": unity_log_level,
+                    "profile": "true" if profile else "false",
+                    "profileOutput": str(profile_output_path),
                 },
-                profile=profile,
+                profile=recorder,
             )
+            if profile:
+                _import_unity_profile_output(recorder, profile_output_path)
 
             logger.info(f"Raw data exported: raw_db={database_path}, log={log_file}")
             logger.info("Run 'erenshor extract build' to produce the clean database")

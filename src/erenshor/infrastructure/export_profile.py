@@ -163,6 +163,34 @@ class ExportProfileRecorder:
             self._persist_span(span)
             self._write_artifacts()
 
+    def record_external_span(
+        self,
+        name: str,
+        *,
+        category: str,
+        started_at: float,
+        duration_ms: float,
+        attributes: dict[str, Any] | None = None,
+        status: str = "ok",
+    ) -> None:
+        """Persist a span measured outside this Python process."""
+        span_id = f"{self._next_span_id:06d}"
+        self._next_span_id += 1
+        span = ProfileSpan(
+            run_id=self.run_id,
+            span_id=span_id,
+            parent_span_id=None,
+            name=name,
+            category=category,
+            started_at=started_at,
+            ended_at=started_at + (duration_ms / 1000.0),
+            status=status,
+            attributes=attributes if attributes is not None else {},
+        )
+        self.spans.append(span)
+        self._persist_span(span)
+        self._write_artifacts()
+
     def finish_command(self, command: str, status: str) -> None:
         """Record the most recent command result without closing the run."""
         if status == "failed":
