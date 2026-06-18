@@ -1,5 +1,10 @@
 # Changelog
 
+## v2026.618.1
+
+- Fix world markers logging a NullReferenceException per marker on some game
+  versions; markers now use their own camera-facing billboard.
+
 ## v2026.618.0
 
 - First Erenshor Vault release (Lunaris-native build).
