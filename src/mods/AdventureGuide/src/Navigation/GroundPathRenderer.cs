@@ -150,7 +150,14 @@ public sealed class GroundPathRenderer
         // Snap player position to the NavMesh surface. Without this, an
         // airborne player (jumping, falling) produces an off-mesh source
         // position that makes CalculatePath fail, hiding the path mid-jump.
-        if (!NavMesh.SamplePosition(playerPos, out var navHit, PlayerNavSampleRadius, NavMesh.AllAreas))
+        if (
+            !NavMesh.SamplePosition(
+                playerPos,
+                out var navHit,
+                PlayerNavSampleRadius,
+                NavMesh.AllAreas
+            )
+        )
         {
             // Player is too far from any NavMesh surface — keep showing the
             // last valid path rather than hiding it.
@@ -166,11 +173,23 @@ public sealed class GroundPathRenderer
         // Larger radius than player snap since targets can be further
         // from walkable surfaces.
         var pathTarget = targetPos;
-        if (NavMesh.SamplePosition(targetPos, out var targetNavHit, TargetNavSampleRadius, NavMesh.AllAreas))
+        if (
+            NavMesh.SamplePosition(
+                targetPos,
+                out var targetNavHit,
+                TargetNavSampleRadius,
+                NavMesh.AllAreas
+            )
+        )
             pathTarget = targetNavHit.position;
 
         _path.ClearCorners();
-        bool pathFound = NavMesh.CalculatePath(navHit.position, pathTarget, NavMesh.AllAreas, _path);
+        bool pathFound = NavMesh.CalculatePath(
+            navHit.position,
+            pathTarget,
+            NavMesh.AllAreas,
+            _path
+        );
 
         if (!pathFound || _path.status == NavMeshPathStatus.PathInvalid)
         {
@@ -226,7 +245,12 @@ public sealed class GroundPathRenderer
         // Mid: all interior nodes. Completely stable between recalculations.
         // Suppressed when firstNode == lastNode (N=3, single shared anchor).
         if (firstNode < lastNode)
-            _mid!.SetFromCorners(_corners, firstNode, lastNode - firstNode + 1, NavigationDisplay.GroundOffset);
+            _mid!.SetFromCorners(
+                _corners,
+                firstNode,
+                lastNode - firstNode + 1,
+                NavigationDisplay.GroundOffset
+            );
         else
             _mid!.Clear();
     }
@@ -238,7 +262,8 @@ public sealed class GroundPathRenderer
     /// </summary>
     private void UpdateEndpoints(Vector3 playerPos, Vector3 targetPos)
     {
-        if (_stub == null || _cornerCount < 2) return;
+        if (_stub == null || _cornerCount < 2)
+            return;
 
         var elevatedPlayer = playerPos + Vector3.up * NavigationDisplay.GroundOffset;
         var elevatedTarget = targetPos + Vector3.up * NavigationDisplay.GroundOffset;
@@ -258,7 +283,8 @@ public sealed class GroundPathRenderer
 
     private void EnsureSegments()
     {
-        if (_stub != null) return;
+        if (_stub != null)
+            return;
 
         _lineObj = new GameObject("AdventureGuide_GroundPath");
         UnityEngine.Object.DontDestroyOnLoad(_lineObj);
@@ -268,7 +294,7 @@ public sealed class GroundPathRenderer
         // but each gets its own Material so tiling is independent.
         var dashTex = CreateDashTexture();
         _stub = new PathSegment(_lineObj, "Stub", dashTex);
-        _mid  = new PathSegment(_lineObj, "Mid",  dashTex);
+        _mid = new PathSegment(_lineObj, "Mid", dashTex);
         _tail = new PathSegment(_lineObj, "Tail", dashTex);
     }
 
@@ -354,8 +380,10 @@ public sealed class GroundPathRenderer
                 var p = src[start + i];
                 p.y += yOffset;
                 SetAt(i, p);
-                if (i == 0) _anchor = p;
-                else        len += Vector3.Distance(prev, p);
+                if (i == 0)
+                    _anchor = p;
+                else
+                    len += Vector3.Distance(prev, p);
                 prev = p;
             }
             SetTiling(len);
@@ -369,7 +397,8 @@ public sealed class GroundPathRenderer
         internal void UpdateLastPosition(Vector3 pos)
         {
             int last = _core.positionCount - 1;
-            if (last < 1) return;
+            if (last < 1)
+                return;
 
             SetAt(last, pos);
 
@@ -435,7 +464,7 @@ public sealed class GroundPathRenderer
         const int width = 128;
         const int height = 4;
         const float dashFraction = 0.55f; // portion of tile that is the dash
-        const float fadeZone = 0.10f;     // smooth fade at dash edges
+        const float fadeZone = 0.10f; // smooth fade at dash edges
 
         var tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
         tex.wrapMode = TextureWrapMode.Repeat;

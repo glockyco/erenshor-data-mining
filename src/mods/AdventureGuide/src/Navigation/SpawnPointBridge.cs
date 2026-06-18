@@ -16,16 +16,22 @@ public sealed class SpawnPointBridge
     {
         /// <summary>NPC is alive and present at the spawn point.</summary>
         Alive,
+
         /// <summary>NPC died and is respawning (timer running).</summary>
         Dead,
+
         /// <summary>Mining node has been mined and is regenerating.</summary>
         Mined,
+
         /// <summary>Night-only spawn during daytime hours.</summary>
         NightLocked,
+
         /// <summary>Spawn blocked by incomplete quest requirement.</summary>
         QuestGated,
+
         /// <summary>Directly-placed NPC that died — respawns on zone re-entry.</summary>
         DirectlyPlacedDead,
+
         /// <summary>No live SpawnPoint and NPC not found in scene.</summary>
         NotFound,
     }
@@ -39,8 +45,13 @@ public sealed class SpawnPointBridge
         public readonly MiningNode? LiveMiningNode;
         public readonly float RespawnSeconds;
 
-        public SpawnInfo(SpawnState state, SpawnPoint? liveSP = null, NPC? liveNPC = null,
-            MiningNode? miningNode = null, float respawnSeconds = 0f)
+        public SpawnInfo(
+            SpawnState state,
+            SpawnPoint? liveSP = null,
+            NPC? liveNPC = null,
+            MiningNode? miningNode = null,
+            float respawnSeconds = 0f
+        )
         {
             State = state;
             LiveSpawnPoint = liveSP;
@@ -54,7 +65,9 @@ public sealed class SpawnPointBridge
     // Using a struct key avoids string allocation per lookup.
     private readonly struct PosKey : System.IEquatable<PosKey>
     {
-        private readonly int _x, _y, _z;
+        private readonly int _x,
+            _y,
+            _z;
 
         public PosKey(float x, float y, float z)
         {
@@ -64,7 +77,9 @@ public sealed class SpawnPointBridge
         }
 
         public bool Equals(PosKey other) => _x == other._x && _y == other._y && _z == other._z;
+
         public override bool Equals(object? obj) => obj is PosKey other && Equals(other);
+
         public override int GetHashCode() => (_x * 397) ^ (_y * 17) ^ _z;
     }
 
@@ -88,7 +103,8 @@ public sealed class SpawnPointBridge
         {
             foreach (var sp in SpawnPointManager.SpawnPointsInScene)
             {
-                if (sp == null) continue;
+                if (sp == null)
+                    continue;
                 var pos = sp.transform.position;
                 var key = new PosKey(pos.x, pos.y, pos.z);
                 // First SpawnPoint at a position wins (collisions not expected)
@@ -100,7 +116,8 @@ public sealed class SpawnPointBridge
         // One FindObjectsOfType call per scene load, reused for all GetState calls.
         foreach (var npc in UnityEngine.Object.FindObjectsOfType<NPC>())
         {
-            if (npc == null || string.IsNullOrEmpty(npc.NPCName)) continue;
+            if (npc == null || string.IsNullOrEmpty(npc.NPCName))
+                continue;
             var nameKey = npc.NPCName.ToLowerInvariant();
             if (!_npcByName.TryGetValue(nameKey, out var list))
             {
@@ -137,8 +154,12 @@ public sealed class SpawnPointBridge
                 if (IsMiningNodeMined(miningNode))
                 {
                     float seconds = GetMiningNodeRespawnSeconds(miningNode);
-                    return new SpawnInfo(SpawnState.Mined, liveNPC: npc,
-                        miningNode: miningNode, respawnSeconds: seconds);
+                    return new SpawnInfo(
+                        SpawnState.Mined,
+                        liveNPC: npc,
+                        miningNode: miningNode,
+                        respawnSeconds: seconds
+                    );
                 }
                 return new SpawnInfo(SpawnState.Alive, liveNPC: npc, miningNode: miningNode);
             }
@@ -158,8 +179,11 @@ public sealed class SpawnPointBridge
     {
         return sp.MyNPCAlive
             && sp.SpawnedNPC != null
-            && string.Equals(sp.SpawnedNPC.NPCName, expectedName,
-                System.StringComparison.OrdinalIgnoreCase);
+            && string.Equals(
+                sp.SpawnedNPC.NPCName,
+                expectedName,
+                System.StringComparison.OrdinalIgnoreCase
+            );
     }
 
     private static SpawnInfo ClassifySpawnPoint(SpawnPoint sp, string expectedNPCName)
@@ -219,7 +243,8 @@ public sealed class SpawnPointBridge
         foreach (var npc in candidates)
         {
             // Unity fake-null: destroyed since Rebuild
-            if (npc == null) continue;
+            if (npc == null)
+                continue;
             if ((npc.transform.position - target).sqrMagnitude <= MaxDriftSqr)
                 return npc;
         }
@@ -235,8 +260,7 @@ public sealed class SpawnPointBridge
     // ── Mining node helpers ─────────────────────────────────────────
     // Canonical mining state logic lives in MiningNodeTracker.
 
-    public static bool IsMiningNodeMined(MiningNode node) =>
-        MiningNodeTracker.IsMined(node);
+    public static bool IsMiningNodeMined(MiningNode node) => MiningNodeTracker.IsMined(node);
 
     public static float GetMiningNodeRespawnSeconds(MiningNode node) =>
         MiningNodeTracker.GetRemainingSeconds(node) ?? 0f;

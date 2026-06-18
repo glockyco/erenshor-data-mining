@@ -40,7 +40,9 @@ public sealed class NavigationController
     private List<Data.ItemSource> _allItemSources = new();
 
     /// <summary>Source keys in the active navigation set.</summary>
-    private readonly HashSet<string> _activeSourceKeys = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _activeSourceKeys = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
 
     /// <summary>True when the user has manually toggled sources.</summary>
     private bool _manualOverride;
@@ -79,8 +81,14 @@ public sealed class NavigationController
     /// </summary>
     public NavigationTarget? ZoneLineWaypoint { get; private set; }
 
-    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state,
-        SpawnTimerTracker timers, MiningNodeTracker miningTracker, LootScanner lootScanner)
+    public NavigationController(
+        GuideData data,
+        EntityRegistry entities,
+        QuestStateTracker state,
+        SpawnTimerTracker timers,
+        MiningNodeTracker miningTracker,
+        LootScanner lootScanner
+    )
     {
         _data = data;
         _entities = entities;
@@ -137,10 +145,15 @@ public sealed class NavigationController
                     Target = MakeTarget(
                         NavigationTarget.Kind.Character,
                         liveNpc.transform.position,
-                        WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
+                        WithCharacterUnlockText(
+                            step.TargetName ?? step.Description,
+                            step.TargetKey
+                        ),
                         currentScene,
-                        quest.DBName, step.Order,
-                        step.TargetKey);
+                        quest.DBName,
+                        step.Order,
+                        step.TargetKey
+                    );
                     return true;
                 }
             }
@@ -184,10 +197,12 @@ public sealed class NavigationController
     public void LoadPerCharacter(GuideConfig config, string currentScene)
     {
         var slot = GameData.CurrentCharacterSlot;
-        if (slot == null) return;
+        if (slot == null)
+            return;
 
         // Same character — in-memory state is authoritative
-        if (slot.index == _boundSlotIndex) return;
+        if (slot.index == _boundSlotIndex)
+            return;
 
         // Switching characters: save outgoing state before rebinding
         SavePerCharacter();
@@ -198,18 +213,26 @@ public sealed class NavigationController
 
         var savedQuest = _navQuestEntry.Value;
         var savedStep = _navStepEntry.Value;
-        if (string.IsNullOrEmpty(savedQuest) || savedStep <= 0) return;
+        if (string.IsNullOrEmpty(savedQuest) || savedStep <= 0)
+            return;
 
         var quest = _data.GetByDBName(savedQuest);
-        if (quest?.Steps == null) return;
-        if (_state.IsCompleted(quest.DBName)) return;
+        if (quest?.Steps == null)
+            return;
+        if (_state.IsCompleted(quest.DBName))
+            return;
 
         QuestStep? step = null;
         foreach (var s in quest.Steps)
         {
-            if (s.Order == savedStep) { step = s; break; }
+            if (s.Order == savedStep)
+            {
+                step = s;
+                break;
+            }
         }
-        if (step == null) return;
+        if (step == null)
+            return;
 
         NavigateTo(step, quest, currentScene);
     }
@@ -220,7 +243,8 @@ public sealed class NavigationController
     /// </summary>
     public void SavePerCharacter()
     {
-        if (_navQuestEntry == null) return;
+        if (_navQuestEntry == null)
+            return;
         _navQuestEntry.Value = _originQuestDBName ?? "";
         _navStepEntry!.Value = _originStepOrder;
     }
@@ -253,7 +277,8 @@ public sealed class NavigationController
     /// </summary>
     public void ToggleSource(string sourceKey, string currentScene)
     {
-        if (Target == null) return;
+        if (Target == null)
+            return;
 
         _manualOverride = true;
         if (!_activeSourceKeys.Remove(sourceKey))
@@ -287,8 +312,7 @@ public sealed class NavigationController
     }
 
     /// <summary>Whether a source key is in the active navigation set.</summary>
-    public bool IsSourceActive(string sourceKey) =>
-        _activeSourceKeys.Contains(sourceKey);
+    public bool IsSourceActive(string sourceKey) => _activeSourceKeys.Contains(sourceKey);
 
     /// <summary>Whether the user has manually toggled sources.</summary>
     public bool IsManualSourceOverride => _manualOverride;
@@ -299,8 +323,14 @@ public sealed class NavigationController
     /// in the target zone, sets a same-zone Zone target so IsNavigating returns
     /// true (UI highlights the step) but arrow/path stay hidden.
     /// </summary>
-    public bool NavigateToZone(string scene, string displayName, string sourceId,
-        string questDBName, int stepOrder, string currentScene)
+    public bool NavigateToZone(
+        string scene,
+        string displayName,
+        string sourceId,
+        string questDBName,
+        int stepOrder,
+        string currentScene
+    )
     {
         Clear();
 
@@ -313,12 +343,16 @@ public sealed class NavigationController
                 Vector3.zero,
                 displayName,
                 scene,
-                questDBName, stepOrder, sourceId);
+                questDBName,
+                stepOrder,
+                sourceId
+            );
             return true;
         }
 
         var zoneKey = FindZoneKeyBySceneName(scene);
-        if (zoneKey == null) return false;
+        if (zoneKey == null)
+            return false;
 
         var playerPos = GetPlayerPosition() ?? Vector3.zero;
         var zoneLine = FindClosestZoneLine(zoneKey, currentScene, playerPos);
@@ -330,7 +364,10 @@ public sealed class NavigationController
                 new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
                 $"To: {zoneLine.DestinationDisplay}",
                 currentScene,
-                questDBName, stepOrder, sourceId);
+                questDBName,
+                stepOrder,
+                sourceId
+            );
         }
         else
         {
@@ -339,7 +376,10 @@ public sealed class NavigationController
                 Vector3.zero,
                 displayName,
                 scene,
-                questDBName, stepOrder, sourceId);
+                questDBName,
+                stepOrder,
+                sourceId
+            );
         }
         return true;
     }
@@ -352,7 +392,8 @@ public sealed class NavigationController
     public void OnGameStateChanged(string currentScene)
     {
         _zoneGraph.Rebuild();
-        if (Target == null) return;
+        if (Target == null)
+            return;
 
         var quest = _data.GetByDBName(Target.QuestDBName);
         if (quest?.Steps == null)
@@ -414,10 +455,12 @@ public sealed class NavigationController
     /// </summary>
     public void Update(string currentScene)
     {
-        if (Target == null) return;
+        if (Target == null)
+            return;
 
         var playerPos = GetPlayerPosition();
-        if (!playerPos.HasValue) return;
+        if (!playerPos.HasValue)
+            return;
 
         // Cross-zone: navigate to zone line instead of target directly
         if (Target.IsCrossZone(currentScene))
@@ -443,9 +486,10 @@ public sealed class NavigationController
         if (Target.TargetKind == NavigationTarget.Kind.Character)
         {
             var neededItems = BuildNeededItems(Target.QuestDBName);
-            var corpse = neededItems.Count > 0
-                ? _lootScanner.FindClosestWithAnyItem(neededItems, playerPos.Value)
-                : null;
+            var corpse =
+                neededItems.Count > 0
+                    ? _lootScanner.FindClosestWithAnyItem(neededItems, playerPos.Value)
+                    : null;
 
             if (corpse.HasValue)
             {
@@ -492,8 +536,10 @@ public sealed class NavigationController
     /// </summary>
     public bool IsNavigating(string questDBName, int stepOrder) =>
         Target != null
-        && (IsMatch(Target.QuestDBName, Target.StepOrder, questDBName, stepOrder)
-            || IsMatch(Target.OriginQuestDBName, Target.OriginStepOrder, questDBName, stepOrder));
+        && (
+            IsMatch(Target.QuestDBName, Target.StepOrder, questDBName, stepOrder)
+            || IsMatch(Target.OriginQuestDBName, Target.OriginStepOrder, questDBName, stepOrder)
+        );
 
     private static bool IsMatch(string aQuest, int aStep, string bQuest, int bStep) =>
         string.Equals(aQuest, bQuest, System.StringComparison.OrdinalIgnoreCase) && aStep == bStep;
@@ -502,38 +548,53 @@ public sealed class NavigationController
     /// Get all zone lines from the current scene to the navigation target's zone.
     /// Returns empty if not cross-zone navigating or no zone lines found.
     /// </summary>
-    public List<(ZoneLineEntry line, float distance, bool isActive, bool isAccessible)> GetAlternativeZoneLines(string currentScene)
+    public List<(
+        ZoneLineEntry line,
+        float distance,
+        bool isActive,
+        bool isAccessible
+    )> GetAlternativeZoneLines(string currentScene)
     {
-        var result = new List<(ZoneLineEntry line, float distance, bool isActive, bool isAccessible)>();
+        var result =
+            new List<(ZoneLineEntry line, float distance, bool isActive, bool isAccessible)>();
         if (Target == null || !Target.IsCrossZone(currentScene))
             return result;
 
         var playerPos = GetPlayerPosition() ?? Vector3.zero;
         var targetZoneKey = FindZoneKeyBySceneName(Target.Scene);
-        if (targetZoneKey == null) return result;
+        if (targetZoneKey == null)
+            return result;
 
         foreach (var zl in _data.ZoneLines)
         {
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            if (!string.Equals(zl.DestinationZoneKey, targetZoneKey, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    zl.DestinationZoneKey,
+                    targetZoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
             float dist = Vector3.Distance(playerPos, zlPos);
             var activeZl = _pinnedZoneLine ?? _cachedZoneLine;
-            bool selected = activeZl != null
-                && zl.X == activeZl.X && zl.Y == activeZl.Y && zl.Z == activeZl.Z;
+            bool selected =
+                activeZl != null && zl.X == activeZl.X && zl.Y == activeZl.Y && zl.Z == activeZl.Z;
             bool accessible = IsZoneLineAccessible(zl);
             result.Add((zl, dist, selected, accessible));
         }
 
         // Accessible first, then by distance within each group
-        result.Sort((a, b) =>
-        {
-            int cmp = b.isAccessible.CompareTo(a.isAccessible);
-            return cmp != 0 ? cmp : a.distance.CompareTo(b.distance);
-        });
+        result.Sort(
+            (a, b) =>
+            {
+                int cmp = b.isAccessible.CompareTo(a.isAccessible);
+                return cmp != 0 ? cmp : a.distance.CompareTo(b.distance);
+            }
+        );
         return result;
     }
 
@@ -544,8 +605,7 @@ public sealed class NavigationController
         key != null && key.StartsWith(FishingKeyPrefix, System.StringComparison.Ordinal);
 
     /// <summary>Extract scene name from a fishing source key ("fishing:Azure" → "Azure").</summary>
-    private static string FishingKeyScene(string key) =>
-        key.Substring(FishingKeyPrefix.Length);
+    private static string FishingKeyScene(string key) => key.Substring(FishingKeyPrefix.Length);
 
     /// <summary>
     /// Update navigation target for mining nodes. Prefers closest alive node;
@@ -566,7 +626,8 @@ public sealed class NavigationController
         {
             // Fishing is zone-level — no per-frame position tracking needed.
             // Keep the current fishing key if set; don't compete with NPC sources.
-            if (IsFishingKey(sourceKey)) continue;
+            if (IsFishingKey(sourceKey))
+                continue;
 
             if (IsMiningNodesKey(sourceKey))
             {
@@ -574,7 +635,12 @@ public sealed class NavigationController
                 if (alive != null)
                 {
                     float d = (alive.transform.position - playerPos).sqrMagnitude;
-                    if (d < bestDist) { bestDist = d; bestKey = sourceKey; bestNpc = null; }
+                    if (d < bestDist)
+                    {
+                        bestDist = d;
+                        bestKey = sourceKey;
+                        bestNpc = null;
+                    }
                 }
                 continue;
             }
@@ -583,7 +649,12 @@ public sealed class NavigationController
             if (npc != null)
             {
                 float d = (npc.transform.position - playerPos).sqrMagnitude;
-                if (d < bestDist) { bestDist = d; bestKey = sourceKey; bestNpc = npc; }
+                if (d < bestDist)
+                {
+                    bestDist = d;
+                    bestKey = sourceKey;
+                    bestNpc = npc;
+                }
             }
         }
 
@@ -594,8 +665,13 @@ public sealed class NavigationController
             string? name = null;
             foreach (var src in _allItemSources)
             {
-                if (string.Equals(src.SourceKey, bestKey, System.StringComparison.OrdinalIgnoreCase))
-                { name = src.Name; break; }
+                if (
+                    string.Equals(src.SourceKey, bestKey, System.StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    name = src.Name;
+                    break;
+                }
             }
             Target!.SourceId = bestKey;
             Target.DisplayName = WithCharacterUnlockText(name ?? bestKey, bestKey);
@@ -607,10 +683,12 @@ public sealed class NavigationController
     /// </summary>
     private void TrackCurrentSourcePosition(Vector3 playerPos)
     {
-        if (_currentSourceKey == null) return;
+        if (_currentSourceKey == null)
+            return;
 
         // Fishing is zone-level — no specific position to track.
-        if (IsFishingKey(_currentSourceKey)) return;
+        if (IsFishingKey(_currentSourceKey))
+            return;
 
         if (IsMiningNodesKey(_currentSourceKey))
         {
@@ -645,7 +723,8 @@ public sealed class NavigationController
 
     private Vector3? FindShortestRespawnPosition(string? stableKey)
     {
-        if (stableKey == null) return null;
+        if (stableKey == null)
+            return null;
 
         // Check dead enemy spawns
         SpawnPoint? bestPoint = null;
@@ -653,8 +732,15 @@ public sealed class NavigationController
         foreach (var kvp in _timers.Tracked)
         {
             var tracked = kvp.Value;
-            if (tracked.Point == null) continue;
-            if (!string.Equals(tracked.StableKey, stableKey, System.StringComparison.OrdinalIgnoreCase))
+            if (tracked.Point == null)
+                continue;
+            if (
+                !string.Equals(
+                    tracked.StableKey,
+                    stableKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
             float? remaining = _timers.GetRemainingSeconds(tracked.Point);
             if (remaining.HasValue && remaining.Value < bestTime)
@@ -671,7 +757,10 @@ public sealed class NavigationController
 
     private bool ResolveCharacterTarget(QuestStep step, QuestEntry quest, string currentScene)
     {
-        if (!_data.CharacterSpawns.TryGetValue(step.TargetKey!, out var spawns) || spawns.Count == 0)
+        if (
+            !_data.CharacterSpawns.TryGetValue(step.TargetKey!, out var spawns)
+            || spawns.Count == 0
+        )
             return false;
 
         var spawn = PickBestSpawn(spawns, currentScene);
@@ -680,8 +769,10 @@ public sealed class NavigationController
             new Vector3(spawn.X, spawn.Y, spawn.Z),
             WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
             spawn.Scene,
-            quest.DBName, step.Order,
-            step.TargetKey);
+            quest.DBName,
+            step.Order,
+            step.TargetKey
+        );
         return true;
     }
 
@@ -689,8 +780,12 @@ public sealed class NavigationController
     {
         // Resolve zone key from target_key or display name
         string? destZoneKey = step.TargetKey;
-        if (destZoneKey != null && !_data.ZoneLookup.Values.Any(z =>
-            string.Equals(z.StableKey, destZoneKey, System.StringComparison.OrdinalIgnoreCase)))
+        if (
+            destZoneKey != null
+            && !_data.ZoneLookup.Values.Any(z =>
+                string.Equals(z.StableKey, destZoneKey, System.StringComparison.OrdinalIgnoreCase)
+            )
+        )
         {
             destZoneKey = FindZoneKeyByDisplayName(step.TargetName);
         }
@@ -702,7 +797,13 @@ public sealed class NavigationController
         string? destScene = null;
         foreach (var kvp in _data.ZoneLookup)
         {
-            if (string.Equals(kvp.Value.StableKey, destZoneKey, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                string.Equals(
+                    kvp.Value.StableKey,
+                    destZoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
             {
                 destScene = kvp.Key;
                 break;
@@ -724,7 +825,9 @@ public sealed class NavigationController
                 new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
                 $"To: {zoneLine.DestinationDisplay}",
                 currentScene,
-                quest.DBName, step.Order);
+                quest.DBName,
+                step.Order
+            );
         }
         else
         {
@@ -735,7 +838,9 @@ public sealed class NavigationController
                 Vector3.zero,
                 step.TargetName ?? destScene,
                 destScene,
-                quest.DBName, step.Order);
+                quest.DBName,
+                step.Order
+            );
         }
         return true;
     }
@@ -745,7 +850,8 @@ public sealed class NavigationController
         // For collect/read steps: build the active source set and navigate
         // to the closest spawn among all active sources.
         var item = quest.RequiredItems?.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
+        );
 
         if (item?.Sources == null || item.Sources.Count == 0)
             return false;
@@ -799,8 +905,10 @@ public sealed class NavigationController
             {
                 result.Add(src);
             }
-            else if (_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
-                     && spawns.Count > 0)
+            else if (
+                _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
+                && spawns.Count > 0
+            )
             {
                 result.Add(src);
             }
@@ -822,18 +930,30 @@ public sealed class NavigationController
         // Find all sources with spawns/presence in the current zone
         foreach (var src in _allItemSources)
         {
-            if (src.SourceKey == null) continue;
+            if (src.SourceKey == null)
+                continue;
 
             // Fishing sources match by scene directly (no CharacterSpawns)
             if (IsFishingKey(src.SourceKey))
             {
-                if (string.Equals(FishingKeyScene(src.SourceKey), currentScene, System.StringComparison.OrdinalIgnoreCase))
+                if (
+                    string.Equals(
+                        FishingKeyScene(src.SourceKey),
+                        currentScene,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
                     _activeSourceKeys.Add(src.SourceKey);
                 continue;
             }
 
-            if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)) continue;
-            if (spawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)))
+            if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))
+                continue;
+            if (
+                spawns.Exists(s =>
+                    string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                )
+            )
                 _activeSourceKeys.Add(src.SourceKey);
         }
 
@@ -867,7 +987,13 @@ public sealed class NavigationController
             if (IsFishingKey(sourceKey))
             {
                 string fishScene = FishingKeyScene(sourceKey);
-                if (string.Equals(fishScene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                if (
+                    string.Equals(
+                        fishScene,
+                        currentScene,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
                 {
                     // Already in the fishing zone — navigate as a zone target
                     // (shows step as active, no arrow/path to a specific point).
@@ -877,8 +1003,10 @@ public sealed class NavigationController
                         Vector3.zero,
                         "Fishing",
                         currentScene,
-                        quest.DBName, step.Order,
-                        sourceKey);
+                        quest.DBName,
+                        step.Order,
+                        sourceKey
+                    );
                     return true;
                 }
                 continue;
@@ -891,13 +1019,28 @@ public sealed class NavigationController
             string? srcName = null;
             foreach (var src in _allItemSources)
             {
-                if (string.Equals(src.SourceKey, sourceKey, System.StringComparison.OrdinalIgnoreCase))
-                { srcName = src.Name; break; }
+                if (
+                    string.Equals(
+                        src.SourceKey,
+                        sourceKey,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                {
+                    srcName = src.Name;
+                    break;
+                }
             }
 
             foreach (var sp in spawns)
             {
-                if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                if (
+                    !string.Equals(
+                        sp.Scene,
+                        currentScene,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
                     continue;
                 float dist = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
                 if (dist < bestDist)
@@ -920,25 +1063,45 @@ public sealed class NavigationController
                 {
                     string fishScene = FishingKeyScene(sourceKey);
                     string? zoneKey = FindZoneKeyBySceneName(fishScene);
-                    if (zoneKey == null) continue;
-                    return NavigateToZone(fishScene, "Fishing", sourceKey,
-                        quest.DBName, step.Order, currentScene);
+                    if (zoneKey == null)
+                        continue;
+                    return NavigateToZone(
+                        fishScene,
+                        "Fishing",
+                        sourceKey,
+                        quest.DBName,
+                        step.Order,
+                        currentScene
+                    );
                 }
 
-                if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
+                if (
+                    !_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns)
+                    || spawns.Count == 0
+                )
                     continue;
                 bestSpawn = spawns[0];
                 bestSourceKey = sourceKey;
                 foreach (var src in _allItemSources)
                 {
-                    if (string.Equals(src.SourceKey, sourceKey, System.StringComparison.OrdinalIgnoreCase))
-                    { bestSourceName = src.Name; break; }
+                    if (
+                        string.Equals(
+                            src.SourceKey,
+                            sourceKey,
+                            System.StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                    {
+                        bestSourceName = src.Name;
+                        break;
+                    }
                 }
                 break;
             }
         }
 
-        if (bestSpawn == null) return false;
+        if (bestSpawn == null)
+            return false;
 
         _currentSourceKey = bestSourceKey;
         string displayName = bestSourceName ?? bestSourceKey ?? step.TargetName ?? step.Description;
@@ -947,33 +1110,58 @@ public sealed class NavigationController
             new Vector3(bestSpawn.X, bestSpawn.Y, bestSpawn.Z),
             WithCharacterUnlockText(displayName, bestSourceKey),
             bestSpawn.Scene,
-            quest.DBName, step.Order,
-            bestSourceKey);
+            quest.DBName,
+            step.Order,
+            bestSourceKey
+        );
         return true;
     }
 
     /// <summary>Zone-only fallback for items without spawn data (fishing, etc.).</summary>
-    private bool ResolveItemZoneFallback(List<Data.ItemSource> sources, QuestEntry quest, QuestStep step, string currentScene)
+    private bool ResolveItemZoneFallback(
+        List<Data.ItemSource> sources,
+        QuestEntry quest,
+        QuestStep step,
+        string currentScene
+    )
     {
         var firstSource = FindFirstSourceWithScene(sources);
         var firstScene = firstSource?.Scene;
-        string? zoneKey = firstScene != null
-            ? FindZoneKeyBySceneName(firstScene)
-            : FindZoneKeyByDisplayName(sources[0].Zone);
-        if (zoneKey == null) return false;
+        string? zoneKey =
+            firstScene != null
+                ? FindZoneKeyBySceneName(firstScene)
+                : FindZoneKeyByDisplayName(sources[0].Zone);
+        if (zoneKey == null)
+            return false;
 
         string? destScene = null;
         foreach (var kvp in _data.ZoneLookup)
         {
-            if (string.Equals(kvp.Value.StableKey, zoneKey, System.StringComparison.OrdinalIgnoreCase))
-            { destScene = kvp.Key; break; }
+            if (
+                string.Equals(
+                    kvp.Value.StableKey,
+                    zoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
+            {
+                destScene = kvp.Key;
+                break;
+            }
         }
-        if (destScene == null) return false;
+        if (destScene == null)
+            return false;
 
         string displayName = firstSource?.Zone ?? destScene;
         string? sourceId = firstSource?.MakeSourceId();
-        return NavigateToZone(destScene, displayName, sourceId!,
-            quest.DBName, step.Order, currentScene);
+        return NavigateToZone(
+            destScene,
+            displayName,
+            sourceId!,
+            quest.DBName,
+            step.Order,
+            currentScene
+        );
     }
 
     // ── Cross-zone routing ─────────────────────────────────────────
@@ -982,7 +1170,8 @@ public sealed class NavigationController
     {
         // Only re-evaluate zone line selection when player moves significantly
         // to avoid per-frame CalculatePath calls on all zone line candidates
-        bool needsRecalc = _cachedZoneLine == null
+        bool needsRecalc =
+            _cachedZoneLine == null
             || Vector3.Distance(_lastCrossZoneCalcPos, playerPos) > CrossZoneRecalcDistance;
 
         if (needsRecalc)
@@ -993,8 +1182,14 @@ public sealed class NavigationController
             bool routeIsLocked = false;
 
             // Manual pin takes priority over auto-selection
-            if (_pinnedZoneLine != null
-                && string.Equals(_pinnedZoneLine.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                _pinnedZoneLine != null
+                && string.Equals(
+                    _pinnedZoneLine.Scene,
+                    currentScene,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
             {
                 bestLine = _pinnedZoneLine;
             }
@@ -1029,7 +1224,9 @@ public sealed class NavigationController
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
                         displayText,
                         currentScene,
-                        Target!.QuestDBName, Target.StepOrder);
+                        Target!.QuestDBName,
+                        Target.StepOrder
+                    );
                 }
                 else
                 {
@@ -1054,16 +1251,23 @@ public sealed class NavigationController
     private Data.SpawnPoint PickBestSpawn(List<Data.SpawnPoint> spawns, string currentScene)
     {
         var playerPos = GetPlayerPosition();
-        Data.SpawnPoint? bestComplete = null;  float bestCompDist = float.MaxValue;
-        Data.SpawnPoint? bestPartial = null;   float bestPartDist = float.MaxValue;
-        Data.SpawnPoint? bestFallback = null;   float bestFallDist = float.MaxValue;
+        Data.SpawnPoint? bestComplete = null;
+        float bestCompDist = float.MaxValue;
+        Data.SpawnPoint? bestPartial = null;
+        float bestPartDist = float.MaxValue;
+        Data.SpawnPoint? bestFallback = null;
+        float bestFallDist = float.MaxValue;
 
         foreach (var sp in spawns)
         {
             if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (!playerPos.HasValue) { bestComplete ??= sp; continue; }
+            if (!playerPos.HasValue)
+            {
+                bestComplete ??= sp;
+                continue;
+            }
 
             var spPos = new Vector3(sp.X, sp.Y, sp.Z);
             float dist = Vector3.Distance(playerPos.Value, spPos);
@@ -1071,15 +1275,27 @@ public sealed class NavigationController
 
             if (reach == NavMeshPathStatus.PathComplete)
             {
-                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = sp; }
+                if (dist < bestCompDist)
+                {
+                    bestCompDist = dist;
+                    bestComplete = sp;
+                }
             }
             else if (reach == NavMeshPathStatus.PathPartial)
             {
-                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = sp; }
+                if (dist < bestPartDist)
+                {
+                    bestPartDist = dist;
+                    bestPartial = sp;
+                }
             }
             else
             {
-                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = sp; }
+                if (dist < bestFallDist)
+                {
+                    bestFallDist = dist;
+                    bestFallback = sp;
+                }
             }
         }
 
@@ -1123,12 +1339,14 @@ public sealed class NavigationController
         foreach (var group in zl.RequiredQuestGroups)
         {
             var incomplete = group.FindAll(q => !_state.IsCompleted(q));
-            if (incomplete.Count == 0) return null; // group satisfied
+            if (incomplete.Count == 0)
+                return null; // group satisfied
             if (best == null || incomplete.Count < best.Count)
                 best = incomplete;
         }
 
-        if (best == null) return null;
+        if (best == null)
+            return null;
 
         // Look up display names for the required quests
         var names = new System.Collections.Generic.List<string>();
@@ -1141,17 +1359,29 @@ public sealed class NavigationController
     }
 
     private ZoneLineEntry? FindClosestZoneLine(
-        string destinationZoneKey, string currentScene, Vector3 playerPos)
+        string destinationZoneKey,
+        string currentScene,
+        Vector3 playerPos
+    )
     {
-        ZoneLineEntry? bestComplete = null;  float bestCompDist = float.MaxValue;
-        ZoneLineEntry? bestPartial = null;   float bestPartDist = float.MaxValue;
-        ZoneLineEntry? bestFallback = null;   float bestFallDist = float.MaxValue;
+        ZoneLineEntry? bestComplete = null;
+        float bestCompDist = float.MaxValue;
+        ZoneLineEntry? bestPartial = null;
+        float bestPartDist = float.MaxValue;
+        ZoneLineEntry? bestFallback = null;
+        float bestFallDist = float.MaxValue;
 
         foreach (var zl in _data.ZoneLines)
         {
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    zl.DestinationZoneKey,
+                    destinationZoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
             if (!IsZoneLineAccessible(zl))
                 continue;
@@ -1162,15 +1392,27 @@ public sealed class NavigationController
 
             if (reach == NavMeshPathStatus.PathComplete)
             {
-                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = zl; }
+                if (dist < bestCompDist)
+                {
+                    bestCompDist = dist;
+                    bestComplete = zl;
+                }
             }
             else if (reach == NavMeshPathStatus.PathPartial)
             {
-                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = zl; }
+                if (dist < bestPartDist)
+                {
+                    bestPartDist = dist;
+                    bestPartial = zl;
+                }
             }
             else
             {
-                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = zl; }
+                if (dist < bestFallDist)
+                {
+                    bestFallDist = dist;
+                    bestFallback = zl;
+                }
             }
         }
 
@@ -1182,7 +1424,10 @@ public sealed class NavigationController
     /// zone lines when no accessible route exists, for directional guidance.
     /// </summary>
     private ZoneLineEntry? FindClosestZoneLineAny(
-        string destinationZoneKey, string currentScene, Vector3 playerPos)
+        string destinationZoneKey,
+        string currentScene,
+        Vector3 playerPos
+    )
     {
         ZoneLineEntry? best = null;
         float bestDist = float.MaxValue;
@@ -1191,24 +1436,40 @@ public sealed class NavigationController
         {
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(
+                    zl.DestinationZoneKey,
+                    destinationZoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
 
             float dist = Vector3.Distance(playerPos, new Vector3(zl.X, zl.Y, zl.Z));
-            if (dist < bestDist) { bestDist = dist; best = zl; }
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = zl;
+            }
         }
         return best;
     }
 
-
     private bool HasZoneLineForDestination(string? zoneKey, string currentScene)
     {
-        if (zoneKey == null) return false;
+        if (zoneKey == null)
+            return false;
         foreach (var zl in _data.ZoneLines)
         {
-            if (string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                && string.Equals(zl.DestinationZoneKey, zoneKey, System.StringComparison.OrdinalIgnoreCase)
-                && IsZoneLineAccessible(zl))
+            if (
+                string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(
+                    zl.DestinationZoneKey,
+                    zoneKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+                && IsZoneLineAccessible(zl)
+            )
                 return true;
         }
         return false;
@@ -1223,10 +1484,17 @@ public sealed class NavigationController
 
     private string? FindZoneKeyByDisplayName(string? displayName)
     {
-        if (displayName == null) return null;
+        if (displayName == null)
+            return null;
         foreach (var kvp in _data.ZoneLookup)
         {
-            if (string.Equals(kvp.Value.DisplayName, displayName, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                string.Equals(
+                    kvp.Value.DisplayName,
+                    displayName,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 return kvp.Value.StableKey;
         }
         return null;
@@ -1236,16 +1504,17 @@ public sealed class NavigationController
     {
         foreach (var src in sources)
         {
-            if (src.Scene != null) return src;
+            if (src.Scene != null)
+                return src;
             if (src.Children != null)
             {
                 var child = FindFirstSourceWithScene(src.Children);
-                if (child != null) return child;
+                if (child != null)
+                    return child;
             }
         }
         return null;
     }
-
 
     // ── Reachability ────────────────────────────────────────────────────
 
@@ -1288,7 +1557,8 @@ public sealed class NavigationController
     /// </summary>
     private string WithCharacterUnlockText(string displayName, string? targetKey)
     {
-        if (targetKey == null) return displayName;
+        if (targetKey == null)
+            return displayName;
         if (!_data.CharacterQuestUnlocks.TryGetValue(targetKey, out var groups))
             return displayName;
 
@@ -1297,12 +1567,14 @@ public sealed class NavigationController
         foreach (var group in groups)
         {
             var incomplete = group.FindAll(q => !_state.IsCompleted(q));
-            if (incomplete.Count == 0) return displayName; // group satisfied, NPC available
+            if (incomplete.Count == 0)
+                return displayName; // group satisfied, NPC available
             if (best == null || incomplete.Count < best.Count)
                 best = incomplete;
         }
 
-        if (best == null) return displayName;
+        if (best == null)
+            return displayName;
 
         var names = new System.Collections.Generic.List<string>();
         foreach (var dbName in best)
@@ -1321,7 +1593,8 @@ public sealed class NavigationController
     {
         var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
         var quest = _data.GetByDBName(questDBName);
-        if (quest?.RequiredItems == null) return result;
+        if (quest?.RequiredItems == null)
+            return result;
 
         foreach (var ri in quest.RequiredItems)
         {
@@ -1332,10 +1605,25 @@ public sealed class NavigationController
     }
 
     private NavigationTarget MakeTarget(
-        NavigationTarget.Kind kind, Vector3 position, string displayName,
-        string scene, string questDBName, int stepOrder, string? sourceId = null)
+        NavigationTarget.Kind kind,
+        Vector3 position,
+        string displayName,
+        string scene,
+        string questDBName,
+        int stepOrder,
+        string? sourceId = null
+    )
     {
-        return new NavigationTarget(kind, position, displayName, scene,
-            questDBName, stepOrder, sourceId, _originQuestDBName, _originStepOrder);
+        return new NavigationTarget(
+            kind,
+            position,
+            displayName,
+            scene,
+            questDBName,
+            stepOrder,
+            sourceId,
+            _originQuestDBName,
+            _originStepOrder
+        );
     }
 }

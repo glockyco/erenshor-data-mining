@@ -60,13 +60,17 @@ public sealed class ArrowRenderer
             return;
 
         var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
-        if (drawList == System.IntPtr.Zero) return;
+        if (drawList == System.IntPtr.Zero)
+            return;
 
         var cam = CameraCache.Get();
-        if (cam == null) return;
+        if (cam == null)
+            return;
 
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
-        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Position + Vector3.up * NavigationDisplay.GroundOffset);
+        var screenPos = cam.WorldToScreenPoint(
+            effectiveTarget.Position + Vector3.up * NavigationDisplay.GroundOffset
+        );
         bool isBehind = screenPos.z < 0;
         float sw = Screen.width;
         float sh = Screen.height;
@@ -81,9 +85,12 @@ public sealed class ArrowRenderer
         // ImGui uses top-down Y (0 = top of screen)
         float imguiY = sh - screenPos.y;
 
-        bool onScreen = !isBehind
-            && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
-            && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
+        bool onScreen =
+            !isBehind
+            && screenPos.x > EdgeMargin
+            && screenPos.x < sw - EdgeMargin
+            && imguiY > EdgeMargin
+            && imguiY < sh - EdgeMargin;
 
         // Rebuild label only when the visible distance or target name changes
         int distInt = Mathf.RoundToInt(_nav.Distance);
@@ -118,7 +125,12 @@ public sealed class ArrowRenderer
             float dirX = screenPos.x - centerX;
             float dirY = imguiY - centerY;
             float dirLen = Mathf.Sqrt(dirX * dirX + dirY * dirY);
-            if (dirLen < 0.01f) { dirX = 0; dirY = -1; dirLen = 1; }
+            if (dirLen < 0.01f)
+            {
+                dirX = 0;
+                dirY = -1;
+                dirLen = 1;
+            }
             dirX /= dirLen;
             dirY /= dirLen;
 
@@ -149,7 +161,8 @@ public sealed class ArrowRenderer
         for (int i = 0; i < _cachedLines.Length; i++)
         {
             float x = anchorX - _cachedLineSizes[i].X * 0.5f;
-            if (x < pad) x = pad;
+            if (x < pad)
+                x = pad;
             if (x + _cachedLineSizes[i].X > screenWidth - pad)
                 x = screenWidth - pad - _cachedLineSizes[i].X;
             CimguiNative.AddText(dl, x, y, ColorText, _cachedLines[i]);

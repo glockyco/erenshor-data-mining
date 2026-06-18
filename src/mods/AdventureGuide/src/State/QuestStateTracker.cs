@@ -17,11 +17,15 @@ public sealed class QuestStateTracker
     // Each entry stores the completion scene (last step's zone). The quest
     // activates implicitly when the player enters that scene.
     private readonly List<ImplicitQuest> _implicitQuests;
-    private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _implicitlyActiveQuests = new(
+        StringComparer.OrdinalIgnoreCase
+    );
 
     // Cached inventory counts, invalidated on inventory/zone/quest changes.
     // The implicit quest set is rebuilt from the same trigger.
-    private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _inventoryCache = new(
+        StringComparer.OrdinalIgnoreCase
+    );
     private bool _dirty = true;
 
     /// <summary>
@@ -43,8 +47,10 @@ public sealed class QuestStateTracker
         _implicitQuests = new List<ImplicitQuest>();
         foreach (var quest in data.All)
         {
-            if (!quest.IsImplicit) continue;
-            if (quest.Steps == null || quest.Steps.Count == 0) continue;
+            if (!quest.IsImplicit)
+                continue;
+            if (quest.Steps == null || quest.Steps.Count == 0)
+                continue;
 
             // Activation scene: the zone of the last step (turn-in/completion).
             var lastStep = quest.Steps[quest.Steps.Count - 1];
@@ -63,9 +69,9 @@ public sealed class QuestStateTracker
     /// </summary>
     public void SelectQuest(string dbName)
     {
-        if (dbName == SelectedQuestDBName) return;
-        _history?.Navigate(new NavigationHistory.PageRef(
-            NavigationHistory.PageType.Quest, dbName));
+        if (dbName == SelectedQuestDBName)
+            return;
+        _history?.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, dbName));
         SelectedQuestDBName = dbName;
     }
 
@@ -85,7 +91,8 @@ public sealed class QuestStateTracker
     /// </summary>
     public bool IsActionable(string dbName)
     {
-        if (_activeQuests.Contains(dbName)) return true;
+        if (_activeQuests.Contains(dbName))
+            return true;
         EnsureCacheCurrent();
         return _implicitlyActiveQuests.Contains(dbName);
     }
@@ -96,7 +103,8 @@ public sealed class QuestStateTracker
     /// </summary>
     public bool IsImplicitlyActive(string dbName)
     {
-        if (_activeQuests.Contains(dbName)) return false;
+        if (_activeQuests.Contains(dbName))
+            return false;
         EnsureCacheCurrent();
         return _implicitlyActiveQuests.Contains(dbName);
     }
@@ -167,7 +175,8 @@ public sealed class QuestStateTracker
 
     private void EnsureCacheCurrent()
     {
-        if (!_dirty) return;
+        if (!_dirty)
+            return;
         RebuildInventoryCache();
         RebuildImplicitQuests();
     }
@@ -177,7 +186,8 @@ public sealed class QuestStateTracker
         _inventoryCache.Clear();
         _dirty = false;
 
-        if (GameData.PlayerInv?.StoredSlots == null) return;
+        if (GameData.PlayerInv?.StoredSlots == null)
+            return;
 
         foreach (var slot in GameData.PlayerInv.StoredSlots)
         {
@@ -210,8 +220,15 @@ public sealed class QuestStateTracker
 
             // Zone gate: must be in the completion scene.
             // Quests with unresolvable scenes never activate implicitly.
-            if (iq.ActivationScene == null) continue;
-            if (!string.Equals(iq.ActivationScene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
+            if (iq.ActivationScene == null)
+                continue;
+            if (
+                !string.Equals(
+                    iq.ActivationScene,
+                    CurrentZone,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 continue;
 
             _implicitlyActiveQuests.Add(iq.DBName);

@@ -16,8 +16,10 @@ namespace AdventureGuide.Navigation;
 public sealed class SpawnTimerTracker
 {
     // NPC.MySpawnPoint is private — cache the FieldInfo for reflection
-    private static readonly FieldInfo? MySpawnPointField =
-        typeof(NPC).GetField("MySpawnPoint", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo? MySpawnPointField = typeof(NPC).GetField(
+        "MySpawnPoint",
+        BindingFlags.NonPublic | BindingFlags.Instance
+    );
 
     // SpawnPoint keyed by its scene-unique ID (set in SpawnPoint.Start)
     private readonly Dictionary<string, TrackedSpawn> _tracked = new();
@@ -30,7 +32,8 @@ public sealed class SpawnTimerTracker
     public void OnNPCDeath(NPC npc)
     {
         var sp = GetSpawnPoint(npc);
-        if (sp == null || string.IsNullOrEmpty(sp.ID)) return;
+        if (sp == null || string.IsNullOrEmpty(sp.ID))
+            return;
 
         var key = EntityRegistry.DeriveStableKey(npc, sp);
         _tracked[sp.ID] = new TrackedSpawn(sp, npc.NPCName, key);
@@ -56,11 +59,14 @@ public sealed class SpawnTimerTracker
     /// </summary>
     public float? GetRemainingSeconds(SpawnPoint sp)
     {
-        if (sp == null || string.IsNullOrEmpty(sp.ID)) return null;
-        if (!_tracked.ContainsKey(sp.ID)) return null;
+        if (sp == null || string.IsNullOrEmpty(sp.ID))
+            return null;
+        if (!_tracked.ContainsKey(sp.ID))
+            return null;
 
         float tickRate = 60f * GetSpawnTimeMod();
-        if (tickRate <= 0f) return null;
+        if (tickRate <= 0f)
+            return null;
 
         return sp.actualSpawnDelay / tickRate;
     }
@@ -71,7 +77,8 @@ public sealed class SpawnTimerTracker
     /// </summary>
     public static bool IsNightLocked(SpawnPoint sp)
     {
-        if (!sp.NightSpawn) return false;
+        if (!sp.NightSpawn)
+            return false;
         int hour = GameData.Time.GetHour();
         // Spawn window: hour > 22 OR hour < 4
         return !(hour > 22 || hour < 4);
@@ -82,7 +89,8 @@ public sealed class SpawnTimerTracker
     /// </summary>
     public static string FormatTimer(float seconds)
     {
-        if (seconds <= 0f) return "~0:00";
+        if (seconds <= 0f)
+            return "~0:00";
         int totalSec = Mathf.CeilToInt(seconds);
         int min = totalSec / 60;
         int sec = totalSec % 60;
@@ -94,14 +102,16 @@ public sealed class SpawnTimerTracker
 
     private static SpawnPoint? GetSpawnPoint(NPC npc)
     {
-        if (MySpawnPointField == null) return null;
+        if (MySpawnPointField == null)
+            return null;
         return MySpawnPointField.GetValue(npc) as SpawnPoint;
     }
 
     private static float GetSpawnTimeMod()
     {
         var gm = GameData.GM;
-        if (gm == null) return 1f;
+        if (gm == null)
+            return 1f;
         // SpawnTimeMod is set in GameManager.Update based on group size
         return gm.SpawnTimeMod;
     }

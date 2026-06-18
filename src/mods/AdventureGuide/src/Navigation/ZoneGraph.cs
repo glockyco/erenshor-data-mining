@@ -37,10 +37,15 @@ public sealed class ZoneGraph
     private readonly QuestStateTracker _state;
 
     // scene -> set of (dest_scene, dest_zone_key, accessible)
-    private readonly Dictionary<string, List<(string destScene, string destZoneKey, bool accessible)>> _adj = new();
+    private readonly Dictionary<
+        string,
+        List<(string destScene, string destZoneKey, bool accessible)>
+    > _adj = new();
 
     // zone_key -> scene name
-    private readonly Dictionary<string, string> _zoneKeyToScene = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _zoneKeyToScene = new(
+        StringComparer.OrdinalIgnoreCase
+    );
 
     public ZoneGraph(GuideData data, QuestStateTracker state)
     {
@@ -81,7 +86,9 @@ public sealed class ZoneGraph
             bool found = false;
             for (int i = 0; i < edges.Count; i++)
             {
-                if (string.Equals(edges[i].destScene, destScene, StringComparison.OrdinalIgnoreCase))
+                if (
+                    string.Equals(edges[i].destScene, destScene, StringComparison.OrdinalIgnoreCase)
+                )
                 {
                     // Keep the most permissive: if any zone line to this dest is accessible, the edge is accessible
                     if (accessible && !edges[i].accessible)

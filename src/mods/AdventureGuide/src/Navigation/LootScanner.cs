@@ -22,14 +22,21 @@ public sealed class LootScanner
     {
         public readonly Vector3 Position;
         public readonly int InstanceId;
+
         /// <summary>The source Component (NPC or RotChest) for per-frame null checks.</summary>
         public readonly Component Source;
         public readonly string DisplayName;
+
         /// <summary>Subset of globally needed items found in this container.</summary>
         public readonly HashSet<string> MatchingItems;
 
-        public LootContainer(Vector3 position, int instanceId, Component source,
-            string displayName, HashSet<string> matchingItems)
+        public LootContainer(
+            Vector3 position,
+            int instanceId,
+            Component source,
+            string displayName,
+            HashSet<string> matchingItems
+        )
         {
             Position = position;
             InstanceId = instanceId;
@@ -66,7 +73,8 @@ public sealed class LootScanner
         if (pruned)
             _dirty = true;
 
-        if (!_dirty) return;
+        if (!_dirty)
+            return;
         _dirty = false;
         Rebuild(data, state);
     }
@@ -89,7 +97,8 @@ public sealed class LootScanner
     /// </summary>
     public LootContainer? FindClosestWithAnyItem(HashSet<string> items, Vector3 playerPos)
     {
-        if (items.Count == 0) return null;
+        if (items.Count == 0)
+            return null;
 
         LootContainer? best = null;
         float bestDist = float.MaxValue;
@@ -105,7 +114,8 @@ public sealed class LootScanner
                     break;
                 }
             }
-            if (!hasMatch) continue;
+            if (!hasMatch)
+                continue;
 
             float dist = Vector3.Distance(playerPos, c.Position);
             if (dist < bestDist)
@@ -128,51 +138,64 @@ public sealed class LootScanner
         // 1. Build needed items from all active quests
         foreach (var quest in data.All)
         {
-            if (!state.IsActionable(quest.DBName)) continue;
-            if (quest.RequiredItems == null) continue;
+            if (!state.IsActionable(quest.DBName))
+                continue;
+            if (quest.RequiredItems == null)
+                continue;
             foreach (var ri in quest.RequiredItems)
             {
                 if (state.CountItem(ri.ItemStableKey) < ri.Quantity)
                     _neededItems.Add(ri.ItemName);
             }
         }
-        if (_neededItems.Count == 0) return;
+        if (_neededItems.Count == 0)
+            return;
 
         // 2. Scan dead NPCs via CorpseDataManager
         // AllCorpseData entries with non-null MyNPC are fresh kills in the
         // current scene — the NPC body is still present with its LootTable.
         foreach (var cd in CorpseDataManager.AllCorpseData)
         {
-            if (cd.MyNPC == null) continue;
+            if (cd.MyNPC == null)
+                continue;
             var loot = cd.MyNPC.GetComponent<LootTable>();
-            if (loot == null) continue;
+            if (loot == null)
+                continue;
             var matching = FindMatchingItems(loot);
             if (matching.Count > 0)
             {
-                _containers.Add(new LootContainer(
-                    cd.MyNPC.transform.position,
-                    cd.MyNPC.GetInstanceID(),
-                    cd.MyNPC,
-                    cd.MyNPC.NPCName,
-                    matching));
+                _containers.Add(
+                    new LootContainer(
+                        cd.MyNPC.transform.position,
+                        cd.MyNPC.GetInstanceID(),
+                        cd.MyNPC,
+                        cd.MyNPC.NPCName,
+                        matching
+                    )
+                );
             }
         }
 
         // 3. Scan RotChests cached at scene load
         foreach (var chest in _rotChests)
         {
-            if (chest == null) continue;
+            if (chest == null)
+                continue;
             var loot = chest.GetComponent<LootTable>();
-            if (loot == null) continue;
+            if (loot == null)
+                continue;
             var matching = FindMatchingItems(loot);
             if (matching.Count > 0)
             {
-                _containers.Add(new LootContainer(
-                    chest.transform.position,
-                    chest.GetInstanceID(),
-                    chest,
-                    "Loot Chest",
-                    matching));
+                _containers.Add(
+                    new LootContainer(
+                        chest.transform.position,
+                        chest.GetInstanceID(),
+                        chest,
+                        "Loot Chest",
+                        matching
+                    )
+                );
             }
         }
     }
@@ -182,8 +205,11 @@ public sealed class LootScanner
         var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
         foreach (var item in loot.ActualDrops)
         {
-            if (item != null && !string.IsNullOrEmpty(item.ItemName)
-                && _neededItems.Contains(item.ItemName))
+            if (
+                item != null
+                && !string.IsNullOrEmpty(item.ItemName)
+                && _neededItems.Contains(item.ItemName)
+            )
             {
                 result.Add(item.ItemName);
             }

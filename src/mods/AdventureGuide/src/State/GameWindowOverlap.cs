@@ -30,12 +30,14 @@ internal static class GameWindowOverlap
     /// <summary>Cached screen rect for a game UI window (Y-down coords).</summary>
     private struct WindowRect
     {
-        public float Left, Top, Right, Bottom;
+        public float Left,
+            Top,
+            Right,
+            Bottom;
 
         public bool Overlaps(float otherLeft, float otherTop, float otherRight, float otherBottom)
         {
-            return Left < otherRight && Right > otherLeft
-                && Top < otherBottom && Bottom > otherTop;
+            return Left < otherRight && Right > otherLeft && Top < otherBottom && Bottom > otherTop;
         }
     }
 
@@ -64,8 +66,11 @@ internal static class GameWindowOverlap
     /// coordinates.
     /// </summary>
     public static bool ShouldSuppressTracker(
-        float trackerLeft, float trackerTop,
-        float trackerRight, float trackerBottom)
+        float trackerLeft,
+        float trackerTop,
+        float trackerRight,
+        float trackerBottom
+    )
     {
         var windows = GetUIWindows();
         if (windows == null || windows.Count == 0)
@@ -124,8 +129,10 @@ internal static class GameWindowOverlap
 
     private static List<GameObject>? GetUIWindows()
     {
-        if (_uiWindows != null) return _uiWindows;
-        if (_searched) return null;
+        if (_uiWindows != null)
+            return _uiWindows;
+        if (_searched)
+            return null;
         _searched = true;
 
         // Build the union of both game UI window lists.
@@ -133,18 +140,21 @@ internal static class GameWindowOverlap
         // Misc.UIWindows gates the Escape-key close-all sweep.
         // Neither is complete on its own.
         var cam = UnityEngine.Object.FindObjectOfType<CameraController>();
-        if (cam == null) return null;
+        if (cam == null)
+            return null;
 
         var seen = new HashSet<GameObject>();
         var combined = new List<GameObject>();
 
         foreach (var w in cam.UIWindows)
-            if (w != null && seen.Add(w)) combined.Add(w);
+            if (w != null && seen.Add(w))
+                combined.Add(w);
 
         if (GameData.Misc != null)
         {
             foreach (var w in GameData.Misc.UIWindows)
-                if (w != null && seen.Add(w)) combined.Add(w);
+                if (w != null && seen.Add(w))
+                    combined.Add(w);
         }
 
         _uiWindows = combined;
@@ -176,7 +186,8 @@ internal static class GameWindowOverlap
     /// </summary>
     private static void EnsureRect(int i, GameObject go)
     {
-        if (_rects![i].Right > 0) return; // already cached
+        if (_rects![i].Right > 0)
+            return; // already cached
 
         var rt = go.GetComponent<RectTransform>();
         if (rt == null)
@@ -191,18 +202,24 @@ internal static class GameWindowOverlap
         rt.GetWorldCorners(corners);
 
         float screenH = Screen.height;
-        float minX = float.MaxValue, maxX = float.MinValue;
-        float minY = float.MaxValue, maxY = float.MinValue;
+        float minX = float.MaxValue,
+            maxX = float.MinValue;
+        float minY = float.MaxValue,
+            maxY = float.MinValue;
 
         for (int c = 0; c < 4; c++)
         {
             var sp = RectTransformUtility.WorldToScreenPoint(null, corners[c]);
             // Flip Y: Unity Y-up → ImGui Y-down
             float yDown = screenH - sp.y;
-            if (sp.x < minX) minX = sp.x;
-            if (sp.x > maxX) maxX = sp.x;
-            if (yDown < minY) minY = yDown;
-            if (yDown > maxY) maxY = yDown;
+            if (sp.x < minX)
+                minX = sp.x;
+            if (sp.x > maxX)
+                maxX = sp.x;
+            if (yDown < minY)
+                minY = yDown;
+            if (yDown > maxY)
+                maxY = yDown;
         }
 
         _rects[i] = new WindowRect
@@ -210,7 +227,7 @@ internal static class GameWindowOverlap
             Left = minX,
             Top = minY,
             Right = maxX,
-            Bottom = maxY
+            Bottom = maxY,
         };
     }
 }

@@ -10,33 +10,42 @@ namespace AdventureGuide.Data;
 /// </summary>
 public sealed class GuideData
 {
-    private readonly Dictionary<string, QuestEntry> _byDBName = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, QuestEntry> _byStableKey = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, QuestEntry> _byDBName = new(
+        StringComparer.OrdinalIgnoreCase
+    );
+    private readonly Dictionary<string, QuestEntry> _byStableKey = new(
+        StringComparer.OrdinalIgnoreCase
+    );
     private readonly List<QuestEntry> _all = new();
-    private readonly Dictionary<string, string> _displayToScene = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _displayToScene = new(
+        StringComparer.OrdinalIgnoreCase
+    );
 
     public IReadOnlyList<QuestEntry> All => _all;
     public int Count => _all.Count;
 
     /// <summary>Zone lookup: scene_name → zone info (display name, level stats).</summary>
-    public IReadOnlyDictionary<string, ZoneInfo> ZoneLookup { get; private set; }
-        = new Dictionary<string, ZoneInfo>();
+    public IReadOnlyDictionary<string, ZoneInfo> ZoneLookup { get; private set; } =
+        new Dictionary<string, ZoneInfo>();
 
     /// <summary>Character spawns: stable_key → list of spawn points.</summary>
-    public IReadOnlyDictionary<string, List<SpawnPoint>> CharacterSpawns { get; private set; }
-        = new Dictionary<string, List<SpawnPoint>>();
+    public IReadOnlyDictionary<string, List<SpawnPoint>> CharacterSpawns { get; private set; } =
+        new Dictionary<string, List<SpawnPoint>>();
 
     /// <summary>Zone transition points.</summary>
-    public IReadOnlyList<ZoneLineEntry> ZoneLines { get; private set; }
-        = Array.Empty<ZoneLineEntry>();
+    public IReadOnlyList<ZoneLineEntry> ZoneLines { get; private set; } =
+        Array.Empty<ZoneLineEntry>();
 
     /// <summary>Pre-computed quest chain groups.</summary>
-    public IReadOnlyList<ChainGroupEntry> ChainGroups { get; private set; }
-        = Array.Empty<ChainGroupEntry>();
+    public IReadOnlyList<ChainGroupEntry> ChainGroups { get; private set; } =
+        Array.Empty<ChainGroupEntry>();
 
     /// <summary>Character quest unlock requirements: stable_key → OR-of-ANDs quest groups.</summary>
-    public IReadOnlyDictionary<string, List<List<string>>> CharacterQuestUnlocks { get; private set; }
-        = new Dictionary<string, List<List<string>>>();
+    public IReadOnlyDictionary<string, List<List<string>>> CharacterQuestUnlocks
+    {
+        get;
+        private set;
+    } = new Dictionary<string, List<List<string>>>();
 
     public QuestEntry? GetByDBName(string dbName) =>
         _byDBName.TryGetValue(dbName, out var entry) ? entry : null;
@@ -88,10 +97,12 @@ public sealed class GuideData
         data.ZoneLookup = wrapper.ZoneLookup ?? new Dictionary<string, ZoneInfo>();
         foreach (var (scene, info) in data.ZoneLookup)
             data._displayToScene[info.DisplayName] = scene;
-        data.CharacterSpawns = wrapper.CharacterSpawns ?? new Dictionary<string, List<SpawnPoint>>();
+        data.CharacterSpawns =
+            wrapper.CharacterSpawns ?? new Dictionary<string, List<SpawnPoint>>();
         data.ZoneLines = wrapper.ZoneLines ?? new List<ZoneLineEntry>();
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();
-        data.CharacterQuestUnlocks = wrapper.CharacterQuestUnlocks ?? new Dictionary<string, List<List<string>>>();
+        data.CharacterQuestUnlocks =
+            wrapper.CharacterQuestUnlocks ?? new Dictionary<string, List<List<string>>>();
 
         return data;
     }
@@ -106,14 +117,18 @@ public sealed class GuideData
     public int MergeUnknownQuests()
     {
         var db = GameData.QuestDB;
-        if (db == null || db.QuestDatabase == null) return -1;
+        if (db == null || db.QuestDatabase == null)
+            return -1;
 
         int count = 0;
         foreach (var quest in db.QuestDatabase)
         {
-            if (quest == null) continue;
-            if (string.IsNullOrEmpty(quest.DBName)) continue;
-            if (_byDBName.ContainsKey(quest.DBName)) continue;
+            if (quest == null)
+                continue;
+            if (string.IsNullOrEmpty(quest.DBName))
+                continue;
+            if (_byDBName.ContainsKey(quest.DBName))
+                continue;
 
             var stub = new QuestEntry
             {
@@ -132,54 +147,109 @@ public sealed class GuideData
 /// <summary>Top-level JSON wrapper matching the Python GuideOutput structure.</summary>
 internal sealed class GuideWrapper
 {
-    [JsonProperty("_version")] public int Version { get; set; }
-    [JsonProperty("_zone_lookup")] public Dictionary<string, ZoneInfo>? ZoneLookup { get; set; }
-    [JsonProperty("_character_spawns")] public Dictionary<string, List<SpawnPoint>>? CharacterSpawns { get; set; }
-    [JsonProperty("_zone_lines")] public List<ZoneLineEntry>? ZoneLines { get; set; }
-    [JsonProperty("_chain_groups")] public List<ChainGroupEntry>? ChainGroups { get; set; }
-    [JsonProperty("_character_quest_unlocks")] public Dictionary<string, List<List<string>>>? CharacterQuestUnlocks { get; set; }
-    [JsonProperty("quests")] public List<QuestEntry>? Quests { get; set; }
+    [JsonProperty("_version")]
+    public int Version { get; set; }
+
+    [JsonProperty("_zone_lookup")]
+    public Dictionary<string, ZoneInfo>? ZoneLookup { get; set; }
+
+    [JsonProperty("_character_spawns")]
+    public Dictionary<string, List<SpawnPoint>>? CharacterSpawns { get; set; }
+
+    [JsonProperty("_zone_lines")]
+    public List<ZoneLineEntry>? ZoneLines { get; set; }
+
+    [JsonProperty("_chain_groups")]
+    public List<ChainGroupEntry>? ChainGroups { get; set; }
+
+    [JsonProperty("_character_quest_unlocks")]
+    public Dictionary<string, List<List<string>>>? CharacterQuestUnlocks { get; set; }
+
+    [JsonProperty("quests")]
+    public List<QuestEntry>? Quests { get; set; }
 }
 
 /// <summary>Zone metadata from the lookup table.</summary>
 public sealed class ZoneInfo
 {
-    [JsonProperty("display_name")] public string DisplayName { get; set; } = "";
-    [JsonProperty("stable_key")] public string StableKey { get; set; } = "";
-    [JsonProperty("level_min")] public int? LevelMin { get; set; }
-    [JsonProperty("level_max")] public int? LevelMax { get; set; }
-    [JsonProperty("level_median")] public int? LevelMedian { get; set; }
+    [JsonProperty("display_name")]
+    public string DisplayName { get; set; } = "";
+
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
+    [JsonProperty("level_min")]
+    public int? LevelMin { get; set; }
+
+    [JsonProperty("level_max")]
+    public int? LevelMax { get; set; }
+
+    [JsonProperty("level_median")]
+    public int? LevelMedian { get; set; }
 }
 
 /// <summary>A character spawn point with coordinates.</summary>
 public sealed class SpawnPoint
 {
-    [JsonProperty("scene")] public string Scene { get; set; } = "";
-    [JsonProperty("x")] public float X { get; set; }
-    [JsonProperty("y")] public float Y { get; set; }
-    [JsonProperty("z")] public float Z { get; set; }
-    [JsonProperty("night_spawn")] public bool NightSpawn { get; set; }
+    [JsonProperty("scene")]
+    public string Scene { get; set; } = "";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("z")]
+    public float Z { get; set; }
+
+    [JsonProperty("night_spawn")]
+    public bool NightSpawn { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>
 public sealed class ZoneLineEntry
 {
-    [JsonProperty("scene")] public string Scene { get; set; } = "";
-    [JsonProperty("x")] public float X { get; set; }
-    [JsonProperty("y")] public float Y { get; set; }
-    [JsonProperty("z")] public float Z { get; set; }
-    [JsonProperty("is_enabled")] public bool IsEnabled { get; set; } = true;
-    [JsonProperty("destination_zone_key")] public string DestinationZoneKey { get; set; } = "";
-    [JsonProperty("destination_display")] public string DestinationDisplay { get; set; } = "";
-    [JsonProperty("landing_x")] public float? LandingX { get; set; }
-    [JsonProperty("landing_y")] public float? LandingY { get; set; }
-    [JsonProperty("landing_z")] public float? LandingZ { get; set; }
-    [JsonProperty("required_quest_groups")] public List<List<string>>? RequiredQuestGroups { get; set; }
+    [JsonProperty("scene")]
+    public string Scene { get; set; } = "";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("z")]
+    public float Z { get; set; }
+
+    [JsonProperty("is_enabled")]
+    public bool IsEnabled { get; set; } = true;
+
+    [JsonProperty("destination_zone_key")]
+    public string DestinationZoneKey { get; set; } = "";
+
+    [JsonProperty("destination_display")]
+    public string DestinationDisplay { get; set; } = "";
+
+    [JsonProperty("landing_x")]
+    public float? LandingX { get; set; }
+
+    [JsonProperty("landing_y")]
+    public float? LandingY { get; set; }
+
+    [JsonProperty("landing_z")]
+    public float? LandingZ { get; set; }
+
+    [JsonProperty("required_quest_groups")]
+    public List<List<string>>? RequiredQuestGroups { get; set; }
 }
 
 /// <summary>A pre-computed quest chain group.</summary>
 public sealed class ChainGroupEntry
 {
-    [JsonProperty("name")] public string Name { get; set; } = "";
-    [JsonProperty("quests")] public List<string> Quests { get; set; } = new();
+    [JsonProperty("name")]
+    public string Name { get; set; } = "";
+
+    [JsonProperty("quests")]
+    public List<string> Quests { get; set; } = new();
 }

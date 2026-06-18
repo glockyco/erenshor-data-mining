@@ -15,8 +15,10 @@ namespace AdventureGuide.Navigation;
 public sealed class MiningNodeTracker
 {
     // MiningNode.Respawn is private — cache the FieldInfo
-    private static readonly FieldInfo? RespawnField =
-        typeof(MiningNode).GetField("Respawn", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo? RespawnField = typeof(MiningNode).GetField(
+        "Respawn",
+        BindingFlags.NonPublic | BindingFlags.Instance
+    );
 
     private const float TickRate = 60f;
 
@@ -52,11 +54,14 @@ public sealed class MiningNodeTracker
     /// </summary>
     public static float? GetRemainingSeconds(MiningNode node)
     {
-        if (RespawnField == null) return null;
-        if (!IsMined(node)) return null;
+        if (RespawnField == null)
+            return null;
+        if (!IsMined(node))
+            return null;
 
         float ticks = (float)RespawnField.GetValue(node);
-        if (ticks <= 0f) return null;
+        if (ticks <= 0f)
+            return null;
 
         return ticks / TickRate;
     }
@@ -72,7 +77,8 @@ public sealed class MiningNodeTracker
 
         foreach (var node in _nodes)
         {
-            if (node == null) continue;
+            if (node == null)
+                continue;
             float? remaining = GetRemainingSeconds(node);
             if (remaining.HasValue && remaining.Value < bestSeconds)
             {
@@ -95,8 +101,10 @@ public sealed class MiningNodeTracker
 
         foreach (var node in _nodes)
         {
-            if (node == null) continue;
-            if (IsMined(node)) continue;
+            if (node == null)
+                continue;
+            if (IsMined(node))
+                continue;
             float dist = (node.transform.position - playerPos).sqrMagnitude;
             if (dist < bestDist)
             {

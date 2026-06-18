@@ -18,13 +18,18 @@ public static class StepSceneResolver
         if (step.ZoneName != null)
         {
             var scene = data.GetSceneName(step.ZoneName);
-            if (scene != null) return scene;
+            if (scene != null)
+                return scene;
         }
 
         // Check character target spawns — use the first matching scene
-        if (step.TargetKey != null && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns))
+        if (
+            step.TargetKey != null
+            && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns)
+        )
         {
-            if (spawns.Count > 0) return spawns[0].Scene;
+            if (spawns.Count > 0)
+                return spawns[0].Scene;
         }
 
         // For item steps, check source NPC spawns or zone-level sources
@@ -35,7 +40,10 @@ public static class StepSceneResolver
             if (sourceKey.StartsWith("fishing:", System.StringComparison.Ordinal))
                 return sourceKey.Substring("fishing:".Length);
 
-            if (data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns) && srcSpawns.Count > 0)
+            if (
+                data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns)
+                && srcSpawns.Count > 0
+            )
                 return srcSpawns[0].Scene;
         }
 
@@ -53,8 +61,10 @@ public static class StepSceneResolver
             return null;
 
         var item = quest.RequiredItems.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
-        if (item?.Sources == null) return null;
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
+        );
+        if (item?.Sources == null)
+            return null;
 
         return FindFirstLeafSourceKey(item.Sources);
     }
@@ -74,7 +84,8 @@ public static class StepSceneResolver
             if (src.Children != null)
             {
                 var childKey = FindFirstLeafSourceKey(src.Children);
-                if (childKey != null) return childKey;
+                if (childKey != null)
+                    return childKey;
             }
         }
         return null;
@@ -85,15 +96,22 @@ public static class StepSceneResolver
     /// Recurses into children (quest_reward → transitive drop sources).
     /// For non-item steps, falls back to ResolveScene comparison.
     /// </summary>
-    public static bool HasSourceInScene(QuestEntry quest, QuestStep step, GuideData data, string scene)
+    public static bool HasSourceInScene(
+        QuestEntry quest,
+        QuestStep step,
+        GuideData data,
+        string scene
+    )
     {
         if (step.TargetType != "item" || quest.RequiredItems == null)
             return ResolveScene(quest, step, data) is string s
                 && string.Equals(s, scene, System.StringComparison.OrdinalIgnoreCase);
 
         var item = quest.RequiredItems.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
-        if (item?.Sources == null) return false;
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
+        );
+        if (item?.Sources == null)
+            return false;
 
         return AnySourceInScene(item.Sources, data, scene);
     }
@@ -125,7 +143,13 @@ public static class StepSceneResolver
                 {
                     foreach (var sp in spawns)
                     {
-                        if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+                        if (
+                            string.Equals(
+                                sp.Scene,
+                                scene,
+                                System.StringComparison.OrdinalIgnoreCase
+                            )
+                        )
                             return true;
                     }
                 }

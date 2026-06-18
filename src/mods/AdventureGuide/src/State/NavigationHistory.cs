@@ -7,7 +7,10 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class NavigationHistory
 {
-    public enum PageType { Quest }
+    public enum PageType
+    {
+        Quest,
+    }
 
     public readonly struct PageRef
     {
@@ -32,7 +35,11 @@ public sealed class NavigationHistory
 
     public bool CanGoBack => _cursor > 0;
     public bool CanGoForward => _cursor < _pages.Count - 1;
-    public int MaxSize { get => _maxSize; set => _maxSize = Math.Max(1, value); }
+    public int MaxSize
+    {
+        get => _maxSize;
+        set => _maxSize = Math.Max(1, value);
+    }
 
     /// <summary>
     /// Navigate to a new page. Truncates any forward history and
@@ -66,7 +73,8 @@ public sealed class NavigationHistory
     /// <summary>Go back. Returns the previous page.</summary>
     public PageRef? Back()
     {
-        if (!CanGoBack) return null;
+        if (!CanGoBack)
+            return null;
         _cursor--;
         return _pages[_cursor];
     }
@@ -74,7 +82,8 @@ public sealed class NavigationHistory
     /// <summary>Go forward. Returns the next page.</summary>
     public PageRef? Forward()
     {
-        if (!CanGoForward) return null;
+        if (!CanGoForward)
+            return null;
         _cursor++;
         return _pages[_cursor];
     }

@@ -24,7 +24,8 @@ public sealed class GuideConfigEntry<T> : IDisposable
         string description,
         bool hidden = false,
         float? min = null,
-        float? max = null)
+        float? max = null
+    )
     {
         _config = config;
         _key = $"{section}.{key}";
@@ -45,7 +46,8 @@ public sealed class GuideConfigEntry<T> : IDisposable
         get => _value;
         set
         {
-            if (EqualityComparer<T>.Default.Equals(_value, value)) return;
+            if (EqualityComparer<T>.Default.Equals(_value, value))
+                return;
             _config.Write(_key, value);
         }
     }
@@ -65,10 +67,12 @@ public sealed class GuideConfigEntry<T> : IDisposable
 
     private void OnExternalChanged(object value)
     {
-        if (_disposed) return;
+        if (_disposed)
+            return;
 
         var typed = ConvertValue(value);
-        if (EqualityComparer<T>.Default.Equals(_value, typed)) return;
+        if (EqualityComparer<T>.Default.Equals(_value, typed))
+            return;
 
         _value = typed;
         SettingChanged?.Invoke(this, EventArgs.Empty);
@@ -84,7 +88,8 @@ public sealed class GuideConfigEntry<T> : IDisposable
 
     private static T ConvertValue(object value)
     {
-        if (value is T typed) return typed;
+        if (value is T typed)
+            return typed;
 
         var targetType = typeof(T);
         if (targetType.IsEnum)
@@ -99,9 +104,9 @@ public sealed class GuideConfigEntry<T> : IDisposable
 
     private static void HideFromOptions(IConfig config, string key)
     {
-        var method = config.GetType().GetMethod(
-            "HideKey",
-            BindingFlags.Instance | BindingFlags.NonPublic);
+        var method = config
+            .GetType()
+            .GetMethod("HideKey", BindingFlags.Instance | BindingFlags.NonPublic);
         method?.Invoke(config, new object[] { key });
     }
 }

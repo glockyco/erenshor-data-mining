@@ -37,8 +37,8 @@ public static class StepProgress
         // Acquisition step is only auto-completed for active quests —
         // the player has already done it. For available quests, verify
         // all steps from the beginning.
-        int start = state.IsActionable(quest.DBName)
-            && IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
+        int start =
+            state.IsActionable(quest.DBName) && IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
 
         for (int i = start; i < quest.Steps.Count; i++)
         {
@@ -81,12 +81,26 @@ public static class StepProgress
 
         foreach (var acq in quest.Acquisition)
         {
-            if (step.Action == "talk" && acq.Method == "dialog"
-                && string.Equals(step.TargetName, acq.SourceName, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                step.Action == "talk"
+                && acq.Method == "dialog"
+                && string.Equals(
+                    step.TargetName,
+                    acq.SourceName,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 return true;
 
-            if (step.Action == "read" && acq.Method == "item_read"
-                && string.Equals(step.TargetName, acq.SourceName, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                step.Action == "read"
+                && acq.Method == "item_read"
+                && string.Equals(
+                    step.TargetName,
+                    acq.SourceName,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 return true;
 
             if (step.Action == "travel" && acq.Method == "zone_entry")
@@ -108,8 +122,12 @@ public static class StepProgress
     /// sub-quest resolution applies.
     /// </summary>
     public static (QuestStep? Step, QuestEntry? Quest) ResolveActiveStep(
-        QuestStep step, QuestEntry quest, QuestStateTracker state, GuideData data,
-        int maxDepth = 8)
+        QuestStep step,
+        QuestEntry quest,
+        QuestStateTracker state,
+        GuideData data,
+        int maxDepth = 8
+    )
     {
         var currentStep = step;
         var currentQuest = quest;
@@ -163,20 +181,30 @@ public static class StepProgress
     /// or the prereq is already completed.
     /// </summary>
     private static QuestEntry? FindQuestRewardPrereq(
-        QuestEntry quest, QuestStep step, QuestStateTracker state, GuideData data)
+        QuestEntry quest,
+        QuestStep step,
+        QuestStateTracker state,
+        GuideData data
+    )
     {
-        if (quest.RequiredItems == null) return null;
+        if (quest.RequiredItems == null)
+            return null;
 
         var item = quest.RequiredItems.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
-        if (item?.Sources == null) return null;
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
+        );
+        if (item?.Sources == null)
+            return null;
 
         foreach (var src in item.Sources)
         {
-            if (src.Type != "quest_reward" || src.QuestKey == null) continue;
+            if (src.Type != "quest_reward" || src.QuestKey == null)
+                continue;
             var subQuest = data.GetByStableKey(src.QuestKey);
-            if (subQuest?.Steps == null || subQuest.Steps.Count == 0) continue;
-            if (state.IsCompleted(subQuest.DBName)) continue;
+            if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
+                continue;
+            if (state.IsCompleted(subQuest.DBName))
+                continue;
             return subQuest;
         }
 

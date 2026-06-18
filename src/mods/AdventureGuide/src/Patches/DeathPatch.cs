@@ -21,7 +21,8 @@ internal static class DeathPatch
     private static void Postfix(Character __instance)
     {
         var npc = __instance.GetComponent<NPC>();
-        if (npc == null) return;
+        if (npc == null)
+            return;
 
         Registry?.Unregister(npc);
         Timers?.OnNPCDeath(npc);

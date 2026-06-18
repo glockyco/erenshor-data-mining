@@ -20,8 +20,10 @@ public sealed class EntityRegistry
     {
         public readonly NPC Npc;
         public readonly Character Character;
+
         /// <summary>Stable key for this NPC, computed at registration.</summary>
         public readonly string StableKey;
+
         public Entry(NPC npc, Character character, string stableKey)
         {
             Npc = npc;
@@ -30,7 +32,9 @@ public sealed class EntityRegistry
         }
     }
 
-    private readonly Dictionary<string, List<Entry>> _byKey = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<Entry>> _byKey = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
 
     /// <summary>
     /// Register a newly spawned NPC. Called from SpawnPatch postfix.
@@ -40,13 +44,16 @@ public sealed class EntityRegistry
     /// </summary>
     public void Register(NPC npc, SpawnPoint? spawnPoint = null)
     {
-        if (npc == null) return;
+        if (npc == null)
+            return;
 
         var character = npc.GetComponent<Character>();
-        if (character == null) return;
+        if (character == null)
+            return;
 
         string? key = DeriveStableKey(npc, spawnPoint);
-        if (key == null) return;
+        if (key == null)
+            return;
 
         if (!_byKey.TryGetValue(key, out var list))
         {
@@ -61,7 +68,8 @@ public sealed class EntityRegistry
     /// </summary>
     public void Unregister(NPC npc)
     {
-        if (npc == null) return;
+        if (npc == null)
+            return;
 
         // We don't know the key, so scan all lists for this instance.
         // Death is infrequent so this is fine.
@@ -91,7 +99,8 @@ public sealed class EntityRegistry
     public void SyncFromLiveNPCs()
     {
         Clear();
-        if (NPCTable.LiveNPCs == null) return;
+        if (NPCTable.LiveNPCs == null)
+            return;
 
         // Build NPC→SpawnPoint lookup for stable key derivation
         var spawnPoints = UnityEngine.Object.FindObjectsOfType<SpawnPoint>();
@@ -115,7 +124,8 @@ public sealed class EntityRegistry
     /// </summary>
     public NPC? FindClosest(string? stableKey, Vector3 position)
     {
-        if (stableKey == null) return null;
+        if (stableKey == null)
+            return null;
 
         // Try exact key first, then base key without variant suffix.
         // The export pipeline deduplicates identical prefab names by
@@ -160,7 +170,8 @@ public sealed class EntityRegistry
     /// </summary>
     public int CountAlive(string? stableKey)
     {
-        if (stableKey == null) return 0;
+        if (stableKey == null)
+            return 0;
         if (!_byKey.TryGetValue(stableKey, out var list))
         {
             var baseKey = StripVariantSuffix(stableKey);
@@ -200,15 +211,17 @@ public sealed class EntityRegistry
         if (spawnPoint != null)
         {
             // Try CommonSpawns first, then RareSpawns
-            var prefabName = FindPrefabName(spawnPoint.CommonSpawns, npc.NPCName)
-                          ?? FindPrefabName(spawnPoint.RareSpawns, npc.NPCName);
+            var prefabName =
+                FindPrefabName(spawnPoint.CommonSpawns, npc.NPCName)
+                ?? FindPrefabName(spawnPoint.RareSpawns, npc.NPCName);
             if (prefabName != null)
                 return "character:" + prefabName.Trim().ToLowerInvariant();
         }
 
         // Directly placed NPC — use GameObject name
         var objName = npc.gameObject.name;
-        if (string.IsNullOrEmpty(objName)) return null;
+        if (string.IsNullOrEmpty(objName))
+            return null;
         return "character:" + objName.Trim().ToLowerInvariant();
     }
 
@@ -216,16 +229,27 @@ public sealed class EntityRegistry
     /// Find the prefab name in a spawn list whose NPC component matches
     /// the given display name. Returns null if no match found.
     /// </summary>
-    private static string? FindPrefabName(System.Collections.Generic.List<GameObject>? spawns, string npcName)
+    private static string? FindPrefabName(
+        System.Collections.Generic.List<GameObject>? spawns,
+        string npcName
+    )
     {
-        if (spawns == null) return null;
+        if (spawns == null)
+            return null;
 
         foreach (var prefab in spawns)
         {
-            if (prefab == null) continue;
+            if (prefab == null)
+                continue;
             var prefabNpc = prefab.GetComponent<NPC>();
-            if (prefabNpc != null && string.Equals(prefabNpc.NPCName, npcName,
-                    System.StringComparison.OrdinalIgnoreCase))
+            if (
+                prefabNpc != null
+                && string.Equals(
+                    prefabNpc.NPCName,
+                    npcName,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
                 return prefab.name;
         }
         return null;
@@ -241,13 +265,16 @@ public sealed class EntityRegistry
         // character:name → 1 colon (prefix), no variant
         // character:name:1 → 2 colons, strip last segment
         int lastColon = key.LastIndexOf(':');
-        if (lastColon <= 0) return null;
+        if (lastColon <= 0)
+            return null;
         // Check that the segment after the last colon is numeric
         var suffix = key.AsSpan(lastColon + 1);
-        if (suffix.Length == 0) return null;
+        if (suffix.Length == 0)
+            return null;
         foreach (char c in suffix)
         {
-            if (c < '0' || c > '9') return null;
+            if (c < '0' || c > '9')
+                return null;
         }
         // Ensure there's still a colon before this one (the character: prefix)
         var baseKey = key.Substring(0, lastColon);

@@ -4,5 +4,5 @@ public enum TrackerSortMode
 {
     Proximity,
     Level,
-    Alphabetical
+    Alphabetical,
 }

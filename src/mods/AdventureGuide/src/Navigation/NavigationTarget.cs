@@ -8,7 +8,13 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 public sealed class NavigationTarget
 {
-    public enum Kind { Character, ZoneLine, Zone, Position }
+    public enum Kind
+    {
+        Character,
+        ZoneLine,
+        Zone,
+        Position,
+    }
 
     /// <summary>What kind of thing we're navigating to.</summary>
     public Kind TargetKind { get; }
@@ -56,7 +62,8 @@ public sealed class NavigationTarget
         int stepOrder,
         string? sourceId = null,
         string? originQuestDBName = null,
-        int? originStepOrder = null)
+        int? originStepOrder = null
+    )
     {
         TargetKind = targetKind;
         Position = position;
