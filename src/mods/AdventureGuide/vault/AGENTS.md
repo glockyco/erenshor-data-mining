@@ -24,30 +24,37 @@ uv run erenshor mod build --mod adventure-guide
 # output: src/mods/AdventureGuide/bin/Debug/netstandard2.1/AdventureGuide.dll
 ```
 
-## Version numbers
+## Releasing
 
-Versions are `YYYY.MDD.R` (e.g. `2026.618.0`): year, month (no leading zero) +
-zero-padded day, then a per-day revision starting at 0. This is the same CalVer
-the in-DLL `PluginInfo.Version` uses (`scripts/generate-mod-version.py`), and it
-satisfies the Vault's required `x.y.z` (three numeric segments) format.
+`uv run erenshor mod vault --mod adventure-guide` prepares a release:
 
-For a second release on the same day, bump the revision: check the latest
-version at `GET https://erenshorvault.app/api/mods/adventure-guide/versions` and
-increment the third segment. Keep the `CHANGELOG.md` top heading equal to the
-uploaded version.
+- Derives the next version `YYYY.MDD.R` from the Vault
+  (`GET /api/mods/adventure-guide/versions`), incrementing the revision when
+  today's date prefix already exists — no hand-edited patch numbers.
+- Bakes that version into the DLL via `-p:ModVersion`, so `PluginInfo.Version`
+  (and the `[LunarisPlugin]` attribute Lunaris reads) matches what you publish.
+  This matters: Lunaris compares the installed attribute version against the
+  Vault's latest by semver and, on update, overwrites its stored version with
+  the DLL's — so a stale in-DLL version causes a perpetual "update available".
+- Verifies `CHANGELOG.md` leads with the same version.
+- Prints the version and the upload steps.
+
+The `YYYY.MDD.R` format (year, month without leading zero + zero-padded day,
+per-day revision) satisfies the Vault's required three-segment `x.y.z`.
 
 ## Uploading
 
 The Vault's write API (the Personal Access Token, "CLI access to upload and
 manage your mods") is not available yet — the Public API Key is read-only. Until
-the PAT ships, upload manually:
+the PAT ships, `mod vault` builds the DLL with the right version and you upload
+manually:
 
 1. erenshorvault.app/new-mod — create the entry from `vault.toml` + `README.md`
    + `icon.png` (first release only).
 2. Versions -> new — select `AdventureGuide.dll` as the main file, add NO asset
-   files (the form builds the zip + manifest), set the version, and paste the
-   `CHANGELOG.md` entry.
+   files (the form builds the zip + manifest), set the version `mod vault`
+   printed, and paste the `CHANGELOG.md` top entry.
 
-Once the PAT API ships, an `erenshor mod vault` command can read `vault.toml`
-and automate `POST /api/mods` + `POST /api/mods/{mod_ref}/versions` with an
-`Authorization: Bearer <token>` header.
+When the PAT API ships, the upload step (`POST /api/mods/{mod_ref}/versions`
+with an `Authorization: Bearer <token>` header) slots into `mod vault` — the
+version derivation and build are already in place.

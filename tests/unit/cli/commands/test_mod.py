@@ -31,3 +31,26 @@ def test_lunaris_mods_deploy_to_plugins_not_bepinex(tmp_path: Path) -> None:
     assert target == tmp_path / "plugins"
     assert copy_pdb is False
     assert "Lunaris" in label
+
+
+def test_next_calver_revision_starts_at_zero_for_new_day() -> None:
+    from erenshor.cli.commands.mod import _next_calver_revision
+
+    assert _next_calver_revision("2026.618", None) == "2026.618.0"
+    assert _next_calver_revision("2026.618", "2026.617.3") == "2026.618.0"
+
+
+def test_next_calver_revision_increments_within_same_day() -> None:
+    from erenshor.cli.commands.mod import _next_calver_revision
+
+    assert _next_calver_revision("2026.618", "2026.618.0") == "2026.618.1"
+    assert _next_calver_revision("2026.618", "2026.618.4") == "2026.618.5"
+
+
+def test_latest_calver_for_prefix_picks_max_revision_order_independent() -> None:
+    from erenshor.cli.commands.mod import _latest_calver_for_prefix
+
+    versions = ["2026.617.0", "2026.618.0", "2026.618.2", "2026.618.1"]
+    assert _latest_calver_for_prefix(versions, "2026.618") == "2026.618.2"
+    assert _latest_calver_for_prefix(versions, "2026.619") is None
+    assert _latest_calver_for_prefix([], "2026.618") is None

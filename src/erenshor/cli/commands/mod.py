@@ -18,6 +18,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, NotRequired, TypedDict
@@ -677,6 +678,60 @@ def publish(
     console.print()
 
 
+VAULT_API_BASE = "https://erenshorvault.app/api"
+
+
+def _next_calver_revision(date_prefix: str, latest_version: str | None) -> str:
+    """Next CalVer version for ``date_prefix`` (YYYY.MDD.R).
+
+    Increments the revision when ``latest_version`` already uses today's date
+    prefix; otherwise starts at revision 0.
+    """
+    revision = 0
+    if latest_version and latest_version.startswith(f"{date_prefix}."):
+        with contextlib.suppress(IndexError, ValueError):
+            revision = int(latest_version.split(".")[2]) + 1
+    return f"{date_prefix}.{revision}"
+
+
+def _latest_calver_for_prefix(versions: list[str], date_prefix: str) -> str | None:
+    """Highest ``YYYY.MDD.R`` version matching ``date_prefix``, or None.
+
+    Order-independent: selects by maximum revision rather than list position,
+    since registry responses do not guarantee ordering.
+    """
+
+    def revision(version: str) -> int:
+        try:
+            return int(version.split(".")[2])
+        except (IndexError, ValueError):
+            return -1
+
+    matching = [v for v in versions if v.startswith(f"{date_prefix}.")]
+    return max(matching, key=revision) if matching else None
+
+
+def _get_vault_version(mod_ref: str) -> str:
+    """Compute the next Erenshor Vault version (YYYY.MDD.R) for a mod.
+
+    Queries the Vault for published versions and increments the revision when
+    today's date prefix already exists. Returns revision 0 when the mod has no
+    versions yet or the lookup fails.
+    """
+    now = datetime.now(UTC)
+    date_prefix = f"{now.year}.{now.month}{now.day:02d}"
+    url = f"{VAULT_API_BASE}/mods/{mod_ref}/versions"
+    request = Request(url, headers={"User-Agent": "erenshor-cli/1.0"})
+    versions: list[str] = []
+    try:
+        with urlopen(request, timeout=10) as resp:
+            data = json.loads(resp.read())
+        versions = [str(v["version"]) for v in data.get("versions", []) if v.get("version")]
+    except (HTTPError, URLError, json.JSONDecodeError, KeyError, TypeError):
+        pass
+    return _next_calver_revision(date_prefix, _latest_calver_for_prefix(versions, date_prefix))
+
+
 def _get_thunderstore_version(namespace: str, name: str) -> str:
     """Compute the next Thunderstore version in YYYY.MDD.R format.
 
@@ -698,12 +753,7 @@ def _get_thunderstore_version(namespace: str, name: str) -> str:
     except (HTTPError, URLError, json.JSONDecodeError, KeyError):
         pass
 
-    revision = 0
-    if latest_version and latest_version.startswith(f"{date_prefix}."):
-        with contextlib.suppress(IndexError, ValueError):
-            revision = int(latest_version.split(".")[2]) + 1
-
-    return f"{date_prefix}.{revision}"
+    return _next_calver_revision(date_prefix, latest_version)
 
 
 def _check_tcli_available() -> bool:
@@ -851,6 +901,84 @@ def thunderstore(
 
     console.print()
     console.print("[green]Thunderstore publish complete![/green]")
+    console.print()
+
+
+@app.command()
+def vault(
+    ctx: typer.Context,
+    mod: str | None = typer.Option(
+        None, "--mod", help="Build a specific Vault mod (default: all mods with a vault/ listing)"
+    ),
+) -> None:
+    """Build a native Lunaris mod for an Erenshor Vault release.
+
+    Derives the next version (YYYY.MDD.R) from the Vault so the patch revision is
+    never hand-edited, and bakes it into the DLL's PluginInfo.Version. That value
+    flows to the [LunarisPlugin] attribute Lunaris compares for updates, so the
+    installed version matches what is published (otherwise Lunaris shows a
+    perpetual "update available"). Verifies vault/CHANGELOG.md leads with the
+    same version.
+
+    The Vault write API is not available yet, so this prepares the release:
+    upload the built DLL at erenshorvault.app with the printed version and
+    changelog. Automated upload slots in here once the Vault PAT API ships.
+    """
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(Panel.fit("[bold cyan]Erenshor Vault Release[/bold cyan]", border_style="cyan"))
+    console.print()
+
+    def has_listing(mod_id: str) -> bool:
+        return (_get_mod_dir(cli_ctx, mod_id) / "vault" / "vault.toml").exists()
+
+    if mod:
+        if mod not in MODS:
+            console.print(f"[red]Error: Unknown mod: {mod}[/red]")
+            raise typer.Exit(1)
+        if not has_listing(mod):
+            console.print(f"[red]Error: {mod} has no vault/vault.toml listing[/red]")
+            raise typer.Exit(1)
+        eligible = [mod]
+    else:
+        eligible = [m for m in MODS if has_listing(m)]
+
+    if not eligible:
+        console.print("[yellow]No mods have a vault/vault.toml listing.[/yellow]")
+        raise typer.Exit(0)
+
+    for mod_id in eligible:
+        mod_dir = _get_mod_dir(cli_ctx, mod_id)
+        config = tomllib.loads((mod_dir / "vault" / "vault.toml").read_text())
+        mod_ref = config["mod"]["mod_ref"]
+
+        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
+        version = _get_vault_version(mod_ref)
+        console.print(f"  Version: [cyan]{version}[/cyan]  (mod_ref: {mod_ref})")
+
+        changelog = (mod_dir / "vault" / "CHANGELOG.md").read_text()
+        headings = [ln for ln in changelog.splitlines() if ln.startswith("## v")]
+        top = headings[0].removeprefix("## v").strip() if headings else ""
+        if top != version:
+            console.print(
+                f"  [yellow]⚠ CHANGELOG.md leads with v{top or '(none)'}; expected v{version}. "
+                f"Update it before uploading.[/yellow]"
+            )
+
+        console.print("[bold]Building...[/bold]")
+        _build_mods_internal(cli_ctx, mod_id, version=version)
+
+        dll = mod_dir / "bin" / "Debug" / "netstandard2.1" / MODS[mod_id]["dll_name"]
+        console.print(f"  [green]✓[/green] {dll}")
+        console.print()
+        console.print("  [bold]Upload (manual until the Vault write API ships):[/bold]")
+        console.print(f"    1. erenshorvault.app -> new version for '{mod_ref}', version [cyan]{version}[/cyan]")
+        console.print(f"    2. Main file: {dll.name}  (no asset files)")
+        console.print("    3. Changelog: the top entry of vault/CHANGELOG.md")
+        console.print()
+
+    console.print("[green]Vault release prepared![/green]")
     console.print()
 
 
