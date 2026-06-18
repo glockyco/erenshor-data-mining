@@ -325,6 +325,26 @@ class LoggingConfig(BaseModel):
     )
 
 
+class ModsConfig(BaseModel):
+    """Configuration for companion mod builds."""
+
+    lunaris_lib_dir: str = Field(
+        default="",
+        description=(
+            "Directory with Lunaris build libraries (e.g. ImGui.NET.dll) used to "
+            "compile native Lunaris mods. Empty by default; set in "
+            ".erenshor/config.local.toml for libraries the game install does not "
+            "ship. DLLs present in the game install are sourced from there first."
+        ),
+    )
+
+    def resolved_lunaris_lib_dir(self, repo_root: Path, validate: bool = False) -> Path:
+        """Resolve the Lunaris build library directory to an absolute path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.lunaris_lib_dir, repo_root, validate=validate)
+
+
 class GlobalConfig(BaseModel):
     """Global configuration settings shared across all variants.
 
@@ -371,6 +391,10 @@ class GlobalConfig(BaseModel):
     bepinex_dev_tools: BepInExDevToolsConfig | None = Field(
         default=None,
         description="BepInEx development tool download URLs (configure in config.toml)",
+    )
+    mods: ModsConfig = Field(
+        default_factory=ModsConfig,
+        description="Companion mod build configuration",
     )
 
 

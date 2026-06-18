@@ -88,11 +88,11 @@ MODS: dict[str, ModInfo] = {
         "name": "Adventure Guide",
         "dll_name": "AdventureGuide.dll",
         "loader": "lunaris",
-        "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": [
             "ImGui.NET.dll",
             "Newtonsoft.Json.dll",
             "System.Numerics.Vectors.dll",
+            "0Harmony.dll",
         ],
     },
 }
@@ -202,6 +202,43 @@ def _get_deploy_target_dir(mod_id: str, game_path: Path, *, scripts: bool) -> tu
     if scripts:
         return _get_bepinex_scripts_dir(game_path), "BepInEx/scripts (hot reload)", True
     return _get_bepinex_plugins_dir(game_path), "BepInEx/plugins", False
+
+
+def _find_lunaris_dll(game_path: Path, lunaris_lib_dir: Path | None) -> Path | None:
+    """Locate Lunaris.dll for native Lunaris plugin compilation.
+
+    Resolution order: the ERENSHOR_LUNARIS_DLL override, the game install, then
+    the configured Lunaris build directory.
+    """
+    env_path = os.environ.get("ERENSHOR_LUNARIS_DLL")
+    if env_path and Path(env_path).is_file():
+        return Path(env_path)
+    candidates = [game_path / "Lunaris.dll"]
+    if lunaris_lib_dir is not None:
+        candidates.append(lunaris_lib_dir / "Lunaris.dll")
+    return next((c for c in candidates if c.is_file()), None)
+
+
+def _find_lunaris_shared_lib(dll_name: str, game_path: Path, lunaris_lib_dir: Path | None) -> Path | None:
+    """Locate a Lunaris-provided shared library for compilation.
+
+    Resolution order: the ERENSHOR_LUNARIS_LIB_DIR override, then the per-machine
+    game install (root, BepInEx, Managed), then the configured Lunaris build
+    directory for libraries the game does not ship (e.g. ImGui.NET.dll).
+    """
+    candidates: list[Path] = []
+    env_dir = os.environ.get("ERENSHOR_LUNARIS_LIB_DIR")
+    if env_dir:
+        candidates.append(Path(env_dir) / dll_name)
+    candidates += [
+        game_path / dll_name,
+        game_path / "BepInEx" / "plugins" / dll_name,
+        game_path / "BepInEx" / "core" / dll_name,
+        _get_managed_dir(game_path) / dll_name,
+    ]
+    if lunaris_lib_dir is not None:
+        candidates.append(lunaris_lib_dir / dll_name)
+    return next((c for c in candidates if c.is_file()), None)
 
 
 def _build_mods_internal(
@@ -330,6 +367,9 @@ def setup(ctx: typer.Context) -> None:
 
     bepinex_core_dir = game_path / "BepInEx" / "core"
 
+    mods_cfg = cli_ctx.config.global_.mods
+    lunaris_lib_dir = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
+
     # Copy DLLs to all mod lib directories
     for mod_id, mod_info in MODS.items():
         lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
@@ -357,6 +397,26 @@ def setup(ctx: typer.Context) -> None:
             else:
                 shutil.copy2(source, target)
                 console.print(f"  [green]✓[/green] {dll_name} (from BepInEx)")
+
+        if mod_info.get("loader") == "lunaris":
+            lunaris_dll = _find_lunaris_dll(game_path, lunaris_lib_dir)
+            if lunaris_dll is None:
+                missing.append("Lunaris.dll")
+                console.print("  [red]✗[/red] Lunaris.dll (set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_DLL)")
+            else:
+                shutil.copy2(lunaris_dll, lib_dir / "Lunaris.dll")
+                console.print(f"  [green]✓[/green] Lunaris.dll (from {lunaris_dll.parent})")
+
+            for dll_name in mod_info.get("lunaris_dlls", []):
+                lunaris_source = _find_lunaris_shared_lib(dll_name, game_path, lunaris_lib_dir)
+                if lunaris_source is None:
+                    missing.append(dll_name)
+                    console.print(
+                        f"  [red]✗[/red] {dll_name} (set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_LIB_DIR)"
+                    )
+                else:
+                    shutil.copy2(lunaris_source, lib_dir / dll_name)
+                    console.print(f"  [green]✓[/green] {dll_name} (from {lunaris_source.parent})")
 
         if missing:
             console.print(f"[red]Error: Missing DLLs: {', '.join(missing)}[/red]")

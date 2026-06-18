@@ -19,6 +19,7 @@ from erenshor.infrastructure.config.schema import (
     LoggingConfig,
     MapsConfig,
     MediaWikiConfig,
+    ModsConfig,
     PathsConfig,
     SteamConfig,
     UnityConfig,
@@ -664,3 +665,19 @@ class TestConfig:
         assert len(config.variants) == 2
         assert "main" in config.variants
         assert "playtest" in config.variants
+
+
+class TestModsConfig:
+    """Tests for ModsConfig model."""
+
+    def test_default_lunaris_lib_dir_is_empty(self):
+        """Default is empty so no machine-specific path is committed to git."""
+        config = ModsConfig()
+        assert config.lunaris_lib_dir == ""
+
+    def test_resolved_lunaris_lib_dir_expands_home(self, tmp_path: Path):
+        """resolved_lunaris_lib_dir() expands $HOME to an absolute path."""
+        config = ModsConfig(lunaris_lib_dir="$HOME/Projects/Lunaris/Lunaris/Embeds")
+        resolved = config.resolved_lunaris_lib_dir(tmp_path)
+        assert resolved == Path.home() / "Projects/Lunaris/Lunaris/Embeds"
+        assert resolved.is_absolute()
