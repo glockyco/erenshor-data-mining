@@ -9,7 +9,7 @@ namespace CodeFacts;
 
 internal static class Runner
 {
-    public static RunResult Run(string assemblyPath, string specsPath)
+    public static RunResult Run(string assemblyPath, string specsPath, string? variant = null)
     {
         var specs = RunResult.LoadSpecs(specsPath);
         var result = new RunResult { Assembly = assemblyPath };
@@ -21,9 +21,11 @@ internal static class Runner
         // function of the input DLL, not the toolchain that runs this tool.
         var resolver = new UniversalAssemblyResolver(assemblyPath, throwOnError: false, targetFramework: null);
         var decompiler = new CSharpDecompiler(assemblyPath, resolver, new DecompilerSettings());
+        string? activeVariant = string.IsNullOrWhiteSpace(variant) ? null : variant;
 
         foreach (var fact in specs.Facts)
         {
+            if (!AppliesToVariant(fact, activeVariant)) continue;
             try
             {
                 var method = FindMethod(decompiler, fact);
@@ -58,6 +60,13 @@ internal static class Runner
             throw new InvalidDataException(
                 $"method {fact.Type}::{fact.Method} bound {matches.Count} times (need exactly 1)");
         return matches[0];
+    }
+
+    private static bool AppliesToVariant(FactSpec fact, string? activeVariant)
+    {
+        if (fact.Variants is null || fact.Variants.Count == 0) return true;
+        if (activeVariant is null) return true;
+        return fact.Variants.Contains(activeVariant);
     }
 }
 

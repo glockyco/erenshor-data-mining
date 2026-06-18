@@ -21,7 +21,20 @@ pytestmark = [
 
 def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:
     proc = subprocess.run(
-        ["dotnet", "run", "-c", "Release", "--no-build", "--project", str(code_facts_tool), "--", str(DLL), str(SPECS)],
+        [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--no-build",
+            "--project",
+            str(code_facts_tool),
+            "--",
+            str(DLL),
+            str(SPECS),
+            "--variant",
+            "main",
+        ],
         capture_output=True,
         text=True,
         check=False,
@@ -29,7 +42,8 @@ def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:
     out = json.loads(proc.stdout)
     assert proc.returncode == 0, out.get("errors")
 
-    spec_ids = {f["id"] for f in json.loads(SPECS.read_text())["facts"]}
+    specs = json.loads(SPECS.read_text())["facts"]
+    spec_ids = {f["id"] for f in specs if "main" in f.get("variants", ["main"])}
     got = {f["id"]: f for f in out["facts"]}
     assert set(got) == spec_ids
 

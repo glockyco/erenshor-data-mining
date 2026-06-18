@@ -10,7 +10,8 @@ internal sealed record FactSpec(
     [property: JsonPropertyName("method")] string Method,
     [property: JsonPropertyName("matcher")] string Matcher,
     [property: JsonPropertyName("args")] Dictionary<string, string> Args,
-    [property: JsonPropertyName("keys")] List<string>? Keys);
+    [property: JsonPropertyName("keys")] List<string>? Keys,
+    [property: JsonPropertyName("variants")] List<string>? Variants);
 
 internal sealed record SpecsFile(
     [property: JsonPropertyName("schema")] int Schema,

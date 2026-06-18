@@ -15,7 +15,7 @@ from loguru import logger
 TOOL_PROJECT = Path("src") / "tools" / "CodeFacts"
 
 
-def run_tool(repo_root: Path, assembly: Path) -> dict[str, Any]:
+def run_tool(repo_root: Path, assembly: Path, variant: str | None = None) -> dict[str, Any]:
     """Invoke the analyzer; raise on any failure (fail fast, no fallbacks)."""
     if not assembly.exists():
         raise FileNotFoundError(f"shipped game assembly not found: {assembly}")
@@ -29,19 +29,22 @@ def run_tool(repo_root: Path, assembly: Path) -> dict[str, Any]:
         capture_output=True,
         text=True,
     )
+    command = [
+        "dotnet",
+        "run",
+        "-c",
+        "Release",
+        "--no-build",
+        "--project",
+        str(project),
+        "--",
+        str(assembly),
+        str(specs),
+    ]
+    if variant is not None:
+        command.extend(["--variant", variant])
     proc = subprocess.run(
-        [
-            "dotnet",
-            "run",
-            "-c",
-            "Release",
-            "--no-build",
-            "--project",
-            str(project),
-            "--",
-            str(assembly),
-            str(specs),
-        ],
+        command,
         capture_output=True,
         text=True,
         check=False,
@@ -90,8 +93,8 @@ def write_code_facts(raw_db_path: Path, payload: dict[str, Any], assembly_sha256
     return len(rows)
 
 
-def extract_code_facts(repo_root: Path, assembly: Path, raw_db_path: Path) -> int:
+def extract_code_facts(repo_root: Path, assembly: Path, raw_db_path: Path, variant: str | None = None) -> int:
     """Run the analyzer against ``assembly`` and persist the facts into the raw DB."""
-    payload = run_tool(repo_root, assembly)
+    payload = run_tool(repo_root, assembly, variant)
     sha = hashlib.sha256(assembly.read_bytes()).hexdigest()
     return write_code_facts(raw_db_path, payload, assembly_sha256=sha)

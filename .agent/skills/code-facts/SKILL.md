@@ -20,7 +20,8 @@ provenance. Every fact lives here; nothing is hand-curated downstream.
 
 - `facts[]` — each spec: `id` (dotted, lowercase), `mode` (`extract`/`assert`),
   `type` (game class), `method`, `matcher`, `args` (matcher-specific),
-  `keys` (extract output keys), `note` (why an assert exists + what re-implements it).
+  optional `variants` (only run this fact for listed variant names), `keys`
+  (extract output keys), `note` (why an assert exists + what re-implements it).
 - `deferred[]` — facts knowingly **not** modeled, each with the reason (no matcher
   fits, ambiguous binding, non-literal bounds). Read it before adding a spec that
   duplicates a known gap.
@@ -33,6 +34,7 @@ Matchers (each binds **exactly once or throws** — no fuzzy fallback):
 | `string_constants` | the set of `==`-compared string literals in the method |
 | `int_comparisons` | integer bounds per member, comma-joined (`args` maps member→key) |
 | `statement_shape` | asserts exactly one normalized statement equals `args.statement` |
+| `node_shape` | asserts exactly one normalized AST node of `args.kind` equals `args.shape` |
 | `string_set` | asserts the `==`-literal set equals `args.strings` exactly |
 
 **Specs pin the DECOMPILER's rendering, not the `.cs` reference files** (e.g.
