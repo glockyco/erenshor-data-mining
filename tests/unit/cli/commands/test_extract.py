@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typer.main import get_command
 from typer.testing import CliRunner
 
 from erenshor.cli.commands import extract
@@ -37,18 +38,16 @@ def _context(tmp_path: Path, variant: VariantStub) -> SimpleNamespace:
     )
 
 
-def test_export_help_lists_profile_option() -> None:
-    result = CliRunner().invoke(extract.app, ["export", "--help"])
+def test_export_command_registers_profile_option() -> None:
+    command = get_command(extract.app).commands["export"]
 
-    assert result.exit_code == 0
-    assert "--profile" in result.stdout
+    assert any("--profile" in param.opts for param in command.params)
 
 
-def test_profile_report_help_lists_latest_option() -> None:
-    result = CliRunner().invoke(extract.app, ["profile", "report", "--help"])
+def test_profile_report_command_registers_latest_option() -> None:
+    command = get_command(extract.app).commands["profile"].commands["report"]
 
-    assert result.exit_code == 0
-    assert "--latest" in result.stdout
+    assert any("--latest" in param.opts for param in command.params)
 
 
 def test_profile_report_prints_latest_profile(tmp_path: Path) -> None:
