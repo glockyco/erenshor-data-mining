@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,246 +10,14 @@ public class LootTableProbabilityCalculator
     // Calculate drop probabilities for a given loot table
     public Dictionary<string, double> CalculateDropProbabilities(LootTable lootTable)
     {
-        // Gather all unique items (excluding world)
-        List<Item>[] dropLists = new List<Item>[5];
-        dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
-        dropLists[1] = lootTable.LegendaryDrop ?? new List<Item>();
-        dropLists[2] = lootTable.RareDrop ?? new List<Item>();
-        dropLists[3] = lootTable.UncommonDrop ?? new List<Item>();
-        dropLists[4] = lootTable.CommonDrop ?? new List<Item>();
-
-        var allItems = new List<Item>();
-        var itemIndex = new Dictionary<Item, int>();
-        foreach (var list in dropLists)
+        var distributions = CalculatePerItemDropCountDistributions(lootTable);
+        var probabilities = new Dictionary<string, double>();
+        foreach (var kvp in distributions)
         {
-            foreach (var item in list)
-            {
-                if (item == null) continue;
-                if (!itemIndex.ContainsKey(item))
-                {
-                    itemIndex[item] = allItems.Count;
-                    allItems.Add(item);
-                }
-            }
-        }
-        int itemCount = allItems.Count;
-        int worldDropIdx = itemCount; // last index for world drop
-
-        // Precompute per-list item counts (for duplicates)
-        var dropItemCounts = new List<Dictionary<Item, int>>();
-        var totalEntries = new int[5];
-        for (int i = 0; i < 5; ++i)
-        {
-            var dict = new Dictionary<Item, int>();
-            var list = dropLists[i];
-            if (list != null)
-            {
-                foreach (var item in list)
-                {
-                    if (item == null) continue;
-                    if (!dict.ContainsKey(item)) dict[item] = 1;
-                    else dict[item]++;
-                }
-                totalEntries[i] = list.Count;
-            }
-            else
-            {
-                totalEntries[i] = 0;
-            }
-            dropItemCounts.Add(dict);
+            probabilities[kvp.Key] = kvp.Value.Length > 0 ? 1.0 - kvp.Value[0] : 0.0;
         }
 
-        // Prepare effective drop probabilities (with fall-through)
-        double[] baseProbs = new double[] { 0.33, 2.3, 4.7, 8.0, 55.0 }; // percentages (UltraRare, Legendary, Rare, Uncommon, Common)
-        double[] effectiveProbs = new double[5];
-        double carry = 0.0;
-        int maxNonCommon = lootTable.MaxNonCommonDrops;
-        bool nonCommonAllowed = maxNonCommon > 0;
-
-        for (int i = 0; i < 5; ++i)
-        {
-            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 4 ? nonCommonAllowed : true);
-            if (hasItems)
-            {
-                effectiveProbs[i] = baseProbs[i] + carry;
-                carry = 0.0;
-            }
-            else
-            {
-                carry += baseProbs[i];
-                effectiveProbs[i] = 0.0;
-            }
-        }
-
-        int maxRolls = Mathf.Max(1, lootTable.MaxNumberDrops + 1);
-
-        // DP cache: (rollIndex, nonCommonUsed, itemMask, worldDrop) -> probability
-        var dp = new Dictionary<(int, int, int, bool), double[]>();
-
-        double[] DP(int rollIndex, int nonCommonUsed, int itemMask, bool worldDrop)
-        {
-            var key = (rollIndex, nonCommonUsed, itemMask, worldDrop);
-            if (dp.TryGetValue(key, out var cached))
-                return cached;
-
-            double[] result = new double[itemCount + 1]; // [item0, ..., itemN-1, worldDrop]
-
-            if (rollIndex >= maxRolls)
-            {
-                // For each item/world, if present in mask, mark as dropped
-                for (int i = 0; i < itemCount; ++i)
-                    if ((itemMask & (1 << i)) != 0)
-                        result[i] = 1.0;
-                if (worldDrop)
-                    result[worldDropIdx] = 1.0;
-                dp[key] = result;
-                return result;
-            }
-
-            double pSum = 0.0;
-
-            // If non-common cap reached, only common can drop
-            if (nonCommonUsed >= maxNonCommon)
-            {
-                if (effectiveProbs[4] > 0 && totalEntries[4] > 0)
-                {
-                    double pCommon = effectiveProbs[4] / 100.0;
-                    double pWorld = pCommon * 0.1;
-                    double pNormal = pCommon * 0.9;
-
-                    // World drop (as a single event, not per item)
-                    if (pWorld > 0)
-                    {
-                        var subRes = DP(rollIndex + 1, nonCommonUsed, itemMask, true);
-                        for (int i = 0; i < result.Length; ++i)
-                            result[i] += subRes[i] * pWorld;
-                    }
-
-                    // Normal common (duplicates allowed)
-                    var commonDict = dropItemCounts[4];
-                    int totalCommonEntries = totalEntries[4];
-                    double pPerCommon = (totalCommonEntries > 0) ? pNormal / totalCommonEntries : 0.0;
-                    foreach (var kvp in commonDict)
-                    {
-                        int idx = itemIndex[kvp.Key];
-                        int newMask = itemMask | (1 << idx);
-                        var subRes = DP(rollIndex + 1, nonCommonUsed, newMask, worldDrop);
-                        for (int i = 0; i < result.Length; ++i)
-                            result[i] += subRes[i] * pPerCommon * kvp.Value;
-                    }
-                    pSum += pCommon;
-                }
-            }
-            else
-            {
-                // Otherwise, all tiers possible
-                for (int tier = 0; tier < 5; ++tier)
-                {
-                    if (effectiveProbs[tier] > 0 && totalEntries[tier] > 0)
-                    {
-                        double pTier = effectiveProbs[tier] / 100.0;
-                        pSum += pTier;
-
-                        if (tier < 4) // UltraRare, Legendary, Rare, Uncommon: non-common (duplicates allowed)
-                        {
-                            var itemCounts = dropItemCounts[tier];
-                            int totalEntriesTier = totalEntries[tier];
-                            foreach (var kvp in itemCounts)
-                            {
-                                int idx = itemIndex[kvp.Key];
-                                int newMask = itemMask | (1 << idx);
-                                var subRes = DP(rollIndex + 1, nonCommonUsed + 1, newMask, worldDrop);
-                                double pPerItem = (totalEntriesTier > 0) ? pTier * kvp.Value / totalEntriesTier : 0.0;
-                                for (int i = 0; i < result.Length; ++i)
-                                    result[i] += subRes[i] * pPerItem;
-                            }
-                        }
-                        else // Common
-                        {
-                            // World drop (as a single event, not per item)
-                            double pWorld = pTier * 0.1;
-                            if (pWorld > 0)
-                            {
-                                var subRes = DP(rollIndex + 1, nonCommonUsed, itemMask, true);
-                                for (int i = 0; i < result.Length; ++i)
-                                    result[i] += subRes[i] * pWorld;
-                            }
-
-                            // Normal common (duplicates allowed)
-                            var commonDict = dropItemCounts[4];
-                            int totalCommonEntries = totalEntries[4];
-                            double pNormal = pTier * 0.9;
-                            double pPerCommon = (totalCommonEntries > 0) ? pNormal / totalCommonEntries : 0.0;
-                            foreach (var kvp in commonDict)
-                            {
-                                int idx = itemIndex[kvp.Key];
-                                int newMask = itemMask | (1 << idx);
-                                var subRes = DP(rollIndex + 1, nonCommonUsed, newMask, worldDrop);
-                                for (int i = 0; i < result.Length; ++i)
-                                    result[i] += subRes[i] * pPerCommon * kvp.Value;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Chance to drop nothing
-            double pNothing = 1.0 - pSum;
-            if (pNothing > 0)
-            {
-                var subRes = DP(rollIndex + 1, nonCommonUsed, itemMask, worldDrop);
-                for (int i = 0; i < result.Length; ++i)
-                    result[i] += subRes[i] * pNothing;
-            }
-
-            dp[key] = result;
-            return result;
-        }
-
-        // Start DP
-        var finalResult = DP(0, 0, 0, false);
-
-        // Map resultArr to dictionary
-        var resultDict = new Dictionary<string, double>();
-        for (int i = 0; i < allItems.Count; ++i)
-            resultDict[allItems[i].name] = finalResult[i];
-
-        // Only add world drop if there are any common drops
-        if (lootTable.CommonDrop != null && lootTable.CommonDrop.Count > 0)
-            resultDict[WorldDropKey] = finalResult[worldDropIdx];
-
-        // GuaranteeOneDrop: add its probability (always one is chosen)
-        if (lootTable.GuaranteeOneDrop is { Count: > 0 })
-        {
-            var total = lootTable.GuaranteeOneDrop.Count;
-            var guaranteeCounts = new Dictionary<string, int>();
-            foreach (var item in lootTable.GuaranteeOneDrop)
-            {
-                if (item == null) continue;
-                if (!guaranteeCounts.ContainsKey(item.name))
-                    guaranteeCounts[item.name] = 1;
-                else
-                    guaranteeCounts[item.name]++;
-            }
-            foreach (var kvp in guaranteeCounts)
-            {
-                double p = (double)kvp.Value / total;
-                if (resultDict.ContainsKey(kvp.Key))
-                    resultDict[kvp.Key] = 1 - (1 - resultDict[kvp.Key]) * (1 - p);
-                else
-                    resultDict[kvp.Key] = p;
-            }
-        }
-
-        if (lootTable.ActualDrops is { Count: > 0 })
-        {
-            foreach (var item in lootTable.ActualDrops)
-            {
-                resultDict[item.name] = 1;
-            }
-        }
-
-        return resultDict;
+        return probabilities;
     }
 
     // Returns: Dictionary<item name, double[]> where double[n] = probability of getting exactly n of that item per kill
@@ -329,11 +97,20 @@ public class LootTableProbabilityCalculator
         }
 
         int maxRolls = Mathf.Max(1, lootTable.MaxNumberDrops + 1);
+        int guaranteedRolls = Mathf.Max(0, lootTable.NumberOfGuaranteedDrops);
+        int fixedDropCount = 0;
+        if (lootTable.ActualDrops != null)
+        {
+            foreach (var item in lootTable.ActualDrops)
+            {
+                if (item != null)
+                    fixedDropCount++;
+            }
+        }
+        int maxCount = maxRolls + guaranteedRolls + fixedDropCount + 1;
 
-        // For each item, we want to compute the probability distribution of getting n copies (n = 0..maxRolls)
-        // We'll use DP: state = (rollIndex, nonCommonUsed)
-        // For each state, we store: for each item, a probability vector of length (maxRolls+1)
-        // We'll also track worldDrop as a "virtual item" at the end
+        // For each item, compute the probability distribution of getting n copies.
+        // Normal rolls, guaranteed rolls, and fixed ActualDrops all contribute counts.
 
         // DP cache: (rollIndex, nonCommonUsed, worldDrop) -> per-item count distributions
         var dp = new Dictionary<(int, int, bool), double[][]>();
@@ -346,7 +123,6 @@ public class LootTableProbabilityCalculator
 
             // result[item][n] = probability of having n of item after this state
             int numItems = itemCount + 1; // +1 for world drop
-            int maxCount = maxRolls + 1; // can't get more than maxRolls of any item
             double[][] result = new double[numItems][];
             for (int i = 0; i < numItems; ++i)
                 result[i] = new double[maxCount];
@@ -511,57 +287,200 @@ public class LootTableProbabilityCalculator
         if (lootTable.CommonDrop != null && lootTable.CommonDrop.Count > 0)
             resultDict[WorldDropKey] = finalResult[worldDropIdx];
 
-        // GuaranteeOneDrop: add its probability (always one is chosen)
-        if (lootTable.GuaranteeOneDrop is { Count: > 0 })
-        {
-            var total = lootTable.GuaranteeOneDrop.Count;
-            var guaranteeCounts = new Dictionary<string, int>();
-            foreach (var item in lootTable.GuaranteeOneDrop)
-            {
-                if (item == null) continue;
-                if (!guaranteeCounts.ContainsKey(item.name))
-                    guaranteeCounts[item.name] = 1;
-                else
-                    guaranteeCounts[item.name]++;
-            }
-
-            foreach (var kvp in guaranteeCounts)
-            {
-                double p = (double)kvp.Value / total;
-                // Convolve the guarantee with the existing distribution
-                if (resultDict.TryGetValue(kvp.Key, out var dist))
-                {
-                    var newDist = new double[dist.Length];
-                    // For each possible count n, probability is:
-                    // - If n == 0: only possible if not chosen as guarantee
-                    // - If n >= 1: sum of (prob of n-1 in DP) * p + (prob of n in DP) * (1-p)
-                    newDist[0] = dist[0] * (1 - p);
-                    for (int n = 1; n < dist.Length; ++n)
-                        newDist[n] = dist[n] * (1 - p) + dist[n - 1] * p;
-                    resultDict[kvp.Key] = newDist;
-                }
-                else
-                {
-                    var newDist = new double[maxRolls + 1];
-                    newDist[0] = 1 - p;
-                    newDist[1] = p;
-                    resultDict[kvp.Key] = newDist;
-                }
-            }
-        }
+        ApplyGuaranteedDropDistributions(lootTable, resultDict, maxCount);
 
         if (lootTable.ActualDrops is { Count: > 0 })
         {
             foreach (var item in lootTable.ActualDrops)
             {
-                var arr = new double[maxRolls + 1];
-                arr[0] = 0;
-                arr[1] = 1;
-                resultDict[item.name] = arr;
+                if (item == null) continue;
+                var fixedDropDistribution = new double[maxCount];
+                fixedDropDistribution[1] = 1.0;
+                ConvolveDropDistribution(resultDict, item.name, fixedDropDistribution, maxCount);
             }
         }
 
         return resultDict;
+    }
+
+    private static void ApplyGuaranteedDropDistributions(
+        LootTable lootTable,
+        Dictionary<string, double[]> resultDict,
+        int maxCount)
+    {
+        if (lootTable.GuaranteeOneDrop is not { Count: > 0 })
+            return;
+
+        int rollCount = Mathf.Max(0, lootTable.NumberOfGuaranteedDrops);
+        if (rollCount <= 0)
+            return;
+
+        var items = new List<Item>();
+        var itemIndexes = new Dictionary<Item, int>();
+        var weights = new List<int>();
+        int nullEntryCount = 0;
+
+        foreach (var item in lootTable.GuaranteeOneDrop)
+        {
+            if (item == null)
+            {
+                nullEntryCount++;
+                continue;
+            }
+
+            if (itemIndexes.TryGetValue(item, out var index))
+            {
+                weights[index]++;
+                continue;
+            }
+
+            itemIndexes[item] = items.Count;
+            items.Add(item);
+            weights.Add(1);
+        }
+
+        if (items.Count == 0)
+            return;
+
+        if (items.Count > 63)
+            throw new InvalidOperationException($"LootTable '{lootTable.name}' has {items.Count} distinct guaranteed items; the exporter supports at most 63.");
+
+        ulong initialSelectedMask = 0UL;
+        if (lootTable.ActualDrops != null)
+        {
+            foreach (var item in lootTable.ActualDrops)
+            {
+                if (item != null && itemIndexes.TryGetValue(item, out var index))
+                    initialSelectedMask |= 1UL << index;
+            }
+        }
+
+        int totalEntryCount = lootTable.GuaranteeOneDrop.Count;
+        for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
+        {
+            var distribution = CalculateGuaranteedItemDistribution(
+                itemIndex,
+                items,
+                weights,
+                nullEntryCount,
+                totalEntryCount,
+                rollCount,
+                initialSelectedMask,
+                maxCount);
+            ConvolveDropDistribution(resultDict, items[itemIndex].name, distribution, maxCount);
+        }
+    }
+
+    private static double[] CalculateGuaranteedItemDistribution(
+        int targetItemIndex,
+        List<Item> items,
+        List<int> weights,
+        int nullEntryCount,
+        int totalEntryCount,
+        int rollCount,
+        ulong initialSelectedMask,
+        int maxCount)
+    {
+        var states = new Dictionary<(ulong selectedMask, int targetCount), double>
+        {
+            [(initialSelectedMask, 0)] = 1.0
+        };
+
+        for (int roll = 0; roll < rollCount; roll++)
+        {
+            var nextStates = new Dictionary<(ulong selectedMask, int targetCount), double>();
+
+            foreach (var state in states)
+            {
+                ulong selectedMask = state.Key.selectedMask;
+                int targetCount = state.Key.targetCount;
+                double stateProbability = state.Value;
+                int invalidEntryCount = nullEntryCount;
+
+                for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
+                {
+                    if ((selectedMask & (1UL << itemIndex)) != 0)
+                        invalidEntryCount += weights[itemIndex];
+                }
+
+                double invalidProbability = (double)invalidEntryCount / totalEntryCount;
+                double validScale = invalidProbability >= 1.0
+                    ? 0.0
+                    : (1.0 - Math.Pow(invalidProbability, 10)) / (1.0 - invalidProbability);
+                double fallbackScale = Math.Pow(invalidProbability, 9);
+
+                for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
+                {
+                    bool alreadySelected = (selectedMask & (1UL << itemIndex)) != 0;
+                    double entryProbability = (double)weights[itemIndex] / totalEntryCount;
+                    double outcomeProbability = alreadySelected
+                        ? fallbackScale * entryProbability
+                        : validScale * entryProbability;
+
+                    if (outcomeProbability <= 0.0)
+                        continue;
+
+                    ulong nextSelectedMask = alreadySelected ? selectedMask : selectedMask | (1UL << itemIndex);
+                    int nextTargetCount = targetCount + (itemIndex == targetItemIndex ? 1 : 0);
+                    AddStateProbability(nextStates, (nextSelectedMask, nextTargetCount), stateProbability * outcomeProbability);
+                }
+
+                if (nullEntryCount > 0)
+                {
+                    double nullOutcomeProbability = fallbackScale * nullEntryCount / totalEntryCount;
+                    if (nullOutcomeProbability > 0.0)
+                        AddStateProbability(nextStates, (selectedMask, targetCount), stateProbability * nullOutcomeProbability);
+                }
+            }
+
+            states = nextStates;
+        }
+
+        var distribution = new double[maxCount];
+        foreach (var state in states)
+        {
+            distribution[state.Key.targetCount] += state.Value;
+        }
+
+        return distribution;
+    }
+
+    private static void AddStateProbability(
+        Dictionary<(ulong selectedMask, int targetCount), double> states,
+        (ulong selectedMask, int targetCount) key,
+        double probability)
+    {
+        if (states.ContainsKey(key))
+            states[key] += probability;
+        else
+            states[key] = probability;
+    }
+
+    private static void ConvolveDropDistribution(
+        Dictionary<string, double[]> resultDict,
+        string itemName,
+        double[] addedDistribution,
+        int maxCount)
+    {
+        if (!resultDict.TryGetValue(itemName, out var existingDistribution))
+        {
+            resultDict[itemName] = addedDistribution;
+            return;
+        }
+
+        var convolved = new double[maxCount];
+        for (int existingCount = 0; existingCount < existingDistribution.Length; existingCount++)
+        {
+            for (int addedCount = 0; addedCount < addedDistribution.Length; addedCount++)
+            {
+                int combinedCount = existingCount + addedCount;
+                if (combinedCount >= maxCount)
+                    continue;
+                convolved[combinedCount] += existingDistribution[existingCount] * addedDistribution[addedCount];
+            }
+        }
+
+        resultDict[itemName] = convolved;
     }
 
     // Helper: Compute expected value for each item

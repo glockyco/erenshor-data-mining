@@ -63,7 +63,7 @@ def test_vithean_arena_rounds_join_reward_chests_to_loot() -> None:
         ).fetchall()
 
     rates = {row["display_name"]: row["drop_probability"] for row in rows}
-    assert rates["Wakeweaver"] == 20.51
-    assert rates["Ripcurrent"] == 20.51
+    assert rates["Wakeweaver"] == 36.4
+    assert rates["Ripcurrent"] == 36.4
     assert rates["Vithean Arena Fee (1)"] == 100.0
     assert "Skyseared Tunic" not in rates

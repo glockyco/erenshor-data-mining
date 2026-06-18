@@ -1,8 +1,8 @@
 # Vithean Arena Playtest Loot Rundown
 
-Source: refreshed playtest build `23770832`.
+Source: refreshed playtest build `23789241`.
 
-Vithean arena rewards are chests per arena round, not direct corpse loot. Each coin/token starts one fight, and clearing it spawns that round's `Vithean Chest`.
+Vithean arena rewards are chests per arena round, not direct corpse loot. Each coin/token starts one fight, and clearing it spawns that round's `Vithean Chest`. Build `23789241` rolls `NumberOfGuaranteedDrops` with duplicate avoidance, so chests 5, 7, and 8 now have two mostly-distinct guaranteed named drops per clear.
 
 ## Round 1 - 2x Wandering Gladiator
 
@@ -76,9 +76,9 @@ No unique named boss drop.
 
 Named drops:
 
-- Sea Wind Shield - 33.64%
-- Ursine Charm - 33.64%
-- Vithean Quiver - 33.64%
+- Sea Wind Shield - 66.82%
+- Ursine Charm - 66.82%
+- Vithean Quiver - 66.82%
 
 Shared drops:
 
@@ -110,9 +110,9 @@ No unique named boss drop.
 
 Named drops:
 
-- Honsus' Bow - 33.33%
-- Oceanic Charm - 33.33%
-- Sibling's Locket - 33.33%
+- Honsus' Bow - 66.67%
+- Oceanic Charm - 66.67%
+- Sibling's Locket - 66.67%
 
 Shared drops:
 
@@ -129,12 +129,12 @@ Shared drops:
 
 Main Vitheo drops:
 
-- Hunting Coat - 20.51%
-- Reminder of Pride - 20.51%
-- Ripcurrent - 20.51%
-- Sea Shaper's Gloves - 20.51%
-- Spear of True North - 20.51%
-- Wakeweaver - 20.51%
+- Hunting Coat - 36.40%
+- Reminder of Pride - 36.40%
+- Ripcurrent - 36.40%
+- Sea Shaper's Gloves - 36.40%
+- Spear of True North - 36.40%
+- Wakeweaver - 36.40%
 
 Older named drops also in the chest:
 
