@@ -36,7 +36,7 @@ pre-commit:
 
     - name: csharpier
       glob: "src/mods/**/*.cs"
-      run: bash src/mods/run-csharpier.sh
+      run: bash src/mods/run-csharpier.sh {staged_files}
       stage_fixed: true
 
     - name: stylua
