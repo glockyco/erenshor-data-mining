@@ -17,6 +17,7 @@ from erenshor.infrastructure.assetripper import (
     AssetRipperNotFoundError,
     AssetRipperServerError,
 )
+from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import MockClock
 
 
@@ -232,6 +233,69 @@ class TestAssetRipperExtraction:
 
         # Verify server was stopped
         assert assetripper._server_pid is None
+
+    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
+    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
+    def test_extract_records_internal_profile_spans(
+        self,
+        mock_popen: MagicMock,
+        mock_run: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Test extraction records AssetRipper sub-stage profile spans."""
+        executable = tmp_path / "AssetRipper.GUI.Free"
+        executable.touch()
+        source_dir = tmp_path / "game" / "Erenshor_Data"
+        source_dir.mkdir(parents=True)
+        target_dir = tmp_path / "unity"
+        profile = ExportProfileRecorder.open_or_create(
+            root=tmp_path / "profiles",
+            variant="playtest",
+            command="extract rip",
+            game_build_id="23789241",
+            git_sha="abcdef0",
+            unity_version=None,
+            assetripper_version="1.2.3",
+            machine="darwin-arm64",
+            clock=MockClock(),
+        )
+
+        mock_process = MagicMock()
+        mock_process.pid = 12345
+        mock_popen.return_value = mock_process
+
+        def mock_run_side_effect(*args, **kwargs):
+            cmd = args[0] if args else []
+            if "curl" in cmd:
+                if any("/IO/Directory/Exists" in str(arg) for arg in cmd):
+                    return MagicMock(returncode=0, stdout="true")
+                if any("LoadFolder" in str(arg) for arg in cmd) or any(
+                    "Export/UnityProject" in str(arg) for arg in cmd
+                ):
+                    return MagicMock(returncode=0, stdout="\n302")
+                return MagicMock(returncode=0)
+            return MagicMock(returncode=0)
+
+        mock_run.side_effect = mock_run_side_effect
+        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=profile.clock)
+
+        original_path_open = Path.open
+        from io import BytesIO
+
+        def patched_path_open(self, mode="r", *args, **kwargs):
+            if "assetripper_" in str(self) and "rb" in mode:
+                return BytesIO(b"Export started\nFinished post-export\n")
+            return original_path_open(self, mode, *args, **kwargs)
+
+        with patch.object(Path, "open", patched_path_open):
+            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path, profile=profile)
+
+        names = {span.name for span in profile.spans}
+        assert "assetripper.start_server" in names
+        assert "assetripper.load_files" in names
+        assert "assetripper.export_start" in names
+        assert "assetripper.monitor_export" in names
+        assert "assetripper.stop_server" in names
 
     def test_extract_source_not_found(self, tmp_path: Path) -> None:
         """Test extraction fails when source directory doesn't exist."""

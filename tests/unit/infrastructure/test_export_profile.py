@@ -117,6 +117,79 @@ def test_profile_recorder_reuses_active_run_across_cli_invocations(tmp_path):
     }
 
 
+def test_profile_recorder_does_not_reuse_finished_run(tmp_path):
+    clock = MockClock()
+    root = tmp_path / "profiles"
+    first = ExportProfileRecorder.open_or_create(
+        root=root,
+        variant="playtest",
+        command="extract build",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version="1.2.3",
+        machine="darwin-arm64",
+        clock=clock,
+    )
+    first.finish("ok")
+    assert not (root / "current-run.json").exists()
+
+    second = ExportProfileRecorder.open_or_create(
+        root=root,
+        variant="playtest",
+        command="extract download",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version=None,
+        assetripper_version=None,
+        machine="darwin-arm64",
+        clock=clock,
+    )
+
+    assert second.run_id != first.run_id
+
+
+def test_profile_recorder_updates_active_build_id(tmp_path):
+    clock = MockClock()
+    root = tmp_path / "profiles"
+    download = ExportProfileRecorder.open_or_create(
+        root=root,
+        variant="playtest",
+        command="extract download",
+        game_build_id=None,
+        git_sha="abcdef0",
+        unity_version=None,
+        assetripper_version=None,
+        machine="darwin-arm64",
+        clock=clock,
+    )
+    download.update_game_build_id("23789241")
+
+    export = ExportProfileRecorder.open_or_create(
+        root=root,
+        variant="playtest",
+        command="extract export",
+        game_build_id="23789241",
+        git_sha="abcdef0",
+        unity_version="2021.3.45f2",
+        assetripper_version="1.2.3",
+        clock=clock,
+    )
+
+    assert export.run_id == download.run_id
+    assert json.loads((root / "current-run.json").read_text())["game_build_id"] == "23789241"
+    with closing(sqlite3.connect(root / "export-runs.sqlite")) as conn:
+        stored_metadata = conn.execute(
+            """
+            SELECT game_build_id, unity_version, assetripper_version
+            FROM export_profile_runs
+            WHERE run_id = ?
+            """,
+            (download.run_id,),
+        ).fetchone()
+    assert stored_metadata == ("23789241", "2021.3.45f2", "1.2.3")
+
+
 def test_profile_recorder_marks_failed_runs(tmp_path):
     clock = MockClock()
     recorder = ExportProfileRecorder.open_or_create(

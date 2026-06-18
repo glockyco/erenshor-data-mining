@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import MockClock
 from erenshor.infrastructure.unity import (
     UnityBatchMode,
@@ -220,6 +221,49 @@ class TestUnityBatchModeExecuteMethod:
 
         assert "timed out" in str(exc_info.value)
         assert "10 seconds" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
+    def test_execute_method_records_unity_subprocess_span(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+        """Test Unity subprocess wall time is recorded as a profile span."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        (project_path / "Assets").mkdir()
+        (project_path / "ProjectSettings").mkdir()
+        log_file = tmp_path / "logs" / "export.log"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file.write_text("[EXPORT_START]\n[EXPORT_COMPLETE] Export completed successfully in 3.00s\n")
+        profile = ExportProfileRecorder.open_or_create(
+            root=tmp_path / "profiles",
+            variant="playtest",
+            command="extract export",
+            game_build_id="23789241",
+            git_sha="abcdef0",
+            unity_version="2021.3.45f2",
+            assetripper_version=None,
+            machine="darwin-arm64",
+            clock=MockClock(),
+        )
+
+        mock_process = MagicMock()
+        mock_process.poll.side_effect = [None, 0]
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        unity = UnityBatchMode(unity_path=unity_exe, timeout=1800, clock=profile.clock)
+        unity.execute_method(
+            project_path=project_path,
+            class_name="ExportBatch",
+            method_name="Run",
+            log_file=log_file,
+            arguments={"dbPath": "/path/to/db.sqlite", "logLevel": "normal"},
+            profile=profile,
+        )
+
+        span = next(span for span in profile.spans if span.name == "unity.batch_subprocess")
+        assert span.duration_ms == 5000.0
+        assert span.attributes["log_file"] == str(log_file)
 
 
 class TestUnityBatchModeErrorDetection:

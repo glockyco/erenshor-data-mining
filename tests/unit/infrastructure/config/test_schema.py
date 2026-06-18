@@ -573,6 +573,7 @@ class TestVariantConfig:
         assert config.resolved_logs(tmp_path) == tmp_path / "logs"
         assert config.resolved_backups(tmp_path) == tmp_path / "backups"
         assert config.resolved_images_output(tmp_path) == tmp_path / "images"
+        assert config.resolved_profiles(tmp_path) == tmp_path / "profiles"
 
 
 class TestConfig:

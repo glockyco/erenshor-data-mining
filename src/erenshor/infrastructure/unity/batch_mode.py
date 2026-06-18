@@ -22,11 +22,13 @@ ExportBatch.cs entry point and other Unity Editor scripts.
 
 import re
 import subprocess
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Literal
 
 from loguru import logger
 
+from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import Clock, RealClock
 
 
@@ -170,6 +172,7 @@ class UnityBatchMode:
         method_name: str,
         log_file: Path | None = None,
         arguments: dict[str, str] | None = None,
+        profile: ExportProfileRecorder | None = None,
     ) -> None:
         """Execute a static C# method in Unity batch mode.
 
@@ -260,30 +263,36 @@ class UnityBatchMode:
             start_time = self.clock.time()
             last_update = 0
 
-            while True:
-                # Check if process has finished
-                returncode = process.poll()
-                if returncode is not None:
-                    logger.info("Unity export completed")
-                    break
+            span_context = (
+                profile.span("unity.batch_subprocess", category="unity", attributes={"log_file": str(log_file)})
+                if profile is not None
+                else nullcontext()
+            )
+            with span_context:
+                while True:
+                    # Check if process has finished
+                    returncode = process.poll()
+                    if returncode is not None:
+                        logger.info("Unity export completed")
+                        break
 
-                # Show progress every 30 seconds
-                elapsed = int(self.clock.time() - start_time)
-                if elapsed - last_update >= 30:
-                    logger.info(f"Still exporting... ({elapsed}s elapsed)")
-                    last_update = elapsed
+                    # Show progress every 30 seconds
+                    elapsed = int(self.clock.time() - start_time)
+                    if elapsed - last_update >= 30:
+                        logger.info(f"Still exporting... ({elapsed}s elapsed)")
+                        last_update = elapsed
 
-                # Check for timeout
-                if elapsed > self.timeout:
-                    process.kill()
-                    logger.error(f"Unity execution timed out after {self.timeout}s")
-                    raise UnityRuntimeError(
-                        f"Unity execution timed out after {self.timeout} seconds.\n"
-                        f"Check log file: {log_file}\n"
-                        "Consider increasing timeout in config.toml"
-                    )
+                    # Check for timeout
+                    if elapsed > self.timeout:
+                        process.kill()
+                        logger.error(f"Unity execution timed out after {self.timeout}s")
+                        raise UnityRuntimeError(
+                            f"Unity execution timed out after {self.timeout} seconds.\n"
+                            f"Check log file: {log_file}\n"
+                            "Consider increasing timeout in config.toml"
+                        )
 
-                self.clock.sleep(5)  # Check every 5 seconds
+                    self.clock.sleep(5)  # Check every 5 seconds
 
             # Parse log file for errors
             self._check_execution_result(returncode, log_file)

@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -34,6 +37,7 @@ from erenshor.infrastructure.csproj_generator import (
     generate_root_solution,
     generate_solution_file,
 )
+from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.steam.steamcmd import SteamCMD
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
@@ -106,6 +110,85 @@ def _snapshot_user_deps(unity_project_dir: Path) -> dict[str, str]:
 console = Console()
 
 
+def _read_git_sha(repo_root: Path) -> str | None:
+    """Return the short Git SHA for the current checkout when available."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=True,
+        )
+    except (OSError, subprocess.SubprocessError) as e:
+        logger.debug(f"Could not read git SHA for export profile: {e}")
+        return None
+    sha = result.stdout.strip()
+    return sha or None
+
+
+def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
+    """Read the installed Steam build ID without requiring SteamCMD itself."""
+    game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
+    manifest_file = game_files_dir / "steamapps" / f"appmanifest_{variant_config.app_id}.acf"
+    if not manifest_file.exists():
+        return None
+    try:
+        for line in manifest_file.read_text(encoding="utf-8").splitlines():
+            if '"buildid"' in line:
+                parts = line.split('"')
+                if len(parts) >= 4:
+                    return parts[3]
+    except OSError as e:
+        logger.debug(f"Could not read Steam build ID for export profile: {e}")
+    return None
+
+
+def _open_profile(
+    cli_ctx: CLIContext,
+    variant_config: Any,
+    command: str,
+    *,
+    unity_version: str | None,
+    assetripper_version: str | None,
+) -> ExportProfileRecorder:
+    """Open the active extraction profile run for a subcommand."""
+    profile_root = Path(variant_config.resolved_profiles(cli_ctx.repo_root))
+    return ExportProfileRecorder.open_or_create(
+        root=profile_root,
+        variant=cli_ctx.variant,
+        command=command,
+        game_build_id=_read_build_id(cli_ctx, variant_config),
+        git_sha=_read_git_sha(cli_ctx.repo_root),
+        unity_version=unity_version,
+        assetripper_version=assetripper_version,
+        machine=None,
+    )
+
+
+@contextmanager
+def _profile_command(
+    profile: ExportProfileRecorder,
+    command: str,
+    cli_ctx: CLIContext,
+    *,
+    terminal: bool = False,
+) -> Iterator[None]:
+    """Record a CLI command span and persist command status."""
+    try:
+        with profile.span(command, category="cli", attributes={"variant": cli_ctx.variant}):
+            yield
+    except Exception:
+        profile.finish_command(command, "failed")
+        profile.finish("failed")
+        raise
+    else:
+        profile.finish_command(command, "ok")
+        if terminal:
+            profile.finish("ok")
+
+
 @app.command()
 @require_preconditions(steam_credentials_exist)
 def download(
@@ -135,32 +218,43 @@ def download(
         logger.info(f"[Dry-run] Would download/update game files: app_id={variant_config.app_id}, dir={game_files_dir}")
         return
 
+    command_name = "extract download"
+    profile = _open_profile(
+        cli_ctx,
+        variant_config,
+        command_name,
+        unity_version=None,
+        assetripper_version=None,
+    )
+
     try:
-        # Log what we're doing
-        if validate:
-            logger.info(
-                f"Downloading game files with validation: variant={cli_ctx.variant}, app_id={variant_config.app_id}"
+        with _profile_command(profile, command_name, cli_ctx):
+            # Log what we're doing
+            if validate:
+                logger.info(
+                    f"Downloading game files with validation: variant={cli_ctx.variant}, app_id={variant_config.app_id}"
+                )
+                logger.info("File validation enabled - all files will be verified (slower)")
+            else:
+                logger.info(f"Downloading game files: variant={cli_ctx.variant}, app_id={variant_config.app_id}")
+
+            # Create SteamCMD wrapper
+            steam_config = cli_ctx.config.global_.steam
+            steamcmd = SteamCMD(
+                username=steam_config.username,
+                platform=steam_config.platform,
             )
-            logger.info("File validation enabled - all files will be verified (slower)")
-        else:
-            logger.info(f"Downloading game files: variant={cli_ctx.variant}, app_id={variant_config.app_id}")
 
-        # Create SteamCMD wrapper
-        steam_config = cli_ctx.config.global_.steam
-        steamcmd = SteamCMD(
-            username=steam_config.username,
-            platform=steam_config.platform,
-        )
+            # Download/update game files
+            steamcmd.download(
+                app_id=variant_config.app_id,
+                install_dir=game_files_dir,
+                validate=validate,
+            )
+            profile.update_game_build_id(_read_build_id(cli_ctx, variant_config))
 
-        # Download/update game files
-        steamcmd.download(
-            app_id=variant_config.app_id,
-            install_dir=game_files_dir,
-            validate=validate,
-        )
-
-        logger.info(f"Download complete: {game_files_dir}")
-        logger.info("Next: Run 'erenshor extract rip' to extract Unity project")
+            logger.info(f"Download complete: {game_files_dir}")
+            logger.info("Next: Run 'erenshor extract rip' to extract Unity project")
 
     except Exception as e:
         console.print(f"[red]Error during download: {e}[/red]")
@@ -190,58 +284,67 @@ def rip(ctx: typer.Context) -> None:
         logger.info(f"[Dry-run] Would extract Unity project: source={source_dir}, target={unity_project_dir}")
         return
 
+    assetripper_config = cli_ctx.config.global_.assetripper
+    assetripper = AssetRipper(
+        executable_path=assetripper_config.resolved_path(cli_ctx.repo_root),
+        port=assetripper_config.port,
+        timeout=assetripper_config.timeout,
+    )
+    command_name = "extract rip"
+    profile = _open_profile(
+        cli_ctx,
+        variant_config,
+        command_name,
+        unity_version=None,
+        assetripper_version=assetripper.get_version(),
+    )
+
     try:
-        # Snapshot user-added UPM deps from the existing manifest before AssetRipper wipes it.
-        prior_user_deps = _snapshot_user_deps(unity_project_dir)
-        if prior_user_deps:
-            logger.info(f"Snapshotted {len(prior_user_deps)} user-added UPM deps to restore after rip")
+        with _profile_command(profile, command_name, cli_ctx):
+            # Snapshot user-added UPM deps from the existing manifest before AssetRipper wipes it.
+            prior_user_deps = _snapshot_user_deps(unity_project_dir)
+            if prior_user_deps:
+                logger.info(f"Snapshotted {len(prior_user_deps)} user-added UPM deps to restore after rip")
 
-        # Clean up old Unity project before extraction
-        if unity_project_dir.exists():
-            logger.info(f"Removing old Unity project: {unity_project_dir}")
-            shutil.rmtree(unity_project_dir)
+            # Clean up old Unity project before extraction
+            if unity_project_dir.exists():
+                logger.info(f"Removing old Unity project: {unity_project_dir}")
+                shutil.rmtree(unity_project_dir)
 
-        logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
+            logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
 
-        # Create AssetRipper wrapper
-        assetripper_config = cli_ctx.config.global_.assetripper
-        assetripper = AssetRipper(
-            executable_path=assetripper_config.resolved_path(cli_ctx.repo_root),
-            port=assetripper_config.port,
-            timeout=assetripper_config.timeout,
-        )
+            # Extract Unity project
+            assetripper.extract(
+                source_dir=game_files_dir / "Erenshor_Data",
+                target_dir=unity_project_dir,
+                log_dir=logs_dir,
+                profile=profile,
+            )
 
-        # Extract Unity project
-        assetripper.extract(
-            source_dir=game_files_dir / "Erenshor_Data",
-            target_dir=unity_project_dir,
-            log_dir=logs_dir,
-        )
+            # Create Editor scripts symlink
+            editor_target = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
+            editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
+            logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
+            editor_target.symlink_to(editor_source)
 
-        # Create Editor scripts symlink
-        editor_target = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
-        editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
-        logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
-        editor_target.symlink_to(editor_source)
+            # Copy NuGet packages (DLLs must be copied, not symlinked, due to Unity assembly loading)
+            packages_source = cli_ctx.repo_root / "src" / "Assets" / "Packages"
+            packages_target = unity_project_dir / "ExportedProject" / "Assets" / "Packages"
+            if packages_source.exists():
+                logger.info(f"Copying NuGet packages: {packages_source} -> {packages_target}")
+                shutil.copytree(packages_source, packages_target, dirs_exist_ok=True)
+            else:
+                logger.warning(f"Packages directory not found: {packages_source}")
 
-        # Copy NuGet packages (DLLs must be copied, not symlinked, due to Unity assembly loading)
-        packages_source = cli_ctx.repo_root / "src" / "Assets" / "Packages"
-        packages_target = unity_project_dir / "ExportedProject" / "Assets" / "Packages"
-        if packages_source.exists():
-            logger.info(f"Copying NuGet packages: {packages_source} -> {packages_target}")
-            shutil.copytree(packages_source, packages_target, dirs_exist_ok=True)
-        else:
-            logger.warning(f"Packages directory not found: {packages_source}")
+            # Re-apply user-added UPM deps and ensure pipeline-required deps are present.
+            _patch_manifest_after_rip(unity_project_dir, prior_user_deps)
 
-        # Re-apply user-added UPM deps and ensure pipeline-required deps are present.
-        _patch_manifest_after_rip(unity_project_dir, prior_user_deps)
+            logger.info(f"Unity project extraction complete: {unity_project_dir}")
 
-        logger.info(f"Unity project extraction complete: {unity_project_dir}")
+            # Generate .csproj for LSP support
+            _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
 
-        # Generate .csproj for LSP support
-        _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
-
-        logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
+            logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
     except Exception as e:
         console.print(f"[red]Error during extraction: {e}[/red]")
@@ -274,53 +377,63 @@ def export(ctx: typer.Context) -> None:
         logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, raw_db={database_path}")
         return
 
+    # Create Unity batch mode wrapper
+    unity_config = cli_ctx.config.global_.unity
+    unity = UnityBatchMode(
+        unity_path=unity_config.resolved_path(cli_ctx.repo_root),
+        timeout=unity_config.timeout,
+    )
+    command_name = "extract export"
+    profile = _open_profile(
+        cli_ctx,
+        variant_config,
+        command_name,
+        unity_version=unity.get_version(),
+        assetripper_version=None,
+    )
+
     try:
-        # Clean up old raw database before export
-        if database_path.exists():
-            logger.info(f"Removing old raw database: {database_path}")
-            database_path.unlink()
+        with _profile_command(profile, command_name, cli_ctx):
+            # Clean up old raw database before export
+            if database_path.exists():
+                logger.info(f"Removing old raw database: {database_path}")
+                database_path.unlink()
 
-        logger.info(f"Exporting game data: variant={cli_ctx.variant}")
+            logger.info(f"Exporting game data: variant={cli_ctx.variant}")
 
-        # Create Unity batch mode wrapper
-        unity_config = cli_ctx.config.global_.unity
-        unity = UnityBatchMode(
-            unity_path=unity_config.resolved_path(cli_ctx.repo_root),
-            timeout=unity_config.timeout,
-        )
+            # Create log file path
+            import time
 
-        # Create log file path
-        import time
+            log_file = logs_dir / f"export_{int(time.time())}.log"
 
-        log_file = logs_dir / f"export_{int(time.time())}.log"
+            # Map Python log levels to Unity log levels
+            python_to_unity_log_level = {
+                "DEBUG": "verbose",
+                "INFO": "normal",
+                "WARNING": "normal",
+                "ERROR": "quiet",
+                "CRITICAL": "quiet",
+            }
+            unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
 
-        # Map Python log levels to Unity log levels
-        python_to_unity_log_level = {
-            "DEBUG": "verbose",
-            "INFO": "normal",
-            "WARNING": "normal",
-            "ERROR": "quiet",
-            "CRITICAL": "quiet",
-        }
-        unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
+            # Export data
+            unity.execute_method(
+                project_path=unity_project_dir / "ExportedProject",
+                class_name="ExportBatch",
+                method_name="Run",
+                log_file=log_file,
+                arguments={
+                    "dbPath": str(database_path.absolute()),
+                    "logLevel": unity_log_level,
+                },
+                profile=profile,
+            )
 
-        # Export data
-        unity.execute_method(
-            project_path=unity_project_dir / "ExportedProject",
-            class_name="ExportBatch",
-            method_name="Run",
-            log_file=log_file,
-            arguments={
-                "dbPath": str(database_path.absolute()),
-                "logLevel": unity_log_level,
-            },
-        )
+            logger.info(f"Raw data exported: raw_db={database_path}, log={log_file}")
+            logger.info("Run 'erenshor extract build' to produce the clean database")
 
-        logger.info(f"Raw data exported: raw_db={database_path}, log={log_file}")
-        logger.info("Run 'erenshor extract build' to produce the clean database")
-
-        # Create backup for cross-version analysis
-        _create_backup_after_export(cli_ctx, variant_config, database_path)
+            # Create backup for cross-version analysis
+            _create_backup_after_export(cli_ctx, variant_config, database_path)
 
     except Exception as e:
         console.print(f"[red]Error during export: {e}[/red]")
@@ -354,13 +467,23 @@ def build(ctx: typer.Context) -> None:
         )
         return
 
+    command_name = "extract build"
+    profile = _open_profile(
+        cli_ctx,
+        variant_config,
+        command_name,
+        unity_version=None,
+        assetripper_version=None,
+    )
+
     try:
-        build_clean_db(
-            raw_db_path=raw_db_path,
-            clean_db_path=clean_db_path,
-            mapping_json_path=mapping_json_path,
-        )
-        logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
+        with _profile_command(profile, command_name, cli_ctx, terminal=True):
+            build_clean_db(
+                raw_db_path=raw_db_path,
+                clean_db_path=clean_db_path,
+                mapping_json_path=mapping_json_path,
+            )
+            logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
         logger.exception("Clean DB build failed")
@@ -389,9 +512,19 @@ def code_facts(ctx: typer.Context) -> None:
         logger.info(f"[Dry-run] Would extract code facts: assembly={assembly}, raw_db={raw_db_path}")
         return
 
+    command_name = "extract code-facts"
+    profile = _open_profile(
+        cli_ctx,
+        variant_config,
+        command_name,
+        unity_version=None,
+        assetripper_version=None,
+    )
+
     try:
-        count = extract_code_facts(cli_ctx.repo_root, assembly, raw_db_path)
-        logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
+        with _profile_command(profile, command_name, cli_ctx):
+            count = extract_code_facts(cli_ctx.repo_root, assembly, raw_db_path)
+            logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
     except Exception as e:
         console.print(f"[red]Error during code-facts extraction: {e}[/red]")
         logger.exception("Code-facts extraction failed")

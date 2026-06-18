@@ -520,6 +520,10 @@ class VariantConfig(BaseModel):
 
         return resolve_path(self.game_files, repo_root)
 
+    def resolved_profiles(self, repo_root: Path) -> Path:
+        """Get resolved extraction profile directory path."""
+        return self.resolved_game_files(repo_root).parent / "profiles"
+
     def resolved_database_raw(self, repo_root: Path) -> Path:
         """Get resolved raw database file path (Unity export target)."""
         from .paths import resolve_path

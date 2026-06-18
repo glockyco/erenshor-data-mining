@@ -55,7 +55,12 @@ class ExportProfileRecorder:
     ) -> ExportProfileRecorder:
         """Open the active variant/build run or create a new one."""
         active = cls._read_active_run(root)
-        if active and active["variant"] == variant and active.get("game_build_id") == game_build_id:
+        if (
+            active
+            and active["variant"] == variant
+            and active.get("game_build_id") == game_build_id
+            and cls._active_run_is_running(root, active["run_id"])
+        ):
             return cls(
                 root=root,
                 run_id=active["run_id"],
@@ -165,11 +170,19 @@ class ExportProfileRecorder:
         self._persist_run(last_command=command, last_command_status=status)
         self._write_artifacts()
 
+    def update_game_build_id(self, game_build_id: str | None) -> None:
+        """Retag the active run after a download discovers the current build."""
+        self.game_build_id = game_build_id
+        self._persist_run()
+        self._write_active_run()
+        self._write_artifacts()
+
     def finish(self, status: str) -> None:
         """Close the run with a final status."""
         self.status = status
         self.ended_at = self.clock.time()
         self._persist_run()
+        self._clear_active_run()
         self._write_artifacts()
 
     def latest_summary_markdown(self) -> str:
@@ -201,6 +214,32 @@ class ExportProfileRecorder:
         if not active_path.exists():
             return None
         return cast("dict[str, Any]", json.loads(active_path.read_text()))
+
+    @staticmethod
+    def _active_run_is_running(root: Path, run_id: str) -> bool:
+        db_path = root / "export-runs.sqlite"
+        if not db_path.exists():
+            return False
+        try:
+            with closing(sqlite3.connect(db_path)) as conn:
+                status = cast(
+                    "tuple[str] | None",
+                    conn.execute(
+                        "SELECT status FROM export_profile_runs WHERE run_id = ?",
+                        (run_id,),
+                    ).fetchone(),
+                )
+        except sqlite3.Error:
+            return False
+        return status == ("running",)
+
+    def _clear_active_run(self) -> None:
+        active_path = self.root / "current-run.json"
+        if not active_path.exists():
+            return
+        active = self._read_active_run(self.root)
+        if active and active.get("run_id") == self.run_id:
+            active_path.unlink()
 
     def _write_active_run(self) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
@@ -288,6 +327,13 @@ class ExportProfileRecorder:
                     last_command, last_command_status
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(run_id) DO UPDATE SET
+                    game_build_id = COALESCE(excluded.game_build_id, export_profile_runs.game_build_id),
+                    git_sha = COALESCE(excluded.git_sha, export_profile_runs.git_sha),
+                    unity_version = COALESCE(excluded.unity_version, export_profile_runs.unity_version),
+                    assetripper_version = COALESCE(
+                        excluded.assetripper_version,
+                        export_profile_runs.assetripper_version
+                    ),
                     ended_at = excluded.ended_at,
                     status = excluded.status,
                     last_command = COALESCE(excluded.last_command, export_profile_runs.last_command),

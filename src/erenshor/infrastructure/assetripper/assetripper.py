@@ -21,6 +21,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import Clock, RealClock
 
 
@@ -426,6 +427,7 @@ class AssetRipper:
         source_dir: Path,
         target_dir: Path,
         log_dir: Path,
+        profile: ExportProfileRecorder | None = None,
     ) -> None:
         """Extract game assets to Unity project.
 
@@ -461,17 +463,20 @@ class AssetRipper:
 
         # Ensure we clean up server on any exit
         try:
-            # Start server
-            self.start_server(log_dir=log_dir)
-
-            # Load files
-            self._load_files(source_dir)
-
-            # Export to Unity project
-            self._export_files(target_dir)
-
-            # Monitor export progress
-            self._monitor_export()
+            if profile is None:
+                self.start_server(log_dir=log_dir)
+                self._load_files(source_dir)
+                self._export_files(target_dir)
+                self._monitor_export()
+            else:
+                with profile.span("assetripper.start_server", category="assetripper"):
+                    self.start_server(log_dir=log_dir)
+                with profile.span("assetripper.load_files", category="assetripper"):
+                    self._load_files(source_dir)
+                with profile.span("assetripper.export_start", category="assetripper"):
+                    self._export_files(target_dir)
+                with profile.span("assetripper.monitor_export", category="assetripper"):
+                    self._monitor_export()
 
             logger.info("Asset extraction complete!")
             logger.info(f"Unity project ready at: {target_dir}")
@@ -479,8 +484,11 @@ class AssetRipper:
                 logger.info(f"Log file: {self._log_file}")
 
         finally:
-            # Always stop server
-            self.stop_server()
+            if profile is None:
+                self.stop_server()
+            else:
+                with profile.span("assetripper.stop_server", category="assetripper"):
+                    self.stop_server()
 
     def is_installed(self) -> bool:
         """Check if AssetRipper is properly installed and accessible.
