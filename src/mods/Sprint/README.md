@@ -1,112 +1,47 @@
-# Sprint Mod
+# Sprint
 
-Clean, focused sprinting mod for Erenshor. Hold or toggle a key to run faster.
+Native Lunaris plugin that adds a configurable sprint key to Erenshor. Hold or
+toggle a key to multiply the player's run speed.
 
-## Features
-
-- **Configurable sprint key** (default: Left Shift)
-- **Toggle or hold mode** (user preference)
-- **Multiplicative speed boost** (default: 1.5x, range 1.0x - 10.0x)
-- **Respects game mechanics** (status effects, roots, stuns, snares)
+Distributed through the Erenshor Vault — see `vault/` for the listing assets and
+publishing notes.
 
 ## Architecture
 
-### Components
+```
+src/
+├── Plugin.cs                   # LunarisPlugin entry; registers config, applies the patch, drives input
+├── PluginInfo.cs               # GUID/name + generated version constant
+├── Config/SprintSettings.cs    # Lunaris Config.Register settings (keybind, toggle, multiplier)
+├── Core/SprintRuntime.cs       # Static sprint state + speed application, shared with the patch
+└── Patches/CalcStatsPatch.cs   # Harmony postfix reapplying sprint after stat recalcs
+```
 
-**SprintConfig** (`Config/SprintConfig.cs`)
-- BepInEx configuration management
-- Four config sections: Controls, Speed, Logging
-- Range validation for speed multiplier (1.0 - 10.0)
+## How it works
 
-**SprintManager** (`Core/SprintManager.cs`)
-- MonoBehaviour for per-frame input handling
-- Sprint state machine (idle/active)
-- Caches player Stats reference
-- Provides `IsSprintActive(Stats)` query for patches
-
-**CalcStatsPatch** (`Patches/CalcStatsPatch.cs`)
-- Harmony postfix on `Stats.CalcStats()`
-- Applies multiplicative speed bonus when sprint is active
-- Only affects player character
-- Respects game's minimum speed cap (2.0)
-
-**Plugin** (`Plugin.cs`)
-- Main entry point
-- Initializes configuration
-- Wires up components
-- Applies Harmony patches
-
-### How It Works
-
-1. **Input Handling**: `SprintManager.Update()` checks for sprint key input every frame
-   - Toggle mode: Tap to toggle sprint on/off
-   - Hold mode: Sprint active while key is held
-
-2. **Speed Application**: `CalcStatsPatch.CalcStats_Postfix()` runs after vanilla stats calculation
-   - Checks if sprint is active for the player
-   - Multiplies `actualRunSpeed` by configured multiplier
-   - Maintains game's minimum speed cap (2.0)
-
-3. **Why Both Update() and Harmony Patch?**
-   - Update() is needed for input (Unity's Input.GetKey must be called per frame)
-   - Harmony patch ensures sprint applies whenever stats recalculate (equipment changes, buffs, etc.)
-   - Prevents sprint from being overwritten by vanilla calculations
-
-### Compatibility
-
-**Works With:**
-- All speed buffs/debuffs (multiplies total speed including status effects)
-- Rooted/Stunned/Feared states (movement system handles these)
-- Retreat mechanic (speed cap applied before sprint)
-- Other mods (clean Harmony patching)
-
-**Implementation Notes:**
-- Only patches `Stats.CalcStats()` - minimal surface area
-- No modification of game's core movement logic
-- Thread-safe (all operations on Unity main thread)
+1. **Input**: `Plugin.Update()` reads the Lunaris keybind each frame — `IsHeld`
+   for hold mode, edge-detected for toggle mode — and updates `SprintRuntime`.
+2. **Speed**: `SprintRuntime.Apply()` recomputes `actualRunSpeed` from the
+   game's base + status-effect speed, multiplying the total while sprinting and
+   respecting the minimum-speed floor.
+3. **Persistence**: `CalcStatsPatch` (postfix on `Stats.CalcStats`) reapplies
+   sprint whenever the game recalculates stats (equipment, buffs), so vanilla
+   recalculation never overwrites it. Only the player's `Stats` are affected.
 
 ## Building
 
 ```bash
-# Copy game DLLs to lib/ directory (first time only)
-uv run erenshor mod setup
-
-# Build the mod (generates version from git)
-uv run erenshor mod build --mod sprint
-
-# Build and deploy to BepInEx plugins (for local testing)
-uv run erenshor mod deploy --mod sprint
-
-# Build and publish to website download directory
-uv run erenshor mod publish
-
-# Build and publish to Thunderstore
-uv run erenshor mod thunderstore --mod sprint
+uv run erenshor mod setup                 # stage game + Lunaris DLLs into lib/ (first time)
+uv run erenshor mod build --mod sprint    # build bin/Debug/netstandard2.1/Sprint.dll
+uv run erenshor mod deploy --mod sprint   # copy to the game's plugins/ (restart to load)
+uv run erenshor mod vault --mod sprint    # prepare an Erenshor Vault release
 ```
 
-## Testing
-
-1. Build and deploy: `uv run erenshor mod deploy --mod sprint`
-2. Launch game: `uv run erenshor mod launch`
-3. Check BepInEx console for load messages
-4. Test toggle vs hold mode
-5. Test different speed multipliers
-6. Verify compatibility with speed buffs/debuffs
+Native Lunaris plugins do not hot-reload by replacing the DLL — restart the game
+after deploying. See the `mod-development` and `mod-pipeline` skills for the
+shared workflow.
 
 ## Configuration
 
-Config file generated at: `BepInEx/config/wow-much.sprint.cfg`
-
-```ini
-[Controls]
-SprintKey = LeftShift
-ToggleMode = false
-
-[Speed]
-SprintMultiplier = 1.5
-
-[Logging]
-LogLevel = Info
-```
-
-See `thunderstore/README.md` for user-facing documentation.
+Settings live in the Lunaris config UI: sprint key (default Left Shift), toggle
+mode, and the speed multiplier (1.0–10.0). See `Config/SprintSettings.cs`.

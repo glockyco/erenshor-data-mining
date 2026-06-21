@@ -1,0 +1,28 @@
+# Erenshor Vault listing for Sprint.
+#
+# Source of truth for the Vault mod listing. Used manually today (paste into
+# erenshorvault.app/new-mod, then Versions -> new); `erenshor mod vault --mod
+# sprint` reads it to build the DLL with the next version. See the mod-pipeline
+# skill and ../../AdventureGuide/vault/AGENTS.md for the upload workflow.
+
+[mod]
+# POST /api/mods create fields.
+name = "Sprint"
+mod_ref = "sprint"
+short_description = "Hold (or toggle) a key to run faster. Configurable sprint key with adjustable speed from subtle to ludicrous. No stamina, no cooldowns, just speed."
+# Public source repository, or "" to omit.
+source_url = ""
+hidden = false
+# Tag slugs; resolve to tagIds via GET https://erenshorvault.app/api/tags.
+tags = ["gameplay", "quality-of-life"]
+
+[assets]
+full_description = "README.md"
+changelog = "CHANGELOG.md"
+icon = "icon.png"
+
+[package]
+# Vault package zip layout: <mod_ref>/manifest.json + these files.
+# Lunaris provides 0Harmony, so the package ships only the plugin assembly.
+main_file = "Sprint.dll"
+asset_files = []

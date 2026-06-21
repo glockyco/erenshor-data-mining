@@ -77,7 +77,8 @@ MODS: dict[str, ModInfo] = {
         "dir": "src/mods/Sprint",
         "name": "Sprint",
         "dll_name": "Sprint.dll",
-        "thunderstore": "WoW_Much/Sprint",
+        "loader": "lunaris",
+        "lunaris_dlls": ["0Harmony.dll"],
     },
     "map-tile-capture": {
         "dir": "src/mods/MapTileCapture",

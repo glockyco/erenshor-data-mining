@@ -1,64 +1,83 @@
-using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
+using Lunaris;
 using Sprint.Config;
 using Sprint.Core;
-using Sprint.Patches;
+using UnityEngine;
+
+// See .agent/skills/mod-development/SKILL.md for mod architecture patterns
 
 namespace Sprint;
 
 /// <summary>
-/// Main plugin entry point for Sprint mod.
-/// Adds configurable sprinting functionality to the game.
+/// Native Lunaris entry point for the Sprint mod. Registers config, applies the
+/// CalcStats patch, and drives per-frame sprint input.
 /// </summary>
-[BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
-public sealed class Plugin : BaseUnityPlugin
+[LunarisPlugin("Sprint", PluginInfo.Version, "WoW_Much", "Configurable sprinting for Erenshor.")]
+[LunarisPermission(
+    LunarisPermission.Harmony | LunarisPermission.Reflection | LunarisPermission.LunarisPlugin
+)]
+public sealed class Plugin : LunarisPlugin
 {
-    internal static ManualLogSource Log { get; private set; } = null!;
-
+    private SprintSettings _settings = null!;
     private Harmony? _harmony;
+
+    private bool _sprintActive;
+    private bool _previousKeyHeld;
+    private Stats? _playerStats;
 
     private void Awake()
     {
-        Log = Logger;
+        _settings = Config.Register<SprintSettings>().Get();
+        SprintRuntime.Multiplier = _settings.SprintMultiplier;
 
-        // Initialize configuration
-        var config = new SprintConfig(Config);
-
-        // Initialize components with configuration
-        SprintManager.Initialize(config, Log);
-        CalcStatsPatch.Initialize(config);
-
-        // Add SprintManager MonoBehaviour for input handling
-        gameObject.AddComponent<SprintManager>();
-
-        // Apply Harmony patches
         _harmony = new Harmony(PluginInfo.GUID);
-        try
-        {
-            _harmony.PatchAll();
-            Log.LogInfo("Harmony patches applied successfully");
+        _harmony.PatchAll();
 
-            // List what was patched
-            var patchedMethods = _harmony.GetPatchedMethods();
-            foreach (var method in patchedMethods)
-            {
-                Log.LogInfo($"  Patched: {method.DeclaringType?.Name}.{method.Name}");
-            }
-        }
-        catch (System.Exception ex)
+        Logging.LogInfo(
+            $"{PluginInfo.Name} v{PluginInfo.Version} loaded\n"
+                + $"  Sprint Key: {_settings.SprintKey.DisplayString}\n"
+                + $"  Toggle Mode: {(_settings.ToggleMode ? "Enabled" : "Disabled")}\n"
+                + $"  Speed Multiplier: {_settings.SprintMultiplier}x"
+        );
+    }
+
+    private void Update()
+    {
+        // Cache the player's Stats once it spawns; re-find after a scene change
+        // destroys it (Unity-null check).
+        if (_playerStats == null)
         {
-            Log.LogError($"Failed to apply Harmony patches: {ex}");
+            var player = GameObject.Find("Player");
+            if (player != null)
+                _playerStats = player.GetComponent<Stats>();
+            SprintRuntime.PlayerStats = _playerStats;
+            return;
         }
 
-        Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
-        Log.LogInfo($"  Sprint Key: {config.SprintKey.Value}");
-        Log.LogInfo($"  Toggle Mode: {(config.ToggleMode.Value ? "Enabled" : "Disabled")}");
-        Log.LogInfo($"  Speed Multiplier: {config.SprintMultiplier.Value}x");
+        bool keyHeld = _settings.SprintKey.IsHeld;
+        if (_settings.ToggleMode)
+        {
+            if (keyHeld && !_previousKeyHeld)
+                _sprintActive = !_sprintActive;
+            _previousKeyHeld = keyHeld;
+        }
+        else
+        {
+            _sprintActive = keyHeld;
+        }
+
+        SprintRuntime.Active = _sprintActive;
+        SprintRuntime.Multiplier = _settings.SprintMultiplier;
+        SprintRuntime.Apply(_playerStats, _sprintActive);
     }
 
     private void OnDestroy()
     {
         _harmony?.UnpatchSelf();
+        // Restore normal speed before clearing state so a hot reload mid-sprint
+        // does not leave the player boosted until the next CalcStats call.
+        if (_playerStats != null)
+            SprintRuntime.Apply(_playerStats, false);
+        SprintRuntime.Reset();
     }
 }

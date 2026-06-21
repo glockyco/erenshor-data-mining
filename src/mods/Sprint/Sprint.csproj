@@ -17,12 +17,10 @@
 
     <!-- Suppress warnings that don't apply to mods -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-  </PropertyGroup>
 
-  <ItemGroup>
-    <!-- BepInEx -->
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-  </ItemGroup>
+    <!-- Ship only Sprint.dll; Lunaris provides the shared deps at runtime -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
 
    <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
   <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
@@ -59,6 +57,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- Loader and Lunaris-provided shared assembly references (copied via erenshor mod setup) -->
+  <ItemGroup>
+    <Reference Include="Lunaris">
+      <HintPath>lib/Lunaris.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>lib/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
   <!-- Game assembly references (copied via erenshor mod setup) -->
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -71,10 +81,6 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
