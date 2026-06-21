@@ -18,18 +18,9 @@
     <!-- Suppress warnings that don't apply to mods -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Ship only JusticeForF7.dll; Lunaris provides the shared deps at runtime -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!-- BepInEx (provided at runtime by BepInEx framework) -->
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="HarmonyX" Version="2.*" PrivateAssets="all" />
-
-    <!-- ILRepack for merging dependencies into single DLL -->
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
-  </ItemGroup>
 
   <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
   <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
@@ -66,6 +57,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- Loader and Lunaris-provided shared assembly references (copied via erenshor mod setup) -->
+  <ItemGroup>
+    <Reference Include="Lunaris">
+      <HintPath>lib/Lunaris.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>lib/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
   <!-- Game assembly references (copied via erenshor mod setup) -->
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -93,6 +96,5 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-
 
 </Project>

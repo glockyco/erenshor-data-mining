@@ -1,5 +1,4 @@
-using BepInEx.Configuration;
-using BepInEx.Logging;
+using Lunaris;
 using TMPro;
 using UnityEngine;
 
@@ -8,19 +7,13 @@ namespace JusticeForF7;
 /// <summary>
 /// Core logic for hiding and restoring world-space UI elements when F7 toggles
 /// the main Canvas. Uses Renderer-based toggling to avoid fighting the game's
-/// own per-frame visibility management of TextMeshPro.enabled.
+/// own per-frame visibility management of TextMeshPro.enabled. Reads its toggles
+/// live from the Lunaris-registered <see cref="JusticeSettings"/>.
 /// </summary>
 internal sealed class WorldUIHider
 {
-    private readonly ManualLogSource _log;
-    private readonly ConfigEntry<bool> _enableLogging;
-    private readonly ConfigEntry<bool> _hideNameplates;
-    private readonly ConfigEntry<bool> _hideDamageNumbers;
-    private readonly ConfigEntry<bool> _hideTargetRings;
-    private readonly ConfigEntry<bool> _hideXPOrbs;
-    private readonly ConfigEntry<bool> _hideCastBars;
-    private readonly ConfigEntry<bool> _hideOtherWorldText;
-    private readonly ConfigEntry<int> _rescanInterval;
+    private readonly ILog _log;
+    private readonly JusticeSettings _settings;
 
     private readonly HashSet<Renderer> _disabledRenderers = new();
     private readonly HashSet<GameObject> _disabledGameObjects = new();
@@ -34,29 +27,13 @@ internal sealed class WorldUIHider
     /// Whether creation of transient elements (damage pops, XP orbs) should
     /// be suppressed. Checked by Harmony prefix patches.
     /// </summary>
-    public bool SuppressDamageNumbers => IsHidden && _hideDamageNumbers.Value;
-    public bool SuppressXPOrbs => IsHidden && _hideXPOrbs.Value;
+    public bool SuppressDamageNumbers => IsHidden && _settings.HideDamageNumbers;
+    public bool SuppressXPOrbs => IsHidden && _settings.HideXPOrbs;
 
-    public WorldUIHider(
-        ManualLogSource log,
-        ConfigEntry<bool> enableLogging,
-        ConfigEntry<bool> hideNameplates,
-        ConfigEntry<bool> hideDamageNumbers,
-        ConfigEntry<bool> hideTargetRings,
-        ConfigEntry<bool> hideXPOrbs,
-        ConfigEntry<bool> hideCastBars,
-        ConfigEntry<bool> hideOtherWorldText,
-        ConfigEntry<int> rescanInterval)
+    public WorldUIHider(ILog log, JusticeSettings settings)
     {
         _log = log;
-        _enableLogging = enableLogging;
-        _hideNameplates = hideNameplates;
-        _hideDamageNumbers = hideDamageNumbers;
-        _hideTargetRings = hideTargetRings;
-        _hideXPOrbs = hideXPOrbs;
-        _hideCastBars = hideCastBars;
-        _hideOtherWorldText = hideOtherWorldText;
-        _rescanInterval = rescanInterval;
+        _settings = settings;
     }
 
     /// <summary>
@@ -87,7 +64,7 @@ internal sealed class WorldUIHider
         if (!IsHidden)
             return;
 
-        var interval = _rescanInterval.Value;
+        var interval = _settings.RescanInterval;
         if (interval <= 0)
             return;
 
@@ -119,25 +96,25 @@ internal sealed class WorldUIHider
     {
         int count = 0;
 
-        if (_hideNameplates.Value)
+        if (_settings.HideNameplates)
             count += HideNameplates();
 
-        if (_hideDamageNumbers.Value)
+        if (_settings.HideDamageNumbers)
             count += HideDamageNumbers();
 
-        if (_hideTargetRings.Value)
+        if (_settings.HideTargetRings)
             count += HideTargetRings();
 
-        if (_hideXPOrbs.Value)
+        if (_settings.HideXPOrbs)
             count += HideXPOrbs();
 
-        if (_hideCastBars.Value)
+        if (_settings.HideCastBars)
             count += HideCastBars();
 
-        if (_hideOtherWorldText.Value)
+        if (_settings.HideOtherWorldText)
             count += HideOtherWorldText();
 
-        if (_enableLogging.Value)
+        if (_settings.EnableLogging)
             _log.LogDebug($"Scan complete: {count} elements hidden");
     }
 
@@ -273,8 +250,7 @@ internal sealed class WorldUIHider
         _disabledRenderers.Clear();
         _disabledGameObjects.Clear();
 
-        if (_enableLogging.Value)
-            _log.LogDebug(
-                $"Restored {rendererCount} renderers, {gameObjectCount} game objects");
+        if (_settings.EnableLogging)
+            _log.LogDebug($"Restored {rendererCount} renderers, {gameObjectCount} game objects");
     }
 }

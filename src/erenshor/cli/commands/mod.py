@@ -71,7 +71,8 @@ MODS: dict[str, ModInfo] = {
         "dir": "src/mods/JusticeForF7",
         "name": "Justice for F7",
         "dll_name": "JusticeForF7.dll",
-        "thunderstore": "WoW_Much/JusticeForF7",
+        "loader": "lunaris",
+        "lunaris_dlls": ["0Harmony.dll"],
     },
     "sprint": {
         "dir": "src/mods/Sprint",
