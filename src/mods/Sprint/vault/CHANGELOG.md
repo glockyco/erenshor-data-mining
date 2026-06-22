@@ -1,6 +1,6 @@
 # Changelog
 
-## v2026.621.0
+## v2026.622.0
 
 - First Erenshor Vault release (Lunaris-native build).
 - Configurable sprint key with hold or toggle mode.

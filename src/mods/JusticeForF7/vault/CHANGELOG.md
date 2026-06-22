@@ -1,6 +1,6 @@
 # Changelog
 
-## v2026.621.0
+## v2026.622.0
 
 - First Erenshor Vault release (Lunaris-native build).
 - Extends F7 to hide nameplates, damage numbers, target rings, XP orbs, cast
