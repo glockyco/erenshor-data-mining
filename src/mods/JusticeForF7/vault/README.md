@@ -1,11 +1,11 @@
 # Justice for F7
 
-Press F7 for truly clean screenshots. Justice for F7 extends the game's
-F7 "Hide UI" key to also hide world-space UI elements.
+Press F7 for truly clean screenshots.
+Extends the F7 "Hide UI" key to also hide world-space UI elements.
 
 ## What it hides
 
-The game's F7 key toggles the screen-space Canvas and compass. This mod
+The game's F7 key toggles the screen-space Canvas and Compass. This mod
 additionally hides:
 
 - **Nameplates** — NPC, SimPlayer, and player name text
@@ -16,20 +16,28 @@ additionally hides:
 - **Loot prompts** — floating text above lootable corpses
 - **Other world text** — any remaining world-space text
 
-Everything is restored the moment you press F7 again.
+All elements are restored when you press F7 again.
 
 ## Configuration
 
-Every category can be toggled independently through the Lunaris config UI.
+Each element category can be independently toggled in the in-game Lunaris
+config UI:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| General — Enabled | on | Master switch. When off, F7 behaves as vanilla. |
-| General — Enable Logging | on | Debug logging; turn off to silence the mod. |
-| General — Rescan Interval | 30 | Frames between re-scans while hidden (0 = off). |
-| Elements — Hide Nameplates | on | NPC, SimPlayer, and player name text. |
-| Elements — Hide Damage Numbers | on | Floating damage and heal popups. |
-| Elements — Hide Target Rings | on | Selection ring under targeted characters. |
-| Elements — Hide XP Orbs | on | XP orb particles. |
-| Elements — Hide Cast Bars | on | NPC and SimPlayer cast bars. |
-| Elements — Hide Other World Text | on | Loot prompts and remaining world text. |
+```
+[General]
+Enabled         = true   # Master switch. When false, F7 behaves as vanilla.
+EnableLogging   = true   # Set to false to silence all mod log output.
+RescanInterval  = 30     # Frames between re-scans while UI is hidden (0 = disable re-scan).
+
+[Elements]
+HideNameplates       = true
+HideDamageNumbers    = true
+HideTargetRings      = true
+HideXPOrbs           = true
+HideCastBars         = true
+HideOtherWorldText   = true
+```
+
+## Installation
+
+Install through Lunaris — open the in-game mod browser and grab Justice for F7 from the Erenshor Vault.

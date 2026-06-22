@@ -1,30 +1,29 @@
 # Sprint
 
-Ever feel like your character is jogging through molasses on the way to a
-distant quest marker? Not anymore.
+Ever feel like your character's jogging through molasses while trying to reach that distant quest marker? Not anymore.
 
-**Sprint** adds a configurable sprint key. Hold Shift — or any key you bind —
-and go. No stamina, no cooldowns, no complications.
+**Sprint** adds a simple sprint key to run faster. Hold Shift (or any key you want) and go.
 
 ## What it does
 
-Hold your sprint key to run faster, or switch to toggle mode and tap it once.
-That's it.
+Hold or toggle your sprint key to run faster. That's it. No cooldowns, no stamina system, no complications.
 
-The speed multiplier stacks with your existing buffs and debuffs: with Flight
-of Foot active, sprinting makes you even faster; snared, sprint still helps
-(though you're still slower than normal). The game's minimum speed floor is
-always respected.
+The speed multiplier stacks with existing buffs and debuffs - if you've got Flight of Foot active, sprinting makes you even faster. If you're snared, sprint still helps (but you're still slower than normal).
+
+## Installation
+
+Install through Lunaris — open the in-game mod browser and grab Sprint from the Erenshor Vault.
 
 ## Configuration
 
-Everything is configured through the Lunaris config UI.
+Set in the in-game Lunaris config UI:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Controls — Sprint Key | Left Shift | Key to sprint. Bind any key or combo. |
-| Controls — Toggle Mode | off | Tap to toggle sprint instead of holding. |
-| Speed — Speed Multiplier | 1.5 | Run-speed multiplier, 1.0–10.0. Go wild. |
+```
+Sprint Key        = LeftShift   # Any key works
+Toggle Mode       = false       # true = tap to toggle, false = hold
+Speed Multiplier  = 1.5         # 1.0 to 10.0 - go wild
+```
 
-Want a tap-to-toggle sprint instead of hold? Turn on Toggle Mode.
-Want ludicrous speed? Set the multiplier to 10.
+Want toggle instead of hold? Turn on Toggle Mode.
+
+Want ludicrous speed? Set Speed Multiplier to 10.0.
