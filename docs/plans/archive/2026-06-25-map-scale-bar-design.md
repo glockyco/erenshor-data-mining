@@ -1,11 +1,11 @@
 ---
 title: Map Scale Bar Design
 type: spec
-status: active
+status: implemented
 created: 2026-06-25
 parent:
 superseded_by:
-archived:
+archived: 2026-06-25
 ---
 
 # Map Scale Bar Design
