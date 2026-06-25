@@ -1243,4 +1243,18 @@ export class RepositoryBase {
 
         return { levelRange, uniques, rares };
     }
+
+    getWorldStats(): { zones: number; classes: number; items: number; quests: number } {
+        if (!this.db) throw new Error('DB not initialized');
+        const count = (table: string): number => {
+            const res = this.db!.exec(`SELECT COUNT(*) AS n FROM ${table}`);
+            return (res[0]?.values[0][0] as number) ?? 0;
+        };
+        return {
+            zones: count('zones'),
+            classes: count('classes'),
+            items: count('items'),
+            quests: count('quests')
+        };
+    }
 }
