@@ -162,4 +162,7 @@ Link discovered work: `bd create "Found bug" -p 1 --deps discovered-from:<parent
 
 ## Session Completion
 
-Close finished issues. Create issues for remaining work.
+Close finished issues. Create issues for remaining work. If this session created
+or used a `docs/plans/` artifact for work that is now complete, run
+`omp-plans complete <slug>` before the final response so the implemented doc is
+archived and removed from the active planning index.
