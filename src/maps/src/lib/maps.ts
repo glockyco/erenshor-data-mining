@@ -36,10 +36,14 @@ const DISPLAY_NAMES: Record<string, string> = {
     Krakengard: 'Old Krakengard',
     Loomingwood: 'Loomingwood Forest',
     Malaroth: "Malaroth's Nesting Grounds",
-    PlaneOfBrax: "Brax's Plane of Elements",
-    PlaneOfFernalla: 'Plane of the Willow',
-    PlaneOfSoluna: "Soluna's Celestial Plane",
-    PlaneOfVitheo: "Vitheo's Plane of Valor",
+    // Plane zones are pre-configured for an unreleased playtest update. Keep them
+    // commented out until that content ships, so they don't surface on the world
+    // map or zone maps yet (their tiles aren't captured and they're absent from
+    // the main clean DB). Re-enable by uncommenting when the update releases.
+    // PlaneOfBrax: "Brax's Plane of Elements",
+    // PlaneOfFernalla: 'Plane of the Willow',
+    // PlaneOfSoluna: "Soluna's Celestial Plane",
+    // PlaneOfVitheo: "Vitheo's Plane of Valor",
     PrielPlateau: 'Prielian Cascade',
     Ripper: "Ripper's Keep",
     Reliquary: 'Reliquary Hall',
