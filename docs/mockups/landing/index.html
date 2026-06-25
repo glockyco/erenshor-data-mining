@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en" data-theme="modern">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Erenshor Maps — landing draft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ============ PREVIEW CHROME (not part of the design) ============ */
+  *{box-sizing:border-box}
+  .switcher{position:fixed;inset:0 0 auto 0;z-index:9999;display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    padding:8px 16px;background:#0b0d10;border-bottom:1px solid #2a2f37;font:500 13px/1 ui-sans-serif,system-ui,sans-serif;color:#aeb6c0}
+  .switcher b{color:#e8ecf2;margin-right:6px}
+  .switcher button{appearance:none;border:1px solid #353b45;background:#161a20;color:#cfd6df;
+    padding:7px 11px;border-radius:8px;cursor:pointer;font:inherit;transition:all .15s}
+  .switcher button:hover{border-color:#5a626e;background:#1d222a}
+  .switcher button.active{background:#e8ecf2;color:#0b0d10;border-color:#e8ecf2}
+  .note{position:fixed;z-index:9999;top:46px;left:0;right:0;background:#0b0d10;color:#8b94a0;
+    font:500 12px/1.4 ui-sans-serif,system-ui,sans-serif;padding:6px 16px;border-bottom:1px solid #1c2027}
+  .note span{color:#e8ecf2}
+
+  /* ============ THEME TOKENS ============ */
+  html{scroll-behavior:smooth}
+  [data-theme="modern"]{
+    --bg:#0a0e14;--surface:#111922;--surface-2:#18222e;--ink:#e8eff6;--muted:#94a6b8;--line:#1f2c39;
+    --accent:#e2b15a;--accent-ink:#0a0e14;--accent-2:#5ab0c8;
+    --font-display:'Hanken Grotesk',sans-serif;--font-body:'Hanken Grotesk',sans-serif;--font-mono:'JetBrains Mono',monospace;
+    --radius:12px;--rings:rgba(226,177,90,.10);--show-coord:block;
+  }
+  [data-theme="atlas"]{
+    --bg:#0d1a25;--surface:#13232f;--surface-2:#193040;--ink:#ece4d3;--muted:#9fb4b8;--line:#274050;
+    --accent:#c8a45a;--accent-ink:#0d1a25;--accent-2:#7fa07a;
+    --font-display:'Marcellus',serif;--font-body:'Public Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+    --radius:10px;--rings:rgba(200,164,90,.13);--show-coord:block;
+  }
+
+  /* ============ BASE ============ */
+  body{margin:0;padding-top:80px;background:var(--bg);color:var(--ink);
+    font-family:var(--font-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+  section{padding:clamp(30px,4.2vw,56px) 0}
+  main>section:first-of-type{padding-top:clamp(24px,3vw,38px)}
+  .mono{font-family:var(--font-mono)}
+
+  /* coordinate tag beside headings */
+  .coord-tag{display:inline-block;font-family:var(--font-mono);font-size:.66rem;letter-spacing:.12em;
+    color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 8px;margin-bottom:10px}
+  .coord-tag b{color:var(--accent);font-weight:500}
+
+  /* live coordinate HUD (interactive) */
+  .coord-hud{position:fixed;right:18px;bottom:18px;z-index:60;display:flex;align-items:center;gap:9px;
+    padding:8px 12px;border:1px solid var(--line);border-radius:10px;
+    background:color-mix(in oklab,var(--surface) 90%,var(--bg));box-shadow:0 8px 26px rgba(0,0,0,.4);
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;color:var(--muted);
+    pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .coord-hud.on{opacity:1;transform:none}
+  .coord-hud svg{width:14px;height:14px;color:var(--accent);flex:none}
+  .coord-hud b{color:var(--accent);font-weight:500}
+  @media (pointer:coarse){.coord-hud{display:none}}
+  @media (max-width:640px){.coord-hud{display:none}footer .frow{padding-bottom:30px}}
+  @media (prefers-reduced-motion:reduce){.coord-hud{transition:opacity .25s}}
+
+  /* header */
+  .site-header{padding:18px 0}
+  .site-header .inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+  .brand .b2{color:var(--accent)}
+  .header-right{display:flex;align-items:center;gap:22px}
+  .nav{display:flex;gap:22px;flex-wrap:wrap;font-size:.95rem}
+  .nav a{color:var(--muted);text-decoration:none;transition:color .15s}
+  .nav a:hover{color:var(--accent)}
+  .header-icons{display:flex;align-items:center;gap:15px;padding-left:20px;border-left:1px solid var(--line)}
+  .header-icons a{color:var(--muted);display:grid;place-items:center;transition:color .15s}
+  .header-icons a:hover{color:var(--accent)}
+  .header-icons svg{width:20px;height:20px;fill:currentColor;display:block}
+
+  /* hero — full-width masthead */
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:clamp(34px,4.5vw,56px) 0 0}
+  .hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+    background:repeating-radial-gradient(circle at 90% -40%,transparent 0 62px,var(--rings) 62px 63px,transparent 63px)}
+  .hero .wrap{position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:.6em;font-family:var(--font-mono);font-size:.76rem;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--accent)}
+  h1{font-family:var(--font-display);font-size:clamp(2.3rem,5.6vw,4.1rem);line-height:1.02;margin:.3em 0 .46em;
+    color:var(--ink);text-wrap:balance;font-weight:800;letter-spacing:-.015em}
+  .hero-row{display:flex;justify-content:space-between;align-items:flex-end;gap:22px 48px;flex-wrap:wrap}
+  .lede{color:color-mix(in oklab,var(--ink) 82%,var(--bg));max-width:50ch;font-size:1.08rem;margin:0}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;font-weight:700;
+    font-size:1rem;line-height:1.2;padding:.8em 1.4em;border-radius:var(--radius);border:1px solid transparent;transition:filter .15s,border-color .15s,background .15s}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn.secondary{background:var(--surface-2);color:var(--ink);border-color:var(--line)}
+  .btn.secondary:hover{border-color:var(--accent)}
+  .btn svg{width:1.05em;height:1.05em}
+  .cta .textlink{color:var(--muted);text-decoration:none;font-size:.92rem;padding:0 .4em}
+  .cta .textlink:hover{color:var(--accent)}
+  /* compass ruler */
+  .ruler{position:relative;margin-top:clamp(24px,3.2vw,40px);height:36px}
+  .ruler::before,.ruler::after{content:"";position:absolute;bottom:12px;height:7px}
+  .ruler::before{left:0;right:calc(50% + 30px);
+    background-image:repeating-linear-gradient(to left,var(--line) 0 1px,transparent 1px 58px)}
+  .ruler::after{left:calc(50% + 30px);right:0;
+    background-image:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 58px)}
+  .ruler span{position:absolute;bottom:1px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;color:var(--muted)}
+  .ruler .r0{left:0}.ruler .r2{right:0}
+  .ruler .north{left:50%;transform:translateX(-50%);color:var(--accent);font-weight:600;text-align:center}
+  .ruler .north::before{content:"";display:block;margin:0 auto 4px;width:0;height:0;
+    border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6px solid var(--accent)}
+
+  /* section dividers — understated fading hairline + center diamond */
+  .divider{display:flex;align-items:center;gap:18px;margin:clamp(2px,1.4vw,12px) 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px}
+  .divider::before{background:linear-gradient(90deg,transparent,var(--line))}
+  .divider::after{background:linear-gradient(90deg,var(--line),transparent)}
+  .divider span{flex:none;width:7px;height:7px;transform:rotate(45deg);border:1px solid var(--accent);opacity:.8}
+
+  /* section heads */
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}
+  .sec-head h2{font-family:var(--font-display);font-size:clamp(1.55rem,3vw,2.2rem);margin:0;color:var(--ink);font-weight:800;letter-spacing:-.01em}
+
+  /* featured flagship tile */
+  .featured{display:grid;grid-template-columns:1.3fr 1fr;gap:0;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;margin-bottom:18px;transition:border-color .15s}
+  .featured:hover{border-color:var(--accent)}
+  .featured img{width:100%;height:100%;min-height:260px;object-fit:cover;display:block}
+  .featured .body{padding:clamp(22px,2.6vw,38px);display:flex;flex-direction:column;justify-content:center}
+  .featured .coord{display:var(--show-coord);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;color:var(--accent);margin-bottom:12px}
+  .featured h3{font-family:var(--font-display);font-size:clamp(1.45rem,2.4vw,1.9rem);margin:0 0 .4em;color:var(--ink);font-weight:800}
+  .featured p{margin:0 0 1.3em;color:var(--muted);max-width:44ch}
+  .featured .go{font-weight:700;color:var(--accent)}
+
+  /* secondary tools grid */
+  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+  .tile{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;transition:border-color .15s,background .15s}
+  .tile:hover{border-color:var(--accent);background:var(--surface-2)}
+  .tile .thumb{aspect-ratio:16/9;width:100%;object-fit:cover;display:block;border-bottom:1px solid var(--line)}
+  .tile .body{padding:16px 16px 18px}
+  .tile .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:.3em}
+  .tile h3{font-family:var(--font-display);margin:0;font-size:1.12rem;color:var(--ink);font-weight:700}
+  .tile .tag{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 8px}
+  .tile p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+
+  /* prose */
+  #about{position:relative;overflow:hidden}
+  #about::before{content:"";position:absolute;top:50%;left:-140px;width:560px;height:560px;transform:translateY(-50%);
+    pointer-events:none;opacity:.85;
+    background:radial-gradient(circle at center,transparent 26%,var(--bg) 72%),
+      repeating-radial-gradient(circle at center,transparent 0 40px,var(--rings) 40px 41px,transparent 41px)}
+  .prose{display:grid;grid-template-columns:1fr 1fr;gap:44px;position:relative}
+  .prose>div{position:relative}
+  .prose h2{font-family:var(--font-display);font-size:1.45rem;margin:0 0 .5em;color:var(--ink);font-weight:800}
+  .prose p{color:color-mix(in oklab,var(--ink) 84%,var(--bg));max-width:62ch;margin:0 0 .9em}
+  .prose a{color:var(--accent);text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--accent) 45%,transparent)}
+
+  /* community — divided lists, line icons */
+  .link-groups{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+  .group-title{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 6px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .links{display:flex;flex-direction:column}
+  .link{display:flex;align-items:center;gap:15px;padding:14px 12px;text-decoration:none;color:inherit;
+    border-bottom:1px solid var(--line);border-radius:10px;transition:background .15s}
+  .link:last-child{border-bottom:none}
+  .link:hover{background:var(--surface)}
+  .link .ic{flex:none;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+    background:var(--surface);border:1px solid var(--line);color:var(--accent);transition:border-color .15s}
+  .link:hover .ic{border-color:var(--accent)}
+  .link .ic svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .link h4{margin:0 0 .12em;font-size:1rem;color:var(--ink);font-family:var(--font-display);font-weight:700}
+  .link p{margin:0;font-size:.85rem;color:var(--muted)}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);margin-top:8px}
+  footer .frow{padding-top:26px;padding-bottom:84px;color:var(--muted);font-size:.88rem;display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
+  footer a{color:var(--muted);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  [data-theme="modern"] .sec-head h2{position:relative;padding-bottom:12px}
+  [data-theme="modern"] .sec-head h2::after{content:"";position:absolute;left:0;bottom:0;width:42px;height:3px;background:var(--accent);border-radius:2px}
+
+  @media (max-width:880px){
+    .nav{display:none}
+    .header-icons{border-left:none;padding-left:0}
+    .featured{grid-template-columns:1fr}
+    .featured img{min-height:190px}
+    .prose,.link-groups{grid-template-columns:1fr;gap:28px}
+    footer .frow{flex-direction:column;gap:8px}
+  }
+</style>
+</head>
+<body>
+  <div class="switcher">
+    <b>Draft preview · direction:</b>
+    <button data-set="modern" class="active">Modern Dark</button>
+    <button data-set="atlas">Cartographer's Atlas</button>
+  </div>
+  <div class="note" id="note"></div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="wrap inner">
+      <a class="brand" href="#">Erenshor <span class="b2">Maps</span></a>
+      <div class="header-right">
+        <nav class="nav">
+          <a href="#tools">World Map</a>
+          <a href="#tools">Zone Maps</a>
+          <a href="#tools">Adventure Guide</a>
+          <a href="#tools">Mods</a>
+          <a href="#tools">Spreadsheet</a>
+        </nav>
+        <div class="header-icons">
+          <a href="https://store.steampowered.com/app/2382520/Erenshor/" title="Erenshor on Steam" aria-label="Erenshor on Steam">
+            <svg viewBox="0 0 24 24"><path d="M11.98 0C5.67 0 .5 4.86.02 11.04l6.43 2.66a3.4 3.4 0 0 1 1.92-.59l2.86-4.15v-.06a4.53 4.53 0 1 1 4.53 4.53h-.11l-4.08 2.91v.16a3.4 3.4 0 1 1-6.72-.84L.44 15.27A12 12 0 1 0 11.98 0zM7.54 18.2l-1.47-.6a2.56 2.56 0 0 0 4.65-.13 2.56 2.56 0 0 0-1.37-3.33 2.56 2.56 0 0 0-1.88-.03l1.52.63a1.89 1.89 0 1 1-1.45 3.49zm11.42-9.3a3.02 3.02 0 1 0-6.03 0 3.02 3.02 0 0 0 6.03 0zm-5.27 0a2.26 2.26 0 1 1 4.53 0 2.26 2.26 0 0 1-4.53 0z"/></svg>
+          </a>
+          <a href="https://discord.gg/erenshor" title="Erenshor Discord" aria-label="Erenshor Discord">
+            <svg viewBox="0 0 24 24"><path d="M20.32 4.37A19.79 19.79 0 0 0 15.43 2.86a.07.07 0 0 0-.08.04c-.21.38-.44.86-.61 1.25a18.27 18.27 0 0 0-5.48 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.37-.29a.07.07 0 0 1 .08-.01 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08.01l.37.29a.08.08 0 0 1-.01.13 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.69.78 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+          </a>
+          <a href="https://ko-fi.com/wowmuch" title="Support on Ko-fi" aria-label="Support on Ko-fi">
+            <svg viewBox="0 0 24 24"><path d="M23.88 8.95c-.77-4.09-4.86-4.6-4.86-4.6H.72c-.6 0-.68.8-.68.8s-.08 7.32-.02 11.82c.16 2.42 2.59 2.67 2.59 2.67s8.26-.02 11.96-.05c2.44-.43 2.68-2.57 2.66-3.73 4.35.24 7.42-2.83 6.65-6.91zm-11.06 3.51c-1.25 1.45-4.01 3.98-4.01 3.98s-.12.12-.31.02l-.11-.09c-.44-.44-3.37-3.05-4.03-3.95-.71-.97-1.04-2.7-.09-3.71.95-1.01 3-1.09 4.36.41 0 0 1.57-1.78 3.47-.96 1.9.82 1.83 3.01.72 4.31zm6.17.48c-.93.12-1.68.03-1.68.03V7.28h1.77s1.97.55 1.97 2.64c0 1.91-.98 2.67-2.06 3.02z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="kicker">Free · fan-made · updated every patch</span>
+      <h1>Chart the world of Erenshor.</h1>
+      <div class="hero-row">
+        <p class="lede">Interactive maps, reference data, and companion mods for the single-player
+          <em>simulated</em> MMORPG. Built by the community, refreshed with every game build.</p>
+        <div class="cta">
+          <a class="btn primary" href="#tools">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5.4-2.7A1 1 0 013 16.4V5.6a1 1 0 011.4-.9L9 7m0 13l6-3m-6 3V7m6 10l4.6 2.3A1 1 0 0021 18.4V7.6a1 1 0 00-.6-.9L15 4m0 13V4m0 0L9 7"/></svg>
+            Open the world map
+          </a>
+          <a class="btn secondary" href="#tools">Browse all tools</a>
+          <a class="textlink" href="#about">New to Erenshor? →</a>
+        </div>
+      </div>
+      <div class="ruler" aria-hidden="true">
+        <span class="r0">W</span>
+        <span class="north">N</span>
+        <span class="r2">E</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <!-- TOOLS -->
+    <section id="tools">
+      <div class="sec-head">
+        <div>
+          <span class="coord-tag"><b>X</b> 0 · <b>Y</b> 0</span>
+          <h2>Tools &amp; resources</h2>
+        </div>
+      </div>
+
+      <a class="featured" href="#">
+        <img src="../../../src/maps/static/world-map-preview.webp" alt="Interactive world map of Erenshor with spawn and NPC markers" />
+        <div class="body">
+          <div class="coord">EVERY ZONE · ONE MAP</div>
+          <h3>Interactive World Map</h3>
+          <p>Pan the entire world. Every spawn point, friendly NPC, and enemy, filterable by level
+            and searchable by name.</p>
+          <span class="go">Open the map →</span>
+        </div>
+      </a>
+
+      <div class="tools">
+        <a class="tile" href="#">
+          <img class="thumb" src="../../../src/maps/static/adventure-guide-window.webp" alt="Adventure Guide quest window" />
+          <div class="body">
+            <div class="row"><h3>Adventure Guide</h3></div>
+            <p>In-game quest companion. 170+ quests with walkthroughs, world markers, and navigation.</p>
+          </div>
+        </a>
+        <a class="tile" href="#">
+          <img class="thumb" src="../../../src/maps/static/world-map-companion.gif" alt="Live entity tracking on the map" />
+          <div class="body">
+            <div class="row"><h3>Companion Mods</h3></div>
+            <p>Live tracking on the maps. See your character, SimPlayers, NPCs, and enemies move in real time.</p>
+          </div>
+        </a>
+        <a class="tile" href="#">
+          <img class="thumb" src="../../../src/maps/static/spreadsheet.png" alt="Reference data spreadsheet" />
+          <div class="body">
+            <div class="row"><h3>Reference Spreadsheet</h3></div>
+            <p>Searchable items, drop chances, characters, classes, spells, skills, ascensions, and more.</p>
+          </div>
+        </a>
+        <a class="tile" href="#">
+          <img class="thumb" src="../../../src/maps/static/maps/Braxonia.jpg" alt="Per-zone map of Braxonia" />
+          <div class="body">
+            <div class="row"><h3>Zone Maps</h3><span class="tag">Legacy</span></div>
+            <p>Per-zone maps with spawn, NPC, and connection markers. Superseded by the world map.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span></span></div>
+
+    <!-- ABOUT / PROSE -->
+    <section id="about" class="prose">
+      <div>
+        <span class="coord-tag"><b>X</b> 0 · <b>Y</b> 0</span>
+        <h2>About Erenshor</h2>
+        <p><a href="https://erenshor.com/">Erenshor</a> is a single-player <em>simulated</em> MMORPG,
+          a love letter to the late-90s and early-2000s online RPGs. Its signature SimPlayers level up,
+          trade, join guilds, and raid alongside you, driven by state machines rather than AI, so the
+          world feels alive while you play completely offline.</p>
+        <p>Developed by Burgee Media, it spans 40+ zones, seven classes, over 1,000 items, and
+          hundreds of quests and NPCs to discover.</p>
+      </div>
+      <div>
+        <span class="coord-tag"><b>X</b> 0 · <b>Y</b> 0</span>
+        <h2>About Erenshor Maps</h2>
+        <p>Erenshor Maps is a fan-made companion suite. The interactive maps plot every
+          creature spawn, friendly NPC, and resource node. The companion mods add live tracking and an
+          in-game quest guide, and the reference spreadsheet exposes the underlying game data.</p>
+        <p>Everything is pulled straight from the game files and refreshed with each new build, so the
+          data you plan around matches the game you're playing.</p>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"><span></span></div>
+
+    <!-- COMMUNITY -->
+    <section id="community">
+      <div class="sec-head">
+        <div>
+          <span class="coord-tag"><b>X</b> 0 · <b>Y</b> 0</span>
+          <h2>The game &amp; the wider community</h2>
+        </div>
+      </div>
+      <div class="link-groups">
+        <div class="group">
+          <h3 class="group-title">Official Erenshor</h3>
+          <div class="links">
+            <a class="link" href="https://store.steampowered.com/app/2382520/Erenshor/">
+              <span class="ic"><svg viewBox="0 0 24 24"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg></span>
+              <div><h4>Erenshor on Steam</h4><p>Buy the game on Steam.</p></div>
+            </a>
+            <a class="link" href="https://erenshor.com/">
+              <span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+              <div><h4>Official Website</h4><p>erenshor.com, by Burgee Media.</p></div>
+            </a>
+            <a class="link" href="https://discord.gg/erenshor">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
+              <div><h4>Official Discord</h4><p>News, help, and the community.</p></div>
+            </a>
+            <a class="link" href="https://erenshor.wiki.gg/">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span>
+              <div><h4>Official Wiki</h4><p>erenshor.wiki.gg, the full game reference.</p></div>
+            </a>
+          </div>
+        </div>
+        <div class="group">
+          <h3 class="group-title">Community &amp; support</h3>
+          <div class="links">
+            <a class="link" href="https://erenshorvault.app/">
+              <span class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span>
+              <div><h4>Erenshor Vault</h4><p>Community tools, guides &amp; the mod registry.</p></div>
+            </a>
+            <a class="link" href="https://github.com/MizukiBelhi/Lunaris">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
+              <div><h4>Lunaris Mod Loader</h4><p>Install &amp; update mods while the game runs.</p></div>
+            </a>
+            <a class="link" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3500398991">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span>
+              <div><h4>Steam Guide</h4><p>The maps &amp; spreadsheet, on Steam.</p></div>
+            </a>
+            <a class="link" href="https://ko-fi.com/wowmuch">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg></span>
+              <div><h4>Support on Ko-fi</h4><p>Optional thanks if the tools helped, never required.</p></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap frow">
+      <span>Erenshor Maps. A fan project, not affiliated with Burgee Media.</span>
+      <span><a href="https://erenshor.com/">erenshor.com</a> · <a href="https://erenshor.wiki.gg/">wiki</a> · <a href="https://discord.gg/erenshor">discord</a></span>
+    </div>
+  </footer>
+
+  <div class="coord-hud" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+    <span class="hud-xy"><b>X</b> 0 · <b>Y</b> 0</span>
+  </div>
+
+<script>
+  const root=document.documentElement;
+  const note=document.getElementById('note');
+  const blurbs={
+    modern:"<span>Modern Dark</span> — header icons · corrected copy · balanced About columns · live coordinate HUD (updates on scroll too).",
+    atlas:"<span>Cartographer's Atlas</span> — same layout, ink-on-navy + Marcellus serif variant."
+  };
+  function set(t){
+    root.dataset.theme=t;
+    document.querySelectorAll('.switcher button').forEach(b=>b.classList.toggle('active',b.dataset.set===t));
+    note.innerHTML=blurbs[t];
+  }
+  document.querySelectorAll('.switcher button').forEach(b=>b.addEventListener('click',()=>{set(b.dataset.set);window.scrollTo({top:0})}));
+  set('modern');
+
+  // --- interactive cartography: live coordinates ---
+  const hud=document.querySelector('.coord-hud');
+  const hudXY=document.querySelector('.hud-xy');
+  const tags=[...document.querySelectorAll('.coord-tag')];
+  function placeTags(){
+    for(const t of tags){
+      const r=t.getBoundingClientRect();
+      t.innerHTML=`<b>X</b> ${Math.round(r.left+window.scrollX)} · <b>Y</b> ${Math.round(r.top+window.scrollY)}`;
+    }
+  }
+  placeTags();
+  addEventListener('load',placeTags);
+  addEventListener('resize',()=>{placeTags();update();});
+  // Track the last cursor viewport position so scrolling (stationary cursor) still updates.
+  let cx=null, cy=null;
+  function update(){
+    if(cx===null) return;
+    hudXY.innerHTML=`<b>X</b> ${Math.round(cx+window.scrollX)} · <b>Y</b> ${Math.round(cy+window.scrollY)}`;
+  }
+  addEventListener('pointermove',e=>{cx=e.clientX;cy=e.clientY;hud.classList.add('on');update();},{passive:true});
+  addEventListener('scroll',update,{passive:true});
+</script>
+</body>
+</html>
