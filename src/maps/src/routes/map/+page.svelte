@@ -33,6 +33,8 @@
         type MarkerIconType
     } from '$lib/map/icons';
     import { transformEntityToWorld, transformRotationToMap } from '$lib/map/coordinate-transform';
+    import ScaleBar from '$lib/components/map/ScaleBar.svelte';
+    import { computeScaleBarState, type ScaleBarState } from '$lib/map/scale-bar';
     import { liveConnection, liveState, type EntityData } from '$lib/map/live';
     import {
         createDebugStore,
@@ -122,6 +124,9 @@
     let searchInitialQuery = $state('');
     let searchHighlightPositions = $state<{ position: [number, number]; stableKey: string }[]>([]);
     let hoveredSpawnKey = $state<string | null>(null);
+
+    // Scale bar state
+    let scaleBarState = $state<ScaleBarState | null>(null);
 
     // Search index (built once from static data)
     const searchIndex = $derived(
@@ -573,11 +578,61 @@
     // Popup sidebar width (matches PopupContainer w-80 = 320px)
     const POPUP_WIDTH = 320;
     const MAP_CHROME_GAP = 16;
+    const SCALE_BAR_GAP = 24;
+    const SCALE_BAR_BOTTOM = 22;
+    const SCALE_BAR_MAX_WIDTH = 120;
     const KOFI_URL = 'https://ko-fi.com/wowmuch';
 
     const kofiButtonRight = $derived(
         isDesktop && selection ? `${POPUP_WIDTH + MAP_CHROME_GAP}px` : `${MAP_CHROME_GAP}px`
     );
+
+    const scaleBarLeftPx = $derived(
+        isDesktop
+            ? (sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded) + SCALE_BAR_GAP
+            : SCALE_BAR_GAP
+    );
+
+    function updateScaleBar(retries = 0) {
+        if (!container || !deckInstance) {
+            scaleBarState = null;
+            return;
+        }
+
+        const viewport = deckInstance.getViewports?.()[0];
+        if (!viewport?.unproject) {
+            scaleBarState = null;
+            if (retries > 0) {
+                scheduleScaleBarUpdate(retries - 1);
+            }
+            return;
+        }
+
+        const sampleY = container.clientHeight - SCALE_BAR_BOTTOM - 8;
+        const left = scaleBarLeftPx;
+        const right = left + SCALE_BAR_MAX_WIDTH;
+
+        const from = viewport.unproject([left, sampleY]);
+        const to = viewport.unproject([right, sampleY]);
+        const measuredUnits = Math.hypot(to[0] - from[0], to[1] - from[1]);
+
+        const nextState = computeScaleBarState({
+            measuredUnits,
+            maxWidthPx: SCALE_BAR_MAX_WIDTH
+        });
+        scaleBarState = nextState;
+        if (nextState == null && retries > 0) {
+            scheduleScaleBarUpdate(retries - 1);
+        }
+    }
+
+    function scheduleScaleBarUpdate(retries = 6) {
+        if (!browser) {
+            updateScaleBar();
+            return;
+        }
+        requestAnimationFrame(() => updateScaleBar(retries));
+    }
 
     // Padding for flyTo/flyToBounds — accounts for obscured areas.
     // On mobile, sidebar and popup are drawers/overlays, so no padding needed.
@@ -632,6 +687,20 @@
                 updateCameraTarget(playerPos[0], playerPos[1]);
             }
         }
+        scheduleScaleBarUpdate();
+    });
+
+    $effect(() => {
+        const left = scaleBarLeftPx;
+        void left;
+
+        if (!browser) return;
+
+        scheduleScaleBarUpdate();
+
+        const handleResize = () => scheduleScaleBarUpdate();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     });
 
     // Save sidebar state to localStorage
@@ -1120,6 +1189,7 @@
 
                         // Sync view state to URL (debounced)
                         urlManager.syncViewState(buildUrlParams());
+                        scheduleScaleBarUpdate();
                     }
                 },
                 onHover: (info: {
@@ -1179,6 +1249,8 @@
                 onDrag: handleDrag,
                 onDragEnd: handleDragEnd
             });
+
+            scheduleScaleBarUpdate();
 
             isLoading = false;
         } catch (err) {
@@ -2010,6 +2082,8 @@
 
     <!-- Map container -->
     <div bind:this={container} class="absolute inset-0"></div>
+
+    <ScaleBar state={scaleBarState} leftPx={scaleBarLeftPx} />
 
     <!-- Loading overlay -->
     {#if isLoading}

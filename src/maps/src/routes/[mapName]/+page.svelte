@@ -8,6 +8,8 @@
     import { type LatLngExpression, type Map as LeafletMap } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
+    import ScaleBar from '$lib/components/map/ScaleBar.svelte';
+    import { computeScaleBarState, type ScaleBarState } from '$lib/map/scale-bar';
     import { breadcrumbJsonLd, zoneMapJsonLd } from '$lib/seo/jsonld';
     // Fix HTML-encoded ampersands from forum posts (e.g., Steam discussions)
     // This must run before any URL parsing to ensure $page.url is correct
@@ -73,6 +75,28 @@
             'compass'
     );
     let trueNorthBearing = $state(0); // Store the zone's true north bearing
+    let scaleBarState = $state<ScaleBarState | null>(null);
+    const SCALE_BAR_GAP = 24;
+    const SCALE_BAR_BOTTOM = 22;
+    const SCALE_BAR_MAX_WIDTH = 120;
+
+    function updateScaleBar(map: LeafletMap | null = mapInstance) {
+        if (!map) {
+            scaleBarState = null;
+            return;
+        }
+
+        const size = map.getSize();
+        const sampleY = size.y - SCALE_BAR_BOTTOM - 8;
+        const from = map.containerPointToLatLng([SCALE_BAR_GAP, sampleY]);
+        const to = map.containerPointToLatLng([SCALE_BAR_GAP + SCALE_BAR_MAX_WIDTH, sampleY]);
+        const measuredUnits = Math.hypot(to.lng - from.lng, to.lat - from.lat);
+
+        scaleBarState = computeScaleBarState({
+            measuredUnits,
+            maxWidthPx: SCALE_BAR_MAX_WIDTH
+        });
+    }
 
     // Track initialization to prevent re-init on query param changes
     let lastInitializedMapName = $state<string | null>(null);
@@ -125,6 +149,8 @@
         mapInstance = null;
         playerMarker = null;
         stableKeyToMarker = new Map(); // Clear marker map
+        scaleBarState = null;
+
 
         // Initialize new map
         import('leaflet').then(async (L) => {
@@ -446,12 +472,11 @@
                     position: 'topleft'
                 },
                 onAdd: function () {
-                    const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                    container.style.backgroundColor = 'white';
-                    container.style.padding = '5px 10px';
-                    container.style.cursor = 'pointer';
-                    container.style.fontWeight = 'bold';
-                    container.style.fontSize = '14px';
+                    const container = L.DomUtil.create(
+                        'button',
+                        'leaflet-bar leaflet-control erenshor-leaflet-control'
+                    ) as HTMLButtonElement;
+                    container.type = 'button';
 
                     const updateLabel = () => {
                         container.innerHTML =
@@ -466,6 +491,8 @@
                     container.title =
                         'Toggle between compass-aligned view and coordinate-aligned view';
 
+                    L.DomEvent.disableClickPropagation(container);
+
                     container.onclick = () => {
                         // Toggle between compass and coordinates
                         if (rotationMode === 'compass') {
@@ -478,6 +505,7 @@
                         // Save preference to localStorage
                         localStorage.setItem('mapRotationMode', rotationMode);
                         updateLabel();
+                        updateScaleBar(map);
                     };
 
                     return container;
@@ -518,11 +546,15 @@
 
             map.addControl(new BackButtonControl());
 
+            const updateScaleBarForMap = () => updateScaleBar(map);
+            map.on('move zoom resize rotate', updateScaleBarForMap);
+
             mapInstance = map;
             // Expose for headless screenshot tooling only — not part of the public API.
             if (typeof window !== 'undefined')
                 (window as Window & { __leafletMap?: typeof map }).__leafletMap = map;
             mapInstance = map;
+            updateScaleBar(map);
             stableKeyToMarker = markerMap;
         });
     });
@@ -636,7 +668,10 @@
 
 {#if config}
     <h1 class="sr-only">{config.zoneName} – Erenshor Zone Map</h1>
-    <div bind:this={mapContainer} style="height:100vh;width:100vw;"></div>
+    <div class="relative h-screen w-screen">
+        <div bind:this={mapContainer} class="h-full w-full"></div>
+        <ScaleBar state={scaleBarState} />
+    </div>
 {:else}
     <div
         style="display:flex;justify-content:center;align-items:center;height:100vh;font-size:2em;color:#888;"

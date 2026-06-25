@@ -20,3 +20,26 @@ body {
     color: var(--color-ink);
     font-family: var(--font-display);
 }
+
+.erenshor-leaflet-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid rgb(255 255 255 / 0.16) !important;
+    border-radius: 4px;
+    background: rgb(24 24 27 / 0.96) !important;
+    color: #f4f4f5 !important;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.35);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.erenshor-leaflet-control:hover,
+.erenshor-leaflet-control:focus-visible {
+    background: rgb(39 39 42 / 0.98) !important;
+    color: #fff !important;
+}
