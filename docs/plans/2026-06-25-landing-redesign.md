@@ -1,7 +1,7 @@
 ---
 title: Landing Page Redesign (Erenshor Maps) — Implementation
 type: plan
-status: draft
+status: implemented
 created: 2026-06-25
 parent: 2026-06-25-landing-redesign-design
 ---
