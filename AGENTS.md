@@ -84,7 +84,7 @@ Package: `com.coplaydev.unity-mcp` (in `Packages/manifest.json`).
 
 Before starting multi-file work, list planned commits. Each commit is one
 logical change. Implement and commit sequentially. A commit that requires
-"and" to describe is two commits. Write plans to `docs/plans/{YYYY-MM-DD}-{plan-name}.md`.
+"and" to describe is two commits. Planning docs follow the global convention (`skill://planning-files`); implement plans **inline in the main working tree** — do not create git worktrees unless explicitly requested.
 
 ## Commit Standards
 
