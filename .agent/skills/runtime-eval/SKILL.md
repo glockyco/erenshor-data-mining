@@ -34,6 +34,37 @@ cp "$MAIN_INSTALL/BepInEx/plugins/mcs.dll" "$NEW_INSTALL/BepInEx/plugins/"
 
 Restart the game; `BepInEx/LogOutput.log` should report `HotRepl … REPL on port 18590`.
 
+### Lunaris-based installs (HotRepl needs the BepInEx loader)
+
+HotRepl is a **multi-assembly** BepInEx plugin (HotRepl.Core/Protocol/Evaluator +
+Roslyn + `mcs` + Fleck) and only loads under the **BepInEx** loader (the doorstop
+`winhttp.dll` proxy). Some installs now use the **Lunaris** loader instead — its own
+`winhttp.dll`, with BepInEx's kept as `winhttp.bepinex-backup.dll` (the playtest is
+like this today).
+
+HotRepl does **not** drop into Lunaris's `plugins/`. Lunaris loads only single,
+self-contained plugin DLLs (Sprint, JusticeForF7 are each one ILRepacked DLL):
+`PluginLoader.ScanPlugin` reads each `plugins/**/*.dll` from an in-memory stream
+with a Cecil resolver that has no sibling-directory context, so HotRepl's
+cross-assembly attribute refs (HotRepl.Core, Newtonsoft.Json) fail to resolve,
+`HotRepl.Core`/`HotRepl.Protocol` never load, and `eval ping` fails.
+
+To use HotRepl on a Lunaris install, temporarily swap the loader, then restore —
+**only while the game is closed**:
+
+```bash
+PT="…/Erenshor Playtest"
+cp -f "$PT/winhttp.dll" "$PT/winhttp.lunaris.dll"        # back up Lunaris loader (once)
+cp -f "$PT/winhttp.bepinex-backup.dll" "$PT/winhttp.dll" # activate BepInEx
+# launch via Steam, load a character, run eval/export, quit the game, then:
+cp -f "$PT/winhttp.lunaris.dll" "$PT/winhttp.dll"        # restore Lunaris
+```
+
+A proper fix (keep the install on Lunaris) would require ILRepacking HotRepl into one
+self-contained plugin DLL, or a Lunaris-side resolver change. Until then, the loader
+swap is the supported path. Launch via **Steam** (not a bare `wine` call from another
+cwd) so the app-local `winhttp.dll` bootstraps.
+
 ## C# 7 Limitations
 
 The Mono compiler supports C# 7.x only. These **do not work**:
