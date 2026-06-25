@@ -10,9 +10,9 @@
 
 This spec decomposes the AdventureGuide architecture overhaul into coupled design groups, orders them by dependency, and records the meta-decisions (scope, ordering, extraction constraints, lifecycle gates) so each per-group brainstorming session can focus on real architectural calls instead of re-deciding shared structure.
 
-It does **not** make per-group design decisions. Those happen in each group's own brainstorming session, which produces its own design spec at `docs/superpowers/specs/`.
+It does **not** make per-group design decisions. Those happen in each group's own brainstorming session, which produces its own design spec at `docs/plans/`.
 
-Full per-theme evidence (file:line citations, "evidence of pain", "what this blocks", detailed suggested fixes) lives in the companion document `docs/superpowers/specs/2026-04-18-adventure-guide-architecture-audit.md`. This program spec summarises each theme only deeply enough to orient someone starting a group session; they consult the audit for detail.
+Full per-theme evidence (file:line citations, "evidence of pain", "what this blocks", detailed suggested fixes) lives in the companion document `docs/plans/2026-04-18-adventure-guide-architecture-audit.md`. This program spec summarises each theme only deeply enough to orient someone starting a group session; they consult the audit for detail.
 
 ## 2. Scope
 
@@ -167,8 +167,8 @@ T9 spike + extraction evaluation after Group 4 completes.
 
 Each group follows the same lifecycle:
 
-1. **Brainstorming session** (using the `superpowers:brainstorming` skill) → design spec committed under `docs/superpowers/specs/`
-2. **Implementation plan** (using the `superpowers:writing-plans` skill) → plan committed under `docs/superpowers/plans/`
+1. **Brainstorming session** (using the `superpowers:brainstorming` skill) → design spec committed under `docs/plans/`
+2. **Implementation plan** (using the `superpowers:writing-plans` skill) → plan committed under `docs/plans/`
 3. **Implementation** in incremental commits
 4. **Per-commit gates:**
    - Test suite passes

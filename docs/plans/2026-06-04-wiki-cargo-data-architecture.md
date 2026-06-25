@@ -334,7 +334,7 @@ excluded. Rendered as an "Auction House" line in How to Obtain.
 - `CharacterAbilities` (from `character_attack_spells` + siblings +
   `character_attack_skills`; owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
 - `Spawns` (from `character_spawns` + `character_chained_spawns` per
-  `docs/superpowers/specs/2026-05-28-dynamic-spawn-coverage-design.md`; owner =
+  `docs/plans/2026-05-28-dynamic-spawn-coverage-design.md`; owner =
   character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`, `SpawnChance`,
   `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`, `SpawnType`.
   Replaces the flat character `Zones`/`SpawnChance`. Community spawns use

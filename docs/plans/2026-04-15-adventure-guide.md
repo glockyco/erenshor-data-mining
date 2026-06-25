@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use skill://superpowers:subagent-driven-development (recommended) or skill://superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Complete the Adventure Guide mod implementation by fixing correctness issues, closing performance gaps, implementing missing features, and adding diagnostics -- all per the spec at `docs/superpowers/specs/2026-04-14-adventure-guide-design.md`.
+**Goal:** Complete the Adventure Guide mod implementation by fixing correctness issues, closing performance gaps, implementing missing features, and adding diagnostics -- all per the spec at `docs/plans/2026-04-14-adventure-guide-design.md`.
 
 **Architecture:** The compiled guide architecture is structurally in place (24 commits on the `quest-frontier-architecture` worktree). This plan fixes what's broken and implements what's missing. The worktree code compiles and does not crash but has widespread correctness issues that must be verified against the spec's acceptance criteria.
 

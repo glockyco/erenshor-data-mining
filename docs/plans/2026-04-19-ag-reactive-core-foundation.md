@@ -6,7 +6,7 @@
 
 **Architecture:** Salsa-shaped query engine (memoised `(query, key)` entries, revision-based invalidation, value-equality backdating, lazy recomputation) in its own namespace `AdventureGuide.Incremental`. An Erenshor-specific wrapper `GuideReader` binds the engine's fact-key generic to the mod's `FactKey`. Queries are registered at startup and read by consumers through `GuideReader`.
 
-**Spec:** `docs/superpowers/specs/2026-04-19-ag-reactive-core-design.md`.
+**Spec:** `docs/plans/2026-04-19-ag-reactive-core-design.md`.
 
 **Follow-up plan (separate):** `MarkerCandidates` query design, `MarkerComputer` → `MarkerProjector` surgery, `MaintainedViewPlanner` deletion, `NavigationTargetSelector` simplification, and the five-phase orchestrator extraction. Blocked by Plan A completion because these all ride on the engine this plan installs.
 
@@ -1255,7 +1255,7 @@ Note that `MaintainedViewPlanner` still exists and is still called during the ma
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-04-19-ag-reactive-core-foundation.md`. Two execution options:
+Plan complete and saved to `docs/plans/2026-04-19-ag-reactive-core-foundation.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — dispatch a fresh subagent per task, review between tasks, fast iteration. Task 5's size argues for this — its sub-steps benefit from focused context.
 

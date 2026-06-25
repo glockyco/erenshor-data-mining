@@ -4,7 +4,7 @@
 **Status:** Approved in chat
 **Scope:** Design of the incremental engine, the derived views that replace the current caching bag, and the Plugin update orchestrator that drives them. Resolves audit themes T2, T3, T4 and audit questions Q1, Q5. Sits under the program spec `2026-04-19-adventure-guide-overhaul-program.md`.
 
-This spec records design decisions only. The migration itself — the ordered sequence of commits that ships these decisions without breaking the mod — lives in the companion implementation plan at `docs/superpowers/plans/`.
+This spec records design decisions only. The migration itself — the ordered sequence of commits that ships these decisions without breaking the mod — lives in the companion implementation plan at `docs/plans/`.
 
 ---
 
@@ -260,6 +260,6 @@ Name the phase after what the engine does (recompute stale entries). Rejected: t
 
 | Document | Role |
 |---|---|
-| `docs/superpowers/specs/2026-04-19-adventure-guide-overhaul-program.md` | Program spec — Group 1 is one of four groups |
-| `docs/superpowers/specs/2026-04-18-adventure-guide-architecture-audit.md` | Audit — authoritative evidence for T2, T3, T4, Q1, Q5 |
-| `docs/superpowers/plans/` (forthcoming) | Implementation plan for this design |
+| `docs/plans/2026-04-19-adventure-guide-overhaul-program.md` | Program spec — Group 1 is one of four groups |
+| `docs/plans/2026-04-18-adventure-guide-architecture-audit.md` | Audit — authoritative evidence for T2, T3, T4, Q1, Q5 |
+| `docs/plans/` (forthcoming) | Implementation plan for this design |

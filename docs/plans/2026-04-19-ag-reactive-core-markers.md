@@ -6,9 +6,9 @@
 
 **Architecture:** `MarkerCandidates(scene)` becomes an engine query that composes `NavigableQuests()` + `QuestResolution(questKey, scene)` + `SourceState` facts into an immutable, value-equal candidate list. The class currently named `MarkerComputer` is renamed to `MarkerProjector`, stripped of `_dirty`/`_fullRebuild`/`_pendingQuestKeys`/`MarkDirty`/`ApplyChangeSet`/`Recompute`, and reduced to a per-frame live-state overlay between the engine's candidate list and the rendering layer. `MarkerSystem` is renamed to `MarkerRenderer` to join the existing `*Renderer` family. `MaintainedViewPlanner` and `MaintainedViewPlan` are deleted — their role (deciding when `NavigationTargetSelector` must do a forced rebuild) collapses into a reference-equality check on the engine-returned `NavigableQuestSet`. `Plugin.Update` fans out into five named methods, each wrapped in a diagnostics span. Namespaces are consolidated: `AdventureGuide.Plan` is renamed to `AdventureGuide.Frontier` (pure frontier-computation code after planner deletion), and `NavigationSet` moves from the old `AdventureGuide.Frontier` to `AdventureGuide.Navigation` where it belongs.
 
-**Spec:** `docs/superpowers/specs/2026-04-19-ag-reactive-core-design.md` §§ 4.5, 5, 6, 9.
+**Spec:** `docs/plans/2026-04-19-ag-reactive-core-design.md` §§ 4.5, 5, 6, 9.
 
-**Prior plan:** `docs/superpowers/plans/2026-04-19-ag-reactive-core-foundation.md` — Plan A; landed in `1076b957`. Plan B depends on its queries (`CompiledTargets`, `BlockingZones`, `NavigableQuests`, `QuestResolution`), the `Engine<FactKey>` instance in `Plugin`, `GuideReader`, and the ambient `ReadContext`.
+**Prior plan:** `docs/plans/2026-04-19-ag-reactive-core-foundation.md` — Plan A; landed in `1076b957`. Plan B depends on its queries (`CompiledTargets`, `BlockingZones`, `NavigableQuests`, `QuestResolution`), the `Engine<FactKey>` instance in `Plugin`, `GuideReader`, and the ambient `ReadContext`.
 
 **Tech Stack:** C# 10, .NET Framework 4.7.2 (BepInEx), xUnit, Unity 2021.3.45f2.
 
@@ -1163,7 +1163,7 @@ Some tests may assert specific `DiagnosticTrigger` values in plan output. Select
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-04-19-ag-reactive-core-markers.md`.
+Plan complete and saved to `docs/plans/2026-04-19-ag-reactive-core-markers.md`.
 
 All Plan-B prerequisites are satisfied. R3 (the `NavigationSet` / `TrackerState` fact-emission gap) landed in `b6870343`.
 
