@@ -13,7 +13,7 @@ export const SITE_NAME = 'Erenshor Maps';
 
 export const SITE_AUTHOR = 'WoW Much';
 
-export const DEFAULT_TITLE = 'Erenshor Maps – Interactive Maps, Data & Mods';
+export const DEFAULT_TITLE = 'Erenshor Maps – Interactive Maps, Mods & Data';
 
 export const DEFAULT_DESCRIPTION =
     'Interactive maps, reference data, and companion mods for Erenshor, the single-player simulated MMORPG. Spawn points, NPC markers, item drop data, and live in-game tracking, refreshed every patch.';

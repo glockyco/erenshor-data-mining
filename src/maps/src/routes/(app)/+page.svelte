@@ -18,7 +18,7 @@
 
 <Seo
     path="/"
-    title="Erenshor Maps – Interactive Maps, Data & Mods"
+    title="Erenshor Maps – Interactive Maps, Mods & Data"
     description="Interactive maps, reference data, and companion mods for Erenshor, the single-player simulated MMORPG."
     jsonLd={[websiteJsonLd(), webApplicationJsonLd(), videoGameJsonLd()]}
 />
