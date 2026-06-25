@@ -43,6 +43,13 @@ pre-commit:
       glob: "*.lua"
       run: pnpm exec stylua --check {staged_files}
 
+    - name: plans docs
+      glob: "docs/plans/**/*.md"
+      run: omp-plans index && omp-plans check
+      stage_fixed: true
+      skip:
+        - run: "! command -v omp-plans"
+
     - name: gitleaks
       run: gitleaks protect --staged --redact --verbose
       skip:
