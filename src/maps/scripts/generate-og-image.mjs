@@ -89,14 +89,9 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
 
   <image href="${iconDataUrl}" x="70" y="145" width="315" height="315" filter="url(#softShadow)" />
 
-  <text x="425" y="260" font-family="Inter, Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#f8fafc">
-    Erenshor
-  </text>
-  <text x="425" y="345" font-family="Inter, Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#22d3ee">
-    Community Tools
-  </text>
-  <text x="425" y="420" font-family="Inter, Helvetica, Arial, sans-serif" font-size="32" font-weight="500" fill="#94a3b8">
-    Maps, Mods, Guides, and Data
+  <text x="425" y="300" font-family="Inter, Helvetica, Arial, sans-serif" font-size="78" font-weight="700"><tspan fill="#f8fafc">Erenshor</tspan><tspan fill="#e2b15a" dx="22">Maps</tspan></text>
+  <text x="425" y="358" font-family="Inter, Helvetica, Arial, sans-serif" font-size="32" font-weight="500" fill="#94a3b8">
+    Interactive maps, companion mods, and data
   </text>
 </svg>`;
 
