@@ -1152,6 +1152,7 @@
                 },
                 controller: { inertia: 500 },
                 layers,
+                onAfterRender: () => scheduleScaleBarUpdate(0),
                 getCursor: ({
                     isHovering,
                     isDragging
