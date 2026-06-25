@@ -7,23 +7,21 @@
     <div class="wrap">
         <span class="kicker">Free · fan-made · updated every patch</span>
         <h1>Chart the world of Erenshor.</h1>
-        <div class="hero-row">
-            <p class="lede">
-                Interactive maps, reference data, and companion mods for the single-player
-                <em>simulated</em> MMORPG. Built by the community, refreshed with every game build.
-            </p>
-            <div class="cta">
-                <a class="btn primary" href="/map">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        ><path
-                            d="M9 20l-5.4-2.7A1 1 0 013 16.4V5.6a1 1 0 011.4-.9L9 7m0 13l6-3m-6 3V7m6 10l4.6 2.3A1 1 0 0021 18.4V7.6a1 1 0 00-.6-.9L15 4m0 13V4m0 0L9 7"
-                        /></svg
-                    >
-                    Open the world map
-                </a>
-                <a class="btn secondary" href="#tools">Browse all tools</a>
-                <a class="textlink" href="#about">New to Erenshor? →</a>
-            </div>
+        <p class="lede">
+            Interactive maps, reference data, and companion mods for the single-player
+            <em>simulated</em> MMORPG. Built by the community, refreshed with every game build.
+        </p>
+        <div class="cta">
+            <a class="btn primary" href="/map">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    ><path
+                        d="M9 20l-5.4-2.7A1 1 0 013 16.4V5.6a1 1 0 011.4-.9L9 7m0 13l6-3m-6 3V7m6 10l4.6 2.3A1 1 0 0021 18.4V7.6a1 1 0 00-.6-.9L15 4m0 13V4m0 0L9 7"
+                    /></svg
+                >
+                Open the world map
+            </a>
+            <a class="btn secondary" href="#tools">Browse all tools</a>
+            <a class="textlink" href="#about">New to Erenshor? →</a>
         </div>
         <CompassRuler />
     </div>
@@ -81,18 +79,11 @@
         font-weight: 800;
         letter-spacing: -0.015em;
     }
-    .hero-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 22px 48px;
-        flex-wrap: wrap;
-    }
     .lede {
         color: color-mix(in oklab, var(--color-ink) 82%, var(--color-bg));
-        max-width: 50ch;
+        max-width: 52ch;
         font-size: 1.08rem;
-        margin: 0;
+        margin: 0 0 1.8em;
     }
     .cta {
         display: flex;
