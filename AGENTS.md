@@ -145,24 +145,8 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 | Writing commit messages | commit-guidelines | `.agent/skills/commit-guidelines/SKILL.md` |
 | Creating/updating skills | writing-skills | `.agent/skills/writing-skills/SKILL.md` |
 
-## Issue Tracking (bd)
-
-This project uses **bd** (beads) for issue tracking. No markdown TODOs or task lists.
-
-```bash
-bd ready                            # Find available work
-bd show <id>                        # View issue details
-bd update <id> --claim              # Claim work
-bd close <id> --reason "Done"       # Complete work
-bd create "Title" --description="..." -t task -p 2  # Create issue
-bd dolt push                        # Push beads data to remote
-```
-
-Link discovered work: `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
-
 ## Session Completion
 
-Close finished issues. Create issues for remaining work. If this session created
-or used a `docs/plans/` artifact for work that is now complete, run
-`omp-plans complete <slug>` before the final response so the implemented doc is
-archived and removed from the active planning index.
+If this session created or used a `docs/plans/` artifact for work that is now
+complete, run `omp-plans complete <slug>` before the final response so the
+implemented doc is archived and removed from the active planning index.

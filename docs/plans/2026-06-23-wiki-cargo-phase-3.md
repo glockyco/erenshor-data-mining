@@ -491,7 +491,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ## Special & hardcoded logic paths (do-not-forget register)
 
-Every non-standard obtainability/usage path found in the game code, with its disposition. Deferred paths get a bd issue so they are tracked, not lost; modeling any of them must consume a **code fact** (never transcribe an item ID from decompiled `.cs`).
+Every non-standard obtainability/usage path found in the game code is listed here with its disposition. Deferred paths stay in this plan register until they are implemented or moved into a future `docs/plans/` artifact; modeling any of them must consume a **code fact** (never transcribe an item ID from decompiled `.cs`).
 
 | Path | Source (file:line) | Disposition |
 |---|---|---|
@@ -500,14 +500,14 @@ Every non-standard obtainability/usage path found in the game code, with its dis
 | Smithing blessing removal | `Smithing.cs:115` (`2298018` Inert Diamond) | **Implemented** — `upgrade_material` (Task C2) |
 | Break Fossil | `SpellVessel.cs:1942`, `item_drops` | **Implemented** — `item_use` (Task B2/B3) |
 | Offering Stone bag | `SpellVessel.cs:2043` (id `340104`), `spell_created_items` | **Implemented** — `item_use` (Task B2/B3) |
-| PlanarShard byproduct | `Smithing.cs:278` (`GM.PlanarShard`, blessing-removal output) | **Deferred** — hardcoded output, no data table; needs a `smithing.planar_shard_output` code fact. bd issue. |
-| Chessboard Candlekeeper → mold | `Chessboard.cs:108-112` (`ReplaceStatue`, inspector-set) | **Deferred** — 1-off, inspector reference; needs export of the field. bd issue. |
-| Time Stone | `SpellVessel.cs:1997` (id `2936548`, ShiveringTomb2/StowawayPortal) | **Deferred** — hardcoded `item_use`; needs a `spellvessel.time_stone_id` code fact. bd issue. |
-| Braxonian Flame Well quality ritual | `TradeWindow.cs:219-222` (`CheckOfferingStones`, quality 2/1) | **Deferred** — hardcoded quality upgrade; needs an offering-stone code fact. bd issue. |
-| Runtime global random world-drop pool | `LootTable.cs:88-158` (Maps/Molds/Planar/etc., per-NPC at runtime) | **Deferred** — not per-source; `loot.world_drop.*` facts exist. bd issue (needs "may drop globally" renderer). |
-| 1-in-20 fished Map | `Fishing.cs:68-70` (`GM.Maps` random) | **Deferred** — random, folds into the global-pool follow-up. bd issue. |
+| PlanarShard byproduct | `Smithing.cs:278` (`GM.PlanarShard`, blessing-removal output) | **Deferred** — hardcoded output, no data table; needs a `smithing.planar_shard_output` code fact. |
+| Chessboard Candlekeeper → mold | `Chessboard.cs:108-112` (`ReplaceStatue`, inspector-set) | **Deferred** — 1-off, inspector reference; needs export of the field. |
+| Time Stone | `SpellVessel.cs:1997` (id `2936548`, ShiveringTomb2/StowawayPortal) | **Deferred** — hardcoded `item_use`; needs a `spellvessel.time_stone_id` code fact. |
+| Braxonian Flame Well quality ritual | `TradeWindow.cs:219-222` (`CheckOfferingStones`, quality 2/1) | **Deferred** — hardcoded quality upgrade; needs an offering-stone code fact. |
+| Runtime global random world-drop pool | `LootTable.cs:88-158` (Maps/Molds/Planar/etc., per-NPC at runtime) | **Deferred** — not per-source; `loot.world_drop.*` facts exist; needs "may drop globally" renderer. |
+| 1-in-20 fished Map | `Fishing.cs:68-70` (`GM.Maps` random) | **Deferred** — random, folds into the global-pool follow-up. |
 
-- [ ] **Task SP1:** create one bd issue per Deferred row, each `--deps discovered-from:<phase-3-parent>`, so they survive the phase.
+- [ ] **Task SP1:** before Phase 3 completion, either implement each Deferred row or move it into a future `docs/plans/` artifact so it survives the phase.
 
 ---
 
@@ -518,4 +518,4 @@ Every non-standard obtainability/usage path found in the game code, with its dis
 - **Code-fact boundary:** every constant (auction bounds, upgrade IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`.
 - **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
 - **Type consistency:** `obtainedFrom`/`usedIn` Lua field names, `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used identically across B/C/E.
-- **Deferred paths:** enumerated + bd-tracked (SP1), none dropped silently.
+- **Deferred paths:** enumerated in SP1 and retained in planning docs, none dropped silently.

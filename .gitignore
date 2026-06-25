@@ -855,6 +855,5 @@ wiki-dev/extensions/
 wiki-dev/interface/MediaWiki/
 wiki-dev/parity/baseline.json
 
-# Dolt database files (added by bd init)
-.dolt/
+# Local database files
 *.db
