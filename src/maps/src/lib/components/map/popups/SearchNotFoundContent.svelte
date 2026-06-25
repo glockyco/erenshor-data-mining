@@ -24,7 +24,7 @@
     <p class="text-sm text-zinc-400">
         Some characters have special spawn conditions that aren't yet tracked by this map. If you
         believe this is an error, let us know on the
-        <a href="https://discord.gg/fTvgzKy5" class="text-blue-400 underline hover:text-blue-300"
+        <a href="https://discord.gg/erenshor" class="text-blue-400 underline hover:text-blue-300"
             >Erenshor Discord</a
         >.
     </p>

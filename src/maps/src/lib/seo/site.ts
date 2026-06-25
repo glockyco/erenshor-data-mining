@@ -9,14 +9,14 @@
 
 export const SITE_URL = 'https://erenshor-maps.wowmuch1.workers.dev';
 
-export const SITE_NAME = 'Erenshor Community Tools';
+export const SITE_NAME = 'Erenshor Maps';
 
 export const SITE_AUTHOR = 'WoW Much';
 
-export const DEFAULT_TITLE = 'Erenshor Community Tools – Maps, Mods & Guides';
+export const DEFAULT_TITLE = 'Erenshor Maps – Interactive Maps, Data & Mods';
 
 export const DEFAULT_DESCRIPTION =
-    'Community tools for Erenshor: interactive maps, spawn point locations, NPC markers, companion mods, adventure guides, and reference spreadsheets.';
+    'Interactive maps, reference data, and companion mods for Erenshor, the single-player simulated MMORPG. Spawn points, NPC markers, item drop data, and live in-game tracking, refreshed every patch.';
 
 export const OG_LOCALE = 'en_US';
 
@@ -28,7 +28,7 @@ export const DEFAULT_OG_IMAGE = '/og-default.png';
 export const DEFAULT_OG_IMAGE_WIDTH = 1200;
 export const DEFAULT_OG_IMAGE_HEIGHT = 630;
 export const DEFAULT_OG_IMAGE_ALT =
-    'Erenshor Community Tools logo card for maps, mods, guides, and data';
+    'Erenshor Maps – interactive maps, data, and companion mods for Erenshor';
 
 /**
  * Compute the absolute canonical URL for a page path.
