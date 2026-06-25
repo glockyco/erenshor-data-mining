@@ -53,7 +53,7 @@ $G diff HEAD~1 --stat   # churn outside known fact targets = new mechanics to mo
 `erenshor -V {v} extract build` — produces clean DB. Watch the log for `mapping.json` warnings about new entities lacking overrides; add minimal entries and re-run. Schema/processor errors surface here — fix at the source under `src/erenshor/application/processor/`.
 
 ### 5. Validate
-Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules.
+Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules. Then run `skill://auditing-spawn-coverage` — new event scripts in a patch silently widen the spawn-coverage gap and that skill is the gate that catches them before sheets/wiki/map ship.
 
 ### 6. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
@@ -117,6 +117,7 @@ Stops the maps dev server, kills the game and its wine satellites (Erenshor.exe,
 
 ## See also
 
+- `skill://auditing-spawn-coverage` — post-build orphan audit, gate for sheets/wiki/map deploy
 - `skill://unity-export-system` — listener and record architecture
 - `skill://tile-capture` — bounds discovery, capture mod, exclusion rules
 - `skill://interactive-map` — overview rendering, `zone-positions.json`, `north_bearing`, debug hooks
