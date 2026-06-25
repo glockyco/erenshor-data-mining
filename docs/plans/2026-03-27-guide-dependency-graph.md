@@ -1,3 +1,11 @@
+---
+title: 'Plan: Entity Graph for the Adventure Guide'
+type: plan
+status: implemented
+created: 2026-03-27
+parent:
+---
+
 # Plan: Entity Graph for the Adventure Guide
 
 **Clean cut.** This is a full rewrite, not a migration. No legacy code

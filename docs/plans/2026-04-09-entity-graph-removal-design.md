@@ -1,3 +1,11 @@
+---
+title: Entity Graph Runtime Removal — Design Spec
+type: spec
+status: implemented
+created: 2026-04-09
+parent:
+---
+
 # Entity Graph Runtime Removal — Design Spec
 
 ## Goal

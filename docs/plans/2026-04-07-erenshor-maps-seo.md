@@ -1,3 +1,11 @@
+---
+title: 'SEO: erenshor-maps.wowmuch1.workers.dev'
+type: plan
+status: active
+created: 2026-04-07
+parent:
+---
+
 # SEO: erenshor-maps.wowmuch1.workers.dev
 
 **Date:** 2026-04-07

@@ -1,3 +1,11 @@
+---
+title: Navigation Target Selection Redesign
+type: spec
+status: implemented
+created: 2026-03-26
+parent:
+---
+
 # Navigation Target Selection Redesign
 
 ## Problem

@@ -1,3 +1,11 @@
+---
+title: Repo history cleanup plan
+type: plan
+status: implemented
+created: 2026-04-03
+parent:
+---
+
 # Repo history cleanup plan
 
 ## Goal

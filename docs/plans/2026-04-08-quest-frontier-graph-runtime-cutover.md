@@ -1,3 +1,11 @@
+---
+title: Quest Frontier Graph/JSON Runtime Cutover Follow-up
+type: plan
+status: implemented
+created: 2026-04-08
+parent:
+---
+
 # Quest Frontier Graph/JSON Runtime Cutover Follow-up
 
 ## Why this update is needed

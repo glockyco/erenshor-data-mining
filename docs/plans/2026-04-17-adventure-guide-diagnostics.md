@@ -1,3 +1,11 @@
+---
+title: Adventure Guide Diagnostics Implementation Plan
+type: plan
+status: implemented
+created: 2026-04-17
+parent: 2026-04-17-adventure-guide-diagnostics-design
+---
+
 # Adventure Guide Diagnostics Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use skill://superpowers:subagent-driven-development (recommended) or skill://superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

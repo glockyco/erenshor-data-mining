@@ -1,3 +1,11 @@
+---
+title: Adventure Guide Angler's Ring nav investigation
+type: plan
+status: implemented
+created: 2026-03-29
+parent:
+---
+
 # Adventure Guide Angler's Ring nav investigation
 
 ## Planned commits

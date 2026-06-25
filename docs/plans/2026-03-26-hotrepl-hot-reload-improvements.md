@@ -1,3 +1,11 @@
+---
+title: HotRepl Hot Reload Improvements
+type: plan
+status: implemented
+created: 2026-03-26
+parent:
+---
+
 # HotRepl Hot Reload Improvements
 
 ## Problem

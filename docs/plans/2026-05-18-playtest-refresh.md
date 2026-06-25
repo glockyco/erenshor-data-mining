@@ -1,3 +1,11 @@
+---
+title: Playtest Refresh After Raid/Zone Update
+type: plan
+status: implemented
+created: 2026-05-18
+parent:
+---
+
 # Playtest Refresh After Raid/Zone Update
 
 **Date:** 2026-05-18

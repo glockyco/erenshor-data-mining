@@ -1,3 +1,11 @@
+---
+title: Wiki Lua Migration & Cargo Data Architecture
+type: spec
+status: active
+created: 2026-06-04
+parent:
+---
+
 # Wiki Lua Migration & Cargo Data Architecture
 
 Umbrella spec for the legacy→Lua wiki cutover across all seven entity types

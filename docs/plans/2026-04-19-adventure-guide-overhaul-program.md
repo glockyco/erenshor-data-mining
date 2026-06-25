@@ -1,3 +1,11 @@
+---
+title: AdventureGuide Overhaul — Program Spec
+type: spec
+status: implemented
+created: 2026-04-19
+parent:
+---
+
 # AdventureGuide Overhaul — Program Spec
 
 **Date:** 2026-04-19

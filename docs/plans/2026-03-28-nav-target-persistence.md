@@ -1,3 +1,11 @@
+---
+title: Adventure Guide nav target persistence
+type: plan
+status: implemented
+created: 2026-03-28
+parent:
+---
+
 # Adventure Guide nav target persistence
 
 ## Planned commits

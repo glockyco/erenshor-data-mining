@@ -1,3 +1,11 @@
+---
+title: "PRD: Data Pipeline Rewrite"
+type: prd
+status: implemented
+created: 2026-03-08
+parent:
+---
+
 # PRD: Data Pipeline Rewrite
 
 ## Problem Statement

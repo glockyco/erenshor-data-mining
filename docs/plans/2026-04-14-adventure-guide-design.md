@@ -1,3 +1,11 @@
+---
+title: 'Adventure Guide: Product & Architecture Specification'
+type: spec
+status: implemented
+created: 2026-04-14
+parent:
+---
+
 # Adventure Guide: Product & Architecture Specification
 
 **Date:** 2026-04-14

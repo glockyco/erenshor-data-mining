@@ -1,3 +1,11 @@
+---
+title: Adventure Guide Incident Diagnostics Design
+type: spec
+status: implemented
+created: 2026-04-17
+parent:
+---
+
 # Adventure Guide Incident Diagnostics Design
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use

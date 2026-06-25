@@ -1,3 +1,11 @@
+---
+title: Quest Frontier Graph Runtime Cutover Execution Plan
+type: plan
+status: implemented
+created: 2026-04-09
+parent:
+---
+
 # Quest Frontier Graph Runtime Cutover Execution Plan
 
 > For implementation on `quest-frontier-architecture`. Follow TDD per subsystem slice: add/adjust the failing test first, watch it fail, then implement the minimal production change.

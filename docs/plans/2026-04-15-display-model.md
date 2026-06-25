@@ -1,3 +1,11 @@
+---
+title: 'Adventure Guide: Display Model Design'
+type: spec
+status: implemented
+created: 2026-04-15
+parent:
+---
+
 # Adventure Guide: Display Model Design
 
 Date: 2026-04-15

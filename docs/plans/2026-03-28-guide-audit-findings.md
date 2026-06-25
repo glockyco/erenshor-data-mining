@@ -1,3 +1,11 @@
+---
+title: Adventure Guide Rewrite — Audit Findings (Revised)
+type: audit
+status: implemented
+created: 2026-03-28
+parent:
+---
+
 # Adventure Guide Rewrite — Audit Findings (Revised)
 
 Systematic comparison of old implementation (commit `112f2ace`) vs current (`23eb02d6`).

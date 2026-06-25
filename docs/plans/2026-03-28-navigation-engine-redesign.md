@@ -1,3 +1,11 @@
+---
+title: NavigationEngine Redesign
+type: spec
+status: implemented
+created: 2026-03-28
+parent:
+---
+
 # NavigationEngine Redesign
 
 ## Problem

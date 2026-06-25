@@ -1,3 +1,11 @@
+---
+title: AdventureGuide Reactive Core — Group 1 Design Spec
+type: spec
+status: implemented
+created: 2026-04-19
+parent: 2026-04-19-adventure-guide-overhaul-program
+---
+
 # AdventureGuide Reactive Core — Group 1 Design Spec
 
 **Date:** 2026-04-19

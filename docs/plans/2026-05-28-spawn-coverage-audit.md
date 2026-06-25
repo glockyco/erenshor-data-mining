@@ -1,3 +1,11 @@
+---
+title: Spawn Coverage Audit — Method & Findings
+type: audit
+status: active
+created: 2026-05-28
+parent:
+---
+
 # Spawn Coverage Audit — Method & Findings
 
 **Variant:** playtes

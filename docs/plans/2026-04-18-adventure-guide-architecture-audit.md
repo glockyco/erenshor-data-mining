@@ -1,3 +1,11 @@
+---
+title: AdventureGuide Architecture Audit — 2026-04-18
+type: audit
+status: implemented
+created: 2026-04-18
+parent:
+---
+
 # AdventureGuide Architecture Audit — 2026-04-18
 
 Full-mod audit of `src/mods/AdventureGuide/` (~23.5k LOC, 120 files, 283 tests). Triggered by marker-performance work; user asked for a holistic review beyond that focus. Findings clustered by architectural theme. Severity reflects "blocks or complicates future work", not just performance impact.

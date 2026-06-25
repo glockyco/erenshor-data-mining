@@ -1,3 +1,11 @@
+---
+title: Adventure Guide marker keyword text fix
+type: plan
+status: implemented
+created: 2026-03-29
+parent:
+---
+
 # Adventure Guide marker keyword text fix
 
 ## Planned commits

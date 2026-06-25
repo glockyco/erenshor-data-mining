@@ -1,3 +1,11 @@
+---
+title: Maps SEO Hardening Spec
+type: spec
+status: active
+created: 2026-05-18
+parent:
+---
+
 # Maps SEO Hardening Spec
 
 **Date:** 2026-05-18

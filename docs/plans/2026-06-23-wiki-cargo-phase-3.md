@@ -1,3 +1,11 @@
+---
+title: Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions
+type: plan
+status: active
+created: 2026-06-23
+parent: 2026-06-04-wiki-cargo-data-architecture
+---
+
 # Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Read `skill://wiki-templates`, `skill://unity-export-system`, `skill://code-facts`, and `skill://refreshing-game-data` before starting.

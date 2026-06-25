@@ -1,3 +1,12 @@
+---
+title: AdventureGuide maintained-view consolidation Implementation Plan
+type: plan
+status: superseded
+created: 2026-04-18
+parent:
+superseded_by: 2026-04-19-adventure-guide-overhaul-program
+---
+
 **Superseded by `docs/plans/2026-04-18-adventure-guide-architecture-consolidation.md` on 2026-04-18.**
 
 # AdventureGuide maintained-view consolidation Implementation Plan

@@ -1,3 +1,11 @@
+---
+title: Adventure Guide Diagnostics Redesign
+type: spec
+status: implemented
+created: 2026-04-17
+parent:
+---
+
 # Adventure Guide Diagnostics Redesign
 
 **Date:** 2026-04-17

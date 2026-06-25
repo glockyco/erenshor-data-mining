@@ -1,3 +1,11 @@
+---
+title: 'Class Architecture: Entity Graph Adventure Guide'
+type: spec
+status: implemented
+created: 2026-03-28
+parent:
+---
+
 # Class Architecture: Entity Graph Adventure Guide
 
 Companion document to the entity graph plan. Defines the component

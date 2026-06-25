@@ -1,3 +1,11 @@
+---
+title: Erenshor Photo Mode - Implementation Plan
+type: prd
+status: draft
+created: 2026-05-02
+parent:
+---
+
 # Erenshor Photo Mode - Implementation Plan
 
 **Created:** February 13, 2026

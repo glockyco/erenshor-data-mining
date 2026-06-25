@@ -1,3 +1,11 @@
+---
+title: Adventure Guide marker actionability fix
+type: plan
+status: implemented
+created: 2026-03-29
+parent:
+---
+
 # Adventure Guide marker actionability fix
 
 ## Planned commits
