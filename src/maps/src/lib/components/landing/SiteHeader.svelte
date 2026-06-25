@@ -28,9 +28,10 @@
     <div class="mx-auto flex max-w-[1140px] items-center justify-between gap-5 px-7 py-[18px]">
         <a
             href="/"
-            class="font-display text-[1.3rem] font-extrabold tracking-[-0.01em] text-ink no-underline"
+            class="flex items-center gap-2.5 font-display text-[1.3rem] font-extrabold tracking-[-0.01em] text-ink no-underline"
         >
-            Erenshor <span class="text-accent">Maps</span>
+            <img src="/logo.png" alt="" width="32" height="32" class="h-8 w-8" />
+            <span>Erenshor <span class="text-accent">Maps</span></span>
         </a>
 
         <div class="flex items-center gap-[22px]">

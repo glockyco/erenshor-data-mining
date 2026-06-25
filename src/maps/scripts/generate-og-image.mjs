@@ -11,6 +11,7 @@ import { writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { makeTransparentIconDataUrl } from './transparent-icon.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '..');
@@ -21,56 +22,6 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 
 const iconDataUrl = await makeTransparentIconDataUrl(iconPath);
-
-async function makeTransparentIconDataUrl(path) {
-    const bg = { r: 13, g: 27, b: 42 };
-    const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-    const { width, height } = info;
-    const visited = new Uint8Array(width * height);
-    const queue = new Int32Array(width * height);
-    let head = 0;
-    let tail = 0;
-
-    const isBackground = (pixel) => {
-        const offset = pixel * 4;
-        const distance =
-            Math.abs(data[offset] - bg.r) +
-            Math.abs(data[offset + 1] - bg.g) +
-            Math.abs(data[offset + 2] - bg.b);
-        return distance <= 44;
-    };
-
-    const enqueue = (pixel) => {
-        if (visited[pixel] || !isBackground(pixel)) return;
-        visited[pixel] = 1;
-        queue[tail++] = pixel;
-    };
-
-    for (let x = 0; x < width; x += 1) {
-        enqueue(x);
-        enqueue((height - 1) * width + x);
-    }
-    for (let y = 0; y < height; y += 1) {
-        enqueue(y * width);
-        enqueue(y * width + width - 1);
-    }
-
-    while (head < tail) {
-        const pixel = queue[head++];
-        const x = pixel % width;
-        const y = Math.floor(pixel / width);
-
-        data[pixel * 4 + 3] = 0;
-
-        if (x > 0) enqueue(pixel - 1);
-        if (x < width - 1) enqueue(pixel + 1);
-        if (y > 0) enqueue(pixel - width);
-        if (y < height - 1) enqueue(pixel + width);
-    }
-
-    const png = await sharp(data, { raw: { width, height, channels: 4 } }).png().toBuffer();
-    return `data:image/png;base64,${png.toString('base64')}`;
-}
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
