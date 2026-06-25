@@ -563,34 +563,6 @@ def test_integration(
 app.add_typer(test_app, name="test")
 
 
-# Docs command group
-docs_app = typer.Typer(
-    name="docs",
-    help="Generate documentation",
-    no_args_is_help=True,
-)
-
-
-@docs_app.command("generate")
-def docs_generate(
-    ctx: typer.Context,
-    format: str = typer.Option(
-        "markdown",
-        "--format",
-        help="Output format (markdown, html, etc.)",
-    ),
-) -> None:
-    """Generate documentation.
-
-    Generates documentation from source code, database schema,
-    and configuration. Supports multiple output formats.
-    """
-    typer.echo(f"Not yet implemented: docs generate (format: {format})")
-
-
-app.add_typer(docs_app, name="docs")
-
-
 def cli_main() -> None:
     """Main entry point with global exception handling.
 
