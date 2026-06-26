@@ -55,6 +55,35 @@ export function transformToWorld(
 }
 
 /**
+ * Transform a world-map coordinate back to a zone's in-game X/Z coordinate.
+ *
+ * This is the inverse of `transformToWorld`: remove the zone's world-map
+ * offset, inverse-rotate by the zone bearing correction, then undo the Y flip
+ * so the second result is game Z.
+ */
+export function worldToGameCoordinates(
+    worldPosition: [number, number],
+    zone: ZoneWorldPosition,
+    zoneConfig: ZoneConfig
+): [number, number] | null {
+    const [worldX, worldY] = worldPosition;
+    if (!Number.isFinite(worldX) || !Number.isFinite(worldY)) return null;
+
+    const mapX = worldX - zone.worldX;
+    const mapY = worldY - zone.worldY;
+    const angleRad = -((180 - zoneConfig.northBearing) * Math.PI) / 180;
+    const cos = Math.cos(angleRad);
+    const sin = Math.sin(angleRad);
+
+    const gameX = mapX * cos - mapY * sin;
+    const flippedY = mapX * sin + mapY * cos;
+    const gameZ = -flippedY;
+
+    if (!Number.isFinite(gameX) || !Number.isFinite(gameZ)) return null;
+    return [gameX, gameZ];
+}
+
+/**
  * Transform entity position (from InteractiveMapCompanion) to world coordinates.
  * Handles debug zone overrides for consistency with static markers.
  *

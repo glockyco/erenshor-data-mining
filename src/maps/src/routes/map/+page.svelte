@@ -34,7 +34,12 @@
     } from '$lib/map/icons';
     import { transformEntityToWorld, transformRotationToMap } from '$lib/map/coordinate-transform';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
+    import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
     import { computeScaleBarState, type ScaleBarState } from '$lib/map/scale-bar';
+    import {
+        findWorldCursorCoordinates,
+        type CursorCoordinates
+    } from '$lib/map/cursor-coordinates';
     import { liveConnection, liveState, type EntityData } from '$lib/map/live';
     import {
         createDebugStore,
@@ -128,6 +133,9 @@
     // Scale bar state
     let scaleBarState = $state<ScaleBarState | null>(null);
 
+    // Cursor coordinate readout state
+    let cursorCoordinates = $state<CursorCoordinates | null>(null);
+
     // Search index (built once from static data)
     const searchIndex = $derived(
         buildSearchIndex(
@@ -187,6 +195,7 @@
         mediaQuery.addEventListener('change', handler);
         return () => mediaQuery.removeEventListener('change', handler);
     });
+
 
     // Mobile popup drawer state (separate from selection so drawer can be
     // dismissed without clearing selection — highlights stay on the map)
@@ -634,6 +643,34 @@
         requestAnimationFrame(() => updateScaleBar(retries));
     }
 
+    function updateWorldCursorCoordinates(screenX: number, screenY: number) {
+        const viewport = deckInstance?.getViewports?.()[0];
+        if (!viewport?.unproject) {
+            cursorCoordinates = null;
+            return;
+        }
+
+        const [worldX, worldY] = viewport.unproject([
+            screenX - (viewport.x ?? 0),
+            screenY - (viewport.y ?? 0)
+        ]);
+        cursorCoordinates = findWorldCursorCoordinates(
+            [worldX, worldY],
+            effectiveZones,
+            data.zoneConfigs
+        );
+    }
+
+    function handleWorldPointerMove(event: PointerEvent) {
+        const rect = container.getBoundingClientRect();
+        updateWorldCursorCoordinates(event.clientX - rect.left, event.clientY - rect.top);
+    }
+
+    function handleWorldPointerLeave() {
+        cursorCoordinates = null;
+        hoveredSelection = null;
+    }
+
     // Padding for flyTo/flyToBounds — accounts for obscured areas.
     // On mobile, sidebar and popup are drawers/overlays, so no padding needed.
     const flyPadding = $derived(
@@ -1034,6 +1071,8 @@
 
         return () => {
             window.removeEventListener('popstate', handlePopstate);
+            container?.removeEventListener('pointermove', handleWorldPointerMove, true);
+            container?.removeEventListener('pointerleave', handleWorldPointerLeave, true);
             if (deckInstance) {
                 deckInstance.finalize();
                 deckInstance = null;
@@ -1198,28 +1237,29 @@
                     x: number;
                     y: number;
                 }) => {
-                    if (info.object) {
-                        hoverPosition = { x: info.x, y: info.y };
-                        // Type discrimination: create Selection from info.object
-                        if ('category' in info.object) {
-                            // Static marker
-                            hoveredSelection = {
-                                type: 'marker',
-                                marker: info.object as AnyWorldMarker
-                            };
-                        } else if ('id' in info.object && 'entityType' in info.object) {
-                            // Live entity (has unique id + entityType)
-                            const entity = info.object as EntityData;
-                            hoveredSelection = { type: 'live', entity, zone: liveState.zone ?? '' };
-                        } else if ('key' in info.object && 'polygon' in info.object) {
-                            // Zone
-                            hoveredSelection = {
-                                type: 'zone',
-                                zone: info.object as ZoneWorldPosition
-                            };
-                        }
-                    } else {
+                    hoverPosition = { x: info.x, y: info.y };
+                    if (!info.object) {
                         hoveredSelection = null;
+                        return;
+                    }
+
+                    // Type discrimination: create Selection from info.object
+                    if ('category' in info.object) {
+                        // Static marker
+                        hoveredSelection = {
+                            type: 'marker',
+                            marker: info.object as AnyWorldMarker
+                        };
+                    } else if ('id' in info.object && 'entityType' in info.object) {
+                        // Live entity (has unique id + entityType)
+                        const entity = info.object as EntityData;
+                        hoveredSelection = { type: 'live', entity, zone: liveState.zone ?? '' };
+                    } else if ('key' in info.object && 'polygon' in info.object) {
+                        // Zone
+                        hoveredSelection = {
+                            type: 'zone',
+                            zone: info.object as ZoneWorldPosition
+                        };
                     }
                 },
                 onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition | EntityData }) => {
@@ -1252,6 +1292,8 @@
             });
 
             scheduleScaleBarUpdate();
+            container.addEventListener('pointermove', handleWorldPointerMove, { capture: true });
+            container.addEventListener('pointerleave', handleWorldPointerLeave, { capture: true });
 
             isLoading = false;
         } catch (err) {
@@ -2084,6 +2126,7 @@
     <!-- Map container -->
     <div bind:this={container} class="absolute inset-0"></div>
 
+    <CoordinateReadout coordinates={cursorCoordinates} leftPx={scaleBarLeftPx} />
     <ScaleBar state={scaleBarState} leftPx={scaleBarLeftPx} />
 
     <!-- Loading overlay -->

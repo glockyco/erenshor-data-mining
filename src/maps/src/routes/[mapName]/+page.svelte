@@ -5,11 +5,16 @@
     import { onDestroy } from 'svelte';
     import { MAPS } from '$lib/maps';
     import { Repository } from '$lib/database.default';
-    import { type LatLngExpression, type Map as LeafletMap } from 'leaflet';
+    import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
+    import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
     import { computeScaleBarState, type ScaleBarState } from '$lib/map/scale-bar';
+    import {
+        getZoneMapCursorCoordinates,
+        type CursorCoordinates
+    } from '$lib/map/cursor-coordinates';
     import { breadcrumbJsonLd, zoneMapJsonLd } from '$lib/seo/jsonld';
     // Fix HTML-encoded ampersands from forum posts (e.g., Steam discussions)
     // This must run before any URL parsing to ensure $page.url is correct
@@ -76,6 +81,7 @@
     );
     let trueNorthBearing = $state(0); // Store the zone's true north bearing
     let scaleBarState = $state<ScaleBarState | null>(null);
+    let cursorCoordinates = $state<CursorCoordinates | null>(null);
     const SCALE_BAR_GAP = 24;
     const SCALE_BAR_BOTTOM = 22;
     const SCALE_BAR_MAX_WIDTH = 120;
@@ -150,7 +156,7 @@
         playerMarker = null;
         stableKeyToMarker = new Map(); // Clear marker map
         scaleBarState = null;
-
+        cursorCoordinates = null;
 
         // Initialize new map
         import('leaflet').then(async (L) => {
@@ -517,6 +523,13 @@
             // Add zoom control after rotation control so it appears below
             L.control.zoom({ position: 'topleft' }).addTo(map);
 
+            map.on('mousemove', (event: LeafletMouseEvent) => {
+                cursorCoordinates = getZoneMapCursorCoordinates(event.latlng, config);
+            });
+            map.on('mouseout', () => {
+                cursorCoordinates = null;
+            });
+
             // Add back to overview button (icon only) - below zoom controls
             const BackButtonControl = L.Control.extend({
                 options: {
@@ -670,6 +683,7 @@
     <h1 class="sr-only">{config.zoneName} – Erenshor Zone Map</h1>
     <div class="relative h-screen w-screen">
         <div bind:this={mapContainer} class="h-full w-full"></div>
+        <CoordinateReadout coordinates={cursorCoordinates} />
         <ScaleBar state={scaleBarState} />
     </div>
 {:else}
