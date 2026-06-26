@@ -41,8 +41,8 @@ hardening spec. This doc tracks what actually ships and the decisions behind it.
 - [x] `canonicalUrl()` strips query and hash (spec I2) plus unit test
 - [x] Sitemap `<lastmod>` build timestamp (spec I1) plus test
 - [x] Broaden `/map` title to `Erenshor Interactive Map – Spawns, Drops, Resources & NPCs`
-- [ ] Weave the "Erenshor map" keyword into the landing lede, keeping the `Chart the world of Erenshor.` H1
-- [ ] Add a FAQ section plus `FAQPage` JSON-LD to the landing page (wording in Appendix A)
+- [x] Weave the "Erenshor map" keyword into the landing lede, keeping the `Chart the world of Erenshor.` H1
+- [x] Add a FAQ section plus `FAQPage` JSON-LD to the landing page (wording in Appendix A)
 - [ ] Add `Dataset` JSON-LD (`dateModified` = patch refresh date) and enrich `VideoGame` (publisher, expanded `sameAs`) (audit E)
 - [ ] Per-page OG images for `/map`, `/spreadsheet`, `/mod` (spec I5) plus a `rel="noopener"` audit on external `_blank` links (spec N5)
 - [ ] Consolidate per-page JSON-LD into one `@graph` (spec I4, optional)
