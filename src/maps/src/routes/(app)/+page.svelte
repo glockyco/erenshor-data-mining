@@ -15,7 +15,7 @@
     import CommunitySection from '$lib/components/landing/CommunitySection.svelte';
     import FaqSection from '$lib/components/landing/FaqSection.svelte';
     import { FAQ_ITEMS } from '$lib/seo/faq';
-    import CoordHud from '$lib/components/landing/CoordHud.svelte';
+    import SectionLens from '$lib/components/landing/SectionLens.svelte';
     import { initCoordinates } from '$lib/components/landing/coordinates';
 
     let { data }: { data: PageData } = $props();
@@ -52,4 +52,4 @@
     <CommunitySection />
 </main>
 
-<CoordHud />
+<SectionLens />

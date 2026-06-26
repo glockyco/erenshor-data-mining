@@ -1,16 +1,16 @@
 /**
- * Wires the live coordinate HUD and the section survey tags.
+ * Wires the live coordinate readout in the section lens and fills each
+ * `.coord-tag` survey mark with its own page coordinates.
  *
- * The cursor's page position drives the HUD; each `.coord-tag` is filled with
- * its own real page coordinates. Scrolling with a stationary cursor still
- * refreshes the HUD (we keep the last viewport position and re-add scroll).
- * Returns a cleanup function — call it from the page's onMount teardown.
+ * The cursor's page position drives the lens pill's `.hud-xy` readout; scrolling
+ * with a stationary cursor still refreshes it (we keep the last viewport
+ * position and re-add scroll). Each survey tag shows its own static page
+ * coordinates. Returns a cleanup function — call it from the page's onMount
+ * teardown.
  */
 export function initCoordinates(): () => void {
-    const hud = document.querySelector<HTMLElement>('.coord-hud');
     const hudXY = document.querySelector<HTMLElement>('.hud-xy');
     const tags = [...document.querySelectorAll<HTMLElement>('.coord-tag')];
-    if (!hud || !hudXY) return () => {};
 
     const placeTags = () => {
         for (const t of tags) {
@@ -18,6 +18,7 @@ export function initCoordinates(): () => void {
             const x = Math.round(r.left + window.scrollX);
             const y = Math.round(r.top + window.scrollY);
             t.innerHTML = `<b>X</b> ${x} · <b>Y</b> ${y}`;
+            t.dataset.surveyY = String(y);
         }
     };
 
@@ -26,14 +27,13 @@ export function initCoordinates(): () => void {
     let cy: number | null = null;
 
     const update = () => {
-        if (cx === null || cy === null) return;
+        if (!hudXY || cx === null || cy === null) return;
         hudXY.innerHTML = `<b>X</b> ${Math.round(cx + window.scrollX)} · <b>Y</b> ${Math.round(cy + window.scrollY)}`;
     };
 
     const onMove = (e: PointerEvent) => {
         cx = e.clientX;
         cy = e.clientY;
-        hud.classList.add('on');
         update();
     };
     const onResize = () => {
