@@ -43,10 +43,11 @@ hardening spec. This doc tracks what actually ships and the decisions behind it.
 - [x] Broaden `/map` title to `Erenshor Interactive Map – Spawns, Drops, Resources & NPCs`
 - [x] Weave the "Erenshor map" keyword into the landing lede, keeping the `Chart the world of Erenshor.` H1
 - [x] Add a FAQ section plus `FAQPage` JSON-LD to the landing page (wording in Appendix A)
-- [ ] Add `Dataset` JSON-LD (`dateModified` = patch refresh date) and enrich `VideoGame` (publisher, expanded `sameAs`) (audit E)
-- [ ] Per-page OG images for `/map`, `/spreadsheet`, `/mod` (spec I5) plus a `rel="noopener"` audit on external `_blank` links (spec N5)
-- [ ] Consolidate per-page JSON-LD into one `@graph` (spec I4, optional)
-- [ ] CWV freebies: swap the landing GIF for the existing MP4, and drop production sourcemaps in `vite.config.ts` (audit D)
+- [x] Enrich `VideoGame` JSON-LD with publisher and `sameAs` (audit E)
+- [x] CWV: swap the landing GIF for the existing MP4, drop production sourcemaps (audit D)
+
+Dropped from this push: `Dataset` JSON-LD, per-page OG images and the external-link
+`rel` audit (spec I5/N5), and the optional `@graph` consolidation (spec I4).
 
 ### Domain migration (blocked on a decision to proceed; no registration needed)
 - [ ] Bind `erenshor.compendiums.org` to the production Worker in `src/maps/wrangler.jsonc`: set `workers_dev` to false and add a route with `custom_domain` true, mirroring ak-mods `wrangler.toml`. Rename the production Worker (for example `erenshor-maps-site`) so the original `erenshor-maps` name stays free for the redirect Worker
