@@ -2,7 +2,6 @@
 
 ## active
 
-- **SEO: erenshor-maps.wowmuch1.workers.dev** [plan] `2026-04-07-erenshor-maps-seo` (—)
 - **Maps SEO Hardening Spec** [spec] `2026-05-18-maps-seo-hardening`
 - **Dynamic Spawn Coverage — Design Spec** [spec] `2026-05-28-dynamic-spawn-coverage-design`
 - **Spawn Coverage Audit — Method & Findings** [audit] `2026-05-28-spawn-coverage-audit`
@@ -14,4 +13,4 @@
 
 - **Erenshor Photo Mode - Implementation Plan** [prd] `2026-05-02-prd-photo-mode`
 
-_38 archived — see `docs/plans/archive/`._
+_39 archived — see `docs/plans/archive/`._

@@ -1,9 +1,10 @@
 ---
 title: 'SEO: erenshor-maps.wowmuch1.workers.dev'
 type: plan
-status: active
+status: implemented
 created: 2026-04-07
 parent:
+archived: 2026-06-26
 ---
 
 # SEO: erenshor-maps.wowmuch1.workers.dev
