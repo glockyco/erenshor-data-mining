@@ -57,7 +57,7 @@ export function webApplicationJsonLd() {
         '@type': 'WebApplication',
         '@id': APP_ID,
         name: SITE_NAME,
-        url: SITE_URL,
+        url: canonicalUrl('/map'),
         applicationCategory: 'BrowserApplication',
         operatingSystem: 'Any',
         browserRequirements: 'Requires JavaScript',
