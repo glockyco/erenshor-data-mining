@@ -12,6 +12,7 @@
         {
             href: '/mod',
             img: '/world-map-companion.gif',
+            video: '/world-map-companion.mp4',
             alt: 'Live entity tracking on the map',
             title: 'Companion Mods',
             desc: 'Live tracking on the maps. See your character, SimPlayers, NPCs, and enemies move in real time.'
@@ -47,8 +48,8 @@
             <div class="coord">EVERY ZONE · ONE MAP</div>
             <h3>Interactive World Map</h3>
             <p>
-                Pan the entire world. Every spawn point, friendly NPC, and enemy, filterable by level
-                and searchable by name.
+                Pan the entire world. Every spawn point, friendly NPC, and enemy, filterable by
+                level and searchable by name.
             </p>
             <span class="go">Open the map →</span>
         </div>
@@ -57,7 +58,21 @@
     <div class="tools">
         {#each tiles as t (t.href)}
             <a class="tile" href={t.href}>
-                <img class="thumb" src={t.img} alt={t.alt} loading="lazy" />
+                {#if t.video}
+                    <video
+                        class="thumb"
+                        src={t.video}
+                        poster={t.img}
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        preload="metadata"
+                        aria-label={t.alt}
+                    ></video>
+                {:else}
+                    <img class="thumb" src={t.img} alt={t.alt} loading="lazy" />
+                {/if}
                 <div class="body">
                     <div class="row">
                         <h3>{t.title}</h3>
