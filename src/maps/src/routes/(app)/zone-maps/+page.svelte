@@ -25,7 +25,8 @@
     <p class="text-slate-400 mt-4">
         Legacy zone maps. For a unified experience, try the
         <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-        <a href="/" class="text-purple-400 hover:text-purple-300 underline">Interactive World Map</a
+        <a href="/map" class="text-purple-400 hover:text-purple-300 underline"
+            >Interactive World Map</a
         >.
     </p>
 </div>
