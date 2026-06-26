@@ -1,9 +1,10 @@
 ---
 title: Maps SEO Hardening Spec
 type: spec
-status: active
+status: implemented
 created: 2026-05-18
 parent:
+archived: 2026-06-26
 ---
 
 # Maps SEO Hardening Spec
@@ -12,6 +13,8 @@ parent:
 **Scope:** `src/maps/` only
 **Trigger:** Google Search Console flagged `https://erenshor-maps.wowmuch1.workers.dev/map?sel=enemy:Reliquary+Ward` under "Alternate page with proper canonical tag" (1 affected URL, first detected 5/16/26).
 **Predecessor:** `docs/plans/2026-04-07-erenshor-maps-seo.md` (initial SEO scaffold — robots, sitemap, per-page titles, JSON-LD).
+
+**Status (2026-06-26):** Findings triaged. I1 and I2 shipped (see archived `2026-06-26-maps-seo-and-content`); I4, I5, and N5 dropped; I3 and C1 carried to `2026-06-26-maps-domain-url-migration`, which holds the live domain decision (`erenshor.compendiums.org`) and the URL move. This spec is kept as the research reference for the C1 rationale and the per-route canonical audit.
 
 ---
 

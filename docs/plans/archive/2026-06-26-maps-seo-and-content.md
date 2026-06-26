@@ -1,9 +1,10 @@
 ---
 title: Maps SEO & Content Improvements
 type: plan
-status: active
+status: implemented
 created: 2026-06-26
 parent: 2026-05-18-maps-seo-hardening
+archived: 2026-06-26
 ---
 
 # Maps SEO & Content Improvements
@@ -49,28 +50,18 @@ hardening spec. This doc tracks what actually ships and the decisions behind it.
 Dropped from this push: `Dataset` JSON-LD, per-page OG images and the external-link
 `rel` audit (spec I5/N5), and the optional `@graph` consolidation (spec I4).
 
-### Domain migration (blocked on a decision to proceed; no registration needed)
-- [ ] Bind `erenshor.compendiums.org` to the production Worker in `src/maps/wrangler.jsonc`: set `workers_dev` to false and add a route with `custom_domain` true, mirroring ak-mods `wrangler.toml`. Rename the production Worker (for example `erenshor-maps-site`) so the original `erenshor-maps` name stays free for the redirect Worker
-- [ ] Add a redirect-only Worker that keeps the legacy `erenshor-maps.wowmuch1.workers.dev` hostname (Worker name stays `erenshor-maps`) and 301s every path to `https://erenshor.compendiums.org`, modeled on ak-mods `redirect-worker.ts` and `wrangler.redirect.toml`. Serve the Google verification path directly so the old GSC property can still verify. Deploy this only after the custom domain is verified
-- [ ] Swap `SITE_URL` in `src/maps/src/lib/seo/site.ts`, add the new GSC property, run Change of Address, and resubmit the sitemap
-- [ ] Repoint the references we control. The **official wiki is the most important**: it is admin-controlled and its enemy and zone pages cross-link to the map, which drives most of the map's traffic, so update the map-link template there to the new domain. Then update the Steam guide, the in-game and mod links, and the README
+### Remaining work (split out)
 
-### URL restructure (bundle with the domain migration)
-- [ ] Move `/[mapName]` to `/maps/{slug}`. 301 the old root zone URLs, and update the internal links, the `zoneMapJsonLd` url, and the sitemap zone routes
-
-### Deferred / follow-ups (not this push)
-- [ ] (deferred) 404 `noindex` page (spec I3). Needs an adapter `fallback` plus a `wrangler` `not_found_handling` change to actually be served. Lowest value, behavioral wrinkle
-- [ ] (feature) Item-to-droppers search in `MapSearch`. Index items and render a "drops from" result that deep-links to each enemy, which lets the drops FAQ point straight at an item. `loot_drops` already supports the reverse lookup
-- [ ] (future) Crawlable content layer at `/zones/{slug}`, its own spec
+Domain migration, the `/maps/{slug}` URL restructure, and the deferred follow-ups
+(404 `noindex` page, item-to-droppers search, future `/zones` content layer) moved
+to `2026-06-26-maps-domain-url-migration` so this shipped content push can be
+archived on its own.
 
 ## Notes
 
-- The April scaffold (`2026-04-07-erenshor-maps-seo`) appears fully implemented on
-  the live site (robots, sitemap, per-page titles, descriptions, OG, JSON-LD, H1s,
-  landing prose). A later refactor moved it to the `Seo` component plus endpoint
-  routes. It is a candidate for `omp-plans complete`.
-- Parent hardening spec status: I1 and I2 shipped here, I3 deferred, I4, I5, and C1
-  tracked above.
+- The April scaffold (`2026-04-07-erenshor-maps-seo`) shipped and has been archived.
+- Parent hardening spec (`2026-05-18-maps-seo-hardening`): I1 and I2 shipped here,
+  I4/I5/N5 dropped; I3 and C1 moved to `2026-06-26-maps-domain-url-migration`.
 
 ## Appendix A — FAQ content (approved wording)
 
