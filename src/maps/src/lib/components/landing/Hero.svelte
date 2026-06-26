@@ -8,7 +8,7 @@
         <span class="kicker">Free · fan-made · updated every patch</span>
         <h1>Chart the world of Erenshor.</h1>
         <p class="lede">
-            Interactive maps, reference data, and companion mods for the single-player
+            Interactive Erenshor map, reference data, and companion mods for the single-player
             <em>simulated</em> MMORPG. Built by the community, refreshed with every game build.
         </p>
         <div class="cta">
