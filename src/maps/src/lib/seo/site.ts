@@ -38,8 +38,11 @@ export const DEFAULT_OG_IMAGE_ALT =
  * non-root paths; the root maps to `${SITE_URL}/`.
  */
 export function canonicalUrl(path: string): string {
-    if (path === '/' || path === '') return `${SITE_URL}/`;
-    const normalized = path.startsWith('/') ? path : `/${path}`;
+    // Strip query strings and hash fragments so view-state params (?sel, #frag)
+    // never leak into a canonical URL and split it into duplicate documents.
+    const clean = path.split(/[?#]/, 1)[0];
+    if (clean === '/' || clean === '') return `${SITE_URL}/`;
+    const normalized = clean.startsWith('/') ? clean : `/${clean}`;
     return `${SITE_URL}${normalized.replace(/\/$/, '')}`;
 }
 
