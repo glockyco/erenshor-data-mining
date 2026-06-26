@@ -102,3 +102,19 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
         }))
     };
 }
+
+/** schema.org/FAQPage. Answers arrive already flattened to plain text. */
+export function faqPageJsonLd(items: { question: string; answer: string }[]) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: items.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer
+            }
+        }))
+    };
+}
