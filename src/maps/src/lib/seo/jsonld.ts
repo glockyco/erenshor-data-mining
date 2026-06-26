@@ -33,7 +33,13 @@ export function videoGameJsonLd() {
         genre: ['Single-player RPG', 'Adventure', 'Role-playing game'],
         gamePlatform: 'PC',
         applicationCategory: 'Game',
-        sameAs: ['https://erenshor.wiki.gg/']
+        publisher: { '@type': 'Organization', name: 'Burgee Media' },
+        sameAs: [
+            'https://store.steampowered.com/app/2382520/Erenshor/',
+            'https://erenshor.com/',
+            'https://erenshor.wiki.gg/',
+            'https://discord.gg/erenshor'
+        ]
     };
 }
 
