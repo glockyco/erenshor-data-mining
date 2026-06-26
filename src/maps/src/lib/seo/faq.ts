@@ -2,22 +2,32 @@
  * Landing-page FAQ content.
  *
  * Single source of truth for both the rendered FAQ (FaqSection renders each
- * answer segment as text or an anchor) and the FAQPage JSON-LD (answerText
- * flattens the segments to plain text). Answers are answer-first and link to the
- * relevant tool or source so visitors are never left hanging.
+ * answer segment as text or an anchor) and the FAQPage JSON-LD (the landing
+ * page flattens the segments to plain text). Answers are answer-first and link
+ * to the relevant tool or source so visitors are never left hanging.
+ *
+ * Items are ordered by category so the flat list reads tools-first. Once the
+ * list grows past roughly a dozen questions, a grouped layout is a trivial
+ * wrapper over the same array. The JSON-LD builder reads only question and
+ * answer, so `category` carries no SEO weight.
  */
 
 /** A run of answer text, or a link with display text and an href. */
 export type AnswerSegment = string | { text: string; href: string; external?: boolean };
 
+/** Which bucket a question belongs to, for a future grouped render. */
+export type FaqCategory = 'tools' | 'game';
+
 export interface FaqItem {
     question: string;
     answer: AnswerSegment[];
+    category: FaqCategory;
 }
 
 export const FAQ_ITEMS: FaqItem[] = [
     {
         question: 'Where do I find a specific enemy, NPC, or vendor?',
+        category: 'tools',
         answer: [
             'Search the ',
             { text: 'world map', href: '/map' },
@@ -28,6 +38,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
     {
         question: 'How do I see what an enemy drops?',
+        category: 'tools',
         answer: [
             'Click a spawn point on the ',
             { text: 'world map', href: '/map' },
@@ -36,6 +47,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
     {
         question: 'I cannot find an enemy that should be here. Where is it?',
+        category: 'tools',
         answer: [
             'It is probably on its respawn timer or away on a patrol route. The ',
             { text: 'world map', href: '/map' },
@@ -46,6 +58,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
     {
         question: 'Do I need to install anything to use this?',
+        category: 'tools',
         answer: [
             'No. The ',
             { text: 'world map', href: '/map' },
@@ -57,7 +70,19 @@ export const FAQ_ITEMS: FaqItem[] = [
         ]
     },
     {
+        question: 'How is this different from the official wiki?',
+        category: 'tools',
+        answer: [
+            'They work together and link to each other. The ',
+            { text: 'official wiki', href: 'https://erenshor.wiki.gg', external: true },
+            ' has drop rates, stats, and lore, and its enemy pages link to this map. The ',
+            { text: 'world map', href: '/map' },
+            ' shows you visually where everything is, with every spawn on one map, filtering, and live positions, and links back to the wiki for the deeper details.'
+        ]
+    },
+    {
         question: 'Does Erenshor have a map and quest markers?',
+        category: 'game',
         answer: [
             'Yes. Erenshor has a world map, a minimap, and optional quest markers. This site adds a ',
             { text: 'searchable map', href: '/map' },
@@ -68,6 +93,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
     {
         question: 'Is Erenshor multiplayer?',
+        category: 'game',
         answer: [
             'No. Erenshor is an offline single-player simulated MMORPG where the other adventurers are AI SimPlayers. There is no official multiplayer. If you want to play together, the community ',
             {
@@ -80,6 +106,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
     {
         question: 'Are SimPlayers real players or AI chatbots?',
+        category: 'game',
         answer: [
             'Neither. ',
             {
@@ -88,16 +115,6 @@ export const FAQ_ITEMS: FaqItem[] = [
                 external: true
             },
             ' are scripted AI characters (state machines and decision trees, not an LLM) that level up, group, trade, and chat to make the world feel populated.'
-        ]
-    },
-    {
-        question: 'How is this different from the official wiki?',
-        answer: [
-            'They work together and link to each other. The ',
-            { text: 'official wiki', href: 'https://erenshor.wiki.gg', external: true },
-            ' has drop rates, stats, and lore, and its enemy pages link to this map. The ',
-            { text: 'world map', href: '/map' },
-            ' shows you visually where everything is, with every spawn on one map, filtering, and live positions, and links back to the wiki for the deeper details.'
         ]
     }
 ];

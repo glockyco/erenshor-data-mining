@@ -1,6 +1,7 @@
 <script lang="ts">
+    import type { Snippet } from 'svelte';
     import CoordTag from './CoordTag.svelte';
-    let { title }: { title: string } = $props();
+    let { title, children }: { title: string; children?: Snippet } = $props();
 </script>
 
 <div class="sec-head">
@@ -8,6 +9,7 @@
         <CoordTag />
         <h2>{title}</h2>
     </div>
+    {#if children}{@render children()}{/if}
 </div>
 
 <style>
