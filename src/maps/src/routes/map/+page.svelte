@@ -2091,7 +2091,7 @@
 
 <Seo
     path="/map"
-    title="Erenshor Interactive Map – Enemy Spawns & NPCs"
+    title="Erenshor Interactive Map – Spawns, Drops, Resources & NPCs"
     description="Explore the full Erenshor world map. Find enemy spawns, NPCs, teleports, and mining nodes. Filter by level and track your character live."
     jsonLd={[
         webApplicationJsonLd(),
