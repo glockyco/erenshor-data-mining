@@ -1,0 +1,10 @@
+<!-- Applies to every mod project. MSB3277 (assembly-version conflicts during
+     ResolveAssemblyReference) is benign here: game/Unity refs are Private=false
+     (runtime-provided) and ILRepack excludes System.* shims. Demote to a message
+     so it stays in -v normal / binlogs but doesn't bury real errors. NoWarn does
+     not work — MSB3277 is an MSBuild task warning, not a compiler one. -->
+<Project>
+  <PropertyGroup>
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+</Project>
