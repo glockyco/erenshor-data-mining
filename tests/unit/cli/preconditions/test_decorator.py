@@ -230,16 +230,21 @@ def test_decorator_with_no_checks(cli_context: CLIContext):
 
 def test_build_check_context():
     """Test building check context from CLIContext."""
-    from erenshor.infrastructure.config.schema import Config, VariantConfig
+    from erenshor.infrastructure.config.schema import Config
 
     # Create minimal config
-    variant_config = Mock(spec=VariantConfig)
+    variant_config = Mock()
     variant_config.resolved_database.return_value = Path("/db/test.sqlite")
     variant_config.resolved_unity_project.return_value = Path("/unity/project")
     variant_config.resolved_game_files.return_value = Path("/game/files")
     variant_config.resolved_logs.return_value = Path("/logs")
     variant_config.resolved_backups.return_value = Path("/backups")
 
+    maps_config = Mock()
+    maps_config.resolved_source_dir.return_value = Path("/maps")
+    maps_config.resolved_build_dir.return_value = Path("/maps/build")
+    maps_config.resolved_database_dir.return_value = Path("/maps/static/db")
+    variant_config.maps = maps_config
     config = Mock(spec=Config)
     config.variants = {"main": variant_config}
 
@@ -259,6 +264,9 @@ def test_build_check_context():
     assert context["game_dir"] == Path("/game/files")
     assert context["logs_dir"] == Path("/logs")
     assert context["backups_dir"] == Path("/backups")
+    assert context["maps_source_dir"] == Path("/maps")
+    assert context["build_dir"] == Path("/maps/build")
+    assert context["maps_db_path"] == Path("/maps/static/db/erenshor.sqlite")
     assert context["config"] == config
     assert context["dry_run"] is False
 

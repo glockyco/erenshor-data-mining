@@ -6,6 +6,7 @@ before running commands that depend on it.
 """
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -63,12 +64,11 @@ def database_valid(context: dict[str, Any]) -> PreconditionResult:
 
     # Try to open and query the database
     try:
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
-        # Query schema to ensure it's a valid SQLite DB
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1")
-        cursor.fetchone()
-        conn.close()
+        with closing(sqlite3.connect(str(db_path))) as conn:
+            cursor = conn.cursor()
+            # Query schema to ensure it's a valid SQLite DB
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1")
+            cursor.fetchone()
     except sqlite3.DatabaseError as e:
         return PreconditionResult(
             passed=False,
@@ -116,27 +116,25 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
 
     # Check if items table has data
     try:
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        with closing(sqlite3.connect(str(db_path))) as conn:
+            cursor = conn.cursor()
 
-        # Check if items table exists (snake_case clean DB schema)
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='items'")
-        if not cursor.fetchone():
-            conn.close()
-            return PreconditionResult(
-                passed=False,
-                check_name="database_has_items",
-                message="Database has no items table",
-                detail=(
-                    "Database may be empty or not yet built\n"
-                    "Run 'erenshor extract export' then 'erenshor extract build'"
-                ),
-            )
+            # Check if items table exists (snake_case clean DB schema)
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='items'")
+            if not cursor.fetchone():
+                return PreconditionResult(
+                    passed=False,
+                    check_name="database_has_items",
+                    message="Database has no items table",
+                    detail=(
+                        "Database may be empty or not yet built\n"
+                        "Run 'erenshor extract export' then 'erenshor extract build'"
+                    ),
+                )
 
-        # Count items
-        cursor.execute("SELECT COUNT(*) FROM items")
-        count = cursor.fetchone()[0]
-        conn.close()
+            # Count items
+            cursor.execute("SELECT COUNT(*) FROM items")
+            count = cursor.fetchone()[0]
 
         if count == 0:
             return PreconditionResult(
