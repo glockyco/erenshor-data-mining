@@ -7,6 +7,8 @@
 - **Wiki Lua Migration & Cargo Data Architecture** [spec] `2026-06-04-wiki-cargo-data-architecture`
 - **Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions** [plan] `2026-06-23-wiki-cargo-phase-3` (0/82) ← 2026-06-04-wiki-cargo-data-architecture
 - **Maps Domain Migration & URL Restructure** [plan] `2026-06-26-maps-domain-url-migration` (—)
+- **World Map — Item-to-Droppers Search** [spec] `2026-06-27-item-to-droppers-search`
+- **World Map — User Annotations (Pins, Paths, Regions)** [spec] `2026-06-27-map-annotations`
 
 ## draft
 
