@@ -6,11 +6,10 @@
 - **Spawn Coverage Audit — Method & Findings** [audit] `2026-05-28-spawn-coverage-audit`
 - **Wiki Lua Migration & Cargo Data Architecture** [spec] `2026-06-04-wiki-cargo-data-architecture`
 - **Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions** [plan] `2026-06-23-wiki-cargo-phase-3` (0/82) ← 2026-06-04-wiki-cargo-data-architecture
-- **Maps CLI Build/Deploy Consolidation** [plan] `2026-06-26-maps-cli-build-deploy` (0/45)
 - **Maps Domain Migration & URL Restructure** [plan] `2026-06-26-maps-domain-url-migration` (—)
 
 ## draft
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 
-_41 archived — see `docs/plans/archive/`._
+_42 archived — see `docs/plans/archive/`._

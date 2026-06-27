@@ -1,9 +1,10 @@
 ---
 title: Maps CLI Build/Deploy Consolidation
 type: plan
-status: active
+status: implemented
 created: 2026-06-26
 parent:
+archived: 2026-06-27
 ---
 
 # Maps CLI Build/Deploy Consolidation — Implementation Plan
