@@ -53,9 +53,25 @@ uv run erenshor mod dev-setup                   # Install ScriptEngine + ConfigM
 uv run erenshor mod build --mod <id>            # Build a mod
 uv run erenshor mod deploy --mod <id> --scripts # Hot reload deploy (F6 in game)
 uv run erenshor mod deploy --mod <id>           # Production deploy (restart game)
+uv run erenshor maps build                    # Verify, build, and stamp maps site
+uv run erenshor maps deploy                   # Deploy existing fresh maps build
 uv run pytest                                   # Run all tests
-uv run erenshor golden capture                  # Regenerate golden baselines after data changes
+uv run erenshor golden capture                # Regenerate data-pipeline golden baselines
 ```
+
+Drive every subsystem through `uv run erenshor ...`; never call `pnpm build`,
+`wrangler deploy`, or `dotnet build` directly for project workflows.
+
+### Command Map
+
+| Stage | Canonical command |
+|---|---|
+| Acquire/build game data | `uv run erenshor extract export` → `uv run erenshor extract code-facts` → `uv run erenshor extract build` |
+| Build mods | `uv run erenshor mod build --mod <id>` |
+| Develop maps | `uv run erenshor maps dev` |
+| Publish maps externally | `uv run erenshor maps build` → `uv run erenshor maps deploy` |
+| Verify Python pipeline | `uv run pytest` |
+| Verify data baselines | `uv run erenshor golden capture` |
 
 ## Runtime Inspection
 
@@ -121,8 +137,9 @@ uv run pytest -m integration        # Integration tests only
 uv run erenshor golden capture      # Regenerate golden baselines after data changes
 ```
 
-Always run `golden capture` before deploying and review diffs. Golden files
-in `tests/golden/` detect unintended data changes.
+Always run `golden capture` before deploying data changes and review diffs.
+Golden files in `tests/golden/` detect unintended data-pipeline changes; they
+are not a frontend-only maps redeploy gate.
 
 ## Skill Directory
 

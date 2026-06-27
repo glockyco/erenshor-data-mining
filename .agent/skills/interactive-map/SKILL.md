@@ -13,7 +13,7 @@ Use Playwright to close the debug loop entirely without a browser.
 
 - DB used at runtime: `src/maps/static/db/erenshor.sqlite` (symlink to `variants/main/erenshor-main.sqlite`)
 - `+page.server.ts` has `export const prerender = true` — server code also
-  runs at `pnpm build` time (stdout visible in build output)
+  runs during `uv run erenshor maps build` (stdout visible in build output)
 - Enemy markers split into three arrays: `data.markers.enemiesCommon/Rare/Unique`
 - NPC markers: `data.markers.npcs`
 - Bucket assignment: `isNpc = characters.every(c => c.isFriendly)`; else enemy sorted by `isUnique`/`isRare`
@@ -34,7 +34,7 @@ window.__mapDebug.layerVisibility    // → {spawnPoints, spawnPointsRare, ...}
 
 ## Playwright debug loop
 
-Dev server must be running (`pnpm --filter maps dev`). Write a one-shot script:
+Dev server must be running (`uv run erenshor maps dev`). Write a one-shot script:
 
 ```js
 // src/maps/debug-markers.js  (delete after use, never commit)

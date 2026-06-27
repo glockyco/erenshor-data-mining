@@ -11,7 +11,7 @@ commit history—never manually specified.
 
 ## Pipeline Overview
 
-**5 stages**: setup → build → deploy/publish → website build → deploy
+**5 stages**: setup → build → deploy/publish → maps build → maps deploy
 
 ```
 Developer Code Changes
@@ -34,12 +34,13 @@ uv run erenshor mod publish
   ├─ Verifies metadata is present
   └─ Ready for website deployment
   ↓
-npm run build (from src/maps/)
-  ├─ prebuild: uv run erenshor mod publish && tiles manifest
-  ├─ vite build: includes static/mods/ and static/mods-metadata.json
-  └─ dist/ ready for deployment
+uv run erenshor maps build
+  ├─ publishes mods for the selected variant
+  ├─ generates the tiles manifest and OpenGraph image
+  ├─ verifies and builds the SvelteKit site
+  └─ stamps build/.build-info.json
   ↓
-wrangler deploy
+uv run erenshor maps deploy
   └─ Website live with latest mods + metadata
 ```
 
@@ -190,10 +191,10 @@ New `validate-mods` job runs on every push:
 - Reports versions for each mod
 
 ### Website Build
-`npm run build` in `src/maps/`:
-- prebuild calls `uv run erenshor mod publish` → ensures DLLs + metadata ready
-- vite includes `static/mods/` and `static/mods-metadata.json`
-- Fails if mod publish fails (strict mode prevents stale deployments)
+`uv run erenshor maps build`:
+- calls `uv run erenshor -V <variant> mod publish` internally
+- includes `static/mods/` and `static/mods-metadata.json`
+- writes `build/.build-info.json` so deploy can reject stale builds
 
 ### Website Display
 `src/routes/(app)/mod/+page.svelte`:
@@ -212,9 +213,8 @@ New `validate-mods` job runs on every push:
 ### Deploy New Mod Version
 1. Make changes to mod source
 2. `git commit`
-3. `uv run erenshor mod publish` (stages for website)
-4. `npm run build` in src/maps/ (prebuild calls publish)
-5. Deploy website
+3. `uv run erenshor maps build` (stages mods and builds the website)
+4. `uv run erenshor maps deploy`
 
 ### Test Mod Locally
 1. `uv run erenshor mod build --mod mod-id`
@@ -250,7 +250,7 @@ If metadata validation fails:
 | Build fails: "No DLLs in lib/" | Run `uv run erenshor mod setup` first |
 | Version shows "0.0.0-unknown" | Check git history exists for mod directory |
 | Metadata invalid (hook blocks) | Run validation script to see details |
-| Website shows stale mods | Run `npm run build` from `src/maps/` |
+| Website shows stale mods | Run `uv run erenshor maps build` |
 | DLL not in website static/ | Run `uv run erenshor mod publish` |
 
 ## Architecture Files
@@ -261,4 +261,4 @@ If metadata validation fails:
 - `src/mods/mods-config.yaml` - Master mod configuration
 - `lefthook.yml` - Git hook definition
 - `.github/workflows/ci.yml` - CI validation job
-- `src/maps/package.json` - Website prebuild integration
+- `src/maps/README.md` - Website command entry point; maps build/deploy are CLI-owned

@@ -16,7 +16,7 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 | Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
 | Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
 | AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map (build + Cloudflare target) | Yes via `build_dir` + `deploy_target` | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
+| Interactive map build | Yes via `build_dir`; deploy target is the single `src/maps/wrangler.jsonc` worker | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
 | Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
 | `mapping.json` | **Shared** | overrides apply across all variants |
 | MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |
@@ -89,12 +89,13 @@ Open the `.trace.json` artifact in Perfetto when the nested timeline matters.
 
 ## Variant safety rules
 
-Three actions, when run with a non-main variant, silently affect main. Confirm the variant is the canonical shipping variant before running, or skip:
+Three actions, when run with a non-main variant, silently affect main. Confirm
+the variant is the canonical shipping variant before running, or skip:
 
 - `golden capture` writes to shared `tests/golden/` and breaks main's regression tests.
 - `wiki deploy` overwrites `erenshor.wiki.gg` (single target across all variants).
 - `guide compile` overwrites the single `quest_guides/guide.json` embedded into the next AdventureGuide build.
-- `maps deploy` would publish to Cloudflare. Configure a distinct `deploy_target` in `config.toml` per variant so an accidental cross-deploy requires a wrangler.jsonc change too.
+- `maps deploy` publishes the single `src/maps/wrangler.jsonc` Worker target. Build/playtest locally, but deploy only the shipping variant.
 
 ## End-of-session teardown
 
