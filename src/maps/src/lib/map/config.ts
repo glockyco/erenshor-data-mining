@@ -98,7 +98,11 @@ export const MOVEMENT_COLORS = {
     wanderStroke: [96, 165, 250, 200] as [number, number, number, number], // blue-400
     patrolLine: [250, 204, 21, 255] as [number, number, number, number], // yellow-400
     patrolDashed: [250, 204, 21, 150] as [number, number, number, number], // yellow-400 faded
-    waypoint: [250, 204, 21, 255] as [number, number, number, number] // yellow-400
+    waypoint: [250, 204, 21, 255] as [number, number, number, number], // yellow-400
+    // Global overlay colors (white, muted) — distinct from the selected yellow/blue
+    allWanderCircle: [255, 255, 255, 15] as [number, number, number, number], // ~6% fill
+    allWanderStroke: [255, 255, 255, 150] as [number, number, number, number], // visible stroke
+    allPatrolLine: [255, 255, 255, 130] as [number, number, number, number] // muted white
 } as const;
 
 /**
