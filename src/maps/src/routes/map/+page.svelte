@@ -1973,6 +1973,70 @@
             });
         }
 
+        // === GLOBAL MOVEMENT OVERLAY LAYERS ===
+        // Shown for all enemies/NPCs when the sidebar toggles are enabled.
+        // Uses white/muted colors to stay visually distinct from the yellow/blue selection overlay.
+        // Built below the per-selection layers in the stack so the selected entity always paints on top.
+
+        type WanderDatum = { position: [number, number]; radius: number };
+        type PatrolSegment = { source: [number, number]; target: [number, number] };
+
+        const allSpawnMarkers = [
+            ...data.markers.enemiesCommon,
+            ...data.markers.enemiesRare,
+            ...data.markers.enemiesUnique,
+            ...data.markers.npcs,
+        ];
+
+        // One circle per spawn that has a non-zero wander range
+        const wanderData: WanderDatum[] = allSpawnMarkers.flatMap((m) =>
+            m.movement?.wanderRange && m.movement.wanderRange > 0
+                ? [{ position: getMarkerPosition(m), radius: m.movement.wanderRange }]
+                : []
+        );
+        const allWanderRangesLayer =
+            vis.showWanderRanges && wanderData.length > 0
+                ? new ScatterplotLayer({
+                      id: 'all-wander-ranges',
+                      data: wanderData,
+                      getPosition: (d: WanderDatum) => d.position,
+                      getRadius: (d: WanderDatum) => d.radius,
+                      getFillColor: MOVEMENT_COLORS.allWanderCircle,
+                      getLineColor: MOVEMENT_COLORS.allWanderStroke,
+                      stroked: true,
+                      lineWidthUnits: 'pixels',
+                      lineWidthMinPixels: 1,
+                      lineWidthMaxPixels: 2,
+                      pickable: false,
+                  })
+                : null;
+
+        // One segment per consecutive waypoint pair; loop-patrol markers also get a closing segment
+        const patrolSegments: PatrolSegment[] = [];
+        for (const m of allSpawnMarkers) {
+            const wps = m.worldPatrolWaypoints;
+            if (!wps || wps.length < 2) continue;
+            for (let i = 0; i < wps.length - 1; i++) {
+                patrolSegments.push({ source: wps[i], target: wps[i + 1] });
+            }
+            if (m.movement?.loopPatrol) {
+                patrolSegments.push({ source: wps[wps.length - 1], target: wps[0] });
+            }
+        }
+        const allPatrolPathsLayer =
+            vis.showPatrols && patrolSegments.length > 0
+                ? new LineLayer({
+                      id: 'all-patrol-paths',
+                      data: patrolSegments,
+                      getSourcePosition: (d: PatrolSegment) => d.source,
+                      getTargetPosition: (d: PatrolSegment) => d.target,
+                      getColor: MOVEMENT_COLORS.allPatrolLine,
+                      getWidth: 2,
+                      widthUnits: 'pixels',
+                      pickable: false,
+                  })
+                : null;
+
         // === SEARCH HIGHLIGHT LAYERS ===
 
         // All spawn positions for a search result (amber rings)
@@ -2070,7 +2134,10 @@
             liveEnemiesRareLayer,
             liveEnemiesBossLayer,
             livePlayerLayer,
-            // Movement visualization (below selection highlight)
+            // Global movement overlays (below per-selection so selection paints on top)
+            allWanderRangesLayer,
+            allPatrolPathsLayer,
+            // Movement visualization for selected entity (yellow/blue, on top of global)
             wanderRangeLayer,
             patrolSpawnLineLayer,
             patrolPathLayer,
