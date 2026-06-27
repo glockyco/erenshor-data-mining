@@ -87,8 +87,8 @@
         doors: rgbToHex(LAYER_COLORS.door),
         secretPassages: rgbToHex(LAYER_COLORS['secret-passage']),
         achievementTriggers: rgbToHex(LAYER_COLORS['achievement-trigger']),
-        showPatrols: '#e4e4e7',      // zinc-200 — matches the white overlay
-        showWanderRanges: '#e4e4e7'  // zinc-200
+        showPatrols: '#a1a1aa',      // zinc-400 — visible swatch for white overlay
+        showWanderRanges: '#a1a1aa'  // zinc-400
     };
 
     function handleToggle(key: keyof LayerVisibility) {

@@ -24,7 +24,7 @@
         style:border-color={checked ? color : undefined}
     >
         {#if checked}
-            <svg class="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+            <svg class="h-3 w-3 text-white" style="filter: drop-shadow(0 0 1px rgba(0,0,0,0.9))" viewBox="0 0 12 12" fill="none" stroke="currentColor">
                 <path
                     d="M2 6l3 3 5-6"
                     stroke-width="2"
