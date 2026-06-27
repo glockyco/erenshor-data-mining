@@ -442,11 +442,7 @@ class MapsConfig(BaseModel):
     )
     build_dir: str = Field(
         default="$REPO_ROOT/src/maps/build",
-        description="Path to build output directory (created by npm run build)",
-    )
-    deploy_target: str = Field(
-        default="erenshor-maps",
-        description="Cloudflare Pages project name for deployment",
+        description="Path to maps build output directory",
     )
     base_url: str = Field(
         default="https://erenshor-maps.wowmuch1.workers.dev",

@@ -3,9 +3,6 @@
   "private": true,
   "scripts": {
     "prepare": "lefthook install --reset-hooks-path",
-    "dev": "pnpm --filter erenshor-maps dev",
-    "build": "pnpm --filter erenshor-maps build",
-    "preview": "pnpm --filter erenshor-maps preview",
     "check": "pnpm --filter erenshor-maps check",
     "lint": "pnpm --filter erenshor-maps lint",
     "lint:fix": "pnpm --filter erenshor-maps lint:fix",

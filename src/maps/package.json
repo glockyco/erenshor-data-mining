@@ -4,21 +4,13 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "dev": "vite dev",
-        "prebuild": "uv run erenshor mod publish && node scripts/generate-tiles-manifest.js && node scripts/generate-og-image.mjs",
-        "build": "vite build",
-        "preview": "vite preview",
         "prepare": "svelte-kit sync || echo ''",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "deploy": "wrangler deploy",
-        "test": "vitest",
-        "test:ui": "vitest --ui",
-        "thumbnails": "node scripts/generate-thumbnails.mjs"
+        "test": "vitest run"
     },
     "devDependencies": {
         "@eslint/compat": "^1.2.5",
