@@ -101,7 +101,10 @@ const LAYER_KEYS: Record<keyof LayerVisibility, string> = {
     // Secrets
     doors: 'door',
     secretPassages: 'sec',
-    achievementTriggers: 'ach'
+    achievementTriggers: 'ach',
+    // Movement overlays
+    showPatrols: 'pat',
+    showWanderRanges: 'wr'
 };
 
 const LAYER_KEYS_REVERSE: Record<string, keyof LayerVisibility> = Object.fromEntries(

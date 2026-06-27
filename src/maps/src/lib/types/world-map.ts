@@ -117,6 +117,8 @@ export interface LayerVisibility {
     doors: boolean;
     secretPassages: boolean;
     achievementTriggers: boolean;
+    showPatrols: boolean;
+    showWanderRanges: boolean;
 }
 
 export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
@@ -138,7 +140,9 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
     treasureLocs: true,
     doors: true,
     secretPassages: true,
-    achievementTriggers: true
+    achievementTriggers: true,
+    showPatrols: false,
+    showWanderRanges: false
 };
 
 // =============================================================================
