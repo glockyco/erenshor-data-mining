@@ -86,7 +86,9 @@
         treasureLocs: rgbToHex(LAYER_COLORS['treasure-loc']),
         doors: rgbToHex(LAYER_COLORS.door),
         secretPassages: rgbToHex(LAYER_COLORS['secret-passage']),
-        achievementTriggers: rgbToHex(LAYER_COLORS['achievement-trigger'])
+        achievementTriggers: rgbToHex(LAYER_COLORS['achievement-trigger']),
+        showPatrols: '#e4e4e7',      // zinc-200 — matches the white overlay
+        showWanderRanges: '#e4e4e7'  // zinc-200
     };
 
     function handleToggle(key: keyof LayerVisibility) {
@@ -219,6 +221,22 @@
             checked={visibility.characters}
             color={colors.characters}
             onchange={handleToggle('characters')}
+        />
+    </SidebarSection>
+
+    <!-- Movement Overlays -->
+    <SidebarSection title="Movement">
+        <LayerToggle
+            label="Patrol Routes"
+            checked={visibility.showPatrols}
+            color={colors.showPatrols}
+            onchange={handleToggle('showPatrols')}
+        />
+        <LayerToggle
+            label="Wander Ranges"
+            checked={visibility.showWanderRanges}
+            color={colors.showWanderRanges}
+            onchange={handleToggle('showWanderRanges')}
         />
     </SidebarSection>
 

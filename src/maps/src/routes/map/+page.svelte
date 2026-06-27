@@ -1995,7 +1995,7 @@
                 : []
         );
         const allWanderRangesLayer =
-            vis.showWanderRanges && wanderData.length > 0
+            layerVisibility.showWanderRanges && wanderData.length > 0
                 ? new ScatterplotLayer({
                       id: 'all-wander-ranges',
                       data: wanderData,
@@ -2011,20 +2011,28 @@
                   })
                 : null;
 
-        // One segment per consecutive waypoint pair; loop-patrol markers also get a closing segment
+        // Segments for every marker: spawn→wp0, then wp0→wp1→…→wpN-1,
+        // plus wpN-1→wp0 closing segment for loop-patrol routes.
+        // Mirrors the three-part logic of the per-selection patrol layers:
+        //   patrolSpawnLineLayer (spawn→wp0) + patrolPathLayer (wp0…wpN) + loop close.
         const patrolSegments: PatrolSegment[] = [];
         for (const m of allSpawnMarkers) {
             const wps = m.worldPatrolWaypoints;
-            if (!wps || wps.length < 2) continue;
+            if (!wps || wps.length === 0) continue;
+            const spawnPos = getMarkerPosition(m);
+            // spawn → first waypoint
+            patrolSegments.push({ source: spawnPos, target: wps[0] });
+            // consecutive waypoint pairs
             for (let i = 0; i < wps.length - 1; i++) {
                 patrolSegments.push({ source: wps[i], target: wps[i + 1] });
             }
-            if (m.movement?.loopPatrol) {
+            // loop close: last waypoint → first waypoint
+            if (m.movement?.loopPatrol && wps.length > 1) {
                 patrolSegments.push({ source: wps[wps.length - 1], target: wps[0] });
             }
         }
         const allPatrolPathsLayer =
-            vis.showPatrols && patrolSegments.length > 0
+            layerVisibility.showPatrols && patrolSegments.length > 0
                 ? new LineLayer({
                       id: 'all-patrol-paths',
                       data: patrolSegments,
