@@ -21,6 +21,15 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
+from erenshor.application.maps import build_info
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+from erenshor.cli.preconditions.checks.maps import (
+    build_exists,
+    build_matches_inputs,
+    cloudflare_auth_configured,
+)
+
 if TYPE_CHECKING:
     from ..context import CLIContext
 
@@ -31,6 +40,15 @@ app = typer.Typer(
 )
 
 console = Console()
+
+
+def _run(cmd: list[str], cwd: Path, *, env: dict[str, str] | None = None) -> None:
+    """Run a command step, streaming output and failing with the child exit code."""
+    console.print(f"[dim]$ {' '.join(cmd)}[/dim]")
+    result = subprocess.run(cmd, cwd=cwd, env=env, check=False)
+    if result.returncode != 0:
+        console.print(f"[red]Step failed ({' '.join(cmd[:2])}…): exit {result.returncode}[/red]")
+        raise typer.Exit(result.returncode)
 
 
 def _check_pnpm_available() -> bool:
@@ -169,13 +187,9 @@ def dev(
 
     # Run dev server
     try:
-        env = os.environ.copy()
-        env["PORT"] = str(port)
-
         result = subprocess.run(
-            ["pnpm", "run", "dev", "--", "--port", str(port)],
+            ["pnpm", "exec", "vite", "dev", "--port", str(port)],
             cwd=maps_dir,
-            env=env,
             check=False,
         )
 
@@ -197,6 +211,7 @@ def dev(
 
 
 @app.command()
+@require_preconditions(build_exists, build_matches_inputs)
 def preview(
     ctx: typer.Context,
     port: int = typer.Option(
@@ -255,13 +270,9 @@ def preview(
 
     # Run preview server
     try:
-        env = os.environ.copy()
-        env["PORT"] = str(port)
-
         result = subprocess.run(
-            ["pnpm", "run", "preview", "--", "--port", str(port)],
+            ["pnpm", "exec", "vite", "preview", "--port", str(port)],
             cwd=maps_dir,
-            env=env,
             check=False,
         )
 
@@ -278,13 +289,9 @@ def preview(
 
 
 @app.command()
+@require_preconditions(database_exists, database_valid, database_has_items)
 def build(
     ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force rebuild even if build is up-to-date",
-    ),
 ) -> None:
     """Build production site with copied database.
 
@@ -329,27 +336,6 @@ def build(
         console.print(f"  erenshor -V {cli_ctx.variant} export")
         raise typer.Exit(1)
 
-    # Check if rebuild needed
-    if build_dir.exists() and not force:
-        console.print("[yellow]Build directory already exists[/yellow]")
-        console.print("\nUse --force to rebuild:")
-        console.print(f"  erenshor -V {cli_ctx.variant} maps build --force")
-        raise typer.Exit(1)
-
-    # Ensure maps db directory exists
-    maps_db_dir.mkdir(parents=True, exist_ok=True)
-
-    # Copy database, replacing any existing symlink (e.g. left by `maps dev`)
-    try:
-        logger.info(f"Copying database: {db_path} -> {maps_db_path}")
-        if maps_db_path.is_symlink():
-            maps_db_path.unlink()
-        shutil.copy2(db_path, maps_db_path)
-        console.print(f"[green]Database copied to {maps_db_path}[/green]")
-    except Exception as e:
-        console.print(f"[red]Error copying database: {e}[/red]")
-        raise typer.Exit(1) from e
-
     # Show info panel
     console.print()
     console.print(
@@ -363,19 +349,33 @@ def build(
     )
     console.print()
 
-    # Run build
+    # Run verify, prebuild, and build
     try:
-        logger.info("Running pnpm run build")
-        result = subprocess.run(
-            ["pnpm", "run", "build"],
-            cwd=maps_dir,
-            check=False,
-        )
+        logger.info("Running maps verification")
+        _run(["pnpm", "run", "lint"], maps_dir)
+        _run(["pnpm", "run", "check"], maps_dir)
+        _run(["pnpm", "run", "test"], maps_dir)
 
-        if result.returncode != 0:
-            console.print(f"[red]Build failed with exit code {result.returncode}[/red]")
-            raise typer.Exit(result.returncode)
+        logger.info("Running maps prebuild steps")
+        _run(["uv", "run", "erenshor", "-V", cli_ctx.variant, "mod", "publish"], cli_ctx.repo_root)
+        _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
+        _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
 
+        maps_db_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            logger.info(f"Copying database: {db_path} -> {maps_db_path}")
+            if maps_db_path.is_symlink():
+                maps_db_path.unlink()
+            shutil.copy2(db_path, maps_db_path)
+            console.print(f"[green]Database copied to {maps_db_path}[/green]")
+        except Exception as e:
+            console.print(f"[red]Error copying database: {e}[/red]")
+            raise typer.Exit(1) from e
+
+        logger.info("Running Vite build")
+        _run(["pnpm", "exec", "vite", "build"], maps_dir)
+        hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=db_path)
+        build_info.write_build_info(build_dir, hashes)
         console.print()
         console.print("[green]Build completed successfully![/green]")
         console.print(f"[dim]Output: {build_dir}[/dim]")
@@ -388,12 +388,15 @@ def build(
     except KeyboardInterrupt:
         console.print("\n[yellow]Build interrupted[/yellow]")
         raise typer.Exit(1) from None
+    except typer.Exit:
+        raise
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
         raise typer.Exit(1) from e
 
 
 @app.command()
+@require_preconditions(build_exists, build_matches_inputs, cloudflare_auth_configured)
 def deploy(
     ctx: typer.Context,
 ) -> None:
@@ -440,22 +443,14 @@ def deploy(
 
     if cli_ctx.dry_run:
         console.print("[yellow]DRY RUN: Would deploy with:[/yellow]")
-        console.print(f"  pnpm run deploy  (in {maps_dir})")
+        console.print(f"  pnpm exec wrangler deploy  (in {maps_dir})")
         console.print()
         return
 
     # Run deployment
     try:
-        logger.info("Deploying to Cloudflare via pnpm run deploy")
-        result = subprocess.run(
-            ["pnpm", "run", "deploy"],
-            cwd=maps_dir,
-            check=False,
-        )
-
-        if result.returncode != 0:
-            console.print(f"[red]Deployment failed with exit code {result.returncode}[/red]")
-            raise typer.Exit(result.returncode)
+        logger.info("Deploying to Cloudflare via wrangler")
+        _run(["pnpm", "exec", "wrangler", "deploy"], maps_dir)
 
         console.print()
         console.print("[green]Deployment completed successfully![/green]")
@@ -465,6 +460,8 @@ def deploy(
     except KeyboardInterrupt:
         console.print("\n[yellow]Deployment interrupted[/yellow]")
         raise typer.Exit(1) from None
+    except typer.Exit:
+        raise
     except Exception as e:
         console.print(f"[red]Error during deployment: {e}[/red]")
         raise typer.Exit(1) from e
@@ -504,9 +501,7 @@ def thumbnails(
         console.print("[yellow]Error: node_modules not found. Run pnpm install first.[/yellow]")
         raise typer.Exit(1)
 
-    args = ["pnpm", "run", "thumbnails"]
-    for zone in zones:
-        args.append(zone)
+    args = ["node", "scripts/generate-thumbnails.mjs", *zones]
 
     env = os.environ.copy()
     env["MAPS_URL"] = url
