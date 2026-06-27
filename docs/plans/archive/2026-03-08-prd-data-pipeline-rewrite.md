@@ -1,6 +1,6 @@
 ---
 title: "PRD: Data Pipeline Rewrite"
-type: prd
+type: spec
 status: implemented
 created: 2026-03-08
 archived: 2026-06-25

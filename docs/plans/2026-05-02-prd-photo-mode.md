@@ -1,6 +1,6 @@
 ---
 title: Erenshor Photo Mode - Implementation Plan
-type: prd
+type: spec
 status: draft
 created: 2026-05-02
 parent:
