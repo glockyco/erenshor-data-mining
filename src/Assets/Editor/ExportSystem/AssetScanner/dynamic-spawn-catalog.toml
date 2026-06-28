@@ -227,3 +227,169 @@ reason = "UI/FX/node prefabs, not Characters."
 script = "NPCFightEvent"
 fields = ["MyNPC"]
 reason = "Host NPC reference, not a dynamic spawn."
+
+[[allowed]]
+script = "ArborScript"
+fields = ["Sapling"]
+position_field = "SapSpawn1"
+
+[[allowed]]
+script = "BraxFightEvent"
+fields = ["Corruptor", "ElementalCrystal", "elementalConstruct"]
+
+[[allowed]]
+script = "FernallaFight"
+fields = ["Corruptor", "Fawn", "Spiderings", "Wolves"]
+position_field = "SpawnPoints"
+
+[[allowed]]
+script = "InfernoTwins"
+fields = ["MyEnergy"]
+
+[[allowed]]
+script = "SolunaFight"
+fields = ["ConstellationStar", "Corruptor1", "Corruptor2", "Shadow"]
+
+[[allowed]]
+script = "VitheoFight"
+fields = ["AzynthiCorruptor", "LegionTier1", "LegionTier2", "LegionTier3", "LegionTier4", "LegionTier5"]
+
+[[denied]]
+script = "BraxFightEvent"
+fields = ["GodBraxRestored", "IceGolem", "LavaGolem"]
+reason = "GodBraxRestored is a SetActive toggle; IceGolem/LavaGolem are assigned to SpawnOnDeath at runtime, not Instantiate."
+
+[[denied]]
+script = "FernallaFight"
+fields = ["RestoredFernalla"]
+reason = "Visual SetActive toggle, not an Instantiate spawn."
+
+[[denied]]
+script = "CastSpell"
+fields = ["MyChar"]
+reason = "Host character reference (GetComponent<Character>), not a dynamic spawn."
+
+[[denied]]
+script = "CharSelectManager"
+fields = ["PlayerChar"]
+reason = "Player character reference, not a dynamic spawn."
+
+[[denied]]
+script = "ClearAggroOnDistance"
+fields = ["MyChar"]
+reason = "Host character reference (GetComponent<Character>), not a dynamic spawn."
+
+[[denied]]
+script = "CombinedMeshesManager"
+fields = ["rootGameObject"]
+reason = "Mesh-combining utility referencing the GameObject it manages; not a spawn source."
+
+[[denied]]
+script = "FernallaPortalShouts"
+fields = ["StopIfDead"]
+reason = "Character reference checked for Alive status, not a spawn source."
+
+[[denied]]
+script = "GuildManager"
+fields = ["PossibleMobTargets"]
+reason = "Target list for guild tasks (GetComponent<Stats>), not a spawn source."
+
+[[denied]]
+script = "InfernoTwins"
+fields = ["Chest"]
+reason = "Chest prefab, not a Character spawn."
+
+[[denied]]
+script = "MemorySphere"
+fields = ["Memory"]
+reason = "Visual SetActive toggle, not an Instantiate spawn."
+
+[[denied]]
+script = "MiningNode"
+fields = ["MyChar"]
+reason = "Host character reference, not a dynamic spawn."
+
+[[denied]]
+script = "Misc"
+fields = ["TreasureChest0_10", "TreasureChest10_20", "TreasureChest20_30", "TreasureChest30_35", "TrickShotTarg"]
+reason = "Chest/target prefabs referenced by Misc, not spawn sources."
+
+[[denied]]
+script = "MorphTrigger"
+fields = ["Enable"]
+reason = "List of GameObjects enabled via SetActive, not Instantiate spawns."
+
+[[denied]]
+script = "MultiQuestListener"
+fields = ["EnableOnQuestComplete"]
+reason = "List of GameObjects enabled via SetActive on quest completion, not Instantiate spawns."
+
+[[denied]]
+script = "NPCDialog"
+fields = ["Spawn"]
+reason = "GameObject reference used for dialog interactions, not an Instantiate spawn."
+
+[[denied]]
+script = "PietyTrigger"
+fields = ["Guardians", "Piety"]
+reason = "Guardians is a target list; Piety is a host character reference. Not spawn sources."
+
+[[denied]]
+script = "PlayerControl"
+fields = ["Myself"]
+reason = "Player character reference, not a dynamic spawn."
+
+[[denied]]
+script = "QuestSpawnListener"
+fields = ["DestroyOnQuestComplete", "EnableOnQuestComplete"]
+reason = "Lists of GameObjects toggled via SetActive/Destroy, not Instantiate spawns."
+
+[[denied]]
+script = "ShapeshiftMngr"
+fields = ["MyChar"]
+reason = "Host character reference, not a dynamic spawn."
+
+[[denied]]
+script = "ShiverEvent"
+fields = ["FirstKio", "Hider", "Kio", "WelcomeCrew"]
+reason = "SetActive toggles and enable lists, not Instantiate spawns."
+
+[[denied]]
+script = "ShiveringPhantomWardListener"
+fields = ["ward1", "ward2"]
+reason = "Runtime ward trackers checked for Alive status, not spawn sources."
+
+[[denied]]
+script = "SimPlayerMngr"
+fields = ["ActualSims", "BlankSPTemplate"]
+reason = "SimPlayer template list and blank template; not world spawns."
+
+[[denied]]
+script = "SolunaFight"
+fields = ["RestoredSoluna"]
+reason = "Visual SetActive toggle, not an Instantiate spawn."
+
+[[denied]]
+script = "SpellEffectDB"
+fields = ["DruidPets"]
+reason = "Spell effect database reference, not a spawn source."
+
+[[denied]]
+script = "SpiderEvent"
+fields = ["Spider1", "Spider2", "Spider3", "Spider4"]
+reason = "Linked spider references checked for Alive status, not Instantiate spawns."
+
+[[denied]]
+script = "Stats"
+fields = ["Myself"]
+reason = "Host character reference (GetComponent<Character>), not a dynamic spawn."
+
+[[denied]]
+script = "VitheoFight"
+fields = ["RestoredVitheo"]
+reason = "Visual SetActive toggle, not an Instantiate spawn."
+
+[[denied]]
+script = "WardLeakListener"
+fields = ["MyChar"]
+reason = "Host character reference, not a dynamic spawn."
