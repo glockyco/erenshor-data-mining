@@ -35,9 +35,13 @@ export function searchTiered(
         }
     }
 
-    // Combine prefix + substring; if we have enough, skip fuzzy
+    // Combine prefix + substring. Fuzzy fallback only fires when there are
+    // NO exact matches — if the user typed "island" and got "Island" and
+    // "Island Portal", they don't need 18 fuzzy guesses like "grassland"
+    // padding out the list. Fuzzy is a rescue for zero-result searches (typos),
+    // not a supplement for good matches.
     const exactMatches = [...prefix, ...substring];
-    if (exactMatches.length >= limit) {
+    if (exactMatches.length > 0) {
         return exactMatches.slice(0, limit);
     }
 

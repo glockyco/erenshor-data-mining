@@ -55,6 +55,13 @@ describe('searchTiered', () => {
         expect(hasFuzzy).toBe(true);
     });
 
+    it('does not pad results with fuzzy matches when exact matches exist', () => {
+        // 'lumin' has exact prefix/substring matches; fuzzy should NOT fire
+        const matches = searchTiered('lumin', entries, 20);
+        const hasFuzzy = matches.some((m) => m.matchRange === null);
+        expect(hasFuzzy).toBe(false);
+    });
+
     it('returns empty array for queries shorter than 2 chars', () => {
         expect(searchTiered('l', entries, 20)).toEqual([]);
         expect(searchTiered('', entries, 20)).toEqual([]);
