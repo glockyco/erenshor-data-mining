@@ -1,7 +1,12 @@
+---
+name: tile-capture
+description: Capture and generate interactive-map tiles for Erenshor zones via the in-game MapTileCapture mod. Use when capturing or re-tiling zone maps, setting capture bounds for a new zone, managing the tile-count budget, or diagnosing dark, blank, or off-center captures.
+---
+
 # Tile Capture
 
 Capture and generate map tiles for all Erenshor zones using the in-game MapTileCapture BepInEx mod.
-For mod build/deploy and tunable constants, see `src/mods/MapTileCapture/CLAUDE.md`.
+For mod build/deploy and tunable constants, see `src/mods/MapTileCapture/AGENTS.md`.
 
 ## Architecture
 
