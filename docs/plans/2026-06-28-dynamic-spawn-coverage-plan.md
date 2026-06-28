@@ -182,7 +182,7 @@ uv run python src/tools/trace_character_sources.py --only-excluded --verdict ini
 
 ### Task G2: Remove stale rules
 
-- [ ] Remove stale rules from `mapping.json`.
+- [x] Remove stale rules from `mapping.json`.
 
 ---
 
