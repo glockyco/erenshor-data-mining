@@ -12,9 +12,11 @@
     // Visible chips: All always shows; Live only when present; static types
     // always show (greyed when zero).
     const visibleChips = $derived(
-        CHIP_CONFIG.filter(
-            (c) => c.key === 'all' || c.key === 'live' ? counts.has(c.key) : true
-        )
+        CHIP_CONFIG.filter((c) => {
+            if (c.key === 'all') return true;
+            if (c.key === 'live') return counts.has(c.key);
+            return true;
+        })
     );
 </script>
 
