@@ -81,3 +81,16 @@ not one row per `SpawnPoint` × prefab. That needs:
 - Character pages and the map render the "may appear in {zone}" relationship.
 - `Misc.SivakayanSpectres` moves off `denied` (allowed, or handled by the new
   listener) with the gate still green.
+
+## Related residual — treasure hunting chests (handled, not deferred)
+
+The four Lost Treasure chests (`character:treasurechest 0-10 1`, `10-20 1`,
+`20-30 1`, `30-35`) are the other half of the nine "needs investigation"
+orphans, but they are **not** Category C and need no follow-up. They spawn from
+`PlayerControl.LeftClick()` at the clicked treasure-marker position —
+player-triggered, not a zone tick — so there is no fixed coordinate and no
+"may appear in {zone}" probability to model. They are resolved in `mapping.json`
+as wiki-visible / map-hidden (`mapping_type = "dynamic_spawn"`): loot tables
+ship to the wiki, the map omits them. The only open idea, if ever wanted, is a
+separate treasure-hunting map/zone feature — distinct from this note and not
+currently scoped.
