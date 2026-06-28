@@ -858,6 +858,12 @@ def process_characters(
     else:
         writer.insert_character_chained_spawns([])
 
+    # Expand Category B chained spawns into character_spawns.
+    # Each child inherits every spawn position of its parent; if the
+    # parent is itself a chained child, the recursion resolves through
+    # the ancestor that has a real spawn row. Cycles are guarded.
+    expand_chained_spawns(writer.conn)
+
     # ------------------------------------------------------------------
     # Step 7: Write junction tables (filtered to all keys)
     # ------------------------------------------------------------------
@@ -1084,3 +1090,136 @@ def process_characters(
     )
 
     logger.info(f"Characters: processing complete ({len(char_data)} characters written)")
+
+
+def expand_chained_spawns(conn: sqlite3.Connection) -> None:
+    """Expand Category B chained spawns into character_spawns.
+
+    For each (parent, child) in character_chained_spawns, emit one
+    character_spawns row per existing parent spawn, using the parent's
+    (scene, x, y, z) and is_trigger_spawn=1. If the parent itself has no
+    spawn row but is a chained child of a grandparent, resolve recursively.
+    Cycles are guarded by a visited set per resolution path.
+
+    The synthetic spawn_point_stable_key includes the source script and
+    parent's coordinates so distinct chains don't collapse under the
+    (character_stable_key, spawn_point_stable_key, is_directly_placed) PK.
+    """
+    chained_rows = conn.execute(
+        "SELECT parent_stable_key, child_stable_key, source_script FROM character_chained_spawns"
+    ).fetchall()
+    if not chained_rows:
+        return
+
+    # Build parent → [(child, source)] adjacency list
+    children_by_parent: dict[str, list[tuple[str, str]]] = {}
+    for parent, child, source in chained_rows:
+        children_by_parent.setdefault(parent, []).append((child, source))
+
+    def resolve_spawns(
+        char_key: str,
+        visited: frozenset[str],
+    ) -> list[sqlite3.Row]:
+        """Return spawn rows for a character, recursing through chains.
+
+        If the character has direct spawn rows, return them. Otherwise,
+        look up whether it's a chained child and recurse to the parent.
+        ``visited`` prevents infinite loops on cyclic chains.
+        """
+        if char_key in visited:
+            return []
+        visited = visited | {char_key}
+
+        direct = conn.execute(
+            """SELECT scene, x, y, z, zone_stable_key FROM character_spawns
+               WHERE character_stable_key = ?""",
+            (char_key,),
+        ).fetchall()
+        if direct:
+            return direct
+
+        # No direct spawns — check if this character is a chained child
+        # and recurse to its parent(s)
+        parent_links = conn.execute(
+            "SELECT parent_stable_key, source_script FROM character_chained_spawns WHERE child_stable_key = ?",
+            (char_key,),
+        ).fetchall()
+        results: list[sqlite3.Row] = []
+        for pl in parent_links:
+            results.extend(resolve_spawns(pl["parent_stable_key"], visited))
+        return results
+
+    inserted: set[tuple[str, str | None, float | None, float | None, float | None, str]] = set()
+    rows_to_insert: list[dict[str, object]] = []
+
+    for parent, child_list in children_by_parent.items():
+        parent_spawns = resolve_spawns(parent, frozenset())
+        for child, source in child_list:
+            for ps in parent_spawns:
+                scene = ps["scene"]
+                x = ps["x"]
+                y = ps["y"]
+                z = ps["z"]
+                dedup_key = (child, scene, x, y, z, source)
+                if dedup_key in inserted:
+                    continue
+                inserted.add(dedup_key)
+                spk = f"spawn:chained:{source}:{x}:{y}:{z}" if x is not None else None
+                rows_to_insert.append(
+                    {
+                        "character_stable_key": child,
+                        "spawn_point_stable_key": spk,
+                        "zone_stable_key": ps["zone_stable_key"],
+                        "scene": scene,
+                        "x": x,
+                        "y": y,
+                        "z": z,
+                        "is_enabled": 1,
+                        "is_directly_placed": 0,
+                        "is_trigger_spawn": 1,
+                        "rare_npc_chance": None,
+                        "level_mod": None,
+                        "spawn_delay_1": None,
+                        "spawn_delay_2": None,
+                        "spawn_delay_3": None,
+                        "spawn_delay_4": None,
+                        "staggerable": None,
+                        "stagger_mod": None,
+                        "night_spawn": None,
+                        "patrol_points": None,
+                        "loop_patrol": None,
+                        "random_wander_range": None,
+                        "spawn_upon_quest_complete_stable_key": None,
+                        "protector_stable_key": None,
+                        "spawn_chance": 1.0,
+                        "is_common": None,
+                        "is_rare": None,
+                        "is_wiki_generated": None,
+                        "is_map_visible": None,
+                        "source_script": source,
+                    }
+                )
+
+    if rows_to_insert:
+        conn.executemany(
+            """INSERT OR IGNORE INTO character_spawns
+               (character_stable_key, spawn_point_stable_key, zone_stable_key, scene,
+                x, y, z, is_enabled, is_directly_placed, is_trigger_spawn,
+                rare_npc_chance, level_mod, spawn_delay_1, spawn_delay_2,
+                spawn_delay_3, spawn_delay_4, staggerable, stagger_mod,
+                night_spawn, patrol_points, loop_patrol, random_wander_range,
+                spawn_upon_quest_complete_stable_key, protector_stable_key,
+                spawn_chance, is_common, is_rare, is_wiki_generated,
+                is_map_visible, source_script)
+               VALUES (:character_stable_key, :spawn_point_stable_key, :zone_stable_key, :scene,
+                :x, :y, :z, :is_enabled, :is_directly_placed, :is_trigger_spawn,
+                :rare_npc_chance, :level_mod, :spawn_delay_1, :spawn_delay_2,
+                :spawn_delay_3, :spawn_delay_4, :staggerable, :stagger_mod,
+                :night_spawn, :patrol_points, :loop_patrol, :random_wander_range,
+                :spawn_upon_quest_complete_stable_key, :protector_stable_key,
+                :spawn_chance, :is_common, :is_rare, :is_wiki_generated,
+                :is_map_visible, :source_script)""",
+            rows_to_insert,
+        )
+        conn.commit()
+        logger.info(f"Chained spawns: expanded {len(rows_to_insert)} rows")

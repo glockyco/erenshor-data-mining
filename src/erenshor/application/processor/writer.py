@@ -1137,6 +1137,11 @@ class Writer:
         self._conn.commit()
         logger.debug("Clean DB schema created")
 
+    @property
+    def conn(self) -> sqlite3.Connection:
+        """The underlying SQLite connection (for post-insert expansions)."""
+        return self._conn
+
     # ------------------------------------------------------------------
     # Generic insert helper
     # ------------------------------------------------------------------
