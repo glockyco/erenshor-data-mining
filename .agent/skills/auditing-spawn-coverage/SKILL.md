@@ -1,32 +1,125 @@
 ---
 name: auditing-spawn-coverage
-description: After a Steam update, find characters that the export pipeline failed to place in the world via SpawnPoint scanning. Use when investigating "no spawn data" reports, or as a routine post-update gate before sheets/wiki/map deploy.
+description: After a Steam update, find characters the export pipeline failed to place in the world. Use when the dynamic-spawn gate fails the export (exit 3), when investigating a "no spawn data" report, or as a routine post-update gate before sheets/wiki/map deploy.
 ---
 
 # Auditing Spawn Coverage After a Game Update
 
-`SpawnPointListener` + `SpawnPointTriggerListener` cover only world-placed
-`SpawnPoint` components. The game also spawns characters from dozens of
-event scripts, dialog `Spawn` fields, summon spells, and zone-tick random
-spawners. New scripts (or new prefab fields on existing ones) ship in every
-patch — this audit catches the gap before downstream consumers (wiki/map)
-silently mis-render those characters as "unplaced".
+`SpawnPointListener` + `SpawnPointTriggerListener` cover world-placed
+`SpawnPoint` components. Everything else a character can be spawned from —
+event scripts, dialog `Spawn` fields, chained `Spawns[]` lists, summon
+spells — is covered by `DynamicSpawnSourceListener` driven by a tristate
+catalog and a **fail-fast gate**. This skill is how you respond when the gate
+fires after a patch, and how you audit the residual orphans and `mapping.json`
+exclusions afterward.
 
-This skill complements `skill://refreshing-game-data` (runs *after* `extract
-build` succeeds) and consumes `skill://unity-export-system` (for adding the
-listener that closes the gap).
+Complements `skill://refreshing-game-data` (runs at its validate gate) and
+`skill://unity-export-system` (listener/record boilerplate).
 
-## When to run
+## Coverage model — what is automated
 
-- After **every** `extract build` against a freshly-rerun game version,
-  before deploying sheets/wiki/map for that variant.
-- When a wiki/map reader reports an in-game character with no spawn data.
-- After making changes to the dedup or character-resolution logic.
+| Pathway | How it's covered |
+|---|---|
+| `SpawnPoint` / `SpawnPointTrigger` | exported directly |
+| `Spell.pet_to_summon_stable_key` | spell join |
+| Event-script / dialog / chained spawns | `DynamicSpawnSourceListener` + catalog |
+| Zone-tick random spawners (Category C, e.g. `SivakayanSpectres`) | **deferred — not covered** |
 
-## Step 1 — Pull orphans from the clean DB
+`DynamicSpawnSourceListener` walks every Assembly-CSharp `MonoBehaviour` by
+reflection and classifies each serialized `Character`/`GameObject`/`IList`
+field against `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`:
+
+- **allowed, Category A** (direct event-script spawn) → raw
+  `DynamicCharacterSpawns` → merged into `character_spawns` (with
+  `source_script` set) by the Python build.
+- **allowed, Category B** (chained `Spawns[]` on a Character prefab) → raw
+  `CharacterChainedSpawns` → expanded by `expand_chained_spawns()`.
+- **denied** → skipped; the `reason` is the audit trail.
+- **unknown** (the `(script, field)` pair is in neither list) → **gate fails,
+  export exits 3** and writes the error envelope.
+
+## Primary workflow — respond to the gate
+
+1. `uv run erenshor -V {v} extract export`.
+2. **Exit 0** → coverage classified. Go to *Audit residuals*.
+3. **Exit 3** → read the envelope at
+   `variants/{v}/.export/dynamic-spawn-errors.json`. Two arrays:
+   - `findings[]` — unclassified candidates. Each has `script_type`,
+     `field_name`, `field_kind`, and (when resolvable) `example_prefab_path`,
+     `example_stable_key`, `example_display_name`, `host_scene_path`. The
+     example fields already did the GUID resolution for you.
+   - `stale_entries[]` — catalog entries whose `script_type` no longer exists
+     in the assembly (the script was renamed or cut this patch).
+4. Classify every finding (next section); remove every stale entry from the
+   catalog.
+5. Re-run export until exit 0. The gate auto-deletes the envelope on success.
+
+The gate makes coverage **non-optional**: a new spawn-source script (or a new
+field on an old one) cannot ship silently — it shows up as a finding. There is
+no separate "diff the orphan count to detect new pathways" step anymore; the
+gate is that step.
+
+## Classify a finding
+
+For each `(script_type, field_name)`, open
+`variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/<script_type>.cs`
+(Roslyn is loaded against this tree — `lsp definition`/`lsp references` work):
+
+- **allowed** iff some `Object.Instantiate(<field>, …)` yields a GameObject
+  carrying a `Character`/`NPC` component. UI, FX, projectile, ward-toggle, and
+  damage-area prefabs are **denied** — they have no `Character`.
+- **Field name ≠ prefab name**: always trust the GUID, not the identifier.
+  `MalarothFeed.Malaroth` references `Shivunax.prefab`. The envelope's
+  `example_prefab_path`/`example_stable_key` resolve this; verify against the
+  decompiled `Instantiate` call.
+- **Runtime-rebound fields** (`Faith = MySpawn.SpawnedNPC.GetChar();`,
+  `RewardListener.Frost/Inferno`, `ShiveringPhantomWardListener.ward1/2`) are
+  **denied** — the originating `SpawnPoint` already covers the placement.
+- A field whose prefab is spawned but **positioned at runtime** (singleton
+  access, random NavMesh point) cannot be emitted by the listener; deny it with
+  a reason and handle visibility through `mapping.json` (see *Residuals*).
+
+Edit the catalog:
+
+```toml
+[[allowed]]
+script = "ScriptType"
+fields = ["FieldA", "FieldB"]
+position_field = "SpawnLoc"   # optional; comma-separated; omit → host transform
+
+[[denied]]
+script = "ScriptType"
+fields = ["WardA"]
+reason = "Visual effect toggles (SetActive), not Instantiate spawns."
+```
+
+`reason` is mandatory on `denied` — it is the only record of *why* a candidate
+was rejected, and it is what a future auditor reads instead of re-deriving it.
+Never deny a field globally just to silence the gate; an over-broad denial
+suppresses the next patch's real finding.
+
+## Audit residuals (after exit 0 + `extract build`)
+
+Three reproducible scripts in `src/tools/` (all accept `--variant {v}` and
+`--json`):
+
+- **`audit_spawn_coverage.py`** — orphans: characters with no spawn row, no
+  covering dedup sibling, and no summoning spell. Categorized and
+  cross-referenced against `mapping.json`. `--include-disabled` adds characters
+  whose every spawn is initially disabled. This script runs the canonical
+  orphan SQL below.
+- **`audit_mapping_exclusions.py`** — excluded characters
+  (`is_wiki_generated=0`/`is_map_visible=0`) that still have content
+  (loot/dialog/vendor) → potential false positives. `--only-content`.
+- **`trace_character_sources.py`** — GUID-traces a character through every
+  `.unity`/`.prefab` file. `--stable-key`, `--only-excluded`, `--verdict`,
+  `--json`. Verdicts: `has_enabled_spawns`, `initially_disabled_spawns`,
+  `dead`, etc. C# files hold no prefab GUIDs, so script-instantiation evidence
+  comes from the catalog and the dynamic-spawn tables, not from this trace.
+
+Canonical orphan SQL (run against `variants/{v}/erenshor-{v}.sqlite`):
 
 ```sql
--- Run against variants/{v}/erenshor-{v}.sqlite
 WITH no_spawn AS (
   SELECT c.stable_key, c.display_name
   FROM characters c
@@ -49,135 +142,46 @@ WHERE (
 ORDER BY ns.display_name, ns.stable_key;
 ```
 
-The filter drops two categories that look orphaned but are actually covered:
+The filter drops two false orphans: characters whose **dedup sibling** has a
+spawn (`character_deduplications.group_key`), and characters **summoned by a
+spell** (`spells.pet_to_summon_stable_key`). The documented residual is the
+Category C set plus prefabs spawned at runtime-determined positions. Anything
+beyond that is either a new dead prefab to exclude or — if it had a serialized
+spawn field — a finding the gate would already have surfaced.
 
-- Characters whose **dedup sibling** has a spawn row (resolved via
-  `character_deduplications.group_key`).
-- Characters that are **summoned by a spell** (`spells.pet_to_summon_stable_key`).
-  These are surfaced through the spell join, not via `character_spawns`.
+## Deciding an orphan / exclusion
 
-Diff the resulting count against the previous run. Stable count → nothing
-new this patch. Growth → new event script or new prefab field on an old one.
-
-## Step 2 — Enumerate dynamic-spawn pathways in the new scripts
-
-**Always use the variant's decompiled scripts**, not main's. Different
-variants ship different content; cross-variant searches produce phantom
-"new" findings.
-
-```
-variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/
-```
-
-Roslyn is loaded against this tree (verify with `lsp status`). Use `lsp
-definition` / `lsp references` to navigate. Use `search` for these patterns:
-
-```text
-^\s*public\s+Character\s+\w+\s*;
-^\s*public\s+(Character\[\]|List<Character>)\s+\w+\s*[;=]
-^\s*public\s+(GameObject|GameObject\[\]|List<GameObject>)\s+\w+\s*[;=]
-Instantiate\s*\(
-```
-
-For each new MonoBehaviour or new field on an old MonoBehaviour:
-
-- Confirm the field is a **spawn source** by checking that some
-  `Object.Instantiate(<field>, …)` chains `.GetComponent<Character>()` or
-  `.GetComponent<NPC>()`. UI / FX / projectile / damage-area prefabs do not
-  count — they have no `Character` component.
-- Note the **host script type** (one listener per type).
-- Note whether the field is **rebound at runtime** from another source (e.g.
-  `Faith = MySpawn.SpawnedNPC.GetChar();`). Runtime-rebound fields do not
-  add a new world placement — the originating `SpawnPoint` already covers
-  them. Skip those.
-
-Known spawn-source pathways (audit each at least once per major patch):
-
-| Pathway | Where to look |
-|---|---|
-| `SpawnPoint.PossibleChars` / `SpawnPointTrigger` | already exported |
-| `Spell.pet_to_summon_stable_key` | already exported (spell join) |
-| `Character.SpawnOnDeath` | `Character.cs`, `Despawn.cs` |
-| `NPCDialog.Spawn` | `NPCDialog.cs`, `NPCDialogManager.cs` |
-| `Misc.SivakayanSpectres[]` via `ZoneAnnounce.SpawnSivakayanSpecter` | `Misc.cs`, `ZoneAnnounce.cs` |
-| Boss-fight event scripts | `FernallaFightEvent`, `FernallaPortalEvent`, `FernallaPortalBoss`, `MizukiEvent`, `PhantomFightEvent`, `SiraetheEvent`, `SprinklesEvent`, `ZenithNadirScript`, `AstraListener`, `FaithEvent`, `GraceEvent`, `HonsusScript`, `MalarothFeed`, `StowawayPortal`, `WaveEvent`, `VithArena` |
-| Interactive triggers | `Chessboard`, `Constellation`, `TreasureChestEvent`, `NPCFightEvent` |
-
-## Step 3 — Map orphans to scripts
-
-For each row in Step 1's output, walk this resolution chain (stop at first
-hit):
-
-1. **DB joins**: `spells.pet_to_summon_stable_key`,
-   `character_spawns.protector_stable_key`,
-   `character_spawns.spawn_upon_quest_complete_stable_key`,
-   `character_deduplications.group_key`. Hit here → not a gap.
-2. **Stable key → prefab file**: the suffix after `character:` is the
-   prefab's lowercased `object_name`. Use `find` for
-   `<object_name>.prefab` under `variants/{v}/unity/.../Assets`.
-3. **Prefab GUID → referrers**: grab the GUID from the prefab's `.meta`,
-   `search` it across `*.unity` and `*.prefab`. Each hit is a script holding
-   a spawn ref.
-4. **Script class GUID → host scene**: `search` the script's class GUID
-   across `*.unity` to find which scene instantiates the component. That
-   scene name becomes the spawn row's `scene`.
-
-Group orphans by host script. Each group is one listener.
-
-## Step 4 — Add the listener
-
-Per `skill://unity-export-system`, add a listener under
-`src/Assets/Editor/ExportSystem/AssetScanner/Listener/` and register it in
-`ExportBatch.cs`. The listener emits to `character_spawns` with:
-
-- `character_stable_key` from `StableKeyGenerator.ForCharacter(prefab)` —
-  must equal an existing row in `characters` or the export will silently
-  drop the link.
-- `(scene, x, y, z)` from the host MonoBehaviour's transform.
-- `is_directly_placed = 0`, `is_trigger_spawn = 1`,
-  `spawn_point_stable_key = NULL`.
-- `zone_stable_key` resolved from the host's scene via the existing
-  zone-by-scene index used by `SpawnPointListener`.
-
-When 5+ near-identical listeners would be needed, prefer one
-**generic `DynamicSpawnSourceListener`** that walks every MonoBehaviour by
-reflection, reads each serialized `Character` / `GameObject` field, and
-emits a row when the field's GameObject has a `Character` component. Trade
-explicitness for breadth.
-
-## Step 5 — Re-run, diff, ship
-
-```bash
-uv run erenshor -V {v} extract export
-uv run erenshor -V {v} extract build
-# Re-run Step 1's SQL — the orphan count must drop by the number of
-# orphans the new listener was meant to cover. If it didn't:
-#   - listener isn't registered in ExportBatch.cs
-#   - StableKeyGenerator output doesn't match characters.stable_key
-#   - host scene wasn't included in the scan
-```
+- **`is_enabled=0` is not a reachability verdict.** The GameObject may be
+  `SetActive(true)` at runtime (quest-gated, trigger-radius). `is_enabled=1`
+  conversely does not guarantee reachable coordinates.
+- **Wiki inclusion and map visibility are independent.** A character with loot
+  but only a runtime-determined position is wiki-visible
+  (`is_wiki_generated=1`) and map-hidden (`is_map_visible=0`).
+- **A `dead` verdict is not final.** Confirm via GUID re-trace **and**
+  name-search the decompiled scripts for the alias pattern (field name pointing
+  at a differently-named prefab, the Shivunax case). Only exclude
+  (`is_wiki_generated=0, is_map_visible=0`) once all three come back empty.
+- **Do not blanket-exclude by type.** Treasure chests have loot and belong on
+  the wiki even when their position is player-triggered.
 
 Refuse to ship sheets/wiki/map (`skill://refreshing-game-data` step 5) until
-either the orphan count is at the documented baseline **or** every newly
-orphaned character has a Step 4 entry in this patch's worktree.
+the export exits 0 **and** the orphan count is at the documented residual or
+every new orphan has a catalog/mapping decision in this patch's worktree.
 
 ## Non-orphan look-alikes — do not export
 
-- **Runtime-rebound trackers**: `RewardListener.Frost/Inferno`,
-  `FaithEvent.Faith`, `ShiveringPhantomWardListener.ward1/2`. Fields are
-  reassigned at runtime from `MySpawn.SpawnedNPC`; the host SpawnPoint
-  already covers them.
-- **`bkp` / `_dupe` prefab names**: intentional duplicates referenced only
-  by event scripts. Once the matching listener runs they are no longer
-  orphaned; do not add a separate spawn row for the "real" version.
-- **`TOWNSPERSON` templates**: inspector-time placeholders for the
-  `SimPlayerMngr` system. Filter these out at Step 1, do not export.
+- **Runtime-rebound trackers**: fields reassigned at runtime from
+  `MySpawn.SpawnedNPC`; the host `SpawnPoint` already covers them.
+- **`bkp` / `_dupe` prefab names**: intentional duplicates referenced only by
+  event scripts; the matching catalog entry covers them. Do not add a separate
+  row for the "real" version.
+- **`TOWNSPERSON` templates**: inspector-time placeholders for `SimPlayerMngr`.
+  Filtered at the orphan SQL, never exported.
 
 ## See also
 
 - `skill://refreshing-game-data` — calls this skill at the validate gate.
-- `skill://unity-export-system` — listener / record / `StableKeyGenerator`
-  boilerplate.
-- Working notes from the 2026-05-28 playtest audit:
-  `docs/plans/2026-05-28-spawn-coverage-audit.md` — full orphan-by-script
-  mapping, plus the script taxonomy used to build this skill.
+- `skill://unity-export-system` — `DynamicSpawnSourceListener`, record, and
+  `StableKeyGenerator` boilerplate.
+- `docs/plans/2026-05-28-spawn-coverage-audit.md` — the original orphan-by-
+  script mapping and the taxonomy this catalog was built from.
