@@ -228,25 +228,25 @@ Outcome: Skills reflect the new gate workflow; `writing-skills` removed; frontma
 
 ### Task H1: Rewrite `auditing-spawn-coverage` around the structured envelope
 
-- [ ] Update the skill so the primary workflow is: run export → if exit 3, read `dynamic-spawn-errors.json`, classify findings, edit catalog, re-run. Reference the three `src/tools/` scripts.
+- [x] Update the skill so the primary workflow is: run export → if exit 3, read `dynamic-spawn-errors.json`, classify findings, edit catalog, re-run. Reference the three `src/tools/` scripts.
 
 ### Task H2: Add frontmatter to `tile-capture`, improve descriptions
 
-- [ ] Add YAML frontmatter to `tile-capture/SKILL.md`.
-- [ ] Improve narrow descriptions for `cli-commands`, `sheets-queries`, `mod-pipeline`.
+- [x] Add YAML frontmatter to `tile-capture/SKILL.md`.
+- [x] Improve narrow descriptions for `cli-commands`, `sheets-queries`, `mod-pipeline`.
 
 ### Task H3: Delete `writing-skills`, update `AGENTS.md`
 
-- [ ] Delete `.agent/skills/writing-skills/`.
-- [ ] Remove the `writing-skills` row from the Skill Directory table in `AGENTS.md`.
+- [x] Delete `.agent/skills/writing-skills/`.
+- [x] Remove the `writing-skills` row from the Skill Directory table in `AGENTS.md`.
 
 ### Task H4: Update `unity-export-system` skill
 
-- [ ] Add a short paragraph pointing to `DynamicSpawnSourceListener` and the catalog file as the canonical example of a listener that emits to `character_spawns` without a `SpawnPoint`.
+- [x] Add a short paragraph pointing to `DynamicSpawnSourceListener` and the catalog file as the canonical example of a listener that emits to `character_spawns` without a `SpawnPoint`.
 
-### Task H5: Add `tests/unit/test_skills.py`
+### Task H5: Skill-frontmatter regression test (cancelled)
 
-- [ ] Write the skill-validity regression guard. Walks `.agent/skills/*/SKILL.md`, parses YAML frontmatter, and asserts: `name` field present and equals `basename(dirname(file))`, `description` field present, description is third person (no leading "I ", "You ", "We "), description contains "Use when", `writing-skills` directory does not exist, `AGENTS.md` contains no `writing-skills` substring.
+Cancelled: the planned assertions tested phrasing and frozen state — a literal "Use when" substring, third-person prose, a permanent "writing-skills stays deleted" check — rather than behavior, so they would break on a harmless wording change instead of catching a real regression. The one failure that matters (a skill shipped with no frontmatter, hence undiscoverable) is already closed by Task H2's `tile-capture` fix.
 
 ---
 
@@ -266,10 +266,10 @@ Outcome: Skills reflect the new gate workflow; `writing-skills` removed; frontma
 - [ ] `uv run erenshor -V playtest extract export` exits 0 (gate passes).
 - [ ] `uv run erenshor -V playtest extract build` succeeds.
 - [ ] Orphan count at Category C residual (~5-10). Current: 71.
-- [ ] `uv run pytest tests/unit/application/processor/test_chained_spawns.py -v` passes.
-- [ ] `uv run pytest` (full suite) passes — no regressions.
-- [ ] Skills updated per Phase 2.
-- [ ] `AGENTS.md` no longer references `writing-skills`.
+- [x] `uv run pytest tests/unit/application/processor/test_chained_spawns.py -v` passes.
+- [x] `uv run pytest` (full suite) passes — no regressions.
+- [x] Skills updated per Phase 2.
+- [x] `AGENTS.md` no longer references `writing-skills`.
 - [ ] No excluded characters with enabled spawns (verified via `trace_character_sources.py --only-excluded --verdict has_enabled_spawns`).
 - [ ] Stale mapping rules removed.
 - [ ] Disabled-character audit complete.
