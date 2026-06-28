@@ -68,7 +68,7 @@ site — an untagged assert spec fails the test.
    (`variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/<Type>.cs`).
 3. Re-derive the values/semantics from the new code.
 4. Update the spec in `erenshor-facts.json` **and** any tagged consumers together
-   (same commit — see writing-skills "Keeping Skills Fresh").
+   (same commit — never split a spec change from its consumers).
 5. Re-run `extract code-facts` → `extract build` → `golden capture`.
 6. Review the `tests/golden/code_facts/code_facts.csv` diff: extract-value drift
    shows here for sign-off; assert specs only ever read `ok`.

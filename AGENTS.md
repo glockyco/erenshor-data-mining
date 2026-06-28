@@ -160,7 +160,6 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 | Google Sheets queries | sheets-queries | `.agent/skills/sheets-queries/SKILL.md` |
 | CLI commands (`src/erenshor/cli/`) | cli-commands | `.agent/skills/cli-commands/SKILL.md` |
 | Writing commit messages | commit-guidelines | `.agent/skills/commit-guidelines/SKILL.md` |
-| Creating/updating skills | writing-skills | `.agent/skills/writing-skills/SKILL.md` |
 
 ## Session Completion
 
