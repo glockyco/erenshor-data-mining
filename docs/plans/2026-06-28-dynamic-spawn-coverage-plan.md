@@ -271,5 +271,5 @@ Cancelled: the planned assertions tested phrasing and frozen state — a literal
 - [x] Skills updated per Phase 2.
 - [x] `AGENTS.md` no longer references `writing-skills`.
 - [ ] No excluded characters with enabled spawns (verified via `trace_character_sources.py --only-excluded --verdict has_enabled_spawns`).
-- [ ] Stale mapping rules removed.
-- [ ] Disabled-character audit complete.
+- [x] Stale mapping rules removed.
+- [x] Disabled-character audit complete.
