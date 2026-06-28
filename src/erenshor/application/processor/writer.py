@@ -900,6 +900,13 @@ CREATE TABLE character_spawns (
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
+CREATE TABLE character_chained_spawns (
+    parent_stable_key  TEXT NOT NULL,
+    child_stable_key   TEXT NOT NULL,
+    source_script      TEXT NOT NULL,
+    PRIMARY KEY (parent_stable_key, child_stable_key, source_script)
+);
+
 CREATE TABLE spawn_point_patrol_points (
     spawn_point_stable_key  TEXT NOT NULL,
     sequence_index          INTEGER NOT NULL,
@@ -1305,6 +1312,9 @@ class Writer:
 
     def insert_character_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_spawns", rows)
+
+    def insert_character_chained_spawns(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_chained_spawns", rows)
 
     def insert_spawn_point_patrol_points(self, rows: list[dict[str, object]]) -> int:
         return self._insert("spawn_point_patrol_points", rows)

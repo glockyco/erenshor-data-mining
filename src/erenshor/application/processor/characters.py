@@ -783,6 +783,26 @@ def process_characters(
     writer.insert_character_spawns(spawn_out)
     logger.info(f"Characters: wrote {len(spawn_out)} spawn rows")
 
+    # character_chained_spawns (Category B — populated by DynamicSpawnSourceListener;
+    # expanded into character_spawns in Task C2)
+    if _table_exists(raw, "CharacterChainedSpawns"):
+        chained_rows = _load_rows(
+            raw, "SELECT ParentStableKey, ChildStableKey, SourceScript FROM CharacterChainedSpawns"
+        )
+        writer.insert_character_chained_spawns(
+            [
+                {
+                    "parent_stable_key": r["ParentStableKey"],
+                    "child_stable_key": r["ChildStableKey"],
+                    "source_script": r["SourceScript"],
+                }
+                for r in chained_rows
+            ]
+        )
+        logger.info(f"Characters: wrote {len(chained_rows)} chained spawn rows")
+    else:
+        writer.insert_character_chained_spawns([])
+
     # ------------------------------------------------------------------
     # Step 7: Write junction tables (filtered to all keys)
     # ------------------------------------------------------------------
