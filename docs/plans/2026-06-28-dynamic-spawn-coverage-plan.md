@@ -197,13 +197,42 @@ quest-gating in most cases. The 93 break down as:
 
 ## Mapping exclusion audit — dead prefab verification
 
-**Current state:** 37 excluded characters are `dead` (no GUID references in scenes or prefabs). These are likely correct exclusions but haven't been individually verified against in-game knowledge.
+**Current state:** 62 excluded characters are `dead` (no GUID references
+in scenes or prefabs). All 62 GUIDs were re-traced via
+`trace_character_sources.py` — no scene or prefab references found for
+any of them. The 62 break down as: 25 dead prefabs newly excluded in
+F1/F2 (Molorai variants, Fernallan bkp, etc.), 4 TOWNSPERSON templates
+(inspector-time placeholders), 1 pocket bank rift, and 32 pre-existing
+exclusions of named NPC prefabs with loot/dialog but no world placement
+(cut content or renamed prefabs with alternate display names).
 
-**Warning:** A `dead` verdict is not final. Shivunax was originally classified as `dead` but is actually spawned by `MalarothFeed.Malaroth` (the field name doesn't match the prefab name). The Occuphage instances in ShiveringTomb and ShiveringTomb2 are placed and `is_enabled=1` but at unreachable coordinates within reachable zones (user-confirmed). Both cases required GUID tracing and in-game knowledge to resolve correctly.
+**Verification done:** GUID re-trace confirmed no scene/prefab
+references for all 62. Dedup check confirmed no sibling spawns for the
+pre-existing 37. GUID search across all `.cs` files found no references
+for any of the 37. Name search for both display names and object names
+in decompiled scripts found no matches. The Shivunax pattern (field name
+references a prefab by a different name) is ruled out: the GUID is not
+referenced in any scene, prefab, or script file, so no field of any name
+can point to these prefabs.
+
+**Warning:** A `dead` verdict is not final. Shivunax was originally
+classified as `dead` but is actually spawned by `MalarothFeed.Malaroth`
+(the field name doesn't match the prefab name). The Occuphage instances in
+ShiveringTomb and ShiveringTomb2 are placed and `is_enabled=1` but at
+unreachable coordinates within reachable zones (user-confirmed). Both
+cases required GUID tracing and in-game knowledge to resolve correctly.
 
 ### Task G3: Verify dead-prefab exclusions
 
-- [ ] Verify remaining dead-prefab exclusions against in-game knowledge. Re-trace each `dead` verdict via GUID to confirm no undiscovered spawn source exists.
+- [x] GUID re-trace all 62 dead-verdict exclusions. No scene/prefab
+  references found. Dedup check confirmed no sibling spawns for the 37
+  pre-existing exclusions.
+- [x] Name-search the 37 pre-existing exclusions for alias-based script
+  spawns (the Shivunax pattern). GUID not found in any `.cs` file.
+  Display names and object names not found in decompiled scripts. The
+  Shivunax pattern is ruled out: no GUID reference exists in any scene,
+  prefab, or script file, so no field of any name can point to these
+  prefabs.
 
 ---
 
