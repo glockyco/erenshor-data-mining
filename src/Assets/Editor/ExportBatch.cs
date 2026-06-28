@@ -49,6 +49,9 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public static class ExportBatch
 {
+    private static string CatalogPath =>
+        System.IO.Path.Combine(Application.dataPath, "Editor", "ExportSystem", "AssetScanner", "dynamic-spawn-catalog.toml");
+    private static DynamicSpawnSourceListener? _dynamicSpawnListener;
     /// <summary>
     /// Logging level for batch export operations.
     /// </summary>
@@ -101,6 +104,19 @@ public static class ExportBatch
 
                 // Execute scan synchronously
                 ExecuteScanSynchronously(scanner, args.logLevel);
+
+                // Check dynamic spawn coverage gate
+                if (_dynamicSpawnListener != null && _dynamicSpawnListener.HasErrors)
+                {
+                    var envelopePath = System.IO.Path.Combine(
+                        System.IO.Path.GetDirectoryName(args.dbPath)!,
+                        ".export",
+                        "dynamic-spawn-errors.json");
+                    _dynamicSpawnListener.Envelope.WriteToFile(envelopePath);
+                    Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_FAILED] Dynamic spawn coverage gate failed. See: {envelopePath}");
+                    EditorApplication.Exit(3);
+                    return;
+                }
 
                 // Create spawn points for directly placed characters (must run after CharacterListener)
                 CreateDirectPlacementSpawnPoints(db, args.logLevel);
@@ -317,6 +333,13 @@ public static class ExportBatch
             {
                 scanner.RegisterComponentListener(new SpawnPointListener(db, characterKeyResolver));
                 scanner.RegisterComponentListener(new SpawnPointTriggerListener(db, characterKeyResolver));
+                // Dynamic spawn source listener — walks event-script MonoBehaviours
+                var catalogPath = System.IO.Path.Combine(Application.dataPath, "Editor", "ExportSystem", "AssetScanner", "dynamic-spawn-catalog.toml");
+                UnityEngine.Debug.Log($"[DynamicSpawn] Catalog path: {catalogPath}, exists: {System.IO.File.Exists(catalogPath)}");
+                var catalog = DynamicSpawnCatalog.Load(catalogPath);
+                UnityEngine.Debug.Log($"[DynamicSpawn] Catalog loaded: {catalog.Entries.Count} entries, {catalog.KnownScripts.Count} scripts");
+                _dynamicSpawnListener = new DynamicSpawnSourceListener(db, characterKeyResolver, catalog);
+                scanner.RegisterComponentListener(_dynamicSpawnListener);
             },
             ["treasurehunting"] = () => scanner.RegisterComponentListener(new TreasureHuntingListener(db)),
             ["treasurelocs"] = () => scanner.RegisterComponentListener(new TreasureLocListener(db)),

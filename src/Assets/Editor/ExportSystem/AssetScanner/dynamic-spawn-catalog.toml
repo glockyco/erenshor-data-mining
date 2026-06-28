@@ -72,7 +72,11 @@ position_field = "SpawnLocations"
 
 [[allowed]]
 script = "ZenithNadirScript"
-fields = ["ConstellationStar", "Syzygy"]
+fields = ["ConstellationStar"]
+
+[[allowed]]
+script = "ZenithNadirScript"
+fields = ["Syzygy"]
 position_field = "SyzSpawn"
 
 [[allowed]]

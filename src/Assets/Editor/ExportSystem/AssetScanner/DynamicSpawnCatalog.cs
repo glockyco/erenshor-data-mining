@@ -11,7 +11,7 @@ public enum DynamicSpawnClassification { Unknown = 0, Allowed, Denied }
 public struct CatalogEntry
 {
     public DynamicSpawnClassification Classification { get; set; }
-    public string? PositionField { get; set; }   // comma-separated for multi-position spawns
+    public string? PositionField { get; set; }   // comma-separated for multi-position spawns; listener splits
     public string? Reason { get; set; }
 }
 
