@@ -34,8 +34,20 @@ export type ZoneSearchResult = {
     name: string;
 };
 
-export type SearchResult = EnemySearchResult | NpcSearchResult | ZoneSearchResult;
-// Future: | ItemSearchResult | QuestSearchResult
+export type ItemSearchResult = {
+    type: 'item';
+    itemStableKey: string;
+    itemName: string;
+    wikiPageName: string | null;
+    dropperCount: number; // total unique characters
+    zoneCount: number; // unique zones containing any dropper spawn
+};
+
+export type SearchResult =
+    | EnemySearchResult
+    | NpcSearchResult
+    | ZoneSearchResult
+    | ItemSearchResult;
 
 // =============================================================================
 // Index Entry (flat, for matching)

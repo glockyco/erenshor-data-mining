@@ -6,21 +6,26 @@
  */
 
 import type { WorldEnemy, WorldNpc, ZoneWorldPosition } from '$lib/types/world-map';
+import type { ItemDropperRow } from '$lib/map-markers';
 import type {
     SearchProvider,
     IndexEntry,
     SearchResult,
     ResolvedHighlight,
-    EnemySearchResult,
-    NpcSearchResult,
-    ZoneSearchResult
+    EnemySearchResult
 } from './types';
 import { EnemySearchProvider } from './enemy-provider';
 import { NpcSearchProvider } from './npc-provider';
 import { ZoneSearchProvider } from './zone-provider';
+import { ItemSearchProvider } from './item-drop-provider';
 
 export type { SearchResult, IndexEntry, ResolvedHighlight } from './types';
-export type { EnemySearchResult, NpcSearchResult, ZoneSearchResult } from './types';
+export type {
+    EnemySearchResult,
+    NpcSearchResult,
+    ZoneSearchResult,
+    ItemSearchResult
+} from './types';
 
 // =============================================================================
 // Search Index
@@ -33,6 +38,7 @@ export interface SearchIndex {
     enemyProvider: EnemySearchProvider;
     npcProvider: NpcSearchProvider;
     zoneProvider: ZoneSearchProvider;
+    itemProvider: ItemSearchProvider;
     /** All providers for generic dispatch */
     providers: SearchProvider[];
 }
@@ -46,20 +52,32 @@ export function buildSearchIndex(
     enemiesRare: WorldEnemy[],
     enemiesUnique: WorldEnemy[],
     npcs: WorldNpc[],
-    zones: ZoneWorldPosition[]
+    zones: ZoneWorldPosition[],
+    itemDroppers: ItemDropperRow[]
 ): SearchIndex {
     const enemyProvider = new EnemySearchProvider(enemiesCommon, enemiesRare, enemiesUnique);
     const npcProvider = new NpcSearchProvider(npcs);
     const zoneProvider = new ZoneSearchProvider(zones);
+    const itemProvider = new ItemSearchProvider(itemDroppers, [
+        ...enemiesCommon,
+        ...enemiesRare,
+        ...enemiesUnique,
+        ...npcs
+    ]);
 
-    const providers: SearchProvider[] = [enemyProvider, npcProvider, zoneProvider];
+    const providers: SearchProvider[] = [
+        itemProvider,
+        enemyProvider,
+        npcProvider,
+        zoneProvider
+    ];
 
     const entries: IndexEntry[] = [];
     for (const provider of providers) {
         entries.push(...provider.buildIndex());
     }
 
-    return { entries, enemyProvider, npcProvider, zoneProvider, providers };
+    return { entries, enemyProvider, npcProvider, zoneProvider, itemProvider, providers };
 }
 
 // =============================================================================
@@ -119,8 +137,7 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
  * Sort results within each category bucket.
  *
  * Enemies: unique > rare > common, then alphabetically by name.
- * NPCs: alphabetically by name.
- * Zones: alphabetically by name.
+ * Items / NPCs / Zones: alphabetically by name.
  */
 function sortCategories(byCategory: Map<string, SearchResult[]>): void {
     for (const [cat, results] of byCategory) {
@@ -131,13 +148,14 @@ function sortCategories(byCategory: Map<string, SearchResult[]>): void {
                 return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
             });
         } else {
-            results.sort((a, b) => {
-                const na = (a as NpcSearchResult | ZoneSearchResult).name;
-                const nb = (b as NpcSearchResult | ZoneSearchResult).name;
-                return na.localeCompare(nb);
-            });
+            results.sort((a, b) => sortName(a).localeCompare(sortName(b)));
         }
     }
+}
+
+/** Display name used for alphabetical sort across npc/zone/item results. */
+function sortName(result: SearchResult): string {
+    return result.type === 'item' ? result.itemName : result.name;
 }
 
 /**
@@ -150,8 +168,14 @@ function interleave(
 ): void {
     if (byCategory.size === 0) return;
 
-    // Sort categories by their order for stable output
-    const categoryOrder: Record<string, number> = { enemy: 0, npc: 1, zone: 2 };
+    // Sort categories by their order for stable output.
+    // Items first (primary new use case), then enemies, npcs, zones.
+    const categoryOrder: Record<string, number> = {
+        item: 0,
+        enemy: 1,
+        npc: 2,
+        zone: 3
+    };
     const categories = [...byCategory.entries()].sort(
         ([a], [b]) => (categoryOrder[a] ?? 99) - (categoryOrder[b] ?? 99)
     );

@@ -22,6 +22,7 @@
     import LiveNpcPopupContent from './popups/LiveNpcPopupContent.svelte';
     import SearchEnemyPopup from './popups/SearchEnemyPopup.svelte';
     import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
+    import SearchItemPopup from './popups/SearchItemPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
     import { Rarity } from '$lib/map-markers';
 
@@ -32,7 +33,7 @@
         mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
-        onHoverSpawn: (stableKey: string | null) => void;
+        onHoverSpawn: (stableKey: string | string[] | null) => void;
         onFocusSpawn: (stableKey: string) => void;
         onFocusAll: () => void;
         onSearchAlternative: (query: string) => void;
@@ -76,6 +77,8 @@
                     return r.name;
                 case 'zone':
                     return r.name;
+                case 'item':
+                    return r.itemName;
             }
         }
 
@@ -168,6 +171,12 @@
                 }
                 case 'zone':
                     return 'Zone';
+                case 'item': {
+                    const parts: string[] = ['Drops'];
+                    parts.push(`${r.dropperCount} dropper${r.dropperCount !== 1 ? 's' : ''}`);
+                    parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
+                    return parts.join(' \u2022 ');
+                }
             }
         }
 
@@ -230,6 +239,18 @@
             return [];
         return searchIndex.npcProvider.getMarkers(selection.result.name);
     });
+
+    const searchItemMarkers = $derived.by(() => {
+        if (selection?.type !== 'search' || selection.result.type !== 'item' || !searchIndex)
+            return [];
+        return searchIndex.itemProvider.getMarkersForItem(selection.result.itemStableKey);
+    });
+
+    const searchItemDropRows = $derived.by(() => {
+        if (selection?.type !== 'search' || selection.result.type !== 'item' || !searchIndex)
+            return [];
+        return searchIndex.itemProvider.getDropRowsForItem(selection.result.itemStableKey);
+    });
 </script>
 
 {#if !selection}
@@ -259,6 +280,15 @@
             <SearchNpcPopup
                 name={result.name}
                 markers={searchNpcMarkers}
+                {onHoverSpawn}
+                {onFocusSpawn}
+                {onFocusAll}
+            />
+        {:else if result.type === 'item'}
+            <SearchItemPopup
+                result={result}
+                markers={searchItemMarkers}
+                dropRows={searchItemDropRows}
                 {onHoverSpawn}
                 {onFocusSpawn}
                 {onFocusAll}

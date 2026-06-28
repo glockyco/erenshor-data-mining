@@ -8,6 +8,7 @@
     import User from '@lucide/svelte/icons/user';
     import MapIcon from '@lucide/svelte/icons/map';
     import Radio from '@lucide/svelte/icons/radio';
+    import Package from '@lucide/svelte/icons/package';
 
     // Live-only result type, separate from the static SearchResult union
     type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string };
@@ -110,10 +111,14 @@
     const categoryLabels: Record<SearchResult['type'], string> = {
         enemy: 'Enemy Spawn Points',
         npc: 'NPC Spawn Points',
-        zone: 'Zones'
+        zone: 'Zones',
+        item: 'Drops'
     };
 
-    const staticCategoryOrder: SearchResult['type'][] = ['enemy', 'npc', 'zone'];
+    // staticCategoryOrder controls display grouping in MapSearch.svelte;
+    // categoryOrder (in index.ts) controls interleaving priority within
+    // buildSearchIndex. Both set items first.
+    const staticCategoryOrder: SearchResult['type'][] = ['item', 'enemy', 'npc', 'zone'];
 
     function groupStaticByCategory(
         items: SearchResult[]
@@ -126,7 +131,7 @@
     }
 
     function getStaticResultLabel(result: SearchResult): string {
-        return result.name;
+        return result.type === 'item' ? result.itemName : result.name;
     }
 
     function getStaticResultSublabel(result: SearchResult): string {
@@ -148,6 +153,8 @@
             }
             case 'zone':
                 return 'Zone';
+            case 'item':
+                return `${result.dropperCount} dropper${result.dropperCount !== 1 ? 's' : ''} · ${result.zoneCount} zone${result.zoneCount !== 1 ? 's' : ''}`;
         }
     }
 
@@ -159,6 +166,8 @@
                 return `npc-${result.name}`;
             case 'zone':
                 return `zone-${result.key}`;
+            case 'item':
+                return `item-${result.itemStableKey}`;
         }
     }
 
@@ -318,6 +327,8 @@
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />
+                                    {:else if result.type === 'item'}
+                                        <Package class="h-4 w-4 shrink-0 text-emerald-500" />
                                     {:else}
                                         <MapIcon class="h-4 w-4 shrink-0 text-purple-500" />
                                     {/if}

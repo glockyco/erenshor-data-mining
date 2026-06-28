@@ -128,7 +128,9 @@
     let searchOpen = $state(false);
     let searchInitialQuery = $state('');
     let searchHighlightPositions = $state<{ position: [number, number]; stableKey: string }[]>([]);
-    let hoveredSpawnKey = $state<string | null>(null);
+    // Set of hovered spawn point stable keys (brighter rings). Single-key
+    // hover (enemy/NPC popups) passes one string; item hover passes multiple.
+    let hoveredSpawnKeys = $state<Set<string> | null>(null);
 
     // Scale bar state
     let scaleBarState = $state<ScaleBarState | null>(null);
@@ -143,7 +145,8 @@
             data.markers.enemiesRare,
             data.markers.enemiesUnique,
             data.markers.npcs,
-            data.zones
+            data.zones,
+            data.itemDroppers
         )
     );
 
@@ -171,6 +174,12 @@
             },
             get searchHighlightPositions() {
                 return searchHighlightPositions;
+            },
+            get searchIndex() {
+                return searchIndex;
+            },
+            get itemDroppers() {
+                return data.itemDroppers;
             },
             findEnemy: (name: string) =>
                 (
@@ -260,7 +269,7 @@
      */
     function applySelection(newSelection: Selection, skipUrlUpdate = false): void {
         selection = newSelection;
-        hoveredSpawnKey = null;
+        hoveredSpawnKeys = null;
 
         // Resolve search highlights
         if (newSelection?.type === 'search') {
@@ -347,10 +356,18 @@
     }
 
     /**
-     * Hover a specific spawn point in the search popup.
+     * Hover spawn point(s) in a search popup. Accepts a single stable key
+     * (enemy/NPC popups) or multiple (item popup narrows to a dropper's
+     * spawns). Null clears the hover.
      */
-    function handleHoverSpawn(stableKey: string | null): void {
-        hoveredSpawnKey = stableKey;
+    function handleHoverSpawn(stableKey: string | string[] | null): void {
+        if (stableKey === null) {
+            hoveredSpawnKeys = null;
+        } else if (Array.isArray(stableKey)) {
+            hoveredSpawnKeys = new Set(stableKey);
+        } else {
+            hoveredSpawnKeys = new Set([stableKey]);
+        }
         updateLayers();
     }
 
@@ -2071,9 +2088,11 @@
                   })
                 : null;
 
-        // Single hovered spawn point (brighter ring)
-        const hoveredHighlightData = hoveredSpawnKey
-            ? searchHighlightPositions.filter((p) => p.stableKey === hoveredSpawnKey)
+        // Hovered spawn point(s) (brighter ring). Item hover narrows to a
+        // dropper's spawns; enemy/NPC hover spotlights a single spawn.
+        const hoveredKeys = hoveredSpawnKeys;
+        const hoveredHighlightData = hoveredKeys
+            ? searchHighlightPositions.filter((p) => hoveredKeys.has(p.stableKey))
             : [];
         const searchHighlightHoverLayer =
             hoveredHighlightData.length > 0
@@ -2093,7 +2112,7 @@
                       lineWidthMaxPixels: 4,
                       pickable: false,
                       updateTriggers: {
-                          getPosition: [hoveredSpawnKey, searchHighlightPositions]
+                          getPosition: [hoveredSpawnKeys, searchHighlightPositions]
                       }
                   })
                 : null;

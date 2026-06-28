@@ -19,7 +19,7 @@ export type Selection =
     | { type: 'live'; entity: EntityData; zone: string }
     | { type: 'zone'; zone: ZoneWorldPosition }
     | { type: 'search'; result: SearchResult }
-    | { type: 'search-not-found'; searchType: 'enemy' | 'npc' | 'zone'; name: string }
+    | { type: 'search-not-found'; searchType: 'enemy' | 'npc' | 'zone' | 'item'; name: string }
     | null;
 
 // =============================================================================
@@ -125,6 +125,8 @@ function getSearchBorderColor(result: SearchResult): string {
             return 'border-l-sky-500';
         case 'zone':
             return 'border-l-purple-500';
+        case 'item':
+            return 'border-l-emerald-500';
     }
 }
 
@@ -198,6 +200,8 @@ export function serializeSelection(selection: Selection): string | null {
                 case 'zone':
                     // Zone search results serialize as regular zone selections
                     return `zone:${r.key}`;
+                case 'item':
+                    return `item:${r.itemStableKey}`;
             }
             break;
         }
@@ -291,5 +295,12 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
         default:
             console.warn(`Selection restore: unknown prefix: ${prefix}`);
             return null;
+        case 'item': {
+            const result = ctx.searchIndex.itemProvider.getResult(value);
+            if (!result) {
+                return { type: 'search-not-found', searchType: 'item', name: value };
+            }
+            return { type: 'search', result };
+        }
     }
 }

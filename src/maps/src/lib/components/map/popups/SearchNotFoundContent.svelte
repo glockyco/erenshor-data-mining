@@ -2,7 +2,7 @@
     import Search from '@lucide/svelte/icons/search';
 
     interface Props {
-        searchType: 'enemy' | 'npc' | 'zone';
+        searchType: 'enemy' | 'npc' | 'zone' | 'item';
         name: string;
         onSearchAlternative: (query: string) => void;
     }
@@ -12,7 +12,8 @@
     const typeLabels: Record<string, string> = {
         enemy: 'enemy',
         npc: 'NPC',
-        zone: 'zone'
+        zone: 'zone',
+        item: 'item'
     };
 </script>
 
