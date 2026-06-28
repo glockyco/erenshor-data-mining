@@ -90,32 +90,54 @@ export function buildSearchIndex(
  * Search the index for matching entries.
  *
  * Algorithm: tiered matching (prefix → substring → Fuse fuzzy) via
- * searchTiered, then results are grouped by category, sorted within each
- * category, and interleaved across categories via round-robin to prevent
- * one category from dominating.
+ * searchTiered. Results are split into three tier buckets (by matchRange:
+ * prefix at [0,..], substring at [>0,..], fuzzy with null), each bucket is
+ * grouped by category, sorted within category, and round-robin interleaved
+ * across categories. Tiers are consumed in order (prefix first, then
+ * substring, then fuzzy) so exact matches always rank above fuzzy ones.
  */
 export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchMatch[] {
     const matches = searchTiered(query, index, limit);
     if (matches.length === 0) return [];
 
-    // Group by category
-    const byCategory = new Map<string, SearchMatch[]>();
+    // Split into tier buckets: prefix (range starts at 0), substring
+    // (range starts > 0), fuzzy (null range)
+    const prefixByCategory = new Map<string, SearchMatch[]>();
+    const substringByCategory = new Map<string, SearchMatch[]>();
+    const fuzzyByCategory = new Map<string, SearchMatch[]>();
+
     for (const match of matches) {
         const cat = match.result.type;
-        const bucket = byCategory.get(cat);
-        if (bucket) {
-            bucket.push(match);
+        let bucket: Map<string, SearchMatch[]>;
+        if (match.matchRange === null) {
+            bucket = fuzzyByCategory;
+        } else if (match.matchRange[0] === 0) {
+            bucket = prefixByCategory;
         } else {
-            byCategory.set(cat, [match]);
+            bucket = substringByCategory;
+        }
+        const existing = bucket.get(cat);
+        if (existing) {
+            existing.push(match);
+        } else {
+            bucket.set(cat, [match]);
         }
     }
 
-    // Sort results within each category
-    sortCategories(byCategory);
+    // Sort results within each category for each tier
+    sortCategories(prefixByCategory);
+    sortCategories(substringByCategory);
+    sortCategories(fuzzyByCategory);
 
-    // Round-robin interleave across categories
+    // Round-robin interleave within each priority tier
     const results: SearchMatch[] = [];
-    interleave(byCategory, results, limit);
+    interleave(prefixByCategory, results, limit);
+    if (results.length < limit) {
+        interleave(substringByCategory, results, limit);
+    }
+    if (results.length < limit) {
+        interleave(fuzzyByCategory, results, limit);
+    }
     return results;
 }
 

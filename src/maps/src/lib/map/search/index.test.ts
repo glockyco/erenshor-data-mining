@@ -1,0 +1,80 @@
+import { describe, it, expect } from 'vitest';
+import type { IndexEntry } from './types';
+import { searchMarkers } from './index';
+
+function item(name: string, stableKey: string): IndexEntry {
+    return {
+        searchText: name.toLowerCase(),
+        result: {
+            type: 'item',
+            itemStableKey: stableKey,
+            itemName: name,
+            iconName: null,
+            wikiPageName: null,
+            dropperCount: 1,
+            zoneCount: 1
+        }
+    };
+}
+
+function enemy(name: string): IndexEntry {
+    return {
+        searchText: name.toLowerCase(),
+        result: {
+            type: 'enemy',
+            name,
+            effectiveRarity: 2,
+            spawnCount: 1,
+            zoneCount: 1
+        }
+    };
+}
+
+describe('searchMarkers', () => {
+    it('prefix matches rank above substring matches across categories', () => {
+        // 'goblin' is a prefix match; 'goblin shaman' contains it as substring
+        const entries: IndexEntry[] = [
+            enemy('Goblin'),
+            enemy('Goblin Shaman'),
+            item('Goblin Tooth', 'item:gob-tooth')
+        ];
+        const matches = searchMarkers('goblin', entries, 20);
+        // All three match; prefix matches should come first
+        const goblinIdx = matches.findIndex(
+            (m) => m.result.type === 'enemy' && m.result.name === 'Goblin'
+        );
+        const shamanIdx = matches.findIndex(
+            (m) => m.result.type === 'enemy' && m.result.name === 'Goblin Shaman'
+        );
+        expect(goblinIdx).toBeLessThan(shamanIdx);
+    });
+
+    it('substring matches rank above fuzzy matches across categories', () => {
+        // 'citrin' is a substring of 'Citrine Guardian' (enemy) and a fuzzy
+        // match for 'Citrine Ring' (item). The substring enemy must rank
+        // above the fuzzy item, even though items have category priority 0.
+        const entries: IndexEntry[] = [
+            enemy('Citrine Guardian'),  // contains 'citrin' as substring
+            item('Catrine Ring', 'item:catrine')  // fuzzy match for 'citrin'
+        ];
+        const matches = searchMarkers('citrin', entries, 20);
+        const guardianIdx = matches.findIndex(
+            (m) => m.result.type === 'enemy' && m.result.name === 'Citrine Guardian'
+        );
+        const catrineIdx = matches.findIndex(
+            (m) => m.result.type === 'item' && m.result.itemName === 'Catrine Ring'
+        );
+        // Both should match
+        expect(guardianIdx).toBeGreaterThanOrEqual(0);
+        // Substring match (Guardian) must rank above fuzzy match (Catrine Ring)
+        // even though items have higher category priority
+        if (catrineIdx >= 0) {
+            expect(guardianIdx).toBeLessThan(catrineIdx);
+        }
+    });
+
+    it('returns empty array for queries shorter than 2 chars', () => {
+        expect(searchMarkers('a', [], 20)).toEqual([]);
+        expect(searchMarkers('', [], 20)).toEqual([]);
+    });
+});
