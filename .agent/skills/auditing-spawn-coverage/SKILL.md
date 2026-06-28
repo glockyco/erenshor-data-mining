@@ -183,5 +183,5 @@ every new orphan has a catalog/mapping decision in this patch's worktree.
 - `skill://refreshing-game-data` — calls this skill at the validate gate.
 - `skill://unity-export-system` — `DynamicSpawnSourceListener`, record, and
   `StableKeyGenerator` boilerplate.
-- `docs/plans/2026-05-28-spawn-coverage-audit.md` — the original orphan-by-
+- `docs/plans/archive/2026-05-28-spawn-coverage-audit.md` — the original orphan-by-
   script mapping and the taxonomy this catalog was built from.

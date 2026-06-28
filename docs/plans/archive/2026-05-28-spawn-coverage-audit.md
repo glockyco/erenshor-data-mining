@@ -1,9 +1,10 @@
 ---
 title: Spawn Coverage Audit — Method & Findings
 type: audit
-status: active
+status: implemented
 created: 2026-05-28
 parent:
+archived: 2026-06-28
 ---
 
 # Spawn Coverage Audit — Method & Findings

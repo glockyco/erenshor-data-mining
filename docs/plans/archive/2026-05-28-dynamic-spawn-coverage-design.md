@@ -1,9 +1,10 @@
 ---
 title: Dynamic Spawn Coverage — Design Spec
 type: spec
-status: active
+status: implemented
 created: 2026-05-28
 parent:
+archived: 2026-06-28
 ---
 
 # Dynamic Spawn Coverage — Design Spec
