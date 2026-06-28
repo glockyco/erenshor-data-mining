@@ -106,16 +106,27 @@ public static class ExportBatch
                 ExecuteScanSynchronously(scanner, args.logLevel);
 
                 // Check dynamic spawn coverage gate
-                if (_dynamicSpawnListener != null && _dynamicSpawnListener.HasErrors)
+                if (_dynamicSpawnListener != null)
                 {
                     var envelopePath = System.IO.Path.Combine(
                         System.IO.Path.GetDirectoryName(args.dbPath)!,
                         ".export",
                         "dynamic-spawn-errors.json");
-                    _dynamicSpawnListener.Envelope.WriteToFile(envelopePath);
-                    Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_FAILED] Dynamic spawn coverage gate failed. See: {envelopePath}");
-                    EditorApplication.Exit(3);
-                    return;
+
+                    if (_dynamicSpawnListener.HasErrors)
+                    {
+                        _dynamicSpawnListener.Envelope.WriteToFile(envelopePath);
+                        Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_FAILED] Dynamic spawn coverage gate failed. See: {envelopePath}");
+                        EditorApplication.Exit(3);
+                        return;
+                    }
+
+                    // Gate passed — remove any stale failure envelope from a prior run
+                    if (System.IO.File.Exists(envelopePath))
+                    {
+                        System.IO.File.Delete(envelopePath);
+                        Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_PASSED] Dynamic spawn coverage gate passed. Removed stale envelope: {envelopePath}");
+                    }
                 }
 
                 // Create spawn points for directly placed characters (must run after CharacterListener)
