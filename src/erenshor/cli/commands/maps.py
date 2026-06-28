@@ -360,6 +360,7 @@ def build(
         _run(["uv", "run", "erenshor", "-V", cli_ctx.variant, "mod", "publish"], cli_ctx.repo_root)
         _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
         _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
+        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir)
 
         maps_db_dir.mkdir(parents=True, exist_ok=True)
         try:
