@@ -72,41 +72,19 @@ sqlite3 variants/playtest/erenshor-playtest.sqlite "<orphan SQL from audit doc>"
 
 ## Sub-phase 1A — Schema & records (no behavior change)
 
-Outcome: new column and table exist in C# records and Python schema; existing exports unaffected (column is nullable, table is empty until the listener ships).
+Outcome: new column and table exist in the Python clean schema; existing exports unaffected (column is nullable, table is empty until the listener ships).
 
-### Task A1: Add `source_script` column to `CharacterSpawnRecord`
+**Grounding note:** There is no `CharacterSpawnRecord.cs` — the C# export writes `SpawnPoints` + `SpawnPointCharacters` (junction) and `SpawnPointTriggers` + `SpawnPointTriggerCharacters` (junction). The Python build (`characters.py`) flattens these into the clean `character_spawns` table. The `source_script` column is clean-DB-only — the dynamic listener's raw record (`DynamicCharacterSpawnRecord`, Task B5) carries its own `SourceScript` column, and the Python build maps it through.
 
-**Files:**
-- Modify: `src/Assets/Editor/Database/CharacterSpawnRecord.cs`
-
-- [ ] **Step 1:** Read the current `CharacterSpawnRecord.cs` to confirm the existing column set and table name.
-
-- [ ] **Step 2:** Add the nullable column after the last existing column:
-
-```csharp
-public string? SourceScript { get; set; } // NULL = SpawnPoint/SpawnPointTrigger listener; otherwise the MonoBehaviour type name (e.g. "Chessboard")
-```
-
-- [ ] **Step 3:** Re-export playtest and confirm the raw column exists (will be all NULL — no listener sets it yet):
-
-```bash
-uv run erenshor -V playtest extract export
-sqlite3 variants/playtest/erenshor-playtest-raw.sqlite
-  "SELECT COUNT(*) as total, COUNT(source_script) as with_source FROM SpawnPointCharacters"
-```
-Expected: `total` = non-zero, `with_source` = 0.
-
-- [ ] **Step 4: Commit** — `feat(export): add source_script column to character spawn records`
-
-### Task A2: Mirror `source_script` in the Python clean schema
+### Task A1: Add `source_script` column to the clean `character_spawns` schema
 
 **Files:**
 - Modify: `src/erenshor/application/processor/writer.py` (`character_spawns` CREATE TABLE, ~line 869)
-- Modify: `src/erenshor/application/processor/characters.py` (spawn row dict, ~line 745)
+- Modify: `src/erenshor/application/processor/characters.py` (spawn row dict, ~line 748)
 
 - [ ] **Step 1:** Add `source_script TEXT,` to the `CREATE TABLE character_spawns (...)` body in `writer.py`, grouped after `is_map_visible`.
 
-- [ ] **Step 2:** Add `"source_script": None,` to the spawn row dict in `characters.py:745` (the existing listeners don't set it; the chained-spawn expansion in Task C3 will populate it).
+- [ ] **Step 2:** Add `"source_script": None,` to the spawn row dict in `characters.py:748` (the existing SpawnPoint/SpawnPointTrigger paths don't set it; the dynamic spawn build in Task B5 and the chained-spawn expansion in Task C2 will populate it).
 
 - [ ] **Step 3:** Run the clean build and confirm the column exists:
 
@@ -114,9 +92,9 @@ Expected: `total` = non-zero, `with_source` = 0.
 uv run erenshor -V playtest extract build
 sqlite3 variants/playtest/erenshor-playtest.sqlite "SELECT source_script FROM character_spawns LIMIT 1"
 ```
-Expected: returns `NULL` (or the column exists and is empty).
+Expected: returns `NULL`.
 
-- [ ] **Step 4: Commit** — `feat(pipeline): carry source_script column into clean character_spawns`
+- [ ] **Step 4: Commit** — `feat(pipeline): add source_script column to clean character_spawns`
 
 ### Task A3: Create `CharacterChainedSpawnRecord` (Category B intermediate table)
 
