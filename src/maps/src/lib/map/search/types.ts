@@ -38,6 +38,7 @@ export type ItemSearchResult = {
     type: 'item';
     itemStableKey: string;
     itemName: string;
+    iconName: string | null;
     wikiPageName: string | null;
     dropperCount: number; // total unique characters
     zoneCount: number; // unique zones containing any dropper spawn

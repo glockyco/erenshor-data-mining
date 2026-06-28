@@ -100,6 +100,7 @@ export class ItemSearchProvider implements SearchProvider {
                     type: 'item',
                     itemStableKey,
                     itemName: first.displayName,
+                    iconName: first.iconName,
                     wikiPageName: first.wikiPageName,
                     dropperCount: characterStableKeys.length,
                     zoneCount: zoneSet.size

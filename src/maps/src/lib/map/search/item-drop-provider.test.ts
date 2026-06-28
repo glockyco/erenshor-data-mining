@@ -151,6 +151,7 @@ describe('ItemSearchProvider', () => {
             type: 'item',
             itemStableKey: 'item:1',
             itemName: 'Gem',
+            iconName: null,
             wikiPageName: null,
             dropperCount: 1,
             zoneCount: 2
