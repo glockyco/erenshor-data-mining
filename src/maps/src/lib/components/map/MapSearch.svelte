@@ -340,7 +340,7 @@
                                         <div class="truncate">
                                             {#each splitByMatchRange(item.entity.name, item.matchRange) as seg, i (i)}
                                                 {#if seg.highlighted}
-                                                    <mark class="bg-transparent text-white font-semibold">{seg.text}</mark>
+                                                    <mark class="rounded bg-accent/20 px-0.5 text-white font-semibold">{seg.text}</mark>
                                                 {:else}
                                                     {seg.text}
                                                 {/if}
@@ -389,11 +389,14 @@
                                         <div class="truncate">
                                             {#each getResultSegments(match) as seg, i (i)}
                                                 {#if seg.highlighted}
-                                                    <mark class="bg-transparent text-white font-semibold">{seg.text}</mark>
+                                                    <mark class="rounded bg-accent/20 px-0.5 text-white font-semibold">{seg.text}</mark>
                                                 {:else}
                                                     {seg.text}
                                                 {/if}
                                             {/each}
+                                            {#if match.matchRange === null}
+                                                <span class="ml-1.5 inline-flex items-center rounded bg-zinc-700/60 px-1 py-0.5 text-[10px] font-medium text-zinc-400 align-middle">fuzzy</span>
+                                            {/if}
                                         </div>
                                         <div class="text-xs text-zinc-500 truncate">
                                             {getStaticResultSublabel(result)}
