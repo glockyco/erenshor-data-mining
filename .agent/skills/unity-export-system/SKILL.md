@@ -38,6 +38,15 @@ Located in `src/Assets/Editor/ExportSystem/AssetScanner/Listener/`. Find all wit
 
 Listener categories: core entities (items, characters, spells, skills), game systems (quests, spawns, loot, teleports), and auxiliary data (books, factions, achievements, etc.).
 
+The generic `DynamicSpawnSourceListener` is the canonical example of a
+listener that emits into `character_spawns` **without** a `SpawnPoint`. It
+walks every Assembly-CSharp `MonoBehaviour` by reflection and classifies each
+serialized `Character`/`GameObject` field against
+`AssetScanner/dynamic-spawn-catalog.toml` (allowed → spawn rows, denied →
+skipped, unknown → fail-fast gate at exit 3). Reach for this pattern when a
+character is spawned by an event script rather than placed in a scene; see
+`skill://auditing-spawn-coverage`.
+
 ## Database Records
 
 Record classes define SQLite table schemas via `[Table]` attribute. Located in `src/Assets/Editor/Database/`.
