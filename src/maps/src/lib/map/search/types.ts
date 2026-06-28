@@ -61,6 +61,13 @@ export interface IndexEntry {
     result: SearchResult;
 }
 
+/** A search match with optional character range for highlighting. */
+export type SearchMatch = {
+    result: SearchResult;
+    /** [start, end] offsets into the lowercased name for prefix/substring; null for fuzzy */
+    matchRange: [number, number] | null;
+};
+
 // =============================================================================
 // Resolved Highlight (what to show on the map after selection)
 // =============================================================================

@@ -234,7 +234,7 @@ little.
 ```typescript
 const fuse = new Fuse(entries, {
     keys: ['searchText'],
-    threshold: 0.4,        // conservative — tolerates 1-2 char edits
+    threshold: 0.5,        // conservative — tolerates 1-2 char edits
     distance: 100,
     minMatchCharLength: 2,
     includeScore: true,
