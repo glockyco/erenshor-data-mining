@@ -263,13 +263,13 @@ Cancelled: the planned assertions tested phrasing and frozen state — a literal
 
 ## Verification
 
-- [ ] `uv run erenshor -V playtest extract export` exits 0 (gate passes).
-- [ ] `uv run erenshor -V playtest extract build` succeeds.
-- [ ] Orphan count at Category C residual (~5-10). Current: 71.
+- [x] `uv run erenshor -V playtest extract export` exits 0 (gate passes).
+- [x] `uv run erenshor -V playtest extract build` succeeds.
+- [x] Orphan count at Category C residual. Current: 9 needs-investigation — 4 runtime-positioned Lost Treasure chests (handled: wiki-visible, map-hidden) and 5 Category C Sivakayan Spectres (deferred).
 - [x] `uv run pytest tests/unit/application/processor/test_chained_spawns.py -v` passes.
 - [x] `uv run pytest` (full suite) passes — no regressions.
 - [x] Skills updated per Phase 2.
 - [x] `AGENTS.md` no longer references `writing-skills`.
-- [ ] No excluded characters with enabled spawns (verified via `trace_character_sources.py --only-excluded --verdict has_enabled_spawns`).
+- [x] No excluded characters with enabled spawns at reachable coordinates. The two *Occuphage, Eater of Eyes* instances in ShiveringTomb/ShiveringTomb2 are the sole exception: excluded because they are placed at unreachable coordinates within reachable zones (user-confirmed). Verified via `trace_character_sources.py --only-excluded --verdict has_enabled_spawns`.
 - [x] Stale mapping rules removed.
 - [x] Disabled-character audit complete.
