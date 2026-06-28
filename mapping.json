@@ -1257,9 +1257,13 @@
       "is_map_visible": 0
     },
     "character:gatekeeper": {
-      "wiki_page_name": "Watchman",
+      "wiki_page_name": null,
       "display_name": "Watchman",
-      "image_name": "Watchman"
+      "image_name": "Watchman",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:gloopa": {
       "wiki_page_name": "Gloopa",
@@ -1747,14 +1751,22 @@
       "reason": null
     },
     "character:molorai anointed (2)": {
-      "wiki_page_name": "Molorai Anointed",
+      "wiki_page_name": null,
       "display_name": "Molorai Anointed",
-      "image_name": "Molorai Anointed"
+      "image_name": "Molorai Anointed",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai anointed (3)": {
-      "wiki_page_name": "Molorai Anointed",
+      "wiki_page_name": null,
       "display_name": "Molorai Anointed",
-      "image_name": "Molorai Anointed"
+      "image_name": "Molorai Anointed",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai arcanist": {
       "wiki_page_name": "Molorai Militia Arcanist",
@@ -1814,9 +1826,13 @@
       "image_name": "Molorai Bloodwarden"
     },
     "character:molorai bloodwarden (1)": {
-      "wiki_page_name": "Molorai Bloodwarden",
+      "wiki_page_name": null,
       "display_name": "Molorai Bloodwarden",
-      "image_name": "Molorai Bloodwarden"
+      "image_name": "Molorai Bloodwarden",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai druid": {
       "wiki_page_name": "Molorai Militia Druid",
@@ -1854,9 +1870,13 @@
       "reason": null
     },
     "character:molorai enllightened m (1)": {
-      "wiki_page_name": "Molorai Truthseeker",
+      "wiki_page_name": null,
       "display_name": "Molorai Truthseeker",
-      "image_name": "Molorai Truthseeker"
+      "image_name": "Molorai Truthseeker",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai high archaelogist 3": {
       "wiki_page_name": "Molorai Archaeologist",
@@ -1869,9 +1889,13 @@
       "image_name": "Molorai Nightmistress"
     },
     "character:molorai nightmistress (1)": {
-      "wiki_page_name": "Molorai Nightmistress",
+      "wiki_page_name": null,
       "display_name": "Molorai Nightmistress",
-      "image_name": "Molorai Nightmistress"
+      "image_name": "Molorai Nightmistress",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai outrider": {
       "wiki_page_name": "Molorai Outrider",
@@ -1923,9 +1947,13 @@
       "reason": null
     },
     "character:molorai truthseeker (1)": {
-      "wiki_page_name": "Molorai Truthseeker",
+      "wiki_page_name": null,
       "display_name": "Molorai Truthseeker",
-      "image_name": "Molorai Truthseeker"
+      "image_name": "Molorai Truthseeker",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai truthseeker f": {
       "wiki_page_name": "Molorai Truthseeker",
@@ -1935,9 +1963,13 @@
       "reason": null
     },
     "character:molorai truthseeker f (1)": {
-      "wiki_page_name": "Molorai Truthseeker",
+      "wiki_page_name": null,
       "display_name": "Molorai Truthseeker",
-      "image_name": "Molorai Truthseeker"
+      "image_name": "Molorai Truthseeker",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:molorai warrior": {
       "wiki_page_name": "Molorai Militia Warrior",
@@ -2187,9 +2219,13 @@
       "reason": null
     },
     "character:priel soldier": {
-      "wiki_page_name": "Priel Soldier",
+      "wiki_page_name": null,
       "display_name": "Priel Soldier",
-      "image_name": "Priel Soldier"
+      "image_name": "Priel Soldier",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:priel soldier2": {
       "wiki_page_name": "Priel Soldier",
@@ -2867,29 +2903,181 @@
       "wiki_page_name": "Lost Treasure (1-10)",
       "display_name": "Lost Treasure (1-10)",
       "image_name": "Lost Treasure",
-      "mapping_type": "custom",
-      "reason": null
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "mapping_type": "dynamic_spawn",
+      "reason": "Player-triggered spawn at treasure marker position via PlayerControl.LeftClick(). No fixed world placement."
     },
     "character:treasurechest 10-20 1": {
       "wiki_page_name": "Lost Treasure (10-20)",
       "display_name": "Lost Treasure (10-20)",
       "image_name": "Lost Treasure",
-      "mapping_type": "custom",
-      "reason": null
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "mapping_type": "dynamic_spawn",
+      "reason": "Player-triggered spawn at treasure marker position via PlayerControl.LeftClick(). No fixed world placement."
     },
     "character:treasurechest 20-30 1": {
       "wiki_page_name": "Lost Treasure (20-30)",
       "display_name": "Lost Treasure (20-30)",
       "image_name": "Lost Treasure",
-      "mapping_type": "custom",
-      "reason": null
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "mapping_type": "dynamic_spawn",
+      "reason": "Player-triggered spawn at treasure marker position via PlayerControl.LeftClick(). No fixed world placement."
     },
     "character:treasurechest 30-35": {
       "wiki_page_name": "Lost Treasure (30+)",
       "display_name": "Lost Treasure (30+)",
       "image_name": "Lost Treasure",
-      "mapping_type": "custom",
-      "reason": null
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "mapping_type": "dynamic_spawn",
+      "reason": "Player-triggered spawn at treasure marker position via PlayerControl.LeftClick(). No fixed world placement."
+    },
+    "character:trick target": {
+      "wiki_page_name": null,
+      "display_name": "Trick Target",
+      "image_name": "Trick Target",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dynamic_spawn",
+      "reason": "Combat-triggered spawn at a random NavMesh point via NPC.cs/PlayerCombat.cs. No loot or dialog content."
+    },
+    "character:ancient sentinel": {
+      "wiki_page_name": null,
+      "display_name": "Ancient Sentinel",
+      "image_name": "Ancient Sentinel",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:braxonian planar guardian": {
+      "wiki_page_name": null,
+      "display_name": "Braxonian Planar Guard",
+      "image_name": "Braxonian Planar Guard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:dream invader": {
+      "wiki_page_name": null,
+      "display_name": "Dream Invader",
+      "image_name": "Dream Invader",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:jinx": {
+      "wiki_page_name": null,
+      "display_name": "Jinx",
+      "image_name": "Jinx",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:planar lord": {
+      "wiki_page_name": null,
+      "display_name": "Planar Lord",
+      "image_name": "Planar Lord",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:solunarian paladin 1": {
+      "wiki_page_name": null,
+      "display_name": "Solunarian Paladin",
+      "image_name": "Solunarian Paladin",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:baxzxoth": {
+      "wiki_page_name": null,
+      "display_name": "Bazxzoth",
+      "image_name": "Bazxzoth",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:character_ghost_01 (1)": {
+      "wiki_page_name": null,
+      "display_name": "An Angry Spirit",
+      "image_name": "An Angry Spirit",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:fernallagolem": {
+      "wiki_page_name": null,
+      "display_name": "Fernalla's Guardian Golem",
+      "image_name": "Fernalla's Guardian Golem",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:zz bkp fernallan high planar guard 1": {
+      "wiki_page_name": null,
+      "display_name": "Fernallan High Guard",
+      "image_name": "Fernallan High Guard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:zz bkp fernallan high priest 1": {
+      "wiki_page_name": null,
+      "display_name": "Fernallan High Priest",
+      "image_name": "Fernallan High Priest",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:zz bkp fernallan planar guard 1": {
+      "wiki_page_name": null,
+      "display_name": "Fernallan Planar Guard",
+      "image_name": "Fernallan Planar Guard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:holy corpse": {
+      "wiki_page_name": null,
+      "display_name": "Holy Corpse",
+      "image_name": "Holy Corpse",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:character_ancientqueen_01": {
+      "wiki_page_name": null,
+      "display_name": "Queen Evadne",
+      "image_name": "Queen Evadne",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+    },
+    "character:summoned elder dryad": {
+      "wiki_page_name": null,
+      "display_name": "Summoned: Elder Dryad",
+      "image_name": "Summoned: Elder Dryad",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:trevor ulchand": {
       "wiki_page_name": "Trevor Ulchand",
@@ -2983,9 +3171,13 @@
       "reason": null
     },
     "character:watchman": {
-      "wiki_page_name": "Watchman",
+      "wiki_page_name": null,
       "display_name": "Watchman",
-      "image_name": "Watchman"
+      "image_name": "Watchman",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "dead_prefab",
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
     },
     "character:wintham mcshanth": {
       "wiki_page_name": "Wintham McShanth",

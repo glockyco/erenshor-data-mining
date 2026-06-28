@@ -121,32 +121,37 @@ Outcome: `AssetScanner` dispatch uses precomputed typed delegates instead of per
 
 ## Sub-phase 1E — Orphan reduction verification
 
-**Current state:** 71 true orphans (down from 132 baseline). 35 already
-excluded by `mapping.json` (including the 5 Sivakayan Spectres — Category C
-deferred). 36 unexcluded orphans need GUID tracing to classify them.
+**Current state:** 70 true orphans (down from 132 baseline). 61 excluded or
+handled by `mapping.json`. 9 known deferred residual remain: 4 Lost Treasure
+chests (wiki-visible, map-hidden — spawned by `PlayerControl.LeftClick()`
+at a runtime-determined treasure marker position; the listener cannot emit
+rows because the prefabs are singleton-accessed via `GameData.Misc`) and 5
+Sivakayan Spectres (Category C, deferred to a follow-up plan).
+
+Investigation findings from GUID tracing all 36 unexcluded orphans:
+
+- 25 confirmed dead prefabs (no GUID references in scenes or prefabs) —
+  excluded with `is_wiki_generated=0, is_map_visible=0`.
+- 1 resolved via catalog fix: `NPCDialog.Spawn` reclassified from denied to
+  allowed — `NPCDialogManager.DoExtras()` instantiates it at the dialog
+  NPC's position. Acolyte of Azynthi now has a spawn row.
+- 4 Lost Treasure chests — wiki-visible, map-hidden (`dynamic_spawn`
+  mapping type). Spawned cross-script via `GameData.Misc.TreasureChest*`
+  in `PlayerControl.LeftClick()`.
+- 1 Trick Target — excluded. Combat-triggered spawn at a random NavMesh
+  point via `NPC`/`PlayerCombat`. No loot or content.
+- 5 Sivakayan Spectres — Category C deferred.
 
 ### Task F1: Investigate unexcluded orphans
 
-For each of the 36 unexcluded orphans, run
-`trace_character_sources.py --stable-key <key>` and determine:
-- GUID has scene/prefab references → trace the referencing script and add to
-  catalog if it's an `Instantiate` spawn source.
-- GUID has no references → dead prefab. Add exclusion rule to
-  `mapping.json` with `is_wiki_generated=0, is_map_visible=0`.
-
-```bash
-uv run python src/tools/audit_spawn_coverage.py --variant playtest
-uv run python src/tools/trace_character_sources.py --stable-key "character:faith"
-uv run python src/tools/audit_mapping_exclusions.py --only-content
-```
-
-- [ ] Investigate and resolve all 36 unexcluded orphans.
+- [x] Investigate and resolve all 36 unexcluded orphans.
 
 ### Task F2: Add dead-prefab exclusion rules
 
-- [ ] Add exclusion rules for GUID-confirmed dead prefabs.
-- [ ] Re-export and verify orphan count approaches the Category C residual
-  (the 5 Sivakayan Spectres).
+- [x] Add exclusion rules for GUID-confirmed dead prefabs.
+- [x] Re-export and verify orphan count approaches the Category C residual
+  (the 5 Sivakayan Spectres). Current residual: 9 (4 treasure chests + 5
+  Sivakayan).
 
 ---
 

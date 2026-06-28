@@ -325,8 +325,13 @@ reason = "Host character reference, not a dynamic spawn."
 
 [[denied]]
 script = "Misc"
-fields = ["TreasureChest0_10", "TreasureChest10_20", "TreasureChest20_30", "TreasureChest30_35", "TrickShotTarg"]
-reason = "Chest/target prefabs referenced by Misc, not spawn sources."
+fields = ["TreasureChest0_10", "TreasureChest10_20", "TreasureChest20_30", "TreasureChest30_35"]
+reason = "Singleton-accessed prefabs (GameData.Misc.TreasureChest*) instantiated by PlayerControl.LeftClick() at the clicked treasure marker's position. No serialized field on PlayerControl — the listener cannot emit rows. Spawns are player-triggered at runtime-determined positions (Category C-like). Handle via mapping rules: wiki-visible for loot, not map-visible for dynamic positions."
+
+[[denied]]
+script = "Misc"
+fields = ["TrickShotTarg"]
+reason = "Singleton-accessed prefab (GameData.Misc.TrickShotTarg) instantiated by NPC.cs and PlayerCombat.cs at a random NavMesh point during combat. No serialized field on the consuming scripts — the listener cannot emit rows. Combat-triggered spawn at a runtime-determined position. Handle via mapping rules: not wiki-visible (no loot/content), not map-visible."
 
 [[denied]]
 script = "MorphTrigger"
@@ -338,10 +343,12 @@ script = "MultiQuestListener"
 fields = ["EnableOnQuestComplete"]
 reason = "List of GameObjects enabled via SetActive on quest completion, not Instantiate spawns."
 
-[[denied]]
+[[allowed]]
 script = "NPCDialog"
 fields = ["Spawn"]
-reason = "GameObject reference used for dialog interactions, not an Instantiate spawn."
+# Instantiated by NPCDialogManager.DoExtras() at the dialog NPC's transform
+# position when the dialog completes. The field is a serialized prefab reference
+# on the NPCDialog component itself, so the listener emits at the host's position.
 
 [[denied]]
 script = "PietyTrigger"
