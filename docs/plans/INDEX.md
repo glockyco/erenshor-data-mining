@@ -10,6 +10,7 @@
 - **World Map — User Annotations (Pins, Paths, Regions)** [spec] `2026-06-27-map-annotations`
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
 - **Map Search UX — Filter Chips, Icons, Fuzzy, Highlight** [spec] `2026-06-28-map-search-ux-improvements`
+- **Map Search UX Improvements — Implementation Plan** [plan] `2026-06-28-map-search-ux-improvements-plan` (—) ← 2026-06-28-map-search-ux-improvements
 
 ## draft
 
