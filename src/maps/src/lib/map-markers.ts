@@ -61,6 +61,19 @@ export type CharacterDrop = {
     dropProbability: number;
 };
 
+// Item → dropper relationship (preloaded for item-to-droppers map search)
+export type ItemDropperRow = {
+    itemStableKey: string;
+    displayName: string;
+    wikiPageName: string | null;
+    characterStableKey: string;
+    npcName: string;
+    isFriendly: boolean;
+    isRare: boolean;
+    isUnique: boolean;
+    dropProbability: number; // 0–100
+};
+
 // Vendor item info (for popups)
 export type VendorItem = {
     name: string;

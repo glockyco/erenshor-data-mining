@@ -12,6 +12,7 @@ import type {
     EnemyMarker,
     ForgeMarker,
     ItemBagMarker,
+    ItemDropperRow,
     MiningNodeMarker,
     NpcMarker,
     SecretPassageMarker,
@@ -23,7 +24,7 @@ import type {
 } from '$lib/map-markers';
 
 // Re-export types for popup generation
-export type { SpawnCharacter, MovementData } from '$lib/map-markers';
+export type { SpawnCharacter, MovementData, ItemDropperRow } from '$lib/map-markers';
 
 // =============================================================================
 // World Positioning
@@ -210,6 +211,7 @@ export interface FilteredMapData {
     water: WorldWater[];
     wishingWells: WorldWishingWell[];
     zoneLines: WorldZoneLine[];
+    itemDroppers: ItemDropperRow[];
 }
 
 export interface MapMarkerData {
@@ -229,6 +231,7 @@ export interface MapMarkerData {
     wishingWells: WorldWishingWell[];
     zoneLines: WorldZoneLine[];
     zones: ZoneWorldPosition[];
+    itemDroppers: ItemDropperRow[];
 }
 
 // =============================================================================

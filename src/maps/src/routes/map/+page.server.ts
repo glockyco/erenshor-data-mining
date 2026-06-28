@@ -494,6 +494,10 @@ export async function load() {
     enemiesRare.sort(enabledLast);
     enemiesUnique.sort(enabledLast);
 
+    // Preload item-to-droppers data for the map search index (one query,
+    // no runtime DB access — see ItemSearchProvider).
+    const itemDroppers = await repo.getItemDroppers();
+
     return {
         markers: {
             achievementTriggers,
@@ -516,6 +520,7 @@ export async function load() {
         zoneConfigs,
         worldCenter,
         worldBounds,
-        levelRange: { min: enemyLevelMin, max: enemyLevelMax }
+        levelRange: { min: enemyLevelMin, max: enemyLevelMax },
+        itemDroppers
     };
 }

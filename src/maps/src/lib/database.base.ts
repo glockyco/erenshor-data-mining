@@ -8,6 +8,7 @@ import type {
     EnemyMarker,
     ForgeMarker,
     ItemBagMarker,
+    ItemDropperRow,
     MiningNodeMarker,
     MiningNodeItem,
     MovementData,
@@ -1052,6 +1053,52 @@ export class RepositoryBase {
         }
         stmt.free();
         return drops;
+    }
+
+    /**
+     * Preload every map-visible droppable item and the characters that drop it.
+     * Used by the item-to-droppers map search — one query at page load, no
+     * runtime DB access. Items with is_map_visible = 0 are excluded.
+     */
+    async getItemDroppers(): Promise<ItemDropperRow[]> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(`
+            SELECT
+                i.stable_key        AS itemStableKey,
+                i.display_name      AS displayName,
+                i.wiki_page_name    AS wikiPageName,
+                c.stable_key        AS characterStableKey,
+                c.npc_name          AS npcName,
+                c.is_friendly       AS isFriendly,
+                c.is_rare           AS isRare,
+                c.is_unique         AS isUnique,
+                ld.drop_probability AS dropProbability
+            FROM loot_drops ld
+            JOIN items i ON i.stable_key = ld.item_stable_key
+            JOIN characters c ON c.stable_key = ld.character_stable_key
+            WHERE i.is_map_visible = 1
+            ORDER BY i.display_name, ld.drop_probability DESC
+        `);
+
+        const rows: ItemDropperRow[] = [];
+
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            rows.push({
+                itemStableKey: row.itemStableKey as string,
+                displayName: row.displayName as string,
+                wikiPageName: (row.wikiPageName as string) ?? null,
+                characterStableKey: row.characterStableKey as string,
+                npcName: (row.npcName as string) ?? '',
+                isFriendly: Boolean(row.isFriendly),
+                isRare: Boolean(row.isRare),
+                isUnique: Boolean(row.isUnique),
+                dropProbability: row.dropProbability as number
+            });
+        }
+        stmt.free();
+        return rows;
     }
 
     async getVendorItems(stableKey: string): Promise<VendorItem[]> {
