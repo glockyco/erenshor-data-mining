@@ -82,51 +82,19 @@ Outcome: new column and table exist in the Python clean schema; existing exports
 - Modify: `src/erenshor/application/processor/writer.py` (`character_spawns` CREATE TABLE, ~line 869)
 - Modify: `src/erenshor/application/processor/characters.py` (spawn row dict, ~line 748)
 
-- [ ] **Step 1:** Add `source_script TEXT,` to the `CREATE TABLE character_spawns (...)` body in `writer.py`, grouped after `is_map_visible`.
-
-- [ ] **Step 2:** Add `"source_script": None,` to the spawn row dict in `characters.py:748` (the existing SpawnPoint/SpawnPointTrigger paths don't set it; the dynamic spawn build in Task B5 and the chained-spawn expansion in Task C2 will populate it).
-
-- [ ] **Step 3:** Run the clean build and confirm the column exists:
-
-```bash
-uv run erenshor -V playtest extract build
-sqlite3 variants/playtest/erenshor-playtest.sqlite "SELECT source_script FROM character_spawns LIMIT 1"
-```
-Expected: returns `NULL`.
-
-- [ ] **Step 4: Commit** — `feat(pipeline): add source_script column to clean character_spawns`
+- [x] **Step 1:** Add `source_script TEXT,` to the `CREATE TABLE character_spawns (...)` body in `writer.py`, grouped after `is_map_visible`.
+- [x] **Step 2:** Add `"source_script": s.source_script,` to the spawn row dict in `characters.py:748` (the existing SpawnPoint/SpawnPointTrigger paths don't set it; the dynamic spawn build in Task B5 and the chained-spawn expansion in Task C2 will populate it). `source_script` is an optional field on `_SpawnRow` defaulting to `None`.
+- [x] **Step 3:** Run the clean build and confirm the column exists: 8786 rows, 0 with source_script (all NULL).
+- [x] **Step 4: Commit** — `feat(pipeline): add source_script column to clean character_spawns` (1080c28d)
 
 ### Task A3: Create `CharacterChainedSpawnRecord` (Category B intermediate table)
 
 **Files:**
 - Create: `src/Assets/Editor/Database/CharacterChainedSpawnRecord.cs`
 
-- [ ] **Step 1:** Create the record class mirroring `QuestRequiredItemRecord.cs` (junction, composite PK):
+- [x] **Step 1:** Create the record class mirroring `QuestRequiredItemRecord.cs` (junction, composite unique index). Uses indexed FKs instead of a composite `[PrimaryKey]` string to match the codebase convention.
 
-```csharp
-#nullable enable
-using SQLite;
-
-[Table("CharacterChainedSpawns")]
-public class CharacterChainedSpawnRecord
-{
-    public const string TableName = "CharacterChainedSpawns";
-
-    public string ParentStableKey { get; set; } = string.Empty;   // Character prefab that hosts the chained-spawn MonoBehaviour
-    public string ChildStableKey { get; set; } = string.Empty;    // Character prefab spawned by the parent
-    public string SourceScript { get; set; } = string.Empty;      // MonoBehaviour type name (e.g. "Constellation")
-    [PrimaryKey]
-    public string Key { get; set; } = string.Empty;               // composite: "{parent}|{child}|{source_script}"
-}
-```
-
-- [ ] **Step 2:** Re-export and confirm the empty table is created:
-
-```bash
-uv run erenshor -V playtest extract export
-sqlite3 variants/playtest/erenshor-playtest-raw.sqlite "SELECT COUNT(*) FROM CharacterChainedSpawns"
-```
-Expected: `0` (no listener populates it yet).
+- [ ] **Step 2:** The table is NOT created by the record class alone — `_db.CreateTable<T>()` is called in the listener's `OnScanFinished`. Table creation is deferred to Task B4 (`DynamicSpawnSourceListener.OnScanFinished`). Commit the record now; verify the table exists after Task B4.
 
 - [ ] **Step 3: Commit** — `feat(export): add character_chained_spawns record for Category B spawns`
 
