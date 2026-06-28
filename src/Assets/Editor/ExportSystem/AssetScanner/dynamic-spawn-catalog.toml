@@ -1,0 +1,225 @@
+# Dynamic Spawn Source Catalog
+# Classifies serialized Character/GameObject fields on event-script MonoBehaviours.
+# Update this file when the export's dynamic-spawn-errors.json reports unknown
+# candidates. Each (script, field) pair must be classified as allowed or denied.
+# See: skill://auditing-spawn-coverage
+
+schema_version = 1
+
+# --- Category A: direct event-script spawns (emit to character_spawns) ---
+
+[[allowed]]
+script = "Chessboard"
+fields = ["PeonNPC", "EmberNPC", "BlazeNPC", "MonarchNPC", "KingsmanNPC", "CandlekeeperNPC", "FacelessDuel", "FacelessArc", "FacelessPal", "FacelessDru", "FacelessStorm", "FacelessReaver"]
+position_field = "SpawnLoc"
+
+[[allowed]]
+script = "Constellation"
+fields = ["Spawns"]
+
+[[allowed]]
+script = "FernallaFightEvent"
+fields = ["FinalFernalla", "FawnToSpawn", "Phase2Ward", "Phase2Assault"]
+
+[[allowed]]
+script = "FernallaPortalEvent"
+fields = ["Arcanist", "Knight", "Hound"]
+
+[[denied]]
+script = "FernallaPortalBoss"
+fields = ["Ward1", "Ward2", "Ward3"]
+reason = "Visual effect toggles (SetActive), not Instantiate spawns."
+
+[[allowed]]
+script = "MizukiEvent"
+fields = ["Remnants"]
+
+[[allowed]]
+script = "AstraListener"
+fields = ["Dragon"]
+
+[[allowed]]
+script = "PhantomFightEvent"
+fields = ["WardsToSpawn"]
+position_field = "WardSpawnPoints"
+
+[[allowed]]
+script = "SiraetheEvent"
+fields = ["WardSpawnable"]
+
+[[allowed]]
+script = "SprinklesEvent"
+fields = ["ForestWard"]
+
+[[allowed]]
+script = "StowawayPortal"
+fields = ["KeeperSac"]
+position_field = "SpawnPointsForAdds"
+
+[[allowed]]
+script = "TreasureChestEvent"
+fields = ["Guardians"]
+
+[[allowed]]
+script = "VithArena"
+fields = ["Coin1Fight", "Coin2Fight", "Coin3Fight", "Coin4Fight", "Coin5Fight", "Coin6Fight", "Coin7Fight", "Coin8Fight"]
+position_field = "SpawnLoc1"
+
+[[allowed]]
+script = "WaveEvent"
+fields = ["WeakWave", "StrongWave", "StrongestWave", "BossMob"]
+position_field = "SpawnLocations"
+
+[[allowed]]
+script = "ZenithNadirScript"
+fields = ["ConstellationStar", "Syzygy"]
+position_field = "SyzSpawn"
+
+[[allowed]]
+script = "HonsusScript"
+fields = ["AddToSpawn"]
+
+[[allowed]]
+script = "GraceEvent"
+fields = ["AnimDupe"]
+position_field = "Spawn1,Spawn2"
+
+[[allowed]]
+script = "NPCFightEvent"
+fields = ["SpawnAdds", "SpawnOnDeath"]
+
+# --- Denied: runtime-rebound trackers (host SpawnPoint already covers placement) ---
+
+[[denied]]
+script = "FaithEvent"
+fields = ["Faith"]
+reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint already covers placement."
+
+[[denied]]
+script = "FaithEvent"
+fields = ["HealObject"]
+reason = "Heal effect prefab, not a Character."
+
+[[denied]]
+script = "GraceEvent"
+fields = ["Grace"]
+reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint already covers placement."
+
+[[denied]]
+script = "RewardListener"
+fields = ["Frost", "Inferno"]
+reason = "Runtime tracker fields, not world placements."
+
+[[denied]]
+script = "SprinklesEvent"
+fields = ["Sprinkles"]
+reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint already covers placement."
+
+[[denied]]
+script = "MizukiEvent"
+fields = ["MizChar"]
+reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint already covers placement."
+
+[[denied]]
+script = "ZenithNadirScript"
+fields = ["Zenith", "Nadir", "SyzygyChar"]
+reason = "Runtime-rebound or direct Character references already placed via SpawnPoint."
+
+[[denied]]
+script = "FernallaFightEvent"
+fields = ["MyChar"]
+reason = "Host character, placed via SpawnPoint; not a dynamic spawn."
+
+[[denied]]
+script = "StowawayPortal"
+fields = ["Keeper", "Skeletons", "KeeperSpawn"]
+reason = "Keeper is placed via SpawnPoint; Skeletons is a runtime-populated List<Character> accumulator (Add at runtime, not serialized prefabs); KeeperSpawn is a position marker."
+
+# --- Denied: Category C deferred (zone-wide random spawners) ---
+
+[[denied]]
+script = "Misc"
+fields = ["SivakayanSpectres"]
+reason = "category-c-pending: zone-wide random spawner; needs zone_random_spawns table in follow-up plan."
+
+# --- Denied: non-Character GameObject fields ---
+
+[[denied]]
+script = "MizukiEvent"
+fields = ["FinalPush", "DoubleSpawn"]
+reason = "Declared but never referenced outside declaration; dead fields."
+
+[[denied]]
+script = "AstraListener"
+fields = ["Beam"]
+reason = "Visual effect toggle (SetActive), not an Instantiate spawn."
+
+[[denied]]
+script = "SiraetheEvent"
+fields = ["WardOne", "WardTwo", "WardThree"]
+reason = "Position markers, not Character prefabs."
+
+[[denied]]
+script = "ZenithNadirScript"
+fields = ["ConstellationMobs"]
+reason = "Declared but never referenced outside declaration; dead field."
+
+[[denied]]
+script = "VithArena"
+fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos", "AwardChests", "RestoredVitheo"]
+reason = "Position markers, chest prefabs, and restored-NPC marker; not dynamic spawns."
+
+[[denied]]
+script = "WaveEvent"
+fields = ["SpawnLocations"]
+reason = "Position marker list; the actual spawn fields are WeakWave/StrongWave/etc."
+
+[[denied]]
+script = "HonsusScript"
+fields = ["NavPoints"]
+reason = "Navigation waypoints, not Character prefabs."
+
+[[denied]]
+script = "MalarothFeed"
+fields = ["Malaroth", "Demented"]
+reason = "Malaroth is the host; Demented is spawned via a runtime _npc argument, not a serialized field."
+
+[[denied]]
+script = "TreasureChestEvent"
+fields = ["LiveGuardians", "Lid"]
+reason = "LiveGuardians is a runtime list; Lid is a chest mesh."
+
+[[denied]]
+script = "FernallaPortalEvent"
+fields = ["Invader"]
+reason = "Declared but never used in the script; dead field."
+
+[[denied]]
+script = "GraceEvent"
+fields = ["Spawn2"]
+reason = "Position marker (second spawn point for AnimDupe); Spawn1 is used as position_field."
+
+[[denied]]
+script = "RewardListener"
+fields = ["Chest", "ChestSpawn"]
+reason = "Chest prefab and position marker, not Characters."
+
+[[denied]]
+script = "AstraListener"
+fields = ["Astra", "SpawnLoc"]
+reason = "Astra is the host NPC (assigned from Instantiate result); SpawnLoc is a position marker."
+
+[[denied]]
+script = "ZenithNadirScript"
+fields = ["ConstPt1", "ConstPt2", "SyzSpawn", "Chest", "ChestPos"]
+reason = "Position/chest prefabs; SyzSpawn is used as position_field for Syzygy/ConstellationStar."
+
+[[denied]]
+script = "MizukiEvent"
+fields = ["MizGameObject", "SpawnSmoke", "WarpSmoke", "EndNode"]
+reason = "UI/FX/node prefabs, not Characters."
+
+[[denied]]
+script = "NPCFightEvent"
+fields = ["MyNPC"]
+reason = "Host NPC reference, not a dynamic spawn."
