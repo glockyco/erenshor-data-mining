@@ -99,10 +99,11 @@ script = "FaithEvent"
 fields = ["Faith"]
 reason = "Runtime-rebound from MySpawn.SpawnedNPC; the originating SpawnPoint already covers placement."
 
-[[denied]]
+[[allowed]]
 script = "FaithEvent"
 fields = ["HealObject"]
-reason = "Heal effect prefab, not a Character."
+position_field = "SpawnLocsForHeals"
+reason = "Heal NPC instantiated at SpawnLocsForHeals; has Character component via FaithTracker pattern."
 
 [[denied]]
 script = "GraceEvent"
@@ -168,10 +169,16 @@ script = "ZenithNadirScript"
 fields = ["ConstellationMobs"]
 reason = "Declared but never referenced outside declaration; dead field."
 
+[[allowed]]
+script = "VithArena"
+fields = ["AwardChests"]
+position_field = "ChestSpawnPos"
+reason = "Arena reward chest, instantiated at ChestSpawnPos; prefab has Character component with loot."
+
 [[denied]]
 script = "VithArena"
-fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos", "AwardChests", "RestoredVitheo"]
-reason = "Position markers, chest prefabs, and restored-NPC marker; not dynamic spawns."
+fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos", "RestoredVitheo"]
+reason = "Position markers and restored-NPC toggle; not dynamic spawns."
 
 [[denied]]
 script = "WaveEvent"
@@ -183,10 +190,10 @@ script = "HonsusScript"
 fields = ["NavPoints"]
 reason = "Navigation waypoints, not Character prefabs."
 
-[[denied]]
+[[allowed]]
 script = "MalarothFeed"
 fields = ["Malaroth", "Demented"]
-reason = "Malaroth is the host; Demented is spawned via a runtime _npc argument, not a serialized field."
+position_field = "SpawnLoc"
 
 [[denied]]
 script = "TreasureChestEvent"
@@ -203,20 +210,27 @@ script = "GraceEvent"
 fields = ["Spawn2"]
 reason = "Position marker (second spawn point for AnimDupe); Spawn1 is used as position_field."
 
-[[denied]]
+[[allowed]]
 script = "RewardListener"
-fields = ["Chest", "ChestSpawn"]
-reason = "Chest prefab and position marker, not Characters."
+fields = ["Chest"]
+position_field = "ChestSpawn"
+reason = "Reward chest, instantiated at ChestSpawn; prefab has Character component with loot."
 
 [[denied]]
 script = "AstraListener"
 fields = ["Astra", "SpawnLoc"]
 reason = "Astra is the host NPC (assigned from Instantiate result); SpawnLoc is a position marker."
 
+[[allowed]]
+script = "ZenithNadirScript"
+fields = ["Chest"]
+position_field = "ChestPos"
+reason = "Reward chest, instantiated at ChestPos; prefab has Character component with loot."
+
 [[denied]]
 script = "ZenithNadirScript"
-fields = ["ConstPt1", "ConstPt2", "SyzSpawn", "Chest", "ChestPos"]
-reason = "Position/chest prefabs; SyzSpawn is used as position_field for Syzygy/ConstellationStar."
+fields = ["ConstPt1", "ConstPt2", "SyzSpawn", "ChestPos"]
+reason = "Position markers; SyzSpawn is used as position_field for Syzygy/ConstellationStar."
 
 [[denied]]
 script = "MizukiEvent"
@@ -297,7 +311,7 @@ reason = "Target list for guild tasks (GetComponent<Stats>), not a spawn source.
 [[denied]]
 script = "InfernoTwins"
 fields = ["Chest"]
-reason = "Chest prefab, not a Character spawn."
+reason = "Declared but never instantiated in the script; dead field."
 
 [[denied]]
 script = "MemorySphere"
@@ -393,3 +407,8 @@ reason = "Visual SetActive toggle, not an Instantiate spawn."
 script = "WardLeakListener"
 fields = ["MyChar"]
 reason = "Host character reference, not a dynamic spawn."
+
+[[denied]]
+script = "NPCSpawnEnvDmg"
+fields = ["DmgToSpawn"]
+reason = "Damage-area object assigned to DmgObj, not a Character spawn."
