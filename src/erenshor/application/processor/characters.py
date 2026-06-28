@@ -496,6 +496,61 @@ def process_characters(
             )
         )
 
+    # Load event-script dynamic spawns (Category A — emitted by
+    # DynamicSpawnSourceListener for non-Character host MonoBehaviours).
+    # These have no SpawnPoint component; positions come from the host
+    # transform or a named position field on the event script.
+    if _table_exists(raw, "DynamicCharacterSpawns"):
+        dyn_rows = _load_rows(
+            raw,
+            """
+            SELECT Key, CharacterStableKey, Scene, X, Y, Z, SourceScript
+            FROM DynamicCharacterSpawns
+            WHERE CharacterStableKey IN ({})
+            """.format(",".join("?" * len(all_keys))),
+            tuple(all_keys),
+        )
+        for r in dyn_rows:
+            sk = str(r["CharacterStableKey"])
+            scene = r.get("Scene")
+            source_script = cast("str | None", r.get("SourceScript"))
+            x = cast("float | None", r.get("X"))
+            y = cast("float | None", r.get("Y"))
+            z = cast("float | None", r.get("Z"))
+            spawn_rows_by_char[sk].append(
+                _SpawnRow(
+                    spawn_point_stable_key=cast("str", r["Key"]),
+                    zone_stable_key=zone_by_scene.get(str(scene)) if scene else None,
+                    scene=str(scene) if scene else None,
+                    x=x,
+                    y=y,
+                    z=z,
+                    is_enabled=1,
+                    is_directly_placed=0,
+                    is_trigger_spawn=0,
+                    rare_npc_chance=None,
+                    level_mod=None,
+                    spawn_delay_1=None,
+                    spawn_delay_2=None,
+                    spawn_delay_3=None,
+                    spawn_delay_4=None,
+                    staggerable=None,
+                    stagger_mod=None,
+                    night_spawn=None,
+                    patrol_points=None,
+                    loop_patrol=None,
+                    random_wander_range=None,
+                    spawn_upon_quest_complete_stable_key=None,
+                    protector_stable_key=None,
+                    spawn_chance=1.0,
+                    is_common=None,
+                    is_rare=None,
+                    is_wiki_generated=None,
+                    is_map_visible=None,
+                    source_script=source_script,
+                )
+            )
+
     # ------------------------------------------------------------------
     # Step 3: Load junction data for dedup key
     # ------------------------------------------------------------------
