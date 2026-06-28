@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
 {
-    private const float AltSpawnChance = 0.01f;
+    private const float AltSpawnChance = 0.0001f;
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;

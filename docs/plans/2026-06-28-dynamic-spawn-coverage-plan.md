@@ -157,27 +157,31 @@ Investigation findings from GUID tracing all 36 unexcluded orphans:
 
 ## Mapping exclusion audit — disabled spawns
 
-**Current state:** 182 characters have all spawns initially disabled (`is_enabled=0`). Of these, 93 are currently excluded by `mapping.json`. Data alone can't distinguish:
-- **Intentionally disabled** (training dummies, pocket vendors, flame wells) — correctly excluded.
-- **Quest-gated** (enabled by `SetActive(true)` in event scripts like `MorphTrigger.Enable`, `QuestSpawnListener.EnableOnQuestComplete`) — should be wiki-visible.
-- **Disabled-and-never-enabled** (e.g., Highwayman in Elderstone) — correctly excluded.
+**Current state:** 182 characters have all spawns initially disabled
+(`is_enabled=0`). Of these, 93 are currently excluded by `mapping.json`.
+Investigation found that `is_enabled=0` on these characters reflects the
+standard SpawnPoint/SpawnPointTrigger initial scene state (the GameObject is
+inactive until a player enters the trigger radius), not `SetActive(true)`
+quest-gating in most cases. The 93 break down as:
+- **Pocket vendors/banks/auctions** (~45) — intentionally disabled,
+  activated by player interaction. Correctly excluded.
+- **Training dummies** (~21) — no content, always disabled. Correctly
+  excluded.
+- **Flame wells** (8) — environmental, no content. Correctly excluded.
+- **Golden Spirit** (1) — quest-gated via `ShiverEvent`: `Start()` disables
+  SpawnTriggers via `SetActive(false)`, Phase 2/3 re-enables them after the
+  SHIVER quest chain. 1% rare alt spawn. Unhidden (wiki + map visible).
+- **Highwayman Raider in Elderstone** (1) — `m_IsActive: 0`, no enabling
+  script. Disabled-and-never-enabled. Correctly excluded.
+- **Azynthi Corruptor figures** (2) — statues with disabled character
+  scripts. Correctly excluded.
 
 ### Task G1: Trace `SetActive(true)` patterns
 
-Trace `SetActive(true)` calls in event scripts to identify which disabled characters are quest-gated (should be unhidden) vs permanently disabled (correctly excluded). Search the decompiled source for patterns like `SetActive(value: true)`, `EnableOnQuestComplete`, `spawn_upon_quest_complete_stable_key`.
-
-```bash
-uv run python src/tools/audit_spawn_coverage.py --variant playtest --include-disabled
-uv run python src/tools/trace_character_sources.py --only-excluded --verdict initially_disabled_spawns
-```
-
-**Decision criteria per character:**
-1. Has `SetActive(true)` in a script → quest-gated, unhide.
-2. Has `spawn_upon_quest_complete_stable_key` set → quest-gated, unhide.
-3. No enabling path found → intentionally disabled, keep excluded.
-
-- [ ] Trace `SetActive(true)` patterns for all 93 excluded disabled characters (pocket vendors/training dummies can be batch-skipped via the `is_intentional_exclusion` heuristic in `audit_mapping_exclusions.py`).
-- [ ] Unhide quest-gated characters. Update exclusion reasons for confirmed permanently-disabled characters.
+- [x] Trace `SetActive(true)` patterns for all 93 excluded disabled
+  characters. Found 1 quest-gated character (Golden Spirit via ShiverEvent).
+- [x] Unhide quest-gated characters. Update exclusion reasons for confirmed
+  permanently-disabled characters.
 
 ---
 

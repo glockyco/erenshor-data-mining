@@ -1288,13 +1288,13 @@
       "image_name": "Gloopa"
     },
     "character:golden spirit": {
-      "wiki_page_name": null,
+      "wiki_page_name": "A Golden Spirit",
       "display_name": "A Golden Spirit",
       "image_name": "A Golden Spirit",
-      "mapping_type": "exclude",
-      "reason": "Exclude from wiki",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_wiki_generated": 1,
+      "is_map_visible": 1,
+      "mapping_type": "quest_gated",
+            "reason": "Alt spawn on SpawnPointTrigger in ShiveringStep. Disabled by ShiverEvent.Start() via SetActive(false) until SHIVER quest chain reaches Phase 2/3. 0.01% chance per spawn spot per trigger activation (Random.Range(0, 10000) == 0), 30-minute cooldown. Each trigger has 2-3 spawn spots, so trigger-level chance is ~0.02-0.03%."
     },
     "character:grady thornox": {
       "wiki_page_name": "Grady Thornox",
