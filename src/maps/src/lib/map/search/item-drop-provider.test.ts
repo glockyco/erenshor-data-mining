@@ -89,6 +89,7 @@ function row(
         itemStableKey,
         displayName,
         wikiPageName: null,
+        iconName: null,
         characterStableKey: charStableKey,
         npcName,
         isFriendly: false,

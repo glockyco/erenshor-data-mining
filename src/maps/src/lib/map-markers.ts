@@ -66,6 +66,7 @@ export type ItemDropperRow = {
     itemStableKey: string;
     displayName: string;
     wikiPageName: string | null;
+    iconName: string | null;
     characterStableKey: string;
     npcName: string;
     isFriendly: boolean;

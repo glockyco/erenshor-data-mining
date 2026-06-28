@@ -52,6 +52,7 @@
         "@fontsource/jetbrains-mono": "^5.2.8",
         "@lucide/svelte": "^0.562.0",
         "@tailwindcss/vite": "^4.1.11",
+        "fuse.js": "^7.4.2",
         "leaflet": "^1.9.4",
         "leaflet-rotate": "^0.2.8",
         "lucide": "^0.562.0",
