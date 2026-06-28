@@ -340,7 +340,7 @@
                                         <div class="truncate">
                                             {#each splitByMatchRange(item.entity.name, item.matchRange) as seg, i (i)}
                                                 {#if seg.highlighted}
-                                                    <mark class="rounded bg-accent/20 px-0.5 text-white font-semibold">{seg.text}</mark>
+                                                    <mark class="bg-transparent text-accent font-semibold">{seg.text}</mark>
                                                 {:else}
                                                     {seg.text}
                                                 {/if}
@@ -365,7 +365,7 @@
                             {categoryLabels[category]}
                         </Command.GroupHeading>
                         <Command.GroupItems>
-                            {#each items as match (getStaticResultValue(match.result))}
+                            {#each items.filter((m) => m.matchRange !== null) as match (getStaticResultValue(match.result))}
                                 {@const result = match.result}
                                 <Command.Item
                                     value={getStaticResultValue(result)}
@@ -389,14 +389,46 @@
                                         <div class="truncate">
                                             {#each getResultSegments(match) as seg, i (i)}
                                                 {#if seg.highlighted}
-                                                    <mark class="rounded bg-accent/20 px-0.5 text-white font-semibold">{seg.text}</mark>
+                                                    <mark class="bg-transparent text-accent font-semibold">{seg.text}</mark>
                                                 {:else}
                                                     {seg.text}
                                                 {/if}
                                             {/each}
-                                            {#if match.matchRange === null}
-                                                <span class="ml-1.5 inline-flex items-center rounded bg-zinc-700/60 px-1 py-0.5 text-[10px] font-medium text-zinc-400 align-middle">fuzzy</span>
-                                            {/if}
+                                        </div>
+                                        <div class="text-xs text-zinc-500 truncate">
+                                            {getStaticResultSublabel(result)}
+                                        </div>
+                                    </div>
+                                </Command.Item>
+                            {/each}
+                            {#if items.some((m) => m.matchRange === null)}
+                                <div class="px-2 py-1 text-[10px] italic text-zinc-500">
+                                    Similar to “{query}”
+                                </div>
+                            {/if}
+                            {#each items.filter((m) => m.matchRange === null) as match (getStaticResultValue(match.result))}
+                                {@const result = match.result}
+                                <Command.Item
+                                    value={getStaticResultValue(result)}
+                                    onSelect={() => handleSelect({ kind: 'static', match })}
+                                    class="flex items-center gap-3 rounded-lg px-2 py-2
+                                           text-sm text-muted cursor-pointer
+                                           aria-selected:bg-zinc-700 aria-selected:text-white"
+                                >
+                                    {#if result.type === 'enemy'}
+                                        <Skull class="h-4 w-4 shrink-0 text-amber-500" />
+                                    {:else if result.type === 'npc'}
+                                        <User class="h-4 w-4 shrink-0 text-sky-500" />
+                                    {:else if result.type === 'item' && result.iconName}
+                                        <img src={`/items/${result.iconName}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
+                                    {:else if result.type === 'item'}
+                                        <Package class="h-4 w-4 shrink-0 text-emerald-500" />
+                                    {:else}
+                                        <MapIcon class="h-4 w-4 shrink-0 text-purple-500" />
+                                    {/if}
+                                    <div class="min-w-0 flex-1">
+                                        <div class="truncate">
+                                            {result.type === 'item' ? result.itemName : result.name}
                                         </div>
                                         <div class="text-xs text-zinc-500 truncate">
                                             {getStaticResultSublabel(result)}
