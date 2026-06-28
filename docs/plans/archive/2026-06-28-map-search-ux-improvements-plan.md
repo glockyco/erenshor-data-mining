@@ -1,9 +1,10 @@
 ---
 title: Map Search UX Improvements — Implementation Plan
 type: plan
-status: active
+status: implemented
 created: 2026-06-28
 parent: 2026-06-28-map-search-ux-improvements
+archived: 2026-06-28
 ---
 
 # Map Search UX Improvements Implementation Plan

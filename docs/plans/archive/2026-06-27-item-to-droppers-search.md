@@ -1,9 +1,10 @@
 ---
 title: World Map — Item-to-Droppers Search
 type: spec
-status: active
+status: implemented
 created: 2026-06-27
 parent:
+archived: 2026-06-28
 ---
 
 # World Map — Item-to-Droppers Search

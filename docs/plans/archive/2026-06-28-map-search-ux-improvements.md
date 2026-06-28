@@ -1,9 +1,10 @@
 ---
 title: Map Search UX — Filter Chips, Icons, Fuzzy, Highlight
 type: spec
-status: active
+status: implemented
 created: 2026-06-28
 parent:
+archived: 2026-06-28
 ---
 
 # Map Search UX — Filter Chips, Icons, Fuzzy, Highlight

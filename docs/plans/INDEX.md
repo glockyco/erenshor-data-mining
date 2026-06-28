@@ -9,11 +9,9 @@
 - **Maps Domain Migration & URL Restructure** [plan] `2026-06-26-maps-domain-url-migration` (—)
 - **World Map — User Annotations (Pins, Paths, Regions)** [spec] `2026-06-27-map-annotations`
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
-- **Map Search UX — Filter Chips, Icons, Fuzzy, Highlight** [spec] `2026-06-28-map-search-ux-improvements`
-- **Map Search UX Improvements — Implementation Plan** [plan] `2026-06-28-map-search-ux-improvements-plan` (—) ← 2026-06-28-map-search-ux-improvements
 
 ## draft
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 
-_43 archived — see `docs/plans/archive/`._
+_45 archived — see `docs/plans/archive/`._
