@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Command } from 'bits-ui';
     import { searchMarkers, type SearchResult, type SearchMatch, type IndexEntry } from '$lib/map/search';
+    import { splitByMatchRange, type TextSegment } from '$lib/map/search/match-highlight';
     import { Rarity } from '$lib/map-markers';
     import type { EntityData } from '$lib/map/live/types';
     import * as Drawer from '$lib/components/ui/drawer';
@@ -131,10 +132,6 @@
         return staticCategoryOrder.filter((cat) => groups[cat]).map((cat) => [cat, groups[cat]!]);
     }
 
-    function getStaticResultLabel(result: SearchResult): string {
-        return result.type === 'item' ? result.itemName : result.name;
-    }
-
     function getStaticResultSublabel(result: SearchResult): string {
         switch (result.type) {
             case 'enemy': {
@@ -170,6 +167,12 @@
             case 'item':
                 return `item-${result.itemStableKey}`;
         }
+    }
+
+    /** Split a result name into highlight segments based on the match range. */
+    function getResultSegments(match: SearchMatch): TextSegment[] {
+        const name = match.result.type === 'item' ? match.result.itemName : match.result.name;
+        return splitByMatchRange(name, match.matchRange);
     }
 
     /** Human-readable label for an entity type. */
@@ -296,7 +299,15 @@
                                 >
                                     <Radio class="h-4 w-4 shrink-0 text-lime-400" />
                                     <div class="min-w-0 flex-1">
-                                        <div class="truncate">{item.entity.name}</div>
+                                        <div class="truncate">
+                                            {#each splitByMatchRange(item.entity.name, item.matchRange) as seg, i (i)}
+                                                {#if seg.highlighted}
+                                                    <mark class="bg-transparent text-white font-semibold">{seg.text}</mark>
+                                                {:else}
+                                                    {seg.text}
+                                                {/if}
+                                            {/each}
+                                        </div>
                                         <div class="text-xs text-zinc-500 truncate">
                                             {getLiveResultSublabel(item.entity)}
                                         </div>
@@ -329,13 +340,23 @@
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />
+                                    {:else if result.type === 'item' && result.iconName}
+                                        <img src={`/items/${result.iconName}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
                                     {:else if result.type === 'item'}
                                         <Package class="h-4 w-4 shrink-0 text-emerald-500" />
                                     {:else}
                                         <MapIcon class="h-4 w-4 shrink-0 text-purple-500" />
                                     {/if}
                                     <div class="min-w-0 flex-1">
-                                        <div class="truncate">{getStaticResultLabel(result)}</div>
+                                        <div class="truncate">
+                                            {#each getResultSegments(match) as seg, i (i)}
+                                                {#if seg.highlighted}
+                                                    <mark class="bg-transparent text-white font-semibold">{seg.text}</mark>
+                                                {:else}
+                                                    {seg.text}
+                                                {/if}
+                                            {/each}
+                                        </div>
                                         <div class="text-xs text-zinc-500 truncate">
                                             {getStaticResultSublabel(result)}
                                         </div>
