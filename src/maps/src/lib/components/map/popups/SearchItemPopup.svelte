@@ -119,8 +119,13 @@
 <div class="space-y-4">
     <!-- Summary -->
     <div class="flex items-center justify-between">
-        <div class="text-sm text-zinc-300">
-            {result.dropperCount} dropper{result.dropperCount !== 1 ? 's' : ''}
+        <div class="flex items-center gap-3">
+            {#if result.iconName}
+                <img src={`/items/${result.iconName}.w48.webp`} alt="" class="h-12 w-12" />
+            {/if}
+            <div class="text-sm text-zinc-300">
+                {result.dropperCount} dropper{result.dropperCount !== 1 ? 's' : ''}
+            </div>
         </div>
         <WikiLink pageName={result.wikiPageName} />
     </div>
