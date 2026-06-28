@@ -10,6 +10,8 @@
     import MapIcon from '@lucide/svelte/icons/map';
     import Radio from '@lucide/svelte/icons/radio';
     import Package from '@lucide/svelte/icons/package';
+    import SearchChips from './SearchChips.svelte';
+    import { computeChipCounts, type Category } from './search-chips';
 
     // Live-only result type, separate from the static SearchResult union
     type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string; matchRange: [number, number] | null };
@@ -45,6 +47,7 @@
     let staticResults = $state<SearchMatch[]>([]);
     let liveResults = $state<LiveSearchResult[]>([]);
     let loading = $state(false);
+    let activeCategory = $state<Category>('all');
 
     // Debounced search
     let searchTimeout: ReturnType<typeof setTimeout>;
@@ -238,7 +241,33 @@
         return { destroy: () => observer.disconnect() };
     }
 
-    const hasResults = $derived(staticResults.length > 0 || liveResults.length > 0);
+    // Chip counts from current results
+    const chipCounts = $derived(computeChipCounts(staticResults, liveResults.length));
+
+    // Filtered results by active category
+    const filteredStatic = $derived(
+        activeCategory === 'all' || activeCategory === 'live'
+            ? staticResults
+            : staticResults.filter((m) => m.result.type === activeCategory)
+    );
+    const filteredLive = $derived(
+        activeCategory === 'all' || activeCategory === 'live' ? liveResults : []
+    );
+    const filteredHasResults = $derived(filteredStatic.length > 0 || filteredLive.length > 0);
+
+    // Arrow-key category switching when focus is in the chip row
+    function handleChipKeydown(e: KeyboardEvent) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const order: Category[] = ['all', 'live', 'item', 'enemy', 'npc', 'zone'];
+        const available = order.filter(
+            (c) => c === 'all' || (chipCounts.get(c) ?? 0) > 0 || c === 'live'
+        );
+        const currentIdx = available.indexOf(activeCategory);
+        e.preventDefault();
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const nextIdx = (currentIdx + dir + available.length) % available.length;
+        activeCategory = available[nextIdx];
+    }
 </script>
 
 {#snippet searchContent()}
@@ -261,6 +290,15 @@
                    outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
     </div>
+    {#if query.length >= 2 && (staticResults.length > 0 || liveResults.length > 0)}
+        <div role="toolbar" aria-label="Filter results by category" tabindex="0" onkeydown={handleChipKeydown}>
+            <SearchChips
+                activeCategory={activeCategory}
+                counts={chipCounts}
+                onSelect={(cat) => (activeCategory = cat)}
+            />
+        </div>
+    {/if}
     <div use:fixScrollIntoView>
         <Command.List class="max-h-80 overflow-y-auto px-2 py-2">
             {#if loading}
@@ -273,7 +311,7 @@
                         Type at least 2 characters to search
                     </div>
                 </Command.Empty>
-            {:else if !hasResults}
+            {:else if !filteredHasResults}
                 <Command.Empty>
                     <div class="py-6 text-center text-sm text-zinc-500">
                         No results found for "{query}"
@@ -281,7 +319,7 @@
                 </Command.Empty>
             {:else}
                 <!-- Live entities first -->
-                {#if liveResults.length > 0}
+                {#if filteredLive.length > 0}
                     <Command.Group>
                         <Command.GroupHeading
                             class="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wide"
@@ -289,7 +327,7 @@
                             Live Entities
                         </Command.GroupHeading>
                         <Command.GroupItems>
-                            {#each liveResults as item (item.entity.id)}
+                            {#each filteredLive as item (item.entity.id)}
                                 <Command.Item
                                     value={`live-${item.entity.id}`}
                                     onSelect={() => handleSelect(item)}
@@ -319,7 +357,7 @@
                 {/if}
 
                 <!-- Static results grouped by category -->
-                {#each groupStaticByCategory(staticResults) as [category, items] (category)}
+                {#each groupStaticByCategory(filteredStatic) as [category, items] (category)}
                     <Command.Group>
                         <Command.GroupHeading
                             class="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wide"
