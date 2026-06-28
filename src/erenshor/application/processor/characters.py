@@ -97,6 +97,7 @@ class _SpawnRow:
     is_rare: int | None
     is_wiki_generated: int | None
     is_map_visible: int | None
+    source_script: str | None = None
 
 
 @dataclass
@@ -776,6 +777,7 @@ def process_characters(
                     if s.is_wiki_generated is not None
                     else d.char.is_wiki_generated,
                     "is_map_visible": s.is_map_visible if s.is_map_visible is not None else d.char.is_map_visible,
+                    "source_script": s.source_script,
                 }
             )
     writer.insert_character_spawns(spawn_out)

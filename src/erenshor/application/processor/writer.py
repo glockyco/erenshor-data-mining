@@ -896,6 +896,7 @@ CREATE TABLE character_spawns (
     is_rare                 INTEGER,
     is_wiki_generated       INTEGER,
     is_map_visible          INTEGER,
+    source_script           TEXT,
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
