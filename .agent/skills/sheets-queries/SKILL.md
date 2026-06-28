@@ -1,6 +1,6 @@
 ---
 name: sheets-queries
-description: Google Sheets SQL queries and deployment. Use when adding or modifying sheets queries.
+description: Authoring SQL query files that build Google Sheets tabs from the clean SQLite DB, and deploying them. Use when adding, editing, or deploying a sheet query under src/erenshor/application/sheets/queries/.
 ---
 
 # Adding New Google Sheets Queries

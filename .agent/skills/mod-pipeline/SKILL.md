@@ -1,6 +1,6 @@
 ---
 name: mod-pipeline
-description: Mod build, deploy, and publish lifecycle. Use when building, deploying, or publishing mods.
+description: BepInEx companion-mod build, deploy, and publish lifecycle with git-derived CalVer versioning. Use when building, deploying (hot-reload or production), or publishing a mod via uv run erenshor mod.
 ---
 
 # Companion Mod Build Pipeline

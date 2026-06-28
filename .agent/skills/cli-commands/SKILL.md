@@ -1,6 +1,6 @@
 ---
 name: cli-commands
-description: Typer CLI command patterns. Use when adding or modifying CLI commands in src/erenshor/cli/.
+description: Typer CLI conventions for this project — command groups, options, dry-run flags, and precondition checks. Use when adding or modifying a command or command group under src/erenshor/cli/commands/.
 ---
 
 # Adding New CLI Commands
