@@ -63,4 +63,21 @@ describe('Repository', () => {
         expect(markers.length).toBeGreaterThan(0);
         expect(markers[0].category).toBe('zone-line');
     });
+    it('gets item droppers for map-visible items', async () => {
+        const rows = await db.getItemDroppers();
+        expect(Array.isArray(rows)).toBe(true);
+        expect(rows.length).toBeGreaterThan(0);
+        // Only map-visible items should be present
+        // Spot-check shape on the first row
+        const first = rows[0];
+        expect(first).toHaveProperty('itemStableKey');
+        expect(first).toHaveProperty('displayName');
+        expect(first).toHaveProperty('characterStableKey');
+        expect(first).toHaveProperty('npcName');
+        expect(typeof first.dropProbability).toBe('number');
+        expect(first.dropProbability).toBeGreaterThanOrEqual(0);
+        // Each item stable key maps to at least one character
+        const itemKeys = new Set(rows.map((r) => r.itemStableKey));
+        expect(itemKeys.size).toBeGreaterThan(0);
+    });
 });
