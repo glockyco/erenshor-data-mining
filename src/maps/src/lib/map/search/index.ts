@@ -12,14 +12,16 @@ import type {
     IndexEntry,
     SearchResult,
     ResolvedHighlight,
-    EnemySearchResult
+    EnemySearchResult,
+    SearchMatch
 } from './types';
 import { EnemySearchProvider } from './enemy-provider';
 import { NpcSearchProvider } from './npc-provider';
 import { ZoneSearchProvider } from './zone-provider';
 import { ItemSearchProvider } from './item-drop-provider';
+import { searchTiered } from './fuse-index';
 
-export type { SearchResult, IndexEntry, ResolvedHighlight } from './types';
+export type { SearchResult, IndexEntry, ResolvedHighlight, SearchMatch } from './types';
 export type {
     EnemySearchResult,
     NpcSearchResult,
@@ -87,49 +89,33 @@ export function buildSearchIndex(
 /**
  * Search the index for matching entries.
  *
- * Algorithm: prefix matches first, then substring matches.
- * Results are interleaved across categories via round-robin to prevent
+ * Algorithm: tiered matching (prefix → substring → Fuse fuzzy) via
+ * searchTiered, then results are grouped by category, sorted within each
+ * category, and interleaved across categories via round-robin to prevent
  * one category from dominating.
  */
-export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchResult[] {
-    const q = query.toLowerCase().trim();
-    if (q.length < 2) return [];
+export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchMatch[] {
+    const matches = searchTiered(query, index, limit);
+    if (matches.length === 0) return [];
 
-    // Split matches into prefix and substring buckets, grouped by category
-    const prefixByCategory = new Map<string, SearchResult[]>();
-    const substringByCategory = new Map<string, SearchResult[]>();
-
-    for (const entry of index) {
-        if (entry.searchText.startsWith(q)) {
-            const cat = entry.result.type;
-            const bucket = prefixByCategory.get(cat);
-            if (bucket) {
-                bucket.push(entry.result);
-            } else {
-                prefixByCategory.set(cat, [entry.result]);
-            }
-        } else if (entry.searchText.includes(q)) {
-            const cat = entry.result.type;
-            const bucket = substringByCategory.get(cat);
-            if (bucket) {
-                bucket.push(entry.result);
-            } else {
-                substringByCategory.set(cat, [entry.result]);
-            }
+    // Group by category
+    const byCategory = new Map<string, SearchMatch[]>();
+    for (const match of matches) {
+        const cat = match.result.type;
+        const bucket = byCategory.get(cat);
+        if (bucket) {
+            bucket.push(match);
+        } else {
+            byCategory.set(cat, [match]);
         }
     }
 
-    // Sort results within each category before interleaving
-    sortCategories(prefixByCategory);
-    sortCategories(substringByCategory);
+    // Sort results within each category
+    sortCategories(byCategory);
 
-    // Round-robin interleave within each priority tier
-    const results: SearchResult[] = [];
-    interleave(prefixByCategory, results, limit);
-    if (results.length < limit) {
-        interleave(substringByCategory, results, limit);
-    }
-
+    // Round-robin interleave across categories
+    const results: SearchMatch[] = [];
+    interleave(byCategory, results, limit);
     return results;
 }
 
@@ -139,16 +125,16 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
  * Enemies: unique > rare > common, then alphabetically by name.
  * Items / NPCs / Zones: alphabetically by name.
  */
-function sortCategories(byCategory: Map<string, SearchResult[]>): void {
+function sortCategories(byCategory: Map<string, SearchMatch[]>): void {
     for (const [cat, results] of byCategory) {
         if (cat === 'enemy') {
             results.sort((a, b) => {
-                const ae = a as EnemySearchResult;
-                const be = b as EnemySearchResult;
+                const ae = a.result as EnemySearchResult;
+                const be = b.result as EnemySearchResult;
                 return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
             });
         } else {
-            results.sort((a, b) => sortName(a).localeCompare(sortName(b)));
+            results.sort((a, b) => sortName(a.result).localeCompare(sortName(b.result)));
         }
     }
 }
@@ -162,8 +148,8 @@ function sortName(result: SearchResult): string {
  * Round-robin interleave results from multiple categories into the output array.
  */
 function interleave(
-    byCategory: Map<string, SearchResult[]>,
-    output: SearchResult[],
+    byCategory: Map<string, SearchMatch[]>,
+    output: SearchMatch[],
     limit: number
 ): void {
     if (byCategory.size === 0) return;

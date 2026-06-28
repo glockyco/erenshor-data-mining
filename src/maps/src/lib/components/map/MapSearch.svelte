@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Command } from 'bits-ui';
-    import { searchMarkers, type SearchResult, type IndexEntry } from '$lib/map/search';
+    import { searchMarkers, type SearchResult, type SearchMatch, type IndexEntry } from '$lib/map/search';
     import { Rarity } from '$lib/map-markers';
     import type { EntityData } from '$lib/map/live/types';
     import * as Drawer from '$lib/components/ui/drawer';
@@ -11,10 +11,10 @@
     import Package from '@lucide/svelte/icons/package';
 
     // Live-only result type, separate from the static SearchResult union
-    type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string };
+    type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string; matchRange: [number, number] | null };
 
     // Combined item for the rendered list
-    type AnyResult = { kind: 'static'; result: SearchResult } | LiveSearchResult;
+    type AnyResult = { kind: 'static'; match: SearchMatch } | LiveSearchResult;
 
     interface Props {
         open: boolean;
@@ -41,7 +41,7 @@
     }: Props = $props();
 
     let query = $state('');
-    let staticResults = $state<SearchResult[]>([]);
+    let staticResults = $state<SearchMatch[]>([]);
     let liveResults = $state<LiveSearchResult[]>([]);
     let loading = $state(false);
 
@@ -89,10 +89,11 @@
         const substring: LiveSearchResult[] = [];
         for (const entity of liveEntities) {
             const nameLower = entity.name.toLowerCase();
-            if (nameLower.startsWith(lower)) {
-                prefix.push({ kind: 'live', entity, zone });
-            } else if (nameLower.includes(lower)) {
-                substring.push({ kind: 'live', entity, zone });
+            const startIdx = nameLower.indexOf(lower);
+            if (startIdx === 0) {
+                prefix.push({ kind: 'live', entity, zone, matchRange: [0, lower.length] });
+            } else if (startIdx > 0) {
+                substring.push({ kind: 'live', entity, zone, matchRange: [startIdx, startIdx + lower.length] });
             }
         }
         return [...prefix, ...substring].slice(0, 5);
@@ -102,7 +103,7 @@
         if (item.kind === 'live') {
             onliveselect(item.entity, item.zone);
         } else {
-            onselect(item.result);
+            onselect(item.match.result);
         }
         open = false;
     }
@@ -121,11 +122,11 @@
     const staticCategoryOrder: SearchResult['type'][] = ['item', 'enemy', 'npc', 'zone'];
 
     function groupStaticByCategory(
-        items: SearchResult[]
-    ): [SearchResult['type'], SearchResult[]][] {
-        const groups: Partial<Record<SearchResult['type'], SearchResult[]>> = {};
+        items: SearchMatch[]
+    ): [SearchResult['type'], SearchMatch[]][] {
+        const groups: Partial<Record<SearchResult['type'], SearchMatch[]>> = {};
         for (const item of items) {
-            (groups[item.type] ??= []).push(item);
+            (groups[item.result.type] ??= []).push(item);
         }
         return staticCategoryOrder.filter((cat) => groups[cat]).map((cat) => [cat, groups[cat]!]);
     }
@@ -315,10 +316,11 @@
                             {categoryLabels[category]}
                         </Command.GroupHeading>
                         <Command.GroupItems>
-                            {#each items as result (getStaticResultValue(result))}
+                            {#each items as match (getStaticResultValue(match.result))}
+                                {@const result = match.result}
                                 <Command.Item
                                     value={getStaticResultValue(result)}
-                                    onSelect={() => handleSelect({ kind: 'static', result })}
+                                    onSelect={() => handleSelect({ kind: 'static', match })}
                                     class="flex items-center gap-3 rounded-lg px-2 py-2
                                            text-sm text-zinc-300 cursor-pointer
                                            aria-selected:bg-zinc-700 aria-selected:text-white"
