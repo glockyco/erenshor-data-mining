@@ -105,20 +105,6 @@ visibility are independent questions.
 
 ---
 
-## Sub-phase 1D — Scanner refactor (performance)
-
-Outcome: `AssetScanner` dispatch uses precomputed typed delegates instead of per-call reflection. The dynamic listener processes every MonoBehaviour, so this eliminates the overhead it exposes.
-
-**Files:** `src/Assets/Editor/ExportSystem/AssetScanner/AssetScanner.cs`
-
-### Task E1: Typed-delegate dispatch
-
-- [ ] Replace per-call `GetMethod` + `Invoke` with a precomputed `Dictionary<Type, List<Action<Component>>>` built lazily on first scan. `RegisterComponentListener<T>` captures a delegate at registration time. The hot loop becomes a `TryGetValue` + delegate invocation.
-- [ ] Verify no regression — run a full playtest export before and after, diff the raw DB dump. Expected: no differences in table content.
-- [ ] **Commit** — `refactor(export): precompute typed dispatch delegates`
-
----
-
 ## Sub-phase 1E — Orphan reduction verification
 
 **Current state:** 70 true orphans (down from 132 baseline). 61 excluded or
