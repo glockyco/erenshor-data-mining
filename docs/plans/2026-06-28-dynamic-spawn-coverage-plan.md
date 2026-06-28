@@ -94,9 +94,9 @@ Outcome: new column and table exist in the Python clean schema; existing exports
 
 - [x] **Step 1:** Create the record class mirroring `QuestRequiredItemRecord.cs` (junction, composite unique index). Uses indexed FKs instead of a composite `[PrimaryKey]` string to match the codebase convention.
 
-- [ ] **Step 2:** The table is NOT created by the record class alone — `_db.CreateTable<T>()` is called in the listener's `OnScanFinished`. Table creation is deferred to Task B4 (`DynamicSpawnSourceListener.OnScanFinished`). Commit the record now; verify the table exists after Task B4.
+- [x] **Step 2:** The table is NOT created by the record class alone — `_db.CreateTable<T>()` is called in the listener's `OnScanFinished`. Table creation is deferred to Task B4 (`DynamicSpawnSourceListener.OnScanFinished`). Commit the record now; verify the table exists after Task B4.
 
-- [ ] **Step 3: Commit** — `feat(export): add character_chained_spawns record for Category B spawns`
+- [x] **Step 3: Commit** — `feat(export): add character_chained_spawns record for Category B spawns` (92c86041)
 
 ### Task A4: Mirror `character_chained_spawns` in the Python clean schema
 
@@ -104,7 +104,7 @@ Outcome: new column and table exist in the Python clean schema; existing exports
 - Modify: `src/erenshor/application/processor/writer.py`
 - Modify: `src/erenshor/application/processor/characters.py`
 
-- [ ] **Step 1:** Add the table to `writer.py` after `character_spawns`:
+- [x] **Step 1:** Add the table to `writer.py` after `character_spawns`:
 
 ```sql
 CREATE TABLE character_chained_spawns (
@@ -115,28 +115,13 @@ CREATE TABLE character_chained_spawns (
 );
 ```
 
-- [ ] **Step 2:** Add an `insert_character_chained_spawns` method to `Writer` mirroring `insert_character_spawns`.
+- [x] **Step 2:** Add an `insert_character_chained_spawns` method to `Writer` mirroring `insert_character_spawns`.
 
-- [ ] **Step 3:** In `characters.py`, after the existing `character_spawns` insert (line 781), add a pass-through copy from raw → clean (the table is populated by the listener in Task B2; this just carries it through the build):
+- [x] **Step 3:** In `characters.py`, after the existing `character_spawns` insert, add a guarded pass-through copy from raw → clean using `_table_exists(raw, "CharacterChainedSpawns")` (matching the `ArenaRounds` guard pattern). The table is populated by the listener in Task B4; this just carries it through the build.
 
-```python
-# character_chained_spawns (Category B — expanded into character_spawns in Task C3)
-chained_rows = _load_rows(raw_db, "SELECT ParentStableKey, ChildStableKey, SourceScript FROM CharacterChainedSpawns")
-writer.insert_character_chained_spawns([
-    {"parent_stable_key": r["ParentStableKey"], "child_stable_key": r["ChildStableKey"], "source_script": r["SourceScript"]}
-    for r in chained_rows
-])
-```
+- [x] **Step 4:** Build and confirm the clean table exists and is empty: 0 rows (no listener populates it yet).
 
-- [ ] **Step 4:** Build and confirm the clean table exists and is empty:
-
-```bash
-uv run erenshor -V playtest extract build
-sqlite3 variants/playtest/erenshor-playtest.sqlite "SELECT COUNT(*) FROM character_chained_spawns"
-```
-Expected: `0`.
-
-- [ ] **Step 5: Commit** — `feat(pipeline): carry character_chained_spawns into clean DB`
+- [x] **Step 5: Commit** — `feat(pipeline): carry character_chained_spawns into clean DB` (c235f5a3)
 
 ---
 
