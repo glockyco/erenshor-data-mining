@@ -1,9 +1,10 @@
 ---
 title: Dynamic Spawn Coverage — Implementation Plan
 type: plan
-status: active
+status: implemented
 created: 2026-06-28
 parent: 2026-05-28-dynamic-spawn-coverage-design
+archived: 2026-06-28
 ---
 
 # Dynamic Spawn Coverage — Implementation Plan
