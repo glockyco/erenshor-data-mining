@@ -254,7 +254,10 @@ Outcome: Skills reflect the new gate workflow; `writing-skills` removed; frontma
 
 ### Task I1: Expand chained-spawn test coverage
 
-- [ ] Add edge-case tests to `test_chained_spawns.py` (parent with multiple spawns, duplicate paths, multiple children from one parent). The base 7 tests cover the core paths; these add coverage for less common shapes.
+- [x] Add edge-case tests to `test_chained_spawns.py`: multiple children
+  from one parent, child with own direct spawns (preserved alongside
+  inherited chain spawns), diamond chain dedup, and empty table no-op.
+  11 tests total (7 base + 4 edge-case).
 
 ---
 
