@@ -29,8 +29,10 @@ sentences. Wrap at 80 characters.
 
 ## Scopes
 
-Common scopes: `mod`, `map`, `maps`, `wiki`, `sheets`, `cli`, `export`,
-`protocol`, `domain`, `infra`
+Any short noun matching the changed subsystem. Common examples:
+`mod`, `map`, `maps`, `wiki`, `sheets`, `cli`, `export`, `pipeline`,
+`guide`, `config`, `plans`, `skills`. The scope is not restricted to a
+fixed list — choose the noun that best describes the area of change.
 
 ## Rules
 

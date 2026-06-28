@@ -64,8 +64,7 @@ def test_commitlint_enforces_project_commit_policy() -> None:
     assert "body-max-line-length" in config
     assert "footer-max-line-length" in config
     assert "scope-empty" in config
-    assert "config" in config
-    assert "wiki" in config
+    assert "scope-enum" not in config
 
 
 def test_lua_tooling_is_configured_for_scribunto_modules() -> None:

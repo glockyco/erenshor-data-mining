@@ -106,7 +106,7 @@ logical change. Implement and commit sequentially. A commit that requires
 
 Conventional commits: `type(scope): description`
 - Types: feat, fix, refactor, style, docs, test, chore
-- Scopes: mod, map, cli, export, wiki, sheets, pipeline, guide, config
+- Scopes: any short noun matching the changed subsystem (e.g. mod, map, cli, export, wiki, sheets, pipeline, guide, config, plans, skills)
 - Body: prose paragraphs, not bullet lists. Explain why, not what.
 - Imperative mood. 80-char line wrap. No period on summary.
 - Full guidelines: read the `commit-guidelines` skill.
