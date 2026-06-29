@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- net9.0 (not net10) so any reasonably recent SDK can build this even
+         from a pre-push hook, regardless of which dotnet the launcher's PATH
+         resolves first. RollForward=Major lets the framework-dependent tool
+         run on a newer runtime when net9 is absent. Field enumeration is
+         hermetic (Mono.Cecil metadata-only read), so neither the target
+         framework nor the host runtime affects the findings. -->
+    <TargetFramework>net9.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Pinned EXACTLY. Upgrading is a deliberate, standalone commit.
+         Metadata-only reader — no Unity, no decompiler. -->
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
+</Project>
