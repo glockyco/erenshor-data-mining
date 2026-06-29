@@ -12,6 +12,7 @@ public struct CatalogEntry
 {
     public DynamicSpawnClassification Classification { get; set; }
     public string? PositionField { get; set; }   // comma-separated for multi-position spawns; listener splits
+    public string? PositionStrategy { get; set; } // named resolver for non-Cartesian placement semantics
     public string? Reason { get; set; }
 }
 
@@ -36,6 +37,7 @@ public class DynamicSpawnCatalog
         string? currentScript = null;
         List<string>? currentFields = null;
         string? currentPositionField = null;
+        string? currentPositionStrategy = null;
         string? currentReason = null;
 
         foreach (var rawLine in File.ReadAllLines(path))
@@ -46,9 +48,9 @@ public class DynamicSpawnCatalog
             if (line == "[[allowed]]" || line == "[[denied]]")
             {
                 if (currentScript != null && currentFields != null)
-                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentReason);
+                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentReason);
                 currentSection = line == "[[allowed]]" ? "allowed" : "denied";
-                currentScript = null; currentFields = null; currentPositionField = null; currentReason = null;
+                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentReason = null;
             }
             else if (line.StartsWith("script = "))
             {
@@ -62,18 +64,22 @@ public class DynamicSpawnCatalog
             {
                 currentPositionField = ParseStringValue(line);
             }
+            else if (line.StartsWith("position_strategy = "))
+            {
+                currentPositionStrategy = ParseStringValue(line);
+            }
             else if (line.StartsWith("reason = "))
             {
                 currentReason = ParseStringValue(line);
             }
         }
         if (currentScript != null && currentFields != null)
-            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentReason);
+            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentReason);
 
         return catalog;
     }
 
-    private void AddSection(string section, string script, List<string> fields, string? positionField, string? reason)
+    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, string? reason)
     {
         var classification = section == "allowed" ? DynamicSpawnClassification.Allowed : DynamicSpawnClassification.Denied;
         _knownScripts.Add(script);
@@ -90,6 +96,7 @@ public class DynamicSpawnCatalog
             {
                 Classification = classification,
                 PositionField = positionField,
+                PositionStrategy = positionStrategy,
                 Reason = reason,
             };
         }

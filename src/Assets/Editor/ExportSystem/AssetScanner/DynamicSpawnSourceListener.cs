@@ -11,6 +11,8 @@ using Object = UnityEngine.Object;
 
 public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 {
+    private const string VithArenaFightPositionStrategy = "vith_arena_fight";
+
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly DynamicSpawnCatalog _catalog;
@@ -22,6 +24,12 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
     private bool _hasErrors = false;
     public bool HasErrors => _hasErrors;
+
+    private struct ResolvedCharacterSpawn
+    {
+        public Character Character;
+        public Vector3 Position;
+    }
 
     public DynamicSpawnSourceListener(
         SQLiteConnection db,
@@ -68,13 +76,13 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             }
 
             // Allowed — emit spawn rows
-            foreach (var character in characters)
+            if (isChainedHost)
             {
-                var childKey = _characterKeyResolver.GetStableKey(character);
-                if (isChainedHost)
+                foreach (var character in characters)
                 {
                     // Category B — host is a Character prefab; write to chained table
                     var parentKey = _characterKeyResolver.GetStableKey(comp.GetComponent<Character>()!);
+                    var childKey = _characterKeyResolver.GetStableKey(character);
                     _chainedRecords.Add(new CharacterChainedSpawnRecord
                     {
                         ParentStableKey = parentKey,
@@ -82,24 +90,20 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                         SourceScript = scriptName,
                     });
                 }
-                else
+            }
+            else if (entry.PositionStrategy == VithArenaFightPositionStrategy)
+            {
+                foreach (var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName))
+                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName);
+            }
+            else
+            {
+                // Category A — emit spawn rows at the host's position(s)
+                foreach (var character in characters)
                 {
-                    // Category A — emit spawn rows at the host's position(s)
                     var positions = ResolvePositions(comp, entry.PositionField);
                     foreach (var pos in positions)
-                    {
-                        var key = $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
-                        _spawnRecords.Add(new DynamicCharacterSpawnRecord
-                        {
-                            Key = key,
-                            CharacterStableKey = childKey,
-                            Scene = hostScene,
-                            X = pos.x,
-                            Y = pos.y,
-                            Z = pos.z,
-                            SourceScript = scriptName,
-                        });
-                    }
+                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName);
                 }
             }
         }
@@ -213,6 +217,107 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         }
 
         return result;
+    }
+
+    private void AddDynamicSpawnRecord(Character character, Vector3 pos, string hostScene, string scriptName)
+    {
+        var childKey = _characterKeyResolver.GetStableKey(character);
+        var key = $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
+        _spawnRecords.Add(new DynamicCharacterSpawnRecord
+        {
+            Key = key,
+            CharacterStableKey = childKey,
+            Scene = hostScene,
+            X = pos.x,
+            Y = pos.y,
+            Z = pos.z,
+            SourceScript = scriptName,
+        });
+    }
+
+    private List<ResolvedCharacterSpawn> ResolveVithArenaFightSpawns(
+        MonoBehaviour host,
+        object value,
+        string scriptName,
+        string fieldName)
+    {
+        var result = new List<ResolvedCharacterSpawn>();
+        if (!(value is IList list))
+            return result;
+
+        var positionFields = VithArenaFightPositionFields(list.Count);
+        if (positionFields.Count != list.Count)
+        {
+            UnityEngine.Debug.LogWarning(
+                $"[DynamicSpawn] {scriptName}.{fieldName} has {list.Count} entries; " +
+                "VithArena.SpawnPiece only defines placement for 1-3 enemies");
+            return result;
+        }
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var character = ResolveCharacterReference(list[i]);
+            if (character == null)
+                continue;
+
+            if (!TryResolvePosition(host, positionFields[i], out var position))
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[DynamicSpawn] {scriptName}.{fieldName} could not resolve {positionFields[i]}; skipping enemy {i}");
+                continue;
+            }
+
+            result.Add(new ResolvedCharacterSpawn
+            {
+                Character = character,
+                Position = position,
+            });
+        }
+
+        return result;
+    }
+
+    private static List<string> VithArenaFightPositionFields(int count)
+    {
+        if (count == 1) return new List<string> { "SpawnLoc1" };
+        if (count == 2) return new List<string> { "SpawnLoc2", "SpawnLoc3" };
+        if (count == 3) return new List<string> { "SpawnLoc1", "SpawnLoc2", "SpawnLoc3" };
+        return new List<string>();
+    }
+
+    private Character? ResolveCharacterReference(object item)
+    {
+        if (item is GameObject go)
+        {
+            try
+            {
+                return go.GetComponent<Character>();
+            }
+            catch (UnassignedReferenceException) { return null; }
+        }
+
+        return item as Character;
+    }
+
+    private bool TryResolvePosition(MonoBehaviour host, string fieldName, out Vector3 position)
+    {
+        position = default;
+        var field = host.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.Instance);
+        if (field == null) return false;
+
+        var val = field.GetValue(host);
+        if (val is Transform t)
+        {
+            position = t.position;
+            return true;
+        }
+        if (val is GameObject go)
+        {
+            position = go.transform.position;
+            return true;
+        }
+
+        return false;
     }
 
     private List<Vector3> ResolvePositions(MonoBehaviour host, string? positionField)

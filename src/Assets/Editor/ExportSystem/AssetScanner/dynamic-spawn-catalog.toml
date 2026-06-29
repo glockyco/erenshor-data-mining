@@ -63,7 +63,8 @@ fields = ["Guardians"]
 [[allowed]]
 script = "VithArena"
 fields = ["Coin1Fight", "Coin2Fight", "Coin3Fight", "Coin4Fight", "Coin5Fight", "Coin6Fight", "Coin7Fight", "Coin8Fight"]
-position_field = "SpawnLoc1"
+position_strategy = "vith_arena_fight"
+reason = "Fight lists use VithArena.SpawnPiece semantics: 1 enemy -> SpawnLoc1, 2 enemies -> SpawnLoc2/SpawnLoc3, 3 enemies -> all three spawn locs."
 
 [[allowed]]
 script = "WaveEvent"
@@ -178,7 +179,7 @@ reason = "Arena reward chest, instantiated at ChestSpawnPos; prefab has Characte
 [[denied]]
 script = "VithArena"
 fields = ["SpawnLoc1", "SpawnLoc2", "SpawnLoc3", "ChestSpawnPos", "RestoredVitheo"]
-reason = "Position markers and restored-NPC toggle; not dynamic spawns."
+reason = "Position markers and restored-NPC toggle; SpawnLoc1/2/3 are consumed by the vith_arena_fight position strategy, ChestSpawnPos by AwardChests."
 
 [[denied]]
 script = "WaveEvent"
