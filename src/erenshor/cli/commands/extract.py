@@ -26,6 +26,7 @@ from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
+from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
 from erenshor.infrastructure.assetripper.assetripper import AssetRipper
@@ -402,6 +403,7 @@ def rip(ctx: typer.Context) -> None:
 
 @app.command()
 @require_preconditions(
+    export_field_coverage_current,
     unity_project_exists,
     editor_scripts_linked,
     unity_version_matches,
