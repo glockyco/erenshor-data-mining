@@ -1,9 +1,10 @@
 ---
 title: Export Field-Coverage Gate & Playtest Reconciliation
 type: spec
-status: active
+status: implemented
 created: 2026-06-29
 parent:
+archived: 2026-06-29
 ---
 
 # Export Field-Coverage Gate & Playtest Reconciliation
