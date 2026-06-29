@@ -1,7 +1,7 @@
 ---
 title: Export Field-Coverage Gate & Playtest Reconciliation
 type: spec
-status: draft
+status: active
 created: 2026-06-29
 parent:
 ---
