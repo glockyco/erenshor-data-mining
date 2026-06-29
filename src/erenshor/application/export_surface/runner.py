@@ -94,3 +94,48 @@ def run_field_coverage(repo_root: Path, assembly: Path, manifest: Path) -> list[
     payload: dict[str, Any] = json.loads(proc.stdout)
     findings: list[dict[str, Any]] = payload["findings"]
     return findings
+
+
+def seed_entries(
+    findings: list[dict[str, Any]],
+) -> dict[str, dict[str, dict[str, str | None]]]:
+    """Turn unclassified findings into placeholder manifest entries.
+
+    Only unclassified findings (fields present in code but absent from the
+    manifest) produce seed entries — stale and retype findings are about
+    existing entries, not new fields. Each entry gets an empty status so the
+    gate fails until a human classifies it (captured/ignored).
+    """
+    fields: dict[str, dict[str, dict[str, str | None]]] = {}
+    for f in findings:
+        if f["kind"] != "unclassified":
+            continue
+        type_name = f["script_type"]
+        field_name = f["field_name"]
+        fields.setdefault(type_name, {})[field_name] = {
+            "type": f["actual"],
+            "status": "",
+            "by": None,
+            "reason": None,
+        }
+    return fields
+
+
+def write_manifest(
+    path: Path,
+    tracks_build: str,
+    types: list[str],
+    fields: dict[str, dict[str, dict[str, str | None]]],
+) -> None:
+    """Write the manifest in sorted, compact form (one field entry per line).
+
+    Types and fields are sorted alphabetically at both levels. Each field
+    entry is serialized compact on a single line so diffs stay granular and
+    reviewable (spec §4). This is the one place the manifest is written —
+    the C# tool stays read-only.
+    """
+    sorted_types = sorted(types)
+    sorted_fields = {t: {fn: fields[t][fn] for fn in sorted(fields.get(t, {}))} for t in sorted(fields)}
+    manifest = {"tracks_build": tracks_build, "types": sorted_types, "fields": sorted_fields}
+    text = json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False)
+    path.write_text(text + "\n")
