@@ -12,5 +12,6 @@
 ## draft
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
+- **Export Field-Coverage Gate & Playtest Reconciliation** [spec] `2026-06-29-export-field-coverage-gate`
 
 _48 archived — see `docs/plans/archive/`._
