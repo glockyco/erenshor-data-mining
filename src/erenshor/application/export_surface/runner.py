@@ -20,7 +20,7 @@ TOOL_PROJECT = Path("src") / "tools" / "ExportSurface"
 
 # Generic Unity wrapper types have no fixed data surface — listeners that
 # declare these as <T> are not in the field-coverage manifest (spec §5).
-GENERIC_UNITY_TYPES = {"GameObject", "Object", "NullScriptableObject"}
+GENERIC_UNITY_TYPES = {"GameObject", "Object", "NullScriptableObject", "MonoBehaviour"}
 
 # Matches the <T> generic argument of IAssetScanListener<T> in listener
 # declarations. Regex over declarations only — never parses method bodies
@@ -127,7 +127,7 @@ def write_manifest(
     types: list[str],
     fields: dict[str, dict[str, dict[str, str | None]]],
 ) -> None:
-    """Write the manifest in sorted, compact form (one field entry per line).
+    """Write the manifest in sorted form, one field entry per line.
 
     Types and fields are sorted alphabetically at both levels. Each field
     entry is serialized compact on a single line so diffs stay granular and
@@ -135,7 +135,24 @@ def write_manifest(
     the C# tool stays read-only.
     """
     sorted_types = sorted(types)
-    sorted_fields = {t: {fn: fields[t][fn] for fn in sorted(fields.get(t, {}))} for t in sorted(fields)}
-    manifest = {"tracks_build": tracks_build, "types": sorted_types, "fields": sorted_fields}
-    text = json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False)
-    path.write_text(text + "\n")
+    lines: list[str] = [
+        "{",
+        f'  "tracks_build": "{tracks_build}",',
+        f'  "types": {json.dumps(sorted_types)},',
+        '  "fields": {',
+    ]
+    sorted_type_names = sorted(fields)
+    for ti, type_name in enumerate(sorted_type_names):
+        field_map = fields[type_name]
+        sorted_field_names = sorted(field_map)
+        lines.append(f'    "{type_name}": {{')
+        for fi, field_name in enumerate(sorted_field_names):
+            entry = field_map[field_name]
+            compact = json.dumps(entry, separators=(", ", ": "), sort_keys=True, ensure_ascii=False)
+            comma = "," if fi < len(sorted_field_names) - 1 else ""
+            lines.append(f'      "{field_name}": {compact}{comma}')
+        comma = "," if ti < len(sorted_type_names) - 1 else ""
+        lines.append(f"    }}{comma}")
+    lines.append("  }")
+    lines.append("}")
+    path.write_text("\n".join(lines) + "\n")

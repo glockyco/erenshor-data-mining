@@ -77,9 +77,15 @@ def test_write_manifest_sorted_compact(tmp_path: Path) -> None:
     # Fields sorted alphabetically within each type.
     assert list(data["fields"]["Item"].keys()) == ["Beta"]
     assert list(data["fields"]["Spell"].keys()) == ["Alpha", "Zeta"]
-    # One field entry per line (compact format).
+    # Each field entry is on a single line (compact, not expanded).
     text = out.read_text()
-    assert text.count('"Beta"') == 1
+    # The field name and its full entry (type+status+by+reason) share one line.
+    import re
+
+    entry_lines = re.findall(r'^\s+"\w+": \{.*"status".*\}', text, re.MULTILINE)
+    assert len(entry_lines) == 3  # Beta, Alpha, Zeta
+    for line in entry_lines:
+        assert line.count("\n") == 0  # compact: entry on one line
 
 
 def test_write_manifest_round_trip(tmp_path: Path) -> None:
