@@ -1,14 +1,15 @@
 ---
 title: Export Field-Coverage Gate — Implementation Plan
 type: plan
-status: active
+status: implemented
 created: 2026-06-29
 parent: 2026-06-29-export-field-coverage-gate
+archived: 2026-06-29
 ---
 
 # Export Field-Coverage Gate — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Read `skill://unity-export-system`, `skill://code-facts`, `skill://refreshing-game-data`, and the parent spec `docs/plans/2026-06-29-export-field-coverage-gate.md` before starting.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking. Read `skill://unity-export-system`, `skill://code-facts`, `skill://refreshing-game-data`, and the parent spec `docs/plans/2026-06-29-export-field-coverage-gate.md` before starting.
 
 **Goal:** A pre-export gate that fails when a game class the exporter reads gains, loses, or retypes a public field without the change being acknowledged in a checked-in JSON manifest — plus the one-time reconciliation that seeds the manifest against the current playtest build.
 
@@ -48,7 +49,7 @@ Outcome: the Python runner (Task B1) can build and invoke the tool; given a DLL 
 
 **Files:** Create `src/tools/ExportSurface/ExportSurface.csproj` and `src/tools/ExportSurface/Program.cs` (stub)
 
-- [ ] **Step 1:** Create the csproj, mirroring `src/tools/CodeFacts/CodeFacts.csproj` property block (net9.0, `RollForward=Major`, `Nullable=enable`, `ImplicitUsings=enable`, `InvariantGlobalization=true`, `AnalysisMode=Recommended`, `EnforceCodeStyleInBuild=true`) but swap the package:
+- [x] **Step 1:** Create the csproj, mirroring `src/tools/CodeFacts/CodeFacts.csproj` property block (net9.0, `RollForward=Major`, `Nullable=enable`, `ImplicitUsings=enable`, `InvariantGlobalization=true`, `AnalysisMode=Recommended`, `EnforceCodeStyleInBuild=true`) but swap the package:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -71,7 +72,7 @@ Outcome: the Python runner (Task B1) can build and invoke the tool; given a DLL 
 </Project>
 ```
 
-- [ ] **Step 2:** Add a minimal `Program.cs` so the `Exe` project is buildable from this commit (Task A3 replaces it with the real CLI):
+- [x] **Step 2:** Add a minimal `Program.cs` so the `Exe` project is buildable from this commit (Task A3 replaces it with the real CLI):
 
 ```csharp
 // Placeholder entry point; replaced by the real CLI in Task A3.
@@ -79,13 +80,13 @@ System.Console.Error.WriteLine("ExportSurface: not implemented yet");
 return 2;
 ```
 
-- [ ] **Step 3: Commit** — `chore(export): scaffold the ExportSurface tool project with a stub entry point`
+- [x] **Step 3: Commit** — `chore(export): scaffold the ExportSurface tool project with a stub entry point`
 
 ### Task A2: Manifest model + JSON load (read-only)
 
 **Files:** Create `src/tools/ExportSurface/Manifest.cs`
 
-- [ ] **Step 1:** Implement the model + load, mirroring `src/tools/CodeFacts/Specs.cs`'s `System.Text.Json` record + `LoadSpecs` style. No writer — the tool never emits the manifest.
+- [x] **Step 1:** Implement the model + load, mirroring `src/tools/CodeFacts/Specs.cs`'s `System.Text.Json` record + `LoadSpecs` style. No writer — the tool never emits the manifest.
 
 ```csharp
 using System.Text.Json;
@@ -110,13 +111,13 @@ internal sealed record Manifest(
 }
 ```
 
-- [ ] **Step 2: Commit** — `feat(export): add the read-only field-coverage manifest model`
+- [x] **Step 2: Commit** — `feat(export): add the read-only field-coverage manifest model`
 
 ### Task A3: Cecil enumeration + diff + envelope
 
 **Files:** Create `src/tools/ExportSurface/Checker.cs`
 
-- [ ] **Step 1:** Implement the metadata-only enumerator and the pure diff (covered by the Task A4 integration test):
+- [x] **Step 1:** Implement the metadata-only enumerator and the pure diff (covered by the Task A4 integration test):
 
 ```csharp
 using Mono.Cecil;
@@ -159,7 +160,7 @@ internal static class Checker
 }
 ```
 
-- [ ] **Step 2:** Replace the A1 stub `Program.cs` with the real CLI (mirror `src/tools/CodeFacts/Program.cs` arg handling + `/Managed/` policy):
+- [x] **Step 2:** Replace the A1 stub `Program.cs` with the real CLI (mirror `src/tools/CodeFacts/Program.cs` arg handling + `/Managed/` policy):
 
 ```csharp
 using Mono.Cecil;
@@ -205,13 +206,13 @@ if (outPath is null) Console.WriteLine(json); else File.WriteAllText(outPath, js
 return findings.Count == 0 ? 0 : 1;
 ```
 
-- [ ] **Step 3: Commit** — `feat(export): add the ExportSurface checker and CLI`
+- [x] **Step 3: Commit** — `feat(export): add the ExportSurface checker and CLI`
 
 ### Task A4: Python integration test (the tool's verification)
 
 **Files:** Create `tests/integration/test_export_surface_tool.py` (mirror `tests/integration/test_code_facts_tool.py`)
 
-- [ ] **Step 1: Write the failing test** — it builds + invokes the tool **through the Task B1 runner** against the playtest DLL with crafted manifests, asserting each finding kind. Skip when the DLL is absent (mirror `tests/integration/test_code_facts_real.py`). NOTE: this test depends on Task B1's `run_field_coverage`; if executing strictly in order, write the test now (it fails to import), implement B1, then it passes.
+- [x] **Step 1: Write the failing test** — it builds + invokes the tool **through the Task B1 runner** against the playtest DLL with crafted manifests, asserting each finding kind. Skip when the DLL is absent (mirror `tests/integration/test_code_facts_real.py`). NOTE: this test depends on Task B1's `run_field_coverage`; if executing strictly in order, write the test now (it fails to import), implement B1, then it passes.
 
 ```python
 import json
@@ -241,8 +242,8 @@ def test_reports_each_finding_kind(tmp_path):
     assert "stale" in kinds               # DefinitelyGoneField not on the type
 ```
 
-- [ ] **Step 2:** Run `uv run pytest tests/integration/test_export_surface_tool.py -v`. Expected: PASS (after B1) or SKIP without the DLL.
-- [ ] **Step 3: Commit** — `test(export): integration-test the ExportSurface tool via the runner`
+- [x] **Step 2:** Run `uv run pytest tests/integration/test_export_surface_tool.py -v`. Expected: PASS (after B1) or SKIP without the DLL.
+- [x] **Step 3: Commit** — `test(export): integration-test the ExportSurface tool via the runner`
 
 ---
 
@@ -252,7 +253,7 @@ def test_reports_each_finding_kind(tmp_path):
 
 **Files:** Create `src/erenshor/application/export_surface/__init__.py` (empty); `runner.py`. Test: `tests/unit/application/export_surface/test_runner.py`
 
-- [ ] **Step 1: Write the failing test** — missing DLL/manifest raises; a returncode-2 (usage/IO) raises `RuntimeError`; otherwise returns the parsed `findings` (monkeypatch `subprocess.run` for the success/returncode-2 paths):
+- [x] **Step 1: Write the failing test** — missing DLL/manifest raises; a returncode-2 (usage/IO) raises `RuntimeError`; otherwise returns the parsed `findings` (monkeypatch `subprocess.run` for the success/returncode-2 paths):
 
 ```python
 from pathlib import Path
@@ -265,8 +266,8 @@ def test_missing_dll_raises(tmp_path):
         runner.run_field_coverage(Path("."), tmp_path / "nope.dll", tmp_path / "m.json")
 ```
 
-- [ ] **Step 2:** Run it; expect ImportError/FAIL.
-- [ ] **Step 3:** Implement `run_field_coverage(repo_root, assembly, manifest) -> list[dict]`, mirroring `code_facts/runner.py`'s subprocess pattern exactly:
+- [x] **Step 2:** Run it; expect ImportError/FAIL.
+- [x] **Step 3:** Implement `run_field_coverage(repo_root, assembly, manifest) -> list[dict]`, mirroring `code_facts/runner.py`'s subprocess pattern exactly:
 
 ```python
 import json, subprocess
@@ -293,14 +294,14 @@ def run_field_coverage(repo_root: Path, assembly: Path, manifest: Path) -> list[
     return json.loads(proc.stdout)["findings"]
 ```
 
-- [ ] **Step 4:** Run the test. Expected: PASS.
-- [ ] **Step 5: Commit** — `feat(export): add the field-coverage tool runner`
+- [x] **Step 4:** Run the test. Expected: PASS.
+- [x] **Step 5: Commit** — `feat(export): add the field-coverage tool runner`
 
 ### Task B2: Invariant 3 — listener-type coverage
 
 **Files:** Modify `runner.py`. Test: `tests/unit/application/export_surface/test_listener_coverage.py`
 
-- [ ] **Step 1: Write the failing test** (temp listener dir; a missing `<T>` is reported; generic Unity wrappers excluded):
+- [x] **Step 1: Write the failing test** (temp listener dir; a missing `<T>` is reported; generic Unity wrappers excluded):
 
 ```python
 from pathlib import Path
@@ -313,8 +314,8 @@ def test_missing_and_generic_excluded(tmp_path):
     assert missing_listener_types(d, {"Item"}) == ["Foo"]
 ```
 
-- [ ] **Step 2:** Run; expect FAIL.
-- [ ] **Step 3:** Implement in `runner.py`:
+- [x] **Step 2:** Run; expect FAIL.
+- [x] **Step 3:** Implement in `runner.py`:
 
 ```python
 import re
@@ -330,14 +331,14 @@ def missing_listener_types(listener_dir: Path, declared_types: set[str]) -> list
     return sorted(found - declared_types)
 ```
 
-- [ ] **Step 4:** Run the test. Expected: PASS.
-- [ ] **Step 5: Commit** — `feat(export): check listener-type coverage against the manifest`
+- [x] **Step 4:** Run the test. Expected: PASS.
+- [x] **Step 5: Commit** — `feat(export): check listener-type coverage against the manifest`
 
 ### Task B3: Precondition check
 
 **Files:** Create `src/erenshor/cli/preconditions/checks/field_coverage.py`. Test: `tests/unit/cli/preconditions/checks/test_field_coverage.py`
 
-- [ ] **Step 1: Write the failing test** (monkeypatch `run_field_coverage` + `missing_listener_types`; assert `passed` toggles and detail names the findings):
+- [x] **Step 1: Write the failing test** (monkeypatch `run_field_coverage` + `missing_listener_types`; assert `passed` toggles and detail names the findings):
 
 ```python
 from erenshor.cli.preconditions.checks import field_coverage as fc
@@ -351,22 +352,22 @@ def test_fails_on_findings(monkeypatch, tmp_path):
     assert res.passed is False and "unclassified" in res.detail
 ```
 
-- [ ] **Step 2:** Run; expect FAIL.
-- [ ] **Step 3:** Implement `export_field_coverage_current(context) -> PreconditionResult` (import `run_field_coverage`, `missing_listener_types` at module scope so the test can patch them): resolve `dll = context["game_dir"]/"Erenshor_Data"/"Managed"/"Assembly-CSharp.dll"`, `manifest = context["repo_root"]/"src/tools/ExportSurface/field-coverage.json"`, `listener_dir = context["repo_root"]/"src/Assets/Editor/ExportSystem/AssetScanner/Listener"`; build `declared = set(json.loads(manifest.read_text())["types"])`; aggregate `run_field_coverage(...)` + `missing_listener_types(listener_dir, declared)`; return `PreconditionResult(False, "export_field_coverage_current", "export field-coverage gate failed", detail=<rendered findings + 'classify in src/tools/ExportSurface/field-coverage.json'>)` on any finding, else `PreconditionResult(True, "export_field_coverage_current", "export field surface matches the manifest")`.
-- [ ] **Step 4:** Run the test. Expected: PASS.
-- [ ] **Step 5: Commit** — `feat(export): add the export field-coverage precondition`
+- [x] **Step 2:** Run; expect FAIL.
+- [x] **Step 3:** Implement `export_field_coverage_current(context) -> PreconditionResult` (import `run_field_coverage`, `missing_listener_types` at module scope so the test can patch them): resolve `dll = context["game_dir"]/"Erenshor_Data"/"Managed"/"Assembly-CSharp.dll"`, `manifest = context["repo_root"]/"src/tools/ExportSurface/field-coverage.json"`, `listener_dir = context["repo_root"]/"src/Assets/Editor/ExportSystem/AssetScanner/Listener"`; build `declared = set(json.loads(manifest.read_text())["types"])`; aggregate `run_field_coverage(...)` + `missing_listener_types(listener_dir, declared)`; return `PreconditionResult(False, "export_field_coverage_current", "export field-coverage gate failed", detail=<rendered findings + 'classify in src/tools/ExportSurface/field-coverage.json'>)` on any finding, else `PreconditionResult(True, "export_field_coverage_current", "export field surface matches the manifest")`.
+- [x] **Step 4:** Run the test. Expected: PASS.
+- [x] **Step 5: Commit** — `feat(export): add the export field-coverage precondition`
 
 ### Task B4: Wire into `extract export`
 
 **Files:** Modify `src/erenshor/cli/commands/extract.py`
 
-- [ ] **Step 1:** Add the import (near `:28-30`):
+- [x] **Step 1:** Add the import (near `:28-30`):
 
 ```python
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 ```
 
-- [ ] **Step 2:** Make it the **first** check in `export`'s decorator (`:404-408`):
+- [x] **Step 2:** Make it the **first** check in `export`'s decorator (`:404-408`):
 
 ```python
 @require_preconditions(
@@ -378,8 +379,8 @@ from erenshor.cli.preconditions.checks.field_coverage import export_field_covera
 def export(
 ```
 
-- [ ] **Step 3:** Run `uv run pytest tests/unit/cli/commands/test_extract.py -v`. Expected: PASS (update any test that asserts the export precondition set to include the new check).
-- [ ] **Step 4: Commit** — `feat(export): gate extract export on field-coverage before compile`
+- [x] **Step 3:** Run `uv run pytest tests/unit/cli/commands/test_extract.py -v`. Expected: PASS (update any test that asserts the export precondition set to include the new check).
+- [x] **Step 4: Commit** — `feat(export): gate extract export on field-coverage before compile`
 
 ---
 
@@ -391,7 +392,7 @@ Outcome: a committed `field-coverage.json` classifying every public field of eve
 
 **Files:** Modify `runner.py` (add `seed_entries` + `write_manifest`). Test: `tests/unit/application/export_surface/test_seed.py`
 
-- [ ] **Step 1: Write the failing test** — `seed_entries` turns `unclassified` findings into placeholder entries (status `""`) keyed by type→field; `write_manifest` emits sorted JSON with one field entry per line:
+- [x] **Step 1: Write the failing test** — `seed_entries` turns `unclassified` findings into placeholder entries (status `""`) keyed by type→field; `write_manifest` emits sorted JSON with one field entry per line:
 
 ```python
 from erenshor.application.export_surface.runner import seed_entries, write_manifest
@@ -405,14 +406,14 @@ def test_seed_and_write(tmp_path):
     assert text.count('"RareItem":') == 1 and "\n" in text
 ```
 
-- [ ] **Step 2:** Run; expect FAIL.
-- [ ] **Step 3:** Implement `seed_entries(findings)` (group `unclassified` findings → `{type: {field: {"type": actual, "status": "", "by": None, "reason": None}}}`) and `write_manifest(path, tracks_build, types, fields)` — emit `{tracks_build, types(sorted), fields}` with each field entry serialized compact on one line, types and fields sorted (`json.dumps(entry, separators=(", ", ": "))` per entry, assembled with sorted keys). This is the one place the manifest is written; the C# tool stays read-only.
-- [ ] **Step 4:** Run the test. Expected: PASS.
-- [ ] **Step 5: Commit** — `feat(export): add field-coverage manifest seeding and writer`
+- [x] **Step 2:** Run; expect FAIL.
+- [x] **Step 3:** Implement `seed_entries(findings)` (group `unclassified` findings → `{type: {field: {"type": actual, "status": "", "by": None, "reason": None}}}`) and `write_manifest(path, tracks_build, types, fields)` — emit `{tracks_build, types(sorted), fields}` with each field entry serialized compact on one line, types and fields sorted (`json.dumps(entry, separators=(", ", ": "))` per entry, assembled with sorted keys). This is the one place the manifest is written; the C# tool stays read-only.
+- [x] **Step 4:** Run the test. Expected: PASS.
+- [x] **Step 5: Commit** — `feat(export): add field-coverage manifest seeding and writer`
 
 ### Task C2: Generate the seed manifest
 
-- [ ] **Step 1:** Compute the in-scope `types` (same rule as invariant 3) and write a seed manifest with empty `fields`:
+- [x] **Step 1:** Compute the in-scope `types` (same rule as invariant 3) and write a seed manifest with empty `fields`:
 
 ```bash
 uv run python -c "
@@ -425,11 +426,11 @@ print(types)
 "
 ```
 
-- [ ] **Step 2:** Review the `types` list; drop any world-component type with no meaningful serialized data surface (document the decision in the commit message). Re-write the seed if the set changed.
+- [x] **Step 2:** Review the `types` list; drop any world-component type with no meaningful serialized data surface (document the decision in the commit message). Re-write the seed if the set changed.
 
 ### Task C3: Classify every field
 
-- [ ] **Step 1:** Run the gate against playtest to list every field as `unclassified`, and seed placeholders:
+- [x] **Step 1:** Run the gate against playtest to list every field as `unclassified`, and seed placeholders:
 
 ```bash
 uv run python -c "
@@ -446,31 +447,31 @@ print(f'{len(findings)} fields to classify')
 "
 ```
 
-- [ ] **Step 2:** Edit `field-coverage.json`: set each entry's `status` to `captured` (+ `by`: the listener that reads it, cross-checked against `src/Assets/Editor/`) or `ignored` (+ `reason`). Leave genuinely-undecided fields as the C4 worklist.
+- [x] **Step 2:** Edit `field-coverage.json`: set each entry's `status` to `captured` (+ `by`: the listener that reads it, cross-checked against `src/Assets/Editor/`) or `ignored` (+ `reason`). Leave genuinely-undecided fields as the C4 worklist.
 
 ### Task C4: Resolve gaps + commit
 
-- [ ] **Step 1:** For each field that *should* be exported but isn't, implement the capture (listener/record/clean-DB column per `skill://unity-export-system`) as its own commit; otherwise mark `ignored(<reason>)`. For each `retype` finding, verify the consuming listener still reads it correctly.
-- [ ] **Step 2:** Set `tracks_build` to the current playtest build id (from the export log / backup metadata).
-- [ ] **Step 3: Commit** — `feat(export): seed the field-coverage manifest for the playtest build`
+- [x] **Step 1:** For each field that *should* be exported but isn't, implement the capture (listener/record/clean-DB column per `skill://unity-export-system`) as its own commit; otherwise mark `ignored(<reason>)`. For each `retype` finding, verify the consuming listener still reads it correctly.
+- [x] **Step 2:** Set `tracks_build` to the current playtest build id (from the export log / backup metadata).
+- [x] **Step 3: Commit** — `feat(export): seed the field-coverage manifest for the playtest build`
 
 ### Task C5: Full validation
 
-- [ ] **Step 1:** `uv run erenshor -V playtest extract export` — the field-coverage precondition passes (exit 0), then the export runs.
-- [ ] **Step 2:** Negative check: delete one manifest entry, re-run `uv run erenshor -V playtest extract export`, confirm it aborts with the field-coverage detail **before** Unity compiles; restore the entry.
-- [ ] **Step 3:** `uv run pytest` green.
+- [x] **Step 1:** `uv run erenshor -V playtest extract export` — the field-coverage precondition passes (exit 0), then the export runs.
+- [x] **Step 2:** Negative check: delete one manifest entry, re-run `uv run erenshor -V playtest extract export`, confirm it aborts with the field-coverage detail **before** Unity compiles; restore the entry.
+- [x] **Step 3:** `uv run pytest` green.
 
 ---
 
 ## Verification
 
-- [ ] `uv run pytest tests/unit/application/export_surface tests/unit/cli/preconditions/checks/test_field_coverage.py -v` passes.
-- [ ] `uv run pytest tests/integration/test_export_surface_tool.py -v` passes (or skips without the DLL).
-- [ ] `uv run erenshor -V playtest extract export` runs the gate (exit 0) then exports.
-- [ ] Deleting a manifest entry makes `extract export` fail fast with the field-coverage detail, before Unity compiles.
-- [ ] `field-coverage.json` classifies every public field of every in-scope type; no empty `status` remains.
-- [ ] `uv run pytest` (full suite) green.
-- [ ] No step invokes `dotnet` directly; the only `dotnet` call is inside `runner.py`'s subprocess.
+- [x] `uv run pytest tests/unit/application/export_surface tests/unit/cli/preconditions/checks/test_field_coverage.py -v` passes.
+- [x] `uv run pytest tests/integration/test_export_surface_tool.py -v` passes (or skips without the DLL).
+- [x] `uv run erenshor -V playtest extract export` runs the gate (exit 0) then exports.
+- [x] Deleting a manifest entry makes `extract export` fail fast with the field-coverage detail, before Unity compiles.
+- [x] `field-coverage.json` classifies every public field of every in-scope type; no empty `status` remains.
+- [x] `uv run pytest` (full suite) green.
+- [x] No step invokes `dotnet` directly; the only `dotnet` call is inside `runner.py`'s subprocess.
 
 ## Self-review
 
