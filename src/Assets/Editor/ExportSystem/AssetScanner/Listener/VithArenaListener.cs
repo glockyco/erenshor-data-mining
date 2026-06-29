@@ -5,7 +5,7 @@ using System.Reflection;
 using SQLite;
 using UnityEngine;
 
-public class VithArenaListener : IAssetScanListener<MonoBehaviour>
+public class VithArenaListener : IAssetScanListener<VithArena>
 {
     private const int MaxRounds = 8;
 
@@ -43,9 +43,9 @@ public class VithArenaListener : IAssetScanListener<MonoBehaviour>
         _enemyRecords.Clear();
     }
 
-    public void OnAssetFound(MonoBehaviour asset)
+    public void OnAssetFound(VithArena asset)
     {
-        if (asset == null || asset.GetType().Name != "VithArena")
+        if (asset == null)
         {
             return;
         }
@@ -135,7 +135,7 @@ public class VithArenaListener : IAssetScanListener<MonoBehaviour>
         }
     }
 
-    private static T? GetFieldValue<T>(MonoBehaviour asset, string fieldName) where T : class
+    private static T? GetFieldValue<T>(VithArena asset, string fieldName) where T : class
     {
         var field = asset.GetType().GetField(fieldName, FieldFlags);
         return field?.GetValue(asset) as T;
