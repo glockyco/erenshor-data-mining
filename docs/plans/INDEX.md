@@ -12,7 +12,6 @@
 - **Character Gameplay Flags** [plan] `2026-06-30-character-gameplay-flags` (0/15)
 - **Death-Triggered Spawn Modeling** [spec] `2026-06-30-death-triggered-spawn-modeling`
 - **Essential SpawnPoint Relationship Modeling** [spec] `2026-06-30-essential-spawnpoint-relationship-modeling`
-- **Field-Coverage Runtime Ignore Reason Cleanup** [plan] `2026-06-30-field-coverage-runtime-ignore-cleanup` (0/14)
 - **Item Interaction and Economy Flags** [plan] `2026-06-30-item-interaction-economy-flags` (0/12)
 - **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12)
 - **Spell and Skill Mechanics Fields** [plan] `2026-06-30-spell-skill-mechanics-fields` (0/14)
@@ -22,4 +21,4 @@
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 
-_51 archived — see `docs/plans/archive/`._
+_52 archived — see `docs/plans/archive/`._
