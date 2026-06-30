@@ -19,7 +19,7 @@ There are two variants of Stonemen. The first is the solid rock variant which us
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=13000
+|health=15600
 |mana=3200
 |ac=285
 |strength=250
@@ -52,7 +52,7 @@ There are two variants of Stonemen. The first is the solid rock variant which us
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=15600
+|health=18720
 |mana=300
 |ac=285
 |strength=250

@@ -431,6 +431,21 @@ public class CharacterListener : IAssetScanListener<Character>
         }
     }
 
+    private static int CalculateNpcEffectiveHP(int baseHp, int level)
+    {
+        int effectiveHp = Mathf.RoundToInt((float)baseHp * GameData.ServerHPMod);
+        effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.HPScale);
+        if (level <= 36)
+        {
+            effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.Under35HPScale);
+        }
+        if (effectiveHp <= 0)
+        {
+            effectiveHp = 1;
+        }
+        return effectiveHp;
+    }
+
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
@@ -605,8 +620,9 @@ public class CharacterListener : IAssetScanListener<Character>
 
                 record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
 
-                // Calculate effective HP for NPCs (applies global HP scaling)
-                record.EffectiveHP = Mathf.RoundToInt(stats.BaseHP * GameData.HPScale);
+                // Calculate effective HP using NPC.ApplyBalanceAdjustments() semantics:
+                // stepwise ServerHPMod -> HPScale -> Under35HPScale rounding, then clamp.
+                record.EffectiveHP = CalculateNpcEffectiveHP(stats.BaseHP, stats.Level);
 
                 // Calculate effective attack ability for NPCs
                 float baseAttackAbility = 100 + (stats.Level - 1) * 40;

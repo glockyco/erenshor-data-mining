@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=4.0
-|health=8515
+|health=10218
 |mana=0
 |ac=225
 |strength=20

@@ -24,6 +24,7 @@ public class GameConstantListener : IAssetScanListener<Object>
 
         // Combat/Balance modifiers - these are the most important for comparing variants
         AddConstant("HPScale", GameData.HPScale, "NPC HP multiplier applied at spawn");
+        AddConstant("Under35HPScale", GameData.Under35HPScale, "Additional NPC HP multiplier applied at spawn when Level <= 36");
         AddConstant("ServerHPMod", GameData.ServerHPMod, "Server HP modifier (user adjustable)");
         AddConstant("ServerXPMod", GameData.ServerXPMod, "Server XP modifier");
         AddConstant("ServerDMGMod", GameData.ServerDMGMod, "Server damage modifier");

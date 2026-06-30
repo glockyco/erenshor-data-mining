@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=26000
+|health=31200
 |mana=0
 |ac=315
 |strength=24
@@ -71,7 +71,7 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=11050
+|health=13260
 |mana=0
 |ac=315
 |strength=18
@@ -105,7 +105,7 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=3250
+|health=3900
 |mana=0
 |ac=315
 |strength=14
@@ -139,7 +139,7 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=5.0
-|health=3250
+|health=3900
 |mana=0
 |ac=315
 |strength=14

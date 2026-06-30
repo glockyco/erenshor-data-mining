@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=3250
+|health=3900
 |mana=0
 |ac=375
 |strength=3
@@ -102,7 +102,7 @@ If you say <span style="color: #15e300;">[Revid]</span> to this Watchlight it re
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=3250
+|health=3900
 |mana=0
 |ac=375
 |strength=3
