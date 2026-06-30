@@ -52,6 +52,7 @@ public class SkillRecord
     public bool ProcWeap { get; set; } // From Skill.ProcWeap
     public bool ProcShield { get; set; } // From Skill.ProcShield
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
+    public bool SkillCanCrit { get; set; } // From Skill.SkillCanCrit
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? CastOnTargetStableKey { get; set; }

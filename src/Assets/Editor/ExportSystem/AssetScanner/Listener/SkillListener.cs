@@ -92,6 +92,7 @@ public class SkillListener : IAssetScanListener<Skill>
             ProcWeap = skill.ProcWeap,
             ProcShield = skill.ProcShield,
             GuaranteeProc = skill.GuaranteeProc,
+            SkillCanCrit = skill.SkillCanCrit,
             AutomateAttack = skill.AutomateAttack,
             CastOnTargetStableKey = skill.CastOnTarget != null
                 ? StableKeyGenerator.ForSpell(skill.CastOnTarget)

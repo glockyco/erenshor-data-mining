@@ -103,6 +103,9 @@ public class SpellRecord
     public bool CannotInterrupt { get; set; } // From Spell.CannotInterrupt
     public bool JoltSpell { get; set; } // From Spell.JoltSpell
     public bool NoResonate { get; set; } // From Spell.NoResonate
+    public int ArmorPenPercent { get; set; } // From Spell.ArmorPenPercent
+    public float LevelScaledManaRestoration { get; set; } // From Spell.LevelScaledManaRestoration
+    public string ShapeshiftForm { get; set; } = string.Empty; // From Spell.ShapeshiftForm
 
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex

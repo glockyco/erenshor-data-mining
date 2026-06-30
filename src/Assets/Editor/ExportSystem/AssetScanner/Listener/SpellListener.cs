@@ -160,6 +160,9 @@ public class SpellListener : IAssetScanListener<Spell>
             CannotInterrupt = spell.CannotInterrupt,
             JoltSpell = spell.JoltSpell,
             NoResonate = spell.NoResonate,
+            ArmorPenPercent = spell.ArmorPenPercent,
+            LevelScaledManaRestoration = spell.LevelScaledManaRestoration,
+            ShapeshiftForm = spell.ShapeshiftForm,
 
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,
