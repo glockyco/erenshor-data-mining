@@ -2,15 +2,13 @@
 |name=Julianna Priel
 |image=[[File:Julianna Priel.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[Savannah Priel]]
 |factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Prielian Cascade]]
 |coordinates=102.9 x 0.8 x 338.6
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Gifted Sleeves}}<br>{{ItemLink|Priel Steel Armguards}}
-|droprates={{ItemLink|Gifted Sleeves}} (50.0%)<br>{{ItemLink|Priel Steel Armguards}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.9%)<ref>If Julianna Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
 |level=28
 |levelmodmin=0
 |levelmodmax=0

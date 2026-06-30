@@ -2,15 +2,13 @@
 |name=Hooded Stone Serpent
 |image=[[File:Hooded Stone Serpent.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=18
 |levelmodmin=0
 |levelmodmax=0

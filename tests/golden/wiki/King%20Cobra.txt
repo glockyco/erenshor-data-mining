@@ -2,15 +2,13 @@
 |name=King Cobra
 |image=[[File:King Cobra.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=2-75%
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Toxin Warped Band}} (15.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Abyssal Lord
 |image=[[File:Abyssal Lord.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=584.4 x 59.3 x 319.8
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Fungal Staff}}<br>{{ItemLink|Lichencoat}}
-|droprates={{ItemLink|Fungal Spore}} (86.5%)<br>{{ItemLink|Fungal Staff}} (50.0%)<br>{{ItemLink|Lichencoat}} (50.0%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

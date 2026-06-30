@@ -1,0 +1,19 @@
+{{Item
+|title=Tenet of Braxonia
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:neck - 42 - tenet of braxonia}}
+
+[[Category:Armor]]

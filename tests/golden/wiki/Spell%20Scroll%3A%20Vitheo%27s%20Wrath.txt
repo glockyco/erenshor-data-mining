@@ -12,22 +12,8 @@
 |sell=17550
 |taughtspell={{AbilityLink|Vitheo's Wrath}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Vitheo's Wrath.png
-|name=Spell Scroll: Vitheo's Wrath
-|arcanist_level=
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=33
-|reaver_level=
-|mana_cost=900
-|spell_type=Damage
-|spell_desc=Deals 1255 magic damage to your target.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - vitheo's wrath}}
 
 [[Category:Ability Books]]

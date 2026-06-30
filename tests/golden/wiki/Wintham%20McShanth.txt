@@ -2,15 +2,13 @@
 |name=Wintham McShanth
 |image=[[File:Wintham McShanth.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=1260.0 x -12.4 x 572.9
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -44,7 +42,7 @@ Greeting message:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[shadows]</span>
-"There's dark corners here. All around. Under your feet, even. Seen 'em with my own eyes. Lucky, I guess, that I'm still here. If you listen close in the right places, you can hear... their presence." 
+"There's dark corners here. All around. Under your feet, even. Seen 'em with my own eyes. Lucky, I guess, that I'm still here. If you listen close in the right places, you can hear... their presence."
 |}
 
 ==[[Fernalla's Revival Plains|<span style="color:orange;">in Fernalla's Revival Plains</span>]]:==
@@ -70,8 +68,6 @@ Prompts:
 |coordinates=146.4 x 26.3 x 348.9
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

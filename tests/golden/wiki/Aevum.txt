@@ -1,0 +1,19 @@
+{{Item
+|title=Aevum
+|type=
+|vendorsource=
+|source=[[Soluna]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:neck - 42 - aevum}}
+
+[[Category:Armor]]

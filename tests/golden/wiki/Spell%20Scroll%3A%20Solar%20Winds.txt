@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Solar Winds
+|type=
+|vendorsource=
+|source=[[Solunarian Moonkeeper]] (2.8%)<br>[[Solunarian Sunbringer]] (2.8%)<br>[[Solunarian Paladin]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Solar Winds}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - solar winds}}
+
+[[Category:Ability Books]]

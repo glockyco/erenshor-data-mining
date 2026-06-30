@@ -2,7 +2,7 @@
 |title=Aura: Wisp's Presence
 |image=[[File:Aura: Wisp's Presence.png|thumb]]
 |imagecaption=You feel the presence of The Wisp
-|description=5% bonus to attack rolls, 5% attack speed, and 5% life steal
+|description=+1 to attack rolls, 5% attack speed, and 2% life steal
 |type=Beneficial
 |line=Aura_Buff_Magic
 |classes=
@@ -35,7 +35,7 @@
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
-|lifesteal=5.0
+|lifesteal=2.0
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=

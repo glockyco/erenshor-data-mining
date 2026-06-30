@@ -1,0 +1,19 @@
+{{Item
+|title=Rebirth
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - fernalla 5}}
+
+[[Category:Auras]]

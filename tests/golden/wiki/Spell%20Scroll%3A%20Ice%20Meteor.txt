@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Ice Meteor
+|type=
+|vendorsource=
+|source=[[Ice Elemental]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Ice Meteor}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - ice meteor}}
+
+[[Category:Ability Books]]

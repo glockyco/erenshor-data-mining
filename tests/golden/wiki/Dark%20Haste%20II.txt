@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Shadowclasp}}
+|itemswitheffect={{ItemLink|Cloak of Flame}}<br>{{ItemLink|Cyclone Steel Bracer}}<br>{{ItemLink|Shadowclasp}}<br>{{ItemLink|Thaumic Vestiment}}
 |source=
 |used_by=
 }}

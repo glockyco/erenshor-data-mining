@@ -2,15 +2,13 @@
 |name=Riley Dallo
 |image=[[File:Riley Dallo.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=1266.4 x -11.9 x 562.8
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

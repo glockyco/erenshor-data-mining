@@ -2,15 +2,13 @@
 |name=Lifeflame Brazier
 |image=[[File:Lifeflame Brazier.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=246.8 x 0.5 x 101.2
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=99
 |levelmodmin=0
 |levelmodmax=0

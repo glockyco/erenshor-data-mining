@@ -2,15 +2,13 @@
 |name=Wishlan the Savior
 |image=[[File:Wishlan the Savior.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[The Blight]]
 |coordinates=416.6 x 43.3 x 172.7
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Polished Stone}} (84.7%)<br>{{ItemLink|Pulsating Stone}} (5.2%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0

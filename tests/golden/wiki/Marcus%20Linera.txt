@@ -2,15 +2,13 @@
 |name=Marcus Linera
 |image=[[File:Marcus Linera.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=394.5 x 126.3 x 740.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

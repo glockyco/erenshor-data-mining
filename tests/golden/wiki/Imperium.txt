@@ -1,0 +1,19 @@
+{{Item
+|title=Imperium
+|type=
+|vendorsource=
+|source=[[Soluna]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:bow - 42 - imperium}}
+
+[[Category:Weapons]]

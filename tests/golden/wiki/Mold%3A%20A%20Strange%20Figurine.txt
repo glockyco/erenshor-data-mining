@@ -12,19 +12,10 @@
 |sell=
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 A Quest reward for {{QuestLink | link=A Note for C. Pillot}}. The fuel used to craft this makes no difference to the outcome as the item cannot be blessed.
 
-{{Item/Mold
-|image=Mold: A Strange Figurine.png
-|name=Mold: A Strange Figurine
-|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Sivakayan Ore}}<br>1x {{ItemLink|Braxonian Ore}}<br>1x {{ItemLink|Remnants of a Daydream}}<br>1x {{ItemLink|Remnants of a Nightmare}}
-|rewards={{ItemLink|A Strange Figurine}}
-|station=
-}}
+{{ItemTooltip|stablekey=item:template - a strange figurine}}
 
 [[Category:Crafting]]
 [[Category:Molds]]

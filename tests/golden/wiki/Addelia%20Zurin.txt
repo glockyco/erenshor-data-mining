@@ -2,15 +2,13 @@
 |name=Addelia Zurin
 |image=[[File:Addelia Zurin.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Old Brackey
 |image=[[File:Old Brackey.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=443.5 x 5.9 x 279.9
 |spawnchance=79%
 |respawn=2 minutes
-|guaranteeddrops={{ItemLink|Eyestalk Wand}}<br>{{ItemLink|Hollowed Crustacean Leg}}
-|droprates={{ItemLink|Sea Glass}} (91.9%)<br>{{ItemLink|Hollowed Crustacean Leg}} (70.1%)<br>{{ItemLink|Eyestalk Wand}} (40.1%)
 |level=12
 |levelmodmin=0
 |levelmodmax=0

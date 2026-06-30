@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Hateful Stance
+|type=
+|vendorsource=
+|source=[[Darkwarden Ealdred]] (32.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill={{AbilityLink|Stance: Hateful}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - stance - hateful}}
+
+[[Category:Ability Books]]

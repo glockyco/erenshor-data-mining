@@ -2,15 +2,13 @@
 |name=Braxon Sharva
 |image=[[File:Braxon Sharva.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=134.1 x 38.7 x 974.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=18
 |levelmodmin=0
 |levelmodmax=0

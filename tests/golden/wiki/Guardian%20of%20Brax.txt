@@ -1,0 +1,36 @@
+{{Character
+|name=Guardian of Brax
+|image=[[File:Guardian of Brax.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=
+|spawnchance=
+|respawn=30 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=3900000
+|mana=0
+|ac=630
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]

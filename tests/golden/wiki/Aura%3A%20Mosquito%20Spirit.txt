@@ -2,7 +2,7 @@
 |title=Aura: Mosquito Spirit
 |image=[[File:Aura: Mosquito Spirit.png|thumb]]
 |imagecaption=You feel a thirst for blood
-|description=5% lifesteal from melee hits
+|description=3% lifesteal from melee hits
 |type=Beneficial
 |line=Aura_Lifesteal
 |classes=
@@ -35,7 +35,7 @@
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
-|lifesteal=5.0
+|lifesteal=3.0
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=

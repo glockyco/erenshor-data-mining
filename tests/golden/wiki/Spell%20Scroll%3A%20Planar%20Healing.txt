@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Planar Healing
+|type=
+|vendorsource=
+|source=[[Fernallan High Priest]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Planar Healing}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - planar healing}}
+
+[[Category:Ability Books]]

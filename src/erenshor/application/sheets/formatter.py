@@ -147,8 +147,10 @@ class SheetsFormatter:
             return "TRUE" if value else "FALSE"
         if isinstance(value, int | float):
             return value
-        # Everything else as string
-        return str(value)
+        # Everything else as a string, normalized for spreadsheet output. Game text
+        # frequently carries spaces before line breaks; Sheets renders those as
+        # invisible padding and they make generated CSV baselines uncommittable.
+        return "\n".join(line.rstrip(" \t") for line in str(value).splitlines())
 
     def get_row_count(self, sheet_name: str) -> int:
         """Get the number of data rows (excluding header) for a sheet.

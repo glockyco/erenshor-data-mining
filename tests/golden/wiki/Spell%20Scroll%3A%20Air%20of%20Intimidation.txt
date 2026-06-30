@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Air of Intimidation
+|type=
+|vendorsource=
+|source=[[Khorso, Soluna's Advisor]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Air of Intimidation}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - air of intimidation}}
+
+[[Category:Ability Books]]

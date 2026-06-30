@@ -1,0 +1,19 @@
+{{Item
+|title=Cycle's Edge
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - cycle's edge}}
+
+[[Category:Weapons]]

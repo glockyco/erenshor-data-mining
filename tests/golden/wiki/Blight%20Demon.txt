@@ -2,15 +2,13 @@
 |name=Blight Demon
 |image=[[File:Blight Demon.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=
 |spawnchance=10%
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ancient Pottery Shard}} (21.2%)<br>{{ItemLink|Blight Crystals}} (21.2%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

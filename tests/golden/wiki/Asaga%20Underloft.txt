@@ -2,15 +2,13 @@
 |name=Asaga Underloft
 |image=[[File:Asaga Underloft.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=184.8 x 26.3 x 349.1
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

@@ -7,6 +7,20 @@ WikiGenerateService, and WikiDeployService to avoid duplication.
 from rich.console import Console
 
 
+def normalise_generated_page_content(content: str) -> str:
+    """Strip line-end spaces/tabs from generated page files.
+
+    MediaWiki ignores line-end whitespace, but git hooks reject it. Normalize at
+    generated-file boundaries so golden capture and exact golden comparisons
+    stay aligned.
+    """
+    lines: list[str] = []
+    for line in content.splitlines(keepends=True):
+        has_newline = line.endswith(("\n", "\r"))
+        lines.append(line.rstrip(" \t\r\n") + ("\n" if has_newline else ""))
+    return "".join(lines)
+
+
 def display_operation_summary(
     console: Console,
     operation: str,

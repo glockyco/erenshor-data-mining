@@ -2,15 +2,13 @@
 |name=Blighted Jackal
 |image=[[File:Blighted Jackal.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ancient Pottery Shard}} (14.5%)<br>{{ItemLink|Blight Crystals}} (14.5%)<br>{{ItemLink|Blightwood Slab}} (14.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

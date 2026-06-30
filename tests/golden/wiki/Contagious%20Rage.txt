@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Fury Helm}}
+|itemswitheffect={{ItemLink|Fury Helm}}<br>{{ItemLink|Radiant Gloves}}
 |source=
 |used_by=
 }}

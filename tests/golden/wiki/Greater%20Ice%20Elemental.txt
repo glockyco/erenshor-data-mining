@@ -1,0 +1,36 @@
+{{Character
+|name=Greater Ice Elemental
+|image=[[File:Greater Ice Elemental.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=
+|spawnchance=
+|respawn=30 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=2860000
+|mana=20000
+|ac=630
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells={{AbilityLink|Ice Meteor}}
+}}
+
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]

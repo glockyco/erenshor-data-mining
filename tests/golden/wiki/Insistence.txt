@@ -1,0 +1,19 @@
+{{Item
+|title=Insistence
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:ring - 42 - insistence}}
+
+[[Category:Armor]]

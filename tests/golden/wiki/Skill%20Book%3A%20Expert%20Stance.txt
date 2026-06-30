@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Expert Stance
+|type=
+|vendorsource=
+|source=[[Solunarian Paladin]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill={{AbilityLink|Stance: Expert}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - stance - expert}}
+
+[[Category:Ability Books]]

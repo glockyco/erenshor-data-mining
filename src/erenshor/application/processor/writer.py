@@ -233,11 +233,16 @@ CREATE TABLE ascensions (
     mitigation_increase             REAL,
     advanced_increase_hp            REAL,
     advanced_resists                REAL,
-    healing_increase                REAL,
-    critical_dot_chance             REAL,
-    critical_healing_chance         REAL,
-    vengeful_healing_percentage     REAL,
-    summoned_beast_enhancement      REAL,
+    healing_increase                 REAL,
+    critical_dot_chance              REAL,
+    critical_healing_chance          REAL,
+    vengeful_healing_percentage      REAL,
+    summoned_beast_enhancement       REAL,
+    reload_haste                     REAL,
+    lightning_proc_chance            REAL,
+    no_cd_penalty_chance             REAL,
+    killshot_chance                  REAL,
+    triple_attack_chance_reav        REAL,
     resource_name                   TEXT
 );
 

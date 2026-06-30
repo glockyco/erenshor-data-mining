@@ -2,15 +2,13 @@
 |name=A Rottenfoot Witchdoctor
 |image=[[File:A Rottenfoot Witchdoctor.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
 |respawn=4-5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|A Husselfish}} (22.9%)<br>{{ItemLink|A Worm Eel}} (22.9%)<br>{{ItemLink|Petrified Club}} (5.1%)<ref>If A Rottenfoot Witchdoctor has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (5.1%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

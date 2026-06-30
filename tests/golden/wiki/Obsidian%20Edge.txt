@@ -1,0 +1,19 @@
+{{Item
+|title=Obsidian Edge
+|type=
+|vendorsource=
+|source=[[Braxonian Chest]] (35.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - obsidian edge}}
+
+[[Category:Weapons]]

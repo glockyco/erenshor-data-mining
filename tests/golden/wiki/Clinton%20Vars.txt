@@ -2,15 +2,13 @@
 |name=Clinton Vars
 |image=[[File:Clinton Vars.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Windwashed Pass]]
 |coordinates=346.8 x 32.3 x 258.8
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

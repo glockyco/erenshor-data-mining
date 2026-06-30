@@ -9,8 +9,6 @@
 |coordinates=275.1 x 0.2 x 331.2
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Spectral Sword}} (20.4%)<ref>If Reliquary Fiend has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref>
 |level=16
 |levelmodmin=0
 |levelmodmax=0

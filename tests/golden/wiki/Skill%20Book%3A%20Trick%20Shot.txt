@@ -12,22 +12,8 @@
 |sell=35750
 |taughtspell=
 |taughtskill={{AbilityLink|Trick Shot}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Trick Shot.png
-|name=Skill Book: Trick Shot
-|duelist_level=
-|druid_level=
-|arcanist_level=
-|paladin_level=
-|stormcaller_level=35
-|reaver_level=
-|skill_type=Innate
-|skill_desc=Passive Skill: During combat, Stormcaller gains a small chance to spawn a "target", which they can attack and destroy to reset all cooldowns.
-|simplayers_autolearn=
-}}
+{{ItemTooltip|stablekey=item:skillbook - trick shot}}
 
 [[Category:Ability Books]]

@@ -1,0 +1,19 @@
+{{Item
+|title=Eventide Chestguard
+|type=
+|vendorsource=
+|source=[[Solunarian Sunbringer]] (1.7%)<br>[[Solunarian Moonkeeper]] (1.1%)<br>[[Solunarian Paladin]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - eventide breastplate}}
+
+[[Category:Armor]]

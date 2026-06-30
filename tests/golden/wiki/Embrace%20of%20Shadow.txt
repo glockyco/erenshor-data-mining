@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eldoth's Heirloom Ring}}<br>{{ItemLink|Grip of Darkness}}<br>{{ItemLink|Shadow Gloves}}<br>{{ItemLink|Sivakayan Tricorner}}<br>{{ItemLink|Stilling Cord}}
+|itemswitheffect={{ItemLink|Chthonic Hood}}<br>{{ItemLink|Cyclone Steel Gloves}}<br>{{ItemLink|Eldoth's Heirloom Ring}}<br>{{ItemLink|Grip of Darkness}}<br>{{ItemLink|Shadow Gloves}}<br>{{ItemLink|Sivakayan Tricorner}}<br>{{ItemLink|Skyseared Gloves}}<br>{{ItemLink|Stilling Cord}}<br>{{ItemLink|Thaumic Handwraps}}
 |source=
 |used_by=
 }}

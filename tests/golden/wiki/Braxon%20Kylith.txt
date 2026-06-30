@@ -2,15 +2,13 @@
 |name=Braxon Kylith
 |image=[[File:Braxon Kylith.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=108.5 x 22.4 x 578.8
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=18
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Emit Vitae
+|type=
+|vendorsource=
+|source=[[Solunarian Paladin]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Emit Vitae}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - emit vitae}}
+
+[[Category:Ability Books]]

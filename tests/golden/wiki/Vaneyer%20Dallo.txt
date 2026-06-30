@@ -2,15 +2,13 @@
 |name=Vaneyer Dallo
 |image=[[File:Vaneyer Dallo.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=1253.3 x -12.4 x 587.9
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -43,10 +41,10 @@ Greeting message:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[know]</span>
-Look around ya. Ruins everywhere. Port Azure folk weren't the first ones to this land. We're on someone else's turf now, and I'm not sure we're exactly welcome. 
+Look around ya. Ruins everywhere. Port Azure folk weren't the first ones to this land. We're on someone else's turf now, and I'm not sure we're exactly welcome.
 |-
 |<span style="color: #15e300;">[yarren]</span>
-Yarren keeps prattling on about the Molorai and some conspiracy. Spends his nights on the beach over by Krakengard, says he's waiting for Eldoth to pass though. 
+Yarren keeps prattling on about the Molorai and some conspiracy. Spends his nights on the beach over by Krakengard, says he's waiting for Eldoth to pass though.
 |}
 
 [[Category:Characters]]

@@ -2,15 +2,13 @@
 |name=Supply Sergeant Tipp
 |image=[[File:Supply Sergeant Tipp.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-35 [[The Citizens of Erenshor]]<br>-35 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=268.5 x 26.3 x 118.1
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

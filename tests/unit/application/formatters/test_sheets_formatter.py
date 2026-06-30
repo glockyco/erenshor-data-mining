@@ -142,6 +142,19 @@ class TestSheetsFormatterFormatSheet:
         assert rows[1][0] == "item_3"
         assert rows[1][1] == ""  # NULL converted to empty string
 
+    def test_format_sheet_normalizes_line_end_whitespace_in_strings(self, test_db, queries_dir: Path) -> None:
+        """Text cells keep internal spacing but strip spaces before line breaks."""
+        with test_db.connect() as conn:
+            conn.execute(
+                text("INSERT INTO items (id, name, level, is_rare) VALUES ('item_4', 'Alpha  \nBeta ', 20, 0)")
+            )
+            conn.commit()
+
+        formatter = SheetsFormatter(test_db, queries_dir, map_base_url="https://example.com")
+        rows = formatter.format_sheet("items")
+
+        assert rows[-1][1] == "Alpha\nBeta"
+
     def test_format_sheet_handles_boolean_values(self, formatter: SheetsFormatter) -> None:
         """Test that boolean values are preserved as integers (SQLite stores booleans as 0/1)."""
         rows = formatter.format_sheet("items")

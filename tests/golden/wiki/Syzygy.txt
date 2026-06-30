@@ -1,0 +1,37 @@
+{{Character
+|name=Syzygy
+|image=[[File:Syzygy.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=-4.6 x 339.2 x 993.0
+|spawnchance=1%
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=1950000
+|mana=2000
+|ac=630
+|strength=550
+|endurance=400
+|dexterity=550
+|agility=225
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

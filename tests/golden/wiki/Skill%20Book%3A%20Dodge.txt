@@ -12,22 +12,8 @@
 |sell=36
 |taughtspell=
 |taughtskill={{AbilityLink|Dodge}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Dodge.png
-|name=Skill Book: Dodge
-|duelist_level=2
-|druid_level=8
-|arcanist_level=8
-|paladin_level=3
-|stormcaller_level=4
-|reaver_level=6
-|skill_type=Innate
-|skill_desc=You gain a small innate chance to dodge incoming attacks.
-|simplayers_autolearn=True
-}}
+{{ItemTooltip|stablekey=item:skillbook - dodge 1}}
 
 [[Category:Ability Books]]

@@ -2,15 +2,13 @@
 |name=Malor Mara
 |image=[[File:Malor Mara.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=1504.0 x 64.0 x 656.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Malor Mara has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Dooming Undertow
 |image=[[File:Dooming Undertow.png|thumb]]
 |imagecaption=You feel fatigued by an unseen sea
-|description=Slow target's attack speed by 27%
+|description=Slow target's attack speed by 33%
 |type=StatusEffect
 |line=Attack_Speed_Debuff
 |classes=[[Windblade]] (25)

@@ -2,15 +2,13 @@
 |name=Dark Flame Brazier
 |image=[[File:Dark Flame Brazier.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=329.0 x 0.5 x 105.7
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=99
 |levelmodmin=0
 |levelmodmax=0

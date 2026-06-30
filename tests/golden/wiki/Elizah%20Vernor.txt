@@ -2,15 +2,13 @@
 |name=Elizah Vernor
 |image=[[File:Elizah Vernor.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Faerie's Brake]]
 |coordinates=303.0 x 20.9 x 315.7
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (8.6%)<br>{{ItemLink|Pathfinder's Staff}} (8.6%)<ref>If Elizah Vernor has {{ItemLink|Pathfinder's Staff}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Swirlstone Amulet}} (8.6%)<br>{{ItemLink|Vinewrapped Vambracers}} (8.6%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

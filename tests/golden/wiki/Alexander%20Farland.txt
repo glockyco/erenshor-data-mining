@@ -2,15 +2,13 @@
 |name=Alexander Farland
 |image=[[File:Alexander Farland.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=310.2 x 30.9 x 323.5
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Alexander Farland has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -50,7 +48,7 @@ Prompts:
 |The gate is just over the hill. It's said that there's a spirit of the willow that can open it if you know how to ask. It would never speak to non-believers.
 |-
 |<span style="color: #15e300;">[cleansed]</span> and <span style="color: #15e300;">[non-believers]</span>
-|Only those who embrace the gift of life and the necessity of death are true believers. You'll find some who worship Fernalla only for her gifts, while denying that all gifts must one day be returned. True believers - and especially druids - embrace all parts of nature. 
+|Only those who embrace the gift of life and the necessity of death are true believers. You'll find some who worship Fernalla only for her gifts, while denying that all gifts must one day be returned. True believers - and especially druids - embrace all parts of nature.
 |}
 
 {| class="wikitable"

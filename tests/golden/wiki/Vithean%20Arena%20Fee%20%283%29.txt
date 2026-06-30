@@ -1,0 +1,19 @@
+{{Item
+|title=Vithean Arena Fee (3)
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Vithean Chest]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Vitheo's Arena III}}
+|craftsource=
+|componentfor=
+|buy=750000
+|sell=487500
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:quest - vithean arena token 3}}
+
+[[Category:Items]]

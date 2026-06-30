@@ -2,15 +2,13 @@
 |name=Lacy
 |image=[[File:Lacy.png|thumb]]
 |imagecaption=Not as Lacy as she looks!
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]
 |coordinates=407.0 x 45.1 x 356.2
 |spawnchance=
 |respawn=8 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Malaroth Tag}} (100.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

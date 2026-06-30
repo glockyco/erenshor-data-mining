@@ -1,0 +1,36 @@
+{{Character
+|name=Braxon Ice Crystal
+|image=[[File:Braxon Ice Crystal.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=
+|spawnchance=
+|respawn=30 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250000
+|mana=0
+|ac=630
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]

@@ -2,15 +2,13 @@
 |name=Prince Oslind
 |image=[[File:Prince Oslind.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=145.4 x 59.5 x 593.7
 |spawnchance=66%
 |respawn=8 minutes
-|guaranteeddrops={{ItemLink|Crest of Braxonia}}<br>{{ItemLink|Oslind's Eviscerator}}
-|droprates={{ItemLink|Crest of Braxonia}} (66.7%)<br>{{ItemLink|Braxonian Scripture|text=Braxonian Scripture (1)}} (63.2%)<ref>If the player is already holding {{ItemLink|Braxonian Scripture|text=Braxonian Scripture (1)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Braxonian Scripture|text=Braxonian Scripture (2)}} (63.2%)<ref>If the player is already holding {{ItemLink|Braxonian Scripture|text=Braxonian Scripture (2)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Oslind's Eviscerator}} (33.3%)<ref>If Prince Oslind has {{ItemLink|Oslind's Eviscerator}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Kingsman (Game Piece)|text=Kingsman}} (17.7%)<ref>If the player is already holding {{ItemLink|Kingsman (Game Piece)|text=Kingsman}} in their inventory, another will not drop.</ref><br>{{ItemLink|Flame Well Seed}} (1.6%)<br>{{ItemLink|Stone Statue: Brax}} (1.6%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

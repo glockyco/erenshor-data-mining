@@ -2,15 +2,13 @@
 |name=Stoneman Diamondine
 |image=[[File:Stoneman Diamondine.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Windwashed Pass]]
 |coordinates=944.5 x 71.5 x 590.1
 |spawnchance=33%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Diamondine Shield}}<br>{{ItemLink|Mirror Polished Plate}}
-|droprates={{ItemLink|Star Stone}} (84.7%)<br>{{ItemLink|Diamondine Shield}} (66.7%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Mirror Polished Plate}} (33.3%)<br>{{ItemLink|Diamondine Mace}} (5.2%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Mace}} equipped, it is guaranteed to drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

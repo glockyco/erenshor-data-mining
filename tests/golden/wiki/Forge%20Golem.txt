@@ -1,0 +1,36 @@
+{{Character
+|name=Forge Golem
+|image=[[File:Forge Golem.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Reliquary Hall]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=650
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Reliquary Hall]]

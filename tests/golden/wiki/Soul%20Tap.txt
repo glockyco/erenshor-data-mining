@@ -2,7 +2,7 @@
 |title=Soul Tap
 |image=[[File:Soul Tap.png|thumb]]
 |imagecaption=You feel a tugging at your very soul
-|description=Steal life from your target, and heal yourself for an equal amount.
+|description=Steal 400 life from your target, and heal yourself for an equal amount.
 |type=Damage
 |line=Direct_Damage
 |classes=[[Druid]] (15)<br>[[Reaver]] (15)
@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Awaken}}<br>{{ItemLink|Azynthian Blade}}<br>{{ItemLink|Azynthian Dagger}}<br>{{ItemLink|Oslind's Eviscerator}}<br>{{ItemLink|Sivakayan Axe}}<br>{{ItemLink|Voidbloom Ring}}
 |source={{ItemLink|Spell Scroll: Soul Tap}}
-|used_by=[[A Faerie Foliagian]]<br>[[Agsha of the Soil]]<br>[[Assassin of Sivakaya]]<br>[[Beady]]<br>[[Blight Eater]]<br>[[Botanist]]<br>[[Edgar Taether]]<br>[[Faceless Necromancer]]<br>[[Gherist Morthario]]<br>[[Grant Haxoway]]<br>[[High Paladin of Sivakaya]]<br>[[Illuminator]]<br>[[Jazmyn Challa]]<br>[[Loften Emblis]]<br>[[Mosscovered Stoneman]]<br>[[Plunkey]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Seed of Blight]]<br>[[Shadow of Sleep]]<br>[[Shantee Swingblade]]<br>[[Sivakayan Bodyguard]]<br>[[Sivakayan Cleric]]<br>[[Sivakayan Cleric]]<br>[[Sivakayan Templar]]<br>[[Summoned: Forest Spirit]]<br>[[The Gardener of Loomingwood]]<br>[[Virvil Destova]]<br>[[Wild Ogre]]<br>[[Winkles]]<br>[[Zane Theavale]]
+|used_by=[[A Faerie Foliagian]]<br>[[Agsha of the Soil]]<br>[[Assassin of Sivakaya]]<br>[[Azynthian Shadow]]<br>[[Beady]]<br>[[Blight Eater]]<br>[[Botanist]]<br>[[Edgar Taether]]<br>[[Faceless Necromancer]]<br>[[Gherist Morthario]]<br>[[Grant Haxoway]]<br>[[High Paladin of Sivakaya]]<br>[[Illuminator]]<br>[[Jazmyn Challa]]<br>[[Loften Emblis]]<br>[[Mosscovered Stoneman]]<br>[[Plunkey]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Seed of Blight]]<br>[[Shadow of Sleep]]<br>[[Shantee Swingblade]]<br>[[Sivakayan Bodyguard]]<br>[[Sivakayan Cleric]]<br>[[Sivakayan Cleric]]<br>[[Sivakayan Templar]]<br>[[Summoned: Forest Spirit]]<br>[[The Gardener of Loomingwood]]<br>[[Virvil Destova]]<br>[[Wild Ogre]]<br>[[Winkles]]<br>[[Zane Theavale]]
 }}

@@ -2,7 +2,7 @@
 |title=Necrosis
 |image=[[File:Necrosis.png|thumb]]
 |imagecaption=You Begin to suffocate
-|description=Do 2000 void damage per tick for 3 ticks.
+|description=Do 1700 void damage per tick for 3 ticks.
 |type=StatusEffect
 |line=Reav_VoidDOT
 |classes=[[Reaver]] (30)
@@ -24,7 +24,7 @@
 |is_group_effect=
 |is_applied_to_caster=
 |effects=
-|damage_type=Poison
+|damage_type=Void
 |resist_modifier=
 |target_damage=1700
 |target_healing=

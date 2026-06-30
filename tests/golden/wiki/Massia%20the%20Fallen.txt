@@ -2,15 +2,13 @@
 |name=Massia the Fallen
 |image=[[File:Massia the Fallen.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=699.6 x 75.5 x 104.7
 |spawnchance=60%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Spritely Leggings}}<br>{{ItemLink|Thorn}}
-|droprates={{ItemLink|Spritely Leggings}} (50.0%)<br>{{ItemLink|Thorn}} (50.0%)<br>{{ItemLink|Essence of Nature}} (28.3%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

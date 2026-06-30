@@ -12,22 +12,8 @@
 |sell=35750
 |taughtspell=
 |taughtskill={{AbilityLink|Soluna's Touch|image=Soluna's Touch (Skill).png}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Soluna's Touch.png
-|name=Skill Book: Soluna's Touch
-|duelist_level=
-|druid_level=
-|arcanist_level=
-|paladin_level=35
-|stormcaller_level=
-|reaver_level=
-|skill_type=Innate
-|skill_desc=Passive Skill:  Chance to proc additional magic damage on each swing.
-|simplayers_autolearn=
-}}
+{{ItemTooltip|stablekey=item:skillbook - soluna's touch}}
 
 [[Category:Ability Books]]

@@ -1,0 +1,19 @@
+{{Item
+|title=Primal Ice Shard
+|type=
+|vendorsource=
+|source=[[Warder of Ice]] (69.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - primal ice shard}}
+
+[[Category:Auras]]

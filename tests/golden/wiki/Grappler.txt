@@ -2,15 +2,13 @@
 |name=Grappler
 |image=[[File:Grappler.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Decayed Druid Beads}} (5.6%)<br>{{ItemLink|Nature's Promise}} (1.1%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

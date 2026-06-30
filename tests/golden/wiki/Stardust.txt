@@ -2,15 +2,13 @@
 |name=Stardust
 |image=[[File:Stardust.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
 |respawn=46 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Diamond}} (14.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Stardust (Item)|image=Stardust Item.png|text=Stardust}} (8.7%)<br>{{ItemLink|Celestial Spike}} (4.9%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

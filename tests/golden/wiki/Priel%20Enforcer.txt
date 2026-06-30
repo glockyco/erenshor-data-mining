@@ -2,15 +2,13 @@
 |name=Priel Enforcer
 |image=[[File:Priel Enforcer.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]<br>[[Windwashed Pass]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Officer's Ring}} (4.9%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0
@@ -45,8 +43,6 @@
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Officer's Ring}} (4.9%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

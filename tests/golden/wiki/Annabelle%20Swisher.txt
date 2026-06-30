@@ -2,15 +2,13 @@
 |name=Annabelle Swisher
 |image=[[File:Annabelle Swisher.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Stowaway's Step]]
 |coordinates=509.1 x 68.5 x 658.6
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

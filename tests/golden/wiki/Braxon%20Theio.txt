@@ -2,15 +2,13 @@
 |name=Braxon Theio
 |image=[[File:Braxon Theio.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=93.2 x 33.6 x 989.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -38,7 +36,7 @@ Theio is located at the archaeologist dig site in the [[Braxonian Desert]]
 
 Greeting message:
 {| class="wikitable"
-|Every new dig site reveals something more curious than the last. This though... this find seems different. 
+|Every new dig site reveals something more curious than the last. This though... this find seems different.
 |}
 
 [[Category:Braxonian Desert]]

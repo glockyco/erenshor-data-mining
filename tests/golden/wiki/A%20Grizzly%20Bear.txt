@@ -2,15 +2,13 @@
 |name=A Grizzly Bear
 |image=[[File:A Grizzly Bear.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
 |respawn=2 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Bear Meat}} (28.3%)
 |level=12
 |levelmodmin=1
 |levelmodmax=1

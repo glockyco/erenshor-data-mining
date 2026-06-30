@@ -2,15 +2,13 @@
 |name=Sven Feartines
 |image=[[File:Sven Feartines.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Blades of Vitheo]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=282.1 x 13.5 x 339.2
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0

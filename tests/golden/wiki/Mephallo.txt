@@ -2,15 +2,13 @@
 |name=Mephallo
 |image=[[File:Mephallo.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=508.9 x 64.8 x 997.4
 |spawnchance=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|Hallows Eve}}<br>{{ItemLink|Provoker}}
-|droprates={{ItemLink|Provoker}} (66.7%)<br>{{ItemLink|Hallows Eve}} (33.3%)<br>{{ItemLink|Diamond}} (14.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0
@@ -38,7 +36,7 @@ Mephallo can be found on the ghostly bridge located in the [[Shivering Step]].
 
 To make the bridge appear you must first collect the [[Guide to Sight]] through fishing in [[Shivering Step]].
 
-After you inspect the book head to the large gargoyle statue or where the Vitheo statue is on [[Stowaway's Step|Stowaways Steps]]. 
+After you inspect the book head to the large gargoyle statue or where the Vitheo statue is on [[Stowaway's Step|Stowaways Steps]].
 
 A large ghostly bridge should now be there where you can cross and battle Mephallo.
 

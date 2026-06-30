@@ -2,15 +2,13 @@
 |name=Rottenfoot Swampwalker
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]<br>[[Rottenfoot]]
 |coordinates=
 |spawnchance=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (7.8%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Muck Ball}} (7.8%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (4.6%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (4.6%)<br>{{ItemLink|Swampy Loincloth}} (4.6%)<br>{{ItemLink|Petrified Club}} (3.9%)<ref>If Rottenfoot Swampwalker has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.9%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -45,8 +43,6 @@
 |coordinates=
 |spawnchance=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Petrified Club}} (3.9%)<ref>If Rottenfoot Swampwalker has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.9%)<br>{{ItemLink|Muck Ball}} (3.5%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (3.5%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.5%)<br>{{ItemLink|Swampy Loincloth}} (3.5%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

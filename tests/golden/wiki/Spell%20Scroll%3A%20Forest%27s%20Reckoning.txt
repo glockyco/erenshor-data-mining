@@ -12,22 +12,8 @@
 |sell=22750
 |taughtspell={{AbilityLink|Forest's Reckoning}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Forest's Reckoning.png
-|name=Spell Scroll: Forest's Reckoning
-|arcanist_level=
-|druid_level=20
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=625
-|spell_type=Damage
-|spell_desc=Deals 1200 poison based damage to a target.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - drudd forest's reckoning}}
 
 [[Category:Ability Books]]

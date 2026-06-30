@@ -2,15 +2,13 @@
 |name=Deadweb Spider
 |image=[[File:Deadweb Spider.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=34
 |levelmodmin=0
 |levelmodmax=0

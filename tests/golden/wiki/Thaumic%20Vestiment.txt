@@ -1,0 +1,19 @@
+{{Item
+|title=Thaumic Vestiment
+|type=
+|vendorsource=
+|source=[[Lava Fiend]] (4.0%)<br>[[Tundra Walker]] (3.7%)<br>[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Fire Elemental]] (1.9%)<br>[[Ice Elemental]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - thaumic vestiment}}
+
+[[Category:Armor]]

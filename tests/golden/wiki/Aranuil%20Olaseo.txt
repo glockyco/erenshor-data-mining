@@ -2,15 +2,13 @@
 |name=Aranuil Olaseo
 |image=[[File:Aranuil Olaseo.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Stowaway's Step]]
 |zones=[[Rottenfoot]]
 |coordinates=234.1 x 23.9 x 439.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Daggerhart Ancestral Coin}} (100.0%)<ref>If the player is already holding {{ItemLink|Daggerhart Ancestral Coin}} in their inventory, another will not drop.</ref><br>{{ItemLink|Islander Bandit Armwrap}} (19.6%)<br>{{ItemLink|Brackwood Mace}} (13.2%)<ref>If Aranuil Olaseo has {{ItemLink|Brackwood Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (3.4%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (3.4%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Regen}} (3.4%)<br>{{ItemLink|Spell Scroll: Tangle}} (3.4%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

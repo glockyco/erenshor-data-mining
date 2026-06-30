@@ -2,15 +2,13 @@
 |name=Asp
 |image=[[File:Asp.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Reptilian Scales}} (81.2%)<br>{{ItemLink|Ancient Bone}} (9.1%)<br>{{ItemLink|Asp's Fang}} (5.1%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

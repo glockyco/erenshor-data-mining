@@ -1,0 +1,19 @@
+{{Item
+|title=Halo of Twin Skies
+|type=
+|vendorsource=
+|source=[[Animation of Grace]] (69.0%)<br>[[Soluna]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:ring - 42 - halo of twin skies}}
+
+[[Category:Armor]]

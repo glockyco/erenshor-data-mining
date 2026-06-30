@@ -2,15 +2,13 @@
 |name=Ember Acolyte
 |image=[[File:Ember Acolyte.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
-|coordinates=
-|spawnchance=
+|coordinates=725.8 x 28.5 x 1191.1
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Flamelicked Gorget}}<br>{{ItemLink|Flamesoles}}<br>{{ItemLink|Prismatic Warcord}}
-|droprates={{ItemLink|Flamelicked Gorget}} (33.3%)<br>{{ItemLink|Flamesoles}} (33.3%)<br>{{ItemLink|Prismatic Warcord}} (33.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -36,5 +34,6 @@
 
 Summoned by bringing [[Ember Acolyte (Game Piece)]] to the [[Braxonian Game Board]].
 
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

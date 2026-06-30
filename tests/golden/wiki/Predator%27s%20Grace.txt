@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Sleeper's Pin}}
+|itemswitheffect={{ItemLink|Sleeper's Pin}}<br>{{ItemLink|Wakeweaver}}
 |source=
 |used_by=[[Summoned: Wretched Fawn]]
 }}

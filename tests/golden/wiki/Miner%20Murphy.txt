@@ -2,15 +2,13 @@
 |name=Miner Murphy
 |image=[[File:Miner Murphy.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[The Elderstone Mines]]
 |coordinates=47.9 x -8.9 x 570.2
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Nourished
 |image=[[File:Nourished.png|thumb]]
 |imagecaption=You feel full.
-|description=Increase Hitpoints, Run Speed, and Mana Regen.
+|description=Increase Hitpoints, Run Speed, and Mana Regen (based on level).
 |type=Beneficial
 |line=Generic
 |classes=
@@ -12,8 +12,8 @@
 |is_taunt=
 |casttime=Instant
 |cooldown=
-|duration=498 seconds
-|duration_in_ticks=166
+|duration=660 seconds
+|duration_in_ticks=220
 |has_unstable_duration=
 |is_instant_effect=
 |is_reap_and_renew=
@@ -42,7 +42,7 @@
 |special_descriptor=
 |hp=25
 |ac=
-|mana=25
+|mana=
 |str=
 |dex=
 |end=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|A Beaktooth}}<br>{{ItemLink|A Burgundy Skipper}}<br>{{ItemLink|A Fanged Caveskimmer}}<br>{{ItemLink|A Fingerbiter}}<br>{{ItemLink|A Frowny Clowny}}<br>{{ItemLink|A Husselfish}}<br>{{ItemLink|A Moongill}}<br>{{ItemLink|A Sleepyhead}}<br>{{ItemLink|A Stonemouth Bass}}<br>{{ItemLink|An Octorunner}}<br>{{ItemLink|Bread}}<br>{{ItemLink|Breaded Island Fin}}<br>{{ItemLink|Infused Bracelet}}<br>{{ItemLink|Island Fin}}<br>{{ItemLink|Tamer's Pack}}
+|itemswitheffect={{ItemLink|A Beaktooth}}<br>{{ItemLink|A Burgundy Skipper}}<br>{{ItemLink|A Fanged Caveskimmer}}<br>{{ItemLink|A Fingerbiter}}<br>{{ItemLink|A Frowny Clowny}}<br>{{ItemLink|A Husselfish}}<br>{{ItemLink|A Moongill}}<br>{{ItemLink|A Planar Pumpkin}}<br>{{ItemLink|A Sleepyhead}}<br>{{ItemLink|A Stonemouth Bass}}<br>{{ItemLink|An Octorunner}}<br>{{ItemLink|Bread}}<br>{{ItemLink|Breaded Island Fin}}<br>{{ItemLink|Infused Bracelet}}<br>{{ItemLink|Island Fin}}<br>{{ItemLink|Tamer's Pack}}
 |source=
 |used_by=
 }}

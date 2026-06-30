@@ -2,15 +2,13 @@
 |name=Canopy Crawler
 |image=[[File:Canopy Crawler.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=19
 |levelmodmin=0
 |levelmodmax=0

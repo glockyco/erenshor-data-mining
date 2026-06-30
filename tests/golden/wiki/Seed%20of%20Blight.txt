@@ -2,15 +2,13 @@
 |name=Seed of Blight
 |image=[[File:Seed of Blight.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=
 |spawnchance=10%
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ebonshade}} (14.9%)<ref>If Seed of Blight has {{ItemLink|Ebonshade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ancient Bone}} (12.7%)<br>{{ItemLink|Luminstone}} (12.7%)<br>{{ItemLink|Aetheria}} (8.3%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Baking Oven
 |image=[[File:Baking Oven.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Bellwain Island]]<br>[[Port Azure]]<br>[[Prielian Cascade]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

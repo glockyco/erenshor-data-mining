@@ -2,15 +2,13 @@
 |name=Sivakayan High Shadow
 |image=[[File:Sivakayan High Shadow.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Sivakayan Codex 3 of 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Codex 3 of 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Wyrm Stompers}} (9.0%)<br>{{ItemLink|Ruby}} (4.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dancer's Ring}} (4.5%)<br>{{ItemLink|Citrine Stone}} (2.5%)<br>{{ItemLink|Diamond}} (2.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (2.5%)<br>{{ItemLink|Sivakayan Wand}} (2.5%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Skittering Boots
+|type=
+|vendorsource=
+|source=[[Xjeris]] (69.0%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:foot - 42 - skittering boots}}
+
+[[Category:Armor]]

@@ -2,15 +2,13 @@
 |name=Apostalo Ostagla
 |image=[[File:Apostalo Ostagla.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=733.8 x 94.1 x 494.5
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

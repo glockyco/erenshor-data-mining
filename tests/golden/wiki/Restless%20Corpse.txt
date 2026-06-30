@@ -2,15 +2,13 @@
 |name=Restless Corpse
 |image=[[File:Restless Corpse.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

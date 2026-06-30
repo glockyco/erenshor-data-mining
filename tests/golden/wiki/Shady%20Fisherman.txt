@@ -9,8 +9,6 @@
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

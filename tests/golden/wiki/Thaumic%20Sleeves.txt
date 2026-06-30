@@ -1,0 +1,19 @@
+{{Item
+|title=Thaumic Sleeves
+|type=
+|vendorsource=
+|source=[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Lava Fiend]] (1.9%)<br>[[Fire Elemental]] (1.9%)<br>[[Ice Elemental]] (1.9%)<br>[[Tundra Walker]] (1.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:arm - 42 - thaumic sleeves}}
+
+[[Category:Armor]]

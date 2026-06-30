@@ -58,6 +58,8 @@ from urllib.parse import quote
 
 from loguru import logger
 
+from erenshor.application.wiki.services.helpers import normalise_generated_page_content
+
 
 @dataclass
 class PageMetadata:
@@ -292,10 +294,11 @@ class WikiStorage:
         """
         safe_filename = self._encode_page_title_for_filename(page_title)
         file_path = self._generated_dir / f"{safe_filename}.txt"
-        file_path.write_text(content, encoding="utf-8")
+        normalized_content = normalise_generated_page_content(content)
+        file_path.write_text(normalized_content, encoding="utf-8")
 
         # Compute content hash
-        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        content_hash = hashlib.sha256(normalized_content.encode("utf-8")).hexdigest()
 
         metadata = self._load_metadata()
         content_changed = False

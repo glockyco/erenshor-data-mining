@@ -2,15 +2,13 @@
 |name=Controller Wendyl
 |image=[[File:Controller Wendyl.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=705.3 x 21.3 x 506.2
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -44,7 +42,7 @@ Greeting message:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[passage]</span>, <span style="color: #15e300;">[Erenshor]</span> and <span style="color: #15e300;">[Mainland]</span>
-|Not happenin' pal. The mainland has enough of it's own problems right now without us funneling new adventurers in to stir up all the sleeping dungeons and caves hunting for treasure. If you hear of anyone offering to get you there, you come and tell me.  
+|Not happenin' pal. The mainland has enough of it's own problems right now without us funneling new adventurers in to stir up all the sleeping dungeons and caves hunting for treasure. If you hear of anyone offering to get you there, you come and tell me.
 |-
 |<span style="color: #15e300;">[registered]</span>
 |Yeah, you're registered. You can head up the hill into Wickliff. Go see Smith up at the gate. He'll get you a key to get through.

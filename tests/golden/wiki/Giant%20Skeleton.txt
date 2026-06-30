@@ -2,15 +2,13 @@
 |name=Giant Skeleton
 |image=[[File:Giant Skeleton.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (53.3%)<br>{{ItemLink|Water}} (53.3%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

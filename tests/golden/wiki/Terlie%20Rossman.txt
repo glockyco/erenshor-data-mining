@@ -2,15 +2,13 @@
 |name=Terlie Rossman
 |image=[[File:Terlie Rossman.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=246.5 x 25.9 x 237.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -37,7 +35,7 @@ Terlie is an NPC located in the tavern in [[Port Azure]].
 
 Greeting message:
 {| class="wikitable"
-|Nothing to do these days but drink and wait for the Sivakayans to descend upon us wherever they are lurking. 
+|Nothing to do these days but drink and wait for the Sivakayans to descend upon us wherever they are lurking.
 |}
 
 [[Category:Characters]]

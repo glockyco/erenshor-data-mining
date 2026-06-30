@@ -1,0 +1,19 @@
+{{Item
+|title=Merging Vessel
+|type=
+|vendorsource=[[Elysia Thistlewick]]<br>[[Summoned: Pocket Vendor]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=500
+|sell=325
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:template - merging vessel}}
+
+[[Category:Items]]

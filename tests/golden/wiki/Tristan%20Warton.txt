@@ -2,15 +2,13 @@
 |name=Tristan Warton
 |image=[[File:Tristan Warton.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=248.2 x 26.3 x 350.0
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -37,7 +35,7 @@ Tristan is a shady looking NPC located just inside the main gates of [[Port Azur
 
 Greeting message:
 {| class="wikitable"
-|You know anything bout <span style="color: #15e300;">[swords]</span>? I've come into possession of a few that are real special. I might pass one of 'em over to you, for a favor... 
+|You know anything bout <span style="color: #15e300;">[swords]</span>? I've come into possession of a few that are real special. I might pass one of 'em over to you, for a favor...
 |}
 
 Prompts:

@@ -2,15 +2,13 @@
 |name=Failed Cremation
 |image=[[File:Failed Cremation.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Island Tomb]]
 |coordinates=109.1 x -8.9 x 157.0
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Coal}} (100.0%)<br>{{ItemLink|Ceremonial Gloves}} (48.6%)<br>{{ItemLink|Charred Boots}} (48.6%)<br>{{ItemLink|Luminstone}} (32.7%)<br>{{ItemLink|Sea Glass}} (32.7%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

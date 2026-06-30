@@ -2,15 +2,13 @@
 |name=Exalted Firebone
 |image=[[File:Exalted Firebone.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=569.6 x 103.8 x 482.6
 |spawnchance=75%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Exalted Belt}}<br>{{ItemLink|Golden Plate}}
-|droprates={{ItemLink|Ancient Bone}} (81.2%)<br>{{ItemLink|Exalted Belt}} (66.7%)<br>{{ItemLink|Golden Plate}} (33.3%)<br>{{ItemLink|Riftsnare Gem}} (14.1%)
 |level=37
 |levelmodmin=0
 |levelmodmax=0

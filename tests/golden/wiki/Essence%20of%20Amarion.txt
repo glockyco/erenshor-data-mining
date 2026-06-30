@@ -1,0 +1,19 @@
+{{Item
+|title=Essence of Amarion
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Essence of Amarion}}
+|craftsource=
+|componentfor=
+|buy=5
+|sell=3
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:gen - essence of amarion}}
+
+[[Category:Items]]

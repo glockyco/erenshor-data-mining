@@ -1,0 +1,19 @@
+{{Item
+|title=Ring of Tidal Winds
+|type=
+|vendorsource=
+|source=[[Solunarian Chest]] (33.3%)<br>[[Vithean Chest]] (4.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:ring - 42 - ring of tidal winds}}
+
+[[Category:Armor]]

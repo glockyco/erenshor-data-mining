@@ -2,15 +2,13 @@
 |name=Risen Hierophant
 |image=[[File:Risen Hierophant.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (10.8%)<br>{{ItemLink|Ruby}} (6.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Nature's Promise}} (1.4%)<br>{{ItemLink|Stone Statue: Fernalla}} (1.4%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

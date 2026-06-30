@@ -1,0 +1,19 @@
+{{Item
+|title=Glacier Belt
+|type=
+|vendorsource=
+|source=[[Elementalist Mizuki]] (69.0%)<br>[[Brax, God of Elements]] (37.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:belt - 42 - glacier belt}}
+
+[[Category:Armor]]

@@ -2,7 +2,7 @@
 |title=Ethereal Rending
 |image=[[File:Ethereal Rending.png|thumb]]
 |imagecaption=You are torn apart by magical forces.
-|description=Deal 185 damage to a single target.
+|description=Deal 280 damage to a single target.
 |type=Damage
 |line=Direct_Damage
 |classes=[[Arcanist]] (6)

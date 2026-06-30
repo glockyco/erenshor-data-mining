@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Obscura
+|type=
+|vendorsource=
+|source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Obscura}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - obscura}}
+
+[[Category:Ability Books]]

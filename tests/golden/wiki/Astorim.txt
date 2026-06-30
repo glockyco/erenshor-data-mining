@@ -2,15 +2,13 @@
 |name=Astorim
 |image=[[File:Astorim.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=
 |spawnchance=
 |respawn=5-13 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Bread}} (63.2%)<br>{{ItemLink|Luminstone}} (63.2%)<br>{{ItemLink|Chapters of Descent, Passage 5}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 6}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 7}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 8}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (2.8%)<br>{{ItemLink|Bastion}} (2.6%)<ref>If Astorim has {{ItemLink|Bastion}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Grips of Faith}} (2.6%)<br>{{ItemLink|Pious Sandals}} (2.6%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

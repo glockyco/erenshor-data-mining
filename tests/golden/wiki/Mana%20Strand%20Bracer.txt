@@ -1,0 +1,19 @@
+{{Item
+|title=Mana Strand Bracer
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wrist - 42 - mana strand bracer}}
+
+[[Category:Armor]]

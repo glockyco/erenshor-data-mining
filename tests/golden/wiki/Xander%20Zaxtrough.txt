@@ -2,15 +2,13 @@
 |name=Xander Zaxtrough
 |image=[[File:Xander Zaxtrough.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=93.4 x 0.6 x 10.0
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -33,7 +31,7 @@
 |void=8-18
 |spells=
 }}
-Xander is an NPC in [[Hidden Hills]]. He is a bounty hunter. He is located southwest of the town in Hidden Hills. Standing next to [[Trevor Ulchand]]. 
+Xander is an NPC in [[Hidden Hills]]. He is a bounty hunter. He is located southwest of the town in Hidden Hills. Standing next to [[Trevor Ulchand]].
 
 Greeting message:
 {| class="wikitable"

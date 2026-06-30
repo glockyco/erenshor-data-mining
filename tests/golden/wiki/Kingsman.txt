@@ -2,15 +2,13 @@
 |name=Kingsman
 |image=[[File:Kingsman.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
-|coordinates=
-|spawnchance=
+|coordinates=725.8 x 28.5 x 1191.1
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Blessed Braxonian Bracelet}}<br>{{ItemLink|Blessed Braxonian Bracer}}<br>{{ItemLink|Blessed Braxonian Wristlet}}
-|droprates={{ItemLink|Blessed Braxonian Bracelet}} (33.3%)<br>{{ItemLink|Blessed Braxonian Bracer}} (33.3%)<br>{{ItemLink|Blessed Braxonian Wristlet}} (33.3%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0
@@ -36,5 +34,6 @@
 
 To summon Kingsman you must bring a [[Kingsman (Game Piece)]] to the [[Braxonian Game Board]].
 
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

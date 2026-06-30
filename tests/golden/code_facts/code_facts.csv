@@ -1,32 +1,32 @@
-fact_id,key,value,value_type
-auction.replacebag_gates,item_level,"<= 0,> 39",text
-auction.replacebag_gates,rare_reject_roll,< 19,text
-auction.updateah_gates,item_level,< 40,text
-auction.updateah_gates,item_value,<= 0,text
-iteminfo.proc_trigger_attack,ok,true,bool
-iteminfo.proc_trigger_bash,ok,true,bool
-iteminfo.proc_trigger_cast,ok,true,bool
-loot.guarantee_one_drop,ok,true,bool
-loot.world_drop.crystallized_balance,min_level,30,text
-loot.world_drop.crystallized_balance,rate,0.0005,text
-loot.world_drop.empty2,min_level,0,text
-loot.world_drop.empty2,rate,0.001,text
-loot.world_drop.inert_diamond,min_level,20,text
-loot.world_drop.inert_diamond,rate,0.008,text
-loot.world_drop.maps,min_level,0,text
-loot.world_drop.maps,rate,0.0125,text
-loot.world_drop.masks,min_level,0,text
-loot.world_drop.masks,rate,0.001,text
-loot.world_drop.molorai_mask,min_level,0,text
-loot.world_drop.molorai_mask,rate,0.001,text
-loot.world_drop.planar,min_level,30,text
-loot.world_drop.planar,rate,0.0005,text
-loot.world_drop.planar_shard,min_level,15,text
-loot.world_drop.planar_shard,rate,0.001,text
-loot.world_drop.sivak,min_level,15,text
-loot.world_drop.sivak,rate,0.001,text
-loot.world_drop.world_drop_molds,min_level,0,text
-loot.world_drop.world_drop_molds,rate,0.005,text
-loot.world_drop.xp_pot,min_level,12,text
-loot.world_drop.xp_pot,rate,0.002,text
-smithing.upgrade_ids,strings,"31377423,46289586,2298018",text
+"fact_id","key","value","value_type"
+"auction.replacebag_gates","item_level","<= 0,> 39","text"
+"auction.replacebag_gates","rare_reject_roll","< 19","text"
+"auction.updateah_gates","item_level",">= 40","text"
+"auction.updateah_gates","item_value","<= 0","text"
+"iteminfo.proc_trigger_attack","ok","true","bool"
+"iteminfo.proc_trigger_bash","ok","true","bool"
+"iteminfo.proc_trigger_cast","ok","true","bool"
+"loot.guarantee_one_drop","ok","true","bool"
+"loot.world_drop.crystallized_balance","min_level","30","text"
+"loot.world_drop.crystallized_balance","rate","0.0005","text"
+"loot.world_drop.empty2","min_level","0","text"
+"loot.world_drop.empty2","rate","0.001","text"
+"loot.world_drop.inert_diamond","min_level","20","text"
+"loot.world_drop.inert_diamond","rate","0.008","text"
+"loot.world_drop.maps","min_level","0","text"
+"loot.world_drop.maps","rate","0.0125","text"
+"loot.world_drop.masks","min_level","0","text"
+"loot.world_drop.masks","rate","0.001","text"
+"loot.world_drop.molorai_mask","min_level","0","text"
+"loot.world_drop.molorai_mask","rate","0.001","text"
+"loot.world_drop.planar","min_level","30","text"
+"loot.world_drop.planar","rate","0.0005","text"
+"loot.world_drop.planar_shard","min_level","15","text"
+"loot.world_drop.planar_shard","rate","0.001","text"
+"loot.world_drop.sivak","min_level","15","text"
+"loot.world_drop.sivak","rate","0.0025","text"
+"loot.world_drop.world_drop_molds","min_level","0","text"
+"loot.world_drop.world_drop_molds","rate","0.005","text"
+"loot.world_drop.xp_pot","min_level","12","text"
+"loot.world_drop.xp_pot","rate","0.002","text"
+"smithing.upgrade_ids","strings","31377423,46289586,2298018,2265228","text"

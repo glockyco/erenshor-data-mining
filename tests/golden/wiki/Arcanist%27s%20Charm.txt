@@ -12,29 +12,8 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/Charm
-|image=Arcanist's Charm.png
-|name=Arcanist's Charm
-|tier=0
-|strscaling=
-|endscaling=
-|dexscaling=
-|agiscaling=
-|intscaling=3
-|wisscaling=
-|chascaling=3
-|resistscaling=
-|mitigationscaling=
-|arcanist=True
-|duelist=True
-|druid=True
-|paladin=True
-|reaver=True
-|stormcaller=True
-}}
+{{ItemTooltip|stablekey=item:charm - 30 - arcanist's charm}}
 
 [[Category:Charms]]

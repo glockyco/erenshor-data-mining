@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Reckless Strike
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=8500
+|sell=5525
+|taughtspell=
+|taughtskill={{AbilityLink|Reckless Strike}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - stance - reckless}}
+
+[[Category:Ability Books]]

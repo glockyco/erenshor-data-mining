@@ -24,7 +24,7 @@
 |is_group_effect=
 |is_applied_to_caster=
 |effects=
-|damage_type=Poison
+|damage_type=Void
 |resist_modifier=
 |target_damage=30
 |target_healing=

@@ -16,7 +16,7 @@
 |duration_in_ticks=2
 |has_unstable_duration=
 |is_instant_effect=
-|is_reap_and_renew=True
+|is_reap_and_renew=
 |is_sim_usable=
 |range=30
 |max_level_target=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Fiery Revival}}<br>{{ItemLink|Lichencoat}}
+|itemswitheffect={{ItemLink|Chthonic Handwraps}}<br>{{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Fiery Revival}}<br>{{ItemLink|Lichencoat}}
 |source=
 |used_by=
 }}

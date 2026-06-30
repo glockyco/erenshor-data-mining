@@ -2,15 +2,13 @@
 |name=Styria Olafur
 |image=[[File:Styria Olafur.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Port Azure]]
 |coordinates=120.3 x 11.6 x 291.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=26
 |levelmodmin=0
 |levelmodmax=0

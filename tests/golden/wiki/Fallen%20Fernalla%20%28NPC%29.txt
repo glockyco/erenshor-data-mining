@@ -4,15 +4,13 @@ For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla NPC.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=788.3 x 255.0 x 837.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Bear Bone Club}} (8.7%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.2%)<ref>If Fallen Fernalla has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Wisp Garden}} (0.6%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -37,12 +35,12 @@ For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]
 }}
 
 ==Fallen Fernalla (NPC)==
-Fallen Fernalla offers the final step of the "A Dying Wish" quest chain, {{QuestLink|A Dying Wish, Part 4}}.
+Fallen Fernalla offers the final step of the "A Dying Wish" quest chain, {{QuestLink|link=A Dying Wish (Quest)#Part_Four{{!}}A Dying Wish, Pt. 4}}.
 
 Greeting message:
 {| class="wikitable"
 |Child, you have my deepest gratitude for all you have done... yet there is still more to be faced. My body stands before you as a remnant of what it once was. Hollow and riddled with unnatural darkness and guilt. <span style="color: #15e300;">[Vitheo]</span> cannot rest, nor can I.<br>
-<i>This will start {{QuestLink|A Dying Wish, Part 4}}</i>
+<i>This will start {{QuestLink|link=A Dying Wish (Quest)#Part_Four{{!}}A Dying Wish, Pt. 4}}</i>
 |}
 
 Prompts:

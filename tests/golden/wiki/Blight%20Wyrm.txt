@@ -2,15 +2,13 @@
 |name=Blight Wyrm
 |image=[[File:Blight Wyrm.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Blight]]
 |coordinates=866.8 x 42.3 x 232.9
 |spawnchance=
 |respawn=44 minutes
-|guaranteeddrops={{ItemLink|Plaguewind}}<br>{{ItemLink|Rotten Hands}}<br>{{ItemLink|Statuesque Greaves}}
-|droprates={{ItemLink|Plaguewind}} (33.3%)<br>{{ItemLink|Rotten Hands}} (33.3%)<br>{{ItemLink|Statuesque Greaves}} (33.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

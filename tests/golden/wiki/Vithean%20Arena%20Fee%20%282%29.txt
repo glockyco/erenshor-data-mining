@@ -1,0 +1,19 @@
+{{Item
+|title=Vithean Arena Fee (2)
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Vithean Chest]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Vitheo's Arena II}}
+|craftsource=
+|componentfor=
+|buy=500000
+|sell=325000
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:quest - vithean arena token 2}}
+
+[[Category:Items]]

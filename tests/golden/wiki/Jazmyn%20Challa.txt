@@ -9,8 +9,6 @@
 |coordinates=211.5 x 12.7 x 156.9
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (19.6%)<br>{{ItemLink|Star Stone}} (19.6%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

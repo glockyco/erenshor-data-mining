@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Celestial Smite III
+|type=
+|vendorsource=
+|source=[[Solunarian Moonkeeper]] (2.8%)<br>[[Solunarian Sunbringer]] (2.8%)<br>[[Solunarian Paladin]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill={{AbilityLink|Celestial Smite III}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - celestial smite iii}}
+
+[[Category:Ability Books]]

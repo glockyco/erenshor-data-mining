@@ -1,0 +1,37 @@
+{{Character
+|name=Master of Battle
+|image=[[File:Master of Battle.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Blades of Vitheo]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=467.3 x 25.2 x 429.9
+|spawnchance=
+|respawn=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Vitheo's Plane of Valor]]

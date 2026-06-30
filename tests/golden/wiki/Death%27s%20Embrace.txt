@@ -2,7 +2,7 @@
 |title=Death's Embrace
 |image=[[File:Death's Embrace.png|thumb]]
 |imagecaption=You are wrapped in a cold embrace.
-|description=Weaken a target, while slowly draining its life and healing the caster.
+|description=Steal some of your target's strength and attack speed and give it to yourself briefly
 |type=StatusEffect
 |line=Duel_Void_DOT
 |classes=[[Windblade]] (6)
@@ -67,7 +67,7 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Ebonshade}}
 |source={{ItemLink|Spell Scroll: Death's Embrace}}
-|used_by=[[A Grassland Ogre Chieftan]]<br>[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Bassle Wavebreaker]]<br>[[Cagnus Marlsen]]<br>[[Chazza Priel]]<br>[[Elysia Thistlewick]]<br>[[Molorai Acquirer]]<br>[[Molorai Ancille]]<br>[[Molorai Anointed]]<br>[[Molorai Anointed]]<br>[[Molorai Bloodwarden]]<br>[[Molorai Bloodwarden]]<br>[[Molorai Curator]]<br>[[Molorai Dockmaster]]<br>[[Molorai Mason]]<br>[[Molorai Nightmistress]]<br>[[Molorai Outrider]]<br>[[Molorai Outrider]]<br>[[Molorai Outrider]]<br>[[Molorai Specialist]]<br>[[Molorai Specialist]]<br>[[Molorai Truthseeker]]<br>[[Molorai Truthseeker]]<br>[[Overseer Orlok]]<br>[[Priel Deceiver]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]<br>[[Scorched Skeleton]]<br>[[Sprig Laisey]]<br>[[Tiallia Priel]]
+|used_by=[[A Grassland Ogre Chieftan]]<br>[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Bassle Wavebreaker]]<br>[[Cagnus Marlsen]]<br>[[Chazza Priel]]<br>[[Elysia Thistlewick]]<br>[[Molorai Acquirer]]<br>[[Molorai Ancille]]<br>[[Molorai Anointed]]<br>[[Molorai Bloodwarden]]<br>[[Molorai Curator]]<br>[[Molorai Dockmaster]]<br>[[Molorai Mason]]<br>[[Molorai Outrider]]<br>[[Molorai Outrider]]<br>[[Molorai Specialist]]<br>[[Molorai Specialist]]<br>[[Molorai Truthseeker]]<br>[[Overseer Orlok]]<br>[[Priel Deceiver]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]<br>[[Scorched Skeleton]]<br>[[Sprig Laisey]]<br>[[Tiallia Priel]]
 }}
 
 {{Ability

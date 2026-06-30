@@ -2,15 +2,13 @@
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Azynthi's Garden]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Ancient Pottery Shard}} (10.2%)<br>{{ItemLink|Diamond}} (10.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Vampire Fang}} (7.4%)<br>{{ItemLink|Azynthian Scripture 1}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Sigil}} (1.5%)<br>{{ItemLink|Blueprint: Azynthian Dining}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Livingroom}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Rest}} (0.3%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0
@@ -33,20 +31,17 @@
 |void=16-37
 |spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Ice Spear}}
 }}
-
 {{Character
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Luminstone}} (6.8%)<br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Star Stone}} (6.8%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Game Room}} (0.8%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0
@@ -81,8 +76,6 @@
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Molorai Broadsword}} (20.5%)<ref>If Molorai Outrider has {{ItemLink|Molorai Broadsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (17.9%)<br>{{ItemLink|Blueprint: Game Room}} (0.8%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

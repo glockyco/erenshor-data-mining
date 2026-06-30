@@ -2,15 +2,13 @@
 |name=Garrison Victoza
 |image=[[File:Garrison Victoza.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=682.4 x 40.4 x 182.5
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

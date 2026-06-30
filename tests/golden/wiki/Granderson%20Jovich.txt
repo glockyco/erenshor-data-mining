@@ -2,15 +2,13 @@
 |name=Granderson Jovich
 |image=[[File:Granderson Jovich.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Soluna's Landing]]
 |coordinates=252.7 x 100.0 x 413.2
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

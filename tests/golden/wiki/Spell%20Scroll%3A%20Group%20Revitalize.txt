@@ -12,22 +12,8 @@
 |sell=6175
 |taughtspell={{AbilityLink|Group Revitalize}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Group Revitalize.png
-|name=Spell Scroll: Group Revitalize
-|arcanist_level=
-|druid_level=22
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=900
-|spell_type=Heal
-|spell_desc=Heal nearby group members for a large amount.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - group revitalize}}
 
 [[Category:Ability Books]]

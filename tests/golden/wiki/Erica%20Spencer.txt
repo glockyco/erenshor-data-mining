@@ -2,15 +2,13 @@
 |name=Erica Spencer
 |image=[[File:Erica Spencer.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=1243.0 x -12.4 x 570.3
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

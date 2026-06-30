@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Florablast
+|type=
+|vendorsource=
+|source=[[Astorim]] (2.0%)<br>[[Karsith]] (2.0%)<br>[[Orinthar]] (1.7%)<br>[[Vextral]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=28000
+|sell=18200
+|taughtspell={{AbilityLink|Florablast}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - florablast}}
+
+[[Category:Ability Books]]

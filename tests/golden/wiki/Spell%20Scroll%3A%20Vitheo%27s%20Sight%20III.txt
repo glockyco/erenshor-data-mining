@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Vitheo's Sight III
+|type=
+|vendorsource=
+|source=[[Apparition of Vitheo]] (87.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=22000
+|sell=14300
+|taughtspell={{AbilityLink|Vitheo's Sight III}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight iii}}
+
+[[Category:Ability Books]]

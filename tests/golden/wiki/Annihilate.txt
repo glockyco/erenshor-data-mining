@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Annihilate}}
-|used_by=[[Acolyte of Azynthi]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]<br>[[High Priestess of Sivakaya]]<br>[[Oracle Tretha]]<br>[[Rotting Guardian]]
+|used_by=[[Acolyte of Azynthi]]<br>[[Azynthian Corruptor]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]<br>[[High Priestess of Sivakaya]]<br>[[Oracle Tretha]]<br>[[Rotting Guardian]]
 }}

@@ -1,0 +1,19 @@
+{{Item
+|title=Ethereal Vault
+|type=[[Consumables|Consumable]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Ancient Bones for Tilbert}}<br>{{QuestLink|Essence of Amarion}}<br>{{QuestLink|Molorai Axes for Tilbert}}<br>{{QuestLink|Priel Rings for Tilbert}}
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Ethereal Vault}}<br>1x {{ItemLink|Ancient Bone}}<br>1x {{ItemLink|Luminstone}}<br>1x {{ItemLink|Sea Glass}}<br>2x {{ItemLink|Chunk of Iron Ore}}<br>1x {{ItemLink|Chunk of Copper Ore}}
+|componentfor=
+|buy=150
+|sell=98
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:cons - ethereal vault}}
+
+[[Category:Consumables]]

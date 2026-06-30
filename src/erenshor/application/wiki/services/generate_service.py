@@ -36,6 +36,7 @@ from erenshor.application.wiki.generators.field_preservation import FieldPreserv
 from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.registry import get_generators_by_name
+from erenshor.application.wiki.services.helpers import normalise_generated_page_content
 from erenshor.application.wiki.services.page import OperationResult
 
 
@@ -203,7 +204,7 @@ class WikiGenerateService:
             output_dir.mkdir(parents=True, exist_ok=True)
             filename = page.title.replace(" ", "_") + ".txt"
             dest = output_dir / filename
-            dest.write_text(page.content, encoding="utf-8")
+            dest.write_text(normalise_generated_page_content(page.content), encoding="utf-8")
             logger.debug(f"Wrote {page.title!r} to {dest}")
 
         logger.info(f"Wrote {len(file_pairs)} pages to output directories")

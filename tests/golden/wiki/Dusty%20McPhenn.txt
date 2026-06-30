@@ -2,15 +2,13 @@
 |name=Dusty McPhenn
 |image=[[File:Dusty McPhenn.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-20 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]
 |coordinates=732.0 x 43.6 x 169.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

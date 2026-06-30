@@ -2,15 +2,13 @@
 |name=Emberleigh Ashford
 |image=[[File:Emberleigh Ashford.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=502.7 x 52.0 x 447.1
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

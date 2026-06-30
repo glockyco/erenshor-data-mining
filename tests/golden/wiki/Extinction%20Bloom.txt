@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Nature's Will}}
+|itemswitheffect={{ItemLink|Bracer of Seeds}}<br>{{ItemLink|Cycle's Edge}}<br>{{ItemLink|Honsus' Bow}}<br>{{ItemLink|Nature's Will}}
 |source={{ItemLink|Spell Scroll: Extinction Bloom}}
 |used_by=[[Ta'Dah, Sorcerer of Ripper]]
 }}

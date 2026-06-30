@@ -2,15 +2,13 @@
 |name=Captive Miner
 |image=[[File:Captive Miner.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Prielian Cascade]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -45,8 +43,6 @@
 |coordinates=73.6 x 0.0 x 343.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Bread}} (31.6%)<br>{{ItemLink|Water}} (31.6%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

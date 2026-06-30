@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eroded Bangle}}<br>{{ItemLink|Exploding Brace}}<br>{{ItemLink|Stirrer of Sleep}}
+|itemswitheffect={{ItemLink|Eroded Bangle}}<br>{{ItemLink|Exploding Brace}}<br>{{ItemLink|Stirrer of Sleep}}<br>{{ItemLink|Thaumic Wraps}}
 |source={{ItemLink|Spell Scroll: Tenebris}}
-|used_by=[[Acolyte of Azynthi]]<br>[[Ancient Educator]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]<br>[[Braxon Elden]]<br>[[Grand Arcanist of Sivakaya]]<br>[[Ta'Dah, Sorcerer of Ripper]]
+|used_by=[[Acolyte of Azynthi]]<br>[[Ancient Educator]]<br>[[Azynthian Corruptor]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]<br>[[Braxon Elden]]<br>[[Grand Arcanist of Sivakaya]]<br>[[Ta'Dah, Sorcerer of Ripper]]
 }}

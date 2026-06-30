@@ -2,15 +2,13 @@
 |name=Aquilamar Rake
 |image=[[File:Aquilamar Rake.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

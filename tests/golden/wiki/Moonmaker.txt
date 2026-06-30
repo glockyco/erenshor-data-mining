@@ -1,0 +1,19 @@
+{{Item
+|title=Moonmaker
+|type=
+|vendorsource=
+|source=[[Solunarian Moonkeeper]] (7.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - moonmaker}}
+
+[[Category:Weapons]]

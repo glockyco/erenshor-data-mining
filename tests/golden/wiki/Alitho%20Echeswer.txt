@@ -2,15 +2,13 @@
 |name=Alitho Echeswer
 |image=[[File:Alitho Echeswer.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>-30 [[The Citizens of Erenshor]]<br>-30 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=206.9 x 27.1 x 202.3
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -44,11 +42,11 @@ Greeting message:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[collector]</span>
-Yes! All things! Lately though, I've been looking for Rottenfoot Sashes. If you find some, bring them to me! 
+Yes! All things! Lately though, I've been looking for Rottenfoot Sashes. If you find some, bring them to me!
 |-
 |<span style="color: #15e300;">[Rottenfoot]</span>
 Savages from the swamp up north. There's no sense in asking nicely, if you get my drift. The swamp is just about the last place you'll find any civilized folks.
-<i>This begins the quest [[Rottenfoot Sashes for Alitho Echeswer]]</i> 
+<i>This begins the quest [[Rottenfoot Sashes for Alitho Echeswer]]</i>
 |}
 
 Upon completion of [[Rottenfoot Sashes for Alitho Echeswer|<span style="color: #FFFF00;">Rottenfoot Sashes for Alitho Echeswer</span>]]:

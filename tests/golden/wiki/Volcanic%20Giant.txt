@@ -2,15 +2,13 @@
 |name=Volcanic Giant
 |image=[[File:Volcanic Giant.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=434.8 x 122.9 x 418.4
 |spawnchance=
 |respawn=14 minutes
-|guaranteeddrops={{ItemLink|Sage's Trinket}}<br>{{ItemLink|Volcanic Sceptre}}<br>{{ItemLink|Volcanic Shield}}
-|droprates={{ItemLink|Volcanic Sceptre}} (50.0%)<br>{{ItemLink|Sage's Trinket}} (25.0%)<br>{{ItemLink|Volcanic Shield}} (25.0%)<br>{{ItemLink|Chunk of Obsidian}} (13.7%)<br>{{ItemLink|Droplet of Lava}} (13.7%)<br>{{ItemLink|Cloth Gloves}} (5.1%)<br>{{ItemLink|Cloth Hood}} (5.1%)<br>{{ItemLink|Cloth Pants}} (5.1%)<br>{{ItemLink|Cloth Shirt}} (5.1%)<br>{{ItemLink|Cloth Shoes}} (5.1%)<br>{{ItemLink|Cloth Sleeves}} (5.1%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

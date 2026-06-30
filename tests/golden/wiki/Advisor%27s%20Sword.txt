@@ -1,0 +1,19 @@
+{{Item
+|title=Advisor's Sword
+|type=
+|vendorsource=
+|source=[[Khorso, Soluna's Advisor]] (70.2%)<br>[[Soluna]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - advisor's sword}}
+
+[[Category:Weapons]]

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Journeying Boots}}
+|itemswitheffect={{ItemLink|Creeping Waistband}}<br>{{ItemLink|Journeying Boots}}
 |source=
 |used_by=
 }}

@@ -1,0 +1,37 @@
+{{Character
+|name=Zenith
+|image=[[File:Zenith.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=-15 [[The Solunarian Brotherhood]]
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=94.5 x 338.1 x 920.4
+|spawnchance=
+|respawn=33 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5850000
+|mana=0
+|ac=630
+|strength=255
+|endurance=255
+|dexterity=255
+|agility=255
+|intelligence=255
+|wisdom=255
+|charisma=255
+|magic=55
+|poison=55
+|elemental=55
+|void=55
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

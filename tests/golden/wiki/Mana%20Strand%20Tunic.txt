@@ -1,0 +1,19 @@
+{{Item
+|title=Mana Strand Tunic
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - mana strand tunic}}
+
+[[Category:Armor]]

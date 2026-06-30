@@ -3,15 +3,13 @@ The Albino Kodiak can spawn in place of the regular Kodiak in the [[Silkengrass 
 |name=Albino Kodiak
 |image=[[File:Albino Kodiak.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=2%
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Bear Meat}} (14.8%)<br>{{ItemLink|Albino Bear Hood}} (13.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

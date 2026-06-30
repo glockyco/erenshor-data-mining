@@ -2,15 +2,13 @@
 |name=Harbinger
 |image=[[File:Harbinger.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=211.3 x 53.0 x 344.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

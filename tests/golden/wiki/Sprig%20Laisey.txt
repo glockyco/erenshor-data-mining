@@ -2,15 +2,13 @@
 |name=Sprig Laisey
 |image=[[File:Sprig Laisey.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-25 [[The Citizens of Erenshor]]<br>-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=1509.8 x 64.0 x 682.7
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Bear Bone Club}} (13.5%)<ref>If Sprig Laisey has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)
 |level=20
 |levelmodmin=0
 |levelmodmax=0

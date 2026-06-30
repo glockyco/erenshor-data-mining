@@ -35,7 +35,7 @@
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
-|lifesteal=8.0
+|lifesteal=4.0
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=

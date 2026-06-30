@@ -2,15 +2,13 @@
 |name=Yale Harvey
 |image=[[File:Yale Harvey.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Soluna's Landing]]
 |coordinates=239.5 x 101.5 x 405.5
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

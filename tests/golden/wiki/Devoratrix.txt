@@ -2,15 +2,13 @@
 |name=Devoratrix
 |image=[[File:Devoratrix.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Devoratrix Thorn}} (6.9%)<br>{{ItemLink|Loomingwood Branch}} (6.9%)<br>{{ItemLink|Fungus Covered Tunic}} (6.7%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

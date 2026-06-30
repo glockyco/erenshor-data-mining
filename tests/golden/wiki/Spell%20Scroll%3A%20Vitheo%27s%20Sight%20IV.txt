@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Vitheo's Sight IV
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (19.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Vitheo's Sight IV}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight iv}}
+
+[[Category:Ability Books]]

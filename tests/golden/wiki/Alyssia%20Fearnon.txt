@@ -2,15 +2,13 @@
 |name=Alyssia Fearnon
 |image=[[File:Alyssia Fearnon.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]<br>-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=-11.2 x -2.9 x -28.2
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0

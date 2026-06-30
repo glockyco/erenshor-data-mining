@@ -12,8 +12,8 @@
 |is_taunt=
 |casttime=Instant
 |cooldown=
-|duration=498 seconds
-|duration_in_ticks=166
+|duration=660 seconds
+|duration_in_ticks=220
 |has_unstable_duration=
 |is_instant_effect=
 |is_reap_and_renew=

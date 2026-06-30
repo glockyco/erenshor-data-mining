@@ -12,22 +12,8 @@
 |sell=552
 |taughtspell={{AbilityLink|Toxicity}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Toxicity.png
-|name=Spell Scroll: Toxicity
-|arcanist_level=
-|druid_level=9
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=75
-|spell_type=StatusEffect
-|spell_desc=Deal (35 / tick) poison damage over time
-}}
+{{ItemTooltip|stablekey=item:spell scroll - toxicity}}
 
 [[Category:Ability Books]]

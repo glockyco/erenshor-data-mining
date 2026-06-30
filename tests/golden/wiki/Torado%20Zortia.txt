@@ -2,15 +2,13 @@
 |name=Torado Zortia
 |image=[[File:Torado Zortia.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Loomingwood Forest]]
 |coordinates=356.4 x 26.9 x 444.4
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

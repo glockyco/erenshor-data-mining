@@ -2,15 +2,13 @@
 |name=Summoned Dire Wolf
 |image=[[File:Summoned Dire Wolf.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (86.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

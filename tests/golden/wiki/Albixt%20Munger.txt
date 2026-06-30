@@ -2,15 +2,13 @@
 |name=Albixt Munger
 |image=[[File:Albixt Munger.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=649.3 x 40.4 x 225.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

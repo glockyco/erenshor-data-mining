@@ -2,15 +2,13 @@
 |name=A Deepling Lunarite
 |image=[[File:A Deepling Lunarite.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Reptilian Scales}} (12.1%)<br>{{ItemLink|Serpentine Blood}} (12.1%)<br>{{ItemLink|Star Stone}} (12.1%)<br>{{ItemLink|Elderstone Shard}} (2.6%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (2.6%)<br>{{ItemLink|Runed Gloves}} (2.6%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

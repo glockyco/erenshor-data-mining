@@ -12,22 +12,8 @@
 |sell=130
 |taughtspell={{AbilityLink|Tangle}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Tangle.png
-|name=Spell Scroll: Tangle
-|arcanist_level=
-|druid_level=8
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=50
-|spell_type=StatusEffect
-|spell_desc=Immobilize a target for a short time.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - tangle}}
 
 [[Category:Ability Books]]

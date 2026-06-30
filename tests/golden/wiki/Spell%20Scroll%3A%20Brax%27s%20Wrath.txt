@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Brax's Wrath
+|type=
+|vendorsource=
+|source=[[Fire Elemental]] (2.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Brax's Wrath}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - brax's wrath}}
+
+[[Category:Ability Books]]

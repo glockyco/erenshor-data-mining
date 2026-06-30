@@ -1,0 +1,19 @@
+{{Item
+|title=Vithean Arena Fee (8)
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Vithean Chest]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Vitheo's Arena VIII}}
+|craftsource=
+|componentfor=
+|buy=4000000
+|sell=2600000
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:quest - vithean arena token 8}}
+
+[[Category:Items]]

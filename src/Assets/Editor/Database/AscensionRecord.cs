@@ -57,6 +57,15 @@ public class AscensionRecord
     public float VengefulHealingPercentage { get; set; }
     public float SummonedBeastEnhancement { get; set; }
 
+    // Stormcaller Stats
+    public float ReloadHaste { get; set; }
+    public float LightningProcChance { get; set; }
+    public float NoCDPenaltyChance { get; set; }
+    public float KillshotChance { get; set; }
+
+    // Reaver Stats
+    public float TripleAttackChanceReav { get; set; }
+
     // Internals / Metadata
     public string ResourceName { get; set; } = string.Empty;
 }

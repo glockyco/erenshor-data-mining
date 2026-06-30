@@ -1,0 +1,19 @@
+{{Item
+|title=Sea Wind Shield
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (66.8%)<br>[[Vithean Chest]] (4.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:secondary - 42 - sea wind shield}}
+
+[[Category:Weapons]]

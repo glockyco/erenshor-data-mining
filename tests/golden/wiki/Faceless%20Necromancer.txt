@@ -2,15 +2,13 @@
 |name=Faceless Necromancer
 |image=[[File:Faceless Necromancer.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (14.2%)<br>{{ItemLink|Cloth Hood}} (14.2%)<br>{{ItemLink|Cloth Shoes}} (14.2%)<br>{{ItemLink|Cloth Sleeves}} (14.2%)<br>{{ItemLink|Necromantic Bow}} (7.3%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

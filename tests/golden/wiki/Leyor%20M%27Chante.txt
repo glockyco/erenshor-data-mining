@@ -2,15 +2,13 @@
 |name=Leyor M'Chante
 |image=[[File:Leyor M'Chante.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Port Azure]]
 |coordinates=160.0 x 31.9 x 311.0
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -46,7 +44,7 @@ Prompts:
 |<span style="color: #15e300;">[destiny]</span>
 |Your destiny is for you alone to determine. For some, it's power and for others it's fortune. For me, it's Soluna's <span style="color: #15e300;">[Celestial]</span> <span style="color: #15e300;">[Blade].
 |-
-|<span style="color: #15e300;">[Celestial], [Blade]</span> 
+|<span style="color: #15e300;">[Celestial], [Blade]</span>
 |The very sword Soluna bestowed upon her avatar here in these lands and now lost to time, it's nothing short of fabled. Where to look - that's another question that I do not have the answer to.<br><br><i>This begins {{QuestLink|link=Soluna's Flameblade}}</i>
 |-
 |<span style="color: #15e300;">[hi]</span>

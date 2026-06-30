@@ -2,15 +2,13 @@
 |name=Nightmarian Hound
 |image=[[File:Nightmarian Hound.png|thumb]]
 |imagecaption=Training these dogs is an absolute nightmare
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=214.8 x 2.8 x 588.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Remnants of a Daydream}} (19.6%)<br>{{ItemLink|Remnants of a Nightmare}} (19.6%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

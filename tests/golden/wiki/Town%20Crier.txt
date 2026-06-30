@@ -2,15 +2,13 @@
 |name=Town Crier
 |image=[[File:Town Crier.png|thumb]]
 |imagecaption=The town crier in Wickliff, Stowaway's Step
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]<br>[[Stowaway's Step]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

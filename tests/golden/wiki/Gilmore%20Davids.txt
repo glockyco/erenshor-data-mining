@@ -2,15 +2,13 @@
 |name=Gilmore Davids
 |image=[[File:Gilmore Davids.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[The Elderstone Mines]]
 |coordinates=120.4 x 0.6 x 652.7
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -37,7 +35,7 @@ Gilmore is located inside The [[Elderstone Mines]] in the miner's lodging area.
 
 Greeting message:
 {| class="wikitable"
-|When those monsters came out... I thought it was the end. We shouldn't meddle in those things or else it'll be good bye blue sky for all of us. 
+|When those monsters came out... I thought it was the end. We shouldn't meddle in those things or else it'll be good bye blue sky for all of us.
 |}
 
 [[Category:Characters]]

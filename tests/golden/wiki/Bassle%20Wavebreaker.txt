@@ -2,15 +2,13 @@
 |name=Bassle Wavebreaker
 |image=[[File:Bassle Wavebreaker.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=68.1 x 12.1 x 195.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Hardened Copper Sword}} (68.1%)<br>{{ItemLink|Citrine Stone}} (40.4%)<br>{{ItemLink|Water}} (40.4%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

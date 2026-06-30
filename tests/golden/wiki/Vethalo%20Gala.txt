@@ -2,15 +2,13 @@
 |name=Vethalo Gala
 |image=[[File:Vethalo Gala.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]
 |coordinates=146.2 x 11.7 x 312.7
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Key to Vitheo's Rest}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Rest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Short Sword of Viropha}} (10.1%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

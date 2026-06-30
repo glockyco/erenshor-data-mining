@@ -2,6 +2,40 @@
 |name=Vithean Immortal
 |image=[[File:Vithean Immortal.png|thumb]]
 |imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=578.1 x 51.3 x 543.6
+|spawnchance=1%
+|respawn=9 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600000
+|mana=0
+|ac=630
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=500
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+{{Character
+|name=Vithean Immortal
+|image=[[File:Vithean Immortal.png|thumb]]
+|imagecaption=
 |type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
@@ -9,8 +43,6 @@
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Spectral Sword}} (9.1%)<br>{{ItemLink|Spectral Dagger}} (3.5%)<br>{{ItemLink|Stone Statue: Vitheo}} (0.9%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Vitheo}} (0.2%)<br>{{ItemLink|Ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (0.2%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0
@@ -34,5 +66,7 @@
 |spells=
 }}
 
+[[Category:Bosses]]
 [[Category:Enemies]]
+[[Category:Vitheo's Plane of Valor]]
 [[Category:Vitheo's Rest]]

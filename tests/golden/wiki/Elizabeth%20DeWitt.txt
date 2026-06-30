@@ -2,15 +2,13 @@
 |name=Elizabeth DeWitt
 |image=[[File:Elizabeth DeWitt.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Port Azure]]
 |coordinates=343.3 x 26.7 x 91.9
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

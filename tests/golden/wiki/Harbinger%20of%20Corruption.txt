@@ -2,15 +2,13 @@
 |name=Harbinger of Corruption
 |image=[[File:Harbinger of Corruption.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=648.1 x 52.6 x 477.8
 |spawnchance=75%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Blightsteel Greaves}}<br>{{ItemLink|Blightsteel Plate}}
-|droprates={{ItemLink|Blightsteel Greaves}} (66.7%)<br>{{ItemLink|Blightsteel Plate}} (33.3%)<br>{{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

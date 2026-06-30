@@ -1,0 +1,19 @@
+{{Item
+|title=Honsus' Bow
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (66.7%)<br>[[Vithean Chest]] (4.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:bow - 42 - honsus' bow}}
+
+[[Category:Weapons]]

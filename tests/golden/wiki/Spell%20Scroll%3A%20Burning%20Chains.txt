@@ -12,22 +12,8 @@
 |sell=98
 |taughtspell={{AbilityLink|Burning Chains}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Burning Chains.png
-|name=Spell Scroll: Burning Chains
-|arcanist_level=8
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=155
-|spell_type=StatusEffect
-|spell_desc=Slow targets movement and cause (50 / tick) damage over time.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - burning chains}}
 
 [[Category:Ability Books]]

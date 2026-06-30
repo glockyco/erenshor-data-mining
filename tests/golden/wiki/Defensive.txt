@@ -1,7 +1,7 @@
 {{Stance
 |title=Defensive
 |image=[[File:Stance: Defensive.png|thumb]]
-|description=Deal 33% less physical damage, and take 33% less incoming damage.<br><br>Your focus on defense stops all natural health regeneration.
+|description=Deal 33% less physical damage, and take 20% less incoming damage.<br><br>Your focus on defense stops all natural health regeneration.
 |switch_message=shifts into a defensive combat stance
 |max_hp_mod=1.0
 |damage_mod=0.66
@@ -11,7 +11,7 @@
 |spell_damage_mod=1.0
 |self_damage_per_attack=
 |self_damage_per_cast=
-|lifesteal_amount=
+|lifesteal_amount=1.0
 |resonance_amount=1.0
 |stop_regen=1
 |activated_by={{AbilityLink|Stance: Defensive}}

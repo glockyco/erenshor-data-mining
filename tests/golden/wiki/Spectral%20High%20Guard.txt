@@ -2,15 +2,13 @@
 |name=Spectral High Guard
 |image=[[File:Spectral High Guard.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Tarnished Halberd}} (6.9%)<br>{{ItemLink|Tarnished Steel Belt}} (6.9%)<br>{{ItemLink|Aged Plate Bracer}} (3.1%)<br>{{ItemLink|Aged Plate Sleeves}} (3.1%)<br>{{ItemLink|Aged Plate Boots}} (1.6%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

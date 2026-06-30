@@ -1,0 +1,19 @@
+{{Item
+|title=Arachnid Carapace
+|type=
+|vendorsource=
+|source=[[Xjeris]] (69.0%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - arachnid carapace}}
+
+[[Category:Armor]]

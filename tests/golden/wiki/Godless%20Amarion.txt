@@ -12,9 +12,9 @@
 |sell=231
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
+
+{{ItemTooltip|stablekey=item:book - godless amarion}}
 
 Godless Amarion
 
@@ -53,59 +53,6 @@ War began as Brax’s followers clashed with the corrupted and broken Sivakayans
 After years of conflict to salvage Amarion, culminating in a Braxonian victory to repel Sivakaya to the North, Brax’s win did not come without further tragedy—his children Fernalla and Vitheo were both felled through battle or treachery, and though their demises resulted in an ascent to divinity, Brax mourned their losses.
 
 Brax had become angry and distant, all but abandoning the land. The world he and Sivakaya had created as a beacon of light and hope was eclipsed by Sivakaya’s embodiment of darkness. Brax’s people lay buried beneath the sands, and Sivakaya’s followers were ruined by her curse. Unable to bear further sight of their crumbling shared creation, Brax turned away, leaving the world to its fate.
-
-{{Item/General
-|image=Godless Amarion.png
-|name=Godless Amarion
-|description=A narration of the fall of Sivakaya<br><br>(Right Click to Read)
-|value=355
-|stack_size=
-|disposable=
-|effect_style=
-|effect_spell_icon=
-|effect_spell_name=
-|effect_spell_level=
-|effect_spell_duration_ticks=
-|effect_spell_type=
-|effect_spell_line=
-|effect_target_damage=
-|effect_target_healing=
-|effect_damage_type=
-|effect_cast_time=
-|effect_cooldown=
-|effect_spell_range=
-|effect_lifetap=
-|effect_group_effect=
-|effect_stun_target=
-|effect_charm_target=
-|effect_root_target=
-|effect_taunt_spell=
-|effect_aggro=
-|effect_status_effect_name=
-|effect_hp=
-|effect_ac=
-|effect_mana=
-|effect_str=
-|effect_dex=
-|effect_end=
-|effect_agi=
-|effect_wis=
-|effect_int=
-|effect_cha=
-|effect_mr=
-|effect_er=
-|effect_pr=
-|effect_vr=
-|effect_movement_speed=
-|effect_damage_shield=
-|effect_haste=
-|effect_percent_lifesteal=
-|effect_atk_roll_modifier=
-|effect_resonate_chance=
-|effect_add_proc_name=
-|effect_add_proc_chance=
-|effect_special_descriptor=
-}}
 
 [[Category:Books]]
 [[Category:Items]]

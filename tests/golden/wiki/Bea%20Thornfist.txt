@@ -2,15 +2,13 @@
 |name=Bea Thornfist
 |image=[[File:Bea Thornfist.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=659.5 x 39.7 x 169.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

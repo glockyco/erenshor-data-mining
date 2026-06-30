@@ -12,22 +12,8 @@
 |sell=146
 |taughtspell={{AbilityLink|Waste}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Waste.png
-|name=Spell Scroll: Waste
-|arcanist_level=
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=4
-|mana_cost=50
-|spell_type=StatusEffect
-|spell_desc=Do 30 void damage per tick for 3 ticks.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - waste}}
 
 [[Category:Ability Books]]

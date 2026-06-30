@@ -12,22 +12,8 @@
 |sell=5525
 |taughtspell={{AbilityLink|Aetherstorm}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Aetherstorm.png
-|name=Spell Scroll: Aetherstorm
-|arcanist_level=28
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=675
-|spell_type=Damage
-|spell_desc=Deals 1600 magic damage to your target.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - aetherblast}}
 
 [[Category:Ability Books]]

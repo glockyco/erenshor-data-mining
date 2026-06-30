@@ -2,7 +2,7 @@
 |title=Group Revitalize
 |image=[[File:Group Revitalize.png|thumb]]
 |imagecaption=You feel your wounds begin to close.
-|description=Heal nearby group members for a large amount.
+|description=Heal nearby group members for base 575 damage.
 |type=Heal
 |line=Healing
 |classes=[[Druid]] (22)
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eon, Blade of Time}}<br>{{ItemLink|Hopewarden}}
+|itemswitheffect={{ItemLink|Hopewarden}}
 |source={{ItemLink|Spell Scroll: Group Revitalize}}
-|used_by=[[Addison Priel]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla]]<br>[[Julianna Priel]]
+|used_by=[[Addison Priel]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla]]<br>[[Fernalla, Goddess of Nature]]<br>[[Fernalla, Goddess of Nature]]<br>[[Julianna Priel]]
 }}

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Azynthian Mask}}
+|itemswitheffect={{ItemLink|Azynthian Mask}}<br>{{ItemLink|Fiery Thoughts}}<br>{{ItemLink|Radiant Helm}}<br>{{ItemLink|Thaumic Hood}}
 |source=
 |used_by=
 }}

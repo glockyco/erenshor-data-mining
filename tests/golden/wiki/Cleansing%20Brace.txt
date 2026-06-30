@@ -1,0 +1,19 @@
+{{Item
+|title=Cleansing Brace
+|type=
+|vendorsource=
+|source=[[Braxonian Chest]] (35.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wrist - 42 - cleansing brace}}
+
+[[Category:Armor]]

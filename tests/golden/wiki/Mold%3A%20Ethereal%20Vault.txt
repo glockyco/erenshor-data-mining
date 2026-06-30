@@ -1,0 +1,20 @@
+{{Item
+|title=Mold: Ethereal Vault
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:template - ethereal vault}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

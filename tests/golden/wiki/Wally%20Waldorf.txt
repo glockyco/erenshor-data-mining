@@ -2,15 +2,13 @@
 |name=Wally Waldorf
 |image=[[File:Wally Waldorf.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=573.5 x 70.5 x 545.1
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=6
 |levelmodmin=0
 |levelmodmax=0
@@ -48,7 +46,7 @@ Prompts:
 |I need someone who knows how to fish to catch me one! There's an old dusty 'how-to' book for sale in there, but who has time for that? To make it worse, they only come out at night! I'll give you a fancy reward if you catch me one...<br><br><i>This begins {{QuestLink|link=Wally's Moongill}}</i>
 |-
 |<span style="color: #15e300;">[teach]</span>
-|You stop with that nonsense, there's a book inside if you want to learn, but I don't!  
+|You stop with that nonsense, there's a book inside if you want to learn, but I don't!
 |}
 
 Giving him [[A Moongill]] for {{QuestLink|link=Wally's Moongill}}:

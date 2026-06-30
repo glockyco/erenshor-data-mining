@@ -1,0 +1,37 @@
+{{Character
+|name=Vithean Myrmidon
+|image=[[File:Vithean Myrmidon.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=578.1 x 51.3 x 543.6
+|spawnchance=1%
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560000
+|mana=0
+|ac=630
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=500
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Plane of Valor]]

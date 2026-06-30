@@ -2,15 +2,13 @@
 |name=Swamp Wyrm
 |image=[[File:Swamp Wyrm.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=348.9 x 23.0 x 134.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Gut Cord}}<br>{{ItemLink|Wyrm Bone}}<br>{{ItemLink|Wyrm Skin Protector}}
-|droprates={{ItemLink|Gut Cord}} (50.0%)<br>{{ItemLink|Wyrm Bone}} (25.0%)<br>{{ItemLink|Wyrm Skin Protector}} (25.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

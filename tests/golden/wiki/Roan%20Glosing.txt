@@ -2,15 +2,13 @@
 |name=Roan Glosing
 |image=[[File:Roan Glosing.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=311.9 x 73.2 x 595.2
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates=
 |level=33
 |levelmodmin=0
 |levelmodmax=0

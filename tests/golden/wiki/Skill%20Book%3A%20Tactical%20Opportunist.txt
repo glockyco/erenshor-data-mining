@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Tactical Opportunist
+|type=
+|vendorsource=
+|source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill={{AbilityLink|Tactical Opportunist}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - tactical opportunist}}
+
+[[Category:Ability Books]]

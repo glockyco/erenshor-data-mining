@@ -1,0 +1,19 @@
+{{Item
+|title=Fernalla's Sivakayan Rune
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Repairing the Sivakayan Rune}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:gen - half sivakayan rune (fernalla)}}
+
+[[Category:Items]]

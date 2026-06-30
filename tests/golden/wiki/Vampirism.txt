@@ -2,7 +2,7 @@
 |title=Vampirism
 |image=[[File:Vampirism.png|thumb]]
 |imagecaption=You feel a freedom of movement
-|description=Gain 5% attack speed and 5% lifesteal
+|description=Gain 5% attack speed and 3% lifesteal
 |type=Beneficial
 |line=Generic
 |classes=
@@ -35,7 +35,7 @@
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
-|lifesteal=5.0
+|lifesteal=3.0
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Dreamslayer}}<br>{{ItemLink|Famish}}<br>{{ItemLink|Plaguewind}}
+|itemswitheffect={{ItemLink|Chthonic Armwraps}}<br>{{ItemLink|Cyclone Steel Sleeves}}<br>{{ItemLink|Dreamslayer}}<br>{{ItemLink|Famish}}<br>{{ItemLink|Plaguewind}}<br>{{ItemLink|Skyseared Sleeves}}<br>{{ItemLink|Thaumic Sleeves}}
 |source=
 |used_by=
 }}

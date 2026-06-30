@@ -2,15 +2,13 @@
 |name=Elemental Energy
 |image=[[File:Elemental Energy.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=325.5 x 27.0 x 264.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,37 @@
+{{Character
+|name=Warder of Ice
+|image=[[File:Warder of Ice.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=295.0 x 59.7 x 775.6
+|spawnchance=
+|respawn=30 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=9750000
+|mana=20000
+|ac=630
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=850
+|intelligence=155
+|wisdom=155
+|charisma=400
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]

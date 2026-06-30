@@ -1,0 +1,36 @@
+{{Character
+|name=Cluster of Eggs
+|image=[[File:Cluster of Eggs.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Plane of the Willow]]
+|coordinates=1724.6 x 3.2 x 445.0
+|spawnchance=
+|respawn=
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1820000
+|mana=0
+|ac=15
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Plane of the Willow]]

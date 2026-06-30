@@ -2,15 +2,13 @@
 |name=Parzgil
 |image=[[File:Parzgil.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=+10 [[Fernalla's Children]]<br>+10 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=378.6 x 42.1 x 611.7
 |spawnchance=75%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Flowing Blight Silk Sash}}<br>{{ItemLink|Lamentation}}
-|droprates={{ItemLink|Blightwood Slab}} (100.0%)<br>{{ItemLink|Lamentation}} (66.7%)<br>{{ItemLink|Flowing Blight Silk Sash}} (33.3%)<br>{{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

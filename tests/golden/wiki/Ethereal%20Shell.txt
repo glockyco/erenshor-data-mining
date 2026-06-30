@@ -1,0 +1,19 @@
+{{Item
+|title=Ethereal Shell
+|type=
+|vendorsource=
+|source=[[Xjeris]] (69.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - ethereal shell (item)}}
+
+[[Category:Auras]]

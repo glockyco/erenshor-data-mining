@@ -1,0 +1,19 @@
+{{Item
+|title=Chthonic Handwraps
+|type=
+|vendorsource=
+|source=[[Planar Crawler]] (3.9%)<br>[[Fernallan High Guard]] (3.7%)<br>[[Planar Fungus]] (3.4%)<br>[[Fernallan Planar Guard]] (3.0%)<br>[[Planar Grizzly]] (1.8%)<br>[[Planar Wolf]] (1.8%)<br>[[Pack Mother]] (1.8%)<br>[[Planar Cobra]] (1.8%)<br>[[Planar Faerie]] (1.7%)<br>[[Planar Minotaur]] (1.6%)<br>[[Fernallan High Priest]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:glove - 42 - chthonic gloves}}
+
+[[Category:Armor]]

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Collar of the Huntress}}<br>{{ItemLink|Jackalbone Loop}}<br>{{ItemLink|Moonglow Amulet}}<br>{{ItemLink|Pteriaped Claw Necklace}}
+|itemswitheffect={{ItemLink|Collar of the Huntress}}<br>{{ItemLink|Cyclone Steel Helm}}<br>{{ItemLink|Jackalbone Loop}}<br>{{ItemLink|Moonglow Amulet}}<br>{{ItemLink|Pteriaped Claw Necklace}}
 |source=
 |used_by=
 }}

@@ -2,15 +2,13 @@
 |name=Cirreus Alxanth
 |image=[[File:Cirreus Alxanth.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Old Krakengard]]
 |coordinates=280.6 x -9.6 x 91.2
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Short Sword of Viropha}} (10.1%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

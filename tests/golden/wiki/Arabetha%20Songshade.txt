@@ -2,15 +2,13 @@
 |name=Arabetha Songshade
 |image=[[File:Arabetha Songshade.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Faerie's Brake]]
 |coordinates=364.3 x 25.0 x 178.4
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=31
 |levelmodmin=0
 |levelmodmax=0

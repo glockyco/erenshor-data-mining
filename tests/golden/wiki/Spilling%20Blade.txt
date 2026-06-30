@@ -1,0 +1,19 @@
+{{Item
+|title=Spilling Blade
+|type=
+|vendorsource=
+|source=[[Fernallan High Guard]] (7.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - spilling blade}}
+
+[[Category:Weapons]]

@@ -2,15 +2,13 @@
 |name=A Lost Sea Giant
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies#List of Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ghostly Giant's Blood}} (87.1%)<br>{{ItemLink|Sea Glass}} (24.5%)<br>{{ItemLink|Seafruit}} (4.0%)<br>{{ItemLink|Seaspice}} (4.0%)<br>{{ItemLink|Aetheria}} (3.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Twilight Shield}} (3.4%)
 |level=11
 |levelmodmin=0
 |levelmodmax=0
@@ -47,6 +45,8 @@
 {{PAGENAME}} does not use any spells or abilities.
 
 =Notes=
+*It is possible to tell if {{PAGENAME}} will drop the Sea Giant's Cutlass before defeating it, as they will be wielding it when they spawn in.
+*While the female variant of {{PAGENAME}} is three levels higher and gives slightly more experience, it actually has less drops (and a lower drop rate) than that of the males.
 
 {{Character
 |name=A Lost Sea Giant
@@ -59,8 +59,6 @@
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ghostly Giant's Blood}} (93.5%)<br>{{ItemLink|Sea Glass}} (28.2%)<br>{{ItemLink|Twilight Shield}} (13.7%)<ref>If A Lost Sea Giant has {{ItemLink|Twilight Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Giant's Cutlass}} (8.9%)<ref>If A Lost Sea Giant has {{ItemLink|Sea Giant's Cutlass}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Aetheria}} (5.1%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

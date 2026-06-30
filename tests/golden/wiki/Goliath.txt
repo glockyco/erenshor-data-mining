@@ -2,15 +2,13 @@
 |name=Goliath
 |image=[[File:Goliath.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=436.8 x 69.8 x 446.9
 |spawnchance=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|Battleworn Plate}}<br>{{ItemLink|Brute's Chain Collar}}<br>{{ItemLink|Crested Shield}}<br>{{ItemLink|Explorer's Cap}}<br>{{ItemLink|Layer Cape}}
-|droprates={{ItemLink|Battleworn Plate}} (20.0%)<br>{{ItemLink|Brute's Chain Collar}} (20.0%)<br>{{ItemLink|Crested Shield}} (20.0%)<br>{{ItemLink|Explorer's Cap}} (20.0%)<br>{{ItemLink|Layer Cape}} (20.0%)<br>{{ItemLink|Distant Thunder}} (3.4%)<br>{{ItemLink|End of Life}} (3.4%)<br>{{ItemLink|Freedom of the Sky}} (3.4%)<br>{{ItemLink|Glow of Eternity}} (3.4%)<br>{{ItemLink|Rising Moon}} (3.4%)<br>{{ItemLink|Wilt}} (3.4%)
 |level=20
 |levelmodmin=1
 |levelmodmax=1

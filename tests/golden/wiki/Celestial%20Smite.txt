@@ -2,10 +2,10 @@
 |title=Celestial Smite
 |image=[[File:Celestial Smite.png|thumb]]
 |imagecaption=
-|description=Channel the power of Soluna into your attack (2H Weapon Required)
+|description=Channel the power of Soluna into your attack
 |type=Attack
 |line=
-|classes=[[Paladin]] (28)
+|classes=[[Paladin]] (9)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Stun}}<br>{{AbilityLink|Smite}}
+|effects={{AbilityLink|Smite}}
 |damage_type=Physical
 |resist_modifier=
 |target_damage=2
@@ -39,7 +39,7 @@
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=
-|special_descriptor=Two-handed weapon
+|special_descriptor=
 |hp=
 |ac=
 |mana=

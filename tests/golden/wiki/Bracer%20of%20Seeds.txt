@@ -1,0 +1,19 @@
+{{Item
+|title=Bracer of Seeds
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wrist - 42 - bracer of seeds}}
+
+[[Category:Armor]]

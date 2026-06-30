@@ -2,15 +2,13 @@
 |name=Ravager, The First Infected
 |image=[[File:Ravager, The First Infected.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=-773.2 x -52.0 x 377.6
 |spawnchance=
 |respawn=9 minutes
-|guaranteeddrops={{ItemLink|Fungal Bouquet}}<br>{{ItemLink|Fungal Edge}}<br>{{ItemLink|Fungal Spore}}<br>{{ItemLink|Fungus Covered Armband}}<br>{{ItemLink|Silver Plated Leggings}}
-|droprates={{ItemLink|Pg. 5: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 5: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Bouquet}} (45.8%)<br>{{ItemLink|Fungal Edge}} (45.8%)<br>{{ItemLink|Fungal Spore}} (45.8%)<br>{{ItemLink|Fungus Covered Armband}} (45.8%)<br>{{ItemLink|Silver Plated Leggings}} (45.8%)<br>{{ItemLink|Elderstone Shard}} (7.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0

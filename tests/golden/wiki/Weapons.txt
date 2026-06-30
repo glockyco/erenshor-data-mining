@@ -29,6 +29,54 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 !Notes
 ![[Classes]]
 |-
+|style="text-align: left;"|{{ItemLink|Planar Spear}}
+|Primary
+|1H Dagger
+|42
+|41
+|2
+|155
+|155
+|25
+|25
+|25
+|15
+|
+|40
+|20
+|
+|2
+|
+|
+|
+|
+|{{AbilityLink|Ice Shock}}, 95% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Advisor's Sword}}
+|Primary
+|1H Melee
+|42
+|50
+|2
+|500
+|300
+|100
+|30
+|20
+|20
+|
+|15
+|15
+|
+|4
+|5
+|
+|5
+|3
+|{{AbilityLink|Group Major Heal}}, 4% on attack
+|[[Paladin]]
+|-
 |style="text-align: left;"|{{ItemLink|Anointed Sword}}
 |Primary
 |1H Melee
@@ -125,6 +173,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |{{AbilityLink|Tangle}}, 10% on attack
 |[[Paladin]], [[Reaver]]
 |-
+|style="text-align: left;"|{{ItemLink|Cycle's Edge}}
+|Primary
+|1H Melee
+|42
+|52
+|1.75
+|400
+|300
+|100
+|40
+|20
+|40
+|
+|20
+|20
+|
+|1
+|6
+|5
+|6
+|10
+|{{AbilityLink|Extinction Bloom}}, 15% on attack
+|[[Paladin]], [[Reaver]]
+|-
 |style="text-align: left;"|{{ItemLink|Diamondine Mace}}
 |Primary
 |1H Melee
@@ -218,7 +290,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |6
-|{{AbilityLink|Group Revitalize}}, 20% on attack
+|{{AbilityLink|Group Heal}}, 3% on attack
 |[[Paladin]]
 |-
 |style="text-align: left;"|{{ItemLink|Executioner of Azure}}
@@ -317,6 +389,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |[[Paladin]], [[Reaver]]
 |-
+|style="text-align: left;"|{{ItemLink|Gladiator's Axe}}
+|Primary
+|1H Melee
+|42
+|45
+|1.65
+|335
+|300
+|65
+|35
+|15
+|35
+|
+|20
+|
+|
+|1
+|4
+|
+|4
+|
+|{{AbilityLink|Vithean Judgement}}, 20% on attack
+|[[Paladin]], [[Reaver]]
+|-
 |style="text-align: left;"|{{ItemLink|Lamentation}}
 |Primary
 |1H Melee
@@ -345,7 +441,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary
 |1H Melee
 |24
-|13
+|14
 |1.15
 |
 |
@@ -411,7 +507,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |{{AbilityLink|Dazzle}}, 15% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]]
 |-
 |style="text-align: left;"|{{ItemLink|Ripparian Axe}}
 |Primary
@@ -629,6 +725,54 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |[[Stormcaller]]
 |-
+|style="text-align: left;"|{{ItemLink|Frostbite}}
+|Primary
+|Bow
+|42
+|48
+|1.4
+|800
+|550
+|
+|50
+|
+|50
+|30
+|65
+|
+|
+|3
+|
+|
+|5
+|
+|{{AbilityLink|Ice Meteor}}, 6% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Honsus' Bow}}
+|Primary
+|Bow
+|42
+|48
+|1.3
+|800
+|550
+|
+|45
+|
+|45
+|
+|45
+|
+|
+|5
+|5
+|
+|
+|5
+|{{AbilityLink|Extinction Bloom}}, 2% on attack
+|[[Stormcaller]]
+|-
 |style="text-align: left;"|{{ItemLink|Humanbone}}
 |Primary
 |Bow
@@ -675,6 +819,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |{{AbilityLink|Ice Shock}}, 99% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Imperium}}
+|Primary
+|Bow
+|42
+|30
+|1
+|900
+|575
+|
+|45
+|
+|45
+|
+|45
+|
+|
+|5
+|5
+|
+|
+|5
+|{{AbilityLink|Impact}}, 90% on attack
 |[[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Merosavillian Bow}}
@@ -1035,7 +1203,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Cave Lung}}, 20% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Heavy Bladed Mace}}
 |Primary - 2-Handed
@@ -1089,7 +1257,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary - 2-Handed
 |2H Melee
 |39
-|35
+|33
 |1.1
 |250
 |250
@@ -1113,7 +1281,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary - 2-Handed
 |2H Melee
 |39
-|33
+|31
 |1.2
 |300
 |200
@@ -1155,6 +1323,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Concuss}}, 4% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Moonmaker}}
+|Primary - 2-Handed
+|2H Melee
+|42
+|37
+|1.1
+|800
+|275
+|55
+|35
+|
+|30
+|
+|30
+|10
+|
+|5
+|5
+|
+|5
+|7
+|{{AbilityLink|Focus Pain}}, 8% on attack
 |[[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Nightfall}}
@@ -1209,7 +1401,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary - 2-Handed
 |2H Melee
 |40
-|35
+|34
 |1
 |655
 |300
@@ -1233,7 +1425,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary - 2-Handed
 |2H Melee
 |39
-|35
+|32
 |1
 |245
 |200
@@ -1299,6 +1491,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Shifted Fate}}
+|Primary - 2-Handed
+|2H Melee
+|42
+|40
+|1.1
+|1100
+|450
+|125
+|45
+|20
+|45
+|
+|25
+|15
+|
+|5
+|8
+|8
+|8
+|12
+|{{AbilityLink|Smite III}}, 5% on attack
 |[[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Smoldering Blade}}
@@ -1445,6 +1661,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |{{AbilityLink|Magical Skin II}}, 3% on attack
 |[[Paladin]], [[Reaver]]
 |-
+|style="text-align: left;"|{{ItemLink|Willowcutter}}
+|Primary - 2-Handed
+|2H Melee
+|42
+|35
+|1.05
+|800
+|400
+|100
+|40
+|10
+|40
+|
+|30
+|10
+|
+|5
+|9
+|
+|9
+|9
+|{{AbilityLink|The Wild's Fang}}, 10% on attack
+|[[Paladin]], [[Reaver]]
+|-
 |style="text-align: left;"|{{ItemLink|Woebringer - Halberd of Stone}}
 |Primary - 2-Handed
 |2H Melee
@@ -1515,7 +1755,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Tenebris}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Argo's Grimoire}}
 |Primary or Secondary
@@ -1636,6 +1876,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Letters and Words}}
+|Primary or Secondary
+|
+|42
+|
+|
+|350
+|200
+|5
+|5
+|5
+|
+|
+|30
+|30
+|30
+|3
+|6
+|6
+|6
+|10
+|On click: {{AbilityLink|Enlightened Path IV}}
+|[[Arcanist]], [[Druid]]
 |-
 |style="text-align: left;"|{{ItemLink|Pearlescent Kelp Totem}}
 |Primary or Secondary
@@ -1779,14 +2043,14 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Vithean Revenge}}, 2% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Asp's Fang}}
 |Primary or Secondary
 |1H Dagger
 |29
-|18
-|1.5
+|19
+|1.6
 |
 |
 |
@@ -1803,7 +2067,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Venom of the Asp}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Azynthian Dagger}}
 |Primary or Secondary
@@ -1827,7 +2091,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Soul Tap}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Ebonshade}}
 |Primary or Secondary
@@ -1851,7 +2115,31 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Death's Embrace}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Elemental Fourblade}}
+|Primary or Secondary
+|1H Dagger
+|42
+|29
+|1.6
+|500
+|275
+|20
+|30
+|
+|20
+|
+|30
+|
+|
+|4
+|
+|
+|4
+|
+|{{AbilityLink|Elemental Conflict}}, 20% on attack
+|[[Arcanist]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Ephermalia, Blade of Waning}}
 |Primary or Secondary
@@ -1875,7 +2163,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |{{AbilityLink|Dark Haste}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Horn of Aeiros}}
 |Primary or Secondary
@@ -1899,7 +2187,31 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Devour}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|King's Gambit}}
+|Primary or Secondary
+|1H Dagger
+|42
+|30
+|1.5
+|475
+|225
+|25
+|30
+|5
+|30
+|
+|10
+|
+|
+|1
+|5
+|
+|5
+|3
+|{{AbilityLink|King's Gambit}}, 15% on attack
+|[[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Lux, Carver of Stars}}
 |Primary or Secondary
@@ -1913,14 +2225,14 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |10
 |15
-|10
+|
 |
 |
 |10
 |3
 |6
-|
 |6
+|
 |
 |{{AbilityLink|Sunburst (Lux)|text=Sunburst}}, 8% on attack
 |[[Windblade]]
@@ -1948,6 +2260,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |{{AbilityLink|Brax's Touch}}, 70% on attack
 |[[Arcanist]], [[Druid]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Obsidian Edge}}
+|Primary or Secondary
+|1H Dagger
+|42
+|26
+|1.4
+|450
+|255
+|35
+|25
+|5
+|25
+|
+|25
+|
+|
+|2
+|4
+|
+|4
+|4
+|{{AbilityLink|Brax's Fury}}, 10% on attack
+|[[Arcanist]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Oslind's Eviscerator}}
 |Primary or Secondary
@@ -1995,13 +2331,13 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Queen's Fang}}
 |Primary or Secondary
 |1H Dagger
 |19
-|10
+|12
 |1
 |
 |
@@ -2019,7 +2355,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Queen's Bite}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Rusty Dagger}}
 |Primary or Secondary
@@ -2043,7 +2379,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|The Interrogator}}
 |Primary or Secondary
@@ -2067,7 +2403,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Magic Bolt}}, 35% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Thorned Branch}}
 |Primary or Secondary
@@ -2115,7 +2451,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |{{AbilityLink|Dark Haste}}, 5% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Basic Pick}}
 |Primary or Secondary
@@ -2163,7 +2499,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Blackflame Torch}}
 |Primary or Secondary
@@ -2188,6 +2524,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |
 |[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Blade of Grace}}
+|Primary or Secondary
+|1H Melee
+|42
+|30
+|1.5
+|400
+|230
+|35
+|20
+|5
+|35
+|15
+|10
+|
+|
+|3
+|5
+|
+|
+|5
+|{{AbilityLink|Focus Pain}}, 10% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Blade of the Sea}}
 |Primary or Secondary
@@ -2235,7 +2595,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Brackwood Mace}}
 |Primary or Secondary
@@ -2259,14 +2619,14 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Braxonian Mace}}
 |Primary or Secondary
 |1H Melee
 |30
-|15
-|1.1
+|16
+|1.3
 |
 |
 |
@@ -2283,7 +2643,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |{{AbilityLink|Brax's Rage}}, 8% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Ceto}}
 |Primary or Secondary
@@ -2331,7 +2691,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Major Lightning}}, 7% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Cinder of Birth}}
 |Primary or Secondary
@@ -2403,7 +2763,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Beast's Clutch}}, 5% on attack
-|[[Druid]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Crystallized Tactics}}
 |Primary or Secondary
@@ -2499,7 +2859,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Diamond Burst}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Diamond Edged Sword}}
 |Primary or Secondary
@@ -2529,7 +2889,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary or Secondary
 |1H Melee
 |24
-|12
+|14
 |1.25
 |
 |
@@ -2547,7 +2907,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |{{AbilityLink|Group Heal}}, 5% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Esen}}
 |Primary or Secondary
@@ -2691,7 +3051,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Marsh Rot}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Journeyman's Pick}}
 |Primary or Secondary
@@ -2835,7 +3195,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |{{AbilityLink|Mithril Shards}}, 5% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Molorai Axe}}
 |Primary or Secondary
@@ -2859,7 +3219,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Molorai Broadsword}}
 |Primary or Secondary
@@ -2931,7 +3291,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Magic Bolt}}, 15% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Petrified Wood Cane}}
 |Primary or Secondary
@@ -2955,7 +3315,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]]
 |-
 |style="text-align: left;"|{{ItemLink|Polished Longsword}}
 |Primary or Secondary
@@ -3075,7 +3435,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Runed Molorai Axe}}
 |Primary or Secondary
@@ -3099,7 +3459,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Magic Bolt}}, 15% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Rusty Hatchet}}
 |Primary or Secondary
@@ -3147,7 +3507,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Scorched Walking Stick}}
 |Primary or Secondary
@@ -3177,7 +3537,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary or Secondary
 |1H Melee
 |12
-|14
+|15
 |1.8
 |
 |
@@ -3201,7 +3561,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary or Secondary
 |1H Melee
 |18
-|18
+|19
 |2
 |
 |
@@ -3249,7 +3609,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary or Secondary
 |1H Melee
 |21
-|15
+|16
 |1.3
 |25
 |25
@@ -3267,7 +3627,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Predator's Grace}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Songmaker}}
 |Primary or Secondary
@@ -3291,13 +3651,37 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |{{AbilityLink|Theft of Life}}, 15% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spear of True North}}
+|Primary or Secondary
+|1H Melee
+|42
+|32
+|1.5
+|600
+|250
+|75
+|25
+|
+|35
+|20
+|15
+|15
+|
+|4
+|8
+|8
+|8
+|12
+|{{AbilityLink|Vithean Judgement}}, 14% on attack
+|[[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Spectral Dagger}}
 |Primary or Secondary
 |1H Melee
 |15
-|12
+|13
 |1
 |
 |
@@ -3322,7 +3706,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |1H Melee
 |22
 |14
-|1.25
+|1.33
 |10
 |
 |
@@ -3339,7 +3723,31 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spilling Blade}}
+|Primary or Secondary
+|1H Melee
+|42
+|28
+|1.3
+|335
+|200
+|35
+|15
+|5
+|30
+|
+|25
+|
+|
+|3
+|
+|5
+|
+|5
+|{{AbilityLink|Forest's Reckoning}}, 5% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Steel Long Sword}}
 |Primary or Secondary
@@ -3387,7 +3795,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Thorn}}
 |Primary or Secondary
@@ -3435,7 +3843,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |{{AbilityLink|Melting Bones}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Twisted Branch}}
 |Primary or Secondary
@@ -3465,7 +3873,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary or Secondary
 |1H Melee
 |14
-|12
+|16
 |2
 |15
 |10
@@ -3507,7 +3915,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Concuss}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Adept Wand}}
 |Primary or Secondary
@@ -3725,6 +4133,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |{{AbilityLink|Theft of Life}}, 10% on cast
 |[[Arcanist]], [[Druid]]
 |-
+|style="text-align: left;"|{{ItemLink|Fernalla's Paintbrush}}
+|Primary or Secondary
+|Wand
+|42
+|44
+|1.75
+|650
+|300
+|50
+|
+|
+|
+|5
+|45
+|45
+|25
+|5
+|
+|
+|
+|
+|{{AbilityLink|The Wild's Fang}}, 30% on cast
+|[[Druid]]
+|-
 |style="text-align: left;"|{{ItemLink|Fernallan Sceptre}}
 |Primary or Secondary
 |Wand
@@ -3747,6 +4179,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |{{AbilityLink|Biting Vines}}, 5% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Flaming Staff}}
+|Primary or Secondary
+|Wand
+|42
+|42
+|1.35
+|400
+|200
+|25
+|
+|
+|
+|5
+|40
+|35
+|25
+|5
+|
+|
+|8
+|
+|{{AbilityLink|Brax's Touch}}, 6% on cast
 |[[Arcanist]], [[Druid]]
 |-
 |style="text-align: left;"|{{ItemLink|Fungal Bouquet}}
@@ -4013,6 +4469,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |{{AbilityLink|Magic Bolt}}, 25% on cast
 |[[Arcanist]], [[Druid]]
 |-
+|style="text-align: left;"|{{ItemLink|Warder's Staff}}
+|Primary or Secondary
+|Wand
+|42
+|50
+|1.55
+|500
+|300
+|25
+|
+|
+|
+|5
+|50
+|30
+|30
+|5
+|
+|
+|
+|
+|{{AbilityLink|Brax's Touch}}, 99% on cast
+|[[Arcanist]], [[Druid]]
+|-
 |style="text-align: left;"|{{ItemLink|Weak Wand}}
 |Primary or Secondary
 |Wand
@@ -4156,6 +4636,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |{{AbilityLink|Brax's Rage}}, 75% on bash
 |[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Cometshard Shield}}
+|Secondary
+|Shield
+|42
+|
+|
+|350
+|150
+|175
+|15
+|25
+|25
+|10
+|25
+|10
+|
+|2
+|5
+|5
+|
+|10
+|{{AbilityLink|Moonlit Frenzy}}, 90% on bash
+|[[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Crested Shield}}
 |Secondary
@@ -4517,6 +5021,54 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
+|style="text-align: left;"|{{ItemLink|Sea Wind Shield}}
+|Secondary
+|Shield
+|42
+|
+|
+|250
+|300
+|300
+|5
+|5
+|5
+|15
+|35
+|35
+|25
+|6
+|
+|
+|10
+|
+|Worn: {{AbilityLink|Vitheo's Blessing of the Wind}}
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Shard of Infinity}}
+|Secondary
+|Shield
+|42
+|
+|
+|300
+|400
+|300
+|5
+|45
+|5
+|
+|45
+|45
+|35
+|5
+|4
+|4
+|4
+|12
+|Worn: {{AbilityLink|Regrowth}}
+|[[Arcanist]], [[Druid]]
+|-
 |style="text-align: left;"|{{ItemLink|Sivakayan Shield}}
 |Secondary
 |Shield
@@ -4564,6 +5116,30 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |{{AbilityLink|Aetherstorm}}, 75% on bash
 |[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Treant Eye Shield}}
+|Secondary
+|Shield
+|42
+|
+|
+|400
+|200
+|165
+|30
+|20
+|10
+|5
+|30
+|20
+|
+|2
+|4
+|8
+|4
+|8
+|{{AbilityLink|Ancient Rending}}, 5% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Twilight Shield}}
 |Secondary

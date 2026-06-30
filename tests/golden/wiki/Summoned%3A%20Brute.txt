@@ -2,15 +2,13 @@
 |name=Summoned: Brute
 |image=[[File:Summoned: Brute.png|thumb]]
 |imagecaption=You're in dire straits if this pet grabs your face
-|type=NPC
+|type=[[:Category:Pets|Pet]]
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Devour
 |image=[[File:Devour.png|thumb]]
 |imagecaption=You are being devoured from within
-|description=Steal life from your target, and heal yourself for an equal amount.
+|description=Steal 1455 life from your target, and heal yourself for an equal amount.
 |type=Damage
 |line=Direct_Damage
 |classes=[[Druid]] (29)<br>[[Reaver]] (29)
@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Cursed Hide Shield}}<br>{{ItemLink|Horn of Aeiros}}<br>{{ItemLink|Necromantic Bow}}<br>{{ItemLink|Sableheart's Harness}}<br>{{ItemLink|Siva Bow}}<br>{{ItemLink|Sivakayan Shield}}
 |source={{ItemLink|Spell Scroll: Devour}}
-|used_by=[[Addison Priel]]<br>[[Candlekeeper]]<br>[[Cloaked Shadow]]<br>[[Darkwarden Awxa]]<br>[[Darkwarden Ealdred]]<br>[[Grounds Keeper]]<br>[[High Priestess of Sivakaya]]<br>[[Julianna Priel]]<br>[[Molorai Eldermistress]]<br>[[Nipper Farseer]]<br>[[Risen Hierophant]]<br>[[Sivakayan Devoted]]<br>[[Sivakayan Emissary]]<br>[[Spectre]]<br>[[Summoned: Elder Dryad]]<br>[[Ta'Dah, Sorcerer of Ripper]]<br>[[Vextral]]<br>[[Vinx]]<br>[[Vos Ashlyn]]
+|used_by=[[Addison Priel]]<br>[[Candlekeeper]]<br>[[Cloaked Shadow]]<br>[[Darkwarden Awxa]]<br>[[Darkwarden Ealdred]]<br>[[Grounds Keeper]]<br>[[High Priestess of Sivakaya]]<br>[[Julianna Priel]]<br>[[Molorai Eldermistress]]<br>[[Nipper Farseer]]<br>[[Risen Hierophant]]<br>[[Sivakayan Devoted]]<br>[[Sivakayan Emissary]]<br>[[Spectre]]<br>[[Ta'Dah, Sorcerer of Ripper]]<br>[[Vextral]]<br>[[Vinx]]<br>[[Vos Ashlyn]]
 }}

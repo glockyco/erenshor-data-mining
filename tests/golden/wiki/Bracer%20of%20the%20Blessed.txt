@@ -1,0 +1,19 @@
+{{Item
+|title=Bracer of the Blessed
+|type=
+|vendorsource=
+|source=[[Animation of Faith]] (68.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wrist - 42 - bracer of the blessed}}
+
+[[Category:Armor]]

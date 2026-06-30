@@ -2,15 +2,13 @@
 |name=Catnip (Enemy)
 |image=[[File:Catnip (Enemy).png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Catnip}} (100.0%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

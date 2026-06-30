@@ -79,6 +79,15 @@ public class AscensionListener : IAssetScanListener<Ascension>
             VengefulHealingPercentage = asset.VengefulHealingPercentage,
             SummonedBeastEnhancement = asset.SummonedBeastEnhancement,
 
+            // Stormcaller
+            ReloadHaste = asset.ReloadHaste,
+            LightningProcChance = asset.LightningProcChance,
+            NoCDPenaltyChance = asset.NoCDPenaltyChance,
+            KillshotChance = asset.KillshotChance,
+
+            // Reaver
+            TripleAttackChanceReav = asset.TripleAttackChanceReav,
+
             ResourceName = asset.name
         };
 

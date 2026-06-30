@@ -12,22 +12,8 @@
 |sell=13000
 |taughtspell=
 |taughtskill={{AbilityLink|Envenomed Arrow}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Envenomed Arrow.png
-|name=Skill Book: Envenomed Arrow
-|duelist_level=
-|druid_level=
-|arcanist_level=
-|paladin_level=
-|stormcaller_level=28
-|reaver_level=
-|skill_type=Ranged
-|skill_desc=Fires a flaming arrow that will poison your target and debuff its attack power
-|simplayers_autolearn=True
-}}
+{{ItemTooltip|stablekey=item:skillbook - envenomed arrow}}
 
 [[Category:Ability Books]]

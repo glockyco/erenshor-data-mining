@@ -1,0 +1,36 @@
+{{Character
+|name=Pack Mother
+|image=[[File:Pack Mother.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Plane of the Willow]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2860000
+|mana=20000
+|ac=630
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Plane of the Willow]]

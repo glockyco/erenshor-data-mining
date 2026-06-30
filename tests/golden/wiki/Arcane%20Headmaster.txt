@@ -2,15 +2,13 @@
 |name=Arcane Headmaster
 |image=[[File:Arcane Headmaster.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Ancients]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=516.0 x 80.2 x 530.9
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Elder's Slippers}}<br>{{ItemLink|Lover's Locket}}
-|droprates={{ItemLink|Elder's Slippers}} (50.0%)<br>{{ItemLink|Lover's Locket}} (50.0%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

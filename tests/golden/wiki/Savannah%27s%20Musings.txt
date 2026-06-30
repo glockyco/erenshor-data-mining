@@ -12,9 +12,9 @@
 |sell=231
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
+
+{{ItemTooltip|stablekey=item:book - savannahs ledger}}
 
 The Malaroth Ledger
 
@@ -31,59 +31,6 @@ The orders will come flooding in. Bags of gold. Promises of power. My name whisp
 I wonder—were these creatures shaped by Sivakaya’s hand? Did her corruption leave its mark on them as it did so many others? I fear the affliction may be growing in all of them, and only apparent in some—the aged ones or perhaps the less dominant ones. Perhaps it comes from some source within these shores, and so it is priority to remove them from Erenshor for further breeding.
 
 The crew’s restless, as always, but I can feel the excitement in the air. They see what I see—opportunity. Wealth. Glory. The Malaroths are our ticket to power, and I’ll see to it that no one stands in our way. Some call me ruthless. Others call me brilliant. Both are correct. I’ve carved my name into the history of Erenshor, and with these beasts at my side, the world will remember Savannah Priel. Not as a captain, not as a duelist, but as a legend.
-
-{{Item/General
-|image=Savannah's Musings.png
-|name=Savannah's Musings
-|description=Thoughts of Savannah Priel<br><br>(Right Click to Read)
-|value=355
-|stack_size=
-|disposable=
-|effect_style=
-|effect_spell_icon=
-|effect_spell_name=
-|effect_spell_level=
-|effect_spell_duration_ticks=
-|effect_spell_type=
-|effect_spell_line=
-|effect_target_damage=
-|effect_target_healing=
-|effect_damage_type=
-|effect_cast_time=
-|effect_cooldown=
-|effect_spell_range=
-|effect_lifetap=
-|effect_group_effect=
-|effect_stun_target=
-|effect_charm_target=
-|effect_root_target=
-|effect_taunt_spell=
-|effect_aggro=
-|effect_status_effect_name=
-|effect_hp=
-|effect_ac=
-|effect_mana=
-|effect_str=
-|effect_dex=
-|effect_end=
-|effect_agi=
-|effect_wis=
-|effect_int=
-|effect_cha=
-|effect_mr=
-|effect_er=
-|effect_pr=
-|effect_vr=
-|effect_movement_speed=
-|effect_damage_shield=
-|effect_haste=
-|effect_percent_lifesteal=
-|effect_atk_roll_modifier=
-|effect_resonate_chance=
-|effect_add_proc_name=
-|effect_add_proc_chance=
-|effect_special_descriptor=
-}}
 
 [[Category:Books]]
 [[Category:Items]]

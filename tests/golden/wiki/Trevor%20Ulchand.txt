@@ -2,15 +2,13 @@
 |name=Trevor Ulchand
 |image=[[File:Trevor Ulchand.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=91.2 x 0.6 x 5.4
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

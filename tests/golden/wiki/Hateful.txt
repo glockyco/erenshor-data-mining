@@ -1,0 +1,18 @@
+{{Stance
+|title=Hateful
+|image=[[File:Hateful.png|thumb]]
+|description=Take and deal 20% less physical damage, while generating substantially more aggro. Gain a 4% bonus to all proc rates. Your focus on this stance prevents natural health regeneration.
+|switch_message=shifts into a hateful combat stance
+|max_hp_mod=1.0
+|damage_mod=0.8
+|damage_taken_mod=0.8
+|proc_rate_mod=1.04
+|aggro_gen_mod=15.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=
+|self_damage_per_cast=
+|lifesteal_amount=1.0
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Hateful}}
+}}

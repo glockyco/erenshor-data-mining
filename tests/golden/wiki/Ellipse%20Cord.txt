@@ -1,0 +1,19 @@
+{{Item
+|title=Ellipse Cord
+|type=
+|vendorsource=
+|source=[[Solunarian Chest]] (40.3%)<br>[[Soluna]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:belt - 42 - ellipse cord}}
+
+[[Category:Armor]]

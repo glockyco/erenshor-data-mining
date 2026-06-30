@@ -2,15 +2,13 @@
 |name=Lupine Horror
 |image=[[File:Lupine Horror.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=
 |spawnchance=7%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Jackal Hood}}<br>{{ItemLink|Jackalbone Loop}}
-|droprates={{ItemLink|Jackal Hood}} (66.7%)<br>{{ItemLink|Jackalbone Loop}} (33.3%)<br>{{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blightwood Slab}} (11.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Cord of Concentration
+|type=
+|vendorsource=
+|source=[[Animation of Grace]] (69.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:belt - 42 - cord of concentration}}
+
+[[Category:Armor]]

@@ -9,8 +9,6 @@
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=37
 |levelmodmin=0
 |levelmodmax=0
@@ -35,3 +33,4 @@
 }}
 
 [[Category:Enemies]]
+[[Category:Secluded Sanctuary]]

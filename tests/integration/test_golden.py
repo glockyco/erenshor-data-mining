@@ -11,8 +11,8 @@ Run these tests after every significant pipeline change:
     uv run pytest tests/integration/test_golden.py -v
 
 Prerequisites:
-    - variants/main/erenshor-main.sqlite must exist (run extract export)
-    - variants/main/wiki/generated/ must be populated (run wiki generate)
+    - variants/playtest/erenshor-playtest.sqlite must exist (run extract export/build)
+    - variants/playtest/wiki/generated/ must be populated (run wiki generate)
     - tests/golden/ must be populated (run golden capture)
 
 All three tests are marked integration and are skipped when the required
@@ -39,8 +39,8 @@ GOLDEN_MAP_DIR = GOLDEN_DIR / "map"
 GOLDEN_CODE_FACTS_DIR = GOLDEN_DIR / "code_facts"
 
 QUERIES_DIR = REPO_ROOT / "src" / "erenshor" / "application" / "sheets" / "queries"
-WIKI_GENERATED_DIR = REPO_ROOT / "variants" / "main" / "wiki" / "generated"
-DB_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
+WIKI_GENERATED_DIR = REPO_ROOT / "variants" / "playtest" / "wiki" / "generated"
+DB_PATH = REPO_ROOT / "variants" / "playtest" / "erenshor-playtest.sqlite"
 
 # ---------------------------------------------------------------------------
 # Map spawn-points SQL (mirrors database.base.ts, all scenes)

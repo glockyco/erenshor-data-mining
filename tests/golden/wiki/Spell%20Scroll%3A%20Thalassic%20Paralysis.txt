@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Thalassic Paralysis
+|type=
+|vendorsource=
+|source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Thalassic Paralysis}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - thalassic paralysis}}
+
+[[Category:Ability Books]]

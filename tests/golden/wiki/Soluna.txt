@@ -1,0 +1,74 @@
+{{Character
+|name=Soluna
+|image=[[File:Soluna.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=206.7 x 415.8 x 995.8
+|spawnchance=
+|respawn=33 minutes
+|level=43
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=36400000
+|mana=20000
+|ac=645
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=22-52
+|poison=22-52
+|elemental=22-52
+|void=22-52
+|spells=
+}}
+
+----
+
+{{Character
+|name=Soluna
+|image=[[File:Soluna.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=239.5 x 415.9 x 995.7
+|spawnchance=
+|respawn=
+|level=43
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=36400000
+|mana=20000
+|ac=645
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=22-52
+|poison=22-52
+|elemental=22-52
+|void=22-52
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Characters]]
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

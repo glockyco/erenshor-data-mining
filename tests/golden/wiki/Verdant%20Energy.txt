@@ -2,15 +2,13 @@
 |name=Verdant Energy
 |image=[[File:Verdant Energy.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Soluna's Landing]]<br>[[Vitheo's Rest]]
-|coordinates=
+|coordinates=462.6 x 41.1 x 564.0
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=1
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Ursine Charm
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (66.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:charm - 42 - ursine charm}}
+
+[[Category:Charms]]

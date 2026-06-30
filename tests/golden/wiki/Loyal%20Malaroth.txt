@@ -2,15 +2,13 @@
 |name=Loyal Malaroth
 |image=[[File:Loyal Malaroth.png|thumb]]
 |imagecaption=As loyal as it is cuddly!
-|type=NPC
+|type=[[:Category:Pets|Pet]]
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=34
 |levelmodmin=0
 |levelmodmax=0

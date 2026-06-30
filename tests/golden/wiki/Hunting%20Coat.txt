@@ -1,0 +1,19 @@
+{{Item
+|title=Hunting Coat
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (36.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - hunting coat}}
+
+[[Category:Armor]]

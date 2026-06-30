@@ -2,15 +2,13 @@
 |name=Neziroth Daggerhart
 |image=[[File:Neziroth Daggerhart.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-25 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=497.1 x 68.7 x 677.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

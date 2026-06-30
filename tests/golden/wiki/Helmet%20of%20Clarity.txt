@@ -1,0 +1,19 @@
+{{Item
+|title=Helmet of Clarity
+|type=
+|vendorsource=
+|source=[[Animation of Faith]] (68.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:head - 42 - helm of clarity}}
+
+[[Category:Armor]]

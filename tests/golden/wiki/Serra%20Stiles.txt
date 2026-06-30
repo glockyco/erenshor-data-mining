@@ -2,15 +2,13 @@
 |name=Serra Stiles
 |image=[[File:Serra Stiles.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[The Elderstone Mines]]
 |coordinates=121.1 x 0.8 x 636.1
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -37,7 +35,7 @@ Serra is located inside The [[Elderstone Mines]] in the miner's lodging area. Sh
 
 Greeting message:
 {| class="wikitable"
-|I... I left my shovel. It's a family heirloom. One of those slime-things slithered over it and it was gone! 
+|I... I left my shovel. It's a family heirloom. One of those slime-things slithered over it and it was gone!
 |}
 
 Prompts:

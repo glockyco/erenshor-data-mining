@@ -4,15 +4,13 @@
 |name=Eldoth Molorai
 |image=[[File:Eldoth Molorai.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=623.1 x 109.4 x 496.8
 |spawnchance=
 |respawn=42 minutes
-|guaranteeddrops={{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Eldoth's Heirloom Ring}}<br>{{ItemLink|Sivakaya's Touch}}
-|droprates={{ItemLink|Eldoth's Journal Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth's Journal Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Skull-Shaped Candleholder}} (100.0%)<br>{{ItemLink|Evacuate Soul}} (94.0%)<br>{{ItemLink|Eldoth's Heirloom Ring}} (50.0%)<br>{{ItemLink|Eldoth's Finery}} (25.0%)<br>{{ItemLink|Sivakaya's Touch}} (25.0%)<br>{{ItemLink|Temporal Shard}} (7.7%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

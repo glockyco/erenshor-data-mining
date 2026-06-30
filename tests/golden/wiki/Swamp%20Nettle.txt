@@ -2,15 +2,13 @@
 |name=Swamp Nettle
 |image=[[File:Swamp Nettle.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=337.0 x 23.0 x 475.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Swamproot}} (23.4%)<br>{{ItemLink|Jellystick}} (4.9%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

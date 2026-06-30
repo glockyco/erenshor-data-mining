@@ -1,0 +1,19 @@
+{{Item
+|title=Warder's Staff
+|type=
+|vendorsource=
+|source=[[Warder of Ice]] (69.8%)<br>[[Brax, God of Elements]] (37.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wand - 42 - staff of the warder}}
+
+[[Category:Weapons]]

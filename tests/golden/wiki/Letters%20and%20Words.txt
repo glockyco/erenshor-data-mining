@@ -1,0 +1,19 @@
+{{Item
+|title=Letters and Words
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:hand - 42 - letters and words}}
+
+[[Category:Weapons]]

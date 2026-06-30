@@ -1,0 +1,19 @@
+{{Item
+|title=Powered Sivakayan Rune
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Repairing the Sivakayan Rune}}
+|relatedquest={{QuestLink|Stop Sivakaya!}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:gen - full sivakayan rune}}
+
+[[Category:Items]]

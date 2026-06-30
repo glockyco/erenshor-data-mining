@@ -1,0 +1,19 @@
+{{Item
+|title=Nova
+|type=
+|vendorsource=
+|source=[[Soluna]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - soluna 5}}
+
+[[Category:Auras]]

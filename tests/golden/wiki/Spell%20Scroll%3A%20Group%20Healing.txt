@@ -12,22 +12,8 @@
 |sell=816
 |taughtspell={{AbilityLink|Group Heal}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Group Healing.png
-|name=Spell Scroll: Group Healing
-|arcanist_level=
-|druid_level=11
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=200
-|spell_type=Heal
-|spell_desc=Heal nearby group members for base 85 damage.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - group healing}}
 
 [[Category:Ability Books]]

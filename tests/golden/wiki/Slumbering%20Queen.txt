@@ -2,15 +2,13 @@
 |name=Slumbering Queen
 |image=[[File:Slumbering Queen.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=-210.2 x -143.9 x 968.0
 |spawnchance=
 |respawn=19 minutes
-|guaranteeddrops={{ItemLink|Cavesilk Trousers}}<br>{{ItemLink|Elderstone Ring}}<br>{{ItemLink|Queen's Fang}}
-|droprates={{ItemLink|Cavesilk Trousers}} (52.3%)<br>{{ItemLink|Elderstone Ring}} (52.3%)<br>{{ItemLink|Queen's Fang}} (52.3%)<br>{{ItemLink|A Fanged Caveskimmer}} (28.4%)<br>{{ItemLink|A Twisted Spider Leg}} (28.4%)<br>{{ItemLink|Ancient Coal}} (28.4%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

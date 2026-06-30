@@ -2,7 +2,7 @@
 |title=Death's Embrace II
 |image=[[File:Death's Embrace II.png|thumb]]
 |imagecaption=You are wrapped in a cold embrace.
-|description=Weaken a target, while slowly draining its life.
+|description=Steal some of your target's strength and attack speed and give it to yourself briefly
 |type=StatusEffect
 |line=Duel_Void_DOT
 |classes=[[Windblade]] (28)
@@ -115,8 +115,8 @@
 |hp=
 |ac=
 |mana=
-|str=3
-|dex=3
+|str=12
+|dex=12
 |end=
 |agi=
 |wis=

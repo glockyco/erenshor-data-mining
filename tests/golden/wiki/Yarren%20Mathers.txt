@@ -2,15 +2,13 @@
 |name=Yarren Mathers
 |image=[[File:Yarren Mathers.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=415.2 x 12.6 x 129.4
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Bear Bone Club}} (100.0%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0
@@ -46,10 +44,10 @@ Prompts:
 |Eldoth.
 |-
 |<span style="color: #15e300;">[Eldoth]</span>
-|Have you seen him? It's imperative that I know where he is. 
+|Have you seen him? It's imperative that I know where he is.
 |-
 |<span style="color: #15e300;">[Brice]</span>
-|Brice...? What about him? Did he give you a message for me? 
+|Brice...? What about him? Did he give you a message for me?
 |}
 
 When you give him {{ItemLink|The Mathers Note}}:
@@ -59,7 +57,7 @@ When you give him {{ItemLink|The Mathers Note}}:
 
 If you give him another {{ItemLink|The Mathers Note}}:
 {| class="wikitable"
-|You have the key... if you've lost it I don't know what to tell you. I do not have another. 
+|You have the key... if you've lost it I don't know what to tell you. I do not have another.
 |}
 
 If you give him parts 1-4 of the <span style="color: #FFFF00;">{{ItemLink|Chapters of Descent, Passage 1|image=Chapters_of_Descent.png|link=The Mathers' Demise|text=Passages of Descent}}</span>:

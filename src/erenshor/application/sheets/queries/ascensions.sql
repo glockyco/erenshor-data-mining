@@ -35,6 +35,11 @@ SELECT
     critical_healing_chance,
     vengeful_healing_percentage,
     summoned_beast_enhancement,
+    reload_haste,
+    lightning_proc_chance,
+    no_cd_penalty_chance,
+    killshot_chance,
+    triple_attack_chance_reav,
     resource_name
 FROM ascensions
 ORDER BY used_by, ascension_db_index;

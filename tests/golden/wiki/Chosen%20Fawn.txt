@@ -1,0 +1,36 @@
+{{Character
+|name=Chosen Fawn
+|image=[[File:Chosen Fawn.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Plane of the Willow]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=0.10000000149011612
+|health=650000
+|mana=9000
+|ac=630
+|strength=500
+|endurance=135
+|dexterity=500
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Plane of the Willow]]

@@ -2,15 +2,13 @@
 |name=Sagan Ilth
 |image=[[File:Sagan Ilth.png|thumb]]
 |imagecaption="Molorai do not stand down!"
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Vitheo's Watch]]
 |coordinates=310.9 x 27.9 x 78.9
 |spawnchance=25%
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (13.4%)<ref>If Sagan Ilth has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)<br>{{ItemLink|Magus Shield}} (7.6%)<ref>If Sagan Ilth has {{ItemLink|Magus Shield}} equipped, it is guaranteed to drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Aareth Graveblade
 |image=[[File:Aareth Graveblade.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]
 |coordinates=174.4 x 11.7 x 338.9
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Key to Vitheo's Rest}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Rest}} in their inventory, another will not drop.</ref>
 |level=35
 |levelmodmin=0
 |levelmodmax=0

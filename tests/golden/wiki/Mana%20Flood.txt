@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Bracelet of the Vessel}}<br>{{ItemLink|Warded Brace}}
+|itemswitheffect={{ItemLink|Bracelet of the Vessel}}<br>{{ItemLink|Radiant Bracer}}<br>{{ItemLink|Skyseared Brace}}<br>{{ItemLink|Warded Brace}}
 |source=
 |used_by=
 }}

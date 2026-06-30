@@ -2,15 +2,13 @@
 |name=Elder Guardian
 |image=[[File:Elder Guardian.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (32.9%)<br>{{ItemLink|Ruby}} (6.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thorned Branch}} (1.6%)<ref>If Elder Guardian has {{ItemLink|Thorned Branch}} equipped, it is guaranteed to drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0

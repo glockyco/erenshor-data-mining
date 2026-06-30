@@ -2,15 +2,13 @@
 |name=Cursed Vithean Traitor
 |image=[[File:Cursed Vithean Traitor.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Dark Flame Recipe}} (7.2%)<ref>If the player is already holding {{ItemLink|Dark Flame Recipe}} in their inventory, another will not drop.</ref><br>{{ItemLink|Life Flame Recipe}} (7.2%)<ref>If the player is already holding {{ItemLink|Life Flame Recipe}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spectral Sceptre}} (7.2%)<ref>If Cursed Vithean Traitor has {{ItemLink|Spectral Sceptre}} equipped, it is guaranteed to drop.</ref>
 |level=30
 |levelmodmin=0
 |levelmodmax=0

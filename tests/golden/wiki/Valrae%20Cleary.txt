@@ -2,15 +2,13 @@
 |name=Valrae Cleary
 |image=[[File:Valrae Cleary.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Blades of Vitheo]]
 |factionChange=-10 [[The Blades of Vitheo]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[Faerie's Brake]]
 |coordinates=98.5 x 16.3 x 187.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

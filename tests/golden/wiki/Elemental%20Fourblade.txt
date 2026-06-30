@@ -1,0 +1,19 @@
+{{Item
+|title=Elemental Fourblade
+|type=
+|vendorsource=
+|source=[[Elementalist Mizuki]] (69.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - elemental four-blade}}
+
+[[Category:Weapons]]

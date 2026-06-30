@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Feathered Cape}}<br>{{ItemLink|Flowing Cloak}}<br>{{ItemLink|Lifewind}}
+|itemswitheffect={{ItemLink|Feathered Cape}}<br>{{ItemLink|Flowing Cloak}}<br>{{ItemLink|Lifewind}}<br>{{ItemLink|Sea Wind Shield}}
 |source=
 |used_by=[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]
 }}

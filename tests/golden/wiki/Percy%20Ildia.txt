@@ -2,15 +2,13 @@
 |name=Percy Ildia
 |image=[[File:Percy Ildia.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Stowaway's Step]]
 |coordinates=693.2 x 20.7 x 504.8
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -33,7 +31,7 @@
 |void=4-10
 |spells=
 }}
-Percy Ildia is located on the [[Docks]] on [[Stowaway's Step]] behind the registration office. 
+Percy Ildia is located on the [[Docks]] on [[Stowaway's Step]] behind the registration office.
 
 Greeting message:
 {| class="wikitable"

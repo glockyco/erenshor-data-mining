@@ -2,7 +2,7 @@
 |title=Aetherstorm
 |image=[[File:Aetherstorm.png|thumb]]
 |imagecaption=You are blasted by aether
-|description=Deals 1600 magic damage to your target.
+|description=Deals 2000 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
 |classes=[[Arcanist]] (28)

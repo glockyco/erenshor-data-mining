@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Fungal Bouquet}}
 |source={{ItemLink|Spell Scroll: Toxicity}}
-|used_by=[[A Grassland Ogre Mystic]]<br>[[A Grassland Ogre Shaman]]<br>[[Agsha of the Soil]]<br>[[Ecclesiarch]]<br>[[Holy Corpse]]<br>[[Rosle of the Spirits]]<br>[[Rottenfoot Witchdoctor]]<br>[[Wild Ogre]]
+|used_by=[[A Grassland Ogre Mystic]]<br>[[A Grassland Ogre Shaman]]<br>[[Agsha of the Soil]]<br>[[Ecclesiarch]]<br>[[Rosle of the Spirits]]<br>[[Rottenfoot Witchdoctor]]<br>[[Wild Ogre]]
 }}

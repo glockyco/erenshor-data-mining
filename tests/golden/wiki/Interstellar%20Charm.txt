@@ -1,0 +1,19 @@
+{{Item
+|title=Interstellar Charm
+|type=
+|vendorsource=
+|source=[[Animation of Faith]] (25.2%)<br>[[Soluna]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:charm - 42 - interstellar charm}}
+
+[[Category:Charms]]

@@ -2,15 +2,13 @@
 |name=Azure Guard
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Azure Guard]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
 |zones=[[Port Azure]]
 |coordinates=
 |spawnchance=
 |respawn=4-6 minutes
-|guaranteeddrops=
-|droprates=
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -36,13 +34,13 @@
 
 The Azure Guard is the military protection of [[Port Azure]].
 
-==[[Port Azure|<span style="color:orange;">in Port Azure</span>]]:== 
+==[[Port Azure|<span style="color:orange;">in Port Azure</span>]]:==
 Greeting message from all the guards in Port Azure:
 {| class="wikitable"
 |"Do not cause trouble, citizen. The Azure Guard is entitled to your life."
 |}
 
-==[[Fernalla's Revival Plains|<span style="color:orange;">in Fernalla's Revival Plains</span>]]:== 
+==[[Fernalla's Revival Plains|<span style="color:orange;">in Fernalla's Revival Plains</span>]]:==
 The guard beside Lieutenant Ulrik's Greeting message:
 {| class="wikitable"
 |"What a <span style="color: #15e300;">[tragedy]</span>..."
@@ -68,7 +66,7 @@ Prompts:
 "I'm not authorized to answer any questions."
 |}
 
-==[[Blacksalt Strand|<span style="color:orange;">in Blacksalt Strand</span>]]:== 
+==[[Blacksalt Strand|<span style="color:orange;">in Blacksalt Strand</span>]]:==
 The Guard by the watchtower:
 {| class="wikitable"
 |"This is the territory of Port Azure. You are subject to the city laws beyond if you head into town. Just so you know... the laws are not for your protection - they are for the protection of the city."
@@ -85,8 +83,6 @@ The Guard by the watchtower:
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -121,8 +117,6 @@ The Guard by the watchtower:
 |coordinates=
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates=
 |level=12
 |levelmodmin=0
 |levelmodmax=0

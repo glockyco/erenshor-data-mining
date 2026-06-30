@@ -2,15 +2,13 @@
 |name=Remnant
 |image=[[File:Remnant.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=243.7 x 375.3 x 848.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

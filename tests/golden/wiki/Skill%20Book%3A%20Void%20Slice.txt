@@ -12,22 +12,8 @@
 |sell=35750
 |taughtspell=
 |taughtskill={{AbilityLink|Void Slice}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Void Slice.png
-|name=Skill Book: Void Slice
-|duelist_level=
-|druid_level=
-|arcanist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=35
-|skill_type=Innate
-|skill_desc=Passive Skill:  Chance for your blade to slice temporarily into the void on any swing, adding a high damage DOT proc to your attack
-|simplayers_autolearn=
-}}
+{{ItemTooltip|stablekey=item:skillbook - void slice}}
 
 [[Category:Ability Books]]

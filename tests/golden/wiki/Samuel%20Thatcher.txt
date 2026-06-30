@@ -2,15 +2,13 @@
 |name=Samuel Thatcher
 |image=[[File:Samuel Thatcher.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=3.1 x -3.0 x -10.8
 |spawnchance=
 |respawn=2 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

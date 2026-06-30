@@ -2,15 +2,13 @@
 |name=Grassland Ogre Hunter
 |image=[[File:Grassland Ogre Hunter.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Carved Bow}} (22.1%)<br>{{ItemLink|Tattered Leather Boots}} (3.6%)<br>{{ItemLink|Tattered Leather Gloves}} (3.6%)<br>{{ItemLink|Tattered Leather Leggings}} (3.6%)<br>{{ItemLink|Tattered Leather Skullcap}} (3.6%)<br>{{ItemLink|Tattered Leather Sleeves}} (3.6%)<br>{{ItemLink|Tattered Leather Tunic}} (3.6%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

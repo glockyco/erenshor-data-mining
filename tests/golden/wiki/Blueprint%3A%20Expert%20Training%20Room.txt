@@ -1,0 +1,19 @@
+{{Item
+|title=Blueprint: Expert Training Room
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Vithean Chest]] (54.7%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Crafting: Expert Training Room}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - expert training blueprint}}
+
+[[Category:Items]]

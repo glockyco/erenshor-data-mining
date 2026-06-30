@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Armguards of Presence}}
+|itemswitheffect={{ItemLink|Armguards of Presence}}<br>{{ItemLink|Eventide Gloves}}
 |source=
 |used_by=
 }}

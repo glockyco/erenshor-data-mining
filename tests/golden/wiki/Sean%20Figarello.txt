@@ -2,15 +2,13 @@
 |name=Sean Figarello
 |image=[[File:Sean Figarello.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-25 [[The Citizens of Stowaway's Step]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[Stowaway's Step]]
 |coordinates=605.5 x 72.2 x 464.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -37,7 +35,7 @@ Sean is located in [[Wickliff]] on [[Stowaway's Step]] and is selling a house.
 
 Greeting message:
 {| class="wikitable"
-|This house just sold. You just missed the deal of a lifetime, let me tell you! Guy moving in is a bit of a character. He had a lot of stuff. 
+|This house just sold. You just missed the deal of a lifetime, let me tell you! Guy moving in is a bit of a character. He had a lot of stuff.
 |}
 
 Prompts:

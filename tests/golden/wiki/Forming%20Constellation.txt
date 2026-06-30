@@ -1,0 +1,36 @@
+{{Character
+|name=Forming Constellation
+|image=[[File:Forming Constellation.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=104000
+|mana=0
+|ac=600
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

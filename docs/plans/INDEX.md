@@ -9,7 +9,6 @@
 - **Category C — Zone-Wide Random Spawners** [note] `2026-06-28-category-c-zone-random-spawns` ← 2026-05-28-dynamic-spawn-coverage-design
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
 - **AEEvent Export Modeling** [spec] `2026-06-30-ae-event-export-modeling`
-- **Ascension Stormcaller/Reaver Field Exports** [plan] `2026-06-30-ascension-stormcaller-reaver-fields` (0/12)
 - **Character Gameplay Flags** [plan] `2026-06-30-character-gameplay-flags` (0/15)
 - **Death-Triggered Spawn Modeling** [spec] `2026-06-30-death-triggered-spawn-modeling`
 - **Essential SpawnPoint Relationship Modeling** [spec] `2026-06-30-essential-spawnpoint-relationship-modeling`
@@ -23,4 +22,4 @@
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 
-_50 archived — see `docs/plans/archive/`._
+_51 archived — see `docs/plans/archive/`._

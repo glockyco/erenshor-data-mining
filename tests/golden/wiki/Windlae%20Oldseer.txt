@@ -2,15 +2,13 @@
 |name=Windlae Oldseer
 |image=[[File:Windlae Oldseer.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Hidden Hills]]
 |coordinates=-9.3 x -2.9 x -12.0
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -51,7 +49,7 @@ Prompts:
 
 If you give her [[Weathered Chain]] for the quest {{QuestLink|Grizzlepaw's Chain}}:
 {| class="wikitable"
-|Ah, so it is true then. Tragedy has befallen my friend but at least revenge has been taken. Thank you for your services, please take this as a token of my appreciation. 
+|Ah, so it is true then. Tragedy has befallen my friend but at least revenge has been taken. Thank you for your services, please take this as a token of my appreciation.
 |}
 
 {| class="wikitable"

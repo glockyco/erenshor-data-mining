@@ -2,15 +2,13 @@
 |name=A Seafiend Manalord
 |image=[[File:A Seafiend Manalord.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Windwashed Pass]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (17.3%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Whispers of the Sea}} (10.0%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

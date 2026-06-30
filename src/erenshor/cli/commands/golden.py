@@ -101,6 +101,18 @@ def _golden_dir(repo_root: Path) -> Path:
     return repo_root / "tests" / "golden"
 
 
+def _write_golden_csv(path: Path, rows: list[list[object]]) -> None:
+    """Write hook-clean CSV goldens without changing cell values.
+
+    csv.writer defaults to CRLF and leaves unquoted final cells ending in spaces
+    as physical trailing whitespace. Quote every cell and force LF so regenerated
+    golden files preserve game data while remaining commit-clean.
+    """
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, lineterminator="\n", quoting=csv.QUOTE_ALL)
+        writer.writerows(rows)
+
+
 def _capture_wiki(generated_dir: Path, golden_wiki_dir: Path, dry_run: bool) -> int:
     """Copy wiki generated .txt files to golden/wiki/."""
     if not generated_dir.exists():
@@ -141,9 +153,7 @@ def _capture_sheets(
         rows = formatter.format_sheet(sheet_name)
         if not dry_run:
             csv_path = golden_sheets_dir / f"{sheet_name}.csv"
-            with csv_path.open("w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerows(rows)
+            _write_golden_csv(csv_path, rows)
 
     engine.dispose()
     return len(sheet_names)
@@ -165,10 +175,7 @@ def _capture_map(db_path: Path, golden_map_dir: Path, dry_run: bool) -> int:
         if not dry_run:
             golden_map_dir.mkdir(parents=True, exist_ok=True)
             csv_path = golden_map_dir / "spawn-points.csv"
-            with csv_path.open("w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(headers)
-                writer.writerows(data_rows)
+            _write_golden_csv(csv_path, [headers, *data_rows])
     finally:
         conn.close()
 
@@ -191,10 +198,7 @@ def _capture_code_facts(db_path: Path, golden_code_facts_dir: Path, dry_run: boo
         if not dry_run:
             golden_code_facts_dir.mkdir(parents=True, exist_ok=True)
             csv_path = golden_code_facts_dir / "code_facts.csv"
-            with csv_path.open("w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(headers)
-                writer.writerows(data_rows)
+            _write_golden_csv(csv_path, [headers, *data_rows])
     finally:
         conn.close()
 

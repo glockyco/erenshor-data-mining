@@ -12,19 +12,10 @@
 |sell=
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 <span style="color: #e6080d;">Important:</span> [[File:Blue_Sparkle.gif|30px|link=Item Quality#Blue Blessed Items]][[Item Quality#Blue Blessed Items|Blessed charms]] do not do anything, so you only use {{ItemLink|Coal}} when crafting them.
 
-{{Item/Mold
-|image=Mold: Charm of Rage.png
-|name=Mold: Charm of Rage
-|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Sivakayan Ore}}<br>1x {{ItemLink|Nagalok Claw}}<br>1x {{ItemLink|Elderstone Shard}}<br>1x {{ItemLink|Queen's Fang}}
-|rewards={{ItemLink|Charm of Rage}}
-|station=
-}}
+{{ItemTooltip|stablekey=item:template - charm of rage}}
 
 [[Category:Crafting]]
 [[Category:Molds]]

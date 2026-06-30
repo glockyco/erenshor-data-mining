@@ -2,15 +2,13 @@
 |name=Ripper DeMerth
 |image=[[File:Ripper DeMerth.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-400 [[Ripper DeMerth]]<br>+25 [[The Azure Guard]]<br>-35 [[The Citizens of Erenshor]]<br>+25 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]
 |coordinates=549.2 x 140.0 x 515.0
 |spawnchance=
 |respawn=16 minutes
-|guaranteeddrops={{ItemLink|Age-Old Armlet}}<br>{{ItemLink|Ceto}}<br>{{ItemLink|Esen}}
-|droprates={{ItemLink|Ear of Ripper}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Ripper}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (87.1%)<br>{{ItemLink|Age-Old Armlet}} (33.3%)<br>{{ItemLink|Ceto}} (33.3%)<br>{{ItemLink|Esen}} (33.3%)<br>{{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Ripparian Axe}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0
@@ -34,9 +32,9 @@
 |spells=
 }}
 
-Ripper DeMerth is known as the Traitor to Azure. She and her band of Azure Guards refused orders to abandon the outlying citizens of Erenshor and defected north to a place called ‘Ripper’s Keep’. 
+Ripper DeMerth is known as the Traitor to Azure. She and her band of Azure Guards refused orders to abandon the outlying citizens of Erenshor and defected north to a place called ‘Ripper’s Keep’.
 
-Rumor has it they defeated a group of Sivakayans who were holding out in the keep which has struck fear into the Azure Guard due to the belief that Sivakayans are not defeatable in combat due to their dark magical protections. 
+Rumor has it they defeated a group of Sivakayans who were holding out in the keep which has struck fear into the Azure Guard due to the belief that Sivakayans are not defeatable in combat due to their dark magical protections.
 
 The Council of Port Azure has put a bounty on Ripper’s head and has promised riches to any who can fell her.
 

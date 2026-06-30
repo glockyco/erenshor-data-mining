@@ -2,15 +2,13 @@
 |name=Spark Queen
 |image=[[File:Spark Queen.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=382.4 x 150.0 x 104.2
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Insect Shell Ring}}<br>{{ItemLink|Stinging Bracer}}
-|droprates={{ItemLink|Insect Shell Ring}} (50.0%)<br>{{ItemLink|Stinging Bracer}} (50.0%)<br>{{ItemLink|Droplet of Lava}} (5.2%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

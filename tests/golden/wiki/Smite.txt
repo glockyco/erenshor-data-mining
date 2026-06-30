@@ -2,11 +2,11 @@
 |title=Smite
 |image=[[File:Smite.png|thumb]]
 |imagecaption=You are scorched by the power of Soluna
-|description=1200 Magical damage on target
+|description=120 Magical damage on target
 |type=Damage
 |line=Direct_Damage
 |classes=
-|required_level=25
+|required_level=9
 |manacost=200
 |aggro=60
 |is_taunt=
@@ -26,7 +26,7 @@
 |effects=
 |damage_type=Magic
 |resist_modifier=
-|target_damage=1200
+|target_damage=120
 |target_healing=
 |caster_healing=
 |shield_amount=

@@ -2,15 +2,13 @@
 |name=Mavik Estonia
 |image=[[File:Mavik Estonia.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-35 [[The Citizens of Erenshor]]<br>-35 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=462.2 x 92.5 x 935.8
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Ripparian Soldier Helm}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Nipper Tad
 |image=[[File:Nipper Tad.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Willowwatch Ridge]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Seaweed}} (74.5%)<br>{{ItemLink|Cloth Gloves}} (4.7%)<br>{{ItemLink|Cloth Hood}} (4.7%)<br>{{ItemLink|Cloth Pants}} (4.7%)<br>{{ItemLink|Cloth Shirt}} (4.7%)<br>{{ItemLink|Cloth Shoes}} (4.7%)<br>{{ItemLink|Cloth Sleeves}} (4.7%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

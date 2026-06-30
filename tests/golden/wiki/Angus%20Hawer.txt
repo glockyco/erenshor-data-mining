@@ -2,15 +2,13 @@
 |name=Angus Hawer
 |image=[[File:Angus Hawer.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=168.7 x 37.8 x 593.4
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -47,7 +45,7 @@ Prompts:
 I don't know... I can't... I don't... why us? Where was Fernalla?
 |-
 |<span style="color: #15e300;">[Yarren]</span>
-Good riddance to Yarren if he's truly gone. I'm tired of hearing his views on the Sivakayans. He's probably off with those other apologists down in Restful Valley... by the swamps where they all belong. 
+Good riddance to Yarren if he's truly gone. I'm tired of hearing his views on the Sivakayans. He's probably off with those other apologists down in Restful Valley... by the swamps where they all belong.
 |}
 
 [[Category:Characters]]

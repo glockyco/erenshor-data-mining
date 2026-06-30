@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Celestial Smite II
+|type=
+|vendorsource=[[Akaran Black]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=18500
+|sell=12025
+|taughtspell=
+|taughtskill={{AbilityLink|Celestial Smite II}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - celestial smite ii}}
+
+[[Category:Ability Books]]

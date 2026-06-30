@@ -1,0 +1,19 @@
+{{Item
+|title=Minotaur Wristguard
+|type=
+|vendorsource=
+|source=[[Planar Minotaur]] (4.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wrist - 42 - minotaur shackle}}
+
+[[Category:Armor]]

@@ -1,0 +1,19 @@
+{{Item
+|title=Skill Book: Multifocus
+|type=
+|vendorsource=
+|source=[[Fire Elemental]] (2.2%)<br>[[Ice Elemental]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill={{AbilityLink|Multifocus}}
+}}
+
+{{ItemTooltip|stablekey=item:skillbook - multifocus}}
+
+[[Category:Ability Books]]

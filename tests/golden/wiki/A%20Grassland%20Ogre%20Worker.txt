@@ -2,15 +2,13 @@
 |name=A Grassland Ogre Worker
 |image=[[File:A Grassland Ogre Worker.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=11
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Cerbantias Flameward
 |image=[[File:Cerbantias Flameward.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Torchbearers of Brax]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Port Azure]]
 |coordinates=23.4 x 27.4 x 337.3
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Cerbantias Flameward has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

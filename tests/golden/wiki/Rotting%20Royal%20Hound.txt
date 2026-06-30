@@ -2,15 +2,13 @@
 |name=Rotting Royal Hound
 |image=[[File:Rotting Royal Hound.png|thumb]]
 |imagecaption=He's having a ruff day.
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[Lost Cellar]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Aged Plate}} (1.0%)<br>{{ItemLink|Aged Plate Boots}} (1.0%)<br>{{ItemLink|Aged Plate Bracer}} (1.0%)<br>{{ItemLink|Aged Plate Greaves}} (1.0%)<br>{{ItemLink|Aged Plate Sleeves}} (1.0%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

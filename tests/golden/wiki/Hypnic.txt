@@ -2,15 +2,13 @@
 |name=Hypnic
 |image=[[File:Hypnic.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=663.8 x 9.4 x 313.6
 |spawnchance=
 |respawn=
-|guaranteeddrops={{ItemLink|Dreamy Sleeves}}<br>{{ItemLink|Nightbane}}<br>{{ItemLink|Ring of Echoes}}
-|droprates={{ItemLink|Small Cat Statue}} (100.0%)<ref>If the player is already holding {{ItemLink|Small Cat Statue}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dreamy Sleeves}} (33.3%)<br>{{ItemLink|Nightbane}} (33.3%)<br>{{ItemLink|Ring of Echoes}} (33.3%)<br>{{ItemLink|Diamond}} (32.6%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Planar Stone Shards}} (6.7%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Ghoul
 |image=[[File:Ghoul.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ghoul Scab}} (87.1%)<br>{{ItemLink|Bread}} (5.0%)<br>{{ItemLink|Cloth Gloves}} (5.0%)<br>{{ItemLink|Cloth Pants}} (5.0%)<br>{{ItemLink|Cloth Shirt}} (5.0%)<br>{{ItemLink|Cloth Shoes}} (5.0%)<br>{{ItemLink|Cloth Sleeves}} (5.0%)<br>{{ItemLink|Luminstone}} (5.0%)<br>{{ItemLink|Star Stone}} (5.0%)<br>{{ItemLink|Water}} (5.0%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

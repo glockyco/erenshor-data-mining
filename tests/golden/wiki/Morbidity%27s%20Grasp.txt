@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Morbidity's Grasp}}
-|used_by=[[Beady]]<br>[[Botanist]]<br>[[Devoratrix]]<br>[[Holy Corpse]]<br>[[Mosscovered Stoneman]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Rosle of the Spirits]]<br>[[Sentinel]]<br>[[The Gardener of Loomingwood]]<br>[[Thorn (Enemy)|Thorn]]
+|used_by=[[Beady]]<br>[[Botanist]]<br>[[Devoratrix]]<br>[[Mosscovered Stoneman]]<br>[[Planar Flora]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Rosle of the Spirits]]<br>[[Sentinel]]<br>[[The Gardener of Loomingwood]]<br>[[Thorn (Enemy)|Thorn]]
 }}

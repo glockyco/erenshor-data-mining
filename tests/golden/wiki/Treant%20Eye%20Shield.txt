@@ -1,0 +1,19 @@
+{{Item
+|title=Treant Eye Shield
+|type=
+|vendorsource=
+|source=[[Arbor]] (66.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:secondary - 42 - treant eye shield}}
+
+[[Category:Weapons]]

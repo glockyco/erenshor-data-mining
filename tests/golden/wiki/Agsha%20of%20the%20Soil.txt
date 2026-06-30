@@ -2,15 +2,13 @@
 |name=Agsha of the Soil
 |image=[[File:Agsha of the Soil.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]
 |coordinates=158.4 x 86.5 x 307.9
 |spawnchance=66%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Ring of The Mystics}}
-|droprates={{ItemLink|Ogrespice Bundle}} (66.7%)<br>{{ItemLink|Ring of The Mystics}} (33.3%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

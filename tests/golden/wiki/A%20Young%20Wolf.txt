@@ -2,15 +2,13 @@
 |name=A Young Wolf
 |image=[[File:A Young Wolf.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]<br>[[Stowaway's Step]]<br>[[Vitheo's Watch]]<br>[[Willowwatch Ridge]]
 |coordinates=
 |spawnchance=
 |respawn=2-4 minutes (Faerie's Brake)<br>1-2 minutes (Hidden Hills)<br>4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
-|guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (86.5%)
 |level=2
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Twinkling Boots
+|type=
+|vendorsource=
+|source=[[Planar Faerie]] (7.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:foot - 42 - twinkling slippers}}
+
+[[Category:Armor]]

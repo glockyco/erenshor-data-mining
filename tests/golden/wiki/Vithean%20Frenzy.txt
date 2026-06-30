@@ -11,7 +11,7 @@
 |aggro=
 |is_taunt=
 |casttime=0.5 seconds
-|cooldown=600 seconds
+|cooldown=120 seconds
 |duration=9 seconds
 |duration_in_ticks=3
 |has_unstable_duration=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect=
+|itemswitheffect={{ItemLink|Vithean Quiver}}
 |source={{ItemLink|Spell Scroll: Vithean Frenzy}}
 |used_by=
 }}

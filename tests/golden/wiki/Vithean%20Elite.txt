@@ -2,15 +2,13 @@
 |name=Vithean Elite
 |image=[[File:Vithean Elite.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Spectral Sword}} (13.1%)<ref>If Vithean Elite has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Vithean Brick}} (7.3%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

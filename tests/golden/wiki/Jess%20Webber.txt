@@ -2,15 +2,13 @@
 |name=Jess Webber
 |image=[[File:Jess Webber.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=172.4 x 37.8 x 578.1
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -46,7 +44,7 @@ Prompts:
 It was "Sivak Sivak", what do you think that means? Should we tell someone? I haven't told anyone...
 |-
 |<span style="color: #15e300;">[Yarren]</span>
-Yarren's missing? He's not here?? Oh no... he was a bit of an... apologist... he had some strange views on the Sivakayans. I hope he didn't do something rash. 
+Yarren's missing? He's not here?? Oh no... he was a bit of an... apologist... he had some strange views on the Sivakayans. I hope he didn't do something rash.
 |}
 
 [[Category:Characters]]

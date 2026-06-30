@@ -2,15 +2,13 @@
 |name=Lucian Revald
 |image=[[File:Lucian Revald.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=432.2 x 69.9 x 532.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Lucian Revald has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -49,7 +47,7 @@ Prompts:
 |Have you seen him?
 |}
 
-If you hand him the [[Torn Note]] for {{QuestLink | link=Whispers of Wyland}}: 
+If you hand him the [[Torn Note]] for {{QuestLink | link=Whispers of Wyland}}:
 {| class="wikitable"
 |You've found a spectre of Wyland? Thankfully you've put it to rest. We are in your debt. If you want passage off of this island, come with us. Leap off the rocks under the statue of Vitheo with his sword and swim to the sandbar. We'll meet you there, along with our ship. Speak not of this conversation or you'll put us all in danger.<br><br><i>This begins {{QuestLink | link=A Way To Erenshor}}</i>
 |}
@@ -86,7 +84,7 @@ Prompts:
 |-
 |}
 
-If you hand him the [[Loss Stone]] or any other items required for the ritual 
+If you hand him the [[Loss Stone]] or any other items required for the ritual
 {| class="wikitable"
 |You have something interesting here... with the right artifacts we could give ourselves the best chance. The scripture lists some... fabled... items - and you have one already! It calls for A Loss Stone, A Remnant of Sivakaya Herself, A Brain warped by her Dementia, and a Nightmare Crystal. Can you search for these things? Feel free to ask me about any of them for more details.
 <i>This begins the quest {{QuestLink | link=Completing The Ritual}}</i>

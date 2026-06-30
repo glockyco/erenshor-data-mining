@@ -12,29 +12,8 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/Charm
-|image=Warlord's Charm.png
-|name=Warlord's Charm
-|tier=0
-|strscaling=6
-|endscaling=
-|dexscaling=2
-|agiscaling=
-|intscaling=
-|wisscaling=
-|chascaling=
-|resistscaling=
-|mitigationscaling=
-|arcanist=True
-|duelist=True
-|druid=True
-|paladin=True
-|reaver=True
-|stormcaller=True
-}}
+{{ItemTooltip|stablekey=item:charm - 35 - warlord's charm}}
 
 [[Category:Charms]]

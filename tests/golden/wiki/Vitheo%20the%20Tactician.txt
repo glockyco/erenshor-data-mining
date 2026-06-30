@@ -1,0 +1,110 @@
+{{Character
+|name=Vitheo the Tactician
+|image=[[File:Vitheo the Tactician.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=478.9 x 25.2 x 441.6
+|spawnchance=1%
+|respawn=
+|level=43
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=40300000
+|mana=0
+|ac=645
+|strength=1000
+|endurance=1000
+|dexterity=1000
+|agility=1000
+|intelligence=1000
+|wisdom=1000
+|charisma=1000
+|magic=22-52
+|poison=22-52
+|elemental=22-52
+|void=22-52
+|spells=
+}}
+
+----
+
+{{Character
+|name=Vitheo the Tactician
+|image=[[File:Vitheo the Tactician.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=569.4 x 51.3 x 536.7
+|spawnchance=
+|respawn=85 minutes
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=0
+|mana=0
+|ac=630
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+----
+
+{{Character
+|name=Vitheo the Tactician
+|image=[[File:Vitheo the Tactician.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=479.1 x 25.2 x 441.6
+|spawnchance=
+|respawn=
+|level=43
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=40300000
+|mana=0
+|ac=645
+|strength=1000
+|endurance=1000
+|dexterity=1000
+|agility=1000
+|intelligence=1000
+|wisdom=1000
+|charisma=1000
+|magic=22-52
+|poison=22-52
+|elemental=22-52
+|void=22-52
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Characters]]
+[[Category:Enemies]]
+[[Category:Vitheo's Plane of Valor]]

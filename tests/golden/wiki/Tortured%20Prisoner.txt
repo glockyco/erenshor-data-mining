@@ -2,15 +2,13 @@
 |name=Tortured Prisoner
 |image=[[File:Tortured Prisoner.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (48.7%)<br>{{ItemLink|Water}} (48.7%)<br>{{ItemLink|Aged Interrogation Note}} (14.1%)<ref>If the player is already holding {{ItemLink|Aged Interrogation Note}} in their inventory, another will not drop.</ref>
 |level=17
 |levelmodmin=0
 |levelmodmax=0

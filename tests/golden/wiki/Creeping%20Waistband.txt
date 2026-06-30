@@ -1,0 +1,19 @@
+{{Item
+|title=Creeping Waistband
+|type=
+|vendorsource=
+|source=[[Jinx]] (69.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:belt - 42 - creeping waistband}}
+
+[[Category:Armor]]

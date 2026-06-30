@@ -2,15 +2,13 @@
 |name=Tiver Banes
 |image=[[File:Tiver Banes.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[Vendors|Druid Merchant]]
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[Port Azure]]
 |coordinates=354.5 x 37.0 x 444.4
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0

@@ -9,8 +9,6 @@
 |coordinates=-90.0 x 1.5 x -106.3
 |spawnchance=
 |respawn=116 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (53.3%)<br>{{ItemLink|Water}} (53.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

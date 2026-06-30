@@ -2,15 +2,13 @@
 |name=Candlekeeper
 |image=[[File:Candlekeeper.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
-|coordinates=
-|spawnchance=
+|zones=[[Braxonian Desert]]
+|coordinates=725.8 x 28.5 x 1191.1
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Eternal Diadem}}<br>{{ItemLink|Frostmaker}}
-|droprates={{ItemLink|Custodian of the Flame}} (100.0%)<ref>If the player is already holding {{ItemLink|Custodian of the Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Mold: Nighthollow Wax}} (100.0%)<ref>If the player is already holding {{ItemLink|Mold: Nighthollow Wax}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eternal Diadem}} (50.0%)<br>{{ItemLink|Frostmaker}} (50.0%)<ref>If Candlekeeper has {{ItemLink|Frostmaker}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ancient Coal}} (40.4%)<br>{{ItemLink|Chunk of Citrine Sandsilver}} (40.4%)<br>{{ItemLink|Diamond}} (40.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Ore}} (40.4%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0
@@ -36,5 +34,6 @@
 
 To summon Candlekeeper you must bring [[A Strange Figurine]] to the [[Braxonian Game Board]].
 
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

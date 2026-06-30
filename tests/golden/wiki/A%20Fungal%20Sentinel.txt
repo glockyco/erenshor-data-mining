@@ -2,15 +2,13 @@
 |name=A Fungal Sentinel
 |image=[[File:A Fungal Sentinel.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=8.6 x -135.5 x 755.9
 |spawnchance=
 |respawn=12 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Brackfruit Juice}} (93.5%)<br>{{ItemLink|A Twisted Spider Leg}} (26.2%)<br>{{ItemLink|A Fanged Caveskimmer}} (15.1%)<br>{{ItemLink|Fungal Spore}} (15.1%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

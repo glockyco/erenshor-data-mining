@@ -2,15 +2,13 @@
 |name=Amethi Plazzo
 |image=[[File:Amethi Plazzo.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[Stowaway's Step]]
 |coordinates=575.4 x 73.0 x 549.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -44,10 +42,10 @@ Greeting message:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[adventurer]</span>
-|I've done it all. Seen it all. Slayed it all. I don't do the merc stuff anymore, but I do odd jobs.  I've even worked the docks. 
+|I've done it all. Seen it all. Slayed it all. I don't do the merc stuff anymore, but I do odd jobs.  I've even worked the docks.
 |-
 |<span style="color: #15e300;">[slayed]</span>
-|Only beast I've met and never bested was old Plax. He's a tough old guy. Eats anything in sight... not even just adventurers. Who knows what treasures he might have. 
+|Only beast I've met and never bested was old Plax. He's a tough old guy. Eats anything in sight... not even just adventurers. Who knows what treasures he might have.
 |}
 
 {| class="wikitable"

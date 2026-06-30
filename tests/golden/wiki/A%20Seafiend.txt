@@ -2,15 +2,13 @@
 |name=A Seafiend
 |image=[[File:A Seafiend.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Whispers of the Sea}} (10.0%)<br>{{ItemLink|Tattered Leather Boots}} (6.0%)<br>{{ItemLink|Tattered Leather Leggings}} (6.0%)<br>{{ItemLink|Tattered Leather Tunic}} (6.0%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -45,8 +43,6 @@
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (17.3%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Salt Soaked Cuff}} (5.1%)<br>{{ItemLink|Whispers of the Sea}} (5.1%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

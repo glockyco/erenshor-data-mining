@@ -2,15 +2,13 @@
 |name=Lazalith, Soldier of Sivakaya
 |image=[[File:Lazalith, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=815.4 x 24.8 x 338.0
 |spawnchance=
 |respawn=6 minutes
-|guaranteeddrops={{ItemLink|Liturgical Pantaloons}}<br>{{ItemLink|Sivakayan Hookblade}}<br>{{ItemLink|Voidbloom Ring}}
-|droprates={{ItemLink|Chapters of Descent, Passage 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Liturgical Pantaloons}} (33.3%)<br>{{ItemLink|Sivakayan Hookblade}} (33.3%)<ref>If Lazalith, Soldier of Sivakaya has {{ItemLink|Sivakayan Hookblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Voidbloom Ring}} (33.3%)<br>{{ItemLink|Inspiration}} (14.1%)
 |level=20
 |levelmodmin=0
 |levelmodmax=0

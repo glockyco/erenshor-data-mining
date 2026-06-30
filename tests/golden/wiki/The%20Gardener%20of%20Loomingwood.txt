@@ -2,15 +2,13 @@
 |name=The Gardener of Loomingwood
 |image=[[File:The Gardener of Loomingwood.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=185.9 x 46.1 x 842.4
 |spawnchance=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|Decay}}<br>{{ItemLink|Looming Reaper}}<br>{{ItemLink|Rootwoven Wraps}}
-|droprates={{ItemLink|Loomingwood Branch}} (100.0%)<br>{{ItemLink|Rootwoven Wraps}} (50.0%)<br>{{ItemLink|Decay}} (25.0%)<br>{{ItemLink|Looming Reaper}} (25.0%)<ref>If The Gardener of Loomingwood has {{ItemLink|Looming Reaper}} equipped, it is guaranteed to drop.</ref>
 |level=30
 |levelmodmin=0
 |levelmodmax=0

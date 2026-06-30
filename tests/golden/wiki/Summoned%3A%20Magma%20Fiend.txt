@@ -1,0 +1,35 @@
+{{Character
+|name=Summoned: Magma Fiend
+|image=[[File:Summoned: Magma Fiend.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|level=36
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22750
+|mana=300
+|ac=540
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=5
+|intelligence=35
+|wisdom=95
+|charisma=0
+|magic=18-43
+|poison=18-43
+|elemental=18-43
+|void=18-43
+|spells=
+}}
+
+[[Category:Characters]]

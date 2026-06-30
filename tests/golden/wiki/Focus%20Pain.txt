@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Blackbone Axe}}<br>{{ItemLink|Sivakayan Wand}}<br>{{ItemLink|Unholy Bonesaw}}<br>{{ItemLink|World Builder}}
+|itemswitheffect={{ItemLink|Blackbone Axe}}<br>{{ItemLink|Blade of Grace}}<br>{{ItemLink|Minotaur Wristguard}}<br>{{ItemLink|Moonmaker}}<br>{{ItemLink|Sivakayan Wand}}<br>{{ItemLink|Unholy Bonesaw}}<br>{{ItemLink|World Builder}}
 |source=
 |used_by=
 }}

@@ -2,15 +2,13 @@
 |name=Greater Vithean Elemental
 |image=[[File:Greater Vithean Elemental.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=3%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Blade of the Sea}}<br>{{ItemLink|Seastring}}<br>{{ItemLink|Wand of Air}}
-|droprates={{ItemLink|Blade of the Sea}} (33.3%)<br>{{ItemLink|Seastring}} (33.3%)<br>{{ItemLink|Wand of Air}} (33.3%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

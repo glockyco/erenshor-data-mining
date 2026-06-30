@@ -2,15 +2,13 @@
 |name=Foreman Hauck
 |image=[[File:Foreman Hauck.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[Port Azure]]
 |coordinates=307.0 x 21.4 x 394.4
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

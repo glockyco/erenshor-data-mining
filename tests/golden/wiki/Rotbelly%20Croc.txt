@@ -2,15 +2,13 @@
 |name=Rotbelly Croc
 |image=[[File:Rotbelly Croc.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=
 |spawnchance=
 |respawn=4-6 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Croc Tail}} (14.8%)<br>{{ItemLink|Muck Ball}} (13.5%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Repellant Ring
+|type=
+|vendorsource=
+|source=[[Sprinkles]] (69.8%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:ring - 42 - repellant ring}}
+
+[[Category:Armor]]

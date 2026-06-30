@@ -2,15 +2,13 @@
 |name=Ancient Spectre
 |image=[[File:Ancient Spectre.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=3%
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Glowing Blue Stone}} (7.3%)<br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Luminstone}} (4.0%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

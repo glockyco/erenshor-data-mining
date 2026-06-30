@@ -2,15 +2,13 @@
 |name=Peon
 |image=[[File:Peon.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
-|coordinates=
-|spawnchance=
+|coordinates=725.8 x 28.5 x 1191.1
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Braxonian Shield}}<br>{{ItemLink|Flaming Vambraces}}<br>{{ItemLink|Scorched Walking Stick}}
-|droprates={{ItemLink|Braxonian Shield}} (33.3%)<br>{{ItemLink|Flaming Vambraces}} (33.3%)<br>{{ItemLink|Scorched Walking Stick}} (33.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0
@@ -36,5 +34,6 @@
 
 Peon can be summoned by using the [[Peon (Game Piece)]] at the chess board in the [[Braxonian Desert]].
 
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

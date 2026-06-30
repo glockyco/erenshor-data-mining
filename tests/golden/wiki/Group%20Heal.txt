@@ -2,7 +2,7 @@
 |title=Group Heal
 |image=[[File:Group Heal.png|thumb]]
 |imagecaption=You feel your wounds begin to close.
-|description=Heal nearby group members for base 85 damage.
+|description=Heal nearby group members for base 90 damage.
 |type=Heal
 |line=Healing
 |classes=[[Druid]] (11)
@@ -40,7 +40,7 @@
 |percent_mana_restoration=
 |bleed_damage_percent=
 |special_descriptor=
-|hp=85
+|hp=90
 |ac=
 |mana=
 |str=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|End's Bane}}<br>{{ItemLink|Priest's Stein}}<br>{{ItemLink|Protector's Bracer}}
+|itemswitheffect={{ItemLink|Bracer of the Blessed}}<br>{{ItemLink|Chthonic Wristlet}}<br>{{ItemLink|End's Bane}}<br>{{ItemLink|Eon, Blade of Time}}<br>{{ItemLink|Priest's Stein}}<br>{{ItemLink|Protector's Bracer}}
 |source={{ItemLink|Spell Scroll: Group Healing}}
-|used_by=[[A Rottenfoot Witchdoctor]]<br>[[Rottenfoot Witchdoctor]]<br>[[Summoned: Elder Dryad]]
+|used_by=[[A Rottenfoot Witchdoctor]]<br>[[Rottenfoot Witchdoctor]]
 }}

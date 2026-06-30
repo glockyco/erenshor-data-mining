@@ -12,22 +12,8 @@
 |sell=35750
 |taughtspell=
 |taughtskill={{AbilityLink|Crippling Blow}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Crippling Blow.png
-|name=Skill Book: Crippling Blow
-|duelist_level=35
-|druid_level=
-|arcanist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|skill_type=Innate
-|skill_desc=Passive Skill: Small chance on Critical Hits to deal 2x damage.
-|simplayers_autolearn=
-}}
+{{ItemTooltip|stablekey=item:skillbook - crippling blow}}
 
 [[Category:Ability Books]]

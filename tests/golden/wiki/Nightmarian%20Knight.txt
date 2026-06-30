@@ -2,15 +2,13 @@
 |name=Nightmarian Knight
 |image=[[File:Nightmarian Knight.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Remnants of a Daydream}} (11.7%)<br>{{ItemLink|Remnants of a Nightmare}} (11.7%)<br>{{ItemLink|Dreamslayer}} (4.9%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

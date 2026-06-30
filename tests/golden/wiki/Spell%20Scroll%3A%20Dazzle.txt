@@ -12,22 +12,8 @@
 |sell=32
 |taughtspell={{AbilityLink|Dazzle}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Dazzle.png
-|name=Spell Scroll: Dazzle
-|arcanist_level=1
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=10
-|spell_type=StatusEffect
-|spell_desc=Renders your target helpless. Any damage breaks this effect.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - dazzle}}
 
 [[Category:Ability Books]]

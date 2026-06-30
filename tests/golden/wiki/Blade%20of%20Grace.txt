@@ -1,0 +1,19 @@
+{{Item
+|title=Blade of Grace
+|type=
+|vendorsource=
+|source=[[Animation of Grace]] (69.0%)<br>[[Soluna]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - blade of grace}}
+
+[[Category:Weapons]]

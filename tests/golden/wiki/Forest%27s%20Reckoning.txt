@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Fungal Greatsword}}
+|itemswitheffect={{ItemLink|Fungal Greatsword}}<br>{{ItemLink|Spilling Blade}}
 |source={{ItemLink|Spell Scroll: Forest's Reckoning}}
 |used_by=[[Risen Hierophant]]<br>[[Savannah Priel (Character)|Savannah Priel]]
 }}

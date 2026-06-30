@@ -2,15 +2,13 @@
 |name=The Lost Sea Giant King
 |image=[[File:The Lost Sea Giant King.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=423.2 x 16.9 x 410.8
 |spawnchance=80%
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Ring of the Sea Giant King}}<br>{{ItemLink|Sailor's Belt}}<br>{{ItemLink|Sailor's Work Gloves}}<br>{{ItemLink|Sea Giant's Cutlass}}
-|droprates={{ItemLink|Ghostly Giant's Blood}} (66.1%)<br>{{ItemLink|Seafruit}} (66.1%)<br>{{ItemLink|Seaspice}} (66.1%)<br>{{ItemLink|Sea Glass}} (39.3%)<br>{{ItemLink|Ring of the Sea Giant King}} (30.1%)<br>{{ItemLink|Sailor's Belt}} (30.1%)<br>{{ItemLink|Sailor's Work Gloves}} (30.1%)<br>{{ItemLink|Sea Giant's Cutlass}} (30.1%)<ref>If The Lost Sea Giant King has {{ItemLink|Sea Giant's Cutlass}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Aetheria}} (14.7%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
 |level=12
 |levelmodmin=0
 |levelmodmax=0

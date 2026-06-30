@@ -2,15 +2,13 @@
 |name=Diva
 |image=[[File:Diva.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=140.3 x 33.1 x 742.1
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Red Leaf Cape}}<br>{{ItemLink|Wisdom of the Forest}}
-|droprates={{ItemLink|Red Leaf Cape}} (50.0%)<br>{{ItemLink|Wisdom of the Forest}} (50.0%)<br>{{ItemLink|Loomingwood Branch}} (9.1%)<br>{{ItemLink|Fungus Covered Tunic}} (4.4%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

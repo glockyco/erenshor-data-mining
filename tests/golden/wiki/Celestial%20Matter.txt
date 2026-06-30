@@ -2,15 +2,13 @@
 |name=Celestial Matter
 |image=[[File:Celestial Matter.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Celestial Goop}} (13.4%)<br>{{ItemLink|Moonstone Bangle}} (7.7%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

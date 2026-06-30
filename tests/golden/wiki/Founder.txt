@@ -2,15 +2,13 @@
 |name=Founder
 |image=[[File:Founder.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=705.2 x 21.1 x 506.7
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Vithean Brick}} (7.7%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -46,10 +44,10 @@ Prompts:
 |<span style="color: #15e300;">[place]</span>
 |Just a figment of our imaginations. Funny though, how we all share it. How it creeps into our dreams with the same hurried steps. No matter, though. 'Spose you want to go <span style="color: #15e300;">[home]</span>, then?
 |-
-|<span style="color: #15e300;">[home]</span> 
+|<span style="color: #15e300;">[home]</span>
 |Back to reality, as it were. Not sure how long you're going to remember use. We'll remember you. Guess I can give you <span style="color: #15e300;">[something]</span> to take with you.
 |-
-|<span style="color: #15e300;">[something]</span> 
+|<span style="color: #15e300;">[something]</span>
 |Yes, a gift. Share with me the bit of light that Kio has stolen, and I will share a trinket with you.
 |-
 |}

@@ -2,15 +2,13 @@
 |name=Stalking Wolf
 |image=[[File:Stalking Wolf.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (94.9%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

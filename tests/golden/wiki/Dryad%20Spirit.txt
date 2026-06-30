@@ -2,15 +2,13 @@
 |name=Dryad Spirit
 |image=[[File:Dryad Spirit.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Essence of Nature}} (28.3%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

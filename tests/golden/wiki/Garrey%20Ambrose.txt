@@ -2,15 +2,13 @@
 |name=Garrey Ambrose
 |image=[[File:Garrey Ambrose.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[Stowaway's Step]]
 |coordinates=729.7 x 21.4 x 508.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Garrey Ambrose has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

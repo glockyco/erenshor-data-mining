@@ -2,15 +2,13 @@
 |name=Giant Watchdog
 |image=[[File:Giant Watchdog.png|thumb]]
 |imagecaption=Tick Tock. Woof.
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (86.5%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

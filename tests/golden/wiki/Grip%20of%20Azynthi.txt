@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[Acolyte of Azynthi]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]
+|used_by=[[Acolyte of Azynthi]]<br>[[Azynthian Corruptor]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]
 }}

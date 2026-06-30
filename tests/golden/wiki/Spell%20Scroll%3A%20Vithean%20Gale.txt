@@ -12,22 +12,8 @@
 |sell=47125
 |taughtspell={{AbilityLink|Vithean Gale}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Vithean Gale.png
-|name=Spell Scroll: Vithean Gale
-|arcanist_level=
-|druid_level=
-|duelist_level=30
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=500
-|spell_type=AE
-|spell_desc=Briefly stuns all nearby targets
-}}
+{{ItemTooltip|stablekey=item:spell scroll - vithean gale}}
 
 [[Category:Ability Books]]

@@ -2,12 +2,12 @@
 |title=Gift of Vitae
 |image=[[File:Gift of Vitae.png|thumb]]
 |imagecaption=You feel renewed vitality
-|description=Heal base 1500 damage.
+|description=Heal base 1800 damage.
 |type=Heal
 |line=Healing
 |classes=[[Druid]] (27)
 |required_level=27
-|manacost=800
+|manacost=950
 |aggro=
 |is_taunt=
 |casttime=1.0 seconds
@@ -40,7 +40,7 @@
 |percent_mana_restoration=
 |bleed_damage_percent=
 |special_descriptor=
-|hp=1500
+|hp=1800
 |ac=
 |mana=
 |str=

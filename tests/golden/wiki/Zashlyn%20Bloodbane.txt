@@ -2,15 +2,13 @@
 |name=Zashlyn Bloodbane
 |image=[[File:Zashlyn Bloodbane.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[The Bonepits]]
 |coordinates=153.1 x 74.3 x 276.5
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops={{ItemLink|Adept Wand}}<br>{{ItemLink|Embalmed Bracer}}<br>{{ItemLink|Neophyte Necklace}}
-|droprates={{ItemLink|Neophyte Necklace}} (39.0%)<br>{{ItemLink|Embalmed Bracer}} (37.2%)<br>{{ItemLink|Adept Wand}} (33.3%)<br>{{ItemLink|Cloth Gloves}} (29.1%)<br>{{ItemLink|Cloth Hood}} (29.1%)<br>{{ItemLink|Cloth Pants}} (29.1%)<br>{{ItemLink|Cloth Shirt}} (29.1%)<br>{{ItemLink|Cloth Shoes}} (29.1%)<br>{{ItemLink|Cloth Sleeves}} (29.1%)<br>{{ItemLink|Star Stone}} (20.1%)<br>{{ItemLink|Graveweed Leaf}} (8.4%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Satin Cloak}} (5.8%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

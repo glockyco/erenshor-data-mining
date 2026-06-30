@@ -1,0 +1,19 @@
+{{Item
+|title=Cleansing Incineration
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - brax 5}}
+
+[[Category:Auras]]

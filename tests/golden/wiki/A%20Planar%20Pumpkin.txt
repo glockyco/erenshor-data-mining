@@ -1,0 +1,19 @@
+{{Item
+|title=A Planar Pumpkin
+|type=[[Consumables|Consumable]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=200000
+|sell=130000
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:fish - a planar pumpkin}}
+
+[[Category:Consumables]]

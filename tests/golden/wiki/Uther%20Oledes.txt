@@ -2,15 +2,13 @@
 |name=Uther Oledes
 |image=[[File:Uther Oledes.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=657.5 x 86.7 x 1318.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

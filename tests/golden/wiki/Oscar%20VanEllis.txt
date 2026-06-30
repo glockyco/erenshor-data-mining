@@ -2,15 +2,13 @@
 |name=Oscar VanEllis
 |image=[[File:Oscar VanEllis.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-20 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]
 |coordinates=755.4 x 43.6 x 193.6
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

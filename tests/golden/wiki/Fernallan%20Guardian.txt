@@ -2,15 +2,13 @@
 |name=Fernallan Guardian
 |image=[[File:Fernallan Guardian.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Essence of Nature}} (23.4%)<br>{{ItemLink|Decayed Druid Beads}} (3.5%)<br>{{ItemLink|Nature's Promise}} (0.7%)<br>{{ItemLink|Wisp Garden}} (0.6%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

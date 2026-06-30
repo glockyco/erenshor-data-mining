@@ -26,7 +26,7 @@
 |effects={{AbilityLink|Stun}}
 |damage_type=Physical
 |resist_modifier=
-|target_damage=2
+|target_damage=1
 |target_healing=
 |caster_healing=
 |shield_amount=

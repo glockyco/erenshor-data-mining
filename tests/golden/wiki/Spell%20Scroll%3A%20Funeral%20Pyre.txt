@@ -12,22 +12,8 @@
 |sell=3575
 |taughtspell={{AbilityLink|Funeral Pyre}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Funeral Pyre.png
-|name=Spell Scroll: Funeral Pyre
-|arcanist_level=26
-|druid_level=
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=
-|mana_cost=750
-|spell_type=StatusEffect
-|spell_desc=Slow targets movement and cause (600 / tick) damage over time.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - funeral pyre}}
 
 [[Category:Ability Books]]

@@ -17,7 +17,7 @@
 |has_unstable_duration=
 |is_instant_effect=True
 |is_reap_and_renew=
-|is_sim_usable=True
+|is_sim_usable=
 |range=30
 |max_level_target=
 |is_self_only=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect=
+|itemswitheffect={{ItemLink|Gladiator's Axe}}<br>{{ItemLink|Spear of True North}}
 |source=
 |used_by=
 }}

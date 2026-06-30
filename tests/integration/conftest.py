@@ -25,28 +25,19 @@ if TYPE_CHECKING:
 
 @pytest.fixture(scope="session")
 def exported_db() -> Path:
-    """Find most recently exported database from any variant.
+    """Return the playtest clean database used by integration tests.
 
-    Searches variants/ directory for erenshor-*.sqlite files and returns
-    the most recently modified one. Filters out backup files (*.pre-*).
-
-    Returns:
-        Path: Path to the most recently exported database
+    Golden baselines and exported-data integration tests are playtest-shaped.
+    The fixture is explicit instead of mtime-based so unrelated local main/demo
+    rebuilds cannot silently change test coverage.
 
     Raises:
-        pytest.skip: If no exported database exists
+        pytest.skip: If the playtest clean database does not exist.
     """
-    variants_dir = Path(__file__).parent.parent.parent / "variants"
-    databases = list(variants_dir.glob("*/erenshor-*.sqlite"))
-
-    # Filter out backup/temp files
-    databases = [db for db in databases if ".pre-" not in db.name and "-raw" not in db.name]
-
-    if not databases:
-        pytest.skip("No exported database found. Run 'uv run erenshor extract export' first.")
-
-    # Return most recently modified
-    return max(databases, key=lambda p: p.stat().st_mtime)
+    db = Path(__file__).parent.parent.parent / "variants" / "playtest" / "erenshor-playtest.sqlite"
+    if not db.exists():
+        pytest.skip("Playtest clean database not found. Run 'uv run erenshor -V playtest extract build' first.")
+    return db
 
 
 @pytest.fixture(scope="session")

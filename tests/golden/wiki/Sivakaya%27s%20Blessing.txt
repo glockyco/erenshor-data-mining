@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect=
+|itemswitheffect={{ItemLink|Eventide Bracer}}
 |source=
 |used_by=
 }}

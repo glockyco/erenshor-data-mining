@@ -2,15 +2,13 @@
 |name=Algaeth Bilgeback
 |image=[[File:Algaeth Bilgeback.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Windwashed Pass]]
 |coordinates=329.6 x 32.0 x 466.6
 |spawnchance=75%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Pearlescent Kelp Totem}}<br>{{ItemLink|Seastone Prism}}
-|droprates={{ItemLink|Seastone Prism}} (85.7%)<br>{{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (26.1%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Pearlescent Kelp Totem}} (14.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

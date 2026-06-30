@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Phoenix Loop}}
 |source={{ItemLink|Spell Scroll: Major Healing}}
-|used_by=[[Summoned: Elder Dryad]]
+|used_by=
 }}

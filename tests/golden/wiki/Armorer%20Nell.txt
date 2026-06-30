@@ -2,15 +2,13 @@
 |name=Armorer Nell
 |image=[[File:Armorer Nell.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]
 |coordinates=548.6 x 139.8 x 573.9
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Crested Spaulders}} (4.0%)<br>{{ItemLink|Officer's Bracer}} (4.0%)<br>{{ItemLink|Ripparian Axe}} (4.0%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0
@@ -41,12 +39,12 @@ Greeting message:
 
 <span style="color: #15e300;">[Keep]</span>:
 {| class="wikitable"
-|Home away from home now. We've made our <span style="color: #15e300;">[choice]</span>. 
+|Home away from home now. We've made our <span style="color: #15e300;">[choice]</span>.
 |}
 
 <span style="color: #15e300;">[choice]</span>:
 {| class="wikitable"
-|Don't ask. It's not a pretty <span style="color: #15e300;">[story]</span>. 
+|Don't ask. It's not a pretty <span style="color: #15e300;">[story]</span>.
 |}
 
 <span style="color: #15e300;">[story]</span>:

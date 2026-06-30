@@ -2,15 +2,13 @@
 |name=Blazefiend
 |image=[[File:Blazefiend.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
-|coordinates=
-|spawnchance=
+|zones=[[Braxonian Desert]]
+|coordinates=725.8 x 28.5 x 1191.1
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Fire Emerald Band}}<br>{{ItemLink|Flame of the Redemption}}<br>{{ItemLink|Smoldering Blade}}<br>{{ItemLink|Spirit of the Steed}}
-|droprates={{ItemLink|Fire Emerald Band}} (25.0%)<br>{{ItemLink|Flame of the Redemption}} (25.0%)<br>{{ItemLink|Smoldering Blade}} (25.0%)<br>{{ItemLink|Spirit of the Steed}} (25.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -36,5 +34,6 @@
 
 Summoned by bringing [[Blaze Fiend (Game Piece)]] to the [[Braxonian Game Board]].
 
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

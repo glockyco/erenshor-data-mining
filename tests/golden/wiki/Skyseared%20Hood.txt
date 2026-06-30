@@ -1,0 +1,19 @@
+{{Item
+|title=Skyseared Hood
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (2.5%)<br>[[Vithean Chest]] (2.4%)<br>[[Wandering Gladiator]] (1.9%)<br>[[Honsus]] (1.6%)<br>[[Tojokom]] (1.6%)<br>[[Vithean Chest]] (1.6%)<br>[[Wandering Gladiator]] (1.1%)<br>[[Expert Gladiator]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:head - 42 - skyseared hood}}
+
+[[Category:Armor]]

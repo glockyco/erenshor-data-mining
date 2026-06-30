@@ -2,15 +2,13 @@
 |name=Winkles
 |image=[[File:Winkles.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Ripper's Keep]]
 |coordinates=
 |spawnchance=3%
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Charmed Belt}}<br>{{ItemLink|Skyfolk Band}}<br>{{ItemLink|Twinkling Pendant}}<br>{{ItemLink|Wingwoven Cape}}
-|droprates={{ItemLink|Skyfolk Band}} (51.0%)<br>{{ItemLink|Charmed Belt}} (18.4%)<br>{{ItemLink|Twinkling Pendant}} (18.4%)<br>{{ItemLink|Wingwoven Cape}} (18.4%)<br>{{ItemLink|Citrine Stone}} (15.7%)<br>{{ItemLink|Luminstone}} (15.7%)<br>{{ItemLink|Seafruit}} (15.7%)<br>{{ItemLink|Bag of Faerie Dust}} (2.0%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref>
 |level=33
 |levelmodmin=0
 |levelmodmax=0

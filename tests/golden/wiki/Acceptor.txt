@@ -2,15 +2,13 @@
 |name=Acceptor
 |image=[[File:Acceptor.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=740.2 x 25.4 x 338.1
 |spawnchance=20%
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Chapters of Descent, Passage 3}} (100.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blackflame Torch}} (3.9%)<ref>If Acceptor has {{ItemLink|Blackflame Torch}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Tunic}} (3.9%)<br>{{ItemLink|Bread}} (3.1%)<br>{{ItemLink|Cloth Gloves}} (3.1%)<br>{{ItemLink|Cloth Pants}} (3.1%)<br>{{ItemLink|Cloth Shirt}} (3.1%)<br>{{ItemLink|Cloth Shoes}} (3.1%)<br>{{ItemLink|Cloth Sleeves}} (3.1%)<br>{{ItemLink|Luminstone}} (3.1%)<br>{{ItemLink|Spell Scroll: Healing}} (3.1%)<br>{{ItemLink|Spell Scroll: Magical Skin}} (3.1%)<br>{{ItemLink|Spell Scroll: Soul Tap}} (3.1%)<br>{{ItemLink|Star Stone}} (3.1%)<br>{{ItemLink|Water}} (3.1%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

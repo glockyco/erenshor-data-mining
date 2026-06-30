@@ -1,0 +1,19 @@
+{{Item
+|title=Lunar Bangle
+|type=
+|vendorsource=
+|source=[[Solunarian Chest]] (40.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:arm - 42 - lunar bangle}}
+
+[[Category:Armor]]

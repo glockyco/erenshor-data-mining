@@ -2,15 +2,13 @@
 |name=A Lava Spirit
 |image=[[File:A Lava Spirit.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Chunk of Obsidian}} (13.7%)<br>{{ItemLink|Droplet of Lava}} (13.7%)<br>{{ItemLink|Cloth Gloves}} (5.1%)<br>{{ItemLink|Cloth Hood}} (5.1%)<br>{{ItemLink|Cloth Pants}} (5.1%)<br>{{ItemLink|Cloth Shirt}} (5.1%)<br>{{ItemLink|Cloth Shoes}} (5.1%)<br>{{ItemLink|Cloth Sleeves}} (5.1%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

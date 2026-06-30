@@ -2,15 +2,13 @@
 |name=Damien Torno
 |image=[[File:Damien Torno.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Faerie's Brake]]
 |coordinates=310.6 x 27.7 x 147.9
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

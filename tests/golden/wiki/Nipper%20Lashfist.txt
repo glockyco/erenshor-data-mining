@@ -2,15 +2,13 @@
 |name=Nipper Lashfist
 |image=[[File:Nipper Lashfist.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Amber's Gift}} (5.1%)<br>{{ItemLink|Bog Hoop}} (4.5%)<br>{{ItemLink|Scarab Necklace}} (4.5%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

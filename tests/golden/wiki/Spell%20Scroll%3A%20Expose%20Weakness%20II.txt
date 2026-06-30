@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Expose Weakness II
+|type=
+|vendorsource=
+|source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Expose Weakness II}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - expose weakness ii}}
+
+[[Category:Ability Books]]

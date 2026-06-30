@@ -2,15 +2,13 @@
 |name=Boshi Polok
 |image=[[File:Boshi Polok.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=710.3 x 72.4 x 629.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

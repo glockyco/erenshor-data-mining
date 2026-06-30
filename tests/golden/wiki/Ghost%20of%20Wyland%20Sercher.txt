@@ -2,24 +2,22 @@
 |name=Ghost of Wyland Sercher
 |image=[[File:Ghost of Wyland Sercher.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Children of Sivakaya]]
 |factionChange=+1 [[The Agents of The Wisp]]
 |zones=[[Island Tomb]]
 |coordinates=138.6 x -2.9 x -20.5
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ring of Magic Bolt}} (100.0%)<br>{{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Torn Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Torn Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.7%)<br>{{ItemLink|Star Stone}} (41.7%)
-|level=4
+|level=7
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=0
 |levelvariancemax=0
 |xpmultiplier=1.0
-|health=1560
+|health=4160
 |mana=155
-|ac=60
+|ac=105
 |strength=9
 |endurance=45
 |dexterity=45
@@ -27,10 +25,10 @@
 |intelligence=5
 |wisdom=1
 |charisma=1
-|magic=2-5
-|poison=2-5
-|elemental=2-5
-|void=2-5
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
 |spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Tangle}}
 }}
 

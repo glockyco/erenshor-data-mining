@@ -2,15 +2,13 @@
 |name=Bloom Preserver
 |image=[[File:Bloom Preserver.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (22.3%)<br>{{ItemLink|Ruby}} (17.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|World Builder}} (1.7%)<ref>If Bloom Preserver has {{ItemLink|World Builder}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

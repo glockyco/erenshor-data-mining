@@ -1,0 +1,19 @@
+{{Item
+|title=Enchanted Smithy
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3500
+|sell=2275
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - enchanted smithy}}
+
+[[Category:Items]]

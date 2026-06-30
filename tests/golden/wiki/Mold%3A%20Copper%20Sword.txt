@@ -1,7 +1,7 @@
 {{Item
 |title=Mold: Copper Sword
 |type=[[Crafting|Mold]]
-|vendorsource=[[Amethi Plazzo]]<br>[[Brian Meshley]]<br>[[Javo Follay]]
+|vendorsource=[[Brian Meshley]]
 |source=
 |othersource=
 |questsource=
@@ -12,19 +12,10 @@
 |sell=
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 To craft the normal {{ItemLink|Copper Sword}} you need to use {{ItemLink|Coal}} as a fuel source, but if you want to craft the {{ItemLink|Hardened Copper Sword}} you need to use {{ItemLink|Ancient Coal}} as a fuel source.
 
-{{Item/Mold
-|image=Mold: Copper Sword.png
-|name=Mold: Copper Sword
-|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
-|ingredients=2x {{ItemLink|Chunk of Copper Ore}}<br>2x {{ItemLink|Chunk of Iron Ore}}
-|rewards={{ItemLink|Copper Sword}}
-|station=
-}}
+{{ItemTooltip|stablekey=item:template - bronze sword}}
 
 [[Category:Crafting]]
 [[Category:Molds]]

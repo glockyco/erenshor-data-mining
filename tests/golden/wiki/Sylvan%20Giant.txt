@@ -2,15 +2,13 @@
 |name=Sylvan Giant
 |image=[[File:Sylvan Giant.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=1% (Fernalla's Revival Plains)<br>25% (Silkengrass Meadowlands)
 |respawn=5 minutes (Fernalla's Revival Plains)<br>4 minutes (Silkengrass Meadowlands)
-|guaranteeddrops={{ItemLink|Arboreal Cape}}<br>{{ItemLink|Woodland Gauntlets}}
-|droprates={{ItemLink|Sylvan Giant's Blood}} (86.5%)<br>{{ItemLink|Arboreal Cape}} (50.0%)<br>{{ItemLink|Woodland Gauntlets}} (50.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

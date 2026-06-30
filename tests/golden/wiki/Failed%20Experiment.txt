@@ -2,15 +2,13 @@
 |name=Failed Experiment
 |image=[[File:Failed Experiment.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]
 |coordinates=
 |spawnchance=1%
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Empath's Cord}} (87.1%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

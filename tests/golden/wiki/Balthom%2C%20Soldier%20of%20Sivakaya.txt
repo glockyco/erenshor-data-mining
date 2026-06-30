@@ -2,15 +2,13 @@
 |name=Balthom, Soldier of Sivakaya
 |image=[[File:Balthom, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=1259.1 x -19.5 x 110.1
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Ascendant's Embrace}}<br>{{ItemLink|Bonebanded Armguard}}<br>{{ItemLink|Oldenbow}}
-|droprates={{ItemLink|Ascendant's Embrace}} (33.3%)<br>{{ItemLink|Bonebanded Armguard}} (33.3%)<br>{{ItemLink|Oldenbow}} (33.3%)<br>{{ItemLink|Chapters of Descent, Passage 5}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 6}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 7}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 8}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (2.8%)
 |level=37
 |levelmodmin=0
 |levelmodmax=0

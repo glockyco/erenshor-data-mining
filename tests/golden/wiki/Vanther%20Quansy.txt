@@ -2,15 +2,13 @@
 |name=Vanther Quansy
 |image=[[File:Vanther Quansy.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=870.3 x 145.8 x 285.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

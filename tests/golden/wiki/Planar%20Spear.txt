@@ -1,0 +1,19 @@
+{{Item
+|title=Planar Spear
+|type=
+|vendorsource=
+|source=[[Warder of Ice]] (69.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - planar ice lance}}
+
+[[Category:Weapons]]

@@ -2,15 +2,13 @@
 |name=Lighthouse Flame
 |image=[[File:Lighthouse Flame.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=804.5 x 20.2 x 592.5
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

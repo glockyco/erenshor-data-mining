@@ -12,22 +12,8 @@
 |sell=146
 |taughtspell={{AbilityLink|Jolt}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Jolt.png
-|name=Spell Scroll: Jolt
-|arcanist_level=9
-|druid_level=9
-|duelist_level=
-|paladin_level=
-|stormcaller_level=9
-|reaver_level=
-|mana_cost=160
-|spell_type=Damage
-|spell_desc=Deal 255 magic damage and leave a target momentarily stunned.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - jolt}}
 
 [[Category:Ability Books]]

@@ -2,15 +2,13 @@
 |name=Fernallan Sister Tessa
 |image=[[File:Fernallan Sister Tessa.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[Fernalla's Children]]<br>-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=253.6 x 31.1 x 263.4
 |spawnchance=
 |respawn=1 minute
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

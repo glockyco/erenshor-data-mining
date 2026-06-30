@@ -2,15 +2,13 @@
 |name=Ghost of Plaxitheris
 |image=[[File:Ghost of Plaxitheris.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=319.0 x 77.1 x 582.4
 |spawnchance=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|Dreamthread Wings}}<br>{{ItemLink|Ghostly Sash}}
-|droprates={{ItemLink|Soul of a Ghostly Beast}} (100.0%)<br>{{ItemLink|Death's Decay}} (78.2%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (78.2%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dreamthread Wings}} (50.0%)<br>{{ItemLink|Ghostly Sash}} (50.0%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

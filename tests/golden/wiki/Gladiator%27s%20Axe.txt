@@ -1,0 +1,19 @@
+{{Item
+|title=Gladiator's Axe
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (50.0%)<br>[[Vithean Chest]] (4.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - gladiator's axe}}
+
+[[Category:Weapons]]

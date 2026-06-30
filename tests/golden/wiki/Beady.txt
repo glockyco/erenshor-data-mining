@@ -2,15 +2,13 @@
 |name=Beady
 |image=[[File:Beady.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=787.1 x 24.9 x 771.9
 |spawnchance=75%
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Amber's Gift}}<br>{{ItemLink|Bloom}}<br>{{ItemLink|Cinder of Birth}}<br>{{ItemLink|Morning Glow}}
-|droprates={{ItemLink|Amber's Gift}} (25.0%)<br>{{ItemLink|Bloom}} (25.0%)<br>{{ItemLink|Cinder of Birth}} (25.0%)<br>{{ItemLink|Morning Glow}} (25.0%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

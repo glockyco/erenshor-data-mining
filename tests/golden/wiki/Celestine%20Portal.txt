@@ -1,0 +1,19 @@
+{{Item
+|title=Celestine Portal
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - celestial portal}}
+
+[[Category:Items]]

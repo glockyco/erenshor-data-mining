@@ -1,0 +1,19 @@
+{{Item
+|title=Ripcurrent
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (36.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - vitheo 5}}
+
+[[Category:Auras]]

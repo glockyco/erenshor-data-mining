@@ -2,15 +2,13 @@
 |name=Arbant Sparrow
 |image=[[File:Arbant Sparrow.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Port Azure]]
 |coordinates=168.8 x 34.1 x 243.1
 |spawnchance=
 |respawn=11 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Arbant Sparrow has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

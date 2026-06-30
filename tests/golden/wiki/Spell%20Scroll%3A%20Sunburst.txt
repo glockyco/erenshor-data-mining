@@ -12,22 +12,8 @@
 |sell=816
 |taughtspell={{AbilityLink|Sunburst}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Sunburst.png
-|name=Spell Scroll: Sunburst
-|arcanist_level=
-|druid_level=
-|duelist_level=
-|paladin_level=11
-|stormcaller_level=
-|reaver_level=
-|mana_cost=120
-|spell_type=PBAE
-|spell_desc=Stuns all enemies in immediate vicinity.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - sunburst}}
 
 [[Category:Ability Books]]

@@ -2,15 +2,13 @@
 |name=A Deepling Crimsonite
 |image=[[File:A Deepling Crimsonite.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Reptilian Scales}} (7.8%)<br>{{ItemLink|Serpentine Blood}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (2.8%)<br>{{ItemLink|Spell Scroll: Concuss}} (2.8%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (2.8%)<br>{{ItemLink|Spell Scroll: Immolation}} (2.8%)<br>{{ItemLink|Spell Scroll: Sleep}} (2.8%)<br>{{ItemLink|Elderstone Shard}} (2.6%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (2.6%)<br>{{ItemLink|Runed Gloves}} (2.6%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

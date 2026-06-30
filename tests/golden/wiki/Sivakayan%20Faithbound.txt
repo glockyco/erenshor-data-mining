@@ -2,15 +2,13 @@
 |name=Sivakayan Faithbound
 |image=[[File:Sivakayan Faithbound.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.3%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Boat Pass}} (4.3%)<ref>If the player is already holding {{ItemLink|Sivakayan Boat Pass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (4.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Breeches}} (2.4%)<br>{{ItemLink|Spell Scroll: Twisting Mind}} (2.4%)<br>{{ItemLink|Citrine Stone}} (2.1%)<br>{{ItemLink|Diamond}} (2.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ogrespice Leaf}} (2.1%)<br>{{ItemLink|Sea Glass}} (2.1%)<br>{{ItemLink|Sivakayan Wand}} (2.1%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

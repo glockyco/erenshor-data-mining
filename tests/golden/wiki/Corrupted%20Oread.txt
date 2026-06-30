@@ -2,15 +2,13 @@
 |name=Corrupted Oread
 |image=[[File:Corrupted Oread.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Willowwatch Ridge]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Essence of Nature}} (28.3%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0

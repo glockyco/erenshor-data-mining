@@ -2,15 +2,13 @@
 |name=Undying Light
 |image=[[File:Undying Light.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -35,3 +33,4 @@
 }}
 
 [[Category:Enemies]]
+[[Category:Shivering Tomb]]

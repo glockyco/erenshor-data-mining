@@ -1,0 +1,39 @@
+{{Character
+|name=Azynthian Corruptor
+|image=[[File:Azynthian Corruptor.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]<br>[[Plane of the Willow]]<br>[[Soluna's Celestial Plane]]<br>[[Vitheo's Plane of Valor]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1950000
+|mana=10000
+|ac=630
+|strength=1000
+|endurance=1000
+|dexterity=1000
+|agility=1000
+|intelligence=1000
+|wisdom=1000
+|charisma=1000
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Grip of Azynthi}}<br>{{AbilityLink|Tenebris}}
+}}
+
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]
+[[Category:Plane of the Willow]]
+[[Category:Soluna's Celestial Plane]]
+[[Category:Vitheo's Plane of Valor]]

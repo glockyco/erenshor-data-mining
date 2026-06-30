@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ceremonial Ring}}<br>{{ItemLink|Pristine Ceremonial Ring}}
+|itemswitheffect={{ItemLink|Abominable Ribcage}}<br>{{ItemLink|Ceremonial Ring}}<br>{{ItemLink|Pristine Ceremonial Ring}}
 |source=
 |used_by=
 }}

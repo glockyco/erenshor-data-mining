@@ -2,15 +2,13 @@
 |name=Lexant Crowsilk
 |image=[[File:Lexant Crowsilk.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Port Azure]]
 |coordinates=168.5 x 34.1 x 240.9
 |spawnchance=
 |respawn=11 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Lexant Crowsilk has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

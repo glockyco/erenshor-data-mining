@@ -2,15 +2,13 @@
 |name=Brachette Leafwalker
 |image=[[File:Brachette Leafwalker.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Hidden Hills]]
 |coordinates=9.6 x -0.9 x -108.1
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Servash Polaro
 |image=[[File:Servash Polaro.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Huntsmen]]
 |factionChange=-50 [[The Huntsmen]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=1046.0 x 29.3 x 345.0
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

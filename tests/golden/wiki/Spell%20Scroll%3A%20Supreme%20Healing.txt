@@ -12,22 +12,8 @@
 |sell=2925
 |taughtspell={{AbilityLink|Supreme Healing}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Supreme Healing.png
-|name=Spell Scroll: Supreme Healing
-|arcanist_level=
-|druid_level=27
-|duelist_level=
-|paladin_level=27
-|stormcaller_level=
-|reaver_level=
-|mana_cost=550
-|spell_type=Heal
-|spell_desc=Heals base 1100 damage
-}}
+{{ItemTooltip|stablekey=item:spell scroll - supreme healing}}
 
 [[Category:Ability Books]]

@@ -2,15 +2,13 @@
 |name=Kio the Light Keeper
 |image=[[File:Kio the Light Keeper.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-25 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=799.3 x 20.1 x 585.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -51,7 +49,7 @@ Prompts:
 |<span style="color: #15e300;">[occuphage]</span>
 |Do not look at him! Do not let him see your eyes!
 |-
-|<span style="color: #15e300;">[weird]</span>, <span style="color: #15e300;">[crazy]</span>, <span style="color: #15e300;">[nuts]</span> and <span style="color: #15e300;">[strange]</span>  
+|<span style="color: #15e300;">[weird]</span>, <span style="color: #15e300;">[crazy]</span>, <span style="color: #15e300;">[nuts]</span> and <span style="color: #15e300;">[strange]</span>
 |I wish it was that simple...
 |}
 
@@ -83,8 +81,6 @@ Greeting message:
 |coordinates=799.3 x 20.1 x 585.9
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

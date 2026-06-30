@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Void Chaos
+|type=
+|vendorsource=
+|source=[[Solunarian Paladin]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell={{AbilityLink|Void Chaos}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - void chaos}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,37 @@
+{{Character
+|name=Opus
+|image=[[File:Opus.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=478.9 x 25.2 x 441.6
+|spawnchance=1%
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=7800000
+|mana=20000
+|ac=630
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Plane of Valor]]

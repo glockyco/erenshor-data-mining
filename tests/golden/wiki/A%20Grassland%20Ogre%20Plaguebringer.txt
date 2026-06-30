@@ -2,15 +2,13 @@
 |name=A Grassland Ogre Plaguebringer
 |image=[[File:A Grassland Ogre Plaguebringer.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Fungal Spore}} (84.7%)<br>{{ItemLink|Muddy Jerkin}} (1.3%)<br>{{ItemLink|Pendant of Petrified Wood}} (1.3%)<br>{{ItemLink|Tarnished Greaves}} (1.3%)<br>{{ItemLink|Tarnished Plate Armor}} (1.3%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

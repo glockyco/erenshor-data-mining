@@ -2,15 +2,13 @@
 |name=Aldo Bernes
 |image=[[File:Aldo Bernes.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=244.4 x 25.9 x 236.0
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -38,7 +36,7 @@ Aldo is an NPC located in the tavern in [[Port Azure]].
 
 Greeting message:
 {| class="wikitable"
-|Get away from me. 
+|Get away from me.
 |}
 
 [[Category:Characters]]

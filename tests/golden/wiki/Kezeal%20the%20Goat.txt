@@ -2,15 +2,13 @@
 |name=Kezeal the Goat
 |image=[[File:Kezeal the Goat.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=615.2 x 73.9 x 461.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

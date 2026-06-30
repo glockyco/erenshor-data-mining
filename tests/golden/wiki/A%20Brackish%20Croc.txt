@@ -2,15 +2,13 @@
 |name=A Brackish Croc
 |image=[[File:A Brackish Croc.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]<br>[[Vitheo's Watch]]
 |coordinates=
 |spawnchance=
 |respawn=4 minutes (Blacksalt Strand)<br>2 minutes (Vitheo's Watch)
-|guaranteeddrops=
-|droprates=
 |level=9
 |levelmodmin=0
 |levelmodmax=0
@@ -34,6 +32,40 @@
 |spells=
 }}
 A Brackish Croc is the adult variant of the [[A Brackish Croc Whelp|Croc Whelp]].
+
+{{Character
+|name=A Brackish Croc
+|image=[[File:A Brackish Croc.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=
+|respawn=2 minutes
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1820
+|mana=0
+|ac=120
+|strength=200
+|endurance=200
+|dexterity=200
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
 
 [[Category:Blacksalt Strand]]
 [[Category:Enemies]]

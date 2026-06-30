@@ -2,15 +2,13 @@
 |name=Cecil Threbb
 |image=[[File:Cecil Threbb.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=+1 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Erenshor]]
 |zones=[[Faerie's Brake]]
 |coordinates=229.9 x 19.1 x 168.0
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=6
 |levelmodmin=0
 |levelmodmax=0

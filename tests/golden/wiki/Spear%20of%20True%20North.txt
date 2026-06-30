@@ -1,0 +1,19 @@
+{{Item
+|title=Spear of True North
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (36.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:weap - 42 - spear of true north}}
+
+[[Category:Weapons]]

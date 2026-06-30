@@ -1,0 +1,19 @@
+{{Item
+|title=Expert Training Set
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1000000
+|sell=650000
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - expert training}}
+
+[[Category:Items]]

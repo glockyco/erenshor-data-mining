@@ -2,15 +2,13 @@
 |name=Navidson Zampano
 |image=[[File:Navidson Zampano.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=1042.6 x 29.3 x 344.2
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Navidson Zampano has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Vitheo's Sight II
+|type=
+|vendorsource=[[Pierson Windwash]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell={{AbilityLink|Vitheo's Sight II}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight ii}}
+
+[[Category:Ability Books]]

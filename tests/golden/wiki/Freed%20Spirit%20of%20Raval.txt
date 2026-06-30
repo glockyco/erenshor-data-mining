@@ -2,15 +2,13 @@
 |name=Freed Spirit of Raval
 |image=[[File:Freed Spirit of Raval.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Soluna's Landing]]
-|coordinates=
-|spawnchance=
+|coordinates=669.2 x 126.8 x 879.7
+|spawnchance=1%
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=45
 |levelmodmin=0
 |levelmodmax=0
@@ -45,7 +43,7 @@ Prompts:
 |<span style="color: #15e300;">[insanity]</span>
 |When Astra came, Soluna fled. She left us here trapped by that beast. We could not sustain, and Astra's <span style="color: #15e300;">[presence]</span> permeated the air, our minds were no match for it.
 |-
-|<span style="color: #15e300;">[presence]</span> 
+|<span style="color: #15e300;">[presence]</span>
 |Astra has remained here, building power to pursue Soluna to her own plane of existance. I fear I may never rest peacefully until (s)he is gone.<br><br><i>This begins {{QuestLink|link=Raval's Last Wish}}</i>
 |-
 |}

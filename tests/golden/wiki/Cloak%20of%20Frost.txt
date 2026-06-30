@@ -1,0 +1,19 @@
+{{Item
+|title=Cloak of Frost
+|type=
+|vendorsource=
+|source=[[Greater Ice Elemental]] (4.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:back - 42 - cloak of frost}}
+
+[[Category:Armor]]

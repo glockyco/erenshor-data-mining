@@ -1,0 +1,19 @@
+{{Item
+|title=Predator's Shard
+|type=
+|vendorsource=
+|source=[[Arbor]] (66.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:neck - 42 - predator's soulstone}}
+
+[[Category:Armor]]

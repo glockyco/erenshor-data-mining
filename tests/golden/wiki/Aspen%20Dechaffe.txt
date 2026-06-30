@@ -2,15 +2,13 @@
 |name=Aspen Dechaffe
 |image=[[File:Aspen Dechaffe.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[Braxonian Desert]]
 |coordinates=332.2 x 6.9 x 1281.8
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -44,10 +42,10 @@ Greeting message for Druid's only:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[spire]</span>
-At the crest of that hill you'll begin to see it. It does not waver and from it, the blight eminates through all living things. The corpses of the people caught in Brax's holy fire are walking about, and the forest beyond the spire is full of even worse things. 
+At the crest of that hill you'll begin to see it. It does not waver and from it, the blight eminates through all living things. The corpses of the people caught in Brax's holy fire are walking about, and the forest beyond the spire is full of even worse things.
 |-
 |<span style="color: #15e300;">[was]</span>
-Brax burned this desert into the land to stop the blight. This is the place where Sivakaya accepted her gift of necromancy. On that day a Goddess was corrupted, and the energy materialized itself into that dreadful spire. 
+Brax burned this desert into the land to stop the blight. This is the place where Sivakaya accepted her gift of necromancy. On that day a Goddess was corrupted, and the energy materialized itself into that dreadful spire.
 |}
 
 {| class="wikitable"

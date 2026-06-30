@@ -2,15 +2,13 @@
 |name=Goldie Retalio
 |image=[[File:Goldie Retalio.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Ripper DeMerth]]
 |factionChange=-20 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]
 |coordinates=752.7 x 43.6 x 203.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Rylith Orthia
 |image=[[File:Rylith Orthia.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=1118.9 x 70.0 x 592.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=6
 |levelmodmin=0
 |levelmodmax=0

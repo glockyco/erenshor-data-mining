@@ -2,15 +2,13 @@
 |name=Pierson Obero
 |image=[[File:Pierson Obero.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-10 [[Fernalla's Children]]
 |zones=[[Faerie's Brake]]
 |coordinates=185.4 x 19.2 x 397.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=15
 |levelmodmin=0
 |levelmodmax=0

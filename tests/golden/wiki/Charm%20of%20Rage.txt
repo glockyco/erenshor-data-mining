@@ -12,29 +12,8 @@
 |sell=16250
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/Charm
-|image=Charm of Rage.png
-|name=Charm of Rage
-|tier=0
-|strscaling=4
-|endscaling=
-|dexscaling=
-|agiscaling=
-|intscaling=
-|wisscaling=
-|chascaling=
-|resistscaling=
-|mitigationscaling=
-|arcanist=True
-|duelist=True
-|druid=True
-|paladin=True
-|reaver=True
-|stormcaller=True
-}}
+{{ItemTooltip|stablekey=item:charm - 22 - charm of rage}}
 
 [[Category:Charms]]

@@ -2,7 +2,7 @@
 |title=Blessed Quiver
 |image=[[File:Blessed Quiver.png|thumb]]
 |imagecaption=You feel a strange grace settle upon your quiver
-|description=Gives a 25% chance to proc spell: Arcstorm (750 dmg) on each arrow
+|description=Gives a 25% chance to proc spell: Arcstorm (650 dmg) on each arrow
 |type=Beneficial
 |line=Generic
 |classes=[[Stormcaller]] (34)

@@ -2,15 +2,13 @@
 |name=Saya Seawatcher
 |image=[[File:Saya Seawatcher.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Vitheo's Watch]]
 |coordinates=250.3 x 36.7 x 314.5
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=6
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Abominable Ribcage
+|type=
+|vendorsource=
+|source=[[Jinx]] (69.0%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:back - 42 - ribcage}}
+
+[[Category:Armor]]

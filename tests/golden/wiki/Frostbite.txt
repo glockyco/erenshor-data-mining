@@ -1,0 +1,19 @@
+{{Item
+|title=Frostbite
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (37.7%)<br>[[Braxonian Chest]] (35.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:bow - 42 - frostbite}}
+
+[[Category:Weapons]]

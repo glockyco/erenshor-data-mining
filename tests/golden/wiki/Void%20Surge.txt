@@ -2,7 +2,7 @@
 |title=Void Surge
 |image=[[File:Void Surge.png|thumb]]
 |imagecaption=You are tormented by the void
-|description=Deals 300 void damage to your target.
+|description=Deals 300 void damage to your target and increase aggro by 150
 |type=Damage
 |line=Direct_Damage
 |classes=[[Reaver]] (12)

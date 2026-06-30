@@ -2,15 +2,13 @@
 |name=Plunkey
 |image=[[File:Plunkey.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=81.1 x 24.1 x 97.6
 |spawnchance=85%
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Aged Prism}}<br>{{ItemLink|Reed Trousers}}
-|droprates={{ItemLink|Reed Trousers}} (66.7%)<br>{{ItemLink|Aged Prism}} (33.3%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

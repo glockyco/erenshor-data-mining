@@ -9,8 +9,6 @@
 |coordinates=271.0 x 1.4 x 325.1
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

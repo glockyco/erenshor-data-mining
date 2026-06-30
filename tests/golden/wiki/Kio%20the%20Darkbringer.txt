@@ -2,15 +2,13 @@
 |name=Kio the Darkbringer
 |image=[[File:Kio the Darkbringer.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=781.4 x 34.6 x 654.8
 |spawnchance=
 |respawn=14 minutes
-|guaranteeddrops={{ItemLink|Igniting Brace}}<br>{{ItemLink|Lamplighter's Pole}}
-|droprates={{ItemLink|Awaken the Angel}} (100.0%)<ref>If the player is already holding {{ItemLink|Awaken the Angel}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dockhouse Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Dockhouse Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Gloves}} (64.4%)<br>{{ItemLink|Cloth Hood}} (64.4%)<br>{{ItemLink|Cloth Shoes}} (64.4%)<br>{{ItemLink|Cloth Sleeves}} (64.4%)<br>{{ItemLink|Igniting Brace}} (50.0%)<br>{{ItemLink|Lamplighter's Pole}} (50.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

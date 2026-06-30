@@ -2,15 +2,13 @@
 |name=Volcano Scarab
 |image=[[File:Volcano Scarab.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Droplet of Lava}} (5.2%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

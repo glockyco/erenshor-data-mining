@@ -1,0 +1,19 @@
+{{Item
+|title=Stone of Arcanism
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - arcanism}}
+
+[[Category:Auras]]

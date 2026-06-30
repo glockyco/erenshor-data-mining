@@ -6,7 +6,7 @@
 |type=Beneficial
 |line=Aura_Arcanist
 |classes=
-|required_level=16
+|required_level=35
 |manacost=
 |aggro=
 |is_taunt=
@@ -42,16 +42,16 @@
 |special_descriptor=
 |hp=
 |ac=
-|mana=20
+|mana=
 |str=
 |dex=
 |end=
 |agi=
-|wis=20
-|int=20
-|cha=20
+|wis=40
+|int=40
+|cha=40
 |mr=
-|er=5
+|er=
 |vr=
 |pr=
 |haste=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Pyre of the Cleansed}}
+|itemswitheffect={{ItemLink|Cleansing Incineration}}
 |source=
 |used_by=
 }}

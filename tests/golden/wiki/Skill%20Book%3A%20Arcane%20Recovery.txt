@@ -12,22 +12,8 @@
 |sell=1531
 |taughtspell=
 |taughtskill={{AbilityLink|Arcane Recovery}}
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SkillBook
-|image=Skill Book: Arcane Recovery.png
-|name=Skill Book: Arcane Recovery
-|duelist_level=
-|druid_level=20
-|arcanist_level=12
-|paladin_level=
-|stormcaller_level=20
-|reaver_level=
-|skill_type=Innate
-|skill_desc=Passive Skill: Spells that resonate will return their mana cost.
-|simplayers_autolearn=True
-}}
+{{ItemTooltip|stablekey=item:skillbook - arcane recovery}}
 
 [[Category:Ability Books]]

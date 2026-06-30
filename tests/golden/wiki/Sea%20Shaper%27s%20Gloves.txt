@@ -1,0 +1,19 @@
+{{Item
+|title=Sea Shaper's Gloves
+|type=
+|vendorsource=
+|source=[[Vithean Chest]] (36.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:glove - 42 - sea shaper's gloves}}
+
+[[Category:Armor]]

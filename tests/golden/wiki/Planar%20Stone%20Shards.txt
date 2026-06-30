@@ -2,72 +2,19 @@
 |title=Planar Stone Shards
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Lost Treasure (30+)]] (56.6%)<br>[[Lost Treasure (20-30)]] (27.2%)<br>[[Lost Treasure (1-10)]] (18.9%)<br>[[Lost Treasure (10-20)]] (18.7%)<br>[[Hypnic]] (6.7%)<br>[[Braxonian Fossil]] (5.3%)
+|source=[[Warder of Flame]] (91.1%)<br>[[Warder of Ice]] (91.1%)<br>[[Khorso, Soluna's Advisor]] (90.7%)<br>[[Animation of Grace]] (81.0%)<br>[[Jinx]] (81.0%)<br>[[Xjeris]] (81.0%)<br>[[Elementalist Mizuki]] (75.9%)<br>[[Animation of Faith]] (75.1%)<br>[[Arbor]] (64.9%)<br>[[Lost Treasure (30+)]] (56.6%)<br>[[Lost Treasure (20-30)]] (27.2%)<br>[[Braxonian Chest]] (24.7%)<br>[[Chunk of Amarion]] (24.0%)<br>[[Lost Treasure (1-10)]] (18.9%)<br>[[Lost Treasure (10-20)]] (18.7%)<br>[[Planar Crawler]] (17.3%)<br>[[Guardian of Brax]] (17.0%)<br>[[Vithean Chest]] (14.9%)<br>[[Sprinkles]] (14.9%)<br>[[Vithean Chest]] (14.3%)<br>[[Planar Faerie]] (12.6%)<br>[[Solunarian Moonkeeper]] (12.6%)<br>[[Nadir]] (10.6%)<br>[[Zenith]] (10.6%)<br>[[Ice Elemental]] (9.6%)<br>[[Vithean Chest]] (9.4%)<br>[[Planar Grizzly]] (8.6%)<br>[[Planar Wolf]] (8.6%)<br>[[Vithean Chest]] (8.4%)<br>[[Fernallan High Guard]] (8.3%)<br>[[Pack Mother]] (8.2%)<br>[[Planar Cobra]] (8.2%)<br>[[Fernallan High Priest]] (7.9%)<br>[[Fire Elemental]] (7.1%)<br>[[Solunarian Paladin]] (6.9%)<br>[[Hypnic]] (6.7%)<br>[[Expert Gladiator]] (6.2%)<br>[[Solunarian Sunbringer]] (5.5%)<br>[[Fernallan Planar Guard]] (5.3%)<br>[[Greater Fire Elemental]] (5.3%)<br>[[Greater Ice Elemental]] (5.3%)<br>[[Braxonian Fossil]] (5.3%)<br>[[Honsus]] (4.3%)<br>[[Tojokom]] (4.3%)<br>[[Lava Fiend]] (4.2%)<br>[[Wandering Gladiator]] (4.0%)<br>[[Wandering Gladiator]] (3.3%)<br>[[Wandering Gladiator]] (3.1%)<br>[[Planar Minotaur]] (2.9%)<br>[[Tundra Walker]] (2.5%)
 |othersource=1% drop chance from any enemy level 15+
 |questsource=
-|relatedquest={{QuestLink|The Ripper Ritual}}
+|relatedquest={{QuestLink|The Ripper Ritual}}<br>{{QuestLink|Apprentice: Shards to Stones}}<br>{{QuestLink|Journeyman: Shards to Stones}}
 |craftsource=
 |componentfor={{ItemLink|Resolving Fluid}}
-|buy=1000
-|sell=650
+|buy=3000
+|sell=1950
 |taughtspell=
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/General
-|image=Planar Stone Shards.png
-|name=Planar Stone Shards
-|description=Pieces of an extremely rare and strange stone, rumored to come from the planes of the Gods.
-|value=1000
-|stack_size=
-|disposable=
-|effect_style=
-|effect_spell_icon=
-|effect_spell_name=
-|effect_spell_level=
-|effect_spell_duration_ticks=
-|effect_spell_type=
-|effect_spell_line=
-|effect_target_damage=
-|effect_target_healing=
-|effect_damage_type=
-|effect_cast_time=
-|effect_cooldown=
-|effect_spell_range=
-|effect_lifetap=
-|effect_group_effect=
-|effect_stun_target=
-|effect_charm_target=
-|effect_root_target=
-|effect_taunt_spell=
-|effect_aggro=
-|effect_status_effect_name=
-|effect_hp=
-|effect_ac=
-|effect_mana=
-|effect_str=
-|effect_dex=
-|effect_end=
-|effect_agi=
-|effect_wis=
-|effect_int=
-|effect_cha=
-|effect_mr=
-|effect_er=
-|effect_pr=
-|effect_vr=
-|effect_movement_speed=
-|effect_damage_shield=
-|effect_haste=
-|effect_percent_lifesteal=
-|effect_atk_roll_modifier=
-|effect_resonate_chance=
-|effect_add_proc_name=
-|effect_add_proc_chance=
-|effect_special_descriptor=
-}}
+{{ItemTooltip|stablekey=item:ore - planar shard}}
 
 [[Category:Crafting]]
 [[Category:Items]]

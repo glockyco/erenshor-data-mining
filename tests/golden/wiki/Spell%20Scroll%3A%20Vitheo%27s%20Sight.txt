@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Vitheo's Sight
+|type=
+|vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=255
+|sell=166
+|taughtspell={{AbilityLink|Vitheo's Sight}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight i}}
+
+[[Category:Ability Books]]

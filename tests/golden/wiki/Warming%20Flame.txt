@@ -2,15 +2,13 @@
 |name=Warming Flame
 |image=[[File:Warming Flame.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=304.6 x 17.8 x 327.3
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=99
 |levelmodmin=0
 |levelmodmax=0

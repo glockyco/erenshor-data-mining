@@ -2,15 +2,13 @@
 |name=Leah
 |image=[[File:Leah Body.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Necromancers of the Island Tomb]]
 |factionChange=-1000 [[The Necromancers of the Island Tomb]]
 |zones=[[Island Tomb]]
 |coordinates=166.2 x -8.9 x 164.1
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Soul Gem (Leah)}} (100.0%)<ref>If the player is already holding {{ItemLink|Soul Gem (Leah)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (78.2%)<br>{{ItemLink|Water}} (78.2%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

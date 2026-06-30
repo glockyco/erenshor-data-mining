@@ -1,0 +1,37 @@
+{{Character
+|name=Azynthian Shadow
+|image=[[File:Azynthian Shadow.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=249.3 x 415.9 x 996.5
+|spawnchance=1%
+|respawn=
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=325000
+|mana=0
+|ac=600
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells={{AbilityLink|Soul Tap}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

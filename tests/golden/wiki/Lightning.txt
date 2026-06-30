@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[Headless]]<br>[[Priel Gifted]]<br>[[Vinx]]<br>[[Worn Ancient Guardian]]
+|used_by=[[Greater Fawn]]<br>[[Headless]]<br>[[Priel Gifted]]<br>[[Vinx]]<br>[[Worn Ancient Guardian]]
 }}

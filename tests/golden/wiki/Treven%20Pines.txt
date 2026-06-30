@@ -2,15 +2,13 @@
 |name=Treven Pines
 |image=[[File:Treven Pines.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-25 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=384.8 x 58.5 x 394.5
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -37,13 +35,13 @@ Treven Pines is a [[Vendors|vendor]] on [[Stowaway's Step]], living just down th
 
 Greeting message:
 {| class="wikitable"
-|Oi, welcome to the island traveller. If you need supplies, I have them. If you're passin' through, well, you may be here a while still. Remember that I'm here and do yourself a favor and avoid the <span style="color: #15e300;">[ritual]</span>. Looks like they started it up again. 
+|Oi, welcome to the island traveller. If you need supplies, I have them. If you're passin' through, well, you may be here a while still. Remember that I'm here and do yourself a favor and avoid the <span style="color: #15e300;">[ritual]</span>. Looks like they started it up again.
 |}
 
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[ritual]</span>, <span style="color: #15e300;">[smoke]</span> and <span style="color: #15e300;">[dark]</span>
-There's no tellin' what it's for. We stopped askin' and they do their thing and leave us alone. Just bugs me... we don't know where they even come from. Must be some hidden place on the island. 
+There's no tellin' what it's for. We stopped askin' and they do their thing and leave us alone. Just bugs me... we don't know where they even come from. Must be some hidden place on the island.
 |}
 
 {| class="wikitable"

@@ -1,0 +1,19 @@
+{{Item
+|title=Shard of Infinity
+|type=
+|vendorsource=
+|source=[[Brax, God of Elements]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:secondary - 42 - shard of infinity}}
+
+[[Category:Weapons]]

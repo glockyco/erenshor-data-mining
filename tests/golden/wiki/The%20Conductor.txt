@@ -2,15 +2,13 @@
 |name=The Conductor
 |image=[[File:The Conductor.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=281.5 x 0.5 x 315.4
 |spawnchance=
 |respawn=
-|guaranteeddrops=
-|droprates=
 |level=5
 |levelmodmin=0
 |levelmodmax=0

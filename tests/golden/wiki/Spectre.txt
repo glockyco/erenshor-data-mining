@@ -2,15 +2,13 @@
 |name=Spectre
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.7%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Luminstone}} (4.0%)<br>{{ItemLink|Ring of Visions}} (2.6%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
@@ -47,8 +45,6 @@ If a spectre is holding a sword, it will drop a [[Spectral Sword]]
 |coordinates=
 |spawnchance=
 |respawn=3 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.7%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Spectral Sword}} (4.0%)<ref>If Spectre has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ring of Visions}} (2.6%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

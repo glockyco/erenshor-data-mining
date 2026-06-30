@@ -1,0 +1,19 @@
+{{Item
+|title=Shrine of Blessings
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 3}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - shrine of blessings}}
+
+[[Category:Items]]

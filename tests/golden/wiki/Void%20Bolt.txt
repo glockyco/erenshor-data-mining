@@ -2,7 +2,7 @@
 |title=Void Bolt
 |image=[[File:Void Bolt.png|thumb]]
 |imagecaption=You are tormented by the void
-|description=Deals 25 void damage to your target.
+|description=Deals 25 void damage to your target and increase aggro by 225
 |type=Damage
 |line=Direct_Damage
 |classes=[[Reaver]] (2)

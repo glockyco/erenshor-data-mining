@@ -1,0 +1,19 @@
+{{Item
+|title=Flaming Staff
+|type=
+|vendorsource=
+|source=[[Greater Fire Elemental]] (4.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:wand - 42 - flaming staff}}
+
+[[Category:Weapons]]

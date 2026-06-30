@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect=
+|itemswitheffect={{ItemLink|Planar Spear}}
 |source={{ItemLink|Spell Scroll: Ice Shock}}
 |used_by=[[Stoneman]]<br>[[Stoneman Magi]]
 }}

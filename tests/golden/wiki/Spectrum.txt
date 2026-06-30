@@ -2,7 +2,7 @@
 |title=Spectrum
 |image=[[File:Spectrum.png|thumb]]
 |imagecaption=You are weakened by light.
-|description=Lower target's resists
+|description=Lower all target's resists by 10
 |type=StatusEffect
 |line=Global_Magic_Debuff
 |classes=[[Paladin]] (22)
@@ -50,10 +50,10 @@
 |wis=
 |int=
 |cha=
-|mr=-12
-|er=-12
-|vr=-12
-|pr=-12
+|mr=-10
+|er=-10
+|vr=-10
+|pr=-10
 |haste=
 |resonance=
 |movement_speed=

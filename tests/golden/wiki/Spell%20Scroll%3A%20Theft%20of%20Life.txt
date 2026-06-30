@@ -12,23 +12,9 @@
 |sell=65
 |taughtspell={{AbilityLink|Theft of Life}}
 |taughtskill=
-|guaranteeddrops=
-|droprates=
 }}
 
-{{Item/SpellScroll
-|image=Spell Scroll: Theft of Life.png
-|name=Spell Scroll: Theft of Life
-|arcanist_level=
-|druid_level=2
-|duelist_level=
-|paladin_level=
-|stormcaller_level=
-|reaver_level=2
-|mana_cost=50
-|spell_type=Damage
-|spell_desc=Steal life from your target, and heal yourself for an equal amount.
-}}
+{{ItemTooltip|stablekey=item:spell scroll - theft of life}}
 
 [[Category:Ability Books]]
 [[Category:Crafting]]

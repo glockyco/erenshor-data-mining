@@ -2,15 +2,13 @@
 |name=Alpha Wolf
 |image=[[File:Alpha Wolf.png|thumb]]
 |imagecaption=
-|type=Rare
+|type=[[Enemies|Rare]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]
 |coordinates=
 |spawnchance=12% (Faerie's Brake)<br>25% (Hidden Hills)
 |respawn=4 minutes (Faerie's Brake)<br>1 minute (Hidden Hills)
-|guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (87.1%)<br>{{ItemLink|Worn Wolf Collar}} (39.3%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

@@ -2,15 +2,13 @@
 |name=Demented Malaroth
 |image=[[File:Demented Malaroth.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
-|coordinates=
-|spawnchance=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=428.4 x 28.4 x 642.2
+|spawnchance=1%
 |respawn=
-|guaranteeddrops={{ItemLink|Cursed Hide Shield}}<br>{{ItemLink|Molten Axe}}
-|droprates={{ItemLink|Demented Brain}} (100.0%)<ref>If the player is already holding {{ItemLink|Demented Brain}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cursed Hide Shield}} (50.0%)<br>{{ItemLink|Molten Axe}} (50.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0
@@ -38,5 +36,6 @@ Summoned by bringing [[Odd Malaroth Feed]] to the food bowl.
 
 =Notes=
 
+[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Malaroth's Nesting Grounds]]

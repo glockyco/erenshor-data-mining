@@ -2,15 +2,13 @@
 |name=Loomingwood Minotaur Soldier
 |image=[[File:Loomingwood Minotaur Soldier.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]<br>[[Malaroth's Nesting Grounds]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Mino Hatchet}} (13.5%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

@@ -1,0 +1,19 @@
+{{Item
+|title=Gauntlets of Fiery Strength
+|type=
+|vendorsource=
+|source=[[Warder of Flame]] (69.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:glove - 42 - gauntlets of fiery strength}}
+
+[[Category:Armor]]

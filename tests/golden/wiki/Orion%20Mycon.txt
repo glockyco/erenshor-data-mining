@@ -2,15 +2,13 @@
 |name=Orion Mycon
 |image=[[File:Orion Mycon.png|thumb]]
 |imagecaption=
-|type=NPC
+|type=[[:Category:Characters|NPC]]
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[Port Azure]]
 |coordinates=343.6 x 37.3 x 446.4
 |spawnchance=
 |respawn=4 minutes
-|guaranteeddrops=
-|droprates=
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -44,7 +42,7 @@ Greeting message only for Druids:
 Prompts:
 {| class="wikitable"
 |<span style="color: #15e300;">[cause]</span>
-|Lots of trouble! There's Molarai in the old beach fort, the beach is swarmin' with crocs, and those giant ghosts in the ruins... no thank 
+|Lots of trouble! There's Molarai in the old beach fort, the beach is swarmin' with crocs, and those giant ghosts in the ruins... no thank
 |-
 |<span style="color: #15e300;">[crusade]</span>
 |Fernalla willing, we'll recover the fallen branch of Fernalla's <span style="color: #15e300;">[willow]</span>, and our chosen one will wield it in our name.

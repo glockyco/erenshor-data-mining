@@ -1,0 +1,19 @@
+{{Item
+|title=Shroud of Nature
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:back - 42 - shroud of nature}}
+
+[[Category:Armor]]

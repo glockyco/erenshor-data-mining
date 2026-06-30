@@ -9,8 +9,6 @@
 |coordinates=279.0 x 26.3 x 147.3
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Reliquary Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Reliquary Key}} in their inventory, another will not drop.</ref>
 |level=14
 |levelmodmin=0
 |levelmodmax=0

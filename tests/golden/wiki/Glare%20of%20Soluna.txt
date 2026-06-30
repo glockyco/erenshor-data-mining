@@ -2,7 +2,7 @@
 |title=Glare of Soluna
 |image=[[File:Glare of Soluna.png|thumb]]
 |imagecaption=You are blinded by a holy light.
-|description=Target receives a 20% attack roll penalty.
+|description=Target receives a -2 attack roll penalty and -10 dex.
 |type=StatusEffect
 |line=Pal_Other_Debuff
 |classes=[[Paladin]] (5)
@@ -57,7 +57,7 @@
 |haste=
 |resonance=
 |movement_speed=
-|atk_roll_modifier=-4
+|atk_roll_modifier=-2
 |xp_bonus=
 |is_root=
 |is_stun=

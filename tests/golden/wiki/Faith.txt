@@ -1,0 +1,36 @@
+{{Character
+|name=Faith
+|image=[[File:Faith.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Celestial Plane]]
+|coordinates=
+|spawnchance=
+|respawn=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=65000
+|mana=0
+|ac=525
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Soluna's Celestial Plane]]

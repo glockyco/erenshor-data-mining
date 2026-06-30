@@ -2,15 +2,13 @@
 |name=Stoneman Obsidian
 |image=[[File:Stoneman Obsidian.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Polished Stone}} (92.7%)<br>{{ItemLink|Chunk of Obsidian}} (2.4%)<br>{{ItemLink|Old Journal Pg. 1}} (2.4%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 2}} (2.4%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 3}} (2.4%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 4}} (2.4%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.5%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.5%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.5%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.5%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.5%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

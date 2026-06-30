@@ -1,0 +1,19 @@
+{{Item
+|title=Planetary Shard
+|type=
+|vendorsource=
+|source=[[Khorso, Soluna's Advisor]] (70.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:aura - planetary shard}}
+
+[[Category:Auras]]

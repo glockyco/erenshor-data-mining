@@ -1,0 +1,19 @@
+{{Item
+|title=Amarionite Garb
+|type=
+|vendorsource=
+|source=[[Chunk of Amarion]] (41.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:chest - 42 - amarionite garb}}
+
+[[Category:Armor]]

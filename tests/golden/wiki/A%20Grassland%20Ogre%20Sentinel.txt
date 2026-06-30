@@ -2,15 +2,13 @@
 |name=A Grassland Ogre Sentinel
 |image=[[File:A Grassland Ogre Sentinel.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Ogrespice Leaf}} (13.6%)<br>{{ItemLink|Humanbone}} (12.1%)<br>{{ItemLink|Seaweed}} (10.2%)<br>{{ItemLink|Spidersmasher}} (3.4%)<ref>If A Grassland Ogre Sentinel has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0
