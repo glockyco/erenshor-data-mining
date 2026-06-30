@@ -83,6 +83,9 @@ public class ItemRecord
     public bool Unique { get; set; }
     public bool Relic { get; set; }
     public bool NoTradeNoDestroy { get; set; }
+    public bool MustBeEquippedToClick { get; set; }
+    public bool PlayerCannotSell { get; set; }
+    public bool RareItem { get; set; }
 
     // --- Miscellaneous ---
     public string BookTitle { get; set; } = string.Empty; // If the item is a book

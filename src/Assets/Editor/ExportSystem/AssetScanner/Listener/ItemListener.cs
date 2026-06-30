@@ -207,6 +207,9 @@ public class ItemListener : IAssetScanListener<Item>
             Unique = item.Unique,
             Relic = item.Relic,
             NoTradeNoDestroy = item.NoTradeNoDestroy,
+            MustBeEquippedToClick = item.MustBeEquippedToClick,
+            PlayerCannotSell = item.PlayerCannotSell,
+            RareItem = item.RareItem,
 
             // --- Miscellaneous ---
             BookTitle = item.BookTitle,
