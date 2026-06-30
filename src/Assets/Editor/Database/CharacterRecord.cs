@@ -41,6 +41,10 @@ public class CharacterRecord
 
     public bool IsEnabled { get; set; }
     public bool Invulnerable { get; set; }
+    public bool CanNeverSeeInvis { get; set; }
+    public bool DPSDummy { get; set; }
+    public bool IsWyrm { get; set; }
+    public bool NoRun { get; set; }
     public string? ShoutOnDeath { get; set; } = string.Empty;
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? QuestCompleteOnDeath { get; set; } = string.Empty;
