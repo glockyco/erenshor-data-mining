@@ -8,6 +8,16 @@
 - **World Map — User Annotations (Pins, Paths, Regions)** [spec] `2026-06-27-map-annotations`
 - **Category C — Zone-Wide Random Spawners** [note] `2026-06-28-category-c-zone-random-spawns` ← 2026-05-28-dynamic-spawn-coverage-design
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
+- **AEEvent Export Modeling** [spec] `2026-06-30-ae-event-export-modeling`
+- **Ascension Stormcaller/Reaver Field Exports** [plan] `2026-06-30-ascension-stormcaller-reaver-fields` (0/12)
+- **Character Gameplay Flags** [plan] `2026-06-30-character-gameplay-flags` (0/15)
+- **Death-Triggered Spawn Modeling** [spec] `2026-06-30-death-triggered-spawn-modeling`
+- **Essential SpawnPoint Relationship Modeling** [spec] `2026-06-30-essential-spawnpoint-relationship-modeling`
+- **Field-Coverage Runtime Ignore Reason Cleanup** [plan] `2026-06-30-field-coverage-runtime-ignore-cleanup` (0/14)
+- **Item Interaction and Economy Flags** [plan] `2026-06-30-item-interaction-economy-flags` (0/12)
+- **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12)
+- **Spell and Skill Mechanics Fields** [plan] `2026-06-30-spell-skill-mechanics-fields` (0/14)
+- **Treasure Chest Possible-Location Modeling** [spec] `2026-06-30-treasure-chest-possible-location-modeling`
 
 ## draft
 
