@@ -105,6 +105,9 @@ class Item(BaseEntity):
         "(e.g., can't dual-wield same weapon or wear 2x same ring) (boolean)",
     )
     no_trade_no_destroy: int | None = Field(default=None, description="Cannot trade or destroy (boolean)")
+    must_be_equipped_to_click: int | None = Field(default=None, description="Must be equipped to click (boolean)")
+    player_cannot_sell: int | None = Field(default=None, description="Player cannot sell to vendor (boolean)")
+    rare_item: int | None = Field(default=None, description="Is rare item (boolean)")
 
     # Book properties
     book_title: str | None = Field(default=None, description="Book title for readable items")

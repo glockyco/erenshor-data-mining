@@ -237,3 +237,16 @@ def test_writes_spells_module_to_data_module_path(tmp_path: Path) -> None:
 
     assert output_path == tmp_path / "Erenshor" / "Data" / "Spells.lua"
     assert output_path.read_text(encoding="utf-8").startswith("return {\n")
+
+
+def test_spell_lua_record_includes_mechanics_fields_with_nondefault_values() -> None:
+    spell = make_spell(
+        armor_pen_percent=25,
+        level_scaled_mana_restoration=1.5,
+        shapeshift_form="Wolf",
+    )
+    data = build_spells_data([spell], {})
+    record = data["spells"]["spell:minor_lightning"]
+    assert record["armorPenPercent"] == 25
+    assert record["levelScaledManaRestoration"] == 1.5
+    assert record["shapeshiftForm"] == "Wolf"

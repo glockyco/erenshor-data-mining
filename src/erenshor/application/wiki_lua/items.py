@@ -99,6 +99,9 @@ _ITEM_BOOL_FIELD_MAP = (
     ("disposable", "disposable"),
     ("relic", "relic"),
     ("noTradeNoDestroy", "no_trade_no_destroy"),
+    ("mustBeEquippedToClick", "must_be_equipped_to_click"),
+    ("playerCannotSell", "player_cannot_sell"),
+    ("rareItem", "rare_item"),
     ("fuelSource", "fuel_source"),
     ("unavailableToSimPlayers", "sim_players_cant_get"),
 )

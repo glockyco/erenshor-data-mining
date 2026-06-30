@@ -175,3 +175,23 @@ def test_writes_characters_module_to_data_module_path(tmp_path: Path) -> None:
 
     assert output_path == tmp_path / "Erenshor" / "Data" / "Characters.lua"
     assert output_path.read_text(encoding="utf-8").startswith("return {\n")
+
+
+def test_character_lua_record_includes_gameplay_flags_with_nondefault_values() -> None:
+    character = make_character(
+        can_never_see_invis=1,
+        dps_dummy=1,
+        is_wyrm=1,
+        no_run=1,
+    )
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+    )
+    record = data["characters"]["character:a_grizzly_bear"]
+    assert record["canNeverSeeInvis"] == 1
+    assert record["dpsDummy"] == 1
+    assert record["isWyrm"] == 1
+    assert record["noRun"] == 1

@@ -84,6 +84,9 @@
 |CannotInterrupt=Boolean
 |Jolt=Boolean
 |NoResonate=Boolean
+|ArmorPenPercent=Integer
+|LevelScaledManaRestoration=Float
+|ShapeshiftForm=String
 |StatusEffectKey=String
 |AddProcKey=String
 |PetToSummonKey=String

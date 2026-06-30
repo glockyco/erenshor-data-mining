@@ -73,6 +73,10 @@ class Character(BaseEntity):
     has_dialog: int | None = Field(default=None, description="Has dialog (boolean)")
     is_enabled: int | None = Field(default=None, description="Is enabled (boolean)")
     invulnerable: int | None = Field(default=None, description="Is invulnerable (boolean)")
+    can_never_see_invis: int | None = Field(default=None, description="Can never see invisible (boolean)")
+    dps_dummy: int | None = Field(default=None, description="Is DPS dummy (boolean)")
+    is_wyrm: int | None = Field(default=None, description="Is Wyrm (boolean)")
+    no_run: int | None = Field(default=None, description="Cannot flee (boolean)")
 
     # Death events
     shout_on_death: str | None = Field(default=None, description="Death shout message")

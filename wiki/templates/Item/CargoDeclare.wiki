@@ -42,6 +42,9 @@ _table=Items
 |SkillUseKey=String
 |AuraKey=String
 |Relic=Boolean
+|MustBeEquippedToClick=Boolean
+|PlayerCannotSell=Boolean
+|RareItem=Boolean
 |HasProc=Boolean
 |HasWornEffect=Boolean
 }}

@@ -9,4 +9,8 @@
 |HasDrops=Boolean
 |HasSpells=Boolean
 |MapSelector=String
+|CanNeverSeeInvis=Boolean
+|DPSDummy=Boolean
+|IsWyrm=Boolean
+|NoRun=Boolean
 }}</pre></noinclude>

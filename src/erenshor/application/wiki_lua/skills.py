@@ -60,6 +60,7 @@ _BOOL_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("procWeap", "proc_weap"),
     ("procShield", "proc_shield"),
     ("guaranteeProc", "guarantee_proc"),
+    ("skillCanCrit", "skill_can_crit"),
     ("automateAttack", "automate_attack"),
 )
 

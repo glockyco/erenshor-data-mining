@@ -32,6 +32,7 @@ SELECT
     proc_weap,
     proc_shield,
     guarantee_proc,
+    skill_can_crit,
     automate_attack,
     cast_on_target_stable_key,
     stance_to_use_stable_key,

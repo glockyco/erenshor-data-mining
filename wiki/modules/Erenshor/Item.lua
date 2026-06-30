@@ -763,6 +763,9 @@ local function cargoFields(item, pageTitle)
 		{ "SkillUseKey", item.skillUse },
 		{ "AuraKey", item.aura },
 		{ "Relic", item.relic },
+		{ "MustBeEquippedToClick", item.mustBeEquippedToClick },
+		{ "PlayerCannotSell", item.playerCannotSell },
+		{ "RareItem", item.rareItem },
 		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
 		{ "HasWornEffect", hasValue(item.wornEffect) },
 	}

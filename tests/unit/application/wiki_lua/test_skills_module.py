@@ -92,6 +92,7 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
                 "procWeap": False,
                 "procShield": False,
                 "guaranteeProc": False,
+                "skillCanCrit": False,
                 "automateAttack": True,
                 "castOnTargetStableKey": "spell:minor_lightning",
                 "skillAnimName": "BackstabAnim",
@@ -181,3 +182,10 @@ def test_writes_skills_module_to_data_module_path(tmp_path: Path) -> None:
 
     assert output_path == tmp_path / "Erenshor" / "Data" / "Skills.lua"
     assert output_path.read_text(encoding="utf-8").startswith("return {\n")
+
+
+def test_skill_lua_record_includes_skill_can_crit_with_nondefault_value() -> None:
+    skill = make_skill(skill_can_crit=1)
+    data = build_skills_data([skill], {})
+    record = data["skills"]["skill:double_attack"]
+    assert record["skillCanCrit"] is True

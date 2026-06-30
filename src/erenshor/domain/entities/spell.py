@@ -138,6 +138,11 @@ class Spell(BaseEntity):
     cannot_interrupt: int | None = Field(default=None, description="Casting cannot be interrupted (boolean)")
     jolt_spell: int | None = Field(default=None, description="Jolts/interrupts the target on resolve (boolean)")
     no_resonate: int | None = Field(default=None, description="Suppresses the resonate proc chain (boolean)")
+    armor_pen_percent: int | None = Field(default=None, description="Armor penetration percentage")
+    level_scaled_mana_restoration: float | None = Field(
+        default=None, description="Level-scaled mana restoration amount"
+    )
+    shapeshift_form: str | None = Field(default=None, description="Shapeshift form name")
 
     # Visual effects
     spell_charge_fx_index: int | None = Field(default=None, description="Charge VFX index")

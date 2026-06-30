@@ -327,3 +327,20 @@ def test_splits_item_records_across_semantic_type_shards() -> None:
     assert set(data["shards"]) == {"Armor", "Weapons"}
     assert list(data["shards"]["Armor"]) == ["item:armor"]
     assert list(data["shards"]["Weapons"]) == ["item:weapon"]
+
+
+def test_item_lua_record_includes_economy_flags_with_nondefault_values() -> None:
+    item = make_item(
+        must_be_equipped_to_click=1,
+        player_cannot_sell=1,
+        rare_item=1,
+    )
+    data = build_items_data(
+        items=[item],
+        stats_by_item={},
+        classes_by_item={},
+    )
+    record = data["shards"]["Weapons"]["item:sword_of_flames"]
+    assert record["mustBeEquippedToClick"] is True
+    assert record["playerCannotSell"] is True
+    assert record["rareItem"] is True

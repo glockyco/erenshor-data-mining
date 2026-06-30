@@ -44,6 +44,7 @@
 |RequireBow=Boolean
 |RequireShield=Boolean
 |RequireBehind=Boolean
+|SkillCanCrit=Boolean
 |StanceToUseKey=String
 |EffectToApplyKey=String
 |CastOnTargetKey=String

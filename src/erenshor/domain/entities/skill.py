@@ -79,6 +79,7 @@ class Skill(BaseEntity):
     proc_weap: int | None = Field(default=None, description="Proc weapon effects (boolean)")
     proc_shield: int | None = Field(default=None, description="Proc shield effects (boolean)")
     guarantee_proc: int | None = Field(default=None, description="Guaranteed proc (boolean)")
+    skill_can_crit: int | None = Field(default=None, description="Skill can crit (boolean)")
 
     # Automation
     automate_attack: int | None = Field(default=None, description="Start auto-attacking when used (boolean)")

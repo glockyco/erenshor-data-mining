@@ -111,4 +111,8 @@
 |HasDrops=Boolean
 |HasSpells=Boolean
 |MapSelector=String
+|CanNeverSeeInvis=Boolean
+|DPSDummy=Boolean
+|IsWyrm=Boolean
+|NoRun=Boolean
 }}{{#cargo_attach:_table=Drops}}{{Documentation}}</noinclude>

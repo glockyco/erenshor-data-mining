@@ -59,6 +59,10 @@ _CHARACTER_FIELD_MAP = (
     ("intelligence", "base_int"),
     ("wisdom", "base_wis"),
     ("charisma", "base_cha"),
+    ("canNeverSeeInvis", "can_never_see_invis"),
+    ("dpsDummy", "dps_dummy"),
+    ("isWyrm", "is_wyrm"),
+    ("noRun", "no_run"),
 )
 
 

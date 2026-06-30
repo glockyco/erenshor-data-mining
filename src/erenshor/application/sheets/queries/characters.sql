@@ -90,6 +90,10 @@ SELECT
      WHERE cask.character_stable_key = c.stable_key) AS attack_skill_stable_keys,
     -- Special Properties & Quest Integration
     c.invulnerable,
+    c.can_never_see_invis,
+    c.dps_dummy,
+    c.is_wyrm,
+    c.no_run,
     c.quest_complete_on_death AS quest_complete_on_death_stable_key,
     c.set_achievement_on_defeat,
     c.set_achievement_on_spawn,

@@ -27,6 +27,7 @@ _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("statusEffectStableKey", "status_effect_to_apply_stable_key"),
     ("statusEffectMessageOnPlayer", "status_effect_message_on_player"),
     ("statusEffectMessageOnNpc", "status_effect_message_on_npc"),
+    ("shapeshiftForm", "shapeshift_form"),
 )
 
 _NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
@@ -64,6 +65,8 @@ _NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("atkRollModifier", "atk_roll_modifier"),
     ("bleedDamagePercent", "bleed_damage_percent"),
     ("resonance", "resonate_chance"),
+    ("armorPenPercent", "armor_pen_percent"),
+    ("levelScaledManaRestoration", "level_scaled_mana_restoration"),
     ("xpBonus", "xp_bonus"),
 )
 

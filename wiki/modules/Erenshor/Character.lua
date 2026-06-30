@@ -486,6 +486,10 @@ local function cargoFields(character, pageTitle)
 		{ "HasDrops", character.hasDrops },
 		{ "HasSpells", character.hasSpells },
 		{ "MapSelector", character.mapSelector },
+		{ "CanNeverSeeInvis", character.canNeverSeeInvis },
+		{ "DPSDummy", character.dpsDummy },
+		{ "IsWyrm", character.isWyrm },
+		{ "NoRun", character.noRun },
 	}
 end
 

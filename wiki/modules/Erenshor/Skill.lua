@@ -419,6 +419,7 @@ local function cargoFields(skill, pageTitle)
 		{ "RequireBow", skill.requireBow },
 		{ "RequireShield", skill.requireShield },
 		{ "RequireBehind", skill.requireBehind },
+		{ "SkillCanCrit", skill.skillCanCrit },
 		{ "StanceToUseKey", skill.stanceStableKey },
 		{ "EffectToApplyKey", skill.effectStableKey },
 		{ "CastOnTargetKey", skill.castOnTargetStableKey },
