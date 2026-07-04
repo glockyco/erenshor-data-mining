@@ -75,7 +75,11 @@ public class LootTableProbabilityCalculator
             dropItemCounts.Add(dict);
         }
 
-        double[] baseProbs = new double[] { 0.33, 2.3, 4.7, 8.0, 55.0 }; // percentages (UltraRare, Legendary, Rare, Uncommon, Common)
+        // Incremental probabilities derived from the runtime cumulative thresholds in
+        // LootTable.InitLootTable(): <0.33 (UltraRare), <=2.3 (Legendary), <=7 (Rare),
+        // <=15 (Uncommon), <=70 (Common). Each tier fires only when the previous checks
+        // failed, so the per-tier probability is the difference between consecutive bounds.
+        double[] baseProbs = new double[] { 0.33, 1.97, 4.7, 8.0, 55.0 }; // (UltraRare, Legendary, Rare, Uncommon, Common)
         double[] effectiveProbs = new double[5];
         double carry = 0.0;
         int maxNonCommon = lootTable.MaxNonCommonDrops;
