@@ -29,17 +29,18 @@ public class GameConstantListener : IAssetScanListener<Object>
         AddConstant("ServerXPMod", GameData.ServerXPMod, "Server XP modifier");
         AddConstant("ServerDMGMod", GameData.ServerDMGMod, "Server damage modifier");
         AddConstant("ServerLootRate", GameData.ServerLootRate, "Server loot rate modifier");
+        AddConstant("LootBlessBonus", GameData.LootBlessBonus, "Bonus loot multiplier from Blessing Altar (runtime, default 0; set to 1 when BlessingTimer active)");
         AddConstant("RespawnTimeMod", GameData.RespawnTimeMod, "Respawn time modifier");
         AddConstant("RunSpeedMod", GameData.RunSpeedMod, "Run speed modifier");
 
         // Feature flags - presence/absence indicates new features
         AddConstant("XPLossOnDeath", GameData.XPLossOnDeath, "Whether XP is lost on death");
 
-        // Server settings that may vary
-        TryAddConstant("NPCFlee", () => GameData.NPCFlee, "Whether NPCs can flee");
-        TryAddConstant("Jail", () => GameData.Jail, "Whether jail mechanic is enabled");
-        TryAddConstant("ServerPop", () => GameData.ServerPop, "Server population setting");
-        TryAddConstant("XPLock", () => GameData.XPLock, "XP lock level (0 = disabled)");
+        // Server settings
+        AddConstant("NPCFlee", GameData.NPCFlee, "Whether NPCs can flee");
+        AddConstant("Jail", GameData.Jail, "Whether jail mechanic is enabled");
+        AddConstant("ServerPop", GameData.ServerPop, "Server population setting");
+        AddConstant("XPLock", GameData.XPLock, "XP lock level (0 = disabled)");
 
         Debug.Log($"[{GetType().Name}] Collected {_records.Count} constants");
     }
@@ -93,40 +94,4 @@ public class GameConstantListener : IAssetScanListener<Object>
         });
     }
 
-    /// <summary>
-    /// Try to add a constant that may not exist in all game variants.
-    /// Uses a delegate to handle fields that may not compile in older variants.
-    /// </summary>
-    private void TryAddConstant<T>(string key, System.Func<T> getter, string? description = null)
-    {
-        try
-        {
-            var value = getter();
-            switch (value)
-            {
-                case float f:
-                    AddConstant(key, f, description);
-                    break;
-                case int i:
-                    AddConstant(key, i, description);
-                    break;
-                case bool b:
-                    AddConstant(key, b, description);
-                    break;
-                default:
-                    _records.Add(new GameConstantRecord
-                    {
-                        Key = key,
-                        Value = value?.ToString() ?? "null",
-                        ValueType = typeof(T).Name.ToLowerInvariant(),
-                        Description = description
-                    });
-                    break;
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning($"[{GetType().Name}] Could not read {key}: {ex.Message}");
-        }
-    }
 }
