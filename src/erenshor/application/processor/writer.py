@@ -957,6 +957,13 @@ CREATE TABLE spawn_point_stop_quests (
     PRIMARY KEY (spawn_point_stable_key, quest_stable_key)
 );
 
+CREATE TABLE spawnpoint_essential_links (
+    source_spawn_point_stable_key      TEXT NOT NULL,
+    essential_spawn_point_stable_key   TEXT NOT NULL,
+    source_scene                       TEXT,
+    PRIMARY KEY (source_spawn_point_stable_key, essential_spawn_point_stable_key)
+);
+
 CREATE TABLE treasure_chest_possible_spawns (
     chest_character_stable_key  TEXT NOT NULL REFERENCES characters (stable_key),
     treasure_location_stable_key TEXT NOT NULL REFERENCES treasure_locations (stable_key),
@@ -1376,6 +1383,9 @@ class Writer:
 
     def insert_spawn_point_stop_quests(self, rows: list[dict[str, object]]) -> int:
         return self._insert("spawn_point_stop_quests", rows)
+
+    def insert_spawnpoint_essential_links(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("spawnpoint_essential_links", rows)
 
     def insert_loot_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("loot_drops", rows)

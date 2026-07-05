@@ -14,6 +14,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
     private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
+    private readonly List<SpawnPointEssentialLinkRecord> _spawnPointEssentialLinkRecords = new();
     private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointListener");
 
     // Spawn delay multipliers from GameManager.SpawnTimeMod (lines 209-224)
@@ -47,15 +48,19 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         // Create and insert junction table records after parent records are inserted
         _db.CreateTable<SpawnPointStopQuestRecord>();
         _db.CreateTable<SpawnPointPatrolPointRecord>();
+        _db.CreateTable<SpawnPointEssentialLinkRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<SpawnPointStopQuestRecord>();
             _db.DeleteAll<SpawnPointPatrolPointRecord>();
+            _db.DeleteAll<SpawnPointEssentialLinkRecord>();
             _db.InsertAll(_spawnPointStopQuestRecords);
             _db.InsertAll(_spawnPointPatrolPointRecords);
+            _db.InsertAll(_spawnPointEssentialLinkRecords);
         });
         _spawnPointStopQuestRecords.Clear();
         _spawnPointPatrolPointRecords.Clear();
+        _spawnPointEssentialLinkRecords.Clear();
     }
 
     public void OnAssetFound(SpawnPoint asset)
@@ -76,6 +81,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
         _spawnPointStopQuestRecords.AddRange(CreateSpawnPointStopQuestRecords(asset, stableKey));
         _spawnPointPatrolPointRecords.AddRange(CreateSpawnPointPatrolPointRecords(asset, stableKey));
+        _spawnPointEssentialLinkRecords.AddRange(CreateSpawnPointEssentialLinkRecords(asset, stableKey, scene));
     }
 
     private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, string stableKey, string scene, float x, float y, float z)
@@ -235,6 +241,44 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                         Z = patrolPoint.position.z
                     });
                 }
+            }
+        }
+
+        return records;
+    }
+
+    private List<SpawnPointEssentialLinkRecord> CreateSpawnPointEssentialLinkRecords(
+        SpawnPoint spawnPoint, string spawnPointStableKey, string scene)
+    {
+        var records = new List<SpawnPointEssentialLinkRecord>();
+
+        if (spawnPoint.EssentailSpawnPoints == null || spawnPoint.EssentailSpawnPoints.Count == 0)
+            return records;
+
+        var seenKeys = new HashSet<string>();
+
+        foreach (var essential in spawnPoint.EssentailSpawnPoints)
+        {
+            if (essential == null)
+                continue;
+
+            // Resolve the essential spawn point to its stable key using the same
+            // scene+position convention as the source spawn point.
+            var essentialScene = essential.gameObject.scene.name;
+            var essentialKey = StableKeyGenerator.ForSpawnPoint(
+                essentialScene,
+                essential.transform.position.x,
+                essential.transform.position.y,
+                essential.transform.position.z);
+
+            if (seenKeys.Add(essentialKey))
+            {
+                records.Add(new SpawnPointEssentialLinkRecord
+                {
+                    SourceSpawnPointStableKey = spawnPointStableKey,
+                    EssentialSpawnPointStableKey = essentialKey,
+                    SourceScene = scene,
+                });
             }
         }
 
