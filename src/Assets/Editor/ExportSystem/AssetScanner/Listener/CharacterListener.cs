@@ -435,9 +435,13 @@ public class CharacterListener : IAssetScanListener<Character>
     {
         int effectiveHp = Mathf.RoundToInt((float)baseHp * GameData.ServerHPMod);
         effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.HPScale);
-        if (level <= 36)
+        if (level <= 36 && level > 7)
         {
             effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.Under35HPScale);
+        }
+        else if (level <= 7)
+        {
+            effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.Under8HPScale);
         }
         if (effectiveHp <= 0)
         {
@@ -651,7 +655,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
 
                 // Calculate effective HP using NPC.ApplyBalanceAdjustments() semantics:
-                // stepwise ServerHPMod -> HPScale -> Under35HPScale rounding, then clamp.
+                // stepwise ServerHPMod -> HPScale -> Under35HPScale (Level 8-36) or Under8HPScale (Level <= 7) rounding, then clamp.
                 record.EffectiveHP = CalculateNpcEffectiveHP(stats.BaseHP, stats.Level);
 
                 // Calculate effective attack ability for NPCs
