@@ -2,7 +2,7 @@
 |title=Green Pteriaped Feather
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Pteriaped Chick]] (35.2%)<br>[[Pteriaped Matron]] (35.2%)
+|source=[[Pteriaped Chick]] (35.0%)<br>[[Pteriaped Matron]] (35.0%)
 |othersource=
 |questsource=
 |relatedquest=

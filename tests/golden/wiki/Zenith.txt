@@ -4,7 +4,7 @@
 |imagecaption=
 |type=Boss
 |faction=[[The Followers of Evil]]
-|factionChange=-15 [[The Solunarian Brotherhood]]
+|factionChange=
 |zones=[[Soluna's Celestial Plane]]
 |coordinates=94.5 x 338.1 x 920.4
 |spawnchance=

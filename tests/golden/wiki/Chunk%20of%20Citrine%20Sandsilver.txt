@@ -2,7 +2,7 @@
 |title=Chunk of Citrine Sandsilver
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Candlekeeper]] (40.4%)<br>[[Evadne the Corrupted]] (29.2%)
+|source=[[Candlekeeper]] (40.2%)<br>[[Evadne the Corrupted]] (29.1%)
 |othersource=[[Mining]]
 |questsource=
 |relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}

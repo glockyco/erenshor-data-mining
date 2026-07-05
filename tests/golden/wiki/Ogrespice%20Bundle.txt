@@ -2,7 +2,7 @@
 |title=Ogrespice Bundle
 |type=
 |vendorsource=
-|source=[[Agsha of the Soil]] (66.7%)<br>[[Druo the Reborn]] (27.5%)<br>[[A Grassland Ogre Mystic]] (2.4%)<br>[[A Grassland Ogre Shaman]] (2.4%)
+|source=[[Agsha of the Soil]] (66.7%)<br>[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Mystic]] (2.1%)<br>[[A Grassland Ogre Shaman]] (2.1%)
 |othersource=
 |questsource=
 |relatedquest=

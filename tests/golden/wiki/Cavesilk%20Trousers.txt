@@ -2,7 +2,7 @@
 |title=Cavesilk Trousers
 |type=
 |vendorsource=
-|source=[[Slumbering Queen]] (52.3%)
+|source=[[Slumbering Queen]] (52.2%)
 |othersource=
 |questsource=
 |relatedquest=

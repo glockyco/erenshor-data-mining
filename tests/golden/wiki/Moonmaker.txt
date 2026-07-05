@@ -2,7 +2,7 @@
 |title=Moonmaker
 |type=
 |vendorsource=
-|source=[[Solunarian Moonkeeper]] (7.6%)
+|source=[[Solunarian Moonkeeper]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

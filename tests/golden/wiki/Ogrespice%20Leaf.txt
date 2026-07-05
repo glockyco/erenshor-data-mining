@@ -2,7 +2,7 @@
 |title=Ogrespice Leaf
 |type=[[Quest Items|Quest Item]]<br>[[Crafting]]<br>[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[A Grassland Ogre Bruiser]] (19.6%)<br>[[A Grassland Ogre Mystic]] (14.2%)<br>[[A Grassland Ogre Sentinel]] (13.6%)<br>[[A Grassland Ogre Shaman]] (9.8%)<br>[[Wild Ogre]] (4.5%)<br>[[Obba of the Warkind]] (3.8%)<br>[[Sivakayan Devoted]] (2.1%)<br>[[Sivakayan Faithbound]] (2.1%)
+|source=[[A Grassland Ogre Bruiser]] (19.3%)<br>[[A Grassland Ogre Mystic]] (13.9%)<br>[[A Grassland Ogre Sentinel]] (13.2%)<br>[[A Grassland Ogre Shaman]] (9.5%)<br>[[Wild Ogre]] (4.3%)<br>[[Obba of the Warkind]] (3.4%)<br>[[Sivakayan Devoted]] (2.1%)<br>[[Sivakayan Faithbound]] (2.1%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=Ogre Spice for Valrae}}<br>{{QuestLink|Ogre Spice for Valrae}}

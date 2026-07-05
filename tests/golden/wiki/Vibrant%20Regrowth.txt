@@ -80,7 +80,7 @@
 |type=Beneficial
 |line=Healing
 |classes=
-|required_level=18
+|required_level=35
 |manacost=65
 |aggro=
 |is_taunt=
@@ -90,7 +90,7 @@
 |duration_in_ticks=7
 |has_unstable_duration=
 |is_instant_effect=True
-|is_reap_and_renew=
+|is_reap_and_renew=True
 |is_sim_usable=
 |range=
 |max_level_target=

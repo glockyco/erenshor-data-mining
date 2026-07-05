@@ -2,7 +2,7 @@
 |title=Stone Statue: Brax
 |type=
 |vendorsource=
-|source=[[Prince Oslind]] (1.6%)<br>[[Prince Ardant]] (1.6%)<br>[[Braxonian Honor Guard]] (0.7%)<br>[[Braxonian High Guard]] (0.6%)
+|source=[[Prince Oslind]] (1.4%)<br>[[Prince Ardant]] (1.4%)<br>[[Braxonian Honor Guard]] (0.6%)<br>[[Braxonian High Guard]] (0.5%)
 |othersource=
 |questsource=
 |relatedquest=

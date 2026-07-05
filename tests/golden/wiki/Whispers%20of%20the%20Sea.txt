@@ -2,7 +2,7 @@
 |title=Whispers of the Sea
 |type=[[Crafting]]
 |vendorsource=
-|source=[[A Seafiend]] (10.0%)<br>[[A Seafiend Manalord]] (10.0%)<br>[[A Seafiend Manathite]] (10.0%)<br>[[A Seafiend Worker]] (10.0%)<br>[[A Seafiend]] (5.1%)
+|source=[[A Seafiend]] (8.8%)<br>[[A Seafiend Manalord]] (8.8%)<br>[[A Seafiend Manathite]] (8.8%)<br>[[A Seafiend Worker]] (8.8%)<br>[[A Seafiend]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

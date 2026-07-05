@@ -2,7 +2,7 @@
 |title=Spell Scroll: Major Lightning
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Priel Gifted]] (2.4%)<br>[[Priel Grimwatch]] (2.4%)
+|source=[[Priel Gifted]] (2.1%)<br>[[Priel Grimwatch]] (2.1%)
 |othersource=
 |questsource=
 |relatedquest=

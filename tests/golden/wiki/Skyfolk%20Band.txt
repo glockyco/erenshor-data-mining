@@ -2,7 +2,7 @@
 |title=Skyfolk Band
 |type=
 |vendorsource=
-|source=[[Winkles]] (51.0%)<br>[[A Faerie Enchantress]] (2.0%)<br>[[A Faerie Foliagian]] (2.0%)<br>[[A Faerie Windchild]] (2.0%)
+|source=[[Winkles]] (50.9%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)
 |othersource=
 |questsource=
 |relatedquest=

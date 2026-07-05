@@ -2,7 +2,7 @@
 |title=King's Gambit
 |type=
 |vendorsource=
-|source=[[Chunk of Amarion]] (41.1%)
+|source=[[Chunk of Amarion]] (40.8%)
 |othersource=
 |questsource=
 |relatedquest=

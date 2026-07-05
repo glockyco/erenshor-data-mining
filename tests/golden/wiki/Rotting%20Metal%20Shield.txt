@@ -2,7 +2,7 @@
 |title=Rotting Metal Shield
 |type=
 |vendorsource=
-|source=[[A Skeleton Captain]] (9.7%)
+|source=[[A Skeleton Captain]] (9.4%)
 |othersource=
 |questsource=
 |relatedquest=

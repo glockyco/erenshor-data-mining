@@ -2,7 +2,7 @@
 |title=Spell Scroll: Minor Regen
 |type=
 |vendorsource=
-|source=[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)
+|source=[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

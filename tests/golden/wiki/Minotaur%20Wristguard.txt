@@ -2,7 +2,7 @@
 |title=Minotaur Wristguard
 |type=
 |vendorsource=
-|source=[[Planar Minotaur]] (4.9%)
+|source=[[Planar Minotaur]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

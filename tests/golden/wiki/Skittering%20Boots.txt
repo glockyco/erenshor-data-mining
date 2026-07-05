@@ -2,7 +2,7 @@
 |title=Skittering Boots
 |type=
 |vendorsource=
-|source=[[Xjeris]] (69.0%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|source=[[Xjeris]] (68.9%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

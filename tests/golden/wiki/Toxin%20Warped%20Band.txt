@@ -2,7 +2,7 @@
 |title=Toxin Warped Band
 |type=
 |vendorsource=
-|source=[[King Cobra]] (15.3%)
+|source=[[King Cobra]] (15.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Shielded Ring
 |type=
 |vendorsource=
-|source=[[Acolyte]] (6.7%)
+|source=[[Acolyte]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Thorned Branch
 |type=
 |vendorsource=
-|source=[[Elder Guardian]] (1.6%)
+|source=[[Elder Guardian]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

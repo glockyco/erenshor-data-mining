@@ -2,7 +2,7 @@
 |title=Nightfall
 |type=
 |vendorsource=
-|source=[[A Skeleton Captain]] (9.7%)<br>[[Wiggleribs]] (6.8%)
+|source=[[A Skeleton Captain]] (9.4%)<br>[[Wiggleribs]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

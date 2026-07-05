@@ -2,7 +2,7 @@
 |title=Unholy Bonesaw
 |type=
 |vendorsource=
-|source=[[Headless]] (6.7%)
+|source=[[Headless]] (5.9%)
 |othersource=
 |questsource=
 |relatedquest=

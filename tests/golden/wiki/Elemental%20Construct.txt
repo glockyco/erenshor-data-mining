@@ -4,7 +4,7 @@
 |imagecaption=
 |type=Boss
 |faction=[[The Followers of Evil]]
-|factionChange=-100 [[Fernalla's Children]]
+|factionChange=
 |zones=[[Brax's Plane of Elements]]
 |coordinates=2560.6 x 74.2 x 403.8
 |spawnchance=1%

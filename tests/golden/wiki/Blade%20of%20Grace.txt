@@ -2,7 +2,7 @@
 |title=Blade of Grace
 |type=
 |vendorsource=
-|source=[[Animation of Grace]] (69.0%)<br>[[Soluna]] (5.8%)
+|source=[[Animation of Grace]] (68.9%)<br>[[Soluna]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

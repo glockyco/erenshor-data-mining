@@ -2,7 +2,7 @@
 |title=Satin Cloak
 |type=
 |vendorsource=
-|source=[[Zashlyn Bloodbane]] (5.8%)
+|source=[[Zashlyn Bloodbane]] (5.6%)
 |othersource=
 |questsource=
 |relatedquest=

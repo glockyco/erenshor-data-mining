@@ -2,7 +2,7 @@
 |title=Fungus Covered Tunic
 |type=
 |vendorsource=
-|source=[[Devoratrix]] (6.7%)<br>[[Planar Flora]] (6.7%)<br>[[Diva]] (4.4%)
+|source=[[Devoratrix]] (5.8%)<br>[[Planar Flora]] (5.8%)<br>[[Diva]] (3.8%)
 |othersource=
 |questsource=
 |relatedquest=

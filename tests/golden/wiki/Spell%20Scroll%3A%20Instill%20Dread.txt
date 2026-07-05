@@ -2,7 +2,7 @@
 |title=Spell Scroll: Instill Dread
 |type=
 |vendorsource=
-|source=[[Darkwarden Awxa]] (6.8%)<br>[[Darkwarden Ealdred]] (6.8%)
+|source=[[Darkwarden Awxa]] (6.9%)<br>[[Darkwarden Ealdred]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Sivakayan Shield
 |type=
 |vendorsource=
-|source=[[Gherist Morthario]] (26.9%)<br>[[Reaver of Sivakaya]] (1.7%)<br>[[Assassin of Sivakaya]] (1.4%)<br>[[Grand Arcanist of Sivakaya]] (1.4%)<br>[[High Paladin of Sivakaya]] (1.4%)<br>[[High Priestess of Sivakaya]] (1.4%)<br>[[Sivakayan Bodyguard]] (1.4%)<br>[[Sivakayan Cleric]] (1.4%)<br>[[Sivakayan Templar]] (1.4%)
+|source=[[Gherist Morthario]] (26.9%)<br>[[Reaver of Sivakaya]] (1.5%)<br>[[Assassin of Sivakaya]] (1.2%)<br>[[Grand Arcanist of Sivakaya]] (1.2%)<br>[[High Paladin of Sivakaya]] (1.2%)<br>[[High Priestess of Sivakaya]] (1.2%)<br>[[Sivakayan Bodyguard]] (1.2%)<br>[[Sivakayan Cleric]] (1.2%)<br>[[Sivakayan Templar]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest=

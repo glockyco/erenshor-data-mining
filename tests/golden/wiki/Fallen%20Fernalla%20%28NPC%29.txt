@@ -17,7 +17,7 @@ For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=3.0
-|health=50700
+|health=73938
 |mana=300
 |ac=420
 |strength=800

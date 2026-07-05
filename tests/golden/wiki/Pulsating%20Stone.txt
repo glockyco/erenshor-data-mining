@@ -2,7 +2,7 @@
 |title=Pulsating Stone
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Stone Hound]] (86.5%)<br>[[Mosscovered Stoneman]] (43.4%)<br>[[Diamond Colossus]] (15.7%)<br>[[Stoneman Seeker]] (5.2%)<br>[[Wishlan the Savior]] (5.2%)
+|source=[[Stone Hound]] (86.3%)<br>[[Mosscovered Stoneman]] (43.4%)<br>[[Diamond Colossus]] (15.7%)<br>[[Stoneman Seeker]] (4.5%)<br>[[Wishlan the Savior]] (4.5%)
 |othersource=
 |questsource=
 |relatedquest=

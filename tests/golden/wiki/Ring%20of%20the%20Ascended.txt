@@ -2,7 +2,7 @@
 |title=Ring of the Ascended
 |type=
 |vendorsource=
-|source=[[Apparition of Vitheo]] (35.1%)
+|source=[[Apparition of Vitheo]] (34.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Resonating Brace
 |type=
 |vendorsource=
-|source=[[Assassin of Sivakaya]] (6.5%)<br>[[Grand Arcanist of Sivakaya]] (6.5%)<br>[[High Paladin of Sivakaya]] (6.5%)<br>[[High Priestess of Sivakaya]] (6.5%)<br>[[Bowmistress of Sivakaya]] (5.4%)
+|source=[[Assassin of Sivakaya]] (6.5%)<br>[[Grand Arcanist of Sivakaya]] (6.5%)<br>[[High Paladin of Sivakaya]] (6.5%)<br>[[High Priestess of Sivakaya]] (6.5%)<br>[[Bowmistress of Sivakaya]] (5.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Abyssal Plate
 |type=
 |vendorsource=
-|source=[[Sivakayan Voidmaster]] (4.5%)
+|source=[[Sivakayan Voidmaster]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

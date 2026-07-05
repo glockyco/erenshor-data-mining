@@ -2,7 +2,7 @@
 |title=Celestial Spike
 |type=
 |vendorsource=
-|source=[[Stardust]] (4.9%)
+|source=[[Stardust]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

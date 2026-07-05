@@ -2,7 +2,7 @@
 |title=Amber's Gift
 |type=[[Auras]]
 |vendorsource=
-|source=[[Beady]] (25.0%)<br>[[Nipper Lashfist]] (5.1%)<br>[[Nipper Manatooth]] (5.1%)
+|source=[[Beady]] (25.0%)<br>[[Nipper Lashfist]] (4.4%)<br>[[Nipper Manatooth]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

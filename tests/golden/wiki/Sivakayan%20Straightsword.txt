@@ -2,7 +2,7 @@
 |title=Sivakayan Straightsword
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Gherist Morthario]] (28.4%)<br>[[Sivakayan Raider]] (2.7%)<br>[[Darkwarden Awxa]] (1.4%)<br>[[Darkwarden Ealdred]] (1.4%)<br>[[Darkwarden Ilyth]] (1.4%)<br>[[Sivakayan Legionnaire]] (1.4%)<br>[[Sivakayan Reaver]] (1.4%)<br>[[Sivakayan Spymaster]] (1.4%)<br>[[Sivakayan Unhallowed]] (1.4%)
+|source=[[Gherist Morthario]] (28.2%)<br>[[Sivakayan Raider]] (2.4%)<br>[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Disarming the Sivakayans}}

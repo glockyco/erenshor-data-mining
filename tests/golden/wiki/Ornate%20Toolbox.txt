@@ -2,7 +2,7 @@
 |title=Ornate Toolbox
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Highwayman Raider]] (8.3%)
+|source=[[A Highwayman Raider]] (7.3%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink | link=A Hermit's Request}}<br>{{QuestLink|A Hermit's Request}}

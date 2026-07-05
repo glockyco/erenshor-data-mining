@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=22620
+|health=32988
 |mana=1000
 |ac=435
 |strength=500
@@ -51,7 +51,7 @@ If a spectre is holding a sword, it will drop a [[Spectral Sword]]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=44460
+|health=64838
 |mana=1000
 |ac=435
 |strength=500

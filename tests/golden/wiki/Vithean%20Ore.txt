@@ -2,7 +2,7 @@
 |title=Vithean Ore
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Vithean Elemental]] (20.4%)
+|source=[[Vithean Elemental]] (19.6%)
 |othersource=
 |questsource=
 |relatedquest=

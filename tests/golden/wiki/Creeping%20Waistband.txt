@@ -2,7 +2,7 @@
 |title=Creeping Waistband
 |type=
 |vendorsource=
-|source=[[Jinx]] (69.0%)
+|source=[[Jinx]] (68.9%)
 |othersource=
 |questsource=
 |relatedquest=

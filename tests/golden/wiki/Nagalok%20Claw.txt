@@ -2,7 +2,7 @@
 |title=Nagalok Claw
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[An Immature Nagalok]] (10.6%)<br>[[Occuphage, Eater of Eyes]] (10.6%)<br>[[Spike]] (10.6%)<br>[[A Nagalok]] (6.8%)
+|source=[[An Immature Nagalok]] (10.1%)<br>[[Occuphage, Eater of Eyes]] (10.1%)<br>[[Spike]] (10.1%)<br>[[A Nagalok]] (6.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Annaleigh's Nagalok Claws}}

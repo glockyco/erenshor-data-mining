@@ -2,7 +2,7 @@
 |title=Slime Coated Helm
 |type=
 |vendorsource=
-|source=[[A Subterranean Goop]] (7.6%)<br>[[A Subterranean Magmite]] (7.6%)<br>[[Gloopa|Gloopa (Quarter)]] (4.9%)
+|source=[[A Subterranean Goop]] (6.7%)<br>[[A Subterranean Magmite]] (6.7%)<br>[[Gloopa|Gloopa (Quarter)]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

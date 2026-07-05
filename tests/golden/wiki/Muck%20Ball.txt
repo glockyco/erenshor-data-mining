@@ -2,7 +2,7 @@
 |title=Muck Ball
 |type=[[Consumables|Consumable]]
 |vendorsource=
-|source=[[Lurk]] (20.4%)<br>[[Rotbelly Croc]] (13.5%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|source=[[Lurk]] (19.6%)<br>[[Rotbelly Croc]] (12.9%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
 |othersource=
 |questsource=
 |relatedquest=

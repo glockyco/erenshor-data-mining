@@ -2,7 +2,7 @@
 |title=Ceremonial Gloves
 |type=
 |vendorsource=
-|source=[[Failed Cremation]] (48.6%)
+|source=[[Failed Cremation]] (48.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Protector's Bracer
 |type=
 |vendorsource=
-|source=[[Warded Shadow]] (38.1%)
+|source=[[Warded Shadow]] (37.9%)
 |othersource=
 |questsource=
 |relatedquest=

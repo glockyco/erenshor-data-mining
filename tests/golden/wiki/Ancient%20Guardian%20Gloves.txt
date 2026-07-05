@@ -2,7 +2,7 @@
 |title=Ancient Guardian Gloves
 |type=
 |vendorsource=
-|source=[[Worn Ancient Guardian]] (1.6%)
+|source=[[Worn Ancient Guardian]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

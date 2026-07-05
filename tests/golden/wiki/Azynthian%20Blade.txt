@@ -2,7 +2,7 @@
 |title=Azynthian Blade
 |type=
 |vendorsource=
-|source=[[Molorai Curator]] (6.7%)
+|source=[[Molorai Curator]] (5.9%)
 |othersource=
 |questsource=
 |relatedquest=

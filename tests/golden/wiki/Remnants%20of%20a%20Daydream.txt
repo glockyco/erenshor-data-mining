@@ -2,7 +2,7 @@
 |title=Remnants of a Daydream
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[Restless Thoughts]] (78.9%)<br>[[Invader of Dreams]] (27.3%)<br>[[Nightmarian Hound]] (19.6%)<br>[[Nightmarian Arcanist]] (17.8%)<br>[[Nightmarian Knight]] (11.7%)<br>[[Lullaby Fiend]] (5.2%)<br>[[Night Terror]] (5.2%)<br>[[Waking Nightmare]] (5.2%)
+|source=[[Restless Thoughts]] (78.7%)<br>[[Invader of Dreams]] (26.8%)<br>[[Nightmarian Hound]] (19.3%)<br>[[Nightmarian Arcanist]] (17.8%)<br>[[Nightmarian Knight]] (11.8%)<br>[[Lullaby Fiend]] (4.5%)<br>[[Night Terror]] (4.5%)<br>[[Waking Nightmare]] (4.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Revival Plains Ritual}}

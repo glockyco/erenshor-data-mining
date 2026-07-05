@@ -2,7 +2,7 @@
 |title=Blight Crystals
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Blight Demon]] (21.2%)<br>[[Blighted Jackal]] (14.5%)<br>[[Sentinel]] (14.2%)<br>[[Shiverman]] (12.9%)<br>[[Blighted Priest]] (11.5%)<br>[[Doomwalker]] (11.5%)<br>[[Fenton the Blighted]] (11.5%)<br>[[Harbinger of Corruption]] (11.5%)<br>[[Lurker]] (11.5%)<br>[[Noctua]] (11.5%)<br>[[Obsidian Horror]] (11.5%)<br>[[Parzgil]] (11.5%)
+|source=[[Blight Demon]] (20.8%)<br>[[Blighted Jackal]] (14.2%)<br>[[Sentinel]] (13.9%)<br>[[Shiverman]] (12.9%)<br>[[Blighted Priest]] (11.5%)<br>[[Doomwalker]] (11.5%)<br>[[Fenton the Blighted]] (11.5%)<br>[[Harbinger of Corruption]] (11.5%)<br>[[Lurker]] (11.5%)<br>[[Noctua]] (11.5%)<br>[[Obsidian Horror]] (11.5%)<br>[[Parzgil]] (11.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Dark Flame}}

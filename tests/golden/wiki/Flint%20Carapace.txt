@@ -2,7 +2,7 @@
 |title=Flint Carapace
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Spark Beetle]] (11.7%)<br>[[Spark Soldier]] (11.7%)
+|source=[[Spark Beetle]] (11.8%)<br>[[Spark Soldier]] (11.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Bronzed Solunarian Plate
 |type=
 |vendorsource=[[Akaran Black]]
-|source=[[Tinkles]] (23.9%)
+|source=[[Tinkles]] (23.7%)
 |othersource=
 |questsource=
 |relatedquest=

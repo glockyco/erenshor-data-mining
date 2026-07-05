@@ -2,7 +2,7 @@
 |title=Ripparian Greaves
 |type=
 |vendorsource=
-|source=[[Armorer Nell]] (3.4%)<br>[[Captain Ovid]] (3.4%)<br>[[Celeso the Historian]] (3.4%)<br>[[Hector Yvey]] (3.4%)<br>[[Jeremie Galyard]] (3.4%)<br>[[Mavik Estonia]] (3.4%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (3.4%)<br>[[Ripper Soldier]] (2.2%)
+|source=[[Armorer Nell]] (3.0%)<br>[[Captain Ovid]] (3.0%)<br>[[Celeso the Historian]] (3.0%)<br>[[Hector Yvey]] (3.0%)<br>[[Jeremie Galyard]] (3.0%)<br>[[Mavik Estonia]] (3.0%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (3.0%)<br>[[Ripper Soldier]] (2.0%)
 |othersource=
 |questsource=
 |relatedquest=

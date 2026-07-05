@@ -2,7 +2,7 @@
 |title=Pyrelink Pantaloons
 |type=
 |vendorsource=
-|source=[[Evadne the Corrupted]] (29.2%)
+|source=[[Evadne the Corrupted]] (29.1%)
 |othersource=
 |questsource=
 |relatedquest=

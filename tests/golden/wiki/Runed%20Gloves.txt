@@ -2,7 +2,7 @@
 |title=Runed Gloves
 |type=
 |vendorsource=
-|source=[[A Deepling Crimsonite]] (2.6%)<br>[[A Deepling Lunarite]] (2.6%)<br>[[A Deepling Verdite]] (2.6%)<br>[[A Deepling Orator]] (1.8%)
+|source=[[A Deepling Crimsonite]] (2.3%)<br>[[A Deepling Lunarite]] (2.3%)<br>[[A Deepling Verdite]] (2.3%)<br>[[A Deepling Orator]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest=

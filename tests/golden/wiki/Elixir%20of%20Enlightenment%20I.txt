@@ -2,7 +2,7 @@
 |title=Elixir of Enlightenment I
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Elysia Thistlewick]]<br>[[Summoned: Pocket Vendor]]
-|source=[[Lost Treasure (1-10)]] (81.3%)<br>[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (65.2%)<br>[[Lost Treasure (30+)]] (56.6%)<br>[[Cloaked Shadow]] (2.6%)
+|source=[[Lost Treasure (1-10)]] (81.3%)<br>[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (65.2%)<br>[[Lost Treasure (30+)]] (56.6%)<br>[[Cloaked Shadow]] (2.3%)
 |othersource=
 |questsource=
 |relatedquest=

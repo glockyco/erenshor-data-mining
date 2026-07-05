@@ -2,7 +2,7 @@
 |title=Spidersmasher
 |type=
 |vendorsource=
-|source=[[Battlefist]] (33.3%)<br>[[Obba of the Warkind]] (3.8%)<br>[[A Grassland Ogre Bruiser]] (3.4%)<br>[[A Grassland Ogre Sentinel]] (3.4%)
+|source=[[Battlefist]] (33.3%)<br>[[Obba of the Warkind]] (3.4%)<br>[[A Grassland Ogre Bruiser]] (3.0%)<br>[[A Grassland Ogre Sentinel]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

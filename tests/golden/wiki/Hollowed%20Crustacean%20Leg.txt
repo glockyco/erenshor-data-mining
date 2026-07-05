@@ -2,7 +2,7 @@
 |title=Hollowed Crustacean Leg
 |type=
 |vendorsource=
-|source=[[Old Brackey]] (70.1%)
+|source=[[Old Brackey]] (69.9%)
 |othersource=
 |questsource=
 |relatedquest=

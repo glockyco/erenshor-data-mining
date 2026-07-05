@@ -2,7 +2,7 @@
 |title=Pendant of Petrified Wood
 |type=[[Crafting]]
 |vendorsource=
-|source=[[A Grassland Ogre Plaguebringer]] (1.3%)
+|source=[[A Grassland Ogre Plaguebringer]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

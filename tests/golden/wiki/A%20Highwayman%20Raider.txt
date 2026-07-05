@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=7800
+|health=11375
 |mana=0
 |ac=195
 |strength=55
@@ -49,7 +49,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=6240
+|health=9100
 |mana=0
 |ac=195
 |strength=255
@@ -83,7 +83,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=7800
+|health=11375
 |mana=0
 |ac=195
 |strength=4

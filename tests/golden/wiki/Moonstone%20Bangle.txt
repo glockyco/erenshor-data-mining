@@ -2,7 +2,7 @@
 |title=Moonstone Bangle
 |type=
 |vendorsource=
-|source=[[Celestial Matter]] (7.7%)
+|source=[[Celestial Matter]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

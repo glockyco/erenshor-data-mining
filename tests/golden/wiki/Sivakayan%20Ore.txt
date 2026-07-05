@@ -2,7 +2,7 @@
 |title=Sivakayan Ore
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[Candlekeeper]] (40.4%)<br>[[Darkwarden Awxa]] (12.1%)<br>[[Darkwarden Ealdred]] (12.1%)<br>[[Darkwarden Ilyth]] (12.1%)<br>[[Sivakayan Bodyguard]] (12.1%)<br>[[Sivakayan Cleric]] (12.1%)<br>[[Sivakayan Legionnaire]] (12.1%)<br>[[Sivakayan Raider]] (12.1%)<br>[[Sivakayan Spymaster]] (12.1%)<br>[[Sivakayan Templar]] (12.1%)<br>[[Sivakayan Unhallowed]] (12.1%)<br>[[Sivakayan Reaver]] (3.0%)
+|source=[[Candlekeeper]] (40.2%)<br>[[Darkwarden Awxa]] (12.1%)<br>[[Darkwarden Ealdred]] (12.1%)<br>[[Darkwarden Ilyth]] (12.1%)<br>[[Sivakayan Bodyguard]] (12.1%)<br>[[Sivakayan Cleric]] (12.1%)<br>[[Sivakayan Legionnaire]] (12.1%)<br>[[Sivakayan Raider]] (12.1%)<br>[[Sivakayan Spymaster]] (12.1%)<br>[[Sivakayan Templar]] (12.1%)<br>[[Sivakayan Unhallowed]] (12.1%)<br>[[Sivakayan Reaver]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Sivakayan Ore for Tipp}}

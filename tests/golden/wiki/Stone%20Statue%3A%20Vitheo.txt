@@ -2,7 +2,7 @@
 |title=Stone Statue: Vitheo
 |type=
 |vendorsource=
-|source=[[Vithean Betrayer]] (2.0%)<br>[[Vithean Immortal]] (0.9%)
+|source=[[Vithean Betrayer]] (1.7%)<br>[[Vithean Immortal]] (0.8%)
 |othersource=
 |questsource=
 |relatedquest=

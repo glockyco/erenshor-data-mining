@@ -2,7 +2,7 @@
 |title=Collar of the Huntress
 |type=
 |vendorsource=
-|source=[[Dire Huntress]] (28.3%)
+|source=[[Dire Huntress]] (27.8%)
 |othersource=
 |questsource=
 |relatedquest=

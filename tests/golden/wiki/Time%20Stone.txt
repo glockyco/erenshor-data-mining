@@ -2,7 +2,7 @@
 |title=Time Stone
 |type=[[Consumables|Consumable]]
 |vendorsource=
-|source=[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (68.1%)<br>[[Lost Treasure (30+)]] (65.3%)<br>[[Braxonian Fossil]] (15.8%)<br>[[Lost Treasure (1-10)]] (11.6%)
+|source=[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (68.1%)<br>[[Lost Treasure (30+)]] (65.5%)<br>[[Braxonian Fossil]] (15.8%)<br>[[Lost Treasure (1-10)]] (11.7%)
 |othersource=
 |questsource=
 |relatedquest=

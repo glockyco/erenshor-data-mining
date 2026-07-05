@@ -2,7 +2,7 @@
 |title=Nature's Will
 |type=
 |vendorsource=
-|source=[[Fallen Fernalla]] (35.6%)<br>[[Fallen Fernalla]] (27.5%)
+|source=[[Fallen Fernalla]] (35.5%)<br>[[Fallen Fernalla]] (27.4%)
 |othersource=
 |questsource=
 |relatedquest=

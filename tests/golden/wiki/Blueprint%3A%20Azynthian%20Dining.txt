@@ -2,7 +2,7 @@
 |title=Blueprint: Azynthian Dining
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Molorai Dockmaster]] (1.0%)<br>[[Molorai Acquirer]] (0.3%)<br>[[Molorai Ancille]] (0.3%)<br>[[Molorai Anointed]] (0.3%)<br>[[Molorai Bloodwarden]] (0.3%)<br>[[Molorai Eldermistress]] (0.3%)<br>[[Molorai Nightmistress]] (0.3%)<br>[[Molorai Outrider]] (0.3%)<br>[[Molorai Truthseeker]] (0.3%)
+|source=[[Molorai Dockmaster]] (0.8%)<br>[[Molorai Acquirer]] (0.3%)<br>[[Molorai Ancille]] (0.3%)<br>[[Molorai Anointed]] (0.3%)<br>[[Molorai Bloodwarden]] (0.3%)<br>[[Molorai Eldermistress]] (0.3%)<br>[[Molorai Nightmistress]] (0.3%)<br>[[Molorai Outrider]] (0.3%)<br>[[Molorai Truthseeker]] (0.3%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Crafting: Azynthian Dining Room}}

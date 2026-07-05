@@ -2,7 +2,7 @@
 |title=Ogre Tooth Club
 |type=
 |vendorsource=
-|source=[[A Grassland Ogre Elder]] (10.1%)<br>[[A Grassland Ogre Chieftan]] (9.4%)
+|source=[[A Grassland Ogre Chieftan]] (9.0%)<br>[[A Grassland Ogre Elder]] (8.9%)
 |othersource=
 |questsource=
 |relatedquest=

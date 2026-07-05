@@ -2,7 +2,7 @@
 |title=Rusty Dagger
 |type=
 |vendorsource=[[Brian Meshley]]
-|source=[[Algaeth Bilgeback]] (26.1%)<br>[[A Seafiend]] (17.3%)<br>[[A Seafiend Manalord]] (17.3%)<br>[[A Seafiend Manathite]] (17.3%)<br>[[A Seafiend Worker]] (17.3%)<br>[[Mourning]] (10.1%)<br>[[Molorai Bodyguard]] (5.4%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)
+|source=[[Algaeth Bilgeback]] (25.0%)<br>[[A Seafiend]] (17.3%)<br>[[A Seafiend Manalord]] (17.3%)<br>[[A Seafiend Manathite]] (17.3%)<br>[[A Seafiend Worker]] (17.3%)<br>[[Mourning]] (10.1%)<br>[[Molorai Bodyguard]] (5.1%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)
 |othersource=
 |questsource=
 |relatedquest=

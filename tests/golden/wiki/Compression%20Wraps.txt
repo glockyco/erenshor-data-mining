@@ -2,7 +2,7 @@
 |title=Compression Wraps
 |type=
 |vendorsource=
-|source=[[A Sorrowful Spirit]] (5.1%)
+|source=[[A Sorrowful Spirit]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Cloth Pants
 |type=
 |vendorsource=[[Nylith Valorro]]
-|source=[[Aragath Swellsteer]] (78.2%)<br>[[Zashlyn Bloodbane]] (29.1%)<br>[[Neophyte Necromancer]] (5.8%)<br>[[A Lava Spirit]] (5.1%)<br>[[Volcanic Giant]] (5.1%)<br>[[Ghoul]] (5.0%)<br>[[Nipper Tad]] (4.7%)<br>[[Boatman]] (4.2%)<br>[[Shambler]] (4.2%)<br>[[Chosen Fawn]] (3.9%)<br>[[Fawn of Fernalla]] (3.9%)<br>[[Risen Druid]] (3.9%)<br>[[Vinx]] (3.9%)<br>[[Islander Bandit]] (3.9%)<br>[[Acceptor]] (3.1%)<br>[[A Sorrowful Spirit]] (3.0%)<br>[[Mourning]] (3.0%)<br>[[Woe]] (2.7%)<br>[[Oracle Miress]] (2.6%)<br>[[Oracle Tretha]] (2.6%)<br>[[A Protected Memory]] (2.6%)<br>[[A Restless Spirit]] (2.6%)<br>[[An Enraged Spirit]] (2.6%)<br>[[Gasper]] (2.0%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
+|source=[[Aragath Swellsteer]] (78.0%)<br>[[Zashlyn Bloodbane]] (29.1%)<br>[[Neophyte Necromancer]] (5.8%)<br>[[A Lava Spirit]] (5.1%)<br>[[Volcanic Giant]] (5.1%)<br>[[Ghoul]] (4.9%)<br>[[Nipper Tad]] (4.6%)<br>[[Boatman]] (4.2%)<br>[[Shambler]] (4.2%)<br>[[Chosen Fawn]] (3.9%)<br>[[Fawn of Fernalla]] (3.9%)<br>[[Risen Druid]] (3.9%)<br>[[Vinx]] (3.9%)<br>[[Islander Bandit]] (3.9%)<br>[[Acceptor]] (3.1%)<br>[[A Sorrowful Spirit]] (3.0%)<br>[[Mourning]] (3.0%)<br>[[Woe]] (2.7%)<br>[[Oracle Miress]] (2.6%)<br>[[Oracle Tretha]] (2.6%)<br>[[A Protected Memory]] (2.6%)<br>[[A Restless Spirit]] (2.6%)<br>[[An Enraged Spirit]] (2.6%)<br>[[Gasper]] (2.1%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

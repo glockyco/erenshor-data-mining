@@ -2,7 +2,7 @@
 |title=Siva Bow
 |type=
 |vendorsource=
-|source=[[Bowmistress of Sivakaya]] (7.1%)
+|source=[[Bowmistress of Sivakaya]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

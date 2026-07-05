@@ -2,7 +2,7 @@
 |title=Warped Choker
 |type=
 |vendorsource=
-|source=[[Sivakayan Voidmaster]] (9.0%)
+|source=[[Sivakayan Voidmaster]] (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

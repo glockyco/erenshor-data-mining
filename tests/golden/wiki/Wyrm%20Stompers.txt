@@ -2,7 +2,7 @@
 |title=Wyrm Stompers
 |type=
 |vendorsource=
-|source=[[Sivakayan High Shadow]] (9.0%)
+|source=[[Sivakayan High Shadow]] (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

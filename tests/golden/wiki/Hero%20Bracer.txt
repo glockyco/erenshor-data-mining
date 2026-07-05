@@ -2,7 +2,7 @@
 |title=Hero Bracer
 |type=
 |vendorsource=
-|source=[[Loomingwood Minotaur Hero]] (35.1%)
+|source=[[Loomingwood Minotaur Hero]] (34.6%)
 |othersource=
 |questsource=
 |relatedquest=

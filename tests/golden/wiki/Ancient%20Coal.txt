@@ -2,7 +2,7 @@
 |title=Ancient Coal
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Gloopa|Gloopa (Quarter)]] (74.5%)<br>[[Astra, Rogue of the Stars]] (41.8%)<br>[[Candlekeeper]] (40.4%)<br>[[Statue of Brax]] (34.2%)<br>[[Slumbering Queen]] (28.4%)<br>[[Braxon Prospect]] (1.2%)<br>[[Braxonian Ascended]] (1.2%)<br>[[Braxonian Tempest]] (1.2%)
+|source=[[Gloopa|Gloopa (Quarter)]] (74.5%)<br>[[Astra, Rogue of the Stars]] (41.6%)<br>[[Candlekeeper]] (40.2%)<br>[[Statue of Brax]] (34.1%)<br>[[Slumbering Queen]] (28.3%)<br>[[Braxon Prospect]] (1.1%)<br>[[Braxonian Ascended]] (1.1%)<br>[[Braxonian Tempest]] (1.1%)
 |othersource=[[Mining]]
 |questsource=
 |relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|The Revival Plains Ritual}}

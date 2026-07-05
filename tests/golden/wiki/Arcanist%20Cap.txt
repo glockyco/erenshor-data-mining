@@ -2,7 +2,7 @@
 |title=Arcanist Cap
 |type=
 |vendorsource=
-|source=[[Alexander Farland]] (20.4%)<br>[[Arbant Sparrow]] (20.4%)<br>[[Cerbantias Flameward]] (20.4%)<br>[[Chance Barlow]] (20.4%)<br>[[Edwin Ansegg]] (20.4%)<br>[[Faun Vulak]] (20.4%)<br>[[Garrey Ambrose]] (20.4%)<br>[[Lexant Crowsilk]] (20.4%)<br>[[Liam Kilfa]] (20.4%)<br>[[Lucian Revald]] (20.4%)<br>[[Malor Mara]] (20.4%)<br>[[Malthor Sageleaf]] (20.4%)<br>[[Molorai Militia Arcanist]] (20.4%)<br>[[Navidson Zampano]] (20.4%)<br>[[Nylith Valorro]] (20.4%)<br>[[Revan Gavault]] (20.4%)<br>[[Staggy Garth]] (20.4%)<br>[[Sagan Ilth]] (13.4%)
+|source=[[Alexander Farland]] (19.5%)<br>[[Arbant Sparrow]] (19.5%)<br>[[Cerbantias Flameward]] (19.5%)<br>[[Chance Barlow]] (19.5%)<br>[[Edwin Ansegg]] (19.5%)<br>[[Faun Vulak]] (19.5%)<br>[[Garrey Ambrose]] (19.5%)<br>[[Lexant Crowsilk]] (19.5%)<br>[[Liam Kilfa]] (19.5%)<br>[[Lucian Revald]] (19.5%)<br>[[Malor Mara]] (19.5%)<br>[[Malthor Sageleaf]] (19.5%)<br>[[Molorai Militia Arcanist]] (19.5%)<br>[[Navidson Zampano]] (19.5%)<br>[[Nylith Valorro]] (19.5%)<br>[[Revan Gavault]] (19.5%)<br>[[Staggy Garth]] (19.5%)<br>[[Sagan Ilth]] (13.4%)
 |othersource=
 |questsource=
 |relatedquest=

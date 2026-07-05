@@ -2,7 +2,7 @@
 |title=Islander Bandit Armwrap
 |type=
 |vendorsource=
-|source=[[Aranuil Olaseo]] (19.6%)<br>[[Odyss Repman]] (19.6%)<br>[[Vevillo Polter]] (19.6%)
+|source=[[Aranuil Olaseo]] (19.8%)<br>[[Odyss Repman]] (19.8%)<br>[[Vevillo Polter]] (19.8%)
 |othersource=
 |questsource=
 |relatedquest=

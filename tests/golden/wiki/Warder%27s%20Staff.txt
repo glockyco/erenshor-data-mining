@@ -2,7 +2,7 @@
 |title=Warder's Staff
 |type=
 |vendorsource=
-|source=[[Warder of Ice]] (69.8%)<br>[[Brax, God of Elements]] (37.7%)
+|source=[[Warder of Ice]] (69.7%)<br>[[Brax, God of Elements]] (37.6%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Shivering Leather Tunic
 |type=
 |vendorsource=
-|source=[[Molorai Spiritist]] (41.8%)<br>[[Molorai Militia Druid]] (3.1%)
+|source=[[Molorai Spiritist]] (41.8%)<br>[[Molorai Militia Druid]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

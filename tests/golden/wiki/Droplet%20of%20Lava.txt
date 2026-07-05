@@ -2,7 +2,7 @@
 |title=Droplet of Lava
 |type=[[Crafting]], [[Consumables|Consumable]]
 |vendorsource=
-|source=[[A Lava Spirit]] (13.7%)<br>[[Volcanic Giant]] (13.7%)<br>[[Shelled Monstrosity]] (5.2%)<br>[[Spark Queen]] (5.2%)<br>[[Spark Royal]] (5.2%)<br>[[Volcano Scarab]] (5.2%)<br>[[Spark Beetle]] (4.9%)<br>[[Spark Soldier]] (4.9%)
+|source=[[A Lava Spirit]] (13.1%)<br>[[Volcanic Giant]] (13.1%)<br>[[Shelled Monstrosity]] (4.5%)<br>[[Spark Queen]] (4.5%)<br>[[Spark Royal]] (4.5%)<br>[[Volcano Scarab]] (4.5%)<br>[[Spark Beetle]] (4.3%)<br>[[Spark Soldier]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

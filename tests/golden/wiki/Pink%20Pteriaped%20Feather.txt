@@ -2,7 +2,7 @@
 |title=Pink Pteriaped Feather
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Pteriaped Chick]] (2.3%)<br>[[Pteriaped Matron]] (2.3%)
+|source=[[Pteriaped Chick]] (1.9%)<br>[[Pteriaped Matron]] (1.9%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Ritual Components}}

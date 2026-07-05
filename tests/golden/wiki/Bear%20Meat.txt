@@ -2,7 +2,7 @@
 |title=Bear Meat
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Fungal Bear]] (95.5%)<br>[[Grizzlepaw]] (91.6%)<br>[[Planar Grizzly]] (74.5%)<br>[[A Brown Bear]] (39.3%)<br>[[A Brown Bear Cub]] (39.3%)<br>[[A Grizzly Bear]] (28.3%)<br>[[Dream]] (28.3%)<br>[[Kodiak]] (28.3%)<br>[[Albino Kodiak]] (14.8%)
+|source=[[Fungal Bear]] (95.3%)<br>[[Grizzlepaw]] (91.6%)<br>[[Planar Grizzly]] (74.5%)<br>[[A Brown Bear]] (38.6%)<br>[[A Brown Bear Cub]] (38.6%)<br>[[A Grizzly Bear]] (27.8%)<br>[[Dream]] (27.8%)<br>[[Kodiak]] (27.8%)<br>[[Albino Kodiak]] (14.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Bear Meat for Fredrick}}

@@ -2,7 +2,7 @@
 |title=Pull of Insomnia
 |type=
 |vendorsource=
-|source=[[Wiggleribs]] (6.8%)
+|source=[[Wiggleribs]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

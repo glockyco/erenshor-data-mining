@@ -2,7 +2,7 @@
 |title=Ripparian Soldier Helm
 |type=
 |vendorsource=
-|source=[[Hector Yvey]] (12.1%)<br>[[Mavik Estonia]] (12.1%)<br>[[Ripper Soldier]] (2.2%)
+|source=[[Hector Yvey]] (12.1%)<br>[[Mavik Estonia]] (12.1%)<br>[[Ripper Soldier]] (2.0%)
 |othersource=
 |questsource=
 |relatedquest=

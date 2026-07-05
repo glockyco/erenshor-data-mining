@@ -2,7 +2,7 @@
 |title=Aged Plate Boots
 |type=
 |vendorsource=
-|source=[[Spectral Guard]] (1.6%)<br>[[Spectral High Guard]] (1.6%)<br>[[Spectral King's Guard]] (1.1%)<br>[[Rotting Royal Hound]] (1.0%)
+|source=[[Spectral Guard]] (1.4%)<br>[[Spectral High Guard]] (1.4%)<br>[[Spectral King's Guard]] (1.0%)<br>[[Rotting Royal Hound]] (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

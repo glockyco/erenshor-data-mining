@@ -2,7 +2,7 @@
 |title=Sylvan Giant's Blood
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Sylvan Giant]] (86.5%)
+|source=[[Sylvan Giant]] (86.3%)
 |othersource=
 |questsource=
 |relatedquest=

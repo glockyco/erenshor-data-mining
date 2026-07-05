@@ -2,7 +2,7 @@
 |title=Simple Engagement Ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Risen Pilgrim]] (1.9%)
+|source=[[Risen Pilgrim]] (1.7%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Albixt's Engagement Ring}}

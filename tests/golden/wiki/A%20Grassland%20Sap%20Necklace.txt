@@ -2,7 +2,7 @@
 |title=A Grassland Sap Necklace
 |type=
 |vendorsource=
-|source=[[A Grassland Ogre Chieftan]] (9.4%)
+|source=[[A Grassland Ogre Chieftan]] (9.0%)
 |othersource=
 |questsource=
 |relatedquest=

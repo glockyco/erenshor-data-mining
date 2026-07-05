@@ -2,7 +2,7 @@
 |title=Embalmed Bracer
 |type=
 |vendorsource=
-|source=[[Zashlyn Bloodbane]] (37.2%)
+|source=[[Zashlyn Bloodbane]] (37.0%)
 |othersource=
 |questsource=
 |relatedquest=

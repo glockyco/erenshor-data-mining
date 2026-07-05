@@ -2,7 +2,7 @@
 |title=Coiling Belt
 |type=
 |vendorsource=
-|source=[[Coiling Dusker]] (7.6%)
+|source=[[Coiling Dusker]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

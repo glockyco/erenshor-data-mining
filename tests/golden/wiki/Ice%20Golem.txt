@@ -4,7 +4,7 @@
 |imagecaption=
 |type=Enemy
 |faction=[[The Followers of Evil]]
-|factionChange=-100 [[Fernalla's Children]]
+|factionChange=
 |zones=[[Brax's Plane of Elements]]
 |coordinates=
 |spawnchance=

@@ -2,7 +2,7 @@
 |title=Elderstone Shard
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=[[Parmalee Gemlyn]]
-|source=[[A Fungus Ravaged Brute]] (7.7%)<br>[[Ravager, The First Infected]] (7.7%)<br>[[A Deepling Brute]] (3.7%)<br>[[A Deepling Crimsonite]] (2.6%)<br>[[A Deepling Lunarite]] (2.6%)<br>[[A Deepling Verdite]] (2.6%)<br>[[A Deepling Orator]] (1.8%)
+|source=[[A Fungus Ravaged Brute]] (6.7%)<br>[[Ravager, The First Infected]] (6.7%)<br>[[A Deepling Brute]] (3.2%)<br>[[A Deepling Crimsonite]] (2.3%)<br>[[A Deepling Lunarite]] (2.3%)<br>[[A Deepling Verdite]] (2.3%)<br>[[A Deepling Orator]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}<br>{{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}

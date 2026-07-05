@@ -2,7 +2,7 @@
 |title=Thornwood Bracer
 |type=
 |vendorsource=
-|source=[[Fernallan High Priest]] (68.8%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|source=[[Fernallan High Priest]] (68.7%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

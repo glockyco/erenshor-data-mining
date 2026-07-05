@@ -2,7 +2,7 @@
 |title=Fiery Thoughts
 |type=
 |vendorsource=
-|source=[[Elementalist Mizuki]] (69.0%)
+|source=[[Elementalist Mizuki]] (68.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Reaper of Regrowth
 |type=
 |vendorsource=
-|source=[[Fallen Fernalla]] (27.5%)<br>[[Fallen Fernalla]] (3.4%)
+|source=[[Fallen Fernalla]] (27.4%)<br>[[Fallen Fernalla]] (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

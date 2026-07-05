@@ -2,7 +2,7 @@
 |title=Nature's Promise
 |type=
 |vendorsource=
-|source=[[Maple]] (1.7%)<br>[[Greater Fawn]] (1.7%)<br>[[Risen Hierophant]] (1.4%)<br>[[Vinx]] (1.4%)<br>[[Frenzy]] (1.1%)<br>[[Grappler]] (1.1%)<br>[[Fernallan Guardian]] (0.7%)<br>[[Rotting Guardian]] (0.7%)
+|source=[[Maple]] (1.5%)<br>[[Greater Fawn]] (1.5%)<br>[[Risen Hierophant]] (1.2%)<br>[[Vinx]] (1.2%)<br>[[Frenzy]] (1.0%)<br>[[Grappler]] (1.0%)<br>[[Fernallan Guardian]] (0.6%)<br>[[Rotting Guardian]] (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

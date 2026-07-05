@@ -2,7 +2,7 @@
 |title=Reckless Strike
 |image=[[File:Reckless Strike.png|thumb]]
 |imagecaption=
-|description=Attack your target for 200% of your normal melee damage, but take damage equal to 7% of your total life.
+|description=Attack your target for 200% of your normal melee damage, but take damage equal to 15% of your total life.
 |type=Attack
 |line=
 |classes=[[Reaver]] (10)
@@ -11,7 +11,7 @@
 |aggro=
 |is_taunt=
 |casttime=Instant
-|cooldown=9 seconds
+|cooldown=12 seconds
 |duration=
 |duration_in_ticks=
 |has_unstable_duration=

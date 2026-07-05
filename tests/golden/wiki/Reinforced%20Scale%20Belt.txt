@@ -2,7 +2,7 @@
 |title=Reinforced Scale Belt
 |type=
 |vendorsource=
-|source=[[A Deepling Brute]] (10.2%)<br>[[A Nagalok]] (7.6%)
+|source=[[A Deepling Brute]] (9.8%)<br>[[A Nagalok]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

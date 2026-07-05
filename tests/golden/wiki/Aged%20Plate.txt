@@ -2,7 +2,7 @@
 |title=Aged Plate
 |type=
 |vendorsource=
-|source=[[Spectral King's Guard]] (25.8%)<br>[[Rotting Royal Hound]] (1.0%)
+|source=[[Spectral King's Guard]] (25.7%)<br>[[Rotting Royal Hound]] (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

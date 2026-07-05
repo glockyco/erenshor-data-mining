@@ -2,7 +2,7 @@
 |title=Braxonian Gauntlets
 |type=
 |vendorsource=
-|source=[[Braxonian Weapon Master]] (1.6%)<br>[[Braxonian Honor Guard]] (1.4%)<br>[[Braxonian High Guard]] (1.2%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)
+|source=[[Braxonian Weapon Master]] (1.4%)<br>[[Braxonian Honor Guard]] (1.2%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxonian High Guard]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

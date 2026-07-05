@@ -2,7 +2,7 @@
 |title=Thaumic Trousers
 |type=
 |vendorsource=
-|source=[[Lava Fiend]] (4.0%)<br>[[Tundra Walker]] (3.7%)<br>[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Fire Elemental]] (1.9%)<br>[[Ice Elemental]] (1.9%)
+|source=[[Lava Fiend]] (4.0%)<br>[[Tundra Walker]] (3.7%)<br>[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Fire Elemental]] (1.8%)<br>[[Ice Elemental]] (1.8%)
 |othersource=
 |questsource=
 |relatedquest=

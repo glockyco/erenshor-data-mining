@@ -2,7 +2,7 @@
 |title=Jellystick
 |type=
 |vendorsource=
-|source=[[Ragewhip]] (50.0%)<br>[[Swamp Nettle]] (4.9%)
+|source=[[Ragewhip]] (50.0%)<br>[[Swamp Nettle]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Sivakayan Horn
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[A Lesser Avatar of Sivakaya]] (9.4%)
+|source=[[A Lesser Avatar of Sivakaya]] (9.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|A Sivakayan Horn for Ludo Luxo}}

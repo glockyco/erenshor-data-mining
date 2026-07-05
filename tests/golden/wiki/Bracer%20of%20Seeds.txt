@@ -2,7 +2,7 @@
 |title=Bracer of Seeds
 |type=
 |vendorsource=
-|source=[[Fernalla, Goddess of Nature]] (38.1%)
+|source=[[Fernalla, Goddess of Nature]] (37.9%)
 |othersource=
 |questsource=
 |relatedquest=

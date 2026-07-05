@@ -2,7 +2,7 @@
 |title=Spell Scroll: Death's Embrace II
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[Nipper King]] (14.8%)<br>[[Nipper Diremaw]] (3.5%)<br>[[Nipper Farseer]] (3.5%)<br>[[Nipper Whiptail]] (3.5%)
+|source=[[Nipper King]] (14.8%)<br>[[Nipper Diremaw]] (3.4%)<br>[[Nipper Farseer]] (3.4%)<br>[[Nipper Whiptail]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

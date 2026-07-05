@@ -2,7 +2,7 @@
 |title=Asp's Fang
 |type=
 |vendorsource=
-|source=[[Asp]] (5.1%)
+|source=[[Asp]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

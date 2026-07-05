@@ -2,7 +2,7 @@
 |title=Glacier Belt
 |type=
 |vendorsource=
-|source=[[Elementalist Mizuki]] (69.0%)<br>[[Brax, God of Elements]] (37.7%)
+|source=[[Elementalist Mizuki]] (68.9%)<br>[[Brax, God of Elements]] (37.6%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Salt Soaked Cuff
 |type=
 |vendorsource=
-|source=[[A Seafiend]] (5.1%)
+|source=[[A Seafiend]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=A Moongill
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Wardwarped Alpha]] (21.2%)<br>[[Frenzy]] (17.8%)<br>[[Grappler]] (17.8%)<br>[[Spinesnap Gorilla]] (17.8%)<br>[[Plaxitheris]] (17.0%)<br>[[Wardwarped Gorilla]] (14.5%)
+|source=[[Wardwarped Alpha]] (20.8%)<br>[[Frenzy]] (17.8%)<br>[[Grappler]] (17.8%)<br>[[Spinesnap Gorilla]] (17.8%)<br>[[Plaxitheris]] (16.7%)<br>[[Wardwarped Gorilla]] (14.2%)
 |othersource=[[Fishing]]
 |questsource=
 |relatedquest={{QuestLink |questlink=Wally's Moongill}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|Wally's Moongill}}

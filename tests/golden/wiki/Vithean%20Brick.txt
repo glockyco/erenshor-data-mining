@@ -2,7 +2,7 @@
 |title=Vithean Brick
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Cackles]] (7.7%)<br>[[Crankles]] (7.7%)<br>[[Founder]] (7.7%)<br>[[Jack]] (7.7%)<br>[[Rumors]] (7.7%)<br>[[Skelunker]] (7.7%)<br>[[Sockets]] (7.7%)<br>[[Vithean Remains]] (7.7%)<br>[[Vithean Blademaster]] (7.3%)<br>[[Vithean Elite]] (7.3%)
+|source=[[Cackles]] (6.7%)<br>[[Crankles]] (6.7%)<br>[[Founder]] (6.7%)<br>[[Jack]] (6.7%)<br>[[Rumors]] (6.7%)<br>[[Skelunker]] (6.7%)<br>[[Sockets]] (6.7%)<br>[[Vithean Remains]] (6.7%)<br>[[Vithean Blademaster]] (6.4%)<br>[[Vithean Elite]] (6.4%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|A Portal to Vitheo's Rest}}

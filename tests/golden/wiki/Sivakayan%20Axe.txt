@@ -2,7 +2,7 @@
 |title=Sivakayan Axe
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Darkwarden Awxa]] (1.4%)<br>[[Darkwarden Ealdred]] (1.4%)<br>[[Darkwarden Ilyth]] (1.4%)<br>[[Sivakayan Legionnaire]] (1.4%)<br>[[Sivakayan Reaver]] (1.4%)<br>[[Sivakayan Spymaster]] (1.4%)<br>[[Sivakayan Unhallowed]] (1.4%)
+|source=[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Disarming the Sivakayans}}

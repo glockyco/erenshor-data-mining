@@ -2,7 +2,7 @@
 |title=Cape of the Sands
 |type=
 |vendorsource=
-|source=[[Overseer Refleigh]] (14.5%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)
+|source=[[Overseer Refleigh]] (14.2%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Shivering Ring
 |type=
 |vendorsource=
-|source=[[Shadow of Sleep]] (9.4%)
+|source=[[Shadow of Sleep]] (8.2%)
 |othersource=
 |questsource=
 |relatedquest=

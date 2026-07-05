@@ -2,7 +2,7 @@
 |title=Shivering Leather Boots
 |type=
 |vendorsource=
-|source=[[A Golden Spirit]] (14.3%)<br>[[Crypt Keeper]] (6.8%)<br>[[Molorai Militia Druid]] (3.1%)
+|source=[[A Golden Spirit]] (14.0%)<br>[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

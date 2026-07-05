@@ -2,7 +2,7 @@
 |title=Spell Scroll: Necrosis
 |type=
 |vendorsource=
-|source=[[Azynthian Firebone]] (2.6%)<br>[[Azynthian Icebone]] (2.6%)<br>[[Greater Azynthian Firebone]] (2.6%)<br>[[Greater Azynthian Icebone]] (2.6%)
+|source=[[Azynthian Firebone]] (2.3%)<br>[[Azynthian Icebone]] (2.3%)<br>[[Greater Azynthian Firebone]] (2.3%)<br>[[Greater Azynthian Icebone]] (2.3%)
 |othersource=
 |questsource=
 |relatedquest=

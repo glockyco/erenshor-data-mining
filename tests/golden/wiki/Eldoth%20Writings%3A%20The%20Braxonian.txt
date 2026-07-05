@@ -2,7 +2,7 @@
 |title=Eldoth Writings: The Braxonian
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Molorai Specialist]] (6.3%)<br>[[Molorai Outrider]] (6.0%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)
+|source=[[Molorai Specialist]] (6.0%)<br>[[Molorai Outrider]] (5.7%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

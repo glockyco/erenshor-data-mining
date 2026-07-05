@@ -2,7 +2,7 @@
 |title=Spell Scroll: Dazzle
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
-|source=[[Plaxitheris]] (8.8%)
+|source=[[Plaxitheris]] (8.7%)
 |othersource=
 |questsource=
 |relatedquest=

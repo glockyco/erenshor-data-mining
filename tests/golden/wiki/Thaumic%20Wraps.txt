@@ -2,7 +2,7 @@
 |title=Thaumic Wraps
 |type=
 |vendorsource=
-|source=[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Lava Fiend]] (1.9%)<br>[[Fire Elemental]] (1.9%)<br>[[Ice Elemental]] (1.9%)<br>[[Tundra Walker]] (1.2%)
+|source=[[Greater Fire Elemental]] (2.3%)<br>[[Greater Ice Elemental]] (2.3%)<br>[[Lava Fiend]] (1.9%)<br>[[Fire Elemental]] (1.8%)<br>[[Ice Elemental]] (1.8%)<br>[[Tundra Walker]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest=

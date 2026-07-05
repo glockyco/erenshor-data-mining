@@ -2,7 +2,7 @@
 |title=Muddy Jerkin
 |type=
 |vendorsource=
-|source=[[Druo the Reborn]] (27.5%)<br>[[A Grassland Ogre Plaguebringer]] (1.3%)
+|source=[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Plaguebringer]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Diamondine Mace
 |type=
 |vendorsource=
-|source=[[Stoneman Diamondine]] (5.2%)
+|source=[[Stoneman Diamondine]] (4.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -15,7 +15,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=156000000
+|health=227499984
 |mana=0
 |ac=15
 |strength=0
@@ -85,7 +85,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=156000000
+|health=227499984
 |mana=0
 |ac=800
 |strength=0
@@ -119,7 +119,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=156000000
+|health=227499984
 |mana=0
 |ac=400
 |strength=0

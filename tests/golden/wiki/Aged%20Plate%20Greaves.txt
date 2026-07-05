@@ -2,7 +2,7 @@
 |title=Aged Plate Greaves
 |type=
 |vendorsource=
-|source=[[Spectral Castle Guard]] (2.0%)<br>[[Spectral King's Guard]] (1.1%)<br>[[Rotting Royal Hound]] (1.0%)
+|source=[[Spectral Castle Guard]] (1.7%)<br>[[Spectral King's Guard]] (1.0%)<br>[[Rotting Royal Hound]] (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Hardened Copper Sword
 |type=
 |vendorsource=
-|source=[[Bassle Wavebreaker]] (68.1%)<br>[[Cagnus Marlsen]] (68.1%)<br>[[Molorai Anointed]] (57.4%)<br>[[Molorai Specialist]] (57.4%)
+|source=[[Bassle Wavebreaker]] (67.9%)<br>[[Cagnus Marlsen]] (67.9%)<br>[[Molorai Anointed]] (57.4%)<br>[[Molorai Specialist]] (57.4%)
 |othersource=
 |questsource=
 |relatedquest=

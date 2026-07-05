@@ -2,7 +2,7 @@
 |title=Stirrer of Sleep
 |type=
 |vendorsource=
-|source=[[Cloaked Shadow]] (5.2%)
+|source=[[Cloaked Shadow]] (4.5%)
 |othersource=
 |questsource=
 |relatedquest=

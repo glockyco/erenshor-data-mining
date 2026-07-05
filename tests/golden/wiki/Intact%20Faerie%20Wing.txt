@@ -2,7 +2,7 @@
 |title=Intact Faerie Wing
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Faerie Enchantress]] (2.0%)<br>[[A Faerie Foliagian]] (2.0%)<br>[[A Faerie Windchild]] (2.0%)<br>[[A Faerie Drone]] (1.3%)
+|source=[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)<br>[[A Faerie Drone]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Ritual Components}}

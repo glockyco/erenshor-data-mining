@@ -2,7 +2,7 @@
 |title=Stone Statue: Soluna
 |type=
 |vendorsource=
-|source=[[Raval, The First Paladin]] (3.4%)<br>[[Ancient Celestarian]] (1.4%)<br>[[Ancient Guard]] (1.4%)<br>[[Ancient Knight]] (1.4%)
+|source=[[Raval, The First Paladin]] (3.3%)<br>[[Ancient Celestarian]] (1.2%)<br>[[Ancient Guard]] (1.2%)<br>[[Ancient Knight]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest=

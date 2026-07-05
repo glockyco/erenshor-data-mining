@@ -2,7 +2,7 @@
 |title=Diamond Helm
 |type=
 |vendorsource=
-|source=[[Sivakayan Shadow]] (9.0%)
+|source=[[Sivakayan Shadow]] (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

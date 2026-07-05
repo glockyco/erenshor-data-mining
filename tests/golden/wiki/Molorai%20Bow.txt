@@ -2,7 +2,7 @@
 |title=Molorai Bow
 |type=
 |vendorsource=
-|source=[[Molorai Militia Warrior]] (5.1%)
+|source=[[Molorai Militia Warrior]] (4.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=World Builder
 |type=
 |vendorsource=
-|source=[[Bloom Preserver]] (1.7%)
+|source=[[Bloom Preserver]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest=

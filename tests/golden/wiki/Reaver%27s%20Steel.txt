@@ -2,7 +2,7 @@
 |title=Reaver's Steel
 |type=
 |vendorsource=
-|source=[[Reaver of Sivakaya]] (6.8%)
+|source=[[Reaver of Sivakaya]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

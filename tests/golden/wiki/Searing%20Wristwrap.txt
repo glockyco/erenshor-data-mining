@@ -2,7 +2,7 @@
 |title=Searing Wristwrap
 |type=
 |vendorsource=
-|source=[[Overseer Refleigh]] (14.5%)
+|source=[[Overseer Refleigh]] (14.2%)
 |othersource=
 |questsource=
 |relatedquest=

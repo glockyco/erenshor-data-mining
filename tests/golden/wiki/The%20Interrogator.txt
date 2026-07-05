@@ -2,7 +2,7 @@
 |title=The Interrogator
 |type=
 |vendorsource=
-|source=[[Molorai Jailor]] (20.4%)
+|source=[[Molorai Jailor]] (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

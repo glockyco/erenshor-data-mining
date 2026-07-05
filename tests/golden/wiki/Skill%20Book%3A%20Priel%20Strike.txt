@@ -2,7 +2,7 @@
 |title=Skill Book: Priel Strike
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Roreli Gilmare]]
-|source=[[Priel Soldier]] (3.9%)<br>[[Priel Swiftblade]] (2.4%)<br>[[Priel Consort]] (1.6%)
+|source=[[Priel Soldier]] (3.4%)<br>[[Priel Swiftblade]] (2.1%)<br>[[Priel Consort]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

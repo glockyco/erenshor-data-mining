@@ -2,7 +2,7 @@
 |title=Polished Longsword
 |type=
 |vendorsource=[[Benson Gamble]]<br>[[Sven Feartines]]
-|source=[[Bassalt Vallano]] (6.2%)<br>[[A Skeleton Soldier]] (3.9%)<br>[[A Skeleton Captain]] (3.4%)
+|source=[[Bassalt Vallano]] (6.3%)<br>[[A Skeleton Soldier]] (4.0%)<br>[[A Skeleton Captain]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Planetary Shard
 |type=
 |vendorsource=
-|source=[[Khorso, Soluna's Advisor]] (70.2%)
+|source=[[Khorso, Soluna's Advisor]] (70.0%)
 |othersource=
 |questsource=
 |relatedquest=

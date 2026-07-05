@@ -2,7 +2,7 @@
 |title=Sivakayan Ceremonial Garb
 |type=
 |vendorsource=
-|source=[[Sivakayan Voidweaver]] (13.5%)
+|source=[[Sivakayan Voidweaver]] (12.9%)
 |othersource=
 |questsource=
 |relatedquest=

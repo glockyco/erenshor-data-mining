@@ -2,7 +2,7 @@
 |title=Light Plate Greaves
 |type=
 |vendorsource=[[Ludo Luxo]]<br>[[Sven Feartines]]
-|source=[[Sylvan Giant Runt]] (23.9%)<br>[[Plaxitheris]] (19.4%)<br>[[A Skeleton Captain]] (3.4%)<br>[[A Sturdy Skeleton]] (1.3%)<br>[[Drowned Corpse]] (1.3%)<br>[[Gort]] (1.3%)<br>[[Summoned Fallen Warrior]] (1.3%)<br>[[The Corpse of Brice Mathers]] (1.3%)<br>[[The Corpse of Cyndreela Mathers]] (1.3%)
+|source=[[Sylvan Giant Runt]] (23.5%)<br>[[Plaxitheris]] (19.4%)<br>[[A Skeleton Captain]] (3.4%)<br>[[A Sturdy Skeleton]] (1.3%)<br>[[Drowned Corpse]] (1.3%)<br>[[Gort]] (1.3%)<br>[[Summoned Fallen Warrior]] (1.3%)<br>[[The Corpse of Brice Mathers]] (1.3%)<br>[[The Corpse of Cyndreela Mathers]] (1.3%)
 |othersource=
 |questsource=
 |relatedquest=

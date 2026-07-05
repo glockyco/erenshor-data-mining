@@ -2,7 +2,7 @@
 |title=Short Sword of Viropha
 |type=
 |vendorsource=
-|source=[[Aquilamar Blade]] (10.1%)<br>[[Aquilamar Protector]] (10.1%)<br>[[Cirreus Alxanth]] (10.1%)<br>[[Vethalo Gala]] (10.1%)
+|source=[[Aquilamar Blade]] (8.9%)<br>[[Aquilamar Protector]] (8.9%)<br>[[Cirreus Alxanth]] (8.9%)<br>[[Vethalo Gala]] (8.9%)
 |othersource=
 |questsource={{QuestLink|A Magical Sword in Port Azure}}
 |relatedquest=

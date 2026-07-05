@@ -2,7 +2,7 @@
 |title=Flame of the Redemption
 |type=[[Auras]]
 |vendorsource=
-|source=[[Evadne the Corrupted]] (29.2%)<br>[[Blazefiend]] (25.0%)
+|source=[[Evadne the Corrupted]] (29.1%)<br>[[Blazefiend]] (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

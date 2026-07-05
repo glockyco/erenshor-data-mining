@@ -2,7 +2,7 @@
 |title=Shifted Fate
 |type=
 |vendorsource=
-|source=[[Soluna]] (38.1%)
+|source=[[Soluna]] (37.9%)
 |othersource=
 |questsource=
 |relatedquest=

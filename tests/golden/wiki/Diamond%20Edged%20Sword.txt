@@ -2,7 +2,7 @@
 |title=Diamond Edged Sword
 |type=
 |vendorsource=
-|source=[[Sivakayan Shadow]] (4.5%)
+|source=[[Sivakayan Shadow]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

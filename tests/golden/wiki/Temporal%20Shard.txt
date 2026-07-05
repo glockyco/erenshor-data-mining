@@ -2,7 +2,7 @@
 |title=Temporal Shard
 |type=
 |vendorsource=
-|source=[[Eldoth Molorai]] (7.7%)
+|source=[[Eldoth Molorai]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

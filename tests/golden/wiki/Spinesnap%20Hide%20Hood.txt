@@ -2,7 +2,7 @@
 |title=Spinesnap Hide Hood
 |type=
 |vendorsource=
-|source=[[Spinesnap Gorilla]] (7.6%)
+|source=[[Spinesnap Gorilla]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

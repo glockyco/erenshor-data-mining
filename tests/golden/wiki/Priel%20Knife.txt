@@ -2,7 +2,7 @@
 |title=Priel Knife
 |type=
 |vendorsource=
-|source=[[A Priel Bandit Recruit]] (13.5%)<br>[[Islander Bandit]] (1.1%)
+|source=[[A Priel Bandit Recruit]] (12.9%)<br>[[Islander Bandit]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Surestep
 |type=
 |vendorsource=
-|source=[[Mosscovered Stoneman]] (28.3%)
+|source=[[Mosscovered Stoneman]] (27.8%)
 |othersource=
 |questsource=
 |relatedquest=

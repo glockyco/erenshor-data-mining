@@ -2,7 +2,7 @@
 |title=Spilling Blade
 |type=
 |vendorsource=
-|source=[[Fernallan High Guard]] (7.6%)
+|source=[[Fernallan High Guard]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

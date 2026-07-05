@@ -2,7 +2,7 @@
 |title=Wilt
 |type=[[Auras]]
 |vendorsource=
-|source=[[Goliath]] (3.4%)<br>[[Gruhglor]] (3.1%)
+|source=[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

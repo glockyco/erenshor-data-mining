@@ -2,7 +2,7 @@
 |title=Idol of Sivakaya
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Neophyte Necromancer]] (3.9%)<br>[[Woe]] (2.6%)<br>[[Boatman]] (1.3%)
+|source=[[Neophyte Necromancer]] (3.4%)<br>[[Woe]] (2.3%)<br>[[Boatman]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

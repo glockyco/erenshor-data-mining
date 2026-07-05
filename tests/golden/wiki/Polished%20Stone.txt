@@ -2,7 +2,7 @@
 |title=Polished Stone
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Stoneman Colossus]] (94.7%)<br>[[Stoneman Obsidian]] (92.7%)<br>[[Diamond Colossus]] (88.2%)<br>[[Stoneman Seeker]] (84.7%)<br>[[Wishlan the Savior]] (84.7%)<br>[[Stoneman]] (82.4%)<br>[[Stoneman Knight]] (82.4%)<br>[[Stoneman Magi]] (82.4%)<br>[[Stoneman]] (82.3%)<br>[[Blight Eater]] (56.7%)<br>[[Sand Mummy]] (46.7%)<br>[[Scorched Skeleton]] (46.7%)<br>[[Mosscovered Stoneman]] (43.4%)<br>[[Braxon Fanatic]] (41.8%)<br>[[Rotting Mummy]] (16.5%)<br>[[Braxon Prospect]] (11.5%)<br>[[Braxonian Ascended]] (7.8%)<br>[[Braxonian Tempest]] (7.8%)<br>[[Gasper]] (1.9%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.7%)<br>[[Fright]] (1.7%)<br>[[Shiverman]] (0.7%)
+|source=[[Stoneman Colossus]] (94.6%)<br>[[Stoneman Obsidian]] (92.5%)<br>[[Diamond Colossus]] (88.0%)<br>[[Stoneman Seeker]] (84.7%)<br>[[Wishlan the Savior]] (84.7%)<br>[[Stoneman]] (82.2%)<br>[[Stoneman Knight]] (82.2%)<br>[[Stoneman Magi]] (82.2%)<br>[[Stoneman]] (82.2%)<br>[[Blight Eater]] (56.7%)<br>[[Sand Mummy]] (46.7%)<br>[[Scorched Skeleton]] (46.7%)<br>[[Mosscovered Stoneman]] (43.4%)<br>[[Braxon Fanatic]] (41.8%)<br>[[Rotting Mummy]] (16.5%)<br>[[Braxon Prospect]] (11.5%)<br>[[Braxonian Ascended]] (7.8%)<br>[[Braxonian Tempest]] (7.8%)<br>[[Gasper]] (1.8%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.6%)<br>[[Fright]] (1.6%)<br>[[Shiverman]] (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

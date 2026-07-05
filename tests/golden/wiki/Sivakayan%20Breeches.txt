@@ -2,7 +2,7 @@
 |title=Sivakayan Breeches
 |type=
 |vendorsource=
-|source=[[Sivakayan Voidweaver]] (7.4%)<br>[[Sivakayan Devoted]] (4.9%)<br>[[Sivakayan Faithbound]] (2.4%)
+|source=[[Sivakayan Voidweaver]] (7.4%)<br>[[Sivakayan Devoted]] (4.2%)<br>[[Sivakayan Faithbound]] (2.1%)
 |othersource=
 |questsource=
 |relatedquest=

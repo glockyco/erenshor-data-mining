@@ -2,7 +2,7 @@
 |title=Argo's Grimoire
 |type=
 |vendorsource=
-|source=[[Tinkles]] (23.9%)<br>[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.6%)<br>[[Thella Steepleton]] (8.6%)<br>[[Overseer Orlok]] (3.2%)
+|source=[[Tinkles]] (23.7%)<br>[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Overseer Orlok]] (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

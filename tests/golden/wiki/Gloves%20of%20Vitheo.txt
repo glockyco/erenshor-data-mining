@@ -2,7 +2,7 @@
 |title=Gloves of Vitheo
 |type=
 |vendorsource=
-|source=[[Apparition of Vitheo]] (51.9%)
+|source=[[Apparition of Vitheo]] (51.7%)
 |othersource=
 |questsource=
 |relatedquest=

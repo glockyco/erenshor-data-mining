@@ -2,7 +2,7 @@
 |title=Moonglow Amulet
 |type=
 |vendorsource=
-|source=[[Ancient Corpse]] (6.7%)<br>[[Ancient Celestarian]] (5.4%)<br>[[Ancient Guard]] (4.1%)<br>[[Ancient Knight]] (4.1%)
+|source=[[Ancient Corpse]] (5.8%)<br>[[Ancient Celestarian]] (4.6%)<br>[[Ancient Guard]] (3.5%)<br>[[Ancient Knight]] (3.5%)
 |othersource=
 |questsource=
 |relatedquest=

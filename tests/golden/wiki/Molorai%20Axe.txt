@@ -2,7 +2,7 @@
 |title=Molorai Axe
 |type=[[Quest Items|Quest Item]]
 |vendorsource=[[Pierson Windwash]]
-|source=[[Molorai Bodyguard]] (17.8%)<br>[[Molorai Veteran]] (14.2%)<br>[[Molorai Militia Warrior]] (5.1%)
+|source=[[Molorai Bodyguard]] (17.3%)<br>[[Molorai Veteran]] (14.3%)<br>[[Molorai Militia Warrior]] (4.9%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Molorai Axes for Tilbert}}

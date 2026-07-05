@@ -2,7 +2,7 @@
 |title=Brackwood Mace
 |type=
 |vendorsource=
-|source=[[Vevillo Polter]] (13.7%)<br>[[Aranuil Olaseo]] (13.2%)<br>[[Odyss Repman]] (13.2%)<br>[[Islander Bandit]] (5.1%)
+|source=[[Vevillo Polter]] (13.6%)<br>[[Aranuil Olaseo]] (13.1%)<br>[[Odyss Repman]] (13.1%)<br>[[Islander Bandit]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

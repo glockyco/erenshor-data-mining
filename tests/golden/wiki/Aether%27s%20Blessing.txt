@@ -2,7 +2,7 @@
 |title=Aether's Blessing
 |type=
 |vendorsource=
-|source=[[Aetherfiend]] (20.5%)<br>[[Shadow Man]] (20.5%)
+|source=[[Aetherfiend]] (20.6%)<br>[[Shadow Man]] (20.6%)
 |othersource=
 |questsource=
 |relatedquest=

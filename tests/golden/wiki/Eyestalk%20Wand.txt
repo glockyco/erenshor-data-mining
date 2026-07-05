@@ -2,7 +2,7 @@
 |title=Eyestalk Wand
 |type=
 |vendorsource=
-|source=[[Old Brackey]] (40.1%)
+|source=[[Old Brackey]] (39.9%)
 |othersource=
 |questsource=
 |relatedquest=

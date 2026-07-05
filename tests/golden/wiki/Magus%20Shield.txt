@@ -2,7 +2,7 @@
 |title=Magus Shield
 |type=
 |vendorsource=
-|source=[[Sagan Ilth]] (7.6%)
+|source=[[Sagan Ilth]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

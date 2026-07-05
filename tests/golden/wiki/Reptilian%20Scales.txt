@@ -2,7 +2,7 @@
 |title=Reptilian Scales
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Asp]] (81.2%)<br>[[Coiling Dusker]] (33.5%)<br>[[Nipper Pup]] (28.3%)<br>[[Blunga]] (20.4%)<br>[[Juvenile Nagalok]] (20.4%)<br>[[A Deepling Lunarite]] (12.1%)<br>[[A Deepling Verdite]] (12.1%)<br>[[An Immature Nagalok]] (10.6%)<br>[[Occuphage, Eater of Eyes]] (10.6%)<br>[[Spike]] (10.6%)<br>[[A Deepling Crimsonite]] (7.8%)<br>[[A Nagalok]] (6.8%)<br>[[A Deepling Orator]] (5.3%)
+|source=[[Asp]] (81.2%)<br>[[Coiling Dusker]] (33.5%)<br>[[Nipper Pup]] (27.8%)<br>[[Blunga]] (19.5%)<br>[[Juvenile Nagalok]] (19.5%)<br>[[A Deepling Lunarite]] (12.1%)<br>[[A Deepling Verdite]] (12.1%)<br>[[An Immature Nagalok]] (10.1%)<br>[[Occuphage, Eater of Eyes]] (10.1%)<br>[[Spike]] (10.1%)<br>[[A Deepling Crimsonite]] (7.8%)<br>[[A Nagalok]] (6.8%)<br>[[A Deepling Orator]] (5.3%)
 |othersource=
 |questsource=
 |relatedquest=

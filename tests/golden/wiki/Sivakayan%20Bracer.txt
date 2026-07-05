@@ -2,7 +2,7 @@
 |title=Sivakayan Bracer
 |type=
 |vendorsource=
-|source=[[Gherist Morthario]] (27.6%)<br>[[Bowmistress of Sivakaya]] (1.7%)<br>[[Reaver of Sivakaya]] (1.7%)<br>[[Assassin of Sivakaya]] (1.4%)<br>[[Darkwarden Awxa]] (1.4%)<br>[[Darkwarden Ealdred]] (1.4%)<br>[[Darkwarden Ilyth]] (1.4%)<br>[[Grand Arcanist of Sivakaya]] (1.4%)<br>[[High Paladin of Sivakaya]] (1.4%)<br>[[High Priestess of Sivakaya]] (1.4%)<br>[[Sivakayan Bodyguard]] (1.4%)<br>[[Sivakayan Cleric]] (1.4%)<br>[[Sivakayan Legionnaire]] (1.4%)<br>[[Sivakayan Raider]] (1.4%)<br>[[Sivakayan Reaver]] (1.4%)<br>[[Sivakayan Spymaster]] (1.4%)<br>[[Sivakayan Templar]] (1.4%)<br>[[Sivakayan Unhallowed]] (1.4%)
+|source=[[Gherist Morthario]] (27.5%)<br>[[Bowmistress of Sivakaya]] (1.5%)<br>[[Reaver of Sivakaya]] (1.5%)<br>[[Assassin of Sivakaya]] (1.2%)<br>[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Grand Arcanist of Sivakaya]] (1.2%)<br>[[High Paladin of Sivakaya]] (1.2%)<br>[[High Priestess of Sivakaya]] (1.2%)<br>[[Sivakayan Bodyguard]] (1.2%)<br>[[Sivakayan Cleric]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Raider]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Templar]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Molorai Manifesto, Pg. 1
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Overseer Orlok]] (4.7%)<br>[[Molorai Captain Sigrid]] (2.9%)<br>[[Molorai Brewmistress]] (2.5%)<br>[[Molorai Spiritist]] (1.9%)<br>[[Molorai Veteran]] (1.9%)<br>[[Molorai Chef]] (1.6%)
+|source=[[Overseer Orlok]] (4.5%)<br>[[Molorai Captain Sigrid]] (2.6%)<br>[[Molorai Brewmistress]] (2.2%)<br>[[Molorai Spiritist]] (1.7%)<br>[[Molorai Veteran]] (1.7%)<br>[[Molorai Chef]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

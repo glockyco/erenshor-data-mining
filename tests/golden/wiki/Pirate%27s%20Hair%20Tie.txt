@@ -2,7 +2,7 @@
 |title=Pirate's Hair Tie
 |type=
 |vendorsource=
-|source=[[Drowned Corpse]] (5.4%)
+|source=[[Drowned Corpse]] (5.2%)
 |othersource=
 |questsource=
 |relatedquest=

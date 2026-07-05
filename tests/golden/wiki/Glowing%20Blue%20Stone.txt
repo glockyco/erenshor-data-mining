@@ -2,7 +2,7 @@
 |title=Glowing Blue Stone
 |type=
 |vendorsource=
-|source=[[Ancient Spectre]] (7.3%)
+|source=[[Ancient Spectre]] (7.0%)
 |othersource=
 |questsource=
 |relatedquest=

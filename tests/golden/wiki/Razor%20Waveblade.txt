@@ -2,7 +2,7 @@
 |title=Razor Waveblade
 |type=
 |vendorsource=
-|source=[[Molorai Bodyguard]] (5.4%)
+|source=[[Molorai Bodyguard]] (5.1%)
 |othersource=
 |questsource=
 |relatedquest=

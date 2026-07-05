@@ -2,7 +2,7 @@
 |title=Spell Scroll: Major Group Healing
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Priel Malarist]] (3.9%)<br>[[Priel Purist]] (2.4%)<br>[[Priel Consort]] (1.6%)
+|source=[[Priel Malarist]] (3.4%)<br>[[Priel Purist]] (2.1%)<br>[[Priel Consort]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

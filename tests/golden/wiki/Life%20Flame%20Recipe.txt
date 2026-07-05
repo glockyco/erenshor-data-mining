@@ -2,7 +2,7 @@
 |title=Life Flame Recipe
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Cursed Vithean Conspirer]] (7.2%)<br>[[Cursed Vithean Traitor]] (7.2%)<br>[[Vithean Betrayer]] (4.6%)
+|source=[[Cursed Vithean Conspirer]] (6.8%)<br>[[Cursed Vithean Traitor]] (6.8%)<br>[[Vithean Betrayer]] (4.6%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=The Life Flame}}

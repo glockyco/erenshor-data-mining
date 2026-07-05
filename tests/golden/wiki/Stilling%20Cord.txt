@@ -2,7 +2,7 @@
 |title=Stilling Cord
 |type=
 |vendorsource=
-|source=[[Shrouded Sivakayan]] (9.0%)
+|source=[[Shrouded Sivakayan]] (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

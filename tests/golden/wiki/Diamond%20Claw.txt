@@ -2,7 +2,7 @@
 |title=Diamond Claw
 |type=
 |vendorsource=
-|source=[[Diamond Hound]] (7.2%)
+|source=[[Diamond Hound]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

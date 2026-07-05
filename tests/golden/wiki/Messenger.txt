@@ -2,7 +2,7 @@
 |title=Messenger
 |type=
 |vendorsource=
-|source=[[Rotting Guardian]] (0.7%)
+|source=[[Rotting Guardian]] (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

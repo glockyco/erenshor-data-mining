@@ -2,7 +2,7 @@
 |title=Spectral Sceptre
 |type=
 |vendorsource=
-|source=[[Cursed Vithean Traitor]] (7.2%)
+|source=[[Cursed Vithean Traitor]] (6.8%)
 |othersource=
 |questsource=
 |relatedquest=

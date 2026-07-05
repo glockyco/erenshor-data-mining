@@ -2,7 +2,7 @@
 |title=Icy Bow
 |type=
 |vendorsource=
-|source=[[Sivakayan Doomshade]] (4.5%)
+|source=[[Sivakayan Doomshade]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

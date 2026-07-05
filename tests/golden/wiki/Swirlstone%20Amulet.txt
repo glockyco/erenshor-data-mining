@@ -2,7 +2,7 @@
 |title=Swirlstone Amulet
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.6%)<br>[[Thella Steepleton]] (8.6%)
+|source=[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)
 |othersource=
 |questsource=
 |relatedquest=

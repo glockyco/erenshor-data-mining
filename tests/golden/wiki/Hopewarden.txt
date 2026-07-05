@@ -2,7 +2,7 @@
 |title=Hopewarden
 |type=
 |vendorsource=
-|source=[[Sivakayan Doomshade]] (9.0%)
+|source=[[Sivakayan Doomshade]] (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

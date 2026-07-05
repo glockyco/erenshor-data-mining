@@ -2,7 +2,7 @@
 |title=Croc Tail
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Stonetooth Croc]] (28.3%)<br>[[Rotbelly Croc]] (14.8%)
+|source=[[Stonetooth Croc]] (27.8%)<br>[[Rotbelly Croc]] (14.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Croc Tails for the Poachers}}

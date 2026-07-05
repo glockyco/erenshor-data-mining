@@ -2,7 +2,7 @@
 |title=Aged Plate Mask
 |type=
 |vendorsource=
-|source=[[Spectral King's Guard]] (25.0%)<br>[[Spectral Castle Guard]] (2.0%)
+|source=[[Spectral King's Guard]] (25.0%)<br>[[Spectral Castle Guard]] (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Apotheosis
 |type=
 |vendorsource=
-|source=[[Apparition of Vitheo]] (17.8%)
+|source=[[Apparition of Vitheo]] (17.6%)
 |othersource=
 |questsource=
 |relatedquest=

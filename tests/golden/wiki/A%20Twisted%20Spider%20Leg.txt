@@ -2,7 +2,7 @@
 |title=A Twisted Spider Leg
 |type=
 |vendorsource=
-|source=[[Slumbering Queen]] (28.4%)<br>[[A Fungal Sentinel]] (26.2%)<br>[[A Fungal Drone]] (20.4%)
+|source=[[Slumbering Queen]] (28.3%)<br>[[A Fungal Sentinel]] (25.2%)<br>[[A Fungal Drone]] (19.6%)
 |othersource=
 |questsource=
 |relatedquest=

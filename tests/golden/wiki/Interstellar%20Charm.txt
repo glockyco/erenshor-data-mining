@@ -2,7 +2,7 @@
 |title=Interstellar Charm
 |type=
 |vendorsource=
-|source=[[Animation of Faith]] (25.2%)<br>[[Soluna]] (5.8%)
+|source=[[Animation of Faith]] (25.1%)<br>[[Soluna]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

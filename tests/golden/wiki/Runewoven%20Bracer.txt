@@ -2,7 +2,7 @@
 |title=Runewoven Bracer
 |type=
 |vendorsource=
-|source=[[Tek-Nu Dah]] (51.9%)<br>[[A Rottenfoot Warrior]] (5.1%)<br>[[A Rottenfoot Witchdoctor]] (5.1%)<br>[[Rottenfoot Mauler]] (3.9%)<br>[[Rottenfoot Swampwalker]] (3.9%)<br>[[Rottenfoot Witchdoctor]] (3.9%)
+|source=[[Tek-Nu Dah]] (51.7%)<br>[[A Rottenfoot Warrior]] (4.4%)<br>[[A Rottenfoot Witchdoctor]] (4.4%)<br>[[Rottenfoot Mauler]] (3.4%)<br>[[Rottenfoot Swampwalker]] (3.4%)<br>[[Rottenfoot Witchdoctor]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Bastion
 |type=
 |vendorsource=
-|source=[[Constructed Faithful]] (4.9%)<br>[[Astorim]] (2.0%)<br>[[Karsith]] (2.0%)<br>[[Orinthar]] (1.7%)<br>[[Vextral]] (1.7%)
+|source=[[Constructed Faithful]] (4.9%)<br>[[Astorim]] (1.7%)<br>[[Karsith]] (1.7%)<br>[[Orinthar]] (1.5%)<br>[[Vextral]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Old Torn Cape
 |type=
 |vendorsource=
-|source=[[An Apparition of Sivakaya]] (26.2%)<br>[[Sylvan Giant Runt]] (23.9%)<br>[[A Lesser Avatar of Sivakaya]] (9.4%)<br>[[Plaxitheris]] (8.8%)
+|source=[[An Apparition of Sivakaya]] (25.2%)<br>[[Sylvan Giant Runt]] (23.5%)<br>[[A Lesser Avatar of Sivakaya]] (9.0%)<br>[[Plaxitheris]] (8.7%)
 |othersource=
 |questsource=
 |relatedquest=

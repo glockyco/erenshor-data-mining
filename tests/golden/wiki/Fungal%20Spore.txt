@@ -2,7 +2,7 @@
 |title=Fungal Spore
 |type=
 |vendorsource=
-|source=[[Abyssal Lord]] (86.5%)<br>[[A Grassland Ogre Plaguebringer]] (84.7%)<br>[[Abyssal Fungus Protector]] (83.7%)<br>[[Abyssal Fungus Warrior]] (83.7%)<br>[[Abyssal Fungus Protector]] (77.6%)<br>[[Planar Fungus]] (74.5%)<br>[[Ravager, The First Infected]] (45.8%)<br>[[Druo the Reborn]] (43.4%)<br>[[A Subterranean Goop]] (22.1%)<br>[[A Subterranean Magmite]] (22.1%)<br>[[A Fungal Sentinel]] (15.1%)<br>[[A Fungal Drone]] (11.5%)
+|source=[[Abyssal Lord]] (86.3%)<br>[[A Grassland Ogre Plaguebringer]] (84.7%)<br>[[Abyssal Fungus Protector]] (83.8%)<br>[[Abyssal Fungus Warrior]] (83.8%)<br>[[Abyssal Fungus Protector]] (77.6%)<br>[[Planar Fungus]] (74.5%)<br>[[Ravager, The First Infected]] (45.8%)<br>[[Druo the Reborn]] (43.4%)<br>[[A Subterranean Goop]] (22.1%)<br>[[A Subterranean Magmite]] (22.1%)<br>[[A Fungal Sentinel]] (15.1%)<br>[[A Fungal Drone]] (11.5%)
 |othersource=
 |questsource=
 |relatedquest=

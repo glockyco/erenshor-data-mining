@@ -2,7 +2,7 @@
 |title=Molorai Warstomps
 |type=
 |vendorsource=
-|source=[[Overseer Laseal]] (55.3%)
+|source=[[Overseer Laseal]] (55.1%)
 |othersource=
 |questsource=
 |relatedquest=

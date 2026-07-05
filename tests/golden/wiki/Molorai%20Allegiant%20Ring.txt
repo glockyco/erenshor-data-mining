@@ -2,7 +2,7 @@
 |title=Molorai Allegiant Ring
 |type=
 |vendorsource=
-|source=[[Molorai Eldermistress]] (66.7%)<br>[[Cerynth Duskveil]] (56.5%)<br>[[Myrre Morrigane]] (56.5%)<br>[[Rose Crystalshade]] (56.5%)
+|source=[[Molorai Eldermistress]] (66.7%)<br>[[Cerynth Duskveil]] (55.6%)<br>[[Myrre Morrigane]] (55.6%)<br>[[Rose Crystalshade]] (55.6%)
 |othersource=
 |questsource=
 |relatedquest=

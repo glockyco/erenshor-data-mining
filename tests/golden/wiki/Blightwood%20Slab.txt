@@ -2,7 +2,7 @@
 |title=Blightwood Slab
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Parzgil]] (100.0%)<br>[[Blighted Jackal]] (14.5%)<br>[[Lupine Horror]] (11.5%)
+|source=[[Parzgil]] (100.0%)<br>[[Blighted Jackal]] (14.2%)<br>[[Lupine Horror]] (11.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Dark Flame}}

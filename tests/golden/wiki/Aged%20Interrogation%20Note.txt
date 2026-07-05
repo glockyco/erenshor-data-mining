@@ -2,7 +2,7 @@
 |title=Aged Interrogation Note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Tortured Prisoner]] (14.1%)
+|source=[[Tortured Prisoner]] (13.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Intel from the Lost Cellar}}

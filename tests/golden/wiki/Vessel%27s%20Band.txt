@@ -2,7 +2,7 @@
 |title=Vessel's Band
 |type=
 |vendorsource=
-|source=[[Vessel Siraethe]] (28.8%)
+|source=[[Vessel Siraethe]] (28.6%)
 |othersource=
 |questsource=
 |relatedquest=

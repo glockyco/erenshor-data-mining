@@ -2,7 +2,7 @@
 |title=Seaweed
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Nipper Tad]] (74.5%)<br>[[Rottenfoot Witchdoctor]] (57.4%)<br>[[A Rottenfoot Warrior]] (51.4%)<br>[[A Rottenfoot Witchdoctor]] (51.4%)<br>[[A Seafiend]] (51.4%)<br>[[A Seafiend Manalord]] (51.4%)<br>[[A Seafiend Manathite]] (51.4%)<br>[[A Seafiend Worker]] (51.4%)<br>[[Algaeth Bilgeback]] (51.4%)<br>[[Rottenfoot Swampwalker]] (41.8%)<br>[[Tek-Nu Dah]] (41.8%)<br>[[Rottenfoot Mauler]] (32.7%)<br>[[A Grassland Ogre Bruiser]] (16.3%)<br>[[An Immature Nagalok]] (15.1%)<br>[[Blunga]] (15.1%)<br>[[Juvenile Nagalok]] (15.1%)<br>[[Occuphage, Eater of Eyes]] (15.1%)<br>[[A Grassland Ogre Sentinel]] (10.2%)<br>[[Wild Ogre]] (4.5%)
+|source=[[Nipper Tad]] (74.5%)<br>[[Rottenfoot Witchdoctor]] (57.4%)<br>[[A Rottenfoot Warrior]] (51.4%)<br>[[A Rottenfoot Witchdoctor]] (51.4%)<br>[[A Seafiend]] (51.4%)<br>[[A Seafiend Manalord]] (51.4%)<br>[[A Seafiend Manathite]] (51.4%)<br>[[A Seafiend Worker]] (51.4%)<br>[[Algaeth Bilgeback]] (51.4%)<br>[[Rottenfoot Swampwalker]] (41.8%)<br>[[Tek-Nu Dah]] (41.8%)<br>[[Rottenfoot Mauler]] (32.7%)<br>[[A Grassland Ogre Bruiser]] (16.3%)<br>[[An Immature Nagalok]] (15.1%)<br>[[Blunga]] (15.1%)<br>[[Juvenile Nagalok]] (15.1%)<br>[[Occuphage, Eater of Eyes]] (15.1%)<br>[[A Grassland Ogre Sentinel]] (10.3%)<br>[[Wild Ogre]] (4.3%)
 |othersource=[[Fishing]]
 |questsource=
 |relatedquest=

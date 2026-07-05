@@ -2,7 +2,7 @@
 |title=Thief of Breath
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Ghost of Plaxitheris]] (78.2%)<br>[[Shiverman]] (59.2%)<br>[[Warded Shadow]] (53.8%)<br>[[Shadow of Sleep]] (14.0%)
+|source=[[Ghost of Plaxitheris]] (78.0%)<br>[[Shiverman]] (59.2%)<br>[[Warded Shadow]] (53.8%)<br>[[Shadow of Sleep]] (14.1%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Warming the Isle}}

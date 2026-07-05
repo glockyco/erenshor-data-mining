@@ -2,7 +2,7 @@
 |title=Pathfinder's Staff
 |type=
 |vendorsource=
-|source=[[Elizah Vernor]] (8.6%)<br>[[Thella Steepleton]] (8.6%)<br>[[Molorai Militia Druid]] (3.1%)
+|source=[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Molorai Militia Druid]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

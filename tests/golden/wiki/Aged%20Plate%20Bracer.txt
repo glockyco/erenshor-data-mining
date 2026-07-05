@@ -2,7 +2,7 @@
 |title=Aged Plate Bracer
 |type=
 |vendorsource=
-|source=[[Spectral Guard]] (3.1%)<br>[[Spectral High Guard]] (3.1%)<br>[[Spectral King's Guard]] (2.2%)<br>[[Rotting Royal Hound]] (1.0%)
+|source=[[Spectral Guard]] (2.7%)<br>[[Spectral High Guard]] (2.7%)<br>[[Spectral King's Guard]] (2.0%)<br>[[Rotting Royal Hound]] (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

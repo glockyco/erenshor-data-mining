@@ -2,7 +2,7 @@
 |title=Blaze Fiend
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
-|source=[[Evadne the Corrupted]] (29.2%)<br>[[Molorai Archaeologist]] (6.7%)<br>[[Apha, Priest of Brax]] (4.2%)<br>[[Upha, Priest of Brax]] (4.2%)<br>[[Molorai Archaeologist]] (3.0%)
+|source=[[Evadne the Corrupted]] (29.1%)<br>[[Molorai Archaeologist]] (5.8%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Molorai Archaeologist]] (2.5%)
 |othersource=
 |questsource=
 |relatedquest=

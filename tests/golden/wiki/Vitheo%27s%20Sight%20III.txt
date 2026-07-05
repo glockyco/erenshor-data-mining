@@ -2,7 +2,7 @@
 |title=Vitheo's Sight III
 |image=[[File:Vitheo's Sight III.png|thumb]]
 |imagecaption=You are keenly aware
-|description=Increase armor penetration on all stikes by 60% and attack roll by 4 / 20.
+|description=Increase armor penetration on all stikes by 35% and attack roll by 3 / 20.
 |type=Beneficial
 |line=Duelist_Armor_Pen
 |classes=[[Windblade]] (33)
@@ -57,7 +57,7 @@
 |haste=
 |resonance=
 |movement_speed=
-|atk_roll_modifier=4
+|atk_roll_modifier=3
 |xp_bonus=
 |is_root=
 |is_stun=

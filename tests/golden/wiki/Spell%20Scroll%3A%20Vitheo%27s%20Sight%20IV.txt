@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vitheo's Sight IV
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (19.4%)
+|source=[[Vithean Chest]] (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

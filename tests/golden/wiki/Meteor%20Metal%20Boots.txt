@@ -2,7 +2,7 @@
 |title=Meteor Metal Boots
 |type=
 |vendorsource=
-|source=[[Solunarian Chest]] (40.3%)<br>[[Soluna]] (5.8%)
+|source=[[Solunarian Chest]] (40.4%)<br>[[Soluna]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

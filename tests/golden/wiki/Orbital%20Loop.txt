@@ -2,7 +2,7 @@
 |title=Orbital Loop
 |type=
 |vendorsource=
-|source=[[Khorso, Soluna's Advisor]] (70.2%)<br>[[Soluna]] (5.8%)
+|source=[[Khorso, Soluna's Advisor]] (70.0%)<br>[[Soluna]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Mummy Wraps
 |type=
 |vendorsource=[[Asaga Underloft]]
-|source=[[Rotting Mummy]] (7.3%)
+|source=[[Rotting Mummy]] (7.0%)
 |othersource=
 |questsource=
 |relatedquest=

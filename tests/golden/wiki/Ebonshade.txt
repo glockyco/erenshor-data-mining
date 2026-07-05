@@ -2,7 +2,7 @@
 |title=Ebonshade
 |type=
 |vendorsource=
-|source=[[Seed of Blight]] (14.9%)
+|source=[[Seed of Blight]] (15.0%)
 |othersource=
 |questsource=
 |relatedquest=

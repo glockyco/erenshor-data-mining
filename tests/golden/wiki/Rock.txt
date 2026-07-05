@@ -2,7 +2,7 @@
 |title=Rock
 |type=[[Mining|Ore]]
 |vendorsource=
-|source=[[Rock Fiend]] (99.6%)<br>[[Rock Sprite]] (99.6%)<br>[[Living Meteorite]] (99.5%)<br>[[Magma Sprite]] (99.3%)<br>[[Ruby Fiend]] (99.3%)<br>[[Sapphire Fiend]] (99.3%)<br>[[A Rock Minion]] (95.1%)<br>[[Granitus]] (85.1%)<br>[[Worn Ancient Guardian]] (34.1%)
+|source=[[Rock Fiend]] (99.6%)<br>[[Rock Sprite]] (99.6%)<br>[[Living Meteorite]] (99.5%)<br>[[Magma Sprite]] (99.3%)<br>[[Ruby Fiend]] (99.3%)<br>[[Sapphire Fiend]] (99.3%)<br>[[A Rock Minion]] (94.9%)<br>[[Granitus]] (84.9%)<br>[[Worn Ancient Guardian]] (34.1%)
 |othersource=[[Mining]]
 |questsource=
 |relatedquest=

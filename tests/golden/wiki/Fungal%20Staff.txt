@@ -2,7 +2,7 @@
 |title=Fungal Staff
 |type=
 |vendorsource=
-|source=[[Abyssal Lord]] (50.0%)<br>[[Abyssal Fungus Protector]] (1.1%)<br>[[Abyssal Fungus Protector]] (0.7%)<br>[[Abyssal Fungus Warrior]] (0.7%)
+|source=[[Abyssal Lord]] (50.0%)<br>[[Abyssal Fungus Protector]] (0.9%)<br>[[Abyssal Fungus Protector]] (0.6%)<br>[[Abyssal Fungus Warrior]] (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

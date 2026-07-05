@@ -2,7 +2,7 @@
 |title=Steel Long Sword
 |type=
 |vendorsource=[[Akaran Black]]<br>[[Pierson Windwash]]
-|source=[[A Lesser Avatar of Sivakaya]] (20.5%)
+|source=[[A Lesser Avatar of Sivakaya]] (20.6%)
 |othersource=
 |questsource=
 |relatedquest=

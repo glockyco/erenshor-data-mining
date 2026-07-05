@@ -2,7 +2,7 @@
 |title=Spell Scroll: Weak Poison
 |type=[[Ability Books]]
 |vendorsource=[[Alyssia Fearnon]]
-|source=[[Plaxitheris]] (8.8%)
+|source=[[Plaxitheris]] (8.7%)
 |othersource=[[Druid]] (starter gear)<br>
 |questsource=
 |relatedquest=

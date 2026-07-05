@@ -2,7 +2,7 @@
 |title=Rotwood Bow
 |type=
 |vendorsource=[[Windlae Oldseer]]
-|source=[[Wiggleribs]] (12.1%)<br>[[A Sturdy Skeleton]] (3.9%)<br>[[A Skeleton Soldier]] (3.5%)
+|source=[[Wiggleribs]] (12.1%)<br>[[A Skeleton Soldier]] (3.5%)<br>[[A Sturdy Skeleton]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

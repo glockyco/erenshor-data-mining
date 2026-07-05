@@ -2,7 +2,7 @@
 |title=Twisted Branch
 |type=
 |vendorsource=
-|source=[[Botanist]] (7.7%)
+|source=[[Botanist]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

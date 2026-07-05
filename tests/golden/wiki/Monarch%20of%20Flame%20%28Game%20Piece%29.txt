@@ -2,7 +2,7 @@
 |title=Monarch of Flame
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=[[Elysia Thistlewick]]
-|source=[[Hand of the King]] (5.1%)
+|source=[[Hand of the King]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

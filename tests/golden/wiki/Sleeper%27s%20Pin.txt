@@ -2,7 +2,7 @@
 |title=Sleeper's Pin
 |type=
 |vendorsource=
-|source=[[Nightmarian Arcanist]] (7.6%)
+|source=[[Nightmarian Arcanist]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

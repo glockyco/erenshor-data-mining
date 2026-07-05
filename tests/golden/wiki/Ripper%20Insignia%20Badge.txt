@@ -2,7 +2,7 @@
 |title=Ripper Insignia Badge
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Armorer Nell]] (20.5%)<br>[[Captain Ovid]] (20.5%)<br>[[Celeso the Historian]] (20.5%)<br>[[Hector Yvey]] (20.5%)<br>[[Jeremie Galyard]] (20.5%)<br>[[Mavik Estonia]] (20.5%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (20.5%)<br>[[Ripper Soldier]] (20.5%)
+|source=[[Armorer Nell]] (20.6%)<br>[[Captain Ovid]] (20.6%)<br>[[Celeso the Historian]] (20.6%)<br>[[Hector Yvey]] (20.6%)<br>[[Jeremie Galyard]] (20.6%)<br>[[Mavik Estonia]] (20.6%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (20.6%)<br>[[Ripper Soldier]] (20.6%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Ripper's Insignia Badges}}

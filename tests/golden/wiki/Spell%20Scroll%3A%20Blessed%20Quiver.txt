@@ -2,7 +2,7 @@
 |title=Spell Scroll: Blessed Quiver
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Elwio the Traitor]] (63.3%)
+|source=[[Elwio the Traitor]] (63.0%)
 |othersource=
 |questsource=
 |relatedquest=

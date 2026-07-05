@@ -2,7 +2,7 @@
 |title=Inspiration
 |type=
 |vendorsource=
-|source=[[Lazalith, Soldier of Sivakaya]] (14.1%)
+|source=[[Lazalith, Soldier of Sivakaya]] (13.5%)
 |othersource=
 |questsource=
 |relatedquest=

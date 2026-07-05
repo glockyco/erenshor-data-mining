@@ -2,7 +2,7 @@
 |title=Armguards of Presence
 |type=
 |vendorsource=
-|source=[[Azynthian Keeper]] (41.1%)
+|source=[[Azynthian Keeper]] (40.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Molorai Battle Chain
 |type=
 |vendorsource=
-|source=[[Molorai Outrider]] (17.9%)<br>[[Overseer Refleigh]] (14.5%)<br>[[Molorai Specialist]] (13.1%)<br>[[Molorai Acquirer]] (10.8%)<br>[[Overseer Laseal]] (10.6%)<br>[[Molorai Ancille]] (6.8%)<br>[[Molorai Anointed]] (6.8%)<br>[[Molorai Bloodwarden]] (6.8%)<br>[[Molorai Curator]] (6.8%)<br>[[Molorai Dockmaster]] (6.8%)<br>[[Molorai Eldermistress]] (6.8%)<br>[[Molorai Mason]] (6.8%)<br>[[Molorai Outrider]] (6.8%)<br>[[Molorai Specialist]] (6.8%)<br>[[Molorai Truthseeker]] (6.8%)<br>[[Molorai Nightmistress]] (5.1%)
+|source=[[Molorai Outrider]] (17.2%)<br>[[Overseer Refleigh]] (14.2%)<br>[[Molorai Specialist]] (12.9%)<br>[[Molorai Acquirer]] (10.9%)<br>[[Overseer Laseal]] (10.1%)<br>[[Molorai Ancille]] (6.9%)<br>[[Molorai Anointed]] (6.9%)<br>[[Molorai Bloodwarden]] (6.9%)<br>[[Molorai Curator]] (6.9%)<br>[[Molorai Dockmaster]] (6.9%)<br>[[Molorai Eldermistress]] (6.9%)<br>[[Molorai Mason]] (6.9%)<br>[[Molorai Outrider]] (6.9%)<br>[[Molorai Specialist]] (6.9%)<br>[[Molorai Truthseeker]] (6.9%)<br>[[Molorai Nightmistress]] (5.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Stalwart Belt
 |type=
 |vendorsource=
-|source=[[Grizzlepaw]] (10.8%)
+|source=[[Grizzlepaw]] (10.4%)
 |othersource=
 |questsource=
 |relatedquest=

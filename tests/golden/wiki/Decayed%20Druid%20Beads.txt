@@ -2,7 +2,7 @@
 |title=Decayed Druid Beads
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Elder Guardian]] (32.9%)<br>[[Bloom Preserver]] (22.3%)<br>[[Greater Fawn]] (22.3%)<br>[[Chosen Fawn]] (14.2%)<br>[[Fawn of Fernalla]] (14.2%)<br>[[Maple]] (11.7%)<br>[[Risen Hierophant]] (10.8%)<br>[[Risen Druid]] (10.6%)<br>[[Vinx]] (7.9%)<br>[[Frenzy]] (5.6%)<br>[[Grappler]] (5.6%)<br>[[Fernallan Guardian]] (3.5%)
+|source=[[Elder Guardian]] (32.3%)<br>[[Bloom Preserver]] (21.6%)<br>[[Greater Fawn]] (21.6%)<br>[[Chosen Fawn]] (13.8%)<br>[[Fawn of Fernalla]] (13.8%)<br>[[Maple]] (11.0%)<br>[[Risen Druid]] (10.6%)<br>[[Risen Hierophant]] (10.2%)<br>[[Vinx]] (7.3%)<br>[[Frenzy]] (4.8%)<br>[[Grappler]] (4.8%)<br>[[Fernallan Guardian]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Druid Beads for Varran}}

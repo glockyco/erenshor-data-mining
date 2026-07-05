@@ -2,7 +2,7 @@
 |title=Wardens of the North
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Ancient Celestarian]] (7.8%)<br>[[Ancient Knight]] (2.3%)<br>[[Ancient Guard]] (1.4%)<br>[[Ancient Corpse]] (1.0%)
+|source=[[Ancient Celestarian]] (7.8%)<br>[[Ancient Knight]] (2.1%)<br>[[Ancient Guard]] (1.2%)<br>[[Ancient Corpse]] (1.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Reaver's Origin}}

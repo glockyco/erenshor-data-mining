@@ -2,7 +2,7 @@
 |title=Tamer's Pack
 |type=
 |vendorsource=
-|source=[[Priel Tamer]] (3.4%)
+|source=[[Priel Tamer]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

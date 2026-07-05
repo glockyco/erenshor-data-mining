@@ -2,7 +2,7 @@
 |title=Vitheo's Sight II
 |image=[[File:Vitheo's Sight II.png|thumb]]
 |imagecaption=You are keenly aware
-|description=Increase armor penetration on all stikes by 40% and attack roll by 2 / 20.
+|description=Increase armor penetration on all stikes by 25% and attack roll by 2 / 20.
 |type=Beneficial
 |line=Duelist_Armor_Pen
 |classes=[[Windblade]] (18)

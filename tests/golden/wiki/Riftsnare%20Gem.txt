@@ -2,7 +2,7 @@
 |title=Riftsnare Gem
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Grounds Keeper]] (100.0%)<br>[[Oracle Miress]] (100.0%)<br>[[Oracle Tretha]] (100.0%)<br>[[Vos Ashlyn]] (100.0%)<br>[[Exalted Firebone]] (14.1%)
+|source=[[Grounds Keeper]] (100.0%)<br>[[Oracle Miress]] (100.0%)<br>[[Oracle Tretha]] (100.0%)<br>[[Vos Ashlyn]] (100.0%)<br>[[Exalted Firebone]] (13.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Flickering Souls}}

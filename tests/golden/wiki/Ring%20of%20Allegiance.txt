@@ -2,7 +2,7 @@
 |title=Ring of Allegiance
 |type=
 |vendorsource=
-|source=[[Solunarian Sunbringer]] (7.6%)
+|source=[[Solunarian Sunbringer]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

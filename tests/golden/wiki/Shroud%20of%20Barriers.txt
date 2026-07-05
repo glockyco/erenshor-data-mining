@@ -2,7 +2,7 @@
 |title=Shroud of Barriers
 |type=
 |vendorsource=
-|source=[[Braxon Fanatic]] (1.9%)
+|source=[[Braxon Fanatic]] (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

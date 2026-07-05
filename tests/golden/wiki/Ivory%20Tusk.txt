@@ -2,7 +2,7 @@
 |title=Ivory Tusk
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Brood Mother]] (20.4%)<br>[[Captured Molorath]] (20.4%)<br>[[Demented Malaroth]] (20.4%)<br>[[Failed Experiment]] (20.4%)<br>[[Lacy]] (20.4%)<br>[[Malaroth Cub]] (20.4%)<br>[[Mature Malaroth]] (20.4%)<br>[[Shivunax]] (20.4%)<br>[[Tamed Malaroth]] (20.4%)<br>[[Vizijivi]] (20.4%)<br>[[Xasxi]] (20.4%)
+|source=[[Brood Mother]] (19.5%)<br>[[Captured Molorath]] (19.5%)<br>[[Demented Malaroth]] (19.5%)<br>[[Failed Experiment]] (19.5%)<br>[[Lacy]] (19.5%)<br>[[Malaroth Cub]] (19.5%)<br>[[Mature Malaroth]] (19.5%)<br>[[Shivunax]] (19.5%)<br>[[Tamed Malaroth]] (19.5%)<br>[[Vizijivi]] (19.5%)<br>[[Xasxi]] (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

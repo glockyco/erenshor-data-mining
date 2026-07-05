@@ -2,7 +2,7 @@
 |title=Hardened Sceptre
 |type=
 |vendorsource=
-|source=[[Molorai Archmage]] (47.1%)<br>[[Molorai Archmage]] (7.6%)
+|source=[[Molorai Archmage]] (46.4%)<br>[[Molorai Archmage]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Concentration Band
 |type=
 |vendorsource=
-|source=[[Soul Linked Spider]] (4.5%)<br>[[Soul Linked Spider]] (2.6%)<br>[[Gasper]] (1.9%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.7%)<br>[[Fright]] (1.7%)<br>[[Shiverman]] (0.7%)
+|source=[[Soul Linked Spider]] (4.5%)<br>[[Soul Linked Spider]] (2.3%)<br>[[Gasper]] (1.8%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.6%)<br>[[Fright]] (1.6%)<br>[[Shiverman]] (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

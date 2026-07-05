@@ -2,7 +2,7 @@
 |title=Shadowclasp
 |type=
 |vendorsource=
-|source=[[Shrouded Sivakayan]] (4.5%)
+|source=[[Shrouded Sivakayan]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

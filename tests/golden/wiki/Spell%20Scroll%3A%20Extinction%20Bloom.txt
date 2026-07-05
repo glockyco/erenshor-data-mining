@@ -2,7 +2,7 @@
 |title=Spell Scroll: Extinction Bloom
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Molorai Nightmistress]] (5.1%)
+|source=[[Molorai Nightmistress]] (5.2%)
 |othersource=
 |questsource=
 |relatedquest=

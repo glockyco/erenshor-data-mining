@@ -2,7 +2,7 @@
 |title=Chthonic Tunic
 |type=
 |vendorsource=
-|source=[[Arbor]] (31.7%)<br>[[Planar Crawler]] (3.9%)<br>[[Fernallan High Guard]] (3.7%)<br>[[Planar Fungus]] (3.4%)<br>[[Fernallan Planar Guard]] (3.0%)<br>[[Planar Grizzly]] (1.8%)<br>[[Planar Wolf]] (1.8%)<br>[[Pack Mother]] (1.8%)<br>[[Planar Cobra]] (1.8%)<br>[[Planar Faerie]] (1.7%)<br>[[Planar Minotaur]] (1.6%)<br>[[Fernallan High Priest]] (1.6%)
+|source=[[Arbor]] (30.4%)<br>[[Planar Crawler]] (3.7%)<br>[[Fernallan High Guard]] (3.7%)<br>[[Planar Fungus]] (3.4%)<br>[[Fernallan Planar Guard]] (2.9%)<br>[[Planar Grizzly]] (1.8%)<br>[[Planar Wolf]] (1.8%)<br>[[Planar Faerie]] (1.7%)<br>[[Pack Mother]] (1.7%)<br>[[Planar Cobra]] (1.7%)<br>[[Planar Minotaur]] (1.6%)<br>[[Fernallan High Priest]] (1.6%)
 |othersource=
 |questsource=
 |relatedquest=

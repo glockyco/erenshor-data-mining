@@ -2,7 +2,7 @@
 |title=Priel Standard
 |type=
 |vendorsource=
-|source=[[Tiallia Priel]] (6.7%)<br>[[Addison Priel]] (4.9%)<br>[[Chazza Priel]] (4.9%)<br>[[Julianna Priel]] (4.9%)<br>[[Priel Lieutenant Bovo]] (4.9%)<br>[[Priel Lieutenant Laflin]] (4.9%)<br>[[Priel Lieutenant Lance]] (4.9%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (4.2%)
+|source=[[Tiallia Priel]] (5.9%)<br>[[Priel Lieutenant Bovo]] (4.3%)<br>[[Priel Lieutenant Laflin]] (4.3%)<br>[[Priel Lieutenant Lance]] (4.3%)<br>[[Addison Priel]] (4.2%)<br>[[Chazza Priel]] (4.2%)<br>[[Julianna Priel]] (4.2%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (3.6%)
 |othersource=
 |questsource=
 |relatedquest=

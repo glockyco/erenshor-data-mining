@@ -2,7 +2,7 @@
 |title=Swamproot
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Nipper Pup]] (74.5%)<br>[[Ragewhip]] (28.3%)<br>[[Swamp Nettle]] (23.4%)
+|source=[[Nipper Pup]] (74.5%)<br>[[Ragewhip]] (27.8%)<br>[[Swamp Nettle]] (23.5%)
 |othersource=
 |questsource=
 |relatedquest=

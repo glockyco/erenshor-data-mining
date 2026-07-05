@@ -2,7 +2,7 @@
 |title=Distant Thunder
 |type=[[Auras|Aura]]
 |vendorsource=
-|source=[[Cinder]] (20.0%)<br>[[Goliath]] (3.4%)<br>[[Gruhglor]] (3.1%)
+|source=[[Cinder]] (20.0%)<br>[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

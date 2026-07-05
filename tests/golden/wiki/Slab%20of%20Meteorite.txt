@@ -2,7 +2,7 @@
 |title=Slab of Meteorite
 |type=
 |vendorsource=
-|source=[[Living Meteorite]] (14.6%)
+|source=[[Living Meteorite]] (12.8%)
 |othersource=
 |questsource=
 |relatedquest=

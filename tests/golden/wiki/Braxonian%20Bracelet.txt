@@ -2,7 +2,7 @@
 |title=Braxonian Bracelet
 |type=
 |vendorsource=
-|source=[[Statue of Brax]] (24.0%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxon Prospect]] (0.8%)<br>[[Braxonian Ascended]] (0.8%)<br>[[Braxonian Tempest]] (0.8%)
+|source=[[Statue of Brax]] (23.9%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxon Prospect]] (0.7%)<br>[[Braxonian Ascended]] (0.7%)<br>[[Braxonian Tempest]] (0.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Copper Sword
 |type=
 |vendorsource=[[Brian Meshley]]<br>[[Pierson Windwash]]
-|source=[[Gort]] (10.8%)<br>[[Summoned Fallen Warrior]] (10.8%)<br>[[The Corpse of Brice Mathers]] (10.8%)<br>[[The Corpse of Cyndreela Mathers]] (10.8%)<br>[[A Sturdy Skeleton]] (6.9%)
+|source=[[Gort]] (10.4%)<br>[[Summoned Fallen Warrior]] (10.4%)<br>[[The Corpse of Brice Mathers]] (10.4%)<br>[[The Corpse of Cyndreela Mathers]] (10.4%)<br>[[A Sturdy Skeleton]] (7.0%)
 |othersource=
 |questsource={{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}
 |relatedquest=

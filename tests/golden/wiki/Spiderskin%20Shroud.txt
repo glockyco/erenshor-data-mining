@@ -2,7 +2,7 @@
 |title=Spiderskin Shroud
 |type=
 |vendorsource=
-|source=[[Soul Linked Spider]] (50.0%)<br>[[Soul Linked Spider]] (2.6%)<br>[[Soul Linked Spider]] (2.5%)
+|source=[[Soul Linked Spider]] (50.0%)<br>[[Soul Linked Spider]] (2.3%)<br>[[Soul Linked Spider]] (2.2%)
 |othersource=
 |questsource=
 |relatedquest=

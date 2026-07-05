@@ -2,7 +2,7 @@
 |title=Essence of Nature
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Corrupted Oread]] (28.3%)<br>[[Dryad Spirit]] (28.3%)<br>[[Massia the Fallen]] (28.3%)<br>[[Spectral Bear]] (28.3%)<br>[[Fernallan Guardian]] (23.4%)<br>[[Rotting Guardian]] (14.8%)
+|source=[[Corrupted Oread]] (27.8%)<br>[[Dryad Spirit]] (27.8%)<br>[[Massia the Fallen]] (27.8%)<br>[[Spectral Bear]] (27.8%)<br>[[Fernallan Guardian]] (23.5%)<br>[[Rotting Guardian]] (14.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Life Flame}}

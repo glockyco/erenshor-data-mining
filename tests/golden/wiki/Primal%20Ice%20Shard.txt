@@ -2,7 +2,7 @@
 |title=Primal Ice Shard
 |type=
 |vendorsource=
-|source=[[Warder of Ice]] (69.8%)
+|source=[[Warder of Ice]] (69.7%)
 |othersource=
 |questsource=
 |relatedquest=

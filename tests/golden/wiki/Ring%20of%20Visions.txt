@@ -2,7 +2,7 @@
 |title=Ring of Visions
 |type=
 |vendorsource=
-|source=[[Spectre]] (2.6%)
+|source=[[Spectre]] (2.3%)
 |othersource=
 |questsource=
 |relatedquest=

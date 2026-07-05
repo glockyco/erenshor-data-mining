@@ -2,7 +2,7 @@
 |title=Cold Steel Greaves
 |type=
 |vendorsource=[[Shantee Swingblade]]
-|source=[[A Golden Spirit]] (14.3%)<br>[[Molorai Militia Warrior]] (5.1%)
+|source=[[A Golden Spirit]] (14.0%)<br>[[Molorai Militia Warrior]] (4.9%)
 |othersource=
 |questsource=
 |relatedquest=

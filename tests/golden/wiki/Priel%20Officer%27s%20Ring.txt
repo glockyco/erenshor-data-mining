@@ -2,7 +2,7 @@
 |title=Priel Officer's Ring
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Priel Deceiver]] (4.9%)<br>[[Priel Enforcer]] (4.9%)<br>[[Priel Malarist]] (3.9%)<br>[[Priel Soldier]] (3.9%)<br>[[Priel Tamer]] (3.4%)<br>[[Priel Gifted]] (2.4%)<br>[[Priel Grimwatch]] (2.4%)<br>[[Priel Purist]] (2.4%)<br>[[Priel Swiftblade]] (2.4%)<br>[[Priel Consort]] (1.6%)
+|source=[[Priel Deceiver]] (4.3%)<br>[[Priel Enforcer]] (4.3%)<br>[[Priel Malarist]] (3.4%)<br>[[Priel Soldier]] (3.4%)<br>[[Priel Tamer]] (3.0%)<br>[[Priel Gifted]] (2.1%)<br>[[Priel Grimwatch]] (2.1%)<br>[[Priel Purist]] (2.1%)<br>[[Priel Swiftblade]] (2.1%)<br>[[Priel Consort]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

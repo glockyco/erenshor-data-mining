@@ -2,7 +2,7 @@
 |title=Living Chainmail Jacket
 |type=
 |vendorsource=[[Tiver Banes]]
-|source=[[Tinkles]] (23.9%)<br>[[Botanist]] (6.9%)
+|source=[[Tinkles]] (23.7%)<br>[[Botanist]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

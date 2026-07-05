@@ -2,7 +2,7 @@
 |title=Ethereal Shell
 |type=
 |vendorsource=
-|source=[[Xjeris]] (69.0%)
+|source=[[Xjeris]] (68.9%)
 |othersource=
 |questsource=
 |relatedquest=

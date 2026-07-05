@@ -2,7 +2,7 @@
 |title=Willowcutter
 |type=
 |vendorsource=
-|source=[[Fernallan High Priest]] (68.8%)
+|source=[[Fernallan High Priest]] (68.7%)
 |othersource=
 |questsource=
 |relatedquest=

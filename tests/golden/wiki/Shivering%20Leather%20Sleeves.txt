@@ -2,7 +2,7 @@
 |title=Shivering Leather Sleeves
 |type=
 |vendorsource=
-|source=[[Crypt Keeper]] (6.8%)<br>[[Molorai Militia Druid]] (3.1%)
+|source=[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

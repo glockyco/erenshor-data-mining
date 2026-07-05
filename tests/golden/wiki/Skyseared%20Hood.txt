@@ -2,7 +2,7 @@
 |title=Skyseared Hood
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (2.5%)<br>[[Vithean Chest]] (2.4%)<br>[[Wandering Gladiator]] (1.9%)<br>[[Honsus]] (1.6%)<br>[[Tojokom]] (1.6%)<br>[[Vithean Chest]] (1.6%)<br>[[Wandering Gladiator]] (1.1%)<br>[[Expert Gladiator]] (1.0%)
+|source=[[Vithean Chest]] (2.5%)<br>[[Vithean Chest]] (2.4%)<br>[[Wandering Gladiator]] (1.8%)<br>[[Vithean Chest]] (1.6%)<br>[[Honsus]] (1.5%)<br>[[Tojokom]] (1.5%)<br>[[Wandering Gladiator]] (1.0%)<br>[[Expert Gladiator]] (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

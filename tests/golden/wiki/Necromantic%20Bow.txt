@@ -2,7 +2,7 @@
 |title=Necromantic Bow
 |type=
 |vendorsource=
-|source=[[Faceless Necromancer]] (7.3%)
+|source=[[Faceless Necromancer]] (7.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Cord of Concentration
 |type=
 |vendorsource=
-|source=[[Animation of Grace]] (69.0%)
+|source=[[Animation of Grace]] (68.9%)
 |othersource=
 |questsource=
 |relatedquest=

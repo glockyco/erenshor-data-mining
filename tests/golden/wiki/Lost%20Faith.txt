@@ -2,7 +2,7 @@
 |title=Lost Faith
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Raval, The First Paladin]] (36.0%)<br>[[Ancient Celestarian]] (22.1%)<br>[[Ancient Corpse]] (22.1%)<br>[[Ancient Guard]] (22.1%)<br>[[Ancient Knight]] (22.1%)
+|source=[[Raval, The First Paladin]] (35.4%)<br>[[Ancient Celestarian]] (22.1%)<br>[[Ancient Corpse]] (22.1%)<br>[[Ancient Guard]] (22.1%)<br>[[Ancient Knight]] (22.1%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=Lost Faith (Quest){{!}}Lost Faith}}<br>{{QuestLink|link=Raval's Last Wish}}

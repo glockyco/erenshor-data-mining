@@ -2,7 +2,7 @@
 |title=Mino Hatchet
 |type=
 |vendorsource=
-|source=[[Loomingwood Minotaur Legionnaire]] (13.5%)<br>[[Loomingwood Minotaur Soldier]] (13.5%)
+|source=[[Loomingwood Minotaur Legionnaire]] (12.9%)<br>[[Loomingwood Minotaur Soldier]] (12.9%)
 |othersource=
 |questsource=
 |relatedquest=

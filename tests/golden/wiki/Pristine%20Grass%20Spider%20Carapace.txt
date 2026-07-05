@@ -2,7 +2,7 @@
 |title=Pristine Grass Spider Carapace
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Mature Grass Spider]] (13.5%)<br>[[A Grass Spider]] (3.2%)
+|source=[[A Mature Grass Spider]] (12.9%)<br>[[A Grass Spider]] (2.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}

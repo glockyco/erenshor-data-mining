@@ -2,7 +2,7 @@
 |title=Spell Scroll: Tangle
 |type=[[Ability Books]]
 |vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Tiver Banes]]
-|source=[[Plaxitheris]] (8.8%)<br>[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[Islander Bandit]] (1.1%)
+|source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[Islander Bandit]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

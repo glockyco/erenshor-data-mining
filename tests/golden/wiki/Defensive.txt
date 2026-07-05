@@ -1,12 +1,12 @@
 {{Stance
 |title=Defensive
 |image=[[File:Stance: Defensive.png|thumb]]
-|description=Deal 33% less physical damage, and take 20% less incoming damage.<br><br>Your focus on defense stops all natural health regeneration.
+|description=Take 20% less incoming damage and gain 2% proc rate bonus<br><br>Your focus on defense stops all natural health regeneration.
 |switch_message=shifts into a defensive combat stance
 |max_hp_mod=1.0
-|damage_mod=0.66
+|damage_mod=1.0
 |damage_taken_mod=0.8
-|proc_rate_mod=1.0
+|proc_rate_mod=1.02
 |aggro_gen_mod=1.0
 |spell_damage_mod=1.0
 |self_damage_per_attack=

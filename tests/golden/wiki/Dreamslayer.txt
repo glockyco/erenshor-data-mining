@@ -2,7 +2,7 @@
 |title=Dreamslayer
 |type=
 |vendorsource=
-|source=[[Nightmarian Knight]] (4.9%)
+|source=[[Nightmarian Knight]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Jackal Meat
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Desert Jackal]] (86.5%)
+|source=[[Desert Jackal]] (86.3%)
 |othersource=
 |questsource=
 |relatedquest=

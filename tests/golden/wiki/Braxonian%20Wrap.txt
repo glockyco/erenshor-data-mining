@@ -2,7 +2,7 @@
 |title=Braxonian Wrap
 |type=
 |vendorsource=
-|source=[[Apha, Priest of Brax]] (25.4%)<br>[[Upha, Priest of Brax]] (25.4%)
+|source=[[Apha, Priest of Brax]] (25.5%)<br>[[Upha, Priest of Brax]] (25.5%)
 |othersource=
 |questsource=
 |relatedquest=

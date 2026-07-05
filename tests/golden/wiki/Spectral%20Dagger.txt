@@ -2,7 +2,7 @@
 |title=Spectral Dagger
 |type=
 |vendorsource=
-|source=[[The Crypt Guardian]] (14.8%)<br>[[Vithean Blademaster]] (13.1%)<br>[[Vithean Betrayer]] (5.8%)<br>[[Vithean Immortal]] (3.5%)
+|source=[[The Crypt Guardian]] (14.8%)<br>[[Vithean Blademaster]] (13.1%)<br>[[Vithean Betrayer]] (5.1%)<br>[[Vithean Immortal]] (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

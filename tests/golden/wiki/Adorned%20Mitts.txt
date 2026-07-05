@@ -2,7 +2,7 @@
 |title=Adorned Mitts
 |type=
 |vendorsource=
-|source=[[Prioress]] (7.6%)
+|source=[[Prioress]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

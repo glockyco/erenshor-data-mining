@@ -2,7 +2,7 @@
 |title=Ring of Magic Bolt
 |type=
 |vendorsource=[[Samuel Thatcher]]<br>[[Yale Harvey]]
-|source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Sylvan Giant Runt]] (23.9%)
+|source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Sylvan Giant Runt]] (23.5%)
 |othersource=
 |questsource=
 |relatedquest=

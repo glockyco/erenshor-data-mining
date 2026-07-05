@@ -2,7 +2,7 @@
 |title=Loomingwood Branch
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[The Gardener of Loomingwood]] (100.0%)<br>[[Thorn (Enemy)|Thorn]] (13.5%)<br>[[Aviak]] (10.1%)<br>[[Diva]] (9.1%)<br>[[Devoratrix]] (6.9%)<br>[[Planar Flora]] (6.9%)
+|source=[[The Gardener of Loomingwood]] (100.0%)<br>[[Thorn (Enemy)|Thorn]] (12.9%)<br>[[Aviak]] (9.7%)<br>[[Diva]] (9.1%)<br>[[Devoratrix]] (6.9%)<br>[[Planar Flora]] (6.9%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|The Life Flame}}

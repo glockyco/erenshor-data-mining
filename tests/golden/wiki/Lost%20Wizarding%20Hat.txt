@@ -2,7 +2,7 @@
 |title=Lost Wizarding Hat
 |type=
 |vendorsource=
-|source=[[Arcane Pupil]] (5.1%)
+|source=[[Arcane Pupil]] (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

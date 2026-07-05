@@ -2,7 +2,7 @@
 |title=Rune of Silkengrass
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Shadow Man]] (6.7%)<br>[[Aetherfiend]] (5.9%)
+|source=[[Shadow Man]] (5.9%)<br>[[Aetherfiend]] (5.1%)
 |othersource=
 |questsource={{QuestLink|Portal of Silkengrass}}
 |relatedquest={{QuestLink|Portal of Silkengrass}}

@@ -2,7 +2,7 @@
 |title=Dusken Giant's Blood
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Dusken Giant]] (86.5%)
+|source=[[Dusken Giant]] (86.3%)
 |othersource=
 |questsource=
 |relatedquest=

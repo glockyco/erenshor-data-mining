@@ -2,7 +2,7 @@
 |title=Molorai Broadsword
 |type=
 |vendorsource=
-|source=[[Molorai Outrider]] (20.5%)
+|source=[[Molorai Outrider]] (20.6%)
 |othersource=
 |questsource=
 |relatedquest=

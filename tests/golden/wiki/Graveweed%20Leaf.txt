@@ -2,7 +2,7 @@
 |title=Graveweed Leaf
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Neophyte Necromancer]] (10.6%)<br>[[Zashlyn Bloodbane]] (8.4%)<br>[[Boatman]] (1.3%)
+|source=[[Neophyte Necromancer]] (10.1%)<br>[[Zashlyn Bloodbane]] (8.5%)<br>[[Boatman]] (1.1%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Graveweed Leaf for Benson Gamble}}

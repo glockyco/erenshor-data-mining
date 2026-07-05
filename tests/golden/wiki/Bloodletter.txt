@@ -2,7 +2,7 @@
 |title=Bloodletter
 |type=
 |vendorsource=
-|source=[[A Highwayman Marauder]] (8.3%)<br>[[Shambler]] (7.6%)
+|source=[[A Highwayman Marauder]] (7.3%)<br>[[Shambler]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

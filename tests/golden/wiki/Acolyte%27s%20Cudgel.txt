@@ -2,7 +2,7 @@
 |title=Acolyte's Cudgel
 |type=
 |vendorsource=
-|source=[[Ecclesiarch]] (7.6%)
+|source=[[Ecclesiarch]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

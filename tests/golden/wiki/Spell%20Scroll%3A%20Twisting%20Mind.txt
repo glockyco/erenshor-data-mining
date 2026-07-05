@@ -2,7 +2,7 @@
 |title=Spell Scroll: Twisting Mind
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Sivakayan Faithbound]] (2.4%)
+|source=[[Sivakayan Faithbound]] (2.1%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Trickster's Tunic
 |type=
 |vendorsource=
-|source=[[Sprinkles]] (69.8%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
+|source=[[Sprinkles]] (69.6%)<br>[[Fernalla, Goddess of Nature]] (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

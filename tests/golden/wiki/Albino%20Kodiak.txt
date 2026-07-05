@@ -16,7 +16,7 @@ The Albino Kodiak can spawn in place of the regular Kodiak in the [[Silkengrass 
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=3.0
-|health=23400
+|health=34125
 |mana=0
 |ac=330
 |strength=35

@@ -2,7 +2,7 @@
 |title=Sivakayan Tunic
 |type=
 |vendorsource=
-|source=[[Acceptor]] (3.9%)
+|source=[[Acceptor]] (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

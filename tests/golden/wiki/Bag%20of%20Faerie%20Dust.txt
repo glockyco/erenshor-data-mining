@@ -2,7 +2,7 @@
 |title=Bag of Faerie Dust
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Faerie Drone]] (8.8%)<br>[[A Faerie Enchantress]] (4.5%)<br>[[A Faerie Foliagian]] (4.5%)<br>[[A Faerie Windchild]] (4.5%)<br>[[Tinkles]] (4.0%)<br>[[Winkles]] (2.0%)
+|source=[[A Faerie Drone]] (7.7%)<br>[[A Faerie Enchantress]] (4.5%)<br>[[A Faerie Foliagian]] (4.5%)<br>[[A Faerie Windchild]] (4.5%)<br>[[Tinkles]] (4.0%)<br>[[Winkles]] (1.8%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|The Revival Plains Ritual}}

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Magic Bolt
 |type=[[Ability Books]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
-|source=[[Plaxitheris]] (8.8%)<br>[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
 |othersource=[[Arcanist]] (starter gear)<br>
 |questsource=
 |relatedquest=

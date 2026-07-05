@@ -2,7 +2,7 @@
 |title=Vampire Fang
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Oracle Miress]] (20.4%)<br>[[Oracle Tretha]] (20.4%)<br>[[Molorai Ancille]] (7.4%)<br>[[Molorai Anointed]] (7.4%)<br>[[Molorai Bloodwarden]] (7.4%)<br>[[Molorai Eldermistress]] (7.4%)<br>[[Molorai Nightmistress]] (7.4%)<br>[[Molorai Outrider]] (7.4%)<br>[[Molorai Truthseeker]] (7.4%)<br>[[Molorai Curator]] (6.8%)<br>[[Molorai Mason]] (4.5%)<br>[[Molorai Acquirer]] (4.4%)<br>[[Molorai Dockmaster]] (2.9%)
+|source=[[Oracle Miress]] (19.5%)<br>[[Oracle Tretha]] (19.5%)<br>[[Molorai Curator]] (6.9%)<br>[[Molorai Ancille]] (6.8%)<br>[[Molorai Anointed]] (6.8%)<br>[[Molorai Bloodwarden]] (6.8%)<br>[[Molorai Eldermistress]] (6.8%)<br>[[Molorai Nightmistress]] (6.8%)<br>[[Molorai Outrider]] (6.8%)<br>[[Molorai Truthseeker]] (6.8%)<br>[[Molorai Mason]] (3.9%)<br>[[Molorai Acquirer]] (3.8%)<br>[[Molorai Dockmaster]] (2.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Florablast
 |type=
 |vendorsource=
-|source=[[Astorim]] (2.0%)<br>[[Karsith]] (2.0%)<br>[[Orinthar]] (1.7%)<br>[[Vextral]] (1.7%)
+|source=[[Astorim]] (1.7%)<br>[[Karsith]] (1.7%)<br>[[Orinthar]] (1.5%)<br>[[Vextral]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest=
