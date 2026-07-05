@@ -112,6 +112,12 @@ def build(
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
 
+        logger.info("Processing AE event mutations...")
+        from erenshor.domain.constants.ae_event_mutations import AE_EVENT_MUTATIONS
+
+        writer.insert_ae_event_mutations(AE_EVENT_MUTATIONS)
+        logger.info(f"AE event mutations: {len(AE_EVENT_MUTATIONS)} rows")
+
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()
 

@@ -1074,6 +1074,30 @@ def process_characters(
         ]
     )
 
+    # AEEvent / AEEvent2 components — area-effect mechanics
+    ae_rows = _load_rows(raw, "SELECT * FROM CharacterAEEvents")
+    ae_rows = [r for r in ae_rows if r["CharacterStableKey"] in all_keys]
+    writer.insert_character_ae_events(
+        [
+            {
+                "character_stable_key": r["CharacterStableKey"],
+                "component_type": r["ComponentType"],
+                "tick_damage": r["TickDamage"],
+                "tick_time": r["TickTime"],
+                "tick_range": r["TickRange"],
+                "resist_modifier": r["ResistModifier"],
+                "resist_type": r["ResistType"],
+                "event_happens": r["EventHappens"],
+                "damage_reason": r["DamageReason"],
+                "add_effect_spell_stable_key": r["AddEffectSpellStableKey"],
+                "is_lifetap": r["IsLifetap"],
+                "lifetap_heal_mod": r["LifetapHealMod"],
+                "trigger_only": r["TriggerOnly"],
+            }
+            for r in ae_rows
+        ]
+    )
+
     # SpawnPointPatrolPoints — filtered to spawn points used by surviving characters
     surviving_sp_keys: set[str] = set()
     for spawn_row in spawn_out:

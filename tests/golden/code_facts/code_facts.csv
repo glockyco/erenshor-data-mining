@@ -1,4 +1,8 @@
 "fact_id","key","value","value_type"
+"ae.brax_escalation","ok","true","bool"
+"ae.brax_reset","ok","true","bool"
+"ae.faith_escalation","ok","true","bool"
+"ae.mizuki_final","ok","true","bool"
 "auction.replacebag_gates","item_level","<= 0,> 39","text"
 "auction.replacebag_gates","rare_reject_roll","< 19","text"
 "auction.updateah_gates","item_level",">= 40","text"

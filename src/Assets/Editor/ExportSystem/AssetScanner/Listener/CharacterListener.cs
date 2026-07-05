@@ -28,6 +28,7 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterQuestManagerRecord> _characterQuestManagerRecords = new();
     private readonly List<QuestCharacterRoleRecord> _questCharacterRoleRecords = new();
     private readonly HashSet<(string, string, string)> _seenQuestCharacterRoles = new(); // (QuestStableKey, CharacterStableKey, Role)
+    private readonly List<CharacterAEEventRecord> _characterAEEventRecords = new();
 
     public CharacterListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
@@ -69,6 +70,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _db.CreateTable<CharacterVendorQuestUnlockRecord>();
         _db.CreateTable<CharacterQuestManagerRecord>();
         _db.CreateTable<QuestCharacterRoleRecord>();
+        _db.CreateTable<CharacterAEEventRecord>();
 
         _db.RunInTransaction(() =>
         {
@@ -87,6 +89,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.DeleteAll<CharacterVendorQuestUnlockRecord>();
             _db.DeleteAll<CharacterQuestManagerRecord>();
             _db.DeleteAll<QuestCharacterRoleRecord>();
+            _db.DeleteAll<CharacterAEEventRecord>();
 
             _db.InsertAll(_characterAttackSkillRecords);
             _db.InsertAll(_characterAttackSpellRecords);
@@ -103,6 +106,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterVendorQuestUnlockRecords);
             _db.InsertAll(_characterQuestManagerRecords);
             _db.InsertAll(_questCharacterRoleRecords);
+            _db.InsertAll(_characterAEEventRecords);
         });
 
         _characterAttackSkillRecords.Clear();
@@ -121,6 +125,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterQuestManagerRecords.Clear();
         _questCharacterRoleRecords.Clear();
         _seenQuestCharacterRoles.Clear();
+        _characterAEEventRecords.Clear();
 
         _db.Execute(@"
             UPDATE Characters
@@ -429,6 +434,9 @@ public class CharacterListener : IAssetScanListener<Character>
             _characterQuestManagerRecords.AddRange(CreateCharacterQuestManagerRecords(characterRecord.StableKey, questManager));
             _questCharacterRoleRecords.AddRange(CreateQuestCharacterRoleRecords(characterRecord.StableKey, questManager));
         }
+
+        // AEEvent / AEEvent2 components — area-effect mechanics attached to the character.
+        _characterAEEventRecords.AddRange(CreateAEEventRecords(characterRecord.StableKey, asset));
     }
 
     private static int CalculateNpcEffectiveHP(int baseHp, int level)
@@ -733,6 +741,50 @@ public class CharacterListener : IAssetScanListener<Character>
             RequiredQuestStableKey = dialog.RequireQuestComplete != null ? StableKeyGenerator.ForQuest(dialog.RequireQuestComplete) : null,
             SpawnCharacterStableKey = dialog.Spawn != null ? _characterKeyResolver.GetStableKey(dialog.Spawn.GetComponent<Character>()) : null,
         };
+    }
+
+    private List<CharacterAEEventRecord> CreateAEEventRecords(string characterStableKey, Character character)
+    {
+        var records = new List<CharacterAEEventRecord>();
+
+        // AEEvent — full field set
+        var aeEvent = character.GetComponent<AEEvent>();
+        if (aeEvent != null)
+        {
+            records.Add(new CharacterAEEventRecord
+            {
+                CharacterStableKey = characterStableKey,
+                ComponentType = "AEEvent",
+                TickDamage = aeEvent.tickDmg,
+                TickTime = aeEvent.TickTime,
+                TickRange = aeEvent.TickRange,
+                ResistModifier = aeEvent.ResistMod,
+                ResistType = aeEvent.ResistType.ToString(),
+                EventHappens = aeEvent.EventHappens,
+                DamageReason = aeEvent.DamageReason,
+                AddEffectSpellStableKey = aeEvent.addEffect != null ? StableKeyGenerator.ForSpell(aeEvent.addEffect) : null,
+                IsLifetap = aeEvent.isLifetap,
+                LifetapHealMod = aeEvent.lifetapHealMod,
+                TriggerOnly = aeEvent.TriggerOnly,
+            });
+        }
+
+        // AEEvent2 — reduced field set (no resist/lifetap/trigger fields)
+        var aeEvent2 = character.GetComponent<AEEvent2>();
+        if (aeEvent2 != null)
+        {
+            records.Add(new CharacterAEEventRecord
+            {
+                CharacterStableKey = characterStableKey,
+                ComponentType = "AEEvent2",
+                TickDamage = aeEvent2.tickDmg,
+                TickTime = aeEvent2.TickTime,
+                EventHappens = aeEvent2.EventHappens,
+                DamageReason = aeEvent2.DamageReason,
+            });
+        }
+
+        return records;
     }
 
     private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(string characterStableKey, List<Skill> skills)

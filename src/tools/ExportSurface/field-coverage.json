@@ -28,7 +28,9 @@
     "WorldFaction",
     "ZoneAnnounce",
     "ZoneAtlasEntry",
-    "Zoneline"
+    "Zoneline",
+    "AEEvent",
+    "AEEvent2"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -392,7 +394,7 @@
       },
       "MyAEEvent": {
         "by": null,
-        "reason": "cached attached-component reference; AEEvent modeling is tracked separately",
+        "reason": "cached attached-component reference; AEEvent component fields are exported separately via CharacterAEEvents table",
         "status": "ignored",
         "type": "AEEvent"
       },
@@ -4865,6 +4867,112 @@
         "reason": "zone-line visual/demo/runtime transition fields not exported; exporter records location, destination, landing position, display text, and remove-party flag",
         "status": "ignored",
         "type": "System.Single"
+      }
+    },
+    "AEEvent": {
+      "Dust": {
+        "by": null,
+        "reason": "ParticleSystem visual effect, not game data",
+        "status": "ignored",
+        "type": "UnityEngine.ParticleSystem"
+      },
+      "EventHappens": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "DamageReason": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "ResistMod": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "ResistType": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "GameData/DamageType"
+      },
+      "TickRange": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "TickTime": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "TriggerOnly": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "addEffect": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Spell"
+      },
+      "isLifetap": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "lifetapHealMod": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "tickDmg": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      }
+    },
+    "AEEvent2": {
+      "Dust": {
+        "by": null,
+        "reason": "ParticleSystem visual effect, not game data",
+        "status": "ignored",
+        "type": "UnityEngine.ParticleSystem"
+      },
+      "EventHappens": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "DamageReason": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "TickTime": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Single"
+      },
+      "tickDmg": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
       }
     }
   }

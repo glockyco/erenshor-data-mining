@@ -976,6 +976,36 @@ CREATE TABLE treasure_chest_possible_spawns (
     PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
 );
 
+CREATE TABLE character_ae_events (
+    character_stable_key         TEXT NOT NULL REFERENCES characters (stable_key),
+    component_type               TEXT NOT NULL,
+    tick_damage                  INTEGER,
+    tick_time                    REAL,
+    tick_range                   INTEGER,
+    resist_modifier              INTEGER,
+    resist_type                  TEXT,
+    event_happens                TEXT,
+    damage_reason                TEXT,
+    add_effect_spell_stable_key  TEXT,
+    is_lifetap                   INTEGER,
+    lifetap_heal_mod             REAL,
+    trigger_only                 INTEGER,
+    PRIMARY KEY (character_stable_key, component_type)
+);
+
+CREATE TABLE ae_event_mutations (
+    character_stable_key          TEXT,
+    script_type                   TEXT NOT NULL,
+    trigger                       TEXT NOT NULL,
+    trigger_condition             TEXT,
+    tick_damage_formula           TEXT,
+    tick_time_formula             TEXT,
+    resist_modifier_formula       TEXT,
+    other_field_formulas           TEXT,
+    documented_limitation         TEXT,
+    PRIMARY KEY (script_type, character_stable_key, trigger_condition)
+);
+
 CREATE TABLE loot_drops (
     character_stable_key    TEXT NOT NULL,
     item_stable_key         TEXT NOT NULL,
@@ -1296,6 +1326,12 @@ class Writer:
 
     def insert_treasure_chest_possible_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("treasure_chest_possible_spawns", rows)
+
+    def insert_character_ae_events(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_ae_events", rows)
+
+    def insert_ae_event_mutations(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("ae_event_mutations", rows)
 
     def insert_zones(self, rows: list[dict[str, object]]) -> int:
         return self._insert("zones", rows)
