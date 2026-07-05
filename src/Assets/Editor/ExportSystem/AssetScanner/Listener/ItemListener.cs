@@ -297,7 +297,7 @@ public class ItemListener : IAssetScanListener<Item>
                 WeaponDmg = item.WeaponDmg == 0 ? 0 : item.CalcDmg(item.WeaponDmg, quality),
 
                 HP = item.CalcACHPMC(item.HP, quality),
-                AC = item.CalcACHPMC(item.AC, quality),
+                AC = item.CalcAC(item.AC, quality),
                 Mana = item.CalcACHPMC(item.Mana, quality),
                 Str = item.CalcStat(item.Str, quality),
                 End = item.CalcStat(item.End, quality),
@@ -307,10 +307,10 @@ public class ItemListener : IAssetScanListener<Item>
                 Wis = item.CalcStat(item.Wis, quality),
                 Cha = item.CalcStat(item.Cha, quality),
                 Res = item.CalcRes(item.Res, quality), // Resonance
-                MR = item.CalcStat(item.MR, quality), // Magic Resist
-                ER = item.CalcStat(item.ER, quality), // Elemental Resist
-                PR = item.CalcStat(item.PR, quality), // Poison Resist
-                VR = item.CalcStat(item.VR, quality), // Void Resist
+                MR = item.CalcResists(item.MR, quality), // Magic Resist
+                ER = item.CalcResists(item.ER, quality), // Elemental Resist
+                PR = item.CalcResists(item.PR, quality), // Poison Resist
+                VR = item.CalcResists(item.VR, quality), // Void Resist
 
                 // --- Stat Scaling Properties ---
                 StrScaling = item.StrScaling,
