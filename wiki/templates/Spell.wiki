@@ -77,6 +77,7 @@
 |ShieldingAmt=Integer
 |Aggro=Integer
 |SimUsable=Boolean
+|SimsNeedHelpToLearn=Boolean
 |SelfOnly=Boolean
 |GroupEffect=Boolean
 |CrowdControl=Boolean

@@ -543,7 +543,7 @@
       "ShapeshiftForm": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.String"},
       "ShieldingAmt": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.Int32"},
       "SimUsable": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.Boolean"},
-      "SimsNeedHelpToLearn": {"by": null, "reason": "spell AI/runtime hint fields are not exported", "status": "ignored", "type": "System.Boolean"},
+      "SimsNeedHelpToLearn": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.Boolean"},
       "SpecialDescriptor": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.String"},
       "SpellChargeFXIndex": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.Int32"},
       "SpellChargeTime": {"by": "SpellListener", "reason": null, "status": "captured", "type": "System.Single"},

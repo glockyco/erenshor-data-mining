@@ -21,6 +21,7 @@ _SPELL_COLUMNS = """
     s.required_level,
     s.mana_cost,
     s.sim_usable,
+    s.sims_need_help_to_learn,
     s.aggro,
     s.spell_charge_time,
     s.cooldown,

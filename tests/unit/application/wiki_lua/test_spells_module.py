@@ -102,6 +102,7 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
                 "requiredLevel": 6,
                 "manaCost": 30,
                 "simUsable": True,
+                "simsNeedHelpToLearn": False,
                 "aggro": 0,
                 "castTimeSeconds": 2.33,
                 "cooldownSeconds": 8.0,
@@ -244,9 +245,11 @@ def test_spell_lua_record_includes_mechanics_fields_with_nondefault_values() -> 
         armor_pen_percent=25,
         level_scaled_mana_restoration=1.5,
         shapeshift_form="Wolf",
+        sims_need_help_to_learn=1,
     )
     data = build_spells_data([spell], {})
     record = data["spells"]["spell:minor_lightning"]
     assert record["armorPenPercent"] == 25
     assert record["levelScaledManaRestoration"] == 1.5
     assert record["shapeshiftForm"] == "Wolf"
+    assert record["simsNeedHelpToLearn"] is True

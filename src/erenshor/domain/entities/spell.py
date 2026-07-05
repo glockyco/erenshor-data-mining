@@ -46,6 +46,9 @@ class Spell(BaseEntity):
     # Casting properties
     mana_cost: int | None = Field(default=None, description="Mana cost to cast")
     sim_usable: int | None = Field(default=None, description="Usable by sim players (boolean)")
+    sims_need_help_to_learn: int | None = Field(
+        default=None, description="Requires players to teach sim players this spell (boolean)"
+    )
     aggro: int | None = Field(default=None, description="Aggro amount generated")
     spell_charge_time: float | None = Field(default=None, description="Cast time (divide by 60 to get seconds)")
     cooldown: float | None = Field(default=None, description="Cooldown in seconds")

@@ -78,6 +78,7 @@ public class SpellListener : IAssetScanListener<Spell>
 
             // --- Simulation ---
             SimUsable = spell.SimUsable,
+            SimsNeedHelpToLearn = spell.SimsNeedHelpToLearn,
 
             // --- Aggro ---
             Aggro = spell.Aggro,

@@ -72,6 +72,7 @@ _NUMBER_FIELD_MAP: tuple[tuple[str, str], ...] = (
 
 _BOOL_FIELD_MAP: tuple[tuple[str, str], ...] = (
     ("simUsable", "sim_usable"),
+    ("simsNeedHelpToLearn", "sims_need_help_to_learn"),
     ("unstableDuration", "unstable_duration"),
     ("instantEffect", "instant_effect"),
     ("selfOnly", "self_only"),

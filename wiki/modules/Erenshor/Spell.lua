@@ -651,6 +651,7 @@ local function cargoFields(spell, pageTitle)
 		{ "ShieldingAmt", spell.shieldAmount },
 		{ "Aggro", spell.aggro },
 		{ "SimUsable", spell.simUsable },
+		{ "SimsNeedHelpToLearn", spell.simsNeedHelpToLearn },
 		{ "SelfOnly", spell.selfOnly },
 		{ "GroupEffect", spell.groupEffect },
 		{ "CrowdControl", spell.crowdControl },

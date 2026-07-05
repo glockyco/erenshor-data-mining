@@ -24,6 +24,7 @@ public class SpellRecord
 
     // --- Simulation ---
     public bool SimUsable { get; set; } // From Spell.SimUsable
+    public bool SimsNeedHelpToLearn { get; set; } // From Spell.SimsNeedHelpToLearn
 
     // --- Aggro ---
     public int Aggro { get; set; } // From Spell.Aggro

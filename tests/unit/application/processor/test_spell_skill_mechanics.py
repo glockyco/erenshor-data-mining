@@ -17,6 +17,7 @@ def _raw_spell_row(**overrides: object) -> dict[str, object]:
         "ArmorPenPercent": 25,
         "LevelScaledManaRestoration": 1.5,
         "ShapeshiftForm": "Wolf",
+        "SimsNeedHelpToLearn": True,
     }
     base.update(overrides)
     return base
@@ -39,8 +40,7 @@ def _raw_skill_row(**overrides: object) -> dict[str, object]:
 
 
 def test_spell_mechanics_fields_flow_to_clean(tmp_path):
-    """Raw Spells ArmorPenPercent/LevelScaledManaRestoration/ShapeshiftForm
-    become clean spells columns."""
+    """Raw spell mechanics fields become clean spells columns."""
     writer = Writer(tmp_path / "test.sqlite")
     writer.create_schema()
 
@@ -48,13 +48,18 @@ def test_spell_mechanics_fields_flow_to_clean(tmp_path):
     writer.insert_spells(raw_rows)
 
     row = writer._conn.execute(
-        "SELECT armor_pen_percent, level_scaled_mana_restoration, shapeshift_form FROM spells WHERE stable_key = ?",
+        """
+        SELECT armor_pen_percent, level_scaled_mana_restoration, shapeshift_form, sims_need_help_to_learn
+        FROM spells
+        WHERE stable_key = ?
+        """,
         ("spell:test",),
     ).fetchone()
     assert row is not None
     assert row[0] == 25
     assert row[1] == 1.5
     assert row[2] == "Wolf"
+    assert row[3] == 1
 
     writer._conn.close()
 

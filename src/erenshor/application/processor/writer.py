@@ -507,6 +507,7 @@ CREATE TABLE spells (
     required_level                      INTEGER,
     mana_cost                           INTEGER,
     sim_usable                          INTEGER,
+    sims_need_help_to_learn             INTEGER,
     aggro                               INTEGER,
     spell_charge_time                   REAL,
     cooldown                            REAL,
