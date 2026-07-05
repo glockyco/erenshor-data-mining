@@ -277,11 +277,11 @@ public class ItemListener : IAssetScanListener<Item>
             item.TeachSkill == null &&
             !item.Template;
 
-        var maxQuality = hasQualityVariants ? 3 : 1;
+        var qualityTiers = hasQualityVariants ? new[] { 1, 2, 3, 11, 12, 13, 14, 15 } : new[] { 1 };
 
         var itemStableKey = StableKeyGenerator.ForItem(item);
         var itemStatsRecords = new List<ItemStatsRecord>();
-        for (var quality = 1; quality <= maxQuality; quality++)
+        foreach (var quality in qualityTiers)
         {
             var itemStatsRecord = new ItemStatsRecord
             {
@@ -290,8 +290,13 @@ public class ItemListener : IAssetScanListener<Item>
                 {
                     1 => "Normal",
                     2 => "Blessed",
-                    3 => "Godly",
-                    _ => quality.ToString() // Fallback, should not happen with maxQuality=3
+                    3 => "Ascended",
+                    11 => "Improved +1",
+                    12 => "Improved +2",
+                    13 => "Improved +3",
+                    14 => "Improved +4",
+                    15 => "Improved +5",
+                    _ => quality.ToString()
                 },
 
                 WeaponDmg = item.WeaponDmg == 0 ? 0 : item.CalcDmg(item.WeaponDmg, quality),

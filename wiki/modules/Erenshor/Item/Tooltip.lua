@@ -13,8 +13,9 @@
 --     classification and the Base DPS x2 apply only to TwoHandMelee/TwoHandStaff
 --     (ItemInfoWindow.cs); bows are not 2-handed. The live wiki keys this off a
 --     string label and wrongly includes bows.
---   * Quality is signalled by name color only (live convention): the internal
---     "Godly" key maps to the tier-2 color and never reaches output.
+--   * Quality is signalled by name color only for Normal/Blessed/Ascended.
+--     Improved tiers also render their quality string so +1 through +5 rows are
+--     distinguishable while keeping game-computed stats authoritative.
 
 local Format = require("Module:Erenshor/Format")
 local Link = require("Module:Erenshor/Link")
@@ -27,13 +28,24 @@ local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 
 local Tooltip = {}
 
-local QUALITY_RANK = { ["0"] = 0, Normal = 0, Blessed = 1, Godly = 2 }
+local QUALITY_RANK = {
+	["0"] = 0,
+	Normal = 0,
+	Blessed = 1,
+	Ascended = 2,
+	["Improved +1"] = 3,
+	["Improved +2"] = 4,
+	["Improved +3"] = 5,
+	["Improved +4"] = 6,
+	["Improved +5"] = 7,
+}
 
 -- Tier -> SparkleIcon overlay (Template:SparkleIcon).
 local SPARKLE = {
 	[0] = { file = "blank.png", size = "0px" },
 	[1] = { file = "Blue_Sparkle.gif", size = "80px" },
 	[2] = { file = "Purple_Sparkle.gif", size = "80px" },
+	[3] = { file = "Green_Sparkle.gif", size = "80px" },
 }
 
 local TYPE_CLASS = {
@@ -111,7 +123,8 @@ local function sparkleIcon(item, tier)
 	if image == nil then
 		return ""
 	end
-	local sparkle = SPARKLE[tier] or SPARKLE[0]
+	local sparkleTier = tier >= 3 and 3 or tier
+	local sparkle = SPARKLE[sparkleTier] or SPARKLE[0]
 	return '<div style="position: relative; width: 80px;">'
 		.. '<div style="position: absolute; left: 0px; top: 0px; padding: 0;">'
 		.. "[[File:"
@@ -494,6 +507,17 @@ local function description(item)
 		:wikitext(Format.escape(item.description))
 end
 
+local function improvedQualityLabel(stats)
+	local quality = stats.quality
+	if (QUALITY_RANK[quality] or 0) < 3 then
+		return nil
+	end
+	return mw.html
+		.create("div")
+		:addClass("item-tooltip-quality-label")
+		:wikitext(Format.escape(quality))
+end
+
 -- Assemble one quality tooltip: outer inline-table, header row, body row.
 local function tooltipShell(item, tier, typeLine)
 	local root = mw.html
@@ -508,6 +532,10 @@ end
 
 local function gearTooltip(item, stats, weapon, typeLine)
 	local root, body = tooltipShell(item, tierOf(stats.quality), typeLine)
+	local qualityLabel = improvedQualityLabel(stats)
+	if qualityLabel ~= nil then
+		body:node(qualityLabel)
+	end
 	body:node(twoColumn(item, stats, weapon))
 	local desc = description(item)
 	if desc ~= nil then

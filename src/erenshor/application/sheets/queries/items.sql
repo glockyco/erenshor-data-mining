@@ -94,6 +94,11 @@ ORDER BY i.item_db_index,
     CASE s.quality
         WHEN 'Normal' THEN 1
         WHEN 'Blessed' THEN 2
-        WHEN 'Godly' THEN 3
-        ELSE 4
+        WHEN 'Ascended' THEN 3
+        WHEN 'Improved +1' THEN 4
+        WHEN 'Improved +2' THEN 5
+        WHEN 'Improved +3' THEN 6
+        WHEN 'Improved +4' THEN 7
+        WHEN 'Improved +5' THEN 8
+        ELSE 9
     END;

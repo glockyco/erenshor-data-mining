@@ -6,7 +6,7 @@ provide stable key generation for registry lookups.
 
 Entity Types:
 - Item: Equipment, consumables, quest items, crafting materials
-- ItemStats: Item statistics by quality level (Normal, Blessed, Godly)
+- ItemStats: Item statistics by quality level (Normal, Blessed, Ascended, Improved +1 through Improved +5)
 - Spell: Damage spells, buffs, debuffs, heals, crowd control
 - Skill: Combat skills and special abilities
 - Stance: Combat stances that modify character stats

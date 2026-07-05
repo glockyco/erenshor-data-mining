@@ -28,8 +28,9 @@
 
    Tier Colors:
    - Normal:  #FFFFFF
-   - Blessed: #00F9FF
-   - Godly:   #FC87FF
+   - Blessed:  #00F9FF
+   - Ascended: #FC87FF
+   - Improved: #00FF00
 
    ============================================================================ */
 
@@ -110,7 +111,20 @@
 /* Quality tier colors (from Unity LoadScene) */
 .item-tooltip-tier-0 { color: #FFFFFF; } /* Normal */
 .item-tooltip-tier-1 { color: #00F9FF; } /* Blessed (cyan) */
-.item-tooltip-tier-2 { color: #FC87FF; } /* Godly (magenta) */
+.item-tooltip-tier-2 { color: #FC87FF; } /* Ascended (magenta) */
+.item-tooltip-tier-3,
+.item-tooltip-tier-4,
+.item-tooltip-tier-5,
+.item-tooltip-tier-6,
+.item-tooltip-tier-7 { color: #00FF00; } /* Improved (green) */
+
+.item-tooltip-quality-label {
+  color: #00FF00;
+  font-size: 1em;
+  font-weight: bold;
+  margin: 0 0 0.5em 0;
+  text-align: center;
+}
 
 .item-tooltip-type {
   font-size: 1.2em;

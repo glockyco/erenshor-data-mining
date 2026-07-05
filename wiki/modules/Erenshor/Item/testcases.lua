@@ -246,8 +246,8 @@ function p.run()
 		"item-tooltip-tier-2",
 		"weapon tooltip colors the Ascended quality"
 	)
-	if string.find(weaponTooltip, "Godly", 1, true) ~= nil then
-		error("weapon tooltip must not expose the internal Godly label", 2)
+	if string.find(weaponTooltip, "Ascended", 1, true) ~= nil then
+		error("weapon tooltip must not expose the Ascended quality label", 2)
 	end
 	assertContains(weaponTooltip, "Base DPS:", "weapon tooltip shows base DPS")
 	assertContains(weaponTooltip, "Paladin", "weapon tooltip shows class restrictions")

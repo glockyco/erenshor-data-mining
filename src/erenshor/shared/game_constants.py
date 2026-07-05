@@ -62,16 +62,34 @@ INSTANT_CAST_THRESHOLD = 0.05
 """Cast time (in seconds) below which spells are considered instant cast."""
 
 # Tier constants
-REQUIRED_TIER_COUNT = 3
-"""Required number of tiers for weapons and armor (Normal, Blessed, Godly)."""
+REQUIRED_TIER_COUNT = 8
+"""Required number of exported quality tiers for weapons and armor."""
 
 TIER_SORT_DEFAULT = 99
 """Default sort value for unknown tier qualities."""
 
-TIER_ORDER_MAP: dict[str, int] = {"Normal": 0, "Blessed": 1, "Godly": 2}
+TIER_ORDER_MAP: dict[str, int] = {
+    "Normal": 0,
+    "Blessed": 1,
+    "Ascended": 2,
+    "Improved +1": 3,
+    "Improved +2": 4,
+    "Improved +3": 5,
+    "Improved +4": 6,
+    "Improved +5": 7,
+}
 """Mapping of tier quality names to sort order."""
 
-TIER_STRING_MAP: dict[str, str] = {"Normal": "0", "Blessed": "1", "Godly": "2"}
+TIER_STRING_MAP: dict[str, str] = {
+    "Normal": "0",
+    "Blessed": "1",
+    "Ascended": "2",
+    "Improved +1": "3",
+    "Improved +2": "4",
+    "Improved +3": "5",
+    "Improved +4": "6",
+    "Improved +5": "7",
+}
 """Mapping of tier quality names to tier string values."""
 
 # Wikitext formatting constants

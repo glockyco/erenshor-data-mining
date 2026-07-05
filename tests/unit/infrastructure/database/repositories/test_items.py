@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from typing import TYPE_CHECKING
 
 import pytest
@@ -66,6 +67,74 @@ def test_item_entities_have_required_fields(item_repo: ItemRepository):
 
         # Verify stable key format
         assert item.stable_key.startswith("item:")
+
+
+def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
+    """Test that item stats are returned in gameplay quality order."""
+    db_path = tmp_path / "items.sqlite"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE item_stats (
+                item_stable_key TEXT,
+                quality TEXT,
+                weapon_dmg INTEGER,
+                hp INTEGER,
+                ac INTEGER,
+                mana INTEGER,
+                str INTEGER,
+                end INTEGER,
+                dex INTEGER,
+                agi INTEGER,
+                int INTEGER,
+                wis INTEGER,
+                cha INTEGER,
+                res INTEGER,
+                mr INTEGER,
+                er INTEGER,
+                pr INTEGER,
+                vr INTEGER,
+                str_scaling REAL,
+                end_scaling REAL,
+                dex_scaling REAL,
+                agi_scaling REAL,
+                int_scaling REAL,
+                wis_scaling REAL,
+                cha_scaling REAL,
+                resist_scaling REAL,
+                mitigation_scaling REAL
+            )
+            """
+        )
+        for quality in (
+            "Improved +5",
+            "Blessed",
+            "Improved +2",
+            "Ascended",
+            "Normal",
+            "Improved +4",
+            "Improved +1",
+            "Improved +3",
+        ):
+            conn.execute(
+                "INSERT INTO item_stats (item_stable_key, quality) VALUES (?, ?)",
+                ("item:test", quality),
+            )
+
+    repo = ItemRepository(DatabaseConnection(db_path, read_only=True))
+
+    qualities = [stats.quality for stats in repo.get_item_stats("item:test")]
+
+    assert qualities == [
+        "Normal",
+        "Blessed",
+        "Ascended",
+        "Improved +1",
+        "Improved +2",
+        "Improved +3",
+        "Improved +4",
+        "Improved +5",
+    ]
 
 
 def test_item_repository_handles_database_error(tmp_path: Path):

@@ -287,7 +287,7 @@ Manual page content.
 |tier=1
 }}
 ||{{Item/Weapon
-|name=Old Godly
+|name=Old Ascended
 |tier=2
 }}
 |}
@@ -326,7 +326,7 @@ Manual page content.
 | tier = 1
 }}
 ||{{Fancy-weapon
-| name = Old Godly
+| name = Old Ascended
 | tier = 2
 }}
 |}
