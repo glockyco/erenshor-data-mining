@@ -23,3 +23,18 @@ def test_character_gameplay_flag_columns_exist(tmp_path):
     assert "enrage" in cols
 
     writer._conn.close()
+
+
+def test_npc_role_spell_reference_columns_exist(tmp_path):
+    """The clean characters table has columns for NPC role spell references."""
+    writer = Writer(tmp_path / "test.sqlite")
+    writer.create_schema()
+
+    cols = {row[1] for row in writer._conn.execute("PRAGMA table_info(characters)").fetchall()}
+    assert "spawn_with_status_stable_key" in cols
+    assert "group_hot_spell_stable_key" in cols
+    assert "emit_vitae_spell_stable_key" in cols
+    assert "hot_spell_stable_key" in cols
+    assert "ae_taunt_spell_stable_key" in cols
+
+    writer._conn.close()

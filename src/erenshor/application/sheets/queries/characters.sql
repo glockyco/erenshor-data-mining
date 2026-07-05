@@ -65,6 +65,11 @@ SELECT
     c.aggro_regardless_of_level,
     -- Spells & Abilities
     c.pet_spell_stable_key,
+    c.spawn_with_status_stable_key,
+    c.group_hot_spell_stable_key,
+    c.emit_vitae_spell_stable_key,
+    c.hot_spell_stable_key,
+    c.ae_taunt_spell_stable_key,
     c.proc_on_hit_stable_key,
     c.proc_on_hit_chance,
     (SELECT GROUP_CONCAT(spell_stable_key, ', ')

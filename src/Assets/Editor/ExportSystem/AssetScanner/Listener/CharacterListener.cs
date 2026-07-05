@@ -519,6 +519,21 @@ public class CharacterListener : IAssetScanListener<Character>
             record.PetSpellStableKey = npc.MyPetSpell != null
                 ? StableKeyGenerator.ForSpell(npc.MyPetSpell)
                 : null;
+            record.SpawnWithStatusStableKey = npc.SpawnWithStatus != null
+                ? StableKeyGenerator.ForSpell(npc.SpawnWithStatus)
+                : null;
+            record.GroupHotSpellStableKey = npc.GroupHOTSpell != null
+                ? StableKeyGenerator.ForSpell(npc.GroupHOTSpell)
+                : null;
+            record.EmitVitaeSpellStableKey = npc.MyEmitVitaeSpell != null
+                ? StableKeyGenerator.ForSpell(npc.MyEmitVitaeSpell)
+                : null;
+            record.HotSpellStableKey = npc.MyHOTSpell != null
+                ? StableKeyGenerator.ForSpell(npc.MyHOTSpell)
+                : null;
+            record.AeTauntSpellStableKey = npc.AETaunt != null
+                ? StableKeyGenerator.ForSpell(npc.AETaunt)
+                : null;
             record.ProcOnHitStableKey = npc.NPCProcOnHit != null
                 ? StableKeyGenerator.ForSpell(npc.NPCProcOnHit)
                 : null;
