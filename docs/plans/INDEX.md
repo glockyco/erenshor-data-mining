@@ -17,5 +17,6 @@
 ## draft
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
+- **Crawlable Zone Content Layer (/zones)** [spec] `2026-07-04-maps-zones-content-layer` ← 2026-06-26-maps-domain-url-migration
 
-_55 archived — see `docs/plans/archive/`._
+_56 archived — see `docs/plans/archive/`._
