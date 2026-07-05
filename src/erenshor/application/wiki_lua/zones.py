@@ -59,6 +59,8 @@ def _zone_record(zone: Zone, connections: list[str]) -> LuaData | None:
         "page": page,
         "type": "Dungeon" if zone.is_dungeon else "Zone",
     }
+    _put(record, "raidCapable", zone.raid_capable)
+    _put(record, "useZoneAsTempBind", zone.use_zone_as_temp_bind)
     _put(record, "image", zone.image_name)
     if zone.is_map_visible:
         record["map"] = f"zone:{zone.scene_name}"

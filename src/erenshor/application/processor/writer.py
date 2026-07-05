@@ -292,20 +292,22 @@ CREATE TABLE treasure_hunting (
 -- -------------------------------------------------------------------------
 
 CREATE TABLE zones (
-    stable_key                              TEXT PRIMARY KEY NOT NULL,
-    scene_name                              TEXT,
-    zone_name                               TEXT NOT NULL,
-    display_name                            TEXT NOT NULL,
-    wiki_page_name                          TEXT,
-    image_name                              TEXT NOT NULL,
-    is_wiki_generated                       INTEGER NOT NULL DEFAULT 1,
-    is_map_visible                          INTEGER NOT NULL DEFAULT 1,
-    is_dungeon                              INTEGER,
-    achievement                             TEXT,
-    complete_quest_on_enter_stable_key      TEXT,
+    stable_key                                TEXT PRIMARY KEY NOT NULL,
+    scene_name                                TEXT,
+    zone_name                                 TEXT NOT NULL,
+    display_name                              TEXT NOT NULL,
+    wiki_page_name                            TEXT,
+    image_name                                TEXT NOT NULL,
+    is_wiki_generated                         INTEGER NOT NULL DEFAULT 1,
+    is_map_visible                            INTEGER NOT NULL DEFAULT 1,
+    is_dungeon                                INTEGER,
+    raid_capable                              INTEGER,
+    use_zone_as_temp_bind                     TEXT,
+    achievement                               TEXT,
+    complete_quest_on_enter_stable_key        TEXT,
     complete_second_quest_on_enter_stable_key TEXT,
-    assign_quest_on_enter_stable_key        TEXT,
-    north_bearing                           REAL
+    assign_quest_on_enter_stable_key          TEXT,
+    north_bearing                             REAL
 );
 
 CREATE TABLE zone_atlas_entries (

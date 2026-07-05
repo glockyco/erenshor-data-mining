@@ -28,11 +28,27 @@ def test_builds_zone_data_from_clean_zones() -> None:
                 "page": "Port Azure",
                 "image": "Port Azure",
                 "type": "Zone",
+                "raidCapable": False,
                 "map": "zone:PortAzure",
                 "connects": ["Fernalla's Revival Plains"],
             }
         },
     }
+
+
+def test_builds_zone_gameplay_metadata() -> None:
+    zone = make_zone(
+        stable_key="zone:PlaneOfVitheo",
+        scene_name="PlaneOfVitheo",
+        display_name="Plane of Vitheo",
+        raid_capable=True,
+        use_zone_as_temp_bind="Reliquary",
+    )
+
+    data = build_zones_data([zone], FakeZoneRepository([zone], {}))
+
+    assert data["zones"]["zone:PlaneOfVitheo"]["raidCapable"] is True
+    assert data["zones"]["zone:PlaneOfVitheo"]["useZoneAsTempBind"] == "Reliquary"
 
 
 def test_marks_dungeon_zones() -> None:

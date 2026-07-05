@@ -2,6 +2,8 @@ SELECT
     z.scene_name AS 'Zone:SceneName',
     z.zone_name AS 'Zone:ZoneName',
     z.is_dungeon AS 'Zone:IsDungeon',
+    z.raid_capable AS 'Zone:RaidCapable',
+    z.use_zone_as_temp_bind AS 'Zone:UseZoneAsTempBind',
     z.achievement AS 'Zone:Achievement',
     z.complete_quest_on_enter_stable_key AS 'Zone:CompleteQuestOnEnter',
     z.complete_second_quest_on_enter_stable_key AS 'Zone:CompleteSecondQuestOnEnter',

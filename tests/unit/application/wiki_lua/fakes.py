@@ -320,6 +320,8 @@ def make_zone(**overrides: object) -> Zone:
         "wiki_page_name": "Port Azure",
         "image_name": "Port Azure",
         "is_dungeon": 0,
+        "raid_capable": False,
+        "use_zone_as_temp_bind": "",
         "is_wiki_generated": 1,
         "is_map_visible": 1,
     }

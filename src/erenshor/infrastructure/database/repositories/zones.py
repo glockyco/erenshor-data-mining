@@ -27,6 +27,8 @@ class ZoneRepository(BaseRepository[Zone]):
                 scene_name,
                 zone_name,
                 is_dungeon,
+                raid_capable,
+                use_zone_as_temp_bind,
                 display_name,
                 wiki_page_name,
                 image_name,
@@ -42,7 +44,12 @@ class ZoneRepository(BaseRepository[Zone]):
         """
         try:
             rows = self._execute_raw(query)
-            return [Zone.model_validate(dict(row)) for row in rows]
+            zones: list[Zone] = []
+            for row in rows:
+                values = dict(row)
+                values["raid_capable"] = bool(values.get("raid_capable"))
+                zones.append(Zone.model_validate(values))
+            return zones
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve zones: {e}") from e
 

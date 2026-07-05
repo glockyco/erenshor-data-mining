@@ -12,6 +12,8 @@ public class ZoneRecord
     public string SceneName { get; set; } = string.Empty;
     public string ZoneName { get; set; } = string.Empty;
     public bool IsDungeon { get; set; }
+    public bool RaidCapable { get; set; }
+    public string UseZoneAsTempBind { get; set; } = string.Empty;
 
     public string Achievement { get; set; } = string.Empty;
     [ForeignKey(typeof(QuestRecord), "StableKey")]

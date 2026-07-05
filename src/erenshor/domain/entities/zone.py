@@ -16,8 +16,9 @@ class Zone(BaseEntity):
     wiki_page_name is populated by the build pipeline's mapping system and may
     be None for zones excluded from the wiki.
 
-    Boolean columns from SQLite are stored as integers (0/1) to match strict
-    Pydantic validation — do not change to bool.
+    Most boolean columns from SQLite are stored as integers (0/1) to match
+    strict Pydantic validation, but repository-normalized gameplay booleans may
+    use bool when consumers need native Lua booleans.
     """
 
     # Primary key
@@ -27,6 +28,8 @@ class Zone(BaseEntity):
     scene_name: str = Field(description="Unity scene name; doubles as interactive map key")
     zone_name: str = Field(description="Raw display name from game data")
     is_dungeon: int = Field(description="1 for dungeon zones, 0 for outdoor/event zones")
+    raid_capable: bool = Field(default=False, description="True if active raids persist in this zone")
+    use_zone_as_temp_bind: str = Field(default="", description="Temporary bind/respawn redirect zone name")
 
     # Build-pipeline mapping fields
     display_name: str = Field(description="Display name (may be overridden by mapping)")

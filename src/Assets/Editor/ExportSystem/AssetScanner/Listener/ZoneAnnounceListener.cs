@@ -35,7 +35,9 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
             SceneName = sceneName,
             ZoneName = asset.ZoneName,
             IsDungeon = asset.isDungeon,
-            Achievement = asset.Achievement,
+            RaidCapable = asset.RaidCapable,
+            UseZoneAsTempBind = asset.UseZoneAsTempBind ?? string.Empty,
+            Achievement = asset.Achievement ?? string.Empty,
             CompleteQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.CompleteQuestOnEnter)
                 ? StableKeyGenerator.ForQuestFromDBName(asset.CompleteQuestOnEnter)
                 : null,
