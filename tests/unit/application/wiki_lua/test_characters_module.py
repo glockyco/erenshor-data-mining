@@ -183,6 +183,14 @@ def test_character_lua_record_includes_gameplay_flags_with_nondefault_values() -
         dps_dummy=1,
         is_wyrm=1,
         no_run=1,
+        never_aggro=1,
+        no_dmg_cap=1,
+        can_phantom_strike=1,
+        no_self_heal=1,
+        aggro_regardless_of_los=1,
+        ignore_los_for_aggro=1,
+        sim_players_ignore_until_ordered=1,
+        enrage=90.0,
     )
     data = build_characters_data(
         [character],
@@ -195,3 +203,11 @@ def test_character_lua_record_includes_gameplay_flags_with_nondefault_values() -
     assert record["dpsDummy"] == 1
     assert record["isWyrm"] == 1
     assert record["noRun"] == 1
+    assert record["neverAggro"] == 1
+    assert record["noDmgCap"] == 1
+    assert record["canPhantomStrike"] == 1
+    assert record["noSelfHeal"] == 1
+    assert record["aggroRegardlessOfLOS"] == 1
+    assert record["ignoreLOSForAggro"] == 1
+    assert record["simPlayersIgnoreUntilOrdered"] == 1
+    assert record["enrage"] == 90.0

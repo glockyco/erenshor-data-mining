@@ -45,6 +45,14 @@ public class CharacterRecord
     public bool DPSDummy { get; set; }
     public bool IsWyrm { get; set; }
     public bool NoRun { get; set; }
+    public bool NeverAggro { get; set; }
+    public bool NoDmgCap { get; set; }
+    public bool CanPhantomStrike { get; set; }
+    public bool NoSelfHeal { get; set; }
+    public bool AggroRegardlessofLOS { get; set; }
+    public bool IgnoreLOSForAggro { get; set; }
+    public bool SimPlayersIgnoreUntilOrdered { get; set; }
+    public float Enrage { get; set; }
     public string? ShoutOnDeath { get; set; } = string.Empty;
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? QuestCompleteOnDeath { get; set; } = string.Empty;

@@ -77,6 +77,16 @@ class Character(BaseEntity):
     dps_dummy: int | None = Field(default=None, description="Is DPS dummy (boolean)")
     is_wyrm: int | None = Field(default=None, description="Is Wyrm (boolean)")
     no_run: int | None = Field(default=None, description="Cannot flee (boolean)")
+    never_aggro: int | None = Field(default=None, description="Never acquires aggro (boolean)")
+    no_dmg_cap: int | None = Field(default=None, description="Bypasses NPC damage cap (boolean)")
+    can_phantom_strike: int | None = Field(default=None, description="Can phantom strike nearby enemies (boolean)")
+    no_self_heal: int | None = Field(default=None, description="Cannot self heal at low HP (boolean)")
+    aggro_regardless_of_los: int | None = Field(default=None, description="Can aggro without line of sight (boolean)")
+    ignore_los_for_aggro: int | None = Field(default=None, description="Skips line-of-sight checks for aggro (boolean)")
+    sim_players_ignore_until_ordered: int | None = Field(
+        default=None, description="Raid SimPlayers ignore until ordered (boolean)"
+    )
+    enrage: float | None = Field(default=None, description="Encounter enrage timer")
 
     # Death events
     shout_on_death: str | None = Field(default=None, description="Death shout message")

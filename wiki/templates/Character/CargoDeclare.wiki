@@ -13,4 +13,12 @@
 |DPSDummy=Boolean
 |IsWyrm=Boolean
 |NoRun=Boolean
+|NeverAggro=Boolean
+|NoDmgCap=Boolean
+|CanPhantomStrike=Boolean
+|NoSelfHeal=Boolean
+|AggroRegardlessOfLOS=Boolean
+|IgnoreLOSForAggro=Boolean
+|SimPlayersIgnoreUntilOrdered=Boolean
+|Enrage=Float
 }}</pre></noinclude>

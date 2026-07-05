@@ -4,7 +4,7 @@ from erenshor.application.processor.writer import Writer
 
 
 def test_character_gameplay_flag_columns_exist(tmp_path):
-    """The clean characters table has columns for the exported gameplay flags."""
+    """The clean characters table has columns for exported gameplay flags."""
     writer = Writer(tmp_path / "test.sqlite")
     writer.create_schema()
 
@@ -13,5 +13,13 @@ def test_character_gameplay_flag_columns_exist(tmp_path):
     assert "dps_dummy" in cols
     assert "is_wyrm" in cols
     assert "no_run" in cols
+    assert "never_aggro" in cols
+    assert "no_dmg_cap" in cols
+    assert "can_phantom_strike" in cols
+    assert "no_self_heal" in cols
+    assert "aggro_regardless_of_los" in cols
+    assert "ignore_los_for_aggro" in cols
+    assert "sim_players_ignore_until_ordered" in cols
+    assert "enrage" in cols
 
     writer._conn.close()

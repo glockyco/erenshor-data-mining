@@ -507,6 +507,14 @@ public class CharacterListener : IAssetScanListener<Character>
         if (npc != null)
         {
             record.NPCName = npc.NPCName;
+            record.NeverAggro = npc.NeverAggro;
+            record.NoDmgCap = npc.NoDmgCap;
+            record.CanPhantomStrike = npc.CanPhantomStrike;
+            record.NoSelfHeal = npc.NoSelfHeal;
+            record.AggroRegardlessofLOS = npc.AggroRegardlessofLOS;
+            record.IgnoreLOSForAggro = npc.IgnoreLOSForAggro;
+            record.SimPlayersIgnoreUntilOrdered = npc.SimPlayersIgnoreUntilOrdered;
+            record.Enrage = npc.Enrage;
             // Spells and skills are stored in junction tables, not in denormalized fields
             record.PetSpellStableKey = npc.MyPetSpell != null
                 ? StableKeyGenerator.ForSpell(npc.MyPetSpell)

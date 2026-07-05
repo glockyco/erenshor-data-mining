@@ -490,6 +490,14 @@ local function cargoFields(character, pageTitle)
 		{ "DPSDummy", character.dpsDummy },
 		{ "IsWyrm", character.isWyrm },
 		{ "NoRun", character.noRun },
+		{ "NeverAggro", character.neverAggro },
+		{ "NoDmgCap", character.noDmgCap },
+		{ "CanPhantomStrike", character.canPhantomStrike },
+		{ "NoSelfHeal", character.noSelfHeal },
+		{ "AggroRegardlessOfLOS", character.aggroRegardlessOfLOS },
+		{ "IgnoreLOSForAggro", character.ignoreLOSForAggro },
+		{ "SimPlayersIgnoreUntilOrdered", character.simPlayersIgnoreUntilOrdered },
+		{ "Enrage", character.enrage },
 	}
 end
 

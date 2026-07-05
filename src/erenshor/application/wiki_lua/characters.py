@@ -63,6 +63,14 @@ _CHARACTER_FIELD_MAP = (
     ("dpsDummy", "dps_dummy"),
     ("isWyrm", "is_wyrm"),
     ("noRun", "no_run"),
+    ("neverAggro", "never_aggro"),
+    ("noDmgCap", "no_dmg_cap"),
+    ("canPhantomStrike", "can_phantom_strike"),
+    ("noSelfHeal", "no_self_heal"),
+    ("aggroRegardlessOfLOS", "aggro_regardless_of_los"),
+    ("ignoreLOSForAggro", "ignore_los_for_aggro"),
+    ("simPlayersIgnoreUntilOrdered", "sim_players_ignore_until_ordered"),
+    ("enrage", "enrage"),
 )
 
 
