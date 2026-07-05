@@ -10,7 +10,6 @@
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
 - **AEEvent Export Modeling** [spec] `2026-06-30-ae-event-export-modeling`
 - **Death-Triggered Spawn Modeling** [spec] `2026-06-30-death-triggered-spawn-modeling`
-- **Essential SpawnPoint Relationship Modeling** [spec] `2026-06-30-essential-spawnpoint-relationship-modeling`
 - **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12)
 
 ## draft
@@ -18,4 +17,4 @@
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 - **Crawlable Zone Content Layer (/zones)** [spec] `2026-07-04-maps-zones-content-layer` ← 2026-06-26-maps-domain-url-migration
 
-_57 archived — see `docs/plans/archive/`._
+_58 archived — see `docs/plans/archive/`._
