@@ -30,7 +30,8 @@
     "ZoneAtlasEntry",
     "Zoneline",
     "AEEvent",
-    "AEEvent2"
+    "AEEvent2",
+    "NPCFightEvent"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -555,9 +556,9 @@
         "type": "System.Boolean"
       },
       "SpawnOnDeath": {
-        "by": null,
-        "reason": "Character.SpawnOnDeath is not a direct placement source in the current dynamic-spawn exporter",
-        "status": "ignored",
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
         "type": "UnityEngine.GameObject"
       },
       "TargetRing": {
@@ -4973,6 +4974,188 @@
         "reason": null,
         "status": "captured",
         "type": "System.Int32"
+      }
+    },
+    "NPCFightEvent": {
+      "SpawnOnDeath": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "SpawnAdds": {
+        "by": "DynamicSpawnSourceListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "SpawnAddsEveryXSeconds": {
+        "by": null,
+        "reason": "fight timing parameter, not spawn data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "SpawnAddsEveryXPercent": {
+        "by": null,
+        "reason": "fight timing parameter, not spawn data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "PercentagesToSpawn": {
+        "by": null,
+        "reason": "fight probability parameter, not spawn data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.Single>"
+      },
+      "PercentagesToGrow": {
+        "by": null,
+        "reason": "fight growth parameter, not spawn data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.Single>"
+      },
+      "InstantDespawn": {
+        "by": null,
+        "reason": "runtime behavior flag",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "MyNPC": {
+        "by": null,
+        "reason": "cached attached-component reference",
+        "status": "ignored",
+        "type": "NPC"
+      },
+      "MyStats": {
+        "by": null,
+        "reason": "cached attached-component reference",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "MySpells": {
+        "by": null,
+        "reason": "cached attached-component reference",
+        "status": "ignored",
+        "type": "CastSpell"
+      },
+      "PromptOnSpawn": {
+        "by": null,
+        "reason": "flavor text",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "PromptOnCast": {
+        "by": null,
+        "reason": "flavor text",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "Breath": {
+        "by": null,
+        "reason": "visual effect",
+        "status": "ignored",
+        "type": "UnityEngine.ParticleSystem"
+      },
+      "BreathBaseDmg": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "BreathFreq": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "BreathRadius": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "BreathRes": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "GameData/DamageType"
+      },
+      "CastSpell": {
+        "by": null,
+        "reason": "spell reference for fight mechanic, not spawn data",
+        "status": "ignored",
+        "type": "Spell"
+      },
+      "CastSpellEveryXSeconds": {
+        "by": null,
+        "reason": "fight timing parameter",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "ExtraRegenPerTick": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "RegenTickTime": {
+        "by": null,
+        "reason": "fight mechanic parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GrowDex": {
+        "by": null,
+        "reason": "fight growth parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GrowDmg": {
+        "by": null,
+        "reason": "fight growth parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GrowSpeed": {
+        "by": null,
+        "reason": "fight growth parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GrowStr": {
+        "by": null,
+        "reason": "fight growth parameter",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GrowWithDamage": {
+        "by": null,
+        "reason": "fight behavior flag",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "AggroChain": {
+        "by": null,
+        "reason": "runtime aggro list, not spawn data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<NPC>"
+      },
+      "AggroChainString": {
+        "by": null,
+        "reason": "runtime debug string",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "actualSpawn": {
+        "by": null,
+        "reason": "runtime spawn delay tracking",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "closeSpawnNPCs": {
+        "by": null,
+        "reason": "runtime behavior flag",
+        "status": "ignored",
+        "type": "System.Boolean"
       }
     }
   }
