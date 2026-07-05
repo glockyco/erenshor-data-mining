@@ -1,8 +1,9 @@
 ---
 title: Death-Triggered Spawn Modeling
 type: spec
-status: active
+status: implemented
 created: 2026-06-30
+archived: 2026-07-05
 ---
 
 # Death-Triggered Spawn Modeling
