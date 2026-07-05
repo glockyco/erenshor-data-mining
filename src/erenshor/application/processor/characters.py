@@ -1109,7 +1109,72 @@ def process_characters(
         ]
     )
 
+    # Treasure chest possible spawns: Lost Treasure chests are player-triggered
+    # spawns at treasure marker positions. They have no fixed world placement, so
+    # instead of fabricating character_spawns rows, model them as possible-location
+    # spawns derived from treasure_locations + treasure_hunting pickability.
+    # The four chest prefabs map to player level brackets via PlayerControl.LeftClick():
+    #   TreasureChest0_10  (level < 10)  → zones pickable at any level (is_pickable_always)
+    #   TreasureChest10_20 (level 10-19) → same pool (level ≤ 20 still uses first-3)
+    #   TreasureChest20_30 (level 20-29) → is_pickable_always OR is_pickable_greater_20
+    #   TreasureChest30_35 (level 30+)   → any pickable zone
+    _build_treasure_chest_possible_spawns(writer)
+
     logger.info(f"Characters: processing complete ({len(char_data)} characters written)")
+
+
+def _build_treasure_chest_possible_spawns(writer: Writer) -> None:
+    """Derive treasure_chest_possible_spawns from treasure_locations and treasure_hunting.
+
+    Queries the clean DB (already populated with treasure_locations, treasure_hunting,
+    and the four treasure-chest characters) and inserts one row per (chest, location)
+    pair where the location's zone is pickable at the chest's level bracket.
+    """
+    conn = writer.conn
+
+    # The four chest character stable keys and their level brackets.
+    # Bracket bounds follow PlayerControl.LeftClick() level thresholds.
+    chest_brackets = [
+        ("character:treasurechest 0-10 1", 0, 10),
+        ("character:treasurechest 10-20 1", 10, 20),
+        ("character:treasurechest 20-30 1", 20, 30),
+        ("character:treasurechest 30-35", 30, 999),
+    ]
+
+    # Pickability condition per bracket, matching TreasureHunting.SetTreasureZone().
+    # is_pickable_greater_20 implies the zone is also pickable at level > 20.
+    # is_pickable_greater_30 implies pickable at level > 30 (all zones).
+    bracket_pickability = [
+        "th.is_pickable_always = 1",  # 0-10
+        "th.is_pickable_always = 1",  # 10-20
+        "(th.is_pickable_always = 1 OR th.is_pickable_greater_20 = 1)",  # 20-30
+        "(th.is_pickable_always = 1 OR th.is_pickable_greater_20 = 1 OR th.is_pickable_greater_30 = 1)",  # 30+
+    ]
+
+    rows: list[dict[str, object]] = []
+    for (chest_key, level_min, level_max), pickability in zip(chest_brackets, bracket_pickability, strict=True):
+        query = f"""
+            SELECT tl.stable_key, tl.scene, tl.x, tl.y, tl.z
+            FROM treasure_locations tl
+            JOIN treasure_hunting th ON th.zone_name = tl.scene
+            WHERE {pickability}
+        """
+        for r in conn.execute(query).fetchall():
+            rows.append(
+                {
+                    "chest_character_stable_key": chest_key,
+                    "treasure_location_stable_key": r["stable_key"],
+                    "level_min": level_min,
+                    "level_max": level_max,
+                    "scene": r["scene"],
+                    "x": r["x"],
+                    "y": r["y"],
+                    "z": r["z"],
+                }
+            )
+
+    writer.insert_treasure_chest_possible_spawns(rows)
+    logger.info(f"Treasure chest possible spawns: {len(rows)} rows across {len(chest_brackets)} brackets")
 
 
 def expand_chained_spawns(conn: sqlite3.Connection) -> None:

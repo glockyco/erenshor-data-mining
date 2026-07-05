@@ -121,6 +121,10 @@ def query_orphans(db: sqlite3.Connection) -> list[OrphanRow]:
                 SELECT 1 FROM spells sp
                 WHERE sp.pet_to_summon_stable_key = ns.stable_key
               )
+          AND NOT EXISTS (
+                SELECT 1 FROM treasure_chest_possible_spawns tcps
+                WHERE tcps.chest_character_stable_key = ns.stable_key
+              )
         ORDER BY ns.display_name, ns.stable_key
         """
     ).fetchall()
