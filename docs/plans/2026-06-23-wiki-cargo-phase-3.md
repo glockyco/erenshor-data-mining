@@ -14,6 +14,8 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 
 **Architecture:** Item obtainability and usage become two unified typed tables keyed on `ItemKey`, **stored from the item page** (the only owner that already has Cargo + a dual-path gate), which collapses the Phase-5 ordering trap (Quest/Zone/Class templates have no `cargoStore` yet). Generated relationship rows are written forward via `Module:Erenshor/Cargo` and read reverse via Cargo queries; the denormalized reverse arrays are removed. Hardcoded game constants (auction bounds, smithing upgrade IDs) are **consumed from the `code_facts` table**, never transcribed — derivations assert the exact extracted comparison strings and hard-fail on drift. `Drops` (character-owned) and `ContainerDrops` (item-owned) are folded into `ObtainedFrom` and deleted.
 
+**Variant scope — clean cut to playtest.** The wiki ships from the current shipping build; playtest is the shipping build in waiting (promotes to main within ~a week). Every pipeline run, code-fact pin, and golden baseline in this plan targets the **playtest** variant — no dual-variant support. The pinned renderings are the shipping build's renderings, so they carry over unchanged at promotion and any stale non-shipping build fails fast. `ObtainedFrom` and `Spawns` declare `Origin` (`generated`|`community`) + (for `ObtainedFrom`) `SourceText` **up front**, so the Phase 4 community layer adds only rows and templates — never a production schema recreate.
+
 **Tech Stack:** C# Unity export (`src/Assets/Editor/`), Python clean-build processor + repositories (`src/erenshor/`), Lua Scribunto modules + PortableInfobox templates (`wiki/modules/`, `wiki/templates/`), the `wiki-dev` Docker MediaWiki+Cargo harness, SQLite, pytest, golden baselines.
 
 ---
@@ -23,13 +25,13 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 - **Item-owned decision:** only `Item.lua` and `Character.lua` have `cargoStore` today (`wiki/modules/Erenshor/{Item,Character}.lua`). `Quest.lua`/`Zone.lua` do not and there is no Class template, so quest/zone/class-owned `ObtainedFrom` rows are impossible until Phase 5. Making `ObtainedFrom`/`UsedIn` item-owned makes Phase 3 fully harness-testable now.
 - **Taxonomy is complete & deterministic.** `ObtainedFrom` SourceTypes: `drop, vendor, dialog, quest, craft, item_use, mining, fishing, item_bag, starting`. `UsedIn` UseTypes: `craft_material, quest_requirement, upgrade_material`. Treasure hunting = the four `Lost Treasure (…)` **chest characters** carrying authored `loot_drops` (covered by `drop`, no special-casing). Wishing wells grant nothing (coordinate markers only).
 - **Existing repos** already answer most reverse queries: `get_vendors_selling_item`, `get_characters_dropping_item` (`repositories/characters.py:262,311`), `get_item_drops`/`get_item_sources` (`repositories/items.py:528,568`), `get_quests_rewarding_item` (uses `quest_variants.item_on_complete_stable_key`, `repositories/quests.py:72`), `get_quests_requiring_item` (`:109`), `get_items_requiring_item` (`:233`), and Spawns reads `wiki_character_spawns` (`repositories/spawn_points.py:47`). New methods needed: dialog, craft-reward, mining, fishing, item_bag, starting, upgrade_material.
-- **Code facts already extracted** (`code_facts` table, values are comparison strings):
-  - `auction.updateah_gates` → `item_level='< 40'`, `item_value='<= 0'`
+- **Code facts already extracted** (playtest `code_facts` table, values are comparison strings). The pins are the **playtest** renderings (the shipping build's renderings):
+  - `auction.updateah_gates` → `item_level='>= 40'`, `item_value='<= 0'`
   - `auction.replacebag_gates` → `item_level='<= 0,> 39'`, `rare_reject_roll='< 19'`
-  - `smithing.upgrade_ids` → `strings='31377423,46289586,2298018'`
-  These three IDs are `items.id` values (TEXT), not stable keys: `31377423`=An Otherwordly Mold, `46289586`=Planar Stone, `2298018`=Inert Diamond.
+  - `smithing.upgrade_ids` → `strings='31377423,46289586,2298018,2265228'`
+  `auction.updateah_gates.item_level='>= 40'` is the listing skip branch (verified against `AuctionHouse.cs:626`: `if (itemByID.ItemLevel >= 40) continue;`, so items ≥40 are skipped and the auctionable predicate is `1 ≤ level ≤ 39`). `ReplaceBag:120` rejects `ItemLevel <= 0 || > 39` and `RareItem && Random(0,20) < 19`. The four smithing IDs are `items.id` values (TEXT), not stable keys: `31377423`=Mold: An Otherwordly Box, `46289586`=Planar Stone, `2298018`=Inert Diamond, `2265228`=Merging Vessel.
 - **`Item.RareItem`** exists (`Item.cs:210`) but is not exported. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the auction gate uses `ItemValue`.
-- **Attach budget:** the Item template currently does `#cargo_declare:Items` + `#cargo_attach:ContainerDrops` (within the wiki.gg 1-declare+1-attach budget). After folding `ContainerDrops`→`ObtainedFrom` and adding `UsedIn`, the item page writes `Items` + `ObtainedFrom` + `UsedIn` = 3 tables → the **attach-trick** is required (declare-only owner templates + a transcluded zero-output attach helper), mirroring `wiki/templates/ContainerDrops.wiki`.
+- **Attach budget:** the Item template currently does `#cargo_declare:Items` + `#cargo_attach:ContainerDrops` (within the wiki.gg 1-declare+1-attach budget). After folding `ContainerDrops`→`ObtainedFrom` and adding `UsedIn`, the item page writes `Items` + `ObtainedFrom` + `UsedIn` = 3 tables → the **attach-trick** is required (declare-only owner templates + a transcluded zero-output attach helper), mirroring `wiki/templates/ContainerDrops.wiki`. **The local harness cannot validate the budget** — `wiki-dev/Dockerfile` clones stock upstream Cargo, not wiki.gg's LIBRARIAN fork, so budget acceptance is probed live once before Phase 3 (see Pre-Phase-3 gate below).
 
 ## File map (created / modified)
 
@@ -45,15 +47,15 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 ## Verification commands (used throughout)
 
 ```bash
-uv run erenshor extract export        # Unity batch -> raw SQLite (after C# changes)
-uv run erenshor extract code-facts    # shipped DLL -> raw code_facts
-uv run erenshor extract build         # raw -> clean SQLite
-uv run erenshor wiki generate-lua     # clean DB -> local Lua data modules
-uv run python wiki-dev/import_pages.py # import modules/templates/pages into harness
-uv run python wiki-dev/smoke_test.py   # action=parse render + structural checks
-uv run python wiki-dev/cargo_check.py  # recreate + validate Cargo rows vs fixtures
-uv run pytest tests/...                # Python unit/integration
-uv run erenshor golden capture         # regenerate golden baselines (MAIN variant only)
+uv run erenshor -V playtest extract export        # Unity batch -> raw SQLite (after C# changes)
+uv run erenshor -V playtest extract code-facts    # shipped DLL -> raw code_facts
+uv run erenshor -V playtest extract build         # raw -> clean SQLite
+uv run erenshor -V playtest wiki generate-lua     # clean DB -> local Lua data modules
+uv run python wiki-dev/import_pages.py            # import modules/templates/pages into harness
+uv run python wiki-dev/smoke_test.py               # action=parse render + structural checks
+uv run python wiki-dev/cargo_check.py              # recreate + validate Cargo rows vs fixtures
+uv run pytest tests/...                            # Python unit/integration
+uv run erenshor -V playtest golden capture         # regenerate golden baselines (playtest = shipping build)
 ```
 
 Per-module Lua assertions live in `wiki/modules/Erenshor/<Type>/testcases.lua` and are exercised by the harness render; Cargo row shape is asserted by `cargo_check.py` against `wiki-dev/fixtures/cargo_*.tsv`.
@@ -87,8 +89,8 @@ Outcome: clean `items` carries `rare_item` + `is_auctionable`; `class_starting_i
 - [ ] **Step 3:** Re-export and confirm the raw column is populated:
 
 ```bash
-uv run erenshor extract expor
-sqlite3 variants/main/erenshor-main-raw.sqlite
+uv run erenshor -V playtest extract export
+sqlite3 variants/playtest/erenshor-playtest-raw.sqlite
   "SELECT COUNT(*) FROM Items WHERE RareItem=1"
 ```
 Expected: a non-zero count (rare items exist).
@@ -203,8 +205,8 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
 - [ ] **Step 4:** Re-export, confirm rows per class:
 
 ```bash
-uv run erenshor extract expor
-sqlite3 variants/main/erenshor-main-raw.sqlite
+uv run erenshor -V playtest extract export
+sqlite3 variants/playtest/erenshor-playtest-raw.sqlite
   "SELECT ClassName, COUNT(*) FROM ClassStartingItems GROUP BY ClassName"
 ```
 Expected: six rows, one per class, each with ≥1 item.
@@ -234,7 +236,7 @@ Expected: six rows, one per class, each with ≥1 item.
 - [ ] **Step 1: Write failing tests** for the pure predicate and the drift gate:
 
 ```python
-import pytes
+import pytest
 from erenshor.application.processor.auction import (
     EXPECTED_AUCTION_GATES, validate_auction_gates, derive_is_auctionable,
 )
@@ -269,9 +271,10 @@ from __future__ import annotations
 
 # code-fact: auction.updateah_gates
 # code-fact: auction.replacebag_gates
+# Pinned to the playtest (shipping) renderings.
 EXPECTED_AUCTION_GATES: dict[tuple[str, str], str] = {
-    ("auction.updateah_gates", "item_level"): "< 40",   # listing: ItemLevel < 40
-    ("auction.updateah_gates", "item_value"): "<= 0",   # listing purge: ItemValue <= 0 removed -> require > 0
+    ("auction.updateah_gates", "item_level"): ">= 40",   # listing skip: ItemLevel >= 40 (AuctionHouse.cs:626)
+    ("auction.updateah_gates", "item_value"): "<= 0",    # listing purge: ItemValue <= 0 removed -> require > 0
     ("auction.replacebag_gates", "item_level"): "<= 0,> 39",  # restock reject: level <= 0 OR level > 39
 }
 
@@ -294,10 +297,10 @@ def derive_is_auctionable(item_level, item_value, sim_players_cant_get) -> bool:
 
 In `process_items`, before `writer.insert_items(rows)`: load the gates from raw `code_facts`, `validate_auction_gates(...)`, then set `r["is_auctionable"] = int(derive_is_auctionable(r.get("item_level"), r.get("item_value"), r.get("sim_players_cant_get")))` for each row. Tag the call site `# code-fact: auction.updateah_gates` / `# code-fact: auction.replacebag_gates`.
 
-- [ ] **Step 4:** Run the unit tests + `extract build`; spot-check:
+- [ ] **Step 4:** Run the unit tests + `uv run erenshor -V playtest extract build`; spot-check:
 
 ```bash
-sqlite3 variants/main/erenshor-main.sqlite
+sqlite3 variants/playtest/erenshor-playtest.sqlite
  "SELECT COUNT(*) FROM items WHERE is_auctionable=1"
 ```
 Expected: a large but < total count.
@@ -321,8 +324,8 @@ Expected: a large but < total count.
 
 ### Task A7: Recapture golden baselines
 
-- [ ] **Step 1:** `uv run erenshor golden capture` (MAIN variant only — see `skill://refreshing-game-data` variant-safety rules).
-- [ ] **Step 2:** Review the diff in `tests/golden/`: expect only added `rare_item`/`is_auctionable` columns and the new `class_starting_items` rows; `code_facts.csv` unchanged.
+- [ ] **Step 1:** `uv run erenshor -V playtest golden capture` (playtest = the shipping build in waiting; see `skill://refreshing-game-data` variant-safety rules — capture writes the shared `tests/golden/`, so this is only safe because playtest is the build we are cutting over to).
+- [ ] **Step 2:** Review the diff in `tests/golden/`: expect only added `rare_item`/`is_auctionable` columns and the new `class_starting_items` rows; `code_facts.csv` shows the playtest renderings (`auction.updateah_gates.item_level='>= 40'`, `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`).
 - [ ] **Step 3:** `uv run pytest` green.
 - [ ] **Step 4: Commit** — `test(pipeline): recapture golden baselines for item flags + class starting items`
 
@@ -338,25 +341,27 @@ Outcome: a single `ObtainedFrom` Cargo table written from the item page, coverin
 - Create: `wiki/templates/ObtainedFrom.wiki` (mirror `wiki/templates/ContainerDrops.wiki`)
 - Modify: `wiki-dev/smoke/cargo.py` (FIELDS/KEY/QUERY + loader/checker), `wiki-dev/cargo_check.py` (`CARGO_TABLES`, `CARGO_TEMPLATES_BY_TABLE`)
 
-- [ ] **Step 1:** Reserved-word check (a keyword column silently no-ops the whole declare). Verify each proposed column name against SQL keywords before declaring: `ItemKey, SourceType, SourceKey, Probability, IsGuaranteed, Quantity, Condition`. `CONDITION` is a SQL keyword → rename to **`SourceCondition`**. Document in the template comment (like `CastRange`/`CharacterKey`).
-- [ ] **Step 2:** Write `ObtainedFrom.wiki` (declare-only owner; stores nothing):
+- [ ] **Step 1:** Reserved-word check (a keyword column silently no-ops the whole declare). Verify each proposed column name against SQL keywords before declaring: `ItemKey, SourceType, SourceKey, SourceText, Probability, IsGuaranteed, Quantity, SourceCondition, Origin`. `CONDITION` is a SQL keyword → rename to **`SourceCondition`**. Document in the template comment (like `CastRange`/`CharacterKey`).
+- [ ] **Step 2:** Write `ObtainedFrom.wiki` (declare-only owner; stores nothing). Declare the **final** Phase-4 schema up front — `SourceText` and `Origin` are nullable, so generated rows simply leave them null until Phase 4 adds the community row template:
 
-```wikitex
+```wikitext
 <includeonly></includeonly><noinclude>{{#cargo_declare:_table=ObtainedFrom
 |ItemKey=String
 |SourceType=String
 |SourceKey=String
-|Probability=Floa
+|SourceText=String
+|Probability=Float
 |IsGuaranteed=Boolean
 |Quantity=Integer
 |SourceCondition=String
+|Origin=String
 }}
 Declare-only owner of the unified item-obtainability junction (one row per item × source).
-ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting; SourceKey resolves by type (character/quest/item/zone/class StableKey) at display time. Rows are written by {{tl|Item}} via the attach trick; this template stores nothing.
+ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. Rows are written by {{tl|Item}} via the attach trick; this template stores nothing.
 </noinclude>
 ```
 
-- [ ] **Step 3:** Add to `wiki-dev/smoke/cargo.py`: `CARGO_OBTAINED_FROM_FIELDS`, `OBTAINED_FROM_KEY = ("ItemKey", "SourceType", "SourceKey")`, `CARGO_OBTAINED_FROM_QUERY_FIELDS = ("_pageName=Page", "ItemKey", "SourceType", "SourceKey", "Probability", "IsGuaranteed", "Quantity", "SourceCondition")`, plus `load_/check_cargo_obtained_from_rows` mirroring the ContainerDrops helpers. Register the table + template in `cargo_check.py`.
+- [ ] **Step 3:** Add to `wiki-dev/smoke/cargo.py`: `CARGO_OBTAINED_FROM_FIELDS`, `OBTAINED_FROM_KEY = ("ItemKey", "SourceType", "SourceKey")`, `CARGO_OBTAINED_FROM_QUERY_FIELDS = ("_pageName=Page", "ItemKey", "SourceType", "SourceKey", "SourceText", "Probability", "IsGuaranteed", "Quantity", "SourceCondition", "Origin")`, plus `load_/check_cargo_obtained_from_rows` mirroring the ContainerDrops helpers. Register the table + template in `cargo_check.py`.
 - [ ] **Step 4:** `import_pages.py` then `cargo_check.py`; expect the empty table to recreate cleanly.
 - [ ] **Step 5: Commit** — `feat(wiki): declare the unified ObtainedFrom Cargo junction`
 
@@ -373,7 +378,7 @@ Add (one method + one test each; concrete SQL):
 - [ ] **`get_classes_starting_with_item(item_key)`** — `class_starting_items WHERE item_stable_key = ?` → `ClassLink`. SourceType `starting`.
 - [ ] **Vendor condition:** extend `get_vendors_selling_item` to also surface quest-unlock vendors via `character_vendor_quest_unlocks` with `SourceCondition` = "requires quest <name>".
 
-World-point sources (`mining`/`fishing`/`item_bag`) dedup to one row per item×type×zone (the zone owns them; no page of their own).
+World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey`; dedup to one row per item×type×zone.
 
 - [ ] **Commit per method or grouped logically** — `feat(pipeline): add <source> reverse-source repository query`
 
@@ -392,7 +397,7 @@ World-point sources (`mining`/`fishing`/`item_bag`) dedup to one row per item×t
 **Files:** `wiki/modules/Erenshor/Item.lua` (after `containerDropRows`, ~line 821), `wiki/templates/Item.wiki` (attach), `wiki/modules/Erenshor/Item/testcases.lua`.
 
 - [ ] **Step 1: Write failing testcase** in `Item/testcases.lua`: `Item.cargoObtainedFromRows({ args = { stablekey = "item:<fixture>" } })` returns rows with `ItemKey`/`SourceType`/`SourceKey` set (mirror the `cargoContainerDropRows` testcase at `Item/testcases.lua:120`).
-- [ ] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition} }` per entry in `item.obtainedFrom`. Add `p.cargoObtainedFromRows(frame)` and a `Cargo.store("ObtainedFrom", fields)` loop in `p.cargoStore`.
+- [ ] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Add `p.cargoObtainedFromRows(frame)` and a `Cargo.store("ObtainedFrom", fields)` loop in `p.cargoStore`.
 - [ ] **Step 3:** In `Item.wiki` `<noinclude>`, attach the table. Item now writes Items + ContainerDrops + ObtainedFrom = 3 tables → apply the **attach-trick**: keep `#cargo_declare:Items`, transclude the declare-only `{{ObtainedFrom}}` and `{{ContainerDrops}}` owners, and `#cargo_attach` only what the budget allows directly; route the overflow through a zero-output attach helper. (3E removes ContainerDrops, returning to Items + ObtainedFrom + UsedIn.)
 - [ ] **Step 4:** `import_pages.py` → `smoke_test.py` → `cargo_check.py`. Expect ObtainedFrom rows for fixture item pages.
 - [ ] **Step 5: Commit** — `feat(wiki): store item ObtainedFrom rows from the item page`
@@ -424,8 +429,8 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 **Files:** new repo method `get_item_upgrade_uses(item_key)` + a small code-fact-backed resolver; tests.
 
-- [ ] **Step 1: Write failing tests:** (a) the resolver maps `code_facts['smithing.upgrade_ids']` (CSV of `items.id`) through `items.id → stable_key`, asserting `46289586 → item:ore - planar stone`; (b) a drift gate hard-fails if the fact is absent.
-- [ ] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, and returns `(item_key, UseType='upgrade_material', context)`. Tag `# code-fact: smithing.upgrade_ids`. The standard data-driven craft inputs are `craft_material` (next task), not `upgrade_material`; only the three hardcoded special-combine consumables are `upgrade_material`.
+- [ ] **Step 1: Write failing tests:** (a) the resolver maps `code_facts['smithing.upgrade_ids']` (CSV of `items.id`) through `items.id → stable_key`, asserting `46289586 → item:ore - planar stone` and `2265228 → item:template - merging vessel`; (b) a drift gate hard-fails if the fact is absent or its ID set differs from the pinned four (`31377423,46289586,2298018,2265228`).
+- [ ] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, and returns `(item_key, UseType='upgrade_material', context)` for each of the four special-combine consumables. Tag `# code-fact: smithing.upgrade_ids`. The standard data-driven craft inputs are `craft_material` (next task), not `upgrade_material`; only the four hardcoded special-combine consumables are `upgrade_material`.
 - [ ] **Step 3:** `craft_material` from `crafting_recipes WHERE material_item_stable_key = ?` → `(recipe ItemLink, quantity, slot)`; `quest_requirement` reuses `get_quests_requiring_item`.
 - [ ] **Step 4:** tests green.
 - [ ] **Step 5: Commit** — `feat(pipeline): resolve UsedIn rows incl. smithing upgrade materials via code facts`
@@ -450,8 +455,8 @@ Outcome: `Spawns` + `CharacterAbilities` written from the character page (Charac
 
 ### Task D1-D3: `Spawns`
 
-- [ ] **D1:** `wiki/templates/Spawns.wiki` declare-only: `CharacterKey, Zone, Scene, X, Y, Z, SpawnChance, NightSpawn, SpawnUponQuestComplete, LevelMod, RareNpcChance, SpawnType` (reserved-word check on `Zone`/`Scene`; both safe). smoke + cargo_check wiring. **Commit** — `feat(wiki): declare the Spawns Cargo junction`
-- [ ] **D2:** Python builder `spawns` on the character data module from `spawn_points.py` (`wiki_character_spawns`); dedup community vs generated later (Phase 4). Tests. **Commit** — `feat(wiki): build character spawns list in Lua data`
+- [ ] **D1:** `wiki/templates/Spawns.wiki` declare-only: `CharacterKey, Zone, Scene, X, Y, Z, SpawnChance, NightSpawn, SpawnUponQuestComplete, LevelMod, RareNpcChance, SpawnType, Origin` (reserved-word check on `Zone`/`Scene`; both safe). `Origin` declared up front so Phase 4 adds only `{{SpawnPoint}}` rows, no schema recreate. smoke + cargo_check wiring. **Commit** — `feat(wiki): declare the Spawns Cargo junction`
+- [ ] **D2:** Python builder `spawns` on the character data module from `spawn_points.py` (`wiki_character_spawns`, which filters `character_spawns` to `is_wiki_generated` and already expands `character_chained_spawns`). **Fold treasure-chest possible locations in here**: for each of the four `Lost Treasure (…)` chest characters, join `treasure_chest_possible_spawns` × `treasure_locations` and emit one row per pickable location with `SpawnType='treasure_chest'`, `SpawnChance=nil` (the game's per-location chest odds are not exported), coordinates from the location; without this, a treasure-hunting item's `ObtainedFrom` `drop` row resolves to a chest character whose page shows no spawn locations. Generated rows carry `Origin='generated'`. Tests cover a chest character yielding `treasure_chest` rows. **Commit** — `feat(wiki): build character spawns list in Lua data`
 - [ ] **D3:** `spawnRows(character)` + store in `Character.lua` + attach in `Character.wiki` (character now declares Characters + attaches Drops + Spawns → attach-trick; Drops is removed in 3E, leaving Characters + Spawns + CharacterAbilities). `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store character Spawns rows`
 
 ### Task D4-D6: `CharacterAbilities`
@@ -485,7 +490,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E5: Full validation gate
 
-- [ ] `uv run pytest`; full harness sequence (`generate-lua` → `import_pages.py` → `smoke_test.py` → `parity_check.py` → `cargo_check.py`); `golden capture` review (main only). **Commit** — `test(wiki): full Phase 3 harness + golden validation`
+- [ ] `uv run pytest`; full harness sequence (`uv run erenshor -V playtest wiki generate-lua` → `import_pages.py` → `smoke_test.py` → `parity_check.py` → `cargo_check.py`); `uv run erenshor -V playtest golden capture` diff review. **Commit** — `test(wiki): full Phase 3 harness + golden validation`
 
 ---
 
@@ -496,8 +501,9 @@ Every non-standard obtainability/usage path found in the game code is listed her
 | Path | Source (file:line) | Disposition |
 |---|---|---|
 | Vendor quest-unlock | `VendorWindow.cs:57-60`, `character_vendor_quest_unlocks` | **Implemented** — `vendor` + `SourceCondition` (Task B2) |
-| Smithing golden combine | `Smithing.cs:83` (`31377423` mold + `46289586` Planar Stone) | **Implemented** — `upgrade_material` via `smithing.upgrade_ids` (Task C2) |
+| Smithing golden combine | `Smithing.cs:83` (`31377423` Mold: An Otherwordly Box + `46289586` Planar Stone) | **Implemented** — `upgrade_material` via `smithing.upgrade_ids` (Task C2) |
 | Smithing blessing removal | `Smithing.cs:115` (`2298018` Inert Diamond) | **Implemented** — `upgrade_material` (Task C2) |
+| Smithing merging vessel combine | `Smithing.cs` (`2265228` Merging Vessel, playtest-only 4th special-combine consumable) | **Implemented** — `upgrade_material` via `smithing.upgrade_ids` (Task C2) |
 | Break Fossil | `SpellVessel.cs:1942`, `item_drops` | **Implemented** — `item_use` (Task B2/B3) |
 | Offering Stone bag | `SpellVessel.cs:2043` (id `340104`), `spell_created_items` | **Implemented** — `item_use` (Task B2/B3) |
 | PlanarShard byproduct | `Smithing.cs:278` (`GM.PlanarShard`, blessing-removal output) | **Deferred** — hardcoded output, no data table; needs a `smithing.planar_shard_output` code fact. |
@@ -511,11 +517,39 @@ Every non-standard obtainability/usage path found in the game code is listed her
 
 ---
 
+## Pre-Phase-3 gate — live attach-trick probe
+
+Before building Sub-phases 3B/3C/3D on the attach-trick, ensure a wiki account with
+`recreatecargodata` is available for the probe and later production Cargo recreates.
+`WoWBot` can edit and has the `bot` right, but does **not** have `delete` or
+`recreatecargodata`; do not create live probe pages with that account alone, because
+the probe could not drive `action=cargorecreatetables` and the bot could not delete
+the pages afterward.
+
+Once a recreate-capable account is available, run a one-off **non-destructive probe on
+the live wiki** to convert the harness's untestable budget assumption (§14 of the spec)
+into a fact:
+
+- Create a toy 3-table template using the attach-trick in a user/sandbox namespace
+  (declare one table; transclude two declare-only attach-only helpers for the other two).
+- Store rows via `#cargo_store` from a sandbox page, then `action=cargorecreatetables`
+  on all three.
+- Confirm LIBRARIAN accepts the multi-table template (no silent declare no-op) and the
+  rows survive recreate.
+- Delete the probe pages after.
+
+If the probe fails, the attach-trick is not viable on wiki.gg and the
+relationship-owner design must be revisited before 3B starts. If the probe passes but
+the deploy bot still cannot receive `recreatecargodata`, Phase 7 needs an explicit
+admin-run recreate runbook rather than bot-driven production automation.
+
+---
+
 ## Self-review
 
 - **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable/IsRare → A5/A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
 - **Ownership trap:** resolved by item-owning ObtainedFrom/UsedIn; quest/zone/class need no Cargo template in Phase 3.
-- **Code-fact boundary:** every constant (auction bounds, upgrade IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`.
+- **Code-fact boundary:** every constant (auction bounds, upgrade IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.updateah_gates.item_level` pins `'>= 40'`, and `smithing.upgrade_ids` pins all four IDs incl. `2265228` (Merging Vessel).
 - **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
 - **Type consistency:** `obtainedFrom`/`usedIn` Lua field names, `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used identically across B/C/E.
 - **Deferred paths:** enumerated in SP1 and retained in planning docs, none dropped silently.
