@@ -38,3 +38,16 @@ def test_npc_role_spell_reference_columns_exist(tmp_path):
     assert "ae_taunt_spell_stable_key" in cols
 
     writer._conn.close()
+
+
+def test_character_base_combat_stat_columns_exist(tmp_path):
+    """The clean characters table has columns for exported Stats gameplay fields."""
+    writer = Writer(tmp_path / "test.sqlite")
+    writer.create_schema()
+
+    cols = {row[1] for row in writer._conn.execute("PRAGMA table_info(characters)").fetchall()}
+    assert "base_armor_pen_percentage" in cols
+    assert "base_attack_roll_modifier" in cols
+    assert "cannot_be_snared" in cols
+
+    writer._conn.close()

@@ -479,6 +479,9 @@ local function cargoFields(character, pageTitle)
 		{ "Type", character.type },
 		{ "Zones", zoneNames(character.zones) },
 		{ "Level", character.level },
+		{ "BaseArmorPenPercentage", character.baseArmorPenPercentage },
+		{ "BaseAttackRollModifier", character.baseAttackRollModifier },
+		{ "CannotBeSnared", character.cannotBeSnared },
 		{
 			"FactionKey",
 			type(character.faction) == "table" and (character.faction.stablekey or "") or "",

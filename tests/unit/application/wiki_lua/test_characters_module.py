@@ -211,3 +211,21 @@ def test_character_lua_record_includes_gameplay_flags_with_nondefault_values() -
     assert record["ignoreLOSForAggro"] == 1
     assert record["simPlayersIgnoreUntilOrdered"] == 1
     assert record["enrage"] == 90.0
+
+
+def test_character_lua_record_includes_base_combat_stats_with_nondefault_values() -> None:
+    character = make_character(
+        base_armor_pen_percentage=20.0,
+        base_attack_roll_modifier=3,
+        cannot_be_snared=1,
+    )
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+    )
+    record = data["characters"]["character:a_grizzly_bear"]
+    assert record["baseArmorPenPercentage"] == 20.0
+    assert record["baseAttackRollModifier"] == 3
+    assert record["cannotBeSnared"] == 1

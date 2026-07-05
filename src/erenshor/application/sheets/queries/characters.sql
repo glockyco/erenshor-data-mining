@@ -33,6 +33,9 @@ SELECT
     c.base_life_steal,
     c.base_mh_atk_delay,
     c.base_oh_atk_delay,
+    c.base_armor_pen_percentage,
+    c.base_attack_roll_modifier,
+    c.cannot_be_snared,
     -- XP & Rewards
     c.base_xp_min,
     c.base_xp_max,

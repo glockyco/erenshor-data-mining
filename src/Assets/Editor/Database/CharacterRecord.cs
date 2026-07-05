@@ -85,6 +85,9 @@ public class CharacterRecord
     public float BaseLifeSteal { get; set; }
     public float BaseMHAtkDelay { get; set; }
     public float BaseOHAtkDelay { get; set; }
+    public float BaseArmorPenPercentage { get; set; }
+    public int BaseAttackRollModifier { get; set; }
+    public bool CannotBeSnared { get; set; }
 
     // Calculated/Effective Stats for NPCs
     public int EffectiveHP { get; set; }

@@ -598,6 +598,9 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseLifeSteal = stats.BaseLifesteal;
             record.BaseMHAtkDelay = stats.BaseMHAtkDelay;
             record.BaseOHAtkDelay = stats.BaseOHAtkDelay;
+            record.BaseArmorPenPercentage = stats.BaseArmorPenPercentage;
+            record.BaseAttackRollModifier = stats.BaseAttackRollModifier;
+            record.CannotBeSnared = stats.CannotBeSnared;
             record.BaseXpMin = stats.Level * 4;
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
             record.BossXpMultiplier = character.BossXp;

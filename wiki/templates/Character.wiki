@@ -107,6 +107,9 @@
 |Type=String
 |Zones=List (,) of String
 |Level=Integer
+|BaseArmorPenPercentage=Float
+|BaseAttackRollModifier=Integer
+|CannotBeSnared=Boolean
 |FactionKey=String
 |HasDrops=Boolean
 |HasSpells=Boolean

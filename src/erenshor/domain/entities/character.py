@@ -123,6 +123,9 @@ class Character(BaseEntity):
     base_life_steal: float | None = Field(default=None, description="Base lifesteal")
     base_mh_atk_delay: float | None = Field(default=None, description="Main hand attack delay")
     base_oh_atk_delay: float | None = Field(default=None, description="Off hand attack delay")
+    base_armor_pen_percentage: float | None = Field(default=None, description="Base armor penetration percentage")
+    base_attack_roll_modifier: int | None = Field(default=None, description="Base attack roll modifier")
+    cannot_be_snared: int | None = Field(default=None, description="Cannot be snared (boolean)")
 
     # Effective stats (calculated)
     effective_hp: int | None = Field(default=None, description="Calculated HP")
