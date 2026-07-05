@@ -36,8 +36,9 @@ Remaining work (sequenced in §15):
   `Drops`/`ContainerDrops` and covering every acquisition/usage mechanism; the
   `IsAuctionable`/`IsRare` item flags; the `class_starting_items` export; the
   `CharacterAbilities`/`Spawns` junctions; and reverse-query rendering.
-- Phase 4 — community contribution layer (`ItemSource`/`SpawnPoint`, `Origin`,
-  stablekey validation).
+- Phase 4 — community contribution layer: `{{ItemSource}}` rows fold into
+  `ObtainedFrom` and `{{SpawnPoint}}` into `Spawns` (shared `Origin`, free-text
+  `SourceText`, stablekey validation).
 - Phase 5 — dual-path templates for the remaining entity types.
 - Phase 6 — thin-page article generator + automated article deploy.
 - Phase 7 — production cutover: deploy → incremental thin-page conversion →
@@ -57,6 +58,13 @@ The end state: each article page is a thin `{{<Type>|stablekey=…}}` reference;
 all entity data lives in generated `Module:Erenshor/Data/*` modules and is
 rendered + stored to Cargo by the templates; community contributions live on the
 page and are never overwritten by data refreshes.
+
+**Variant scope.** The wiki has a single production target (`erenshor.wiki.gg`) and
+is generated from the current shipping build. During the playtest→main promotion that
+is the `playtest` variant, which becomes `main` on promotion; all pipeline runs,
+code-fact pins, and golden baselines track that build. There is no dual-variant
+support — the pins are the shipping build's renderings, so they carry over unchanged
+at promotion and any stale non-shipping build fail-fasts loudly.
 
 Non-goals / out of scope:
 - Raw-data TOML overrides (author-only, applied pre-generation). Separate system.
@@ -88,8 +96,11 @@ Non-goals / out of scope:
   `stable_key TEXT PRIMARY KEY`; `Page` and `Name` are both non-unique (e.g. two
   `Regrowth` spells share a page+name).
 - **Freshness is driven deterministically.** `wiki_deploy/refresh.py` issues
-  `action=purge&forcelinkupdate=1` on `embeddedin` dependents; `cargo_check.py`
-  drives `cargorecreatetables`.
+  `action=purge&forcelinkupdate=1` on `embeddedin` dependents. `cargorecreatetables`
+  is driven by the local-harness `wiki-dev/cargo_check.py`; **production Cargo-recreate
+  automation does not yet exist** (the CLI only prints `Special:CargoTables` guidance)
+  and is a Phase 7 deliverable, gated on confirming the deploy bot can hold the
+  `recreatecargodata` right on wiki.gg.
 - **Relationship source tables exist in the clean DB** (§8): `loot_drops`,
   `item_drops`, `crafting_recipes`, `crafting_rewards`, `item_classes`,
   `spell_classes`, `character_spawns`, `character_attack_spells` + siblings,
@@ -125,6 +136,13 @@ These shape every Cargo decision below:
 - **Types:** Integer columns must be true integers (no decimals); Boolean columns
   accept `yes`/`no` and query back as `1`/`0`. Query the implicit page via an alias
   (`_pageName=Page`) on tables that do not store a `Page` column.
+- **The local harness runs stock upstream Cargo, not wiki.gg's LIBRARIAN fork** — it
+  clones `mediawiki/extensions/Cargo` (`wiki-dev/Dockerfile`). So the ≤1-declare +
+  ≤1-attach budget above is **not enforced locally**: "green on harness" proves row
+  shape and recreate coverage, not that LIBRARIAN accepts a multi-table template. The
+  attach-trick's real correctness criterion the harness *can* check is that rows stored
+  by a page whose template is not attached to a table vanish on `cargorecreatetables`;
+  budget acceptance must be probed live (§15).
 
 ## 3. Core principles
 
@@ -137,7 +155,11 @@ These shape every Cargo decision below:
    and persists only to Cargo, so **Cargo is the system of record** for those rows.
 3. **Never store rendered links or markup in Cargo.** Store names/page-titles and
    numbers; render links at the display boundary via `Module:Erenshor/Link`.
-4. **One table per relationship shape; store forward once, query reverse.**
+4. **One table per relationship shape; store each row once, query it from every other
+   page.** Item obtainability/usage rows are stored from the *item* page (the sole
+   Cargo owner until Phase 5 gives quest/zone/class templates a `cargoStore`); character
+   junctions are stored from the *character* page. Every other page reads the
+   relationship by querying, never by storing a second copy.
 5. **Two curation layers by provenance, layered precedence.** Generated rows
    (deploy-owned) and community rows (wiki-owned, never overwritten) share tables
    via an `Origin` column (`generated`|`community`); community wins on overlap.
@@ -212,8 +234,9 @@ via safe-edit:
   thin page = `{{<Type>|stablekey=…|<kept overrides>}}` + kept sections.
 - After cutover, **data refreshes never rewrite article pages** — they regenerate
   only `Module:Erenshor/Data/*` and recreate Cargo. Pages change only on entity
-  add (new thin page), removal (orphan delete, §11), or rename (page move). So
-  community content on a page is structurally safe.
+  add (new thin page), removal (orphan reconciliation, §11), or rename (page move,
+  which leaves a redirect and needs no delete right). So community content on a page
+  is structurally safe.
 
 The override classifier/migration currently exists for Items only and is
 report-only; this phase generalizes it to all seven types and makes it write the
@@ -239,8 +262,9 @@ thin pages.
 `Characters`:
 - **Replace the `Zones`/`SpawnChance` markup hack with the `Spawns` table (§8).**
   Keep an optional derived `Zones = List (,) of String` (distinct zone names) as a
-  cheap filter convenience. **`Faction`: store the WorldFaction `stablekey`** (the
-  only joinable faction; the combat `Faction` enum is name-only, not a link).
+  cheap filter convenience. **`FactionKey`: store the WorldFaction `stablekey`** (the
+  only joinable faction; the combat `Faction` enum is name-only, not a link; the
+  `Key` suffix follows §2.1).
 
 All-6-classes → "All" is a display-only collapse in `Module:Erenshor/Link`
 (store all class names; render "All" when the set is the full 6-class roster).
@@ -284,44 +308,67 @@ list pages need no join. Detail tables carry the curated *queryable* subset; the
 per-entity field set (incl. descriptions/long text) stays in the Lua module for the
 infobox. Field coverage verified against `Spell.cs`/`Skill.cs`/`Stance.cs`.
 
+### 7.3 Zones & Quests: no detail table
+
+Zones and quests carry **no Cargo detail table**, by decision. A detail table earns
+its cost only when other pages filter/sort/join on the entity's own columns; nothing
+does that for zones or quests. Their pages render own-entity fields straight from
+`Module:Erenshor/Data/{Zones,Quests}` (the infobox), and every cross-page relationship
+that reaches a zone or quest is already carried by an item/character junction —
+`ObtainedFrom` (`mining`/`fishing`/`item_bag` → `SourceKey` = zone; `quest` →
+`SourceKey` = quest), `UsedIn` (`quest_requirement` → `TargetKey` = quest), and
+`Spawns` (`Zone`) — so zone/quest pages answer "what's obtained/used/spawns here" by
+**reverse-querying those tables**, never by owning one. This is also why Phase 3 can
+make item relationships item-owned without a `Zone.lua`/`Quest.lua` `cargoStore` (§8).
+
 ## 8. Relationship (junction) tables
 
-Item **obtainability** and **usage** are each one unified, typed table. The reverse
-query on an item page is the main consumer and Cargo has no `UNION`, so a single
-typed table beats one-table-per-mechanism: one reverse query, fewer attaches,
-uniform rendering. Foreign keys are `<Entity>Key` StableKey columns resolved to
-links by type at display; rows are stored forward on the owner page. `Origin` is
-added to every generated relationship table with the Phase 4 community layer.
+Item **obtainability** and **usage** are each one unified, typed table, both
+**item-owned**: every row is stored from the *item* page — the only entity with a
+Cargo `cargoStore` gate until Phase 5 gives quest/zone/class templates one. This
+collapses the phase-ordering trap (no source page needs a template that does not yet
+exist) and matches the main consumer: the item's own "How to Obtain"/"Used For" plus
+every source page's reverse query. Cargo has no `UNION`, so a single typed table beats
+one-table-per-mechanism (one query, fewer attaches, uniform rendering). Foreign keys
+are `<Entity>Key` StableKey columns resolved to links by type at display.
+`ObtainedFrom` and the `Spawns` junction — the two tables with a Phase 4 community
+counterpart — carry `Origin` (`generated`|`community`) from Phase 3 onward, so Phase 4
+adds only rows and templates, never a production schema recreate; `UsedIn` and
+`CharacterAbilities` have no community layer and no `Origin`.
 
 **`ObtainedFrom`** — how an item is acquired (item ← source): `ItemKey`,
-`SourceType`, `SourceKey`, `Probability` (Float; null = deterministic),
-`IsGuaranteed` (Boolean), `Quantity` (Integer), `Condition` (String: day/night,
-quest-gate, chest tier). `SourceKey` resolves by `SourceType`:
+`SourceType`, `SourceKey` (StableKey; null for free-text community rows),
+`SourceText` (String; free-text source for community rows, null for generated),
+`Probability` (Float; null = deterministic), `IsGuaranteed` (Boolean),
+`Quantity` (Integer), `SourceCondition` (String: day/night, quest-gate, chest tier —
+`Condition` is a SQL keyword, §2.1), `Origin` (`generated`|`community`). `SourceKey`
+resolves by `SourceType`:
 
-| `SourceType` | from | writer | `SourceKey` → |
-|---|---|---|---|
-| `drop` | `loot_drops` (treasure chests are characters) | character | CharacterLink |
-| `vendor` | `character_vendor_items` (+quest unlock → `Condition`) | character | CharacterLink |
-| `dialog` | `character_dialogs.give_item_stable_key` | character | CharacterLink |
-| `quest` | quest reward (`Quest.ItemOnComplete`) | quest | QuestLink |
-| `craft` | `crafting_rewards` (`Quantity`) | recipe item | ItemLink |
-| `item_use` | `item_drops` (fossil) + `spell_created_items` (offering bag) | source item | ItemLink |
-| `mining` | `mining_nodes`+`mining_node_items` | zone | ZoneLink |
-| `fishing` | `water_fishables` (day/night → `Condition`) | zone | ZoneLink |
-| `item_bag` | `item_bags` (ground pickups) | zone | ZoneLink |
-| `starting` | `class_starting_items` (new export from `CharSelectManager`) | class | ClassLink |
+| `SourceType` | from | `SourceKey` → |
+|---|---|---|
+| `drop` | `loot_drops` (treasure chests are characters) | CharacterLink |
+| `vendor` | `character_vendor_items` (+quest unlock → `SourceCondition`) | CharacterLink |
+| `dialog` | `character_dialogs.give_item_stable_key` | CharacterLink |
+| `quest` | quest reward (`Quest.ItemOnComplete`) | QuestLink |
+| `craft` | `crafting_rewards` (`Quantity`) | ItemLink (recipe item) |
+| `item_use` | `item_drops` (fossil) + `spell_created_items` (offering bag) | ItemLink (source item) |
+| `mining` | `mining_nodes`+`mining_node_items` | ZoneLink |
+| `fishing` | `water_fishables` (day/night → `SourceCondition`) | ZoneLink |
+| `item_bag` | `item_bags` (ground pickups) | ZoneLink |
+| `starting` | `class_starting_items` (export from `CharSelectManager`) | ClassLink |
+| `community` | `{{ItemSource}}` (§9) | null — free text in `SourceText` |
 
-World-point sources (`mining`/`fishing`/`item_bag`) have no pages of their own, so
-the **zone** owns them (dedup to one row per item×type×zone).
+World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey`
+(no page of their own); dedup to one row per item×type×zone.
 
 **`UsedIn`** — what an item is consumed for (item → consumer): `ItemKey`, `UseType`,
 `TargetKey`, `Quantity`, `Slot`:
 
-| `UseType` | from | writer | `TargetKey` → |
-|---|---|---|---|
-| `craft_material` | `crafting_recipes` | recipe item | ItemLink (recipe) |
-| `quest_requirement` | `quest_required_items` | quest | QuestLink |
-| `upgrade_material` | hardcoded quality recipes (golden `31377423`/fuel `46289586`, blessing-removal `2298018`), curated from `Smithing.cs` | recipe item | ItemLink |
+| `UseType` | from | `TargetKey` → |
+|---|---|---|
+| `craft_material` | `crafting_recipes` | ItemLink (recipe) |
+| `quest_requirement` | `quest_required_items` | QuestLink |
+| `upgrade_material` | smithing special-combine consumables via the `smithing.upgrade_ids` code fact (playtest: `31377423`/`46289586`/`2298018`/`2265228` = Mold: An Otherwordly Box, Planar Stone, Inert Diamond, Merging Vessel); never transcribed from `Smithing.cs` | ItemLink (recipe) |
 
 `craft` (result → `ObtainedFrom`) and `craft_material`/`upgrade_material` (inputs →
 `UsedIn`) make dedicated crafting tables unnecessary; the recipe item renders its
@@ -341,12 +388,18 @@ excluded. Rendered as an "Auction House" line in How to Obtain.
   declare-only `Template:AbilityClasses`; `{{Spell}}`/`{{Skill}}` attach it.
 - `CharacterAbilities` (from `character_attack_spells` + siblings +
   `character_attack_skills`; owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
-- `Spawns` (from `character_spawns` + `character_chained_spawns` per
-  `docs/plans/archive/2026-05-28-dynamic-spawn-coverage-design.md`; owner =
-  character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`, `SpawnChance`,
-  `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`, `SpawnType`.
-  Replaces the flat character `Zones`/`SpawnChance`. Community spawns use
-  `{{SpawnPoint}}` (§9) with `Origin=community`.
+- `Spawns` (owner = character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`,
+  `SpawnChance`, `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`,
+  `SpawnType`, `Origin`. Source is the `wiki_character_spawns` view (`character_spawns`
+  filtered to `is_wiki_generated`, with `character_chained_spawns` already expanded in
+  per `docs/plans/archive/2026-05-28-dynamic-spawn-coverage-design.md`). **Treasure-chest
+  possible locations fold in here**: the four `Lost Treasure (…)` chest characters get
+  one `treasure_chest` row per pickable `treasure_locations` entry
+  (`treasure_chest_possible_spawns` JOIN `treasure_locations` for coordinates),
+  `SpawnType='treasure_chest'`, `SpawnChance` null (the game's per-location chest odds
+  are not exported). Without this, a treasure-hunting item's `drop` row points at a
+  chest character whose page shows no spawn locations. Replaces the flat character
+  `Zones`/`SpawnChance`. Community spawns use `{{SpawnPoint}}` (§9) with `Origin=community`.
 
 Faction relationships are deliberately not one shape: only the WorldFaction is
 stable-keyed/joinable (`my_world_faction_stable_key`, `character_faction_modifiers`);
@@ -367,12 +420,15 @@ obtainability specials (Chessboard Candlekeeper→mold, Time Stone). Documented,
 
 ### 8.1 Forward-store / reverse-query rendering
 
-Reverse/cross-page relationships — the item's "How to Obtain" (`ObtainedFrom`) and
-"Used For" (`UsedIn`), plus "dropped by"/"used by"/"taught by" on other pages — are
-**rendered via Cargo query** against the unified tables, the non-item junctions, and
-the item→ability columns, in list pages and infoboxes. The denormalized reverse
-arrays (`usedBy`, `itemsWithEffect`, `source`) are **removed from the Lua data
-modules**. Single source, removal-correct (Leaguepedia's model).
+Every relationship row is stored once from its owner page (item-owned for
+`ObtainedFrom`/`UsedIn`, character-owned for `Spawns`/`CharacterAbilities`) and read
+everywhere else **via Cargo query** — the item's own "How to Obtain"/"Used For", and
+"dropped by"/"used by"/"taught by"/"spawns here" on character, zone, quest, and class
+pages, in list pages and infoboxes. Because item-owned rows are read forward by the
+item itself and reverse by the source pages, the query is the single access path in
+both directions. The denormalized reverse arrays (`usedBy`, `itemsWithEffect`,
+`source`) are **removed from the Lua data modules**. Single source, removal-correct
+(Leaguepedia's model).
 
 ## 9. Community contribution layer (non-extractable relationships)
 
@@ -384,11 +440,14 @@ multiple-instance row templates (no Page Forms). Each row template takes
 one row with `Origin=community`, and validates `stablekey` against the data module
 via `mw.loadData` (unresolved → tracking category).
 
-- `{{ItemSource|stablekey=item:…|source=…|drop_probability=…|zone=…|notes=…}}` →
-  `OtherItemSources(StableKey, Source, DropProbability, Zone, Notes, Origin)`.
-  Generalizes the free-text `othersource` field into queryable rows.
-- `{{SpawnPoint|stablekey=npc:…|zone=…|x=…|y=…|z=…|spawn_chance=…|night_spawn=…|spawn_upon_quest_complete=…|notes=…}}`
-  → the `Spawns` table (§8), `Origin=community`.
+- `{{ItemSource|stablekey=item:…|source=…|probability=…|condition=…}}` → an
+  `ObtainedFrom` row with `Origin=community` and `SourceType=community`: the free-text
+  `source` lands in `SourceText` (with `SourceKey` null), `probability` in
+  `Probability`, `condition` in `SourceCondition`. It shares the item's unified "How to
+  Obtain" query and render path — no separate `OtherItemSources` table. Generalizes the
+  legacy free-text `othersource` field into queryable rows.
+- `{{SpawnPoint|stablekey=npc:…|zone=…|x=…|y=…|z=…|spawn_chance=…|night_spawn=…|spawn_upon_quest_complete=…}}`
+  → a `Spawns` row (§8) with `Origin=community`.
 
 Editors find a variant's `stablekey` in the page source (it's on the infobox call)
 — documented in the entity-editing guides (§13), not surfaced as infobox chrome.
@@ -408,6 +467,12 @@ touch article pages at all (§6).
   (replacement-table form for large recreates); run the job queue as part of deploy.
 - Ordering: queried-against rows must exist before the querying page parses (push
   pages → recreate Cargo → purge dependents).
+- **Item-ownership freshness:** because obtainability/usage rows are stored from the
+  item page, a change in any *source* table (loot/vendor/dialog/quest/craft/mining/
+  fishing/item_bag/class/smithing) must reparse the **owning item pages**, not the
+  source-entity page. `wiki_deploy/refresh.py` drives this; on the harness it is the
+  recreate + null-edit path. Production `cargorecreatetables` automation is a Phase 7
+  deliverable (§2, §15).
 
 ## 11. Removals & orphans
 
@@ -415,11 +480,17 @@ touch article pages at all (§6).
   removed from the data module → on reparse, resolve=missing → store nothing →
   row dropped. Whole page gone → delete page → rows dropped.
 - Reverse-query rendering (§8.1) makes removals correct (no ghost rows).
-- **Drop-and-recreate** of generated tables from the authoritative set,
-  gated by `cargo_check`. The deploy bot cannot get page-delete rights, so orphan
-  removal relies on this deterministic rebuild + the orphan-page reconciliation
-  the cutover deploy performs (it owns the authoritative page set). Community rows
-  (separate `Origin`/templates) are unaffected.
+- **Cargo rows: drop-and-recreate** of generated tables from the authoritative set,
+  gated by `cargo_check`. Recreating from the authoritative page set is what removes a
+  deleted entity's rows; community rows (same tables, `Origin=community`) are reparsed
+  and preserved.
+- **Article pages: manual-delete queue.** The deploy bot cannot hold page-delete
+  rights, so it never deletes. The cutover deploy owns the authoritative page set and
+  **emits an orphan-page report** (the rollback tooling already reports created pages);
+  a human admin clears the queue. Renames are page *moves* (leave a redirect, need no
+  delete right). Until an orphan page is deleted, its stablekey no longer resolves, so
+  its own Cargo rows are already gone and it lands in the community `stablekey`
+  tracking category.
 - The community `stablekey` validation category (§9) flags rows whose key no
   longer resolves after a game update.
 
@@ -447,12 +518,22 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
   a thin fixture page → new branch renders + Cargo row.
 - No markup in Cargo: assert stored values are names/numbers, not `<span>`/`[[…]]`.
 - Reverse queries: item "dropped by", ability "used by", "what a class can learn".
-- Community layer: `{{ItemSource}}`/`{{SpawnPoint}}` store `Origin=community`,
-  survive a simulated redeploy; unresolved `stablekey` → tracking category.
+- Community layer: `{{ItemSource}}` stores an `ObtainedFrom` row and `{{SpawnPoint}}`
+  a `Spawns` row, both `Origin=community`, both surviving a simulated redeploy and
+  appearing in the same unified query as generated rows; unresolved `stablekey` →
+  tracking category.
 - Thin-page generator: emits correct stanzas per entity; multi-entity = multiple
   stanzas; community overrides + sections preserved across a regenerate.
 - Extend `wiki-dev/smoke/cargo.py` + fixtures + `cargo_check.py` recreate set to
   every new table.
+- Treasure-chest spawns: a `Lost Treasure (…)` chest character stores `treasure_chest`
+  `Spawns` rows for its pickable locations, and a treasure-hunting item's `drop` row
+  resolves to a chest page that now shows those locations.
+- **Harness limitation (explicit):** `wiki-dev` runs stock upstream Cargo, so it
+  cannot test the wiki.gg ≤1-declare+≤1-attach budget or the attach-trick's live
+  acceptance. What it *does* test is recreate coverage — rows stored by a page whose
+  template is not attached to the table vanish on `cargorecreatetables`. Live budget
+  acceptance is a §15 pre-Phase-3 probe.
 
 ## 15. Phased sequencing
 
@@ -460,21 +541,32 @@ Cargo for every type is completed on the local harness before any page is conver
 so the dual-path new branch is whole before cutover. Each phase is TDD-first and
 atomic; `writing-plans` turns each into a step-by-step plan.
 
-3. Phase 3 — unified item-relationship model: `ObtainedFrom` (consolidating the
-   built `Drops`/`ContainerDrops`) + `UsedIn`, covering every acquisition/usage
-   mechanism; the `IsAuctionable` derived flag + newly-exported `IsRare`; the
+**Pre-Phase-3 gate — live attach-trick probe.** Before building Phase 3 on the
+attach-trick, run a one-off non-destructive probe on the live wiki: a toy 3-table
+template using the attach-trick in a user/sandbox namespace, store rows, confirm
+LIBRARIAN accepts the multi-table template, `cargorecreatetables` finds the rows, and
+the deploy bot can drive the recreate. Delete the probe pages after. This converts the
+harness's untestable budget assumption (§14) into a fact and answers the Phase 7
+bot-rights question early.
+
+3. Phase 3 — unified **item-owned** relationship model: `ObtainedFrom` (consolidating
+   the built `Drops`/`ContainerDrops`) + `UsedIn`, covering every acquisition/usage
+   mechanism, with `Origin`/`SourceText` declared up front for the Phase 4 community
+   layer; the `IsAuctionable` derived flag + newly-exported `IsRare`; the
    `class_starting_items` export (`starting` source); the `CharacterAbilities` and
-   `Spawns` junctions; item→ability scalar columns. Reverse relations move to Cargo
-   queries; denormalized arrays dropped.
+   `Spawns` junctions (`Spawns` folds in treasure-chest possible locations); item→
+   ability scalar columns. Reverse relations move to Cargo queries; denormalized
+   arrays dropped.
 4. Phase 4 — community contribution layer.
 5. Phase 5 — dual-path templates for all seven types (verbatim legacy fallback
    branch; new branch unchanged); both-branch harness tests.
 6. Phase 6 — thin-page article generator + automated article deploy + generalized
    override-preserving conversion (all seven types).
-7. Phase 7 — production cutover: TemplateSandbox gate → deploy dual-path
-   templates/modules → recreate Cargo → incrementally convert pages to thin →
-   per-type, delete the legacy branch + retire that type's Jinja2 generator → live
-   smoke + rollback manifest.
+7. Phase 7 — production cutover: build production `cargorecreatetables` automation
+   (confirming the bot's `recreatecargodata` right, per the §15 probe) → TemplateSandbox
+   gate → deploy dual-path templates/modules → recreate Cargo → incrementally convert
+   pages to thin → per-type, delete the legacy branch + retire that type's Jinja2
+   generator → live smoke + rollback manifest + orphan-page report for manual deletion.
 8. Phase 8 — freshness / orphan drop-and-recreate automation + documentation.
 
 ## 16. Key decisions
@@ -484,14 +576,21 @@ atomic; `writing-plans` turns each into a step-by-step plan.
   per type after conversion.
 - Thin generated `{{Type|stablekey=}}` pages are the cutover mechanism; community
   content is preserved on-page.
-- Store forward / query reverse; no denormalized reverse arrays.
+- Store each relationship row once from its owner page, query it from every other page; no denormalized reverse arrays.
 - Item obtainability and usage are two unified typed tables — `ObtainedFrom`
-  (item ← source) keyed by `SourceType`, `UsedIn` (item → consumer) keyed by
-  `UseType` — not one table per mechanism: the item's reverse "how to obtain" /
-  "used for" is the main consumer and Cargo has no `UNION`, so one typed table = one
-  query + fewer attaches. World-point sources (mining/fishing/item_bag) are owned by
-  the zone; the auction house is a derived `IsAuctionable` flag, not a row.
-- Orphan reconciliation = drop-and-recreate (the bot cannot get page-delete rights).
+  (item ← source) keyed by `SourceType`, `UsedIn` (item → consumer) keyed by `UseType`
+  — **both item-owned** (the item page is the only Cargo owner until Phase 5), not one
+  table per mechanism: Cargo has no `UNION`, so one typed table = one query + fewer
+  attaches. World-point sources (mining/fishing/item_bag) carry the zone as `SourceKey`;
+  the auction house is a derived `IsAuctionable` flag, not a row. `Condition`→
+  `SourceCondition` (SQL keyword). Zones and quests own no detail table (§7.3).
+- Orphan reconciliation: Cargo rows via drop-and-recreate; article pages via an
+  orphan-page report + manual admin deletion (the bot cannot get page-delete rights);
+  renames are page moves.
+- Community rows share the generated tables via `Origin`: `{{ItemSource}}`→`ObtainedFrom`
+  (free-text `SourceText`, null `SourceKey`, `SourceType=community`),
+  `{{SpawnPoint}}`→`Spawns`; no separate `OtherItemSources` table. Treasure-chest
+  possible locations fold into `Spawns`.
 - Abilities use per-type `Spells`/`Skills`/`Stances` tables + the `AbilityClasses`
   junction; no shared base table; distinct `{{Spell}}`/`{{Skill}}` templates.
 - All Cargo storage goes through `Module:Erenshor/Cargo`; all times in seconds (no ticks).
