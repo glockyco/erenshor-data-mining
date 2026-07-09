@@ -31,7 +31,7 @@ parent: 2026-06-04-wiki-cargo-data-architecture
   - `smithing.upgrade_ids` → `strings='31377423,46289586,2298018,2265228'`
   `auction.updateah_gates.item_level='>= 40'` is the listing skip branch (verified against `AuctionHouse.cs:626`: `if (itemByID.ItemLevel >= 40) continue;`, so items ≥40 are skipped and the auctionable predicate is `1 ≤ level ≤ 39`). `ReplaceBag:120` rejects `ItemLevel <= 0 || > 39` and `RareItem && Random(0,20) < 19`. The four smithing IDs are `items.id` values (TEXT), not stable keys: `31377423`=Mold: An Otherwordly Box, `46289586`=Planar Stone, `2298018`=Inert Diamond, `2265228`=Merging Vessel.
 - **`Item.RareItem`** exists (`Item.cs:210`) but is not exported. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the auction gate uses `ItemValue`.
-- **Attach budget:** the Item template currently does `#cargo_declare:Items` + `#cargo_attach:ContainerDrops` (within the wiki.gg 1-declare+1-attach budget). After folding `ContainerDrops`→`ObtainedFrom` and adding `UsedIn`, the item page writes `Items` + `ObtainedFrom` + `UsedIn` = 3 tables → the **attach-trick** is required (declare-only owner templates + a transcluded zero-output attach helper), mirroring `wiki/templates/ContainerDrops.wiki`. **The local harness cannot validate the budget** — `wiki-dev/Dockerfile` clones stock upstream Cargo, not wiki.gg's LIBRARIAN fork, so budget acceptance is probed live once before Phase 3 (see Pre-Phase-3 gate below).
+- **Storage shape — nested hidden owners (validated).** Each relationship table has one hidden store template that both declares it (in `<noinclude>`) and stores its rows (a Lua-backed `#cargo_store` in `<includeonly>`): `ItemObtainedFromStore`→`ObtainedFrom`, `ItemUsedInStore`→`UsedIn`, `CharacterSpawnsStore`→`Spawns`, `CharacterAbilitiesStore`→`CharacterAbilities`. `Item`/`Character` declare only their own detail table (`Items`/`Characters`) and *transclude* the hidden owners, so no template exceeds the wiki.gg 1-declare budget and **no attach-trick is needed**. The live `2026-07-09-wiki-cargo-storage-validation` probe confirmed this shape on wiki.gg. Data refreshes reparse pages (rows rewrite in place); only a schema change recreates a table.
 
 ## File map (created / modified)
 
@@ -40,7 +40,7 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 - Python build: `src/erenshor/application/processor/writer.py` (schemas), `processor/entities.py` (process_items + class_starting_items), `processor/auction.py` (new, `is_auctionable`), `domain/entities/item.py`, the repositories under `infrastructure/database/repositories/`.
 - Lua gen: `src/erenshor/application/wiki_lua/items.py`, `characters.py`, new builders; `domain/value_objects/source_info.py`.
 - Lua modules: `wiki/modules/Erenshor/Item.lua`, `Character.lua`.
-- Templates: `wiki/templates/Item.wiki`, new `ObtainedFrom.wiki`, `UsedIn.wiki`, `Spawns.wiki`, `CharacterAbilities.wiki`; delete `Drops.wiki`, `ContainerDrops.wiki` at the end of 3E.
+- Templates: `wiki/templates/Item.wiki`, `Character.wiki` (transclude the hidden owners); new hidden store owners `ItemObtainedFromStore.wiki`, `ItemUsedInStore.wiki`, `CharacterSpawnsStore.wiki`, `CharacterAbilitiesStore.wiki`; delete `Drops.wiki`, `ContainerDrops.wiki` at the end of 3E.
 - Harness: `wiki-dev/smoke/cargo.py`, `wiki-dev/cargo_check.py`, `wiki-dev/fixtures/cargo_*.tsv`, `wiki-dev/fixtures/pages/*.wiki`, `wiki/modules/Erenshor/{Item,Character}/testcases.lua`.
 - Freshness: `src/erenshor/application/wiki_deploy/refresh.py`.
 
@@ -56,6 +56,7 @@ uv run python wiki-dev/smoke_test.py               # action=parse render + struc
 uv run python wiki-dev/cargo_check.py              # recreate + validate Cargo rows vs fixtures
 uv run pytest tests/...                            # Python unit/integration
 uv run erenshor -V playtest golden capture         # regenerate golden baselines (playtest = shipping build)
+uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate all  # live wiki.gg Cargo storage-shape gate (one-off, pre-Phase-3)
 ```
 
 Per-module Lua assertions live in `wiki/modules/Erenshor/<Type>/testcases.lua` and are exercised by the harness render; Cargo row shape is asserted by `cargo_check.py` against `wiki-dev/fixtures/cargo_*.tsv`.
@@ -335,17 +336,17 @@ Expected: a large but < total count.
 
 Outcome: a single `ObtainedFrom` Cargo table written from the item page, covering every deterministic source type. `Drops`/`ContainerDrops` keep working until 3E folds and deletes them.
 
-### Task B1: Declare-only `ObtainedFrom` table + harness wiring
+### Task B1: `ItemObtainedFromStore` hidden owner (declares + stores `ObtainedFrom`)
 
 **Files:**
-- Create: `wiki/templates/ObtainedFrom.wiki` (mirror `wiki/templates/ContainerDrops.wiki`)
+- Create: `wiki/templates/ItemObtainedFromStore.wiki` (hidden store owner: declares + stores `ObtainedFrom`)
 - Modify: `wiki-dev/smoke/cargo.py` (FIELDS/KEY/QUERY + loader/checker), `wiki-dev/cargo_check.py` (`CARGO_TABLES`, `CARGO_TEMPLATES_BY_TABLE`)
 
 - [ ] **Step 1:** Reserved-word check (a keyword column silently no-ops the whole declare). Verify each proposed column name against SQL keywords before declaring: `ItemKey, SourceType, SourceKey, SourceText, Probability, IsGuaranteed, Quantity, SourceCondition, Origin`. `CONDITION` is a SQL keyword → rename to **`SourceCondition`**. Document in the template comment (like `CastRange`/`CharacterKey`).
-- [ ] **Step 2:** Write `ObtainedFrom.wiki` (declare-only owner; stores nothing). Declare the **final** Phase-4 schema up front — `SourceText` and `Origin` are nullable, so generated rows simply leave them null until Phase 4 adds the community row template:
+- [ ] **Step 2:** Write `ItemObtainedFromStore.wiki` — the hidden owner that declares `ObtainedFrom` in `<noinclude>` and stores its rows from `<includeonly>` (Lua-backed `#cargo_store`, wired in B4). Declare the **final** Phase-4 schema up front — `SourceText` and `Origin` are nullable, so generated rows leave them null until Phase 4 adds the community row template:
 
 ```wikitext
-<includeonly></includeonly><noinclude>{{#cargo_declare:_table=ObtainedFrom
+<includeonly>{{#invoke:Erenshor/Item|cargoObtainedFromStore|stablekey={{{stablekey|}}}}}</includeonly><noinclude>{{#cargo_declare:_table=ObtainedFrom
 |ItemKey=String
 |SourceType=String
 |SourceKey=String
@@ -356,8 +357,8 @@ Outcome: a single `ObtainedFrom` Cargo table written from the item page, coverin
 |SourceCondition=String
 |Origin=String
 }}
-Declare-only owner of the unified item-obtainability junction (one row per item × source).
-ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. Rows are written by {{tl|Item}} via the attach trick; this template stores nothing.
+Hidden store owner of the unified item-obtainability junction (one row per item × source), transcluded by the item page.
+ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. The `Item` page transcludes this hidden owner, whose `<includeonly>` runs the Lua-backed `#cargo_store`; `Item` itself declares only the `Items` table.
 </noinclude>
 ```
 
@@ -392,13 +393,13 @@ World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey
 - [ ] **Step 4:** Run tests; `uv run erenshor wiki generate-lua`; expect PASS.
 - [ ] **Step 5: Commit** — `feat(wiki): build the item obtainedFrom source list in Lua data`
 
-### Task B4: Lua store + Item template attach
+### Task B4: Lua store in the `ItemObtainedFromStore` owner
 
-**Files:** `wiki/modules/Erenshor/Item.lua` (after `containerDropRows`, ~line 821), `wiki/templates/Item.wiki` (attach), `wiki/modules/Erenshor/Item/testcases.lua`.
+**Files:** `wiki/modules/Erenshor/Item.lua` (after `containerDropRows`, ~line 821), `wiki/templates/Item.wiki` (transclude the hidden owner), `wiki/templates/ItemObtainedFromStore.wiki`, `wiki/modules/Erenshor/Item/testcases.lua`.
 
 - [ ] **Step 1: Write failing testcase** in `Item/testcases.lua`: `Item.cargoObtainedFromRows({ args = { stablekey = "item:<fixture>" } })` returns rows with `ItemKey`/`SourceType`/`SourceKey` set (mirror the `cargoContainerDropRows` testcase at `Item/testcases.lua:120`).
-- [ ] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Add `p.cargoObtainedFromRows(frame)` and a `Cargo.store("ObtainedFrom", fields)` loop in `p.cargoStore`.
-- [ ] **Step 3:** In `Item.wiki` `<noinclude>`, attach the table. Item now writes Items + ContainerDrops + ObtainedFrom = 3 tables → apply the **attach-trick**: keep `#cargo_declare:Items`, transclude the declare-only `{{ObtainedFrom}}` and `{{ContainerDrops}}` owners, and `#cargo_attach` only what the budget allows directly; route the overflow through a zero-output attach helper. (3E removes ContainerDrops, returning to Items + ObtainedFrom + UsedIn.)
+- [ ] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Expose `p.cargoObtainedFromStore(frame)` — resolves the item by `stablekey` and runs the `Cargo.store("ObtainedFrom", fields)` loop — as the entrypoint the hidden `ItemObtainedFromStore` owner invokes from its `<includeonly>`.
+- [ ] **Step 3:** In `Item.wiki` `<includeonly>`, transclude `{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}` so each item page renders the hidden owner, whose `<includeonly>` stores the `ObtainedFrom` rows. `Item` keeps `#cargo_declare:Items` and stores only its own `Items` row — no `#cargo_attach`, no attach-trick, since each table has its own declaring+storing owner.
 - [ ] **Step 4:** `import_pages.py` → `smoke_test.py` → `cargo_check.py`. Expect ObtainedFrom rows for fixture item pages.
 - [ ] **Step 5: Commit** — `feat(wiki): store item ObtainedFrom rows from the item page`
 
@@ -416,11 +417,11 @@ World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey
 
 Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requirement`, `upgrade_material`, and `blessing_removal_material`.
 
-### Task C1: Declare-only `UsedIn` table + harness wiring
+### Task C1: `ItemUsedInStore` hidden owner (declares + stores `UsedIn`)
 
-**Files:** `wiki/templates/UsedIn.wiki`, `wiki-dev/smoke/cargo.py`, `cargo_check.py`.
+**Files:** `wiki/templates/ItemUsedInStore.wiki`, `wiki-dev/smoke/cargo.py`, `cargo_check.py`.
 
-- [ ] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — reserved-word check (`SLOT` is safe; confirm). Write the declare-only owner mirroring `ObtainedFrom.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material|blessing_removal_material`. The Merging Vessel forge/merge mechanic (`2265228`) is not emitted in Phase 3.
+- [ ] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — reserved-word check (`SLOT` is safe; confirm). Write the hidden owner `ItemUsedInStore.wiki` (declares + stores `UsedIn`) mirroring `ItemObtainedFromStore.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material|blessing_removal_material`. The Merging Vessel forge/merge mechanic (`2265228`) is not emitted in Phase 3.
 - [ ] **Step 2:** smoke fields/key (`("ItemKey","UseType","TargetKey")`) + checker; register in `cargo_check.py`.
 - [ ] **Step 3:** recreate clean.
 - [ ] **Step 4: Commit** — `feat(wiki): declare the unified UsedIn Cargo junction`
@@ -439,9 +440,9 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 - [ ] Mirror B3: `_format_used_in(sources)` → `usedIn` list `{type, targetKey, quantity, slot}`; extend `SourceInfo`/`build_item_sources_by_item`; `_put(row, "usedIn", ...)`. Tests for each emitted UseType (`craft_material`, `quest_requirement`, `upgrade_material`, `blessing_removal_material`). **Commit** — `feat(wiki): build the item usedIn list in Lua data`
 
-### Task C4: Lua store + attach-trick (Item → 3 tables)
+### Task C4: Lua store in the `ItemUsedInStore` owner
 
-- [ ] Add `usedInRows(item)` + `p.cargoUsedInRows` + store loop in `Item.lua` (mirror B4). Attach `UsedIn` in `Item.wiki` via the attach-trick alongside `ObtainedFrom`. `Item/testcases.lua` for `cargoUsedInRows`. Verify via `cargo_check.py`. **Commit** — `feat(wiki): store item UsedIn rows from the item page`
+- [ ] Add `usedInRows(item)` + `p.cargoUsedInStore` + store loop in `Item.lua` (mirror B4). Transclude `{{ItemUsedInStore|stablekey=…}}` from `Item.wiki` `<includeonly>` alongside `{{ItemObtainedFromStore}}` — no attach-trick. `Item/testcases.lua` for the store. Verify via `cargo_check.py`. **Commit** — `feat(wiki): store item UsedIn rows via the ItemUsedInStore owner`
 
 ### Task C5: Fixtures + smoke
 
@@ -455,15 +456,15 @@ Outcome: `Spawns` + `CharacterAbilities` written from the character page (Charac
 
 ### Task D1-D3: `Spawns`
 
-- [ ] **D1:** `wiki/templates/Spawns.wiki` declare-only: `CharacterKey, Zone, Scene, X, Y, Z, SpawnChance, NightSpawn, SpawnUponQuestComplete, LevelMod, RareNpcChance, SpawnType, Origin` (reserved-word check on `Zone`/`Scene`; both safe). `Origin` declared up front so Phase 4 adds only `{{SpawnPoint}}` rows, no schema recreate. smoke + cargo_check wiring. **Commit** — `feat(wiki): declare the Spawns Cargo junction`
+- [ ] **D1:** `wiki/templates/CharacterSpawnsStore.wiki` — hidden owner declaring + storing `Spawns`: `CharacterKey, Zone, Scene, X, Y, Z, SpawnChance, NightSpawn, SpawnUponQuestComplete, LevelMod, RareNpcChance, SpawnType, Origin` (reserved-word check on `Zone`/`Scene`; both safe). `Origin` declared up front so Phase 4 adds only `{{SpawnPoint}}` rows, no schema recreate. smoke + cargo_check wiring. **Commit** — `feat(wiki): declare the Spawns Cargo junction`
 - [ ] **D2:** Python builder `spawns` on the character data module from `spawn_points.py` (`wiki_character_spawns`, which filters `character_spawns` to `is_wiki_generated` and already expands `character_chained_spawns`). **Fold treasure-chest possible locations in here**: for each of the four `Lost Treasure (…)` chest characters, join `treasure_chest_possible_spawns` × `treasure_locations` and emit one row per pickable location with `SpawnType='treasure_chest'`, `SpawnChance=nil` (the game's per-location chest odds are not exported), coordinates from the location; without this, a treasure-hunting item's `ObtainedFrom` `drop` row resolves to a chest character whose page shows no spawn locations. Generated rows carry `Origin='generated'`. Tests cover a chest character yielding `treasure_chest` rows. **Commit** — `feat(wiki): build character spawns list in Lua data`
-- [ ] **D3:** `spawnRows(character)` + store in `Character.lua` + attach in `Character.wiki` (character now declares Characters + attaches Drops + Spawns → attach-trick; Drops is removed in 3E, leaving Characters + Spawns + CharacterAbilities). `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store character Spawns rows`
+- [ ] **D3:** `spawnRows(character)` + store entrypoint in `Character.lua`; `Character.wiki` `<includeonly>` transcludes `{{CharacterSpawnsStore|stablekey=…}}` (no attach-trick — `Character` declares only `Characters`; each junction has its own hidden owner). `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store character Spawns rows`
 
 ### Task D4-D6: `CharacterAbilities`
 
-- [ ] **D4:** `wiki/templates/CharacterAbilities.wiki` declare-only: `CharacterKey, AbilityKey, Usage`. smoke + cargo_check. **Commit** — `feat(wiki): declare the CharacterAbilities Cargo junction`
+- [ ] **D4:** `wiki/templates/CharacterAbilitiesStore.wiki` — hidden owner declaring + storing `CharacterAbilities`: `CharacterKey, AbilityKey, Usage`. smoke + cargo_check. **Commit** — `feat(wiki): declare the CharacterAbilities Cargo junction`
 - [ ] **D5:** Python builder unioning `character_attack_spells` + `character_buff_spells` + `character_heal_spells` + `character_cc_spells` + `character_taunt_spells` + `character_group_heal_spells` + `character_death_shouts` + `character_attack_skills` (currently 0 rows but include for completeness), each tagged with its `Usage` (attack/buff/heal/cc/taunt/group_heal/death_shout). Tests. **Commit** — `feat(wiki): build character abilities list in Lua data`
-- [ ] **D6:** `characterAbilityRows` + store + attach (attach-trick) in `Character.lua`/`Character.wiki`. `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store CharacterAbilities rows`
+- [ ] **D6:** `characterAbilityRows` + store entrypoint in `Character.lua`; `Character.wiki` transcludes `{{CharacterAbilitiesStore|stablekey=…}}` (no attach-trick). `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store CharacterAbilities rows`
 - [ ] **D7:** Fixtures `wiki-dev/fixtures/cargo_spawns.tsv`, `cargo_character_abilities.tsv` + a multi-spawn / multi-ability character fixture; `cargo_check.py` green. **Commit** — `test(wiki): cover Spawns and CharacterAbilities on the harness`
 
 ---
@@ -478,7 +479,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E2: Fold `item_use` + delete `ContainerDrops`
 
-- [ ] Same parity check for `ContainerDrops` → `ObtainedFrom WHERE SourceType='item_use'`; remove `containerDropRows`/store from `Item.lua`, delete `wiki/templates/ContainerDrops.wiki`, drop the smoke/cargo_check entries. Item template now: declare Items + attach ObtainedFrom + UsedIn. **Commit** — `refactor(wiki): fold container drops into item-owned ObtainedFrom`
+- [ ] Same parity check for `ContainerDrops` → `ObtainedFrom WHERE SourceType='item_use'`; remove `containerDropRows`/store from `Item.lua`, delete `wiki/templates/ContainerDrops.wiki`, drop the smoke/cargo_check entries. `Item` now declares `Items` and transcludes `{{ItemObtainedFromStore}}` + `{{ItemUsedInStore}}` (no `ContainerDrops`). **Commit** — `refactor(wiki): fold container drops into item-owned ObtainedFrom`
 
 ### Task E3: Reverse-query rendering; remove denormalized arrays
 
@@ -517,30 +518,23 @@ Every non-standard obtainability/usage path found in the game code is listed her
 
 ---
 
-## Pre-Phase-3 gate — live storage-shape probe
+## Pre-Phase-3 gate — live storage validation (complete)
 
-Status: a recreate-capable main-account bot password can drive `edit`, `delete`,
-`recreatecargodata`, and `deletecargodata` on the live wiki; `WoWBot` still lacks
-`delete` and `recreatecargodata`, so production automation cannot assume those rights.
+Resolved by the `2026-07-09-wiki-cargo-storage-validation` plan. Outcome:
 
-Live probes validate two viable 3-table storage shapes on wiki.gg:
+- **Storage shape:** nested hidden store templates (each declares + stores one table,
+  transcluded by `Item`/`Character`); no attach-trick. Direct multi-attach also works
+  on wiki.gg but is not used.
+- **Refresh:** a data-only change needs no recreate — reparsing a page rewrites its
+  rows in place (validated: edits/deletes remove stale rows after a forced-link purge).
+  A schema change recreates via `cargorecreatetables` + per-table `cargorecreatedata`
+  with row-count polling; a large table uses a replacement table (manual
+  `Special:CargoTables` switch-in) to avoid the empty-table window.
+- **Rights:** the main account can drive `edit`/`delete`/`recreatecargodata`; `WoWBot`
+  still lacks `delete`/`recreatecargodata`, so confirming the deploy bot's recreate
+  right stays a Phase 7 gate.
 
-- **Direct multi-attach:** one template declared table A, directly attached tables B/C,
-  and stored rows into all three tables from one sandbox page.
-- **Nested storage templates:** the main template declared/stored table A and
-  transcluded hidden B/C storage templates, each declaring/storing exactly one table;
-  the sandbox page stored rows into all three tables.
-
-Use the nested storage-template shape for Phase 3. It follows Cargo's documented
-one-table-per-storing-template model, keeps `Special:CargoTables` ownership clear, and
-does not depend on helper attach behavior or multi-attach tolerance.
-
-Recreate and repopulation are separate steps. `action=cargorecreatetables` succeeds
-for the toy templates, but it clears rows; `action=purge&forcelinkupdate=1` alone did
-not repopulate them. `action=cargorecreatedata` repopulated all three nested-template
-tables when called per owning template/table. Phase 7 must therefore recreate schemas
-first, then run data recreation for each owning storage template/table, or document the
-equivalent admin-run recreate + repopulate runbook.
+Run the probe with `uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate all`.
 
 ---
 
