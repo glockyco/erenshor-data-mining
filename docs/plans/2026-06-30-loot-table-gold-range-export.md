@@ -3,6 +3,7 @@ title: LootTable Gold Range Export
 type: plan
 status: active
 created: 2026-06-30
+parent: 2026-07-09-erenshor-planning-overview
 ---
 
 # LootTable Gold Range Export

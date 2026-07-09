@@ -3,7 +3,7 @@ title: World Map — User Annotations (Pins, Paths, Regions)
 type: spec
 status: active
 created: 2026-06-27
-parent:
+parent: 2026-07-09-erenshor-planning-overview
 ---
 
 # World Map — User Annotations (Pins, Paths, Regions)
