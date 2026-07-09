@@ -110,15 +110,24 @@ Non-goals / out of scope:
 
 These shape every Cargo decision below:
 
-- **A template declares ≤1 table and attaches ≤1 table** (max two without a
-  workaround). To write more tables from one template, transclude zero-output
-  attach-only helper templates (`<noinclude>{{#cargo_attach:_table=X}}</noinclude>`,
-  the "attach trick") from the storing template's `<includeonly>`.
-- **Native Lua `cargo_store`/`cargo_declare` are disabled.** Rows are written
-  through the `#cargo_store` parser function via `frame:callParserFunction`,
-  centralized in `Module:Erenshor/Cargo` (`buildArgs` casts a field list,
-  booleans → `yes`/`no`, nil omitted; `store` hands the map to the parser
-  function). One call per row; loop for multiple rows.
+- **Cargo storage ownership should stay boring.** Official Cargo guidance is one
+  `#cargo_declare` or one `#cargo_attach` per storing template. Live wiki.gg probes
+  show both a direct multi-attach toy template and a nested-storage-template toy
+  template can store three tables from one sandbox page, so the helper attach-trick is
+  not required for initial row storage. Prefer one hidden storage template per
+  relationship table (`Item` → `ItemObtainedFromStore` / `ItemUsedInStore`) because
+  each Cargo table has a single declaring/storing template and an explicit recreate
+  target.
+- **Cargo recreate is two-phase.** `action=cargorecreatetables` succeeds on live
+  wiki.gg but clears rows; forced purge alone did not repopulate them. The API
+  `action=cargorecreatedata` repopulated rows when called per owning template/table.
+  Production refresh therefore recreates schemas first, then runs data recreation for
+  every owning storage template/table (or follows an admin runbook that does the same).
+- **Native Lua `cargo_store`/`cargo_declare` are disabled.** Rows are written through
+  the `#cargo_store` parser function via `frame:callParserFunction`, centralized in
+  `Module:Erenshor/Cargo` (`buildArgs` casts a field list, booleans → `yes`/`no`, nil
+  omitted; `store` hands the map to the parser function). One call per row; loop for
+  multiple rows.
 - **No `UNION`.** Cross-table "everything of kind X" scans run one query per table
   and merge in Lua.
 - **One-to-many → a separate junction table** (one row per relationship), never a
@@ -137,12 +146,9 @@ These shape every Cargo decision below:
   accept `yes`/`no` and query back as `1`/`0`. Query the implicit page via an alias
   (`_pageName=Page`) on tables that do not store a `Page` column.
 - **The local harness runs stock upstream Cargo, not wiki.gg's LIBRARIAN fork** — it
-  clones `mediawiki/extensions/Cargo` (`wiki-dev/Dockerfile`). So the ≤1-declare +
-  ≤1-attach budget above is **not enforced locally**: "green on harness" proves row
-  shape and recreate coverage, not that LIBRARIAN accepts a multi-table template. The
-  attach-trick's real correctness criterion the harness *can* check is that rows stored
-  by a page whose template is not attached to a table vanish on `cargorecreatetables`;
-  budget acceptance must be probed live (§15).
+  clones `mediawiki/extensions/Cargo` (`wiki-dev/Dockerfile`). Green harness results
+  prove row shape and local recreate coverage; live storage-shape and recreate-data
+  behavior must still be covered by the small live probe/runbook before cutover.
 
 ## 3. Core principles
 

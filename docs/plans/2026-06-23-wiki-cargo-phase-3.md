@@ -517,31 +517,30 @@ Every non-standard obtainability/usage path found in the game code is listed her
 
 ---
 
-## Pre-Phase-3 gate — live attach-trick probe
+## Pre-Phase-3 gate — live storage-shape probe
 
-Before building Sub-phases 3B/3C/3D on the attach-trick, ensure a wiki account with
-`recreatecargodata` is available for the probe and later production Cargo recreates.
-`WoWBot` can edit and has the `bot` right, but does **not** have `delete` or
-`recreatecargodata`; do not create live probe pages with that account alone, because
-the probe could not drive `action=cargorecreatetables` and the bot could not delete
-the pages afterward.
+Status: a recreate-capable main-account bot password can drive `edit`, `delete`,
+`recreatecargodata`, and `deletecargodata` on the live wiki; `WoWBot` still lacks
+`delete` and `recreatecargodata`, so production automation cannot assume those rights.
 
-Once a recreate-capable account is available, run a one-off **non-destructive probe on
-the live wiki** to convert the harness's untestable budget assumption (§14 of the spec)
-into a fact:
+Live probes validate two viable 3-table storage shapes on wiki.gg:
 
-- Create a toy 3-table template using the attach-trick in a user/sandbox namespace
-  (declare one table; transclude two declare-only attach-only helpers for the other two).
-- Store rows via `#cargo_store` from a sandbox page, then `action=cargorecreatetables`
-  on all three.
-- Confirm LIBRARIAN accepts the multi-table template (no silent declare no-op) and the
-  rows survive recreate.
-- Delete the probe pages after.
+- **Direct multi-attach:** one template declared table A, directly attached tables B/C,
+  and stored rows into all three tables from one sandbox page.
+- **Nested storage templates:** the main template declared/stored table A and
+  transcluded hidden B/C storage templates, each declaring/storing exactly one table;
+  the sandbox page stored rows into all three tables.
 
-If the probe fails, the attach-trick is not viable on wiki.gg and the
-relationship-owner design must be revisited before 3B starts. If the probe passes but
-the deploy bot still cannot receive `recreatecargodata`, Phase 7 needs an explicit
-admin-run recreate runbook rather than bot-driven production automation.
+Use the nested storage-template shape for Phase 3. It follows Cargo's documented
+one-table-per-storing-template model, keeps `Special:CargoTables` ownership clear, and
+does not depend on helper attach behavior or multi-attach tolerance.
+
+Recreate and repopulation are separate steps. `action=cargorecreatetables` succeeds
+for the toy templates, but it clears rows; `action=purge&forcelinkupdate=1` alone did
+not repopulate them. `action=cargorecreatedata` repopulated all three nested-template
+tables when called per owning template/table. Phase 7 must therefore recreate schemas
+first, then run data recreation for each owning storage template/table, or document the
+equivalent admin-run recreate + repopulate runbook.
 
 ---
 
