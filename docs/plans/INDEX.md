@@ -10,7 +10,7 @@
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
 - **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12) ← 2026-07-09-erenshor-planning-overview
 - **Erenshor — Planning Overview** [overview] `2026-07-09-erenshor-planning-overview`
-- **Wiki Cargo Storage Validation Plan** [plan] `2026-07-09-wiki-cargo-storage-validation` (13/22) ← 2026-06-23-wiki-cargo-phase-3
+- **Wiki Cargo Storage Validation Plan** [plan] `2026-07-09-wiki-cargo-storage-validation` (16/22) ← 2026-06-23-wiki-cargo-phase-3
 
 ## draft
 

@@ -29,8 +29,10 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
   Cargo table has one declaring/storing template and one explicit recreate-data target.
 - `action=cargorecreatetables` is not a complete refresh: it recreates schemas and
   clears rows; forced purge alone does not repopulate rows.
-- `action=cargorecreatedata` repopulates nested-template rows when called per owning
-  template/table.
+- `action=cargorecreatedata` repopulates nested-template rows when called once per
+  owning template/table. Live wiki.gg returns immediate `{"success": true}` responses;
+  completion is verified by polling row counts until expected totals return, matching
+  Cargo's documented job-queue recreation model rather than an offset/continuation API.
 - Temporary probe pages are deleted after each run, but Cargo table deletion remains a
   manual admin cleanup step through `Special:CargoTables` / `Special:DeleteCargoTable`.
 
@@ -99,12 +101,12 @@ Production refresh contract:
       distinct by `StableKey` / `ItemKey`.
 - [x] Assert reverse queries never dedupe or join by page title alone.
 
-### Task V5: Validate `cargorecreatedata` batching
+### Task V5: Validate `cargorecreatedata` job-queue repopulation
 
-- [ ] Create enough sandbox pages to force or simulate multiple recreation batches.
-- [ ] Record the live API response shape for `offset` / completion.
-- [ ] Implement the loop contract needed by production automation or document the exact
-      admin-run sequence if looping is UI-only.
+- [x] Create multiple sandbox pages for the production-like nested Lua storage shape.
+- [x] Record the live API response shape for recreate-data calls.
+- [x] Confirm the production loop contract: call `cargorecreatedata` once per owning
+      template/table, then poll row counts until all expected rows return.
 
 ### Task V6: Decide replacement-table workflow
 

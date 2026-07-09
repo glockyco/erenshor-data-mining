@@ -1037,9 +1037,9 @@ class TestMediaWikiClientCargoHelpers:
         assert recreate_request.data["assert"] == "bot"
         assert recreate_request.data["assertuser"] == "ErenshorBot"
 
-    def test_recreate_cargo_data_posts_table_offset_token_and_assertion_guard(self) -> None:
-        """Test Cargo row recreation posts table scope, offset, CSRF token, and assertion guard."""
-        expected_response = {"cargorecreatedata": {"status": "done", "offset": 25}}
+    def test_recreate_cargo_data_posts_table_token_and_assertion_guard(self) -> None:
+        """Test Cargo row recreation posts the table scope, CSRF token, and assertion guard."""
+        expected_response = {"cargorecreatedata": {"status": "done"}}
         with _mediawiki_api_server(
             [
                 {"query": {"tokens": {"csrftoken": "cargo_data_token"}}},
@@ -1051,7 +1051,6 @@ class TestMediaWikiClientCargoHelpers:
             response = client.recreate_cargo_data(
                 "CargoStorageProbe",
                 table="CargoProbe",
-                offset=25,
                 replace_old_rows=True,
                 assertion="bot",
                 assert_user="ErenshorBot",
@@ -1064,11 +1063,11 @@ class TestMediaWikiClientCargoHelpers:
         assert recreate_request.data["action"] == "cargorecreatedata"
         assert recreate_request.data["template"] == "CargoStorageProbe"
         assert recreate_request.data["table"] == "CargoProbe"
-        assert recreate_request.data["offset"] == "25"
         assert recreate_request.data["replaceOldRows"] == "1"
         assert recreate_request.data["token"] == "cargo_data_token"
         assert recreate_request.data["assert"] == "bot"
         assert recreate_request.data["assertuser"] == "ErenshorBot"
+        assert "offset" not in recreate_request.data
 
     def test_query_cargo_table_gets_rows_with_assertion_guard(self) -> None:
         """Test Cargo queries return the raw cargoquery rows and send GET filters."""

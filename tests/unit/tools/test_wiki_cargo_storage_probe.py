@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
 import pytest
 
@@ -262,3 +263,211 @@ def test_multi_entity_reverse_validation_requires_item_keys_and_flags_shared_pag
 
     assert probe_module.reverse_rows_match_keys(mismatched_reverse_result, ("ItemA", "ItemB")) is False
     assert probe_module.reverse_page_title_is_ambiguous(unambiguous_page_result, 2) is False
+
+
+def test_recreate_batching_candidate_builds_one_page_per_item_with_matching_storage_keys(
+    probe_module: ModuleType,
+) -> None:
+    candidate = probe_module.build_recreate_batching_candidate("UnitProbe", 3)
+
+    assert candidate.kind == "recreate-batching"
+    assert candidate.page_titles == (
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0001",
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0002",
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0003",
+    )
+    assert candidate.item_keys == (
+        "UnitProbeBatchItem0001",
+        "UnitProbeBatchItem0002",
+        "UnitProbeBatchItem0003",
+    )
+    assert candidate.sample_item_keys == candidate.item_keys
+    assert candidate.tables == {
+        "Items": "UnitProbeBatchLifecycleItems",
+        "ObtainedFrom": "UnitProbeBatchLifecycleObtainedFrom",
+        "UsedIn": "UnitProbeBatchLifecycleUsedIn",
+    }
+    assert candidate.recreatedata_pairs == (
+        ("CargoStorageProbe/UnitProbeBatch/LifecycleMain", "UnitProbeBatchLifecycleItems"),
+        (
+            "CargoStorageProbe/UnitProbeBatch/LifecycleObtainedFromStore",
+            "UnitProbeBatchLifecycleObtainedFrom",
+        ),
+        ("CargoStorageProbe/UnitProbeBatch/LifecycleUsedInStore", "UnitProbeBatchLifecycleUsedIn"),
+    )
+    assert candidate.page_contents == (
+        "{{CargoStorageProbe/UnitProbeBatch/LifecycleMain\n"
+        "|stablekey=UnitProbeBatchItem0001\n"
+        "|name=Batch Item 0001\n"
+        "|source1=UnitProbeBatchSource0001\n"
+        "|use1=UnitProbeBatchUse0001\n"
+        "}}\n",
+        "{{CargoStorageProbe/UnitProbeBatch/LifecycleMain\n"
+        "|stablekey=UnitProbeBatchItem0002\n"
+        "|name=Batch Item 0002\n"
+        "|source1=UnitProbeBatchSource0002\n"
+        "|use1=UnitProbeBatchUse0002\n"
+        "}}\n",
+        "{{CargoStorageProbe/UnitProbeBatch/LifecycleMain\n"
+        "|stablekey=UnitProbeBatchItem0003\n"
+        "|name=Batch Item 0003\n"
+        "|source1=UnitProbeBatchSource0003\n"
+        "|use1=UnitProbeBatchUse0003\n"
+        "}}\n",
+    )
+
+
+def test_recreate_batching_dry_run_main_reports_pages_tables_and_manual_cleanup_urls(
+    probe_module: ModuleType, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_if_live_config_is_loaded() -> None:
+        raise AssertionError("dry-run main must not load live wiki configuration")
+
+    monkeypatch.setattr(probe_module, "load_config", fail_if_live_config_is_loaded)
+
+    exit_code = probe_module.main(["--candidate", "recreate-batching", "--prefix", "UnitProbe", "--batch-pages", "3"])
+
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    dry_run = payload["dry_run"]
+    assert dry_run["live"] is False
+    assert dry_run["candidate"] == "recreate-batching"
+    assert dry_run["prefix"] == "UnitProbe"
+    assert dry_run["batch_pages"] == 3
+    assert dry_run["pages"] == [
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0001",
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0002",
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/RecreateBatching/Page0003",
+        "Module:CargoStorageProbe/UnitProbeBatch/Lifecycle",
+        "Template:CargoStorageProbe/UnitProbeBatch/LifecycleMain",
+        "Template:CargoStorageProbe/UnitProbeBatch/LifecycleObtainedFromStore",
+        "Template:CargoStorageProbe/UnitProbeBatch/LifecycleUsedInStore",
+    ]
+    assert dry_run["tables"] == [
+        "UnitProbeBatchLifecycleItems",
+        "UnitProbeBatchLifecycleObtainedFrom",
+        "UnitProbeBatchLifecycleUsedIn",
+    ]
+    assert dry_run["manual_table_cleanup_urls"] == [
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeBatchLifecycleItems",
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeBatchLifecycleObtainedFrom",
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeBatchLifecycleUsedIn",
+    ]
+
+
+def test_recreate_batching_validation_helpers_require_counts_and_matching_sample_rows(
+    probe_module: ModuleType,
+) -> None:
+    candidate = probe_module.build_recreate_batching_candidate("UnitProbe", 3)
+    matching_counts = {
+        "Items": {"ok": True, "count": 3},
+        "ObtainedFrom": {"ok": True, "count": 3},
+        "UsedIn": {"ok": True, "count": 3},
+    }
+
+    assert probe_module.batch_counts_match(matching_counts, 3) is True
+    assert probe_module.batch_counts_match({**matching_counts, "UsedIn": {"ok": True, "count": 2}}, 3) is False
+    assert probe_module.batch_counts_match({**matching_counts, "Items": {"ok": False, "count": 3}}, 3) is False
+
+    sample_state = {
+        "UnitProbeBatchItem0001": {
+            "items": {"ok": True, "rows": [{"title": {"StableKey": "UnitProbeBatchItem0001"}}]},
+            "obtained_from": {"ok": True, "rows": [{"title": {"SourceKey": "UnitProbeBatchSource0001"}}]},
+            "used_in": {"ok": True, "rows": [{"title": {"UseKey": "UnitProbeBatchUse0001"}}]},
+        },
+        "UnitProbeBatchItem0002": {
+            "items": {"ok": True, "rows": [{"title": {"StableKey": "UnitProbeBatchItem0002"}}]},
+            "obtained_from": {"ok": True, "rows": [{"title": {"SourceKey": "UnitProbeBatchSource0002"}}]},
+            "used_in": {"ok": True, "rows": [{"title": {"UseKey": "UnitProbeBatchUse0002"}}]},
+        },
+        "UnitProbeBatchItem0003": {
+            "items": {"ok": True, "rows": [{"title": {"StableKey": "UnitProbeBatchItem0003"}}]},
+            "obtained_from": {"ok": True, "rows": [{"title": {"SourceKey": "UnitProbeBatchSource0003"}}]},
+            "used_in": {"ok": True, "rows": [{"title": {"UseKey": "UnitProbeBatchUse0003"}}]},
+        },
+    }
+
+    assert probe_module.batch_sample_matches(candidate, sample_state) is True
+
+    mismatched_sample_state = {
+        **sample_state,
+        "UnitProbeBatchItem0002": {
+            **sample_state["UnitProbeBatchItem0002"],
+            "obtained_from": {"ok": True, "rows": [{"title": {"SourceKey": "WrongSource"}}]},
+        },
+    }
+    assert probe_module.batch_sample_matches(candidate, mismatched_sample_state) is False
+
+
+def test_recreate_batching_runner_recreates_each_table_once_then_polls_expected_counts(
+    probe_module: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = probe_module.build_recreate_batching_candidate("UnitProbe", 2)
+    events: list[tuple[Any, ...]] = []
+
+    class FakeClient:
+        def purge_pages(
+            self,
+            titles: list[str],
+            *,
+            force_link_update: bool,
+            assertion: str,
+            assert_user: str,
+        ) -> dict[str, object]:
+            events.append(("purge", tuple(titles), force_link_update, assertion, assert_user))
+            return {"ok": True, "titles": list(titles)}
+
+    def fake_create_page(client: object, title: str, content: str) -> None:
+        events.append(("create", title, content))
+
+    def fake_recreate_tables(client: object, template: str) -> dict[str, Any]:
+        events.append(("recreate_tables", template))
+        return {"ok": True, "template": template}
+
+    def fake_wait_for_batch_counts(
+        client: object, received_candidate: object, seconds: int, expected_count: int
+    ) -> dict[str, Any]:
+        assert received_candidate is candidate
+        events.append(("wait_counts", seconds, expected_count))
+        return {"matches": True, "expected_count": expected_count}
+
+    def fake_query_batch_samples(client: object, received_candidate: object) -> dict[str, Any]:
+        assert received_candidate is candidate
+        events.append(("query_samples", tuple(candidate.sample_item_keys)))
+        return {key: {"items": {"ok": True, "rows": []}} for key in candidate.sample_item_keys}
+
+    def fake_batch_sample_matches(received_candidate: object, sample_state: dict[str, Any]) -> bool:
+        assert received_candidate is candidate
+        events.append(("samples_match", tuple(sample_state)))
+        return True
+
+    def fake_recreate_data(client: object, template: str, table: str) -> dict[str, Any]:
+        events.append(("recreate_data", template, table))
+        return {"ok": True, "template": template, "table": table}
+
+    def fake_delete_page(client: object, title: str) -> dict[str, Any]:
+        events.append(("delete", title))
+        return {"ok": True}
+
+    monkeypatch.setattr(probe_module, "create_page", fake_create_page)
+    monkeypatch.setattr(probe_module, "recreate_tables", fake_recreate_tables)
+    monkeypatch.setattr(probe_module, "wait_for_batch_counts", fake_wait_for_batch_counts)
+    monkeypatch.setattr(probe_module, "query_batch_samples", fake_query_batch_samples)
+    monkeypatch.setattr(probe_module, "batch_sample_matches", fake_batch_sample_matches)
+    monkeypatch.setattr(probe_module, "recreate_data", fake_recreate_data)
+    monkeypatch.setattr(probe_module, "delete_page", fake_delete_page)
+
+    result = probe_module.run_recreate_batching_candidate(FakeClient(), candidate, poll_seconds=17)
+
+    assert result["validation_ok"] is True
+    assert result["cargorecreatedata"] == [
+        {"ok": True, "template": template, "table": table} for template, table in candidate.recreatedata_pairs
+    ]
+    assert [event for event in events if event[0] == "recreate_data"] == [
+        ("recreate_data", template, table) for template, table in candidate.recreatedata_pairs
+    ]
+    assert [event for event in events if event[0] == "wait_counts"] == [
+        ("wait_counts", 17, 2),
+        ("wait_counts", 17, 0),
+        ("wait_counts", 17, 2),
+    ]

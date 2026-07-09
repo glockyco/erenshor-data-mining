@@ -30,7 +30,7 @@ OWNER = "WoWMuch"
 REQUIRED_RIGHTS = frozenset({"edit", "createpage", "delete", "recreatecargodata"})
 MANUAL_DELETE_BASE = "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/"
 
-CandidateKind = Literal["direct", "nested", "lua-nested", "lifecycle", "multi-entity"]
+CandidateKind = Literal["direct", "nested", "lua-nested", "lifecycle", "multi-entity", "recreate-batching"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,7 +84,21 @@ class MultiEntityCandidate:
     page_content: str
 
 
-type Candidate = ProbeCandidate | LifecycleCandidate | MultiEntityCandidate
+@dataclass(frozen=True, slots=True)
+class RecreateBatchingCandidate:
+    kind: Literal["recreate-batching"]
+    page_titles: tuple[str, ...]
+    page_contents: tuple[str, ...]
+    template_base: str
+    tables: dict[str, str]
+    templates: tuple[TemplatePage, ...]
+    recreate_templates: tuple[str, ...]
+    recreatedata_pairs: tuple[tuple[str, str], ...]
+    item_keys: tuple[str, ...]
+    sample_item_keys: tuple[str, ...]
+
+
+type Candidate = ProbeCandidate | LifecycleCandidate | MultiEntityCandidate | RecreateBatchingCandidate
 
 
 def _store(table_placeholder: str, value: str, number: int = 1, flag: str = "yes") -> str:
@@ -509,6 +523,63 @@ def build_multi_entity_candidate(prefix: str) -> MultiEntityCandidate:
     )
 
 
+def _batch_item_key(prefix: str, index: int) -> str:
+    return prefix + "BatchItem" + str(index).zfill(4)
+
+
+def _batch_source_key(prefix: str, index: int) -> str:
+    return prefix + "BatchSource" + str(index).zfill(4)
+
+
+def _batch_use_key(prefix: str, index: int) -> str:
+    return prefix + "BatchUse" + str(index).zfill(4)
+
+
+def _sample_batch_keys(item_keys: tuple[str, ...]) -> tuple[str, ...]:
+    if len(item_keys) <= 2:
+        return item_keys
+    return (item_keys[0], item_keys[len(item_keys) // 2], item_keys[-1])
+
+
+def build_recreate_batching_candidate(prefix: str, page_count: int) -> RecreateBatchingCandidate:
+    if page_count < 1:
+        raise ValueError("page_count must be at least 1")
+    storage = build_lifecycle_candidate(prefix + "Batch")
+    page_titles = tuple(
+        "User:" + OWNER + "/CargoStorageProbe/" + prefix + "/RecreateBatching/Page" + str(index).zfill(4)
+        for index in range(1, page_count + 1)
+    )
+    item_keys = tuple(_batch_item_key(prefix, index) for index in range(1, page_count + 1))
+    page_contents = tuple(
+        batch_page_content(storage.template_base, prefix, index) for index in range(1, page_count + 1)
+    )
+    return RecreateBatchingCandidate(
+        kind="recreate-batching",
+        page_titles=page_titles,
+        page_contents=page_contents,
+        template_base=storage.template_base,
+        tables=storage.tables,
+        templates=storage.templates,
+        recreate_templates=storage.recreate_templates,
+        recreatedata_pairs=storage.recreatedata_pairs,
+        item_keys=item_keys,
+        sample_item_keys=_sample_batch_keys(item_keys),
+    )
+
+
+def batch_page_content(template_base: str, prefix: str, index: int) -> str:
+    return (
+        _lifecycle_item_call(
+            template_base,
+            _batch_item_key(prefix, index),
+            "Batch Item " + str(index).zfill(4),
+            (_batch_source_key(prefix, index),),
+            (_batch_use_key(prefix, index),),
+        )
+        + "\n"
+    )
+
+
 def api_post(client: MediaWikiClient, data: dict[str, Any], label: str) -> dict[str, Any]:
     try:
         return {"ok": True, "response": client._request({}, method="POST", data=data)}
@@ -565,11 +636,23 @@ def recreate_tables(client: MediaWikiClient, template: str) -> dict[str, Any]:
         }
 
 
-def recreate_data(client: MediaWikiClient, template: str, table: str) -> dict[str, Any]:
+def recreate_data(
+    client: MediaWikiClient,
+    template: str,
+    table: str,
+    replace_old_rows: bool = True,
+) -> dict[str, Any]:
     try:
         return {
             "ok": True,
-            "response": client.recreate_cargo_data(template, table, assertion="user", assert_user=OWNER),
+            "replace_old_rows": replace_old_rows,
+            "response": client.recreate_cargo_data(
+                template,
+                table,
+                replace_old_rows=replace_old_rows,
+                assertion="user",
+                assert_user=OWNER,
+            ),
         }
     except MediaWikiAPIError as exc:
         return {
@@ -636,7 +719,7 @@ def query_lifecycle_table(
 
 
 def query_lifecycle_key(
-    client: MediaWikiClient, candidate: LifecycleCandidate | MultiEntityCandidate, key: str
+    client: MediaWikiClient, candidate: LifecycleCandidate | MultiEntityCandidate | RecreateBatchingCandidate, key: str
 ) -> dict[str, Any]:
     item_where = "StableKey=" + cargo_string_literal(key)
     relationship_where = "ItemKey=" + cargo_string_literal(key)
@@ -687,6 +770,67 @@ def query_multi_entity_reverse(
         fields = "_pageName=Page,ItemKey,UseKey=RelationshipKey"  # gitleaks:allow
         where = "UseKey=" + cargo_string_literal("SharedUse")
     return query_lifecycle_table(client, table, fields, where)
+
+
+def query_lifecycle_count(client: MediaWikiClient, table: str) -> dict[str, Any]:
+    try:
+        rows = client.query_cargo_table(
+            tables=table,
+            fields="COUNT(*)=Rows",
+            limit=1,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        count = 0
+        if rows:
+            count = int(str(row_fields(rows[0]).get("Rows", "0")))
+        return {"ok": True, "count": count, "rows": rows}
+    except (MediaWikiAPIError, TypeError, ValueError) as exc:
+        if isinstance(exc, MediaWikiAPIError):
+            return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
+        return {"ok": False, "error": str(exc)}
+
+
+def query_batch_counts(client: MediaWikiClient, candidate: RecreateBatchingCandidate) -> dict[str, Any]:
+    return {name: query_lifecycle_count(client, table) for name, table in candidate.tables.items()}
+
+
+def batch_counts_match(counts: dict[str, Any], expected_count: int) -> bool:
+    return all(result.get("ok") and result.get("count") == expected_count for result in counts.values())
+
+
+def query_batch_samples(client: MediaWikiClient, candidate: RecreateBatchingCandidate) -> dict[str, Any]:
+    return {key: query_lifecycle_key(client, candidate, key) for key in candidate.sample_item_keys}
+
+
+def batch_sample_matches(candidate: RecreateBatchingCandidate, sample_state: dict[str, Any]) -> bool:
+    for key in candidate.sample_item_keys:
+        index = candidate.item_keys.index(key) + 1
+        if not lifecycle_key_matches(
+            sample_state,
+            key,
+            (_batch_source_key(candidate.item_keys[0].removesuffix("BatchItem0001"), index),),
+            (_batch_use_key(candidate.item_keys[0].removesuffix("BatchItem0001"), index),),
+        ):
+            return False
+    return True
+
+
+def wait_for_batch_counts(
+    client: MediaWikiClient,
+    candidate: RecreateBatchingCandidate,
+    seconds: int,
+    expected_count: int,
+) -> dict[str, Any]:
+    deadline = time.time() + seconds
+    attempts: list[dict[str, Any]] = []
+    while True:
+        counts = query_batch_counts(client, candidate)
+        matches = batch_counts_match(counts, expected_count)
+        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "counts": counts})
+        if matches or time.time() >= deadline:
+            return {"matches": matches, "final": counts, "last_attempts": attempts[-5:]}
+        time.sleep(5)
 
 
 def multi_entity_key_state_matches(state: dict[str, Any], key: str) -> bool:
@@ -1072,7 +1216,77 @@ def run_multi_entity_candidate(
     return result
 
 
+def run_recreate_batching_candidate(
+    client: MediaWikiClient,
+    candidate: RecreateBatchingCandidate,
+    poll_seconds: int,
+) -> dict[str, Any]:
+    created: list[str] = []
+    expected_count = len(candidate.page_titles)
+    result: dict[str, Any] = {
+        "kind": candidate.kind,
+        "page_count": expected_count,
+        "sample_item_keys": list(candidate.sample_item_keys),
+        "tables": candidate.tables,
+        "manual_table_cleanup_urls": [MANUAL_DELETE_BASE + table for table in candidate.tables.values()],
+    }
+    try:
+        for template in candidate.templates:
+            create_page(client, template.title, template.content)
+            created.append(template.title)
+        result["initial_cargorecreatetables"] = [
+            recreate_tables(client, template) for template in candidate.recreate_templates
+        ]
+        for title, content in zip(candidate.page_titles, candidate.page_contents, strict=True):
+            create_page(client, title, content)
+            created.append(title)
+        purges = []
+        for start in range(0, len(candidate.page_titles), 50):
+            purges.append(
+                client.purge_pages(
+                    list(candidate.page_titles[start : start + 50]),
+                    force_link_update=True,
+                    assertion="user",
+                    assert_user=OWNER,
+                )
+            )
+        result["purged"] = purges
+        result["initial_counts"] = wait_for_batch_counts(client, candidate, poll_seconds, expected_count)
+        result["initial_sample_state"] = query_batch_samples(client, candidate)
+        result["initial_samples_match"] = batch_sample_matches(candidate, result["initial_sample_state"])
+        result["post_page_cargorecreatetables"] = [
+            recreate_tables(client, template) for template in candidate.recreate_templates
+        ]
+        result["counts_after_cargorecreatetables"] = wait_for_batch_counts(client, candidate, poll_seconds, 0)
+        result["cargorecreatedata"] = [
+            recreate_data(client, template, table) for template, table in candidate.recreatedata_pairs
+        ]
+        result["counts_after_cargorecreatedata"] = wait_for_batch_counts(
+            client, candidate, poll_seconds, expected_count
+        )
+        result["sample_state_after_cargorecreatedata"] = query_batch_samples(client, candidate)
+        result["samples_after_cargorecreatedata_match"] = batch_sample_matches(
+            candidate, result["sample_state_after_cargorecreatedata"]
+        )
+        result["validation_ok"] = (
+            result["initial_counts"].get("matches")
+            and result["initial_samples_match"]
+            and result["counts_after_cargorecreatetables"].get("matches")
+            and all(response.get("ok") for response in result["cargorecreatedata"])
+            and result["counts_after_cargorecreatedata"].get("matches")
+            and result["samples_after_cargorecreatedata_match"]
+        )
+    finally:
+        cleanup: list[dict[str, Any]] = []
+        for title in reversed(created):
+            cleanup.append({"title": title, "result": delete_page(client, title)})
+        result["page_cleanup"] = cleanup
+    return result
+
+
 def run_probe_candidate(client: MediaWikiClient, candidate: Candidate, poll_seconds: int) -> dict[str, Any]:
+    if isinstance(candidate, RecreateBatchingCandidate):
+        return run_recreate_batching_candidate(client, candidate, poll_seconds)
     if isinstance(candidate, MultiEntityCandidate):
         return run_multi_entity_candidate(client, candidate, poll_seconds)
     if isinstance(candidate, LifecycleCandidate):
@@ -1080,13 +1294,14 @@ def run_probe_candidate(client: MediaWikiClient, candidate: Candidate, poll_seco
     return run_candidate(client, candidate, poll_seconds)
 
 
-def build_candidates(prefix: str, choice: str) -> list[Candidate]:
+def build_candidates(prefix: str, choice: str, batch_pages: int) -> list[Candidate]:
     builders: dict[str, Callable[[str], Candidate]] = {
         "direct": build_direct_candidate,
         "nested": build_nested_candidate,
         "lua-nested": build_lua_nested_candidate,
         "lifecycle": build_lifecycle_candidate,
         "multi-entity": build_multi_entity_candidate,
+        "recreate-batching": lambda candidate_prefix: build_recreate_batching_candidate(candidate_prefix, batch_pages),
     }
     if choice == "both":
         return [build_direct_candidate(prefix), build_nested_candidate(prefix)]
@@ -1095,12 +1310,18 @@ def build_candidates(prefix: str, choice: str) -> list[Candidate]:
     return [builders[choice](prefix)]
 
 
+def candidate_page_titles(candidate: Candidate) -> tuple[str, ...]:
+    if isinstance(candidate, RecreateBatchingCandidate):
+        return candidate.page_titles
+    return (candidate.page_title,)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="perform live writes; omitted means dry-run only")
     parser.add_argument(
         "--candidate",
-        choices=("direct", "nested", "lua-nested", "lifecycle", "multi-entity", "both", "all"),
+        choices=("direct", "nested", "lua-nested", "lifecycle", "multi-entity", "recreate-batching", "both", "all"),
         default="lua-nested",
     )
     parser.add_argument(
@@ -1113,17 +1334,24 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default=75,
         help="seconds to poll for automatic rows after cargorecreatetables",
     )
+    parser.add_argument(
+        "--batch-pages",
+        type=int,
+        default=25,
+        help="number of sandbox item pages for the recreate-batching candidate",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    candidates = build_candidates(args.prefix, args.candidate)
+    candidates = build_candidates(args.prefix, args.candidate, args.batch_pages)
     dry_run_summary = {
         "live": args.live,
         "prefix": args.prefix,
         "candidate": args.candidate,
-        "pages": [candidate.page_title for candidate in candidates]
+        "batch_pages": args.batch_pages,
+        "pages": [title for candidate in candidates for title in candidate_page_titles(candidate)]
         + [template.title for candidate in candidates for template in candidate.templates],
         "tables": [table for candidate in candidates for table in candidate.tables.values()],
         "manual_table_cleanup_urls": [

@@ -703,19 +703,17 @@ class MediaWikiClient:
         self,
         template: str,
         table: str,
-        offset: int = 0,
         replace_old_rows: bool = True,
         assertion: Literal["user", "bot"] | None = None,
         assert_user: str | None = None,
     ) -> dict[str, Any]:
-        """Run Cargo row recreation for one owning template/table pair."""
+        """Enqueue Cargo row recreation jobs for one owning template/table pair."""
         if assertion not in (None, "user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
         data: dict[str, Any] = {
             "action": "cargorecreatedata",
             "template": template,
             "table": table,
-            "offset": str(offset),
             "token": self.get_csrf_token(),
             "formatversion": "2",
         }
