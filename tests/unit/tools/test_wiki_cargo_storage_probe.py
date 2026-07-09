@@ -141,3 +141,124 @@ def test_lifecycle_dry_run_main_reports_pages_tables_and_manual_cleanup_urls(
         "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeLifecycleObtainedFrom",
         "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeLifecycleUsedIn",
     ]
+
+
+def test_multi_entity_candidate_builds_one_sandbox_page_with_two_item_transclusions(
+    probe_module: ModuleType,
+) -> None:
+    candidate = probe_module.build_multi_entity_candidate("UnitProbe")
+
+    assert candidate.kind == "multi-entity"
+    assert candidate.page_title == "User:WoWMuch/CargoStorageProbe/UnitProbe/MultiEntity"
+    assert candidate.template_base == "CargoStorageProbe/UnitProbeMultiEntity/Lifecycle"
+    assert candidate.item_keys == ("UnitProbeMultiEntityItemA", "UnitProbeMultiEntityItemB")
+    assert candidate.item_keys[0] != candidate.item_keys[1]
+    assert candidate.tables == {
+        "Items": "UnitProbeMultiEntityLifecycleItems",
+        "ObtainedFrom": "UnitProbeMultiEntityLifecycleObtainedFrom",
+        "UsedIn": "UnitProbeMultiEntityLifecycleUsedIn",
+    }
+
+    templates_by_title = {template.title: template.content for template in candidate.templates}
+    assert set(templates_by_title) == {
+        "Module:CargoStorageProbe/UnitProbeMultiEntity/Lifecycle",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleObtainedFromStore",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleUsedInStore",
+    }
+    assert candidate.recreate_templates == (
+        "CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain",
+        "CargoStorageProbe/UnitProbeMultiEntity/LifecycleObtainedFromStore",
+        "CargoStorageProbe/UnitProbeMultiEntity/LifecycleUsedInStore",
+    )
+
+    main_template = templates_by_title["Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain"]
+    assert "#cargo_declare:_table=UnitProbeMultiEntityLifecycleItems" in main_template
+    assert "CargoStorageProbe/UnitProbeMultiEntity/LifecycleObtainedFromStore" in main_template
+    assert "CargoStorageProbe/UnitProbeMultiEntity/LifecycleUsedInStore" in main_template
+
+    obtained_template = templates_by_title["Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleObtainedFromStore"]
+    assert "#cargo_declare:_table=UnitProbeMultiEntityLifecycleObtainedFrom" in obtained_template
+    assert "ItemKey=String" in obtained_template
+    assert "SourceKey=String" in obtained_template
+
+    used_template = templates_by_title["Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleUsedInStore"]
+    assert "#cargo_declare:_table=UnitProbeMultiEntityLifecycleUsedIn" in used_template
+    assert "ItemKey=String" in used_template
+    assert "UseKey=String" in used_template
+
+    page_transclusions = candidate.page_content.split("\n{{CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain")
+    assert candidate.page_content.startswith("{{CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain")
+    assert len(page_transclusions) == 2
+    assert candidate.page_content.count("|stablekey=UnitProbeMultiEntityItemA") == 1
+    assert candidate.page_content.count("|stablekey=UnitProbeMultiEntityItemB") == 1
+    assert candidate.page_content.count("|source1=SharedSource") == 2
+    assert candidate.page_content.count("|use1=SharedUse") == 2
+
+
+def test_multi_entity_dry_run_main_reports_pages_tables_and_manual_cleanup_urls(
+    probe_module: ModuleType, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_if_live_config_is_loaded() -> None:
+        raise AssertionError("dry-run main must not load live wiki configuration")
+
+    monkeypatch.setattr(probe_module, "load_config", fail_if_live_config_is_loaded)
+
+    exit_code = probe_module.main(["--candidate", "multi-entity", "--prefix", "UnitProbe"])
+
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    dry_run = payload["dry_run"]
+    assert dry_run["live"] is False
+    assert dry_run["candidate"] == "multi-entity"
+    assert dry_run["prefix"] == "UnitProbe"
+    assert dry_run["pages"] == [
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/MultiEntity",
+        "Module:CargoStorageProbe/UnitProbeMultiEntity/Lifecycle",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleMain",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleObtainedFromStore",
+        "Template:CargoStorageProbe/UnitProbeMultiEntity/LifecycleUsedInStore",
+    ]
+    assert dry_run["tables"] == [
+        "UnitProbeMultiEntityLifecycleItems",
+        "UnitProbeMultiEntityLifecycleObtainedFrom",
+        "UnitProbeMultiEntityLifecycleUsedIn",
+    ]
+    assert dry_run["manual_table_cleanup_urls"] == [
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeMultiEntityLifecycleItems",
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeMultiEntityLifecycleObtainedFrom",
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeMultiEntityLifecycleUsedIn",
+    ]
+
+
+def test_multi_entity_reverse_validation_requires_item_keys_and_flags_shared_page_ambiguity(
+    probe_module: ModuleType,
+) -> None:
+    reverse_result = {
+        "ok": True,
+        "rows": [
+            {"title": {"Page": "SharedPage", "ItemKey": "ItemB"}},
+            {"title": {"Page": "SharedPage", "ItemKey": "ItemA"}},
+        ],
+    }
+
+    assert probe_module.reverse_rows_match_keys(reverse_result, ("ItemA", "ItemB")) is True
+    assert probe_module.reverse_page_title_is_ambiguous(reverse_result, 2) is True
+
+    mismatched_reverse_result = {
+        "ok": True,
+        "rows": [
+            {"title": {"Page": "SharedPage", "ItemKey": "ItemB"}},
+            {"title": {"Page": "SharedPage", "ItemKey": "ItemC"}},
+        ],
+    }
+    unambiguous_page_result = {
+        "ok": True,
+        "rows": [
+            {"title": {"Page": "PageA", "ItemKey": "ItemA"}},
+            {"title": {"Page": "PageB", "ItemKey": "ItemB"}},
+        ],
+    }
+
+    assert probe_module.reverse_rows_match_keys(mismatched_reverse_result, ("ItemA", "ItemB")) is False
+    assert probe_module.reverse_page_title_is_ambiguous(unambiguous_page_result, 2) is False

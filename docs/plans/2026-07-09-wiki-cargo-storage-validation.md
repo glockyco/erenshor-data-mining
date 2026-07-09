@@ -22,6 +22,9 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
   nested shape: shrinking `ObtainedFrom`, clearing `UsedIn`, removing one item call
   from a multi-item page, and deleting the sandbox page all removed the matching
   Cargo rows after forced link-update purges.
+- Live wiki.gg stores two `Item` calls on one page as distinct `Items`,
+  `ObtainedFrom`, and `UsedIn` rows sharing `_pageName`; reverse lookups must use
+  `ItemKey`/`StableKey` identity because page title alone is ambiguous.
 - The Phase 3 storage shape should prefer nested hidden storage templates because each
   Cargo table has one declaring/storing template and one explicit recreate-data target.
 - `action=cargorecreatetables` is not a complete refresh: it recreates schemas and
@@ -91,10 +94,10 @@ Production refresh contract:
 
 ### Task V4: Validate multi-entity pages
 
-- [ ] Store two `{{Item|stablekey=...}}` calls on one sandbox page.
-- [ ] Assert `Items`, `ObtainedFrom`, and `UsedIn` rows share `_pageName` but remain
+- [x] Store two `{{Item|stablekey=...}}` calls on one sandbox page.
+- [x] Assert `Items`, `ObtainedFrom`, and `UsedIn` rows share `_pageName` but remain
       distinct by `StableKey` / `ItemKey`.
-- [ ] Assert reverse queries never dedupe or join by page title alone.
+- [x] Assert reverse queries never dedupe or join by page title alone.
 
 ### Task V5: Validate `cargorecreatedata` batching
 

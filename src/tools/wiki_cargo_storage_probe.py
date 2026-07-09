@@ -18,6 +18,7 @@ import argparse
 import json
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
@@ -29,7 +30,7 @@ OWNER = "WoWMuch"
 REQUIRED_RIGHTS = frozenset({"edit", "createpage", "delete", "recreatecargodata"})
 MANUAL_DELETE_BASE = "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/"
 
-CandidateKind = Literal["direct", "nested", "lua-nested", "lifecycle"]
+CandidateKind = Literal["direct", "nested", "lua-nested", "lifecycle", "multi-entity"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,7 +72,19 @@ class LifecycleCandidate:
     removed_content: str
 
 
-type Candidate = ProbeCandidate | LifecycleCandidate
+@dataclass(frozen=True, slots=True)
+class MultiEntityCandidate:
+    kind: Literal["multi-entity"]
+    page_title: str
+    template_base: str
+    tables: dict[str, str]
+    templates: tuple[TemplatePage, ...]
+    recreate_templates: tuple[str, ...]
+    item_keys: tuple[str, str]
+    page_content: str
+
+
+type Candidate = ProbeCandidate | LifecycleCandidate | MultiEntityCandidate
 
 
 def _store(table_placeholder: str, value: str, number: int = 1, flag: str = "yes") -> str:
@@ -473,6 +486,29 @@ def build_lifecycle_candidate(prefix: str) -> LifecycleCandidate:
     )
 
 
+def build_multi_entity_candidate(prefix: str) -> MultiEntityCandidate:
+    storage = build_lifecycle_candidate(prefix + "MultiEntity")
+    item_a = prefix + "MultiEntityItemA"
+    item_b = prefix + "MultiEntityItemB"
+    page_title = "User:" + OWNER + "/CargoStorageProbe/" + prefix + "/MultiEntity"
+    page_content = (
+        _lifecycle_item_call(storage.template_base, item_a, "Multi Entity Item A", ("SharedSource",), ("SharedUse",))
+        + "\n"
+        + _lifecycle_item_call(storage.template_base, item_b, "Multi Entity Item B", ("SharedSource",), ("SharedUse",))
+        + "\n"
+    )
+    return MultiEntityCandidate(
+        kind="multi-entity",
+        page_title=page_title,
+        template_base=storage.template_base,
+        tables=storage.tables,
+        templates=storage.templates,
+        recreate_templates=storage.recreate_templates,
+        item_keys=(item_a, item_b),
+        page_content=page_content,
+    )
+
+
 def api_post(client: MediaWikiClient, data: dict[str, Any], label: str) -> dict[str, Any]:
     try:
         return {"ok": True, "response": client._request({}, method="POST", data=data)}
@@ -599,7 +635,9 @@ def query_lifecycle_table(
         return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
 
 
-def query_lifecycle_key(client: MediaWikiClient, candidate: LifecycleCandidate, key: str) -> dict[str, Any]:
+def query_lifecycle_key(
+    client: MediaWikiClient, candidate: LifecycleCandidate | MultiEntityCandidate, key: str
+) -> dict[str, Any]:
     item_where = "StableKey=" + cargo_string_literal(key)
     relationship_where = "ItemKey=" + cargo_string_literal(key)
     return {
@@ -629,6 +667,51 @@ def query_lifecycle_state(client: MediaWikiClient, candidate: LifecycleCandidate
         candidate.item_key: query_lifecycle_key(client, candidate, candidate.item_key),
         candidate.removed_key: query_lifecycle_key(client, candidate, candidate.removed_key),
     }
+
+
+def query_multi_entity_state(client: MediaWikiClient, candidate: MultiEntityCandidate) -> dict[str, Any]:
+    return {key: query_lifecycle_key(client, candidate, key) for key in candidate.item_keys}
+
+
+def query_multi_entity_reverse(
+    client: MediaWikiClient,
+    candidate: MultiEntityCandidate,
+    relationship: Literal["obtained_from", "used_in"],
+) -> dict[str, Any]:
+    if relationship == "obtained_from":
+        table = candidate.tables["ObtainedFrom"]
+        fields = "_pageName=Page,ItemKey,SourceKey=RelationshipKey"  # gitleaks:allow
+        where = "SourceKey=" + cargo_string_literal("SharedSource")
+    else:
+        table = candidate.tables["UsedIn"]
+        fields = "_pageName=Page,ItemKey,UseKey=RelationshipKey"  # gitleaks:allow
+        where = "UseKey=" + cargo_string_literal("SharedUse")
+    return query_lifecycle_table(client, table, fields, where)
+
+
+def multi_entity_key_state_matches(state: dict[str, Any], key: str) -> bool:
+    key_state = state.get(key, {})
+    if not lifecycle_key_matches(state, key, ("SharedSource",), ("SharedUse",)):
+        return False
+    pages = (
+        field_values(key_state["items"].get("rows", []), "Page")
+        + field_values(key_state["obtained_from"].get("rows", []), "Page")
+        + field_values(key_state["used_in"].get("rows", []), "Page")
+    )
+    return len(set(pages)) == 1
+
+
+def reverse_rows_match_keys(result: dict[str, Any], keys: tuple[str, str]) -> bool:
+    if not result.get("ok"):
+        return False
+    return field_values(result.get("rows", []), "ItemKey") == sorted(keys)
+
+
+def reverse_page_title_is_ambiguous(result: dict[str, Any], expected_count: int) -> bool:
+    if not result.get("ok"):
+        return False
+    rows = result.get("rows", [])
+    return len(rows) == expected_count and len(set(field_values(rows, "Page"))) == 1
 
 
 def lifecycle_key_matches(
@@ -944,29 +1027,72 @@ def run_lifecycle_candidate(
     return result
 
 
+def run_multi_entity_candidate(
+    client: MediaWikiClient, candidate: MultiEntityCandidate, poll_seconds: int
+) -> dict[str, Any]:
+    del poll_seconds
+    created: list[str] = []
+    result: dict[str, Any] = {
+        "kind": candidate.kind,
+        "item_keys": list(candidate.item_keys),
+        "page_title": candidate.page_title,
+        "tables": candidate.tables,
+        "manual_table_cleanup_urls": [MANUAL_DELETE_BASE + table for table in candidate.tables.values()],
+    }
+    try:
+        for template in candidate.templates:
+            create_page(client, template.title, template.content)
+            created.append(template.title)
+        result["initial_cargorecreatetables"] = [
+            recreate_tables(client, template) for template in candidate.recreate_templates
+        ]
+        create_page(client, candidate.page_title, candidate.page_content)
+        created.append(candidate.page_title)
+        result["purged"] = client.purge_pages(
+            [candidate.page_title],
+            force_link_update=True,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        result["state"] = query_multi_entity_state(client, candidate)
+        result["obtained_from_reverse"] = query_multi_entity_reverse(client, candidate, "obtained_from")
+        result["used_in_reverse"] = query_multi_entity_reverse(client, candidate, "used_in")
+        result["validation_ok"] = (
+            all(multi_entity_key_state_matches(result["state"], key) for key in candidate.item_keys)
+            and reverse_rows_match_keys(result["obtained_from_reverse"], candidate.item_keys)
+            and reverse_rows_match_keys(result["used_in_reverse"], candidate.item_keys)
+            and reverse_page_title_is_ambiguous(result["obtained_from_reverse"], len(candidate.item_keys))
+            and reverse_page_title_is_ambiguous(result["used_in_reverse"], len(candidate.item_keys))
+        )
+    finally:
+        cleanup: list[dict[str, Any]] = []
+        for title in reversed(created):
+            cleanup.append({"title": title, "result": delete_page(client, title)})
+        result["page_cleanup"] = cleanup
+    return result
+
+
 def run_probe_candidate(client: MediaWikiClient, candidate: Candidate, poll_seconds: int) -> dict[str, Any]:
+    if isinstance(candidate, MultiEntityCandidate):
+        return run_multi_entity_candidate(client, candidate, poll_seconds)
     if isinstance(candidate, LifecycleCandidate):
         return run_lifecycle_candidate(client, candidate, poll_seconds)
     return run_candidate(client, candidate, poll_seconds)
 
 
 def build_candidates(prefix: str, choice: str) -> list[Candidate]:
-    if choice == "direct":
-        return [build_direct_candidate(prefix)]
-    if choice == "nested":
-        return [build_nested_candidate(prefix)]
-    if choice == "lua-nested":
-        return [build_lua_nested_candidate(prefix)]
-    if choice == "lifecycle":
-        return [build_lifecycle_candidate(prefix)]
+    builders: dict[str, Callable[[str], Candidate]] = {
+        "direct": build_direct_candidate,
+        "nested": build_nested_candidate,
+        "lua-nested": build_lua_nested_candidate,
+        "lifecycle": build_lifecycle_candidate,
+        "multi-entity": build_multi_entity_candidate,
+    }
     if choice == "both":
         return [build_direct_candidate(prefix), build_nested_candidate(prefix)]
-    return [
-        build_direct_candidate(prefix),
-        build_nested_candidate(prefix),
-        build_lua_nested_candidate(prefix),
-        build_lifecycle_candidate(prefix),
-    ]
+    if choice == "all":
+        return [builder(prefix) for builder in builders.values()]
+    return [builders[choice](prefix)]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -974,7 +1100,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--live", action="store_true", help="perform live writes; omitted means dry-run only")
     parser.add_argument(
         "--candidate",
-        choices=("direct", "nested", "lua-nested", "lifecycle", "both", "all"),
+        choices=("direct", "nested", "lua-nested", "lifecycle", "multi-entity", "both", "all"),
         default="lua-nested",
     )
     parser.add_argument(
