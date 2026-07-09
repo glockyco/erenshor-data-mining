@@ -110,19 +110,25 @@ Non-goals / out of scope:
 
 These shape every Cargo decision below:
 
-- **Cargo storage ownership should stay boring.** Official Cargo guidance is one
-  `#cargo_declare` or one `#cargo_attach` per storing template. Live wiki.gg probes
-  show both a direct multi-attach toy template and a nested-storage-template toy
-  template can store three tables from one sandbox page, so the helper attach-trick is
-  not required for initial row storage. Prefer one hidden storage template per
-  relationship table (`Item` → `ItemObtainedFromStore` / `ItemUsedInStore`) because
-  each Cargo table has a single declaring/storing template and an explicit recreate
-  target.
-- **Cargo recreate is two-phase.** `action=cargorecreatetables` succeeds on live
-  wiki.gg but clears rows; forced purge alone did not repopulate them. The API
-  `action=cargorecreatedata` repopulated rows when called per owning template/table.
-  Production refresh therefore recreates schemas first, then runs data recreation for
-  every owning storage template/table (or follows an admin runbook that does the same).
+- **One declaring owner per Cargo table.** Cargo guidance is one `#cargo_declare`
+  (the schema owner) per table; any other storing template `#cargo_attach`es it. Live
+  wiki.gg probes confirmed nested hidden storage templates store the item's three
+  tables from one page, so the helper attach-trick is not required. Each table has
+  exactly one **declaring** owner — the target of `cargorecreatetables`:
+  `Items`←`Item`, `ObtainedFrom`←`ItemObtainedFromStore`, `UsedIn`←`ItemUsedInStore`,
+  and the `Spawns`/`CharacterAbilities` junctions ← their character-side store
+  templates. Community row templates (`{{ItemSource}}`/`{{SpawnPoint}}`, §9) are
+  additional **storing** contributors that attach — never redeclare —
+  `ObtainedFrom`/`Spawns` to add `Origin=community` rows.
+- **Recreate only for schema changes; routine refresh reparses.** `#cargo_declare`
+  changes nothing on save — a table is (re)created in a separate step. Once a table
+  exists, reparsing a page rewrites that page's rows in place, so a data-only refresh
+  (same schema) needs no recreate: regenerate the modules, push, and reparse the
+  affected pages. `cargorecreatetables` (a template's tables) and `cargorecreatedata`
+  (one table, repopulating from every contributing page) are for first creation and
+  schema changes only, and run one job per page, so completion is polled. A
+  large-table recreate should use a replacement table (§10) to avoid the empty-table
+  window.
 - **Native Lua `cargo_store`/`cargo_declare` are disabled.** Rows are written through
   the `#cargo_store` parser function via `frame:callParserFunction`, centralized in
   `Module:Erenshor/Cargo` (`buildArgs` casts a field list, booleans → `yes`/`no`, nil
@@ -449,9 +455,11 @@ Non-extractable, community-curated facts (global drops not on a loot table;
 spawn points the exporter misses) stay community-editable on-wiki, survive every
 redeploy, and are queryable alongside generated rows. Entry is raw
 multiple-instance row templates (no Page Forms). Each row template takes
-`stablekey=` (Page/Name can't disambiguate multi-entity pages), `#cargo_store`s
-one row with `Origin=community`, and validates `stablekey` against the data module
-via `mw.loadData` (unresolved → tracking category).
+`stablekey=` (Page/Name can't disambiguate multi-entity pages), `#cargo_attach`es
+the relationship table its declaring owner already created (§2.1) — it never
+redeclares the schema — `#cargo_store`s one row with `Origin=community`, and
+validates `stablekey` against the data module via `mw.loadData` (unresolved →
+tracking category).
 
 - `{{ItemSource|stablekey=item:…|source=…|probability=…|condition=…}}` → an
   `ObtainedFrom` row with `Origin=community` and `SourceType=community`: the free-text
@@ -467,7 +475,12 @@ Editors find a variant's `stablekey` in the page source (it's on the infobox cal
 Precedence per §3: community is additive or corrective; community wins on overlap.
 Survives-redeploy invariant (tested): the generator owns modules/templates and
 never overwrites community row templates; after cutover, data refreshes don't
-touch article pages at all (§6).
+touch article pages at all (§6). Community rows survive refreshes because they live on
+their own pages: a routine (same-schema) refresh just reparses those pages like any
+other, and a schema-change recreate's `cargorecreatedata` cycles every page that
+contributes to the table — generated and community alike — so both come back (§10).
+Community-row repopulation is exercised with the Phase 4 community layer; the
+storage-validation probe covered generated-owner recreation only.
 
 ## 10. Caching & freshness
 
@@ -475,11 +488,16 @@ touch article pages at all (§6).
   only as fresh as the querying page's last parse (MW HTML cache; ≤24h or purge).
   Modules share templates' link-tracking, so editing `Data/*` enqueues
   `refreshLinks` (job queue, `$wgJobRunRate` caveat).
-- The pipeline does not wait on the queue: keep `purge_pages(force_link_update=True)`
-  on `embeddedin` dependents; drive `cargorecreatetables` on schema change
-  (replacement-table form for large recreates); run the job queue as part of deploy.
-- Ordering: queried-against rows must exist before the querying page parses (push
-  pages → recreate Cargo → purge dependents).
+- Routine (same-schema) refresh does not recreate: push the `Data/*` modules and
+  reparse dependents with `purge_pages(force_link_update=True)` (run the job queue as
+  part of deploy); each page's `#cargo_store` rewrites its rows in place. Recreate only
+  when the schema changes — `cargorecreatetables` (structure) + per-table
+  `cargorecreatedata` (repopulate), polling row counts. For a large-table recreate the
+  documented no-downtime path is a replacement table (`createReplacement=1`): the old
+  table keeps serving queries while `__NEXT` fills, then an admin switches it in at
+  `Special:CargoTables` (the switch-in has no API).
+- Ordering: a queried row must exist before the querying page parses — push the storing
+  pages (and, on a schema change, recreate) before purging the dependents that read them.
 - **Item-ownership freshness:** because obtainability/usage rows are stored from the
   item page, a change in any *source* table (loot/vendor/dialog/quest/craft/mining/
   fishing/item_bag/class/smithing) must reparse the **owning item pages**, not the
@@ -543,10 +561,12 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
   `Spawns` rows for its pickable locations, and a treasure-hunting item's `drop` row
   resolves to a chest page that now shows those locations.
 - **Harness limitation (explicit):** `wiki-dev` runs stock upstream Cargo, so it
-  cannot test the wiki.gg ≤1-declare+≤1-attach budget or the attach-trick's live
-  acceptance. What it *does* test is recreate coverage — rows stored by a page whose
-  template is not attached to the table vanish on `cargorecreatetables`. Live budget
-  acceptance is a §15 pre-Phase-3 probe.
+  cannot exercise wiki.gg's LIBRARIAN fork directly. What it *does* test is recreate
+  coverage — rows stored by a page whose template is not attached to the table vanish
+  on `cargorecreatetables`. Live storage-shape, stale-row lifecycle, multi-entity
+  identity, and `cargorecreatedata` job-queue behavior were validated by the live
+  probe (`2026-07-09-wiki-cargo-storage-validation`); nested hidden storage is the
+  selected contract and no attach-trick is required.
 
 ## 15. Phased sequencing
 
@@ -554,13 +574,16 @@ Cargo for every type is completed on the local harness before any page is conver
 so the dual-path new branch is whole before cutover. Each phase is TDD-first and
 atomic; `writing-plans` turns each into a step-by-step plan.
 
-**Pre-Phase-3 gate — live attach-trick probe.** Before building Phase 3 on the
-attach-trick, run a one-off non-destructive probe on the live wiki: a toy 3-table
-template using the attach-trick in a user/sandbox namespace, store rows, confirm
-LIBRARIAN accepts the multi-table template, `cargorecreatetables` finds the rows, and
-the deploy bot can drive the recreate. Delete the probe pages after. This converts the
-harness's untestable budget assumption (§14) into a fact and answers the Phase 7
-bot-rights question early.
+**Pre-Phase-3 storage validation (complete).** The live storage-shape questions were
+answered by the `2026-07-09-wiki-cargo-storage-validation` probe: nested hidden storage
+templates are the selected contract (no attach-trick); an edit + forced-link purge
+rewrites a page's rows in place (so a same-schema refresh needs no recreate); schema
+changes recreate via `cargorecreatetables` + per-table `cargorecreatedata` with
+row-count polling; stale rows do not survive edits/deletes; multi-entity pages key on
+StableKey; and a large-table recreate's replacement-table switch-in is a manual
+`Special:CargoTables` admin step. The main-account probe can drive schema + data
+recreation; confirming the deploy bot's `recreatecargodata` right on wiki.gg remains
+the Phase 7 gate.
 
 3. Phase 3 — unified **item-owned** relationship model: `ObtainedFrom` (consolidating
    the built `Drops`/`ContainerDrops`) + `UsedIn`, covering every acquisition/usage
@@ -575,11 +598,15 @@ bot-rights question early.
    branch; new branch unchanged); both-branch harness tests.
 6. Phase 6 — thin-page article generator + automated article deploy + generalized
    override-preserving conversion (all seven types).
-7. Phase 7 — production cutover: build production `cargorecreatetables` automation
-   (confirming the bot's `recreatecargodata` right, per the §15 probe) → TemplateSandbox
-   gate → deploy dual-path templates/modules → recreate Cargo → incrementally convert
-   pages to thin → per-type, delete the legacy branch + retire that type's Jinja2
-   generator → live smoke + rollback manifest + orphan-page report for manual deletion.
+7. Phase 7 — production cutover: TemplateSandbox gate → deploy dual-path
+   templates/modules → create the Cargo tables (first-time recreate; a large table's
+   replacement-table switch-in is a manual `Special:CargoTables` step, no API) →
+   incrementally convert pages to thin, each page's parse storing its rows → per-type,
+   delete the legacy branch + retire that type's Jinja2 generator → live smoke +
+   rollback manifest + orphan-page report for manual deletion. Steady-state refreshes
+   thereafter reparse pages (no recreate); a schema change reruns `cargorecreatetables`
+   + `cargorecreatedata` (confirming the bot's `recreatecargodata` right per the
+   completed validation).
 8. Phase 8 — freshness / orphan drop-and-recreate automation + documentation.
 
 ## 16. Key decisions
