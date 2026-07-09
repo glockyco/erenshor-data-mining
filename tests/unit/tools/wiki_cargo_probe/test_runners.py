@@ -379,9 +379,10 @@ def test_replacement_table_runner_records_hidden_rows_before_switch_in() -> None
     assert result["replacement_row"] == {"ok": True, "rows": []}
     assert result["replacement_queryable_before_switch"] is False
     assert result["replacement_rows_hidden_before_switch"] is True
-    assert (
-        result["replacement_population_verification"]
-        == "Replacement table rows are not API-queryable before Special:CargoTables switch-in"
+    assert result["switch_in_automatable"] is False
+    assert result["switch_in_note"] == (
+        "Replacement population and switch-in are Special:CargoTables admin steps; "
+        "not API-queryable or automatable before switch-in."
     )
     assert typed_result["original_after_replacement_count"]["count"] == 1
     assert result["original_after_replacement_row"] == expected_original_row
@@ -398,3 +399,29 @@ def test_replacement_table_runner_records_hidden_rows_before_switch_in() -> None
         ("cleanup", candidate.page_title),
         ("cleanup", candidate.template.title),
     ]
+
+
+def test_standard_runner_fails_closed_when_a_recreate_operation_fails() -> None:
+    candidate = build_direct_probe("UnitProbe")
+
+    class FailingRecreateContext(StandardFakeContext):
+        def recreate_tables(self, template: str, *, create_replacement: bool = False) -> dict[str, Any]:
+            super().recreate_tables(template, create_replacement=create_replacement)
+            return {"ok": False, "template": template, "code": "internal_api_error"}
+
+    result = candidate.run(FailingRecreateContext(candidate), poll_seconds=1)
+
+    assert result["validation_ok"] is False
+
+
+def test_standard_runner_fails_closed_when_purge_does_not_reach_the_page() -> None:
+    candidate = build_direct_probe("UnitProbe")
+
+    class MissingPurgeContext(StandardFakeContext):
+        def purge_pages(self, titles: list[str] | tuple[str, ...]) -> tuple[str, ...]:
+            super().purge_pages(titles)
+            return ()
+
+    result = candidate.run(MissingPurgeContext(candidate), poll_seconds=1)
+
+    assert result["validation_ok"] is False

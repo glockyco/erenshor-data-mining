@@ -138,24 +138,25 @@ Phase 7 does not use that path because the switch-in is not available through th
       community rows into the single-declaring-owner tables, with the recreation model
       stated; add cross-links between the validation plan, Phase 3, and the architecture spec.
 
-### Task V8: Harden the probe runner as a Phase 7 verification gate
+### Task V8: Make the probe's verdict trustworthy
 
-The reusable probe runner (V1) is promoted to a Phase 7 verification gate, so its
-`validation_ok` must fail closed — a false "success" could green-light a broken
-production recreate.
+The probe is a manual diagnostic spike (V1–V6 already captured its findings); its only
+forward use is an operator re-running it before a production recreate. The single
+correctness gap worth fixing: `validation_ok` reports success even when a Cargo
+operation actually failed. No broad rework — the probe is not core architecture.
 
 - [x] Type the operation contract: `ProbeOperations` / `CargoQuerier` protocols so the
       scenario runners and query helpers no longer depend on the concrete
       `ProbeRunContext`, and the test fakes conform without `cast` (purge returns the real
       `tuple[str, ...]` shape).
-- [ ] Fail closed: every scenario's `validation_ok` also requires each mutating operation
+- [x] Fail closed: every scenario's `validation_ok` also requires each mutating operation
       (`cargorecreatetables`, `cargorecreatedata`, purge) to have succeeded, not only the
       row-state queries.
-- [ ] Report the replacement scenario honestly — a pre-switch diagnostic, never a
+- [x] Report the replacement scenario honestly — a pre-switch diagnostic, never a
       "population verified" claim — and record that switch-in is not API-automatable.
-- [ ] The CLI records a raising scenario as a failed candidate and still emits the JSON
-      report with a deterministic exit code.
-- [ ] Failure-injection tests cover each scenario's operation-failure branches.
+- [x] The CLI records a raising scenario as a failed candidate rather than aborting the run.
+- [x] A focused test proves the fail-closed verdict (a failed Cargo op flips
+      `validation_ok` to false).
 
 ## Acceptance criteria
 

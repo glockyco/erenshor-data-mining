@@ -5,7 +5,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from ..markup import declare_lifecycle_table, lifecycle_item_call
 from ..models import OWNER, TemplatePage, manual_cleanup_urls
-from ..queries import lifecycle_state_matches, query_lifecycle_state, wait_for_lifecycle_state
+from ..queries import (
+    lifecycle_state_matches,
+    operations_ok,
+    purge_reached,
+    query_lifecycle_state,
+    wait_for_lifecycle_state,
+)
 
 if TYPE_CHECKING:
     from ..models import ProbeOperations
@@ -109,8 +115,12 @@ class LifecycleScenario:
                 item_present=False,
             )
             result["validation_ok"] = (
-                result["initial_state"].get("matches")
+                operations_ok(result["initial_cargorecreatetables"])
+                and purge_reached(result["initial_purged"], (self.page_title,))
+                and result["initial_state"].get("matches")
+                and purge_reached(result["reduced_purged"], (self.page_title,))
                 and result["reduced_state"].get("matches")
+                and purge_reached(result["removed_purged"], (self.page_title,))
                 and result["removed_item_state"].get("matches")
                 and result["delete_page"].get("ok")
                 and result["after_delete_rows_removed"]

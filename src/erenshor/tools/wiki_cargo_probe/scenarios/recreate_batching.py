@@ -5,7 +5,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from ..markup import lifecycle_item_call
 from ..models import OWNER, TemplatePage, manual_cleanup_urls
-from ..queries import batch_sample_matches, query_batch_samples, wait_for_batch_counts
+from ..queries import (
+    batch_sample_matches,
+    batched_purge_reached,
+    operations_ok,
+    query_batch_samples,
+    wait_for_batch_counts,
+)
 from .lifecycle import build_lifecycle_probe
 
 if TYPE_CHECKING:
@@ -69,10 +75,13 @@ class RecreateBatchingScenario:
                 self, result["sample_state_after_cargorecreatedata"]
             )
             result["validation_ok"] = (
-                result["initial_counts"].get("matches")
+                operations_ok(result["initial_cargorecreatetables"])
+                and result["initial_counts"].get("matches")
                 and result["initial_samples_match"]
+                and operations_ok(result["post_page_cargorecreatetables"])
                 and result["counts_after_cargorecreatetables"].get("matches")
-                and all(response.get("ok") for response in result["cargorecreatedata"])
+                and operations_ok(result["cargorecreatedata"])
+                and batched_purge_reached(result["purged"], self.page_titles)
                 and result["counts_after_cargorecreatedata"].get("matches")
                 and result["samples_after_cargorecreatedata_match"]
             )

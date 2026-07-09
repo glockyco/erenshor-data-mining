@@ -62,13 +62,16 @@ class ReplacementTableScenario:
                 and result["replacement_row"].get("ok")
                 and result["replacement_row"].get("rows") == []
             )
-            result["replacement_population_verification"] = (
-                "Replacement table rows are not API-queryable before Special:CargoTables switch-in"
+            result["switch_in_automatable"] = False
+            result["switch_in_note"] = (
+                "Replacement population and switch-in are Special:CargoTables admin steps; "
+                "not API-queryable or automatable before switch-in."
             )
             result["original_after_replacement_count"] = query_lifecycle_count(context, self.table)
             result["original_after_replacement_row"] = query_replacement_probe_row(context, self.table, self.key)
             result["validation_ok"] = (
-                result["initial_original_count"].get("ok")
+                result["initial_cargorecreatetables"].get("ok")
+                and result["initial_original_count"].get("ok")
                 and result["initial_original_count"].get("count") == 1
                 and replacement_row_matches(result["initial_original_row"], self.key)
                 and result["create_replacement"].get("ok")

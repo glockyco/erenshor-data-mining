@@ -97,7 +97,10 @@ def main(argv: list[str] | None = None) -> int:
         result["account"] = assert_rights(client)
         for scenario in scenarios:
             context = ProbeRunContext(client)
-            result["candidates"].append(scenario.run(context, args.poll_seconds))
+            try:
+                result["candidates"].append(scenario.run(context, args.poll_seconds))
+            except Exception as exc:
+                result["candidates"].append({"kind": scenario.kind, "validation_ok": False, "error": str(exc)})
     finally:
         client.close()
     print(json.dumps(result, indent=2, sort_keys=True))

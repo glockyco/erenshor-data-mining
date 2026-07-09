@@ -307,15 +307,38 @@ def wait_for_rows(context: CargoQuerier, candidate: Any, seconds: int) -> dict[s
     }
 
 
+def operation_ok(result: Any) -> bool:
+    return isinstance(result, dict) and result.get("ok") is True
+
+
+def operations_ok(results: Any) -> bool:
+    return isinstance(results, list) and len(results) > 0 and all(operation_ok(item) for item in results)
+
+
+def purge_reached(purged: Any, titles: tuple[str, ...]) -> bool:
+    return isinstance(purged, tuple) and all(title in purged for title in titles)
+
+
+def batched_purge_reached(purges: Any, titles: tuple[str, ...]) -> bool:
+    if not isinstance(purges, list):
+        return False
+    reached = {title for batch in purges if isinstance(batch, tuple) for title in batch}
+    return all(title in reached for title in titles)
+
+
 def standard_candidate_validation(result: dict[str, Any], candidate: Any) -> bool:
     initial_queries = result.get("initial_queries", {})
     rendered_page = result.get("rendered_page", {})
     after_recreate = result.get("queries_after_cargorecreatetables", {})
     after_recreatedata = result.get("queries_after_cargorecreatedata", {})
     return (
-        rows_present(initial_queries, candidate.expected_counts)
+        operations_ok(result.get("initial_cargorecreatetables"))
+        and purge_reached(result.get("purged"), (candidate.page_title,))
+        and rows_present(initial_queries, candidate.expected_counts)
         and rendered_page.get("ok")
         and not rendered_page.get("contains_probe_text")
+        and operations_ok(result.get("post_page_cargorecreatetables"))
         and rows_empty(after_recreate)
+        and operations_ok(result.get("cargorecreatedata"))
         and rows_present(after_recreatedata, candidate.expected_counts)
     )

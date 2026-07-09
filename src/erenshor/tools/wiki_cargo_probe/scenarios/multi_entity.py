@@ -7,6 +7,8 @@ from ..markup import lifecycle_item_call
 from ..models import OWNER, TemplatePage, manual_cleanup_urls
 from ..queries import (
     multi_entity_key_state_matches,
+    operations_ok,
+    purge_reached,
     query_multi_entity_reverse,
     query_multi_entity_state,
     reverse_page_title_is_ambiguous,
@@ -62,7 +64,9 @@ class MultiEntityScenario:
             result["obtained_from_reverse"] = query_multi_entity_reverse(context, self, "obtained_from")
             result["used_in_reverse"] = query_multi_entity_reverse(context, self, "used_in")
             result["validation_ok"] = (
-                all(multi_entity_key_state_matches(result["state"], key) for key in self.item_keys)
+                operations_ok(result["initial_cargorecreatetables"])
+                and purge_reached(result["purged"], (self.page_title,))
+                and all(multi_entity_key_state_matches(result["state"], key) for key in self.item_keys)
                 and reverse_rows_match_keys(result["obtained_from_reverse"], self.item_keys)
                 and reverse_rows_match_keys(result["used_in_reverse"], self.item_keys)
                 and reverse_page_title_is_ambiguous(result["obtained_from_reverse"], len(self.item_keys))
