@@ -29,7 +29,7 @@ OWNER = "WoWMuch"
 REQUIRED_RIGHTS = frozenset({"edit", "createpage", "delete", "recreatecargodata"})
 MANUAL_DELETE_BASE = "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/"
 
-CandidateKind = Literal["direct", "nested", "lua-nested"]
+CandidateKind = Literal["direct", "nested", "lua-nested", "lifecycle"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +53,25 @@ class ProbeCandidate:
     @property
     def transclusion(self) -> str:
         return "{{" + self.template_base + "Main|key=" + self.key + "}}\n"
+
+
+@dataclass(frozen=True, slots=True)
+class LifecycleCandidate:
+    kind: Literal["lifecycle"]
+    page_title: str
+    template_base: str
+    tables: dict[str, str]
+    templates: tuple[TemplatePage, ...]
+    recreate_templates: tuple[str, ...]
+    recreatedata_pairs: tuple[tuple[str, str], ...]
+    item_key: str
+    removed_key: str
+    initial_content: str
+    reduced_content: str
+    removed_content: str
+
+
+type Candidate = ProbeCandidate | LifecycleCandidate
 
 
 def _store(table_placeholder: str, value: str, number: int = 1, flag: str = "yes") -> str:
@@ -278,6 +297,182 @@ def build_lua_nested_candidate(prefix: str) -> ProbeCandidate:
     )
 
 
+def _lifecycle_declare_items(table_placeholder: str) -> str:
+    return "{{#cargo_declare:_table=" + table_placeholder + "|StableKey=String|DisplayName=String}}"
+
+
+def _lifecycle_declare_obtained_from(table_placeholder: str) -> str:
+    return "{{#cargo_declare:_table=" + table_placeholder + "|ItemKey=String|SourceKey=String|SourceIndex=Integer}}"
+
+
+def _lifecycle_declare_used_in(table_placeholder: str) -> str:
+    return "{{#cargo_declare:_table=" + table_placeholder + "|ItemKey=String|UseKey=String|UseIndex=Integer}}"
+
+
+def _lifecycle_item_call(
+    template_base: str,
+    stable_key: str,
+    name: str,
+    sources: tuple[str, ...],
+    uses: tuple[str, ...],
+) -> str:
+    fields = [
+        "{{" + template_base + "Main",
+        "|stablekey=" + stable_key,
+        "|name=" + name,
+    ]
+    fields.extend("|source" + str(index) + "=" + source for index, source in enumerate(sources, start=1))
+    fields.extend("|use" + str(index) + "=" + use for index, use in enumerate(uses, start=1))
+    fields.append("}}")
+    return "\n".join(fields)
+
+
+def build_lifecycle_candidate(prefix: str) -> LifecycleCandidate:
+    item_key = prefix + "LifecycleItemA"
+    removed_key = prefix + "LifecycleItemB"
+    tables = {
+        "Items": prefix + "LifecycleItems",
+        "ObtainedFrom": prefix + "LifecycleObtainedFrom",
+        "UsedIn": prefix + "LifecycleUsedIn",
+    }
+    template_base = "CargoStorageProbe/" + prefix + "/Lifecycle"
+    module_name = "CargoStorageProbe/" + prefix + "/Lifecycle"
+    module_title = "Module:" + module_name
+    main_title = "Template:" + template_base + "Main"
+    obtained_title = "Template:" + template_base + "ObtainedFromStore"
+    used_title = "Template:" + template_base + "UsedInStore"
+    page_title = "User:" + OWNER + "/CargoStorageProbe/" + prefix + "/Lifecycle"
+
+    module = (
+        "local p = {}\n"
+        + "local tables = { Items = '__Items__', ObtainedFrom = '__ObtainedFrom__', UsedIn = '__UsedIn__' }\n"
+        + "local function arg(frame, name)\n"
+        + "  return frame.args[name] or ''\n"
+        + "end\n"
+        + "local function store(frame, values)\n"
+        + "  return frame:callParserFunction('#cargo_store:', values)\n"
+        + "end\n"
+        + "function p.storeItem(frame)\n"
+        + "  return store(frame, {\n"
+        + "    _table = tables.Items,\n"
+        + "    StableKey = arg(frame, 'stablekey'),\n"
+        + "    DisplayName = arg(frame, 'name'),\n"
+        + "  })\n"
+        + "end\n"
+        + "function p.storeObtainedFrom(frame)\n"
+        + "  local output = ''\n"
+        + "  for index = 1, 10 do\n"
+        + "    local source = arg(frame, 'source' .. tostring(index))\n"
+        + "    if source ~= '' then\n"
+        + "      output = output .. store(frame, {\n"
+        + "        _table = tables.ObtainedFrom,\n"
+        + "        ItemKey = arg(frame, 'itemkey'),\n"
+        + "        SourceKey = source,\n"
+        + "        SourceIndex = tostring(index),\n"
+        + "      })\n"
+        + "    end\n"
+        + "  end\n"
+        + "  return output\n"
+        + "end\n"
+        + "function p.storeUsedIn(frame)\n"
+        + "  local output = ''\n"
+        + "  for index = 1, 10 do\n"
+        + "    local use = arg(frame, 'use' .. tostring(index))\n"
+        + "    if use ~= '' then\n"
+        + "      output = output .. store(frame, {\n"
+        + "        _table = tables.UsedIn,\n"
+        + "        ItemKey = arg(frame, 'itemkey'),\n"
+        + "        UseKey = use,\n"
+        + "        UseIndex = tostring(index),\n"
+        + "      })\n"
+        + "    end\n"
+        + "  end\n"
+        + "  return output\n"
+        + "end\n"
+        + "return p\n"
+    )
+    main = (
+        "<includeonly>"
+        + "{{#invoke:"
+        + module_name
+        + "|storeItem|stablekey={{{stablekey|}}}|name={{{name|}}}}}"
+        + "{{"
+        + template_base
+        + "ObtainedFromStore|itemkey={{{stablekey|}}}|source1={{{source1|}}}"
+        + "|source2={{{source2|}}}|source3={{{source3|}}}}}"
+        + "{{"
+        + template_base
+        + "UsedInStore|itemkey={{{stablekey|}}}|use1={{{use1|}}}|use2={{{use2|}}}|use3={{{use3|}}}}}"
+        + "</includeonly><noinclude>"
+        + _lifecycle_declare_items("__Items__")
+        + "Temporary Cargo lifecycle storage probe."
+        + "</noinclude>"
+    )
+    obtained_store = (
+        "<includeonly>{{#invoke:"
+        + module_name
+        + "|storeObtainedFrom|itemkey={{{itemkey|}}}|source1={{{source1|}}}"
+        + "|source2={{{source2|}}}|source3={{{source3|}}}}}</includeonly><noinclude>"
+        + _lifecycle_declare_obtained_from("__ObtainedFrom__")
+        + "Temporary.</noinclude>"
+    )
+    used_store = (
+        "<includeonly>{{#invoke:"
+        + module_name
+        + "|storeUsedIn|itemkey={{{itemkey|}}}|use1={{{use1|}}}"
+        + "|use2={{{use2|}}}|use3={{{use3|}}}}}</includeonly><noinclude>"
+        + _lifecycle_declare_used_in("__UsedIn__")
+        + "Temporary.</noinclude>"
+    )
+    initial_content = (
+        _lifecycle_item_call(
+            template_base,
+            item_key,
+            "Lifecycle Item A",
+            ("SourceA1", "SourceA2", "SourceA3"),
+            ("UseA1",),
+        )
+        + "\n"
+        + _lifecycle_item_call(template_base, removed_key, "Lifecycle Item B", ("SourceB1",), ("UseB1",))
+        + "\n"
+    )
+    reduced_content = (
+        _lifecycle_item_call(template_base, item_key, "Lifecycle Item A", ("SourceA1",), ())
+        + "\n"
+        + _lifecycle_item_call(template_base, removed_key, "Lifecycle Item B", ("SourceB1",), ("UseB1",))
+        + "\n"
+    )
+    removed_content = _lifecycle_item_call(template_base, item_key, "Lifecycle Item A", ("SourceA1",), ()) + "\n"
+
+    return LifecycleCandidate(
+        kind="lifecycle",
+        page_title=page_title,
+        template_base=template_base,
+        tables=tables,
+        templates=(
+            TemplatePage(module_title, _fill_tables(module, tables)),
+            TemplatePage(main_title, _fill_tables(main, tables)),
+            TemplatePage(obtained_title, _fill_tables(obtained_store, tables)),
+            TemplatePage(used_title, _fill_tables(used_store, tables)),
+        ),
+        recreate_templates=(
+            template_base + "Main",
+            template_base + "ObtainedFromStore",
+            template_base + "UsedInStore",
+        ),
+        recreatedata_pairs=(
+            (template_base + "Main", tables["Items"]),
+            (template_base + "ObtainedFromStore", tables["ObtainedFrom"]),
+            (template_base + "UsedInStore", tables["UsedIn"]),
+        ),
+        item_key=item_key,
+        removed_key=removed_key,
+        initial_content=initial_content,
+        reduced_content=reduced_content,
+        removed_content=removed_content,
+    )
+
+
 def api_post(client: MediaWikiClient, data: dict[str, Any], label: str) -> dict[str, Any]:
     try:
         return {"ok": True, "response": client._request({}, method="POST", data=data)}
@@ -365,6 +560,160 @@ def query_table(client: MediaWikiClient, table: str, key: str) -> dict[str, Any]
         return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
 
 
+def cargo_string_literal(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def row_fields(row: dict[str, Any]) -> dict[str, Any]:
+    title = row.get("title")
+    if isinstance(title, dict):
+        return title
+    return row
+
+
+def field_values(rows: list[dict[str, Any]], field: str) -> list[str]:
+    return sorted(str(row_fields(row).get(field, "")) for row in rows)
+
+
+def rows_empty(queries: dict[str, Any]) -> bool:
+    return all(result.get("ok") and not result.get("rows", []) for result in queries.values())
+
+
+def query_lifecycle_table(
+    client: MediaWikiClient,
+    table: str,
+    fields: str,
+    where: str,
+) -> dict[str, Any]:
+    try:
+        rows = client.query_cargo_table(
+            tables=table,
+            fields=fields,
+            where=where,
+            limit=50,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        return {"ok": True, "rows": rows}
+    except MediaWikiAPIError as exc:
+        return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
+
+
+def query_lifecycle_key(client: MediaWikiClient, candidate: LifecycleCandidate, key: str) -> dict[str, Any]:
+    item_where = "StableKey=" + cargo_string_literal(key)
+    relationship_where = "ItemKey=" + cargo_string_literal(key)
+    return {
+        "items": query_lifecycle_table(
+            client,
+            candidate.tables["Items"],
+            "_pageName=Page,StableKey,DisplayName",
+            item_where,
+        ),
+        "obtained_from": query_lifecycle_table(
+            client,
+            candidate.tables["ObtainedFrom"],
+            "_pageName=Page,ItemKey,SourceKey,SourceIndex",
+            relationship_where,
+        ),
+        "used_in": query_lifecycle_table(
+            client,
+            candidate.tables["UsedIn"],
+            "_pageName=Page,ItemKey,UseKey,UseIndex",
+            relationship_where,
+        ),
+    }
+
+
+def query_lifecycle_state(client: MediaWikiClient, candidate: LifecycleCandidate) -> dict[str, Any]:
+    return {
+        candidate.item_key: query_lifecycle_key(client, candidate, candidate.item_key),
+        candidate.removed_key: query_lifecycle_key(client, candidate, candidate.removed_key),
+    }
+
+
+def lifecycle_key_matches(
+    state: dict[str, Any],
+    key: str,
+    source_keys: tuple[str, ...],
+    use_keys: tuple[str, ...],
+    item_present: bool = True,
+) -> bool:
+    key_state = state.get(key, {})
+    if not all(result.get("ok") for result in key_state.values()):
+        return False
+    item_rows = key_state["items"].get("rows", [])
+    obtained_rows = key_state["obtained_from"].get("rows", [])
+    used_rows = key_state["used_in"].get("rows", [])
+    if item_present:
+        if field_values(item_rows, "StableKey") != [key]:
+            return False
+    elif item_rows:
+        return False
+    return field_values(obtained_rows, "SourceKey") == sorted(source_keys) and field_values(
+        used_rows, "UseKey"
+    ) == sorted(use_keys)
+
+
+def lifecycle_state_matches(
+    state: dict[str, Any],
+    candidate: LifecycleCandidate,
+    item_sources: tuple[str, ...],
+    item_uses: tuple[str, ...],
+    removed_sources: tuple[str, ...],
+    removed_uses: tuple[str, ...],
+    removed_present: bool,
+    item_present: bool = True,
+) -> bool:
+    return lifecycle_key_matches(
+        state,
+        candidate.item_key,
+        item_sources,
+        item_uses,
+        item_present=item_present,
+    ) and lifecycle_key_matches(
+        state,
+        candidate.removed_key,
+        removed_sources,
+        removed_uses,
+        item_present=removed_present,
+    )
+
+
+def wait_for_lifecycle_state(
+    client: MediaWikiClient,
+    candidate: LifecycleCandidate,
+    seconds: int,
+    item_sources: tuple[str, ...],
+    item_uses: tuple[str, ...],
+    removed_sources: tuple[str, ...],
+    removed_uses: tuple[str, ...],
+    removed_present: bool = True,
+    item_present: bool = True,
+) -> dict[str, Any]:
+    deadline = time.time() + seconds
+    attempts: list[dict[str, Any]] = []
+    while True:
+        state = query_lifecycle_state(client, candidate)
+        matches = lifecycle_state_matches(
+            state,
+            candidate,
+            item_sources,
+            item_uses,
+            removed_sources,
+            removed_uses,
+            removed_present=removed_present,
+            item_present=item_present,
+        )
+        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "state": state})
+        if matches or time.time() >= deadline:
+            return {"matches": matches, "final": state, "last_attempts": attempts[-5:]}
+        time.sleep(5)
+
+
+def edit_existing_page(client: MediaWikiClient, title: str, content: str, summary: str) -> None:
+    client.edit_page(title, content, summary=summary, create_only=False, no_create=True, bot=True)
+
+
 def query_all(client: MediaWikiClient, candidate: ProbeCandidate) -> dict[str, Any]:
     return {name: query_table(client, table, candidate.key) for name, table in candidate.tables.items()}
 
@@ -389,6 +738,20 @@ def wait_for_rows(client: MediaWikiClient, candidate: ProbeCandidate, seconds: i
                 "last_attempts": attempts[-5:],
             }
         time.sleep(5)
+
+
+def standard_candidate_validation(result: dict[str, Any], candidate: ProbeCandidate) -> bool:
+    initial_queries = result.get("initial_queries", {})
+    rendered_page = result.get("rendered_page", {})
+    after_recreate = result.get("queries_after_cargorecreatetables", {})
+    after_recreatedata = result.get("queries_after_cargorecreatedata", {})
+    return (
+        rows_present(initial_queries, candidate.expected_counts)
+        and rendered_page.get("ok")
+        and not rendered_page.get("contains_probe_text")
+        and rows_empty(after_recreate)
+        and rows_present(after_recreatedata, candidate.expected_counts)
+    )
 
 
 def parse_page_html(client: MediaWikiClient, page_title: str) -> dict[str, Any]:
@@ -464,6 +827,7 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
             recreate_data(client, template, table) for template, table in candidate.recreatedata_pairs
         ]
         result["queries_after_cargorecreatedata"] = query_all(client, candidate)
+        result["validation_ok"] = standard_candidate_validation(result, candidate)
     finally:
         cleanup: list[dict[str, Any]] = []
         for title in reversed(created):
@@ -472,22 +836,147 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
     return result
 
 
-def build_candidates(prefix: str, choice: str) -> list[ProbeCandidate]:
+def run_lifecycle_candidate(
+    client: MediaWikiClient, candidate: LifecycleCandidate, poll_seconds: int
+) -> dict[str, Any]:
+    created: list[str] = []
+    result: dict[str, Any] = {
+        "kind": candidate.kind,
+        "item_key": candidate.item_key,
+        "removed_key": candidate.removed_key,
+        "page_title": candidate.page_title,
+        "tables": candidate.tables,
+        "manual_table_cleanup_urls": [MANUAL_DELETE_BASE + table for table in candidate.tables.values()],
+    }
+    try:
+        for template in candidate.templates:
+            create_page(client, template.title, template.content)
+            created.append(template.title)
+        result["initial_cargorecreatetables"] = [
+            recreate_tables(client, template) for template in candidate.recreate_templates
+        ]
+        create_page(client, candidate.page_title, candidate.initial_content)
+        created.append(candidate.page_title)
+        result["initial_purged"] = client.purge_pages(
+            [candidate.page_title],
+            force_link_update=True,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        result["initial_state"] = wait_for_lifecycle_state(
+            client,
+            candidate,
+            poll_seconds,
+            item_sources=("SourceA1", "SourceA2", "SourceA3"),
+            item_uses=("UseA1",),
+            removed_sources=("SourceB1",),
+            removed_uses=("UseB1",),
+        )
+        edit_existing_page(
+            client,
+            candidate.page_title,
+            candidate.reduced_content,
+            "Reduce temporary Cargo lifecycle probe rows",
+        )
+        result["reduced_purged"] = client.purge_pages(
+            [candidate.page_title],
+            force_link_update=True,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        result["reduced_state"] = wait_for_lifecycle_state(
+            client,
+            candidate,
+            poll_seconds,
+            item_sources=("SourceA1",),
+            item_uses=(),
+            removed_sources=("SourceB1",),
+            removed_uses=("UseB1",),
+        )
+        edit_existing_page(
+            client,
+            candidate.page_title,
+            candidate.removed_content,
+            "Remove one temporary Cargo lifecycle probe item",
+        )
+        result["removed_purged"] = client.purge_pages(
+            [candidate.page_title],
+            force_link_update=True,
+            assertion="user",
+            assert_user=OWNER,
+        )
+        result["removed_item_state"] = wait_for_lifecycle_state(
+            client,
+            candidate,
+            poll_seconds,
+            item_sources=("SourceA1",),
+            item_uses=(),
+            removed_sources=(),
+            removed_uses=(),
+            removed_present=False,
+        )
+        result["delete_page"] = delete_page(client, candidate.page_title)
+        if result["delete_page"].get("ok"):
+            created.remove(candidate.page_title)
+        result["after_delete_state"] = query_lifecycle_state(client, candidate)
+        result["after_delete_rows_removed"] = lifecycle_state_matches(
+            result["after_delete_state"],
+            candidate,
+            item_sources=(),
+            item_uses=(),
+            removed_sources=(),
+            removed_uses=(),
+            removed_present=False,
+            item_present=False,
+        )
+        result["validation_ok"] = (
+            result["initial_state"].get("matches")
+            and result["reduced_state"].get("matches")
+            and result["removed_item_state"].get("matches")
+            and result["delete_page"].get("ok")
+            and result["after_delete_rows_removed"]
+        )
+    finally:
+        cleanup: list[dict[str, Any]] = []
+        for title in reversed(created):
+            cleanup.append({"title": title, "result": delete_page(client, title)})
+        result["page_cleanup"] = cleanup
+    return result
+
+
+def run_probe_candidate(client: MediaWikiClient, candidate: Candidate, poll_seconds: int) -> dict[str, Any]:
+    if isinstance(candidate, LifecycleCandidate):
+        return run_lifecycle_candidate(client, candidate, poll_seconds)
+    return run_candidate(client, candidate, poll_seconds)
+
+
+def build_candidates(prefix: str, choice: str) -> list[Candidate]:
     if choice == "direct":
         return [build_direct_candidate(prefix)]
     if choice == "nested":
         return [build_nested_candidate(prefix)]
     if choice == "lua-nested":
         return [build_lua_nested_candidate(prefix)]
+    if choice == "lifecycle":
+        return [build_lifecycle_candidate(prefix)]
     if choice == "both":
         return [build_direct_candidate(prefix), build_nested_candidate(prefix)]
-    return [build_direct_candidate(prefix), build_nested_candidate(prefix), build_lua_nested_candidate(prefix)]
+    return [
+        build_direct_candidate(prefix),
+        build_nested_candidate(prefix),
+        build_lua_nested_candidate(prefix),
+        build_lifecycle_candidate(prefix),
+    ]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="perform live writes; omitted means dry-run only")
-    parser.add_argument("--candidate", choices=("direct", "nested", "lua-nested", "both", "all"), default="lua-nested")
+    parser.add_argument(
+        "--candidate",
+        choices=("direct", "nested", "lua-nested", "lifecycle", "both", "all"),
+        default="lua-nested",
+    )
     parser.add_argument(
         "--prefix",
         default="CargoStorageProbe" + datetime.now(UTC).strftime("%Y%m%d%H%M%S"),
@@ -533,7 +1022,7 @@ def main(argv: list[str] | None = None) -> int:
         client.login()
         result["account"] = assert_rights(client)
         for candidate in candidates:
-            result["candidates"].append(run_candidate(client, candidate, args.poll_seconds))
+            result["candidates"].append(run_probe_candidate(client, candidate, args.poll_seconds))
     finally:
         client.close()
     print(json.dumps(result, indent=2, sort_keys=True))
@@ -543,8 +1032,13 @@ def main(argv: list[str] | None = None) -> int:
         for cleanup in candidate.get("page_cleanup", [])
         if not cleanup.get("result", {}).get("ok")
     ]
+    failed_validation = [
+        candidate for candidate in result.get("candidates", []) if candidate.get("validation_ok") is False
+    ]
     if failed_cleanup:
         return 2
+    if failed_validation:
+        return 1
     return 0
 
 

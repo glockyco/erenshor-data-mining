@@ -18,6 +18,10 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
 - Live wiki.gg accepts the real Lua nested-storage path: hidden storage templates invoke
   Lua, Lua calls `#cargo_store` through `frame:callParserFunction`, and Cargo stores
   multiple rows plus Boolean/Integer/String values with expected query representations.
+- Live wiki.gg removes stale rows on normal page edits for the production-like Lua
+  nested shape: shrinking `ObtainedFrom`, clearing `UsedIn`, removing one item call
+  from a multi-item page, and deleting the sandbox page all removed the matching
+  Cargo rows after forced link-update purges.
 - The Phase 3 storage shape should prefer nested hidden storage templates because each
   Cargo table has one declaring/storing template and one explicit recreate-data target.
 - `action=cargorecreatetables` is not a complete refresh: it recreates schemas and
@@ -76,13 +80,13 @@ Production refresh contract:
 
 ### Task V3: Validate stale-row lifecycle
 
-- [ ] Mutate one sandbox item from three `ObtainedFrom` rows to one row and assert the
+- [x] Mutate one sandbox item from three `ObtainedFrom` rows to one row and assert the
       two old rows disappear.
-- [ ] Mutate one sandbox item from one `UsedIn` row to zero rows and assert the table has
+- [x] Mutate one sandbox item from one `UsedIn` row to zero rows and assert the table has
       no rows for that `ItemKey`.
-- [ ] Remove one item call from a multi-item page and assert only that stablekey's rows
+- [x] Remove one item call from a multi-item page and assert only that stablekey's rows
       disappear.
-- [ ] Delete the sandbox page and assert rows either disappear or are reported by a
+- [x] Delete the sandbox page and assert rows either disappear or are reported by a
       deterministic orphan check.
 
 ### Task V4: Validate multi-entity pages
