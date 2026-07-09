@@ -134,6 +134,28 @@ Phase 7 does not use that path because the switch-in is not available through th
 - [ ] Remove any remaining wording that treats helper attaches as required.
 - [ ] Promote the accepted probe runner command into the Phase 3 / Phase 7 verification
       commands.
+- [ ] Reconcile architecture §9: `{{ItemSource}}`/`{{SpawnPoint}}` attach and store
+      community rows into the single-declaring-owner tables, with the recreation model
+      stated; add cross-links between the validation plan, Phase 3, and the architecture spec.
+
+### Task V8: Harden the probe runner as a Phase 7 verification gate
+
+The reusable probe runner (V1) is promoted to a Phase 7 verification gate, so its
+`validation_ok` must fail closed — a false "success" could green-light a broken
+production recreate.
+
+- [ ] Type the operation contract: `ProbeOperations` / `CargoQuerier` protocols so the
+      scenario runners and query helpers no longer depend on the concrete
+      `ProbeRunContext`, and the test fakes conform without `cast` (purge returns the real
+      `tuple[str, ...]` shape).
+- [ ] Fail closed: every scenario's `validation_ok` also requires each mutating operation
+      (`cargorecreatetables`, `cargorecreatedata`, purge) to have succeeded, not only the
+      row-state queries.
+- [ ] Report the replacement scenario honestly — a pre-switch diagnostic, never a
+      "population verified" claim — and record that switch-in is not API-automatable.
+- [ ] The CLI records a raising scenario as a failed candidate and still emits the JSON
+      report with a deterministic exit code.
+- [ ] Failure-injection tests cover each scenario's operation-failure branches.
 
 ## Acceptance criteria
 
@@ -146,3 +168,6 @@ Phase 7 does not use that path because the switch-in is not available through th
   states exactly which account or admin action performs each step.
 - Every live probe leaves no sandbox pages behind and prints any Cargo tables requiring
   manual deletion.
+- The probe runner fails closed: `validation_ok` is false whenever any Cargo operation
+  (recreate-tables, recreate-data, purge) fails, and a raising scenario is reported
+  rather than aborting the run.
