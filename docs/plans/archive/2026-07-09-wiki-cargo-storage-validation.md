@@ -1,9 +1,10 @@
 ---
 title: Wiki Cargo Storage Validation Plan
 type: plan
-status: active
+status: implemented
 created: 2026-07-09
 parent: 2026-06-23-wiki-cargo-phase-3
+archived: 2026-07-09
 ---
 
 # Wiki Cargo Storage Validation Plan

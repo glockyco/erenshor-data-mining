@@ -10,11 +10,10 @@
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
 - **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12) ← 2026-07-09-erenshor-planning-overview
 - **Erenshor — Planning Overview** [overview] `2026-07-09-erenshor-planning-overview`
-- **Wiki Cargo Storage Validation Plan** [plan] `2026-07-09-wiki-cargo-storage-validation` (28/28) ← 2026-06-23-wiki-cargo-phase-3
 
 ## draft
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 - **Crawlable Zone Content Layer (/zones)** [spec] `2026-07-04-maps-zones-content-layer` ← 2026-06-26-maps-domain-url-migration
 
-_60 archived — see `docs/plans/archive/`._
+_61 archived — see `docs/plans/archive/`._
