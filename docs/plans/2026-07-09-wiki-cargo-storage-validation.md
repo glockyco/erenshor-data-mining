@@ -56,12 +56,12 @@ Production refresh contract:
 
 ### Task V1: Build a reusable live Cargo probe runner
 
-- [ ] Add a repo-owned probe runner that creates timestamped sandbox templates/pages,
+- [x] Add a repo-owned probe runner that creates timestamped sandbox templates/pages,
       prints exact API responses, deletes pages, and prints manual Cargo-table cleanup
       URLs for every table it creates.
-- [ ] Support dry-run naming output so the operator can inspect what will be created
+- [x] Support dry-run naming output so the operator can inspect what will be created
       before live writes.
-- [ ] Fail closed on missing `recreatecargodata` or `delete` rights.
+- [x] Fail closed on missing `recreatecargodata` or `delete` rights.
 
 ### Task V2: Validate real Lua nested storage
 
