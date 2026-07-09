@@ -25,10 +25,13 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
 - Live wiki.gg stores two `Item` calls on one page as distinct `Items`,
   `ObtainedFrom`, and `UsedIn` rows sharing `_pageName`; reverse lookups must use
   `ItemKey`/`StableKey` identity because page title alone is ambiguous.
-- The Phase 3 storage shape should prefer nested hidden storage templates because each
-  Cargo table has one declaring/storing template and one explicit recreate-data target.
-- `action=cargorecreatetables` is not a complete refresh: it recreates schemas and
-  clears rows; forced purge alone does not repopulate rows.
+- The Phase 3 storage shape uses nested hidden storage templates: each Cargo table has
+  one declaring (schema) owner — its `cargorecreatetables` / recreate-data target — and
+  community row templates (`{{ItemSource}}`/`{{SpawnPoint}}`) attach that shared table.
+- A data-only refresh needs no recreate: once a table exists, reparsing a page rewrites
+  its rows in place (the stale-row findings above are that mechanism). `cargorecreatetables`
+  is for schema changes / first creation — it recreates the table empty, and a forced purge
+  alone did not repopulate it afterward.
 - `action=cargorecreatedata` repopulates nested-template rows when called once per
   owning template/table. Live wiki.gg returns immediate `{"success": true}` responses;
   completion is verified by polling row counts until expected totals return, matching
@@ -36,9 +39,10 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
 - Live wiki.gg accepts `action=cargorecreatetables` with `createReplacement=1`:
   the original table remains queryable with its original row, while the staged
   `__NEXT` table is not API-queryable before switch-in through `Special:CargoTables`.
-- Replacement-table switch-in is an admin/UI operation, not an automated Phase 7 API
-  step. Replacement tables are therefore a manual downtime-minimizing option rather
-  than the production automation path.
+- Replacement-table switch-in is an admin `Special:CargoTables` step, not an API call.
+  Replacement tables are the recommended no-downtime path for a large-table schema
+  recreate (the old table serves queries while `__NEXT` fills); a routine refresh needs
+  no recreate at all.
 - Temporary probe pages are deleted after each run, but Cargo table deletion remains a
   manual admin cleanup step through `Special:CargoTables` / `Special:DeleteCargoTable`.
 
@@ -61,19 +65,21 @@ Template:ItemUsedInStore
   Lua writes one row per usage relationship
 ```
 
-Production refresh contract:
+Refresh contract (two paths):
 
 ```text
-1. Deploy modules/templates.
-2. Run direct `cargorecreatetables` for each owning storage template.
-3. Call `cargorecreatedata` once for each owning template/table pair.
-4. Poll expected row counts until complete, then query smoke rows before article
-   conversion is considered healthy.
-```
+Routine (schema unchanged — the common case):
+  1. Regenerate + deploy the Lua Data modules.
+  2. Reparse dependent pages (job queue / forced-link purge); each page's #cargo_store
+     rewrites its rows in place. No recreate, no downtime.
 
-For a manually supervised, downtime-minimizing refresh, an administrator may instead
-create replacement tables and switch them in through `Special:CargoTables`. Automated
-Phase 7 does not use that path because the switch-in is not available through the API.
+Schema change (a column added/removed/retyped, or first creation):
+  1. Deploy modules/templates.
+  2. cargorecreatetables (structure) + cargorecreatedata per owning table.
+  3. Poll row counts, then query smoke rows before conversion is healthy.
+  For a large table, use a replacement table (createReplacement=1) so the old table
+  keeps serving queries while __NEXT fills; an admin switches it in at Special:CargoTables.
+```
 
 ## Tasks
 
@@ -129,12 +135,12 @@ Phase 7 does not use that path because the switch-in is not available through th
 
 ### Task V7: Freeze the Phase 3 storage contract
 
-- [ ] Update the Cargo architecture spec and Phase 3 plan with the final template names,
+- [x] Update the Cargo architecture spec and Phase 3 plan with the final template names,
       Cargo table owners, and production refresh sequence.
-- [ ] Remove any remaining wording that treats helper attaches as required.
-- [ ] Promote the accepted probe runner command into the Phase 3 / Phase 7 verification
+- [x] Remove any remaining wording that treats helper attaches as required.
+- [x] Promote the accepted probe runner command into the Phase 3 / Phase 7 verification
       commands.
-- [ ] Reconcile architecture §9: `{{ItemSource}}`/`{{SpawnPoint}}` attach and store
+- [x] Reconcile architecture §9: `{{ItemSource}}`/`{{SpawnPoint}}` attach and store
       community rows into the single-declaring-owner tables, with the recreation model
       stated; add cross-links between the validation plan, Phase 3, and the architecture spec.
 
@@ -172,3 +178,12 @@ operation actually failed. No broad rework — the probe is not core architectur
 - The probe runner fails closed: `validation_ok` is false whenever any Cargo operation
   (recreate-tables, recreate-data, purge) fails, and a raising scenario is reported
   rather than aborting the run.
+
+## Outcome
+
+The validated contract now lives in the design authority and the executable plan:
+
+- [`../2026-06-04-wiki-cargo-data-architecture.md`](../2026-06-04-wiki-cargo-data-architecture.md)
+  §2.1 / §9 / §10 / §15 — storage ownership and the two-path refresh model.
+- [`../2026-06-23-wiki-cargo-phase-3.md`](../2026-06-23-wiki-cargo-phase-3.md) — nested
+  store owners (no attach-trick) and the promoted probe command.
