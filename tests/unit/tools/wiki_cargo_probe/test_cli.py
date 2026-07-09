@@ -123,6 +123,32 @@ def test_recreate_batching_dry_run_main_reports_pages_tables_and_manual_cleanup_
     ]
 
 
+def test_replacement_table_dry_run_reports_original_and_next_cleanup_urls(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_if_live_config_is_loaded() -> None:
+        raise AssertionError("dry-run main must not load live wiki configuration")
+
+    monkeypatch.setattr(cli, "load_config", fail_if_live_config_is_loaded)
+
+    exit_code = cli.main(["--candidate", "replacement-table", "--prefix", "UnitProbe"])
+
+    assert exit_code == 0
+    dry_run = json.loads(capsys.readouterr().out)["dry_run"]
+    assert dry_run["live"] is False
+    assert dry_run["candidate"] == "replacement-table"
+    assert dry_run["prefix"] == "UnitProbe"
+    assert dry_run["pages"] == [
+        "User:WoWMuch/CargoStorageProbe/UnitProbe/Replacement",
+        "Template:CargoStorageProbe/UnitProbe/Replacement",
+    ]
+    assert dry_run["tables"] == ["UnitProbeReplacementItems", "UnitProbeReplacementItems__NEXT"]
+    assert dry_run["manual_table_cleanup_urls"] == [
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeReplacementItems",
+        "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/UnitProbeReplacementItems__NEXT",
+    ]
+
+
 def test_shim_import_exposes_main_and_keeps_dry_run_path(
     capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -19,6 +19,25 @@ def row_fields(row: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+def query_replacement_probe_row(context: ProbeRunContext, table: str, key: str) -> dict[str, Any]:
+    return context.query_cargo_table(
+        tables=table,
+        fields="_pageName=Page,ProbeKey,ProbeValue",
+        where="ProbeKey=" + cargo_string_literal(key),
+        limit=20,
+    )
+
+
+def replacement_row_matches(result: dict[str, Any], key: str) -> bool:
+    if not result.get("ok"):
+        return False
+    rows = result.get("rows", [])
+    if len(rows) != 1:
+        return False
+    fields = row_fields(rows[0])
+    return fields.get("ProbeKey") == key and fields.get("ProbeValue") == "Original"
+
+
 def field_values(rows: list[dict[str, Any]], field: str) -> list[str]:
     return sorted(str(row_fields(row).get(field, "")) for row in rows)
 

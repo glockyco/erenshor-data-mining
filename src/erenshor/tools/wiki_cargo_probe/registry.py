@@ -7,6 +7,7 @@ from .models import ProbeScenario
 from .scenarios.lifecycle import build_lifecycle_probe
 from .scenarios.multi_entity import build_multi_entity_probe
 from .scenarios.recreate_batching import build_recreate_batching_probe
+from .scenarios.replacement_table import build_replacement_table_probe
 from .scenarios.standard import build_direct_probe, build_lua_nested_probe, build_nested_probe
 
 
@@ -25,6 +26,7 @@ PROBE_BUILDERS: dict[str, ProbeBuilder] = {
     "lifecycle": lambda options: build_lifecycle_probe(options.prefix),
     "multi-entity": lambda options: build_multi_entity_probe(options.prefix),
     "recreate-batching": lambda options: build_recreate_batching_probe(options.prefix, options.batch_pages),
+    "replacement-table": lambda options: build_replacement_table_probe(options.prefix),
 }
 
 

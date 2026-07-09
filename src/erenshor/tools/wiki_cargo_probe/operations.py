@@ -56,12 +56,14 @@ class ProbeRunContext:
             purges.append(self.purge_pages(titles[start : start + batch_size]))
         return purges
 
-    def recreate_tables(self, template: str) -> dict[str, Any]:
+    def recreate_tables(self, template: str, *, create_replacement: bool = False) -> dict[str, Any]:
         try:
             return {
                 "ok": True,
+                "create_replacement": create_replacement,
                 "response": self.client.recreate_cargo_tables(
                     template,
+                    create_replacement=create_replacement,
                     assertion="user",
                     assert_user=self.owner,
                 ),
@@ -69,6 +71,7 @@ class ProbeRunContext:
         except MediaWikiAPIError as exc:
             return {
                 "ok": False,
+                "create_replacement": create_replacement,
                 "label": "cargorecreatetables " + template,
                 "code": exc.code,
                 "info": exc.info,

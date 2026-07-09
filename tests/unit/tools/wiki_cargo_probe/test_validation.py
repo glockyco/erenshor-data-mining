@@ -8,6 +8,7 @@ from erenshor.tools.wiki_cargo_probe.queries import (
     lifecycle_key_matches,
     lifecycle_state_matches,
     query_table,
+    replacement_row_matches,
     reverse_page_title_is_ambiguous,
     reverse_rows_match_keys,
     rows_present,
@@ -29,6 +30,36 @@ def test_query_table_escapes_apostrophes_in_probe_keys() -> None:
 
     assert query_table(cast("Any", context), "ProbeTable", "O'Brien") == {"ok": True, "rows": []}
     assert context.where == "ProbeKey='O''Brien'"
+
+
+def test_replacement_row_validation_requires_one_matching_original_probe_row() -> None:
+    matching_row = {"title": {"ProbeKey": "UnitProbeKey", "ProbeValue": "Original"}}
+
+    assert replacement_row_matches({"ok": True, "rows": [matching_row]}, "UnitProbeKey") is True
+    assert (
+        replacement_row_matches(
+            {"ok": True, "rows": [{"ProbeKey": "UnitProbeKey", "ProbeValue": "Original"}]},
+            "UnitProbeKey",
+        )
+        is True
+    )
+    assert replacement_row_matches({"ok": False, "rows": [matching_row]}, "UnitProbeKey") is False
+    assert replacement_row_matches({"ok": True, "rows": []}, "UnitProbeKey") is False
+    assert replacement_row_matches({"ok": True, "rows": [matching_row, matching_row]}, "UnitProbeKey") is False
+    assert (
+        replacement_row_matches(
+            {"ok": True, "rows": [{"title": {"ProbeKey": "WrongKey", "ProbeValue": "Original"}}]},
+            "UnitProbeKey",
+        )
+        is False
+    )
+    assert (
+        replacement_row_matches(
+            {"ok": True, "rows": [{"title": {"ProbeKey": "UnitProbeKey", "ProbeValue": "Changed"}}]},
+            "UnitProbeKey",
+        )
+        is False
+    )
 
 
 def test_multi_entity_reverse_validation_requires_item_keys_and_flags_shared_page_ambiguity() -> None:

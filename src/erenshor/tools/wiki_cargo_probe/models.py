@@ -19,6 +19,7 @@ ScenarioKind = Literal[
     "lifecycle",
     "multi-entity",
     "recreate-batching",
+    "replacement-table",
 ]
 
 

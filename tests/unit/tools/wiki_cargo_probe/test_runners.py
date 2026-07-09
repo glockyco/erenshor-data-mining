@@ -8,6 +8,10 @@ from erenshor.tools.wiki_cargo_probe.scenarios.recreate_batching import (
     RecreateBatchingScenario,
     build_recreate_batching_probe,
 )
+from erenshor.tools.wiki_cargo_probe.scenarios.replacement_table import (
+    ReplacementTableScenario,
+    build_replacement_table_probe,
+)
 from erenshor.tools.wiki_cargo_probe.scenarios.standard import StandardProbeScenario, build_direct_probe
 
 
@@ -247,6 +251,37 @@ class RecreateBatchingFakeContext(BaseFakeContext):
         raise AssertionError(text)
 
 
+class ReplacementTableFakeContext(BaseFakeContext):
+    def __init__(self, candidate: ReplacementTableScenario) -> None:
+        super().__init__()
+        self.candidate = candidate
+
+    def recreate_tables(self, template: str, *, create_replacement: bool = False) -> dict[str, Any]:
+        self.events.append(("recreate_tables", template, create_replacement))
+        return {
+            "ok": True,
+            "create_replacement": create_replacement,
+            "response": {"success": True},
+        }
+
+    def query_cargo_table(
+        self, *, tables: str, fields: str, where: str | None = None, limit: int = 50
+    ) -> dict[str, Any]:
+        del limit
+        self.events.append(("query", tables, fields, where))
+        if fields == "COUNT(*)=Rows":
+            count = 0 if tables == self.candidate.replacement_table else 1
+            return {"ok": True, "rows": [{"title": {"Rows": str(count)}}]}
+        if fields == "_pageName=Page,ProbeKey,ProbeValue":
+            if tables == self.candidate.replacement_table:
+                return {"ok": True, "rows": []}
+            return {
+                "ok": True,
+                "rows": [{"title": {"ProbeKey": self.candidate.key, "ProbeValue": "Original"}}],
+            }
+        raise AssertionError(fields)
+
+
 def test_standard_runner_executes_direct_workflow() -> None:
     candidate = build_direct_probe("UnitProbe")
     context = StandardFakeContext(candidate)
@@ -314,3 +349,52 @@ def test_recreate_batching_runner_recreates_each_table_once_then_polls_expected_
     assert typed_result["initial_counts"]["matches"] is True
     assert typed_result["counts_after_cargorecreatetables"]["matches"] is True
     assert typed_result["counts_after_cargorecreatedata"]["matches"] is True
+
+
+def test_replacement_table_runner_records_hidden_rows_before_switch_in() -> None:
+    candidate = build_replacement_table_probe("UnitProbe")
+    context = ReplacementTableFakeContext(candidate)
+
+    result = candidate.run(cast("Any", context), poll_seconds=23)
+    typed_result = cast("dict[str, Any]", result)
+
+    assert result["validation_ok"] is True
+    assert result["initial_cargorecreatetables"] == {
+        "ok": True,
+        "create_replacement": False,
+        "response": {"success": True},
+    }
+    assert result["create_replacement"] == {
+        "ok": True,
+        "create_replacement": True,
+        "response": {"success": True},
+    }
+    assert typed_result["initial_original_count"]["count"] == 1
+    expected_original_row = {
+        "ok": True,
+        "rows": [{"title": {"ProbeKey": candidate.key, "ProbeValue": "Original"}}],
+    }
+    assert result["initial_original_row"] == expected_original_row
+    assert typed_result["replacement_count"]["count"] == 0
+    assert result["replacement_row"] == {"ok": True, "rows": []}
+    assert result["replacement_queryable_before_switch"] is False
+    assert result["replacement_rows_hidden_before_switch"] is True
+    assert (
+        result["replacement_population_verification"]
+        == "Replacement table rows are not API-queryable before Special:CargoTables switch-in"
+    )
+    assert typed_result["original_after_replacement_count"]["count"] == 1
+    assert result["original_after_replacement_row"] == expected_original_row
+    assert result["switch_in_contract"] == "Special:CargoTables UI after replacement population completes"
+    assert [event for event in context.events if event[0] == "create"] == [
+        ("create", candidate.template.title, candidate.template.content),
+        ("create", candidate.page_title, candidate.page_content),
+    ]
+    assert [event for event in context.events if event[0] == "recreate_tables"] == [
+        ("recreate_tables", candidate.template_name, False),
+        ("recreate_tables", candidate.template_name, True),
+    ]
+    assert [event for event in context.events if event[0] == "cleanup"] == [
+        ("cleanup", candidate.page_title),
+        ("cleanup", candidate.template.title),
+    ]

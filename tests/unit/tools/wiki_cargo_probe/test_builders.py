@@ -4,6 +4,7 @@ from erenshor.tools.wiki_cargo_probe.models import MANUAL_DELETE_BASE, manual_cl
 from erenshor.tools.wiki_cargo_probe.scenarios.lifecycle import build_lifecycle_probe
 from erenshor.tools.wiki_cargo_probe.scenarios.multi_entity import build_multi_entity_probe
 from erenshor.tools.wiki_cargo_probe.scenarios.recreate_batching import build_recreate_batching_probe
+from erenshor.tools.wiki_cargo_probe.scenarios.replacement_table import build_replacement_table_probe
 from erenshor.tools.wiki_cargo_probe.scenarios.standard import (
     build_direct_probe,
     build_lua_nested_probe,
@@ -185,6 +186,32 @@ def test_recreate_batching_probe_builds_one_page_per_item_with_matching_storage_
         "|use1=UnitProbeBatchUse0003\n"
         "}}\n",
     )
+
+
+def test_replacement_table_probe_builds_isolated_page_template_and_cleanup_tables() -> None:
+    candidate = build_replacement_table_probe("UnitProbe")
+
+    assert candidate.kind == "replacement-table"
+    assert candidate.key == "UnitProbeReplacementKey"
+    assert candidate.page_title == "User:WoWMuch/CargoStorageProbe/UnitProbe/Replacement"
+    assert candidate.template_name == "CargoStorageProbe/UnitProbe/Replacement"
+    assert candidate.table == "UnitProbeReplacementItems"
+    assert candidate.replacement_table == "UnitProbeReplacementItems__NEXT"
+    assert candidate.template.title == "Template:CargoStorageProbe/UnitProbe/Replacement"
+    assert candidate.page_content == "{{CargoStorageProbe/UnitProbe/Replacement|key=UnitProbeReplacementKey}}\n"
+    assert candidate.page_titles == (candidate.page_title,)
+    assert candidate.template_pages == (candidate.template,)
+    assert candidate.table_names == (candidate.table, candidate.replacement_table)
+    assert manual_cleanup_urls(candidate.table_names) == [
+        MANUAL_DELETE_BASE + "UnitProbeReplacementItems",
+        MANUAL_DELETE_BASE + "UnitProbeReplacementItems__NEXT",
+    ]
+    assert "#cargo_store:_table=UnitProbeReplacementItems" in candidate.template.content
+    assert "ProbeKey={{{key|}}}" in candidate.template.content
+    assert "ProbeValue=Original" in candidate.template.content
+    assert "#cargo_declare:_table=UnitProbeReplacementItems" in candidate.template.content
+    assert "ProbeKey=String" in candidate.template.content
+    assert "ProbeValue=String" in candidate.template.content
 
 
 def test_manual_cleanup_urls_prefixes_tables() -> None:
