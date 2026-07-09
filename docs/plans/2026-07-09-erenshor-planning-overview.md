@@ -25,10 +25,10 @@ point-in-time findings belong in audits. When an item ships, it leaves this queu
    `ObtainedFrom`/`UsedIn` model, item flags, `Spawns`, and `CharacterAbilities`,
    while the export-gap audit classifies which missing playtest fields block the
    promotion surfaces and which stay parked.
-2. **Cut over wiki content safely.** Once Cargo relationships are correct locally and
-   the live attach-trick/repopulate gate is resolved, finish the remaining dual-path
-   templates, thin-page generation, community-row templates, production recreate
-   automation or an admin-run recreate runbook, and the incremental article cutover.
+2. **Cut over wiki content safely.** With the live storage model validated (nested
+   store owners; reparse for data, recreate only on a schema change), finish the
+   remaining dual-path templates, thin-page generation, community-row templates, the
+   production deploy/refresh path, and the incremental article cutover.
 3. **Publish map/domain changes after wiki links are stable.** The map domain and URL
    restructure changes canonical URLs and wiki backlinks. It should happen once, after
    the wiki data model and map-link template expectations are settled, so external URLs
@@ -47,16 +47,8 @@ first; then live-deploy gates that can invalidate the architecture; then the wik
 migration phases that depend on those gates; then URL/domain publishing; then map UX;
 then residual export/data debt. Evidence-gated items never start before their gate.
 
-**P0 — unblock the wiki Cargo implementation**
-1. **Cargo storage-shape + repopulate gate** *(inside
-   `2026-06-23-wiki-cargo-phase-3`)* — live probes show both direct multi-attach and
-   nested storage templates can store 3-table item rows on wiki.gg. Phase 3B should use
-   nested storage templates because each Cargo table has one declaring/storing template;
-   Phase 7 still needs a production-scale recreate runbook that runs
-   `cargorecreatetables` for schemas and `cargorecreatedata` for row repopulation.
-
 **P1 — promotion-critical data model**
-2. **Promotion-facing export-gap triage** *(audit in
+1. **Promotion-facing export-gap triage** *(audit in
    `docs/audits/2026-07-04-export-gap-analysis.md`)* — classify the audited playtest
    gaps into promotion-blocking vs deferrable before article/sheets/guide deploy.
    Blocking candidates are `SimsNeedHelpToLearn`, `RaidCapable`, `UseZoneAsTempBind`,
@@ -65,55 +57,55 @@ then residual export/data debt. Evidence-gated items never start before their ga
    (`BaseArmorPenPercentage`, `BaseAttackRollModifier`, `CannotBeSnared`), and the
    item-quality/combat formula documentation changes. This does not replace Phase 3;
    it decides which audited fields must ride with the promotion data refresh.
-3. **`2026-06-23-wiki-cargo-phase-3`** *(plan, active)* — implement the item-owned
+2. **`2026-06-23-wiki-cargo-phase-3`** *(plan, active)* — implement the item-owned
    `ObtainedFrom`/`UsedIn` tables, playtest-pinned `IsAuctionable`, `IsRare`,
    `class_starting_items`, `Spawns` with treasure-chest locations, and
    `CharacterAbilities`; fold/delete `Drops`/`ContainerDrops`; move reverse rendering
    to Cargo. This is first because later wiki cutover work is unsafe without correct
    relationship tables and recreate behavior.
-4. **`2026-06-04-wiki-cargo-data-architecture`** *(spec, active)* — keep as the design
+3. **`2026-06-04-wiki-cargo-data-architecture`** *(spec, active)* — keep as the design
    authority while Phase 3 and later phases change reality. Update it only when the
    implementation discovers a better steady-state design.
 
 **P2 — wiki cutover phases after Phase 3 is green**
-5. **Community contribution layer** *(future Phase 4 plan from the Cargo spec)* — add
+4. **Community contribution layer** *(future Phase 4 plan from the Cargo spec)* — add
    `{{ItemSource}}` → `ObtainedFrom` and `{{SpawnPoint}}` → `Spawns`, stablekey
    validation, and editor docs. It waits for Phase 3 because Phase 3 declares the final
    schemas and generated rows.
-6. **Dual-path remaining templates + thin-page generator** *(future Phases 5–6 plans)* —
+5. **Dual-path remaining templates + thin-page generator** *(future Phases 5–6 plans)* —
    add legacy fallbacks for spell/skill/stance/zone/quest templates, then generate thin
    `{{Type|stablekey=…}}` article pages while preserving community content. It waits for
    the Cargo model and community-row templates because article conversion should be a
    clean cutover, not a second migration.
-7. **Production wiki cutover** *(future Phase 7 plan)* — TemplateSandbox gate, deploy
-   modules/templates, recreate Cargo via bot or admin runbook, repopulate rows through
-   the proven production mechanism, incrementally convert pages, retire legacy branches,
-   smoke live pages, and report orphan pages for manual deletion.
+6. **Production wiki cutover** *(future Phase 7 plan)* — TemplateSandbox gate, deploy
+   modules/templates, create the Cargo tables, then refresh by reparse (recreate only on
+   schema change; replacement table for a large recreate), incrementally convert pages,
+   retire legacy branches, smoke live pages, and report orphan pages for manual deletion.
 
 **P3 — map/domain publishing once wiki backlinks are stable**
-8. **`2026-06-26-maps-domain-url-migration`** *(plan, active; blocked on go-ahead)* —
+7. **`2026-06-26-maps-domain-url-migration`** *(plan, active; blocked on go-ahead)* —
    bind `erenshor.compendiums.org`, move zone maps to `/maps/{slug}`, deploy legacy
    redirects, and update backlinks we control. Ship domain + URL restructure together
    so URLs churn once. The wiki map-link template update should happen after the Cargo
    template path is known.
-9. **Crawlable `/zones` content layer** *(draft child of maps-domain work)* — textual
+8. **Crawlable `/zones` content layer** *(draft child of maps-domain work)* — textual
    zone reference pages belong after `/maps/{slug}` is established and wiki/map links
    have settled. Keep it draft until the domain migration is either scheduled or done.
 
 **P4 — independent map UX features**
-10. **`2026-06-27-map-annotations`** *(spec, active)* — useful standalone feature; no
+9. **`2026-06-27-map-annotations`** *(spec, active)* — useful standalone feature; no
     backend dependency. Start when wiki/data work is blocked on live permissions or after
     P3 ships.
-11. **Map search deferred UX** *(note, active)* — per-category empty states and recent
+10. **Map search deferred UX** *(note, active)* — per-category empty states and recent
     searches are polish. Graduate only if working in the search area anyway.
 
 **P5 — residual data/export debt**
-12. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan spectres as
+11. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan spectres as
     per-zone random appearances, not fixed spawn points. This becomes important when the
     remaining orphan count or character-page completeness is the active concern.
-13. **LootTable gold range export** *(plan, parked)* — straightforward export/clean DB
+12. **LootTable gold range export** *(plan, parked)* — straightforward export/clean DB
     work, explicitly skipped for now. Resume only if a consumer needs static gold ranges.
-14. **Small content debt, no planning doc needed:** hand-curate the four new planar zone
+13. **Small content debt, no planning doc needed:** hand-curate the four new planar zone
     pages before the next wiki article deploy; document forging/merge mechanics before
     exposing Merging Vessel as a `UsedIn` relationship.
 
@@ -123,10 +115,11 @@ then residual export/data debt. Evidence-gated items never start before their ga
   code-fact, wiki Lua, and golden work until promotion. Commands that write shared
   outputs (`golden capture`, wiki deploy, guide compile, maps deploy) are safe only
   because playtest is the cutover build.
-- **Live Cargo recreate access.** The main-account probe can drive schema recreation and
-  per-table data recreation. Do not treat a successful `cargorecreatetables` response
-  as a complete production refresh; rows repopulate via `cargorecreatedata` or an
-  equivalent admin-run job.
+- **Cargo refresh model.** A data-only change needs no recreate — reparsing a page
+  rewrites its rows in place; recreate (`cargorecreatetables` + `cargorecreatedata`) is
+  for schema changes, and a large-table recreate uses a replacement table with a manual
+  `Special:CargoTables` switch-in. The main account holds the recreate right; confirming
+  the deploy bot's `recreatecargodata` right stays a Phase 7 gate.
 - **Wiki article deploy is single-target.** `erenshor.wiki.gg` is not variant-scoped;
   do not deploy article changes from a non-shipping build.
 - **Golden baselines are shared.** Recapture only for the build we intend to ship and
@@ -142,6 +135,10 @@ then residual export/data debt. Evidence-gated items never start before their ga
 - Map search deferred UX — polish backlog; keep as a note.
 - Research-grade or speculative data gaps without a current consumer stay out of the
   queue until an audit or user-facing surface ranks them.
+- Cargo probe runner deep refactor — declarative scenario specs, one shared
+  transaction/cleanup runner, a metadata descriptor registry, and a public MediaWiki
+  adapter (replacing direct `client._request`). The probe is a one-off diagnostic whose
+  verdict is now fail-closed; the rewrite is optional polish, not scheduled.
 
 ## Reference map
 
