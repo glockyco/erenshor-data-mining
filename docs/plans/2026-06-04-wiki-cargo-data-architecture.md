@@ -368,12 +368,19 @@ World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey
 |---|---|---|
 | `craft_material` | `crafting_recipes` | ItemLink (recipe) |
 | `quest_requirement` | `quest_required_items` | QuestLink |
-| `upgrade_material` | smithing special-combine consumables via the `smithing.upgrade_ids` code fact (playtest: `31377423`/`46289586`/`2298018`/`2265228` = Mold: An Otherwordly Box, Planar Stone, Inert Diamond, Merging Vessel); never transcribed from `Smithing.cs` | ItemLink (recipe) |
+| `upgrade_material` | smithing quality upgrade consumables from the heterogeneous `smithing.upgrade_ids` code fact: `31377423` (Mold: An Otherwordly Box) + `46289586` (Planar Stone fuel) | ItemLink (recipe) |
+| `blessing_removal_material` | smithing blessing-removal consumable from `smithing.upgrade_ids`: `2298018` (Inert Diamond) | ItemLink (recipe) |
 
-`craft` (result → `ObtainedFrom`) and `craft_material`/`upgrade_material` (inputs →
-`UsedIn`) make dedicated crafting tables unnecessary; the recipe item renders its
-forward ingredient/result list from its Lua module, while `ObtainedFrom`/`UsedIn`
-are the reverse indices.
+`craft` (result → `ObtainedFrom`) and `craft_material`/`upgrade_material`/
+`blessing_removal_material` (inputs → `UsedIn`) make dedicated crafting tables
+unnecessary; the recipe item renders its forward ingredient/result list from its Lua
+module, while `ObtainedFrom`/`UsedIn` are the reverse indices.
+
+`smithing.upgrade_ids` is a `string_constants` fact over `Smithing.Combine`, so it
+intentionally bundles heterogeneous string literals. Consumers must classify the set
+by game semantics, not map every ID to `upgrade_material`: `2265228` (Merging Vessel)
+is the distinct item-merge/forge mechanic (`Smithing.cs:159-240`) and remains deferred
+until the forging mechanic is documented/modelled.
 
 **Auction house** is a derived per-item flag, not an `ObtainedFrom` row (no discrete
 source): `Items.IsAuctionable` (§7.1). `RareItem` (`IsRare`) only soft-rejects the

@@ -23,8 +23,8 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 ## Grounding (verified before planning)
 
 - **Item-owned decision:** only `Item.lua` and `Character.lua` have `cargoStore` today (`wiki/modules/Erenshor/{Item,Character}.lua`). `Quest.lua`/`Zone.lua` do not and there is no Class template, so quest/zone/class-owned `ObtainedFrom` rows are impossible until Phase 5. Making `ObtainedFrom`/`UsedIn` item-owned makes Phase 3 fully harness-testable now.
-- **Taxonomy is complete & deterministic.** `ObtainedFrom` SourceTypes: `drop, vendor, dialog, quest, craft, item_use, mining, fishing, item_bag, starting`. `UsedIn` UseTypes: `craft_material, quest_requirement, upgrade_material`. Treasure hunting = the four `Lost Treasure (…)` **chest characters** carrying authored `loot_drops` (covered by `drop`, no special-casing). Wishing wells grant nothing (coordinate markers only).
-- **Existing repos** already answer most reverse queries: `get_vendors_selling_item`, `get_characters_dropping_item` (`repositories/characters.py:262,311`), `get_item_drops`/`get_item_sources` (`repositories/items.py:528,568`), `get_quests_rewarding_item` (uses `quest_variants.item_on_complete_stable_key`, `repositories/quests.py:72`), `get_quests_requiring_item` (`:109`), `get_items_requiring_item` (`:233`), and Spawns reads `wiki_character_spawns` (`repositories/spawn_points.py:47`). New methods needed: dialog, craft-reward, mining, fishing, item_bag, starting, upgrade_material.
+- **Taxonomy is complete & deterministic.** `ObtainedFrom` SourceTypes: `drop, vendor, dialog, quest, craft, item_use, mining, fishing, item_bag, starting`. `UsedIn` UseTypes: `craft_material, quest_requirement, upgrade_material, blessing_removal_material`. Treasure hunting = the four `Lost Treasure (…)` **chest characters** carrying authored `loot_drops` (covered by `drop`, no special-casing). Wishing wells grant nothing (coordinate markers only).
+- **Existing repos** already answer most reverse queries: `get_vendors_selling_item`, `get_characters_dropping_item` (`repositories/characters.py:262,311`), `get_item_drops`/`get_item_sources` (`repositories/items.py:528,568`), `get_quests_rewarding_item` (uses `quest_variants.item_on_complete_stable_key`, `repositories/quests.py:72`), `get_quests_requiring_item` (`:109`), `get_items_requiring_item` (`:233`), and Spawns reads `wiki_character_spawns` (`repositories/spawn_points.py:47`). New methods needed: dialog, craft-reward, mining, fishing, item_bag, starting, smithing special uses.
 - **Code facts already extracted** (playtest `code_facts` table, values are comparison strings). The pins are the **playtest** renderings (the shipping build's renderings):
   - `auction.updateah_gates` → `item_level='>= 40'`, `item_value='<= 0'`
   - `auction.replacebag_gates` → `item_level='<= 0,> 39'`, `rare_reject_roll='< 19'`
@@ -414,30 +414,30 @@ World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey
 
 ## Sub-phase 3C — `UsedIn` unified table (item-owned)
 
-Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requirement`, `upgrade_material`.
+Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requirement`, `upgrade_material`, and `blessing_removal_material`.
 
 ### Task C1: Declare-only `UsedIn` table + harness wiring
 
 **Files:** `wiki/templates/UsedIn.wiki`, `wiki-dev/smoke/cargo.py`, `cargo_check.py`.
 
-- [ ] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — reserved-word check (`SLOT` is safe; confirm). Write the declare-only owner mirroring `ObtainedFrom.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material`.
+- [ ] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — reserved-word check (`SLOT` is safe; confirm). Write the declare-only owner mirroring `ObtainedFrom.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material|blessing_removal_material`. The Merging Vessel forge/merge mechanic (`2265228`) is not emitted in Phase 3.
 - [ ] **Step 2:** smoke fields/key (`("ItemKey","UseType","TargetKey")`) + checker; register in `cargo_check.py`.
 - [ ] **Step 3:** recreate clean.
 - [ ] **Step 4: Commit** — `feat(wiki): declare the unified UsedIn Cargo junction`
 
-### Task C2: `upgrade_material` via the `smithing.upgrade_ids` code fac
+### Task C2: smithing special-use materials via the `smithing.upgrade_ids` code fact
 
-**Files:** new repo method `get_item_upgrade_uses(item_key)` + a small code-fact-backed resolver; tests.
+**Files:** new repo method `get_item_smithing_special_uses(item_key)` + a small code-fact-backed resolver; tests.
 
-- [ ] **Step 1: Write failing tests:** (a) the resolver maps `code_facts['smithing.upgrade_ids']` (CSV of `items.id`) through `items.id → stable_key`, asserting `46289586 → item:ore - planar stone` and `2265228 → item:template - merging vessel`; (b) a drift gate hard-fails if the fact is absent or its ID set differs from the pinned four (`31377423,46289586,2298018,2265228`).
-- [ ] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, and returns `(item_key, UseType='upgrade_material', context)` for each of the four special-combine consumables. Tag `# code-fact: smithing.upgrade_ids`. The standard data-driven craft inputs are `craft_material` (next task), not `upgrade_material`; only the four hardcoded special-combine consumables are `upgrade_material`.
+- [ ] **Step 1: Write failing tests:** (a) the resolver reads `code_facts['smithing.upgrade_ids']` (CSV of `items.id`) and validates the full pinned set `31377423,46289586,2298018,2265228`; (b) it maps `46289586 → item:ore - planar stone` as `UseType='upgrade_material'`; (c) it maps `2298018 → item:template - inert diamond` as `UseType='blessing_removal_material'`; (d) it explicitly does **not** emit a row for `2265228 → item:template - merging vessel`; (e) the drift gate hard-fails if the fact is absent or the ID set differs.
+- [ ] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, validates the full four-ID set, then classifies by game semantics from `Smithing.Combine`: `31377423` + `46289586` → `upgrade_material`; `2298018` → `blessing_removal_material`; `2265228` → deferred forge/merge mechanic, no `UsedIn` row in Phase 3. Tag `# code-fact: smithing.upgrade_ids`. The fact name is historical: the matcher is `string_constants`, so it bundles heterogeneous string literals from `Smithing.Combine`; consumers must classify, not bulk-map.
 - [ ] **Step 3:** `craft_material` from `crafting_recipes WHERE material_item_stable_key = ?` → `(recipe ItemLink, quantity, slot)`; `quest_requirement` reuses `get_quests_requiring_item`.
 - [ ] **Step 4:** tests green.
-- [ ] **Step 5: Commit** — `feat(pipeline): resolve UsedIn rows incl. smithing upgrade materials via code facts`
+- [ ] **Step 5: Commit** — `feat(pipeline): resolve UsedIn rows for smithing special materials via code facts`
 
 ### Task C3: Python builder — `usedIn` on the item data module
 
-- [ ] Mirror B3: `_format_used_in(sources)` → `usedIn` list `{type, targetKey, quantity, slot}`; extend `SourceInfo`/`build_item_sources_by_item`; `_put(row, "usedIn", ...)`. Tests for each UseType. **Commit** — `feat(wiki): build the item usedIn list in Lua data`
+- [ ] Mirror B3: `_format_used_in(sources)` → `usedIn` list `{type, targetKey, quantity, slot}`; extend `SourceInfo`/`build_item_sources_by_item`; `_put(row, "usedIn", ...)`. Tests for each emitted UseType (`craft_material`, `quest_requirement`, `upgrade_material`, `blessing_removal_material`). **Commit** — `feat(wiki): build the item usedIn list in Lua data`
 
 ### Task C4: Lua store + attach-trick (Item → 3 tables)
 
@@ -445,7 +445,7 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 ### Task C5: Fixtures + smoke
 
-- [ ] `wiki-dev/fixtures/cargo_used_in.tsv` + a recipe-material fixture (e.g. Planar Stone → `upgrade_material`; an ingredient item → `craft_material`); `cargo_check.py` green. **Commit** — `test(wiki): cover UsedIn rows on the local harness`
+- [ ] `wiki-dev/fixtures/cargo_used_in.tsv` + fixtures for Planar Stone → `upgrade_material`, Inert Diamond → `blessing_removal_material`, and a normal ingredient item → `craft_material`; `cargo_check.py` green. **Commit** — `test(wiki): cover UsedIn rows on the local harness`
 
 ---
 
@@ -502,8 +502,8 @@ Every non-standard obtainability/usage path found in the game code is listed her
 |---|---|---|
 | Vendor quest-unlock | `VendorWindow.cs:57-60`, `character_vendor_quest_unlocks` | **Implemented** — `vendor` + `SourceCondition` (Task B2) |
 | Smithing golden combine | `Smithing.cs:83` (`31377423` Mold: An Otherwordly Box + `46289586` Planar Stone) | **Implemented** — `upgrade_material` via `smithing.upgrade_ids` (Task C2) |
-| Smithing blessing removal | `Smithing.cs:115` (`2298018` Inert Diamond) | **Implemented** — `upgrade_material` (Task C2) |
-| Smithing merging vessel combine | `Smithing.cs` (`2265228` Merging Vessel, playtest-only 4th special-combine consumable) | **Implemented** — `upgrade_material` via `smithing.upgrade_ids` (Task C2) |
+| Smithing blessing removal | `Smithing.cs:120` (`2298018` Inert Diamond) | **Implemented** — `blessing_removal_material` via `smithing.upgrade_ids` (Task C2) |
+| Smithing merge/forge box | `Smithing.cs:159-240` (`2265228` Merging Vessel; requires fuel, two matching items, 15-qty cap) | **Deferred** — distinct forge/merge mechanic; keep out of Phase 3 `UsedIn` until the item forging mechanic is documented/modelled. |
 | Break Fossil | `SpellVessel.cs:1942`, `item_drops` | **Implemented** — `item_use` (Task B2/B3) |
 | Offering Stone bag | `SpellVessel.cs:2043` (id `340104`), `spell_created_items` | **Implemented** — `item_use` (Task B2/B3) |
 | PlanarShard byproduct | `Smithing.cs:278` (`GM.PlanarShard`, blessing-removal output) | **Deferred** — hardcoded output, no data table; needs a `smithing.planar_shard_output` code fact. |
@@ -549,7 +549,7 @@ admin-run recreate runbook rather than bot-driven production automation.
 
 - **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable/IsRare → A5/A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
 - **Ownership trap:** resolved by item-owning ObtainedFrom/UsedIn; quest/zone/class need no Cargo template in Phase 3.
-- **Code-fact boundary:** every constant (auction bounds, upgrade IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.updateah_gates.item_level` pins `'>= 40'`, and `smithing.upgrade_ids` pins all four IDs incl. `2265228` (Merging Vessel).
+- **Code-fact boundary:** every constant (auction bounds, smithing string IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.updateah_gates.item_level` pins `'>= 40'`, and `smithing.upgrade_ids` pins the full four-ID set while classifying only the upgrade/blessing-removal IDs into Phase 3 `UsedIn` rows.
 - **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
 - **Type consistency:** `obtainedFrom`/`usedIn` Lua field names, `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used identically across B/C/E.
 - **Deferred paths:** enumerated in SP1 and retained in planning docs, none dropped silently.
