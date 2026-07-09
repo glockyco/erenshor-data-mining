@@ -21,7 +21,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from erenshor.infrastructure.config.loader import load_config
 from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
@@ -87,6 +87,7 @@ class MultiEntityCandidate:
 @dataclass(frozen=True, slots=True)
 class RecreateBatchingCandidate:
     kind: Literal["recreate-batching"]
+    prefix: str
     page_titles: tuple[str, ...]
     page_contents: tuple[str, ...]
     template_base: str
@@ -555,6 +556,7 @@ def build_recreate_batching_candidate(prefix: str, page_count: int) -> RecreateB
     )
     return RecreateBatchingCandidate(
         kind="recreate-batching",
+        prefix=prefix,
         page_titles=page_titles,
         page_contents=page_contents,
         template_base=storage.template_base,
@@ -618,6 +620,19 @@ def create_page(client: MediaWikiClient, title: str, content: str) -> None:
     if page_exists(client, title):
         raise RuntimeError("Refusing to overwrite existing probe page: " + title)
     client.edit_page(title, content, summary="Create temporary Cargo storage probe", create_only=True, bot=True)
+
+
+def create_tracked_page(client: MediaWikiClient, created: list[str], title: str, content: str) -> None:
+    create_page(client, title, content)
+    created.append(title)
+
+
+def cleanup_created_pages(client: MediaWikiClient, created: list[str]) -> list[dict[str, Any]]:
+    return [{"title": title, "result": delete_page(client, title)} for title in reversed(created)]
+
+
+def forget_created_page(created: list[str], title: str) -> None:
+    created.remove(title)
 
 
 def recreate_tables(client: MediaWikiClient, template: str) -> dict[str, Any]:
@@ -799,6 +814,23 @@ def batch_counts_match(counts: dict[str, Any], expected_count: int) -> bool:
     return all(result.get("ok") and result.get("count") == expected_count for result in counts.values())
 
 
+def poll_until(
+    query: Callable[[], dict[str, Any]],
+    matches: Callable[[dict[str, Any]], bool],
+    seconds: int,
+    attempt_key: str,
+) -> dict[str, Any]:
+    deadline = time.time() + seconds
+    attempts: list[dict[str, Any]] = []
+    while True:
+        snapshot = query()
+        matched = matches(snapshot)
+        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), attempt_key: snapshot})
+        if matched or time.time() >= deadline:
+            return {"matches": matched, "final": snapshot, "last_attempts": attempts[-5:]}
+        time.sleep(5)
+
+
 def query_batch_samples(client: MediaWikiClient, candidate: RecreateBatchingCandidate) -> dict[str, Any]:
     return {key: query_lifecycle_key(client, candidate, key) for key in candidate.sample_item_keys}
 
@@ -809,8 +841,8 @@ def batch_sample_matches(candidate: RecreateBatchingCandidate, sample_state: dic
         if not lifecycle_key_matches(
             sample_state,
             key,
-            (_batch_source_key(candidate.item_keys[0].removesuffix("BatchItem0001"), index),),
-            (_batch_use_key(candidate.item_keys[0].removesuffix("BatchItem0001"), index),),
+            (_batch_source_key(candidate.prefix, index),),
+            (_batch_use_key(candidate.prefix, index),),
         ):
             return False
     return True
@@ -822,15 +854,12 @@ def wait_for_batch_counts(
     seconds: int,
     expected_count: int,
 ) -> dict[str, Any]:
-    deadline = time.time() + seconds
-    attempts: list[dict[str, Any]] = []
-    while True:
-        counts = query_batch_counts(client, candidate)
-        matches = batch_counts_match(counts, expected_count)
-        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "counts": counts})
-        if matches or time.time() >= deadline:
-            return {"matches": matches, "final": counts, "last_attempts": attempts[-5:]}
-        time.sleep(5)
+    return poll_until(
+        lambda: query_batch_counts(client, candidate),
+        lambda counts: batch_counts_match(counts, expected_count),
+        seconds,
+        "counts",
+    )
 
 
 def multi_entity_key_state_matches(state: dict[str, Any], key: str) -> bool:
@@ -917,11 +946,9 @@ def wait_for_lifecycle_state(
     removed_present: bool = True,
     item_present: bool = True,
 ) -> dict[str, Any]:
-    deadline = time.time() + seconds
-    attempts: list[dict[str, Any]] = []
-    while True:
-        state = query_lifecycle_state(client, candidate)
-        matches = lifecycle_state_matches(
+    return poll_until(
+        lambda: query_lifecycle_state(client, candidate),
+        lambda state: lifecycle_state_matches(
             state,
             candidate,
             item_sources,
@@ -930,11 +957,10 @@ def wait_for_lifecycle_state(
             removed_uses,
             removed_present=removed_present,
             item_present=item_present,
-        )
-        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "state": state})
-        if matches or time.time() >= deadline:
-            return {"matches": matches, "final": state, "last_attempts": attempts[-5:]}
-        time.sleep(5)
+        ),
+        seconds,
+        "state",
+    )
 
 
 def edit_existing_page(client: MediaWikiClient, title: str, content: str, summary: str) -> None:
@@ -952,19 +978,18 @@ def rows_present(queries: dict[str, Any], expected_counts: dict[str, int]) -> bo
 
 
 def wait_for_rows(client: MediaWikiClient, candidate: ProbeCandidate, seconds: int) -> dict[str, Any]:
-    deadline = time.time() + seconds
-    attempts: list[dict[str, Any]] = []
-    while True:
-        queries = query_all(client, candidate)
-        attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "queries": queries})
-        if rows_present(queries, candidate.expected_counts) or time.time() >= deadline:
-            return {
-                "present": rows_present(queries, candidate.expected_counts),
-                "expected_counts": candidate.expected_counts,
-                "final": queries,
-                "last_attempts": attempts[-5:],
-            }
-        time.sleep(5)
+    result = poll_until(
+        lambda: query_all(client, candidate),
+        lambda queries: rows_present(queries, candidate.expected_counts),
+        seconds,
+        "queries",
+    )
+    return {
+        "present": result["matches"],
+        "expected_counts": candidate.expected_counts,
+        "final": result["final"],
+        "last_attempts": result["last_attempts"],
+    }
 
 
 def standard_candidate_validation(result: dict[str, Any], candidate: ProbeCandidate) -> bool:
@@ -1030,13 +1055,11 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
     }
     try:
         for template in candidate.templates:
-            create_page(client, template.title, template.content)
-            created.append(template.title)
+            create_tracked_page(client, created, template.title, template.content)
         result["initial_cargorecreatetables"] = [
             recreate_tables(client, template) for template in candidate.recreate_templates
         ]
-        create_page(client, candidate.page_title, candidate.transclusion)
-        created.append(candidate.page_title)
+        create_tracked_page(client, created, candidate.page_title, candidate.transclusion)
         result["purged"] = client.purge_pages(
             [candidate.page_title],
             force_link_update=True,
@@ -1056,10 +1079,7 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
         result["queries_after_cargorecreatedata"] = query_all(client, candidate)
         result["validation_ok"] = standard_candidate_validation(result, candidate)
     finally:
-        cleanup: list[dict[str, Any]] = []
-        for title in reversed(created):
-            cleanup.append({"title": title, "result": delete_page(client, title)})
-        result["page_cleanup"] = cleanup
+        result["page_cleanup"] = cleanup_created_pages(client, created)
     return result
 
 
@@ -1077,13 +1097,11 @@ def run_lifecycle_candidate(
     }
     try:
         for template in candidate.templates:
-            create_page(client, template.title, template.content)
-            created.append(template.title)
+            create_tracked_page(client, created, template.title, template.content)
         result["initial_cargorecreatetables"] = [
             recreate_tables(client, template) for template in candidate.recreate_templates
         ]
-        create_page(client, candidate.page_title, candidate.initial_content)
-        created.append(candidate.page_title)
+        create_tracked_page(client, created, candidate.page_title, candidate.initial_content)
         result["initial_purged"] = client.purge_pages(
             [candidate.page_title],
             force_link_update=True,
@@ -1144,7 +1162,7 @@ def run_lifecycle_candidate(
         )
         result["delete_page"] = delete_page(client, candidate.page_title)
         if result["delete_page"].get("ok"):
-            created.remove(candidate.page_title)
+            forget_created_page(created, candidate.page_title)
         result["after_delete_state"] = query_lifecycle_state(client, candidate)
         result["after_delete_rows_removed"] = lifecycle_state_matches(
             result["after_delete_state"],
@@ -1164,10 +1182,7 @@ def run_lifecycle_candidate(
             and result["after_delete_rows_removed"]
         )
     finally:
-        cleanup: list[dict[str, Any]] = []
-        for title in reversed(created):
-            cleanup.append({"title": title, "result": delete_page(client, title)})
-        result["page_cleanup"] = cleanup
+        result["page_cleanup"] = cleanup_created_pages(client, created)
     return result
 
 
@@ -1185,13 +1200,11 @@ def run_multi_entity_candidate(
     }
     try:
         for template in candidate.templates:
-            create_page(client, template.title, template.content)
-            created.append(template.title)
+            create_tracked_page(client, created, template.title, template.content)
         result["initial_cargorecreatetables"] = [
             recreate_tables(client, template) for template in candidate.recreate_templates
         ]
-        create_page(client, candidate.page_title, candidate.page_content)
-        created.append(candidate.page_title)
+        create_tracked_page(client, created, candidate.page_title, candidate.page_content)
         result["purged"] = client.purge_pages(
             [candidate.page_title],
             force_link_update=True,
@@ -1209,10 +1222,7 @@ def run_multi_entity_candidate(
             and reverse_page_title_is_ambiguous(result["used_in_reverse"], len(candidate.item_keys))
         )
     finally:
-        cleanup: list[dict[str, Any]] = []
-        for title in reversed(created):
-            cleanup.append({"title": title, "result": delete_page(client, title)})
-        result["page_cleanup"] = cleanup
+        result["page_cleanup"] = cleanup_created_pages(client, created)
     return result
 
 
@@ -1232,14 +1242,12 @@ def run_recreate_batching_candidate(
     }
     try:
         for template in candidate.templates:
-            create_page(client, template.title, template.content)
-            created.append(template.title)
+            create_tracked_page(client, created, template.title, template.content)
         result["initial_cargorecreatetables"] = [
             recreate_tables(client, template) for template in candidate.recreate_templates
         ]
         for title, content in zip(candidate.page_titles, candidate.page_contents, strict=True):
-            create_page(client, title, content)
-            created.append(title)
+            create_tracked_page(client, created, title, content)
         purges = []
         for start in range(0, len(candidate.page_titles), 50):
             purges.append(
@@ -1277,21 +1285,56 @@ def run_recreate_batching_candidate(
             and result["samples_after_cargorecreatedata_match"]
         )
     finally:
-        cleanup: list[dict[str, Any]] = []
-        for title in reversed(created):
-            cleanup.append({"title": title, "result": delete_page(client, title)})
-        result["page_cleanup"] = cleanup
+        result["page_cleanup"] = cleanup_created_pages(client, created)
     return result
 
 
+type CandidateRunner = Callable[[MediaWikiClient, Any, int], dict[str, Any]]
+type CandidateTitles = Callable[[Any], tuple[str, ...]]
+type CandidateTemplates = Callable[[Any], tuple[TemplatePage, ...]]
+type CandidateTables = Callable[[Any], tuple[str, ...]]
+
+
+def _single_page_title(candidate: Any) -> tuple[str, ...]:
+    return (candidate.page_title,)
+
+
+def _candidate_templates(candidate: Any) -> tuple[TemplatePage, ...]:
+    return cast("tuple[TemplatePage, ...]", candidate.templates)
+
+
+def _candidate_tables(candidate: Any) -> tuple[str, ...]:
+    return tuple(candidate.tables.values())
+
+
+RUNNERS: dict[type[Any], CandidateRunner] = {
+    ProbeCandidate: run_candidate,
+    LifecycleCandidate: run_lifecycle_candidate,
+    MultiEntityCandidate: run_multi_entity_candidate,
+    RecreateBatchingCandidate: run_recreate_batching_candidate,
+}
+PAGE_TITLE_READERS: dict[type[Any], CandidateTitles] = {
+    ProbeCandidate: _single_page_title,
+    LifecycleCandidate: _single_page_title,
+    MultiEntityCandidate: _single_page_title,
+    RecreateBatchingCandidate: lambda candidate: candidate.page_titles,
+}
+TEMPLATE_READERS: dict[type[Any], CandidateTemplates] = {
+    ProbeCandidate: _candidate_templates,
+    LifecycleCandidate: _candidate_templates,
+    MultiEntityCandidate: _candidate_templates,
+    RecreateBatchingCandidate: _candidate_templates,
+}
+TABLE_READERS: dict[type[Any], CandidateTables] = {
+    ProbeCandidate: _candidate_tables,
+    LifecycleCandidate: _candidate_tables,
+    MultiEntityCandidate: _candidate_tables,
+    RecreateBatchingCandidate: _candidate_tables,
+}
+
+
 def run_probe_candidate(client: MediaWikiClient, candidate: Candidate, poll_seconds: int) -> dict[str, Any]:
-    if isinstance(candidate, RecreateBatchingCandidate):
-        return run_recreate_batching_candidate(client, candidate, poll_seconds)
-    if isinstance(candidate, MultiEntityCandidate):
-        return run_multi_entity_candidate(client, candidate, poll_seconds)
-    if isinstance(candidate, LifecycleCandidate):
-        return run_lifecycle_candidate(client, candidate, poll_seconds)
-    return run_candidate(client, candidate, poll_seconds)
+    return RUNNERS[type(candidate)](client, candidate, poll_seconds)
 
 
 def build_candidates(prefix: str, choice: str, batch_pages: int) -> list[Candidate]:
@@ -1311,9 +1354,15 @@ def build_candidates(prefix: str, choice: str, batch_pages: int) -> list[Candida
 
 
 def candidate_page_titles(candidate: Candidate) -> tuple[str, ...]:
-    if isinstance(candidate, RecreateBatchingCandidate):
-        return candidate.page_titles
-    return (candidate.page_title,)
+    return PAGE_TITLE_READERS[type(candidate)](candidate)
+
+
+def candidate_template_pages(candidate: Candidate) -> tuple[TemplatePage, ...]:
+    return TEMPLATE_READERS[type(candidate)](candidate)
+
+
+def candidate_table_names(candidate: Candidate) -> tuple[str, ...]:
+    return TABLE_READERS[type(candidate)](candidate)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -1352,10 +1401,10 @@ def main(argv: list[str] | None = None) -> int:
         "candidate": args.candidate,
         "batch_pages": args.batch_pages,
         "pages": [title for candidate in candidates for title in candidate_page_titles(candidate)]
-        + [template.title for candidate in candidates for template in candidate.templates],
-        "tables": [table for candidate in candidates for table in candidate.tables.values()],
+        + [template.title for candidate in candidates for template in candidate_template_pages(candidate)],
+        "tables": [table for candidate in candidates for table in candidate_table_names(candidate)],
         "manual_table_cleanup_urls": [
-            MANUAL_DELETE_BASE + table for candidate in candidates for table in candidate.tables.values()
+            MANUAL_DELETE_BASE + table for candidate in candidates for table in candidate_table_names(candidate)
         ],
     }
     if not args.live:
