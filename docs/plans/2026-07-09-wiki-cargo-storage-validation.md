@@ -33,6 +33,12 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
   owning template/table. Live wiki.gg returns immediate `{"success": true}` responses;
   completion is verified by polling row counts until expected totals return, matching
   Cargo's documented job-queue recreation model rather than an offset/continuation API.
+- Live wiki.gg accepts `action=cargorecreatetables` with `createReplacement=1`:
+  the original table remains queryable with its original row, while the staged
+  `__NEXT` table is not API-queryable before switch-in through `Special:CargoTables`.
+- Replacement-table switch-in is an admin/UI operation, not an automated Phase 7 API
+  step. Replacement tables are therefore a manual downtime-minimizing option rather
+  than the production automation path.
 - Temporary probe pages are deleted after each run, but Cargo table deletion remains a
   manual admin cleanup step through `Special:CargoTables` / `Special:DeleteCargoTable`.
 
@@ -59,10 +65,15 @@ Production refresh contract:
 
 ```text
 1. Deploy modules/templates.
-2. Run cargorecreatetables for each owning storage template.
-3. Run cargorecreatedata for each owning template/table pair until complete.
-4. Query expected row counts and smoke rows before article conversion is considered healthy.
+2. Run direct `cargorecreatetables` for each owning storage template.
+3. Call `cargorecreatedata` once for each owning template/table pair.
+4. Poll expected row counts until complete, then query smoke rows before article
+   conversion is considered healthy.
 ```
+
+For a manually supervised, downtime-minimizing refresh, an administrator may instead
+create replacement tables and switch them in through `Special:CargoTables`. Automated
+Phase 7 does not use that path because the switch-in is not available through the API.
 
 ## Tasks
 
@@ -110,10 +121,10 @@ Production refresh contract:
 
 ### Task V6: Decide replacement-table workflow
 
-- [ ] Probe `cargorecreatetables createReplacement=1` on toy tables.
-- [ ] Determine whether replacement population and switch-in can be automated through
+- [x] Probe `cargorecreatetables createReplacement=1` on toy tables.
+- [x] Determine whether replacement population and switch-in can be automated through
       API calls or require admin UI steps.
-- [ ] Choose either replacement-table refresh or direct table recreation for Phase 7,
+- [x] Choose either replacement-table refresh or direct table recreation for Phase 7,
       with the downtime/operational tradeoff stated explicitly.
 
 ### Task V7: Freeze the Phase 3 storage contract
