@@ -969,6 +969,140 @@ class TestMediaWikiClientPurgePages:
         assert api.requests == []
 
 
+class TestMediaWikiClientDeletePage:
+    """Test wiki page deletion through the public Action API helper."""
+
+    def test_delete_page_posts_token_and_assertion_guard(self) -> None:
+        """Test delete helper sends CSRF, reason, and session assertion guards."""
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "delete_csrf_token"}}},
+                {"delete": {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}},
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            deleted = client.delete_page(
+                "Project:CargoProbe/TemporaryPage",
+                reason="Clean up probe",
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert deleted == {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}
+        assert len(api.requests) == 2
+        token_request, delete_request = api.requests
+        assert token_request.method == "GET"
+        assert token_request.query["action"] == "query"
+        assert token_request.query["meta"] == "tokens"
+        assert token_request.query["type"] == "csrf"
+        assert delete_request.method == "POST"
+        assert delete_request.data["action"] == "delete"
+        assert delete_request.data["title"] == "Project:CargoProbe/TemporaryPage"
+        assert delete_request.data["reason"] == "Clean up probe"
+        assert delete_request.data["token"] == "delete_csrf_token"
+        assert delete_request.data["assert"] == "bot"
+        assert delete_request.data["assertuser"] == "ErenshorBot"
+
+
+class TestMediaWikiClientCargoHelpers:
+    """Test Cargo extension helper requests used by the storage probe."""
+
+    def test_recreate_cargo_tables_posts_token_and_assertion_guard(self) -> None:
+        """Test Cargo table recreation posts the template, CSRF token, and assertion guard."""
+        expected_response = {"cargorecreatetables": {"status": "queued"}}
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "cargo_tables_token"}}},
+                expected_response,
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            response = client.recreate_cargo_tables(
+                "CargoStorageProbe",
+                create_replacement=True,
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert response == expected_response
+        assert len(api.requests) == 2
+        _, recreate_request = api.requests
+        assert recreate_request.method == "POST"
+        assert recreate_request.data["action"] == "cargorecreatetables"
+        assert recreate_request.data["template"] == "CargoStorageProbe"
+        assert recreate_request.data["createReplacement"] == "1"
+        assert recreate_request.data["token"] == "cargo_tables_token"
+        assert recreate_request.data["assert"] == "bot"
+        assert recreate_request.data["assertuser"] == "ErenshorBot"
+
+    def test_recreate_cargo_data_posts_table_offset_token_and_assertion_guard(self) -> None:
+        """Test Cargo row recreation posts table scope, offset, CSRF token, and assertion guard."""
+        expected_response = {"cargorecreatedata": {"status": "done", "offset": 25}}
+        with _mediawiki_api_server(
+            [
+                {"query": {"tokens": {"csrftoken": "cargo_data_token"}}},
+                expected_response,
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            response = client.recreate_cargo_data(
+                "CargoStorageProbe",
+                table="CargoProbe",
+                offset=25,
+                replace_old_rows=True,
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert response == expected_response
+        assert len(api.requests) == 2
+        _, recreate_request = api.requests
+        assert recreate_request.method == "POST"
+        assert recreate_request.data["action"] == "cargorecreatedata"
+        assert recreate_request.data["template"] == "CargoStorageProbe"
+        assert recreate_request.data["table"] == "CargoProbe"
+        assert recreate_request.data["offset"] == "25"
+        assert recreate_request.data["replaceOldRows"] == "1"
+        assert recreate_request.data["token"] == "cargo_data_token"
+        assert recreate_request.data["assert"] == "bot"
+        assert recreate_request.data["assertuser"] == "ErenshorBot"
+
+    def test_query_cargo_table_gets_rows_with_assertion_guard(self) -> None:
+        """Test Cargo queries return the raw cargoquery rows and send GET filters."""
+        rows = [
+            {"title": {"Page": "Project:CargoProbe/TemporaryPage", "ProbeKey": "probe-a"}},
+            {"title": {"Page": "Project:CargoProbe/TemporaryPage", "ProbeKey": "probe-b"}},
+        ]
+        with _mediawiki_api_server([{"cargoquery": rows}]) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            result = client.query_cargo_table(
+                tables="CargoProbe",
+                fields="_pageName=Page,ProbeKey",
+                where="ProbeKey LIKE 'probe-%'",
+                limit=2,
+                offset=4,
+                assertion="bot",
+                assert_user="ErenshorBot",
+            )
+
+        assert result == rows
+        assert len(api.requests) == 1
+        query_request = api.requests[0]
+        assert query_request.method == "GET"
+        assert query_request.query["action"] == "cargoquery"
+        assert query_request.query["tables"] == "CargoProbe"
+        assert query_request.query["fields"] == "_pageName=Page,ProbeKey"
+        assert query_request.query["where"] == "ProbeKey LIKE 'probe-%'"
+        assert query_request.query["limit"] == "2"
+        assert query_request.query["offset"] == "4"
+        assert query_request.query["assert"] == "bot"
+        assert query_request.query["assertuser"] == "ErenshorBot"
+
+
 class TestMediaWikiClientPageExists:
     """Test page existence checking."""
 

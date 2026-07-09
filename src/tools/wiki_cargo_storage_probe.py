@@ -8,8 +8,8 @@ Special:CargoTables / Special:DeleteCargoTable.
 
 Usage:
     uv run python src/tools/wiki_cargo_storage_probe.py
-    uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate nested
-    uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate both --prefix Probe20260709
+    uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate lua-nested
+    uv run python src/tools/wiki_cargo_storage_probe.py --live --candidate all --prefix Probe20260709
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ OWNER = "WoWMuch"
 REQUIRED_RIGHTS = frozenset({"edit", "createpage", "delete", "recreatecargodata"})
 MANUAL_DELETE_BASE = "https://erenshor.wiki.gg/wiki/Special:DeleteCargoTable/"
 
-CandidateKind = Literal["direct", "nested"]
+CandidateKind = Literal["direct", "nested", "lua-nested"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +45,7 @@ class ProbeCandidate:
     page_title: str
     template_base: str
     tables: dict[str, str]
+    expected_counts: dict[str, int]
     templates: tuple[TemplatePage, ...]
     recreate_templates: tuple[str, ...]
     recreatedata_pairs: tuple[tuple[str, str], ...]
@@ -53,17 +54,33 @@ class ProbeCandidate:
     def transclusion(self) -> str:
         return "{{" + self.template_base + "Main|key=" + self.key + "}}\n"
 
-    @property
-    def cleanup_titles(self) -> tuple[str, ...]:
-        return (self.page_title, *[template.title for template in reversed(self.templates)])
 
-
-def _store(table_placeholder: str, value: str) -> str:
-    return "{{#cargo_store:_table=" + table_placeholder + "|ProbeKey={{{key|}}}|ProbeValue=" + value + "}}"
+def _store(table_placeholder: str, value: str, number: int = 1, flag: str = "yes") -> str:
+    return (
+        "{{#cargo_store:_table="
+        + table_placeholder
+        + "|ProbeKey={{{key|}}}|ProbeValue="
+        + value
+        + "|ProbeFlag="
+        + flag
+        + "|ProbeNumber="
+        + str(number)
+        + "}}"
+    )
 
 
 def _declare(table_placeholder: str) -> str:
-    return "{{#cargo_declare:_table=" + table_placeholder + "|ProbeKey=String|ProbeValue=String}}"
+    return (
+        "{{#cargo_declare:_table="
+        + table_placeholder
+        + "|ProbeKey=String|ProbeValue=String|ProbeFlag=Boolean|ProbeNumber=Integer}}"
+    )
+
+
+def _fill_tables(content: str, tables: dict[str, str]) -> str:
+    for name, table in tables.items():
+        content = content.replace("__" + name + "__", table)
+    return content
 
 
 def build_direct_candidate(prefix: str) -> ProbeCandidate:
@@ -77,9 +94,9 @@ def build_direct_candidate(prefix: str) -> ProbeCandidate:
 
     main = (
         "<includeonly>"
-        + _store("__A__", "A")
-        + _store("__B__", "B")
-        + _store("__C__", "C")
+        + _store("__A__", "A", 11, "yes")
+        + _store("__B__", "B", 21, "yes")
+        + _store("__C__", "C", 31, "no")
         + "</includeonly><noinclude>"
         + _declare("__A__")
         + "{{#cargo_attach:_table=__B__}}"
@@ -96,6 +113,7 @@ def build_direct_candidate(prefix: str) -> ProbeCandidate:
         page_title=page_title,
         template_base=template_base,
         tables=tables,
+        expected_counts={"A": 1, "B": 1, "C": 1},
         templates=(
             TemplatePage(main_title, _fill_tables(main, tables)),
             TemplatePage(b_title, _fill_tables(b_decl, tables)),
@@ -121,7 +139,7 @@ def build_nested_candidate(prefix: str) -> ProbeCandidate:
 
     main = (
         "<includeonly>"
-        + _store("__A__", "A")
+        + _store("__A__", "A", 11, "yes")
         + "{{"
         + template_base
         + "BStore|key={{{key|}}}}}"
@@ -135,14 +153,14 @@ def build_nested_candidate(prefix: str) -> ProbeCandidate:
     )
     b_store = (
         "<includeonly>"
-        + _store("__B__", "B")
+        + _store("__B__", "B", 21, "yes")
         + "</includeonly><noinclude>"
         + _declare("__B__")
         + "Temporary.</noinclude>"
     )
     c_store = (
         "<includeonly>"
-        + _store("__C__", "C")
+        + _store("__C__", "C", 31, "no")
         + "</includeonly><noinclude>"
         + _declare("__C__")
         + "Temporary.</noinclude>"
@@ -154,6 +172,7 @@ def build_nested_candidate(prefix: str) -> ProbeCandidate:
         page_title=page_title,
         template_base=template_base,
         tables=tables,
+        expected_counts={"A": 1, "B": 1, "C": 1},
         templates=(
             TemplatePage(main_title, _fill_tables(main, tables)),
             TemplatePage(b_title, _fill_tables(b_store, tables)),
@@ -168,10 +187,95 @@ def build_nested_candidate(prefix: str) -> ProbeCandidate:
     )
 
 
-def _fill_tables(content: str, tables: dict[str, str]) -> str:
-    for name, table in tables.items():
-        content = content.replace("__" + name + "__", table)
-    return content
+def build_lua_nested_candidate(prefix: str) -> ProbeCandidate:
+    key = prefix + "LuaNestedKey"
+    tables = {"A": prefix + "LuaNestedA", "B": prefix + "LuaNestedB", "C": prefix + "LuaNestedC"}
+    template_base = "CargoStorageProbe/" + prefix + "/LuaNested"
+    module_title = "Module:CargoStorageProbe/" + prefix
+    main_title = "Template:" + template_base + "Main"
+    b_title = "Template:" + template_base + "BStore"
+    c_title = "Template:" + template_base + "CStore"
+    page_title = "User:" + OWNER + "/CargoStorageProbe/" + prefix + "/LuaNested"
+
+    module = (
+        "local p = {}\n"
+        + "local tables = { A = '__A__', B = '__B__', C = '__C__' }\n"
+        + "local function cast(value)\n"
+        + "  if value == nil then return nil end\n"
+        + "  if type(value) == 'boolean' then return value and 'yes' or 'no' end\n"
+        + "  return tostring(value)\n"
+        + "end\n"
+        + "local function store(frame, tableName, value, flag, number)\n"
+        + "  return frame:callParserFunction('#cargo_store:', {\n"
+        + "    _table = tableName,\n"
+        + "    ProbeKey = frame.args.key or '',\n"
+        + "    ProbeValue = value,\n"
+        + "    ProbeFlag = cast(flag),\n"
+        + "    ProbeNumber = cast(number),\n"
+        + "  })\n"
+        + "end\n"
+        + "function p.storeA(frame)\n"
+        + "  return store(frame, tables.A, 'A', true, 11)\n"
+        + "end\n"
+        + "function p.storeB(frame)\n"
+        + "  return store(frame, tables.B, 'B1', true, 21) .. store(frame, tables.B, 'B2', false, 22)\n"
+        + "end\n"
+        + "function p.storeC(frame)\n"
+        + "  return store(frame, tables.C, 'C', false, 31)\n"
+        + "end\n"
+        + "return p\n"
+    )
+    main = (
+        "<includeonly>"
+        + "{{#invoke:CargoStorageProbe/"
+        + prefix
+        + "|storeA|key={{{key|}}}}}"
+        + "{{"
+        + template_base
+        + "BStore|key={{{key|}}}}}"
+        + "{{"
+        + template_base
+        + "CStore|key={{{key|}}}}}"
+        + "</includeonly><noinclude>"
+        + _declare("__A__")
+        + "Temporary Lua nested Cargo storage probe."
+        + "</noinclude>"
+    )
+    b_store = (
+        "<includeonly>{{#invoke:CargoStorageProbe/"
+        + prefix
+        + "|storeB|key={{{key|}}}}}</includeonly><noinclude>"
+        + _declare("__B__")
+        + "Temporary.</noinclude>"
+    )
+    c_store = (
+        "<includeonly>{{#invoke:CargoStorageProbe/"
+        + prefix
+        + "|storeC|key={{{key|}}}}}</includeonly><noinclude>"
+        + _declare("__C__")
+        + "Temporary.</noinclude>"
+    )
+
+    return ProbeCandidate(
+        kind="lua-nested",
+        key=key,
+        page_title=page_title,
+        template_base=template_base,
+        tables=tables,
+        expected_counts={"A": 1, "B": 2, "C": 1},
+        templates=(
+            TemplatePage(module_title, _fill_tables(module, tables)),
+            TemplatePage(main_title, _fill_tables(main, tables)),
+            TemplatePage(b_title, _fill_tables(b_store, tables)),
+            TemplatePage(c_title, _fill_tables(c_store, tables)),
+        ),
+        recreate_templates=(template_base + "Main", template_base + "BStore", template_base + "CStore"),
+        recreatedata_pairs=(
+            (template_base + "Main", tables["A"]),
+            (template_base + "BStore", tables["B"]),
+            (template_base + "CStore", tables["C"]),
+        ),
+    )
 
 
 def api_post(client: MediaWikiClient, data: dict[str, Any], label: str) -> dict[str, Any]:
@@ -215,53 +319,48 @@ def create_page(client: MediaWikiClient, title: str, content: str) -> None:
 
 
 def recreate_tables(client: MediaWikiClient, template: str) -> dict[str, Any]:
-    return api_post(
-        client,
-        {
-            "action": "cargorecreatetables",
-            "template": template,
-            "token": client.get_csrf_token(),
-            "formatversion": "2",
-            "assert": "user",
-            "assertuser": OWNER,
-        },
-        "cargorecreatetables " + template,
-    )
+    try:
+        return {
+            "ok": True,
+            "response": client.recreate_cargo_tables(template, assertion="user", assert_user=OWNER),
+        }
+    except MediaWikiAPIError as exc:
+        return {
+            "ok": False,
+            "label": "cargorecreatetables " + template,
+            "code": exc.code,
+            "info": exc.info,
+            "error": str(exc),
+        }
 
 
 def recreate_data(client: MediaWikiClient, template: str, table: str) -> dict[str, Any]:
-    return api_post(
-        client,
-        {
-            "action": "cargorecreatedata",
-            "template": template,
-            "table": table,
-            "offset": "0",
-            "replaceOldRows": "1",
-            "token": client.get_csrf_token(),
-            "formatversion": "2",
-            "assert": "user",
-            "assertuser": OWNER,
-        },
-        "cargorecreatedata " + template + " " + table,
-    )
+    try:
+        return {
+            "ok": True,
+            "response": client.recreate_cargo_data(template, table, assertion="user", assert_user=OWNER),
+        }
+    except MediaWikiAPIError as exc:
+        return {
+            "ok": False,
+            "label": "cargorecreatedata " + template + " " + table,
+            "code": exc.code,
+            "info": exc.info,
+            "error": str(exc),
+        }
 
 
 def query_table(client: MediaWikiClient, table: str, key: str) -> dict[str, Any]:
     try:
-        payload = client._request(
-            {
-                "action": "cargoquery",
-                "tables": table,
-                "fields": "_pageName=Page,ProbeKey,ProbeValue",
-                "where": "ProbeKey='" + key + "'",
-                "limit": "20",
-                "formatversion": "2",
-                "assert": "user",
-                "assertuser": OWNER,
-            }
+        rows = client.query_cargo_table(
+            tables=table,
+            fields="_pageName=Page,ProbeKey,ProbeValue,ProbeFlag,ProbeNumber",
+            where="ProbeKey='" + key + "'",
+            limit=20,
+            assertion="user",
+            assert_user=OWNER,
         )
-        return {"ok": True, "rows": payload.get("cargoquery", [])}
+        return {"ok": True, "rows": rows}
     except MediaWikiAPIError as exc:
         return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
 
@@ -270,8 +369,10 @@ def query_all(client: MediaWikiClient, candidate: ProbeCandidate) -> dict[str, A
     return {name: query_table(client, table, candidate.key) for name, table in candidate.tables.items()}
 
 
-def rows_present(queries: dict[str, Any]) -> bool:
-    return all(result.get("ok") and len(result.get("rows", [])) > 0 for result in queries.values())
+def rows_present(queries: dict[str, Any], expected_counts: dict[str, int]) -> bool:
+    return all(
+        result.get("ok") and len(result.get("rows", [])) == expected_counts[name] for name, result in queries.items()
+    )
 
 
 def wait_for_rows(client: MediaWikiClient, candidate: ProbeCandidate, seconds: int) -> dict[str, Any]:
@@ -280,25 +381,51 @@ def wait_for_rows(client: MediaWikiClient, candidate: ProbeCandidate, seconds: i
     while True:
         queries = query_all(client, candidate)
         attempts.append({"elapsed_seconds": round(seconds - max(0, deadline - time.time()), 1), "queries": queries})
-        if rows_present(queries) or time.time() >= deadline:
-            return {"present": rows_present(queries), "final": queries, "last_attempts": attempts[-5:]}
+        if rows_present(queries, candidate.expected_counts) or time.time() >= deadline:
+            return {
+                "present": rows_present(queries, candidate.expected_counts),
+                "expected_counts": candidate.expected_counts,
+                "final": queries,
+                "last_attempts": attempts[-5:],
+            }
         time.sleep(5)
 
 
+def parse_page_html(client: MediaWikiClient, page_title: str) -> dict[str, Any]:
+    try:
+        payload = client._request(
+            {
+                "action": "parse",
+                "page": page_title,
+                "prop": "text",
+                "formatversion": "2",
+                "assert": "user",
+                "assertuser": OWNER,
+            }
+        )
+        html = str(payload.get("parse", {}).get("text", ""))
+        return {
+            "ok": True,
+            "html_length": len(html),
+            "contains_probe_text": any(text in html for text in ("Temporary", "B1", "B2", "ProbeValue")),
+        }
+    except MediaWikiAPIError as exc:
+        return {"ok": False, "code": exc.code, "info": exc.info, "error": str(exc)}
+
+
 def delete_page(client: MediaWikiClient, title: str) -> dict[str, Any]:
-    return api_post(
-        client,
-        {
-            "action": "delete",
-            "title": title,
-            "token": client.get_csrf_token(),
-            "reason": "Clean up temporary Cargo storage probe page",
-            "formatversion": "2",
-            "assert": "user",
-            "assertuser": OWNER,
-        },
-        "delete " + title,
-    )
+    try:
+        return {
+            "ok": True,
+            "response": client.delete_page(
+                title,
+                reason="Clean up temporary Cargo storage probe page",
+                assertion="user",
+                assert_user=OWNER,
+            ),
+        }
+    except MediaWikiAPIError as exc:
+        return {"ok": False, "label": "delete " + title, "code": exc.code, "info": exc.info, "error": str(exc)}
 
 
 def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_seconds: int) -> dict[str, Any]:
@@ -308,6 +435,7 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
         "key": candidate.key,
         "page_title": candidate.page_title,
         "tables": candidate.tables,
+        "expected_counts": candidate.expected_counts,
         "manual_table_cleanup_urls": [MANUAL_DELETE_BASE + table for table in candidate.tables.values()],
     }
     try:
@@ -326,6 +454,7 @@ def run_candidate(client: MediaWikiClient, candidate: ProbeCandidate, poll_secon
             assert_user=OWNER,
         )
         result["initial_queries"] = query_all(client, candidate)
+        result["rendered_page"] = parse_page_html(client, candidate.page_title)
         result["post_page_cargorecreatetables"] = [
             recreate_tables(client, template) for template in candidate.recreate_templates
         ]
@@ -348,13 +477,17 @@ def build_candidates(prefix: str, choice: str) -> list[ProbeCandidate]:
         return [build_direct_candidate(prefix)]
     if choice == "nested":
         return [build_nested_candidate(prefix)]
-    return [build_direct_candidate(prefix), build_nested_candidate(prefix)]
+    if choice == "lua-nested":
+        return [build_lua_nested_candidate(prefix)]
+    if choice == "both":
+        return [build_direct_candidate(prefix), build_nested_candidate(prefix)]
+    return [build_direct_candidate(prefix), build_nested_candidate(prefix), build_lua_nested_candidate(prefix)]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="perform live writes; omitted means dry-run only")
-    parser.add_argument("--candidate", choices=("direct", "nested", "both"), default="nested")
+    parser.add_argument("--candidate", choices=("direct", "nested", "lua-nested", "both", "all"), default="lua-nested")
     parser.add_argument(
         "--prefix",
         default="CargoStorageProbe" + datetime.now(UTC).strftime("%Y%m%d%H%M%S"),

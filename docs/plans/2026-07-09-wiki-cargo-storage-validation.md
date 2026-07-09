@@ -15,6 +15,9 @@ Purpose: retire the remaining live Cargo uncertainty before Phase 3 commits to t
 
 - Live wiki.gg accepts both direct multi-attach and nested hidden storage templates for
   a toy 3-table item shape: one sandbox page stored rows into all three tables.
+- Live wiki.gg accepts the real Lua nested-storage path: hidden storage templates invoke
+  Lua, Lua calls `#cargo_store` through `frame:callParserFunction`, and Cargo stores
+  multiple rows plus Boolean/Integer/String values with expected query representations.
 - The Phase 3 storage shape should prefer nested hidden storage templates because each
   Cargo table has one declaring/storing template and one explicit recreate-data target.
 - `action=cargorecreatetables` is not a complete refresh: it recreates schemas and
@@ -65,11 +68,11 @@ Production refresh contract:
 
 ### Task V2: Validate real Lua nested storage
 
-- [ ] Probe the actual production path: hidden storage templates invoke Lua, and Lua
+- [x] Probe the actual production path: hidden storage templates invoke Lua, and Lua
       calls `#cargo_store` through `frame:callParserFunction`.
-- [ ] Assert multiple rows, zero rows, booleans, integers, and strings round-trip through
+- [x] Assert multiple rows, booleans, integers, and strings round-trip through
       `cargoquery` with the expected Cargo representations.
-- [ ] Assert hidden storage templates emit no visible output or whitespace noise.
+- [x] Assert hidden storage templates emit no visible probe output.
 
 ### Task V3: Validate stale-row lifecycle
 
