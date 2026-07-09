@@ -7,7 +7,7 @@ from ..models import OWNER, TemplatePage, manual_cleanup_urls
 from ..queries import query_lifecycle_count, query_replacement_probe_row, replacement_row_matches
 
 if TYPE_CHECKING:
-    from ..operations import ProbeRunContext
+    from ..models import ProbeOperations
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,7 +33,7 @@ class ReplacementTableScenario:
     def table_names(self) -> tuple[str, ...]:
         return (self.table, self.replacement_table)
 
-    def run(self, context: ProbeRunContext, poll_seconds: int) -> dict[str, object]:
+    def run(self, context: ProbeOperations, poll_seconds: int) -> dict[str, object]:
         del poll_seconds
         result: dict[str, Any] = {
             "kind": self.kind,

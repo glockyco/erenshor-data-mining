@@ -36,19 +36,19 @@ class BaseFakeContext:
         self.events.append(("recreate_data", template, table, replace_old_rows))
         return {"ok": True, "template": template, "table": table, "replace_old_rows": replace_old_rows}
 
-    def purge_pages(self, titles: list[str] | tuple[str, ...]) -> dict[str, Any]:
+    def purge_pages(self, titles: list[str] | tuple[str, ...]) -> tuple[str, ...]:
         self.events.append(("purge", tuple(titles)))
-        return {"ok": True, "titles": list(titles)}
+        return tuple(titles)
 
-    def purge_pages_in_batches(self, titles: tuple[str, ...], batch_size: int = 50) -> list[dict[str, Any]]:
-        purges = []
+    def purge_pages_in_batches(self, titles: tuple[str, ...], batch_size: int = 50) -> list[tuple[str, ...]]:
+        purges: list[tuple[str, ...]] = []
         for start in range(0, len(titles), batch_size):
             batch = titles[start : start + batch_size]
             purges.append(self.purge_pages(batch))
         return purges
 
-    def parse_page_html(self, title: str) -> dict[str, Any]:
-        self.events.append(("parse", title))
+    def parse_page_html(self, page_title: str) -> dict[str, Any]:
+        self.events.append(("parse", page_title))
         return {"ok": True, "contains_probe_text": False}
 
     def edit_existing_page(self, title: str, content: str, summary: str) -> None:
@@ -286,7 +286,7 @@ def test_standard_runner_executes_direct_workflow() -> None:
     candidate = build_direct_probe("UnitProbe")
     context = StandardFakeContext(candidate)
 
-    result = candidate.run(cast("Any", context), poll_seconds=17)
+    result = candidate.run(context, poll_seconds=17)
 
     assert result["validation_ok"] is True
     assert result["cargorecreatedata"] == [
@@ -305,7 +305,7 @@ def test_lifecycle_runner_reduces_removes_and_forgets_deleted_page() -> None:
     candidate = build_lifecycle_probe("UnitProbe")
     context = LifecycleFakeContext(candidate)
 
-    result = candidate.run(cast("Any", context), poll_seconds=19)
+    result = candidate.run(context, poll_seconds=19)
 
     assert result["validation_ok"] is True
     assert ("delete", candidate.page_title) in context.events
@@ -317,7 +317,7 @@ def test_multi_entity_runner_validates_shared_reverse_relationships() -> None:
     candidate = build_multi_entity_probe("UnitProbe")
     context = MultiEntityFakeContext(candidate)
 
-    result = candidate.run(cast("Any", context), poll_seconds=999)
+    result = candidate.run(context, poll_seconds=999)
 
     assert result["validation_ok"] is True
     assert result["item_keys"] == list(candidate.item_keys)
@@ -335,7 +335,7 @@ def test_recreate_batching_runner_recreates_each_table_once_then_polls_expected_
     candidate = build_recreate_batching_probe("UnitProbe", 2)
     context = RecreateBatchingFakeContext(candidate)
 
-    result = candidate.run(cast("Any", context), poll_seconds=17)
+    result = candidate.run(context, poll_seconds=17)
 
     assert result["validation_ok"] is True
     assert result["cargorecreatedata"] == [
@@ -355,7 +355,7 @@ def test_replacement_table_runner_records_hidden_rows_before_switch_in() -> None
     candidate = build_replacement_table_probe("UnitProbe")
     context = ReplacementTableFakeContext(candidate)
 
-    result = candidate.run(cast("Any", context), poll_seconds=23)
+    result = candidate.run(context, poll_seconds=23)
     typed_result = cast("dict[str, Any]", result)
 
     assert result["validation_ok"] is True

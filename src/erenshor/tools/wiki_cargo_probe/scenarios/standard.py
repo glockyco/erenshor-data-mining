@@ -8,7 +8,7 @@ from ..models import StandardKind, TemplatePage, manual_cleanup_urls
 from ..queries import query_all, standard_candidate_validation, wait_for_rows
 
 if TYPE_CHECKING:
-    from ..operations import ProbeRunContext
+    from ..models import ProbeOperations
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,7 +39,7 @@ class StandardProbeScenario:
     def transclusion(self) -> str:
         return "{{" + self.template_base + "Main|key=" + self.key + "}}\n"
 
-    def run(self, context: ProbeRunContext, poll_seconds: int) -> dict[str, object]:
+    def run(self, context: ProbeOperations, poll_seconds: int) -> dict[str, object]:
         result: dict[str, Any] = {
             "kind": self.kind,
             "key": self.key,

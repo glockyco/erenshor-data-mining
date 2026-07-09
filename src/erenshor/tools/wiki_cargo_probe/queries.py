@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from .polling import poll_until
 
 if TYPE_CHECKING:
-    from .operations import ProbeRunContext
+    from .models import CargoQuerier
 
 
 def cargo_string_literal(value: str) -> str:
@@ -19,7 +19,7 @@ def row_fields(row: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
-def query_replacement_probe_row(context: ProbeRunContext, table: str, key: str) -> dict[str, Any]:
+def query_replacement_probe_row(context: CargoQuerier, table: str, key: str) -> dict[str, Any]:
     return context.query_cargo_table(
         tables=table,
         fields="_pageName=Page,ProbeKey,ProbeValue",
@@ -54,7 +54,7 @@ def rows_present(queries: dict[str, Any], expected_counts: dict[str, int]) -> bo
     )
 
 
-def query_table(context: ProbeRunContext, table: str, key: str) -> dict[str, Any]:
+def query_table(context: CargoQuerier, table: str, key: str) -> dict[str, Any]:
     return context.query_cargo_table(
         tables=table,
         fields="_pageName=Page,ProbeKey,ProbeValue,ProbeFlag,ProbeNumber",
@@ -63,12 +63,12 @@ def query_table(context: ProbeRunContext, table: str, key: str) -> dict[str, Any
     )
 
 
-def query_all(context: ProbeRunContext, candidate: Any) -> dict[str, Any]:
+def query_all(context: CargoQuerier, candidate: Any) -> dict[str, Any]:
     return {name: query_table(context, table, candidate.key) for name, table in candidate.tables.items()}
 
 
 def query_lifecycle_table(
-    context: ProbeRunContext,
+    context: CargoQuerier,
     table: str,
     fields: str,
     where: str,
@@ -76,7 +76,7 @@ def query_lifecycle_table(
     return context.query_cargo_table(tables=table, fields=fields, where=where, limit=50)
 
 
-def query_lifecycle_key(context: ProbeRunContext, candidate: Any, key: str) -> dict[str, Any]:
+def query_lifecycle_key(context: CargoQuerier, candidate: Any, key: str) -> dict[str, Any]:
     item_where = "StableKey=" + cargo_string_literal(key)
     relationship_where = "ItemKey=" + cargo_string_literal(key)
     return {
@@ -101,19 +101,19 @@ def query_lifecycle_key(context: ProbeRunContext, candidate: Any, key: str) -> d
     }
 
 
-def query_lifecycle_state(context: ProbeRunContext, candidate: Any) -> dict[str, Any]:
+def query_lifecycle_state(context: CargoQuerier, candidate: Any) -> dict[str, Any]:
     return {
         candidate.item_key: query_lifecycle_key(context, candidate, candidate.item_key),
         candidate.removed_key: query_lifecycle_key(context, candidate, candidate.removed_key),
     }
 
 
-def query_multi_entity_state(context: ProbeRunContext, candidate: Any) -> dict[str, Any]:
+def query_multi_entity_state(context: CargoQuerier, candidate: Any) -> dict[str, Any]:
     return {key: query_lifecycle_key(context, candidate, key) for key in candidate.item_keys}
 
 
 def query_multi_entity_reverse(
-    context: ProbeRunContext,
+    context: CargoQuerier,
     candidate: Any,
     relationship: Literal["obtained_from", "used_in"],
 ) -> dict[str, Any]:
@@ -128,7 +128,7 @@ def query_multi_entity_reverse(
     return query_lifecycle_table(context, table, fields, where)
 
 
-def query_lifecycle_count(context: ProbeRunContext, table: str) -> dict[str, Any]:
+def query_lifecycle_count(context: CargoQuerier, table: str) -> dict[str, Any]:
     result = context.query_cargo_table(tables=table, fields="COUNT(*)=Rows", limit=1)
     if not result.get("ok"):
         return result
@@ -142,7 +142,7 @@ def query_lifecycle_count(context: ProbeRunContext, table: str) -> dict[str, Any
         return {"ok": False, "error": str(exc)}
 
 
-def query_batch_counts(context: ProbeRunContext, candidate: Any) -> dict[str, Any]:
+def query_batch_counts(context: CargoQuerier, candidate: Any) -> dict[str, Any]:
     return {name: query_lifecycle_count(context, table) for name, table in candidate.tables.items()}
 
 
@@ -158,7 +158,7 @@ def _batch_use_key(prefix: str, index: int) -> str:
     return prefix + "BatchUse" + str(index).zfill(4)
 
 
-def query_batch_samples(context: ProbeRunContext, candidate: Any) -> dict[str, Any]:
+def query_batch_samples(context: CargoQuerier, candidate: Any) -> dict[str, Any]:
     return {key: query_lifecycle_key(context, candidate, key) for key in candidate.sample_item_keys}
 
 
@@ -176,7 +176,7 @@ def batch_sample_matches(candidate: Any, sample_state: dict[str, Any]) -> bool:
 
 
 def wait_for_batch_counts(
-    context: ProbeRunContext,
+    context: CargoQuerier,
     candidate: Any,
     seconds: int,
     expected_count: int,
@@ -265,7 +265,7 @@ def lifecycle_state_matches(
 
 
 def wait_for_lifecycle_state(
-    context: ProbeRunContext,
+    context: CargoQuerier,
     candidate: Any,
     seconds: int,
     item_sources: tuple[str, ...],
@@ -292,7 +292,7 @@ def wait_for_lifecycle_state(
     )
 
 
-def wait_for_rows(context: ProbeRunContext, candidate: Any, seconds: int) -> dict[str, Any]:
+def wait_for_rows(context: CargoQuerier, candidate: Any, seconds: int) -> dict[str, Any]:
     result = poll_until(
         lambda: query_all(context, candidate),
         lambda queries: rows_present(queries, candidate.expected_counts),

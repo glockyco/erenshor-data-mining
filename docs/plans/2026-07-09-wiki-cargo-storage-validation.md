@@ -144,7 +144,7 @@ The reusable probe runner (V1) is promoted to a Phase 7 verification gate, so it
 `validation_ok` must fail closed — a false "success" could green-light a broken
 production recreate.
 
-- [ ] Type the operation contract: `ProbeOperations` / `CargoQuerier` protocols so the
+- [x] Type the operation contract: `ProbeOperations` / `CargoQuerier` protocols so the
       scenario runners and query helpers no longer depend on the concrete
       `ProbeRunContext`, and the test fakes conform without `cast` (purge returns the real
       `tuple[str, ...]` shape).

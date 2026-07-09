@@ -15,7 +15,7 @@ from ..queries import (
 from .lifecycle import build_lifecycle_probe
 
 if TYPE_CHECKING:
-    from ..operations import ProbeRunContext
+    from ..models import ProbeOperations
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +42,7 @@ class MultiEntityScenario:
     def table_names(self) -> tuple[str, ...]:
         return tuple(self.tables.values())
 
-    def run(self, context: ProbeRunContext, poll_seconds: int) -> dict[str, object]:
+    def run(self, context: ProbeOperations, poll_seconds: int) -> dict[str, object]:
         del poll_seconds
         result: dict[str, Any] = {
             "kind": self.kind,

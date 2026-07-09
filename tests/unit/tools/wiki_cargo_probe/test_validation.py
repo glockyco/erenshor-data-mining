@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 
 from erenshor.tools.wiki_cargo_probe.queries import (
     batch_counts_match,
@@ -28,7 +28,7 @@ def test_query_table_escapes_apostrophes_in_probe_keys() -> None:
 
     context = RecordingContext()
 
-    assert query_table(cast("Any", context), "ProbeTable", "O'Brien") == {"ok": True, "rows": []}
+    assert query_table(context, "ProbeTable", "O'Brien") == {"ok": True, "rows": []}
     assert context.where == "ProbeKey='O''Brien'"
 
 

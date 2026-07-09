@@ -9,7 +9,7 @@ from ..queries import batch_sample_matches, query_batch_samples, wait_for_batch_
 from .lifecycle import build_lifecycle_probe
 
 if TYPE_CHECKING:
-    from ..operations import ProbeRunContext
+    from ..models import ProbeOperations
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,7 +34,7 @@ class RecreateBatchingScenario:
     def table_names(self) -> tuple[str, ...]:
         return tuple(self.tables.values())
 
-    def run(self, context: ProbeRunContext, poll_seconds: int) -> dict[str, object]:
+    def run(self, context: ProbeOperations, poll_seconds: int) -> dict[str, object]:
         expected_count = len(self.page_titles)
         result: dict[str, Any] = {
             "kind": self.kind,
