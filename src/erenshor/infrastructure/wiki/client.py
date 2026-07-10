@@ -568,6 +568,33 @@ class MediaWikiClient:
         logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
         return result_dict
 
+    def null_edit_pages(
+        self,
+        titles: Sequence[str],
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> tuple[str, ...]:
+        """Reparse existing pages with unchanged wikitext so Cargo rows refresh."""
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+        pages = self.get_pages(titles)
+        refreshed: list[str] = []
+        for title in titles:
+            content = pages.get(title)
+            if content is None:
+                raise MediaWikiAPIError(f"Cannot null-edit missing page: {title}")
+            self.edit_page(
+                title,
+                content,
+                summary="Refresh item-owned Cargo rows",
+                bot=True,
+                no_create=True,
+                assertion=assertion,
+                assert_user=assert_user,
+            )
+            refreshed.append(title)
+        return tuple(refreshed)
+
     def get_embeddedin_pages(
         self,
         title: str,
@@ -854,6 +881,8 @@ class MediaWikiClient:
         bot: bool = True,
         create_only: bool = False,
         no_create: bool = False,
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
     ) -> None:
         """Edit a wiki page with new content.
 
@@ -867,6 +896,8 @@ class MediaWikiClient:
             bot: Mark as bot edit (requires bot permissions).
             create_only: Only create page if it doesn't exist (fails if page exists).
             no_create: Only edit existing page (fails if page doesn't exist).
+            assertion: Require the API session to be logged in as this user or bot.
+            assert_user: Require this exact username for the API session.
 
         Raises:
             MediaWikiEditError: If edit operation fails.
@@ -890,6 +921,8 @@ class MediaWikiClient:
         if minor is None:
             minor = self.minor_edit
 
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
         logger.info(f"Editing page: {title}")
 
         # Get CSRF token
@@ -913,6 +946,10 @@ class MediaWikiClient:
             data["createonly"] = "1"
         if no_create:
             data["nocreate"] = "1"
+        if assertion is not None:
+            data["assert"] = assertion
+        if assert_user is not None:
+            data["assertuser"] = assert_user
 
         try:
             result = self._request({}, method="POST", data=data)

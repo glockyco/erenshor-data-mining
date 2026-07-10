@@ -43,7 +43,10 @@ from erenshor.application.wiki_deploy.override_migration import (
     review_article_overrides,
 )
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
-from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
+from erenshor.application.wiki_deploy.refresh import (
+    refresh_embedded_pages,
+    refresh_item_owners_for_source_changes,
+)
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
@@ -772,16 +775,23 @@ def review_overrides_command(
 def refresh_embedded_command(
     ctx: typer.Context,
     dependency_titles: Annotated[
-        list[str],
+        list[str] | None,
         typer.Option(
             "--dependency-title",
             help="Template or module title whose transcluding pages should be refreshed.",
         ),
-    ],
+    ] = None,
+    source_tables: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--source-table",
+            help="Source data table whose item-owned Cargo pages should be reparsed.",
+        ),
+    ] = None,
     namespaces: Annotated[
-        list[int],
+        list[int] | None,
         typer.Option("--namespace", help="MediaWiki namespace ID to include in embeddedin discovery."),
-    ],
+    ] = None,
     assert_user: Annotated[
         str | None,
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
@@ -789,33 +799,50 @@ def refresh_embedded_command(
 ) -> None:
     """Force a link/Cargo refresh on pages that transclude the given templates/modules."""
     cli_ctx: CLIContext = ctx.obj
-    if not dependency_titles:
-        console.print("[red]At least one --dependency-title is required.[/red]")
+    dependency_titles = dependency_titles or []
+    source_tables = source_tables or []
+    namespaces = namespaces or []
+    if not dependency_titles and not source_tables:
+        console.print("[red]At least one dependency title or source table is required.[/red]")
         raise typer.Exit(1)
-    if not namespaces:
-        console.print("[red]At least one --namespace is required.[/red]")
+    if dependency_titles and not namespaces:
+        console.print("[red]At least one --namespace is required with dependency titles.[/red]")
         raise typer.Exit(1)
 
     if cli_ctx.dry_run:
         console.print(
-            f"[yellow]Dry run: would refresh pages embedding {len(dependency_titles)} dependencies "
-            f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
+            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies and "
+            f"{len(source_tables)} source tables in namespaces "
+            f"{', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
         )
         return
 
     client = _create_mediawiki_client(cli_ctx)
+    refreshed_titles: set[str] = set()
     try:
-        result = refresh_embedded_pages(
-            client=client,
-            dependency_titles=tuple(dependency_titles),
-            namespaces=tuple(namespaces),
-            assertion="bot",
-            assert_user=assert_user,
-        )
+        if dependency_titles:
+            refreshed_titles.update(
+                refresh_embedded_pages(
+                    client=client,
+                    dependency_titles=tuple(dependency_titles),
+                    namespaces=tuple(namespaces),
+                    assertion="bot",
+                    assert_user=assert_user,
+                ).refreshed
+            )
+        if source_tables:
+            refreshed_titles.update(
+                refresh_item_owners_for_source_changes(
+                    client=client,
+                    changed_source_tables=tuple(source_tables),
+                    assertion="bot",
+                    assert_user=assert_user,
+                ).refreshed
+            )
     finally:
         client.close()
 
-    console.print(f"[green]Embedded dependency refresh complete[/green] Refreshed: {len(result.refreshed)}")
+    console.print(f"[green]Embedded dependency refresh complete[/green] Refreshed: {len(refreshed_titles)}")
 
 
 @app.command("rollback-repo-pages")

@@ -414,6 +414,40 @@ class TestMediaWikiClientEditPage:
         assert mock_http_client.post.called  # Edit
 
     @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_null_edit_pages_sends_guards_and_unchanged_content(self, mock_client_class: MagicMock) -> None:
+        """Null edits reparse existing content under the requested API guards."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+
+        page_response = MagicMock()
+        page_response.json.return_value = {
+            "query": {
+                "pages": {
+                    "123": {
+                        "pageid": 123,
+                        "title": "Item:Sword",
+                        "revisions": [{"slots": {"main": {"*": "unchanged source"}}}],
+                    }
+                }
+            }
+        }
+        token_response = MagicMock()
+        token_response.json.return_value = {"query": {"tokens": {"csrftoken": "test_csrf_token"}}}
+        edit_response = MagicMock()
+        edit_response.json.return_value = {"edit": {"result": "Success"}}
+        mock_http_client.get.side_effect = [page_response, token_response]
+        mock_http_client.post.return_value = edit_response
+
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        assert client.null_edit_pages(("Item:Sword",), assertion="bot", assert_user="ErenshorBot") == ("Item:Sword",)
+
+        call_data = mock_http_client.post.call_args[1]["data"]
+        assert call_data["text"] == "unchanged source"
+        assert call_data["assert"] == "bot"
+        assert call_data["assertuser"] == "ErenshorBot"
+        assert call_data["nocreate"] == "1"
+
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
     def test_edit_page_failure(self, mock_client_class: MagicMock) -> None:
         """Test edit failure handling."""
         mock_http_client = MagicMock()

@@ -622,6 +622,79 @@ class TestWikiRefreshEmbeddedCommand:
         assert kwargs["assertion"] == "bot"
         assert kwargs["assert_user"] == "ErenshorBot"
 
+    def test_refresh_embedded_deduplicates_combined_refresh_results(self, monkeypatch: pytest.MonkeyPatch):
+        """Dependency and source refreshes share one final refreshed-page count."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        calls = []
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+
+        def fake_refresh_embedded_pages(**kwargs):
+            calls.append(("embedded", kwargs))
+            return EmbeddedRefreshResult(requested=("A", "B"), refreshed=("A", "B"))
+
+        def fake_refresh_item_owners_for_source_changes(**kwargs):
+            calls.append(("owners", kwargs))
+            return EmbeddedRefreshResult(requested=("B", "C"), refreshed=("B", "C"))
+
+        monkeypatch.setattr(wiki_command, "refresh_embedded_pages", fake_refresh_embedded_pages)
+        monkeypatch.setattr(
+            wiki_command,
+            "refresh_item_owners_for_source_changes",
+            fake_refresh_item_owners_for_source_changes,
+        )
+
+        result = runner.invoke(
+            app,
+            [
+                "wiki",
+                "refresh-embedded",
+                "--dependency-title",
+                "Template:Item",
+                "--namespace",
+                "0",
+                "--source-table",
+                "loot_drops",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "Refreshed: 3" in result.output
+        assert [kind for kind, _ in calls] == ["embedded", "owners"]
+        assert client.closed is True
+
+    def test_refresh_embedded_reparses_item_owners_for_source_table(self, monkeypatch: pytest.MonkeyPatch):
+        """Source-table mode refreshes item-owned Cargo pages without embeddedin namespaces."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        calls = []
+
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+
+        def fake_refresh_item_owners_for_source_changes(**kwargs):
+            calls.append(kwargs)
+            return EmbeddedRefreshResult(requested=("Ember Longsword",), refreshed=("Ember Longsword",))
+
+        monkeypatch.setattr(
+            wiki_command,
+            "refresh_item_owners_for_source_changes",
+            fake_refresh_item_owners_for_source_changes,
+        )
+
+        result = runner.invoke(
+            app,
+            ["wiki", "refresh-embedded", "--source-table", "loot_drops"],
+        )
+
+        assert result.exit_code == 0
+        assert "Refreshed: 1" in result.output
+        assert calls[0]["changed_source_tables"] == ("loot_drops",)
+        assert calls[0]["assertion"] == "bot"
+        assert client.closed is True
+
 
 class TestWikiRollbackRepoCommand:
     """Test manifest-backed rollback command."""

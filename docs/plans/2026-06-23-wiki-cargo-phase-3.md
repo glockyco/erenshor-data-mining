@@ -479,7 +479,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E4: Item-ownership freshness
 
-- [ ] Extend `src/erenshor/application/wiki_deploy/refresh.py` so a change in a source table (loot/vendor/dialog/quest/craft/mining/fishing/item_bag/class) reparses the **owning item pages** (item-owned rows only refresh on item-page parse — the §10 freshness model). On the harness, drive this via the recreate + null-edit path. Add/extend a `tests/unit/.../test_refresh.py` assertion. **Commit** — `fix(wiki): reparse owning item pages so relationship Cargo stays fresh`
+- [x] Extend `src/erenshor/application/wiki_deploy/refresh.py` so a change in a source table (loot/vendor/dialog/quest/craft/mining/fishing/item_bag/class/item-use producers) reparses the **owning item pages** (item-owned rows only refresh on item-page parse — the §10 freshness model). On the harness, drive this via the recreate + null-edit path. Add/extend a `tests/unit/.../test_refresh.py` assertion. **Commit** — `fix(wiki): reparse owning item pages so relationship Cargo stays fresh`
 
 ### Task E5: Full validation gate
 
