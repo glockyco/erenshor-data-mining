@@ -364,14 +364,19 @@ resolves by `SourceType`:
 | `quest` | quest reward (`Quest.ItemOnComplete`) | QuestLink |
 | `craft` | `crafting_rewards` (`Quantity`) | ItemLink (recipe item) |
 | `item_use` | `item_drops` (fossil) + `spell_created_items` (offering bag) | ItemLink (source item) |
-| `mining` | `mining_nodes`+`mining_node_items` | ZoneLink |
-| `fishing` | `water_fishables` (day/night → `SourceCondition`) | ZoneLink |
-| `item_bag` | `item_bags` (ground pickups) | ZoneLink |
+| `mining` | `mining_nodes`+`mining_node_items` | Mining-node StableKey, displayed through its connected ZoneLink |
+| `fishing` | `water_fishables` (day/night → `SourceCondition`) | Water StableKey, displayed through its connected ZoneLink |
+| `item_bag` | `item_bags` (ground pickups) | Item-bag StableKey, displayed through its connected ZoneLink |
 | `starting` | `class_starting_items` (export from `CharSelectManager`) | ClassLink |
 | `community` | `{{ItemSource}}` (§9) | null — free text in `SourceText` |
 
-World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey`
-(no page of their own); dedup to one row per item×type×zone.
+World-point sources carry their smallest stable identity. Mining nodes, waters,
+and item bags are joined to their connected zone through
+`mining_nodes.scene = zones.scene_name`, `waters.scene = zones.scene_name`, or
+`item_bags.scene = zones.scene_name`; the zone is a display-resolution target,
+not a replacement for the source identity. Deduplicate mining to one row per
+item×mining-node, item bags to one row per item×item-bag, and fishing to one row
+per item×water×condition.
 
 **`UsedIn`** — what an item is consumed for (item → consumer): `ItemKey`, `UseType`,
 `TargetKey`, `Quantity`, `Slot`:

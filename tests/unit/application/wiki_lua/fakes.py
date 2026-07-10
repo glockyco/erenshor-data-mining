@@ -245,13 +245,13 @@ class FakeZoneRepository:
     def get_zone_connections(self, scene_name: str) -> list[str]:
         return self._connections.get(scene_name, [])
 
-    def get_mining_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+    def get_mining_nodes_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._mining_sources.get(item_stable_key, [])
 
     def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._fishing_sources.get(item_stable_key, [])
 
-    def get_item_bag_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+    def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._item_bag_sources.get(item_stable_key, [])
 
 

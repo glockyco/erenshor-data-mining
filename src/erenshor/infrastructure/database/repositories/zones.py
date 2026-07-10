@@ -91,23 +91,23 @@ class ZoneRepository(BaseRepository[Zone]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve connections for '{scene_name}': {e}") from e
 
-    def get_mining_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return zones where an item is mined, with the maximum node chance."""
+    def get_mining_nodes_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return mining nodes where an item is found, with node chance."""
         query = """
-            SELECT z.stable_key AS zone_stable_key, MAX(mni.drop_chance) AS drop_chance
+            SELECT mn.stable_key AS mining_node_stable_key, MAX(mni.drop_chance) AS drop_chance
             FROM mining_node_items mni
             JOIN mining_nodes mn ON mn.stable_key = mni.mining_node_stable_key
             JOIN zones z ON z.scene_name = mn.scene
             WHERE mni.item_stable_key = ?
-            GROUP BY z.stable_key
-            ORDER BY z.stable_key
+            GROUP BY mn.stable_key
+            ORDER BY mn.stable_key
         """
         try:
             rows = self._execute_raw(query, (item_stable_key,))
             return [
                 ObtainedFromInfo(
                     source_type="mining",
-                    source_key=str(row["zone_stable_key"]),
+                    source_key=str(row["mining_node_stable_key"]),
                     probability=float(row["drop_chance"]) if row["drop_chance"] is not None else None,
                 )
                 for row in rows
@@ -116,11 +116,11 @@ class ZoneRepository(BaseRepository[Zone]):
             raise RepositoryError(f"Failed to retrieve mining sources for '{item_stable_key}': {e}") from e
 
     def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return fishing zones and day/night chances for an item."""
+        """Return fishing waters and day/night chances for an item."""
         query = """
             WITH fish_rows AS (
                 SELECT
-                    z.stable_key AS zone_stable_key,
+                    w.stable_key AS water_stable_key,
                     CASE wf.type
                         WHEN 'DayFishable' THEN 'day'
                         WHEN 'NightFishable' THEN 'night'
@@ -132,17 +132,17 @@ class ZoneRepository(BaseRepository[Zone]):
                 JOIN zones z ON z.scene_name = w.scene
                 WHERE wf.item_stable_key = ?
             )
-            SELECT zone_stable_key, source_condition, MAX(drop_chance) AS drop_chance
+            SELECT water_stable_key, source_condition, MAX(drop_chance) AS drop_chance
             FROM fish_rows
-            GROUP BY zone_stable_key, source_condition
-            ORDER BY zone_stable_key, source_condition
+            GROUP BY water_stable_key, source_condition
+            ORDER BY water_stable_key, source_condition
         """
         try:
             rows = self._execute_raw(query, (item_stable_key,))
             return [
                 ObtainedFromInfo(
                     source_type="fishing",
-                    source_key=str(row["zone_stable_key"]),
+                    source_key=str(row["water_stable_key"]),
                     probability=float(row["drop_chance"]) if row["drop_chance"] is not None else None,
                     condition=str(row["source_condition"]),
                 )
@@ -151,17 +151,19 @@ class ZoneRepository(BaseRepository[Zone]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve fishing sources for '{item_stable_key}': {e}") from e
 
-    def get_item_bag_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return zones containing item bags that hold an item."""
+    def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return item bags that contain an item."""
         query = """
-            SELECT DISTINCT z.stable_key AS zone_stable_key
+            SELECT ib.stable_key AS item_bag_stable_key
             FROM item_bags ib
             JOIN zones z ON z.scene_name = ib.scene
             WHERE ib.item_stable_key = ?
-            ORDER BY z.stable_key
+            ORDER BY ib.stable_key
         """
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            return [ObtainedFromInfo(source_type="item_bag", source_key=str(row["zone_stable_key"])) for row in rows]
+            return [
+                ObtainedFromInfo(source_type="item_bag", source_key=str(row["item_bag_stable_key"])) for row in rows
+            ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve item-bag sources for '{item_stable_key}': {e}") from e

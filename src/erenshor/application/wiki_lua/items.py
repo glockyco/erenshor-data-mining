@@ -75,11 +75,11 @@ class ItemProvenanceQuestRepository(Protocol):
 class ItemProvenanceZoneRepository(Protocol):
     """Zone methods needed for item obtainability source fields."""
 
-    def get_mining_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+    def get_mining_nodes_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
-    def get_item_bag_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+    def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
 
 LuaData = dict[str, object]
@@ -246,9 +246,9 @@ def build_item_sources_by_item(
             *quest_repo.get_quest_reward_sources(item_key),
             *item_repo.get_recipes_rewarding_item(item_key),
             *item_repo.get_item_use_sources(item_key),
-            *zone_repo.get_mining_zones_for_item(item_key),
+            *zone_repo.get_mining_nodes_for_item(item_key),
             *zone_repo.get_fishing_waters_for_item(item_key),
-            *zone_repo.get_item_bag_zones_for_item(item_key),
+            *zone_repo.get_item_bag_sources_for_item(item_key),
             *item_repo.get_classes_starting_with_item(item_key),
         ]
         sources_by_item[item_key] = SourceInfo(
@@ -342,6 +342,7 @@ def _item_record(
         _put(row, "relatedQuest", _format_related_quests(sources))
         _put(row, "componentFor", _format_component_for(sources))
         _put(row, "containerDrops", _format_container_drops(sources))
+        _put(row, "obtainedFrom", _format_obtained_from(sources))
 
     if recipe is not None:
         ingredients = _recipe_links(recipe.materials)
@@ -428,6 +429,35 @@ def _format_container_drops(sources: SourceInfo) -> list[LuaData]:
             entry["guaranteed"] = True
         out.append(entry)
     return out
+
+
+def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
+    """Format stable-keyed item provenance with deterministic ordering."""
+    ordered = sorted(
+        sources.obtained_from,
+        key=lambda source: (
+            source.source_type,
+            source.source_key or "",
+            source.condition or "",
+            source.probability is None,
+            source.probability if source.probability is not None else 0.0,
+            source.quantity is None,
+            source.quantity if source.quantity is not None else 0,
+            source.is_guaranteed,
+        ),
+    )
+    result: list[LuaData] = []
+    for source in ordered:
+        row: LuaData = {}
+        _put(row, "type", source.source_type)
+        _put(row, "sourceKey", source.source_key)
+        _put(row, "probability", source.probability)
+        if source.is_guaranteed:
+            row["guaranteed"] = True
+        _put(row, "quantity", source.quantity)
+        _put(row, "condition", source.condition)
+        result.append(row)
+    return result
 
 
 def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:

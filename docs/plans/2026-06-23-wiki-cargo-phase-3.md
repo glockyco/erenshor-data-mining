@@ -293,7 +293,7 @@ Outcome: a single `ObtainedFrom` Cargo table written from the item page, coverin
 |Origin=String
 }}
 Hidden store owner of the unified item-obtainability junction (one row per item × source × condition when a source has variants).
-ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. `SourceCondition` is part of the generated-row identity so fishing day/night rows remain distinct. The `Item` page transcludes this hidden owner, whose `<includeonly>` runs the Lua-backed `#cargo_store`; `Item` itself declares only the `Items` table.
+ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/mining-node/water/item-bag/zone/class StableKey, or null for free-text community rows) at display time. World-point SourceKeys preserve mining-node, water, and item-bag identities and resolve through their connected zone for display via `zones.scene_name`; SourceText carries free-text community sources; Origin ∈ generated|community. `SourceCondition` is part of the generated-row identity so fishing day/night rows remain distinct. The `Item` page transcludes this hidden owner, whose `<includeonly>` runs the Lua-backed `#cargo_store`; `Item` itself declares only the `Items` table.
 </noinclude>
 ```
 
@@ -335,28 +335,30 @@ Add one method and focused test for each source path:
   item StableKey and reward quantity. SourceType `craft`.
 - **`get_item_use_sources(item_key)`** — reverse `item_drops` plus
   `spell_created_items` (offering-bag products). SourceType `item_use`.
-- **`get_mining_zones_for_item(item_key)`** — join mining nodes to zones;
-  deduplicate one row per item×zone using the maximum drop chance. SourceType
-  `mining`.
-- **`get_fishing_waters_for_item(item_key)`** — join fishables/waters/zones,
-  normalize `DayFishable`/`NightFishable` to `day`/`night`, and deduplicate
-  one row per item×zone×condition using the maximum drop chance. SourceType
-  `fishing`.
-- **`get_item_bag_zones_for_item(item_key)`** — distinct item-bag zones.
-  SourceType `item_bag`.
+- **`get_mining_nodes_for_item(item_key)`** — join mining nodes to their
+  connected zones; preserve one row per item×mining-node with the node's drop
+  chance. SourceKey is the mining-node StableKey. SourceType `mining`.
+- **`get_fishing_waters_for_item(item_key)`** — join fishables to waters (and
+  their connected zones), normalize `DayFishable`/`NightFishable` to `day`/`night`,
+  and deduplicate one row per item×water×condition using the maximum drop chance.
+  SourceKey is the water StableKey, not the containing zone. SourceType `fishing`.
+- **`get_item_bag_sources_for_item(item_key)`** — join item bags through their
+  connected zones and preserve one row per item-bag StableKey. SourceType
+  `item_bag`.
 - **`get_classes_starting_with_item(item_key)`** — join
   `class_starting_items` to `classes`; use `class:<class_name>` as the
   canonical SourceKey because no ClassRepository or ClassLink exists.
   SourceType `starting`.
 
-The mining, fishing, and item-bag methods belong to `ZoneRepository`; the
-starting-item method belongs to `ItemRepository` and reads the existing
+The mining, fishing, and item-bag methods belong to `ZoneRepository`; each
+joins through `zones.scene_name` to validate the world-point connection while
+preserving the smallest source StableKey (mining node, water, or item bag).
+The starting-item method belongs to `ItemRepository` and reads the existing
 `classes` table. Extend the Lua generation/builder protocols and call sites to
-pass the already-available `zone_repo`; do not invent a `classes.py`
-repository or derive keys from page titles. World-point sources carry the zone
-StableKey as SourceKey. Existing display methods remain responsible for legacy
-infobox fields; the new source methods provide stable-keyed records consumed by
-B3.
+pass the already-available `zone_repo`; do not invent a `classes.py` repository
+or derive keys from page titles. Existing display methods remain responsible for
+legacy infobox fields; the new source methods provide stable-keyed records
+consumed by B3.
 
 - [ ] **Commit per method or grouped logically** —
   `feat(pipeline): add <source> reverse-source repository query`
@@ -367,7 +369,7 @@ B3.
 
 - [ ] **Step 1: Write failing tests** asserting a fixture item yields typed
   rows: inert diamond from a treasure chest (`drop` with character key,
-  probability, guaranteed flag), a fished item (`fishing` with zone key and
+  probability, guaranteed flag), a fished item (`fishing` with water key and
   day/night condition), bread (`starting` with `class:<name>`), and offering
   stone (`item_use` with the bag source key).
 - [ ] **Step 2:** Run; expect failure.
