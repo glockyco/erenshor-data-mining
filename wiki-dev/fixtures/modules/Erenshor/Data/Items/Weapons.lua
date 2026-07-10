@@ -19,7 +19,7 @@ return {
 		stats = {
 			{ quality = "Normal", weaponDamage = 18, str = 5, dex = 2, mr = 3 },
 			{ quality = "Blessed", weaponDamage = 23, str = 8, dex = 3, mr = 4 },
-			{ quality = "Godly", weaponDamage = 28, str = 10, dex = 4, mr = 5 },
+			{ quality = "Ascended", weaponDamage = 28, str = 10, dex = 4, mr = 5 },
 		},
 	},
 }
