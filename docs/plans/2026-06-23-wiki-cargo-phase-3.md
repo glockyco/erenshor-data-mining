@@ -10,7 +10,7 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Read `skill://wiki-templates`, `skill://unity-export-system`, `skill://code-facts`, and `skill://refreshing-game-data` before starting.
 
-**Goal:** Build the unified, item-owned `ObtainedFrom` / `UsedIn` Cargo relationship tables plus the `IsRare` / `IsAuctionable` item flags and the `CharacterAbilities` / `Spawns` junctions, then cut reverse displays over to Cargo queries — all on the local `wiki-dev` harness, with the live wiki untouched (production cutover is Phase 7).
+**Goal:** Build the unified, item-owned `ObtainedFrom` / `UsedIn` Cargo relationship tables plus derived `IsAuctionable`, complete item-flag repository mapping, and the `CharacterAbilities` / `Spawns` junctions, then cut reverse displays over to Cargo queries — all on the local `wiki-dev` harness, with the live wiki untouched (production cutover is Phase 7).
 
 **Architecture:** Item obtainability and usage become two unified typed tables keyed on `ItemKey`, **stored from the item page** (the only owner that already has Cargo + a dual-path gate), which collapses the Phase-5 ordering trap (Quest/Zone/Class templates have no `cargoStore` yet). Generated relationship rows are written forward via `Module:Erenshor/Cargo` and read reverse via Cargo queries; the denormalized reverse arrays are removed. Hardcoded game constants (auction bounds, smithing upgrade IDs) are **consumed from the `code_facts` table**, never transcribed — derivations assert the exact extracted comparison strings and hard-fail on drift. `Drops` (character-owned) and `ContainerDrops` (item-owned) are folded into `ObtainedFrom` and deleted.
 
@@ -30,14 +30,14 @@ parent: 2026-06-04-wiki-cargo-data-architecture
   - `auction.replacebag_gates` → `item_level='<= 0,> 39'`, `rare_reject_roll='< 19'`
   - `smithing.upgrade_ids` → `strings='31377423,46289586,2298018,2265228'`
   `auction.updateah_gates.item_level='>= 40'` is the listing skip branch (verified against `AuctionHouse.cs:626`: `if (itemByID.ItemLevel >= 40) continue;`, so items ≥40 are skipped and the auctionable predicate is `1 ≤ level ≤ 39`). `ReplaceBag:120` rejects `ItemLevel <= 0 || > 39` and `RareItem && Random(0,20) < 19`. The four smithing IDs are `items.id` values (TEXT), not stable keys: `31377423`=Mold: An Otherwordly Box, `46289586`=Planar Stone, `2298018`=Inert Diamond, `2265228`=Merging Vessel.
-- **`Item.RareItem`** exists (`Item.cs:210`) but is not exported. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the auction gate uses `ItemValue`.
+- **`Item.RareItem`** reaches raw export, clean `items.rare_item`, and sheets; the `Item` domain model and Lua data map declare it, but the item repository must select it before generated Lua receives its value (Task A6). `is_auctionable` remains a derived field for Task A5. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the auction gate uses `ItemValue`.
 - **Storage shape — nested hidden owners (validated).** Each relationship table has one hidden store template that both declares it (in `<noinclude>`) and stores its rows (a Lua-backed `#cargo_store` in `<includeonly>`): `ItemObtainedFromStore`→`ObtainedFrom`, `ItemUsedInStore`→`UsedIn`, `CharacterSpawnsStore`→`Spawns`, `CharacterAbilitiesStore`→`CharacterAbilities`. `Item`/`Character` declare only their own detail table (`Items`/`Characters`) and *transclude* the hidden owners, so no template exceeds the wiki.gg 1-declare budget and **no attach-trick is needed**. The live `2026-07-09-wiki-cargo-storage-validation` probe confirmed this shape on wiki.gg. Data refreshes reparse pages (rows rewrite in place); only a schema change recreates a table.
 
 ## File map (created / modified)
 
-- C# export: `src/Assets/Editor/Database/ItemRecord.cs`, `ClassStartingItemRecord.cs` (new); `src/Assets/Editor/ExportSystem/AssetScanner/Listener/ItemListener.cs`, `ClassStartingItemsListener.cs` (new); `src/Assets/Editor/ExportBatch.cs`.
+- C# export: `src/Assets/Editor/Database/ClassStartingItemRecord.cs` (new); `src/Assets/Editor/ExportSystem/AssetScanner/Listener/ClassStartingItemsListener.cs` (new); `src/Assets/Editor/ExportBatch.cs`.
 - Code facts: `src/tools/CodeFacts/specs/erenshor-facts.json` (only if a drift fix or a new `smithing`/`auction` spec is needed — see 3C2).
-- Python build: `src/erenshor/application/processor/writer.py` (schemas), `processor/entities.py` (process_items + class_starting_items), `processor/auction.py` (new, `is_auctionable`), `domain/entities/item.py`, the repositories under `infrastructure/database/repositories/`.
+- Python build: `src/erenshor/application/processor/writer.py` (schemas), `processor/entities.py` (`process_classes` and `process_items`), `processor/auction.py` (new, `is_auctionable`), `domain/entities/item.py`, and the item repository mapping.
 - Lua gen: `src/erenshor/application/wiki_lua/items.py`, `characters.py`, new builders; `domain/value_objects/source_info.py`.
 - Lua modules: `wiki/modules/Erenshor/Item.lua`, `Character.lua`.
 - Templates: `wiki/templates/Item.wiki`, `Character.wiki` (transclude the hidden owners); new hidden store owners `ItemObtainedFromStore.wiki`, `ItemUsedInStore.wiki`, `CharacterSpawnsStore.wiki`, `CharacterAbilitiesStore.wiki`; delete `Drops.wiki`, `ContainerDrops.wiki` at the end of 3E.
@@ -65,62 +65,20 @@ Per-module Lua assertions live in `wiki/modules/Erenshor/<Type>/testcases.lua` a
 
 ## Sub-phase 3A — Exports & item flags
 
-Outcome: clean `items` carries `rare_item` + `is_auctionable`; `class_starting_items` exists; golden recaptured. No wiki changes yet.
+Outcome: clean `items` already carries `rare_item`; this sub-phase adds `is_auctionable`, `class_starting_items`, complete item repository mapping, and refreshed golden baselines. No wiki changes yet.
 
-### Task A1: Export `Item.RareItem`
+### Task A1: Export `Item.RareItem` (complete)
 
-**Files:**
-- Modify: `src/Assets/Editor/Database/ItemRecord.cs` (Economy/Inventory block, near line 85)
-- Modify: `src/Assets/Editor/ExportSystem/AssetScanner/Listener/ItemListener.cs:209` (Economy block of `CreateItemRecord`)
+- [x] `ItemRecord.RareItem` is stored from `ItemListener.CreateItemRecord`.
+- [x] `RareItem` is classified as captured in `field-coverage.json`.
 
-- [ ] **Step 1:** Add the column to `ItemRecord` after `NoTradeNoDestroy`:
+### Task A2: Carry `rare_item` into the clean `items` table (complete)
 
-```csharp
-    public bool NoTradeNoDestroy { get; set; }
-    public bool RareItem { get; set; } // Authored "prized item" flag (Item.RareItem); drives auction ×20 and the rare draw soft-rejec
-```
+- [x] `writer.py` defines `items.rare_item`; `test_item_flags_flow_to_clean` verifies the raw-to-clean path.
+- [x] The item sheets query includes `rare_item`; Task A6 completes the repository mapping required for the existing Lua data map to receive its value.
 
-- [ ] **Step 2:** Map it in `CreateItemRecord` after `NoTradeNoDestroy = item.NoTradeNoDestroy,`:
-
-```csharp
-            NoTradeNoDestroy = item.NoTradeNoDestroy,
-            RareItem = item.RareItem,
-```
-
-- [ ] **Step 3:** Re-export and confirm the raw column is populated:
-
-```bash
-uv run erenshor -V playtest extract export
-sqlite3 variants/playtest/erenshor-playtest-raw.sqlite
-  "SELECT COUNT(*) FROM Items WHERE RareItem=1"
-```
-Expected: a non-zero count (rare items exist).
-
-- [ ] **Step 4: Commit** — `feat(export): export the authored Item.RareItem flag`
-
-### Task A2: Carry `rare_item` into the clean `items` table
-
-**Files:**
-- Modify: `src/erenshor/application/processor/writer.py` (CREATE TABLE items, near line 345)
-- Test: `tests/unit/application/processor/test_entities.py` (or the existing items-processor test)
-
-- [ ] **Step 1: Write the failing test** — assert the clean column exists and a known rare item is flagged:
-
-```python
-def test_process_items_carries_rare_item(clean_db):
-    row = clean_db.execute(
-        "SELECT rare_item FROM items WHERE stable_key = :k", {"k": KNOWN_RARE_ITEM_KEY}
-    ).fetchone()
-    assert row["rare_item"] == 1
-```
-
-- [ ] **Step 2:** Run it; expect failure (`no such column: rare_item`).
-
-- [ ] **Step 3:** Add `rare_item INTEGER,` and `is_auctionable INTEGER,` to the `CREATE TABLE items (...)` body in `writer.py` (group with the other boolean flags). `process_items` already does `_rename_cols` PascalCase→snake, so the exported `RareItem` flows to `rare_item` automatically once the column exists; `_insert` is column-name keyed.
-
-- [ ] **Step 4:** `uv run erenshor extract build` then run the test. Expected: PASS.
-
-- [ ] **Step 5: Commit** — `feat(pipeline): carry the rare_item flag into the clean items table`
+`is_auctionable` belongs solely to Task A5; it is not a clean-schema side effect of
+the completed `rare_item` work.
 
 ### Task A3: Export `class_starting_items`
 
@@ -308,25 +266,25 @@ Expected: a large but < total count.
 
 - [ ] **Step 5: Commit** — `feat(pipeline): derive IsAuctionable from auction code facts`
 
-### Task A6: Surface the flags on the `Item` domain entity
+### Task A6: Surface `is_auctionable` and complete item flag repository mapping
 
 **Files:** `src/erenshor/domain/entities/item.py` + the item repository row→entity mapping.
 
-- [ ] **Step 1:** Add fields after `no_trade_no_destroy`:
+- [x] `Item` declares `rare_item`.
+- [ ] **Step 1:** Add `is_auctionable` after `rare_item`:
 
 ```python
-    rare_item: int | None = Field(default=None, description="Authored prized-item flag (boolean)")
     is_auctionable: int | None = Field(default=None, description="Derived: appears on the auction house (boolean)")
 ```
 
-- [ ] **Step 2:** Confirm the repository `SELECT *`/mapping carries the new columns (Pydantic ignores extras only if not declared — declared here, so they bind). Add a unit test asserting a fetched `Item` has `rare_item`/`is_auctionable` set.
+- [ ] **Step 2:** Select both `rare_item` and `is_auctionable` in the item repository, then add a unit test asserting fetched `Item` entities carry both flags.
 - [ ] **Step 3:** Run the test. Expected: PASS.
 - [ ] **Step 4: Commit** — `feat(pipeline): expose rare_item and is_auctionable on the Item entity`
 
 ### Task A7: Recapture golden baselines
 
 - [ ] **Step 1:** `uv run erenshor -V playtest golden capture` (playtest = the shipping build in waiting; see `skill://refreshing-game-data` variant-safety rules — capture writes the shared `tests/golden/`, so this is only safe because playtest is the build we are cutting over to).
-- [ ] **Step 2:** Review the diff in `tests/golden/`: expect only added `rare_item`/`is_auctionable` columns and the new `class_starting_items` rows; `code_facts.csv` shows the playtest renderings (`auction.updateah_gates.item_level='>= 40'`, `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`).
+- [ ] **Step 2:** Review the diff: expect added `is_auctionable` and `class_starting_items`; `rare_item` already appears in the baseline. `code_facts.csv` shows the playtest renderings (`auction.updateah_gates.item_level='>= 40'`, `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`).
 - [ ] **Step 3:** `uv run pytest` green.
 - [ ] **Step 4: Commit** — `test(pipeline): recapture golden baselines for item flags + class starting items`
 
@@ -540,7 +498,7 @@ Run the probe with `uv run python src/tools/wiki_cargo_storage_probe.py --live -
 
 ## Self-review
 
-- **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable/IsRare → A5/A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
+- **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable → A5/A6; IsRare raw/clean export → A1/A2 (complete), with repository mapping in A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
 - **Ownership trap:** resolved by item-owning ObtainedFrom/UsedIn; quest/zone/class need no Cargo template in Phase 3.
 - **Code-fact boundary:** every constant (auction bounds, smithing string IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.updateah_gates.item_level` pins `'>= 40'`, and `smithing.upgrade_ids` pins the full four-ID set while classifying only the upgrade/blessing-removal IDs into Phase 3 `UsedIn` rows.
 - **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
