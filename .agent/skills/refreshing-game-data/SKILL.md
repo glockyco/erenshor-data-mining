@@ -89,10 +89,12 @@ Open the `.trace.json` artifact in Perfetto when the nested timeline matters.
 
 ## Variant safety rules
 
-Three actions, when run with a non-main variant, silently affect main. Confirm
-the variant is the canonical shipping variant before running, or skip:
+Shared-output actions require an explicit variant gate before running:
 
-- `golden capture` writes to shared `tests/golden/` and breaks main's regression tests.
+- `golden capture` writes to shared `tests/golden/`. During an intentional
+  playtest→main cutover, capture from `playtest` when the golden tests'
+  integration database also resolves to `playtest` (the Phase 3 cutover
+  workflow); otherwise capture from `main`.
 - `wiki deploy` overwrites `erenshor.wiki.gg` (single target across all variants).
 - `guide compile` overwrites the single `quest_guides/guide.json` embedded into the next AdventureGuide build.
 - `maps deploy` publishes the single `src/maps/wrangler.jsonc` Worker target. Build/playtest locally, but deploy only the shipping variant.

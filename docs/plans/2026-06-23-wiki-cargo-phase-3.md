@@ -253,10 +253,17 @@ is_auctionable: int | None = Field(
 
 ### Task A7: Recapture golden baselines
 
-- [ ] **Step 1:** `uv run erenshor -V playtest golden capture` (playtest = the shipping build in waiting; see `skill://refreshing-game-data` variant-safety rules — capture writes the shared `tests/golden/`, so this is only safe because playtest is the build we are cutting over to).
-- [ ] **Step 2:** Review the diff: expect added `is_auctionable` and `class_starting_items`; `rare_item` already appears in the baseline. `code_facts.csv` shows the player auction renderings (`auction.player_listing_gates.item_level='!= 0'`, `auction.player_listing_gates.item_value='!= 0'`, `auction.player_listing_gate.ok='true'`) alongside the retained legacy SimPlayer auction facts and `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`.
-- [ ] **Step 3:** `uv run pytest` green.
-- [ ] **Step 4: Commit** — `test(pipeline): recapture golden baselines for item flags + class starting items`
+- [x] **Step 1:** `uv run erenshor -V playtest golden capture` (playtest = the shipping build in waiting; see `skill://refreshing-game-data` variant-safety rules — capture writes the shared `tests/golden/`, so this is only safe because playtest is the build we are cutting over to).
+- [x] **Step 2:** Review the diff: `items.csv` adds `is_auctionable`;
+  `class_starting_items` has clean-DB coverage from A3/A4 but no golden
+  consumer yet. `code_facts.csv` shows the player auction renderings
+  (`auction.player_listing_gates.item_level='!= 0'`,
+  `auction.player_listing_gates.item_value='!= 0'`,
+  `auction.player_listing_gate.ok='true'`) alongside the retained legacy
+  SimPlayer auction facts and
+  `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`.
+- [x] **Step 3:** `uv run pytest` green.
+- [x] **Step 4: Commit** — `test(pipeline): refresh item flag golden baselines`
 
 ---
 
