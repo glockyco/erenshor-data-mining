@@ -32,6 +32,7 @@ local FIELD_OVERRIDES = {
 	poison = "poison",
 	respawn = "respawn",
 	spawnchance = "spawnChance",
+	spawnwithstatus = "spawnWithStatus",
 	spells = "spells",
 	strength = "strength",
 	title = "name",
@@ -56,6 +57,7 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"spawnchance",
 	"level",
 	"droprates",
+	"spawnwithstatus",
 	"spells",
 	"health",
 	"mana",
@@ -401,6 +403,12 @@ local FIELD_ACCESSORS = {
 	end,
 	spawnchance = function(c)
 		return c.spawnChance
+	end,
+	spawnwithstatus = function(c)
+		if isBlank(c.spawnWithStatus) then
+			return ""
+		end
+		return Link.render({ kind = "ability", stablekey = c.spawnWithStatus })
 	end,
 	level = function(c)
 		return c.level

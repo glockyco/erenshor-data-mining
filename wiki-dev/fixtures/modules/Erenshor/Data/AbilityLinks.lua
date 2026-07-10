@@ -24,6 +24,12 @@ return {
 			image = "Minor Lightning",
 			kind = "spell",
 		},
+		["spell:none - lava coat"] = {
+			name = "Lava Coat",
+			page = "Lava Coat",
+			image = "Lava Coat",
+			kind = "spell",
+		},
 		["spell:ember_proc"] = {
 			name = "Ember Burst",
 			page = "Ember Burst",

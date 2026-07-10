@@ -45,6 +45,20 @@ return {
 			hasDrops = true,
 			hasSpells = false,
 		},
+		["character:subterranean magmite"] = {
+			name = "A Subterranean Magmite",
+			page = "A Subterranean Magmite",
+			image = "A Subterranean Magmite.png",
+			type = "Enemy",
+			zones = {
+				{ kind = "zone", page = "The Elderstone Mines", text = "The Elderstone Mines" },
+			},
+			level = 17,
+			spawnWithStatus = "spell:none - lava coat",
+			mapSelector = "enemy:A Subterranean Magmite",
+			hasDrops = false,
+			hasSpells = false,
+		},
 		["character:captain_rowan"] = {
 			name = "Captain Rowan",
 			page = "Captain Rowan",

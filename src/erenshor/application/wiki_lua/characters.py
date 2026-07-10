@@ -74,6 +74,7 @@ _CHARACTER_FIELD_MAP = (
     ("ignoreLOSForAggro", "ignore_los_for_aggro"),
     ("simPlayersIgnoreUntilOrdered", "sim_players_ignore_until_ordered"),
     ("enrage", "enrage"),
+    ("spawnWithStatus", "spawn_with_status_stable_key"),
 )
 
 

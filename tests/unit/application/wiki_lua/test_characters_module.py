@@ -150,7 +150,7 @@ def test_character_type_prefers_npc_then_boss_then_rare() -> None:
 
 
 def test_generates_characters_module_from_repository_data() -> None:
-    character = make_character()
+    character = make_character(spawn_with_status_stable_key="spell:none - lava coat")
     character_repo = FakeCharacterRepository([character])
     spawn_repo = FakeSpawnRepository({})
     loot_repo = FakeLootRepository({})
@@ -161,6 +161,7 @@ def test_generates_characters_module_from_repository_data() -> None:
     assert module.startswith("return {\n")
     assert '["character:a_grizzly_bear"]' in module
     assert '["byPage"]' not in module
+    assert '["spawnWithStatus"] = "spell:none - lava coat"' in module
 
 
 def test_writes_characters_module_to_data_module_path(tmp_path: Path) -> None:
@@ -229,3 +230,25 @@ def test_character_lua_record_includes_base_combat_stats_with_nondefault_values(
     assert record["baseArmorPenPercentage"] == 20.0
     assert record["baseAttackRollModifier"] == 3
     assert record["cannotBeSnared"] == 1
+
+
+def test_character_lua_record_carries_spawned_status_stable_key() -> None:
+    character = make_character(spawn_with_status_stable_key="spell:none - lava coat")
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+    )
+
+    record = data["characters"]["character:a_grizzly_bear"]
+    assert record["spawnWithStatus"] == "spell:none - lava coat"
+
+
+def test_character_template_surfaces_spawned_status_in_generated_path() -> None:
+    template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
+    generated_path = template.split("{{#if:{{{stablekey|}}}|", 1)[1].split("|<infobox", 1)[0]
+
+    assert "<label>Spawned With Status:</label>" in generated_path
+    assert "{{#invoke:Erenshor/Character|field|spawnwithstatus}}" in generated_path

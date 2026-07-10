@@ -248,7 +248,7 @@ def test_null_edit_discovers_pages_from_render_and_cargo_fixtures() -> None:
         Path("wiki-dev/fixtures/cargo_characters.tsv"),
     )
 
-    assert titles[:3] == ["A Grizzly Bear", "A Magical Sword in Port Azure", "Abyssal Plate"]
+    assert titles[:3] == ["A Grizzly Bear", "A Magical Sword in Port Azure", "A Subterranean Magmite"]
     assert "Manual Item Override" in titles
     assert "Captain Rowan" in titles
     assert len(titles) == len(set(titles))

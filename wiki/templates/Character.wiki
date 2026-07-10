@@ -18,6 +18,7 @@
     <group collapse="open">
         <header>Abilities</header>
         <data><label>Spells:</label><default>{{#invoke:Erenshor/Character|field|spells}}</default></data>
+        <data><label>Spawned With Status:</label><default>{{#invoke:Erenshor/Character|field|spawnwithstatus}}</default></data>
     </group>
     <group>
         <header>Base Stats</header>

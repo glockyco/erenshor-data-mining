@@ -120,6 +120,7 @@ class CharacterRepository(BaseRepository[Character]):
                 c.effective_min_vr,
                 c.effective_max_vr,
                 c.pet_spell_stable_key,
+                c.spawn_with_status_stable_key,
                 c.proc_on_hit_stable_key,
                 c.proc_on_hit_chance,
                 c.hand_set_resistances,

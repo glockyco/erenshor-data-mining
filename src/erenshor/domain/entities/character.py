@@ -148,6 +148,9 @@ class Character(BaseEntity):
 
     # Proc mechanics
     pet_spell_stable_key: str | None = Field(default=None, description="Pet summon spell ResourceName")
+    spawn_with_status_stable_key: str | None = Field(
+        default=None, description="Status spell applied when this character spawns"
+    )
     proc_on_hit_stable_key: str | None = Field(default=None, description="Proc spell ResourceName")
     proc_on_hit_chance: float | None = Field(default=None, description="Proc chance percentage (0-100)")
 

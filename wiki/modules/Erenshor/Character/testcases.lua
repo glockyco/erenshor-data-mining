@@ -77,6 +77,20 @@ function p.run()
 	local zones = Character.fieldValue(bearKey, "A Grizzly Bear", "zones")
 	assertContains(zones, "erenshor-link--zone", "zones render semantic links")
 	assertContains(zones, "[[Blacksalt Strand]]", "zones include page link")
+	local magmiteKey = { stablekey = "character:subterranean magmite" }
+	local spawnedStatus =
+		Character.fieldValue(magmiteKey, "A Subterranean Magmite", "spawnwithstatus")
+	assertContains(
+		spawnedStatus,
+		"erenshor-link--ability",
+		"spawned status renders an ability link"
+	)
+	assertContains(spawnedStatus, "[[Lava Coat]]", "spawned status resolves its spell page")
+	assertContains(
+		spawnedStatus,
+		'data-erenshor-key="spell:none - lava coat"',
+		"spawned status preserves its spell stable key"
+	)
 	local dropRates = Character.fieldValue(bearKey, "A Grizzly Bear", "droprates")
 	assertContains(dropRates, "erenshor-link--item", "drop rates render semantic item links")
 	assertContains(dropRates, "[[Bear Meat]]", "drop rates include item page link")
