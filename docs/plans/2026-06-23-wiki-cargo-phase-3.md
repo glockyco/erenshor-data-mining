@@ -457,7 +457,7 @@ Outcome: `Spawns` + `CharacterAbilities` written from the character page (Charac
 - [x] **D4:** `wiki/templates/CharacterAbilitiesStore.wiki` — hidden owner declaring + storing `CharacterAbilities`: `CharacterKey, AbilityKey, AbilityUsage`. smoke + cargo_check. **Commit** — `feat(wiki): declare the CharacterAbilities Cargo junction`
 - [x] **D5:** Python builder unioning `character_attack_spells` + `character_buff_spells` + `character_heal_spells` + `character_cc_spells` + `character_taunt_spells` + `character_group_heal_spells` + `character_attack_skills` (currently 0 rows but include for completeness), each tagged with its `AbilityUsage` (attack/buff/heal/cc/taunt/group_heal/attack_skill). `character_death_shouts` is intentionally excluded: the game treats `ShoutOnDeath` as a death-event chat message, not an ability; defer it to a dedicated ordered table preserving `SequenceIndex`. Tests. **Commit** — `feat(wiki): build character abilities list in Lua data`
 - [x] **D6:** `characterAbilityRows` + store entrypoint in `Character.lua`; `Character.wiki` transcludes `{{CharacterAbilitiesStore|stablekey=…}}` (no attach-trick). `Character/testcases.lua`. `cargo_check.py`. **Commit** — `feat(wiki): store CharacterAbilities rows`
-- [ ] **D7:** Fixtures `wiki-dev/fixtures/cargo_spawns.tsv`, `cargo_character_abilities.tsv` + a multi-spawn / multi-ability character fixture; `cargo_check.py` green. **Commit** — `test(wiki): cover Spawns and CharacterAbilities on the harness`
+- [x] **D7:** Fixtures `wiki-dev/fixtures/cargo_spawns.tsv`, `cargo_character_abilities.tsv` + a multi-spawn / multi-ability character fixture; `cargo_check.py` green. **Commit** — `test(wiki): cover Spawns and CharacterAbilities on the harness`
 
 ---
 
