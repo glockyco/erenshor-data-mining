@@ -847,6 +847,26 @@ local function obtainedFromRows(item)
 	return rows
 end
 
+-- One Cargo UsedIn row per stable-keyed item usage.
+local function usedInRows(item)
+	local rows = {}
+	if type(item.usedIn) ~= "table" then
+		return rows
+	end
+	for _, use in ipairs(item.usedIn) do
+		if type(use) == "table" and hasValue(use.type) and hasValue(use.targetKey) then
+			table.insert(rows, {
+				{ "ItemKey", item.stableKey },
+				{ "UseType", use.type },
+				{ "TargetKey", use.targetKey },
+				{ "Quantity", use.quantity },
+				{ "Slot", use.slot },
+			})
+		end
+	end
+	return rows
+end
+
 function p.cargoArgs(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -886,6 +906,28 @@ function p.cargoObtainedFromStore(frame)
 	end
 	for _, fields in ipairs(obtainedFromRows(item)) do
 		Cargo.store("ObtainedFrom", fields)
+	end
+	return ""
+end
+
+function p.cargoUsedInRows(frame)
+	local item = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not item.missing then
+		for _, fields in ipairs(usedInRows(item)) do
+			table.insert(rows, Cargo.buildArgs("UsedIn", fields))
+		end
+	end
+	return rows
+end
+
+function p.cargoUsedInStore(frame)
+	local item = p.resolve(templateArgs(frame), currentTitleText())
+	if item.missing then
+		return ""
+	end
+	for _, fields in ipairs(usedInRows(item)) do
+		Cargo.store("UsedIn", fields)
 	end
 	return ""
 end

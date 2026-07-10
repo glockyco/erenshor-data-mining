@@ -434,7 +434,7 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 ### Task C4: Lua store in the `ItemUsedInStore` owner
 
-- [ ] Add `usedInRows(item)` + `p.cargoUsedInStore` + store loop in `Item.lua` (mirror B4). Transclude `{{ItemUsedInStore|stablekey=…}}` from `Item.wiki` `<includeonly>` alongside `{{ItemObtainedFromStore}}` — no attach-trick. `Item/testcases.lua` for the store. Verify via `cargo_check.py`. **Commit** — `feat(wiki): store item UsedIn rows via the ItemUsedInStore owner`
+- [x] Add `usedInRows(item)` + `p.cargoUsedInStore` + store loop in `Item.lua` (mirror B4). Transclude `{{ItemUsedInStore|stablekey=…}}` from `Item.wiki` `<includeonly>` alongside `{{ItemObtainedFromStore}}` — no attach-trick. `Item/testcases.lua` covers the store; local smoke and a direct `UsedIn` Cargo query pass. **Commit** — `feat(wiki): store item UsedIn rows via the ItemUsedInStore owner`
 
 ### Task C5: Fixtures + smoke
 

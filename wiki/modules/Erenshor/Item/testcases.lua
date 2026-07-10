@@ -159,6 +159,21 @@ function p.run()
 	)
 	assertEqual(obtained[4].SourceType, "starting", "obtainedFrom stores starting source type")
 	assertEqual(obtained[4].SourceKey, "class:Arcanist", "obtainedFrom stores starting source key")
+	local used = Item.cargoUsedInRows({ args = { stablekey = "item:magical_bag" } })
+	assertEqual(#used, 2, "usedIn rows cover every usage")
+	assertEqual(used[1].ItemKey, "item:magical_bag", "usedIn carries item key")
+	assertEqual(used[1].UseType, "craft_material", "usedIn stores craft usage type")
+	assertEqual(
+		used[1].TargetKey,
+		"item:template - copper armor mold",
+		"usedIn stores craft target"
+	)
+	assertEqual(used[1].Quantity, "2", "usedIn stores craft quantity")
+	assertEqual(used[1].Slot, "1", "usedIn stores craft slot")
+	assertEqual(used[2].UseType, "quest_requirement", "usedIn stores quest usage type")
+	assertEqual(used[2].TargetKey, "quest:an ore for the forge", "usedIn stores quest target")
+	assertEqual(used[2].Quantity, "1", "usedIn stores quest quantity")
+	assertEqual(used[2].Slot, nil, "usedIn omits nullable quest slot")
 	local bagRates = Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "droprates")
 	assertContains(bagRates, "[[Bear Pelt]]", "container droprates resolves the dropped item link")
 	assertContains(bagRates, "50%", "container droprates shows the probability")

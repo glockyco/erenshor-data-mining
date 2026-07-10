@@ -34,6 +34,19 @@ return {
 				sourceKey = "class:Arcanist",
 			},
 		},
+		usedIn = {
+			{
+				type = "craft_material",
+				targetKey = "item:template - copper armor mold",
+				quantity = 2,
+				slot = 1,
+			},
+			{
+				type = "quest_requirement",
+				targetKey = "quest:an ore for the forge",
+				quantity = 1,
+			},
+		},
 	},
 	["item:bear_pelt"] = {
 		name = "Bear Pelt",
