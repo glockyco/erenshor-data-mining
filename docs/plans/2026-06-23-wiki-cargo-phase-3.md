@@ -475,7 +475,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E3: Reverse-query rendering; remove denormalized arrays
 
-- [ ] Render item "How to Obtain" (`ObtainedFrom`) and "Used For" (`UsedIn`), character "Dropped by", and quest "Rewards" via Cargo queries (per `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` §8.1). Remove the denormalized reverse arrays from the Lua data modules: `source`, `vendorSource`, `questSource`, `componentFor`, `containerDrops` (item) and the `dropRates` **Cargo** path (character keeps its own-page display only if still sourced from its module; otherwise query). Update `Item.wiki`/`Character.wiki` infobox fields to the query renderers. Update `Item/`,`Character/testcases.lua`. Full `smoke_test.py` + `cargo_check.py`. **Commit** — `refactor(wiki): render item/character reverse relations from Cargo queries`
+- [x] Render item "How to Obtain" (`ObtainedFrom`) and "Used For" (`UsedIn`), character "Dropped by", and quest "Rewards" via Cargo queries (per `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` §8.1). Remove the denormalized reverse arrays from the Lua data modules: `source`, `vendorSource`, `questSource`, `componentFor`, `containerDrops` (item) and the `dropRates` **Cargo** path (character keeps its own-page display only if still sourced from its module; otherwise query). Update `Item.wiki`/`Character.wiki` infobox fields to the query renderers. Update `Item/`,`Character/testcases.lua`. Full `smoke_test.py` + `cargo_check.py`. **Commit** — `refactor(wiki): render item/character reverse relations from Cargo queries`
 
 ### Task E4: Item-ownership freshness
 

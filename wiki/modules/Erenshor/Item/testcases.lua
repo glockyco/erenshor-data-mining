@@ -149,16 +149,6 @@ function p.run()
 	assertEqual(used[2].TargetKey, "quest:an ore for the forge", "usedIn stores quest target")
 	assertEqual(used[2].Quantity, "1", "usedIn stores quest quantity")
 	assertEqual(used[2].Slot, nil, "usedIn omits nullable quest slot")
-	local bagRates = Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "droprates")
-	assertContains(bagRates, "[[Bear Pelt]]", "container droprates resolves the dropped item link")
-	assertContains(bagRates, "50%", "container droprates shows the probability")
-	local bagGuaranteed =
-		Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "guaranteeddrops")
-	assertContains(
-		bagGuaranteed,
-		"[[Bear Claw]]",
-		"guaranteed pool lists guaranteed container drops"
-	)
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

@@ -7,9 +7,8 @@ from tests.unit.application.wiki_lua.fakes import FakeItemRepository, make_item
 from erenshor.application.wiki_lua.items import build_items_data, generate_items_modules, write_items_modules
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
-from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
 def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> None:
@@ -204,47 +203,26 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
     ]
 
 
-def test_builds_item_provenance_fields_from_source_info() -> None:
+def test_builds_only_item_owned_provenance_fields_from_source_info() -> None:
     item = make_item()
-    vendor = StandardLink(page_title="B Vendor", display_name="B Vendor")
-    duplicate_vendor = StandardLink(page_title="B Vendor", display_name="B Vendor")
-    hidden_vendor = StandardLink(page_title=None, display_name="Hidden Vendor")
-    high_drop = StandardLink(page_title="A Croc", display_name="A Croc")
-    low_drop = StandardLink(page_title="Z Spider", display_name="Z Spider")
-    quest_reward = QuestLink(page_title="Reward Quest", display_name="Reward Quest")
-    quest_requirement = QuestLink(page_title="Required Quest", display_name="Required Quest")
-    component_for = ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")
-    guaranteed_drop = ItemDropInfo(
-        dropped_item_stable_key="item:a_fossil_reward", drop_probability=100.0, is_guaranteed=True
-    )
-
     data = build_items_data(
         items=[item],
         stats_by_item={},
         classes_by_item={},
         sources_by_item={
             item.stable_key: SourceInfo(
-                vendors=[vendor, duplicate_vendor, hidden_vendor],
-                drops=[(low_drop, 12.5), (high_drop, 50.0)],
-                quest_rewards=[quest_reward],
-                quest_requirements=[quest_requirement],
-                component_for=[component_for],
-                item_drops=[guaranteed_drop],
+                obtained_from=[ObtainedFromInfo(source_type="drop", source_key="character:a_croc")],
+                used_in=[UsedInInfo(use_type="craft_material", target_key="item:copper_armor_mold")],
             )
         },
     )
 
     shard = data["index"]["byKey"][item.stable_key]
     item_data = data["shards"][shard][item.stable_key]
-    assert item_data["vendorSource"] == [{"kind": "page", "page": "B Vendor", "text": "B Vendor"}]
-    assert item_data["source"] == [
-        {"link": {"kind": "page", "page": "A Croc", "text": "A Croc"}, "probability": 50.0},
-        {"link": {"kind": "page", "page": "Z Spider", "text": "Z Spider"}, "probability": 12.5},
-    ]
-    assert item_data["questSource"] == [{"kind": "quest", "page": "Reward Quest", "text": "Reward Quest"}]
-    assert item_data["relatedQuest"] == [{"kind": "quest", "page": "Required Quest", "text": "Required Quest"}]
-    assert item_data["componentFor"] == [{"kind": "item", "page": "Copper Armor Mold", "text": "Copper Armor Mold"}]
-    assert item_data["containerDrops"] == [{"item": "item:a_fossil_reward", "probability": 100.0, "guaranteed": True}]
+    assert item_data["obtainedFrom"] == [{"type": "drop", "sourceKey": "character:a_croc"}]
+    assert item_data["usedIn"] == [{"type": "craft_material", "targetKey": "item:copper_armor_mold"}]
+    for removed in ("vendorSource", "source", "questSource", "relatedQuest", "componentFor", "containerDrops"):
+        assert removed not in item_data
 
 
 def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
@@ -380,14 +358,14 @@ def test_generates_items_modules_with_provenance_data() -> None:
         repo,
         sources_by_item={
             item.stable_key: SourceInfo(
-                vendors=[StandardLink(page_title="Ember Vendor", display_name="Ember Vendor")],
+                obtained_from=[ObtainedFromInfo(source_type="vendor", source_key="character:ember_vendor")],
             )
         },
     )
 
-    assert '["vendorSource"] = {' in modules["Items/Weapons.lua"]
-    assert '["kind"] = "page"' in modules["Items/Weapons.lua"]
-    assert '["page"] = "Ember Vendor"' in modules["Items/Weapons.lua"]
+    assert '["obtainedFrom"] = {' in modules["Items/Weapons.lua"]
+    assert '"vendorSource"' not in modules["Items/Weapons.lua"]
+    assert '"containerDrops"' not in modules["Items/Weapons.lua"]
 
 
 def test_item_index_does_not_include_page_or_name_fallbacks() -> None:

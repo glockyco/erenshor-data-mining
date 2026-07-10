@@ -10,6 +10,7 @@ return {
 		["item:healing_draught"] = "Consumables",
 		["item:lucky_charm"] = "Charms",
 		["item:magical_bag"] = "General",
+		["item:gen - nightmare crystal"] = "General",
 		["item:ore - bronze ore"] = "General",
 		["item:ore - planar stone"] = "General",
 		["item:template - inert diamond"] = "General",

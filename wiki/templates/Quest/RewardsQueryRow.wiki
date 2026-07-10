@@ -1,0 +1,1 @@
+<includeonly>{{ItemLink|stablekey={{{ItemKey|}}}}}{{#if:{{{Quantity|}}}| × {{{Quantity|}}}}}</includeonly><noinclude>Renders one quest Rewards Cargo row.</noinclude>

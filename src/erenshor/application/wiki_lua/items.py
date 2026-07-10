@@ -7,7 +7,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from erenshor.application.wiki_lua.links import link_ref, link_refs
+from erenshor.application.wiki_lua.links import link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
@@ -16,8 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-    from erenshor.domain.value_objects.loot import ItemDropInfo
-    from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, StandardLink, WikiLink
+    from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
 class ItemDataRepository(Protocol):
@@ -35,12 +34,6 @@ class ItemDataRepository(Protocol):
 class ItemProvenanceItemRepository(Protocol):
     """Item repository methods needed for item source fields."""
 
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]: ...
-
-    def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]: ...
-
-    def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]: ...
-
     def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
@@ -55,10 +48,6 @@ class ItemProvenanceItemRepository(Protocol):
 class ItemProvenanceCharacterRepository(Protocol):
     """Character repository methods needed for item source fields."""
 
-    def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]: ...
-
-    def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]: ...
-
     def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
@@ -68,10 +57,6 @@ class ItemProvenanceCharacterRepository(Protocol):
 
 class ItemProvenanceQuestRepository(Protocol):
     """Quest repository methods needed for item source fields."""
-
-    def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]: ...
-
-    def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]: ...
 
     def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
@@ -234,17 +219,10 @@ def build_item_sources_by_item(
     quest_repo: ItemProvenanceQuestRepository,
     zone_repo: ItemProvenanceZoneRepository,
 ) -> dict[str, SourceInfo]:
-    """Build legacy and stable-keyed source metadata for each item."""
+    """Build item-owned stable-keyed source metadata for each item."""
     sources_by_item: dict[str, SourceInfo] = {}
     for item in items:
         item_key = item.stable_key
-        vendors = character_repo.get_vendors_selling_item(item_key)
-        character_drops = character_repo.get_characters_dropping_item(item_key)
-        item_sources = item_repo.get_item_sources(item_key)
-        quest_rewards = quest_repo.get_quests_rewarding_item(item_key)
-        quest_requirements = quest_repo.get_quests_requiring_item(item_key)
-        component_for = item_repo.get_items_requiring_item(item_key)
-        item_drops = item_repo.get_item_drops(item_key)
         used_in = [
             *item_repo.get_crafting_material_sources(item_key),
             *quest_repo.get_quest_requirement_sources(item_key),
@@ -262,16 +240,7 @@ def build_item_sources_by_item(
             *zone_repo.get_item_bag_sources_for_item(item_key),
             *item_repo.get_classes_starting_with_item(item_key),
         ]
-        sources_by_item[item_key] = SourceInfo(
-            vendors=vendors,
-            drops=[*character_drops, *item_sources],
-            quest_rewards=quest_rewards,
-            quest_requirements=quest_requirements,
-            component_for=component_for,
-            item_drops=item_drops,
-            obtained_from=obtained_from,
-            used_in=used_in,
-        )
+        sources_by_item[item_key] = SourceInfo(obtained_from=obtained_from, used_in=used_in)
     return sources_by_item
 
 
@@ -348,13 +317,7 @@ def _item_record(
         row["classes"] = sorted(classes)
 
     if sources is not None:
-        _put(row, "vendorSource", _format_vendor_sources(sources))
-        _put(row, "source", _format_drop_sources(sources))
         _put(row, "usedIn", _format_used_in(sources))
-        _put(row, "questSource", _format_quest_sources(sources))
-        _put(row, "relatedQuest", _format_related_quests(sources))
-        _put(row, "componentFor", _format_component_for(sources))
-        _put(row, "containerDrops", _format_container_drops(sources))
         _put(row, "obtainedFrom", _format_obtained_from(sources))
 
     if recipe is not None:
@@ -370,78 +333,6 @@ def _item_record(
         row["stats"] = stat_rows
 
     return row
-
-
-def _visible_links(links: Iterable[WikiLink]) -> list[WikiLink]:
-    return [link for link in links if link.page_title is not None]
-
-
-def _format_unique_sorted_links(links: Iterable[WikiLink]) -> list[LuaData]:
-    visible = _visible_links(links)
-    visible.sort()
-    seen: set[tuple[str, str, str]] = set()
-    result: list[LuaData] = []
-    for link in visible:
-        ref = link_ref(link)
-        if ref is None:
-            continue
-        key = (str(ref["kind"]), str(ref["page"]), str(ref["text"]))
-        if key in seen:
-            continue
-        seen.add(key)
-        result.append(ref)
-    return result
-
-
-def _format_vendor_sources(sources: SourceInfo) -> list[LuaData]:
-    return _format_unique_sorted_links(sources.vendors)
-
-
-def _format_drop_sources(sources: SourceInfo) -> list[LuaData]:
-    drop_data = [(link, probability) for link, probability in sources.drops if link.page_title is not None]
-    drop_data.sort(key=lambda pair: (-pair[1], pair[0]))
-    seen: set[tuple[str, str, str, float]] = set()
-    result: list[LuaData] = []
-    for link, probability in drop_data:
-        ref = link_ref(link)
-        if ref is None:
-            continue
-        key = (str(ref["kind"]), str(ref["page"]), str(ref["text"]), probability)
-        if key in seen:
-            continue
-        seen.add(key)
-        result.append({"link": ref, "probability": probability})
-    return result
-
-
-def _format_quest_sources(sources: SourceInfo) -> list[LuaData]:
-    return _format_unique_sorted_links(sources.quest_rewards)
-
-
-def _format_related_quests(sources: SourceInfo) -> list[LuaData]:
-    return _format_unique_sorted_links(sources.quest_requirements)
-
-
-def _format_component_for(sources: SourceInfo) -> list[LuaData]:
-    return link_refs(sources.component_for, "item")
-
-
-def _format_container_drops(sources: SourceInfo) -> list[LuaData]:
-    """One entry per item this source item drops, connected by the dropped StableKey.
-
-    Mirrors the character drop list: each entry carries the dropped item's StableKey
-    (the connection consumed by the Cargo ContainerDrops store and resolved to a link
-    at render time), the drop probability, and the guaranteed-pool flag. Order is set
-    by the repository query (probability desc, then name).
-    """
-    out: list[LuaData] = []
-    for drop in sources.item_drops:
-        entry: LuaData = {"item": drop.dropped_item_stable_key, "probability": drop.drop_probability}
-        # code-fact: loot.guarantee_one_drop
-        if drop.is_guaranteed:
-            entry["guaranteed"] = True
-        out.append(entry)
-    return out
 
 
 def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:

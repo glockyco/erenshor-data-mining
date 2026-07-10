@@ -1,0 +1,11 @@
+<includeonly>{{#cargo_query:
+tables=ObtainedFrom
+|fields=ItemKey,Probability,IsGuaranteed,Quantity
+|where=SourceType="drop" AND SourceKey="{{{stablekey|}}}" AND Origin="generated"
+|order by=ItemKey ASC
+|format=template
+|template=Character/DroppedByQueryRow
+|named args=yes
+|delimiter=<br />
+|default=
+}}</includeonly><noinclude>Renders item drops through item-owned ObtainedFrom Cargo rows.</noinclude>

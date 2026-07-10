@@ -1,0 +1,4 @@
+<includeonly>{{#switch:{{{UseType|}}}
+|quest_requirement={{QuestLink|{{{TargetKey|}}}|stablekey={{{TargetKey|}}}}}
+|#default={{ItemLink|{{{TargetKey|}}}|stablekey={{{TargetKey|}}}}}
+}}{{#if: {{{Quantity|}}} | × {{{Quantity|}}} }}{{#if: {{{Slot|}}} |, slot {{{Slot|}}} }}</includeonly><noinclude>Renders one item-owned UsedIn Cargo row.</noinclude>

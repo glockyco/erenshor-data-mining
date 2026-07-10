@@ -1,0 +1,1 @@
+<includeonly>{{ItemLink|stablekey={{{ItemKey|}}}}}{{#if:{{{Probability|}}}| ({{{Probability}}}%{{#ifeq:{{{IsGuaranteed|}}}|1|, guaranteed}})}}{{#if:{{{Quantity|}}}| × {{{Quantity|}}}}}</includeonly><noinclude>Renders one character Dropped by Cargo row.</noinclude>

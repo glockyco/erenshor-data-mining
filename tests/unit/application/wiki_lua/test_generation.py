@@ -24,8 +24,7 @@ from tests.unit.application.wiki_lua.fakes import (
 
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.validation import LuaValidationResult
-from erenshor.domain.value_objects.loot import ItemDropInfo
-from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
 
 
 def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
@@ -118,25 +117,21 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
         items=[item],
         stats={},
         classes={},
-        item_sources={
-            item.stable_key: [(StandardLink(page_title="Ancient Fossil", display_name="Ancient Fossil"), 25.0)]
-        },
-        items_requiring={item.stable_key: [ItemLink(page_title="Copper Armor Mold", display_name="Copper Armor Mold")]},
-        item_drops={
-            item.stable_key: [
-                ItemDropInfo(dropped_item_stable_key="item:dropped_relic", drop_probability=100.0, is_guaranteed=True)
-            ]
+        craft_sources={item.stable_key: [ObtainedFromInfo(source_type="craft", source_key="item:crafting_mold")]},
+        crafting_material_sources={
+            item.stable_key: [UsedInInfo(use_type="craft_material", target_key="item:copper_armor_mold")]
         },
     )
     character_repo = FakeCharacterRepository(
         [make_character()],
-        vendors={item.stable_key: [StandardLink(page_title="B Vendor", display_name="B Vendor")]},
-        drops={item.stable_key: [(StandardLink(page_title="A Croc", display_name="A Croc"), 50.0)]},
+        drop_sources={
+            item.stable_key: [ObtainedFromInfo(source_type="drop", source_key="character:a_croc", probability=50.0)]
+        },
     )
     quest_repo = FakeQuestRepository(
         [make_quest()],
-        quest_rewards={item.stable_key: [QuestLink(page_title="Reward Quest", display_name="Reward Quest")]},
-        quest_requirements={item.stable_key: [QuestLink(page_title="Required Quest", display_name="Required Quest")]},
+        reward_sources={item.stable_key: [ObtainedFromInfo(source_type="quest", source_key="quest:reward")]},
+        requirement_sources={item.stable_key: [UsedInInfo(use_type="quest_requirement", target_key="quest:required")]},
     )
 
     generate_lua_data_modules(
@@ -155,16 +150,10 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
     )
 
     item_shard_text = (tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua").read_text(encoding="utf-8")
-    assert '["vendorSource"] = {' in item_shard_text
-    assert '["kind"] = "page"' in item_shard_text
-    assert '["page"] = "B Vendor"' in item_shard_text
-    assert '["source"] = {' in item_shard_text
-    assert '["probability"] = 50.0' in item_shard_text
-    assert '["questSource"] = {' in item_shard_text
-    assert '["kind"] = "quest"' in item_shard_text
-    assert '["componentFor"] = {' in item_shard_text
-    assert '["kind"] = "item"' in item_shard_text
-    assert '["containerDrops"] = {' in item_shard_text
+    assert '["obtainedFrom"] = {' in item_shard_text
+    assert '["usedIn"] = {' in item_shard_text
+    for removed in ("vendorSource", "source", "questSource", "relatedQuest", "componentFor", "containerDrops"):
+        assert f'"{removed}"' not in item_shard_text
 
 
 def _run_generation(tmp_path: Path) -> object:

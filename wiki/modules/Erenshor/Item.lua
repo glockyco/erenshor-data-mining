@@ -17,7 +17,6 @@ local FIELD_OVERRIDES = {
 	buffgiven = "buffGiven",
 	buffsource = "buffSource",
 	casttime = "castTime",
-	componentfor = "componentFor",
 	cooldown = "cooldown",
 	craftsource = "craftSource",
 	classes = "classes",
@@ -34,23 +33,18 @@ local FIELD_OVERRIDES = {
 	othersource = "othersource",
 	disposable = "disposable",
 	dps = "dps",
-	droprates = "containerDrops",
 	duration = "duration",
 	proceffect = "procEffect",
 	produces = "produces",
 	relic = "relic",
-	questsource = "questSource",
-	relatedquest = "relatedQuest",
 	sell = "sellValue",
 	slot = "slot",
-	source = "source",
 	title = "name",
 	type = "type",
 	taughtskill = "taughtSkill",
 	taughtspell = "taughtSpell",
 	skilltype = "skillType",
 	spelltype = "spellType",
-	vendorsource = "vendorSource",
 	worneffect = "wornEffectOverride",
 }
 
@@ -61,13 +55,8 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"type",
 	"slot",
 	"itemlevel",
-	"vendorsource",
-	"source",
 	"othersource",
-	"questsource",
-	"relatedquest",
 	"craftsource",
-	"componentfor",
 	"relic",
 	"classes",
 	"effects",
@@ -92,7 +81,6 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"description",
 	"buy",
 	"sell",
-	"droprates",
 }
 
 local function copyTable(value)
@@ -396,91 +384,6 @@ local function lineList(values)
 	return table.concat(out, "<br>")
 end
 
-local function linkList(values)
-	if type(values) ~= "table" then
-		return values
-	end
-	return Link.join(values, "<br>")
-end
-
-local function probabilityList(values, decimals)
-	if type(values) ~= "table" then
-		return values
-	end
-	local out = {}
-	for _, row in ipairs(values) do
-		if type(row) == "table" and row.link ~= nil then
-			local probability = tonumber(row.probability)
-			if probability ~= nil then
-				table.insert(
-					out,
-					Link.render(row.link)
-						.. " ("
-						.. string.format("%." .. decimals .. "f", probability)
-						.. "%)"
-				)
-			end
-		end
-	end
-	return table.concat(out, "<br>")
-end
-
--- Render a source item's "opens into" list from StableKey-keyed container-drop edges,
--- resolving each dropped item's link at display time and collapsing shared pages. A
--- manual droprates override replaces containerDrops with a display string, returned
--- verbatim.
-local function containerDropRates(values)
-	if type(values) ~= "table" then
-		return values
-	end
-	local out = {}
-	local seen = {}
-	for _, row in ipairs(values) do
-		if type(row) == "table" and hasValue(row.item) then
-			local probability = tonumber(row.probability)
-			local record = Link.itemRecord(row.item)
-			if probability ~= nil and record ~= nil then
-				local key = tostring(record.page) .. "|" .. tostring(row.probability)
-				if not seen[key] then
-					seen[key] = true
-					table.insert(
-						out,
-						Link.render({ kind = "item", stablekey = row.item })
-							.. " ("
-							.. string.format("%.0f", probability)
-							.. "%)"
-					)
-				end
-			end
-		end
-	end
-	return table.concat(out, "<br>")
-end
-
--- The "Guaranteed One Of" pool: guaranteed container entries, deduplicated by page,
--- shown only when 2+ share the pool so "one of these" is meaningful. Derived from the
--- structured data only; a droprates display override yields no pool.
-local function containerGuaranteedList(values)
-	if type(values) ~= "table" then
-		return ""
-	end
-	local out = {}
-	local seen = {}
-	for _, row in ipairs(values) do
-		if type(row) == "table" and row.guaranteed == true and hasValue(row.item) then
-			local record = Link.itemRecord(row.item)
-			if record ~= nil and not seen[tostring(record.page)] then
-				seen[tostring(record.page)] = true
-				table.insert(out, Link.render({ kind = "item", stablekey = row.item }))
-			end
-		end
-	end
-	if #out < 2 then
-		return ""
-	end
-	return table.concat(out, "<br>")
-end
-
 function p.overviewNotes(frame)
 	-- The overview "Notes" cell coalesces an item's own proc/worn/click abilities
 	-- at display time from the Lua data module; Cargo stores the scalar ability
@@ -546,26 +449,11 @@ local FIELD_ACCESSORS = {
 	type = function(i)
 		return i.type
 	end,
-	vendorsource = function(i)
-		return linkList(i.vendorSource)
-	end,
-	source = function(i)
-		return probabilityList(i.source, 1)
-	end,
 	othersource = function(i)
 		return i.othersource
 	end,
-	questsource = function(i)
-		return linkList(i.questSource)
-	end,
-	relatedquest = function(i)
-		return linkList(i.relatedQuest)
-	end,
 	craftsource = function(i)
 		return i.craftSource
-	end,
-	componentfor = function(i)
-		return linkList(i.componentFor)
 	end,
 	relic = function(i)
 		return i.relic == true and "Yes" or ""
@@ -650,12 +538,6 @@ local FIELD_ACCESSORS = {
 	end,
 	sell = function(i)
 		return Format.currency(i.sellValue)
-	end,
-	guaranteeddrops = function(i)
-		return containerGuaranteedList(i.containerDrops)
-	end,
-	droprates = function(i)
-		return containerDropRates(i.containerDrops)
 	end,
 }
 

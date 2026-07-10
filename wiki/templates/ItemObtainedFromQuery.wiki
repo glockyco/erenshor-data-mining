@@ -1,0 +1,11 @@
+<includeonly>{{#cargo_query:
+tables=ObtainedFrom
+|fields=SourceType,SourceKey,SourceText,Probability,IsGuaranteed,Quantity,SourceCondition
+|where=ItemKey="{{{stablekey|}}}" AND Origin="generated"
+|order by=SourceType ASC,SourceKey ASC
+|format=template
+|template=Item/ObtainedFromQueryRow
+|named args=yes
+|delimiter=<br />
+|default=
+}}</includeonly><noinclude>Renders item-owned obtainability rows from Cargo.</noinclude>

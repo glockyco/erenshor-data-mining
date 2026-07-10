@@ -7,3 +7,4 @@ Bear Claw	item:bear_claw	drop	character:a_grizzly_bear		50	1			generated
 Bear Claw	item:bear_claw	item_use	item:magical_bag		30	1			generated
 Bear Meat	item:bear_meat	drop	character:a_grizzly_bear		28.3	0			generated
 Bear Meat	item:bear_meat	item_use	item:magical_bag		20	0			generated
+Nightmare Crystal	item:gen - nightmare crystal	quest	quest:catfordeer			0			generated

@@ -34,8 +34,12 @@ Healing Draught	Healing: 150
 Magical Bag	General
 Magical Bag	item-tooltip-general
 Magical Bag	surprisingly roomy
-Magical Bag	Bear Pelt
-Magical Bag	Bear Meat
+Magical Bag	How to Obtain
+Magical Bag	A Grizzly Bear
+Magical Bag	12.5%
+Magical Bag	Used For
+Magical Bag	item:template - copper armor mold
+Magical Bag	quest:an ore for the forge
 Bear Pelt	Bear Pelt
 Bear Claw	Bear Claw
 Bear Meat	Bear Meat
@@ -66,12 +70,7 @@ Scroll of Ember	Arcanist: 8
 Scroll of Ember	Mana Cost: 25
 Manual Item Override	Manual Ember Blade
 Manual Item Override	Manual quest reward
-Manual Item Override	Manual vendor
-Manual Item Override	Manual monster
-Manual Item Override	Manual quest
-Manual Item Override	Related manual quest
 Manual Item Override	Manual recipe
-Manual Item Override	Manual component
 Manual Item Override	Manual buff
 Manual Item Override	Manual spell
 Manual Item Override	Manual skill
@@ -80,7 +79,6 @@ Manual Item Override	Manual skill type
 Manual Item Override	42
 Manual Item Override	Manual product
 Manual Item Override	Manual ingredient
-Manual Item Override	Manual drop rate
 Manual Item Override	Manual Blade
 Missing Item Data	Missing item data: Missing Item Data
 Missing Item Data	Category:Pages_with_missing_Erenshor_item_data
@@ -92,7 +90,7 @@ A Grizzly Bear	Category:Enemies
 A Grizzly Bear	erenshor-link--faction
 A Grizzly Bear	erenshor-link--zone
 A Grizzly Bear	erenshor-link--item
-A Grizzly Bear	Guaranteed One Of:
+A Grizzly Bear	Dropped by:
 A Grizzly Bear	Bear Pelt
 A Grizzly Bear	Bear Meat
 A Subterranean Magmite	A Subterranean Magmite
@@ -127,9 +125,12 @@ Lua Quest Smoke	PASS Erenshor Quest testcases
 A Magical Sword in Port Azure	A Magical Sword in Port Azure
 A Magical Sword in Port Azure	450
 A Magical Sword in Port Azure	Category:Quests
+A Cat for a Deer	A Cat for a Deer
+A Cat for a Deer	Rewards
+A Cat for a Deer	Nightmare Crystal
+Nightmare Crystal	Nightmare Crystal
 Manual Quest Override	Manual Quest Title
 Manual Quest Override	Manual Location
-Manual Quest Override	Manual Reward
 Missing Quest Data	Missing quest data: Missing Quest Data
 Missing Quest Data	Category:Pages_with_missing_Erenshor_quest_data
 Lua Zone Smoke	PASS Erenshor Zone testcases
@@ -216,8 +217,6 @@ Dire Wolf	The Followers of Evil
 Dire Wolf	The Followers of Good
 Legacy Item Fixture	Legacy Sword Fixture
 Legacy Item Fixture	Weapon
-Legacy Item Fixture	Legacy Vendor
-Legacy Item Fixture	Legacy Monster
 Legacy Item Fixture	Legacy inline-param item, no stablekey.
 Legacy Item Fixture	portable-infobox
 Legacy Item Fixture	pi-type-Item

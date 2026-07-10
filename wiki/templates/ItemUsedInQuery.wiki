@@ -1,0 +1,11 @@
+<includeonly>{{#cargo_query:
+tables=UsedIn
+|fields=UseType,TargetKey,Quantity,Slot
+|where=ItemKey="{{{stablekey|}}}"
+|order by=UseType ASC,TargetKey ASC
+|format=template
+|template=Item/UsedInQueryRow
+|named args=yes
+|delimiter=<br />
+|default=
+}}</includeonly><noinclude>Renders item-owned usage rows from Cargo.</noinclude>

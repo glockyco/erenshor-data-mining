@@ -2,13 +2,10 @@
     <title><default>{{#invoke:Erenshor/Item|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Item|field|image}}</default><caption><default>{{#invoke:Erenshor/Item|field|imagecaption}}</default></caption></image>
     <data><label>Type</label><default>{{#invoke:Erenshor/Item|field|type}}</default></data>
-    <data><label>Sold by</label><default>{{#invoke:Erenshor/Item|field|vendorsource}}</default></data>
-    <data><label>Dropped by</label><default>{{#invoke:Erenshor/Item|field|source}}</default></data>
+    <data><label>How to Obtain</label><default>{{ItemObtainedFromQuery|stablekey={{{stablekey|}}}}}</default></data>
+    <data><label>Used For</label><default>{{ItemUsedInQuery|stablekey={{{stablekey|}}}}}</default></data>
     <data><label>Other sources</label><default>{{#invoke:Erenshor/Item|field|othersource}}</default></data>
-    <data><label>Reward from</label><default>{{#invoke:Erenshor/Item|field|questsource}}</default></data>
-    <data><label>Related quest(s)</label><default>{{#invoke:Erenshor/Item|field|relatedquest}}</default></data>
     <data><label>[[Crafting|Crafting recipe]]</label><default>{{#invoke:Erenshor/Item|field|craftsource}}</default></data>
-    <data><label>Component for</label><default>{{#invoke:Erenshor/Item|field|componentfor}}</default></data>
     <data><label>[[Relic]]</label><default>{{#invoke:Erenshor/Item|field|relic}}</default></data>
     <data><label>[[Classes]]</label><default>{{#invoke:Erenshor/Item|field|classes}}</default></data>
     <data><label>Effects</label><default>{{#invoke:Erenshor/Item|field|effects}}</default></data>
@@ -33,19 +30,14 @@
     <data><label>Description</label><default>{{#invoke:Erenshor/Item|field|description}}</default></data>
     <data><label>Buy</label><default>{{#invoke:Erenshor/Item|field|buy}}</default></data>
     <data><label>Sell</label><default>{{#invoke:Erenshor/Item|field|sell}}</default></data>
-    <data><label>Provides one of</label><default>{{#invoke:Erenshor/Item|field|guaranteeddrops}}</default></data>
-    <data><label>Overall Item Chances</label><default>{{#invoke:Erenshor/Item|field|droprates}}</default></data>
 </infobox>{{#invoke:Erenshor/Item|cargoStore}}{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}{{ItemUsedInStore|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
-    <data source="vendorsource"><label>Sold by</label></data>
-    <data source="source"><label>Dropped by</label></data>
+    <data><label>How to Obtain</label></data>
+    <data><label>Used For</label></data>
     <data source="othersource"><label>Other sources</label></data>
-    <data source="questsource"><label>Reward from</label></data>
-    <data source="relatedquest"><label>Related quest(s)</label></data>
     <data source="craftsource"><label>[[Crafting|Crafting recipe]]</label></data>
-    <data source="componentfor"><label>Component for</label></data>
     <data source="relic"><label>[[Relic]]</label></data>
     <data source="classes"><label>[[Classes]]</label></data>
     <data source="effects"><label>Effects</label></data>
@@ -70,8 +62,6 @@
     <data source="description"><label>Description</label></data>
     <data source="buy"><label>Buy</label></data>
     <data source="sell"><label>Sell</label></data>
-    <data source="guaranteeddrops"><label>Provides one of</label></data>
-    <data source="droprates"><label>Overall Item Chances</label></data>
 </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}}}</includeonly><noinclude>{{#cargo_declare:
 _table=Items
 |Page=Page

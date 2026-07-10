@@ -7,11 +7,6 @@ return {
 		description = "A surprisingly roomy bag woven from enchanted thread.",
 		buyValue = 950000,
 		sellValue = 237500,
-		containerDrops = {
-			{ item = "item:bear_pelt", probability = 50.0, guaranteed = true },
-			{ item = "item:bear_claw", probability = 30.0, guaranteed = true },
-			{ item = "item:bear_meat", probability = 20.0 },
-		},
 		obtainedFrom = {
 			{
 				type = "drop",
@@ -132,6 +127,15 @@ return {
 				sourceKey = "item:magical_bag",
 				probability = 20.0,
 			},
+		},
+	},
+	["item:gen - nightmare crystal"] = {
+		name = "Nightmare Crystal",
+		page = "Nightmare Crystal",
+		image = "Nightmare Crystal.png",
+		type = "General",
+		obtainedFrom = {
+			{ type = "quest", sourceKey = "quest:catfordeer" },
 		},
 	},
 }

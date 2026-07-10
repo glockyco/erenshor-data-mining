@@ -1,0 +1,9 @@
+<includeonly>{{#switch:{{{SourceType|}}}
+|drop={{CharacterLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|vendor={{CharacterLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|dialog={{CharacterLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|quest={{QuestLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|item_use={{ItemLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|craft={{ItemLink|{{{SourceKey|}}}|stablekey={{{SourceKey|}}}}}
+|#default={{{SourceText|{{{SourceKey|}}}}}}
+}}{{#if:{{{Probability|}}}| ({{{Probability}}}%{{#ifeq:{{{IsGuaranteed|}}}|1|, guaranteed}})}}{{#if:{{{Quantity|}}}| × {{{Quantity|}}}}}{{#if:{{{SourceCondition|}}}|, {{{SourceCondition|}}}}}</includeonly><noinclude>Renders one item-owned ObtainedFrom Cargo row.</noinclude>

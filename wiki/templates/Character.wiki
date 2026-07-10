@@ -12,6 +12,7 @@
         <data><label>Spawn Chance:</label><default>{{#invoke:Erenshor/Character|field|spawnchance}}</default></data>
         <data><label>Base Level:</label><default>{{#invoke:Erenshor/Character|field|level}}</default></data>
         <data><label>Base Experience:</label><default>{{#invoke:Erenshor/Character|field|experience}}</default></data>
+        <data><label>Dropped by:</label><default>{{CharacterDroppedByQuery|stablekey={{{stablekey|}}}}}</default></data>
         <data><label>Guaranteed One Of:</label><default>{{#invoke:Erenshor/Character|field|guaranteeddrops}}</default></data>
         <data><label>Overall Drop Rates:</label><default>{{#invoke:Erenshor/Character|field|droprates}}</default></data>
     </group>

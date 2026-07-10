@@ -1,0 +1,11 @@
+<includeonly>{{#cargo_query:
+tables=ObtainedFrom
+|fields=ItemKey,Quantity
+|where=SourceType="quest" AND SourceKey="{{{stablekey|}}}" AND Origin="generated"
+|order by=ItemKey ASC
+|format=template
+|template=Quest/RewardsQueryRow
+|named args=yes
+|delimiter=<br />
+|default=
+}}</includeonly><noinclude>Renders item rewards through item-owned ObtainedFrom Cargo rows.</noinclude>

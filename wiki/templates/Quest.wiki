@@ -11,7 +11,7 @@
     <data><label>Experience:</label><default>{{#invoke:Erenshor/Quest|field|experience}}</default></data>
     <data><label>Gold:</label><default>{{#invoke:Erenshor/Quest|field|gold}}</default></data>
     <data><label>Faction Changes:</label><default>{{#invoke:Erenshor/Quest|field|factionchanges}}</default></data>
-    <data><label>Item(s):</label><default>{{#invoke:Erenshor/Quest|field|items}}</default></data>
+    <data><label>Item(s):</label><default>{{QuestRewardsQuery|stablekey={{{stablekey|}}}}}</default></data>
     <group layout="horizontal">
         <header>Quest Progression</header>
         <data><label>Previous:</label><default>{{#invoke:Erenshor/Quest|field|previous}}</default></data>
