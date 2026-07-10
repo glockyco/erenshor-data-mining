@@ -77,6 +77,7 @@ SELECT
     i.must_be_equipped_to_click,
     i.player_cannot_sell,
     i.rare_item,
+    i.is_auctionable,
     i.book_title,
     i.mining,
     i.fuel_source,
