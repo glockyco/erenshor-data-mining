@@ -4,7 +4,7 @@ from loguru import logger
 
 from erenshor.domain.entities.quest import Quest
 from erenshor.domain.value_objects.faction import FactionModifier
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
 from erenshor.domain.value_objects.wiki_link import QuestLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -158,3 +158,27 @@ class QuestRepository(BaseRepository[Quest]):
             return [ObtainedFromInfo(source_type="quest", source_key=str(row["stable_key"])) for row in rows]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stable quest sources for '{item_stable_key}': {e}") from e
+
+    def get_quest_requirement_sources(self, item_stable_key: str) -> list[UsedInInfo]:
+        """Return quests that require an item, with required quantities."""
+        query = """
+            SELECT q.stable_key, MAX(qri.quantity) AS quantity
+            FROM quests q
+            JOIN quest_variants qv ON q.stable_key = qv.quest_stable_key
+            JOIN quest_required_items qri ON qv.resource_name = qri.quest_variant_resource_name
+            WHERE qri.item_stable_key = ?
+            GROUP BY q.stable_key
+            ORDER BY q.stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                UsedInInfo(
+                    use_type="quest_requirement",
+                    target_key=f"quest:{row['stable_key']}",
+                    quantity=int(row["quantity"]) if row["quantity"] is not None else None,
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve quest uses for '{item_stable_key}': {e}") from e

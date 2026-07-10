@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
 
-__all__ = ["ObtainedFromInfo", "SourceInfo"]
+__all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo"]
 
 
 @dataclass(frozen=True)
@@ -18,6 +18,16 @@ class ObtainedFromInfo:
     is_guaranteed: bool = False
     quantity: int | None = None
     condition: str | None = None
+
+
+@dataclass(frozen=True)
+class UsedInInfo:
+    """Stable-keyed item usage edge for an item-owned UsedIn row."""
+
+    use_type: str
+    target_key: str
+    quantity: int | None = None
+    slot: int | None = None
 
 
 @dataclass
@@ -56,3 +66,6 @@ class SourceInfo:
 
     # Unified item-owned obtainability rows with stable source identity.
     obtained_from: list[ObtainedFromInfo] = field(default_factory=list)
+
+    # Unified item-owned usage rows keyed by target StableKey.
+    used_in: list[UsedInInfo] = field(default_factory=list)

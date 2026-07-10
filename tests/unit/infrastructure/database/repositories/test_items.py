@@ -187,3 +187,42 @@ def test_obtained_from_item_sources_cover_craft_use_and_starting(item_repo: Item
         "class:Reaver",
         "class:Stormcaller",
     ]
+
+
+def test_used_in_sources_cover_crafting_and_smithing(item_repo: ItemRepository) -> None:
+    craft = item_repo.get_crafting_material_sources("item:ore - bronze ore")
+    assert craft
+    assert all(source.use_type == "craft_material" for source in craft)
+    assert all(source.target_key.startswith("item:template") for source in craft)
+    assert all(source.quantity is not None and source.slot is not None for source in craft)
+
+    planar = item_repo.get_item_smithing_special_uses("item:ore - planar stone")
+    assert [(source.use_type, source.target_key) for source in planar] == [
+        ("upgrade_material", "item:template - an otherwordly mold")
+    ]
+
+    diamond = item_repo.get_item_smithing_special_uses("item:template - inert diamond")
+    assert [(source.use_type, source.target_key) for source in diamond] == [
+        ("blessing_removal_material", "item:template - inert diamond")
+    ]
+
+    merging_vessel = item_repo.get_item_smithing_special_uses("item:template - merging vessel")
+    assert merging_vessel == []
+
+
+@pytest.mark.parametrize("fact_value", [None, "31377423,46289586,2298018"])
+def test_smithing_code_fact_drift_fails_fast(tmp_path: Path, fact_value: str | None) -> None:
+    """Smithing special-use resolution rejects missing or changed facts."""
+    db_path = tmp_path / "smithing.sqlite"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT)")
+        if fact_value is not None:
+            conn.execute(
+                "INSERT INTO code_facts (fact_id, key, value) VALUES (?, ?, ?)",
+                ("smithing.upgrade_ids", "strings", fact_value),
+            )
+        conn.commit()
+
+    repo = ItemRepository(DatabaseConnection(db_path, read_only=True))
+    with pytest.raises(ValueError, match="Smithing code-fact drift"):
+        repo.get_item_smithing_special_uses("item:ore - planar stone")

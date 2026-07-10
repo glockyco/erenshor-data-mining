@@ -422,11 +422,11 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 **Files:** new repo method `get_item_smithing_special_uses(item_key)` + a small code-fact-backed resolver; tests.
 
-- [ ] **Step 1: Write failing tests:** (a) the resolver reads `code_facts['smithing.upgrade_ids']` (CSV of `items.id`) and validates the full pinned set `31377423,46289586,2298018,2265228`; (b) it maps `46289586 → item:ore - planar stone` as `UseType='upgrade_material'`; (c) it maps `2298018 → item:template - inert diamond` as `UseType='blessing_removal_material'`; (d) it explicitly does **not** emit a row for `2265228 → item:template - merging vessel`; (e) the drift gate hard-fails if the fact is absent or the ID set differs.
-- [ ] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, validates the full four-ID set, then classifies by game semantics from `Smithing.Combine`: `31377423` + `46289586` → `upgrade_material`; `2298018` → `blessing_removal_material`; `2265228` → deferred forge/merge mechanic, no `UsedIn` row in Phase 3. Tag `# code-fact: smithing.upgrade_ids`. The fact name is historical: the matcher is `string_constants`, so it bundles heterogeneous string literals from `Smithing.Combine`; consumers must classify, not bulk-map.
-- [ ] **Step 3:** `craft_material` from `crafting_recipes WHERE material_item_stable_key = ?` → `(recipe ItemLink, quantity, slot)`; `quest_requirement` reuses `get_quests_requiring_item`.
-- [ ] **Step 4:** tests green.
-- [ ] **Step 5: Commit** — `feat(pipeline): resolve UsedIn rows for smithing special materials via code facts`
+- [x] **Step 1:** Write tests: the resolver validates the full pinned set `31377423,46289586,2298018,2265228`, maps Planar Stone to `upgrade_material`, maps Inert Diamond to `blessing_removal_material`, omits the Merging Vessel forge/merge mechanic, and fails fast on missing or changed facts.
+- [x] **Step 2:** Implement a resolver that reads `smithing.upgrade_ids` from the clean `code_facts`, splits the CSV, joins `items.id`, validates the full four-ID set, then classifies by game semantics from `Smithing.Combine`: `31377423` + `46289586` → `upgrade_material`; `2298018` → `blessing_removal_material`; `2265228` → deferred forge/merge mechanic, no `UsedIn` row in Phase 3. Tag `# code-fact: smithing.upgrade_ids`. The fact name is historical: the matcher is `string_constants`, so it bundles heterogeneous string literals from `Smithing.Combine`; consumers must classify, not bulk-map.
+- [x] **Step 3:** Add `craft_material` reverse rows from `crafting_recipes WHERE material_item_stable_key = ?` with recipe target, quantity, and slot; add quantity-bearing `quest_requirement` rows from `quest_required_items`.
+- [x] **Step 4:** Focused repository tests pass.
+- [x] **Step 5: Commit** — `feat(pipeline): resolve UsedIn rows for smithing special materials via code facts`
 
 ### Task C3: Python builder — `usedIn` on the item data module
 

@@ -50,3 +50,16 @@ def test_quest_reward_sources_keep_stable_keys(integration_db: Path) -> None:
     assert sources
     assert all(source.source_type == "quest" for source in sources)
     assert all(source.source_key.startswith("quest:") for source in sources)
+
+
+def test_quest_requirement_sources_keep_quantities_and_stable_keys(integration_db: Path) -> None:
+    """Quest requirements retain quantities while using quest StableKeys."""
+    repo = QuestRepository(DatabaseConnection(integration_db, read_only=True))
+
+    sources = repo.get_quest_requirement_sources("item:gen - eldrich crystal")
+
+    assert sources
+    assert all(source.use_type == "quest_requirement" for source in sources)
+    assert all(source.target_key.startswith("quest:") for source in sources)
+    assert all(source.quantity is not None for source in sources)
+    assert all(source.slot is None for source in sources)

@@ -1,14 +1,24 @@
 """Item repository for specialized item queries."""
 
+from typing import cast
+
 from loguru import logger
 
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.loot import ItemDropInfo
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
+
+_SMITHING_FACT_ID = "smithing.upgrade_ids"
+_SMITHING_FACT_KEY = "strings"
+_SMITHING_UPGRADE_IDS = ("31377423", "46289586", "2298018", "2265228")
+_SMITHING_SPECIAL_TARGET_IDS = {
+    "46289586": ("31377423", "upgrade_material"),
+    "2298018": ("2298018", "blessing_removal_material"),
+}
 
 
 def _item_link_from_row(row: object, prefix: str = "") -> ItemLink:
@@ -717,3 +727,81 @@ class ItemRepository(BaseRepository[Item]):
             return [ObtainedFromInfo(source_type="starting", source_key=f"class:{row['class_name']}") for row in rows]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve starting-item sources for '{item_stable_key}': {e}") from e
+
+    def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]:
+        """Return recipes that use an item as a crafting material."""
+        query = """
+            SELECT recipe_item_stable_key, material_quantity, material_slot
+            FROM crafting_recipes
+            WHERE material_item_stable_key = ?
+            ORDER BY recipe_item_stable_key, material_slot
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                UsedInInfo(
+                    use_type="craft_material",
+                    target_key=str(row["recipe_item_stable_key"]),
+                    quantity=int(row["material_quantity"]) if row["material_quantity"] is not None else None,
+                    slot=int(row["material_slot"]) if row["material_slot"] is not None else None,
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve crafting uses for '{item_stable_key}': {e}") from e
+
+    def _smithing_special_item_maps(self) -> tuple[dict[str, str], dict[str, str]]:
+        """Validate the smithing fact and map StableKeys to their numeric IDs."""
+        cached = getattr(self, "_smithing_special_item_maps_cache", None)
+        if cached is not None:
+            return cast("tuple[dict[str, str], dict[str, str]]", cached)
+
+        try:
+            fact_rows = self._execute_raw(
+                "SELECT key, value FROM code_facts WHERE fact_id = ?",
+                (_SMITHING_FACT_ID,),
+            )
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve code fact '{_SMITHING_FACT_ID}': {e}") from e
+
+        if len(fact_rows) != 1 or str(fact_rows[0]["key"]) != _SMITHING_FACT_KEY:
+            raise ValueError(f"Smithing code-fact drift: expected {_SMITHING_FACT_ID}[{_SMITHING_FACT_KEY}]")
+        fact_value = fact_rows[0]["value"]
+        if not isinstance(fact_value, str):
+            raise ValueError(f"Smithing code-fact drift: {_SMITHING_FACT_ID} must be text")
+        fact_ids = tuple(token.strip() for token in fact_value.split(","))
+        if (
+            len(fact_ids) != len(set(fact_ids))
+            or any(not token for token in fact_ids)
+            or set(fact_ids) != set(_SMITHING_UPGRADE_IDS)
+        ):
+            raise ValueError(
+                f"Smithing code-fact drift: {_SMITHING_FACT_ID} expected "
+                f"{','.join(_SMITHING_UPGRADE_IDS)}, got {fact_value!r}"
+            )
+
+        placeholders = ",".join("?" for _ in _SMITHING_UPGRADE_IDS)
+        try:
+            item_rows = self._execute_raw(
+                f"SELECT id, stable_key FROM items WHERE id IN ({placeholders})",
+                _SMITHING_UPGRADE_IDS,
+            )
+        except Exception as e:
+            raise RepositoryError("Failed to resolve smithing code-fact item IDs") from e
+        id_to_stable = {str(row["id"]): str(row["stable_key"]) for row in item_rows}
+        if set(id_to_stable) != set(_SMITHING_UPGRADE_IDS):
+            missing = sorted(set(_SMITHING_UPGRADE_IDS) - set(id_to_stable))
+            raise ValueError(f"Smithing code-fact drift: missing item IDs {', '.join(missing)}")
+        stable_to_id = {stable_key: item_id for item_id, stable_key in id_to_stable.items()}
+        cache = (stable_to_id, id_to_stable)
+        self._smithing_special_item_maps_cache = cache
+        return cache
+
+    def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        """Return code-fact-backed smithing uses for a material item."""
+        stable_to_id, id_to_stable = self._smithing_special_item_maps()
+        item_id = stable_to_id.get(item_stable_key)
+        if item_id not in _SMITHING_SPECIAL_TARGET_IDS:
+            return []
+        target_id, use_type = _SMITHING_SPECIAL_TARGET_IDS[item_id]
+        return [UsedInInfo(use_type=use_type, target_key=id_to_stable[target_id])]
