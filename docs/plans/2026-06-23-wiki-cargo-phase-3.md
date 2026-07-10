@@ -357,23 +357,23 @@ The starting-item method belongs to `ItemRepository` and reads the existing
 `classes` table. Extend the Lua generation/builder protocols and call sites to
 pass the already-available `zone_repo`; do not invent a `classes.py` repository
 or derive keys from page titles. Existing display methods remain responsible for
-legacy infobox fields; the new source methods provide stable-keyed records
-consumed by B3.
+legacy infobox fields; the new source methods provide stable-keyed records.
 
-- [ ] **Commit per method or grouped logically** —
-  `feat(pipeline): add <source> reverse-source repository query`
+- [x] **Commit** — `feat(pipeline): add stable-keyed ObtainedFrom reverse-source queries`; corrected world-point granularity is committed separately as `fix(pipeline): preserve granular world source identities`.
+
 ### Task B3: Python builder — `obtainedFrom` on the item data module
 
 **Files:** `wiki_lua/{items,generation}.py`, `domain/value_objects/source_info.py`,
 `tests/unit/application/wiki_lua/test_items_module.py`, and the Lua test fakes.
 
-- [ ] **Step 1: Write failing tests** asserting a fixture item yields typed
-  rows: inert diamond from a treasure chest (`drop` with character key,
-  probability, guaranteed flag), a fished item (`fishing` with water key and
-  day/night condition), bread (`starting` with `class:<name>`), and offering
-  stone (`item_use` with the bag source key).
-- [ ] **Step 2:** Run; expect failure.
-- [ ] **Step 3:** Extend `SourceInfo` with `obtained_from: list[ObtainedFromInfo]`.
+- [x] **Step 1: Write tests** asserting a fixture item yields typed rows: inert
+  diamond from a treasure chest (`drop` with character key, probability,
+  guaranteed flag), a fished item (`fishing` with water key and day/night
+  condition), bread (`starting` with `class:<name>`), and offering stone
+  (`item_use` with the bag source key).
+- [x] **Step 2:** Focused tests covered the legacy fields and the new typed
+  fixture contract before the formatter implementation.
+- [x] **Step 3:** Extend `SourceInfo` with `obtained_from: list[ObtainedFromInfo]`.
   Add `_format_obtained_from(sources)` building one dict per source
   `{type, sourceKey, probability, guaranteed, quantity, condition}` and omit
   null/empty values through `_put`. Sort deterministically by
@@ -381,7 +381,7 @@ consumed by B3.
   Preserve the existing `vendorSource`, `source`, `questSource`,
   `relatedQuest`, `componentFor`, and `containerDrops` fields while adding
   `_put(row, "obtainedFrom", ...)`.
-- [ ] **Step 4:** Run tests; `uv run erenshor wiki generate-lua`; expect PASS.
+- [x] **Step 4:** Run tests; `uv run erenshor wiki generate-lua`; expect PASS.
 - [ ] **Step 5:** Commit — `feat(wiki): build the item obtainedFrom source list in Lua data`
 
 

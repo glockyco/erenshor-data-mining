@@ -8,7 +8,7 @@ from erenshor.application.wiki_lua.items import build_items_data, generate_items
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.loot import ItemDropInfo
-from erenshor.domain.value_objects.source_info import SourceInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
 
@@ -245,6 +245,74 @@ def test_builds_item_provenance_fields_from_source_info() -> None:
     assert item_data["relatedQuest"] == [{"kind": "quest", "page": "Required Quest", "text": "Required Quest"}]
     assert item_data["componentFor"] == [{"kind": "item", "page": "Copper Armor Mold", "text": "Copper Armor Mold"}]
     assert item_data["containerDrops"] == [{"item": "item:a_fossil_reward", "probability": 100.0, "guaranteed": True}]
+
+
+def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
+    item = make_item()
+    data = build_items_data(
+        items=[item],
+        stats_by_item={},
+        classes_by_item={},
+        sources_by_item={
+            item.stable_key: SourceInfo(
+                obtained_from=[
+                    ObtainedFromInfo(
+                        source_type="starting",
+                        source_key="class:Arcanist",
+                    ),
+                    ObtainedFromInfo(
+                        source_type="drop",
+                        source_key="character:treasurechest 0-10 1",
+                        probability=84.4,
+                        is_guaranteed=True,
+                    ),
+                    ObtainedFromInfo(
+                        source_type="fishing",
+                        source_key="water:brake:287.10:7.50:247.80",
+                        probability=19.0,
+                        condition="night",
+                    ),
+                    ObtainedFromInfo(
+                        source_type="fishing",
+                        source_key="water:brake:287.10:7.50:247.80",
+                        probability=5.9375,
+                        condition="day",
+                    ),
+                    ObtainedFromInfo(
+                        source_type="item_use",
+                        source_key="item:gen - bag of offering stones",
+                    ),
+                ]
+            )
+        },
+    )
+
+    shard = data["index"]["byKey"][item.stable_key]
+    assert data["shards"][shard][item.stable_key]["obtainedFrom"] == [
+        {
+            "type": "drop",
+            "sourceKey": "character:treasurechest 0-10 1",
+            "probability": 84.4,
+            "guaranteed": True,
+        },
+        {
+            "type": "fishing",
+            "sourceKey": "water:brake:287.10:7.50:247.80",
+            "probability": 5.9375,
+            "condition": "day",
+        },
+        {
+            "type": "fishing",
+            "sourceKey": "water:brake:287.10:7.50:247.80",
+            "probability": 19.0,
+            "condition": "night",
+        },
+        {
+            "type": "item_use",
+            "sourceKey": "item:gen - bag of offering stones",
+        },
+        {"type": "starting", "sourceKey": "class:Arcanist"},
+    ]
 
 
 def test_generates_items_modules_with_provenance_data() -> None:
