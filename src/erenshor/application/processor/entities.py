@@ -376,6 +376,18 @@ def process_items(
     return valid
 
 
+def process_class_starting_items(
+    raw: sqlite3.Connection,
+    writer: Writer,
+    valid_item_keys: set[str],
+) -> None:
+    """Process each class's ordered starting inventory."""
+    rows = _rows(raw, "SELECT * FROM ClassStartingItems")
+    rows = _filter_junction(rows, "ItemStableKey", valid_item_keys)
+    rows = _rename_cols(rows)
+    writer.insert_class_starting_items(rows)
+
+
 # ---------------------------------------------------------------------------
 # Spells
 # ---------------------------------------------------------------------------

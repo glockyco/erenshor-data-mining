@@ -180,14 +180,18 @@ configuration; exactly six class rows, each with `item_count >= 1`,
 
 **Files:**
 - Modify: `src/erenshor/application/processor/writer.py` (new CREATE TABLE + `insert_class_starting_items`)
-- Modify: `src/erenshor/application/processor/entities.py` (`process_classes` or a new `_process_class_starting_items`)
+- Modify: `src/erenshor/application/processor/entities.py` (`process_class_starting_items`)
 - Test: processor test asserting a known class has starting items keyed to valid item stable keys.
 
-- [ ] **Step 1: Write the failing test** asserting `class_starting_items` rows exist and `item_stable_key` ∈ valid items.
-- [ ] **Step 2:** Run; expect failure.
-- [ ] **Step 3:** Add `CREATE TABLE class_starting_items (class_name TEXT, item_stable_key TEXT, sort_order INTEGER)` + `insert_class_starting_items`; in the processor, `_rows` from raw `ClassStartingItems`, `_filter_junction` on `ItemStableKey` against valid item keys, `_rename_cols`, insert.
-- [ ] **Step 4:** `extract build`; run test. Expected: PASS.
-- [ ] **Step 5: Commit** — `feat(pipeline): carry class starting items into the clean DB`
+- [x] **Step 1: Write the failing test** asserting `class_starting_items` rows exist and `item_stable_key` ∈ valid items.
+- [x] **Step 2:** Run; expect failure.
+- [x] **Step 3:** Add `CREATE TABLE class_starting_items` with
+  `PRIMARY KEY (class_name, sort_order)` + `insert_class_starting_items`; in the
+  processor, `_rows` from raw `ClassStartingItems`, `_filter_junction` on
+  `ItemStableKey` against valid item keys, `_rename_cols`, insert. Missing item
+  references are filtered without renumbering surviving `sort_order` values.
+- [x] **Step 4:** `extract build`; run test. Expected: PASS.
+- [x] **Step 5: Commit** — `feat(pipeline): carry class starting items into the clean DB`
 
 ### Task A5: Derive `is_auctionable` from code facts (drift-gated)
 

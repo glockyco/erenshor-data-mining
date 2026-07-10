@@ -268,6 +268,13 @@ CREATE TABLE classes (
     resource_name       TEXT
 );
 
+CREATE TABLE class_starting_items (
+    class_name      TEXT NOT NULL,
+    item_stable_key TEXT NOT NULL,
+    sort_order      INTEGER NOT NULL,
+    PRIMARY KEY (class_name, sort_order)
+);
+
 CREATE TABLE guild_topics (
     stable_key              TEXT PRIMARY KEY NOT NULL,
     guild_topic_db_index    INTEGER,
@@ -1317,6 +1324,9 @@ class Writer:
 
     def insert_classes(self, rows: list[dict[str, object]]) -> int:
         return self._insert("classes", rows)
+
+    def insert_class_starting_items(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("class_starting_items", rows)
 
     def insert_guild_topics(self, rows: list[dict[str, object]]) -> int:
         return self._insert("guild_topics", rows)

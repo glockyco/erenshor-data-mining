@@ -29,6 +29,7 @@ from loguru import logger
 from .characters import process_characters
 from .code_facts import process_code_facts
 from .entities import (
+    process_class_starting_items,
     process_factions,
     process_items,
     process_quests,
@@ -96,6 +97,9 @@ def build(
 
         logger.info("Processing items...")
         item_keys = process_items(raw, writer, mapping)
+
+        logger.info("Processing class starting items...")
+        process_class_starting_items(raw, writer, item_keys)
 
         logger.info("Processing spells...")
         process_spells(raw, writer, mapping)
