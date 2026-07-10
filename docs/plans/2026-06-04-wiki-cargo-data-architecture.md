@@ -411,7 +411,7 @@ excluded. Rendered as an "Auction House" line in How to Obtain.
   single `required_level`; skills use the per-class column. Declared by a
   declare-only `Template:AbilityClasses`; `{{Spell}}`/`{{Skill}}` attach it.
 - `CharacterAbilities` (from `character_attack_spells` + siblings +
-  `character_attack_skills`; owner = character): `CharacterKey`, `AbilityKey`, `Usage`.
+  `character_attack_skills`; owner = character): `CharacterKey`, `AbilityKey`, `AbilityUsage` (`Usage` is reserved by the local Cargo SQL fork). Death-event `ShoutOnDeath` text is not an ability and is deferred to a dedicated ordered table.
 - `Spawns` (owner = character): `CharacterKey`, `Zone`, `Scene`, `X`, `Y`, `Z`,
   `SpawnChance`, `NightSpawn`, `SpawnUponQuestComplete`, `LevelMod`, `RareNpcChance`,
   `SpawnType`, `Origin`. Source is the `wiki_character_spawns` view (`character_spawns`
