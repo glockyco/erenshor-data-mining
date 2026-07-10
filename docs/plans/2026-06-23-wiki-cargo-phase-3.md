@@ -232,18 +232,24 @@ the count is lower than the total item count.
 
 ### Task A6: Surface `is_auctionable` and complete item flag repository mapping
 
-**Files:** `src/erenshor/domain/entities/item.py` + the item repository row→entity mapping.
+**Files:** `src/erenshor/domain/entities/item.py`, the item repository row→entity mapping, and `tests/unit/infrastructure/database/repositories/test_items.py`.
 
 - [x] `Item` declares `rare_item`.
-- [ ] **Step 1:** Add `is_auctionable` after `rare_item`:
+- [x] **Step 1:** Add `is_auctionable` after `rare_item` with the description
+  “Derived: player can list this item on the auction house (boolean).”
 
 ```python
-    is_auctionable: int | None = Field(default=None, description="Derived: appears on the auction house (boolean)")
+is_auctionable: int | None = Field(
+    default=None,
+    description="Derived: player can list this item on the auction house (boolean)",
+)
 ```
 
-- [ ] **Step 2:** Select both `rare_item` and `is_auctionable` in the item repository, then add a unit test asserting fetched `Item` entities carry both flags.
-- [ ] **Step 3:** Run the test. Expected: PASS.
-- [ ] **Step 4: Commit** — `feat(pipeline): expose rare_item and is_auctionable on the Item entity`
+- [x] **Step 2:** Select `player_cannot_sell`, `rare_item`, and
+  `is_auctionable` in the item repository, then add a unit test asserting
+  fetched `Item` entities carry the item flags.
+- [x] **Step 3:** Run the repository test. PASS.
+- [x] **Step 4: Commit** — `feat(pipeline): expose rare_item and is_auctionable on the Item entity`
 
 ### Task A7: Recapture golden baselines
 

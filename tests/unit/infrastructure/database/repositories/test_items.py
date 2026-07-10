@@ -69,6 +69,16 @@ def test_item_entities_have_required_fields(item_repo: ItemRepository):
         assert item.stable_key.startswith("item:")
 
 
+def test_item_entities_include_item_flags(item_repo: ItemRepository):
+    """Test that repository mapping preserves clean item flags."""
+    items = item_repo.get_items_for_wiki_generation()
+
+    assert any(item.rare_item == 1 for item in items)
+    assert any(item.is_auctionable == 1 for item in items)
+    assert any(item.is_auctionable == 0 for item in items)
+    assert any(item.player_cannot_sell == 1 for item in items)
+
+
 def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
     """Test that item stats are returned in gameplay quality order."""
     db_path = tmp_path / "items.sqlite"
