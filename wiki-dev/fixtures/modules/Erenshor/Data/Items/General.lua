@@ -12,6 +12,24 @@ return {
 			{ item = "item:bear_claw", probability = 30.0, guaranteed = true },
 			{ item = "item:bear_meat", probability = 20.0 },
 		},
+		obtainedFrom = {
+			{
+				type = "drop",
+				sourceKey = "character:a_grizzly_bear",
+				probability = 12.5,
+				guaranteed = true,
+			},
+			{
+				type = "fishing",
+				sourceKey = "water:brake:287.10:7.50:247.80",
+				probability = 5.9375,
+				condition = "day",
+			},
+			{
+				type = "item_use",
+				sourceKey = "item:gen - bag of offering stones",
+			},
+		},
 	},
 	["item:bear_pelt"] = {
 		name = "Bear Pelt",

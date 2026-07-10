@@ -382,16 +382,16 @@ legacy infobox fields; the new source methods provide stable-keyed records.
   `relatedQuest`, `componentFor`, and `containerDrops` fields while adding
   `_put(row, "obtainedFrom", ...)`.
 - [x] **Step 4:** Run tests; `uv run erenshor wiki generate-lua`; expect PASS.
-- [ ] **Step 5:** Commit — `feat(wiki): build the item obtainedFrom source list in Lua data`
+- [x] **Step 5:** Commit — `feat(wiki): build item obtainedFrom source lists`
 
 
 ### Task B4: Lua store in the `ItemObtainedFromStore` owner
 
 **Files:** `wiki/modules/Erenshor/Item.lua` (after `containerDropRows`, ~line 821), `wiki/templates/Item.wiki` (transclude the hidden owner), `wiki/templates/ItemObtainedFromStore.wiki`, `wiki/modules/Erenshor/Item/testcases.lua`.
 
-- [ ] **Step 1: Write failing testcase** in `Item/testcases.lua`: `Item.cargoObtainedFromRows({ args = { stablekey = "item:<fixture>" } })` returns rows with `ItemKey`/`SourceType`/`SourceKey` set (mirror the `cargoContainerDropRows` testcase at `Item/testcases.lua:120`).
-- [ ] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Expose `p.cargoObtainedFromStore(frame)` — resolves the item by `stablekey` and runs the `Cargo.store("ObtainedFrom", fields)` loop — as the entrypoint the hidden `ItemObtainedFromStore` owner invokes from its `<includeonly>`.
-- [ ] **Step 3:** In `Item.wiki` `<includeonly>`, transclude `{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}` so each item page renders the hidden owner, whose `<includeonly>` stores the `ObtainedFrom` rows. `Item` keeps `#cargo_declare:Items` and stores only its own `Items` row — no `#cargo_attach`, no attach-trick, since each table has its own declaring+storing owner.
+- [x] **Step 1: Write failing testcase** in `Item/testcases.lua`: `Item.cargoObtainedFromRows({ args = { stablekey = "item:<fixture>" } })` returns rows with `ItemKey`/`SourceType`/`SourceKey` set (mirror the `cargoContainerDropRows` testcase at `Item/testcases.lua:120`).
+- [x] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Expose `p.cargoObtainedFromStore(frame)` — resolves the item by `stablekey` and runs the `Cargo.store("ObtainedFrom", fields)` loop — as the entrypoint the hidden `ItemObtainedFromStore` owner invokes from its `<includeonly>`.
+- [x] **Step 3:** In `Item.wiki` `<includeonly>`, transclude `{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}` so each item page renders the hidden owner, whose `<includeonly>` stores the `ObtainedFrom` rows. `Item` keeps `#cargo_declare:Items`; its existing `#cargo_attach` for the legacy `ContainerDrops` table remains unchanged until that table is migrated to its own storing owner.
 - [ ] **Step 4:** `import_pages.py` → `smoke_test.py` → `cargo_check.py`. Expect ObtainedFrom rows for fixture item pages.
 - [ ] **Step 5: Commit** — `feat(wiki): store item ObtainedFrom rows from the item page`
 

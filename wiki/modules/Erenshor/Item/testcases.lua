@@ -136,6 +136,27 @@ function p.run()
 		"non-guaranteed container drop is stored"
 	)
 	assertEqual(bagDrops[3].IsGuaranteed, "no", "non-guaranteed container drop is unflagged")
+	local obtained = Item.cargoObtainedFromRows({ args = { stablekey = "item:magical_bag" } })
+	assertEqual(#obtained, 3, "obtainedFrom rows cover every source")
+	assertEqual(obtained[1].ItemKey, "item:magical_bag", "obtainedFrom carries item key")
+	assertEqual(obtained[1].SourceType, "drop", "obtainedFrom stores source type")
+	assertEqual(obtained[1].SourceKey, "character:a_grizzly_bear", "obtainedFrom stores source key")
+	assertEqual(obtained[1].Probability, "12.5", "obtainedFrom stores probability")
+	assertEqual(obtained[1].IsGuaranteed, "yes", "obtainedFrom stores guaranteed flag")
+	assertEqual(obtained[2].SourceType, "fishing", "obtainedFrom stores fishing source type")
+	assertEqual(
+		obtained[2].SourceKey,
+		"water:brake:287.10:7.50:247.80",
+		"obtainedFrom preserves the water identity"
+	)
+	assertEqual(obtained[2].SourceCondition, "day", "obtainedFrom stores fishing condition")
+	assertEqual(obtained[2].IsGuaranteed, "no", "obtainedFrom leaves fishing unguaranteed")
+	assertEqual(obtained[3].SourceType, "item_use", "obtainedFrom stores item-use source type")
+	assertEqual(
+		obtained[3].SourceKey,
+		"item:gen - bag of offering stones",
+		"obtainedFrom stores item-use source key"
+	)
 	local bagRates = Item.fieldValue({ stablekey = "item:magical_bag" }, "Magical Bag", "droprates")
 	assertContains(bagRates, "[[Bear Pelt]]", "container droprates resolves the dropped item link")
 	assertContains(bagRates, "50%", "container droprates shows the probability")

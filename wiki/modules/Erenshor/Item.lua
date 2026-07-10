@@ -823,6 +823,30 @@ local function containerDropRows(item)
 	return rows
 end
 
+-- One Cargo ObtainedFrom row per stable-keyed item source.
+local function obtainedFromRows(item)
+	local rows = {}
+	if type(item.obtainedFrom) ~= "table" then
+		return rows
+	end
+	for _, source in ipairs(item.obtainedFrom) do
+		if type(source) == "table" and hasValue(source.type) then
+			table.insert(rows, {
+				{ "ItemKey", item.stableKey },
+				{ "SourceType", source.type },
+				{ "SourceKey", source.sourceKey },
+				{ "SourceText", source.sourceText },
+				{ "Probability", source.probability },
+				{ "IsGuaranteed", source.guaranteed == true },
+				{ "Quantity", source.quantity },
+				{ "SourceCondition", source.condition },
+				{ "Origin", "generated" },
+			})
+		end
+	end
+	return rows
+end
+
 function p.cargoArgs(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -842,6 +866,28 @@ function p.cargoContainerDropRows(frame)
 		end
 	end
 	return rows
+end
+
+function p.cargoObtainedFromRows(frame)
+	local item = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not item.missing then
+		for _, fields in ipairs(obtainedFromRows(item)) do
+			table.insert(rows, Cargo.buildArgs("ObtainedFrom", fields))
+		end
+	end
+	return rows
+end
+
+function p.cargoObtainedFromStore(frame)
+	local item = p.resolve(templateArgs(frame), currentTitleText())
+	if item.missing then
+		return ""
+	end
+	for _, fields in ipairs(obtainedFromRows(item)) do
+		Cargo.store("ObtainedFrom", fields)
+	end
+	return ""
 end
 
 function p.cargoStore(frame)

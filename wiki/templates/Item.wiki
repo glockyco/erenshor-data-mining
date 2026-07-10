@@ -35,7 +35,7 @@
     <data><label>Sell</label><default>{{#invoke:Erenshor/Item|field|sell}}</default></data>
     <data><label>Provides one of</label><default>{{#invoke:Erenshor/Item|field|guaranteeddrops}}</default></data>
     <data><label>Overall Item Chances</label><default>{{#invoke:Erenshor/Item|field|droprates}}</default></data>
-</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
+</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
