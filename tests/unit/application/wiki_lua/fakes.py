@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import ItemDropInfo, LootDropInfo
+    from erenshor.domain.value_objects.source_info import ObtainedFromInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
     from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, StandardLink
 
@@ -29,6 +30,9 @@ class FakeItemRepository:
         item_sources: dict[str, list[tuple[StandardLink, float]]] | None = None,
         items_requiring: dict[str, list[ItemLink]] | None = None,
         item_drops: dict[str, list[ItemDropInfo]] | None = None,
+        craft_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        item_use_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        starting_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_teaching_items: dict[str, list[ItemLink]] | None = None,
         skill_teaching_items: dict[str, list[ItemLink]] | None = None,
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
@@ -41,6 +45,9 @@ class FakeItemRepository:
         self._item_sources = item_sources or {}
         self._items_requiring = items_requiring or {}
         self._item_drops = item_drops or {}
+        self._craft_sources = craft_sources or {}
+        self._item_use_sources = item_use_sources or {}
+        self._starting_sources = starting_sources or {}
         self._spell_teaching_items = spell_teaching_items or {}
         self._skill_teaching_items = skill_teaching_items or {}
         self._spell_effect_items = spell_effect_items or {}
@@ -67,6 +74,15 @@ class FakeItemRepository:
     def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]:
         return self._item_drops.get(source_item_stable_key, [])
 
+    def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._craft_sources.get(item_stable_key, [])
+
+    def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._item_use_sources.get(item_stable_key, [])
+
+    def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._starting_sources.get(item_stable_key, [])
+
     def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
         return self._spell_teaching_items.get(spell_stable_key, [])
 
@@ -86,11 +102,17 @@ class FakeCharacterRepository:
         characters: list[Character],
         vendors: dict[str, list[CharacterLink]] | None = None,
         drops: dict[str, list[tuple[CharacterLink, float]]] | None = None,
+        drop_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        vendor_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        dialog_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_users: dict[str, list[CharacterLink]] | None = None,
     ) -> None:
         self._characters = characters
         self._vendors = vendors or {}
         self._drops = drops or {}
+        self._drop_sources = drop_sources or {}
+        self._vendor_sources = vendor_sources or {}
+        self._dialog_sources = dialog_sources or {}
         self._spell_users = spell_users or {}
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
@@ -101,6 +123,15 @@ class FakeCharacterRepository:
 
     def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]:
         return self._drops.get(item_stable_key, [])
+
+    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._drop_sources.get(item_stable_key, [])
+
+    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._vendor_sources.get(item_stable_key, [])
+
+    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._dialog_sources.get(item_stable_key, [])
 
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
         return self._spell_users.get(spell_stable_key, [])
@@ -169,11 +200,13 @@ class FakeQuestRepository:
         faction_changes: dict[str, list[FactionModifier]] | None = None,
         quest_rewards: dict[str, list[QuestLink]] | None = None,
         quest_requirements: dict[str, list[QuestLink]] | None = None,
+        reward_sources: dict[str, list[ObtainedFromInfo]] | None = None,
     ) -> None:
         self._quests = quests
         self._faction_changes = faction_changes or {}
         self._quest_rewards = quest_rewards or {}
         self._quest_requirements = quest_requirements or {}
+        self._reward_sources = reward_sources or {}
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
@@ -184,20 +217,42 @@ class FakeQuestRepository:
     def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]:
         return self._quest_rewards.get(item_stable_key, [])
 
+    def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._reward_sources.get(item_stable_key, [])
+
     def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]:
         return self._quest_requirements.get(item_stable_key, [])
 
 
 class FakeZoneRepository:
-    def __init__(self, zones: list[Zone], connections: dict[str, list[str]]) -> None:
+    def __init__(
+        self,
+        zones: list[Zone],
+        connections: dict[str, list[str]],
+        mining_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        fishing_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        item_bag_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+    ) -> None:
         self._zones = zones
         self._connections = connections
+        self._mining_sources = mining_sources or {}
+        self._fishing_sources = fishing_sources or {}
+        self._item_bag_sources = item_bag_sources or {}
 
     def get_all_zones(self) -> list[Zone]:
         return self._zones
 
     def get_zone_connections(self, scene_name: str) -> list[str]:
         return self._connections.get(scene_name, [])
+
+    def get_mining_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._mining_sources.get(item_stable_key, [])
+
+    def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._fishing_sources.get(item_stable_key, [])
+
+    def get_item_bag_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return self._item_bag_sources.get(item_stable_key, [])
 
 
 def make_item(**overrides: object) -> Item:

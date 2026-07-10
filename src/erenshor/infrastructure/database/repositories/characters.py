@@ -4,6 +4,7 @@ from loguru import logger
 
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo
 from erenshor.domain.value_objects.wiki_link import CharacterLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -436,3 +437,139 @@ class CharacterRepository(BaseRepository[Character]):
             return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve characters using spell '{spell_stable_key}': {e}") from e
+
+    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return stable-keyed character groups that drop an item."""
+        query = """
+            WITH drop_rows AS (
+                SELECT d.group_key, d.member_stable_key, ld.drop_probability, ld.is_guaranteed
+                FROM character_deduplications d
+                JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
+                WHERE ld.item_stable_key = ?
+                  AND ld.drop_probability > 0.0
+            ),
+            drop_groups AS (
+                SELECT group_key, MAX(drop_probability) AS drop_probability
+                FROM drop_rows
+                GROUP BY group_key
+            ),
+            reps AS (
+                SELECT
+                    dg.group_key,
+                    dg.drop_probability,
+                    MAX(CASE WHEN dr.drop_probability = dg.drop_probability THEN dr.is_guaranteed ELSE 0 END)
+                        AS is_guaranteed,
+                    MIN(d.member_stable_key) AS rep_stable_key
+                FROM drop_groups dg
+                JOIN drop_rows dr ON dr.group_key = dg.group_key
+                JOIN character_deduplications d ON d.group_key = dg.group_key
+                WHERE d.is_wiki_generated = 1
+                GROUP BY dg.group_key, dg.drop_probability
+            )
+            SELECT r.rep_stable_key, r.drop_probability, r.is_guaranteed
+            FROM reps r
+            ORDER BY r.rep_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="drop",
+                    source_key=str(row["rep_stable_key"]),
+                    probability=float(row["drop_probability"]),
+                    is_guaranteed=bool(row["is_guaranteed"]),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
+
+    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return stable-keyed vendors and quest conditions that sell an item."""
+        query = """
+            WITH vendor_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+                WHERE cvi.item_stable_key = ?
+                UNION
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                WHERE qv.unlock_item_for_vendor_stable_key = ?
+            ),
+            reps AS (
+                SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
+                FROM vendor_groups vg
+                JOIN character_deduplications d ON d.group_key = vg.group_key
+                WHERE d.is_wiki_generated = 1
+                GROUP BY vg.group_key
+            ),
+            unlocks AS (
+                SELECT DISTINCT d.group_key, cvqu.quest_stable_key
+                FROM character_deduplications d
+                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                WHERE qv.unlock_item_for_vendor_stable_key = ?
+            )
+            SELECT r.rep_stable_key, u.quest_stable_key, q.display_name AS quest_display_name
+            FROM reps r
+            LEFT JOIN unlocks u ON u.group_key = r.group_key
+            LEFT JOIN quests q ON q.stable_key = u.quest_stable_key
+            ORDER BY r.rep_stable_key, u.quest_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,) * 3)
+            return [
+                ObtainedFromInfo(
+                    source_type="vendor",
+                    source_key=str(row["rep_stable_key"]),
+                    condition=(
+                        f"requires quest {row['quest_display_name'] or row['quest_stable_key']}"
+                        if row["quest_stable_key"]
+                        else None
+                    ),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve stable vendor sources for '{item_stable_key}': {e}") from e
+
+    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return dialog characters that give an item, including quest gates."""
+        query = """
+            WITH dialog_rows AS (
+                SELECT DISTINCT d.group_key, cd.required_quest_stable_key
+                FROM character_deduplications d
+                JOIN character_dialogs cd ON cd.character_stable_key = d.member_stable_key
+                WHERE cd.give_item_stable_key = ?
+            ),
+            reps AS (
+                SELECT dr.group_key, MIN(d.member_stable_key) AS rep_stable_key, dr.required_quest_stable_key
+                FROM dialog_rows dr
+                JOIN character_deduplications d ON d.group_key = dr.group_key
+                WHERE d.is_wiki_generated = 1
+                GROUP BY dr.group_key, dr.required_quest_stable_key
+            )
+            SELECT r.rep_stable_key, r.required_quest_stable_key, q.display_name AS quest_display_name
+            FROM reps r
+            LEFT JOIN quests q ON q.stable_key = r.required_quest_stable_key
+            ORDER BY r.rep_stable_key, r.required_quest_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="dialog",
+                    source_key=str(row["rep_stable_key"]),
+                    condition=(
+                        f"requires quest {row['quest_display_name'] or row['required_quest_stable_key']}"
+                        if row["required_quest_stable_key"]
+                        else None
+                    ),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve dialog sources for '{item_stable_key}': {e}") from e

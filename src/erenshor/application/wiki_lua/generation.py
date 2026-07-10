@@ -26,6 +26,7 @@ from erenshor.application.wiki_lua.items import (
     ItemProvenanceCharacterRepository,
     ItemProvenanceItemRepository,
     ItemProvenanceQuestRepository,
+    ItemProvenanceZoneRepository,
     build_item_sources_by_item,
     write_items_modules,
 )
@@ -58,6 +59,10 @@ class WikiCharacterRepository(CharacterDataRepository, ItemProvenanceCharacterRe
 
 class WikiQuestRepository(QuestDataRepository, ItemProvenanceQuestRepository, Protocol):
     """Quest repository contract needed by full Lua data generation."""
+
+
+class WikiZoneRepository(ZoneDataRepository, ItemProvenanceZoneRepository, Protocol):
+    """Zone repository contract needed for item provenance and zone modules."""
 
 
 class WikiSpellItemRepository(
@@ -148,13 +153,13 @@ def generate_lua_data_modules(
     skill_repo: SkillGenerationRepository,
     stance_repo: StanceDataRepository,
     quest_repo: WikiQuestRepository,
-    zone_repo: ZoneDataRepository,
+    zone_repo: WikiZoneRepository,
     output_root: Path,
     validate: LuaValidator = validate_lua_module,
 ) -> LuaDataModuleGenerationResult:
     """Generate and validate all currently supported Lua data modules."""
     items = item_repo.get_items_for_wiki_generation()
-    item_sources_by_item = build_item_sources_by_item(items, item_repo, character_repo, quest_repo)
+    item_sources_by_item = build_item_sources_by_item(items, item_repo, character_repo, quest_repo, zone_repo)
     written_paths = [
         *write_items_modules(item_repo, output_root, sources_by_item=item_sources_by_item),
         write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),

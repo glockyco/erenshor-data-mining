@@ -168,3 +168,22 @@ def test_item_repository_validates_data_types(item_repo: ItemRepository):
         assert item.item_name is None or isinstance(item.item_name, str)
         assert item.item_level is None or isinstance(item.item_level, int)
         assert item.required_slot is None or isinstance(item.required_slot, str)
+
+
+def test_obtained_from_item_sources_cover_craft_use_and_starting(item_repo: ItemRepository) -> None:
+    """Item provenance retains source keys, deterministic quantities, and classes."""
+    craft = item_repo.get_recipes_rewarding_item("item:key - ghostly key")
+    assert [(source.source_key, source.quantity) for source in craft] == [("item:template - a chewed key mold", 4)]
+
+    use = item_repo.get_item_use_sources("item:gen - offering stone")
+    assert [(source.source_key, source.probability) for source in use] == [("item:gen - bag of offering stones", None)]
+
+    starting = item_repo.get_classes_starting_with_item("item:cons - bread")
+    assert [source.source_key for source in starting] == [
+        "class:Arcanist",
+        "class:Druid",
+        "class:Duelist",
+        "class:Paladin",
+        "class:Reaver",
+        "class:Stormcaller",
+    ]

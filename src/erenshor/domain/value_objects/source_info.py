@@ -5,7 +5,19 @@ from dataclasses import dataclass, field
 from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
 
-__all__ = ["SourceInfo"]
+__all__ = ["ObtainedFromInfo", "SourceInfo"]
+
+
+@dataclass(frozen=True)
+class ObtainedFromInfo:
+    """Stable-keyed provenance edge for an item-owned obtainability row."""
+
+    source_type: str
+    source_key: str | None
+    probability: float | None = None
+    is_guaranteed: bool = False
+    quantity: int | None = None
+    condition: str | None = None
 
 
 @dataclass
@@ -41,3 +53,6 @@ class SourceInfo:
     # Item drops (for source items like fossils that produce random items), keyed by
     # the dropped item's StableKey; the link resolves from the item record at display.
     item_drops: list[ItemDropInfo] = field(default_factory=list)
+
+    # Unified item-owned obtainability rows with stable source identity.
+    obtained_from: list[ObtainedFromInfo] = field(default_factory=list)

@@ -6,6 +6,7 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.loot import ItemDropInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -647,3 +648,72 @@ class ItemRepository(BaseRepository[Item]):
             )
         """
         return bool(self._execute_raw(query, (item_stable_key,) * 8))
+
+    def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return crafting recipe items that produce an item."""
+        query = """
+            SELECT recipe_item_stable_key, MAX(reward_quantity) AS reward_quantity
+            FROM crafting_rewards
+            WHERE reward_item_stable_key = ?
+            GROUP BY recipe_item_stable_key
+            ORDER BY recipe_item_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="craft",
+                    source_key=str(row["recipe_item_stable_key"]),
+                    quantity=int(row["reward_quantity"]) if row["reward_quantity"] is not None else None,
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve crafting sources for '{item_stable_key}': {e}") from e
+
+    def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return item sources from item drops and spell-created products."""
+        query = """
+            WITH source_rows AS (
+                SELECT source_item_stable_key, drop_probability AS probability, is_guaranteed
+                FROM item_drops
+                WHERE dropped_item_stable_key = ?
+                UNION ALL
+                SELECT source_item_stable_key, NULL AS probability, 0 AS is_guaranteed
+                FROM spell_created_items
+                WHERE created_item_stable_key = ?
+            )
+            SELECT source_item_stable_key, MAX(probability) AS probability, MAX(is_guaranteed) AS is_guaranteed
+            FROM source_rows
+            GROUP BY source_item_stable_key
+            ORDER BY source_item_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key, item_stable_key))
+            return [
+                ObtainedFromInfo(
+                    source_type="item_use",
+                    source_key=str(row["source_item_stable_key"]),
+                    probability=float(row["probability"]) if row["probability"] is not None else None,
+                    is_guaranteed=bool(row["is_guaranteed"]),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item-use sources for '{item_stable_key}': {e}") from e
+
+    def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return playable classes whose starting inventory includes an item."""
+        query = """
+            SELECT DISTINCT c.class_name
+            FROM class_starting_items csi
+            JOIN classes c ON c.class_name = csi.class_name
+            WHERE csi.item_stable_key = ?
+              AND c.class_name != 'Default'
+            ORDER BY c.class_name
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [ObtainedFromInfo(source_type="starting", source_key=f"class:{row['class_name']}") for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve starting-item sources for '{item_stable_key}': {e}") from e

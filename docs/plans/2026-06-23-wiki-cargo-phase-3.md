@@ -323,9 +323,10 @@ Add one method and focused test for each source path:
   from `loot_drops`; retain the maximum probability per character group and
   the guaranteed-pool flag. SourceType `drop`.
 - **`get_vendor_sources_for_item(item_key)`** — existing vendor query plus
-  quest-unlock vendors from `character_vendor_quest_unlocks`; emit one
+  quest-unlock vendors from `character_vendor_quest_unlocks`, attributed through
+  `quest_variants.unlock_item_for_vendor_stable_key = item_key`; emit one
   representative character StableKey and `condition="requires quest <name>"`
-  for gated vendors. SourceType `vendor`.
+  for each gated item/quest pair. SourceType `vendor`.
 - **`get_characters_giving_item(item_key)`** — `character_dialogs` with
   optional quest-gate condition. SourceType `dialog`.
 - **`get_quest_reward_sources(item_key)`** — quest reward variants with quest

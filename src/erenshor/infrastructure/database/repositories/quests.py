@@ -4,6 +4,7 @@ from loguru import logger
 
 from erenshor.domain.entities.quest import Quest
 from erenshor.domain.value_objects.faction import FactionModifier
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo
 from erenshor.domain.value_objects.wiki_link import QuestLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -142,3 +143,18 @@ class QuestRepository(BaseRepository[Quest]):
             return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve quest requirements for item '{item_stable_key}': {e}") from e
+
+    def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return stable-keyed quests that reward an item."""
+        query = """
+            SELECT DISTINCT q.stable_key
+            FROM quests q
+            JOIN quest_variants qv ON q.stable_key = qv.quest_stable_key
+            WHERE qv.item_on_complete_stable_key = ?
+            ORDER BY q.stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [ObtainedFromInfo(source_type="quest", source_key=str(row["stable_key"])) for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve stable quest sources for '{item_stable_key}': {e}") from e

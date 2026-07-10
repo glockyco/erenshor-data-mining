@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.source_info import SourceInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -41,6 +41,12 @@ class ItemProvenanceItemRepository(Protocol):
 
     def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]: ...
 
+    def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
 
 class ItemProvenanceCharacterRepository(Protocol):
     """Character repository methods needed for item source fields."""
@@ -49,6 +55,12 @@ class ItemProvenanceCharacterRepository(Protocol):
 
     def get_characters_dropping_item(self, item_stable_key: str) -> list[tuple[CharacterLink, float]]: ...
 
+    def get_character_drop_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_characters_giving_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
 
 class ItemProvenanceQuestRepository(Protocol):
     """Quest repository methods needed for item source fields."""
@@ -56,6 +68,18 @@ class ItemProvenanceQuestRepository(Protocol):
     def get_quests_rewarding_item(self, item_stable_key: str) -> list[QuestLink]: ...
 
     def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]: ...
+
+    def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+
+class ItemProvenanceZoneRepository(Protocol):
+    """Zone methods needed for item obtainability source fields."""
+
+    def get_mining_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_fishing_waters_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_item_bag_zones_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
 
 LuaData = dict[str, object]
@@ -202,24 +226,39 @@ def build_item_sources_by_item(
     item_repo: ItemProvenanceItemRepository,
     character_repo: ItemProvenanceCharacterRepository,
     quest_repo: ItemProvenanceQuestRepository,
+    zone_repo: ItemProvenanceZoneRepository,
 ) -> dict[str, SourceInfo]:
-    """Build unformatted source metadata for each item from repository joins."""
+    """Build legacy and stable-keyed source metadata for each item."""
     sources_by_item: dict[str, SourceInfo] = {}
     for item in items:
-        vendors = character_repo.get_vendors_selling_item(item.stable_key)
-        character_drops = character_repo.get_characters_dropping_item(item.stable_key)
-        item_sources = item_repo.get_item_sources(item.stable_key)
-        quest_rewards = quest_repo.get_quests_rewarding_item(item.stable_key)
-        quest_requirements = quest_repo.get_quests_requiring_item(item.stable_key)
-        component_for = item_repo.get_items_requiring_item(item.stable_key)
-        item_drops = item_repo.get_item_drops(item.stable_key)
-        sources_by_item[item.stable_key] = SourceInfo(
+        item_key = item.stable_key
+        vendors = character_repo.get_vendors_selling_item(item_key)
+        character_drops = character_repo.get_characters_dropping_item(item_key)
+        item_sources = item_repo.get_item_sources(item_key)
+        quest_rewards = quest_repo.get_quests_rewarding_item(item_key)
+        quest_requirements = quest_repo.get_quests_requiring_item(item_key)
+        component_for = item_repo.get_items_requiring_item(item_key)
+        item_drops = item_repo.get_item_drops(item_key)
+        obtained_from = [
+            *character_repo.get_character_drop_sources(item_key),
+            *character_repo.get_vendor_sources_for_item(item_key),
+            *character_repo.get_characters_giving_item(item_key),
+            *quest_repo.get_quest_reward_sources(item_key),
+            *item_repo.get_recipes_rewarding_item(item_key),
+            *item_repo.get_item_use_sources(item_key),
+            *zone_repo.get_mining_zones_for_item(item_key),
+            *zone_repo.get_fishing_waters_for_item(item_key),
+            *zone_repo.get_item_bag_zones_for_item(item_key),
+            *item_repo.get_classes_starting_with_item(item_key),
+        ]
+        sources_by_item[item_key] = SourceInfo(
             vendors=vendors,
             drops=[*character_drops, *item_sources],
             quest_rewards=quest_rewards,
             quest_requirements=quest_requirements,
             component_for=component_for,
             item_drops=item_drops,
+            obtained_from=obtained_from,
         )
     return sources_by_item
 
