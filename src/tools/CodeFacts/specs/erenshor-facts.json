@@ -208,6 +208,36 @@
       ]
     },
     {
+      "id": "auction.player_listing_gates",
+      "mode": "extract",
+      "type": "GameData",
+      "method": "ActivateSlotForAuction",
+      "matcher": "int_comparisons",
+      "args": {
+        "ItemLevel": "item_level",
+        "ItemValue": "item_value"
+      },
+      "keys": [
+        "item_level",
+        "item_value"
+      ]
+    },
+    {
+      "id": "auction.player_listing_gate",
+      "mode": "assert",
+      "variants": [
+        "playtest"
+      ],
+      "type": "AuctionHouseUI",
+      "method": "CommitItem",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (GameData.SlotToBeListed == null || GameData.SlotToBeListed.MyItem == null || GameData.SlotToBeListed.MyItem.RequiredSlot == Item.SlotType.General) { UpdateSocialLog.LogAdd (\"Currently, SimPlayers only purchase equippable items. This item should be sold to a vendor.\", \"yellow\"); return; }"
+      },
+      "note": "Player auction confirmation rejects General-slot items; re-derive IsAuctionable if this equippable-only gate changes."
+    },
+    {
       "id": "loot.guarantee_one_drop",
       "mode": "assert",
       "variants": [

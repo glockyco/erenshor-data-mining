@@ -12,7 +12,7 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 
 **Goal:** Build the unified, item-owned `ObtainedFrom` / `UsedIn` Cargo relationship tables plus derived `IsAuctionable`, complete item-flag repository mapping, and the `CharacterAbilities` / `Spawns` junctions, then cut reverse displays over to Cargo queries — all on the local `wiki-dev` harness, with the live wiki untouched (production cutover is Phase 7).
 
-**Architecture:** Item obtainability and usage become two unified typed tables keyed on `ItemKey`, **stored from the item page** (the only owner that already has Cargo + a dual-path gate), which collapses the Phase-5 ordering trap (Quest/Zone/Class templates have no `cargoStore` yet). Generated relationship rows are written forward via `Module:Erenshor/Cargo` and read reverse via Cargo queries; the denormalized reverse arrays are removed. Hardcoded game constants (auction bounds, smithing upgrade IDs) are **consumed from the `code_facts` table**, never transcribed — derivations assert the exact extracted comparison strings and hard-fail on drift. `Drops` (character-owned) and `ContainerDrops` (item-owned) are folded into `ObtainedFrom` and deleted.
+**Architecture:** Item obtainability and usage become two unified typed tables keyed on `ItemKey`, **stored from the item page** (the only owner that already has Cargo + a dual-path gate), which collapses the Phase-5 ordering trap (Quest/Zone/Class templates have no `cargoStore` yet). Generated relationship rows are written forward via `Module:Erenshor/Cargo` and read reverse via Cargo queries; the denormalized reverse arrays are removed. Hardcoded game constants (player auction-listing gates, smithing upgrade IDs) are **consumed from the `code_facts` table**, never transcribed — derivations assert the exact extracted comparison strings and hard-fail on drift. `Drops` (character-owned) and `ContainerDrops` (item-owned) are folded into `ObtainedFrom` and deleted.
 
 **Variant scope — clean cut to playtest.** The wiki ships from the current shipping build; playtest is the shipping build in waiting (promotes to main within ~a week). Every pipeline run, code-fact pin, and golden baseline in this plan targets the **playtest** variant — no dual-variant support. The pinned renderings are the shipping build's renderings, so they carry over unchanged at promotion and any stale non-shipping build fails fast. `ObtainedFrom` and `Spawns` declare `Origin` (`generated`|`community`) + (for `ObtainedFrom`) `SourceText` **up front**, so the Phase 4 community layer adds only rows and templates — never a production schema recreate.
 
@@ -25,12 +25,12 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 - **Item-owned decision:** only `Item.lua` and `Character.lua` have `cargoStore` today (`wiki/modules/Erenshor/{Item,Character}.lua`). `Quest.lua`/`Zone.lua` do not and there is no Class template, so quest/zone/class-owned `ObtainedFrom` rows are impossible until Phase 5. Making `ObtainedFrom`/`UsedIn` item-owned makes Phase 3 fully harness-testable now.
 - **Taxonomy is complete & deterministic.** `ObtainedFrom` SourceTypes: `drop, vendor, dialog, quest, craft, item_use, mining, fishing, item_bag, starting`. `UsedIn` UseTypes: `craft_material, quest_requirement, upgrade_material, blessing_removal_material`. Treasure hunting = the four `Lost Treasure (…)` **chest characters** carrying authored `loot_drops` (covered by `drop`, no special-casing). Wishing wells grant nothing (coordinate markers only).
 - **Existing repos** already answer most reverse queries: `get_vendors_selling_item`, `get_characters_dropping_item` (`repositories/characters.py:262,311`), `get_item_drops`/`get_item_sources` (`repositories/items.py:528,568`), `get_quests_rewarding_item` (uses `quest_variants.item_on_complete_stable_key`, `repositories/quests.py:72`), `get_quests_requiring_item` (`:109`), `get_items_requiring_item` (`:233`), and Spawns reads `wiki_character_spawns` (`repositories/spawn_points.py:47`). New methods needed: dialog, craft-reward, mining, fishing, item_bag, starting, smithing special uses.
-- **Code facts already extracted** (playtest `code_facts` table, values are comparison strings). The pins are the **playtest** renderings (the shipping build's renderings):
-  - `auction.updateah_gates` → `item_level='>= 40'`, `item_value='<= 0'`
-  - `auction.replacebag_gates` → `item_level='<= 0,> 39'`, `rare_reject_roll='< 19'`
+- **Code facts already extracted** (playtest `code_facts` table, values are comparison strings). Player auctionability pins are the player-facing renderings:
+  - `auction.player_listing_gates` → `item_level='!= 0'`, `item_value='!= 0'`
+  - `auction.player_listing_gate` → `ok='true'` (playtest-only assert for the equippable-only confirmation gate)
   - `smithing.upgrade_ids` → `strings='31377423,46289586,2298018,2265228'`
-  `auction.updateah_gates.item_level='>= 40'` is the listing skip branch (verified against `AuctionHouse.cs:626`: `if (itemByID.ItemLevel >= 40) continue;`, so items ≥40 are skipped and the auctionable predicate is `1 ≤ level ≤ 39`). `ReplaceBag:120` rejects `ItemLevel <= 0 || > 39` and `RareItem && Random(0,20) < 19`. The four smithing IDs are `items.id` values (TEXT), not stable keys: `31377423`=Mold: An Otherwordly Box, `46289586`=Planar Stone, `2298018`=Inert Diamond, `2265228`=Merging Vessel.
-- **`Item.RareItem`** reaches raw export, clean `items.rare_item`, and sheets; the `Item` domain model and Lua data map declare it, but the item repository must select it before generated Lua receives its value (Task A6). `is_auctionable` remains a derived field for Task A5. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the auction gate uses `ItemValue`.
+  The legacy `auction.updateah_gates` and `auction.replacebag_gates` facts remain available for SimPlayer restocking analysis, but are **not** inputs to `is_auctionable`: that flag follows the `GameData.ActivateSlotForAuction` player path and the `AuctionHouseUI.CommitItem` General-slot rejection.
+- **`Item.RareItem`** reaches raw export, clean `items.rare_item`, and sheets; the `Item` domain model and Lua data map declare it, but the item repository must select it before generated Lua receives its value (Task A6). `is_auctionable` remains a derived field for Task A5. **`SellValue`** is a derived export (0.65×`ItemValue`), not a game field; the player auction gate uses `ItemValue`.
 - **Storage shape — nested hidden owners (validated).** Each relationship table has one hidden store template that both declares it (in `<noinclude>`) and stores its rows (a Lua-backed `#cargo_store` in `<includeonly>`): `ItemObtainedFromStore`→`ObtainedFrom`, `ItemUsedInStore`→`UsedIn`, `CharacterSpawnsStore`→`Spawns`, `CharacterAbilitiesStore`→`CharacterAbilities`. `Item`/`Character` declare only their own detail table (`Items`/`Characters`) and *transclude* the hidden owners, so no template exceeds the wiki.gg 1-declare budget and **no attach-trick is needed**. The live `2026-07-09-wiki-cargo-storage-validation` probe confirmed this shape on wiki.gg. Data refreshes reparse pages (rows rewrite in place); only a schema change recreates a table.
 
 ## File map (created / modified)
@@ -193,86 +193,42 @@ configuration; exactly six class rows, each with `item_count >= 1`,
 - [x] **Step 4:** `extract build`; run test. Expected: PASS.
 - [x] **Step 5: Commit** — `feat(pipeline): carry class starting items into the clean DB`
 
-### Task A5: Derive `is_auctionable` from code facts (drift-gated)
+### Task A5: Derive `is_auctionable` from player auction rules (drift-gated)
 
 **Files:**
 - Create: `src/erenshor/application/processor/auction.py`
 - Modify: `src/erenshor/application/processor/entities.py` (`process_items`)
+- Modify: `src/erenshor/application/processor/writer.py` (`items.is_auctionable`)
+- Modify: `src/tools/CodeFacts/specs/erenshor-facts.json`
 - Test: `tests/unit/application/processor/test_auction.py`
 
-- [ ] **Step 1: Write failing tests** for the pure predicate and the drift gate:
+- [x] **Step 1: Write failing tests** for the player-facing predicate and
+  drift gate. The truth table covers nonzero item level/value, the
+  `NoTradeNoDestroy` restriction, and the `General`-slot restriction.
 
-```python
-import pytest
-from erenshor.application.processor.auction import (
-    EXPECTED_AUCTION_GATES, validate_auction_gates, derive_is_auctionable,
-)
+- [x] **Step 2:** Run; expect import failure.
 
-def test_predicate_truth_table():
-    assert derive_is_auctionable(item_level=10, item_value=5, sim_players_cant_get=0) is True
-    assert derive_is_auctionable(item_level=0,  item_value=5, sim_players_cant_get=0) is False   # level < 1
-    assert derive_is_auctionable(item_level=40, item_value=5, sim_players_cant_get=0) is False   # level > 39
-    assert derive_is_auctionable(item_level=10, item_value=0, sim_players_cant_get=0) is False   # value <= 0
-    assert derive_is_auctionable(item_level=10, item_value=5, sim_players_cant_get=1) is False   # sim-locked
+- [x] **Step 3:** Implement. `auction.player_listing_gates` extracts the exact
+  `GameData.ActivateSlotForAuction` comparisons (`ItemLevel != 0`,
+  `ItemValue != 0`). The playtest-only
+  `auction.player_listing_gate` assert pins the
+  `AuctionHouseUI.CommitItem` `RequiredSlot == General` rejection. The
+  processor validates the extracted gates before writing items, then derives
+  `is_auctionable` from the player listing path:
+  `ItemLevel != 0`, `ItemValue != 0`, `!NoTradeNoDestroy`, and
+  `RequiredSlot != General`.
 
-def test_drift_gate_hard_fails_on_changed_comparison():
-    bad = dict(EXPECTED_AUCTION_GATES)
-    bad[("auction.updateah_gates", "item_level")] = "< 50"
-    with pytest.raises(ValueError, match="auction gate drift"):
-        validate_auction_gates(bad)
-```
-
-- [ ] **Step 2:** Run; expect import failure.
-
-- [ ] **Step 3:** Implement. The code facts are tripwires: pin the exact extracted comparison strings, hard-fail on drift, then apply the human-verified hardcoded predicate (`AuctionHouse.UpdateAH`/`ReplaceBag`).
-
-```python
-"""Derive the IsAuctionable item flag from auction code facts.
-
-The hardcoded predicate is verified against AuctionHouse.cs (UpdateAH listing gate
-+ ReplaceBag random-restock gate). The code_facts comparison strings are pinned as
-tripwires: if the game changes a bound, validate_auction_gates hard-fails so the
-predicate is re-derived rather than silently inverted.
-"""
-from __future__ import annotations
-
-# code-fact: auction.updateah_gates
-# code-fact: auction.replacebag_gates
-# Pinned to the playtest (shipping) renderings.
-EXPECTED_AUCTION_GATES: dict[tuple[str, str], str] = {
-    ("auction.updateah_gates", "item_level"): ">= 40",   # listing skip: ItemLevel >= 40 (AuctionHouse.cs:626)
-    ("auction.updateah_gates", "item_value"): "<= 0",    # listing purge: ItemValue <= 0 removed -> require > 0
-    ("auction.replacebag_gates", "item_level"): "<= 0,> 39",  # restock reject: level <= 0 OR level > 39
-}
-
-def validate_auction_gates(code_facts: dict[tuple[str, str], str]) -> None:
-    for key, expected in EXPECTED_AUCTION_GATES.items():
-        actual = code_facts.get(key)
-        if actual != expected:
-            raise ValueError(
-                f"auction gate drift: {key} expected {expected!r}, got {actual!r}. "
-                "Re-derive IsAuctionable from AuctionHouse.cs (UpdateAH/ReplaceBag)."
-            )
-
-def derive_is_auctionable(item_level, item_value, sim_players_cant_get) -> bool:
-    if sim_players_cant_get:
-        return False
-    if item_level is None or not (1 <= item_level <= 39):
-        return False
-    return item_value is not None and item_value > 0
-```
-
-In `process_items`, before `writer.insert_items(rows)`: load the gates from raw `code_facts`, `validate_auction_gates(...)`, then set `r["is_auctionable"] = int(derive_is_auctionable(r.get("item_level"), r.get("item_value"), r.get("sim_players_cant_get")))` for each row. Tag the call site `# code-fact: auction.updateah_gates` / `# code-fact: auction.replacebag_gates`.
-
-- [ ] **Step 4:** Run the unit tests + `uv run erenshor -V playtest extract build`; spot-check:
+- [x] **Step 4:** Run:
 
 ```bash
-sqlite3 variants/playtest/erenshor-playtest.sqlite
- "SELECT COUNT(*) FROM items WHERE is_auctionable=1"
+uv run erenshor -V playtest extract code-facts
+uv run erenshor -V playtest extract build
 ```
-Expected: a large but < total count.
 
-- [ ] **Step 5: Commit** — `feat(pipeline): derive IsAuctionable from auction code facts`
+Validate that `items.is_auctionable` contains no `General`-slot rows and that
+the count is lower than the total item count.
+
+- [x] **Step 5: Commit** — `feat(pipeline): derive item auctionability from player rules`
 
 ### Task A6: Surface `is_auctionable` and complete item flag repository mapping
 
@@ -292,7 +248,7 @@ Expected: a large but < total count.
 ### Task A7: Recapture golden baselines
 
 - [ ] **Step 1:** `uv run erenshor -V playtest golden capture` (playtest = the shipping build in waiting; see `skill://refreshing-game-data` variant-safety rules — capture writes the shared `tests/golden/`, so this is only safe because playtest is the build we are cutting over to).
-- [ ] **Step 2:** Review the diff: expect added `is_auctionable` and `class_starting_items`; `rare_item` already appears in the baseline. `code_facts.csv` shows the playtest renderings (`auction.updateah_gates.item_level='>= 40'`, `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`).
+- [ ] **Step 2:** Review the diff: expect added `is_auctionable` and `class_starting_items`; `rare_item` already appears in the baseline. `code_facts.csv` shows the player auction renderings (`auction.player_listing_gates.item_level='!= 0'`, `auction.player_listing_gates.item_value='!= 0'`, `auction.player_listing_gate.ok='true'`) alongside the retained legacy SimPlayer auction facts and `smithing.upgrade_ids='31377423,46289586,2298018,2265228'`.
 - [ ] **Step 3:** `uv run pytest` green.
 - [ ] **Step 4: Commit** — `test(pipeline): recapture golden baselines for item flags + class starting items`
 
@@ -508,7 +464,7 @@ Run the probe with `uv run python src/tools/wiki_cargo_storage_probe.py --live -
 
 - **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable → A5/A6; IsRare raw/clean export → A1/A2 (complete), with repository mapping in A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
 - **Ownership trap:** resolved by item-owning ObtainedFrom/UsedIn; quest/zone/class need no Cargo template in Phase 3.
-- **Code-fact boundary:** every constant (auction bounds, smithing string IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.updateah_gates.item_level` pins `'>= 40'`, and `smithing.upgrade_ids` pins the full four-ID set while classifying only the upgrade/blessing-removal IDs into Phase 3 `UsedIn` rows.
+- **Code-fact boundary:** every constant (player auction-listing gates, legacy SimPlayer auction bounds, smithing string IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.player_listing_gates` pins both nonzero comparisons and `auction.player_listing_gate` pins the equippable-only confirmation rejection. Legacy auction facts remain extracted but are intentionally outside the `is_auctionable` derivation.
 - **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
 - **Type consistency:** `obtainedFrom`/`usedIn` Lua field names, `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used identically across B/C/E.
 - **Deferred paths:** enumerated in SP1 and retained in planning docs, none dropped silently.

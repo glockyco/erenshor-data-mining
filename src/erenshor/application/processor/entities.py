@@ -22,9 +22,11 @@ from __future__ import annotations
 
 import re
 import sqlite3
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from loguru import logger
+
+from .auction import derive_is_auctionable, validate_auction_gates
 
 if TYPE_CHECKING:
     from .mapping import MappingOverride
@@ -301,6 +303,13 @@ def process_items(
     mapping: dict[str, MappingOverride],
 ) -> set[str]:
     """Process Items and related tables. Returns set of included stable keys."""
+    # code-fact: auction.player_listing_gates
+    # code-fact: auction.player_listing_gate
+    auction_fact_rows = _rows(raw, "SELECT fact_id, key, value FROM code_facts WHERE fact_id LIKE 'auction.%'")
+    auction_gates = {(str(row["fact_id"]), str(row["key"])): str(row["value"]) for row in auction_fact_rows}
+    validate_auction_gates(auction_gates)
+
+    logger.info("Validated auction code-fact gates")
     rows = _rows(raw, "SELECT * FROM Items WHERE COALESCE(ResourceName, '') != ''")
     logger.info(f"Items: {len(rows)} raw")
 
@@ -309,6 +318,15 @@ def process_items(
 
     # 'Unique' is a SQL reserved word — rename to is_unique (boolean 0/1)
     rows = _rename_cols(rows, {"Unique": "is_unique"})
+    for row in rows:
+        row["is_auctionable"] = int(
+            derive_is_auctionable(
+                cast("int | None", row.get("item_level")),
+                cast("int | None", row.get("item_value")),
+                cast("bool | int | None", row.get("no_trade_no_destroy")),
+                cast("str | None", row.get("required_slot")),
+            )
+        )
     writer.insert_items(rows)
     valid = {str(r["stable_key"]) for r in rows}
 

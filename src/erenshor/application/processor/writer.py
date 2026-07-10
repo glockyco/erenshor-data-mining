@@ -412,6 +412,7 @@ CREATE TABLE items (
     must_be_equipped_to_click       INTEGER,
     player_cannot_sell              INTEGER,
     rare_item                       INTEGER,
+    is_auctionable                  INTEGER,
     book_title                      TEXT,
     mining                          INTEGER,
     fuel_source                     INTEGER,
