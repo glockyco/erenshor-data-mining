@@ -336,6 +336,7 @@ public static class ExportBatch
             ["doors"] = () => scanner.RegisterComponentListener(new DoorListener(db)),
             ["forges"] = () => scanner.RegisterComponentListener(new ForgeListener(db)),
             ["itembags"] = () => scanner.RegisterComponentListener(new ItemBagListener(db)),
+            ["classstartingitems"] = () => scanner.RegisterComponentListener(new ClassStartingItemsListener(db)),
             ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db, characterKeyResolver)),
             ["arenarounds"] = () => scanner.RegisterComponentListener(new VithArenaListener(db, characterKeyResolver)),
             ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),

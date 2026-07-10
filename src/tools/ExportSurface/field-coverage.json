@@ -4,6 +4,7 @@
     "AchievementTrigger",
     "Ascension",
     "Character",
+    "CharSelectManager",
     "Class",
     "Door",
     "ForgeEffect",
@@ -626,6 +627,272 @@
         "reason": "runtime combat/proximity/cache state populated during play, not prefab export data",
         "status": "ignored",
         "type": "System.Boolean"
+      }
+    },
+    "CharSelectManager": {
+      "ArcanistClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "ArcanistStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "BackupScrollIndex": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "BackupTxt": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<TMPro.TextMeshProUGUI>"
+      },
+      "BackupWindow": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ButtonTxt": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<TMPro.TextMeshProUGUI>"
+      },
+      "Canv": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.Canvas"
+      },
+      "CharCreate": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CharInfo": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshPro"
+      },
+      "CharModel": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "DruidClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "DruidStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "DuelistClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "DueslistStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "EnterWorld": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.UI.Button"
+      },
+      "EraseChar": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.UI.Button"
+      },
+      "Eraser": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Error": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "Keyboard": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "LoadSplash": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Name": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TMP_InputField"
+      },
+      "Personalizer": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "Personalize"
+      },
+      "PlayerChar": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "Character"
+      },
+      "PlayerInv": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "Inventory"
+      },
+      "PlayerStats": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "ReaverClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "ReaverStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "Remaining": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "Resting": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "STARTSELECT": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SceneChanger": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "SceneChange"
+      },
+      "SpecAgi": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecCha": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecDex": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecEnd": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecInt": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecStr": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "SpecWis": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "StormStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "StormcallerClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "WarStart": {
+        "by": "ClassStartingItemsListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "WarriorClassDesc": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "selClass": {
+        "by": null,
+        "reason": "character-selection UI or runtime state; not starting-inventory export data",
+        "status": "ignored",
+        "type": "Class"
       }
     },
     "Class": {

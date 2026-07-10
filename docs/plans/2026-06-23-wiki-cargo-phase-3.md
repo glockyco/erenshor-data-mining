@@ -85,9 +85,13 @@ the completed `rare_item` work.
 **Files:**
 - Create: `src/Assets/Editor/Database/ClassStartingItemRecord.cs`
 - Create: `src/Assets/Editor/ExportSystem/AssetScanner/Listener/ClassStartingItemsListener.cs`
-- Modify: `src/Assets/Editor/ExportBatch.cs` (component-listener block, ~lines 307-329)
+- Modify: `src/Assets/Editor/ExportBatch.cs` (component-listener block)
+- Modify: `src/tools/ExportSurface/field-coverage.json` (classify `CharSelectManager` fields)
 
-- [ ] **Step 1:** Record class (junction; no single PK — mirror `QuestRequiredItemRecord.cs`):
+- [x] **Step 1:** Record class. `ClassName` + `SortOrder`, rather than item
+  stable key, is the composite list-position identity: an item may legitimately
+  occur more than once. Mirror the existing ordered-junction pattern with a
+  unique composite `Indexed` constraint:
 
 ```csharp
 #nullable enable
@@ -96,81 +100,81 @@ using SQLite;
 [Table("ClassStartingItems")]
 public class ClassStartingItemRecord
 {
-    public string ClassName { get; set; } = string.Empty;    // 'Arcanist','Paladin','Duelist','Druid','Stormcaller','Reaver'
-    public string ItemStableKey { get; set; } = string.Empty; // StableKeyGenerator.ForItem(item)
-    public int SortOrder { get; set; }                         // 0-based position within the class lis
+    public const string TableName = "ClassStartingItems";
+
+    [Indexed(Name = "ClassStartingItems_Primary_IDX", Order = 1, Unique = true)]
+    public string ClassName { get; set; } = string.Empty;
+
+    [Indexed(Name = "ClassStartingItems_Primary_IDX", Order = 2, Unique = true)]
+    public int SortOrder { get; set; }
+
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string ItemStableKey { get; set; } = string.Empty;
 }
 ```
 
-- [ ] **Step 2:** Listener (CharSelectManager is a MonoBehaviour → component listener). Field→ClassName mapping is verified: `WarStart`→Paladin, `DueslistStart`→Duelist (game-side typo), the rest match their names.
+- [x] **Step 2:** Listener. `CharSelectManager` is a MonoBehaviour, so use a
+  component listener. Map `WarStart` to Paladin and the game-side typo
+  `DueslistStart` to Duelist; the remaining field names map directly. Track
+  both manager count and source configuration (`scene:<path>` or
+  `prefab:<path>`), then fail from `OnScanFinished` unless each is exactly one.
+  `AssetScanner` traverses every prefab and every build scene, so this catches
+  a duplicated configuration rather than silently doubling exports. Reject
+  null or empty class lists and null item entries; only valid 0-based,
+  contiguous positions reach the database.
 
 ```csharp
-#nullable enable
-using System.Collections.Generic;
-using SQLite;
-using UnityEngine;
-
-public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
+public void OnAssetFound(CharSelectManager manager)
 {
-    private readonly SQLiteConnection _db;
-    private readonly List<ClassStartingItemRecord> _records = new();
-    public ClassStartingItemsListener(SQLiteConnection db) => _db = db;
-
-    public void OnAssetFound(CharSelectManager m)
-    {
-        Add("Arcanist", m.ArcanistStart);
-        Add("Paladin", m.WarStart);
-        Add("Duelist", m.DueslistStart);
-        Add("Druid", m.DruidStart);
-        Add("Stormcaller", m.StormStart);
-        Add("Reaver", m.ReaverStart);
-    }
-
-    private void Add(string className, List<Item> items)
-    {
-        if (items == null) return;
-        for (int i = 0; i < items.Count; i++)
-        {
-            var item = items[i];
-            if (item == null) continue;
-            _records.Add(new ClassStartingItemRecord
-            {
-                ClassName = className,
-                ItemStableKey = StableKeyGenerator.ForItem(item),
-                SortOrder = i,
-            });
-        }
-    }
-
-    public void OnScanFinished()
-    {
-        _db.CreateTable<ClassStartingItemRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<ClassStartingItemRecord>();
-            _db.InsertAll(_records);
-        });
-        _records.Clear();
-    }
+    _managerCount++;
+    TrackSourceConfiguration(manager);
+    Add("Arcanist", manager.ArcanistStart);
+    Add("Paladin", manager.WarStart);
+    Add("Duelist", manager.DueslistStart);
+    Add("Druid", manager.DruidStart);
+    Add("Stormcaller", manager.StormStart);
+    Add("Reaver", manager.ReaverStart);
 }
 ```
 
-- [ ] **Step 3:** Register in `ExportBatch.cs`, in the `RegisterComponentListener` block:
+- [x] **Step 3:** Add `CharSelectManager` to field coverage. Mark the six
+  starting-item lists as captured by `ClassStartingItemsListener`; classify
+  every other public manager field as ignored because it is character-selection
+  UI or runtime state, not starting-inventory data.
+
+- [x] **Step 4:** Register in `ExportBatch.cs`, in the
+  `RegisterComponentListener` block:
 
 ```csharp
 ["classstartingitems"] = () => scanner.RegisterComponentListener(new ClassStartingItemsListener(db)),
 ```
 
-- [ ] **Step 4:** Re-export, confirm rows per class:
+- [x] **Step 5:** Re-export and assert the single-source invariant in the
+  listener plus contiguous rows in raw SQLite:
 
 ```bash
 uv run erenshor -V playtest extract export
-sqlite3 variants/playtest/erenshor-playtest-raw.sqlite
-  "SELECT ClassName, COUNT(*) FROM ClassStartingItems GROUP BY ClassName"
+sqlite3 variants/playtest/erenshor-playtest-raw.sqlite "
+WITH per_class AS (
+  SELECT ClassName,
+         COUNT(*) AS item_count,
+         MIN(SortOrder) AS first_order,
+         MAX(SortOrder) AS last_order,
+         COUNT(DISTINCT SortOrder) AS distinct_orders
+  FROM ClassStartingItems
+  GROUP BY ClassName
+)
+SELECT *
+FROM per_class
+ORDER BY ClassName;"
 ```
-Expected: six rows, one per class, each with ≥1 item.
 
-- [ ] **Step 5: Commit** — `feat(export): export per-class starting items from CharSelectManager`
+Expected: the export succeeds only after finding one `CharSelectManager`
+configuration; exactly six class rows, each with `item_count >= 1`,
+`first_order = 0`, `last_order = item_count - 1`, and
+`distinct_orders = item_count`.
+
+- [x] **Step 6: Commit** — `feat(export): export per-class starting items`
 
 ### Task A4: Carry `class_starting_items` into the clean DB
 
