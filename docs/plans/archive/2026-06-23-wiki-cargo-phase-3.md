@@ -1,9 +1,10 @@
 ---
 title: Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions
 type: plan
-status: active
+status: implemented
 created: 2026-06-23
 parent: 2026-06-04-wiki-cargo-data-architecture
+archived: 2026-07-10
 ---
 
 # Wiki Cargo Phase 3 — Item Relationships, Flags & Character Junctions
