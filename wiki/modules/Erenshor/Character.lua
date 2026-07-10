@@ -533,6 +533,50 @@ local function dropCargoRows(character)
 	return rows
 end
 
+local function spawnCargoRows(character)
+	local rows = {}
+	if type(character.spawns) ~= "table" then
+		return rows
+	end
+	for _, spawn in ipairs(character.spawns) do
+		if type(spawn) == "table" then
+			table.insert(rows, {
+				{ "CharacterKey", character.stableKey },
+				{ "Zone", spawn.zone },
+				{ "Scene", spawn.scene },
+				{ "X", spawn.x },
+				{ "Y", spawn.y },
+				{ "Z", spawn.z },
+				{ "SpawnChance", spawn.spawnChance },
+				{ "NightSpawn", spawn.nightSpawn },
+				{ "SpawnUponQuestComplete", spawn.spawnUponQuestComplete },
+				{ "LevelMod", spawn.levelMod },
+				{ "RareNpcChance", spawn.rareNpcChance },
+				{ "SpawnType", spawn.spawnType },
+				{ "Origin", spawn.origin },
+			})
+		end
+	end
+	return rows
+end
+
+local function characterAbilityCargoRows(character)
+	local rows = {}
+	if type(character.abilities) ~= "table" then
+		return rows
+	end
+	for _, ability in ipairs(character.abilities) do
+		if type(ability) == "table" and not isBlank(ability.ability) then
+			table.insert(rows, {
+				{ "CharacterKey", character.stableKey },
+				{ "AbilityKey", ability.ability },
+				{ "AbilityUsage", ability.usage },
+			})
+		end
+	end
+	return rows
+end
+
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
 end
@@ -549,6 +593,28 @@ function p.cargoArgs(frame)
 		return {}
 	end
 	return Cargo.buildArgs("Characters", cargoFields(character, pageTitle))
+end
+
+function p.cargoSpawnRows(frame)
+	local character = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not character.missing then
+		for _, fields in ipairs(spawnCargoRows(character)) do
+			table.insert(rows, Cargo.buildArgs("Spawns", fields))
+		end
+	end
+	return rows
+end
+
+function p.cargoCharacterAbilityRows(frame)
+	local character = p.resolve(templateArgs(frame), currentTitleText())
+	local rows = {}
+	if not character.missing then
+		for _, fields in ipairs(characterAbilityCargoRows(character)) do
+			table.insert(rows, Cargo.buildArgs("CharacterAbilities", fields))
+		end
+	end
+	return rows
 end
 
 function p.cargoDropRows(frame)
@@ -572,6 +638,28 @@ function p.cargoStore(frame)
 	Cargo.store("Characters", cargoFields(character, pageTitle))
 	for _, fields in ipairs(dropCargoRows(character)) do
 		Cargo.store("Drops", fields)
+	end
+	return ""
+end
+
+function p.cargoSpawnsStore(frame)
+	local character = p.resolve(templateArgs(frame), currentTitleText())
+	if character.missing then
+		return ""
+	end
+	for _, fields in ipairs(spawnCargoRows(character)) do
+		Cargo.store("Spawns", fields)
+	end
+	return ""
+end
+
+function p.cargoCharacterAbilitiesStore(frame)
+	local character = p.resolve(templateArgs(frame), currentTitleText())
+	if character.missing then
+		return ""
+	end
+	for _, fields in ipairs(characterAbilityCargoRows(character)) do
+		Cargo.store("CharacterAbilities", fields)
 	end
 	return ""
 end

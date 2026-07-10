@@ -16,6 +16,24 @@ return {
 			},
 			coordinates = "1.2 x 2.5 x 3.8",
 			respawn = "2 minutes",
+			spawns = {
+				{
+					zone = "zone:blacksalt",
+					scene = "Blacksalt",
+					x = 1.25,
+					y = 2.5,
+					z = 3.75,
+					spawnChance = 100.0,
+					nightSpawn = false,
+					levelMod = 1,
+					rareNpcChance = 0,
+					spawnType = "normal",
+					origin = "generated",
+				},
+			},
+			abilities = {
+				{ ability = "spell:claw_swipe", usage = "attack" },
+			},
 			dropRates = {
 				{ item = "item:bear_pelt", probability = 50.0, guaranteed = true },
 				{ item = "item:bear_claw", probability = 50.0, guaranteed = true },

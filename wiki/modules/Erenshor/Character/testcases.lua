@@ -112,6 +112,20 @@ function p.run()
 	assertEqual(dropRows[3].ItemKey, "item:bear_meat", "non-guaranteed drop is stored")
 	assertEqual(dropRows[3].IsGuaranteed, "no", "non-guaranteed drop is unflagged")
 	assertEqual(dropRows[3].DropProbability, "28.3", "drop row carries the probability")
+	local spawnRows =
+		Character.cargoSpawnRows({ args = { stablekey = "character:a_grizzly_bear" } })
+	assertEqual(#spawnRows, 1, "cargo spawn rows cover generated locations")
+	assertEqual(
+		spawnRows[1].CharacterKey,
+		"character:a_grizzly_bear",
+		"spawn row carries owner key"
+	)
+	assertEqual(spawnRows[1].SpawnType, "normal", "spawn row carries source type")
+	local abilityRows =
+		Character.cargoCharacterAbilityRows({ args = { stablekey = "character:a_grizzly_bear" } })
+	assertEqual(#abilityRows, 1, "cargo ability rows exclude death-event messages")
+	assertEqual(abilityRows[1].AbilityKey, "spell:claw_swipe", "ability row carries stable key")
+	assertEqual(abilityRows[1].AbilityUsage, "attack", "ability row carries usage")
 	assertContains(
 		Character.statusText(bearKey, "A Grizzly Bear"),
 		"[[Category:Enemies]]",

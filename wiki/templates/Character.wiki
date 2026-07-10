@@ -40,7 +40,7 @@
             <data><label>Void:</label><default>{{#invoke:Erenshor/Character|field|void}}</default></data>
         </group>
     </group>
-</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{#invoke:Erenshor/Character|status}}|<infobox type="Character">
+</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{CharacterSpawnsStore|stablekey={{{stablekey|}}}}}{{CharacterAbilitiesStore|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Character|status}}|<infobox type="Character">
     <title source="name"/>
     <image source="image">
         <caption source="imagecaption" />
