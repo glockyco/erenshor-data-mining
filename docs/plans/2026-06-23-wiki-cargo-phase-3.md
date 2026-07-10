@@ -392,8 +392,8 @@ legacy infobox fields; the new source methods provide stable-keyed records.
 - [x] **Step 1: Write failing testcase** in `Item/testcases.lua`: `Item.cargoObtainedFromRows({ args = { stablekey = "item:<fixture>" } })` returns rows with `ItemKey`/`SourceType`/`SourceKey` set (mirror the `cargoContainerDropRows` testcase at `Item/testcases.lua:120`).
 - [x] **Step 2:** Add `obtainedFromRows(item)` (mirror `containerDropRows`, `Item.lua:805`): one `{ {"ItemKey", item.stableKey}, {"SourceType", src.type}, {"SourceKey", src.sourceKey}, {"SourceText", src.sourceText}, {"Probability", src.probability}, {"IsGuaranteed", src.guaranteed == true}, {"Quantity", src.quantity}, {"SourceCondition", src.condition}, {"Origin", "generated"} }` per entry in `item.obtainedFrom` (generated rows always carry `Origin="generated"`, `SourceText=nil`). Expose `p.cargoObtainedFromStore(frame)` — resolves the item by `stablekey` and runs the `Cargo.store("ObtainedFrom", fields)` loop — as the entrypoint the hidden `ItemObtainedFromStore` owner invokes from its `<includeonly>`.
 - [x] **Step 3:** In `Item.wiki` `<includeonly>`, transclude `{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}` so each item page renders the hidden owner, whose `<includeonly>` stores the `ObtainedFrom` rows. `Item` keeps `#cargo_declare:Items`; its existing `#cargo_attach` for the legacy `ContainerDrops` table remains unchanged until that table is migrated to its own storing owner.
-- [ ] **Step 4:** `import_pages.py` → `smoke_test.py` → `cargo_check.py`. Expect ObtainedFrom rows for fixture item pages.
-- [ ] **Step 5: Commit** — `feat(wiki): store item ObtainedFrom rows from the item page`
+- [x] **Step 4:** `import_pages.py` → `smoke_test.py` → `cargo_check.py`. Expect ObtainedFrom rows for fixture item pages; local MediaWiki validation passes.
+- [x] **Step 5: Commit** — `feat(wiki): store item ObtainedFrom rows from the item page`
 
 ### Task B5: Fixtures + smoke expectations
 
@@ -401,7 +401,7 @@ legacy infobox fields; the new source methods provide stable-keyed records.
 
 - [x] **Step 1:** Extend the `Magical Bag` fixture page/module with `drop`, `fishing`, `item_use`, and `starting` source rows, and add their expected Cargo rows to `wiki-dev/fixtures/cargo_obtained_from.tsv`.
 - [x] **Step 2:** Recreate the local Cargo tables, null-edit all fixture pages, and run `cargo_check.py`; ObtainedFrom validation passes for all four Magical Bag source rows.
-- [ ] **Step 3: Commit** — `test(wiki): cover ObtainedFrom rows on the local harness`
+- [x] **Step 3: Commit** — `test(wiki): cover ObtainedFrom rows on the local harness`
 
 ---
 
