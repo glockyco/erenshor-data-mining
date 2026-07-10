@@ -241,6 +241,63 @@ CARGO_USED_IN_QUERY_FIELDS = (
     "Slot",
 )
 
+CARGO_SPAWN_FIELDS = (
+    "Page",
+    "CharacterKey",
+    "Zone",
+    "Scene",
+    "X",
+    "Y",
+    "Z",
+    "SpawnChance",
+    "NightSpawn",
+    "SpawnUponQuestComplete",
+    "LevelMod",
+    "RareNpcChance",
+    "SpawnType",
+    "Origin",
+)
+SPAWN_KEY = (
+    "CharacterKey",
+    "Scene",
+    "X",
+    "Y",
+    "Z",
+    "SpawnType",
+    "NightSpawn",
+    "SpawnUponQuestComplete",
+)
+CARGO_SPAWN_QUERY_FIELDS = (
+    "_pageName=Page",
+    "CharacterKey",
+    "Zone",
+    "Scene",
+    "X",
+    "Y",
+    "Z",
+    "SpawnChance",
+    "NightSpawn",
+    "SpawnUponQuestComplete",
+    "LevelMod",
+    "RareNpcChance",
+    "SpawnType",
+    "Origin",
+)
+
+CARGO_CHARACTER_ABILITY_FIELDS = (
+    "Page",
+    "CharacterKey",
+    "AbilityKey",
+    "AbilityUsage",
+)
+CHARACTER_ABILITY_KEY = ("CharacterKey", "AbilityKey", "AbilityUsage")
+CARGO_CHARACTER_ABILITY_QUERY_FIELDS = (
+    "_pageName=Page",
+    "CharacterKey",
+    "AbilityKey",
+    "AbilityUsage",
+)
+
 
 def load_cargo_expectations(
     path: Path,
@@ -322,6 +379,16 @@ def load_cargo_used_in_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_obtained_from_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo ObtainedFrom rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_OBTAINED_FROM_FIELDS, OBTAINED_FROM_KEY)
+
+
+def load_cargo_spawn_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo Spawns rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_SPAWN_FIELDS, SPAWN_KEY)
+
+
+def load_cargo_character_ability_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo CharacterAbilities rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_CHARACTER_ABILITY_FIELDS, CHARACTER_ABILITY_KEY)
 
 
 def load_absent_pages(path: Path) -> set[str]:
@@ -458,3 +525,25 @@ def check_cargo_used_in_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "UsedIn", absent_pages, USED_IN_KEY)
+
+
+def check_cargo_spawn_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "Spawns", absent_pages, SPAWN_KEY)
+
+
+def check_cargo_character_ability_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(
+        rows,
+        expectations,
+        "CharacterAbilities",
+        absent_pages,
+        CHARACTER_ABILITY_KEY,
+    )

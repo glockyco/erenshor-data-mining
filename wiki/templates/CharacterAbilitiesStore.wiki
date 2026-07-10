@@ -1,0 +1,8 @@
+<includeonly>{{#invoke:Erenshor/Character|cargoCharacterAbilitiesStore|stablekey={{{stablekey|}}}}}</includeonly>
+<noinclude>{{#cargo_declare:_table=CharacterAbilities
+|CharacterKey=String
+|AbilityKey=String
+|AbilityUsage=String
+}}
+Hidden owner for generated character ability usage rows. Rows represent spell and skill junctions; death-event chat messages are not abilities and require a separate dedicated table.
+</noinclude>

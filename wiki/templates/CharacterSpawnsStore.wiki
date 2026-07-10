@@ -1,0 +1,18 @@
+<includeonly>{{#invoke:Erenshor/Character|cargoSpawnsStore|stablekey={{{stablekey|}}}}}</includeonly>
+<noinclude>{{#cargo_declare:_table=Spawns
+|CharacterKey=String
+|Zone=String
+|Scene=String
+|X=Float
+|Y=Float
+|Z=Float
+|SpawnChance=Float
+|NightSpawn=Boolean
+|SpawnUponQuestComplete=String
+|LevelMod=Float
+|RareNpcChance=Float
+|SpawnType=String
+|Origin=String
+}}
+Hidden owner for generated character spawn rows. Each generated Character page transcludes this template so it owns the Spawns rows without attaching them to the Characters declaration.
+</noinclude>

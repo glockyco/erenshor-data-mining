@@ -54,6 +54,12 @@ CARGO_OBTAINED_FROM_QUERY_FIELDS = _cargo.CARGO_OBTAINED_FROM_QUERY_FIELDS
 check_cargo_obtained_from_rows = _cargo.check_cargo_obtained_from_rows
 load_cargo_obtained_from_expectations = _cargo.load_cargo_obtained_from_expectations
 CARGO_USED_IN_QUERY_FIELDS = _cargo.CARGO_USED_IN_QUERY_FIELDS
+CARGO_SPAWN_QUERY_FIELDS = _cargo.CARGO_SPAWN_QUERY_FIELDS
+check_cargo_spawn_rows = _cargo.check_cargo_spawn_rows
+load_cargo_spawn_expectations = _cargo.load_cargo_spawn_expectations
+CARGO_CHARACTER_ABILITY_QUERY_FIELDS = _cargo.CARGO_CHARACTER_ABILITY_QUERY_FIELDS
+check_cargo_character_ability_rows = _cargo.check_cargo_character_ability_rows
+load_cargo_character_ability_expectations = _cargo.load_cargo_character_ability_expectations
 check_cargo_used_in_rows = _cargo.check_cargo_used_in_rows
 load_cargo_used_in_expectations = _cargo.load_cargo_used_in_expectations
 api_url = _mediawiki.api_url
@@ -70,6 +76,8 @@ CARGO_TABLES = (
     "ContainerDrops",
     "ObtainedFrom",
     "UsedIn",
+    "Spawns",
+    "CharacterAbilities",
 )
 CARGO_TEMPLATES_BY_TABLE = {
     "Items": "Item",
@@ -82,6 +90,8 @@ CARGO_TEMPLATES_BY_TABLE = {
     "ContainerDrops": "ContainerDrops",
     "ObtainedFrom": "ItemObtainedFromStore",
     "UsedIn": "ItemUsedInStore",
+    "Spawns": "CharacterSpawnsStore",
+    "CharacterAbilities": "CharacterAbilitiesStore",
 }
 
 
@@ -152,6 +162,8 @@ def validate_cargo_rows(
     cargo_drops_path: Path,
     cargo_container_drops_path: Path,
     cargo_obtained_from_path: Path,
+    cargo_spawns_path: Path,
+    cargo_character_abilities_path: Path,
     cargo_used_in_path: Path,
     cargo_absent_path: Path,
 ) -> list[str]:
@@ -228,6 +240,25 @@ def validate_cargo_rows(
             absent_pages=absent_pages,
         )
     )
+    failures.extend(
+        check_cargo_spawn_rows(
+            rows=query_cargo_table(client, endpoint, "Spawns", CARGO_SPAWN_QUERY_FIELDS),
+            expectations=load_cargo_spawn_expectations(cargo_spawns_path),
+            absent_pages=absent_pages,
+        )
+    )
+    failures.extend(
+        check_cargo_character_ability_rows(
+            rows=query_cargo_table(
+                client,
+                endpoint,
+                "CharacterAbilities",
+                CARGO_CHARACTER_ABILITY_QUERY_FIELDS,
+            ),
+            expectations=load_cargo_character_ability_expectations(cargo_character_abilities_path),
+            absent_pages=absent_pages,
+        )
+    )
     return failures
 
 
@@ -267,6 +298,16 @@ def main() -> None:
         type=Path,
         default=Path("wiki-dev/fixtures/cargo_used_in.tsv"),
     )
+    parser.add_argument(
+        "--cargo-spawns",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_spawns.tsv"),
+    )
+    parser.add_argument(
+        "--cargo-character-abilities",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_character_abilities.tsv"),
+    )
     parser.add_argument("--cargo-absent", type=Path, default=Path("wiki-dev/fixtures/cargo_absent.tsv"))
     args = parser.parse_args()
 
@@ -294,6 +335,8 @@ def main() -> None:
             cargo_absent_path=args.cargo_absent,
             cargo_used_in_path=args.cargo_used_in,
             cargo_obtained_from_path=args.cargo_obtained_from,
+            cargo_spawns_path=args.cargo_spawns,
+            cargo_character_abilities_path=args.cargo_character_abilities,
         )
     if failures:
         for failure in failures:
