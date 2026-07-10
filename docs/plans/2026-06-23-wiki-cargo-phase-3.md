@@ -399,8 +399,8 @@ legacy infobox fields; the new source methods provide stable-keyed records.
 
 **Files:** `wiki-dev/fixtures/cargo_obtained_from.tsv`, an item fixture page exercising ≥3 source types, `cargo_check.py` validation wiring.
 
-- [ ] **Step 1:** Add a fixture page (e.g. extend `Braxonian Fossil`/a chest-dropped item) and the TSV with expected rows (chest `drop`, `item_use`, `starting`).
-- [ ] **Step 2:** `cargo_check.py` green for ObtainedFrom.
+- [x] **Step 1:** Extend the `Magical Bag` fixture page/module with `drop`, `fishing`, `item_use`, and `starting` source rows, and add their expected Cargo rows to `wiki-dev/fixtures/cargo_obtained_from.tsv`.
+- [x] **Step 2:** Recreate the local Cargo tables, null-edit all fixture pages, and run `cargo_check.py`; ObtainedFrom validation passes for all four Magical Bag source rows.
 - [ ] **Step 3: Commit** — `test(wiki): cover ObtainedFrom rows on the local harness`
 
 ---

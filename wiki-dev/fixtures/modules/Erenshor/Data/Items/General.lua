@@ -29,6 +29,10 @@ return {
 				type = "item_use",
 				sourceKey = "item:gen - bag of offering stones",
 			},
+			{
+				type = "starting",
+				sourceKey = "class:Arcanist",
+			},
 		},
 	},
 	["item:bear_pelt"] = {
