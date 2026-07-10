@@ -1,0 +1,9 @@
+<includeonly>{{#invoke:Erenshor/Item|cargoUsedInStore|stablekey={{{stablekey|}}}}}</includeonly><noinclude>{{#cargo_declare:_table=UsedIn
+|ItemKey=String
+|UseType=String
+|TargetKey=String
+|Quantity=Integer
+|Slot=Integer
+}}
+Hidden store owner of the item-owned UsedIn junction. Each row identifies a material item, its use type, and the target StableKey; Quantity and Slot are populated for recipe materials when the source provides them.
+</noinclude>

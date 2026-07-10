@@ -337,6 +337,52 @@ def test_obtained_from_identity_keeps_condition_variants_distinct() -> None:
     assert cargo.check_cargo_obtained_from_rows(rows, expectations) == []
 
 
+def test_used_in_identity_keeps_use_types_and_targets_distinct() -> None:
+    cargo = load_script("wiki-dev/smoke/cargo.py")
+    expectations = [
+        cargo.CargoExpectation(
+            page="Copper Ore",
+            fields={
+                "ItemKey": "item:ore - copper ore",
+                "UseType": "craft_material",
+                "TargetKey": "item:template - copper armor mold",
+                "Quantity": "2",
+                "Slot": "1",
+            },
+        ),
+        cargo.CargoExpectation(
+            page="Copper Ore",
+            fields={
+                "ItemKey": "item:ore - copper ore",
+                "UseType": "quest_requirement",
+                "TargetKey": "quest:an ore for the forge",
+                "Quantity": "1",
+                "Slot": "",
+            },
+        ),
+    ]
+    rows = [
+        {
+            "Page": "Copper Ore",
+            "ItemKey": "item:ore - copper ore",
+            "UseType": "craft_material",
+            "TargetKey": "item:template - copper armor mold",
+            "Quantity": "2",
+            "Slot": "1",
+        },
+        {
+            "Page": "Copper Ore",
+            "ItemKey": "item:ore - copper ore",
+            "UseType": "quest_requirement",
+            "TargetKey": "quest:an ore for the forge",
+            "Quantity": "1",
+            "Slot": "",
+        },
+    ]
+
+    assert cargo.check_cargo_used_in_rows(rows, expectations) == []
+
+
 def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
 

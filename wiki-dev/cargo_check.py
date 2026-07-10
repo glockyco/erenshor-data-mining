@@ -53,6 +53,9 @@ load_cargo_container_drop_expectations = _cargo.load_cargo_container_drop_expect
 CARGO_OBTAINED_FROM_QUERY_FIELDS = _cargo.CARGO_OBTAINED_FROM_QUERY_FIELDS
 check_cargo_obtained_from_rows = _cargo.check_cargo_obtained_from_rows
 load_cargo_obtained_from_expectations = _cargo.load_cargo_obtained_from_expectations
+CARGO_USED_IN_QUERY_FIELDS = _cargo.CARGO_USED_IN_QUERY_FIELDS
+check_cargo_used_in_rows = _cargo.check_cargo_used_in_rows
+load_cargo_used_in_expectations = _cargo.load_cargo_used_in_expectations
 api_url = _mediawiki.api_url
 query_cargo_table = _mediawiki.query_cargo_table
 
@@ -66,6 +69,7 @@ CARGO_TABLES = (
     "Drops",
     "ContainerDrops",
     "ObtainedFrom",
+    "UsedIn",
 )
 CARGO_TEMPLATES_BY_TABLE = {
     "Items": "Item",
@@ -77,6 +81,7 @@ CARGO_TEMPLATES_BY_TABLE = {
     "Drops": "Drops",
     "ContainerDrops": "ContainerDrops",
     "ObtainedFrom": "ItemObtainedFromStore",
+    "UsedIn": "ItemUsedInStore",
 }
 
 
@@ -147,6 +152,7 @@ def validate_cargo_rows(
     cargo_drops_path: Path,
     cargo_container_drops_path: Path,
     cargo_obtained_from_path: Path,
+    cargo_used_in_path: Path,
     cargo_absent_path: Path,
 ) -> list[str]:
     """Validate local Cargo rows against the smoke fixture expectations."""
@@ -215,6 +221,13 @@ def validate_cargo_rows(
             absent_pages=absent_pages,
         )
     )
+    failures.extend(
+        check_cargo_used_in_rows(
+            rows=query_cargo_table(client, endpoint, "UsedIn", CARGO_USED_IN_QUERY_FIELDS),
+            expectations=load_cargo_used_in_expectations(cargo_used_in_path),
+            absent_pages=absent_pages,
+        )
+    )
     return failures
 
 
@@ -249,6 +262,11 @@ def main() -> None:
         type=Path,
         default=Path("wiki-dev/fixtures/cargo_obtained_from.tsv"),
     )
+    parser.add_argument(
+        "--cargo-used-in",
+        type=Path,
+        default=Path("wiki-dev/fixtures/cargo_used_in.tsv"),
+    )
     parser.add_argument("--cargo-absent", type=Path, default=Path("wiki-dev/fixtures/cargo_absent.tsv"))
     args = parser.parse_args()
 
@@ -274,6 +292,7 @@ def main() -> None:
             cargo_drops_path=args.cargo_drops,
             cargo_container_drops_path=args.cargo_container_drops,
             cargo_absent_path=args.cargo_absent,
+            cargo_used_in_path=args.cargo_used_in,
             cargo_obtained_from_path=args.cargo_obtained_from,
         )
     if failures:

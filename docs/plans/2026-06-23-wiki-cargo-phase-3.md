@@ -413,10 +413,10 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 **Files:** `wiki/templates/ItemUsedInStore.wiki`, `wiki-dev/smoke/cargo.py`, `cargo_check.py`.
 
-- [ ] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — reserved-word check (`SLOT` is safe; confirm). Write the hidden owner `ItemUsedInStore.wiki` (declares + stores `UsedIn`) mirroring `ItemObtainedFromStore.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material|blessing_removal_material`. The Merging Vessel forge/merge mechanic (`2265228`) is not emitted in Phase 3.
-- [ ] **Step 2:** smoke fields/key (`("ItemKey","UseType","TargetKey")`) + checker; register in `cargo_check.py`.
-- [ ] **Step 3:** recreate clean.
-- [ ] **Step 4: Commit** — `feat(wiki): declare the unified UsedIn Cargo junction`
+- [x] **Step 1:** Columns `ItemKey, UseType, TargetKey, Quantity, Slot` — `SLOT` is safe in the existing Cargo schema. Write the hidden owner `ItemUsedInStore.wiki` (declares + stores `UsedIn`) mirroring `ItemObtainedFromStore.wiki`. `UseType ∈ craft_material|quest_requirement|upgrade_material|blessing_removal_material`. The Merging Vessel forge/merge mechanic (`2265228`) is not emitted in Phase 3.
+- [x] **Step 2:** Add smoke fields/key (`("ItemKey","UseType","TargetKey")`) and checker; register in `cargo_check.py`.
+- [x] **Step 3:** Import the owner and recreate the clean local Cargo tables; `UsedIn` recreates successfully.
+- [x] **Step 4: Commit** — `feat(wiki): declare the unified UsedIn Cargo junction`
 
 ### Task C2: smithing special-use materials via the `smithing.upgrade_ids` code fact
 

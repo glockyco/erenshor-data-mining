@@ -223,6 +223,24 @@ CARGO_OBTAINED_FROM_QUERY_FIELDS = (
     "Origin",
 )
 
+CARGO_USED_IN_FIELDS = (
+    "Page",
+    "ItemKey",
+    "UseType",
+    "TargetKey",
+    "Quantity",
+    "Slot",
+)
+USED_IN_KEY = ("ItemKey", "UseType", "TargetKey")
+CARGO_USED_IN_QUERY_FIELDS = (
+    "_pageName=Page",
+    "ItemKey",
+    "UseType",
+    "TargetKey",
+    "Quantity",
+    "Slot",
+)
+
 
 def load_cargo_expectations(
     path: Path,
@@ -294,6 +312,11 @@ def load_cargo_drop_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_container_drop_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo ContainerDrops rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_CONTAINER_DROP_FIELDS, CONTAINER_DROP_KEY)
+
+
+def load_cargo_used_in_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo UsedIn rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_USED_IN_FIELDS, USED_IN_KEY)
 
 
 def load_cargo_obtained_from_expectations(path: Path) -> list[CargoExpectation]:
@@ -427,3 +450,11 @@ def check_cargo_obtained_from_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "ObtainedFrom", absent_pages, OBTAINED_FROM_KEY)
+
+
+def check_cargo_used_in_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "UsedIn", absent_pages, USED_IN_KEY)
