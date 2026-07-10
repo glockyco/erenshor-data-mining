@@ -117,27 +117,8 @@ function p.run()
 	)
 	local auraCargo = Item.cargoArgs({ args = { stablekey = "item:ember_aura" } })
 	assertEqual(auraCargo.AuraKey, "spell:ancient_presence", "cargo store contains aura stable key")
-	local bagDrops = Item.cargoContainerDropRows({ args = { stablekey = "item:magical_bag" } })
-	assertEqual(#bagDrops, 3, "container drop rows cover every produced item")
-	assertEqual(
-		bagDrops[1].SourceItemKey,
-		"item:magical_bag",
-		"container drop row carries the source item key"
-	)
-	assertEqual(
-		bagDrops[1].DroppedItemKey,
-		"item:bear_pelt",
-		"container drop connects to the produced item by stable key"
-	)
-	assertEqual(bagDrops[1].IsGuaranteed, "yes", "guaranteed container drop is flagged")
-	assertEqual(
-		bagDrops[3].DroppedItemKey,
-		"item:bear_meat",
-		"non-guaranteed container drop is stored"
-	)
-	assertEqual(bagDrops[3].IsGuaranteed, "no", "non-guaranteed container drop is unflagged")
 	local obtained = Item.cargoObtainedFromRows({ args = { stablekey = "item:magical_bag" } })
-	assertEqual(#obtained, 4, "obtainedFrom rows cover every source")
+	assertEqual(#obtained, 3, "obtainedFrom rows cover every source")
 	assertEqual(obtained[1].ItemKey, "item:magical_bag", "obtainedFrom carries item key")
 	assertEqual(obtained[1].SourceType, "drop", "obtainedFrom stores source type")
 	assertEqual(obtained[1].SourceKey, "character:a_grizzly_bear", "obtainedFrom stores source key")
@@ -151,14 +132,8 @@ function p.run()
 	)
 	assertEqual(obtained[2].SourceCondition, "day", "obtainedFrom stores fishing condition")
 	assertEqual(obtained[2].IsGuaranteed, "no", "obtainedFrom leaves fishing unguaranteed")
-	assertEqual(obtained[3].SourceType, "item_use", "obtainedFrom stores item-use source type")
-	assertEqual(
-		obtained[3].SourceKey,
-		"item:gen - bag of offering stones",
-		"obtainedFrom stores item-use source key"
-	)
-	assertEqual(obtained[4].SourceType, "starting", "obtainedFrom stores starting source type")
-	assertEqual(obtained[4].SourceKey, "class:Arcanist", "obtainedFrom stores starting source key")
+	assertEqual(obtained[3].SourceType, "starting", "obtainedFrom stores starting source type")
+	assertEqual(obtained[3].SourceKey, "class:Arcanist", "obtainedFrom stores starting source key")
 	local used = Item.cargoUsedInRows({ args = { stablekey = "item:magical_bag" } })
 	assertEqual(#used, 2, "usedIn rows cover every usage")
 	assertEqual(used[1].ItemKey, "item:magical_bag", "usedIn carries item key")

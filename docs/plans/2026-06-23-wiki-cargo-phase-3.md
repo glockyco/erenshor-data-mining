@@ -471,7 +471,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E2: Fold `item_use` + delete `ContainerDrops`
 
-- [ ] Same parity check for `ContainerDrops` → `ObtainedFrom WHERE SourceType='item_use'`; remove `containerDropRows`/store from `Item.lua`, delete `wiki/templates/ContainerDrops.wiki`, drop the smoke/cargo_check entries. `Item` now declares `Items` and transcludes `{{ItemObtainedFromStore}}` + `{{ItemUsedInStore}}` (no `ContainerDrops`). **Commit** — `refactor(wiki): fold container drops into item-owned ObtainedFrom`
+- [x] Same parity check for `ContainerDrops` → `ObtainedFrom WHERE SourceType='item_use'`; remove `containerDropRows`/store from `Item.lua`, delete `wiki/templates/ContainerDrops.wiki`, drop the smoke/cargo_check entries. `Item` now declares `Items` and transcludes `{{ItemObtainedFromStore}}` + `{{ItemUsedInStore}}` (no `ContainerDrops`). **Commit** — `refactor(wiki): fold container drops into item-owned ObtainedFrom`
 
 ### Task E3: Reverse-query rendering; remove denormalized arrays
 

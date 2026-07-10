@@ -1,7 +1,9 @@
 Magical Bag	item:magical_bag	drop	character:a_grizzly_bear		12.5	1			generated
 Magical Bag	item:magical_bag	fishing	water:brake:287.10:7.50:247.80		5.9375	0		day	generated
-Magical Bag	item:magical_bag	item_use	item:gen - bag of offering stones			0			generated
 Magical Bag	item:magical_bag	starting	class:Arcanist			0			generated
 Bear Pelt	item:bear_pelt	drop	character:a_grizzly_bear		50	1			generated
+Bear Pelt	item:bear_pelt	item_use	item:magical_bag		50	1			generated
 Bear Claw	item:bear_claw	drop	character:a_grizzly_bear		50	1			generated
+Bear Claw	item:bear_claw	item_use	item:magical_bag		30	1			generated
 Bear Meat	item:bear_meat	drop	character:a_grizzly_bear		28.3	0			generated
+Bear Meat	item:bear_meat	item_use	item:magical_bag		20	0			generated

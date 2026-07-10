@@ -160,24 +160,6 @@ ABILITY_CLASS_KEY = ("AbilityKey", "Class")
 # _pageName aliased (any underscore-prefixed field must be aliased on wiki.gg).
 CARGO_ABILITY_CLASS_QUERY_FIELDS = ("_pageName=Page", "AbilityKey", "Class", "RequiredLevel")
 
-CARGO_CONTAINER_DROP_FIELDS = (
-    "Page",
-    "SourceItemKey",
-    "DroppedItemKey",
-    "DropProbability",
-    "IsGuaranteed",
-)
-# ContainerDrops is a child table written on the source item's page: one row per
-# (source item, produced item), both StableKeys.
-CONTAINER_DROP_KEY = ("SourceItemKey", "DroppedItemKey")
-CARGO_CONTAINER_DROP_QUERY_FIELDS = (
-    "_pageName=Page",
-    "SourceItemKey",
-    "DroppedItemKey",
-    "DropProbability",
-    "IsGuaranteed",
-)
-
 CARGO_OBTAINED_FROM_FIELDS = (
     "Page",
     "ItemKey",
@@ -346,11 +328,6 @@ def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
     return load_cargo_expectations(path, CARGO_ABILITY_CLASS_FIELDS, ABILITY_CLASS_KEY)
 
 
-def load_cargo_container_drop_expectations(path: Path) -> list[CargoExpectation]:
-    """Load expected Cargo ContainerDrops rows from a tab-separated file."""
-    return load_cargo_expectations(path, CARGO_CONTAINER_DROP_FIELDS, CONTAINER_DROP_KEY)
-
-
 def load_cargo_used_in_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo UsedIn rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_USED_IN_FIELDS, USED_IN_KEY)
@@ -473,14 +450,6 @@ def check_cargo_ability_class_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "AbilityClasses", absent_pages, ABILITY_CLASS_KEY)
-
-
-def check_cargo_container_drop_rows(
-    rows: list[dict[str, str]],
-    expectations: list[CargoExpectation],
-    absent_pages: set[str] | None = None,
-) -> list[str]:
-    return check_cargo_rows(rows, expectations, "ContainerDrops", absent_pages, CONTAINER_DROP_KEY)
 
 
 def check_cargo_obtained_from_rows(

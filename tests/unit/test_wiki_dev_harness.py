@@ -553,6 +553,51 @@ def test_drop_obtained_from_parity_reports_missing_and_extra_rows() -> None:
     ]
 
 
+def test_checked_in_container_drop_obtained_from_parity() -> None:
+    parity = load_script("wiki-dev/parity/cargo_relations.py")
+    cargo = load_script("wiki-dev/smoke/cargo.py")
+    container_drops = parity.load_legacy_container_drop_expectations(
+        Path("wiki-dev/fixtures/cargo_container_drops_parity.tsv")
+    )
+    obtained = cargo.load_cargo_obtained_from_expectations(Path("wiki-dev/fixtures/cargo_obtained_from.tsv"))
+
+    assert parity.compare_container_drop_obtained_from_parity(container_drops, obtained) == []
+
+
+def test_container_drop_obtained_from_parity_reports_missing_and_extra_rows() -> None:
+    parity = load_script("wiki-dev/parity/cargo_relations.py")
+    container_drop = parity.RelationExpectation(
+        page="Magical Bag",
+        fields={
+            "SourceItemKey": "item:magical_bag",
+            "DroppedItemKey": "item:bear_meat",
+            "DropProbability": "20",
+            "IsGuaranteed": "0",
+        },
+    )
+    extra = parity.RelationExpectation(
+        page="Bear Meat",
+        fields={
+            "ItemKey": "item:bear_meat",
+            "SourceType": "item_use",
+            "SourceKey": "item:other_bag",
+            "SourceText": "",
+            "Probability": "1",
+            "IsGuaranteed": "0",
+            "Quantity": "",
+            "SourceCondition": "",
+            "Origin": "generated",
+        },
+    )
+
+    failures = parity.compare_container_drop_obtained_from_parity([container_drop], [extra])
+
+    assert failures == [
+        "ObtainedFrom missing item-use relation ('item:magical_bag', 'item:bear_meat', '20', '0') x1",
+        "ObtainedFrom has extra item-use relation ('item:other_bag', 'item:bear_meat', '1', '0') x1",
+    ]
+
+
 def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Path) -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
     expectations = tmp_path / "cargo_items.tsv"

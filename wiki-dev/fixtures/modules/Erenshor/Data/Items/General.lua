@@ -26,10 +26,6 @@ return {
 				condition = "day",
 			},
 			{
-				type = "item_use",
-				sourceKey = "item:gen - bag of offering stones",
-			},
-			{
 				type = "starting",
 				sourceKey = "class:Arcanist",
 			},
@@ -94,6 +90,12 @@ return {
 				probability = 50.0,
 				guaranteed = true,
 			},
+			{
+				type = "item_use",
+				sourceKey = "item:magical_bag",
+				probability = 50.0,
+				guaranteed = true,
+			},
 		},
 	},
 	["item:bear_claw"] = {
@@ -109,6 +111,12 @@ return {
 				probability = 50.0,
 				guaranteed = true,
 			},
+			{
+				type = "item_use",
+				sourceKey = "item:magical_bag",
+				probability = 30.0,
+				guaranteed = true,
+			},
 		},
 	},
 	["item:bear_meat"] = {
@@ -119,6 +127,11 @@ return {
 		sellValue = 15,
 		obtainedFrom = {
 			{ type = "drop", sourceKey = "character:a_grizzly_bear", probability = 28.3 },
+			{
+				type = "item_use",
+				sourceKey = "item:magical_bag",
+				probability = 20.0,
+			},
 		},
 	},
 }

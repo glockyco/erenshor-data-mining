@@ -1,8 +1,0 @@
-<includeonly></includeonly><noinclude>{{#cargo_declare:_table=ContainerDrops
-|SourceItemKey=String
-|DroppedItemKey=String
-|DropProbability=Float
-|IsGuaranteed=Boolean
-}}
-Declare-only owner of the <code>ContainerDrops</code> junction (one row per source item × produced item, for items that open into others, e.g. the Braxonian Fossil). <code>SourceItemKey</code> (the container) and <code>DroppedItemKey</code> (the produced item) are both StableKeys; <code>IsGuaranteed</code> marks that the source always yields one item from its pool. Rows are written by {{tl|Item}}, which <code>#cargo_attach</code>es this table; this template stores nothing itself.
-</noinclude>

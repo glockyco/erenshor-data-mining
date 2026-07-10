@@ -802,27 +802,6 @@ function p.link(frame)
 	return p.renderLink(templateArgs(frame), currentTitleText())
 end
 
--- One Cargo ContainerDrops row per produced item, keyed by the dropped item's
--- StableKey. A manual droprates override replaces containerDrops with a display
--- string, which yields no rows (the curator controls that relationship).
-local function containerDropRows(item)
-	local rows = {}
-	if type(item.containerDrops) ~= "table" then
-		return rows
-	end
-	for _, drop in ipairs(item.containerDrops) do
-		if type(drop) == "table" and hasValue(drop.item) then
-			table.insert(rows, {
-				{ "SourceItemKey", item.stableKey },
-				{ "DroppedItemKey", drop.item },
-				{ "DropProbability", drop.probability },
-				{ "IsGuaranteed", drop.guaranteed == true },
-			})
-		end
-	end
-	return rows
-end
-
 -- One Cargo ObtainedFrom row per stable-keyed item source.
 local function obtainedFromRows(item)
 	local rows = {}
@@ -877,17 +856,6 @@ function p.cargoArgs(frame)
 	return Cargo.buildArgs("Items", cargoFields(item, pageTitle))
 end
 
-function p.cargoContainerDropRows(frame)
-	local item = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not item.missing then
-		for _, fields in ipairs(containerDropRows(item)) do
-			table.insert(rows, Cargo.buildArgs("ContainerDrops", fields))
-		end
-	end
-	return rows
-end
-
 function p.cargoObtainedFromRows(frame)
 	local item = p.resolve(templateArgs(frame), currentTitleText())
 	local rows = {}
@@ -940,9 +908,6 @@ function p.cargoStore(frame)
 		return ""
 	end
 	Cargo.store("Items", cargoFields(item, pageTitle))
-	for _, fields in ipairs(containerDropRows(item)) do
-		Cargo.store("ContainerDrops", fields)
-	end
 	return ""
 end
 

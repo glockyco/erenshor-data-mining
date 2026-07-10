@@ -21,6 +21,27 @@ class RelationExpectation(NamedTuple):
 
 
 _LEGACY_DROP_FIELDS = ("Page", "CharacterKey", "ItemKey", "DropProbability", "IsGuaranteed")
+_LEGACY_CONTAINER_DROP_FIELDS = (
+    "Page",
+    "SourceItemKey",
+    "DroppedItemKey",
+    "DropProbability",
+    "IsGuaranteed",
+)
+
+
+def load_legacy_container_drop_expectations(path: Path) -> list[RelationExpectation]:
+    """Load legacy ContainerDrops rows for parity only."""
+    rows: list[RelationExpectation] = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
+            continue
+        values = raw_line.split("\t")
+        if len(values) != len(_LEGACY_CONTAINER_DROP_FIELDS):
+            raise ValueError(f"{path}: expected 5 tab-separated fields, got {len(values)}")
+        fields: dict[str, str] = dict(zip(_LEGACY_CONTAINER_DROP_FIELDS, values, strict=True))
+        rows.append(RelationExpectation(page=fields.pop("Page"), fields=fields))
+    return rows
 
 
 def load_legacy_drop_expectations(path: Path) -> list[RelationExpectation]:
@@ -35,6 +56,44 @@ def load_legacy_drop_expectations(path: Path) -> list[RelationExpectation]:
         fields: dict[str, str] = dict(zip(_LEGACY_DROP_FIELDS, values, strict=True))
         rows.append(RelationExpectation(page=fields.pop("Page"), fields=fields))
     return rows
+
+
+def compare_container_drop_obtained_from_parity(
+    container_drops: Sequence[RelationRow],
+    obtained_from: Sequence[RelationRow],
+) -> list[str]:
+    """Compare canonical ContainerDrops with item-owned item-use rows."""
+    container_counts: defaultdict[tuple[str, str, str, str], Counter[str]] = defaultdict(Counter)
+    for expectation in container_drops:
+        fields = expectation.fields
+        relation = (
+            fields["SourceItemKey"],
+            fields["DroppedItemKey"],
+            fields["DropProbability"],
+            fields["IsGuaranteed"],
+        )
+        container_counts[relation][expectation.page] += 1
+    canonical_container = Counter(
+        {relation: max(page_counts.values()) for relation, page_counts in container_counts.items()}
+    )
+    canonical_obtained = Counter(
+        (
+            fields["SourceKey"],
+            fields["ItemKey"],
+            fields["Probability"],
+            fields["IsGuaranteed"],
+        )
+        for expectation in obtained_from
+        if (fields := expectation.fields)["SourceType"] == "item_use"
+    )
+    failures: list[str] = []
+    for relation, count in sorted(canonical_container.items()):
+        if missing := count - canonical_obtained[relation]:
+            failures.append(f"ObtainedFrom missing item-use relation {relation} x{missing}")
+    for relation, count in sorted(canonical_obtained.items()):
+        if extra := count - canonical_container[relation]:
+            failures.append(f"ObtainedFrom has extra item-use relation {relation} x{extra}")
+    return failures
 
 
 def compare_drop_obtained_from_parity(

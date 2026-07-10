@@ -27,6 +27,8 @@ _mediawiki = _load_helper("smoke/mediawiki.py")
 _parity = _load_helper("parity/cargo_relations.py")
 compare_drop_obtained_from_parity = _parity.compare_drop_obtained_from_parity
 load_legacy_drop_expectations = _parity.load_legacy_drop_expectations
+compare_container_drop_obtained_from_parity = _parity.compare_container_drop_obtained_from_parity
+load_legacy_container_drop_expectations = _parity.load_legacy_container_drop_expectations
 
 CARGO_CHARACTER_FIELDS = _cargo.CARGO_CHARACTER_FIELDS
 CARGO_ITEM_FIELDS = _cargo.CARGO_ITEM_FIELDS
@@ -47,9 +49,6 @@ load_cargo_skill_expectations = _cargo.load_cargo_skill_expectations
 CARGO_STANCE_FIELDS = _cargo.CARGO_STANCE_FIELDS
 check_cargo_stance_rows = _cargo.check_cargo_stance_rows
 load_cargo_stance_expectations = _cargo.load_cargo_stance_expectations
-CARGO_CONTAINER_DROP_QUERY_FIELDS = _cargo.CARGO_CONTAINER_DROP_QUERY_FIELDS
-check_cargo_container_drop_rows = _cargo.check_cargo_container_drop_rows
-load_cargo_container_drop_expectations = _cargo.load_cargo_container_drop_expectations
 CARGO_OBTAINED_FROM_QUERY_FIELDS = _cargo.CARGO_OBTAINED_FROM_QUERY_FIELDS
 check_cargo_obtained_from_rows = _cargo.check_cargo_obtained_from_rows
 load_cargo_obtained_from_expectations = _cargo.load_cargo_obtained_from_expectations
@@ -72,7 +71,6 @@ CARGO_TABLES = (
     "Skills",
     "Stances",
     "AbilityClasses",
-    "ContainerDrops",
     "ObtainedFrom",
     "UsedIn",
     "Spawns",
@@ -85,7 +83,6 @@ CARGO_TEMPLATES_BY_TABLE = {
     "Skills": "Skill",
     "Stances": "Stance",
     "AbilityClasses": "AbilityClasses",
-    "ContainerDrops": "ContainerDrops",
     "ObtainedFrom": "ItemObtainedFromStore",
     "UsedIn": "ItemUsedInStore",
     "Spawns": "CharacterSpawnsStore",
@@ -157,8 +154,8 @@ def validate_cargo_rows(
     cargo_skills_path: Path,
     cargo_stances_path: Path,
     cargo_ability_classes_path: Path,
-    cargo_container_drops_path: Path,
     cargo_drops_parity_path: Path,
+    cargo_container_drops_parity_path: Path,
     cargo_obtained_from_path: Path,
     cargo_spawns_path: Path,
     cargo_character_abilities_path: Path,
@@ -167,9 +164,16 @@ def validate_cargo_rows(
 ) -> list[str]:
     """Validate local Cargo rows against the smoke fixture expectations."""
     absent_pages = load_absent_pages(cargo_absent_path)
+    obtained_expectations = load_cargo_obtained_from_expectations(cargo_obtained_from_path)
     failures: list[str] = compare_drop_obtained_from_parity(
         load_legacy_drop_expectations(cargo_drops_parity_path),
-        load_cargo_obtained_from_expectations(cargo_obtained_from_path),
+        obtained_expectations,
+    )
+    failures.extend(
+        compare_container_drop_obtained_from_parity(
+            load_legacy_container_drop_expectations(cargo_container_drops_parity_path),
+            obtained_expectations,
+        )
     )
     failures.extend(
         check_cargo_item_rows(
@@ -210,13 +214,6 @@ def validate_cargo_rows(
         check_cargo_ability_class_rows(
             rows=query_cargo_table(client, endpoint, "AbilityClasses", CARGO_ABILITY_CLASS_QUERY_FIELDS),
             expectations=load_cargo_ability_class_expectations(cargo_ability_classes_path),
-            absent_pages=absent_pages,
-        )
-    )
-    failures.extend(
-        check_cargo_container_drop_rows(
-            rows=query_cargo_table(client, endpoint, "ContainerDrops", CARGO_CONTAINER_DROP_QUERY_FIELDS),
-            expectations=load_cargo_container_drop_expectations(cargo_container_drops_path),
             absent_pages=absent_pages,
         )
     )
@@ -277,9 +274,9 @@ def main() -> None:
         default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
     )
     parser.add_argument(
-        "--cargo-container-drops",
+        "--cargo-container-drops-parity",
         type=Path,
-        default=Path("wiki-dev/fixtures/cargo_container_drops.tsv"),
+        default=Path("wiki-dev/fixtures/cargo_container_drops_parity.tsv"),
     )
     parser.add_argument(
         "--cargo-drops-parity",
@@ -328,8 +325,8 @@ def main() -> None:
             cargo_skills_path=args.cargo_skills,
             cargo_stances_path=args.cargo_stances,
             cargo_ability_classes_path=args.cargo_ability_classes,
-            cargo_container_drops_path=args.cargo_container_drops,
             cargo_drops_parity_path=args.cargo_drops_parity,
+            cargo_container_drops_parity_path=args.cargo_container_drops_parity,
             cargo_absent_path=args.cargo_absent,
             cargo_used_in_path=args.cargo_used_in,
             cargo_obtained_from_path=args.cargo_obtained_from,
