@@ -193,6 +193,36 @@ CARGO_CONTAINER_DROP_QUERY_FIELDS = (
     "IsGuaranteed",
 )
 
+CARGO_OBTAINED_FROM_FIELDS = (
+    "Page",
+    "ItemKey",
+    "SourceType",
+    "SourceKey",
+    "SourceText",
+    "Probability",
+    "IsGuaranteed",
+    "Quantity",
+    "SourceCondition",
+    "Origin",
+)
+# ObtainedFrom is a child table written on the obtained item's page: one row per
+# item/source, with SourceCondition included when a source has distinct variants
+# such as fishing day versus night.
+OBTAINED_FROM_KEY = ("ItemKey", "SourceType", "SourceKey", "SourceCondition")
+# ObtainedFrom stores no Page column; alias the implicit _pageName for cargoquery.
+CARGO_OBTAINED_FROM_QUERY_FIELDS = (
+    "_pageName=Page",
+    "ItemKey",
+    "SourceType",
+    "SourceKey",
+    "SourceText",
+    "Probability",
+    "IsGuaranteed",
+    "Quantity",
+    "SourceCondition",
+    "Origin",
+)
+
 
 def load_cargo_expectations(
     path: Path,
@@ -264,6 +294,11 @@ def load_cargo_drop_expectations(path: Path) -> list[CargoExpectation]:
 def load_cargo_container_drop_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo ContainerDrops rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_CONTAINER_DROP_FIELDS, CONTAINER_DROP_KEY)
+
+
+def load_cargo_obtained_from_expectations(path: Path) -> list[CargoExpectation]:
+    """Load expected Cargo ObtainedFrom rows from a tab-separated file."""
+    return load_cargo_expectations(path, CARGO_OBTAINED_FROM_FIELDS, OBTAINED_FROM_KEY)
 
 
 def load_absent_pages(path: Path) -> set[str]:
@@ -384,3 +419,11 @@ def check_cargo_container_drop_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "ContainerDrops", absent_pages, CONTAINER_DROP_KEY)
+
+
+def check_cargo_obtained_from_rows(
+    rows: list[dict[str, str]],
+    expectations: list[CargoExpectation],
+    absent_pages: set[str] | None = None,
+) -> list[str]:
+    return check_cargo_rows(rows, expectations, "ObtainedFrom", absent_pages, OBTAINED_FROM_KEY)

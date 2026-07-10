@@ -277,8 +277,8 @@ Outcome: a single `ObtainedFrom` Cargo table written from the item page, coverin
 - Create: `wiki/templates/ItemObtainedFromStore.wiki` (hidden store owner: declares + stores `ObtainedFrom`)
 - Modify: `wiki-dev/smoke/cargo.py` (FIELDS/KEY/QUERY + loader/checker), `wiki-dev/cargo_check.py` (`CARGO_TABLES`, `CARGO_TEMPLATES_BY_TABLE`)
 
-- [ ] **Step 1:** Reserved-word check (a keyword column silently no-ops the whole declare). Verify each proposed column name against SQL keywords before declaring: `ItemKey, SourceType, SourceKey, SourceText, Probability, IsGuaranteed, Quantity, SourceCondition, Origin`. `CONDITION` is a SQL keyword → rename to **`SourceCondition`**. Document in the template comment (like `CastRange`/`CharacterKey`).
-- [ ] **Step 2:** Write `ItemObtainedFromStore.wiki` — the hidden owner that declares `ObtainedFrom` in `<noinclude>` and stores its rows from `<includeonly>` (Lua-backed `#cargo_store`, wired in B4). Declare the **final** Phase-4 schema up front — `SourceText` and `Origin` are nullable, so generated rows leave them null until Phase 4 adds the community row template:
+- [x] **Step 1:** Reserved-word check (a keyword column silently no-ops the whole declare). Verify each proposed column name against SQL keywords before declaring: `ItemKey, SourceType, SourceKey, SourceText, Probability, IsGuaranteed, Quantity, SourceCondition, Origin`. `CONDITION` is a SQL keyword → rename to **`SourceCondition`**. Document in the template comment (like `CastRange`/`CharacterKey`).
+- [x] **Step 2:** Write `ItemObtainedFromStore.wiki` — the hidden owner that declares `ObtainedFrom` in `<noinclude>` and stores its rows from `<includeonly>` (Lua-backed `#cargo_store`, wired in B4). Declare the **final** Phase-4 schema up front — `SourceText` and `Origin` are nullable, so generated rows leave them null until Phase 4 adds the community row template:
 
 ```wikitext
 <includeonly>{{#invoke:Erenshor/Item|cargoObtainedFromStore|stablekey={{{stablekey|}}}}}</includeonly><noinclude>{{#cargo_declare:_table=ObtainedFrom
@@ -292,41 +292,95 @@ Outcome: a single `ObtainedFrom` Cargo table written from the item page, coverin
 |SourceCondition=String
 |Origin=String
 }}
-Hidden store owner of the unified item-obtainability junction (one row per item × source), transcluded by the item page.
-ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. The `Item` page transcludes this hidden owner, whose `<includeonly>` runs the Lua-backed `#cargo_store`; `Item` itself declares only the `Items` table.
+Hidden store owner of the unified item-obtainability junction (one row per item × source × condition when a source has variants).
+ItemKey is the obtained item's StableKey; SourceType ∈ drop|vendor|dialog|quest|craft|item_use|mining|fishing|item_bag|starting|community; SourceKey resolves by type (character/quest/item/zone/class StableKey, or null for free-text community rows) at display time; SourceText carries free-text community sources; Origin ∈ generated|community. `SourceCondition` is part of the generated-row identity so fishing day/night rows remain distinct. The `Item` page transcludes this hidden owner, whose `<includeonly>` runs the Lua-backed `#cargo_store`; `Item` itself declares only the `Items` table.
 </noinclude>
 ```
 
-- [ ] **Step 3:** Add to `wiki-dev/smoke/cargo.py`: `CARGO_OBTAINED_FROM_FIELDS`, `OBTAINED_FROM_KEY = ("ItemKey", "SourceType", "SourceKey")`, `CARGO_OBTAINED_FROM_QUERY_FIELDS = ("_pageName=Page", "ItemKey", "SourceType", "SourceKey", "SourceText", "Probability", "IsGuaranteed", "Quantity", "SourceCondition", "Origin")`, plus `load_/check_cargo_obtained_from_rows` mirroring the ContainerDrops helpers. Register the table + template in `cargo_check.py`.
-- [ ] **Step 4:** `import_pages.py` then `cargo_check.py`; expect the empty table to recreate cleanly.
+- [x] **Step 3:** Add to `wiki-dev/smoke/cargo.py` the
+  `CARGO_OBTAINED_FROM_FIELDS`, `OBTAINED_FROM_KEY =
+  ("ItemKey", "SourceType", "SourceKey", "SourceCondition"),` query fields,
+  and `load_/check_cargo_obtained_from_rows` helpers mirroring ContainerDrops.
+  Register the table/template in `cargo_check.py`, including a required
+  `--cargo-obtained-from` fixture argument and validation call.
+- [ ] **Step 4:** `import_pages.py` then `cargo_check.py`; expect the empty
+  table to recreate cleanly.
 - [ ] **Step 5: Commit** — `feat(wiki): declare the unified ObtainedFrom Cargo junction`
 
-### Task B2: Repository methods for the missing sources
+### Task B2: Repository methods for ObtainedFrom sources
 
-**Files:** `infrastructure/database/repositories/{characters,items,quests,zones,classes}.py` + their Protocols in `wiki_lua/items.py`. Test each with a known fixture key.
+**Files:** `infrastructure/database/repositories/{characters,items,quests,zones}.py`,
+`domain/value_objects/source_info.py`, `application/wiki_lua/{items,generation}.py`,
+their Protocols, and focused repository tests.
 
-Add (one method + one test each; concrete SQL):
-- [ ] **`get_characters_giving_item(item_key)`** — `character_dialogs WHERE give_item_stable_key = ?` → `(CharacterLink, condition)` where condition derives from `required_quest_stable_key` (quest-gate). SourceType `dialog`.
-- [ ] **`get_recipes_rewarding_item(item_key)`** — `crafting_rewards WHERE reward_item_stable_key = ?` → `(ItemLink recipe, quantity)`. SourceType `craft`.
-- [ ] **`get_mining_zones_for_item(item_key)`** — `mining_node_items JOIN mining_nodes` → distinct `(scene→ZoneLink, drop_chance)`. SourceType `mining`.
-- [ ] **`get_fishing_waters_for_item(item_key)`** — `water_fishables JOIN waters` → `(ZoneLink, drop_chance, condition=type day/night)`. SourceType `fishing`.
-- [ ] **`get_item_bag_zones_for_item(item_key)`** — `item_bags WHERE item_stable_key = ?` → distinct `(scene→ZoneLink)`. SourceType `item_bag`.
-- [ ] **`get_classes_starting_with_item(item_key)`** — `class_starting_items WHERE item_stable_key = ?` → `ClassLink`. SourceType `starting`.
-- [ ] **Vendor condition:** extend `get_vendors_selling_item` to also surface quest-unlock vendors via `character_vendor_quest_unlocks` with `SourceCondition` = "requires quest <name>".
+Define a frozen `ObtainedFromInfo` record carrying `source_type`, the
+StableKey `source_key`, optional `probability`, `is_guaranteed`, `quantity`, and
+`condition`. This preserves stable source identity that the existing
+`WikiLink` tuples intentionally omit.
 
-World-point sources (`mining`/`fishing`/`item_bag`) carry the zone as `SourceKey`; dedup to one row per item×type×zone.
+Add one method and focused test for each source path:
+- **`get_character_drop_sources(item_key)`** — deduplicated character groups
+  from `loot_drops`; retain the maximum probability per character group and
+  the guaranteed-pool flag. SourceType `drop`.
+- **`get_vendor_sources_for_item(item_key)`** — existing vendor query plus
+  quest-unlock vendors from `character_vendor_quest_unlocks`; emit one
+  representative character StableKey and `condition="requires quest <name>"`
+  for gated vendors. SourceType `vendor`.
+- **`get_characters_giving_item(item_key)`** — `character_dialogs` with
+  optional quest-gate condition. SourceType `dialog`.
+- **`get_quest_reward_sources(item_key)`** — quest reward variants with quest
+  StableKey and QuestLink. SourceType `quest`.
+- **`get_recipes_rewarding_item(item_key)`** — `crafting_rewards` with recipe
+  item StableKey and reward quantity. SourceType `craft`.
+- **`get_item_use_sources(item_key)`** — reverse `item_drops` plus
+  `spell_created_items` (offering-bag products). SourceType `item_use`.
+- **`get_mining_zones_for_item(item_key)`** — join mining nodes to zones;
+  deduplicate one row per item×zone using the maximum drop chance. SourceType
+  `mining`.
+- **`get_fishing_waters_for_item(item_key)`** — join fishables/waters/zones,
+  normalize `DayFishable`/`NightFishable` to `day`/`night`, and deduplicate
+  one row per item×zone×condition using the maximum drop chance. SourceType
+  `fishing`.
+- **`get_item_bag_zones_for_item(item_key)`** — distinct item-bag zones.
+  SourceType `item_bag`.
+- **`get_classes_starting_with_item(item_key)`** — join
+  `class_starting_items` to `classes`; use `class:<class_name>` as the
+  canonical SourceKey because no ClassRepository or ClassLink exists.
+  SourceType `starting`.
 
-- [ ] **Commit per method or grouped logically** — `feat(pipeline): add <source> reverse-source repository query`
+The mining, fishing, and item-bag methods belong to `ZoneRepository`; the
+starting-item method belongs to `ItemRepository` and reads the existing
+`classes` table. Extend the Lua generation/builder protocols and call sites to
+pass the already-available `zone_repo`; do not invent a `classes.py`
+repository or derive keys from page titles. World-point sources carry the zone
+StableKey as SourceKey. Existing display methods remain responsible for legacy
+infobox fields; the new source methods provide stable-keyed records consumed by
+B3.
 
+- [ ] **Commit per method or grouped logically** —
+  `feat(pipeline): add <source> reverse-source repository query`
 ### Task B3: Python builder — `obtainedFrom` on the item data module
 
-**Files:** `wiki_lua/items.py` (+ `SourceInfo` in `domain/value_objects/source_info.py`), test `tests/unit/application/wiki_lua/test_items.py`.
+**Files:** `wiki_lua/{items,generation}.py`, `domain/value_objects/source_info.py`,
+`tests/unit/application/wiki_lua/test_items_module.py`, and the Lua test fakes.
 
-- [ ] **Step 1: Write failing tests** asserting a fixture item yields typed rows: a chest-dropped item → a `drop` row with the chest character key + probability; a fished item → a `fishing` row with a zone key + day/night condition; a starting item → a `starting` row with a class key; an offering-bag product → an `item_use` row.
+- [ ] **Step 1: Write failing tests** asserting a fixture item yields typed
+  rows: inert diamond from a treasure chest (`drop` with character key,
+  probability, guaranteed flag), a fished item (`fishing` with zone key and
+  day/night condition), bread (`starting` with `class:<name>`), and offering
+  stone (`item_use` with the bag source key).
 - [ ] **Step 2:** Run; expect failure.
-- [ ] **Step 3:** Add `_format_obtained_from(sources) -> list[LuaData]` building one dict per source `{type, sourceKey, probability, guaranteed, quantity, condition}` (omit nil/empty per `_put`), mirroring `_format_container_drops` (`items.py:373`). Wire it into `build_item_sources_by_item` (extend `SourceInfo` with the new lists) and emit `_put(row, "obtainedFrom", _format_obtained_from(sources))` in `_item_record`. Sort deterministically (type, then sourceKey).
+- [ ] **Step 3:** Extend `SourceInfo` with `obtained_from: list[ObtainedFromInfo]`.
+  Add `_format_obtained_from(sources)` building one dict per source
+  `{type, sourceKey, probability, guaranteed, quantity, condition}` and omit
+  null/empty values through `_put`. Sort deterministically by
+  `(type, sourceKey, condition, probability, quantity, guaranteed)`.
+  Preserve the existing `vendorSource`, `source`, `questSource`,
+  `relatedQuest`, `componentFor`, and `containerDrops` fields while adding
+  `_put(row, "obtainedFrom", ...)`.
 - [ ] **Step 4:** Run tests; `uv run erenshor wiki generate-lua`; expect PASS.
-- [ ] **Step 5: Commit** — `feat(wiki): build the item obtainedFrom source list in Lua data`
+- [ ] **Step 5:** Commit — `feat(wiki): build the item obtainedFrom source list in Lua data`
+
 
 ### Task B4: Lua store in the `ItemObtainedFromStore` owner
 
@@ -478,6 +532,11 @@ Run the probe with `uv run python src/tools/wiki_cargo_storage_probe.py --live -
 - **Spec coverage (§ of `2026-06-04-wiki-cargo-data-architecture.md`):** §7.1 IsAuctionable → A5/A6; IsRare raw/clean export → A1/A2 (complete), with repository mapping in A6; §8 ObtainedFrom → 3B; §8 UsedIn → 3C; §8 Spawns/CharacterAbilities → 3D; §8.1 reverse-query rendering + drop denormalized arrays → E3; §10 freshness → E4; item→ability scalar columns → already shipped in Phase 2 (excluded). `class_starting_items` `starting` source → A3/A4 + B2/B3.
 - **Ownership trap:** resolved by item-owning ObtainedFrom/UsedIn; quest/zone/class need no Cargo template in Phase 3.
 - **Code-fact boundary:** every constant (player auction-listing gates, legacy SimPlayer auction bounds, smithing string IDs) is consumed from `code_facts` with a drift gate + `# code-fact:` tag; none transcribed from `.cs`. Pins are the **playtest** renderings (the shipping build's); `auction.player_listing_gates` pins both nonzero comparisons and `auction.player_listing_gate` pins the equippable-only confirmation rejection. Legacy auction facts remain extracted but are intentionally outside the `is_auctionable` derivation.
-- **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained; re-check each new column at declare time (a keyword silently no-ops the table).
-- **Type consistency:** `obtainedFrom`/`usedIn` Lua field names, `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used identically across B/C/E.
+- **Reserved words:** `Condition`→`SourceCondition`; `CharacterKey` retained;
+  re-check each new column at declare time (a keyword silently no-ops the
+  table). `SourceCondition` is included in `ObtainedFrom` identity so
+  day/night fishing rows do not collide.
+- **Type consistency:** `obtainedFrom`/`usedIn` Lua field names,
+  `SourceType`/`UseType` literals, and the smoke `*_KEY` tuples are used
+  identically across B/C/E.
 - **Deferred paths:** enumerated in SP1 and retained in planning docs, none dropped silently.

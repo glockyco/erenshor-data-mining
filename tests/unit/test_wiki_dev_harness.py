@@ -291,6 +291,52 @@ def test_cargo_check_declares_local_tables_to_recreate() -> None:
     assert cargo_check.CARGO_TEMPLATES_BY_TABLE["AbilityClasses"] == "AbilityClasses"
 
 
+def test_obtained_from_identity_keeps_condition_variants_distinct() -> None:
+    cargo = load_script("wiki-dev/smoke/cargo.py")
+    expectations = [
+        cargo.CargoExpectation(
+            page="A Burgundy Skipper",
+            fields={
+                "ItemKey": "item:fish - a burgundy skipper",
+                "SourceType": "fishing",
+                "SourceKey": "zone:brake",
+                "SourceCondition": "day",
+                "Probability": "5.9375",
+            },
+        ),
+        cargo.CargoExpectation(
+            page="A Burgundy Skipper",
+            fields={
+                "ItemKey": "item:fish - a burgundy skipper",
+                "SourceType": "fishing",
+                "SourceKey": "zone:brake",
+                "SourceCondition": "night",
+                "Probability": "19",
+            },
+        ),
+    ]
+    rows = [
+        {
+            "Page": "A Burgundy Skipper",
+            "ItemKey": "item:fish - a burgundy skipper",
+            "SourceType": "fishing",
+            "SourceKey": "zone:brake",
+            "SourceCondition": "day",
+            "Probability": "5.9375",
+        },
+        {
+            "Page": "A Burgundy Skipper",
+            "ItemKey": "item:fish - a burgundy skipper",
+            "SourceType": "fishing",
+            "SourceKey": "zone:brake",
+            "SourceCondition": "night",
+            "Probability": "19",
+        },
+    ]
+
+    assert cargo.check_cargo_obtained_from_rows(rows, expectations) == []
+
+
 def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
 
