@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import LootDropInfo
-    from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-    from erenshor.domain.value_objects.wiki_link import AbilityLink
+    from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
+    from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterAbilityUsage
 
 LuaData = dict[str, object]
 
@@ -31,6 +31,8 @@ class CharacterSpawnRepository(Protocol):
 
     def get_spawn_info_for_character(self, stable_key: str) -> list[CharacterSpawnInfo]: ...
 
+    def get_cargo_spawn_rows_for_character(self, stable_key: str) -> list[CharacterSpawnRow]: ...
+
 
 class CharacterLootRepository(Protocol):
     """Loot lookup needed for character wiki data."""
@@ -42,6 +44,8 @@ class CharacterSpellRepository(Protocol):
     """Spell lookup needed for character wiki data."""
 
     def get_spells_used_by_character(self, stable_key: str) -> list[AbilityLink]: ...
+
+    def get_character_ability_usages(self, stable_key: str) -> list[CharacterAbilityUsage]: ...
 
 
 _CHARACTER_FIELD_MAP = (
@@ -93,7 +97,14 @@ def generate_characters_module(
     spells = {
         character.stable_key: spell_repo.get_spells_used_by_character(character.stable_key) for character in characters
     }
-    return module_text(build_characters_data(characters, spawn_infos, loot, spells))
+    spawn_rows = {
+        character.stable_key: spawn_repo.get_cargo_spawn_rows_for_character(character.stable_key)
+        for character in characters
+    }
+    ability_usages = {
+        character.stable_key: spell_repo.get_character_ability_usages(character.stable_key) for character in characters
+    }
+    return module_text(build_characters_data(characters, spawn_infos, loot, spells, spawn_rows, ability_usages))
 
 
 def write_characters_module(
@@ -117,6 +128,8 @@ def build_characters_data(
     spawn_infos_by_character: Mapping[str, list[CharacterSpawnInfo]],
     loot_by_character: Mapping[str, list[LootDropInfo]],
     spells_by_character: Mapping[str, list[AbilityLink]],
+    spawn_rows_by_character: Mapping[str, list[CharacterSpawnRow]],
+    ability_usages_by_character: Mapping[str, list[CharacterAbilityUsage]],
 ) -> LuaData:
     """Build the serializable character data table for `mw.loadData()`."""
     character_rows: dict[str, object] = {}
@@ -130,6 +143,8 @@ def build_characters_data(
             spawn_infos=spawn_infos_by_character.get(character.stable_key, []),
             loot_drops=loot_by_character.get(character.stable_key, []),
             spells=spells_by_character.get(character.stable_key, []),
+            spawn_rows=spawn_rows_by_character.get(character.stable_key, []),
+            ability_usages=ability_usages_by_character.get(character.stable_key, []),
         )
 
     return {"characters": character_rows}
@@ -140,6 +155,8 @@ def _character_record(
     spawn_infos: list[CharacterSpawnInfo],
     loot_drops: list[LootDropInfo],
     spells: list[AbilityLink],
+    spawn_rows: list[CharacterSpawnRow],
+    ability_usages: list[CharacterAbilityUsage],
 ) -> LuaData:
     row: LuaData = {}
     for lua_name, attr_name in _CHARACTER_FIELD_MAP:
@@ -155,6 +172,8 @@ def _character_record(
     _put(row, "respawn", _format_respawn(spawn_infos))
     _put(row, "dropRates", _format_drop_rates(loot_drops))
     _put(row, "spells", _format_ability_links(spells))
+    _put(row, "spawns", _format_spawn_rows(spawn_rows))
+    _put(row, "abilities", _format_ability_usages(ability_usages))
     _put(row, "levelModMin", _level_mod_range(spawn_infos)[0])
     _put(row, "levelModMax", _level_mod_range(spawn_infos)[1])
     _put(row, "levelVarianceMin", 0 if character.group_encounter else -1)
@@ -302,6 +321,31 @@ def _minutes_to_duration(minutes: int) -> str:
     if minutes == 1:
         return "1 minute"
     return f"{minutes} minutes"
+
+
+def _format_spawn_rows(spawn_rows: list[CharacterSpawnRow]) -> list[LuaData]:
+    rows: list[LuaData] = []
+    for spawn in spawn_rows:
+        row: LuaData = {
+            "zone": spawn.zone,
+            "scene": spawn.scene,
+            "x": spawn.x,
+            "y": spawn.y,
+            "z": spawn.z,
+            "spawnChance": spawn.spawn_chance,
+            "nightSpawn": spawn.night_spawn,
+            "spawnUponQuestComplete": spawn.spawn_upon_quest_complete,
+            "levelMod": spawn.level_mod,
+            "rareNpcChance": spawn.rare_npc_chance,
+            "spawnType": spawn.spawn_type,
+            "origin": spawn.origin,
+        }
+        rows.append({key: value for key, value in row.items() if value is not None})
+    return rows
+
+
+def _format_ability_usages(usages: list[CharacterAbilityUsage]) -> list[LuaData]:
+    return [{"ability": usage.ability_key, "usage": usage.usage} for usage in usages]
 
 
 def _format_drop_rates(loot_drops: list[LootDropInfo]) -> list[LuaData]:

@@ -3,7 +3,7 @@
 from loguru import logger
 
 from erenshor.domain.entities.spawn_point import SpawnPoint
-from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
 from erenshor.domain.value_objects.wiki_link import ZoneLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -13,6 +13,71 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
 
     All queries should use raw SQL via self._execute_raw().
     """
+
+    def get_cargo_spawn_rows_for_character(self, character_stable_key: str) -> list[CharacterSpawnRow]:
+        """Get complete generated spawn rows, including treasure chest locations."""
+        query = """
+            WITH grp AS (
+                SELECT group_key FROM character_deduplications WHERE member_stable_key = ? LIMIT 1
+            ), members AS (
+                SELECT member_stable_key
+                FROM character_deduplications
+                WHERE group_key = (SELECT group_key FROM grp) AND is_wiki_generated = 1
+            )
+            SELECT DISTINCT
+                cs.character_stable_key AS character_key,
+                cs.zone_stable_key AS zone,
+                cs.scene,
+                cs.x, cs.y, cs.z,
+                cs.spawn_chance,
+                cs.night_spawn,
+                cs.spawn_upon_quest_complete_stable_key AS spawn_upon_quest_complete,
+                cs.level_mod,
+                cs.rare_npc_chance,
+                CASE
+                    WHEN cs.is_trigger_spawn = 1 THEN 'trigger'
+                    WHEN cs.is_directly_placed = 1 THEN 'direct'
+                    ELSE 'normal'
+                END AS spawn_type
+            FROM wiki_character_spawns cs
+            WHERE cs.character_stable_key IN (SELECT member_stable_key FROM members)
+            UNION ALL
+            SELECT
+                tcp.chest_character_stable_key,
+                z.stable_key,
+                tl.scene,
+                tl.x, tl.y, tl.z,
+                NULL, NULL, NULL, NULL, NULL,
+                'treasure_chest'
+            FROM treasure_chest_possible_spawns tcp
+            JOIN treasure_locations tl ON tl.stable_key = tcp.treasure_location_stable_key
+            LEFT JOIN zones z ON z.scene_name = tl.scene
+            WHERE tcp.chest_character_stable_key = ?
+            ORDER BY character_key, scene, x, y, z, spawn_type
+        """
+        try:
+            rows = self._execute_raw(query, (character_stable_key, character_stable_key))
+            return [
+                CharacterSpawnRow(
+                    character_key=str(row["character_key"]),
+                    zone=str(row["zone"]) if row["zone"] is not None else None,
+                    scene=str(row["scene"]) if row["scene"] is not None else None,
+                    x=float(row["x"]) if row["x"] is not None else None,
+                    y=float(row["y"]) if row["y"] is not None else None,
+                    z=float(row["z"]) if row["z"] is not None else None,
+                    spawn_chance=float(row["spawn_chance"]) if row["spawn_chance"] is not None else None,
+                    night_spawn=bool(row["night_spawn"]) if row["night_spawn"] is not None else None,
+                    spawn_upon_quest_complete=(
+                        str(row["spawn_upon_quest_complete"]) if row["spawn_upon_quest_complete"] is not None else None
+                    ),
+                    level_mod=int(row["level_mod"]) if row["level_mod"] is not None else None,
+                    rare_npc_chance=int(row["rare_npc_chance"]) if row["rare_npc_chance"] is not None else None,
+                    spawn_type=str(row["spawn_type"]),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve Cargo spawn rows for '{character_stable_key}': {e}") from e
 
     def get_spawn_info_for_character(self, character_stable_key: str) -> list[CharacterSpawnInfo]:
         """Get all spawn point locations for a character's dedup group.

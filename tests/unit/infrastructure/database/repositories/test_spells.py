@@ -68,6 +68,50 @@ def test_spell_entities_have_required_fields(spell_repo: SpellRepository):
         assert spell.stable_key.startswith("spell:")
 
 
+def test_character_ability_usages_include_usage_labels(spell_repo: SpellRepository):
+    row = spell_repo._execute_raw(
+        """
+        SELECT cas.character_stable_key
+        FROM character_attack_spells cas
+        JOIN character_deduplications d ON d.member_stable_key = cas.character_stable_key
+        WHERE d.is_wiki_generated = 1
+        LIMIT 1
+        """
+    )[0]
+    character_key = str(row["character_stable_key"])
+    usages = spell_repo.get_character_ability_usages(character_key)
+
+    assert usages
+    assert {usage.usage for usage in usages} <= {
+        "attack",
+        "buff",
+        "heal",
+        "cc",
+        "taunt",
+        "group_heal",
+        "attack_skill",
+    }
+    assert all(not usage.ability_key.startswith("death_shout:") for usage in usages)
+
+
+def test_character_ability_usages_exclude_death_event_messages(spell_repo: SpellRepository):
+    # This character has ShoutOnDeath rows. A synthetic death_shout ability
+    # would incorrectly produce a row here.
+    row = spell_repo._execute_raw(
+        """
+        SELECT cds.character_stable_key
+        FROM character_death_shouts cds
+        JOIN character_deduplications d ON d.member_stable_key = cds.character_stable_key
+        WHERE d.is_wiki_generated = 1
+        LIMIT 1
+        """
+    )[0]
+    character_key = str(row["character_stable_key"])
+    usages = spell_repo.get_character_ability_usages(character_key)
+
+    assert all(not usage.ability_key.startswith("death_shout:") for usage in usages)
+
+
 def test_spell_repository_handles_database_error(tmp_path: Path):
     """Test that repository raises RepositoryError on database errors."""
     # Create a database path that doesn't exist

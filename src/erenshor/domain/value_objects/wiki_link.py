@@ -96,6 +96,14 @@ class ItemLink(WikiLink):
 
 
 @dataclass(frozen=True)
+class CharacterAbilityUsage:
+    """Stable ability key and usage label for CharacterAbilities Cargo rows."""
+
+    ability_key: str
+    usage: str
+
+
+@dataclass(frozen=True)
 class AbilityLink(WikiLink):
     """Wiki link for spells/skills using {{AbilityLink}} template.
 

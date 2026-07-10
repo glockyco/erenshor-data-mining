@@ -16,8 +16,15 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import ItemDropInfo, LootDropInfo
     from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
-    from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-    from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, StandardLink
+    from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
+    from erenshor.domain.value_objects.wiki_link import (
+        AbilityLink,
+        CharacterAbilityUsage,
+        CharacterLink,
+        ItemLink,
+        QuestLink,
+        StandardLink,
+    )
 
 
 class FakeItemRepository:
@@ -148,11 +155,19 @@ class FakeCharacterRepository:
 
 
 class FakeSpawnRepository:
-    def __init__(self, spawns: dict[str, list[CharacterSpawnInfo]]) -> None:
+    def __init__(
+        self,
+        spawns: dict[str, list[CharacterSpawnInfo]],
+        cargo_spawns: dict[str, list[CharacterSpawnRow]] | None = None,
+    ) -> None:
         self._spawns = spawns
+        self._cargo_spawns = cargo_spawns or {}
 
     def get_spawn_info_for_character(self, stable_key: str) -> list[CharacterSpawnInfo]:
         return self._spawns.get(stable_key, [])
+
+    def get_cargo_spawn_rows_for_character(self, stable_key: str) -> list[CharacterSpawnRow]:
+        return self._cargo_spawns.get(stable_key, [])
 
 
 class FakeLootRepository:
@@ -164,11 +179,19 @@ class FakeLootRepository:
 
 
 class FakeSpellUsageRepository:
-    def __init__(self, spells: dict[str, list[AbilityLink]]) -> None:
+    def __init__(
+        self,
+        spells: dict[str, list[AbilityLink]],
+        abilities: dict[str, list[CharacterAbilityUsage]] | None = None,
+    ) -> None:
         self._spells = spells
+        self._abilities = abilities or {}
 
     def get_spells_used_by_character(self, stable_key: str) -> list[AbilityLink]:
         return self._spells.get(stable_key, [])
+
+    def get_character_ability_usages(self, stable_key: str) -> list[CharacterAbilityUsage]:
+        return self._abilities.get(stable_key, [])
 
 
 class FakeSpellRepository:

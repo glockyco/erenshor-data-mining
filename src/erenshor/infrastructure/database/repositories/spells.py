@@ -3,7 +3,7 @@
 from loguru import logger
 
 from erenshor.domain.entities.spell import Spell
-from erenshor.domain.value_objects.wiki_link import AbilityLink, StandardLink
+from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterAbilityUsage, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 # All spell scalar columns, prefixed for JOIN queries.
@@ -228,6 +228,41 @@ class SpellRepository(BaseRepository[Spell]):
             return classes
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spell classes for {stable_key}: {e}") from e
+
+    def get_character_ability_usages(self, character_stable_key: str) -> list[CharacterAbilityUsage]:
+        """Get all spell and skill usage junctions for a wiki character."""
+        query = """
+            WITH grp AS (
+                SELECT group_key FROM character_deduplications WHERE member_stable_key = ? LIMIT 1
+            )
+            SELECT DISTINCT ability_key, usage
+            FROM (
+                SELECT cas.skill_stable_key AS ability_key, 'attack_skill' AS usage
+                FROM character_attack_skills cas
+                JOIN character_deduplications d ON d.member_stable_key = cas.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                UNION ALL
+                SELECT junction.spell_stable_key, junction.usage
+                FROM (
+                    SELECT character_stable_key, spell_stable_key, 'attack' AS usage FROM character_attack_spells
+                    UNION ALL SELECT character_stable_key, spell_stable_key, 'buff' FROM character_buff_spells
+                    UNION ALL SELECT character_stable_key, spell_stable_key, 'heal' FROM character_heal_spells
+                    UNION ALL
+                    SELECT character_stable_key, spell_stable_key, 'group_heal'
+                    FROM character_group_heal_spells
+                    UNION ALL SELECT character_stable_key, spell_stable_key, 'cc' FROM character_cc_spells
+                    UNION ALL SELECT character_stable_key, spell_stable_key, 'taunt' FROM character_taunt_spells
+                ) junction
+                JOIN character_deduplications d ON d.member_stable_key = junction.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+            )
+            ORDER BY ability_key, usage
+        """
+        try:
+            rows = self._execute_raw(query, (character_stable_key,))
+            return [CharacterAbilityUsage(ability_key=str(row["ability_key"]), usage=str(row["usage"])) for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve ability usages for '{character_stable_key}': {e}") from e
 
     def get_spells_used_by_character(self, character_stable_key: str) -> list[AbilityLink]:
         """Get spells used by a character (NPC/enemy).

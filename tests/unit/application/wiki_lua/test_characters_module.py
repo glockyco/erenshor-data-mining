@@ -16,8 +16,8 @@ from erenshor.application.wiki_lua.characters import (
     write_characters_module,
 )
 from erenshor.domain.value_objects.loot import LootDropInfo
-from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, ZoneLink
+from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
+from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterAbilityUsage, ZoneLink
 
 
 def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
@@ -50,12 +50,31 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
         ),
     ]
     spells = [AbilityLink(page_title="Claw Swipe", display_name="Claw Swipe", image_name="Claw Swipe")]
+    spawn_rows = [
+        CharacterSpawnRow(
+            character_key=character.stable_key,
+            zone="zone:blacksalt",
+            scene="Blacksalt",
+            x=1.25,
+            y=2.5,
+            z=3.75,
+            spawn_chance=100.0,
+            night_spawn=False,
+            spawn_upon_quest_complete=None,
+            level_mod=1,
+            rare_npc_chance=0,
+            spawn_type="normal",
+        )
+    ]
+    ability_usages = [CharacterAbilityUsage(ability_key="spell:claw_swipe", usage="attack")]
 
     data = build_characters_data(
         characters=[character],
         spawn_infos_by_character={character.stable_key: spawn_infos},
         loot_by_character={character.stable_key: loot_drops},
         spells_by_character={character.stable_key: spells},
+        spawn_rows_by_character={character.stable_key: spawn_rows},
+        ability_usages_by_character={character.stable_key: ability_usages},
     )
 
     assert data == {
@@ -99,6 +118,22 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
                 "elemental": "6-14",
                 "void": "6-14",
                 "spells": [{"kind": "ability", "page": "Claw Swipe", "text": "Claw Swipe", "image": "Claw Swipe"}],
+                "spawns": [
+                    {
+                        "zone": "zone:blacksalt",
+                        "scene": "Blacksalt",
+                        "x": 1.25,
+                        "y": 2.5,
+                        "z": 3.75,
+                        "spawnChance": 100.0,
+                        "nightSpawn": False,
+                        "levelMod": 1,
+                        "rareNpcChance": 0,
+                        "spawnType": "normal",
+                        "origin": "generated",
+                    }
+                ],
+                "abilities": [{"ability": "spell:claw_swipe", "usage": "attack"}],
                 "mapSelector": "enemy:A Grizzly Bear",
                 "hasDrops": True,
                 "hasSpells": True,
@@ -142,6 +177,8 @@ def test_character_type_prefers_npc_then_boss_then_rare() -> None:
         spawn_infos_by_character={},
         loot_by_character={},
         spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
     )
 
     assert data["characters"]["character:npc"]["type"] == "NPC"
@@ -198,6 +235,8 @@ def test_character_lua_record_includes_gameplay_flags_with_nondefault_values() -
         spawn_infos_by_character={},
         loot_by_character={},
         spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
     )
     record = data["characters"]["character:a_grizzly_bear"]
     assert record["canNeverSeeInvis"] == 1
@@ -225,6 +264,8 @@ def test_character_lua_record_includes_base_combat_stats_with_nondefault_values(
         spawn_infos_by_character={},
         loot_by_character={},
         spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
     )
     record = data["characters"]["character:a_grizzly_bear"]
     assert record["baseArmorPenPercentage"] == 20.0
@@ -240,6 +281,8 @@ def test_character_lua_record_carries_spawned_status_stable_key() -> None:
         spawn_infos_by_character={},
         loot_by_character={},
         spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
     )
 
     record = data["characters"]["character:a_grizzly_bear"]

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from erenshor.domain.value_objects.wiki_link import ZoneLink
 
-__all__ = ["CharacterSpawnInfo"]
+__all__ = ["CharacterSpawnInfo", "CharacterSpawnRow"]
 
 
 @dataclass(frozen=True)
@@ -27,3 +27,22 @@ class CharacterSpawnInfo:
     is_rare: bool
     is_unique: bool
     level_mod: int = 0
+
+
+@dataclass(frozen=True)
+class CharacterSpawnRow:
+    """Complete generated spawn row stored in the character-owned Cargo table."""
+
+    character_key: str
+    zone: str | None
+    scene: str | None
+    x: float | None
+    y: float | None
+    z: float | None
+    spawn_chance: float | None
+    night_spawn: bool | None
+    spawn_upon_quest_complete: str | None
+    level_mod: int | None
+    rare_npc_chance: int | None
+    spawn_type: str
+    origin: str = "generated"
