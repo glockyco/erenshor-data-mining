@@ -48,6 +48,38 @@ return {
 			},
 		},
 	},
+	["item:ore - planar stone"] = {
+		name = "Planar Stone",
+		page = "Planar Stone",
+		image = "Planar Stone.png",
+		type = "General",
+		usedIn = {
+			{ type = "upgrade_material", targetKey = "item:template - an otherwordly mold" },
+		},
+	},
+	["item:template - inert diamond"] = {
+		name = "Inert Diamond",
+		page = "Inert Diamond",
+		image = "Inert Diamond.png",
+		type = "General",
+		usedIn = {
+			{ type = "blessing_removal_material", targetKey = "item:template - inert diamond" },
+		},
+	},
+	["item:ore - bronze ore"] = {
+		name = "Bronze Ore",
+		page = "Bronze Ore",
+		image = "Bronze Ore.png",
+		type = "General",
+		usedIn = {
+			{
+				type = "craft_material",
+				targetKey = "item:template - copper armor mold",
+				quantity = 2,
+				slot = 1,
+			},
+		},
+	},
 	["item:bear_pelt"] = {
 		name = "Bear Pelt",
 		page = "Bear Pelt",

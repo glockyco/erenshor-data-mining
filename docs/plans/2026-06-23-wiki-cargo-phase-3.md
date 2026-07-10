@@ -438,7 +438,7 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 ### Task C5: Fixtures + smoke
 
-- [ ] `wiki-dev/fixtures/cargo_used_in.tsv` + fixtures for Planar Stone → `upgrade_material`, Inert Diamond → `blessing_removal_material`, and a normal ingredient item → `craft_material`; `cargo_check.py` green. **Commit** — `test(wiki): cover UsedIn rows on the local harness`
+- [x] Add `wiki-dev/fixtures/cargo_used_in.tsv` and fixture pages for Planar Stone → `upgrade_material`, Inert Diamond → `blessing_removal_material`, Bronze Ore → `craft_material`; import, null-edit, `smoke_test.py`, and `cargo_check.py` all pass. **Commit** — `test(wiki): cover UsedIn rows on the local harness`
 
 ---
 
