@@ -483,7 +483,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E5: Full validation gate
 
-- [ ] `uv run pytest`; full harness sequence (`uv run erenshor -V playtest wiki generate-lua` → `import_pages.py` → `smoke_test.py` → `parity_check.py` → `cargo_check.py`); `uv run erenshor -V playtest golden capture` diff review. **Commit** — `test(wiki): full Phase 3 harness + golden validation`
+- [x] `uv run pytest`; full harness sequence (`uv run erenshor -V playtest wiki generate-lua` → `import_pages.py` → `smoke_test.py` → `parity_check.py` → `cargo_check.py`); `uv run erenshor -V playtest golden capture` diff review. **Commit** — `test(wiki): full Phase 3 harness + golden validation`
 
 ---
 
@@ -506,7 +506,7 @@ Every non-standard obtainability/usage path found in the game code is listed her
 | Runtime global random world-drop pool | `LootTable.cs:88-158` (Maps/Molds/Planar/etc., per-NPC at runtime) | **Deferred** — not per-source; `loot.world_drop.*` facts exist; needs "may drop globally" renderer. |
 | 1-in-20 fished Map | `Fishing.cs:68-70` (`GM.Maps` random) | **Deferred** — random, folds into the global-pool follow-up. |
 
-- [ ] **Task SP1:** before Phase 3 completion, either implement each Deferred row or move it into a future `docs/plans/` artifact so it survives the phase.
+- [x] **Task SP1:** deferred rows moved to the follow-up plan [`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md), preserving each code-fact/export prerequisite.
 
 ---
 
