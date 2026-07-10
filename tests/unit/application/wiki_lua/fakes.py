@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import ItemDropInfo, LootDropInfo
-    from erenshor.domain.value_objects.source_info import ObtainedFromInfo
+    from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
     from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterLink, ItemLink, QuestLink, StandardLink
 
@@ -31,6 +31,8 @@ class FakeItemRepository:
         items_requiring: dict[str, list[ItemLink]] | None = None,
         item_drops: dict[str, list[ItemDropInfo]] | None = None,
         craft_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        crafting_material_sources: dict[str, list[UsedInInfo]] | None = None,
+        smithing_sources: dict[str, list[UsedInInfo]] | None = None,
         item_use_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         starting_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_teaching_items: dict[str, list[ItemLink]] | None = None,
@@ -46,6 +48,8 @@ class FakeItemRepository:
         self._items_requiring = items_requiring or {}
         self._item_drops = item_drops or {}
         self._craft_sources = craft_sources or {}
+        self._crafting_material_sources = crafting_material_sources or {}
+        self._smithing_sources = smithing_sources or {}
         self._item_use_sources = item_use_sources or {}
         self._starting_sources = starting_sources or {}
         self._spell_teaching_items = spell_teaching_items or {}
@@ -79,6 +83,12 @@ class FakeItemRepository:
 
     def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._item_use_sources.get(item_stable_key, [])
+
+    def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]:
+        return self._crafting_material_sources.get(item_stable_key, [])
+
+    def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        return self._smithing_sources.get(item_stable_key, [])
 
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._starting_sources.get(item_stable_key, [])
@@ -201,12 +211,14 @@ class FakeQuestRepository:
         quest_rewards: dict[str, list[QuestLink]] | None = None,
         quest_requirements: dict[str, list[QuestLink]] | None = None,
         reward_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        requirement_sources: dict[str, list[UsedInInfo]] | None = None,
     ) -> None:
         self._quests = quests
         self._faction_changes = faction_changes or {}
         self._quest_rewards = quest_rewards or {}
         self._quest_requirements = quest_requirements or {}
         self._reward_sources = reward_sources or {}
+        self._requirement_sources = requirement_sources or {}
 
     def get_quests_for_wiki_generation(self) -> list[Quest]:
         return self._quests
@@ -219,6 +231,9 @@ class FakeQuestRepository:
 
     def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._reward_sources.get(item_stable_key, [])
+
+    def get_quest_requirement_sources(self, item_stable_key: str) -> list[UsedInInfo]:
+        return self._requirement_sources.get(item_stable_key, [])
 
     def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]:
         return self._quest_requirements.get(item_stable_key, [])

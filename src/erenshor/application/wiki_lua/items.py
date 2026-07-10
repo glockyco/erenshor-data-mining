@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -47,6 +47,10 @@ class ItemProvenanceItemRepository(Protocol):
 
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
+    def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]: ...
+
+    def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
+
 
 class ItemProvenanceCharacterRepository(Protocol):
     """Character repository methods needed for item source fields."""
@@ -70,6 +74,8 @@ class ItemProvenanceQuestRepository(Protocol):
     def get_quests_requiring_item(self, item_stable_key: str) -> list[QuestLink]: ...
 
     def get_quest_reward_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_quest_requirement_sources(self, item_stable_key: str) -> list[UsedInInfo]: ...
 
 
 class ItemProvenanceZoneRepository(Protocol):
@@ -239,6 +245,11 @@ def build_item_sources_by_item(
         quest_requirements = quest_repo.get_quests_requiring_item(item_key)
         component_for = item_repo.get_items_requiring_item(item_key)
         item_drops = item_repo.get_item_drops(item_key)
+        used_in = [
+            *item_repo.get_crafting_material_sources(item_key),
+            *quest_repo.get_quest_requirement_sources(item_key),
+            *item_repo.get_item_smithing_special_uses(item_key),
+        ]
         obtained_from = [
             *character_repo.get_character_drop_sources(item_key),
             *character_repo.get_vendor_sources_for_item(item_key),
@@ -259,6 +270,7 @@ def build_item_sources_by_item(
             component_for=component_for,
             item_drops=item_drops,
             obtained_from=obtained_from,
+            used_in=used_in,
         )
     return sources_by_item
 
@@ -338,6 +350,7 @@ def _item_record(
     if sources is not None:
         _put(row, "vendorSource", _format_vendor_sources(sources))
         _put(row, "source", _format_drop_sources(sources))
+        _put(row, "usedIn", _format_used_in(sources))
         _put(row, "questSource", _format_quest_sources(sources))
         _put(row, "relatedQuest", _format_related_quests(sources))
         _put(row, "componentFor", _format_component_for(sources))
@@ -456,6 +469,30 @@ def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
             row["guaranteed"] = True
         _put(row, "quantity", source.quantity)
         _put(row, "condition", source.condition)
+        result.append(row)
+    return result
+
+
+def _format_used_in(sources: SourceInfo) -> list[LuaData]:
+    """Format stable-keyed item usage with deterministic ordering."""
+    ordered = sorted(
+        sources.used_in,
+        key=lambda source: (
+            source.use_type,
+            source.target_key,
+            source.quantity is None,
+            source.quantity if source.quantity is not None else 0,
+            source.slot is None,
+            source.slot if source.slot is not None else 0,
+        ),
+    )
+    result: list[LuaData] = []
+    for source in ordered:
+        row: LuaData = {}
+        _put(row, "type", source.use_type)
+        _put(row, "targetKey", source.target_key)
+        _put(row, "quantity", source.quantity)
+        _put(row, "slot", source.slot)
         result.append(row)
     return result
 

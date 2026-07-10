@@ -430,7 +430,7 @@ Outcome: `UsedIn` written from the item page for `craft_material`, `quest_requir
 
 ### Task C3: Python builder — `usedIn` on the item data module
 
-- [ ] Mirror B3: `_format_used_in(sources)` → `usedIn` list `{type, targetKey, quantity, slot}`; extend `SourceInfo`/`build_item_sources_by_item`; `_put(row, "usedIn", ...)`. Tests for each emitted UseType (`craft_material`, `quest_requirement`, `upgrade_material`, `blessing_removal_material`). **Commit** — `feat(wiki): build the item usedIn list in Lua data`
+- [x] Mirror B3: `_format_used_in(sources)` → `usedIn` list `{type, targetKey, quantity, slot}`; extend `SourceInfo`/`build_item_sources_by_item`; `_put(row, "usedIn", ...)`. Tests cover each emitted UseType (`craft_material`, `quest_requirement`, `upgrade_material`, `blessing_removal_material`). **Commit** — `feat(wiki): build the item usedIn list in Lua data`
 
 ### Task C4: Lua store in the `ItemUsedInStore` owner
 

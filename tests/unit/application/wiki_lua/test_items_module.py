@@ -8,7 +8,7 @@ from erenshor.application.wiki_lua.items import build_items_data, generate_items
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.loot import ItemDropInfo
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, QuestLink, StandardLink
 
 
@@ -312,6 +312,63 @@ def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
             "sourceKey": "item:gen - bag of offering stones",
         },
         {"type": "starting", "sourceKey": "class:Arcanist"},
+    ]
+
+
+def test_formats_used_in_with_all_use_types_and_nil_omission() -> None:
+    item = make_item()
+    data = build_items_data(
+        items=[item],
+        stats_by_item={},
+        classes_by_item={},
+        sources_by_item={
+            item.stable_key: SourceInfo(
+                used_in=[
+                    UsedInInfo(
+                        use_type="quest_requirement",
+                        target_key="quest:an ore for the forge",
+                        quantity=1,
+                    ),
+                    UsedInInfo(
+                        use_type="upgrade_material",
+                        target_key="item:template - an otherwordly mold",
+                    ),
+                    UsedInInfo(
+                        use_type="craft_material",
+                        target_key="item:template - copper armor mold",
+                        quantity=2,
+                        slot=1,
+                    ),
+                    UsedInInfo(
+                        use_type="blessing_removal_material",
+                        target_key="item:template - inert diamond",
+                    ),
+                ]
+            )
+        },
+    )
+
+    shard = data["index"]["byKey"][item.stable_key]
+    assert data["shards"][shard][item.stable_key]["usedIn"] == [
+        {
+            "type": "blessing_removal_material",
+            "targetKey": "item:template - inert diamond",
+        },
+        {
+            "type": "craft_material",
+            "targetKey": "item:template - copper armor mold",
+            "quantity": 2,
+            "slot": 1,
+        },
+        {
+            "type": "quest_requirement",
+            "targetKey": "quest:an ore for the forge",
+            "quantity": 1,
+        },
+        {
+            "type": "upgrade_material",
+            "targetKey": "item:template - an otherwordly mold",
+        },
     ]
 
 
