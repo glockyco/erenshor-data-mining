@@ -512,27 +512,6 @@ local function cargoFields(character, pageTitle)
 	}
 end
 
--- One Cargo Drops row per dropped item, keyed by the item StableKey. A manual
--- droprates override replaces dropRates with a display string, which yields no
--- rows (the curator has taken manual control of that relationship).
-local function dropCargoRows(character)
-	local rows = {}
-	if type(character.dropRates) ~= "table" then
-		return rows
-	end
-	for _, drop in ipairs(character.dropRates) do
-		if type(drop) == "table" and not isBlank(drop.item) then
-			table.insert(rows, {
-				{ "CharacterKey", character.stableKey },
-				{ "ItemKey", drop.item },
-				{ "DropProbability", drop.probability },
-				{ "IsGuaranteed", drop.guaranteed == true },
-			})
-		end
-	end
-	return rows
-end
-
 local function spawnCargoRows(character)
 	local rows = {}
 	if type(character.spawns) ~= "table" then
@@ -617,17 +596,6 @@ function p.cargoCharacterAbilityRows(frame)
 	return rows
 end
 
-function p.cargoDropRows(frame)
-	local character = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not character.missing then
-		for _, fields in ipairs(dropCargoRows(character)) do
-			table.insert(rows, Cargo.buildArgs("Drops", fields))
-		end
-	end
-	return rows
-end
-
 function p.cargoStore(frame)
 	local args = templateArgs(frame)
 	local pageTitle = currentTitleText()
@@ -636,9 +604,6 @@ function p.cargoStore(frame)
 		return ""
 	end
 	Cargo.store("Characters", cargoFields(character, pageTitle))
-	for _, fields in ipairs(dropCargoRows(character)) do
-		Cargo.store("Drops", fields)
-	end
 	return ""
 end
 

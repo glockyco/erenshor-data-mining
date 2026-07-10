@@ -1,0 +1,1 @@
+{{Item|stablekey=item:bear_meat}}

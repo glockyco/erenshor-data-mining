@@ -160,21 +160,6 @@ ABILITY_CLASS_KEY = ("AbilityKey", "Class")
 # _pageName aliased (any underscore-prefixed field must be aliased on wiki.gg).
 CARGO_ABILITY_CLASS_QUERY_FIELDS = ("_pageName=Page", "AbilityKey", "Class", "RequiredLevel")
 
-CARGO_DROP_FIELDS = (
-    "Page",
-    "CharacterKey",
-    "ItemKey",
-    "DropProbability",
-    "IsGuaranteed",
-)
-# Drops is a child table written on character pages: one row per (character, item),
-# so its row identity is the dropping character plus the dropped item (both StableKeys).
-# The character column is CharacterKey, not Character: CHARACTER is a reserved SQL word
-# the Cargo fork silently rejects (the whole declare no-ops, the table is never created).
-DROP_KEY = ("CharacterKey", "ItemKey")
-# Drops stores no Page column; alias the implicit _pageName for the cargoquery API.
-CARGO_DROP_QUERY_FIELDS = ("_pageName=Page", "CharacterKey", "ItemKey", "DropProbability", "IsGuaranteed")
-
 CARGO_CONTAINER_DROP_FIELDS = (
     "Page",
     "SourceItemKey",
@@ -361,11 +346,6 @@ def load_cargo_ability_class_expectations(path: Path) -> list[CargoExpectation]:
     return load_cargo_expectations(path, CARGO_ABILITY_CLASS_FIELDS, ABILITY_CLASS_KEY)
 
 
-def load_cargo_drop_expectations(path: Path) -> list[CargoExpectation]:
-    """Load expected Cargo Drops rows from a tab-separated file."""
-    return load_cargo_expectations(path, CARGO_DROP_FIELDS, DROP_KEY)
-
-
 def load_cargo_container_drop_expectations(path: Path) -> list[CargoExpectation]:
     """Load expected Cargo ContainerDrops rows from a tab-separated file."""
     return load_cargo_expectations(path, CARGO_CONTAINER_DROP_FIELDS, CONTAINER_DROP_KEY)
@@ -493,14 +473,6 @@ def check_cargo_ability_class_rows(
     absent_pages: set[str] | None = None,
 ) -> list[str]:
     return check_cargo_rows(rows, expectations, "AbilityClasses", absent_pages, ABILITY_CLASS_KEY)
-
-
-def check_cargo_drop_rows(
-    rows: list[dict[str, str]],
-    expectations: list[CargoExpectation],
-    absent_pages: set[str] | None = None,
-) -> list[str]:
-    return check_cargo_rows(rows, expectations, "Drops", absent_pages, DROP_KEY)
 
 
 def check_cargo_container_drop_rows(

@@ -476,6 +476,83 @@ def test_cargo_check_reports_missing_and_mismatched_item_rows() -> None:
     ]
 
 
+def test_checked_in_drop_obtained_from_fixture_parity() -> None:
+    parity = load_script("wiki-dev/parity/cargo_relations.py")
+    cargo = load_script("wiki-dev/smoke/cargo.py")
+    drops = parity.load_legacy_drop_expectations(Path("wiki-dev/fixtures/cargo_drops_parity.tsv"))
+    obtained = cargo.load_cargo_obtained_from_expectations(Path("wiki-dev/fixtures/cargo_obtained_from.tsv"))
+
+    assert parity.compare_drop_obtained_from_parity(drops, obtained) == []
+
+
+def test_drop_obtained_from_parity_collapses_manual_override_pages() -> None:
+    parity = load_script("wiki-dev/parity/cargo_relations.py")
+    drops = [
+        parity.RelationExpectation(
+            page=page,
+            fields={
+                "CharacterKey": "character:a_grizzly_bear",
+                "ItemKey": "item:bear_pelt",
+                "DropProbability": "50",
+                "IsGuaranteed": "1",
+            },
+        )
+        for page in ("A Grizzly Bear", "Manual Character Override")
+    ]
+    obtained = [
+        parity.RelationExpectation(
+            page="Bear Pelt",
+            fields={
+                "ItemKey": "item:bear_pelt",
+                "SourceType": "drop",
+                "SourceKey": "character:a_grizzly_bear",
+                "SourceText": "",
+                "Probability": "50",
+                "IsGuaranteed": "1",
+                "Quantity": "",
+                "SourceCondition": "",
+                "Origin": "generated",
+            },
+        )
+    ]
+
+    assert parity.compare_drop_obtained_from_parity(drops, obtained) == []
+
+
+def test_drop_obtained_from_parity_reports_missing_and_extra_rows() -> None:
+    parity = load_script("wiki-dev/parity/cargo_relations.py")
+    drop = parity.RelationExpectation(
+        page="A Grizzly Bear",
+        fields={
+            "CharacterKey": "character:a_grizzly_bear",
+            "ItemKey": "item:bear_meat",
+            "DropProbability": "28.3",
+            "IsGuaranteed": "0",
+        },
+    )
+    extra = parity.RelationExpectation(
+        page="Bear Meat",
+        fields={
+            "ItemKey": "item:bear_meat",
+            "SourceType": "drop",
+            "SourceKey": "character:other",
+            "SourceText": "",
+            "Probability": "1",
+            "IsGuaranteed": "0",
+            "Quantity": "",
+            "SourceCondition": "",
+            "Origin": "generated",
+        },
+    )
+
+    failures = parity.compare_drop_obtained_from_parity([drop], [extra])
+
+    assert failures == [
+        "ObtainedFrom missing drop relation ('character:a_grizzly_bear', 'item:bear_meat', '28.3', '0') x1",
+        "ObtainedFrom has extra drop relation ('character:other', 'item:bear_meat', '1', '0') x1",
+    ]
+
+
 def test_cargo_expectations_reject_duplicate_page_stable_key_pairs(tmp_path: Path) -> None:
     cargo = load_script("wiki-dev/smoke/cargo.py")
     expectations = tmp_path / "cargo_items.tsv"

@@ -467,7 +467,7 @@ Outcome: reverse displays read Cargo; `Drops`/`ContainerDrops` are gone; freshne
 
 ### Task E1: Fold `drop` + delete `Drops`
 
-- [ ] Confirm every `Drops` fact is reproduced as an `ObtainedFrom` `drop` row (item-owned) — write a parity test comparing the old `Drops` expectations against `ObtainedFrom WHERE SourceType='drop'`. Then remove `dropCargoRows`/`Drops` store from `Character.lua`, delete `wiki/templates/Drops.wiki`, and remove the `Drops` entries from `smoke/cargo.py` + `cargo_check.py`. **Commit** — `refactor(wiki): fold character drops into item-owned ObtainedFrom`
+- [x] Confirm every `Drops` fact is reproduced as an `ObtainedFrom` `drop` row (item-owned) — write a parity test comparing the old `Drops` expectations against `ObtainedFrom WHERE SourceType='drop'`. Then remove `dropCargoRows`/`Drops` store from `Character.lua`, delete `wiki/templates/Drops.wiki`, and remove the `Drops` entries from `smoke/cargo.py` + `cargo_check.py`. **Commit** — `refactor(wiki): fold character drops into item-owned ObtainedFrom`
 
 ### Task E2: Fold `item_use` + delete `ContainerDrops`
 

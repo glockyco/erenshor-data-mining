@@ -8,7 +8,6 @@ from .cargo import (
     CARGO_ABILITY_CLASS_QUERY_FIELDS,
     CARGO_CHARACTER_FIELDS,
     CARGO_CONTAINER_DROP_QUERY_FIELDS,
-    CARGO_DROP_QUERY_FIELDS,
     CARGO_ITEM_FIELDS,
     CARGO_SKILL_FIELDS,
     CARGO_SPELL_FIELDS,
@@ -17,7 +16,6 @@ from .cargo import (
     check_cargo_ability_class_rows,
     check_cargo_character_rows,
     check_cargo_container_drop_rows,
-    check_cargo_drop_rows,
     check_cargo_item_rows,
     check_cargo_skill_rows,
     check_cargo_spell_rows,
@@ -36,7 +34,6 @@ def run_smoke_checks(
     cargo_skill_expectations: list[CargoExpectation],
     cargo_stance_expectations: list[CargoExpectation],
     cargo_ability_class_expectations: list[CargoExpectation],
-    cargo_drop_expectations: list[CargoExpectation],
     cargo_container_drop_expectations: list[CargoExpectation],
     cargo_absent_pages: set[str],
 ) -> list[SmokeResult]:
@@ -99,14 +96,6 @@ def run_smoke_checks(
                 absent_pages=cargo_absent_pages,
             )
             _record_cargo_result("Cargo AbilityClasses", cargo_failures, failures)
-
-        if cargo_drop_expectations:
-            cargo_failures = check_cargo_drop_rows(
-                rows=query_cargo_table(client, endpoint, "Drops", CARGO_DROP_QUERY_FIELDS),
-                expectations=cargo_drop_expectations,
-                absent_pages=cargo_absent_pages,
-            )
-            _record_cargo_result("Cargo Drops", cargo_failures, failures)
 
         if cargo_container_drop_expectations:
             cargo_failures = check_cargo_container_drop_rows(

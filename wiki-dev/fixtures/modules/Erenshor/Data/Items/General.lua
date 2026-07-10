@@ -87,6 +87,14 @@ return {
 		type = "General",
 		unique = true,
 		sellValue = 120,
+		obtainedFrom = {
+			{
+				type = "drop",
+				sourceKey = "character:a_grizzly_bear",
+				probability = 50.0,
+				guaranteed = true,
+			},
+		},
 	},
 	["item:bear_claw"] = {
 		name = "Bear Claw",
@@ -94,6 +102,14 @@ return {
 		image = "Bear Claw.png",
 		type = "General",
 		sellValue = 80,
+		obtainedFrom = {
+			{
+				type = "drop",
+				sourceKey = "character:a_grizzly_bear",
+				probability = 50.0,
+				guaranteed = true,
+			},
+		},
 	},
 	["item:bear_meat"] = {
 		name = "Bear Meat",
@@ -101,5 +117,8 @@ return {
 		image = "Bear Meat.png",
 		type = "General",
 		sellValue = 15,
+		obtainedFrom = {
+			{ type = "drop", sourceKey = "character:a_grizzly_bear", probability = 28.3 },
+		},
 	},
 }

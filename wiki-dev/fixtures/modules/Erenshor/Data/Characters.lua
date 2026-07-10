@@ -38,6 +38,7 @@ return {
 				{ item = "item:bear_pelt", probability = 50.0, guaranteed = true },
 				{ item = "item:bear_claw", probability = 50.0, guaranteed = true },
 				{ item = "item:bear_meat", probability = 28.3 },
+				{ item = "item:magical_bag", probability = 12.5, guaranteed = true },
 			},
 			level = 12,
 			levelModMin = 1,

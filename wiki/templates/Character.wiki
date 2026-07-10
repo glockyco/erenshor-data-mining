@@ -127,4 +127,4 @@
 |IgnoreLOSForAggro=Boolean
 |SimPlayersIgnoreUntilOrdered=Boolean
 |Enrage=Float
-}}{{#cargo_attach:_table=Drops}}{{Documentation}}</noinclude>
+}}{{Documentation}}</noinclude>

@@ -1,6 +1,8 @@
 A Grizzly Bear	character:a_grizzly_bear	item:bear_claw	50	1
 A Grizzly Bear	character:a_grizzly_bear	item:bear_meat	28.3	0
 A Grizzly Bear	character:a_grizzly_bear	item:bear_pelt	50	1
+A Grizzly Bear	character:a_grizzly_bear	item:magical_bag	12.5	1
 Manual Character Override	character:a_grizzly_bear	item:bear_claw	50	1
 Manual Character Override	character:a_grizzly_bear	item:bear_meat	28.3	0
 Manual Character Override	character:a_grizzly_bear	item:bear_pelt	50	1
+Manual Character Override	character:a_grizzly_bear	item:magical_bag	12.5	1
