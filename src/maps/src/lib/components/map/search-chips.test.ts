@@ -29,6 +29,63 @@ describe('computeChipCounts', () => {
         expect(counts.get('zone')).toEqual({ visible: 0, total: 0, hasMore: false });
     });
 
+    it('sums category caps for the All pill', () => {
+        const response = responseFor([
+            {
+                result: {
+                    type: 'item',
+                    itemStableKey: 'item:a',
+                    itemName: 'A',
+                    iconName: null,
+                    wikiPageName: null,
+                    dropperCount: 1,
+                    zoneCount: 1
+                },
+                matchRange: null
+            },
+            {
+                result: {
+                    type: 'enemy',
+                    name: 'Goblin',
+                    effectiveRarity: 2,
+                    spawnCount: 1,
+                    zoneCount: 1
+                },
+                matchRange: null
+            },
+            {
+                result: {
+                    type: 'npc',
+                    name: 'Merchant',
+                    isVendor: true,
+                    spawnCount: 1,
+                    zoneCount: 1
+                },
+                matchRange: null
+            },
+            { result: { type: 'zone', key: 'zone:a', name: 'Zone A' }, matchRange: null }
+        ]);
+        const categorySpecs = [
+            ['item', 20, 21, true],
+            ['enemy', 5, 5, false],
+            ['npc', 20, 24, true],
+            ['zone', 7, 7, false]
+        ] as const;
+
+        for (const [category, visible, total, hasMore] of categorySpecs) {
+            const categoryResult = response.categories[category];
+            const seed = categoryResult.matches[0]!;
+            categoryResult.matches = Array.from({ length: visible }, () => seed);
+            categoryResult.total = total;
+            categoryResult.hasMore = hasMore;
+        }
+        response.matches = response.categories.item.matches;
+        response.total = 57;
+
+        const counts = computeChipCounts(response, 0);
+        expect(counts.get('all')).toEqual({ visible: 52, total: 57, hasMore: true });
+        expect(formatChipCount(counts.get('all')!)).toBe('52+');
+    });
     it('discloses live totals and aggregates them into All', () => {
         const response = responseFor([
             { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, dropperCount: 1, zoneCount: 1 }, matchRange: null }

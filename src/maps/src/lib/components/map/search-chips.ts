@@ -23,12 +23,21 @@ export function computeChipCounts(
     liveTotal = liveCount
 ): Map<string, ChipCount> {
     const counts = new Map<string, ChipCount>();
-    counts.set('all', {
-        visible: response.matches.length + liveCount,
-        total: response.total + liveTotal,
-        hasMore: response.hasMore || liveTotal > liveCount
-    });
     const staticCategories: SearchCategory[] = ['item', 'enemy', 'npc', 'zone'];
+    const staticVisible = staticCategories.reduce(
+        (sum, category) => sum + response.categories[category].matches.length,
+        0
+    );
+    const staticHasMore = staticCategories.some(
+        (category) => response.categories[category].hasMore
+    );
+
+    counts.set('all', {
+        visible: staticVisible + liveCount,
+        total: response.total + liveTotal,
+        hasMore: staticHasMore || liveTotal > liveCount
+    });
+
     for (const category of staticCategories) {
         const categoryResult = response.categories[category];
         counts.set(category, {
