@@ -54,7 +54,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 tl.x, tl.y, tl.z,
                 NULL, NULL, NULL, NULL, NULL,
                 'treasure_chest',
-                NULL, NULL, NULL
+                NULL, NULL, NULL, NULL
             FROM treasure_chest_possible_spawns tcp
             JOIN treasure_locations tl ON tl.stable_key = tcp.treasure_location_stable_key
             LEFT JOIN zones z ON z.scene_name = tl.scene
