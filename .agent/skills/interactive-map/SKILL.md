@@ -12,6 +12,8 @@ Use Playwright to close the debug loop entirely without a browser.
 ## Architecture facts
 
 - DB used at runtime: `src/maps/static/db/erenshor.sqlite` (symlink to `variants/main/erenshor-main.sqlite`)
+- Variant builds still run frontend tests against that static DB path. Before `maps build -V <variant>`, save the current target, temporarily point the symlink at the variant clean DB, and restore the original target after the command—even when the build fails. Verify with `readlink src/maps/static/db/erenshor.sqlite`.
+- `maps thumbnails` requires a running `maps dev` or `maps preview` server and a local Playwright Chromium installation (`pnpm exec playwright install chromium`, once per machine). Pass the actual server URL with `--url`; use `maps dev` when generating thumbnails from variant data.
 - `+page.server.ts` has `export const prerender = true` — server code also
   runs during `uv run erenshor maps build` (stdout visible in build output)
 - Enemy markers split into three arrays: `data.markers.enemiesCommon/Rare/Unique`
