@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+The key that unlocks the door to [[Vitheo's Rest]].
 
 {{ItemTooltip|stablekey=item:key - key to vitheo's rest}}
-
-The key that unlocks the door to [[Vitheo's Rest]].
 
 [[Category:Items]]
 [[Category:Keys]]

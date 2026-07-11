@@ -2,12 +2,13 @@
 |name=King Cobra
 |image=[[File:King Cobra.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=2-75%
+|spawntype=
 |respawn=4 minutes
 |level=18
 |levelmodmin=0

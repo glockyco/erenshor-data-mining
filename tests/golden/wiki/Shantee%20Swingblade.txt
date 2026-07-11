@@ -8,6 +8,7 @@
 |zones=[[Port Azure]]
 |coordinates=220.1 x 12.7 x 143.2
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=26
 |levelmodmin=0
@@ -31,6 +32,58 @@
 |void=13-31
 |spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
 }}
+
+Shantee Swingblade is a [[Reaver]] [[Vendors|Merchant]] in [[Port Azure]].
+
+Greeting message:
+{| class="wikitable"
+| Wouldn't miss a chance to take what this land offers. If it means livin' in the <span style="color: #15e300;">[slums]</span> of the city, then that's what it means.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[slums]</span>
+|Port Azure don't owe us nothin' and we're not givn nothin' back to her either. Seems fair to me.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Dark Ritual}}
+|[[:Category:Ability Books|Spell Book]]
+|1200
+|-
+|{{ItemLink|Spell Scroll: Dark Pact}}
+|[[:Category:Ability Books|Spell Book]]
+|18500
+|-
+|{{ItemLink|Spell Scroll: Atonic Howl}}
+|[[:Category:Ability Books|Spell Book]]
+|1800
+|-
+|{{ItemLink|Reaver Plate}}
+|[[Armor|Chest Armor]]
+|1000
+|-
+|{{ItemLink|Tarnished Halberd}}
+|[[Weapons|2-Handed Weapon]]
+|750
+|-
+|{{ItemLink|Seaspice}}
+|[[Consumables|Consumable]]
+|5000
+|-
+|{{ItemLink|Cold Steel Greaves}}
+|[[Armor|Leg Armor]]
+|65
+|-
+|{{ItemLink|Looming Void}}
+|[[Auras|Aura]]
+|1500
+|}
 
 [[Category:Characters]]
 [[Category:Port Azure]]

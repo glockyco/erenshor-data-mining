@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - gold statue fernalla}}
 
+[[Category:Furniture]]
 [[Category:Items]]

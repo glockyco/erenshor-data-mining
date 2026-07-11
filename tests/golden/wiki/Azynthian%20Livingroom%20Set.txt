@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - azynthi living}}
 
+[[Category:Furniture]]
 [[Category:Items]]

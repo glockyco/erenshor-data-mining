@@ -2,12 +2,13 @@
 |name=Aquilamar Protector
 |image=[[File:Aquilamar Protector.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=35
 |levelmodmin=0

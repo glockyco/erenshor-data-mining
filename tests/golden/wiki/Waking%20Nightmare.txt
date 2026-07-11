@@ -3,12 +3,13 @@ Invisible until it attacks you.
 |name=Waking Nightmare
 |image=[[File:Waking Nightmare.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=-2 [[The Nightmare Collective]]
 |zones=[[Mysterious Portal|Mysterious Portal (1)]]
-|coordinates=
+|coordinates=120.4 x 1.2 x 102.9<br>122.0 x 6.2 x 308.2<br>149.9 x 6.2 x 327.7<br>166.6 x 6.2 x 329.5<br>183.9 x 4.2 x 113.6<br>240.5 x 3.3 x 135.8<br>241.4 x 6.2 x 329.7<br>257.8 x 6.2 x 319.3<br>266.7 x 0.9 x 157.5<br>279.5 x 5.9 x 244.3<br>281.1 x 8.5 x 212.1
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=14
 |levelmodmin=0

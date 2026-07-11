@@ -2,12 +2,13 @@
 |name=Sivakayan Voidweaver
 |image=[[File:Sivakayan Voidweaver.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=27
 |levelmodmin=0

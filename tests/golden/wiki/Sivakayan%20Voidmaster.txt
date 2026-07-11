@@ -2,12 +2,13 @@
 |name=Sivakayan Voidmaster
 |image=[[File:Sivakayan Voidmaster.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=39
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Volcano Scarab
 |image=[[File:Volcano Scarab.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=23
 |levelmodmin=0

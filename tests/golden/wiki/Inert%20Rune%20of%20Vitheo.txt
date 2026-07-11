@@ -1,6 +1,6 @@
 {{Item
 |title=Inert Rune of Vitheo
-|type=[[Quest Items]]<br>[[Quest Items|Quest Item]]
+|type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Apparition of Vitheo]] (100.0%)
 |othersource=
@@ -15,5 +15,7 @@
 }}
 
 {{ItemTooltip|stablekey=item:gen - inert rune of vitheo}}
+
+Give this item and an [[Eldrich Crystal]] to [[Verdant Energy]] near [[Apparition of Vitheo]] in [[Vitheo's Rest]] to receive [[Rune of Honor]].
 
 [[Category:Items]]

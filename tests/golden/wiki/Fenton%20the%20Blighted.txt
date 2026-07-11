@@ -2,12 +2,13 @@
 |name=Fenton the Blighted
 |image=[[File:Fenton the Blighted.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=114.7 x 56.3 x 584.0
 |spawnchance=50%
+|spawntype=
 |respawn=5 minutes
 |level=31
 |levelmodmin=0

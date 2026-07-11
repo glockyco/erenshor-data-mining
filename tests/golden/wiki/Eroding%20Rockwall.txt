@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain erosion}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} describes the crumbling foundation surrounding the island.
+
+{{ItemTooltip|stablekey=item:quest - bellwain erosion}}
 
 Taking a hint from the message in the note, jump off the back patio and into the ocean to discover a small cave. Inside, pick up the {{ItemLink|Bellwain Attic Key}} from the treasure chest.
 

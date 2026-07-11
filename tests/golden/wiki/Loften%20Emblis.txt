@@ -2,12 +2,13 @@
 |name=Loften Emblis
 |image=[[File:Loften Emblis.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=1031.9 x 96.1 x 983.7
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

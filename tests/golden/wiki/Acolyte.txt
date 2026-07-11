@@ -2,12 +2,13 @@
 |name=Acolyte
 |image=[[File:Acolyte.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=16
 |levelmodmin=0

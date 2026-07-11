@@ -2,12 +2,13 @@
 |name=A Dying Wish
 |image=[[File:A Dying Wish.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
-|coordinates=
+|coordinates=533.6 x 355.4 x 764.1<br>785.2 x 319.5 x 378.5
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=32
 |levelmodmin=0
@@ -31,6 +32,42 @@
 |void=16-38
 |spells=
 }}
+
+{{Character
+|name=A Dying Wish
+|image=[[File:A Dying Wish.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=179.5 x 371.2 x 613.3
+|spawnchance=
+|spawntype=Dynamic event spawn
+|respawn=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5688
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
 A Dying Wish spawns when a [[A Protected Memory]] is killed. There are three possible Dying Wishes, each used in a step of the "A Dying Wish" quest chain.
 
 ===First Dying Memory===
@@ -87,40 +124,6 @@ Prompts:
 |Please, <span style="color: #15e300;">[Elwio]</span> may hold the memories I cannot recall any longer. If you can find him, help him to rest and see what feelings you can recall on his behalf.
 <i>This begins {{QuestLink|A Dying Wish, Part 3}}</i>
 |}
-
-{{Character
-|name=A Dying Wish
-|image=[[File:A Dying Wish.png|thumb]]
-|imagecaption=
-|type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=
-|zones=[[Blooming Sepulcher]]
-|coordinates=179.5 x 371.2 x 613.3
-|spawnchance=
-|respawn=
-|level=25
-|levelmodmin=0
-|levelmodmax=0
-|levelvariancemin=-1
-|levelvariancemax=1
-|xpmultiplier=1.0
-|health=5688
-|mana=0
-|ac=375
-|strength=3
-|endurance=3
-|dexterity=3
-|agility=3
-|intelligence=3
-|wisdom=3
-|charisma=3
-|magic=12-30
-|poison=12-30
-|elemental=12-30
-|void=12-30
-|spells=
-}}
 
 [[Category:Blooming Sepulcher]]
 [[Category:Characters]]

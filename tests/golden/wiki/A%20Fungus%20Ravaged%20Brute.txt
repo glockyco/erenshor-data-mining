@@ -2,12 +2,13 @@
 |name=A Fungus Ravaged Brute
 |image=[[File:A Fungus Ravaged Brute.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=
 |spawnchance=25%
+|spawntype=
 |respawn=4 minutes
 |level=19
 |levelmodmin=0

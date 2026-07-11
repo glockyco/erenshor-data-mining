@@ -2,12 +2,13 @@
 |name=Braxonian High Guard
 |image=[[File:Braxonian High Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=8 minutes
 |level=31
 |levelmodmin=0

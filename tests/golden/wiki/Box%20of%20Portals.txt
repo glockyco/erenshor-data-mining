@@ -1,6 +1,6 @@
 {{Item
 |title=Box of Portals
-|type=[[Quest Items|Quest Item]]
+|type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=
 |othersource=
@@ -18,3 +18,4 @@
 
 [[Category:Items]]
 [[Category:Quest Items]]
+[[Category:Teleportation]]

@@ -2,12 +2,13 @@
 |name=Hadden Passican
 |image=[[File:Hadden Passican.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Blades of Vitheo]]
 |factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=367.4 x 41.1 x 537.6
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=22
 |levelmodmin=0

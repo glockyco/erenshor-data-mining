@@ -2,7 +2,7 @@
 |title=Aevum
 |type=
 |vendorsource=
-|source=[[Soluna]] (37.9%)
+|source=[[Soluna]] (36.0%)
 |othersource=
 |questsource=
 |relatedquest=

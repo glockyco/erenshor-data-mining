@@ -2,12 +2,13 @@
 |name=A Brown Bear
 |image=[[File:A Brown Bear.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=7
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=1132
+|health=936
 |mana=0
 |ac=105
 |strength=11

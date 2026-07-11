@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - azynthi coffin}}
 
+[[Category:Furniture]]
 [[Category:Items]]

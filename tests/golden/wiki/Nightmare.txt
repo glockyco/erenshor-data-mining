@@ -2,12 +2,13 @@
 |name=Nightmare
 |image=[[File:Nightmare.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=208.7 x 53.4 x 355.8
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=23
 |levelmodmin=0

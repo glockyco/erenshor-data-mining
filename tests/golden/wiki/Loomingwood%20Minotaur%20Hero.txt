@@ -2,12 +2,13 @@
 |name=Loomingwood Minotaur Hero
 |image=[[File:Loomingwood Minotaur Hero.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=900.7 x 29.5 x 613.1
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=26
 |levelmodmin=0

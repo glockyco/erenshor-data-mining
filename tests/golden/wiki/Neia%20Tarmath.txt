@@ -2,12 +2,13 @@
 |name=Neia Tarmath
 |image=[[File:Neia Tarmath.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Loomingwood Forest]]
 |coordinates=348.0 x 29.5 x 400.0
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

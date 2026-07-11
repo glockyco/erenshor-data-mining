@@ -15,8 +15,6 @@
 }}
 '''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - rainbow flint}}
-
 =Location=
 {{PAGENAME}} is found in the study as part of the quest {{QuestLink|link=The Mystery of Bellwain Island}}. It is in a small safe against the wall of the room.
 
@@ -26,6 +24,8 @@
 <span style="color: red">Red</span> → <span style="color: blue">Blue</span> → White → <span style="color: orange">Orange</span> → <span style="color: green">Green</span> → <span style="color: red">Red</span>
 
 Once all the torches are lit the correct colors, the statue in the middle will rise.
+
+{{ItemTooltip|stablekey=item:quest - rainbow flint}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

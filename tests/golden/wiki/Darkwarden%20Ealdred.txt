@@ -2,12 +2,13 @@
 |name=Darkwarden Ealdred
 |image=[[File:Darkwarden Ealdred.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Abyssal Lake]]
 |coordinates=229.9 x 65.0 x 37.6
 |spawnchance=66%
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

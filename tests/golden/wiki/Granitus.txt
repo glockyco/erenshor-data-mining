@@ -2,12 +2,13 @@
 |name=Granitus
 |image=[[File:Granitus.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Windwashed Pass]]
 |coordinates=960.4 x 55.5 x 396.9
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=30
 |levelmodmin=0

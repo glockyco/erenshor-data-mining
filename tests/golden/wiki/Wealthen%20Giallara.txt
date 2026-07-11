@@ -2,12 +2,13 @@
 |name=Wealthen Giallara
 |image=[[File:Wealthen Giallara.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=569.0 x 49.5 x 336.6
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0
@@ -31,7 +32,8 @@
 |void=11-26
 |spells=
 }}
-Wealthen Giallara is a Banker in [[Willowwatch Ridge]].
+
+Wealthen Giallara is a Banker in Willowwatch Ridge.
 
 Greeting message:
 {| class="wikitable"

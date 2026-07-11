@@ -2,12 +2,13 @@
 |name=Celeso the Historian
 |image=[[File:Celeso the Historian.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]
 |coordinates=488.5 x 79.9 x 515.0
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=33
 |levelmodmin=0

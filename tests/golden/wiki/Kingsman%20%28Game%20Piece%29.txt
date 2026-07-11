@@ -13,9 +13,8 @@
 |taughtspell=
 |taughtskill=
 }}
+Used to summon [[Kingsman]] at the chess board in the [[Braxonian Desert]].
 
 {{ItemTooltip|stablekey=item:quest - game piece kingsman}}
-
-Used to summon [[Kingsman]] at the chess board in the [[Braxonian Desert]].
 
 [[Category:Items]]

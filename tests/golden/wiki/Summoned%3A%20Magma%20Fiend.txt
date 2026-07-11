@@ -8,6 +8,7 @@
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=36
 |levelmodmin=0

@@ -13,9 +13,8 @@
 |taughtspell=
 |taughtskill=
 }}
+This item is needed for {{QuestLink|Kio's Papers}}.
 
 {{ItemTooltip|stablekey=item:gen - deportation papers}}
-
-This item is needed for {{QuestLink|Kio's Papers}}.
 
 [[Category:Items]]

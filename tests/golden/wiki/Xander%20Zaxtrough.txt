@@ -2,12 +2,13 @@
 |name=Xander Zaxtrough
 |image=[[File:Xander Zaxtrough.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=93.4 x 0.6 x 10.0
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=15
 |levelmodmin=0
@@ -46,6 +47,61 @@ Prompts:
 |-
 |<span style="color: #15e300;">[Molorai]</span>
 |They're a group that took interest in Erenshor early on. They do call this place the Land of the Gods, afterall. Most all religious writings refer to this place. Old Eldoth <span style="color: #15e300;">[Molorai]</span>'s interested in that sort of thing.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Mutual Ache}}
+|[[:Category:Ability Books|Spell Book]]
+|220
+|-
+|{{ItemLink|Spell Scroll: Void Bolt}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Counter-Attack}}
+|[[:Category:Ability Books|Skill Book]]
+|1350
+|-
+|{{ItemLink|Old Halberd}}
+|[[Weapons|2-Handed Weapon]]
+|500
+|-
+|{{ItemLink|Skill Book: Cleave}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Affinity for Suffering}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Aggressive Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Defensive Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Atrophy}}
+|[[:Category:Ability Books|Spell Book]]
+|300
+|-
+|{{ItemLink|Skill Book: Taunting Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Instill Fear}}
+|[[:Category:Ability Books|Spell Book]]
+|850
+|-
+|{{ItemLink|Spell Scroll: Waste}}
+|[[:Category:Ability Books|Spell Book]]
+|225
 |}
 
 [[Category:Characters]]

@@ -2,12 +2,13 @@
 |name=Algaeth Bilgeback
 |image=[[File:Algaeth Bilgeback.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Windwashed Pass]]
 |coordinates=329.6 x 32.0 x 466.6
 |spawnchance=75%
+|spawntype=
 |respawn=5 minutes
 |level=18
 |levelmodmin=0

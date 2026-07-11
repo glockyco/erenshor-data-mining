@@ -2,12 +2,13 @@
 |name=Desert Jackal
 |image=[[File:Desert Jackal.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

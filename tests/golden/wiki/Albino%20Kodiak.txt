@@ -3,12 +3,13 @@ The Albino Kodiak can spawn in place of the regular Kodiak in the [[Silkengrass 
 |name=Albino Kodiak
 |image=[[File:Albino Kodiak.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=2%
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

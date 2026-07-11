@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[Teleportation|Teleportation Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:gen - mooring coin}}
-
 =Location=
 {{PAGENAME}} is the reward given for completing {{QuestLink|link=The Mystery of Bellwain Island}}. It can be found in Bellwain's Master Bedroom after obtaining {{ItemLink|Bellwain's Master Key}}.
 
 =Description=
 {{PAGENAME}} teleports the user back to the last [[Wishing Well]] the player saved at. It can either be right clicked to use it from the inventory, or it can be placed into a hotkey slot and used by pressing the corresponding key.
+
+{{ItemTooltip|stablekey=item:gen - mooring coin}}
 
 [[Category:Items]]
 [[Category:Teleportation]]

@@ -3,7 +3,7 @@
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Candlekeeper]] (40.2%)<br>[[Evadne the Corrupted]] (29.1%)
-|othersource=[[Mining]]
+|othersource=[[Mining]] in [[Braxonian Desert]] (21%)
 |questsource=
 |relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}
 |craftsource=
@@ -12,7 +12,7 @@
 |sell=3
 |taughtspell=
 |taughtskill=
-}}Used in the quest [[Repairing Orion's Ring, Part 2]]. Only found in the [[Braxonian Desert]]
+}}Used in the quest [[Repairing Orion's Ring, Part 2]]. Only found in the [[Braxonian Desert]]. Although it drops from a couple enemies, it is much easier to acquire through [[Mining]] in the [[Braxonian Desert]].
 
 {{ItemTooltip|stablekey=item:ore - citrine sandsilver}}
 

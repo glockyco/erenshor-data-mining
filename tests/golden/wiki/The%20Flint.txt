@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain flint}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} talks about the {{ItemLink|Rainbow Flint}} and how it can be used to light the torches near the statue on the island various colors.
+
+{{ItemTooltip|stablekey=item:quest - bellwain flint}}
 
 The note instructs the player to figure out what color to light each torch surrounding the statue by collecting the other notes. Once they are are all lit the correct colors, the statue in the middle will rise up.
 

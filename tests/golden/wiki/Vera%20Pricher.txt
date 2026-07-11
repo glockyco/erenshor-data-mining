@@ -2,12 +2,13 @@
 |name=Vera Pricher
 |image=[[File:Vera Pricher.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]
 |zones=[[Port Azure]]
 |coordinates=347.4 x 37.2 x 452.7
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

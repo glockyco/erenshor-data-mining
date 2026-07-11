@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain bellsie's key}}
-
 =Location=
 {{PAGENAME}} is found on the roof of the house as part of the quest {{QuestLink|link=The Mystery of Bellwain Island}}. Its location is hinted at by the note {{ItemLink|Detective Books|image=Marching Orders.png}}.
 
 =Description=
 {{PAGENAME}} is used to open the first door on the left of the long hallway on [[Bellwain Island]].
+
+{{ItemTooltip|stablekey=item:quest - bellwain bellsie's key}}
 
 [[Category:Items]]
 [[Category:Keys]]

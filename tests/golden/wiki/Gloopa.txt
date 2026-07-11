@@ -2,12 +2,13 @@
 |name=Gloopa
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
+|spawntype=
 |respawn=15 minutes
 |level=21
 |levelmodmin=0
@@ -31,40 +32,19 @@
 |void=10-25
 |spells=
 }}
-''{{main|Enemies}}''
-
-=Location=
-{{PAGENAME}} spawns in the dead-end beyond the large lake in the [[Elderstone Mines]], near the giant trees in the back.
-
-=Appearance=
-{{PAGENAME}} is a gigantic green slime. Its singular blue eyeball is attached through tendons to a large internal brain.
-
-=Behavior=
-{{PAGENAME}} roams the dead-end in the far reaches of the mines, and will attack players if they get too close. Its detection radius is quite large, meaning players should be wary of drawing its attention when fighting the other slimes in the area.
-
-===Spells & Abilities===
-On-Hit:
-*{{AbilityLink|Toxicity}} ('''10%''' chance)
-
-=Strategy=
-Attacking {{PAGENAME}} will draw the attention of all other slimes in the room, so players should strongly consider clearing out all [[A Subterranean Goop|Subterranean Goops]] and [[A Subterranean Magmite|Subterranean Magmites]] before engaging {{PAGENAME}}.
-
-Once its main body is defeated, it will split into two smaller halves, each with '''8,500''' HP. Defeating these halves makes {{PAGENAME}} split again, this time with '''2,500''' HP. Of the four eventually pieces of {{PAGENAME}}, two will give loot.
-
-While each iteration of {{PAGENAME}} gets progressively weaker, it is still recommended that players focus on defeating one at a time to avoid being mobbed by all four quarter sections at once, as all versions of {{PAGENAME}} retain the '''10% chance''' to proc {{AbilityLink|Toxicity}} on-hit.
-=Notes=
 
 {{Character
 |name=Gloopa (Half)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
-|respawn=
+|spawntype=Dynamic event spawn
+|respawn=26 minutes and 6 seconds
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -92,12 +72,13 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |name=Gloopa (Quarter)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=21
 |levelmodmin=0
@@ -126,13 +107,14 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |name=Gloopa (Quarter)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=Enemy
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
-|respawn=
+|spawntype=Dynamic event spawn
+|respawn=15 minutes
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -155,6 +137,29 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 |void=10-25
 |spells=
 }}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} spawns in the dead-end beyond the large lake in the [[Elderstone Mines]], near the giant trees in the back.
+
+=Appearance=
+{{PAGENAME}} is a gigantic green slime. Its singular blue eyeball is attached through tendons to a large internal brain.
+
+=Behavior=
+{{PAGENAME}} roams the dead-end in the far reaches of the mines, and will attack players if they get too close. Its detection radius is quite large, meaning players should be wary of drawing its attention when fighting the other slimes in the area.
+
+===Spells & Abilities===
+On-Hit:
+*{{AbilityLink|Toxicity}} ('''10%''' chance)
+
+=Strategy=
+Attacking {{PAGENAME}} will draw the attention of all other slimes in the room, so players should strongly consider clearing out all [[A Subterranean Goop|Subterranean Goops]] and [[A Subterranean Magmite|Subterranean Magmites]] before engaging {{PAGENAME}}.
+
+Once its main body is defeated, it will split into two smaller halves, each with '''8,500''' HP. Defeating these halves makes {{PAGENAME}} split again, this time with '''2,500''' HP. Of the four eventually pieces of {{PAGENAME}}, two will give loot.
+
+While each iteration of {{PAGENAME}} gets progressively weaker, it is still recommended that players focus on defeating one at a time to avoid being mobbed by all four quarter sections at once, as all versions of {{PAGENAME}} retain the '''10% chance''' to proc {{AbilityLink|Toxicity}} on-hit.
+=Notes=
 
 [[Category:Bosses]]
 [[Category:Enemies]]

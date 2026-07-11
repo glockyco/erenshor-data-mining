@@ -2,12 +2,13 @@
 |name=Braxonian Planar Guard (Fire)
 |image=[[File:Fire Planar Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=336.1 x 14.9 x 291.0
 |spawnchance=
+|spawntype=
 |respawn=8 minutes
 |level=36
 |levelmodmin=0

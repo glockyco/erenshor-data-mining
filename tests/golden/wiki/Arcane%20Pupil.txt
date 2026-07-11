@@ -2,12 +2,13 @@
 |name=Arcane Pupil
 |image=[[File:Arcane Pupil.png|thumb]]
 |imagecaption=
-|type=[[:Category:Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Ancients]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

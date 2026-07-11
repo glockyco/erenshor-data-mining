@@ -13,6 +13,7 @@
 |taughtspell=
 |taughtskill=
 }}
+Required for {{QuestLink|link=Ritual Components}}
 
 {{ItemTooltip|stablekey=item:gen - faerie wing}}
 

@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+Opens the hidden bookcase door on the second floor in [[Azynthi's Garden]]
 
 {{ItemTooltip|stablekey=item:key - intricate}}
-
-Opens the hidden bookcase door on the second floor in [[Azynthi's Garden]]
 
 [[Category:Items]]
 [[Category:Keys]]

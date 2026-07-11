@@ -2,12 +2,13 @@
 |name=Vithean Elemental
 |image=[[File:Vithean Elemental.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]<br>[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=8
 |levelmodmin=0

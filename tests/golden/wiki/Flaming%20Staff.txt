@@ -2,7 +2,7 @@
 |title=Flaming Staff
 |type=
 |vendorsource=
-|source=[[Greater Fire Elemental]] (4.3%)
+|source=[[Greater Fire Elemental]] (4.3%)<br>[[Large Fire Elemental]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

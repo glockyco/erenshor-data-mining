@@ -8,8 +8,8 @@
 |relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 3}}
 |craftsource=
 |componentfor=
-|buy=355
-|sell=231
+|buy=
+|sell=
 |taughtspell=
 |taughtskill=
 }}

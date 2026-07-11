@@ -2,12 +2,13 @@
 |name=Lurk
 |image=[[File:Lurk.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=97.7 x 23.0 x 304.6
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=19
 |levelmodmin=0

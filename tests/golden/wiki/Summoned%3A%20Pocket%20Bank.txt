@@ -6,8 +6,9 @@
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Reliquary Hall]]
-|coordinates=
+|coordinates=268.3 x 1.4 x 363.0
 |spawnchance=
+|spawntype=
 |respawn=
 |level=25
 |levelmodmin=0

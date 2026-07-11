@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+The key that unlocks the door to the second wing of [[Vitheo's Rest]].
 
 {{ItemTooltip|stablekey=item:key - traitor's hall key}}
-
-The key that unlocks the door to the second wing of [[Vitheo's Rest]].
 
 [[Category:Items]]
 [[Category:Keys]]

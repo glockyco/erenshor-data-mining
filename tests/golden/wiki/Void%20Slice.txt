@@ -69,3 +69,5 @@
 |source={{ItemLink|Skill Book: Void Slice}}
 |used_by=
 }}
+
+The associated proc from Void Slice is {{AbilityLink|Corrupting Void}}.

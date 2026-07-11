@@ -1,3 +1,4 @@
+Clears the fog in [[The Blight]].
 {{Ability
 |title=Repel Darkness
 |image=[[File:Repel Darkness.png|thumb]]

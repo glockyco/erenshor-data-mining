@@ -2,12 +2,13 @@
 |name=Rattlewrists
 |image=[[File:Rattlewrists.png|thumb]]
 |imagecaption="Rattlewrists rattles towards you!"
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=-5 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=570.2 x 41.3 x 356.6
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=1
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=29
+|health=24
 |mana=0
 |ac=15
 |strength=1

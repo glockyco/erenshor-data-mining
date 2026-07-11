@@ -2,12 +2,13 @@
 |name=Rock Fiend
 |image=[[File:Rock Fiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

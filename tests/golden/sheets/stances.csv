@@ -5,9 +5,7 @@ Your focus on offense stops all natural health regeneration.","1.0","1.399999976
 "stance:defensive","Defensive","Take 20% less incoming damage and gain 2% proc rate bonus
 
 Your focus on defense stops all natural health regeneration.","1.0","1.0","1.0","0.800000011920929","1.0199999809265137","1.0","1.0","1.0","0.0","0.0","1","shifts into a defensive combat stance","Defensive"
-"stance:expert","Expert","Gain a 33% increase to physical and magical damage dealt.
-
-Your focus on offense stops all natural health regeneration.","1.0","1.3300000429153442","1.3300000429153442","1.0","1.0","1.0","1.0","1.0","0.0","0.0","1","shifts into an expert combat stance","Expert"
+"stance:expert","Expert","Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.","1.0","1.3300000429153442","1.3300000429153442","1.0","1.0","1.0","1.0","1.0","0.0","0.0","1","shifts into an expert combat stance","Expert"
 "stance:hateful","Hateful","Take 25% less damage, while generating substantially more aggro. Gain a 4% bonus to all proc rates. Your focus on this stance prevents natural health regeneration.","1.0","1.0","1.0","0.75","1.0399999618530273","15.0","1.0","1.0","0.0","0.0","1","shifts into a hateful combat stance","Hateful"
 "stance:normal","Normal","A normal combat stance with no penalties or bonuses.","1.0","1.0","1.0","1.0","1.0","1.0","1.0","1.0","0.0","0.0","0","shifts into a normal combat stance","Normal"
 "stance:reckless","Reckless","Increase all melee damage dealt and damage taken by 100%

@@ -2,12 +2,13 @@
 |name=Felden Veldspar
 |image=[[File:Felden Veldspar.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=1005.3 x 62.9 x 614.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=22
 |levelmodmin=0

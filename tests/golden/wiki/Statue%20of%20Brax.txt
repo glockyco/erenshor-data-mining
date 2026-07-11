@@ -2,12 +2,13 @@
 |name=Statue of Brax
 |image=[[File:Statue of Brax.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=659.8 x 2.4 x 487.8
 |spawnchance=
+|spawntype=
 |respawn=12 minutes
 |level=36
 |levelmodmin=2

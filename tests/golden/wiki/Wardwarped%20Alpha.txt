@@ -2,12 +2,13 @@
 |name=Wardwarped Alpha
 |image=[[File:Wardwarped Alpha.png|thumb]]
 |imagecaption=
-|type=[[Enemies#List of Bosses|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=827.2 x 51.0 x 246.6
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=37
 |levelmodmin=0

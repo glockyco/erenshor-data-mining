@@ -2,7 +2,7 @@
 |title=Twinkling Boots
 |type=
 |vendorsource=
-|source=[[Planar Faerie]] (6.7%)
+|source=[[Faerie Trickster]] (6.7%)<br>[[Planar Faerie]] (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

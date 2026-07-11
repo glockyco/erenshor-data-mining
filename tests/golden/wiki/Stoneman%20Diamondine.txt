@@ -2,12 +2,13 @@
 |name=Stoneman Diamondine
 |image=[[File:Stoneman Diamondine.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Windwashed Pass]]
 |coordinates=944.5 x 71.5 x 590.1
 |spawnchance=33%
+|spawntype=
 |respawn=5 minutes
 |level=19
 |levelmodmin=0

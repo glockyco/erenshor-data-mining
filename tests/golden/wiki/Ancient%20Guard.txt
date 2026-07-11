@@ -2,12 +2,13 @@
 |name=Ancient Guard
 |image=[[File:Ancient Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=26
 |levelmodmin=0

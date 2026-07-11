@@ -2,12 +2,13 @@
 |name=Kingsman
 |image=[[File:Kingsman.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=725.8 x 28.5 x 1191.1
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=34
 |levelmodmin=0
@@ -34,6 +35,5 @@
 
 To summon Kingsman you must bring a [[Kingsman (Game Piece)]] to the [[Braxonian Game Board]].
 
-[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]

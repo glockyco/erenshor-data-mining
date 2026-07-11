@@ -2,12 +2,13 @@
 |name=Upha, Priest of Brax
 |image=[[File:Upha, Priest of Brax.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=264.9 x 22.7 x 300.2
 |spawnchance=75%
+|spawntype=
 |respawn=4 minutes
 |level=21
 |levelmodmin=0

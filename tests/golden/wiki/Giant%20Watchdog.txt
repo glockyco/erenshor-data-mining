@@ -2,12 +2,13 @@
 |name=Giant Watchdog
 |image=[[File:Giant Watchdog.png|thumb]]
 |imagecaption=Tick Tock. Woof.
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=33
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Stardust
 |image=[[File:Stardust.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=46 minutes
 |level=25
 |levelmodmin=0

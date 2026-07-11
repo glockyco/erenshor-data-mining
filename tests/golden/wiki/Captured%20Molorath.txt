@@ -2,12 +2,13 @@
 |name=Captured Molorath
 |image=[[File:Captured Molorath.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]
 |coordinates=971.4 x 56.9 x 365.2
 |spawnchance=
+|spawntype=
 |respawn=
 |level=22
 |levelmodmin=0

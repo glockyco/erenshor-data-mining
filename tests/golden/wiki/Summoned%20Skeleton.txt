@@ -2,12 +2,13 @@
 |name=Summoned Skeleton
 |image=[[File:Summoned Skeleton.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=35
 |levelmodmin=0

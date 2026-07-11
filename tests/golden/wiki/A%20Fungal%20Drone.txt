@@ -2,12 +2,13 @@
 |name=A Fungal Drone
 |image=[[File:A Fungal Drone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]<br>[[The Elderstone Mines]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=12 minutes (Rottenfoot)<br>4-12 minutes (The Elderstone Mines)
 |level=17
 |levelmodmin=0

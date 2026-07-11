@@ -1,0 +1,19 @@
+{{Item
+|title=Platinum Statue: Brax
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - stone statue platinum brax}}
+
+[[Category:Items]]

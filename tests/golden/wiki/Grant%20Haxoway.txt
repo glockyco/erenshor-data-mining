@@ -8,6 +8,7 @@
 |zones=[[Port Azure]]
 |coordinates=205.3 x 12.7 x 150.2
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=26
 |levelmodmin=0
@@ -31,6 +32,73 @@
 |void=13-31
 |spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
 }}
+Grant Haxoway is a [[Reaver]] [[Vendors|Merchant]] in [[Port Azure]].
+
+Greeting message:
+{| class="wikitable"
+|Port Azure's hospitality has not been extended to us, though that's no surprise. We'll do just fine down here in the <span style="color: #15e300;">[slums]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[slums]</span>
+|A reaver don't need much. A sword on his back, a battle in his future, and a mind to enjoy both. The <span style="color: #15e300;">[slums]</span> don't play into those needs too much.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Void Surge}}
+|[[:Category:Ability Books|Spell Book]]
+|1500
+|-
+|{{ItemLink|Spell Scroll: Atrophy}}
+|[[:Category:Ability Books|Spell Book]]
+|300
+|-
+|{{ItemLink|Spell Scroll: Soul Tap}}
+|[[:Category:Ability Books|Spell Book]]
+|1125
+|-
+|{{ItemLink|Spell Scroll: Mutual Pain}}
+|[[:Category:Ability Books|Spell Book]]
+|1200
+|-
+|{{ItemLink|Spell Scroll: Void Rend}}
+|[[:Category:Ability Books|Spell Book]]
+|14500
+|-
+|{{ItemLink|Spell Scroll: Enfeeble}}
+|[[:Category:Ability Books|Spell Book]]
+|26500
+|-
+|{{ItemLink|Spell Scroll: Instill Terror}}
+|[[:Category:Ability Books|Spell Book]]
+|15000
+|-
+|{{ItemLink|Spell Scroll: Instill Horror}}
+|[[:Category:Ability Books|Spell Book]]
+|2200
+|-
+|{{ItemLink|Spell Scroll: Quest for Suffering}}
+|[[:Category:Ability Books|Spell Book]]
+|8500
+|-
+|{{ItemLink|Spell Scroll: Suffocation}}
+|[[:Category:Ability Books|Spell Book]]
+|11500
+|-
+|{{ItemLink|Skill Book: Reckless Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|8500
+|-
+|{{ItemLink|Skill Book: Counter-Attack}}
+|[[:Category:Ability Books|Skill Book]]
+|1350
+|}
 
 [[Category:Characters]]
 [[Category:Port Azure]]

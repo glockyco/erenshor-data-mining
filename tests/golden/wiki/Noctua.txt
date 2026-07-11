@@ -2,12 +2,13 @@
 |name=Noctua
 |image=[[File:Noctua.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=
 |spawnchance=5-12%
+|spawntype=
 |respawn=5 minutes
 |level=30
 |levelmodmin=0

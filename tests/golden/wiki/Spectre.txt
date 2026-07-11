@@ -2,12 +2,13 @@
 |name=Spectre
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=29
 |levelmodmin=0
@@ -44,6 +45,7 @@ If a spectre is holding a sword, it will drop a [[Spectral Sword]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=29
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Blight Wyrm
 |image=[[File:Blight Wyrm.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Blight]]
 |coordinates=866.8 x 42.3 x 232.9
 |spawnchance=
+|spawntype=
 |respawn=44 minutes
 |level=40
 |levelmodmin=0

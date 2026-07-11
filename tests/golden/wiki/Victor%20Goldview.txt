@@ -2,12 +2,13 @@
 |name=Victor Goldview
 |image=[[File:Victor Goldview.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=168.9 x 37.8 x 577.9
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=8
 |levelmodmin=0

@@ -1,17 +1,14 @@
-There are two variants of Stonemen. The first is the solid rock variant which uses melee, the magma variant uses magic.
-
-=Notes=
-
 {{Character
 |name=Stoneman
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=19
 |levelmodmin=0
@@ -39,12 +36,13 @@ There are two variants of Stonemen. The first is the solid rock variant which us
 |name=Stoneman
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=19
 |levelmodmin=0
@@ -68,6 +66,10 @@ There are two variants of Stonemen. The first is the solid rock variant which us
 |void=10-23
 |spells=
 }}
+
+There are two variants of Stonemen. The first is the solid rock variant which uses melee, the magma variant uses magic.
+
+=Notes=
 
 [[Category:Enemies]]
 [[Category:Rockshade Hold]]

@@ -2,12 +2,13 @@
 |name=Blunga
 |image=[[File:Blunga.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Brackish Coast Nagaloks]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=96.1 x 59.7 x 609.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=1383
+|health=1144
 |mana=100
 |ac=75
 |strength=100

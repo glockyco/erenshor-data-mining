@@ -2,12 +2,13 @@
 |name=Silk Cobra
 |image=[[File:Silk Cobra.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=15
 |levelmodmin=0

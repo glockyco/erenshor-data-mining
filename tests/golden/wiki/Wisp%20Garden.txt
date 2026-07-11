@@ -16,4 +16,7 @@
 
 {{ItemTooltip|stablekey=item:furniture - wisp garden}}
 
+Allows you to respec proficiencies while in the [[Reliquary Hall]].
+
+[[Category:Furniture]]
 [[Category:Items]]

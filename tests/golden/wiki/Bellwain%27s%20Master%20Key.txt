@@ -15,8 +15,6 @@
 }}
 '''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain bedroom key}}
-
 =Location=
 {{PAGENAME}} is received upon turning in the letters as part of the quest {{QuestLink|link=The Mystery of Bellwain Island}}.
 
@@ -25,6 +23,8 @@
 
 =Bugs=
 * The description of {{PAGENAME}} is incorrect, claiming to be the key to the study.
+
+{{ItemTooltip|stablekey=item:quest - bellwain bedroom key}}
 
 [[Category:Items]]
 [[Category:Keys]]

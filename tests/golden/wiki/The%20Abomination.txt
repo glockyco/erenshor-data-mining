@@ -2,12 +2,13 @@
 |name=The Abomination
 |image=[[File:The Abomination.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+15 [[The Blades of Vitheo]]
 |zones=[[Vitheo's Rest]]
 |coordinates=286.5 x 0.6 x 175.7
 |spawnchance=
+|spawntype=
 |respawn=
 |level=38
 |levelmodmin=0

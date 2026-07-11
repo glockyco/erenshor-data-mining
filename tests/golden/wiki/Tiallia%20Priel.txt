@@ -2,12 +2,13 @@
 |name=Tiallia Priel
 |image=[[File:Tiallia Priel.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]
 |coordinates=968.8 x 56.7 x 344.0
 |spawnchance=75%
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Sapphire Fiend
 |image=[[File:Sapphire Fiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=2-48%
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Headless
 |image=[[File:Headless.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Maple
 |image=[[File:Maple.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=109.2 x 358.0 x 345.4
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

@@ -11,8 +11,8 @@
 |spell_damage_mod=1.0
 |self_damage_per_attack=4.0
 |self_damage_per_cast=
-|lifesteal_amount=1.0
+|lifesteal_amount=
 |resonance_amount=1.0
 |stop_regen=
-|activated_by=
+|activated_by={{AbilityLink|Stance: Reckless}}
 }}

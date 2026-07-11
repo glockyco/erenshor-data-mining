@@ -2,12 +2,13 @@
 |name=Fearantula
 |image=[[File:Fearantula.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=598.2 x 72.1 x 450.6
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=23
 |levelmodmin=0

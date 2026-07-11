@@ -2,12 +2,13 @@
 |name=Vinx
 |image=[[File:Vinx.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=875.3 x 318.8 x 301.6
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=29
 |levelmodmin=0

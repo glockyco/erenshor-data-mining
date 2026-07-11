@@ -2,12 +2,13 @@
 |name=Scorched Skeleton
 |image=[[File:Scorched Skeleton.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=18
 |levelmodmin=0

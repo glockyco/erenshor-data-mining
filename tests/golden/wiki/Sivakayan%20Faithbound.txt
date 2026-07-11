@@ -2,12 +2,13 @@
 |name=Sivakayan Faithbound
 |image=[[File:Sivakayan Faithbound.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

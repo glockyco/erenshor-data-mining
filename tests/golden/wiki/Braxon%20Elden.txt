@@ -2,12 +2,13 @@
 |name=Braxon Elden
 |image=[[File:Braxon Elden.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=100.0 x 33.8 x 993.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=36
 |levelmodmin=0

@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain bathroom key}}
-
 =Location=
 {{PAGENAME}} is found next to the sewing machine in the study as part of the quest {{QuestLink|link=The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} is used to open the bathroom door of the house on [[Bellwain Island]].
+
+{{ItemTooltip|stablekey=item:quest - bellwain bathroom key}}
 
 [[Category:Items]]
 [[Category:Keys]]

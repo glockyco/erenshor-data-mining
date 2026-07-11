@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood living}}
 
+[[Category:Furniture]]
 [[Category:Items]]

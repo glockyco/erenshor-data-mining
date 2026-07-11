@@ -2,12 +2,13 @@
 |name=Aranuil Olaseo
 |image=[[File:Aranuil Olaseo.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Stowaway's Step]]
 |zones=[[Rottenfoot]]
 |coordinates=234.1 x 23.9 x 439.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=14
 |levelmodmin=0

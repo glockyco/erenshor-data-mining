@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vibrant Regrowth
 |type=
 |vendorsource=
-|source=[[Planar Crawler]] (3.1%)<br>[[Planar Faerie]] (2.3%)<br>[[Pack Mother]] (1.4%)<br>[[Planar Cobra]] (1.4%)<br>[[Planar Grizzly]] (1.4%)<br>[[Planar Minotaur]] (1.4%)<br>[[Planar Wolf]] (1.4%)
+|source=[[Planar Crawler]] (3.1%)<br>[[Faerie Trickster]] (2.3%)<br>[[Planar Faerie]] (2.3%)<br>[[Pack Mother]] (1.4%)<br>[[Planar Cobra]] (1.4%)<br>[[Planar Grizzly]] (1.4%)<br>[[Planar Minotaur]] (1.4%)<br>[[Planar Wolf]] (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,12 +2,12 @@
 |title=Sivakaya's Dismay
 |image=[[File:Sivakaya's Dismay.png|thumb]]
 |imagecaption=You feel the presence of Sivakaya
-|description=Targets resists and AC are lowered.
+|description=Lower target's resists by 12 and AC by 100
 |type=StatusEffect
-|line=Generic
-|classes=
-|required_level=5
-|manacost=25
+|line=Global_Magic_Debuff
+|classes=[[Reaver]] (24)
+|required_level=24
+|manacost=400
 |aggro=300
 |is_taunt=
 |casttime=0.3 seconds
@@ -17,7 +17,7 @@
 |has_unstable_duration=
 |is_instant_effect=
 |is_reap_and_renew=
-|is_sim_usable=
+|is_sim_usable=True
 |range=30
 |max_level_target=
 |is_self_only=
@@ -25,7 +25,7 @@
 |is_applied_to_caster=
 |effects=
 |damage_type=
-|resist_modifier=
+|resist_modifier=55
 |target_damage=
 |target_healing=
 |caster_healing=
@@ -50,14 +50,14 @@
 |wis=
 |int=
 |cha=
-|mr=-7
-|er=-7
-|vr=-7
-|pr=-7
+|mr=-12
+|er=-12
+|vr=-12
+|pr=-12
 |haste=
 |resonance=
 |movement_speed=
-|atk_roll_modifier=-4
+|atk_roll_modifier=
 |xp_bonus=
 |is_root=
 |is_stun=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Abominable Ribcage}}<br>{{ItemLink|Ceremonial Ring}}<br>{{ItemLink|Pristine Ceremonial Ring}}
-|source=
+|itemswitheffect={{ItemLink|Ceremonial Ring}}<br>{{ItemLink|Pristine Ceremonial Ring}}
+|source={{ItemLink|Spell Scroll: Sivakaya's Dismay}}
 |used_by=
 }}

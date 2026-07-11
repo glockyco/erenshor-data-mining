@@ -2,12 +2,13 @@
 |name=Spectral Guard
 |image=[[File:Spectral Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=16
 |levelmodmin=0

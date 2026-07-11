@@ -16,4 +16,6 @@
 
 {{ItemTooltip|stablekey=item:gen - inert rune of brax}}
 
+Give this item and an [[Eldrich Crystal]] to [[Elemental Energy]] near the [[Braxonian Planar Guard (Fire)]] and [[Braxonian Planar Guard (Ice)]] in [[Fallen Braxonia]] to receive [[Rune of Elements]].
+
 [[Category:Items]]

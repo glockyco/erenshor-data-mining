@@ -2,12 +2,13 @@
 |name=A Sturdy Skeleton
 |image=[[File:A Sturdy Skeleton.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]<br>[[The Bonepits]]
 |coordinates=
 |spawnchance=20-100% (Faerie's Brake)<br>26-75% (Hidden Hills)<br>10-100% (The Bonepits)
+|spawntype=
 |respawn=3-4 minutes (Faerie's Brake)<br>1 minute (Hidden Hills)<br>3 minutes (The Bonepits)
 |level=6
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=1132
+|health=936
 |mana=0
 |ac=90
 |strength=10

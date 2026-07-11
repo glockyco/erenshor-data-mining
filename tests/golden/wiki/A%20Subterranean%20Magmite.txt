@@ -2,12 +2,13 @@
 |name=A Subterranean Magmite
 |image=[[File:A Subterranean Magmite.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=17
 |levelmodmin=0

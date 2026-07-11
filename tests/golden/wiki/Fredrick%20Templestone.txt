@@ -2,12 +2,13 @@
 |name=Fredrick Templestone
 |image=[[File:Fredrick Templestone.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=233.3 x 27.6 x 332.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=8
 |levelmodmin=0

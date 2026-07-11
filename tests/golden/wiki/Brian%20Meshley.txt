@@ -2,12 +2,13 @@
 |name=Brian Meshley
 |image=[[File:Brian Meshley.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=236.4 x 26.3 x 188.8
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

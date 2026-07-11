@@ -8,6 +8,7 @@
 |zones=[[Soluna's Celestial Plane]]
 |coordinates=353.1 x 345.1 x 994.5
 |spawnchance=
+|spawntype=
 |respawn=33 minutes
 |level=42
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Beth Constantine
 |image=[[File:Beth Constantine.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Soluna's Landing]]
 |coordinates=243.1 x 100.0 x 421.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=15
 |levelmodmin=0

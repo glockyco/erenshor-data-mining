@@ -2,12 +2,13 @@
 |name=Risen Pilgrim
 |image=[[File:Risen Pilgrim.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=4
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=112
+|health=92
 |mana=0
 |ac=60
 |strength=6

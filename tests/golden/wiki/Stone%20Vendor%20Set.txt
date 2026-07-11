@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone vendor}}
 
+[[Category:Furniture]]
 [[Category:Items]]

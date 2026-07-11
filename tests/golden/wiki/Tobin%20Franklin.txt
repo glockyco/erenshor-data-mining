@@ -2,12 +2,13 @@
 |name=Tobin Franklin
 |image=[[File:Tobin Franklin.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Blacksalt Strand]]
 |coordinates=298.1 x 45.0 x 569.4
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

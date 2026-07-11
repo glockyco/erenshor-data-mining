@@ -2,12 +2,13 @@
 |name=Vithean Betrayer
 |image=[[File:Vithean Betrayer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

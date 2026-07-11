@@ -2,12 +2,13 @@
 |name=Isabel Schegg
 |image=[[File:Isabel Schegg.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Stowaway's Step]]
 |coordinates=555.7 x 63.9 x 500.3
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

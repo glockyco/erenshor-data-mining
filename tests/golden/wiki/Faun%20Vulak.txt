@@ -2,12 +2,13 @@
 |name=Faun Vulak
 |image=[[File:Faun Vulak.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=1529.7 x 64.0 x 672.8
 |spawnchance=
+|spawntype=
 |respawn=
 |level=25
 |levelmodmin=0

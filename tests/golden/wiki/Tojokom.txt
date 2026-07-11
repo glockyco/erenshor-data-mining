@@ -2,12 +2,13 @@
 |name=Tojokom
 |image=[[File:Tojokom.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Plane of Valor]]
 |coordinates=478.9 x 25.2 x 441.6
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Vitheo's Plane of Valor]]

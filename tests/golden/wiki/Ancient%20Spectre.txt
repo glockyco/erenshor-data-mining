@@ -2,12 +2,13 @@
 |name=Ancient Spectre
 |image=[[File:Ancient Spectre.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=3%
+|spawntype=
 |respawn=3 minutes
 |level=31
 |levelmodmin=0

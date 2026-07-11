@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood training}}
 
+[[Category:Furniture]]
 [[Category:Items]]

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Brax's Wrath
 |type=
 |vendorsource=
-|source=[[Fire Elemental]] (2.2%)
+|source=[[Fire Elemental]] (2.6%)<br>[[Greater Fire Elemental]] (1.0%)<br>[[Large Fire Elemental]] (1.0%)
 |othersource=
 |questsource=
 |relatedquest=

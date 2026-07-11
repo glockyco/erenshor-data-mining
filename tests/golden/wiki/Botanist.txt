@@ -2,12 +2,13 @@
 |name=Botanist
 |image=[[File:Botanist.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=35
 |levelmodmin=0

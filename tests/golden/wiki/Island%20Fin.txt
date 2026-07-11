@@ -15,8 +15,6 @@
 }}
 '''{{PAGENAME}}''' is a [[Fishing|Fish]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:fish - island fin}}
-
 =Location=
 {{PAGENAME}} can be caught exclusively on [[Bellwain Island]]:
 {| class="wikitable" style="text-align: center"
@@ -37,6 +35,8 @@
 {{PAGENAME}} is used as part of the recipe {{ItemLink|Breaded Island Fin}} in the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 It can also be consumed raw to activate {{AbilityLink|Nourished}}.
+
+{{ItemTooltip|stablekey=item:fish - island fin}}
 
 [[Category:Consumables]]
 [[Category:Fishing]]

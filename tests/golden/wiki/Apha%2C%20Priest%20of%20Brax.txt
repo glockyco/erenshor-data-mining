@@ -2,12 +2,13 @@
 |name=Apha, Priest of Brax
 |image=[[File:Apha, Priest of Brax.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]
 |coordinates=477.2 x 47.6 x 1093.1
 |spawnchance=55%
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

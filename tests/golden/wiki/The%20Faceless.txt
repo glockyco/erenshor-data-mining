@@ -26,7 +26,7 @@ Each enemy drops the level 35 skill book for their respective class.
 ! Skill
 |-
 | [[Assassin of Sivakaya]]
-| [[Duelist]]
+| [[Windblade]]
 | {{ItemLink|Skill Book: Crippling Blow}}
 | {{AbilityLink|Crippling Blow}}
 |-
@@ -49,6 +49,11 @@ Each enemy drops the level 35 skill book for their respective class.
 | [[Druid]]
 | {{ItemLink|Skill Book: Reap and Renew}}
 | {{AbilityLink|Reap and Renew}}
+|-
+| [[Reaver of Sivakaya]]
+| [[Reaver]]
+| {{ItemLink|Skill Book: Void Slice}}
+| {{AbilityLink|Void Slice}}
 |}
 
 [[Category:Items]]

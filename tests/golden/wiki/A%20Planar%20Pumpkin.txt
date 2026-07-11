@@ -8,8 +8,8 @@
 |relatedquest=
 |craftsource=
 |componentfor=
-|buy=200000
-|sell=130000
+|buy=50000
+|sell=32500
 |taughtspell=
 |taughtskill=
 }}

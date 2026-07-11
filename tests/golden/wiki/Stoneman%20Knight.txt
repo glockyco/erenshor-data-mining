@@ -2,12 +2,13 @@
 |name=Stoneman Knight
 |image=[[File:Stoneman Knight.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0

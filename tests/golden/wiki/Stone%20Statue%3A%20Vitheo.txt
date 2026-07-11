@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone statue vitheo}}
 
+[[Category:Furniture]]
 [[Category:Items]]

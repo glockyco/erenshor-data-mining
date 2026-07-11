@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - game r oom}}
 
+[[Category:Furniture]]
 [[Category:Items]]

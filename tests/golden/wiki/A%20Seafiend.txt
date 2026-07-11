@@ -2,12 +2,13 @@
 |name=A Seafiend
 |image=[[File:A Seafiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=10
 |levelmodmin=0
@@ -42,6 +43,7 @@
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=10
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Nightmarian Arcanist
 |image=[[File:Nightmarian Arcanist.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=20
 |levelmodmin=0

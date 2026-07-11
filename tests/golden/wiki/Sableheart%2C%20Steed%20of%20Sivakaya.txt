@@ -2,12 +2,13 @@
 |name=Sableheart, Steed of Sivakaya
 |image=[[File:Sableheart, Steed of Sivakaya.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=1724.5 x -40.1 x -1.6
 |spawnchance=
+|spawntype=
 |respawn=17 minutes
 |level=40
 |levelmodmin=0

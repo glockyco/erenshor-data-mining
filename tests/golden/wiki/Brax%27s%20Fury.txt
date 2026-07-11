@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Cleansing Brace}}<br>{{ItemLink|Droplet of Lava}}<br>{{ItemLink|Monarch's Blade}}<br>{{ItemLink|Obsidian Edge}}<br>{{ItemLink|Volcanic Shield}}
 |source={{ItemLink|Spell Scroll: Brax's Fury}}
-|used_by=[[Arcane Headmaster]]<br>[[Arcane Pupil]]<br>[[Braxonian Tempest]]<br>[[Fenton the Blighted]]<br>[[Fire Elemental]]<br>[[Greater Fire Elemental]]<br>[[Historian of Braxonia]]<br>[[Juctin Mysia]]<br>[[Katia Marado]]<br>[[Larviso Poltir]]<br>[[Nashen Glazier]]<br>[[Neia Tarmath]]<br>[[Statue of Brax]]<br>[[Stoneman Seeker]]<br>[[Torado Zortia]]<br>[[Wardkeeper Rossi]]<br>[[Wishlan the Savior]]
+|used_by=[[Arcane Headmaster]]<br>[[Arcane Pupil]]<br>[[Braxonian Tempest]]<br>[[Fenton the Blighted]]<br>[[Fire Elemental]]<br>[[Greater Fire Elemental]]<br>[[Historian of Braxonia]]<br>[[Juctin Mysia]]<br>[[Katia Marado]]<br>[[Large Fire Elemental]]<br>[[Larviso Poltir]]<br>[[Nashen Glazier]]<br>[[Neia Tarmath]]<br>[[Statue of Brax]]<br>[[Stoneman Seeker]]<br>[[Torado Zortia]]<br>[[Wardkeeper Rossi]]<br>[[Wishlan the Savior]]
 }}

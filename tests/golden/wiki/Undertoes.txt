@@ -2,12 +2,13 @@
 |name=Undertoes
 |image=[[File:Undertoes.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=161.5 x 66.6 x 270.9
 |spawnchance=50%
+|spawntype=
 |respawn=5 minutes
 |level=31
 |levelmodmin=0

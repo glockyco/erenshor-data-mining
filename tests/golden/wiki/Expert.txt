@@ -1,7 +1,7 @@
 {{Stance
 |title=Expert
 |image=[[File:Expert.png|thumb]]
-|description=Gain a 33% increase to physical and magical damage dealt.<br><br>Your focus on offense stops all natural health regeneration.
+|description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
 |switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
 |damage_mod=1.33

@@ -6,8 +6,9 @@
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Celestial Plane]]
-|coordinates=
+|coordinates=305.8 x 327.1 x 646.7<br>331.4 x 327.1 x 646.7
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0

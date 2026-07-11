@@ -2,12 +2,13 @@
 |name=Coiling Dusker
 |image=[[File:Coiling Dusker.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=1 minute
 |level=32
 |levelmodmin=0

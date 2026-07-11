@@ -316,7 +316,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |2
 |
 |
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Braxonian Spaulders}}
 |Arm
@@ -1020,7 +1020,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |40
 |25
 |40
-|
+|20
 |20
 |
 |
@@ -1029,7 +1029,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |
 |
 |11
-|On click: {{AbilityLink|Sivakaya's Dismay}}
+|
 |[[Reaver]], [[Stormcaller]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Abyssal Shell}}
@@ -2059,7 +2059,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |3
 |
 |Worn: {{AbilityLink|Blessing of Brax}}
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Blessed Braxonian Bracer}}
 |Bracer
@@ -2206,7 +2206,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |2
 |
 |
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Braxonian Bracer}}
 |Bracer
@@ -3592,7 +3592,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |7
 |5
 |
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Braxonian Wrap}}
 |Chest
@@ -4873,7 +4873,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |5
 |1
 |
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Charred Boots}}
 |Foot
@@ -6846,7 +6846,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |4
 |4
 |4
-|On click: {{AbilityLink|Summon Skeleton}}
+|Worn: {{AbilityLink|Dark Sight}}
 |[[Paladin]], [[Reaver]]
 |-
 |style="text-align: left;"|{{ItemLink|Explorer's Cap}}
@@ -7834,7 +7834,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |4
 |
 |
-|[[Arcanist]], [[Stormcaller]]
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Bronzed Solunarian Greaves}}
 |Leg
@@ -8737,7 +8737,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |22
 |22
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Amulet of Azure}}
 |Neck

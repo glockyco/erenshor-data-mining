@@ -2,12 +2,13 @@
 |name=Risen Druid
 |image=[[File:Risen Druid.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=14
 |levelmodmin=0

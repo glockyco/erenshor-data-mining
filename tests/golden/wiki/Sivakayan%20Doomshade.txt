@@ -2,12 +2,13 @@
 |name=Sivakayan Doomshade
 |image=[[File:Sivakayan Doomshade.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=36
 |levelmodmin=0

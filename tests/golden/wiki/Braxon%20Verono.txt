@@ -1,0 +1,37 @@
+{{Character
+|name=Braxon Verono
+|image=[[File:Braxon Verono.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Windwashed Pass]]
+|coordinates=912.7 x 69.1 x 531.1
+|spawnchance=
+|spawntype=
+|respawn=5 minutes
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5688
+|mana=100
+|ac=270
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Windwashed Pass]]

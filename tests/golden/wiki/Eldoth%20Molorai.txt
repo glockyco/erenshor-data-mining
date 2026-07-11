@@ -4,12 +4,13 @@
 |name=Eldoth Molorai
 |image=[[File:Eldoth Molorai.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=623.1 x 109.4 x 496.8
 |spawnchance=
+|spawntype=
 |respawn=42 minutes
 |level=43
 |levelmodmin=0
@@ -60,7 +61,7 @@ Each of the Flickers are immune to damage until given a {{ItemLink|Riftsnare Gem
 *[[Exalted Firebone]], on the second floor of the castle in the middle room.
 *[[Oracle Miress]], in the room to the left when facing Exalted Firebone.
 *[[Oracle Tretha]], on the balcony on the top floor of the castle.
-Each Flicker of Souls destroyed weakens {{PAGENAME}}, up to a maximum of four times. Players will need to work quickly, however, as they will respawn 50 minutes (27 minutes and 30 seconds if in a party of three or four) after they've been destroyed and subsequently grant {{PAGENAME}} his power back.<br><br>
+Each Flicker of Souls destroyed weakens {{PAGENAME}}, up to a maximum of four times. Players will need to work quickly, however, as they will respawn about 28 minutes (in a full group of 5) after they've been destroyed and subsequently grant {{PAGENAME}} his power back.<br><br>
 
 When fighting {{PAGENAME}}, be aware of his innate lifesteal: if your DPS is not high enough to counteract his healing, you will need to [[Item Quality|upgrade]] your gear or gain additional levels before challenging him again. Even after being weakened, {{PAGENAME}} still hits hard, but does not use any special skills or abilities. With enough damage and a tank able to withstand his hits, {{PAGENAME}} will eventually fall.
 

@@ -2,12 +2,13 @@
 |name=Catnip (Enemy)
 |image=[[File:Catnip (Enemy).png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=173
+|health=143
 |mana=0
 |ac=75
 |strength=42

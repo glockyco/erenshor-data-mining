@@ -2,12 +2,13 @@
 |name=Braxonian Ascended
 |image=[[File:Braxonian Ascended.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=8 minutes
 |level=29
 |levelmodmin=0

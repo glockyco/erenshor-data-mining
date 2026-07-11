@@ -2,12 +2,13 @@
 |name=Dusken Giant
 |image=[[File:Dusken Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=1%
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

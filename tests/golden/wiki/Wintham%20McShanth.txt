@@ -2,12 +2,13 @@
 |name=Wintham McShanth
 |image=[[File:Wintham McShanth.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=1260.0 x -12.4 x 572.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0
@@ -67,6 +68,7 @@ Prompts:
 |zones=[[Port Azure]]
 |coordinates=146.4 x 26.3 x 348.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

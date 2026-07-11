@@ -8,6 +8,7 @@
 |zones=[[Reliquary Hall]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=926 minutes
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=1729
+|health=1430
 |mana=0
 |ac=75
 |strength=3

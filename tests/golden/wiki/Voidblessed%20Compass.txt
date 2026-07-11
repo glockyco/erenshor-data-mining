@@ -16,4 +16,6 @@
 
 {{ItemTooltip|stablekey=item:gen - voidbound compass}}
 
+When this item is used in [[The Blight]], it will dispel the fog effect so you can see far more clearly.
+
 [[Category:Items]]

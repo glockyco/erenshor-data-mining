@@ -2,12 +2,13 @@
 |name=Swamp Wyrm
 |image=[[File:Swamp Wyrm.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=348.9 x 23.0 x 134.5
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=34
 |levelmodmin=0

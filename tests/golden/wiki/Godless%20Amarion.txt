@@ -14,8 +14,6 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:book - godless amarion}}
-
 Godless Amarion
 
 Sivakaya had recognized Azynthi’s extraordinary talent from the moment he set foot upon her school’s ancient stone walkways. Through his lessons, she witnessed his power take hold of him in a way it does for only the most gifted arcanists. His eyes flowed to and fro, as though energized by a presence of mana itself, and the world seemed to bend to his very thoughts as he passed through the hallowed stone halls of that place.
@@ -53,6 +51,8 @@ War began as Brax’s followers clashed with the corrupted and broken Sivakayans
 After years of conflict to salvage Amarion, culminating in a Braxonian victory to repel Sivakaya to the North, Brax’s win did not come without further tragedy—his children Fernalla and Vitheo were both felled through battle or treachery, and though their demises resulted in an ascent to divinity, Brax mourned their losses.
 
 Brax had become angry and distant, all but abandoning the land. The world he and Sivakaya had created as a beacon of light and hope was eclipsed by Sivakaya’s embodiment of darkness. Brax’s people lay buried beneath the sands, and Sivakaya’s followers were ruined by her curse. Unable to bear further sight of their crumbling shared creation, Brax turned away, leaving the world to its fate.
+
+{{ItemTooltip|stablekey=item:book - godless amarion}}
 
 [[Category:Books]]
 [[Category:Items]]

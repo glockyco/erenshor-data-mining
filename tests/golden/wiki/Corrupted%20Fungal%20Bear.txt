@@ -8,6 +8,7 @@
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=2-33%
+|spawntype=
 |respawn=5 minutes
 |level=34
 |levelmodmin=0

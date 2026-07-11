@@ -2,12 +2,13 @@
 |name=Wardwarped Gorilla
 |image=[[File:Wardwarped Gorilla.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=34
 |levelmodmin=0

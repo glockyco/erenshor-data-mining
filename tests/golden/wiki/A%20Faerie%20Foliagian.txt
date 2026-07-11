@@ -2,12 +2,13 @@
 |name=A Faerie Foliagian
 |image=[[File:A Faerie Foliagian.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Ripper's Keep]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

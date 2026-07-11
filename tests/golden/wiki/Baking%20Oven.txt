@@ -2,12 +2,13 @@
 |name=Baking Oven
 |image=[[File:Baking Oven.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Bellwain Island]]<br>[[Port Azure]]<br>[[Prielian Cascade]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=35
 |levelmodmin=0

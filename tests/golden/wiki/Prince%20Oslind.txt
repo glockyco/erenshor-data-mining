@@ -2,12 +2,13 @@
 |name=Prince Oslind
 |image=[[File:Prince Oslind.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=145.4 x 59.5 x 593.7
 |spawnchance=66%
+|spawntype=
 |respawn=8 minutes
 |level=32
 |levelmodmin=0

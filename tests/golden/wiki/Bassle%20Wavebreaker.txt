@@ -2,12 +2,13 @@
 |name=Bassle Wavebreaker
 |image=[[File:Bassle Wavebreaker.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=68.1 x 12.1 x 195.5
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

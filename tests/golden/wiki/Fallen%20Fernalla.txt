@@ -4,12 +4,13 @@
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase Three Version
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+35 [[Fernalla's Children]]<br>+35 [[The Blades of Vitheo]]<br>-100 [[The Children of Sivakaya]]<br>+35 [[The Torchbearers of Brax]]
 |zones=[[Blooming Sepulcher]]
 |coordinates=689.0 x 259.7 x 870.1
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=40
 |levelmodmin=0
@@ -38,12 +39,13 @@
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase One Version
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=689.0 x 259.7 x 870.1
 |spawnchance=
+|spawntype=
 |respawn=15 minutes
 |level=39
 |levelmodmin=0
@@ -98,4 +100,3 @@ Upon defeat, she will utter the phrase "You... you have freed my body from the d
 [[Category:Blooming Sepulcher]]
 [[Category:Bosses]]
 [[Category:Enemies]]
-[[Category:blooming Sepulcher]]

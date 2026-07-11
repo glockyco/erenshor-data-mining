@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+When you complete the quest{{QuestLink|link=Find The Hider}}, [[The Hider]] will give you this item.
 
 {{ItemTooltip|stablekey=item:gen - instructions for warmth}}
-
-When you complete the quest{{QuestLink|link=Find The Hider}}, [[The Hider]] will give you this item.
 
 The recipe calls for:
 

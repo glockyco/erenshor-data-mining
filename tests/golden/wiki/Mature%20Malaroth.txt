@@ -2,12 +2,13 @@
 |name=Mature Malaroth
 |image=[[File:Mature Malaroth.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=22
 |levelmodmin=0

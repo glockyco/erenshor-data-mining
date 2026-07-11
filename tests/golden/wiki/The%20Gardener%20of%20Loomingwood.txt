@@ -2,12 +2,13 @@
 |name=The Gardener of Loomingwood
 |image=[[File:The Gardener of Loomingwood.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=185.9 x 46.1 x 842.4
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=30
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Enterprising Spirit
 |image=[[File:Enterprising Spirit.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=701.4 x 24.8 x 440.0
 |spawnchance=
+|spawntype=
 |respawn=
 |level=35
 |levelmodmin=0

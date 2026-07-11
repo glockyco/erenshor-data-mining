@@ -14,11 +14,11 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:gen - willow seed fernalla}}
-
 Needed for the quest [[Willow Seeds]]. It is located at coordinates X: 573 x Y: 45.36 x Z: 433.75 on a pillar near the [[Risen Druid|risen druids]] in [[Fernalla's Revival Plains]].
 
 [[File:Fernalla Willow Seed Location.png|left|thumb|400px]]
+
+{{ItemTooltip|stablekey=item:gen - willow seed fernalla}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

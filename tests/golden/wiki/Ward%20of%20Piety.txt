@@ -2,12 +2,13 @@
 |name=Ward of Piety
 |image=[[File:Ward of Piety.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=99
 |levelmodmin=0
@@ -56,6 +57,7 @@ Prompts:
 |zones=[[Jaws of Sivakaya]]
 |coordinates=1461.7 x -18.3 x 109.8
 |spawnchance=
+|spawntype=
 |respawn=
 |level=99
 |levelmodmin=0

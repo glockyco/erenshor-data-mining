@@ -2,12 +2,13 @@
 |name=A Rock Minion
 |image=[[File:A Rock Minion.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=804.7 x 27.0 x 1058.9
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=17
 |levelmodmin=0

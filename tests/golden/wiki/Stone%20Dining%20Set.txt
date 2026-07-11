@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone dining}}
 
+[[Category:Furniture]]
 [[Category:Items]]

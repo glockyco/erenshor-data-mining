@@ -2,12 +2,13 @@
 |name=Shambler
 |image=[[File:Shambler.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=29
 |levelmodmin=0

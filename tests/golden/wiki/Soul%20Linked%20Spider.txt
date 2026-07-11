@@ -2,12 +2,13 @@
 |name=Soul Linked Spider
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=-63.5 x -68.7 x 93.8
 |spawnchance=
+|spawntype=
 |respawn=
 |level=24
 |levelmodmin=0
@@ -32,18 +33,17 @@
 |spells=
 }}
 
-----
-
 {{Character
 |name=Soul Linked Spider
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=-92.2 x -68.7 x 93.8
 |spawnchance=
+|spawntype=
 |respawn=
 |level=24
 |levelmodmin=0
@@ -68,18 +68,17 @@
 |spells=
 }}
 
-----
-
 {{Character
 |name=Soul Linked Spider
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=-92.2 x -68.7 x 123.0
 |spawnchance=
+|spawntype=
 |respawn=
 |level=24
 |levelmodmin=0
@@ -104,18 +103,17 @@
 |spells=
 }}
 
-----
-
 {{Character
 |name=Soul Linked Spider
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=-63.5 x -68.7 x 123.3
 |spawnchance=
+|spawntype=
 |respawn=
 |level=24
 |levelmodmin=0

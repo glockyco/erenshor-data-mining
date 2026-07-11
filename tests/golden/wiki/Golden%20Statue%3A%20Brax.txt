@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - gold statue brax}}
 
+[[Category:Furniture]]
 [[Category:Items]]

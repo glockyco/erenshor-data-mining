@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Frostbite}}
 |source={{ItemLink|Spell Scroll: Ice Meteor}}
-|used_by=[[Greater Ice Elemental]]<br>[[Ice Elemental]]
+|used_by=[[Greater Ice Elemental]]<br>[[Ice Elemental]]<br>[[Large Ice Elemental]]
 }}

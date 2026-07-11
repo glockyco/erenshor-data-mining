@@ -2,12 +2,13 @@
 |name=Lost Treasure (10-20)
 |image=[[File:Lost Treasure.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Treasure Hunting]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=1
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=17289998
+|health=14299998
 |mana=0
 |ac=15
 |strength=3
@@ -32,7 +33,7 @@
 |spells=
 }}
 =Location=
-Giving the four pieces of a {{ItemLink|Torn Treasure Map (Top Right)|image=Torn Treasure Map.png|text=Torn Treasure Map}} to [[Cecil Threbb]] rewards players with a {{ItemLink|Treasure Map}}, allowing them to go on a [[Treasure Hunting|Treasure Hunt]]. Using this map between levels '''10 - 20''' will reveal the location of a Lost Treasure in one of the following locations:
+Giving the four pieces of a {{ItemLink|Torn Treasure Map (Top Right)|image=Torn Treasure Map.png|text=Torn Treasure Map}} to [[Cecil Threbb]] rewards players with a {{ItemLink|Treasure Map}}, allowing them to go on a [[Treasure Hunting|Treasure Hunt]]. Using this map at levels '''10 - 19''' will reveal the location of a Lost Treasure in one of the following locations:
 *[[Hidden Hills]]
 *[[Faerie's Brake]]
 *[[Fernalla's Revival Plains]]
@@ -41,7 +42,7 @@ Giving the four pieces of a {{ItemLink|Torn Treasure Map (Top Right)|image=Torn 
 The location where the Lost Treasure is buried appears as a pile of leaves and dirt with a golden aura.
 
 =Behavior=
-Interacting with the dirt will reveal a chest. Attacking the chest will spawn a wave of enemies which scale with the player's level. There are '''2 to 5 waves''' in total. They will consist of any combination of '''3 to 5''' of the following enemies:
+Interacting with the dirt will reveal a chest. Attacking the chest will spawn a wave of enemies which scale with the player's level. There are '''up to 3''' in total. They will consist of any combination of '''3 or 4''' of the following enemies:
 *[[Ancient Skeleton]]
 *[[Ancient Demon]]
 *[[Ancient Horror]]

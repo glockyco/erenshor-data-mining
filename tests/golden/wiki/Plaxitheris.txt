@@ -2,12 +2,13 @@
 |name=Plaxitheris
 |image=[[File:Plaxitheris.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=319.1 x 77.0 x 582.7
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=7
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=0
 |levelvariancemax=0
 |xpmultiplier=1.0
-|health=3804
+|health=3146
 |mana=0
 |ac=105
 |strength=10

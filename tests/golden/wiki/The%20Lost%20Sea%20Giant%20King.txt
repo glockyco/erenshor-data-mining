@@ -2,12 +2,13 @@
 |name=The Lost Sea Giant King
 |image=[[File:The Lost Sea Giant King.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=423.2 x 16.9 x 410.8
 |spawnchance=80%
+|spawntype=
 |respawn=4 minutes
 |level=12
 |levelmodmin=0

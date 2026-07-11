@@ -8,6 +8,7 @@
 |zones=[[Port Azure]]
 |coordinates=275.5 x 26.0 x 210.0
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=15
 |levelmodmin=0
@@ -31,6 +32,94 @@
 |void=8-18
 |spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
 }}
+
+Breena Carpenter is the furniture vendor in [[Port Azure]]. She sells a selection of wood furniture for the [[Reliquary Hall]] at baseline, and can be given [[blueprints]] in order to expand her inventory to sell more furniture items.
+
+{| class="wikitable"
+|+Default Store Inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Wood Auction Set}}
+|[[Furniture]]
+|125000
+|-
+|{{ItemLink|Wood Bank Set}}
+|[[Furniture]]
+|125000
+|-
+|{{ItemLink|Wood Dining Set}}
+|[[Furniture]]
+|1000
+|-
+|{{ItemLink|Wood Livingroom Set}}
+|[[Furniture]]
+|1000
+|-
+|{{ItemLink|Wood Training Set}}
+|[[Furniture]]
+|10000
+|-
+|{{ItemLink|Wood Vendor Set}}
+|[[Furniture]]
+|55000
+|}
+
+{| class="wikitable"
+|+Unlocked by Blueprint
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Azynthian Dining Set}}
+|[[Furniture]]
+|25000
+|-
+|{{ItemLink|Azynthian Livingroom Set}}
+|[[Furniture]]
+|25000
+|-
+|{{ItemLink|Azynthian Resting place}}
+|[[Furniture]]
+|85000
+|-
+|{{ItemLink|Game Room}}
+|[[Furniture]]
+|45000
+|-
+|{{ItemLink|Loomingwood Market Set}}
+|[[Furniture]]
+|850000
+|-
+|{{ItemLink|Loomingwood Shrine Set}}
+|[[Furniture]]
+|25000
+|-
+|{{ItemLink|Stone Auction Set}}
+|[[Furniture]]
+|245000
+|-
+|{{ItemLink|Stone Bank Set}}
+|[[Furniture]]
+|245000
+|-
+|{{ItemLink|Stone Dining Set}}
+|[[Furniture]]
+|3500
+|-
+|{{ItemLink|Stone Fountain Set}}
+|[[Furniture]]
+|3500
+|-
+|{{ItemLink|Stone Training Set}}
+|[[Furniture]]
+|100000
+|-
+|{{ItemLink|Stone Vendor Set}}
+|[[Furniture]]
+|200000
+|}
 
 [[Category:Characters]]
 [[Category:Port Azure]]

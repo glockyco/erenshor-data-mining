@@ -2,12 +2,13 @@
 |name=Alitho Echeswer
 |image=[[File:Alitho Echeswer.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>-30 [[The Citizens of Erenshor]]<br>-30 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=206.9 x 27.1 x 202.3
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=15
 |levelmodmin=0

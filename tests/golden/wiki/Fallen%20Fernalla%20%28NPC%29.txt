@@ -4,12 +4,13 @@ For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla NPC.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=788.3 x 255.0 x 837.3
 |spawnchance=
+|spawntype=
 |respawn=
 |level=28
 |levelmodmin=0
@@ -35,12 +36,12 @@ For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]
 }}
 
 ==Fallen Fernalla (NPC)==
-Fallen Fernalla offers the final step of the "A Dying Wish" quest chain, {{QuestLink|link=A Dying Wish (Quest)#Part_Four{{!}}A Dying Wish, Pt. 4}}.
+Fallen Fernalla offers the final step of the "A Dying Wish" quest chain, {{QuestLink|A Dying Wish, Part 4}}.
 
 Greeting message:
 {| class="wikitable"
 |Child, you have my deepest gratitude for all you have done... yet there is still more to be faced. My body stands before you as a remnant of what it once was. Hollow and riddled with unnatural darkness and guilt. <span style="color: #15e300;">[Vitheo]</span> cannot rest, nor can I.<br>
-<i>This will start {{QuestLink|link=A Dying Wish (Quest)#Part_Four{{!}}A Dying Wish, Pt. 4}}</i>
+<i>This will start {{QuestLink|A Dying Wish, Part 4}}</i>
 |}
 
 Prompts:

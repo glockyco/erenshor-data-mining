@@ -2,12 +2,13 @@
 |name=Wild Ancestral Dog
 |image=[[File:Wild Ancestral Dog.png|thumb]]
 |imagecaption=A bit ruff around the edges
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

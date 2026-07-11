@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone statue fernalla}}
 
+[[Category:Furniture]]
 [[Category:Items]]

@@ -2,12 +2,13 @@
 |name=Kio the Darkbringer
 |image=[[File:Kio the Darkbringer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=781.4 x 34.6 x 654.8
 |spawnchance=
+|spawntype=
 |respawn=14 minutes
 |level=24
 |levelmodmin=0
@@ -34,7 +35,7 @@
 
 Kio the Darkbringer will only appear when you change the lighthouse flame from red to blue using the {{ItemLink|Blue Burnstone}}.
 
-Kio the Darkbringer has a unique mechanic when the blue light from the lighthouse touches him he begins to heal.
+Kio the Darkbringer has a unique mechanic when the blue light from the lighthouse touches him he begins to heal. During the fight, he will heal 3 times with the light from the lighthouse, then the flames burn out and he can no longer use it to heal.
 
 =Notes=
 

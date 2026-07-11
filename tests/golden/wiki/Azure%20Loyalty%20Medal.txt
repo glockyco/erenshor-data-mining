@@ -4,7 +4,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (2)}}<br>{{QuestLink|Sivakayans in Port Azure Pt. 2}}
+|questsource={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure Pt. 2}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (2)}}
 |relatedquest=
 |craftsource=
 |componentfor=

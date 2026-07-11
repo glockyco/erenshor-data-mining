@@ -2,13 +2,14 @@
 |name=Vithean Immortal
 |image=[[File:Vithean Immortal.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Plane of Valor]]
-|coordinates=578.1 x 51.3 x 543.6
-|spawnchance=1%
-|respawn=9 minutes
+|coordinates=516.8 x 25.2 x 516.2<br>564.6 x 25.2 x 492.7
+|spawnchance=
+|spawntype=Dynamic event spawn
+|respawn=5 minutes
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -42,6 +43,7 @@
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=34
 |levelmodmin=0
@@ -66,7 +68,6 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Vitheo's Plane of Valor]]
 [[Category:Vitheo's Rest]]

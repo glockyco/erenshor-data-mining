@@ -2,12 +2,13 @@
 |name=Loomingwood Minotaur Soldier
 |image=[[File:Loomingwood Minotaur Soldier.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]<br>[[Malaroth's Nesting Grounds]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=23
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Sylvan Giant
 |image=[[File:Sylvan Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=1% (Fernalla's Revival Plains)<br>25% (Silkengrass Meadowlands)
+|spawntype=
 |respawn=5 minutes (Fernalla's Revival Plains)<br>4 minutes (Silkengrass Meadowlands)
 |level=32
 |levelmodmin=0

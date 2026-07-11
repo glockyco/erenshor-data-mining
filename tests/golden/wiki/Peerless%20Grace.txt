@@ -1,6 +1,6 @@
 {{Ability
-|title=Peerless Haste
-|image=[[File:Peerless Haste.png|thumb]]
+|title=Peerless Grace
+|image=[[File:Peerless Grace.png|thumb]]
 |imagecaption=You feel unmatched in all things
 |description=Increase attack speed and hit chance
 |type=Beneficial

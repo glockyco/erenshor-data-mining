@@ -13,9 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+Hand to [[Hadden Passican]] to complete {{QuestLink|link=Hadden's Supplies{{!}}Hadden's Supplies 2}}
 
 {{ItemTooltip|stablekey=item:gen - leena's receipt}}
-Hand to [[Hadden Passican]] to complete {{QuestLink|link=Hadden's Supplies{{!}}Hadden's Supplies 2}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

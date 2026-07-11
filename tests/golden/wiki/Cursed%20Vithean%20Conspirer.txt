@@ -2,12 +2,13 @@
 |name=Cursed Vithean Conspirer
 |image=[[File:Cursed Vithean Conspirer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=31
 |levelmodmin=0

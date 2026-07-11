@@ -2,12 +2,13 @@
 |name=Illian Asboth
 |image=[[File:Illian Asboth.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-2 [[The Agents of The Wisp]]<br>-2 [[The Solunarian Brotherhood]]
 |zones=[[Soluna's Landing]]
 |coordinates=217.5 x 74.4 x 251.3
 |spawnchance=
+|spawntype=
 |respawn=
 |level=22
 |levelmodmin=0

@@ -8,6 +8,7 @@
 |zones=[[Vitheo's Plane of Valor]]
 |coordinates=478.9 x 25.2 x 441.6
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0

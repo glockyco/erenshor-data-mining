@@ -2,12 +2,13 @@
 |name=Brood Mother
 |image=[[File:Brood Mother.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]
 |coordinates=108.9 x 17.6 x 532.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=31
 |levelmodmin=0

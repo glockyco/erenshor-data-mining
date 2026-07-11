@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone bank}}
 
+[[Category:Furniture]]
 [[Category:Items]]

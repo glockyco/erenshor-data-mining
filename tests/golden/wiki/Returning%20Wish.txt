@@ -2,7 +2,7 @@
 |title=Returning Wish
 |image=[[File:Returning Wish.png|thumb]]
 |imagecaption=You step into a conjured portal
-|description=Teleport you and your party to your current Wishing Well
+|description=Teleport you and your party to your current respawn location
 |type=Misc
 |line=Generic
 |classes=

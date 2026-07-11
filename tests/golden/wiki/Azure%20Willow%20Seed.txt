@@ -14,11 +14,11 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:gen - willow seed azure}}
-
 Needed for the quest [[Willow Seeds]]. It is located at coordinates X: 273.44 x Y: 39.51 x Z: 232.64 on top of a building in [[Port Azure]].
 
 [[File:Azure Willow Seed Location.png|left|thumb|400px]]
+
+{{ItemTooltip|stablekey=item:gen - willow seed azure}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

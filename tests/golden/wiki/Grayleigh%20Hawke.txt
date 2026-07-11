@@ -2,12 +2,13 @@
 |name=Grayleigh Hawke
 |image=[[File:Grayleigh Hawke.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Blades of Vitheo]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=285.7 x 17.1 x 321.6
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=25
 |levelmodmin=0

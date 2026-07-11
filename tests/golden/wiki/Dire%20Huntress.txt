@@ -2,12 +2,13 @@
 |name=Dire Huntress
 |image=[[File:Dire Huntress.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=3-25%
+|spawntype=
 |respawn=4 minutes
 |level=25
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Comstock Retalio
 |image=[[File:Comstock Retalio.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-20 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]
 |coordinates=743.2 x 43.6 x 203.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=8
 |levelmodmin=0

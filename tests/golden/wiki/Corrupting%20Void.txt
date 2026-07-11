@@ -69,3 +69,5 @@
 |source=
 |used_by=
 }}
+
+Proc that results from {{AbilityLink|Void Slice}}

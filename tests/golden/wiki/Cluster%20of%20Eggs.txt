@@ -8,6 +8,7 @@
 |zones=[[Plane of the Willow]]
 |coordinates=1724.6 x 3.2 x 445.0
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=35
 |levelmodmin=0

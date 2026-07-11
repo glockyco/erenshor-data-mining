@@ -2,12 +2,13 @@
 |name=Darkwarden Ilyth
 |image=[[File:Darkwarden Ilyth.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Vitheo's Rest]]
 |coordinates=172.4 x 25.5 x 368.9
 |spawnchance=
+|spawntype=
 |respawn=15 minutes
 |level=39
 |levelmodmin=0

@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood auction}}
 
+[[Category:Furniture]]
 [[Category:Items]]

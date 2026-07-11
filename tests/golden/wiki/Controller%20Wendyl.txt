@@ -2,12 +2,13 @@
 |name=Controller Wendyl
 |image=[[File:Controller Wendyl.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=705.3 x 21.3 x 506.2
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

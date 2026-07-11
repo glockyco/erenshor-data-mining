@@ -2,12 +2,13 @@
 |name=Sivakayan Shadow
 |image=[[File:Sivakayan Shadow.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=24
 |levelmodmin=0

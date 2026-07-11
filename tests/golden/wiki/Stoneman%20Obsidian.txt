@@ -2,12 +2,13 @@
 |name=Stoneman Obsidian
 |image=[[File:Stoneman Obsidian.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

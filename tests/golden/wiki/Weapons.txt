@@ -1330,7 +1330,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2H Melee
 |42
 |38
-|1.4
+|1.32
 |800
 |275
 |55
@@ -1497,7 +1497,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |Primary - 2-Handed
 |2H Melee
 |42
-|40
+|41
 |1.4
 |1100
 |450
@@ -1883,23 +1883,47 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |42
 |
 |
-|350
+|400
 |200
 |5
 |5
 |5
 |
 |
-|30
+|40
 |30
 |30
 |3
-|6
-|6
-|6
+|8
+|8
+|8
+|10
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Letters and Words}}
+|Primary or Secondary
+|
+|42
+|
+|
+|400
+|200
+|5
+|5
+|5
+|
+|
+|40
+|30
+|30
+|3
+|8
+|8
+|8
 |10
 |On click: {{AbilityLink|Enlightened Path IV}}
-|[[Arcanist]], [[Druid]]
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
 |-
 |style="text-align: left;"|{{ItemLink|Pearlescent Kelp Totem}}
 |Primary or Secondary

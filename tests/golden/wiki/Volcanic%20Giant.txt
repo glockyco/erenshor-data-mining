@@ -2,12 +2,13 @@
 |name=Volcanic Giant
 |image=[[File:Volcanic Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=434.8 x 122.9 x 418.4
 |spawnchance=
+|spawntype=
 |respawn=14 minutes
 |level=27
 |levelmodmin=0

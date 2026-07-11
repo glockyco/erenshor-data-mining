@@ -8,6 +8,7 @@
 |zones=[[Secluded Sanctuary]]
 |coordinates=-85.9 x 0.9 x -41.6
 |spawnchance=
+|spawntype=
 |respawn=
 |level=50
 |levelmodmin=0
@@ -31,6 +32,31 @@
 |void=25-60
 |spells=
 }}
+
+Shattered Sivakaya will be present in [[Secluded Sanctuary]] upon your first visit, but will disappear permanently after the following dialogue is completed:
+
+Greeting message:
+{| class="wikitable"
+|You have come. Quickly - the darkness clings to you and all who walk this world. It has followed you and will manifest here soon. I am not <span style="color: #15e300;">[whole]</span>, and it will take what little I have left.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[whole]</span>
+|Azynthi has taken my very being from me. I am but a shard that remains, and I cling to the light. He is <span style="color: #15e300;">[ceasless]</span>. He is hunting for power, and he is finding it.
+|-
+|<span style="color: #15e300;">[ceaseless]</span>
+|I hid this last remnant of myself here. I called to my followers, but few still listen. At last, you have <span style="color: #15e300;">[answered]</span>.
+|-
+|<span style="color: #15e300;">[answered]</span>
+|You must end this <span style="color: #15e300;">[corruption]</span>. It has touch us all. Fernalla. Vitheo. Brax. Even Soluna bears its mark. We endure in fractured shells. Free us.
+|-
+|<span style="color: #15e300;">[corruption]</span>
+|It's beginning to manifest itself! You must take from it that which it took from me. It possesses the secrets of this world. Bring them to The Wisp. For now, I must go. We will meet <span style="color: #15e300;">[again]</span>, but I fear it will not truly be... me... when we do.
+|-
+|<span style="color: #15e300;">[again]</span>
+| <i>This completes {{QuestLink|The Shard of Sivakaya}}</i> and permanently despawns Shattered Sivakaya, and spawns the [[Shadow of Brax]], [[Shadow of Fernalla]], [[Shadow of Soluna]], and [[Shadow of Vitheo]] in [[Secluded Sanctuary]].
+|}
 
 [[Category:Characters]]
 [[Category:Secluded Sanctuary]]

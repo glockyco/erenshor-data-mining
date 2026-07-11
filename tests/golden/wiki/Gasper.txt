@@ -2,12 +2,13 @@
 |name=Gasper
 |image=[[File:Gasper.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=21
 |levelmodmin=0

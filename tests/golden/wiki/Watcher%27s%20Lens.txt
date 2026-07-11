@@ -20,7 +20,7 @@
 
 {{ItemTooltip|stablekey=item:gen - watcher's lens}}
 
-After completing {{QuestLink|Willow Soil}}, the player will receive the Watcher's Lens. By placing the lens in a [[Cosmetic Items|cosmetic slot]], the player will have a chance of encountering one of five different kinds of Sivakayan Spectres.
+After completing {{QuestLink|Willow Seeds}}, the player will receive the Watcher's Lens. By placing the lens in a [[Cosmetic Items|cosmetic slot]], the player will have a chance of encountering one of five different kinds of Sivakayan Spectres.
 
 ===Activation Conditions===
 When entering a zone, the game will make a check for the following conditions:
@@ -41,6 +41,7 @@ If all conditions are satisfied, a Spectre is placed at a random spawn point in 
 Sivakayan Spectres can spawn in any zone (including dungeons) '''EXCEPT''' the following:
 
 * [[Port Azure]]
+** Guild Reliquary can spawn Spectres
 * [[Stowaway's Step]]
 * [[Island Tomb]]
 * [[Bellwain Island]]
@@ -60,7 +61,9 @@ Which Spectre is spawned is random:
 Any level Spectre can spawn in any zone aside from the exceptions listed above, meaning players can be in for a surprise when running around low level zones.
 
 ===Farming Strategy===
-Because of the specific spawn logic, players will want to focus on smaller zones such as [[Hidden Hills]] and [[Faerie's Brake]] that can be traversed quickly. Upon entering the zone, players will want to perform a general search, attempting to hit all enemy spawn points while searching for a Spectre. If none are located, the player should move onto another small zone and try again. Once a Spectre has been located, that zone should be excluded from future searches until at least five Spectres have been found in other zones. Alternatively, players can stick to a small zone (such as [[Hidden Hills]]) and simply quit the game repeatedly until a Spectre spawns.
+Because of the specific spawn logic, players will want to focus on smaller zones such as [[Hidden Hills]] and [[Faerie's Brake]] that can be traversed quickly. Upon entering the zone, players will want to perform a general search, attempting to hit all enemy spawn points while searching for a Spectre. If none are located, the player should move onto another small zone and try again. Once a Spectre has been located, that zone should be excluded from future searches until at least five Spectres have been found in other zones.
+
+A more "metagaming" approach that largely circumvents the intended spawn mechanics of the Spectres is to zone in and out of your [[Reliquary Hall]] from [[Port Azure]] until a Spectre spawns, kill it, zone back into Port Azure then restart the game and repeat. Spectres cannot spawn in Port Azure but can spawn in your Reliquary.
 
 Because of the low spawn rate and unique drops, players should expect it to take a considerable amount of time to farm specific drops. For that reason, Spectre drops should be considered special bonus items to enhance various builds rather than attempting to incorporate them into "best in slot" gear sets.
 

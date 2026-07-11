@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - loomingwood shrine}}
 
+[[Category:Furniture]]
 [[Category:Items]]

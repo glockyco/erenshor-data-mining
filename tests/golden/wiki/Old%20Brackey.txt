@@ -2,12 +2,13 @@
 |name=Old Brackey
 |image=[[File:Old Brackey.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=443.5 x 5.9 x 279.9
 |spawnchance=79%
+|spawntype=
 |respawn=2 minutes
 |level=12
 |levelmodmin=0

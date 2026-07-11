@@ -8,6 +8,7 @@
 |zones=[[Reliquary Hall]]
 |coordinates=291.1 x 1.1 x 367.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=1
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=17289998
+|health=14299998
 |mana=0
 |ac=15
 |strength=3

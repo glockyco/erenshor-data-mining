@@ -4,8 +4,8 @@
 |vendorsource=
 |source=[[Cinder]] (100.0%)
 |othersource=
-|questsource=
-|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}
+|questsource={{QuestLink|The Legend of Wishlan}}
+|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}<br>{{QuestLink|The Legend of Wishlan}}
 |craftsource=
 |componentfor=
 |buy=

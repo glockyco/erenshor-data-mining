@@ -2,12 +2,13 @@
 |name=A Lesser Avatar of Sivakaya
 |image=[[File:A Lesser Avatar of Sivakaya.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[The Bonepits]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=8
 |levelmodmin=0

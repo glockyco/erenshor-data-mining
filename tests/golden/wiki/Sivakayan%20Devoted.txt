@@ -2,12 +2,13 @@
 |name=Sivakayan Devoted
 |image=[[File:Sivakayan Devoted.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=27
 |levelmodmin=0

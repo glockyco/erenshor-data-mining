@@ -2,7 +2,7 @@
 |title=Letters and Words
 |type=
 |vendorsource=
-|source=[[Fernalla, Goddess of Nature]] (37.9%)
+|source=[[Fernalla, Goddess of Nature]] (34.3%)<br>[[Fernalla, Goddess of Nature]] (1.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -14,6 +14,26 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:hand - 42 - letters and words}}
+{{ItemTooltip|stablekey=item:hand - 42 - letters and words (common)}}
+
+----
+
+{{Item
+|title=Letters and Words
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (4.4%)<br>[[Fernalla, Goddess of Nature]] (0.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:hand - 42 - letters and words (rare)}}
 
 [[Category:Weapons]]

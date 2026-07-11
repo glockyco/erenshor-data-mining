@@ -2,12 +2,13 @@
 |name=Diamond Hound
 |image=[[File:Diamond Hound.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=
 |spawnchance=7-80%
+|spawntype=
 |respawn=5 minutes
 |level=23
 |levelmodmin=0

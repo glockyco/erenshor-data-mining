@@ -2,12 +2,13 @@
 |name=Julianna Priel
 |image=[[File:Julianna Priel.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Prielian Cascade]]
 |coordinates=102.9 x 0.8 x 338.6
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

@@ -14,9 +14,9 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 5 - pupil's pin}}
-
 Wearing this charm stops the ghosts at the siva-braxonian school in [[Duskenlight Coast]] from attacking you.
+
+{{ItemTooltip|stablekey=item:charm - 5 - pupil's pin}}
 
 [[Category:Charms]]
 [[Category:Quest Items]]

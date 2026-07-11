@@ -2,12 +2,13 @@
 |name=Davidson Malarky
 |image=[[File:Davidson Malarky.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Stowaway's Step]]
 |coordinates=553.1 x 63.7 x 515.1
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

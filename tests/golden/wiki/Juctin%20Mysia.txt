@@ -2,12 +2,13 @@
 |name=Juctin Mysia
 |image=[[File:Juctin Mysia.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Loomingwood Forest]]
 |coordinates=340.8 x 29.5 x 457.5
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

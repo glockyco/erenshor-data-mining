@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood dining}}
 
+[[Category:Furniture]]
 [[Category:Items]]

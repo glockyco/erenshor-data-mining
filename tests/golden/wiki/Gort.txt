@@ -2,12 +2,13 @@
 |name=Gort
 |image=[[File:Gort.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=153.9 x 10.3 x -135.0
 |spawnchance=66%
+|spawntype=
 |respawn=1 minute
 |level=7
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=5.0
-|health=864
+|health=715
 |mana=0
 |ac=105
 |strength=11

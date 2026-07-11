@@ -2,12 +2,13 @@
 |name=Braxon Fanatic
 |image=[[File:Braxon Fanatic.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]<br>[[The Blight]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes (Braxonian Desert)<br>5 minutes (The Blight)
 |level=17
 |levelmodmin=0

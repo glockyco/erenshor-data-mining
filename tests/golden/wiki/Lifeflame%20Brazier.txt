@@ -2,12 +2,13 @@
 |name=Lifeflame Brazier
 |image=[[File:Lifeflame Brazier.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=246.8 x 0.5 x 101.2
 |spawnchance=
+|spawntype=
 |respawn=
 |level=99
 |levelmodmin=0

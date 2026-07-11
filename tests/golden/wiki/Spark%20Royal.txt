@@ -2,12 +2,13 @@
 |name=Spark Royal
 |image=[[File:Spark Royal.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=252.9 x 150.3 x 62.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=14
 |levelmodmin=0

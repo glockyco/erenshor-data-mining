@@ -2,12 +2,13 @@
 |name=Devoratrix
 |image=[[File:Devoratrix.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

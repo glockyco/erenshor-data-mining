@@ -2,12 +2,13 @@
 |name=Icy Remnant
 |image=[[File:Icy Remnant.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Brax's Plane of Elements]]
 |coordinates=2146.3 x 79.1 x 404.4
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Brax's Plane of Elements]]
 [[Category:Enemies]]

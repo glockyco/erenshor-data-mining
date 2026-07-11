@@ -2,12 +2,13 @@
 |name=Winkles
 |image=[[File:Winkles.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Ripper's Keep]]
 |coordinates=
 |spawnchance=3%
+|spawntype=
 |respawn=5 minutes
 |level=33
 |levelmodmin=0

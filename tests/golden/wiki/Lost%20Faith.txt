@@ -13,9 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+You can trade [[Lost Faith]] to the [[Stardust]] wisps, this allows them to be killed. Once you have killed all [[Stardust]] in the center crater, it will summon [[Astra, Rogue of the Stars]].
 
 {{ItemTooltip|stablekey=item:gen - lost faith}}
-You can trade [[Lost Faith]] to the [[Stardust]] wisps, this allows them to be killed. Once you have killed all [[Stardust]] in the center crater, it will summon [[Astra, Rogue of the Stars]].
 
 [[Category:Items]]
 [[Category:Quest Items]]

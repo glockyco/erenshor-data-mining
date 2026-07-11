@@ -2,12 +2,13 @@
 |name=Stoneman Colossus
 |image=[[File:Stoneman Colossus.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=872.7 x 100.8 x 681.6
 |spawnchance=80%
+|spawntype=
 |respawn=5 minutes
 |level=27
 |levelmodmin=0

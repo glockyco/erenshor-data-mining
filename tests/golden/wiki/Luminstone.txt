@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+A item which can be dropped as a [[Enemies#Global_Drops|global drop]] from most enemies in the game. Used in Crafting.
 
 {{ItemTooltip|stablekey=item:gen - luminstone}}
-
-A item which can be dropped as a [[Enemies#Global_Drops|global drop]] from most enemies in the game. Used in Crafting.
 
 [[Category:Crafting]]
 [[Category:Items]]

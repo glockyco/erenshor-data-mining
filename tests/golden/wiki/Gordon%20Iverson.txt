@@ -2,12 +2,13 @@
 |name=Gordon Iverson
 |image=[[File:Gordon Iverson.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Blacksalt Strand]]
 |coordinates=294.2 x 45.0 x 561.8
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

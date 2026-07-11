@@ -8,6 +8,7 @@
 |zones=[[Blacksalt Strand]]
 |coordinates=310.7 x 93.3 x 332.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=8
 |levelmodmin=0

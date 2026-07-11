@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain garden song}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} contains the lyrics for a song that seemingly makes plants grow.
+
+{{ItemTooltip|stablekey=item:quest - bellwain garden song}}
 
 Each of the bells near the garden has a word printed on it. Using the lyrics in the song, click the bells to ring them in the correct order:
 *Vision

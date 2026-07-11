@@ -2,12 +2,13 @@
 |name=Ghost of Plaxitheris
 |image=[[File:Ghost of Plaxitheris.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=319.0 x 77.1 x 582.4
 |spawnchance=
+|spawntype=
 |respawn=7 minutes
 |level=22
 |levelmodmin=0

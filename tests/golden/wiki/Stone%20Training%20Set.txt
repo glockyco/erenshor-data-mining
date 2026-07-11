@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone training}}
 
+[[Category:Furniture]]
 [[Category:Items]]

@@ -8,6 +8,7 @@
 |zones=[[Ripper's Keep]]
 |coordinates=525.5 x 108.9 x 596.6
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=40
 |levelmodmin=0

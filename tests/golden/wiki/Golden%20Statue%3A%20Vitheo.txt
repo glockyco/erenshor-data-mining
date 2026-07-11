@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - gold statue vitheo}}
 
+[[Category:Furniture]]
 [[Category:Items]]

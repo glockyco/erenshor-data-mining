@@ -2,12 +2,13 @@
 |name=Warded Shadow
 |image=[[File:Warded Shadow.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=-77.0 x -68.4 x 284.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=26
 |levelmodmin=0

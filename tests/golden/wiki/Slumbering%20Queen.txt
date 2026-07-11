@@ -2,12 +2,13 @@
 |name=Slumbering Queen
 |image=[[File:Slumbering Queen.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=-210.2 x -143.9 x 968.0
 |spawnchance=
+|spawntype=
 |respawn=19 minutes
 |level=21
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Acolyte of Azynthi
 |image=[[File:Acolyte of Azynthi.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=798.6 x 45.2 x 575.3
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=45
 |levelmodmin=0

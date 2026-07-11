@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+Opens the Tower Key Door in [[Old Krakengard]] dropped from [[Molorai Captain Sigrid]] in the bunk section.
 
 {{ItemTooltip|stablekey=item:key - krakengard tower key}}
-
-Opens the Tower Key Door in [[Old Krakengard]] dropped from [[Molorai Captain Sigrid]] in the bunk section.
 
 [[Category:Items]]
 [[Category:Keys]]

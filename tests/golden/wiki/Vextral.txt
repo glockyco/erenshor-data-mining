@@ -2,12 +2,13 @@
 |name=Vextral
 |image=[[File:Vextral.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5-13 minutes
 |level=34
 |levelmodmin=0

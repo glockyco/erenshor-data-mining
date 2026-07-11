@@ -2,12 +2,13 @@
 |name=Training Dummy
 |image=[[File:Training Dummy.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Training Dummy]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Port Azure]]<br>[[Reliquary Hall]]
 |coordinates=168.9 x 41.8 x 309.3
 |spawnchance=
+|spawntype=
 |respawn=
 |level=1
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=172900000
+|health=143000000
 |mana=0
 |ac=15
 |strength=0
@@ -42,8 +43,9 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |faction=
 |factionChange=
 |zones=[[Reliquary Hall]]
-|coordinates=
+|coordinates=269.1 x 0.2 x 329.2
 |spawnchance=
+|spawntype=
 |respawn=
 |level=42
 |levelmodmin=0
@@ -78,6 +80,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |zones=[[Reliquary Hall]]
 |coordinates=269.1 x 0.2 x 329.2
 |spawnchance=
+|spawntype=
 |respawn=
 |level=1
 |levelmodmin=0
@@ -85,7 +88,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=172900000
+|health=143000000
 |mana=0
 |ac=800
 |strength=0
@@ -112,6 +115,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |zones=[[Reliquary Hall]]
 |coordinates=268.5 x 0.2 x 358.1
 |spawnchance=
+|spawntype=
 |respawn=
 |level=1
 |levelmodmin=0
@@ -119,7 +123,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=2.0
-|health=172900000
+|health=143000000
 |mana=0
 |ac=400
 |strength=0

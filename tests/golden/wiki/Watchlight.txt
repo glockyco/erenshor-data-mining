@@ -2,12 +2,13 @@
 |name=Watchlight
 |image=[[File:Watchlight.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=2-6 minutes
 |level=25
 |levelmodmin=0
@@ -31,6 +32,42 @@
 |void=12-30
 |spells=
 }}
+
+{{Character
+|name=Watchlight
+|image=[[File:Watchlight.png|thumb]]
+|imagecaption=
+|type=NPC
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Azynthi's Garden]]
+|coordinates=797.6 x 46.4 x 562.7
+|spawnchance=
+|spawntype=
+|respawn=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5688
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
 There are 4 Watchlight's in Stowaway's Step. They are used in a binding spell to keep [[Aragath Swellsteer]] imprisoned. The player can choose to help [[The Necromancers of the Island Tomb]] to finish off Aragath ({{QuestLink|link=Destroying Aragath}}) or choose to help Aragath by using the necromancers soul stones on the watchlight's to sever their grasp ({{QuestLink|link=Aragath's Imprisonment}}).
 
 ==[[Stalzo|<span style="color:orange;">Stalzo's Watchlight</span>]]==
@@ -84,40 +121,6 @@ If you say <span style="color: #15e300;">[Revid]</span> to this Watchlight it re
 {| class="wikitable"
 |... *the light dims briefly, and you hear a soft sign from within.
 |}
-
-{{Character
-|name=Watchlight
-|image=[[File:Watchlight.png|thumb]]
-|imagecaption=
-|type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=
-|zones=[[Azynthi's Garden]]
-|coordinates=797.6 x 46.4 x 562.7
-|spawnchance=
-|respawn=
-|level=25
-|levelmodmin=0
-|levelmodmax=0
-|levelvariancemin=-1
-|levelvariancemax=1
-|xpmultiplier=1.0
-|health=5688
-|mana=0
-|ac=375
-|strength=3
-|endurance=3
-|dexterity=3
-|agility=3
-|intelligence=3
-|wisdom=3
-|charisma=3
-|magic=12-30
-|poison=12-30
-|elemental=12-30
-|void=12-30
-|spells=
-}}
 
 [[Category:Azynthi's Garden]]
 [[Category:Characters]]

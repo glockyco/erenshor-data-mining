@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+A key for the bunk quarters of [[Old Krakengard]] dropped from [[Molorai Brewmistress]].
 
 {{ItemTooltip|stablekey=item:key - krarkengard bunk key}}
-
-A key for the bunk quarters of [[Old Krakengard]] dropped from [[Molorai Brewmistress]].
 
 [[Category:Items]]
 [[Category:Keys]]

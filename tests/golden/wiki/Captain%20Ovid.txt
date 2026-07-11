@@ -2,12 +2,13 @@
 |name=Captain Ovid
 |image=[[File:Captain Ovid.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]
 |coordinates=526.6 x 108.9 x 615.9
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=36
 |levelmodmin=0

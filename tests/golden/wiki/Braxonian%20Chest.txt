@@ -2,12 +2,13 @@
 |name=Braxonian Chest
 |image=[[File:Braxonian Chest.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Brax's Plane of Elements]]
 |coordinates=1251.3 x 35.1 x 460.3
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=1
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Brax's Plane of Elements]]
 [[Category:Enemies]]

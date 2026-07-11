@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain recipe}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 The Recipe details how to make {{ItemLink|Breaded Island Fin}}.
+
+{{ItemTooltip|stablekey=item:quest - bellwain recipe}}
 
 Once the four ingredients are given to the Baking Oven in the kitchen, the resulting Breaded Island Fin can be brought to the picnic blanket where it will be consumed and the note {{ItemLink|Mid Day on the Isle|image=Drafty Baths.png}} will appear.
 

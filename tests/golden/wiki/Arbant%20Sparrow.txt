@@ -2,12 +2,13 @@
 |name=Arbant Sparrow
 |image=[[File:Arbant Sparrow.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Port Azure]]
 |coordinates=168.8 x 34.1 x 243.1
 |spawnchance=
+|spawntype=
 |respawn=11 minutes
 |level=31
 |levelmodmin=0

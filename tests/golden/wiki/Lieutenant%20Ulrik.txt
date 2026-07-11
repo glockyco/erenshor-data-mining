@@ -2,12 +2,13 @@
 |name=Lieutenant Ulrik
 |image=[[File:Lieutenant Ulrik.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Azure Guard]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=226.4 x 39.8 x 744.9
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

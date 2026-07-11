@@ -2,12 +2,13 @@
 |name=Vethalo Gala
 |image=[[File:Vethalo Gala.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]
 |coordinates=146.2 x 11.7 x 312.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=15
 |levelmodmin=0

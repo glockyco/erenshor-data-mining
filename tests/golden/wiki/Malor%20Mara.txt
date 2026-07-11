@@ -2,12 +2,13 @@
 |name=Malor Mara
 |image=[[File:Malor Mara.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=1504.0 x 64.0 x 656.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=25
 |levelmodmin=0

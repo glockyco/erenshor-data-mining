@@ -15,5 +15,7 @@
 }}
 
 {{ItemTooltip|stablekey=item:furniture - stone statue soluna}}
+[[File:Stone statue of soluna.png|thumb]]
 
+[[Category:Furniture]]
 [[Category:Items]]

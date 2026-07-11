@@ -8,6 +8,7 @@
 |zones=[[Stowaway's Step]]
 |coordinates=604.5 x 72.1 x 444.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=26
 |levelmodmin=0
@@ -31,6 +32,61 @@
 |void=13-31
 |spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
 }}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Mutual Ache}}
+|[[:Category:Ability Books|Spell Book]]
+|220
+|-
+|{{ItemLink|Spell Scroll: Void Bolt}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Affinity for Suffering}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Theft of Life}}
+|[[:Category:Ability Books|Spell Book]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Waste}}
+|[[:Category:Ability Books|Spell Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Kick}}
+|[[:Category:Ability Books|Skill Book]]
+|75
+|-
+|{{ItemLink|Skill Book: Counter-Attack}}
+|[[:Category:Ability Books|Skill Book]]
+|1350
+|-
+|{{ItemLink|Skill Book: Cleave}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Aggressive Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Defensive Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Taunting Stance}}
+|[[:Category:Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Old Halberd}}
+|[[Weapons|2-Handed Weapon]]
+|500
+|}
 
 [[Category:Characters]]
 [[Category:Stowaway's Step]]

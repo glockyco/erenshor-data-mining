@@ -2,12 +2,13 @@
 |name=Sprig Laisey
 |image=[[File:Sprig Laisey.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-25 [[The Citizens of Erenshor]]<br>-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=1509.8 x 64.0 x 682.7
 |spawnchance=
+|spawntype=
 |respawn=
 |level=20
 |levelmodmin=0

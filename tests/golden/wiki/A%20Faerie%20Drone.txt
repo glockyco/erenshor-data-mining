@@ -2,12 +2,13 @@
 |name=A Faerie Drone
 |image=[[File:A Faerie Drone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Faerie's Brake]]
 |coordinates=
 |spawnchance=11-100%
+|spawntype=
 |respawn=2-4 minutes
 |level=8
 |levelmodmin=0

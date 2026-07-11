@@ -2,12 +2,13 @@
 |name=Odd Statue
 |image=[[File:Odd Statue.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=325.6 x 1.3 x 739.4
 |spawnchance=
+|spawntype=
 |respawn=
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=8
+|health=7
 |mana=0
 |ac=75
 |strength=3

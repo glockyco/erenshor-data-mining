@@ -8,6 +8,7 @@
 |zones=[[Brax's Plane of Elements]]
 |coordinates=2174.7 x 55.1 x 402.5
 |spawnchance=
+|spawntype=
 |respawn=30 minutes
 |level=42
 |levelmodmin=0

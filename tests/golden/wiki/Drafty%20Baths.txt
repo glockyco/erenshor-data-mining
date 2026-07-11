@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain drafty}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} describes a mysterious draft coming from the walls in the bathroom.
+
+{{ItemTooltip|stablekey=item:quest - bellwain drafty}}
 
 The note refers to a hidden wall between the sink and the bathtub; click on the wall to open it, revealing a staircase leading to the estate's attic.
 

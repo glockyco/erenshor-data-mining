@@ -2,12 +2,13 @@
 |name=Jerrod Tunsillo
 |image=[[File:Jerrod Tunsillo.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-10 [[Fernalla's Children]]
 |zones=[[Soluna's Landing]]
 |coordinates=264.0 x 100.9 x 432.6
 |spawnchance=
+|spawntype=
 |respawn=
 |level=15
 |levelmodmin=0

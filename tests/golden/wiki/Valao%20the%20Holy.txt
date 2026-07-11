@@ -2,12 +2,13 @@
 |name=Valao the Holy
 |image=[[File:Valao the Holy.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=-15 [[The Solunarian Brotherhood]]
 |zones=[[Soluna's Landing]]
 |coordinates=154.0 x 101.5 x 656.0
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=39
 |levelmodmin=0

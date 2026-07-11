@@ -2,12 +2,13 @@
 |name=The Crypt Guardian
 |image=[[File:The Crypt Guardian.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=255.9 x 10.6 x 322.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=23
 |levelmodmin=0

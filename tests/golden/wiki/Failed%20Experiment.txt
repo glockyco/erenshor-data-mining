@@ -2,12 +2,13 @@
 |name=Failed Experiment
 |image=[[File:Failed Experiment.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]
 |coordinates=
 |spawnchance=1%
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

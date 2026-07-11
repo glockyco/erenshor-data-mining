@@ -8,6 +8,7 @@
 |zones=[[Plane of the Willow]]
 |coordinates=530.7 x 32.2 x 1164.4
 |spawnchance=
+|spawntype=
 |respawn=33 minutes
 |level=40
 |levelmodmin=0

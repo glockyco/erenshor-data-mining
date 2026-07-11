@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain stash}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} hints at a secret stash hidden below the docks.
+
+{{ItemTooltip|stablekey=item:quest - bellwain stash}}
 
 Using the hint, jump into the water next to the docks and sink below the surface. Swim into the hole and make your way through the cavern; {{ItemLink|Bellsie's Wine}} can be found in the corner.
 

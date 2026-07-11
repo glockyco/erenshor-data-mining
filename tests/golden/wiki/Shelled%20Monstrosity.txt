@@ -2,12 +2,13 @@
 |name=Shelled Monstrosity
 |image=[[File:Shelled Monstrosity.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]
 |coordinates=418.4 x 86.1 x 870.1
 |spawnchance=80%
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0

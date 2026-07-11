@@ -2,12 +2,13 @@
 |name=A Fungal Sentinel
 |image=[[File:A Fungal Sentinel.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=8.6 x -135.5 x 755.9
 |spawnchance=
+|spawntype=
 |respawn=12 minutes
 |level=19
 |levelmodmin=0

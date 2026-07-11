@@ -2,12 +2,13 @@
 |name=Corporal Slate
 |image=[[File:Corporal Slate.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=683.2 x 29.6 x 425.5
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=25
 |levelmodmin=0

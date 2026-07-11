@@ -2,12 +2,13 @@
 |name=Apparition of Vitheo
 |image=[[File:Apparition of Vitheo.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=451.2 x 10.3 x 323.0
 |spawnchance=
+|spawntype=
 |respawn=9 minutes
 |level=39
 |levelmodmin=0

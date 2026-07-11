@@ -2,12 +2,13 @@
 |name=Urland Garry
 |image=[[File:Urland Garry.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Vitheo's Watch]]
 |coordinates=114.9 x 40.4 x 121.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

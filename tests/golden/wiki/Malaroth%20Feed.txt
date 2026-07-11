@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+Used to summon [[Shivunax]] at the feeding bowl located at (X=348, Y=30, Z=677) in [[Malaroth's Nesting Grounds]].
 
 {{ItemTooltip|stablekey=item:gen - malaroth feed}}
-
-Used to summon [[Shivunax]] at the feeding bowl located in [[Malaroth's Nesting Grounds]].
 
 Made by trading 1x {{ItemLink|An Octorunner}}, 1x {{ItemLink|A Frowny Clowny}}, and 1x {{ItemLink|Azure Mead}} to a [[Baking Oven]].
 

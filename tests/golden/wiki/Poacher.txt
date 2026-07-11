@@ -2,12 +2,13 @@
 |name=Poacher
 |image=[[File:Poacher.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Rottenfoot]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=22
 |levelmodmin=0

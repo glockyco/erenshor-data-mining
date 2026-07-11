@@ -2,7 +2,7 @@
 |title=Expose Weakness II
 |image=[[File:Expose Weakness II.png|thumb]]
 |imagecaption=You feel vulnerable.
-|description=Lower a target's AC by 600
+|description=Lower a target's AC by 400
 |type=StatusEffect
 |line=Duel_Other_Debuff
 |classes=[[Windblade]] (35)
@@ -41,7 +41,7 @@
 |bleed_damage_percent=
 |special_descriptor=
 |hp=
-|ac=-600
+|ac=-400
 |mana=
 |str=
 |dex=

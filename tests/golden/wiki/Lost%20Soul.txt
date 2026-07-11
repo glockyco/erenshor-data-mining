@@ -2,12 +2,13 @@
 |name=Lost Soul
 |image=[[File:Lost Soul.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]
 |coordinates=1111.1 x 19.0 x 514.6
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=4
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=0
 |levelvariancemax=0
 |xpmultiplier=1.0
-|health=20748
+|health=17160
 |mana=155
 |ac=60
 |strength=9

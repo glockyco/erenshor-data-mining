@@ -8,6 +8,7 @@
 |zones=[[Reliquary Hall]]
 |coordinates=275.1 x 0.2 x 331.2
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=16
 |levelmodmin=0

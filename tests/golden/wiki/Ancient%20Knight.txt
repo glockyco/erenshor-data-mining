@@ -2,12 +2,13 @@
 |name=Ancient Knight
 |image=[[File:Ancient Knight.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=30
 |levelmodmin=0

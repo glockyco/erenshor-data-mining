@@ -2,12 +2,13 @@
 |name=Drowned Corpse
 |image=[[File:Drowned Corpse.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Malaroth's Nesting Grounds]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=18
 |levelmodmin=0

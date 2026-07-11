@@ -2,12 +2,13 @@
 |name=Cursed Vithean Traitor
 |image=[[File:Cursed Vithean Traitor.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=30
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Ceremonial Brazier
 |image=[[File:Ceremonial Brazier.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|Interactable object]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Ripper's Keep]]<br>[[The Duskenlight Coast]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=99
 |levelmodmin=0

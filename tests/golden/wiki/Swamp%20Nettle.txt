@@ -2,12 +2,13 @@
 |name=Swamp Nettle
 |image=[[File:Swamp Nettle.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=337.0 x 23.0 x 475.5
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=14
 |levelmodmin=0

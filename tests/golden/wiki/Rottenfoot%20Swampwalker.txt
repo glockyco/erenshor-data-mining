@@ -2,12 +2,13 @@
 |name=Rottenfoot Swampwalker
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]<br>[[Rottenfoot]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
 |level=15
 |levelmodmin=0
@@ -42,6 +43,7 @@
 |zones=[[Fernalla's Revival Plains]]<br>[[Rottenfoot]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
 |level=15
 |levelmodmin=0

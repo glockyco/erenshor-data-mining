@@ -2,12 +2,13 @@
 |name=Shadow of Sleep
 |image=[[File:Shadow of Sleep.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=19
 |levelmodmin=0

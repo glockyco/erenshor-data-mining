@@ -1,0 +1,19 @@
+{{Item
+|title=Spell Scroll: Sivakaya's Dismay
+|type=
+|vendorsource=[[Shantee Swingblade]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=13200
+|sell=8580
+|taughtspell={{AbilityLink|Sivakaya's Dismay}}
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:spell scroll - sivakaya's dismay}}
+
+[[Category:Ability Books]]

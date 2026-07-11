@@ -2,12 +2,13 @@
 |name=Chazz Pillot
 |image=[[File:Chazz Pillot.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=203.5 x 26.0 x 213.2
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

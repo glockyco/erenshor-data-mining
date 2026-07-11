@@ -16,4 +16,6 @@
 
 {{ItemTooltip|stablekey=item:gen - inert rune of soluna}}
 
+Give this item and an [[Eldrich Crystal]] to [[Verdant Energy]] at the Solunarian Temple near [[Valao the Holy]] in [[Soluna's Landing]] to receive [[Rune of the Celestial]].
+
 [[Category:Items]]

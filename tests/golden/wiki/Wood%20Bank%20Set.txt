@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood bank}}
 
+[[Category:Furniture]]
 [[Category:Items]]

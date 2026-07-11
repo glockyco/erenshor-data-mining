@@ -2,12 +2,13 @@
 |name=Abyssal Fungus Warrior
 |image=[[File:Abyssal Fungus Warrior.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

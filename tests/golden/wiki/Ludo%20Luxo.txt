@@ -2,12 +2,13 @@
 |name=Ludo Luxo
 |image=[[File:Ludo Luxo.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Blades of Vitheo]]
 |factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]
 |coordinates=7.9 x -2.9 x -35.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0
@@ -31,7 +32,7 @@
 |void=11-26
 |spells=
 }}
-Ludo is an NPC in [[Hidden Hills]]. He is a Vendor for [[Duelist|Duelists]] and quest giver for {{QuestLink | link=A Sivakayan Horn for Ludo Luxo}}
+Ludo is an NPC in [[Hidden Hills]]. He is a Vendor for [[Windblade|Windblades]] and quest giver for {{QuestLink | link=A Sivakayan Horn for Ludo Luxo}}
 
 Greeting message:
 {| class="wikitable"

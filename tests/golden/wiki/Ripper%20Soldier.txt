@@ -2,12 +2,13 @@
 |name=Ripper Soldier
 |image=[[File:Ripper Soldier.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-35 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>-35 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)
 |level=27
 |levelmodmin=0

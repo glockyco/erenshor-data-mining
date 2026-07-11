@@ -2,12 +2,13 @@
 |name=Lazalith, Soldier of Sivakaya
 |image=[[File:Lazalith, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=815.4 x 24.8 x 338.0
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=20
 |levelmodmin=0

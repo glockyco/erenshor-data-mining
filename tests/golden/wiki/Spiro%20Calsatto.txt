@@ -2,12 +2,13 @@
 |name=Spiro Calsatto
 |image=[[File:Spiro Calsatto.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]
 |coordinates=521.8 x 52.0 x 472.8
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=12
 |levelmodmin=0

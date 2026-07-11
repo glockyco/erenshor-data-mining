@@ -2,12 +2,13 @@
 |name=The Conductor
 |image=[[File:The Conductor.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=281.5 x 0.5 x 315.4
 |spawnchance=
+|spawntype=
 |respawn=
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=192111
+|health=158888
 |mana=0
 |ac=75
 |strength=3

@@ -2,12 +2,13 @@
 |name=Sapling
 |image=[[File:Sapling.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Plane of the Willow]]
-|coordinates=286.5 x 22.4 x 301.4
-|spawnchance=1%
+|coordinates=286.5 x 22.4 x 301.4<br>289.5 x 22.5 x 319.9
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells={{AbilityLink|Miraculous Healing}}
 }}
 
-[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Plane of the Willow]]

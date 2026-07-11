@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain book report}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} hints at an item hidden on the roof.
+
+{{ItemTooltip|stablekey=item:quest - bellwain book report}}
 
 Using the hint, climb the crates on the back patio and jump onto the awning over the door. The {{ItemLink|Bellwain Bedroom Key}} can be found in a bag next to the chimney.
 

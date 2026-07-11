@@ -1,0 +1,37 @@
+{{Character
+|name=Large Fire Elemental
+|image=[[File:Large Fire Elemental.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=258.9 x 55.9 x 180.0
+|spawnchance=
+|spawntype=Dynamic event spawn
+|respawn=
+|level=42
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=1300000
+|mana=20000
+|ac=630
+|strength=800
+|endurance=500
+|dexterity=800
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=21-50
+|poison=21-50
+|elemental=21-50
+|void=21-50
+|spells={{AbilityLink|Brax's Fury}}
+}}
+
+[[Category:Brax's Plane of Elements]]
+[[Category:Enemies]]

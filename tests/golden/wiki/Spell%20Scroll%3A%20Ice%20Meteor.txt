@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ice Meteor
 |type=
 |vendorsource=
-|source=[[Ice Elemental]] (1.7%)
+|source=[[Ice Elemental]] (2.2%)<br>[[Greater Ice Elemental]] (1.0%)<br>[[Large Ice Elemental]] (1.0%)
 |othersource=
 |questsource=
 |relatedquest=

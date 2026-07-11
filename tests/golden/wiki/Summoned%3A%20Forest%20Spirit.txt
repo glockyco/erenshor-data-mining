@@ -2,12 +2,13 @@
 |name=Summoned: Forest Spirit
 |image=[[File:Summoned: Forest Spirit.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=19
 |levelmodmin=0

@@ -6,8 +6,9 @@
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Brax's Plane of Elements]]<br>[[Plane of the Willow]]<br>[[Soluna's Celestial Plane]]<br>[[Vitheo's Plane of Valor]]
-|coordinates=
+|coordinates=200.6 x 415.8 x 978.8<br>201.7 x 415.8 x 1012.8<br>491.2 x 25.2 x 462.8<br>1656.3 x 177.1 x 1607.7<br>1662.8 x 177.1 x 1588.7<br>1677.5 x 177.1 x 1619.2<br>1688.2 x 177.1 x 1586.5<br>1695.9 x 177.1 x 1603.0<br>2521.9 x 75.6 x 381.3<br>2522.4 x 75.6 x 425.3
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0

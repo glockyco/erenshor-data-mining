@@ -2,12 +2,13 @@
 |name=Oracle Tretha
 |image=[[File:Oracle Tretha.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=558.0 x 109.6 x 479.9
 |spawnchance=90%
+|spawntype=
 |respawn=5 minutes
 |level=38
 |levelmodmin=0

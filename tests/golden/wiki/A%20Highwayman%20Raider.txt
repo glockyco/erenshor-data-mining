@@ -2,12 +2,13 @@
 |name=A Highwayman Raider
 |image=[[File:A Highwayman Raider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-3 [[Savannah Priel]]<br>+3 [[The Azure Guard]]<br>+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]<br>+3 [[The Solunarian Brotherhood]]
 |zones=[[Fernalla's Revival Plains]]
-|coordinates=-732.2 x -51.7 x 194.5
+|coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=13
 |levelmodmin=0
@@ -42,6 +43,7 @@
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=13
 |levelmodmin=0
@@ -76,6 +78,7 @@
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=13
 |levelmodmin=0
@@ -102,4 +105,3 @@
 
 [[Category:Enemies]]
 [[Category:Fernalla's Revival Plains]]
-[[Category:The Elderstone Mines]]

@@ -2,12 +2,13 @@
 |name=Arcane Headmaster
 |image=[[File:Arcane Headmaster.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Ancients]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]
 |coordinates=516.0 x 80.2 x 530.9
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=28
 |levelmodmin=0

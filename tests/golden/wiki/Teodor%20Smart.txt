@@ -2,12 +2,13 @@
 |name=Teodor Smart
 |image=[[File:Teodor Smart.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-25 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]
 |coordinates=691.2 x 43.6 x 182.0
 |spawnchance=
+|spawntype=
 |respawn=
 |level=7
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=3458
+|health=2860
 |mana=200
 |ac=105
 |strength=55

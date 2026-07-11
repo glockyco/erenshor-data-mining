@@ -2,12 +2,13 @@
 |name=Spectral Castle Guard
 |image=[[File:Spectral Castle Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=8 minutes
 |level=18
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Elemental Construct
 |image=[[File:Elemental Construct.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Brax's Plane of Elements]]
-|coordinates=2560.6 x 74.2 x 403.8
-|spawnchance=1%
+|coordinates=2490.6 x 75.1 x 405.5<br>2502.2 x 75.1 x 381.3<br>2503.2 x 75.1 x 428.1
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Brax's Plane of Elements]]
 [[Category:Enemies]]

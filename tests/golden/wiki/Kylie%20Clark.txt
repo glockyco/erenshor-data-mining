@@ -2,12 +2,13 @@
 |name=Kylie Clark
 |image=[[File:Kylie Clark.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=703.5 x 72.9 x 627.0
 |spawnchance=
+|spawntype=
 |respawn=
 |level=6
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=692
+|health=572
 |mana=225
 |ac=90
 |strength=35

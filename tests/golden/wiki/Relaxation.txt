@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain relaxing}}
-
 =Location=
 This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} talks about how Bellwain would leave Bellsie's drink on her seat near the campfire.
+
+{{ItemTooltip|stablekey=item:quest - bellwain relaxing}}
 
 Using the clues give, find {{ItemLink|Bellsie's Wine}}<ref>The hidden location of {{ItemLink|Bellsie's Wine}} is hinted at in the note {{ItemLink|The Stash|image=Marching Orders.png}}.</ref> and deliver it to the empty seat near the campfire behind the pergola to find {{ItemLink|Afternoon on the Isle|image=Drafty Baths.png}}.
 

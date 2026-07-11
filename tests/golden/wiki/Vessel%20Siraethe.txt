@@ -2,12 +2,13 @@
 |name=Vessel Siraethe
 |image=[[File:Vessel Siraethe.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
 |coordinates=1581.6 x -19.8 x 109.6
 |spawnchance=
+|spawntype=
 |respawn=13 minutes
 |level=40
 |levelmodmin=0

@@ -13,9 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+The key that unlocks the door to the Final wing of [[Vitheo's Rest]]
 
 {{ItemTooltip|stablekey=item:key - key to vitheo's tomb}}
-The key that unlocks the door to the Final wing of [[Vitheo's Rest]]
 
 [[Category:Items]]
 [[Category:Keys]]

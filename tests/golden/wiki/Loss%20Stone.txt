@@ -14,9 +14,9 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:quest - loss stone}}
-
 Obtained from [[Arcane Headmaster]] when starting {{QuestLink | link=The Loss Stone}}.
+
+{{ItemTooltip|stablekey=item:quest - loss stone}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

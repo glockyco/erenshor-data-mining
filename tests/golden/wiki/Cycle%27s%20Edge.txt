@@ -2,7 +2,7 @@
 |title=Cycle's Edge
 |type=
 |vendorsource=
-|source=[[Fernalla, Goddess of Nature]] (37.9%)
+|source=[[Fernalla, Goddess of Nature]] (36.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,12 +2,13 @@
 |name=Freed Spirit of Raval
 |image=[[File:Freed Spirit of Raval.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=669.2 x 126.8 x 879.7
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=45
 |levelmodmin=0

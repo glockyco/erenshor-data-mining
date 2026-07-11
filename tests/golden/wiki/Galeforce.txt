@@ -6,7 +6,7 @@
 |type=Beneficial
 |line=Buff_Haste_Worn
 |classes=
-|required_level=40
+|required_level=41
 |manacost=400
 |aggro=
 |is_taunt=

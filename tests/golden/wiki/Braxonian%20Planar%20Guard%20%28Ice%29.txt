@@ -2,12 +2,13 @@
 |name=Braxonian Planar Guard (Ice)
 |image=[[File:Ice Planar Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=327.6 x 14.1 x 293.3
 |spawnchance=
+|spawntype=
 |respawn=8 minutes
 |level=37
 |levelmodmin=0

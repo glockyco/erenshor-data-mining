@@ -2,12 +2,13 @@
 |name=Stalking Wolf
 |image=[[File:Stalking Wolf.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=19
 |levelmodmin=0

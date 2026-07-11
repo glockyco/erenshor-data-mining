@@ -2,12 +2,13 @@
 |name=Fernallan Sister Hawking
 |image=[[File:Fernallan Sister Hawking.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[Fernalla's Children]]<br>-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]
 |coordinates=255.0 x 31.1 x 261.6
 |spawnchance=
+|spawntype=
 |respawn=1 minute
 |level=8
 |levelmodmin=0

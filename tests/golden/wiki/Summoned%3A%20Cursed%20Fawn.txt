@@ -2,12 +2,13 @@
 |name=Summoned: Cursed Fawn
 |image=[[File:Summoned: Cursed Fawn.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=11
 |levelmodmin=0

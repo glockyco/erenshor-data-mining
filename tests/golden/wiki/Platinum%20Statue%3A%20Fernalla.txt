@@ -1,0 +1,19 @@
+{{Item
+|title=Platinum Statue: Fernalla
+|type=
+|vendorsource=
+|source=[[Fernalla, Goddess of Nature]] (14.8%)<br>[[Fernalla, Goddess of Nature]] (11.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell=
+|taughtskill=
+}}
+
+{{ItemTooltip|stablekey=item:furniture - stone statue platinum fernalla}}
+
+[[Category:Items]]

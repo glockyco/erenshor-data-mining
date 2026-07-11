@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain evening}}
-
 =Location=
 {{PAGENAME}} is a note found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} is a poem with clues on what color to light the torches surrounding the statue.
+
+{{ItemTooltip|stablekey=item:quest - bellwain evening}}
 
 This note instructs players to light the torch at 5 o'clock orange. Because it also hints at 6 o'clock being lit with the "same warmth and desire," it should also be lit orange as well.
 

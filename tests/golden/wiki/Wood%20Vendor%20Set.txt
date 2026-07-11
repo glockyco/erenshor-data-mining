@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - wood vendor}}
 
+[[Category:Furniture]]
 [[Category:Items]]

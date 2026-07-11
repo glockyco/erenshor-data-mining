@@ -2,12 +2,13 @@
 |name=Plunkey
 |image=[[File:Plunkey.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=81.1 x 24.1 x 97.6
 |spawnchance=85%
+|spawntype=
 |respawn=4 minutes
 |level=16
 |levelmodmin=0

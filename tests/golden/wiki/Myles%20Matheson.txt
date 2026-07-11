@@ -2,12 +2,13 @@
 |name=Myles Matheson
 |image=[[File:Myles Matheson.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Blacksalt Strand]]
 |coordinates=157.9 x 46.6 x 486.9
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

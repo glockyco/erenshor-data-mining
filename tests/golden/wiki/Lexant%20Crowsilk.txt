@@ -2,12 +2,13 @@
 |name=Lexant Crowsilk
 |image=[[File:Lexant Crowsilk.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Port Azure]]
 |coordinates=168.5 x 34.1 x 240.9
 |spawnchance=
+|spawntype=
 |respawn=11 minutes
 |level=31
 |levelmodmin=0

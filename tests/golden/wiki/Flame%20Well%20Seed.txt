@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - brax well}}
 
+[[Category:Furniture]]
 [[Category:Items]]

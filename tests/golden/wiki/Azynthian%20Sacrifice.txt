@@ -6,8 +6,9 @@
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Secluded Sanctuary]]
-|coordinates=
+|coordinates=-138.9 x 1.2 x -55.5<br>-119.6 x 1.2 x -88.8<br>-119.6 x 1.2 x -22.5<br>-40.4 x 1.2 x -88.8<br>-40.4 x 1.2 x -22.5<br>-25.1 x 1.2 x -55.5
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=37
 |levelmodmin=0

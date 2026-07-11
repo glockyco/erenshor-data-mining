@@ -13,12 +13,11 @@
 |taughtspell=
 |taughtskill=
 }}
-
-{{ItemTooltip|stablekey=item:gen - sivak}}
-
 This item has a 0.1% chance to drop from any enemy in the level 16 and above.
 
 Can be used to create [[File:Blue_Sparkle.gif|30px|link=Item Quality]][[Item Quality|Blessed Items]] at the [[Braxonian Flame Well]]
+
+{{ItemTooltip|stablekey=item:gen - sivak}}
 
 [[Category:Crafting]]
 [[Category:Items]]

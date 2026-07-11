@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone statue brax}}
 
+[[Category:Furniture]]
 [[Category:Items]]

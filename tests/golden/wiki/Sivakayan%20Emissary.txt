@@ -2,12 +2,13 @@
 |name=Sivakayan Emissary
 |image=[[File:Sivakayan Emissary.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Azynthi's Garden]]
 |coordinates=612.3 x 109.3 x 470.4
 |spawnchance=67%
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

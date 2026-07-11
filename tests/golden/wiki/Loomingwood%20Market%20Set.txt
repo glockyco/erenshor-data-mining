@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - loomingwood marketplace}}
 
+[[Category:Furniture]]
 [[Category:Items]]

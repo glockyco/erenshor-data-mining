@@ -8,6 +8,7 @@
 |zones=[[Azynthi's Garden]]
 |coordinates=514.8 x 67.4 x 263.7
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=36
 |levelmodmin=0

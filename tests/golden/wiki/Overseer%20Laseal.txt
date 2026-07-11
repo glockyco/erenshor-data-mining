@@ -2,12 +2,13 @@
 |name=Overseer Laseal
 |image=[[File:Overseer Laseal.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
 |coordinates=1011.6 x 149.4 x 223.6
 |spawnchance=50%
+|spawntype=
 |respawn=5 minutes
 |level=18
 |levelmodmin=0

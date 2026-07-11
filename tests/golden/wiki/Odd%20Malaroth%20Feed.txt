@@ -13,11 +13,10 @@
 |taughtspell=
 |taughtskill=
 }}
-
-{{ItemTooltip|stablekey=item:gen - malaroth feed bad}}
-
-Used to summon [[Demented Malaroth]] at the feeding bowl located in [[Malaroth's Nesting Grounds]].
+Used to summon [[Demented Malaroth]] at the feeding bowl located at (X=348, Y=30, Z=677) in [[Malaroth's Nesting Grounds]].
 
 Made by giving a Baking oven: {{ItemLink|An Octorunner}}, {{ItemLink|A Frowny Clowny}}, {{ItemLink|Azure Mead}} and {{ItemLink|A Moongill}}.
+
+{{ItemTooltip|stablekey=item:gen - malaroth feed bad}}
 
 [[Category:Items]]

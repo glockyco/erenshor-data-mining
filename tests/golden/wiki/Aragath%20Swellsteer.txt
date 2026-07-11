@@ -2,12 +2,13 @@
 |name=Aragath Swellsteer
 |image=[[File:Aragath Swellsteer.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=202.0 x 52.9 x 344.8
 |spawnchance=
+|spawntype=
 |respawn=6 minutes
 |level=15
 |levelmodmin=0

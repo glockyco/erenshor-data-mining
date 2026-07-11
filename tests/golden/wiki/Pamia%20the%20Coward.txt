@@ -2,12 +2,13 @@
 |name=Pamia the Coward
 |image=[[File:Pamia the Coward.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=[[Vitheo's Rest]]
 |coordinates=310.1 x -28.9 x 402.3
 |spawnchance=99%
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

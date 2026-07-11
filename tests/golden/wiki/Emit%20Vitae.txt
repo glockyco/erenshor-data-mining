@@ -2,7 +2,7 @@
 |title=Emit Vitae
 |image=[[File:Emit Vitae.png|thumb]]
 |imagecaption=You are empowered by the life of another
-|description=Damages the caster for 4000 points of damage, and refills 600 mana to all nearby party members. Cannot resonate.
+|description=Damages the caster for 25% of their life, and restores 600 mana to their party.
 |type=Heal
 |line=Generic
 |classes=[[Reaver]] (35)

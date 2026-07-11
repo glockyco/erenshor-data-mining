@@ -2,12 +2,13 @@
 |name=A Seaside Gorilla
 |image=[[File:A Seaside Gorilla.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=2 minutes
 |level=14
 |levelmodmin=1

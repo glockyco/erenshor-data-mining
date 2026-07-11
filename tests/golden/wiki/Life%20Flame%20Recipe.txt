@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+This item gives the recipe to ignite the brazier to complete {{QuestLink|link=The Life Flame}}.
 
 {{ItemTooltip|stablekey=item:gen - rekindling the flame 3}}
-
-This item gives the recipe to ignite the brazier to complete {{QuestLink|link=The Life Flame}}.
 
 [[Category:Items]]
 [[Category:Quest Items]]

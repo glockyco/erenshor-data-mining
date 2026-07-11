@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone fountain}}
 
+[[Category:Furniture]]
 [[Category:Items]]

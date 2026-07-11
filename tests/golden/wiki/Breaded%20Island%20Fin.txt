@@ -15,8 +15,6 @@
 }}
 '''{{PAGENAME}}''' is a [[Consumables|Consumable]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:con - breaded island fin}}
-
 =Location=
 {{PAGENAME}} is created as part of the quest {{QuestLink|The Mystery of Bellwain Island}} by trading the Baking Oven in the kitchen the correct ingredients, as listed in {{ItemLink|The Recipe|image=Sivakayan Boat Pass.png}}:
 *{{ItemLink|Island Fin}}
@@ -45,6 +43,8 @@ Crafting {{PAGENAME}} rewards the player with 20 experience; this can be repeate
 After creating {{PAGENAME}}, it can be delivered to the picnic blanket near the large tree at the back of the house. Upon doing so, {{ItemLink|Mid Day on the Isle|image=Drafty Baths.png}} will appear.
 
 {{PAGENAME}} can also be consumed to activate {{AbilityLink|Nourished}}.
+
+{{ItemTooltip|stablekey=item:con - breaded island fin}}
 
 [[Category:Consumables]]
 [[Category:Fishing]]

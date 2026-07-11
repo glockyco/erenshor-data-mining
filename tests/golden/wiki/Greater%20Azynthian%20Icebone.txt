@@ -2,12 +2,13 @@
 |name=Greater Azynthian Icebone
 |image=[[File:Greater Azynthian Icebone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]<br>[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
 |coordinates=
-|spawnchance=1% (Azynthi's Garden)<br>5-34% (Azynthi's Garden (Dimensional Rift))
+|spawnchance=5-34%
+|spawntype=
 |respawn=5 minutes
 |level=34
 |levelmodmin=0

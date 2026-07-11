@@ -8,6 +8,7 @@
 |zones=[[Secluded Sanctuary]]
 |coordinates=-97.9 x 1.5 x -104.0
 |spawnchance=
+|spawntype=
 |respawn=116 minutes
 |level=40
 |levelmodmin=0

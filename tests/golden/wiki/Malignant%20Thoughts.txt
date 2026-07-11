@@ -2,12 +2,13 @@
 |name=Malignant Thoughts
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
-|type=[[Enemies#List of Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=5
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=8645
+|health=7150
 |mana=0
 |ac=75
 |strength=3
@@ -51,12 +52,13 @@
 |name=Malignant Thoughts
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=326.8 x 1.9 x 530.4
 |spawnchance=
+|spawntype=
 |respawn=
 |level=5
 |levelmodmin=0
@@ -64,7 +66,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=3458
+|health=2860
 |mana=0
 |ac=75
 |strength=3

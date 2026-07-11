@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain midday}}
-
 =Location=
 {{PAGENAME}} is a note found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} is a poem with clues on what color to light the torches surrounding the statue.
+
+{{ItemTooltip|stablekey=item:quest - bellwain midday}}
 
 This is one of the trickiest notes in the quest. As the sky is generally associated with the word blue, the torch at 10 o'clock should be lit as such. Although it does not offer us an exact time, red is between 10 and 12, so the 11 o'clock torch should be turned red. 12 o'clock should again be blue, corresponding to the berries, while the 1 o'clock torch should be green, as hinted at by the "emerald grass."
 

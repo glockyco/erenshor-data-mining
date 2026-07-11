@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain collection}}
-
 =Location=
 {{PAGENAME}} is found under the statue on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} is an unsent packet of letters from Bellsie to Bellwain.
+
+{{ItemTooltip|stablekey=item:quest - bellwain collection}}
 
 [[Category:Items]]
 [[Category:Notes]]

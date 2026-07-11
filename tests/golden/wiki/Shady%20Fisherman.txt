@@ -8,6 +8,7 @@
 |zones=[[Bellwain Island]]<br>[[Port Azure]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=
 |level=15
 |levelmodmin=0

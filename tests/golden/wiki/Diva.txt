@@ -2,12 +2,13 @@
 |name=Diva
 |image=[[File:Diva.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=140.3 x 33.1 x 742.1
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=26
 |levelmodmin=0

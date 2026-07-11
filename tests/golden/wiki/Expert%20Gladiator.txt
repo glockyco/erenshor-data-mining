@@ -6,8 +6,9 @@
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Plane of Valor]]
-|coordinates=
+|coordinates=469.0 x 25.2 x 445.7<br>478.9 x 25.2 x 441.6<br>481.8 x 25.2 x 431.8
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0

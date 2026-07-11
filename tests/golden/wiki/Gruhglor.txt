@@ -2,12 +2,13 @@
 |name=Gruhglor
 |image=[[File:Gruhglor.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=804.7 x 27.0 x 1058.9
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=17
 |levelmodmin=0

@@ -8,6 +8,7 @@
 |zones=[[Port Azure]]
 |coordinates=279.0 x 26.3 x 147.3
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=14
 |levelmodmin=0
@@ -31,6 +32,8 @@
 |void=7-17
 |spells=
 }}
+
+Talk to or kill this NPC to get the [[Reliquary Key]] needed to access the [[Reliquary Hall]]
 
 [[Category:Characters]]
 [[Category:Port Azure]]

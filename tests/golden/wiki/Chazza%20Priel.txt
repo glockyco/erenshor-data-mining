@@ -2,12 +2,13 @@
 |name=Chazza Priel
 |image=[[File:Chazza Priel.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Windwashed Pass]]
 |coordinates=837.5 x 91.8 x 242.2
 |spawnchance=66%
+|spawntype=
 |respawn=5 minutes
 |level=20
 |levelmodmin=0

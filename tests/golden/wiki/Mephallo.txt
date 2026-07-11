@@ -2,12 +2,13 @@
 |name=Mephallo
 |image=[[File:Mephallo.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]
 |coordinates=508.9 x 64.8 x 997.4
 |spawnchance=
+|spawntype=
 |respawn=11 minutes
 |level=23
 |levelmodmin=0

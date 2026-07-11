@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain bellsie's wine}}
-
 =Location=
 {{PAGENAME}} is found in a cavern beneath the docks during {{QuestLink|link=The Mystery of Bellwain Island}}. Its location is hinted at by the note {{ItemLink|The Stash|image=Marching Orders.png}}.
 
 =Description=
 {{PAGENAME}} can be delivered to the empty seat near the campfire behind the pergola, as instructed by the note {{ItemLink|Relaxation|image=Marching Orders.png}}. Upon doing so, {{ItemLink|Afternoon on the Isle|image=Drafty Baths.png}} will appear.
+
+{{ItemTooltip|stablekey=item:quest - bellwain bellsie's wine}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

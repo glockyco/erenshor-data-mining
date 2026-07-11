@@ -2,12 +2,13 @@
 |name=Vithean Remains
 |image=[[File:Vithean Remains.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=21
 |levelmodmin=0

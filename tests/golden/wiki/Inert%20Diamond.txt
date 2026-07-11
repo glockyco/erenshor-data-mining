@@ -14,11 +14,11 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:template - inert diamond}}
-
 Strips all [[Item Quality|Blessing]]s from an item.
 
 Can be dropped as a [[Enemies#Global_Drops|global drop]] from all level 21+ enemies.
+
+{{ItemTooltip|stablekey=item:template - inert diamond}}
 
 [[Category:Crafting]]
 [[Category:Items]]

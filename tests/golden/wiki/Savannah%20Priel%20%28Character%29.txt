@@ -2,12 +2,13 @@
 |name=Savannah Priel
 |image=[[File:Savannah Priel (Character).png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-350 [[Savannah Priel]]<br>+20 [[The Citizens of Erenshor]]<br>+20 [[The Citizens of Port Azure]]
 |zones=[[Prielian Cascade]]
 |coordinates=490.6 x 45.5 x 532.8
 |spawnchance=
+|spawntype=
 |respawn=11 minutes
 |level=39
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Braxonian Weapon Master
 |image=[[File:Braxonian Weapon Master.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]
 |coordinates=413.4 x 75.0 x 488.4
 |spawnchance=66%
+|spawntype=
 |respawn=8 minutes
 |level=34
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Hand of the King
 |image=[[File:Hand of the King.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=34
 |levelmodmin=0

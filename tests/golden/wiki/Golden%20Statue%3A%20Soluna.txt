@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - gold statue soluna}}
 
+[[Category:Furniture]]
 [[Category:Items]]

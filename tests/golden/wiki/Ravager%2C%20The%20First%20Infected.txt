@@ -2,12 +2,13 @@
 |name=Ravager, The First Infected
 |image=[[File:Ravager, The First Infected.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
 |coordinates=-773.2 x -52.0 x 377.6
 |spawnchance=
+|spawntype=
 |respawn=9 minutes
 |level=21
 |levelmodmin=0

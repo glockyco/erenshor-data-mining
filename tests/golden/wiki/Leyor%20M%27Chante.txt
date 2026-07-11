@@ -2,12 +2,13 @@
 |name=Leyor M'Chante
 |image=[[File:Leyor M'Chante.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Port Azure]]
 |coordinates=160.0 x 31.9 x 311.0
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=25
 |levelmodmin=0

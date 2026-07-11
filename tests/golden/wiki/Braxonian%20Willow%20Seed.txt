@@ -14,11 +14,11 @@
 |taughtskill=
 }}
 
-{{ItemTooltip|stablekey=item:gen - willow seed braxonia}}
-
 Needed for the quest [[Willow Seeds]]. It is located at coordinates X: 324.23 x Y: 7.26 x Z: 1287.95 behind a tree in [[Braxonian Desert]].
 
 [[File:Braxonian Willow Seed Location.png|left|thumb|400px]]
+
+{{ItemTooltip|stablekey=item:gen - willow seed braxonia}}
 
 [[Category:Items]]
 [[Category:Quest Items]]

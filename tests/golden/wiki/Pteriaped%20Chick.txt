@@ -2,12 +2,13 @@
 |name=Pteriaped Chick
 |image=[[File:Pteriaped Chick.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5-6 minutes
 |level=22
 |levelmodmin=0

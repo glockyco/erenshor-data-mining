@@ -15,13 +15,13 @@
 }}
 '''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]].
 
-{{ItemTooltip|stablekey=item:quest - bellwain final journal}}
-
 =Location=
 {{PAGENAME}} is the final note found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
 
 =Description=
 {{PAGENAME}} describes Bellwain's departure from the island.
+
+{{ItemTooltip|stablekey=item:quest - bellwain final journal}}
 
 It does not offer any clues, but rather serves as the final chapter of the story.
 

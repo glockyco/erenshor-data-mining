@@ -7,7 +7,8 @@
 |factionChange=
 |zones=[[Vitheo's Plane of Valor]]
 |coordinates=478.9 x 25.2 x 441.6
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=43
 |levelmodmin=0
@@ -44,6 +45,7 @@
 |zones=[[Vitheo's Plane of Valor]]
 |coordinates=569.4 x 51.3 x 536.7
 |spawnchance=
+|spawntype=
 |respawn=85 minutes
 |level=42
 |levelmodmin=0
@@ -80,6 +82,7 @@
 |zones=[[Vitheo's Plane of Valor]]
 |coordinates=479.1 x 25.2 x 441.6
 |spawnchance=
+|spawntype=
 |respawn=
 |level=43
 |levelmodmin=0

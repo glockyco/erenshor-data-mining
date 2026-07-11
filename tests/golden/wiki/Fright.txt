@@ -2,12 +2,13 @@
 |name=Fright
 |image=[[File:Fright.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]<br>[[Shivering Tomb|Shivering Tomb (2)]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

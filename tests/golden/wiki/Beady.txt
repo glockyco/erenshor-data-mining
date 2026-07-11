@@ -2,12 +2,13 @@
 |name=Beady
 |image=[[File:Beady.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]
 |coordinates=787.1 x 24.9 x 771.9
 |spawnchance=75%
+|spawntype=
 |respawn=4 minutes
 |level=16
 |levelmodmin=0

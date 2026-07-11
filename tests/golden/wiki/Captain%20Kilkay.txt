@@ -2,12 +2,13 @@
 |name=Captain Kilkay
 |image=[[File:Captain Kilkay.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Azure Guard]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-500 [[The Azure Guard]]
 |zones=[[Port Azure]]
 |coordinates=230.4 x 31.6 x 245.3
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=38
 |levelmodmin=0

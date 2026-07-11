@@ -2,12 +2,13 @@
 |name=Harbinger of Corruption
 |image=[[File:Harbinger of Corruption.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]
 |coordinates=648.1 x 52.6 x 477.8
 |spawnchance=75%
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

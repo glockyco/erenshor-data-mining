@@ -2,12 +2,13 @@
 |name=Syzygy
 |image=[[File:Syzygy.png|thumb]]
 |imagecaption=
-|type=Boss
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Celestial Plane]]
 |coordinates=-4.6 x 339.2 x 993.0
-|spawnchance=1%
+|spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=42
 |levelmodmin=0
@@ -32,6 +33,5 @@
 |spells=
 }}
 
-[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Soluna's Celestial Plane]]

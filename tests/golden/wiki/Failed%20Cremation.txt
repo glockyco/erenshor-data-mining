@@ -2,12 +2,13 @@
 |name=Failed Cremation
 |image=[[File:Failed Cremation.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Island Tomb]]
 |coordinates=109.1 x -8.9 x 157.0
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=6
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=1729
+|health=1430
 |mana=0
 |ac=90
 |strength=12

@@ -2,12 +2,13 @@
 |name=A Lost Sea Giant
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies#List of Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=11
 |levelmodmin=0
@@ -45,8 +46,6 @@
 {{PAGENAME}} does not use any spells or abilities.
 
 =Notes=
-*It is possible to tell if {{PAGENAME}} will drop the Sea Giant's Cutlass before defeating it, as they will be wielding it when they spawn in.
-*While the female variant of {{PAGENAME}} is three levels higher and gives slightly more experience, it actually has less drops (and a lower drop rate) than that of the males.
 
 {{Character
 |name=A Lost Sea Giant
@@ -58,6 +57,7 @@
 |zones=[[Vitheo's Watch]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=8
 |levelmodmin=0

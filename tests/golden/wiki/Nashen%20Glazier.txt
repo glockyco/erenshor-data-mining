@@ -2,12 +2,13 @@
 |name=Nashen Glazier
 |image=[[File:Nashen Glazier.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Loomingwood Forest]]
 |coordinates=319.2 x 26.9 x 447.2
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=22
 |levelmodmin=0

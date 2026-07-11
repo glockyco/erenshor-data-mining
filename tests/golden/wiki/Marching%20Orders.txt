@@ -13,10 +13,9 @@
 |taughtspell=
 |taughtskill=
 }}
+Can be handed to [[Captain Kilkay]] to begin and complete the quest {{QuestLink|link=Sivakayan Intel for Kilkay (2){{!}}Sivakayan Intel for Kilkay}}.
 
 {{ItemTooltip|stablekey=item:gen - marching orders}}
-
-Can be handed to [[Captain Kilkay]] to begin and complete the quest {{QuestLink|link=Sivakayan Intel for Kilkay (2){{!}}Sivakayan Intel for Kilkay}}.
 
 [[Category:Items]]
 [[Category:Quest Items]]

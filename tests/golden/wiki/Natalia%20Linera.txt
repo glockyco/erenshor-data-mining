@@ -2,12 +2,13 @@
 |name=Natalia Linera
 |image=[[File:Natalia Linera.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=392.8 x 126.3 x 739.9
 |spawnchance=
+|spawntype=
 |respawn=
 |level=20
 |levelmodmin=0

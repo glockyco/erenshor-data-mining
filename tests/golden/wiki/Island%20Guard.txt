@@ -2,12 +2,13 @@
 |name=Island Guard
 |image=[[File:Island Guard.png|thumb]]
 |imagecaption="Welcome to Stowaway's Step. Please remain civil.
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-100 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4-6 minutes
 |level=25
 |levelmodmin=0

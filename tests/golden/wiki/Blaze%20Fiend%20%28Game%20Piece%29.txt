@@ -1,6 +1,8 @@
+#REDIRECT [[Blaze Fiend]]
+
 {{Item
 |title=Blaze Fiend
-|type=[[:Category:Items|Summoning Item]]
+|type=
 |vendorsource=
 |source=[[Evadne the Corrupted]] (29.1%)<br>[[Molorai Archaeologist]] (5.8%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Molorai Archaeologist]] (2.5%)
 |othersource=
@@ -13,7 +15,6 @@
 |taughtspell=
 |taughtskill=
 }}
-Used to summon [[Blazefiend]] at the chess board in the [[Braxonian Desert]].
 
 {{ItemTooltip|stablekey=item:quest - game piece blazefiend}}
 

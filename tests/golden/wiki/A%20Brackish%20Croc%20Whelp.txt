@@ -2,12 +2,13 @@
 |name=A Brackish Croc Whelp
 |image=[[File:A Brackish Croc Whelp.png|thumb]]
 |imagecaption="{{PAGENAME}} toddles angrily towards you."
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Stowaway's Step]]
 |coordinates=753.2 x 20.7 x 573.0
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=1
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=27
+|health=22
 |mana=0
 |ac=15
 |strength=0

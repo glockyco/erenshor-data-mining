@@ -2,12 +2,13 @@
 |name=Alpha Wolf
 |image=[[File:Alpha Wolf.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]
 |coordinates=
 |spawnchance=12% (Faerie's Brake)<br>25% (Hidden Hills)
+|spawntype=
 |respawn=4 minutes (Faerie's Brake)<br>1 minute (Hidden Hills)
 |level=6
 |levelmodmin=0
@@ -15,7 +16,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=5.0
-|health=146
+|health=121
 |mana=0
 |ac=90
 |strength=10

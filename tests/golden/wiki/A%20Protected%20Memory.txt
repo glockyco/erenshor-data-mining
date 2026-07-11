@@ -1,13 +1,14 @@
 {{Character
 |name=A Protected Memory
 |image=[[File:A Protected Memory.png|thumb]]
-|imagecaption=Needed to unlock {{QuestLink|link=A Dying Wish (Quest)#Part_One{{!}}A Dying Wish, Pt. 1}}
-|type=[[Enemies|Enemy]]
+|imagecaption=
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Blooming Sepulcher]]
 |coordinates=785.2 x 319.5 x 378.5
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=30
 |levelmodmin=0
@@ -35,13 +36,14 @@
 {{Character
 |name=A Protected Memory
 |image=[[File:A Protected Memory.png|thumb]]
-|imagecaption=Needed to unlock {{QuestLink|link=A Dying Wish (Quest)#Part_Two{{!}}A Dying Wish, Pt. 2}}
-|type=[[Enemies|Enemy]]
+|imagecaption=
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Blooming Sepulcher]]
 |coordinates=533.6 x 355.4 x 764.1
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0
@@ -69,13 +71,14 @@
 {{Character
 |name=A Protected Memory
 |image=[[File:A Protected Memory.png|thumb]]
-|imagecaption=Needed to unlock {{QuestLink|link=A Dying Wish (Quest)#Part_Three{{!}}A Dying Wish, Pt. 3}}
-|type=[[Enemies|Enemy]]
+|imagecaption=
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Blooming Sepulcher]]
 |coordinates=179.5 x 371.2 x 613.3
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=21
 |levelmodmin=0

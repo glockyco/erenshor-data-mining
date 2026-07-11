@@ -2,12 +2,13 @@
 |name=Fawn of Fernalla
 |image=[[File:Fawn of Fernalla.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=35
 |levelmodmin=0

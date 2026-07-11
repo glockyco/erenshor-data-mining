@@ -2,12 +2,13 @@
 |name=Gasper Bulksh
 |image=[[File:Gasper Bulksh.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Huntsmen]]
 |factionChange=-50 [[The Huntsmen]]
 |zones=[[Silkengrass Meadowlands]]
 |coordinates=1043.7 x 29.3 x 341.2
 |spawnchance=
+|spawntype=
 |respawn=4 minutes
 |level=22
 |levelmodmin=0

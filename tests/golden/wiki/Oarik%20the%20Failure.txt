@@ -2,12 +2,13 @@
 |name=Oarik the Failure
 |image=[[File:Oarik the Failure.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=[[Vitheo's Rest]]
 |coordinates=433.2 x -28.9 x 402.0
 |spawnchance=99%
+|spawntype=
 |respawn=5 minutes
 |level=25
 |levelmodmin=0

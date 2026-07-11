@@ -2,12 +2,13 @@
 |name=Grizzlepaw
 |image=[[File:Grizzlepaw.png|thumb]]
 |imagecaption=A very heavy boi
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]
 |coordinates=79.6 x 19.1 x 356.1
 |spawnchance=75%
+|spawntype=
 |respawn=4 minutes
 |level=9
 |levelmodmin=0

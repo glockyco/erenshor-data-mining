@@ -2,12 +2,13 @@
 |name=Invader of Dreams
 |image=[[File:Invader of Dreams.png|thumb]]
 |imagecaption="Do not seek us, or else we will seek you."
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
 |coordinates=343.5 x 0.5 x 405.9
 |spawnchance=
+|spawntype=
 |respawn=Instanced
 |level=24
 |levelmodmin=0

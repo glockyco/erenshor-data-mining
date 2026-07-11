@@ -2,12 +2,13 @@
 |name=Liam Olvaro
 |image=[[File:Liam Olvaro.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=-55 [[The Citizens of Erenshor]]
 |zones=[[Windwashed Pass]]
 |coordinates=349.7 x 32.4 x 251.4
 |spawnchance=
+|spawntype=
 |respawn=
 |level=8
 |levelmodmin=0

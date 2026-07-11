@@ -2,12 +2,13 @@
 |name=Bloom Preserver
 |image=[[File:Bloom Preserver.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=27
 |levelmodmin=0

@@ -2,12 +2,13 @@
 |name=Undying Light
 |image=[[File:Undying Light.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]
-|coordinates=
+|coordinates=-147.3 x -68.3 x 336.0<br>-134.1 x -68.3 x 351.0<br>-134.1 x -68.3 x 320.7<br>-120.2 x -68.3 x 336.0<br>-32.3 x -68.3 x 336.0<br>-19.1 x -68.3 x 351.0<br>-19.1 x -68.3 x 320.7<br>-5.2 x -68.3 x 336.0
 |spawnchance=
+|spawntype=Dynamic event spawn
 |respawn=
 |level=25
 |levelmodmin=0

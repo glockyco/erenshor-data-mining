@@ -2,12 +2,13 @@
 |name=Solunarian Protector
 |image=[[File:Solunarian Protector.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=-15 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]<br>[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=37
 |levelmodmin=0

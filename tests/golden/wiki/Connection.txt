@@ -32,14 +32,14 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Peerless Haste}}
+|add_proc={{AbilityLink|Peerless Grace}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=
-|special_descriptor=gain a 3% chance to proc Peerless Grace (35% haste)
+|special_descriptor=Peerless Grace: 35% haste, +2 Atk Roll Modifier
 |hp=
 |ac=
 |mana=

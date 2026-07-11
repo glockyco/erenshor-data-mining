@@ -2,12 +2,13 @@
 |name=Celestial Matter
 |image=[[File:Celestial Matter.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=24
 |levelmodmin=0

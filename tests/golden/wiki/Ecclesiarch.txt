@@ -2,12 +2,13 @@
 |name=Ecclesiarch
 |image=[[File:Ecclesiarch.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]
 |coordinates=764.6 x 25.4 x 274.8
 |spawnchance=20%
+|spawntype=
 |respawn=4 minutes
 |level=17
 |levelmodmin=0

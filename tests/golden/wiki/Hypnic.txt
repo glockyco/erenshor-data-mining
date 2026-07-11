@@ -2,12 +2,13 @@
 |name=Hypnic
 |image=[[File:Hypnic.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=663.8 x 9.4 x 313.6
 |spawnchance=
+|spawntype=
 |respawn=
 |level=38
 |levelmodmin=0

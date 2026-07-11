@@ -2,12 +2,13 @@
 |name=Overseer Refleigh
 |image=[[File:Overseer Refleigh.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]
 |coordinates=678.7 x 46.7 x 866.5
 |spawnchance=95%
+|spawntype=
 |respawn=4 minutes
 |level=21
 |levelmodmin=0

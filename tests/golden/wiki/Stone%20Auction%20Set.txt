@@ -16,4 +16,5 @@
 
 {{ItemTooltip|stablekey=item:furniture - stone auction}}
 
+[[Category:Furniture]]
 [[Category:Items]]

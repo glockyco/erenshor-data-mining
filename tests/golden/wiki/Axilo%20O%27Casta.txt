@@ -2,12 +2,13 @@
 |name=Axilo O'Casta
 |image=[[File:Axilo O'Casta.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Fernalla's Revival Plains]]
 |coordinates=330.6 x 44.8 x 745.6
 |spawnchance=
+|spawntype=
 |respawn=3 minutes
 |level=22
 |levelmodmin=0

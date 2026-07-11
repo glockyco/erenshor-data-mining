@@ -4,12 +4,13 @@
 |name=Raval, The First Paladin
 |image=[[File:Raval, The First Paladin.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]
 |coordinates=739.5 x 126.9 x 861.0
 |spawnchance=
+|spawntype=
 |respawn=5 minutes
 |level=32
 |levelmodmin=0

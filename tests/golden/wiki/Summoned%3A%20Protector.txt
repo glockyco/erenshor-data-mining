@@ -2,12 +2,13 @@
 |name=Summoned: Protector
 |image=[[File:Summoned: Protector.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Jaws of Sivakaya]]
 |coordinates=
 |spawnchance=
+|spawntype=
 |respawn=5-13 minutes
 |level=36
 |levelmodmin=0
