@@ -14,7 +14,9 @@ from erenshor.infrastructure.database.repository import BaseRepository, Reposito
 
 _SMITHING_FACT_ID = "smithing.upgrade_ids"
 _SMITHING_FACT_KEY = "strings"
-_SMITHING_UPGRADE_IDS = ("31377423", "46289586", "2298018", "2265228")
+_SMITHING_UPGRADE_IDS = ("31377423", "2298018", "2265228")
+_SMITHING_FUEL_ID = "46289586"
+_SMITHING_REFERENCED_IDS = (*_SMITHING_UPGRADE_IDS, _SMITHING_FUEL_ID)
 _SMITHING_SPECIAL_TARGET_IDS = {
     "46289586": ("31377423", "upgrade_material"),
     "2298018": ("2298018", "blessing_removal_material"),
@@ -780,17 +782,17 @@ class ItemRepository(BaseRepository[Item]):
                 f"{','.join(_SMITHING_UPGRADE_IDS)}, got {fact_value!r}"
             )
 
-        placeholders = ",".join("?" for _ in _SMITHING_UPGRADE_IDS)
+        placeholders = ",".join("?" for _ in _SMITHING_REFERENCED_IDS)
         try:
             item_rows = self._execute_raw(
                 f"SELECT id, stable_key FROM items WHERE id IN ({placeholders})",
-                _SMITHING_UPGRADE_IDS,
+                _SMITHING_REFERENCED_IDS,
             )
         except Exception as e:
             raise RepositoryError("Failed to resolve smithing code-fact item IDs") from e
         id_to_stable = {str(row["id"]): str(row["stable_key"]) for row in item_rows}
-        if set(id_to_stable) != set(_SMITHING_UPGRADE_IDS):
-            missing = sorted(set(_SMITHING_UPGRADE_IDS) - set(id_to_stable))
+        if set(id_to_stable) != set(_SMITHING_REFERENCED_IDS):
+            missing = sorted(set(_SMITHING_REFERENCED_IDS) - set(id_to_stable))
             raise ValueError(f"Smithing code-fact drift: missing item IDs {', '.join(missing)}")
         stable_to_id = {stable_key: item_id for item_id, stable_key in id_to_stable.items()}
         cache = (stable_to_id, id_to_stable)

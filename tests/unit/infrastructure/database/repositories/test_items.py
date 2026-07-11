@@ -210,7 +210,7 @@ def test_used_in_sources_cover_crafting_and_smithing(item_repo: ItemRepository) 
     assert merging_vessel == []
 
 
-@pytest.mark.parametrize("fact_value", [None, "31377423,46289586,2298018"])
+@pytest.mark.parametrize("fact_value", [None, "31377423,2298018"])
 def test_smithing_code_fact_drift_fails_fast(tmp_path: Path, fact_value: str | None) -> None:
     """Smithing special-use resolution rejects missing or changed facts."""
     db_path = tmp_path / "smithing.sqlite"
