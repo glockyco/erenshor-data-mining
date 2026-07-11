@@ -49,7 +49,7 @@ fields = ["WardSpawnable"]
 
 [[allowed]]
 script = "SprinklesEvent"
-fields = ["ForestWard"]
+fields = ["ForestWard", "Trickster"]
 
 [[allowed]]
 script = "StowawayPortal"
