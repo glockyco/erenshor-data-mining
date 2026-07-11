@@ -10,6 +10,7 @@
 - **LootTable Gold Range Export** [plan] `2026-06-30-loot-table-gold-range-export` (0/12) ← 2026-07-09-erenshor-planning-overview
 - **Erenshor — Planning Overview** [overview] `2026-07-09-erenshor-planning-overview`
 - **Wiki Deferred Obtainability Mechanics** [plan] `2026-07-10-wiki-deferred-mechanics` (0/14) ← 2026-06-23-wiki-cargo-phase-3
+- **Dynamic Spawn Semantics and Map UX Audit** [plan] `2026-07-11-dynamic-spawn-semantics-map-ux` (—)
 - **Wiki Legacy Article Cutover** [plan] `wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
 
 ## draft
