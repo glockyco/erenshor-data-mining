@@ -26,6 +26,7 @@ export type SpawnCharacter = {
     level: number;
     spawnChance: number | null;
     sourceScript: string | null;
+    eventPosition: { x: number; y: number; z: number } | null;
     isCommon: boolean;
     isRare: boolean;
     isUnique: boolean;

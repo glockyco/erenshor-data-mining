@@ -459,6 +459,9 @@ export class RepositoryBase {
                 rep.invulnerable                AS Invulnerable,
                 sum(cs.spawn_chance)            AS SpawnChance,
                 MAX(cs.source_script)             AS SourceScript,
+                MAX(cs.event_x)                   AS EventX,
+                MAX(cs.event_y)                   AS EventY,
+                MAX(cs.event_z)                   AS EventZ,
                 rep.is_common                   AS IsCommon,
                 rep.is_rare                     AS IsRare,
                 rep.is_unique                   AS IsUnique,
@@ -523,6 +526,14 @@ export class RepositoryBase {
                 level: (row.Level as number) ?? 1,
                 spawnChance: (row.SpawnChance as number | null) ?? null,
                 sourceScript: (row.SourceScript as string | null) ?? null,
+                eventPosition:
+                    row.EventX != null && row.EventY != null && row.EventZ != null
+                        ? {
+                              x: row.EventX as number,
+                              y: row.EventY as number,
+                              z: row.EventZ as number
+                          }
+                        : null,
                 isCommon: !!row.IsCommon,
                 isRare: !!row.IsRare,
                 isUnique: !!row.IsUnique,

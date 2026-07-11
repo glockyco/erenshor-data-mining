@@ -12,6 +12,9 @@
 |LevelMod=Float
 |RareNpcChance=Float
 |SpawnType=String
+|EventX=Float
+|EventY=Float
+|EventZ=Float
 |Origin=String
 }}
 Hidden owner for generated character spawn rows. Each generated Character page transcludes this template so it owns the Spawns rows without attaching them to the Characters declaration.

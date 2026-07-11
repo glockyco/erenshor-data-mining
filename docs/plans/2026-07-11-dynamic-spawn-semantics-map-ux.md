@@ -21,7 +21,28 @@ wiki, and sheets without treating event triggers as ordinary world respawns.
 - Dynamic rows remain map-visible unless an explicit mapping rule says otherwise.
 - Keep release data refreshes separate from behavior and UX commits.
 
-## Atomic changes
+### Current evidence
+
+- The playtest raw `Characters` rows for Astra, Demented Malaroth, Shivunax,
+  and both Brax prefab variants all serialize `IsUnique=0`; the clean database
+  therefore also reports them non-unique after dynamic-only raw-flag fallback.
+- Demented Malaroth and Shivunax share the MalarothFeed instantiate position
+  `(428.4, 28.4, 642.2)` and the interaction anchor is `(336.1, 32.3, 673.6)`.
+- The ordinary Brax prefab has two scene spawns and is common; the restored
+  Brax prefab is dynamic/chained and currently derives unique from its single
+  ordinary restored placement. The active-versus-unused provenance remains
+  unresolved and requires shipped-script/prefab tracing.
+- Scene `PlaneOfBrax` names the ordinary references `BraxSpawn (6)` at
+  `(2521.9, 75.6, 381.3)` and `BraxSpawn` at `(2530.1, 75.6, 404.0)`;
+  the exported rows report the former disabled and the latter enabled.
+- The same scene contains inactive `God Brax Restored` at
+  `(2543.6, 75.5, 404.1)`. `BraxFightEvent.CheckIn` consumes `BraxSpawn` and
+  disables `GodBraxRestored`; `ResetEvent` enables the restored object after
+  the active Brax dies. The two ordinary rows therefore require provenance
+  labeling rather than being presented as two simultaneously active bosses.
+- Dynamic-only Fallen Fernalla has no base respawn value; map search currently
+  incorrectly renders the null delay as `zone re-entry`.
+
 
 ### 1. Overlapping marker presentation
 

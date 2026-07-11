@@ -61,7 +61,8 @@
             );
     });
 
-    function formatRespawnTime(seconds: number | null): string {
+    function formatRespawnTime(seconds: number | null, dynamic: boolean): string {
+        if (dynamic) return 'event-triggered';
         if (seconds === null || seconds === 0) return 'zone re-entry';
         const minutes = Math.round(seconds / 60);
         if (minutes < 1) return `~${seconds}s`;
@@ -137,7 +138,7 @@
                                         <span class="text-zinc-300">Dynamic event spawn</span>
                                         <span>·</span>
                                     {/if}
-                                    <span>{formatRespawnTime(marker.spawnDelay)} respawn</span>
+                                    <span>{formatRespawnTime(marker.spawnDelay, !!getSpawnSource(marker))} respawn</span>
                                     {#if marker.isNightSpawn}
                                         <span
                                             class="rounded px-1 py-0.5 text-[10px]
