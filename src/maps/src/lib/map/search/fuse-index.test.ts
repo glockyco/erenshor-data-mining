@@ -32,6 +32,20 @@ const entries: IndexEntry[] = [
 ];
 
 describe('searchTiered', () => {
+    it('matches punctuation-delimited names without requiring punctuation', () => {
+        const matches = searchTiered('Brax', [enemy('Brax, God of Elements')], 20);
+
+        expect(matches).toHaveLength(1);
+        expect(matches[0].result).toMatchObject({ name: 'Brax, God of Elements' });
+        expect(matches[0].matchRange).toEqual([0, 4]);
+    });
+
+    it('normalizes punctuation in multi-word queries', () => {
+        const matches = searchTiered('Brax, God', [enemy('Brax, God of Elements')], 20);
+
+        expect(matches).toHaveLength(1);
+        expect(matches[0].matchRange).toEqual([0, 9]);
+    });
     it('returns prefix matches first with matchRange', () => {
         const matches = searchTiered('lumin', entries, 20);
         expect(matches.length).toBeGreaterThan(0);

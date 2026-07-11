@@ -55,7 +55,7 @@ export type SearchResult =
 // =============================================================================
 
 export interface IndexEntry {
-    /** Lowercased text to match against */
+    /** Lowercased text to match against; punctuation is normalized at query time. */
     searchText: string;
     /** The full result returned on match */
     result: SearchResult;
