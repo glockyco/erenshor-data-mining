@@ -2088,10 +2088,6 @@
                       getRadius: 5,
                       radiusUnits: 'pixels',
                       getFillColor: [245, 158, 11, 230],
-                      getLineColor: [24, 24, 27, 255],
-                      lineWidthUnits: 'pixels',
-                      lineWidthMinPixels: 1,
-                      stroked: true,
                       pickable: false
                   })
                 : null;
@@ -2220,6 +2216,8 @@
             // Zone connections
             vis.zoneLines && zoneLineConnectionsLayer,
             vis.zoneLines && zoneLineDestinationsLayer,
+            // Event connector lines sit beneath spawn icons
+            eventAnchorLinesLayer,
             // Common enemies
             vis.spawnPoints && enemiesCommonLayer,
             // NPCs
@@ -2252,7 +2250,6 @@
             liveEnemiesBossLayer,
             livePlayerLayer,
             // Global movement overlays (below per-selection so selection paints on top)
-            eventAnchorLinesLayer,
             eventAnchorPointsLayer,
             allWanderRangesLayer,
             allPatrolPathsLayer,
