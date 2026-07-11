@@ -19,7 +19,7 @@ import { EnemySearchProvider } from './enemy-provider';
 import { NpcSearchProvider } from './npc-provider';
 import { ZoneSearchProvider } from './zone-provider';
 import { ItemSearchProvider } from './item-drop-provider';
-import { searchTiered } from './fuse-index';
+import { searchTieredWithTotal } from './fuse-index';
 
 export type { SearchResult, IndexEntry, ResolvedHighlight, SearchMatch } from './types';
 export type {
@@ -28,6 +28,40 @@ export type {
     ZoneSearchResult,
     ItemSearchResult
 } from './types';
+
+export type SearchCategory = SearchResult['type'];
+
+export interface SearchCategoryResult {
+    matches: SearchMatch[];
+    /**
+     * Number of search candidates in the exact prefix and substring tiers, or
+     * fuzzy suggestions when no exact candidate exists. This is not an
+     * authoritative database match count because fuzzy suggestions are
+     * approximate.
+     */
+    total: number;
+    hasMore: boolean;
+}
+
+export interface SearchResponse {
+    matches: SearchMatch[];
+    categories: Record<SearchCategory, SearchCategoryResult>;
+    total: number;
+    hasMore: boolean;
+}
+
+const SEARCH_CATEGORIES: SearchCategory[] = ['item', 'enemy', 'npc', 'zone'];
+
+export function emptySearchResponse(): SearchResponse {
+    const categories: Record<SearchCategory, SearchCategoryResult> = {
+        item: { matches: [], total: 0, hasMore: false },
+        enemy: { matches: [], total: 0, hasMore: false },
+        npc: { matches: [], total: 0, hasMore: false },
+        zone: { matches: [], total: 0, hasMore: false }
+    };
+
+    return { matches: [], categories, total: 0, hasMore: false };
+}
 
 // =============================================================================
 // Search Index
@@ -90,31 +124,49 @@ export function buildSearchIndex(
  * Search the index for matching entries.
  *
  * Algorithm: tiered matching (prefix → substring → Fuse fuzzy) via
- * searchTiered. Results are split into three tier buckets (by matchRange:
+ * searchTieredWithTotal. Results are split into three tier buckets (by matchRange:
  * prefix at [0,..], substring at [>0,..], fuzzy with null), each bucket is
  * grouped by category, sorted within category, and round-robin interleaved
- * across categories. Each category is capped independently before interleaving,
- * so a large drop result set cannot hide matching enemies, NPCs, or zones. The
- * final list is capped globally for the command palette; chip counts therefore
- * describe visible matches, not the total number of database matches.
+ * across categories. Each category reports its exact candidate total, or fuzzy
+ * candidate total when no exact matches exist, plus a capped visible subset.
+ * The final list is capped globally for the command palette, and `hasMore`
+ * explicitly signals that the visible list is incomplete.
  */
-export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchMatch[] {
-    const entriesByCategory = new Map<string, IndexEntry[]>();
+export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchResponse {
+    const entriesByCategory: Record<SearchCategory, IndexEntry[]> = {
+        item: [],
+        enemy: [],
+        npc: [],
+        zone: []
+    };
     for (const entry of index) {
-        const categoryEntries = entriesByCategory.get(entry.result.type);
-        if (categoryEntries) {
-            categoryEntries.push(entry);
-        } else {
-            entriesByCategory.set(entry.result.type, [entry]);
-        }
+        entriesByCategory[entry.result.type].push(entry);
     }
 
-    // Cap each category independently before interleaving. A global cap here
-    // would let a large item result set hide matching enemies, NPCs, or zones.
-    const matches = [...entriesByCategory.values()].flatMap((categoryEntries) =>
-        searchTiered(query, categoryEntries, limit)
-    );
-    if (matches.length === 0) return [];
+    const categories: Record<SearchCategory, SearchCategoryResult> = {
+        item: getCategoryResults('item'),
+        enemy: getCategoryResults('enemy'),
+        npc: getCategoryResults('npc'),
+        zone: getCategoryResults('zone')
+    };
+
+    function getCategoryResults(category: SearchCategory): SearchCategoryResult {
+        const result = searchTieredWithTotal(query, entriesByCategory[category], limit);
+        const matches = sortCategoryMatches(category, result.matches);
+        return {
+            matches,
+            total: result.total,
+            hasMore: result.total > matches.length
+        };
+    }
+    const total = SEARCH_CATEGORIES.reduce((sum, category) => sum + categories[category].total, 0);
+
+    // Split capped category results into tier buckets: prefix (range starts at
+    // 0), substring (range starts > 0), fuzzy (null range).
+    const matches = SEARCH_CATEGORIES.flatMap((category) => categories[category].matches);
+    if (matches.length === 0) {
+        return { matches: [], categories, total, hasMore: total > 0 };
+    }
 
     // Split into tier buckets: prefix (range starts at 0), substring
     // (range starts > 0), fuzzy (null range)
@@ -154,7 +206,29 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
     if (results.length < limit) {
         interleave(fuzzyByCategory, results, limit);
     }
-    return results;
+    return {
+        matches: results,
+        categories,
+        total,
+        hasMore: results.length < total
+    };
+}
+
+function sortCategoryMatches(category: SearchCategory, matches: SearchMatch[]): SearchMatch[] {
+    const prefix: SearchMatch[] = [];
+    const substring: SearchMatch[] = [];
+    const fuzzy: SearchMatch[] = [];
+
+    for (const match of matches) {
+        if (match.matchRange === null) fuzzy.push(match);
+        else if (match.matchRange[0] === 0) prefix.push(match);
+        else substring.push(match);
+    }
+
+    sortCategoryResults(category, prefix);
+    sortCategoryResults(category, substring);
+    sortCategoryResults(category, fuzzy);
+    return [...prefix, ...substring, ...fuzzy];
 }
 
 /**
@@ -165,15 +239,19 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
  */
 function sortCategories(byCategory: Map<string, SearchMatch[]>): void {
     for (const [cat, results] of byCategory) {
-        if (cat === 'enemy') {
-            results.sort((a, b) => {
-                const ae = a.result as EnemySearchResult;
-                const be = b.result as EnemySearchResult;
-                return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
-            });
-        } else {
-            results.sort((a, b) => sortName(a.result).localeCompare(sortName(b.result)));
-        }
+        sortCategoryResults(cat, results);
+    }
+}
+
+function sortCategoryResults(cat: string, results: SearchMatch[]): void {
+    if (cat === 'enemy') {
+        results.sort((a, b) => {
+            const ae = a.result as EnemySearchResult;
+            const be = b.result as EnemySearchResult;
+            return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
+        });
+    } else {
+        results.sort((a, b) => sortName(a.result).localeCompare(sortName(b.result)));
     }
 }
 

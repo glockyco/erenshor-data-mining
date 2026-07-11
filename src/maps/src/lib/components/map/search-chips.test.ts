@@ -1,32 +1,46 @@
 import { describe, it, expect } from 'vitest';
-import type { SearchMatch } from '$lib/map/search';
+import { emptySearchResponse, type SearchMatch, type SearchResponse } from '$lib/map/search';
 import { computeChipCounts } from './search-chips';
 
+function responseFor(matches: SearchMatch[]): SearchResponse {
+    const response = emptySearchResponse();
+    response.matches = matches;
+    response.total = matches.length;
+    for (const match of matches) {
+        const category = response.categories[match.result.type];
+        category.matches.push(match);
+        category.total += 1;
+    }
+    return response;
+}
+
 describe('computeChipCounts', () => {
-    it('counts static results by type', () => {
+    it('reports visible and total static results by type', () => {
         const matches: SearchMatch[] = [
             { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, dropperCount: 1, zoneCount: 1 }, matchRange: null },
             { result: { type: 'item', itemStableKey: 'b', itemName: 'B', iconName: null, wikiPageName: null, dropperCount: 1, zoneCount: 1 }, matchRange: null },
             { result: { type: 'enemy', name: 'Goblin', effectiveRarity: 2, spawnCount: 1, zoneCount: 1 }, matchRange: null }
         ];
-        const counts = computeChipCounts(matches, 0);
-        expect(counts.get('item')).toBe(2);
-        expect(counts.get('enemy')).toBe(1);
-        expect(counts.get('npc')).toBe(0);
-        expect(counts.get('zone')).toBe(0);
+        const counts = computeChipCounts(responseFor(matches), 0);
+        expect(counts.get('all')).toEqual({ visible: 3, total: 3, hasMore: false });
+        expect(counts.get('item')).toEqual({ visible: 2, total: 2, hasMore: false });
+        expect(counts.get('enemy')).toEqual({ visible: 1, total: 1, hasMore: false });
+        expect(counts.get('npc')).toEqual({ visible: 0, total: 0, hasMore: false });
+        expect(counts.get('zone')).toEqual({ visible: 0, total: 0, hasMore: false });
     });
 
-    it('includes live count when provided', () => {
-        const matches: SearchMatch[] = [
+    it('discloses live totals and aggregates them into All', () => {
+        const response = responseFor([
             { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, dropperCount: 1, zoneCount: 1 }, matchRange: null }
-        ];
-        const counts = computeChipCounts(matches, 3);
-        expect(counts.get('live')).toBe(3);
+        ]);
+        const counts = computeChipCounts(response, 3, 7);
+        expect(counts.get('all')).toEqual({ visible: 4, total: 8, hasMore: true });
+        expect(counts.get('live')).toEqual({ visible: 3, total: 7, hasMore: true });
     });
 
     it('excludes live key when liveCount is 0', () => {
-        const matches: SearchMatch[] = [];
-        const counts = computeChipCounts(matches, 0);
+        const counts = computeChipCounts(responseFor([]), 0);
         expect(counts.has('live')).toBe(false);
+        expect(counts.get('all')).toEqual({ visible: 0, total: 0, hasMore: false });
     });
 });

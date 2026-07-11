@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
 import { searchMarkers } from './index';
-import { computeChipCounts } from '$lib/components/map/search-chips';
 
 function item(name: string, stableKey: string): IndexEntry {
     return {
@@ -39,7 +38,7 @@ describe('searchMarkers', () => {
             enemy('Goblin Shaman'),
             item('Goblin Tooth', 'item:gob-tooth')
         ];
-        const matches = searchMarkers('goblin', entries, 20);
+        const matches = searchMarkers('goblin', entries, 20).matches;
         // All three match; prefix matches should come first
         const goblinIdx = matches.findIndex(
             (m) => m.result.type === 'enemy' && m.result.name === 'Goblin'
@@ -58,7 +57,7 @@ describe('searchMarkers', () => {
             enemy('Citrine Guardian'),  // contains 'citrin' as substring
             item('Catrine Ring', 'item:catrine')  // fuzzy match for 'citrin'
         ];
-        const matches = searchMarkers('citrin', entries, 20);
+        const matches = searchMarkers('citrin', entries, 20).matches;
         const guardianIdx = matches.findIndex(
             (m) => m.result.type === 'enemy' && m.result.name === 'Citrine Guardian'
         );
@@ -80,14 +79,31 @@ describe('searchMarkers', () => {
             enemy('Brax, God of Elements')
         ];
 
-        const matches = searchMarkers('brax', entries, 20);
+        const response = searchMarkers('brax', entries, 20);
+        const matches = response.matches;
 
         expect(matches).toHaveLength(20);
         expect(matches.some((m) => m.result.type === 'enemy')).toBe(true);
-        expect(computeChipCounts(matches, 0).get('enemy')).toBe(1);
+        expect(response.categories.item.total).toBe(21);
+        expect(response.categories.item.hasMore).toBe(true);
+        expect(response.categories.enemy.total).toBe(1);
+        expect(response.categories.enemy.hasMore).toBe(false);
+        expect(response.total).toBe(22);
+        expect(response.hasMore).toBe(true);
+        expect(response.categories.item.matches).toHaveLength(20);
+        expect(response.categories.enemy.matches).toHaveLength(1);
+
+        const exact = searchMarkers(
+            'brax',
+            Array.from({ length: 20 }, (_, i) => item(`Brax Drop ${i}`, `item:exact-${i}`)),
+            20
+        );
+        expect(exact.categories.item.total).toBe(20);
+        expect(exact.categories.item.hasMore).toBe(false);
+        expect(exact.hasMore).toBe(false);
     });
-    it('returns empty array for queries shorter than 2 chars', () => {
-        expect(searchMarkers('a', [], 20)).toEqual([]);
-        expect(searchMarkers('', [], 20)).toEqual([]);
+    it('returns an empty response for queries shorter than 2 chars', () => {
+        expect(searchMarkers('a', [], 20).matches).toEqual([]);
+        expect(searchMarkers('', [], 20).matches).toEqual([]);
     });
 });

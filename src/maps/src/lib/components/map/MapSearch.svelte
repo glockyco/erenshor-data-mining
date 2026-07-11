@@ -1,6 +1,13 @@
 <script lang="ts">
     import { Command } from 'bits-ui';
-    import { searchMarkers, type SearchResult, type SearchMatch, type IndexEntry } from '$lib/map/search';
+    import {
+        emptySearchResponse,
+        searchMarkers,
+        type SearchResult,
+        type SearchMatch,
+        type IndexEntry,
+        type SearchResponse
+    } from '$lib/map/search';
     import { splitByMatchRange, type TextSegment } from '$lib/map/search/match-highlight';
     import { Rarity } from '$lib/map-markers';
     import type { EntityData } from '$lib/map/live/types';
@@ -16,7 +23,11 @@
     // Live-only result type, separate from the static SearchResult union
     type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string; matchRange: [number, number] | null };
 
-    // Combined item for the rendered list
+    type LiveSearchResponse = {
+        matches: LiveSearchResult[];
+        total: number;
+    };
+
     type AnyResult = { kind: 'static'; match: SearchMatch } | LiveSearchResult;
 
     interface Props {
@@ -44,8 +55,9 @@
     }: Props = $props();
 
     let query = $state('');
-    let staticResults = $state<SearchMatch[]>([]);
+    let staticSearch = $state<SearchResponse>(emptySearchResponse());
     let liveResults = $state<LiveSearchResult[]>([]);
+    let liveTotal = $state(0);
     let loading = $state(false);
     let activeCategory = $state<Category>('all');
 
@@ -56,13 +68,17 @@
         if (query.length >= 2) {
             loading = true;
             searchTimeout = setTimeout(() => {
-                staticResults = searchMarkers(query, index);
-                liveResults = searchLiveEntities(query);
+                const response = searchMarkers(query, index);
+                staticSearch = response;
+                const liveSearch = searchLiveEntities(query);
+                liveResults = liveSearch.matches;
+                liveTotal = liveSearch.total;
                 loading = false;
             }, 150);
         } else {
-            staticResults = [];
+            staticSearch = emptySearchResponse();
             liveResults = [];
+            liveTotal = 0;
             loading = false;
         }
     });
@@ -76,8 +92,9 @@
             }
         } else {
             query = '';
-            staticResults = [];
+            staticSearch = emptySearchResponse();
             liveResults = [];
+            liveTotal = 0;
         }
     });
 
@@ -85,8 +102,8 @@
      * Search live entities by name. Prefix matches first, then substring.
      * Capped at 5 results — live entities are transient and highly contextual.
      */
-    function searchLiveEntities(q: string): LiveSearchResult[] {
-        if (!liveZone || liveEntities.length === 0) return [];
+    function searchLiveEntities(q: string): LiveSearchResponse {
+        if (!liveZone || liveEntities.length === 0) return { matches: [], total: 0 };
         const lower = q.toLowerCase().trim();
         const zone = liveZone;
         const prefix: LiveSearchResult[] = [];
@@ -100,7 +117,8 @@
                 substring.push({ kind: 'live', entity, zone, matchRange: [startIdx, startIdx + lower.length] });
             }
         }
-        return [...prefix, ...substring].slice(0, 5);
+        const matches = [...prefix, ...substring];
+        return { matches: matches.slice(0, 5), total: matches.length };
     }
 
     function handleSelect(item: AnyResult) {
@@ -241,26 +259,51 @@
         return { destroy: () => observer.disconnect() };
     }
 
-    // Chip counts from current results
-    const chipCounts = $derived(computeChipCounts(staticResults, liveResults.length));
+    // Chip counts from current results. Static counts include the per-category
+    // capped lists and total candidate counts; live has its own five-row cap.
+    const chipCounts = $derived(computeChipCounts(staticSearch, liveResults.length, liveTotal));
 
-    // Filtered results by active category
+    // Filtered results by active category. Category chips use their own capped
+    // result list rather than filtering the globally interleaved projection.
     const filteredStatic = $derived(
         activeCategory === 'all' || activeCategory === 'live'
-            ? staticResults
-            : staticResults.filter((m) => m.result.type === activeCategory)
+            ? staticSearch.matches
+            : staticSearch.categories[activeCategory].matches
     );
     const filteredLive = $derived(
         activeCategory === 'all' || activeCategory === 'live' ? liveResults : []
     );
     const filteredHasResults = $derived(filteredStatic.length > 0 || filteredLive.length > 0);
 
+    const resultSummary = $derived.by(() => {
+        if (query.length < 2 || !filteredHasResults) return null;
+
+        let visible: number;
+        let total: number;
+        if (activeCategory === 'all') {
+            visible = staticSearch.matches.length + liveResults.length;
+            total = staticSearch.total + liveTotal;
+        } else if (activeCategory === 'live') {
+            visible = liveResults.length;
+            total = liveTotal;
+        } else {
+            const category = staticSearch.categories[activeCategory];
+            visible = category.matches.length;
+            total = category.total;
+        }
+
+        if (total > visible) {
+            return `Showing ${visible} of ${total} search candidates. Refine your search to see more.`;
+        }
+        return `Showing ${visible} search candidates.`;
+    });
+
     // Arrow-key category switching when focus is in the chip row
     function handleChipKeydown(e: KeyboardEvent) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         const order: Category[] = ['all', 'live', 'item', 'enemy', 'npc', 'zone'];
         const available = order.filter(
-            (c) => c === 'all' || (chipCounts.get(c) ?? 0) > 0 || c === 'live'
+            (c) => c === 'all' || (chipCounts.get(c)?.total ?? 0) > 0 || c === 'live'
         );
         const currentIdx = available.indexOf(activeCategory);
         e.preventDefault();
@@ -290,7 +333,7 @@
                    outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
     </div>
-    {#if query.length >= 2 && (staticResults.length > 0 || liveResults.length > 0)}
+    {#if query.length >= 2 && (staticSearch.matches.length > 0 || liveResults.length > 0)}
         <div role="toolbar" aria-label="Filter results by category" tabindex="0" onkeydown={handleChipKeydown}>
             <SearchChips
                 activeCategory={activeCategory}
@@ -298,6 +341,11 @@
                 onSelect={(cat) => (activeCategory = cat)}
             />
         </div>
+        {#if resultSummary}
+            <div class="px-3 pb-1 text-[11px] text-zinc-500" role="status">
+                {resultSummary}
+            </div>
+        {/if}
     {/if}
     <div use:fixScrollIntoView>
         <Command.List class="max-h-80 overflow-y-auto px-2 py-2">

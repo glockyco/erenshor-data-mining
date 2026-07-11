@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
-import { searchTiered } from './fuse-index';
+import { searchTiered, searchTieredWithTotal } from './fuse-index';
 
 function enemy(name: string): IndexEntry {
     return {
@@ -69,6 +69,13 @@ describe('searchTiered', () => {
         expect(hasFuzzy).toBe(true);
     });
 
+    it('reports fuzzy suggestions as candidate totals', () => {
+        const result = searchTieredWithTotal('lumsten', entries, 1);
+
+        expect(result.matches).toHaveLength(1);
+        expect(result.matches[0].matchRange).toBeNull();
+        expect(result.total).toBeGreaterThanOrEqual(result.matches.length);
+    });
     it('does not pad results with fuzzy matches when exact matches exist', () => {
         // 'lumin' has exact prefix/substring matches; fuzzy should NOT fire
         const matches = searchTiered('lumin', entries, 20);

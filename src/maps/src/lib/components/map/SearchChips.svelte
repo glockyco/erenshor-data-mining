@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { CHIP_CONFIG, type Category } from './search-chips';
+    import { CHIP_CONFIG, type Category, type ChipCount } from './search-chips';
 
     interface Props {
         activeCategory: Category;
-        counts: Map<string, number>;
+        counts: Map<string, ChipCount>;
         onSelect: (cat: Category) => void;
     }
 
@@ -26,9 +26,9 @@
     aria-label="Filter by category"
 >
     {#each visibleChips as chip (chip.key)}
-        {@const count = counts.get(chip.key) ?? 0}
+        {@const count = counts.get(chip.key) ?? { visible: 0, total: 0, hasMore: false }}
         {@const isActive = activeCategory === chip.key}
-        {@const isDisabled = count === 0 && chip.key !== 'all'}
+        {@const isDisabled = count.total === 0 && chip.key !== 'all'}
         <button
             type="button"
             class="rounded-full px-2.5 py-1 text-xs font-medium transition-colors
@@ -37,12 +37,15 @@
                 : 'bg-surface-2 text-muted hover:text-ink'}
                    {isDisabled ? 'opacity-40 cursor-not-allowed' : ''}"
             aria-pressed={isActive}
+            aria-label={`${chip.label}: ${count.visible} of ${count.total} search candidates`}
             disabled={isDisabled}
             onclick={() => onSelect(chip.key)}
         >
             {chip.label}
-            {#if count > 0}
-                <span class="ml-1 opacity-70">({count})</span>
+            {#if count.total > 0}
+                <span class="ml-1 opacity-70">
+                    ({count.visible}{count.hasMore ? ` of ${count.total}` : ''})
+                </span>
             {/if}
         </button>
     {/each}

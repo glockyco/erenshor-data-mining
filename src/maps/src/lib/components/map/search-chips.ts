@@ -1,26 +1,45 @@
-import type { SearchMatch } from '$lib/map/search';
+import type { SearchCategory, SearchResponse } from '$lib/map/search';
 
-export type Category = 'all' | 'live' | 'item' | 'enemy' | 'npc' | 'zone';
+export type Category = 'all' | 'live' | SearchCategory;
+
+export interface ChipCount {
+    visible: number;
+    total: number;
+    hasMore: boolean;
+}
 
 /**
- * Count visible matches by category for chip display. Includes a 'live' key only
- * when liveCount > 0 (companion mod connected); static types are always
- * present (0 count if no matches).
+ * Count visible and total matches by category for chip display. Static category
+ * counts come from their capped result lists; All aggregates static and live
+ * projections, while live has a separate cap.
  */
 export function computeChipCounts(
-    matches: SearchMatch[],
-    liveCount: number
-): Map<string, number> {
-    const counts = new Map<string, number>([
-        ['item', 0],
-        ['enemy', 0],
-        ['npc', 0],
-        ['zone', 0]
-    ]);
-    if (liveCount > 0) counts.set('live', liveCount);
-    for (const m of matches) {
-        const type = m.result.type;
-        counts.set(type, (counts.get(type) ?? 0) + 1);
+    response: SearchResponse,
+    liveCount: number,
+    liveTotal = liveCount
+): Map<string, ChipCount> {
+    const counts = new Map<string, ChipCount>();
+    counts.set('all', {
+        visible: response.matches.length + liveCount,
+        total: response.total + liveTotal,
+        hasMore: response.hasMore || liveTotal > liveCount
+    });
+    const staticCategories: SearchCategory[] = ['item', 'enemy', 'npc', 'zone'];
+    for (const category of staticCategories) {
+        const categoryResult = response.categories[category];
+        counts.set(category, {
+            visible: categoryResult.matches.length,
+            total: categoryResult.total,
+            hasMore: categoryResult.hasMore
+        });
+    }
+
+    if (liveCount > 0) {
+        counts.set('live', {
+            visible: liveCount,
+            total: liveTotal,
+            hasMore: liveTotal > liveCount
+        });
     }
     return counts;
 }

@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import type { IndexEntry, SearchMatch, SearchResult } from './types';
+import type { IndexEntry, SearchMatch } from './types';
 
 /** Normalize case and punctuation without changing the displayed result text. */
 export function normalizeSearchText(value: string): string {
@@ -61,13 +61,26 @@ function findMatchRange(candidate: NormalizedText, query: string): [number, numb
  * Within each tier, results keep their array order (already sorted by the
  * provider's buildIndex). The caller handles category interleaving.
  */
+export type TieredSearchResult = {
+    matches: SearchMatch[];
+    total: number;
+};
+
 export function searchTiered(
     query: string,
     entries: IndexEntry[],
     limit: number
 ): SearchMatch[] {
+    return searchTieredWithTotal(query, entries, limit).matches;
+}
+
+export function searchTieredWithTotal(
+    query: string,
+    entries: IndexEntry[],
+    limit: number
+): TieredSearchResult {
     const q = normalizeSearchText(query);
-    if (q.length < 2) return [];
+    if (q.length < 2) return { matches: [], total: 0 };
 
     const prefix: SearchMatch[] = [];
     const substring: SearchMatch[] = [];
@@ -97,7 +110,7 @@ export function searchTiered(
     // not a supplement for good matches.
     const exactMatches = [...prefix, ...substring];
     if (exactMatches.length > 0) {
-        return exactMatches.slice(0, limit);
+        return { matches: exactMatches.slice(0, limit), total: exactMatches.length };
     }
 
     // Fuse fallback for typos — only if exact matching didn't fill the limit
@@ -113,22 +126,10 @@ export function searchTiered(
         includeScore: true,
         ignoreLocation: false
     }).search(q);
-    const exactKeys = new Set(exactMatches.map((m) => getMatchKey(m.result)));
-    const fuzzy: SearchMatch[] = [];
+    const fuzzy = fuzzyResults.map((fr) => ({
+        result: fr.item.result,
+        matchRange: null
+    }));
 
-    for (const fr of fuzzyResults) {
-        if (exactKeys.has(getMatchKey(fr.item.result))) continue;
-        fuzzy.push({
-            result: fr.item.result,
-            matchRange: null
-        });
-        if (exactMatches.length + fuzzy.length >= limit) break;
-    }
-
-    return [...exactMatches, ...fuzzy].slice(0, limit);
-}
-
-/** Stable key for deduplication — items use stableKey, others use name. */
-function getMatchKey(result: SearchResult): string {
-    return result.type === 'item' ? result.itemStableKey : result.name;
+    return { matches: fuzzy.slice(0, limit), total: fuzzy.length };
 }
