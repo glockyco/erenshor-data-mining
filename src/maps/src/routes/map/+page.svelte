@@ -396,7 +396,6 @@
         const marker = findMarkerByStableKey(stableKey);
         if (!marker || (marker.category !== 'enemy' && marker.category !== 'npc')) return;
         applySelection({ type: 'marker', marker });
-        handleFocusSpawn(stableKey);
     }
 
     /**
