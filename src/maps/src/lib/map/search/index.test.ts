@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
 import { searchMarkers } from './index';
+import { computeChipCounts } from '$lib/components/map/search-chips';
 
 function item(name: string, stableKey: string): IndexEntry {
     return {
@@ -73,6 +74,18 @@ describe('searchMarkers', () => {
         }
     });
 
+    it('keeps matching enemies visible when drops exceed the global cap', () => {
+        const entries: IndexEntry[] = [
+            ...Array.from({ length: 21 }, (_, i) => item(`Brax Drop ${i}`, `item:brax-${i}`)),
+            enemy('Brax, God of Elements')
+        ];
+
+        const matches = searchMarkers('brax', entries, 20);
+
+        expect(matches).toHaveLength(20);
+        expect(matches.some((m) => m.result.type === 'enemy')).toBe(true);
+        expect(computeChipCounts(matches, 0).get('enemy')).toBe(1);
+    });
     it('returns empty array for queries shorter than 2 chars', () => {
         expect(searchMarkers('a', [], 20)).toEqual([]);
         expect(searchMarkers('', [], 20)).toEqual([]);

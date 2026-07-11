@@ -93,11 +93,27 @@ export function buildSearchIndex(
  * searchTiered. Results are split into three tier buckets (by matchRange:
  * prefix at [0,..], substring at [>0,..], fuzzy with null), each bucket is
  * grouped by category, sorted within category, and round-robin interleaved
- * across categories. Tiers are consumed in order (prefix first, then
- * substring, then fuzzy) so exact matches always rank above fuzzy ones.
+ * across categories. Each category is capped independently before interleaving,
+ * so a large drop result set cannot hide matching enemies, NPCs, or zones. The
+ * final list is capped globally for the command palette; chip counts therefore
+ * describe visible matches, not the total number of database matches.
  */
 export function searchMarkers(query: string, index: IndexEntry[], limit = 20): SearchMatch[] {
-    const matches = searchTiered(query, index, limit);
+    const entriesByCategory = new Map<string, IndexEntry[]>();
+    for (const entry of index) {
+        const categoryEntries = entriesByCategory.get(entry.result.type);
+        if (categoryEntries) {
+            categoryEntries.push(entry);
+        } else {
+            entriesByCategory.set(entry.result.type, [entry]);
+        }
+    }
+
+    // Cap each category independently before interleaving. A global cap here
+    // would let a large item result set hide matching enemies, NPCs, or zones.
+    const matches = [...entriesByCategory.values()].flatMap((categoryEntries) =>
+        searchTiered(query, categoryEntries, limit)
+    );
     if (matches.length === 0) return [];
 
     // Split into tier buckets: prefix (range starts at 0), substring

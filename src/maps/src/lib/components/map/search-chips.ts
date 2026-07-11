@@ -3,7 +3,7 @@ import type { SearchMatch } from '$lib/map/search';
 export type Category = 'all' | 'live' | 'item' | 'enemy' | 'npc' | 'zone';
 
 /**
- * Count results by category for chip display. Includes a 'live' key only
+ * Count visible matches by category for chip display. Includes a 'live' key only
  * when liveCount > 0 (companion mod connected); static types are always
  * present (0 count if no matches).
  */
