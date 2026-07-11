@@ -1240,7 +1240,13 @@ def _add_secret_passage_nodes(
     scene_to_zone: dict[str, str],
 ) -> None:
     zone_displays = _zone_display(conn)
-    rows = conn.execute("SELECT stable_key, scene, x, y, z, object_name FROM secret_passages")
+    rows = conn.execute(
+        """
+        SELECT stable_key, scene, x, y, z, object_name
+        FROM secret_passages
+        WHERE is_excluded = 0
+        """
+    )
     for r in rows:
         scene = r["scene"]
         zone_key = _resolve_zone(scene, scene_to_zone)

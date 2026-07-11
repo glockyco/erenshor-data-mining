@@ -198,7 +198,9 @@ CREATE TABLE secret_passages (
     y           REAL,
     z           REAL,
     object_name TEXT,
-    type        TEXT
+    type        TEXT,
+    is_excluded INTEGER NOT NULL DEFAULT 0,
+    exclusion_reason TEXT
 );
 
 CREATE TABLE ascensions (
@@ -1175,7 +1177,7 @@ CREATE VIEW coordinates AS
     UNION ALL
     SELECT stable_key, scene, x, y, z, 'ItemBag'     AS category FROM item_bags
     UNION ALL
-    SELECT stable_key, scene, x, y, z, 'SecretPassage' AS category FROM secret_passages
+    SELECT stable_key, scene, x, y, z, 'SecretPassage' AS category FROM secret_passages WHERE is_excluded = 0
     UNION ALL
     SELECT stable_key, scene, x, y, z, 'AchievementTrigger' AS category FROM achievement_triggers
     UNION ALL

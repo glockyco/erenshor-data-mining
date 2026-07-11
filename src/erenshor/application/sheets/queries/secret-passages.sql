@@ -8,5 +8,5 @@ SELECT
     map_marker_url(sp.stable_key) AS MapLink
 FROM secret_passages sp
 JOIN zones z ON z.scene_name = sp.scene
-WHERE sp.object_name NOT LIKE '%nav%' OR sp.object_name IS NULL
+WHERE sp.is_excluded = 0
 ORDER BY z.zone_name;

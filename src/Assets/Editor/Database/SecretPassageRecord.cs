@@ -18,6 +18,11 @@ public class SecretPassageRecord
     public string ObjectName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
 
+    // Keep rejected geometry candidates in the raw/clean audit table so a new
+    // scene update can be reviewed without re-running a different detector.
+    public bool IsExcluded { get; set; }
+    public string? ExclusionReason { get; set; }
+
     public enum SecretPassageType
     {
         None,

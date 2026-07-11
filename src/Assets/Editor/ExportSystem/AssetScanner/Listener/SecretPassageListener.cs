@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SQLite;
@@ -9,6 +10,14 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
     private readonly SQLiteConnection _db;
     private readonly List<SecretPassageRecord> _secretPassageRecords = new();
     private readonly DuplicateKeyTracker _keyTracker = new("SecretPassageListener");
+
+    private const string NavigationLinkExclusion = "navigation_link";
+    private const string EventAnchorExclusion = "event_anchor";
+    private const string OffNavMarkerExclusion = "off_nav_marker";
+    private const string RoomMarkerExclusion = "room_marker";
+    private const string EnvironmentVolumeExclusion = "environment_volume";
+    private const string LegacyKeywordExclusion = "legacy_keyword";
+    private const string KnownExceptionExclusion = "known_exception";
 
     public SecretPassageListener(SQLiteConnection db)
     {
@@ -41,22 +50,25 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             return;
         }
 
+        var exclusionReason = GetExclusionReason(asset.name);
         string[] keywords =
         {
             "ASCHIEVEMENT", "AUDIO", "AggroArea", "BLOCKER", "BonePile", "Bush", "Candle", "Chandelier", "Chess",
             "Cube", "Curtain", "Event", "Flowers", "Furnace", "Halberd", "LOD", "Leaves", "MemorySphere", "Mushroom",
-            "Navmesh", "Pickaxe", "Plane", "PlanterBox", "PointOfInterest", "Pole", "Rubble", "SAFESPOT",
+            "Pickaxe", "Plane", "PlanterBox", "PointOfInterest", "Pole", "Rubble", "SAFESPOT",
             "Shiver Intro", "Spear", "Sphere", "Statue", "Sword", "Torch", "Tree", "Trigger", "Tut", "Tutorial",
-            "WATER", "Water", "ZoneLine", "Zoneline", "water", "Bounds", "FishingRod", "Wall_Frame_Curved",
+            "Water", "ZoneLine", "Bounds", "FishingRod", "Wall_Frame_Curved",
         };
-        if (keywords.Any(keyword => asset.name.Contains(keyword)))
+        var matchedKeyword = keywords.FirstOrDefault(keyword =>
+            asset.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+        if (exclusionReason is null && matchedKeyword is not null)
         {
-            return;
+            exclusionReason = $"{LegacyKeywordExclusion}:{matchedKeyword}";
         }
 
         if (asset.scene.name == "Rockshade" && asset.name == "SM_Bld_Castle_Wall_01 (66)")
         {
-            return;
+            exclusionReason ??= KnownExceptionExclusion;
         }
 
         var colliders = asset.GetComponents<Collider>();
@@ -93,7 +105,15 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             return;
         }
 
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+        var isExcluded = exclusionReason is not null;
+        if (isExcluded != !string.IsNullOrEmpty(exclusionReason))
+        {
+            throw new InvalidOperationException("Secret passage exclusion must include a reason");
+        }
+
+        Debug.Log(isExcluded
+            ? $"[{GetType().Name}] Excluded: {asset.name} ({exclusionReason})"
+            : $"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
         var position = enabledRenderer ? enabledRenderer.bounds.center : enabledCollider.bounds.center;
         var scene = asset.scene.name;
@@ -113,8 +133,54 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             Z = z,
             ObjectName = asset.name,
             Type = type.ToString(),
+            IsExcluded = isExcluded,
+            ExclusionReason = exclusionReason,
         };
 
         _secretPassageRecords.Add(secretPassage);
+    }
+
+    private static string? GetExclusionReason(string objectName)
+    {
+        var normalized = objectName.Trim();
+
+        if (normalized.StartsWith("NavMeshLink", StringComparison.OrdinalIgnoreCase))
+        {
+            return NavigationLinkExclusion;
+        }
+
+        if (normalized.Equals("RAIDWELCOME", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Equals("ARENA EVENT", StringComparison.OrdinalIgnoreCase))
+        {
+            return EventAnchorExclusion;
+        }
+
+        if (normalized.StartsWith("OFFNAV", StringComparison.OrdinalIgnoreCase))
+        {
+            return OffNavMarkerExclusion;
+        }
+
+        if (IsRoomMarker(normalized))
+        {
+            return RoomMarkerExclusion;
+        }
+
+        if (normalized.Equals("ShiverClouds", StringComparison.OrdinalIgnoreCase))
+        {
+            return EnvironmentVolumeExclusion;
+        }
+
+        return null;
+    }
+
+    private static bool IsRoomMarker(string objectName)
+    {
+        if (objectName.Length != 7 || !objectName.StartsWith("Room ", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var side = char.ToUpperInvariant(objectName[5]);
+        return (side == 'L' || side == 'R') && objectName[6] is >= '1' and <= '4';
     }
 }

@@ -502,7 +502,7 @@ public static class ExportBatch
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'ItemBag' AS Category FROM ItemBags
             UNION ALL
-            SELECT StableKey, Scene, X, Y, Z, 'SecretPassage' AS Category FROM SecretPassages
+            SELECT StableKey, Scene, X, Y, Z, 'SecretPassage' AS Category FROM SecretPassages WHERE IsExcluded = 0
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'AchievementTrigger' AS Category
               FROM AchievementTriggers

@@ -395,7 +395,7 @@ export class RepositoryBase {
             sp.z AS PositionZ,
             sp.type AS Type
         FROM secret_passages sp
-        WHERE sp.scene = ? AND (sp.object_name NOT LIKE '%nav%' OR sp.object_name IS NULL)
+        WHERE sp.scene = ? AND sp.is_excluded = 0
     `,
             [mapName]
         );
