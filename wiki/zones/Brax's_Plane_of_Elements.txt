@@ -1,10 +1,10 @@
 {{Zone
-|title=Prison
+|title=Brax's Plane of Elements
 |image=
 |imagecaption=
 |type=Zone
 |level=
-|maplink={{MapLink|zone=Detention}}
+|maplink={{MapLink|zone=PlaneOfBrax}}
 |connects=
 }}
 

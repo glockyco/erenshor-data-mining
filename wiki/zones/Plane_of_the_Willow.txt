@@ -1,10 +1,10 @@
 {{Zone
-|title=Prison
+|title=Plane of the Willow
 |image=
 |imagecaption=
 |type=Zone
 |level=
-|maplink={{MapLink|zone=Detention}}
+|maplink={{MapLink|zone=PlaneOfFernalla}}
 |connects=
 }}
 

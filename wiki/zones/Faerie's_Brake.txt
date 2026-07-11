@@ -21,7 +21,7 @@ Click here and see [[Quests#Faerie's Brake|Quests]] in Faerie's Brake.
 |[[Alpha Wolf]]
 |-
 |[[Cecil Threbb]]
-|[[A Brown Bear Cub]] 
+|[[A Brown Bear Cub]]
 |[[Bassalt Vallano]]
 |-
 |[[Damien Torno]]
@@ -37,7 +37,7 @@ Click here and see [[Quests#Faerie's Brake|Quests]] in Faerie's Brake.
 |
 |-
 |[[Pierson Obero]]
-|[[A Young Wolf]] 
+|[[A Young Wolf]]
 |
 |-
 |[[Valrae Cleary]]

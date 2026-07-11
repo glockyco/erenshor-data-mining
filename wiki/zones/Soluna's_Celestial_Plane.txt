@@ -1,0 +1,11 @@
+{{Zone
+|title=Soluna's Celestial Plane
+|image=
+|imagecaption=
+|type=Zone
+|level=
+|maplink={{MapLink|zone=PlaneOfSoluna}}
+|connects=[[Soluna's Landing]]
+}}
+
+{{Zone Navbox}}

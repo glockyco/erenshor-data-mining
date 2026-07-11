@@ -44,7 +44,7 @@ Jaws of Sivakaya is an endgame dungeon located in [[Duskenlight Coast]]
 
 === Unsealing the Jaws ===
 Unlike most dungeons, some prerequisites must be met in order unseal the dungeon to venture further inside.<br><br>Prerequisites:
-#Complete the quest {{QuestLink|A Hermit's Request}} in [[Fernalla's Revival Plains]] to obtain the [[Notes of a Hermit]] 
+#Complete the quest {{QuestLink|A Hermit's Request}} in [[Fernalla's Revival Plains]] to obtain the [[Notes of a Hermit]]
 #Read the [[Notes of a Hermit]] to obtain the quest {{QuestLink|A Note for C. Pillot}} . Hand them to [[Chazz Pillot]] to obtain [[Mold: A Strange Figurine]].
 <br><br>
 Unlocking steps:

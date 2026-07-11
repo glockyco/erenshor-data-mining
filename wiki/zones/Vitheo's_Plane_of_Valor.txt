@@ -1,10 +1,10 @@
 {{Zone
-|title=Prison
+|title=Vitheo's Plane of Valor
 |image=
 |imagecaption=
 |type=Zone
 |level=
-|maplink={{MapLink|zone=Detention}}
+|maplink={{MapLink|zone=PlaneOfVitheo}}
 |connects=
 }}
 
