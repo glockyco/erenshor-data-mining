@@ -194,6 +194,12 @@
         "status": "captured",
         "type": "System.Single"
       },
+      "PaladinOverride": {
+        "by": null,
+        "reason": "runtime ascension rank override consumed by Stats; no current raw or clean data consumer",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
       "PR": {
         "by": "AscensionListener",
         "reason": null,
@@ -579,6 +585,12 @@
         "reason": "runtime combat/proximity/cache state populated during play, not prefab export data",
         "status": "ignored",
         "type": "Character/Faction"
+      },
+      "TriggerGMBroadcast": {
+        "by": null,
+        "reason": "runtime death-time GM server broadcast toggle, not exported character data",
+        "status": "ignored",
+        "type": "System.Boolean"
       },
       "UnderThreat": {
         "by": null,
@@ -4885,6 +4897,12 @@
         "reason": "arena helper/position/toggle fields not emitted by arena-round or dynamic-spawn exporters",
         "status": "ignored",
         "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "MusicMngr": {
+        "by": null,
+        "reason": "runtime PlanarMusicManager component reference used for arena music control, not exported arena data",
+        "status": "ignored",
+        "type": "PlanarMusicManager"
       },
       "RestoredVitheo": {
         "by": null,
