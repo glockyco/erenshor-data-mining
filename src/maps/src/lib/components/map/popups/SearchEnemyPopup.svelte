@@ -134,6 +134,12 @@
                                             >{formatSpawnChance(chance)} spawn</span
                                         >
                                         <span>·</span>
+                                    {:else}
+                                        {@const source = marker.characters.find((c) => c.name === name)?.sourceScript}
+                                        {#if source}
+                                            <span class="text-zinc-300">Dynamic event spawn</span>
+                                            <span>·</span>
+                                        {/if}
                                     {/if}
                                     <span>{formatRespawnTime(marker.spawnDelay)} respawn</span>
                                     {#if marker.isNightSpawn}

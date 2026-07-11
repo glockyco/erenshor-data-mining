@@ -69,8 +69,14 @@
     }
 
     // Format spawn chance (0-100 range from database)
-    function formatSpawnChance(chance: number): string {
-        return `${chance.toFixed(1)}%`;
+    function formatSpawnChance(chance: number | null): string {
+        if (chance === null) return 'Dynamic event spawn';
+        return `${chance.toFixed(1)}% spawn`;
+    }
+
+    function formatSpawnSource(char: SpawnCharacter): string {
+        if (!char.sourceScript) return formatSpawnChance(char.spawnChance);
+        return formatSpawnChance(null);
     }
 
     // Format vendor item price
@@ -146,7 +152,7 @@
                     <div class="min-w-0 flex-1">
                         <div class="font-medium text-white">{char.name}</div>
                         <div class="text-xs text-zinc-400">
-                            Level {char.level} &bull; {formatSpawnChance(char.spawnChance)} spawn
+                            Level {char.level} &bull; {formatSpawnSource(char)}
                         </div>
                     </div>
                     <div class="flex flex-col items-end gap-1 shrink-0">

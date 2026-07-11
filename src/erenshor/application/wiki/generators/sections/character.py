@@ -55,6 +55,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         zones = self._format_zones(enriched.spawn_infos)
         coordinates = self._format_coordinates(enriched.spawn_infos)
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos)
+        spawn_type = self._format_spawn_type(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
         spells = self._format_ability_links(enriched.spells)
 
@@ -74,6 +75,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             zones=zones,
             coordinates=coordinates,
             spawn_chance=spawn_chance,
+            spawn_type=spawn_type,
             respawn=respawn,
             spells=spells,
             level_mod_min=level_mod_min,
@@ -159,14 +161,24 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         Only shown when all spawns resolve to a single unique location.
         """
         unique_coords: set[tuple[float, float, float]] = set()
+        ordinary_coords: set[tuple[float, float, float]] = set()
         for info in spawn_infos:
-            if info.x is not None and info.y is not None and info.z is not None:
-                unique_coords.add((info.x, info.y, info.z))
+            if info.x is None or info.y is None or info.z is None:
+                continue
+            coord = (info.x, info.y, info.z)
+            unique_coords.add(coord)
+            if info.source_script is None:
+                ordinary_coords.add(coord)
 
-        if len(unique_coords) != 1:
+        if len(unique_coords) == 1:
+            x, y, z = next(iter(unique_coords))
+            return f"{x:.1f} x {y:.1f} x {z:.1f}"
+        if unique_coords and all(info.source_script is not None for info in spawn_infos):
+            return WIKITEXT_LINE_SEPARATOR.join(f"{x:.1f} x {y:.1f} x {z:.1f}" for x, y, z in sorted(unique_coords))
+        if len(ordinary_coords) != 1:
             return ""
 
-        x, y, z = next(iter(unique_coords))
+        x, y, z = next(iter(ordinary_coords))
         return f"{x:.1f} x {y:.1f} x {z:.1f}"
 
     def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
@@ -180,14 +192,18 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         if not (any_rare or any_unique):
             return ""
 
-        chances = [info.spawn_chance for info in spawn_infos]
-        if all(c == 100.0 for c in chances):
-            return ""
-
         chances_by_zone: dict[str, list[float]] = {}
         for info in spawn_infos:
+            if info.spawn_chance is None:
+                continue
             zone_display = info.zone_link.display_name
             chances_by_zone.setdefault(zone_display, []).append(info.spawn_chance)
+
+        if not chances_by_zone:
+            return ""
+
+        if all(chance == 100.0 for chances in chances_by_zone.values() for chance in chances):
+            return ""
 
         zones_sorted = sorted(chances_by_zone.keys())
 
@@ -208,6 +224,13 @@ class CharacterSectionGenerator(SectionGeneratorBase):
                 formatted_chances.append(display)
 
         return WIKITEXT_LINE_SEPARATOR.join(formatted_chances)
+
+    def _format_spawn_type(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
+        has_dynamic = any(info.source_script is not None for info in spawn_infos)
+        has_ordinary = any(info.source_script is None for info in spawn_infos)
+        if has_dynamic and not has_ordinary:
+            return "Dynamic event spawn"
+        return ""
 
     def _format_respawn(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format respawn time using zone_link.display_name."""
@@ -275,6 +298,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         zones: str,
         coordinates: str,
         spawn_chance: str,
+        spawn_type: str,
         respawn: str,
         spells: str,
         level_mod_min: int,
@@ -306,6 +330,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "zones": zones,
             "coordinates": coordinates,
             "spawn_chance": spawn_chance,
+            "spawn_type": spawn_type,
             "respawn": respawn,
             "level": safe_str(character.level),
             "level_mod_min": str(level_mod_min),

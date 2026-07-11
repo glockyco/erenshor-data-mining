@@ -49,7 +49,13 @@ fields = ["WardSpawnable"]
 
 [[allowed]]
 script = "SprinklesEvent"
-fields = ["ForestWard", "Trickster"]
+fields = ["ForestWard"]
+position_field = "WardSpawnPoints"
+
+[[allowed]]
+script = "SprinklesEvent"
+fields = ["Trickster"]
+position_field = "SprinklesAddPosition1,SprinklesAddPosition2"
 
 [[allowed]]
 script = "StowawayPortal"
@@ -74,6 +80,7 @@ position_field = "SpawnLocations"
 [[allowed]]
 script = "ZenithNadirScript"
 fields = ["ConstellationStar"]
+position_field = "ConstPt1,ConstPt2"
 
 [[allowed]]
 script = "ZenithNadirScript"
@@ -246,11 +253,22 @@ reason = "Host NPC reference, not a dynamic spawn."
 [[allowed]]
 script = "ArborScript"
 fields = ["Sapling"]
-position_field = "SapSpawn1"
+position_field = "SapSpawn1,SapSpawn2"
 
 [[allowed]]
 script = "BraxFightEvent"
-fields = ["Corruptor", "ElementalCrystal", "elementalConstruct"]
+fields = ["ElementalCrystal"]
+position_field = "Fire1Pos,Fire2Pos,Ice1Pos,Ice2Pos"
+
+[[allowed]]
+script = "BraxFightEvent"
+fields = ["Corruptor"]
+position_field = "SpawnPos1,SpawnPos2"
+
+[[allowed]]
+script = "BraxFightEvent"
+fields = ["elementalConstruct"]
+position_field = "AddSpawnLocs"
 
 [[allowed]]
 script = "FernallaFight"
@@ -263,11 +281,24 @@ fields = ["MyEnergy"]
 
 [[allowed]]
 script = "SolunaFight"
-fields = ["ConstellationStar", "Corruptor1", "Corruptor2", "Shadow"]
+fields = ["ConstellationStar", "Shadow"]
+position_field = "AddPositions"
+
+[[allowed]]
+script = "SolunaFight"
+fields = ["Corruptor1"]
+position_field = "SpecificSpawn1"
+
+[[allowed]]
+script = "SolunaFight"
+fields = ["Corruptor2"]
+position_field = "SpecificSpawn2"
 
 [[allowed]]
 script = "VitheoFight"
 fields = ["AzynthiCorruptor", "LegionTier1", "LegionTier2", "LegionTier3", "LegionTier4", "LegionTier5"]
+position_strategy = "vitheo_fight"
+reason = "SpawnLegions uses CorruptorSpawn for single corruptors, the first count arenaNav positions for legions, and all arenaNav positions for the infinite LegionTier4 phase."
 
 [[denied]]
 script = "BraxFightEvent"

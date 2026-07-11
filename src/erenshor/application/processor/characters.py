@@ -92,7 +92,7 @@ class _SpawnRow:
     random_wander_range: float | None
     spawn_upon_quest_complete_stable_key: str | None
     protector_stable_key: str | None
-    spawn_chance: float
+    spawn_chance: float | None
     is_common: int | None
     is_rare: int | None
     is_wiki_generated: int | None
@@ -169,9 +169,24 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
     )
 
 
-# ---------------------------------------------------------------------------
-# Load helpers
-# ---------------------------------------------------------------------------
+def _derive_group_rarity(members: list[_CharData]) -> tuple[int, int]:
+    """Derive unique/rare flags without counting event summons as placements."""
+    ordinary_spawns = [
+        spawn
+        for member in members
+        for spawn in member.spawns
+        if spawn.spawn_point_stable_key is not None and spawn.source_script is None
+    ]
+    if ordinary_spawns:
+        is_unique = int(len(ordinary_spawns) == 1)
+        any_common = any(bool(spawn.is_common) for spawn in ordinary_spawns)
+        any_rare = any(bool(spawn.is_rare) for spawn in ordinary_spawns)
+    else:
+        is_unique = int(any(bool(member.char.raw.get("IsUnique")) for member in members))
+        any_common = any(bool(member.char.raw.get("IsCommon")) for member in members)
+        any_rare = any(bool(member.char.raw.get("IsRare")) for member in members)
+    is_rare = int(any_rare and not any_common)
+    return is_unique, is_rare
 
 
 def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> list[dict[str, object]]:
@@ -542,7 +557,7 @@ def process_characters(
                     random_wander_range=None,
                     spawn_upon_quest_complete_stable_key=None,
                     protector_stable_key=None,
-                    spawn_chance=1.0,
+                    spawn_chance=None,
                     is_common=None,
                     is_rare=None,
                     is_wiki_generated=None,
@@ -657,18 +672,7 @@ def process_characters(
                 }
             )
 
-        # Recompute is_unique / is_rare based on spawn-point rows only.
-        # Null-key direct-placement rows are excluded from map rendering
-        # (WHERE spawn_point_stable_key IS NOT NULL) so must not count here,
-        # or a character with one real spawn point + one null-key phantom
-        # would incorrectly appear as non-unique.
-        group_spawns = [s for m in members for s in m.spawns if s.spawn_point_stable_key is not None]
-        total_spawns = len(group_spawns)
-        is_unique = 1 if total_spawns == 1 else 0
-        any_common = any(bool(s.is_common) for s in group_spawns)
-        any_rare = any(bool(s.is_rare) for s in group_spawns)
-        is_rare = 1 if any_rare and not any_common else 0
-
+        is_unique, is_rare = _derive_group_rarity(members)
         if is_unique:
             unique_group_count += 1
         if is_rare:
@@ -1300,7 +1304,7 @@ def expand_chained_spawns(conn: sqlite3.Connection) -> None:
                         "random_wander_range": None,
                         "spawn_upon_quest_complete_stable_key": None,
                         "protector_stable_key": None,
-                        "spawn_chance": 1.0,
+                        "spawn_chance": None,
                         "is_common": None,
                         "is_rare": None,
                         "is_wiki_generated": None,

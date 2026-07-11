@@ -112,7 +112,9 @@ export class RepositoryBase {
         isNightSpawn: boolean,
         movement: MovementData | null = null
     ): NpcMarker {
-        const sortedCharacters = characters.slice().sort((a, b) => b.spawnChance - a.spawnChance);
+        const sortedCharacters = characters.slice().sort(
+            (a, b) => (b.spawnChance ?? 0) - (a.spawnChance ?? 0)
+        );
 
         const characterLines =
             '<br><br>' +
@@ -456,6 +458,7 @@ export class RepositoryBase {
                 rep.has_dialog                  AS HasDialog,
                 rep.invulnerable                AS Invulnerable,
                 sum(cs.spawn_chance)            AS SpawnChance,
+                MAX(cs.source_script)             AS SourceScript,
                 rep.is_common                   AS IsCommon,
                 rep.is_rare                     AS IsRare,
                 rep.is_unique                   AS IsUnique,
@@ -464,7 +467,9 @@ export class RepositoryBase {
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
             JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-            WHERE cs.scene = ? AND cs.spawn_chance > 0 AND cs.spawn_point_stable_key IS NOT NULL
+            WHERE cs.scene = ?
+              AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
+              AND cs.spawn_point_stable_key IS NOT NULL
             GROUP BY cs.spawn_point_stable_key, rep.stable_key
         `,
             [mapName]
@@ -516,7 +521,8 @@ export class RepositoryBase {
                 wikiPageName: row.WikiPageName as string | null,
                 stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
-                spawnChance: row.SpawnChance as number,
+                spawnChance: (row.SpawnChance as number | null) ?? null,
+                sourceScript: (row.SourceScript as string | null) ?? null,
                 isCommon: !!row.IsCommon,
                 isRare: !!row.IsRare,
                 isUnique: !!row.IsUnique,
@@ -589,7 +595,9 @@ export class RepositoryBase {
         isNightSpawn: boolean,
         movement: MovementData | null = null
     ): EnemyMarker {
-        const sortedCharacters = characters.slice().sort((a, b) => b.spawnChance - a.spawnChance);
+        const sortedCharacters = characters.slice().sort(
+            (a, b) => (b.spawnChance ?? 0) - (a.spawnChance ?? 0)
+        );
 
         const characterLines =
             '<br><br>' +
@@ -599,7 +607,10 @@ export class RepositoryBase {
                     if (character.isUnique) tag += ' (Unique)';
                     else if (character.isRare && !character.isCommon) tag += ' (Rare)';
 
-                    return `${formatWikiLink(character.name, character.wikiPageName)} (${Number(character.spawnChance).toFixed(1)}%)${tag}`;
+                    const spawnText = character.sourceScript
+                        ? 'Dynamic event spawn'
+                        : `${(character.spawnChance ?? 0).toFixed(1)}%`;
+                    return `${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}`;
                 })
                 .join('<br>');
 

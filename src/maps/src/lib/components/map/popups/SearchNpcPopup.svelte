@@ -28,10 +28,12 @@
         return levels.size > 1;
     });
 
+    function getSpawnSource(marker: WorldNpc): string | null {
+        return marker.characters.find((c) => c.name === name)?.sourceScript ?? null;
+    }
+
     function getSpawnChance(marker: WorldNpc): number | null {
-        const char = marker.characters.find((c) => c.name === name);
-        if (!char) return null;
-        return char.spawnChance;
+        return marker.characters.find((c) => c.name === name)?.spawnChance ?? null;
     }
 
     // Group markers by zone, sorted by spawn count descending, then by spawn
@@ -129,6 +131,10 @@
                                         <span class="text-zinc-300">
                                             Lv {minLv === maxLv ? minLv : `${minLv}–${maxLv}`}
                                         </span>
+                                        <span>·</span>
+                                    {/if}
+                                    {#if getSpawnSource(marker)}
+                                        <span class="text-zinc-300">Dynamic event spawn</span>
                                         <span>·</span>
                                     {/if}
                                     <span>{formatRespawnTime(marker.spawnDelay)} respawn</span>

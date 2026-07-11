@@ -6,6 +6,12 @@ SELECT
     ROUND(cs.y, 2) AS position_y,
     ROUND(cs.z, 2) AS position_z,
     cs.is_directly_placed,
+    CASE
+        WHEN cs.source_script IS NOT NULL THEN 'dynamic'
+        WHEN cs.is_trigger_spawn = 1 THEN 'trigger'
+        WHEN cs.is_directly_placed = 1 THEN 'direct'
+        ELSE 'normal'
+    END AS spawn_type,
     cs.is_enabled,
     c.stable_key AS character_stable_key,
     c.display_name,

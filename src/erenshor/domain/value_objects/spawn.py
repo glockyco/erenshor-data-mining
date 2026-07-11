@@ -23,10 +23,11 @@ class CharacterSpawnInfo:
     x: float | None
     y: float | None
     z: float | None
-    spawn_chance: float
+    spawn_chance: float | None
     is_rare: bool
     is_unique: bool
     level_mod: int = 0
+    source_script: str | None = None
 
 
 @dataclass(frozen=True)

@@ -32,6 +32,7 @@ local FIELD_OVERRIDES = {
 	poison = "poison",
 	respawn = "respawn",
 	spawnchance = "spawnChance",
+	spawntype = "spawnType",
 	spawnwithstatus = "spawnWithStatus",
 	spells = "spells",
 	strength = "strength",
@@ -55,6 +56,7 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"coordinates",
 	"respawn",
 	"spawnchance",
+	"spawntype",
 	"level",
 	"droprates",
 	"spawnwithstatus",
@@ -403,6 +405,9 @@ local FIELD_ACCESSORS = {
 	end,
 	spawnchance = function(c)
 		return c.spawnChance
+	end,
+	spawntype = function(c)
+		return c.spawnType
 	end,
 	spawnwithstatus = function(c)
 		if isBlank(c.spawnWithStatus) then

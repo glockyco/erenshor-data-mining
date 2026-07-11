@@ -169,6 +169,7 @@ def _character_record(
     _put(row, "zones", _format_zones(spawn_infos))
     _put(row, "coordinates", _format_coordinates(spawn_infos))
     _put(row, "spawnChance", _format_spawn_chance(spawn_infos))
+    _put(row, "spawnType", _format_spawn_type(spawn_infos))
     _put(row, "respawn", _format_respawn(spawn_infos))
     _put(row, "dropRates", _format_drop_rates(loot_drops))
     _put(row, "spells", _format_ability_links(spells))
@@ -267,21 +268,32 @@ def _format_coordinates(spawn_infos: list[CharacterSpawnInfo]) -> str:
         for info in spawn_infos
         if info.x is not None and info.y is not None and info.z is not None
     }
-    if len(unique_coords) != 1:
-        return ""
-    x, y, z = next(iter(unique_coords))
-    return f"{x:.1f} x {y:.1f} x {z:.1f}"
+    ordinary_coords = {
+        (info.x, info.y, info.z)
+        for info in spawn_infos
+        if info.source_script is None and info.x is not None and info.y is not None and info.z is not None
+    }
+    coords = unique_coords if len(unique_coords) == 1 else ordinary_coords
+    if len(coords) == 1:
+        x, y, z = next(iter(coords))
+        return f"{x:.1f} x {y:.1f} x {z:.1f}"
+    if unique_coords and all(info.source_script is not None for info in spawn_infos):
+        return "<br>".join(f"{x:.1f} x {y:.1f} x {z:.1f}" for x, y, z in sorted(unique_coords))
+    return ""
 
 
 def _format_spawn_chance(spawn_infos: list[CharacterSpawnInfo]) -> str:
     if not spawn_infos or not any(info.is_rare or info.is_unique for info in spawn_infos):
         return ""
-    chances = [info.spawn_chance for info in spawn_infos]
-    if all(chance == 100.0 for chance in chances):
-        return ""
     by_zone: dict[str, list[float]] = {}
     for info in spawn_infos:
+        if info.spawn_chance is None:
+            continue
         by_zone.setdefault(info.zone_link.display_name, []).append(info.spawn_chance)
+    if not by_zone:
+        return ""
+    if all(chance == 100.0 for chances in by_zone.values() for chance in chances):
+        return ""
     out: list[str] = []
     for zone in sorted(by_zone):
         zone_chances = by_zone[zone]
@@ -290,6 +302,14 @@ def _format_spawn_chance(spawn_infos: list[CharacterSpawnInfo]) -> str:
         text = f"{round(min_chance)}%" if min_chance == max_chance else f"{round(min_chance)}-{round(max_chance)}%"
         out.append(f"{text} ({zone})" if len(by_zone) > 1 else text)
     return "<br>".join(out)
+
+
+def _format_spawn_type(spawn_infos: list[CharacterSpawnInfo]) -> str:
+    has_dynamic = any(info.source_script is not None for info in spawn_infos)
+    has_ordinary = any(info.source_script is None for info in spawn_infos)
+    if has_dynamic and not has_ordinary:
+        return "Dynamic event spawn"
+    return ""
 
 
 def _format_respawn(spawn_infos: list[CharacterSpawnInfo]) -> str:

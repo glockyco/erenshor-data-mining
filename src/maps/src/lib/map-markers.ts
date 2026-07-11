@@ -24,7 +24,8 @@ export type SpawnCharacter = {
     wikiPageName: string | null;
     stableKey: string;
     level: number;
-    spawnChance: number;
+    spawnChance: number | null;
+    sourceScript: string | null;
     isCommon: boolean;
     isRare: boolean;
     isUnique: boolean;

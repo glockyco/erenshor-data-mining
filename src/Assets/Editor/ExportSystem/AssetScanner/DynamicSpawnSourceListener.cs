@@ -12,6 +12,7 @@ using Object = UnityEngine.Object;
 public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 {
     private const string VithArenaFightPositionStrategy = "vith_arena_fight";
+    private const string VitheoFightPositionStrategy = "vitheo_fight";
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
@@ -95,6 +96,15 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             {
                 foreach (var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName))
                     AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName);
+            }
+            else if (entry.PositionStrategy == VitheoFightPositionStrategy)
+            {
+                var positions = ResolveVitheoFightPositions(comp, fieldName);
+                foreach (var character in characters)
+                {
+                    foreach (var position in positions)
+                        AddDynamicSpawnRecord(character, position, hostScene, scriptName);
+                }
             }
             else
             {
@@ -275,6 +285,24 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         }
 
         return result;
+    }
+
+    private List<Vector3> ResolveVitheoFightPositions(MonoBehaviour host, string fieldName)
+    {
+        if (fieldName == "AzynthiCorruptor")
+            return ResolvePositions(host, "CorruptorSpawn");
+
+        var positions = ResolvePositions(host, "arenaNav");
+        var count = fieldName switch
+        {
+            "LegionTier1" => Math.Max(positions.Count - 1, 0),
+            "LegionTier2" => Math.Min(5, positions.Count),
+            "LegionTier3" => Math.Min(4, positions.Count),
+            "LegionTier4" => positions.Count,
+            "LegionTier5" => Math.Min(2, positions.Count),
+            _ => positions.Count,
+        };
+        return positions.GetRange(0, Math.Min(count, positions.Count));
     }
 
     private static List<string> VithArenaFightPositionFields(int count)

@@ -142,7 +142,116 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
     }
 
 
-def test_character_template_drops_ungenerated_class_field() -> None:
+def test_dynamic_spawn_omits_chance_but_keeps_coordinate() -> None:
+    character = make_character(is_unique=1, is_common=0)
+    spawn_infos = [
+        CharacterSpawnInfo(
+            zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
+            base_respawn=None,
+            x=1124.2,
+            y=24.6,
+            z=1151.0,
+            spawn_chance=None,
+            is_rare=False,
+            is_unique=True,
+            source_script="SprinklesEvent",
+        )
+    ]
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={character.stable_key: spawn_infos},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    record = data["characters"][character.stable_key]
+    assert "spawnChance" not in record
+    assert record["spawnType"] == "Dynamic event spawn"
+    assert record["coordinates"] == "1124.2 x 24.6 x 1151.0"
+
+
+def test_lua_dynamic_only_multiple_spawns_keep_all_coordinates() -> None:
+    character = make_character(is_unique=1, is_common=0)
+    spawn_infos = [
+        CharacterSpawnInfo(
+            zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
+            base_respawn=None,
+            x=1124.2,
+            y=24.6,
+            z=1151.0,
+            spawn_chance=None,
+            is_rare=False,
+            is_unique=True,
+            source_script="SprinklesEvent",
+        ),
+        CharacterSpawnInfo(
+            zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
+            base_respawn=None,
+            x=1180.5,
+            y=24.6,
+            z=1151.0,
+            spawn_chance=None,
+            is_rare=False,
+            is_unique=True,
+            source_script="SprinklesEvent",
+        ),
+    ]
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={character.stable_key: spawn_infos},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    record = data["characters"][character.stable_key]
+    assert record["coordinates"] == "1124.2 x 24.6 x 1151.0<br>1180.5 x 24.6 x 1151.0"
+
+
+def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
+    character = make_character(is_unique=1, is_common=0)
+    spawn_infos = [
+        CharacterSpawnInfo(
+            zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
+            base_respawn=None,
+            x=700.0,
+            y=24.6,
+            z=1151.0,
+            spawn_chance=25.0,
+            is_rare=False,
+            is_unique=True,
+        ),
+        CharacterSpawnInfo(
+            zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
+            base_respawn=None,
+            x=1124.2,
+            y=24.6,
+            z=1151.0,
+            spawn_chance=None,
+            is_rare=False,
+            is_unique=True,
+            source_script="SprinklesEvent",
+        ),
+    ]
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={character.stable_key: spawn_infos},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    record = data["characters"][character.stable_key]
+    assert record["spawnChance"] == "25%"
+    assert record["coordinates"] == "700.0 x 24.6 x 1151.0"
+    assert "spawnType" not in record
     template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
     cargo_declare = Path("wiki/templates/Character/CargoDeclare.wiki").read_text(encoding="utf-8")
 

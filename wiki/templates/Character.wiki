@@ -10,6 +10,7 @@
         <data><label>Coordinates:</label><default>{{#invoke:Erenshor/Character|field|coordinates}}</default></data>
         <data><label>Base Respawn:</label><default>{{#invoke:Erenshor/Character|field|respawn}}</default></data>
         <data><label>Spawn Chance:</label><default>{{#invoke:Erenshor/Character|field|spawnchance}}</default></data>
+        <data><label>Spawn Type:</label><default>{{#invoke:Erenshor/Character|field|spawntype}}</default></data>
         <data><label>Base Level:</label><default>{{#invoke:Erenshor/Character|field|level}}</default></data>
         <data><label>Base Experience:</label><default>{{#invoke:Erenshor/Character|field|experience}}</default></data>
         <data><label>Dropped by:</label><default>{{CharacterDroppedByQuery|stablekey={{{stablekey|}}}}}</default></data>
@@ -68,6 +69,7 @@
         <data source="coordinates"><label>Coordinates:</label></data>
         <data source="respawn"><label>Base Respawn:</label></data>
         <data source="spawnchance"><label>Spawn Chance:</label></data>
+        <data source="spawnType"><label>Spawn Type:</label></data>
         <data source="level"><label>Base Level:</label></data>
         <data source="experience"><label>Base Experience:</label></data>
         <data source="guaranteeddrops"><label>Guaranteed One Of:</label></data>
