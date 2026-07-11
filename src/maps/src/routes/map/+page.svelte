@@ -1886,12 +1886,11 @@
                       id: 'zone-selection-highlight',
                       data: [selection.zone],
                       getPolygon: (d: ZoneWorldPosition) => d.polygon,
-                      getFillColor: HIGHLIGHT_COLORS.primaryFill,
                       getLineColor: HIGHLIGHT_COLORS.primaryRing,
                       getLineWidth: 4,
                       lineWidthUnits: 'pixels',
                       stroked: true,
-                      filled: true,
+                      filled: false,
                       pickable: false
                   })
                 : null;
