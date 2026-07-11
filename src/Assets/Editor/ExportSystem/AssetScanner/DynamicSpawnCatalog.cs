@@ -66,6 +66,10 @@ public class DynamicSpawnCatalog
             {
                 currentPositionField = ParseStringValue(line);
             }
+            else if (line.StartsWith("position_strategy = "))
+            {
+                currentPositionStrategy = ParseStringValue(line);
+            }
             else if (line.StartsWith("include_host_position = "))
             {
                 currentIncludeHostPosition = ParseBoolValue(line);
