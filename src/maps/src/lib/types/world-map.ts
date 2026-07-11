@@ -37,6 +37,7 @@ export interface WorldPositioning {
     zone: string;
     zoneName: string;
     worldPosition: [number, number];
+    eventWorldPositions?: [number, number][];
 }
 
 /**

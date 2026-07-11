@@ -154,7 +154,24 @@ export async function load() {
                 zonePositions
             );
 
-            // Transform patrol waypoints to world coordinates if present
+            const eventWorldPositions = [
+                ...new Map(
+                    marker.characters
+                        .filter((character) => character.eventPosition)
+                        .map((character) => {
+                            const event = character.eventPosition!;
+                            const position = transformToWorldOrThrow(
+                                event.x,
+                                event.z,
+                                zoneKey,
+                                zoneConfigs,
+                                zonePositions
+                            );
+                            return [`${position[0]}:${position[1]}`, position] as const;
+                        })
+                ).values()
+            ];
+
             // Waypoints are [x, z] in local game coords (z becomes y on 2D map)
             let worldPatrolWaypoints: [number, number][] | null = null;
             if (marker.movement?.patrolWaypoints) {
@@ -170,6 +187,7 @@ export async function load() {
                     zone: zoneKey,
                     zoneName: displayName,
                     worldPosition: worldPos,
+                    eventWorldPositions,
                     worldPatrolWaypoints
                 } as WorldNpc);
             } else {
@@ -179,6 +197,7 @@ export async function load() {
                     zone: zoneKey,
                     zoneName: displayName,
                     worldPosition: worldPos,
+                    eventWorldPositions,
                     worldPatrolWaypoints,
                     levelMin: Math.min(...levels),
                     levelMax: Math.max(...levels)

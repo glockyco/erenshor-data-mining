@@ -2056,7 +2056,47 @@
             ...data.markers.npcs,
         ];
 
-        // One circle per spawn that has a non-zero wander range
+        type EventAnchorDatum = {
+            source: [number, number];
+            target: [number, number];
+        };
+
+        const eventAnchorData: EventAnchorDatum[] = allSpawnMarkers.flatMap((marker) =>
+            (marker.eventWorldPositions ?? []).map((target) => ({
+                source: getMarkerPosition(marker),
+                target
+            }))
+        );
+        const eventAnchorLinesLayer =
+            eventAnchorData.length > 0
+                ? new LineLayer({
+                      id: 'dynamic-event-anchor-lines',
+                      data: eventAnchorData,
+                      getSourcePosition: (d: EventAnchorDatum) => [d.source[0], d.source[1], 0],
+                      getTargetPosition: (d: EventAnchorDatum) => [d.target[0], d.target[1], 0],
+                      getColor: [245, 158, 11, 180],
+                      getWidth: 2,
+                      widthUnits: 'pixels',
+                      pickable: false
+                  })
+                : null;
+        const eventAnchorPointsLayer =
+            eventAnchorData.length > 0
+                ? new ScatterplotLayer({
+                      id: 'dynamic-event-anchor-points',
+                      data: eventAnchorData,
+                      getPosition: (d: EventAnchorDatum) => d.target,
+                      getRadius: 5,
+                      radiusUnits: 'pixels',
+                      getFillColor: [245, 158, 11, 230],
+                      getLineColor: [24, 24, 27, 255],
+                      lineWidthUnits: 'pixels',
+                      lineWidthMinPixels: 1,
+                      stroked: true,
+                      pickable: false
+                  })
+                : null;
+
         const wanderData: WanderDatum[] = allSpawnMarkers.flatMap((m) =>
             m.movement?.wanderRange && m.movement.wanderRange > 0
                 ? [{ position: getMarkerPosition(m), radius: m.movement.wanderRange }]
@@ -2213,6 +2253,8 @@
             liveEnemiesBossLayer,
             livePlayerLayer,
             // Global movement overlays (below per-selection so selection paints on top)
+            eventAnchorLinesLayer,
+            eventAnchorPointsLayer,
             allWanderRangesLayer,
             allPatrolPathsLayer,
             // Movement visualization for selected entity (yellow/blue, on top of global)
