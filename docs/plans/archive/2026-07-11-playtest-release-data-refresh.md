@@ -1,9 +1,10 @@
 ---
 title: Playtest Release Data Refresh
 type: plan
-status: active
+status: implemented
 created: 2026-07-11
 parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-07-11
 ---
 
 # Playtest Release Data Refresh
@@ -72,9 +73,9 @@ Refresh the `playtest` variant from the current Steam installation before the Mo
    - If the release decision changes and playtest is not the shipping/cutover variant, skip this step and restore the shipping guide by compiling the shipping variant before any AdventureGuide packaging; never leave a main/playtest-ambiguous shared guide behind.
 
 7. **Refresh local wiki caches and generate all playtest wiki outputs, but do not deploy.** (Depends on steps 3 and 6 where applicable.)
-   - Preview each local producer without writes: `uv run erenshor -V playtest --dry-run wiki fetch --force`, `uv run erenshor -V playtest --dry-run wiki generate`, and `uv run erenshor -V playtest --dry-run wiki generate-lua`.
+   - Preview each local producer without writes: `uv run erenshor -V playtest --dry-run wiki fetch --force` and `uv run erenshor -V playtest --dry-run wiki generate`.
    - Fetch current live page text into the variant-scoped cache with `uv run erenshor -V playtest wiki fetch --force`. This is an API read/cache write, not a deployment; credentials/API failures are a gate because generation must preserve current manual fields.
-   - Generate legacy local article pages with `uv run erenshor -V playtest wiki generate` and local Cargo/Lua data modules with `uv run erenshor -V playtest wiki generate-lua`. Review generated counts, warnings, and representative output under `variants/playtest/wiki/generated/` and `variants/playtest/wiki/lua/`; inspect representative generated files and the command’s failure/warning report. Full unfiltered generation is required so stale generated entries are removed; do not replace it with a targeted `--pages-file` run.
+   - Generate legacy local article pages with `uv run erenshor -V playtest wiki generate`. Full unfiltered generation is required so stale generated entries are removed; do not replace it with a targeted `--pages-file` run. Lua/Cargo module generation is not part of this release because that pipeline is not fully implemented yet; do not run `wiki generate-lua`.
    - Do not run `wiki deploy`, `wiki deploy-repo-pages`, `wiki refresh-embedded`, or any other MediaWiki write. The only wiki-side network operation in this plan is fetching current source pages.
 
 8. **Deploy playtest Sheets after a dry-run and perform final teardown.** (Depends on steps 3 and 7.)
@@ -97,7 +98,7 @@ Refresh the `playtest` variant from the current Steam installation before the Mo
 - Data behavior: integration tests pass against the explicit playtest DB; the three audit commands produce JSON with no unexplained orphan/exclusion findings; SQLite queries show nonzero item rows and post-refresh scene names.
 - Tiles: `capture status` has no error states after forced capture; every expected zone×variant has a successful post-run state, a capture-complete record, a newly written master/tile output newer than the pre-run snapshot (not merely a stale `ok` state), and each newly added configured scene has a generated tile pyramid. A concrete visual check loads `/map` in local map preview without console errors and requests one manifest-listed tile for each newly captured scene, receiving HTTP 200.
 - Map build: `maps build` succeeds, creates/stamps `src/maps/build-playtest`, and `maps preview` serves `/map` on port 4173 with the refreshed playtest database.
-- Guide/wiki: `quest_guides/guide.json` parses and focused guide tests pass; wiki dry-runs show planned outputs, real fetch/generate/generate-lua complete without failed pages, and generated artifacts are present under the playtest wiki directory.
+- Guide/wiki: `quest_guides/guide.json` parses and focused guide tests pass; wiki dry-runs show planned outputs, real fetch/generate complete without failed pages, and generated articles are present under the playtest wiki directory. Lua/Cargo generation is intentionally skipped until that pipeline is fully implemented.
 - Sheets: dry-run formats every tab; real `--all-sheets` completes with zero failed tabs and targets the configured playtest spreadsheet.
 - Boundaries: no command writes to `erenshor.wiki.gg` or deploys the Cloudflare worker; teardown restores the main map symlink.
 
