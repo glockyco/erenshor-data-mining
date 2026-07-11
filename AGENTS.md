@@ -7,10 +7,29 @@ game data via AssetRipper + Unity Editor scripts, exports to SQLite, deploys
 to MediaWiki, Google Sheets, interactive maps, and in-game companion mods.
 Solo developer. Hobby project.
 
-**Only modify implementation code in `src/Assets/Editor/`, `src/erenshor/`,
-`src/mods/`, `src/maps/`, and `src/tools/`. Regression tests may be modified
-under `tests/` when they defend the requested behavior.** All other files are
-from the original game and must not be changed unless explicitly requested.
+**Maintained implementation code lives in** `src/Assets/Editor/`, `src/erenshor/`,
+`src/mods/`, `src/maps/`, and `src/tools/`. Regression tests under `tests/` MAY be
+added or changed when they defend the requested behavior. Wiki templates and
+other repository-owned content MAY be changed when the task explicitly requires
+it. `AGENTS.md`, plans, and other process documents MAY be changed when the
+user explicitly requests an instruction or planning update.
+
+**Never modify shipped-game reference files or installed game files.** In
+particular, treat these as read-only:
+
+- `variants/{variant}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/`
+  (decompiled `Assembly-CSharp` game scripts used as reference)
+- `variants/{variant}/unity/ExportedProject/Assets/Scenes/` and other
+  AssetRipper/decompiled game assets
+- `variants/{variant}/game/` and any Steam/CrossOver installation files
+- any original game files outside the maintained implementation paths above
+
+Do not hand-edit generated or deployment outputs. Regenerate them through the
+canonical CLI commands instead. This includes variant SQLite databases,
+`quest_guides/guide.json`, map build/static artifacts, captured tiles, generated
+wiki output, and generated mod metadata. Do not update shared golden baselines
+or deploy shared wiki/map targets unless the user explicitly authorizes that
+cutover or deployment.
 
 ## Directory Map
 
