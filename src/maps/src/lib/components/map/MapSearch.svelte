@@ -18,7 +18,11 @@
     import Radio from '@lucide/svelte/icons/radio';
     import Package from '@lucide/svelte/icons/package';
     import SearchChips from './SearchChips.svelte';
-    import { computeChipCounts, type Category } from './search-chips';
+    import {
+        computeChipCounts,
+        getAvailableCategories,
+        type Category
+    } from './search-chips';
 
     // Live-only result type, separate from the static SearchResult union
     type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string; matchRange: [number, number] | null };
@@ -263,6 +267,12 @@
     // capped lists and total candidate counts; live has its own five-row cap.
     const chipCounts = $derived(computeChipCounts(staticSearch, liveResults.length, liveTotal));
 
+    $effect(() => {
+        if (activeCategory === 'live' && !chipCounts.has('live')) {
+            activeCategory = 'all';
+        }
+    });
+
     // Filtered results by active category. Category chips use their own capped
     // result list rather than filtering the globally interleaved projection.
     const filteredStatic = $derived(
@@ -278,10 +288,7 @@
     // Arrow-key category switching when focus is in the chip row
     function handleChipKeydown(e: KeyboardEvent) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-        const order: Category[] = ['all', 'live', 'item', 'enemy', 'npc', 'zone'];
-        const available = order.filter(
-            (c) => c === 'all' || (chipCounts.get(c)?.total ?? 0) > 0 || c === 'live'
-        );
+        const available = getAvailableCategories(chipCounts);
         const currentIdx = available.indexOf(activeCategory);
         e.preventDefault();
         const dir = e.key === 'ArrowRight' ? 1 : -1;

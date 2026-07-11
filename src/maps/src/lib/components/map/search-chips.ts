@@ -57,6 +57,14 @@ export function computeChipCounts(
     return counts;
 }
 
+export function getAvailableCategories(counts: Map<string, ChipCount>): Category[] {
+    return CHIP_CONFIG.filter((chip) => {
+        if (chip.key === 'all') return true;
+        if (chip.key === 'live') return counts.has('live');
+        return (counts.get(chip.key)?.total ?? 0) > 0;
+    }).map((chip) => chip.key);
+}
+
 /** Chip display config: order + label. */
 export const CHIP_CONFIG: { key: Category; label: string }[] = [
     { key: 'all', label: 'All' },

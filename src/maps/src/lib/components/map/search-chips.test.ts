@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { emptySearchResponse, type SearchMatch, type SearchResponse } from '$lib/map/search';
-import { computeChipCounts, formatChipCount } from './search-chips';
+import { computeChipCounts, formatChipCount, getAvailableCategories } from './search-chips';
 
 function responseFor(matches: SearchMatch[]): SearchResponse {
     const response = emptySearchResponse();
@@ -99,6 +99,20 @@ describe('computeChipCounts', () => {
         const counts = computeChipCounts(responseFor([]), 0);
         expect(counts.has('live')).toBe(false);
         expect(counts.get('all')).toEqual({ visible: 0, total: 0, hasMore: false });
+    });
+});
+
+describe('getAvailableCategories', () => {
+    it('omits Live when live mode is unavailable', () => {
+        const counts = new Map([
+            ['all', { visible: 20, total: 20, hasMore: false }],
+            ['item', { visible: 20, total: 21, hasMore: true }],
+            ['enemy', { visible: 5, total: 5, hasMore: false }],
+            ['npc', { visible: 20, total: 24, hasMore: true }],
+            ['zone', { visible: 7, total: 7, hasMore: false }]
+        ]);
+
+        expect(getAvailableCategories(counts)).toEqual(['all', 'item', 'enemy', 'npc', 'zone']);
     });
 });
 
