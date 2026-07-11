@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { emptySearchResponse, type SearchMatch, type SearchResponse } from '$lib/map/search';
-import { computeChipCounts } from './search-chips';
+import { computeChipCounts, formatChipCount } from './search-chips';
 
 function responseFor(matches: SearchMatch[]): SearchResponse {
     const response = emptySearchResponse();
@@ -42,5 +42,15 @@ describe('computeChipCounts', () => {
         const counts = computeChipCounts(responseFor([]), 0);
         expect(counts.has('live')).toBe(false);
         expect(counts.get('all')).toEqual({ visible: 0, total: 0, hasMore: false });
+    });
+});
+
+describe('formatChipCount', () => {
+    it('uses a plus sign for capped results', () => {
+        expect(formatChipCount({ visible: 20, total: 153, hasMore: true })).toBe('20+');
+    });
+
+    it('uses the exact count when the result set fits', () => {
+        expect(formatChipCount({ visible: 4, total: 4, hasMore: false })).toBe('4');
     });
 });

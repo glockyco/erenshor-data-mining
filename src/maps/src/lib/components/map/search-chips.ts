@@ -8,6 +8,10 @@ export interface ChipCount {
     hasMore: boolean;
 }
 
+export function formatChipCount(count: ChipCount): string {
+    return `${count.visible}${count.hasMore ? '+' : ''}`;
+}
+
 /**
  * Count visible and total matches by category for chip display. Static category
  * counts come from their capped result lists; All aggregates static and live

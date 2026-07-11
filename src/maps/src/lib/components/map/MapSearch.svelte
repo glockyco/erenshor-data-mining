@@ -275,29 +275,6 @@
     );
     const filteredHasResults = $derived(filteredStatic.length > 0 || filteredLive.length > 0);
 
-    const resultSummary = $derived.by(() => {
-        if (query.length < 2 || !filteredHasResults) return null;
-
-        let visible: number;
-        let total: number;
-        if (activeCategory === 'all') {
-            visible = staticSearch.matches.length + liveResults.length;
-            total = staticSearch.total + liveTotal;
-        } else if (activeCategory === 'live') {
-            visible = liveResults.length;
-            total = liveTotal;
-        } else {
-            const category = staticSearch.categories[activeCategory];
-            visible = category.matches.length;
-            total = category.total;
-        }
-
-        if (total > visible) {
-            return `Showing ${visible} of ${total} search candidates. Refine your search to see more.`;
-        }
-        return `Showing ${visible} search candidates.`;
-    });
-
     // Arrow-key category switching when focus is in the chip row
     function handleChipKeydown(e: KeyboardEvent) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
@@ -341,11 +318,6 @@
                 onSelect={(cat) => (activeCategory = cat)}
             />
         </div>
-        {#if resultSummary}
-            <div class="px-3 pb-1 text-[11px] text-zinc-500" role="status">
-                {resultSummary}
-            </div>
-        {/if}
     {/if}
     <div use:fixScrollIntoView>
         <Command.List class="max-h-80 overflow-y-auto px-2 py-2">

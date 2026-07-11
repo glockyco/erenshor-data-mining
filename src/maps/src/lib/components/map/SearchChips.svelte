@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CHIP_CONFIG, type Category, type ChipCount } from './search-chips';
+    import { CHIP_CONFIG, formatChipCount, type Category, type ChipCount } from './search-chips';
 
     interface Props {
         activeCategory: Category;
@@ -35,7 +35,8 @@
                    {isActive
                 ? 'bg-accent text-accent-ink'
                 : 'bg-surface-2 text-muted hover:text-ink'}
-                   {isDisabled ? 'opacity-40 cursor-not-allowed' : ''}"
+                   {isDisabled ? 'opacity-40 cursor-not-allowed' : ''}
+                   whitespace-nowrap"
             aria-pressed={isActive}
             aria-label={`${chip.label}: ${count.visible} of ${count.total} search candidates`}
             disabled={isDisabled}
@@ -44,7 +45,7 @@
             {chip.label}
             {#if count.total > 0}
                 <span class="ml-1 opacity-70">
-                    ({count.visible}{count.hasMore ? ` of ${count.total}` : ''})
+                    ({formatChipCount(count)})
                 </span>
             {/if}
         </button>
