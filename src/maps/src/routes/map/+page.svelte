@@ -392,6 +392,13 @@
         }
     }
 
+    function handleSelectSpawn(stableKey: string): void {
+        const marker = findMarkerByStableKey(stableKey);
+        if (!marker || (marker.category !== 'enemy' && marker.category !== 'npc')) return;
+        applySelection({ type: 'marker', marker });
+        handleFocusSpawn(stableKey);
+    }
+
     /**
      * Focus all spawn points — fit bounds around all search highlight positions.
      * Accepts optional padding override for when the popup is about to open
@@ -1003,6 +1010,38 @@
     }
 
     // Update deck.gl layers
+    const SPAWN_MARKER_LAYER_IDS = ['enemies-common', 'enemies-rare', 'enemies-unique', 'npcs'];
+
+    function isSpawnMarker(object: unknown): object is WorldEnemy | WorldNpc {
+        if (!object || typeof object !== 'object') return false;
+        const category = (object as { category?: unknown }).category;
+        return category === 'enemy' || category === 'npc';
+    }
+
+    function getPickedSpawnMarkers(info: {
+        x: number;
+        y: number;
+    }): (WorldEnemy | WorldNpc)[] {
+        if (!deckInstance?.pickMultipleObjects) return [];
+        const picked = deckInstance.pickMultipleObjects({
+            x: info.x,
+            y: info.y,
+            radius: Math.max(2, ICON_SIZE.base / 2),
+            depth: 20,
+            layerIds: SPAWN_MARKER_LAYER_IDS
+        }) as Array<{ object?: unknown }>;
+        const markers = picked
+            .map((pick) => pick.object)
+            .filter(isSpawnMarker);
+        const unique = new Map(markers.map((marker) => [marker.stableKey, marker]));
+        return [...unique.values()].sort((a, b) => {
+            const aName = a.characters.map((character) => character.name).join(', ');
+            const bName = b.characters.map((character) => character.name).join(', ');
+            return `${a.category}:${aName}:${a.stableKey}`.localeCompare(
+                `${b.category}:${bName}:${b.stableKey}`
+            );
+        });
+    }
     function updateLayers() {
         if (deckInstance && iconAtlas) {
             const layers = createLayers(iconAtlas);
@@ -1279,11 +1318,23 @@
                         };
                     }
                 },
-                onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition | EntityData }) => {
+                onClick: (info: {
+                    object?: AnyWorldMarker | ZoneWorldPosition | EntityData;
+                    x: number;
+                    y: number;
+                }) => {
                     if (info.object) {
                         // Type discrimination: create Selection from info.object
                         if ('category' in info.object) {
                             // Static marker
+                            const spawnMarkers =
+                                info.object.category === 'enemy' || info.object.category === 'npc'
+                                    ? getPickedSpawnMarkers(info)
+                                    : [];
+                            if (spawnMarkers.length > 1) {
+                                applySelection({ type: 'marker-group', markers: spawnMarkers });
+                                return;
+                            }
                             applySelection({
                                 type: 'marker',
                                 marker: info.object as AnyWorldMarker
@@ -2297,6 +2348,7 @@
                 onFocus={() => focusSelection(selection)}
                 onHoverSpawn={handleHoverSpawn}
                 onFocusSpawn={handleFocusSpawn}
+                onSelectSpawn={handleSelectSpawn}
                 onFocusAll={handleFocusAll}
                 onSearchAlternative={handleSearchAlternative}
             />
@@ -2322,6 +2374,7 @@
                             }}
                             onHoverSpawn={handleHoverSpawn}
                             onFocusSpawn={handleFocusSpawn}
+                            onSelectSpawn={handleSelectSpawn}
                             onFocusAll={handleFocusAll}
                             onSearchAlternative={(query) => {
                                 mobilePopupOpen = false;

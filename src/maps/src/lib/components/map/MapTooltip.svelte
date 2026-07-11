@@ -260,6 +260,16 @@
             return { name: '', detail: '' };
         }
 
+        if (selection.type === 'marker-group') {
+            const names = selection.markers.flatMap((marker) =>
+                marker.characters.map((character) => character.name)
+            );
+            return {
+                name: names.join(', ') || 'Overlapping Spawn Points',
+                detail: `${selection.markers.length} spawn markers`
+            };
+        }
+
         const marker = selection.marker;
         switch (marker.category) {
             case 'enemy':

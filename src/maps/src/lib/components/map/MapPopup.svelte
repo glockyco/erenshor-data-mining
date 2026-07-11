@@ -11,6 +11,7 @@
     import type { SearchIndex } from '$lib/map/search';
     import PopupContainer from './PopupContainer.svelte';
     import SpawnPointPopupContent from './popups/SpawnPointPopupContent.svelte';
+    import CollocatedSpawnPopupContent from './popups/CollocatedSpawnPopupContent.svelte';
     import ZoneLinePopupContent from './popups/ZoneLinePopupContent.svelte';
     import MiningNodePopupContent from './popups/MiningNodePopupContent.svelte';
     import WaterPopupContent from './popups/WaterPopupContent.svelte';
@@ -35,6 +36,7 @@
         onFocus: () => void;
         onHoverSpawn: (stableKey: string | string[] | null) => void;
         onFocusSpawn: (stableKey: string) => void;
+        onSelectSpawn: (stableKey: string) => void;
         onFocusAll: () => void;
         onSearchAlternative: (query: string) => void;
     }
@@ -48,6 +50,7 @@
         onFocus,
         onHoverSpawn,
         onFocusSpawn,
+        onSelectSpawn,
         onFocusAll,
         onSearchAlternative
     }: Props = $props();
@@ -66,6 +69,10 @@
 
         if (selection.type === 'search-not-found') {
             return selection.name;
+        }
+
+        if (selection.type === 'marker-group') {
+            return 'Overlapping Spawn Points';
         }
 
         if (selection.type === 'search') {
@@ -149,6 +156,10 @@
 
         if (selection.type === 'search-not-found') {
             return 'Not Found';
+        }
+
+        if (selection.type === 'marker-group') {
+            return `${selection.markers.length} spawn markers at this location`;
         }
 
         if (selection.type === 'search') {
@@ -310,6 +321,17 @@
             name={selection.name}
             {onSearchAlternative}
         />
+    </PopupContainer>
+{:else if selection.type === 'marker-group'}
+    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>
+        <CollocatedSpawnPopupContent
+            markers={selection.markers}
+            {onHoverSpawn}
+            onFocusSpawn={onSelectSpawn}
+        />
+        {#snippet footer()}
+            {zoneName}
+        {/snippet}
     </PopupContainer>
 {:else if selection.type === 'live'}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>

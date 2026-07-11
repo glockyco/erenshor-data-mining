@@ -1,5 +1,5 @@
 import { Rarity } from '$lib/map-markers';
-import type { AnyWorldMarker, ZoneWorldPosition, ZoneConfig } from './world-map';
+import type { AnyWorldMarker, WorldEnemy, WorldNpc, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
 import type { SearchResult } from '$lib/map/search';
 import type { SearchIndex } from '$lib/map/search';
@@ -16,6 +16,7 @@ import { MARKER_BORDER_COLORS } from '$lib/map/config';
  */
 export type Selection =
     | { type: 'marker'; marker: AnyWorldMarker }
+    | { type: 'marker-group'; markers: (WorldEnemy | WorldNpc)[] }
     | { type: 'live'; entity: EntityData; zone: string }
     | { type: 'zone'; zone: ZoneWorldPosition }
     | { type: 'search'; result: SearchResult }
@@ -52,6 +53,18 @@ export function getSelectionPosition(
             }
             return selection.marker.worldPosition;
         }
+        case 'marker-group': {
+            const marker = selection.markers[0];
+            if (!marker) return null;
+            const override = overrides[marker.zone];
+            if (override) {
+                const [x, y] = marker.worldPosition;
+                const zonePos = zones.find((z) => z.key === marker.zone);
+                if (!zonePos) return null;
+                return [x - zonePos.worldX + override.worldX, y - zonePos.worldY + override.worldY];
+            }
+            return marker.worldPosition;
+        }
         case 'live': {
             const currentEntity = liveEntities?.find((e) => e.id === selection.entity.id);
             if (!currentEntity) return null;
@@ -83,6 +96,8 @@ export function getSelectionZone(selection: Selection): string | null {
     switch (selection.type) {
         case 'marker':
             return selection.marker.zone;
+        case 'marker-group':
+            return selection.markers[0]?.zone ?? null;
         case 'live':
             return selection.zone;
         case 'zone':
@@ -104,6 +119,8 @@ export function getSelectionBorderColor(selection: Selection): string {
     switch (selection.type) {
         case 'marker':
             return getMarkerBorderColor(selection.marker);
+        case 'marker-group':
+            return selection.markers[0] ? getMarkerBorderColor(selection.markers[0]) : 'border-l-gray-500';
         case 'live':
             return getLiveEntityBorderColor(selection.entity);
         case 'zone':
@@ -205,6 +222,8 @@ export function serializeSelection(selection: Selection): string | null {
             }
             break;
         }
+        case 'marker-group':
+            return null;
         case 'search-not-found': {
             const s = selection;
             if (s.searchType === 'zone') return `zone:${s.name}`;
