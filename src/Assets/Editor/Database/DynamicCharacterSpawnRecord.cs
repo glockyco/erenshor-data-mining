@@ -15,4 +15,7 @@ public class DynamicCharacterSpawnRecord
     public float Y { get; set; }
     public float Z { get; set; }
     public string SourceScript { get; set; } = string.Empty;
+    public float? EventX { get; set; }
+    public float? EventY { get; set; }
+    public float? EventZ { get; set; }
 }

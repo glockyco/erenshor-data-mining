@@ -77,6 +77,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             }
 
             // Allowed — emit spawn rows
+            var eventPosition = entry.IncludeHostPosition ? hostTransform.position : (Vector3?)null;
             if (isChainedHost)
             {
                 foreach (var character in characters)
@@ -95,7 +96,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             else if (entry.PositionStrategy == VithArenaFightPositionStrategy)
             {
                 foreach (var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName))
-                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName);
+                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName, eventPosition);
             }
             else if (entry.PositionStrategy == VitheoFightPositionStrategy)
             {
@@ -103,7 +104,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var character in characters)
                 {
                     foreach (var position in positions)
-                        AddDynamicSpawnRecord(character, position, hostScene, scriptName);
+                        AddDynamicSpawnRecord(character, position, hostScene, scriptName, eventPosition);
                 }
             }
             else
@@ -113,7 +114,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 {
                     var positions = ResolvePositions(comp, entry.PositionField);
                     foreach (var pos in positions)
-                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName);
+                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName, eventPosition);
                 }
             }
         }
@@ -229,10 +230,12 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         return result;
     }
 
-    private void AddDynamicSpawnRecord(Character character, Vector3 pos, string hostScene, string scriptName)
+    private void AddDynamicSpawnRecord(Character character, Vector3 pos, string hostScene, string scriptName, Vector3? eventPosition)
     {
         var childKey = _characterKeyResolver.GetStableKey(character);
-        var key = $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
+        var key = eventPosition.HasValue
+            ? $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}|event:{eventPosition.Value.x}|{eventPosition.Value.y}|{eventPosition.Value.z}"
+            : $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
         _spawnRecords.Add(new DynamicCharacterSpawnRecord
         {
             Key = key,
@@ -242,6 +245,9 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             Y = pos.y,
             Z = pos.z,
             SourceScript = scriptName,
+            EventX = eventPosition?.x,
+            EventY = eventPosition?.y,
+            EventZ = eventPosition?.z,
         });
     }
 

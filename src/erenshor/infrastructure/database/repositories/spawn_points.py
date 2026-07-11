@@ -40,7 +40,10 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     WHEN cs.is_directly_placed = 1 THEN 'direct'
                     ELSE 'normal'
                 END AS spawn_type,
-                cs.source_script
+                cs.source_script,
+                cs.event_x,
+                cs.event_y,
+                cs.event_z
             FROM wiki_character_spawns cs
             WHERE cs.character_stable_key IN (SELECT member_stable_key FROM members)
             UNION ALL
@@ -51,7 +54,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 tl.x, tl.y, tl.z,
                 NULL, NULL, NULL, NULL, NULL,
                 'treasure_chest',
-                NULL
+                NULL, NULL, NULL
             FROM treasure_chest_possible_spawns tcp
             JOIN treasure_locations tl ON tl.stable_key = tcp.treasure_location_stable_key
             LEFT JOIN zones z ON z.scene_name = tl.scene
@@ -76,6 +79,9 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     level_mod=int(row["level_mod"]) if row["level_mod"] is not None else None,
                     rare_npc_chance=int(row["rare_npc_chance"]) if row["rare_npc_chance"] is not None else None,
                     spawn_type=str(row["spawn_type"]),
+                    event_x=float(row["event_x"]) if row["event_x"] is not None else None,
+                    event_y=float(row["event_y"]) if row["event_y"] is not None else None,
+                    event_z=float(row["event_z"]) if row["event_z"] is not None else None,
                     origin=("dynamic" if row["source_script"] is not None else "generated"),
                 )
                 for row in rows
@@ -111,6 +117,9 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 cs.z,
                 cs.spawn_chance,
                 cs.source_script,
+                cs.event_x,
+                cs.event_y,
+                cs.event_z,
                 COALESCE(cs.is_rare, 0)  AS is_rare,
                 COALESCE(c.is_unique, 0) AS is_unique,
                 COALESCE(cs.level_mod, 0) AS level_mod
@@ -157,6 +166,9 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                         is_unique=bool(row["is_unique"]),
                         level_mod=int(row["level_mod"]),
                         source_script=(str(row["source_script"]) if row["source_script"] is not None else None),
+                        event_x=float(row["event_x"]) if row["event_x"] is not None else None,
+                        event_y=float(row["event_y"]) if row["event_y"] is not None else None,
+                        event_z=float(row["event_z"]) if row["event_z"] is not None else None,
                     )
                 )
 

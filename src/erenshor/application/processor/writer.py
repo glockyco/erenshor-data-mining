@@ -940,6 +940,9 @@ CREATE TABLE character_spawns (
     is_wiki_generated       INTEGER,
     is_map_visible          INTEGER,
     source_script           TEXT,
+    event_x                 REAL,
+    event_y                 REAL,
+    event_z                 REAL,
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 

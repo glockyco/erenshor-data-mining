@@ -98,6 +98,9 @@ class _SpawnRow:
     is_wiki_generated: int | None
     is_map_visible: int | None
     source_script: str | None = None
+    event_x: float | None = None
+    event_y: float | None = None
+    event_z: float | None = None
 
 
 @dataclass
@@ -519,7 +522,8 @@ def process_characters(
         dyn_rows = _load_rows(
             raw,
             """
-            SELECT Key, CharacterStableKey, Scene, X, Y, Z, SourceScript
+            SELECT Key, CharacterStableKey, Scene, X, Y, Z, SourceScript,
+                   EventX, EventY, EventZ
             FROM DynamicCharacterSpawns
             WHERE CharacterStableKey IN ({})
             """.format(",".join("?" * len(all_keys))),
@@ -529,6 +533,9 @@ def process_characters(
             sk = str(r["CharacterStableKey"])
             scene = r.get("Scene")
             source_script = cast("str | None", r.get("SourceScript"))
+            event_x = cast("float | None", r.get("EventX"))
+            event_y = cast("float | None", r.get("EventY"))
+            event_z = cast("float | None", r.get("EventZ"))
             x = cast("float | None", r.get("X"))
             y = cast("float | None", r.get("Y"))
             z = cast("float | None", r.get("Z"))
@@ -563,6 +570,9 @@ def process_characters(
                     is_wiki_generated=None,
                     is_map_visible=None,
                     source_script=source_script,
+                    event_x=event_x,
+                    event_y=event_y,
+                    event_z=event_z,
                 )
             )
 
@@ -857,6 +867,9 @@ def process_characters(
                     else d.char.is_wiki_generated,
                     "is_map_visible": s.is_map_visible if s.is_map_visible is not None else d.char.is_map_visible,
                     "source_script": s.source_script,
+                    "event_x": s.event_x,
+                    "event_y": s.event_y,
+                    "event_z": s.event_z,
                 }
             )
     writer.insert_character_spawns(spawn_out)

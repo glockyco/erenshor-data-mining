@@ -28,6 +28,9 @@ class CharacterSpawnInfo:
     is_unique: bool
     level_mod: int = 0
     source_script: str | None = None
+    event_x: float | None = None
+    event_y: float | None = None
+    event_z: float | None = None
 
 
 @dataclass(frozen=True)
@@ -46,4 +49,7 @@ class CharacterSpawnRow:
     level_mod: int | None
     rare_npc_chance: int | None
     spawn_type: str
+    event_x: float | None = None
+    event_y: float | None = None
+    event_z: float | None = None
     origin: str = "generated"

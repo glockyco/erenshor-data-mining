@@ -202,6 +202,8 @@ reason = "Navigation waypoints, not Character prefabs."
 script = "MalarothFeed"
 fields = ["Malaroth", "Demented"]
 position_field = "SpawnLoc"
+include_host_position = true
+reason = "SpawnLoc is the NPC instantiate position; the component host transform is the interaction trigger anchor."
 
 [[denied]]
 script = "TreasureChestEvent"

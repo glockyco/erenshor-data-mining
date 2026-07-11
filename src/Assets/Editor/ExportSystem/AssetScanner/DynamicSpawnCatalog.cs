@@ -13,6 +13,7 @@ public struct CatalogEntry
     public DynamicSpawnClassification Classification { get; set; }
     public string? PositionField { get; set; }   // comma-separated for multi-position spawns; listener splits
     public string? PositionStrategy { get; set; } // named resolver for non-Cartesian placement semantics
+    public bool IncludeHostPosition { get; set; }
     public string? Reason { get; set; }
 }
 
@@ -38,6 +39,7 @@ public class DynamicSpawnCatalog
         List<string>? currentFields = null;
         string? currentPositionField = null;
         string? currentPositionStrategy = null;
+        bool currentIncludeHostPosition = false;
         string? currentReason = null;
 
         foreach (var rawLine in File.ReadAllLines(path))
@@ -48,9 +50,9 @@ public class DynamicSpawnCatalog
             if (line == "[[allowed]]" || line == "[[denied]]")
             {
                 if (currentScript != null && currentFields != null)
-                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentReason);
+                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentReason);
                 currentSection = line == "[[allowed]]" ? "allowed" : "denied";
-                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentReason = null;
+                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentIncludeHostPosition = false; currentReason = null;
             }
             else if (line.StartsWith("script = "))
             {
@@ -64,9 +66,9 @@ public class DynamicSpawnCatalog
             {
                 currentPositionField = ParseStringValue(line);
             }
-            else if (line.StartsWith("position_strategy = "))
+            else if (line.StartsWith("include_host_position = "))
             {
-                currentPositionStrategy = ParseStringValue(line);
+                currentIncludeHostPosition = ParseBoolValue(line);
             }
             else if (line.StartsWith("reason = "))
             {
@@ -74,12 +76,12 @@ public class DynamicSpawnCatalog
             }
         }
         if (currentScript != null && currentFields != null)
-            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentReason);
+            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentReason);
 
         return catalog;
     }
 
-    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, string? reason)
+    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, bool includeHostPosition, string? reason)
     {
         var classification = section == "allowed" ? DynamicSpawnClassification.Allowed : DynamicSpawnClassification.Denied;
         _knownScripts.Add(script);
@@ -97,6 +99,7 @@ public class DynamicSpawnCatalog
                 Classification = classification,
                 PositionField = positionField,
                 PositionStrategy = positionStrategy,
+                IncludeHostPosition = includeHostPosition,
                 Reason = reason,
             };
         }
@@ -120,9 +123,14 @@ public class DynamicSpawnCatalog
         return val;
     }
 
+    private static bool ParseBoolValue(string line)
+    {
+        var eq = line.IndexOf('=');
+        return eq >= 0 && line.Substring(eq + 1).Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static List<string> ParseStringArrayValue(string line)
     {
-        // fields = ["PeonNPC", "EmberNPC"]  →  ["PeonNPC", "EmberNPC"]
         var eq = line.IndexOf('=');
         if (eq < 0) return new List<string>();
         var val = line.Substring(eq + 1).Trim();
