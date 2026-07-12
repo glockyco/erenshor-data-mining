@@ -57,6 +57,11 @@ losing game behavior.
   Maps, Molds, Planar items, and other globally rolled rewards.
 - [ ] Consume the existing `loot.world_drop.*` code facts, add a deterministic
   renderer and fixtures, and keep random-pool rows distinct from per-NPC loot.
+- [ ] First concrete consumer: `Essence of Amarion` (quest
+  `quest:essenceofamarionforbanker`). It is added to any kill's loot roll at
+  ~0.45% x luck (`LootTable.cs` -> `GameData.Misc.EssenceOfAmarion`), not from
+  any NPC's own table, so the item is a graph dead-end and the quest cannot be
+  explained (or level-estimated) by the guide until this pool is modeled.
 
 ### Task 7: Render the random fished Map reward
 
@@ -64,3 +69,18 @@ losing game behavior.
   source rather than a per-water source.
 - [ ] Add the required code fact for the random rule, then cover rendering,
   parity, and golden output without assigning the reward to a specific water.
+
+### Task 8: Consume scripted Vithean arena rounds in the guide graph
+
+- [ ] The `arena_rounds` / `arena_round_enemies` clean tables (exported per the
+  archived 2026-06-17 arena-round plan) are never read by
+  `guide.graph_builder`. Wire each round's input coin/token, award chest, wave
+  enemies, and the 1..8 ordering so `Vitheo's Arena I`..`VIII` present as a
+  scripted wave ladder instead of isolated implicit token turn-ins and
+  free-standing chest kills.
+- [ ] The award chests carry `source_script = 'VithArena'` and are neither
+  directly placed nor `spawn_upon_quest_complete`-gated, so no existing guide
+  edge conveys the gate: chest N only spawns from arena round N (fed token N).
+  Model the first-clear chest drop distinctly from the post-completion
+  Master of Battle vendor re-buy (`unlock_item_for_vendor`), which otherwise
+  reads as a circular token source.
