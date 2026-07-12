@@ -179,7 +179,7 @@ unlock predicates `:583-627`, spawn nodes `graph_builder.py:936-982`).
   artifact.
 - [ ] In-game verification: the new quests appear in the guide list with
   steps.
-- [ ] Commit boundaries: `feat(guide): export mod quest-guide from compiled graph`,
+- [x] Commit boundaries: `feat(guide): export mod quest-guide from compiled graph`,
   then `chore(guide): regenerate mod quest data for playtest release`.
 - [ ] Vault republish of the rebuilt DLL ships the data; follow
   `src/mods/AdventureGuide/vault/AGENTS.md` (manual gate — coordinate with
