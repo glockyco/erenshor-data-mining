@@ -12,11 +12,13 @@
 |sell=455
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Seastone Prism
+|image=Seastone Prism.png
 |name=Seastone Prism
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=15
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=0

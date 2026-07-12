@@ -12,8 +12,29 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 42 - aegis charm}}
+{{Item/Charm
+|image=Aegis Charm.png
+|name=Aegis Charm
+|tier=0
+|strscaling=2
+|endscaling=7
+|dexscaling=
+|agiscaling=2
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

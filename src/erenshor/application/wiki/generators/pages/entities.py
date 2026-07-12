@@ -186,10 +186,12 @@ class EntityPageGenerator(PageGenerator):
 
     def _assemble_character(self, character: Character) -> EnrichedCharacterData:
         spawn_infos = self.context.spawn_repo.get_spawn_info_for_character(character.stable_key)
+        loot_drops = self.context.character_repo.get_character_loot_drops(character.stable_key)
         spells = self.context.spell_repo.get_spells_used_by_character(character.stable_key)
         return EnrichedCharacterData(
             character=character,
             spawn_infos=spawn_infos,
+            loot_drops=loot_drops,
             spells=spells,
         )
 

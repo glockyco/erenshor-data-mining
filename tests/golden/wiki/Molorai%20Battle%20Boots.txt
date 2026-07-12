@@ -12,11 +12,13 @@
 |sell=292
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Molorai Battle Boots
+|image=Molorai Battle Boots.png
 |name=Molorai Battle Boots
 |slot=Foot
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=2
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=15
 |mana=0
 |armor=15

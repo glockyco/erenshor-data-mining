@@ -12,11 +12,13 @@
 |sell=2145
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Looming Reaper
+|image=Looming Reaper.png
 |name=Looming Reaper
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=4
 |damage=13
 |delay=1.0
-|range=1
+|range=
 |health=200
 |mana=200
 |armor=0

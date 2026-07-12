@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Vibrant Regrowth}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - vibrant regrowth}}
+{{Item/SpellScroll
+|image=Spell Scroll: Vibrant Regrowth.png
+|name=Spell Scroll: Vibrant Regrowth
+|arcanist_level=
+|druid_level=35
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=800
+|spell_type=Heal
+|spell_desc=Heal 200 damage per tick, over time
+}}
 
 [[Category:Ability Books]]

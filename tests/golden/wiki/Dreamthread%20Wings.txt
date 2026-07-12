@@ -12,11 +12,13 @@
 |sell=1300
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Dreamthread Wings
+|image=Dreamthread Wings.png
 |name=Dreamthread Wings
 |slot=Back
 |type=
@@ -29,9 +31,9 @@
 |wis=12
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=45
 |mana=40
 |armor=10

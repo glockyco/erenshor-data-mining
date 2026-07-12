@@ -12,8 +12,22 @@
 |sell=8157
 |taughtspell={{AbilityLink|Major Group Heal}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - group healing major}}
+{{Item/SpellScroll
+|image=Spell Scroll: Major Group Healing.png
+|name=Spell Scroll: Major Group Healing
+|arcanist_level=
+|druid_level=30
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=755
+|spell_type=Heal
+|spell_desc=Heal nearby group members for base 1200 damage
+}}
 
 [[Category:Ability Books]]

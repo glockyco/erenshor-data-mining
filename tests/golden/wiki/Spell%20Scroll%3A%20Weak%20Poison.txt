@@ -12,8 +12,22 @@
 |sell=32
 |taughtspell={{AbilityLink|Weak Poison}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - weak poison}}
+{{Item/SpellScroll
+|image=Spell Scroll: Weak Poison.png
+|name=Spell Scroll: Weak Poison
+|arcanist_level=
+|druid_level=1
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=15
+|spell_type=StatusEffect
+|spell_desc=Deal (8 / tick) poison damage over time
+}}
 
 [[Category:Ability Books]]

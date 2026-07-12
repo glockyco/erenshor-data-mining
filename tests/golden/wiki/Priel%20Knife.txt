@@ -12,11 +12,13 @@
 |sell=2
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Priel Knife
+|image=Priel Knife.png
 |name=Priel Knife
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=6
 |delay=1.2
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

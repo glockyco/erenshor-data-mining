@@ -12,11 +12,13 @@
 |sell=2925
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Trembling Chain
+|image=Trembling Chain.png
 |name=Trembling Chain
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=15
 |cha=10
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=255
 |mana=255
 |armor=0

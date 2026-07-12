@@ -12,8 +12,22 @@
 |sell=2275
 |taughtspell={{AbilityLink|Moon Bolt II}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - moon bolt ii}}
+{{Item/SpellScroll
+|image=Spell Scroll: Moon Bolt II.png
+|name=Spell Scroll: Moon Bolt II
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=19
+|stormcaller_level=
+|reaver_level=
+|mana_cost=120
+|spell_type=Damage
+|spell_desc=Deals 700 magic damage and interrupts your target's casts
+}}
 
 [[Category:Ability Books]]

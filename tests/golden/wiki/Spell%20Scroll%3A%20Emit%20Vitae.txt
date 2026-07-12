@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Emit Vitae}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - emit vitae}}
+{{Item/SpellScroll
+|image=Spell Scroll: Emit Vitae.png
+|name=Spell Scroll: Emit Vitae
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=35
+|mana_cost=5
+|spell_type=Heal
+|spell_desc=Damages the caster for 25% of their life, and restores 600 mana to their party.
+}}
 
 [[Category:Ability Books]]

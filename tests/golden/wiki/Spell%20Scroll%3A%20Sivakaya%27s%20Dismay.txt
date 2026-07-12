@@ -12,8 +12,22 @@
 |sell=8580
 |taughtspell={{AbilityLink|Sivakaya's Dismay}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - sivakaya's dismay}}
+{{Item/SpellScroll
+|image=Spell Scroll: Sivakaya's Dismay.png
+|name=Spell Scroll: Sivakaya's Dismay
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=24
+|mana_cost=400
+|spell_type=StatusEffect
+|spell_desc=Lower target's resists by 12 and AC by 100
+}}
 
 [[Category:Ability Books]]

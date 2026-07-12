@@ -12,11 +12,13 @@
 |sell=1235
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Scorched Walking Stick
+|image=Scorched Walking Stick.png
 |name=Scorched Walking Stick
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=3
 |delay=2.0
-|range=1
+|range=
 |health=0
 |mana=100
 |armor=0

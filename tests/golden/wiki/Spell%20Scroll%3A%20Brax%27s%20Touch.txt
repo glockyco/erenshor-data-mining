@@ -12,8 +12,22 @@
 |sell=32
 |taughtspell={{AbilityLink|Brax's Touch}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - brax's touch}}
+{{Item/SpellScroll
+|image=Spell Scroll: Brax's Touch.png
+|name=Spell Scroll: Brax's Touch
+|arcanist_level=4
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=50
+|spell_type=Damage
+|spell_desc=Deals 100 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=10
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Rotting Cudgel
+|image=Rotting Cudgel.png
 |name=Rotting Cudgel
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=8
 |delay=1.0
-|range=1
+|range=
 |health=5
 |mana=0
 |armor=0

@@ -12,11 +12,13 @@
 |sell=8125
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Steadfast Girdle
+|image=Steadfast Girdle.png
 |name=Steadfast Girdle
 |slot=Waist
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=450
 |mana=200
 |armor=25

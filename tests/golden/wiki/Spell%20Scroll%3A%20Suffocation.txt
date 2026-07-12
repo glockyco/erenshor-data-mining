@@ -12,8 +12,22 @@
 |sell=7475
 |taughtspell={{AbilityLink|Suffocate}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - suffocate}}
+{{Item/SpellScroll
+|image=Spell Scroll: Suffocation.png
+|name=Spell Scroll: Suffocation
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=16
+|mana_cost=300
+|spell_type=StatusEffect
+|spell_desc=Do 700 void damage per tick for 3 ticks.
+}}
 
 [[Category:Ability Books]]

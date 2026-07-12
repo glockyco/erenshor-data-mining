@@ -12,11 +12,13 @@
 |sell=1820
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Dusken Staff
+|image=Dusken Staff.png
 |name=Dusken Staff
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=1
 |damage=31
 |delay=2.0
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

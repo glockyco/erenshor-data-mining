@@ -12,11 +12,13 @@
 |sell=162
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Aged Plate Bracer
+|image=Aged Plate Bracer.png
 |name=Aged Plate Bracer
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=2
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=18

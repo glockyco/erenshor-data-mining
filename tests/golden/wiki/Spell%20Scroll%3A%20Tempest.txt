@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Tempest}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - tempest}}
+{{Item/SpellScroll
+|image=Spell Scroll: Tempest.png
+|name=Spell Scroll: Tempest
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=35
+|reaver_level=
+|mana_cost=1400
+|spell_type=Damage
+|spell_desc=Deals 2300 magic damage to your target.
+}}
 
 [[Category:Ability Books]]

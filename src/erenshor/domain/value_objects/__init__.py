@@ -1,7 +1,7 @@
 """Domain value objects."""
 
 from .faction import FactionModifier
-from .loot import LootDropInfo
+from .loot import LootDropDisplayInfo, LootDropInfo
 from .spawn import CharacterSpawnInfo
 from .wiki_link import (
     AbilityLink,
@@ -21,6 +21,7 @@ __all__ = [
     "FactionLink",
     "FactionModifier",
     "ItemLink",
+    "LootDropDisplayInfo",
     "LootDropInfo",
     "QuestLink",
     "StandardLink",

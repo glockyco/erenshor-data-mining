@@ -12,14 +12,16 @@
 |sell=146
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Rotwood Bow
+|image=Rotwood Bow.png
 |name=Rotwood Bow
 |slot=Primary
-|type=Primary
+|type=Primary - 2-Handed
 |relic=
 |str=0
 |end=0
@@ -31,7 +33,7 @@
 |res=0
 |damage=18
 |delay=1.2
-|range=1
+|range=25
 |health=0
 |mana=0
 |armor=0

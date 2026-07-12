@@ -12,8 +12,22 @@
 |sell=585
 |taughtspell={{AbilityLink|Brax's Rage}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - brax's rage}}
+{{Item/SpellScroll
+|image=Spell Scroll: Brax's Rage.png
+|name=Spell Scroll: Brax's Rage
+|arcanist_level=10
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=180
+|spell_type=Damage
+|spell_desc=Deals 455 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

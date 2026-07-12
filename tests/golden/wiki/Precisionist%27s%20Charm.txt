@@ -12,8 +12,29 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 35 - precisionist's charm}}
+{{Item/Charm
+|image=Precisionist's Charm.png
+|name=Precisionist's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=6
+|agiscaling=2
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

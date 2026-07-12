@@ -12,11 +12,13 @@
 |sell=1723
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Chitin Bracer
+|image=Chitin Bracer.png
 |name=Chitin Bracer
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=0
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=65
 |mana=65
 |armor=10

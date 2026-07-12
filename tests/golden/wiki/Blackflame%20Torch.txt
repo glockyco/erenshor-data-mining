@@ -12,11 +12,13 @@
 |sell=1300
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Blackflame Torch
+|image=Blackflame Torch.png
 |name=Blackflame Torch
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=1
 |damage=3
 |delay=1.3
-|range=1
+|range=
 |health=0
 |mana=50
 |armor=0

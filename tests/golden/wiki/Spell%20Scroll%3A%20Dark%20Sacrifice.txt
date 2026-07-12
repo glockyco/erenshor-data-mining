@@ -12,8 +12,22 @@
 |sell=9750
 |taughtspell={{AbilityLink|Dark Sacrifice}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - dark sacrifice}}
+{{Item/SpellScroll
+|image=Spell Scroll: Dark Sacrifice.png
+|name=Spell Scroll: Dark Sacrifice
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=35
+|mana_cost=
+|spell_type=Heal
+|spell_desc=Convert 1200 life into 850 mana.  Cannot resonate.
+}}
 
 [[Category:Ability Books]]

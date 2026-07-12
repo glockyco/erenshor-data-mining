@@ -12,11 +12,13 @@
 |sell=36
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Compression Wraps
+|image=Compression Wraps.png
 |name=Compression Wraps
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=4
 |cha=4
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=5
 |mana=5
 |armor=5

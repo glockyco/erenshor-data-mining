@@ -12,8 +12,22 @@
 |sell=5558
 |taughtspell={{AbilityLink|Spectrum}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - spectrum}}
+{{Item/SpellScroll
+|image=Spell Scroll: Spectrum.png
+|name=Spell Scroll: Spectrum
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=22
+|stormcaller_level=
+|reaver_level=
+|mana_cost=80
+|spell_type=StatusEffect
+|spell_desc=Lower all target's resists by 10
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=975
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Albino Bear Hood
+|image=Albino Bear Hood.png
 |name=Albino Bear Hood
 |slot=Head
 |type=
@@ -29,9 +31,9 @@
 |wis=15
 |cha=0
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=50
 |mana=65
 |armor=30

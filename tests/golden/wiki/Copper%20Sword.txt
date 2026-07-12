@@ -12,11 +12,13 @@
 |sell=36
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Copper Sword
+|image=Copper Sword.png
 |name=Copper Sword
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=8
 |delay=1.5
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

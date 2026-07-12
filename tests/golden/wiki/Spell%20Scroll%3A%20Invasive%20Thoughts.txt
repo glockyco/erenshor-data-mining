@@ -12,8 +12,22 @@
 |sell=62
 |taughtspell={{AbilityLink|Invasive Thoughts}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - invasive thoughts}}
+{{Item/SpellScroll
+|image=Spell Scroll: Invasive Thoughts.png
+|name=Spell Scroll: Invasive Thoughts
+|arcanist_level=5
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=125
+|spell_type=StatusEffect
+|spell_desc=Charm an NPC (up to level 7) to do your bidding for a short time.
+}}
 
 [[Category:Ability Books]]

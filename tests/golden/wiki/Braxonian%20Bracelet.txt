@@ -12,11 +12,13 @@
 |sell=5525
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Braxonian Bracelet
+|image=Braxonian Bracelet.png
 |name=Braxonian Bracelet
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=4
 |cha=8
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=25
 |mana=50
 |armor=15
@@ -40,7 +42,6 @@
 |elemental=2
 |void=0
 |description=Legendary Bracelet of Brax's Arcanists
-
 |arcanist=True
 |duelist=
 |druid=True

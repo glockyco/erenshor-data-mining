@@ -12,11 +12,13 @@
 |sell=1625
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Fungal Edge
+|image=Fungal Edge.png
 |name=Fungal Edge
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=0
 |damage=28
 |delay=1.95
-|range=1
+|range=
 |health=10
 |mana=0
 |armor=0

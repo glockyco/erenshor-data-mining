@@ -12,11 +12,13 @@
 |sell=9451
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Pious Sandals
+|image=Pious Sandals.png
 |name=Pious Sandals
 |slot=Foot
 |type=
@@ -29,9 +31,9 @@
 |wis=12
 |cha=6
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=120
 |mana=120
 |armor=20

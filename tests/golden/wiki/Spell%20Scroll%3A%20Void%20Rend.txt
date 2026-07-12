@@ -12,8 +12,22 @@
 |sell=9425
 |taughtspell={{AbilityLink|Void Rend}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - void rend}}
+{{Item/SpellScroll
+|image=Spell Scroll: Void Rend.png
+|name=Spell Scroll: Void Rend
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=24
+|mana_cost=350
+|spell_type=Damage
+|spell_desc=Deals 800 void damage to your target and increase aggro by 350
+}}
 
 [[Category:Ability Books]]

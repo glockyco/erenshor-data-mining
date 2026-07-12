@@ -12,11 +12,13 @@
 |sell=11408
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Sivakayan Wings
+|image=Sivakayan Wings.png
 |name=Sivakayan Wings
 |slot=Back
 |type=
@@ -29,9 +31,9 @@
 |wis=5
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=155
 |mana=200
 |armor=35

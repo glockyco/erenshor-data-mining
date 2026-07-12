@@ -12,11 +12,13 @@
 |sell=1934
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Mino Hatchet
+|image=Mino Hatchet.png
 |name=Mino Hatchet
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=0
 |damage=14
 |delay=1.15
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

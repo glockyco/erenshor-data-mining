@@ -12,8 +12,29 @@
 |sell=1625
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 8 - adventure charm}}
+{{Item/Charm
+|image=Adventure Charm.png
+|name=Adventure Charm
+|tier=0
+|strscaling=
+|endscaling=1
+|dexscaling=1
+|agiscaling=
+|intscaling=1
+|wisscaling=1
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

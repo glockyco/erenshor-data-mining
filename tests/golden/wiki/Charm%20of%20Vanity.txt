@@ -12,8 +12,29 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 22 - charm of vanity}}
+{{Item/Charm
+|image=Charm of Vanity.png
+|name=Charm of Vanity
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=4
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

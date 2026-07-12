@@ -12,11 +12,13 @@
 |sell=8522
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Nature's Promise
+|image=Nature's Promise.png
 |name=Nature's Promise
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=20
 |cha=0
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=425
 |mana=100
 |armor=0

@@ -12,11 +12,13 @@
 |sell=2080
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Minoaxe
+|image=Minoaxe.png
 |name=Minoaxe
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=0
 |damage=24
 |delay=3.0
-|range=1
+|range=
 |health=10
 |mana=0
 |armor=0

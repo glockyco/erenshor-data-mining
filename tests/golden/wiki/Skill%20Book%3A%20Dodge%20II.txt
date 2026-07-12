@@ -12,8 +12,22 @@
 |sell=715
 |taughtspell=
 |taughtskill={{AbilityLink|Dodge II}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - dodge 2}}
+{{Item/SkillBook
+|image=Skill Book: Dodge II.png
+|name=Skill Book: Dodge II
+|duelist_level=8
+|druid_level=16
+|arcanist_level=16
+|paladin_level=12
+|stormcaller_level=12
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to dodge incoming attacks.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

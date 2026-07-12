@@ -12,11 +12,13 @@
 |sell=1949
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Ancient Guardian Sleeve
+|image=Ancient Guardian Sleeve.png
 |name=Ancient Guardian Sleeve
 |slot=Arm
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=100
 |mana=0
 |armor=100

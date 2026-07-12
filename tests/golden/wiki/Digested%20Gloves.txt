@@ -12,11 +12,13 @@
 |sell=1609
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Digested Gloves
+|image=Digested Gloves.png
 |name=Digested Gloves
 |slot=Hand
 |type=
@@ -29,9 +31,9 @@
 |wis=12
 |cha=0
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=30
 |mana=45
 |armor=5

@@ -12,11 +12,13 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Chthonic Pants
+|image=Chthonic Pants.png
 |name=Chthonic Pants
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=30
 |cha=10
 |res=7
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=275
 |mana=285
 |armor=125

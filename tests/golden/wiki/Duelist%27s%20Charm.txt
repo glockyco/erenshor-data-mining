@@ -12,8 +12,29 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 30 - duelist's charm}}
+{{Item/Charm
+|image=Duelist's Charm.png
+|name=Duelist's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=3
+|agiscaling=3
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

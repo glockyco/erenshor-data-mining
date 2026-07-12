@@ -12,11 +12,13 @@
 |sell=325
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Old Halberd
+|image=Old Halberd.png
 |name=Old Halberd
 |slot=Primary
 |type=Primary - 2-Handed
@@ -31,7 +33,7 @@
 |res=0
 |damage=24
 |delay=4.1
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

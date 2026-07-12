@@ -12,11 +12,13 @@
 |sell=1235
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Stone Sword
+|image=Stone Sword.png
 |name=Stone Sword
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=25
 |delay=1.6
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

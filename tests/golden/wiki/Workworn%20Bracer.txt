@@ -12,11 +12,13 @@
 |sell=1300
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Workworn Bracer
+|image=Workworn Bracer.png
 |name=Workworn Bracer
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=3
 |cha=3
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=50
 |mana=50
 |armor=15

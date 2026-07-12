@@ -12,8 +12,22 @@
 |sell=146
 |taughtspell=
 |taughtskill={{AbilityLink|Blunted Arrow}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - blunted arrow}}
+{{Item/SkillBook
+|image=Skill Book: Blunted Arrow.png
+|name=Skill Book: Blunted Arrow
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=3
+|reaver_level=
+|skill_type=Ranged
+|skill_desc=This arrow has a heavy, blunt tip that will stun an opponent and interrupt spell casts
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

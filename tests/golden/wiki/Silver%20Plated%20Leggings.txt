@@ -12,11 +12,13 @@
 |sell=1219
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Silver Plated Leggings
+|image=Silver Plated Leggings.png
 |name=Silver Plated Leggings
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=35
 |armor=35
@@ -40,7 +42,6 @@
 |elemental=2
 |void=2
 |description=Silvery and lined with a nice fur interior.
-
 |arcanist=
 |duelist=True
 |druid=

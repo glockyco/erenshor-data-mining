@@ -12,8 +12,22 @@
 |sell=715
 |taughtspell=
 |taughtskill={{AbilityLink|Execute}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - execute}}
+{{Item/SkillBook
+|image=Skill Book: Execute.png
+|name=Skill Book: Execute
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=6
+|reaver_level=
+|skill_type=Ranged
+|skill_desc=Fire a normal arrow, if target is less than 10% life, arrow does 8x damage
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

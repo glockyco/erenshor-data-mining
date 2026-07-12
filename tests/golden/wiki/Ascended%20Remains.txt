@@ -12,11 +12,13 @@
 |sell=15599
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Ascended Remains
+|image=Ascended Remains.png
 |name=Ascended Remains
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=2
 |damage=1
 |delay=5.0
-|range=1
+|range=
 |health=300
 |mana=200
 |armor=0

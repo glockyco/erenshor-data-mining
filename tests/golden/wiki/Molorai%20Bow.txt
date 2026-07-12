@@ -12,14 +12,16 @@
 |sell=260
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Molorai Bow
+|image=Molorai Bow.png
 |name=Molorai Bow
 |slot=Primary
-|type=Primary
+|type=Primary - 2-Handed
 |relic=
 |str=3
 |end=0
@@ -31,7 +33,7 @@
 |res=0
 |damage=23
 |delay=1.15
-|range=1
+|range=25
 |health=0
 |mana=0
 |armor=0

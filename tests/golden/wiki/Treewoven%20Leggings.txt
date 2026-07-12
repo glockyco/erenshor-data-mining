@@ -12,11 +12,13 @@
 |sell=8612
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Treewoven Leggings
+|image=Treewoven Leggings.png
 |name=Treewoven Leggings
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=12
 |cha=0
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=65
 |mana=135
 |armor=10
@@ -40,7 +42,6 @@
 |elemental=1
 |void=0
 |description=Legendary Garb of Brax's Arcanists
-
 |arcanist=
 |duelist=True
 |druid=True

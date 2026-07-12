@@ -12,11 +12,13 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Cosmic Barrier
+|image=Cosmic Barrier.png
 |name=Cosmic Barrier
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=10
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=355
 |mana=155
 |armor=35

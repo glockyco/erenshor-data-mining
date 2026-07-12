@@ -12,11 +12,13 @@
 |sell=2275
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Resonating Crystal
+|image=Resonating Crystal.png
 |name=Resonating Crystal
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=3
 |damage=10
 |delay=2.0
-|range=1
+|range=
 |health=300
 |mana=100
 |armor=0

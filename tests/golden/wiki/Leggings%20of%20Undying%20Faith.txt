@@ -12,12 +12,14 @@
 |sell=81
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Leggings of Undying Faith
-|name=Leggings of Undying Faith
+|image=Leggings of Undying Faith.png
+|name=<span style="font-size:20px">Leggings of Undying Faith</span>
 |slot=Leg
 |type=
 |relic=True
@@ -29,9 +31,9 @@
 |wis=2
 |cha=2
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=25
 |mana=25
 |armor=10

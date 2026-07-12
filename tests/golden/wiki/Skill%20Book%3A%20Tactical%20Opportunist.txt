@@ -12,8 +12,22 @@
 |sell=
 |taughtspell=
 |taughtskill={{AbilityLink|Tactical Opportunist}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - tactical opportunist}}
+{{Item/SkillBook
+|image=Skill Book: Tactical Opportunist.png
+|name=Skill Book: Tactical Opportunist
+|duelist_level=35
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: Any time you hit your target from behind, gain a 2% chance for that strike to land as a Backstab.
+|simplayers_autolearn=
+}}
 
 [[Category:Ability Books]]

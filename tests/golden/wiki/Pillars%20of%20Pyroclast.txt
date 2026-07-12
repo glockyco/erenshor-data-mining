@@ -12,11 +12,13 @@
 |sell=3614
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Pillars of Pyroclast
+|image=Pillars of Pyroclast.png
 |name=Pillars of Pyroclast
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=8
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=100
 |mana=50
 |armor=50

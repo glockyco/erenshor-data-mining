@@ -12,11 +12,13 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Glacier Belt
+|image=Glacier Belt.png
 |name=Glacier Belt
 |slot=Waist
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=450
 |mana=200
 |armor=15

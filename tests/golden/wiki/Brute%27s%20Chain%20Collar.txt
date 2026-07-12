@@ -12,11 +12,13 @@
 |sell=952
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Brute's Chain Collar
+|image=Brute's Chain Collar.png
 |name=Brute's Chain Collar
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=5
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=10

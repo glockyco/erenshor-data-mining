@@ -12,8 +12,22 @@
 |sell=39
 |taughtspell={{AbilityLink|Minor Healing}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - minor healing}}
+{{Item/SpellScroll
+|image=Spell Scroll: Minor Healing.png
+|name=Spell Scroll: Minor Healing
+|arcanist_level=
+|druid_level=3
+|duelist_level=
+|paladin_level=3
+|stormcaller_level=
+|reaver_level=
+|mana_cost=35
+|spell_type=Heal
+|spell_desc=Heals base 45 damage.
+}}
 
 [[Category:Ability Books]]

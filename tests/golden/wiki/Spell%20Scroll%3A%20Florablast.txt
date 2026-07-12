@@ -12,8 +12,22 @@
 |sell=18200
 |taughtspell={{AbilityLink|Florablast}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - florablast}}
+{{Item/SpellScroll
+|image=Spell Scroll: Florablast.png
+|name=Spell Scroll: Florablast
+|arcanist_level=
+|druid_level=34
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1200
+|spell_type=Heal
+|spell_desc=Heal base 2300 damage.
+}}
 
 [[Category:Ability Books]]

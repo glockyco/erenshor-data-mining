@@ -12,11 +12,13 @@
 |sell=12054
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Officer's Bracer
+|image=Officer's Bracer.png
 |name=Officer's Bracer
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=115
 |mana=60
 |armor=65

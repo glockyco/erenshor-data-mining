@@ -12,8 +12,22 @@
 |sell=
 |taughtspell=
 |taughtskill={{AbilityLink|Stance: Hateful}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - stance - hateful}}
+{{Item/SkillBook
+|image=Skill Book: Hateful Stance.png
+|name=Skill Book: Hateful Stance
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=30
+|skill_type=Utility
+|skill_desc=Take and deal 20% less physical damage, while generating substantially more aggro. Gain a 4% bonus to all proc rates. Your focus on this stance prevents natural health regeneration.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

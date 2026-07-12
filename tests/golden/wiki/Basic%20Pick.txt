@@ -12,11 +12,13 @@
 |sell=65
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Basic Pick
+|image=Basic Pick.png
 |name=Basic Pick
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=1
 |delay=2.0
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0
@@ -39,9 +41,7 @@
 |poison=0
 |elemental=0
 |void=0
-|description=A basic mining pick.
-
-Mining Power: 2
+|description=A basic mining pick.<br><br>Mining Power: 2
 |arcanist=True
 |duelist=True
 |druid=True

@@ -12,11 +12,13 @@
 |sell=3
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Fishing Pole
+|image=Fishing Pole.png
 |name=Fishing Pole
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=0
 |damage=3
 |delay=6.0
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

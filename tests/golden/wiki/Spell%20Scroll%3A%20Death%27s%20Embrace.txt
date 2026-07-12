@@ -12,9 +12,23 @@
 |sell=130
 |taughtspell={{AbilityLink|Death's Embrace}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - death's embrace}}
+{{Item/SpellScroll
+|image=Spell Scroll: Death's Embrace.png
+|name=Spell Scroll: Death's Embrace
+|arcanist_level=
+|druid_level=
+|duelist_level=6
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=75
+|spell_type=StatusEffect
+|spell_desc=Steal some of your target's strength and attack speed and give it to yourself briefly
+}}
 
 [[Category:Ability Books]]
 [[Category:Crafting]]

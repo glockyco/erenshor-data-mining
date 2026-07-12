@@ -12,14 +12,16 @@
 |sell=195
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Executioner's Bow
+|image=Executioner's Bow.png
 |name=Executioner's Bow
 |slot=Primary
-|type=Primary
+|type=Primary - 2-Handed
 |relic=
 |str=2
 |end=1
@@ -31,7 +33,7 @@
 |res=0
 |damage=29
 |delay=1.4
-|range=1
+|range=25
 |health=0
 |mana=0
 |armor=0

@@ -12,8 +12,22 @@
 |sell=4875
 |taughtspell=
 |taughtskill={{AbilityLink|Priel Strike}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - priel strike}}
+{{Item/SkillBook
+|image=Skill Book: Priel Strike.png
+|name=Skill Book: Priel Strike
+|duelist_level=28
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Attack
+|skill_desc=Deal major damage to a target and interrupt spells
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

@@ -12,8 +12,22 @@
 |sell=36
 |taughtspell=
 |taughtskill={{AbilityLink|Blood Feast}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - blood feast}}
+{{Item/SkillBook
+|image=Skill Book: Blood Feast.png
+|name=Skill Book: Blood Feast
+|duelist_level=3
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Utility
+|skill_desc=Gain lifesteal on-hit for a brief time.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

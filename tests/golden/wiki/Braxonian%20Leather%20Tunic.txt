@@ -12,11 +12,13 @@
 |sell=9750
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Braxonian Leather Tunic
+|image=Braxonian Leather Tunic.png
 |name=Braxonian Leather Tunic
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=200
 |mana=150
 |armor=95

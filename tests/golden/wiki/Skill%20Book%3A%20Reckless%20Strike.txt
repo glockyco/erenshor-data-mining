@@ -12,8 +12,22 @@
 |sell=5525
 |taughtspell=
 |taughtskill={{AbilityLink|Reckless Strike}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - stance - reckless}}
+{{Item/SkillBook
+|image=Skill Book: Reckless Strike.png
+|name=Skill Book: Reckless Strike
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=10
+|skill_type=Attack
+|skill_desc=Attack your target for 200% of your normal melee damage, but take damage equal to 15% of your total life.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

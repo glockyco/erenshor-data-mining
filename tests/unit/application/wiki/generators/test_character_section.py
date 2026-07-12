@@ -4,8 +4,9 @@ from tests.unit.application.wiki_lua.fakes import make_character
 
 from erenshor.application.wiki.generators.sections.character import CharacterSectionGenerator
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
+from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_link import ZoneLink
+from erenshor.domain.value_objects.wiki_link import ItemLink, ZoneLink
 
 
 def _spawn(
@@ -75,3 +76,68 @@ def test_mixed_dynamic_and_ordinary_spawns_keep_ordinary_chance_and_coords() -> 
     assert "|spawntype=" in content
     assert "|spawntype=World and dynamic event spawns" not in content
     assert "1%" not in content
+
+
+def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> None:
+    character = make_character(
+        display_name="Faerie Trickster",
+        npc_name="Faerie Trickster",
+        wiki_page_name="Faerie Trickster",
+        is_unique=1,
+        is_common=0,
+    )
+    drops = [
+        LootDropDisplayInfo(
+            item_link=ItemLink(page_title="Beta Blade", display_name="Beta Blade"),
+            drop_probability=15.0,
+            is_guaranteed=True,
+            is_visible=True,
+            item_unique=False,
+        ),
+        LootDropDisplayInfo(
+            item_link=ItemLink(page_title="Alpha Armor", display_name="Alpha Armor"),
+            drop_probability=30.0,
+            is_guaranteed=False,
+            is_visible=False,
+            item_unique=True,
+        ),
+        LootDropDisplayInfo(
+            item_link=ItemLink(page_title="Common Coin", display_name="Common Coin"),
+            drop_probability=5.0,
+            is_guaranteed=False,
+            is_visible=False,
+            item_unique=False,
+        ),
+    ]
+
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[], spells=[], loot_drops=drops),
+        page_title="Faerie Trickster",
+    )
+
+    rates = content.split("|droprates=", 1)[1].split("\n", 1)[0]
+    assert rates.index("Alpha Armor") < rates.index("Beta Blade") < rates.index("Common Coin")
+    assert "If Faerie Trickster has {{ItemLink|Beta Blade}} equipped, it is guaranteed to drop." in content
+    assert (
+        "If the player is already holding {{ItemLink|Alpha Armor}} in their inventory, another will not drop."
+        in content
+    )
+    assert "|guaranteeddrops=\n" in content
+
+    two_guaranteed = [
+        drops[0],
+        LootDropDisplayInfo(
+            item_link=drops[1].item_link,
+            drop_probability=drops[1].drop_probability,
+            is_guaranteed=True,
+            is_visible=drops[1].is_visible,
+            item_unique=drops[1].item_unique,
+        ),
+        drops[2],
+    ]
+    guaranteed_content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[], spells=[], loot_drops=two_guaranteed),
+        page_title="Faerie Trickster",
+    )
+    guaranteed = guaranteed_content.split("|guaranteeddrops=", 1)[1].split("\n", 1)[0]
+    assert guaranteed == "{{ItemLink|Alpha Armor}}<br>{{ItemLink|Beta Blade}}"

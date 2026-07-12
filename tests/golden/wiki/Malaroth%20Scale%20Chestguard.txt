@@ -12,12 +12,14 @@
 |sell=8157
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Malaroth Scale Chestguard
-|name=Malaroth Scale Chestguard
+|image=Malaroth Scale Chestguard.png
+|name=<span style="font-size:20px">Malaroth Scale Chestguard</span>
 |slot=Chest
 |type=
 |relic=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=135
 |mana=100
 |armor=70

@@ -12,8 +12,22 @@
 |sell=65
 |taughtspell=
 |taughtskill={{AbilityLink|Shield Bash}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - bash}}
+{{Item/SkillBook
+|image=Skill Book: Shield Bash.png
+|name=Skill Book: Shield Bash
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=6
+|stormcaller_level=
+|reaver_level=6
+|skill_type=Attack
+|skill_desc=Bashes your enemy with a shield. Can proc shield ability. (Shield required in secondary slot).
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

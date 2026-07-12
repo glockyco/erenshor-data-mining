@@ -12,11 +12,13 @@
 |sell=650
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Razor Waveblade
+|image=Razor Waveblade.png
 |name=Razor Waveblade
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=17
 |delay=2.1
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Planar Healing}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - planar healing}}
+{{Item/SpellScroll
+|image=Spell Scroll: Planar Healing.png
+|name=Spell Scroll: Planar Healing
+|arcanist_level=
+|druid_level=35
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1800
+|spell_type=Heal
+|spell_desc=Heal base 3100 damage.
+}}
 
 [[Category:Ability Books]]

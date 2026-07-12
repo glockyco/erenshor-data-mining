@@ -12,11 +12,13 @@
 |sell=358
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Aged Plate Boots
+|image=Aged Plate Boots.png
 |name=Aged Plate Boots
 |slot=Foot
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=15
 |mana=15
 |armor=19

@@ -12,11 +12,13 @@
 |sell=1635
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Sivakayan Sceptre
+|image=Sivakayan Sceptre.png
 |name=Sivakayan Sceptre
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary

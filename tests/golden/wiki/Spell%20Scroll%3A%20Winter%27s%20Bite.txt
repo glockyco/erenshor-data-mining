@@ -12,8 +12,22 @@
 |sell=2958
 |taughtspell={{AbilityLink|Winter's Bite}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - winter's bite}}
+{{Item/SpellScroll
+|image=Spell Scroll: Winter's Bite.png
+|name=Spell Scroll: Winter's Bite
+|arcanist_level=14
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Damage
+|spell_desc=Deals 900 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

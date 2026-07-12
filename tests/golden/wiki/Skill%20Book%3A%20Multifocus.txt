@@ -12,8 +12,22 @@
 |sell=
 |taughtspell=
 |taughtskill={{AbilityLink|Multifocus}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - multifocus}}
+{{Item/SkillBook
+|image=Skill Book: Multifocus.png
+|name=Skill Book: Multifocus
+|duelist_level=
+|druid_level=
+|arcanist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: You are able to auto-attack while channeling spells
+|simplayers_autolearn=
+}}
 
 [[Category:Ability Books]]

@@ -12,8 +12,22 @@
 |sell=1950
 |taughtspell={{AbilityLink|Ice Spear}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - ice spear}}
+{{Item/SpellScroll
+|image=Spell Scroll: Ice Spear.png
+|name=Spell Scroll: Ice Spear
+|arcanist_level=21
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=250
+|spell_type=Damage
+|spell_desc=Deals 1100 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

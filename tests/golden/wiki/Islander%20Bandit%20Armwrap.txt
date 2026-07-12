@@ -12,11 +12,13 @@
 |sell=10
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Islander Bandit Armwrap
+|image=Islander Bandit Armwrap.png
 |name=Islander Bandit Armwrap
 |slot=Arm
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=10
 |mana=0
 |armor=3

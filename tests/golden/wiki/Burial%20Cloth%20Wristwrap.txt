@@ -12,11 +12,13 @@
 |sell=13
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Burial Cloth Wristwrap
+|image=Burial Cloth Wristwrap.png
 |name=Burial Cloth Wristwrap
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=10
 |mana=10
 |armor=0

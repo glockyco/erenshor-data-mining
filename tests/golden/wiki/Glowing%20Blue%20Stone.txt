@@ -12,11 +12,13 @@
 |sell=12025
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Glowing Blue Stone
+|image=Glowing Blue Stone.png
 |name=Glowing Blue Stone
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=3
 |damage=10
 |delay=2.0
-|range=1
+|range=
 |health=500
 |mana=200
 |armor=5

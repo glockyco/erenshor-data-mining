@@ -12,8 +12,22 @@
 |sell=6500
 |taughtspell=
 |taughtskill={{AbilityLink|Dodge IV}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - dodge 4}}
+{{Item/SkillBook
+|image=Skill Book: Dodge IV.png
+|name=Skill Book: Dodge IV
+|duelist_level=32
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to dodge incoming attacks.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

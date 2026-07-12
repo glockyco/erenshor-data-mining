@@ -12,8 +12,29 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 35 - sorcerer's charm}}
+{{Item/Charm
+|image=Sorcerer's Charm.png
+|name=Sorcerer's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=6
+|wisscaling=
+|chascaling=2
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

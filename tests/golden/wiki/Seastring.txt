@@ -12,14 +12,16 @@
 |sell=260
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Seastring
+|image=Seastring.png
 |name=Seastring
 |slot=Primary
-|type=Primary
+|type=Primary - 2-Handed
 |relic=
 |str=3
 |end=0
@@ -31,7 +33,7 @@
 |res=0
 |damage=26
 |delay=1.5
-|range=1
+|range=25
 |health=25
 |mana=0
 |armor=0

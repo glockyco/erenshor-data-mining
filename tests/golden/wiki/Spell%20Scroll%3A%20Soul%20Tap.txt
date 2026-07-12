@@ -12,8 +12,22 @@
 |sell=731
 |taughtspell={{AbilityLink|Soul Tap}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - soul tap}}
+{{Item/SpellScroll
+|image=Spell Scroll: Soul Tap.png
+|name=Spell Scroll: Soul Tap
+|arcanist_level=
+|druid_level=15
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=15
+|mana_cost=300
+|spell_type=Damage
+|spell_desc=Steal 400 life from your target, and heal yourself for an equal amount.
+}}
 
 [[Category:Ability Books]]

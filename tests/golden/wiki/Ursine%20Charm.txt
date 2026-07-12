@@ -12,8 +12,29 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 42 - ursine charm}}
+{{Item/Charm
+|image=Ursine Charm.png
+|name=Ursine Charm
+|tier=0
+|strscaling=7
+|endscaling=2
+|dexscaling=
+|agiscaling=2
+|intscaling=
+|wisscaling=2
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

@@ -12,11 +12,13 @@
 |sell=166
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Decayed Amulet
+|image=Decayed Amulet.png
 |name=Decayed Amulet
 |slot=Neck
 |type=
@@ -29,9 +31,9 @@
 |wis=3
 |cha=3
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=25
 |mana=15
 |armor=0

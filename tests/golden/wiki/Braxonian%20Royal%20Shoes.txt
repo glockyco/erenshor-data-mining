@@ -12,11 +12,13 @@
 |sell=7150
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Braxonian Royal Shoes
+|image=Braxonian Royal Shoes.png
 |name=Braxonian Royal Shoes
 |slot=Foot
 |type=
@@ -29,9 +31,9 @@
 |wis=5
 |cha=5
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=50
 |mana=100
 |armor=15
@@ -40,7 +42,6 @@
 |elemental=5
 |void=1
 |description=Legendary Garb of Brax's Arcanists
-
 |arcanist=True
 |duelist=
 |druid=True

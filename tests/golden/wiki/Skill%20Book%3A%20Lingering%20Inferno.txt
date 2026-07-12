@@ -12,8 +12,22 @@
 |sell=35750
 |taughtspell=
 |taughtskill={{AbilityLink|Lingering Inferno}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - lingering inferno}}
+{{Item/SkillBook
+|image=Skill Book: Lingering Inferno.png
+|name=Skill Book: Lingering Inferno
+|duelist_level=
+|druid_level=
+|arcanist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: If a spell is a critical hit, it also applies a high damage DOT effect
+|simplayers_autolearn=
+}}
 
 [[Category:Ability Books]]

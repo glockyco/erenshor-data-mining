@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Group Regrowth}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - group regrowth}}
+{{Item/SpellScroll
+|image=Spell Scroll: Group Regrowth.png
+|name=Spell Scroll: Group Regrowth
+|arcanist_level=
+|druid_level=35
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=800
+|spell_type=Heal
+|spell_desc=Apply Regrowth to your group (Heal base 45 per tick)
+}}
 
 [[Category:Ability Books]]

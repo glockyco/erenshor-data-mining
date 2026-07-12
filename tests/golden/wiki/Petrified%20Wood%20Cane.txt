@@ -12,11 +12,13 @@
 |sell=2308
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Petrified Wood Cane
+|image=Petrified Wood Cane.png
 |name=Petrified Wood Cane
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=3
 |damage=15
 |delay=1.0
-|range=1
+|range=
 |health=245
 |mana=245
 |armor=35

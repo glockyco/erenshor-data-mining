@@ -12,11 +12,13 @@
 |sell=1115
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Liturgical Pantaloons
+|image=Liturgical Pantaloons.png
 |name=Liturgical Pantaloons
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=5
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=15
 |mana=0
 |armor=18

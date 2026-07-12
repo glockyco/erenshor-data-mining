@@ -12,8 +12,22 @@
 |sell=16250
 |taughtspell={{AbilityLink|Necrosis}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - necrosis}}
+{{Item/SpellScroll
+|image=Spell Scroll: Necrosis.png
+|name=Spell Scroll: Necrosis
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=30
+|mana_cost=500
+|spell_type=StatusEffect
+|spell_desc=Do 1700 void damage per tick for 3 ticks.
+}}
 
 [[Category:Ability Books]]

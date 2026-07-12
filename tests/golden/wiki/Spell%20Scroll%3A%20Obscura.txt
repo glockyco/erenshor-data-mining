@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Obscura}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - obscura}}
+{{Item/SpellScroll
+|image=Spell Scroll: Obscura.png
+|name=Spell Scroll: Obscura
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=35
+|reaver_level=
+|mana_cost=1000
+|spell_type=Damage
+|spell_desc=Drastically reduce your aggro on a target.
+}}
 
 [[Category:Ability Books]]

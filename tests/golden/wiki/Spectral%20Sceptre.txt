@@ -12,11 +12,13 @@
 |sell=1378
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Spectral Sceptre
+|image=Spectral Sceptre.png
 |name=Spectral Sceptre
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary

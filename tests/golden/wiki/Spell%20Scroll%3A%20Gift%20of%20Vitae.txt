@@ -12,8 +12,22 @@
 |sell=16250
 |taughtspell={{AbilityLink|Gift of Vitae}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - gift of vitae}}
+{{Item/SpellScroll
+|image=Spell Scroll: Gift of Vitae.png
+|name=Spell Scroll: Gift of Vitae
+|arcanist_level=
+|druid_level=27
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=950
+|spell_type=Heal
+|spell_desc=Heal base 1800 damage.
+}}
 
 [[Category:Ability Books]]

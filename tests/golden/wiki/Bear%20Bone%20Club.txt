@@ -12,11 +12,13 @@
 |sell=130
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Bear Bone Club
+|image=Bear Bone Club.png
 |name=Bear Bone Club
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=12
 |delay=1.7
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

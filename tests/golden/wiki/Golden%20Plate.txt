@@ -12,11 +12,13 @@
 |sell=19500
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Golden Plate
+|image=Golden Plate.png
 |name=Golden Plate
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=6
 |cha=0
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=300
 |mana=150
 |armor=160

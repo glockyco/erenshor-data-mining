@@ -12,11 +12,13 @@
 |sell=3
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Beast Harness
+|image=Beast Harness.png
 |name=Beast Harness
 |slot=Waist
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=2
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=8
 |mana=10
 |armor=8

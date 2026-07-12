@@ -12,8 +12,22 @@
 |sell=4225
 |taughtspell={{AbilityLink|Celestial Pull}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - celestial pull}}
+{{Item/SpellScroll
+|image=Spell Scroll: Celestial Pull.png
+|name=Spell Scroll: Celestial Pull
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=13
+|stormcaller_level=
+|reaver_level=
+|mana_cost=140
+|spell_type=PBAE
+|spell_desc=(Taunt) PBAE Taunt Spell
+}}
 
 [[Category:Ability Books]]

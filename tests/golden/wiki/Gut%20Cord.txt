@@ -12,11 +12,13 @@
 |sell=9100
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Gut Cord
+|image=Gut Cord.png
 |name=Gut Cord
 |slot=Waist
 |type=
@@ -29,9 +31,9 @@
 |wis=7
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=650
 |mana=0
 |armor=20

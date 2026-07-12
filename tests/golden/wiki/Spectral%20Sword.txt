@@ -12,11 +12,13 @@
 |sell=1378
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Spectral Sword
+|image=Spectral Sword.png
 |name=Spectral Sword
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=1
 |damage=14
 |delay=1.33
-|range=1
+|range=
 |health=10
 |mana=0
 |armor=0

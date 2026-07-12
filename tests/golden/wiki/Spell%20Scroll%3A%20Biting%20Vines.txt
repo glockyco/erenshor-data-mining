@@ -12,8 +12,22 @@
 |sell=43
 |taughtspell={{AbilityLink|Biting Vines}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - biting vines}}
+{{Item/SpellScroll
+|image=Spell Scroll: Biting Vines.png
+|name=Spell Scroll: Biting Vines
+|arcanist_level=
+|druid_level=5
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=55
+|spell_type=StatusEffect
+|spell_desc=Wrap your target in venomous vines that slow movement and deal damage (7 / tick) over time.
+}}
 
 [[Category:Ability Books]]

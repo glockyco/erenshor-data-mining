@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Air of Intimidation}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - air of intimidation}}
+{{Item/SpellScroll
+|image=Spell Scroll: Air of Intimidation.png
+|name=Spell Scroll: Air of Intimidation
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=35
+|stormcaller_level=
+|reaver_level=
+|mana_cost=500
+|spell_type=Beneficial
+|spell_desc=Nearby unengaged enemies will be more likely to engage you before anyone else
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=8180
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Solar Forged Ring
+|image=Solar Forged Ring.png
 |name=Solar Forged Ring
 |slot=Ring
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=15
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=550
 |mana=100
 |armor=0

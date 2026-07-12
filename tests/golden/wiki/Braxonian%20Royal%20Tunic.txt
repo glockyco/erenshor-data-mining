@@ -12,11 +12,13 @@
 |sell=9750
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Braxonian Royal Tunic
+|image=Braxonian Royal Tunic.png
 |name=Braxonian Royal Tunic
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=20
 |cha=20
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=150
 |mana=150
 |armor=35

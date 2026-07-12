@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Ice Meteor}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - ice meteor}}
+{{Item/SpellScroll
+|image=Spell Scroll: Ice Meteor.png
+|name=Spell Scroll: Ice Meteor
+|arcanist_level=35
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1700
+|spell_type=Damage
+|spell_desc=Deals 5500 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

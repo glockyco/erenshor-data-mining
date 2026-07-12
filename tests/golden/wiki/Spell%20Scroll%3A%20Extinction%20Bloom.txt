@@ -12,10 +12,24 @@
 |sell=55250
 |taughtspell={{AbilityLink|Extinction Bloom}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 Found in [[Azynthi's Garden]]
 
-{{ItemTooltip|stablekey=item:spell scroll - drudd extinction bloom}}
+{{Item/SpellScroll
+|image=Spell Scroll: Extinction Bloom.png
+|name=Spell Scroll: Extinction Bloom
+|arcanist_level=
+|druid_level=34
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1000
+|spell_type=Damage
+|spell_desc=Deals 4000 poison based damage to a target.
+}}
 
 [[Category:Ability Books]]

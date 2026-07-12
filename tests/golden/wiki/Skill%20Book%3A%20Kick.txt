@@ -12,8 +12,22 @@
 |sell=49
 |taughtspell=
 |taughtskill={{AbilityLink|Kick}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - kick}}
+{{Item/SkillBook
+|image=Skill Book: Kick.png
+|name=Skill Book: Kick
+|duelist_level=3
+|druid_level=
+|arcanist_level=
+|paladin_level=1
+|stormcaller_level=5
+|reaver_level=2
+|skill_type=Attack
+|skill_desc=Kick an enemy. Interrupts target's spells.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=1300
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Mason's Pick
+|image=Mason's Pick.png
 |name=Mason's Pick
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=1
 |delay=1.8
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0
@@ -39,9 +41,7 @@
 |poison=0
 |elemental=0
 |void=0
-|description=A specialized mining pick
-
-Mining Power: 6
+|description=A specialized mining pick<br><br>Mining Power: 6
 |arcanist=True
 |duelist=True
 |druid=True

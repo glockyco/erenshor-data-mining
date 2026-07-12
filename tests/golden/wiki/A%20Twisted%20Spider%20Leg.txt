@@ -12,11 +12,13 @@
 |sell=955
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=A Twisted Spider Leg
+|image=A Twisted Spider Leg.png
 |name=A Twisted Spider Leg
 |slot=Bracer
 |type=
@@ -29,9 +31,9 @@
 |wis=2
 |cha=2
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=40
 |mana=0
 |armor=10

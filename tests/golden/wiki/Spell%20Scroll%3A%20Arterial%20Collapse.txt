@@ -12,8 +12,22 @@
 |sell=2275
 |taughtspell={{AbilityLink|Arterial Decay}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - arterial collapse}}
+{{Item/SpellScroll
+|image=Spell Scroll: Arterial Collapse.png
+|name=Spell Scroll: Arterial Collapse
+|arcanist_level=
+|druid_level=23
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=400
+|spell_type=StatusEffect
+|spell_desc=A high damage (360 / tick), short duration void spell.
+}}
 
 [[Category:Ability Books]]

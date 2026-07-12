@@ -12,11 +12,13 @@
 |sell=6175
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Diamond Helm
+|image=Diamond Helm.png
 |name=Diamond Helm
 |slot=Head
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=100
 |mana=65
 |armor=50

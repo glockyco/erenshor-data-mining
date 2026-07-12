@@ -12,8 +12,22 @@
 |sell=6500
 |taughtspell={{AbilityLink|Vitheo's Sight II}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight ii}}
+{{Item/SpellScroll
+|image=Spell Scroll: Vitheo's Sight II.png
+|name=Spell Scroll: Vitheo's Sight II
+|arcanist_level=
+|druid_level=
+|duelist_level=18
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=Beneficial
+|spell_desc=Increase armor penetration on all stikes by 25% and attack roll by 2 / 20.
+}}
 
 [[Category:Ability Books]]

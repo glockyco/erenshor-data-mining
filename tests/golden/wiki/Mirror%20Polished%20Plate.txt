@@ -12,11 +12,13 @@
 |sell=19208
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Mirror Polished Plate
+|image=Mirror Polished Plate.png
 |name=Mirror Polished Plate
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=225
 |mana=120
 |armor=30

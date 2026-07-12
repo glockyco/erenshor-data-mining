@@ -12,11 +12,13 @@
 |sell=29
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Green Emerald Ring
+|image=Green Emerald Ring.png
 |name=Green Emerald Ring
 |slot=Ring
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=5
 |mana=0
 |armor=3

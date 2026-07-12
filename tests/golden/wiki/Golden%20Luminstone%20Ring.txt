@@ -12,11 +12,13 @@
 |sell=29
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Golden Luminstone Ring
+|image=Golden Luminstone Ring.png
 |name=Golden Luminstone Ring
 |slot=Ring
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=2
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=15
 |mana=0
 |armor=3

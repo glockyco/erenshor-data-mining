@@ -12,8 +12,22 @@
 |sell=1365
 |taughtspell={{AbilityLink|Immolation}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - immolation}}
+{{Item/SpellScroll
+|image=Spell Scroll: Immolation.png
+|name=Spell Scroll: Immolation
+|arcanist_level=19
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=StatusEffect
+|spell_desc=Slow targets movement and cause (450 / tick) damage over time.
+}}
 
 [[Category:Ability Books]]

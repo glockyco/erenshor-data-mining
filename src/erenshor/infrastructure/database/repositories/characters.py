@@ -4,8 +4,9 @@ from loguru import logger
 
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
+from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo
-from erenshor.domain.value_objects.wiki_link import CharacterLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -275,6 +276,53 @@ class CharacterRepository(BaseRepository[Character]):
             )
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve character link for '{stable_key}': {e}") from e
+
+    def get_character_loot_drops(self, character_stable_key: str) -> list[LootDropDisplayInfo]:
+        """Get resolved item drops for a character's wiki page.
+
+        Rows whose item has no display name are excluded, matching the legacy
+        character drop renderer's repository path. Results are ordered by drop
+        probability descending, then item display name case-insensitively.
+
+        Raises:
+            RepositoryError: If query execution fails.
+        """
+        query = """
+            SELECT
+                i.display_name,
+                i.wiki_page_name,
+                i.image_name,
+                ld.drop_probability,
+                COALESCE(ld.is_guaranteed, 0) AS is_guaranteed,
+                COALESCE(ld.is_visible, 0) AS is_visible,
+                COALESCE(i.is_unique, 0) AS item_unique
+            FROM loot_drops ld
+            JOIN items i ON i.stable_key = ld.item_stable_key
+            WHERE ld.character_stable_key = ?
+              AND i.display_name IS NOT NULL
+            ORDER BY ld.drop_probability DESC, i.display_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, (character_stable_key,))
+            loot_drops = [
+                LootDropDisplayInfo(
+                    item_link=ItemLink(
+                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                        display_name=str(row["display_name"]),
+                        image_name=str(row["image_name"]) if row["image_name"] else None,
+                    ),
+                    drop_probability=float(row["drop_probability"]),
+                    is_guaranteed=bool(row["is_guaranteed"]),
+                    is_visible=bool(row["is_visible"]),
+                    item_unique=bool(row["item_unique"]),
+                )
+                for row in rows
+            ]
+            logger.debug(f"Retrieved {len(loot_drops)} loot drops for character {character_stable_key}")
+            return loot_drops
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve loot for character {character_stable_key}: {e}") from e
 
     def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
         """Get characters (vendors) that sell the given item.

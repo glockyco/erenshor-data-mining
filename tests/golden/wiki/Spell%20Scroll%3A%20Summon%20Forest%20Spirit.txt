@@ -12,8 +12,22 @@
 |sell=731
 |taughtspell={{AbilityLink|Summon Forest Spirit}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - summon forest spirit}}
+{{Item/SpellScroll
+|image=Spell Scroll: Summon Forest Spirit.png
+|name=Spell Scroll: Summon Forest Spirit
+|arcanist_level=
+|druid_level=18
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=Pet
+|spell_desc=Summon a magical companion to fight along side you.
+}}
 
 [[Category:Ability Books]]

@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Vitheo's Sight IV}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - vitheo's sight iv}}
+{{Item/SpellScroll
+|image=Spell Scroll: Vitheo's Sight IV.png
+|name=Spell Scroll: Vitheo's Sight IV
+|arcanist_level=
+|druid_level=
+|duelist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1200
+|spell_type=Beneficial
+|spell_desc=Increase armor penetration on all stikes by 70% and attack roll by 6 / 20.
+}}
 
 [[Category:Ability Books]]

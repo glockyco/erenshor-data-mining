@@ -12,10 +12,24 @@
 |sell=1300
 |taughtspell={{AbilityLink|Cull the Unfit}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 Sold in the [[Braxonian Desert]]
 
-{{ItemTooltip|stablekey=item:spell scroll - drudd cull the unfit}}
+{{Item/SpellScroll
+|image=Spell Scroll: Cull the Unfit.png
+|name=Spell Scroll: Cull the Unfit
+|arcanist_level=
+|druid_level=28
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1000
+|spell_type=Damage
+|spell_desc=Deals 2400 poison based damage to a target.
+}}
 
 [[Category:Ability Books]]

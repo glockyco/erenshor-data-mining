@@ -12,11 +12,13 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Cyclone Steel Greaves
+|image=Cyclone Steel Greaves.png
 |name=Cyclone Steel Greaves
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=15
 |cha=0
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=245
 |mana=250
 |armor=90

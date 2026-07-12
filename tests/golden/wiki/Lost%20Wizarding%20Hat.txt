@@ -12,11 +12,13 @@
 |sell=12054
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Lost Wizarding Hat
+|image=Lost Wizarding Hat.png
 |name=Lost Wizarding Hat
 |slot=Head
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=10
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=150
 |mana=250
 |armor=0

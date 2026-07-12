@@ -12,11 +12,13 @@
 |sell=227
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Pathfinder's Staff
+|image=Pathfinder's Staff.png
 |name=Pathfinder's Staff
 |slot=Primary
 |type=Primary - 2-Handed
@@ -31,7 +33,7 @@
 |res=1
 |damage=15
 |delay=5.0
-|range=1
+|range=
 |health=40
 |mana=30
 |armor=0

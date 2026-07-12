@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Necrotizing Bloom}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - necrotizing bloom}}
+{{Item/SpellScroll
+|image=Spell Scroll: Necrotizing Bloom.png
+|name=Spell Scroll: Necrotizing Bloom
+|arcanist_level=
+|druid_level=35
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=600
+|spell_type=StatusEffect
+|spell_desc=A high damage (3300 / tick), short duration void-based spell.
+}}
 
 [[Category:Ability Books]]

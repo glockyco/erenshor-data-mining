@@ -12,8 +12,22 @@
 |sell=42
 |taughtspell={{AbilityLink|Antidote}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - antidote}}
+{{Item/SpellScroll
+|image=Spell Scroll: Antidote.png
+|name=Spell Scroll: Antidote
+|arcanist_level=8
+|druid_level=8
+|duelist_level=8
+|paladin_level=8
+|stormcaller_level=
+|reaver_level=
+|mana_cost=50
+|spell_type=Heal
+|spell_desc=Remove or reduce the duration of poisons.
+}}
 
 [[Category:Ability Books]]

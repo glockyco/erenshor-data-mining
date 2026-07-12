@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Brax's Wrath}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - brax's wrath}}
+{{Item/SpellScroll
+|image=Spell Scroll: Brax's Wrath.png
+|name=Spell Scroll: Brax's Wrath
+|arcanist_level=35
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1355
+|spell_type=Damage
+|spell_desc=Deals 7500 elemental based damage to a target.
+}}
 
 [[Category:Ability Books]]

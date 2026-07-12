@@ -12,10 +12,62 @@
 |sell=3
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 A consumable which can be dropped as a [[Enemies#Global_Drops|global drop]] from most enemies in the game.
 
-{{ItemTooltip|stablekey=item:cons - brackfruit juice}}
+{{Item/Consumable
+|image=Brackfruit Juice.png
+|name=Brackfruit Juice
+|description=It's salty and thick.
+|disposable=True
+|effect_spell_icon=Minor Protection.png
+|effect_spell_name=[[Minor Protection]]
+|effect_spell_level=1
+|effect_spell_duration_ticks=300
+|effect_spell_type=Beneficial
+|effect_spell_line=Global_Buff
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Physical
+|effect_cast_time=2.0
+|effect_cooldown=2.0
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=35
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
 
 [[Category:Consumables]]

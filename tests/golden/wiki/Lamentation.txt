@@ -12,11 +12,13 @@
 |sell=5525
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Lamentation
+|image=Lamentation.png
 |name=Lamentation
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=1
 |damage=28
 |delay=2.0
-|range=1
+|range=
 |health=100
 |mana=45
 |armor=0

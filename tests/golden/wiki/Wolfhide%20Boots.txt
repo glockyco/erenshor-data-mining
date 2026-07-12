@@ -12,11 +12,13 @@
 |sell=237
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Wolfhide Boots
+|image=Wolfhide Boots.png
 |name=Wolfhide Boots
 |slot=Foot
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=30
 |mana=0
 |armor=21

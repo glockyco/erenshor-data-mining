@@ -12,8 +12,22 @@
 |sell=65
 |taughtspell=
 |taughtskill={{AbilityLink|Stance: Taunting}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - stance - taunting}}
+{{Item/SkillBook
+|image=Skill Book: Taunting Stance.png
+|name=Skill Book: Taunting Stance
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=2
+|skill_type=Utility
+|skill_desc=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

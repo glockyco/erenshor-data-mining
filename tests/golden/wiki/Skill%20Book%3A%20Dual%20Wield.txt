@@ -12,8 +12,22 @@
 |sell=65
 |taughtspell=
 |taughtskill={{AbilityLink|Dual Wield}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - dual wield}}
+{{Item/SkillBook
+|image=Skill Book: Dual Wield.png
+|name=Skill Book: Dual Wield
+|duelist_level=2
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Allows 1-handed weapons that are equipped in Secondary Hand to have a chance to swing during combat.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

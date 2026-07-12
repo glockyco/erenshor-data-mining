@@ -12,11 +12,13 @@
 |sell=4908
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Nightbane
+|image=Nightbane.png
 |name=Nightbane
 |slot=Back
 |type=
@@ -29,9 +31,9 @@
 |wis=20
 |cha=5
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=200
 |mana=200
 |armor=25

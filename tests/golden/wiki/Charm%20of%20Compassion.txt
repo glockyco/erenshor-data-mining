@@ -12,9 +12,30 @@
 |sell=16250
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 22 - charm of compassion}}
+{{Item/Charm
+|image=Charm of Compassion.png
+|name=Charm of Compassion
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=2
+|chascaling=2
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 
 {{Hatnote | Note: This effect is currently unimplemented.}}

@@ -12,11 +12,32 @@
 |sell=16250
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {| style="width:50%;"
 | style="width:25%; vertical-align:top;" |
-{{ItemTooltip|stablekey=item:charm - 22 - charm of brilliance}}
+{{Item/Charm
+|image=Charm of Brilliance.png
+|name=Charm of Brilliance
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=4
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 |}
 
 <!--[[File:CharmBrill shiny.png|left|thumb|Shiny / Rare variant]]-->

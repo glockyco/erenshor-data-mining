@@ -12,12 +12,14 @@
 |sell=3
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Shivering Leather Leggings
-|name=Shivering Leather Leggings
+|image=Shivering Leather Leggings.png
+|name=<span style="font-size:20px">Shivering Leather Leggings</span>
 |slot=Leg
 |type=
 |relic=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=5

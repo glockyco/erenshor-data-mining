@@ -12,8 +12,22 @@
 |sell=
 |taughtspell=
 |taughtskill={{AbilityLink|Stance: Expert}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - stance - expert}}
+{{Item/SkillBook
+|image=Skill Book: Expert Stance.png
+|name=Skill Book: Expert Stance
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=35
+|skill_type=Utility
+|skill_desc=Gain a 33% increase to physical damage dealt, and 33% damage increase to all spell damage dealt.  Your focus on offense stops all natural health regeneration.
+|simplayers_autolearn=
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=32
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Unusual Copper Sceptre
+|image=Unusual Copper Sceptre.png
 |name=Unusual Copper Sceptre
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary

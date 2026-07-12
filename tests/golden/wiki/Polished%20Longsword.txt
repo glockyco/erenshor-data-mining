@@ -12,11 +12,13 @@
 |sell=16
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Polished Longsword
+|image=Polished Longsword.png
 |name=Polished Longsword
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=10
 |delay=1.35
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=10

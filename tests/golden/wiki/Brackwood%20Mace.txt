@@ -12,11 +12,13 @@
 |sell=13
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Brackwood Mace
+|image=Brackwood Mace.png
 |name=Brackwood Mace
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=6
 |delay=1.3
-|range=1
+|range=
 |health=10
 |mana=0
 |armor=0

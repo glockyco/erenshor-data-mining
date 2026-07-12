@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Expose Weakness II}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - expose weakness ii}}
+{{Item/SpellScroll
+|image=Spell Scroll: Expose Weakness II.png
+|name=Spell Scroll: Expose Weakness II
+|arcanist_level=
+|druid_level=
+|duelist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=650
+|spell_type=StatusEffect
+|spell_desc=Lower a target's AC by 400
+}}
 
 [[Category:Ability Books]]

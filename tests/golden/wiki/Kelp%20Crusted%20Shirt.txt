@@ -12,11 +12,13 @@
 |sell=3
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Kelp Crusted Shirt
+|image=Kelp Crusted Shirt.png
 |name=Kelp Crusted Shirt
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=6

@@ -12,8 +12,22 @@
 |sell=877
 |taughtspell=
 |taughtskill={{AbilityLink|Counter-Attack}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - counter-attack}}
+{{Item/SkillBook
+|image=Skill Book: Counter-Attack.png
+|name=Skill Book: Counter-Attack
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=12
+|skill_type=Innate
+|skill_desc=Any time an enemy misses you with a physical attack, gain a small chance to reset your attack cooldown timer to 0
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

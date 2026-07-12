@@ -12,9 +12,18 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:template - ethereal vault}}
+{{Item/Mold
+|image=Mold: Ethereal Vault.png
+|name=Mold: Ethereal Vault
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
+|ingredients=1x {{ItemLink|Ancient Bone}}<br>1x {{ItemLink|Luminstone}}<br>1x {{ItemLink|Sea Glass}}<br>2x {{ItemLink|Chunk of Iron Ore}}<br>1x {{ItemLink|Chunk of Copper Ore}}
+|rewards={{ItemLink|Ethereal Vault}}
+|station=
+}}
 
 [[Category:Crafting]]
 [[Category:Molds]]

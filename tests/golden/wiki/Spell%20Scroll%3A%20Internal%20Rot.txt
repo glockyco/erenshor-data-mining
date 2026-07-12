@@ -12,8 +12,22 @@
 |sell=14625
 |taughtspell={{AbilityLink|Internal Rot}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - internal rot}}
+{{Item/SpellScroll
+|image=Spell Scroll: Internal Rot.png
+|name=Spell Scroll: Internal Rot
+|arcanist_level=
+|druid_level=35
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=2000
+|spell_type=StatusEffect
+|spell_desc=A high damage (1200 / tick), short duration poison spell.
+}}
 
 [[Category:Ability Books]]

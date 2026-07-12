@@ -12,8 +12,22 @@
 |sell=2275
 |taughtspell=
 |taughtskill={{AbilityLink|Block III}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - block 3}}
+{{Item/SkillBook
+|image=Skill Book: Block III.png
+|name=Skill Book: Block III
+|duelist_level=
+|druid_level=25
+|arcanist_level=
+|paladin_level=25
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

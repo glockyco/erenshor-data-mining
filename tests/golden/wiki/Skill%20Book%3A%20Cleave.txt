@@ -12,8 +12,22 @@
 |sell=715
 |taughtspell=
 |taughtskill={{AbilityLink|Cleave}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - cleave}}
+{{Item/SkillBook
+|image=Skill Book: Cleave.png
+|name=Skill Book: Cleave
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=7
+|stormcaller_level=
+|reaver_level=7
+|skill_type=Attack
+|skill_desc=Execute an attack that hits all enemies in your melee range (can proc weapon effect)
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

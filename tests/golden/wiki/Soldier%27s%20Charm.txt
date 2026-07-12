@@ -12,8 +12,29 @@
 |sell=3900
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:charm - 30 - soldier's charm}}
+{{Item/Charm
+|image=Soldier's Charm.png
+|name=Soldier's Charm
+|tier=0
+|strscaling=3
+|endscaling=3
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
 
 [[Category:Charms]]

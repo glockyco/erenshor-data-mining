@@ -12,11 +12,13 @@
 |sell=6175
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Ring of the Old
+|image=Ring of the Old.png
 |name=Ring of the Old
 |slot=Ring
 |type=
@@ -29,9 +31,9 @@
 |wis=8
 |cha=8
 |res=3
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=60
 |mana=85
 |armor=0

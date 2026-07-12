@@ -12,8 +12,22 @@
 |sell=146
 |taughtspell=
 |taughtskill={{AbilityLink|Celestial Smite}}
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:skillbook - celestial smite i}}
+{{Item/SkillBook
+|image=Skill Book: Celestial Smite.png
+|name=Skill Book: Celestial Smite
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=9
+|stormcaller_level=
+|reaver_level=
+|skill_type=Attack
+|skill_desc=Channel the power of Soluna into your attack
+|simplayers_autolearn=True
+}}
 
 [[Category:Ability Books]]

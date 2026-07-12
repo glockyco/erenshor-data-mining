@@ -12,8 +12,22 @@
 |sell=195
 |taughtspell={{AbilityLink|Summon Cursed Fawn}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - summon cursed fawn}}
+{{Item/SpellScroll
+|image=Spell Scroll: Summon Cursed Fawn.png
+|name=Spell Scroll: Summon Cursed Fawn
+|arcanist_level=
+|druid_level=9
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Pet
+|spell_desc=Summon a powerful companion to fight along side you.
+}}
 
 [[Category:Ability Books]]

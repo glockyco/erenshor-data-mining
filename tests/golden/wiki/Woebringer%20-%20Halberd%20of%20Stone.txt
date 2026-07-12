@@ -12,12 +12,14 @@
 |sell=942
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Woebringer - Halberd of Stone
-|name=Woebringer - Halberd of Stone
+|image=Woebringer - Halberd of Stone.png
+|name=<span style="font-size:20px">Woebringer - Halberd of Stone</span>
 |slot=Primary
 |type=Primary - 2-Handed
 |relic=
@@ -31,7 +33,7 @@
 |res=0
 |damage=28
 |delay=2.8
-|range=1
+|range=
 |health=25
 |mana=0
 |armor=0

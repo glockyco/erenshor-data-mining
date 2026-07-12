@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Thalassic Paralysis}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - thalassic paralysis}}
+{{Item/SpellScroll
+|image=Spell Scroll: Thalassic Paralysis.png
+|name=Spell Scroll: Thalassic Paralysis
+|arcanist_level=
+|druid_level=
+|duelist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1000
+|spell_type=StatusEffect
+|spell_desc=Slow target's attack speed by 110%
+}}
 
 [[Category:Ability Books]]

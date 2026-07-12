@@ -12,11 +12,13 @@
 |sell=4485
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Blightsteel Greaves
+|image=Blightsteel Greaves.png
 |name=Blightsteel Greaves
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=50
 |mana=50
 |armor=50

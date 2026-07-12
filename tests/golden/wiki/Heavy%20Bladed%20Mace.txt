@@ -12,11 +12,13 @@
 |sell=195
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Heavy Bladed Mace
+|image=Heavy Bladed Mace.png
 |name=Heavy Bladed Mace
 |slot=Primary
 |type=Primary - 2-Handed
@@ -31,7 +33,7 @@
 |res=0
 |damage=19
 |delay=2.0
-|range=1
+|range=
 |health=15
 |mana=0
 |armor=0

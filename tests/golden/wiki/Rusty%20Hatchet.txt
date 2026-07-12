@@ -12,11 +12,13 @@
 |sell=5
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Rusty Hatchet
+|image=Rusty Hatchet.png
 |name=Rusty Hatchet
 |slot=PrimaryOrSecondary
 |type=Primary or Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=5
 |delay=1.25
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

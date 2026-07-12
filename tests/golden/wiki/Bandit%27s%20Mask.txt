@@ -12,11 +12,13 @@
 |sell=809
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Bandit's Mask
+|image=Bandit's Mask.png
 |name=Bandit's Mask
 |slot=Head
 |type=
@@ -29,9 +31,9 @@
 |wis=3
 |cha=4
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=25
 |armor=3

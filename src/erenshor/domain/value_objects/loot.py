@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 
-__all__ = ["LootDropInfo"]
+from erenshor.domain.value_objects.wiki_link import ItemLink
+
+__all__ = ["LootDropDisplayInfo", "LootDropInfo"]
 
 
 @dataclass(frozen=True)
@@ -19,3 +21,18 @@ class LootDropInfo:
     drop_probability: float
     is_guaranteed: bool
     is_visible: bool
+
+
+@dataclass(frozen=True)
+class LootDropDisplayInfo:
+    """Resolved loot-drop data used when rendering character pages.
+
+    The item link and item uniqueness are resolved from the joined item record;
+    the remaining fields describe the character's drop edge.
+    """
+
+    item_link: ItemLink
+    drop_probability: float
+    is_guaranteed: bool
+    is_visible: bool
+    item_unique: bool

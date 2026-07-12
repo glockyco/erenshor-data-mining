@@ -12,11 +12,13 @@
 |sell=4908
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Assassin's Bane
+|image=Assassin's Bane.png
 |name=Assassin's Bane
 |slot=Back
 |type=
@@ -29,9 +31,9 @@
 |wis=8
 |cha=0
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=200
 |armor=75

@@ -12,10 +12,24 @@
 |sell=23
 |taughtspell={{AbilityLink|Flight of Foot}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 Currently <span style="color: #FFFF00;">unobtainable</span>
 
-{{ItemTooltip|stablekey=item:spell scroll - flight of foot}}
+{{Item/SpellScroll
+|image=Spell Scroll: Flight of Foot.png
+|name=Spell Scroll: Flight of Foot
+|arcanist_level=
+|druid_level=-1
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=25
+|spell_type=Beneficial
+|spell_desc=Increase movement speed for a long duration.
+}}
 
 [[Category:Ability Books]]

@@ -12,11 +12,13 @@
 |sell=2144
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Ripparian Axe
+|image=Ripparian Axe.png
 |name=Ripparian Axe
 |slot=Primary
 |type=Primary
@@ -31,7 +33,7 @@
 |res=0
 |damage=30
 |delay=1.85
-|range=1
+|range=
 |health=65
 |mana=0
 |armor=0

@@ -12,11 +12,13 @@
 |sell=2015
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Sivakayan Breeches
+|image=Sivakayan Breeches.png
 |name=Sivakayan Breeches
 |slot=Leg
 |type=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=0
 |res=1
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=35
 |armor=15

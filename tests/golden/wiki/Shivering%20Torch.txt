@@ -12,11 +12,13 @@
 |sell=
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Shivering Torch
+|image=Shivering Torch.png
 |name=Shivering Torch
 |slot=Secondary
 |type=Secondary
@@ -31,7 +33,7 @@
 |res=1
 |damage=8
 |delay=1.0
-|range=1
+|range=
 |health=5
 |mana=5
 |armor=5

@@ -12,8 +12,22 @@
 |sell=6500
 |taughtspell={{AbilityLink|Devour}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - devour}}
+{{Item/SpellScroll
+|image=Spell Scroll: Devour.png
+|name=Spell Scroll: Devour
+|arcanist_level=
+|druid_level=29
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=29
+|mana_cost=900
+|spell_type=Damage
+|spell_desc=Steal 1455 life from your target, and heal yourself for an equal amount.
+}}
 
 [[Category:Ability Books]]

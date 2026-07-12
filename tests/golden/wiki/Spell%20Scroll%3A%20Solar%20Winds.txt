@@ -12,8 +12,22 @@
 |sell=
 |taughtspell={{AbilityLink|Solar Winds}}
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
-{{ItemTooltip|stablekey=item:spell scroll - solar winds}}
+{{Item/SpellScroll
+|image=Spell Scroll: Solar Winds.png
+|name=Spell Scroll: Solar Winds
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=35
+|stormcaller_level=
+|reaver_level=
+|mana_cost=400
+|spell_type=StatusEffect
+|spell_desc=Lower all target's resists by 20
+}}
 
 [[Category:Ability Books]]

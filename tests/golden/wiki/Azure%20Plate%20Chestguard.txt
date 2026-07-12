@@ -12,11 +12,13 @@
 |sell=65
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Azure Plate Chestguard
+|image=Azure Plate Chestguard.png
 |name=Azure Plate Chestguard
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=0
 |armor=35

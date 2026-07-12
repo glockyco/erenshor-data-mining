@@ -12,11 +12,13 @@
 |sell=1138
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Molorai Parrying Dagger
+|image=Molorai Parrying Dagger.png
 |name=Molorai Parrying Dagger
 |slot=Secondary
 |type=Secondary
@@ -31,7 +33,7 @@
 |res=0
 |damage=20
 |delay=2.0
-|range=1
+|range=
 |health=100
 |mana=0
 |armor=50

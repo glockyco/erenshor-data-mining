@@ -12,11 +12,13 @@
 |sell=227
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Weapon
-|image=Sea Giant's Cutlass
+|image=Sea Giant's Cutlass.png
 |name=Sea Giant's Cutlass
 |slot=Primary
 |type=Primary - 2-Handed
@@ -31,7 +33,7 @@
 |res=0
 |damage=20
 |delay=2.0
-|range=1
+|range=
 |health=0
 |mana=0
 |armor=0

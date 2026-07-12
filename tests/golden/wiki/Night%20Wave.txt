@@ -12,11 +12,13 @@
 |sell=4908
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Night Wave
+|image=Night Wave.png
 |name=Night Wave
 |slot=Back
 |type=
@@ -29,9 +31,9 @@
 |wis=10
 |cha=10
 |res=2
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=0
 |mana=355
 |armor=15

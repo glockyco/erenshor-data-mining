@@ -12,11 +12,13 @@
 |sell=21125
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Ilyth's Coat
+|image=Ilyth's Coat.png
 |name=Ilyth's Coat
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=15
 |cha=5
 |res=0
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=300
 |mana=200
 |armor=125
