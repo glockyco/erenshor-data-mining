@@ -10,20 +10,55 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 
 ## Context
 
-The Lua/Cargo presentation system is implemented and validated on the local
-wiki harness, but the live wiki remains on legacy inline-parameter article
-pages. The missing deliverable is the complete old-page-to-thin-page conversion:
-articles must become one or more `{{Type|stablekey=...}}` stanzas, with generated
-fields resolved by Lua and relationship/detail rows stored in Cargo while
-preserving intentional community overrides and non-template content.
+The repo-owned Lua modules, templates, and generated data modules for playtest
+build 24157014 are deployed to the production wiki. `Template:ItemTooltip`
+dispatches `kind=Weapon` or `kind=Armor` to
+`Module:Erenshor/Item/ParameterizedTooltip` in the production equipment path;
+`stablekey=...` dispatches to `Module:Erenshor/Item/Tooltip` for the reserved
+Lua article path. Twelve item article pages (four samples plus one for each
+item kind) use the new generated format and have verified rendering. The full
+article-page refresh is deferred to release day because playtest data is a
+spoiler; see
+`docs/plans/2026-07-13-planar-march-release-refresh.md`. Playtest images and
+filename redirects are uploaded.
 
-The end state covers the seven supported article families—Item, Character,
-Spell, Skill, Stance, Quest, and Zone—with no permanently mixed legacy/new
-architecture. Faction is not included because the repository has no dedicated
-Faction article template or presentation module; the implementation must fail
-fast if a faction article is encountered rather than silently converting it.
+Equipment articles currently use one parameterized `{{ItemTooltip|kind=...}}`
+invocation with display-ready Normal-quality legacy arguments.
+`Module:Erenshor/Item/ParameterizedTooltip` derives the eight quality variants
+through `Module:Erenshor/Item/Quality` (with `PLANAR_MARCH_ENABLED=false` until
+the patch ships) and composes the live legacy `Item/Weapon` and `Item/Armor`
+templates through newline-joined `frame:expandTemplate` assembly. Non-equipment
+kinds (general, consumable, aura, charm, spell scroll, skill book, and mold)
+remain on legacy Jinja article templates until Lua-owned styling is deliverable;
+their stablekey path is reserved for the future cutover.
+
+The live wiki has no TemplateStyles extension, and
+`MediaWiki:Gadget-erenshor.css` is interface-protected, so styling changes
+cannot be delivered through the repository pipeline. The legacy Jinja path
+therefore remains the production writer while the cutover gates are completed.
 
 ## Approach
+
+### Cutover gates before any type conversion
+
+No article type may move to the Lua stablekey path until all of these
+prerequisites are satisfied:
+
+- A deliverable styling path exists for Lua-owned markup. The live wiki has no
+  TemplateStyles extension, and `MediaWiki:Gadget-erenshor.css` is
+  interface-protected; manual administrator paste is the only styling channel
+  available today.
+- Lua presentation parity with the restored legacy display contract is proven
+  against live pages, including wikilinked names, icon suffixes, unit
+  conversions, zero-as-blank optional fields, the XPBonus percent rule,
+  centered layout, and resolved drop rows.
+- Scribunto testcase pages exercise renderers through real frames using
+  `mw.getCurrentFrame():newChild`; frame mocks are prohibited. `Module:*/testcases`
+  pages are excluded from production deploy manifests.
+
+The legacy Jinja generator is re-hardened and remains the production article
+writer until Phase 7 completes. It must continue to write the reverted
+non-equipment kinds while styling and presentation parity are unresolved.
 
 ### 1. Add the community-row layer required for safe conversion
 
@@ -159,7 +194,6 @@ review before apply.
 Add an article conversion deployment service that re-fetches each page before
 writing and uses the namespace-agnostic guarded APIs in
 `src/erenshor/application/wiki_deploy/pages.py`:
-
 - existing page: `safe_edit_page()` with the fetched base revision;
 - missing authoritative page: `safe_create_page()` only when the conversion
   report explicitly marks it as a new page;
@@ -167,6 +201,12 @@ writing and uses the namespace-agnostic guarded APIs in
 - unchanged normalized text: skip the edit;
 - assertion and assert-user guards are required for apply;
 - no page deletion is attempted by the bot.
+
+Production account handling is explicit: article edits and uploads run as
+`WoWBot@erenshor-wiki` with its bot password. `WoWMuch@CargoProbe` lacks the
+bot right; repo-page deploys may use the `--assertion user` fallback with that
+account. The `recreatecargodata` right for WoWBot on wiki.gg remains
+unverified and is an open Phase 7 gate.
 
 Store a dedicated article conversion manifest containing title, entity type,
 old/new revision IDs and timestamps, old/new content hashes, stable-key set,

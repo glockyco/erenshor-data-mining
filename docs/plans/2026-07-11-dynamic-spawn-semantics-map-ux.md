@@ -10,99 +10,60 @@ archived:
 
 # Goal
 
-Make dynamic event spawns truthful and usable across export, clean data, maps,
-wiki, and sheets without treating event triggers as ordinary world respawns.
+Make dynamic-only character rarity and Brax spawn provenance authoritative so
+the processor and its map/wiki consumers identify bosses without inferring
+rarity from event placement count or collapsing conditional references.
 
-## Constraints
+## Current state
 
-- Preserve serialized NPC instantiate coordinates as `spawn_position`.
-- Model a distinct event or interaction anchor when the script exposes one.
-- Never expose source script filenames in user-facing map or wiki text.
-- Dynamic rows remain map-visible unless an explicit mapping rule says otherwise.
-- Keep release data refreshes separate from behavior and UX commits.
+- `src/erenshor/application/processor/characters.py::_derive_group_rarity`
+  excludes event summons when ordinary placements exist, but dynamic-only
+  groups still fall back to raw `IsUnique`/`IsRare` flags. In the playtest
+  data, Astra, Demented Malaroth, and Shivunax each have one dynamic spawn and
+  clean `is_unique=0`, `is_rare=0`; no authoritative rarity override currently
+  covers these entries.
+- Wiki character rendering maps `is_unique` to the Boss classification, so
+  dynamic-only rarity decisions affect every generated character surface.
+- `BraxFightEvent.CheckIn` consumes `BraxSpawn` and disables
+  `GodBraxRestored`; `ResetEvent` enables the restored object. The dynamic-spawn
+  catalog intentionally treats `GodBraxRestored` as a `SetActive` toggle rather
+  than an instantiate field.
+- `PlaneOfBrax` serializes ordinary `BraxSpawn (6)` at
+  `(2521.9, 75.6, 381.3)`, ordinary `BraxSpawn` at
+  `(2530.1, 75.6, 404.0)`, and inactive `God Brax Restored` at
+  `(2543.6, 75.5, 404.1)`. Clean output currently reports the first ordinary
+  row disabled, the second enabled, and the restored reference as a separate
+  direct placement marked unique; the runtime relationship and provenance are
+  not represented together.
 
-### Current evidence
-
-- The playtest raw `Characters` rows for Astra, Demented Malaroth, Shivunax,
-  and both Brax prefab variants all serialize `IsUnique=0`; the clean database
-  therefore also reports them non-unique after dynamic-only raw-flag fallback.
-- Demented Malaroth and Shivunax share the MalarothFeed instantiate position
-  `(428.4, 28.4, 642.2)` and the interaction anchor is `(336.1, 32.3, 673.6)`.
-- The ordinary Brax prefab has two scene spawns and is common; the restored
-  Brax prefab is dynamic/chained and currently derives unique from its single
-  ordinary restored placement. The active-versus-unused provenance remains
-  unresolved and requires shipped-script/prefab tracing.
-- Scene `PlaneOfBrax` names the ordinary references `BraxSpawn (6)` at
-  `(2521.9, 75.6, 381.3)` and `BraxSpawn` at `(2530.1, 75.6, 404.0)`;
-  the exported rows report the former disabled and the latter enabled.
-- The same scene contains inactive `God Brax Restored` at
-  `(2543.6, 75.5, 404.1)`. `BraxFightEvent.CheckIn` consumes `BraxSpawn` and
-  disables `GodBraxRestored`; `ResetEvent` enables the restored object after
-  the active Brax dies. The two ordinary rows therefore require provenance
-  labeling rather than being presented as two simultaneously active bosses.
-- Dynamic-only Fallen Fernalla has no base respawn value; map search currently
-  incorrectly renders the null delay as `zone re-entry`.
-
-
-### 1. Overlapping marker presentation
-
-- [ ] Inventory exact-coordinate marker collisions in all configured zones.
-- [ ] Define deterministic cluster, spiderfy, or alternate hit-testing behavior.
-- [ ] Keep stored and displayed world coordinates truthful while making every
-      coincident character selectable.
-- [ ] Add map tests for two characters sharing one spawn position and for mixed
-      ordinary/dynamic rows.
-
-### 2. Dynamic unique classification
+## 1. Dynamic unique / boss classification
 
 - [ ] Audit every dynamic-only character with explicit prefab rarity flags,
-      including Astra, Demented Malaroth, Shivunax, Brax, and all other
+      including Astra, Demented Malaroth, Shivunax, Brax, and other
       single-spawn candidates.
-- [ ] Trace uniqueness to explicit game metadata or an approved mapping rule,
-      not dynamic spawn cardinality.
+- [ ] Trace unique/boss and rare/common outcomes to explicit game metadata or
+      an approved mapping rule, never dynamic spawn cardinality.
 - [ ] Add focused processor and map/wiki regressions for unique, rare, common,
       and mixed ordinary/dynamic groups.
 - [ ] Record intentional exceptions in the authoritative mapping or catalog.
 
-### 3. Brax active-versus-unused references
+## 2. Brax active-versus-unused provenance
 
-- [ ] Trace both `Brax, God of Elements` references through shipped scripts,
-      serialized prefabs, scene placements, and event fields.
+- [ ] Trace both `Brax, God of Elements` references through the shipped
+      `BraxFightEvent`, serialized prefabs, scene placements, and event fields.
 - [ ] Determine whether each reference can be active in normal play, requires a
       quest/event state, or is an unused/duplicate asset.
-- [ ] Represent active spawn semantics and any conditional state explicitly,
-      without deleting evidence or inventing availability percentages.
-- [ ] Add a regression covering the final classification and both coordinates.
+- [ ] Represent active spawn semantics and conditional state explicitly,
+      preserving both ordinary coordinates and the restored reference without
+      inventing availability percentages.
+- [ ] Add a regression covering the final classification, active/conditional
+      provenance, and all three PlaneOfBrax coordinates.
 
-### 4. Spawn wording and respawn semantics
+## Acceptance criteria
 
-- [ ] Separate dynamic event labels from automatic zone-entry respawn text.
-- [ ] Make dynamic rows omit ordinary respawn timing unless the source actually
-      provides an automatic respawn contract.
-- [ ] Verify Fallen Fernalla and every other dynamic-only character in map popup,
-      search popup, wiki article, Cargo rows, and sheets output.
-- [ ] Add formatter and UI tests preventing `zone re-entry` for event-only rows.
-
-## Cross-surface audit
-
-- [ ] Verify raw `DynamicCharacterSpawns` retains spawn and event positions.
-- [ ] Verify `extract build` carries both positions into clean `character_spawns`.
-- [ ] Verify map marker SQL, types, popup, and search paths consume both roles.
-- [ ] Verify wiki coordinates and labels preserve all dynamic positions without
-      source filenames or fabricated spawn chances.
-- [ ] Verify sheet query columns distinguish dynamic spawn type and event anchor.
-- [ ] Run focused tests, maps verification/build, wiki generation, and release
-      data checks after each atomic change.
-
-## Instruction alignment
-
-- [ ] Commit the AGENTS.md test-file scope clarification separately and run
-      `omp-plans check` plus the relevant focused tests.
-
-
-- [ ] All overlapping markers remain individually selectable.
-- [ ] Named dynamic uniques are classified from explicit evidence.
-- [ ] Brax references have a documented active/unused determination.
-- [ ] Dynamic event rows never claim automatic zone-entry respawn without proof.
-- [ ] Raw-to-clean-to-map/wiki/sheets propagation is verified.
-- [ ] Atomic commits exist for each completed change.
+- [ ] Dynamic-only character groups receive explicit, evidence-backed
+      unique/boss or rare/common classifications.
+- [ ] Brax references have a documented active, conditional, or unused
+      determination and retain their source coordinates.
+- [ ] No consumer presents the two ordinary Brax rows as simultaneously active
+      bosses when the shipped event state says otherwise.

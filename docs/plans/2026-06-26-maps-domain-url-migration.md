@@ -45,5 +45,4 @@ holds the full findings, the C1 domain rationale, and the per-route canonical au
 
 ### Backlog (independent of the migration)
 - [ ] (low value) 404 `noindex` page (spec I3): needs an adapter `fallback` plus a `wrangler` `not_found_handling` change to actually be served
-- [ ] (feature) Item-to-droppers search in `MapSearch`: index items and render a "drops from" result that deep-links each enemy, so the drops FAQ can point straight at an item. `loot_drops` already supports the reverse lookup
 - [ ] (future, own spec) Crawlable textual content layer at `/zones/{slug}`

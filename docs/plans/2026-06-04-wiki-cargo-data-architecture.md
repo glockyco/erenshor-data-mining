@@ -13,35 +13,46 @@ Umbrella spec for the legacy→Lua wiki cutover across all seven entity types
 
 ## Status
 
-Built and validated on the local Cargo harness (the live wiki is still legacy):
+Production baseline: repo-owned Lua modules, templates, and generated data modules
+(playtest build `24157014`) are deployed to the production wiki. All playtest images
+and filename redirects are uploaded.
 
-- Lua presentation modules + PortableInfobox templates; repo-page deploy /
-  rollback / refresh; local smoke + parity harness.
-- Dual-path `{{Item}}`/`{{Character}}` templates (§5): a stablekey selects the new
-  path (data module + Cargo); no stablekey selects the verbatim legacy infobox
-  with no Cargo write.
-- Per-type ability templates `{{Spell}}`/`{{Skill}}`/`{{Stance}}`.
-- Cargo detail tables `Items`, `Characters`, `Spells`, `Skills`, `Stances` plus the
-  `AbilityClasses` junction, all stored through `Module:Erenshor/Cargo`.
-- Item→ability links as scalar StableKey columns on `Items` (§8); the overview
-  proc/worn/click cell coalesces them at display time.
-- Character→item drops and item→item container drops (the first acquisition
-  relationships), built as the `Drops`/`ContainerDrops` junctions via the
-  attach-trick; every StableKey column follows the `Key`-suffix convention (§2.1).
-  These consolidate into the unified `ObtainedFrom` table in Phase 3 (§8).
+The full article-page deployment waits for release day because the playtest data is
+a spoiler; release-refresh sequencing is in
+`docs/plans/2026-07-13-planar-march-release-refresh.md`.
+
+- `Template:ItemTooltip` dispatches `kind=Weapon/Armor` to
+  `Module:Erenshor/Item/ParameterizedTooltip` and `stablekey=…` to
+  `Module:Erenshor/Item/Tooltip`. Twelve item article pages (four samples plus one
+  per item kind) use the new generated format and render correctly.
+- The production equipment path has one parameterized `{{ItemTooltip|kind=…}}`
+  invocation per weapon/armor article, with display-ready Normal-quality legacy
+  arguments. `Module:Erenshor/Item/ParameterizedTooltip` derives all eight quality
+  variants through `Module:Erenshor/Item/Quality` (gated by
+  `PLANAR_MARCH_ENABLED=false` until the patch ships) and composes the live legacy
+  `Item/Weapon` and `Item/Armor` templates through `frame:expandTemplate` with
+  newline-joined assembly.
+- Phase 3 — item-owned `ObtainedFrom`/`UsedIn` consolidation, `CharacterAbilities`
+  and `Spawns`, scalar item→ability columns, reverse queries, and the related
+  exports — is complete; its plan is archived. `Drops` and `ContainerDrops` are
+  folded into the unified model and deleted.
+- Non-equipment kinds (`general`, `consumable`, `aura`, `charm`, `spell scroll`,
+  `skill book`, `mold`) remain on the legacy Jinja templates. Their future Lua
+  stablekey path is gated on deployable styling and presentation parity.
 
 Remaining work (sequenced in §15):
 
-- Phase 3 — unified `ObtainedFrom`/`UsedIn` relationship model (§8), consolidating
-  `Drops`/`ContainerDrops` and covering every acquisition/usage mechanism; the
-  `IsAuctionable`/`IsRare` item flags; the `class_starting_items` export; the
-  `CharacterAbilities`/`Spawns` junctions; and reverse-query rendering.
+- Styling-delivery prerequisite — provide a deployable styling story for
+  Lua-owned markup (TemplateStyles is unavailable and the gadget stylesheet is
+  interface-protected), then prove Lua presentation parity with the restored
+  legacy display contract before converting any additional type.
 - Phase 4 — community contribution layer: `{{ItemSource}}` rows fold into
   `ObtainedFrom` and `{{SpawnPoint}}` into `Spawns` (shared `Origin`, free-text
   `SourceText`, stablekey validation).
-- Phase 5 — dual-path templates for the remaining entity types.
+- Phase 5 — dual-path templates for the remaining entity types, starting from the
+  legacy non-equipment path.
 - Phase 6 — thin-page article generator + automated article deploy.
-- Phase 7 — production cutover: deploy → incremental thin-page conversion →
+- Phase 7 — staged production conversion of the remaining pages/types, then
   per-type legacy retirement.
 - Phase 8 — freshness / orphan reconciliation + editor and template documentation.
 
@@ -78,15 +89,15 @@ Non-goals / out of scope:
   fork), Scribunto, ParserFunctions, ParserPower, Arrays, Variables, Portable
   Infobox, LabeledSectionTransclusion. **No Page Forms / Semantic MediaWiki /
   Data Transfer / External Data** — community data entry is raw wikitext only.
-- **Nothing is cut over.** Every live article page is still legacy inline-param
-  wikitext (`{{Ability|title=…|manacost=…|…}}`, no `stablekey`). The Lua
-  templates/modules and Items/Characters Cargo exist and pass on the **local
-  harness only**.
-- **There is no Lua-era article-page generator.** `wiki_lua/` generates data
-  modules only; `wiki_deploy/` deploys modules/templates/gadgets only (never
-  main-namespace pages); the only article generator is the legacy
-  `wiki/generators/` Jinja2 system. The thin `wiki-dev/fixtures/pages/*` are
-  hand-written test fixtures. **This generator is the central missing piece (§6).**
+- **Production cutover is partial.** Repo-owned Lua modules, templates, and
+  generated data modules for the playtest build are live. `Template:ItemTooltip`
+  dispatches weapon/armor calls to the parameterized tooltip module and
+  `stablekey=…` calls to the stablekey tooltip module. Twelve item article pages
+  use the new generated format; the equipment path is production-ready, while
+  non-equipment kinds remain on legacy Jinja templates.
+- **Thin-page conversion remains incomplete.** The generated item pages are a
+  limited production set; Phase 6 still delivers the override-preserving thin-page
+  converter and automated article deploy for all seven entity types.
 - **The new-path resolve is stablekey-only.** `Module:Erenshor/*` `resolve`
   requires an explicit `stablekey` (no page-title fallback — required because a
   page hosts multiple entities); without it the module renders nothing. This is
@@ -96,11 +107,15 @@ Non-goals / out of scope:
   `stable_key TEXT PRIMARY KEY`; `Page` and `Name` are both non-unique (e.g. two
   `Regrowth` spells share a page+name).
 - **Freshness is driven deterministically.** `wiki_deploy/refresh.py` issues
-  `action=purge&forcelinkupdate=1` on `embeddedin` dependents. `cargorecreatetables`
-  is driven by the local-harness `wiki-dev/cargo_check.py`; **production Cargo-recreate
-  automation does not yet exist** (the CLI only prints `Special:CargoTables` guidance)
-  and is a Phase 7 deliverable, gated on confirming the deploy bot can hold the
-  `recreatecargodata` right on wiki.gg.
+  `action=purge&forcelinkupdate=1` on `embeddedin` dependents.
+  `cargorecreatetables` is driven by the local-harness `wiki-dev/cargo_check.py`;
+  production Cargo-recreate automation remains a Phase 7 deliverable, gated on
+  verifying the deploy bot's `recreatecargodata` right on wiki.gg.
+- **Deploy identities:** article deploys and uploads run as
+  `WoWBot@erenshor-wiki` (bot-password; bot/edit/upload rights, rate-limited on
+  rapid undo). Repo-page deploys support `--assertion user` for
+  `WoWMuch@CargoProbe`, which lacks the bot right. `WoWBot`'s
+  `recreatecargodata` right remains unverified and is an open Phase 7 gate.
 - **Relationship source tables exist in the clean DB** (§8): `loot_drops`,
   `item_drops`, `crafting_recipes`, `crafting_rewards`, `item_classes`,
   `spell_classes`, `character_spawns`, `character_attack_spells` + siblings,
@@ -120,6 +135,14 @@ These shape every Cargo decision below:
   templates. Community row templates (`{{ItemSource}}`/`{{SpawnPoint}}`, §9) are
   additional **storing** contributors that attach — never redeclare —
   `ObtainedFrom`/`Spawns` to add `Origin=community` rows.
+
+- **Lua-owned presentation has no deployable stylesheet path by default.** The
+  live wiki has no TemplateStyles extension, and
+  `MediaWiki:Gadget-erenshor.css` is interface-protected
+  (`protectednamespace-interface` blocks bot deploy). Styling updates therefore
+  require a manual admin edit and remain an undeliverable pipeline dependency;
+  a deliverable styling solution is required before additional Lua-owned markup
+  converts.
 - **Recreate only for schema changes; routine refresh reparses.** `#cargo_declare`
   changes nothing on save — a table is (re)created in a separate step. Once a table
   exists, reparsing a page rewrites that page's rows in place, so a data-only refresh
@@ -151,10 +174,11 @@ These shape every Cargo decision below:
 - **Types:** Integer columns must be true integers (no decimals); Boolean columns
   accept `yes`/`no` and query back as `1`/`0`. Query the implicit page via an alias
   (`_pageName=Page`) on tables that do not store a `Page` column.
-- **The local harness runs stock upstream Cargo, not wiki.gg's LIBRARIAN fork** — it
-  clones `mediawiki/extensions/Cargo` (`wiki-dev/Dockerfile`). Green harness results
-  prove row shape and local recreate coverage; live storage-shape and recreate-data
-  behavior must still be covered by the small live probe/runbook before cutover.
+- **The local harness runs stock upstream Cargo, not wiki.gg's LIBRARIAN fork** —
+  it clones `mediawiki/extensions/Cargo` (`wiki-dev/Dockerfile`). Green harness
+  results prove row shape and local recreate coverage; live storage-shape and
+  recreate-data behavior are covered by the live probe/runbook, not by the
+  harness.
 
 ## 3. Core principles
 
@@ -208,6 +232,12 @@ two **completely separate, non-overlapping** paths.
 }}</includeonly>
 ```
 
+**Production presentation rules:** wikitable markup must begin at line start, so
+parameterized equipment rendering composes expanded legacy templates with
+`frame:expandTemplate` and newline-joined assembly. Do not wrap expanded wikitext
+in `mw.html`, `frame:preprocess`, or `#tag:div`; those wrappers prevent the
+wikitable markup from parsing in production.
+
 Properties (all required):
 - **All-or-nothing per page.** Stablekey present → entirely new path; absent →
   entirely legacy path. Never half-and-half.
@@ -221,8 +251,15 @@ Properties (all required):
   identically to today (its `{{ItemLink}}`/`[[links]]` params expand as wikitext,
   which a Lua fallback could not do — Scribunto output is not re-expanded).
 
-Incremental, zero-downtime sequence: deploy dual-path templates + modules (every
-live page has no stablekey → legacy branch → renders as before, no Cargo churn) →
+**Current production boundary.** Equipment articles use the parameterized
+stablekey-compatible tooltip path. Non-equipment kinds remain on their legacy
+Jinja templates because their Lua-owned markup lacks a deployable styling path.
+Later phases begin from this split and may move those kinds to the Lua stablekey
+path only after styling delivery and template parity (links, unit conversions,
+centering) are proven against live pages.
+
+Incremental, zero-downtime sequence: deploy dual-path templates + modules
+(stablekey pages use the new branch; legacy pages remain on the legacy branch) →
 convert pages to thin form one at a time (each crosses to the new branch + gets
 its Cargo row; unconverted pages stay on the legacy branch) → once a type is
 fully converted, delete its legacy else-branch and retire that type's Jinja2
@@ -231,9 +268,9 @@ deleted type-by-type; the end state is pure-new templates.
 
 ## 6. Thin-page article generation
 
-The missing cutover mechanism. A new generator (in `wiki_lua`, deployed via
-`wiki_deploy`) produces the thin article wikitext for every entity and uploads it
-via safe-edit:
+The remaining cutover mechanism for full conversion is a thin-page generator (in
+`wiki_lua`, deployed via `wiki_deploy`) that produces the thin article wikitext
+for every entity and uploads it via safe-edit:
 
 - Groups entities by `wiki_page_name`; emits one `{{<Type>|stablekey=…}}` stanza
   per entity (multi-entity page = multiple stanzas).
@@ -530,11 +567,20 @@ storage-validation probe covered generated-owner recreation only.
 - The community `stablekey` validation category (§9) flags rows whose key no
   longer resolves after a game update.
 
-## 12. Display layer
+Links render from stored names via `Module:Erenshor/Link`; Cargo never stores
+markup. All-6-classes → "All" is display-only. Reverse-relationship sections
+render from Cargo queries (§8.1); own-entity fields from the Lua module.
 
-- Links render from stored names via `Module:Erenshor/Link`; Cargo never stores
-  markup. All-6-classes → "All" is display-only. Reverse-relationship sections
-  render from Cargo queries (§8.1); own-entity fields from the Lua module.
+**Presentation parity is a conversion gate.** Lua renderers must preserve the
+restored legacy display contract before a type converts: wikilinked spell names,
+`.png` icon suffixes, tick-to-second cast times, zero-as-blank optional fields,
+the `XPBonus` percentage rule, and resolved item/character drop rows with
+guaranteed-drop and drop-rate display. The item infobox consumes resolved
+`SourceInfo.item_drops` tuples (`ItemLink`, probability, `is_guaranteed`); the
+obsolete `ItemDropInfo` value object is deleted. Character-side
+drop-rate/guaranteed-drop rendering remains in progress. Prove parity against
+live pages; keyed `LootDropInfo` remains the Lua data shape while resolved
+display rows feed the legacy Jinja path.
 
 ## 13. Editor & template documentation
 
@@ -558,6 +604,9 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
   a `Spawns` row, both `Origin=community`, both surviving a simulated redeploy and
   appearing in the same unified query as generated rows; unresolved `stablekey` →
   tracking category.
+- **Renderer testcases:** Scribunto renderers use real frames created through
+  `mw.getCurrentFrame():newChild`; frame mocks are prohibited.
+  `Module:*/testcases` pages are excluded from production deploy manifests.
 - Thin-page generator: emits correct stanzas per entity; multi-entity = multiple
   stanzas; community overrides + sections preserved across a regenerate.
 - Extend `wiki-dev/smoke/cargo.py` + fixtures + `cargo_check.py` recreate set to
@@ -575,9 +624,10 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
 
 ## 15. Phased sequencing
 
-Cargo for every type is completed on the local harness before any page is converted,
-so the dual-path new branch is whole before cutover. Each phase is TDD-first and
-atomic; `writing-plans` turns each into a step-by-step plan.
+Remaining phases complete each type's Cargo/template path and validate it before
+converting that type's pages. The deployed modules/templates/data modules and the
+limited generated item-page set are the production baseline. Each phase is
+TDD-first and atomic; `writing-plans` turns each into a step-by-step plan.
 
 **Pre-Phase-3 storage validation (complete).** The live storage-shape questions were
 answered by the `2026-07-09-wiki-cargo-storage-validation` probe: nested hidden storage
@@ -587,31 +637,30 @@ changes recreate via `cargorecreatetables` + per-table `cargorecreatedata` with
 row-count polling; stale rows do not survive edits/deletes; multi-entity pages key on
 StableKey; and a large-table recreate's replacement-table switch-in is a manual
 `Special:CargoTables` admin step. The main-account probe can drive schema + data
-recreation; confirming the deploy bot's `recreatecargodata` right on wiki.gg remains
-the Phase 7 gate.
+recreation; `WoWBot`'s `recreatecargodata` right on wiki.gg remains unverified and
+is the Phase 7 gate.
 
-3. Phase 3 — unified **item-owned** relationship model: `ObtainedFrom` (consolidating
-   the built `Drops`/`ContainerDrops`) + `UsedIn`, covering every acquisition/usage
-   mechanism, with `Origin`/`SourceText` declared up front for the Phase 4 community
-   layer; the `IsAuctionable` derived flag + newly-exported `IsRare`; the
-   `class_starting_items` export (`starting` source); the `CharacterAbilities` and
-   `Spawns` junctions (`Spawns` folds in treasure-chest possible locations); item→
-   ability scalar columns. Reverse relations move to Cargo queries; denormalized
-   arrays dropped.
+3. Phase 3 — complete; plan archived. The item-owned `ObtainedFrom`/`UsedIn`
+   model, `CharacterAbilities` and `Spawns` junctions, scalar item→ability
+   columns, reverse queries, related flags/exports, and removal of
+   `Drops`/`ContainerDrops` are the baseline for the remaining phases.
+**Prerequisite before Phase 4 —** provide deployable styling for Lua-owned markup
+   and prove parity with the restored legacy presentation contract (links, units,
+   zero handling, icons, and drop displays) against live pages.
 4. Phase 4 — community contribution layer.
-5. Phase 5 — dual-path templates for all seven types (verbatim legacy fallback
-   branch; new branch unchanged); both-branch harness tests.
-6. Phase 6 — thin-page article generator + automated article deploy + generalized
-   override-preserving conversion (all seven types).
-7. Phase 7 — production cutover: TemplateSandbox gate → deploy dual-path
-   templates/modules → create the Cargo tables (first-time recreate; a large table's
-   replacement-table switch-in is a manual `Special:CargoTables` step, no API) →
-   incrementally convert pages to thin, each page's parse storing its rows → per-type,
-   delete the legacy branch + retire that type's Jinja2 generator → live smoke +
-   rollback manifest + orphan-page report for manual deletion. Steady-state refreshes
-   thereafter reparse pages (no recreate); a schema change reruns `cargorecreatetables`
-   + `cargorecreatedata` (confirming the bot's `recreatecargodata` right per the
-   completed validation).
+5. Phase 5 — dual-path templates for the remaining entity types (verbatim legacy
+   fallback branch; new branch unchanged); both-branch harness tests.
+6. Phase 6 — thin-page article generator + automated article deploy +
+   generalized override-preserving conversion (all seven types).
+7. Phase 7 — staged production conversion of the remaining pages/types:
+   TemplateSandbox gate → deploy dual-path templates/modules → create the Cargo
+   tables (first-time recreate; a large table's replacement-table switch-in is a
+   manual `Special:CargoTables` step, no API) → incrementally convert pages to
+   thin, each page's parse storing its rows → per-type, delete the legacy branch
+   + retire that type's Jinja2 generator → live smoke + rollback manifest +
+   orphan-page report for manual deletion. Steady-state refreshes thereafter
+   reparse pages (no recreate); a schema change reruns `cargorecreatetables` +
+   `cargorecreatedata` after verifying the bot's `recreatecargodata` right.
 8. Phase 8 — freshness / orphan drop-and-recreate automation + documentation.
 
 ## 16. Key decisions
