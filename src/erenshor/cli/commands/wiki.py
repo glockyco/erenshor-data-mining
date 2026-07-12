@@ -20,7 +20,7 @@ Example workflow:
 import difflib
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 from loguru import logger
@@ -662,6 +662,10 @@ def deploy_repo_pages_command(
         str,
         typer.Option("--summary", help="Edit summary for repo-owned page uploads."),
     ] = "Deploy repo-owned wiki pages",
+    assertion: Annotated[
+        Literal["user", "bot"],
+        typer.Option("--assertion", help="MediaWiki assertion guard (user or bot)."),
+    ] = "bot",
     assert_user: Annotated[
         str | None,
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
@@ -696,7 +700,7 @@ def deploy_repo_pages_command(
             repo_root=cli_ctx.repo_root,
             client=client,
             summary=summary,
-            assertion="bot",
+            assertion=assertion,
             assert_user=assert_user,
             rollback_root=manifest_output.parent / "rollback",
         )

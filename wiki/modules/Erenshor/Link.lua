@@ -3,8 +3,8 @@ local Format = require("Module:Erenshor/Format")
 
 local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
 local ItemIndex = mw.loadData("Module:Erenshor/Data/Items")
-local CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
-local QuestData = mw.loadData("Module:Erenshor/Data/Quests")
+local CharacterData
+local QuestData
 
 local p = {}
 
@@ -166,8 +166,14 @@ local function renderPlain(kind, args)
 	local stableKey = explicitStableKey(args)
 	local record
 	if kind == "character" and stableKey ~= nil then
+		if CharacterData == nil then
+			CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
+		end
 		record = CharacterData.characters[stableKey]
 	elseif kind == "quest" and stableKey ~= nil then
+		if QuestData == nil then
+			QuestData = mw.loadData("Module:Erenshor/Data/Quests")
+		end
 		record = QuestData.quests[stableKey]
 	end
 	local page = resolvedPage(args, record, target)
