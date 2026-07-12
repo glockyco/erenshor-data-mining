@@ -129,6 +129,40 @@ local STAT_OUTPUTS = {
 	{ name = "void", key = "vr" },
 }
 
+local ZERO_OMIT_FIELDS = {
+	proc_target_damage = true,
+	proc_target_healing = true,
+	proc_shielding_amt = true,
+	proc_lifetap = true,
+	proc_group_effect = true,
+	proc_stun_target = true,
+	proc_charm_target = true,
+	proc_root_target = true,
+	proc_taunt_spell = true,
+	proc_hp = true,
+	proc_ac = true,
+	proc_mana = true,
+	proc_str = true,
+	proc_dex = true,
+	proc_end = true,
+	proc_agi = true,
+	proc_wis = true,
+	proc_int = true,
+	proc_cha = true,
+	proc_mr = true,
+	proc_er = true,
+	proc_pr = true,
+	proc_vr = true,
+	proc_movement_speed = true,
+	proc_damage_shield = true,
+	proc_haste = true,
+	proc_percent_lifesteal = true,
+	proc_atk_roll_modifier = true,
+	proc_resonate_chance = true,
+	proc_add_proc_chance = true,
+	proc_xp_bonus = true,
+}
+
 local function templateArgs(frame)
 	local out = {}
 	if frame ~= nil and type(frame.getParent) == "function" then
@@ -172,8 +206,7 @@ local function firstSupplied(args, names)
 	return nil
 end
 
-local function imageValue(args)
-	local value = supplied(args, "image")
+local function fileValue(value)
 	if value == nil or value == "" or value == "-" then
 		return value or ""
 	end
@@ -181,6 +214,10 @@ local function imageValue(args)
 		return value
 	end
 	return value .. ".png"
+end
+
+local function imageValue(args)
+	return fileValue(supplied(args, "image"))
 end
 
 local function displayName(args, stats)
@@ -275,7 +312,13 @@ local function invocation(kindName, args, stats, frame)
 	for _, field in ipairs(LEGACY_FIELDS) do
 		markKnown(known, field)
 		if not computed[field] then
-			add(lines, field, supplied(args, field) or "", templateArguments)
+			local value = supplied(args, field)
+			if field == "proc_spell_icon" then
+				value = fileValue(value)
+			end
+			if not (ZERO_OMIT_FIELDS[field] and value ~= nil and tonumber(value) == 0) then
+				add(lines, field, value or "", templateArguments)
+			end
 		end
 	end
 
@@ -292,14 +335,10 @@ local function invocation(kindName, args, stats, frame)
 		add(lines, key, args[key], templateArguments)
 	end
 
-	lines[#lines + 1] = "}}"
-	if frame ~= nil and type(frame.preprocess) == "function" then
-		local source = "{{#tag:div|" .. table.concat(lines, "\n") .. "}}"
-		return frame:preprocess(source)
-	end
 	if frame ~= nil and type(frame.expandTemplate) == "function" then
 		return frame:expandTemplate({ title = templateName, args = templateArguments })
 	end
+	lines[#lines + 1] = "}}"
 	return table.concat(lines, "\n")
 end
 

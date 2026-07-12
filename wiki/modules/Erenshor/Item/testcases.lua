@@ -44,7 +44,19 @@ local function renderParameterized(input)
 	return ParameterizedTooltip.render({
 		args = args,
 		expandTemplate = function(_, specification)
-			return currentFrame:expandTemplate(specification)
+			local keys = {}
+			for key in pairs(specification.args or {}) do
+				table.insert(keys, key)
+			end
+			table.sort(keys, function(left, right)
+				return tostring(left) < tostring(right)
+			end)
+			local lines = { "{{" .. specification.title }
+			for _, key in ipairs(keys) do
+				lines[#lines + 1] = "|" .. tostring(key) .. "=" .. tostring(specification.args[key])
+			end
+			lines[#lines + 1] = "}}"
+			return currentFrame:preprocess(table.concat(lines, "\n"))
 		end,
 		callParserFunction = function(_, name, values)
 			return currentFrame:callParserFunction(name, values)
@@ -531,6 +543,7 @@ function p.run()
 			res = "1",
 			proc_chance = "25",
 			proc_style = "Cast",
+			proc_spell_icon = "Ice Spear",
 			proc_spell_name = "Ember Burst",
 		},
 	})
@@ -564,6 +577,14 @@ function p.run()
 		"25% chance on CAST:",
 		"weapon proc metadata is preserved"
 	)
+	assertContains(
+		weaponTooltipFromParams,
+		"Ice Spear.png",
+		"proc spell icon receives a MediaWiki filename"
+	)
+	assertAbsent(weaponTooltipFromParams, "Healing: 0", "zero healing is omitted")
+	assertAbsent(weaponTooltipFromParams, "Shield Amount: 0", "zero shielding is omitted")
+	assertAbsent(weaponTooltipFromParams, "XP Bonus: +0.0%", "zero XP bonus is omitted")
 	local customImageTooltip = renderParameterized({
 		args = { kind = "Armor", image = "Manual.webp", name = "Manual", armor = "1" },
 	})
