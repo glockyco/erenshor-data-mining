@@ -24,6 +24,7 @@ def test_build_repo_page_manifest_maps_repo_paths_to_wiki_titles(tmp_path: Path)
     """Repo-owned module, template, and generated data paths map to deployable wiki titles."""
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Item/Tooltip.lua", "local Tooltip = {}\nreturn Tooltip\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/Item/testcases.lua", "return {}\n")
     write_page(tmp_path, "wiki/templates/Item.wiki", "<includeonly>{{#invoke:Erenshor/Item|field}}</includeonly>\n")
     write_page(tmp_path, "wiki/templates/ArmorTable/Row.wiki", "<includeonly>|-</includeonly>\n")
     write_page(

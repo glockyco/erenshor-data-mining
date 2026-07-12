@@ -171,6 +171,10 @@ def _module_entries(
     for path in source_root.rglob("*.lua"):
         if not path.is_file():
             continue
+        if path.name == "testcases.lua":
+            # Scribunto testcases run against the local harness only; they
+            # are never deployed to the production wiki.
+            continue
         relative_module = path.relative_to(source_root).with_suffix("")
         title = "Module:" + "/".join(relative_module.parts)
         entries.append(
