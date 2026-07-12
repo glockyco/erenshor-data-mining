@@ -38,5 +38,10 @@ Planar March is the game patch releasing Monday 2026-07-13, bringing the playtes
 ## Other consumers
 
 - [ ] Deploy Google Sheets for the main variant.
-- [ ] maps build then maps deploy for the production maps website.
+- [ ] `maps build` then `maps deploy` on the main variant, after the main data
+  refresh: build copies the main clean DB into `src/maps/build/` and stamps it;
+  deploy refuses a build older than its inputs and publishes the `erenshor-maps`
+  production worker (`wrangler.jsonc` pins `./build`, so a playtest variant deploy
+  cannot shadow production). Plane-zone tiles and thumbnails are already committed
+  under `src/maps/static/`.
 - [ ] Compile and publish the quest guide if game data changed it.
