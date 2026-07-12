@@ -120,6 +120,15 @@ public sealed class TrackerWindow
         _tracker.StepAdvanced -= OnQuestStepAdvanced;
     }
 
+    /// <summary>
+    /// Advances completion linger and fade-out animations once per frame.
+    /// Called by Plugin.Update even when the tracker is hidden or disabled.
+    /// </summary>
+    public void Update()
+    {
+        PruneAnimations();
+    }
+
     // ── Event handlers ───────────────────────────────────────────────
 
     private void OnQuestTracked(string dbName)
@@ -183,7 +192,6 @@ public sealed class TrackerWindow
         )
             return;
 
-        PruneAnimations();
         DetectStepAdvances();
         RebuildSortedListIfNeeded();
 
@@ -625,6 +633,9 @@ public sealed class TrackerWindow
     /// </summary>
     private void PruneAnimations()
     {
+        if (_completionTimers.Count == 0 && _fadingOut.Count == 0)
+            return;
+
         float now = UnityEngine.Time.realtimeSinceStartup;
 
         // Auto-untrack completed quests after the flash duration

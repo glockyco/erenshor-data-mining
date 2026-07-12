@@ -66,21 +66,25 @@ public sealed class QuestDetailPanel
     private void DrawHeader(QuestEntry quest)
     {
         // Track/Untrack button inline before quest name
-        if (_tracker.Enabled && !_state.IsCompleted(quest.DBName))
+        if (_tracker.Enabled)
         {
             bool tracked = _tracker.IsTracked(quest.DBName);
-            if (tracked)
-                ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
-            if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
+            bool completed = _state.IsCompleted(quest.DBName);
+            if (!completed || tracked)
             {
                 if (tracked)
-                    _tracker.Untrack(quest.DBName);
-                else
-                    _tracker.Track(quest.DBName);
+                    ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+                if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
+                {
+                    if (tracked)
+                        _tracker.Untrack(quest.DBName);
+                    else
+                        _tracker.Track(quest.DBName);
+                }
+                if (tracked)
+                    ImGui.PopStyleColor();
+                ImGui.SameLine();
             }
-            if (tracked)
-                ImGui.PopStyleColor();
-            ImGui.SameLine();
         }
 
         // Quest name in header color

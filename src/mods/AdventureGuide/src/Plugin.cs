@@ -176,6 +176,9 @@ public sealed class Plugin : LunarisPlugin
         _miningTracker.Rescan();
         _lootScanner.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
+        if (_state != null)
+            _trackerState.PruneCompleted(_state);
+
         _nav.LoadPerCharacter(_config, SceneManager.GetActiveScene().name);
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
@@ -215,6 +218,8 @@ public sealed class Plugin : LunarisPlugin
 
     private void Update()
     {
+        _tracker?.Update();
+
         // Respect the game's F7 UI hide toggle. When the game HUD Canvas
         // is disabled, suppress all mod visuals. Navigation state still
         // updates so the UI is current when restored.
@@ -325,7 +330,8 @@ public sealed class Plugin : LunarisPlugin
         // These use slot-guarded binding: first call reads from config,
         // subsequent calls for the same character are no-ops.
         _trackerState?.OnCharacterLoaded();
-        _trackerState?.PruneCompleted(_state!);
+        if (_trackerState != null && _state != null)
+            _trackerState.PruneCompleted(_state);
         _nav?.LoadPerCharacter(_config!, scene.name);
         // Rebuild ZoneGraph and auto-advance navigation if the restored
         // target's step is behind the player's current progress.

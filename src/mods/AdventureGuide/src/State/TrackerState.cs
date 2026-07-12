@@ -99,11 +99,7 @@ public sealed class TrackerState
         {
             var db = _orderedList[i];
             if (state.IsCompleted(db))
-            {
-                _tracked.Remove(db);
-                _orderedList.RemoveAt(i);
-                _dirty = true;
-            }
+                Untrack(db);
         }
     }
 

@@ -78,25 +78,27 @@ completions that bypass it never schedule an untrack; the initial
 completed quests (`QuestDetailPanel.cs:69`), leaving no untrack affordance
 when a pin goes stale.
 
-- [ ] Show `[Untrack]` for tracked-but-completed quests in
+- [x] Show `[Untrack]` for tracked-but-completed quests in
   `QuestDetailPanel`; keep `[Track]` hidden for completed quests.
-- [ ] Drive completion-timer expiry from the plugin update path instead of
+- [x] Drive completion-timer expiry from the plugin update path instead of
   `Draw`, so linger→untrack fires while the tracker window is hidden or the
   tracker is disabled. Guard against mutating `_completionTimers` while
   iterating (collect-then-apply, as `PruneAnimations` already does).
-- [ ] Call `TrackerState.PruneCompleted` after the initial quest-state sync
+- [x] Call `TrackerState.PruneCompleted` after the initial quest-state sync
   and after every character-load sync, not only on scene load. This is the
   catch-all for completions that bypass `GameData.FinishQuest` (implicit and
   partial turn-ins) and for saves loaded with stale tracked pins: any
   reconcile point that syncs `GameData.CompletedQuests` must also prune.
-- [ ] Verification: `uv run pytest tests/unit/mods/test_adventure_guide_quest_list.py
-  tests/unit/mods/test_adventure_guide_style.py tests/unit/mods/test_adventure_guide_lunaris.py`
-  passes; `uv run erenshor mod build --mod adventure-guide` succeeds.
-  In-game (full restart, per mod AGENTS): complete a tracked quest with the
-  tracker hidden → pin is gone when reopened; load a save whose tracked
-  quest is already completed → pin pruned at load; completed quest detail
-  page still offers Untrack while tracked.
-- [ ] Commit. Message: `fix(mod): untrack completed quests reliably`
+- [x] Automated verification: `uv run pytest
+  tests/unit/mods/test_adventure_guide_quest_list.py
+  tests/unit/mods/test_adventure_guide_style.py
+  tests/unit/mods/test_adventure_guide_lunaris.py` passes;
+  `uv run erenshor mod build --mod adventure-guide` succeeds.
+- [ ] In-game verification (full restart, per mod AGENTS): complete a tracked
+  quest with the tracker hidden → pin is gone when reopened; load a save whose
+  tracked quest is already completed → pin pruned at load; completed quest
+  detail page still offers Untrack while tracked.
+- [x] Commit. Message: `fix(mod): untrack completed quests reliably`
 
 ### Task 2: Markers — stop false "Re-enter zone to respawn" for unlock-gated NPCs
 
