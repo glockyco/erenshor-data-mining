@@ -90,8 +90,39 @@ end
 
 function p.run()
 	assertEqual(Quality.roundToInt(1.5), 2, "Unity rounding rounds 1.5 up")
-	assertEqual(#Quality.variants({}), 3, "release gate hides Improved variants")
-	assertEqual(#Quality.variants({}, true), 8, "quality gate enables all variants")
+	assertEqual(#Quality.variants({}), 3, "pre-Planar March mode hides Improved variants")
+	assertEqual(#Quality.variants({}, true), 8, "Planar March mode enables all variants")
+
+	local modeBase = {
+		str = 25,
+		hp = 225,
+		mana = 200,
+		ac = 10,
+		mr = 10,
+		res = 1,
+		weaponDamage = 38,
+	}
+	local legacyVariants = Quality.variants(modeBase, false)
+	assertEqual(legacyVariants[2].str, 37, "legacy Blessed primary stat uses one-half scaling")
+	assertEqual(legacyVariants[2].hp, 281, "legacy Blessed health uses one-quarter scaling")
+	assertEqual(legacyVariants[2].ac, 12, "legacy Blessed armor uses one-quarter scaling")
+	assertEqual(legacyVariants[2].mr, 11, "legacy Blessed resist uses the CalcRes increment")
+	assertEqual(legacyVariants[3].mr, 12, "legacy Ascended resist uses the CalcRes increment")
+	assertEqual(legacyVariants[3].hp, 337, "legacy Ascended health uses one-half scaling")
+	assertEqual(legacyVariants[3].ac, 15, "legacy Ascended armor uses one-half scaling")
+	assertEqual(legacyVariants[2].res, 2, "legacy Blessed resonance gains one")
+	assertEqual(legacyVariants[3].weaponDamage, 40, "legacy Ascended damage is unchanged")
+
+	local planarVariants = Quality.variants(modeBase, true)
+	assertEqual(planarVariants[7].str, 36, "Planar March Blessed primary stat uses new scaling")
+	assertEqual(planarVariants[7].hp, 300, "Planar March Blessed health uses new scaling")
+	assertEqual(planarVariants[7].ac, 15, "Planar March Blessed armor uses new scaling")
+	assertEqual(planarVariants[7].mr, 14, "Planar March Blessed resist uses new scaling")
+	assertEqual(planarVariants[7].quality, "Blessed", "Planar March preserves progression order")
+	assertEqual(planarVariants[6].hp, 250, "Planar March Improved +5 health uses new scaling")
+	assertEqual(planarVariants[6].mr, 11, "Planar March Improved +5 preserves resist edge case")
+	assertEqual(planarVariants[7].res, 2, "Planar March Blessed resonance gains one")
+	assertEqual(planarVariants[8].weaponDamage, 40, "Planar March Ascended damage is unchanged")
 
 	assertVariantFields(
 		Quality.variants(
@@ -463,7 +494,7 @@ function p.run()
 	assertEqual(
 		countOccurrences(armorTooltip, 'class="item-tooltip item-tooltip-armor"'),
 		3,
-		"release gate emits Normal, Blessed, and Ascended armor variants"
+		"pre-Planar March mode emits Normal, Blessed, and Ascended armor variants"
 	)
 	for _, quality in ipairs({
 		"Normal",
@@ -472,16 +503,16 @@ function p.run()
 	}) do
 		assertContains(armorTooltip, quality, "armor output labels " .. quality)
 	end
-	assertAbsent(armorTooltip, "Improved +1", "release gate hides Improved armor variants")
+	assertAbsent(armorTooltip, "Improved +1", "pre-Planar March mode hides Improved armor variants")
 	assertAbsent(
 		armorTooltip,
 		"item-tooltip-quality-sparkle-improved",
-		"release gate hides Improved sparkles"
+		"pre-Planar March mode hides Improved sparkles"
 	)
 	assertContains(
 		armorTooltip,
-		'item-tooltip-stat-value">10</span>',
-		"Ascended armor uses the game maximum"
+		'item-tooltip-stat-value">3</span>',
+		"legacy Ascended armor uses one-half scaling"
 	)
 
 	local weaponTooltipFromParams = renderParameterized({
@@ -506,12 +537,12 @@ function p.run()
 	assertEqual(
 		countOccurrences(weaponTooltipFromParams, 'class="item-tooltip item-tooltip-weapon"'),
 		3,
-		"release gate emits Normal, Blessed, and Ascended weapon variants"
+		"pre-Planar March mode emits Normal, Blessed, and Ascended weapon variants"
 	)
 	assertAbsent(
 		weaponTooltipFromParams,
 		"Improved +1",
-		"release gate hides Improved weapon variants"
+		"pre-Planar March mode hides Improved weapon variants"
 	)
 	assertContains(
 		weaponTooltipFromParams,

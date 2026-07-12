@@ -1,15 +1,14 @@
 -- Module:Erenshor/Item/Quality
 --
 -- Item quality progression and the game's quality-stat formulas. The wiki
--- receives only the Normal row; this module derives the enabled upgrade rows so
--- a formula change does not require rewriting every item page. The shipped
--- Improved +5 resist omission is corrected to preserve intended progression.
+-- receives only the Normal row; this module derives the enabled upgrade rows
+-- using either the live pre-Planar-March formulas or the patch 0.7 formulas.
 
 local Quality = {}
 
--- Release gate: keep Improved variants hidden until the game patch ships.
--- Flip this single value to true for the post-patch wiki refresh.
-local IMPROVED_QUALITIES_ENABLED = false
+-- The live wiki currently targets the pre-Planar-March game. Flip this one
+-- switch for patch 0.7: it selects the new formulas and exposes Improved rows.
+local PLANAR_MARCH_ENABLED = false
 
 -- Runtime IDs, progression rank, and visual tier are deliberately separate.
 -- Runtime IDs are not a power ranking, and the green Improved visual tier is
@@ -47,11 +46,32 @@ local function number(value)
 	return tonumber(value) or 0
 end
 
+local function modeEnabled(override)
+	if override == nil then
+		return PLANAR_MARCH_ENABLED
+	end
+	return override
+end
+
 local function max3(a, b, c)
 	return math.max(a, math.max(b, c))
 end
 
-local function calcStat(base, quality)
+local function calcStatLegacy(base, quality)
+	local value = number(base)
+	if quality <= 1 or value <= 0 then
+		return value
+	end
+	if quality == 2 then
+		return value + roundToInt(value / 2)
+	end
+	if quality == 3 then
+		return value + value
+	end
+	return value
+end
+
+local function calcStatPlanarMarch(base, quality)
 	local value = number(base)
 	if value <= 0 or quality <= 1 then
 		return value
@@ -69,7 +89,28 @@ local function calcStat(base, quality)
 	return value
 end
 
-local function calcHealthMana(base, quality)
+local function calcStat(base, quality, planarMarchEnabled)
+	if planarMarchEnabled then
+		return calcStatPlanarMarch(base, quality)
+	end
+	return calcStatLegacy(base, quality)
+end
+
+local function calcACHPMCLegacy(base, quality)
+	local value = number(base)
+	if quality <= 1 then
+		return value
+	end
+	if quality == 2 then
+		return value + roundToInt(value / 4)
+	end
+	if quality == 3 then
+		return value + roundToInt(value / 2)
+	end
+	return value
+end
+
+local function calcHealthManaPlanarMarch(base, quality)
 	local value = number(base)
 	if quality <= 1 then
 		return value
@@ -88,7 +129,14 @@ local function calcHealthMana(base, quality)
 	return value
 end
 
-local function calcArmor(base, quality)
+local function calcHealthMana(base, quality, planarMarchEnabled)
+	if planarMarchEnabled then
+		return calcHealthManaPlanarMarch(base, quality)
+	end
+	return calcACHPMCLegacy(base, quality)
+end
+
+local function calcArmorPlanarMarch(base, quality)
 	local value = number(base)
 	if quality <= 1 then
 		return value
@@ -111,7 +159,18 @@ local function calcArmor(base, quality)
 	return value
 end
 
-local function calcResists(base, quality)
+local function calcArmorLegacy(base, quality)
+	return calcACHPMCLegacy(base, quality)
+end
+
+local function calcArmor(base, quality, planarMarchEnabled)
+	if planarMarchEnabled then
+		return calcArmorPlanarMarch(base, quality)
+	end
+	return calcArmorLegacy(base, quality)
+end
+
+local function calcResistsPlanarMarch(base, quality)
 	local value = number(base)
 	if quality == 2 then
 		return value + roundToInt(value / 3) + 1
@@ -121,12 +180,29 @@ local function calcResists(base, quality)
 		return max3(math.max(2 * value, value + 3), blessed + 1, value + 2)
 	end
 	-- The shipped predicate accidentally omits runtime quality 15, making
-	-- Improved +5 fall back to the Normal resist. Keep the intended
-	-- non-decreasing Improved progression in wiki-derived values.
+	-- Improved +5 fall back to the Normal resist. Keep the game edge case.
 	if quality >= 13 and quality <= 15 then
 		return value + 1
 	end
 	return value
+end
+
+local function calcResistsLegacy(base, quality)
+	local value = number(base)
+	if quality == 2 then
+		return value + 1
+	end
+	if quality == 3 then
+		return value + 2
+	end
+	return value
+end
+
+local function calcResists(base, quality, planarMarchEnabled)
+	if planarMarchEnabled then
+		return calcResistsPlanarMarch(base, quality)
+	end
+	return calcResistsLegacy(base, quality)
 end
 
 local function calcResonance(base, quality)
@@ -162,7 +238,7 @@ local function copyBase(base)
 	return out
 end
 
-local function variant(base, quality)
+local function variant(base, quality, planarMarchEnabled)
 	local out = copyBase(base)
 	out.quality = quality.name
 	out.runtimeId = quality.runtimeId
@@ -170,33 +246,30 @@ local function variant(base, quality)
 	out.visualTier = quality.visualTier
 
 	for _, key in ipairs({ "str", "end", "dex", "agi", "int", "wis", "cha" }) do
-		out[key] = calcStat(base[key], quality.runtimeId)
+		out[key] = calcStat(base[key], quality.runtimeId, planarMarchEnabled)
 	end
 	for _, key in ipairs({ "hp", "mana" }) do
-		out[key] = calcHealthMana(base[key], quality.runtimeId)
+		out[key] = calcHealthMana(base[key], quality.runtimeId, planarMarchEnabled)
 	end
-	out.ac = calcArmor(base.ac, quality.runtimeId)
+	out.ac = calcArmor(base.ac, quality.runtimeId, planarMarchEnabled)
 	for _, key in ipairs({ "mr", "er", "pr", "vr" }) do
-		out[key] = calcResists(base[key], quality.runtimeId)
+		out[key] = calcResists(base[key], quality.runtimeId, planarMarchEnabled)
 	end
 	out.res = calcResonance(base.res, quality.runtimeId)
 	out.weaponDamage = calcDamage(base.weaponDamage, quality.runtimeId)
 	return out
 end
 
-function Quality.improvedEnabled()
-	return IMPROVED_QUALITIES_ENABLED
+function Quality.planarMarchEnabled()
+	return PLANAR_MARCH_ENABLED
 end
 
 function Quality.isImproved(qualityName)
 	return type(qualityName) == "string" and string.sub(qualityName, 1, 9) == "Improved "
 end
 
-function Quality.list(includeImproved)
-	local showImproved = includeImproved
-	if showImproved == nil then
-		showImproved = IMPROVED_QUALITIES_ENABLED
-	end
+function Quality.list(planarMarchOverride)
+	local showImproved = modeEnabled(planarMarchOverride)
 	local out = {}
 	for _, quality in ipairs(QUALITIES) do
 		if showImproved or not Quality.isImproved(quality.name) then
@@ -206,15 +279,12 @@ function Quality.list(includeImproved)
 	return out
 end
 
-function Quality.variants(base, includeImproved)
-	local showImproved = includeImproved
-	if showImproved == nil then
-		showImproved = IMPROVED_QUALITIES_ENABLED
-	end
+function Quality.variants(base, planarMarchOverride)
+	local showImproved = modeEnabled(planarMarchOverride)
 	local out = {}
 	for _, quality in ipairs(QUALITIES) do
 		if showImproved or not Quality.isImproved(quality.name) then
-			out[#out + 1] = variant(base or {}, quality)
+			out[#out + 1] = variant(base or {}, quality, showImproved)
 		end
 	end
 	return out

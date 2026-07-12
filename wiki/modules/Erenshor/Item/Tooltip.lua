@@ -884,7 +884,7 @@ end
 local function orderedStats(item)
 	local stats = {}
 	for _, row in ipairs(item.stats or {}) do
-		if Quality.improvedEnabled() or not Quality.isImproved(row.quality) then
+		if Quality.planarMarchEnabled() or not Quality.isImproved(row.quality) then
 			stats[#stats + 1] = row
 		end
 	end
