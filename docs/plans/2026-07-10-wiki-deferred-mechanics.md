@@ -70,17 +70,6 @@ losing game behavior.
 - [ ] Add the required code fact for the random rule, then cover rendering,
   parity, and golden output without assigning the reward to a specific water.
 
-### Task 8: Consume scripted Vithean arena rounds in the guide graph
-
-- [ ] The `arena_rounds` / `arena_round_enemies` clean tables (exported per the
-  archived 2026-06-17 arena-round plan) are never read by
-  `guide.graph_builder`. Wire each round's input coin/token, award chest, wave
-  enemies, and the 1..8 ordering so `Vitheo's Arena I`..`VIII` present as a
-  scripted wave ladder instead of isolated implicit token turn-ins and
-  free-standing chest kills.
-- [ ] The award chests carry `source_script = 'VithArena'` and are neither
-  directly placed nor `spawn_upon_quest_complete`-gated, so no existing guide
-  edge conveys the gate: chest N only spawns from arena round N (fed token N).
-  Model the first-clear chest drop distinctly from the post-completion
-  Master of Battle vendor re-buy (`unlock_item_for_vendor`), which otherwise
-  reads as a circular token source.
+Scripted Vithean arena rounds (formerly Task 8) moved to
+`2026-07-12-adventure-guide-tracker-and-data-refresh` Task 5: the work is
+guide-graph consumption, not wiki obtainability rendering.
