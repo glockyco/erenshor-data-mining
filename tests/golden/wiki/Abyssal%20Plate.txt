@@ -12,11 +12,13 @@
 |sell=24700
 |taughtspell=
 |taughtskill=
+|guaranteeddrops=
+|droprates=
 }}
 
 {{ItemTooltip
 |kind=Armor
-|image=Abyssal Plate
+|image=Abyssal Plate.png
 |name=Abyssal Plate
 |slot=Chest
 |type=
@@ -29,9 +31,9 @@
 |wis=0
 |cha=0
 |res=4
-|damage=0
-|delay=0.0
-|range=0
+|damage=
+|delay=
+|range=
 |health=400
 |mana=200
 |armor=175

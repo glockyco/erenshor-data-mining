@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass, field
 
-from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
 
 __all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo"]
@@ -60,9 +59,9 @@ class SourceInfo:
     # What this mold needs as ingredients: (ingredient_link, quantity)
     recipe_ingredients: list[tuple[ItemLink, int]] = field(default_factory=list)
 
-    # Item drops (for source items like fossils that produce random items), keyed by
-    # the dropped item's StableKey; the link resolves from the item record at display.
-    item_drops: list[ItemDropInfo] = field(default_factory=list)
+    # Items produced by using this item (e.g. a fossil's random pool):
+    # (dropped_item_link, drop_probability, is_guaranteed).
+    item_drops: list[tuple[ItemLink, float, bool]] = field(default_factory=list)
 
     # Unified item-owned obtainability rows with stable source identity.
     obtained_from: list[ObtainedFromInfo] = field(default_factory=list)

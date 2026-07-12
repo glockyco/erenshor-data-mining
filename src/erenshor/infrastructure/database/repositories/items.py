@@ -7,7 +7,6 @@ from loguru import logger
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.loot import ItemDropInfo
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
@@ -547,24 +546,26 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get items with skill effect '{skill_stable_key}': {e}") from e
 
-    def get_item_drops(self, source_item_stable_key: str) -> list[ItemDropInfo]:
+    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float, bool]]:
         """Get items that can drop from using this item (e.g., fossil).
 
-        Returns drop-edge data keyed by the dropped item's StableKey; the link,
-        name, and image resolve from the item record at the display layer.
+        Returns pre-built ItemLink objects with drop probability and whether the
+        source guarantees one drop from its pool.
 
         Args:
             source_item_stable_key: Item stable key of the source item
 
         Returns:
-            List of ItemDropInfo sorted by drop probability descending, then name.
-            Only drops whose item exists with a display name are returned.
+            List of (ItemLink, drop_probability, is_guaranteed) tuples sorted by
+            drop probability descending, then name. Only drops whose item exists
+            with a display name are returned.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT id.dropped_item_stable_key, id.drop_probability, id.is_guaranteed
+            SELECT i.display_name, i.wiki_page_name, i.image_name,
+                   id.drop_probability, id.is_guaranteed
             FROM item_drops id
             JOIN items i ON i.stable_key = id.dropped_item_stable_key
             WHERE id.source_item_stable_key = ?
@@ -575,12 +576,7 @@ class ItemRepository(BaseRepository[Item]):
         try:
             rows = self._execute_raw(query, (source_item_stable_key,))
             result = [
-                ItemDropInfo(
-                    dropped_item_stable_key=str(row["dropped_item_stable_key"]),
-                    drop_probability=float(row["drop_probability"]),
-                    is_guaranteed=bool(row["is_guaranteed"]),
-                )
-                for row in rows
+                (_item_link_from_row(row), float(row["drop_probability"]), bool(row["is_guaranteed"])) for row in rows
             ]
             logger.debug(f"Found {len(result)} item drops for '{source_item_stable_key}'")
             return result
