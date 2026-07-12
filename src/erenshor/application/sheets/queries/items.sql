@@ -94,12 +94,12 @@ LEFT JOIN item_stats s ON s.item_stable_key = i.stable_key
 ORDER BY i.item_db_index,
     CASE s.quality
         WHEN 'Normal' THEN 1
-        WHEN 'Blessed' THEN 2
-        WHEN 'Ascended' THEN 3
-        WHEN 'Improved +1' THEN 4
-        WHEN 'Improved +2' THEN 5
-        WHEN 'Improved +3' THEN 6
-        WHEN 'Improved +4' THEN 7
-        WHEN 'Improved +5' THEN 8
+        WHEN 'Improved +1' THEN 2
+        WHEN 'Improved +2' THEN 3
+        WHEN 'Improved +3' THEN 4
+        WHEN 'Improved +4' THEN 5
+        WHEN 'Improved +5' THEN 6
+        WHEN 'Blessed' THEN 7
+        WHEN 'Ascended' THEN 8
         ELSE 9
     END;

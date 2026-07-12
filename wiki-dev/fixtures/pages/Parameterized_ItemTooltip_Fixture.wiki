@@ -1,0 +1,14 @@
+{{ItemTooltip
+|kind=Weapon
+|image=Parameterized Sword
+|name=Parameterized Sword
+|slot=Primary
+|type=Primary
+|damage=10
+|delay=2.0
+|health=20
+|mana=30
+|str=4
+|res=1
+|description=Parameterized equipment fixture.
+}}

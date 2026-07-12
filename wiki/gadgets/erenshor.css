@@ -126,6 +126,15 @@
   text-align: center;
 }
 
+.item-tooltip-quality-label.item-tooltip-tier-0 { color: #FFFFFF; }
+.item-tooltip-quality-label.item-tooltip-tier-1 { color: #00F9FF; }
+.item-tooltip-quality-label.item-tooltip-tier-2 { color: #FC87FF; }
+.item-tooltip-quality-label.item-tooltip-tier-3,
+.item-tooltip-quality-label.item-tooltip-tier-4,
+.item-tooltip-quality-label.item-tooltip-tier-5,
+.item-tooltip-quality-label.item-tooltip-tier-6,
+.item-tooltip-quality-label.item-tooltip-tier-7 { color: #00FF00; }
+
 .item-tooltip-type {
   font-size: 1.2em;
   font-weight: bold;
@@ -664,11 +673,42 @@
   padding: 0;
 }
 
-/* ============================================================================
-   UTILITY CLASSES
-   ============================================================================ */
+.sparkle-overlay.item-tooltip-sparkle-improved img {
+  /* The game tints its shared sparkle animation with Color.green for
+     Improved qualities; the wiki reuses the published blue animation and
+     applies the equivalent hue shift instead of inventing a second asset. */
+  filter: hue-rotate(-60deg);
+}
 
-/* Hide empty sections */
+/* ParameterizedTooltip adds this overlay around legacy Item/* cards because
+   those templates predate the Improved quality tier. */
+.item-tooltip-quality {
+  position: relative;
+}
+
+.item-tooltip-quality-sparkle {
+  position: absolute;
+  left: 9px;
+  top: 38px;
+  width: 80px;
+  height: 80px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.item-tooltip-quality-sparkle img {
+  width: 80px;
+  height: 80px;
+}
+
+.item-tooltip-quality-sparkle-improved img {
+  filter: hue-rotate(-60deg);
+}
+
+.item-tooltip-icon-cell a[href*="wpDestFile=Blank.png"] {
+  display: none;
+}
+
 .item-tooltip-hidden {
   display: none;
 }

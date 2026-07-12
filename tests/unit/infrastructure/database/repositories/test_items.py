@@ -137,13 +137,13 @@ def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
 
     assert qualities == [
         "Normal",
-        "Blessed",
-        "Ascended",
         "Improved +1",
         "Improved +2",
         "Improved +3",
         "Improved +4",
         "Improved +5",
+        "Blessed",
+        "Ascended",
     ]
 
 

@@ -1,4 +1,6 @@
 local Item = require("Module:Erenshor/Item")
+local ParameterizedTooltip = require("Module:Erenshor/Item/ParameterizedTooltip")
+local Quality = require("Module:Erenshor/Item/Quality")
 
 local p = {}
 
@@ -17,7 +19,545 @@ local function assertContains(actual, expected, label)
 	end
 end
 
+local function countOccurrences(actual, expected)
+	local count = 0
+	local position = 1
+	while true do
+		local start = string.find(actual, expected, position, true)
+		if start == nil then
+			return count
+		end
+		count = count + 1
+		position = start + #expected
+	end
+end
+
+local function renderParameterized(input)
+	local currentFrame = mw.getCurrentFrame()
+	local args = input.args or input
+	return ParameterizedTooltip.render({
+		args = args,
+		expandTemplate = function(_, specification)
+			return currentFrame:expandTemplate(specification)
+		end,
+		callParserFunction = function(_, name, values)
+			return currentFrame:callParserFunction(name, values)
+		end,
+		preprocess = function(_, source)
+			return currentFrame:preprocess(source)
+		end,
+	})
+end
+
+local function assertVariantFields(actual, expected, label, keys)
+	keys = keys
+		or {
+			"str",
+			"end",
+			"dex",
+			"agi",
+			"int",
+			"wis",
+			"cha",
+			"res",
+			"weaponDamage",
+			"hp",
+			"mana",
+			"ac",
+			"mr",
+			"er",
+			"pr",
+			"vr",
+		}
+	assertEqual(#actual, #expected, label .. " has all qualities")
+	for index, expectedVariant in ipairs(expected) do
+		assertEqual(actual[index].quality, expectedVariant.quality, label .. " quality " .. index)
+		for _, key in ipairs(keys) do
+			assertEqual(
+				actual[index][key],
+				expectedVariant[key],
+				label .. " " .. expectedVariant.quality .. " " .. key
+			)
+		end
+	end
+end
+
 function p.run()
+	assertEqual(Quality.roundToInt(1.5), 2, "Unity rounding rounds 1.5 up")
+	assertEqual(Quality.roundToInt(2.5), 2, "Unity rounding rounds 2.5 to even")
+
+	assertVariantFields(
+		Quality.variants({ ac = 2, hp = 0, mana = 0, res = 0, mr = 0, er = 0, pr = 0, vr = 0 }),
+		{
+			{
+				quality = "Normal",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 0,
+				mana = 0,
+				ac = 2,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +1",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 5,
+				mana = 5,
+				ac = 3,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +2",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 10,
+				mana = 10,
+				ac = 4,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +3",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 15,
+				mana = 15,
+				ac = 5,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Improved +4",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 20,
+				mana = 20,
+				ac = 6,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Improved +5",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 0,
+				weaponDamage = 0,
+				hp = 25,
+				mana = 25,
+				ac = 7,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Blessed",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 0,
+				hp = 30,
+				mana = 30,
+				ac = 5,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Ascended",
+				str = 0,
+				["end"] = 0,
+				dex = 0,
+				agi = 0,
+				int = 0,
+				wis = 0,
+				cha = 0,
+				res = 2,
+				weaponDamage = 0,
+				hp = 50,
+				mana = 50,
+				ac = 10,
+				mr = 3,
+				er = 3,
+				pr = 3,
+				vr = 3,
+			},
+		},
+		"armor oracle",
+		{
+			"str",
+			"end",
+			"dex",
+			"agi",
+			"int",
+			"wis",
+			"cha",
+			"res",
+			"hp",
+			"mana",
+			"ac",
+			"mr",
+			"er",
+			"pr",
+			"vr",
+		}
+	)
+	assertVariantFields(
+		Quality.variants({
+			weaponDamage = 38,
+			hp = 225,
+			mana = 200,
+			ac = 0,
+			str = 25,
+			dex = 30,
+			agi = 15,
+			int = 20,
+			res = 1,
+			mr = 0,
+			er = 0,
+			pr = 0,
+			vr = 0,
+		}),
+		{
+			{
+				quality = "Normal",
+				str = 25,
+				["end"] = 0,
+				dex = 30,
+				agi = 15,
+				int = 20,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 225,
+				mana = 200,
+				ac = 0,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +1",
+				str = 26,
+				["end"] = 0,
+				dex = 31,
+				agi = 16,
+				int = 21,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 230,
+				mana = 205,
+				ac = 0,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +2",
+				str = 26,
+				["end"] = 0,
+				dex = 31,
+				agi = 16,
+				int = 21,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 235,
+				mana = 210,
+				ac = 0,
+				mr = 0,
+				er = 0,
+				pr = 0,
+				vr = 0,
+			},
+			{
+				quality = "Improved +3",
+				str = 27,
+				["end"] = 0,
+				dex = 32,
+				agi = 17,
+				int = 22,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 240,
+				mana = 215,
+				ac = 0,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Improved +4",
+				str = 27,
+				["end"] = 0,
+				dex = 32,
+				agi = 17,
+				int = 22,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 245,
+				mana = 220,
+				ac = 0,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Improved +5",
+				str = 28,
+				["end"] = 0,
+				dex = 33,
+				agi = 18,
+				int = 23,
+				wis = 0,
+				cha = 0,
+				res = 1,
+				weaponDamage = 38,
+				hp = 250,
+				mana = 225,
+				ac = 0,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Blessed",
+				str = 36,
+				["end"] = 0,
+				dex = 43,
+				agi = 23,
+				int = 30,
+				wis = 0,
+				cha = 0,
+				res = 2,
+				weaponDamage = 39,
+				hp = 300,
+				mana = 270,
+				ac = 3,
+				mr = 1,
+				er = 1,
+				pr = 1,
+				vr = 1,
+			},
+			{
+				quality = "Ascended",
+				str = 50,
+				["end"] = 0,
+				dex = 60,
+				agi = 30,
+				int = 40,
+				wis = 0,
+				cha = 0,
+				res = 3,
+				weaponDamage = 40,
+				hp = 387,
+				mana = 350,
+				ac = 8,
+				mr = 3,
+				er = 3,
+				pr = 3,
+				vr = 3,
+			},
+		},
+		"weapon oracle"
+	)
+
+	local armorTooltip = renderParameterized({
+		args = {
+			kind = "Armor",
+			image = "Cloth Sleeves.png",
+			name = "Cloth Sleeves",
+			slot = "Arm",
+			armor = "2",
+			health = "0",
+			mana = "0",
+			res = "0",
+			magic = "0",
+			poison = "0",
+			elemental = "0",
+			void = "0",
+		},
+	})
+	assertEqual(
+		countOccurrences(armorTooltip, 'class="item-tooltip item-tooltip-armor"'),
+		8,
+		"parameter renderer emits eight armor variants"
+	)
+	for _, quality in ipairs({
+		"Normal",
+		"Improved +1",
+		"Improved +2",
+		"Improved +3",
+		"Improved +4",
+		"Improved +5",
+		"Blessed",
+		"Ascended",
+	}) do
+		assertContains(armorTooltip, quality, "armor output labels " .. quality)
+	end
+	assertContains(armorTooltip, "Cloth Sleeves +1", "Improved +1 armor name follows game UI")
+	assertEqual(
+		countOccurrences(armorTooltip, "item-tooltip-quality-sparkle-improved"),
+		5,
+		"Improved armor variants use the green sparkle overlay"
+	)
+	assertContains(
+		armorTooltip,
+		'item-tooltip-stat-value">15</span>',
+		"Improved +3 health uses base health"
+	)
+	assertContains(
+		armorTooltip,
+		'item-tooltip-stat-value">+1%</span>',
+		"Improved +3 resistance starts the intended monotonic bonus"
+	)
+	assertContains(
+		armorTooltip,
+		'item-tooltip-stat-value">10</span>',
+		"Ascended armor uses the game maximum"
+	)
+
+	local weaponTooltipFromParams = renderParameterized({
+		args = {
+			kind = "Weapon",
+			image = "Oldenbow",
+			name = "Oldenbow",
+			type = "Primary",
+			damage = "38",
+			health = "225",
+			mana = "200",
+			str = "25",
+			dex = "30",
+			agi = "15",
+			int = "20",
+			res = "1",
+			proc_chance = "25",
+			proc_style = "Cast",
+			proc_spell_name = "Ember Burst",
+		},
+	})
+	assertEqual(
+		countOccurrences(weaponTooltipFromParams, 'class="item-tooltip item-tooltip-weapon"'),
+		8,
+		"parameter renderer emits eight weapon variants"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		"Oldenbow +1",
+		"Improved +1 weapon name follows game UI"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		"Oldenbow +5",
+		"Improved +5 weapon name follows game UI"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		'item-tooltip-stat-value">38</span>',
+		"Improved weapon damage remains unchanged"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		'item-tooltip-stat-value">39</span>',
+		"Blessed weapon damage gains one"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		'item-tooltip-stat-value">40</span>',
+		"Ascended weapon damage gains two"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		'item-tooltip-stat-value">250</span>',
+		"Improved +5 health uses the base row"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		'item-tooltip-stat-value">+1%</span>',
+		"Improved +3 weapon resistance uses the edge case"
+	)
+	assertContains(
+		weaponTooltipFromParams,
+		"25% chance on CAST:",
+		"weapon proc metadata is preserved"
+	)
+	local customImageTooltip = renderParameterized({
+		args = { kind = "Armor", image = "Manual.webp", name = "Manual", armor = "1" },
+	})
+	assertContains(customImageTooltip, "Manual.webp", "custom image extensions are preserved")
+
 	local weapon = Item.resolve({ stablekey = "item:ember_longsword" }, "Anything")
 	assertEqual(weapon.name, "Ember Longsword", "stable key resolves item")
 	assertEqual(weapon.type, "Weapon", "weapon type resolves")

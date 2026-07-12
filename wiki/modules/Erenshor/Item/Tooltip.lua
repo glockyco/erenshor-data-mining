@@ -9,13 +9,16 @@
 --   * Layout, labels, ordering, and which rows appear match the live tooltip
 --     exactly (e.g. attributes always shown defaulting to 0, abbreviated labels
 --     with no colon, resists as "+N%").
---   * Computed game logic comes from the game, NOT the wiki. The "- 2-Handed"
---     classification and the Base DPS x2 apply only to TwoHandMelee/TwoHandStaff
---     (ItemInfoWindow.cs); bows are not 2-handed. The live wiki keys this off a
---     string label and wrongly includes bows.
+--   * Computed game logic comes from the game, NOT the wiki. The one explicit
+--     exception is the Improved +5 resist correction: the shipped predicate
+--     omits runtime quality 15, so generated wiki data applies the intended
+--     non-decreasing +1 Improved bonus.
+--     The "- 2-Handed" classification and the Base DPS x2 apply only to
+--     TwoHandMelee/TwoHandStaff (ItemInfoWindow.cs); bows are not 2-handed. The
+--     live wiki keys this off a string label and wrongly includes bows.
 --   * Quality is signalled by name color only for Normal/Blessed/Ascended.
 --     Improved tiers also render their quality string so +1 through +5 rows are
---     distinguishable while keeping game-computed stats authoritative.
+--     distinguishable.
 
 local Format = require("Module:Erenshor/Format")
 local Link = require("Module:Erenshor/Link")
@@ -29,6 +32,18 @@ local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 local Tooltip = {}
 
 local QUALITY_RANK = {
+	["0"] = 0,
+	Normal = 0,
+	["Improved +1"] = 1,
+	["Improved +2"] = 2,
+	["Improved +3"] = 3,
+	["Improved +4"] = 4,
+	["Improved +5"] = 5,
+	Blessed = 6,
+	Ascended = 7,
+}
+
+local QUALITY_VISUAL_TIER = {
 	["0"] = 0,
 	Normal = 0,
 	Blessed = 1,
@@ -45,7 +60,9 @@ local SPARKLE = {
 	[0] = { file = "blank.png", size = "0px" },
 	[1] = { file = "Blue_Sparkle.gif", size = "80px" },
 	[2] = { file = "Purple_Sparkle.gif", size = "80px" },
-	[3] = { file = "Green_Sparkle.gif", size = "80px" },
+	-- The game tints its shared sparkle animation green for Improved items;
+	-- the wiki applies the same tint to the available blue animation.
+	[3] = { file = "Blue_Sparkle.gif", size = "80px" },
 }
 
 local TYPE_CLASS = {
@@ -103,7 +120,7 @@ local spellName = Common.spellName
 local spellLink = Common.spellLink
 
 local function tierOf(quality)
-	return QUALITY_RANK[quality] or 0
+	return QUALITY_VISUAL_TIER[quality] or 0
 end
 
 local function imageName(item)
@@ -125,8 +142,11 @@ local function sparkleIcon(item, tier)
 	end
 	local sparkleTier = tier >= 3 and 3 or tier
 	local sparkle = SPARKLE[sparkleTier] or SPARKLE[0]
+	local sparkleClass = sparkleTier == 3 and " item-tooltip-sparkle-improved" or ""
 	return '<div style="position: relative; width: 80px;">'
-		.. '<div style="position: absolute; left: 0px; top: 0px; padding: 0;">'
+		.. '<div class="sparkle-overlay'
+		.. sparkleClass
+		.. '" style="position: absolute; left: 0px; top: 0px; padding: 0;">'
 		.. "[[File:"
 		.. sparkle.file
 		.. "|"
@@ -509,7 +529,7 @@ end
 
 local function improvedQualityLabel(stats)
 	local quality = stats.quality
-	if (QUALITY_RANK[quality] or 0) < 3 then
+	if quality == nil or string.sub(tostring(quality), 1, 9) ~= "Improved " then
 		return nil
 	end
 	return mw.html

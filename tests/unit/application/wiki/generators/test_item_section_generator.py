@@ -24,7 +24,10 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
 
     result = generator.generate_template(enriched, "Ember Longsword")
 
-    assert "{{ItemTooltip|stablekey=item:ember_longsword}}" in result
+    assert "{{ItemTooltip" in result
+    assert "|kind=Weapon" in result
+    assert "|damage=10" in result
+    assert "|stablekey=" not in result
     assert "{{Item/Weapon" not in result
     assert "{{Fancy-weapon" not in result
     assert result.count("{{ItemTooltip") == 1

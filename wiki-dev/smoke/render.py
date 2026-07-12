@@ -27,7 +27,7 @@ FORBIDDEN_HTML_MARKERS = (
     ("{{AbilityLink|", "forbidden parser output: raw cross-reference template"),
     ("{{QuestLink|", "forbidden parser output: raw cross-reference template"),
     ("{{CharacterLink|", "forbidden parser output: raw cross-reference template"),
-    ("{{ZoneLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{Item/", "forbidden parser output: raw legacy item template"),
     ("{{FactionLink|", "forbidden parser output: raw cross-reference template"),
     ("{{ClassLink|", "forbidden parser output: raw cross-reference template"),
 )

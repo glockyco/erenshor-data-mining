@@ -381,14 +381,18 @@ class WikiGenerateService:
     def _replace_fancy_tables(self, old_wikitext: str, new_wikitext: str) -> str:
         """Replace item quality tables/templates with freshly generated versions.
 
-        Weapons/Armor: {| |- ||{{Item/Weapon}}...||...||... |}  (table with 3 quality tiers)
+        Weapons/Armor: legacy {| ... {{Item/Weapon}}/{{Item/Armor}} ... |} quality tables
+        are replaced by one parameterized {{ItemTooltip}} call (the Lua module
+        derives all eight qualities from Normal).
         Charms: {{Item/Charm\n...\n}}  (single template, charms don't upgrade)
 
         Old pages may still have {{Fancy-weapon}}, {{Fancy-armor}}, {{Fancy-charm}}
         which need to be replaced with the new {{Item/Weapon}}, {{Item/Armor}}, {{Item/Charm}}.
 
         These contain no manual content and should be completely replaced to ensure
-        consistent formatting.
+        consistent formatting.  The replacement is deliberately idempotent: an
+        existing parameterized ItemTooltip is replaced with the same generated raw
+        template, while surrounding prose and categories remain untouched.
 
         Args:
             old_wikitext: Existing page content (may have old or new templates)
@@ -418,7 +422,7 @@ class WikiGenerateService:
             return old_wikitext
 
         # Determine if we're dealing with a table or standalone template
-        # Tables contain Item/Weapon or Item/Armor (3 tiers each)
+        # Tables contain Item/Weapon or Item/Armor quality templates.
         # Standalone is Item/Charm (single template, no table)
         has_weapon_or_armor = any(str(t.name).strip() in ["Item/Weapon", "Item/Armor"] for t in new_item_templates)
 
@@ -578,10 +582,10 @@ class WikiGenerateService:
     def _replace_item_type_templates(self, old_wikitext: str, new_wikitext: str) -> str:
         """Replace or insert generated item tooltip templates.
 
-        Current item pages generate a single {{ItemTooltip|stablekey=...}} beside
-        the {{Item}} infobox. This also migrates legacy tooltip render paths:
-        old three-column weapon/armor tables, legacy Fancy-* tables, and the
-        standalone Item/<type> tooltip templates.
+        Current equipment pages generate a single parameterized {{ItemTooltip}}
+        call containing only Normal/base stats.  The Lua module derives all
+        quality variants.  This also migrates legacy three-or-more-column
+        weapon/armor tables and standalone subtype templates.
         """
         from mwparserfromhell import parse
 

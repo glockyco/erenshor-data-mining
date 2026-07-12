@@ -221,6 +221,13 @@ Legacy Item Fixture	Legacy inline-param item, no stablekey.
 Legacy Item Fixture	portable-infobox
 Legacy Item Fixture	pi-type-Item
 Legacy Item Fixture	Category:Items
+Parameterized ItemTooltip Fixture	Parameterized Sword
+Parameterized ItemTooltip Fixture	Weapon
+Parameterized ItemTooltip Fixture	Improved +5
+Parameterized ItemTooltip Fixture	item-tooltip-tier-3
+Parameterized ItemTooltip Fixture	Parameterized Sword.png
+Parameterized ItemTooltip Fixture	Item Stats
+Parameterized ItemTooltip Fixture	Base DPS
 Legacy Character Fixture	Legacy Beast Fixture
 Legacy Character Fixture	Enemy
 Legacy Character Fixture	Legacy Faction

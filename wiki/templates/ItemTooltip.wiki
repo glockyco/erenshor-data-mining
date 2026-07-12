@@ -1,1 +1,14 @@
-<includeonly>{{#invoke:Erenshor/Item|tooltip}}</includeonly><noinclude>Item stat tooltip for all quality variants, driven by [[Module:Erenshor/Item]]. Resolves the item by its stable key: <code><nowiki>{{ItemTooltip|stablekey=item:...}}</nowiki></code>.</noinclude>
+<includeonly>{{#if:
+{{{kind|}}}
+|{{#invoke:Erenshor/Item/ParameterizedTooltip|render}}
+|{{#invoke:Erenshor/Item|tooltip}}
+}}</includeonly>
+
+<noinclude>
+Item quality tooltip.
+
+Equipment pages pass Normal/base fields with <code>kind=Weapon</code> or
+<code>kind=Armor</code>; the parameter renderer derives Normal, Improved +1
+through +5, Blessed, and Ascended. Stable-key calls remain for item types that
+have not migrated yet.
+</noinclude>

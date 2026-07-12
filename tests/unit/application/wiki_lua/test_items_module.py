@@ -67,7 +67,36 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
     }
 
 
-def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
+def test_preserves_all_quality_rows_in_gameplay_order() -> None:
+    item = make_item()
+    qualities = [
+        "Normal",
+        "Improved +1",
+        "Improved +2",
+        "Improved +3",
+        "Improved +4",
+        "Improved +5",
+        "Blessed",
+        "Ascended",
+    ]
+    stats = [
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": quality,
+                "weapon_dmg": index + 10,
+                "hp": index + 20,
+                "ac": index + 1,
+            }
+        )
+        for index, quality in reversed(list(enumerate(qualities)))
+    ]
+
+    data = build_items_data(items=[item], stats_by_item={item.stable_key: stats}, classes_by_item={})
+
+    record = data["shards"][data["index"]["byKey"][item.stable_key]][item.stable_key]
+    assert [row["quality"] for row in record["stats"]] == qualities
+    assert [row["weaponDamage"] for row in record["stats"]] == list(range(10, 18))
     item = make_item()
     blessed = ItemStats.model_validate(
         {
@@ -94,7 +123,49 @@ def test_uses_zero_quality_stat_as_summary_base_tier() -> None:
     assert item_data["armor"] == 3
 
 
-def test_builds_item_cast_time_from_exported_spell_cast_time() -> None:
+def test_corrects_improved_plus_five_resists_to_intended_progression() -> None:
+    item = make_item()
+    stats = [
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": "Normal",
+                "mr": 0,
+                "er": 0,
+                "pr": 0,
+                "vr": 0,
+            }
+        ),
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": "Improved +4",
+                "mr": 1,
+                "er": 1,
+                "pr": 1,
+                "vr": 1,
+            }
+        ),
+        ItemStats.model_validate(
+            {
+                "item_stable_key": item.stable_key,
+                "quality": "Improved +5",
+                "mr": 0,
+                "er": 0,
+                "pr": 0,
+                "vr": 0,
+            }
+        ),
+    ]
+
+    data = build_items_data(items=[item], stats_by_item={item.stable_key: stats}, classes_by_item={})
+
+    rows = {
+        row["quality"]: row for row in data["shards"][data["index"]["byKey"][item.stable_key]][item.stable_key]["stats"]
+    }
+    assert {rows["Improved +4"][key] for key in ("mr", "er", "pr", "vr")} == {1}
+    assert {rows["Improved +5"][key] for key in ("mr", "er", "pr", "vr")} == {1}
+
     item = make_item(spell_cast_time=1.5, weapon_dly=2.5)
     stats = [
         ItemStats.model_validate(

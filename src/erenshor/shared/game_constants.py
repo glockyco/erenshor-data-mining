@@ -70,16 +70,22 @@ TIER_SORT_DEFAULT = 99
 
 TIER_ORDER_MAP: dict[str, int] = {
     "Normal": 0,
-    "Blessed": 1,
-    "Ascended": 2,
-    "Improved +1": 3,
-    "Improved +2": 4,
-    "Improved +3": 5,
-    "Improved +4": 6,
-    "Improved +5": 7,
+    "Improved +1": 1,
+    "Improved +2": 2,
+    "Improved +3": 3,
+    "Improved +4": 4,
+    "Improved +5": 5,
+    "Blessed": 6,
+    "Ascended": 7,
 }
-"""Mapping of tier quality names to sort order."""
+"""Mapping of quality names to gameplay progression order.
 
+Runtime quality IDs are not a power ranking.  Improved qualities progress
+before Blessed and Ascended even though their runtime IDs are 11--15.
+"""
+
+# Visual tiers are intentionally separate from progression order.  The legacy
+# templates use these values for color/sparkle styling.
 TIER_STRING_MAP: dict[str, str] = {
     "Normal": "0",
     "Blessed": "1",
@@ -90,7 +96,7 @@ TIER_STRING_MAP: dict[str, str] = {
     "Improved +4": "6",
     "Improved +5": "7",
 }
-"""Mapping of tier quality names to tier string values."""
+"""Mapping of quality names to legacy visual tier values."""
 
 # Wikitext formatting constants
 WIKITEXT_LINE_SEPARATOR = "<br>"

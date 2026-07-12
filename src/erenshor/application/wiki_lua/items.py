@@ -11,6 +11,7 @@ from erenshor.application.wiki_lua.links import link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
+from erenshor.shared.game_constants import TIER_ORDER_MAP, TIER_SORT_DEFAULT
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -170,6 +171,8 @@ _STAT_FIELD_MAP = (
     ("mitigationScaling", "mitigation_scaling"),
 )
 
+_RESIST_STAT_FIELDS = frozenset({"mr", "er", "pr", "vr"})
+
 
 def generate_items_modules(
     item_repo: ItemDataRepository,
@@ -327,12 +330,20 @@ def _item_record(
             row["ingredients"] = ingredients
         if rewards:
             row["rewards"] = rewards
-    stat_rows = [_stat_record(stat) for stat in sorted(stats, key=lambda candidate: candidate.quality)]
+    normal_stat = next((stat for stat in stats if stat.quality in {"Normal", "0"}), None)
+    stat_rows = [
+        _stat_record(stat, normal_stat)
+        for stat in sorted(stats, key=lambda candidate: _quality_order(candidate.quality))
+    ]
     stat_rows = [stat for stat in stat_rows if len(stat) > 1]
     if stat_rows:
         row["stats"] = stat_rows
 
     return row
+
+
+def _quality_order(quality: str) -> int:
+    return TIER_ORDER_MAP.get(quality, TIER_SORT_DEFAULT)
 
 
 def _format_obtained_from(sources: SourceInfo) -> list[LuaData]:
@@ -410,10 +421,16 @@ def _recipe_links(links: list[tuple[ItemLink, int]]) -> list[LuaData]:
     ]
 
 
-def _stat_record(stat: ItemStats) -> LuaData:
+def _stat_record(stat: ItemStats, normal_stat: ItemStats | None = None) -> LuaData:
     row: LuaData = {"quality": stat.quality}
     for lua_name, attr_name in _STAT_FIELD_MAP:
-        _put(row, lua_name, getattr(stat, attr_name))
+        value = getattr(stat, attr_name)
+        if stat.quality == "Improved +5" and normal_stat is not None and attr_name in _RESIST_STAT_FIELDS:
+            # The shipped CalcResists predicate omits quality 15. Keep wiki
+            # quality progression non-decreasing by applying the intended +1
+            # Improved resist bonus to the final upgrade row.
+            value = (getattr(normal_stat, attr_name) or 0) + 1
+        _put(row, lua_name, value)
     return row
 
 

@@ -344,7 +344,55 @@ Manual page content.
         assert "{{Fancy-weapon" not in result
         assert "{|" not in result
 
-    def test_item_tooltip_replacement_is_idempotent(self, generate_service):
+    def test_parameter_tooltip_replaces_quality_table_idempotently(self, generate_service):
+        old_wikitext = """{{Item
+|title=Cloth Sleeves
+}}
+
+Intro text that must survive.
+
+{| class="wikitable"
+|-
+!{{Item/Armor
+|name=Cloth Sleeves
+|tier=0
+}}
+!{{Item/Armor
+|name=Cloth Sleeves
+|tier=1
+}}
+!{{Item/Armor
+|name=Cloth Sleeves
+|tier=2
+}}
+|}
+
+[[Category:Armor]]
+"""
+        new_wikitext = """{{Item
+|title=Cloth Sleeves
+}}
+
+{{ItemTooltip
+|kind=Armor
+|name=Cloth Sleeves
+|armor=2
+|health=0
+|magic=0
+}}
+"""
+
+        first = generate_service._replace_item_type_templates(old_wikitext, new_wikitext)
+        second = generate_service._replace_item_type_templates(first, new_wikitext)
+
+        assert first == second
+        assert first.count("{{ItemTooltip") == 1
+        assert "{{Item/Armor" not in first
+        assert '{| class="wikitable"' not in first
+        assert "Intro text that must survive." in first
+        assert "[[Category:Armor]]" in first
+        assert "|kind=Armor" in first
+
         old_wikitext = """{{Item
 |title=Ember Longsword
 }}
