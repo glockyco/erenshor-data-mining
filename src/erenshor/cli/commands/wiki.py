@@ -651,6 +651,13 @@ def sync_interface(
 @app.command("deploy-repo-pages")
 def deploy_repo_pages_command(
     ctx: typer.Context,
+    pages_file: Annotated[
+        str | None,
+        typer.Option(
+            "--pages-file",
+            help="Deploy only repo-owned page titles listed in this file, or '-' for stdin.",
+        ),
+    ] = None,
     summary: Annotated[
         str,
         typer.Option("--summary", help="Edit summary for repo-owned page uploads."),
@@ -667,13 +674,19 @@ def deploy_repo_pages_command(
     """Deploy repo-owned Lua modules, templates, and generated Lua data."""
     cli_ctx: CLIContext = ctx.obj
     manifest = build_repo_page_manifest(cli_ctx.repo_root, variant=cli_ctx.variant)
+    if pages_file:
+        requested_titles = set(_read_page_titles(pages_file))
+        manifest = RepoWikiPageManifest(
+            entries=tuple(entry for entry in manifest.entries if entry.title in requested_titles)
+        )
     if manifest_output is None:
         manifest_output = (
             cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
         )
 
     if cli_ctx.dry_run:
-        console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest[/yellow]")
+        scope = f" filtered by {pages_file}" if pages_file else ""
+        console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow]")
         return
 
     client = _create_mediawiki_client(cli_ctx)
