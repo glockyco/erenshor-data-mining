@@ -421,6 +421,11 @@ public sealed class WorldMarkerSystem
                 }
 
                 case SpawnPointBridge.SpawnState.DirectlyPlacedDead:
+                    // A quest-unlock entry means direct-placement absence is ambiguous:
+                    // do not claim this NPC will respawn on zone re-entry.
+                    if (_data.CharacterQuestUnlocks.ContainsKey(stableKey))
+                        break;
+
                     TryAddMarker(
                         spawnKey,
                         MarkerType.ZoneReentry,

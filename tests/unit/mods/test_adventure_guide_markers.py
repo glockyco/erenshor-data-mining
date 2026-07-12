@@ -19,3 +19,16 @@ def test_marker_billboard_null_guards_for_menu_scenes() -> None:
     # Must be safe when no player/camera exists (menu scenes), unlike the
     # game's NamePlate which assumes a live gameplay session.
     assert "GameData.PlayerControl" in billboard and "== null" in billboard
+
+
+def test_unlock_gated_direct_placements_skip_zone_reentry() -> None:
+    source = (MOD_ROOT / "src" / "Navigation" / "WorldMarkerSystem.cs").read_text()
+    direct_case = source.split("case SpawnPointBridge.SpawnState.DirectlyPlacedDead:", 1)[1].split(
+        "// QuestGated, NotFound", 1
+    )[0]
+    lines = [line.strip() for line in direct_case.splitlines() if line.strip()]
+
+    gate_index = lines.index("if (_data.CharacterQuestUnlocks.ContainsKey(stableKey))")
+    assert lines[gate_index + 1] == "break;"
+    assert any("MarkerType.ZoneReentry" in line for line in lines)
+    assert lines.index("TryAddMarker(") > gate_index

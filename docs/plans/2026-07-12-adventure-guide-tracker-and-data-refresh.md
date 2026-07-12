@@ -113,18 +113,19 @@ directly-placed NPC as `DirectlyPlacedDead` (`SpawnPointBridge.cs:128-170`);
 (`GuideData.cs:43-46`). Confirmed live cases: `Lucian Revald` and
 `Revan Gavault` (Stowaway, kill-unlock group for `MEETBASSLE`).
 
-- [ ] Before emitting ZoneReentry for a `DirectlyPlacedDead` spawn, check the
+- [x] Before emitting ZoneReentry for a `DirectlyPlacedDead` spawn, check the
   character stable key against `_data.CharacterQuestUnlocks`; when an unlock
   group exists, emit no marker (matches the documented "Quest-gated → no
   marker" contract, `WorldMarkerSystem.cs:17`).
-- [ ] Quest-gated direct placements (`spawn_upon_quest_complete`) are not in
+- [x] Quest-gated direct placements (`spawn_upon_quest_complete`) are not in
   the embedded data and stay wrong until Task 4; this task fixes only the
   kill-unlock class, which is the reported bug.
-- [ ] Verification: `uv run pytest tests/unit/mods/test_adventure_guide_markers.py`
-  passes; `uv run erenshor mod build --mod adventure-guide` succeeds. In-game:
-  kill-unlock NPC absent in Stowaway shows no re-enter marker; an ordinary
-  directly-placed NPC still shows one after death.
-- [ ] Commit. Message: `fix(mod): suppress re-enter hint for unlock-gated spawns`
+- [x] Automated verification:
+  `uv run pytest tests/unit/mods/test_adventure_guide_markers.py` passes;
+  `uv run erenshor mod build --mod adventure-guide` succeeds.
+- [ ] In-game verification: a kill-unlock NPC absent in Stowaway shows no
+  re-enter marker; an ordinary directly-placed NPC still shows one after death.
+- [x] Commit. Message: `fix(mod): suppress re-enter hint for unlock-gated spawns`
 
 ### Task 3: Reconnect the quest data pipeline (release-critical)
 
