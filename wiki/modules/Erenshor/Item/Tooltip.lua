@@ -16,13 +16,13 @@
 --     The "- 2-Handed" classification and the Base DPS x2 apply only to
 --     TwoHandMelee/TwoHandStaff (ItemInfoWindow.cs); bows are not 2-handed. The
 --     live wiki keys this off a string label and wrongly includes bows.
---   * Quality is signalled by name color only for Normal/Blessed/Ascended.
---     Improved tiers also render their quality string so +1 through +5 rows are
---     distinguishable.
+--   * When enabled, Improved tiers render their quality string so +1 through +5
+--     rows are distinguishable.
 
 local Format = require("Module:Erenshor/Format")
 local Link = require("Module:Erenshor/Link")
 local Common = require("Module:Erenshor/Ability/Common")
+local Quality = require("Module:Erenshor/Item/Quality")
 
 -- Effect spells and taught skills are joined by stable key (best-practice
 -- mw.loadData: parsed once per page, cached, read-only static data).
@@ -884,7 +884,9 @@ end
 local function orderedStats(item)
 	local stats = {}
 	for _, row in ipairs(item.stats or {}) do
-		stats[#stats + 1] = row
+		if Quality.improvedEnabled() or not Quality.isImproved(row.quality) then
+			stats[#stats + 1] = row
+		end
 	end
 	table.sort(stats, function(a, b)
 		return (QUALITY_RANK[a.quality] or 99) < (QUALITY_RANK[b.quality] or 99)

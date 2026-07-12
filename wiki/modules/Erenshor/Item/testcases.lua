@@ -19,6 +19,12 @@ local function assertContains(actual, expected, label)
 	end
 end
 
+local function assertAbsent(actual, unexpected, label)
+	if string.find(actual, unexpected, 1, true) ~= nil then
+		error(string.format("%s: unexpected output containing %s", label, unexpected), 2)
+	end
+end
+
 local function countOccurrences(actual, expected)
 	local count = 0
 	local position = 1
@@ -84,10 +90,14 @@ end
 
 function p.run()
 	assertEqual(Quality.roundToInt(1.5), 2, "Unity rounding rounds 1.5 up")
-	assertEqual(Quality.roundToInt(2.5), 2, "Unity rounding rounds 2.5 to even")
+	assertEqual(#Quality.variants({}), 3, "release gate hides Improved variants")
+	assertEqual(#Quality.variants({}, true), 8, "quality gate enables all variants")
 
 	assertVariantFields(
-		Quality.variants({ ac = 2, hp = 0, mana = 0, res = 0, mr = 0, er = 0, pr = 0, vr = 0 }),
+		Quality.variants(
+			{ ac = 2, hp = 0, mana = 0, res = 0, mr = 0, er = 0, pr = 0, vr = 0 },
+			true
+		),
 		{
 			{
 				quality = "Normal",
@@ -276,7 +286,7 @@ function p.run()
 			er = 0,
 			pr = 0,
 			vr = 0,
-		}),
+		}, true),
 		{
 			{
 				quality = "Normal",
@@ -452,36 +462,21 @@ function p.run()
 	})
 	assertEqual(
 		countOccurrences(armorTooltip, 'class="item-tooltip item-tooltip-armor"'),
-		8,
-		"parameter renderer emits eight armor variants"
+		3,
+		"release gate emits Normal, Blessed, and Ascended armor variants"
 	)
 	for _, quality in ipairs({
 		"Normal",
-		"Improved +1",
-		"Improved +2",
-		"Improved +3",
-		"Improved +4",
-		"Improved +5",
 		"Blessed",
 		"Ascended",
 	}) do
 		assertContains(armorTooltip, quality, "armor output labels " .. quality)
 	end
-	assertContains(armorTooltip, "Cloth Sleeves +1", "Improved +1 armor name follows game UI")
-	assertEqual(
-		countOccurrences(armorTooltip, "item-tooltip-quality-sparkle-improved"),
-		5,
-		"Improved armor variants use the green sparkle overlay"
-	)
-	assertContains(
+	assertAbsent(armorTooltip, "Improved +1", "release gate hides Improved armor variants")
+	assertAbsent(
 		armorTooltip,
-		'item-tooltip-stat-value">15</span>',
-		"Improved +3 health uses base health"
-	)
-	assertContains(
-		armorTooltip,
-		'item-tooltip-stat-value">+1%</span>',
-		"Improved +3 resistance starts the intended monotonic bonus"
+		"item-tooltip-quality-sparkle-improved",
+		"release gate hides Improved sparkles"
 	)
 	assertContains(
 		armorTooltip,
@@ -510,23 +505,18 @@ function p.run()
 	})
 	assertEqual(
 		countOccurrences(weaponTooltipFromParams, 'class="item-tooltip item-tooltip-weapon"'),
-		8,
-		"parameter renderer emits eight weapon variants"
+		3,
+		"release gate emits Normal, Blessed, and Ascended weapon variants"
 	)
-	assertContains(
+	assertAbsent(
 		weaponTooltipFromParams,
-		"Oldenbow +1",
-		"Improved +1 weapon name follows game UI"
-	)
-	assertContains(
-		weaponTooltipFromParams,
-		"Oldenbow +5",
-		"Improved +5 weapon name follows game UI"
+		"Improved +1",
+		"release gate hides Improved weapon variants"
 	)
 	assertContains(
 		weaponTooltipFromParams,
 		'item-tooltip-stat-value">38</span>',
-		"Improved weapon damage remains unchanged"
+		"Normal weapon damage remains unchanged"
 	)
 	assertContains(
 		weaponTooltipFromParams,
@@ -537,16 +527,6 @@ function p.run()
 		weaponTooltipFromParams,
 		'item-tooltip-stat-value">40</span>',
 		"Ascended weapon damage gains two"
-	)
-	assertContains(
-		weaponTooltipFromParams,
-		'item-tooltip-stat-value">250</span>',
-		"Improved +5 health uses the base row"
-	)
-	assertContains(
-		weaponTooltipFromParams,
-		'item-tooltip-stat-value">+1%</span>',
-		"Improved +3 weapon resistance uses the edge case"
 	)
 	assertContains(
 		weaponTooltipFromParams,

@@ -1,11 +1,15 @@
 -- Module:Erenshor/Item/Quality
 --
 -- Item quality progression and the game's quality-stat formulas. The wiki
--- receives only the Normal row; this module derives the seven upgrade rows so
+-- receives only the Normal row; this module derives the enabled upgrade rows so
 -- a formula change does not require rewriting every item page. The shipped
 -- Improved +5 resist omission is corrected to preserve intended progression.
 
 local Quality = {}
+
+-- Release gate: keep Improved variants hidden until the game patch ships.
+-- Flip this single value to true for the post-patch wiki refresh.
+local IMPROVED_QUALITIES_ENABLED = false
 
 -- Runtime IDs, progression rank, and visual tier are deliberately separate.
 -- Runtime IDs are not a power ranking, and the green Improved visual tier is
@@ -180,18 +184,38 @@ local function variant(base, quality)
 	return out
 end
 
-function Quality.list()
+function Quality.improvedEnabled()
+	return IMPROVED_QUALITIES_ENABLED
+end
+
+function Quality.isImproved(qualityName)
+	return type(qualityName) == "string" and string.sub(qualityName, 1, 9) == "Improved "
+end
+
+function Quality.list(includeImproved)
+	local showImproved = includeImproved
+	if showImproved == nil then
+		showImproved = IMPROVED_QUALITIES_ENABLED
+	end
 	local out = {}
-	for index, quality in ipairs(QUALITIES) do
-		out[index] = quality
+	for _, quality in ipairs(QUALITIES) do
+		if showImproved or not Quality.isImproved(quality.name) then
+			out[#out + 1] = quality
+		end
 	end
 	return out
 end
 
-function Quality.variants(base)
+function Quality.variants(base, includeImproved)
+	local showImproved = includeImproved
+	if showImproved == nil then
+		showImproved = IMPROVED_QUALITIES_ENABLED
+	end
 	local out = {}
-	for index, quality in ipairs(QUALITIES) do
-		out[index] = variant(base or {}, quality)
+	for _, quality in ipairs(QUALITIES) do
+		if showImproved or not Quality.isImproved(quality.name) then
+			out[#out + 1] = variant(base or {}, quality)
+		end
 	end
 	return out
 end
