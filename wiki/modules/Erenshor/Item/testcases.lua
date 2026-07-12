@@ -564,6 +564,34 @@ function p.run()
 	assertAbsent(weaponTooltipFromParams, "XP Bonus: +0.0%", "zero XP bonus is omitted")
 	assertAbsent(weaponTooltipFromParams, "{{Item/", "legacy invocations are fully expanded")
 	assertAbsent(weaponTooltipFromParams, "{{{", "no unguarded template parameters leak")
+	local displayReadyTooltip = renderParameterized({
+		args = {
+			kind = "Weapon",
+			image = "Oldenbow.png",
+			name = "Oldenbow",
+			type = "Primary - 2-Handed",
+			damage = "38",
+			proc_style = "Attack",
+			proc_chance = "8",
+			proc_spell_icon = "Ice Spear.png",
+			proc_spell_name = "[[Ice Spear]]",
+			proc_spell_level = "21",
+			proc_cast_time = "1.0",
+		},
+	})
+	assertContains(
+		displayReadyTooltip,
+		"Ice Spear.png",
+		"display-ready icon filename passes through"
+	)
+	assertAbsent(displayReadyTooltip, "Ice Spear.png.png", "icon extension is not appended twice")
+	assertContains(
+		displayReadyTooltip,
+		"[[Ice Spear]]",
+		"pre-linked spell name passes through unchanged"
+	)
+	assertContains(displayReadyTooltip, "Cast Time: 1.0 sec", "cast time is already in seconds")
+	assertContains(displayReadyTooltip, "Primary - 2-Handed", "two-handed weapon type renders")
 	assertAbsent(armorTooltip, "{{Item/", "armor invocations are fully expanded")
 	assertAbsent(armorTooltip, "{{{", "no unguarded armor parameters leak")
 	local customImageTooltip = renderParameterized({

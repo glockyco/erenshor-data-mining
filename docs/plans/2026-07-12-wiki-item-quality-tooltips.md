@@ -30,6 +30,42 @@ renderer and migration deterministic.
   existing templates own card internals, proc rendering, field suppression,
   and shared CSS structure. A pure-Lua inner renderer is only justified if a
   measured template contract prevents correct composition.
+- Legacy `Item/Weapon` and `Item/Armor` begin with wikitable markup (`{|`), which
+  MediaWiki parses only at line start. `Module:Erenshor/Item/ParameterizedTooltip`
+  builds template arguments as a table, expands each template with
+  `frame:expandTemplate`, and newline-joins wrapper strings so wikitable markup
+  remains at line start. Do not use `frame:preprocess` or `{{#tag:div}}` wrapping:
+  already-expanded wikitext contains raw pipes that corrupt parser-function
+  argument splitting.
+- Scribunto testcases exercise the renderer through a real frame created with
+  `mw.getCurrentFrame():newChild`; frame mocks are prohibited because they can
+  diverge from production behavior.
+- The live wiki has no TemplateStyles extension, and
+  `MediaWiki:Gadget-erenshor.css` is interface-protected
+  (`protectednamespace-interface` for the deploy account), so new CSS classes
+  are undeliverable. Non-equipment kinds (general, consumable, aura, charm,
+  spell scroll, skill book, mold) use their legacy jinja-generated templates
+  (`Item/General`, etc.) with existing gadget styling; the Lua stablekey path
+  remains reserved for a future cutover when styling is deliverable.
+
+## Implementation notes
+
+- `ItemSectionGenerator._build_spell_details_context` emits display-ready
+  `proc_spell_name` as a wikilink (`[[Ice Spear]]`), `proc_spell_icon` with
+  `.png`, and `proc_cast_time` as ticks/60 to one decimal; optional zero
+  numerics are blanks, booleans are `True`/blank, and XP bonus percent is
+  emitted only for the XPBonus spell line. The parameterized `ItemTooltip`
+  arguments are forwarded by the Lua adapter, which retains only tolerance
+  normalization (`.png` append and zero omission) for hand-written pages.
+- Item infobox `guaranteeddrops` and `droprates` use `SourceInfo.item_drops`,
+  whose end-to-end values are resolved `(ItemLink, probability, is_guaranteed)`
+  tuples; `ItemDropInfo` is not part of the repository API.
+- Generated pages for weapon, armor, general, aura, charm, spell scroll, skill
+  book, mold, consumable, and container were diffed against pre-2026-07-12 live
+  revisions. Remaining diffs are playtest data changes and the intended
+  equipment `ItemTooltip` parameterization.
+- `Module:Erenshor/Item/testcases` is test-only and must never deploy to
+  production; the repo-page manifest excludes `testcases.lua` files.
 
 ## Tasks
 
@@ -47,14 +83,28 @@ renderer and migration deterministic.
 - [x] Deploy the item runtime's required Lua dependencies and generated item data.
 - [x] Keep the production quality gate disabled until the game patch ships.
 - [x] Capture the live legacy Item template contracts for styling and field behavior.
-- [ ] Replace the parameterized renderer's generated-template-string path with
+- [x] Replace the parameterized renderer's generated-template-string path with
   direct `frame:expandTemplate` calls for `Item/Weapon` and `Item/Armor`, while
   keeping the Lua-owned quality-set wrapper.
-- [ ] Compare parameterized tooltip markup and field visibility against live legacy templates.
-- [ ] Resolve item and spell icon filenames to existing MediaWiki files without redlinks.
-- [ ] Omit zero-valued optional stats and proc fields while preserving meaningful zeroes.
-- [ ] Restore legacy card layout, centering, image-cell sizing, and typography.
-- [ ] Deploy the required CSS through an interface page the deployment account can edit.
+- [x] Compare parameterized tooltip markup and field visibility against live legacy
+  templates.
+- [x] Resolve item and spell icon filenames to existing MediaWiki files without
+  redlinks.
+- [x] Omit zero-valued optional stats and proc fields while preserving meaningful
+  zeroes.
+- [x] Restore legacy card layout, centering, image-cell sizing, and typography.
+- [x] Confirm new CSS classes are undeliverable on the live wiki; keep non-equipment
+  kinds on legacy jinja templates until styling can be delivered.
+- [x] Restore display-ready spell detail arguments and forward them through the Lua
+  adapter.
+- [x] Restore `guaranteeddrops`/`droprates` infobox parameters from resolved item
+  drops.
+- [x] Exercise Scribunto testcases through a real
+  `mw.getCurrentFrame():newChild` frame.
+- [x] Diff generated pages for every item kind against pre-2026-07-12 live
+  revisions.
+- [x] Exclude `Module:Erenshor/Item/testcases` from production deployment
+  manifests.
 - [ ] Re-run the four-page live spike and verify rendered HTML, images, and styling.
 - [ ] Enable Improved qualities only after the Planar March patch is live.
 - [ ] Execute the complete production wiki cutover after explicit approval.
