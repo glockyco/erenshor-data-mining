@@ -105,9 +105,21 @@ renderer and migration deterministic.
   revisions.
 - [x] Exclude `Module:Erenshor/Item/testcases` from production deployment
   manifests.
-- [ ] Re-run the four-page live spike and verify rendered HTML, images, and styling.
+- [x] Re-run the four-page live spike and verify rendered HTML, images, and styling.
+- [x] Upload the full playtest image set to the live wiki as a release soft-prepare
+  so refreshed pages resolve new icons (e.g. `File:Access Bank.png`).
+- [x] Spike one live page per remaining item kind (aura, charm, scroll, book, mold,
+  consumable, container) and verify rendered HTML as the WoWBot deploy account.
+- [ ] Deploy all item article pages on release day only: bulk playtest stats are
+  spoilers until the patch is live (an early partial deploy was reverted).
 - [ ] Enable Improved qualities only after the Planar March patch is live.
 - [ ] Execute the complete production wiki cutover after explicit approval.
+
+Release-day order: refresh game data from the new build, regenerate pages,
+deploy all item articles, flip `PLANAR_MARCH_ENABLED` in
+`Module:Erenshor/Item/Quality`, deploy repo pages, and paste
+`wiki/gadgets/erenshor.css` into `MediaWiki:Gadget-erenshor.css` by hand (the
+page is interface-protected, so no account in the pipeline can deploy it).
 
 ## Acceptance
 
