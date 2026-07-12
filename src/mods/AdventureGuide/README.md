@@ -55,13 +55,23 @@ resources/
 
 ## Data Pipeline
 
+The guide commands share the entity-graph build and TOML override input:
+
 ```bash
-uv run erenshor guide generate    # Reads clean DB, produces quest_guides/quest-guide.json
+uv run erenshor guide compile     # Dense guide.json diagnostics/internal data
+uv run erenshor guide export-mod  # Embedded quest-guide.json shipping wrapper
 ```
 
-The csproj embeds `quest_guides/quest-guide.json` directly, so a rebuild picks
-up regenerated data with no copy step. The generator auto-creates steps for most
-quests; the rest are curated manually under `quest_guides/manual/*.json`.
+`guide compile` writes `quest_guides/guide.json` by default. It is the dense,
+indexed representation intended for diagnostics and internal data processing.
+`guide export-mod` writes `quest_guides/quest-guide.json` by default. This
+compact wrapper is the artifact embedded by the csproj and loaded by the
+shipping Lunaris plugin.
+
+Both commands read the selected variant's clean database and accept
+`--overrides` for a `quest_guides/graph_overrides.toml` file. TOML graph
+overrides are the only manual curation path; no per-quest JSON overrides are
+used.
 
 ## Configuration
 

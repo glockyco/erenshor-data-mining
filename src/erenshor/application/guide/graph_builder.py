@@ -1389,6 +1389,7 @@ def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -
     Quests with no acquisition source are implicitly completable:
     the player can walk up and complete them without formal acceptance.
     """
+    alternative_groups = _quest_source_alternative_groups(conn, graph, acquisition=True)
     rows = conn.execute("""
         SELECT quest_stable_key, method, source_type, source_stable_key, note
         FROM quest_acquisition_sources
@@ -1427,6 +1428,7 @@ def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -
                     target=target_key,
                     type=EdgeType.ASSIGNED_BY,
                     keyword=keyword,
+                    group=alternative_groups.get((quest_key, target_key)),
                     note=note,
                 )
             )
@@ -1453,6 +1455,7 @@ def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -
                 source=quest_key,
                 target=char_key,
                 type=EdgeType.ASSIGNED_BY,
+                group=alternative_groups.get((quest_key, char_key)),
                 keyword=keyword,
             )
         )
@@ -1460,27 +1463,29 @@ def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -
 
 def _add_quest_completion_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """quest → character/zone/item (COMPLETED_BY) from quest_completion_sources."""
+    alternative_groups = _quest_source_alternative_groups(conn, graph, acquisition=False)
     rows = conn.execute("""
-        SELECT quest_stable_key, method, source_type, source_stable_key, note
+        SELECT DISTINCT quest_stable_key, method, source_type, source_stable_key, note
         FROM quest_completion_sources
     """)
     for r in rows:
-        if not graph.has_node(r["quest_stable_key"]):
-            continue
+        quest_key = r["quest_stable_key"]
         target = r["source_stable_key"]
-        if target and not graph.has_node(target):
+        if not quest_key or not target:
             continue
-        if target is None:
+        pair = (quest_key, target)
+        if not graph.has_node(quest_key) or not graph.has_node(target):
             continue
         keyword = None
         if r["source_type"] == "character" and r["method"] in {"item_turnin", "talk"}:
-            keyword = _find_dialog_keyword(conn, target, r["quest_stable_key"], "complete")
+            keyword = _find_dialog_keyword(conn, target, quest_key, "complete")
 
         graph.add_edge(
             Edge(
-                source=r["quest_stable_key"],
+                source=quest_key,
                 target=target,
                 type=EdgeType.COMPLETED_BY,
+                group=alternative_groups.get(pair),
                 keyword=keyword,
                 note=r["note"],
             )
@@ -1695,6 +1700,7 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     - Talk: quest_completion_sources (method='talk')
     - Shout: characters.shout_trigger_quest_stable_key
     """
+    completion_groups = _quest_source_alternative_groups(conn, graph, acquisition=False)
 
     # Travel steps from zone-triggered quests
     rows = conn.execute("""
@@ -1714,6 +1720,7 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                         source=quest_key,
                         target=zone_key,
                         type=EdgeType.STEP_TRAVEL,
+                        group=completion_groups.get((quest_key, zone_key)),
                     )
                 )
 
@@ -1731,6 +1738,7 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 Edge(
                     source=quest_key,
                     target=item_key,
+                    group=completion_groups.get((quest_key, item_key)),
                     type=EdgeType.STEP_READ,
                 )
             )
@@ -1749,6 +1757,7 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 Edge(
                     source=quest_key,
                     target=char_key,
+                    group=completion_groups.get((quest_key, char_key)),
                     type=EdgeType.STEP_KILL,
                 )
             )
@@ -1772,6 +1781,7 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                     target=char_key,
                     type=EdgeType.STEP_TALK,
                     keyword=keyword,
+                    group=completion_groups.get((quest_key, char_key)),
                 )
             )
 
@@ -2341,6 +2351,54 @@ def _add_item_door_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+
+def _quest_source_alternative_groups(
+    conn: sqlite3.Connection,
+    graph: EntityGraph,
+    *,
+    acquisition: bool,
+) -> dict[tuple[str, str], str]:
+    """Index grouped alternatives among valid quest source targets.
+
+    Source rows are deduplicated by ``(quest, target)`` before counting, and
+    rows whose quest or target node is absent are ignored.  The returned index
+    contains only quests with multiple distinct valid targets, so a missing
+    lookup means the edge should remain ungrouped.
+    """
+    table = "quest_acquisition_sources" if acquisition else "quest_completion_sources"
+    targets_by_quest: dict[str, set[str]] = {}
+    rows = conn.execute(f"""
+        SELECT quest_stable_key, source_stable_key
+        FROM {table}
+    """)
+    for row in rows:
+        quest_key = row["quest_stable_key"]
+        target_key = row["source_stable_key"]
+        if not quest_key or not target_key or not graph.has_node(quest_key) or not graph.has_node(target_key):
+            continue
+        targets_by_quest.setdefault(quest_key, set()).add(target_key)
+
+    if acquisition:
+        rows = conn.execute("""
+            SELECT quest_stable_key, character_stable_key
+            FROM quest_character_roles
+            WHERE role = 'giver'
+        """)
+        for row in rows:
+            quest_key = row["quest_stable_key"]
+            target_key = row["character_stable_key"]
+            if quest_key and target_key and graph.has_node(quest_key) and graph.has_node(target_key):
+                targets_by_quest.setdefault(quest_key, set()).add(target_key)
+
+    prefix = "acquisition" if acquisition else "completion"
+    groups: dict[tuple[str, str], str] = {}
+    for quest_key, targets in targets_by_quest.items():
+        if len(targets) > 1:
+            group = f"{prefix}:{quest_key}"
+            for target_key in targets:
+                groups[(quest_key, target_key)] = group
+    return groups
 
 
 def _quest_dbname_to_key(conn: sqlite3.Connection) -> dict[str, str]:

@@ -7,7 +7,7 @@ from typer.main import get_command
 from erenshor.cli.commands import guide
 
 
-def test_guide_app_registers_compile_command() -> None:
+def test_guide_app_registers_commands() -> None:
     command = get_command(guide.app)
 
-    assert command.name == "compile"
+    assert set(command.commands) == {"compile", "export-mod"}

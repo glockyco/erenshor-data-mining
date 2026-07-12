@@ -34,40 +34,94 @@ public static class StepProgress
         if (state.IsCompleted(quest.DBName))
             return quest.Steps.Count;
 
+        var steps = quest.Steps;
+        bool actionable = state.IsActionable(quest.DBName);
+
         // Acquisition step is only auto-completed for active quests —
         // the player has already done it. For available quests, verify
         // all steps from the beginning.
-        int start =
-            state.IsActionable(quest.DBName) && IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
+        int start = actionable && IsAcquisitionStep(quest, steps[0]) ? 1 : 0;
 
-        for (int i = start; i < quest.Steps.Count; i++)
+        for (int i = start; i < steps.Count; )
         {
-            var step = quest.Steps[i];
-            if (step.Action == "collect" && step.TargetKey != null && step.Quantity.HasValue)
+            var step = steps[i];
+            string? group = step.OrGroup;
+            if (group != null)
             {
-                int have = state.CountItem(step.TargetKey);
-                if (have < step.Quantity.Value)
+                // Or-group alternatives are satisfied as a unit. A completed
+                // alternative means the player chose that path, so skip all
+                // members of the group as iteration proceeds.
+                if (!IsOrGroupSatisfied(quest, steps, group, state, data, actionable))
                     return i;
-                // have >= need: this collect step is done, continue
+
+                i++;
+                while (
+                    i < steps.Count
+                    && string.Equals(steps[i].OrGroup, group, System.StringComparison.Ordinal)
+                )
+                    i++;
+                continue;
             }
-            else if (step.Action == "complete_quest" && step.TargetKey != null)
-            {
-                // Resolve the target quest's DB name from its stable key
-                // and check completion state.
-                var target = data.GetByStableKey(step.TargetKey);
-                if (target == null || !state.IsCompleted(target.DBName))
-                    return i;
-                // Target quest completed: this step is done, continue
-            }
-            else
-            {
-                // Can't verify: treat as current (conservative)
+
+            if (!IsStepComplete(step, state, data))
                 return i;
-            }
+
+            i++;
         }
 
         // All verifiable steps done — point to last step
-        return quest.Steps.Count - 1;
+        return steps.Count - 1;
+    }
+
+    private static bool IsOrGroupSatisfied(
+        QuestEntry quest,
+        List<QuestStep> steps,
+        string group,
+        QuestStateTracker state,
+        GuideData data,
+        bool actionable
+    )
+    {
+        for (int i = 0; i < steps.Count; i++)
+        {
+            var candidate = steps[i];
+            if (!string.Equals(candidate.OrGroup, group, System.StringComparison.Ordinal))
+                continue;
+
+            // For an actionable quest, reaching any acquisition alternative
+            // proves that the acquisition group has been satisfied.
+            if (actionable && IsAcquisitionStep(quest, candidate))
+                return true;
+
+            if (IsStepComplete(candidate, state, data))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsStepComplete(QuestStep step, QuestStateTracker state, GuideData data)
+    {
+        if (
+            string.Equals(step.Action, "collect", System.StringComparison.Ordinal)
+            && step.TargetKey != null
+            && step.Quantity.HasValue
+        )
+            return state.CountItem(step.TargetKey) >= step.Quantity.Value;
+
+        if (
+            string.Equals(step.Action, "complete_quest", System.StringComparison.Ordinal)
+            && step.TargetKey != null
+        )
+        {
+            // Resolve the target quest's DB name from its stable key
+            // and check completion state.
+            var target = data.GetByStableKey(step.TargetKey);
+            return target != null && state.IsCompleted(target.DBName);
+        }
+
+        // Can't verify: treat as current (conservative).
+        return false;
     }
 
     /// <summary>

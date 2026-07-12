@@ -530,6 +530,215 @@ def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
         conn.close()
 
 
+def test_graph_builder_groups_distinct_acquisition_sources() -> None:
+    from erenshor.application.guide.graph_builder import _add_quest_acquisition_edges
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE quest_acquisition_sources (
+                quest_stable_key TEXT,
+                method TEXT,
+                source_type TEXT,
+                source_stable_key TEXT,
+                note TEXT
+            );
+            CREATE TABLE quest_character_roles (
+                quest_stable_key TEXT,
+                character_stable_key TEXT,
+                role TEXT
+            );
+            """
+        )
+        conn.executemany(
+            "INSERT INTO quest_acquisition_sources VALUES (?, ?, ?, ?, ?)",
+            [
+                ("quest:single", "item_read", "item", "item:single", None),
+                ("quest:items", "item_read", "item", "item:a", None),
+                ("quest:items", "item_read", "item", "item:b", None),
+                ("quest:items", "item_read", "item", "item:a", None),
+            ],
+        )
+        graph = _graph(
+            _quest("quest:single"),
+            _quest("quest:items"),
+            _item("item:single"),
+            _item("item:a"),
+            _item("item:b"),
+        )
+
+        _add_quest_acquisition_edges(conn, graph)
+        graph.build_indexes()
+
+        single = graph.out_edges("quest:single", EdgeType.ASSIGNED_BY)
+        alternatives = graph.out_edges("quest:items", EdgeType.ASSIGNED_BY)
+        assert len(single) == 1
+        assert single[0].group is None
+        assert len(alternatives) == 2
+        assert {edge.target for edge in alternatives} == {"item:a", "item:b"}
+        assert len({edge.group for edge in alternatives}) == 1
+        assert next(iter(alternatives)).group is not None
+    finally:
+        conn.close()
+
+
+def test_graph_builder_groups_completion_sources_and_matching_steps() -> None:
+    from erenshor.application.guide.graph_builder import (
+        _add_quest_completion_edges,
+        _add_quest_step_edges,
+    )
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE quest_completion_sources (
+                quest_stable_key TEXT,
+                method TEXT,
+                source_type TEXT,
+                source_stable_key TEXT,
+                note TEXT
+            );
+            CREATE TABLE character_dialogs (
+                character_stable_key TEXT,
+                complete_quest_stable_key TEXT,
+                keywords TEXT
+            );
+            CREATE TABLE zones (
+                stable_key TEXT,
+                complete_quest_on_enter_stable_key TEXT,
+                complete_second_quest_on_enter_stable_key TEXT
+            );
+            CREATE TABLE items (
+                stable_key TEXT,
+                complete_on_read_stable_key TEXT
+            );
+            CREATE TABLE characters (
+                stable_key TEXT,
+                quest_complete_on_death TEXT,
+                shout_trigger_quest_stable_key TEXT,
+                shout_trigger_keyword TEXT
+            );
+            """
+        )
+        conn.executemany(
+            "INSERT INTO quest_completion_sources VALUES (?, ?, ?, ?, ?)",
+            [
+                ("quest:single", "talk", "character", "char:single", None),
+                ("quest:talkzone", "talk", "character", "char:talk", None),
+                ("quest:talkzone", "zone", "zone", "zone:talk", None),
+                ("quest:deathread", "death", "character", "char:death", None),
+                ("quest:deathread", "read", "item", "item:read", None),
+                ("quest:twozone", "zone", "zone", "zone:a", None),
+                ("quest:twozone", "zone", "zone", "zone:b", None),
+                ("quest:twozone", "zone", "zone", "zone:a", None),
+            ],
+        )
+        conn.execute(
+            "INSERT INTO character_dialogs VALUES (?, ?, ?)",
+            ("char:talk", "quest:talkzone", "finish"),
+        )
+        conn.executemany(
+            "INSERT INTO zones VALUES (?, ?, ?)",
+            [
+                ("zone:talk", "quest:talkzone", None),
+                ("zone:deathread", None, None),
+                ("zone:a", "quest:twozone", None),
+                ("zone:b", None, "quest:twozone"),
+                ("zone:killonly", None, None),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO items VALUES (?, ?)",
+            [
+                ("item:read", "quest:deathread"),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO characters (stable_key, quest_complete_on_death) VALUES (?, ?)",
+            [
+                ("char:single", None),
+                ("char:talk", None),
+                ("char:death", "quest:deathread"),
+                ("char:kill:a", "quest:killonly"),
+                ("char:kill:b", "quest:killonly"),
+            ],
+        )
+        graph = _graph(
+            *[
+                _quest(key)
+                for key in (
+                    "quest:single",
+                    "quest:talkzone",
+                    "quest:deathread",
+                    "quest:twozone",
+                    "quest:killonly",
+                )
+            ],
+            _char("char:single"),
+            _char("char:talk"),
+            _char("char:death"),
+            _char("char:kill:a"),
+            _char("char:kill:b"),
+            _item("item:read"),
+            *[
+                Node(key=key, type=NodeType.ZONE, display_name=key)
+                for key in ("zone:talk", "zone:a", "zone:b", "zone:killonly")
+            ],
+        )
+
+        _add_quest_completion_edges(conn, graph)
+        _add_quest_step_edges(conn, graph)
+        graph.build_indexes()
+
+        single = graph.out_edges("quest:single", EdgeType.COMPLETED_BY)
+        assert len(single) == 1
+        assert single[0].group is None
+
+        talkzone_group = {
+            edge.group for edge in graph.out_edges("quest:talkzone") if edge.target in {"char:talk", "zone:talk"}
+        }
+        assert len(talkzone_group) == 1
+        assert next(iter(talkzone_group)) is not None
+        completion_edges = graph.out_edges("quest:talkzone", EdgeType.COMPLETED_BY)
+        assert len(completion_edges) == 2
+        assert {edge.group for edge in completion_edges} == talkzone_group
+        for edge_type in (EdgeType.STEP_TALK, EdgeType.STEP_TRAVEL):
+            edges = graph.out_edges("quest:talkzone", edge_type)
+            assert len(edges) == 1
+            assert edges[0].group == next(iter(talkzone_group))
+
+        deathread_group = {
+            edge.group for edge in graph.out_edges("quest:deathread") if edge.target in {"char:death", "item:read"}
+        }
+        assert len(deathread_group) == 1
+        assert next(iter(deathread_group)) is not None
+        completion_edges = graph.out_edges("quest:deathread", EdgeType.COMPLETED_BY)
+        assert len(completion_edges) == 2
+        assert {edge.group for edge in completion_edges} == deathread_group
+        for edge_type in (EdgeType.STEP_KILL, EdgeType.STEP_READ):
+            edges = graph.out_edges("quest:deathread", edge_type)
+            assert len(edges) == 1
+            assert edges[0].group == next(iter(deathread_group))
+
+        twozone_groups = {edge.group for edge in graph.out_edges("quest:twozone", EdgeType.COMPLETED_BY)}
+        assert len(twozone_groups) == 1
+        assert next(iter(twozone_groups)) is not None
+        for edge_type in (EdgeType.COMPLETED_BY, EdgeType.STEP_TRAVEL):
+            edges = graph.out_edges("quest:twozone", edge_type)
+            assert len(edges) == 2
+            assert {edge.group for edge in edges} == twozone_groups
+
+        kill_steps = graph.out_edges("quest:killonly", EdgeType.STEP_KILL)
+        assert len(kill_steps) == 2
+        assert all(edge.group is None for edge in kill_steps)
+    finally:
+        conn.close()
+
+
 def test_compile_graph_preserves_runtime_metadata() -> None:
     graph = _graph(
         Node(

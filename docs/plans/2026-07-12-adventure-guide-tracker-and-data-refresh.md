@@ -134,6 +134,9 @@ directly-placed NPC as `DirectlyPlacedDead` (`SpawnPointBridge.cs:128-170`);
 - Modify: `src/erenshor/cli/commands/guide.py`
 - Modify: `src/mods/AdventureGuide/README.md`
 - Create: `tests/unit/application/guide/test_mod_writer.py`
+- Modify: `src/erenshor/application/guide/graph_builder.py`
+- Modify: `src/mods/AdventureGuide/src/State/StepProgress.cs`
+- Modify: `tests/unit/application/guide/test_compiler.py`
 - Regenerate: `quest_guides/quest-guide.json`
 
 Decision: keep the mod's wrapper schema and re-add a Python emitter, rather
@@ -143,7 +146,7 @@ exactly what the abandoned branch failed at. The compiler already computes
 everything the wrapper needs (quest specs and steps `compiler.py:463-504`,
 unlock predicates `:583-627`, spawn nodes `graph_builder.py:936-982`).
 
-- [ ] Implement `mod_writer.py`: map the compiled graph to the wrapper JSON
+- [x] Implement `mod_writer.py`: map the compiled graph to the wrapper JSON
   the mod parses — quest entries with acquisition/steps/required
   items/completion/rewards/chain/flags/level_estimate/acceptance
   (`QuestEntry.cs:5-62`), plus `_character_spawns` and
@@ -151,24 +154,31 @@ unlock predicates `:583-627`, spawn nodes `graph_builder.py:936-982`).
   (`GuideData.cs:148-216`). Use the deleted assembler as the mapping
   reference (`git show 83ebf4ae7^:src/erenshor/application/guide/assembler.py`);
   implement against the compiled graph, not new SQL.
-- [ ] Add `uv run erenshor guide export-mod` writing
+- [x] Preserve acquisition/completion OR semantics in graph edge groups and
+  teach `StepProgress` to consume grouped alternatives without per-frame
+  allocations.
+- [x] Add `uv run erenshor guide export-mod` writing
   `quest_guides/quest-guide.json`; follow the existing `compile` command's
   precondition/option pattern in `cli/commands/guide.py:13-67`.
-- [ ] Contract test in `test_mod_writer.py`: every quest entry carries the
+- [x] Contract test in `test_mod_writer.py`: every quest entry carries the
   keys `GuideData.cs`/`QuestEntry.cs` deserialize; implicit quests emit
   `acceptance: "implicit"` with a resolvable final-step scene; spot-assert
   one legacy quest (`Quest:MEETBASSLE` unlock map row) and one new playtest
   quest (`quest:vithtokenmob1` requires `Vithean Arena Fee (1)`).
-- [ ] Regenerate `quest_guides/quest-guide.json` from the playtest DB via the
-  new command; verify quest count is 198 and the 22 new quests are present
-  (`python3 -c` count over `db_name` entries). Diff a stable legacy quest
-  against the frozen artifact to catch mapping regressions.
-- [ ] Fix the stale README claims (`README.md:58-64`) to document
+- [x] Regenerate `quest_guides/quest-guide.json` from the playtest DB via the
+  new command; verify quest count is 196, all 22 new quests are present, and
+  the unobtainable `quest:amethikeys` / `quest:clearingthebonepits` entries
+  carried by the frozen wrapper are excluded. Diff shared quests against the
+  frozen artifact to catch mapping regressions.
+- [x] Fix the stale README claims (`README.md:58-64`) to document
   `guide compile` + `guide export-mod` and TOML graph overrides (the only
   curation path; `manual/*.json` does not exist).
-- [ ] Verification: `uv run pytest tests/unit/application/guide/ tests/unit/mods/test_adventure_guide_vault.py`
-  passes; `uv run erenshor mod build --mod adventure-guide` embeds the new
-  artifact; in-game the new quests appear in the guide list with steps.
+- [x] Automated verification:
+  `uv run pytest tests/unit/application/guide/ tests/unit/mods/test_adventure_guide_vault.py`
+  passes and `uv run erenshor mod build --mod adventure-guide` embeds the new
+  artifact.
+- [ ] In-game verification: the new quests appear in the guide list with
+  steps.
 - [ ] Commit boundaries: `feat(guide): export mod quest-guide from compiled graph`,
   then `chore(guide): regenerate mod quest data for playtest release`.
 - [ ] Vault republish of the rebuilt DLL ships the data; follow
