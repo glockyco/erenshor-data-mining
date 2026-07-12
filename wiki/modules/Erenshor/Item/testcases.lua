@@ -39,32 +39,9 @@ local function countOccurrences(actual, expected)
 end
 
 local function renderParameterized(input)
-	local currentFrame = mw.getCurrentFrame()
 	local args = input.args or input
-	return ParameterizedTooltip.render({
-		args = args,
-		expandTemplate = function(_, specification)
-			local keys = {}
-			for key in pairs(specification.args or {}) do
-				table.insert(keys, key)
-			end
-			table.sort(keys, function(left, right)
-				return tostring(left) < tostring(right)
-			end)
-			local lines = { "{{" .. specification.title }
-			for _, key in ipairs(keys) do
-				lines[#lines + 1] = "|" .. tostring(key) .. "=" .. tostring(specification.args[key])
-			end
-			lines[#lines + 1] = "}}"
-			return currentFrame:preprocess(table.concat(lines, "\n"))
-		end,
-		callParserFunction = function(_, name, values)
-			return currentFrame:callParserFunction(name, values)
-		end,
-		preprocess = function(_, source)
-			return currentFrame:preprocess(source)
-		end,
-	})
+	local child = mw.getCurrentFrame():newChild({ title = "ParameterizedTooltip", args = args })
+	return ParameterizedTooltip.render(child)
 end
 
 local function assertVariantFields(actual, expected, label, keys)
@@ -585,6 +562,10 @@ function p.run()
 	assertAbsent(weaponTooltipFromParams, "Healing: 0", "zero healing is omitted")
 	assertAbsent(weaponTooltipFromParams, "Shield Amount: 0", "zero shielding is omitted")
 	assertAbsent(weaponTooltipFromParams, "XP Bonus: +0.0%", "zero XP bonus is omitted")
+	assertAbsent(weaponTooltipFromParams, "{{Item/", "legacy invocations are fully expanded")
+	assertAbsent(weaponTooltipFromParams, "{{{", "no unguarded template parameters leak")
+	assertAbsent(armorTooltip, "{{Item/", "armor invocations are fully expanded")
+	assertAbsent(armorTooltip, "{{{", "no unguarded armor parameters leak")
 	local customImageTooltip = renderParameterized({
 		args = { kind = "Armor", image = "Manual.webp", name = "Manual", armor = "1" },
 	})

@@ -2,7 +2,13 @@
 --
 -- Renders the legacy Item/Weapon and Item/Armor templates from one Normal
 -- quality parameter set.  Quality.lua is the only place that owns the game
--- quality formulas; this module only maps fields and assembles wikitext.
+-- quality formulas; this module only maps fields and composes the legacy
+-- card templates via frame:expandTemplate.
+--
+-- The legacy card templates open with wikitable markup, which MediaWiki
+-- only recognizes at the start of a line.  Rendered output is therefore
+-- assembled from newline-joined strings; mw.html would concatenate the
+-- expanded cards onto one line and demote "{|" to literal text.
 
 local Args = require("Module:Erenshor/Args")
 local Quality = require("Module:Erenshor/Item/Quality")
@@ -254,124 +260,89 @@ local function baseStats(args)
 	return base
 end
 
-local function markKnown(known, key)
-	known[key] = true
-end
-
-local function add(lines, key, value, templateArguments)
-	local normalized = text(value)
-	lines[#lines + 1] = "|" .. key .. "=" .. normalized
-	if templateArguments ~= nil then
-		templateArguments[key] = normalized
-	end
-end
-
 local function invocation(kindName, args, stats, frame)
 	local templateName = kindName == "Weapon" and "Item/Weapon" or "Item/Armor"
 	local templateArguments = {}
-	local lines = { "{{" .. templateName }
 	local known = { kind = true, item_kind = true, stablekey = true }
 
-	for _, field in ipairs({ "image", "name", "slot", "type", "relic" }) do
-		local value = supplied(args, field) or ""
-		if field == "image" then
-			value = imageValue(args)
-		elseif field == "name" then
-			value = displayName(args, stats)
-		end
-		add(lines, field, value, templateArguments)
-		markKnown(known, field)
+	local function put(field, value)
+		templateArguments[field] = text(value)
+		known[field] = true
 	end
-	add(lines, "tier", stats.visualTier, templateArguments)
-	add(lines, "quality", stats.quality, templateArguments)
-	markKnown(known, "tier")
-	markKnown(known, "quality")
 
-	local computed = {
-		image = true,
-		name = true,
-		slot = true,
-		type = true,
-		relic = true,
-		tier = true,
-		quality = true,
-	}
+	put("image", imageValue(args))
+	put("name", displayName(args, stats))
+	put("slot", supplied(args, "slot"))
+	put("type", supplied(args, "type"))
+	put("relic", supplied(args, "relic"))
+	put("tier", stats.visualTier)
+	put("quality", stats.quality)
+
+	-- Quality-derived stats replace whatever the article supplied.  Alias
+	-- names (health/armor/magic/...) are marked known so the passthrough
+	-- loop below cannot smuggle the Normal-quality inputs back in.
 	for _, output in ipairs(STAT_OUTPUTS) do
-		computed[output.name] = true
 		if output.name ~= "damage" or kindName == "Weapon" then
-			add(lines, output.name, stats[output.key], templateArguments)
+			put(output.name, stats[output.key])
+		else
+			known[output.name] = true
 		end
 		for _, alias in ipairs(BASE_ALIASES[output.key] or {}) do
-			markKnown(known, alias)
+			known[alias] = true
 		end
-		markKnown(known, output.name)
 	end
 
-	-- Preserve metadata and proc fields without duplicating their mapping in
-	-- every quality row.  Computed stat fields are supplied above.
+	-- Metadata and proc fields pass through once per card.  Optional numeric
+	-- proc fields are dropped when zero so the legacy templates hide those
+	-- rows exactly as hand-written invocations did.
 	for _, field in ipairs(LEGACY_FIELDS) do
-		markKnown(known, field)
-		if not computed[field] then
+		if not known[field] then
 			local value = supplied(args, field)
 			if field == "proc_spell_icon" then
 				value = fileValue(value)
 			end
-			if not (ZERO_OMIT_FIELDS[field] and value ~= nil and tonumber(value) == 0) then
-				add(lines, field, value or "", templateArguments)
+			if ZERO_OMIT_FIELDS[field] and tonumber(value) == 0 then
+				known[field] = true
+			else
+				put(field, value)
 			end
 		end
 	end
 
-	-- Keep future fields that the legacy template may learn without silently
-	-- dropping them.  Sorting makes output deterministic.
-	local extra = {}
-	for key in pairs(args) do
+	-- Forward unrecognized fields so the legacy templates can learn new
+	-- parameters without a module change silently dropping them.
+	for key, value in pairs(args) do
 		if type(key) == "string" and not known[key] then
-			extra[#extra + 1] = key
+			templateArguments[key] = text(value)
 		end
 	end
-	table.sort(extra)
-	for _, key in ipairs(extra) do
-		add(lines, key, args[key], templateArguments)
-	end
 
-	if frame ~= nil and type(frame.expandTemplate) == "function" then
-		return frame:expandTemplate({ title = templateName, args = templateArguments })
-	end
-	lines[#lines + 1] = "}}"
-	return table.concat(lines, "\n")
+	return frame:expandTemplate({ title = templateName, args = templateArguments })
 end
 
 function p.render(frame)
 	local args = templateArgs(frame)
 	local itemKind = kind(args)
 	local variants = Quality.variants(baseStats(args))
-	local wrapper = mw.html
-		.create("div")
-		:addClass("item-tooltip-quality-set")
-		:css("display", "flex")
-		:css("flex-wrap", "wrap")
-		:css("gap", "1em")
-		:css("align-items", "flex-start")
-		:css("width", "calc(100% - 360px)")
-		:css("min-width", "350px")
-		:css("max-width", "100%")
-		:css("overflow", "visible")
+	local out = {
+		'<div class="item-tooltip-quality-set" style="display:flex;flex-wrap:wrap;gap:1em;align-items:flex-start;width:calc(100% - 360px);min-width:350px;max-width:100%;overflow:visible">',
+	}
 	for _, stats in ipairs(variants) do
-		local card = wrapper:tag("div"):addClass("item-tooltip-quality"):css("flex", "0 1 350px")
-		card:tag("div")
-			:addClass("item-tooltip-quality-label")
-			:addClass("item-tooltip-tier-" .. stats.visualTier)
-			:wikitext(stats.quality)
+		out[#out + 1] = '<div class="item-tooltip-quality" style="flex:0 1 350px">'
+		out[#out + 1] = '<div class="item-tooltip-quality-label item-tooltip-tier-'
+			.. stats.visualTier
+			.. '">'
+			.. stats.quality
+			.. "</div>"
 		if stats.visualTier >= 3 then
-			card:tag("div")
-				:addClass("item-tooltip-quality-sparkle")
-				:addClass("item-tooltip-quality-sparkle-improved")
-				:wikitext("[[File:Blue_Sparkle.gif|80px]]")
+			out[#out + 1] =
+				'<div class="item-tooltip-quality-sparkle item-tooltip-quality-sparkle-improved">[[File:Blue_Sparkle.gif|80px]]</div>'
 		end
-		card:wikitext(invocation(itemKind, args, stats, frame))
+		out[#out + 1] = invocation(itemKind, args, stats, frame)
+		out[#out + 1] = "</div>"
 	end
-	return tostring(wrapper)
+	out[#out + 1] = "</div>"
+	return table.concat(out, "\n")
 end
 
 return p
