@@ -47,8 +47,9 @@ renderer and migration deterministic.
 - [x] Deploy the item runtime's required Lua dependencies and generated item data.
 - [x] Keep the production quality gate disabled until the game patch ships.
 - [x] Capture the live legacy Item template contracts for styling and field behavior.
-- [ ] Refactor the parameterized Lua renderer to compose reusable `Item/*`
-  templates instead of maintaining a parallel copy of their layout markup.
+- [ ] Replace the parameterized renderer's generated-template-string path with
+  direct `frame:expandTemplate` calls for `Item/Weapon` and `Item/Armor`, while
+  keeping the Lua-owned quality-set wrapper.
 - [ ] Compare parameterized tooltip markup and field visibility against live legacy templates.
 - [ ] Resolve item and spell icon filenames to existing MediaWiki files without redlinks.
 - [ ] Omit zero-valued optional stats and proc fields while preserving meaningful zeroes.
