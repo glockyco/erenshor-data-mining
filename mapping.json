@@ -4126,6 +4126,13 @@
       "display_name": "Ice Shock",
       "image_name": "Ice Shock"
     },
+    "spell:none - king's gambit": {
+      "wiki_page_name": "King's Gambit (Effect)",
+      "display_name": "King's Gambit",
+      "image_name": "King's Gambit (Effect)",
+      "mapping_type": "custom",
+      "reason": "Disambiguate weapon proc from the King's Gambit weapon; both defaulted to the same image_name/page"
+    },
     "spell:none - offering stone": {
       "wiki_page_name": "Offering Stone (Effect)",
       "display_name": "Offering Stone",
