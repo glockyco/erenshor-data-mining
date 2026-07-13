@@ -1,7 +1,7 @@
 """Integration tests for the ExportSurface field-coverage checker.
 
 Verifies the C# tool (built + invoked through the Python runner) reports each
-finding kind correctly against the real playtest assembly. Mirrors the
+finding kind correctly against the real shipping assembly. Mirrors the
 test_code_facts_real.py pattern: skip when the shipped DLL or dotnet SDK is
 absent.
 """
@@ -14,11 +14,11 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DLL = REPO_ROOT / "variants" / "playtest" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
+DLL = REPO_ROOT / "variants" / "main" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not DLL.exists(), reason="playtest shipped DLL not present"),
+    pytest.mark.skipif(not DLL.exists(), reason="main shipped DLL not present"),
 ]
 
 

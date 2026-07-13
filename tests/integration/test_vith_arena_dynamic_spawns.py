@@ -15,11 +15,11 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RAW_DB = REPO_ROOT / "variants" / "playtest" / "erenshor-playtest-raw.sqlite"
+RAW_DB = REPO_ROOT / "variants" / "main" / "erenshor-main-raw.sqlite"
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not RAW_DB.exists(), reason="playtest raw export DB not present"),
+    pytest.mark.skipif(not RAW_DB.exists(), reason="main raw export DB not present"),
 ]
 
 

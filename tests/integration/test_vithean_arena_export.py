@@ -6,19 +6,19 @@ from pathlib import Path
 
 import pytest
 
-PLAYTEST_DB = Path(__file__).resolve().parents[2] / "variants" / "playtest" / "erenshor-playtest.sqlite"
+MAIN_DB = Path(__file__).resolve().parents[2] / "variants" / "main" / "erenshor-main.sqlite"
 
 
-def _playtest_connection() -> sqlite3.Connection:
-    if not PLAYTEST_DB.exists():
-        pytest.skip("playtest clean DB missing; run 'uv run erenshor -V playtest extract build'")
-    conn = sqlite3.connect(PLAYTEST_DB)
+def _main_connection() -> sqlite3.Connection:
+    if not MAIN_DB.exists():
+        pytest.skip("main clean DB missing; run 'uv run erenshor -V main extract build'")
+    conn = sqlite3.connect(MAIN_DB)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def test_vithean_arena_rounds_join_fights_to_reward_chests() -> None:
-    with closing(_playtest_connection()) as db:
+    with closing(_main_connection()) as db:
         rows = db.execute(
             """
             SELECT
@@ -50,7 +50,7 @@ def test_vithean_arena_rounds_join_fights_to_reward_chests() -> None:
 
 
 def test_vithean_arena_rounds_join_reward_chests_to_loot() -> None:
-    with closing(_playtest_connection()) as db:
+    with closing(_main_connection()) as db:
         rows = db.execute(
             """
             SELECT items.display_name, ROUND(loot_drops.drop_probability, 2) AS drop_probability

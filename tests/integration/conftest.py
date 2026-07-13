@@ -25,18 +25,18 @@ if TYPE_CHECKING:
 
 @pytest.fixture(scope="session")
 def exported_db() -> Path:
-    """Return the playtest clean database used by integration tests.
+    """Return the shipping main clean database used by integration tests.
 
-    Golden baselines and exported-data integration tests are playtest-shaped.
-    The fixture is explicit instead of mtime-based so unrelated local main/demo
-    rebuilds cannot silently change test coverage.
+    Golden baselines and exported-data integration tests follow the shipping
+    variant. The fixture is explicit instead of mtime-based so local
+    playtest/demo rebuilds cannot silently change test coverage.
 
     Raises:
-        pytest.skip: If the playtest clean database does not exist.
+        pytest.skip: If the main clean database does not exist.
     """
-    db = Path(__file__).parent.parent.parent / "variants" / "playtest" / "erenshor-playtest.sqlite"
+    db = Path(__file__).parent.parent.parent / "variants" / "main" / "erenshor-main.sqlite"
     if not db.exists():
-        pytest.skip("Playtest clean database not found. Run 'uv run erenshor -V playtest extract build' first.")
+        pytest.skip("Main clean database not found. Run 'uv run erenshor -V main extract build' first.")
     return db
 
 
