@@ -1,9 +1,10 @@
 ---
 title: Adventure Guide Implicit Workflow Quests & Location Steps
 type: plan
-status: draft
+status: implemented
 created: 2026-07-12
 parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-07-13
 ---
 
 # Adventure Guide Implicit Workflow Quests & Location Steps
@@ -307,16 +308,17 @@ game quest identities.
 - Regenerate: `quest_guides/guide.json`
 - Regenerate: `quest_guides/quest-guide.json`
 
-- [ ] Run `uv run erenshor --variant playtest guide compile` and
+- [x] Run `uv run erenshor --variant playtest guide compile` and
   `uv run erenshor --variant playtest guide export-mod`.
-- [ ] Inspect all generated workflows. Expected: the eight arena and two
+- [x] Inspect all generated workflows. Expected: the eight arena and two
   Malaroth entries appear in the normal quest collection as guide-only,
   implicit, repeatable records; real token/crafting quests remain distinct;
   all buy text is generic; every trigger uses its event coordinate rather than
   a vendor, spawned enemy, or reward location.
-- [ ] Run `uv run pytest`, `uv run ruff check src/erenshor tests`,
-  `uv run mypy src/erenshor`, and
+- [x] Run `uv run pytest`, `uv run ruff check src/erenshor tests`,
+  `uv run mypy src/erenshor`,
+  `dotnet test src/mods/AdventureGuide/tests/AdventureGuide.Tests/AdventureGuide.Tests.csproj`, and
   `uv run erenshor mod build --mod adventure-guide`.
   Expected: full tests, lint, type checking, artifact generation, and mod build
   pass.
-- [ ] Commit. Message: `chore(guide): regenerate implicit workflow data`
+- [x] Commit. Message: `chore(guide): regenerate implicit workflow data`
