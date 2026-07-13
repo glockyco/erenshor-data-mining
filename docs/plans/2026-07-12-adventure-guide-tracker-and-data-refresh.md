@@ -190,22 +190,26 @@ unlock predicates `:583-627`, spawn nodes `graph_builder.py:936-982`).
 
 **Files:**
 - Modify: `src/erenshor/application/guide/mod_writer.py` (depends on Task 3)
+- Modify: `src/erenshor/application/guide/schema.py`
+- Modify: `src/erenshor/application/guide/graph_builder.py`
 - Modify: `src/mods/AdventureGuide/src/Data/GuideData.cs`
 - Modify: `src/mods/AdventureGuide/src/Navigation/WorldMarkerSystem.cs`
 - Test: `tests/unit/application/guide/test_mod_writer.py`
+- Test: `tests/unit/application/guide/test_compiler.py`
+- Test: `tests/unit/mods/test_adventure_guide_markers.py`
 
-- [ ] Extend the wrapper's spawn records with
+- [x] Extend the wrapper's spawn records with
   `spawn_upon_quest_complete_stable_key`, `is_directly_placed`, and
-  `source_script` (all already selected into graph spawn nodes,
-  `graph_builder.py:936-982`); parse them in `GuideData.SpawnPoint`.
-- [ ] In `EmitPerSpawnMarkers`, treat quest-gated (`spawn_upon_quest_complete`
-  set and quest incomplete) and scripted (`source_script` non-empty, e.g.
-  VithArena chests) direct placements as gated: no ZoneReentry marker.
-- [ ] Verification: `test_mod_writer.py` asserts the new keys for a
+  `source_script`; parse them in `GuideData.SpawnPoint`.
+- [x] In `EmitPerSpawnMarkers`, treat quest-gated
+  (`spawn_upon_quest_complete` set and quest incomplete) and scripted
+  (`source_script` non-empty, e.g. VithArena chests) rows reaching the
+  `DirectlyPlacedDead` bridge state as gated: no ZoneReentry marker.
+- [x] Verification: `test_mod_writer.py` asserts the new keys for a
   quest-gated spawn and a `VithArena` chest row;
   `uv run pytest tests/unit/mods/test_adventure_guide_markers.py` and
   `uv run erenshor mod build --mod adventure-guide` pass.
-- [ ] Commit. Message: `feat(guide,mod): gate respawn hints on spawn metadata`
+- [x] Commit. Message: `feat(guide,mod): gate respawn hints on spawn metadata`
 
 ### Task 5: Arena rounds as guide steps
 

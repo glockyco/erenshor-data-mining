@@ -205,6 +205,15 @@ public sealed class SpawnPoint
 
     [JsonProperty("night_spawn")]
     public bool NightSpawn { get; set; }
+
+    [JsonProperty("spawn_upon_quest_complete_stable_key")]
+    public string? SpawnUponQuestCompleteStableKey { get; set; }
+
+    [JsonProperty("is_directly_placed")]
+    public bool IsDirectlyPlaced { get; set; }
+
+    [JsonProperty("source_script")]
+    public string? SourceScript { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>

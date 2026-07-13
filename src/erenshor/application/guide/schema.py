@@ -189,6 +189,7 @@ class Node:
     spawn_chance: float | None = None
     is_rare: bool = False
     is_directly_placed: bool = False
+    source_script: str | None = None
     is_trigger_spawn: bool = False
     respawn_delay: float | None = None
 

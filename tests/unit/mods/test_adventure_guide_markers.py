@@ -31,4 +31,43 @@ def test_unlock_gated_direct_placements_skip_zone_reentry() -> None:
     gate_index = lines.index("if (_data.CharacterQuestUnlocks.ContainsKey(stableKey))")
     assert lines[gate_index + 1] == "break;"
     assert any("MarkerType.ZoneReentry" in line for line in lines)
+    assert "if (ShouldSuppressDirectlyPlacedRespawn(sp))" in direct_case
     assert lines.index("TryAddMarker(") > gate_index
+
+
+def test_spawn_point_parses_respawn_metadata() -> None:
+    source = (MOD_ROOT / "src" / "Data" / "GuideData.cs").read_text()
+
+    assert '[JsonProperty("spawn_upon_quest_complete_stable_key")]' in source
+    assert "public string? SpawnUponQuestCompleteStableKey" in source
+    assert '[JsonProperty("is_directly_placed")]' in source
+    assert "public bool IsDirectlyPlaced" in source
+    assert '[JsonProperty("source_script")]' in source
+    assert "public string? SourceScript" in source
+
+
+def _directly_placed_respawn_helper() -> str:
+    source = (MOD_ROOT / "src" / "Navigation" / "WorldMarkerSystem.cs").read_text()
+    return source.split("private bool ShouldSuppressDirectlyPlacedRespawn", 1)[1].split(
+        "// ── Loot container markers", 1
+    )[0]
+
+
+def test_directly_placed_scripted_spawns_suppress_zone_reentry() -> None:
+    helper = _directly_placed_respawn_helper()
+    assert "if (!string.IsNullOrEmpty(spawn.SourceScript))" in helper
+    assert "return true;" in helper
+
+
+def test_directly_placed_quest_gate_suppresses_until_resolved_and_completed() -> None:
+    helper = _directly_placed_respawn_helper()
+
+    assert "spawn.SpawnUponQuestCompleteStableKey" in helper
+    assert "var gateQuest = _data.GetByStableKey(gateStableKey);" in helper
+    assert "return gateQuest == null || !_state.IsCompleted(gateQuest.DBName);" in helper
+
+
+def test_ordinary_directly_placed_spawns_keep_zone_reentry() -> None:
+    helper = _directly_placed_respawn_helper()
+
+    assert "if (gateStableKey == null)\n            return false;" in helper

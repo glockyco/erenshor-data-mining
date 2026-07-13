@@ -486,6 +486,65 @@ def test_compile_graph_builds_real_completion_blueprints() -> None:
     ]
 
 
+def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
+    from erenshor.application.guide.graph_builder import _add_spawn_point_nodes
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE zones (stable_key TEXT, display_name TEXT);
+            CREATE TABLE characters (stable_key TEXT, display_name TEXT);
+            CREATE TABLE character_spawns (
+                spawn_point_stable_key TEXT,
+                character_stable_key TEXT,
+                scene TEXT,
+                x REAL,
+                y REAL,
+                z REAL,
+                is_enabled INTEGER,
+                night_spawn INTEGER,
+                spawn_chance REAL,
+                is_rare INTEGER,
+                is_directly_placed INTEGER,
+                is_trigger_spawn INTEGER,
+                source_script TEXT,
+                zone_stable_key TEXT,
+                is_map_visible INTEGER
+            );
+            """
+        )
+        conn.execute("INSERT INTO zones VALUES (?, ?)", ("zone:arena", "Arena"))
+        conn.execute("INSERT INTO characters VALUES (?, ?)", ("char:arena", "Arena Champion"))
+        conn.execute(
+            "INSERT INTO character_spawns VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "spawn:arena",
+                "char:arena",
+                "ArenaScene",
+                1,
+                2,
+                3,
+                1,
+                0,
+                None,
+                0,
+                1,
+                0,
+                "VithArenaFight",
+                "zone:arena",
+                1,
+            ),
+        )
+        graph = EntityGraph()
+        _add_spawn_point_nodes(conn, graph, {})
+
+        assert graph.get_node("spawn:arena").source_script == "VithArenaFight"
+    finally:
+        conn.close()
+
+
 def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
     from erenshor.application.guide.graph_builder import _add_quest_completion_edges
 

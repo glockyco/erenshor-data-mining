@@ -126,6 +126,8 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         x=13,
         y=14,
         z=15,
+        is_directly_placed=True,
+        source_script="VithArenaFight",
     )
 
     item_a = _item("item:alpha", "Alpha Relic")
@@ -188,6 +190,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         Edge(source="char:mob", target="item:alpha", type=EdgeType.DROPS_ITEM, chance=0.25),
         Edge(source="char:mob", target="spawn:mob:one", type=EdgeType.HAS_SPAWN),
         Edge(source="char:unlockable", target="spawn:unlockable", type=EdgeType.HAS_SPAWN),
+        Edge(source="spawn:unlockable", target="quest:main", type=EdgeType.GATED_BY_QUEST),
         # Two quests in one AND group, and one independent OR group.
         Edge(source="quest:previous", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-1"),
         Edge(source="quest:second", target="char:unlockable", type=EdgeType.UNLOCKS_CHARACTER, group="route-1"),
@@ -359,7 +362,26 @@ def test_build_mod_guide_emits_zone_character_and_unlock_lookups() -> None:
         "level_max": 20,
     }
     assert data["_character_spawns"]["char:mob"] == [
-        {"scene": "AshenScene", "x": 10, "y": 11, "z": 12, "night_spawn": True}
+        {
+            "scene": "AshenScene",
+            "x": 10,
+            "y": 11,
+            "z": 12,
+            "night_spawn": True,
+            "is_directly_placed": False,
+        }
+    ]
+    assert data["_character_spawns"]["char:unlockable"] == [
+        {
+            "scene": "AshenScene",
+            "x": 13,
+            "y": 14,
+            "z": 15,
+            "night_spawn": False,
+            "is_directly_placed": True,
+            "source_script": "VithArenaFight",
+            "spawn_upon_quest_complete_stable_key": "quest:main",
+        }
     ]
     assert data["_zone_lines"] == [
         {
@@ -673,6 +695,25 @@ def test_build_mod_guide_dedupes_direct_and_item_reward_prerequisites() -> None:
     ]
 
 
+def test_character_spawns_dedupes_identical_quest_gates() -> None:
+    graph, _ = _fixture()
+    graph.add_edge(Edge(source="spawn:unlockable", target="quest:main", type=EdgeType.GATED_BY_QUEST))
+    graph.build_indexes()
+
+    entry = build_mod_guide(graph, compile_graph(graph))["_character_spawns"]["char:unlockable"][0]
+
+    assert entry["spawn_upon_quest_complete_stable_key"] == "quest:main"
+
+
+def test_character_spawns_rejects_distinct_quest_gates() -> None:
+    graph, _ = _fixture()
+    graph.add_edge(Edge(source="spawn:unlockable", target="quest:previous", type=EdgeType.GATED_BY_QUEST))
+    graph.build_indexes()
+
+    with pytest.raises(ValueError, match="multiple quest gates"):
+        build_mod_guide(graph, compile_graph(graph))
+
+
 def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
     graph, _ = _fixture()
     compiled = compile_graph(graph)
@@ -706,6 +747,9 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
         "y": 14,
         "z": 15,
         "night_spawn": False,
+        "is_directly_placed": True,
+        "source_script": "VithArenaFight",
+        "spawn_upon_quest_complete_stable_key": "quest:main",
     }
     assert all(math.isfinite(value) for value in _finite_floats(parsed))
 

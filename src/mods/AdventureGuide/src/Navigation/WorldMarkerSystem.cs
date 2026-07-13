@@ -425,6 +425,8 @@ public sealed class WorldMarkerSystem
                     // do not claim this NPC will respawn on zone re-entry.
                     if (_data.CharacterQuestUnlocks.ContainsKey(stableKey))
                         break;
+                    if (ShouldSuppressDirectlyPlacedRespawn(sp))
+                        break;
 
                     TryAddMarker(
                         spawnKey,
@@ -438,6 +440,23 @@ public sealed class WorldMarkerSystem
                 // QuestGated, NotFound: no marker
             }
         }
+    }
+
+    /// <summary>
+    /// Script metadata identifies spawns that do not respawn on zone re-entry.
+    /// Per-spawn quest gates suppress re-entry until their gate quest completes.
+    /// </summary>
+    private bool ShouldSuppressDirectlyPlacedRespawn(AdventureGuide.Data.SpawnPoint spawn)
+    {
+        if (!string.IsNullOrEmpty(spawn.SourceScript))
+            return true;
+
+        string? gateStableKey = spawn.SpawnUponQuestCompleteStableKey;
+        if (gateStableKey == null)
+            return false;
+
+        var gateQuest = _data.GetByStableKey(gateStableKey);
+        return gateQuest == null || !_state.IsCompleted(gateQuest.DBName);
     }
 
     // ── Loot container markers (corpses and RotChests) ────────────

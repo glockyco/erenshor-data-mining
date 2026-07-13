@@ -199,7 +199,14 @@ def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, l
                 "y": y,
                 "z": z,
                 "night_spawn": bool(spawn.night_spawn),
+                "is_directly_placed": bool(spawn.is_directly_placed),
             }
+            _put_if(value, "source_script", spawn.source_script)
+            gate_targets = {edge.target for edge in graph.out_edges(spawn.key, EdgeType.GATED_BY_QUEST)}
+            if len(gate_targets) > 1:
+                raise ValueError(f"spawn point {spawn.key!r} has multiple quest gates")
+            if gate_targets:
+                value["spawn_upon_quest_complete_stable_key"] = next(iter(gate_targets))
             positions.append((spawn.key, value))
         if positions:
             positions.sort(
@@ -212,6 +219,7 @@ def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, l
                 )
             )
             result[character.key] = [value for _, value in positions]
+
     return result
 
 
