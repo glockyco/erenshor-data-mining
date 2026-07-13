@@ -8,7 +8,7 @@ local Quality = {}
 
 -- The live wiki currently targets the pre-Planar-March game. Flip this one
 -- switch for patch 0.7: it selects the new formulas and exposes Improved rows.
-local PLANAR_MARCH_ENABLED = false
+local PLANAR_MARCH_ENABLED = true
 
 -- Runtime IDs, progression rank, and visual tier are deliberately separate.
 -- Runtime IDs are not a power ranking, and the green Improved visual tier is
