@@ -51,8 +51,10 @@
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 6)",
       "image_name": "Vithean Chest",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Duplicate directly-placed copy of arenachest 6; label as Round 6 pending dedup"
+      "reason": "Disabled directly-placed scene placeholder of chest 6 (is_enabled=0, no VithArena script); the real Round 6 chest is character:arenachest 6. Exclude from wiki + maps."
     },
     "character:arenachest 7": {
       "wiki_page_name": "Vithean Chest",
