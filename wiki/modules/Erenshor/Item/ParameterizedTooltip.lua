@@ -260,10 +260,17 @@ local function baseStats(args)
 	return base
 end
 
+local function hasAttackStats(args)
+	local damage = tonumber(firstSupplied(args, BASE_ALIASES.weaponDamage))
+	local delay = tonumber(supplied(args, "delay"))
+	return damage ~= nil and damage > 0 and delay ~= nil and delay > 0
+end
+
 local function invocation(kindName, args, stats, frame)
 	local templateName = kindName == "Weapon" and "Item/Weapon" or "Item/Armor"
 	local templateArguments = {}
 	local known = { kind = true, item_kind = true, stablekey = true }
+	local rendersAttackStats = kindName == "Weapon" and hasAttackStats(args)
 
 	local function put(field, value)
 		templateArguments[field] = text(value)
@@ -282,7 +289,7 @@ local function invocation(kindName, args, stats, frame)
 	-- names (health/armor/magic/...) are marked known so the passthrough
 	-- loop below cannot smuggle the Normal-quality inputs back in.
 	for _, output in ipairs(STAT_OUTPUTS) do
-		if output.name ~= "damage" or kindName == "Weapon" then
+		if output.name ~= "damage" or rendersAttackStats then
 			put(output.name, stats[output.key])
 		else
 			known[output.name] = true

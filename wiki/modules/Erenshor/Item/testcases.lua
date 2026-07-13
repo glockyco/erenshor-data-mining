@@ -79,7 +79,7 @@ end
 
 function p.run()
 	assertEqual(Quality.roundToInt(1.5), 2, "Unity rounding rounds 1.5 up")
-	assertEqual(#Quality.variants({}), 3, "pre-Planar March mode hides Improved variants")
+	assertEqual(#Quality.variants({}), 8, "released mode enables all quality variants")
 	assertEqual(#Quality.variants({}, true), 8, "Planar March mode enables all variants")
 
 	local modeBase = {
@@ -508,6 +508,31 @@ function p.run()
 		"Planar March Ascended armor uses released scaling"
 	)
 
+	local nonAttackingRelic = renderParameterized({
+		args = {
+			kind = "Weapon",
+			image = "Siva-Braxonian Teachings.png",
+			name = "Siva-Braxonian Teachings",
+			type = "Primary or Secondary",
+			relic = "True",
+			damage = "",
+			delay = "",
+			str = "5",
+			int = "25",
+		},
+	})
+	assertAbsent(nonAttackingRelic, "Base DPS:", "non-attacking equipment hides DPS")
+	assertAbsent(
+		nonAttackingRelic,
+		"Expression error",
+		"non-attacking equipment does not evaluate blank attack operands"
+	)
+	assertAbsent(
+		nonAttackingRelic,
+		'item-tooltip-stat-label">Damage</',
+		"non-attacking equipment hides synthetic zero damage"
+	)
+
 	local weaponTooltipFromParams = renderParameterized({
 		args = {
 			kind = "Weapon",
@@ -515,6 +540,7 @@ function p.run()
 			name = "Oldenbow",
 			type = "Primary",
 			damage = "38",
+			delay = "2",
 			health = "225",
 			mana = "200",
 			str = "25",
@@ -575,6 +601,7 @@ function p.run()
 			name = "Oldenbow",
 			type = "Primary - 2-Handed",
 			damage = "38",
+			delay = "2",
 			proc_style = "Attack",
 			proc_chance = "8",
 			proc_spell_icon = "Ice Spear.png",
