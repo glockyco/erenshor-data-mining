@@ -242,6 +242,7 @@
       "id": "loot.guarantee_one_drop",
       "mode": "assert",
       "variants": [
+        "main",
         "playtest"
       ],
       "type": "LootTable",
@@ -297,6 +298,7 @@
       },
       "note": "Pins Brax periodic AE escalation (+200 tickDmg per 600s). Consumer: ae_event_mutations constant in src/erenshor/domain/constants/ae_event_mutations.py",
       "variants": [
+        "main",
         "playtest"
       ]
     },
@@ -311,6 +313,7 @@
       },
       "note": "Pins Brax AE reset on crystal break (tickDmg = baseAEDmg=1500). Consumer: ae_event_mutations constant.",
       "variants": [
+        "main",
         "playtest"
       ]
     },
@@ -325,6 +328,7 @@
       },
       "note": "Pins Mizuki final-phase AE (tickDmg=9000 on HP<1M). Consumer: ae_event_mutations constant.",
       "variants": [
+        "main",
         "playtest"
       ]
     },
@@ -339,6 +343,7 @@
       },
       "note": "Pins FaithTracker AE escalation (+1000 tickDmg on trigger). Consumer: ae_event_mutations constant.",
       "variants": [
+        "main",
         "playtest"
       ]
     }
