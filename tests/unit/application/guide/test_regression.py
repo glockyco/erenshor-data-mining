@@ -34,7 +34,11 @@ def _load_json(path: Path) -> dict:
 
 
 def _index_quests(data: dict) -> dict[str, dict]:
-    return {q["db_name"]: q for q in data["quests"]}
+    return {
+        q["db_name"]: q
+        for q in data["quests"]
+        if not q.get("guide_only") and not str(q.get("db_name", "")).startswith("guide.")
+    }
 
 
 def _v2_sources_for_item(ri: dict) -> list[tuple[str, str | None, str | None]]:
@@ -90,11 +94,11 @@ def require_v5(current):
 
 
 class TestStructuralParity:
-    """Verify the v3 output preserves all quests and structural data."""
+    """Verify the v5 output preserves game quests and structural data."""
 
     def test_expected_quest_delta(self, golden, current):
-        golden_names = {q["db_name"] for q in golden["quests"]}
-        current_names = {q["db_name"] for q in current["quests"]}
+        golden_names = set(_index_quests(golden))
+        current_names = set(_index_quests(current))
         assert golden_names - current_names == APPROVED_REMOVED_QUESTS
         assert len(current_names - golden_names) == 22
         assert len(current_names) == 196

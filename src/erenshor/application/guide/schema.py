@@ -53,6 +53,7 @@ class NodeType(str, Enum):
     CLASS = "class_"
     STANCE = "stance"
     ASCENSION = "ascension"
+    LOCATION = "location"
 
 
 # ---------------------------------------------------------------------------
@@ -126,6 +127,29 @@ class EdgeType(str, Enum):
     STEP_TURN_IN = "step_turn_in"
     STEP_LOOT = "step_loot"
     STEP_BUY = "step_buy"
+    STEP_GO_TO = "step_go_to"
+
+
+# ---------------------------------------------------------------------------
+# Workflow descriptors
+# ---------------------------------------------------------------------------
+
+
+@dataclass(slots=True)
+class WorkflowTarget:
+    stable_key: str
+    quantity: int
+
+
+@dataclass(slots=True)
+class WorkflowCycle:
+    trigger_item_stable_key: str
+    trigger_item_quantity: int
+    trigger_mode: str
+    location_stable_key: str
+    targets: list[WorkflowTarget]
+    reward_container_stable_key: str | None = None
+    reset_evidence: str = "targets_defeated"
 
 
 # ---------------------------------------------------------------------------
@@ -230,6 +254,15 @@ class Node:
     landing_x: float | None = None
     landing_y: float | None = None
     landing_z: float | None = None
+    # Guide-only synthetic workflows and trigger locations
+    guide_only: bool = False
+    workflow_cycle: WorkflowCycle | None = None
+    trigger_bounds_center_x: float | None = None
+    trigger_bounds_center_y: float | None = None
+    trigger_bounds_center_z: float | None = None
+    trigger_bounds_extents_x: float | None = None
+    trigger_bounds_extents_y: float | None = None
+    trigger_bounds_extents_z: float | None = None
 
 
 @dataclass

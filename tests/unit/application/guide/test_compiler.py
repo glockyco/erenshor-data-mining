@@ -28,9 +28,10 @@ from erenshor.application.guide.compiler import (
     UnlockPredicate,
     compile_graph,
     edge_type_byte,
+    node_type_byte,
 )
 from erenshor.application.guide.graph import EntityGraph
-from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
+from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
 
 
 def _graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
@@ -74,6 +75,15 @@ def _spawn(key: str, *, scene: str = "Forest", zone_key: str = "zone:forest") ->
         y=20.0,
         z=30.0,
     )
+
+
+def test_compiler_appends_workflow_enum_values() -> None:
+    assert node_type_byte(NodeType.ASCENSION) == 24
+    assert node_type_byte(NodeType.LOCATION) == 25
+    assert edge_type_byte(EdgeType.STEP_BUY) == 41
+    assert edge_type_byte(EdgeType.STEP_GO_TO) == 42
+    assert NodeFlags.IS_TRIGGER_SPAWN == 1 << 10
+    assert NodeFlags.GUIDE_ONLY == 1 << 11
 
 
 def test_compiled_data_defaults_are_empty() -> None:
@@ -885,180 +895,336 @@ def test_compile_graph_preserves_runtime_metadata() -> None:
     assert faction_edge.amount == 25
 
 
-def test_graph_builder_arena_round_steps_map_tokens_and_compile() -> None:
-    from erenshor.application.guide.graph_builder import (
-        _add_arena_round_step_edges,
-        _add_quest_required_item_edges,
-    )
+def test_graph_builder_synthetic_workflows_and_compile() -> None:
+    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
     try:
         conn.executescript(
             """
+            CREATE TABLE zones (stable_key TEXT, display_name TEXT);
             CREATE TABLE arena_rounds (
-                stable_key TEXT,
-                scene TEXT,
-                arena_object_name TEXT,
-                round_index INTEGER,
-                coin_item_stable_key TEXT,
-                award_chest_character_stable_key TEXT
+                stable_key TEXT, scene TEXT, round_index INTEGER,
+                coin_item_stable_key TEXT, award_chest_character_stable_key TEXT,
+                trigger_mode TEXT, event_display_name TEXT,
+                event_x REAL, event_y REAL, event_z REAL,
+                trigger_bounds_center_x REAL, trigger_bounds_center_y REAL, trigger_bounds_center_z REAL,
+                trigger_bounds_extents_x REAL, trigger_bounds_extents_y REAL, trigger_bounds_extents_z REAL
             );
             CREATE TABLE arena_round_enemies (
-                arena_round_stable_key TEXT,
-                sequence_index INTEGER,
-                enemy_character_stable_key TEXT
+                arena_round_stable_key TEXT, sequence_index INTEGER, enemy_character_stable_key TEXT
             );
-            CREATE TABLE quest_variants (resource_name TEXT, quest_stable_key TEXT);
-            CREATE TABLE quest_required_items (
-                quest_variant_resource_name TEXT,
-                item_stable_key TEXT,
-                quantity INTEGER
-            );
-            CREATE TABLE quest_completion_sources (
-                quest_stable_key TEXT,
-                method TEXT,
-                source_type TEXT,
-                source_stable_key TEXT
+            CREATE TABLE character_spawns (
+                character_stable_key TEXT, spawn_point_stable_key TEXT, zone_stable_key TEXT, scene TEXT,
+                event_x REAL, event_y REAL, event_z REAL, trigger_item_stable_key TEXT, trigger_mode TEXT,
+                event_display_name TEXT, trigger_bounds_center_x REAL, trigger_bounds_center_y REAL,
+                trigger_bounds_center_z REAL, trigger_bounds_extents_x REAL, trigger_bounds_extents_y REAL,
+                trigger_bounds_extents_z REAL
             );
             """
         )
-        conn.executemany(
-            "INSERT INTO arena_rounds VALUES (?, 'Arena', ?, ?, ?, ?)",
-            [
-                ("arena:r1", "Round 1", 1, "item:coin1", "char:chest1"),
-                ("arena:r2", "Round 2", 2, "item:coin2", "char:chest2"),
-            ],
-        )
+        conn.execute("INSERT INTO zones VALUES ('zone:arena', 'Arena')")
+        conn.execute("INSERT INTO zones VALUES ('zone:malaroth', 'Malaroth')")
+        arena_values = [
+            (
+                f"arena:r{i}",
+                "Arena",
+                i,
+                f"item:coin{i}",
+                f"char:chest{i}",
+                "proximity_auto_consume",
+                "Vitheo's arena",
+                554.96,
+                34.26,
+                519.16,
+                554.96,
+                34.26,
+                519.16,
+                7.66,
+                9.79,
+                7.66,
+            )
+            for i in range(1, 9)
+        ]
+        conn.executemany("INSERT INTO arena_rounds VALUES (" + ",".join("?" for _ in range(16)) + ")", arena_values)
         conn.executemany(
             "INSERT INTO arena_round_enemies VALUES (?, ?, ?)",
             [
                 ("arena:r1", 0, "char:enemy-a"),
-                ("arena:r1", 1, "char:enemy-b"),
-                ("arena:r2", 0, "char:enemy-c"),
-                ("arena:r2", 1, "char:enemy-c"),
+                ("arena:r2", 0, "char:enemy-b"),
+                ("arena:r2", 1, "char:enemy-b"),
                 ("arena:r2", 2, "char:enemy-c"),
+            ]
+            + [(f"arena:r{i}", 0, f"char:enemy-{i}") for i in range(3, 9)],
+        )
+        conn.executemany(
+            "INSERT INTO character_spawns VALUES (" + ",".join("?" for _ in range(16)) + ")",
+            [
+                (
+                    "character:shivunax",
+                    "trigger:good",
+                    "zone:malaroth",
+                    "Malaroth",
+                    336.06,
+                    32.31,
+                    673.63,
+                    "item:gen - malaroth feed",
+                    "proximity_auto_consume",
+                    "Malaroth feeding site",
+                    336.06,
+                    32.31,
+                    673.63,
+                    18.71,
+                    7.37,
+                    11.4,
+                ),
+                (
+                    "character:demented malaroth",
+                    "trigger:bad",
+                    "zone:malaroth",
+                    "Malaroth",
+                    336.06,
+                    32.31,
+                    673.63,
+                    "item:gen - malaroth feed bad",
+                    "proximity_auto_consume",
+                    "Malaroth feeding site",
+                    336.06,
+                    32.31,
+                    673.63,
+                    18.71,
+                    7.37,
+                    11.4,
+                ),
             ],
         )
-        conn.executemany(
-            "INSERT INTO quest_variants VALUES (?, ?)",
-            [("variant:r1", "quest:arena1"), ("variant:r2", "quest:arena2")],
-        )
-        conn.executemany(
-            "INSERT INTO quest_required_items VALUES (?, ?, 1)",
-            [("variant:r1", "item:coin1"), ("variant:r2", "item:coin2")],
-        )
-        conn.executemany(
-            "INSERT INTO quest_completion_sources VALUES (?, 'item_turnin', 'character', ?)",
-            [("quest:arena1", "char:turnin1"), ("quest:arena2", "char:turnin2")],
-        )
-
+        chars = [f"char:enemy-{i}" for i in range(3, 9)] + [
+            "char:enemy-a",
+            "char:enemy-b",
+            "char:enemy-c",
+            *[f"char:chest{i}" for i in range(1, 9)],
+            "character:shivunax",
+            "character:demented malaroth",
+        ]
         graph = _graph(
-            _quest("quest:arena1"),
-            _quest("quest:arena2"),
-            _item("item:coin1"),
-            _item("item:coin2"),
-            _char("char:turnin1"),
-            _char("char:turnin2"),
-            _char("char:enemy-a"),
-            _char("char:enemy-b"),
-            _char("char:enemy-c"),
-            _char("char:chest1"),
-            _char("char:chest2"),
+            *[_item(f"item:coin{i}") for i in range(1, 9)],
+            _item("item:gen - malaroth feed"),
+            _item("item:gen - malaroth feed bad"),
+            *[_char(key) for key in chars],
+            _quest("quest:vithtokenmob1"),
         )
-        _add_quest_required_item_edges(conn, graph)
-        _add_arena_round_step_edges(conn, graph)
+        _add_guide_workflow_nodes_and_edges(conn, graph, {"Arena": "zone:arena", "Malaroth": "zone:malaroth"})
         graph.build_indexes()
 
-        first_steps = graph.out_edges("quest:arena1")
-        assert [(edge.type, edge.target, edge.ordinal, edge.quantity) for edge in first_steps] == [
-            (EdgeType.REQUIRES_ITEM, "item:coin1", None, 1),
-            (EdgeType.STEP_TURN_IN, "char:turnin1", 0, None),
-            (EdgeType.STEP_BUY, "item:coin1", 1, 1),
-            (EdgeType.STEP_KILL, "char:enemy-a", 2, 1),
-            (EdgeType.STEP_KILL, "char:enemy-b", 3, 1),
-            (EdgeType.STEP_LOOT, "char:chest1", 4, None),
+        guide_quests = [node for node in graph.nodes_of_type(NodeType.QUEST) if node.guide_only]
+        assert len(guide_quests) == 10
+        assert {node.db_name for node in guide_quests} == {
+            *(f"guide.arena.arena:r{i}" for i in range(1, 9)),
+            "guide.trigger.trigger:good",
+            "guide.trigger.trigger:bad",
+        }
+        assert graph.get_node("guide-location:arena:arena:r1").type == NodeType.LOCATION
+        assert graph.get_node("guide-location:trigger:trigger:good").display_name == "Malaroth feeding site"
+        assert graph.get_node("guide-quest:arena:arena:r2").display_name == "Vitheo's arena - Round 2"
+        assert graph.get_node("guide-quest:trigger:trigger:good").display_name == "character:shivunax"
+        assert graph.get_node("guide-quest:trigger:trigger:bad").display_name == "character:demented malaroth"
+        assert not any(
+            graph.out_edges("quest:vithtokenmob1", edge_type)
+            for edge_type in (EdgeType.STEP_BUY, EdgeType.STEP_GO_TO, EdgeType.STEP_KILL, EdgeType.STEP_LOOT)
+        )
+        arena_two = graph.get_node("guide-quest:arena:arena:r2")
+        assert arena_two is not None and arena_two.workflow_cycle is not None
+        assert [(target.stable_key, target.quantity) for target in arena_two.workflow_cycle.targets] == [
+            ("char:enemy-b", 2),
+            ("char:enemy-c", 1),
         ]
-        second_steps = graph.out_edges("quest:arena2")
-        assert [(edge.type, edge.target, edge.ordinal, edge.quantity) for edge in second_steps] == [
-            (EdgeType.REQUIRES_ITEM, "item:coin2", None, 1),
-            (EdgeType.STEP_TURN_IN, "char:turnin2", 0, None),
-            (EdgeType.STEP_BUY, "item:coin2", 1, 1),
-            (EdgeType.STEP_KILL, "char:enemy-c", 2, 3),
-            (EdgeType.STEP_LOOT, "char:chest2", 5, None),
-        ]
+        assert (
+            graph.get_node("guide-quest:trigger:trigger:good").workflow_cycle.targets[0].stable_key
+            == "character:shivunax"
+        )
+        assert (
+            graph.get_node("guide-quest:trigger:trigger:bad").workflow_cycle.targets[0].stable_key
+            == "character:demented malaroth"
+        )
+        assert (
+            graph.get_node("guide-quest:trigger:trigger:good").workflow_cycle.trigger_item_stable_key
+            == "item:gen - malaroth feed"
+        )
+        assert (
+            graph.get_node("guide-quest:trigger:trigger:bad").workflow_cycle.trigger_item_stable_key
+            == "item:gen - malaroth feed bad"
+        )
+        assert len(graph.out_edges("guide-quest:arena:arena:r2", EdgeType.STEP_GO_TO)) == 1
+        assert not graph.out_edges("guide-quest:arena:arena:r1", EdgeType.STEP_BUY)
 
         compiled = compile_graph(graph)
-        by_quest = {compiled.nodes[spec.quest_id].key: spec for spec in compiled.quest_specs}
-        assert [
-            (step.step_type, compiled.nodes[step.target_id].key, step.ordinal, step.quantity)
-            for step in by_quest["quest:arena2"].steps
-        ] == [
-            (edge_type_byte(EdgeType.STEP_TURN_IN), "char:turnin2", 0, None),
-            (edge_type_byte(EdgeType.STEP_BUY), "item:coin2", 1, 1),
-            (edge_type_byte(EdgeType.STEP_KILL), "char:enemy-c", 2, 3),
-            (edge_type_byte(EdgeType.STEP_LOOT), "char:chest2", 5, None),
-        ]
-        assert [req.item_id for req in by_quest["quest:arena2"].required_items] == [
-            compiled.node_key_to_id["item:coin2"]
-        ]
+        assert len([spec for spec in compiled.quest_specs if spec.is_guide_only]) == 10
+        arena_spec = next(
+            spec for spec in compiled.quest_specs if compiled.nodes[spec.quest_id].key.endswith("arena:r2")
+        )
+        assert arena_spec.workflow_cycle is not None
+        assert [target.quantity for target in arena_spec.workflow_cycle.targets] == [2, 1]
+        assert all(not spec.is_infeasible for spec in compiled.quest_specs if spec.is_guide_only)
     finally:
         conn.close()
 
 
-def test_graph_builder_arena_round_steps_reject_ambiguity_and_missing_nodes() -> None:
-    from erenshor.application.guide.graph_builder import _add_arena_round_step_edges
+def test_graph_builder_workflows_reject_malformed_trigger_facts() -> None:
+    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
     try:
         conn.executescript(
             """
+            CREATE TABLE zones (stable_key TEXT, display_name TEXT);
             CREATE TABLE arena_rounds (
-                stable_key TEXT,
-                round_index INTEGER,
-                coin_item_stable_key TEXT,
-                award_chest_character_stable_key TEXT
+                stable_key TEXT, scene TEXT, round_index INTEGER,
+                coin_item_stable_key TEXT, award_chest_character_stable_key TEXT,
+                trigger_mode TEXT, event_display_name TEXT,
+                event_x REAL, event_y REAL, event_z REAL,
+                trigger_bounds_center_x REAL, trigger_bounds_center_y REAL, trigger_bounds_center_z REAL,
+                trigger_bounds_extents_x REAL, trigger_bounds_extents_y REAL, trigger_bounds_extents_z REAL
             );
             CREATE TABLE arena_round_enemies (
-                arena_round_stable_key TEXT,
-                sequence_index INTEGER,
-                enemy_character_stable_key TEXT
+                arena_round_stable_key TEXT, sequence_index INTEGER, enemy_character_stable_key TEXT
             );
-            CREATE TABLE quest_variants (resource_name TEXT, quest_stable_key TEXT);
-            CREATE TABLE quest_required_items (quest_variant_resource_name TEXT, item_stable_key TEXT);
-            CREATE TABLE quest_completion_sources (
-                quest_stable_key TEXT,
-                method TEXT,
-                source_type TEXT,
-                source_stable_key TEXT
-            );
-            INSERT INTO arena_rounds VALUES ('arena:r', 1, 'item:coin', 'char:chest');
-            INSERT INTO arena_round_enemies VALUES ('arena:r', 0, 'char:enemy');
-            INSERT INTO quest_variants VALUES ('variant:one', 'quest:one');
-            INSERT INTO quest_variants VALUES ('variant:two', 'quest:two');
-            INSERT INTO quest_required_items VALUES ('variant:one', 'item:coin');
-            INSERT INTO quest_required_items VALUES ('variant:two', 'item:coin');
             """
         )
-        graph = _graph(
-            _quest("quest:one"),
-            _quest("quest:two"),
-            _item("item:coin"),
-            _char("char:chest"),
-            _char("char:enemy"),
-        )
-        with pytest.raises(ValueError, match="expected one"):
-            _add_arena_round_step_edges(conn, graph)
-
-        conn.execute("DELETE FROM quest_required_items WHERE quest_variant_resource_name = 'variant:two'")
-        with pytest.raises(ValueError, match="item turn-in characters"):
-            _add_arena_round_step_edges(conn, graph)
-
         conn.execute(
-            "INSERT INTO quest_completion_sources VALUES ('quest:one', 'item_turnin', 'character', 'char:turnin')"
+            "INSERT INTO arena_rounds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "arena:bad",
+                "Arena",
+                1,
+                "item:coin",
+                "char:chest",
+                "proximity_auto_consume",
+                "Bad",
+                1.0,
+                2.0,
+                3.0,
+                1.0,
+                2.0,
+                3.0,
+                0.0,
+                1.0,
+                1.0,
+            ),
         )
-        with pytest.raises(ValueError, match="missing or invalid character node"):
-            _add_arena_round_step_edges(conn, graph)
+        conn.execute("INSERT INTO arena_round_enemies VALUES ('arena:bad', 0, 'char:enemy')")
+        graph = _graph(_item("item:coin"), _char("char:chest"), _char("char:enemy"))
+        with pytest.raises(ValueError, match="non-positive trigger bounds"):
+            _add_guide_workflow_nodes_and_edges(conn, graph, {"Arena": "zone:arena"})
+    finally:
+        conn.close()
+
+
+def test_compile_graph_rejects_inconsistent_guide_workflow_flags() -> None:
+    graph = _graph(
+        Node(
+            key="quest:guide",
+            type=NodeType.QUEST,
+            display_name="Guide",
+            guide_only=True,
+            implicit=True,
+            repeatable=True,
+        )
+    )
+    with pytest.raises(ValueError, match="inconsistent guide-only workflow"):
+        compile_graph(graph)
+
+
+def test_compile_graph_rejects_nonfinite_workflow_location() -> None:
+    location = Node(
+        key="location:bad",
+        type=NodeType.LOCATION,
+        display_name="Bad location",
+        scene="Arena",
+        trigger_bounds_center_x=1.0,
+        trigger_bounds_center_y=2.0,
+        trigger_bounds_center_z=3.0,
+        trigger_bounds_extents_x=1.0,
+        trigger_bounds_extents_y=1.0,
+        trigger_bounds_extents_z=1.0,
+    )
+    workflow = Node(
+        key="quest:guide",
+        type=NodeType.QUEST,
+        display_name="Guide",
+        guide_only=True,
+        implicit=True,
+        repeatable=True,
+        workflow_cycle=WorkflowCycle(
+            trigger_item_stable_key="item:trigger",
+            trigger_item_quantity=1,
+            trigger_mode="proximity_auto_consume",
+            location_stable_key=location.key,
+            targets=[WorkflowTarget("character:target", 1)],
+        ),
+    )
+    graph = _graph(
+        _item("item:trigger"),
+        _char("character:target"),
+        location,
+        workflow,
+    )
+
+    with pytest.raises(ValueError, match="non-finite location metadata"):
+        compile_graph(graph)
+
+
+@pytest.mark.parametrize(
+    ("collision", "message"),
+    [
+        (
+            Node(
+                key="guide-quest:trigger:trigger:one",
+                type=NodeType.QUEST,
+                display_name="Existing synthetic identity",
+                db_name="existing.synthetic",
+            ),
+            "guide quest key collides",
+        ),
+        (
+            Node(
+                key="quest:real",
+                type=NodeType.QUEST,
+                display_name="Real quest",
+                db_name="guide.trigger.trigger:one",
+            ),
+            "guide quest db name collides",
+        ),
+    ],
+)
+def test_graph_builder_rejects_workflow_identity_collisions(collision: Node, message: str) -> None:
+    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE zones (stable_key TEXT, display_name TEXT);
+            CREATE TABLE character_spawns (
+                character_stable_key TEXT, spawn_point_stable_key TEXT, zone_stable_key TEXT, scene TEXT,
+                event_x REAL, event_y REAL, event_z REAL, trigger_item_stable_key TEXT, trigger_mode TEXT,
+                event_display_name TEXT, trigger_bounds_center_x REAL, trigger_bounds_center_y REAL,
+                trigger_bounds_center_z REAL, trigger_bounds_extents_x REAL, trigger_bounds_extents_y REAL,
+                trigger_bounds_extents_z REAL
+            );
+            INSERT INTO zones VALUES ('zone:event', 'Event Zone');
+            INSERT INTO character_spawns VALUES (
+                'character:target', 'trigger:one', 'zone:event', 'EventScene',
+                1.0, 2.0, 3.0, 'item:trigger', 'proximity_auto_consume',
+                'Event site', 1.0, 2.0, 3.0, 4.0, 5.0, 6.0
+            );
+            """
+        )
+        graph = _graph(_item("item:trigger"), _char("character:target"), collision)
+
+        with pytest.raises(ValueError, match=message):
+            _add_guide_workflow_nodes_and_edges(conn, graph, {"EventScene": "zone:event"})
     finally:
         conn.close()

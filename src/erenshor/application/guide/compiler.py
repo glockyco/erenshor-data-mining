@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, Node, NodeType
+from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -35,6 +35,7 @@ class NodeFlags(IntEnum):
     INVULNERABLE = 1 << 8
     IS_RARE = 1 << 9
     IS_TRIGGER_SPAWN = 1 << 10
+    GUIDE_ONLY = 1 << 11
 
 
 class EdgeFlags(IntEnum):
@@ -59,6 +60,12 @@ class CompiledNode:
     x: float = math.nan
     y: float = math.nan
     z: float = math.nan
+    trigger_bounds_center_x: float = math.nan
+    trigger_bounds_center_y: float = math.nan
+    trigger_bounds_center_z: float = math.nan
+    trigger_bounds_extents_x: float = math.nan
+    trigger_bounds_extents_y: float = math.nan
+    trigger_bounds_extents_z: float = math.nan
     flags: int = 0
     level: int = 0
     zone_key: str | None = None
@@ -73,6 +80,7 @@ class CompiledNode:
     key_item_key: str | None = None
     destination_zone_key: str | None = None
     destination_display: str | None = None
+    workflow_cycle: WorkflowCycle | None = None
 
 
 @dataclass(slots=True)
@@ -175,6 +183,23 @@ class ItemRequirement:
 
 
 @dataclass(slots=True)
+class WorkflowTargetSpec:
+    target_id: int
+    quantity: int
+
+
+@dataclass(slots=True)
+class WorkflowCycleSpec:
+    trigger_item_id: int
+    trigger_item_quantity: int
+    trigger_mode: str
+    location_id: int
+    targets: list[WorkflowTargetSpec] = field(default_factory=list)
+    reward_container_id: int | None = None
+    reset_evidence: str = "targets_defeated"
+
+
+@dataclass(slots=True)
 class QuestSpec:
     """Precomputed quest-level structure consumed by the runtime.
 
@@ -194,6 +219,8 @@ class QuestSpec:
     chains_to_ids: list[int] = field(default_factory=list)
     is_implicit: bool = False
     is_infeasible: bool = False
+    workflow_cycle: WorkflowCycleSpec | None = None
+    is_guide_only: bool = False
     display_name: str = ""
 
 
@@ -314,6 +341,24 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             y=node.y if node.y is not None else math.nan,
             z=node.z if node.z is not None else math.nan,
             flags=_node_flags(node),
+            trigger_bounds_center_x=node.trigger_bounds_center_x
+            if node.trigger_bounds_center_x is not None
+            else math.nan,
+            trigger_bounds_center_y=node.trigger_bounds_center_y
+            if node.trigger_bounds_center_y is not None
+            else math.nan,
+            trigger_bounds_center_z=node.trigger_bounds_center_z
+            if node.trigger_bounds_center_z is not None
+            else math.nan,
+            trigger_bounds_extents_x=node.trigger_bounds_extents_x
+            if node.trigger_bounds_extents_x is not None
+            else math.nan,
+            trigger_bounds_extents_y=node.trigger_bounds_extents_y
+            if node.trigger_bounds_extents_y is not None
+            else math.nan,
+            trigger_bounds_extents_z=node.trigger_bounds_extents_z
+            if node.trigger_bounds_extents_z is not None
+            else math.nan,
             level=max(node.level or 0, 0),
             zone_key=node.zone_key,
             db_name=node.db_name,
@@ -327,6 +372,7 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             key_item_key=node.key_item_key,
             destination_zone_key=node.destination_zone_key,
             destination_display=node.destination_display,
+            workflow_cycle=node.workflow_cycle,
         )
         for node in nodes
     ]
@@ -355,6 +401,8 @@ def _node_flags(node: Node) -> int:
         flags |= NodeFlags.IS_DIRECTLY_PLACED
     if node.is_enabled:
         flags |= NodeFlags.IS_ENABLED
+    if node.guide_only:
+        flags |= NodeFlags.GUIDE_ONLY
     if node.invulnerable:
         flags |= NodeFlags.INVULNERABLE
     if node.is_rare:
@@ -420,18 +468,25 @@ def _assign_dense_indices(compiled: CompiledData) -> None:
 
 def _compile_topology(compiled: CompiledData) -> None:
     quest_count = len(compiled.quest_node_ids)
+    real_quest_indices = [
+        index
+        for index, node_id in enumerate(compiled.quest_node_ids)
+        if not (compiled.nodes[node_id].flags & NodeFlags.GUIDE_ONLY)
+    ]
+    real_quest_set = set(real_quest_indices)
     in_degree = [0] * quest_count
     dependents: list[list[int]] = [[] for _ in range(quest_count)]
     requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
 
-    for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
+    for quest_index in real_quest_indices:
+        quest_node_id = compiled.quest_node_ids[quest_index]
         seen_prereqs: set[int] = set()
         for edge_id in compiled.forward_adjacency[quest_node_id]:
             edge = compiled.edges[edge_id]
             if edge.edge_type != requires_quest:
                 continue
             prereq_index = compiled.node_quest_index[edge.target_id]
-            if prereq_index == -1 or prereq_index in seen_prereqs:
+            if prereq_index == -1 or prereq_index not in real_quest_set or prereq_index in seen_prereqs:
                 continue
             seen_prereqs.add(prereq_index)
             in_degree[quest_index] += 1
@@ -439,7 +494,7 @@ def _compile_topology(compiled: CompiledData) -> None:
 
     from collections import deque
 
-    queue = deque(index for index, degree in enumerate(in_degree) if degree == 0)
+    queue = deque(index for index in real_quest_indices if in_degree[index] == 0)
     topo_order: list[int] = []
     while queue:
         quest_index = queue.popleft()
@@ -449,9 +504,9 @@ def _compile_topology(compiled: CompiledData) -> None:
             if in_degree[dependent] == 0:
                 queue.append(dependent)
 
-    if len(topo_order) < quest_count:
+    if len(topo_order) < len(real_quest_indices):
         seen = set(topo_order)
-        for quest_index in range(quest_count):
+        for quest_index in real_quest_indices:
             if quest_index in seen:
                 continue
             topo_order.append(quest_index)
@@ -459,6 +514,72 @@ def _compile_topology(compiled: CompiledData) -> None:
 
     compiled.topo_order = topo_order
     compiled.quest_to_dependent_quest_indices = dependents
+
+
+def _workflow_cycle_spec(compiled: CompiledData, node: CompiledNode) -> WorkflowCycleSpec | None:
+    cycle = node.workflow_cycle
+    if cycle is None:
+        return None
+
+    def node_id(key: str, label: str, expected_type: NodeType | None = None) -> int:
+        if key not in compiled.node_key_to_id:
+            raise ValueError(f"workflow {node.key!r} references missing {label} node {key!r}")
+        result = compiled.node_key_to_id[key]
+        if expected_type is not None and compiled.nodes[result].node_type != node_type_byte(expected_type):
+            raise ValueError(f"workflow {node.key!r} references invalid {label} node {key!r}")
+        return result
+
+    if cycle.trigger_item_quantity <= 0:
+        raise ValueError(f"workflow {node.key!r} has non-positive trigger quantity")
+    if not cycle.trigger_mode:
+        raise ValueError(f"workflow {node.key!r} has missing trigger mode")
+    if cycle.reset_evidence not in {"reward_container_consumed", "targets_defeated"}:
+        raise ValueError(f"workflow {node.key!r} has invalid reset evidence {cycle.reset_evidence!r}")
+    if (cycle.reward_container_stable_key is None) != (cycle.reset_evidence == "targets_defeated"):
+        raise ValueError(f"workflow {node.key!r} has inconsistent reward container and reset evidence")
+    target_keys = [target.stable_key for target in cycle.targets]
+    if len(set(target_keys)) != len(target_keys):
+        raise ValueError(f"workflow {node.key!r} has duplicate targets")
+    targets = [
+        WorkflowTargetSpec(
+            target_id=node_id(target.stable_key, "target", NodeType.CHARACTER),
+            quantity=target.quantity,
+        )
+        for target in cycle.targets
+    ]
+    if not targets or any(target.quantity <= 0 for target in targets):
+        raise ValueError(f"workflow {node.key!r} has invalid targets")
+    reward_id = (
+        node_id(cycle.reward_container_stable_key, "reward container", NodeType.CHARACTER)
+        if cycle.reward_container_stable_key is not None
+        else None
+    )
+    location_id = node_id(cycle.location_stable_key, "location", NodeType.LOCATION)
+    location = compiled.nodes[location_id]
+    location_values = (
+        location.x,
+        location.y,
+        location.z,
+        location.trigger_bounds_center_x,
+        location.trigger_bounds_center_y,
+        location.trigger_bounds_center_z,
+        location.trigger_bounds_extents_x,
+        location.trigger_bounds_extents_y,
+        location.trigger_bounds_extents_z,
+    )
+    if not all(math.isfinite(value) for value in location_values):
+        raise ValueError(f"workflow {node.key!r} has non-finite location metadata")
+    if any(value <= 0 for value in location_values[-3:]):
+        raise ValueError(f"workflow {node.key!r} has non-positive location extents")
+    return WorkflowCycleSpec(
+        trigger_item_id=node_id(cycle.trigger_item_stable_key, "trigger item", NodeType.ITEM),
+        trigger_item_quantity=cycle.trigger_item_quantity,
+        trigger_mode=cycle.trigger_mode,
+        location_id=location_id,
+        targets=targets,
+        reward_container_id=reward_id,
+        reset_evidence=cycle.reset_evidence,
+    )
 
 
 def _compile_quest_specs(compiled: CompiledData) -> None:
@@ -472,6 +593,7 @@ def _compile_quest_specs(compiled: CompiledData) -> None:
         edge_type_byte(EdgeType.STEP_TURN_IN),
         edge_type_byte(EdgeType.STEP_LOOT),
         edge_type_byte(EdgeType.STEP_BUY),
+        edge_type_byte(EdgeType.STEP_GO_TO),
     }
     requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
     requires_item = {edge_type_byte(EdgeType.REQUIRES_ITEM), edge_type_byte(EdgeType.REQUIRES_MATERIAL)}
@@ -481,11 +603,18 @@ def _compile_quest_specs(compiled: CompiledData) -> None:
 
     for quest_index, quest_node_id in enumerate(compiled.quest_node_ids):
         node = compiled.nodes[quest_node_id]
+        guide_only = bool(node.flags & NodeFlags.GUIDE_ONLY)
+        if guide_only != (node.workflow_cycle is not None):
+            raise ValueError(f"quest {node.key!r} has inconsistent guide-only workflow descriptor")
+        if guide_only and not (node.flags & NodeFlags.IMPLICIT and node.flags & NodeFlags.REPEATABLE):
+            raise ValueError(f"guide-only quest {node.key!r} must be implicit and repeatable")
         spec = QuestSpec(
             quest_id=quest_node_id,
             quest_index=quest_index,
             is_implicit=bool(node.flags & NodeFlags.IMPLICIT),
             is_infeasible=quest_node_id in compiled.infeasible_node_ids,
+            is_guide_only=bool(node.flags & NodeFlags.GUIDE_ONLY),
+            workflow_cycle=_workflow_cycle_spec(compiled, node),
             display_name=node.display_name,
         )
         for edge_id in compiled.forward_adjacency[quest_node_id]:
@@ -792,7 +921,7 @@ def _compile_blueprints(graph: EntityGraph, compiled: CompiledData) -> None:
     compiled.completion_blueprints = []
 
     for quest_node in graph.nodes_of_type(NodeType.QUEST):
-        if quest_node.db_name is None:
+        if quest_node.guide_only or quest_node.db_name is None:
             continue
         quest_id = compiled.node_key_to_id[quest_node.key]
         required_quest_db_names = _collect_required_quest_db_names(graph, quest_node.key)

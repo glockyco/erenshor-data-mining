@@ -147,7 +147,7 @@ game quest identities.
   raw rows. Expected: eight arena rounds carry one finite entry area each and
   both Malaroth outputs carry the correct input item and shared finite feeding
   area.
-- [ ] Commit. Message: `feat(export): capture scripted workflow triggers`
+- [x] Commit. Message: `feat(export): capture scripted workflow triggers`
 
 ### Task 2: Generate guide-only implicit repeatable quests
 
@@ -156,12 +156,15 @@ game quest identities.
 - Modify: `src/erenshor/application/guide/graph_builder.py`
 - Modify: `src/erenshor/application/guide/compiler.py`
 - Modify: `tests/unit/application/guide/test_compiler.py`
+- Modify: `tests/unit/application/guide/test_regression.py`
 
-- [ ] Append a `GUIDE_ONLY` node flag, `LOCATION` node type, and `STEP_GO_TO`
+**Status:** [x] Complete
+
+- [x] Append a `GUIDE_ONLY` node flag, `LOCATION` node type, and `STEP_GO_TO`
   edge type so all existing compiled enum bytes remain unchanged.
   `STEP_TRAVEL` continues to mean `zones.complete_quest_on_enter*` and never
   accepts an arbitrary coordinate.
-- [ ] Generate one synthetic quest per arena round with globally unique
+- [x] Generate one synthetic quest per arena round with globally unique
   `guide-quest:arena:<round-stable-key>` and
   `guide.arena.<round-stable-key>` stable/DB-name namespaces. Set
   `implicit=true`, `repeatable=true`, and `guide_only=true`; emit conditional
@@ -169,27 +172,27 @@ game quest identities.
   A vendor alternative renders `Buy <item>` only when its unlock quest is
   complete; the prior-round chest remains a distinct loot source for first-run
   progression.
-- [ ] Keep `quest:vithtokenmob1..8` as their real non-repeatable first-clear
+- [x] Keep `quest:vithtokenmob1..8` as their real non-repeatable first-clear
   token turn-ins. Remove post-completion buy/combat/reward steps from those
   nodes; retain their vendor-unlock facts as conditions on the synthetic
   workflow's purchase source, never as synthetic GameData completion.
-- [ ] Generate guide-only implicit repeatable quests for Shivunax and Demented
+- [x] Generate guide-only implicit repeatable quests for Shivunax and Demented
   Malaroth from exported rows: obtain the matching feed, `go_to` the feeding
   anchor, then defeat the matching character. Keep the real
   `quest:malarothfeedmade` variants as oven crafting turn-ins.
-- [ ] Compile workflow metadata needed for bounded cycle evaluation: workflow
+- [x] Compile workflow metadata needed for bounded cycle evaluation: workflow
   stable key, trigger item and quantity, trigger mode/location, expected
   scripted targets and counts, optional reward container, and reset evidence.
   Do not branch on script or display names after export.
-- [ ] Exclude guide-only quests from game-quest DB-name validation against the
+- [x] Exclude guide-only quests from game-quest DB-name validation against the
   clean `quests` table, quest-chain topology, infeasible-cycle marking,
   GameData completion assumptions, quest-count regression parity, and
   cross-quest level propagation. Include them in deterministic guide output,
   zone/search metadata, source display, and local step level estimates.
-- [ ] Add compiler tests for ten guide-only workflows, namespace collisions,
+- [x] Add compiler tests for ten guide-only workflows, namespace collisions,
   duplicate identities, stable enum bytes, correct arena enemy quantities,
   correct feed inputs, and isolation from all real quest lifecycle structures.
-- [ ] Run `uv run pytest tests/unit/application/guide/test_compiler.py tests/unit/application/guide/test_regression.py`.
+- [x] Run `uv run pytest tests/unit/application/guide/test_compiler.py tests/unit/application/guide/test_regression.py`.
   Expected: synthetic workflows compile deterministically while real quest
   parity and topology remain unchanged.
 - [ ] Commit. Message: `feat(guide): compile implicit scripted workflows`
