@@ -1,73 +1,108 @@
 ---
-title: Adventure Guide Scripted Encounters & Location Steps
+title: Adventure Guide Implicit Workflow Quests & Location Steps
 type: plan
 status: draft
 created: 2026-07-12
 parent: 2026-07-09-erenshor-planning-overview
 ---
 
-# Adventure Guide Scripted Encounters & Location Steps
+# Adventure Guide Implicit Workflow Quests & Location Steps
 
-Separate item acquisition from physical destinations: purchase steps use the
-generic `Buy <item>` contract, while coordinate-backed `go_to` steps navigate to
-passive scripted-event triggers. Keep `travel` reserved for quest-completing zone
-entry. Represent repeatable arena and Malaroth workflows as encounters rather
-than post-completion steps on game quests.
+Keep scripted arena and Malaroth workflows in the existing quest experience.
+Generate guide-only `QuestEntry` records with `acceptance=implicit` and
+`flags.repeatable=true`, backed by an explicit guide-only lifecycle rather than
+`GameData.HasQuest` / `GameData.CompletedQuests`. Purchase steps use the generic
+`Buy <item>` contract; coordinate-backed `go_to` steps represent passive event
+triggers independently. Keep `travel` reserved for quest-completing zone entry.
+
+The real `VithTokenMOB1..8` quests remain first-clear vendor-unlock turn-ins, and
+the real `MalarothFeedMade` variants remain feed-crafting turn-ins. The generated
+workflow quests reference those facts but never extend or masquerade as those
+game quest identities.
 
 ## File map
 
 - Modify `src/Assets/Editor/Database/DynamicCharacterSpawnRecord.cs`: persist
-  the item consumed by a scripted spawn trigger plus its trigger semantics and
-  display name.
+  the item consumed by a scripted spawn trigger plus trigger semantics, bounds,
+  and a display label.
 - Modify `src/Assets/Editor/Database/ArenaRoundRecord.cs`: persist the arena
-  entry trigger anchor and display metadata once per round.
+  entry anchor, bounds, and trigger metadata once per round.
 - Modify `src/Assets/Editor/ExportSystem/AssetScanner/DynamicSpawnCatalog.cs`:
   parse declarative trigger-item and event metadata.
 - Modify `src/Assets/Editor/ExportSystem/AssetScanner/DynamicSpawnSourceListener.cs`:
   resolve configured trigger items and write event metadata with dynamic spawn
   rows.
 - Modify `src/Assets/Editor/ExportSystem/AssetScanner/Listener/VithArenaListener.cs`:
-  export the passive arena trigger anchor independently from enemy/chest spawn
+  export the passive arena entry independently from combat and reward
   positions.
 - Modify `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`:
-  declare the normal and odd Malaroth feed inputs without guide-side
-  script-name conditionals.
+  map normal and odd Malaroth feed inputs and host trigger bounds without
+  guide-side name checks.
 - Modify `src/erenshor/application/processor/characters.py`: carry scripted
-  trigger metadata into clean character-spawn and arena-round records.
+  trigger metadata into clean spawn and arena records.
 - Modify `src/erenshor/application/processor/writer.py`: define the clean
-  columns used by encounter generation.
-- Create `tests/unit/application/processor/test_scripted_encounters.py`:
-  defend trigger metadata, item precedence, and coordinate separation.
-- Modify `src/erenshor/application/guide/schema.py`: append encounter/location
-  node types and a navigation-only `STEP_GO_TO` edge type.
-- Modify `src/erenshor/application/guide/graph_builder.py`: build arena and
-  Malaroth encounters, their prerequisites, locations, and ordered steps.
-- Modify `src/erenshor/application/guide/compiler.py`: compile encounter specs
-  without changing existing enum byte assignments.
-- Modify `tests/unit/application/guide/test_compiler.py`: cover encounter
-  structure, step order, and removal of post-completion arena quest steps.
-- Modify `src/erenshor/application/guide/mod_writer.py`: project encounters and
-  locations into the shipping wrapper; keep buy text vendor-neutral and attach
-  item-source choices separately.
-- Modify `tests/unit/application/guide/test_mod_writer.py`: cover generic buy
-  wording, source lists, location payloads, and deterministic encounter output.
-- Create `src/mods/AdventureGuide/src/Data/EncounterEntry.cs`: deserialize
-  encounter workflows, item-source choices, and coordinate-backed locations.
-- Modify `src/mods/AdventureGuide/src/Data/GuideData.cs`: load and index the
-  top-level encounter collection.
-- Create `src/mods/AdventureGuide/src/UI/EncounterListPanel.cs`: list scripted
-  encounters independently from game quest state.
-- Create `src/mods/AdventureGuide/src/UI/EncounterDetailPanel.cs`: render an
-  ordered reference workflow with source and location navigation controls,
-  without false quest-completion coloring.
-- Modify `src/mods/AdventureGuide/src/UI/GuideWindow.cs`: add the Encounters tab
-  and preserve existing quest navigation/history behavior.
-- Modify `src/mods/AdventureGuide/src/Navigation/NavigationController.cs`:
-  navigate directly to a fixed scene coordinate, including existing cross-zone
-  routing before the local ground path.
-- Create `tests/unit/mods/test_adventure_guide_encounters.py`: defend wrapper
-  parsing, generic action labels, fixed-position navigation, and separation
-  from `QuestStateTracker` / `StepProgress`.
+  trigger columns consumed by guide generation.
+- Create `tests/unit/application/processor/test_scripted_workflows.py`: defend
+  trigger inputs, priorities, labels, and coordinate separation.
+- Modify `src/erenshor/application/guide/schema.py`: add a guide-only quest flag,
+  location nodes, and navigation-only `STEP_GO_TO` edges.
+- Modify `src/erenshor/application/guide/graph_builder.py`: generate namespaced
+  implicit repeatable workflow quests from arena and Malaroth facts while
+  preserving the real quests unchanged.
+- Modify `src/erenshor/application/guide/compiler.py`: carry guide-only workflow
+  descriptors without placing synthetic records in game-quest topology or
+  completion analysis.
+- Modify `tests/unit/application/guide/test_compiler.py`: cover identity,
+  isolation, ordering, trigger evidence, and enum stability.
+- Modify `src/erenshor/application/guide/mod_writer.py`: emit workflow quests in
+  the existing `quests` collection with vendor-neutral actions, structured
+  sources, fixed locations, and cycle evidence.
+- Modify `tests/unit/application/guide/test_mod_writer.py`: cover deterministic
+  guide-only quest output and separation from real quest DB names.
+- Modify `src/mods/AdventureGuide/src/Data/QuestEntry.cs`: deserialize
+  `guide_only`, workflow-cycle metadata, structured item sources, and locations.
+- Modify `src/mods/AdventureGuide/src/Data/GuideData.cs`: index guide-only quests
+  with collision checks while preserving the single quest list/search surface.
+- Create `src/mods/AdventureGuide/src/State/GuideWorkflowState.cs`: evaluate the
+  current cycle stage from bounded inventory, trigger, entity, and loot evidence.
+- Modify `src/mods/AdventureGuide/src/State/QuestStateTracker.cs`: expose one
+  entry-aware status API that delegates game-backed and guide-only lifecycle
+  correctly.
+- Modify `src/mods/AdventureGuide/src/State/StepProgress.cs`: delegate
+  guide-only current-step selection to the workflow state instead of
+  `GameData` completion.
+- Modify `src/mods/AdventureGuide/src/State/TrackerState.cs`: keep guide-only
+  repeatable pins out of completed-game-quest pruning.
+- Modify `src/mods/AdventureGuide/src/UI/QuestListPanel.cs`: reuse the existing
+  filters, search, sort, and `[R]` presentation with guide-only status.
+- Modify `src/mods/AdventureGuide/src/UI/QuestDetailPanel.cs`: reuse the existing
+  step/source/navigation rendering with cycle-aware state.
+- Modify `src/mods/AdventureGuide/src/UI/TrackerWindow.cs`: show and advance the
+  current workflow stage without terminal auto-untracking.
+- Modify `src/mods/AdventureGuide/src/Navigation/NavigationController.cs`: route
+  to a fixed scene coordinate and preserve tracked synthetic quest identity.
+- Modify `src/mods/AdventureGuide/src/Navigation/WorldMarkerSystem.cs`: emit the
+  current coordinate or scripted-target objective through the existing marker
+  system.
+- Modify `src/mods/AdventureGuide/src/Navigation/EntityRegistry.cs`: discover
+  scripted `Object.Instantiate` characters through bounded, descriptor-scoped
+  registration rather than only `SpawnPoint.SpawnNPC`.
+- Modify `src/mods/AdventureGuide/src/Navigation/LootScanner.cs`: expose
+  descriptor-scoped reward-container evidence without making global scans part
+  of per-frame step evaluation.
+- Modify `src/mods/AdventureGuide/src/Patches/InventoryPatch.cs`: notify workflow
+  state after inventory changes so trigger-item acquisition/consumption is
+  observed with a before/after count.
+- Modify `src/mods/AdventureGuide/src/Patches/DeathPatch.cs`: notify workflow
+  state when a scripted target dies.
+- Create `src/mods/AdventureGuide/src/Patches/ScriptedEntityPatch.cs`: observe
+  descriptor-matched `Character.Start` instances created outside
+  `SpawnPoint.SpawnNPC`.
+- Modify `src/mods/AdventureGuide/src/Plugin.cs`: construct, wire, revalidate,
+  and dispose the workflow state service.
+- Create `tests/unit/mods/test_adventure_guide_workflows.py`: defend the
+  guide-only semantic firewall, cycle transitions, shared quest UI, navigation,
+  markers, and bounded-update contract.
 - Regenerate `quest_guides/guide.json` and `quest_guides/quest-guide.json`
   through the canonical guide commands.
 
@@ -84,38 +119,36 @@ than post-completion steps on game quests.
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`
 - Modify: `src/erenshor/application/processor/characters.py`
 - Modify: `src/erenshor/application/processor/writer.py`
-- Create: `tests/unit/application/processor/test_scripted_encounters.py`
+- Create: `tests/unit/application/processor/test_scripted_workflows.py`
 
-- [ ] Add `trigger_item_field`, `event_display_name`, and `trigger_mode` to the
-  dynamic-spawn catalog contract. Split the two `MalarothFeed` outputs into
-  separate allowed entries so `Malaroth` resolves `MalarothFood` and `Demented`
-  resolves `BadFood`; both use the existing host `EventX/Y/Z` anchor and the
-  `proximity_auto_consume` mode.
+- [ ] Add `trigger_item_field`, `event_display_name`, `trigger_mode`, and host
+  trigger-bounds capture to the dynamic-spawn catalog contract. Split the
+  `MalarothFeed.Malaroth` and `.Demented` outputs so they resolve
+  `MalarothFood` and `BadFood` respectively; both use the existing host
+  `EventX/Y/Z` anchor and `proximity_auto_consume` mode.
 - [ ] Resolve the configured Unity `Item` reference in
   `DynamicSpawnSourceListener` and persist its stable key beside the spawned
-  character. Fail the export when an allowed entry declares a trigger item that
-  cannot be resolved; never silently emit a location without its prerequisite.
-- [ ] Extend each `ArenaRoundRecord` with the `VithArena` host transform as the
-  entry anchor, the display name `Vitheo's arena`, and
-  `proximity_auto_consume`. Keep `ChestSpawnPos` and `SpawnLoc1/2/3` as reward
-  and combat positions, not the entry destination.
-- [ ] Carry all new columns into the clean DB. Preserve the existing Malaroth
-  NPC spawn `(428.40, 28.37, 642.20)` separately from the feeding trigger
-  `(336.06, 32.31, 673.63)`; preserve the arena entry independently from the
-  chest `(521.90, 25.21, 485.60)`.
-- [ ] Add processor tests proving normal feed maps to ordinary Malaroth, odd
-  feed maps to Demented Malaroth, trigger-item priority is retained from the
-  catalog, and event/spawn coordinates cannot be interchanged.
-- [ ] Run `uv run pytest tests/unit/application/processor/test_scripted_encounters.py tests/unit/application/export_surface/test_listener_coverage.py`.
-  Expected: the trigger metadata contract passes without changing unrelated
-  spawn rows.
+  character. Fail the export when a declared trigger item cannot be resolved.
+- [ ] Extend every `ArenaRoundRecord` with the `VithArena` host transform and
+  trigger collider bounds as the entry area, display label `Vitheo's arena`,
+  and `proximity_auto_consume`. Keep `SpawnLoc1/2/3` and `ChestSpawnPos` as
+  combat and reward locations, not the trigger destination.
+- [ ] Carry all new columns into the clean DB. Preserve the Malaroth NPC spawn
+  `(428.40, 28.37, 642.20)` separately from the feeding trigger
+  `(336.06, 32.31, 673.63)` and the arena trigger separately from the chest
+  `(521.90, 25.21, 485.60)`.
+- [ ] Add processor tests proving good feed maps to ordinary Malaroth, odd feed
+  maps to Demented Malaroth, bad-food priority is retained, and trigger/spawn
+  coordinates cannot be interchanged.
+- [ ] Run `uv run pytest tests/unit/application/processor/test_scripted_workflows.py tests/unit/application/export_surface/test_listener_coverage.py`.
+  Expected: trigger metadata is complete and unrelated spawn rows are unchanged.
 - [ ] Run `uv run erenshor --variant playtest extract export`, then inspect the
-  raw trigger rows. Expected: eight arena rounds have one arena-entry anchor
-  each; both Malaroth outputs have item stable keys, the same feeding-site
-  anchor, and distinct spawned-character identities.
-- [ ] Commit. Message: `feat(export): capture scripted encounter triggers`
+  raw rows. Expected: eight arena rounds carry one finite entry area each and
+  both Malaroth outputs carry the correct input item and shared finite feeding
+  area.
+- [ ] Commit. Message: `feat(export): capture scripted workflow triggers`
 
-### Task 2: Compile encounters and location steps
+### Task 2: Generate guide-only implicit repeatable quests
 
 **Files:**
 - Modify: `src/erenshor/application/guide/schema.py`
@@ -123,96 +156,142 @@ than post-completion steps on game quests.
 - Modify: `src/erenshor/application/guide/compiler.py`
 - Modify: `tests/unit/application/guide/test_compiler.py`
 
-- [ ] Append `ENCOUNTER` and `LOCATION` node types plus `STEP_GO_TO` to their
-  enum registries so every existing compiled byte remains unchanged.
-  `STEP_TRAVEL` continues to mean `zones.complete_quest_on_enter*`; it must not
-  accept arbitrary coordinates.
-- [ ] Build one repeatable encounter per arena round. Derive its unlock quest
-  from the fee item's existing `quest_required_items` / vendor-unlock
-  relationship, then emit `buy` → `go_to` → ordered `kill` → `loot` steps. The
-  location target is the arena entry anchor, not the Master of Battle, enemy
-  spawn positions, or reward chest.
-- [ ] Remove arena-only `buy` / `kill` / `loot` steps from
-  `quest:vithtokenmob{N}`. Those game quests end when the first-clear token is
-  turned in; post-completion arena actions must not be colored completed or
-  pruned by `QuestStateTracker`.
-- [ ] Build Malaroth encounters from exported trigger metadata: obtain the
-  corresponding feed item, `go_to` the feeding-site anchor, then defeat the
-  exported character. Generate ordinary and Demented workflows from data; do
-  not branch on `MalarothFeed` or character names in the guide compiler.
-- [ ] Compile an `EncounterSpec` with ordered `StepSpec` values and a location
-  target ID. Keep `go_to` out of quest level estimation and preserve existing
-  OR-group and ordinal behavior.
-- [ ] Add compiler tests for all eight arena encounters, both Malaroth feed
-  variants, stable enum bytes, arena fee priority, repeated enemy quantities,
-  and absence of post-completion steps on the token quests.
-- [ ] Run `uv run pytest tests/unit/application/guide/test_compiler.py`.
-  Expected: encounter workflows compile deterministically and all existing
-  quest-step tests remain green.
-- [ ] Commit. Message: `feat(guide): compile scripted encounter workflows`
+- [ ] Append a `GUIDE_ONLY` node flag, `LOCATION` node type, and `STEP_GO_TO`
+  edge type so all existing compiled enum bytes remain unchanged.
+  `STEP_TRAVEL` continues to mean `zones.complete_quest_on_enter*` and never
+  accepts an arbitrary coordinate.
+- [ ] Generate one synthetic quest per arena round with globally unique
+  `guide-quest:arena:<round-stable-key>` and
+  `guide.arena.<round-stable-key>` stable/DB-name namespaces. Set
+  `implicit=true`, `repeatable=true`, and `guide_only=true`; emit conditional
+  item-source alternatives followed by `go_to` → ordered `kill` → `loot`.
+  A vendor alternative renders `Buy <item>` only when its unlock quest is
+  complete; the prior-round chest remains a distinct loot source for first-run
+  progression.
+- [ ] Keep `quest:vithtokenmob1..8` as their real non-repeatable first-clear
+  token turn-ins. Remove post-completion buy/combat/reward steps from those
+  nodes; retain their vendor-unlock facts as conditions on the synthetic
+  workflow's purchase source, never as synthetic GameData completion.
+- [ ] Generate guide-only implicit repeatable quests for ordinary and Demented
+  Malaroth from exported rows: obtain the matching feed, `go_to` the feeding
+  anchor, then defeat the matching character. Keep the real
+  `quest:malarothfeedmade` variants as oven crafting turn-ins.
+- [ ] Compile workflow metadata needed for bounded cycle evaluation: workflow
+  stable key, trigger item and quantity, trigger mode/location, expected
+  scripted targets and counts, optional reward container, and reset evidence.
+  Do not branch on script or display names after export.
+- [ ] Exclude guide-only quests from game-quest DB-name validation against the
+  clean `quests` table, quest-chain topology, infeasible-cycle marking,
+  GameData completion assumptions, quest-count regression parity, and
+  cross-quest level propagation. Include them in deterministic guide output,
+  zone/search metadata, source display, and local step level estimates.
+- [ ] Add compiler tests for ten guide-only workflows, namespace collisions,
+  duplicate identities, stable enum bytes, correct arena enemy quantities,
+  correct feed inputs, and isolation from all real quest lifecycle structures.
+- [ ] Run `uv run pytest tests/unit/application/guide/test_compiler.py tests/unit/application/guide/test_regression.py`.
+  Expected: synthetic workflows compile deterministically while real quest
+  parity and topology remain unchanged.
+- [ ] Commit. Message: `feat(guide): compile implicit scripted workflows`
 
-### Task 3: Export a vendor-neutral shipping contract
+### Task 3: Export workflows through the existing quest contract
 
 **Files:**
 - Modify: `src/erenshor/application/guide/mod_writer.py`
 - Modify: `tests/unit/application/guide/test_mod_writer.py`
 
-- [ ] Add a top-level `encounters` collection to `quest-guide.json`. Each entry
-  carries a stable key, display name, repeatability, unlock prerequisite, and
-  ordered steps. A `go_to` step carries a nested location with stable key,
-  display name, scene, and finite `x/y/z` values.
-- [ ] Render every purchase action as exactly `Buy <item>.`. Attach zero or more
-  vendor/item-source records as structured step data so the UI can show and
-  navigate all available sellers without naming one in the action text.
-- [ ] Render arena entry as its own `go_to` action and preserve the observed
-  passive behavior: entering the trigger auto-consumes the first matching fee;
-  no interact, dialog, or explicit item-use instruction is emitted.
-- [ ] Render Malaroth feed acquisition and feeding-site navigation as separate
-  actions. Do not tell the player to click the bowl or use the feed—the game
-  automatically consumes the appropriate item on trigger entry.
-- [ ] Reject missing/non-finite location coordinates and duplicate encounter
-  stable keys. Sort encounters and their sources deterministically.
-- [ ] Add writer tests for generic buy text with multiple vendors, arena and
-  Malaroth location payloads, missing-coordinate failure, and byte-identical
-  repeated serialization.
+- [ ] Keep a single top-level `quests` collection. Emit guide-only workflows as
+  ordinary `QuestEntry`-shaped records plus `flags.guide_only=true` and a
+  workflow-cycle descriptor; do not add an `encounters` collection or a second
+  list/detail schema.
+- [ ] Render every purchase instruction as exactly `Buy <item>.`. Attach all
+  vendor sources as structured step data so the UI can show and navigate every
+  seller independently from the action sentence.
+- [ ] Emit a nested location `{stable_key, display_name, scene, x, y, z}` on
+  each `go_to` step. Arena navigation targets the passive entry trigger;
+  Malaroth navigation targets the feeding trigger. Neither targets the vendor,
+  spawned NPC, or reward chest.
+- [ ] Encode the observed passive semantics: trigger entry automatically
+  consumes the appropriate item. Never emit click, dialog, interact, or
+  explicit item-use instructions for either workflow.
+- [ ] Reject a guide-only record whose synthetic DB name collides with any real
+  quest DB name, whose stable key is duplicated, or whose location/evidence is
+  missing or non-finite. Sort workflows, sources, targets, and steps
+  deterministically.
+- [ ] Add writer tests for generic buy text with multiple vendors, one unified
+  quest collection, guide-only flags, workflow evidence, fixed locations,
+  collision failures, and byte-identical repeated serialization.
 - [ ] Run `uv run pytest tests/unit/application/guide/test_mod_writer.py`.
-  Expected: no generated instruction contains `from the Master of Battle, then`
-  and location/source data remains independently navigable.
-- [ ] Commit. Message: `feat(guide): export location-aware encounters`
+  Expected: no output contains `from the Master of Battle, then`, and no
+  separate encounter schema or UI contract is required.
+- [ ] Commit. Message: `feat(guide): export implicit workflow quests`
 
-### Task 4: Browse and navigate encounters in the mod
+### Task 4: Reuse quest UI with a guide-only lifecycle
 
 **Files:**
-- Create: `src/mods/AdventureGuide/src/Data/EncounterEntry.cs`
+- Modify: `src/mods/AdventureGuide/src/Data/QuestEntry.cs`
 - Modify: `src/mods/AdventureGuide/src/Data/GuideData.cs`
-- Create: `src/mods/AdventureGuide/src/UI/EncounterListPanel.cs`
-- Create: `src/mods/AdventureGuide/src/UI/EncounterDetailPanel.cs`
-- Modify: `src/mods/AdventureGuide/src/UI/GuideWindow.cs`
+- Create: `src/mods/AdventureGuide/src/State/GuideWorkflowState.cs`
+- Modify: `src/mods/AdventureGuide/src/State/QuestStateTracker.cs`
+- Modify: `src/mods/AdventureGuide/src/State/StepProgress.cs`
+- Modify: `src/mods/AdventureGuide/src/State/TrackerState.cs`
+- Modify: `src/mods/AdventureGuide/src/UI/QuestListPanel.cs`
+- Modify: `src/mods/AdventureGuide/src/UI/QuestDetailPanel.cs`
+- Modify: `src/mods/AdventureGuide/src/UI/TrackerWindow.cs`
 - Modify: `src/mods/AdventureGuide/src/Navigation/NavigationController.cs`
-- Create: `tests/unit/mods/test_adventure_guide_encounters.py`
+- Modify: `src/mods/AdventureGuide/src/Navigation/WorldMarkerSystem.cs`
+- Modify: `src/mods/AdventureGuide/src/Navigation/EntityRegistry.cs`
+- Modify: `src/mods/AdventureGuide/src/Navigation/LootScanner.cs`
+- Modify: `src/mods/AdventureGuide/src/Patches/InventoryPatch.cs`
+- Modify: `src/mods/AdventureGuide/src/Patches/DeathPatch.cs`
+- Create: `src/mods/AdventureGuide/src/Patches/ScriptedEntityPatch.cs`
+- Modify: `src/mods/AdventureGuide/src/Plugin.cs`
+- Create: `tests/unit/mods/test_adventure_guide_workflows.py`
 
-- [ ] Deserialize and index encounters separately from `QuestEntry`. Do not add
-  synthetic DB names or feed encounters through `QuestStateTracker`,
-  `StepProgress`, completed-quest pruning, or quest status colors.
-- [ ] Add an Encounters tab with a deterministic list and ordered detail view.
-  Render each action independently; show all structured item sources under
-  acquisition/purchase steps and one `[NAV]` control for every navigable source
-  or fixed location.
-- [ ] Add fixed-position navigation to `NavigationController`. From another
-  scene, reuse existing zone-line routing; in the destination scene, switch to
-  `NavigationTarget.Position` and the existing ground-path/distance rendering.
-- [ ] Keep encounter workflows informational rather than fabricating automatic
-  completion. Arrival at a coordinate does not prove a collider fired, an item
-  was consumed, or an explicit interaction happened; no proximity-only
-  completion state is persisted.
-- [ ] Preserve quest history, filtering, tracking, world markers, and shortcut
-  behavior when switching between Quests and Encounters.
-- [ ] Add focused tests proving encounters deserialize, quest state never marks
-  encounter steps complete, multi-vendor sources remain separate from action
-  text, and position navigation carries the correct scene and coordinates.
-- [ ] Run `uv run pytest tests/unit/mods/test_adventure_guide_encounters.py tests/unit/mods/test_adventure_guide_markers.py tests/unit/mods/test_adventure_guide_vault.py` and `uv run erenshor mod build --mod adventure-guide`.
-  Expected: focused tests pass and the Lunaris mod builds with zero errors.
-- [ ] Commit. Message: `feat(mod): browse scripted encounter guides`
+- [ ] Deserialize guide-only/workflow/location metadata and reject duplicate or
+  real-QuestDB-colliding synthetic identities. Keep all entries in
+  `GuideData.All`, the Quests tab, existing search/sort/filter controls, and
+  quest navigation history.
+- [ ] Add one entry-aware status path. Game-backed quests continue to use
+  `GameData.HasQuest` / `CompletedQuests`; guide-only workflows never read,
+  write, reset, or synthesize those lists. They are available cross-zone,
+  actionable in their workflow scene, repeatable, and never terminally colored
+  or pruned as completed game quests.
+- [ ] Implement a descriptor-driven cycle evaluator with the states
+  `NeedItem` → `ItemReady` → `TriggerConsumed` → `TargetsActive` →
+  `RewardAvailable` → reset. Malaroth omits `RewardAvailable`. Select the
+  current step from the strongest available evidence rather than treating a
+  consumed trigger item as regression to `Buy`/`Obtain`.
+- [ ] Observe item acquisition/consumption as before/after counts; accept a
+  trigger decrement only in the expected scene and exported trigger bounds.
+  Observe scripted targets through a descriptor-filtered `Character.Start`
+  patch plus bounded reload discovery, and reward containers through
+  descriptor-scoped loot evidence. Never infer an explicit interaction from
+  proximity alone.
+- [ ] Keep evaluation bounded: event notifications mark a workflow dirty and a
+  fixed-interval evaluator checks only active/tracked workflow descriptors.
+  No per-frame `FindObjectsOfType`, graph traversal, transitive dependency
+  resolution, or global marker/nav cache invalidation.
+- [ ] Persist only the selected workflow, cycle generation, and latched trigger
+  evidence per character as recovery hints. On character/scene load or hot
+  reload, revalidate them against inventory and bounded live entity/container
+  discovery; ambiguous arena rounds remain `Unverifiable` rather than showing
+  the wrong current step.
+- [ ] Reuse `QuestListPanel`, `QuestDetailPanel`, and `TrackerWindow`. Display
+  the existing `[R]` marker, ordered steps, sources, track/untrack controls,
+  current-step highlighting, and tracker pin. Do not create an Encounters tab
+  or duplicate list/detail panels.
+- [ ] Add fixed-position `go_to` navigation. Reuse zone-line routing from other
+  scenes, then `NavigationTarget.Position`, ground path, distance, and the
+  existing objective marker in the destination scene.
+- [ ] Extend focused tests to cover two complete/reset cycles, inventory
+  consumption at and away from the trigger, reload during a fight, repeated
+  arena enemy keys, ambiguous-state fail-safe behavior, no completed-quest
+  pruning, no GameData mutation, shared quest filters/history, and bounded
+  discovery.
+- [ ] Run `uv run pytest tests/unit/mods/test_adventure_guide_workflows.py tests/unit/mods/test_adventure_guide_markers.py tests/unit/mods/test_adventure_guide_vault.py` and `uv run erenshor mod build --mod adventure-guide`.
+  Expected: workflows use the existing quest UI/tracker and the mod builds with
+  zero errors.
+- [ ] Commit. Message: `feat(mod): track implicit repeatable workflows`
 
 ### Task 5: Regenerate and verify playtest guides
 
@@ -222,12 +301,14 @@ than post-completion steps on game quests.
 
 - [ ] Run `uv run erenshor --variant playtest guide compile` and
   `uv run erenshor --variant playtest guide export-mod`.
-- [ ] Inspect all generated encounter workflows. Expected: eight arena entries
-  use generic buy text and the `ARENA EVENT` anchor; ordinary and Demented
-  Malaroth entries use the feeding-site anchor and their respective feed items;
-  no encounter uses an NPC spawn or chest coordinate as its trigger location.
+- [ ] Inspect all generated workflows. Expected: the eight arena and two
+  Malaroth entries appear in the normal quest collection as guide-only,
+  implicit, repeatable records; real token/crafting quests remain distinct;
+  all buy text is generic; every trigger uses its event coordinate rather than
+  a vendor, spawned enemy, or reward location.
 - [ ] Run `uv run pytest`, `uv run ruff check src/erenshor tests`,
   `uv run mypy src/erenshor`, and
   `uv run erenshor mod build --mod adventure-guide`.
-  Expected: the full suite, lint, type checking, and mod build pass.
-- [ ] Commit. Message: `chore(guide): regenerate scripted encounter data`
+  Expected: full tests, lint, type checking, artifact generation, and mod build
+  pass.
+- [ ] Commit. Message: `chore(guide): regenerate implicit workflow data`
