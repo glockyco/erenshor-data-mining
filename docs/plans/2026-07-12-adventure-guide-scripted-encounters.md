@@ -195,7 +195,7 @@ game quest identities.
 - [x] Run `uv run pytest tests/unit/application/guide/test_compiler.py tests/unit/application/guide/test_regression.py`.
   Expected: synthetic workflows compile deterministically while real quest
   parity and topology remain unchanged.
-- [ ] Commit. Message: `feat(guide): compile implicit scripted workflows`
+- [x] Commit. Message: `feat(guide): compile implicit scripted workflows`
 
 ### Task 3: Export workflows through the existing quest contract
 
@@ -203,28 +203,30 @@ game quest identities.
 - Modify: `src/erenshor/application/guide/mod_writer.py`
 - Modify: `tests/unit/application/guide/test_mod_writer.py`
 
-- [ ] Keep a single top-level `quests` collection. Emit guide-only workflows as
+**Status:** [x] Complete
+
+- [x] Keep a single top-level `quests` collection. Emit guide-only workflows as
   ordinary `QuestEntry`-shaped records plus `flags.guide_only=true` and a
   workflow-cycle descriptor; do not add an `encounters` collection or a second
   list/detail schema.
-- [ ] Render every purchase instruction as exactly `Buy <item>.`. Attach all
+- [x] Render every purchase instruction as exactly `Buy <item>.`. Attach all
   vendor sources as structured step data so the UI can show and navigate every
   seller independently from the action sentence.
-- [ ] Emit a nested location `{stable_key, display_name, scene, x, y, z}` on
+- [x] Emit a nested location `{stable_key, display_name, scene, x, y, z}` on
   each `go_to` step. Arena navigation targets the passive entry trigger;
   Malaroth navigation targets the feeding trigger. Neither targets the vendor,
   spawned NPC, or reward chest.
-- [ ] Encode the observed passive semantics: trigger entry automatically
+- [x] Encode the observed passive semantics: trigger entry automatically
   consumes the appropriate item. Never emit click, dialog, interact, or
   explicit item-use instructions for either workflow.
-- [ ] Reject a guide-only record whose synthetic DB name collides with any real
+- [x] Reject a guide-only record whose synthetic DB name collides with any real
   quest DB name, whose stable key is duplicated, or whose location/evidence is
   missing or non-finite. Sort workflows, sources, targets, and steps
   deterministically.
-- [ ] Add writer tests for generic buy text with multiple vendors, one unified
+- [x] Add writer tests for generic buy text with multiple vendors, one unified
   quest collection, guide-only flags, workflow evidence, fixed locations,
   collision failures, and byte-identical repeated serialization.
-- [ ] Run `uv run pytest tests/unit/application/guide/test_mod_writer.py`.
+- [x] Run `uv run pytest tests/unit/application/guide/test_mod_writer.py`.
   Expected: no output contains `from the Master of Battle, then`, and no
   separate encounter schema or UI contract is required.
 - [ ] Commit. Message: `feat(guide): export implicit workflow quests`
