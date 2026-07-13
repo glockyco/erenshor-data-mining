@@ -5,6 +5,69 @@
     "updated_at": "2026-01-30T15:37:29.593783+00:00"
   },
   "rules": {
+    "character:arenachest 1": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 1)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: 8 identically-named chests; suffix by arena round (chest index)"
+    },
+    "character:arenachest 2": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 2)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 3": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 3)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 4": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 4)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 5": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 5)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 6": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 6)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 6:planeofvitheo:514.24:25.16:476.86": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 6)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Duplicate directly-placed copy of arenachest 6; label as Round 6 pending dedup"
+    },
+    "character:arenachest 7": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 7)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
+    },
+    "character:arenachest 8": {
+      "wiki_page_name": "Vithean Chest",
+      "display_name": "Vithean Chest (Round 8)",
+      "image_name": "Vithean Chest",
+      "mapping_type": "custom",
+      "reason": "Plane of Vitheo arena ladder final round (drops Fee (1), loops); suffix by arena round (chest index)"
+    },
     "character:verdant energy": {
       "wiki_page_name": "Verdant Energy",
       "display_name": "Verdant Energy",
