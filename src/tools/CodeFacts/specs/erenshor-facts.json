@@ -226,6 +226,7 @@
       "id": "auction.player_listing_gate",
       "mode": "assert",
       "variants": [
+        "main",
         "playtest"
       ],
       "type": "AuctionHouseUI",
