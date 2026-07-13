@@ -93,11 +93,15 @@ class TestEdgeTypeCoverage:
     # - ENABLES_INTERACTION, REMOVES_INVULNERABILITY: manual overrides only
     # - REQUIRES_QUEST: no prerequisite table in DB; the C# mod derives
     #   quest prerequisites by traversing item/character unlock chains
+    # - STEP_BUY, STEP_TURN_IN: projection actions synthesized by mod_writer;
+    #   they are not graph relationships in the clean database
     # - PROTECTS: no protector data in clean DB; comes from overrides
     _NOT_FROM_DB: ClassVar[set[EdgeType]] = {
         EdgeType.ENABLES_INTERACTION,
         EdgeType.REMOVES_INVULNERABILITY,
         EdgeType.REQUIRES_QUEST,
+        EdgeType.STEP_BUY,
+        EdgeType.STEP_TURN_IN,
         EdgeType.PROTECTS,
     }
 
@@ -107,6 +111,15 @@ class TestEdgeTypeCoverage:
             pytest.skip(f"{edge_type.value} not produced from DB data alone")
         edges = [e for e in graph.all_edges() if e.type == edge_type]
         assert len(edges) > 0, f"No edges of type {edge_type.value}"
+
+
+class TestDeterministicEdgeOrder:
+    """Verify deduplicated set relationships serialize in stable order."""
+
+    def test_character_spawn_zones_are_sorted(self, graph: EntityGraph) -> None:
+        for character in graph.nodes_of_type(NodeType.CHARACTER):
+            targets = [edge.target for edge in graph.out_edges(character.key, EdgeType.SPAWNS_IN)]
+            assert targets == sorted(targets), f"{character.key}: unsorted spawn zones"
 
 
 # ---------------------------------------------------------------------------

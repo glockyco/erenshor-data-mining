@@ -121,9 +121,9 @@ class TestCompiledDataInvariants:
         """One item_sources entry per item node."""
         assert len(compiled.item_sources) == len(compiled.item_node_ids)
 
-    def test_topo_order_covers_all_quests(self, compiled: CompiledData) -> None:
-        """topo_order contains every quest index exactly once."""
-        expected = set(range(len(compiled.quest_node_ids)))
+    def test_topo_order_covers_game_quests(self, compiled: CompiledData) -> None:
+        """Topology contains every game-backed quest and no guide-only workflow."""
+        expected = {quest_index for quest_index, spec in enumerate(compiled.quest_specs) if spec.workflow_cycle is None}
         actual = set(compiled.topo_order)
         assert actual == expected, f"topo_order missing: {expected - actual}; extra: {actual - expected}"
 

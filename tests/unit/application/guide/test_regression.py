@@ -88,13 +88,13 @@ def current():
 
 
 @pytest.fixture(scope="module")
-def require_v5(current):
-    if current.get("_version", 2) < 5:
-        pytest.skip("Current output is pre-v5; v5 tests will pass after pipeline rewrite")
+def require_v6(current):
+    if current.get("_version", 2) < 6:
+        pytest.skip("Current output is pre-v6; v6 tests require workflow metadata")
 
 
 class TestStructuralParity:
-    """Verify the v5 output preserves game quests and structural data."""
+    """Verify the v6 output preserves game quests and structural data."""
 
     def test_expected_quest_delta(self, golden, current):
         golden_names = set(_index_quests(golden))
@@ -115,8 +115,8 @@ class TestStructuralParity:
     def test_chain_group_coverage_allows_current_regrouping(self, golden, current):
         assert len(current["_chain_groups"]) >= len(golden["_chain_groups"]) - 1
 
-    def test_version_bumped(self, current, require_v5):
-        assert current["_version"] == 5
+    def test_version_bumped(self, current, require_v6):
+        assert current["_version"] == 6
 
 
 class TestPerQuestParity:
@@ -150,7 +150,7 @@ class TestPerQuestParity:
                     f"{db_name}: required item {item_name} is no longer actionable"
                 )
 
-    def test_obtainability_sources_preserved(self, golden, current, require_v5):
+    def test_obtainability_sources_preserved(self, golden, current, require_v6):
         """v3 sources cover v2 sources minus map-hidden characters."""
         g_idx = _index_quests(golden)
         c_idx = _index_quests(current)
@@ -211,7 +211,7 @@ class TestLevelEstimates:
 class TestPrerequisites:
     """Verify structured prerequisites replace opaque strings."""
 
-    def test_prerequisites_are_structured(self, current, require_v5):
+    def test_prerequisites_are_structured(self, current, require_v6):
         """All prerequisites in v3 should be dicts with quest_key, not strings."""
         for q in current["quests"]:
             for prereq in q.get("prerequisites", []):
@@ -223,7 +223,7 @@ class TestPrerequisites:
 class TestSourceLevels:
     """Verify sources carry inline levels."""
 
-    def test_drop_sources_have_levels(self, current, require_v5):
+    def test_drop_sources_have_levels(self, current, require_v6):
         """Drop sources should carry enemy level inline."""
         drops_with_level = 0
         drops_total = 0
@@ -239,7 +239,7 @@ class TestSourceLevels:
             ratio = drops_with_level / drops_total
             assert ratio > 0.8, f"Only {drops_with_level}/{drops_total} drop sources have levels"
 
-    def test_zone_sources_have_levels(self, current, require_v5):
+    def test_zone_sources_have_levels(self, current, require_v6):
         """Mining/fishing/pickup sources should carry zone median level."""
         zone_types = {"mining", "fishing", "pickup"}
         with_level = 0

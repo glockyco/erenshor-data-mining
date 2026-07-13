@@ -2309,7 +2309,7 @@ def _add_character_spawn_edges(conn: sqlite3.Connection, graph: EntityGraph) -> 
             char_zones.setdefault(char_key, set()).add(zone_key)
 
     for char_key, zones in char_zones.items():
-        for zone_key in zones:
+        for zone_key in sorted(zones):
             graph.add_edge(
                 Edge(
                     source=char_key,
