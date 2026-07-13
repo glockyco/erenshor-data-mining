@@ -8,7 +8,7 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Port Azure]] || style="text-align:right" | 1–35 || style="text-align:right" | 11 || {{MapLink|zone=Azure}} ||
 |-
-| [[Reliquary Hall]] || style="text-align:right" | 16–35 || style="text-align:right" | 16 || — ||
+| [[Reliquary Hall]] || style="text-align:right" | 16–35 || style="text-align:right" | 16 || {{MapLink|zone=Reliquary}} ||
 |-
 | [[Stowaway's Step]] || style="text-align:right" | 1–6 || style="text-align:right" | 2 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
@@ -83,9 +83,9 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Jaws of Sivakaya]] || style="text-align:right" | 30–35 || style="text-align:right" | 34 || {{MapLink|zone=Jaws}} ||
 |-
-| [[Secluded Sanctuary]] || style="text-align:right" | 35 || style="text-align:right" | 40 || — ||
+| [[Secluded Sanctuary]] || style="text-align:right" | 35 || style="text-align:right" | 40 || {{MapLink|zone=StowawayPortal}} ||
 |-
-| [[Prison]] || style="text-align:right" | — || style="text-align:right" | — || — ||
+| [[Prison]] || style="text-align:right" | — || style="text-align:right" | — || {{MapLink|zone=Detention}} ||
 |}
 
 ==Event Zones==
@@ -96,24 +96,26 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Shivering Step]] || style="text-align:right" | 19–24 || style="text-align:right" | 21 || {{MapLink|zone=ShiveringStep}} ||
 |-
-| [[Shivering Tomb]] || style="text-align:right" | 19–24 || style="text-align:right" | 24 || — ||
+| [[Shivering Tomb|Shivering Tomb (1)]] || style="text-align:right" | 19–24 || style="text-align:right" | 22 || {{MapLink|zone=ShiveringTomb}} ||
+|-
+| [[Shivering Tomb|Shivering Tomb (2)]] || style="text-align:right" | 19–24 || style="text-align:right" | 24 || {{MapLink|zone=ShiveringTomb2}} ||
 |}
 
-==Planes==
-These zones are not yet implemented.
+==Raids==
+Four raids are available. [[Sivakaya's Plane of Destruction]] is not yet implemented. For raid unlock requirements, see [[Raid Unlocking Walkthrough]].
 
-{| class="wikitable"
-! Zone !! Notes
+{| class="wikitable sortable"
+! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median Level !! Map !! Notes
 |-
-| [[Vitheo's Plane of War]] || <span style="color: red;">''Unimplemented''</span>
+| [[Vitheo's Plane of Valor]] || style="text-align:right" | 35 || style="text-align:right" | 42 || {{MapLink|zone=PlaneOfVitheo}} ||
 |-
-| [[Soluna's Celestial Plane]] || <span style="color: red;">''Unimplemented''</span>
+| [[Soluna's Celestial Plane]] || style="text-align:right" | 35 || style="text-align:right" | 42 || {{MapLink|zone=PlaneOfSoluna}} ||
 |-
-| [[Fernalla's Plane of the Willow]] || <span style="color: red;">''Unimplemented''</span>
+| [[Plane of the Willow]] || style="text-align:right" | 35 || style="text-align:right" | 40 || {{MapLink|zone=PlaneOfFernalla}} ||
 |-
-| [[Sivakaya's Plane of Destruction]] || <span style="color: red;">''Unimplemented''</span>
+| [[Sivakaya's Plane of Destruction]] || style="text-align:right" | — || style="text-align:right" | — || — || <span style="color: red;">''Unimplemented''</span>
 |-
-| [[Brax's Elemental Plane]] || <span style="color: red;">''Unimplemented''</span>
+| [[Brax's Plane of Elements]] || style="text-align:right" | 35 || style="text-align:right" | 42 || {{MapLink|zone=PlaneOfBrax}} ||
 |}
 
 ==World Map==

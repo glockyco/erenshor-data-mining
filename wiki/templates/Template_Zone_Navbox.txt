@@ -8,6 +8,9 @@
 ! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Dungeons
 | [[Abyssal Lake]] · [[Blooming Sepulcher]] · [[The Bonepits]] · [[The Elderstone Mines]] · [[Fallen Braxonia]] · [[Island Tomb]] · [[Jaws of Sivakaya]] · [[Lost Cellar]] · [[Mysterious Portal]] · [[Old Krakengard]] · [[Prielian Cascade]] · [[Prison]] · [[Rockshade Hold]] · [[Secluded Sanctuary]] · [[Underspine Hollow]] · [[Vitheo's Rest]]
 |-
+! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Raids
+| [[Brax's Plane of Elements]] · [[Plane of the Willow]] · [[Soluna's Celestial Plane]] · [[Vitheo's Plane of Valor]]
+|-
 ! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Event Zones
 | [[Bellwain Island]] · [[Shivering Step]] · [[Shivering Tomb]]
 |}
