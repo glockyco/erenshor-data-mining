@@ -482,26 +482,30 @@ function p.run()
 	})
 	assertEqual(
 		countOccurrences(armorTooltip, 'class="item-tooltip item-tooltip-armor"'),
-		3,
-		"pre-Planar March mode emits Normal, Blessed, and Ascended armor variants"
+		8,
+		"Planar March mode emits all eight armor quality variants"
 	)
 	for _, quality in ipairs({
 		"Normal",
+		"Improved +1",
+		"Improved +2",
+		"Improved +3",
+		"Improved +4",
+		"Improved +5",
 		"Blessed",
 		"Ascended",
 	}) do
 		assertContains(armorTooltip, quality, "armor output labels " .. quality)
 	end
-	assertAbsent(armorTooltip, "Improved +1", "pre-Planar March mode hides Improved armor variants")
-	assertAbsent(
+	assertContains(
 		armorTooltip,
 		"item-tooltip-quality-sparkle-improved",
-		"pre-Planar March mode hides Improved sparkles"
+		"Planar March mode renders Improved sparkles"
 	)
 	assertContains(
 		armorTooltip,
 		'item-tooltip-stat-value">3</span>',
-		"legacy Ascended armor uses one-half scaling"
+		"Planar March Ascended armor uses released scaling"
 	)
 
 	local weaponTooltipFromParams = renderParameterized({
@@ -526,13 +530,13 @@ function p.run()
 	})
 	assertEqual(
 		countOccurrences(weaponTooltipFromParams, 'class="item-tooltip item-tooltip-weapon"'),
-		3,
-		"pre-Planar March mode emits Normal, Blessed, and Ascended weapon variants"
+		8,
+		"Planar March mode emits all eight weapon quality variants"
 	)
-	assertAbsent(
+	assertContains(
 		weaponTooltipFromParams,
 		"Improved +1",
-		"pre-Planar March mode hides Improved weapon variants"
+		"Planar March mode renders Improved weapon variants"
 	)
 	assertContains(
 		weaponTooltipFromParams,
