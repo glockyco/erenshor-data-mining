@@ -9,10 +9,7 @@
 --   * Layout, labels, ordering, and which rows appear match the live tooltip
 --     exactly (e.g. attributes always shown defaulting to 0, abbreviated labels
 --     with no colon, resists as "+N%").
---   * Computed game logic comes from the game, NOT the wiki. The one explicit
---     exception is the Improved +5 resist correction: the shipped predicate
---     omits runtime quality 15, so generated wiki data applies the intended
---     non-decreasing +1 Improved bonus.
+--   * Computed game logic comes from the game, NOT the wiki.
 --     The "- 2-Handed" classification and the Base DPS x2 apply only to
 --     TwoHandMelee/TwoHandStaff (ItemInfoWindow.cs); bows are not 2-handed. The
 --     live wiki keys this off a string label and wrongly includes bows.

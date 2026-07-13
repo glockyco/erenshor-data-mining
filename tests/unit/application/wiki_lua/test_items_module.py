@@ -123,7 +123,7 @@ def test_preserves_all_quality_rows_in_gameplay_order() -> None:
     assert item_data["armor"] == 3
 
 
-def test_corrects_improved_plus_five_resists_to_intended_progression() -> None:
+def test_preserves_improved_plus_five_resists_from_release_data() -> None:
     item = make_item()
     stats = [
         ItemStats.model_validate(
@@ -150,10 +150,10 @@ def test_corrects_improved_plus_five_resists_to_intended_progression() -> None:
             {
                 "item_stable_key": item.stable_key,
                 "quality": "Improved +5",
-                "mr": 0,
-                "er": 0,
-                "pr": 0,
-                "vr": 0,
+                "mr": 6,
+                "er": 7,
+                "pr": 8,
+                "vr": 9,
             }
         ),
     ]
@@ -164,7 +164,7 @@ def test_corrects_improved_plus_five_resists_to_intended_progression() -> None:
         row["quality"]: row for row in data["shards"][data["index"]["byKey"][item.stable_key]][item.stable_key]["stats"]
     }
     assert {rows["Improved +4"][key] for key in ("mr", "er", "pr", "vr")} == {1}
-    assert {rows["Improved +5"][key] for key in ("mr", "er", "pr", "vr")} == {1}
+    assert tuple(rows["Improved +5"][key] for key in ("mr", "er", "pr", "vr")) == (6, 7, 8, 9)
 
     item = make_item(spell_cast_time=1.5, weapon_dly=2.5)
     stats = [

@@ -180,8 +180,7 @@ local function calcResistsPlanarMarch(base, quality)
 		local blessed = value + roundToInt(value / 3) + 1
 		return max3(math.max(2 * value, value + 3), blessed + 1, value + 2)
 	end
-	-- The shipped predicate accidentally omits runtime quality 15, making
-	-- Improved +5 fall back to the Normal resist. Keep the game edge case.
+	-- Shipping qualities 13 through 15 each add one resist point.
 	if quality >= 13 and quality <= 15 then
 		return value + 1
 	end

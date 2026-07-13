@@ -171,8 +171,6 @@ _STAT_FIELD_MAP = (
     ("mitigationScaling", "mitigation_scaling"),
 )
 
-_RESIST_STAT_FIELDS = frozenset({"mr", "er", "pr", "vr"})
-
 
 def generate_items_modules(
     item_repo: ItemDataRepository,
@@ -330,11 +328,7 @@ def _item_record(
             row["ingredients"] = ingredients
         if rewards:
             row["rewards"] = rewards
-    normal_stat = next((stat for stat in stats if stat.quality in {"Normal", "0"}), None)
-    stat_rows = [
-        _stat_record(stat, normal_stat)
-        for stat in sorted(stats, key=lambda candidate: _quality_order(candidate.quality))
-    ]
+    stat_rows = [_stat_record(stat) for stat in sorted(stats, key=lambda candidate: _quality_order(candidate.quality))]
     stat_rows = [stat for stat in stat_rows if len(stat) > 1]
     if stat_rows:
         row["stats"] = stat_rows
@@ -421,16 +415,10 @@ def _recipe_links(links: list[tuple[ItemLink, int]]) -> list[LuaData]:
     ]
 
 
-def _stat_record(stat: ItemStats, normal_stat: ItemStats | None = None) -> LuaData:
+def _stat_record(stat: ItemStats) -> LuaData:
     row: LuaData = {"quality": stat.quality}
     for lua_name, attr_name in _STAT_FIELD_MAP:
-        value = getattr(stat, attr_name)
-        if stat.quality == "Improved +5" and normal_stat is not None and attr_name in _RESIST_STAT_FIELDS:
-            # The shipped CalcResists predicate omits quality 15. Keep wiki
-            # quality progression non-decreasing by applying the intended +1
-            # Improved resist bonus to the final upgrade row.
-            value = (getattr(normal_stat, attr_name) or 0) + 1
-        _put(row, lua_name, value)
+        _put(row, lua_name, getattr(stat, attr_name))
     return row
 
 
