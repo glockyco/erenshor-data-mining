@@ -762,3 +762,63 @@ def _finite_floats(value: object) -> list[float]:
     if isinstance(value, list):
         return [number for child in value for number in _finite_floats(child)]
     return []
+
+
+def _arena_step_graph() -> EntityGraph:
+    quest = _quest("quest:arena", "ARENA")
+    token = _item("item:vith-token", "Vith Token")
+    fee = _item("item:vith-coin", "Vith Coin")
+    completer = _character("char:arena-master", "Arena Master")
+    enemy = _character("char:arena-enemy", "Arena Wave Enemy")
+    chest = _character("char:arena-chest", "Arena Reward Chest")
+    return _graph(
+        quest,
+        token,
+        fee,
+        completer,
+        enemy,
+        chest,
+        edges=[
+            Edge(source=quest.key, target=token.key, type=EdgeType.REQUIRES_ITEM, quantity=1),
+            Edge(source=quest.key, target=completer.key, type=EdgeType.COMPLETED_BY, note="item_turnin"),
+            Edge(source=quest.key, target=completer.key, type=EdgeType.STEP_TURN_IN, ordinal=20),
+            Edge(source=quest.key, target=fee.key, type=EdgeType.STEP_BUY, ordinal=25, quantity=1),
+            Edge(source=quest.key, target=enemy.key, type=EdgeType.STEP_KILL, ordinal=30, quantity=3),
+            Edge(source=quest.key, target=chest.key, type=EdgeType.STEP_LOOT, ordinal=40),
+        ],
+    )
+
+
+def test_build_mod_guide_emits_arena_steps_in_ordinal_order_and_dedupes_turn_in() -> None:
+    graph = _arena_step_graph()
+    main = _main_entry(build_mod_guide(graph, compile_graph(graph)), "quest:arena")
+
+    assert main["completion"] == [
+        {
+            "method": "item_turnin",
+            "source_name": "Arena Master",
+            "source_type": "character",
+            "source_stable_key": "char:arena-master",
+            "note": "item_turnin",
+        }
+    ]
+    steps = main["steps"]
+    assert [(step["action"], step["target_key"]) for step in steps] == [
+        ("collect", "item:vith-token"),
+        ("turn_in", "char:arena-master"),
+        ("buy", "item:vith-coin"),
+        ("kill", "char:arena-enemy"),
+        ("loot", "char:arena-chest"),
+    ]
+    turn_in = steps[1]
+    assert "quantity" not in turn_in
+    buy = steps[2]
+    assert buy["quantity"] == 1
+    assert buy["description"] == "Buy Vith Coin from the Master of Battle, then enter Vitheo's arena."
+    kill = steps[3]
+    assert kill["quantity"] == 3
+    assert kill["description"] == "Defeat 3x Arena Wave Enemy."
+    loot = steps[4]
+    assert "quantity" not in loot
+    assert loot["description"] == "Loot Arena Reward Chest."
+    assert sum(step["action"] == "turn_in" for step in steps) == 1

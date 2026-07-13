@@ -217,24 +217,32 @@ Moved here from `2026-07-10-wiki-deferred-mechanics.md` Task 8 (guide-side
 work does not belong in a wiki obtainability plan).
 
 **Files:**
+- Modify: `src/erenshor/application/guide/schema.py`
 - Modify: `src/erenshor/application/guide/graph_builder.py`
 - Modify: `src/erenshor/application/guide/compiler.py`
 - Modify: `src/erenshor/application/guide/mod_writer.py`
+- Modify: `src/mods/AdventureGuide/src/Navigation/WorldMarkerSystem.cs`
 - Test: `tests/unit/application/guide/test_compiler.py`
+- Test: `tests/unit/application/guide/test_mod_writer.py`
+- Test: `tests/unit/mods/test_adventure_guide_markers.py`
 
-- [ ] Read `arena_rounds` / `arena_round_enemies` in `graph_builder` (no
+- [x] Read `arena_rounds` / `arena_round_enemies` in `graph_builder` (no
   arena stage exists in the orchestration, `graph_builder.py:40-83`) and
-  attach steps to each `quest:vithtokenmob{N}` quest: turn in token N to the
-  Master of Battle to trigger round N, defeat the wave enemies, loot
-  `arenachest N` for the round reward. Represent the first-clear chest as
-  the round output so it stays distinct from the post-completion vendor
-  re-buy (`unlock_item_for_vendor`), which otherwise reads as a circular
-  token source.
-- [ ] Fold the steps through `_compile_quest_specs` (`compiler.py:463-504`)
-  and the mod writer so both `guide.json` and `quest-guide.json` carry them.
-- [ ] Verification: `uv run pytest tests/unit/application/guide/` passes;
-  compiled `Vitheo's Arena I` includes a kill step naming a round-1 enemy
-  and a chest step; regenerate both artifacts.
+  attach ordered steps to each `quest:vithtokenmob{N}` quest: collect and
+  turn in the first-clear token, buy the newly unlocked fee from the Master
+  of Battle, enter Vitheo's arena, defeat the wave enemies, and loot
+  `arenachest N` for the round reward. Keep the first-clear drop distinct
+  from the post-completion vendor re-buy (`unlock_item_for_vendor`) so it
+  does not read as a circular token source.
+- [x] Fold the steps through `_compile_quest_specs` and the mod writer so
+  both `guide.json` and `quest-guide.json` carry typed, ordered
+  `turn_in` / `buy` / `kill` / `loot` actions with quantities.
+- [x] Teach the marker display to label the new action types without
+  changing tracker progression semantics.
+- [x] Verification: the focused guide/mod suite passes (91 tests), the mod
+  builds, and temporary playtest artifacts show the complete ordered flow
+  for rounds 1 and 6.
+- [ ] Regenerate `guide.json` and `quest-guide.json` from playtest data.
 - [ ] Commit. Message: `feat(guide): model scripted arena rounds as quest steps`
 
 ## Non-goals (investigated, deliberately rejected)

@@ -60,6 +60,7 @@ def build_graph(db_path: Path) -> EntityGraph:
     _add_quest_unlock_zone_line_edges(conn, graph)
     _add_quest_unlock_character_edges(conn, graph)
     _add_quest_step_edges(conn, graph)
+    _add_arena_round_step_edges(conn, graph)
     _add_quest_dialog_prerequisite_edges(conn, graph)
     _add_character_drop_edges(conn, graph)
     _add_character_vendor_edges(conn, graph)
@@ -1806,6 +1807,161 @@ def _add_quest_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                     keyword=r["shout_trigger_keyword"],
                 )
             )
+
+
+def _add_arena_round_step_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Add ordered walkthrough steps for scripted arena rounds.
+
+    Arena rounds are associated with quests by their coin item requirement, not
+    by a quest stable key embedded in the arena data.  A round must resolve to
+    exactly one quest and exactly one character that accepts that quest's item
+    turn-in.  Unlike the general-purpose step builders, malformed arena data is
+    an export error rather than a reason to silently omit an edge.
+    """
+    rounds = conn.execute(
+        """
+        SELECT stable_key, coin_item_stable_key, award_chest_character_stable_key
+        FROM arena_rounds
+        ORDER BY round_index, stable_key
+        """
+    ).fetchall()
+    enemy_rows = conn.execute(
+        """
+        SELECT arena_round_stable_key, sequence_index, enemy_character_stable_key
+        FROM arena_round_enemies
+        ORDER BY arena_round_stable_key, sequence_index
+        """
+    ).fetchall()
+
+    round_keys: set[str] = set()
+    enemies_by_round: dict[str, list[tuple[int, str]]] = {}
+    for row in enemy_rows:
+        round_key = row["arena_round_stable_key"]
+        if not round_key:
+            raise ValueError("arena enemy has no arena round stable key")
+        enemies_by_round.setdefault(round_key, []).append((row["sequence_index"], row["enemy_character_stable_key"]))
+
+    for row in rounds:
+        round_key = row["stable_key"]
+        if not round_key:
+            raise ValueError("arena round has no stable key")
+        if round_key in round_keys:
+            raise ValueError(f"arena round {round_key!r} is duplicated")
+        round_keys.add(round_key)
+
+    orphan_rounds = set(enemies_by_round) - round_keys
+    if orphan_rounds:
+        raise ValueError(f"arena enemies reference unknown rounds: {sorted(orphan_rounds)!r}")
+
+    for row in rounds:
+        round_key = row["stable_key"]
+        coin_key = row["coin_item_stable_key"]
+        chest_key = row["award_chest_character_stable_key"]
+        if not coin_key or not chest_key:
+            raise ValueError(f"arena round {round_key!r} has missing coin or award chest")
+
+        quest_rows = conn.execute(
+            """
+            SELECT DISTINCT qv.quest_stable_key
+            FROM quest_required_items qri
+            JOIN quest_variants qv
+              ON qv.resource_name = qri.quest_variant_resource_name
+            WHERE qri.item_stable_key = ?
+              AND qv.quest_stable_key IS NOT NULL
+            """,
+            (coin_key,),
+        ).fetchall()
+        quest_keys = {quest_row["quest_stable_key"] for quest_row in quest_rows}
+        if len(quest_keys) != 1:
+            raise ValueError(f"arena round {round_key!r} maps to {len(quest_keys)} quests, expected one")
+        quest_key = next(iter(quest_keys))
+
+        turnin_rows = conn.execute(
+            """
+            SELECT DISTINCT source_stable_key
+            FROM quest_completion_sources
+            WHERE quest_stable_key = ?
+              AND method = 'item_turnin'
+              AND source_type = 'character'
+              AND source_stable_key IS NOT NULL
+            """,
+            (quest_key,),
+        ).fetchall()
+        turnin_keys = {turnin_row["source_stable_key"] for turnin_row in turnin_rows}
+        if len(turnin_keys) != 1:
+            raise ValueError(
+                f"arena round {round_key!r} quest {quest_key!r} maps to "
+                f"{len(turnin_keys)} item turn-in characters, expected one"
+            )
+        turnin_key = next(iter(turnin_keys))
+
+        expected_nodes = (
+            (quest_key, NodeType.QUEST),
+            (coin_key, NodeType.ITEM),
+            (turnin_key, NodeType.CHARACTER),
+            (chest_key, NodeType.CHARACTER),
+        )
+        for node_key, node_type in expected_nodes:
+            node = graph.get_node(node_key)
+            if node is None or node.type != node_type:
+                raise ValueError(
+                    f"arena round {round_key!r} references missing or invalid {node_type.value} node {node_key!r}"
+                )
+
+        enemy_steps = enemies_by_round.get(round_key, [])
+        if not enemy_steps:
+            raise ValueError(f"arena round {round_key!r} has no enemies")
+
+        by_enemy: dict[str, list[int]] = {}
+        seen_sequences: set[int] = set()
+        for sequence_index, enemy_key in enemy_steps:
+            if not isinstance(sequence_index, int) or sequence_index < 0:
+                raise ValueError(f"arena round {round_key!r} has invalid sequence index {sequence_index!r}")
+            if sequence_index in seen_sequences:
+                raise ValueError(f"arena round {round_key!r} repeats sequence index {sequence_index}")
+            seen_sequences.add(sequence_index)
+            enemy = graph.get_node(enemy_key)
+            if not enemy_key or enemy is None or enemy.type != NodeType.CHARACTER:
+                raise ValueError(
+                    f"arena round {round_key!r} references missing or invalid enemy character node {enemy_key!r}"
+                )
+            by_enemy.setdefault(enemy_key, []).append(sequence_index)
+
+        graph.add_edge(
+            Edge(
+                source=quest_key,
+                target=turnin_key,
+                type=EdgeType.STEP_TURN_IN,
+                ordinal=0,
+            )
+        )
+        graph.add_edge(
+            Edge(
+                source=quest_key,
+                target=coin_key,
+                type=EdgeType.STEP_BUY,
+                ordinal=1,
+                quantity=1,
+            )
+        )
+        for enemy_key, sequence_indexes in sorted(by_enemy.items(), key=lambda pair: (min(pair[1]), pair[0])):
+            graph.add_edge(
+                Edge(
+                    source=quest_key,
+                    target=enemy_key,
+                    type=EdgeType.STEP_KILL,
+                    ordinal=min(sequence_indexes) + 2,
+                    quantity=len(sequence_indexes),
+                )
+            )
+        graph.add_edge(
+            Edge(
+                source=quest_key,
+                target=chest_key,
+                type=EdgeType.STEP_LOOT,
+                ordinal=max(seen_sequences) + 3,
+            )
+        )
 
 
 def _add_quest_dialog_prerequisite_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:

@@ -730,7 +730,7 @@ def _steps(
         if target is None or target.type not in {NodeType.CHARACTER, NodeType.ITEM}:
             continue
         action = "talk" if target.type == NodeType.CHARACTER else "read"
-        step = _step_value(action, target, edge.keyword, edge.group)
+        step = _step_value(action, target, edge.keyword, edge.group, edge.quantity)
         _put_if(step, "level_estimate", level_for(target, action))
         entries.append((edge.ordinal if edge.ordinal is not None else -1000000, sequence, step))
         sequence += 1
@@ -751,7 +751,10 @@ def _steps(
         sequence += 1
     step_types = {
         EdgeType.STEP_TALK: "talk",
+        EdgeType.STEP_TURN_IN: "turn_in",
+        EdgeType.STEP_BUY: "buy",
         EdgeType.STEP_KILL: "kill",
+        EdgeType.STEP_LOOT: "loot",
         EdgeType.STEP_TRAVEL: "travel",
         EdgeType.STEP_SHOUT: "shout",
         EdgeType.STEP_READ: "read",
@@ -763,7 +766,7 @@ def _steps(
                 continue
             if any(entry[2].get("target_key") == target.key and entry[2].get("action") == action for entry in entries):
                 continue
-            step = _step_value(action, target, edge.keyword, edge.group)
+            step = _step_value(action, target, edge.keyword, edge.group, edge.quantity)
             _put_if(step, "level_estimate", level_for(target, action))
             entries.append((edge.ordinal if edge.ordinal is not None else 0, sequence, step))
             sequence += 1
@@ -822,11 +825,22 @@ def _item_level_estimate(sources: list[dict[str, Any]]) -> dict[str, Any] | None
     }
 
 
-def _step_value(action: str, target: Node, keyword: str | None, or_group: str | None = None) -> dict[str, Any]:
+def _step_value(
+    action: str,
+    target: Node,
+    keyword: str | None,
+    or_group: str | None = None,
+    quantity: int | None = None,
+) -> dict[str, Any]:
     if action == "talk":
         description = f'Say "{keyword}" to {target.display_name}.' if keyword else f"Speak to {target.display_name}."
+    elif action == "buy":
+        description = f"Buy {target.display_name} from the Master of Battle, then enter Vitheo's arena."
     elif action == "kill":
-        description = f"Defeat {target.display_name}."
+        quantity_prefix = f"{quantity}x " if quantity is not None and quantity > 1 else ""
+        description = f"Defeat {quantity_prefix}{target.display_name}."
+    elif action == "loot":
+        description = f"Loot {target.display_name}."
     elif action == "travel":
         description = f"Travel to {target.display_name}."
     elif action == "shout":
@@ -851,6 +865,7 @@ def _step_value(action: str, target: Node, keyword: str | None, or_group: str | 
     _put_if(value, "zone_name", target.zone)
     _put_if(value, "keyword", keyword)
     _put_if(value, "or_group", or_group)
+    _put_if(value, "quantity", quantity)
     return value
 
 

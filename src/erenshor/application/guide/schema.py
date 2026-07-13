@@ -122,6 +122,10 @@ class EdgeType(str, Enum):
 
     # -- World object edges --
     REMOVES_INVULNERABILITY = "removes_invulnerability"
+    # Appended quest step edges; keep existing enum ordinals stable.
+    STEP_TURN_IN = "step_turn_in"
+    STEP_LOOT = "step_loot"
+    STEP_BUY = "step_buy"
 
 
 # ---------------------------------------------------------------------------

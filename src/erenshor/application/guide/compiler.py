@@ -164,6 +164,7 @@ class StepSpec:
     step_type: int
     target_id: int
     ordinal: int = 0
+    quantity: int | None = None
 
 
 @dataclass(slots=True)
@@ -468,6 +469,9 @@ def _compile_quest_specs(compiled: CompiledData) -> None:
         edge_type_byte(EdgeType.STEP_TRAVEL),
         edge_type_byte(EdgeType.STEP_SHOUT),
         edge_type_byte(EdgeType.STEP_READ),
+        edge_type_byte(EdgeType.STEP_TURN_IN),
+        edge_type_byte(EdgeType.STEP_LOOT),
+        edge_type_byte(EdgeType.STEP_BUY),
     }
     requires_quest = edge_type_byte(EdgeType.REQUIRES_QUEST)
     requires_item = {edge_type_byte(EdgeType.REQUIRES_ITEM), edge_type_byte(EdgeType.REQUIRES_MATERIAL)}
@@ -494,7 +498,14 @@ def _compile_quest_specs(compiled: CompiledData) -> None:
             elif edge.edge_type in requires_item:
                 spec.required_items.append(ItemRequirement(item_id=edge.target_id, qty=edge.quantity or 1, group=0))
             elif edge.edge_type in step_types:
-                spec.steps.append(StepSpec(step_type=edge.edge_type, target_id=edge.target_id, ordinal=edge.ordinal))
+                spec.steps.append(
+                    StepSpec(
+                        step_type=edge.edge_type,
+                        target_id=edge.target_id,
+                        ordinal=edge.ordinal,
+                        quantity=edge.quantity or None,
+                    )
+                )
             elif edge.edge_type == assigned_by:
                 spec.giver_node_ids.append(edge.target_id)
             elif edge.edge_type == completed_by:

@@ -5,6 +5,8 @@ from __future__ import annotations
 import math
 import sqlite3
 
+import pytest
+
 from erenshor.application.guide.compiler import (
     CompiledData,
     CompiledEdge,
@@ -881,3 +883,182 @@ def test_compile_graph_preserves_runtime_metadata() -> None:
     assert reward_edge.note == "char:vendor"
     assert reward_edge.amount == 5
     assert faction_edge.amount == 25
+
+
+def test_graph_builder_arena_round_steps_map_tokens_and_compile() -> None:
+    from erenshor.application.guide.graph_builder import (
+        _add_arena_round_step_edges,
+        _add_quest_required_item_edges,
+    )
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE arena_rounds (
+                stable_key TEXT,
+                scene TEXT,
+                arena_object_name TEXT,
+                round_index INTEGER,
+                coin_item_stable_key TEXT,
+                award_chest_character_stable_key TEXT
+            );
+            CREATE TABLE arena_round_enemies (
+                arena_round_stable_key TEXT,
+                sequence_index INTEGER,
+                enemy_character_stable_key TEXT
+            );
+            CREATE TABLE quest_variants (resource_name TEXT, quest_stable_key TEXT);
+            CREATE TABLE quest_required_items (
+                quest_variant_resource_name TEXT,
+                item_stable_key TEXT,
+                quantity INTEGER
+            );
+            CREATE TABLE quest_completion_sources (
+                quest_stable_key TEXT,
+                method TEXT,
+                source_type TEXT,
+                source_stable_key TEXT
+            );
+            """
+        )
+        conn.executemany(
+            "INSERT INTO arena_rounds VALUES (?, 'Arena', ?, ?, ?, ?)",
+            [
+                ("arena:r1", "Round 1", 1, "item:coin1", "char:chest1"),
+                ("arena:r2", "Round 2", 2, "item:coin2", "char:chest2"),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO arena_round_enemies VALUES (?, ?, ?)",
+            [
+                ("arena:r1", 0, "char:enemy-a"),
+                ("arena:r1", 1, "char:enemy-b"),
+                ("arena:r2", 0, "char:enemy-c"),
+                ("arena:r2", 1, "char:enemy-c"),
+                ("arena:r2", 2, "char:enemy-c"),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO quest_variants VALUES (?, ?)",
+            [("variant:r1", "quest:arena1"), ("variant:r2", "quest:arena2")],
+        )
+        conn.executemany(
+            "INSERT INTO quest_required_items VALUES (?, ?, 1)",
+            [("variant:r1", "item:coin1"), ("variant:r2", "item:coin2")],
+        )
+        conn.executemany(
+            "INSERT INTO quest_completion_sources VALUES (?, 'item_turnin', 'character', ?)",
+            [("quest:arena1", "char:turnin1"), ("quest:arena2", "char:turnin2")],
+        )
+
+        graph = _graph(
+            _quest("quest:arena1"),
+            _quest("quest:arena2"),
+            _item("item:coin1"),
+            _item("item:coin2"),
+            _char("char:turnin1"),
+            _char("char:turnin2"),
+            _char("char:enemy-a"),
+            _char("char:enemy-b"),
+            _char("char:enemy-c"),
+            _char("char:chest1"),
+            _char("char:chest2"),
+        )
+        _add_quest_required_item_edges(conn, graph)
+        _add_arena_round_step_edges(conn, graph)
+        graph.build_indexes()
+
+        first_steps = graph.out_edges("quest:arena1")
+        assert [(edge.type, edge.target, edge.ordinal, edge.quantity) for edge in first_steps] == [
+            (EdgeType.REQUIRES_ITEM, "item:coin1", None, 1),
+            (EdgeType.STEP_TURN_IN, "char:turnin1", 0, None),
+            (EdgeType.STEP_BUY, "item:coin1", 1, 1),
+            (EdgeType.STEP_KILL, "char:enemy-a", 2, 1),
+            (EdgeType.STEP_KILL, "char:enemy-b", 3, 1),
+            (EdgeType.STEP_LOOT, "char:chest1", 4, None),
+        ]
+        second_steps = graph.out_edges("quest:arena2")
+        assert [(edge.type, edge.target, edge.ordinal, edge.quantity) for edge in second_steps] == [
+            (EdgeType.REQUIRES_ITEM, "item:coin2", None, 1),
+            (EdgeType.STEP_TURN_IN, "char:turnin2", 0, None),
+            (EdgeType.STEP_BUY, "item:coin2", 1, 1),
+            (EdgeType.STEP_KILL, "char:enemy-c", 2, 3),
+            (EdgeType.STEP_LOOT, "char:chest2", 5, None),
+        ]
+
+        compiled = compile_graph(graph)
+        by_quest = {compiled.nodes[spec.quest_id].key: spec for spec in compiled.quest_specs}
+        assert [
+            (step.step_type, compiled.nodes[step.target_id].key, step.ordinal, step.quantity)
+            for step in by_quest["quest:arena2"].steps
+        ] == [
+            (edge_type_byte(EdgeType.STEP_TURN_IN), "char:turnin2", 0, None),
+            (edge_type_byte(EdgeType.STEP_BUY), "item:coin2", 1, 1),
+            (edge_type_byte(EdgeType.STEP_KILL), "char:enemy-c", 2, 3),
+            (edge_type_byte(EdgeType.STEP_LOOT), "char:chest2", 5, None),
+        ]
+        assert [req.item_id for req in by_quest["quest:arena2"].required_items] == [
+            compiled.node_key_to_id["item:coin2"]
+        ]
+    finally:
+        conn.close()
+
+
+def test_graph_builder_arena_round_steps_reject_ambiguity_and_missing_nodes() -> None:
+    from erenshor.application.guide.graph_builder import _add_arena_round_step_edges
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE arena_rounds (
+                stable_key TEXT,
+                round_index INTEGER,
+                coin_item_stable_key TEXT,
+                award_chest_character_stable_key TEXT
+            );
+            CREATE TABLE arena_round_enemies (
+                arena_round_stable_key TEXT,
+                sequence_index INTEGER,
+                enemy_character_stable_key TEXT
+            );
+            CREATE TABLE quest_variants (resource_name TEXT, quest_stable_key TEXT);
+            CREATE TABLE quest_required_items (quest_variant_resource_name TEXT, item_stable_key TEXT);
+            CREATE TABLE quest_completion_sources (
+                quest_stable_key TEXT,
+                method TEXT,
+                source_type TEXT,
+                source_stable_key TEXT
+            );
+            INSERT INTO arena_rounds VALUES ('arena:r', 1, 'item:coin', 'char:chest');
+            INSERT INTO arena_round_enemies VALUES ('arena:r', 0, 'char:enemy');
+            INSERT INTO quest_variants VALUES ('variant:one', 'quest:one');
+            INSERT INTO quest_variants VALUES ('variant:two', 'quest:two');
+            INSERT INTO quest_required_items VALUES ('variant:one', 'item:coin');
+            INSERT INTO quest_required_items VALUES ('variant:two', 'item:coin');
+            """
+        )
+        graph = _graph(
+            _quest("quest:one"),
+            _quest("quest:two"),
+            _item("item:coin"),
+            _char("char:chest"),
+            _char("char:enemy"),
+        )
+        with pytest.raises(ValueError, match="expected one"):
+            _add_arena_round_step_edges(conn, graph)
+
+        conn.execute("DELETE FROM quest_required_items WHERE quest_variant_resource_name = 'variant:two'")
+        with pytest.raises(ValueError, match="item turn-in characters"):
+            _add_arena_round_step_edges(conn, graph)
+
+        conn.execute(
+            "INSERT INTO quest_completion_sources VALUES ('quest:one', 'item_turnin', 'character', 'char:turnin')"
+        )
+        with pytest.raises(ValueError, match="missing or invalid character node"):
+            _add_arena_round_step_edges(conn, graph)
+    finally:
+        conn.close()

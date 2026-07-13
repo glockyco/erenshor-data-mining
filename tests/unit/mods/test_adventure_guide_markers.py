@@ -71,3 +71,16 @@ def test_ordinary_directly_placed_spawns_keep_zone_reentry() -> None:
     helper = _directly_placed_respawn_helper()
 
     assert "if (gateStableKey == null)\n            return false;" in helper
+
+
+def test_step_marker_subtext_maps_actions() -> None:
+    source = (MOD_ROOT / "src" / "Navigation" / "WorldMarkerSystem.cs").read_text()
+    formatter = source.split("private static string FormatStepActionText", 1)[1].split("// ── Helpers", 1)[0]
+
+    assert '"talk" when step.Keyword != null => $"Say \'{step.Keyword}\'"' in formatter
+    assert '"talk" => "Talk to"' in formatter
+    assert '"turn_in" => "Turn in"' in formatter
+    assert '"buy" => "Buy"' in formatter
+    assert '"loot" => "Loot"' in formatter
+    assert '"kill" when step.Quantity > 1 => $"Kill ({step.Quantity})"' in formatter
+    assert '"kill" => "Kill"' in formatter
