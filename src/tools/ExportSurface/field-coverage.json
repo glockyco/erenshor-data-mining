@@ -3049,6 +3049,12 @@
         "reason": "raid/nav runtime state populated during play, not prefab export data",
         "status": "ignored",
         "type": "System.Single"
+      },
+      "tanksOnly": {
+        "by": null,
+        "reason": "runtime raid-targeting cooldown decremented during combat, not authored prefab data",
+        "status": "ignored",
+        "type": "System.Single"
       }
     },
     "Quest": {
@@ -4891,6 +4897,18 @@
         "reason": null,
         "status": "captured",
         "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Gate1": {
+        "by": null,
+        "reason": "scene presentation gate toggled during arena combat, not exported arena data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Gate2": {
+        "by": null,
+        "reason": "scene presentation gate toggled during arena combat, not exported arena data",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
       },
       "HonsusNavPoints": {
         "by": null,
