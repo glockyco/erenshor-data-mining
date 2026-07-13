@@ -40,6 +40,7 @@ public sealed class ImGuiRenderer : IDisposable
     private float _uiScale = 1f;
     private float _pendingScale = -1f;
     private byte[]? _unscaledStyleBackup;
+    private bool _appQuitting;
 
     /// <summary>Draw callback invoked between NewFrame and EndFrame.</summary>
     public Action? OnLayout { get; set; }
@@ -106,6 +107,10 @@ public sealed class ImGuiRenderer : IDisposable
             ImGui.GetStyle().ScaleAllSizes(_uiScale);
             CreateMaterial();
             _commandBuffer = new CommandBuffer { name = "AdventureGuide_ImGui" };
+
+            // On application quit the native cimgui module can be unloaded
+            // before OnDestroy runs; flag it so teardown skips native calls.
+            Application.quitting += OnApplicationQuitting;
 
             _log.LogInfo("Adventure Guide private ImGui renderer initialized.");
             return true;
@@ -211,6 +216,8 @@ public sealed class ImGuiRenderer : IDisposable
 
     public void Dispose()
     {
+        Application.quitting -= OnApplicationQuitting;
+
         if (_context != IntPtr.Zero)
             DestroyContextIfCreated();
 
@@ -532,6 +539,15 @@ public sealed class ImGuiRenderer : IDisposable
         Graphics.ExecuteCommandBuffer(_commandBuffer);
     }
 
+    private void OnApplicationQuitting()
+    {
+        // Native cimgui may already be unloaded during process teardown, so any
+        // P/Invoke into it (even igGetCurrentContext) faults with an access
+        // violation that managed try/catch cannot trap. The process is exiting;
+        // let the OS reclaim the context instead of destroying it explicitly.
+        _appQuitting = true;
+    }
+
     private void DestroyContextIfCreated()
     {
         if (_iniPathHandle.IsAllocated)
@@ -539,6 +555,12 @@ public sealed class ImGuiRenderer : IDisposable
 
         if (_context == IntPtr.Zero)
             return;
+
+        if (_appQuitting)
+        {
+            _context = IntPtr.Zero;
+            return;
+        }
 
         var previousContext = ImGui.GetCurrentContext();
         if (previousContext == _context)
