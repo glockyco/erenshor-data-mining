@@ -16,8 +16,8 @@
 --     The "- 2-Handed" classification and the Base DPS x2 apply only to
 --     TwoHandMelee/TwoHandStaff (ItemInfoWindow.cs); bows are not 2-handed. The
 --     live wiki keys this off a string label and wrongly includes bows.
---   * When enabled, Improved tiers render their quality string so +1 through +5
---     rows are distinguishable.
+--   * Improved tiers render their quality string so +1 through +5 rows are
+--     distinguishable.
 
 local Format = require("Module:Erenshor/Format")
 local Link = require("Module:Erenshor/Link")

@@ -1,13 +1,14 @@
 -- Module:Erenshor/Item/Quality
 --
 -- Item quality progression and the game's quality-stat formulas. The wiki
--- receives only the Normal row; this module derives the enabled upgrade rows
--- using either the live pre-Planar-March formulas or the patch 0.7 formulas.
+-- receives only the Normal row; this module derives all upgrade rows with the
+-- released Planar March formulas. Callers can explicitly request the legacy
+-- formulas for regression comparisons.
 
 local Quality = {}
 
--- The live wiki currently targets the pre-Planar-March game. Flip this one
--- switch for patch 0.7: it selects the new formulas and exposes Improved rows.
+-- Production uses the released Planar March formulas and exposes Improved rows.
+-- The explicit mode override remains available for legacy regression tests.
 local PLANAR_MARCH_ENABLED = true
 
 -- Runtime IDs, progression rank, and visual tier are deliberately separate.
