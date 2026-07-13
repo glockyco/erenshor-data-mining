@@ -1,129 +1,132 @@
+using AdventureGuide.Config;
 using AdventureGuide.Data;
+using AdventureGuide.Navigation;
 
 namespace AdventureGuide.State;
 
+public enum QuestRuntimeStatus
+{
+    Available,
+    Active,
+    ImplicitlyActive,
+    Completed,
+}
+
 /// <summary>
-/// Tracks player quest state from Harmony patch callbacks.
-/// Caches inventory counts and detects implicitly active quests
-/// (those without acquisition sources that become active when the
-/// player enters the quest's completion zone).
+/// Single status boundary for game-backed and guide-only quest entries.
+/// Ordinary quests mirror GameData; guide-only workflows delegate exclusively
+/// to GuideWorkflowState and never read or mutate game quest collections.
 /// </summary>
 public sealed class QuestStateTracker
 {
+    private readonly GuideData _data;
+    private readonly IQuestGameState _gameState;
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
-
-    // Quests without acquisition sources — pre-computed once from guide data.
-    // Each entry stores the completion scene (last step's zone). The quest
-    // activates implicitly when the player enters that scene.
-    private readonly List<ImplicitQuest> _implicitQuests;
+    private readonly List<ImplicitQuest> _implicitQuests = new();
     private readonly HashSet<string> _implicitlyActiveQuests = new(
         StringComparer.OrdinalIgnoreCase
     );
-
-    // Cached inventory counts, invalidated on inventory/zone/quest changes.
-    // The implicit quest set is rebuilt from the same trigger.
     private readonly Dictionary<string, int> _inventoryCache = new(
         StringComparer.OrdinalIgnoreCase
     );
     private bool _dirty = true;
-
-    /// <summary>
-    /// Monotonically increasing version. Consumers compare against their
-    /// own snapshot to detect whether quest state changed since their last
-    /// check. Avoids the multi-consumer race of a bool that one reader clears.
-    /// </summary>
-    public int Version { get; private set; }
-    public string CurrentZone { get; set; } = "";
-    public string? SelectedQuestDBName { get; set; }
-
     private NavigationHistory? _history;
 
-    public QuestStateTracker(GuideData data)
+    public int Version { get; private set; }
+    public string CurrentZone { get; private set; } = "";
+    public string? SelectedQuestKey { get; set; }
+    public GuideWorkflowState Workflows { get; }
+
+    public event Action<QuestEntry>? WorkflowChanged;
+    public event Action<QuestEntry>? WorkflowCycleReset;
+
+    public QuestStateTracker(GuideData data, EntityRegistry entities)
+        : this(data, entities, LiveQuestGameState.Instance) { }
+
+    internal QuestStateTracker(GuideData data, EntityRegistry entities, IQuestGameState gameState)
     {
-        // Pre-compute the list of quests without acquisition sources and
-        // the scene where they can be completed. Quests without steps are
-        // excluded — there's nothing to show markers for.
-        _implicitQuests = new List<ImplicitQuest>();
+        _data = data;
+        _gameState = gameState;
+        Workflows = new GuideWorkflowState(data, entities);
+        Workflows.Changed += OnWorkflowChanged;
+        Workflows.CycleReset += OnWorkflowCycleReset;
+
         foreach (var quest in data.All)
         {
-            if (!quest.IsImplicit)
+            if (quest.IsGuideOnly || !quest.IsImplicit || quest.Steps is not { Count: > 0 })
                 continue;
-            if (quest.Steps == null || quest.Steps.Count == 0)
-                continue;
-
-            // Activation scene: the zone of the last step (turn-in/completion).
-            var lastStep = quest.Steps[quest.Steps.Count - 1];
+            var lastStep = quest.Steps[^1];
             string? scene = StepSceneResolver.ResolveScene(quest, lastStep, data);
-
             _implicitQuests.Add(new ImplicitQuest(quest.DBName, scene));
         }
     }
 
-    /// <summary>Wire navigation history. Call from Plugin.Awake after construction.</summary>
+    public void LoadFromConfig(GuideConfig config) => Workflows.LoadFromConfig(config);
+
+    public void OnCharacterLoaded() => Workflows.OnCharacterLoaded(CountItem);
+
+    public void SaveToConfig() => Workflows.SaveToConfig();
+
     public void SetHistory(NavigationHistory history) => _history = history;
 
-    /// <summary>
-    /// Select a quest via user action. Pushes onto navigation history.
-    /// Use for list clicks, prerequisite links, sub-tree quest links.
-    /// </summary>
-    public void SelectQuest(string dbName)
+    public void SelectQuest(QuestEntry quest)
     {
-        if (dbName == SelectedQuestDBName)
+        if (string.Equals(quest.RuntimeKey, SelectedQuestKey, StringComparison.OrdinalIgnoreCase))
             return;
-        _history?.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, dbName));
-        SelectedQuestDBName = dbName;
+        _history?.Navigate(
+            new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, quest.RuntimeKey)
+        );
+        SelectedQuestKey = quest.RuntimeKey;
     }
 
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
 
-    /// <summary>
-    /// True when the quest is game-assigned (in the player's quest journal).
-    /// Does NOT include implicitly active quests.
-    /// </summary>
-    public bool IsActive(string dbName) => _activeQuests.Contains(dbName);
-
-    /// <summary>
-    /// True when the quest is actionable — either game-assigned or implicitly
-    /// active (no acquisition source, player is in the completion zone).
-    /// Use for marker eligibility, step progress, and navigation.
-    /// </summary>
-    public bool IsActionable(string dbName)
+    public QuestRuntimeStatus GetStatus(QuestEntry quest)
     {
-        if (_activeQuests.Contains(dbName))
-            return true;
+        if (quest.IsGuideOnly)
+        {
+            if (!Workflows.IsInCurrentScene(quest))
+                return QuestRuntimeStatus.Available;
+            return Workflows.IsInProgress(quest)
+                ? QuestRuntimeStatus.Active
+                : QuestRuntimeStatus.ImplicitlyActive;
+        }
+
+        if (_activeQuests.Contains(quest.DBName))
+            return QuestRuntimeStatus.Active;
+        if (_completedQuests.Contains(quest.DBName))
+            return QuestRuntimeStatus.Completed;
         EnsureCacheCurrent();
-        return _implicitlyActiveQuests.Contains(dbName);
+        return _implicitlyActiveQuests.Contains(quest.DBName)
+            ? QuestRuntimeStatus.ImplicitlyActive
+            : QuestRuntimeStatus.Available;
     }
 
-    /// <summary>
-    /// True when the quest is implicitly active (no acquisition source,
-    /// player is in the completion zone) but not game-assigned.
-    /// </summary>
-    public bool IsImplicitlyActive(string dbName)
+    public bool IsActive(QuestEntry quest) => GetStatus(quest) == QuestRuntimeStatus.Active;
+
+    public bool IsActionable(QuestEntry quest)
     {
-        if (_activeQuests.Contains(dbName))
-            return false;
-        EnsureCacheCurrent();
-        return _implicitlyActiveQuests.Contains(dbName);
+        var status = GetStatus(quest);
+        return status is QuestRuntimeStatus.Active or QuestRuntimeStatus.ImplicitlyActive;
     }
 
-    public bool IsCompleted(string dbName) => _completedQuests.Contains(dbName);
+    public bool IsImplicitlyActive(QuestEntry quest) =>
+        GetStatus(quest) == QuestRuntimeStatus.ImplicitlyActive;
 
-    /// <summary>Sync from live GameData state. Called on scene load and periodically.</summary>
+    public bool IsCompleted(QuestEntry quest) => GetStatus(quest) == QuestRuntimeStatus.Completed;
+
+    public bool IsGameQuestCompleted(string dbName) => _completedQuests.Contains(dbName);
+
+    public bool IsGameQuestActive(string dbName) => _activeQuests.Contains(dbName);
+
     public void SyncFromGameData()
     {
         _activeQuests.Clear();
         _completedQuests.Clear();
-
-        if (GameData.HasQuest != null)
-            foreach (var q in GameData.HasQuest)
-                _activeQuests.Add(q);
-
-        if (GameData.CompletedQuests != null)
-            foreach (var q in GameData.CompletedQuests)
-                _completedQuests.Add(q);
+        _gameState.CopyActiveQuestsTo(_activeQuests);
+        _gameState.CopyCompletedQuestsTo(_completedQuests);
 
         _dirty = true;
         Version++;
@@ -132,9 +135,6 @@ public sealed class QuestStateTracker
     public void OnQuestAssigned(string dbName)
     {
         _activeQuests.Add(dbName);
-        // Quest acceptance can give items (e.g., Kio's Papers gives a
-        // leave order). Mark dirty so collect-step progress reflects
-        // the new item on the next check.
         _dirty = true;
         Version++;
     }
@@ -143,7 +143,6 @@ public sealed class QuestStateTracker
     {
         _activeQuests.Remove(dbName);
         _completedQuests.Add(dbName);
-        // Completion may consume items; refresh cache.
         _dirty = true;
         Version++;
     }
@@ -151,27 +150,33 @@ public sealed class QuestStateTracker
     public void OnInventoryChanged()
     {
         _dirty = true;
+        Workflows.OnInventoryChanged(CurrentZone, _gameState.PlayerPosition, CountItem);
         Version++;
     }
+
+    public void OnCharacterStarted(Character character) =>
+        Workflows.ObserveCharacterStarted(character);
+
+    public void OnCharacterDeath(Character character) =>
+        Workflows.ObserveCharacterDeath(character, CountItem);
+
+    public void OnRewardContainerConsumed(Character character) =>
+        Workflows.ObserveRewardContainerConsumed(character, CountItem);
+
+    public void Update(float deltaTime) => Workflows.Update(deltaTime, CountItem);
 
     public void OnSceneChanged(string sceneName)
     {
         CurrentZone = sceneName;
         SyncFromGameData();
+        Workflows.OnSceneChanged(sceneName, CountItem);
     }
 
-    /// <summary>
-    /// Count items matching a stable key in the player inventory.
-    /// Stable keys are derived from the Unity object name:
-    /// "item:" + objectName.Trim().ToLowerInvariant().
-    /// </summary>
     public int CountItem(string itemStableKey)
     {
         EnsureCacheCurrent();
         return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
     }
-
-    // ── Cache rebuild ───────────────────────────────────────────────────
 
     private void EnsureCacheCurrent()
     {
@@ -185,60 +190,40 @@ public sealed class QuestStateTracker
     {
         _inventoryCache.Clear();
         _dirty = false;
-
-        if (GameData.PlayerInv?.StoredSlots == null)
-            return;
-
-        foreach (var slot in GameData.PlayerInv.StoredSlots)
-        {
-            if (slot?.MyItem != null)
-            {
-                // Key by stable key format matching the export pipeline.
-                // Uses Unity object name (MyItem.name), not display name
-                // (MyItem.ItemName), because display names are ambiguous
-                // (e.g. multiple "Soul Gem" items for different quests).
-                var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
-                _inventoryCache[key] = _inventoryCache.TryGetValue(key, out int c) ? c + 1 : 1;
-            }
-        }
+        _gameState.CopyInventoryCountsTo(_inventoryCache);
     }
 
-    /// <summary>
-    /// Rebuild the set of implicitly active quests. A quest activates
-    /// implicitly when it has no acquisition source and the player is
-    /// in the quest's completion zone. Items are not checked — the quest
-    /// activates to show markers for all relevant NPCs and objectives.
-    /// </summary>
     private void RebuildImplicitQuests()
     {
         _implicitlyActiveQuests.Clear();
-
-        foreach (var iq in _implicitQuests)
+        foreach (var implicitQuest in _implicitQuests)
         {
-            if (_activeQuests.Contains(iq.DBName) || _completedQuests.Contains(iq.DBName))
-                continue;
-
-            // Zone gate: must be in the completion scene.
-            // Quests with unresolvable scenes never activate implicitly.
-            if (iq.ActivationScene == null)
-                continue;
             if (
-                !string.Equals(
-                    iq.ActivationScene,
+                _activeQuests.Contains(implicitQuest.DBName)
+                || _completedQuests.Contains(implicitQuest.DBName)
+                || implicitQuest.ActivationScene == null
+                || !string.Equals(
+                    implicitQuest.ActivationScene,
                     CurrentZone,
-                    System.StringComparison.OrdinalIgnoreCase
+                    StringComparison.OrdinalIgnoreCase
                 )
             )
                 continue;
-
-            _implicitlyActiveQuests.Add(iq.DBName);
+            _implicitlyActiveQuests.Add(implicitQuest.DBName);
         }
     }
 
-    /// <summary>
-    /// Pre-computed data for an implicit quest: no acquisition source,
-    /// activates when the player enters the completion zone.
-    /// </summary>
+    private void OnWorkflowChanged(QuestEntry quest)
+    {
+        Version++;
+        WorkflowChanged?.Invoke(quest);
+    }
+
+    private void OnWorkflowCycleReset(QuestEntry quest)
+    {
+        WorkflowCycleReset?.Invoke(quest);
+    }
+
     private readonly struct ImplicitQuest
     {
         public readonly string DBName;

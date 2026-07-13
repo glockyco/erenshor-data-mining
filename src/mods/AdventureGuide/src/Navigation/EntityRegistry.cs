@@ -1,3 +1,4 @@
+using AdventureGuide.Data;
 using UnityEngine;
 
 namespace AdventureGuide.Navigation;
@@ -46,20 +47,29 @@ public sealed class EntityRegistry
     {
         if (npc == null)
             return;
+        var key = DeriveStableKey(npc, spawnPoint);
+        if (key != null)
+            Register(npc, key);
+    }
 
+    /// <summary>Register a scripted entity under an exported descriptor key.</summary>
+    public void Register(NPC npc, string stableKey)
+    {
+        if (npc == null || string.IsNullOrWhiteSpace(stableKey))
+            return;
         var character = npc.GetComponent<Character>();
         if (character == null)
             return;
 
-        string? key = DeriveStableKey(npc, spawnPoint);
-        if (key == null)
-            return;
-
+        var key = CharacterStableKey.Normalize(stableKey);
         if (!_byKey.TryGetValue(key, out var list))
         {
             list = new List<Entry>(2);
             _byKey[key] = list;
         }
+        int instanceId = npc.GetInstanceID();
+        if (list.Exists(entry => entry.Npc != null && entry.Npc.GetInstanceID() == instanceId))
+            return;
         list.Add(new Entry(npc, character, key));
     }
 
@@ -71,18 +81,13 @@ public sealed class EntityRegistry
         if (npc == null)
             return;
 
-        // We don't know the key, so scan all lists for this instance.
-        // Death is infrequent so this is fine.
         foreach (var kvp in _byKey)
         {
             var list = kvp.Value;
             for (int i = list.Count - 1; i >= 0; i--)
             {
                 if (list[i].Npc == npc)
-                {
                     list.RemoveAt(i);
-                    break;
-                }
             }
         }
     }
@@ -127,16 +132,9 @@ public sealed class EntityRegistry
         if (stableKey == null)
             return null;
 
-        // Try exact key first, then base key without variant suffix.
-        // The export pipeline deduplicates identical prefab names by
-        // appending :N (e.g. "character:foo:1"), but runtime entities
-        // register under the base key ("character:foo").
-        if (!_byKey.TryGetValue(stableKey, out var list))
-        {
-            var baseKey = StripVariantSuffix(stableKey);
-            if (baseKey == null || !_byKey.TryGetValue(baseKey, out list))
-                return null;
-        }
+        var key = CharacterStableKey.Normalize(stableKey);
+        if (!_byKey.TryGetValue(key, out var list))
+            return null;
 
         NPC? best = null;
         float bestDist = float.MaxValue;
@@ -159,7 +157,7 @@ public sealed class EntityRegistry
         }
 
         if (list.Count == 0)
-            _byKey.Remove(stableKey);
+            _byKey.Remove(key);
 
         return best;
     }
@@ -172,12 +170,9 @@ public sealed class EntityRegistry
     {
         if (stableKey == null)
             return 0;
-        if (!_byKey.TryGetValue(stableKey, out var list))
-        {
-            var baseKey = StripVariantSuffix(stableKey);
-            if (baseKey == null || !_byKey.TryGetValue(baseKey, out list))
-                return 0;
-        }
+        var key = CharacterStableKey.Normalize(stableKey);
+        if (!_byKey.TryGetValue(key, out var list))
+            return 0;
 
         int alive = 0;
         for (int i = list.Count - 1; i >= 0; i--)
@@ -189,7 +184,7 @@ public sealed class EntityRegistry
         }
 
         if (list.Count == 0)
-            _byKey.Remove(stableKey);
+            _byKey.Remove(key);
 
         return alive;
     }
@@ -222,6 +217,9 @@ public sealed class EntityRegistry
         var objName = npc.gameObject.name;
         if (string.IsNullOrEmpty(objName))
             return null;
+        const string cloneSuffix = "(Clone)";
+        if (objName.EndsWith(cloneSuffix, System.StringComparison.Ordinal))
+            objName = objName.Substring(0, objName.Length - cloneSuffix.Length);
         return "character:" + objName.Trim().ToLowerInvariant();
     }
 
@@ -253,32 +251,6 @@ public sealed class EntityRegistry
                 return prefab.name;
         }
         return null;
-    }
-
-    /// <summary>
-    /// Strip the export pipeline's variant suffix from a stable key.
-    /// "character:foo:1" → "character:foo". Returns null if the key
-    /// has no variant suffix (i.e., only one colon for the character: prefix).
-    /// </summary>
-    private static string? StripVariantSuffix(string key)
-    {
-        // character:name → 1 colon (prefix), no variant
-        // character:name:1 → 2 colons, strip last segment
-        int lastColon = key.LastIndexOf(':');
-        if (lastColon <= 0)
-            return null;
-        // Check that the segment after the last colon is numeric
-        var suffix = key.AsSpan(lastColon + 1);
-        if (suffix.Length == 0)
-            return null;
-        foreach (char c in suffix)
-        {
-            if (c < '0' || c > '9')
-                return null;
-        }
-        // Ensure there's still a colon before this one (the character: prefix)
-        var baseKey = key.Substring(0, lastColon);
-        return baseKey.IndexOf(':') >= 0 ? baseKey : null;
     }
 
     private static bool IsAlive(in Entry entry)

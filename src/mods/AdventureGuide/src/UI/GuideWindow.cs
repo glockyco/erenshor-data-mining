@@ -107,13 +107,13 @@ public sealed class GuideWindow
             {
                 var page = _history.Back();
                 if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestDBName = page.Value.Key;
+                    _state.SelectedQuestKey = page.Value.Key;
             }
             if (ImGui.TabItemButton(">"))
             {
                 var page = _history.Forward();
                 if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestDBName = page.Value.Key;
+                    _state.SelectedQuestKey = page.Value.Key;
             }
 
             ImGui.EndTabBar();

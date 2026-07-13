@@ -62,7 +62,9 @@ public sealed class Plugin : LunarisPlugin
 
         _config = new GuideConfig(Config);
         _data = GuideData.Load(Log);
-        _state = new QuestStateTracker(_data);
+        _entities = new EntityRegistry();
+        _state = new QuestStateTracker(_data, _entities);
+        _state.LoadFromConfig(_config);
 
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
@@ -89,7 +91,6 @@ public sealed class Plugin : LunarisPlugin
         _config.UiScale.SettingChanged += OnUiScaleChanged;
         _config.ResetWindowLayout.SettingChanged += OnResetWindowLayout;
 
-        _entities = new EntityRegistry();
         _timers = new SpawnTimerTracker();
         _miningTracker = new MiningNodeTracker();
         var bridge = new SpawnPointBridge();
@@ -103,6 +104,8 @@ public sealed class Plugin : LunarisPlugin
             _miningTracker,
             _lootScanner
         );
+        _state.WorkflowChanged += OnWorkflowChanged;
+        _state.WorkflowCycleReset += OnWorkflowCycleReset;
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -157,10 +160,14 @@ public sealed class Plugin : LunarisPlugin
         SpawnPatch.Timers = _timers;
         SpawnPatch.Markers = _markers;
         SpawnPatch.Loot = _lootScanner;
+        ScriptedEntityStartPatch.Tracker = _state;
+        ScriptedRewardConsumedPatch.Tracker = _state;
         DeathPatch.Registry = _entities;
         DeathPatch.Timers = _timers;
         DeathPatch.Markers = _markers;
         DeathPatch.Loot = _lootScanner;
+        DeathPatch.Tracker = _state;
+        DeathPatch.Nav = _nav;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.WantsMouse = () => _wantsMouseCapture;
         QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
@@ -176,8 +183,8 @@ public sealed class Plugin : LunarisPlugin
         _miningTracker.Rescan();
         _lootScanner.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
-        if (_state != null)
-            _trackerState.PruneCompleted(_state);
+        _state.OnCharacterLoaded();
+        _trackerState.PruneCompleted(_state, _data);
 
         _nav.LoadPerCharacter(_config, SceneManager.GetActiveScene().name);
         var currentScene = SceneManager.GetActiveScene().name;
@@ -277,6 +284,7 @@ public sealed class Plugin : LunarisPlugin
         // (not inside WorldMarkerSystem) so nav gets fresh corpse/chest
         // data even when markers are disabled.
         var currentZone = _state?.CurrentZone ?? "";
+        _state?.Update(Time.deltaTime);
         _lootScanner?.Update(_data!, _state!);
         _nav?.Update(currentZone);
 
@@ -330,8 +338,9 @@ public sealed class Plugin : LunarisPlugin
         // These use slot-guarded binding: first call reads from config,
         // subsequent calls for the same character are no-ops.
         _trackerState?.OnCharacterLoaded();
-        if (_trackerState != null && _state != null)
-            _trackerState.PruneCompleted(_state);
+        _state?.OnCharacterLoaded();
+        if (_trackerState != null && _state != null && _data != null)
+            _trackerState.PruneCompleted(_state, _data);
         _nav?.LoadPerCharacter(_config!, scene.name);
         // Rebuild ZoneGraph and auto-advance navigation if the restored
         // target's step is behind the player's current progress.
@@ -386,6 +395,15 @@ public sealed class Plugin : LunarisPlugin
         }
     }
 
+    private void OnWorkflowChanged(QuestEntry quest)
+    {
+        _nav?.OnGameStateChanged(_state?.CurrentZone ?? "");
+        _lootScanner?.MarkDirty();
+    }
+
+    private void OnWorkflowCycleReset(QuestEntry quest) =>
+        _trackerState?.OnQuestCompleted(quest.RuntimeKey);
+
     /// <summary>
     /// Applies effective visibility = config setting AND game UI visible.
     /// Called on config changes and on game UI visibility transitions.
@@ -419,12 +437,18 @@ public sealed class Plugin : LunarisPlugin
             _config.ResetWindowLayout.SettingChanged -= OnResetWindowLayout;
         }
 
+        if (_state != null)
+        {
+            _state.WorkflowChanged -= OnWorkflowChanged;
+            _state.WorkflowCycleReset -= OnWorkflowCycleReset;
+        }
         _harmony?.UnpatchSelf();
         _tracker?.Dispose();
 
         // Window geometry is saved each frame inside Draw. TrackerState and
         // NavigationController persist per-character state to config.
         _trackerState?.SaveToConfig();
+        _state?.SaveToConfig();
         _nav?.SavePerCharacter();
         _imgui?.Dispose();
         _imgui = null;
@@ -494,10 +518,14 @@ public sealed class Plugin : LunarisPlugin
         SpawnPatch.Timers = null;
         SpawnPatch.Markers = null;
         SpawnPatch.Loot = null;
+        ScriptedEntityStartPatch.Tracker = null;
+        ScriptedRewardConsumedPatch.Tracker = null;
         DeathPatch.Registry = null;
         DeathPatch.Timers = null;
         DeathPatch.Markers = null;
         DeathPatch.Loot = null;
+        DeathPatch.Tracker = null;
+        DeathPatch.Nav = null;
         QuestMarkerPatch.SuppressGameMarkers = false;
         PointerOverUIPatch.WantsMouse = null;
         QuestLogPatch.ReplaceQuestLog = null;

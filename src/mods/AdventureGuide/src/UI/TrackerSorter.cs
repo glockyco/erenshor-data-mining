@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AdventureGuide.UI;
 
 /// <summary>
-/// Computes per-quest distances and sorts tracked quest DB names.
+/// Computes per-quest distances and sorts tracked quest runtime keys.
 /// Distances are computed once per cycle and reused for both sorting
 /// and display — avoiding redundant spawn lookups in sort comparators.
 /// </summary>
@@ -53,7 +53,8 @@ internal static class TrackerSorter
         IReadOnlyList<string> quests,
         GuideData data,
         QuestStateTracker state,
-        NavigationController nav,
+        NavigationTarget? navigationTarget,
+        float navigationDistance,
         Vector3 playerPos,
         Dictionary<string, StepDistance> output
     )
@@ -63,43 +64,43 @@ internal static class TrackerSorter
 
         for (int i = 0; i < quests.Count; i++)
         {
-            var dbName = quests[i];
-            var quest = data.GetByDBName(dbName);
+            var questKey = quests[i];
+            var quest = data.GetByRuntimeKey(questKey);
             if (quest == null)
             {
-                output[dbName] = new StepDistance(false, float.MaxValue);
+                output[questKey] = new StepDistance(false, float.MaxValue);
                 continue;
             }
 
             // When actively navigating this quest, use live nav distance.
             if (
-                nav.Target != null
+                navigationTarget != null
                 && string.Equals(
-                    nav.Target.QuestDBName,
-                    dbName,
+                    navigationTarget.QuestKey,
+                    questKey,
                     System.StringComparison.OrdinalIgnoreCase
                 )
             )
             {
-                bool inZone = !nav.Target.IsCrossZone(currentScene);
+                bool inZone = !navigationTarget.IsCrossZone(currentScene);
                 // Zone targets (fishing) are in the current zone but have
                 // no specific position — show a label instead of meters.
-                if (inZone && nav.Target.TargetKind == NavigationTarget.Kind.Zone)
+                if (inZone && navigationTarget.TargetKind == NavigationTarget.Kind.Zone)
                 {
                     string? label =
-                        nav.Target.SourceId != null
-                        && nav.Target.SourceId.StartsWith(
+                        navigationTarget.SourceId != null
+                        && navigationTarget.SourceId.StartsWith(
                             "fishing:",
                             System.StringComparison.Ordinal
                         )
                             ? "Fishing"
                             : null;
-                    output[dbName] = new StepDistance(true, float.MaxValue, label);
+                    output[questKey] = new StepDistance(true, float.MaxValue, label);
                 }
                 else
                 {
-                    float meters = inZone ? nav.Distance : float.MaxValue;
-                    output[dbName] = new StepDistance(inZone, meters);
+                    float meters = inZone ? navigationDistance : float.MaxValue;
+                    output[questKey] = new StepDistance(inZone, meters);
                 }
                 continue;
             }
@@ -107,12 +108,12 @@ internal static class TrackerSorter
             bool stepInZone = IsCurrentStepInZone(quest, state, data, currentScene);
             if (!stepInZone)
             {
-                output[dbName] = new StepDistance(false, float.MaxValue);
+                output[questKey] = new StepDistance(false, float.MaxValue);
                 continue;
             }
 
             var sd = ComputeStepDistance(quest, state, data, currentScene, playerPos);
-            output[dbName] = new StepDistance(true, sd.Meters, sd.Label);
+            output[questKey] = new StepDistance(true, sd.Meters, sd.Label);
         }
     }
 
@@ -175,8 +176,8 @@ internal static class TrackerSorter
                 }
 
                 // Fallback: alphabetical
-                var qa = data.GetByDBName(a);
-                var qb = data.GetByDBName(b);
+                var qa = data.GetByRuntimeKey(a);
+                var qb = data.GetByRuntimeKey(b);
                 return string.Compare(
                     qa?.DisplayName,
                     qb?.DisplayName,
@@ -193,8 +194,8 @@ internal static class TrackerSorter
         quests.Sort(
             (a, b) =>
             {
-                var qa = data.GetByDBName(a);
-                var qb = data.GetByDBName(b);
+                var qa = data.GetByRuntimeKey(a);
+                var qb = data.GetByRuntimeKey(b);
                 int la = qa?.LevelEstimate?.Recommended ?? int.MaxValue;
                 int lb = qb?.LevelEstimate?.Recommended ?? int.MaxValue;
                 int cmp = la.CompareTo(lb);
@@ -216,8 +217,8 @@ internal static class TrackerSorter
         quests.Sort(
             (a, b) =>
             {
-                var qa = data.GetByDBName(a);
-                var qb = data.GetByDBName(b);
+                var qa = data.GetByRuntimeKey(a);
+                var qb = data.GetByRuntimeKey(b);
                 return string.Compare(
                     qa?.DisplayName ?? a,
                     qb?.DisplayName ?? b,
@@ -242,7 +243,12 @@ internal static class TrackerSorter
         var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null)
             return null;
-        var scene = StepSceneResolver.ResolveScene(resolvedQuest ?? quest, step, data);
+        var scene = StepSceneResolver.ResolveScene(
+            resolvedQuest ?? quest,
+            step,
+            data,
+            state.IsGameQuestCompleted
+        );
         return scene != null ? data.GetZoneDisplayName(scene) : null;
     }
 
@@ -262,7 +268,13 @@ internal static class TrackerSorter
         var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null)
             return false;
-        return StepSceneResolver.HasSourceInScene(resolvedQuest ?? quest, step, data, currentScene);
+        return StepSceneResolver.HasSourceInScene(
+            resolvedQuest ?? quest,
+            step,
+            data,
+            currentScene,
+            state.IsGameQuestCompleted
+        );
     }
 
     private static SourceDistance ComputeStepDistance(
@@ -282,6 +294,26 @@ internal static class TrackerSorter
             return SourceDistance.None;
         var effectiveQuest = resolvedQuest ?? quest;
 
+        if (
+            step.Location != null
+            && StepSceneResolver.ResolveScene(
+                effectiveQuest,
+                step,
+                data,
+                state.IsGameQuestCompleted
+            )
+                is string locationScene
+            && string.Equals(locationScene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            return new SourceDistance(
+                Vector3.Distance(
+                    playerPos,
+                    new Vector3(step.Location.X, step.Location.Y, step.Location.Z)
+                )
+            );
+        }
+
         // Try character target directly (talk, kill, turn_in steps)
         string? key = step.TargetKey;
         if (key != null && step.TargetType == "character" && data.CharacterSpawns.ContainsKey(key))
@@ -298,7 +330,7 @@ internal static class TrackerSorter
                 )
             );
             if (item?.Sources != null)
-                return NearestSourceDistance(item.Sources, data, currentScene, playerPos);
+                return NearestSourceDistance(item.Sources, data, state, currentScene, playerPos);
         }
 
         return SourceDistance.None;
@@ -310,6 +342,7 @@ internal static class TrackerSorter
     private static SourceDistance NearestSourceDistance(
         List<ItemSource> sources,
         GuideData data,
+        QuestStateTracker state,
         string currentScene,
         Vector3 playerPos
     )
@@ -317,12 +350,18 @@ internal static class TrackerSorter
         var best = SourceDistance.None;
         foreach (var src in sources)
         {
+            if (
+                src.RequiredQuestDBNames != null
+                && !src.RequiredQuestDBNames.TrueForAll(state.IsGameQuestCompleted)
+            )
+                continue;
+
             // quest_reward: SourceKey is the quest giver, not an obtainable source.
             if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
             {
                 best = SourceDistance.Best(
                     best,
-                    NearestSourceDistance(src.Children, data, currentScene, playerPos)
+                    NearestSourceDistance(src.Children, data, state, currentScene, playerPos)
                 );
                 continue;
             }
@@ -335,7 +374,7 @@ internal static class TrackerSorter
             if (src.Children != null)
                 best = SourceDistance.Best(
                     best,
-                    NearestSourceDistance(src.Children, data, currentScene, playerPos)
+                    NearestSourceDistance(src.Children, data, state, currentScene, playerPos)
                 );
         }
         return best;
@@ -384,6 +423,6 @@ internal static class TrackerSorter
         if (quest.Steps == null || quest.Steps.Count == 0)
             return null;
         int idx = StepProgress.GetCurrentStepIndex(quest, state, data);
-        return idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        return idx >= 0 && idx < quest.Steps.Count ? quest.Steps[idx] : null;
     }
 }

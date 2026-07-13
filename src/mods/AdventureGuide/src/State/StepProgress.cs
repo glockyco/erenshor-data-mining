@@ -31,11 +31,14 @@ public static class StepProgress
         if (quest.Steps == null || quest.Steps.Count == 0)
             return 0;
 
-        if (state.IsCompleted(quest.DBName))
+        if (quest.IsGuideOnly)
+            return state.Workflows.GetCurrentStepIndex(quest, state.CountItem);
+
+        if (state.IsCompleted(quest))
             return quest.Steps.Count;
 
         var steps = quest.Steps;
-        bool actionable = state.IsActionable(quest.DBName);
+        bool actionable = state.IsActionable(quest);
 
         // Acquisition step is only auto-completed for active quests —
         // the player has already done it. For available quests, verify
@@ -117,7 +120,7 @@ public static class StepProgress
             // Resolve the target quest's DB name from its stable key
             // and check completion state.
             var target = data.GetByStableKey(step.TargetKey);
-            return target != null && state.IsCompleted(target.DBName);
+            return target != null && state.IsCompleted(target);
         }
 
         // Can't verify: treat as current (conservative).
@@ -194,11 +197,11 @@ public static class StepProgress
                 var subQuest = data.GetByStableKey(currentStep.TargetKey);
                 if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
                     return (currentStep, currentQuest);
-                if (state.IsCompleted(subQuest.DBName))
+                if (state.IsCompleted(subQuest))
                     return (currentStep, currentQuest);
 
                 int idx = GetCurrentStepIndex(subQuest, state, data);
-                if (idx >= subQuest.Steps.Count)
+                if (idx < 0 || idx >= subQuest.Steps.Count)
                     return (currentStep, currentQuest);
 
                 currentStep = subQuest.Steps[idx];
@@ -208,13 +211,13 @@ public static class StepProgress
 
             // Pattern 2: collect step with quest_reward source → resolve
             // into the prerequisite quest if it's incomplete.
-            if (currentStep.Action == "collect" && currentStep.TargetName != null)
+            if ((currentStep.Action is "collect" or "obtain") && currentStep.TargetName != null)
             {
                 var subQuest = FindQuestRewardPrereq(currentQuest, currentStep, state, data);
                 if (subQuest != null)
                 {
                     int idx = GetCurrentStepIndex(subQuest, state, data);
-                    if (idx < subQuest.Steps!.Count)
+                    if (idx >= 0 && idx < subQuest.Steps!.Count)
                     {
                         currentStep = subQuest.Steps[idx];
                         currentQuest = subQuest;
@@ -257,7 +260,7 @@ public static class StepProgress
             var subQuest = data.GetByStableKey(src.QuestKey);
             if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
                 continue;
-            if (state.IsCompleted(subQuest.DBName))
+            if (state.IsCompleted(subQuest))
                 continue;
             return subQuest;
         }

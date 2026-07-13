@@ -209,7 +209,7 @@ public sealed class ZoneGraph
 
         foreach (var group in zl.RequiredQuestGroups)
         {
-            if (group.TrueForAll(q => _state.IsCompleted(q)))
+            if (group.TrueForAll(q => _state.IsGameQuestCompleted(q)))
                 return true;
         }
         return false;

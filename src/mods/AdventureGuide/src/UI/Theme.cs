@@ -1,4 +1,5 @@
 extern alias Vectors;
+using AdventureGuide.Data;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -157,14 +158,14 @@ public static class Theme
     /// Resolve quest status color from tracker state. Shared by QuestListPanel
     /// and TrackerWindow to keep color semantics consistent.
     /// </summary>
-    public static uint GetQuestColor(QuestStateTracker state, string dbName)
+    public static uint GetQuestColor(QuestStateTracker state, QuestEntry quest)
     {
-        if (state.IsImplicitlyActive(dbName))
-            return QuestImplicit;
-        if (state.IsActive(dbName))
-            return QuestActive;
-        if (state.IsCompleted(dbName))
-            return QuestCompleted;
-        return QuestAvailable;
+        return state.GetStatus(quest) switch
+        {
+            QuestRuntimeStatus.ImplicitlyActive => QuestImplicit,
+            QuestRuntimeStatus.Active => QuestActive,
+            QuestRuntimeStatus.Completed => QuestCompleted,
+            _ => QuestAvailable,
+        };
     }
 }

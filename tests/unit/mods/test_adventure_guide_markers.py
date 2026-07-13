@@ -64,7 +64,7 @@ def test_directly_placed_quest_gate_suppresses_until_resolved_and_completed() ->
 
     assert "spawn.SpawnUponQuestCompleteStableKey" in helper
     assert "var gateQuest = _data.GetByStableKey(gateStableKey);" in helper
-    assert "return gateQuest == null || !_state.IsCompleted(gateQuest.DBName);" in helper
+    assert "return gateQuest == null || !_state.IsCompleted(gateQuest);" in helper
 
 
 def test_ordinary_directly_placed_spawns_keep_zone_reentry() -> None:

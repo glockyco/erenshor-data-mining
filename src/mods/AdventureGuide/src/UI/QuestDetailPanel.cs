@@ -38,7 +38,7 @@ public sealed class QuestDetailPanel
 
     public void Draw()
     {
-        if (_state.SelectedQuestDBName == null)
+        if (_state.SelectedQuestKey == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.TextWrapped("Select a quest from the list.");
@@ -46,7 +46,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        var quest = _data.GetByDBName(_state.SelectedQuestDBName);
+        var quest = _data.GetByRuntimeKey(_state.SelectedQuestKey);
         if (quest == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -68,8 +68,8 @@ public sealed class QuestDetailPanel
         // Track/Untrack button inline before quest name
         if (_tracker.Enabled)
         {
-            bool tracked = _tracker.IsTracked(quest.DBName);
-            bool completed = _state.IsCompleted(quest.DBName);
+            bool tracked = _tracker.IsTracked(quest.RuntimeKey);
+            bool completed = _state.IsCompleted(quest);
             if (!completed || tracked)
             {
                 if (tracked)
@@ -77,9 +77,9 @@ public sealed class QuestDetailPanel
                 if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
                 {
                     if (tracked)
-                        _tracker.Untrack(quest.DBName);
+                        _tracker.Untrack(quest.RuntimeKey);
                     else
-                        _tracker.Track(quest.DBName);
+                        _tracker.Track(quest.RuntimeKey);
                 }
                 if (tracked)
                     ImGui.PopStyleColor();
@@ -224,6 +224,15 @@ public sealed class QuestDetailPanel
             return;
         }
 
+        if (_state.Workflows.IsUnverifiable(quest))
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
+            ImGui.TextWrapped(
+                "Workflow state is ambiguous after reload. Re-enter the trigger area with the required item."
+            );
+            ImGui.PopStyleColor();
+        }
+
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
@@ -243,7 +252,7 @@ public sealed class QuestDetailPanel
         if (quest.Steps == null || quest.Steps.Count == 0)
             return;
 
-        ImGui.PushID(quest.DBName);
+        ImGui.PushID(quest.RuntimeKey);
 
         int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state, _data);
         string? prevOrGroup = null;
@@ -300,7 +309,11 @@ public sealed class QuestDetailPanel
 
         // Collect steps: show have/need count and override color
         // when items are in hand, regardless of step pointer position.
-        if (step.Action == "collect" && step.TargetKey != null && step.Quantity.HasValue)
+        if (
+            (step.Action is "collect" or "obtain")
+            && step.TargetKey != null
+            && step.Quantity.HasValue
+        )
         {
             int have = _state.CountItem(step.TargetKey);
             text += $" ({have}/{step.Quantity})";
@@ -312,7 +325,7 @@ public sealed class QuestDetailPanel
         if (step.Action == "complete_quest" && step.TargetKey != null)
         {
             var target = _data.GetByStableKey(step.TargetKey);
-            if (target != null && _state.IsCompleted(target.DBName))
+            if (target != null && _state.IsCompleted(target))
                 color = Theme.QuestCompleted;
         }
 
@@ -321,14 +334,14 @@ public sealed class QuestDetailPanel
         {
             // Non-collect steps show zone since there's no source list below
             if (
-                step.Action is not "collect" and not "read"
+                (step.Action is not "collect" and not "obtain" and not "read")
                 && step.LevelEstimate.Factors is { Count: > 0 }
             )
                 text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
             text += $"  \u00b7  Lv {stepLvl}";
         }
         else if (
-            step.Action is not "collect" and not "read"
+            (step.Action is not "collect" and not "obtain" and not "read")
             && step.LevelEstimate?.Factors is { Count: > 0 }
         )
         {
@@ -351,7 +364,7 @@ public sealed class QuestDetailPanel
         DrawSubQuestSteps(step, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
-        if (_nav.IsNavigating(quest.DBName, step.Order))
+        if (_nav.IsNavigating(quest.RuntimeKey, step.Order))
         {
             var alternatives = _nav.GetAlternativeZoneLines(_state.CurrentZone);
             if (alternatives.Count > 1)
@@ -390,7 +403,7 @@ public sealed class QuestDetailPanel
             navigable = false;
         }
 
-        bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
+        bool isActive = _nav.IsNavigating(quest.RuntimeKey, step.Order);
 
         if (!navigable)
         {
@@ -446,15 +459,18 @@ public sealed class QuestDetailPanel
     /// </summary>
     private void DrawStepSources(QuestStep step, QuestEntry quest, HashSet<string> visited)
     {
-        if (step.Action is not "collect" and not "read" || step.TargetName == null)
+        if (
+            (step.Action is not "collect" and not "obtain" and not "read")
+            || step.TargetName == null
+        )
         {
             DrawTips(step);
             return;
         }
 
         var item = FindRequiredItem(quest, step);
-
-        if (item?.Sources == null || item.Sources.Count == 0)
+        var visibleSources = item?.Sources?.FindAll(IsSourceAvailable);
+        if (visibleSources == null || visibleSources.Count == 0)
         {
             DrawTips(step);
             return;
@@ -464,21 +480,21 @@ public sealed class QuestDetailPanel
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         const int maxVisible = 4;
-        int visible = Math.Min(item.Sources.Count, maxVisible);
+        int visible = Math.Min(visibleSources.Count, maxVisible);
 
         for (int i = 0; i < visible; i++)
-            DrawSource(item.Sources[i], quest, step, visited);
+            DrawSource(visibleSources[i], quest, step, visited);
 
-        if (item.Sources.Count > maxVisible)
+        if (visibleSources.Count > maxVisible)
         {
-            int remaining = item.Sources.Count - maxVisible;
-            int minLv = item.Sources[maxVisible].Level ?? 0;
-            int maxLv = item.Sources[^1].Level ?? minLv;
+            int remaining = visibleSources.Count - maxVisible;
+            int minLv = visibleSources[maxVisible].Level ?? 0;
+            int maxLv = visibleSources[^1].Level ?? minLv;
             string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
             if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
             {
-                for (int i = maxVisible; i < item.Sources.Count; i++)
-                    DrawSource(item.Sources[i], quest, step, visited);
+                for (int i = maxVisible; i < visibleSources.Count; i++)
+                    DrawSource(visibleSources[i], quest, step, visited);
                 ImGui.TreePop();
             }
         }
@@ -517,7 +533,7 @@ public sealed class QuestDetailPanel
                         {
                             foreach (var questDBName in group)
                             {
-                                if (_state.IsCompleted(questDBName))
+                                if (_state.IsGameQuestCompleted(questDBName))
                                     continue;
                                 var entry = _data.GetByDBName(questDBName);
                                 if (entry == null)
@@ -528,7 +544,7 @@ public sealed class QuestDetailPanel
                                         $"Requires: \"{entry.DisplayName}\"##rq_{step.Order}_{i}_{questDBName}"
                                     )
                                 )
-                                    _state.SelectQuest(entry.DBName);
+                                    _state.SelectQuest(entry);
                                 ImGui.Unindent(Theme.IndentWidth);
                             }
                             break; // show only the first group
@@ -571,11 +587,15 @@ public sealed class QuestDetailPanel
         int depth = 0
     )
     {
+        if (!IsSourceAvailable(src))
+            return;
         // Consistent format: {what}  ·  {where}  ·  Lv {N}
         string what = src.Type switch
         {
             "drop" => $"Drops from: {src.Name}",
-            "vendor" => $"Sold by: {src.Name}",
+            "vendor" when !string.IsNullOrWhiteSpace(src.Instruction) =>
+                $"{src.Instruction}  ·  {src.Name}",
+            "vendor" => $"Buy from: {src.Name}",
             "dialog_give" => $"Given by: {src.Name}",
             "fishing" => "Fishing",
             "mining" => "Mining",
@@ -629,7 +649,7 @@ public sealed class QuestDetailPanel
                             )
                         )
                         {
-                            _state.SelectQuest(target.DBName);
+                            _state.SelectQuest(target);
                         }
                         ImGui.PopStyleColor();
                     }
@@ -704,7 +724,7 @@ public sealed class QuestDetailPanel
                 $"Open quest: {subQuest.DisplayName}##cq_{step.Order}_{step.TargetKey}"
             )
         )
-            _state.SelectQuest(subQuest.DBName);
+            _state.SelectQuest(subQuest);
         ImGui.PopStyleColor();
 
         // Render the sub-quest's steps inline
@@ -728,7 +748,7 @@ public sealed class QuestDetailPanel
         HashSet<string> visited
     )
     {
-        bool isCompleted = _state.IsCompleted(subQuest.DBName);
+        bool isCompleted = _state.IsCompleted(subQuest);
         var flags = isCompleted ? ImGuiTreeNodeFlags.None : ImGuiTreeNodeFlags.DefaultOpen;
 
         if (isCompleted)
@@ -750,7 +770,7 @@ public sealed class QuestDetailPanel
             )
         )
         {
-            _state.SelectQuest(subQuest.DBName);
+            _state.SelectQuest(subQuest);
         }
         ImGui.PopStyleColor();
 
@@ -913,7 +933,7 @@ public sealed class QuestDetailPanel
             {
                 var target = _data.GetByStableKey(prereq.QuestKey);
                 if (target != null)
-                    _state.SelectQuest(target.DBName);
+                    _state.SelectQuest(target);
             }
             ImGui.PopStyleColor();
         }
@@ -960,7 +980,7 @@ public sealed class QuestDetailPanel
     private bool IsPrerequisiteCompleted(Prerequisite prereq)
     {
         var quest = _data.GetByStableKey(prereq.QuestKey);
-        return quest != null && _state.IsCompleted(quest.DBName);
+        return quest != null && _state.IsCompleted(quest);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
@@ -973,8 +993,16 @@ public sealed class QuestDetailPanel
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase)
         );
 
+    private bool IsSourceAvailable(ItemSource source)
+    {
+        return source.RequiredQuestDBNames == null
+            || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted);
+    }
+
     private bool HasNavigableSource(ItemSource s)
     {
+        if (!IsSourceAvailable(s))
+            return false;
         if (s.Scene != null)
             return true;
         if (s.SourceKey != null && _data.CharacterSpawns.ContainsKey(s.SourceKey))

@@ -1,4 +1,5 @@
 using AdventureGuide.Config;
+using AdventureGuide.Data;
 using AdventureGuide.UI;
 
 namespace AdventureGuide.State;
@@ -92,14 +93,18 @@ public sealed class TrackerState
         StepAdvanced?.Invoke(dbName);
     }
 
-    /// <summary>Remove tracked quests that are completed.</summary>
-    public void PruneCompleted(QuestStateTracker state)
+    /// <summary>Remove missing identities and completed non-repeatable quests.</summary>
+    public void PruneCompleted(QuestStateTracker state, GuideData data)
     {
         for (int i = _orderedList.Count - 1; i >= 0; i--)
         {
-            var db = _orderedList[i];
-            if (state.IsCompleted(db))
-                Untrack(db);
+            var key = _orderedList[i];
+            var quest = data.GetByRuntimeKey(key);
+            if (
+                quest == null
+                || (state.IsCompleted(quest) && quest.Flags is not { Repeatable: true })
+            )
+                Untrack(key);
         }
     }
 

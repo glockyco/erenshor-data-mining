@@ -51,7 +51,7 @@ public sealed class NavigationController
     private string? _currentSourceKey;
 
     /// <summary>Origin identity for the current NavigateTo call chain.</summary>
-    private string? _originQuestDBName;
+    private string? _originQuestKey;
     private int _originStepOrder;
 
     // ── Per-character config persistence ──────────────────────────
@@ -106,10 +106,33 @@ public sealed class NavigationController
     /// </summary>
     public bool NavigateTo(QuestStep step, QuestEntry quest, string currentScene)
     {
-        _originQuestDBName = quest.DBName;
+        _originQuestKey = quest.RuntimeKey;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
+    }
+
+    internal static NavigationTarget CreateFixedPositionTarget(
+        QuestStep step,
+        QuestEntry quest,
+        string originQuestKey,
+        int originStepOrder
+    )
+    {
+        var location =
+            step.Location
+            ?? throw new ArgumentException("Fixed-position step has no location", nameof(step));
+        return new NavigationTarget(
+            NavigationTarget.Kind.Position,
+            new Vector3(location.X, location.Y, location.Z),
+            step.TargetName ?? step.Description,
+            location.Scene,
+            quest.RuntimeKey,
+            step.Order,
+            step.TargetKey,
+            originQuestKey,
+            originStepOrder
+        );
     }
 
     /// <summary>
@@ -131,6 +154,17 @@ public sealed class NavigationController
 
         ResetTargetState();
 
+        if (step.Location != null)
+        {
+            Target = CreateFixedPositionTarget(
+                step,
+                quest,
+                _originQuestKey ?? quest.RuntimeKey,
+                _originStepOrder
+            );
+            return true;
+        }
+
         if (step.TargetKey == null)
             return false;
 
@@ -150,7 +184,7 @@ public sealed class NavigationController
                             step.TargetKey
                         ),
                         currentScene,
-                        quest.DBName,
+                        quest.RuntimeKey,
                         step.Order,
                         step.TargetKey
                     );
@@ -182,7 +216,7 @@ public sealed class NavigationController
     public void Clear()
     {
         ResetTargetState();
-        _originQuestDBName = null;
+        _originQuestKey = null;
         _originStepOrder = 0;
         SavePerCharacter();
     }
@@ -216,10 +250,10 @@ public sealed class NavigationController
         if (string.IsNullOrEmpty(savedQuest) || savedStep <= 0)
             return;
 
-        var quest = _data.GetByDBName(savedQuest);
+        var quest = _data.GetByRuntimeKey(savedQuest);
         if (quest?.Steps == null)
             return;
-        if (_state.IsCompleted(quest.DBName))
+        if (_state.IsCompleted(quest))
             return;
 
         QuestStep? step = null;
@@ -245,7 +279,7 @@ public sealed class NavigationController
     {
         if (_navQuestEntry == null)
             return;
-        _navQuestEntry.Value = _originQuestDBName ?? "";
+        _navQuestEntry.Value = _originQuestKey ?? "";
         _navStepEntry!.Value = _originStepOrder;
     }
 
@@ -294,7 +328,7 @@ public sealed class NavigationController
         // Re-resolve target from the new active set. This handles both
         // same-zone (closest spawn) and cross-zone (zone line routing)
         // transitions when the user toggles between zones.
-        var quest = _data.GetByDBName(Target.QuestDBName);
+        var quest = _data.GetByRuntimeKey(Target.QuestKey);
         if (quest?.Steps != null)
         {
             var step = quest.Steps.Find(s => s.Order == Target.StepOrder);
@@ -395,7 +429,7 @@ public sealed class NavigationController
         if (Target == null)
             return;
 
-        var quest = _data.GetByDBName(Target.QuestDBName);
+        var quest = _data.GetByRuntimeKey(Target.QuestKey);
         if (quest?.Steps == null)
         {
             Clear();
@@ -403,7 +437,7 @@ public sealed class NavigationController
         }
 
         // Quest completed — clear nav entirely
-        if (_state.IsCompleted(quest.DBName))
+        if (_state.IsCompleted(quest))
         {
             Clear();
             return;
@@ -485,7 +519,7 @@ public sealed class NavigationController
         // Priority: corpse/chest with quest loot > alive NPC > shortest respawn
         if (Target.TargetKind == NavigationTarget.Kind.Character)
         {
-            var neededItems = BuildNeededItems(Target.QuestDBName);
+            var neededItems = BuildNeededItems(Target.QuestKey);
             var corpse =
                 neededItems.Count > 0
                     ? _lootScanner.FindClosestWithAnyItem(neededItems, playerPos.Value)
@@ -534,11 +568,11 @@ public sealed class NavigationController
     /// Matches against both the resolved target AND the originating quest
     /// so that parent quests and sub-quests both show as active.
     /// </summary>
-    public bool IsNavigating(string questDBName, int stepOrder) =>
+    public bool IsNavigating(string questKey, int stepOrder) =>
         Target != null
         && (
-            IsMatch(Target.QuestDBName, Target.StepOrder, questDBName, stepOrder)
-            || IsMatch(Target.OriginQuestDBName, Target.OriginStepOrder, questDBName, stepOrder)
+            IsMatch(Target.QuestKey, Target.StepOrder, questKey, stepOrder)
+            || IsMatch(Target.OriginQuestKey, Target.OriginStepOrder, questKey, stepOrder)
         );
 
     private static bool IsMatch(string aQuest, int aStep, string bQuest, int bStep) =>
@@ -769,7 +803,7 @@ public sealed class NavigationController
             new Vector3(spawn.X, spawn.Y, spawn.Z),
             WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
             spawn.Scene,
-            quest.DBName,
+            quest.RuntimeKey,
             step.Order,
             step.TargetKey
         );
@@ -825,7 +859,7 @@ public sealed class NavigationController
                 new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
                 $"To: {zoneLine.DestinationDisplay}",
                 currentScene,
-                quest.DBName,
+                quest.RuntimeKey,
                 step.Order
             );
         }
@@ -838,7 +872,7 @@ public sealed class NavigationController
                 Vector3.zero,
                 step.TargetName ?? destScene,
                 destScene,
-                quest.DBName,
+                quest.RuntimeKey,
                 step.Order
             );
         }
@@ -883,6 +917,8 @@ public sealed class NavigationController
     {
         foreach (var src in sources)
         {
+            if (!IsSourceAvailable(src))
+                continue;
             // quest_reward: the SourceKey is the quest giver NPC, not a
             // drop source. Always recurse into children for the actual
             // obtainable sources (e.g., Seaspice drops under Percy's Seaspice).
@@ -917,6 +953,12 @@ public sealed class NavigationController
                 CollectLeafSources(src.Children, result);
             }
         }
+    }
+
+    private bool IsSourceAvailable(Data.ItemSource source)
+    {
+        return source.RequiredQuestDBNames == null
+            || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted);
     }
 
     /// <summary>
@@ -1003,7 +1045,7 @@ public sealed class NavigationController
                         Vector3.zero,
                         "Fishing",
                         currentScene,
-                        quest.DBName,
+                        quest.RuntimeKey,
                         step.Order,
                         sourceKey
                     );
@@ -1069,7 +1111,7 @@ public sealed class NavigationController
                         fishScene,
                         "Fishing",
                         sourceKey,
-                        quest.DBName,
+                        quest.RuntimeKey,
                         step.Order,
                         currentScene
                     );
@@ -1110,7 +1152,7 @@ public sealed class NavigationController
             new Vector3(bestSpawn.X, bestSpawn.Y, bestSpawn.Z),
             WithCharacterUnlockText(displayName, bestSourceKey),
             bestSpawn.Scene,
-            quest.DBName,
+            quest.RuntimeKey,
             step.Order,
             bestSourceKey
         );
@@ -1158,7 +1200,7 @@ public sealed class NavigationController
             destScene,
             displayName,
             sourceId!,
-            quest.DBName,
+            quest.RuntimeKey,
             step.Order,
             currentScene
         );
@@ -1224,7 +1266,7 @@ public sealed class NavigationController
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
                         displayText,
                         currentScene,
-                        Target!.QuestDBName,
+                        Target!.QuestKey,
                         Target.StepOrder
                     );
                 }
@@ -1319,7 +1361,7 @@ public sealed class NavigationController
 
         foreach (var group in zl.RequiredQuestGroups)
         {
-            if (group.TrueForAll(q => _state.IsCompleted(q)))
+            if (group.TrueForAll(q => _state.IsGameQuestCompleted(q)))
                 return true;
         }
         return false;
@@ -1338,7 +1380,7 @@ public sealed class NavigationController
         List<string>? best = null;
         foreach (var group in zl.RequiredQuestGroups)
         {
-            var incomplete = group.FindAll(q => !_state.IsCompleted(q));
+            var incomplete = group.FindAll(q => !_state.IsGameQuestCompleted(q));
             if (incomplete.Count == 0)
                 return null; // group satisfied
             if (best == null || incomplete.Count < best.Count)
@@ -1500,10 +1542,12 @@ public sealed class NavigationController
         return null;
     }
 
-    private static Data.ItemSource? FindFirstSourceWithScene(List<Data.ItemSource> sources)
+    private Data.ItemSource? FindFirstSourceWithScene(List<Data.ItemSource> sources)
     {
         foreach (var src in sources)
         {
+            if (!IsSourceAvailable(src))
+                continue;
             if (src.Scene != null)
                 return src;
             if (src.Children != null)
@@ -1566,7 +1610,7 @@ public sealed class NavigationController
         List<string>? best = null;
         foreach (var group in groups)
         {
-            var incomplete = group.FindAll(q => !_state.IsCompleted(q));
+            var incomplete = group.FindAll(q => !_state.IsGameQuestCompleted(q));
             if (incomplete.Count == 0)
                 return displayName; // group satisfied, NPC available
             if (best == null || incomplete.Count < best.Count)
@@ -1589,10 +1633,10 @@ public sealed class NavigationController
     /// Build the set of item names the player still needs for a specific quest.
     /// Returns empty set if the quest has no required items or all are collected.
     /// </summary>
-    private HashSet<string> BuildNeededItems(string questDBName)
+    private HashSet<string> BuildNeededItems(string questKey)
     {
         var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-        var quest = _data.GetByDBName(questDBName);
+        var quest = _data.GetByRuntimeKey(questKey);
         if (quest?.RequiredItems == null)
             return result;
 
@@ -1609,7 +1653,7 @@ public sealed class NavigationController
         Vector3 position,
         string displayName,
         string scene,
-        string questDBName,
+        string questKey,
         int stepOrder,
         string? sourceId = null
     )
@@ -1619,10 +1663,10 @@ public sealed class NavigationController
             position,
             displayName,
             scene,
-            questDBName,
+            questKey,
             stepOrder,
             sourceId,
-            _originQuestDBName,
+            _originQuestKey,
             _originStepOrder
         );
     }

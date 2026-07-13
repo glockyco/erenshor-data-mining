@@ -148,8 +148,8 @@ public sealed class WorldMarkerSystem
 
         foreach (var quest in _data.All)
         {
-            bool isActive = _state.IsActionable(quest.DBName);
-            bool isCompleted = _state.IsCompleted(quest.DBName);
+            bool isActive = _state.IsActionable(quest);
+            bool isCompleted = _state.IsCompleted(quest);
             bool isRepeatable = quest.Flags is { Repeatable: true };
 
             // Quest givers: available quests (not active, not completed, or repeatable+completed)
@@ -205,7 +205,7 @@ public sealed class WorldMarkerSystem
                 if (prereq.Item != null)
                     continue;
                 var prereqQuest = _data.GetByStableKey(prereq.QuestKey);
-                if (prereqQuest == null || !_state.IsCompleted(prereqQuest.DBName))
+                if (prereqQuest == null || !_state.IsCompleted(prereqQuest))
                     return;
             }
         }
@@ -262,7 +262,7 @@ public sealed class WorldMarkerSystem
             return;
 
         int currentIdx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-        if (currentIdx >= quest.Steps.Count)
+        if (currentIdx < 0 || currentIdx >= quest.Steps.Count)
             return;
 
         var step = quest.Steps[currentIdx];
@@ -285,6 +285,22 @@ public sealed class WorldMarkerSystem
 
     private void EmitStepTargetMarker(QuestStep step, string scene)
     {
+        if (
+            step.Location != null
+            && string.Equals(step.Location.Scene, scene, System.StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            TryAddMarker(
+                step.Location.StableKey,
+                MarkerType.Objective,
+                step.TargetName ?? step.Description,
+                FormatStepActionText(step),
+                new Vector3(step.Location.X, step.Location.Y, step.Location.Z)
+                    + Vector3.up * StaticHeightOffset,
+                targetKey: null
+            );
+        }
+
         if (step.TargetKey != null && step.TargetType == "character")
         {
             EmitPerSpawnMarkers(
@@ -313,19 +329,38 @@ public sealed class WorldMarkerSystem
             if (ri.Sources == null)
                 continue;
             foreach (var src in ri.Sources)
-            {
-                if (src.SourceKey == null)
-                    continue;
-
-                EmitPerSpawnMarkers(
-                    src.SourceKey,
-                    scene,
-                    src.Name ?? ri.ItemName,
-                    MarkerType.Objective,
-                    progress
-                );
-            }
+                EmitItemSourceMarker(src, ri, scene, progress);
         }
+    }
+
+    private void EmitItemSourceMarker(
+        ItemSource source,
+        RequiredItemInfo item,
+        string scene,
+        string progress
+    )
+    {
+        if (
+            source.RequiredQuestDBNames != null
+            && !source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted)
+        )
+            return;
+
+        if (source.SourceKey != null)
+        {
+            EmitPerSpawnMarkers(
+                source.SourceKey,
+                scene,
+                source.Name ?? item.ItemName,
+                MarkerType.Objective,
+                progress
+            );
+        }
+
+        if (source.Children == null)
+            return;
+        foreach (var child in source.Children)
+            EmitItemSourceMarker(child, item, scene, progress);
     }
 
     // ── Per-spawn-point marker emission ──────────────────────────
@@ -456,7 +491,7 @@ public sealed class WorldMarkerSystem
             return false;
 
         var gateQuest = _data.GetByStableKey(gateStableKey);
-        return gateQuest == null || !_state.IsCompleted(gateQuest.DBName);
+        return gateQuest == null || !_state.IsCompleted(gateQuest);
     }
 
     // ── Loot container markers (corpses and RotChests) ────────────
@@ -504,7 +539,7 @@ public sealed class WorldMarkerSystem
                 int need = 1;
                 foreach (var quest in _data.All)
                 {
-                    if (!_state.IsActionable(quest.DBName) || quest.RequiredItems == null)
+                    if (!_state.IsActionable(quest) || quest.RequiredItems == null)
                         continue;
                     foreach (var ri in quest.RequiredItems)
                     {

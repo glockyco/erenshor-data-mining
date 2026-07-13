@@ -12,8 +12,16 @@ public static class StepSceneResolver
     /// Tries step.ZoneName → target spawn location → item source NPC location.
     /// Returns null when the scene cannot be determined.
     /// </summary>
-    public static string? ResolveScene(QuestEntry quest, QuestStep step, GuideData data)
+    public static string? ResolveScene(
+        QuestEntry quest,
+        QuestStep step,
+        GuideData data,
+        Func<string, bool>? isQuestCompleted = null
+    )
     {
+        if (step.Location != null)
+            return step.Location.Scene;
+
         // Try resolving zone_name to scene
         if (step.ZoneName != null)
         {
@@ -33,7 +41,7 @@ public static class StepSceneResolver
         }
 
         // For item steps, check source NPC spawns or zone-level sources
-        var sourceKey = FindFirstSourceKey(quest, step);
+        var sourceKey = FindFirstSourceKey(quest, step, isQuestCompleted);
         if (sourceKey != null)
         {
             // Fishing sources encode the scene in the key (fishing:{scene})
@@ -55,7 +63,11 @@ public static class StepSceneResolver
     /// Skips quest_reward source keys (those point to the quest giver NPC,
     /// not the actual drop source) and recurses into children.
     /// </summary>
-    public static string? FindFirstSourceKey(QuestEntry quest, QuestStep step)
+    public static string? FindFirstSourceKey(
+        QuestEntry quest,
+        QuestStep step,
+        Func<string, bool>? isQuestCompleted = null
+    )
     {
         if (step.TargetType != "item" || quest.RequiredItems == null)
             return null;
@@ -66,24 +78,34 @@ public static class StepSceneResolver
         if (item?.Sources == null)
             return null;
 
-        return FindFirstLeafSourceKey(item.Sources);
+        return FindFirstLeafSourceKey(item.Sources, isQuestCompleted);
     }
 
-    private static string? FindFirstLeafSourceKey(List<ItemSource> sources)
+    private static string? FindFirstLeafSourceKey(
+        List<ItemSource> sources,
+        Func<string, bool>? isQuestCompleted
+    )
     {
         foreach (var src in sources)
         {
+            if (
+                isQuestCompleted != null
+                && src.RequiredQuestDBNames != null
+                && !src.RequiredQuestDBNames.All(isQuestCompleted)
+            )
+                continue;
+
             // quest_reward: SourceKey is the quest giver, not an obtainable source.
             // Always recurse into children for actual drop/vendor sources.
             if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
-                return FindFirstLeafSourceKey(src.Children);
+                return FindFirstLeafSourceKey(src.Children, isQuestCompleted);
 
             if (src.SourceKey != null)
                 return src.SourceKey;
 
             if (src.Children != null)
             {
-                var childKey = FindFirstLeafSourceKey(src.Children);
+                var childKey = FindFirstLeafSourceKey(src.Children, isQuestCompleted);
                 if (childKey != null)
                     return childKey;
             }
@@ -100,11 +122,12 @@ public static class StepSceneResolver
         QuestEntry quest,
         QuestStep step,
         GuideData data,
-        string scene
+        string scene,
+        Func<string, bool>? isQuestCompleted = null
     )
     {
         if (step.TargetType != "item" || quest.RequiredItems == null)
-            return ResolveScene(quest, step, data) is string s
+            return ResolveScene(quest, step, data, isQuestCompleted) is string s
                 && string.Equals(s, scene, System.StringComparison.OrdinalIgnoreCase);
 
         var item = quest.RequiredItems.Find(ri =>
@@ -113,19 +136,31 @@ public static class StepSceneResolver
         if (item?.Sources == null)
             return false;
 
-        return AnySourceInScene(item.Sources, data, scene);
+        return AnySourceInScene(item.Sources, data, scene, isQuestCompleted);
     }
 
-    private static bool AnySourceInScene(List<ItemSource> sources, GuideData data, string scene)
+    private static bool AnySourceInScene(
+        List<ItemSource> sources,
+        GuideData data,
+        string scene,
+        Func<string, bool>? isQuestCompleted
+    )
     {
         foreach (var src in sources)
         {
+            if (
+                isQuestCompleted != null
+                && src.RequiredQuestDBNames != null
+                && !src.RequiredQuestDBNames.All(isQuestCompleted)
+            )
+                continue;
+
             // quest_reward: SourceKey is the quest giver NPC. The quest giver
             // being in-zone doesn't mean the item is obtainable here.
             // Skip to children which hold the actual obtainable sources.
             if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
             {
-                if (AnySourceInScene(src.Children, data, scene))
+                if (AnySourceInScene(src.Children, data, scene, isQuestCompleted))
                     return true;
                 continue;
             }
@@ -154,7 +189,10 @@ public static class StepSceneResolver
                     }
                 }
             }
-            if (src.Children != null && AnySourceInScene(src.Children, data, scene))
+            if (
+                src.Children != null
+                && AnySourceInScene(src.Children, data, scene, isQuestCompleted)
+            )
                 return true;
         }
         return false;

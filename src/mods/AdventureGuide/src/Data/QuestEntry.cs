@@ -61,6 +61,9 @@ public sealed class QuestEntry
     [JsonProperty("acceptance")]
     public string? Acceptance { get; set; }
 
+    [JsonProperty("workflow_cycle")]
+    public WorkflowCycle? WorkflowCycle { get; set; }
+
     /// <summary>
     /// True when the quest is classified as implicit — no acquisition NPC,
     /// becomes active when the player enters the completion zone.
@@ -68,6 +71,12 @@ public sealed class QuestEntry
     [JsonIgnore]
     public bool IsImplicit =>
         string.Equals(Acceptance, "implicit", System.StringComparison.OrdinalIgnoreCase);
+
+    [JsonIgnore]
+    public bool IsGuideOnly => Flags is { GuideOnly: true };
+
+    [JsonIgnore]
+    public string RuntimeKey => IsGuideOnly ? StableKey : DBName;
 
     /// <summary>Whether this quest has step-by-step guide data.</summary>
     [JsonIgnore]
@@ -111,6 +120,12 @@ public sealed class QuestStep
 
     [JsonProperty("level_estimate")]
     public LevelEstimate? LevelEstimate { get; set; }
+
+    [JsonProperty("location")]
+    public WorkflowLocation? Location { get; set; }
+
+    [JsonProperty("sources")]
+    public List<ItemSource>? Sources { get; set; }
 }
 
 public sealed class AcquisitionSource
@@ -197,6 +212,12 @@ public sealed class ItemSource
 
     [JsonProperty("recipe_key")]
     public string? RecipeKey { get; set; }
+
+    [JsonProperty("instruction")]
+    public string? Instruction { get; set; }
+
+    [JsonProperty("required_quest_db_names")]
+    public List<string>? RequiredQuestDBNames { get; set; }
 
     [JsonProperty("children")]
     public List<ItemSource>? Children { get; set; }
@@ -353,8 +374,122 @@ public sealed class ChainLink
     public string Relationship { get; set; } = "";
 }
 
+public sealed class WorkflowCycle
+{
+    [JsonProperty("trigger")]
+    public WorkflowTrigger Trigger { get; set; } = new();
+
+    [JsonProperty("targets")]
+    public List<WorkflowTarget> Targets { get; set; } = new();
+
+    [JsonProperty("reward_container")]
+    public WorkflowRewardContainer? RewardContainer { get; set; }
+
+    [JsonProperty("reset_evidence")]
+    public string ResetEvidence { get; set; } = "";
+}
+
+public sealed class WorkflowTrigger
+{
+    [JsonProperty("item_stable_key")]
+    public string ItemStableKey { get; set; } = "";
+
+    [JsonProperty("item_name")]
+    public string ItemName { get; set; } = "";
+
+    [JsonProperty("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonProperty("mode")]
+    public string Mode { get; set; } = "";
+
+    [JsonProperty("consumes_item_automatically")]
+    public bool ConsumesItemAutomatically { get; set; }
+
+    [JsonProperty("location")]
+    public WorkflowLocation Location { get; set; } = new();
+}
+
+public sealed class WorkflowTarget
+{
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
+    [JsonProperty("display_name")]
+    public string DisplayName { get; set; } = "";
+
+    [JsonProperty("quantity")]
+    public int Quantity { get; set; }
+}
+
+public sealed class WorkflowRewardContainer
+{
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
+    [JsonProperty("display_name")]
+    public string DisplayName { get; set; } = "";
+}
+
+public sealed class WorkflowLocation
+{
+    [JsonProperty("stable_key")]
+    public string StableKey { get; set; } = "";
+
+    [JsonProperty("display_name")]
+    public string DisplayName { get; set; } = "";
+
+    [JsonProperty("scene")]
+    public string Scene { get; set; } = "";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("z")]
+    public float Z { get; set; }
+
+    [JsonProperty("bounds")]
+    public WorkflowBounds? Bounds { get; set; }
+
+    public bool Contains(float x, float y, float z)
+    {
+        if (Bounds == null)
+            return false;
+        return Math.Abs(x - Bounds.Center.X) <= Bounds.Extents.X
+            && Math.Abs(y - Bounds.Center.Y) <= Bounds.Extents.Y
+            && Math.Abs(z - Bounds.Center.Z) <= Bounds.Extents.Z;
+    }
+}
+
+public sealed class WorkflowBounds
+{
+    [JsonProperty("center")]
+    public WorkflowVector Center { get; set; } = new();
+
+    [JsonProperty("extents")]
+    public WorkflowVector Extents { get; set; } = new();
+}
+
+public sealed class WorkflowVector
+{
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("z")]
+    public float Z { get; set; }
+}
+
 public sealed class QuestFlags
 {
+    [JsonProperty("guide_only")]
+    public bool GuideOnly { get; set; }
+
     [JsonProperty("repeatable")]
     public bool Repeatable { get; set; }
 
@@ -369,6 +504,9 @@ public sealed class QuestFlags
 
     [JsonProperty("destroy_turn_in_holder")]
     public bool DestroyTurnInHolder { get; set; }
+
+    [JsonProperty("drop_invuln_on_holder")]
+    public bool DropInvulnOnHolder { get; set; }
 
     [JsonProperty("once_per_spawn_instance")]
     public bool OncePerSpawnInstance { get; set; }

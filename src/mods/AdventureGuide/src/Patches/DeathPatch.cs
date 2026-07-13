@@ -1,4 +1,5 @@
 using AdventureGuide.Navigation;
+using AdventureGuide.State;
 using HarmonyLib;
 
 namespace AdventureGuide.Patches;
@@ -16,6 +17,8 @@ internal static class DeathPatch
     internal static SpawnTimerTracker? Timers;
     internal static WorldMarkerSystem? Markers;
     internal static LootScanner? Loot;
+    internal static QuestStateTracker? Tracker;
+    internal static NavigationController? Nav;
 
     [HarmonyPostfix]
     private static void Postfix(Character __instance)
@@ -24,9 +27,11 @@ internal static class DeathPatch
         if (npc == null)
             return;
 
+        Tracker?.OnCharacterDeath(__instance);
         Registry?.Unregister(npc);
         Timers?.OnNPCDeath(npc);
         Markers?.MarkSpawnDirty();
         Loot?.MarkDirty();
+        Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
     }
 }

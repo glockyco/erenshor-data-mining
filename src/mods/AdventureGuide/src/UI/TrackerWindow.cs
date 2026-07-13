@@ -149,20 +149,29 @@ public sealed class TrackerWindow
         _completionTimers.Remove(dbName);
     }
 
-    private void OnQuestCompleted(string dbName)
+    private void OnQuestCompleted(string questKey)
     {
-        var anim = GetOrDefaultAnim(dbName);
+        var anim = GetOrDefaultAnim(questKey);
         anim.CompletedAt = UnityEngine.Time.realtimeSinceStartup;
-        _animations[dbName] = anim;
-        // Schedule auto-untrack after the flash duration
-        _completionTimers[dbName] = UnityEngine.Time.realtimeSinceStartup;
+        _animations[questKey] = anim;
+
+        var quest = _data.GetByRuntimeKey(questKey);
+        if (quest?.Flags is { Repeatable: true })
+        {
+            _completionTimers.Remove(questKey);
+            _cachedStepIndex.Remove(questKey);
+            return;
+        }
+
+        // Auto-untrack completed non-repeatable quests after the linger.
+        _completionTimers[questKey] = UnityEngine.Time.realtimeSinceStartup;
     }
 
-    private void OnQuestStepAdvanced(string dbName)
+    private void OnQuestStepAdvanced(string questKey)
     {
-        var anim = GetOrDefaultAnim(dbName);
+        var anim = GetOrDefaultAnim(questKey);
         anim.StepAdvancedAt = UnityEngine.Time.realtimeSinceStartup;
-        _animations[dbName] = anim;
+        _animations[questKey] = anim;
     }
 
     // ── Draw ─────────────────────────────────────────────────────────
@@ -361,12 +370,12 @@ public sealed class TrackerWindow
 
         for (int i = 0; i < _sorted.Count; i++)
         {
-            var dbName = _sorted[i];
-            var quest = _data.GetByDBName(dbName);
+            var questKey = _sorted[i];
+            var quest = _data.GetByRuntimeKey(questKey);
             if (quest == null)
                 continue;
 
-            DrawQuestEntry(quest, dbName, i);
+            DrawQuestEntry(quest, questKey, i);
         }
 
         // Record bounds for next frame's backdrop with per-side padding
@@ -392,14 +401,14 @@ public sealed class TrackerWindow
         ImGui.EndChild();
     }
 
-    private void DrawQuestEntry(QuestEntry quest, string dbName, int index)
+    private void DrawQuestEntry(QuestEntry quest, string questKey, int index)
     {
-        var anim = GetOrDefaultAnim(dbName);
+        var anim = GetOrDefaultAnim(questKey);
         float now = UnityEngine.Time.realtimeSinceStartup;
-        bool isFadingOut = _fadingOut.TryGetValue(dbName, out float fadeStart);
+        bool isFadingOut = _fadingOut.TryGetValue(questKey, out float fadeStart);
 
         // Entry is neither tracked nor fading out — stale sorted list entry
-        if (!isFadingOut && !_tracker.IsTracked(dbName))
+        if (!isFadingOut && !_tracker.IsTracked(questKey))
             return;
         // Compute entry alpha for fade-in or fade-out
         float entryAlpha = 1f;
@@ -448,13 +457,13 @@ public sealed class TrackerWindow
         DrawCurrentStep(quest);
 
         // Right-click context menu
-        if (ImGui.BeginPopupContextItem($"##ctx{quest.DBName}"))
+        if (ImGui.BeginPopupContextItem($"##ctx{quest.RuntimeKey}"))
         {
             if (ImGui.Selectable("Untrack"))
-                _tracker.Untrack(quest.DBName);
+                _tracker.Untrack(quest.RuntimeKey);
             if (ImGui.Selectable("Open in Guide"))
             {
-                _state.SelectQuest(quest.DBName);
+                _state.SelectQuest(quest);
                 _guide.Show();
             }
             ImGui.EndPopup();
@@ -479,7 +488,7 @@ public sealed class TrackerWindow
     {
         var (rawStep, displayStep, displayQuest) = GetCurrentStep(quest);
         bool navigable = displayStep?.TargetKey != null;
-        bool isActive = rawStep != null && _nav.IsNavigating(quest.DBName, rawStep.Order);
+        bool isActive = rawStep != null && _nav.IsNavigating(quest.RuntimeKey, rawStep.Order);
 
         if (!navigable)
         {
@@ -530,7 +539,7 @@ public sealed class TrackerWindow
             : $"    {quest.DisplayName}";
 
         // Append distance or source label (e.g. "Fishing")
-        if (_distances.TryGetValue(quest.DBName, out var dist))
+        if (_distances.TryGetValue(quest.RuntimeKey, out var dist))
         {
             if (dist.HasDistance)
                 label += $" ({dist.Meters:0}m)";
@@ -538,10 +547,10 @@ public sealed class TrackerWindow
                 label += $" ({dist.Label})";
         }
 
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.GetQuestColor(_state, quest.DBName));
-        if (ImGui.Selectable(label + "##name" + quest.DBName))
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.GetQuestColor(_state, quest));
+        if (ImGui.Selectable(label + "##name" + quest.RuntimeKey))
         {
-            _state.SelectQuest(quest.DBName);
+            _state.SelectQuest(quest);
             _guide.Show();
         }
         ImGui.PopStyleColor();
@@ -558,7 +567,12 @@ public sealed class TrackerWindow
 
         if (step == null)
         {
-            ImGui.TextWrapped(quest.HasSteps ? "Completed" : "No guide data available.");
+            string emptyText =
+                _state.Workflows.IsUnverifiable(quest)
+                    ? "Workflow state unavailable; re-enter its trigger area."
+                : _state.IsCompleted(quest) ? "Completed"
+                : "No guide data available.";
+            ImGui.TextWrapped(emptyText);
             ImGui.PopStyleColor();
             ImGui.Unindent(Theme.IndentWidth);
             return;
@@ -566,7 +580,7 @@ public sealed class TrackerWindow
 
         string text = FormatStepText(resolvedQuest, step);
         bool isCrossZone =
-            _distances.TryGetValue(quest.DBName, out var stepDist) && !stepDist.InCurrentZone;
+            _distances.TryGetValue(quest.RuntimeKey, out var stepDist) && !stepDist.InCurrentZone;
 
         // For cross-zone non-travel steps, show "Travel to {zone}" instead
         // of the step description. Travel steps already say where to go.
@@ -606,18 +620,19 @@ public sealed class TrackerWindow
         {
             if (pre.Item != null)
                 continue;
-            if (_state.IsCompleted(pre.QuestKey))
+            var requiredQuest = _data.GetByStableKey(pre.QuestKey);
+            if (requiredQuest != null && _state.IsCompleted(requiredQuest))
                 continue;
 
             ImGui.Indent(Theme.IndentWidth);
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
 
-            if (ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}"))
-            {
-                _state.SelectQuest(pre.QuestKey);
-                _guide.Show();
-            }
+            if (
+                ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}")
+                && requiredQuest != null
+            )
+                _state.SelectQuest(requiredQuest);
 
             ImGui.PopStyleVar();
             ImGui.PopStyleColor();
@@ -706,7 +721,15 @@ public sealed class TrackerWindow
         if (GameData.PlayerControl != null)
         {
             var playerPos = GameData.PlayerControl.transform.position;
-            TrackerSorter.ComputeDistances(_sorted, _data, _state, _nav, playerPos, _distances);
+            TrackerSorter.ComputeDistances(
+                _sorted,
+                _data,
+                _state,
+                _nav.Target,
+                _nav.Distance,
+                playerPos,
+                _distances
+            );
         }
         else
         {
@@ -725,20 +748,22 @@ public sealed class TrackerWindow
 
     private void DetectStepAdvances()
     {
-        foreach (var dbName in _tracker.TrackedQuests)
+        foreach (var questKey in _tracker.TrackedQuests)
         {
-            var quest = _data.GetByDBName(dbName);
+            var quest = _data.GetByRuntimeKey(questKey);
             if (quest?.Steps == null)
                 continue;
 
             int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-
-            if (_cachedStepIndex.TryGetValue(dbName, out int prev))
+            if (idx < 0)
             {
-                if (idx > prev)
-                    _tracker.OnStepAdvanced(dbName);
+                _cachedStepIndex.Remove(questKey);
+                continue;
             }
-            _cachedStepIndex[dbName] = idx;
+
+            if (_cachedStepIndex.TryGetValue(questKey, out int prev) && idx > prev)
+                _tracker.OnStepAdvanced(questKey);
+            _cachedStepIndex[questKey] = idx;
         }
     }
 
@@ -757,7 +782,7 @@ public sealed class TrackerWindow
         if (quest.Steps == null || quest.Steps.Count == 0)
             return (null, null, quest);
         int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-        var raw = idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        var raw = idx >= 0 && idx < quest.Steps.Count ? quest.Steps[idx] : null;
         if (raw == null)
             return (null, null, quest);
         var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, _state, _data);

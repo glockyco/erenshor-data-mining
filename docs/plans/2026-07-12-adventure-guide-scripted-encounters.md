@@ -251,53 +251,55 @@ game quest identities.
 - Modify: `src/mods/AdventureGuide/src/Patches/DeathPatch.cs`
 - Create: `src/mods/AdventureGuide/src/Patches/ScriptedEntityPatch.cs`
 - Modify: `src/mods/AdventureGuide/src/Plugin.cs`
-- Create: `tests/unit/mods/test_adventure_guide_workflows.py`
+- Create: `src/mods/AdventureGuide/tests/AdventureGuide.Tests/WorkflowCycleStateTests.cs`
+- Create: `src/mods/AdventureGuide/tests/AdventureGuide.Tests/GuideContractTests.cs`
+- Create: `src/mods/AdventureGuide/tests/AdventureGuide.Tests/TrackerSorterTests.cs`
 
-- [ ] Deserialize guide-only/workflow/location metadata and reject duplicate or
+- [x] Deserialize guide-only/workflow/location metadata and reject duplicate or
   real-QuestDB-colliding synthetic identities. Keep all entries in
   `GuideData.All`, the Quests tab, existing search/sort/filter controls, and
   quest navigation history.
-- [ ] Add one entry-aware status path. Game-backed quests continue to use
+- [x] Add one entry-aware status path. Game-backed quests continue to use
   `GameData.HasQuest` / `CompletedQuests`; guide-only workflows never read,
   write, reset, or synthesize those lists. They are available cross-zone,
   actionable in their workflow scene, repeatable, and never terminally colored
   or pruned as completed game quests.
-- [ ] Implement a descriptor-driven cycle evaluator with the states
+- [x] Implement a descriptor-driven cycle evaluator with the states
   `NeedItem` → `ItemReady` → `TriggerConsumed` → `TargetsActive` →
   `RewardAvailable` → reset. Malaroth omits `RewardAvailable`. Select the
   current step from the strongest available evidence rather than treating a
   consumed trigger item as regression to `Buy`/`Obtain`.
-- [ ] Observe item acquisition/consumption as before/after counts; accept a
+- [x] Observe item acquisition/consumption as before/after counts; accept a
   trigger decrement only in the expected scene and exported trigger bounds.
   Observe scripted targets through a descriptor-filtered `Character.Start`
   patch plus bounded reload discovery, and reward containers through
   descriptor-scoped loot evidence. Never infer an explicit interaction from
   proximity alone.
-- [ ] Keep evaluation bounded: event notifications mark a workflow dirty and a
+- [x] Keep evaluation bounded: event notifications mark a workflow dirty and a
   fixed-interval evaluator checks only active/tracked workflow descriptors.
   No per-frame `FindObjectsOfType`, graph traversal, transitive dependency
   resolution, or global marker/nav cache invalidation.
-- [ ] Persist only the selected workflow, cycle generation, and latched trigger
+- [x] Persist only the selected workflow, cycle generation, and latched trigger
   evidence per character as recovery hints. On character/scene load or hot
   reload, revalidate them against inventory and bounded live entity/container
   discovery; ambiguous arena rounds remain `Unverifiable` rather than showing
   the wrong current step.
-- [ ] Reuse `QuestListPanel`, `QuestDetailPanel`, and `TrackerWindow`. Display
+- [x] Reuse `QuestListPanel`, `QuestDetailPanel`, and `TrackerWindow`. Display
   the existing `[R]` marker, ordered steps, sources, track/untrack controls,
   current-step highlighting, and tracker pin. Do not create an Encounters tab
   or duplicate list/detail panels.
-- [ ] Add fixed-position `go_to` navigation. Reuse zone-line routing from other
+- [x] Add fixed-position `go_to` navigation. Reuse zone-line routing from other
   scenes, then `NavigationTarget.Position`, ground path, distance, and the
   existing objective marker in the destination scene.
-- [ ] Extend focused tests to cover two complete/reset cycles, inventory
+- [x] Extend focused tests to cover two complete/reset cycles, inventory
   consumption at and away from the trigger, reload during a fight, repeated
   arena enemy keys, ambiguous-state fail-safe behavior, no completed-quest
   pruning, no GameData mutation, shared quest filters/history, and bounded
   discovery.
-- [ ] Run `uv run pytest tests/unit/mods/test_adventure_guide_workflows.py tests/unit/mods/test_adventure_guide_markers.py tests/unit/mods/test_adventure_guide_vault.py` and `uv run erenshor mod build --mod adventure-guide`.
+- [x] Run `dotnet test src/mods/AdventureGuide/tests/AdventureGuide.Tests/AdventureGuide.Tests.csproj`, `uv run pytest tests/unit/mods/test_adventure_guide_markers.py tests/unit/mods/test_adventure_guide_vault.py tests/unit/mods/test_adventure_guide_quest_list.py`, and `uv run erenshor mod build --mod adventure-guide`.
   Expected: workflows use the existing quest UI/tracker and the mod builds with
   zero errors.
-- [ ] Commit. Message: `feat(mod): track implicit repeatable workflows`
+- [x] Commit. Message: `feat(mod): track implicit repeatable workflows`
 
 ### Task 5: Regenerate and verify playtest guides
 

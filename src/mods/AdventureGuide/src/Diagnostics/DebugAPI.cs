@@ -32,7 +32,7 @@ public static class DebugAPI
         return $"Zone: {State.CurrentZone}\n"
             + $"Active quests: {State.ActiveQuests.Count}\n"
             + $"Completed quests: {State.CompletedQuests.Count}\n"
-            + $"Selected: {State.SelectedQuestDBName ?? "(none)"}\n"
+            + $"Selected: {State.SelectedQuestKey ?? "(none)"}\n"
             + $"Filter: {Filter?.FilterMode}\n"
             + $"Sort: {Filter?.SortMode}\n"
             + $"Search: '{Filter?.SearchText ?? ""}'\n"
@@ -54,8 +54,8 @@ public static class DebugAPI
         sb.AppendLine($"  Scene: {t.Scene}");
         sb.AppendLine($"  Position: {t.Position}");
         sb.AppendLine($"  SourceId: {t.SourceId ?? "(none)"}");
-        sb.AppendLine($"  Quest: {t.QuestDBName} step {t.StepOrder}");
-        sb.AppendLine($"  Origin: {t.OriginQuestDBName} step {t.OriginStepOrder}");
+        sb.AppendLine($"  Quest: {t.QuestKey} step {t.StepOrder}");
+        sb.AppendLine($"  Origin: {t.OriginQuestKey} step {t.OriginStepOrder}");
 
         var currentZone = State?.CurrentZone ?? "";
         sb.AppendLine($"  CrossZone: {t.IsCrossZone(currentZone)}");
@@ -118,8 +118,14 @@ public static class DebugAPI
         lines.AppendLine($"Type: {q.QuestType}");
         lines.AppendLine($"Zone: {q.ZoneContext}");
         lines.AppendLine($"Level: {q.LevelEstimate?.Recommended}");
-        lines.AppendLine($"Active: {State?.IsActive(q.DBName)}");
-        lines.AppendLine($"Completed: {State?.IsCompleted(q.DBName)}");
+        lines.AppendLine($"RuntimeKey: {q.RuntimeKey}");
+        lines.AppendLine($"Active: {State?.IsActive(q)}");
+        lines.AppendLine($"Completed: {State?.IsCompleted(q)}");
+        if (q.IsGuideOnly)
+        {
+            lines.AppendLine($"WorkflowStage: {State?.Workflows.GetStage(q)}");
+            lines.AppendLine($"WorkflowGeneration: {State?.Workflows.GetGeneration(q)}");
+        }
 
         if (q.Steps != null)
         {
@@ -155,10 +161,13 @@ public static class DebugAPI
             if (!q.ZoneContext.Equals(zone, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var status =
-                State.IsCompleted(q.DBName) ? "done"
-                : State.IsActive(q.DBName) ? "active"
-                : "available";
+            var status = State.GetStatus(q) switch
+            {
+                QuestRuntimeStatus.Completed => "done",
+                QuestRuntimeStatus.Active => "active",
+                QuestRuntimeStatus.ImplicitlyActive => "completable here",
+                _ => "available",
+            };
             lines.AppendLine($"  [{status}] {q.DisplayName} ({q.DBName})");
         }
 
@@ -178,6 +187,9 @@ public static class DebugAPI
         var q = FindQuest(name);
         if (q == null)
             return $"Quest '{name}' not found";
+
+        if (q.IsGuideOnly)
+            return $"'{q.DisplayName}' is guide-only; its cycle resets from observed game evidence.";
 
         bool wasActive = GameData.HasQuest.Remove(q.DBName);
         bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
@@ -214,7 +226,7 @@ public static class DebugAPI
     {
         if (Data == null)
             return null;
-        var q = Data.GetByDBName(name);
+        var q = Data.GetByRuntimeKey(name) ?? Data.GetByStableKey(name);
         if (q != null)
             return q;
         foreach (var entry in Data.All)

@@ -262,19 +262,20 @@ public sealed class QuestListPanel
 
     private bool PassesFilter(QuestEntry quest)
     {
+        var status = _state.GetStatus(quest);
         bool statusOk = _filter.FilterMode switch
         {
-            QuestFilterMode.Active => _state.IsActive(quest.DBName),
-            QuestFilterMode.Available => !_state.IsActive(quest.DBName)
-                && !_state.IsCompleted(quest.DBName),
-            QuestFilterMode.Completed => _state.IsCompleted(quest.DBName),
+            QuestFilterMode.Active => status
+                is QuestRuntimeStatus.Active
+                    or QuestRuntimeStatus.ImplicitlyActive,
+            QuestFilterMode.Available => status == QuestRuntimeStatus.Available,
+            QuestFilterMode.Completed => status == QuestRuntimeStatus.Completed,
             QuestFilterMode.All => true,
             _ => true,
         };
         if (!statusOk)
             return false;
 
-        // Zone filter
         if (_filter.ZoneFilter != null)
         {
             string? targetZone =
@@ -282,7 +283,7 @@ public sealed class QuestListPanel
                     ? _data.GetZoneDisplayName(_state.CurrentZone)
                     : _filter.ZoneFilter;
             if (targetZone == null)
-                return true; // current zone not resolvable
+                return true;
             return string.Equals(quest.ZoneContext, targetZone, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -346,13 +347,17 @@ public sealed class QuestListPanel
 
     private void DrawQuestEntry(QuestEntry quest)
     {
-        bool isSelected = quest.DBName == _state.SelectedQuestDBName;
+        bool isSelected = string.Equals(
+            quest.RuntimeKey,
+            _state.SelectedQuestKey,
+            StringComparison.OrdinalIgnoreCase
+        );
         uint statusColor = GetQuestColor(quest);
 
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
+        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.RuntimeKey);
         bool isRepeatable = quest.Flags is { Repeatable: true };
         string suffix = isRepeatable ? " [R]" : "";
         string label = quest.LevelEstimate?.Recommended is int lvl
@@ -369,7 +374,7 @@ public sealed class QuestListPanel
         );
         ImGui.SetCursorPos(new Vector2(0f, contentStart.Y));
         bool clicked = ImGui.Selectable(
-            "##" + quest.DBName,
+            "##" + quest.RuntimeKey,
             isSelected,
             ImGuiSelectableFlags.None,
             rowSize
@@ -378,7 +383,7 @@ public sealed class QuestListPanel
         rowAfter = ImGui.GetCursorPos();
 
         if (clicked)
-            _state.SelectQuest(quest.DBName);
+            _state.SelectQuest(quest);
 
         var markerStart = QuestListMarkerStartX(contentStart.X);
         var markerWidth = QuestListMarkerColumnWidth();
@@ -397,11 +402,15 @@ public sealed class QuestListPanel
             ImGui.BeginTooltip();
             if (quest.ZoneContext != null)
                 ImGui.Text(quest.ZoneContext);
-            string status =
-                _state.IsCompleted(quest.DBName) ? "Completed"
-                : _state.IsImplicitlyActive(quest.DBName) ? "Completable here"
-                : _state.IsActive(quest.DBName) ? "Active"
-                : "Available";
+            string status = _state.Workflows.IsUnverifiable(quest)
+                ? "Workflow state unavailable"
+                : _state.GetStatus(quest) switch
+                {
+                    QuestRuntimeStatus.Completed => "Completed",
+                    QuestRuntimeStatus.ImplicitlyActive => "Completable here",
+                    QuestRuntimeStatus.Active => "Active",
+                    _ => "Available",
+                };
             ImGui.Text(status);
             if (quest.LevelEstimate?.Recommended is int tipLvl)
                 ImGui.Text($"Level {tipLvl}");
@@ -411,5 +420,5 @@ public sealed class QuestListPanel
         ImGui.PopStyleColor(isSelected ? 2 : 1);
     }
 
-    private uint GetQuestColor(QuestEntry quest) => Theme.GetQuestColor(_state, quest.DBName);
+    private uint GetQuestColor(QuestEntry quest) => Theme.GetQuestColor(_state, quest);
 }

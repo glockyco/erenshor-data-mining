@@ -37,18 +37,18 @@ public sealed class NavigationTarget
     /// </summary>
     public string? SourceId { get; set; }
 
-    /// <summary>Quest DB name of the resolved navigation target (may be a sub-quest).</summary>
-    public string QuestDBName { get; }
+    /// <summary>Runtime key of the resolved navigation target (may be a sub-quest).</summary>
+    public string QuestKey { get; }
 
     /// <summary>Step order of the resolved navigation target (may be a sub-quest step).</summary>
     public int StepOrder { get; }
 
     /// <summary>
-    /// Quest DB name the user originally initiated navigation from.
+    /// Runtime key the user originally initiated navigation from.
     /// When navigation resolves through sub-quests, this stays as the
     /// parent quest so IsNavigating checks match the tracker/detail panel.
     /// </summary>
-    public string OriginQuestDBName { get; }
+    public string OriginQuestKey { get; }
 
     /// <summary>Original step order the user initiated navigation from.</summary>
     public int OriginStepOrder { get; }
@@ -58,10 +58,10 @@ public sealed class NavigationTarget
         Vector3 position,
         string displayName,
         string scene,
-        string questDBName,
+        string questKey,
         int stepOrder,
         string? sourceId = null,
-        string? originQuestDBName = null,
+        string? originQuestKey = null,
         int? originStepOrder = null
     )
     {
@@ -69,10 +69,10 @@ public sealed class NavigationTarget
         Position = position;
         DisplayName = displayName;
         Scene = scene;
-        QuestDBName = questDBName;
+        QuestKey = questKey;
         StepOrder = stepOrder;
         SourceId = sourceId;
-        OriginQuestDBName = originQuestDBName ?? questDBName;
+        OriginQuestKey = originQuestKey ?? questKey;
         OriginStepOrder = originStepOrder ?? stepOrder;
     }
 
