@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ogrespice Leaf}} (13.9%)<br>{{ItemLink|Star Stone}} (11.8%)<br>{{ItemLink|Ogrespice Bundle}} (2.1%)
 |level=13
 |levelmodmin=0
 |levelmodmax=0

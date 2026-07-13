@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ogrespice Leaf}} (13.2%)<br>{{ItemLink|Humanbone}} (12.1%)<br>{{ItemLink|Seaweed}} (10.3%)<br>{{ItemLink|Spidersmasher}} (3.0%)<ref>If A Grassland Ogre Sentinel has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0

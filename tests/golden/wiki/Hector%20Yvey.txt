@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.6%)<br>{{ItemLink|Ripparian Soldier Helm}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.0%)<br>{{ItemLink|Ripparian Plate}} (3.0%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

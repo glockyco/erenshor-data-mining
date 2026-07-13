@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.6%)<br>{{ItemLink|Crested Spaulders}} (4.0%)<br>{{ItemLink|Officer's Bracer}} (4.0%)<br>{{ItemLink|Ripparian Axe}} (4.0%)<br>{{ItemLink|Ripparian Greaves}} (3.0%)<br>{{ItemLink|Ripparian Plate}} (3.0%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0

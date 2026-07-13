@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Braxonian Shield}}<br>{{ItemLink|Flaming Vambraces}}<br>{{ItemLink|Scorched Walking Stick}}
+|droprates={{ItemLink|Braxonian Shield}} (33.3%)<br>{{ItemLink|Flaming Vambraces}} (33.3%)<br>{{ItemLink|Scorched Walking Stick}} (33.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

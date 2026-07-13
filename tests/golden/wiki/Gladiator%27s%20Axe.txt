@@ -2,7 +2,7 @@
 |title=Gladiator's Axe
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (50.0%)<br>[[Vithean Chest]] (4.3%)
+|source=[[Vithean Chest|Vithean Chest (Round 2)]] (50.0%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

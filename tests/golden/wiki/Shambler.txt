@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ghoul Scab}} (87.1%)<br>{{ItemLink|Bloodletter}} (6.7%)<br>{{ItemLink|Bread}} (4.2%)<br>{{ItemLink|Cloth Gloves}} (4.2%)<br>{{ItemLink|Cloth Pants}} (4.2%)<br>{{ItemLink|Cloth Shirt}} (4.2%)<br>{{ItemLink|Cloth Shoes}} (4.2%)<br>{{ItemLink|Cloth Sleeves}} (4.2%)<br>{{ItemLink|Luminstone}} (4.2%)<br>{{ItemLink|Star Stone}} (4.2%)<br>{{ItemLink|Water}} (4.2%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

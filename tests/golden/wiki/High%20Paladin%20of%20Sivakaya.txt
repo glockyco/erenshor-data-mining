@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Skill Book: Soluna's Touch}} (100.0%)<br>{{ItemLink|Armband of Generals}} (6.5%)<br>{{ItemLink|Resonating Brace}} (6.5%)<br>{{ItemLink|Ring of the Deceiver}} (6.5%)<br>{{ItemLink|Ring of the Pious}} (6.5%)<br>{{ItemLink|Sivakayan Wings}} (6.5%)<br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Sceptre}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
 |level=38
 |levelmodmin=0
 |levelmodmax=0

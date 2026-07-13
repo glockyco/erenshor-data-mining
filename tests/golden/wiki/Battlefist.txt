@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops={{ItemLink|Gourd Carver}}<br>{{ItemLink|Spidersmasher}}<br>{{ItemLink|Wolfguard}}
+|droprates={{ItemLink|Gourd Carver}} (33.3%)<br>{{ItemLink|Spidersmasher}} (33.3%)<ref>If Battlefist has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Wolfguard}} (33.3%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

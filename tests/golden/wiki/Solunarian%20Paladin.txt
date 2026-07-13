@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (6.9%)<br>{{ItemLink|Planar Stone}} (1.8%)<br>{{ItemLink|Skill Book: Celestial Smite III}} (1.1%)<br>{{ItemLink|Skill Book: Expert Stance}} (1.1%)<br>{{ItemLink|Spell Scroll: Emit Vitae}} (1.1%)<br>{{ItemLink|Spell Scroll: Solar Winds}} (1.1%)<br>{{ItemLink|Spell Scroll: Void Chaos}} (1.1%)<br>{{ItemLink|Eventide Boots}} (1.0%)<br>{{ItemLink|Eventide Bracer}} (1.0%)<br>{{ItemLink|Eventide Chestguard}} (1.0%)<br>{{ItemLink|Eventide Gloves}} (1.0%)<br>{{ItemLink|Eventide Greaves}} (1.0%)<br>{{ItemLink|Eventide Helm}} (1.0%)<br>{{ItemLink|Eventide Vambraces}} (1.0%)<br>{{ItemLink|Radiant Boots}} (1.0%)<br>{{ItemLink|Radiant Bracer}} (1.0%)<br>{{ItemLink|Radiant Chestguard}} (1.0%)<br>{{ItemLink|Radiant Gloves}} (1.0%)<br>{{ItemLink|Radiant Greaves}} (1.0%)<br>{{ItemLink|Radiant Helm}} (1.0%)<br>{{ItemLink|Radiant Vambraces}} (1.0%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

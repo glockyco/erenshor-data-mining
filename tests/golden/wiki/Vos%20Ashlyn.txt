@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Spell Scroll: Annihilate}}<br>{{ItemLink|Spell Scroll: Tenebris}}
+|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Spell Scroll: Annihilate}} (50.0%)<br>{{ItemLink|Spell Scroll: Tenebris}} (50.0%)<br>{{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

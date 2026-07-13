@@ -10,6 +10,8 @@
 |spawnchance=2-40%
 |spawntype=
 |respawn=5-6 minutes
+|guaranteeddrops={{ItemLink|Birdbone Band}}<br>{{ItemLink|Pteriaped Claw Necklace}}
+|droprates={{ItemLink|Birdbone Band}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.0%)<br>{{ItemLink|Pteriaped Claw Necklace}} (33.3%)<br>{{ItemLink|Luminstone}} (1.9%)<br>{{ItemLink|Pink Pteriaped Feather}} (1.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -44,6 +46,8 @@
 |spawnchance=2-40%
 |spawntype=
 |respawn=5-6 minutes
+|guaranteeddrops={{ItemLink|Feathered Booties}}<br>{{ItemLink|Feathered Cape}}
+|droprates={{ItemLink|Feathered Booties}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.0%)<br>{{ItemLink|Feathered Cape}} (33.3%)<br>{{ItemLink|Luminstone}} (1.9%)<br>{{ItemLink|Pink Pteriaped Feather}} (1.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

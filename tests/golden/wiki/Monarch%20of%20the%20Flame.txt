@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Monarch's Blade}}<br>{{ItemLink|Monarch's Mask}}<br>{{ItemLink|Monarch's Ring}}
+|droprates={{ItemLink|Black Flame}} (100.0%)<ref>If the player is already holding {{ItemLink|Black Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Monarch's Blade}} (33.3%)<br>{{ItemLink|Monarch's Mask}} (33.3%)<br>{{ItemLink|Monarch's Ring}} (33.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

@@ -10,15 +10,17 @@
 |spawnchance=
 |spawntype=
 |respawn=116 minutes
-|level=40
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (53.1%)<br>{{ItemLink|Water}} (53.1%)
+|level=39
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=260000
+|health=234000
 |mana=20000
-|ac=600
+|ac=585
 |strength=1255
 |endurance=500
 |dexterity=800
@@ -26,10 +28,10 @@
 |intelligence=155
 |wisdom=155
 |charisma=155
-|magic=20-48
-|poison=20-48
-|elemental=20-48
-|void=20-48
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
 |spells=
 }}
 

@@ -10,6 +10,8 @@
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Intricate Sleeves}}<br>{{ItemLink|Virophan Leather Slippers}}
+|droprates={{ItemLink|Memory of Balaste}} (100.0%)<ref>If the player is already holding {{ItemLink|Memory of Balaste}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Traitor's Hall}} (100.0%)<ref>If the player is already holding {{ItemLink|The Traitor's Hall}} in their inventory, another will not drop.</ref><br>{{ItemLink|Intricate Sleeves}} (66.7%)<br>{{ItemLink|Virophan Leather Slippers}} (33.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

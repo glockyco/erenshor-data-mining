@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Eye of Plaxitheris}} (100.0%)<br>{{ItemLink|Mold: A Ghostly Key}} (100.0%)<br>{{ItemLink|Brackfruit Juice}} (19.4%)<br>{{ItemLink|Bread}} (19.4%)<br>{{ItemLink|Light Plate Breastplate}} (19.4%)<br>{{ItemLink|Light Plate Greaves}} (19.4%)<br>{{ItemLink|Luminstone}} (19.4%)<br>{{ItemLink|Seafruit}} (19.4%)<br>{{ItemLink|Seaspice}} (19.4%)<br>{{ItemLink|Star Stone}} (19.4%)<br>{{ItemLink|Tattered Leather Boots}} (19.4%)<br>{{ItemLink|Tattered Leather Gloves}} (19.4%)<br>{{ItemLink|Tattered Leather Leggings}} (19.4%)<br>{{ItemLink|Tattered Leather Skullcap}} (19.4%)<br>{{ItemLink|Tattered Leather Sleeves}} (19.4%)<br>{{ItemLink|Tattered Leather Tunic}} (19.4%)<br>{{ItemLink|A Moongill}} (16.7%)<br>{{ItemLink|Old Torn Cape}} (8.7%)<br>{{ItemLink|Spell Scroll: Antidote}} (8.7%)<br>{{ItemLink|Spell Scroll: Dazzle}} (8.7%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (8.7%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (8.7%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (8.7%)<br>{{ItemLink|Spell Scroll: Tangle}} (8.7%)<br>{{ItemLink|Spell Scroll: Weak Poison}} (8.7%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0

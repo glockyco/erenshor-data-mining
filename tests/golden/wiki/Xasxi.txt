@@ -10,6 +10,8 @@
 |spawnchance=33%
 |spawntype=
 |respawn=7 minutes
+|guaranteeddrops={{ItemLink|Wild Colossus Ring}}<br>{{ItemLink|Xasxi Bone Bracer}}
+|droprates={{ItemLink|Xasxi Bone Bracer}} (66.7%)<br>{{ItemLink|Wild Colossus Ring}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

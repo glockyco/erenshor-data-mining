@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Arc, Crescent of the Void}}<br>{{ItemLink|Eon, Blade of Time}}<br>{{ItemLink|Eternox, Remnant of the Void}}<br>{{ItemLink|Lux, Carver of Stars}}<br>{{ItemLink|Parallax, Key to the Void}}<br>{{ItemLink|Singularity, Vessel of Creation}}
+|droprates={{ItemLink|Heart of Astra}} (100.0%)<ref>If the player is already holding {{ItemLink|Heart of Astra}} in their inventory, another will not drop.</ref><br>{{ItemLink|Stardust (Item)|image=Stardust Item.png|text=Stardust}} (68.7%)<br>{{ItemLink|Ancient Coal}} (41.6%)<br>{{ItemLink|Diamond}} (41.6%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (41.6%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Arc, Crescent of the Void}} (16.7%)<br>{{ItemLink|Eon, Blade of Time}} (16.7%)<br>{{ItemLink|Eternox, Remnant of the Void}} (16.7%)<br>{{ItemLink|Lux, Carver of Stars}} (16.7%)<br>{{ItemLink|Parallax, Key to the Void}} (16.7%)<br>{{ItemLink|Singularity, Vessel of Creation}} (16.7%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

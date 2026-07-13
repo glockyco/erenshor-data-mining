@@ -2,7 +2,7 @@
 |title=Hunting Coat
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (36.4%)
+|source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)
 |othersource=
 |questsource=
 |relatedquest=

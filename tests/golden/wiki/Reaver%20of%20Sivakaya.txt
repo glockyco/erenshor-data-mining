@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Skill Book: Void Slice}} (100.0%)<br>{{ItemLink|Armband of Generals}} (10.9%)<br>{{ItemLink|Sivakayan Wings}} (10.9%)<br>{{ItemLink|Reaver's Steel}} (6.9%)<ref>If Reaver of Sivakaya has {{ItemLink|Reaver's Steel}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ring of the Pious}} (4.0%)<br>{{ItemLink|Sivakayan Bracer}} (1.5%)<br>{{ItemLink|Sivakayan Legplate}} (1.5%)<br>{{ItemLink|Sivakayan Plate}} (1.5%)<br>{{ItemLink|Sivakayan Shield}} (1.5%)<ref>If Reaver of Sivakaya has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
 |level=38
 |levelmodmin=0
 |levelmodmax=0

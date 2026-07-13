@@ -10,6 +10,8 @@
 |spawnchance=75%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops={{ItemLink|Amber's Gift}}<br>{{ItemLink|Bloom}}<br>{{ItemLink|Cinder of Birth}}<br>{{ItemLink|Morning Glow}}
+|droprates={{ItemLink|Amber's Gift}} (25.0%)<br>{{ItemLink|Bloom}} (25.0%)<br>{{ItemLink|Cinder of Birth}} (25.0%)<br>{{ItemLink|Morning Glow}} (25.0%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

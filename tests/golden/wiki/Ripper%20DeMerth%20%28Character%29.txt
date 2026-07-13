@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=16 minutes
+|guaranteeddrops={{ItemLink|Age-Old Armlet}}<br>{{ItemLink|Ceto}}<br>{{ItemLink|Esen}}
+|droprates={{ItemLink|Ear of Ripper}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Ripper}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (87.1%)<br>{{ItemLink|Age-Old Armlet}} (33.3%)<br>{{ItemLink|Ceto}} (33.3%)<br>{{ItemLink|Esen}} (33.3%)<br>{{ItemLink|Ripper Insignia Badge}} (20.6%)<br>{{ItemLink|Ripparian Axe}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.0%)<br>{{ItemLink|Ripparian Plate}} (3.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

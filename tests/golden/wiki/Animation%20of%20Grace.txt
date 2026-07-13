@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Blade of Grace}}<br>{{ItemLink|Cord of Concentration}}<br>{{ItemLink|Halo of Twin Skies}}
+|droprates={{ItemLink|Planar Stone Shards}} (81.0%)<br>{{ItemLink|Blade of Grace}} (68.9%)<br>{{ItemLink|Cord of Concentration}} (68.9%)<br>{{ItemLink|Halo of Twin Skies}} (68.9%)<br>{{ItemLink|Planar Stone}} (36.8%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

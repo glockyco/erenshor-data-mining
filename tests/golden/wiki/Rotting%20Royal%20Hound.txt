@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Aged Plate}} (0.9%)<br>{{ItemLink|Aged Plate Boots}} (0.9%)<br>{{ItemLink|Aged Plate Bracer}} (0.9%)<br>{{ItemLink|Aged Plate Greaves}} (0.9%)<br>{{ItemLink|Aged Plate Sleeves}} (0.9%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Seafarer's Pendant}} (100.0%)<br>{{ItemLink|Cloth Pants}} (78.0%)<br>{{ItemLink|Cloth Shirt}} (78.0%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

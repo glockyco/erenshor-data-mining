@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ogrespice Leaf}} (19.3%)<br>{{ItemLink|Seaweed}} (16.3%)<br>{{ItemLink|Spidersmasher}} (3.0%)<ref>If A Grassland Ogre Bruiser has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
 |level=13
 |levelmodmin=0
 |levelmodmax=0

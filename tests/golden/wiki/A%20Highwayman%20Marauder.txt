@@ -10,6 +10,8 @@
 |spawnchance=3%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (12.8%)<br>{{ItemLink|Water}} (12.8%)<br>{{ItemLink|Bloodletter}} (7.3%)<ref>If A Highwayman Marauder has {{ItemLink|Bloodletter}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Gambler's Cape}} (3.0%)<br>{{ItemLink|Highwayman Pants}} (3.0%)<br>{{ItemLink|Luminstone}} (3.0%)<br>{{ItemLink|Star Stone}} (3.0%)<br>{{ItemLink|Sticky Gloves}} (3.0%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

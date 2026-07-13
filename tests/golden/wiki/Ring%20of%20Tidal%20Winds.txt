@@ -2,7 +2,7 @@
 |title=Ring of Tidal Winds
 |type=
 |vendorsource=
-|source=[[Solunarian Chest]] (33.3%)<br>[[Vithean Chest]] (4.3%)
+|source=[[Solunarian Chest]] (33.3%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

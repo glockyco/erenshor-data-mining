@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (74.5%)<br>{{ItemLink|Cloth Gloves}} (4.6%)<br>{{ItemLink|Cloth Hood}} (4.6%)<br>{{ItemLink|Cloth Pants}} (4.6%)<br>{{ItemLink|Cloth Shirt}} (4.6%)<br>{{ItemLink|Cloth Shoes}} (4.6%)<br>{{ItemLink|Cloth Sleeves}} (4.6%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

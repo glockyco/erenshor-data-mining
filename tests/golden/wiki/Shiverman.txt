@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Death's Decay}} (59.2%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (59.2%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blight Crystals}} (12.9%)<br>{{ItemLink|Ancient Pottery Shard}} (10.1%)<br>{{ItemLink|Eternal Ice}} (3.0%)<br>{{ItemLink|Diamond}} (1.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (0.6%)<br>{{ItemLink|Concentration Band}} (0.6%)<br>{{ItemLink|Demon Claw}} (0.6%)<br>{{ItemLink|Freeing Stone}} (0.6%)<br>{{ItemLink|Luminstone}} (0.6%)<br>{{ItemLink|Polished Stone}} (0.6%)<br>{{ItemLink|Ruby}} (0.6%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (0.6%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

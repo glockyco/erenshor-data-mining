@@ -10,6 +10,8 @@
 |spawnchance=70%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mason's Pick}}<br>{{ItemLink|Salt Encrusted Boots}}
+|droprates={{ItemLink|Old Work Order}} (100.0%)<ref>If the player is already holding {{ItemLink|Old Work Order}} in their inventory, another will not drop.</ref><br>{{ItemLink|Salt Encrusted Boots}} (66.7%)<br>{{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Mason's Pick}} (33.3%)<br>{{ItemLink|Ancient Pottery Shard}} (6.9%)<br>{{ItemLink|Diamond}} (6.9%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (6.9%)<br>{{ItemLink|Azynthian Scripture 1}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Vampire Fang}} (3.9%)<br>{{ItemLink|Molorai Sigil}} (2.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

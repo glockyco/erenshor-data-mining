@@ -10,6 +10,8 @@
 |spawnchance=55%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mask of Spies}}<br>{{ItemLink|Shadow Gloves}}
+|droprates={{ItemLink|Sivakayan Intel}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Intel}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadow Gloves}} (66.7%)<br>{{ItemLink|Mask of Spies}} (33.3%)<br>{{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Spymaster has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Spymaster has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
 |level=29
 |levelmodmin=2
 |levelmodmax=2

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Fury Helm}}<br>{{ItemLink|Warded Brace}}<br>{{ItemLink|Wardwarped Cape}}
+|droprates={{ItemLink|Fury Helm}} (33.3%)<br>{{ItemLink|Warded Brace}} (33.3%)<br>{{ItemLink|Wardwarped Cape}} (33.3%)<br>{{ItemLink|A Moongill}} (20.8%)<br>{{ItemLink|A Sleepyhead}} (20.8%)
 |level=37
 |levelmodmin=0
 |levelmodmax=0

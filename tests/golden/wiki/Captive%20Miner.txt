@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates=
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (31.5%)<br>{{ItemLink|Water}} (31.5%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

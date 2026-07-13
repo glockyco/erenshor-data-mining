@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mudmold Shield}}<br>{{ItemLink|Ring of The Mystics}}
+|droprates={{ItemLink|Ring of The Mystics}} (66.7%)<br>{{ItemLink|Mudmold Shield}} (33.3%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Hardened Scale Jacket}}<br>{{ItemLink|Malaroth Sinew Cord}}
+|droprates={{ItemLink|Malaroth Sinew Cord}} (66.7%)<br>{{ItemLink|Hardened Scale Jacket}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

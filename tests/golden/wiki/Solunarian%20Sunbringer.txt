@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ring of Allegiance}} (6.7%)<br>{{ItemLink|Planar Stone Shards}} (5.5%)<br>{{ItemLink|Planar Stone}} (2.8%)<br>{{ItemLink|Skill Book: Celestial Smite III}} (2.8%)<br>{{ItemLink|Spell Scroll: Solar Winds}} (2.8%)<br>{{ItemLink|Eventide Boots}} (1.7%)<br>{{ItemLink|Eventide Bracer}} (1.7%)<br>{{ItemLink|Eventide Chestguard}} (1.7%)<br>{{ItemLink|Eventide Gloves}} (1.7%)<br>{{ItemLink|Eventide Greaves}} (1.7%)<br>{{ItemLink|Eventide Helm}} (1.7%)<br>{{ItemLink|Eventide Vambraces}} (1.7%)<br>{{ItemLink|Radiant Boots}} (1.7%)<br>{{ItemLink|Radiant Bracer}} (1.7%)<br>{{ItemLink|Radiant Chestguard}} (1.7%)<br>{{ItemLink|Radiant Gloves}} (1.7%)<br>{{ItemLink|Radiant Greaves}} (1.7%)<br>{{ItemLink|Radiant Helm}} (1.7%)<br>{{ItemLink|Radiant Vambraces}} (1.7%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

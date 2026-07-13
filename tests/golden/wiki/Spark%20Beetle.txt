@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Flint Carapace}} (11.8%)<br>{{ItemLink|Luminstone}} (11.8%)<br>{{ItemLink|Droplet of Lava}} (4.3%)
 |level=11
 |levelmodmin=0
 |levelmodmax=0

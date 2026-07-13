@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops={{ItemLink|Runed Molorai Axe}}<br>{{ItemLink|Swirlstone Ring}}
+|droprates={{ItemLink|Runed Molorai Axe}} (70.9%)<br>{{ItemLink|Swirlstone Ring}} (70.9%)<br>{{ItemLink|Hardened Sceptre}} (46.4%)<ref>If Molorai Archmage has {{ItemLink|Hardened Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Spell Scroll: Intrusive Ideas}} (13.1%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Ring of Clarity}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)
 |level=11
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Spell Scroll: Intrusive Ideas}} (13.4%)<br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Ring of Clarity}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Hardened Sceptre}} (6.7%)<ref>If Molorai Archmage has {{ItemLink|Hardened Sceptre}} equipped, it is guaranteed to drop.</ref>
 |level=9
 |levelmodmin=0
 |levelmodmax=0

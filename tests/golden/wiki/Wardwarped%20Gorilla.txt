@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|A Moongill}} (14.2%)<br>{{ItemLink|A Sleepyhead}} (14.2%)<br>{{ItemLink|Spell Scroll: Summon Brute}} (14.2%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (8.3%)<br>{{ItemLink|Spilling Blade}} (6.7%)<br>{{ItemLink|Chthonic Armwraps}} (3.7%)<br>{{ItemLink|Chthonic Handwraps}} (3.7%)<br>{{ItemLink|Chthonic Hood}} (3.7%)<br>{{ItemLink|Chthonic Pants}} (3.7%)<br>{{ItemLink|Chthonic Sandals}} (3.7%)<br>{{ItemLink|Chthonic Tunic}} (3.7%)<br>{{ItemLink|Chthonic Wristlet}} (3.7%)<br>{{ItemLink|Planar Stone}} (3.4%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

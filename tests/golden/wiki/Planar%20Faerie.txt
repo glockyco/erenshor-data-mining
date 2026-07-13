@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (12.6%)<br>{{ItemLink|Twinkling Boots}} (6.7%)<br>{{ItemLink|Planar Stone}} (5.6%)<br>{{ItemLink|Spell Scroll: Group Regrowth}} (2.3%)<br>{{ItemLink|Spell Scroll: Necrotizing Bloom}} (2.3%)<br>{{ItemLink|Spell Scroll: Vibrant Regrowth}} (2.3%)<br>{{ItemLink|Chthonic Armwraps}} (1.7%)<br>{{ItemLink|Chthonic Handwraps}} (1.7%)<br>{{ItemLink|Chthonic Hood}} (1.7%)<br>{{ItemLink|Chthonic Pants}} (1.7%)<br>{{ItemLink|Chthonic Sandals}} (1.7%)<br>{{ItemLink|Chthonic Tunic}} (1.7%)<br>{{ItemLink|Chthonic Wristlet}} (1.7%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Amulet of Birdsong}}<br>{{ItemLink|Whispers of Wind}}
+|droprates={{ItemLink|Amulet of Birdsong}} (50.0%)<br>{{ItemLink|Whispers of Wind}} (50.0%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

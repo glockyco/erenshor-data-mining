@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (19.5%)<ref>If Malor Mara has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

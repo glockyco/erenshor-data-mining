@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Aegis Charm}}<br>{{ItemLink|Thornwood Bracer}}<br>{{ItemLink|Willowcutter}}
+|droprates={{ItemLink|Spell Scroll: Planar Healing}} (100.0%)<br>{{ItemLink|Aegis Charm}} (68.7%)<br>{{ItemLink|Thornwood Bracer}} (68.7%)<br>{{ItemLink|Willowcutter}} (68.7%)<br>{{ItemLink|Planar Stone Shards}} (7.9%)<br>{{ItemLink|Chthonic Armwraps}} (1.6%)<br>{{ItemLink|Chthonic Handwraps}} (1.6%)<br>{{ItemLink|Chthonic Hood}} (1.6%)<br>{{ItemLink|Chthonic Pants}} (1.6%)<br>{{ItemLink|Chthonic Sandals}} (1.6%)<br>{{ItemLink|Chthonic Tunic}} (1.6%)<br>{{ItemLink|Chthonic Wristlet}} (1.6%)<br>{{ItemLink|Planar Stone}} (1.6%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

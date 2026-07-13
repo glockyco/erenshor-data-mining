@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|The Malaroth Process}} (13.1%)<ref>If the player is already holding {{ItemLink|The Malaroth Process}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azure Mead}} (8.5%)<br>{{ItemLink|Sea Glass}} (5.8%)<br>{{ItemLink|Star Stone}} (5.8%)<br>{{ItemLink|Priel Officer's Ring}} (3.4%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (3.4%)<br>{{ItemLink|A Frowny Clowny}} (1.7%)<br>{{ItemLink|An Octorunner}} (1.7%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

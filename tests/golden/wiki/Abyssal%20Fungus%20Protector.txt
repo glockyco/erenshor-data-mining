@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (77.6%)<br>{{ItemLink|Intact Fungal Cap}} (18.2%)<br>{{ItemLink|Star Stone}} (1.8%)<br>{{ItemLink|Diamond}} (0.9%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Staff}} (0.9%)<br>{{ItemLink|Luminstone}} (0.9%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (83.8%)<br>{{ItemLink|Intact Fungal Cap}} (2.1%)<br>{{ItemLink|Star Stone}} (1.2%)<br>{{ItemLink|Diamond}} (0.6%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Staff}} (0.6%)<br>{{ItemLink|Luminstone}} (0.6%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

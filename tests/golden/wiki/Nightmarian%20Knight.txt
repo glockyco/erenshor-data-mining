@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Remnants of a Daydream}} (11.8%)<br>{{ItemLink|Remnants of a Nightmare}} (11.8%)<br>{{ItemLink|Dreamslayer}} (4.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

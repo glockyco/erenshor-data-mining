@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=12 minutes (Rottenfoot)<br>4-12 minutes (The Elderstone Mines)
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (87.1%)<br>{{ItemLink|A Twisted Spider Leg}} (19.6%)<br>{{ItemLink|A Fanged Caveskimmer}} (11.5%)<br>{{ItemLink|Fungal Spore}} (11.5%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

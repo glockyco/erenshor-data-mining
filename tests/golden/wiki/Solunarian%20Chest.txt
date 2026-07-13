@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Cometshard Shield}}<br>{{ItemLink|Ellipse Cord}}<br>{{ItemLink|End Times}}<br>{{ItemLink|Lunar Bangle}}<br>{{ItemLink|Meteor Metal Boots}}<br>{{ItemLink|Ring of Tidal Winds}}
+|droprates={{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Cometshard Shield}} (40.4%)<br>{{ItemLink|Ellipse Cord}} (40.4%)<br>{{ItemLink|End Times}} (40.4%)<br>{{ItemLink|Lunar Bangle}} (40.4%)<br>{{ItemLink|Meteor Metal Boots}} (40.4%)<br>{{ItemLink|Ring of Tidal Winds}} (33.3%)<br>{{ItemLink|Planar Stone}} (9.6%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -32,6 +34,8 @@
 |void=0-1
 |spells=
 }}
+
+Spawned after defeating [[Nadir]] and [[Zenith]].
 
 [[Category:Enemies]]
 [[Category:Soluna's Celestial Plane]]

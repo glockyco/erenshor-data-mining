@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (7.8%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Muck Ball}} (7.8%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (4.6%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (4.6%)<br>{{ItemLink|Swampy Loincloth}} (4.6%)<br>{{ItemLink|Petrified Club}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.4%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Muck Ball}} (3.5%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (3.5%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.5%)<br>{{ItemLink|Swampy Loincloth}} (3.5%)<br>{{ItemLink|Petrified Club}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.4%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

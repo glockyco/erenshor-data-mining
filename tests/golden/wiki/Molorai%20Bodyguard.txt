@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Molorai Axe}} (17.3%)<ref>If Molorai Bodyguard has {{ItemLink|Molorai Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Molorai Battle Boots}} (7.8%)<br>{{ItemLink|Razor Waveblade}} (5.1%)<ref>If Molorai Bodyguard has {{ItemLink|Razor Waveblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Rusty Dagger}} (5.1%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

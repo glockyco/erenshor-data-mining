@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (89.4%)<br>{{ItemLink|Rusty Shortsword}} (5.9%)<br>{{ItemLink|Tattered Leather Leggings}} (2.9%)<br>{{ItemLink|Simple Engagement Ring}} (1.7%)<br>{{ItemLink|Tattered Leather Boots}} (1.2%)<br>{{ItemLink|Tattered Leather Gloves}} (1.2%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.2%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.2%)<br>{{ItemLink|Tattered Leather Tunic}} (1.2%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

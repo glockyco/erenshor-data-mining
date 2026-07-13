@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (46.7%)<br>{{ItemLink|Polished Stone}} (46.7%)<br>{{ItemLink|Sea Glass}} (46.7%)<br>{{ItemLink|Fiery Sapphire Ring}} (9.1%)<br>{{ItemLink|Rune of Sands}} (4.6%)<ref>If the player is already holding {{ItemLink|Rune of Sands}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (3.4%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Peon (Game Piece)|text=Peon}} (3.4%)<ref>If the player is already holding {{ItemLink|Peon (Game Piece)|text=Peon}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0

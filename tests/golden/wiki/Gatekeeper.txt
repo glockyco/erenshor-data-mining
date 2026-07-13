@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

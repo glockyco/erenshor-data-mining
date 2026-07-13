@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blue Leaf Cape}}<br>{{ItemLink|Thorned Knuckle Gloves}}
+|droprates={{ItemLink|Blue Leaf Cape}} (50.0%)<br>{{ItemLink|Thorned Knuckle Gloves}} (50.0%)<br>{{ItemLink|Loomingwood Branch}} (12.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

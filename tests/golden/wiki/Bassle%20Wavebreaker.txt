@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Hardened Copper Sword}} (67.9%)<br>{{ItemLink|Citrine Stone}} (40.2%)<br>{{ItemLink|Water}} (40.2%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

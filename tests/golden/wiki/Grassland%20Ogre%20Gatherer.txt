@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Fernalla's Revival Plains)<br>6 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Tattered Leather Boots}} (7.3%)<br>{{ItemLink|Tattered Leather Gloves}} (7.3%)<br>{{ItemLink|Tattered Leather Leggings}} (7.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (7.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (7.3%)<br>{{ItemLink|Tattered Leather Tunic}} (7.3%)
 |level=3
 |levelmodmin=0
 |levelmodmax=0

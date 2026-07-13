@@ -10,6 +10,8 @@
 |spawnchance=11-100%
 |spawntype=
 |respawn=2-4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (14.3%)<br>{{ItemLink|Luminstone}} (14.3%)<br>{{ItemLink|Seafruit}} (10.1%)<br>{{ItemLink|Bag of Faerie Dust}} (7.7%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Demon's Crest}} (4.5%)<br>{{ItemLink|Recurve Bow}} (4.5%)<br>{{ItemLink|Intact Faerie Wing}} (1.1%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Abominable Ribcage}}<br>{{ItemLink|Creeping Waistband}}<br>{{ItemLink|Fernalla's Paintbrush}}
+|droprates={{ItemLink|Planar Stone Shards}} (81.0%)<br>{{ItemLink|Abominable Ribcage}} (68.9%)<br>{{ItemLink|Creeping Waistband}} (68.9%)<br>{{ItemLink|Fernalla's Paintbrush}} (68.9%)<br>{{ItemLink|Planar Stone}} (36.8%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

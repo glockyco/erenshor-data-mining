@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Augmenting Ring}}<br>{{ItemLink|Shadowmaker}}<br>{{ItemLink|Widow's Wraps}}
+|droprates={{ItemLink|Blue Burnstone}} (100.0%)<ref>If the player is already holding {{ItemLink|Blue Burnstone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (61.0%)<br>{{ItemLink|Luminstone}} (61.0%)<br>{{ItemLink|Sea Glass}} (61.0%)<br>{{ItemLink|Augmenting Ring}} (33.3%)<br>{{ItemLink|Shadowmaker}} (33.3%)<br>{{ItemLink|Widow's Wraps}} (33.3%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

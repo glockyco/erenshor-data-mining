@@ -10,6 +10,8 @@
 |spawnchance=2-33%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Centering Cord}}<br>{{ItemLink|Naturewalker's Breeches}}
+|droprates={{ItemLink|Centering Cord}} (66.7%)<br>{{ItemLink|Naturewalker's Breeches}} (33.3%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

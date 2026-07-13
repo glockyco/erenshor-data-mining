@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blackened Iron Amulet}}<br>{{ItemLink|Crafted Bracer}}<br>{{ItemLink|Knight's Helm}}<br>{{ItemLink|Ogreskin Cord}}<br>{{ItemLink|Rotten Chain Tunic}}<br>{{ItemLink|Woebringer - Halberd of Stone}}
+|droprates={{ItemLink|Stone Giant's Blood}} (87.1%)<br>{{ItemLink|Blackened Iron Amulet}} (19.5%)<br>{{ItemLink|Crafted Bracer}} (19.5%)<br>{{ItemLink|Knight's Helm}} (19.5%)<br>{{ItemLink|Ogreskin Cord}} (19.5%)<br>{{ItemLink|Rotten Chain Tunic}} (19.5%)<br>{{ItemLink|Woebringer - Halberd of Stone}} (19.5%)<br>{{ItemLink|Distant Thunder}} (3.0%)<br>{{ItemLink|End of Life}} (3.0%)<br>{{ItemLink|Freedom of the Sky}} (3.0%)<br>{{ItemLink|Glow of Eternity}} (3.0%)<br>{{ItemLink|Rising Moon}} (3.0%)<br>{{ItemLink|Wilt}} (3.0%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

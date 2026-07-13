@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes (Azynthi's Garden)<br>2 minutes (Blacksalt Strand)<br>5 minutes (Fernalla's Revival Plains)<br>5 minutes (Malaroth's Nesting Grounds)<br>5 minutes (Ripper's Keep)<br>4 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (14.8%)<br>{{ItemLink|Pristine Grass Spider Carapace}} (12.9%)
 |level=4
 |levelmodmin=0
 |levelmodmax=1

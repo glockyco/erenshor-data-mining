@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.6%)<br>{{ItemLink|Ripparian Axe}} (12.1%)<ref>If Ripper Soldier has {{ItemLink|Ripparian Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ripparian Greaves}} (2.0%)<br>{{ItemLink|Ripparian Plate}} (2.0%)<br>{{ItemLink|Ripparian Soldier Helm}} (2.0%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

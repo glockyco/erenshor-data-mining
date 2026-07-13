@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Reptilian Scales}} (19.5%)<br>{{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

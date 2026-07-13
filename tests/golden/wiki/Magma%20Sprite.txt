@@ -10,6 +10,8 @@
 |spawnchance=5%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (99.3%)<br>{{ItemLink|Diamond}} (35.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0

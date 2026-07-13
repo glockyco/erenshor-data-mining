@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (17.3%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Whispers of the Sea}} (8.8%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

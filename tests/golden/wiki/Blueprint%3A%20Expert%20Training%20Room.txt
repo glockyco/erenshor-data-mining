@@ -2,7 +2,7 @@
 |title=Blueprint: Expert Training Room
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Vithean Chest]] (54.7%)
+|source=[[Vithean Chest|Vithean Chest (Round 2)]] (54.7%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Crafting: Expert Training Room}}

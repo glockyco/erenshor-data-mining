@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (94.8%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

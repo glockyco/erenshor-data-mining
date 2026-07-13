@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=2 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (27.8%)
 |level=12
 |levelmodmin=1
 |levelmodmax=1

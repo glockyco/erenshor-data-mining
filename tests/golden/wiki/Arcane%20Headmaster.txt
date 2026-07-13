@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Elder's Slippers}}<br>{{ItemLink|Lover's Locket}}
+|droprates={{ItemLink|Elder's Slippers}} (50.0%)<br>{{ItemLink|Lover's Locket}} (50.0%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

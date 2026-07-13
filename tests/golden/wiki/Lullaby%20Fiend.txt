@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (59.7%)<br>{{ItemLink|Luminstone}} (59.7%)<br>{{ItemLink|Sea Glass}} (59.7%)<br>{{ItemLink|Remnants of a Daydream}} (4.5%)<br>{{ItemLink|Remnants of a Nightmare}} (4.5%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Skill Book: Trick Shot}} (100.0%)<br>{{ItemLink|Siva Bow}} (6.9%)<br>{{ItemLink|Armband of Generals}} (5.5%)<br>{{ItemLink|Resonating Brace}} (5.5%)<br>{{ItemLink|Ring of the Deceiver}} (5.5%)<br>{{ItemLink|Ring of the Pious}} (5.5%)<br>{{ItemLink|Sivakayan Wings}} (5.5%)<br>{{ItemLink|Sivakayan Bracer}} (1.5%)<br>{{ItemLink|Sivakayan Legplate}} (1.5%)<br>{{ItemLink|Sivakayan Plate}} (1.5%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

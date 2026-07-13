@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackwood Mace}} (4.4%)<ref>If Islander Bandit has {{ItemLink|Brackwood Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (4.4%)<br>{{ItemLink|Carved Bow}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Leggings}} (3.9%)<br>{{ItemLink|Tattered Leather Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Tunic}} (3.9%)<br>{{ItemLink|Weak Wand}} (3.9%)<br>{{ItemLink|Light Plate Breastplate}} (1.1%)<br>{{ItemLink|Priel Knife}} (1.1%)<br>{{ItemLink|Skill Book: Block}} (1.1%)<br>{{ItemLink|Skill Book: Blood Feast}} (1.1%)<br>{{ItemLink|Skill Book: Dodge}} (1.1%)<br>{{ItemLink|Skill Book: Dual Wield}} (1.1%)<br>{{ItemLink|Skill Book: Kick}} (1.1%)<br>{{ItemLink|Skill Book: Shield Bash}} (1.1%)<br>{{ItemLink|Skill Book: Stunning Strike}} (1.1%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (1.1%)<br>{{ItemLink|Spell Scroll: Lunar Madness}} (1.1%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (1.1%)<br>{{ItemLink|Spell Scroll: Summon Decayed Fawn}} (1.1%)<br>{{ItemLink|Spell Scroll: Tangle}} (1.1%)
 |level=2
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (4.3%)<br>{{ItemLink|Planar Stone}} (1.9%)<br>{{ItemLink|Cyclone Steel Boots}} (1.5%)<br>{{ItemLink|Cyclone Steel Bracer}} (1.5%)<br>{{ItemLink|Cyclone Steel Gloves}} (1.5%)<br>{{ItemLink|Cyclone Steel Greaves}} (1.5%)<br>{{ItemLink|Cyclone Steel Helm}} (1.5%)<br>{{ItemLink|Cyclone Steel Plate}} (1.5%)<br>{{ItemLink|Cyclone Steel Sleeves}} (1.5%)<br>{{ItemLink|Skyseared Boots}} (1.5%)<br>{{ItemLink|Skyseared Brace}} (1.5%)<br>{{ItemLink|Skyseared Gloves}} (1.5%)<br>{{ItemLink|Skyseared Hood}} (1.5%)<br>{{ItemLink|Skyseared Leggings}} (1.5%)<br>{{ItemLink|Skyseared Sleeves}} (1.5%)<br>{{ItemLink|Skyseared Tunic}} (1.5%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

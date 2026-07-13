@@ -12,6 +12,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blessed Helm}}<br>{{ItemLink|Eclipse}}<br>{{ItemLink|Erandian Avenger}}<br>{{ItemLink|Solar Forged Ring}}
+|droprates={{ItemLink|Faded Journal Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Faded Journal Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Moonlit Frenzy}} (100.0%)<br>{{ItemLink|Spell Scroll: Mutual Doom}} (100.0%)<br>{{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Solar Forged Ring}} (40.0%)<br>{{ItemLink|Lost Faith}} (35.4%)<br>{{ItemLink|Blessed Helm}} (20.0%)<br>{{ItemLink|Eclipse}} (20.0%)<br>{{ItemLink|Erandian Avenger}} (20.0%)<ref>If Raval, The First Paladin has {{ItemLink|Erandian Avenger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Stone Statue: Soluna}} (3.3%)<br>{{ItemLink|Golden Statue: Soluna}} (1.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

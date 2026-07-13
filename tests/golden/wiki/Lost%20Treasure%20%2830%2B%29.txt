@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops={{ItemLink|Ancient Presence}}<br>{{ItemLink|Armbands of Order}}<br>{{ItemLink|Charm of Talent}}<br>{{ItemLink|Cryptid Claws}}<br>{{ItemLink|Griefwarden}}<br>{{ItemLink|Plague Mask}}<br>{{ItemLink|Ring of Repeated Thoughts}}<br>{{ItemLink|Thundermakers}}<br>{{ItemLink|Ulor's Encyclopedia}}
+|droprates={{ItemLink|Time Stone}} (65.5%)<br>{{ItemLink|Elixir of Enlightenment I}} (56.6%)<br>{{ItemLink|Inert Diamond}} (56.6%)<br>{{ItemLink|Planar Stone Shards}} (56.6%)<br>{{ItemLink|Sivakrux}} (56.6%)<br>{{ItemLink|Elixir of Enlightenment III}} (14.4%)<br>{{ItemLink|Ancient Presence}} (12.8%)<br>{{ItemLink|Armbands of Order}} (12.8%)<br>{{ItemLink|Charm of Talent}} (12.8%)<br>{{ItemLink|Cryptid Claws}} (12.8%)<br>{{ItemLink|Griefwarden}} (12.8%)<br>{{ItemLink|Plague Mask}} (12.8%)<br>{{ItemLink|Ring of Repeated Thoughts}} (12.8%)<br>{{ItemLink|Thundermakers}} (12.8%)<br>{{ItemLink|Ulor's Encyclopedia}} (12.8%)<br>{{ItemLink|Planar Stone}} (8.3%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

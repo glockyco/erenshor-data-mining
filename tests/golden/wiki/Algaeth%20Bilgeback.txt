@@ -10,6 +10,8 @@
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Pearlescent Kelp Totem}}<br>{{ItemLink|Seastone Prism}}
+|droprates={{ItemLink|Seastone Prism}} (85.7%)<br>{{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (25.0%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Pearlescent Kelp Totem}} (14.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

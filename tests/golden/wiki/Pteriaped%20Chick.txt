@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5-6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Green Pteriaped Feather}} (35.0%)<br>{{ItemLink|Luminstone}} (1.9%)<br>{{ItemLink|Pink Pteriaped Feather}} (1.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

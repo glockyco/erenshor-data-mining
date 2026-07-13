@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Hilltop Ring}}<br>{{ItemLink|Oread Tunic}}
+|droprates={{ItemLink|Autmis' Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Autmis' Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Hilltop Ring}} (53.7%)<br>{{ItemLink|Oread Tunic}} (53.7%)<br>{{ItemLink|Bread}} (43.4%)<br>{{ItemLink|Luminstone}} (43.4%)<br>{{ItemLink|Ruby}} (12.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref>
 |level=7
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (74.5%)<br>{{ItemLink|Chthonic Armwraps}} (3.4%)<br>{{ItemLink|Chthonic Handwraps}} (3.4%)<br>{{ItemLink|Chthonic Hood}} (3.4%)<br>{{ItemLink|Chthonic Pants}} (3.4%)<br>{{ItemLink|Chthonic Sandals}} (3.4%)<br>{{ItemLink|Chthonic Tunic}} (3.4%)<br>{{ItemLink|Chthonic Wristlet}} (3.4%)<br>{{ItemLink|Star Stone}} (2.1%)<br>{{ItemLink|Diamond}} (1.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (1.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

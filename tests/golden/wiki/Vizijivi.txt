@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=7 minutes
+|guaranteeddrops={{ItemLink|Digested Gloves}}<br>{{ItemLink|Malaroth Hide Hood}}
+|droprates={{ItemLink|Digested Gloves}} (50.0%)<br>{{ItemLink|Malaroth Hide Hood}} (50.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

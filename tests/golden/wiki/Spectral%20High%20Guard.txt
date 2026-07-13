@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Tarnished Halberd}} (6.9%)<br>{{ItemLink|Tarnished Steel Belt}} (6.9%)<br>{{ItemLink|Aged Plate Bracer}} (2.7%)<br>{{ItemLink|Aged Plate Sleeves}} (2.7%)<br>{{ItemLink|Aged Plate Boots}} (1.4%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

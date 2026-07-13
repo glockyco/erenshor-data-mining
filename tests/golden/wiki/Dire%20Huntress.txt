@@ -10,6 +10,8 @@
 |spawnchance=3-25%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (74.5%)<br>{{ItemLink|Collar of the Huntress}} (27.8%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops={{ItemLink|Planar Spear}}<br>{{ItemLink|Primal Ice Shard}}<br>{{ItemLink|Warder's Staff}}
+|droprates={{ItemLink|Planar Stone Shards}} (91.1%)<br>{{ItemLink|Planar Spear}} (69.7%)<br>{{ItemLink|Primal Ice Shard}} (69.7%)<br>{{ItemLink|Warder's Staff}} (69.7%)<br>{{ItemLink|Planar Stone}} (38.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

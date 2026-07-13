@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=2
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0

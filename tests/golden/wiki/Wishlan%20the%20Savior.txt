@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (84.7%)<br>{{ItemLink|Pulsating Stone}} (4.5%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0

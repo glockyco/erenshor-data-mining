@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (53.1%)<br>{{ItemLink|Water}} (53.1%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

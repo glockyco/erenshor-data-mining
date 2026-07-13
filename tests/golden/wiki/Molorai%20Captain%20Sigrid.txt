@@ -12,6 +12,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops={{ItemLink|Obsidian Bracer}}<br>{{ItemLink|Vithean Sea Salt Ring}}
+|droprates={{ItemLink|Krakengard Tower Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Krakengard Tower Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Pg. 2: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 2: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (98.3%)<br>{{ItemLink|Obsidian Bracer}} (55.4%)<br>{{ItemLink|Vithean Sea Salt Ring}} (55.4%)<br>{{ItemLink|Spell Scroll: Moonburst}} (12.7%)<br>{{ItemLink|Spell Scroll: Sunburst}} (12.7%)<br>{{ItemLink|Linked Chain Shirt}} (10.9%)<br>{{ItemLink|Star Stone}} (10.9%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (2.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (2.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (2.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (2.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (2.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0

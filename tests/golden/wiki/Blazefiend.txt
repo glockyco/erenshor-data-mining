@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Fire Emerald Band}}<br>{{ItemLink|Flame of the Redemption}}<br>{{ItemLink|Smoldering Blade}}<br>{{ItemLink|Spirit of the Steed}}
+|droprates={{ItemLink|Fire Emerald Band}} (25.0%)<br>{{ItemLink|Flame of the Redemption}} (25.0%)<br>{{ItemLink|Smoldering Blade}} (25.0%)<br>{{ItemLink|Spirit of the Steed}} (25.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

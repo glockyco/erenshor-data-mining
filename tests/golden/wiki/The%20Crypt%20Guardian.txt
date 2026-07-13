@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Memory of a Guardian}} (100.0%)<ref>If the player is already holding {{ItemLink|Memory of a Guardian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spectral Dagger}} (14.8%)<ref>If The Crypt Guardian has {{ItemLink|Spectral Dagger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Spectral Bow}} (8.7%)<br>{{ItemLink|Spectral Sword}} (4.3%)<ref>If The Crypt Guardian has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

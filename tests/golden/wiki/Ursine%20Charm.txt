@@ -2,7 +2,7 @@
 |title=Ursine Charm
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (66.8%)
+|source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)
 |othersource=
 |questsource=
 |relatedquest=

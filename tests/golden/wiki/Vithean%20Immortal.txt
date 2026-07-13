@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates=
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spectral Sword}} (9.1%)<br>{{ItemLink|Spectral Dagger}} (3.0%)<br>{{ItemLink|Stone Statue: Vitheo}} (0.8%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Vitheo}} (0.2%)<br>{{ItemLink|Ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (0.2%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

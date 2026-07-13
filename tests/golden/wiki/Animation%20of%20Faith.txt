@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Bracer of the Blessed}}<br>{{ItemLink|Cosmic Barrier}}<br>{{ItemLink|Helmet of Clarity}}
+|droprates={{ItemLink|Planar Stone Shards}} (75.1%)<br>{{ItemLink|Bracer of the Blessed}} (68.2%)<br>{{ItemLink|Cosmic Barrier}} (68.2%)<br>{{ItemLink|Helmet of Clarity}} (68.2%)<br>{{ItemLink|Planar Stone}} (32.7%)<br>{{ItemLink|Interstellar Charm}} (25.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

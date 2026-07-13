@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Aether's Blessing}} (20.6%)<br>{{ItemLink|Aetherial Hood}} (12.1%)<br>{{ItemLink|Rune of Silkengrass}} (5.1%)<ref>If the player is already holding {{ItemLink|Rune of Silkengrass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Loomingwood Market}} (0.4%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.4%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

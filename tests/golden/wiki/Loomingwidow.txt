@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (27.1%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

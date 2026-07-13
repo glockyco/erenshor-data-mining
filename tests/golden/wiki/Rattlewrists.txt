@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (100.0%)<br>{{ItemLink|Tattered Leather Boots}} (100.0%)<br>{{ItemLink|Water}} (100.0%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

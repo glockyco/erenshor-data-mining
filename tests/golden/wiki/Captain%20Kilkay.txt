@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ear of Kilkay}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Kilkay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Executioner of Azure}} (100.0%)<br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (63.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

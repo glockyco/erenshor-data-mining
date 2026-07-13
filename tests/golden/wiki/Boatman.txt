@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (12.4%)<br>{{ItemLink|Cloth Hood}} (12.4%)<br>{{ItemLink|Cloth Shoes}} (12.4%)<br>{{ItemLink|Cloth Sleeves}} (12.4%)<br>{{ItemLink|Cloth Pants}} (4.2%)<br>{{ItemLink|Cloth Shirt}} (4.2%)<br>{{ItemLink|Neophyte Necklace}} (4.2%)<br>{{ItemLink|Graveweed Leaf}} (1.1%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Idol of Sivakaya}} (1.1%)<ref>If Boatman has {{ItemLink|Idol of Sivakaya}} equipped, it is guaranteed to drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0

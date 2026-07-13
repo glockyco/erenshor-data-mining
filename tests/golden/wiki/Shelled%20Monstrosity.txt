@@ -10,6 +10,8 @@
 |spawnchance=80%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Chitin Bracer}}<br>{{ItemLink|Chitin Protector}}
+|droprates={{ItemLink|Chitin Bracer}} (66.7%)<br>{{ItemLink|Chitin Protector}} (33.3%)<br>{{ItemLink|Droplet of Lava}} (4.5%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

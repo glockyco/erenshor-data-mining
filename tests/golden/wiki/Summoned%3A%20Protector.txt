@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5-13 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|The Faceless}} (19.6%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0

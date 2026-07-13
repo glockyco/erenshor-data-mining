@@ -2,7 +2,7 @@
 |title=Oceanic Charm
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (66.7%)
+|source=[[Vithean Chest|Vithean Chest (Round 7)]] (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

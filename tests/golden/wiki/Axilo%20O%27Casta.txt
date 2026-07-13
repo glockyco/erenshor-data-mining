@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (20.8%)<br>{{ItemLink|Star Stone}} (20.8%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

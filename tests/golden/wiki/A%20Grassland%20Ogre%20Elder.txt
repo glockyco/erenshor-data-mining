@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackfruit Juice}} (76.6%)<br>{{ItemLink|Water}} (76.6%)<br>{{ItemLink|Ogre Tooth Club}} (8.9%)<ref>If A Grassland Ogre Elder has {{ItemLink|Ogre Tooth Club}} equipped, it is guaranteed to drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops={{ItemLink|Elemental Fourblade}}<br>{{ItemLink|Fiery Thoughts}}<br>{{ItemLink|Glacier Belt}}
+|droprates={{ItemLink|Planar Stone Shards}} (75.9%)<br>{{ItemLink|Elemental Fourblade}} (68.9%)<br>{{ItemLink|Fiery Thoughts}} (68.9%)<br>{{ItemLink|Glacier Belt}} (68.9%)<br>{{ItemLink|Planar Stone}} (46.7%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

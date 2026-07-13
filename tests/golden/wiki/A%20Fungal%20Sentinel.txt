@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=12 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackfruit Juice}} (93.5%)<br>{{ItemLink|A Twisted Spider Leg}} (25.2%)<br>{{ItemLink|A Fanged Caveskimmer}} (15.1%)<br>{{ItemLink|Fungal Spore}} (15.1%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

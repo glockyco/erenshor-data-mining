@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=1 minute
+|guaranteeddrops=
+|droprates={{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Spinesnap Hide Hood}} (6.7%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

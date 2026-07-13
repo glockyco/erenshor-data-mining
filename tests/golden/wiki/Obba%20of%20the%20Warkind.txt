@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Etched Armlet}}<br>{{ItemLink|Wolfhide Boots}}
+|droprates={{ItemLink|Etched Armlet}} (66.7%)<br>{{ItemLink|Wolfhide Boots}} (33.3%)<br>{{ItemLink|Ogrespice Leaf}} (3.4%)<br>{{ItemLink|Spidersmasher}} (3.4%)<ref>If Obba of the Warkind has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
 |level=15
 |levelmodmin=0
 |levelmodmax=0

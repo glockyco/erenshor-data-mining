@@ -2,7 +2,7 @@
 |title=Vithean Arena Fee (1)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Vithean Chest]] (100.0%)
+|source=[[Vithean Chest|Vithean Chest (Round 8)]] (100.0%)
 |othersource=
 |questsource={{QuestLink|An Arena Token}}
 |relatedquest={{QuestLink|Vitheo's Arena I}}

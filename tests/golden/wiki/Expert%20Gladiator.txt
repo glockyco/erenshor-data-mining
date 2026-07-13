@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (6.2%)<br>{{ItemLink|Planar Stone}} (2.8%)<br>{{ItemLink|Skill Book: Tactical Opportunist}} (1.0%)<br>{{ItemLink|Spell Scroll: Expose Weakness II}} (1.0%)<br>{{ItemLink|Spell Scroll: Obscura}} (1.0%)<br>{{ItemLink|Spell Scroll: Synchrotron Burst}} (1.0%)<br>{{ItemLink|Spell Scroll: Tempest}} (1.0%)<br>{{ItemLink|Spell Scroll: Thalassic Paralysis}} (1.0%)<br>{{ItemLink|Cyclone Steel Boots}} (0.9%)<br>{{ItemLink|Cyclone Steel Bracer}} (0.9%)<br>{{ItemLink|Cyclone Steel Gloves}} (0.9%)<br>{{ItemLink|Cyclone Steel Greaves}} (0.9%)<br>{{ItemLink|Cyclone Steel Helm}} (0.9%)<br>{{ItemLink|Cyclone Steel Plate}} (0.9%)<br>{{ItemLink|Cyclone Steel Sleeves}} (0.9%)<br>{{ItemLink|Skyseared Boots}} (0.9%)<br>{{ItemLink|Skyseared Brace}} (0.9%)<br>{{ItemLink|Skyseared Gloves}} (0.9%)<br>{{ItemLink|Skyseared Hood}} (0.9%)<br>{{ItemLink|Skyseared Leggings}} (0.9%)<br>{{ItemLink|Skyseared Sleeves}} (0.9%)<br>{{ItemLink|Skyseared Tunic}} (0.9%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

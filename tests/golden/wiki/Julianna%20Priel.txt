@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Gifted Sleeves}}<br>{{ItemLink|Priel Steel Armguards}}
+|droprates={{ItemLink|Gifted Sleeves}} (50.0%)<br>{{ItemLink|Priel Steel Armguards}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.2%)<ref>If Julianna Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
 |level=28
 |levelmodmin=0
 |levelmodmax=0

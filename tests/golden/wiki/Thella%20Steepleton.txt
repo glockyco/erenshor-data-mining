@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (8.2%)<br>{{ItemLink|Pathfinder's Staff}} (8.2%)<ref>If Thella Steepleton has {{ItemLink|Pathfinder's Staff}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Swirlstone Amulet}} (8.2%)<br>{{ItemLink|Vinewrapped Vambracers}} (8.2%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

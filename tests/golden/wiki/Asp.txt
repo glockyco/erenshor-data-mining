@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Reptilian Scales}} (81.2%)<br>{{ItemLink|Ancient Bone}} (9.1%)<br>{{ItemLink|Asp's Fang}} (4.4%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

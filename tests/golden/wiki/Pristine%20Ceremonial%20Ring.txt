@@ -61,7 +61,7 @@
 |proc_shielding_amt=
 |proc_damage_type=Magic
 |proc_cast_time=0.3
-|proc_cooldown=
+|proc_cooldown=8.0
 |proc_spell_range=30.0
 |proc_lifetap=
 |proc_group_effect=

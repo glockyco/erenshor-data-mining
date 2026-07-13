@@ -10,6 +10,8 @@
 |spawnchance=20-100%
 |spawntype=
 |respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (32.7%)<br>{{ItemLink|Cloth Hood}} (32.7%)<br>{{ItemLink|Cloth Shoes}} (32.7%)<br>{{ItemLink|Cloth Sleeves}} (32.7%)<br>{{ItemLink|Graveweed Leaf}} (10.1%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Adept Wand}} (5.8%)<br>{{ItemLink|Cloth Pants}} (5.8%)<br>{{ItemLink|Cloth Shirt}} (5.8%)<br>{{ItemLink|Neophyte Necklace}} (5.8%)<br>{{ItemLink|Ancient Bone}} (3.5%)<br>{{ItemLink|Necromancer's Ritual Book}} (3.5%)<ref>If the player is already holding {{ItemLink|Necromancer's Ritual Book}} in their inventory, another will not drop.</ref><br>{{ItemLink|Idol of Sivakaya}} (3.4%)<ref>If Neophyte Necromancer has {{ItemLink|Idol of Sivakaya}} equipped, it is guaranteed to drop.</ref>
 |level=7
 |levelmodmin=0
 |levelmodmax=0

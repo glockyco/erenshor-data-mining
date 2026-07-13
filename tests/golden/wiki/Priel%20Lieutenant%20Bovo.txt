@@ -10,6 +10,8 @@
 |spawnchance=33%
 |spawntype=
 |respawn=2 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (8.7%)<ref>If Priel Lieutenant Bovo has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (4.9%)<br>{{ItemLink|Star Stone}} (4.9%)<br>{{ItemLink|Whitewood}} (4.9%)<br>{{ItemLink|Priel Standard}} (4.3%)<ref>If Priel Lieutenant Bovo has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
 |level=7
 |levelmodmin=0
 |levelmodmax=0

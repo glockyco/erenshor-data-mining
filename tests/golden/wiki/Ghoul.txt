@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ghoul Scab}} (87.1%)<br>{{ItemLink|Bread}} (4.9%)<br>{{ItemLink|Cloth Gloves}} (4.9%)<br>{{ItemLink|Cloth Pants}} (4.9%)<br>{{ItemLink|Cloth Shirt}} (4.9%)<br>{{ItemLink|Cloth Shoes}} (4.9%)<br>{{ItemLink|Cloth Sleeves}} (4.9%)<br>{{ItemLink|Luminstone}} (4.9%)<br>{{ItemLink|Star Stone}} (4.9%)<br>{{ItemLink|Water}} (4.9%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (99.5%)<br>{{ItemLink|Meteorite Gauntlets}} (13.1%)<br>{{ItemLink|Slab of Meteorite}} (12.8%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

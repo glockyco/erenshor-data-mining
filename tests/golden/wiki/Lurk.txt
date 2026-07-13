@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
+|guaranteeddrops={{ItemLink|Chewed Helmet}}<br>{{ItemLink|Gator Gloves}}
+|droprates={{ItemLink|Gator Gloves}} (66.7%)<br>{{ItemLink|Chewed Helmet}} (33.3%)<br>{{ItemLink|Muck Ball}} (19.6%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

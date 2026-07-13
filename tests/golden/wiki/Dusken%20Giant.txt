@@ -10,6 +10,8 @@
 |spawnchance=1%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Dusken Shield}}<br>{{ItemLink|Dusken Staff}}
+|droprates={{ItemLink|Dusken Giant's Blood}} (86.3%)<br>{{ItemLink|Dusken Shield}} (66.7%)<br>{{ItemLink|Dusken Staff}} (33.3%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

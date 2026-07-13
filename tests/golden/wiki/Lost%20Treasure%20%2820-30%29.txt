@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops={{ItemLink|Cobwebbed Breeches}}<br>{{ItemLink|Drakescale Cuirass}}<br>{{ItemLink|Exploding Brace}}<br>{{ItemLink|Mithril Short Sword}}<br>{{ItemLink|Worn Dueling Plate}}
+|droprates={{ItemLink|Elixir of Enlightenment I}} (76.4%)<br>{{ItemLink|Sivakrux}} (76.4%)<br>{{ItemLink|Time Stone}} (76.4%)<br>{{ItemLink|Cobwebbed Breeches}} (25.6%)<br>{{ItemLink|Drakescale Cuirass}} (25.6%)<br>{{ItemLink|Exploding Brace}} (25.6%)<br>{{ItemLink|Mithril Short Sword}} (25.6%)<br>{{ItemLink|Worn Dueling Plate}} (25.6%)<br>{{ItemLink|Planar Stone Shards}} (25.3%)<br>{{ItemLink|Elixir of Enlightenment III}} (10.8%)<br>{{ItemLink|Elixir of Enlightenment IV}} (10.8%)<br>{{ItemLink|Flawless Diamond Ring}} (7.0%)<br>{{ItemLink|Flawless Emerald Ring}} (7.0%)<br>{{ItemLink|Flawless Sapphire Ring}} (7.0%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

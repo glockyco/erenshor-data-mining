@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=17 minutes
+|guaranteeddrops={{ItemLink|Blackbone Axe}}<br>{{ItemLink|Sableheart's Harness}}<br>{{ItemLink|Sivakayan Tricorner}}
+|droprates={{ItemLink|Blackbone Axe}} (33.3%)<br>{{ItemLink|Sableheart's Harness}} (33.3%)<br>{{ItemLink|Sivakayan Tricorner}} (33.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone}} (4.7%)<br>{{ItemLink|Minotaur Wristguard}} (4.3%)<br>{{ItemLink|Planar Stone Shards}} (2.9%)<br>{{ItemLink|Chthonic Armwraps}} (1.6%)<br>{{ItemLink|Chthonic Handwraps}} (1.6%)<br>{{ItemLink|Chthonic Hood}} (1.6%)<br>{{ItemLink|Chthonic Pants}} (1.6%)<br>{{ItemLink|Chthonic Sandals}} (1.6%)<br>{{ItemLink|Chthonic Tunic}} (1.6%)<br>{{ItemLink|Chthonic Wristlet}} (1.6%)<br>{{ItemLink|Spell Scroll: Group Regrowth}} (1.4%)<br>{{ItemLink|Spell Scroll: Necrotizing Bloom}} (1.4%)<br>{{ItemLink|Spell Scroll: Vibrant Regrowth}} (1.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

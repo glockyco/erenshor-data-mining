@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Mold: A Strange Figurine}} (100.0%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

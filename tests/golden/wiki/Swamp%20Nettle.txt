@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Swamproot}} (23.5%)<br>{{ItemLink|Jellystick}} (4.3%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (14.2%)<br>{{ItemLink|Cloth Hood}} (14.2%)<br>{{ItemLink|Cloth Shoes}} (14.2%)<br>{{ItemLink|Cloth Sleeves}} (14.2%)<br>{{ItemLink|Necromantic Bow}} (7.0%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Devoratrix Thorn}} (6.9%)<br>{{ItemLink|Loomingwood Branch}} (6.9%)<br>{{ItemLink|Fungus Covered Tunic}} (5.8%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Sceptre}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=2
@@ -44,6 +46,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Sceptre}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0

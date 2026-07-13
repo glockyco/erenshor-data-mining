@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops={{ItemLink|Ephermalia, Blade of Waning}}<br>{{ItemLink|Shackle of Bidding}}
+|droprates={{ItemLink|Brackfruit Juice}} (100.0%)<br>{{ItemLink|Shackle of Bidding}} (66.7%)<br>{{ItemLink|Ephermalia, Blade of Waning}} (33.3%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

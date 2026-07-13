@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Rotwood Bow}} (12.1%)<br>{{ItemLink|Nightfall}} (6.9%)<ref>If Wiggleribs has {{ItemLink|Nightfall}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Pull of Insomnia}} (6.9%)<br>{{ItemLink|Pull of Sleep}} (6.9%)<br>{{ItemLink|Skeleton Eye}} (5.9%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Advisor's Sword}}<br>{{ItemLink|Orbital Loop}}<br>{{ItemLink|Planetary Shard}}
+|droprates={{ItemLink|Spell Scroll: Air of Intimidation}} (100.0%)<br>{{ItemLink|Planar Stone Shards}} (90.7%)<br>{{ItemLink|Advisor's Sword}} (70.0%)<br>{{ItemLink|Orbital Loop}} (70.0%)<br>{{ItemLink|Planetary Shard}} (70.0%)<br>{{ItemLink|Planar Stone}} (64.9%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (6.9%)<br>{{ItemLink|Braxonian Mace}} (2.3%)<ref>If Braxonian Honor Guard has {{ItemLink|Braxonian Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Diamond}} (2.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Polished Steel Belt}} (2.3%)<br>{{ItemLink|Braxonian Bracer}} (1.9%)<br>{{ItemLink|Braxonian Gauntlets}} (1.2%)<br>{{ItemLink|Braxonian Plate Boots}} (1.2%)<br>{{ItemLink|Braxonian Greaves}} (0.6%)<br>{{ItemLink|Braxonian Plate}} (0.6%)<br>{{ItemLink|Braxonian Spaulders}} (0.6%)<br>{{ItemLink|Stone Statue: Brax}} (0.6%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

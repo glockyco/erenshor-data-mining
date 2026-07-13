@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops={{ItemLink|Protector's Bracer}}<br>{{ItemLink|Shadow Helm}}<br>{{ItemLink|Trembling Chain}}
+|droprates={{ItemLink|Captured Light}} (100.0%)<ref>If the player is already holding {{ItemLink|Captured Light}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (53.8%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Protector's Bracer}} (37.9%)<br>{{ItemLink|Shadow Helm}} (37.9%)<br>{{ItemLink|Trembling Chain}} (37.9%)<br>{{ItemLink|Bread}} (30.3%)<br>{{ItemLink|Death's Decay}} (30.3%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (30.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0

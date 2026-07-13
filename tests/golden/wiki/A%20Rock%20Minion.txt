@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (94.9%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

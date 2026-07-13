@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Boneweaver's Leg}}<br>{{ItemLink|Spectral Silk Belt}}
+|droprates={{ItemLink|Spectral Silk Belt}} (66.7%)<br>{{ItemLink|Boneweaver's Leg}} (33.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

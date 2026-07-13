@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Shadowed Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Shadowed Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Concentration Band}} (2.3%)<br>{{ItemLink|Freeing Stone}} (2.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops={{ItemLink|Chain of Protection}}<br>{{ItemLink|Spiderskin Shroud}}
+|droprates={{ItemLink|Chain of Protection}} (50.0%)<br>{{ItemLink|Spiderskin Shroud}} (50.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -80,6 +84,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Chain of Protection}} (2.3%)<br>{{ItemLink|Spiderskin Shroud}} (2.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -115,6 +121,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Concentration Band}} (4.5%)<br>{{ItemLink|Freeing Stone}} (4.5%)<br>{{ItemLink|Chain of Protection}} (2.2%)<br>{{ItemLink|Spiderskin Shroud}} (2.2%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

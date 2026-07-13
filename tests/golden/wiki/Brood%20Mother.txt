@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Gem Adorned Belt}}<br>{{ItemLink|Malaroth Scale Chestguard}}
+|droprates={{ItemLink|Gem Adorned Belt}} (66.7%)<br>{{ItemLink|Malaroth Scale Chestguard}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

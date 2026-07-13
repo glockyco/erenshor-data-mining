@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone}} (20.3%)<br>{{ItemLink|Planar Stone Shards}} (10.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -32,6 +34,8 @@
 |void=55
 |spells=
 }}
+
+Part of a two-boss fight with [[Zenith]], loot can be found here: [[Solunarian Chest]].
 
 [[Category:Bosses]]
 [[Category:Enemies]]

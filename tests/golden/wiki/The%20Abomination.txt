@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops={{ItemLink|Bloodstained Plate}}<br>{{ItemLink|Steadfast Girdle}}
+|droprates={{ItemLink|Key to Vitheo's Tomb}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Tomb}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (94.9%)<br>{{ItemLink|Bloodstained Plate}} (50.0%)<br>{{ItemLink|Steadfast Girdle}} (50.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

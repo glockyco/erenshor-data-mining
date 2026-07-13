@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Hero Bracer}}<br>{{ItemLink|Minoaxe}}<br>{{ItemLink|Stonelined Plate}}
+|droprates={{ItemLink|Minoaxe}} (50.0%)<ref>If Loomingwood Minotaur Hero has {{ItemLink|Minoaxe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Hero Bracer}} (34.6%)<br>{{ItemLink|Stonelined Plate}} (25.0%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

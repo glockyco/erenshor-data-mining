@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (84.7%)<br>{{ItemLink|Muddy Jerkin}} (1.1%)<br>{{ItemLink|Pendant of Petrified Wood}} (1.1%)<br>{{ItemLink|Tarnished Greaves}} (1.1%)<br>{{ItemLink|Tarnished Plate Armor}} (1.1%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

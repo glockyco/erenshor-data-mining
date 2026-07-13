@@ -1,14 +1,3 @@
-==An Introduction to Soluna, The Celestial Goddess==
-Soluna is credited with bringing the Order of Paladins to Erenshor. She landed at a point in the northern region of the Erenshor peninsula, now called Soluna’s
-Landing.
-
-It is thought that she came to Erenshor to guide its inhabitants after the disappearance of Brax.She is said to be as old as the universe itself, so her origins as a
-Goddess are not known. Soluna draws power from the Sun, the Moon, and other celestial bodies and is said to leap from star to star throughout the skies.
-
-It is unclear what happened to the First Paladins of Erenshor, or why Soluna left Amarion so quickly after her arrival but if the answers are still on Erenshor, they are likely near Soluna’s Landing.
-
-[[File:Soluna.png|400px]]
-
 {{Character
 |name=Soluna
 |image=[[File:Soluna.png|thumb]]
@@ -21,6 +10,8 @@ It is unclear what happened to the First Paladins of Erenshor, or why Soluna lef
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Aevum}}<br>{{ItemLink|Astral March}}<br>{{ItemLink|Imperium}}<br>{{ItemLink|Moonlit Mask}}<br>{{ItemLink|Nova}}<br>{{ItemLink|Shifted Fate}}
+|droprates={{ItemLink|Planar Stone}} (98.3%)<br>{{ItemLink|Aevum}} (36.0%)<br>{{ItemLink|Astral March}} (36.0%)<br>{{ItemLink|Imperium}} (36.0%)<br>{{ItemLink|Moonlit Mask}} (36.0%)<br>{{ItemLink|Nova}} (36.0%)<br>{{ItemLink|Shifted Fate}} (36.0%)<br>{{ItemLink|Platinum Statue: Soluna}} (16.6%)<br>{{ItemLink|Advisor's Sword}} (5.8%)<br>{{ItemLink|Blade of Grace}} (5.8%)<br>{{ItemLink|Cosmic Barrier}} (5.8%)<br>{{ItemLink|Ellipse Cord}} (5.8%)<br>{{ItemLink|Halo of Twin Skies}} (5.8%)<br>{{ItemLink|Interstellar Charm}} (5.8%)<br>{{ItemLink|Meteor Metal Boots}} (5.8%)<br>{{ItemLink|Orbital Loop}} (5.8%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -56,6 +47,8 @@ It is unclear what happened to the First Paladins of Erenshor, or why Soluna lef
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Platinum Statue: Soluna}} (13.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -78,6 +71,17 @@ It is unclear what happened to the First Paladins of Erenshor, or why Soluna lef
 |void=22-52
 |spells=
 }}
+
+'''Soluna''' is one of Erenshor's gods and a boss in [[Soluna's Celestial Plane]].
+
+==An Introduction to Soluna, The Celestial Goddess==
+Soluna is credited with bringing the Order of Paladins to Erenshor. She landed at a point in the northern region of the Erenshor peninsula, now called Soluna’s
+Landing.
+
+It is thought that she came to Erenshor to guide its inhabitants after the disappearance of Brax.She is said to be as old as the universe itself, so her origins as a
+Goddess are not known. Soluna draws power from the Sun, the Moon, and other celestial bodies and is said to leap from star to star throughout the skies.
+
+It is unclear what happened to the First Paladins of Erenshor, or why Soluna left Amarion so quickly after her arrival but if the answers are still on Erenshor, they are likely near Soluna’s Landing.
 
 [[Category:Bosses]]
 [[Category:Characters]]

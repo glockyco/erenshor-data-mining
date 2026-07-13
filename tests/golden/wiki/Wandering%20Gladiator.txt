@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakrux}} (100.0%)<br>{{ItemLink|Planar Stone Shards}} (4.0%)<br>{{ItemLink|Planar Stone}} (2.4%)<br>{{ItemLink|Cyclone Steel Boots}} (1.0%)<br>{{ItemLink|Cyclone Steel Bracer}} (1.0%)<br>{{ItemLink|Cyclone Steel Gloves}} (1.0%)<br>{{ItemLink|Cyclone Steel Greaves}} (1.0%)<br>{{ItemLink|Cyclone Steel Helm}} (1.0%)<br>{{ItemLink|Cyclone Steel Plate}} (1.0%)<br>{{ItemLink|Cyclone Steel Sleeves}} (1.0%)<br>{{ItemLink|Skyseared Boots}} (1.0%)<br>{{ItemLink|Skyseared Brace}} (1.0%)<br>{{ItemLink|Skyseared Gloves}} (1.0%)<br>{{ItemLink|Skyseared Hood}} (1.0%)<br>{{ItemLink|Skyseared Leggings}} (1.0%)<br>{{ItemLink|Skyseared Sleeves}} (1.0%)<br>{{ItemLink|Skyseared Tunic}} (1.0%)<br>{{ItemLink|Skill Book: Tactical Opportunist}} (1.0%)<br>{{ItemLink|Spell Scroll: Expose Weakness II}} (1.0%)<br>{{ItemLink|Spell Scroll: Obscura}} (1.0%)<br>{{ItemLink|Spell Scroll: Synchrotron Burst}} (1.0%)<br>{{ItemLink|Spell Scroll: Tempest}} (1.0%)<br>{{ItemLink|Spell Scroll: Thalassic Paralysis}} (1.0%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -47,6 +49,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakrux}} (100.0%)<br>{{ItemLink|Planar Stone Shards}} (3.1%)<br>{{ItemLink|Cyclone Steel Boots}} (1.8%)<br>{{ItemLink|Cyclone Steel Bracer}} (1.8%)<br>{{ItemLink|Cyclone Steel Gloves}} (1.8%)<br>{{ItemLink|Cyclone Steel Greaves}} (1.8%)<br>{{ItemLink|Cyclone Steel Helm}} (1.8%)<br>{{ItemLink|Cyclone Steel Plate}} (1.8%)<br>{{ItemLink|Cyclone Steel Sleeves}} (1.8%)<br>{{ItemLink|Skyseared Boots}} (1.8%)<br>{{ItemLink|Skyseared Brace}} (1.8%)<br>{{ItemLink|Skyseared Gloves}} (1.8%)<br>{{ItemLink|Skyseared Hood}} (1.8%)<br>{{ItemLink|Skyseared Leggings}} (1.8%)<br>{{ItemLink|Skyseared Sleeves}} (1.8%)<br>{{ItemLink|Skyseared Tunic}} (1.8%)<br>{{ItemLink|Planar Stone}} (1.6%)<br>{{ItemLink|Skill Book: Tactical Opportunist}} (1.6%)<br>{{ItemLink|Spell Scroll: Expose Weakness II}} (1.6%)<br>{{ItemLink|Spell Scroll: Obscura}} (1.6%)<br>{{ItemLink|Spell Scroll: Synchrotron Burst}} (1.6%)<br>{{ItemLink|Spell Scroll: Tempest}} (1.6%)<br>{{ItemLink|Spell Scroll: Thalassic Paralysis}} (1.6%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -84,6 +88,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakrux}} (100.0%)<br>{{ItemLink|Planar Stone Shards}} (3.3%)<br>{{ItemLink|Planar Stone}} (1.7%)<br>{{ItemLink|Cyclone Steel Boots}} (1.0%)<br>{{ItemLink|Cyclone Steel Bracer}} (1.0%)<br>{{ItemLink|Cyclone Steel Gloves}} (1.0%)<br>{{ItemLink|Cyclone Steel Greaves}} (1.0%)<br>{{ItemLink|Cyclone Steel Helm}} (1.0%)<br>{{ItemLink|Cyclone Steel Plate}} (1.0%)<br>{{ItemLink|Cyclone Steel Sleeves}} (1.0%)<br>{{ItemLink|Skyseared Boots}} (1.0%)<br>{{ItemLink|Skyseared Brace}} (1.0%)<br>{{ItemLink|Skyseared Gloves}} (1.0%)<br>{{ItemLink|Skyseared Hood}} (1.0%)<br>{{ItemLink|Skyseared Leggings}} (1.0%)<br>{{ItemLink|Skyseared Sleeves}} (1.0%)<br>{{ItemLink|Skyseared Tunic}} (1.0%)<br>{{ItemLink|Skill Book: Tactical Opportunist}} (1.0%)<br>{{ItemLink|Spell Scroll: Expose Weakness II}} (1.0%)<br>{{ItemLink|Spell Scroll: Obscura}} (1.0%)<br>{{ItemLink|Spell Scroll: Synchrotron Burst}} (1.0%)<br>{{ItemLink|Spell Scroll: Tempest}} (1.0%)<br>{{ItemLink|Spell Scroll: Thalassic Paralysis}} (1.0%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

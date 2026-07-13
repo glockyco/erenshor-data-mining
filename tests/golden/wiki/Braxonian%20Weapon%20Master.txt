@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops={{ItemLink|Braxonian Cape}}<br>{{ItemLink|Soulshiver}}
+|droprates={{ItemLink|Braxonian Cape}} (66.7%)<br>{{ItemLink|Soulshiver}} (33.3%)<br>{{ItemLink|Braxonian Bracer}} (2.1%)<br>{{ItemLink|Braxonian Gauntlets}} (1.4%)<br>{{ItemLink|Braxonian Plate Boots}} (1.4%)<br>{{ItemLink|Braxonian Greaves}} (0.7%)<br>{{ItemLink|Braxonian Plate}} (0.7%)<br>{{ItemLink|Braxonian Spaulders}} (0.7%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

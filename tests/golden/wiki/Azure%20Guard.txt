@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4-6 minutes
+|guaranteeddrops=
+|droprates=
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -85,6 +87,8 @@ The Guard by the watchtower:
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -120,6 +124,8 @@ The Guard by the watchtower:
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates=
 |level=12
 |levelmodmin=0
 |levelmodmax=0

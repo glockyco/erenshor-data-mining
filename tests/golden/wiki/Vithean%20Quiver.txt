@@ -2,7 +2,7 @@
 |title=Vithean Quiver
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (66.8%)<br>[[Vithean Chest]] (4.3%)
+|source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

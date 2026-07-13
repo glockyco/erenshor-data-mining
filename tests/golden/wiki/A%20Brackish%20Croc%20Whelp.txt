@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Plain Necklace}} (100.0%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

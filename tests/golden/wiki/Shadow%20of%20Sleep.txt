@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (52.4%)<br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Ghoul Scab}} (51.4%)<br>{{ItemLink|Death's Decay}} (14.1%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (14.1%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shivering Ring}} (8.2%)<br>{{ItemLink|Diamond}} (3.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (1.7%)<br>{{ItemLink|Concentration Band}} (1.7%)<br>{{ItemLink|Demon Claw}} (1.7%)<br>{{ItemLink|Freeing Stone}} (1.7%)<br>{{ItemLink|Polished Stone}} (1.7%)<br>{{ItemLink|Ruby}} (1.7%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (1.7%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

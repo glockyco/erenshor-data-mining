@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Helm of the Deep}}<br>{{ItemLink|Seawashed Cloak}}
+|droprates={{ItemLink|Helm of the Deep}} (66.7%)<br>{{ItemLink|Seawashed Cloak}} (33.3%)<br>{{ItemLink|Nagalok Claw}} (10.1%)<br>{{ItemLink|Reptilian Scales}} (10.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Sea Glass}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=85%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops={{ItemLink|Aged Prism}}<br>{{ItemLink|Reed Trousers}}
+|droprates={{ItemLink|Reed Trousers}} (66.7%)<br>{{ItemLink|Aged Prism}} (33.3%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (12.9%)<ref>If Sprig Laisey has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)
 |level=20
 |levelmodmin=0
 |levelmodmax=0

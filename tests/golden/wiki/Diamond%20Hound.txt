@@ -10,6 +10,8 @@
 |spawnchance=7-80%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (84.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond Claw}} (6.9%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

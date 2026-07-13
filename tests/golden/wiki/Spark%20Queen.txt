@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Insect Shell Ring}}<br>{{ItemLink|Stinging Bracer}}
+|droprates={{ItemLink|Insect Shell Ring}} (50.0%)<br>{{ItemLink|Stinging Bracer}} (50.0%)<br>{{ItemLink|Droplet of Lava}} (4.5%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

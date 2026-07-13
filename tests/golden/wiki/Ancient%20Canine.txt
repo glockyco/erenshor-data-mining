@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (87.1%)<br>{{ItemLink|Worn Wolf Collar}} (38.6%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0

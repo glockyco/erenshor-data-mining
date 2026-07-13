@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Exoskeletal Spaulders}}<br>{{ItemLink|Royal Carapace}}
+|droprates={{ItemLink|Exoskeletal Spaulders}} (50.0%)<br>{{ItemLink|Royal Carapace}} (50.0%)<br>{{ItemLink|Droplet of Lava}} (4.5%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

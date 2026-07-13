@@ -10,6 +10,8 @@
 |spawnchance=33-100% (The Bonepits)<br>33-100% (Vitheo's Watch)
 |spawntype=
 |respawn=3 minutes (The Bonepits)<br>4-6 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (88.6%)<br>{{ItemLink|Polished Longsword}} (4.0%)<ref>If A Skeleton Soldier has {{ItemLink|Polished Longsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Star Stone}} (4.0%)<br>{{ItemLink|Rotting Cudgel}} (3.5%)<br>{{ItemLink|Rotwood Bow}} (3.5%)<br>{{ItemLink|Skeleton Eye}} (3.4%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

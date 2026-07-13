@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Short Sword of Viropha}} (8.9%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

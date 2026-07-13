@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Krakengard Bunk Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Krakengard Bunk Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (10.9%)<br>{{ItemLink|Swirlstone Amulet}} (10.9%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (2.2%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (2.2%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (2.2%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (2.2%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (2.2%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
 |level=10
 |levelmodmin=0
 |levelmodmax=0

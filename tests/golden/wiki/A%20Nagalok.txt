@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes (Blacksalt Strand)<br>5 minutes (The Duskenlight Coast)
+|guaranteeddrops=
+|droprates={{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Sea Glass}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Nagalok Claw}} (6.8%)<br>{{ItemLink|Reptilian Scales}} (6.8%)<br>{{ItemLink|Reinforced Scale Belt}} (6.7%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Sea Glass}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Nagalok Claw}} (6.8%)<br>{{ItemLink|Reptilian Scales}} (6.8%)<br>{{ItemLink|Reinforced Scale Belt}} (6.7%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

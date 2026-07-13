@@ -10,6 +10,8 @@
 |spawnchance=33%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Diamondine Shield}}<br>{{ItemLink|Mirror Polished Plate}}
+|droprates={{ItemLink|Star Stone}} (84.7%)<br>{{ItemLink|Diamondine Shield}} (66.7%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Mirror Polished Plate}} (33.3%)<br>{{ItemLink|Diamondine Mace}} (4.5%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Mace}} equipped, it is guaranteed to drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (43.4%)<br>{{ItemLink|Water}} (43.4%)<br>{{ItemLink|Planar Stone}} (9.2%)<br>{{ItemLink|Thaumic Handwraps}} (3.7%)<br>{{ItemLink|Thaumic Trousers}} (3.7%)<br>{{ItemLink|Thaumic Vestiment}} (3.7%)<br>{{ItemLink|Planar Stone Shards}} (2.5%)<br>{{ItemLink|Thaumic Boots}} (1.2%)<br>{{ItemLink|Thaumic Hood}} (1.2%)<br>{{ItemLink|Thaumic Sleeves}} (1.2%)<br>{{ItemLink|Thaumic Wraps}} (1.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (3.9%)<br>{{ItemLink|Diamond}} (3.6%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (2.1%)<br>{{ItemLink|Cloth Gloves}} (2.1%)<br>{{ItemLink|Cloth Pants}} (2.1%)<br>{{ItemLink|Cloth Shirt}} (2.1%)<br>{{ItemLink|Cloth Shoes}} (2.1%)<br>{{ItemLink|Cloth Sleeves}} (2.1%)<br>{{ItemLink|Spell Scroll: Healing}} (2.1%)<br>{{ItemLink|Star Stone}} (2.1%)<br>{{ItemLink|Water}} (2.1%)<br>{{ItemLink|Citrine Stone}} (1.8%)<br>{{ItemLink|Concentration Band}} (1.8%)<br>{{ItemLink|Demon Claw}} (1.8%)<br>{{ItemLink|Freeing Stone}} (1.8%)<br>{{ItemLink|Polished Stone}} (1.8%)<br>{{ItemLink|Ruby}} (1.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (1.8%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

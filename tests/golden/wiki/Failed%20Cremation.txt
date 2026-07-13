@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coal}} (100.0%)<br>{{ItemLink|Ceremonial Gloves}} (48.3%)<br>{{ItemLink|Charred Boots}} (48.3%)<br>{{ItemLink|Luminstone}} (32.7%)<br>{{ItemLink|Sea Glass}} (32.7%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

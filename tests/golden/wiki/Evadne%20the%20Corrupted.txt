@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
+|guaranteeddrops={{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}}<br>{{ItemLink|Chunk of Citrine Sandsilver}}<br>{{ItemLink|Flame of the Redemption}}<br>{{ItemLink|Jhalmathir, Helm of Generals}}<br>{{ItemLink|Pyrelink Pantaloons}}
+|droprates={{ItemLink|Ancient Braxonian Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Ancient Braxonian Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Brashell}} (100.0%)<ref>If the player is already holding {{ItemLink|Brashell}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (29.1%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chunk of Citrine Sandsilver}} (29.1%)<br>{{ItemLink|Flame of the Redemption}} (29.1%)<br>{{ItemLink|Jhalmathir, Helm of Generals}} (29.1%)<br>{{ItemLink|Pyrelink Pantaloons}} (29.1%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

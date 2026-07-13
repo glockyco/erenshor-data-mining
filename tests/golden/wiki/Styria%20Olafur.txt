@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates=
 |level=26
 |levelmodmin=0
 |levelmodmax=0

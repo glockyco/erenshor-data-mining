@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)<br>{{ItemLink|Priel Officer's Ring}} (1.4%)<br>{{ItemLink|Skill Book: Priel Strike}} (1.4%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (1.4%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

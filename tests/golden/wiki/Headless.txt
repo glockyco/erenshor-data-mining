@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (87.1%)<br>{{ItemLink|Ruby}} (20.6%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Aetheria}} (12.1%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Unholy Bonesaw}} (5.9%)<ref>If Headless has {{ItemLink|Unholy Bonesaw}} equipped, it is guaranteed to drop.</ref>
 |level=24
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=80%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Charred Sleeves}}<br>{{ItemLink|Diamond Claymore}}
+|droprates={{ItemLink|Polished Stone}} (94.6%)<br>{{ItemLink|Charred Sleeves}} (66.7%)<br>{{ItemLink|Diamond Claymore}} (33.3%)<br>{{ItemLink|Blueprint: Stone Auction}} (0.5%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.5%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.5%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.5%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.5%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.5%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=15%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Salt Encrusted Boots}}<br>{{ItemLink|Seafarer's Hood}}
+|droprates={{ItemLink|Seafarer's Hood}} (66.7%)<br>{{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Salt Encrusted Boots}} (33.3%)<br>{{ItemLink|Ancient Pottery Shard}} (6.9%)<br>{{ItemLink|Diamond}} (6.9%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (6.9%)<br>{{ItemLink|Azynthian Scripture 1}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Vampire Fang}} (2.5%)<br>{{ItemLink|Blueprint: Azynthian Dining}} (0.8%)<br>{{ItemLink|Blueprint: Azynthian Livingroom}} (0.8%)<br>{{ItemLink|Blueprint: Azynthian Rest}} (0.8%)<br>{{ItemLink|Molorai Sigil}} (0.8%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Stabilizing Belt}}<br>{{ItemLink|Virophan Chestguard}}
+|droprates={{ItemLink|Stabilizing Belt}} (66.7%)<br>{{ItemLink|Virophan Chestguard}} (33.3%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

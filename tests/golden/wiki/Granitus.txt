@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
+|guaranteeddrops={{ItemLink|Cratermakers}}<br>{{ItemLink|Gem of Echoes}}<br>{{ItemLink|Granite Belt}}<br>{{ItemLink|Resonating Crystal}}<br>{{ItemLink|Stone Sword}}
+|droprates={{ItemLink|Stone Giant's Blood}} (100.0%)<br>{{ItemLink|Rock}} (84.9%)<br>{{ItemLink|Cratermakers}} (20.0%)<br>{{ItemLink|Gem of Echoes}} (20.0%)<br>{{ItemLink|Granite Belt}} (20.0%)<br>{{ItemLink|Resonating Crystal}} (20.0%)<br>{{ItemLink|Stone Sword}} (20.0%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

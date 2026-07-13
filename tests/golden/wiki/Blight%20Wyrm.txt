@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=44 minutes
+|guaranteeddrops={{ItemLink|Plaguewind}}<br>{{ItemLink|Rotten Hands}}<br>{{ItemLink|Statuesque Greaves}}
+|droprates={{ItemLink|Plaguewind}} (33.3%)<br>{{ItemLink|Rotten Hands}} (33.3%)<br>{{ItemLink|Statuesque Greaves}} (33.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

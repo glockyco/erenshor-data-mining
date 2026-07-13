@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Frenzied Fistwraps}}<br>{{ItemLink|Wrath Wrap}}
+|droprates={{ItemLink|Frenzied Fistwraps}} (66.7%)<br>{{ItemLink|Wrath Wrap}} (33.3%)<br>{{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Decayed Druid Beads}} (4.8%)<br>{{ItemLink|Wisp Garden}} (1.0%)<br>{{ItemLink|Nature's Promise}} (1.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

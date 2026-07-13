@@ -10,6 +10,8 @@
 |spawnchance=4-10%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Malaroth Feed}} (90.3%)<ref>If the player is already holding {{ItemLink|Malaroth Feed}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (10.1%)<br>{{ItemLink|Star Stone}} (10.1%)<br>{{ItemLink|Priel Officer's Ring}} (3.0%)<br>{{ItemLink|Tamer's Pack}} (3.0%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

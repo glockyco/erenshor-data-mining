@@ -10,6 +10,8 @@
 |spawnchance=10%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Aether's Blessing}} (20.6%)<br>{{ItemLink|Aetherial Hood}} (12.1%)<br>{{ItemLink|Rune of Silkengrass}} (5.9%)<ref>If the player is already holding {{ItemLink|Rune of Silkengrass}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

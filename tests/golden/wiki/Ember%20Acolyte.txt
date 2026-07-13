@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Flamelicked Gorget}}<br>{{ItemLink|Flamesoles}}<br>{{ItemLink|Prismatic Warcord}}
+|droprates={{ItemLink|Flamelicked Gorget}} (33.3%)<br>{{ItemLink|Flamesoles}} (33.3%)<br>{{ItemLink|Prismatic Warcord}} (33.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

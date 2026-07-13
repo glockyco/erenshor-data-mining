@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Aetheria}} (11.2%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Luminstone Ring}} (5.6%)<br>{{ItemLink|Ancient Bone}} (2.8%)<br>{{ItemLink|Luminstone}} (2.8%)<br>{{ItemLink|Rusty Dagger}} (2.8%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (2.8%)<br>{{ItemLink|Spell Scroll: Lunar Madness}} (2.8%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (2.8%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (2.8%)<br>{{ItemLink|Spell Scroll: Summon Cursed Fawn}} (2.8%)<br>{{ItemLink|Star Stone}} (2.8%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
 |level=3
 |levelmodmin=0
 |levelmodmax=0

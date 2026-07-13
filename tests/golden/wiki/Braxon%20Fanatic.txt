@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes (Braxonian Desert)<br>5 minutes (The Blight)
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (41.8%)<br>{{ItemLink|Polished Stone}} (41.8%)<br>{{ItemLink|Water}} (41.8%)<br>{{ItemLink|A Lost Poem|text=A Lost Poem (1)}} (7.8%)<ref>If the player is already holding {{ItemLink|A Lost Poem|text=A Lost Poem (1)}} in their inventory, another will not drop.</ref><br>{{ItemLink|A Lost Poem|text=A Lost Poem (2)}} (7.8%)<ref>If the player is already holding {{ItemLink|A Lost Poem|text=A Lost Poem (2)}} in their inventory, another will not drop.</ref><br>{{ItemLink|A Lost Poem|text=A Lost Poem (3)}} (7.8%)<ref>If the player is already holding {{ItemLink|A Lost Poem|text=A Lost Poem (3)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Call of the Void}} (2.8%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (2.8%)<br>{{ItemLink|Spell Scroll: Immolation}} (2.8%)<br>{{ItemLink|Spell Scroll: Sleep}} (2.8%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (2.8%)<br>{{ItemLink|Desert Silk Sleeves}} (1.7%)<br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (1.7%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Peon (Game Piece)|text=Peon}} (1.7%)<ref>If the player is already holding {{ItemLink|Peon (Game Piece)|text=Peon}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shroud of Barriers}} (1.7%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

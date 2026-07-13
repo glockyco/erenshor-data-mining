@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (74.5%)<br>{{ItemLink|Planar Stone Shards}} (8.6%)<br>{{ItemLink|Planar Stone}} (2.6%)<br>{{ItemLink|Chthonic Armwraps}} (1.8%)<br>{{ItemLink|Chthonic Handwraps}} (1.8%)<br>{{ItemLink|Chthonic Hood}} (1.8%)<br>{{ItemLink|Chthonic Pants}} (1.8%)<br>{{ItemLink|Chthonic Sandals}} (1.8%)<br>{{ItemLink|Chthonic Tunic}} (1.8%)<br>{{ItemLink|Chthonic Wristlet}} (1.8%)<br>{{ItemLink|Spell Scroll: Group Regrowth}} (1.4%)<br>{{ItemLink|Spell Scroll: Necrotizing Bloom}} (1.4%)<br>{{ItemLink|Spell Scroll: Vibrant Regrowth}} (1.4%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

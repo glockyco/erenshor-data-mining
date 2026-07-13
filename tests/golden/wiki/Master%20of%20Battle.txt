@@ -6,10 +6,12 @@
 |faction=[[The Blades of Vitheo]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Vitheo's Plane of Valor]]
-|coordinates=467.3 x 25.2 x 429.9
+|coordinates=463.9 x 25.2 x 417.1
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates=
 |level=20
 |levelmodmin=0
 |levelmodmax=0

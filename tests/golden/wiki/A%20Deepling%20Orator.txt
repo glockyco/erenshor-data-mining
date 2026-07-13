@@ -10,6 +10,8 @@
 |spawnchance=95%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Honor Strip}} (43.4%)<br>{{ItemLink|The Gift of Eloquence}} (43.4%)<br>{{ItemLink|Reptilian Scales}} (5.3%)<br>{{ItemLink|Serpentine Blood}} (5.3%)<br>{{ItemLink|Star Stone}} (5.3%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (1.9%)<br>{{ItemLink|Spell Scroll: Concuss}} (1.9%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (1.9%)<br>{{ItemLink|Spell Scroll: Immolation}} (1.9%)<br>{{ItemLink|Spell Scroll: Sleep}} (1.9%)<br>{{ItemLink|Elderstone Shard}} (1.5%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (1.5%)<br>{{ItemLink|Runed Gloves}} (1.5%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

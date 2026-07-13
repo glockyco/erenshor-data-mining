@@ -10,6 +10,8 @@
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Crystallized Tactics}}<br>{{ItemLink|Ocean Aged Ring}}
+|droprates={{ItemLink|Ocean Aged Ring}} (66.7%)<br>{{ItemLink|Crystallized Tactics}} (33.3%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

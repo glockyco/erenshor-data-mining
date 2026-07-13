@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.1%)<br>{{ItemLink|Star Stone}} (41.1%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

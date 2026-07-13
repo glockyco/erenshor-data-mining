@@ -10,6 +10,8 @@
 |spawnchance=90%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Azynthian Armguards}}<br>{{ItemLink|Gift of Azynthi}}<br>{{ItemLink|Spell Scroll: Infernis}}
+|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Azynthian Armguards}} (33.3%)<br>{{ItemLink|Gift of Azynthi}} (33.3%)<br>{{ItemLink|Spell Scroll: Infernis}} (33.3%)<br>{{ItemLink|Vampire Fang}} (19.5%)<br>{{ItemLink|Bread}} (2.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)<br>{{ItemLink|Luminstone}} (2.6%)<br>{{ItemLink|Star Stone}} (2.6%)<br>{{ItemLink|Water}} (2.6%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

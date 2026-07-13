@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Notes of a Hermit}} (100.0%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

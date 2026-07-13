@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)<br>{{ItemLink|Priel Officer's Ring}} (2.1%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (2.1%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

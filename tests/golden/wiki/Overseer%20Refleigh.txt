@@ -10,6 +10,8 @@
 |spawnchance=95%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Eldoth Writings: The Wisp}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Cape of the Sands}} (14.2%)<br>{{ItemLink|Molorai Battle Chain}} (14.2%)<br>{{ItemLink|Searing Wristwrap}} (14.2%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

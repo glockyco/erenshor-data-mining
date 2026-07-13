@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=2-4 minutes (Faerie's Brake)<br>1-2 minutes (Hidden Hills)<br>4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (86.3%)
 |level=2
 |levelmodmin=0
 |levelmodmax=0

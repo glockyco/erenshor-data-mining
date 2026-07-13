@@ -50,8 +50,8 @@
 |stormcaller=
 |proc_style=Attack
 |proc_chance=15
-|proc_spell_icon=King's Gambit.png
-|proc_spell_name=[[King's Gambit]]
+|proc_spell_icon=King's Gambit (Effect).png
+|proc_spell_name=[[King's Gambit (Effect)|King's Gambit]]
 |proc_spell_level=24
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
+|guaranteeddrops={{ItemLink|Hallows Eve}}<br>{{ItemLink|Provoker}}
+|droprates={{ItemLink|Provoker}} (66.7%)<br>{{ItemLink|Hallows Eve}} (33.3%)<br>{{ItemLink|Diamond}} (13.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

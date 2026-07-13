@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (19.3%)<br>{{ItemLink|Star Stone}} (19.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

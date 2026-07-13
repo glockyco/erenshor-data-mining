@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Blizzard Bane}}<br>{{ItemLink|Cleansing Brace}}<br>{{ItemLink|Frostbite}}<br>{{ItemLink|Frozen Grip}}<br>{{ItemLink|Magma Droplet}}<br>{{ItemLink|Obsidian Edge}}
+|droprates={{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Blizzard Bane}} (35.5%)<br>{{ItemLink|Cleansing Brace}} (35.5%)<br>{{ItemLink|Frostbite}} (35.5%)<br>{{ItemLink|Frozen Grip}} (35.5%)<br>{{ItemLink|Magma Droplet}} (35.5%)<br>{{ItemLink|Obsidian Edge}} (35.5%)<br>{{ItemLink|Planar Stone Shards}} (24.9%)<br>{{ItemLink|Planar Stone}} (17.9%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -32,6 +34,8 @@
 |void=0-1
 |spells=
 }}
+
+Braxonian Chest contains the loot from the two-boss [[Frost]] and [[Inferno]] fight.
 
 [[Category:Brax's Plane of Elements]]
 [[Category:Enemies]]

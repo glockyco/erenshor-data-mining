@@ -1,5 +1,5 @@
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 1)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Arena Fee (2)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Planar Stone Shards}} (15.1%)<br>{{ItemLink|Planar Stone}} (12.1%)<br>{{ItemLink|Cyclone Steel Boots}} (2.5%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.5%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.5%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.5%)<br>{{ItemLink|Cyclone Steel Helm}} (2.5%)<br>{{ItemLink|Cyclone Steel Plate}} (2.5%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.5%)<br>{{ItemLink|Skyseared Boots}} (2.5%)<br>{{ItemLink|Skyseared Brace}} (2.5%)<br>{{ItemLink|Skyseared Gloves}} (2.5%)<br>{{ItemLink|Skyseared Hood}} (2.5%)<br>{{ItemLink|Skyseared Leggings}} (2.5%)<br>{{ItemLink|Skyseared Sleeves}} (2.5%)<br>{{ItemLink|Skyseared Tunic}} (2.5%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -36,7 +38,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 2)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -47,6 +49,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Gladiator's Axe}}<br>{{ItemLink|Gladiator's Coil}}
+|droprates={{ItemLink|Vithean Arena Fee (3)}} (100.0%)<br>{{ItemLink|Sivakrux}} (93.8%)<br>{{ItemLink|Blueprint: Expert Training Room}} (54.7%)<br>{{ItemLink|Gladiator's Axe}} (50.0%)<br>{{ItemLink|Gladiator's Coil}} (50.0%)<br>{{ItemLink|Spell Scroll: Vitheo's Sight IV}} (19.5%)<br>{{ItemLink|Planar Stone}} (11.1%)<br>{{ItemLink|Planar Stone Shards}} (9.5%)<br>{{ItemLink|Cyclone Steel Boots}} (1.6%)<br>{{ItemLink|Cyclone Steel Bracer}} (1.6%)<br>{{ItemLink|Cyclone Steel Gloves}} (1.6%)<br>{{ItemLink|Cyclone Steel Greaves}} (1.6%)<br>{{ItemLink|Cyclone Steel Helm}} (1.6%)<br>{{ItemLink|Cyclone Steel Plate}} (1.6%)<br>{{ItemLink|Cyclone Steel Sleeves}} (1.6%)<br>{{ItemLink|Skyseared Boots}} (1.6%)<br>{{ItemLink|Skyseared Brace}} (1.6%)<br>{{ItemLink|Skyseared Gloves}} (1.6%)<br>{{ItemLink|Skyseared Hood}} (1.6%)<br>{{ItemLink|Skyseared Leggings}} (1.6%)<br>{{ItemLink|Skyseared Sleeves}} (1.6%)<br>{{ItemLink|Skyseared Tunic}} (1.6%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -73,7 +77,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 3)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -84,6 +88,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Arena Fee (4)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Planar Stone Shards}} (15.1%)<br>{{ItemLink|Planar Stone}} (12.1%)<br>{{ItemLink|Cyclone Steel Boots}} (2.5%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.5%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.5%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.5%)<br>{{ItemLink|Cyclone Steel Helm}} (2.5%)<br>{{ItemLink|Cyclone Steel Plate}} (2.5%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.5%)<br>{{ItemLink|Skyseared Boots}} (2.5%)<br>{{ItemLink|Skyseared Brace}} (2.5%)<br>{{ItemLink|Skyseared Gloves}} (2.5%)<br>{{ItemLink|Skyseared Hood}} (2.5%)<br>{{ItemLink|Skyseared Leggings}} (2.5%)<br>{{ItemLink|Skyseared Sleeves}} (2.5%)<br>{{ItemLink|Skyseared Tunic}} (2.5%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -110,7 +116,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 4)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -121,6 +127,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Arena Fee (5)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (14.3%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -147,7 +155,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 5)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -158,6 +166,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Sea Wind Shield}}<br>{{ItemLink|Ursine Charm}}<br>{{ItemLink|Vithean Quiver}}
+|droprates={{ItemLink|Vithean Arena Fee (6)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Sea Wind Shield}} (66.8%)<br>{{ItemLink|Ursine Charm}} (66.8%)<br>{{ItemLink|Vithean Quiver}} (66.8%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (13.0%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -184,7 +194,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 6)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -195,6 +205,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Arena Fee (7)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (14.3%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -221,7 +233,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 7)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -232,6 +244,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Honsus' Bow}}<br>{{ItemLink|Oceanic Charm}}<br>{{ItemLink|Sibling's Locket}}
+|droprates={{ItemLink|Vithean Arena Fee (8)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Honsus' Bow}} (66.7%)<br>{{ItemLink|Oceanic Charm}} (66.7%)<br>{{ItemLink|Sibling's Locket}} (66.7%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (14.3%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0
@@ -258,7 +272,7 @@
 ----
 
 {{Character
-|name=Vithean Chest
+|name=Vithean Chest (Round 8)
 |image=[[File:Vithean Chest.png|thumb]]
 |imagecaption=
 |type=Boss
@@ -269,6 +283,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Hunting Coat}}<br>{{ItemLink|Reminder of Pride}}<br>{{ItemLink|Ripcurrent}}<br>{{ItemLink|Sea Shaper's Gloves}}<br>{{ItemLink|Spear of True North}}<br>{{ItemLink|Wakeweaver}}
+|droprates={{ItemLink|Vithean Arena Fee (1)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Hunting Coat}} (36.4%)<br>{{ItemLink|Reminder of Pride}} (36.4%)<br>{{ItemLink|Ripcurrent}} (36.4%)<br>{{ItemLink|Sea Shaper's Gloves}} (36.4%)<br>{{ItemLink|Spear of True North}} (36.4%)<br>{{ItemLink|Wakeweaver}} (36.4%)<br>{{ItemLink|Platinum Statue: Vitheo}} (13.0%)<br>{{ItemLink|Planar Stone}} (8.4%)<br>{{ItemLink|Planar Stone Shards}} (8.4%)<br>{{ItemLink|Gladiator's Axe}} (4.3%)<br>{{ItemLink|Gladiator's Coil}} (4.3%)<br>{{ItemLink|Honsus' Bow}} (4.3%)<br>{{ItemLink|Ring of Tidal Winds}} (4.3%)<br>{{ItemLink|Sea Wind Shield}} (4.3%)<br>{{ItemLink|Sibling's Locket}} (4.3%)<br>{{ItemLink|Vithean Quiver}} (4.3%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

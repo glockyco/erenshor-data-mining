@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Cursed Hide Shield}}<br>{{ItemLink|Molten Axe}}
+|droprates={{ItemLink|Demented Brain}} (100.0%)<ref>If the player is already holding {{ItemLink|Demented Brain}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cursed Hide Shield}} (50.0%)<br>{{ItemLink|Molten Axe}} (50.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

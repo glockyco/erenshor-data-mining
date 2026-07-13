@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5-13 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (12.9%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bastion}} (4.9%)<br>{{ItemLink|Grips of Faith}} (4.9%)<br>{{ItemLink|Pious Sandals}} (4.9%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

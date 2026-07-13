@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Amarionite Garb}}<br>{{ItemLink|Colorless Trousers}}<br>{{ItemLink|King's Gambit}}
+|droprates={{ItemLink|Amarionite Garb}} (40.8%)<br>{{ItemLink|Colorless Trousers}} (40.8%)<br>{{ItemLink|King's Gambit}} (40.8%)<br>{{ItemLink|Planar Stone Shards}} (24.0%)<br>{{ItemLink|Planar Stone}} (12.6%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

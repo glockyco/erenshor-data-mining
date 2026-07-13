@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|A Husselfish}} (15.7%)<br>{{ItemLink|A Worm Eel}} (15.7%)<br>{{ItemLink|Rottenfoot Sash}} (15.7%)<br>{{ItemLink|Petrified Club}} (4.4%)<ref>If A Rottenfoot Warrior has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (4.4%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

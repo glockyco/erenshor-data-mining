@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Living Chainmail Jacket}} (6.9%)<br>{{ItemLink|Living Chainmail Leggings}} (6.9%)<br>{{ItemLink|Twisted Branch}} (6.7%)<ref>If Botanist has {{ItemLink|Twisted Branch}} equipped, it is guaranteed to drop.</ref>
 |level=35
 |levelmodmin=0
 |levelmodmax=0

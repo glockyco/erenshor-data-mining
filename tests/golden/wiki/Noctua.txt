@@ -10,6 +10,8 @@
 |spawnchance=5-12%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Night Wave}}<br>{{ItemLink|Shadowstep Shoes}}
+|droprates={{ItemLink|Shadowstep Shoes}} (66.7%)<br>{{ItemLink|Night Wave}} (33.3%)<br>{{ItemLink|Diamond}} (19.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (82.2%)<br>{{ItemLink|Diamond}} (1.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 1}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 2}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 3}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 4}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (1.1%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.2%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.2%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.2%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.2%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.2%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.2%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

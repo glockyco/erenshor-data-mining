@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Abyssal Shell}}<br>{{ItemLink|Runed Shield}}
+|droprates={{ItemLink|Abyssal Shell}} (66.7%)<br>{{ItemLink|Runed Shield}} (33.3%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

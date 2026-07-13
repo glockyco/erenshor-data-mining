@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Recovered Text}} (100.0%)<ref>If the player is already holding {{ItemLink|Recovered Text}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (19.3%)<br>{{ItemLink|Star Stone}} (19.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -44,6 +46,8 @@
 |spawnchance=12-16%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Desert Silk Sleeves}} (13.4%)<br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (5.8%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cape of the Sands}} (3.9%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (3.9%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (3.9%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (3.9%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (3.9%)<br>{{ItemLink|Star Stone}} (3.9%)<br>{{ItemLink|Blueprint: Game Room}} (1.0%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -79,6 +83,8 @@
 |spawnchance=12-16%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Desert Silk Sleeves}} (12.1%)<br>{{ItemLink|Cape of the Sands}} (3.4%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (3.4%)<br>{{ItemLink|Star Stone}} (3.4%)<br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (2.5%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Torn Treasure Map (Top Left)}} (2.5%)<br>{{ItemLink|Blueprint: Game Room}} (0.8%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -114,6 +120,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (18.9%)<br>{{ItemLink|Star Stone}} (18.9%)<br>{{ItemLink|Blueprint: Game Room}} (0.8%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

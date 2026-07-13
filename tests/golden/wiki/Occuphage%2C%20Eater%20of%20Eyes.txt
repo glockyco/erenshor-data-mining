@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|Nagalok Claw}} (10.1%)<br>{{ItemLink|Reptilian Scales}} (10.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
 |level=99
 |levelmodmin=0
 |levelmodmax=0

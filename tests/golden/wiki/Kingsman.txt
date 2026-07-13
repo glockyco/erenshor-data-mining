@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops={{ItemLink|Blessed Braxonian Bracelet}}<br>{{ItemLink|Blessed Braxonian Bracer}}<br>{{ItemLink|Blessed Braxonian Wristlet}}
+|droprates={{ItemLink|Blessed Braxonian Bracelet}} (33.3%)<br>{{ItemLink|Blessed Braxonian Bracer}} (33.3%)<br>{{ItemLink|Blessed Braxonian Wristlet}} (33.3%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

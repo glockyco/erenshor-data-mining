@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (14.8%)<br>{{ItemLink|Ogrespice Leaf}} (4.3%)<br>{{ItemLink|Ruby}} (4.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Seaweed}} (4.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

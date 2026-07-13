@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Decayed Druid Beads}} (13.8%)<br>{{ItemLink|Ruby}} (13.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

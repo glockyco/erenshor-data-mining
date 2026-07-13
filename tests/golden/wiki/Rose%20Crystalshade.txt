@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Molorai Allegiant Ring}} (55.6%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Ruby}} (10.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Decayed Druid Beads}} (10.6%)<br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Decayed Amulet}} (2.9%)<br>{{ItemLink|Decayed Ring}} (2.9%)<br>{{ItemLink|Stone Statue: Fernalla}} (0.3%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Fernalla}} (0.2%)<br>{{ItemLink|Star Stone}} (0.2%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

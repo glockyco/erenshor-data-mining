@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ceremonial Garb}} (12.9%)<br>{{ItemLink|Sivakayan Breeches}} (7.4%)<br>{{ItemLink|Sivakayan Cloth Band}} (7.4%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

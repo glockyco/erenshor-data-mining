@@ -10,6 +10,8 @@
 |spawnchance=10%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ebonshade}} (15.0%)<ref>If Seed of Blight has {{ItemLink|Ebonshade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ancient Bone}} (12.8%)<br>{{ItemLink|Luminstone}} (12.8%)<br>{{ItemLink|Aetheria}} (7.3%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0

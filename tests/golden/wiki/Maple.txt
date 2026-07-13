@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Fernallan Knight's Helm}}<br>{{ItemLink|Fernallan Sceptre}}
+|droprates={{ItemLink|Fernallan Knight's Helm}} (50.0%)<br>{{ItemLink|Fernallan Sceptre}} (50.0%)<br>{{ItemLink|Decayed Druid Beads}} (11.0%)<br>{{ItemLink|Ruby}} (6.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Nature's Promise}} (1.5%)<br>{{ItemLink|Wisp Garden}} (1.0%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

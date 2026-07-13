@@ -10,6 +10,8 @@
 |spawnchance=60%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Spritely Leggings}}<br>{{ItemLink|Thorn}}
+|droprates={{ItemLink|Spritely Leggings}} (50.0%)<br>{{ItemLink|Thorn}} (50.0%)<br>{{ItemLink|Essence of Nature}} (27.8%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

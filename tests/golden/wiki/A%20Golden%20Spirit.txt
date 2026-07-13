@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Cold Steel Greaves}} (14.0%)<br>{{ItemLink|Cold Steel Helm}} (14.0%)<br>{{ItemLink|Shivering Leather Boots}} (14.0%)<br>{{ItemLink|Shivering Leather Leggings}} (14.0%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

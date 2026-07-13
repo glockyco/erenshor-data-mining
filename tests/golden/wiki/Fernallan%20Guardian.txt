@@ -10,13 +10,15 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Essence of Nature}} (23.5%)<br>{{ItemLink|Decayed Druid Beads}} (3.0%)<br>{{ItemLink|Nature's Promise}} (0.6%)<br>{{ItemLink|Wisp Garden}} (0.6%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=62562
+|health=55738
 |mana=0
 |ac=435
 |strength=45

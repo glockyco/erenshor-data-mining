@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops={{ItemLink|Gut Cord}}<br>{{ItemLink|Wyrm Bone}}<br>{{ItemLink|Wyrm Skin Protector}}
+|droprates={{ItemLink|Gut Cord}} (50.0%)<br>{{ItemLink|Wyrm Bone}} (25.0%)<br>{{ItemLink|Wyrm Skin Protector}} (25.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

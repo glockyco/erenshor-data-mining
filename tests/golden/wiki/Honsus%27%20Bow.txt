@@ -2,7 +2,7 @@
 |title=Honsus' Bow
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (66.7%)<br>[[Vithean Chest]] (4.3%)
+|source=[[Vithean Chest|Vithean Chest (Round 7)]] (66.7%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

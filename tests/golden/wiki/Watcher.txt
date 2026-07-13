@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates=
 |level=35
 |levelmodmin=0
 |levelmodmax=0

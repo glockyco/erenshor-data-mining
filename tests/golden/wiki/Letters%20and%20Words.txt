@@ -41,7 +41,7 @@
 |poison=8
 |elemental=8
 |void=10
-|description=The journal of Fernalla, beginning with eloquent letters and decending into strange words and madness over time.
+|description=The journal of Fernalla, beginning with eloquent letters and decending into strange words and madness over time.<br><br>It's missing pages...
 |arcanist=True
 |duelist=True
 |druid=True

@@ -10,6 +10,8 @@
 |spawnchance=11-23% (Faerie's Brake)<br>33-100% (Hidden Hills)<br>17-100% (Stowaway's Step)<br>33% (Vitheo's Watch)<br>25% (Willowwatch Ridge)
 |spawntype=
 |respawn=2-4 minutes (Faerie's Brake)<br>2-3 minutes (Hidden Hills)<br>3-4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (24.9%)<br>{{ItemLink|Pristine Grass Spider Carapace}} (2.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

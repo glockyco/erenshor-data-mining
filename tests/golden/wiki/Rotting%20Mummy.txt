@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (16.5%)<br>{{ItemLink|Polished Stone}} (16.5%)<br>{{ItemLink|Sea Glass}} (16.5%)<br>{{ItemLink|Aetheria}} (8.0%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Mummy Wraps}} (7.0%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (16.3%)<br>{{ItemLink|Planar Stone}} (8.4%)<br>{{ItemLink|Sivakrux}} (8.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

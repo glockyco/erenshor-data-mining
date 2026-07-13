@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Molorai Parrying Dagger}}<br>{{ItemLink|Molorai Warstomps}}
+|droprates={{ItemLink|Eldoth Writings: The Jaws}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Jaws}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (91.9%)<br>{{ItemLink|Molorai Warstomps}} (55.1%)<br>{{ItemLink|Molorai Parrying Dagger}} (50.0%)<br>{{ItemLink|Molorai Battle Chain}} (10.1%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

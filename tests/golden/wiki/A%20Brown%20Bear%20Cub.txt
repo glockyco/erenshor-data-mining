@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=2-4 minutes (Faerie's Brake)<br>5 minutes (Fernalla's Revival Plains)<br>6 minutes (Island Tomb)<br>4 minutes (Stowaway's Step)<br>5 minutes (The Duskenlight Coast)
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (38.6%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

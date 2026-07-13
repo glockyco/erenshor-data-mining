@@ -10,6 +10,8 @@
 |spawnchance=100% (Braxonian Desert)<br>60-78% (Faerie's Brake)<br>8-100% (Hidden Hills)<br>100% (Island Tomb)<br>17-100% (Stowaway's Step)<br>8-100% (The Bonepits)<br>25-100% (Willowwatch Ridge)
 |spawntype=
 |respawn=6 minutes (Braxonian Desert)<br>4 minutes (Faerie's Brake)<br>1-3 minutes (Hidden Hills)<br>5 minutes (Island Tomb)<br>4 minutes (Stowaway's Step)<br>3 minutes (The Bonepits)<br>4-5 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (89.4%)<br>{{ItemLink|Rusty Shortsword}} (5.9%)<br>{{ItemLink|Tattered Leather Leggings}} (4.6%)<br>{{ItemLink|Tattered Leather Boots}} (1.2%)<br>{{ItemLink|Tattered Leather Gloves}} (1.2%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.2%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.2%)<br>{{ItemLink|Tattered Leather Tunic}} (1.2%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spell Scroll: Group Healing}} (100.0%)<br>{{ItemLink|Citrine Stone}} (41.8%)<br>{{ItemLink|Living Chainmail Leggings}} (41.8%)<br>{{ItemLink|Shivering Leather Tunic}} (41.8%)<br>{{ItemLink|Bandit's Mask}} (7.8%)<br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref>
 |level=12
 |levelmodmin=0
 |levelmodmax=0

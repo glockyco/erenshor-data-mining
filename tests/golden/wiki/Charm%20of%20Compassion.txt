@@ -37,7 +37,6 @@
 |stormcaller=True
 }}
 
-
 {{Hatnote | Note: This effect is currently unimplemented.}}
 
 [[Category:Charms]]

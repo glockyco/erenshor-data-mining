@@ -11,7 +11,7 @@
 |aggro=300
 |is_taunt=
 |casttime=0.3 seconds
-|cooldown=
+|cooldown=8 seconds
 |duration=24 seconds
 |duration_in_ticks=8
 |has_unstable_duration=

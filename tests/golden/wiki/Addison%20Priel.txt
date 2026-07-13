@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Giving Gloves}}<br>{{ItemLink|Starched Wool Leggings}}
+|droprates={{ItemLink|Giving Gloves}} (50.0%)<br>{{ItemLink|Starched Wool Leggings}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<ref>If Addison Priel has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.2%)<ref>If Addison Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
 |level=28
 |levelmodmin=0
 |levelmodmax=0

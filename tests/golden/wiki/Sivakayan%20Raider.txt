@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Straightsword}} (2.4%)<ref>If Sivakayan Raider has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)
 |level=26
 |levelmodmin=0
 |levelmodmax=2
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=11 minutes (Faerie's Brake)<br>4 minutes (Rottenfoot)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Straightsword}} (2.4%)<ref>If Sivakayan Raider has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

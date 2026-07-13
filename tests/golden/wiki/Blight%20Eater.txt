@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (56.7%)<br>{{ItemLink|Polished Stone}} (56.7%)<br>{{ItemLink|Star Stone}} (56.7%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (4.6%)<br>{{ItemLink|Spell Scroll: Concuss}} (4.6%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (4.6%)<br>{{ItemLink|Spell Scroll: Immolation}} (4.6%)<br>{{ItemLink|Aetheria}} (3.0%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (3.0%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Peon (Game Piece)|text=Peon}} (3.0%)<ref>If the player is already holding {{ItemLink|Peon (Game Piece)|text=Peon}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

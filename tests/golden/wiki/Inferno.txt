@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
+|guaranteeddrops=
+|droprates=
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -32,6 +34,8 @@
 |void=21-50
 |spells=
 }}
+
+Part of a two-boss fight with [[Frost]] ; loot is listed in [[Braxonian Chest]].
 
 [[Category:Bosses]]
 [[Category:Brax's Plane of Elements]]

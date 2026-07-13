@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (94.9%)
 |level=10
 |levelmodmin=2
 |levelmodmax=2

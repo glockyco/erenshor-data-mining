@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=2 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Priel Insignia Ring}} (14.8%)<br>{{ItemLink|Priel Knife}} (12.9%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

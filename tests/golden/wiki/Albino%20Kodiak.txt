@@ -11,6 +11,8 @@ The Albino Kodiak can spawn in place of the regular Kodiak in the [[Silkengrass 
 |spawnchance=2%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (14.8%)<br>{{ItemLink|Albino Bear Hood}} (12.9%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

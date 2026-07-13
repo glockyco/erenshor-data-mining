@@ -10,6 +10,8 @@
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Channeling Gloves}}<br>{{ItemLink|Gapped Ring}}
+|droprates={{ItemLink|Channeling Gloves}} (50.0%)<br>{{ItemLink|Gapped Ring}} (50.0%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

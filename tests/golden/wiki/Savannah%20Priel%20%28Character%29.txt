@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
+|guaranteeddrops={{ItemLink|Charged Sword}}<br>{{ItemLink|Eroded Bangle}}
+|droprates={{ItemLink|Savannah's Musings}} (100.0%)<br>{{ItemLink|Charged Sword}} (50.0%)<ref>If Savannah Priel has {{ItemLink|Charged Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Eroded Bangle}} (50.0%)<br>{{ItemLink|Sea Glass}} (19.3%)<br>{{ItemLink|Star Stone}} (19.3%)
 |level=39
 |levelmodmin=0
 |levelmodmax=0

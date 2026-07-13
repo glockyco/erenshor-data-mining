@@ -10,6 +10,8 @@
 |spawnchance=3%
 |spawntype=
 |respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Glowing Blue Stone}} (7.0%)<br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Luminstone}} (4.0%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

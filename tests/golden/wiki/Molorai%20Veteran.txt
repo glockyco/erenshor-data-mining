@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Molorai Axe}} (14.3%)<ref>If Molorai Veteran has {{ItemLink|Molorai Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Molorai Battle Boots}} (7.8%)<br>{{ItemLink|Ruby}} (6.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Linked Chain Shirt}} (1.7%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (1.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
 |level=10
 |levelmodmin=0
 |levelmodmax=0

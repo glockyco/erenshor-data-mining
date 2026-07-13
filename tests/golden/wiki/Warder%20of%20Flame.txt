@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops={{ItemLink|Cloak of Flame}}<br>{{ItemLink|Creator's Charm}}<br>{{ItemLink|Gauntlets of Fiery Strength}}
+|droprates={{ItemLink|Planar Stone Shards}} (91.1%)<br>{{ItemLink|Cloak of Flame}} (69.7%)<br>{{ItemLink|Creator's Charm}} (69.7%)<br>{{ItemLink|Gauntlets of Fiery Strength}} (69.7%)<br>{{ItemLink|Planar Stone}} (38.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

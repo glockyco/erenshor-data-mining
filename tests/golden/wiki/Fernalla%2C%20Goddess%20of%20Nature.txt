@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Bracer of Seeds}}<br>{{ItemLink|Cycle's Edge}}<br>{{ItemLink|Insistence}}<br>{{ItemLink|Letters and Words}}<br>{{ItemLink|Rebirth}}<br>{{ItemLink|Shroud of Nature}}
+|droprates={{ItemLink|Bracer of Seeds}} (36.0%)<br>{{ItemLink|Cycle's Edge}} (36.0%)<br>{{ItemLink|Insistence}} (36.0%)<br>{{ItemLink|Rebirth}} (36.0%)<br>{{ItemLink|Shroud of Nature}} (36.0%)<br>{{ItemLink|Letters and Words}} (34.3%)<br>{{ItemLink|Platinum Statue: Fernalla}} (14.8%)<br>{{ItemLink|Abominable Ribcage}} (5.8%)<br>{{ItemLink|Arachnid Carapace}} (5.8%)<br>{{ItemLink|Fernalla's Paintbrush}} (5.8%)<br>{{ItemLink|Gem Encrusted Sash}} (5.8%)<br>{{ItemLink|Repellant Ring}} (5.8%)<br>{{ItemLink|Skittering Boots}} (5.8%)<br>{{ItemLink|Thornwood Bracer}} (5.8%)<br>{{ItemLink|Trickster's Tunic}} (5.8%)<br>{{ItemLink|Letters and Words}} (4.4%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -47,6 +49,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Platinum Statue: Fernalla}} (11.2%)<br>{{ItemLink|Letters and Words}} (1.5%)<br>{{ItemLink|Letters and Words}} (0.5%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

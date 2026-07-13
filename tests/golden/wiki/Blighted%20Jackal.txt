@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Pottery Shard}} (14.2%)<br>{{ItemLink|Blight Crystals}} (14.2%)<br>{{ItemLink|Blightwood Slab}} (14.2%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

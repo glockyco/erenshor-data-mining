@@ -2,7 +2,7 @@
 |title=Vitheo's Sight IV
 |image=[[File:Vitheo's Sight IV.png|thumb]]
 |imagecaption=You are keenly aware
-|description=Increase armor penetration on all stikes by 70% and attack roll by 6 / 20.
+|description=Increase armor penetration on all stikes by 70% and attack roll by 5 / 20.
 |type=Beneficial
 |line=Duelist_Armor_Pen
 |classes=[[Windblade]] (35)
@@ -57,7 +57,7 @@
 |haste=
 |resonance=
 |movement_speed=
-|atk_roll_modifier=6
+|atk_roll_modifier=5
 |xp_bonus=
 |is_root=
 |is_stun=

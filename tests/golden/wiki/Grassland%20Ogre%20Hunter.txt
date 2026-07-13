@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Carved Bow}} (22.1%)<br>{{ItemLink|Tattered Leather Boots}} (3.4%)<br>{{ItemLink|Tattered Leather Gloves}} (3.4%)<br>{{ItemLink|Tattered Leather Leggings}} (3.4%)<br>{{ItemLink|Tattered Leather Skullcap}} (3.4%)<br>{{ItemLink|Tattered Leather Sleeves}} (3.4%)<br>{{ItemLink|Tattered Leather Tunic}} (3.4%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

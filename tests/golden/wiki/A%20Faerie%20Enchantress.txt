@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (14.3%)<br>{{ItemLink|Luminstone}} (14.3%)<br>{{ItemLink|Seafruit}} (10.1%)<br>{{ItemLink|Bag of Faerie Dust}} (4.5%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (4.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Charmed Belt}} (1.8%)<br>{{ItemLink|Intact Faerie Wing}} (1.8%)<br>{{ItemLink|Skyfolk Band}} (1.8%)<br>{{ItemLink|Twinkling Pendant}} (1.8%)<br>{{ItemLink|Wingwoven Cape}} (1.8%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

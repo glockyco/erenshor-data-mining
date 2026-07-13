@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
+|guaranteeddrops={{ItemLink|Adept Wand}}<br>{{ItemLink|Embalmed Bracer}}<br>{{ItemLink|Neophyte Necklace}}
+|droprates={{ItemLink|Neophyte Necklace}} (39.0%)<br>{{ItemLink|Embalmed Bracer}} (37.0%)<br>{{ItemLink|Adept Wand}} (33.3%)<br>{{ItemLink|Cloth Gloves}} (29.1%)<br>{{ItemLink|Cloth Hood}} (29.1%)<br>{{ItemLink|Cloth Pants}} (29.1%)<br>{{ItemLink|Cloth Shirt}} (29.1%)<br>{{ItemLink|Cloth Shoes}} (29.1%)<br>{{ItemLink|Cloth Sleeves}} (29.1%)<br>{{ItemLink|Star Stone}} (19.6%)<br>{{ItemLink|Graveweed Leaf}} (8.5%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Satin Cloak}} (5.6%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

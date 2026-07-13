@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Lost Faith}} (22.1%)<br>{{ItemLink|Aetheria}} (13.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Moonglow Amulet}} (3.5%)<br>{{ItemLink|Stone Statue: Soluna}} (1.2%)<br>{{ItemLink|Wardens of the North}} (1.2%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Soluna}} (0.2%)<br>{{ItemLink|Ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (0.2%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

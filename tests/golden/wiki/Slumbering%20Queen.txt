@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=19 minutes
+|guaranteeddrops={{ItemLink|Cavesilk Trousers}}<br>{{ItemLink|Elderstone Ring}}<br>{{ItemLink|Queen's Fang}}
+|droprates={{ItemLink|Cavesilk Trousers}} (52.2%)<br>{{ItemLink|Elderstone Ring}} (52.2%)<br>{{ItemLink|Queen's Fang}} (52.2%)<br>{{ItemLink|A Fanged Caveskimmer}} (28.3%)<br>{{ItemLink|A Twisted Spider Leg}} (28.3%)<br>{{ItemLink|Ancient Coal}} (28.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

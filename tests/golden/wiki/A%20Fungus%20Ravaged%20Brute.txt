@@ -10,6 +10,8 @@
 |spawnchance=25%
 |spawntype=
 |respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spelunker's Brace}} (13.4%)<br>{{ItemLink|Elderstone Shard}} (6.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

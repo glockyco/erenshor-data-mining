@@ -10,6 +10,8 @@
 |spawnchance=15-100%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|A Grassland Sap Necklace}} (9.0%)<br>{{ItemLink|Ogre Tooth Club}} (9.0%)<ref>If A Grassland Ogre Chieftan has {{ItemLink|Ogre Tooth Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Bread}} (6.9%)<br>{{ItemLink|Citrine Stone}} (6.9%)<br>{{ItemLink|Water}} (6.9%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0

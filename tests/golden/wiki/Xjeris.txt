@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
+|guaranteeddrops={{ItemLink|Arachnid Carapace}}<br>{{ItemLink|Ethereal Shell}}<br>{{ItemLink|Skittering Boots}}
+|droprates={{ItemLink|Planar Stone Shards}} (81.0%)<br>{{ItemLink|Arachnid Carapace}} (68.9%)<br>{{ItemLink|Ethereal Shell}} (68.9%)<br>{{ItemLink|Skittering Boots}} (68.9%)<br>{{ItemLink|Planar Stone}} (36.8%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

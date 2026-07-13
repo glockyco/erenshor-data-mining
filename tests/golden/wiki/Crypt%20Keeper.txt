@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=9 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Shivering Key (Halloween Event)}} (100.0%)<ref>If the player is already holding {{ItemLink|Shivering Key (Halloween Event)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (46.7%)<br>{{ItemLink|Luminstone}} (46.7%)<br>{{ItemLink|Sea Glass}} (46.7%)<br>{{ItemLink|Shivering Leather Boots}} (6.5%)<br>{{ItemLink|Shivering Leather Skullcap}} (6.5%)<br>{{ItemLink|Shivering Leather Sleeves}} (6.5%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

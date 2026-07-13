@@ -10,6 +10,8 @@
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blighted Silk Wraps}}<br>{{ItemLink|Soul Echo}}
+|droprates={{ItemLink|Scribbles of a Mad Priest}} (100.0%)<ref>If the player is already holding {{ItemLink|Scribbles of a Mad Priest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blighted Silk Wraps}} (75.0%)<br>{{ItemLink|Soul Echo}} (25.0%)<br>{{ItemLink|Diamond}} (19.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

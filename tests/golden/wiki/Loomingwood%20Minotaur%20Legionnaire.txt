@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Mino Hatchet}} (12.9%)<ref>If Loomingwood Minotaur Legionnaire has {{ItemLink|Mino Hatchet}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

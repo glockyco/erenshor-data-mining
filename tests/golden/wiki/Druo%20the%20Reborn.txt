@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Muddy Jerkin}}<br>{{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Tarnished Greaves}}<br>{{ItemLink|Tarnished Plate Armor}}
+|droprates={{ItemLink|Pg. 3: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 3: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Earthen Bracer}} (43.4%)<br>{{ItemLink|Fungal Spore}} (43.4%)<br>{{ItemLink|Muddy Jerkin}} (27.4%)<br>{{ItemLink|Ogrespice Bundle}} (27.4%)<br>{{ItemLink|Tarnished Greaves}} (27.4%)<br>{{ItemLink|Tarnished Plate Armor}} (27.4%)<br>{{ItemLink|Fungal Scab Cape}} (14.8%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

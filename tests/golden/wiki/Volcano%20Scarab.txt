@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Droplet of Lava}} (4.5%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

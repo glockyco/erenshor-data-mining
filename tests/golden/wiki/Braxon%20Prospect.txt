@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (11.5%)<br>{{ItemLink|Water}} (11.5%)<br>{{ItemLink|Diamond}} (6.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spark of the First Flame}} (6.8%)<ref>If the player is already holding {{ItemLink|Spark of the First Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Coal}} (1.1%)<br>{{ItemLink|Braxonian Bracelet}} (0.7%)<br>{{ItemLink|Braxonian Gloves}} (0.7%)<br>{{ItemLink|Braxonian Mitts}} (0.7%)<br>{{ItemLink|Braxonian Wristlet}} (0.7%)<br>{{ItemLink|Braxonian Breeches}} (0.4%)<br>{{ItemLink|Braxonian Leather Boots}} (0.4%)<br>{{ItemLink|Braxonian Leather Sleeves}} (0.4%)<br>{{ItemLink|Braxonian Leather Tunic}} (0.4%)<br>{{ItemLink|Braxonian Linens}} (0.4%)<br>{{ItemLink|Braxonian Royal Armband}} (0.4%)<br>{{ItemLink|Braxonian Royal Shoes}} (0.4%)<br>{{ItemLink|Braxonian Royal Tunic}} (0.4%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

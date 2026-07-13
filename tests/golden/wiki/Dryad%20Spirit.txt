@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Essence of Nature}} (27.8%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

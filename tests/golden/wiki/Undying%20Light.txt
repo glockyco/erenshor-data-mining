@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=Instanced
+|guaranteeddrops={{ItemLink|Dreamborn Gloves}}<br>{{ItemLink|Linen Bedpants}}<br>{{ItemLink|Memories of Snow}}<br>{{ItemLink|Vaporous Armguard}}
+|droprates={{ItemLink|Unborn Phobia}} (100.0%)<ref>If the player is already holding {{ItemLink|Unborn Phobia}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Luminstone}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Remnants of a Daydream}} (26.8%)<br>{{ItemLink|Remnants of a Nightmare}} (26.8%)<br>{{ItemLink|Dreamborn Gloves}} (25.0%)<br>{{ItemLink|Linen Bedpants}} (25.0%)<br>{{ItemLink|Memories of Snow}} (25.0%)<br>{{ItemLink|Vaporous Armguard}} (25.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

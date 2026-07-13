@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=48 minutes
+|guaranteeddrops={{ItemLink|Predator's Shard}}<br>{{ItemLink|Secrets of Life}}<br>{{ItemLink|Treant Eye Shield}}
+|droprates={{ItemLink|Predator's Shard}} (66.7%)<br>{{ItemLink|Secrets of Life}} (66.7%)<br>{{ItemLink|Treant Eye Shield}} (66.7%)<br>{{ItemLink|Planar Stone}} (64.9%)<br>{{ItemLink|Planar Stone Shards}} (64.9%)<br>{{ItemLink|Spell Scroll: Summon Treant}} (64.9%)<br>{{ItemLink|Chthonic Tunic}} (30.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

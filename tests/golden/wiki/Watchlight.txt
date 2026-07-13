@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=2-6 minutes
+|guaranteeddrops=
+|droprates=
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -45,6 +47,8 @@
 |spawnchance=
 |spawntype=
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Azynthian Riftstone}} (100.0%)<ref>If the player is already holding {{ItemLink|Azynthian Riftstone}} in their inventory, another will not drop.</ref>
 |level=25
 |levelmodmin=0
 |levelmodmax=0

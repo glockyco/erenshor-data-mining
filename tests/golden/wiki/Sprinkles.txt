@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
+|guaranteeddrops={{ItemLink|Gem Encrusted Sash}}<br>{{ItemLink|Repellant Ring}}<br>{{ItemLink|Trickster's Tunic}}
+|droprates={{ItemLink|Gem Encrusted Sash}} (69.6%)<br>{{ItemLink|Repellant Ring}} (69.6%)<br>{{ItemLink|Trickster's Tunic}} (69.6%)<br>{{ItemLink|Planar Stone Shards}} (14.9%)<br>{{ItemLink|Citrine Stone}} (5.1%)<br>{{ItemLink|Luminstone}} (5.1%)<br>{{ItemLink|Planar Stone}} (5.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

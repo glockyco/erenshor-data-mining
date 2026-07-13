@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
+|guaranteeddrops={{ItemLink|Archer's Vambrace}}<br>{{ItemLink|Beast Harness}}<br>{{ItemLink|Old Halberd}}<br>{{ItemLink|Sylvan Cord}}
+|droprates={{ItemLink|Willow Soil}} (100.0%)<ref>If the player is already holding {{ItemLink|Willow Soil}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (86.3%)<br>{{ItemLink|Seaspice}} (86.3%)<br>{{ItemLink|Archer's Vambrace}} (25.0%)<br>{{ItemLink|Beast Harness}} (25.0%)<br>{{ItemLink|Old Halberd}} (25.0%)<br>{{ItemLink|Sylvan Cord}} (25.0%)<br>{{ItemLink|Light Plate Breastplate}} (23.5%)<br>{{ItemLink|Light Plate Greaves}} (23.5%)<br>{{ItemLink|Old Torn Cape}} (23.5%)<br>{{ItemLink|Ring of Magic Bolt}} (23.5%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0

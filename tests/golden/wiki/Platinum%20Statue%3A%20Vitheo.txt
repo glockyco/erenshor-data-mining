@@ -2,7 +2,7 @@
 |title=Platinum Statue: Vitheo
 |type=
 |vendorsource=
-|source=[[Vithean Chest]] (13.0%)
+|source=[[Vithean Chest|Vithean Chest (Round 8)]] (13.0%)
 |othersource=
 |questsource=
 |relatedquest=

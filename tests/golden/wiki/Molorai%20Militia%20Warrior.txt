@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=8 minutes (Old Krakengard)<br>4 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)<br>{{ItemLink|Cold Steel Greaves}} (4.9%)<br>{{ItemLink|Cold Steel Helm}} (4.9%)<br>{{ItemLink|Molorai Axe}} (4.9%)<ref>If Molorai Militia Warrior has {{ItemLink|Molorai Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Molorai Bow}} (4.9%)<br>{{ItemLink|Linked Chain Shirt}} (1.0%)
 |level=9
 |levelmodmin=0
 |levelmodmax=2

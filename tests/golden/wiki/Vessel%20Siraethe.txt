@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=
 |respawn=13 minutes
+|guaranteeddrops={{ItemLink|Ascended Remains}}<br>{{ItemLink|Bracelet of the Vessel}}<br>{{ItemLink|Siraethe's Prayercrest}}<br>{{ItemLink|Thryne, Sledge of Creation}}<br>{{ItemLink|Vessel's Band}}
+|droprates={{ItemLink|A Remnant of Sivakaya}} (100.0%)<ref>If the player is already holding {{ItemLink|A Remnant of Sivakaya}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sableheart's Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Sableheart's Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (87.1%)<br>{{ItemLink|Ascended Remains}} (28.6%)<br>{{ItemLink|Bracelet of the Vessel}} (28.6%)<br>{{ItemLink|Thryne, Sledge of Creation}} (28.6%)<br>{{ItemLink|Vessel's Band}} (28.6%)<br>{{ItemLink|Siraethe's Prayercrest}} (20.0%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

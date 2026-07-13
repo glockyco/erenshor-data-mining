@@ -10,6 +10,8 @@
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Planar Stone Shards}} (5.3%)<br>{{ItemLink|Cloak of Frost}} (4.3%)<br>{{ItemLink|Planar Stone}} (2.1%)<br>{{ItemLink|Thaumic Boots}} (2.0%)<br>{{ItemLink|Thaumic Handwraps}} (2.0%)<br>{{ItemLink|Thaumic Hood}} (2.0%)<br>{{ItemLink|Thaumic Sleeves}} (2.0%)<br>{{ItemLink|Thaumic Trousers}} (2.0%)<br>{{ItemLink|Thaumic Vestiment}} (2.0%)<br>{{ItemLink|Thaumic Wraps}} (2.0%)<br>{{ItemLink|Skill Book: Multifocus}} (1.0%)<br>{{ItemLink|Spell Scroll: Ice Meteor}} (1.0%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
