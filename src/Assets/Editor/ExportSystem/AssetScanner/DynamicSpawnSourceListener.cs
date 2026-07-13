@@ -13,6 +13,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 {
     private const string VithArenaFightPositionStrategy = "vith_arena_fight";
     private const string VitheoFightPositionStrategy = "vitheo_fight";
+    private static readonly BindingFlags FieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
@@ -30,6 +31,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     {
         public Character Character;
         public Vector3 Position;
+    }
+
+    private struct TriggerMetadata
+    {
+        public string? ItemStableKey;
+        public string? Mode;
+        public string? DisplayName;
+        public Bounds? Bounds;
     }
 
     public DynamicSpawnSourceListener(
@@ -63,6 +72,9 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             var entry = _catalog.Classify(scriptName, fieldName);
             if (entry.Classification == DynamicSpawnClassification.Denied) continue;
 
+            var triggerMetadata = entry.Classification == DynamicSpawnClassification.Allowed
+                ? ResolveTriggerMetadata(comp, scriptName, fieldName, entry)
+                : default;
             var value = field.GetValue(comp);
             if (value == null) continue;
 
@@ -96,7 +108,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             else if (entry.PositionStrategy == VithArenaFightPositionStrategy)
             {
                 foreach (var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName))
-                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName, eventPosition);
+                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName, eventPosition, triggerMetadata);
             }
             else if (entry.PositionStrategy == VitheoFightPositionStrategy)
             {
@@ -104,7 +116,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var character in characters)
                 {
                     foreach (var position in positions)
-                        AddDynamicSpawnRecord(character, position, hostScene, scriptName, eventPosition);
+                        AddDynamicSpawnRecord(character, position, hostScene, scriptName, eventPosition, triggerMetadata);
                 }
             }
             else
@@ -114,7 +126,7 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 {
                     var positions = ResolvePositions(comp, entry.PositionField);
                     foreach (var pos in positions)
-                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName, eventPosition);
+                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName, eventPosition, triggerMetadata);
                 }
             }
         }
@@ -230,9 +242,67 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         return result;
     }
 
-    private void AddDynamicSpawnRecord(Character character, Vector3 pos, string hostScene, string scriptName, Vector3? eventPosition)
+    private TriggerMetadata ResolveTriggerMetadata(
+        MonoBehaviour host,
+        string scriptName,
+        string fieldName,
+        CatalogEntry entry)
+    {
+        var metadata = new TriggerMetadata
+        {
+            Mode = entry.TriggerMode,
+            DisplayName = entry.EventDisplayName,
+        };
+
+        if (!string.IsNullOrEmpty(entry.TriggerItemField))
+        {
+            var triggerField = host.GetType().GetField(entry.TriggerItemField, FieldFlags);
+            if (triggerField == null)
+            {
+                throw new InvalidOperationException(
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
+                    $"but {host.GetType().Name}.{entry.TriggerItemField} does not exist.");
+            }
+
+            if (!typeof(Item).IsAssignableFrom(triggerField.FieldType))
+            {
+                throw new InvalidOperationException(
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
+                    $"but the field type is {triggerField.FieldType.FullName}, not Item.");
+            }
+
+            var triggerItem = triggerField.GetValue(host) as Item;
+            if (triggerItem == null)
+            {
+                throw new InvalidOperationException(
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
+                    "but the declared Item field is null.");
+            }
+
+            metadata.ItemStableKey = StableKeyGenerator.ForItem(triggerItem);
+        }
+
+        if (entry.IncludeHostBounds)
+        {
+            metadata.Bounds = TriggerBoundsResolver.ResolveHost(
+                host,
+                $"{nameof(DynamicSpawnSourceListener)} {scriptName}.{fieldName}");
+        }
+
+        return metadata;
+    }
+
+
+    private void AddDynamicSpawnRecord(
+        Character character,
+        Vector3 pos,
+        string hostScene,
+        string scriptName,
+        Vector3? eventPosition,
+        TriggerMetadata triggerMetadata)
     {
         var childKey = _characterKeyResolver.GetStableKey(character);
+        var triggerBounds = triggerMetadata.Bounds;
         var key = eventPosition.HasValue
             ? $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}|event:{eventPosition.Value.x}|{eventPosition.Value.y}|{eventPosition.Value.z}"
             : $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
@@ -248,6 +318,15 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             EventX = eventPosition?.x,
             EventY = eventPosition?.y,
             EventZ = eventPosition?.z,
+            TriggerItemStableKey = triggerMetadata.ItemStableKey,
+            TriggerMode = triggerMetadata.Mode,
+            EventDisplayName = triggerMetadata.DisplayName,
+            TriggerBoundsCenterX = triggerBounds.HasValue ? triggerBounds.Value.center.x : (float?)null,
+            TriggerBoundsCenterY = triggerBounds.HasValue ? triggerBounds.Value.center.y : (float?)null,
+            TriggerBoundsCenterZ = triggerBounds.HasValue ? triggerBounds.Value.center.z : (float?)null,
+            TriggerBoundsExtentsX = triggerBounds.HasValue ? triggerBounds.Value.extents.x : (float?)null,
+            TriggerBoundsExtentsY = triggerBounds.HasValue ? triggerBounds.Value.extents.y : (float?)null,
+            TriggerBoundsExtentsZ = triggerBounds.HasValue ? triggerBounds.Value.extents.z : (float?)null,
         });
     }
 

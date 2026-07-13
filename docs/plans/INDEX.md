@@ -20,6 +20,6 @@
 
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 - **Crawlable Zone Content Layer (/zones)** [spec] `2026-07-04-maps-zones-content-layer` ← 2026-06-26-maps-domain-url-migration
-- **Adventure Guide Implicit Workflow Quests & Location Steps** [plan] `2026-07-12-adventure-guide-scripted-encounters` (0/40) ← 2026-07-09-erenshor-planning-overview
+- **Adventure Guide Implicit Workflow Quests & Location Steps** [plan] `2026-07-12-adventure-guide-scripted-encounters` (7/40) ← 2026-07-09-erenshor-planning-overview
 
 _63 archived — see `docs/plans/archive/`._

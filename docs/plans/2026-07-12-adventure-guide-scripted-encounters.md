@@ -116,33 +116,34 @@ game quest identities.
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/DynamicSpawnCatalog.cs`
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/DynamicSpawnSourceListener.cs`
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/Listener/VithArenaListener.cs`
+- Create: `src/Assets/Editor/ExportSystem/AssetScanner/TriggerBoundsResolver.cs`
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/dynamic-spawn-catalog.toml`
 - Modify: `src/erenshor/application/processor/characters.py`
 - Modify: `src/erenshor/application/processor/writer.py`
 - Create: `tests/unit/application/processor/test_scripted_workflows.py`
 
-- [ ] Add `trigger_item_field`, `event_display_name`, `trigger_mode`, and host
+- [x] Add `trigger_item_field`, `event_display_name`, `trigger_mode`, and host
   trigger-bounds capture to the dynamic-spawn catalog contract. Split the
   `MalarothFeed.Malaroth` and `.Demented` outputs so they resolve
   `MalarothFood` and `BadFood` respectively; both use the existing host
   `EventX/Y/Z` anchor and `proximity_auto_consume` mode.
-- [ ] Resolve the configured Unity `Item` reference in
+- [x] Resolve the configured Unity `Item` reference in
   `DynamicSpawnSourceListener` and persist its stable key beside the spawned
   character. Fail the export when a declared trigger item cannot be resolved.
-- [ ] Extend every `ArenaRoundRecord` with the `VithArena` host transform and
+- [x] Extend every `ArenaRoundRecord` with the `VithArena` host transform and
   trigger collider bounds as the entry area, display label `Vitheo's arena`,
   and `proximity_auto_consume`. Keep `SpawnLoc1/2/3` and `ChestSpawnPos` as
   combat and reward locations, not the trigger destination.
-- [ ] Carry all new columns into the clean DB. Preserve the Malaroth NPC spawn
+- [x] Carry all new columns into the clean DB. Preserve the Malaroth NPC spawn
   `(428.40, 28.37, 642.20)` separately from the feeding trigger
   `(336.06, 32.31, 673.63)` and the arena trigger separately from the chest
   `(521.90, 25.21, 485.60)`.
-- [ ] Add processor tests proving good feed maps to ordinary Malaroth, odd feed
+- [x] Add processor tests proving good feed maps to Shivunax, odd feed
   maps to Demented Malaroth, bad-food priority is retained, and trigger/spawn
   coordinates cannot be interchanged.
-- [ ] Run `uv run pytest tests/unit/application/processor/test_scripted_workflows.py tests/unit/application/export_surface/test_listener_coverage.py`.
+- [x] Run `uv run pytest tests/unit/application/processor/test_scripted_workflows.py tests/unit/application/export_surface/test_listener_coverage.py`.
   Expected: trigger metadata is complete and unrelated spawn rows are unchanged.
-- [ ] Run `uv run erenshor --variant playtest extract export`, then inspect the
+- [x] Run `uv run erenshor --variant playtest extract export`, then inspect the
   raw rows. Expected: eight arena rounds carry one finite entry area each and
   both Malaroth outputs carry the correct input item and shared finite feeding
   area.
@@ -172,7 +173,7 @@ game quest identities.
   token turn-ins. Remove post-completion buy/combat/reward steps from those
   nodes; retain their vendor-unlock facts as conditions on the synthetic
   workflow's purchase source, never as synthetic GameData completion.
-- [ ] Generate guide-only implicit repeatable quests for ordinary and Demented
+- [ ] Generate guide-only implicit repeatable quests for Shivunax and Demented
   Malaroth from exported rows: obtain the matching feed, `go_to` the feeding
   anchor, then defeat the matching character. Keep the real
   `quest:malarothfeedmade` variants as oven crafting turn-ins.

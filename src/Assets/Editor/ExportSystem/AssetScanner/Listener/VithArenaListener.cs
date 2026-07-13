@@ -8,6 +8,8 @@ using UnityEngine;
 public class VithArenaListener : IAssetScanListener<VithArena>
 {
     private const int MaxRounds = 8;
+    private const string ArenaTriggerMode = "proximity_auto_consume";
+    private const string ArenaEventDisplayName = "Vitheo's arena";
 
     private static readonly BindingFlags FieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -56,6 +58,8 @@ public class VithArenaListener : IAssetScanListener<VithArena>
             Debug.LogWarning($"[{GetType().Name}] VithArena on prefab '{asset.gameObject.name}' has no scene; skipping");
             return;
         }
+        var triggerBounds = TriggerBoundsResolver.ResolveHost(asset, nameof(VithArenaListener));
+        var eventPosition = asset.transform.position;
 
         var awardChests = GetFieldValue<List<GameObject>>(asset, "AwardChests");
         if (awardChests == null || awardChests.Count == 0)
@@ -107,6 +111,17 @@ public class VithArenaListener : IAssetScanListener<VithArena>
                 RoundIndex = roundIndex,
                 CoinItemStableKey = StableKeyGenerator.ForItem(coin),
                 AwardChestCharacterStableKey = _characterKeyResolver.GetStableKey(chestCharacter),
+                TriggerMode = ArenaTriggerMode,
+                EventDisplayName = ArenaEventDisplayName,
+                EventX = eventPosition.x,
+                EventY = eventPosition.y,
+                EventZ = eventPosition.z,
+                TriggerBoundsCenterX = triggerBounds.center.x,
+                TriggerBoundsCenterY = triggerBounds.center.y,
+                TriggerBoundsCenterZ = triggerBounds.center.z,
+                TriggerBoundsExtentsX = triggerBounds.extents.x,
+                TriggerBoundsExtentsY = triggerBounds.extents.y,
+                TriggerBoundsExtentsZ = triggerBounds.extents.z,
             });
 
             for (var sequenceIndex = 0; sequenceIndex < fight.Count; sequenceIndex++)
@@ -134,6 +149,7 @@ public class VithArenaListener : IAssetScanListener<VithArena>
             }
         }
     }
+
 
     private static T? GetFieldValue<T>(VithArena asset, string fieldName) where T : class
     {

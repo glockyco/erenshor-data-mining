@@ -200,10 +200,25 @@ reason = "Navigation waypoints, not Character prefabs."
 
 [[allowed]]
 script = "MalarothFeed"
-fields = ["Malaroth", "Demented"]
+fields = ["Malaroth"]
 position_field = "SpawnLoc"
 include_host_position = true
-reason = "SpawnLoc is the NPC instantiate position; the component host transform is the interaction trigger anchor."
+trigger_item_field = "MalarothFood"
+trigger_mode = "proximity_auto_consume"
+event_display_name = "Malaroth feeding site"
+include_host_bounds = true
+reason = "SpawnLoc is the NPC instantiate position; the component host transform and trigger bounds define the interaction site."
+
+[[allowed]]
+script = "MalarothFeed"
+fields = ["Demented"]
+position_field = "SpawnLoc"
+include_host_position = true
+trigger_item_field = "BadFood"
+trigger_mode = "proximity_auto_consume"
+event_display_name = "Malaroth feeding site"
+include_host_bounds = true
+reason = "SpawnLoc is the NPC instantiate position; the component host transform and trigger bounds define the interaction site."
 
 [[denied]]
 script = "TreasureChestEvent"

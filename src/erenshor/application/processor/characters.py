@@ -31,6 +31,7 @@ group at query time.
 
 from __future__ import annotations
 
+import math
 import sqlite3
 from collections import defaultdict
 from collections.abc import Callable
@@ -42,6 +43,16 @@ from loguru import logger
 if TYPE_CHECKING:
     from .mapping import MappingOverride, SpawnMappingOverride
     from .writer import Writer
+
+
+def _optional_float(value: object, *, field: str, row_key: object) -> float | None:
+    """Validate optional numeric metadata without coercing malformed values."""
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f"{field} for {row_key!r} must be a finite number or NULL, got {value!r}")
+    return float(value)
+
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -101,6 +112,15 @@ class _SpawnRow:
     event_x: float | None = None
     event_y: float | None = None
     event_z: float | None = None
+    trigger_item_stable_key: str | None = None
+    trigger_mode: str | None = None
+    event_display_name: str | None = None
+    trigger_bounds_center_x: float | None = None
+    trigger_bounds_center_y: float | None = None
+    trigger_bounds_center_z: float | None = None
+    trigger_bounds_extents_x: float | None = None
+    trigger_bounds_extents_y: float | None = None
+    trigger_bounds_extents_z: float | None = None
 
 
 @dataclass
@@ -263,6 +283,29 @@ def process_arena_rounds(
                 "round_index": row["RoundIndex"],
                 "coin_item_stable_key": coin_item_stable_key,
                 "award_chest_character_stable_key": award_chest_character_stable_key,
+                "trigger_mode": row.get("TriggerMode"),
+                "event_display_name": row.get("EventDisplayName"),
+                "event_x": _optional_float(row.get("EventX"), field="EventX", row_key=stable_key),
+                "event_y": _optional_float(row.get("EventY"), field="EventY", row_key=stable_key),
+                "event_z": _optional_float(row.get("EventZ"), field="EventZ", row_key=stable_key),
+                "trigger_bounds_center_x": _optional_float(
+                    row.get("TriggerBoundsCenterX"), field="TriggerBoundsCenterX", row_key=stable_key
+                ),
+                "trigger_bounds_center_y": _optional_float(
+                    row.get("TriggerBoundsCenterY"), field="TriggerBoundsCenterY", row_key=stable_key
+                ),
+                "trigger_bounds_center_z": _optional_float(
+                    row.get("TriggerBoundsCenterZ"), field="TriggerBoundsCenterZ", row_key=stable_key
+                ),
+                "trigger_bounds_extents_x": _optional_float(
+                    row.get("TriggerBoundsExtentsX"), field="TriggerBoundsExtentsX", row_key=stable_key
+                ),
+                "trigger_bounds_extents_y": _optional_float(
+                    row.get("TriggerBoundsExtentsY"), field="TriggerBoundsExtentsY", row_key=stable_key
+                ),
+                "trigger_bounds_extents_z": _optional_float(
+                    row.get("TriggerBoundsExtentsZ"), field="TriggerBoundsExtentsZ", row_key=stable_key
+                ),
             }
         )
 
@@ -523,7 +566,10 @@ def process_characters(
             raw,
             """
             SELECT Key, CharacterStableKey, Scene, X, Y, Z, SourceScript,
-                   EventX, EventY, EventZ
+                   EventX, EventY, EventZ, TriggerItemStableKey, TriggerMode,
+                   EventDisplayName, TriggerBoundsCenterX, TriggerBoundsCenterY,
+                   TriggerBoundsCenterZ, TriggerBoundsExtentsX, TriggerBoundsExtentsY,
+                   TriggerBoundsExtentsZ
             FROM DynamicCharacterSpawns
             WHERE CharacterStableKey IN ({})
             """.format(",".join("?" * len(all_keys))),
@@ -533,9 +579,27 @@ def process_characters(
             sk = str(r["CharacterStableKey"])
             scene = r.get("Scene")
             source_script = cast("str | None", r.get("SourceScript"))
-            event_x = cast("float | None", r.get("EventX"))
-            event_y = cast("float | None", r.get("EventY"))
-            event_z = cast("float | None", r.get("EventZ"))
+            event_x = _optional_float(r.get("EventX"), field="EventX", row_key=r["Key"])
+            event_y = _optional_float(r.get("EventY"), field="EventY", row_key=r["Key"])
+            event_z = _optional_float(r.get("EventZ"), field="EventZ", row_key=r["Key"])
+            trigger_bounds_center_x = _optional_float(
+                r.get("TriggerBoundsCenterX"), field="TriggerBoundsCenterX", row_key=r["Key"]
+            )
+            trigger_bounds_center_y = _optional_float(
+                r.get("TriggerBoundsCenterY"), field="TriggerBoundsCenterY", row_key=r["Key"]
+            )
+            trigger_bounds_center_z = _optional_float(
+                r.get("TriggerBoundsCenterZ"), field="TriggerBoundsCenterZ", row_key=r["Key"]
+            )
+            trigger_bounds_extents_x = _optional_float(
+                r.get("TriggerBoundsExtentsX"), field="TriggerBoundsExtentsX", row_key=r["Key"]
+            )
+            trigger_bounds_extents_y = _optional_float(
+                r.get("TriggerBoundsExtentsY"), field="TriggerBoundsExtentsY", row_key=r["Key"]
+            )
+            trigger_bounds_extents_z = _optional_float(
+                r.get("TriggerBoundsExtentsZ"), field="TriggerBoundsExtentsZ", row_key=r["Key"]
+            )
             x = cast("float | None", r.get("X"))
             y = cast("float | None", r.get("Y"))
             z = cast("float | None", r.get("Z"))
@@ -556,6 +620,15 @@ def process_characters(
                     spawn_delay_2=None,
                     spawn_delay_3=None,
                     spawn_delay_4=None,
+                    trigger_item_stable_key=cast("str | None", r.get("TriggerItemStableKey")),
+                    trigger_mode=cast("str | None", r.get("TriggerMode")),
+                    event_display_name=cast("str | None", r.get("EventDisplayName")),
+                    trigger_bounds_center_x=trigger_bounds_center_x,
+                    trigger_bounds_center_y=trigger_bounds_center_y,
+                    trigger_bounds_center_z=trigger_bounds_center_z,
+                    trigger_bounds_extents_x=trigger_bounds_extents_x,
+                    trigger_bounds_extents_y=trigger_bounds_extents_y,
+                    trigger_bounds_extents_z=trigger_bounds_extents_z,
                     staggerable=None,
                     stagger_mod=None,
                     night_spawn=None,
@@ -870,6 +943,15 @@ def process_characters(
                     "event_x": s.event_x,
                     "event_y": s.event_y,
                     "event_z": s.event_z,
+                    "trigger_item_stable_key": s.trigger_item_stable_key,
+                    "trigger_mode": s.trigger_mode,
+                    "event_display_name": s.event_display_name,
+                    "trigger_bounds_center_x": s.trigger_bounds_center_x,
+                    "trigger_bounds_center_y": s.trigger_bounds_center_y,
+                    "trigger_bounds_center_z": s.trigger_bounds_center_z,
+                    "trigger_bounds_extents_x": s.trigger_bounds_extents_x,
+                    "trigger_bounds_extents_y": s.trigger_bounds_extents_y,
+                    "trigger_bounds_extents_z": s.trigger_bounds_extents_z,
                 }
             )
     writer.insert_character_spawns(spawn_out)

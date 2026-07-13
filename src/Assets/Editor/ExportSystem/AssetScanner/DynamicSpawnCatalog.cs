@@ -14,6 +14,10 @@ public struct CatalogEntry
     public string? PositionField { get; set; }   // comma-separated for multi-position spawns; listener splits
     public string? PositionStrategy { get; set; } // named resolver for non-Cartesian placement semantics
     public bool IncludeHostPosition { get; set; }
+    public string? TriggerItemField { get; set; }
+    public string? TriggerMode { get; set; }
+    public string? EventDisplayName { get; set; }
+    public bool IncludeHostBounds { get; set; }
     public string? Reason { get; set; }
 }
 
@@ -40,8 +44,11 @@ public class DynamicSpawnCatalog
         string? currentPositionField = null;
         string? currentPositionStrategy = null;
         bool currentIncludeHostPosition = false;
+        string? currentTriggerItemField = null;
+        string? currentTriggerMode = null;
+        string? currentEventDisplayName = null;
+        bool currentIncludeHostBounds = false;
         string? currentReason = null;
-
         foreach (var rawLine in File.ReadAllLines(path))
         {
             var line = rawLine.Trim();
@@ -50,9 +57,9 @@ public class DynamicSpawnCatalog
             if (line == "[[allowed]]" || line == "[[denied]]")
             {
                 if (currentScript != null && currentFields != null)
-                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentReason);
+                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentTriggerItemField, currentTriggerMode, currentEventDisplayName, currentIncludeHostBounds, currentReason);
                 currentSection = line == "[[allowed]]" ? "allowed" : "denied";
-                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentIncludeHostPosition = false; currentReason = null;
+                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentIncludeHostPosition = false; currentTriggerItemField = null; currentTriggerMode = null; currentEventDisplayName = null; currentIncludeHostBounds = false; currentReason = null;
             }
             else if (line.StartsWith("script = "))
             {
@@ -74,18 +81,33 @@ public class DynamicSpawnCatalog
             {
                 currentIncludeHostPosition = ParseBoolValue(line);
             }
+            else if (line.StartsWith("trigger_item_field = "))
+            {
+                currentTriggerItemField = ParseStringValue(line);
+            }
+            else if (line.StartsWith("trigger_mode = "))
+            {
+                currentTriggerMode = ParseStringValue(line);
+            }
+            else if (line.StartsWith("event_display_name = "))
+            {
+                currentEventDisplayName = ParseStringValue(line);
+            }
+            else if (line.StartsWith("include_host_bounds = "))
+            {
+                currentIncludeHostBounds = ParseBoolValue(line);
+            }
             else if (line.StartsWith("reason = "))
             {
                 currentReason = ParseStringValue(line);
             }
         }
         if (currentScript != null && currentFields != null)
-            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentReason);
-
+            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentTriggerItemField, currentTriggerMode, currentEventDisplayName, currentIncludeHostBounds, currentReason);
         return catalog;
     }
 
-    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, bool includeHostPosition, string? reason)
+    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, bool includeHostPosition, string? triggerItemField, string? triggerMode, string? eventDisplayName, bool includeHostBounds, string? reason)
     {
         var classification = section == "allowed" ? DynamicSpawnClassification.Allowed : DynamicSpawnClassification.Denied;
         _knownScripts.Add(script);
@@ -104,6 +126,10 @@ public class DynamicSpawnCatalog
                 PositionField = positionField,
                 PositionStrategy = positionStrategy,
                 IncludeHostPosition = includeHostPosition,
+                TriggerItemField = triggerItemField,
+                TriggerMode = triggerMode,
+                EventDisplayName = eventDisplayName,
+                IncludeHostBounds = includeHostBounds,
                 Reason = reason,
             };
         }

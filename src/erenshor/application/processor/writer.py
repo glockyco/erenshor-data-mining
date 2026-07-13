@@ -945,6 +945,15 @@ CREATE TABLE character_spawns (
     event_x                 REAL,
     event_y                 REAL,
     event_z                 REAL,
+    trigger_item_stable_key TEXT,
+    trigger_mode            TEXT,
+    event_display_name     TEXT,
+    trigger_bounds_center_x REAL,
+    trigger_bounds_center_y REAL,
+    trigger_bounds_center_z REAL,
+    trigger_bounds_extents_x REAL,
+    trigger_bounds_extents_y REAL,
+    trigger_bounds_extents_z REAL,
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
@@ -1033,7 +1042,7 @@ CREATE TABLE loot_drops (
     is_legendary            INTEGER,
     is_ultra_rare           INTEGER,
     is_unique               INTEGER,
-    is_visible              INTEGER,
+    is_visible               INTEGER,
     zone                    TEXT,
     PRIMARY KEY (character_stable_key, item_stable_key)
 );
@@ -1044,7 +1053,18 @@ CREATE TABLE arena_rounds (
     arena_object_name                 TEXT,
     round_index                       INTEGER NOT NULL,
     coin_item_stable_key              TEXT NOT NULL,
-    award_chest_character_stable_key  TEXT NOT NULL
+    award_chest_character_stable_key  TEXT NOT NULL,
+    trigger_mode                      TEXT,
+    event_display_name                TEXT,
+    event_x                           REAL,
+    event_y                           REAL,
+    event_z                           REAL,
+    trigger_bounds_center_x           REAL,
+    trigger_bounds_center_y           REAL,
+    trigger_bounds_center_z           REAL,
+    trigger_bounds_extents_x          REAL,
+    trigger_bounds_extents_y          REAL,
+    trigger_bounds_extents_z          REAL
 );
 
 CREATE TABLE arena_round_enemies (

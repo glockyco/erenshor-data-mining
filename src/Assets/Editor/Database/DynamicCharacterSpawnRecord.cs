@@ -18,4 +18,13 @@ public class DynamicCharacterSpawnRecord
     public float? EventX { get; set; }
     public float? EventY { get; set; }
     public float? EventZ { get; set; }
+    public string? TriggerItemStableKey { get; set; }
+    public string? TriggerMode { get; set; }
+    public string? EventDisplayName { get; set; }
+    public float? TriggerBoundsCenterX { get; set; }
+    public float? TriggerBoundsCenterY { get; set; }
+    public float? TriggerBoundsCenterZ { get; set; }
+    public float? TriggerBoundsExtentsX { get; set; }
+    public float? TriggerBoundsExtentsY { get; set; }
+    public float? TriggerBoundsExtentsZ { get; set; }
 }
