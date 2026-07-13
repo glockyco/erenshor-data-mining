@@ -33,6 +33,7 @@ from erenshor.infrastructure.wiki import (
     MediaWikiRateLimitError,
     MediaWikiRequestPolicy,
 )
+from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
 
 @dataclass(slots=True)
@@ -381,8 +382,49 @@ class TestMediaWikiClientGetPages:
         # Verify 3 GET requests were made
         assert mock_http_client.get.call_count == 3
 
+    @patch("erenshor.infrastructure.wiki.client.httpx.Client")
+    def test_get_page_snapshots_parses_source_revision_and_timestamp(self, mock_client_class: MagicMock) -> None:
+        """One response provides source, revision guard, and missing state for every title."""
+        mock_http_client = MagicMock()
+        mock_client_class.return_value = mock_http_client
+        response = MagicMock()
+        response.json.return_value = {
+            "curtimestamp": "2026-06-04T12:02:00Z",
+            "query": {
+                "pages": {
+                    "123": {
+                        "pageid": 123,
+                        "title": "Item:Sword",
+                        "revisions": [
+                            {
+                                "revid": 456,
+                                "timestamp": "2026-06-04T12:00:00Z",
+                                "slots": {"main": {"*": "Sword content"}},
+                            }
+                        ],
+                    },
+                    "-1": {"title": "Item:Missing", "missing": ""},
+                }
+            },
+        }
+        mock_http_client.get.return_value = response
 
-class TestMediaWikiClientEditPage:
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
+        snapshots = client.get_page_snapshots(["Item:Sword", "Item:Missing"], assertion="bot", assert_user="Bot")
+
+        assert isinstance(snapshots["Item:Sword"], MediaWikiPageSnapshot)
+        assert snapshots["Item:Sword"].source_text == "Sword content"
+        assert snapshots["Item:Sword"].revision is not None
+        assert snapshots["Item:Sword"].revision.revision_id == 456
+        assert snapshots["Item:Sword"].start_timestamp == "2026-06-04T12:02:00Z"
+        assert snapshots["Item:Missing"].source_text is None
+        assert snapshots["Item:Missing"].revision is None
+        request_params = mock_http_client.get.call_args.kwargs["params"]
+        assert request_params["rvprop"] == "ids|timestamp|content"
+        assert request_params["curtimestamp"] == "1"
+        assert request_params["assert"] == "bot"
+        assert request_params["assertuser"] == "Bot"
+
     """Test wiki page editing."""
 
     @patch("erenshor.infrastructure.wiki.client.httpx.Client")

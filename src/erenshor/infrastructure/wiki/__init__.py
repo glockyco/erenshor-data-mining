@@ -12,6 +12,7 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiEditError,
     MediaWikiNetworkError,
     MediaWikiPageRevision,
+    MediaWikiPageSnapshot,
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
 )
@@ -44,6 +45,7 @@ __all__ = [
     "MediaWikiEditError",
     "MediaWikiNetworkError",
     "MediaWikiPageRevision",
+    "MediaWikiPageSnapshot",
     "MediaWikiPermissionError",
     "MediaWikiRateLimitError",
     "MediaWikiRequestError",

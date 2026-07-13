@@ -66,10 +66,12 @@ def build_repo_page_manifest(repo_root: Path, variant: str) -> RepoWikiPageManif
 
 
 def write_repo_page_manifest(manifest: RepoWikiPageManifest, path: Path) -> None:
-    """Write a repo-owned wiki page manifest as deterministic JSON."""
+    """Atomically write a repo-owned wiki page manifest as deterministic JSON."""
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {"entries": [asdict(entry) for entry in manifest.entries]}
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    temporary_path = path.with_name(f".{path.name}.tmp")
+    temporary_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    temporary_path.replace(path)
 
 
 def read_repo_page_manifest(path: Path) -> RepoWikiPageManifest:

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
+from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, build_repo_page_manifest
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.infrastructure.wiki import MediaWikiPageRevision
+from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
 
 def write_page(root: Path, relative_path: str, content: str) -> None:
@@ -18,36 +19,41 @@ def write_page(root: Path, relative_path: str, content: str) -> None:
 class RecordingWikiClient:
     def __init__(self, pages: dict[str, str | None]) -> None:
         self.pages = pages
-        self.revision_requests: list[tuple[str, str, str | None]] = []
-        self.timestamp_requests: list[tuple[str, str | None]] = []
+        self.snapshot_requests: list[tuple[list[str], str | None, str | None]] = []
         self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
         self.safe_creates: list[tuple[str, str, str, str, str, str | None]] = []
 
-    def get_pages(self, titles: list[str]) -> dict[str, str | None]:
-        return {title: self.pages.get(title) for title in titles}
-
-    def get_page_revision_metadata(
+    def get_page_snapshots(
         self,
-        title: str,
+        titles: list[str],
         assertion: str | None = None,
         assert_user: str | None = None,
-    ) -> MediaWikiPageRevision | None:
-        self.revision_requests.append((title, assertion or "", assert_user))
-        return MediaWikiPageRevision(
-            title=title,
-            page_id=100,
-            revision_id=200,
-            timestamp="2026-06-04T12:00:00Z",
-            start_timestamp="2026-06-04T12:01:00Z",
-        )
-
-    def get_edit_start_timestamp(
-        self,
-        assertion: str | None = None,
-        assert_user: str | None = None,
-    ) -> str:
-        self.timestamp_requests.append((assertion or "", assert_user))
-        return "2026-06-04T12:02:00Z"
+    ) -> dict[str, MediaWikiPageSnapshot]:
+        self.snapshot_requests.append((titles, assertion, assert_user))
+        snapshots: dict[str, MediaWikiPageSnapshot] = {}
+        for title in titles:
+            content = self.pages.get(title)
+            if content is None:
+                snapshots[title] = MediaWikiPageSnapshot(
+                    title=title,
+                    source_text=None,
+                    revision=None,
+                    start_timestamp="2026-06-04T12:02:00Z",
+                )
+            else:
+                snapshots[title] = MediaWikiPageSnapshot(
+                    title=title,
+                    source_text=content,
+                    revision=MediaWikiPageRevision(
+                        title=title,
+                        page_id=100,
+                        revision_id=200,
+                        timestamp="2026-06-04T12:00:00Z",
+                        start_timestamp="2026-06-04T12:02:00Z",
+                    ),
+                    start_timestamp="2026-06-04T12:02:00Z",
+                )
+        return snapshots
 
     def safe_edit_page(
         self,
@@ -95,7 +101,6 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
     assert entry.status == "unchanged"
     assert entry.old_revision_id is None
     assert entry.new_revision_id is None
-    assert client.revision_requests == []
     assert client.safe_edits == []
 
 
@@ -116,7 +121,6 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
     )
     [entry] = result.entries
     assert entry.status == "unchanged"
-    assert client.revision_requests == []
     assert client.safe_edits == []
     assert client.safe_creates == []
 
@@ -146,7 +150,7 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     assert entry.new_revision_id == 201
     assert entry.rollback_text_source == "rollback/Module%3AErenshor%2FItem.wiki"
     assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "old source\n"
-    assert client.revision_requests == [("Module:Erenshor/Item", "bot", "ErenshorBot")]
+    assert client.snapshot_requests == [(["Module:Erenshor/Item"], "bot", "ErenshorBot")]
     [(title, content, base_revision, summary, assertion, assert_user)] = client.safe_edits
     assert title == "Module:Erenshor/Item"
     assert content == source
@@ -178,8 +182,7 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
     assert entry.old_revision_id is None
     assert entry.old_revision_timestamp is None
     assert entry.new_revision_id == 301
-    assert client.revision_requests == []
-    assert client.timestamp_requests == [("bot", "ErenshorBot")]
+    assert client.snapshot_requests == [(["Module:Erenshor/Data/Items"], "bot", "ErenshorBot")]
     assert client.safe_edits == []
     assert client.safe_creates == [
         (
@@ -221,6 +224,104 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
     assert deployed_entry.deploy_action == "edited"
     # The base manifest is not mutated.
     assert base_entry.new_revision_id is None
+
+
+def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: Path) -> None:
+    """A source hash mismatch fails before any remote mutation is attempted."""
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {stale = true}\n")
+    client = RecordingWikiClient({"Module:Erenshor/Item": "old source\n"})
+
+    try:
+        deploy_repo_pages(
+            manifest=manifest,
+            repo_root=tmp_path,
+            client=client,
+            summary="Deploy repo-owned wiki pages",
+            assertion="bot",
+        )
+    except ValueError as error:
+        assert "Source hash mismatch" in str(error)
+    else:
+        raise AssertionError("stale source hash was accepted")
+
+    assert client.safe_edits == []
+    assert client.safe_creates == []
+
+
+def test_deploy_repo_pages_prepares_all_sidecars_before_first_write(tmp_path: Path) -> None:
+    """The prepared checkpoint observes every changed existing sidecar before edits."""
+    write_page(tmp_path, "wiki/modules/Erenshor/A.lua", "return 'a'\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/B.lua", "return 'b'\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    client = RecordingWikiClient({"Module:Erenshor/A": "old a\n", "Module:Erenshor/B": "old b\n"})
+    checkpoints: list[RepoWikiPageManifest] = []
+
+    def checkpoint(value: RepoWikiPageManifest) -> None:
+        checkpoints.append(value)
+        if len(checkpoints) == 1:
+            assert (tmp_path / "rollback/Module%3AErenshor%2FA.wiki").read_text(encoding="utf-8") == "old a\n"
+            assert (tmp_path / "rollback/Module%3AErenshor%2FB.wiki").read_text(encoding="utf-8") == "old b\n"
+
+    deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+        rollback_root=tmp_path / "rollback",
+        checkpoint=checkpoint,
+    )
+
+    assert len(checkpoints) == 3
+    assert len(client.safe_edits) == 2
+
+
+def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -> None:
+    """A later write failure leaves the earlier successful write journaled."""
+    write_page(tmp_path, "wiki/modules/Erenshor/A.lua", "return 'a'\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/B.lua", "return 'b'\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+
+    class FailingClient(RecordingWikiClient):
+        def safe_edit_page(
+            self,
+            title: str,
+            content: str,
+            base_revision: MediaWikiPageRevision,
+            summary: str,
+            assertion: str,
+            assert_user: str | None,
+        ) -> int:
+            if self.safe_edits:
+                raise RuntimeError("second write failed")
+            return super().safe_edit_page(title, content, base_revision, summary, assertion, assert_user)
+
+    client = FailingClient({"Module:Erenshor/A": "old a\n", "Module:Erenshor/B": "old b\n"})
+    checkpoints: list[RepoWikiPageManifest] = []
+
+    try:
+        deploy_repo_pages(
+            manifest=manifest,
+            repo_root=tmp_path,
+            client=client,
+            summary="Deploy repo-owned wiki pages",
+            assertion="bot",
+            rollback_root=tmp_path / "rollback",
+            checkpoint=checkpoints.append,
+        )
+    except RuntimeError as error:
+        assert str(error) == "second write failed"
+    else:
+        raise AssertionError("expected the second write to fail")
+
+    assert len(checkpoints) == 2
+    [prepared, after_first] = checkpoints
+    assert all(entry.deploy_action is None for entry in prepared.entries)
+    actions = {entry.title: entry.deploy_action for entry in after_first.entries}
+    assert actions["Module:Erenshor/A"] == "edited"
+    assert actions["Module:Erenshor/B"] is None
 
 
 def test_safe_title_filename_is_injective_for_distinct_titles() -> None:

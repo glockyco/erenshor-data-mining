@@ -119,6 +119,16 @@ class MediaWikiPageRevision:
     start_timestamp: str
 
 
+@dataclass(frozen=True, slots=True)
+class MediaWikiPageSnapshot:
+    """Page source and revision metadata from one revision-bound query."""
+
+    title: str
+    source_text: str | None
+    revision: MediaWikiPageRevision | None
+    start_timestamp: str
+
+
 class MediaWikiClient:
     """Client for MediaWiki API operations.
 
@@ -567,6 +577,100 @@ class MediaWikiClient:
 
         logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
         return result_dict
+
+    def get_page_snapshots(
+        self,
+        titles: Sequence[str],
+        assertion: Literal["user", "bot"] | None = None,
+        assert_user: str | None = None,
+    ) -> dict[str, MediaWikiPageSnapshot]:
+        """Fetch page source and its guarding revision in one API query per batch.
+
+        ``start_timestamp`` is MediaWiki's ``curtimestamp`` from the same response
+        as each page's source and revision. Missing pages are represented by a
+        snapshot whose ``source_text`` and ``revision`` are ``None``.
+        """
+        if assertion not in (None, "user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+        if not titles:
+            return {}
+
+        snapshots: dict[str, MediaWikiPageSnapshot] = {}
+        for i in range(0, len(titles), self.batch_size):
+            batch = titles[i : i + self.batch_size]
+            params: dict[str, Any] = {
+                "action": "query",
+                "titles": "|".join(batch),
+                "prop": "revisions",
+                "rvprop": "ids|timestamp|content",
+                "rvslots": "main",
+                "curtimestamp": "1",
+            }
+            if assertion is not None:
+                params["assert"] = assertion
+            if assert_user is not None:
+                params["assertuser"] = assert_user
+
+            result = self._request(params)
+            start_timestamp = result.get("curtimestamp")
+            if not isinstance(start_timestamp, str) or not start_timestamp:
+                raise MediaWikiAPIError("Missing curtimestamp while fetching page snapshots")
+
+            pages = result.get("query", {}).get("pages", {})
+            if not isinstance(pages, dict):
+                raise MediaWikiAPIError("Invalid page snapshot response")
+            pages_by_title = {
+                page.get("title"): page
+                for page in pages.values()
+                if isinstance(page, dict) and isinstance(page.get("title"), str)
+            }
+            for requested_title in batch:
+                page = pages_by_title.get(requested_title)
+                if page is None:
+                    snapshots[requested_title] = MediaWikiPageSnapshot(
+                        title=requested_title,
+                        source_text=None,
+                        revision=None,
+                        start_timestamp=start_timestamp,
+                    )
+                    continue
+
+                page_id_value = page.get("pageid")
+                page_id = int(page_id_value) if page_id_value is not None else None
+                page_title = str(page.get("title", requested_title))
+                if page_id is None or page_id < 0 or page.get("missing") is True:
+                    snapshots[requested_title] = MediaWikiPageSnapshot(
+                        title=page_title,
+                        source_text=None,
+                        revision=None,
+                        start_timestamp=start_timestamp,
+                    )
+                    continue
+
+                try:
+                    raw_revision = page["revisions"][0]
+                    revision_id = int(raw_revision["revid"])
+                    revision_timestamp = str(raw_revision["timestamp"])
+                    source_text = raw_revision["slots"]["main"]["*"]
+                    if not isinstance(source_text, str):
+                        raise TypeError("revision source is not text")
+                    revision = MediaWikiPageRevision(
+                        title=page_title,
+                        page_id=int(page.get("pageid", page_id)),
+                        revision_id=revision_id,
+                        timestamp=revision_timestamp,
+                        start_timestamp=start_timestamp,
+                    )
+                except (KeyError, IndexError, TypeError, ValueError) as e:
+                    raise MediaWikiAPIError(f"Invalid page snapshot response for '{requested_title}': {e}") from e
+                snapshots[requested_title] = MediaWikiPageSnapshot(
+                    title=page_title,
+                    source_text=source_text,
+                    revision=revision,
+                    start_timestamp=start_timestamp,
+                )
+
+        return snapshots
 
     def null_edit_pages(
         self,

@@ -693,6 +693,9 @@ def deploy_repo_pages_command(
         console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow]")
         return
 
+    def checkpoint_manifest(checkpointed_manifest: RepoWikiPageManifest) -> None:
+        write_repo_page_manifest(checkpointed_manifest, manifest_output)
+
     client = _create_mediawiki_client(cli_ctx)
     try:
         result = deploy_repo_pages(
@@ -703,6 +706,7 @@ def deploy_repo_pages_command(
             assertion=assertion,
             assert_user=assert_user,
             rollback_root=manifest_output.parent / "rollback",
+            checkpoint=checkpoint_manifest,
         )
     finally:
         client.close()
