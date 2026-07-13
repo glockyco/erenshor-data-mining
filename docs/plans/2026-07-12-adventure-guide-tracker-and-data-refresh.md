@@ -242,8 +242,8 @@ work does not belong in a wiki obtainability plan).
 - [x] Verification: the focused guide/mod suite passes (91 tests), the mod
   builds, and temporary playtest artifacts show the complete ordered flow
   for rounds 1 and 6.
-- [ ] Regenerate `guide.json` and `quest-guide.json` from playtest data.
-- [ ] Commit. Message: `feat(guide): model scripted arena rounds as quest steps`
+- [x] Regenerate `guide.json` and `quest-guide.json` from playtest data.
+- [x] Commit. Message: `feat(guide): model scripted arena rounds as quest steps`
 
 ## Non-goals (investigated, deliberately rejected)
 
