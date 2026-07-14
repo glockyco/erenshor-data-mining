@@ -1,0 +1,70 @@
+<includeonly><span
+  class="erenshor-link erenshor-link--item"
+  data-erenshor-kind="item"
+  data-erenshor-page="{{{link|{{{1|{{{item}}}}}}}}}"
+><span style="position:relative; display:inline-block;">
+[[File:{{{image|{{{1|{{{item}}}}}}}}}{{#if:{{{image|}}}||.png}}|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]
+{{#if:{{{sparkle|}}}|
+<span style="position:absolute; top:0; left:0;">[[File:{{{sparkle}}}_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>
+}}
+</span></span></includeonly><noinclude>
+== Template:Gear/Slot ==
+
+Displays a single equipment item with an optional sparkle overlay. The default [[MediaWiki:Gadget-item-tooltips.js|item-tooltips gadget]] opens the linked item's tooltip on hover or keyboard focus.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>item</code> or <code>1</code>
+| Item name. Used for the link target and image filename unless overridden.
+|-
+| <code>image</code>
+| Image filename without an extension. Defaults to the item name.
+|-
+| <code>link</code>
+| Link target. Defaults to the item name. The hover tooltip is loaded from this page.
+|-
+| <code>sparkle</code>
+| Optional sparkle color. Supported values are <code>Blue</code> and <code>Purple</code>.
+|}
+
+=== Usage examples ===
+
+==== Basic item ====
+
+<pre>{{Gear/Slot|Warlord's Charm}}</pre>
+
+{{Gear/Slot|Warlord's Charm}}
+
+==== Item with blue sparkle ====
+
+<pre>{{Gear/Slot|Sivakayan Tricorner|sparkle=Blue}}</pre>
+
+{{Gear/Slot|Sivakayan Tricorner|sparkle=Blue}}
+
+==== Item with a custom image ====
+
+<pre>{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|sparkle=Purple}}</pre>
+
+{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|sparkle=Purple}}
+
+=== Technical notes ===
+
+* Images are displayed at 60 by 60 pixels.
+* Sparkle overlays use files named <code>Blue_Sparkle.gif</code> or <code>Purple_Sparkle.gif</code>.
+* An image supplied through <code>image</code> must include its extension.
+* The original image link remains clickable when its tooltip is open.
+
+=== See also ===
+
+* [[Template:Gear/EmptySlot]]
+* [[Template:Gear/Grid]]
+* [[Template:Gear/Guide]]
+* [[Template:Gear/ProficiencyTable]]
+* [[Template:ItemLink]]
+
+[[Category:Gear Templates]]
+</noinclude>
