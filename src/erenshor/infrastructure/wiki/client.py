@@ -21,7 +21,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, NoReturn
 
 import httpx
 from loguru import logger
@@ -127,6 +127,7 @@ class MediaWikiPageSnapshot:
     source_text: str | None
     revision: MediaWikiPageRevision | None
     start_timestamp: str
+    content_model: str | None = None
 
 
 class MediaWikiClient:
@@ -404,6 +405,43 @@ class MediaWikiClient:
             logger.error(f"Login request failed: {e}")
             raise MediaWikiAuthenticationError(f"Login failed: {e}") from e
 
+    def get_current_user_rights(
+        self,
+        assertion: Literal["user", "bot"] = "user",
+        assert_user: str | None = None,
+    ) -> frozenset[str]:
+        """Return rights for the authenticated API session's current user.
+
+        The assertion parameters are sent to MediaWiki so a privileged caller
+        cannot accidentally preflight a different account.  The response is
+        validated strictly because this check gates interface-admin writes.
+        """
+        if assertion not in ("user", "bot"):
+            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
+
+        params: dict[str, Any] = {
+            "action": "query",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "assert": assertion,
+        }
+        if assert_user is not None:
+            params["assertuser"] = assert_user
+
+        result = self._request(params)
+        query = result.get("query")
+        if not isinstance(query, dict):
+            raise MediaWikiAPIError(f"Invalid user rights response: missing query object: {result}")
+        userinfo = query.get("userinfo")
+        if not isinstance(userinfo, dict):
+            raise MediaWikiAPIError(f"Invalid user rights response: missing userinfo object: {result}")
+        rights = userinfo.get("rights")
+        if not isinstance(rights, list) or not all(isinstance(right, str) and right for right in rights):
+            raise MediaWikiAPIError(
+                f"Invalid user rights response: rights must be a list of non-empty strings: {result}"
+            )
+        return frozenset(rights)
+
     def get_csrf_token(self) -> str:
         """Get CSRF token for edit operations.
 
@@ -602,7 +640,7 @@ class MediaWikiClient:
                 "action": "query",
                 "titles": "|".join(batch),
                 "prop": "revisions",
-                "rvprop": "ids|timestamp|content",
+                "rvprop": "ids|timestamp|content|contentmodel",
                 "rvslots": "main",
                 "curtimestamp": "1",
             }
@@ -651,6 +689,9 @@ class MediaWikiClient:
                     raw_revision = page["revisions"][0]
                     revision_id = int(raw_revision["revid"])
                     revision_timestamp = str(raw_revision["timestamp"])
+                    revision_content_model = raw_revision.get("contentmodel", page.get("contentmodel"))
+                    if revision_content_model is not None and not isinstance(revision_content_model, str):
+                        raise TypeError("contentmodel is not text")
                     source_text = raw_revision["slots"]["main"]["*"]
                     if not isinstance(source_text, str):
                         raise TypeError("revision source is not text")
@@ -668,6 +709,7 @@ class MediaWikiClient:
                     source_text=source_text,
                     revision=revision,
                     start_timestamp=start_timestamp,
+                    content_model=revision_content_model,
                 )
 
         return snapshots
@@ -1082,6 +1124,7 @@ class MediaWikiClient:
         bot: bool = True,
         assertion: Literal["user", "bot"] = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int:
         """Edit an existing page with conflict, timestamp, hash, and user guards."""
         if assertion not in ("user", "bot"):
@@ -1106,6 +1149,10 @@ class MediaWikiClient:
         }
         if assert_user is not None:
             data["assertuser"] = assert_user
+        if content_model is not None:
+            if content_model not in {"css", "javascript", "json", "vue", "wikitext"}:
+                raise ValueError(f"unsupported content model: {content_model}")
+            data["contentmodel"] = content_model
         if minor:
             data["minor"] = "1"
         if bot:
@@ -1155,6 +1202,7 @@ class MediaWikiClient:
         bot: bool = True,
         assertion: Literal["user", "bot"] = "bot",
         assert_user: str | None = None,
+        content_model: str | None = None,
     ) -> int:
         """Create a missing page with timestamp, hash, assertion, and create-only guards."""
         if assertion not in ("user", "bot"):
@@ -1179,6 +1227,10 @@ class MediaWikiClient:
         }
         if assert_user is not None:
             data["assertuser"] = assert_user
+        if content_model is not None:
+            if content_model not in {"css", "javascript", "json", "vue", "wikitext"}:
+                raise ValueError(f"unsupported content model: {content_model}")
+            data["contentmodel"] = content_model
         if minor:
             data["minor"] = "1"
         if bot:
@@ -1219,7 +1271,7 @@ class MediaWikiClient:
         return error.code in ("badtoken", "notoken")
 
     @staticmethod
-    def _raise_safe_write_api_error(title: str, error: MediaWikiAPIError, operation: str) -> None:
+    def _raise_safe_write_api_error(title: str, error: MediaWikiAPIError, operation: str) -> NoReturn:
         """Raise a safe-write-specific exception for known MediaWiki edit failures.
         ``operation`` is the present participle of the attempted action
         (``"editing"`` or ``"creating"``) so the surfaced message names what

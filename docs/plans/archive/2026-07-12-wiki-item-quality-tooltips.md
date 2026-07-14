@@ -1,9 +1,10 @@
 ---
 title: Wiki Item Quality Tooltips
 type: plan
-status: active
+status: implemented
 created: 2026-07-12
 parent: wiki-article-cutover
+archived: 2026-07-14
 ---
 
 # Wiki Item Quality Tooltips
@@ -17,8 +18,9 @@ renderer and migration deterministic.
 - Quality progression is Normal, Improved +1 through +5, Blessed, Ascended;
   runtime IDs are not display ordering.
 - Improved item names use the game's `+1` through `+5` suffixes.
-- Improved derived stats follow the intended non-decreasing progression;
-  the wiki corrects the shipped `CalcResists` omission for quality 15.
+- Improved derived stats follow the released Planar March formulas. The wiki
+  preserves exported release values verbatim and does not rewrite the final
+  Improved row.
 - The game tints one animated sparkle image green for Improved qualities. The
   wiki reuses the published blue animation with a CSS hue shift; it must not
   require a separate green asset.
@@ -110,9 +112,9 @@ renderer and migration deterministic.
   so refreshed pages resolve new icons (e.g. `File:Access Bank.png`).
 - [x] Spike one live page per remaining item kind (aura, charm, scroll, book, mold,
   consumable, container) and verify rendered HTML as the WoWBot deploy account.
-- [ ] Deploy all item article pages on release day only: bulk playtest stats are
-  spoilers until the patch is live (an early partial deploy was reverted).
-- [ ] Enable Improved qualities only after the Planar March patch is live.
+- [ ] Complete the release-day deployment of all item article pages; the
+  playtest stats remained release-gated because they were spoilers.
+- [x] Enable Improved qualities after the Planar March patch went live.
 - [ ] Execute the complete production wiki cutover after explicit approval.
 
 Release-day order: refresh game data from the new build, regenerate pages,

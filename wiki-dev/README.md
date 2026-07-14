@@ -90,6 +90,29 @@ same dark-theme and wiki.gg Vector classes that live pages use. Import prepends
 these shims to `MediaWiki:Common.css` and `MediaWiki:Common.js`; sync never
 overwrites them.
 
+Repo-owned gadgets are declared in `wiki/gadgets/gadgets.toml`. That file is
+the authoritative allowlist, source order, and `MediaWiki:Gadgets-definition`
+registration for local preview and production. During local import, declared
+files under `wiki/gadgets/` replace any same-title live mirror and the importer
+reconciles only the declared gadget lines, preserving unrelated live gadgets.
+
+Production interface deployment uses a dedicated account rather than the
+content bot. Set `interface_username` and `interface_password` under
+`[global.mediawiki]` in `.erenshor/config.local.toml`, then use:
+
+```bash
+uv run erenshor --dry-run wiki deploy-interface
+uv run erenshor wiki deploy-interface
+uv run erenshor wiki rollback-interface
+```
+
+Deployment snapshots every target in one batch, writes revision-guarded edits,
+and checkpoints a manifest plus rollback sidecars under
+`output/wiki-interface/`. Rollback restores edited pages only when their
+revision still matches the deployment; pages created by the deployment are
+reported and deliberately left in place. The ordinary content-bot deployment
+cannot discover or edit `MediaWiki:` interface pages.
+
 
 ## Import local pages
 
@@ -106,6 +129,7 @@ Mappings:
 wiki-dev/interface/MediaWiki/Common.css          -> MediaWiki:Common.css
 wiki-dev/interface/MediaWiki/Sidebar             -> MediaWiki:Sidebar
 wiki-dev/interface/MediaWiki/Gadget-foo.js       -> MediaWiki:Gadget-foo.js
+wiki/gadgets/foo.js                              -> MediaWiki:Gadget-foo.js (repo override)
 wiki/modules/Erenshor/Item.lua                   -> Module:Erenshor/Item
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
 wiki/templates/Item.wiki                         -> Template:Item

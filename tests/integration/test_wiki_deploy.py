@@ -244,6 +244,7 @@ def test_deploy_safe_edit_then_rollback_restores_previous_text(
 
     second_source = "return { v = 2 }\n"
     (tmp_path / source_path).write_text(second_source, encoding="utf-8")
+    manifest = _module_manifest(title, source_path, second_source)
     changed = deploy_repo_pages(
         manifest=manifest,
         repo_root=tmp_path,

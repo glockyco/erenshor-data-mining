@@ -1,0 +1,11 @@
+owned_names = ["erenshor", "item-tooltips"]
+
+[[gadgets]]
+name = "erenshor"
+options = ["ResourceLoader", "default", "hidden", "type=styles"]
+sources = ["erenshor.css"]
+
+[[gadgets]]
+name = "item-tooltips"
+options = ["ResourceLoader", "default", "hidden"]
+sources = ["item-tooltips.js"]

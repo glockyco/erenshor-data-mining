@@ -233,6 +233,8 @@ class TestMediaWikiConfig:
         assert config.upload_minor_edit is True
         assert config.bot_username == ""
         assert config.bot_password == ""
+        assert config.interface_username == ""
+        assert config.interface_password == ""
 
     def test_batch_size_constraints(self):
         """Test that batch sizes respect min/max constraints."""
@@ -267,13 +269,22 @@ class TestMediaWikiConfig:
             MediaWikiConfig(upload_delay=10.1)
 
     def test_custom_credentials(self):
-        """Test setting bot credentials."""
+        """Test setting custom bot credentials."""
         config = MediaWikiConfig(
             bot_username="test_bot",
             bot_password="secret123",
         )
         assert config.bot_username == "test_bot"
         assert config.bot_password == "secret123"
+
+    def test_custom_interface_admin_credentials(self):
+        """Test setting dedicated interface-admin credentials."""
+        config = MediaWikiConfig(
+            interface_username="interface_admin",
+            interface_password="interface_secret",
+        )
+        assert config.interface_username == "interface_admin"
+        assert config.interface_password == "interface_secret"
 
 
 class TestGoogleSheetsConfig:

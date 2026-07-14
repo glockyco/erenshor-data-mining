@@ -19,6 +19,9 @@ Example workflow:
 
 import difflib
 import sys
+import tempfile
+import uuid
+from collections import Counter
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -48,6 +51,17 @@ from erenshor.application.wiki_deploy.refresh import (
     refresh_item_owners_for_source_changes,
 )
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
+from erenshor.application.wiki_interface.deploy import (
+    InterfaceDeployPlan,
+    deploy_interface_pages,
+    plan_interface_pages,
+    rollback_interface_pages,
+)
+from erenshor.application.wiki_interface.manifest import (
+    InterfaceDeployManifest,
+    read_interface_deploy_manifest,
+    write_interface_deploy_manifest,
+)
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
 from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
@@ -79,6 +93,9 @@ app = typer.Typer(
 )
 
 console = Console()
+
+_INTERFACE_ARTIFACT_ROOT = Path("output/wiki-interface")
+_INTERFACE_ROLLBACK_ROOT = Path("rollback")
 
 
 def _read_page_titles(pages_file: str) -> list[str]:
@@ -194,13 +211,125 @@ def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     return client
 
 
+def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+    """Create and log in the dedicated interface-admin MediaWiki client."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    username = wiki_config.interface_username.strip()
+    password = wiki_config.interface_password
+    if not username or not password:
+        raise ValueError(
+            "Interface deployment requires dedicated interface-admin credentials. "
+            "Set [global.mediawiki].interface_username and interface_password in "
+            ".erenshor/config.local.toml; bot_username and bot_password are never used as a fallback."
+        )
+
+    client = MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=username,
+        bot_password=password,
+        batch_size=wiki_config.upload_batch_size,
+        rate_limit_delay=wiki_config.upload_delay,
+        edit_summary=wiki_config.upload_edit_summary,
+        minor_edit=wiki_config.upload_minor_edit,
+    )
+    try:
+        client.login()
+    except Exception:
+        client.close()
+        raise
+    return client
+
+
+def _interface_artifact_root(cli_ctx: CLIContext) -> Path:
+    """Return the dedicated repository-local interface artifact root."""
+    return (cli_ctx.repo_root / _INTERFACE_ARTIFACT_ROOT).resolve()
+
+
+def _resolve_interface_manifest_path(cli_ctx: CLIContext, path: Path) -> Path:
+    """Resolve an interface manifest within the dedicated artifact root."""
+    root = cli_ctx.repo_root.resolve()
+    artifact_root = _interface_artifact_root(cli_ctx)
+    try:
+        artifact_root.relative_to(root)
+    except ValueError as error:
+        raise ValueError("Dedicated interface artifact root must stay inside the repository root") from error
+    resolved = (path if path.is_absolute() else root / path).resolve()
+    try:
+        resolved.relative_to(artifact_root)
+    except ValueError as error:
+        raise ValueError(
+            "Interface manifest path must be inside the repository root and the dedicated interface artifact root"
+        ) from error
+    if resolved == artifact_root:
+        raise ValueError("Interface manifest path must name a file below the dedicated interface artifact root")
+    return resolved
+
+
+def _path_alias(left: Path, right: Path) -> bool:
+    """Return whether two paths identify the same file, including hard links."""
+    if left == right:
+        return True
+    if not left.exists() or not right.exists():
+        return False
+    try:
+        return left.samefile(right)
+    except OSError:
+        return False
+
+
+def _path_is_within(path: Path, parent: Path) -> bool:
+    try:
+        path.relative_to(parent)
+    except ValueError:
+        return False
+    return True
+
+
+def _validate_interface_manifest_output(
+    cli_ctx: CLIContext,
+    manifest_output: Path,
+    plan: InterfaceDeployPlan,
+) -> None:
+    """Reject manifest paths that can overwrite interface inputs or rollback artifacts."""
+    root = cli_ctx.repo_root.resolve()
+    artifact_root = _interface_artifact_root(cli_ctx)
+    manifest_output = manifest_output.resolve()
+    rollback_location = (artifact_root / _INTERFACE_ROLLBACK_ROOT).resolve()
+    if _path_is_within(manifest_output, rollback_location):
+        raise ValueError("Interface manifest path must not alias the interface rollback location")
+    if rollback_location.exists():
+        for sidecar in rollback_location.rglob("*"):
+            if sidecar.is_file() and _path_alias(manifest_output, sidecar):
+                raise ValueError(f"Interface manifest path aliases rollback sidecar: {sidecar}")
+
+    managed_paths = [root / entry.source_path for entry in plan.entries]
+    managed_paths.append(root / "wiki" / "gadgets" / "gadgets.toml")
+    for managed_path in managed_paths:
+        if _path_alias(manifest_output, managed_path.resolve()):
+            raise ValueError(f"Interface manifest path aliases managed source: {managed_path}")
+
+
+def _new_interface_rollback_root(cli_ctx: CLIContext) -> Path:
+    """Reserve a collision-free rollback directory for one deployment."""
+    rollback_parent = _interface_artifact_root(cli_ctx) / _INTERFACE_ROLLBACK_ROOT
+    rollback_parent.mkdir(parents=True, exist_ok=True)
+    for _ in range(128):
+        candidate = rollback_parent / f"deploy-{uuid.uuid4().hex}"
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            continue
+        return candidate
+    return Path(tempfile.mkdtemp(prefix="deploy-", dir=rollback_parent))
+
+
 def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_titles: set[str]) -> None:
     """Report changed Cargo-declaring templates so their tables can be recreated.
     Recreation is intentionally not automated: the Cargo API cannot switch in a
     replacement table, so an API-driven recreate would force a downtime window
-    while the table repopulates. When a declaration's fields change, recreate the
-    table via Special:CargoTables, which builds a replacement table and switches
-    it in with no downtime.
+    while the table repopulates. When a declaration's fields change, recreate
+    the table via Special:CargoTables, which builds a replacement table and
+    switches it in with no downtime.
     """
     changed = [entry for entry in manifest.entries if entry.declares_cargo_table and entry.title in changed_titles]
     if not changed:
@@ -356,7 +485,7 @@ def fetch(
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Fetching wiki pages[/bold cyan]\n"
+            "[bold cyan]Fetching wiki pages[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
             f"Dry-run: {cli_ctx.dry_run}\n"
             f"Pages: {'from ' + pages_file if pages_file else 'all'}",
@@ -646,6 +775,170 @@ def sync_interface(
         f"({len(result.changed_pages)} changed) and {len(result.assets)} CSS assets to {image_root} "
         f"({len(changed_assets)} changed)"
     )
+
+
+@app.command("deploy-interface")
+def deploy_interface_command(
+    ctx: typer.Context,
+    manifest_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--manifest",
+            help="Path for the deployment manifest (default: output/wiki-interface/deploy-manifest.json).",
+        ),
+    ] = None,
+    summary: Annotated[
+        str,
+        typer.Option("--summary", help="Edit summary for interface page uploads."),
+    ] = "Deploy repo-owned interface gadgets",
+) -> None:
+    """Deploy repo-owned gadget source pages and Gadgets-definition with an interface-admin account."""
+    cli_ctx: CLIContext = ctx.obj
+    manifest_output = _resolve_interface_manifest_path(
+        cli_ctx,
+        manifest_path if manifest_path is not None else Path("output/wiki-interface/deploy-manifest.json"),
+    )
+    interface_username = cli_ctx.config.global_.mediawiki.interface_username.strip()
+    client: MediaWikiClient | None = None
+    try:
+        client = _create_interface_mediawiki_client(cli_ctx)
+        plan = plan_interface_pages(
+            cli_ctx.repo_root,
+            client,
+            assert_user=interface_username,
+        )
+        _validate_interface_manifest_output(cli_ctx, manifest_output, plan)
+        if cli_ctx.dry_run:
+            rights = client.get_current_user_rights(assertion="user", assert_user=interface_username)
+            if "editinterface" not in rights:
+                raise ValueError(
+                    f"Interface account {interface_username!r} lacks the MediaWiki 'editinterface' right; "
+                    "use a dedicated interface-admin account."
+                )
+            counts = Counter(action.planned_action for action in plan.entries)
+            console.print(f"[yellow]Dry run: {len(plan.entries)} interface actions planned[/yellow]")
+            for status, count in sorted(counts.items(), key=lambda item: str(item[0])):
+                console.print(f"  {status}: {count}")
+            return
+
+        def checkpoint(checkpointed_manifest: InterfaceDeployManifest) -> None:
+            write_interface_deploy_manifest(checkpointed_manifest, manifest_output)
+
+        result = deploy_interface_pages(
+            plan,
+            repo_root=cli_ctx.repo_root,
+            client=client,
+            summary=summary,
+            rollback_root=_new_interface_rollback_root(cli_ctx),
+            checkpoint=checkpoint,
+        )
+        write_interface_deploy_manifest(result.manifest, manifest_output)
+    except Exception as e:
+        console.print(f"[red]Error during interface deployment: {e}[/red]")
+        logger.exception("Interface deployment failed")
+        raise typer.Exit(1) from e
+    finally:
+        if client is not None:
+            client.close()
+
+    completed_counts = Counter(
+        action for entry in result.manifest.entries if (action := entry.deploy_action) is not None
+    )
+    console.print(
+        "[green]Interface deploy complete[/green] "
+        + " ".join(
+            f"{status}: {count}" for status, count in sorted(completed_counts.items(), key=lambda item: str(item[0]))
+        )
+        + f" Manifest: {manifest_output}"
+    )
+
+
+@app.command("rollback-interface")
+def rollback_interface_command(
+    ctx: typer.Context,
+    manifest_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--manifest",
+            help="Deployment manifest to restore (default: output/wiki-interface/deploy-manifest.json).",
+        ),
+    ] = None,
+    summary: Annotated[
+        str,
+        typer.Option("--summary", help="Edit summary for interface rollback edits."),
+    ] = "Rollback repo-owned interface gadgets",
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Restore even if a page changed since the interface deploy."),
+    ] = False,
+) -> None:
+    """Restore repo-owned interface pages without deleting pages created by the deploy."""
+    cli_ctx: CLIContext = ctx.obj
+    manifest_file = _resolve_interface_manifest_path(
+        cli_ctx,
+        manifest_path if manifest_path is not None else Path("output/wiki-interface/deploy-manifest.json"),
+    )
+    if not manifest_file.exists():
+        console.print(f"[red]Interface deployment manifest not found: {manifest_file}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        manifest = read_interface_deploy_manifest(manifest_file)
+    except Exception as e:
+        console.print(f"[red]Invalid interface deployment manifest: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    interface_username = cli_ctx.config.global_.mediawiki.interface_username.strip()
+    client: MediaWikiClient | None = None
+    try:
+        client = _create_interface_mediawiki_client(cli_ctx)
+        if cli_ctx.dry_run:
+            rights = client.get_current_user_rights(assertion="user", assert_user=interface_username)
+            if "editinterface" not in rights:
+                raise ValueError(
+                    f"Interface account {interface_username!r} lacks the MediaWiki 'editinterface' right; "
+                    "use a dedicated interface-admin account."
+                )
+            restorable = sum(
+                entry.deploy_action == "edited" and entry.new_revision_id is not None for entry in manifest.entries
+            )
+            created = sum(
+                entry.deploy_action == "created" and entry.new_revision_id is not None for entry in manifest.entries
+            )
+            console.print(
+                f"[yellow]Dry run: would restore {restorable} interface pages; "
+                f"created pages left in place: {created}[/yellow]"
+            )
+            return
+
+        result = rollback_interface_pages(
+            manifest,
+            cli_ctx.repo_root,
+            client,
+            summary,
+            force=force,
+            assert_user=interface_username,
+        )
+    except Exception as e:
+        console.print(f"[red]Error during interface rollback: {e}[/red]")
+        logger.exception("Interface rollback failed")
+        raise typer.Exit(1) from e
+    finally:
+        if client is not None:
+            client.close()
+
+    console.print(
+        f"[green]Interface rollback complete[/green] Restored: {len(result.restored_titles)} "
+        f"Created left in place: {len(result.created_titles)}"
+    )
+    if result.restored_titles:
+        console.print("[green]Restored interface pages:[/green]")
+        for title in result.restored_titles:
+            console.print(f"  {title}", markup=False)
+    if result.created_titles:
+        console.print("[yellow]Created interface pages were left in place (no automatic deletion):[/yellow]")
+        for title in result.created_titles:
+            console.print(f"  {title}", markup=False)
 
 
 @app.command("deploy-repo-pages")

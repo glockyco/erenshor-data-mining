@@ -40,6 +40,9 @@ upload_edit_summary = "Automated wiki update"
 upload_minor_edit = true
 bot_username = ""
 bot_password = ""
+# Dedicated interface-admin credentials; set only in .erenshor/config.local.toml.
+interface_username = ""
+interface_password = ""
 
 [global.google_sheets]
 credentials_file = "$HOME/.config/erenshor/google-credentials.json"

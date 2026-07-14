@@ -50,32 +50,23 @@ def test_build_repo_page_manifest_maps_repo_paths_to_wiki_titles(tmp_path: Path)
     assert entries["Module:Erenshor/Data/Items/Weapons"].ownership_class == "generated_data"
 
 
-def test_build_repo_page_manifest_owns_gadget_css(tmp_path: Path) -> None:
-    """Repo gadget stylesheets map to MediaWiki:Gadget-* pages as sanitized CSS."""
+def test_build_repo_page_manifest_excludes_interface_sources(tmp_path: Path) -> None:
+    """Ordinary deployment excludes gadget CSS/JS while preserving canonical page order."""
     write_page(tmp_path, "wiki/gadgets/erenshor.css", ".item-tooltip { color: #fff; }\n")
-
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
-
-    [entry] = manifest.entries
-    assert entry.title == "MediaWiki:Gadget-erenshor.css"
-    assert entry.source_path == "wiki/gadgets/erenshor.css"
-    assert entry.upload_stage == "gadget"
-    assert entry.ownership_class == "gadget"
-    assert entry.content_model == "sanitized-css"
-    assert entry.declares_cargo_table is False
-
-
-def test_build_repo_page_manifest_uploads_gadget_before_templates(tmp_path: Path) -> None:
-    """Gadget CSS uploads before templates so styling is present when pages render."""
+    write_page(tmp_path, "wiki/gadgets/erenshor.js", "console.log('interface');\n")
     write_page(tmp_path, "wiki/templates/Item.wiki", "<includeonly>x</includeonly>\n")
-    write_page(tmp_path, "wiki/gadgets/erenshor.css", ".item-tooltip { color: #fff; }\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", "return {}\n")
 
     manifest = build_repo_page_manifest(tmp_path, variant="main")
 
     assert [entry.title for entry in manifest.entries] == [
-        "MediaWiki:Gadget-erenshor.css",
+        "Module:Erenshor/Data/Items",
+        "Module:Erenshor/Item",
         "Template:Item",
     ]
+    assert all(not entry.title.startswith("MediaWiki:Gadget-") for entry in manifest.entries)
+    assert all(not entry.source_path.startswith("wiki/gadgets/") for entry in manifest.entries)
 
 
 def test_build_repo_page_manifest_hashes_source_bytes(tmp_path: Path) -> None:

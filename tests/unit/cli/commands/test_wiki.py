@@ -696,6 +696,300 @@ class TestWikiRefreshEmbeddedCommand:
         assert client.closed is True
 
 
+class TestWikiInterfaceDeployCommands:
+    """Test the dedicated interface-admin deploy and rollback commands."""
+
+    def test_deploy_dry_run_checks_rights_without_mutating(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+        from erenshor.application.wiki_interface.deploy import (
+            InterfaceDeployPlan,
+            InterfaceDeployPlanEntry,
+        )
+
+        client = MagicMock()
+        client.get_current_user_rights.return_value = frozenset({"editinterface"})
+        plan = InterfaceDeployPlan(
+            entries=(
+                InterfaceDeployPlanEntry(
+                    title="MediaWiki:Gadget-a.js",
+                    source_path="wiki/gadgets/a.js",
+                    source_sha256="a" * 64,
+                    content_model="javascript",
+                    planned_action="created",
+                    new_text="window.a = true;\n",
+                    snapshot=MagicMock(),
+                ),
+            ),
+        )
+        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        artifact_root = tmp_path / "artifacts"
+        monkeypatch.setattr(wiki_command, "_interface_artifact_root", lambda _ctx: artifact_root)
+        monkeypatch.setattr(
+            wiki_command,
+            "_resolve_interface_manifest_path",
+            lambda _ctx, _path: artifact_root / "manifest.json",
+        )
+        monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
+        deploy = MagicMock()
+        monkeypatch.setattr(wiki_command, "deploy_interface_pages", deploy)
+
+        result = runner.invoke(app, ["--dry-run", "wiki", "deploy-interface"])
+
+        assert result.exit_code == 0
+        assert "created: 1" in result.output
+        client.get_current_user_rights.assert_called_once_with(assertion="user", assert_user="")
+        deploy.assert_not_called()
+        assert not artifact_root.exists()
+        client.close.assert_called_once_with()
+
+    def test_deploy_persists_service_checkpoints(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+        from erenshor.application.wiki_interface.deploy import (
+            InterfaceDeployPlan,
+            InterfaceDeployResult,
+        )
+        from erenshor.application.wiki_interface.manifest import (
+            InterfaceDeployManifest,
+            InterfacePageManifestEntry,
+        )
+
+        client = MagicMock()
+        plan = InterfaceDeployPlan(entries=())
+        manifest = InterfaceDeployManifest(
+            entries=(
+                InterfacePageManifestEntry(
+                    title="MediaWiki:Gadget-a.js",
+                    source_path="wiki/gadgets/a.js",
+                    source_sha256="a" * 64,
+                    content_model="javascript",
+                    new_revision_id=2,
+                    deploy_action="created",
+                    mutation_state="applied",
+                    deployed_text_sha256="c" * 64,
+                ),
+                InterfacePageManifestEntry(
+                    title="MediaWiki:Gadgets-definition",
+                    source_path="wiki/gadgets/gadgets.toml",
+                    source_sha256="b" * 64,
+                    content_model="wikitext",
+                    deploy_action="unchanged",
+                    mutation_state="applied",
+                ),
+            ),
+            rollback_root="output/wiki-interface/rollback/deploy-test",
+        )
+        writes: list[tuple[InterfaceDeployManifest, Path]] = []
+
+        def fake_deploy(
+            received_plan,
+            *,
+            repo_root,
+            client,
+            summary,
+            rollback_root,
+            checkpoint,
+        ):
+            assert received_plan is plan
+            assert rollback_root == tmp_path / "rollback"
+            checkpoint(manifest)
+            return InterfaceDeployResult(manifest=manifest)
+
+        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "_new_interface_rollback_root", lambda _ctx: tmp_path / "rollback")
+        monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
+        monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
+        monkeypatch.setattr(
+            wiki_command,
+            "write_interface_deploy_manifest",
+            lambda saved, path: writes.append((saved, path)),
+        )
+
+        result = runner.invoke(app, ["wiki", "deploy-interface"])
+
+        assert result.exit_code == 0
+        assert "created: 1" in result.output
+        assert "unchanged: 1" in result.output
+        assert len(writes) == 2
+        assert writes[0] == writes[1]
+        client.close.assert_called_once_with()
+
+    def test_interface_client_never_falls_back_to_bot_credentials(self) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        mediawiki = SimpleNamespace(
+            api_url="https://example.test/api.php",
+            bot_username="ContentBot",
+            bot_password="bot-secret",
+            interface_username="",
+            interface_password="",
+        )
+        cli_ctx = SimpleNamespace(config=SimpleNamespace(global_=SimpleNamespace(mediawiki=mediawiki)))
+
+        with (
+            patch.object(wiki_command, "MediaWikiClient") as client_class,
+            pytest.raises(ValueError, match="never used as a fallback"),
+        ):
+            wiki_command._create_interface_mediawiki_client(cli_ctx)
+
+        client_class.assert_not_called()
+
+    def test_manifest_path_must_stay_inside_repo(self, tmp_path: Path) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        cli_ctx = SimpleNamespace(repo_root=tmp_path / "repo")
+        cli_ctx.repo_root.mkdir()
+
+        with pytest.raises(ValueError, match="inside the repository root"):
+            wiki_command._resolve_interface_manifest_path(cli_ctx, tmp_path / "outside.json")
+
+    def test_manifest_path_rejects_source_spec_and_rollback_aliases(self, tmp_path: Path) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        repo = tmp_path / "repo"
+        source = repo / "wiki" / "gadgets" / "a.js"
+        spec = repo / "wiki" / "gadgets" / "gadgets.toml"
+        source.parent.mkdir(parents=True)
+        source.write_text("window.a = true;\n", encoding="utf-8")
+        spec.write_text("[gadgets]\n", encoding="utf-8")
+        artifact_root = repo / "output" / "wiki-interface"
+        artifact_root.mkdir(parents=True)
+        rollback = artifact_root / "rollback"
+        rollback.mkdir()
+        sidecar = rollback / "old.wiki"
+        sidecar.write_text("old\n", encoding="utf-8")
+
+        source_alias = artifact_root / "source-alias"
+        source_alias.hardlink_to(source)
+        spec_alias = artifact_root / "spec-alias"
+        spec_alias.hardlink_to(spec)
+        sidecar_alias = artifact_root / "sidecar-alias"
+        sidecar_alias.hardlink_to(sidecar)
+        cli_ctx = SimpleNamespace(repo_root=repo)
+        plan = SimpleNamespace(entries=(SimpleNamespace(source_path="wiki/gadgets/a.js"),))
+
+        for alias in (source_alias, spec_alias, sidecar_alias):
+            manifest = wiki_command._resolve_interface_manifest_path(cli_ctx, alias)
+            with pytest.raises(ValueError, match="alias"):
+                wiki_command._validate_interface_manifest_output(cli_ctx, manifest, plan)
+
+        rollback_manifest = wiki_command._resolve_interface_manifest_path(cli_ctx, rollback / "manifest.json")
+        with pytest.raises(ValueError, match="rollback"):
+            wiki_command._validate_interface_manifest_output(cli_ctx, rollback_manifest, plan)
+
+    def test_real_deploys_reserve_unique_rollback_roots(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        artifact_root = tmp_path / "artifacts"
+        monkeypatch.setattr(wiki_command, "_interface_artifact_root", lambda _ctx: artifact_root)
+        manifest_path = artifact_root / "deploy-manifest.json"
+        monkeypatch.setattr(wiki_command, "_resolve_interface_manifest_path", lambda _ctx, _path: manifest_path)
+        client = MagicMock()
+        client.get_current_user_rights.return_value = frozenset({"editinterface"})
+        plan = SimpleNamespace(entries=())
+        roots: list[Path] = []
+
+        def fake_deploy(*_args, rollback_root: Path, **_kwargs):
+            roots.append(rollback_root)
+            return SimpleNamespace(manifest=SimpleNamespace(entries=()))
+
+        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
+        monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
+        monkeypatch.setattr(wiki_command, "write_interface_deploy_manifest", lambda *_args: None)
+
+        first = runner.invoke(app, ["wiki", "deploy-interface"])
+        second = runner.invoke(app, ["wiki", "deploy-interface"])
+
+        assert first.exit_code == 0
+        assert second.exit_code == 0
+        assert len(roots) == 2
+        assert roots[0] != roots[1]
+        assert roots[0].is_dir() and roots[1].is_dir()
+        assert roots[0].parent == roots[1].parent == artifact_root / "rollback"
+
+    def test_interrupted_deploy_keeps_prior_rollback_root_isolated(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        artifact_root = tmp_path / "artifacts"
+        monkeypatch.setattr(wiki_command, "_interface_artifact_root", lambda _ctx: artifact_root)
+        manifest_path = artifact_root / "deploy-manifest.json"
+        monkeypatch.setattr(wiki_command, "_resolve_interface_manifest_path", lambda _ctx, _path: manifest_path)
+        client = MagicMock()
+        client.get_current_user_rights.return_value = frozenset({"editinterface"})
+        plan = SimpleNamespace(entries=())
+        roots: list[Path] = []
+        calls = 0
+
+        def fake_deploy(*_args, rollback_root: Path, **_kwargs):
+            nonlocal calls
+            calls += 1
+            roots.append(rollback_root)
+            if calls == 1:
+                (rollback_root / "journal.wiki").write_text("first\n", encoding="utf-8")
+                raise RuntimeError("interrupted")
+            return SimpleNamespace(manifest=SimpleNamespace(entries=()))
+
+        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
+        monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
+        monkeypatch.setattr(wiki_command, "write_interface_deploy_manifest", lambda *_args: None)
+
+        interrupted = runner.invoke(app, ["wiki", "deploy-interface"])
+        completed = runner.invoke(app, ["wiki", "deploy-interface"])
+
+        assert interrupted.exit_code == 1
+        assert completed.exit_code == 0
+        assert roots[0] != roots[1]
+        assert (roots[0] / "journal.wiki").read_text(encoding="utf-8") == "first\n"
+
+    def test_rollback_dry_run_counts_only_deployed_edits(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest_path = tmp_path / "deploy-manifest.json"
+        manifest_path.write_text("placeholder", encoding="utf-8")
+        monkeypatch.setattr(wiki_command, "_resolve_interface_manifest_path", lambda _ctx, _path: manifest_path)
+        manifest = SimpleNamespace(
+            entries=(
+                SimpleNamespace(deploy_action="edited", new_revision_id=12, rollback_text_source="r/edited.wiki"),
+                SimpleNamespace(deploy_action=None, new_revision_id=None, rollback_text_source="r/pending.wiki"),
+                SimpleNamespace(deploy_action="created", new_revision_id=14, rollback_text_source=None),
+            )
+        )
+        monkeypatch.setattr(wiki_command, "read_interface_deploy_manifest", lambda _path: manifest)
+        client = MagicMock()
+        client.get_current_user_rights.return_value = frozenset({"editinterface"})
+        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+
+        result = runner.invoke(app, ["--dry-run", "wiki", "rollback-interface", "--manifest", str(manifest_path)])
+
+        assert result.exit_code == 0
+        assert "would restore 1 interface pages" in result.output
+        assert "created pages left in place: 1" in result.output
+        client.close.assert_called_once_with()
+
+
 class TestWikiRollbackRepoCommand:
     """Test manifest-backed rollback command."""
 

@@ -2,8 +2,8 @@
 """Import repository-owned wiki pages into a local MediaWiki instance.
 
 This helper is intentionally small and explicit. It is for the local dev wiki,
-not production deployment. Production deploys should use the project CLI with
-basetimestamp/revision protection once that path exists.
+not production deployment. Production interface pages use the dedicated guarded
+interface-deploy path rather than this local importer.
 """
 
 from __future__ import annotations
@@ -13,6 +13,13 @@ from pathlib import Path
 from typing import NamedTuple
 
 import httpx
+
+from erenshor.application.wiki_interface.gadgets import (
+    GadgetSpec,
+    gadget_source_pages,
+    load_gadget_spec,
+    reconcile_definition,
+)
 
 REQUIRED_INTERFACE_FILES = frozenset(
     {
@@ -29,12 +36,6 @@ REQUIRED_INTERFACE_FILES = frozenset(
     }
 )
 
-# Registration line for the repo-owned presentation gadget. A CSS-only
-# `hidden|default` gadget loads for everyone and cannot be disabled, the
-# documented modular alternative to MediaWiki:Common.css. The live cutover adds
-# the same line to the production Gadgets-definition.
-GADGET_DEFINITION_LINE = "* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css"
-
 
 class PageSource(NamedTuple):
     """A local file and the MediaWiki page title it represents."""
@@ -49,11 +50,35 @@ def api_url(base_url: str) -> str:
     return f"{base_url.rstrip('/')}/api.php"
 
 
-def discover_pages(root: Path) -> list[PageSource]:
-    """Discover interface, module, template, and fixture article pages."""
-    pages: list[PageSource] = []
+def _load_gadget_spec(root: Path) -> GadgetSpec | None:
+    """Load the repository gadget allowlist when this root has one."""
+    spec_path = root / "wiki" / "gadgets" / "gadgets.toml"
+    return load_gadget_spec(root) if spec_path.is_file() else None
 
-    pages.extend(discover_interface_pages(root))
+
+def _discover_gadget_pages(root: Path, spec: GadgetSpec) -> list[PageSource]:
+    """Map allowlisted gadget sources to local MediaWiki page sources."""
+    return [
+        PageSource(title=source.title, path=root / source.source_path) for source in gadget_source_pages(spec, root)
+    ]
+
+
+def discover_pages(root: Path) -> list[PageSource]:
+    """Discover interface, gadget, module, template, and fixture pages."""
+    spec = _load_gadget_spec(root)
+    pages: list[PageSource] = []
+    definition_pages: list[PageSource] = []
+
+    interface_pages = discover_interface_pages(root, spec=spec)
+    if spec is None:
+        pages.extend(interface_pages)
+    else:
+        for page in interface_pages:
+            if page.title == "MediaWiki:Gadgets-definition":
+                definition_pages.append(page)
+            else:
+                pages.append(page)
+        pages.extend(_discover_gadget_pages(root, spec))
 
     modules_dir = root / "wiki" / "modules"
     if modules_dir.exists():
@@ -80,12 +105,6 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
-    gadgets_dir = root / "wiki" / "gadgets"
-    if gadgets_dir.exists():
-        for path in sorted(gadgets_dir.rglob("*.css")):
-            title = "MediaWiki:Gadget-" + path.name
-            pages.append(PageSource(title=title, path=path))
-
     fixture_pages_dir = root / "wiki-dev" / "fixtures" / "pages"
     if fixture_pages_dir.exists():
         for path in sorted(fixture_pages_dir.rglob("*.wiki")):
@@ -93,11 +112,18 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
+    pages.extend(definition_pages)
     return pages
 
 
-def discover_interface_pages(root: Path) -> list[PageSource]:
-    """Discover synced live MediaWiki interface pages for local preview."""
+def discover_interface_pages(root: Path, *, spec: GadgetSpec | None = None) -> list[PageSource]:
+    """Discover synced live interface pages for local preview.
+
+    Managed gadget source pages are omitted because they are imported directly
+    from ``wiki/gadgets`` in allowlist order by :func:`discover_pages`.
+    """
+    if spec is None:
+        spec = _load_gadget_spec(root)
     interface_dir = root / "wiki-dev" / "interface" / "MediaWiki"
     if not interface_dir.exists():
         raise RuntimeError(
@@ -119,18 +145,22 @@ def discover_interface_pages(root: Path) -> list[PageSource]:
     theme_js_path = root / "wiki-dev" / "interface" / "theme-shim.js"
     theme_js = theme_js_path.read_text(encoding="utf-8") if theme_js_path.exists() else ""
 
+    managed_titles = {source.title for source in gadget_source_pages(spec, root)} if spec is not None else set()
+
     pages: list[PageSource] = []
     for path in sorted(interface_dir.iterdir()):
         if not path.is_file():
             continue
         title = "MediaWiki:" + path.name.replace("__", "/")
+        if title in managed_titles:
+            continue
         content = None
         if path.name == "Common.css" and theme_css:
             content = theme_css + "\n" + path.read_text(encoding="utf-8")
         if path.name == "Common.js" and theme_js:
             content = theme_js + "\n" + path.read_text(encoding="utf-8")
-        if path.name == "Gadgets-definition":
-            content = path.read_text(encoding="utf-8").rstrip() + "\n" + GADGET_DEFINITION_LINE + "\n"
+        if path.name == "Gadgets-definition" and spec is not None:
+            content = reconcile_definition(path.read_text(encoding="utf-8"), spec)
         pages.append(PageSource(title=title, path=path, content=content))
     return pages
 

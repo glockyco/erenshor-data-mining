@@ -183,7 +183,9 @@ class MediaWikiConfig(BaseModel):
 
     Supports fetching wiki templates and uploading generated pages.
     Bot credentials are loaded from config.toml or .erenshor/config.local.toml.
-    Store sensitive credentials in config.local.toml only (gitignored).
+    Interface-admin credentials are a separate account and must be stored only
+    in .erenshor/config.local.toml. Store all sensitive credentials in
+    config.local.toml only (gitignored).
     """
 
     api_url: str = Field(
@@ -229,6 +231,20 @@ class MediaWikiConfig(BaseModel):
     bot_password: str = Field(
         default="",
         description="MediaWiki bot password from Special:BotPasswords (set in .erenshor/config.local.toml)",
+    )
+    interface_username: str = Field(
+        default="",
+        description=(
+            "Dedicated MediaWiki interface-admin username (set only in "
+            ".erenshor/config.local.toml; never use bot_username as a fallback)"
+        ),
+    )
+    interface_password: str = Field(
+        default="",
+        description=(
+            "Dedicated MediaWiki interface-admin password (set only in "
+            ".erenshor/config.local.toml; never use bot_password as a fallback)"
+        ),
     )
 
 

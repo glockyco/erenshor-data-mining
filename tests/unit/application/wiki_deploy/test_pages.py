@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
+
+import pytest
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, build_repo_page_manifest
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
@@ -78,6 +81,28 @@ class RecordingWikiClient:
     ) -> int:
         self.safe_creates.append((title, content, start_timestamp, summary, assertion, assert_user))
         return 301
+
+
+def test_repo_page_manifest_rejects_mediawiki_interface_titles(tmp_path: Path) -> None:
+    """A content-bot manifest rejects every case and whitespace spelling of the interface namespace."""
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    normal_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    [normal_entry] = normal_manifest.entries
+
+    for title in ("MediaWiki:Gadget-erenshor.css", "mediawiki:Example", "mEdIaWiKi:Example", "  MediaWiki:Example  "):
+        with pytest.raises(ValueError, match="cannot contain MediaWiki interface pages"):
+            RepoWikiPageManifest(entries=(replace(normal_entry, title=title),))
+
+
+def test_repo_page_manifest_preserves_non_interface_mediawiki_titles(tmp_path: Path) -> None:
+    """The guard only parses the namespace prefix, not later title text."""
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    normal_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    [normal_entry] = normal_manifest.entries
+
+    for title in ("Module:MediaWiki:Example", "MediaWiki-inspired article", ":MediaWiki:Example"):
+        manifest = RepoWikiPageManifest(entries=(replace(normal_entry, title=title),))
+        assert manifest.entries[0].title == title
 
 
 def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:

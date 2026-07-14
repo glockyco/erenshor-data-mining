@@ -420,7 +420,7 @@ class TestMediaWikiClientGetPages:
         assert snapshots["Item:Missing"].source_text is None
         assert snapshots["Item:Missing"].revision is None
         request_params = mock_http_client.get.call_args.kwargs["params"]
-        assert request_params["rvprop"] == "ids|timestamp|content"
+        assert request_params["rvprop"] == "ids|timestamp|content|contentmodel"
         assert request_params["curtimestamp"] == "1"
         assert request_params["assert"] == "bot"
         assert request_params["assertuser"] == "Bot"
@@ -648,6 +648,7 @@ class TestMediaWikiClientSafeCreatePage:
                 summary="Create repo-owned module",
                 assertion="bot",
                 assert_user="ErenshorBot",
+                content_model="json",
             )
 
         assert new_revision_id == 1235
@@ -667,6 +668,7 @@ class TestMediaWikiClientSafeCreatePage:
         assert edit_request.data["md5"] == hashlib.md5(b"return {}", usedforsecurity=False).hexdigest()
         assert edit_request.data["assert"] == "bot"
         assert edit_request.data["assertuser"] == "ErenshorBot"
+        assert edit_request.data["contentmodel"] == "json"
         assert edit_request.data["bot"] == "1"
 
     def test_safe_create_page_refreshes_csrf_token_once_after_badtoken(self) -> None:
@@ -749,6 +751,7 @@ class TestMediaWikiClientSafeEditPage:
             summary="Deploy repo-owned template",
             assertion="bot",
             assert_user="ErenshorBot",
+            content_model="wikitext",
         )
 
         assert new_revision_id == 1235
@@ -759,6 +762,7 @@ class TestMediaWikiClientSafeEditPage:
         assert call_data["summary"] == "Deploy repo-owned template"
         assert call_data["token"] == "test_csrf_token"
         assert call_data["baserevid"] == "1234"
+        assert call_data["contentmodel"] == "wikitext"
         assert call_data["starttimestamp"] == "2026-06-04T12:00:00Z"
         assert call_data["md5"] == hashlib.md5(b"new template source", usedforsecurity=False).hexdigest()
         assert call_data["assert"] == "bot"
