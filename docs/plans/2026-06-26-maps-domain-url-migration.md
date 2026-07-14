@@ -221,15 +221,15 @@ These are release gates, not repository-code substitutes. No deployment is
 authorized until each applicable checkbox is explicitly completed by the
 responsible operator.
 
-- [ ] Confirm Cloudflare account/API-token access, the correct account and
-  `compendiums.org` zone, permission to attach custom domains, and
-  certificate/DNS readiness for `erenshor.compendiums.org`. Confirm the
-  existing `erenshor-maps` Worker and workers.dev route remain available.
+- [x] Confirm Cloudflare account/API-token access, the correct account and
+  `compendiums.org` zone, permission to attach custom domains, and the
+  existing `erenshor-maps` Worker and workers.dev route. Certificate and DNS
+  readiness remain deployment gates below.
 - [ ] In Google Search Console, create the new custom-domain property and obtain
   its verification token for the repository static file. Keep access to the
   old property and legacy token until redirect and indexing verification is
   complete. Do not run Change of Address yet.
-- [ ] Confirm wiki-admin ownership of `Template:MapLink` and its transclusions,
+- [x] Confirm wiki-admin ownership of `Template:MapLink` and its transclusions,
   permission to deploy the Lua/template/testcase changes, and the maintainer
   who can update the Steam guide and other externally maintained links. These
   are release gates, not assumptions encoded in repository code.
