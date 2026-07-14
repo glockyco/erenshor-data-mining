@@ -3,7 +3,6 @@
 
 	const ITEM_LINK_SELECTOR = '.erenshor-link--item[data-erenshor-page]';
 	const TOOLTIP_ID = 'erenshor-item-tooltip';
-	const QUALITY_SET_OVERLAY_CLASS = 'erenshor-item-tooltip-overlay--quality-set';
 	const HOVER_INTENT_DELAY = 300;
 	const COARSE_POINTER_QUERY = '(pointer: coarse)';
 	const KNOWN_MISSING_CODES = new Set( [ 'invalidtitle', 'missingtitle', 'nosuchpageid' ] );
@@ -257,11 +256,6 @@
 				}
 
 				const importedPresentation = document.importNode( card, true );
-				overlay.classList.toggle(
-					QUALITY_SET_OVERLAY_CLASS,
-					importedPresentation.nodeType === 1 &&
-					importedPresentation.classList.contains( 'item-tooltip-quality-set' )
-				);
 				overlay.replaceChildren( importedPresentation );
 				overlay.dataset.state = 'ready';
 				positionOverlay();
@@ -278,11 +272,12 @@
 		}
 		function requestSpec( target ) {
 			const title = normalizeTitle( target.dataset.erenshorPage );
-			const quality = target.hasAttribute( 'data-erenshor-quality' ) ?
-				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : null;
+			const hasQuality = target.hasAttribute( 'data-erenshor-quality' );
+			const quality = hasQuality ?
+				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : 'Normal';
 			const hasKey = target.hasAttribute( 'data-erenshor-key' );
 			const key = hasKey ? target.getAttribute( 'data-erenshor-key' ) : null;
-			if ( !title || ( target.hasAttribute( 'data-erenshor-quality' ) && !quality ) ||
+			if ( !title || ( hasQuality && !quality ) ||
 				( hasKey && ( typeof key !== 'string' || !key.trim() ) ) ) {
 				return null;
 			}
@@ -314,9 +309,7 @@
 			if ( spec.mode === 'stable' ) {
 				params.title = spec.title;
 				params.text = '{{ItemTooltip|encodedstablekey=' + encodeURIComponent( spec.key );
-				if ( spec.quality !== null ) {
-					params.text += '|quality=' + encodeURIComponent( spec.quality );
-				}
+				params.text += '|quality=' + encodeURIComponent( spec.quality );
 				params.text += '}}';
 			} else {
 				params.page = spec.title;
@@ -370,13 +363,6 @@
 
 		function selectPresentation( parsedDocument, cards, spec ) {
 			const qualitySet = parsedDocument.querySelector( '.item-tooltip-quality-set' );
-			if ( spec.quality === null ) {
-				if ( qualitySet ) {
-					return qualitySet;
-				}
-				return cards.length === 1 ? presentationForCard( cards[ 0 ] ) : null;
-			}
-
 			if ( qualitySet ) {
 				const wrappers = Array.from( qualitySet.querySelectorAll( '.item-tooltip-quality' ) );
 				for ( let index = 0; index < wrappers.length; index++ ) {
@@ -451,7 +437,7 @@
 
 
 		function normalizeInlineWidths( root ) {
-			const widthSelectors = '.item-tooltip-quality-set, .item-tooltip-quality, .item-tooltip, .item-spell-details';
+			const widthSelectors = '.item-tooltip-quality, .item-tooltip, .item-spell-details';
 			const elements = [];
 			if ( root.nodeType === 1 && root.matches( widthSelectors ) ) {
 				elements.push( root );
@@ -502,7 +488,6 @@
 		}
 
 		function showLoading() {
-			overlay.classList.remove( QUALITY_SET_OVERLAY_CLASS );
 			overlay.replaceChildren( loadingShell );
 			overlay.dataset.state = 'loading';
 			overlay.hidden = false;
@@ -513,7 +498,6 @@
 			requestSerial++;
 			activeTarget = null;
 			activeRequestKey = null;
-			overlay.classList.remove( QUALITY_SET_OVERLAY_CLASS );
 			overlay.hidden = true;
 			overlay.removeAttribute( 'data-placement' );
 			removeDescription();

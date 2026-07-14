@@ -768,24 +768,11 @@
   contain: layout style paint;
 }
 
-.erenshor-item-tooltip-overlay.erenshor-item-tooltip-overlay--quality-set {
-  width: min(
-    calc(var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + 2em),
-    calc(100vw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter))
-  );
-  width: min(
-    calc(var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + 2em),
-    calc(100dvw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter))
-  );
-}
-
-
 .erenshor-item-tooltip-overlay,
 .erenshor-item-tooltip-overlay * {
   pointer-events: auto;
 }
 
-.erenshor-item-tooltip-overlay > .item-tooltip-quality-set,
 .erenshor-item-tooltip-overlay > .item-tooltip-quality {
   width: 100% !important;
   min-width: 0 !important;
