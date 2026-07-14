@@ -13,7 +13,6 @@
 - **Dynamic Spawn Semantics and Map UX Audit** [plan] `2026-07-11-dynamic-spawn-semantics-map-ux` (—)
 - **Adventure Guide Tracker Fixes & Quest Data Refresh** [plan] `2026-07-12-adventure-guide-tracker-and-data-refresh` (27/31)
 - **Planar March Release Refresh** [plan] `2026-07-13-planar-march-release-refresh` (—) ← 2026-07-09-erenshor-planning-overview
-- **Standard Item Quality Cutover and Article Rewrite** [plan] `2026-07-14-standard-item-quality-cutover` (31/46) ← 2026-07-13-planar-march-release-refresh
 - **Wiki Legacy Article Cutover** [plan] `wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
 
 ## draft
@@ -21,4 +20,4 @@
 - **Erenshor Photo Mode - Implementation Plan** [spec] `2026-05-02-prd-photo-mode`
 - **Crawlable Zone Content Layer (/zones)** [spec] `2026-07-04-maps-zones-content-layer` ← 2026-06-26-maps-domain-url-migration
 
-_65 archived — see `docs/plans/archive/`._
+_66 archived — see `docs/plans/archive/`._
