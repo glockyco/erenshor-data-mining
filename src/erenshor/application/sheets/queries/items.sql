@@ -93,7 +93,7 @@ FROM items i
 LEFT JOIN item_stats s ON s.item_stable_key = i.stable_key
 ORDER BY i.item_db_index,
     CASE s.quality
-        WHEN 'Normal' THEN 1
+        WHEN 'Standard' THEN 1
         WHEN 'Improved +1' THEN 2
         WHEN 'Improved +2' THEN 3
         WHEN 'Improved +3' THEN 4
