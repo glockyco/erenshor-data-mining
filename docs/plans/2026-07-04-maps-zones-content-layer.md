@@ -52,39 +52,66 @@ is exactly what this layer adds.
 
 One prerendered page per zone (43 zones). Sections, in order:
 
-- **Header** — zone name (`<h1>`), a mono meta tag (`ZONE · LV {min}–{max} · {n}
-  exits`), and a one-line summary generated from counts ("Interactive Braxonian
-  Desert map for Erenshor: 14 enemy spawns across levels 4–30, 14 NPCs and
-  vendors, 29 mineral deposits, and 7 treasure sites.").
+- **Header** — zone name (`<h1>`), a mono meta tag (`OVERWORLD · {n}
+  ZONE CONNECTIONS`), player-facing level guidance, and a small set of
+  planning-relevant chips. Keep this header factual and data-derived; do not add
+  editorial flavor text or prose summaries that belong on the wiki. Header chips
+  should answer "is this zone worth opening for my character right now?" Examples:
+  recommended level, main enemy band, unique/rare spawn counts, or vendor/facility
+  presence. Do not surface routine resource density such as mineral-deposit counts
+  in the header. Counts belong in chips and tables, not prose.
 - **Open in interactive map →** primary link to `/maps/{slug}` (the canvas app).
-- **On this map** — legend of marker types actually present in this zone.
-- **Enemies ({n})** — scannable table: name · level · rarity (common/rare/unique)
-  · `→ wiki`. Sorted by level; uniques visually emphasized. Rare/unique names
-  deep-link into `/map?sel=enemy:{name}`.
-- **NPCs & vendors ({n})** — list; vendors flagged; each `→ wiki`.
-- **Resources** — inline counts with icons: mining nodes (by material), fishing
-  waters, wishing wells, teleports, treasure sites.
-- **Connects to** — outbound zone lines (`DisplayText` → destination zone),
-  each linking the destination `/zones/{slug}`. Builds the internal-link cluster.
-- **Wiki callout** — "Full stats, drops, and lore live on the Erenshor Wiki →".
+  Do not add row/category-level `show on map` links until the map supports stable
+  URL selections for those exact targets.
+- **Level guidance** — display a recommendation such as `Recommended Lv 16+` and
+  a secondary distribution hint such as `Most Enemies Lv 16–22`. This is a
+  player-planning signal ("when should I come here?"), not a claim that every
+  enemy falls in the band. Raw min/max enemy levels stay out of the header because
+  one-off rares, bosses, invulnerable encounters, or high-level strays make them
+  misleading. Do not add a separate enemy-level distribution section in v1.
+- **Enemies ({n})** — scannable table: name · exact level · rarity
+  (common/rare/unique) · `→ wiki`. Section metadata should use high-signal counts
+  such as `4 Unique · 3 Rare`, not explanatory filler such as "exact levels listed
+  below." Sorted by level; uniques visually emphasized.
+- **NPCs & Vendors ({n})** — list; vendors grouped first and flagged; each row gets
+  `→ wiki`.
+- **Resources & Points of Interest** — inline counts with the same map-marker
+  icons/colors used by the interactive map. Show categories when present:
+  `Teleport Destination`, `Wishing Wells`, `Forges`, `Mineral Deposits`,
+  `Fishing Waters`, `Treasure Sites`, `Item Bags`, `Secret Passages`, and
+  `Achievement Triggers`. Sort semantically by player intent: teleports, wishing
+  wells, and forges first; repeatable gathering next; loot/pickups after that;
+  progression/completion last. For high-value facilities players check
+  intentionally (forge, wishing well, teleport, vendor, and future
+  bank/auction-house locations), show explicit `Not present` rows when absence is
+  useful. Labels must use player-facing game/map terminology — never generic
+  implementation shorthand such as `nodes`.
+- **Connected Zones ({n})** — outbound zone links (`DestinationZoneStableKey` →
+  zone), without duplicating route text such as `DisplayText` unless it materially
+  helps. Use one arrow/wayfinding language per pill; do not prefix every
+  destination with the current zone name.
 - **Footer** — provenance line (see Freshness).
 
 ### 2. `/zones` — zone index
 
 A single prerendered directory of all 43 zones (deduplicated display names),
-grouped overworld vs. dungeon, each linking `/zones/{slug}`. Serves the "erenshor
-zones" query (48 impressions, position 9.2, 0 clicks today) and hubs the cluster.
+grouped overworld vs. dungeon and enriched with data-derived browse sections:
+zones by recommended level, zones with teleports, zones with vendors, zones with
+fishing waters, zones with treasure sites, and zones with unique spawns. Every
+entry links `/zones/{slug}`. Serves the "erenshor zones" query (48 impressions,
+position 9.2, 0 clicks today) and hubs the cluster.
 
 ### 3. `/map` — below-the-fold content section
 
 The deck.gl map stays full-bleed at 100vh, untouched. Below it, a prerendered
 section: a short intro with site-wide aggregates (43 zones, 3,685 spawn points,
-717 NPCs, 102 mining nodes, 55 treasure sites), the marker legend, a "Browse by
-zone" directory of real `<a href>` links to every `/zones/{slug}`, and the wiki
-cross-link. Users who came for the map never scroll; crawlers and readers get
-substance. This is prerendered DOM, not a `<noscript>` block — Google renders JS,
-so real DOM content is the durable mechanism; a `<noscript>` mirror is an optional
-accessibility floor, not the primary lever.
+717 NPCs, 102 mineral deposits, 55 treasure sites) and a "Browse By Zone"
+directory of real `<a href>` links to every `/zones/{slug}`. No standalone marker legend or
+generic wiki callout — those read as explanatory filler. Users who came for the
+map never scroll; crawlers and readers get substance. This is prerendered DOM,
+not a `<noscript>` block — Google renders JS, so real DOM content is the durable
+mechanism; a `<noscript>` mirror is an optional accessibility floor, not the
+primary lever.
 
 ## Data sources
 
@@ -96,23 +123,28 @@ queries key on `Scene` = `Zones.SceneName`:
   `CharacterStableKey`. Rarity from `Characters.IsUnique/IsRare` (else common);
   level from `Characters.Level`.
 - **NPCs & vendors:** same join with `IsFriendly=1`; `IsVendor` flags vendors.
-- **Mining nodes:** `MiningNodes` grouped by `NPCName` (material).
-- **Resources:** `Waters`, `WishingWells`, `Teleports`, `TreasureLocations` by `Scene`.
+- **Resources/POIs:** `MiningNodes`, `Waters`, `WishingWells`, `Teleports`,
+  `TreasureLocations`, `Forges`, `ItemBags`, `SecretPassages`, and
+  `AchievementTriggers` by `Scene`.
 - **Connections:** `ZoneLines` (`IsEnabled=1`), `DestinationZoneStableKey` →
   `Zones.StableKey` → `ZoneName`.
-- **Level range:** min/max `Characters.Level` over enemy spawns in the zone.
-
-Reuse the existing `+page.server.ts` world-map loader shape where practical; the
-marker query already computes most of this per zone.
+- **Recommended level:** derive a player-facing guidance signal from enemy levels
+  rather than displaying raw min/max. Use spawn-weighted enemy levels, cap all
+  values at the current player max level (35), and choose an outlier-resistant
+  band during implementation (for example median-centered spread, IQR, or an
+  inner percentile interval). The acceptance target is usefulness to players:
+  "when should I come here?" The enemy table still lists exact levels.
 
 ## Wiki cross-linking ("complement, don't replicate")
 
-Locked decision from the migration plan. This layer never restates wiki stats —
-it links to them. Two directions:
+Locked decision from the migration plan. This layer can mention map-derived
+availability (locations, drops, vendors, resources, route connections) but should
+not become the canonical long-form reference. Two directions:
 
 - **Out:** every enemy/NPC/vendor row links to its wiki page (character name →
   wiki title; resolve via the existing name/registry mapping used by the wiki
-  build). Zone pages link to the zone's wiki page.
+  build). Zone pages link to the zone's wiki page for fuller notes, quest
+  context, and reference details.
 - **In (highest-value backlink):** the migration plan's task to repoint the
   wiki's map-link template should also point zone/enemy pages at the matching
   `/zones/{slug}`, so the wiki's traffic flows into the cluster.
@@ -136,8 +168,8 @@ Surface a truthful data-provenance line, not a synthetic "updated today":
 
 ## SEO specifics
 
-- **Titles:** `{Zone} Map – Enemies, NPCs & Resources | Erenshor` per zone;
-  `Erenshor Zones – All 43 Zone Maps` for the index. `/map` title unchanged.
+- **Titles:** `{Zone} – Enemies, NPCs & Resources | Erenshor` per zone;
+  `Erenshor Zones – Enemies, NPCs & Resources` for the index. `/map` title unchanged.
 - **Headings:** real `<h1>` per zone (replacing the `sr-only` pattern where the
   page is content-first); `<h2>` per section.
 - **Internal links:** zone↔zone via connections, index→zones, `/map`→zones,
@@ -150,19 +182,23 @@ Surface a truthful data-provenance line, not a synthetic "updated today":
 ## Design
 
 `docs/mockups/zones/index.html` is the visual source of truth (two views: the
-zone page and the `/map` footer section; toggles the shipped "modern" theme and an
-"atlas" alternate). Honors the shipped tokens (`app.css`: bg `#0a0e14`, gold
-accent `#e2b15a`, cyan `#5ab0c8`, Hanken Grotesk + JetBrains Mono) and impeccable
-guardrails: cartographic ledger aesthetic (not another card grid — the `/zone-maps`
-page already leans on one), no eyebrow kicker per section, no side-stripe borders,
-no gradient text; body copy on `--color-ink`, `--color-muted` reserved for
-secondary text; rarity badges use tinted fills with verified contrast; row-reveal
-motion has a `prefers-reduced-motion` fallback.
+zone page and the `/map` footer section; Modern theme only). Honors the shipped
+tokens (`app.css`: bg `#0a0e14`, gold accent `#e2b15a`, cyan `#5ab0c8`, Hanken
+Grotesk + JetBrains Mono) and impeccable guardrails: cartographic ledger
+aesthetic (not another card grid — the `/zone-maps` page already leans on one),
+no eyebrow kicker per section, no side-stripe borders, no gradient text; body
+copy on `--color-ink`, `--color-muted` reserved for secondary text; rarity
+badges use tinted fills with verified contrast. V1 does **not** include a static
+zone image in the header. A future iteration may add a small interactive zone
+map after the header if it carries real interaction value; do not spend v1 scope
+on static image crops or tile-composite previews.
 
 ## Non-goals
 
 - No redesign or restructuring of the interactive map apps (`/map`, `/maps/{slug}`).
-- No per-entity pages, no drop tables, no lore — that is the wiki's job.
+- No per-entity reference pages and no full stat/lore duplication — that is the
+  wiki's job. Map-derived drop availability may be linked or summarized, but
+  detailed item/stat references stay out of this spec.
 - No accounts, no backend, no runtime DB (stays prerendered + static).
 - No new OG imagery or `Dataset` JSON-LD (out of scope per migration plan).
 
@@ -177,6 +213,14 @@ motion has a `prefers-reduced-motion` fallback.
   independent follow-up after it lands?
 - **Enemy→wiki resolution:** confirm the name→wiki-title mapping the wiki build
   uses is importable here, or whether a shared slug map is needed.
+- **Future map embed:** after v1, consider an interactive zone-map embed directly
+  below the header if it can reuse the existing map component without duplicating
+  rendering logic.
+- **Banks / auction houses:** current clean DB has no persistent `Bank` or
+  `AuctionHouse` facility table. Name searches find disabled `Summoned: Pocket
+  Bank` / `Summoned: Pocket Auctions` rift characters, not normal map-visible
+  facilities. If the game has persistent bank or auction-house locations, model
+  and export them separately before listing them here.
 
 ## Acceptance criteria
 

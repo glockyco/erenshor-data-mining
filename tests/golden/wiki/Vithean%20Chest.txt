@@ -201,9 +201,9 @@
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Plane of Valor]]
-|coordinates=514.2 x 25.2 x 476.9
+|coordinates=521.9 x 25.2 x 485.6
 |spawnchance=
-|spawntype=
+|spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
 |droprates={{ItemLink|Vithean Arena Fee (7)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (14.3%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
