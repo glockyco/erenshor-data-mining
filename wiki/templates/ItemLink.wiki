@@ -1,1 +1,1 @@
-<includeonly>{{#invoke:Erenshor/Link|item}}</includeonly><noinclude>Renders a semantic item link through [[Module:Erenshor/Link]].</noinclude>
+<includeonly>{{#invoke:Erenshor/Link|item}}</includeonly><noinclude>{{Documentation}}</noinclude>

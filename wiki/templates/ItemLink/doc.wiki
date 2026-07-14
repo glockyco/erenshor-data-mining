@@ -1,0 +1,156 @@
+<code><nowiki>{{ItemLink}}</nowiki></code> renders an item icon and page link. On browsers with the default item-tooltips gadget enabled, hovering the link or focusing it with the keyboard opens the tooltip already rendered on the linked item page.
+
+The hover preview is page-based: it reads the tooltip already rendered on the linked item page. The gadget copies the selected item card and its adjacent ability details.
+
+== Usage ==
+
+<pre>{{ItemLink|Cometshard Shield}}</pre>
+
+Use explicit display fields when the visible name, image, or destination differs from the first positional parameter:
+
+<pre>{{ItemLink
+ |Cometshard Shield
+ |link=Cometshard Shield
+ |text=Cometshard Shield
+ |image=Cometshard Shield.png
+}}</pre>
+
+To request a released quality variant:
+
+<pre>{{ItemLink|Cometshard Shield|quality=Blessed}}</pre>
+
+The supported qualities are:
+
+* Normal
+* Improved +1
+* Improved +2
+* Improved +3
+* Improved +4
+* Improved +5
+* Blessed
+* Ascended
+
+Omitting <code>quality</code> selects the Normal tooltip.
+
+== Hoverable examples ==
+
+Hover or keyboard-focus these examples to see the rendered previews:
+
+{| class="wikitable"
+! Example
+! Result
+|-
+| General item
+| {{ItemLink|Planar Stone}}
+|-
+| Equipment
+| {{ItemLink|Aevum}}
+|-
+| Equipment with ability details
+| {{ItemLink|Imperium}}
+|-
+| Specific quality
+| {{ItemLink|Aevum|quality=Blessed}}
+|}
+
+== How hover previews work ==
+
+The [[MediaWiki:Gadget-item-tooltips.js|item-tooltips gadget]] is enabled by default through [[MediaWiki:Gadgets-definition|the gadget definition]]. <code>ItemLink</code> supplies the destination page and requested quality. The gadget watches those links for pointer hover and keyboard focus.
+
+When activated, the gadget asks the MediaWiki API to render the destination page, selects the requested item card, and copies that card plus any adjacent ability details into a floating preview. The preview does not replace or intercept the original link, which remains the element to click to open the item page.
+
+If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> still works as an ordinary page link.
+
+== Parameters ==
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>1</code>, <code>item</code>, or <code>name</code>
+| Item page and default display text. The first positional parameter is the usual form.
+|-
+| <code>link</code> or <code>page</code>
+| Explicit destination page. This is also the page parsed for the hover tooltip.
+|-
+| <code>text</code>
+| Visible link text.
+|-
+| <code>image</code>
+| Item image filename. <code>.png</code> is added when no supported image extension is supplied.
+|-
+| <code>imageonly</code>
+| When true, render only the linked image.
+|-
+| <code>quality</code>
+| Select one of the quality variants listed above. Invalid values produce a template error instead of silently selecting another quality.
+|}
+
+== Hover tooltip requirements ==
+
+* The destination page must exist and render an item tooltip. If it does not, the preview says ''Item tooltip unavailable.''
+* Equipment pages may contain all eight quality cards. The gadget selects only the requested card and includes its adjacent proc, worn, or activatable ability details when present.
+* Items that share one destination page also share that page's hover tooltip.
+* The preview itself is non-interactive. Its copied links are disabled. Click the original ItemLink to open the item page.
+* Hover activation is suppressed on touch/coarse-pointer devices, where ItemLink remains an ordinary link.
+
+<templatedata>
+{
+  "description": "Renders an item icon and link with a page-based hover tooltip.",
+  "params": {
+    "1": {
+      "label": "Item",
+      "description": "Item page and default display text.",
+      "type": "wiki-page-name",
+      "required": true,
+      "suggested": true
+    },
+    "link": {
+      "label": "Destination page",
+      "description": "Explicit page used for the link and hover tooltip.",
+      "type": "wiki-page-name"
+    },
+    "text": {
+      "label": "Display text",
+      "description": "Visible text shown beside the item icon.",
+      "type": "string"
+    },
+    "image": {
+      "label": "Image",
+      "description": "Item image filename.",
+      "type": "wiki-file-name"
+    },
+    "quality": {
+      "label": "Quality",
+      "description": "Tooltip quality variant. Defaults to Normal.",
+      "type": "string",
+      "suggestedvalues": [
+        "Normal",
+        "Improved +1",
+        "Improved +2",
+        "Improved +3",
+        "Improved +4",
+        "Improved +5",
+        "Blessed",
+        "Ascended"
+      ]
+    },
+    "imageonly": {
+      "label": "Image only",
+      "description": "Render only the linked item image.",
+      "type": "boolean"
+    }
+  },
+  "paramOrder": [
+    "1",
+    "link",
+    "text",
+    "image",
+    "quality",
+    "imageonly"
+  ],
+  "format": "block"
+}
+</templatedata>
+
+[[Category:Template documentation]]
