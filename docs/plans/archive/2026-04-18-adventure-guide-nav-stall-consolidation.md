@@ -8,7 +8,7 @@ parent:
 superseded_by: 2026-04-19-adventure-guide-overhaul-program
 ---
 
-**Superseded by `docs/plans/2026-04-18-adventure-guide-architecture-consolidation.md` on 2026-04-18.**
+**Superseded by `docs/plans/archive/2026-04-19-adventure-guide-overhaul-program.md`.**
 
 # AdventureGuide maintained-view consolidation Implementation Plan
 

@@ -46,7 +46,7 @@ point-in-time findings belong in audits. When an item ships, it leaves this queu
 
 ## Priority queue
 
-Every planned work item, ranked. Ordering logic: promotion-critical data correctness
+Every planned work item in the queues below, ranked. Ordering logic: promotion-critical data correctness
 first; then live-deploy gates that can invalidate the architecture; then the wiki
 migration phases that depend on those gates; then URL/domain publishing; then map UX;
 then residual export/data debt. Evidence-gated items never start before their gate.
@@ -59,58 +59,71 @@ then residual export/data debt. Evidence-gated items never start before their ga
    one parameterized `{{ItemTooltip|kind=...}}` invocation, while non-equipment
    kinds remain on legacy Jinja templates until the cutover gates clear. Keep the
    full article-page deploy release-gated because playtest data is a spoiler.
-2. **`2026-06-04-wiki-cargo-data-architecture`** *(spec, active)* — keep as the design
+2. **`2026-07-12-adventure-guide-tracker-and-data-refresh`** *(plan, active)* — fix
+   tracker and marker correctness, then reconnect the quest-data pipeline so new
+   playtest quests reach the shipping Adventure Guide artifact.
+3. **`2026-06-04-wiki-cargo-data-architecture`** *(spec, active)* — keep as the design
    authority while later phases change reality. Update it only when the
    implementation discovers a better steady-state design.
 
 **P2 — wiki cutover phases after live-deploy gates are green**
-3. **Lua presentation and parity gate** *(required before any type converts)* —
-   the live wiki has no TemplateStyles extension and
+4. **`2026-07-10-wiki-deferred-mechanics`** *(plan, active)* — preserve and implement
+   the deferred smithing, conversion, and other non-standard obtainability paths
+   without losing game behavior. It remains under the Cargo/Lua cutover gates.
+5. **`2026-07-11-wiki-article-cutover`** *(plan, active)* — incrementally convert legacy wiki
+   articles only after Lua parity and styling gates are proven, preserving the
+   restored legacy display contract and community content.
+6. **Lua presentation and parity gate** *(required before any type converts)* — the
+   live wiki has no TemplateStyles extension and
    `MediaWiki:Gadget-erenshor.css` is interface-protected, so Lua-owned markup
    needs a deliverable styling path. Prove Lua presentation parity with the
    restored legacy display contract (links, units, zero handling, and other
    display conventions) against live pages. Keep non-equipment item kinds on
    legacy Jinja templates until both gates clear.
-4. **Community contribution layer** *(future Phase 4 plan from the Cargo spec)* —
+7. **Community contribution layer** *(future Phase 4 plan from the Cargo spec)* —
    add `{{ItemSource}}` → `ObtainedFrom` and `{{SpawnPoint}}` → `Spawns`, stablekey
    validation, and editor docs. It waits for the Cargo model and the
    styling/parity gate because generated rows and article conversion must share
    the final presentation contract.
-5. **Dual-path remaining templates + thin-page generator** *(future Phases 5–6 plans)* —
+8. **Dual-path remaining templates + thin-page generator** *(future Phases 5–6 plans)* —
    add legacy fallbacks for spell/skill/stance/zone/quest templates, then generate thin
    `{{Type|stablekey=…}}` article pages while preserving community content. It waits for
    the Cargo model, community-row templates, and the styling/parity gate because
    article conversion should be a clean cutover, not a second migration.
-6. **Production wiki cutover** *(future Phases 7–8 plan)* — TemplateSandbox gate, deploy
-   modules/templates, create the Cargo tables, then refresh by reparse (recreate only on
-   schema change; replacement table for a large recreate), incrementally convert pages,
+9. **Production wiki cutover** *(future Phases 7–8 plan)* — TemplateSandbox gate, deploy
+   modules/templates, create the Cargo tables, then refresh by reparse (recreate only
+   on schema change; replacement table for a large recreate), incrementally convert pages,
    retire legacy branches, smoke live pages, report orphan pages for manual deletion,
    and establish the steady-state cutover operation.
 
 **P3 — map/domain publishing once wiki backlinks are stable**
-7. **`2026-06-26-maps-domain-url-migration`** *(plan, active; blocked on go-ahead)* —
+10. **`2026-06-26-maps-domain-url-migration`** *(plan, active; blocked on go-ahead)* —
    bind `erenshor.compendiums.org`, move zone maps to `/maps/{slug}`, deploy legacy
    redirects, and update backlinks we control. Ship domain + URL restructure together
    so URLs churn once. The wiki map-link template update should happen after the Cargo
    template path is known.
-8. **Crawlable `/zones` content layer** *(draft child of maps-domain work)* — textual
+11. **Crawlable `/zones` content layer** *(draft child of maps-domain work)* — textual
    zone reference pages belong after `/maps/{slug}` is established and wiki/map links
    have settled. Keep it draft until the domain migration is either scheduled or done.
 
 **P4 — independent map UX features**
-9. **`2026-06-27-map-annotations`** *(spec, active)* — useful standalone feature; no
+12. **`2026-06-27-map-annotations`** *(spec, active)* — useful standalone feature; no
     backend dependency. Start when wiki/data work is blocked on live permissions or after
     P3 ships.
-10. **Map search deferred UX** *(note, active)* — per-category empty states and recent
+13. **Map search deferred UX** *(note, active)* — per-category empty states and recent
     searches are polish. Graduate only if working in the search area anyway.
 
 **P5 — residual data/export debt**
-11. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan spectres as
+14. **`2026-07-11-dynamic-spawn-semantics-map-ux`** *(plan, active)* — make dynamic-only
+    rarity and Brax spawn provenance authoritative for processor, map, and wiki
+    consumers; preserve conditional references rather than inferring from placement
+    counts.
+15. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan spectres as
     per-zone random appearances, not fixed spawn points. This becomes important when the
     remaining orphan count or character-page completeness is the active concern.
-12. **LootTable gold range export** *(plan, parked)* — straightforward export/clean DB
+16. **LootTable gold range export** *(plan, parked)* — straightforward export/clean DB
     work, explicitly skipped for now. Resume only if a consumer needs static gold ranges.
-13. **Small content debt, no planning doc needed:** hand-curate the four new planar zone
+17. **Small content debt, no planning doc needed:** hand-curate the four new planar zone
     pages before the next wiki article deploy; document forging/merge mechanics before
     exposing Merging Vessel as a `UsedIn` relationship.
 
@@ -165,5 +178,8 @@ then residual export/data debt. Evidence-gated items never start before their ga
 - `2026-06-27-map-annotations` — standalone annotations feature design.
 - `2026-06-28-category-c-zone-random-spawns` — residual dynamic-spawn gap.
 - `2026-06-28-map-search-deferred-ux` — low-priority search polish.
+- `docs/plans/2026-07-10-wiki-deferred-mechanics.md` — deferred non-standard wiki obtainability paths.
+- `docs/plans/2026-07-11-dynamic-spawn-semantics-map-ux.md` — dynamic rarity and Brax provenance semantics.
+- `docs/plans/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — tracker fixes and quest data refresh.
+- `2026-07-11-wiki-article-cutover` — incremental legacy article conversion.
 - `docs/plans/INDEX.md` — generated navigation.
-- `HANDOFF.md` — session-level current pipeline state and promotion context.

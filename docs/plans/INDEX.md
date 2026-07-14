@@ -11,9 +11,9 @@
 - **Erenshor — Planning Overview** [overview] `2026-07-09-erenshor-planning-overview`
 - **Wiki Deferred Obtainability Mechanics** [plan] `2026-07-10-wiki-deferred-mechanics` (0/15) ← 2026-06-23-wiki-cargo-phase-3
 - **Dynamic Spawn Semantics and Map UX Audit** [plan] `2026-07-11-dynamic-spawn-semantics-map-ux` (—)
+- **Wiki Legacy Article Cutover** [plan] `2026-07-11-wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
 - **Adventure Guide Tracker Fixes & Quest Data Refresh** [plan] `2026-07-12-adventure-guide-tracker-and-data-refresh` (27/31)
 - **Planar March Release Refresh** [plan] `2026-07-13-planar-march-release-refresh` (—) ← 2026-07-09-erenshor-planning-overview
-- **Wiki Legacy Article Cutover** [plan] `wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
 
 ## draft
 

@@ -10,7 +10,7 @@ parent: 2026-07-09-erenshor-planning-overview
 
 ## Context
 
-Planar March is the game patch releasing Monday 2026-07-13, bringing the playtest data into the main release. The bulk item deploy is deferred until release because playtest stats are spoilers; an early partial deploy was reverted on 2026-07-12. See [Wiki Item Quality Tooltips](2026-07-12-wiki-item-quality-tooltips) for the tooltip architecture details.
+Planar March is the game patch releasing Monday 2026-07-13, bringing the playtest data into the main release. The bulk item deploy is deferred until release because playtest stats are spoilers; an early partial deploy was reverted on 2026-07-12. See [Wiki Item Quality Tooltips](archive/2026-07-12-wiki-item-quality-tooltips) for the tooltip architecture details.
 
 ## Prepared
 

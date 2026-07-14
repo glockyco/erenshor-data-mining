@@ -3,7 +3,7 @@ title: Wiki Item Quality Tooltips
 type: plan
 status: implemented
 created: 2026-07-12
-parent: wiki-article-cutover
+parent: 2026-07-11-wiki-article-cutover
 archived: 2026-07-14
 ---
 
