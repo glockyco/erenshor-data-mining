@@ -450,6 +450,7 @@ class TestMapsConfig:
         assert config.data_dir == "$REPO_ROOT/src/maps/static/data"
         assert config.database_dir == "$REPO_ROOT/src/maps/static/db"
         assert config.build_dir == "$REPO_ROOT/src/maps/build"
+        assert config.base_url == "https://erenshor.compendiums.org"
 
     def test_custom_values(self):
         """Test creating MapsConfig with custom values."""
@@ -458,11 +459,13 @@ class TestMapsConfig:
             data_dir="/custom/data",
             database_dir="/custom/db",
             build_dir="/custom/build",
+            base_url="https://maps.example.test",
         )
         assert config.source_dir == "/custom/maps"
         assert config.data_dir == "/custom/data"
         assert config.database_dir == "/custom/db"
         assert config.build_dir == "/custom/build"
+        assert config.base_url == "https://maps.example.test"
 
     def test_resolved_source_dir(self, tmp_path: Path):
         """Test resolved_source_dir() method."""

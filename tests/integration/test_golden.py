@@ -137,7 +137,7 @@ def golden_sheets_engine():
         dbapi_connection.create_function(
             "map_marker_url",
             1,
-            lambda key: f"https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:{key}",
+            lambda key: f"https://erenshor.compendiums.org/map?sel=marker:{key}",
         )
 
     yield engine
@@ -241,7 +241,7 @@ class TestSheetsGolden:
         formatter = SheetsFormatter(
             engine=golden_sheets_engine,
             queries_dir=QUERIES_DIR,
-            map_base_url="https://erenshor-maps.wowmuch1.workers.dev",
+            map_base_url="https://erenshor.compendiums.org",
         )
         sheet_names = formatter.get_sheet_names()
 
@@ -273,7 +273,7 @@ class TestSheetsGolden:
         formatter = SheetsFormatter(
             engine=golden_sheets_engine,
             queries_dir=QUERIES_DIR,
-            map_base_url="https://erenshor-maps.wowmuch1.workers.dev",
+            map_base_url="https://erenshor.compendiums.org",
         )
         current_sheets = set(formatter.get_sheet_names())
         golden_sheets = {f.stem for f in GOLDEN_SHEETS_DIR.glob("*.csv")}

@@ -461,7 +461,7 @@ class MapsConfig(BaseModel):
         description="Path to maps build output directory",
     )
     base_url: str = Field(
-        default="https://erenshor-maps.wowmuch1.workers.dev",
+        default="https://erenshor.compendiums.org",
         description="Public base URL of the deployed maps website",
     )
 

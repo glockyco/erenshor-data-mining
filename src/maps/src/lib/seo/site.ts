@@ -7,7 +7,7 @@
  * brand metadata stay in sync.
  */
 
-export const SITE_URL = 'https://erenshor-maps.wowmuch1.workers.dev';
+export const SITE_URL = 'https://erenshor.compendiums.org';
 
 export const SITE_NAME = 'Erenshor Maps';
 

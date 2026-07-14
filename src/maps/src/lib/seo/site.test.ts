@@ -2,6 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { canonicalUrl, SITE_URL } from './site';
 
 describe('canonicalUrl', () => {
+    it('uses the custom public domain as the canonical origin', () => {
+        expect(SITE_URL).toBe('https://erenshor.compendiums.org');
+    });
+
+    it('preserves representative zone paths on the custom domain', () => {
+        expect(canonicalUrl('/maps/Stowaway')).toBe(
+            'https://erenshor.compendiums.org/maps/Stowaway',
+        );
+    });
+
     it('maps root and empty path to the trailing-slash origin', () => {
         expect(canonicalUrl('/')).toBe(`${SITE_URL}/`);
         expect(canonicalUrl('')).toBe(`${SITE_URL}/`);

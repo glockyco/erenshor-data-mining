@@ -64,7 +64,7 @@ def sheets_engine(exported_db: Path) -> Generator[Engine]:
         dbapi_connection.create_function(
             "map_marker_url",
             1,
-            lambda key: f"https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:{key}",
+            lambda key: f"https://erenshor.compendiums.org/map?sel=marker:{key}",
         )
 
     yield engine
