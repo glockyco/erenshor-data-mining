@@ -16,6 +16,9 @@ namespace InteractiveMapCompanion.Overlay;
 /// </summary>
 internal sealed class BrowserManager : IDisposable
 {
+    private const string CanonicalMapHost = "erenshor.compendiums.org";
+    private const string LegacyMapHost = "erenshor-maps.wowmuch1.workers.dev";
+
     private readonly ManualLogSource _log;
     private readonly Action<HTML_NeedsPaint_t> _onPaint;
 
@@ -196,24 +199,33 @@ internal sealed class BrowserManager : IDisposable
     {
         // HTML_StartRequest_t fires only for full document navigations, not for
         // SvelteKit's client-side pushState/replaceState routing. Allow only
-        // requests to the map host; deny everything else (external links, etc.)
-        // so the overlay cannot be navigated away from the map.
+        // HTTPS requests to one of the two approved map origins; deny everything
+        // else (external links, etc.) so the overlay cannot be navigated away
+        // from the map.
         //
         // AllowStartRequest MUST be called for every callback regardless of
         // which browser fired it, or that browser will hang indefinitely.
         bool ours = param.unBrowserHandle == _browser;
-        bool allowed =
-            ours
-            && param.pchURL is { } url
-            && url.StartsWith(
-                "https://erenshor-maps.wowmuch1.workers.dev/",
-                StringComparison.Ordinal
-            );
+        bool allowed = ours && IsAllowedNavigation(param.pchURL);
 
         if (ours && !allowed)
             _log.LogDebug($"[Overlay] Blocked navigation to: {param.pchURL}");
 
         SteamHTMLSurface.AllowStartRequest(param.unBrowserHandle, allowed);
+    }
+
+    private static bool IsAllowedNavigation(string? url)
+    {
+        if (
+            url == null
+            || !Uri.TryCreate(url, UriKind.Absolute, out var uri)
+            || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            || uri.Port != 443
+        )
+            return false;
+
+        return string.Equals(uri.Host, CanonicalMapHost, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(uri.Host, LegacyMapHost, StringComparison.OrdinalIgnoreCase);
     }
 
     private void OnJSAlert(HTML_JSAlert_t param)

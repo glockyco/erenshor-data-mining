@@ -169,11 +169,7 @@ internal sealed class MapOverlay : MonoBehaviour
         _renderer = new BrowserRenderer(Log, _rawImage, width, height);
         _browser = new BrowserManager(Log, _renderer.OnPaint);
 
-        bool ok = _browser.Initialize(
-            width,
-            height,
-            "https://erenshor-maps.wowmuch1.workers.dev/map"
-        );
+        bool ok = _browser.Initialize(width, height, "https://erenshor.compendiums.org/map");
         if (!ok)
         {
             Log.LogWarning("[Overlay] Browser initialisation failed — overlay will not be shown.");
