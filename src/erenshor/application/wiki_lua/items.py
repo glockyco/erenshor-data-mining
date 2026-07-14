@@ -397,7 +397,7 @@ def _summary_stat(stats: list[ItemStats]) -> ItemStats | None:
     if not stats:
         return None
     for stat in stats:
-        if stat.quality in {"Normal", "0"}:
+        if stat.quality == "Standard":
             return stat
     return stats[0]
 

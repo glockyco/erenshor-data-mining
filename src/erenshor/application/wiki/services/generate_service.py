@@ -383,7 +383,7 @@ class WikiGenerateService:
 
         Weapons/Armor: legacy {| ... {{Item/Weapon}}/{{Item/Armor}} ... |} quality tables
         are replaced by one parameterized {{ItemTooltip}} call (the Lua module
-        derives all eight qualities from Normal).
+        derives all eight qualities from Standard).
         Charms: {{Item/Charm\n...\n}}  (single template, charms don't upgrade)
 
         Old pages may still have {{Fancy-weapon}}, {{Fancy-armor}}, {{Fancy-charm}}
@@ -583,7 +583,7 @@ class WikiGenerateService:
         """Replace or insert generated item tooltip templates.
 
         Current equipment pages generate a single parameterized {{ItemTooltip}}
-        call containing only Normal/base stats.  The Lua module derives all
+        call carrying only Standard/base stats.  The Lua module derives all
         quality variants.  This also migrates legacy three-or-more-column
         weapon/armor tables and standalone subtype templates.
         """

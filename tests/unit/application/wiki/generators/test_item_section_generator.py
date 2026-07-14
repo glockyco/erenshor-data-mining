@@ -21,7 +21,7 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
     )
     enriched = EnrichedItemData(
         item=item,
-        stats=[ItemStats(item_stable_key=item.stable_key, quality="Normal", weapon_dmg=10)],
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard", weapon_dmg=10)],
         classes=[],
     )
 
@@ -67,7 +67,7 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     )
     enriched = EnrichedItemData(
         item=item,
-        stats=[ItemStats(item_stable_key=item.stable_key, quality="Normal", weapon_dmg=38)],
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard", weapon_dmg=38)],
         classes=["Stormcaller"],
         proc=ProcInfo(
             proc_link=AbilityLink(page_title="Ice Spear", display_name="Ice Spear", image_name="Ice Spear"),

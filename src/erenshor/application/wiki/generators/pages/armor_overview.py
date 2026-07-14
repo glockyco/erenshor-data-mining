@@ -93,9 +93,9 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
         armor_stats: dict[str, ItemStats | None] = {}
         for armor in armor_items:
             stats_list = self.context.item_repo.get_item_stats(armor.stable_key)
-            # Get Normal quality stats
+            # Get Standard quality stats
             base_stats = next(
-                (s for s in stats_list if s.quality in ("Normal", "0")),
+                (s for s in stats_list if s.quality == "Standard"),
                 None,
             )
             armor_stats[armor.stable_key] = base_stats
@@ -167,7 +167,7 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
         Args:
             rows: List of table rows (modified in-place)
             armor: Armor item
-            stats: Base (Normal quality) stats for armor
+            stats: Base (Standard quality) stats for armor
             class_names: List of class names that can equip this armor
         """
         # Item link

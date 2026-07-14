@@ -164,7 +164,7 @@ class ItemRepository(BaseRepository[Item]):
             stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
-            List of ItemStats entities ordered by quality (Normal, Improved +1 through
+            List of ItemStats entities ordered by quality (Standard, Improved +1 through
             Improved +5, Blessed, Ascended).
 
         Raises:
@@ -203,7 +203,7 @@ class ItemRepository(BaseRepository[Item]):
             WHERE item_stable_key = ?
             ORDER BY
                 CASE quality
-                    WHEN 'Normal' THEN 1
+                    WHEN 'Standard' THEN 1
                     WHEN 'Improved +1' THEN 2
                     WHEN 'Improved +2' THEN 3
                     WHEN 'Improved +3' THEN 4

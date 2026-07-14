@@ -13,7 +13,7 @@ class ItemStats(BaseEntity):
     """Domain entity representing item statistics by quality level.
 
     ItemStats define the stat bonuses that items provide at different quality levels
-    (Normal, Blessed, Ascended, Improved +1 through Improved +5). Each item can have
+    (Standard, Blessed, Ascended, Improved +1 through Improved +5). Each item can have
     multiple stat entries - one for each quality level. Only weapons and armor have
     item stats.
 
@@ -22,7 +22,7 @@ class ItemStats(BaseEntity):
 
     # Primary keys (composite)
     item_stable_key: str = Field(description="Item stable key (format: 'item:resource_name')")
-    quality: str = Field(description="Quality level (Normal, Blessed, Ascended, Improved +1 through Improved +5)")
+    quality: str = Field(description="Quality level (Standard, Blessed, Ascended, Improved +1 through Improved +5)")
 
     # Weapon damage
     weapon_dmg: int | None = Field(default=None, description="Weapon damage")

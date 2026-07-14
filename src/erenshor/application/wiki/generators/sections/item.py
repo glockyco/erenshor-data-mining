@@ -8,7 +8,7 @@ assembly is handled by PageGenerator classes.
 
 Template structure:
 - Equipment (weapons, armor): {{Item}} infobox + one parameterized {{ItemTooltip}}
-  carrying the Normal-quality stats; quality variants derive inside Lua.
+  carrying the Standard-quality stats; quality variants derive inside Lua.
 - All other kinds: {{Item}} infobox + their legacy template ({{Item/General}},
   {{Item/Aura}}, ...), which the live gadget CSS already styles.
 """
@@ -106,7 +106,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _build_parameterized_tooltip_context(
         self, enriched: EnrichedItemData, page_title: str, kind: ItemKind
     ) -> dict[str, str]:
-        """Build the Normal/base parameter contract consumed by ItemTooltip.
+        """Build the Standard/base parameter contract consumed by ItemTooltip.
 
         Values are display-ready: they match what the legacy generator wrote
         into explicit Item/Weapon and Item/Armor invocations, so the Lua
@@ -151,11 +151,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
     def _normal_stats(self, enriched: EnrichedItemData) -> ItemStats:
         for stats in enriched.stats:
-            if stats.quality in {"Normal", "0"}:
+            if stats.quality == "Standard":
                 return stats
-        # The exporter normally always emits Normal.  Falling back to the first
-        # row keeps the existing fail-fast weapon/armor invariant while allowing
-        # old databases that used quality "0" to render during migration.
+        # The exporter always emits Standard for equipment.  Falling back to
+        # the first row keeps the fail-fast weapon/armor invariant for records
+        # that arrive in an unexpected order.
         return enriched.stats[0]
 
     def _format_long_item_name(self, display_name: str) -> str:

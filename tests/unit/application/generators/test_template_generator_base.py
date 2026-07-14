@@ -154,7 +154,7 @@ class TestTemplateGeneratorBase:
             "proc_desc": "",
             "proc_chance": "",
             "proc_style": "",
-            "tier": "Normal",
+            "tier": "Standard",
         }
 
         result = generator.render_template("weapon.jinja2", context)
@@ -162,7 +162,7 @@ class TestTemplateGeneratorBase:
         assert "{{Item/Weapon" in result
         assert "|name=Sword of Testing" in result
         assert "|damage=10" in result
-        assert "|tier=Normal" in result
+        assert "|tier=Standard" in result
 
     def test_render_armor_template(self):
         """Test rendering armor template."""
@@ -199,7 +199,7 @@ class TestTemplateGeneratorBase:
             "proc_desc": "",
             "proc_chance": "",
             "proc_style": "",
-            "tier": "Normal",
+            "tier": "Standard",
         }
 
         result = generator.render_template("armor.jinja2", context)

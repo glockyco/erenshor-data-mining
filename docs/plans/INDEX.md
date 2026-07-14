@@ -13,7 +13,7 @@
 - **Dynamic Spawn Semantics and Map UX Audit** [plan] `2026-07-11-dynamic-spawn-semantics-map-ux` (—)
 - **Adventure Guide Tracker Fixes & Quest Data Refresh** [plan] `2026-07-12-adventure-guide-tracker-and-data-refresh` (27/31)
 - **Planar March Release Refresh** [plan] `2026-07-13-planar-march-release-refresh` (—) ← 2026-07-09-erenshor-planning-overview
-- **Standard Item Quality Cutover and Article Rewrite** [plan] `2026-07-14-standard-item-quality-cutover` (3/46) ← 2026-07-13-planar-march-release-refresh
+- **Standard Item Quality Cutover and Article Rewrite** [plan] `2026-07-14-standard-item-quality-cutover` (15/46) ← 2026-07-13-planar-march-release-refresh
 - **Wiki Legacy Article Cutover** [plan] `wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
 
 ## draft

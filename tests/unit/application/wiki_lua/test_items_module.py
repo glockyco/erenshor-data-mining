@@ -17,7 +17,7 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
         ItemStats.model_validate(
             {
                 "item_stable_key": "item:sword_of_flames",
-                "quality": "Normal",
+                "quality": "Standard",
                 "weapon_dmg": 7,
                 "str": 1,
                 "dex": None,
@@ -55,7 +55,7 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
                     "classes": ["Knight", "Paladin"],
                     "stats": [
                         {
-                            "quality": "Normal",
+                            "quality": "Standard",
                             "weaponDamage": 7,
                             "ac": 3,
                             "str": 1,
@@ -70,7 +70,7 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
 def test_preserves_all_quality_rows_in_gameplay_order() -> None:
     item = make_item()
     qualities = [
-        "Normal",
+        "Standard",
         "Improved +1",
         "Improved +2",
         "Improved +3",
@@ -109,7 +109,7 @@ def test_preserves_all_quality_rows_in_gameplay_order() -> None:
     base = ItemStats.model_validate(
         {
             "item_stable_key": item.stable_key,
-            "quality": "0",
+            "quality": "Standard",
             "weapon_dmg": 7,
             "ac": 3,
         }
@@ -129,7 +129,7 @@ def test_preserves_improved_plus_five_resists_from_release_data() -> None:
         ItemStats.model_validate(
             {
                 "item_stable_key": item.stable_key,
-                "quality": "Normal",
+                "quality": "Standard",
                 "mr": 0,
                 "er": 0,
                 "pr": 0,
@@ -171,7 +171,7 @@ def test_preserves_improved_plus_five_resists_from_release_data() -> None:
         ItemStats.model_validate(
             {
                 "item_stable_key": item.stable_key,
-                "quality": "Normal",
+                "quality": "Standard",
                 "weapon_dmg": 18,
             }
         )
@@ -215,7 +215,7 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
         ItemStats.model_validate(
             {
                 "item_stable_key": item.stable_key,
-                "quality": "Normal",
+                "quality": "Standard",
                 "str": 4,
             }
         )

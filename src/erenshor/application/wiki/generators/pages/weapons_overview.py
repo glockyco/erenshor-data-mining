@@ -93,9 +93,9 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
         weapon_stats: dict[str, ItemStats | None] = {}
         for weapon in weapons:
             stats_list = self.context.item_repo.get_item_stats(weapon.stable_key)
-            # Get Normal quality stats
+            # Get Standard quality stats
             base_stats = next(
-                (s for s in stats_list if s.quality in ("Normal", "0")),
+                (s for s in stats_list if s.quality == "Standard"),
                 None,
             )
             weapon_stats[weapon.stable_key] = base_stats
@@ -229,7 +229,7 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
         Args:
             rows: List of table rows (modified in-place)
             weapon: Weapon item
-            stats: Base (Normal quality) stats for weapon
+            stats: Base (Standard quality) stats for weapon
             class_names: List of class names that can equip this weapon
         """
         # Item link

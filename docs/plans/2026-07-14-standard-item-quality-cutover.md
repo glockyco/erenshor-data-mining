@@ -97,14 +97,14 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `src/erenshor/domain/enriched_data/item.py`
 - Modify: `tests/unit/infrastructure/database/repositories/test_items.py`
 
-- [ ] Replace the tier-0 string key and repository ordering case with `Standard`. Remove `Normal` and numeric-`0` item-quality compatibility rather than retaining aliases.
-- [ ] Update domain field descriptions without changing persisted runtime IDs or progression ranks.
-- [ ] Run `uv run pytest tests/unit/infrastructure/database/repositories/test_items.py`.
+- [x] Replace the tier-0 string key and repository ordering case with `Standard`. Remove `Normal` and numeric-`0` item-quality compatibility rather than retaining aliases.
+- [x] Update domain field descriptions without changing persisted runtime IDs or progression ranks.
+- [x] Run `uv run pytest tests/unit/infrastructure/database/repositories/test_items.py`.
   Expected: the repository returns Standard, Improved +1 through +5, Blessed, and Ascended in progression order, and the test fixture contains no obsolete base label.
-- [ ] Run `uv run erenshor extract code-facts` followed by `uv run erenshor extract build`.
+- [x] Run `uv run erenshor extract code-facts` followed by `uv run erenshor extract build`.
   Verification: query the clean `item_stats` table for distinct quality values and tier counts.
   Expected: Standard replaces Normal without changing row counts or numerical stats.
-- [ ] Commit the Python contract independently.
+- [x] Commit the Python contract independently.
   Message: `fix(pipeline): consume Standard item quality`
 
 ### Task 3: Cut over wiki generators
@@ -119,13 +119,13 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `tests/unit/application/wiki_lua/test_items_module.py`
 - Modify: `tests/unit/application/generators/test_template_generator_base.py`
 
-- [ ] Make every base-row selector require `Standard`. Remove `Normal` and numeric-`0` fallbacks.
+- [x] Make every base-row selector require `Standard`. Remove `Normal` and numeric-`0` fallbacks.
 - [ ] Update generator contracts and fixtures so generated equipment pages and Lua summaries receive Standard rows.
-- [ ] Run `uv run pytest tests/unit/application/wiki/generators/test_item_section_generator.py tests/unit/application/wiki_lua/test_items_module.py tests/unit/application/generators/test_template_generator_base.py`.
+- [x] Run `uv run pytest tests/unit/application/wiki/generators/test_item_section_generator.py tests/unit/application/wiki_lua/test_items_module.py tests/unit/application/generators/test_template_generator_base.py`.
   Expected: parameterized tooltip contexts, overview base values, and Lua summaries all use Standard and preserve existing numerical output.
-- [ ] Run `uv run erenshor wiki generate`.
+- [x] Run `uv run erenshor wiki generate`.
   Verification: generated equipment page parsing succeeds, the Weapons and Armor overview tables retain their values, and generated quality metadata contains Standard with no Normal alias.
-- [ ] Commit the generator change independently.
+- [x] Commit the generator change independently.
   Message: `fix(wiki): generate Standard item quality`
 
 ### Task 4: Cut over the Lua quality API
@@ -182,12 +182,12 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `src/erenshor/application/sheets/queries/items.sql`
 - Regenerate: `tests/golden/sheets/items.csv`
 
-- [ ] Replace the base-quality ordering branch with Standard.
-- [ ] Run `uv run erenshor golden capture` and review the complete diff.
+- [x] Replace the base-quality ordering branch with `Standard`.
+- [x] Run `uv run erenshor golden capture` and review the complete diff.
   Expected: quality labels change from Normal to Standard, progression ordering stays unchanged, and no unrelated sheet or pipeline baseline changes.
 - [ ] Run the focused sheet-query tests that cover `items.sql`.
   Expected: the items query emits Standard first and retains all item/stat rows.
-- [ ] Commit the Sheets change and its regenerated baseline independently.
+- [x] Commit the Sheets change and its regenerated baseline independently.
   Message: `fix(sheets): order Standard item quality`
 
 ### Task 8: Rewrite for human readers and review by persona

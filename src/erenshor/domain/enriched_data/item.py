@@ -33,7 +33,7 @@ class EnrichedItemData:
 
         Args:
             item: Item entity
-            stats: ItemStats for quality variants (Normal/Blessed/Ascended/Improved +1 through Improved +5)
+            stats: ItemStats for quality variants (Standard/Blessed/Ascended/Improved +1 through Improved +5)
             classes: Class names that can equip this item (from ItemClasses junction table)
             proc: Proc information if item has a proc effect
             sources: Source information (vendors, drops, quests, crafting)

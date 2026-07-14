@@ -69,7 +69,7 @@ TIER_SORT_DEFAULT = 99
 """Default sort value for unknown tier qualities."""
 
 TIER_ORDER_MAP: dict[str, int] = {
-    "Normal": 0,
+    "Standard": 0,
     "Improved +1": 1,
     "Improved +2": 2,
     "Improved +3": 3,
@@ -87,7 +87,7 @@ before Blessed and Ascended even though their runtime IDs are 11--15.
 # Visual tiers are intentionally separate from progression order.  The legacy
 # templates use these values for color/sparkle styling.
 TIER_STRING_MAP: dict[str, str] = {
-    "Normal": "0",
+    "Standard": "0",
     "Blessed": "1",
     "Ascended": "2",
     "Improved +1": "3",

@@ -122,7 +122,7 @@ def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
             "Blessed",
             "Improved +2",
             "Ascended",
-            "Normal",
+            "Standard",
             "Improved +4",
             "Improved +1",
             "Improved +3",
@@ -137,7 +137,7 @@ def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
     qualities = [stats.quality for stats in repo.get_item_stats("item:test")]
 
     assert qualities == [
-        "Normal",
+        "Standard",
         "Improved +1",
         "Improved +2",
         "Improved +3",
