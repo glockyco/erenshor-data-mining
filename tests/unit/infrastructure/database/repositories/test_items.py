@@ -175,12 +175,12 @@ def test_item_relationship_links_keep_stable_keys_for_shared_pages(tmp_path: Pat
         (
             "Alpha Mold",
             "item:mold-alpha",
-            "{{ItemLink|Shared Mold|image=Alpha Mold.png|text=Alpha Mold|stablekey=item:mold-alpha}}",
+            "{{ItemLink|Shared Mold|image=Alpha Mold.png|text=Alpha Mold}}",
         ),
         (
             "Beta Mold",
             "item:mold-beta",
-            "{{ItemLink|Shared Mold|image=Beta Mold.png|text=Beta Mold|stablekey=item:mold-beta}}",
+            "{{ItemLink|Shared Mold|image=Beta Mold.png|text=Beta Mold}}",
         ),
     ]
 

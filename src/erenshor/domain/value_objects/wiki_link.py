@@ -57,7 +57,7 @@ class WikiLink:
 class ItemLink(WikiLink):
     """Wiki link for items using {{ItemLink}} template.
 
-    Format: {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText|stablekey=ItemKey}}
+    Format: {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText}}
 
     Example:
         >>> link = ItemLink("Broken Key Blade (2)", "Broken Key Blade", "Broken Key Blade")
@@ -90,11 +90,6 @@ class ItemLink(WikiLink):
         # Add text param if different from page title
         if self.display_name != self.page_title:
             params.append(f"text={self.display_name}")
-
-        # Add stable key whenever this is a rendered item record. The key is
-        # authoritative database identity and must not be inferred from page text.
-        if self.stable_key:
-            params.append(f"stablekey={self.stable_key}")
 
         if params:
             return f"{{{{ItemLink|{self.page_title}|{'|'.join(params)}}}}}"

@@ -4,7 +4,7 @@ from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
-def test_shared_page_item_records_keep_distinct_stable_keys_in_wikitext_and_lua() -> None:
+def test_shared_page_item_records_keep_stable_keys_in_lua_only() -> None:
     links = [
         ItemLink(
             page_title="Shared Item",
@@ -21,8 +21,8 @@ def test_shared_page_item_records_keep_distinct_stable_keys_in_wikitext_and_lua(
     ]
 
     assert [str(link) for link in links] == [
-        "{{ItemLink|Shared Item|image=Alpha.png|text=Alpha|stablekey=item:alpha}}",
-        "{{ItemLink|Shared Item|image=Beta.png|text=Beta|stablekey=item:beta}}",
+        "{{ItemLink|Shared Item|image=Alpha.png|text=Alpha}}",
+        "{{ItemLink|Shared Item|image=Beta.png|text=Beta}}",
     ]
     assert link_refs(links) == [
         {"kind": "item", "page": "Shared Item", "text": "Alpha", "image": "Alpha", "stablekey": "item:alpha"},
