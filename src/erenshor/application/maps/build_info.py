@@ -20,7 +20,9 @@ _CONFIG_FILES = (
     "tailwind.config.ts",
     "postcss.config.js",
     "postcss.config.cjs",
+    "wrangler.jsonc",
 )
+_ROOT_CONFIG_FILES = ("pnpm-lock.yaml",)
 
 
 def _sha(data: bytes) -> str:
@@ -44,7 +46,9 @@ def _code_hash(maps_source_dir: Path) -> str:
     if source_dir.is_dir():
         paths.extend(path for path in source_dir.rglob("*") if path.is_file() and path.suffix in _CODE_EXTENSIONS)
     paths.extend(maps_source_dir / name for name in _CONFIG_FILES if (maps_source_dir / name).is_file())
-    return _hash_files(paths, maps_source_dir)
+    repo_root = maps_source_dir.parent.parent
+    paths.extend(repo_root / name for name in _ROOT_CONFIG_FILES if (repo_root / name).is_file())
+    return _hash_files(paths, repo_root)
 
 
 def _mods_hash(maps_source_dir: Path) -> str:

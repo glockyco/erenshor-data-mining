@@ -6,13 +6,16 @@ from erenshor.application.maps import build_info
 
 
 def _write_inputs(tmp_path: Path) -> tuple[Path, Path]:
-    maps_dir = tmp_path / "maps"
+    repo_dir = tmp_path / "repo"
+    maps_dir = repo_dir / "src" / "maps"
     (maps_dir / "src").mkdir(parents=True)
     (maps_dir / "static" / "mods").mkdir(parents=True)
     (maps_dir / "static" / "tiles" / "0" / "0").mkdir(parents=True)
 
     (maps_dir / "package.json").write_text('{"scripts": {}}\n')
     (maps_dir / "vite.config.ts").write_text("export default {};\n")
+    (maps_dir / "wrangler.jsonc").write_text('{"name": "erenshor-maps"}\n')
+    (repo_dir / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n")
     (maps_dir / "src" / "app.ts").write_text("export const answer = 42;\n")
     (maps_dir / "static" / "mods" / "AdventureGuide.dll").write_bytes(b"mod")
     (maps_dir / "static" / "mods-metadata.json").write_text('{"version": 1}\n')
@@ -49,6 +52,28 @@ def test_code_change_flips_only_code_group(tmp_path: Path) -> None:
     before = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
 
     (maps_dir / "src" / "app.ts").write_text("export const answer = 43;\n")
+    after = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
+
+    assert build_info.changed_groups(before, after) == {"code"}
+
+
+def test_worker_config_change_flips_only_code_group(tmp_path: Path) -> None:
+    maps_dir, database_path = _write_inputs(tmp_path)
+    before = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
+
+    (maps_dir / "wrangler.jsonc").write_text('{"name": "erenshor-maps", "compatibility_date": "2026-07-14"}\n')
+    after = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
+
+    assert build_info.changed_groups(before, after) == {"code"}
+
+
+def test_lockfile_change_flips_only_code_group(tmp_path: Path) -> None:
+    maps_dir, database_path = _write_inputs(tmp_path)
+    before = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
+
+    (maps_dir.parents[1] / "pnpm-lock.yaml").write_text(
+        "lockfileVersion: '9.0'\nsettings:\n  autoInstallPeers: false\n"
+    )
     after = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
 
     assert build_info.changed_groups(before, after) == {"code"}
