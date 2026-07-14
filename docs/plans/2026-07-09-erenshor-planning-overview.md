@@ -13,10 +13,11 @@ artifacts: clean SQLite, wiki pages, sheets, maps, quest-guide data, and
 companion mods. The current planning focus is the coordinated maps domain and
 URL migration: bind `erenshor.compendiums.org`, move interactive zone maps to
 `/maps/{slug}`, preserve legacy links with host-aware compatibility routing, and
-update the consumers we control. Repository implementation and local verification
-are complete, and the new Search Console Domain property is DNS-verified. The
-Cloudflare deployment and live-verification gates now control the cutover. This
-work remains deliberately ahead of later map features and residual data debt.
+update the consumers we control. The shared Worker is deployed and verified on
+both hosts, and the new Search Console Domain property is DNS-verified. Search
+Console Change of Address and controlled backlink updates now remain before the
+migration can close. This work stays ahead of later map features and residual
+data debt.
 
 **This document is forward-looking only.** It holds the strategy sequence,
 ranked work, and standing gates. Completed implementation belongs in commits and
@@ -29,10 +30,10 @@ leaves this queue.
    SEO and generated-link configuration, maintained consumers, and the shared
    `erenshor-maps` Worker are prepared and locally verified for both
    `erenshor-maps.wowmuch1.workers.dev` and `erenshor.compendiums.org`. The new
-   Search Console Domain property is DNS-verified; pass the Cloudflare
-   deployment and live-verification gates before the single production
-   cutover. The custom domain and `/maps/{slug}` move together so canonical
-   URLs churn once.
+   Search Console Domain property is DNS-verified, and the shared Worker is live
+   and verified on both hosts. Complete Search Console Change of Address and the
+   controlled backlink cutover, then close the migration. The custom domain and
+   `/maps/{slug}` moved together so canonical URLs churn only once.
 2. **Cut over wiki content safely.** The live storage model is validated (nested
    store owners; reparse for data, recreate only on a schema change). Finish the
    remaining dual-path templates, thin-page generation, community-row

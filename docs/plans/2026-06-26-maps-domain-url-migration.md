@@ -17,10 +17,10 @@ build. No deployment or external cutover is authorized until the repository
 work and every manual gate below is complete. The independent backlog is not
 part of this cutover.
 
-Repository preparation is complete and locally verified. The new Search Console
-Domain property is DNS-verified, so it needs no new static verification file.
-Production deployment remains blocked on the explicit Cloudflare certificate,
-DNS, deployment, and live-verification gates below.
+The shared Worker is deployed and verified on both hosts. The new Search Console
+Domain property is DNS-verified, and the legacy `/map` runtime plus verification
+token remain healthy. Search Console Change of Address and controlled backlink
+updates are the remaining cutover gates.
 
 ## Decisions (locked)
 
@@ -235,24 +235,24 @@ responsible operator.
 
 ### Task 4: Ordered deployment and maintained-link cutover
 
-- [ ] Build from a clean checkout/input set with the new route, origins, links,
+- [x] Build from a clean checkout/input set with the new route, origins, links,
   existing legacy token, lockfile, Worker entrypoint, Wrangler config, and
   freshness inputs.
   Run maps freshness and authentication preconditions against the one
   explicitly selected Worker configuration. Record build provenance and the
   prior Worker version for rollback.
-- [ ] Deploy the retained `erenshor-maps` Worker with its shared build while
+- [x] Deploy the retained `erenshor-maps` Worker with its shared build while
   keeping `workers_dev: true`; attach/activate the custom-domain route only
   after Cloudflare reports certificate and DNS readiness. There is no separate
   redirect deployment. Do not proceed while the custom host serves an old
   build or an unintended workers.dev origin.
-- [ ] Verify the new host before changing any external backlink: load `/`,
+- [x] Verify the new host before changing any external backlink: load `/`,
   `/map`, a representative `/maps/<exact-key>`, `/zone-maps`,
   `/adventure-guide`, `/mod`, `/spreadsheet`, representative static assets,
   and sitemap/robots endpoints over HTTPS. Inspect canonical, `og:url`,
   JSON-LD, and sitemap origins; confirm no root-zone links, old-host outputs,
   or mixed-origin runtime requests.
-- [ ] Verify the legacy host from the same Worker before external cutover:
+- [x] Verify the legacy host from the same Worker before external cutover:
   load `/map` and its service worker, `__data.json`, Svelte assets, SQLite,
   tiles, images, fonts, and representative other runtime resources as direct
   same-origin `200`s; verify old token `200`; verify exact root-key and
@@ -270,7 +270,7 @@ responsible operator.
 
 ### Task 5: Verification and rollback gates
 
-- [ ] Run a final two-host matrix: new-host application documents and
+- [x] Run a final two-host matrix: new-host application documents and
   `/maps/<key>` are `200`; legacy `/map` and every documented runtime resource
   are same-origin `200`; exact case-sensitive root `MAPS` keys alone redirect
   to `/maps/<key>`; encoded selector/query strings survive unchanged;
