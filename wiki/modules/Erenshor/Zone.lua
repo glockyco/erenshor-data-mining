@@ -99,9 +99,7 @@ local function mapLinkForSelector(selector)
 	if isBlank(selector) then
 		return ""
 	end
-	return "[https://erenshor-maps.wowmuch1.workers.dev/map?sel="
-		.. encodeSelector(selector)
-		.. " Map]"
+	return "[https://erenshor.compendiums.org/map?sel=" .. encodeSelector(selector) .. " Map]"
 end
 
 local function explicitStableKey(args)

@@ -63,7 +63,7 @@
         <data source="class"><label>Class:</label></data>
         <data>
             <label>Map</label>
-            <default>{{#if:{{{name|}}}|[https://erenshor-maps.wowmuch1.workers.dev/map?sel={{#ifeq:{{{type|}}}|NPC|npc|enemy}}:{{urlencode:{{{name|}}}}} View on the interactive map]}}</default>
+            <default>{{#if:{{{name|}}}|[https://erenshor.compendiums.org/map?sel={{#ifeq:{{{type|}}}|NPC|npc|enemy}}:{{urlencode:{{{name|}}}}} View on the interactive map]}}</default>
         </data>
         <data source="zones"><label>Zones:</label></data>
         <data source="coordinates"><label>Coordinates:</label></data>

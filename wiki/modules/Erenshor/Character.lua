@@ -224,7 +224,7 @@ local function mapLink(selector)
 		return ""
 	end
 	local encoded = tostring(selector):gsub(" ", "%%20")
-	return "[https://erenshor-maps.wowmuch1.workers.dev/map?sel="
+	return "[https://erenshor.compendiums.org/map?sel="
 		.. encoded
 		.. " View on the interactive map]"
 end

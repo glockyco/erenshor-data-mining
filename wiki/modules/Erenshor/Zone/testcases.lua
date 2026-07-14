@@ -37,7 +37,7 @@ function p.run()
 	assertEqual(Zone.fieldValue(zoneKey, "Port Azure", "name"), "Port Azure", "field name resolves")
 	assertEqual(
 		Zone.fieldValue(zoneKey, "Port Azure", "maplink"),
-		"[https://erenshor-maps.wowmuch1.workers.dev/map?sel=zone%3APortAzure Map]",
+		"[https://erenshor.compendiums.org/map?sel=zone%3APortAzure Map]",
 		"field map link resolves"
 	)
 	assertContains(
@@ -66,7 +66,7 @@ function p.run()
 	local directMap = Zone.renderMapLink({ zone = "PortAzure" }, "Anything")
 	assertEqual(
 		directMap,
-		"[https://erenshor-maps.wowmuch1.workers.dev/map?sel=zone%3APortAzure Map]",
+		"[https://erenshor.compendiums.org/map?sel=zone%3APortAzure Map]",
 		"MapLink zone parameter renders"
 	)
 
