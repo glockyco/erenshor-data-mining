@@ -52,6 +52,7 @@
 		const cache = new Map();
 		const overlay = createOverlay();
 		const loadingShell = createLoadingShell();
+		const unavailableShell = createUnavailableShell();
 		const visualViewport = window.visualViewport;
 
 		let hoverTarget = null;
@@ -250,8 +251,12 @@
 				if ( !isCurrent( serial, target, spec.cacheKey ) ) {
 					return;
 				}
-				if ( !target.isConnected || !card ) {
+				if ( !target.isConnected ) {
 					hideActive();
+					return;
+				}
+				if ( !card ) {
+					showUnavailable();
 					return;
 				}
 
@@ -261,7 +266,7 @@
 				positionOverlay();
 			}, function () {
 				if ( isCurrent( serial, target, spec.cacheKey ) ) {
-					hideActive();
+					showUnavailable();
 				}
 			} );
 		}
@@ -271,24 +276,19 @@
 				( typeof window.matchMedia === 'function' && window.matchMedia( COARSE_POINTER_QUERY ).matches );
 		}
 		function requestSpec( target ) {
+			// Stable-key resolution stays disabled until generated item data has a production-safe deploy path.
 			const title = normalizeTitle( target.dataset.erenshorPage );
 			const hasQuality = target.hasAttribute( 'data-erenshor-quality' );
 			const quality = hasQuality ?
 				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : 'Normal';
-			const hasKey = target.hasAttribute( 'data-erenshor-key' );
-			const key = hasKey ? target.getAttribute( 'data-erenshor-key' ) : null;
-			if ( !title || ( hasQuality && !quality ) ||
-				( hasKey && ( typeof key !== 'string' || !key.trim() ) ) ) {
+			if ( !title || ( hasQuality && !quality ) ) {
 				return null;
 			}
 
-			const mode = hasKey ? 'stable' : 'page';
 			return {
-				mode: mode,
 				title: title,
-				key: key,
 				quality: quality,
-				cacheKey: JSON.stringify( [ mode, title, key, quality ] )
+				cacheKey: JSON.stringify( [ title, quality ] )
 			};
 		}
 
@@ -304,16 +304,9 @@
 				formatversion: 2,
 				disableeditsection: 1,
 				disabletoc: 1,
-				disablelimitreport: 1
+				disablelimitreport: 1,
+				page: spec.title
 			};
-			if ( spec.mode === 'stable' ) {
-				params.title = spec.title;
-				params.text = '{{ItemTooltip|encodedstablekey=' + encodeURIComponent( spec.key );
-				params.text += '|quality=' + encodeURIComponent( spec.quality );
-				params.text += '}}';
-			} else {
-				params.page = spec.title;
-			}
 
 			const request = new Promise( function ( resolve, reject ) {
 				api.get( params ).then( function ( response ) {
@@ -494,6 +487,13 @@
 			positionOverlay();
 		}
 
+		function showUnavailable() {
+			overlay.replaceChildren( unavailableShell );
+			overlay.dataset.state = 'error';
+			overlay.hidden = false;
+			positionOverlay();
+		}
+
 		function hideActive() {
 			requestSerial++;
 			activeTarget = null;
@@ -626,6 +626,13 @@
 		const shell = document.createElement( 'div' );
 		shell.className = 'item-tooltip erenshor-item-tooltip-loading';
 		shell.textContent = 'Loading item…';
+		return shell;
+	}
+
+	function createUnavailableShell() {
+		const shell = document.createElement( 'div' );
+		shell.className = 'item-tooltip erenshor-item-tooltip-unavailable';
+		shell.textContent = 'Item tooltip unavailable.';
 		return shell;
 	}
 

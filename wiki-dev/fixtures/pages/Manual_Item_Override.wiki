@@ -2,6 +2,10 @@
 |stablekey=item:ember_longsword
 |title=Manual Ember Blade
 |image=Manual Ember Blade.png
+|type=Weapon
+|damage=18
+|delay=2.5
+|description=A blade wreathed in ember.
 |othersource=Manual quest reward
 |vendorsource=Manual vendor
 |source=Manual monster
@@ -19,5 +23,18 @@
 |ingredients=Manual ingredient
 |droprates=Manual drop rate
 }}
+
+<table class="item-tooltip item-tooltip-weapon">
+<tr><td>
+<table class="item-tooltip-header"><tr>
+<td class="item-tooltip-name-cell"><div class="item-tooltip-name item-tooltip-tier-0">Manual Ember Blade</div></td>
+</tr></table>
+<table class="item-tooltip-body"><tr><td>
+<div class="item-tooltip-description">A blade wreathed in ember.</div>
+<div>Damage: 18</div>
+<div>Delay: 2.5</div>
+</td></tr></table>
+</td></tr>
+</table>
 
 {{ItemLink|stablekey=item:ember_longsword|image=Manual Ember Blade.png|link=Manual Item Override|text=Manual Blade}}
