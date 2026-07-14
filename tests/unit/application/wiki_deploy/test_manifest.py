@@ -20,8 +20,8 @@ def write_page(root: Path, relative_path: str, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def test_build_repo_page_manifest_maps_repo_paths_to_wiki_titles(tmp_path: Path) -> None:
-    """Repo-owned module, template, and generated data paths map to deployable wiki titles."""
+def test_build_repo_page_manifest_maps_only_maintained_sources_to_wiki_titles(tmp_path: Path) -> None:
+    """Repo modules and templates are deployable while generated variant data stays local-only."""
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Item/Tooltip.lua", "local Tooltip = {}\nreturn Tooltip\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Item/testcases.lua", "return {}\n")
@@ -37,7 +37,6 @@ def test_build_repo_page_manifest_maps_repo_paths_to_wiki_titles(tmp_path: Path)
 
     entries = {entry.title: entry for entry in manifest.entries}
     assert set(entries) == {
-        "Module:Erenshor/Data/Items/Weapons",
         "Module:Erenshor/Item",
         "Module:Erenshor/Item/Tooltip",
         "Template:ArmorTable/Row",
@@ -47,7 +46,7 @@ def test_build_repo_page_manifest_maps_repo_paths_to_wiki_titles(tmp_path: Path)
     assert entries["Module:Erenshor/Item"].content_model == "Scribunto"
     assert entries["Template:ArmorTable/Row"].source_path == "wiki/templates/ArmorTable/Row.wiki"
     assert entries["Template:ArmorTable/Row"].content_model == "wikitext"
-    assert entries["Module:Erenshor/Data/Items/Weapons"].ownership_class == "generated_data"
+    assert all(not entry.source_path.startswith("variants/") for entry in manifest.entries)
 
 
 def test_build_repo_page_manifest_excludes_interface_sources(tmp_path: Path) -> None:
@@ -61,7 +60,6 @@ def test_build_repo_page_manifest_excludes_interface_sources(tmp_path: Path) -> 
     manifest = build_repo_page_manifest(tmp_path, variant="main")
 
     assert [entry.title for entry in manifest.entries] == [
-        "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
     ]
@@ -107,7 +105,7 @@ def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: P
 
 
 def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
-    """Upload order is data modules, Lua modules, Cargo declarations, then other templates."""
+    """Upload order is Lua modules, Cargo declarations, then other templates."""
     write_page(tmp_path, "wiki/templates/WeaponTable.wiki", "{{#cargo_query:tables=Items}}\n")
     write_page(
         tmp_path,
@@ -120,13 +118,11 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     manifest = build_repo_page_manifest(tmp_path, variant="main")
 
     assert [entry.title for entry in manifest.entries] == [
-        "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
         "Template:WeaponTable",
     ]
     assert [entry.upload_stage for entry in manifest.entries] == [
-        "generated_data",
         "lua_module",
         "cargo_declaration",
         "template",

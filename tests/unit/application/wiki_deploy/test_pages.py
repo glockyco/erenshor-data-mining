@@ -188,9 +188,9 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
 def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
     """Missing repo-owned pages are uploaded through timestamp-guarded create-only edits."""
     source = "return {}\n"
-    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", source)
+    write_page(tmp_path, "wiki/modules/Erenshor/NewModule.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/Data/Items": None})
+    client = RecordingWikiClient({"Module:Erenshor/NewModule": None})
 
     result = deploy_repo_pages(
         manifest=manifest,
@@ -202,16 +202,16 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
     )
 
     [entry] = result.entries
-    assert entry.title == "Module:Erenshor/Data/Items"
+    assert entry.title == "Module:Erenshor/NewModule"
     assert entry.status == "created"
     assert entry.old_revision_id is None
     assert entry.old_revision_timestamp is None
     assert entry.new_revision_id == 301
-    assert client.snapshot_requests == [(["Module:Erenshor/Data/Items"], "bot", "ErenshorBot")]
+    assert client.snapshot_requests == [(["Module:Erenshor/NewModule"], "bot", "ErenshorBot")]
     assert client.safe_edits == []
     assert client.safe_creates == [
         (
-            "Module:Erenshor/Data/Items",
+            "Module:Erenshor/NewModule",
             source,
             "2026-06-04T12:02:00Z",
             "Deploy repo-owned wiki pages",

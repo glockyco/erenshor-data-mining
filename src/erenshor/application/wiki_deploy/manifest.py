@@ -71,11 +71,16 @@ def _is_mediawiki_interface_title(title: str) -> bool:
 
 
 def build_repo_page_manifest(repo_root: Path, variant: str) -> RepoWikiPageManifest:
-    """Build a deterministic manifest for repo-owned module/template/data pages."""
+    """Build a deterministic manifest for repo-owned modules and templates.
+
+    Generated Lua data under ``variants/*/wiki/lua`` is intentionally local-only
+    until that deployment surface is production-ready. Keep ``generated_data``
+    manifest parsing for historical rollback artifacts, but never export new
+    generated-data entries through this builder.
+    """
     root = repo_root.resolve()
     entries: list[RepoWikiPageManifestEntry] = []
 
-    entries.extend(_module_entries(root, root / "variants" / variant / "wiki" / "lua", "generated_data"))
     entries.extend(_module_entries(root, root / "wiki" / "modules", "lua_module"))
     entries.extend(_template_entries(root, root / "wiki" / "templates"))
 

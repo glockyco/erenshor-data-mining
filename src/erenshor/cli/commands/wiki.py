@@ -974,7 +974,7 @@ def deploy_repo_pages_command(
         typer.Option("--manifest-output", help="Path for the deployment manifest JSON."),
     ] = None,
 ) -> None:
-    """Deploy repo-owned Lua modules, templates, and generated Lua data."""
+    """Deploy repo-owned Lua modules and templates; generated data stays local-only."""
     cli_ctx: CLIContext = ctx.obj
     manifest = build_repo_page_manifest(cli_ctx.repo_root, variant=cli_ctx.variant)
     if pages_file:
