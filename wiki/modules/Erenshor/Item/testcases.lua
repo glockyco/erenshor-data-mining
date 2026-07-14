@@ -1344,11 +1344,16 @@ function p.run()
 	assertContains(link, "[[File:Ember Longsword.png", "manual link defaults image")
 
 	local stableKeyLink = Item.renderLink({ stablekey = "item:abyssal_plate" }, "Ember Longsword")
-	assertContains(stableKeyLink, "[[Abyssal Plate]]", "stable key link uses generated page")
+	assertContains(stableKeyLink, "[[Ember Longsword]]", "stable key link keeps page fallback")
 	assertContains(
 		stableKeyLink,
-		"[[File:Abyssal Plate.png",
-		"stable key link uses generated image"
+		"[[File:Ember Longsword.png",
+		"stable key link keeps image fallback"
+	)
+	assertContains(
+		stableKeyLink,
+		'data-erenshor-key="item:abyssal_plate"',
+		"stable key link preserves identity metadata"
 	)
 
 	local imageOnly = Item.renderLink({ item = "Ember Longsword", imageonly = "yes" }, "Any Page")

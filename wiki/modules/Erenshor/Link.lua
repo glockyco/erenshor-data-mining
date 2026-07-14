@@ -2,8 +2,8 @@ local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
 local Quality = require("Module:Erenshor/Item/Quality")
 
-local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
-local ItemIndex = mw.loadData("Module:Erenshor/Data/Items")
+local AbilityData
+local ItemIndex
 local CharacterData
 local QuestData
 
@@ -73,6 +73,9 @@ local function itemByStableKey(stableKey)
 	if isBlank(stableKey) then
 		return nil
 	end
+	if ItemIndex == nil then
+		ItemIndex = mw.loadData("Module:Erenshor/Data/Items")
+	end
 	local shardName = ItemIndex.byKey[stableKey]
 	local shard = loadItemShard(shardName)
 	if shard == nil then
@@ -84,6 +87,9 @@ end
 local function abilityByStableKey(stableKey)
 	if isBlank(stableKey) then
 		return nil
+	end
+	if AbilityData == nil then
+		AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
 	end
 	return AbilityData.abilities[stableKey]
 end
@@ -142,10 +148,9 @@ local function renderItem(args)
 	local target = Args.resolve(args, "item", nil)
 		or Args.resolve(args, "name", nil)
 		or Args.resolve(args, 1, nil)
-	local item = itemByStableKey(explicitStableKey(args))
-	local page = resolvedPage(args, item, target)
-	local text = resolvedText(args, item, target or page)
-	local image = Args.resolve(args, "image", nil) or (item and item.image) or text
+	local page = resolvedPage(args, nil, target)
+	local text = resolvedText(args, nil, target or page)
+	local image = Args.resolve(args, "image", nil) or text
 	local imageLink =
 		Format.fileLink(ensureImageFile(image, text), { alt = text, size = "24x24px", link = page })
 	if Args.bool(args, "imageonly", false) then

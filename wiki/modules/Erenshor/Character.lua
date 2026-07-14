@@ -301,7 +301,14 @@ local function renderDropLink(drop)
 	if item == nil then
 		return nil, nil
 	end
-	return Link.render({ kind = "item", stablekey = drop.item }), item
+	return Link.render({
+		kind = "item",
+		stablekey = drop.item,
+		page = item.page,
+		text = item.name,
+		image = item.image,
+	}),
+		item
 end
 
 local function dropRateList(values)
