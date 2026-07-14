@@ -23,7 +23,7 @@ point-in-time findings belong in audits. When an item ships, it leaves this queu
 
 1. **Execute the Planar March release refresh.** Promote the playtest build on
    release day using the shipped quality-tooltip architecture
-   (`docs/plans/2026-07-12-wiki-item-quality-tooltips.md`) and the restored legacy
+   (`docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md`) and the restored legacy
    display contract; keep the full article deploy release-gated because playtest
    data is a spoiler.
 2. **Cut over wiki content safely.** The live storage model is validated (nested
@@ -55,7 +55,7 @@ then residual export/data debt. Evidence-gated items never start before their ga
 1. **`2026-07-13-planar-march-release-refresh`** *(plan, active)* — promote
    playtest build 24157014 on release day and deploy the prepared production wiki
    refresh. The shipped quality-tooltip architecture is documented in
-   `docs/plans/2026-07-12-wiki-item-quality-tooltips.md`: equipment articles use
+   `docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md`: equipment articles use
    one parameterized `{{ItemTooltip|kind=...}}` invocation, while non-equipment
    kinds remain on legacy Jinja templates until the cutover gates clear. Keep the
    full article-page deploy release-gated because playtest data is a spoiler.
@@ -155,7 +155,7 @@ then residual export/data debt. Evidence-gated items never start before their ga
 
 - `docs/plans/2026-07-13-planar-march-release-refresh.md` — release-day playtest
   promotion and production wiki refresh.
-- `docs/plans/2026-07-12-wiki-item-quality-tooltips.md` — shipped item quality-tooltip
+- `docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md` — shipped item quality-tooltip
   architecture and production rendering contract.
 - `2026-06-04-wiki-cargo-data-architecture` — Cargo/Lua cutover design authority.
 - `archive/2026-06-23-wiki-cargo-phase-3` — completed Phase 3 record.
