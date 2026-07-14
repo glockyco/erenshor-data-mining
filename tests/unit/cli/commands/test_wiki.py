@@ -725,6 +725,7 @@ class TestWikiInterfaceDeployCommands:
                 ),
             ),
         )
+        monkeypatch.setattr(wiki_command, "_interface_assert_user", lambda _ctx: "InterfaceAdmin")
         monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
         artifact_root = tmp_path / "artifacts"
         monkeypatch.setattr(wiki_command, "_interface_artifact_root", lambda _ctx: artifact_root)
@@ -741,7 +742,7 @@ class TestWikiInterfaceDeployCommands:
 
         assert result.exit_code == 0
         assert "created: 1" in result.output
-        client.get_current_user_rights.assert_called_once_with(assertion="user", assert_user="")
+        client.get_current_user_rights.assert_called_once_with(assertion="user", assert_user="InterfaceAdmin")
         deploy.assert_not_called()
         assert not artifact_root.exists()
         client.close.assert_called_once_with()
@@ -842,6 +843,28 @@ class TestWikiInterfaceDeployCommands:
             wiki_command._create_interface_mediawiki_client(cli_ctx)
 
         client_class.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("login_name", "assert_user"),
+        [
+            ("InterfaceAdmin", "InterfaceAdmin"),
+            ("InterfaceAdmin@InterfaceDeploy", "InterfaceAdmin"),
+        ],
+    )
+    def test_interface_assert_user_uses_bot_password_owner(
+        self,
+        login_name: str,
+        assert_user: str,
+    ) -> None:
+        from types import SimpleNamespace
+
+        import erenshor.cli.commands.wiki as wiki_command
+
+        cli_ctx = SimpleNamespace(
+            config=SimpleNamespace(global_=SimpleNamespace(mediawiki=SimpleNamespace(interface_username=login_name)))
+        )
+
+        assert wiki_command._interface_assert_user(cli_ctx) == assert_user
 
     def test_manifest_path_must_stay_inside_repo(self, tmp_path: Path) -> None:
         from types import SimpleNamespace

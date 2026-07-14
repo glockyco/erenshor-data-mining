@@ -211,6 +211,12 @@ def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     return client
 
 
+def _interface_assert_user(cli_ctx: CLIContext) -> str:
+    """Return the owning username asserted for interface BotPassword sessions."""
+    login_name = cli_ctx.config.global_.mediawiki.interface_username.strip()
+    return login_name.partition("@")[0]
+
+
 def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     """Create and log in the dedicated interface-admin MediaWiki client."""
     wiki_config = cli_ctx.config.global_.mediawiki
@@ -798,7 +804,7 @@ def deploy_interface_command(
         cli_ctx,
         manifest_path if manifest_path is not None else Path("output/wiki-interface/deploy-manifest.json"),
     )
-    interface_username = cli_ctx.config.global_.mediawiki.interface_username.strip()
+    interface_username = _interface_assert_user(cli_ctx)
     client: MediaWikiClient | None = None
     try:
         client = _create_interface_mediawiki_client(cli_ctx)
@@ -888,7 +894,7 @@ def rollback_interface_command(
         console.print(f"[red]Invalid interface deployment manifest: {e}[/red]")
         raise typer.Exit(1) from e
 
-    interface_username = cli_ctx.config.global_.mediawiki.interface_username.strip()
+    interface_username = _interface_assert_user(cli_ctx)
     client: MediaWikiClient | None = None
     try:
         client = _create_interface_mediawiki_client(cli_ctx)
