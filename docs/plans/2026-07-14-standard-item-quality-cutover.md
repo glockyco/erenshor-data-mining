@@ -120,7 +120,7 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `tests/unit/application/generators/test_template_generator_base.py`
 
 - [x] Make every base-row selector require `Standard`. Remove `Normal` and numeric-`0` fallbacks.
-- [ ] Update generator contracts and fixtures so generated equipment pages and Lua summaries receive Standard rows.
+- [x] Update generator contracts and fixtures so generated equipment pages and Lua summaries receive Standard rows.
 - [x] Run `uv run pytest tests/unit/application/wiki/generators/test_item_section_generator.py tests/unit/application/wiki_lua/test_items_module.py tests/unit/application/generators/test_template_generator_base.py`.
   Expected: parameterized tooltip contexts, overview base values, and Lua summaries all use Standard and preserve existing numerical output.
 - [x] Run `uv run erenshor wiki generate`.
@@ -137,13 +137,13 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `wiki/modules/Erenshor/Item/ParameterizedTooltip.lua`
 - Modify: `wiki/modules/Erenshor/Item/testcases.lua`
 
-- [ ] Rename the canonical tier-0 quality to Standard in the registry, ordering, fallback, error, and rendered metadata paths.
-- [ ] Reject `Normal`, `normal`, and numeric `0` as item-quality inputs. Continue accepting the existing case-insensitive spellings of current canonical labels only if the module's tests already establish that contract.
-- [ ] Update the Scribunto test fixtures to expect eight cards in this order: Standard, Improved +1 through Improved +5, Blessed, Ascended.
-- [ ] Run `uv run python wiki-dev/import_pages.py`.
+- [x] Rename the canonical tier-0 quality to Standard in the registry, ordering, fallback, error, and rendered metadata paths.
+- [x] Reject `Normal`, `normal`, and numeric `0` as item-quality inputs. Continue accepting the existing case-insensitive spellings of current canonical labels only if the module's tests already establish that contract.
+- [x] Update the Scribunto test fixtures to expect eight cards in this order: Standard, Improved +1 through Improved +5, Blessed, Ascended.
+- [x] Run `uv run python wiki-dev/import_pages.py`.
   Verification: parse `Module:Erenshor/Item/testcases` in the local MediaWiki harness.
   Expected: all testcase assertions pass, Standard metadata occurs once per quality set, and obsolete base-label requests fail fast.
-- [ ] Commit the Lua core independently.
+- [x] Commit the Lua core independently.
   Message: `fix(wiki): canonicalize Standard item quality`
 
 ### Task 5: Cut over ItemLink and template documentation
@@ -154,11 +154,11 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `wiki/templates/ItemTooltip.wiki`
 - Inspect: `wiki/templates/Gear/Slot.wiki`
 
-- [ ] Update ItemLink's supported-quality list, omission behavior, examples, and TemplateData to Standard.
-- [ ] Add focused link tests proving omitted quality and explicit `quality=Standard` emit canonical Standard metadata, while `quality=Normal` fails.
-- [ ] Parse representative `ItemLink` and `Gear/Slot` calls locally.
+- [x] Update ItemLink's supported-quality list, omission behavior, examples, and TemplateData to Standard.
+- [x] Add focused link tests proving omitted quality and explicit `quality=Standard` emit canonical Standard metadata, while `quality=Normal` fails.
+- [x] Parse representative `ItemLink` and `Gear/Slot` calls locally.
   Expected: Standard links resolve to tier 0, Blessed and Ascended gear slots retain their icon overlays, and no template emits obsolete quality metadata.
-- [ ] Commit the link and template contract independently.
+- [x] Commit the link and template contract independently.
   Message: `docs(wiki): document Standard item quality`
 
 ### Task 6: Cut over the hover gadget
@@ -167,13 +167,13 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `wiki/gadgets/item-tooltips.js`
 - Modify: `wiki/gadgets/erenshor.css`
 
-- [ ] Replace the gadget's duplicated tier-0 canonical name, request default, and single-card selection branches with Standard.
-- [ ] Keep the tooltip interaction contract unchanged: hover or keyboard focus opens the requested card, pointer exit closes it, Escape closes it, and touch remains an ordinary link.
-- [ ] Run `node --check wiki/gadgets/item-tooltips.js`.
+- [x] Replace the gadget's duplicated tier-0 canonical name, request default, and single-card selection branches with Standard.
+- [x] Keep the tooltip interaction contract unchanged: hover or keyboard focus opens the requested card, pointer exit closes it, Escape closes it, and touch remains an ordinary link.
+- [x] Run `node --check wiki/gadgets/item-tooltips.js`.
   Expected: JavaScript parses successfully.
-- [ ] Import the gadget into local MediaWiki and test omitted quality, explicit Standard, every Improved tier, Blessed, Ascended, invalid Normal, pointer exit, keyboard focus, Escape, and touch suppression.
+- [x] Import the gadget into local MediaWiki and test omitted quality, explicit Standard, every Improved tier, Blessed, Ascended, invalid Normal, pointer exit, keyboard focus, Escape, and touch suppression.
   Expected: each valid request selects exactly one matching card, and Normal never resolves as a quality.
-- [ ] Commit the client cutover independently.
+- [x] Commit the client cutover independently.
   Message: `fix(wiki): select Standard item tooltips`
 
 ### Task 7: Cut over Sheets ordering
@@ -185,7 +185,7 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - [x] Replace the base-quality ordering branch with `Standard`.
 - [x] Run `uv run erenshor golden capture` and review the complete diff.
   Expected: quality labels change from Normal to Standard, progression ordering stays unchanged, and no unrelated sheet or pipeline baseline changes.
-- [ ] Run the focused sheet-query tests that cover `items.sql`.
+- [x] Run the focused sheet-query tests that cover `items.sql`.
   Expected: the items query emits Standard first and retains all item/stat rows.
 - [x] Commit the Sheets change and its regenerated baseline independently.
   Message: `fix(sheets): order Standard item quality`
@@ -196,7 +196,7 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Local page: `http://localhost:8088/index.php/Item_Quality`
 - Production page: `https://erenshor.wiki.gg/wiki/Item_Quality`
 
-- [ ] Rewrite the lead and section introductions as direct player guidance. Avoid implementation words such as `candidate`, `conditional`, `validator`, `runtime`, and `record`. Avoid contrast filler shaped like “it is not X, it is Y.”
+- [ ] Rewrite the lead and section introductions as direct player guidance. Avoid implementation words such as `candidate`, `conditional`, `validator`, `runtime`, and `record`. Avoid contrast filler shaped like “it is not X, it is Y.” Do not frame the page around the Planar March patch release — a single reference link is sufficient.
 - [ ] Use this reading order: quality ladder, drop chances, player upgrade recipes, SimPlayer upgrades, plain-language stat effects, exact formulas, worked item example, sources.
 - [ ] Introduce drop odds with a concrete sentence a player can visualize, such as “When a weapon or armor piece appears as enemy loot, the game gives it one of these qualities.” Do not add a paragraph explaining conditional probability unless a reader action depends on it.
 - [ ] Keep exact mechanics available without front-loading them: 94% Standard, 5% total Improved with exact sub-tier odds, 1% Blessed, Merging Vessel progression, Ancient Coal, Flame Well odds and consumption, Ascended recipe, Inert Diamond reset, SimPlayer routes, rounding, all field formulas, zero-base behavior, and the Stinging Bracer comparison.
