@@ -11,7 +11,7 @@ public class ItemStatsRecord
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string ItemStableKey { get; set; } = string.Empty;
     [Indexed(Name = "ItemStats_Primary_IDX", Order = 2, Unique = true)]
-    public string Quality { get; set; } = string.Empty; // "Normal", "Blessed", "Ascended", "Improved +1".."Improved +5"
+    public string Quality { get; set; } = string.Empty; // "Standard", "Blessed", "Ascended", "Improved +1".."Improved +5"
 
     public int WeaponDmg { get; set; }
 

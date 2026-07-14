@@ -288,7 +288,7 @@ public class ItemListener : IAssetScanListener<Item>
                 ItemStableKey = itemStableKey,
                 Quality = quality switch
                 {
-                    1 => "Normal",
+                    1 => "Standard",
                     2 => "Blessed",
                     3 => "Ascended",
                     11 => "Improved +1",

@@ -80,11 +80,11 @@ This plan replaces the base item-quality label with **Standard** throughout the 
 - Modify: `src/Assets/Editor/ExportSystem/AssetScanner/Listener/ItemListener.cs`
 - Modify: `src/Assets/Editor/Database/ItemStatsRecord.cs`
 
-- [ ] Change runtime quality ID 1 from `Normal` to `Standard` in the raw item-stats export contract. Keep runtime IDs and all numerical formulas unchanged.
-- [ ] Run `uv run erenshor extract export`.
+- [x] Change runtime quality ID 1 from `Normal` to `Standard` in the raw item-stats export contract. Keep runtime IDs and all numerical formulas unchanged.
+- [x] Run `uv run erenshor extract export`.
   Verification: query `variants/main/erenshor-main-raw.sqlite` for distinct `item_stats.quality` values.
   Expected: `Standard`, Improved +1 through Improved +5, Blessed, and Ascended are present as applicable, and no item-quality row contains `Normal`.
-- [ ] Commit the exporter change independently.
+- [x] Commit the exporter change independently.
   Message: `fix(export): emit Standard item quality`
 
 ### Task 2: Cut over Python's quality contract
