@@ -364,7 +364,8 @@
 				if ( wrapperQualities.some( Boolean ) ) {
 					for ( let index = 0; index < wrappers.length; index++ ) {
 						if ( wrapperQualities[ index ] === spec.quality ) {
-							return wrappers[ index ];
+							const card = wrappers[ index ].querySelector( '.item-tooltip' );
+							return card ? presentationForCard( card ) : null;
 						}
 					}
 					return null;
@@ -390,7 +391,8 @@
 					}
 					const wrapper = node.closest( '.item-tooltip-quality' );
 					if ( wrapper ) {
-						return wrapper;
+						const card = wrapper.querySelector( '.item-tooltip' );
+						return card ? presentationForCard( card ) : null;
 					}
 					if ( node.classList.contains( 'item-tooltip' ) ) {
 						return presentationForCard( node );
@@ -418,11 +420,6 @@
 		}
 
 		function presentationForCard( card ) {
-			const wrapper = card.closest( '.item-tooltip-quality' );
-			if ( wrapper ) {
-				return wrapper;
-			}
-
 			const fragment = card.ownerDocument.createDocumentFragment();
 			fragment.appendChild( card.cloneNode( true ) );
 			let sibling = card.nextElementSibling;
