@@ -17,6 +17,11 @@ build. No deployment or external cutover is authorized until the repository
 work and every manual gate below is complete. The independent backlog is not
 part of this cutover.
 
+Repository preparation is complete and locally verified except for the real
+new-property Google verification token, which cannot be added before the GSC
+property exists. Production deployment remains blocked on the explicit
+Cloudflare, GSC, and wiki/external-owner gates below.
+
 ## Decisions (locked)
 
 - **One retained Worker.** Keep the existing Worker name
@@ -116,30 +121,30 @@ These rules are the release contract for the Worker, static build, and tests:
 
 ### Task 1: URL restructure (ship with the domain migration so URLs churn once)
 
-#### Repository route, SEO, and link preparation (before any cutover)
+**Repository route, SEO, and link preparation (before any cutover)**
 
-- [ ] Move the prerendered zone route from `src/maps/src/routes/[mapName]/` to
+- [x] Move the prerendered zone route from `src/maps/src/routes/[mapName]/` to
   `src/maps/src/routes/maps/[mapName]/`, carrying both `+page.ts` and
   `+page.svelte` forward. Keep `entries()` sourced from `Object.keys(MAPS)`;
   preserve exact, case-sensitive map keys and the deliberate unknown-route
   `404` behavior from the static adapter.
-- [ ] Update `src/maps/src/routes/maps/[mapName]/+page.svelte` so the `Seo`
+- [x] Update `src/maps/src/routes/maps/[mapName]/+page.svelte` so the `Seo`
   caller, zone `zoneMapJsonLd` URL, and breadcrumb path use
   `/maps/${mapName}`. Check every path passed to `Seo.svelte`; it remains the
   shared emitter for canonical, `og:url`, OG image, and JSON-LD tags.
-- [ ] Update `src/maps/src/lib/seo/jsonld.ts` so `zoneMapJsonLd` constructs
+- [x] Update `src/maps/src/lib/seo/jsonld.ts` so `zoneMapJsonLd` constructs
   `/maps/<zoneKey>`, and update
   `src/maps/src/routes/sitemap.xml/+server.ts` so `zoneRoutes` emits
   `/maps/<key>` while `/map`, `/zone-maps`, `/adventure-guide`, `/mod`, and
   `/spreadsheet` remain unchanged. Keep `/map` out of sitemap routes.
-- [ ] Fix discovered internal-link surfaces: make the zone card link in
+- [x] Fix discovered internal-link surfaces: make the zone card link in
   `src/maps/src/routes/(app)/zone-maps/+page.svelte` an explicit
   `/maps/${mapName}` (not a relative `${mapName}`), and change the Stowaway
   example in `src/maps/src/routes/(app)/mod/+page.svelte` to
   `/maps/Stowaway`. Search the rest of `src/maps` for root-slug links and
   migrate every map-page link without changing the separate `/map` world-map
   path.
-- [ ] Update focused assertions in
+- [x] Update focused assertions in
   `src/maps/src/routes/sitemap.xml/sitemap.test.ts` (absolute custom-origin
   prefix plus `/maps/<key>` route shape) and
   `src/maps/src/lib/seo/site.test.ts` (new origin and zone path while
@@ -147,7 +152,7 @@ These rules are the release contract for the Worker, static build, and tests:
   for both hosts covering exact keys, query preservation, runtime resources,
   the legacy token, case variants, reserved paths, canonical metadata,
   no-`noindex` `/map`, and unknown-path `404` behavior.
-- [ ] Change both independent origin sources: set `SITE_URL` in
+- [x] Change both independent origin sources: set `SITE_URL` in
   `src/maps/src/lib/seo/site.ts` to
   `https://erenshor.compendiums.org`, and set the default
   `MapsConfig.base_url` in `src/erenshor/infrastructure/config/schema.py` to
@@ -155,54 +160,53 @@ These rules are the release contract for the Worker, static build, and tests:
   `/map?sel=marker:<stable_key>` path and that wiki/Sheets generation no
   longer receives the old host.
 
-#### Maintained references and compatibility surfaces
+**Maintained references and compatibility surfaces**
 
-- [ ] Update the embedded in-game/mod origin and allowlist in
+- [x] Update the embedded in-game/mod origin and allowlist in
   `src/mods/InteractiveMapCompanion/src/Overlay/MapOverlay.cs` and
   `BrowserManager.cs` so newly built companions permit the new origin while
   retaining the legacy origin needed by shipped DLLs. Update its `README.md`
   and `thunderstore/README.md` links, including the GIF asset and `/map`
   selector examples. Do not make this migration depend on releasing a new
   companion DLL; do not use user-agent sniffing in the Worker.
-- [ ] Update `src/mods/AdventureGuide/vault/README.md` absolute map image and
+- [x] Update `src/mods/AdventureGuide/vault/README.md` absolute map image and
   marker/navigation assets, the root `README.md`, and the old-host reference
   in `docs/architecture-analysis.md`.
-- [ ] Update the repo-owned wiki MapLink surface as one atomic set:
+- [x] Update the repo-owned wiki MapLink surface as one atomic set:
   `wiki/modules/Erenshor/Character.lua`, `wiki/modules/Erenshor/Zone.lua`,
   `wiki/templates/Character.wiki`, `wiki/templates/Template_MapLink.txt`,
   and `wiki/modules/Erenshor/Zone/testcases.lua`. Preserve selector
-  parameters, update expected URL strings, and confirm the `Template:MapLink`
-  ownership gate and its approximately 40 transclusions before requesting
-  wiki-admin deployment.
+  parameters and update expected URL strings. The separate manual ownership
+  gate below still controls deployment.
 
 ### Task 2: Shared Worker and static-build preparation (repository work)
 
-- [ ] Convert `src/maps/wrangler.jsonc` to the single retained Worker
+- [x] Convert `src/maps/wrangler.jsonc` to the single retained Worker
   configuration: `name: "erenshor-maps"`, `workers_dev: true`, one Worker
   entrypoint, `assets.directory: "./build"`, `assets.binding: "ASSETS"`, and
   `assets.run_worker_first` enabled. Bind the custom domain
   `erenshor.compendiums.org` through its custom-domain route while keeping the
   workers.dev route. Do not add a second config, entrypoint, or deployment
   target.
-- [ ] Add the Worker entrypoint (in the existing `src/maps` source layout) to
+- [x] Add the Worker entrypoint (in the existing `src/maps` source layout) to
   dispatch by hostname and path according to the matrix above, then delegate
   eligible requests to `env.ASSETS.fetch(request)`. Ensure `/map` and all
   legacy runtime resources stay direct `200` responses; perform HTML redirects,
   exact root-map-key redirects, token serving, and deliberate `404`s before
   asset fallback. The implementation must not inspect `User-Agent`.
-- [ ] Keep one shared static build for both hosts. Ensure the Worker entrypoint
+- [x] Keep one shared static build for both hosts. Ensure the Worker entrypoint
   and `ASSETS` binding do not create host-specific copies, rewrite resource
   origins, or redirect service-worker/data requests. Verify `/service-worker.js`,
   `__data.json`, Svelte assets, SQLite, tiles, images, fonts, and other
   non-HTML runtime resources are same-origin `200` on the legacy host.
-- [ ] Close the build-freshness gap: `.build-info.json` currently hashes code,
+- [x] Close the build-freshness gap: `.build-info.json` currently hashes code,
   selected config/data, mods, and tiles but not all Worker/Wrangler
   infrastructure inputs. Include the Worker entrypoint, Wrangler config,
   route/SEO inputs, and every production input that can affect the deployed
   asset or response behavior, or add an equivalent invalidation precondition.
   Require a clean `maps build` after route, SEO, data, or Worker-config edits
   and immediately before deployment; a previously valid build is insufficient.
-- [ ] Reconcile the Wrangler package and lockfile versions
+- [x] Reconcile the Wrangler package and lockfile versions
   (`src/maps/package.json` declares `^4.59.2` while `pnpm-lock.yaml` resolves
   `4.54.0`). Pin a deliberate reviewed version and lock it so the single
   Worker deploy uses a reproducible CLI.
