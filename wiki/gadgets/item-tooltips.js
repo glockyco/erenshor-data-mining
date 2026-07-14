@@ -358,12 +358,17 @@
 			const qualitySet = parsedDocument.querySelector( '.item-tooltip-quality-set' );
 			if ( qualitySet ) {
 				const wrappers = Array.from( qualitySet.querySelectorAll( '.item-tooltip-quality' ) );
-				for ( let index = 0; index < wrappers.length; index++ ) {
-					if ( canonicalQuality( wrappers[ index ].getAttribute( 'data-erenshor-quality' ) ) === spec.quality ) {
-						return wrappers[ index ];
+				const wrapperQualities = wrappers.map( function ( wrapper ) {
+					return canonicalQuality( wrapper.getAttribute( 'data-erenshor-quality' ) );
+				} );
+				if ( wrapperQualities.some( Boolean ) ) {
+					for ( let index = 0; index < wrappers.length; index++ ) {
+						if ( wrapperQualities[ index ] === spec.quality ) {
+							return wrappers[ index ];
+						}
 					}
+					return null;
 				}
-				return null;
 			}
 
 			return pageCard( parsedDocument, cards, spec.quality );
@@ -592,20 +597,20 @@
 
 			overlay.style.maxWidth = Math.max( 0, viewport.width - ( gutter * 2 ) ) + 'px';
 			overlay.style.maxHeight = Math.max( 0, viewport.height - ( gutter * 2 ) ) + 'px';
-			const overlayRect = overlay.getBoundingClientRect();
+			let overlayRect = overlay.getBoundingClientRect();
+			const below = triggerRect.bottom + gap;
+			const roomBelow = Math.max( 0, viewport.bottom - below - gutter );
+			const roomAbove = Math.max( 0, triggerRect.top - viewport.top - gap - gutter );
+			const placeBelow = overlayRect.height <= roomBelow || roomBelow >= roomAbove;
+			const availableHeight = placeBelow ? roomBelow : roomAbove;
+			overlay.style.maxHeight = availableHeight + 'px';
+			overlayRect = overlay.getBoundingClientRect();
+
 			const minimumLeft = viewport.left + gutter;
 			const maximumLeft = viewport.right - gutter - overlayRect.width;
 			const centeredLeft = triggerRect.left + ( ( triggerRect.width - overlayRect.width ) / 2 );
 			const left = clamp( centeredLeft, minimumLeft, Math.max( minimumLeft, maximumLeft ) );
-			const below = triggerRect.bottom + gap;
-			const above = triggerRect.top - gap - overlayRect.height;
-			const roomBelow = viewport.bottom - triggerRect.bottom - gap - gutter;
-			const roomAbove = triggerRect.top - viewport.top - gap - gutter;
-			const placeBelow = overlayRect.height <= roomBelow || roomBelow >= roomAbove;
-			const preferredTop = placeBelow ? below : above;
-			const minimumTop = viewport.top + gutter;
-			const maximumTop = viewport.bottom - gutter - overlayRect.height;
-			const top = clamp( preferredTop, minimumTop, Math.max( minimumTop, maximumTop ) );
+			const top = placeBelow ? below : triggerRect.top - gap - overlayRect.height;
 
 			overlay.style.left = left + 'px';
 			overlay.style.top = top + 'px';
