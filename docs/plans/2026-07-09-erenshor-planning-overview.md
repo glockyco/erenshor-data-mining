@@ -14,9 +14,9 @@ companion mods. The current planning focus is the coordinated maps domain and
 URL migration: bind `erenshor.compendiums.org`, move interactive zone maps to
 `/maps/{slug}`, preserve legacy links with host-aware compatibility routing, and
 update the consumers we control. Repository implementation and local verification
-are complete except for the real new-property GSC token; manual Cloudflare, GSC,
-and external-owner gates now control the cutover. This work remains deliberately
-ahead of later map features and residual data debt.
+are complete, and the new Search Console Domain property is DNS-verified. The
+Cloudflare deployment and live-verification gates now control the cutover. This
+work remains deliberately ahead of later map features and residual data debt.
 
 **This document is forward-looking only.** It holds the strategy sequence,
 ranked work, and standing gates. Completed implementation belongs in commits and
@@ -28,10 +28,11 @@ leaves this queue.
 1. **Execute the coordinated maps domain/URL migration.** Repository routes,
    SEO and generated-link configuration, maintained consumers, and the shared
    `erenshor-maps` Worker are prepared and locally verified for both
-   `erenshor-maps.wowmuch1.workers.dev` and `erenshor.compendiums.org`. Obtain
-   the real GSC token and pass the Cloudflare/GSC/manual-owner gates before the
-   single production cutover. The custom domain and `/maps/{slug}` move
-   together so canonical URLs churn once.
+   `erenshor-maps.wowmuch1.workers.dev` and `erenshor.compendiums.org`. The new
+   Search Console Domain property is DNS-verified; pass the Cloudflare
+   deployment and live-verification gates before the single production
+   cutover. The custom domain and `/maps/{slug}` move together so canonical
+   URLs churn once.
 2. **Cut over wiki content safely.** The live storage model is validated (nested
    store owners; reparse for data, recreate only on a schema change). Finish the
    remaining dual-path templates, thin-page generation, community-row

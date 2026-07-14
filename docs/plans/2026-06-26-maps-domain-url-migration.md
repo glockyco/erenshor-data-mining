@@ -17,10 +17,10 @@ build. No deployment or external cutover is authorized until the repository
 work and every manual gate below is complete. The independent backlog is not
 part of this cutover.
 
-Repository preparation is complete and locally verified except for the real
-new-property Google verification token, which cannot be added before the GSC
-property exists. Production deployment remains blocked on the explicit
-Cloudflare, GSC, and wiki/external-owner gates below.
+Repository preparation is complete and locally verified. The new Search Console
+Domain property is DNS-verified, so it needs no new static verification file.
+Production deployment remains blocked on the explicit Cloudflare certificate,
+DNS, deployment, and live-verification gates below.
 
 ## Decisions (locked)
 
@@ -112,9 +112,9 @@ These rules are the release contract for the Worker, static build, and tests:
   spelling. Verify the trailing-slash rule rather than relying on Wrangler or
   the static adapter to normalize it.
 - The legacy Google verification path remains a direct `200` with the expected
-  token body and `text/html` content type. The new property's token is served
-  from the new-host static build after the manual GSC gate provides the exact
-  value; never fabricate a token or leave a placeholder.
+  token body and `text/html` content type. The new Search Console Domain
+  property uses DNS verification and requires no new static file. Keep the
+  legacy token unchanged while the old property remains in transition.
 - No redirect claims to preserve a URL fragment. Preserve query strings only.
 
 ## Tasks
@@ -210,10 +210,9 @@ These rules are the release contract for the Worker, static build, and tests:
   (`src/maps/package.json` declares `^4.59.2` while `pnpm-lock.yaml` resolves
   `4.54.0`). Pin a deliberate reviewed version and lock it so the single
   Worker deploy uses a reproducible CLI.
-- [ ] Obtain the new property's Google token through the manual GSC gate below,
-  then replace the old static verification artifact with that exact token in
-  the shared build. Keep the legacy token response available from the same
-  Worker; never fabricate a token or leave a placeholder.
+- [x] Confirm the new Search Console Domain property uses DNS verification and
+  requires no new static artifact. Keep the existing legacy verification file
+  and Worker response unchanged while the old property remains in transition.
 
 ### Task 3: Manual Cloudflare, GSC, wiki, and external-link gates
 
@@ -225,10 +224,10 @@ responsible operator.
   `compendiums.org` zone, permission to attach custom domains, and the
   existing `erenshor-maps` Worker and workers.dev route. Certificate and DNS
   readiness remain deployment gates below.
-- [ ] In Google Search Console, create the new custom-domain property and obtain
-  its verification token for the repository static file. Keep access to the
-  old property and legacy token until redirect and indexing verification is
-  complete. Do not run Change of Address yet.
+- [x] In Google Search Console, confirm the DNS-verified custom-domain property
+  exists under the same owner account. Keep access to the old property and
+  legacy token until redirect and indexing verification is complete. Do not
+  run Change of Address yet.
 - [x] Confirm wiki-admin ownership of `Template:MapLink` and its transclusions,
   permission to deploy the Lua/template/testcase changes, and the maintainer
   who can update the Steam guide and other externally maintained links. These
@@ -237,7 +236,8 @@ responsible operator.
 ### Task 4: Ordered deployment and maintained-link cutover
 
 - [ ] Build from a clean checkout/input set with the new route, origins, links,
-  token, lockfile, Worker entrypoint, Wrangler config, and freshness inputs.
+  existing legacy token, lockfile, Worker entrypoint, Wrangler config, and
+  freshness inputs.
   Run maps freshness and authentication preconditions against the one
   explicitly selected Worker configuration. Record build provenance and the
   prior Worker version for rollback.
@@ -257,10 +257,10 @@ responsible operator.
   tiles, images, fonts, and representative other runtime resources as direct
   same-origin `200`s; verify old token `200`; verify exact root-key and
   same-path HTML `301`s; and verify unknown/reserved paths are `404`s.
-- [ ] After both hosts pass verification, verify the new GSC property with its
-  token, submit the new-host sitemap, and run Change of Address from the old
-  property to the new property. Keep the old property and legacy token
-  accessible during the transition and monitor indexing/redirect errors.
+- [ ] After both hosts pass verification, submit the new-host sitemap from the
+  already-verified GSC property and run Change of Address from the old property
+  to the new property. Keep the old property and legacy token accessible during
+  the transition and monitor indexing/redirect errors.
 - [ ] Deploy the repo-owned wiki MapLink/Lua/template update first among
   controlled backlinks, preserving `/map` selector behavior. Check a
   character link, a zone link, and a generated zone page. Then update the
@@ -328,8 +328,8 @@ responsible operator.
   links must be inspected for one canonical origin before Change of Address.
   Legacy `/map` is canonicalized cross-domain but remains indexable: it is not
   in sitemaps/internal links and must not use `noindex`.
-- **External-admin dependencies:** GSC token/property access, Change of
-  Address, wiki template deployment, Steam guide ownership, and other
+- **External-admin dependencies:** GSC property access, Change of Address,
+  wiki template deployment, Steam guide ownership, and other
   maintained links are manual gates. Keep each explicit and preserve the old
   verification/compatibility paths until all are green.
 - **Wrangler lock drift:** package and lockfile versions currently differ. A

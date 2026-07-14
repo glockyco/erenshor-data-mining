@@ -3,7 +3,7 @@
 ## active
 
 - **Wiki Lua Migration & Cargo Data Architecture** [spec] `2026-06-04-wiki-cargo-data-architecture` ← 2026-07-09-erenshor-planning-overview
-- **Maps Domain Migration & URL Restructure** [plan] `2026-06-26-maps-domain-url-migration` (16/31) ← 2026-07-09-erenshor-planning-overview
+- **Maps Domain Migration & URL Restructure** [plan] `2026-06-26-maps-domain-url-migration` (18/31) ← 2026-07-09-erenshor-planning-overview
 - **World Map — User Annotations (Pins, Paths, Regions)** [spec] `2026-06-27-map-annotations` ← 2026-07-09-erenshor-planning-overview
 - **Category C — Zone-Wide Random Spawners** [note] `2026-06-28-category-c-zone-random-spawns` ← 2026-05-28-dynamic-spawn-coverage-design
 - **Map Search — Deferred UX Improvements** [note] `2026-06-28-map-search-deferred-ux` ← 2026-06-28-map-search-ux-improvements
