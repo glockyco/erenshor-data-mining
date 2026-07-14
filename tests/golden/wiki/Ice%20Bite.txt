@@ -1,11 +1,11 @@
 {{Ability
-|title=Ice Shock
-|image=[[File:Ice Shock.png|thumb]]
+|title=Ice Bite
+|image=[[File:Ice Bite.png|thumb]]
 |imagecaption=You are pierced by a spear of ice.
-|description=Deals 700 elemental based damage to a target.
+|description=Deals 300 elemental based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (16)
+|classes=
 |required_level=16
 |manacost=150
 |aggro=200
@@ -17,7 +17,7 @@
 |has_unstable_duration=
 |is_instant_effect=True
 |is_reap_and_renew=
-|is_sim_usable=True
+|is_sim_usable=
 |range=30
 |max_level_target=
 |is_self_only=
@@ -26,7 +26,7 @@
 |effects=
 |damage_type=Elemental
 |resist_modifier=
-|target_damage=700
+|target_damage=300
 |target_healing=
 |caster_healing=
 |shield_amount=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Planar Spear}}
-|source={{ItemLink|Spell Scroll: Ice Shock}}
-|used_by=[[Stoneman]]<br>[[Stoneman Magi]]
+|itemswitheffect={{ItemLink|Icy Bow}}
+|source=
+|used_by=
 }}
