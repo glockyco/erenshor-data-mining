@@ -16,13 +16,20 @@ function createAssets() {
         fetch(request: Request) {
             calls.push(request.url);
             const url = new URL(request.url);
+            if (url.pathname === '/google279cf61d0b725839.html') {
+                return Promise.resolve(
+                    new Response(null, {
+                        status: 307,
+                        headers: { location: '/google279cf61d0b725839' }
+                    })
+                );
+            }
             if (
                 url.pathname === '/' ||
                 url.pathname === '/map' ||
                 url.pathname === '/map/' ||
                 url.pathname === '/zone-maps' ||
-                url.pathname === '/maps/Abyssal' ||
-                url.pathname === '/google279cf61d0b725839.html'
+                url.pathname === '/maps/Abyssal'
             ) {
                 return Promise.resolve(new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } }));
             }
@@ -79,8 +86,8 @@ describe('dual-host Worker routing', () => {
         expect(calls).toEqual([`https://${host}${path}`]);
     });
 
-    it('serves the legacy GSC token directly', async () => {
-        const { assets } = createAssets();
+    it('serves the legacy GSC token directly without consulting static assets', async () => {
+        const { assets, calls } = createAssets();
         const response = await handleRequest(
             request(LEGACY_HOST, '/google279cf61d0b725839.html'),
             envWith(assets)
@@ -89,7 +96,8 @@ describe('dual-host Worker routing', () => {
         expect(response.status).toBe(200);
         expect(response.headers.get('location')).toBeNull();
         expect(response.headers.get('content-type')).toContain('text/html');
-        expect(await response.text()).toBe(html);
+        expect(await response.text()).toBe('google-site-verification: google279cf61d0b725839.html\n');
+        expect(calls).toEqual([]);
     });
 
     it('redirects an exact mixed-case root map key', async () => {

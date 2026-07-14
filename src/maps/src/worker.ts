@@ -11,6 +11,7 @@ export interface Env {
 export const LEGACY_HOST = 'erenshor-maps.wowmuch1.workers.dev';
 export const CANONICAL_HOST = 'erenshor.compendiums.org';
 const GSC_TOKEN_PATH = '/google279cf61d0b725839.html';
+const GSC_TOKEN_BODY = 'google-site-verification: google279cf61d0b725839.html\n';
 
 function redirectToCanonical(url: URL, pathname = url.pathname): Response {
     return new Response(null, {
@@ -40,7 +41,12 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
 
     // Companion overlays require these documents and all of their runtime
     // requests to remain on their original same-origin workers.dev host.
-    if (pathname === '/map' || pathname === '/map/' || pathname === GSC_TOKEN_PATH) {
+    if (pathname === GSC_TOKEN_PATH) {
+        return new Response(GSC_TOKEN_BODY, {
+            headers: { 'content-type': 'text/html; charset=utf-8' }
+        });
+    }
+    if (pathname === '/map' || pathname === '/map/') {
         return env.ASSETS.fetch(request);
     }
 
