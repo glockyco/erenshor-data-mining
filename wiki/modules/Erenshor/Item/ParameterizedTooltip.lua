@@ -335,7 +335,9 @@ function p.render(frame)
 		'<div class="item-tooltip-quality-set" style="display:flex;flex-wrap:wrap;gap:1em;align-items:flex-start;width:calc(100% - 360px);min-width:350px;max-width:100%;overflow:visible">',
 	}
 	for _, stats in ipairs(variants) do
-		out[#out + 1] = '<div class="item-tooltip-quality" style="flex:0 1 350px">'
+		out[#out + 1] = '<div class="item-tooltip-quality" data-erenshor-quality="'
+			.. stats.quality
+			.. '" style="flex:0 1 350px">'
 		out[#out + 1] = '<div class="item-tooltip-quality-label item-tooltip-tier-'
 			.. stats.visualTier
 			.. '">'

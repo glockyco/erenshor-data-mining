@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from typing import TYPE_CHECKING
 
 import pytest
@@ -82,7 +83,7 @@ def test_item_entities_include_item_flags(item_repo: ItemRepository):
 def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
     """Test that item stats are returned in gameplay quality order."""
     db_path = tmp_path / "items.sqlite"
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute(
             """
             CREATE TABLE item_stats (
@@ -144,6 +145,43 @@ def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):
         "Improved +5",
         "Blessed",
         "Ascended",
+    ]
+
+
+def test_item_relationship_links_keep_stable_keys_for_shared_pages(tmp_path: Path) -> None:
+    """Relationship queries preserve identity when records share a wiki page."""
+    db_path = tmp_path / "relationships.sqlite"
+    with closing(sqlite3.connect(db_path)) as conn, conn:
+        conn.execute("CREATE TABLE items (stable_key TEXT, display_name TEXT, wiki_page_name TEXT, image_name TEXT)")
+        conn.execute("CREATE TABLE crafting_rewards (recipe_item_stable_key TEXT, reward_item_stable_key TEXT)")
+        conn.executemany(
+            "INSERT INTO items VALUES (?, ?, ?, ?)",
+            [
+                ("item:mold-alpha", "Alpha Mold", "Shared Mold", "Alpha Mold"),
+                ("item:mold-beta", "Beta Mold", "Shared Mold", "Beta Mold"),
+                ("item:reward", "Reward", "Reward", "Reward"),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO crafting_rewards VALUES (?, ?)",
+            [("item:mold-alpha", "item:reward"), ("item:mold-beta", "item:reward")],
+        )
+        conn.commit()
+
+    with DatabaseConnection(db_path, read_only=True) as db:
+        links = ItemRepository(db).get_items_producing_item("item:reward")
+
+    assert [(link.display_name, link.stable_key, str(link)) for link in links] == [
+        (
+            "Alpha Mold",
+            "item:mold-alpha",
+            "{{ItemLink|Shared Mold|image=Alpha Mold.png|text=Alpha Mold|stablekey=item:mold-alpha}}",
+        ),
+        (
+            "Beta Mold",
+            "item:mold-beta",
+            "{{ItemLink|Shared Mold|image=Beta Mold.png|text=Beta Mold|stablekey=item:mold-beta}}",
+        ),
     ]
 
 
@@ -214,7 +252,7 @@ def test_used_in_sources_cover_crafting_and_smithing(item_repo: ItemRepository) 
 def test_smithing_code_fact_drift_fails_fast(tmp_path: Path, fact_value: str | None) -> None:
     """Smithing special-use resolution rejects missing or changed facts."""
     db_path = tmp_path / "smithing.sqlite"
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute("CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT)")
         if fact_value is not None:
             conn.execute(

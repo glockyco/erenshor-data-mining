@@ -238,6 +238,7 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
                 page_title=weapon.wiki_page_name,
                 display_name=weapon.display_name or weapon.item_name or "",
                 image_name=weapon.image_name,
+                stable_key=weapon.stable_key,
             )
         )
 

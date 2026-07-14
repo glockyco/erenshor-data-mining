@@ -1,6 +1,7 @@
 local Item = require("Module:Erenshor/Item")
 local ParameterizedTooltip = require("Module:Erenshor/Item/ParameterizedTooltip")
 local Quality = require("Module:Erenshor/Item/Quality")
+local Tooltip = require("Module:Erenshor/Item/Tooltip")
 
 local p = {}
 
@@ -36,6 +37,24 @@ local function countOccurrences(actual, expected)
 		count = count + 1
 		position = start + #expected
 	end
+end
+
+local function qualityCard(actual, quality)
+	local marker = 'data-erenshor-quality="' .. quality .. '"'
+	local start = string.find(actual, marker, 1, true)
+	if start == nil then
+		error("quality card is missing " .. quality, 2)
+	end
+	local nextStart = string.find(actual, 'data-erenshor-quality="', start + #marker, true)
+	return string.sub(actual, start, (nextStart or (#actual + 1)) - 1)
+end
+
+local function statFragment(label, value)
+	return 'item-tooltip-stat-label">'
+		.. label
+		.. '</span><span class="item-tooltip-stat-value">'
+		.. tostring(value)
+		.. "</span>"
 end
 
 local function renderParameterized(input)
@@ -78,6 +97,21 @@ local function assertVariantFields(actual, expected, label, keys)
 end
 
 function p.run()
+	assertEqual(
+		Quality.canonicalName(" normal "),
+		"Normal",
+		"quality canonicalization trims whitespace"
+	)
+	assertEqual(
+		Quality.canonicalName("bLeSsEd"),
+		"Blessed",
+		"quality canonicalization ignores case"
+	)
+	assertEqual(
+		Quality.canonicalName("Not a quality"),
+		nil,
+		"unknown quality canonicalization fails closed"
+	)
 	assertEqual(Quality.roundToInt(1.5), 2, "Unity rounding rounds 1.5 up")
 	assertEqual(#Quality.variants({}), 8, "released mode enables all quality variants")
 	assertEqual(#Quality.variants({}, true), 8, "Planar March mode enables all variants")
@@ -497,6 +531,16 @@ function p.run()
 	}) do
 		assertContains(armorTooltip, quality, "armor output labels " .. quality)
 	end
+	assertEqual(
+		countOccurrences(armorTooltip, 'data-erenshor-quality="Normal"'),
+		1,
+		"parameterized Normal quality metadata is exact"
+	)
+	assertEqual(
+		countOccurrences(armorTooltip, 'data-erenshor-quality="Blessed"'),
+		1,
+		"parameterized Blessed quality metadata is exact"
+	)
 	assertContains(
 		armorTooltip,
 		"item-tooltip-quality-sparkle-improved",
@@ -634,9 +678,63 @@ function p.run()
 	assertEqual(weapon.name, "Ember Longsword", "stable key resolves item")
 	assertEqual(weapon.type, "Weapon", "weapon type resolves")
 	assertEqual(weapon.damage, 18, "weapon damage resolves")
+	local encodedWeapon = Item.resolve({ encodedstablekey = "item%3Aember_longsword" }, "Anything")
+	assertEqual(encodedWeapon.name, "Ember Longsword", "percent-decoded stable key resolves item")
+	local rawKeyPrecedence = Item.resolve({
+		stablekey = "item:ember_longsword",
+		encodedstablekey = "item%3Aabyssal_plate",
+	}, "Anything")
+	assertEqual(rawKeyPrecedence.name, "Ember Longsword", "raw stable key takes precedence")
 
 	local pageWeapon = Item.resolve({}, "Ember Longsword")
 	assertEqual(pageWeapon.missing, true, "page title does not resolve item without stable key")
+
+	local sharedCommon =
+		Item.resolve({ stablekey = "item:shared-page-common" }, "Shared Item Fixture")
+	local sharedRare = Item.resolve({ stablekey = "item:shared-page-rare" }, "Shared Item Fixture")
+	assertEqual(
+		sharedCommon.stableKey,
+		"item:shared-page-common",
+		"common stable key remains distinct"
+	)
+	assertEqual(sharedRare.stableKey, "item:shared-page-rare", "rare stable key remains distinct")
+	assertEqual(
+		sharedCommon.name,
+		"Shared Item Fixture",
+		"common record keeps the shared page name"
+	)
+	assertEqual(sharedRare.name, "Shared Item Fixture", "rare record keeps the shared page name")
+	assertEqual(sharedCommon.page, sharedRare.page, "shared records intentionally use one page")
+	assertEqual(
+		sharedCommon.description,
+		"COMMON identity fixture",
+		"common stable key resolves its description"
+	)
+	assertEqual(
+		sharedRare.description,
+		"RARE identity fixture",
+		"rare stable key resolves its description"
+	)
+	local sharedCommonTooltip =
+		Item.renderTooltip({ stablekey = "item:shared-page-common" }, "Shared Item Fixture")
+	local sharedRareTooltip =
+		Item.renderTooltip({ stablekey = "item:shared-page-rare" }, "Shared Item Fixture")
+	assertContains(
+		sharedCommonTooltip,
+		"COMMON identity fixture",
+		"common stable key renders its marker"
+	)
+	assertAbsent(
+		sharedCommonTooltip,
+		"RARE identity fixture",
+		"common tooltip excludes rare marker"
+	)
+	assertContains(sharedRareTooltip, "RARE identity fixture", "rare stable key renders its marker")
+	assertAbsent(
+		sharedRareTooltip,
+		"COMMON identity fixture",
+		"rare tooltip excludes common marker"
+	)
 
 	local override = Item.resolve({
 		stablekey = "item:ember_longsword",
@@ -847,8 +945,125 @@ function p.run()
 		"non-consumable disposable row hides like live"
 	)
 
-	local weaponTooltip =
+	local stableLegacyItem = Item.resolve({ stablekey = "item:ember_longsword" }, "Ember Longsword")
+	assertEqual(
+		#stableLegacyItem.stats,
+		3,
+		"stable-key fixture starts with three legacy quality rows"
+	)
+	local stableLegacyTooltip =
 		Item.renderTooltip({ stablekey = "item:ember_longsword" }, "Ember Longsword")
+	assertEqual(
+		countOccurrences(stableLegacyTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		8,
+		"stable-key legacy rows expand to exactly eight quality cards"
+	)
+	local previousQualityPosition = 0
+	for _, quality in ipairs({
+		"Normal",
+		"Improved +1",
+		"Improved +2",
+		"Improved +3",
+		"Improved +4",
+		"Improved +5",
+		"Blessed",
+		"Ascended",
+	}) do
+		local marker = 'data-erenshor-quality="' .. quality .. '"'
+		local markerPosition = string.find(stableLegacyTooltip, marker, 1, true)
+		if markerPosition == nil or markerPosition <= previousQualityPosition then
+			error("stable-key qualities are not in canonical progression order", 2)
+		end
+		previousQualityPosition = markerPosition
+		assertEqual(
+			countOccurrences(stableLegacyTooltip, marker),
+			1,
+			"stable-key quality card appears once: " .. quality
+		)
+	end
+	local expectedImproved = {
+		{ quality = "Improved +1", str = 6, dex = 3, mr = 3 },
+		{ quality = "Improved +2", str = 6, dex = 3, mr = 3 },
+		{ quality = "Improved +3", str = 7, dex = 4, mr = 4 },
+		{ quality = "Improved +4", str = 7, dex = 4, mr = 4 },
+		{ quality = "Improved +5", str = 8, dex = 5, mr = 4 },
+	}
+	for _, expected in ipairs(expectedImproved) do
+		local quality = expected.quality
+		local card = qualityCard(stableLegacyTooltip, quality)
+		assertContains(
+			card,
+			statFragment("Str", expected.str),
+			quality .. " derives Normal strength"
+		)
+		assertContains(
+			card,
+			statFragment("Dex", expected.dex),
+			quality .. " derives Normal dexterity"
+		)
+		assertContains(
+			card,
+			statFragment("Magic", "+" .. expected.mr .. "%"),
+			quality .. " derives Normal magic resist"
+		)
+	end
+	assertContains(
+		qualityCard(stableLegacyTooltip, "Blessed"),
+		statFragment("Str", 8),
+		"exported Blessed strength is preserved verbatim"
+	)
+	assertContains(
+		qualityCard(stableLegacyTooltip, "Blessed"),
+		statFragment("Damage", 23),
+		"exported Blessed damage is preserved verbatim"
+	)
+	assertContains(
+		qualityCard(stableLegacyTooltip, "Ascended"),
+		statFragment("Str", 10),
+		"exported Ascended strength is preserved verbatim"
+	)
+	assertContains(
+		qualityCard(stableLegacyTooltip, "Ascended"),
+		statFragment("Damage", 28),
+		"exported Ascended damage is preserved verbatim"
+	)
+	local explicitImprovedTooltip = Item.renderTooltip(
+		{ stablekey = "item:ember_longsword", quality = "Improved +1" },
+		"Ember Longsword"
+	)
+	assertEqual(
+		countOccurrences(explicitImprovedTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		1,
+		"explicit derived Improved quality selects one stable-key card"
+	)
+	assertContains(
+		explicitImprovedTooltip,
+		statFragment("Str", 6),
+		"explicit Improved +1 selection uses the derived row"
+	)
+	assertAbsent(
+		explicitImprovedTooltip,
+		"item-tooltip-quality-set",
+		"explicit Improved selection omits quality wrapper"
+	)
+
+	local previousPlanarMarchEnabled = Quality.planarMarchEnabled
+	local disabledOk, disabledTooltip = pcall(function()
+		Quality.planarMarchEnabled = function()
+			return false
+		end
+		return Item.renderTooltip({ stablekey = "item:ember_longsword" }, "Ember Longsword")
+	end)
+	Quality.planarMarchEnabled = previousPlanarMarchEnabled
+	if not disabledOk then
+		error(disabledTooltip, 2)
+	end
+	assertEqual(
+		countOccurrences(disabledTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		3,
+		"disabled quality mode retains three legacy stable-key cards"
+	)
+	local weaponTooltip = stableLegacyTooltip
 	assertContains(
 		weaponTooltip,
 		"item-tooltip-weapon",
@@ -861,9 +1076,24 @@ function p.run()
 		"item-tooltip-tier-2",
 		"weapon tooltip colors the Ascended quality"
 	)
-	if string.find(weaponTooltip, "Ascended", 1, true) ~= nil then
-		error("weapon tooltip must not expose the Ascended quality label", 2)
+	if string.find(weaponTooltip, 'item-tooltip-quality-label">Ascended', 1, true) ~= nil then
+		error("weapon tooltip must not render an Ascended quality label", 2)
 	end
+	assertContains(
+		weaponTooltip,
+		'data-erenshor-quality="Normal"',
+		"weapon tooltip exposes Normal quality metadata"
+	)
+	assertContains(
+		weaponTooltip,
+		'data-erenshor-quality="Blessed"',
+		"weapon tooltip exposes Blessed quality metadata"
+	)
+	assertContains(
+		weaponTooltip,
+		'data-erenshor-quality="Ascended"',
+		"weapon tooltip exposes Ascended quality metadata"
+	)
 	assertContains(weaponTooltip, "Base DPS:", "weapon tooltip shows base DPS")
 	assertContains(weaponTooltip, "Paladin", "weapon tooltip shows class restrictions")
 	assertContains(
@@ -899,6 +1129,119 @@ function p.run()
 		weaponTooltip,
 		"min-width:350px",
 		"weapon quality variants keep one full tooltip visible beside the infobox"
+	)
+
+	local normalOnlyTooltip = Item.renderTooltip(
+		{ stablekey = "item:ember_longsword", quality = " normal " },
+		"Ember Longsword"
+	)
+	assertEqual(
+		countOccurrences(normalOnlyTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		1,
+		"explicit Normal selection renders one card"
+	)
+	assertContains(
+		normalOnlyTooltip,
+		"item-tooltip-tier-0",
+		"explicit Normal selection renders Normal"
+	)
+	assertAbsent(
+		normalOnlyTooltip,
+		"item-tooltip-quality-set",
+		"explicit Normal selection omits quality wrapper"
+	)
+	local blessedOnlyTooltip = Item.renderTooltip(
+		{ stablekey = "item:ember_longsword", quality = " blessed " },
+		"Ember Longsword"
+	)
+	assertEqual(
+		countOccurrences(blessedOnlyTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		1,
+		"explicit Blessed selection renders one card"
+	)
+	assertContains(
+		blessedOnlyTooltip,
+		"item-tooltip-tier-1",
+		"explicit Blessed selection renders Blessed"
+	)
+	assertAbsent(
+		blessedOnlyTooltip,
+		"item-tooltip-quality-set",
+		"explicit Blessed selection omits quality wrapper"
+	)
+	local encodedBlessedTooltip = Item.renderTooltip(
+		{ stablekey = "item:ember_longsword", quality = "Blessed%20" },
+		"Ember Longsword"
+	)
+	assertEqual(
+		countOccurrences(encodedBlessedTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		1,
+		"encoded Blessed selection renders one card"
+	)
+	assertContains(
+		encodedBlessedTooltip,
+		"item-tooltip-tier-1",
+		"encoded Blessed selection is decoded"
+	)
+	local encodedImprovedItem =
+		Item.resolve({ stablekey = "item:ember_longsword" }, "Ember Longsword")
+	encodedImprovedItem.stats = {
+		{ quality = "Improved +3", weaponDamage = 18, str = 5, dex = 2, mr = 3 },
+	}
+	local encodedImprovedTooltip = Tooltip.render(encodedImprovedItem, "Improved%20%2B3")
+	assertContains(
+		encodedImprovedTooltip,
+		"item-tooltip-tier-5",
+		"encoded Improved selection is decoded"
+	)
+	assertAbsent(
+		encodedImprovedTooltip,
+		"item-tooltip-quality-set",
+		"encoded Improved selection omits quality wrapper"
+	)
+	local invalidQualityOk, invalidQualityError = pcall(function()
+		Item.renderTooltip(
+			{ stablekey = "item:ember_longsword", quality = "Uncommon" },
+			"Ember Longsword"
+		)
+	end)
+	assertEqual(invalidQualityOk, false, "invalid item quality fails fast")
+	assertContains(
+		tostring(invalidQualityError),
+		"Invalid item quality",
+		"invalid quality error is useful"
+	)
+	local normalWithoutStats =
+		Item.renderTooltip({ stablekey = "item:magical_bag", quality = "Normal" }, "Magical Bag")
+	assertContains(
+		normalWithoutStats,
+		"item-tooltip-general",
+		"Normal selection works when item has no explicit stats"
+	)
+
+	local clickArmor = Item.resolve({ stablekey = "item:abyssal_plate" }, "Abyssal Plate")
+	clickArmor.wornEffect = nil
+	clickArmor.clickEffect = "spell:minor_heal"
+	local clickArmorTooltip = Tooltip.render(clickArmor, "Normal")
+	assertContains(
+		clickArmorTooltip,
+		"Activatable: Minor Heal",
+		"equipment click effect renders activatable name"
+	)
+	assertContains(
+		clickArmorTooltip,
+		"Right click or assign to hotkey to use.",
+		"equipment click effect renders usage line"
+	)
+	assertContains(
+		clickArmorTooltip,
+		"item-spell-details",
+		"equipment click effect renders spell details"
+	)
+	assertContains(
+		clickArmorTooltip,
+		"Healing: 150",
+		"equipment click effect renders spell detail content"
 	)
 
 	local charm = Item.renderTooltip({ stablekey = "item:lucky_charm" }, "Lucky Charm")

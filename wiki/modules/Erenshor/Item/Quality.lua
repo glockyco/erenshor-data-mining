@@ -268,6 +268,23 @@ function Quality.isImproved(qualityName)
 	return type(qualityName) == "string" and string.sub(qualityName, 1, 9) == "Improved "
 end
 
+function Quality.canonicalName(value)
+	if value == nil then
+		return nil
+	end
+	local text = tostring(value):match("^%s*(.-)%s*$")
+	if text == "" then
+		return nil
+	end
+	local normalized = string.lower(text)
+	for _, quality in ipairs(QUALITIES) do
+		if string.lower(quality.name) == normalized then
+			return quality.name
+		end
+	end
+	return nil
+end
+
 function Quality.list(planarMarchOverride)
 	local showImproved = modeEnabled(planarMarchOverride)
 	local out = {}

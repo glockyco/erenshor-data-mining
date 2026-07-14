@@ -28,18 +28,6 @@ local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 
 local Tooltip = {}
 
-local QUALITY_RANK = {
-	["0"] = 0,
-	Normal = 0,
-	["Improved +1"] = 1,
-	["Improved +2"] = 2,
-	["Improved +3"] = 3,
-	["Improved +4"] = 4,
-	["Improved +5"] = 5,
-	Blessed = 6,
-	Ascended = 7,
-}
-
 local QUALITY_VISUAL_TIER = {
 	["0"] = 0,
 	Normal = 0,
@@ -547,6 +535,20 @@ local function tooltipShell(item, tier, typeLine)
 	return root, bodyCell
 end
 
+local function equipmentEffect(item, weapon)
+	local effectKey, procHeader = weaponEffect(item)
+	if effectKey ~= nil then
+		return effectKey, procHeader, false
+	end
+	if not isBlank(item.wornEffect) then
+		return item.wornEffect, "Worn Effect:", true
+	end
+	if not isBlank(item.clickEffect) then
+		return item.clickEffect, "Activatable:", false
+	end
+	return nil
+end
+
 local function gearTooltip(item, stats, weapon, typeLine)
 	local root, body = tooltipShell(item, tierOf(stats.quality), typeLine)
 	local qualityLabel = improvedQualityLabel(stats)
@@ -568,14 +570,19 @@ local function gearTooltip(item, stats, weapon, typeLine)
 	if classes ~= nil then
 		body:node(classes)
 	end
+	local effectKey, procHeader, worn = equipmentEffect(item, weapon)
+	local effectName = spellName(item.clickEffect)
+	if procHeader == "Activatable:" and not isBlank(effectName) then
+		body:tag("div")
+			:addClass("item-tooltip-activatable-name")
+			:wikitext("Activatable: " .. effectName)
+		body:tag("div")
+			:addClass("item-tooltip-proc-usage")
+			:wikitext("Right click or assign to hotkey to use.")
+	end
 	local details = ""
-	if weapon then
-		local effectKey, procHeader = weaponEffect(item)
-		if effectKey ~= nil then
-			details = spellDetails(effectKey, { worn = false, procHeader = procHeader }) or ""
-		end
-	elseif not isBlank(item.wornEffect) then
-		details = spellDetails(item.wornEffect, { worn = true, procHeader = "Worn Effect:" }) or ""
+	if effectKey ~= nil then
+		details = spellDetails(effectKey, { worn = worn, procHeader = procHeader }) or ""
 	end
 	return tostring(root) .. details
 end
@@ -878,16 +885,76 @@ local function renderQuality(item, stats)
 	return simpleTooltip(item, stats)
 end
 
+local function rowQuality(row)
+	if row == nil then
+		return nil
+	end
+	if tostring(row.quality) == "0" then
+		return "Normal"
+	end
+	return Quality.canonicalName(row.quality)
+end
+
+local function copyQualityRow(row, quality)
+	local out = {}
+	for key, value in pairs(row or {}) do
+		out[key] = value
+	end
+	out.quality = quality
+	return out
+end
+
 local function orderedStats(item)
-	local stats = {}
+	local planarMarchEnabled = Quality.planarMarchEnabled()
+	local exported = {}
+	local hasInputRows = false
 	for _, row in ipairs(item.stats or {}) do
-		if Quality.planarMarchEnabled() or not Quality.isImproved(row.quality) then
-			stats[#stats + 1] = row
+		hasInputRows = true
+		local quality = rowQuality(row)
+		if quality ~= nil and (planarMarchEnabled or not Quality.isImproved(quality)) then
+			-- Canonical quality is the overlay key. Keep the first exported row for
+			-- duplicate aliases, making the result deterministic without mutating
+			-- the generated record.
+			if exported[quality] == nil then
+				exported[quality] = copyQualityRow(row, quality)
+			end
 		end
 	end
-	table.sort(stats, function(a, b)
-		return (QUALITY_RANK[a.quality] or 99) < (QUALITY_RANK[b.quality] or 99)
-	end)
+
+	if not planarMarchEnabled then
+		local stats = {}
+		for _, quality in ipairs({ "Normal", "Blessed", "Ascended" }) do
+			if exported[quality] ~= nil then
+				stats[#stats + 1] = exported[quality]
+			end
+		end
+		return stats
+	end
+
+	-- Empty stats are valid for non-equipment records and retain the existing
+	-- Normal fallback in render(). Without a Normal base, provided canonical
+	-- rows remain renderable (not derivable) in progression order.
+	local base = exported.Normal
+	if base == nil then
+		if not hasInputRows then
+			return {}
+		end
+		local stats = {}
+		for _, quality in ipairs(Quality.list(planarMarchEnabled)) do
+			if exported[quality.name] ~= nil then
+				stats[#stats + 1] = exported[quality.name]
+			end
+		end
+		return stats
+	end
+
+	local stats = {}
+	for _, variant in ipairs(Quality.variants(base, planarMarchEnabled)) do
+		local quality = rowQuality(variant)
+		-- Exported rows are authoritative: only absent canonical qualities use
+		-- Quality.variants output derived from the Normal/base row.
+		stats[#stats + 1] = exported[quality] or variant
+	end
 	return stats
 end
 
@@ -1026,10 +1093,39 @@ end
 
 -- Build the full tooltip wikitext for a resolved item. Weapons and armor render
 -- one tooltip per quality (distinguished by name color); other items render one.
-function Tooltip.render(item)
+function Tooltip.render(item, requestedQuality)
+	if requestedQuality ~= nil then
+		local suppliedQuality = tostring(requestedQuality)
+		requestedQuality = mw.uri.decode(suppliedQuality, "PATH")
+		requestedQuality = Quality.canonicalName(requestedQuality)
+		if requestedQuality == nil then
+			error(
+				"Invalid item quality '"
+					.. suppliedQuality
+					.. "'; expected Normal, Improved +1 through +5, Blessed, or Ascended",
+				2
+			)
+		end
+	end
 	local stats = orderedStats(item)
 	local body
-	if #stats <= 1 then
+	if requestedQuality ~= nil then
+		local selected
+		for _, row in ipairs(stats) do
+			if rowQuality(row) == requestedQuality then
+				selected = row
+				break
+			end
+		end
+		if selected == nil then
+			if requestedQuality == "Normal" and #stats == 0 then
+				selected = { quality = "Normal" }
+			else
+				error("Item does not provide quality " .. requestedQuality, 2)
+			end
+		end
+		body = renderQuality(item, selected)
+	elseif #stats <= 1 then
 		body = renderQuality(item, stats[1] or { quality = "Normal" })
 	else
 		local wrapper = mw.html
@@ -1044,9 +1140,11 @@ function Tooltip.render(item)
 			:css("max-width", "100%")
 			:css("overflow", "visible")
 		for _, row in ipairs(stats) do
+			local quality = rowQuality(row) or tostring(row.quality or "Normal")
 			wrapper
 				:tag("div")
 				:addClass("item-tooltip-quality")
+				:attr("data-erenshor-quality", quality)
 				:css("flex", "0 1 350px")
 				:wikitext(renderQuality(item, row))
 		end

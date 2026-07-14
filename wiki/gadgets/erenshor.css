@@ -34,6 +34,11 @@
 
    ============================================================================ */
 
+:root {
+  --erenshor-item-tooltip-width: 350px;
+  --erenshor-z-tooltip: 1200;
+}
+
 /* ============================================================================
    BASE TOOLTIP CONTAINER
    ============================================================================ */
@@ -46,7 +51,7 @@
 }
 
 .item-tooltip {
-  width: 350px;
+  width: var(--erenshor-item-tooltip-width);
   max-width: 100%;
   table-layout: fixed;
   background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
@@ -65,17 +70,6 @@
     -1px  1px 0 rgba(0,0,0,0.5),
      1px  1px 0 rgba(0,0,0,0.5);
 }
-
-/* Item type variants (for future customization) */
-.item-tooltip-weapon { }
-.item-tooltip-armor { }
-.item-tooltip-charm { }
-.item-tooltip-consumable { }
-.item-tooltip-book { }
-.item-tooltip-aura { }
-.item-tooltip-quest { }
-.item-tooltip-crafting { }
-.item-tooltip-general { }
 
 /* ============================================================================
    HEADER SECTION (Icon + Name + Type)
@@ -561,7 +555,7 @@
   background: linear-gradient(180deg, #191643 0%, #353C40 50%, #375356 100%);
   padding: 15px;
   text-align: center;
-  width: 350px;
+  width: var(--erenshor-item-tooltip-width);
   font-size: 16px;
   border: 2px solid #d0d0d0;
   border-top: none;
@@ -649,10 +643,6 @@
 
 .item-spell-other-effects {
   padding: 8px 0;
-}
-
-.item-spell-special {
-  /* No special styling - uses default text color like in-game */
 }
 
 
@@ -753,4 +743,108 @@
 
 .item-spell-details.item-spell-details-standalone {
 	border-top: 2px solid #d0d0d0;
+}
+
+/* ============================================================================
+   DELEGATED ITEM-LINK TOOLTIP OVERLAY
+   ============================================================================ */
+
+.erenshor-item-tooltip-overlay {
+  --erenshor-tooltip-trigger-gap: 8px;
+  --erenshor-tooltip-viewport-gutter: 8px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--erenshor-z-tooltip);
+  width: var(--erenshor-item-tooltip-width);
+  max-width: calc(100vw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
+  max-width: calc(100dvw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
+  max-height: calc(100vh - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
+  max-height: calc(100dvh - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
+  overflow: hidden auto;
+  pointer-events: auto;
+  user-select: none;
+  contain: layout style paint;
+}
+
+.erenshor-item-tooltip-overlay.erenshor-item-tooltip-overlay--quality-set {
+  width: min(
+    calc(var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + 2em),
+    calc(100vw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter))
+  );
+  width: min(
+    calc(var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + var(--erenshor-item-tooltip-width) + 2em),
+    calc(100dvw - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter))
+  );
+}
+
+
+.erenshor-item-tooltip-overlay,
+.erenshor-item-tooltip-overlay * {
+  pointer-events: auto;
+}
+
+.erenshor-item-tooltip-overlay > .item-tooltip-quality-set,
+.erenshor-item-tooltip-overlay > .item-tooltip-quality {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.erenshor-item-tooltip-overlay .item-tooltip-quality {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.erenshor-item-tooltip-overlay .item-tooltip,
+.erenshor-item-tooltip-overlay .item-spell-details {
+  width: 100%;
+  max-width: 100%;
+}
+
+.erenshor-item-tooltip-overlay .item-tooltip-body {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .erenshor-item-tooltip-overlay .item-tooltip-body {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .erenshor-item-tooltip-overlay .item-tooltip-body td {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .erenshor-item-tooltip-overlay .item-tooltip-two-column,
+  .erenshor-item-tooltip-overlay .item-tooltip-left-column,
+  .erenshor-item-tooltip-overlay .item-tooltip-right-column {
+    min-width: 0;
+  }
+}
+
+
+.erenshor-item-tooltip-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px;
+  animation: erenshor-item-tooltip-loading-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes erenshor-item-tooltip-loading-pulse {
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .erenshor-item-tooltip-loading {
+    animation: none;
+  }
 }

@@ -28,10 +28,12 @@ def _item_link_from_row(row: object, prefix: str = "") -> ItemLink:
     pn = f"{prefix}display_name"
     pw = f"{prefix}wiki_page_name"
     pi = f"{prefix}image_name"
+    ps = f"{prefix}stable_key"
     return ItemLink(
         page_title=str(d[pw]) if d.get(pw) else None,
         display_name=str(d[pn]),
         image_name=str(d[pi]) if d.get(pi) else None,
+        stable_key=str(d[ps]) if d.get(ps) else None,
     )
 
 
@@ -236,7 +238,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT i.display_name, i.wiki_page_name, i.image_name
+            SELECT DISTINCT i.stable_key, i.display_name, i.wiki_page_name, i.image_name
             FROM items i
             JOIN crafting_rewards cr ON i.stable_key = cr.recipe_item_stable_key
             WHERE cr.reward_item_stable_key = ?
@@ -266,7 +268,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT i.display_name, i.wiki_page_name, i.image_name
+            SELECT DISTINCT i.stable_key, i.display_name, i.wiki_page_name, i.image_name
             FROM items i
             JOIN crafting_recipes cr ON i.stable_key = cr.recipe_item_stable_key
             WHERE cr.material_item_stable_key = ?
@@ -300,6 +302,7 @@ class ItemRepository(BaseRepository[Item]):
             SELECT
                 cr.material_quantity,
                 cr.material_slot,
+                i.stable_key,
                 i.display_name,
                 i.wiki_page_name,
                 i.image_name
@@ -313,6 +316,7 @@ class ItemRepository(BaseRepository[Item]):
             SELECT
                 cr.reward_quantity,
                 cr.reward_slot,
+                i.stable_key,
                 i.display_name,
                 i.wiki_page_name,
                 i.image_name
@@ -357,7 +361,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, i.image_name
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name
             FROM items i
             WHERE i.teach_spell_stable_key = ?
               AND (
@@ -399,7 +403,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, i.image_name
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name
             FROM items i
             WHERE i.teach_skill_stable_key = ?
               AND (
@@ -438,7 +442,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT display_name, wiki_page_name, image_name
+            SELECT stable_key, display_name, wiki_page_name, image_name
             FROM items
             WHERE teach_spell_stable_key = ?
             ORDER BY display_name COLLATE NOCASE
@@ -467,7 +471,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT display_name, wiki_page_name, image_name
+            SELECT stable_key, display_name, wiki_page_name, image_name
             FROM items
             WHERE
                 weapon_proc_on_hit_stable_key = ? OR
@@ -503,7 +507,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT display_name, wiki_page_name, image_name
+            SELECT stable_key, display_name, wiki_page_name, image_name
             FROM items
             WHERE teach_skill_stable_key = ?
             ORDER BY display_name COLLATE NOCASE
@@ -532,7 +536,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT display_name, wiki_page_name, image_name
+            SELECT stable_key, display_name, wiki_page_name, image_name
             FROM items
             WHERE item_skill_use_stable_key = ?
             ORDER BY display_name COLLATE NOCASE
@@ -564,7 +568,7 @@ class ItemRepository(BaseRepository[Item]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, i.image_name,
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name,
                    id.drop_probability, id.is_guaranteed
             FROM item_drops id
             JOIN items i ON i.stable_key = id.dropped_item_stable_key

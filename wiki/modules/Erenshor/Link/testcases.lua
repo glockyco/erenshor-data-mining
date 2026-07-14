@@ -22,7 +22,7 @@ function p.run()
 		stableKey = "item:abyssal_plate",
 	})
 	assertContains(item, "erenshor-link erenshor-link--item", "item link has semantic class")
-	assertContains(item, 'data-erenshor-kind="item"', "item link has kind data")
+	assertContains(item, 'data-erenshor-page="Abyssal Plate"', "item link has target page data")
 	assertContains(item, 'data-erenshor-key="item:abyssal_plate"', "item link has stable key data")
 	assertContains(
 		item,
@@ -30,6 +30,58 @@ function p.run()
 		"item link has icon"
 	)
 	assertContains(item, "[[Abyssal Plate]]", "item link has page link")
+	assertNotContains(item, 'data-erenshor-quality="', "item link omits quality by default")
+
+	local blessedItem = Link.render({
+		kind = "item",
+		page = "Abyssal Plate",
+		text = "Abyssal Plate",
+		quality = "blessed",
+	})
+	assertContains(
+		blessedItem,
+		'data-erenshor-quality="Blessed"',
+		"item link emits canonical Blessed quality"
+	)
+
+	local normalizedQualityItem = Link.render({
+		kind = "item",
+		page = "Abyssal Plate",
+		text = "Abyssal Plate",
+		quality = "  iMpRoVeD +3  ",
+	})
+	assertContains(
+		normalizedQualityItem,
+		'data-erenshor-quality="Improved +3"',
+		"item link normalizes quality case and whitespace"
+	)
+
+	local invalidQualityOk, invalidQualityError = pcall(function()
+		Link.render({ kind = "item", page = "Abyssal Plate", quality = "Mythic" })
+	end)
+	if invalidQualityOk then
+		error("invalid item quality must fail fast", 2)
+	end
+	assertContains(invalidQualityError, "quality", "invalid item quality identifies parameter")
+	assertContains(invalidQualityError, "invalid", "invalid item quality identifies invalid value")
+
+	local stableKeyQualityItem = Link.render({
+		kind = "item",
+		page = "Abyssal Plate",
+		text = "Duplicate-page item",
+		stableKey = "item:abyssal_plate",
+		quality = " Blessed ",
+	})
+	assertContains(
+		stableKeyQualityItem,
+		'data-erenshor-key="item:abyssal_plate"',
+		"item link preserves stable key with quality"
+	)
+	assertContains(
+		stableKeyQualityItem,
+		'data-erenshor-quality="Blessed"',
+		"item link emits quality with stable key"
+	)
 
 	local itemImageOnly = Link.render({ kind = "item", page = "Abyssal Plate", imageonly = "1" })
 	assertContains(
@@ -45,7 +97,11 @@ function p.run()
 		"erenshor-link erenshor-link--ability",
 		"ability link has semantic class"
 	)
-	assertContains(ability, 'data-erenshor-kind="ability"', "ability link has kind data")
+	assertContains(
+		ability,
+		'data-erenshor-page="Minor Lightning"',
+		"ability link has target page data"
+	)
 	assertContains(
 		ability,
 		'data-erenshor-key="spell:minor_lightning"',
@@ -70,6 +126,21 @@ function p.run()
 		"character link has semantic class"
 	)
 	assertContains(character, "[[A Grizzly Bear]]", "character link has page link")
+	assertContains(
+		character,
+		'data-erenshor-page="A Grizzly Bear"',
+		"character link has target page data"
+	)
+
+	local punctuation = Link.render({ kind = "zone", page = "R&D <Elite>" })
+	assertContains(
+		punctuation,
+		'data-erenshor-page="R&amp;D &lt;Elite&gt;"',
+		"target page data escapes HTML-sensitive title"
+	)
+
+	local excluded = Link.render({ kind = "item", page = "-", text = "-" })
+	assertNotContains(excluded, "erenshor-link", "plain excluded text has no semantic wrapper")
 
 	local zone = Link.render({ kind = "zone", page = "Blacksalt Strand" })
 	assertContains(zone, "erenshor-link erenshor-link--zone", "zone link has semantic class")

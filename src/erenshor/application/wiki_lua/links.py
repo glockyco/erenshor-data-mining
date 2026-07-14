@@ -22,6 +22,8 @@ def link_ref(link: WikiLink, kind: str | None = None) -> LuaData | None:
         "page": link.page_title,
         "text": link.display_name,
     }
+    if isinstance(link, ItemLink) and link.stable_key:
+        ref["stablekey"] = link.stable_key
     if link.image_name:
         ref["image"] = link.image_name
     return ref

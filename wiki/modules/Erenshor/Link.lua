@@ -1,5 +1,6 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
+local Quality = require("Module:Erenshor/Item/Quality")
 
 local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
 local ItemIndex = mw.loadData("Module:Erenshor/Data/Items")
@@ -87,23 +88,29 @@ local function abilityByStableKey(stableKey)
 	return AbilityData.abilities[stableKey]
 end
 
-local function spanAttributes(kind, args)
+local function spanAttributes(kind, args, page, quality)
 	local attributes = {
 		'class="erenshor-link erenshor-link--' .. Format.escape(kind) .. '"',
 		'data-erenshor-kind="' .. Format.escape(kind) .. '"',
 	}
+	if not isBlank(page) then
+		table.insert(attributes, 'data-erenshor-page="' .. Format.escape(page) .. '"')
+	end
 	local stableKey = explicitStableKey(args)
 	if not isBlank(stableKey) then
 		table.insert(attributes, 'data-erenshor-key="' .. Format.escape(stableKey) .. '"')
 	end
+	if kind == "item" and not isBlank(quality) then
+		table.insert(attributes, 'data-erenshor-quality="' .. Format.escape(quality) .. '"')
+	end
 	return table.concat(attributes, " ")
 end
 
-local function wrap(kind, args, body)
+local function wrap(kind, args, body, page, quality)
 	if isBlank(body) then
 		return ""
 	end
-	return "<span " .. spanAttributes(kind, args or {}) .. ">" .. body .. "</span>"
+	return "<span " .. spanAttributes(kind, args or {}, page, quality) .. ">" .. body .. "</span>"
 end
 
 local function resolvedText(args, record, fallback)
@@ -117,8 +124,21 @@ local function resolvedPage(args, record, fallback)
 		or fallback
 end
 
+local function resolveItemQuality(args)
+	local requested = Args.resolve(args or {}, "quality", nil, { dashBlank = false })
+	if requested == nil then
+		return nil
+	end
+	local canonical = Quality.canonicalName(requested)
+	if canonical == nil then
+		error(string.format("Parameter 'quality' has invalid value %q", tostring(requested)), 3)
+	end
+	return canonical
+end
+
 local function renderItem(args)
 	args = args or {}
+	local quality = resolveItemQuality(args)
 	local target = Args.resolve(args, "item", nil)
 		or Args.resolve(args, "name", nil)
 		or Args.resolve(args, 1, nil)
@@ -129,9 +149,9 @@ local function renderItem(args)
 	local imageLink =
 		Format.fileLink(ensureImageFile(image, text), { alt = text, size = "24x24px", link = page })
 	if Args.bool(args, "imageonly", false) then
-		return wrap("item", args, imageLink)
+		return wrap("item", args, imageLink, page, quality)
 	end
-	return wrap("item", args, imageLink .. " " .. Format.pageLink(page, text))
+	return wrap("item", args, imageLink .. " " .. Format.pageLink(page, text), page, quality)
 end
 
 local function renderAbility(args)
@@ -148,7 +168,7 @@ local function renderAbility(args)
 		body = body .. " " .. Format.pageLink(page, text)
 	end
 	body = body .. "</span>"
-	return wrap("ability", args, body)
+	return wrap("ability", args, body, page)
 end
 
 local function renderQuest(args)
@@ -157,7 +177,7 @@ local function renderQuest(args)
 	local page = resolvedPage(args, nil, target)
 	local text = resolvedText(args, nil, target or page)
 	local icon = Format.fileLink("questiconsmall.png", { link = page })
-	return wrap("quest", args, icon .. Format.pageLink(page, text))
+	return wrap("quest", args, icon .. Format.pageLink(page, text), page)
 end
 
 local function renderPlain(kind, args)
@@ -178,7 +198,7 @@ local function renderPlain(kind, args)
 	end
 	local page = resolvedPage(args, record, target)
 	local text = resolvedText(args, record, target or page)
-	return wrap(kind, args, Format.pageLink(page, text))
+	return wrap(kind, args, Format.pageLink(page, text), page)
 end
 
 function p.render(args)

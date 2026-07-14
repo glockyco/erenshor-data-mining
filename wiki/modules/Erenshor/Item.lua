@@ -2,6 +2,7 @@ local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Item/Tooltip")
+local Quality = require("Module:Erenshor/Item/Quality")
 local Cargo = require("Module:Erenshor/Cargo")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
@@ -148,10 +149,21 @@ local function itemForStableKey(stableKey)
 end
 
 local function explicitStableKey(args)
-	return Args.resolve(args, "stablekey", nil)
-		or Args.resolve(args, "stableKey", nil)
+	local stableKey = Args.resolve(args, "stablekey", nil)
+	if stableKey ~= nil then
+		return stableKey
+	end
+	stableKey = Args.resolve(args, "stableKey", nil)
 		or Args.resolve(args, "key", nil)
 		or Args.resolve(args, "id", nil)
+	if stableKey ~= nil then
+		return stableKey
+	end
+	local encodedStableKey = Args.resolve(args, "encodedstablekey", nil)
+	if encodedStableKey ~= nil then
+		return mw.uri.decode(encodedStableKey, "PATH")
+	end
+	return nil
 end
 
 local function resolveStableKey(args)
@@ -577,11 +589,25 @@ function p.statusText(args, pageTitle)
 end
 
 function p.renderTooltip(args, pageTitle)
+	local requestedQuality = Args.resolve(args, "quality", nil, { dashBlank = false })
+	if requestedQuality ~= nil then
+		local suppliedQuality = requestedQuality
+		requestedQuality = mw.uri.decode(requestedQuality, "PATH")
+		requestedQuality = Quality.canonicalName(requestedQuality)
+		if requestedQuality == nil then
+			error(
+				"Invalid item quality '"
+					.. suppliedQuality
+					.. "'; expected Normal, Improved +1 through +5, Blessed, or Ascended",
+				2
+			)
+		end
+	end
 	local item = p.resolve(args, pageTitle)
 	if item.missing then
 		return missingOutput(item)
 	end
-	return Tooltip.render(item)
+	return Tooltip.render(item, requestedQuality)
 end
 
 function p.renderLink(args, pageTitle)

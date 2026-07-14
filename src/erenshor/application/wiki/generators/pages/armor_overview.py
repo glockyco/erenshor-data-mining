@@ -176,6 +176,7 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
                 page_title=armor.wiki_page_name,
                 display_name=armor.display_name or armor.item_name or "",
                 image_name=armor.image_name,
+                stable_key=armor.stable_key,
             )
         )
 

@@ -39,6 +39,18 @@ return {
 			},
 		},
 	},
+	["item:shared-page-common"] = {
+		name = "Shared Item Fixture",
+		page = "Shared Item Fixture",
+		type = "General",
+		description = "COMMON identity fixture",
+	},
+	["item:shared-page-rare"] = {
+		name = "Shared Item Fixture",
+		page = "Shared Item Fixture",
+		type = "General",
+		description = "RARE identity fixture",
+	},
 	["item:ore - planar stone"] = {
 		name = "Planar Stone",
 		page = "Planar Stone",
