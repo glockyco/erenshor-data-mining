@@ -7,8 +7,8 @@
 <noinclude>
 Item quality tooltip.
 
-Equipment pages pass Normal/base fields with <code>kind=Weapon</code> or
-<code>kind=Armor</code>; the parameter renderer derives Normal, Improved +1
+Equipment pages pass Standard/base fields with <code>kind=Weapon</code> or
+<code>kind=Armor</code>; the parameter renderer derives Standard, Improved +1
 through +5, Blessed, and Ascended. Stable-key calls remain for item types that
 have not migrated yet.
 </noinclude>

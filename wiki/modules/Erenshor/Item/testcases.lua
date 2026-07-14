@@ -98,15 +98,22 @@ end
 
 function p.run()
 	assertEqual(
-		Quality.canonicalName(" normal "),
-		"Normal",
+		Quality.canonicalName(" standard "),
+		"Standard",
 		"quality canonicalization trims whitespace"
 	)
 	assertEqual(
-		Quality.canonicalName("bLeSsEd"),
-		"Blessed",
+		Quality.canonicalName("standard"),
+		"Standard",
 		"quality canonicalization ignores case"
 	)
+	assertEqual(Quality.canonicalName("Normal"), nil, "legacy Normal quality alias is rejected")
+	assertEqual(
+		Quality.canonicalName("normal"),
+		nil,
+		"lowercase legacy normal quality alias is rejected"
+	)
+	assertEqual(Quality.canonicalName("0"), nil, "numeric zero quality alias is rejected")
 	assertEqual(
 		Quality.canonicalName("Not a quality"),
 		nil,
@@ -154,7 +161,7 @@ function p.run()
 		),
 		{
 			{
-				quality = "Normal",
+				quality = "Standard",
 				str = 0,
 				["end"] = 0,
 				dex = 0,
@@ -343,7 +350,7 @@ function p.run()
 		}, true),
 		{
 			{
-				quality = "Normal",
+				quality = "Standard",
 				str = 25,
 				["end"] = 0,
 				dex = 30,
@@ -520,7 +527,7 @@ function p.run()
 		"Planar March mode emits all eight armor quality variants"
 	)
 	for _, quality in ipairs({
-		"Normal",
+		"Standard",
 		"Improved +1",
 		"Improved +2",
 		"Improved +3",
@@ -532,9 +539,9 @@ function p.run()
 		assertContains(armorTooltip, quality, "armor output labels " .. quality)
 	end
 	assertEqual(
-		countOccurrences(armorTooltip, 'data-erenshor-quality="Normal"'),
+		countOccurrences(armorTooltip, 'data-erenshor-quality="Standard"'),
 		1,
-		"parameterized Normal quality metadata is exact"
+		"parameterized Standard quality metadata is exact"
 	)
 	assertEqual(
 		countOccurrences(armorTooltip, 'data-erenshor-quality="Blessed"'),
@@ -611,7 +618,7 @@ function p.run()
 	assertContains(
 		weaponTooltipFromParams,
 		'item-tooltip-stat-value">38</span>',
-		"Normal weapon damage remains unchanged"
+		"Standard weapon damage remains unchanged"
 	)
 	assertContains(
 		weaponTooltipFromParams,
@@ -960,7 +967,7 @@ function p.run()
 	)
 	local previousQualityPosition = 0
 	for _, quality in ipairs({
-		"Normal",
+		"Standard",
 		"Improved +1",
 		"Improved +2",
 		"Improved +3",
@@ -994,17 +1001,17 @@ function p.run()
 		assertContains(
 			card,
 			statFragment("Str", expected.str),
-			quality .. " derives Normal strength"
+			quality .. " derives Standard strength"
 		)
 		assertContains(
 			card,
 			statFragment("Dex", expected.dex),
-			quality .. " derives Normal dexterity"
+			quality .. " derives Standard dexterity"
 		)
 		assertContains(
 			card,
 			statFragment("Magic", "+" .. expected.mr .. "%"),
-			quality .. " derives Normal magic resist"
+			quality .. " derives Standard magic resist"
 		)
 	end
 	assertContains(
@@ -1070,7 +1077,11 @@ function p.run()
 		"weapon tooltip carries the weapon CSS class"
 	)
 	assertContains(weaponTooltip, "Ember Longsword", "weapon tooltip shows the item name")
-	assertContains(weaponTooltip, "item-tooltip-tier-0", "weapon tooltip colors the Normal quality")
+	assertContains(
+		weaponTooltip,
+		"item-tooltip-tier-0",
+		"weapon tooltip colors the Standard quality"
+	)
 	assertContains(
 		weaponTooltip,
 		"item-tooltip-tier-2",
@@ -1081,8 +1092,8 @@ function p.run()
 	end
 	assertContains(
 		weaponTooltip,
-		'data-erenshor-quality="Normal"',
-		"weapon tooltip exposes Normal quality metadata"
+		'data-erenshor-quality="Standard"',
+		"weapon tooltip exposes Standard quality metadata"
 	)
 	assertContains(
 		weaponTooltip,
@@ -1131,24 +1142,24 @@ function p.run()
 		"weapon quality variants keep one full tooltip visible beside the infobox"
 	)
 
-	local normalOnlyTooltip = Item.renderTooltip(
-		{ stablekey = "item:ember_longsword", quality = " normal " },
+	local standardOnlyTooltip = Item.renderTooltip(
+		{ stablekey = "item:ember_longsword", quality = " standard " },
 		"Ember Longsword"
 	)
 	assertEqual(
-		countOccurrences(normalOnlyTooltip, 'class="item-tooltip item-tooltip-weapon"'),
+		countOccurrences(standardOnlyTooltip, 'class="item-tooltip item-tooltip-weapon"'),
 		1,
-		"explicit Normal selection renders one card"
+		"explicit Standard selection renders one card"
 	)
 	assertContains(
-		normalOnlyTooltip,
+		standardOnlyTooltip,
 		"item-tooltip-tier-0",
-		"explicit Normal selection renders Normal"
+		"explicit Standard selection renders Standard"
 	)
 	assertAbsent(
-		normalOnlyTooltip,
+		standardOnlyTooltip,
 		"item-tooltip-quality-set",
-		"explicit Normal selection omits quality wrapper"
+		"explicit Standard selection omits quality wrapper"
 	)
 	local blessedOnlyTooltip = Item.renderTooltip(
 		{ stablekey = "item:ember_longsword", quality = " blessed " },
@@ -1211,18 +1222,18 @@ function p.run()
 		"Invalid item quality",
 		"invalid quality error is useful"
 	)
-	local normalWithoutStats =
-		Item.renderTooltip({ stablekey = "item:magical_bag", quality = "Normal" }, "Magical Bag")
+	local standardWithoutStats =
+		Item.renderTooltip({ stablekey = "item:magical_bag", quality = "Standard" }, "Magical Bag")
 	assertContains(
-		normalWithoutStats,
+		standardWithoutStats,
 		"item-tooltip-general",
-		"Normal selection works when item has no explicit stats"
+		"Standard selection works when item has no explicit stats"
 	)
 
 	local clickArmor = Item.resolve({ stablekey = "item:abyssal_plate" }, "Abyssal Plate")
 	clickArmor.wornEffect = nil
 	clickArmor.clickEffect = "spell:minor_heal"
-	local clickArmorTooltip = Tooltip.render(clickArmor, "Normal")
+	local clickArmorTooltip = Tooltip.render(clickArmor, "Standard")
 	assertContains(
 		clickArmorTooltip,
 		"Activatable: Minor Heal",

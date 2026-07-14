@@ -1,6 +1,6 @@
 -- Module:Erenshor/Item/ParameterizedTooltip
 --
--- Renders the legacy Item/Weapon and Item/Armor templates from one Normal
+-- Renders the legacy Item/Weapon and Item/Armor templates from one Standard
 -- quality parameter set.  Quality.lua is the only place that owns the game
 -- quality formulas; this module only maps fields and composes the legacy
 -- card templates via frame:expandTemplate.
@@ -287,7 +287,7 @@ local function invocation(kindName, args, stats, frame)
 
 	-- Quality-derived stats replace whatever the article supplied.  Alias
 	-- names (health/armor/magic/...) are marked known so the passthrough
-	-- loop below cannot smuggle the Normal-quality inputs back in.
+	-- loop below cannot smuggle the Standard-quality inputs back in.
 	for _, output in ipairs(STAT_OUTPUTS) do
 		if output.name ~= "damage" or rendersAttackStats then
 			put(output.name, stats[output.key])

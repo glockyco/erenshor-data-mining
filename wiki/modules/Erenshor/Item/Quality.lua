@@ -1,7 +1,7 @@
 -- Module:Erenshor/Item/Quality
 --
 -- Item quality progression and the game's quality-stat formulas. The wiki
--- receives only the Normal row; this module derives all upgrade rows with the
+-- receives only the Standard row; this module derives all upgrade rows with the
 -- released Planar March formulas. Callers can explicitly request the legacy
 -- formulas for regression comparisons.
 
@@ -15,7 +15,7 @@ local PLANAR_MARCH_ENABLED = true
 -- Runtime IDs are not a power ranking, and the green Improved visual tier is
 -- shared by all five Improved qualities.
 local QUALITIES = {
-	{ name = "Normal", runtimeId = 1, progressionRank = 0, visualTier = 0 },
+	{ name = "Standard", runtimeId = 1, progressionRank = 0, visualTier = 0 },
 	{ name = "Improved +1", runtimeId = 11, progressionRank = 1, visualTier = 3 },
 	{ name = "Improved +2", runtimeId = 12, progressionRank = 2, visualTier = 4 },
 	{ name = "Improved +3", runtimeId = 13, progressionRank = 3, visualTier = 5 },

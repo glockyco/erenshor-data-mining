@@ -21,7 +21,7 @@ To request a released quality variant:
 
 The supported qualities are:
 
-* Normal
+* Standard
 * Improved +1
 * Improved +2
 * Improved +3
@@ -30,7 +30,7 @@ The supported qualities are:
 * Blessed
 * Ascended
 
-Omitting <code>quality</code> selects the Normal tooltip.
+Omitting <code>quality</code> selects the Standard tooltip.
 
 == Hoverable examples ==
 
@@ -122,10 +122,10 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
     },
     "quality": {
       "label": "Quality",
-      "description": "Tooltip quality variant. Defaults to Normal.",
+      "description": "Tooltip quality variant. Defaults to Standard.",
       "type": "string",
       "suggestedvalues": [
-        "Normal",
+        "Standard",
         "Improved +1",
         "Improved +2",
         "Improved +3",

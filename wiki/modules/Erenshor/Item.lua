@@ -259,9 +259,9 @@ end
 
 local hasValue
 
-local function normalStats(item)
+local function standardStats(item)
 	for _, stats in ipairs(item.stats or {}) do
-		if stats.quality == "Normal" or stats.quality == "0" then
+		if stats.quality == "Standard" then
 			return stats
 		end
 	end
@@ -598,7 +598,7 @@ function p.renderTooltip(args, pageTitle)
 			error(
 				"Invalid item quality '"
 					.. suppliedQuality
-					.. "'; expected Normal, Improved +1 through +5, Blessed, or Ascended",
+					.. "'; expected Standard, Improved +1 through +5, Blessed, or Ascended",
 				2
 			)
 		end
@@ -628,7 +628,7 @@ function p.renderLink(args, pageTitle)
 end
 
 local function cargoFields(item, pageTitle)
-	local stats = normalStats(item)
+	local stats = standardStats(item)
 	return {
 		{ "Page", pageTitle },
 		{ "StableKey", item.stableKey },

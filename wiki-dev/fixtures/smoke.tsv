@@ -223,7 +223,7 @@ Legacy Item Fixture	pi-type-Item
 Legacy Item Fixture	Category:Items
 Parameterized ItemTooltip Fixture	Parameterized Sword
 Parameterized ItemTooltip Fixture	Weapon
-Parameterized ItemTooltip Fixture	Normal
+Parameterized ItemTooltip Fixture	Standard
 Parameterized ItemTooltip Fixture	Blessed
 Parameterized ItemTooltip Fixture	Ascended
 Parameterized ItemTooltip Fixture	Parameterized Sword.png

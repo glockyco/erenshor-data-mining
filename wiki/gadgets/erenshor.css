@@ -27,7 +27,7 @@
    - Glow:   #FFFF00
 
    Tier Colors:
-   - Normal:  #FFFFFF
+   - Standard: #FFFFFF
    - Blessed:  #00F9FF
    - Ascended: #FC87FF
    - Improved: #00FF00
@@ -103,7 +103,7 @@
 }
 
 /* Quality tier colors (from Unity LoadScene) */
-.item-tooltip-tier-0 { color: #FFFFFF; } /* Normal */
+.item-tooltip-tier-0 { color: #FFFFFF; } /* Standard */
 .item-tooltip-tier-1 { color: #00F9FF; } /* Blessed (cyan) */
 .item-tooltip-tier-2 { color: #FC87FF; } /* Ascended (magenta) */
 .item-tooltip-tier-3,

@@ -7,7 +7,7 @@
 	const COARSE_POINTER_QUERY = '(pointer: coarse)';
 	const KNOWN_MISSING_CODES = new Set( [ 'invalidtitle', 'missingtitle', 'nosuchpageid' ] );
 	const CANONICAL_QUALITIES = [
-		'Normal',
+		'Standard',
 		'Improved +1',
 		'Improved +2',
 		'Improved +3',
@@ -17,7 +17,7 @@
 		'Ascended'
 	];
 	const QUALITY_TIERS = {
-		'Normal': 0,
+		'Standard': 0,
 		'Blessed': 1,
 		'Ascended': 2,
 		'Improved +1': 3,
@@ -280,7 +280,7 @@
 			const title = normalizeTitle( target.dataset.erenshorPage );
 			const hasQuality = target.hasAttribute( 'data-erenshor-quality' );
 			const quality = hasQuality ?
-				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : 'Normal';
+				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : 'Standard';
 			if ( !title || ( hasQuality && !quality ) ) {
 				return null;
 			}
@@ -402,11 +402,11 @@
 			}
 
 			const tier = QUALITY_TIERS[ quality ];
-			if ( cards.length === 1 && quality !== 'Normal' && cardTier( cards[ 0 ] ) === tier ) {
+			if ( cards.length === 1 && quality !== 'Standard' && cardTier( cards[ 0 ] ) === tier ) {
 				return presentationForCard( cards[ 0 ] );
 			}
 			if ( cards.length === 1 ) {
-				return quality === 'Normal' ? presentationForCard( cards[ 0 ] ) : null;
+				return quality === 'Standard' ? presentationForCard( cards[ 0 ] ) : null;
 			}
 			for ( let index = 0; index < cards.length; index++ ) {
 				if ( cardTier( cards[ index ] ) === tier ) {

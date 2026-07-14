@@ -31,6 +31,28 @@ function p.run()
 	)
 	assertContains(item, "[[Abyssal Plate]]", "item link has page link")
 	assertNotContains(item, 'data-erenshor-quality="', "item link omits quality by default")
+	assertNotContains(
+		item,
+		'data-erenshor-quality="Standard"',
+		"item link does not invent Standard metadata by default"
+	)
+
+	local standardItem = Link.render({
+		kind = "item",
+		page = "Abyssal Plate",
+		text = "Abyssal Plate",
+		quality = "Standard",
+	})
+	assertContains(
+		standardItem,
+		'data-erenshor-quality="Standard"',
+		"item link emits explicit Standard quality metadata"
+	)
+	assertNotContains(
+		standardItem,
+		'data-erenshor-quality="Normal"',
+		"item link does not emit legacy Normal quality metadata"
+	)
 
 	local blessedItem = Link.render({
 		kind = "item",
@@ -55,6 +77,20 @@ function p.run()
 		'data-erenshor-quality="Improved +3"',
 		"item link normalizes quality case and whitespace"
 	)
+
+	for _, invalidQuality in ipairs({ "Normal", "normal", "0" }) do
+		local rejected, rejectionError = pcall(function()
+			Link.render({ kind = "item", page = "Abyssal Plate", quality = invalidQuality })
+		end)
+		if rejected then
+			error("legacy item quality alias must fail fast: " .. invalidQuality, 2)
+		end
+		assertContains(
+			rejectionError,
+			"quality",
+			"legacy item quality alias identifies parameter: " .. invalidQuality
+		)
+	end
 
 	local invalidQualityOk, invalidQualityError = pcall(function()
 		Link.render({ kind = "item", page = "Abyssal Plate", quality = "Mythic" })

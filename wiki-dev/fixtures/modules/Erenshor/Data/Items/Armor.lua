@@ -12,7 +12,7 @@ return {
 		classes = { "Paladin", "Warrior" },
 		stats = {
 			{
-				quality = "Normal",
+				quality = "Standard",
 				hp = 12,
 				mana = 3,
 				str = 4,

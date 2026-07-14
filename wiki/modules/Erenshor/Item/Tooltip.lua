@@ -30,7 +30,7 @@ local Tooltip = {}
 
 local QUALITY_VISUAL_TIER = {
 	["0"] = 0,
-	Normal = 0,
+	Standard = 0,
 	Blessed = 1,
 	Ascended = 2,
 	["Improved +1"] = 3,
@@ -890,7 +890,7 @@ local function rowQuality(row)
 		return nil
 	end
 	if tostring(row.quality) == "0" then
-		return "Normal"
+		return "Standard"
 	end
 	return Quality.canonicalName(row.quality)
 end
@@ -923,7 +923,7 @@ local function orderedStats(item)
 
 	if not planarMarchEnabled then
 		local stats = {}
-		for _, quality in ipairs({ "Normal", "Blessed", "Ascended" }) do
+		for _, quality in ipairs({ "Standard", "Blessed", "Ascended" }) do
 			if exported[quality] ~= nil then
 				stats[#stats + 1] = exported[quality]
 			end
@@ -932,9 +932,9 @@ local function orderedStats(item)
 	end
 
 	-- Empty stats are valid for non-equipment records and retain the existing
-	-- Normal fallback in render(). Without a Normal base, provided canonical
+	-- Standard fallback in render(). Without a Standard base, provided canonical
 	-- rows remain renderable (not derivable) in progression order.
-	local base = exported.Normal
+	local base = exported.Standard
 	if base == nil then
 		if not hasInputRows then
 			return {}
@@ -952,7 +952,7 @@ local function orderedStats(item)
 	for _, variant in ipairs(Quality.variants(base, planarMarchEnabled)) do
 		local quality = rowQuality(variant)
 		-- Exported rows are authoritative: only absent canonical qualities use
-		-- Quality.variants output derived from the Normal/base row.
+		-- Quality.variants output derived from the Standard/base row.
 		stats[#stats + 1] = exported[quality] or variant
 	end
 	return stats
@@ -1102,7 +1102,7 @@ function Tooltip.render(item, requestedQuality)
 			error(
 				"Invalid item quality '"
 					.. suppliedQuality
-					.. "'; expected Normal, Improved +1 through +5, Blessed, or Ascended",
+					.. "'; expected Standard, Improved +1 through +5, Blessed, or Ascended",
 				2
 			)
 		end
@@ -1118,15 +1118,15 @@ function Tooltip.render(item, requestedQuality)
 			end
 		end
 		if selected == nil then
-			if requestedQuality == "Normal" and #stats == 0 then
-				selected = { quality = "Normal" }
+			if requestedQuality == "Standard" and #stats == 0 then
+				selected = { quality = "Standard" }
 			else
 				error("Item does not provide quality " .. requestedQuality, 2)
 			end
 		end
 		body = renderQuality(item, selected)
 	elseif #stats <= 1 then
-		body = renderQuality(item, stats[1] or { quality = "Normal" })
+		body = renderQuality(item, stats[1] or { quality = "Standard" })
 	else
 		local wrapper = mw.html
 			.create("div")
@@ -1140,7 +1140,7 @@ function Tooltip.render(item, requestedQuality)
 			:css("max-width", "100%")
 			:css("overflow", "visible")
 		for _, row in ipairs(stats) do
-			local quality = rowQuality(row) or tostring(row.quality or "Normal")
+			local quality = rowQuality(row) or tostring(row.quality or "Standard")
 			wrapper
 				:tag("div")
 				:addClass("item-tooltip-quality")
