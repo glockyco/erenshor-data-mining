@@ -1,9 +1,10 @@
 ---
 title: Maps Domain Migration & URL Restructure
 type: plan
-status: active
+status: implemented
 created: 2026-06-26
 parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-07-14
 ---
 
 # Maps Domain Migration & URL Restructure
@@ -17,10 +18,11 @@ build. No deployment or external cutover is authorized until the repository
 work and every manual gate below is complete. The independent backlog is not
 part of this cutover.
 
-The shared Worker is deployed and verified on both hosts. The new Search Console
-Domain property is DNS-verified, and the legacy `/map` runtime plus verification
-token remain healthy. Search Console Change of Address and controlled backlink
-updates are the remaining cutover gates.
+The migration is complete. The shared Worker is deployed and verified on both
+hosts; Search Console Change of Address and the custom-domain sitemap submission
+are complete; wiki, Steam, compendiums.org, and repository-controlled backlinks
+use the canonical origin. The legacy `/map` runtime and verification token remain
+healthy for shipped companion overlays and old-property monitoring.
 
 ## Decisions (locked)
 
@@ -172,12 +174,11 @@ These rules are the release contract for the Worker, static build, and tests:
 - [x] Update `src/mods/AdventureGuide/vault/README.md` absolute map image and
   marker/navigation assets, the root `README.md`, and the old-host reference
   in `docs/architecture-analysis.md`.
-- [x] Update the repo-owned wiki MapLink surface as one atomic set:
-  `wiki/modules/Erenshor/Character.lua`, `wiki/modules/Erenshor/Zone.lua`,
-  `wiki/templates/Character.wiki`, `wiki/templates/Template_MapLink.txt`,
-  and `wiki/modules/Erenshor/Zone/testcases.lua`. Preserve selector
-  parameters and update expected URL strings. The separate manual ownership
-  gate below still controls deployment.
+- [x] Prepare both wiki map-link implementations without prematurely forcing the
+  broader Cargo/Lua cutover: update the future Lua-backed Character and Zone
+  modules/templates plus their tests, and keep the production-compatible direct
+  `Template:MapLink` source on the canonical origin. Preserve `/map` selector
+  parameters; full Cargo ownership remains gated by the wiki cutover plans.
 
 ### Task 2: Shared Worker and static-build preparation (repository work)
 
@@ -257,16 +258,17 @@ responsible operator.
   tiles, images, fonts, and representative other runtime resources as direct
   same-origin `200`s; verify old token `200`; verify exact root-key and
   same-path HTML `301`s; and verify unknown/reserved paths are `404`s.
-- [ ] After both hosts pass verification, submit the new-host sitemap from the
-  already-verified GSC property and run Change of Address from the old property
+- [x] After both hosts passed verification, submit the new-host sitemap from the
+  DNS-verified GSC property and complete Change of Address from the old property
   to the new property. Keep the old property and legacy token accessible during
   the transition and monitor indexing/redirect errors.
-- [ ] Deploy the repo-owned wiki MapLink/Lua/template update first among
-  controlled backlinks, preserving `/map` selector behavior. Check a
-  character link, a zone link, and a generated zone page. Then update the
-  Steam guide and other externally maintained links. Repository-controlled
-  mod, Adventure Guide, README, and architecture links must already point to
-  the new origin before this step.
+- [x] Cut over production wiki map backlinks without forcing the unfinished
+  Cargo/Lua template migration: retain the direct `Template:MapLink`
+  implementation, point character and zone map links at the custom origin, and
+  verify representative character, zone, and direct MapLink renders. Update the
+  Steam guide and other externally maintained links after the wiki. Repository-
+  controlled mod, Adventure Guide, README, architecture, and compendiums.org
+  links already use the canonical origin.
 
 ### Task 5: Verification and rollback gates
 
@@ -278,28 +280,20 @@ responsible operator.
   `200`; `/guide`, `/zones/*`, malformed/case-variant keys, unknown paths, and
   unknown assets are deliberate `404`s; no redirect loops exist; and no
   destination points back to the legacy host.
-- [ ] Re-run the new-host surface check after wiki and external-link updates:
-  canonical/OG/JSON-LD/sitemap/robots use the custom origin, every
-  prerendered map has exactly one `/maps/<key>` canonical, generated wiki and
-  Sheets URLs use the new `MapsConfig.base_url`, BrowserManager allows the new
-  host, the legacy companion source remains supported, and representative
-  internal/mod/docs links resolve.
-- [ ] If custom-domain activation, certificate, or DNS verification fails,
-  stop before GSC Change of Address or external-link updates. Keep the
-  workers.dev route serving the recorded known-good Worker version, remove or
-  disable the unverified custom-domain route, and do not claim the migration is
-  live.
-- [ ] If host routing misroutes, drops queries, breaks the token, breaks an
-  overlay resource, or loops, roll back the retained Worker to the recorded
-  last-known-good version and shared build. Re-test both hosts before any
-  external cutover. Preserve the prior build, Worker version, and Wrangler
-  configuration as rollback artifacts; do not create a parallel Worker to
-  recover.
-- [ ] If GSC, wiki, Steam, or another external gate fails after repository and
-  host verification, pause that gate, retain the verified host behavior and
-  legacy compatibility responses, and defer the remaining external update.
-  Do not remove the legacy token or alter old-host overlay resources until the
-  transition is complete.
+- [x] Re-run the new-host surface check after wiki and external-link updates:
+  canonical/OG/JSON-LD/sitemap/robots use the custom origin; representative
+  prerendered maps use `/maps/<key>` canonicals; generated wiki and Sheets URLs
+  use the new `MapsConfig.base_url`; BrowserManager allows the new host while
+  retaining the legacy companion source; and representative internal, mod,
+  documentation, wiki, and compendiums.org links resolve.
+- [x] Custom-domain activation, certificate, and DNS verification remained
+  healthy through cutover, so the pre-GSC rollback path was not triggered.
+- [x] Both host-routing matrices passed after the final deployment: queries and
+  the legacy token remain intact, overlay resources stay same-origin, and no
+  redirect loop or rollback trigger was observed.
+- [x] GSC, wiki, Steam, and other controlled backlink gates completed; no
+  external-gate pause was required. The legacy token and old-host overlay
+  resources remain available for the transition.
 
 ## Risks and release gates
 
@@ -336,12 +330,10 @@ responsible operator.
   version change during cutover can alter config or deploy behavior; reconcile
   and review the lock before deploying the retained Worker.
 
-### Task 6: Independent backlog (not a migration gate)
+### Task 6: Independent backlog (not migration work)
 
-- [ ] (low value) 404 `noindex` page (spec I3): needs an adapter `fallback` plus
-  a Wrangler `not_found_handling` change to actually be served. It is limited
-  to deliberate 404 documents, never legacy `/map`, and does not block the
-  domain/URL cutover.
-- [ ] (future, own spec) Crawlable textual content layer at `/zones/{slug}`.
-  It remains separate from the interactive `/maps/{slug}` route and must not be
-  folded into this migration.
+- **Deferred:** a low-value `404` `noindex` page (spec I3) would need an adapter
+  fallback plus Wrangler `not_found_handling`; it remains limited to deliberate
+  404 documents and must never affect legacy `/map`.
+- **Deferred to its own draft spec:** the crawlable textual content layer at
+  `/zones/{slug}` remains separate from interactive `/maps/{slug}`.
