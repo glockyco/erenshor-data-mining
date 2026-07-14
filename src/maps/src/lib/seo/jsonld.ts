@@ -88,7 +88,7 @@ export function zoneMapJsonLd({ zoneKey, zoneName }: ZoneMapInput) {
         '@context': 'https://schema.org',
         '@type': 'CreativeWork',
         name: `${zoneName} – Erenshor Zone Map`,
-        url: canonicalUrl(`/${zoneKey}`),
+        url: canonicalUrl(`/maps/${zoneKey}`),
         about: { '@id': ERENSHOR_GAME_ID },
         isPartOf: { '@id': SITE_ID },
         keywords: ['erenshor', 'zone map', zoneName, 'interactive map']

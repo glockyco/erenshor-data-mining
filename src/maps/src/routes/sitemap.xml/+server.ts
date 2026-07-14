@@ -10,7 +10,7 @@ const BUILD_TIME = new Date().toISOString();
 const staticRoutes = ['/', '/map', '/zone-maps', '/adventure-guide', '/mod', '/spreadsheet'];
 
 export function GET() {
-    const zoneRoutes = Object.keys(MAPS).map((key) => `/${key}`);
+    const zoneRoutes = Object.keys(MAPS).map((key) => `/maps/${key}`);
     const urls = [...staticRoutes, ...zoneRoutes];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

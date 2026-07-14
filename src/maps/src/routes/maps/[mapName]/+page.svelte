@@ -45,7 +45,7 @@
                   breadcrumbJsonLd([
                       { name: 'Home', path: '/' },
                       { name: 'Zone Maps', path: '/zone-maps' },
-                      { name: config.zoneName, path: `/${mapName}` }
+                      { name: config.zoneName, path: `/maps/${mapName}` }
                   ])
               ]
             : undefined
@@ -661,7 +661,7 @@
 </script>
 
 <Seo
-    path={mapName ? `/${mapName}` : '/'}
+    path={mapName ? `/maps/${mapName}` : '/'}
     title={seoTitle}
     description={seoDescription}
     jsonLd={seoJsonLd}

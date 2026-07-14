@@ -351,8 +351,8 @@
                         zone map
                     </a>
                     (e.g.,
-                    <a href="/Stowaway" class="text-purple-400 hover:text-purple-300 underline">
-                        /Stowaway</a
+                    <a href="/maps/Stowaway" class="text-purple-400 hover:text-purple-300 underline">
+                        /maps/Stowaway</a
                     >) in the browser while the game is running.<br />
                     The position of your character should appear on the map in real-time.
                 </p>

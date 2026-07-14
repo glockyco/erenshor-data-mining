@@ -36,7 +36,7 @@
     {#each sortedMaps as [mapName, mapConfig] (mapName)}
         <!-- eslint-disable svelte/no-navigation-without-resolve -->
         <a
-            href={`${mapName}`}
+            href={`/maps/${mapName}`}
             class="group relative bg-slate-800 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 border border-slate-700 hover:border-purple-500/50"
         >
             <!-- eslint-enable svelte/no-navigation-without-resolve -->
