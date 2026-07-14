@@ -30,7 +30,7 @@ map website via WebSocket, and optionally renders the map as an in-game overlay.
 ### Browser / Second Screen
 
 1. Start Erenshor with the mod installed
-2. Open the [Interactive Map](https://erenshor-maps.wowmuch1.workers.dev/map)
+2. Open the [Interactive Map](https://erenshor.compendiums.org/map)
 3. Enable Live Mode in the map settings
 4. Your position will appear on the map in real-time
 

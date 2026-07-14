@@ -8,7 +8,7 @@ quest-relevant NPC.
 
 ## Navigate to anything
 
-<img src="https://erenshor-maps.wowmuch1.workers.dev/adventure-guide-window.webp" alt="Quest window with walkthroughs and navigation buttons" style="max-width:100%;height:auto" />
+<img src="https://erenshor.compendiums.org/adventure-guide-window.webp" alt="Quest window with walkthroughs and navigation buttons" style="max-width:100%;height:auto" />
 
 Every quest step has a **[NAV]** button. Click it and a directional
 arrow points you to your target — across zone boundaries, chaining
@@ -21,7 +21,7 @@ that quest's walkthrough unfolds inline with its own nav buttons.
 
 ## See what you've been missing
 
-<img src="https://erenshor-maps.wowmuch1.workers.dev/adventure-guide-markers.webp" alt="World markers above NPCs showing quest state and respawn timers" style="max-width:100%;height:auto" />
+<img src="https://erenshor.compendiums.org/adventure-guide-markers.webp" alt="World markers above NPCs showing quest state and respawn timers" style="max-width:100%;height:auto" />
 
 Floating icons appear above NPCs in the game world — quest givers
 you've walked past, turn-in targets waiting for your items, enemies you
@@ -31,7 +31,7 @@ current game time so you know when to come back.
 
 ## Know the whole path
 
-<img src="https://erenshor-maps.wowmuch1.workers.dev/adventure-guide-nav.webp" alt="Navigation arrow and ground path guiding to target" style="max-width:100%;height:auto" />
+<img src="https://erenshor.compendiums.org/adventure-guide-nav.webp" alt="Navigation arrow and ground path guiding to target" style="max-width:100%;height:auto" />
 
 Each step tells you who to talk to, what to say, where to go, and what
 items to collect. Level estimates on quests and steps show what you're

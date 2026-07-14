@@ -6,7 +6,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 
 - Erenshor on Steam: <https://store.steampowered.com/app/2382520/Erenshor/>
 - Wiki: <https://erenshor.wiki.gg>
-- Interactive map: <https://erenshor-maps.wowmuch1.workers.dev>
+- Interactive map: <https://erenshor.compendiums.org>
 
 ## What this repository provides
 

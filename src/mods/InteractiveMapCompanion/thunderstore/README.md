@@ -5,11 +5,11 @@ waits patiently? Now you don't have to guess what's where - see everything alive
 in your zone on a real-time interactive map, right in your browser.
 
 **Interactive Map Companion** broadcasts live entity positions from your game to
-the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map),
+the [interactive world map](https://erenshor.compendiums.org/map),
 turning it into a second-screen companion for exploration, combat, and
 navigation.
 
-![Live tracking demo](https://erenshor-maps.wowmuch1.workers.dev/world-map-companion.gif)
+![Live tracking demo](https://erenshor.compendiums.org/world-map-companion.gif)
 
 ## What it tracks
 
@@ -35,14 +35,14 @@ Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
    `InteractiveMapCompanion.dll`, `Fleck.dll`, and `Newtonsoft.Json.dll`)
    into `BepInEx/plugins/`
 3. Launch the game and log in with a character
-4. Open the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map)
+4. Open the [interactive world map](https://erenshor.compendiums.org/map)
 5. Toggle **Enable Live Mode** in the sidebar
 
 ### Reducing Clutter
 
 To hide static markers and only see live entities, disable the regular enemy and
 NPC layers through the sidebar, or use this direct link:
-[map with static markers hidden](https://erenshor-maps.wowmuch1.workers.dev/map?layers=-sp%2C-spr%2C-spu%2C-npc)
+[map with static markers hidden](https://erenshor.compendiums.org/map?layers=-sp%2C-spr%2C-spu%2C-npc)
 
 ## Configuration
 

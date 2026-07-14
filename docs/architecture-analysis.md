@@ -524,7 +524,7 @@ SQL queries become simple JOINs with no cleanup workarounds:
 -- Before (current spawn-points.sql, simplified):
 SELECT c.NPCName, ...
     COALESCE(za.ZoneName, '') AS ZoneName,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || sp.StableKey AS MapLink
+    'https://erenshor.compendiums.org/map?sel=marker:' || sp.StableKey AS MapLink
 FROM SpawnPoints sp
 JOIN Characters c ON ...
 JOIN Zones za ON ...
@@ -533,7 +533,7 @@ WHERE spc.SpawnChance > 0
 -- After:
 SELECT c.display_name, ...
     za.display_name AS zone_name,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:' || sp.stable_key AS map_link
+    'https://erenshor.compendiums.org/map?sel=marker:' || sp.stable_key AS map_link
 FROM character_spawns cs
 JOIN characters c ON cs.character_stable_key = c.stable_key
 JOIN zones za ON cs.zone_stable_key = za.stable_key
