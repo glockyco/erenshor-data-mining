@@ -9,177 +9,159 @@ parent:
 # Erenshor — Planning Overview
 
 Erenshor's data pipeline turns the current shipping build into reliable public
-artifacts: clean SQLite, wiki pages, sheets, maps, quest guide data, and companion
-mods. The current planning north-star is the Planar March release refresh: promote
-the playtest build on release day with production-tested wiki modules, templates,
-generated data, and legacy display compatibility, then complete the remaining
-Lua/Cargo cutover and publish the map/domain work once wiki-facing data is stable.
+artifacts: clean SQLite, wiki pages, sheets, maps, quest-guide data, and
+companion mods. The current planning focus is the coordinated maps domain and
+URL migration: bind `erenshor.compendiums.org`, move interactive zone maps to
+`/maps/{slug}`, preserve legacy links with redirects, and update the consumers
+we control. This is the next execution step; it is deliberately ahead of later
+map features and residual data debt.
 
-**This document is forward-looking only.** It holds the strategy sequence, ranked work,
-and standing gates. Completed implementation belongs in commits and archived plans;
-point-in-time findings belong in audits. When an item ships, it leaves this queue.
+**This document is forward-looking only.** It holds the strategy sequence,
+ranked work, and standing gates. Completed implementation belongs in commits and
+archived plans; point-in-time findings belong in audits. When an item ships, it
+leaves this queue.
 
 ## Strategy sequence
 
-1. **Execute the Planar March release refresh.** Promote the playtest build on
-   release day using the shipped quality-tooltip architecture
-   (`docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md`) and the restored legacy
-   display contract; keep the full article deploy release-gated because playtest
-   data is a spoiler.
+1. **Execute the coordinated maps domain/URL migration.** Prepare repository
+   routes, SEO and generated-link configuration, maintained consumers, and the
+   redirect Worker; then pass Cloudflare/GSC manual gates before one cutover.
+   The custom domain and `/maps/{slug}` move together so canonical URLs churn
+   once.
 2. **Cut over wiki content safely.** The live storage model is validated (nested
-   store owners; reparse for data, recreate only on a schema change). Production
-   keeps non-equipment item kinds on legacy Jinja templates. Finish the remaining
-   dual-path templates, thin-page generation, community-row templates, styling
-   delivery for Lua-owned markup, the production deploy/refresh path, and the
-   incremental article cutover only after Lua parity with the legacy display
-   contract is proven.
-3. **Publish map/domain changes after wiki links are stable.** The map domain and URL
-   restructure changes canonical URLs and wiki backlinks. It should happen once, after
-   the wiki data model and map-link template expectations are settled, so external URLs
-   churn once.
-4. **Only then add user-facing map features.** Annotation UX, item-to-droppers search,
-   and textual `/zones` content are valuable, but they should not compete with the
-   promotion-critical data/wiki work unless a deploy window blocks the wiki path.
-5. **Keep residual data gaps honest.** Parked or low-priority export gaps stay recorded
-   until a consumer makes them important; they do not block the promotion unless they
-   affect the wiki/map/sheets/guide surface being shipped.
+   store owners; reparse for data, recreate only on a schema change). Finish the
+   remaining dual-path templates, thin-page generation, community-row
+   templates, styling delivery for Lua-owned markup, the production deploy path,
+   and incremental article conversion only after Lua parity with the legacy
+   display contract is proven. The map-link template remains a migration
+   dependency because it owns many wiki backlinks.
+3. **Only then add user-facing map features.** Annotation UX, item-to-droppers
+   search, and textual `/zones/{slug}` content are valuable, but they follow the
+   domain/URL cutover and the wiki/data work.
+4. **Keep residual data gaps honest.** Parked or low-priority export gaps stay
+   recorded until a consumer makes them important; they do not block the
+   migration unless they affect the surface being shipped.
 
 ## Priority queue
 
-Every planned work item in the queues below, ranked. Ordering logic: promotion-critical data correctness
-first; then live-deploy gates that can invalidate the architecture; then the wiki
-migration phases that depend on those gates; then URL/domain publishing; then map UX;
-then residual export/data debt. Evidence-gated items never start before their gate.
+Every planned work item below is ranked. Ordering logic: the coordinated domain
+and route cutover first; then the Cargo/Lua work that must preserve wiki links
+and presentation; then later map UX; then residual export/data debt.
+Evidence-gated items never start before their gate.
 
-**P1 — release/promotion-critical operations**
-1. **`2026-07-13-planar-march-release-refresh`** *(plan, active)* — promote
-   playtest build 24157014 on release day and deploy the prepared production wiki
-   refresh. The shipped quality-tooltip architecture is documented in
-   `docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md`: equipment articles use
-   one parameterized `{{ItemTooltip|kind=...}}` invocation, while non-equipment
-   kinds remain on legacy Jinja templates until the cutover gates clear. Keep the
-   full article-page deploy release-gated because playtest data is a spoiler.
-2. **`2026-07-12-adventure-guide-tracker-and-data-refresh`** *(plan, active)* — fix
-   tracker and marker correctness, then reconnect the quest-data pipeline so new
-   playtest quests reach the shipping Adventure Guide artifact.
-3. **`2026-06-04-wiki-cargo-data-architecture`** *(spec, active)* — keep as the design
-   authority while later phases change reality. Update it only when the
-   implementation discovers a better steady-state design.
+**P1 — coordinated maps publishing**
 
-**P2 — wiki cutover phases after live-deploy gates are green**
-4. **`2026-07-10-wiki-deferred-mechanics`** *(plan, active)* — preserve and implement
-   the deferred smithing, conversion, and other non-standard obtainability paths
-   without losing game behavior. It remains under the Cargo/Lua cutover gates.
-5. **`2026-07-11-wiki-article-cutover`** *(plan, active)* — incrementally convert legacy wiki
-   articles only after Lua parity and styling gates are proven, preserving the
-   restored legacy display contract and community content.
-6. **Lua presentation and parity gate** *(required before any type converts)* — the
-   live wiki has no TemplateStyles extension and
-   `MediaWiki:Gadget-erenshor.css` is interface-protected, so Lua-owned markup
-   needs a deliverable styling path. Prove Lua presentation parity with the
-   restored legacy display contract (links, units, zero handling, and other
-   display conventions) against live pages. Keep non-equipment item kinds on
-   legacy Jinja templates until both gates clear.
-7. **Community contribution layer** *(future Phase 4 plan from the Cargo spec)* —
-   add `{{ItemSource}}` → `ObtainedFrom` and `{{SpawnPoint}}` → `Spawns`, stablekey
-   validation, and editor docs. It waits for the Cargo model and the
-   styling/parity gate because generated rows and article conversion must share
-   the final presentation contract.
-8. **Dual-path remaining templates + thin-page generator** *(future Phases 5–6 plans)* —
-   add legacy fallbacks for spell/skill/stance/zone/quest templates, then generate thin
-   `{{Type|stablekey=…}}` article pages while preserving community content. It waits for
-   the Cargo model, community-row templates, and the styling/parity gate because
-   article conversion should be a clean cutover, not a second migration.
-9. **Production wiki cutover** *(future Phases 7–8 plan)* — TemplateSandbox gate, deploy
-   modules/templates, create the Cargo tables, then refresh by reparse (recreate only
-   on schema change; replacement table for a large recreate), incrementally convert pages,
-   retire legacy branches, smoke live pages, report orphan pages for manual deletion,
-   and establish the steady-state cutover operation.
+1. **[`2026-06-26-maps-domain-url-migration`](2026-06-26-maps-domain-url-migration.md)**
+   *(plan, active; current focus)* — bind `erenshor.compendiums.org`, move zone
+   maps to `/maps/{slug}`, deploy the legacy-host redirect Worker, and repoint
+   wiki, Steam, in-game, mod, and README links. Repository prep includes the
+   dynamic route move, explicit zone-index links, canonical/JSON-LD/sitemap
+   paths, `SITE_URL`, `MapsConfig.base_url`, and maintained old-host references.
+   The redirect contract preserves paths and query strings (including map
+   selectors and asset paths), redirects known legacy routes and exact known
+   root zone slugs, serves the legacy verification file directly, and does not
+   guess destinations for unknown or reserved paths.
 
-**P3 — map/domain publishing once wiki backlinks are stable**
-10. **`2026-06-26-maps-domain-url-migration`** *(plan, active; blocked on go-ahead)* —
-   bind `erenshor.compendiums.org`, move zone maps to `/maps/{slug}`, deploy legacy
-   redirects, and update backlinks we control. Ship domain + URL restructure together
-   so URLs churn once. The wiki map-link template update should happen after the Cargo
-   template path is known.
-11. **Crawlable `/zones` content layer** *(draft child of maps-domain work)* — textual
-   zone reference pages belong after `/maps/{slug}` is established and wiki/map links
-   have settled. Keep it draft until the domain migration is either scheduled or done.
+   Execute in this order: prepare and review repository changes; manually verify
+   Cloudflare account/token, zone ownership, custom-domain certificate/DNS,
+   Worker-name availability, and GSC access; deploy and verify the new custom
+   host; deploy the legacy redirect Worker; then update GSC Change of Address,
+   sitemap, and external links. Verify representative routes/assets, HTTPS,
+   canonicals, OG/JSON-LD, sitemap, robots, redirects, query preservation, and
+   embedded-browser access. Keep the prior Worker deployment and old host until
+   verification passes; rollback production binding or the redirect Worker
+   independently if deployment, routing, or verification fails. The plan's
+   active task checklist is the execution authority.
 
-**P4 — independent map UX features**
-12. **`2026-06-27-map-annotations`** *(spec, active)* — useful standalone feature; no
-    backend dependency. Start when wiki/data work is blocked on live permissions or after
-    P3 ships.
-13. **Map search deferred UX** *(note, active)* — per-category empty states and recent
-    searches are polish. Graduate only if working in the search area anyway.
+**P2 — wiki Cargo/Lua cutover and backlink stability**
 
-**P5 — residual data/export debt**
-14. **`2026-07-11-dynamic-spawn-semantics-map-ux`** *(plan, active)* — make dynamic-only
-    rarity and Brax spawn provenance authoritative for processor, map, and wiki
-    consumers; preserve conditional references rather than inferring from placement
-    counts.
-15. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan spectres as
-    per-zone random appearances, not fixed spawn points. This becomes important when the
-    remaining orphan count or character-page completeness is the active concern.
-16. **LootTable gold range export** *(plan, parked)* — straightforward export/clean DB
-    work, explicitly skipped for now. Resume only if a consumer needs static gold ranges.
-17. **Small content debt, no planning doc needed:** hand-curate the four new planar zone
-    pages before the next wiki article deploy; document forging/merge mechanics before
-    exposing Merging Vessel as a `UsedIn` relationship.
+2. **[`2026-06-04-wiki-cargo-data-architecture`](2026-06-04-wiki-cargo-data-architecture.md)**
+   *(spec, active)* — remain the design authority while later phases change
+   reality; update only when implementation discovers a better steady state.
+3. **[`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md)**
+   *(plan, active)* — preserve and implement deferred smithing, conversion, and
+   other non-standard obtainability paths under the Cargo/Lua gates.
+4. **[`2026-07-11-wiki-article-cutover`](2026-07-11-wiki-article-cutover.md)**
+   *(plan, active)* — incrementally convert legacy articles only after Lua parity
+   and styling gates are proven, preserving community content and the restored
+   legacy display contract.
+5. **Lua presentation and parity gate** *(required before any type converts)* —
+   provide a deliverable styling path for Lua-owned markup and prove links,
+   units, zero handling, and other display conventions against live pages.
+   Keep non-equipment kinds on legacy Jinja templates until both gates clear.
+6. **Community contribution layer** *(future Phase 4 plan)* — add
+   `{{ItemSource}}` → `ObtainedFrom`, `{{SpawnPoint}}` → `Spawns`, stablekey
+   validation, and editor docs after the Cargo model and presentation gate.
+7. **Dual-path templates and thin-page generator** *(future Phases 5–6)* — add
+   legacy fallbacks for spell/skill/stance/zone/quest templates, then generate
+   thin `{{Type|stablekey=…}}` pages without losing community content.
+8. **Production wiki cutover** *(future Phases 7–8)* — pass TemplateSandbox,
+   deploy modules/templates, create or reparse Cargo tables according to schema
+   change, convert pages incrementally, retire legacy branches, and smoke-test
+   live pages.
+
+**P3 — later map UX**
+
+9. **[`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)** *(spec,
+   active)* — standalone annotation UX after the migration or while wiki/data
+   work is blocked on permissions.
+10. **Map search deferred UX** *(note, active)* — category empty states and
+    recent searches; polish only.
+11. **Crawlable `/zones/{slug}` content layer** *(draft child of the migration)*
+    — textual zone references after `/maps/{slug}` and wiki/map links settle.
+
+**P4 — residual data/export debt**
+
+12. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
+    *(plan, active)* — make dynamic-only rarity and Brax spawn provenance
+    authoritative for processor, map, and wiki consumers.
+13. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
+    spectres as per-zone random appearances, not fixed spawn points.
+14. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
+    *(plan, parked)* — resume only if a consumer needs static gold ranges.
+15. **Small content debt, no planning doc needed:** hand-curate the four planar
+    zone pages before a future wiki article deploy; document forging/merge
+    mechanics before exposing Merging Vessel as a `UsedIn` relationship.
+
+## Archived release references
+
+The Planar March promotion and Adventure Guide refresh are complete and are no
+longer active priorities. Their implementation records remain available at
+[`2026-07-13-planar-march-release-refresh`](archive/2026-07-13-planar-march-release-refresh.md)
+and [`2026-07-12-adventure-guide-tracker-and-data-refresh`](archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md).
 
 ## Standing gates
 
-- **Playtest is the shipping build in waiting.** Use `-V playtest` for pipeline,
-  code-fact, wiki Lua, and golden work until promotion. Commands that write shared
-  outputs (`golden capture`, wiki deploy, guide compile, maps deploy) are safe only
-  because playtest is the cutover build.
-- **Cargo refresh model.** A data-only change needs no recreate — reparsing a page
-  rewrites its rows in place; recreate (`cargorecreatetables` + `cargorecreatedata`) is
-  for schema changes, and a large-table recreate uses a replacement table with a manual
-  `Special:CargoTables` switch-in. The main account holds the recreate right; confirming
-  the deploy bot's `recreatecargodata` right stays a Phase 7 gate.
-- **Wiki article deploy is single-target.** `erenshor.wiki.gg` is not variant-scoped;
-  do not deploy article changes from a non-shipping build.
-- **Golden baselines are shared.** Recapture only for the build we intend to ship and
-  review the diff, especially `code_facts.csv` and new relationship tables.
-- **No broad map URL churn twice.** Domain and `/maps/{slug}` restructuring ship in one
-  coordinated release; defer lower-value route work until then.
-- **Lua-owned presentation gate.** The live wiki has no TemplateStyles extension, and
-  `MediaWiki:Gadget-erenshor.css` is interface-protected. Before any type converts,
-  provide a deliverable styling path for Lua-owned markup and prove Lua presentation
-  parity with the restored legacy display contract (links, units, zero handling)
-  against live pages. Non-equipment item kinds remain on legacy Jinja until both
-  gates clear.
+- **Cargo refresh model.** A data-only change needs no recreate: reparsing a page
+  rewrites rows in place. Recreate is for schema changes; a large recreate uses
+  a replacement table and a manual `Special:CargoTables` switch-in. Confirm the
+  deploy bot's recreate permission before the production cutover.
+- **Wiki article deploy is single-target.** `erenshor.wiki.gg` is not
+  variant-scoped; do not deploy article changes from a non-shipping build.
+- **Lua-owned presentation gate.** The live wiki has no TemplateStyles extension
+  and `MediaWiki:Gadget-erenshor.css` is interface-protected. Before any type
+  converts, provide a deliverable styling path and prove Lua presentation parity
+  with the legacy display contract against live pages.
+- **Migration cutover gate.** Do not bind the custom domain or deploy the legacy
+  redirect Worker until repository route/link preparation is reviewed and
+  Cloudflare DNS, certificate, Worker authorization/name, and GSC prerequisites
+  are confirmed. Verify the custom host before changing the old host; retain an
+  independent rollback for each Worker.
 
 ## Parked / not scheduled
 
-- Photo mode spec — draft, unrelated to the current data/wiki/map promotion path.
-- LootTable gold range export — active but parked by operator decision; not on the path
-  unless a consumer needs it.
+- Photo mode spec — draft, unrelated to the current data/wiki/map path.
+- LootTable gold range export — parked unless a consumer needs static gold ranges.
 - Map search deferred UX — polish backlog; keep as a note.
-- Research-grade or speculative data gaps without a current consumer stay out of the
-  queue until an audit or user-facing surface ranks them.
-- Cargo probe runner deep refactor — declarative scenario specs, one shared
-  transaction/cleanup runner, a metadata descriptor registry, and a public MediaWiki
-  adapter (replacing direct `client._request`). The probe is a one-off diagnostic whose
-  verdict is now fail-closed; the rewrite is optional polish, not scheduled.
+- Research-grade or speculative data gaps without a current consumer stay out of
+  the queue until an audit or user-facing surface ranks them.
+- Cargo probe runner deep refactor — optional diagnostic polish, not scheduled.
 
 ## Reference map
 
-- `docs/plans/2026-07-13-planar-march-release-refresh.md` — release-day playtest
-  promotion and production wiki refresh.
-- `docs/plans/archive/2026-07-12-wiki-item-quality-tooltips.md` — shipped item quality-tooltip
-  architecture and production rendering contract.
-- `2026-06-04-wiki-cargo-data-architecture` — Cargo/Lua cutover design authority.
-- `archive/2026-06-23-wiki-cargo-phase-3` — completed Phase 3 record.
-- `docs/audits/2026-07-04-export-gap-analysis.md` — promotion-facing export and formula
-  gap audit that must be triaged before broad deploys.
-- `2026-06-26-maps-domain-url-migration` — map domain and URL migration tasks.
-- `2026-06-27-map-annotations` — standalone annotations feature design.
-- `2026-06-28-category-c-zone-random-spawns` — residual dynamic-spawn gap.
-- `2026-06-28-map-search-deferred-ux` — low-priority search polish.
-- `docs/plans/2026-07-10-wiki-deferred-mechanics.md` — deferred non-standard wiki obtainability paths.
-- `docs/plans/2026-07-11-dynamic-spawn-semantics-map-ux.md` — dynamic rarity and Brax provenance semantics.
-- `docs/plans/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — tracker fixes and quest data refresh.
-- `2026-07-11-wiki-article-cutover` — incremental legacy article conversion.
+- `docs/plans/2026-06-26-maps-domain-url-migration.md` — current migration plan.
+- `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` — Cargo/Lua design authority.
+- `docs/audits/2026-07-04-export-gap-analysis.md` — export and formula gap audit.
+- `docs/plans/archive/2026-07-13-planar-march-release-refresh.md` — archived release plan.
+- `docs/plans/archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — archived guide plan.
 - `docs/plans/INDEX.md` — generated navigation.
