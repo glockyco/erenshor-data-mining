@@ -571,7 +571,10 @@
 			}
 		}
 
-		function queuePosition() {
+		function queuePosition( event ) {
+			if ( event && event.type === 'scroll' && containsNode( overlay, event.target ) ) {
+				return;
+			}
 			if ( overlay.hidden || !activeTarget || positionFrame !== null ) {
 				return;
 			}
@@ -593,12 +596,12 @@
 			const triggerRect = activeTarget.getBoundingClientRect();
 
 			overlay.style.maxWidth = Math.max( 0, viewport.width - ( gutter * 2 ) ) + 'px';
-			overlay.style.maxHeight = Math.max( 0, viewport.height - ( gutter * 2 ) ) + 'px';
 			let overlayRect = overlay.getBoundingClientRect();
+			const naturalHeight = Math.max( overlay.scrollHeight, overlayRect.height );
 			const below = triggerRect.bottom + gap;
 			const roomBelow = Math.max( 0, viewport.bottom - below - gutter );
 			const roomAbove = Math.max( 0, triggerRect.top - viewport.top - gap - gutter );
-			const placeBelow = overlayRect.height <= roomBelow || roomBelow >= roomAbove;
+			const placeBelow = naturalHeight <= roomBelow || roomBelow >= roomAbove;
 			const availableHeight = placeBelow ? roomBelow : roomAbove;
 			overlay.style.maxHeight = availableHeight + 'px';
 			overlayRect = overlay.getBoundingClientRect();
