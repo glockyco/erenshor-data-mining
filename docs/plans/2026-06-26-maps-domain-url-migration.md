@@ -8,69 +8,109 @@ parent: 2026-07-09-erenshor-planning-overview
 
 # Maps Domain Migration & URL Restructure
 
-This plan owns the one coordinated release that moves the maps site to
-`erenshor.compendiums.org` and moves interactive zone pages to
-`/maps/{slug}`. The migration has not begun: production still uses the
-`erenshor-maps.wowmuch1.workers.dev` origin, the production Worker is still
-named `erenshor-maps`, and root-level zone routes are still the repository
-source of truth. Complete repository preparation and manual gates before any
-production deployment. The independent backlog at the end is not part of this
-cutover.
+This plan owns one coordinated release that serves the maps site from
+`erenshor.compendiums.org` and moves interactive zone pages to `/maps/{slug}`.
+The retained Cloudflare Worker is named `erenshor-maps`, keeps
+`workers_dev: true`, and serves both `erenshor-maps.wowmuch1.workers.dev` and
+the custom-domain route. Both hosts use one Worker entrypoint and one static
+build. No deployment or external cutover is authorized until the repository
+work and every manual gate below is complete. The independent backlog is not
+part of this cutover.
 
 ## Decisions (locked)
 
+- **One retained Worker.** Keep the existing Worker name
+  `erenshor-maps`, its workers.dev origin, and `workers_dev: true`. Add the
+  custom-domain route for `erenshor.compendiums.org` to that same Worker. Do
+  not create another Worker, change the Worker name, or maintain separate
+  production and redirect configurations.
+- **One entrypoint and one build.** Wrangler invokes a Worker entrypoint that
+  has an `ASSETS` static-assets binding and `run_worker_first`. The entrypoint
+  performs host-aware routing before delegating eligible requests to the
+  shared static build. The build is produced once and is the only asset set
+  deployed to both hosts; there is no host-specific or redirect-only build.
 - **Domain: `erenshor.compendiums.org`.** We own `compendiums.org`; the sister
-  project uses `ancient-kingdoms.compendiums.org`. `erenshor.compendiums.org` is
-  shorter than `erenshor-maps.compendiums.org` and fits the whole site (maps,
-  spreadsheet, mods, Adventure Guide), not maps alone. Pointing the subdomain at
-  the Worker is Cloudflare config (a custom-domain route), not a registration.
-- **Interactive zone maps move to `/maps/{slug}`.** `/zones/{slug}` stays
-  reserved for the future textual reference layer. Do the URL move with the
+  project uses `ancient-kingdoms.compendiums.org`. The shorter subdomain fits
+  the whole site (maps, spreadsheet, mods, and Adventure Guide), not maps
+  alone. Pointing it at the Worker is a Cloudflare custom-domain route, not a
+  registration.
+- **Interactive zone maps move to `/maps/{slug}`.** `/zones/{slug}` remains
+  reserved for a future textual reference layer. Do the URL move with the
   domain migration so URLs change only once.
+- **Preserve old companion overlays.** Shipped companion DLLs hardcode
+  `https://erenshor-maps.wowmuch1.workers.dev/map` and reject full-document
+  navigation to another host. Therefore the legacy `/map` document and every
+  runtime resource it loads remain same-origin `200` responses on the legacy
+  host. This behavior is selected by request host and path, never by
+  user-agent sniffing. Updating the current companion source is repository
+  work, but does not require a companion release for this migration.
 - **Complement the wiki, don't replicate it.** The wiki's enemy and zone pages
-  cross-link to our map and drive most of its traffic, so repointing that map-
-  link template is the highest-value backlink task in the migration.
-- **Dropped, will not do:** `Dataset` JSON-LD, per-page OG images (spec I5), the
-  external-link `rel` audit (spec N5), and the optional `@graph` consolidation
+  cross-link to the map and drive most of its traffic, so repointing the
+  MapLink surface is the highest-value backlink task.
+- **Dropped, will not do:** `Dataset` JSON-LD, per-page OG images (spec I5),
+  the external-link `rel` audit (spec N5), and optional `@graph` consolidation
   (spec I4).
 
-## Redirect and canonical contract
+## Host, route, and response matrix
 
-These rules are the release contract for both Worker code and its tests:
+The Worker must implement this matrix using the request hostname and URL path.
+A request's `User-Agent` must not affect the result. Query strings are retained
+byte-for-byte by redirects; HTTP requests do not carry fragments.
 
-- The new canonical origin is `https://erenshor.compendiums.org`. Every
-  canonical URL, `og:url`, JSON-LD URL/`@id`, sitemap URL, robots output, and
-  generated wiki/Sheets map URL must use it. The legacy origin is transport
-  only, not a canonical or backlink destination.
-- A request on the legacy host whose path is exactly `/<mapKey>`, where
-  `mapKey` is an exact, case-sensitive key from `Object.keys(MAPS)`, receives a
-  `301` to `https://erenshor.compendiums.org/maps/<mapKey>`. Preserve the query
-  string byte-for-byte (including encoded values, `sel`, `layers`, `marker`, and
-  view/debug state). Do not lowercase, decode/re-encode, or otherwise rewrite a
-  key. Preserve the existing trailing-slash policy; do not invent a second
-  canonical spelling.
-- The legacy Worker returns `301` to the same path on the new origin for `/`,
-  `/map`, `/zone-maps`, `/adventure-guide`, `/mod`, `/spreadsheet`, and files
-  present in the deployed static manifest (including the `/maps/`, `/items/`,
-  `/tiles/`, `/mods/`, and `/icons/` asset prefixes plus named root assets),
-  preserving the complete query string and path casing. The manifest-backed
-  allowlist must not become a wildcard for unknown paths. It must not translate
-  `/zones/{slug}`: that prefix is reserved for a future textual layer.
-- Unknown paths, `/guide`, reserved `/zones/{slug}` paths, and root-looking
-  strings that are not exact `MAPS` keys are not sent to the home page or a
-  guessed map. Return a deliberate `404` (or the explicitly tested static
-  fallback) and keep this behavior identical for case variants and malformed
-  encodings. HTTP requests do not carry fragments, so no redirect may claim to
-  preserve a URL fragment.
-- The legacy Google verification path (the current
-  `/google279cf61d0b725839.html` token path) is served directly by the legacy
-  Worker with the expected token body, `200`, and `text/html` content type; it
-  is not redirected. The new property's token is served from the new host's
-  static assets.
+| Host and request | Required response |
+| --- | --- |
+| `erenshor.compendiums.org`, normal application document or `/maps/{exact-key}` | Serve normally from the shared build with `200`; `/maps/{exact-key}` is the only canonical interactive-zone spelling. |
+| `erenshor.compendiums.org/map` | Serve the world map from the shared build with `200`; its canonical is the new host's `/map`. |
+| `erenshor.compendiums.org`, runtime resource | Serve from the shared build with `200`, including `/service-worker.js`, Svelte assets and `__data.json`, SQLite, tiles, images, icons, fonts, and other non-HTML resources. |
+| `erenshor-maps.wowmuch1.workers.dev/map` | Serve the world-map document with `200` from the shared build. It must be usable by shipped companion DLLs and carry a cross-domain canonical to `https://erenshor.compendiums.org/map`. |
+| Legacy host, any runtime resource needed by `/map` | Serve directly from the shared build with same-origin `200`, including `/service-worker.js`, Svelte assets/data, SQLite, tiles, images, fonts, and other non-HTML resources. Never redirect these resources to the new host. |
+| Legacy host, exact root `/<mapKey>` where `mapKey` is an exact, case-sensitive `Object.keys(MAPS)` key | `301` to `https://erenshor.compendiums.org/maps/<mapKey>`, preserving the complete query string byte-for-byte. |
+| Legacy host, another real HTML document (`/`, `/zone-maps`, `/adventure-guide`, `/mod`, `/spreadsheet`, and `/maps/<key>`) | `301` to the same path on `https://erenshor.compendiums.org`, preserving path casing and the complete query string. `/map` is the explicit `200` exception above. |
+| Legacy host, `/google279cf61d0b725839.html` | Serve the existing token body directly with `200` and `text/html`; do not redirect it. |
+| Either host, unknown path, malformed encoding, case-variant root key, or reserved `/zones/{slug}` | Deliberate `404`; never redirect to home or guess a map. |
+| New host, exact root `/<mapKey>` | `404`; canonical map pages exist at `/maps/<mapKey>`, not at root. |
+
+The static-resource allowlist must be explicit enough to keep runtime resources
+on the legacy host, but must not turn into a wildcard for unknown paths. The
+same build must return the same resource bytes on both hosts. Test both hosts,
+representative casing, encoded values, query strings, and trailing-slash
+variants.
+
+## Redirect, canonical, and discovery contract
+
+These rules are the release contract for the Worker, static build, and tests:
+
+- The canonical origin is `https://erenshor.compendiums.org`. Every canonical
+  URL, `og:url`, JSON-LD URL/`@id`, sitemap URL, robots output, and generated
+  wiki/Sheets map URL uses it. The legacy origin is transport compatibility,
+  not a canonical or backlink destination.
+- A legacy request whose path is exactly `/<mapKey>`, with `mapKey` an exact
+  case-sensitive key from `Object.keys(MAPS)`, receives a `301` to
+  `https://erenshor.compendiums.org/maps/<mapKey>`. Do not lowercase,
+  decode/re-encode, or otherwise rewrite the key. Preserve the query string
+  byte-for-byte, including encoded values, `sel`, `layers`, `marker`, and
+  view/debug state. Verify the existing trailing-slash policy explicitly; do
+  not introduce a second canonical spelling.
+- A legacy real HTML document other than `/map` receives a `301` to the same
+  path on the new host. This includes `/`, `/zone-maps`, `/adventure-guide`,
+  `/mod`, `/spreadsheet`, and already-migrated `/maps/<key>` pages. It does not
+  include static files, runtime resources, the legacy token, unknown paths, or
+  reserved `/zones/{slug}` paths.
+- Legacy `/map` is a direct `200`, not a redirect: its HTML may be the shared
+  build, but its canonical metadata must be the cross-domain URL
+  `https://erenshor.compendiums.org/map`. It is absent from sitemaps and
+  generated/internal links, and it must not emit `noindex`. The new host's
+  `/map` remains a directly usable `200` world-map page with the same canonical
+  URL.
 - New-host zone pages are canonical only at `/maps/<exact-mapKey>`. The route
   registry, sitemap, JSON-LD breadcrumbs, and internal links all use that
-  spelling. Verify the trailing-slash rule explicitly rather than relying on
-  Wrangler or the static adapter to normalize it.
+  spelling. Verify the trailing-slash rule rather than relying on Wrangler or
+  the static adapter to normalize it.
+- The legacy Google verification path remains a direct `200` with the expected
+  token body and `text/html` content type. The new property's token is served
+  from the new-host static build after the manual GSC gate provides the exact
+  value; never fabricate a token or leave a placeholder.
+- No redirect claims to preserve a URL fragment. Preserve query strings only.
 
 ## Tasks
 
@@ -80,209 +120,224 @@ These rules are the release contract for both Worker code and its tests:
 
 - [ ] Move the prerendered zone route from `src/maps/src/routes/[mapName]/` to
   `src/maps/src/routes/maps/[mapName]/`, carrying both `+page.ts` and
-  `+page.svelte` forward. Keep `entries()` sourced from `Object.keys(MAPS)` and
-  preserve exact, case-sensitive map keys; retain the deliberate unknown-route
-  404 behavior from the static adapter.
+  `+page.svelte` forward. Keep `entries()` sourced from `Object.keys(MAPS)`;
+  preserve exact, case-sensitive map keys and the deliberate unknown-route
+  `404` behavior from the static adapter.
 - [ ] Update `src/maps/src/routes/maps/[mapName]/+page.svelte` so the `Seo`
   caller, zone `zoneMapJsonLd` URL, and breadcrumb path use
-  `/maps/${mapName}`. Check every path passed to `Seo.svelte`; the component
-  remains the shared emitter for canonical, `og:url`, OG image, and JSON-LD
-  tags.
+  `/maps/${mapName}`. Check every path passed to `Seo.svelte`; it remains the
+  shared emitter for canonical, `og:url`, OG image, and JSON-LD tags.
 - [ ] Update `src/maps/src/lib/seo/jsonld.ts` so `zoneMapJsonLd` constructs
   `/maps/<zoneKey>`, and update
   `src/maps/src/routes/sitemap.xml/+server.ts` so `zoneRoutes` emits
   `/maps/<key>` while `/map`, `/zone-maps`, `/adventure-guide`, `/mod`, and
-  `/spreadsheet` remain unchanged.
-- [ ] Fix the discovered internal-link surfaces: make the zone card link in
+  `/spreadsheet` remain unchanged. Keep `/map` out of sitemap routes.
+- [ ] Fix discovered internal-link surfaces: make the zone card link in
   `src/maps/src/routes/(app)/zone-maps/+page.svelte` an explicit
   `/maps/${mapName}` (not a relative `${mapName}`), and change the Stowaway
-  example in `src/maps/src/routes/(app)/mod/+page.svelte` to `/maps/Stowaway`.
-  Search the rest of `src/maps` for root-slug links and migrate every map-page
-  link without changing the separate `/map` world-map path.
+  example in `src/maps/src/routes/(app)/mod/+page.svelte` to
+  `/maps/Stowaway`. Search the rest of `src/maps` for root-slug links and
+  migrate every map-page link without changing the separate `/map` world-map
+  path.
 - [ ] Update focused assertions in
   `src/maps/src/routes/sitemap.xml/sitemap.test.ts` (absolute custom-origin
   prefix plus `/maps/<key>` route shape) and
   `src/maps/src/lib/seo/site.test.ts` (new origin and zone path while
-  retaining query/hash stripping behavior). Add a redirect-matrix test for
-  exact known keys, query preservation, static paths, the legacy token, case
-  variants, reserved paths, and unknown-path `404` behavior.
+  retaining query/hash stripping behavior). Add a Worker/redirect-matrix test
+  for both hosts covering exact keys, query preservation, runtime resources,
+  the legacy token, case variants, reserved paths, canonical metadata,
+  no-`noindex` `/map`, and unknown-path `404` behavior.
 - [ ] Change both independent origin sources: set `SITE_URL` in
-  `src/maps/src/lib/seo/site.ts` to `https://erenshor.compendiums.org`, and set
-  the default `MapsConfig.base_url` in
-  `src/erenshor/infrastructure/config/schema.py` to the same origin. Verify
-  that Sheets `map_marker_url` keeps its `/map?sel=marker:<stable_key>` path
-  and that wiki/Sheets generation no longer receives the old host.
+  `src/maps/src/lib/seo/site.ts` to
+  `https://erenshor.compendiums.org`, and set the default
+  `MapsConfig.base_url` in `src/erenshor/infrastructure/config/schema.py` to
+  the same origin. Verify Sheets `map_marker_url` keeps its
+  `/map?sel=marker:<stable_key>` path and that wiki/Sheets generation no
+  longer receives the old host.
 
 #### Maintained references and compatibility surfaces
 
 - [ ] Update the embedded in-game/mod origin and allowlist in
   `src/mods/InteractiveMapCompanion/src/Overlay/MapOverlay.cs` and
-  `BrowserManager.cs`; permit the new origin and explicitly decide whether the
-  legacy origin is allowed only during the transition. Update its
-  `README.md` and `thunderstore/README.md` links, including the GIF asset and
-  `/map` selector examples.
+  `BrowserManager.cs` so newly built companions permit the new origin while
+  retaining the legacy origin needed by shipped DLLs. Update its `README.md`
+  and `thunderstore/README.md` links, including the GIF asset and `/map`
+  selector examples. Do not make this migration depend on releasing a new
+  companion DLL; do not use user-agent sniffing in the Worker.
 - [ ] Update `src/mods/AdventureGuide/vault/README.md` absolute map image and
-  marker/navigation assets, the root `README.md`, and the old-host reference in
-  `docs/architecture-analysis.md`.
+  marker/navigation assets, the root `README.md`, and the old-host reference
+  in `docs/architecture-analysis.md`.
 - [ ] Update the repo-owned wiki MapLink surface as one atomic set:
   `wiki/modules/Erenshor/Character.lua`, `wiki/modules/Erenshor/Zone.lua`,
-  `wiki/templates/Character.wiki`, `wiki/templates/Template_MapLink.txt`, and
-  `wiki/modules/Erenshor/Zone/testcases.lua`. Preserve selector parameters and
-  update the expected URL strings. Confirm the `Template:MapLink` ownership
-  gate and its approximately 40 transclusions before requesting wiki admin
-  deployment.
+  `wiki/templates/Character.wiki`, `wiki/templates/Template_MapLink.txt`,
+  and `wiki/modules/Erenshor/Zone/testcases.lua`. Preserve selector
+  parameters, update expected URL strings, and confirm the `Template:MapLink`
+  ownership gate and its approximately 40 transclusions before requesting
+  wiki-admin deployment.
 
-### Task 2: Domain migration (C1 — blocked on a go-ahead; no registration needed)
+### Task 2: Shared Worker and static-build preparation (repository work)
 
-#### Repository infrastructure preparation (after route prep, before manual gates)
-
-- [ ] Split production and redirect infrastructure explicitly. Rename the
-  production Worker from `erenshor-maps` to an available name such as
-  `erenshor-maps-site`; set `workers_dev: false`, bind the production static
-  assets to the `erenshor.compendiums.org` custom domain, and keep its asset
-  directory on the fresh `src/maps/build` output.
-- [ ] Add `src/maps/redirect-worker.ts` and the separate
-  `src/maps/wrangler.redirect.jsonc` config (kept distinct from production
-  `wrangler.jsonc`) for a redirect-only Worker that keeps the name
-  `erenshor-maps` for the legacy `erenshor-maps.wowmuch1.workers.dev` host. It
-  must implement the redirect and token contract above and must not share the
-  production static-assets deployment target. Keep production and redirect config files selectable
-  without editing one another.
-- [ ] Make deploy target selection explicit in
-  `src/erenshor/cli/commands/maps.py`: production deploy and redirect deploy
-  must pass the intended Wrangler config/project (for example, an explicit
-  `--config`) rather than relying on whichever `wrangler.jsonc` happens to be
-  the working-directory default. Update dry-run output and preconditions to
-  name the selected Worker/config and reject an ambiguous target; preserve a
-  separate command path for the redirect Worker.
+- [ ] Convert `src/maps/wrangler.jsonc` to the single retained Worker
+  configuration: `name: "erenshor-maps"`, `workers_dev: true`, one Worker
+  entrypoint, `assets.directory: "./build"`, `assets.binding: "ASSETS"`, and
+  `assets.run_worker_first` enabled. Bind the custom domain
+  `erenshor.compendiums.org` through its custom-domain route while keeping the
+  workers.dev route. Do not add a second config, entrypoint, or deployment
+  target.
+- [ ] Add the Worker entrypoint (in the existing `src/maps` source layout) to
+  dispatch by hostname and path according to the matrix above, then delegate
+  eligible requests to `env.ASSETS.fetch(request)`. Ensure `/map` and all
+  legacy runtime resources stay direct `200` responses; perform HTML redirects,
+  exact root-map-key redirects, token serving, and deliberate `404`s before
+  asset fallback. The implementation must not inspect `User-Agent`.
+- [ ] Keep one shared static build for both hosts. Ensure the Worker entrypoint
+  and `ASSETS` binding do not create host-specific copies, rewrite resource
+  origins, or redirect service-worker/data requests. Verify `/service-worker.js`,
+  `__data.json`, Svelte assets, SQLite, tiles, images, fonts, and other
+  non-HTML runtime resources are same-origin `200` on the legacy host.
 - [ ] Close the build-freshness gap: `.build-info.json` currently hashes code,
-  selected config/data, mods, and tiles but not Wrangler infrastructure config.
-  Include every production input that can affect the deployed asset/config, or
-  add an equivalent precondition that invalidates the artifact after those
-  files change. Regardless of implementation, require a clean `maps build`
-  after all route, SEO, data, and production-config edits and before production
-  deploy; a previously valid build is not sufficient.
-- [ ] Reconcile the Wrangler package/lockfile versions before deployment
+  selected config/data, mods, and tiles but not all Worker/Wrangler
+  infrastructure inputs. Include the Worker entrypoint, Wrangler config,
+  route/SEO inputs, and every production input that can affect the deployed
+  asset or response behavior, or add an equivalent invalidation precondition.
+  Require a clean `maps build` after route, SEO, data, or Worker-config edits
+  and immediately before deployment; a previously valid build is insufficient.
+- [ ] Reconcile the Wrangler package and lockfile versions
   (`src/maps/package.json` declares `^4.59.2` while `pnpm-lock.yaml` resolves
-  `4.54.0`). Pin a deliberate version and lock it so production and redirect
-  deploys use the reviewed, reproducible CLI.
+  `4.54.0`). Pin a deliberate reviewed version and lock it so the single
+  Worker deploy uses a reproducible CLI.
 - [ ] Obtain the new property's Google token through the manual GSC gate below,
   then replace the old static verification artifact with that exact token in
-  the new-host build. Keep the legacy token available to the redirect Worker;
-  never fabricate a token or leave a placeholder.
+  the shared build. Keep the legacy token response available from the same
+  Worker; never fabricate a token or leave a placeholder.
 
-#### Manual Cloudflare and external-admin gates (no repository checkbox substitutes)
+### Task 3: Manual Cloudflare, GSC, wiki, and external-link gates
+
+These are release gates, not repository-code substitutes. No deployment is
+authorized until each applicable checkbox is explicitly completed by the
+responsible operator.
 
 - [ ] Confirm Cloudflare account/API-token access, the correct account and
-  `compendiums.org` zone, permission to create custom domains, certificate/DNS
-  readiness for `erenshor.compendiums.org`, and availability of the renamed
-  production Worker name. Resolve any existing `erenshor-maps-site` collision
-  before touching the old Worker.
-- [ ] In Google Search Console, create the new custom-domain property, obtain
-  its verification token, and provide that token for the repository static
-  file. Keep access to the old property and its legacy token until redirect
-  verification is complete. Do not run Change of Address yet.
-- [ ] Confirm wiki admin ownership for `Template:MapLink` and its transclusions,
-  and permission to deploy the Lua/template/testcase changes. Confirm the
-  maintainer who can update the Steam guide and any other externally maintained
-  links. These are release gates, not assumptions encoded in repository code.
+  `compendiums.org` zone, permission to attach custom domains, and
+  certificate/DNS readiness for `erenshor.compendiums.org`. Confirm the
+  existing `erenshor-maps` Worker and workers.dev route remain available.
+- [ ] In Google Search Console, create the new custom-domain property and obtain
+  its verification token for the repository static file. Keep access to the
+  old property and legacy token until redirect and indexing verification is
+  complete. Do not run Change of Address yet.
+- [ ] Confirm wiki-admin ownership of `Template:MapLink` and its transclusions,
+  permission to deploy the Lua/template/testcase changes, and the maintainer
+  who can update the Steam guide and other externally maintained links. These
+  are release gates, not assumptions encoded in repository code.
 
-#### Ordered deployment: custom domain first, redirect second
+### Task 4: Ordered deployment and maintained-link cutover
 
 - [ ] Build from a clean checkout/input set with the new route, origins, links,
-  token, lockfile, and infrastructure-hash inputs; run the maps freshness and
-  authentication preconditions against the explicitly selected production
-  config. Record the build provenance used for rollback.
-- [ ] Deploy the renamed production Worker with its custom-domain binding
-  **before** deploying any redirect Worker. Confirm Cloudflare reports the
-  custom domain active and its certificate/DNS is healthy; do not proceed while
-  the new host is serving an old build or a workers.dev origin.
-- [ ] Verify the new host before changing the legacy host: load `/`, `/map`, a
-  representative `/maps/<exact-key>`, `/zone-maps`, `/adventure-guide`,
-  `/mod`, `/spreadsheet`, representative static assets, and the sitemap/robots
-  endpoints over HTTPS. Inspect canonical, `og:url`, JSON-LD, and sitemap
-  origins and confirm there are no root-zone links or mixed old-host outputs.
-- [ ] Only after the custom-domain checks pass, deploy the separate
-  `erenshor-maps` redirect Worker using its explicit redirect config. Verify
-  representative known-root redirects, static-path redirects, query and
-  trailing-slash behavior, unknown/reserved-path `404`s, no redirect loops, and
-  direct `200` serving of the legacy GSC token.
-
-#### GSC, wiki, Steam, and maintained-link cutover
-
+  token, lockfile, Worker entrypoint, Wrangler config, and freshness inputs.
+  Run maps freshness and authentication preconditions against the one
+  explicitly selected Worker configuration. Record build provenance and the
+  prior Worker version for rollback.
+- [ ] Deploy the retained `erenshor-maps` Worker with its shared build while
+  keeping `workers_dev: true`; attach/activate the custom-domain route only
+  after Cloudflare reports certificate and DNS readiness. There is no separate
+  redirect deployment. Do not proceed while the custom host serves an old
+  build or an unintended workers.dev origin.
+- [ ] Verify the new host before changing any external backlink: load `/`,
+  `/map`, a representative `/maps/<exact-key>`, `/zone-maps`,
+  `/adventure-guide`, `/mod`, `/spreadsheet`, representative static assets,
+  and sitemap/robots endpoints over HTTPS. Inspect canonical, `og:url`,
+  JSON-LD, and sitemap origins; confirm no root-zone links, old-host outputs,
+  or mixed-origin runtime requests.
+- [ ] Verify the legacy host from the same Worker before external cutover:
+  load `/map` and its service worker, `__data.json`, Svelte assets, SQLite,
+  tiles, images, fonts, and representative other runtime resources as direct
+  same-origin `200`s; verify old token `200`; verify exact root-key and
+  same-path HTML `301`s; and verify unknown/reserved paths are `404`s.
 - [ ] After both hosts pass verification, verify the new GSC property with its
   token, submit the new-host sitemap, and run Change of Address from the old
-  property to the new property. Keep the old token route and old property
-  accessible for the transition and monitor indexing/redirect errors.
+  property to the new property. Keep the old property and legacy token
+  accessible during the transition and monitor indexing/redirect errors.
 - [ ] Deploy the repo-owned wiki MapLink/Lua/template update first among
-  controlled backlinks, preserving `/map` selector behavior and checking a
+  controlled backlinks, preserving `/map` selector behavior. Check a
   character link, a zone link, and a generated zone page. Then update the
-  Steam guide and other externally maintained links. Repository-controlled mod,
-  Adventure Guide, README, and architecture links must already point to the new
-  origin before this step.
+  Steam guide and other externally maintained links. Repository-controlled
+  mod, Adventure Guide, README, and architecture links must already point to
+  the new origin before this step.
 
-#### Verification and rollback gates
+### Task 5: Verification and rollback gates
 
-- [ ] Run a final redirect matrix against the deployed legacy host: exact
-  case-sensitive `MAPS` keys map only to `/maps/<key>`; encoded selector/query
-  strings survive unchanged; `/map`, static assets, and the documented app
-  paths retain their paths; `/guide`, `/zones/*`, malformed/case-variant keys,
-  and unknown paths do not redirect to home or a guessed map; the legacy token
-  remains a direct `200`; and no destination points back to the legacy host.
+- [ ] Run a final two-host matrix: new-host application documents and
+  `/maps/<key>` are `200`; legacy `/map` and every documented runtime resource
+  are same-origin `200`; exact case-sensitive root `MAPS` keys alone redirect
+  to `/maps/<key>`; encoded selector/query strings survive unchanged;
+  same-path HTML redirects preserve casing and query; legacy token is direct
+  `200`; `/guide`, `/zones/*`, malformed/case-variant keys, unknown paths, and
+  unknown assets are deliberate `404`s; no redirect loops exist; and no
+  destination points back to the legacy host.
 - [ ] Re-run the new-host surface check after wiki and external-link updates:
-  canonical/OG/JSON-LD/sitemap/robots all use the custom origin, every
+  canonical/OG/JSON-LD/sitemap/robots use the custom origin, every
   prerendered map has exactly one `/maps/<key>` canonical, generated wiki and
   Sheets URLs use the new `MapsConfig.base_url`, BrowserManager allows the new
-  host, and representative internal/mod/docs links resolve.
-- [ ] If custom-domain deployment or certificate verification fails, stop
-  before redirect deployment; restore the recorded prior production Worker
-  version/config and its legacy binding, and remove or disable the unverified
-  custom-domain binding. Do not run Change of Address or update external links.
-- [ ] If the redirect Worker misroutes, drops queries, breaks the token, or
-  loops, roll back that Worker independently to the last known redirect config
-  (or temporarily restore the recorded prior legacy-host production binding),
-  keep the verified custom host isolated, and defer GSC/link cutover until the
-  matrix passes again. Preserve the prior production build and both Wrangler
-  configs as rollback artifacts.
+  host, the legacy companion source remains supported, and representative
+  internal/mod/docs links resolve.
+- [ ] If custom-domain activation, certificate, or DNS verification fails,
+  stop before GSC Change of Address or external-link updates. Keep the
+  workers.dev route serving the recorded known-good Worker version, remove or
+  disable the unverified custom-domain route, and do not claim the migration is
+  live.
+- [ ] If host routing misroutes, drops queries, breaks the token, breaks an
+  overlay resource, or loops, roll back the retained Worker to the recorded
+  last-known-good version and shared build. Re-test both hosts before any
+  external cutover. Preserve the prior build, Worker version, and Wrangler
+  configuration as rollback artifacts; do not create a parallel Worker to
+  recover.
+- [ ] If GSC, wiki, Steam, or another external gate fails after repository and
+  host verification, pause that gate, retain the verified host behavior and
+  legacy compatibility responses, and defer the remaining external update.
+  Do not remove the legacy token or alter old-host overlay resources until the
+  transition is complete.
 
 ## Risks and release gates
 
-- **Worker-name collision:** the old name must remain available for the
-  redirect Worker while the production Worker is renamed. Cloudflare account,
-  zone, name, and custom-domain checks are blocking gates; never let an
-  ambiguous CLI target deploy.
-- **Stale-build hashing gap:** Wrangler config is not currently part of
-  `.build-info.json`; an apparently fresh artifact can contain old deployment
-  assumptions. Include the config in freshness inputs and require a clean build
-  immediately before production deployment.
-- **Unknown/static path behavior:** a catch-all redirect can turn typos,
-  `/guide`, reserved `/zones/{slug}`, or unknown assets into misleading map/home
-  pages. The exact known-static/known-zone/unknown-404 matrix above is a release
-  gate, including encoded and trailing-slash cases.
-- **Exact case-sensitive zone keys:** `MAPS` keys are the allowlist. Lowercasing,
-  decoding, or guessing a slug can create wrong redirects or 404s; tests must
-  cover representative camel-case keys and case variants.
-- **Allowlist breakage:** `BrowserManager` can reject the new origin even when
-  ordinary browsers work. Update and exercise the allowlist, and specify the
-  legacy-origin transition policy before publishing the mod.
-- **SEO split-brain:** changing only `SITE_URL` leaves wiki/Sheets outputs on
-  the old host because `MapsConfig.base_url` is independent. Both sources,
-  every canonical/JSON-LD/sitemap surface, and controlled links must be
-  inspected for a single origin before Change of Address.
-- **External admin dependencies:** Cloudflare certificate/DNS and Worker
-  permissions, GSC token/property access, wiki template deployment, and Steam
-  guide ownership can block an otherwise complete repository change. Keep each
-  manual gate explicit and preserve the old verification/redirect path until
-  all are green.
-- **Wrangler lock drift:** the package and lockfile currently resolve different
-  Wrangler versions. A version change during cutover can alter config or deploy
-  behavior; reconcile and review the lock before either Worker is deployed.
+- **Legacy companion compatibility:** shipped DLLs reject full-document
+  navigation to another host and hardcode the workers.dev `/map` URL. The
+  legacy `/map` document plus service worker, `__data.json`, Svelte assets,
+  SQLite, tiles, images, fonts, and all other runtime resources must remain
+  same-origin `200`s. Host-aware routing, not user-agent sniffing, is the
+  mitigation.
+- **Static-resource allowlist drift:** redirecting every legacy request can
+  break overlays or turn unknown paths into misleading pages. Keep an explicit
+  runtime-resource/static allowlist, test it against the shared build, and
+  return `404` for unknown and reserved paths.
+- **Stale build inputs:** Worker config and entrypoint changes can evade the
+  current `.build-info.json` inputs. Hash every deployed behavior input and
+  require a clean build immediately before deployment.
+- **Exact case-sensitive zone keys:** `MAPS` keys are the only root redirect
+  allowlist. Lowercasing, decoding, or guessing a slug can create wrong
+  redirects; tests must cover camel-case keys, variants, encodings, and
+  trailing-slash cases.
+- **Custom-domain readiness:** Cloudflare account, route, certificate, and DNS
+  permissions can block the release. Keep workers.dev serving the known-good
+  version until the custom host is healthy.
+- **SEO split-brain:** `SITE_URL` and `MapsConfig.base_url` are independent.
+  Both sources, every canonical/JSON-LD/sitemap/robots surface, and controlled
+  links must be inspected for one canonical origin before Change of Address.
+  Legacy `/map` is canonicalized cross-domain but remains indexable: it is not
+  in sitemaps/internal links and must not use `noindex`.
+- **External-admin dependencies:** GSC token/property access, Change of
+  Address, wiki template deployment, Steam guide ownership, and other
+  maintained links are manual gates. Keep each explicit and preserve the old
+  verification/compatibility paths until all are green.
+- **Wrangler lock drift:** package and lockfile versions currently differ. A
+  version change during cutover can alter config or deploy behavior; reconcile
+  and review the lock before deploying the retained Worker.
 
-### Task 3: Backlog (independent of the migration)
+### Task 6: Independent backlog (not a migration gate)
 
 - [ ] (low value) 404 `noindex` page (spec I3): needs an adapter `fallback` plus
-  a Wrangler `not_found_handling` change to actually be served. Do not block the
-  domain/URL cutover on it.
-- [ ] (future, own spec) Crawlable textual content layer at
-  `/zones/{slug}`. It remains separate from the interactive `/maps/{slug}`
-  route and must not be folded into this migration.
+  a Wrangler `not_found_handling` change to actually be served. It is limited
+  to deliberate 404 documents, never legacy `/map`, and does not block the
+  domain/URL cutover.
+- [ ] (future, own spec) Crawlable textual content layer at `/zones/{slug}`.
+  It remains separate from the interactive `/maps/{slug}` route and must not be
+  folded into this migration.

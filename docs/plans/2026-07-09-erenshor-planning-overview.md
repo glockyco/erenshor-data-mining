@@ -12,9 +12,9 @@ Erenshor's data pipeline turns the current shipping build into reliable public
 artifacts: clean SQLite, wiki pages, sheets, maps, quest-guide data, and
 companion mods. The current planning focus is the coordinated maps domain and
 URL migration: bind `erenshor.compendiums.org`, move interactive zone maps to
-`/maps/{slug}`, preserve legacy links with redirects, and update the consumers
-we control. This is the next execution step; it is deliberately ahead of later
-map features and residual data debt.
+`/maps/{slug}`, preserve legacy links with host-aware compatibility routing, and
+update the consumers we control. This is the next execution step; it is
+deliberately ahead of later map features and residual data debt.
 
 **This document is forward-looking only.** It holds the strategy sequence,
 ranked work, and standing gates. Completed implementation belongs in commits and
@@ -25,9 +25,10 @@ leaves this queue.
 
 1. **Execute the coordinated maps domain/URL migration.** Prepare repository
    routes, SEO and generated-link configuration, maintained consumers, and the
-   redirect Worker; then pass Cloudflare/GSC manual gates before one cutover.
-   The custom domain and `/maps/{slug}` move together so canonical URLs churn
-   once.
+   one `erenshor-maps` Worker serving both `erenshor-maps.wowmuch1.workers.dev`
+   and `erenshor.compendiums.org` from one static build; then pass
+   Cloudflare/GSC manual gates before one cutover. The custom domain and
+   `/maps/{slug}` move together so canonical URLs churn once.
 2. **Cut over wiki content safely.** The live storage model is validated (nested
    store owners; reparse for data, recreate only on a schema change). Finish the
    remaining dual-path templates, thin-page generation, community-row
@@ -53,25 +54,30 @@ Evidence-gated items never start before their gate.
 
 1. **[`2026-06-26-maps-domain-url-migration`](2026-06-26-maps-domain-url-migration.md)**
    *(plan, active; current focus)* — bind `erenshor.compendiums.org`, move zone
-   maps to `/maps/{slug}`, deploy the legacy-host redirect Worker, and repoint
-   wiki, Steam, in-game, mod, and README links. Repository prep includes the
-   dynamic route move, explicit zone-index links, canonical/JSON-LD/sitemap
-   paths, `SITE_URL`, `MapsConfig.base_url`, and maintained old-host references.
-   The redirect contract preserves paths and query strings (including map
-   selectors and asset paths), redirects known legacy routes and exact known
-   root zone slugs, serves the legacy verification file directly, and does not
-   guess destinations for unknown or reserved paths.
+   maps to `/maps/{slug}`, and update wiki, Steam, in-game, mod, and README
+   links. The single `erenshor-maps` Worker serves one shared static build on
+   both the custom domain and its existing `erenshor-maps.wowmuch1.workers.dev`
+   route. The legacy host remains indefinitely for old Interactive Map
+   Companion overlays: legacy `/map` and same-origin runtime resources
+   (service worker, Svelte assets/data, SQLite, tiles, images, fonts, and other
+   non-HTML resources) stay `200`; other known legacy HTML routes redirect to
+   the canonical custom domain. Legacy `/map` is cross-domain-canonicalized to
+   the custom-domain `/map`, is absent from sitemaps/internal links, and does
+   not use `noindex`. Exact known root map keys redirect to `/maps/{key}`;
+   unknown and reserved paths remain `404`, while the old GSC token remains
+   `200`.
 
-   Execute in this order: prepare and review repository changes; manually verify
-   Cloudflare account/token, zone ownership, custom-domain certificate/DNS,
-   Worker-name availability, and GSC access; deploy and verify the new custom
-   host; deploy the legacy redirect Worker; then update GSC Change of Address,
-   sitemap, and external links. Verify representative routes/assets, HTTPS,
-   canonicals, OG/JSON-LD, sitemap, robots, redirects, query preservation, and
-   embedded-browser access. Keep the prior Worker deployment and old host until
-   verification passes; rollback production binding or the redirect Worker
-   independently if deployment, routing, or verification fails. The plan's
-   active task checklist is the execution authority.
+   Execute in this order: prepare and review repository changes; manually
+   verify Cloudflare account/token, zone ownership, custom-domain
+   certificate/DNS, Worker authorization, and GSC access; deploy and verify the
+   shared build on the custom host while retaining the existing workers.dev
+   route; then update GSC Change of Address, sitemap, and external links.
+   Verify representative routes/assets, HTTPS, canonicals, OG/JSON-LD, sitemap,
+   robots, redirects, query preservation, and embedded-browser access. Keep the
+   shared Worker/build and old host available until verification passes; roll
+   back the single Worker deployment or binding if deployment, routing, or
+   verification fails. The plan's active task checklist is the execution
+   authority.
 
 **P2 — wiki Cargo/Lua cutover and backlink stability**
 
@@ -142,11 +148,15 @@ and [`2026-07-12-adventure-guide-tracker-and-data-refresh`](archive/2026-07-12-a
   and `MediaWiki:Gadget-erenshor.css` is interface-protected. Before any type
   converts, provide a deliverable styling path and prove Lua presentation parity
   with the legacy display contract against live pages.
-- **Migration cutover gate.** Do not bind the custom domain or deploy the legacy
-  redirect Worker until repository route/link preparation is reviewed and
-  Cloudflare DNS, certificate, Worker authorization/name, and GSC prerequisites
-  are confirmed. Verify the custom host before changing the old host; retain an
-  independent rollback for each Worker.
+- **Migration cutover gate.** Do not bind the custom domain or change legacy
+  routing until repository route/link preparation is reviewed and Cloudflare
+  DNS, certificate, Worker authorization, and GSC prerequisites are confirmed.
+  The one `erenshor-maps` Worker must serve the reviewed shared static build on
+  both hosts. Verify the custom host before changing canonical/link outputs;
+  retain the legacy workers.dev route indefinitely for old overlays, with only
+  legacy `/map` and runtime resources directly served and other HTML routes
+  redirecting. Keep one rollback for the shared Worker deployment or binding,
+  not separate Worker rollbacks.
 
 ## Parked / not scheduled
 
