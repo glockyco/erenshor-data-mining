@@ -2,15 +2,16 @@
   class="erenshor-link erenshor-link--item"
   data-erenshor-kind="item"
   data-erenshor-page="{{{link|{{{1|{{{item}}}}}}}}}"
+  {{#if:{{{quality|}}}|data-erenshor-quality="{{{quality}}}"|}}
 ><span style="position:relative; display:inline-block;">
 [[File:{{{image|{{{1|{{{item}}}}}}}}}{{#if:{{{image|}}}||.png}}|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]
-{{#if:{{{sparkle|}}}|
-<span style="position:absolute; top:0; left:0;">[[File:{{{sparkle}}}_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>
+{{#if:{{{quality|}}}|
+{{#switch:{{{quality}}}|Blessed=<span style="position:absolute; top:0; left:0;">[[File:Blue_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>|Ascended=<span style="position:absolute; top:0; left:0;">[[File:Purple_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>}}
 }}
 </span></span></includeonly><noinclude>
 == Template:Gear/Slot ==
 
-Displays a single equipment item with an optional sparkle overlay. The default [[MediaWiki:Gadget-item-tooltips.js|item-tooltips gadget]] opens the linked item's tooltip on hover or keyboard focus.
+Displays a single equipment item with an optional quality indicator. The default [[MediaWiki:Gadget-item-tooltips.js|item-tooltips gadget]] opens the linked item's tooltip at that quality on hover or keyboard focus.
 
 === Parameters ===
 
@@ -27,8 +28,8 @@ Displays a single equipment item with an optional sparkle overlay. The default [
 | <code>link</code>
 | Link target. Defaults to the item name. The hover tooltip is loaded from this page.
 |-
-| <code>sparkle</code>
-| Optional sparkle color. Supported values are <code>Blue</code> and <code>Purple</code>.
+| <code>quality</code>
+| Optional item quality. Supported values are <code>Blessed</code> and <code>Ascended</code>. The quality controls both the sparkle overlay and hover tooltip.
 |}
 
 === Usage examples ===
@@ -39,22 +40,22 @@ Displays a single equipment item with an optional sparkle overlay. The default [
 
 {{Gear/Slot|Warlord's Charm}}
 
-==== Item with blue sparkle ====
+==== Blessed item ====
 
-<pre>{{Gear/Slot|Sivakayan Tricorner|sparkle=Blue}}</pre>
+<pre>{{Gear/Slot|Sivakayan Tricorner|quality=Blessed}}</pre>
 
-{{Gear/Slot|Sivakayan Tricorner|sparkle=Blue}}
+{{Gear/Slot|Sivakayan Tricorner|quality=Blessed}}
 
 ==== Item with a custom image ====
 
-<pre>{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|sparkle=Purple}}</pre>
+<pre>{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|quality=Ascended}}</pre>
 
-{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|sparkle=Purple}}
+{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|quality=Ascended}}
 
 === Technical notes ===
 
 * Images are displayed at 60 by 60 pixels.
-* Sparkle overlays use files named <code>Blue_Sparkle.gif</code> or <code>Purple_Sparkle.gif</code>.
+* <code>Blessed</code> uses <code>Blue_Sparkle.gif</code>. <code>Ascended</code> uses <code>Purple_Sparkle.gif</code>.
 * An image supplied through <code>image</code> must include its extension.
 * The original image link remains clickable when its tooltip is open.
 
