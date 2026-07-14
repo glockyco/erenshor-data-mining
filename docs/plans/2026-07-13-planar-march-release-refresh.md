@@ -22,26 +22,26 @@ Planar March is the game patch releasing Monday 2026-07-13, bringing the playtes
 
 ## Data refresh
 
-- [ ] Update the main variant game install from Steam once the patch is live.
-- [ ] Run extract export, extract code-facts, extract build for the main variant.
-- [ ] Run the dynamic-spawn coverage gate before any deploys.
-- [ ] Run golden capture and review diffs; run `uv run pytest`.
+- [x] Update the main variant game install from Steam once the patch is live.
+- [x] Run extract export, extract code-facts, extract build for the main variant.
+- [x] Run the dynamic-spawn coverage gate before any deploys.
+- [x] Run golden capture and review diffs; run `uv run pytest`.
 
 ## Wiki deploy
 
-- [ ] Re-run images process and images upload for any icons changed since the playtest build.
+- [x] Re-run images process and images upload for any icons changed since the playtest build.
 - [ ] `wiki fetch --force`, `wiki generate`, then deploy ALL article pages: items, characters, spells, skills, stances, the Weapons and Armor overview pages, and zone pages (new Plane zones need review before deploy).
-- [ ] `deploy-repo-pages` with regenerated Lua data modules from the release build.
-- [ ] Flip `PLANAR_MARCH_ENABLED = true` in `Module:Erenshor/Item/Quality` and deploy it.
+- [x] Keep generated Lua data modules undeployed; the Lua/Cargo article path remains deferred.
+- [x] Flip `PLANAR_MARCH_ENABLED = true` in `Module:Erenshor/Item/Quality` and deploy it.
 - [ ] Verify live: equipment pages render 8 quality cards in progression order with green Improved sparkles; spot-check one page per item kind plus a character, spell, skill, stance, and zone page for parser errors.
 
 ## Other consumers
 
-- [ ] Deploy Google Sheets for the main variant.
-- [ ] `maps build` then `maps deploy` on the main variant, after the main data
+- [x] Deploy Google Sheets for the main variant.
+- [x] `maps build` then `maps deploy` on the main variant, after the main data
   refresh: build copies the main clean DB into `src/maps/build/` and stamps it;
   deploy refuses a build older than its inputs and publishes the `erenshor-maps`
   production worker (`wrangler.jsonc` pins `./build`, so a playtest variant deploy
   cannot shadow production). Plane-zone tiles and thumbnails are already committed
   under `src/maps/static/`.
-- [ ] Compile and publish the quest guide if game data changed it.
+- [x] Compile and publish the quest guide because the release data changed it.
