@@ -6,18 +6,17 @@
   <!-- ============================================== -->
   <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod"
           Condition="'$(ModLoader)' == 'bepinex'">
-    <PropertyGroup>
-      <!-- Resolve NuGet package root (cross-platform) -->
-      <NuGetPackagesPath Condition="'$(NuGetPackageRoot)' != ''">$(NuGetPackageRoot)</NuGetPackagesPath>
-      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.nuget\packages</NuGetPackagesPath>
-      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == ''">$(HOME)/.nuget/packages</NuGetPackagesPath>
+    <ItemGroup>
+      <BepInExReference Include="@(ReferencePath)"
+                        Condition="'%(Filename)%(Extension)' == 'BepInEx.dll'" />
+    </ItemGroup>
 
-      <BepInExSource>$(NuGetPackagesPath)/bepinex.baselib/5.4.20/lib/netstandard2.0/BepInEx.dll</BepInExSource>
-    </PropertyGroup>
+    <Error Condition="'@(BepInExReference)' == ''"
+           Text="Could not resolve BepInEx.dll from the restored BepInEx package." />
 
-    <!-- Copy to output for ILRepack type resolution (not merged — BepInEx provides at runtime).
-         0Harmony.dll is in lib/ (copied from BepInEx install) and already on LibraryPath. -->
-    <Copy SourceFiles="$(BepInExSource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <!-- Copy the assembly selected by NuGet restore for ILRepack type resolution.
+         It remains reference-only and is never merged into the plugin. -->
+    <Copy SourceFiles="@(BepInExReference)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
 
     <Message Text="Copied BepInEx.dll for ILRepack type resolution" Importance="normal" />
   </Target>
