@@ -18,6 +18,8 @@ public sealed class WebSocketServer : IWebSocketServer
     private readonly object _lifecycleGate = new();
 
     private Fleck.WebSocketServer? _server;
+    private Action<Fleck.LogLevel, string, Exception>? _previousFleckLogAction;
+    private Action<Fleck.LogLevel, string, Exception>? _fleckLogAction;
     private bool _stopped;
     private bool _disposed;
 
@@ -137,6 +139,7 @@ public sealed class WebSocketServer : IWebSocketServer
         }
 
         Stop();
+        RestoreFleckLogging();
     }
 
     private void ConfigureSocket(IWebSocketConnection socket)
@@ -240,7 +243,8 @@ public sealed class WebSocketServer : IWebSocketServer
 
     private void ConfigureFleckLogging()
     {
-        FleckLog.LogAction = (level, message, ex) =>
+        _previousFleckLogAction = FleckLog.LogAction;
+        _fleckLogAction = (level, message, ex) =>
         {
             var configuredLevel = _config.WebSocketLogLevel;
             bool shouldLog = level switch
@@ -279,5 +283,15 @@ public sealed class WebSocketServer : IWebSocketServer
                     break;
             }
         };
+        FleckLog.LogAction = _fleckLogAction;
+    }
+
+    private void RestoreFleckLogging()
+    {
+        if (_fleckLogAction != null && ReferenceEquals(FleckLog.LogAction, _fleckLogAction))
+            FleckLog.LogAction = _previousFleckLogAction;
+
+        _fleckLogAction = null;
+        _previousFleckLogAction = null;
     }
 }
