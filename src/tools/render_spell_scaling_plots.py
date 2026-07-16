@@ -63,6 +63,7 @@ MUTED = "#444444"
 GRID = "#dddddd"
 BLUE = "#3977d4"
 BLUE_DARK = "#244f91"
+BLUE_SOFT = "#e4ecf8"
 GREEN = "#27885a"
 GREEN_DARK = "#17633f"
 GREEN_SOFT = "#dff1e6"
@@ -181,7 +182,7 @@ def draw_text(
     font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
     fill: str,
 ) -> None:
-    draw.text(xy, value, font=font, fill=fill)
+    draw.text(xy, value, font=font, fill=fill)  # pyright: ignore[reportUnknownMemberType]
 
 
 def text_bbox(
@@ -286,6 +287,12 @@ def verify_values() -> None:
     assert round(predicted_damage(1.22)) == REPORTED_ROARING_ECHO
     assert round(predicted_damage(chant_multiplier(MAX_CAST_PROGRESS))) == 51_871
     assert abs(REPORTED_ORDINARY_RESONANCE - round(predicted_damage(ORDINARY_RESONANCE_SCALE))) == 6
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 5, CriticalProfile.ORDINARY, 0.955) == 5_280
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 5, CriticalProfile.ORDINARY, 0.98) == 5_580
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 20, CriticalProfile.STORMCALLER, 0.955) == 795
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 20, CriticalProfile.STORMCALLER, 0.98) == 835
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 40, CriticalProfile.WINDBLADE, 0.955) == 205
+    assert _minimum_critical_dexterity(MAX_PLAYER_LEVEL, 40, CriticalProfile.WINDBLADE, 0.98) == 215
 
 
 def draw_dashed_path(
@@ -1035,6 +1042,285 @@ def render_physical_critical_chance(path: Path) -> None:
     image.save(path, format="PNG", compress_level=9)
 
 
+def _minimum_critical_dexterity(
+    level: int,
+    finesse: int,
+    profile: CriticalProfile,
+    target: float,
+) -> int:
+    """Return the first Dexterity value whose critical chance reaches target."""
+    if not 0.0 < target < 1.0:
+        raise ValueError("target must be greater than 0 and less than 1")
+
+    lower = 0
+    upper = 1
+    while critical_hit_chance(level, upper, finesse, profile) < target:
+        upper *= 2
+    while lower < upper:
+        midpoint = (lower + upper) // 2
+        if critical_hit_chance(level, midpoint, finesse, profile) >= target:
+            upper = midpoint
+        else:
+            lower = midpoint + 1
+    return lower
+
+
+def render_physical_critical_dexterity_bands(path: Path) -> None:
+    """Render level-35 Dexterity thresholds for 95.5% through 98% crit."""
+    image = Image.new("RGB", (IMAGE_WIDTH, 1_120), WHITE)
+    draw = ImageDraw.Draw(image)
+    title_font = FONTS.get(28, bold=True)
+    formula_font = FONTS.get(18)
+    note = FONTS.get(17)
+    axis_font = FONTS.get(19)
+    label_font = FONTS.get(17, bold=True)
+    table_header_font = FONTS.get(15, bold=True)
+    table_header_small = FONTS.get(13, bold=True)
+    table_font = FONTS.get(16)
+    table_bold = FONTS.get(16, bold=True)
+
+    finesse_values = tuple(range(5, 41))
+    breakpoints = tuple(range(5, 41, 5))
+    lower_target = 0.955
+    upper_target = 0.98
+    bands = {
+        style.profile: (
+            tuple(
+                _minimum_critical_dexterity(MAX_PLAYER_LEVEL, finesse, style.profile, lower_target)
+                for finesse in finesse_values
+            ),
+            tuple(
+                _minimum_critical_dexterity(MAX_PLAYER_LEVEL, finesse, style.profile, upper_target)
+                for finesse in finesse_values
+            ),
+        )
+        for style in CRITICAL_CLASS_STYLES
+    }
+    soft_fills = {
+        CriticalProfile.ORDINARY: BLUE_SOFT,
+        CriticalProfile.STORMCALLER: GREEN_SOFT,
+        CriticalProfile.WINDBLADE: AMBER_SOFT,
+    }
+
+    area = PlotArea(125, 235, 1_135, 675, 5, 46, 0, 1)
+    log_min = math.log2(180)
+    log_max = math.log2(6_600)
+
+    def dexterity_y(value: int) -> float:
+        ratio = (math.log2(value) - log_min) / (log_max - log_min)
+        return area.bottom - ratio * (area.bottom - area.top)
+
+    for finesse in range(5, 41):
+        x = area.x(finesse)
+        draw.line(
+            (x, area.top, x, area.bottom),
+            fill=GRID if finesse % 5 == 0 else "#eeeeee",
+            width=1,
+        )
+    for value in (200, 400, 800, 1_600, 3_200, 6_400):
+        y = dexterity_y(value)
+        draw.line((area.left, y, area.right, y), fill=GRID, width=1)
+        label = f"{value:,}"
+        bounds = text_bbox(draw, label, note)
+        draw_text(
+            draw,
+            (area.left - 14 - (bounds[2] - bounds[0]), y - (bounds[3] - bounds[1]) / 2 - bounds[1]),
+            label,
+            font=note,
+            fill=INK,
+        )
+    draw.line((area.left, area.top, area.left, area.bottom), fill=INK, width=3)
+    draw.line((area.left, area.bottom, area.right, area.bottom), fill=INK, width=3)
+
+    for finesse in breakpoints:
+        x = area.x(finesse)
+        label = str(finesse)
+        bounds = text_bbox(draw, label, note)
+        draw_text(
+            draw,
+            (x - (bounds[2] - bounds[0]) / 2, area.bottom + 12),
+            label,
+            font=note,
+            fill=INK,
+        )
+
+    for style in CRITICAL_CLASS_STYLES:
+        lower, upper = bands[style.profile]
+        lower_points = [
+            (area.x(finesse), dexterity_y(value)) for finesse, value in zip(finesse_values, lower, strict=True)
+        ]
+        upper_points = [
+            (area.x(finesse), dexterity_y(value)) for finesse, value in zip(finesse_values, upper, strict=True)
+        ]
+        draw.polygon(lower_points + list(reversed(upper_points)), fill=soft_fills[style.profile])
+        draw.line(lower_points, fill=style.color, width=4)
+        draw_dashed_path(draw, upper_points, fill=style.color, width=4, dash_pattern=(9, 6))
+
+        for finesse in breakpoints:
+            index = finesse - finesse_values[0]
+            x = area.x(finesse)
+            draw_marker(
+                draw,
+                (x, dexterity_y(lower[index])),
+                shape="circle",
+                fill=style.color,
+                radius=4,
+            )
+            draw_marker(
+                draw,
+                (x, dexterity_y(upper[index])),
+                shape="diamond",
+                fill=style.color,
+                radius=4,
+            )
+
+        plot_label = style.label
+        if style.profile is CriticalProfile.ORDINARY:
+            plot_label = "Arcanist · Druid\nPaladin · Reaver"
+        label_x = area.x(40.55)
+        label_y = dexterity_y(round(math.sqrt(lower[-1] * upper[-1])))
+        bounds = draw.multiline_textbbox((0, 0), plot_label, font=label_font, spacing=0)
+        draw.rounded_rectangle(
+            (
+                label_x - 4,
+                label_y - (bounds[3] - bounds[1]) / 2 - 3,
+                label_x + bounds[2] - bounds[0] + 5,
+                label_y + (bounds[3] - bounds[1]) / 2 + 3,
+            ),
+            radius=4,
+            fill=WHITE,
+        )
+        draw.multiline_text(
+            (label_x, label_y - (bounds[3] - bounds[1]) / 2 - bounds[1]),
+            plot_label,
+            font=label_font,
+            fill=style.color,
+            spacing=0,
+        )
+
+    draw_text(
+        draw,
+        (125, 28),
+        f"Dexterity needed for 95.5\N{EN DASH}98% physical crit \N{EM DASH} {BUILD_LABEL}",
+        font=title_font,
+        fill="#111111",
+    )
+    draw_text(
+        draw,
+        (125, 78),
+        "L=35     D=Dexterity     F=Finesse     c=physical crit chance",
+        font=formula_font,
+        fill=BLUE_DARK,
+    )
+    draw_text(
+        draw,
+        (125, 116),
+        "Arcanist, Druid, Paladin, Reaver: 1 full-strength group     "
+        + "Stormcaller: +0.4-strength group     Windblade: +1 full-strength group",
+        font=note,
+        fill=MUTED,
+    )
+    draw_text(
+        draw,
+        (125, 153),
+        "Bands mark minimum D for c≥95.5% (solid) and c≥98% (dashed). " + "A finite 100% breakpoint does not exist.",
+        font=note,
+        fill=MUTED,
+    )
+
+    x_label = "Finesse"
+    bounds = text_bbox(draw, x_label, axis_font)
+    draw_text(
+        draw,
+        ((area.left + area.right - (bounds[2] - bounds[0])) / 2, 712),
+        x_label,
+        font=axis_font,
+        fill=INK,
+    )
+    draw_vertical_label(
+        image,
+        "Required Dexterity (base-2 log scale; each grid step doubles)",
+        font=axis_font,
+        left=20,
+        center_y=(area.top + area.bottom) / 2,
+    )
+
+    table_left = 125
+    table_right = 1_135
+    table_top = 815
+    table_bottom = 1_075
+    draw_text(
+        draw,
+        (table_left, 770),
+        "Dexterity bands at 5-Finesse breakpoints",
+        font=axis_font,
+        fill=INK,
+    )
+    table_note = "Each range: 95.5% threshold \N{EN DASH} 98% threshold"
+    bounds = text_bbox(draw, table_note, note)
+    draw_text(
+        draw,
+        (table_right - (bounds[2] - bounds[0]), 773),
+        table_note,
+        font=note,
+        fill=MUTED,
+    )
+
+    column_edges = (table_left, 247, 559, 842, table_right)
+    column_centers = tuple((left + right) / 2 for left, right in pairwise(column_edges))
+    row_height = (table_bottom - table_top) / 9
+    headers = ("Finesse", *(style.label for style in CRITICAL_CLASS_STYLES))
+    header_colors = (INK, *(style.color for style in CRITICAL_CLASS_STYLES))
+    draw.line((table_left, table_top, table_right, table_top), fill=INK, width=2)
+    for column, (center, label, color) in enumerate(zip(column_centers, headers, header_colors, strict=True)):
+        font = table_header_small if column == 1 else table_header_font
+        bounds = text_bbox(draw, label, font)
+        draw_text(
+            draw,
+            (
+                center - (bounds[2] - bounds[0]) / 2,
+                table_top + (row_height - (bounds[3] - bounds[1])) / 2 - bounds[1],
+            ),
+            label,
+            font=font,
+            fill=color,
+        )
+    draw.line(
+        (table_left, table_top + row_height, table_right, table_top + row_height),
+        fill="#888888",
+        width=1,
+    )
+
+    for row, finesse in enumerate(breakpoints, start=1):
+        row_top = table_top + row * row_height
+        row_bottom = row_top + row_height
+        if row % 2 == 0:
+            draw.rectangle((table_left, row_top, table_right, row_bottom), fill=CALLOUT)
+        values = [str(finesse)]
+        finesse_index = finesse - finesse_values[0]
+        for style in CRITICAL_CLASS_STYLES:
+            lower, upper = bands[style.profile]
+            values.append(f"{lower[finesse_index]:,}\N{EN DASH}{upper[finesse_index]:,}")
+        for column, (center, cell_value) in enumerate(zip(column_centers, values, strict=True)):
+            font = table_bold if column == 0 else table_font
+            bounds = text_bbox(draw, cell_value, font)
+            draw_text(
+                draw,
+                (
+                    center - (bounds[2] - bounds[0]) / 2,
+                    row_top + (row_height - (bounds[3] - bounds[1])) / 2 - bounds[1],
+                ),
+                cell_value,
+                font=font,
+                fill=INK,
+            )
+        draw.line((table_left, row_bottom, table_right, row_bottom), fill=GRID, width=1)
+    for edge in column_edges[1:-1]:
+        draw.line((edge, table_top, edge, table_bottom), fill=GRID, width=1)
+
+    image.save(path, format="PNG", compress_level=9)
+
+
 def simple_critical_chance_percent(
     level: int,
     dexterity: int,
@@ -1207,7 +1493,7 @@ def render_physical_critical_calculator_error(path: Path) -> None:
         draw,
         (125, 60),
         "Simple crit % = min(100, (floor(D \N{MULTIPLICATION SIGN} F/100)+1) "
-        "\N{MULTIPLICATION SIGN} L/(100\N{MINUS SIGN}F) \N{MULTIPLICATION SIGN} C)",
+        + "\N{MULTIPLICATION SIGN} L/(100\N{MINUS SIGN}F) \N{MULTIPLICATION SIGN} C)",
         font=formula_font,
         fill=BLUE_DARK,
     )
@@ -1436,6 +1722,7 @@ def main() -> int:
         ("resonance-scaling.png", render_resonance),
         ("resonance-observed-results.png", render_reported_results),
         ("physical-critical-chance-by-class.png", render_physical_critical_chance),
+        ("physical-critical-dexterity-band-by-finesse.png", render_physical_critical_dexterity_bands),
         ("physical-critical-calculator-error.png", render_physical_critical_calculator_error),
         ("physical-critical-expected-damage.png", render_physical_critical_expected_damage),
     )
