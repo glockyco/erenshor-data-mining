@@ -5,7 +5,7 @@
   <!-- STEP 1: Copy BepInEx for type resolution -->
   <!-- ============================================== -->
   <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod"
-          Condition="'$(SkipILRepack)' != 'true'">
+          Condition="'$(ModLoader)' == 'bepinex'">
     <PropertyGroup>
       <!-- Resolve NuGet package root (cross-platform) -->
       <NuGetPackagesPath Condition="'$(NuGetPackageRoot)' != ''">$(NuGetPackageRoot)</NuGetPackagesPath>
@@ -25,8 +25,7 @@
   <!-- ============================================== -->
   <!-- STEP 2: Discover dependencies to merge -->
   <!-- ============================================== -->
-  <Target Name="DiscoverDependencies" BeforeTargets="ILRepackMod" DependsOnTargets="CopyReferenceAssemblies"
-          Condition="'$(SkipILRepack)' != 'true'">
+  <Target Name="DiscoverDependencies" BeforeTargets="ILRepackMod" DependsOnTargets="CopyReferenceAssemblies">
     <ItemGroup>
       <!-- Main assembly (always first) -->
       <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
@@ -35,7 +34,8 @@
            and loader/game assemblies are reference-only and must never be merged.
            Keeping this list deterministic makes stale output DLLs harmless. -->
       <MergeAssemblies Include="$(OutputPath)Fleck.dll" />
-      <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll"
+                       Condition="'$(ModLoader)' == 'bepinex'" />
     </ItemGroup>
 
     <!-- Debug output: Show what we're merging -->
@@ -49,14 +49,13 @@
   <!-- ============================================== -->
   <!-- STEP 3: Run ILRepack to create single DLL -->
   <!-- ============================================== -->
-  <Target Name="ILRepackMod" AfterTargets="Build" DependsOnTargets="DiscoverDependencies"
-          Condition="'$(SkipILRepack)' != 'true'">
+  <Target Name="ILRepackMod" AfterTargets="Build" DependsOnTargets="DiscoverDependencies">
     <ILRepack
       Parallel="true"
       DebugInfo="true"
       Internalize="true"
       InputAssemblies="@(MergeAssemblies)"
-      LibraryPath="$(OutputPath);$(ProjectDir)lib"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib;$(ProjectDir)lib/lunaris"
       TargetKind="Dll"
       OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
     />
@@ -67,8 +66,7 @@
   <!-- ============================================== -->
   <!-- STEP 4: Clean up merged DLLs -->
   <!-- ============================================== -->
-  <Target Name="CleanupAfterMerge" AfterTargets="ILRepackMod"
-          Condition="'$(SkipILRepack)' != 'true'">
+  <Target Name="CleanupAfterMerge" AfterTargets="ILRepackMod">
     <ItemGroup>
       <!-- Keep only the final merged DLL and its companions -->
       <KeepFiles Include="$(OutputPath)$(TargetName).dll" />
@@ -86,12 +84,5 @@
     <Message Text="✓ Cleaned up build output - single DLL ready for deployment" Importance="high" />
   </Target>
 
-  <!-- ============================================== -->
-  <!-- When ILRepack is skipped, log it -->
-  <!-- ============================================== -->
-  <Target Name="SkipILRepackMessage" AfterTargets="Build"
-          Condition="'$(SkipILRepack)' == 'true'">
-    <Message Text="⊘ ILRepack skipped (SkipILRepack=true) — separate DLLs in output" Importance="high" />
-  </Target>
 
 </Project>

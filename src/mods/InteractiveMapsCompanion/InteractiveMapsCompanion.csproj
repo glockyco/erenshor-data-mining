@@ -24,24 +24,16 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
-       are removed first so explicit selection never duplicates src/Plugin.cs. -->
+  <!-- Select exactly one loader-specific entrypoint. -->
   <ItemGroup>
-    <Compile Remove="src/Plugin.cs" />
     <Compile Remove="src/Plugin.BepInEx.cs" />
     <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Include="src/Plugin.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and !Exists('src/Plugin.BepInEx.cs') and Exists('src/Plugin.cs')" />
     <Compile Include="src/Plugin.BepInEx.cs"
               Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
     <Compile Include="src/Plugin.Lunaris.cs"
               Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <SkipILRepack>true</SkipILRepack>
-  </PropertyGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
@@ -54,6 +46,7 @@
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" />
     <PackageReference Include="Fleck" Version="1.*" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" PrivateAssets="all" />
   </ItemGroup>
 
 
