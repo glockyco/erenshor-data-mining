@@ -25,21 +25,27 @@ def _vault_config() -> dict[str, Any]:
     return tomllib.loads((VAULT_ROOT / "vault.toml").read_text())
 
 
-def _justice_registry_block(registry: str) -> str:
-    start = registry.index('"justice-for-f7":')
-    end = registry.index("}", start)
-    return registry[start:end]
+def test_thunderstore_packaging_declared_for_justice_for_f7() -> None:
+    manifest = tomllib.loads((MOD_ROOT / "thunderstore.toml").read_text())
 
+    assert manifest["package"]["namespace"] == "WoW_Much"
+    assert manifest["package"]["name"] == "JusticeForF7"
+    assert manifest["package"]["dependencies"]["BepInEx-BepInExPack"] == "5.4.2304"
+    assert manifest["build"]["icon"] == "./vault/icon.png"
+    assert not (MOD_ROOT / "thunderstore" / "icon.png").exists()
+    assert manifest["build"]["readme"] == "./thunderstore/README.md"
+    assert manifest["build"]["outdir"] == "./thunderstore/build"
+    assert manifest["build"]["changelog"] == "./thunderstore/CHANGELOG.md"
 
-def test_thunderstore_packaging_retired_for_justice_for_f7() -> None:
-    # No Thunderstore packaging remains; Lunaris is the default loader.
-    assert not (MOD_ROOT / "thunderstore.toml").exists()
-    assert not (MOD_ROOT / "thunderstore").exists()
-    assert not (MOD_ROOT / "ILRepack.targets").exists()
-
-    registry = (REPO_ROOT / "src" / "erenshor" / "cli" / "commands" / "mod.py").read_text()
-    assert "WoW_Much/JusticeForF7" not in registry
-    assert '"thunderstore"' not in _justice_registry_block(registry)
+    copies = manifest["build"]["copy"]
+    assert copies == [
+        {
+            "source": "./bin/Debug/netstandard2.1/bepinex/JusticeForF7.dll",
+            "target": "plugins/JusticeForF7/",
+        }
+    ]
+    assert (MOD_ROOT / "thunderstore" / "README.md").exists()
+    assert (MOD_ROOT / "thunderstore" / "CHANGELOG.md").exists()
 
 
 def test_justice_for_f7_declares_dual_loader_support() -> None:
@@ -48,7 +54,7 @@ def test_justice_for_f7_declares_dual_loader_support() -> None:
     mod = MODS["justice-for-f7"]
     assert mod["loaders"] == ["bepinex", "lunaris"]
     assert mod["default_loader"] == "lunaris"
-    assert "thunderstore" not in mod
+    assert mod["public"] is True
     assert "0Harmony.dll" in mod["lunaris_dlls"]
 
 

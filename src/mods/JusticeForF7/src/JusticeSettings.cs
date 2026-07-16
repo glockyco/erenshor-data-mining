@@ -6,7 +6,7 @@ namespace JusticeForF7;
 /// Lunaris-registered settings for Justice for F7. Each world-UI category can be
 /// toggled independently; values bind live from the Lunaris config UI.
 /// </summary>
-public sealed class JusticeSettings
+public sealed class JusticeSettings : IJusticeSettings
 {
     [Config("Enabled", "General", "Master switch. When false, F7 behaves as vanilla.")]
     public bool Enabled { get; set; } = true;

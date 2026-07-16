@@ -24,9 +24,22 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <Reference Include="0Harmony">
+      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
   <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
        are removed first so explicit selection never duplicates an entrypoint. -->
   <ItemGroup>
+    <Compile Remove="src/JusticeSettings.cs" />
+    <Compile Include="src/JusticeSettings.cs" Condition="'$(ModLoader)' == 'lunaris'" />
     <Compile Remove="src/Plugin.cs" />
     <Compile Remove="src/Plugin.BepInEx.cs" />
     <Compile Remove="src/Plugin.Lunaris.cs" />

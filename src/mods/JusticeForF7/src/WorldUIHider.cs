@@ -1,4 +1,3 @@
-using Lunaris;
 using TMPro;
 using UnityEngine;
 
@@ -7,13 +6,14 @@ namespace JusticeForF7;
 /// <summary>
 /// Core logic for hiding and restoring world-space UI elements when F7 toggles
 /// the main Canvas. Uses Renderer-based toggling to avoid fighting the game's
-/// own per-frame visibility management of TextMeshPro.enabled. Reads its toggles
-/// live from the Lunaris-registered <see cref="JusticeSettings"/>.
+/// own per-frame visibility management of TextMeshPro.enabled. Settings and
+/// logging are supplied through loader-neutral interfaces. Configuration
+/// values live in the loader-specific adapter.
 /// </summary>
 internal sealed class WorldUIHider
 {
-    private readonly ILog _log;
-    private readonly JusticeSettings _settings;
+    private readonly IModLogger _log;
+    private readonly IJusticeSettings _settings;
 
     private readonly HashSet<Renderer> _disabledRenderers = new();
     private readonly HashSet<GameObject> _disabledGameObjects = new();
@@ -30,7 +30,7 @@ internal sealed class WorldUIHider
     public bool SuppressDamageNumbers => IsHidden && _settings.HideDamageNumbers;
     public bool SuppressXPOrbs => IsHidden && _settings.HideXPOrbs;
 
-    public WorldUIHider(ILog log, JusticeSettings settings)
+    public WorldUIHider(IModLogger log, IJusticeSettings settings)
     {
         _log = log;
         _settings = settings;
