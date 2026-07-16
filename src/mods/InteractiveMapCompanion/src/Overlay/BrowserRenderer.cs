@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,15 +25,15 @@ internal sealed class BrowserRenderer : IDisposable
     private bool _disposed;
 
     // Diagnostics: track paint stats and emit a summary every 5 seconds.
-    private readonly ManualLogSource _log;
+    private readonly IModLogger _log;
     private float _diagTimer;
-    private int _diagPaintCount; // OnPaint calls received this interval
-    private int _diagUploadCount; // Apply() calls this interval (frames with new data)
-    private long _diagDirtyPixels; // sum of dirty-rect pixels across all paints
-    private long _diagFullPixels; // sum of full-surface pixels across all paints
+    private int _diagPaintCount;
+    private int _diagUploadCount;
+    private long _diagDirtyPixels;
+    private long _diagFullPixels;
     private const float DiagInterval = 5f;
 
-    internal BrowserRenderer(ManualLogSource log, RawImage rawImage, int width, int height)
+    internal BrowserRenderer(IModLogger log, RawImage rawImage, int width, int height)
     {
         _log = log;
         _rawImage = rawImage;

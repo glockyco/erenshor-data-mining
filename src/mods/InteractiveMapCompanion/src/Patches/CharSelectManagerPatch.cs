@@ -26,6 +26,15 @@ internal static class CharSelectManagerPatch
     /// </summary>
     internal static bool _weSetPlayerTyping;
 
+    internal static void ResetPlayerTyping()
+    {
+        if (!_weSetPlayerTyping)
+            return;
+
+        GameData.PlayerTyping = false;
+        _weSetPlayerTyping = false;
+    }
+
     [HarmonyPostfix]
     private static void Postfix(CharSelectManager __instance)
     {

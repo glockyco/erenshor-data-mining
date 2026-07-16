@@ -12,6 +12,11 @@ public interface IBroadcastLoop
     void Tick(float deltaTime);
 
     /// <summary>
+    /// Stops ticking and clears loop state. Safe to call repeatedly.
+    /// </summary>
+    void Stop();
+
+    /// <summary>
     /// Called when a new scene is loaded.
     /// Sends zone change notification and resets entity tracking.
     /// </summary>

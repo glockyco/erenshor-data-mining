@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using Steamworks;
 
 namespace InteractiveMapCompanion.Overlay;
@@ -19,7 +18,7 @@ internal sealed class BrowserManager : IDisposable
     private const string CanonicalMapHost = "erenshor.compendiums.org";
     private const string LegacyMapHost = "erenshor-maps.wowmuch1.workers.dev";
 
-    private readonly ManualLogSource _log;
+    private readonly IModLogger _log;
     private readonly Action<HTML_NeedsPaint_t> _onPaint;
 
     private HHTMLBrowser _browser;
@@ -37,7 +36,7 @@ internal sealed class BrowserManager : IDisposable
     private Callback<HTML_FileOpenDialog_t>? _fileOpenDialogCallback;
     private CallResult<HTML_BrowserReady_t>? _browserReadyResult;
 
-    internal BrowserManager(ManualLogSource log, Action<HTML_NeedsPaint_t> onPaint)
+    internal BrowserManager(IModLogger log, Action<HTML_NeedsPaint_t> onPaint)
     {
         _log = log;
         _onPaint = onPaint;
@@ -67,6 +66,8 @@ internal sealed class BrowserManager : IDisposable
     /// </summary>
     internal bool Initialize(int width, int height, string url)
     {
+        if (_disposed || _appIsQuitting)
+            return false;
         if (_initialized)
             return true;
 
@@ -91,8 +92,9 @@ internal sealed class BrowserManager : IDisposable
     internal void SetVisible(bool visible)
     {
         _visible = visible;
-        if (!_browserReady)
+        if (_disposed || _appIsQuitting || !_browserReady)
             return;
+
         SteamHTMLSurface.SetBackgroundMode(_browser, !visible);
     }
 
@@ -102,7 +104,7 @@ internal sealed class BrowserManager : IDisposable
     /// </summary>
     internal void SetSize(int width, int height)
     {
-        if (!_browserReady)
+        if (_disposed || _appIsQuitting || !_browserReady)
             return;
 
         SteamHTMLSurface.SetSize(_browser, (uint)width, (uint)height);
@@ -113,7 +115,7 @@ internal sealed class BrowserManager : IDisposable
     /// </summary>
     internal void LoadUrl(string url)
     {
-        if (!_browserReady)
+        if (_disposed || _appIsQuitting || !_browserReady)
             return;
 
         SteamHTMLSurface.LoadURL(_browser, url, null);
@@ -153,20 +155,13 @@ internal sealed class BrowserManager : IDisposable
         string url
     )
     {
+        if (_disposed || _appIsQuitting)
+            return;
         if (ioFailure)
         {
             _log.LogWarning(
                 "[Overlay] Browser creation failed (IO failure) — map overlay disabled."
             );
-            return;
-        }
-
-        // Guard against Dispose() being called in the async window between
-        // CreateBrowser and this callback firing. If we're already disposed,
-        // release the handle Steam just gave us and bail out.
-        if (_disposed)
-        {
-            SteamHTMLSurface.RemoveBrowser(param.unBrowserHandle);
             return;
         }
 
@@ -186,17 +181,17 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnNeedsPaint(HTML_NeedsPaint_t param)
     {
-        // Skip paint when hidden or for a different browser handle
-        if (!_visible || param.unBrowserHandle != _browser)
+        if (_disposed || _appIsQuitting || !_visible || param.unBrowserHandle != _browser)
             return;
 
-        // Invoke the renderer's paint handler immediately — pBGRA is only valid
-        // until the next SteamAPI.RunCallbacks() call.
+        // pBGRA is only valid until the next SteamAPI.RunCallbacks() call.
         _onPaint(param);
     }
 
     private void OnStartRequest(HTML_StartRequest_t param)
     {
+        if (_disposed || _appIsQuitting)
+            return;
         // HTML_StartRequest_t fires only for full document navigations, not for
         // SvelteKit's client-side pushState/replaceState routing. Allow only
         // HTTPS requests to one of the two approved map origins; deny everything
@@ -230,6 +225,8 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnJSAlert(HTML_JSAlert_t param)
     {
+        if (_disposed || _appIsQuitting)
+            return;
         // JSDialogResponse MUST be called for every callback or the browser hangs.
         if (param.unBrowserHandle == _browser)
             _log.LogDebug($"[Overlay] JS alert: {param.pchMessage}");
@@ -239,6 +236,9 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnJSConfirm(HTML_JSConfirm_t param)
     {
+        if (_disposed || _appIsQuitting)
+            return;
+
         // JSDialogResponse MUST be called for every callback or the browser hangs.
         if (param.unBrowserHandle == _browser)
             _log.LogDebug($"[Overlay] JS confirm: {param.pchMessage}");
@@ -248,6 +248,8 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnFileOpenDialog(HTML_FileOpenDialog_t param)
     {
+        if (_disposed || _appIsQuitting)
+            return;
         // FileLoadDialogResponse MUST be called for every callback or the browser hangs.
         // The map website has no file upload UI — dismiss immediately with no selection.
         SteamHTMLSurface.FileLoadDialogResponse(param.unBrowserHandle, IntPtr.Zero);
@@ -278,16 +280,14 @@ internal sealed class BrowserManager : IDisposable
         if (!_appIsQuitting)
         {
             if (_browserReady)
-            {
                 SteamHTMLSurface.RemoveBrowser(_browser);
-                _browserReady = false;
-            }
 
             if (_initialized)
-            {
                 SteamHTMLSurface.Shutdown();
-                _initialized = false;
-            }
         }
+
+        _browserReady = false;
+        _initialized = false;
+        _browser = default;
     }
 }

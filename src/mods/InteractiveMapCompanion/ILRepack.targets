@@ -5,7 +5,7 @@
   <!-- STEP 1: Copy BepInEx for type resolution -->
   <!-- ============================================== -->
   <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod"
-          Condition="'$(SkipILRepack)' != 'true'">
+          Condition="'$(SkipILRepack)' != 'true' AND '$(ModLoader)' == 'bepinex'">
     <PropertyGroup>
       <!-- Resolve NuGet package root (cross-platform) -->
       <NuGetPackagesPath Condition="'$(NuGetPackageRoot)' != ''">$(NuGetPackageRoot)</NuGetPackagesPath>
@@ -26,7 +26,7 @@
   <!-- STEP 2: Discover dependencies to merge -->
   <!-- ============================================== -->
   <Target Name="DiscoverDependencies" BeforeTargets="ILRepackMod" DependsOnTargets="CopyReferenceAssemblies"
-          Condition="'$(SkipILRepack)' != 'true'">
+          Condition="'$(SkipILRepack)' != 'true' AND '$(ModLoader)' == 'bepinex'">
     <ItemGroup>
       <!-- Main assembly (always first) -->
       <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
@@ -53,7 +53,7 @@
   <!-- STEP 3: Run ILRepack to create single DLL -->
   <!-- ============================================== -->
   <Target Name="ILRepackMod" AfterTargets="Build" DependsOnTargets="DiscoverDependencies"
-          Condition="'$(SkipILRepack)' != 'true'">
+      Condition="'$(SkipILRepack)' != 'true' AND '$(ModLoader)' == 'bepinex'">
     <ILRepack
       Parallel="true"
       DebugInfo="true"
@@ -71,7 +71,7 @@
   <!-- STEP 4: Clean up merged DLLs -->
   <!-- ============================================== -->
   <Target Name="CleanupAfterMerge" AfterTargets="ILRepackMod"
-          Condition="'$(SkipILRepack)' != 'true'">
+          Condition="'$(SkipILRepack)' != 'true' AND '$(ModLoader)' == 'bepinex'">
     <ItemGroup>
       <!-- Keep only the final merged DLL and its companions -->
       <KeepFiles Include="$(OutputPath)$(TargetName).dll" />
@@ -87,6 +87,43 @@
     <Delete Files="@(DeleteFiles)" />
 
     <Message Text="✓ Cleaned up build output - single DLL ready for deployment" Importance="high" />
+  </Target>
+
+  <!-- Lunaris packages keep loader-provided assemblies external and merge Fleck only. -->
+  <Target Name="LunarisDiscoverDependencies" BeforeTargets="LunarisILRepack"
+          Condition="'$(ModLoader)' == 'lunaris'">
+    <ItemGroup>
+      <LunarisMergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+      <LunarisMergeAssemblies Include="$(OutputPath)Fleck.dll" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="LunarisILRepack" AfterTargets="Build"
+          DependsOnTargets="LunarisDiscoverDependencies"
+          Condition="'$(ModLoader)' == 'lunaris'">
+    <ILRepack
+      Parallel="true"
+      DebugInfo="true"
+      Internalize="true"
+      InputAssemblies="@(LunarisMergeAssemblies)"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib;$(ProjectDir)lib/lunaris"
+      TargetKind="Dll"
+      OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+    />
+    <Message Text="✓ ILRepack: Merged Fleck into the Lunaris plugin DLL" Importance="high" />
+  </Target>
+
+  <Target Name="LunarisCleanupAfterMerge" AfterTargets="LunarisILRepack"
+          Condition="'$(ModLoader)' == 'lunaris'">
+    <ItemGroup>
+      <LunarisKeepFiles Include="$(OutputPath)$(TargetName).dll" />
+      <LunarisKeepFiles Include="$(OutputPath)$(TargetName).pdb" />
+      <LunarisKeepFiles Include="$(OutputPath)$(TargetName).xml" />
+      <LunarisKeepFiles Include="$(OutputPath)$(TargetName).deps.json" />
+      <LunarisAllFiles Include="$(OutputPath)*.*" />
+      <LunarisDeleteFiles Include="@(LunarisAllFiles)" Exclude="@(LunarisKeepFiles)" />
+    </ItemGroup>
+    <Delete Files="@(LunarisDeleteFiles)" />
   </Target>
 
   <!-- ============================================== -->

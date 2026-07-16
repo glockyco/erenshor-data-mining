@@ -42,8 +42,8 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <SkipILRepack>true</SkipILRepack>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <SkipILRepack>false</SkipILRepack>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
@@ -55,8 +55,8 @@
 
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <PackageReference Include="Fleck" Version="1.*" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" PrivateAssets="all" />
   </ItemGroup>
-
 
    <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
   <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">

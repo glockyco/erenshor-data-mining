@@ -13,23 +13,17 @@ public sealed class BroadcastLoop : IBroadcastLoop
 {
     private readonly IEntityTracker _entityTracker;
     private readonly IWebSocketServer _server;
-    private readonly ModConfig _config;
+    private readonly IModConfig _config;
     private readonly Action<string>? _log;
 
     private float _elapsed;
     private string _currentZone = "";
+    private bool _stopped;
 
-    /// <summary>
-    /// Creates a new BroadcastLoop.
-    /// </summary>
-    /// <param name="entityTracker">Tracks entities in the current scene.</param>
-    /// <param name="server">WebSocket server for broadcasting.</param>
-    /// <param name="config">Configuration for update interval.</param>
-    /// <param name="log">Optional logging callback.</param>
     public BroadcastLoop(
         IEntityTracker entityTracker,
         IWebSocketServer server,
-        ModConfig config,
+        IModConfig config,
         Action<string>? log = null
     )
     {
@@ -39,13 +33,14 @@ public sealed class BroadcastLoop : IBroadcastLoop
         _log = log;
     }
 
-    /// <inheritdoc />
     public void Tick(float deltaTime)
     {
+        if (_stopped)
+            return;
+
         _elapsed += deltaTime;
 
-        // Convert interval from milliseconds to seconds
-        var intervalSeconds = _config.UpdateInterval.Value / 1000f;
+        var intervalSeconds = _config.UpdateInterval / 1000f;
         if (_elapsed < intervalSeconds)
             return;
 
@@ -53,26 +48,33 @@ public sealed class BroadcastLoop : IBroadcastLoop
         BroadcastState();
     }
 
-    /// <inheritdoc />
     public void OnSceneLoaded(string newZone)
     {
+        if (_stopped)
+            return;
+
         var previousZone = _currentZone;
         _currentZone = newZone;
 
-        // Only send zone change if we had a previous zone (not initial load)
         if (!string.IsNullOrEmpty(previousZone) && previousZone != newZone)
-        {
             SendZoneChange(previousZone, newZone);
-        }
 
-        // Immediately broadcast state for the new zone
         BroadcastState();
+    }
+
+    public void Stop()
+    {
+        if (_stopped)
+            return;
+
+        _stopped = true;
+        _elapsed = 0f;
+        _currentZone = "";
     }
 
     private void BroadcastState()
     {
-        // Skip if no clients connected
-        if (_server.ClientCount == 0)
+        if (_stopped || _server.ClientCount == 0)
             return;
 
         try
@@ -90,8 +92,7 @@ public sealed class BroadcastLoop : IBroadcastLoop
 
     private void SendZoneChange(string previousZone, string newZone)
     {
-        // Skip if no clients connected
-        if (_server.ClientCount == 0)
+        if (_stopped || _server.ClientCount == 0)
             return;
 
         try

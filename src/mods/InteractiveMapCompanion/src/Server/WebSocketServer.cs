@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using BepInEx.Logging;
 using Fleck;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Protocol;
@@ -11,49 +10,72 @@ namespace InteractiveMapCompanion.Server;
 /// Fleck-based WebSocket server implementation.
 /// Handles client connections and broadcasts messages to all connected clients.
 /// </summary>
-public class WebSocketServer : IWebSocketServer
+public sealed class WebSocketServer : IWebSocketServer
 {
-    private readonly ModConfig _config;
-    private readonly ManualLogSource _logger;
+    private readonly IModConfig _config;
+    private readonly IModLogger _logger;
     private readonly ConcurrentDictionary<Guid, IWebSocketConnection> _clients = new();
+    private readonly object _lifecycleGate = new();
 
     private Fleck.WebSocketServer? _server;
+    private bool _stopped;
     private bool _disposed;
 
     public int ClientCount => _clients.Count;
 
-    public WebSocketServer(ModConfig config, ManualLogSource logger)
+    public WebSocketServer(IModConfig config, IModLogger logger)
     {
         _config = config;
         _logger = logger;
-
         ConfigureFleckLogging();
     }
 
     public void Start()
     {
-        var port = _config.Port.Value;
+        var port = _config.Port;
         var location = $"ws://0.0.0.0:{port}";
 
-        try
+        lock (_lifecycleGate)
         {
-            _server = new Fleck.WebSocketServer(location);
-            _server.Start(ConfigureSocket);
-            _logger.LogInfo($"WebSocket server started on {location}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to start WebSocket server on port {port}: {ex.Message}");
-            _logger.LogDebug(ex.ToString());
+            if (_disposed || _server != null)
+                return;
+
+            try
+            {
+                var server = new Fleck.WebSocketServer(location);
+                _stopped = false;
+                _server = server;
+                server.Start(ConfigureSocket);
+                _logger.LogInfo($"WebSocket server started on {location}");
+            }
+            catch (Exception ex)
+            {
+                _server = null;
+                _stopped = true;
+                _logger.LogError($"Failed to start WebSocket server on port {port}: {ex.Message}");
+                _logger.LogDebug(ex.ToString());
+            }
         }
     }
 
     public void Stop()
     {
-        if (_server == null)
-            return;
+        Fleck.WebSocketServer? server;
+        IWebSocketConnection[] clients;
 
-        foreach (var client in _clients.Values)
+        lock (_lifecycleGate)
+        {
+            if (_stopped && _server == null && _clients.IsEmpty)
+                return;
+
+            _stopped = true;
+            server = _server;
+            _server = null;
+            clients = _clients.Values.ToArray();
+            _clients.Clear();
+        }
+
+        foreach (var client in clients)
         {
             try
             {
@@ -61,24 +83,33 @@ public class WebSocketServer : IWebSocketServer
             }
             catch
             {
-                // Ignore errors during shutdown
+                // Ignore errors during shutdown.
             }
         }
 
-        _clients.Clear();
-        _server.Dispose();
-        _server = null;
+        try
+        {
+            server?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug($"WebSocket server disposal failed: {ex.Message}");
+        }
 
-        _logger.LogInfo("WebSocket server stopped");
+        if (server != null)
+            _logger.LogInfo("WebSocket server stopped");
     }
 
     public void Broadcast(string message)
     {
+        if (_disposed || _stopped)
+            return;
+
         foreach (var (id, client) in _clients)
         {
             try
             {
-                if (client.IsAvailable)
+                if (client.IsAvailable && !_stopped && !_disposed)
                 {
                     client.Send(message);
                 }
@@ -97,11 +128,15 @@ public class WebSocketServer : IWebSocketServer
 
     public void Dispose()
     {
-        if (_disposed)
-            return;
+        lock (_lifecycleGate)
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+        }
 
         Stop();
-        _disposed = true;
     }
 
     private void ConfigureSocket(IWebSocketConnection socket)
@@ -114,7 +149,28 @@ public class WebSocketServer : IWebSocketServer
 
     private void OnClientConnected(IWebSocketConnection socket)
     {
-        _clients[socket.ConnectionInfo.Id] = socket;
+        bool reject;
+        lock (_lifecycleGate)
+        {
+            reject = _disposed || _stopped;
+            if (!reject)
+                _clients[socket.ConnectionInfo.Id] = socket;
+        }
+
+        if (reject)
+        {
+            try
+            {
+                socket.Close();
+            }
+            catch
+            {
+                // Ignore connections racing shutdown.
+            }
+
+            return;
+        }
+
         _logger.LogInfo(
             $"Client connected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
         );
@@ -125,21 +181,28 @@ public class WebSocketServer : IWebSocketServer
     private void OnClientDisconnected(IWebSocketConnection socket)
     {
         _clients.TryRemove(socket.ConnectionInfo.Id, out _);
-        _logger.LogInfo(
-            $"Client disconnected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
-        );
+        if (!_disposed)
+        {
+            _logger.LogInfo(
+                $"Client disconnected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
+            );
+        }
     }
 
     private void OnClientError(IWebSocketConnection socket, Exception ex)
     {
-        _logger.LogWarning($"Client error ({socket.ConnectionInfo.ClientIpAddress}): {ex.Message}");
+        if (!_disposed)
+            _logger.LogWarning(
+                $"Client error ({socket.ConnectionInfo.ClientIpAddress}): {ex.Message}"
+            );
         _clients.TryRemove(socket.ConnectionInfo.Id, out _);
     }
 
     private void OnClientMessage(IWebSocketConnection socket, string message)
     {
-        // Inbound message handling will be implemented in the bidirectional milestone.
-        // For now, just log that we received something.
+        if (_disposed || _stopped)
+            return;
+
         _logger.LogDebug(
             $"Received message from {socket.ConnectionInfo.ClientIpAddress}: {message}"
         );
@@ -154,7 +217,8 @@ public class WebSocketServer : IWebSocketServer
 
         try
         {
-            socket.Send(json);
+            if (!_disposed && !_stopped)
+                socket.Send(json);
         }
         catch (Exception ex)
         {
@@ -178,9 +242,7 @@ public class WebSocketServer : IWebSocketServer
     {
         FleckLog.LogAction = (level, message, ex) =>
         {
-            // Convert Fleck log level to our config level and check if we should log
-            var configuredLevel = _config.WebSocketLogLevel.Value;
-
+            var configuredLevel = _config.WebSocketLogLevel;
             bool shouldLog = level switch
             {
                 Fleck.LogLevel.Debug => configuredLevel
@@ -192,14 +254,13 @@ public class WebSocketServer : IWebSocketServer
                     == InteractiveMapCompanion.Config.LogLevel.Debug
                     || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Info
                     || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Warning,
-                Fleck.LogLevel.Error => true, // Always log errors
+                Fleck.LogLevel.Error => true,
                 _ => false,
             };
 
             if (!shouldLog)
                 return;
 
-            // Log to appropriate BepInEx level
             switch (level)
             {
                 case Fleck.LogLevel.Debug:

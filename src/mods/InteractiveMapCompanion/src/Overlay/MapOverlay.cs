@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Patches;
 using UnityEngine;
@@ -9,55 +8,47 @@ namespace InteractiveMapCompanion.Overlay;
 
 /// <summary>
 /// MonoBehaviour that hosts the in-game map overlay.
-///
-/// Usage from Plugin.Awake():
-///   var overlay = gameObject.AddComponent&lt;MapOverlay&gt;();
-///   overlay.Config = _config;
-///   overlay.Log = Log;
-///
-/// Fields must be set before Unity calls Start(). AddComponent() triggers
-/// Awake() synchronously, but Start() runs at the end of the frame, giving
-/// callers time to set the public fields first.
-///
-/// The overlay canvas is a separate GameObject marked DontDestroyOnLoad so
-/// it persists across scene transitions. It is hidden during loads and
-/// re-shown when the browser is ready.
-///
-/// [DefaultExecutionOrder(-100)] ensures this MonoBehaviour's Update() runs
-/// before Minimap and PlayerControl (both at default order 0). This makes the
-/// SuppressMapKey flag visible to those components in the same frame.
 /// </summary>
 [DefaultExecutionOrder(-100)]
 internal sealed class MapOverlay : MonoBehaviour
 {
-    // Set by Plugin.Awake() before Start() runs
-    internal ManualLogSource Log { get; set; } = null!;
-    internal ModConfig Config { get; set; } = null!;
+    internal IModLogger? Log { get; set; }
+    internal IModConfig? Config { get; set; }
 
     private Canvas? _canvas;
     private RawImage? _rawImage;
-
     private BrowserManager? _browser;
     private BrowserRenderer? _renderer;
     private InputForwarder? _input;
-
     private bool _visible;
     private bool _ready;
+    private bool _stopped;
+    private bool _applicationQuitting;
 
     private void Start()
     {
-        if (Config == null || Log == null)
+        if (_stopped)
+            return;
+
+        if (_applicationQuitting)
         {
-            Plugin.Log.LogError(
-                "[Overlay] MapOverlay.Start() called without Config/Log — destroying."
-            );
+            Stop();
             Destroy(this);
             return;
         }
 
-        if (!Config.EnableOverlay.Value)
+        if (Config == null || Log == null)
         {
-            Plugin.Log.LogInfo("[Overlay] Overlay disabled via config.");
+            Debug.LogError("[InteractiveMapCompanion] Overlay started without config/logger.");
+            Stop();
+            Destroy(this);
+            return;
+        }
+
+        if (!Config.EnableOverlay)
+        {
+            Log.LogInfo("[Overlay] Overlay disabled via config.");
+            Stop();
             Destroy(this);
             return;
         }
@@ -67,10 +58,6 @@ internal sealed class MapOverlay : MonoBehaviour
             BuildUI();
             StartBrowser();
 
-            // Only mark ready if browser initialisation actually succeeded.
-            // StartBrowser() logs a warning and leaves _browser null on failure
-            // (e.g. SteamHTMLSurface.Init() returns false); setting _ready in
-            // that case would cause Update() to tick with a null _browser.
             if (_browser == null)
                 return;
 
@@ -79,57 +66,56 @@ internal sealed class MapOverlay : MonoBehaviour
         catch (Exception ex)
         {
             Log.LogError($"[Overlay] Failed to initialise: {ex}");
+            Stop();
+            Destroy(this);
         }
     }
 
     private void BuildUI()
     {
-        // Apply reset before reading any size/position values
-        if (Config.ResetToDefaults.Value)
+        var config = Config!;
+        var log = Log!;
+
+        if (config.ResetToDefaults)
         {
-            Config.OverlayWidth.Value = 0;
-            Config.OverlayHeight.Value = 0;
-            Config.AnchorX.Value = -1f;
-            Config.AnchorY.Value = -1f;
-            Config.ResetToDefaults.Value = false;
-            Log.LogInfo("[Overlay] Reset size/position to auto-computed defaults.");
+            config.OverlayWidth = 0;
+            config.OverlayHeight = 0;
+            config.AnchorX = -1f;
+            config.AnchorY = -1f;
+            config.ResetToDefaults = false;
+            log.LogInfo("[Overlay] Reset size/position to auto-computed defaults.");
         }
 
-        // Resolve sentinel width/height (0 = auto) from current screen dimensions
-        if (Config.OverlayWidth.Value <= 0)
+        if (config.OverlayWidth <= 0)
         {
-            Config.OverlayWidth.Value = Mathf.RoundToInt(Screen.width * 0.8f);
-            Config.OverlayHeight.Value = Mathf.RoundToInt(Screen.height * 0.8f);
-            Log.LogInfo(
-                $"[Overlay] Auto-sized to {Config.OverlayWidth.Value}x{Config.OverlayHeight.Value} (screen: {Screen.width}x{Screen.height})"
+            config.OverlayWidth = Mathf.RoundToInt(Screen.width * 0.8f);
+            config.OverlayHeight = Mathf.RoundToInt(Screen.height * 0.8f);
+            log.LogInfo(
+                $"[Overlay] Auto-sized to {config.OverlayWidth}x{config.OverlayHeight} (screen: {Screen.width}x{Screen.height})"
             );
         }
 
-        // Resolve sentinel anchor (-1 = auto) to centred
-        if (Config.AnchorX.Value < 0f)
+        if (config.AnchorX < 0f)
         {
-            Config.AnchorX.Value = 0.5f;
-            Config.AnchorY.Value = 0.5f;
+            config.AnchorX = 0.5f;
+            config.AnchorY = 0.5f;
         }
 
-        int width = Config.OverlayWidth.Value;
-        int height = Config.OverlayHeight.Value;
-        float anchorX = Mathf.Clamp01(Config.AnchorX.Value);
-        float anchorY = Mathf.Clamp01(Config.AnchorY.Value);
+        int width = config.OverlayWidth;
+        int height = config.OverlayHeight;
+        float anchorX = Mathf.Clamp01(config.AnchorX);
+        float anchorY = Mathf.Clamp01(config.AnchorY);
 
-        // Dedicated canvas so we control sort order independently of game UI
         var canvasGO = new GameObject("MapOverlayCanvas");
         DontDestroyOnLoad(canvasGO);
 
         _canvas = canvasGO.AddComponent<Canvas>();
         _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        _canvas.sortingOrder = 100; // above the game's main canvas
+        _canvas.sortingOrder = 100;
 
         canvasGO.AddComponent<CanvasScaler>();
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // Panel: anchored and pivoted at the same point so anchoredPosition=(0,0)
-        // always places the panel correctly regardless of anchor position.
         var panelGO = new GameObject("MapOverlayPanel");
         panelGO.transform.SetParent(canvasGO.transform, false);
 
@@ -141,7 +127,6 @@ internal sealed class MapOverlay : MonoBehaviour
         panel.anchoredPosition = Vector2.zero;
         panel.sizeDelta = new Vector2(width, height);
 
-        // RawImage fills the panel — BrowserRenderer writes the texture here
         var imageGO = new GameObject("MapOverlayImage");
         imageGO.transform.SetParent(panelGO.transform, false);
 
@@ -153,8 +138,6 @@ internal sealed class MapOverlay : MonoBehaviour
         imageRect.anchoredPosition = Vector2.zero;
 
         _input = new InputForwarder(panel, width, height);
-
-        // Start hidden; shown when user presses the toggle key
         canvasGO.SetActive(false);
     }
 
@@ -163,55 +146,39 @@ internal sealed class MapOverlay : MonoBehaviour
         if (_rawImage == null)
             return;
 
-        int width = Config.OverlayWidth.Value;
-        int height = Config.OverlayHeight.Value;
+        int width = Config!.OverlayWidth;
+        int height = Config.OverlayHeight;
 
-        _renderer = new BrowserRenderer(Log, _rawImage, width, height);
-        _browser = new BrowserManager(Log, _renderer.OnPaint);
+        _renderer = new BrowserRenderer(Log!, _rawImage, width, height);
+        _browser = new BrowserManager(Log!, _renderer.OnPaint);
 
         bool ok = _browser.Initialize(width, height, "https://erenshor.compendiums.org/map");
-        if (!ok)
-        {
-            Log.LogWarning("[Overlay] Browser initialisation failed — overlay will not be shown.");
-            _browser.Dispose();
-            _browser = null;
-        }
+        if (ok)
+            return;
+
+        Log!.LogWarning("[Overlay] Browser initialisation failed — overlay will not be shown.");
+        _browser.Dispose();
+        _browser = null;
     }
 
     private void Update()
     {
-        if (!_ready || _browser == null)
+        if (_stopped || !_ready || _browser == null)
             return;
 
-        // Upload any pending pixel data to the GPU. This is decoupled from
-        // OnPaint so the GPU upload doesn't block the Steam callback and
-        // back-pressure CEF's paint rate.
         _renderer?.Update();
         _renderer?.LogDiagnostics(Time.deltaTime);
 
-        // GameData.PlayerTyping is true whenever the player has a text input
-        // field open: the chat input box, the auction house search field, the
-        // bank rename tab field, or the guild name field. CharSelectManagerPatch
-        // also sets it for the character name field, but runs at execution
-        // order 0 — after this Update() at -100. Poll the EventSystem directly
-        // here so the check is always current-frame-accurate regardless of
-        // script execution order. EventSystem selection is set by Unity's input
-        // phase before any Update() runs.
         bool charNameFocused =
             GameData.InCharSelect
             && EventSystem.current?.currentSelectedGameObject?.name == "InputField (TMP)";
 
-        if (Input.GetKeyDown(Config.ToggleKey.Value) && !GameData.PlayerTyping && !charNameFocused)
+        var config = Config!;
+        if (Input.GetKeyDown(config.ToggleKey) && !GameData.PlayerTyping && !charNameFocused)
         {
             SetVisible(!_visible);
 
-            // When our toggle key is the same as the game's map key, signal
-            // the Harmony patches in MapKeyPatches to suppress the game's own
-            // map-key handlers (HotkeyManager.OpenCloseMap via PlayerControl,
-            // and the minimap zoom toggle in Minimap.Update) for this frame.
-            // [DefaultExecutionOrder(-100)] guarantees this Update() runs
-            // before those MonoBehaviours read the flag.
-            if (Config.ToggleKey.Value == InputManager.Map)
+            if (config.ToggleKey == InputManager.Map)
                 MapKeyPatches.SuppressMapKey = true;
         }
 
@@ -223,65 +190,68 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Clear the suppression flag after all Update() calls have run.
-        // LateUpdate() is always guaranteed to execute after the Update() phase,
-        // so Minimap and PlayerControl will have already read (and acted on) the
-        // flag by the time we clear it here.
+        if (_stopped)
+            return;
+
         MapKeyPatches.SuppressMapKey = false;
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!_ready || _browser?.IsReady != true)
+        if (_stopped || !_ready || _browser?.IsReady != true)
             return;
 
-        // On focus loss while a button is held, Unity never fires
-        // GetMouseButtonUp because the OS consumed the event. Reset immediately
-        // so CEF doesn't stay in permanent button-down (drag) state.
-        //
-        // On focus regain, reset again while the overlay is visible. If the
-        // focus loss happened while IsReady was false (browser still creating),
-        // the loss-side reset was skipped, so CEF may have accumulated stale
-        // state in the interim.
         if (!hasFocus || _visible)
             _input?.ResetMouseState(_browser.BrowserHandle);
     }
 
-    private void OnApplicationQuit()
+    internal void NotifyApplicationQuitting()
     {
-        // Signal BrowserManager before SteamManager.OnDestroy calls
-        // SteamAPI.Shutdown(), so Dispose() knows to skip the Steam teardown
-        // calls (RemoveBrowser, SteamHTMLSurface.Shutdown) that would throw.
+        _applicationQuitting = true;
         _browser?.NotifyAppIsQuitting();
     }
 
     private void SetVisible(bool visible)
     {
+        if (_stopped)
+            return;
+
         _visible = visible;
         _browser?.SetVisible(visible);
 
         if (_canvas != null)
             _canvas.gameObject.SetActive(visible);
 
-        // Clear any stale mouse-button state and keyboard focus on both show and
-        // hide. On show: CEF may have accumulated stale state while hidden. On
-        // hide: releases held buttons so the game gets keyboard back.
-        if (_browser != null && _browser.IsReady)
+        if (_browser?.IsReady == true)
             _input?.ResetMouseState(_browser.BrowserHandle);
 
-        Log.LogDebug($"[Overlay] {(visible ? "Shown" : "Hidden")}.");
+        Log?.LogDebug($"[Overlay] {(visible ? "Shown" : "Hidden")}.");
+    }
+
+    internal void Stop()
+    {
+        if (_stopped)
+            return;
+
+        _stopped = true;
+        _ready = false;
+        MapKeyPatches.SuppressMapKey = false;
+
+        _browser?.Dispose();
+        _browser = null;
+        _renderer?.Dispose();
+        _renderer = null;
+        _input = null;
+
+        if (_canvas != null)
+        {
+            Destroy(_canvas.gameObject);
+            _canvas = null;
+        }
     }
 
     private void OnDestroy()
     {
-        // Clear the static suppression flag so it isn't left set if this
-        // component is torn down while a frame is mid-flight.
-        MapKeyPatches.SuppressMapKey = false;
-
-        _browser?.Dispose();
-        _renderer?.Dispose();
-
-        if (_canvas != null)
-            Destroy(_canvas.gameObject);
+        Stop();
     }
 }
