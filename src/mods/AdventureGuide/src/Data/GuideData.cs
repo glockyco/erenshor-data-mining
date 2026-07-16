@@ -1,5 +1,5 @@
 using System.Reflection;
-using Lunaris;
+using AdventureGuide.Config;
 using Newtonsoft.Json;
 
 namespace AdventureGuide.Data;
@@ -66,7 +66,7 @@ public sealed class GuideData
     public string? GetSceneName(string displayName) =>
         _displayToScene.TryGetValue(displayName, out var scene) ? scene : null;
 
-    public static GuideData Load(ILog log)
+    public static GuideData Load(IModLogger log)
     {
         var assembly = Assembly.GetExecutingAssembly();
         using var stream = assembly.GetManifestResourceStream("AdventureGuide.quest-guide.json");

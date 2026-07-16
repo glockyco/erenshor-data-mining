@@ -1,11 +1,9 @@
-extern alias Vectors;
 using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using ImGuiNET;
-
-using Vector2 = Vectors::System.Numerics.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace AdventureGuide.UI;
 
@@ -54,7 +52,7 @@ public sealed class GuideWindow
 
     /// <summary>
     /// Renders the full guide window when visible.
-    /// Called from Lunaris' ImGui draw callback.
+    /// Called from the native adapter's ImGui draw callback.
     /// </summary>
     public void Draw()
     {

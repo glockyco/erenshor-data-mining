@@ -17,8 +17,12 @@ def test_lunaris_imgui_code_does_not_call_display_size_ref_getter() -> None:
         assert ".GetIO().DisplaySize" not in text
 
 
-def test_lunaris_vectors_reference_is_aliased() -> None:
+def test_vectors_use_the_netstandard_reference_without_alias_conflicts() -> None:
     csproj = (MOD_ROOT / "AdventureGuide.csproj").read_text()
 
-    assert '<Reference Include="System.Numerics.Vectors">' in csproj
-    assert "<Aliases>Vectors</Aliases>" in csproj
+    assert '<Reference Include="System.Numerics.Vectors">' not in csproj
+    assert "<Aliases>Vectors</Aliases>" not in csproj
+
+    for source in MOD_ROOT.glob("src/**/*.cs"):
+        assert "extern alias Vectors" not in source.read_text()
+        assert "Vectors::System.Numerics" not in source.read_text()

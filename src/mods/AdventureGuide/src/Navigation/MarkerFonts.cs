@@ -1,3 +1,4 @@
+using AdventureGuide.Config;
 using TMPro;
 using UnityEngine;
 
@@ -121,7 +122,9 @@ internal static class MarkerFonts
         var asset = TMP_FontAsset.CreateFontAsset(faFont);
         if (asset == null)
         {
-            Plugin.Log.LogError("MarkerFonts: Failed to create TMP_FontAsset from Font Awesome");
+            AdventureGuideLog.Current.LogError(
+                "MarkerFonts: Failed to create TMP_FontAsset from Font Awesome"
+            );
             return null;
         }
 
@@ -149,7 +152,7 @@ internal static class MarkerFonts
             }
         }
 
-        Plugin.Log.LogInfo("MarkerFonts: Icon font created (Font Awesome SDF)");
+        AdventureGuideLog.Current.LogInfo("MarkerFonts: Icon font created (Font Awesome SDF)");
         return asset;
     }
 
@@ -162,14 +165,16 @@ internal static class MarkerFonts
         var asset = TMP_FontAsset.CreateFontAsset(roboto);
         if (asset == null)
         {
-            Plugin.Log.LogError("MarkerFonts: Failed to create TMP_FontAsset from Roboto");
+            AdventureGuideLog.Current.LogError(
+                "MarkerFonts: Failed to create TMP_FontAsset from Roboto"
+            );
             return null;
         }
 
         asset.name = "MarkerSubText-Roboto";
         ConfigureMaterial(asset.material, sdfShader);
 
-        Plugin.Log.LogInfo("MarkerFonts: Sub-text font created (Roboto SDF)");
+        AdventureGuideLog.Current.LogInfo("MarkerFonts: Sub-text font created (Roboto SDF)");
         return asset;
     }
 

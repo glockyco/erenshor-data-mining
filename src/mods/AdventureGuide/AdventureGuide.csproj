@@ -17,19 +17,21 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
 
-  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
-       are removed first so explicit selection never duplicates an entrypoint. -->
+  <!-- Runtime is loader-neutral; only native entrypoints/backends are selected
+       for a target so neither loader leaks into the other assembly. -->
   <ItemGroup>
-    <Compile Remove="src/Plugin.cs" />
     <Compile Remove="src/Plugin.BepInEx.cs" />
     <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Include="src/Plugin.cs"
-              Condition="'$(ModLoader)' == 'lunaris' and !Exists('src/Plugin.Lunaris.cs') and Exists('src/Plugin.cs')" />
-    <Compile Include="src/Plugin.BepInEx.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
-    <Compile Include="src/Plugin.Lunaris.cs"
-              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
+    <Compile Remove="src/Adapters/BepInExConfigBackend.cs" />
+    <Compile Remove="src/Adapters/LunarisConfigBackend.cs" />
+    <Compile Include="src/Plugin.BepInEx.cs" Condition="'$(ModLoader)' == 'bepinex'" />
+    <Compile Include="src/Adapters/BepInExConfigBackend.cs" Condition="'$(ModLoader)' == 'bepinex'" />
+    <Compile Include="src/Plugin.Lunaris.cs" Condition="'$(ModLoader)' == 'lunaris'" />
+    <Compile Include="src/Adapters/LunarisConfigBackend.cs" Condition="'$(ModLoader)' == 'lunaris'" />
   </ItemGroup>
 
   <!-- Embedded resources -->
@@ -69,7 +71,8 @@
     </ItemGroup>
   </Target>
 
-  <!-- Loader and Lunaris-provided shared assembly references -->
+  <!-- Lunaris supplies these assemblies at runtime; the Vault package is
+       intentionally a single AdventureGuide.dll. -->
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <Reference Include="Lunaris">
       <HintPath>lib/lunaris/Lunaris.dll</HintPath>
@@ -83,23 +86,30 @@
       <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <Aliases>Vectors</Aliases>
-      <HintPath>lib/lunaris/System.Numerics.Vectors.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="0Harmony">
       <HintPath>lib/lunaris/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
 
+  <!-- BepInEx uses official packages as separate assets; no ILRepack of
+       ImGui.NET, Vectors, or its native cimgui is permitted. -->
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="ImGui.NET" Version="1.88.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
     <Reference Include="0Harmony">
       <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="CopyBepImGuiNative" AfterTargets="Build"
+          Condition="'$(ModLoader)' == 'bepinex'">
+    <Copy SourceFiles="$(PkgImGui_NET)/runtimes/win-x64/native/cimgui.dll"
+          DestinationFiles="$(OutputPath)cimgui.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
 
   <!-- Game assembly references -->
   <ItemGroup>

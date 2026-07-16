@@ -1,29 +1,26 @@
-extern alias Vectors;
-
 using System.Reflection;
 using System.Runtime.InteropServices;
+using AdventureGuide.Config;
 using ImGuiNET;
-using Lunaris;
 using UnityEngine;
 using UnityEngine.Rendering;
-
-using ImVec2 = Vectors::System.Numerics.Vector2;
+using ImVec2 = System.Numerics.Vector2;
 
 namespace AdventureGuide.Rendering;
 
 /// <summary>
 /// Adventure Guide-owned Dear ImGui backend for Unity.
 ///
-/// Lunaris supplies the loaded ImGui.NET/cimgui binaries and plugin lifecycle;
-/// Adventure Guide owns a separate ImGui context, font atlas, input pump, and
-/// Unity command-buffer renderer. Every frame saves and restores the previous
-/// ImGui context so Lunaris and other plugins keep their shared context intact.
+/// The selected native loader supplies the ImGui.NET/cimgui binaries and Unity
+/// lifecycle; Adventure Guide owns a separate ImGui context, font atlas, input
+/// pump, and Unity command-buffer renderer. Every frame saves and restores the
+/// previous ImGui context so other plugins keep their shared context intact.
 /// </summary>
 public sealed class ImGuiRenderer : IDisposable
 {
     private const float BaseFontSize = 16f;
 
-    private readonly ILog _log;
+    private readonly IModLogger _log;
     private readonly Dictionary<IntPtr, Texture> _textures = new();
     private readonly List<Mesh> _meshPool = new();
     private readonly List<Vector3> _verts = new();
@@ -66,7 +63,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>Current effective UI scale factor.</summary>
     public float CurrentScale => _uiScale;
 
-    public ImGuiRenderer(ILog log)
+    public ImGuiRenderer(IModLogger log)
     {
         _log = log;
     }

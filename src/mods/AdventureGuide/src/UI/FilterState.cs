@@ -21,9 +21,8 @@ public enum QuestSortMode
 /// Mutable state bag for the guide window's filter/search/tab controls.
 /// One instance lives for the lifetime of the window. Version increments
 /// on any change, enabling consumers to skip re-computation.
-///
-/// FilterMode, SortMode, and ZoneFilter are persisted to BepInEx config
-/// so they survive mod reloads and game restarts.
+/// FilterMode, SortMode, and ZoneFilter are persisted by the selected loader's
+/// config backend so they survive mod reloads and game restarts.
 /// </summary>
 public class FilterState
 {
@@ -96,10 +95,8 @@ public class FilterState
         }
     }
 
-    /// <summary>
-    /// Load persisted filter/sort settings from BepInEx config.
+    /// Load persisted filter/sort settings from the selected loader config.
     /// Call once after construction.
-    /// </summary>
     public void LoadFrom(GuideConfig config)
     {
         _config = config;

@@ -18,7 +18,7 @@ public sealed class TrackerState
     private readonly HashSet<string> _tracked = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _orderedList = new();
     private GuideConfig? _config;
-    private GuideConfigEntry<string>? _trackedEntry;
+    private IConfigValue<string>? _trackedEntry;
     private int _boundSlotIndex = -1;
     private bool _dirty;
 

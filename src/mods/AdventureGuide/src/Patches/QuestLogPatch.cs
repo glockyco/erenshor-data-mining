@@ -12,7 +12,7 @@ namespace AdventureGuide.Patches;
 [HarmonyPatch(typeof(QuestLog), "Update")]
 internal static class QuestLogPatch
 {
-    internal static GuideConfigEntry<bool>? ReplaceQuestLog;
+    internal static IConfigValue<bool>? ReplaceQuestLog;
 
     [HarmonyPrefix]
     private static bool Prefix() => ReplaceQuestLog is not { Value: true };

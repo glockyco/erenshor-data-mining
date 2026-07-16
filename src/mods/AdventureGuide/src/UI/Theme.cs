@@ -1,9 +1,7 @@
-extern alias Vectors;
 using AdventureGuide.Data;
 using AdventureGuide.State;
 using ImGuiNET;
-
-using Vector2 = Vectors::System.Numerics.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace AdventureGuide.UI;
 
@@ -122,7 +120,7 @@ public static class Theme
     }
 
     /// <summary>
-    /// Current display size for Lunaris' ImGui layer.
+    /// Current display size for the native ImGui layer.
     /// Use Unity's screen size so this code does not depend on ImGuiIOPtr's ref-return vector binding.
     /// </summary>
     public static Vector2 DisplaySize() => new(UnityEngine.Screen.width, UnityEngine.Screen.height);

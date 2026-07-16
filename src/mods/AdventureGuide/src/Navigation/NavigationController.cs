@@ -55,8 +55,8 @@ public sealed class NavigationController
     private int _originStepOrder;
 
     // ── Per-character config persistence ──────────────────────────
-    private GuideConfigEntry<string>? _navQuestEntry;
-    private GuideConfigEntry<int>? _navStepEntry;
+    private IConfigValue<string>? _navQuestEntry;
+    private IConfigValue<int>? _navStepEntry;
     private int _boundSlotIndex = -1;
 
     /// <summary>Throttle for multi-source closest-spawn resolution.</summary>

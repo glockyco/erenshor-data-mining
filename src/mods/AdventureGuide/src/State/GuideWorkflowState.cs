@@ -75,7 +75,7 @@ public sealed class GuideWorkflowState
         StringComparer.OrdinalIgnoreCase
     );
     private GuideConfig? _config;
-    private GuideConfigEntry<string>? _recoveryEntry;
+    private IConfigValue<string>? _recoveryEntry;
     private string? _selectedWorkflowKey;
     private int _boundSlotIndex = -1;
     private string _currentScene = "";

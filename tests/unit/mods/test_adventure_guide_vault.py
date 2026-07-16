@@ -25,20 +25,31 @@ def _vault_config() -> dict[str, Any]:
     return tomllib.loads((VAULT_ROOT / "vault.toml").read_text())
 
 
-def test_thunderstore_packaging_retired_for_adventure_guide() -> None:
-    # Adventure Guide is Lunaris-only now; no Thunderstore packaging remains.
-    assert not (MOD_ROOT / "thunderstore.toml").exists()
-    assert not (MOD_ROOT / "thunderstore").exists()
+def test_thunderstore_packaging_assets_and_identity_present() -> None:
+    manifest = (MOD_ROOT / "thunderstore.toml").read_text()
+    assert (MOD_ROOT / "thunderstore" / "README.md").exists()
+    assert (MOD_ROOT / "thunderstore" / "CHANGELOG.md").exists()
+    assert (MOD_ROOT / "vault" / "icon.png").exists()
+    assert not (MOD_ROOT / "thunderstore" / "icon.png").exists()
+    assert 'namespace = "WoW_Much"' in manifest
+    assert 'name = "AdventureGuide"' in manifest
+    assert 'BepInEx-BepInExPack = "5.4.2304"' in manifest
+    assert "In-game quest companion with GPS navigation." in manifest
 
-    registry = (REPO_ROOT / "src" / "erenshor" / "cli" / "commands" / "mod.py").read_text()
-    assert "WoW_Much/AdventureGuide" not in registry
-    assert '"thunderstore"' not in _adventure_guide_registry_block(registry)
 
-
-def _adventure_guide_registry_block(registry: str) -> str:
-    start = registry.index('"adventure-guide":')
-    end = registry.index("}", start)
-    return registry[start:end]
+def test_thunderstore_plugin_allowlist_is_strict() -> None:
+    config = tomllib.loads((MOD_ROOT / "thunderstore.toml").read_text())
+    assert config["build"]["icon"] == "./vault/icon.png"
+    copies = config["build"]["copy"]
+    sources = {Path(item["source"]).name for item in copies}
+    assert sources == {
+        "AdventureGuide.dll",
+        "ImGui.NET.dll",
+        "Newtonsoft.Json.dll",
+        "System.Numerics.Vectors.dll",
+        "cimgui.dll",
+    }
+    assert all(item["target"] == "plugins/AdventureGuide/" for item in copies)
 
 
 def test_vault_listing_assets_present_and_consistent() -> None:

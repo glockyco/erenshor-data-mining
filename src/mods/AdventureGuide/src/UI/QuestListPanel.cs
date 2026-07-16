@@ -1,9 +1,7 @@
-extern alias Vectors;
 using AdventureGuide.Data;
 using AdventureGuide.State;
 using ImGuiNET;
-
-using Vector2 = Vectors::System.Numerics.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace AdventureGuide.UI;
 

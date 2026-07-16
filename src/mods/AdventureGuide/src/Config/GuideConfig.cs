@@ -1,15 +1,15 @@
 using AdventureGuide.UI;
-using Lunaris.Config;
 using UnityEngine;
 
 namespace AdventureGuide.Config;
 
 /// <summary>
-/// Lunaris-backed settings for the Adventure Guide mod.
+/// Loader-neutral Adventure Guide settings. This is the sole owner of keys and
+/// defaults; native adapters only implement IGuideConfigBackend.
 /// </summary>
 public sealed class GuideConfig : IDisposable
 {
-    private readonly IConfig _config;
+    private readonly IGuideConfigBackend _backend;
     private readonly List<IDisposable> _entries = new();
 
     // ── Runtime state (not persisted) ─────────────────────────────────
@@ -25,44 +25,44 @@ public sealed class GuideConfig : IDisposable
 
     // ── User-facing: General ─────────────────────────────────────────
 
-    public GuideConfigEntry<KeyCode> ToggleKey { get; }
-    public GuideConfigEntry<bool> ReplaceQuestLog { get; }
-    public GuideConfigEntry<float> UiScale { get; }
-    public GuideConfigEntry<int> HistoryMaxSize { get; }
-    public GuideConfigEntry<bool> ResetWindowLayout { get; }
+    public IConfigValue<KeyCode> ToggleKey { get; }
+    public IConfigValue<bool> ReplaceQuestLog { get; }
+    public IConfigValue<float> UiScale { get; }
+    public IConfigValue<int> HistoryMaxSize { get; }
+    public IConfigValue<bool> ResetWindowLayout { get; }
 
     // ── User-facing: Navigation ──────────────────────────────────────
 
-    public GuideConfigEntry<bool> ShowArrow { get; }
-    public GuideConfigEntry<bool> ShowGroundPath { get; }
-    public GuideConfigEntry<KeyCode> GroundPathToggleKey { get; }
+    public IConfigValue<bool> ShowArrow { get; }
+    public IConfigValue<bool> ShowGroundPath { get; }
+    public IConfigValue<KeyCode> GroundPathToggleKey { get; }
 
     // ── User-facing: World Markers ───────────────────────────────────
 
-    public GuideConfigEntry<bool> ShowWorldMarkers { get; }
-    public GuideConfigEntry<float> MarkerScale { get; }
-    public GuideConfigEntry<float> IconSize { get; }
-    public GuideConfigEntry<float> SubTextSize { get; }
-    public GuideConfigEntry<float> SubTextYOffset { get; }
-    public GuideConfigEntry<float> IconYOffset { get; }
+    public IConfigValue<bool> ShowWorldMarkers { get; }
+    public IConfigValue<float> MarkerScale { get; }
+    public IConfigValue<float> IconSize { get; }
+    public IConfigValue<float> SubTextSize { get; }
+    public IConfigValue<float> SubTextYOffset { get; }
+    public IConfigValue<float> IconYOffset { get; }
 
     // ── User-facing: Tracker ─────────────────────────────────────────
 
-    public GuideConfigEntry<bool> TrackerEnabled { get; }
-    public GuideConfigEntry<KeyCode> TrackerToggleKey { get; }
-    public GuideConfigEntry<bool> TrackerAutoTrack { get; }
-    public GuideConfigEntry<string> TrackerSortMode { get; }
-    public GuideConfigEntry<float> TrackerBackgroundOpacity { get; }
+    public IConfigValue<bool> TrackerEnabled { get; }
+    public IConfigValue<KeyCode> TrackerToggleKey { get; }
+    public IConfigValue<bool> TrackerAutoTrack { get; }
+    public IConfigValue<string> TrackerSortMode { get; }
+    public IConfigValue<float> TrackerBackgroundOpacity { get; }
 
     // ── Internal: quest list state (auto-managed) ────────────────────
 
-    public GuideConfigEntry<QuestFilterMode> FilterMode { get; }
-    public GuideConfigEntry<QuestSortMode> SortMode { get; }
-    public GuideConfigEntry<string> ZoneFilter { get; }
+    public IConfigValue<QuestFilterMode> FilterMode { get; }
+    public IConfigValue<QuestSortMode> SortMode { get; }
+    public IConfigValue<string> ZoneFilter { get; }
 
-    public GuideConfig(IConfig config)
+    public GuideConfig(IGuideConfigBackend backend)
     {
-        _config = config;
+        _backend = backend;
 
         // General
         ToggleKey = Bind(
@@ -230,7 +230,7 @@ public sealed class GuideConfig : IDisposable
     /// Bind a hidden entry scoped to a character save slot.
     /// Used by subsystems that persist per-character state.
     /// </summary>
-    public GuideConfigEntry<T> BindPerCharacter<T>(int slotIndex, string key, T defaultValue) =>
+    public IConfigValue<T> BindPerCharacter<T>(int slotIndex, string key, T defaultValue) =>
         Bind(
             "_Character",
             $"{key}_Slot{slotIndex}",
@@ -244,9 +244,10 @@ public sealed class GuideConfig : IDisposable
         foreach (var entry in _entries)
             entry.Dispose();
         _entries.Clear();
+        _backend.Dispose();
     }
 
-    private GuideConfigEntry<T> Bind<T>(
+    private IConfigValue<T> Bind<T>(
         string section,
         string key,
         T defaultValue,
@@ -256,16 +257,7 @@ public sealed class GuideConfig : IDisposable
         float? max = null
     )
     {
-        var entry = new GuideConfigEntry<T>(
-            _config,
-            section,
-            key,
-            defaultValue,
-            description,
-            hidden,
-            min,
-            max
-        );
+        var entry = _backend.Bind(section, key, defaultValue, description, hidden, min, max);
         _entries.Add(entry);
         return entry;
     }

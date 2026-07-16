@@ -9,7 +9,7 @@ def test_private_renderer_shortcuts_use_unity_input_with_text_guard() -> None:
 
     assert "HandleKeyboardShortcuts();" in plugin
     assert "if (!GameData.PlayerTyping && !_wantsTextInput)" in plugin
-    assert "if (_wantsMouseCapture)" in plugin
+    assert "if (_wantsMouseCapture || GameData.PlayerTyping)" in plugin
     assert "Input.GetKeyDown(_config.ToggleKey.Value)" in plugin
     assert "Input.GetKeyDown(InputManager.Journal)" in plugin
     assert "ImGui.IsKeyPressed" not in plugin
