@@ -346,6 +346,50 @@
         "main",
         "playtest"
       ]
+    },
+    {
+      "id": "critical.dex_proficiency_clamp",
+      "mode": "assert",
+      "variants": [
+        "main"
+      ],
+      "type": "Stats",
+      "method": "CalcStats",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "DexScaleMod = Mathf.Clamp (CharacterClass.DexBenefit + MyInv.DexScaleMod + DexScaleSpent, 1, 40);"
+      },
+      "note": "Pins the 1..40 DEX proficiency range used by the physical-critical probability model."
+    },
+    {
+      "id": "critical.opportunity_trials",
+      "mode": "assert",
+      "variants": [
+        "main"
+      ],
+      "type": "Stats",
+      "method": "isCriticalAttack",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ForStatement",
+        "shape": "for (int i = 0; (float)i <= (float)Myself.MyStats.GetCurrentDex () * ((float)DexScaleMod / 100f); i++) { if (UnityEngine.Random.Range (0, 100 - num2) < Level) { num++; } if ((CharacterClass == GameData.ClassDB.Duelist || (CharacterClass == GameData.ClassDB.Stormcaller && UnityEngine.Random.Range (0, 10) > 5)) && UnityEngine.Random.Range (0, 100 - num2) < Level) { num++; } }"
+      },
+      "note": "Pins inclusive DEX opportunities plus ordinary, Duelist/Windblade, and Stormcaller trial branches."
+    },
+    {
+      "id": "critical.final_roll",
+      "mode": "assert",
+      "variants": [
+        "main"
+      ],
+      "type": "Stats",
+      "method": "isCriticalAttack",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (UnityEngine.Random.Range (0, 100) < num) { result = true; }"
+      },
+      "note": "Pins the final 0..99 roll against the accumulated counter, including 100% saturation."
     }
   ]
 }
