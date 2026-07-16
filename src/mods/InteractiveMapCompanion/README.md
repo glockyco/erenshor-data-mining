@@ -1,9 +1,36 @@
 # Interactive Map Companion
 
-BepInEx mod for Erenshor that broadcasts real-time game state to the interactive
-map website via WebSocket, and optionally renders the map as an in-game overlay.
+Native dual-loader mod for Erenshor that broadcasts real-time game state to the
+interactive map website via WebSocket, and optionally renders the map as an
+in-game overlay. The BepInEx build is distributed on Thunderstore as
+`WoW_Much/InteractiveMapCompanion`. The native Lunaris build is distributed
+through the Erenshor Vault.
 
-## Features
+## Local build and distribution
+
+Set up references once, then select the native loader explicitly:
+
+```bash
+uv run erenshor mod setup
+uv run erenshor mod build --mod interactive-map-companion --loader bepinex
+uv run erenshor mod deploy --mod interactive-map-companion --loader bepinex
+uv run erenshor mod build --mod interactive-map-companion --loader lunaris
+uv run erenshor mod deploy --mod interactive-map-companion --loader lunaris
+```
+
+BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
+`<game>/plugins`. Restart after a Lunaris deployment. The canonical local
+Thunderstore check packages all four public mods without uploading:
+
+```bash
+uv run erenshor mod thunderstore --dry-run
+```
+
+A real upload requires exactly one `--mod interactive-map-companion` and a
+non-placeholder `TCLI_AUTH_TOKEN`. There is no GitHub release automation.
+Prepare the Lunaris artifact for manual Vault upload with
+`uv run erenshor mod vault --mod interactive-map-companion`.
+
 
 - **Live Entity Tracking**: Broadcasts positions of your character, SimPlayers,
   NPCs, enemies, and pets in real-time
@@ -12,8 +39,8 @@ map website via WebSocket, and optionally renders the map as an in-game overlay.
 - **WebSocket Server**: Lightweight WebSocket server running on `localhost:18585`
 - **Configurable Updates**: Adjustable broadcast interval (default: 100ms / 10 Hz)
 - **Configurable Logging**: Control verbosity of console output
-- **Future Features**: Spawn tracking, third-party markers, bidirectional
-  communication (configurable, coming soon)
+- **Roadmap**: Spawn tracking, third-party markers, and bidirectional
+  communication
 
 ## Installation
 
@@ -81,9 +108,6 @@ installed.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `EnableSpawnTracking` | Boolean | `true` | Track enemy deaths and broadcast respawn timers (future feature) |
-| `EnableThirdPartyMarkers` | Boolean | `true` | Allow other mods to register custom markers (future feature) |
-| `EnableBidirectional` | Boolean | `true` | Accept messages from clients for waypoints, pings (future feature) |
 
 ### Logging Settings
 
@@ -99,16 +123,18 @@ Control console output verbosity:
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical details.
 
 ```bash
-# Copy game DLLs for compilation
+# Copy game and both loader references for compilation
 uv run erenshor mod setup
 
-# Build the mod
-uv run erenshor mod build
+# Build and deploy the native BepInEx target
+uv run erenshor mod build --mod interactive-map-companion --loader bepinex
+uv run erenshor mod deploy --mod interactive-map-companion --loader bepinex
 
-# Build and deploy to BepInEx plugins
-uv run erenshor mod deploy
+# Build and deploy the native Lunaris target
+uv run erenshor mod build --mod interactive-map-companion --loader lunaris
+uv run erenshor mod deploy --mod interactive-map-companion --loader lunaris
 
-# Launch the game
+# Launch the selected game installation
 uv run erenshor mod launch
 ```
 

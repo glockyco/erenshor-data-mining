@@ -31,9 +31,8 @@ browser connects to directly - nothing is sent to any external server.
 Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
 
 1. Install BepInEx if you haven't already
-2. Copy the `InteractiveMapCompanion/` folder (containing
-   `InteractiveMapCompanion.dll`, `Fleck.dll`, and `Newtonsoft.Json.dll`)
-   into `BepInEx/plugins/`
+2. Copy the `InteractiveMapCompanion/` folder containing
+   `InteractiveMapCompanion.dll` into `BepInEx/plugins/`
 3. Launch the game and log in with a character
 4. Open the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map)
 5. Toggle **Enable Live Mode** in the sidebar
@@ -53,7 +52,7 @@ The config file is generated on first run at
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `Port` | `18584` | WebSocket server port |
+| `Port` | `18585` | WebSocket server port |
 | `UpdateInterval` | `100` | Broadcast interval in ms (100 = 10 Hz) |
 
 ### Logging
@@ -65,7 +64,7 @@ The config file is generated on first run at
 
 ## Technical Details
 
-The mod runs a lightweight WebSocket server on `localhost:18584`. Your browser
+The mod runs a lightweight WebSocket server on `localhost:18585`. Your browser
 connects directly to this local server - the map website's JavaScript acts as
 the client. The protocol uses JSON messages for handshake, state updates, and
 zone changes.

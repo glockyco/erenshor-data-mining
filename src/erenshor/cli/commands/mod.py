@@ -13,14 +13,18 @@ This module provides commands for building and deploying companion mods:
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tomllib
+import zipfile
+from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Annotated, Literal, NotRequired, TypedDict, cast
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -59,6 +63,8 @@ app = typer.Typer(
 
 console = Console()
 
+VAULT_API_BASE = "https://erenshorvault.app/api"
+
 # Mod registry - all companion mods in the project. Every mod has native build
 # targets for both loaders; ``default_loader`` preserves the current install
 # path used by website/default deploys.
@@ -91,6 +97,7 @@ MODS: dict[str, ModInfo] = {
         "loaders": ["bepinex", "lunaris"],
         "default_loader": "lunaris",
         "public": True,
+        "thunderstore": "WoW_Much/JusticeForF7",
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "sprint": {
@@ -100,6 +107,7 @@ MODS: dict[str, ModInfo] = {
         "loaders": ["bepinex", "lunaris"],
         "default_loader": "lunaris",
         "public": True,
+        "thunderstore": "WoW_Much/Sprint",
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "map-tile-capture": {
@@ -119,6 +127,7 @@ MODS: dict[str, ModInfo] = {
         "loaders": ["bepinex", "lunaris"],
         "default_loader": "lunaris",
         "public": True,
+        "thunderstore": "WoW_Much/AdventureGuide",
         "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": [
             "ImGui.NET.dll",
@@ -144,6 +153,10 @@ REQUIRED_DLLS = [
     "Unity.TextMeshPro.dll",
     "com.rlabrecque.steamworks.net.dll",
 ]
+
+FORBIDDEN_RUNTIME_DLLS = frozenset(
+    [*(dll.casefold() for dll in REQUIRED_DLLS), "bepinex.dll", "lunaris.dll", "0harmony.dll"]
+)
 
 
 def _check_dotnet_available() -> bool:
@@ -809,7 +822,252 @@ def publish(
     console.print()
 
 
-VAULT_API_BASE = "https://erenshorvault.app/api"
+@dataclass(frozen=True)
+class ThunderstoreCopy:
+    source: Path
+    target: PurePosixPath
+    package_path: PurePosixPath
+
+
+@dataclass(frozen=True)
+class ThunderstoreManifest:
+    path: Path
+    namespace: str
+    name: str
+    icon: Path
+    readme: Path
+    changelog: Path | None
+    outdir: Path
+    copies: tuple[ThunderstoreCopy, ...]
+    static_input_paths: tuple[Path, ...]
+    input_paths: tuple[Path, ...]
+    allowed_package_names: frozenset[str]
+
+
+@dataclass(frozen=True)
+class ThunderstoreRelease:
+    mod_id: str
+    mod_dir: Path
+    manifest: ThunderstoreManifest
+    version: str
+    static_input_hashes: tuple[tuple[Path, str], ...] = ()
+    input_hashes: tuple[tuple[Path, str], ...] = ()
+
+
+def _path_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve(strict=False).relative_to(root.resolve(strict=True))
+    except (ValueError, FileNotFoundError):
+        return False
+    return True
+
+
+def _resolve_manifest_file(raw: object, *, mod_dir: Path, repo_root: Path, label: str) -> Path:
+    if not isinstance(raw, str) or not raw or "\\" in raw:
+        raise ValueError(f"{label} must be a relative path")
+    candidate = Path(raw)
+    if candidate.is_absolute():
+        raise ValueError(f"{label} must be a relative path")
+    unresolved = mod_dir / candidate
+    if unresolved.is_symlink():
+        raise ValueError(f"{label} must not be a symlink")
+    resolved = unresolved.resolve(strict=False)
+    if not _path_within(resolved, repo_root):
+        raise ValueError(f"{label} is outside the repository")
+    return resolved
+
+
+def _require_regular_file(path: Path, label: str) -> None:
+    if not path.is_file() or path.is_symlink():
+        raise ValueError(f"{label} is not a regular file: {path}")
+
+
+def _is_forbidden_runtime_dll(name: str) -> bool:
+    return name.casefold() in FORBIDDEN_RUNTIME_DLLS
+
+
+def _parse_thunderstore_manifest(
+    manifest_path: Path,
+    mod_dir: Path,
+    repo_root: Path,
+    *,
+    expected_namespace: str | None = None,
+    expected_name: str | None = None,
+) -> ThunderstoreManifest:
+    """Parse and validate one Thunderstore manifest without requiring build outputs."""
+    if manifest_path.is_symlink():
+        raise ValueError("Thunderstore manifest must not be a symlink")
+    manifest_path = manifest_path.resolve(strict=False)
+    mod_dir = mod_dir.resolve(strict=True)
+    repo_root = repo_root.resolve(strict=True)
+    if not _path_within(manifest_path, mod_dir) or not _path_within(manifest_path, repo_root):
+        raise ValueError("Thunderstore manifest must be inside the mod and repository")
+    _require_regular_file(manifest_path, "Thunderstore manifest")
+    try:
+        with manifest_path.open("rb") as stream:
+            data = tomllib.load(stream)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise ValueError(f"invalid Thunderstore TOML: {exc}") from exc
+
+    package = data.get("package")
+    build = data.get("build")
+    if not isinstance(package, dict) or not isinstance(build, dict):
+        raise ValueError("Thunderstore TOML requires [package] and [build] tables")
+    namespace = package.get("namespace")
+    name = package.get("name")
+    if not isinstance(namespace, str) or not namespace or not isinstance(name, str) or not name:
+        raise ValueError("Thunderstore package namespace and name are required")
+    if expected_namespace is not None and namespace != expected_namespace:
+        raise ValueError(f"manifest namespace is {namespace!r}, expected {expected_namespace!r}")
+    if expected_name is not None and name != expected_name:
+        raise ValueError(f"manifest name is {name!r}, expected {expected_name!r}")
+
+    icon = _resolve_manifest_file(build.get("icon"), mod_dir=mod_dir, repo_root=repo_root, label="build.icon")
+    readme = _resolve_manifest_file(build.get("readme"), mod_dir=mod_dir, repo_root=repo_root, label="build.readme")
+    changelog_raw = build.get("changelog")
+    changelog = (
+        _resolve_manifest_file(changelog_raw, mod_dir=mod_dir, repo_root=repo_root, label="build.changelog")
+        if changelog_raw is not None
+        else None
+    )
+    outdir = _resolve_manifest_file(build.get("outdir"), mod_dir=mod_dir, repo_root=repo_root, label="build.outdir")
+    if outdir.exists() and (not outdir.is_dir() or outdir.is_symlink()):
+        raise ValueError(f"build.outdir is not a directory: {outdir}")
+    for label, path in (("build.icon", icon), ("build.readme", readme), ("build.changelog", changelog)):
+        if path is not None:
+            _require_regular_file(path, label)
+
+    copies_raw = build.get("copy", [])
+    if not isinstance(copies_raw, list):
+        raise ValueError("build.copy must be an array of tables")
+    copies: list[ThunderstoreCopy] = []
+    package_names: set[str] = {"manifest.json", "icon.png", "README.md", "CHANGELOG.md"}
+    for index, entry in enumerate(copies_raw):
+        if not isinstance(entry, dict):
+            raise ValueError(f"build.copy[{index}] must be a table")
+        source = _resolve_manifest_file(
+            entry.get("source"), mod_dir=mod_dir, repo_root=repo_root, label=f"build.copy[{index}].source"
+        )
+        if source.exists() and (not source.is_file() or source.is_symlink()):
+            raise ValueError(f"build.copy[{index}].source is not a regular file: {source}")
+        if _is_forbidden_runtime_dll(source.name):
+            raise ValueError(f"build.copy[{index}].source is a game/runtime DLL: {source.name}")
+        source_relative = source.relative_to(repo_root)
+        if source_relative.parts and source_relative.parts[0] == "variants":
+            raise ValueError(f"build.copy[{index}].source must not use variant game assets")
+        target_raw = entry.get("target")
+        if not isinstance(target_raw, str) or not target_raw or "\\" in target_raw:
+            raise ValueError(f"build.copy[{index}].target must be a relative POSIX path")
+        if target_raw.startswith("/") or ":" in target_raw:
+            raise ValueError(f"build.copy[{index}].target must be a relative POSIX path")
+        target_parts = target_raw.rstrip("/").split("/")
+        if any(part in {"", ".", ".."} for part in target_parts):
+            raise ValueError(f"build.copy[{index}].target must be a normalized relative POSIX path")
+        target = PurePosixPath(target_raw.rstrip("/"))
+        if not target.parts or any(part in {"", ".", ".."} for part in target.parts):
+            raise ValueError(f"build.copy[{index}].target must be a normalized relative POSIX path")
+        package_path = target / source.name
+        package_name = package_path.as_posix()
+        if package_name in package_names:
+            raise ValueError(f"duplicate Thunderstore package path: {package_name}")
+        package_names.add(package_name)
+        copies.append(ThunderstoreCopy(source, target, package_path))
+
+    static_input_paths = tuple(path for path in (manifest_path, icon, readme, changelog) if path is not None)
+    input_paths = static_input_paths + tuple(copy.source for copy in copies)
+    return ThunderstoreManifest(
+        path=manifest_path,
+        namespace=namespace,
+        name=name,
+        icon=icon,
+        readme=readme,
+        changelog=changelog,
+        outdir=outdir,
+        copies=tuple(copies),
+        static_input_paths=static_input_paths,
+        input_paths=input_paths,
+        allowed_package_names=frozenset(package_names),
+    )
+
+
+def _hash_paths(paths: tuple[Path, ...]) -> tuple[tuple[Path, str], ...]:
+    hashes: list[tuple[Path, str]] = []
+    for path in paths:
+        _require_regular_file(path, "Thunderstore build input")
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        hashes.append((path, digest.hexdigest()))
+    return tuple(hashes)
+
+
+def _hash_release_inputs(manifest: ThunderstoreManifest) -> tuple[tuple[Path, str], ...]:
+    """Hash the manifest and every declared build input after a successful build."""
+    return _hash_paths(manifest.input_paths)
+
+
+def _require_unchanged_inputs(hashes: tuple[tuple[Path, str], ...]) -> None:
+    current = dict(_hash_paths(tuple(path for path, _ in hashes)))
+    for path, expected in hashes:
+        if current.get(path) != expected:
+            raise ValueError(f"Thunderstore input changed during release: {path}")
+
+
+def _thunderstore_package_path(manifest: ThunderstoreManifest, version: str) -> Path:
+    return manifest.outdir / f"{manifest.namespace}-{manifest.name}-{version}.zip"
+
+
+def _remove_stale_thunderstore_package(manifest: ThunderstoreManifest, version: str) -> None:
+    package = _thunderstore_package_path(manifest, version)
+    if package.is_symlink() or (package.exists() and not package.is_file()):
+        raise ValueError(f"expected package output is not a regular file: {package}")
+    package.unlink(missing_ok=True)
+
+
+def _locate_thunderstore_package(manifest: ThunderstoreManifest, version: str) -> Path:
+    expected = _thunderstore_package_path(manifest, version)
+    matches = [path for path in manifest.outdir.glob(expected.name) if path.is_file() and not path.is_symlink()]
+    if len(matches) != 1:
+        raise ValueError(f"expected exactly one package ZIP {expected.name} in {manifest.outdir}")
+    package = matches[0].resolve(strict=True)
+    if not _path_within(package, manifest.outdir):
+        raise ValueError("Thunderstore package is outside its configured output directory")
+    return package
+
+
+def _validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest) -> None:
+    if not _path_within(package, manifest.outdir):
+        raise ValueError("Thunderstore package is outside its configured output directory")
+    try:
+        with zipfile.ZipFile(package) as archive:
+            infos = archive.infolist()
+    except (OSError, zipfile.BadZipFile) as exc:
+        raise ValueError(f"invalid Thunderstore package ZIP: {exc}") from exc
+    names: list[str] = []
+    for info in infos:
+        name = info.filename
+        if not name or "\\" in name or name.startswith("/"):
+            raise ValueError(f"invalid package path: {name!r}")
+        path = PurePosixPath(name)
+        if any(part in {"", ".", ".."} for part in path.parts) or info.is_dir() or name.endswith("/"):
+            raise ValueError(f"invalid package entry: {name!r}")
+        mode = (info.external_attr >> 16) & 0xFFFF
+        if stat.S_ISLNK(mode):
+            raise ValueError(f"symlink is not allowed in package: {name}")
+        if _is_forbidden_runtime_dll(path.name):
+            raise ValueError(f"game/runtime DLL is not allowed in package: {name}")
+        names.append(name)
+    if len(names) != len(set(names)):
+        raise ValueError("package contains duplicate entries")
+    actual = set(names)
+    allowed = set(manifest.allowed_package_names)
+    if actual - allowed:
+        raise ValueError(f"package contains unexpected entries: {', '.join(sorted(actual - allowed))}")
+    required = {"manifest.json", "icon.png", "README.md"} | {copy.package_path.as_posix() for copy in manifest.copies}
+    missing = required - actual
+    if missing:
+        raise ValueError(f"package is missing entries: {', '.join(sorted(missing))}")
 
 
 def _next_calver_revision(date_prefix: str, latest_version: str | None) -> str:
@@ -864,26 +1122,42 @@ def _get_vault_version(mod_ref: str) -> str:
 
 
 def _get_thunderstore_version(namespace: str, name: str) -> str:
-    """Compute the next Thunderstore version in YYYY.MDD.R format.
-
-    Queries the Thunderstore API for the latest published version. If
-    the latest version has the same YYYY.MDD prefix as today, increments
-    the revision. Otherwise starts at revision 0.
-    """
+    """Compute the next Thunderstore version, failing on lookup/API errors."""
     now = datetime.now(UTC)
     date_prefix = f"{now.year}.{now.month}{now.day:02d}"
-
-    # Query Thunderstore for latest version
     url = f"https://thunderstore.io/api/experimental/package/{namespace}/{name}/"
     request = Request(url, headers={"User-Agent": "erenshor-cli/1.0"})
-    latest_version = None
     try:
         with urlopen(request, timeout=10) as resp:
             data = json.loads(resp.read())
-            latest_version = data.get("latest", {}).get("version_number")
-    except (HTTPError, URLError, json.JSONDecodeError, KeyError):
-        pass
-
+        if not isinstance(data, dict) or not isinstance(data.get("latest"), dict):
+            raise ValueError("response has no latest package record")
+        latest_version = data["latest"].get("version_number")
+        if not isinstance(latest_version, str) or not latest_version.strip():
+            raise ValueError("response has no version_number")
+        parts = latest_version.split(".")
+        if (
+            len(parts) != 3
+            or len(parts[0]) != 4
+            or len(parts[1]) not in {3, 4}
+            or any(not part.isdigit() for part in parts)
+        ):
+            raise ValueError(f"invalid version_number: {latest_version!r}")
+        month = int(parts[1][:-2])
+        day = int(parts[1][-2:])
+        if not 1 <= month <= 12 or not 1 <= day <= 31:
+            raise ValueError(f"invalid version_number: {latest_version!r}")
+    except (
+        HTTPError,
+        URLError,
+        TimeoutError,
+        OSError,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        raise RuntimeError(f"Thunderstore version lookup failed for {namespace}/{name}: {exc}") from exc
     return _next_calver_revision(date_prefix, latest_version)
 
 
@@ -924,111 +1198,168 @@ def thunderstore(
     )
     console.print()
 
-    # Check prerequisites
     if not _check_tcli_available():
         console.print("[red]Error: tcli not found[/red]")
         console.print("Install with: dotnet tool install -g tcli")
         raise typer.Exit(1)
 
     token = os.environ.get("TCLI_AUTH_TOKEN", "")
-    if not dry_run and (not token or token == "your_token_here"):
-        console.print("[red]Error: TCLI_AUTH_TOKEN not set[/red]")
-        console.print("Set it in .env (see .env for instructions).")
+    if not dry_run and mod is None:
+        console.print("[red]Error: real Thunderstore publishing requires exactly one --mod[/red]")
+        raise typer.Exit(1)
+    placeholder_tokens = {"your_token_here", "your-token-here", "changeme"}
+    if not dry_run and (not token.strip() or token.strip().lower() in placeholder_tokens):
+        console.print("[red]Error: TCLI_AUTH_TOKEN is missing or still a placeholder[/red]")
         raise typer.Exit(1)
 
-    # Find eligible mods
-    if mod:
+    if mod is not None:
         if mod not in MODS:
             console.print(f"[red]Error: Unknown mod: {mod}[/red]")
             raise typer.Exit(1)
-        if "thunderstore" not in MODS[mod]:
+        if not MODS[mod].get("public") or "thunderstore" not in MODS[mod]:
             console.print(f"[red]Error: {mod} is not configured for Thunderstore[/red]")
             raise typer.Exit(1)
-        eligible = [mod]
+        selected = [mod]
     else:
-        eligible = [m for m in MODS if "thunderstore" in MODS[m]]
+        selected = [mod_id for mod_id, info in MODS.items() if info.get("public") and "thunderstore" in info]
 
-    if not eligible:
-        console.print("[yellow]No mods configured for Thunderstore publishing.[/yellow]")
-        raise typer.Exit(0)
-
-    # Build and publish each mod
-    for mod_id in eligible:
-        mod_config = MODS[mod_id]
-        ts_id = mod_config.get("thunderstore", "")  # presence guaranteed by eligible filter
-        namespace, name = ts_id.split("/")
-        mod_dir = _get_mod_dir(cli_ctx, mod_id)
-
-        # Check thunderstore.toml exists
-        ts_toml = mod_dir / "thunderstore.toml"
-        if not ts_toml.exists():
-            console.print(f"[red]Error: {ts_toml} not found[/red]")
+    releases: list[ThunderstoreRelease] = []
+    # Preflight every release, including version lookups, before any build starts.
+    for mod_id in selected:
+        mod_info = MODS[mod_id]
+        ts_id = mod_info.get("thunderstore")
+        if not ts_id or ts_id.count("/") != 1:
+            console.print(f"[red]Error: invalid Thunderstore id for {mod_id}[/red]")
             raise typer.Exit(1)
+        namespace, name = ts_id.split("/", 1)
+        mod_dir = _get_mod_dir(cli_ctx, mod_id).resolve(strict=False)
+        manifest_path = mod_dir / "thunderstore.toml"
+        try:
+            manifest = _parse_thunderstore_manifest(
+                manifest_path,
+                mod_dir,
+                cli_ctx.repo_root,
+                expected_namespace=namespace,
+                expected_name=name,
+            )
+            version = _get_thunderstore_version(namespace, name)
+            static_hashes = _hash_paths(manifest.static_input_paths)
+        except (OSError, RuntimeError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        releases.append(
+            ThunderstoreRelease(
+                mod_id,
+                mod_dir,
+                manifest,
+                version,
+                static_input_hashes=static_hashes,
+            )
+        )
 
-        # Check icon exists
-        icon_path = mod_dir / "thunderstore" / "icon.png"
-        if not icon_path.exists():
-            console.print(f"[red]Error: {icon_path} not found[/red]")
-            raise typer.Exit(1)
-
-        # Compute version
+    built_releases: list[ThunderstoreRelease] = []
+    for release in releases:
         console.print()
-        console.print(f"[bold]{mod_config['name']}[/bold]")
-        version = _get_thunderstore_version(namespace, name)
-        console.print(f"  Version: [cyan]{version}[/cyan]")
-
-        # Build with this version baked into the DLL
-        # Skip ILRepack so reviewers can inspect individual DLLs
+        console.print(f"[bold]{MODS[release.mod_id]['name']}[/bold]")
+        console.print(f"  Version: [cyan]{release.version}[/cyan]")
         console.print("[bold]Building...[/bold]")
-        _build_mods_internal(cli_ctx, mod_id, version=version, loader="bepinex", skip_ilrepack=True)
+        try:
+            _require_unchanged_inputs(release.static_input_hashes)
+            _build_mods_internal(cli_ctx, release.mod_id, version=release.version, loader="bepinex")
+            _require_unchanged_inputs(release.static_input_hashes)
+            hashes = _hash_release_inputs(release.manifest)
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        built_releases.append(
+            ThunderstoreRelease(
+                release.mod_id,
+                release.mod_dir,
+                release.manifest,
+                release.version,
+                static_input_hashes=release.static_input_hashes,
+                input_hashes=hashes,
+            )
+        )
 
-        if dry_run:
-            # Build package only
-            console.print("  [dim]Building package (dry run)...[/dim]")
+    # Package and validate every release before any upload.
+    packages: list[tuple[ThunderstoreRelease, Path, tuple[tuple[Path, str], ...]]] = []
+    for release in built_releases:
+        console.print("  [dim]Building package...[/dim]")
+        try:
+            _require_unchanged_inputs(release.input_hashes)
+            _remove_stale_thunderstore_package(release.manifest, release.version)
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        try:
             result = subprocess.run(
                 [
                     "tcli",
                     "build",
                     "--package-version",
-                    version,
+                    release.version,
                     "--config-path",
-                    str(ts_toml),
+                    str(release.manifest.path),
                 ],
-                cwd=mod_dir,
+                cwd=release.mod_dir,
                 check=False,
             )
-            if result.returncode != 0:
-                console.print("  [red]✗ Package build failed[/red]")
-                raise typer.Exit(1)
+        except OSError as exc:
+            console.print(f"  [red]✗ Could not run tcli build: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        if result.returncode != 0:
+            console.print("  [red]✗ Package build failed[/red]")
+            raise typer.Exit(1)
+        try:
+            _require_unchanged_inputs(release.input_hashes)
+            package = _locate_thunderstore_package(release.manifest, release.version)
+            _validate_thunderstore_package(package, release.manifest)
+            package_hashes = _hash_paths((package,))
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        packages.append((release, package, package_hashes))
+        console.print(f"  [green]✓ Package validated[/green] [dim]{package}[/dim]")
 
-            build_dir = mod_dir / "thunderstore" / "build"
-            console.print("  [green]✓ Package built[/green]")
-            console.print(f"  [dim]Output: {build_dir}[/dim]")
-            console.print()
-            console.print("[yellow]Dry run — not uploading.[/yellow]")
-        else:
-            # Build and publish
-            console.print("  [dim]Publishing...[/dim]")
+    if dry_run:
+        console.print()
+        console.print("[yellow]Dry run — not uploading.[/yellow]")
+        console.print()
+        return
+
+    for release, package, package_hashes in packages:
+        try:
+            _require_unchanged_inputs(release.input_hashes)
+            _require_unchanged_inputs(package_hashes)
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        namespace, name = (MODS[release.mod_id].get("thunderstore") or "").split("/", 1)
+        try:
             result = subprocess.run(
                 [
                     "tcli",
                     "publish",
                     "--package-version",
-                    version,
-                    "--token",
-                    token,
+                    release.version,
+                    "--file",
+                    str(package),
                     "--config-path",
-                    str(ts_toml),
+                    str(release.manifest.path),
                 ],
-                cwd=mod_dir,
+                cwd=release.mod_dir,
                 check=False,
+                env={**os.environ, "TCLI_AUTH_TOKEN": token},
             )
-            if result.returncode != 0:
-                console.print("  [red]✗ Publish failed[/red]")
-                raise typer.Exit(1)
-
-            console.print(f"  [green]✓ Published {namespace}-{name}-{version}[/green]")
-            console.print(f"  [dim]https://thunderstore.io/c/erenshor/p/{namespace}/{name}/[/dim]")
+        except OSError as exc:
+            console.print(f"  [red]✗ Could not run tcli publish: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        if result.returncode != 0:
+            console.print("  [red]✗ Publish failed[/red]")
+            raise typer.Exit(1)
+        console.print(f"  [green]✓ Published {namespace}-{name}-{release.version}[/green]")
+        console.print(f"  [dim]https://thunderstore.io/c/erenshor/p/{namespace}/{name}/[/dim]")
 
     console.print()
     console.print("[green]Thunderstore publish complete![/green]")

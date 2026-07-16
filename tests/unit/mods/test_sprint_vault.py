@@ -74,7 +74,7 @@ def test_sprint_declares_dual_loader_support() -> None:
     mod = MODS["sprint"]
     assert mod["loaders"] == ["bepinex", "lunaris"]
     assert mod["default_loader"] == "lunaris"
-    assert "thunderstore" not in mod
+    assert mod["thunderstore"] == "WoW_Much/Sprint"
     assert "0Harmony.dll" in mod["lunaris_dlls"]
 
 

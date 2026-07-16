@@ -1,0 +1,24 @@
+# Erenshor Vault listing for Interactive Map Companion.
+#
+# Source of truth for the Vault mod listing. `erenshor mod vault --mod
+# interactive-map-companion` builds the native Lunaris artifact. Upload remains
+# manual through the Erenshor Vault website.
+
+[mod]
+name = "Interactive Map Companion"
+mod_ref = "interactive-map-companion"
+short_description = "Live player, SimPlayer, NPC, enemy, and pet tracking on the interactive world map, with an optional in-game overlay."
+source_url = ""
+hidden = false
+tags = ["quality-of-life", "utility"]
+
+[assets]
+full_description = "README.md"
+changelog = "CHANGELOG.md"
+icon = "icon.png"
+
+[package]
+# Fleck is merged into the plugin. Lunaris provides loader and shared runtime
+# dependencies, so the package ships only the plugin assembly.
+main_file = "InteractiveMapCompanion.dll"
+asset_files = []

@@ -23,14 +23,6 @@ outdir = "./thunderstore/build"
 source = "./bin/Debug/netstandard2.1/bepinex/InteractiveMapCompanion.dll"
 target = "plugins/InteractiveMapCompanion/"
 
-[[build.copy]]
-source = "./bin/Debug/netstandard2.1/bepinex/Fleck.dll"
-target = "plugins/InteractiveMapCompanion/"
-
-[[build.copy]]
-source = "./bin/Debug/netstandard2.1/bepinex/Newtonsoft.Json.dll"
-target = "plugins/InteractiveMapCompanion/"
-
 [publish]
 repository = "https://thunderstore.io"
 communities = ["erenshor"]

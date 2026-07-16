@@ -1,28 +1,57 @@
 # Adventure Guide
 
-Native Lunaris plugin that adds an in-game quest guide overlay to Erenshor.
+Native dual-loader plugin that adds an in-game quest guide overlay to Erenshor.
 Shows step-by-step objectives, item tracking with live inventory counts, GPS
 navigation, floating world markers, and a quest tracker.
 
-Distributed through the Erenshor Vault — see `vault/` for listing assets and
+Adventure Guide has native BepInEx and Lunaris builds. The BepInEx artifact is
+the Thunderstore release (`WoW_Much/AdventureGuide`). The Lunaris artifact is
+the Erenshor Vault release. See `vault/` for Vault listing assets and manual
 publishing notes.
+
+## Local build and distribution
+
+Set up references once, then select the loader explicitly:
+
+```bash
+uv run erenshor mod setup
+uv run erenshor mod build --mod adventure-guide --loader bepinex
+uv run erenshor mod deploy --mod adventure-guide --loader bepinex
+uv run erenshor mod build --mod adventure-guide --loader lunaris
+uv run erenshor mod deploy --mod adventure-guide --loader lunaris
+```
+
+BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
+`<game>/plugins`. Restart after a Lunaris deployment. To prepare a local Vault
+artifact for manual upload, run `uv run erenshor mod vault --mod adventure-guide`.
+There is no GitHub release automation. The canonical local Thunderstore check
+packages all four public mods without uploading:
+
+```bash
+uv run erenshor mod thunderstore --dry-run
+```
+
+A real Thunderstore upload requires exactly one `--mod adventure-guide` and a
+non-placeholder `TCLI_AUTH_TOKEN`.
 
 ## Architecture
 
 ```
 src/
-├── Plugin.cs        # LunarisPlugin entry; wires components, Harmony patches, OnGUI pump
-├── PluginInfo.cs    # Generated version constant (scripts/generate-mod-version.py)
-├── Config/          # GuideConfig (Lunaris Config.Register) + config entry helpers
-├── Data/            # GuideData (embedded quest-guide.json), QuestEntry, step scene resolver
-├── State/           # Quest/tracker state, step progress, game-UI visibility
-├── UI/              # Guide window, quest list/detail panels, tracker window, theme
-├── Rendering/       # Private ImGui context + Unity CommandBuffer renderer, CimguiNative
-├── Navigation/      # Arrow/ground-path renderers, zone graph, world markers, spawn trackers
-├── Patches/         # Harmony patches (quest assign/finish, inventory, markers, input)
-└── Diagnostics/     # DebugAPI for HotRepl inspection
+├── Plugin.BepInEx.cs   # Native BepInEx entrypoint
+├── Plugin.Lunaris.cs   # Native Lunaris entrypoint
+├── Plugin.cs           # Shared lifecycle and runtime wiring
+├── PluginInfo.cs       # Generated version constant (scripts/generate-mod-version.py)
+├── Config/             # Loader-neutral settings plus native config adapters
+├── Data/               # GuideData (embedded quest-guide.json), QuestEntry, step scene resolver
+├── State/              # Quest/tracker state, step progress, game-UI visibility
+├── UI/                 # Guide window, quest list/detail panels, tracker window, theme
+├── Rendering/          # Private ImGui context + Unity CommandBuffer renderer, CimguiNative
+├── Navigation/         # Arrow/ground-path renderers, zone graph, world markers, spawn trackers
+├── Patches/            # Harmony patches (quest assign/finish, inventory, markers, input)
+└── Diagnostics/        # DebugAPI for HotRepl inspection
 resources/
-└── Roboto-Regular.ttf   # Embedded font (quest-guide.json is embedded from quest_guides/)
+└── Roboto-Regular.ttf  # Embedded font (quest-guide.json is embedded from quest_guides/)
 ```
 
 ## How It Works
@@ -66,17 +95,18 @@ uv run erenshor guide export-mod  # Embedded quest-guide.json shipping wrapper
 indexed representation intended for diagnostics and internal data processing.
 `guide export-mod` writes `quest_guides/quest-guide.json` by default. This
 compact wrapper is the artifact embedded by the csproj and loaded by the
-shipping Lunaris plugin.
+shipping plugin.
 
 Both commands read the selected variant's clean database and accept
 `--overrides` for a `quest_guides/graph_overrides.toml` file. TOML graph
-overrides are the only manual curation path; no per-quest JSON overrides are
+overrides are the only manual curation path. No per-quest JSON overrides are
 used.
 
 ## Configuration
 
-Settings live in the Lunaris config UI, or edit
-`<Game Folder>/plugins/config/adventureguide.lpcfg` directly. Keys are grouped
+Settings are available through each loader's native config system. BepInEx stores
+`adventureguide/imgui.ini` under its config path. Lunaris stores its settings in
+`<Game Folder>/plugins/config/adventureguide.lpcfg`. Keys are grouped
 into `General`, `Navigation`, `World Markers`, and `Tracker` sections (see
 `Config/GuideConfig.cs`). Defaults: open guide **L**, quest tracker **K**, toggle
 ground path **P**.

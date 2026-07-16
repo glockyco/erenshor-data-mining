@@ -1,17 +1,22 @@
 # Justice for F7
 
-Native Lunaris plugin that extends Erenshor's F7 "Hide UI" key to also hide
+Native dual-loader plugin that extends Erenshor's F7 "Hide UI" key to also hide
 world-space UI — nameplates, damage numbers, target rings, XP orbs, cast bars,
 and loot prompts.
 
-Distributed through the Erenshor Vault — see `vault/` for the listing assets and
+Justice for F7 has native BepInEx and Lunaris builds. The BepInEx artifact is
+the Thunderstore release (`WoW_Much/JusticeForF7`). The Lunaris artifact is
+the Erenshor Vault release. See `vault/` for listing assets and manual
 publishing notes.
 
 ## Architecture
 
 ```
 src/
-├── Plugin.cs             # LunarisPlugin entry; registers config, applies patches, tracks scenes
+├── Plugin.BepInEx.cs     # Native BepInEx entrypoint
+├── Plugin.Lunaris.cs     # Native Lunaris entrypoint
+├── JusticeContracts.cs   # Loader-neutral settings and logging contracts
+├── JusticeRuntime.cs     # Shared lifecycle, patches, and cleanup
 ├── PluginInfo.cs         # GUID/name + generated version constant
 ├── JusticeSettings.cs    # Lunaris Config.Register settings (per-category toggles)
 ├── WorldUIHider.cs       # Finds and hides/restores world-space renderers
@@ -29,20 +34,41 @@ src/
 3. **Suppression**: `DmgPopPatch` and `XPBubPatch` prefix the game's popup/orb
    factories to skip creating transient elements while the UI is hidden.
 
-## Building
+## Building and distribution
+
+Set up references once, then select the native loader explicitly:
 
 ```bash
-uv run erenshor mod setup                        # stage game + Lunaris DLLs into lib/ (first time)
-uv run erenshor mod build --mod justice-for-f7   # build bin/Debug/netstandard2.1/JusticeForF7.dll
-uv run erenshor mod deploy --mod justice-for-f7  # copy to the game's plugins/ (restart to load)
-uv run erenshor mod vault --mod justice-for-f7   # prepare an Erenshor Vault release
+uv run erenshor mod setup
+uv run erenshor mod build --mod justice-for-f7 --loader bepinex
+uv run erenshor mod deploy --mod justice-for-f7 --loader bepinex
+uv run erenshor mod build --mod justice-for-f7 --loader lunaris
+uv run erenshor mod deploy --mod justice-for-f7 --loader lunaris
 ```
+
+BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
+`<game>/plugins`. Restart after a Lunaris deployment. Prepare the Lunaris
+artifact for manual Vault upload with:
+
+```bash
+uv run erenshor mod vault --mod justice-for-f7
+```
+
+The canonical local Thunderstore check packages all four public BepInEx mods
+without uploading:
+
+```bash
+uv run erenshor mod thunderstore --dry-run
+```
+
+A real upload requires exactly one `--mod justice-for-f7` and a
+non-placeholder `TCLI_AUTH_TOKEN`. There is no GitHub release automation.
 
 Native Lunaris plugins do not hot-reload by replacing the DLL — restart the game
 after deploying. See the `mod-development` and `mod-pipeline` skills.
 
 ## Configuration
 
-Settings live in the Lunaris config UI: a master `Enabled` switch, logging, the
-re-scan interval, and a per-category toggle for each world-UI element. See
-`JusticeSettings.cs`.
+Both loaders expose a master `Enabled` switch, logging, the re-scan interval,
+and a per-category toggle for each world-UI element through their native config
+systems. See `JusticeSettings.cs`.

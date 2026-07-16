@@ -4,7 +4,7 @@ Native dual-loader plugin that adds a configurable sprint key to Erenshor. Hold
 or toggle a key to multiply the player's run speed.
 
 Sprint has native Lunaris and BepInEx adapters over one shared lifecycle. The
-Lunaris release is distributed through the Erenshor Vault; the BepInEx release
+Lunaris release is distributed through the Erenshor Vault. The BepInEx release
 is distributed through Thunderstore.
 
 ## Architecture
@@ -43,9 +43,21 @@ uv run erenshor mod deploy --mod sprint --loader lunaris
 uv run erenshor mod deploy --mod sprint --loader bepinex
 ```
 
-The Lunaris Vault package contains only `Sprint.dll`. The BepInEx Thunderstore
-package also contains only the loader-specific `Sprint.dll`; BepInEx supplies
-Harmony and other shared dependencies.
+The Lunaris Vault artifact contains only `Sprint.dll`. The BepInEx Thunderstore
+package also contains only the loader-specific `Sprint.dll`. BepInEx supplies
+Harmony and other shared dependencies. Thunderstore uses the BepInEx artifact.
+Vault uses the Lunaris artifact.
+
+For the canonical local Thunderstore release check, package all four public
+mods without uploading:
+
+```bash
+uv run erenshor mod thunderstore --dry-run
+```
+
+A real upload requires exactly one `--mod sprint` and a non-placeholder
+`TCLI_AUTH_TOKEN`. Vault upload remains a manual local workflow via
+`uv run erenshor mod vault --mod sprint`. There is no GitHub release automation.
 
 ## Configuration
 

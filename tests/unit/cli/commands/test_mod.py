@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import stat
 import subprocess
 import zipfile
+from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from urllib.error import HTTPError, URLError
 
 import pytest
 import typer
@@ -238,30 +241,630 @@ def test_website_publish_uses_each_mod_default_loader(tmp_path: Path, monkeypatc
     assert (tmp_path / "src/maps/static/mods/Sprint.dll").read_bytes() == b"default"
 
 
-def test_thunderstore_build_is_explicitly_bepinex(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+PUBLIC_THUNDERSTORE_IDS = {
+    "adventure-guide": "WoW_Much/AdventureGuide",
+    "interactive-map-companion": "WoW_Much/InteractiveMapCompanion",
+    "sprint": "WoW_Much/Sprint",
+    "justice-for-f7": "WoW_Much/JusticeForF7",
+}
+
+
+def _write_fixture_file(path: Path, content: bytes | str = b"fixture") -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(content, bytes):
+        path.write_bytes(content)
+    else:
+        path.write_text(content)
+    return path
+
+
+def _thunderstore_fixture(
+    tmp_path: Path,
+    mod_id: str = "sprint",
+    *,
+    icon: str = "./vault/icon.png",
+    source: str | None = None,
+    target: str | None = None,
+    outdir: str = "./thunderstore/build",
+    readme: str = "./thunderstore/README.md",
+    changelog: str = "./thunderstore/CHANGELOG.md",
+) -> tuple[Path, Path, Path]:
+    """Create a small manifest and all declared regular-file inputs."""
+    info = MODS[mod_id]
+    mod_dir = tmp_path / info["dir"]
+    manifest_path = mod_dir / "thunderstore.toml"
+    source = source or f"./bin/Debug/netstandard2.1/bepinex/{info['dll_name']}"
+    target = target or f"plugins/{info['dll_name'][:-4]}/"
+
+    def write_declared(raw: str, content: bytes | str) -> None:
+        candidate = (mod_dir / raw.removeprefix("./")).resolve(strict=False)
+        if candidate.is_relative_to(mod_dir.resolve()):
+            _write_fixture_file(candidate, content)
+
+    source_path = (mod_dir / source.removeprefix("./")).resolve(strict=False)
+    write_declared(source, b"compiled dll")
+    write_declared(icon, b"icon")
+    write_declared(readme, "# Fixture\n")
+    write_declared(changelog, "# Changelog\n")
+    namespace, name = PUBLIC_THUNDERSTORE_IDS.get(mod_id, "WoW_Much/Fixture").split("/")
+
+    def toml_string(raw: str) -> str:
+        return raw.replace("\\", "\\\\").replace('"', '\\"')
+
+    manifest = f"""[package]
+namespace = "{namespace}"
+name = "{name}"
+
+[build]
+icon = "{toml_string(icon)}"
+readme = "{toml_string(readme)}"
+changelog = "{toml_string(changelog)}"
+outdir = "{toml_string(outdir)}"
+
+[[build.copy]]
+source = "{toml_string(source)}"
+target = "{toml_string(target)}"
+"""
+    _write_fixture_file(manifest_path, manifest)
+    outdir_path = (mod_dir / outdir.removeprefix("./")).resolve(strict=False)
+    if outdir_path.is_relative_to(mod_dir.resolve()):
+        outdir_path.mkdir(parents=True, exist_ok=True)
+    return mod_dir, manifest_path, source_path
+
+
+def _valid_package(
+    manifest: Any,
+    version: str,
+    *,
+    names: set[str] | None = None,
+    symlink_name: str | None = None,
+) -> Path:
+    package_path = manifest.outdir / f"{manifest.namespace}-{manifest.name}-{version}.zip"
+    package_path.parent.mkdir(parents=True, exist_ok=True)
+    entries = names or (set(manifest.allowed_package_names) - {"CHANGELOG.md"})
+    with zipfile.ZipFile(package_path, "w") as archive:
+        for name in entries:
+            if name == symlink_name:
+                info = zipfile.ZipInfo(name)
+                info.create_system = 3
+                info.external_attr = (stat.S_IFLNK | 0o777) << 16
+                archive.writestr(info, "target")
+            else:
+                archive.writestr(name, b"package")
+    return package_path
+
+
+def _tcli_runner(
+    manifests: dict[str, Any],
+    calls: list[tuple[list[str], dict[str, Any]]],
+    *,
+    build_returncode: int = 0,
+    publish_returncode: int = 0,
+    after_build: Any | None = None,
+) -> Any:
+    def run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append((args, kwargs))
+        config_path = str(args[-1])
+        if args[1] == "build":
+            if build_returncode == 0:
+                _valid_package(manifests[config_path], args[3])
+                if after_build is not None:
+                    after_build(manifests[config_path])
+            return subprocess.CompletedProcess(args, build_returncode)
+        return subprocess.CompletedProcess(args, publish_returncode)
+
+    return run
+
+
+def _prepare_thunderstore_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mod_ids: list[str],
+    *,
+    version: str = "2099.101.0",
+) -> tuple[
+    SimpleNamespace,
+    dict[str, Any],
+    list[tuple[str, str, dict[str, Any]]],
+    list[tuple[list[str], dict[str, Any]]],
+]:
     ctx = _ctx(tmp_path).obj
-    mod_dir = tmp_path / MODS["interactive-map-companion"]["dir"]
-    mod_dir.mkdir(parents=True)
-    (mod_dir / "thunderstore.toml").write_text("[package]\n")
-    (mod_dir / "thunderstore").mkdir()
-    (mod_dir / "thunderstore" / "icon.png").write_bytes(b"icon")
-    calls: list[str] = []
+    manifests: dict[str, Any] = {}
+    for mod_id in mod_ids:
+        _mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, mod_id)
+        manifests[str(manifest_path)] = mod_command._parse_thunderstore_manifest(
+            manifest_path,
+            manifest_path.parent,
+            tmp_path,
+            expected_namespace="WoW_Much",
+            expected_name=PUBLIC_THUNDERSTORE_IDS[mod_id].split("/", 1)[1],
+        )
+
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
-    monkeypatch.setattr(mod_command, "_get_thunderstore_version", lambda *_args: "2026.716.0")
-    monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"]),
-    )
+    monkeypatch.setattr(mod_command, "_get_thunderstore_version", lambda _namespace, _name: version)
+    builds: list[tuple[str, str, dict[str, Any]]] = []
+
+    def build(_ctx: Any, mod: str | None = None, **kwargs: Any) -> None:
+        builds.append((mod or "", kwargs.pop("loader", ""), kwargs))
+
+    monkeypatch.setattr(mod_command, "_build_mods_internal", build)
+    subprocess_calls: list[tuple[list[str], dict[str, Any]]] = []
     monkeypatch.setattr(
         mod_command.subprocess,
         "run",
-        lambda args, **_kwargs: subprocess.CompletedProcess(args, 0),
+        _tcli_runner(manifests, subprocess_calls),
+    )
+    return SimpleNamespace(obj=ctx), manifests, builds, subprocess_calls
+
+
+def test_thunderstore_registry_has_exact_public_ids() -> None:
+    assert {mod_id: info["thunderstore"] for mod_id, info in MODS.items() if "thunderstore" in info} == (
+        PUBLIC_THUNDERSTORE_IDS
     )
 
-    mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="interactive-map-companion", dry_run=True)
 
-    assert calls == ["bepinex"]
+def test_internal_mod_rejected_before_build_or_tcli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path).obj
+    monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
+    monkeypatch.setattr(
+        mod_command,
+        "_build_mods_internal",
+        lambda *_args, **_kwargs: pytest.fail("built internal mod"),
+    )
+    monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
+
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="interactive-maps-companion", dry_run=True)
+
+
+def test_real_upload_requires_exactly_one_mod_and_non_placeholder_token(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ctx = _ctx(tmp_path).obj
+    monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", "valid-sentinel")
+    monkeypatch.setattr(
+        mod_command,
+        "_build_mods_internal",
+        lambda *_args, **_kwargs: pytest.fail("built unexpectedly"),
+    )
+    monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
+
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod=None, dry_run=False)
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", "your_token_here")
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="sprint", dry_run=False)
+
+
+def test_tcli_missing_is_rejected_before_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path).obj
+    monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: False)
+    monkeypatch.setattr(
+        mod_command,
+        "_build_mods_internal",
+        lambda *_args, **_kwargs: pytest.fail("built unexpectedly"),
+    )
+
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="sprint", dry_run=True)
+
+
+def test_dry_run_builds_all_public_mods_and_never_publishes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, _manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, list(PUBLIC_THUNDERSTORE_IDS))
+    mod_command.thunderstore(ctx, mod=None, dry_run=True)
+
+    expected = [mod_id for mod_id, info in MODS.items() if info.get("public") and "thunderstore" in info]
+    assert [mod_id for mod_id, _loader, _kwargs in builds] == expected
+    assert all(loader == "bepinex" for _mod_id, loader, _kwargs in builds)
+    assert [args[1] for args, _kwargs in calls] == ["build"] * 4
+
+
+def test_all_selected_releases_are_preflighted_before_any_build(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ctx = _ctx(tmp_path).obj
+    for mod_id in PUBLIC_THUNDERSTORE_IDS:
+        _thunderstore_fixture(tmp_path, mod_id)
+    bad_manifest = tmp_path / MODS["sprint"]["dir"] / "thunderstore.toml"
+    bad_manifest.write_text(bad_manifest.read_text().replace("./vault/icon.png", "./missing.png"))
+    builds: list[str] = []
+    monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
+    monkeypatch.setattr(mod_command, "_get_thunderstore_version", lambda *_args: "2099.101.0")
+    monkeypatch.setattr(mod_command, "_build_mods_internal", lambda _ctx, mod=None, **_kwargs: builds.append(mod or ""))
+    monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
+
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod=None, dry_run=True)
+    assert builds == []
+
+
+def test_manifest_is_toml_driven_and_reuses_vault_icon(tmp_path: Path) -> None:
+    mod_dir, manifest_path, source = _thunderstore_fixture(tmp_path, "adventure-guide")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path,
+        mod_dir,
+        tmp_path,
+        expected_namespace="WoW_Much",
+        expected_name="AdventureGuide",
+    )
+
+    assert manifest.icon == mod_dir / "vault/icon.png"
+    assert manifest.readme == mod_dir / "thunderstore/README.md"
+    assert manifest.changelog == mod_dir / "thunderstore/CHANGELOG.md"
+    assert manifest.outdir == mod_dir / "thunderstore/build"
+    assert manifest.copies[0].source == source
+    assert str(manifest.copies[0].package_path) == "plugins/AdventureGuide/AdventureGuide.dll"
+    assert {manifest.icon, manifest.readme, manifest.changelog, source} <= set(manifest.input_paths)
+    assert {"manifest.json", "icon.png", "README.md", "plugins/AdventureGuide/AdventureGuide.dll"} <= set(
+        manifest.allowed_package_names
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("icon", "../../../../outside.png"),
+        ("readme", "../../../../outside.md"),
+        ("changelog", "../../../../outside.md"),
+        ("outdir", "../../../../outside"),
+        ("copy_source", "../../../../outside.dll"),
+        ("copy_target", "../escape/"),
+        ("copy_target", "/absolute/"),
+        ("copy_target", "plugins\\Sprint\\Sprint.dll"),
+    ],
+)
+def test_manifest_rejects_path_escape_and_non_posix_copy_targets(tmp_path: Path, field: str, value: str) -> None:
+    fixture_kwargs: dict[str, str] = {}
+    if field == "copy_source":
+        fixture_kwargs["source"] = value
+    elif field == "copy_target":
+        fixture_kwargs["target"] = value
+    else:
+        fixture_kwargs[field] = value
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint", **fixture_kwargs)
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._parse_thunderstore_manifest(
+            manifest_path,
+            mod_dir,
+            tmp_path,
+            expected_namespace="WoW_Much",
+            expected_name="Sprint",
+        )
+
+
+def test_hash_release_inputs_covers_manifest_and_every_declared_asset(tmp_path: Path) -> None:
+    mod_dir, manifest_path, source = _thunderstore_fixture(tmp_path, "sprint")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path,
+        mod_dir,
+        tmp_path,
+        expected_namespace="WoW_Much",
+        expected_name="Sprint",
+    )
+    initial = dict(mod_command._hash_release_inputs(manifest))
+    assert set(initial) == set(manifest.input_paths)
+    (mod_dir / "vault/icon.png").write_bytes(b"changed icon")
+    changed = dict(mod_command._hash_release_inputs(manifest))
+    assert changed[mod_dir / "vault/icon.png"] != initial[mod_dir / "vault/icon.png"]
+    assert changed[source] == initial[source]
+
+
+def test_manifest_rejects_directory_copy_source(tmp_path: Path) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint", source="./bin/source-dir")
+    source_path = mod_dir / "bin/source-dir"
+    source_path.unlink()
+    source_path.mkdir(parents=True)
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._parse_thunderstore_manifest(
+            manifest_path,
+            mod_dir,
+            tmp_path,
+            expected_namespace="WoW_Much",
+            expected_name="Sprint",
+        )
+
+
+@pytest.mark.parametrize(
+    "dll_name",
+    [
+        "Assembly-CSharp.dll",
+        "UnityEngine.CoreModule.dll",
+        "com.rlabrecque.steamworks.net.dll",
+        "BepInEx.dll",
+        "Lunaris.dll",
+        "0Harmony.dll",
+    ],
+)
+def test_manifest_rejects_proprietary_runtime_copy_sources(tmp_path: Path, dll_name: str) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(
+        tmp_path,
+        "sprint",
+        source=f"./bin/Debug/netstandard2.1/bepinex/{dll_name}",
+    )
+    with pytest.raises(ValueError, match="game/runtime DLL"):
+        mod_command._parse_thunderstore_manifest(
+            manifest_path,
+            mod_dir,
+            tmp_path,
+            expected_namespace="WoW_Much",
+            expected_name="Sprint",
+        )
+
+
+def test_manifest_rejects_symlinked_copy_source(tmp_path: Path) -> None:
+    mod_dir, manifest_path, source = _thunderstore_fixture(tmp_path, "sprint")
+    source.unlink()
+    linked = tmp_path / "linked.dll"
+    linked.write_bytes(b"outside")
+    source.symlink_to(linked)
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._parse_thunderstore_manifest(
+            manifest_path,
+            mod_dir,
+            tmp_path,
+            expected_namespace="WoW_Much",
+            expected_name="Sprint",
+        )
+
+
+class _FixedDate(datetime):
+    @classmethod
+    def now(cls, tz: Any = None) -> datetime:
+        return cls(2099, 1, 1, tzinfo=tz)
+
+
+class _Response:
+    def __init__(self, payload: bytes) -> None:
+        self.payload = payload
+
+    def __enter__(self) -> _Response:
+        return self
+
+    def __exit__(self, *_args: Any) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return self.payload
+
+
+def test_thunderstore_version_uses_latest_version_schema(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(mod_command, "datetime", _FixedDate)
+    monkeypatch.setattr(
+        mod_command,
+        "urlopen",
+        lambda *_args, **_kwargs: _Response(b'{"latest":{"version_number":"2099.101.3"}}'),
+    )
+    assert mod_command._get_thunderstore_version("WoW_Much", "Sprint") == "2099.101.4"
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        HTTPError("https://example.invalid", 503, "unavailable", {}, None),
+        URLError("offline"),
+        TimeoutError("timed out"),
+    ],
+)
+def test_thunderstore_version_network_http_and_timeout_failures(
+    monkeypatch: pytest.MonkeyPatch, failure: Exception
+) -> None:
+    monkeypatch.setattr(mod_command, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(failure))
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._get_thunderstore_version("WoW_Much", "Sprint")
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"not-json",
+        b"{}",
+        b'{"latest":{}}',
+        b'{"latest":{"version_number":"not-a-version"}}',
+        b'{"latest":{"version_number":"2099.1332.0"}}',
+    ],
+)
+def test_thunderstore_version_malformed_or_missing_latest_fails(
+    monkeypatch: pytest.MonkeyPatch, payload: bytes
+) -> None:
+    monkeypatch.setattr(mod_command, "urlopen", lambda *_args, **_kwargs: _Response(payload))
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._get_thunderstore_version("WoW_Much", "Sprint")
+
+
+def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    token = "sentinel-token-not-for-output"
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
+    mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+    manifest_path = next(iter(manifests))
+    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    assert calls[0] == (
+        ["tcli", "build", "--package-version", "2099.101.0", "--config-path", manifest_path],
+        {"cwd": mod_dir, "check": False},
+    )
+    package_path = mod_dir / "thunderstore" / "build" / "WoW_Much-Sprint-2099.101.0.zip"
+    publish_args, publish_kwargs = calls[1]
+    assert publish_args == [
+        "tcli",
+        "publish",
+        "--package-version",
+        "2099.101.0",
+        "--file",
+        str(package_path),
+        "--config-path",
+        manifest_path,
+    ]
+    assert publish_kwargs["cwd"] == mod_dir
+    assert publish_kwargs["check"] is False
+    assert publish_kwargs["env"]["TCLI_AUTH_TOKEN"] == token
+    assert token not in publish_args
+
+
+def test_real_sprint_publishes_once_after_validated_zip_without_printing_token(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    ctx, _manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    token = "sentinel-auth-token"
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
+    mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+
+    assert len(builds) == 1
+    assert [args[1] for args, _kwargs in calls] == ["build", "publish"]
+    assert token not in capsys.readouterr().out
+
+
+def test_static_input_changed_during_build_aborts_before_tcli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    manifest = manifests[next(iter(manifests))]
+
+    def build_and_mutate(_ctx: Any, mod: str | None = None, **kwargs: Any) -> None:
+        builds.append((mod or "", kwargs.pop("loader", ""), kwargs))
+        manifest.readme.write_text("changed during mod build")
+
+    monkeypatch.setattr(mod_command, "_build_mods_internal", build_and_mutate)
+
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(ctx, mod="sprint", dry_run=True)
+
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+    assert calls == []
+
+
+def test_changed_input_aborts_publish(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    token = "sentinel-auth-token"
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
+    source = next(path for path in manifests[next(iter(manifests))].input_paths if path.name == "Sprint.dll")
+
+    def mutate(_manifest: Any) -> None:
+        source.write_bytes(b"changed after package build")
+
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        _tcli_runner(manifests, calls, after_build=mutate),
+    )
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+    assert [args[1] for args, _kwargs in calls] == ["build"]
+    assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
+
+
+@pytest.mark.parametrize("build_returncode", [1, 7])
+def test_tcli_build_nonzero_aborts_before_publish(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, build_returncode: int
+) -> None:
+    ctx, manifests, _builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", "sentinel-auth-token")
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        _tcli_runner(manifests, calls, build_returncode=build_returncode),
+    )
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+    assert [args[1] for args, _kwargs in calls] == ["build"]
+
+
+def test_tcli_launch_error_is_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, _manifests, _builds, _calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(FileNotFoundError("tcli disappeared")),
+    )
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(ctx, mod="sprint", dry_run=True)
+
+
+def test_tcli_publish_nonzero_is_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx, manifests, _builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
+    monkeypatch.setenv("TCLI_AUTH_TOKEN", "sentinel-auth-token")
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        _tcli_runner(manifests, calls, publish_returncode=1),
+    )
+    with pytest.raises(typer.Exit):
+        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+    assert [args[1] for args, _kwargs in calls] == ["build", "publish"]
+
+
+@pytest.mark.parametrize(
+    "bad_names",
+    [
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "extra.txt"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "Assembly-CSharp.dll"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "UnityEngine.CoreModule.dll"},
+        {
+            "manifest.json",
+            "icon.png",
+            "README.md",
+            "plugins/Sprint/Sprint.dll",
+            "com.rlabrecque.steamworks.net.dll",
+        },
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "BepInEx.dll"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "0Harmony.dll"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "Lunaris.dll"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "../escape.txt"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "/absolute.txt"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "plugins\\Sprint\\bad.dll"},
+        {"manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll", "plugins/"},
+        {"manifest.json", "icon.png", "README.md"},
+    ],
+)
+def test_package_zip_allowlist_rejects_extra_proprietary_traversal_and_missing_entries(
+    tmp_path: Path, bad_names: set[str]
+) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path, mod_dir, tmp_path, expected_namespace="WoW_Much", expected_name="Sprint"
+    )
+    package = _valid_package(manifest, "2099.101.0", names=bad_names)
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._validate_thunderstore_package(package, manifest)
+
+
+def test_package_zip_allowlist_rejects_symlinks_and_duplicate_entries(tmp_path: Path) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path, mod_dir, tmp_path, expected_namespace="WoW_Much", expected_name="Sprint"
+    )
+    package = _valid_package(
+        manifest,
+        "2099.101.0",
+        symlink_name="plugins/Sprint/Sprint.dll",
+    )
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._validate_thunderstore_package(package, manifest)
+
+    duplicate = manifest.outdir / "duplicate.zip"
+    expected = ["manifest.json", "icon.png", "README.md", "plugins/Sprint/Sprint.dll"]
+    with zipfile.ZipFile(duplicate, "w") as archive:
+        for name in expected:
+            archive.writestr(name, b"package")
+        with pytest.warns(UserWarning, match="Duplicate name"):
+            archive.writestr("README.md", b"duplicate")
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._validate_thunderstore_package(duplicate, manifest)
+
+
+def test_package_zip_location_requires_exact_single_expected_zip(tmp_path: Path) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path, mod_dir, tmp_path, expected_namespace="WoW_Much", expected_name="Sprint"
+    )
+    expected = manifest.outdir / "WoW_Much-Sprint-2099.101.0.zip"
+    expected.write_bytes(b"not-a-zip")
+    assert mod_command._locate_thunderstore_package(manifest, "2099.101.0") == expected
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._validate_thunderstore_package(expected, manifest)
+    expected.unlink()
+    with pytest.raises((ValueError, RuntimeError)):
+        mod_command._locate_thunderstore_package(manifest, "2099.101.0")
 
 
 def test_vault_build_is_explicitly_lunaris(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
