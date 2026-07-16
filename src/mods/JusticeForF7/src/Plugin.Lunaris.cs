@@ -24,6 +24,11 @@ public sealed class Plugin : LunarisPlugin
         _runtime.Start();
     }
 
+    private void Update()
+    {
+        _runtime?.Tick();
+    }
+
     private void OnDestroy()
     {
         _runtime?.Stop();

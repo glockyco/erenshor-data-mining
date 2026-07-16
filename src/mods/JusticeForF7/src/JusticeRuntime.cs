@@ -16,7 +16,7 @@ internal sealed class JusticeRuntime
     private Harmony? _harmony;
     private WorldUIHider? _hider;
     private bool _running;
-    private bool _disabledStartup;
+    private bool _disabledReported;
 
     public JusticeRuntime(IModLogger log, IJusticeSettings settings)
     {
@@ -27,15 +27,16 @@ internal sealed class JusticeRuntime
     /// <summary>Starts the mod at most once for the current adapter lifetime.</summary>
     public void Start()
     {
-        if (_running || _disabledStartup)
+        if (_running)
             return;
 
         if (!_settings.Enabled)
         {
-            _disabledStartup = true;
-            _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded (disabled via config)");
+            ReportDisabled();
             return;
         }
+
+        _disabledReported = false;
 
         _hider = new WorldUIHider(_log, _settings);
         TypeTextPatch.Hider = _hider;
@@ -59,6 +60,24 @@ internal sealed class JusticeRuntime
             _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
     }
 
+    /// <summary>Applies live changes to the master enable setting.</summary>
+    public void Tick()
+    {
+        if (_settings.Enabled)
+        {
+            Start();
+        }
+        else if (_running)
+        {
+            Stop();
+            ReportDisabled();
+        }
+        else
+        {
+            ReportDisabled();
+        }
+    }
+
     /// <summary>Stops the mod and restores every piece of game state it owns.</summary>
     public void Stop()
     {
@@ -77,6 +96,15 @@ internal sealed class JusticeRuntime
         TypeTextPatch.ResetState();
 
         _running = false;
+    }
+
+    private void ReportDisabled()
+    {
+        if (_disabledReported)
+            return;
+
+        _disabledReported = true;
+        _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded (disabled via config)");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

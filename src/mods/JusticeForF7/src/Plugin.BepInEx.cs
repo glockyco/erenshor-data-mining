@@ -20,6 +20,11 @@ public sealed class Plugin : BaseUnityPlugin
         _runtime.Start();
     }
 
+    private void Update()
+    {
+        _runtime?.Tick();
+    }
+
     private void OnDestroy()
     {
         _runtime?.Stop();
