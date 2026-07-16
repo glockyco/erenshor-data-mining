@@ -7,6 +7,7 @@ using InteractiveMapCompanion.Overlay;
 using InteractiveMapCompanion.Patches;
 using InteractiveMapCompanion.Server;
 using InteractiveMapCompanion.State;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // See .agent/skills/mod-development/SKILL.md for mod architecture patterns
@@ -29,6 +30,8 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         Log = Logger;
 
         _config = new ModConfig(Config);

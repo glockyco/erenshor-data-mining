@@ -27,6 +27,8 @@ public sealed class Plugin : LunarisPlugin
 
     private void Awake()
     {
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         _settings = Config.Register<SprintSettings>().Get();
         SprintRuntime.Multiplier = _settings.SprintMultiplier;
 

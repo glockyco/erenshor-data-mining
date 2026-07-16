@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Logging;
 using MapTileCapture.Capture;
 using MapTileCapture.Server;
+using UnityEngine;
 
 namespace MapTileCapture;
 
@@ -19,9 +20,9 @@ public sealed class Plugin : BaseUnityPlugin
     // Applied only when usingSun=false. Tune via HotRepl before running captures:
     //   MapTileCapture.Plugin.IndoorDirectionalIntensity = 0.7f;
     public static float IndoorDirectionalIntensity = 0.7f;
-    public static float IndoorAmbientIntensity     = 0.45f;
-    public static float IndoorDirectionalPitch     = 50f;   // euler X
-    public static float IndoorDirectionalYaw       = -30f;  // euler Y
+    public static float IndoorAmbientIntensity = 0.45f;
+    public static float IndoorDirectionalPitch = 50f; // euler X
+    public static float IndoorDirectionalYaw = -30f; // euler Y
 
     // ── Camera background ────────────────────────────────────────────────────
     // Fill colour for empty areas of the capture (outside terrain bounds).
@@ -32,7 +33,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     // ── Capture defaults ─────────────────────────────────────────────────────
     // Used when the Python request does not specify a value (i.e. field is 0).
-    public static int   DefaultStabilityFrames      = 10;
+    public static int DefaultStabilityFrames = 10;
     public static float DefaultSceneLoadTimeoutSecs = 30f;
 
     private CaptureWebSocketServer? _server;
@@ -40,6 +41,8 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         Log = Logger;
 
         _server = new CaptureWebSocketServer(Log);

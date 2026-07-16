@@ -90,6 +90,13 @@ Check `BepInEx/LogOutput.log` for errors.
 **Unity lifecycle** - Don't access Unity objects before initialization. Use
 null checks: `if (_character?.MyStats == null) return;`
 
+**Plugin object lifetime** — every BepInEx and Lunaris entrypoint must make
+`gameObject.hideFlags = HideFlags.HideAndDontSave;` the first operation in
+`Awake()`, before config, events, Harmony, servers, renderers, or child objects.
+BepInEx 5 otherwise exposes its shared manager when `HideManagerGameObject` is
+disabled; Lunaris creates a separate `GameObject` per plugin and only applies
+`DontDestroyOnLoad`, which does not protect it from Erenshor's scene cleanup.
+
 **Scene changes** - Characters are destroyed on scene change. Clear tracked
 entities and re-scan on `SceneManager.sceneLoaded`.
 

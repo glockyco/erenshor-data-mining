@@ -58,6 +58,8 @@ public sealed class Plugin : LunarisPlugin
 
     private void Awake()
     {
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         Log = Logging;
 
         _config = new GuideConfig(Config);

@@ -1,6 +1,7 @@
 using HarmonyLib;
 using JusticeForF7.Patches;
 using Lunaris;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace JusticeForF7;
@@ -24,6 +25,8 @@ public sealed class Plugin : LunarisPlugin
 
     private void Awake()
     {
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         var settings = Config.Register<JusticeSettings>().Get();
 
         if (!settings.Enabled)
