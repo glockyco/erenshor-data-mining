@@ -1,6 +1,6 @@
-# MapTileCapture BepInEx Mod
+# MapTileCapture Mod
 
-BepInEx plugin that renders orthographic map captures from inside the running game.
+Native BepInEx and Lunaris plugins share the loader-neutral capture runtime.
 For the full capture pipeline (Python orchestrator, tile generation, zone setup), see the
 `tile-capture` skill.
 
@@ -20,8 +20,8 @@ pkill -f "Erenshor.exe"
 
 ## Tunable Constants
 
-`Plugin.cs` exposes `public static float` fields — no BepInEx config, no recompile needed
-for runtime tuning via HotRepl:
+The native `Plugin.BepInEx.cs` and `Plugin.Lunaris.cs` adapters expose the same public
+tuning properties — no loader config or recompile needed for runtime tuning via HotRepl:
 
 - `BackgroundR/G/B` — camera clear colour for areas outside terrain
 - `IndoorDirectional*` / `IndoorAmbient*` — lighting for zones with `usingSun = false`
@@ -30,9 +30,9 @@ for runtime tuning via HotRepl:
 ## Non-Obvious Constraints
 
 - **Newtonsoft.Json only** — `System.Text.Json` is not available on Unity's Mono runtime.
-- **ILRepack** merges Fleck + Newtonsoft.Json into the output DLL. If you add a NuGet
-  dependency, update `ILRepack.targets` or it won't be available at runtime.
-- `GeometrySuppressor` is `IDisposable` — always use it in a `using` block. It creates a
-  temporary directional light that must be destroyed on exit.
+- **ILRepack** merges Fleck and, for BepInEx only, Newtonsoft.Json into the output DLL.
+  Lunaris supplies Newtonsoft.Json; never merge loader or game/runtime references.
+- `GeometrySuppressor` is `IDisposable` and owned by `CaptureController`; unload cleanup
+  must dispose it so the temporary directional light and all suppressed state are restored.
 - Scene load via `GameData.SceneChange.ChangeScene()` — not `SceneManager.LoadScene()` —
   to get correct per-zone atmosphere and lighting initialisation.

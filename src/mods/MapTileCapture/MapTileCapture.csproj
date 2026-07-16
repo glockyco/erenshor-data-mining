@@ -27,14 +27,12 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
-       are removed first so explicit selection never duplicates src/Plugin.cs. -->
+  <!-- Select exactly one native loader entrypoint. -->
+  <!-- The SDK's default compile items are removed before explicit selection. -->
   <ItemGroup>
     <Compile Remove="src/Plugin.cs" />
     <Compile Remove="src/Plugin.BepInEx.cs" />
     <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Include="src/Plugin.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and !Exists('src/Plugin.BepInEx.cs') and Exists('src/Plugin.cs')" />
     <Compile Include="src/Plugin.BepInEx.cs"
               Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
     <Compile Include="src/Plugin.Lunaris.cs"
@@ -42,8 +40,9 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <SkipILRepack>true</SkipILRepack>
+    <!-- Lunaris keeps loader-provided references external; Fleck is the only
+         lock-file dependency copied locally for ILRepack. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
@@ -55,6 +54,7 @@
 
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <PackageReference Include="Fleck" Version="1.*" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" PrivateAssets="all" />
   </ItemGroup>
 
 
@@ -155,19 +155,8 @@
       <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
-    <Reference Include="0Harmony">
-      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
 
   <!-- ILRepack configuration is in ILRepack.targets file -->
   <!-- This merges all dependencies into a single MapTileCapture.dll -->

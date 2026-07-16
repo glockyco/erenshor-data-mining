@@ -5,15 +5,21 @@ description: Capture and generate interactive-map tiles for Erenshor zones via t
 
 # Tile Capture
 
-Capture and generate map tiles for all Erenshor zones using the in-game MapTileCapture BepInEx mod.
+Capture and generate map tiles for all Erenshor zones using the native dual-loader
+MapTileCapture mod (BepInEx or Lunaris).
 For mod build/deploy and tunable constants, see `src/mods/MapTileCapture/AGENTS.md`.
 
 ## Architecture
-
-- **MapTileCapture mod** — BepInEx plugin, WebSocket server on port **18586**. Receives
-  `capture_zone`, renders PNG chunks via orthographic camera, reports back to Python.
+- **MapTileCapture mod** — native BepInEx and Lunaris plugins share one runtime and
+  WebSocket server on port **18586**. Receives `capture_zone`, renders PNG chunks via
+  orthographic camera, reports back to Python.
 - **Python pipeline** — `src/erenshor/application/capture/`: orchestrator, tile_generator,
   stitcher, zone_config, state, budget.
+- **Unload cleanup** — stop the active capture coroutine before disposing the WebSocket
+  server. The runtime unsubscribes scene-load callbacks, disposes geometry suppression
+  (restoring camera, renderer, canvas, lighting, fog, and time-scale state), and clears
+  queued messages; restarting the plugin must leave port 18586 available with no prior
+  capture state.
 - **Config** — `src/maps/src/lib/data/zone-capture-config.json` is the single source of truth
   for zone spatial parameters.
 
@@ -62,7 +68,8 @@ uv run erenshor maps thumbnails [--zones A]  # needs dev/preview server running 
 Scenes loaded directly lack a directional light (day/night system never initialises).
 `GeometrySuppressor` creates a temporary sun and ambient override, destroyed on `Dispose()`.
 Zones with `usingSun: false` in config get a separate indoor light profile — tunable via
-constants in `Plugin.cs` or at runtime via HotRepl.
+the native adapter's `Plugin` properties (`Plugin.BepInEx.cs` or `Plugin.Lunaris.cs`) or
+at runtime via HotRepl.
 
 ## Tile Coordinate System
 

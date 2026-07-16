@@ -1,7 +1,7 @@
+using MapTileCapture.Protocol;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using MapTileCapture.Protocol;
 
 namespace MapTileCapture.Capture;
 
@@ -25,27 +25,36 @@ internal sealed class GeometrySuppressor : IDisposable
     // Post-processing components to disable during capture
     private readonly Behaviour? _ppLayer;
     private readonly Behaviour? _vibrance;
+    private readonly bool _origPpLayerEnabled;
+    private readonly bool _origVibranceEnabled;
 
     // Temporary capture light for indoor/no-sun zones (null for outdoor zones)
     private readonly GameObject? _captureLight;
+
+    private bool _disposed;
 
     // Per-object snapshots
     private readonly List<(GameObject go, bool wasActive)> _deactivatedObjects = new();
     private readonly List<(Renderer renderer, bool wasEnabled)> _disabledRenderers = new();
     private readonly List<(Canvas canvas, bool wasEnabled)> _disabledCanvases = new();
 
-    public GeometrySuppressor(Camera camera, bool hideRoofs, bool usingSun, ExclusionRule[]? exclusionRules)
+    public GeometrySuppressor(
+        Camera camera,
+        bool hideRoofs,
+        bool usingSun,
+        ExclusionRule[]? exclusionRules
+    )
     {
         _camera = camera;
 
-        // --- Post-processing ---
-        // Disable PostProcessLayer and VibranceEffect for neutral map colors.
-        // These effects add warmth and saturation correct for gameplay but wrong
-        // for map tiles. String-based GetComponent avoids assembly-load issues.
         _ppLayer = camera.GetComponent("PostProcessLayer") as Behaviour;
         _vibrance = camera.GetComponent("VibranceEffect") as Behaviour;
-        if (_ppLayer != null) _ppLayer.enabled = false;
-        if (_vibrance != null) _vibrance.enabled = false;
+        _origPpLayerEnabled = _ppLayer?.enabled ?? false;
+        _origVibranceEnabled = _vibrance?.enabled ?? false;
+        if (_ppLayer != null)
+            _ppLayer.enabled = false;
+        if (_vibrance != null)
+            _vibrance.enabled = false;
 
         // --- Global state snapshots ---
         _origTimeScale = Time.timeScale;
@@ -63,15 +72,20 @@ internal sealed class GeometrySuppressor : IDisposable
             // light contribution. Add a neutral overhead directional light and boost
             // ambient so the geometry is legible without washing out baked detail.
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = Color.white * Plugin.IndoorAmbientIntensity;
+            RenderSettings.ambientLight =
+                Color.white * MapTileCaptureSettings.IndoorAmbientIntensity;
 
             _captureLight = new GameObject("__MapTileCapture_Light");
             var lt = _captureLight.AddComponent<Light>();
             lt.type = LightType.Directional;
             lt.color = Color.white;
-            lt.intensity = Plugin.IndoorDirectionalIntensity;
+            lt.intensity = MapTileCaptureSettings.IndoorDirectionalIntensity;
             lt.shadows = LightShadows.None;
-            _captureLight.transform.eulerAngles = new Vector3(Plugin.IndoorDirectionalPitch, Plugin.IndoorDirectionalYaw, 0f);
+            _captureLight.transform.eulerAngles = new Vector3(
+                MapTileCaptureSettings.IndoorDirectionalPitch,
+                MapTileCaptureSettings.IndoorDirectionalYaw,
+                0f
+            );
         }
 
         // --- Camera ---
@@ -146,7 +160,8 @@ internal sealed class GeometrySuppressor : IDisposable
         // --- DmgPop.Num ---
         foreach (var pop in UnityEngine.Object.FindObjectsOfType<DmgPop>())
         {
-            if (pop.Num == null) continue;
+            if (pop.Num == null)
+                continue;
             var renderer = pop.Num.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -182,7 +197,8 @@ internal sealed class GeometrySuppressor : IDisposable
         // --- FlashUIColors.CastBar ---
         foreach (var flash in UnityEngine.Object.FindObjectsOfType<FlashUIColors>())
         {
-            if (flash.CastBar == null) continue;
+            if (flash.CastBar == null)
+                continue;
             var renderer = flash.CastBar.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -195,9 +211,12 @@ internal sealed class GeometrySuppressor : IDisposable
         foreach (var tmp in UnityEngine.Object.FindObjectsOfType<TextMeshPro>())
         {
             // Skip objects already handled by NamePlate / DmgPop
-            if (tmp.GetComponent<NamePlate>() != null) continue;
-            if (tmp.GetComponent<DmgPop>() != null) continue;
-            if (tmp.GetComponentInParent<DmgPop>() != null) continue;
+            if (tmp.GetComponent<NamePlate>() != null)
+                continue;
+            if (tmp.GetComponent<DmgPop>() != null)
+                continue;
+            if (tmp.GetComponentInParent<DmgPop>() != null)
+                continue;
 
             var renderer = tmp.GetComponent<Renderer>();
             if (renderer != null)
@@ -214,17 +233,19 @@ internal sealed class GeometrySuppressor : IDisposable
 
     public void Dispose()
     {
-        // Restore in reverse order to unwind nested dependencies correctly.
+        if (_disposed)
+            return;
 
-        // Per-object renderers
+        _disposed = true;
+
+        // Restore in reverse order to unwind nested dependencies correctly.
         for (int i = _disabledRenderers.Count - 1; i >= 0; i--)
         {
             var (renderer, wasEnabled) = _disabledRenderers[i];
-            if (renderer != null) // Unity null check — object may have been destroyed
+            if (renderer != null)
                 renderer.enabled = wasEnabled;
         }
 
-        // Canvases
         for (int i = _disabledCanvases.Count - 1; i >= 0; i--)
         {
             var (canvas, wasEnabled) = _disabledCanvases[i];
@@ -232,7 +253,6 @@ internal sealed class GeometrySuppressor : IDisposable
                 canvas.enabled = wasEnabled;
         }
 
-        // GameObjects
         for (int i = _deactivatedObjects.Count - 1; i >= 0; i--)
         {
             var (go, wasActive) = _deactivatedObjects[i];
@@ -240,24 +260,26 @@ internal sealed class GeometrySuppressor : IDisposable
                 go.SetActive(wasActive);
         }
 
-        // Post-processing
-        if (_ppLayer != null) _ppLayer.enabled = true;
-        if (_vibrance != null) _vibrance.enabled = true;
+        if (_ppLayer != null)
+            _ppLayer.enabled = _origPpLayerEnabled;
+        if (_vibrance != null)
+            _vibrance.enabled = _origVibranceEnabled;
 
-        // Camera
         _camera.clearFlags = _origClearFlags;
         _camera.backgroundColor = _origBackgroundColor;
         _camera.cullingMask = _origCullingMask;
 
-        // Temporary capture light
         if (_captureLight != null)
             UnityEngine.Object.Destroy(_captureLight);
 
-        // Global state
         RenderSettings.ambientMode = _origAmbientMode;
         RenderSettings.ambientLight = _origAmbientLight;
         RenderSettings.fog = _origFog;
         Time.timeScale = _origTimeScale;
+
+        _disabledRenderers.Clear();
+        _disabledCanvases.Clear();
+        _deactivatedObjects.Clear();
     }
 
     private void ApplyExclusionRules(ExclusionRule[] rules)
@@ -280,13 +302,22 @@ internal sealed class GeometrySuppressor : IDisposable
     {
         var goName = renderer.gameObject.name;
 
-        if (rule.NameExact != null && !string.Equals(goName, rule.NameExact, StringComparison.Ordinal))
+        if (
+            rule.NameExact != null
+            && !string.Equals(goName, rule.NameExact, StringComparison.Ordinal)
+        )
             return false;
 
-        if (rule.NameContains != null && goName.IndexOf(rule.NameContains, StringComparison.OrdinalIgnoreCase) < 0)
+        if (
+            rule.NameContains != null
+            && goName.IndexOf(rule.NameContains, StringComparison.OrdinalIgnoreCase) < 0
+        )
             return false;
 
-        if (rule.PositionAbove.HasValue && renderer.transform.position.y <= rule.PositionAbove.Value)
+        if (
+            rule.PositionAbove.HasValue
+            && renderer.transform.position.y <= rule.PositionAbove.Value
+        )
             return false;
 
         // At least one predicate must be specified; if all are null, don't match anything.

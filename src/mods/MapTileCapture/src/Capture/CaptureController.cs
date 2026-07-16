@@ -1,9 +1,8 @@
 using System.Collections;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using BepInEx.Logging;
 using MapTileCapture.Protocol;
 using MapTileCapture.Server;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,34 +12,66 @@ namespace MapTileCapture.Capture;
 /// State machine that orchestrates zone captures: optional auto-login, scene loading,
 /// stabilization, geometry suppression, chunk rendering, and result reporting.
 /// </summary>
-internal sealed class CaptureController
+internal sealed class CaptureController : IDisposable
 {
-    private enum State { Idle, LoggingIn, Loading, Stabilizing, Capturing }
+    private enum State
+    {
+        Idle,
+        LoggingIn,
+        Loading,
+        Stabilizing,
+        Capturing,
+    }
 
     private static readonly JsonSerializerSettings JsonSettings = new()
     {
-        ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
+        ContractResolver =
+            new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
         NullValueHandling = NullValueHandling.Include,
         Formatting = Formatting.None,
     };
 
     private readonly CaptureWebSocketServer _server;
     private readonly MonoBehaviour _coroutineHost;
-    private readonly ManualLogSource _logger;
+    private readonly IModLogger _logger;
 
     private State _state = State.Idle;
     private CaptureZoneRequest? _activeRequest;
     private Coroutine? _activeCoroutine;
+    private GeometrySuppressor? _suppressor;
+    private UnityEngine.Events.UnityAction<Scene, LoadSceneMode>? _sceneLoadedHandler;
     private bool _cancelRequested;
+    private bool _disposed;
 
     public CaptureController(
         CaptureWebSocketServer server,
         MonoBehaviour coroutineHost,
-        ManualLogSource logger)
+        IModLogger logger
+    )
     {
         _server = server;
         _coroutineHost = coroutineHost;
         _logger = logger;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _cancelRequested = true;
+
+        if (_activeCoroutine != null)
+        {
+            _coroutineHost.StopCoroutine(_activeCoroutine);
+            _activeCoroutine = null;
+        }
+
+        UnsubscribeSceneLoaded();
+        _suppressor?.Dispose();
+        _suppressor = null;
+        TransitionToIdle();
     }
 
     /// <summary>
@@ -48,6 +79,9 @@ internal sealed class CaptureController
     /// </summary>
     public void Tick()
     {
+        if (_disposed)
+            return;
+
         while (_server.TryDequeue() is { } json)
             HandleMessage(json);
     }
@@ -117,8 +151,6 @@ internal sealed class CaptureController
 
     private IEnumerator CaptureCoroutine(CaptureZoneRequest request)
     {
-        GeometrySuppressor? suppressor = null;
-
         try
         {
             // --- Auto-login (if player is not yet in-world) ---
@@ -131,9 +163,12 @@ internal sealed class CaptureController
                 yield return EnsureInWorldCoroutine();
                 if (GameObject.Find("MainCam") == null)
                 {
-                    SendError(request.Zone, request.Variant,
-                        "Auto-login failed: player not in-world after login attempt. " +
-                        "Check BepInEx log for details.");
+                    SendError(
+                        request.Zone,
+                        request.Variant,
+                        "Auto-login failed: player not in-world after login attempt. "
+                            + "Check BepInEx log for details."
+                    );
                     TransitionToIdle();
                     yield break;
                 }
@@ -144,13 +179,12 @@ internal sealed class CaptureController
             _logger.LogInfo($"Loading scene '{request.SceneName}' for zone '{request.Zone}'");
 
             bool sceneLoaded = false;
-            void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+            _sceneLoadedHandler = (scene, mode) =>
             {
                 if (scene.name == request.SceneName)
                     sceneLoaded = true;
-            }
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            };
+            SceneManager.sceneLoaded += _sceneLoadedHandler;
 
             // Use GameData.SceneChange.ChangeScene instead of raw SceneManager.LoadScene.
             // ChangeScene sets GameData.usingSun, enables or disables the Sun light,
@@ -159,24 +193,29 @@ internal sealed class CaptureController
             // This prevents atmosphere contamination between sequential zone captures.
             if (GameData.SceneChange == null)
             {
-                SceneManager.sceneLoaded -= OnSceneLoaded;
-                SendError(request.Zone, request.Variant,
-                    "GameData.SceneChange is null — player must be fully in-world before capturing.");
+                UnsubscribeSceneLoaded();
+                SendError(
+                    request.Zone,
+                    request.Variant,
+                    "GameData.SceneChange is null — player must be fully in-world before capturing."
+                );
                 TransitionToIdle();
                 yield break;
             }
 
-            GameData.SceneChange.ChangeScene(
-                request.SceneName, Vector3.zero, request.UsingSun, 0f);
+            GameData.SceneChange.ChangeScene(request.SceneName, Vector3.zero, request.UsingSun, 0f);
 
             // Wait for scene to finish loading, with timeout
-            float timeout = request.SceneLoadTimeoutSecs > 0 ? request.SceneLoadTimeoutSecs : Plugin.DefaultSceneLoadTimeoutSecs;
+            float timeout =
+                request.SceneLoadTimeoutSecs > 0
+                    ? request.SceneLoadTimeoutSecs
+                    : MapTileCaptureSettings.DefaultSceneLoadTimeoutSecs;
             float elapsed = 0f;
             while (!sceneLoaded)
             {
                 if (_cancelRequested)
                 {
-                    SceneManager.sceneLoaded -= OnSceneLoaded;
+                    UnsubscribeSceneLoaded();
                     TransitionToIdle();
                     yield break;
                 }
@@ -184,8 +223,12 @@ internal sealed class CaptureController
                 elapsed += Time.unscaledDeltaTime;
                 if (elapsed > timeout)
                 {
-                    SceneManager.sceneLoaded -= OnSceneLoaded;
-                    SendError(request.Zone, request.Variant, $"Scene load timed out after {timeout}s");
+                    UnsubscribeSceneLoaded();
+                    SendError(
+                        request.Zone,
+                        request.Variant,
+                        $"Scene load timed out after {timeout}s"
+                    );
                     TransitionToIdle();
                     yield break;
                 }
@@ -193,12 +236,14 @@ internal sealed class CaptureController
                 yield return null;
             }
 
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+            UnsubscribeSceneLoaded();
 
             // --- Stabilizing ---
             _state = State.Stabilizing;
-            int frames = request.StabilityFrames > 0 ? request.StabilityFrames : Plugin.DefaultStabilityFrames;
-            _logger.LogInfo($"Stabilizing for {frames} frames");
+            int frames =
+                request.StabilityFrames > 0
+                    ? request.StabilityFrames
+                    : MapTileCaptureSettings.DefaultStabilityFrames;
 
             for (int i = 0; i < frames; i++)
             {
@@ -233,13 +278,17 @@ internal sealed class CaptureController
             var mainCam = GameObject.Find("MainCam")?.GetComponent<Camera>();
             if (mainCam == null)
             {
-                SendError(request.Zone, request.Variant, "MainCam disappeared unexpectedly mid-capture.");
+                SendError(
+                    request.Zone,
+                    request.Variant,
+                    "MainCam disappeared unexpectedly mid-capture."
+                );
                 TransitionToIdle();
                 yield break;
             }
 
             // Create suppressor — dispose guaranteed via finally
-            suppressor = new GeometrySuppressor(
+            _suppressor = new GeometrySuppressor(
                 mainCam,
                 request.HideRoofs,
                 request.UsingSun,
@@ -264,11 +313,19 @@ internal sealed class CaptureController
                     }
 
                     var chunk = request.Chunks[i];
-                    _logger.LogInfo($"Rendering chunk {chunk.Index} ({i + 1}/{request.Chunks.Length})");
+                    _logger.LogInfo(
+                        $"Rendering chunk {chunk.Index} ({i + 1}/{request.Chunks.Length})"
+                    );
 
                     var measured = ChunkRenderer.RenderChunk(mainCam, chunk);
 
-                    SendChunkComplete(request.Zone, request.Variant, chunk.Index, chunk.OutputPath, measured);
+                    SendChunkComplete(
+                        request.Zone,
+                        request.Variant,
+                        chunk.Index,
+                        chunk.OutputPath,
+                        measured
+                    );
 
                     // Yield a frame between chunks to keep the game responsive
                     yield return null;
@@ -277,12 +334,18 @@ internal sealed class CaptureController
 
             // All chunks done
             SendCaptureZoneComplete(
-                request.Zone, request.Variant, roofObjectCount, northBearing, zoneBounds
+                request.Zone,
+                request.Variant,
+                roofObjectCount,
+                northBearing,
+                zoneBounds
             );
         }
         finally
         {
-            suppressor?.Dispose();
+            UnsubscribeSceneLoaded();
+            _suppressor?.Dispose();
+            _suppressor = null;
             TransitionToIdle();
         }
     }
@@ -315,7 +378,11 @@ internal sealed class CaptureController
             while (SceneManager.GetActiveScene().name != "LoadScene")
             {
                 t += Time.unscaledDeltaTime;
-                if (t > 30f) { _logger.LogError("Timed out waiting for LoadScene."); yield break; }
+                if (t > 30f)
+                {
+                    _logger.LogError("Timed out waiting for LoadScene.");
+                    yield break;
+                }
                 yield return null;
             }
 
@@ -341,11 +408,19 @@ internal sealed class CaptureController
             // LoadedSimplayers == true and the selected slot has a character name.
             _logger.LogInfo("Waiting for character data to load...");
             float t = 0f;
-            while (!(GameData.SimMngr?.LoadedSimplayers == true &&
-                     GameData.CurrentCharacterSlot?.CharName?.Length > 0))
+            while (
+                !(
+                    GameData.SimMngr?.LoadedSimplayers == true
+                    && GameData.CurrentCharacterSlot?.CharName?.Length > 0
+                )
+            )
             {
                 t += Time.unscaledDeltaTime;
-                if (t > 60f) { _logger.LogError("Timed out waiting for character data."); yield break; }
+                if (t > 60f)
+                {
+                    _logger.LogError("Timed out waiting for character data.");
+                    yield break;
+                }
                 yield return null;
             }
 
@@ -378,6 +453,15 @@ internal sealed class CaptureController
         _logger.LogInfo("Player is in-world.");
     }
 
+    private void UnsubscribeSceneLoaded()
+    {
+        if (_sceneLoadedHandler == null)
+            return;
+
+        SceneManager.sceneLoaded -= _sceneLoadedHandler;
+        _sceneLoadedHandler = null;
+    }
+
     private void TransitionToIdle()
     {
         _state = State.Idle;
@@ -389,8 +473,12 @@ internal sealed class CaptureController
     // --- Outbound messages ---
 
     private void SendChunkComplete(
-        string zone, string variant, int chunkIndex, string path,
-        ChunkRenderer.MeasuredBounds measured)
+        string zone,
+        string variant,
+        int chunkIndex,
+        string path,
+        ChunkRenderer.MeasuredBounds measured
+    )
     {
         var msg = new
         {
@@ -411,8 +499,12 @@ internal sealed class CaptureController
     }
 
     private void SendCaptureZoneComplete(
-        string zone, string variant, int roofObjectCount, float northBearing,
-        ZoneBoundsProbe.ZoneBounds zoneBounds)
+        string zone,
+        string variant,
+        int roofObjectCount,
+        float northBearing,
+        ZoneBoundsProbe.ZoneBounds zoneBounds
+    )
     {
         var msg = new
         {
@@ -434,7 +526,13 @@ internal sealed class CaptureController
 
     private void SendError(string zone, string variant, string reason)
     {
-        var msg = new { type = "capture_error", zone, variant, reason };
+        var msg = new
+        {
+            type = "capture_error",
+            zone,
+            variant,
+            reason,
+        };
         _server.Send(JsonConvert.SerializeObject(msg, JsonSettings));
         _logger.LogError($"Capture error [{zone}/{variant}]: {reason}");
     }

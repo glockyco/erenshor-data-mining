@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using UnityEngine;
 
 namespace MapTileCapture.Capture;
@@ -39,7 +38,7 @@ internal static class ZoneBoundsProbe
     /// Returns the Y euler angle of the ZoneAnnounce object, which indicates north.
     /// Returns 0 and logs a warning if no ZoneAnnounce is found.
     /// </summary>
-    public static float GetNorthBearing(ManualLogSource logger)
+    public static float GetNorthBearing(IModLogger logger)
     {
         var announce = UnityEngine.Object.FindObjectOfType<ZoneAnnounce>();
         if (announce == null)
@@ -70,21 +69,33 @@ internal static class ZoneBoundsProbe
 
     private static ZoneBounds MeasureTerrainBounds(Terrain[] terrains)
     {
-        float minX = float.MaxValue, minZ = float.MaxValue;
-        float maxX = float.MinValue, maxZ = float.MinValue;
+        float minX = float.MaxValue,
+            minZ = float.MaxValue;
+        float maxX = float.MinValue,
+            maxZ = float.MinValue;
 
         foreach (var terrain in terrains)
         {
             var pos = terrain.transform.position;
             var size = terrain.terrainData.size;
 
-            if (pos.x < minX) minX = pos.x;
-            if (pos.z < minZ) minZ = pos.z;
-            if (pos.x + size.x > maxX) maxX = pos.x + size.x;
-            if (pos.z + size.z > maxZ) maxZ = pos.z + size.z;
+            if (pos.x < minX)
+                minX = pos.x;
+            if (pos.z < minZ)
+                minZ = pos.z;
+            if (pos.x + size.x > maxX)
+                maxX = pos.x + size.x;
+            if (pos.z + size.z > maxZ)
+                maxZ = pos.z + size.z;
         }
 
-        return new ZoneBounds { MinX = minX, MinZ = minZ, MaxX = maxX, MaxZ = maxZ };
+        return new ZoneBounds
+        {
+            MinX = minX,
+            MinZ = minZ,
+            MaxX = maxX,
+            MaxZ = maxZ,
+        };
     }
 
     private static ZoneBounds MeasureRendererBounds()
@@ -93,18 +104,30 @@ internal static class ZoneBoundsProbe
         if (renderers.Length == 0)
             return default;
 
-        float minX = float.MaxValue, minZ = float.MaxValue;
-        float maxX = float.MinValue, maxZ = float.MinValue;
+        float minX = float.MaxValue,
+            minZ = float.MaxValue;
+        float maxX = float.MinValue,
+            maxZ = float.MinValue;
 
         foreach (var renderer in renderers)
         {
             var b = renderer.bounds;
-            if (b.min.x < minX) minX = b.min.x;
-            if (b.min.z < minZ) minZ = b.min.z;
-            if (b.max.x > maxX) maxX = b.max.x;
-            if (b.max.z > maxZ) maxZ = b.max.z;
+            if (b.min.x < minX)
+                minX = b.min.x;
+            if (b.min.z < minZ)
+                minZ = b.min.z;
+            if (b.max.x > maxX)
+                maxX = b.max.x;
+            if (b.max.z > maxZ)
+                maxZ = b.max.z;
         }
 
-        return new ZoneBounds { MinX = minX, MinZ = minZ, MaxX = maxX, MaxZ = maxZ };
+        return new ZoneBounds
+        {
+            MinX = minX,
+            MinZ = minZ,
+            MaxX = maxX,
+            MaxZ = maxZ,
+        };
     }
 }
