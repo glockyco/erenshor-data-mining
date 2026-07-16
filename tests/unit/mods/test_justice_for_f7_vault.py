@@ -32,7 +32,7 @@ def _justice_registry_block(registry: str) -> str:
 
 
 def test_thunderstore_packaging_retired_for_justice_for_f7() -> None:
-    # Justice for F7 is Lunaris-only now; no Thunderstore packaging remains.
+    # No Thunderstore packaging remains; Lunaris is the default loader.
     assert not (MOD_ROOT / "thunderstore.toml").exists()
     assert not (MOD_ROOT / "thunderstore").exists()
     assert not (MOD_ROOT / "ILRepack.targets").exists()
@@ -42,11 +42,12 @@ def test_thunderstore_packaging_retired_for_justice_for_f7() -> None:
     assert '"thunderstore"' not in _justice_registry_block(registry)
 
 
-def test_justice_for_f7_uses_lunaris_loader() -> None:
+def test_justice_for_f7_declares_dual_loader_support() -> None:
     from erenshor.cli.commands.mod import MODS
 
     mod = MODS["justice-for-f7"]
-    assert mod["loader"] == "lunaris"
+    assert mod["loaders"] == ["bepinex", "lunaris"]
+    assert mod["default_loader"] == "lunaris"
     assert "thunderstore" not in mod
     assert "0Harmony.dll" in mod["lunaris_dlls"]
 

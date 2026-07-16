@@ -42,4 +42,4 @@ def test_private_renderer_uses_lunaris_imgui_binaries() -> None:
     assert "AdventureGuide.cimgui.dll" not in renderer
     assert "cimgui.dll" not in csproj
     assert '<Reference Include="ImGui.NET">' in csproj
-    assert "lib/ImGui.NET.dll" in csproj
+    assert "lib/lunaris/ImGui.NET.dll" in csproj

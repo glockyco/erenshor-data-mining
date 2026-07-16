@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -16,6 +18,19 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
+       are removed first so explicit selection never duplicates an entrypoint. -->
+  <ItemGroup>
+    <Compile Remove="src/Plugin.cs" />
+    <Compile Remove="src/Plugin.BepInEx.cs" />
+    <Compile Remove="src/Plugin.Lunaris.cs" />
+    <Compile Include="src/Plugin.cs"
+              Condition="'$(ModLoader)' == 'lunaris' and !Exists('src/Plugin.Lunaris.cs') and Exists('src/Plugin.cs')" />
+    <Compile Include="src/Plugin.BepInEx.cs"
+              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
+    <Compile Include="src/Plugin.Lunaris.cs"
+              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
+  </ItemGroup>
 
   <!-- Embedded resources -->
   <ItemGroup>
@@ -55,22 +70,33 @@
   </Target>
 
   <!-- Loader and Lunaris-provided shared assembly references -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <Reference Include="Lunaris">
-      <HintPath>lib/Lunaris.dll</HintPath>
+      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ImGui.NET">
-      <HintPath>lib/ImGui.NET.dll</HintPath>
+      <HintPath>lib/lunaris/ImGui.NET.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>lib/Newtonsoft.Json.dll</HintPath>
+      <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="System.Numerics.Vectors">
       <Aliases>Vectors</Aliases>
-      <HintPath>lib/System.Numerics.Vectors.dll</HintPath>
+      <HintPath>lib/lunaris/System.Numerics.Vectors.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <Reference Include="0Harmony">
+      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -119,10 +145,6 @@
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>lib/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

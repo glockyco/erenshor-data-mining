@@ -48,57 +48,103 @@ uv run erenshor maps deploy
 
 ### Build Mods (generates metadata)
 ```bash
-uv run erenshor mod build              # Build all mods
-uv run erenshor mod build --mod interactive-map-companion  # Specific mod
+uv run erenshor mod build                              # Build every mod's default loader target
+uv run erenshor mod build --mod interactive-map-companion
+uv run erenshor mod build --mod sprint --loader lunaris
+uv run erenshor mod build --loader all                 # Build both targets for every mod
 ```
 
-Outputs:
+`--loader` accepts `default`, `bepinex`, `lunaris`, or `all` for `mod build`.
+`default` selects each mod's configured loader; the registry defaults are
+Lunaris for Adventure Guide, Sprint, and Justice for F7, and BepInEx for both
+map companions and Map Tile Capture. Every registry mod has both native
+targets, so `bepinex` and `lunaris` explicitly select one target and `all`
+builds both. The public F7 set is Adventure Guide, Interactive Map Companion,
+Sprint, and Justice for F7; the two other registry mods are internal.
+
+The loader is passed to dotnet as `-p:ModLoader=<loader>`. Target-specific
+artifacts are never written to an unsuffixed shared directory:
+
+- `src/mods/{ModName}/bin/<Configuration>/netstandard2.1/<loader>/`
+- `src/mods/{ModName}/obj/<loader>/`
+
+Metadata remains generated in:
+
 - `src/mods/mods-metadata.json` - Metadata with current versions
-- `src/maps/static/mods-metadata.json` - Mirror for website
-- DLLs in `src/mods/{ModName}/bin/Debug/netstandard2.1/`
+- `src/maps/static/mods-metadata.json` - Mirror for the website
+
+### Deploy Mods
+```bash
+uv run erenshor mod deploy                              # Build + deploy each default target
+uv run erenshor mod deploy --mod sprint --loader lunaris
+uv run erenshor mod deploy --mod interactive-map-companion --loader bepinex
+```
+
+`mod deploy --loader` accepts `default`, `bepinex`, or `lunaris` (not `all`);
+`default` uses each mod's configured loader. BepInEx targets install under
+`<game>/BepInEx/plugins`. Native Lunaris targets for **all six registry mods**
+install under `<game>/plugins` next to `Erenshor.exe`. The `--scripts` option
+is BepInEx-only and deploys to `<game>/BepInEx/scripts` for ScriptEngine hot
+reload; it is invalid for Lunaris targets.
+
+Run setup before the first build (or after changing the game install):
+
+```bash
+uv run erenshor mod setup                              # Copy game + union loader refs
+uv run erenshor mod launch                             # Launch the game
+```
+
+Setup provisions the union of references needed by both BepInEx and Lunaris
+targets. Lunaris shared assemblies come from the resolved Lunaris library
+directory, not from the game or BepInEx copies.
 
 ### Variant targeting (`ERENSHOR_GAME_PATH` wins over `-V`)
 
-`mod deploy` and `mod launch` honour the `ERENSHOR_GAME_PATH` env var **before** the `-V` variant. With the env var pointing at main's install in the CrossOver bottle, `erenshor -V playtest mod deploy --mod <id>` lands the DLL in main's plugins/, not playtest's. To target a non-default install, override per-invocation:
+For deploy and launch, a **valid existing** `ERENSHOR_GAME_PATH` always
+overrides `-V`. Thus `ERENSHOR_GAME_PATH=/path/to/main` combined with
+`erenshor -V playtest mod deploy` still deploys to main. Do not leave a path
+for one variant exported while working on another: unset it to use the
+selected `-V` variant, or set it explicitly to that variant's installation.
 
 ```bash
+unset ERENSHOR_GAME_PATH
+uv run erenshor -V playtest mod deploy --mod sprint --loader lunaris
+
 ERENSHOR_GAME_PATH="$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor Playtest" \
-  uv run erenshor -V playtest mod deploy --mod map-tile-capture
+  uv run erenshor -V playtest mod deploy --mod sprint --loader lunaris
 ```
 
-See `_get_game_path` in `src/erenshor/cli/commands/mod.py` for the resolution order.
+An invalid path is warned about and does not override the selected variant.
+See `_get_game_path` in `src/erenshor/cli/commands/mod.py` for the resolution
+order.
 
-### Deploy to BepInEx (for local testing)
-```bash
-uv run erenshor mod deploy             # Build + copy to game BepInEx/plugins/
-uv run erenshor mod setup              # Copy game DLLs to mod lib/ dirs first
-uv run erenshor mod launch             # Launch the game
-```
+### Lunaris compile libraries
 
-### Lunaris compile libraries (Adventure Guide)
-
-The Adventure Guide is a native **Lunaris** plugin (`loader: "lunaris"`), not a
-BepInEx mod. Its compile-time references — `ImGui.NET.dll`, `Newtonsoft.Json.dll`,
-`System.Numerics.Vectors.dll`, `0Harmony.dll` — are all shipped by Lunaris in a
-single `LunarisLibs.zip`. `mod setup` sources them **only** from the resolved
-Lunaris lib directory; it never scavenges the game or BepInEx install, whose copies
-are incomplete (no `ImGui.NET.dll`) and may differ from what Lunaris loads at runtime.
+Lunaris compile-time references are shipped by Lunaris in a single
+`LunarisLibs.zip`. `mod setup` sources them only from the resolved Lunaris lib
+directory; it never scavenges the game or BepInEx install, whose copies may be
+incomplete or differ from what Lunaris loads at runtime.
 
 Resolution order (highest first):
 1. `ERENSHOR_LUNARIS_LIB_DIR` environment variable
 2. `[global.mods] lunaris_lib_dir` in `.erenshor/config.local.toml`
-3. Auto-fetched cache: `mod setup` downloads `LunarisLibs.zip` (from `[global.mods]
-   lunaris_libs_url`) and extracts the DLLs to `.erenshor/cache/lunaris-libs/`
+3. Auto-fetched cache: `mod setup` downloads `LunarisLibs.zip` (from
+   `[global.mods] lunaris_libs_url`) and extracts the DLLs to
+   `.erenshor/cache/lunaris-libs/`
 
-`Lunaris.dll` itself is the loader and is **not** in `LunarisLibs.zip`; it resolves
-from the game install (or `ERENSHOR_LUNARIS_DLL`). With neither env var nor config
-set, `mod setup` just works by auto-fetching the cache; set `lunaris_lib_dir` only
-to point at a pre-extracted copy (e.g. a local Lunaris source checkout).
+`Lunaris.dll` itself is the loader and is **not** in `LunarisLibs.zip`; it
+resolves from the game install (or `ERENSHOR_LUNARIS_DLL`). With neither env
+var nor config set, setup auto-fetches the cache; set `lunaris_lib_dir` only
+for a pre-extracted copy such as a local Lunaris source checkout.
 
 ### Publish to Website (CI calls this via prebuild)
 ```bash
-uv run erenshor mod publish            # Build + stage for website deployment
+uv run erenshor mod publish            # Build default targets + stage for website
 ```
+
+Website publishing preserves each mod's configured default loader. It stages
+the resulting default-target DLLs in `src/maps/static/mods/`; it does not
+select or publish an `all` loader build.
 
 Outputs:
 - DLLs in `src/maps/static/mods/`
@@ -106,9 +152,16 @@ Outputs:
 
 ### Publish to Thunderstore
 ```bash
-uv run erenshor mod thunderstore --mod mod-id       # Build and upload
-uv run erenshor mod thunderstore --mod mod-id --dry-run  # Test without uploading
+uv run erenshor mod thunderstore --mod mod-id           # Build BepInEx package and upload
+uv run erenshor mod thunderstore --mod mod-id --dry-run # Test without uploading
 ```
+
+Thunderstore packages are **BepInEx** packages. Only the public F7 set
+(Adventure Guide, Interactive Map Companion, Sprint, and Justice for F7) is
+eligible for public distribution, and a mod must also have Thunderstore
+packaging metadata. Native Lunaris distribution uses the Erenshor Vault
+instead; the Vault package is a Lunaris package and is not a Thunderstore
+package.
 
 Requirements:
 - `dotnet tool install -g tcli`
@@ -122,8 +175,8 @@ Version auto-increments if releasing multiple times same day (YYYY.MDD.R format)
 
 | Build path | ILRepack | Output | Used for |
 |------------|----------|--------|---------|
-| `mod build` / `mod deploy` / `mod publish` | Yes | Single merged DLL | Local testing, website download |
-| `mod thunderstore` | No (`-p:SkipILRepack=true`) | Separate DLLs | Thunderstore (reviewers require separate DLLs) |
+| `mod build` / `mod deploy` / `mod publish` | Yes | Single merged DLL in the selected loader target directory | Local testing, website download |
+| `mod thunderstore` | No (`-p:SkipILRepack=true`) | Separate DLLs in the BepInEx target directory | Thunderstore (reviewers require separate DLLs) |
 
 The `thunderstore.toml` `[[build.copy]]` sections list each DLL individually
 (`InteractiveMapCompanion.dll`, `Fleck.dll`, `Newtonsoft.Json.dll`) because the

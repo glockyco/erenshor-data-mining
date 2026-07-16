@@ -6,5 +6,19 @@
 <Project>
   <PropertyGroup>
     <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+    <!-- Exclude every historical and loader-scoped generated tree before SDK default globs run. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/obj/**;**/bin/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <!-- Loader-specific defaults and intermediate paths apply only to the six mod projects. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'InteractiveMapCompanion' or '$(MSBuildProjectName)' == 'InteractiveMapsCompanion' or '$(MSBuildProjectName)' == 'MapTileCapture' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7'">
+    <ModLoader Condition="'$(ModLoader)' == '' and ('$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7')">lunaris</ModLoader>
+    <ModLoader Condition="'$(ModLoader)' == ''">bepinex</ModLoader>
+    <BaseIntermediateOutputPath>obj/$(ModLoader)/</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'InteractiveMapCompanion' or '$(MSBuildProjectName)' == 'InteractiveMapsCompanion' or '$(MSBuildProjectName)' == 'MapTileCapture' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7'">
+    <DefineConstants Condition="'$(ModLoader)' == 'lunaris'">$(DefineConstants);LUNARIS</DefineConstants>
+    <DefineConstants Condition="'$(ModLoader)' == 'bepinex'">$(DefineConstants);BEPINEX</DefineConstants>
   </PropertyGroup>
 </Project>

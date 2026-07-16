@@ -21,7 +21,7 @@ import sys
 import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, NotRequired, TypedDict
+from typing import TYPE_CHECKING, Annotated, Literal, NotRequired, TypedDict, cast
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -34,13 +34,20 @@ if TYPE_CHECKING:
     from ..context import CLIContext
 
 
+LoaderName = Literal["bepinex", "lunaris"]
+BuildLoader = Literal["default", "bepinex", "lunaris", "all"]
+DeployLoader = Literal["default", "bepinex", "lunaris"]
+
+
 class ModInfo(TypedDict):
     dir: str
     name: str
     dll_name: str
+    loaders: list[LoaderName]
+    default_loader: LoaderName
+    public: bool
     thunderstore: NotRequired[str]
     bepinex_dlls: NotRequired[list[str]]
-    loader: NotRequired[str]
     lunaris_dlls: NotRequired[list[str]]
 
 
@@ -52,45 +59,67 @@ app = typer.Typer(
 
 console = Console()
 
-# Mod registry - all companion mods in the project
+# Mod registry - all companion mods in the project. Every mod has native build
+# targets for both loaders; ``default_loader`` preserves the current install
+# path used by website/default deploys.
 MODS: dict[str, ModInfo] = {
     "interactive-map-companion": {
         "dir": "src/mods/InteractiveMapCompanion",
         "name": "Interactive Map Companion",
         "dll_name": "InteractiveMapCompanion.dll",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "bepinex",
+        "public": True,
         "thunderstore": "WoW_Much/InteractiveMapCompanion",
         # Harmony ships with BepInEx, not with the game — copy from BepInEx/core/
         "bepinex_dlls": ["0Harmony.dll"],
+        "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
     },
     "interactive-maps-companion": {
         "dir": "src/mods/InteractiveMapsCompanion",
         "name": "Interactive Maps Companion",
         "dll_name": "InteractiveMapsCompanion.dll",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "bepinex",
+        "public": False,
+        "lunaris_dlls": ["Newtonsoft.Json.dll"],
     },
     "justice-for-f7": {
         "dir": "src/mods/JusticeForF7",
         "name": "Justice for F7",
         "dll_name": "JusticeForF7.dll",
-        "loader": "lunaris",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "lunaris",
+        "public": True,
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "sprint": {
         "dir": "src/mods/Sprint",
         "name": "Sprint",
         "dll_name": "Sprint.dll",
-        "loader": "lunaris",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "lunaris",
+        "public": True,
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "map-tile-capture": {
         "dir": "src/mods/MapTileCapture",
         "name": "Map Tile Capture",
         "dll_name": "MapTileCapture.dll",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "bepinex",
+        "public": False,
+        "bepinex_dlls": ["0Harmony.dll"],
+        "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
     },
     "adventure-guide": {
         "dir": "src/mods/AdventureGuide",
         "name": "Adventure Guide",
         "dll_name": "AdventureGuide.dll",
-        "loader": "lunaris",
+        "loaders": ["bepinex", "lunaris"],
+        "default_loader": "lunaris",
+        "public": True,
+        "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": [
             "ImGui.NET.dll",
             "Newtonsoft.Json.dll",
@@ -180,9 +209,24 @@ def _get_mod_lib_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     return _get_mod_dir(cli_ctx, mod_id) / "lib"
 
 
-def _get_mod_output_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
-    """Get the mod build output directory."""
-    return _get_mod_dir(cli_ctx, mod_id) / "bin" / "Debug" / "netstandard2.1"
+def _get_mod_loader_lib_dir(cli_ctx: CLIContext, mod_id: str, loader: LoaderName) -> Path:
+    """Get the isolated reference directory for a loader target."""
+    if loader not in MODS[mod_id]["loaders"]:
+        raise ValueError(f"{mod_id} does not support the {loader} loader")
+    return _get_mod_lib_dir(cli_ctx, mod_id) / loader
+
+
+def _get_mod_output_dir(
+    cli_ctx: CLIContext,
+    mod_id: str,
+    loader: LoaderName,
+    *,
+    configuration: str = "Debug",
+) -> Path:
+    """Get the isolated build output directory for a loader target."""
+    if loader not in MODS[mod_id]["loaders"]:
+        raise ValueError(f"{mod_id} does not support the {loader} loader")
+    return _get_mod_dir(cli_ctx, mod_id) / "bin" / configuration / "netstandard2.1" / loader
 
 
 def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
@@ -190,21 +234,64 @@ def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
     return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
 
 
-def _get_deploy_target_dir(mod_id: str, game_path: Path, *, scripts: bool) -> tuple[Path, str, bool]:
-    """Return the deploy target directory, a human label, and whether to copy PDBs.
-
-    Native Lunaris mods deploy to ``plugins/`` next to Erenshor.exe and do not
-    support ``--scripts``. BepInEx mods deploy to ``BepInEx/plugins`` (or
-    ``BepInEx/scripts`` with ``--scripts`` for ScriptEngine hot reload).
-    """
-    if MODS[mod_id].get("loader") == "lunaris":
+def _get_deploy_target_dir(loader: LoaderName, game_path: Path, *, scripts: bool) -> tuple[Path, str, bool]:
+    """Return the deploy target directory, a human label, and PDB behavior."""
+    if loader == "lunaris":
         if scripts:
             raise ValueError("--scripts is only supported for BepInEx mods")
         return _get_lunaris_plugins_dir(game_path), "Lunaris plugins", False
 
+    if loader != "bepinex":
+        raise ValueError(f"Unsupported deploy loader: {loader}")
     if scripts:
         return _get_bepinex_scripts_dir(game_path), "BepInEx/scripts (hot reload)", True
     return _get_bepinex_plugins_dir(game_path), "BepInEx/plugins", False
+
+
+def _resolve_mod_targets(
+    mod: str | None,
+    loader: str,
+    *,
+    allow_all: bool,
+) -> list[tuple[str, LoaderName]]:
+    """Resolve a CLI loader target into deterministic ``(mod, loader)`` pairs."""
+    valid_loaders = {"default", "bepinex", "lunaris"}
+    if allow_all:
+        valid_loaders.add("all")
+    if loader not in valid_loaders:
+        choices = ", ".join(sorted(valid_loaders))
+        raise ValueError(f"Unsupported loader target {loader!r}; choose {choices}")
+
+    mod_ids = [mod] if mod else list(MODS)
+    if mod and mod not in MODS:
+        raise ValueError(f"Unknown mod: {mod}")
+
+    targets: list[tuple[str, LoaderName]] = []
+    for mod_id in mod_ids:
+        mod_info = MODS[mod_id]
+        selected: list[LoaderName]
+        if loader == "all":
+            selected = list(mod_info["loaders"])
+        elif loader == "default":
+            selected = [mod_info["default_loader"]]
+        else:
+            selected = [cast("LoaderName", loader)]
+
+        for selected_loader in selected:
+            if selected_loader not in mod_info["loaders"]:
+                raise ValueError(f"{mod_id} does not support the {selected_loader} loader")
+            targets.append((mod_id, selected_loader))
+    return targets
+
+
+def _resolve_build_targets(mod: str | None, loader: str) -> list[tuple[str, LoaderName]]:
+    """Resolve build targets, including the ``all`` expansion."""
+    return _resolve_mod_targets(mod, loader, allow_all=True)
+
+
+def _resolve_deploy_targets(mod: str | None, loader: str) -> list[tuple[str, LoaderName]]:
+    """Resolve deploy targets; deployment intentionally has no ``all`` target."""
+    return _resolve_mod_targets(mod, loader, allow_all=False)
 
 
 def _find_lunaris_dll(game_path: Path, lunaris_lib_dir: Path | None) -> Path | None:
@@ -296,35 +383,23 @@ def _build_mods_internal(
     mod: str | None = None,
     version: str | None = None,
     *,
+    loader: BuildLoader = "default",
     skip_ilrepack: bool = False,
 ) -> None:
-    """Internal helper to build mods.
+    """Build selected loader targets for one or all mods."""
+    try:
+        targets = _resolve_build_targets(mod, loader)
+    except ValueError as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
 
-    Builds specified mod or all mods, generating metadata. Raises typer.Exit
-    if build fails. Used by both build command and other commands that need
-    to build mods as a prerequisite.
-
-    If version is provided, it is passed to dotnet build via -p:ModVersion,
-    overriding the git-derived version from generate-mod-version.py.
-
-    If skip_ilrepack is True, passes -p:SkipILRepack=true to produce
-    separate DLLs instead of a single merged assembly. Used for
-    Thunderstore packaging where reviewers need to inspect individual DLLs.
-    """
     if not _check_dotnet_available():
         console.print("[red]Error: dotnet CLI not found in PATH[/red]")
         console.print("Install .NET SDK from https://dotnet.microsoft.com/")
         raise typer.Exit(1)
 
-    # Determine which mods to build
-    mods_to_build = [mod] if mod else list(MODS.keys())
-    if mod and mod not in MODS:
-        console.print(f"[red]Error: Unknown mod: {mod}[/red]")
-        console.print(f"Available mods: {', '.join(MODS.keys())}")
-        raise typer.Exit(1)
-
-    failed = []
-    for mod_id in mods_to_build:
+    failed: list[str] = []
+    for mod_id, target_loader in targets:
         mod_dir = _get_mod_dir(cli_ctx, mod_id)
         if not mod_dir.exists():
             console.print(f"[red]Error: Mod directory not found: {mod_dir}[/red]")
@@ -336,12 +411,17 @@ def _build_mods_internal(
             console.print("Run 'uv run erenshor mod setup' first.")
             raise typer.Exit(1)
 
-        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
+        console.print(f"[bold]{MODS[mod_id]['name']} ({target_loader})[/bold]")
         console.print(f"[dim]{mod_dir}[/dim]")
         console.print()
 
-        # Run dotnet build
-        build_cmd: list[str] = ["dotnet", "build", "--configuration", "Debug"]
+        build_cmd: list[str] = [
+            "dotnet",
+            "build",
+            "--configuration",
+            "Debug",
+            f"-p:ModLoader={target_loader}",
+        ]
         if version:
             build_cmd.append(f"-p:ModVersion={version}")
         if skip_ilrepack:
@@ -355,7 +435,7 @@ def _build_mods_internal(
         if result.returncode != 0:
             console.print("[red]✗ Build failed[/red]")
             console.print()
-            failed.append(mod_id)
+            failed.append(f"{mod_id} ({target_loader})")
         else:
             console.print("[green]✓ Build successful[/green]")
             console.print()
@@ -364,7 +444,6 @@ def _build_mods_internal(
         console.print(f"[red]Build failed for: {', '.join(failed)}[/red]")
         raise typer.Exit(1)
 
-    # Generate metadata after all mods built
     console.print("[bold]Generating mod metadata...[/bold]")
     result = subprocess.run(
         ["uv", "run", "python3", "scripts/generate-mods-metadata.py"],
@@ -423,14 +502,16 @@ def setup(ctx: typer.Context) -> None:
         cli_ctx.repo_root, mods_cfg.lunaris_libs_url
     )
 
-    # Copy DLLs to all mod lib directories
+    # Provision common game references once and keep each loader's references in
+    # its own directory. In particular, BepInEx and Lunaris ship different
+    # 0Harmony.dll assemblies and must never overwrite one another.
     for mod_id, mod_info in MODS.items():
         lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
         lib_dir.mkdir(parents=True, exist_ok=True)
 
         console.print(f"[bold]{mod_info['name']}[/bold]")
+        missing: list[str] = []
 
-        missing = []
         for dll_name in REQUIRED_DLLS:
             source = managed_dir / dll_name
             target = lib_dir / dll_name
@@ -441,35 +522,40 @@ def setup(ctx: typer.Context) -> None:
                 shutil.copy2(source, target)
                 console.print(f"  [green]✓[/green] {dll_name}")
 
-        for dll_name in mod_info.get("bepinex_dlls", []):
-            source = bepinex_core_dir / dll_name
-            target = lib_dir / dll_name
-            if not source.exists():
-                missing.append(dll_name)
-                console.print(f"  [red]✗[/red] {dll_name} (not found in BepInEx/core)")
-            else:
-                shutil.copy2(source, target)
-                console.print(f"  [green]✓[/green] {dll_name} (from BepInEx)")
+        for target_loader in mod_info["loaders"]:
+            loader_lib_dir = _get_mod_loader_lib_dir(cli_ctx, mod_id, target_loader)
+            loader_lib_dir.mkdir(parents=True, exist_ok=True)
 
-        if mod_info.get("loader") == "lunaris":
-            lunaris_dll = _find_lunaris_dll(game_path, lunaris_lib_dir)
-            if lunaris_dll is None:
-                missing.append("Lunaris.dll")
-                console.print("  [red]✗[/red] Lunaris.dll (set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_DLL)")
-            else:
-                shutil.copy2(lunaris_dll, lib_dir / "Lunaris.dll")
-                console.print(f"  [green]✓[/green] Lunaris.dll (from {lunaris_dll.parent})")
-
-            for dll_name in mod_info.get("lunaris_dlls", []):
-                lunaris_source = _find_lunaris_shared_lib(dll_name, lunaris_lib_dir)
-                if lunaris_source is None:
-                    missing.append(dll_name)
+            if target_loader == "lunaris":
+                lunaris_dll = _find_lunaris_dll(game_path, lunaris_lib_dir)
+                if lunaris_dll is None:
+                    missing.append("Lunaris.dll")
                     console.print(
-                        f"  [red]✗[/red] {dll_name} (set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_LIB_DIR)"
+                        "  [red]✗[/red] Lunaris.dll (set [global.mods] lunaris_lib_dir or ERENSHOR_LUNARIS_DLL)"
                     )
                 else:
-                    shutil.copy2(lunaris_source, lib_dir / dll_name)
-                    console.print(f"  [green]✓[/green] {dll_name} (from {lunaris_source.parent})")
+                    shutil.copy2(lunaris_dll, loader_lib_dir / "Lunaris.dll")
+                    console.print(f"  [green]✓[/green] Lunaris.dll (from {lunaris_dll.parent})")
+
+            loader_dlls: list[str] = (
+                mod_info.get("lunaris_dlls", []) if target_loader == "lunaris" else mod_info.get("bepinex_dlls", [])
+            )
+            for dll_name in loader_dlls:
+                loader_source: Path | None
+                if target_loader == "lunaris":
+                    loader_source = _find_lunaris_shared_lib(dll_name, lunaris_lib_dir)
+                    source_label = "Lunaris"
+                else:
+                    loader_source = bepinex_core_dir / dll_name
+                    source_label = "BepInEx"
+
+                target = loader_lib_dir / dll_name
+                if loader_source is None or not loader_source.exists():
+                    missing.append(dll_name)
+                    console.print(f"  [red]✗[/red] {dll_name} (loader reference unavailable)")
+                else:
+                    shutil.copy2(loader_source, target)
+                    console.print(f"  [green]✓[/green] {dll_name} (from {source_label})")
 
         if missing:
             console.print(f"[red]Error: Missing DLLs: {', '.join(missing)}[/red]")
@@ -572,21 +658,19 @@ def dev_setup(ctx: typer.Context) -> None:
 def build(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Build specific mod (or all if not specified)"),
+    loader: Annotated[
+        BuildLoader,
+        typer.Option("--loader", help="Build target: default, bepinex, lunaris, or all"),
+    ] = "default",
 ) -> None:
-    """Build companion mods.
-
-    Compiles the companion mods using dotnet build.
-    Requires game DLLs to be present in lib/ directories (run setup first).
-
-    By default, builds all mods. Use --mod to build a specific one.
-    """
+    """Build companion mods for one loader target or all loader targets."""
     cli_ctx: CLIContext = ctx.obj
 
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Build[/bold cyan]", border_style="cyan"))
     console.print()
 
-    _build_mods_internal(cli_ctx, mod)
+    _build_mods_internal(cli_ctx, mod, loader=loader)
 
     console.print("[green]Build complete![/green]")
     console.print()
@@ -596,48 +680,47 @@ def build(
 def deploy(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Deploy specific mod (or all if not specified)"),
-    scripts: bool = typer.Option(
-        False, "--scripts", help="Deploy to BepInEx/scripts/ for hot reload (requires ScriptEngine)"
-    ),
+    loader: Annotated[
+        DeployLoader,
+        typer.Option("--loader", help="Deploy target: default, bepinex, or lunaris"),
+    ] = "default",
+    scripts: bool = typer.Option(False, "--scripts", help="Deploy to BepInEx/scripts/ for hot reload (BepInEx only)"),
 ) -> None:
-    """Build and deploy mods to their configured loader directory.
-
-    Native Lunaris mods deploy to ``plugins/`` next to Erenshor.exe. BepInEx
-    mods deploy to ``BepInEx/plugins`` by default, or ``BepInEx/scripts`` with
-    ``--scripts`` for ScriptEngine hot reload (BepInEx only).
-    """
+    """Build and deploy mods to an explicit loader directory."""
     cli_ctx: CLIContext = ctx.obj
+
+    try:
+        targets = _resolve_deploy_targets(mod, loader)
+    except ValueError as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    if scripts and any(target_loader != "bepinex" for _, target_loader in targets):
+        console.print("[red]Error: --scripts is only supported for BepInEx mods[/red]")
+        raise typer.Exit(1)
 
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
     console.print()
 
-    # First build all mods
     console.print("[bold]Building mods...[/bold]")
-    _build_mods_internal(cli_ctx, mod)
+    _build_mods_internal(cli_ctx, mod, loader=loader)
 
-    # Find game path for deployment
     game_path = _get_game_path(cli_ctx)
     if not game_path:
         console.print("[red]Error: Game path not found for deployment[/red]")
         console.print("Set ERENSHOR_GAME_PATH environment variable.")
         raise typer.Exit(1)
 
-    mods_to_deploy = [mod] if mod else list(MODS.keys())
-    if scripts and any(MODS[mod_id].get("loader") == "lunaris" for mod_id in mods_to_deploy):
-        console.print("[red]Error: --scripts is only supported for BepInEx mods[/red]")
-        raise typer.Exit(1)
-
     console.print()
     console.print("[bold]Deploying...[/bold]")
     console.print()
 
-    for mod_id in mods_to_deploy:
-        target_dir, deploy_label, copy_pdb = _get_deploy_target_dir(mod_id, game_path, scripts=scripts)
+    for mod_id, target_loader in targets:
+        target_dir, deploy_label, copy_pdb = _get_deploy_target_dir(target_loader, game_path, scripts=scripts)
         target_dir.mkdir(parents=True, exist_ok=True)
-        console.print(f"[bold]{MODS[mod_id]['name']} → {deploy_label}[/bold]")
+        console.print(f"[bold]{MODS[mod_id]['name']} ({target_loader}) → {deploy_label}[/bold]")
         console.print(f"[dim]Target: {target_dir}[/dim]")
-        output_dir = _get_mod_output_dir(cli_ctx, mod_id)
+        output_dir = _get_mod_output_dir(cli_ctx, mod_id, target_loader)
         if not output_dir.exists():
             console.print(f"[red]Error: Build output not found: {output_dir}[/red]")
             raise typer.Exit(1)
@@ -651,7 +734,6 @@ def deploy(
         target = target_dir / dll_name
         shutil.copy2(mod_dll, target)
 
-        # Also copy PDB for ScriptEngine debug symbols
         if copy_pdb:
             pdb_name = dll_name.replace(".dll", ".pdb")
             mod_pdb = output_dir / pdb_name
@@ -684,9 +766,9 @@ def publish(
     console.print(Panel.fit("[bold cyan]Mod Publish[/bold cyan]", border_style="cyan"))
     console.print()
 
-    # First build all mods
+    targets = _resolve_deploy_targets(mod, "default")
     console.print("[bold]Building mods...[/bold]")
-    _build_mods_internal(cli_ctx, mod)
+    _build_mods_internal(cli_ctx, mod, loader="default")
 
     publish_dir = _get_mod_publish_dir(cli_ctx)
     publish_dir.mkdir(parents=True, exist_ok=True)
@@ -696,11 +778,8 @@ def publish(
     console.print(f"[dim]Target: {publish_dir}[/dim]")
     console.print()
 
-    # Determine which mods to publish
-    mods_to_publish = [mod] if mod else list(MODS.keys())
-
-    for mod_id in mods_to_publish:
-        output_dir = _get_mod_output_dir(cli_ctx, mod_id)
+    for mod_id, target_loader in targets:
+        output_dir = _get_mod_output_dir(cli_ctx, mod_id, target_loader)
         dll_name = MODS[mod_id]["dll_name"]
         mod_dll = output_dir / dll_name
         if not mod_dll.exists():
@@ -901,7 +980,7 @@ def thunderstore(
         # Build with this version baked into the DLL
         # Skip ILRepack so reviewers can inspect individual DLLs
         console.print("[bold]Building...[/bold]")
-        _build_mods_internal(cli_ctx, mod_id, version=version, skip_ilrepack=True)
+        _build_mods_internal(cli_ctx, mod_id, version=version, loader="bepinex", skip_ilrepack=True)
 
         if dry_run:
             # Build package only
@@ -1019,9 +1098,9 @@ def vault(
             )
 
         console.print("[bold]Building...[/bold]")
-        _build_mods_internal(cli_ctx, mod_id, version=version)
+        _build_mods_internal(cli_ctx, mod_id, version=version, loader="lunaris")
 
-        dll = mod_dir / "bin" / "Debug" / "netstandard2.1" / MODS[mod_id]["dll_name"]
+        dll = _get_mod_output_dir(cli_ctx, mod_id, "lunaris") / MODS[mod_id]["dll_name"]
         console.print(f"  [green]✓[/green] {dll}")
         console.print()
         console.print("  [bold]Upload (manual until the Vault write API ships):[/bold]")

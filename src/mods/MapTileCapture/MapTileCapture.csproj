@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -25,19 +27,36 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
+       are removed first so explicit selection never duplicates src/Plugin.cs. -->
   <ItemGroup>
-    <!-- BepInEx -->
+    <Compile Remove="src/Plugin.cs" />
+    <Compile Remove="src/Plugin.BepInEx.cs" />
+    <Compile Remove="src/Plugin.Lunaris.cs" />
+    <Compile Include="src/Plugin.cs"
+              Condition="'$(ModLoader)' == 'bepinex' and !Exists('src/Plugin.BepInEx.cs') and Exists('src/Plugin.cs')" />
+    <Compile Include="src/Plugin.BepInEx.cs"
+              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
+    <Compile Include="src/Plugin.Lunaris.cs"
+              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <SkipILRepack>true</SkipILRepack>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-
-    <!-- JSON serialization -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-
-    <!-- WebSocket server -->
     <PackageReference Include="Fleck" Version="1.*" />
-
-    <!-- ILRepack for merging dependencies into single DLL -->
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+    <PackageReference Include="Fleck" Version="1.*" />
+  </ItemGroup>
+
 
    <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
   <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
@@ -104,11 +123,6 @@
       <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
-    <Reference Include="0Harmony">
-      <HintPath>lib/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <!-- TextMeshPro — needed for world-space text suppression -->
     <Reference Include="Unity.TextMeshPro">
       <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
@@ -127,6 +141,30 @@
     <!-- UnityEngine.ParticleSystemModule — needed for ParticleSystemRenderer suppression -->
     <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>lib/UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Loader-provided references (copied via erenshor mod setup) -->
+  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+    <Reference Include="Lunaris">
+      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
+    <Reference Include="0Harmony">
+      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

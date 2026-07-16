@@ -20,15 +20,15 @@ changelog = "./thunderstore/CHANGELOG.md"
 outdir = "./thunderstore/build"
 
 [[build.copy]]
-source = "./bin/Debug/netstandard2.1/InteractiveMapCompanion.dll"
+source = "./bin/Debug/netstandard2.1/bepinex/InteractiveMapCompanion.dll"
 target = "plugins/InteractiveMapCompanion/"
 
 [[build.copy]]
-source = "./bin/Debug/netstandard2.1/Fleck.dll"
+source = "./bin/Debug/netstandard2.1/bepinex/Fleck.dll"
 target = "plugins/InteractiveMapCompanion/"
 
 [[build.copy]]
-source = "./bin/Debug/netstandard2.1/Newtonsoft.Json.dll"
+source = "./bin/Debug/netstandard2.1/bepinex/Newtonsoft.Json.dll"
 target = "plugins/InteractiveMapCompanion/"
 
 [publish]

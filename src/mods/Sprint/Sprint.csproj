@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -21,6 +23,20 @@
     <!-- Ship only Sprint.dll; Lunaris provides the shared deps at runtime -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
+  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
+       are removed first so explicit selection never duplicates an entrypoint. -->
+  <ItemGroup>
+    <Compile Remove="src/Plugin.cs" />
+    <Compile Remove="src/Plugin.BepInEx.cs" />
+    <Compile Remove="src/Plugin.Lunaris.cs" />
+    <Compile Include="src/Plugin.cs"
+              Condition="'$(ModLoader)' == 'lunaris' and !Exists('src/Plugin.Lunaris.cs') and Exists('src/Plugin.cs')" />
+    <Compile Include="src/Plugin.BepInEx.cs"
+              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
+    <Compile Include="src/Plugin.Lunaris.cs"
+              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
+  </ItemGroup>
 
    <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
   <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
@@ -56,15 +72,14 @@
       <Compile Include="$(PluginInfoFile)" />
     </ItemGroup>
   </Target>
-
   <!-- Loader and Lunaris-provided shared assembly references (copied via erenshor mod setup) -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
     <Reference Include="Lunaris">
-      <HintPath>lib/Lunaris.dll</HintPath>
+      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>lib/0Harmony.dll</HintPath>
+      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
