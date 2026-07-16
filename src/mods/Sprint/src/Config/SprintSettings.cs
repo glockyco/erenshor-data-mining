@@ -1,3 +1,4 @@
+#if LUNARIS
 using Lunaris.Config;
 using UnityEngine;
 
@@ -8,13 +9,16 @@ namespace Sprint.Config;
 /// updates this instance (and the keybind entry) when the player edits options
 /// in the config UI, so the plugin can read fields directly each frame.
 /// </summary>
-public sealed class SprintSettings
+public sealed class SprintSettings : ISprintSettings
 {
+    [Config("Enabled", "General", "Master switch. When false, sprint is disabled.")]
+    public bool Enabled { get; set; } = true;
+
     [Keybind(KeyCode.LeftShift)]
     [Config(
         "Sprint Key",
         "Controls",
-        "Hold to sprint, or tap to toggle when Toggle Mode is enabled."
+        "Controls sprinting. Hold it, or tap to toggle when Toggle Mode is enabled."
     )]
     public IKeybind SprintKey { get; set; } = null!;
 
@@ -32,4 +36,7 @@ public sealed class SprintSettings
     )]
     [ConfigRange(1f, 10f)]
     public float SprintMultiplier { get; set; } = 1.5f;
+
+    public float Multiplier => SprintMultiplier;
 }
+#endif

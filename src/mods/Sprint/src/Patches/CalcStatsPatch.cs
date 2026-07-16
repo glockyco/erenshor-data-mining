@@ -12,8 +12,6 @@ namespace Sprint.Patches;
 internal static class CalcStatsPatch
 {
     [HarmonyPostfix]
-    private static void CalcStats_Postfix(Stats __instance)
-    {
-        SprintRuntime.Apply(__instance, SprintRuntime.IsActiveFor(__instance));
-    }
+    private static void CalcStats_Postfix(Stats __instance) =>
+        SprintRuntime.OnStatsCalculated(__instance);
 }

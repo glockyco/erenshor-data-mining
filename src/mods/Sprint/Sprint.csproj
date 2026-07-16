@@ -23,6 +23,10 @@
     <!-- Ship only Sprint.dll; Lunaris provides the shared deps at runtime -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+  </ItemGroup>
+
 
   <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
        are removed first so explicit selection never duplicates an entrypoint. -->
@@ -80,6 +84,12 @@
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>lib/lunaris/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+    <Reference Include="0Harmony">
+      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

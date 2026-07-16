@@ -25,20 +25,47 @@ def _vault_config() -> dict[str, Any]:
     return tomllib.loads((VAULT_ROOT / "vault.toml").read_text())
 
 
-def _sprint_registry_block(registry: str) -> str:
-    start = registry.index('"sprint":')
-    end = registry.index("}", start)
-    return registry[start:end]
+def _thunderstore_config() -> dict[str, Any]:
+    return tomllib.loads((MOD_ROOT / "thunderstore.toml").read_text())
 
 
-def test_thunderstore_packaging_retired_for_sprint() -> None:
-    # No Thunderstore packaging remains; Lunaris is the default loader.
-    assert not (MOD_ROOT / "thunderstore.toml").exists()
-    assert not (MOD_ROOT / "thunderstore").exists()
+def test_thunderstore_packaging_is_native_bepinex() -> None:
+    config = _thunderstore_config()
+    package = config["package"]
+    build = config["build"]
 
-    registry = (REPO_ROOT / "src" / "erenshor" / "cli" / "commands" / "mod.py").read_text()
-    assert "WoW_Much/Sprint" not in registry
-    assert '"thunderstore"' not in _sprint_registry_block(registry)
+    assert package["namespace"] == "WoW_Much"
+    assert package["name"] == "Sprint"
+    assert package["dependencies"] == {"BepInEx-BepInExPack": "5.4.2304"}
+    assert (MOD_ROOT / build["icon"]).resolve() == (VAULT_ROOT / "icon.png").resolve()
+    assert (MOD_ROOT / build["readme"]).exists()
+    assert (MOD_ROOT / build["changelog"]).exists()
+
+    copies = build["copy"]
+    assert len(copies) == 1
+    assert copies[0] == {
+        "source": "./bin/Debug/netstandard2.1/bepinex/Sprint.dll",
+        "target": "plugins/Sprint/",
+    }
+
+
+def test_native_adapters_share_idempotent_lifecycle() -> None:
+    runtime = (MOD_ROOT / "src" / "Core" / "SprintRuntime.cs").read_text()
+    assert "Start(ISprintSettings settings, Func<bool> isSprintPressed)" in runtime
+    assert "internal static bool Start" in runtime
+    assert "internal static void Stop()" in runtime
+    assert "if (!_started)" in runtime
+    assert "Apply(_playerStats, false)" in runtime
+    assert "_harmony?.UnpatchSelf()" in runtime
+
+    for loader in ("BepInEx", "Lunaris"):
+        source = (MOD_ROOT / "src" / f"Plugin.{loader}.cs").read_text()
+        awake = source.index("private void Awake()")
+        awake_body = source[awake : source.index("}", awake)]
+        assert "gameObject.hideFlags = HideFlags.HideAndDontSave;" in awake_body
+        assert source.index("gameObject.hideFlags") < source.index("SprintRuntime.Start")
+        assert "SprintRuntime.Tick()" in source
+        assert "SprintRuntime.Stop()" in source
 
 
 def test_sprint_declares_dual_loader_support() -> None:
