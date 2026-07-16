@@ -2,9 +2,9 @@
 
 ## Overview
 
-BepInEx mod that broadcasts real-time game state to the Interactive Map website
-via WebSocket. Enables live entity tracking, spawn monitoring, and bidirectional
-communication for navigation features.
+Native dual-loader mod that broadcasts live entity state to the Interactive Map
+website via WebSocket. Spawn monitoring, third-party markers, and bidirectional
+navigation remain planned capabilities and are not advertised by the runtime.
 
 ## Goals
 
@@ -154,7 +154,7 @@ On connection, server sends:
   "protocolVersion": "0.1.0",
   "modVersion": "0.1.0",
   "zone": "CurrentZone",
-  "capabilities": ["entities", "spawns", "markers", "bidirectional"]
+  "capabilities": ["entities"]
 }
 ```
 
@@ -164,11 +164,8 @@ On connection, server sends:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `Port` | int | 18584 | WebSocket server port |
+| `Port` | int | 18585 | WebSocket server port |
 | `UpdateInterval` | int | 100 | Broadcast interval (ms) |
-| `EnableSpawnTracking` | bool | true | Track respawn timers |
-| `EnableThirdPartyMarkers` | bool | true | Accept marker registrations |
-| `EnableBidirectional` | bool | true | Accept client messages |
 
 ---
 

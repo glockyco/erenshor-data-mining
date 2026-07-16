@@ -76,9 +76,6 @@ public sealed class Plugin : LunarisPlugin
 
         public override int Port => _settings.Port;
         public override int UpdateInterval => _settings.UpdateInterval;
-        public override bool EnableSpawnTracking => _settings.EnableSpawnTracking;
-        public override bool EnableThirdPartyMarkers => _settings.EnableThirdPartyMarkers;
-        public override bool EnableBidirectional => _settings.EnableBidirectional;
         public override LogLevel WebSocketLogLevel => _settings.WebSocketLogLevel;
         public override LogLevel ModLogLevel => _settings.ModLogLevel;
         public override bool EnableOverlay => _settings.EnableOverlay;
@@ -132,27 +129,6 @@ public sealed class Plugin : LunarisPlugin
             "Interval in milliseconds between state broadcasts to clients"
         )]
         public int UpdateInterval { get; set; } = 100;
-
-        [Config(
-            "EnableSpawnTracking",
-            "Features",
-            "Track enemy deaths and broadcast respawn timers"
-        )]
-        public bool EnableSpawnTracking { get; set; } = true;
-
-        [Config(
-            "EnableThirdPartyMarkers",
-            "Features",
-            "Allow other mods to register custom markers via the API"
-        )]
-        public bool EnableThirdPartyMarkers { get; set; } = true;
-
-        [Config(
-            "EnableBidirectional",
-            "Features",
-            "Accept messages from clients (waypoints, pings, commands)"
-        )]
-        public bool EnableBidirectional { get; set; } = true;
 
         [Config(
             "WebSocketLogLevel",

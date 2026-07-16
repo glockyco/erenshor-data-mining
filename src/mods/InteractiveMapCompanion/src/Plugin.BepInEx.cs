@@ -59,9 +59,6 @@ public sealed class Plugin : BaseUnityPlugin
     {
         private readonly ConfigEntry<int> _port;
         private readonly ConfigEntry<int> _updateInterval;
-        private readonly ConfigEntry<bool> _enableSpawnTracking;
-        private readonly ConfigEntry<bool> _enableThirdPartyMarkers;
-        private readonly ConfigEntry<bool> _enableBidirectional;
         private readonly ConfigEntry<ConfigLogLevel> _webSocketLogLevel;
         private readonly ConfigEntry<ConfigLogLevel> _modLogLevel;
         private readonly ConfigEntry<bool> _enableOverlay;
@@ -85,24 +82,6 @@ public sealed class Plugin : BaseUnityPlugin
                 "UpdateInterval",
                 100,
                 "Interval in milliseconds between state broadcasts to clients"
-            );
-            _enableSpawnTracking = config.Bind(
-                "Features",
-                "EnableSpawnTracking",
-                true,
-                "Track enemy deaths and broadcast respawn timers"
-            );
-            _enableThirdPartyMarkers = config.Bind(
-                "Features",
-                "EnableThirdPartyMarkers",
-                true,
-                "Allow other mods to register custom markers via the API"
-            );
-            _enableBidirectional = config.Bind(
-                "Features",
-                "EnableBidirectional",
-                true,
-                "Accept messages from clients (waypoints, pings, commands)"
             );
             _webSocketLogLevel = config.Bind(
                 "Logging",
@@ -162,9 +141,6 @@ public sealed class Plugin : BaseUnityPlugin
 
         public override int Port => _port.Value;
         public override int UpdateInterval => _updateInterval.Value;
-        public override bool EnableSpawnTracking => _enableSpawnTracking.Value;
-        public override bool EnableThirdPartyMarkers => _enableThirdPartyMarkers.Value;
-        public override bool EnableBidirectional => _enableBidirectional.Value;
         public override ConfigLogLevel WebSocketLogLevel => _webSocketLogLevel.Value;
         public override ConfigLogLevel ModLogLevel => _modLogLevel.Value;
         public override bool EnableOverlay => _enableOverlay.Value;

@@ -21,9 +21,6 @@ public interface IModConfig
 {
     int Port { get; }
     int UpdateInterval { get; }
-    bool EnableSpawnTracking { get; }
-    bool EnableThirdPartyMarkers { get; }
-    bool EnableBidirectional { get; }
     LogLevel WebSocketLogLevel { get; }
     LogLevel ModLogLevel { get; }
     bool EnableOverlay { get; }
@@ -44,9 +41,6 @@ public abstract class ModConfigBase : IModConfig
 {
     public abstract int Port { get; }
     public abstract int UpdateInterval { get; }
-    public abstract bool EnableSpawnTracking { get; }
-    public abstract bool EnableThirdPartyMarkers { get; }
-    public abstract bool EnableBidirectional { get; }
     public abstract LogLevel WebSocketLogLevel { get; }
     public abstract LogLevel ModLogLevel { get; }
     public abstract bool EnableOverlay { get; }
@@ -57,19 +51,5 @@ public abstract class ModConfigBase : IModConfig
     public abstract int OverlayHeight { get; set; }
     public abstract bool ResetToDefaults { get; set; }
 
-    public string[] GetCapabilities()
-    {
-        var capabilities = new List<string> { "entities" };
-
-        if (EnableSpawnTracking)
-            capabilities.Add("spawns");
-
-        if (EnableThirdPartyMarkers)
-            capabilities.Add("markers");
-
-        if (EnableBidirectional)
-            capabilities.Add("bidirectional");
-
-        return capabilities.ToArray();
-    }
+    public string[] GetCapabilities() => ["entities"];
 }
