@@ -1713,8 +1713,6 @@ def thunderstore(
                 [
                     "tcli",
                     "publish",
-                    "--package-version",
-                    release.version,
                     "--file",
                     str(package),
                     "--config-path",

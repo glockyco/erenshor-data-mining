@@ -874,8 +874,6 @@ def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: 
     assert publish_args == [
         "tcli",
         "publish",
-        "--package-version",
-        "2099.101.0",
         "--file",
         str(package_path),
         "--config-path",

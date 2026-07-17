@@ -188,7 +188,7 @@ cannot be published accidentally.
 The exact upload command issued by the pipeline is:
 
 ```text
-TCLI_AUTH_TOKEN=TOKEN tcli publish --package-version VERSION --file VALIDATED_ZIP --config-path MANIFEST
+TCLI_AUTH_TOKEN=TOKEN tcli publish --file VALIDATED_ZIP --config-path MANIFEST
 ```
 
 The token is supplied only through the subprocess environment. The validated
