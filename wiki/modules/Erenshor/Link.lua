@@ -148,11 +148,17 @@ local function renderItem(args)
 	local target = Args.resolve(args, "item", nil)
 		or Args.resolve(args, "name", nil)
 		or Args.resolve(args, 1, nil)
-	local page = resolvedPage(args, nil, target)
-	local text = resolvedText(args, nil, target or page)
-	local image = Args.resolve(args, "image", nil) or text
-	local imageLink =
-		Format.fileLink(ensureImageFile(image, text), { alt = text, size = "24x24px", link = page })
+	local item
+	if isBlank(target) then
+		item = itemByStableKey(explicitStableKey(args))
+	end
+	local page = resolvedPage(args, item, target)
+	local text = resolvedText(args, item, target or page)
+	local image = Args.resolve(args, "image", nil) or (item and item.image) or page or text
+	local imageLink = Format.fileLink(
+		ensureImageFile(image, page or text),
+		{ alt = text, size = "24x24px", link = page }
+	)
 	if Args.bool(args, "imageonly", false) then
 		return wrap("item", args, imageLink, page, quality)
 	end

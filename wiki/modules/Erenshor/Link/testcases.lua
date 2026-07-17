@@ -29,6 +29,33 @@ function p.run()
 		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
 		"item link has icon"
 	)
+
+	local stableKeyOnlyItem = Link.render({
+		kind = "item",
+		stablekey = "item:abyssal_plate",
+	})
+	assertContains(stableKeyOnlyItem, "[[Abyssal Plate]]", "stable-key-only item resolves its page")
+	assertContains(
+		stableKeyOnlyItem,
+		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
+		"stable-key-only item resolves its image"
+	)
+
+	local sharedPageItem = Link.render({
+		kind = "item",
+		page = "Priel Note",
+		text = "Priel Note (1)",
+	})
+	assertContains(
+		sharedPageItem,
+		"[[File:Priel Note.png|24x24px|alt=Priel Note (1)|link=Priel Note]]",
+		"item link defaults its image from the page rather than disambiguated text"
+	)
+	assertNotContains(
+		sharedPageItem,
+		"[[File:Priel Note (1).png",
+		"item link does not invent an image from disambiguated text"
+	)
 	assertContains(item, "[[Abyssal Plate]]", "item link has page link")
 	assertNotContains(item, 'data-erenshor-quality="', "item link omits quality by default")
 	assertNotContains(
