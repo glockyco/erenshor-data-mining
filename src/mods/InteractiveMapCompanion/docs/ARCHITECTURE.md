@@ -16,13 +16,13 @@ are not implemented. The handshake advertises only the `entities` capability.
 Plugin.BepInEx.cs ─┐
                    ├─> InteractiveMapRuntime
 Plugin.Lunaris.cs ─┘      ├─> EntityTrackerAdapter
-                           │     ├─> EntityFinder
-                           │     ├─> EntityClassifier
-                           │     └─> EntityExtractor
-                           ├─> BroadcastLoop
-                           │     └─> WebSocketServer (Fleck)
-                           ├─> MapOverlay (Steam HTML Surface)
-                           └─> Harmony patches
+                          │     ├─> EntityFinder
+                          │     ├─> EntityClassifier
+                          │     └─> EntityExtractor
+                          ├─> BroadcastLoop
+                          │     └─> WebSocketServer (Fleck)
+                          ├─> MapOverlay (Steam HTML Surface)
+                          └─> Harmony patches
 
 WebSocketServer ── ws://0.0.0.0:18585 ──> map website clients
 ```
