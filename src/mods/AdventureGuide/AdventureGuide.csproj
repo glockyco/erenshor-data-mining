@@ -13,6 +13,10 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!-- The extern alias intentionally selects each loader's vector ABI. RAR still
+         compares it with the netstandard facade even though the output reference
+         retains the explicitly aliased assembly version. -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3243</MSBuildWarningsAsMessages>
     <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -82,6 +86,11 @@
       <HintPath>lib/lunaris/ImGui.NET.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>lib/lunaris/System.Numerics.Vectors.dll</HintPath>
+      <Private>false</Private>
+      <Aliases>vectors</Aliases>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
@@ -97,6 +106,8 @@
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
     <PackageReference Include="ImGui.NET" Version="1.88.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0"
+                      GeneratePathProperty="true" PrivateAssets="all" Aliases="vectors" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
     <Reference Include="0Harmony">
       <HintPath>lib/bepinex/0Harmony.dll</HintPath>
@@ -104,6 +115,12 @@
     </Reference>
   </ItemGroup>
 
+  <Target Name="CopyBepSystemNumericsVectors" AfterTargets="Build"
+          Condition="'$(ModLoader)' == 'bepinex'">
+    <Copy SourceFiles="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll"
+          DestinationFiles="$(OutputPath)System.Numerics.Vectors.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
   <Target Name="CopyBepImGuiNative" AfterTargets="Build"
           Condition="'$(ModLoader)' == 'bepinex'">
     <Copy SourceFiles="$(PkgImGui_NET)/runtimes/win-x64/native/cimgui.dll"

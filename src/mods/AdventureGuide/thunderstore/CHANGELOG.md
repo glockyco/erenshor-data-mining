@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.717.0
+
+- Maintenance release. No functional changes.
+
 ## v2026.713.0
 
 - Add Planar March quest data.

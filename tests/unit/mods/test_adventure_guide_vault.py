@@ -53,6 +53,36 @@ def test_thunderstore_plugin_allowlist_is_strict() -> None:
     assert all(item["target"] == "plugins/AdventureGuide/" for item in copies)
 
 
+def test_bepinex_imgui_managed_native_references_are_coherent() -> None:
+    csproj = (MOD_ROOT / "AdventureGuide.csproj").read_text()
+
+    # Roslyn's caller IL must resolve the same Vector2 identity as ImGui.NET;
+    # replace the package's netstandard runtime implementation with the
+    # official net46 type-forwarding facade after the BepInEx build.
+    assert csproj.count('<PackageReference Include="ImGui.NET"') == 1
+    assert '<PackageReference Include="ImGui.NET" Version="1.88.0"' in csproj
+    assert '<PackageReference Include="System.Numerics.Vectors" Version="4.4.0"' in csproj
+    assert "$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll" in csproj
+    assert '<Target Name="CopyBepSystemNumericsVectors" AfterTargets="Build"' in csproj
+    assert 'DestinationFiles="$(OutputPath)System.Numerics.Vectors.dll"' in csproj
+    assert "Condition=\"'$(ModLoader)' == 'bepinex'\"" in csproj
+    assert 'SkipUnchangedFiles="true"' in csproj
+    assert "ref/netstandard2.0/System.Numerics.Vectors.dll" not in csproj
+    assert "lib/netstandard2.0/System.Numerics.Vectors.dll" not in csproj
+    assert "runtimes/win-x64/native/cimgui.dll" in csproj
+
+    # Every non-loader ImGui runtime dependency is explicitly allowlisted.
+    config = tomllib.loads((MOD_ROOT / "thunderstore.toml").read_text())
+    sources = {Path(item["source"]).name for item in config["build"]["copy"]}
+    assert sources >= {
+        "ImGui.NET.dll",
+        "System.Numerics.Vectors.dll",
+        "System.Runtime.CompilerServices.Unsafe.dll",
+        "cimgui.dll",
+    }
+    assert not any("*" in item["source"] for item in config["build"]["copy"])
+
+
 def test_vault_listing_assets_present_and_consistent() -> None:
     config = _vault_config()
 

@@ -1,10 +1,12 @@
+extern alias vectors;
+
 using System.Reflection;
 using System.Runtime.InteropServices;
 using AdventureGuide.Config;
 using ImGuiNET;
 using UnityEngine;
 using UnityEngine.Rendering;
-using ImVec2 = System.Numerics.Vector2;
+using ImVec2 = vectors::System.Numerics.Vector2;
 
 namespace AdventureGuide.Rendering;
 

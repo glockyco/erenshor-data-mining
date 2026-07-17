@@ -1,10 +1,12 @@
+extern alias vectors;
+
 using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.Rendering;
 using AdventureGuide.State;
 using ImGuiNET;
-using Vector2 = System.Numerics.Vector2;
+using Vector2 = vectors::System.Numerics.Vector2;
 
 namespace AdventureGuide.UI;
 
