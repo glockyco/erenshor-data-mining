@@ -1,231 +1,161 @@
-# InteractiveMapCompanion Architecture
+# Interactive Map Companion Architecture
 
-## Overview
+## Scope
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Unity Game                           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │ Character│  │ Character│  │ Character│  │SpawnPoint│   │
-│  │ (Player) │  │(SimPlayer│  │  (NPC)   │  │          │   │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
-│       │             │             │              │          │
-│       └─────────────┴─────────────┴──────────────┘          │
-│                           │                                  │
-│                    ┌──────┴──────┐                          │
-│                    │EntityTracker│ ◄── Scene events          │
-│                    └──────┬──────┘                          │
-│                           │                                  │
-│  ┌────────────┐    ┌──────┴──────┐    ┌──────────────┐     │
-│  │ MarkerAPI  │───►│ StateManager│◄───│SpawnTracker  │     │
-│  └────────────┘    └──────┬──────┘    └──────────────┘     │
-│                           │                                  │
-│                    ┌──────┴──────┐                          │
-│                    │ Serializer  │                          │
-│                    └──────┬──────┘                          │
-│                           │                                  │
-│                    ┌──────┴──────┐                          │
-│                    │WebSocket Srv│ ◄── Fleck                │
-│                    └──────┬──────┘                          │
-└───────────────────────────┼─────────────────────────────────┘
-                            │ ws://0.0.0.0:18584
-                            ▼
-┌───────────────────────────────────────────────────────────┐
-│                    Map Website                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │WebSocket Clnt│─►│ Live State   │─►│ Entity Layer │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-└───────────────────────────────────────────────────────────┘
+Interactive Map Companion is a native dual-loader mod. Thin BepInEx and Lunaris
+entrypoints adapt loader-owned configuration and logging to one
+`InteractiveMapRuntime`. The shared runtime tracks live characters, broadcasts
+the current state over WebSocket, and owns the optional Steam HTML overlay.
+
+Spawn monitoring, third-party marker registration, and client-to-game navigation
+are not implemented. The handshake advertises only the `entities` capability.
+
+## Runtime flow
+
+```text
+Plugin.BepInEx.cs ─┐
+                   ├─> InteractiveMapRuntime
+Plugin.Lunaris.cs ─┘      ├─> EntityTrackerAdapter
+                           │     ├─> EntityFinder
+                           │     ├─> EntityClassifier
+                           │     └─> EntityExtractor
+                           ├─> BroadcastLoop
+                           │     └─> WebSocketServer (Fleck)
+                           ├─> MapOverlay (Steam HTML Surface)
+                           └─> Harmony patches
+
+WebSocketServer ── ws://0.0.0.0:18585 ──> map website clients
 ```
 
-## Project Structure
+Both entrypoints:
 
-```
+1. mark their owning `GameObject` as `HideAndDontSave` before initialization;
+2. create native config and logger adapters;
+3. call `InteractiveMapRuntime.Start()` from `Awake()`;
+4. forward `Update()`, `OnApplicationQuit()`, and `OnDestroy()`; and
+5. call the same idempotent runtime cleanup path.
+
+Only one loader is active in a game process. The loader-specific assemblies are
+built separately and must never be compiled into the same target.
+
+## Project structure
+
+```text
 src/mods/InteractiveMapCompanion/
-├── docs/
-│   ├── REQUIREMENTS.md
-│   └── ARCHITECTURE.md
 ├── src/
-│   ├── Plugin.cs              # Entry point, manual wiring
-│   ├── PluginInfo.cs          # GUID, name, version
+│   ├── Plugin.BepInEx.cs          # BepInEx entrypoint, config, and logger adapters
+│   ├── Plugin.Lunaris.cs          # Lunaris entrypoint, config, and logger adapters
+│   ├── InteractiveMapRuntime.cs   # Shared composition and lifecycle
+│   ├── IModLogger.cs              # Loader-neutral logging contract
+│   ├── PluginInfo.cs
 │   ├── Config/
-│   │   └── ModConfig.cs       # BepInEx configuration
-│   ├── Entities/
-│   │   ├── IEntityTracker.cs
-│   │   ├── EntityTracker.cs   # Generic, testable
-│   │   ├── EntityTrackerAdapter.cs
-│   │   ├── EntityClassifier.cs
-│   │   ├── EntityExtractor.cs
-│   │   ├── EntityFinder.cs
-│   │   └── EntityData.cs
-│   ├── Overlay/               # In-game map overlay (Steam HTML Surface)
-│   │   ├── MapOverlay.cs
-│   │   ├── BrowserManager.cs
-│   │   ├── BrowserRenderer.cs
-│   │   └── InputForwarder.cs
-│   ├── Patches/
-│   │   ├── CharSelectManagerPatch.cs
-│   │   └── MapKeyPatches.cs
-│   ├── Protocol/
-│   │   ├── Messages.cs        # Message types
-│   │   ├── MessageSerializer.cs  # Newtonsoft.Json, camelCase
-│   │   └── ProtocolVersion.cs
-│   ├── Server/
-│   │   ├── IWebSocketServer.cs
-│   │   └── WebSocketServer.cs
-│   │   └── ClientHandler.cs   # (planned)
-│   ├── State/
-│   │   ├── IBroadcastLoop.cs  # Current implementation
-│   │   └── BroadcastLoop.cs   # (planned: StateManager)
-│   ├── Spawns/                # (planned)
-│   │   ├── ISpawnTracker.cs
-│   │   ├── SpawnTracker.cs
-│   │   └── RespawnTimer.cs
-│   └── Markers/               # (planned)
-│       ├── IMarkerAPI.cs      # Public interface
-│       ├── MarkerRegistry.cs
-│       └── MarkerDefinition.cs
-├── lib/                       # Game DLLs (not committed)
+│   │   └── ModConfig.cs           # IModConfig and shared capability calculation
+│   ├── Entities/                  # Find, classify, extract, and track Characters
+│   ├── Overlay/                   # Steam HTML overlay, rendering, and input
+│   ├── Patches/                   # Character-select and map-key Harmony patches
+│   ├── Protocol/                  # Messages, serializer, and protocol version
+│   ├── Server/                    # Fleck WebSocket server
+│   └── State/                     # Timed state and zone-change broadcasts
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── REQUIREMENTS.md
+├── thunderstore/                  # BepInEx package listing assets
+├── vault/                         # Lunaris Vault listing assets
 └── InteractiveMapCompanion.csproj
 ```
 
-## Key Patterns
+The loader-neutral entity, protocol, and broadcast logic is covered by the
+`tests/InteractiveMapCompanion.Tests/` project.
 
-### Manual Wiring
+## Composition and lifecycle
 
-Components wired directly in `Plugin.Awake()` (DI framework was removed
-to reduce dependencies for Thunderstore packaging):
+`InteractiveMapRuntime.Start()` performs explicit composition without a DI
+container:
 
-```csharp
-var finder = new EntityFinder();
-var classifier = new EntityClassifier();
-var extractor = new EntityExtractor();
-var tracker = new EntityTrackerAdapter(finder, classifier, extractor, _ => true);
+1. construct `EntityFinder`, `EntityClassifier`, and `EntityExtractor`;
+2. wrap them in `EntityTrackerAdapter`;
+3. start `WebSocketServer`;
+4. create `BroadcastLoop` and seed it with the active scene;
+5. add and configure `MapOverlay` on the loader's `GameObject`; and
+6. apply the assembly's Harmony patches.
 
-_server = new WebSocketServer(_config, Log);
-_broadcastLoop = new BroadcastLoop(tracker, _server, _config, ...);
-```
+`Tick()` advances only the broadcast interval. Scene changes are received through
+`SceneManager.sceneLoaded` and forwarded to `BroadcastLoop`.
 
-Planned: reintroduce DI via `ServiceCollection` when StateManager,
-SpawnTracker, and MarkerAPI are implemented.
+`Stop()` is safe to call repeatedly. It stops broadcasts and the server, stops and
+destroys the overlay, detaches scene events, unpatches Harmony, clears patch
+statics, and releases component references. `WebSocketServer.Dispose()` closes
+clients, disposes Fleck, and restores the process-wide Fleck logging callback.
+This cleanup is required for loader-managed unloads and repeat starts.
 
-### Generic + Adapter Pattern
+## Entity tracking
 
-Separates testable logic from Unity dependencies:
+`EntityFinder` supplies live `Character` instances. `EntityClassifier` excludes
+mining nodes and treasure chests, then classifies each character as:
 
-```csharp
-// Generic - testable without Unity
-public class EntityTracker<TCharacter> where TCharacter : class
-{
-    private readonly Func<TCharacter, EntityData> _extractor;
-    // Pure logic, no Unity calls
-}
+- `player`, using `GameData.PlayerControl.Myself`;
+- `pet`, when `Character.Master` is present;
+- `simplayer`, when the `SimPlayer` component is present;
+- `npc_enemy`, from aggressive factions or non-positive world-faction standing;
+  or
+- `npc_friendly` otherwise.
 
-// Adapter - wires to game types
-public class EntityTrackerAdapter : IEntityTracker
-{
-    private readonly EntityTracker<Character> _inner;
-    // Handles Unity-specific concerns
-}
-```
+`EntityExtractor` emits:
 
-### State Management
+- instance ID, type, display name, `[x, y, z]` position, and Y-axis rotation;
+- level when stats are available;
+- `common` or `boss` rarity for hostile NPCs;
+- class display name for the player and SimPlayers; and
+- owner name for pets.
 
-Currently implemented as `BroadcastLoop` which ticks on `Update()`,
-collects entity data from `EntityTracker`, and broadcasts via WebSocket.
+Rare-spawn classification and spawn-point identity require spawn context and are
+not part of the current entity payload.
 
-Planned: refactor into `StateManager` that aggregates entities, spawn
-timers (SpawnTracker), and third-party markers (MarkerAPI) into a
-unified `GameState` object.
+## WebSocket protocol
 
-## Data Flow
+The server binds `ws://0.0.0.0:<Port>` and supports multiple clients. The default
+port is `18585`. Fleck owns socket I/O, while entity collection and broadcast
+timing originate from Unity's main-thread callbacks.
 
-### Outbound (Game → Website)
+On connection, the server sends a `handshake`. At the configured interval,
+`BroadcastLoop` sends a complete `stateUpdate` when at least one client is
+connected. A scene transition sends `zoneChange`, followed by the state for the
+new scene. `MessageSerializer` emits camelCase JSON and omits null fields.
 
-1. **EntityTracker** scans scene for Character components
-2. **SpawnTracker** monitors death/respawn events
-3. **MarkerRegistry** holds third-party markers
-4. **StateManager** aggregates all data
-5. **MessageSerializer** converts to JSON
-6. **WebSocketServer** broadcasts to clients
+Incoming messages are currently logged at debug level and otherwise ignored.
+There are no waypoint, ping, command, marker, or spawn-timer handlers.
 
-### Inbound (Website → Game)
-
-1. **WebSocketServer** receives client message
-2. **ClientHandler** parses and validates
-3. **Event emitted** for message type
-4. **Handlers** process (set waypoint, etc.)
-5. **Acknowledgment** sent to client
-
-## Threading
-
-- **Main thread**: Unity callbacks, entity tracking, state updates
-- **Background threads**: WebSocket I/O (Fleck handles this)
-- **Synchronization**: Thread-safe collections for client list, marker registry
-
-## Extension Points
-
-### Third-Party Markers
-
-Other mods register markers via `IMarkerAPI`:
-
-```csharp
-// Discovery
-var mapCompanion = Chainloader.PluginInfos
-    .GetValueOrDefault("wow-much.interactive-map-companion");
-var api = mapCompanion?.Instance as IMarkerAPI;
-
-// Registration
-api?.RegisterMarker(new MarkerDefinition { ... });
-```
-
-### Client Message Events
-
-Mods can subscribe to handle custom interactions:
-
-```csharp
-stateManager.OnWaypointSet += (pos, zone) => { ... };
-stateManager.OnPingReceived += (pos, zone) => { ... };
-```
-
-## Protocol Versioning
-
-Protocol version `0.x.y` indicates alpha - breaking changes expected.
-
-Handshake includes version for client validation:
-
-```json
-{
-  "type": "handshake",
-  "protocolVersion": "0.1.0",
-  ...
-}
-```
-
-Clients should warn on version mismatch, not hard fail.
+See `REQUIREMENTS.md` for the exact payload contract and the explicit future
+scope.
 
 ## Configuration
 
-BepInEx ConfigEntry pattern:
+`IModConfig` is the shared runtime contract. The BepInEx entrypoint binds it to
+`ConfigEntry<T>` values. The Lunaris entrypoint binds it to a registered
+`MapSettings` object and native keybind.
 
-```csharp
-public class ModConfig
-{
-    public ConfigEntry<int> Port { get; }
-    public ConfigEntry<int> UpdateInterval { get; }
-    // ...
+Both adapters expose the same settings:
 
-    public ModConfig(ConfigFile config)
-    {
-        Port = config.Bind("Server", "Port", 18584, "WebSocket port");
-        // ...
-    }
-}
+- WebSocket port and update interval;
+- WebSocket and mod log levels;
+- overlay enabled state and toggle key;
+- overlay anchor, width, and height; and
+- reset-to-defaults state.
+
+Capability calculation is shared in `ModConfigBase` and currently returns only
+`entities`.
+
+## Build and deployment
+
+Use the repository CLI rather than invoking `dotnet` directly:
+
+```bash
+uv run erenshor mod setup
+uv run erenshor mod build --mod interactive-map-companion --loader all
+uv run erenshor -V playtest mod deploy --mod interactive-map-companion --loader bepinex
+uv run erenshor -V playtest mod deploy --mod interactive-map-companion --loader lunaris
 ```
 
-## Error Handling
-
-- **Never crash the game**: All external calls wrapped in try/catch
-- **Log errors**: Use BepInEx logger
-- **Graceful degradation**: Missing data → empty arrays, not exceptions
-- **Client errors**: Invalid messages logged and ignored
+Deployment activates the selected loader. See the `mod-pipeline` skill for
+variant resolution, shared-install proxy switching, package layouts, and release
+commands.

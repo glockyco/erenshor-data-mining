@@ -1,241 +1,192 @@
-# InteractiveMapCompanion Requirements
+# Interactive Map Companion Requirements
 
-## Overview
+## Current product contract
 
-Native dual-loader mod that broadcasts live entity state to the Interactive Map
-website via WebSocket. Spawn monitoring, third-party markers, and bidirectional
-navigation remain planned capabilities and are not advertised by the runtime.
+Interactive Map Companion is a native BepInEx and Lunaris mod that broadcasts
+live characters in the current scene to the interactive map website. Both native
+entrypoints must expose the same observable protocol, configuration defaults,
+overlay behavior, and cleanup semantics.
 
-## Goals
+Current capabilities:
 
-1. **Live Entity Tracking**: Show all characters in current zone on map
-2. **Spawn Intelligence**: Track enemy deaths and broadcast respawn timers
-3. **Extensibility**: Allow other mods to register custom markers
-4. **Bidirectional Communication**: Support waypoints, pings, commands from map
-5. **Multi-Client Support**: Enable "second screen" usage (phone on LAN)
+1. **Live entity tracking** — broadcast the player, SimPlayers, pets, friendly
+   NPCs, and hostile NPCs.
+2. **Multi-client WebSocket server** — support a local browser, another device on
+   the LAN, and the in-game overlay at the same time.
+3. **Zone transitions** — tell clients to clear the previous scene and begin
+   consuming state for the new scene.
+4. **In-game overlay** — show the interactive map through Steam HTML Surface and
+   toggle it with a configurable key.
+5. **Loader parity** — BepInEx and Lunaris use one shared runtime and differ only
+   in native entrypoint, config, and logger adapters.
 
-## Non-Goals
+The handshake advertises only `entities`. Spawn monitoring, third-party markers,
+and bidirectional navigation are future scope and must not be advertised before
+their handlers and payloads exist.
 
-- Historical data / breadcrumb trails
-- Player stats display (health/mana)
-- Cloud-based synchronization
+## Entity tracking
 
----
+### Classification
 
-## Entity Tracking
+Track live `Character` instances in the current scene, except static mining nodes
+and treasure chests.
 
-### Tracked Entities
+| Protocol type | Identification |
+| --- | --- |
+| `player` | `GameData.PlayerControl.Myself` |
+| `pet` | `Character.Master != null` |
+| `simplayer` | Has a `SimPlayer` component |
+| `npc_enemy` | Aggressive to player factions or non-positive world-faction standing |
+| `npc_friendly` | Any other tracked character |
 
-Track all GameObjects with `Character` component in current zone:
+Classification precedence is player, pet, SimPlayer, then NPC hostility. This
+ensures a summoned or mastered character remains a pet even when it also has
+other character components.
 
-| Type | Identification | Extra Data |
-|------|----------------|------------|
-| `player` | `transform.name == "Player"` | - |
-| `simplayer` | Has `SimPlayer` component | - |
-| `pet` | `Master != null` or `SummonedByPlayer` | - |
-| `npc_friendly` | NPC with friendly faction | - |
-| `npc_enemy` | NPC with hostile faction | level, rarity, spawnPointId |
+### Entity payload
 
-**Not tracked**: Mining nodes, treasure chests (static, don't need live updates)
+Each entity contains:
 
-### Entity Data
+| Field | Type | Presence | Meaning |
+| --- | --- | --- | --- |
+| `id` | integer | always | Unity instance ID for the current process |
+| `entityType` | string | always | One classification value from the table above |
+| `name` | string | always | Stats display name, falling back to object name |
+| `position` | three-number array | always | Scene-local Unity `[x, y, z]` coordinates |
+| `rotation` | number | always | Normalized Y-axis rotation in `[0, 360)` |
+| `level` | integer | when stats exist | Character level |
+| `rarity` | string | hostile NPC only | `common` or `boss` |
+| `characterClass` | string | player and SimPlayers when available | Class display name |
+| `owner` | string | pets | Master's display name, or `Unknown` |
 
-For each entity:
-- `id`: Instance ID (unique within session)
-- `entityType`: Classification (see above)
-- `name`: Display name
-- `position`: `[x, y, z]` zone-local coordinates
-- `rotation`: Facing direction in degrees
-- `zone`: Current scene name
+The entity does not carry a zone or spawn-point ID. The enclosing state message
+supplies the zone. Rare and unique spawn classification is not available without
+spawn context.
 
-Enemy-specific:
-- `level`: Enemy level
-- `rarity`: `common`, `rare`, or `unique`
-- `spawnPointId`: Associated spawn point (if determinable)
+### Update behavior
 
-### Update Frequency
+- Update interval is configurable and defaults to `100` ms.
+- Each `stateUpdate` contains a complete entity snapshot, not deltas.
+- No entity scan or serialization runs when no clients are connected.
+- Scene load immediately updates the active zone and attempts a fresh state
+  broadcast.
 
-- Configurable interval (default: 100ms)
-- Full state updates (not deltas)
-- Batched: all entities in single message
+## WebSocket server
 
----
+- **Bind address:** `ws://0.0.0.0:<Port>` for local and LAN clients.
+- **Default port:** `18585`.
+- **Clients:** multiple simultaneous connections.
+- **Format:** compact JSON with camelCase property names and omitted null fields.
+- **Lifecycle:** start once, reject connections racing shutdown, close all clients
+  on stop, and release the port on disposal.
+- **Inbound messages:** log at debug level and otherwise ignore them.
 
-## Spawn Point Tracking
+Connection and send failures must be logged without crashing the game. Failed or
+unavailable clients are removed from the active client set.
 
-### Death Events
+## Protocol
 
-When tracked enemy dies:
-- Capture spawn point ID (if linkable)
-- Calculate respawn time from game data
-- Broadcast `spawn_death` message
+Protocol version `0.x.y` remains pre-stable. Clients should report version
+mismatches rather than assuming unsupported fields or message types.
 
-### Respawn Timers
+### `handshake`
 
-- Include active timers in state broadcasts
-- Broadcast `spawn_respawn` when enemy respawns
-- Auto-cleanup expired timers
+Sent once when a client connects:
 
----
-
-## Third-Party Marker API
-
-### C# API
-
-```csharp
-IMarkerAPI.RegisterMarker(MarkerDefinition marker)
-IMarkerAPI.UpdateMarker(string id, MarkerUpdate update)
-IMarkerAPI.RemoveMarker(string id)
-IMarkerAPI.RemoveMarkersBySource(string source)
-```
-
-### MarkerDefinition
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique within source |
-| `source` | string | Yes | Source mod identifier |
-| `type` | string | Yes | Marker type for styling |
-| `position` | Vector3 | Yes | Zone-local coordinates |
-| `zone` | string | Yes | Zone name |
-| `category` | string | No | For filtering |
-| `rotation` | float | No | Degrees |
-| `label` | string | No | Display label |
-| `icon` | string | No | Icon identifier |
-| `color` | string | No | Hex color |
-| `metadata` | object | No | Arbitrary data for tooltips |
-| `isStatic` | bool | No | Hint: doesn't move (default: false) |
-
-### Discovery
-
-BepInEx soft dependency pattern - other mods can optionally use API if installed.
-
----
-
-## Bidirectional Communication
-
-### Client → Server Messages
-
-| Type | Description |
-|------|-------------|
-| `set_waypoint` | Set navigation waypoint |
-| `clear_waypoint` | Clear current waypoint |
-| `ping_location` | Ping location (broadcast to all) |
-| `request_path` | Request pathfinding (future) |
-| `execute_command` | Execute game command (future, requires cheat mode) |
-
-### Server Responses
-
-- Acknowledgments for waypoint operations
-- Pings broadcast to all clients
-- Path results for pathfinding requests
-- Command results with success/failure
-
----
-
-## WebSocket Server
-
-- **Port**: Configurable, default 18584
-- **Bind**: `0.0.0.0` (all interfaces for LAN access)
-- **Protocol**: JSON messages with `type` field
-- **Clients**: Multiple simultaneous connections supported
-
-### JSON Naming Convention
-
-- **Property names**: camelCase (`protocolVersion`, `entityType`, `spawnPointId`)
-- **Enum/type values**: lowercase with underscores (`npc_friendly`, `set_waypoint`)
-
-### Handshake
-
-On connection, server sends:
 ```json
 {
   "type": "handshake",
-  "protocolVersion": "0.1.0",
-  "modVersion": "0.1.0",
+  "protocolVersion": "0.2.0",
+  "modVersion": "2026.7.17.0",
   "zone": "CurrentZone",
   "capabilities": ["entities"]
 }
 ```
 
----
+`modVersion` is generated at build time. The example is illustrative and not a
+pinned release.
 
-## Configuration (BepInEx)
+### `stateUpdate`
+
+Sent at the configured interval while clients are connected:
+
+```json
+{
+  "type": "stateUpdate",
+  "zone": "CurrentZone",
+  "timestamp": 1768645811226,
+  "entities": []
+}
+```
+
+`timestamp` is Unix time in milliseconds.
+
+### `zoneChange`
+
+Sent when a loaded scene replaces a previously known scene:
+
+```json
+{
+  "type": "zoneChange",
+  "previousZone": "OldZone",
+  "zone": "NewZone",
+  "timestamp": 1768645811226
+}
+```
+
+Clients must clear entities from `previousZone` before rendering the next state.
+
+## Configuration
+
+Both loaders expose the same settings through their native configuration system.
 
 | Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `Port` | int | 18585 | WebSocket server port |
-| `UpdateInterval` | int | 100 | Broadcast interval (ms) |
+| --- | --- | --- | --- |
+| `Port` | integer | `18585` | WebSocket server port |
+| `UpdateInterval` | integer | `100` | State broadcast interval in milliseconds |
+| `WebSocketLogLevel` | enum | `Warning` | Fleck log verbosity |
+| `ModLogLevel` | enum | `Info` | Mod log verbosity |
+| `EnableOverlay` | boolean | `true` | Enable the Steam HTML overlay |
+| `ToggleKey` | keybind | `M` | Show or hide the overlay |
+| `AnchorX` | number | `-1` | Horizontal anchor, with `-1` for automatic |
+| `AnchorY` | number | `-1` | Vertical anchor, with `-1` for automatic |
+| `Width` | integer | `0` | Width in pixels, with `0` for automatic |
+| `Height` | integer | `0` | Height in pixels, with `0` for automatic |
+| `ResetToDefaults` | boolean | `false` | Reset overlay geometry on the next launch |
 
----
+## Frontend contract
 
-## Frontend Requirements
+- Default server URL is `ws://localhost:18585`.
+- Connection states cover disconnected, connecting, connected, and reconnecting.
+- Reconnection uses a fixed interval.
+- Live entities render above static map markers.
+- Player position and facing remain visually distinct.
+- Zone changes remove stale entities from the previous scene.
+- Manual pan may disable auto-follow, which remains easy to re-enable.
+- The map remains fully usable when the mod is absent or live mode is disabled.
 
-### Connection
+## Explicit future scope
 
-- Configurable server address (default: `ws://localhost:18584`)
-- Connection states: disconnected, connecting, connected, reconnecting
-- Automatic reconnection at fixed interval (no exponential backoff)
-- Protocol version validation on handshake
+The following concepts may be designed later, but they are not current protocol
+or API commitments:
 
-### Live Entity Display
+- `spawn_death` and `spawn_respawn` events or respawn timers;
+- a third-party marker registration API;
+- `set_waypoint`, `clear_waypoint`, `ping_location`, pathfinding, or command
+  messages; and
+- capabilities named `spawns`, `markers`, or `bidirectional`.
 
-- Separate layer above static markers
-- Distinct icons per entity type
-- Player marker most prominent
-- Rotation indicator for facing direction
-- Smooth position interpolation
+Adding any of these requires the server implementation, serializer coverage,
+frontend consumer, protocol documentation, and an advertised handshake
+capability in the same change.
 
-### Auto-Follow Mode
+## Quality requirements
 
-- Toggle to center map on player
-- Smooth animations
-- Disable on manual pan, easy re-enable
-- Works across zone boundaries (world map)
-
-### Zone Changes
-
-- Clear old zone entities when player changes zones
-- Only current zone has live entity markers
-
-### Respawn Timers
-
-- Overlay at spawn point location
-- Countdown display
-- Enemy name and rarity
-- Auto-remove on respawn
-
-### Waypoints & Pings
-
-- Right-click/long-press to set waypoint
-- Prominent waypoint display
-- Animated ping indicators
-
-### Connection UI
-
-- Status indicator (connected/disconnected)
-- Live mode toggle
-- Custom server address input (for LAN)
-- Unobtrusive for non-mod users
-
----
-
-## Quality Requirements
-
-### Reliability
-
-- Never crash the game
-- Graceful error handling
-- Handle missing game objects
-
-### Performance
-
-- No noticeable frame drops
-- Throttled broadcasts
-- Efficient serialization
-
-### Maintainability
-
-- DI for composition
-- Generic + adapter pattern for testability
-- XML documentation for public APIs
+- Loader adapters must contain no duplicated game behavior.
+- Runtime startup and cleanup must be idempotent.
+- `OnDestroy()` must stop broadcasts, close the server, destroy overlay state,
+  unsubscribe scene events, unpatch Harmony, and clear patch statics.
+- Public protocol and loader-neutral logic must remain testable without running
+  Unity where practical.
+- JSON payload tests must defend message names, camelCase fields, null omission,
+  and current capabilities.

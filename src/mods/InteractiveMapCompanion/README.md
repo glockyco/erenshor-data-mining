@@ -104,16 +104,11 @@ Lunaris exposes the settings through its in-game config UI.
 |---------|------|---------|-------------|
 | `EnableOverlay` | Boolean | `true` | Show the in-game map overlay |
 | `ToggleKey` | KeyCode | `M` | Key to show/hide the overlay |
-| `AnchorX` | Float | `0.5` | Horizontal anchor (0 = left, 1 = right). Auto-computed on first run. |
-| `AnchorY` | Float | `0.5` | Vertical anchor (0 = bottom, 1 = top). Auto-computed on first run. |
-| `Width` | Integer | *(auto)* | Overlay width in pixels. Auto-computed as 90% of screen width on first run. |
-| `Height` | Integer | *(auto)* | Overlay height in pixels. Auto-computed as 90% of screen height on first run. |
+| `AnchorX` | Float | `-1` | Horizontal anchor (0 = left, 1 = right). `-1` auto-computes on first run. |
+| `AnchorY` | Float | `-1` | Vertical anchor (0 = bottom, 1 = top). `-1` auto-computes on first run. |
+| `Width` | Integer | `0` | Overlay width in pixels. `0` auto-computes as 80% of screen width. |
+| `Height` | Integer | `0` | Overlay height in pixels. `0` auto-computes as 80% of screen height. |
 | `ResetToDefaults` | Boolean | `false` | Set to `true` to reset size and position to auto-computed defaults on next launch. |
-
-### Feature Toggles (Future)
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
 
 ### Logging Settings
 
@@ -192,7 +187,7 @@ for JavaScript compatibility.
 
 ### Mod Not Loading
 
-1. Run `uv run erenshor -V <variant> mod status` and confirm the intended loader
+1. Run `uv run erenshor -V playtest mod status` and confirm the intended loader
    is active.
 2. For BepInEx, inspect `BepInEx/LogOutput.log` and confirm the DLL is under
    `BepInEx/plugins/InteractiveMapCompanion/`.
@@ -204,7 +199,7 @@ for JavaScript compatibility.
 1. The overlay requires the game to be launched through Steam
 2. Check the active loader's log for `[Overlay]` lines — initialization errors
    are logged
-3. Confirm `EnableOverlay = true` in the config file
+3. Confirm `EnableOverlay = true` in the active loader's config UI or file
 4. Try toggling with `M` (or your configured key) while in-game (not on the
    main menu)
 
