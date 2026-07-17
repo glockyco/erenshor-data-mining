@@ -758,11 +758,11 @@ def _build_mods_internal(
 
 @app.command()
 def setup(ctx: typer.Context) -> None:
-    """Copy game DLLs for mod compilation.
+    """Provision mod compilation references.
 
-    Copies required game assemblies from the game installation to the
-    mods' lib directories. These DLLs are needed to compile the mods but
-    are not committed to the repository.
+    Copies required game assemblies and isolated BepInEx/Lunaris references into
+    every mod's lib tree. These DLLs are needed to compile native targets but are
+    not committed to the repository.
 
     The selected variant resolves a configured runnable install, its matching
     CrossOver Steam app, the legacy ERENSHOR_GAME_PATH override, then extracted
@@ -1132,11 +1132,11 @@ def publish(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Publish specific mod (or all if not specified)"),
 ) -> None:
-    """Build and publish mods to website download directory.
+    """Stage configured default-loader builds for website download.
 
-    Builds mods and copies the output DLLs to the maps website's static
-    directory for public download. Run this before building/deploying the
-    maps website to include the latest mod versions.
+    Builds each selected mod's configured default target and copies its output
+    DLL to the maps website's static directory. Run this before building or
+    deploying the maps website to include the latest downloadable versions.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -1539,18 +1539,25 @@ def _check_tcli_available() -> bool:
 @app.command()
 def thunderstore(
     ctx: typer.Context,
-    mod: str | None = typer.Option(None, "--mod", help="Publish specific mod (or all Thunderstore-enabled mods)"),
+    mod: str | None = typer.Option(
+        None,
+        "--mod",
+        help="Publish one mod; omit only with --dry-run to package all public mods",
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Build the package but don't upload"),
 ) -> None:
-    """Build and publish mods to Thunderstore.
+    """Package and optionally publish BepInEx mods to Thunderstore.
 
-    Builds the mod, packages it with tcli, and uploads to Thunderstore.
-    Only mods with a 'thunderstore' key in the MODS registry are eligible.
+    Builds each selected mod's BepInEx target, packages it with tcli, and
+    validates the resulting archive. A dry run may omit --mod to package all
+    four public mods without uploading. A real upload requires exactly one
+    public --mod and a non-placeholder TCLI_AUTH_TOKEN from the environment or
+    repository-local .env file.
 
     Version is auto-computed as YYYY.MDD.R (CalVer). The revision R
     increments if a version with today's date already exists on Thunderstore.
 
-    Requires tcli (dotnet tool install -g tcli) and TCLI_AUTH_TOKEN in .env.
+    tcli is required (install with: dotnet tool install -g tcli).
     """
     cli_ctx: CLIContext = ctx.obj
 
