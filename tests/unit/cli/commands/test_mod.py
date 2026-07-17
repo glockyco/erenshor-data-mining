@@ -1143,6 +1143,40 @@ def test_ensure_lunaris_libs_cached_extracts_and_reuses_dlls(tmp_path: Path) -> 
     assert (cache_dir / "ImGui.NET.dll").read_bytes() == b"cached"
 
 
+def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    game = tmp_path / "game"
+    game.mkdir()
+    crossover_start = tmp_path / "cxstart"
+    crossover_start.touch()
+    ctx = _ctx(tmp_path, game_installs={"main": game})
+    calls: list[tuple[list[str], bool]] = []
+
+    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
+    monkeypatch.setattr(mod_command.sys, "platform", "darwin")
+    monkeypatch.setattr(mod_command, "CROSSOVER_START", crossover_start)
+    monkeypatch.setattr(mod_command, "_crossover_bottle_for_path", lambda _path: "Steam")
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        lambda command, check: calls.append((command, check)) or SimpleNamespace(returncode=0),
+    )
+
+    mod_command.launch(ctx)
+
+    assert calls == [
+        (
+            [
+                str(crossover_start),
+                "--bottle",
+                "Steam",
+                "--no-wait",
+                "steam://rungameid/2382520",
+            ],
+            False,
+        )
+    ]
+
+
 def test_next_calver_revision_handles_day_boundary_and_revision() -> None:
     assert mod_command._next_calver_revision("2026.716", None) == "2026.716.0"
     assert mod_command._next_calver_revision("2026.716", "2026.715.3") == "2026.716.0"

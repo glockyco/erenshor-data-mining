@@ -64,7 +64,7 @@ app = typer.Typer(
 console = Console()
 
 CROSSOVER_BOTTLES_ROOT = Path.home() / "Library/Application Support/CrossOver/Bottles"
-CROSSOVER_WINE = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine")
+CROSSOVER_START = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/cxstart")
 LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
     "bepinex": (
         "winhttp.bepinex.dll",
@@ -1818,10 +1818,11 @@ def vault(
 
 @app.command()
 def launch(ctx: typer.Context) -> None:
-    """Launch the game.
+    """Launch the selected game through Steam.
 
-    Starts Erenshor. On macOS with CrossOver, uses the CROSSOVER_BOTTLE
-    environment variable to launch via CrossOver.
+    On macOS, CrossOver handles the selected variant's Steam protocol URL in
+    the bottle containing its installation. This preserves Steamworks
+    initialization and returns after Steam accepts the launch request.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -1835,29 +1836,36 @@ def launch(ctx: typer.Context) -> None:
         console.print("Install the selected Steam app or set [variants.<name>] game_install.")
         raise typer.Exit(1)
 
+    variant_config = cli_ctx.config.variants.get(cli_ctx.variant)
+    if variant_config is None or not variant_config.app_id:
+        console.print(f"[red]Error: Steam App ID not configured for variant {cli_ctx.variant!r}[/red]")
+        raise typer.Exit(1)
+
     # Check for CrossOver on macOS
     crossover_bottle = os.environ.get("CROSSOVER_BOTTLE") or _crossover_bottle_for_path(game_path)
     if sys.platform == "darwin" and crossover_bottle:
-        # Launch via CrossOver
-        exe_path = game_path / "Erenshor.exe"
-        if not exe_path.exists():
-            console.print(f"[red]Error: Game executable not found: {exe_path}[/red]")
+        if not CROSSOVER_START.exists():
+            console.print(f"[red]Error: CrossOver launcher not found: {CROSSOVER_START}[/red]")
             raise typer.Exit(1)
 
-        console.print(f"[dim]Launching via CrossOver bottle: {crossover_bottle}[/dim]")
-        console.print(f"[dim]Executable: {exe_path}[/dim]")
+        steam_url = f"steam://rungameid/{variant_config.app_id}"
+        console.print(f"[dim]Launching through Steam in CrossOver bottle: {crossover_bottle}[/dim]")
+        console.print(f"[dim]Steam URL: {steam_url}[/dim]")
         console.print()
 
-        # Use open command with CrossOver
-        subprocess.run(
+        result = subprocess.run(
             [
-                str(CROSSOVER_WINE),
+                str(CROSSOVER_START),
                 "--bottle",
                 crossover_bottle,
-                str(exe_path),
+                "--no-wait",
+                steam_url,
             ],
             check=False,
         )
+        if result.returncode != 0:
+            console.print(f"[red]Error: Steam launch failed with exit code {result.returncode}[/red]")
+            raise typer.Exit(1)
     else:
         # Direct launch (Windows or Linux with Wine)
         exe_path = game_path / "Erenshor.exe"
