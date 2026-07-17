@@ -165,7 +165,8 @@ Quick reference. Full spec in `src/mods/InteractiveMapCompanion/docs/REQUIREMENT
 - **Format**: JSON with `type` field, camelCase naming
 - **Coordinates**: Zone-local Unity coords [x, y, z]
 
-**Server -> Client**: handshake, state, zone_change, spawn_death/spawn_respawn, marker_add/update/remove
-**Client -> Server**: set_waypoint/clear_waypoint, ping_location
+**Server -> Client**: handshake with the `entities` capability, state, zone_change
+
+**Client -> Server**: not currently supported. Incoming messages are logged and ignored.
 
 **Adding messages**: Add record in Protocol/Messages.cs, add to MessageSerializer switch, update REQUIREMENTS.md.

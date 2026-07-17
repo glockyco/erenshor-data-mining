@@ -21,7 +21,7 @@ Tracking updates ten times per second by default. All live game data stays on yo
 
 ## Configuration
 
-The Lunaris config UI exposes the WebSocket port, update interval, tracking switches, overlay settings, and log levels. The default WebSocket port is `18585`.
+The Lunaris config UI exposes the WebSocket port, update interval, overlay settings, and log levels. The default WebSocket port is `18585`.
 
 ## Installation
 

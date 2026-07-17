@@ -142,15 +142,19 @@ Each selected mod is preflighted before any build. The pipeline then performs
 the explicit BepInEx build, runs `tcli build`, locates the expected package
 ZIP, validates its contents against the manifest allowlist, and only then
 publishes. The package must contain only the manifest, icon, README, and the
-exact declared copy targets. Game/runtime DLLs and unsafe paths are rejected. Manifest and declared-input hashes are checked
-again immediately before upload, so a changed package input cannot be
-published accidentally.
+exact declared copy targets. Game/runtime DLLs and unsafe paths are rejected. Manifest and declared-input
+hashes are checked again immediately before upload, so a changed package input
+cannot be published accidentally.
 
 The exact upload command issued by the pipeline is:
 
 ```text
-tcli publish --package-version VERSION --token TOKEN --config-path MANIFEST
+TCLI_AUTH_TOKEN=TOKEN tcli publish --package-version VERSION --file VALIDATED_ZIP --config-path MANIFEST
 ```
+
+The token is supplied only through the subprocess environment. The validated
+ZIP is passed explicitly so `tcli publish` cannot rebuild and upload an
+unvalidated artifact.
 
 There is no GitHub Actions release or upload automation. Run the command
 locally when an upload is intentionally requested.
