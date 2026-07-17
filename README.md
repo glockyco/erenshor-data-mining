@@ -53,7 +53,7 @@ InteractiveMapCompanion
 | `src/erenshor/` | Python CLI and pipeline implementation. |
 | `src/Assets/Editor/` | Unity editor export scripts run during batch export. |
 | `src/maps/` | SvelteKit interactive map website. |
-| `src/mods/` | BepInEx companion mods and mod build/publish metadata. |
+| `src/mods/` | Native BepInEx/Lunaris companion mods and build/publish metadata. |
 | `quest_guides/` | Generated and curated quest-guide data consumed by AdventureGuide. |
 | `variants/` | Per-game-variant outputs: game files, Unity projects, databases, logs, backups, images, wiki output, and map data. |
 | `.erenshor/` | Local state, logs, and config overrides. Gitignored. |
@@ -68,7 +68,7 @@ InteractiveMapCompanion
 - SteamCMD.
 - A Steam account that owns Erenshor for download workflows.
 - pnpm for the map frontend workspace.
-- .NET SDK for BepInEx mod build/test workflows.
+- .NET SDK for native mod build/test workflows.
 
 Local config supplies machine-specific paths and credentials. Do not commit local credentials.
 
