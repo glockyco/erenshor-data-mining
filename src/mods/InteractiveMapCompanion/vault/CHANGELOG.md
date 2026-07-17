@@ -2,7 +2,7 @@
 
 ## v2026.717.0
 
-- Added in-game back, forward, and map navigation controls.
+- Added back, forward, and map navigation buttons to the in-game browser window.
 - Reduced redundant browser input updates while the pointer is stationary.
 
 ## v2026.716.0
