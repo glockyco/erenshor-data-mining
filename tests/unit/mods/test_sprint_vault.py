@@ -51,7 +51,7 @@ def test_thunderstore_packaging_is_native_bepinex() -> None:
 
 def test_native_adapters_share_idempotent_lifecycle() -> None:
     runtime = (MOD_ROOT / "src" / "Core" / "SprintRuntime.cs").read_text()
-    assert "Start(ISprintSettings settings, Func<bool> isSprintPressed)" in runtime
+    assert "Start(ISprintSettings settings)" in runtime
     assert "internal static bool Start" in runtime
     assert "internal static void Stop()" in runtime
     assert "if (!_started)" in runtime
@@ -64,7 +64,7 @@ def test_native_adapters_share_idempotent_lifecycle() -> None:
         awake_body = source[awake : source.index("}", awake)]
         assert "gameObject.hideFlags = HideFlags.HideAndDontSave;" in awake_body
         assert source.index("gameObject.hideFlags") < source.index("SprintRuntime.Start")
-        assert "SprintRuntime.Tick()" in source
+        assert "SprintRuntime.Tick(" in source
         assert "SprintRuntime.Stop()" in source
 
 

@@ -1,4 +1,5 @@
 using BepInEx;
+using ErenshorMods.Input;
 using UnityEngine;
 
 namespace AdventureGuide;
@@ -15,7 +16,7 @@ public sealed class Plugin : BaseUnityPlugin
         var logger = new BepInExLogger(Logger);
         var config = new BepInExConfigBackend(Config);
         var iniPath = System.IO.Path.Combine(Paths.ConfigPath, "adventureguide", "imgui.ini");
-        _runtime = new AdventureGuideRuntime(logger, config, iniPath);
+        _runtime = new AdventureGuideRuntime(logger, config, iniPath, UnityKeyboardInput.Instance);
         _runtime.Start();
     }
 

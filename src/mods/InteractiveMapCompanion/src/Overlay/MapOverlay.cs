@@ -188,6 +188,28 @@ internal sealed class MapOverlay : MonoBehaviour
         );
     }
 
+    internal void HandleShortcut(bool wasPressed)
+    {
+        if (_stopped || !_ready || !wasPressed)
+            return;
+
+        bool charNameFocused =
+            GameData.InCharSelect
+            && EventSystem.current?.currentSelectedGameObject?.name == "InputField (TMP)";
+
+        var config = Config!;
+        if (GameData.PlayerTyping || charNameFocused)
+        {
+            Log?.LogDebug($"[Overlay] Ignored {config.ToggleKey} while text input was active.");
+            return;
+        }
+
+        SetVisible(!_visible);
+
+        if (config.ToggleKey == InputManager.Map)
+            MapKeyPatches.SuppressMapKey = true;
+    }
+
     private void Update()
     {
         if (_stopped || !_ready || _browser == null)
@@ -195,19 +217,6 @@ internal sealed class MapOverlay : MonoBehaviour
 
         _renderer?.Update();
         _renderer?.LogDiagnostics(Time.deltaTime);
-
-        bool charNameFocused =
-            GameData.InCharSelect
-            && EventSystem.current?.currentSelectedGameObject?.name == "InputField (TMP)";
-
-        var config = Config!;
-        if (Input.GetKeyDown(config.ToggleKey) && !GameData.PlayerTyping && !charNameFocused)
-        {
-            SetVisible(!_visible);
-
-            if (config.ToggleKey == InputManager.Map)
-                MapKeyPatches.SuppressMapKey = true;
-        }
 
         if (!_visible || !_browser.IsReady)
             return;

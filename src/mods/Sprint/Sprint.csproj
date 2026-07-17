@@ -23,6 +23,11 @@
     <!-- Ship only Sprint.dll; Lunaris provides the shared deps at runtime -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
   </ItemGroup>

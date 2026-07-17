@@ -1,3 +1,4 @@
+using ErenshorMods.Input;
 using Lunaris;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ public sealed class Plugin : LunarisPlugin
             "adventureguide",
             "imgui.ini"
         );
-        _runtime = new AdventureGuideRuntime(logger, config, iniPath);
+        _runtime = new AdventureGuideRuntime(logger, config, iniPath, UnityKeyboardInput.Instance);
         _runtime.Start();
     }
 

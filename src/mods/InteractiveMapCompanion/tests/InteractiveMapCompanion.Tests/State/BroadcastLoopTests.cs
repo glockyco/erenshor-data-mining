@@ -94,6 +94,8 @@ public class BroadcastLoopTests
             _server.Broadcast(json);
         }
 
+        public void Stop() { }
+
         public void OnSceneLoaded(string newZone)
         {
             var previousZone = _currentZone;

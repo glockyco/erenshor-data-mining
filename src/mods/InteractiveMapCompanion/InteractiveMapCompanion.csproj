@@ -27,6 +27,10 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
+  </ItemGroup>
+
   <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
        are removed first so explicit selection never duplicates src/Plugin.cs. -->
   <ItemGroup>

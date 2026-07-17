@@ -37,6 +37,6 @@ public sealed class SprintSettings : ISprintSettings
     [ConfigRange(1f, 10f)]
     public float SprintMultiplier { get; set; } = 1.5f;
 
-    public float Multiplier => SprintMultiplier;
+    float ISprintSettings.Multiplier => SprintMultiplier;
 }
 #endif

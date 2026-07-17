@@ -19,7 +19,7 @@ public sealed class Plugin : LunarisPlugin
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
         _settings = Config.Register<SprintSettings>().Get();
-        SprintRuntime.Start(_settings, () => _settings.SprintKey.IsHeld);
+        SprintRuntime.Start(_settings);
 
         Logging.LogInfo(
             $"{PluginInfo.Name} v{PluginInfo.Version} loaded\n"
@@ -29,7 +29,7 @@ public sealed class Plugin : LunarisPlugin
         );
     }
 
-    private void Update() => SprintRuntime.Tick();
+    private void Update() => SprintRuntime.Tick(_settings.SprintKey.IsHeld);
 
     private void OnDestroy() => SprintRuntime.Stop();
 }

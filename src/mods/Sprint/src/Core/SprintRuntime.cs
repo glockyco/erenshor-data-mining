@@ -15,7 +15,6 @@ internal static class SprintRuntime
 
     private static Harmony? _harmony;
     private static ISprintSettings? _settings;
-    private static Func<bool>? _isSprintPressed;
     private static Stats? _playerStats;
     private static bool _sprintToggled;
     private static bool _previousKeyPressed;
@@ -27,18 +26,15 @@ internal static class SprintRuntime
     /// Starts the shared lifecycle once. A repeated start is ignored and returns
     /// false so a loader cannot install duplicate Harmony patches.
     /// </summary>
-    internal static bool Start(ISprintSettings settings, Func<bool> isSprintPressed)
+    internal static bool Start(ISprintSettings settings)
     {
         if (_started)
             return false;
 
         if (settings == null)
             throw new ArgumentNullException(nameof(settings));
-        if (isSprintPressed == null)
-            throw new ArgumentNullException(nameof(isSprintPressed));
 
         _settings = settings;
-        _isSprintPressed = isSprintPressed;
         _multiplier = settings.Multiplier;
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
@@ -46,33 +42,10 @@ internal static class SprintRuntime
         return true;
     }
 
-    /// <summary>
-    /// Checks a configured shortcut using the supplied key reader. Keeping the
-    /// predicate independent from Unity input makes loader adapters testable and
-    /// avoids BepInEx's input abstraction on the native game input path.
-    /// </summary>
-    internal static bool IsShortcutPressed(
-        KeyCode mainKey,
-        IReadOnlyList<KeyCode> modifiers,
-        Func<KeyCode, bool> isKeyPressed
-    )
+    /// <summary>Advances sprint state by one Unity frame.</summary>
+    internal static void Tick(bool keyPressed)
     {
-        if (mainKey == KeyCode.None || !isKeyPressed(mainKey))
-            return false;
-
-        for (int i = 0; i < modifiers.Count; i++)
-        {
-            if (!isKeyPressed(modifiers[i]))
-                return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>Advances input and speed state by one Unity frame.</summary>
-    internal static void Tick()
-    {
-        if (!_started || _settings == null || _isSprintPressed == null)
+        if (!_started || _settings == null)
             return;
 
         if (_playerStats == null)
@@ -84,7 +57,6 @@ internal static class SprintRuntime
             return;
         }
 
-        bool keyPressed = _isSprintPressed();
         _multiplier = _settings.Multiplier;
 
         if (!_settings.Enabled)
@@ -141,7 +113,6 @@ internal static class SprintRuntime
     internal static void Reset()
     {
         _settings = null;
-        _isSprintPressed = null;
         _playerStats = null;
         _sprintToggled = false;
         _previousKeyPressed = false;

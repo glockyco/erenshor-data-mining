@@ -85,13 +85,14 @@ public sealed class InteractiveMapRuntime
     }
 
     /// <summary>
-    /// Advances the broadcast loop by one Unity frame.
+    /// Advances the overlay shortcut and broadcast loop by one Unity frame.
     /// </summary>
-    public void Tick(float deltaTime)
+    public void Tick(float deltaTime, bool togglePressed)
     {
         if (!_started || _stopped)
             return;
 
+        _overlay?.HandleShortcut(togglePressed);
         _broadcastLoop?.Tick(deltaTime);
     }
 

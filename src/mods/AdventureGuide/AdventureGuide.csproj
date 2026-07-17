@@ -21,6 +21,11 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(ModLoader)' == 'bepinex'">
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>

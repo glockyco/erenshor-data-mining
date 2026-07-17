@@ -6,6 +6,7 @@ using AdventureGuide.Patches;
 using AdventureGuide.Rendering;
 using AdventureGuide.State;
 using AdventureGuide.UI;
+using ErenshorMods.Input;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,6 +22,7 @@ public sealed class AdventureGuideRuntime
     private readonly IModLogger _logger;
     private readonly IGuideConfigBackend _backend;
     private readonly string _iniPath;
+    private readonly IKeyboardInput _keyboard;
 
     private Harmony? _harmony;
     private GuideConfig? _config;
@@ -49,11 +51,17 @@ public sealed class AdventureGuideRuntime
     private bool _started;
     private bool _stopped;
 
-    public AdventureGuideRuntime(IModLogger logger, IGuideConfigBackend config, string iniPath)
+    public AdventureGuideRuntime(
+        IModLogger logger,
+        IGuideConfigBackend config,
+        string iniPath,
+        IKeyboardInput keyboard
+    )
     {
         _logger = logger;
         _backend = config;
         _iniPath = iniPath;
+        _keyboard = keyboard;
     }
 
     public bool Start()
@@ -427,13 +435,19 @@ public sealed class AdventureGuideRuntime
     {
         if (_config == null || _window == null)
             return;
-        if (Input.GetKeyDown(_config.ToggleKey.Value))
+        if (KeyboardShortcuts.WasPressed(_config.ToggleKey.Value, _keyboard))
             _window.Toggle();
-        if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(InputManager.Journal))
+        if (
+            _config.ReplaceQuestLog.Value
+            && KeyboardShortcuts.WasPressed(InputManager.Journal, _keyboard)
+        )
             _window.Toggle();
-        if (_config.TrackerEnabled.Value && Input.GetKeyDown(_config.TrackerToggleKey.Value))
+        if (
+            _config.TrackerEnabled.Value
+            && KeyboardShortcuts.WasPressed(_config.TrackerToggleKey.Value, _keyboard)
+        )
             _tracker?.Toggle();
-        if (Input.GetKeyDown(_config.GroundPathToggleKey.Value))
+        if (KeyboardShortcuts.WasPressed(_config.GroundPathToggleKey.Value, _keyboard))
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 

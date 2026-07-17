@@ -1,6 +1,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using ErenshorMods.Input;
 using InteractiveMapCompanion.Config;
 using UnityEngine;
 using ConfigLogLevel = InteractiveMapCompanion.Config.LogLevel;
@@ -11,20 +12,24 @@ namespace InteractiveMapCompanion;
 public sealed class Plugin : BaseUnityPlugin
 {
     private InteractiveMapRuntime? _runtime;
+    private BepModConfig? _config;
 
     private void Awake()
     {
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
-        var config = new BepModConfig(Config);
+        _config = new BepModConfig(Config);
         var log = new BepModLogger(Logger);
-        _runtime = new InteractiveMapRuntime(gameObject, config, log);
+        _runtime = new InteractiveMapRuntime(gameObject, _config, log);
         _runtime.Start();
     }
 
     private void Update()
     {
-        _runtime?.Tick(Time.deltaTime);
+        bool togglePressed =
+            _config != null
+            && KeyboardShortcuts.WasPressed(_config.ToggleKey, UnityKeyboardInput.Instance);
+        _runtime?.Tick(Time.deltaTime, togglePressed);
     }
 
     private void OnApplicationQuit()
@@ -35,6 +40,8 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         _runtime?.Stop();
+        _runtime = null;
+        _config = null;
     }
 
     private sealed class BepModLogger : IModLogger

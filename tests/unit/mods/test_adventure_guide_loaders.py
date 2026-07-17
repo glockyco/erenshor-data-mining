@@ -17,7 +17,8 @@ def test_shared_runtime_owns_lifecycle_and_loader_neutral_contracts() -> None:
     runtime = (MOD_ROOT / "src" / "Plugin.cs").read_text()
     contracts = (MOD_ROOT / "src" / "Config" / "LoaderContracts.cs").read_text()
 
-    assert "public AdventureGuideRuntime(IModLogger logger, IGuideConfigBackend config, string iniPath)" in runtime
+    assert "public AdventureGuideRuntime(" in runtime
+    assert "IKeyboardInput keyboard" in runtime
     assert "public bool Start()" in runtime
     assert "public void Tick()" in runtime
     assert "public void Draw()" in runtime

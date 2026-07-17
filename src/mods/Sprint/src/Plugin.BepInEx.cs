@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Configuration;
+using ErenshorMods.Input;
 using Sprint.Config;
 using Sprint.Core;
 using UnityEngine;
@@ -16,7 +17,6 @@ public sealed class Plugin : BaseUnityPlugin
     private ConfigEntry<float> _sprintMultiplier = null!;
     private BepSprintSettings _settings = null!;
     private KeyCode[] _sprintModifiers = Array.Empty<KeyCode>();
-    private static readonly Func<KeyCode, bool> IsKeyPressed = UnityEngine.Input.GetKey;
 
     private void Awake()
     {
@@ -53,7 +53,7 @@ public sealed class Plugin : BaseUnityPlugin
         _sprintKey.SettingChanged += OnSprintKeyChanged;
         CacheSprintShortcut();
         _settings = new BepSprintSettings(_enabled, _toggleMode, _sprintMultiplier);
-        SprintRuntime.Start(_settings, IsSprintPressed);
+        SprintRuntime.Start(_settings);
 
         Logger.LogInfo(
             $"{PluginInfo.Name} v{PluginInfo.Version} loaded\n"
@@ -63,7 +63,7 @@ public sealed class Plugin : BaseUnityPlugin
         );
     }
 
-    private void Update() => SprintRuntime.Tick();
+    private void Update() => SprintRuntime.Tick(IsSprintPressed());
 
     private void OnDestroy()
     {
@@ -86,7 +86,11 @@ public sealed class Plugin : BaseUnityPlugin
     private bool IsSprintPressed()
     {
         var shortcut = _sprintKey.Value;
-        return SprintRuntime.IsShortcutPressed(shortcut.MainKey, _sprintModifiers, IsKeyPressed);
+        return KeyboardShortcuts.IsHeld(
+            shortcut.MainKey,
+            _sprintModifiers,
+            UnityKeyboardInput.Instance
+        );
     }
 
     private sealed class BepSprintSettings : ISprintSettings

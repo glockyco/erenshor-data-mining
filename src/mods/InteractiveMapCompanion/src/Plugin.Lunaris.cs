@@ -20,13 +20,16 @@ namespace InteractiveMapCompanion;
 public sealed class Plugin : LunarisPlugin
 {
     private InteractiveMapRuntime? _runtime;
+    private MapSettings? _settings;
+    private bool _toggleRequested;
 
     private void Awake()
     {
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
-        var settings = Config.Register<MapSettings>().Get();
-        var config = new LunarisModConfig(settings);
+        _settings = Config.Register<MapSettings>().Get();
+        _settings.ToggleKey.OnPressed += OnTogglePressed;
+        var config = new LunarisModConfig(_settings);
         var log = new LunarisModLogger(Logging);
         _runtime = new InteractiveMapRuntime(gameObject, config, log);
         _runtime.Start();
@@ -34,7 +37,9 @@ public sealed class Plugin : LunarisPlugin
 
     private void Update()
     {
-        _runtime?.Tick(Time.deltaTime);
+        bool togglePressed = _toggleRequested;
+        _toggleRequested = false;
+        _runtime?.Tick(Time.deltaTime, togglePressed);
     }
 
     private void OnApplicationQuit()
@@ -44,8 +49,15 @@ public sealed class Plugin : LunarisPlugin
 
     private void OnDestroy()
     {
+        if (_settings != null)
+            _settings.ToggleKey.OnPressed -= OnTogglePressed;
         _runtime?.Stop();
+        _runtime = null;
+        _settings = null;
+        _toggleRequested = false;
     }
+
+    private void OnTogglePressed() => _toggleRequested = true;
 
     private sealed class LunarisModLogger : IModLogger
     {
