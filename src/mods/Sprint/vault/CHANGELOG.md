@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.717.0
+
+- Maintenance release. No functional changes.
+
 ## v2026.622.0
 
 - First Erenshor Vault release (Lunaris-native build).

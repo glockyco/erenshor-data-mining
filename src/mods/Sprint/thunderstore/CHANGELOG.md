@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.717.0
+
+- Maintenance release. No functional changes.
+
 ## 2026.716.0
 
 - Added an Enabled setting to turn sprinting on or off.

@@ -15,6 +15,8 @@ public sealed class Plugin : BaseUnityPlugin
     private ConfigEntry<bool> _toggleMode = null!;
     private ConfigEntry<float> _sprintMultiplier = null!;
     private BepSprintSettings _settings = null!;
+    private KeyCode[] _sprintModifiers = Array.Empty<KeyCode>();
+    private static readonly Func<KeyCode, bool> IsKeyPressed = UnityEngine.Input.GetKey;
 
     private void Awake()
     {
@@ -48,8 +50,10 @@ public sealed class Plugin : BaseUnityPlugin
             )
         );
 
+        _sprintKey.SettingChanged += OnSprintKeyChanged;
+        CacheSprintShortcut();
         _settings = new BepSprintSettings(_enabled, _toggleMode, _sprintMultiplier);
-        SprintRuntime.Start(_settings, () => _sprintKey.Value.IsPressed());
+        SprintRuntime.Start(_settings, IsSprintPressed);
 
         Logger.LogInfo(
             $"{PluginInfo.Name} v{PluginInfo.Version} loaded\n"
@@ -61,7 +65,29 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Update() => SprintRuntime.Tick();
 
-    private void OnDestroy() => SprintRuntime.Stop();
+    private void OnDestroy()
+    {
+        _sprintKey.SettingChanged -= OnSprintKeyChanged;
+        SprintRuntime.Stop();
+    }
+
+    private void OnSprintKeyChanged(object sender, EventArgs args) => CacheSprintShortcut();
+
+    private void CacheSprintShortcut()
+    {
+        var shortcut = _sprintKey.Value;
+
+        var modifiers = new List<KeyCode>();
+        foreach (var modifier in shortcut.Modifiers)
+            modifiers.Add(modifier);
+        _sprintModifiers = modifiers.Count == 0 ? Array.Empty<KeyCode>() : modifiers.ToArray();
+    }
+
+    private bool IsSprintPressed()
+    {
+        var shortcut = _sprintKey.Value;
+        return SprintRuntime.IsShortcutPressed(shortcut.MainKey, _sprintModifiers, IsKeyPressed);
+    }
 
     private sealed class BepSprintSettings : ISprintSettings
     {

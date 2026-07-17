@@ -46,6 +46,29 @@ internal static class SprintRuntime
         return true;
     }
 
+    /// <summary>
+    /// Checks a configured shortcut using the supplied key reader. Keeping the
+    /// predicate independent from Unity input makes loader adapters testable and
+    /// avoids BepInEx's input abstraction on the native game input path.
+    /// </summary>
+    internal static bool IsShortcutPressed(
+        KeyCode mainKey,
+        IReadOnlyList<KeyCode> modifiers,
+        Func<KeyCode, bool> isKeyPressed
+    )
+    {
+        if (mainKey == KeyCode.None || !isKeyPressed(mainKey))
+            return false;
+
+        for (int i = 0; i < modifiers.Count; i++)
+        {
+            if (!isKeyPressed(modifiers[i]))
+                return false;
+        }
+
+        return true;
+    }
+
     /// <summary>Advances input and speed state by one Unity frame.</summary>
     internal static void Tick()
     {
