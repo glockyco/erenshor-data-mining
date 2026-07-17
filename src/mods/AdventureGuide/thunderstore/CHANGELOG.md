@@ -2,7 +2,7 @@
 
 ## v2026.717.0
 
-- Maintenance release. No functional changes.
+- Hide the navigation arrow, ground path, and world markers while Hide UI mode (F7) is active.
 
 ## v2026.713.0
 

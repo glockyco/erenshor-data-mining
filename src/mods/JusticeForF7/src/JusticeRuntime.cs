@@ -12,6 +12,7 @@ internal sealed class JusticeRuntime
 {
     private readonly IModLogger _log;
     private readonly IJusticeSettings _settings;
+    private readonly CanvasVisibilityObserver _canvasVisibility = new();
 
     private Harmony? _harmony;
     private WorldUIHider? _hider;
@@ -39,7 +40,6 @@ internal sealed class JusticeRuntime
         _disabledReported = false;
 
         _hider = new WorldUIHider(_log, _settings);
-        TypeTextPatch.Hider = _hider;
         NamePlatePatch.Hider = _hider;
         NpcNamePlatePatch.Hider = _hider;
         DmgPopPatch.Hider = _hider;
@@ -78,6 +78,9 @@ internal sealed class JusticeRuntime
         {
             ReportDisabled();
         }
+
+        if (_running && _hider != null)
+            _canvasVisibility.Tick(_hider);
     }
 
     /// <summary>Stops the mod and restores every piece of game state it owns.</summary>
@@ -92,12 +95,11 @@ internal sealed class JusticeRuntime
         _hider?.OnUIShown();
         _hider = null;
 
-        TypeTextPatch.Hider = null;
+        _canvasVisibility.Reset();
         NamePlatePatch.Hider = null;
         NpcNamePlatePatch.Hider = null;
         DmgPopPatch.Hider = null;
         XPBubPatch.Hider = null;
-        TypeTextPatch.ResetState();
 
         _running = false;
     }
@@ -113,7 +115,7 @@ internal sealed class JusticeRuntime
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        TypeTextPatch.ResetState();
+        _canvasVisibility.Reset();
         _hider?.OnSceneLoaded();
     }
 }

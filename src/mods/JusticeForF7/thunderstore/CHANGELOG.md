@@ -1,7 +1,7 @@
 ## 2026.717.0
 
-- Added target arrows to F7 hide mode.
-- Added character health bars to F7 hide mode.
+- Added target arrows to Hide UI mode (F7).
+- Added character health bars to Hide UI mode (F7).
 
 ## 2026.217.0
 

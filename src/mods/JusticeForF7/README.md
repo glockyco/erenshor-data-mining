@@ -16,18 +16,19 @@ src/
 ├── Plugin.BepInEx.cs     # Native BepInEx entrypoint
 ├── Plugin.Lunaris.cs     # Native Lunaris entrypoint
 ├── JusticeContracts.cs   # Loader-neutral settings and logging contracts
-├── JusticeRuntime.cs     # Shared lifecycle, patches, and cleanup
+├── JusticeRuntime.cs     # Shared lifecycle, canvas observation, patches, and cleanup
 ├── PluginInfo.cs         # GUID/name + generated version constant
 ├── JusticeSettings.cs    # Lunaris Config.Register settings (per-category toggles)
 ├── WorldUIHider.cs       # Finds and hides/restores world-space renderers
-└── Patches/              # Harmony patches: F7 canvas detection + transient suppression
+└── Patches/              # Canvas visibility observer + transient suppression patches
 ```
 
 ## How it works
 
-1. **F7 detection**: `TypeTextPatch` (postfix on `TypeText.Update`) watches
-   `GameData.MainCanvas.enabled` each frame and drives the hider on transitions,
-   running a periodic re-scan while hidden to catch newly spawned elements.
+1. **F7 detection**: `JusticeRuntime.Tick` passes the authoritative
+   `GameData.MainCanvas.enabled` state to `CanvasVisibilityObserver` each frame.
+   The observer drives the hider on transitions and runs a periodic re-scan while
+   hidden to catch newly spawned elements.
 2. **Hiding**: `WorldUIHider` toggles `Renderer.enabled` and owned child
    GameObjects rather than `TextMeshPro.enabled`, which the game manages itself.
    `NamePlatePatch` immediately re-hides target arrows that the game updates every
