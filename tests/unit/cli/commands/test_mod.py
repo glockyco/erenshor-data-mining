@@ -17,18 +17,28 @@ import typer
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.commands.mod import MODS, REQUIRED_DLLS
 
+_DISCOVER_CROSSOVER_GAME_PATH = mod_command._discover_crossover_game_path
+
 
 def _ctx(
     tmp_path: Path,
     *,
     variant: str = "main",
     game_paths: dict[str, Path] | None = None,
+    game_installs: dict[str, Path | None] | None = None,
     mods_config: Any | None = None,
 ) -> SimpleNamespace:
     """Build the smallest CLI context needed by mod command helpers."""
     paths = game_paths or {variant: tmp_path / variant}
+    installs = game_installs or {}
+    app_ids = {"main": "2382520", "playtest": "3090030", "demo": "2522260"}
     variants = {
-        name: SimpleNamespace(resolved_game_files=lambda _root, path=path: path) for name, path in paths.items()
+        name: SimpleNamespace(
+            app_id=app_ids.get(name, "0"),
+            resolved_game_files=lambda _root, path=path: path,
+            resolved_game_install=lambda _root, path=installs.get(name): path,
+        )
+        for name, path in paths.items()
     }
     if mods_config is None:
         mods_config = SimpleNamespace(
@@ -41,6 +51,12 @@ def _ctx(
     )
     cli_ctx = SimpleNamespace(config=config, variant=variant, repo_root=tmp_path)
     return SimpleNamespace(obj=cli_ctx)
+
+
+@pytest.fixture(autouse=True)
+def _disable_workstation_crossover_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unit tests must never resolve or modify the developer's real game install."""
+    monkeypatch.setattr(mod_command, "_discover_crossover_game_path", lambda _app_id: None)
 
 
 def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> None:
@@ -174,7 +190,53 @@ def test_game_path_uses_selected_variant(variant: str, tmp_path: Path, monkeypat
     game = tmp_path / variant
     (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
     ctx = _ctx(tmp_path, variant=variant, game_paths={variant: game}).obj
-    assert mod_command._get_game_path(ctx) == game
+    assert mod_command._get_game_path(ctx, allow_extracted=True) == game
+
+
+def test_game_path_configured_variant_install_precedes_global_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    configured = tmp_path / "playtest-install"
+    configured.mkdir()
+    environment = tmp_path / "main-install"
+    environment.mkdir()
+    ctx = _ctx(
+        tmp_path,
+        variant="playtest",
+        game_paths={"playtest": tmp_path / "extracted"},
+        game_installs={"playtest": configured},
+    ).obj
+    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
+
+    assert mod_command._get_game_path(ctx) == configured
+
+
+@pytest.mark.parametrize(
+    ("variant", "app_id", "install_dir"),
+    [
+        ("main", "2382520", "Erenshor"),
+        ("playtest", "3090030", "Erenshor Playtest"),
+        ("demo", "2522260", "Erenshor Demo"),
+    ],
+)
+def test_crossover_discovery_uses_selected_steam_app(
+    variant: str,
+    app_id: str,
+    install_dir: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bottles = tmp_path / "Bottles"
+    steamapps = bottles / "QA" / "drive_c/Program Files (x86)/Steam/steamapps"
+    game = steamapps / "common" / install_dir
+    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
+    manifest = steamapps / f"appmanifest_{app_id}.acf"
+    manifest.write_text(f'"AppState"\n{{\n\t"installdir"\t\t"{install_dir}"\n}}\n')
+    monkeypatch.setattr(mod_command, "CROSSOVER_BOTTLES_ROOT", bottles)
+    monkeypatch.setattr(mod_command.sys, "platform", "darwin")
+    monkeypatch.setenv("CROSSOVER_BOTTLE", "QA")
+
+    assert _DISCOVER_CROSSOVER_GAME_PATH(app_id) == game
 
 
 def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -187,9 +249,64 @@ def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypat
     assert mod_command._get_game_path(ctx) == environment
 
 
+def _write_loader_proxies(game: Path, *, active: str = "lunaris") -> None:
+    game.mkdir(parents=True, exist_ok=True)
+    (game / "winhttp.bepinex-backup.dll").write_bytes(b"bepinex-proxy")
+    (game / "winhttp.lunaris.dll").write_bytes(b"lunaris-proxy")
+    (game / "winhttp.dll").write_bytes(f"{active}-proxy".encode())
+
+
+def test_loader_activation_switches_in_place_and_is_idempotent(tmp_path: Path) -> None:
+    game = tmp_path / "game"
+    _write_loader_proxies(game)
+
+    sources = mod_command._loader_proxy_sources(game)
+    assert mod_command._detect_active_loader(game, sources) == "lunaris"
+    assert mod_command._activate_loader(game, "bepinex") is True
+    assert (game / "winhttp.dll").read_bytes() == b"bepinex-proxy"
+    assert (game / "winhttp.lunaris.dll").read_bytes() == b"lunaris-proxy"
+    assert mod_command._activate_loader(game, "bepinex") is False
+    assert mod_command._activate_loader(game, "lunaris") is True
+    assert (game / "winhttp.dll").read_bytes() == b"lunaris-proxy"
+
+
+def test_loader_activation_refuses_unknown_active_proxy(tmp_path: Path) -> None:
+    game = tmp_path / "game"
+    _write_loader_proxies(game)
+    active = game / "winhttp.dll"
+    active.write_bytes(b"unrelated-winhttp-proxy")
+
+    with pytest.raises(ValueError, match="unrecognized"):
+        mod_command._activate_loader(game, "bepinex")
+
+    assert active.read_bytes() == b"unrelated-winhttp-proxy"
+
+
+def test_loader_activation_rejects_conflicting_saved_proxies(tmp_path: Path) -> None:
+    game = tmp_path / "game"
+    _write_loader_proxies(game)
+    (game / "winhttp.dll.bepinex-backup").write_bytes(b"different-bepinex-proxy")
+
+    with pytest.raises(ValueError, match="conflicting bepinex"):
+        mod_command._activate_loader(game, "bepinex")
+
+
+def test_game_path_rejects_environment_override_for_another_steam_app(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    main = tmp_path / "main"
+    main.mkdir()
+    (main / "steam_appid.txt").write_text("2382520\n")
+    ctx = _ctx(tmp_path, variant="demo", game_paths={"demo": tmp_path / "demo"}).obj
+    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(main))
+
+    assert mod_command._get_game_path(ctx) is None
+
+
 def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
     game = tmp_path / "game"
+    _write_loader_proxies(game)
     output = mod_command._get_mod_output_dir(ctx, "sprint", "bepinex")
     output.mkdir(parents=True)
     (output / "Sprint.dll").write_bytes(b"bepinex")
@@ -205,6 +322,73 @@ def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytes
 
     assert calls == ["bepinex"]
     assert (game / "BepInEx" / "plugins" / "Sprint.dll").read_bytes() == b"bepinex"
+    assert (game / "winhttp.dll").read_bytes() == b"bepinex-proxy"
+
+
+def test_bepinex_deploy_uses_thunderstore_runtime_layout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path).obj
+    game = tmp_path / "game"
+    _write_loader_proxies(game)
+    stale = game / "BepInEx/plugins/AdventureGuide.dll"
+    stale.parent.mkdir(parents=True)
+    stale.write_bytes(b"stale-plugin")
+    mod_dir = tmp_path / MODS["adventure-guide"]["dir"]
+    output = mod_dir / "bin/Debug/netstandard2.1/bepinex"
+    output.mkdir(parents=True)
+    (output / "AdventureGuide.dll").write_bytes(b"plugin")
+    (output / "ImGui.NET.dll").write_bytes(b"imgui")
+    thunderstore = mod_dir / "thunderstore"
+    thunderstore.mkdir()
+    (thunderstore / "icon.png").write_bytes(b"icon")
+    (thunderstore / "README.md").write_text("# Fixture\n")
+    (thunderstore / "CHANGELOG.md").write_text("# Changelog\n")
+    (mod_dir / "thunderstore.toml").write_text(
+        """[package]
+namespace = "WoW_Much"
+name = "AdventureGuide"
+
+[build]
+icon = "./thunderstore/icon.png"
+readme = "./thunderstore/README.md"
+changelog = "./thunderstore/CHANGELOG.md"
+outdir = "./thunderstore/build"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/bepinex/AdventureGuide.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/bepinex/ImGui.NET.dll"
+target = "plugins/AdventureGuide/"
+"""
+    )
+    monkeypatch.setattr(mod_command, "_get_game_path", lambda _ctx: game)
+    monkeypatch.setattr(mod_command, "_build_mods_internal", lambda *_args, **_kwargs: None)
+
+    mod_command.deploy(
+        ctx=SimpleNamespace(obj=ctx),
+        mod="adventure-guide",
+        loader="bepinex",
+        scripts=False,
+    )
+
+    deployed = game / "BepInEx/plugins/AdventureGuide"
+    assert (deployed / "AdventureGuide.dll").read_bytes() == b"plugin"
+    assert (deployed / "ImGui.NET.dll").read_bytes() == b"imgui"
+    assert not stale.exists()
+    assert (game / "winhttp.dll").read_bytes() == b"bepinex-proxy"
+
+
+def test_deploy_rejects_mixed_default_loaders_before_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path)
+    monkeypatch.setattr(
+        mod_command,
+        "_build_mods_internal",
+        lambda *_args, **_kwargs: pytest.fail("mixed deploy must not build"),
+    )
+
+    with pytest.raises(typer.Exit):
+        mod_command.deploy(ctx, mod=None, loader="default", scripts=False)
 
 
 def test_deploy_rejects_scripts_for_default_lunaris_before_build(

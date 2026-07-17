@@ -520,6 +520,14 @@ class VariantConfig(BaseModel):
     game_files: str = Field(
         description="Path to downloaded game files from Steam",
     )
+    game_install: str = Field(
+        default="",
+        description=(
+            "Path to the runnable game installation used by mod setup, deployment, and launch. "
+            "Leave empty to discover the selected Steam app in the configured CrossOver bottle "
+            "or fall back to game_files."
+        ),
+    )
     database_raw: str = Field(
         description="Path to raw SQLite database written directly by Unity export",
     )
@@ -565,6 +573,15 @@ class VariantConfig(BaseModel):
         from .paths import resolve_path
 
         return resolve_path(self.game_files, repo_root)
+
+    def resolved_game_install(self, repo_root: Path) -> Path | None:
+        """Get the configured runnable game installation, when set."""
+        if not self.game_install:
+            return None
+
+        from .paths import resolve_path
+
+        return resolve_path(self.game_install, repo_root)
 
     def resolved_profiles(self, repo_root: Path) -> Path:
         """Get resolved extraction profile directory path."""

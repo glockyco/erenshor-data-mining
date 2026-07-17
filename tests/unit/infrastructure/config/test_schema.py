@@ -541,6 +541,7 @@ class TestVariantConfig:
         assert config.enabled is True  # Default
         assert config.description == ""  # Default
         assert config.images_output == ""  # Default
+        assert config.game_install == ""  # Auto-discovered or game_files fallback
         assert config.name == "Main Game"
         assert config.app_id == "2382520"
 
@@ -569,6 +570,7 @@ class TestVariantConfig:
             unity_project="$REPO_ROOT/unity",
             editor_scripts="$REPO_ROOT/scripts",
             game_files="$REPO_ROOT/game",
+            game_install="$HOME/Games/Erenshor",
             database_raw="$REPO_ROOT/raw.sqlite",
             database="$REPO_ROOT/db.sqlite",
             logs="$REPO_ROOT/logs",
@@ -580,12 +582,16 @@ class TestVariantConfig:
         assert config.resolved_unity_project(tmp_path) == tmp_path / "unity"
         assert config.resolved_editor_scripts(tmp_path) == tmp_path / "scripts"
         assert config.resolved_game_files(tmp_path) == tmp_path / "game"
+        assert config.resolved_game_install(tmp_path) == Path.home() / "Games/Erenshor"
         assert config.resolved_database_raw(tmp_path) == tmp_path / "raw.sqlite"
         assert config.resolved_database(tmp_path) == tmp_path / "db.sqlite"
         assert config.resolved_logs(tmp_path) == tmp_path / "logs"
         assert config.resolved_backups(tmp_path) == tmp_path / "backups"
         assert config.resolved_images_output(tmp_path) == tmp_path / "images"
         assert config.resolved_profiles(tmp_path) == tmp_path / "profiles"
+
+        config.game_install = ""
+        assert config.resolved_game_install(tmp_path) is None
 
 
 class TestConfig:

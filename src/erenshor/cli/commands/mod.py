@@ -63,6 +63,17 @@ app = typer.Typer(
 
 console = Console()
 
+CROSSOVER_BOTTLES_ROOT = Path.home() / "Library/Application Support/CrossOver/Bottles"
+CROSSOVER_WINE = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine")
+LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
+    "bepinex": (
+        "winhttp.bepinex.dll",
+        "winhttp.bepinex-backup.dll",
+        "winhttp.dll.bepinex-backup",
+    ),
+    "lunaris": ("winhttp.lunaris.dll",),
+}
+
 VAULT_API_BASE = "https://erenshorvault.app/api"
 
 # Mod registry - all companion mods in the project. Every mod has native build
@@ -164,24 +175,112 @@ def _check_dotnet_available() -> bool:
     return shutil.which("dotnet") is not None
 
 
-def _get_game_path(cli_ctx: CLIContext) -> Path | None:
-    """Get the game installation path from environment or config.
+def _read_steam_install_dir(manifest: Path) -> str | None:
+    """Read ``installdir`` from a Steam ACF manifest."""
+    try:
+        lines = manifest.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        logger.debug(f"Could not read Steam manifest {manifest}: {exc}")
+        return None
 
-    Checks ERENSHOR_GAME_PATH environment variable first, then falls back
-    to variant game files path.
+    for line in lines:
+        if '"installdir"' not in line:
+            continue
+        parts = line.split('"')
+        if len(parts) >= 4 and parts[3]:
+            return parts[3]
+    return None
+
+
+def _discover_crossover_game_path(app_id: str) -> Path | None:
+    """Find one Steam app inside the selected or only matching CrossOver bottle."""
+    if sys.platform != "darwin":
+        return None
+
+    bottle_name = os.environ.get("CROSSOVER_BOTTLE")
+    if bottle_name:
+        bottle_dirs = [CROSSOVER_BOTTLES_ROOT / bottle_name]
+    elif CROSSOVER_BOTTLES_ROOT.is_dir():
+        bottle_dirs = sorted(path for path in CROSSOVER_BOTTLES_ROOT.iterdir() if path.is_dir())
+    else:
+        return None
+
+    matches: list[Path] = []
+    for bottle_dir in bottle_dirs:
+        steamapps = bottle_dir / "drive_c/Program Files (x86)/Steam/steamapps"
+        manifest = steamapps / f"appmanifest_{app_id}.acf"
+        install_dir = _read_steam_install_dir(manifest) if manifest.is_file() else None
+        if install_dir:
+            candidate = steamapps / "common" / install_dir
+            if (candidate / "Erenshor_Data" / "Managed").is_dir():
+                matches.append(candidate)
+
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        logger.warning(
+            f"Steam app {app_id} is installed in multiple CrossOver bottles; "
+            "set CROSSOVER_BOTTLE or the variant's game_install"
+        )
+    return None
+
+
+def _crossover_bottle_for_path(game_path: Path) -> str | None:
+    """Return the CrossOver bottle containing a discovered game path."""
+    try:
+        relative = game_path.resolve().relative_to(CROSSOVER_BOTTLES_ROOT.resolve())
+    except ValueError:
+        return None
+    return relative.parts[0] if relative.parts else None
+
+
+def _read_game_app_id(game_path: Path) -> str | None:
+    app_id_file = game_path / "steam_appid.txt"
+    try:
+        app_id = app_id_file.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return app_id or None
+
+
+def _get_game_path(cli_ctx: CLIContext, *, allow_extracted: bool = False) -> Path | None:
+    """Resolve the selected variant's runnable game installation.
+
+    A per-variant ``game_install`` is authoritative. Standard CrossOver Steam
+    installs are then discovered by the selected variant's app ID. The legacy
+    process-wide environment override and extracted ``game_files`` remain
+    fallbacks for non-standard and build-only environments.
     """
-    # Check environment variable first
+    variant_config = cli_ctx.config.variants.get(cli_ctx.variant)
+    if variant_config:
+        resolve_install = getattr(variant_config, "resolved_game_install", None)
+        configured = cast("Path | None", resolve_install(cli_ctx.repo_root)) if resolve_install else None
+        if configured is not None:
+            if configured.exists():
+                return configured
+            logger.warning(f"Configured game_install does not exist: {configured}")
+            return None
+
+        discovered = _discover_crossover_game_path(variant_config.app_id)
+        if discovered is not None:
+            return discovered
+
     env_path = os.environ.get("ERENSHOR_GAME_PATH")
     if env_path:
         path = Path(env_path)
         if path.exists():
-            return path
-        logger.warning(f"ERENSHOR_GAME_PATH set but path doesn't exist: {env_path}")
+            expected_app_id = variant_config.app_id if variant_config else None
+            actual_app_id = _read_game_app_id(path)
+            if expected_app_id is None or actual_app_id is None or actual_app_id == expected_app_id:
+                return path
+            logger.warning(
+                f"Ignoring ERENSHOR_GAME_PATH for Steam app {actual_app_id}; "
+                f"variant {cli_ctx.variant!r} requires app {expected_app_id}"
+            )
+        else:
+            logger.warning(f"ERENSHOR_GAME_PATH set but path doesn't exist: {env_path}")
 
-    # Fall back to variant config (game files from extract)
-    # This might have the DLLs if extraction was done
-    variant_config = cli_ctx.config.variants.get(cli_ctx.variant)
-    if variant_config:
+    if allow_extracted and variant_config:
         game_files = variant_config.resolved_game_files(cli_ctx.repo_root)
         managed_dir = game_files / "Erenshor_Data" / "Managed"
         if managed_dir.exists():
@@ -208,6 +307,101 @@ def _get_lunaris_plugins_dir(game_path: Path) -> Path:
 def _get_bepinex_scripts_dir(game_path: Path) -> Path:
     """Get the BepInEx scripts directory (for ScriptEngine hot reload)."""
     return game_path / "BepInEx" / "scripts"
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _loader_proxy_sources(game_path: Path) -> dict[LoaderName, Path]:
+    """Resolve one unambiguous saved WinHTTP proxy for each installed loader."""
+    sources: dict[LoaderName, Path] = {}
+    for loader, names in LOADER_PROXY_CANDIDATES.items():
+        candidates = [game_path / name for name in names if (game_path / name).exists()]
+        for candidate in candidates:
+            if not candidate.is_file() or candidate.is_symlink():
+                raise ValueError(f"{loader} loader proxy is not a regular file: {candidate}")
+        digests = {_file_sha256(candidate) for candidate in candidates}
+        if len(digests) > 1:
+            joined = ", ".join(str(path) for path in candidates)
+            raise ValueError(f"conflicting {loader} loader proxies: {joined}")
+        if candidates:
+            sources[loader] = candidates[0]
+    return sources
+
+
+def _detect_active_loader(game_path: Path, sources: dict[LoaderName, Path]) -> LoaderName | Literal["unknown"] | None:
+    """Identify the root WinHTTP proxy by exact content, without guessing."""
+    active_proxy = game_path / "winhttp.dll"
+    if not active_proxy.exists():
+        return None
+    if not active_proxy.is_file() or active_proxy.is_symlink():
+        raise ValueError(f"active loader proxy is not a regular file: {active_proxy}")
+
+    active_digest = _file_sha256(active_proxy)
+    matches: list[LoaderName] = [loader for loader, source in sources.items() if _file_sha256(source) == active_digest]
+    if len(matches) == 1:
+        return matches[0]
+    return "unknown"
+
+
+def _validate_loader_activation(
+    game_path: Path, loader: LoaderName
+) -> tuple[dict[LoaderName, Path], LoaderName | None]:
+    sources = _loader_proxy_sources(game_path)
+    source = sources.get(loader)
+    if source is None:
+        expected = ", ".join(LOADER_PROXY_CANDIDATES[loader])
+        raise ValueError(f"{loader} loader proxy not found in {game_path}; expected one of: {expected}")
+
+    active = _detect_active_loader(game_path, sources)
+    if active == "unknown":
+        raise ValueError(
+            f"refusing to replace unrecognized {game_path / 'winhttp.dll'}; "
+            "restore it with the BepInEx or Lunaris installer first"
+        )
+    return sources, active
+
+
+def _activate_loader(game_path: Path, loader: LoaderName) -> bool:
+    """Atomically select one installed native loader's WinHTTP proxy."""
+    sources, active = _validate_loader_activation(game_path, loader)
+    source = sources[loader]
+    if active == loader:
+        return False
+
+    import tempfile
+
+    descriptor, temporary_name = tempfile.mkstemp(prefix=".erenshor-winhttp-", suffix=".tmp", dir=game_path)
+    os.close(descriptor)
+    temporary = Path(temporary_name)
+    try:
+        shutil.copy2(source, temporary)
+        temporary.replace(game_path / "winhttp.dll")
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            temporary.unlink()
+
+    if _detect_active_loader(game_path, sources) != loader:
+        raise RuntimeError(f"failed to activate {loader} loader")
+    return True
+
+
+def _print_loader_status(game_path: Path) -> None:
+    sources = _loader_proxy_sources(game_path)
+    active = _detect_active_loader(game_path, sources)
+    active_label = active or "none"
+    style = "green" if active in {"bepinex", "lunaris"} else "yellow"
+    console.print(f"Active loader: [{style}]{active_label}[/{style}]")
+    loaders: tuple[LoaderName, ...] = ("bepinex", "lunaris")
+    for loader in loaders:
+        source = sources.get(loader)
+        availability = f"available ({source.name})" if source is not None else "not installed"
+        console.print(f"  {loader}: {availability}")
 
 
 def _get_mod_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
@@ -245,6 +439,97 @@ def _get_mod_output_dir(
 def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
     """Get the web publish directory for mod downloads."""
     return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
+
+
+@dataclass(frozen=True)
+class DeployFile:
+    source: Path
+    target: Path
+
+
+def _get_deploy_files(
+    cli_ctx: CLIContext,
+    mod_id: str,
+    loader: LoaderName,
+    game_path: Path,
+    *,
+    scripts: bool,
+) -> tuple[DeployFile, ...]:
+    """Resolve the complete runtime file set for one native deployment."""
+    mod_info = MODS[mod_id]
+    mod_dir = _get_mod_dir(cli_ctx, mod_id)
+    manifest_path = mod_dir / "thunderstore.toml"
+    thunderstore_id = mod_info.get("thunderstore")
+    if loader == "bepinex" and not scripts and manifest_path.is_file() and thunderstore_id:
+        namespace, name = thunderstore_id.split("/", 1)
+        manifest = _parse_thunderstore_manifest(
+            manifest_path,
+            mod_dir,
+            cli_ctx.repo_root,
+            expected_namespace=namespace,
+            expected_name=name,
+        )
+        manifest_files = tuple(
+            DeployFile(
+                source=copy.source,
+                target=game_path / "BepInEx" / Path(*copy.target.parts) / copy.source.name,
+            )
+            for copy in manifest.copies
+        )
+        if not any(file.source.name == mod_info["dll_name"] for file in manifest_files):
+            raise ValueError(f"Thunderstore manifest does not deploy {mod_info['dll_name']}")
+        return manifest_files
+
+    target_dir, _, copy_pdb = _get_deploy_target_dir(loader, game_path, scripts=scripts)
+    output_dir = _get_mod_output_dir(cli_ctx, mod_id, loader)
+    dll_name = mod_info["dll_name"]
+    files = [DeployFile(output_dir / dll_name, target_dir / dll_name)]
+    if copy_pdb:
+        pdb_name = dll_name.replace(".dll", ".pdb")
+        pdb = output_dir / pdb_name
+        if pdb.is_file():
+            files.append(DeployFile(pdb, target_dir / pdb_name))
+    return tuple(files)
+
+
+def _conflicting_deploy_paths(
+    game_path: Path,
+    mod_id: str,
+    loader: LoaderName,
+    deployed: tuple[DeployFile, ...],
+) -> tuple[Path, ...]:
+    """Find known copies that would load the same BepInEx plugin twice."""
+    if loader != "bepinex":
+        return ()
+
+    mod_info = MODS[mod_id]
+    dll_name = mod_info["dll_name"]
+    pdb_name = dll_name.replace(".dll", ".pdb")
+    plugins = _get_bepinex_plugins_dir(game_path)
+    candidates = {
+        plugins / dll_name,
+        plugins / pdb_name,
+        _get_bepinex_scripts_dir(game_path) / dll_name,
+        _get_bepinex_scripts_dir(game_path) / pdb_name,
+    }
+    thunderstore_id = mod_info.get("thunderstore")
+    if thunderstore_id:
+        package_name = thunderstore_id.split("/", 1)[1]
+        candidates.add(plugins / package_name / dll_name)
+        candidates.add(plugins / package_name / pdb_name)
+
+    targets = {file.target for file in deployed}
+    return tuple(sorted(candidates - targets))
+
+
+def _remove_conflicting_deploy_paths(paths: tuple[Path, ...]) -> None:
+    for path in paths:
+        if not path.exists():
+            continue
+        if not path.is_file() or path.is_symlink():
+            raise ValueError(f"conflicting mod deploy path is not a regular file: {path}")
+        path.unlink()
+        console.print(f"  [dim]removed stale {path.name} from {path.parent}[/dim]")
 
 
 def _get_deploy_target_dir(loader: LoaderName, game_path: Path, *, scripts: bool) -> tuple[Path, str, bool]:
@@ -479,8 +764,9 @@ def setup(ctx: typer.Context) -> None:
     mods' lib directories. These DLLs are needed to compile the mods but
     are not committed to the repository.
 
-    Set ERENSHOR_GAME_PATH environment variable to your game installation,
-    or run 'erenshor extract download' first.
+    The selected variant resolves a configured runnable install, its matching
+    CrossOver Steam app, the legacy ERENSHOR_GAME_PATH override, then extracted
+    game files.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -488,15 +774,14 @@ def setup(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Setup[/bold cyan]", border_style="cyan"))
     console.print()
 
-    # Find game path
-    game_path = _get_game_path(cli_ctx)
+    # Setup may source compile references from extracted game files when no
+    # runnable installation is available.
+    game_path = _get_game_path(cli_ctx, allow_extracted=True)
     if not game_path:
-        console.print("[red]Error: Game path not found[/red]")
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
         console.print()
-        console.print("Set ERENSHOR_GAME_PATH environment variable to your game installation:")
-        console.print("  export ERENSHOR_GAME_PATH='/path/to/Erenshor'")
-        console.print()
-        console.print("Or run 'uv run erenshor extract download' to download game files.")
+        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
+        console.print("For legacy scripts, ERENSHOR_GAME_PATH remains a fallback.")
         raise typer.Exit(1)
 
     managed_dir = _get_managed_dir(game_path)
@@ -601,8 +886,8 @@ def dev_setup(ctx: typer.Context) -> None:
 
     game_path = _get_game_path(cli_ctx)
     if not game_path:
-        console.print("[red]Error: Game path not found[/red]")
-        console.print("Set ERENSHOR_GAME_PATH or run 'erenshor extract download' first.")
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
         raise typer.Exit(1)
 
     bepinex_dir = game_path / "BepInEx"
@@ -690,6 +975,58 @@ def build(
 
 
 @app.command()
+def status(ctx: typer.Context) -> None:
+    """Show native loader availability and the active loader for one variant."""
+    cli_ctx: CLIContext = ctx.obj
+    game_path = _get_game_path(cli_ctx)
+    if game_path is None:
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        raise typer.Exit(1)
+
+    console.print()
+    console.print(Panel.fit("[bold cyan]Mod Loader Status[/bold cyan]", border_style="cyan"))
+    console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
+    console.print(f"[dim]Install: {game_path}[/dim]")
+    console.print()
+    try:
+        _print_loader_status(game_path)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print()
+
+
+@app.command()
+def activate(
+    ctx: typer.Context,
+    loader: Annotated[LoaderName, typer.Option("--loader", help="Native loader to activate")],
+) -> None:
+    """Activate BepInEx or Lunaris for the selected game variant."""
+    cli_ctx: CLIContext = ctx.obj
+    game_path = _get_game_path(cli_ctx)
+    if game_path is None:
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        raise typer.Exit(1)
+
+    console.print()
+    console.print(Panel.fit("[bold cyan]Activate Mod Loader[/bold cyan]", border_style="cyan"))
+    console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
+    console.print(f"[dim]Install: {game_path}[/dim]")
+    console.print()
+    try:
+        changed = _activate_loader(game_path, loader)
+        if changed:
+            console.print(f"[green]Activated {loader}.[/green] Restart the game before testing.")
+        else:
+            console.print(f"[dim]{loader} is already active.[/dim]")
+        _print_loader_status(game_path)
+    except (OSError, ValueError, RuntimeError) as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print()
+
+
+@app.command()
 def deploy(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Deploy specific mod (or all if not specified)"),
@@ -707,58 +1044,86 @@ def deploy(
     except ValueError as exc:
         console.print(f"[red]Error: {exc}[/red]")
         raise typer.Exit(1) from exc
-    if scripts and any(target_loader != "bepinex" for _, target_loader in targets):
+    target_loaders: set[LoaderName] = {target_loader for _, target_loader in targets}
+    if len(target_loaders) != 1:
+        console.print(
+            "[red]Error: default deployment spans both native loaders; "
+            "choose --loader bepinex or --loader lunaris[/red]"
+        )
+        raise typer.Exit(1)
+    target_loader = next(iter(target_loaders))
+    if scripts and target_loader != "bepinex":
         console.print("[red]Error: --scripts is only supported for BepInEx mods[/red]")
         raise typer.Exit(1)
 
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
+    console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
     console.print()
+
+    game_path = _get_game_path(cli_ctx)
+    if game_path is None:
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        raise typer.Exit(1)
+    try:
+        _validate_loader_activation(game_path, target_loader)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
 
     console.print("[bold]Building mods...[/bold]")
     _build_mods_internal(cli_ctx, mod, loader=loader)
 
-    game_path = _get_game_path(cli_ctx)
-    if not game_path:
-        console.print("[red]Error: Game path not found for deployment[/red]")
-        console.print("Set ERENSHOR_GAME_PATH environment variable.")
-        raise typer.Exit(1)
+    try:
+        deploy_files = {
+            mod_id: _get_deploy_files(cli_ctx, mod_id, selected_loader, game_path, scripts=scripts)
+            for mod_id, selected_loader in targets
+        }
+        conflicting_files = {
+            mod_id: _conflicting_deploy_paths(game_path, mod_id, selected_loader, deploy_files[mod_id])
+            for mod_id, selected_loader in targets
+        }
+        for files in deploy_files.values():
+            for file in files:
+                _require_regular_file(file.source, "mod deploy input")
+        for paths in conflicting_files.values():
+            for path in paths:
+                if path.exists() and (not path.is_file() or path.is_symlink()):
+                    raise ValueError(f"conflicting mod deploy path is not a regular file: {path}")
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
 
     console.print()
     console.print("[bold]Deploying...[/bold]")
+    console.print(f"[dim]Install: {game_path}[/dim]")
     console.print()
 
-    for mod_id, target_loader in targets:
-        target_dir, deploy_label, copy_pdb = _get_deploy_target_dir(target_loader, game_path, scripts=scripts)
-        target_dir.mkdir(parents=True, exist_ok=True)
-        console.print(f"[bold]{MODS[mod_id]['name']} ({target_loader}) → {deploy_label}[/bold]")
-        console.print(f"[dim]Target: {target_dir}[/dim]")
-        output_dir = _get_mod_output_dir(cli_ctx, mod_id, target_loader)
-        if not output_dir.exists():
-            console.print(f"[red]Error: Build output not found: {output_dir}[/red]")
-            raise typer.Exit(1)
+    for mod_id, selected_loader in targets:
+        _, deploy_label, _ = _get_deploy_target_dir(selected_loader, game_path, scripts=scripts)
+        console.print(f"[bold]{MODS[mod_id]['name']} ({selected_loader}) → {deploy_label}[/bold]")
+        try:
+            _remove_conflicting_deploy_paths(conflicting_files[mod_id])
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        for file in deploy_files[mod_id]:
+            file.target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(file.source, file.target)
+            size_kb = file.source.stat().st_size / 1024
+            console.print(f"  [green]✓[/green] {file.target.relative_to(game_path)} ({size_kb:.1f} KB)")
 
-        dll_name = MODS[mod_id]["dll_name"]
-        mod_dll = output_dir / dll_name
-        if not mod_dll.exists():
-            console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
-            raise typer.Exit(1)
-
-        target = target_dir / dll_name
-        shutil.copy2(mod_dll, target)
-
-        if copy_pdb:
-            pdb_name = dll_name.replace(".dll", ".pdb")
-            mod_pdb = output_dir / pdb_name
-            if mod_pdb.exists():
-                shutil.copy2(mod_pdb, target_dir / pdb_name)
-
-        size_kb = mod_dll.stat().st_size / 1024
-        console.print(f"  [green]\u2713[/green] {dll_name} ({size_kb:.1f} KB)")
+    try:
+        changed = _activate_loader(game_path, target_loader)
+    except (OSError, ValueError, RuntimeError) as exc:
+        console.print(f"[red]Error activating {target_loader}: {exc}[/red]")
+        raise typer.Exit(1) from exc
 
     console.print()
+    action = "Activated" if changed else "Already active"
+    console.print(f"[green]{action}: {target_loader}[/green]")
     console.print("[green]Deploy complete![/green]")
-    console.print("[dim]Native Lunaris mods rely on loader-provided shared libraries[/dim]")
+    console.print("[dim]Restart the game before testing a newly selected loader.[/dim]")
     console.print()
 
 
@@ -1459,12 +1824,12 @@ def launch(ctx: typer.Context) -> None:
 
     game_path = _get_game_path(cli_ctx)
     if not game_path:
-        console.print("[red]Error: Game path not found[/red]")
-        console.print("Set ERENSHOR_GAME_PATH environment variable.")
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
         raise typer.Exit(1)
 
     # Check for CrossOver on macOS
-    crossover_bottle = os.environ.get("CROSSOVER_BOTTLE")
+    crossover_bottle = os.environ.get("CROSSOVER_BOTTLE") or _crossover_bottle_for_path(game_path)
     if sys.platform == "darwin" and crossover_bottle:
         # Launch via CrossOver
         exe_path = game_path / "Erenshor.exe"
@@ -1479,7 +1844,7 @@ def launch(ctx: typer.Context) -> None:
         # Use open command with CrossOver
         subprocess.run(
             [
-                "/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine",
+                str(CROSSOVER_WINE),
                 "--bottle",
                 crossover_bottle,
                 str(exe_path),
