@@ -680,9 +680,13 @@ def test_manifest_is_toml_driven_and_reuses_vault_icon(tmp_path: Path) -> None:
     assert manifest.copies[0].source == source
     assert str(manifest.copies[0].package_path) == "plugins/AdventureGuide/AdventureGuide.dll"
     assert {manifest.icon, manifest.readme, manifest.changelog, source} <= set(manifest.input_paths)
-    assert {"manifest.json", "icon.png", "README.md", "plugins/AdventureGuide/AdventureGuide.dll"} <= set(
-        manifest.allowed_package_names
-    )
+    assert {
+        "manifest.json",
+        "icon.png",
+        "README.md",
+        "CHANGELOG.md",
+        "plugins/AdventureGuide/AdventureGuide.dll",
+    } <= set(manifest.allowed_package_names)
 
 
 @pytest.mark.parametrize(
@@ -870,6 +874,8 @@ def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: 
         {"cwd": mod_dir, "check": False},
     )
     package_path = mod_dir / "thunderstore" / "build" / "WoW_Much-Sprint-2099.101.0.zip"
+    with zipfile.ZipFile(package_path) as archive:
+        assert archive.read("CHANGELOG.md") == b"# Changelog\n"
     publish_args, publish_kwargs = calls[1]
     assert publish_args == [
         "tcli",
@@ -973,6 +979,29 @@ def test_tcli_publish_nonzero_is_reported(tmp_path: Path, monkeypatch: pytest.Mo
     with pytest.raises(typer.Exit):
         mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
     assert [args[1] for args, _kwargs in calls] == ["build", "publish"]
+
+
+def test_package_validation_requires_matching_declared_changelog(tmp_path: Path) -> None:
+    mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, "sprint")
+    manifest = mod_command._parse_thunderstore_manifest(
+        manifest_path, mod_dir, tmp_path, expected_namespace="WoW_Much", expected_name="Sprint"
+    )
+    package = _valid_package(manifest, "2099.101.0")
+
+    with pytest.raises(ValueError, match=r"missing entries: CHANGELOG\.md"):
+        mod_command._validate_thunderstore_package(package, manifest)
+
+    mod_command._include_thunderstore_changelog(package, manifest)
+    mod_command._include_thunderstore_changelog(package, manifest)
+    mod_command._validate_thunderstore_package(package, manifest)
+
+    mismatched = _valid_package(
+        manifest,
+        "2099.101.0",
+        names=set(manifest.allowed_package_names),
+    )
+    with pytest.raises(ValueError, match=r"does not match build\.changelog"):
+        mod_command._validate_thunderstore_package(mismatched, manifest)
 
 
 @pytest.mark.parametrize(

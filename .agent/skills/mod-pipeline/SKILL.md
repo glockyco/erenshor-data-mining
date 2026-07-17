@@ -178,12 +178,14 @@ in a command copied into logs or documentation. Omitting `--mod` is allowed
 only with `--dry-run`. It is rejected for a real upload.
 
 Each selected mod is preflighted before any build. The pipeline then performs
-the explicit BepInEx build, runs `tcli build`, locates the expected package
-ZIP, validates its contents against the manifest allowlist, and only then
-publishes. The package must contain only the manifest, icon, README, and the
-exact declared copy targets. Game/runtime DLLs and unsafe paths are rejected. Manifest and declared-input
-hashes are checked again immediately before upload, so a changed package input
-cannot be published accidentally.
+the explicit BepInEx build, runs `tcli build`, adds the declared
+`build.changelog` as the root `CHANGELOG.md` that current tcli versions omit,
+locates the expected package ZIP, validates its contents against the manifest
+allowlist, and only then publishes. The package must contain only the manifest,
+icon, README, changelog, and the exact declared copy targets. Game/runtime DLLs
+and unsafe paths are rejected. Manifest, changelog, and declared-input hashes
+are checked again immediately before upload, so a changed package input cannot
+be published accidentally.
 
 The exact upload command issued by the pipeline is:
 

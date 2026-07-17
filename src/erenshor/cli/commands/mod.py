@@ -1201,7 +1201,7 @@ class ThunderstoreManifest:
     name: str
     icon: Path
     readme: Path
-    changelog: Path | None
+    changelog: Path
     outdir: Path
     copies: tuple[ThunderstoreCopy, ...]
     static_input_paths: tuple[Path, ...]
@@ -1289,18 +1289,14 @@ def _parse_thunderstore_manifest(
 
     icon = _resolve_manifest_file(build.get("icon"), mod_dir=mod_dir, repo_root=repo_root, label="build.icon")
     readme = _resolve_manifest_file(build.get("readme"), mod_dir=mod_dir, repo_root=repo_root, label="build.readme")
-    changelog_raw = build.get("changelog")
-    changelog = (
-        _resolve_manifest_file(changelog_raw, mod_dir=mod_dir, repo_root=repo_root, label="build.changelog")
-        if changelog_raw is not None
-        else None
+    changelog = _resolve_manifest_file(
+        build.get("changelog"), mod_dir=mod_dir, repo_root=repo_root, label="build.changelog"
     )
     outdir = _resolve_manifest_file(build.get("outdir"), mod_dir=mod_dir, repo_root=repo_root, label="build.outdir")
     if outdir.exists() and (not outdir.is_dir() or outdir.is_symlink()):
         raise ValueError(f"build.outdir is not a directory: {outdir}")
     for label, path in (("build.icon", icon), ("build.readme", readme), ("build.changelog", changelog)):
-        if path is not None:
-            _require_regular_file(path, label)
+        _require_regular_file(path, label)
 
     copies_raw = build.get("copy", [])
     if not isinstance(copies_raw, list):
@@ -1338,7 +1334,7 @@ def _parse_thunderstore_manifest(
         package_names.add(package_name)
         copies.append(ThunderstoreCopy(source, target, package_path))
 
-    static_input_paths = tuple(path for path in (manifest_path, icon, readme, changelog) if path is not None)
+    static_input_paths = (manifest_path, icon, readme, changelog)
     input_paths = static_input_paths + tuple(copy.source for copy in copies)
     return ThunderstoreManifest(
         path=manifest_path,
@@ -1401,6 +1397,27 @@ def _locate_thunderstore_package(manifest: ThunderstoreManifest, version: str) -
     return package
 
 
+def _include_thunderstore_changelog(package: Path, manifest: ThunderstoreManifest) -> None:
+    """Add the declared changelog that current tcli versions omit."""
+    changelog_name = "CHANGELOG.md"
+    changelog = manifest.changelog.read_bytes()
+    try:
+        with zipfile.ZipFile(package, mode="a") as archive:
+            matching_entries = [info for info in archive.infolist() if info.filename == changelog_name]
+            if len(matching_entries) > 1:
+                raise ValueError("package contains duplicate CHANGELOG.md entries")
+            if matching_entries:
+                if archive.read(changelog_name) != changelog:
+                    raise ValueError("package CHANGELOG.md does not match build.changelog")
+                return
+
+            info = zipfile.ZipInfo(changelog_name)
+            info.external_attr = (stat.S_IFREG | 0o644) << 16
+            archive.writestr(info, changelog, compress_type=zipfile.ZIP_DEFLATED)
+    except (OSError, zipfile.BadZipFile) as exc:
+        raise ValueError(f"could not add Thunderstore changelog: {exc}") from exc
+
+
 def _validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest) -> None:
     if not _path_within(package, manifest.outdir):
         raise ValueError("Thunderstore package is outside its configured output directory")
@@ -1429,10 +1446,20 @@ def _validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest
     allowed = set(manifest.allowed_package_names)
     if actual - allowed:
         raise ValueError(f"package contains unexpected entries: {', '.join(sorted(actual - allowed))}")
-    required = {"manifest.json", "icon.png", "README.md"} | {copy.package_path.as_posix() for copy in manifest.copies}
+    required = {"manifest.json", "icon.png", "README.md", "CHANGELOG.md"} | {
+        copy.package_path.as_posix() for copy in manifest.copies
+    }
     missing = required - actual
     if missing:
         raise ValueError(f"package is missing entries: {', '.join(sorted(missing))}")
+    try:
+        with zipfile.ZipFile(package) as archive:
+            packaged_changelog = archive.read("CHANGELOG.md")
+        declared_changelog = manifest.changelog.read_bytes()
+    except (OSError, zipfile.BadZipFile, KeyError) as exc:
+        raise ValueError(f"could not verify Thunderstore changelog: {exc}") from exc
+    if packaged_changelog != declared_changelog:
+        raise ValueError("package CHANGELOG.md does not match build.changelog")
 
 
 def _next_calver_revision(date_prefix: str, latest_version: str | None) -> str:
@@ -1686,6 +1713,7 @@ def thunderstore(
         try:
             _require_unchanged_inputs(release.input_hashes)
             package = _locate_thunderstore_package(release.manifest, release.version)
+            _include_thunderstore_changelog(package, release.manifest)
             _validate_thunderstore_package(package, release.manifest)
             package_hashes = _hash_paths((package,))
         except (OSError, ValueError) as exc:
