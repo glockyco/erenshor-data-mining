@@ -8,11 +8,13 @@ namespace InteractiveMapCompanion.Overlay;
 /// mouse and keyboard interactions to the embedded browser.
 ///
 /// Mouse coordinate mapping: Unity uses bottom-left origin; the browser surface
-/// uses top-left origin. We transform via the panel's screen-space rect.
+/// uses top-left origin. We transform via the browser content region's screen-space rect,
+/// excluding the persistent Unity toolbar.
 ///
 /// Input capture: when the overlay is visible and the cursor is over the panel,
 /// we forward mouse button events to CEF. Keyboard input is forwarded when the
-/// overlay is focused (after a click inside it).
+/// overlay is focused (after a click inside it). Toolbar clicks remain outside the
+/// browser hit region and are handled exclusively by Unity UI.
 ///
 /// Drag tracking: MouseMove continues to flow to CEF even when the cursor leaves
 /// the panel during a drag, clamped to browser bounds. This ensures MouseUp is
@@ -21,9 +23,15 @@ namespace InteractiveMapCompanion.Overlay;
 /// </summary>
 internal sealed class InputForwarder
 {
-    private readonly RectTransform _panelRect;
+    private readonly RectTransform _contentRect;
+    private readonly RectTransform _excludedRect;
+    private readonly Action _goBack;
+    private readonly Action _goForward;
     private int _browserWidth;
     private int _browserHeight;
+    private int _lastMouseX;
+    private int _lastMouseY;
+    private bool _hasMousePosition;
     private bool _focused;
 
     // Tracks which buttons we sent MouseDown for, so every MouseDown has a
@@ -53,11 +61,21 @@ internal sealed class InputForwarder
         EHTMLMouseButton.eHTMLMouseButton_Middle,
     ];
 
-    internal InputForwarder(RectTransform panelRect, int browserWidth, int browserHeight)
+    internal InputForwarder(
+        RectTransform contentRect,
+        RectTransform excludedRect,
+        int browserWidth,
+        int browserHeight,
+        Action goBack,
+        Action goForward
+    )
     {
-        _panelRect = panelRect;
+        _contentRect = contentRect;
+        _excludedRect = excludedRect;
         _browserWidth = browserWidth;
         _browserHeight = browserHeight;
+        _goBack = goBack;
+        _goForward = goForward;
     }
 
     /// <summary>
@@ -76,15 +94,27 @@ internal sealed class InputForwarder
     private bool IsMouseOverPanel(out Vector2 browserPos)
     {
         if (
+            RectTransformUtility.RectangleContainsScreenPoint(
+                _excludedRect,
+                Input.mousePosition,
+                null
+            )
+        )
+        {
+            browserPos = Vector2.zero;
+            return false;
+        }
+
+        if (
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                _panelRect,
+                _contentRect,
                 Input.mousePosition,
                 null, // Screen Space Overlay canvas — no camera needed
                 out Vector2 localPoint
             )
         )
         {
-            Rect rect = _panelRect.rect;
+            Rect rect = _contentRect.rect;
 
             // localPoint is in local rect space: (0,0) = pivot, not corner.
             // Normalise to [0,1] across the rect, then flip Y for browser coords.
@@ -108,11 +138,20 @@ internal sealed class InputForwarder
         // has left the panel, clamping to browser bounds. This ensures MouseUp
         // is always preceded by MouseMove in the same frame.
         if (!mouseOver && !AnyButtonDown)
+        {
+            _hasMousePosition = false;
             return;
+        }
 
         int x = (int)Mathf.Clamp(browserPos.x, 0f, _browserWidth - 1);
         int y = (int)Mathf.Clamp(browserPos.y, 0f, _browserHeight - 1);
+        if (_hasMousePosition && x == _lastMouseX && y == _lastMouseY)
+            return;
+
         SteamHTMLSurface.MouseMove(browser, x, y);
+        _lastMouseX = x;
+        _lastMouseY = y;
+        _hasMousePosition = true;
     }
 
     private void ForwardMouseButtons(HHTMLBrowser browser, bool mouseOver)
@@ -134,6 +173,9 @@ internal sealed class InputForwarder
                 }
                 else
                 {
+                    // Toolbar and outside-overlay clicks both leave the HTML
+                    // surface. Unity UI owns keyboard submit events while one
+                    // of its toolbar buttons is selected.
                     _focused = false;
                 }
             }
@@ -148,13 +190,13 @@ internal sealed class InputForwarder
         // Side mouse buttons: back (button 3) and forward (button 4).
         // These are not draggable — forward them as instant navigation commands.
         if (mouseOver && Input.GetMouseButtonDown(3))
-            SteamHTMLSurface.GoBack(browser);
+            _goBack();
 
         if (mouseOver && Input.GetMouseButtonDown(4))
-            SteamHTMLSurface.GoForward(browser);
+            _goForward();
     }
 
-    private static void ForwardMouseWheel(HHTMLBrowser browser, bool mouseOver)
+    private void ForwardMouseWheel(HHTMLBrowser browser, bool mouseOver)
     {
         if (!mouseOver)
             return;
@@ -185,9 +227,9 @@ internal sealed class InputForwarder
             || Input.GetKey(KeyCode.LeftMeta)
             || Input.GetKey(KeyCode.RightMeta);
         if (altDown && Input.GetKeyDown(KeyCode.LeftArrow))
-            SteamHTMLSurface.GoBack(browser);
+            _goBack();
         if (altDown && Input.GetKeyDown(KeyCode.RightArrow))
-            SteamHTMLSurface.GoForward(browser);
+            _goForward();
 
         // Printable characters via Input.inputString, which handles IME composition,
         // dead keys, and platform differences. Skip \b (backspace) and \0 (null).
@@ -214,6 +256,7 @@ internal sealed class InputForwarder
             }
         }
 
+        _hasMousePosition = false;
         _focused = false;
     }
 }

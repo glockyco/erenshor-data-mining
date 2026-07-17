@@ -15,6 +15,8 @@ namespace InteractiveMapCompanion.Overlay;
 /// </summary>
 internal sealed class BrowserManager : IDisposable
 {
+    internal const string MapUrl = "https://erenshor.compendiums.org/map";
+
     private const string CanonicalMapHost = "erenshor.compendiums.org";
     private const string LegacyMapHost = "erenshor-maps.wowmuch1.workers.dev";
 
@@ -24,9 +26,14 @@ internal sealed class BrowserManager : IDisposable
     private HHTMLBrowser _browser;
     private bool _browserReady;
     private bool _initialized;
-    private bool _visible = true;
+
+    // The Unity canvas starts hidden; keep CEF in background mode until the
+    // first explicit SetVisible(true) from MapOverlay.
+    private bool _visible;
     private bool _disposed;
     private bool _appIsQuitting;
+    private bool _canGoBack;
+    private bool _canGoForward;
 
     // Steamworks callback registrations — must be kept alive (not GC'd)
     private Callback<HTML_NeedsPaint_t>? _paintCallback;
@@ -34,6 +41,7 @@ internal sealed class BrowserManager : IDisposable
     private Callback<HTML_JSAlert_t>? _jsAlertCallback;
     private Callback<HTML_JSConfirm_t>? _jsConfirmCallback;
     private Callback<HTML_FileOpenDialog_t>? _fileOpenDialogCallback;
+    private Callback<HTML_CanGoBackAndForward_t>? _historyCallback;
     private CallResult<HTML_BrowserReady_t>? _browserReadyResult;
 
     internal BrowserManager(IModLogger log, Action<HTML_NeedsPaint_t> onPaint)
@@ -46,6 +54,13 @@ internal sealed class BrowserManager : IDisposable
     /// Whether the browser has been created and is ready to render.
     /// </summary>
     internal bool IsReady => _browserReady;
+    internal bool CanGoBack => _browserReady && _canGoBack;
+    internal bool CanGoForward => _browserReady && _canGoForward;
+
+    /// <summary>
+    /// Raised whenever readiness or history capability changes.
+    /// </summary>
+    internal event Action? NavigationStateChanged;
 
     /// <summary>
     /// Signal that the application is quitting. Steam is about to be shut down
@@ -121,6 +136,24 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.LoadURL(_browser, url, null);
     }
 
+    internal void GoBack()
+    {
+        if (_disposed || _appIsQuitting || !CanGoBack)
+            return;
+
+        SteamHTMLSurface.GoBack(_browser);
+    }
+
+    internal void GoForward()
+    {
+        if (_disposed || _appIsQuitting || !CanGoForward)
+            return;
+
+        SteamHTMLSurface.GoForward(_browser);
+    }
+
+    internal void LoadMap() => LoadUrl(MapUrl);
+
     private void RegisterCallbacks()
     {
         // Paint: the browser has new pixel data for us
@@ -135,6 +168,9 @@ internal sealed class BrowserManager : IDisposable
 
         // File dialog: MUST respond or browser hangs
         _fileOpenDialogCallback = Callback<HTML_FileOpenDialog_t>.Create(OnFileOpenDialog);
+
+        // History capability drives the toolbar's disabled states.
+        _historyCallback = Callback<HTML_CanGoBackAndForward_t>.Create(OnHistoryChanged);
     }
 
     private void CreateBrowser(int width, int height, string url)
@@ -167,16 +203,20 @@ internal sealed class BrowserManager : IDisposable
 
         _browser = param.unBrowserHandle;
         _browserReady = true;
+        _canGoBack = false;
+        _canGoForward = false;
 
         SteamHTMLSurface.SetSize(_browser, (uint)width, (uint)height);
         SteamHTMLSurface.LoadURL(_browser, url, null);
-        // Apply the current visibility state. CEF may start throttled by default;
-        // passing false explicitly ensures the browser paints at full rate when
-        // visible. Use _visible so a SetVisible(false) call that arrived while
-        // the browser was being created is respected.
+        // Apply the current visibility state. The Unity canvas starts hidden,
+        // so the browser must remain in background mode until the first
+        // explicit SetVisible(true).
         SteamHTMLSurface.SetBackgroundMode(_browser, !_visible);
+        NavigationStateChanged?.Invoke();
 
-        _log.LogInfo($"[Overlay] Browser ready (handle={_browser}), loading {url}");
+        _log.LogInfo(
+            $"[Overlay] Browser ready (handle={_browser}), surface={width}x{height}, loading {url}"
+        );
     }
 
     private void OnNeedsPaint(HTML_NeedsPaint_t param)
@@ -211,16 +251,30 @@ internal sealed class BrowserManager : IDisposable
 
     private static bool IsAllowedNavigation(string? url)
     {
+        if (url == null || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            return false;
+
         if (
-            url == null
-            || !Uri.TryCreate(url, UriKind.Absolute, out var uri)
-            || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
             || uri.Port != 443
         )
             return false;
 
         return string.Equals(uri.Host, CanonicalMapHost, StringComparison.OrdinalIgnoreCase)
             || string.Equals(uri.Host, LegacyMapHost, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OnHistoryChanged(HTML_CanGoBackAndForward_t param)
+    {
+        if (_disposed || _appIsQuitting || param.unBrowserHandle != _browser)
+            return;
+
+        if (_canGoBack == param.bCanGoBack && _canGoForward == param.bCanGoForward)
+            return;
+
+        _canGoBack = param.bCanGoBack;
+        _canGoForward = param.bCanGoForward;
+        NavigationStateChanged?.Invoke();
     }
 
     private void OnJSAlert(HTML_JSAlert_t param)
@@ -271,6 +325,7 @@ internal sealed class BrowserManager : IDisposable
         _jsAlertCallback?.Dispose();
         _jsConfirmCallback?.Dispose();
         _fileOpenDialogCallback?.Dispose();
+        _historyCallback?.Dispose();
         _browserReadyResult?.Dispose();
 
         // Skip Steam teardown when the application is quitting: SteamManager will
@@ -288,6 +343,8 @@ internal sealed class BrowserManager : IDisposable
 
         _browserReady = false;
         _initialized = false;
+        _canGoBack = false;
+        _canGoForward = false;
         _browser = default;
     }
 }

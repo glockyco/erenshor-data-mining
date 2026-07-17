@@ -20,6 +20,7 @@ internal sealed class MapOverlay : MonoBehaviour
     private BrowserManager? _browser;
     private BrowserRenderer? _renderer;
     private InputForwarder? _input;
+    private BrowserNavigationToolbar? _toolbar;
     private bool _visible;
     private bool _ready;
     private bool _stopped;
@@ -134,10 +135,23 @@ internal sealed class MapOverlay : MonoBehaviour
         var imageRect = imageGO.GetComponent<RectTransform>();
         imageRect.anchorMin = Vector2.zero;
         imageRect.anchorMax = Vector2.one;
-        imageRect.sizeDelta = Vector2.zero;
-        imageRect.anchoredPosition = Vector2.zero;
+        imageRect.offsetMin = Vector2.zero;
+        imageRect.offsetMax = Vector2.zero;
 
-        _input = new InputForwarder(panel, width, height);
+        _toolbar = new BrowserNavigationToolbar(
+            panel,
+            () => _browser?.GoBack(),
+            () => _browser?.GoForward(),
+            () => _browser?.LoadMap()
+        );
+        _input = new InputForwarder(
+            imageRect,
+            _toolbar!.RootRect,
+            width,
+            height,
+            () => _browser?.GoBack(),
+            () => _browser?.GoForward()
+        );
         canvasGO.SetActive(false);
     }
 
@@ -151,14 +165,27 @@ internal sealed class MapOverlay : MonoBehaviour
 
         _renderer = new BrowserRenderer(Log!, _rawImage, width, height);
         _browser = new BrowserManager(Log!, _renderer.OnPaint);
+        _browser.NavigationStateChanged += UpdateNavigationState;
+        UpdateNavigationState();
 
-        bool ok = _browser.Initialize(width, height, "https://erenshor.compendiums.org/map");
+        bool ok = _browser.Initialize(width, height, BrowserManager.MapUrl);
         if (ok)
             return;
 
         Log!.LogWarning("[Overlay] Browser initialisation failed — overlay will not be shown.");
+        _browser.NavigationStateChanged -= UpdateNavigationState;
         _browser.Dispose();
         _browser = null;
+        UpdateNavigationState();
+    }
+
+    private void UpdateNavigationState()
+    {
+        _toolbar?.SetState(
+            _browser?.IsReady == true,
+            _browser?.CanGoBack == true,
+            _browser?.CanGoForward == true
+        );
     }
 
     private void Update()
@@ -237,11 +264,16 @@ internal sealed class MapOverlay : MonoBehaviour
         _ready = false;
         MapKeyPatches.SuppressMapKey = false;
 
-        _browser?.Dispose();
-        _browser = null;
+        if (_browser != null)
+        {
+            _browser.NavigationStateChanged -= UpdateNavigationState;
+            _browser.Dispose();
+            _browser = null;
+        }
         _renderer?.Dispose();
         _renderer = null;
         _input = null;
+        _toolbar = null;
 
         if (_canvas != null)
         {
