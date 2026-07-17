@@ -1,8 +1,8 @@
 # Justice for F7
 
 Native dual-loader plugin that extends Erenshor's F7 "Hide UI" key to also hide
-world-space UI — nameplates, damage numbers, target rings, XP orbs, cast bars,
-and loot prompts.
+world-space UI — nameplates, target arrows, health bars, damage numbers, target
+rings, XP orbs, cast bars, and loot prompts.
 
 Justice for F7 has native BepInEx and Lunaris builds. The BepInEx artifact is
 the Thunderstore release (`WoW_Much/JusticeForF7`). The Lunaris artifact is
@@ -28,9 +28,11 @@ src/
 1. **F7 detection**: `TypeTextPatch` (postfix on `TypeText.Update`) watches
    `GameData.MainCanvas.enabled` each frame and drives the hider on transitions,
    running a periodic re-scan while hidden to catch newly spawned elements.
-2. **Hiding**: `WorldUIHider` toggles `Renderer.enabled` (and target-ring
-   GameObjects) rather than `TextMeshPro.enabled`, which the game manages itself,
-   and restores exactly what it disabled when F7 is pressed again.
+2. **Hiding**: `WorldUIHider` toggles `Renderer.enabled` and owned child
+   GameObjects rather than `TextMeshPro.enabled`, which the game manages itself.
+   `NamePlatePatch` immediately re-hides target arrows that the game updates every
+   frame. `NpcNamePlatePatch` does the same for character health bars. The hider
+   restores exactly what it disabled when F7 is pressed again.
 3. **Suppression**: `DmgPopPatch` and `XPBubPatch` prefix the game's popup/orb
    factories to skip creating transient elements while the UI is hidden.
 

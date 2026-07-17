@@ -9,6 +9,8 @@ The game's F7 key toggles the screen-space Canvas and Compass. This mod
 additionally hides:
 
 - **Nameplates** — NPC, SimPlayer, and player name text
+- **Target arrows** — the indicator above the current target
+- **Health bars** — health bars above characters
 - **Damage numbers** — floating damage and heal popups
 - **Target rings** — the selection ring under targeted characters
 - **XP orbs** — XP orb particles

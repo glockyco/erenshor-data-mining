@@ -40,6 +40,8 @@ internal sealed class JusticeRuntime
 
         _hider = new WorldUIHider(_log, _settings);
         TypeTextPatch.Hider = _hider;
+        NamePlatePatch.Hider = _hider;
+        NpcNamePlatePatch.Hider = _hider;
         DmgPopPatch.Hider = _hider;
         XPBubPatch.Hider = _hider;
 
@@ -91,6 +93,8 @@ internal sealed class JusticeRuntime
         _hider = null;
 
         TypeTextPatch.Hider = null;
+        NamePlatePatch.Hider = null;
+        NpcNamePlatePatch.Hider = null;
         DmgPopPatch.Hider = null;
         XPBubPatch.Hider = null;
         TypeTextPatch.ResetState();

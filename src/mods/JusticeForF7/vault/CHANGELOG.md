@@ -1,5 +1,10 @@
 # Changelog
 
+## v2026.717.0
+
+- Added target arrows to F7 hide mode.
+- Added character health bars to F7 hide mode.
+
 ## v2026.622.0
 
 - First Erenshor Vault release (Lunaris-native build).

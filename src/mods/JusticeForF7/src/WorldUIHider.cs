@@ -92,6 +92,28 @@ internal sealed class WorldUIHider
         }
     }
 
+    /// <summary>
+    /// Re-hides the target indicator after NamePlate.Update may reactivate it.
+    /// </summary>
+    internal void EnforceTargetIndicatorHidden(NamePlate? plate)
+    {
+        if (!IsHidden || !_settings.HideNameplates || plate == null)
+            return;
+
+        HideGameObject(plate.TargetInd);
+    }
+
+    /// <summary>
+    /// Re-hides an NPC health bar after NPC.HandleNameTag may reactivate it.
+    /// </summary>
+    internal void EnforceHealthBarHidden(NamePlate? plate)
+    {
+        if (!IsHidden || !_settings.HideNameplates || plate == null)
+            return;
+
+        HideGameObject(plate.Lifebar);
+    }
+
     private void ScanAndHide()
     {
         int count = 0;
@@ -122,16 +144,39 @@ internal sealed class WorldUIHider
     {
         int count = 0;
         foreach (var plate in UnityEngine.Object.FindObjectsOfType<NamePlate>())
-        {
-            var renderer = plate.GetComponent<Renderer>();
-            if (renderer != null && renderer.enabled)
-            {
-                renderer.enabled = false;
-                _disabledRenderers.Add(renderer);
-                count++;
-            }
-        }
+            count += HideNameplateElements(plate);
+
         return count;
+    }
+
+    private int HideNameplateElements(NamePlate plate)
+    {
+        if (plate == null)
+            return 0;
+
+        int count = 0;
+
+        var renderer = plate.GetComponent<Renderer>();
+        if (renderer != null && renderer.enabled)
+        {
+            renderer.enabled = false;
+            _disabledRenderers.Add(renderer);
+            count++;
+        }
+
+        count += HideGameObject(plate.Lifebar);
+        count += HideGameObject(plate.TargetInd);
+        return count;
+    }
+
+    private int HideGameObject(GameObject gameObject)
+    {
+        if (gameObject == null || !gameObject.activeSelf)
+            return 0;
+
+        gameObject.SetActive(false);
+        _disabledGameObjects.Add(gameObject);
+        return 1;
     }
 
     private int HideDamageNumbers()
