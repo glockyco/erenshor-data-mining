@@ -565,6 +565,17 @@ class TestWikiReviewOverridesCommand:
 class FakeDeployClient:
     def __init__(self) -> None:
         self.closed = False
+        self.purges: list[tuple[tuple[str, ...], bool, str | None, str | None]] = []
+
+    def purge_pages(
+        self,
+        titles,
+        force_link_update=True,
+        assertion=None,
+        assert_user=None,
+    ):
+        self.purges.append((tuple(titles), force_link_update, assertion, assert_user))
+        return tuple(titles)
 
     def close(self) -> None:
         self.closed = True
@@ -621,6 +632,37 @@ class TestWikiRefreshEmbeddedCommand:
         assert kwargs["namespaces"] == (0, 10)
         assert kwargs["assertion"] == "bot"
         assert kwargs["assert_user"] == "ErenshorBot"
+
+    def test_refresh_embedded_purges_only_explicit_pages(self, monkeypatch: pytest.MonkeyPatch):
+        """Explicit page mode bypasses broad transclusion discovery."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        client = FakeDeployClient()
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+        discover = MagicMock()
+        monkeypatch.setattr(wiki_command, "refresh_embedded_pages", discover)
+
+        result = runner.invoke(
+            app,
+            [
+                "wiki",
+                "refresh-embedded",
+                "--page",
+                "Chazza Priel",
+                "--page",
+                "Tiallia Priel",
+                "--page",
+                "Chazza Priel",
+                "--assert-user",
+                "ErenshorBot",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "Refreshed: 2" in result.output
+        assert client.purges == [(("Chazza Priel", "Tiallia Priel"), True, "bot", "ErenshorBot")]
+        discover.assert_not_called()
+        assert client.closed is True
 
     def test_refresh_embedded_deduplicates_combined_refresh_results(self, monkeypatch: pytest.MonkeyPatch):
         """Dependency and source refreshes share one final refreshed-page count."""

@@ -1108,6 +1108,13 @@ def refresh_embedded_command(
             help="Source data table whose item-owned Cargo pages should be reparsed.",
         ),
     ] = None,
+    page_titles: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--page",
+            help="Refresh only this exact wiki page; repeat for multiple pages.",
+        ),
+    ] = None,
     namespaces: Annotated[
         list[int] | None,
         typer.Option("--namespace", help="MediaWiki namespace ID to include in embeddedin discovery."),
@@ -1121,9 +1128,10 @@ def refresh_embedded_command(
     cli_ctx: CLIContext = ctx.obj
     dependency_titles = dependency_titles or []
     source_tables = source_tables or []
+    page_titles = page_titles or []
     namespaces = namespaces or []
-    if not dependency_titles and not source_tables:
-        console.print("[red]At least one dependency title or source table is required.[/red]")
+    if not dependency_titles and not source_tables and not page_titles:
+        console.print("[red]At least one dependency title, source table, or page is required.[/red]")
         raise typer.Exit(1)
     if dependency_titles and not namespaces:
         console.print("[red]At least one --namespace is required with dependency titles.[/red]")
@@ -1131,9 +1139,9 @@ def refresh_embedded_command(
 
     if cli_ctx.dry_run:
         console.print(
-            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies and "
-            f"{len(source_tables)} source tables in namespaces "
-            f"{', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
+            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies, "
+            f"{len(source_tables)} source tables, and {len(set(page_titles))} explicit pages "
+            f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
         )
         return
 
@@ -1149,6 +1157,16 @@ def refresh_embedded_command(
                     assertion="bot",
                     assert_user=assert_user,
                 ).refreshed
+            )
+        if page_titles:
+            unique_page_titles = tuple(dict.fromkeys(page_titles))
+            refreshed_titles.update(
+                client.purge_pages(
+                    unique_page_titles,
+                    force_link_update=True,
+                    assertion="bot",
+                    assert_user=assert_user,
+                )
             )
         if source_tables:
             refreshed_titles.update(
