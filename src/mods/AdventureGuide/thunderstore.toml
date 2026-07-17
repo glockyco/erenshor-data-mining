@@ -36,6 +36,10 @@ source = "./bin/Debug/netstandard2.1/bepinex/System.Numerics.Vectors.dll"
 target = "plugins/AdventureGuide/"
 
 [[build.copy]]
+source = "./bin/Debug/netstandard2.1/bepinex/System.Runtime.CompilerServices.Unsafe.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
 source = "./bin/Debug/netstandard2.1/bepinex/cimgui.dll"
 target = "plugins/AdventureGuide/"
 

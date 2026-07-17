@@ -47,6 +47,7 @@ def test_thunderstore_plugin_allowlist_is_strict() -> None:
         "ImGui.NET.dll",
         "Newtonsoft.Json.dll",
         "System.Numerics.Vectors.dll",
+        "System.Runtime.CompilerServices.Unsafe.dll",
         "cimgui.dll",
     }
     assert all(item["target"] == "plugins/AdventureGuide/" for item in copies)
