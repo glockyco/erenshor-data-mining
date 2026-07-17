@@ -14,6 +14,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
+from loguru import logger
+
 EditAssertion = Literal["user", "bot"]
 
 
@@ -91,6 +93,11 @@ def refresh_embedded_pages(
     """Refresh every page that transcludes any of the given dependencies."""
     target_titles: set[str] = set()
     for dependency_title in dependency_titles:
+        logger.info(
+            "Discovering pages transcluding {} in namespaces {}",
+            dependency_title,
+            ", ".join(str(namespace) for namespace in namespaces),
+        )
         target_titles.update(
             client.get_embeddedin_pages(
                 dependency_title,
@@ -99,11 +106,13 @@ def refresh_embedded_pages(
                 assert_user=assert_user,
             )
         )
+        logger.info("Discovered {} unique embedded pages so far", len(target_titles))
 
     requested = tuple(sorted(target_titles))
     if not requested:
         return EmbeddedRefreshResult(requested=(), refreshed=())
 
+    logger.info("Refreshing {} embedded pages with forced link updates", len(requested))
     refreshed = client.purge_pages(
         requested,
         force_link_update=True,

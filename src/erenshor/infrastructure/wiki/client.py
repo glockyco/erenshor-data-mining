@@ -773,6 +773,12 @@ class MediaWikiClient:
                 page_title = page.get("title")
                 if isinstance(page_title, str):
                     pages.append(page_title)
+            logger.info(
+                "Discovered {} transclusions for {}{}",
+                len(pages),
+                title,
+                " (continuing)" if isinstance(result.get("continue"), dict) else "",
+            )
 
             continuation = result.get("continue")
             if not isinstance(continuation, dict):
@@ -801,8 +807,18 @@ class MediaWikiClient:
         if not titles:
             return ()
         purged: list[str] = []
+        batch_count = (len(titles) + self.batch_size - 1) // self.batch_size
         for i in range(0, len(titles), self.batch_size):
             batch = titles[i : i + self.batch_size]
+            batch_number = i // self.batch_size + 1
+            logger.info(
+                "Purging batch {}/{} ({} pages, {} of {} queued)",
+                batch_number,
+                batch_count,
+                len(batch),
+                min(i + len(batch), len(titles)),
+                len(titles),
+            )
             data = {"action": "purge", "titles": "|".join(batch)}
             if force_link_update:
                 data["forcelinkupdate"] = "1"
@@ -818,6 +834,12 @@ class MediaWikiClient:
                 page_title = entry.get("title")
                 if "purged" in entry and isinstance(page_title, str):
                     purged.append(page_title)
+            logger.info(
+                "Purged batch {}/{} ({} total pages refreshed)",
+                batch_number,
+                batch_count,
+                len(purged),
+            )
         logger.info(f"Purged {len(purged)} pages (force_link_update={force_link_update})")
         return tuple(purged)
 
