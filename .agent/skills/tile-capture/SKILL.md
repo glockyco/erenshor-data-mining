@@ -43,9 +43,18 @@ Mod runs inside Wine. Orchestrator converts macOS paths to `Z:\path` format via
 
 ### Diagnosing Capture Issues
 
+For a BepInEx capture target, resolve the selected variant first and inspect that
+installation's log:
+
 ```bash
-grep -i "Map Tile Capture\|capture\|error\|exception" "$ERENSHOR_GAME_PATH/BepInEx/LogOutput.log"
+uv run erenshor -V playtest mod status
+grep -i "Map Tile Capture\|capture\|error\|exception" \
+  "<resolved-game-install>/BepInEx/LogOutput.log"
 ```
+
+For a Lunaris target, inspect the Lunaris in-game log UI. Do not use a global
+`ERENSHOR_GAME_PATH` to choose the variant; the mod CLI resolves standard
+CrossOver installs by the selected variant's Steam App ID.
 
 - **TypeLoadException**: Missing DLL in ILRepack merge — check `ILRepack.targets`.
 - **NullReferenceException from game code**: Expected (NPCDialogManager, SpawnPoint, etc. fail

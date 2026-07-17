@@ -43,10 +43,12 @@ uv run erenshor mod deploy --mod sprint --loader lunaris
 uv run erenshor mod deploy --mod sprint --loader bepinex
 ```
 
-The Lunaris Vault artifact contains only `Sprint.dll`. The BepInEx Thunderstore
-package also contains only the loader-specific `Sprint.dll`. BepInEx supplies
-Harmony and other shared dependencies. Thunderstore uses the BepInEx artifact.
-Vault uses the Lunaris artifact.
+Each deploy also activates its loader. Exit the game before switching targets,
+then restart before testing. The Lunaris Vault artifact contains only
+`Sprint.dll`. The BepInEx Thunderstore package installs the loader-specific DLL
+under `BepInEx/plugins/Sprint/`. BepInEx supplies Harmony and other shared
+dependencies. Thunderstore uses the BepInEx artifact. Vault uses the Lunaris
+artifact.
 
 For the canonical local Thunderstore release check, package all four public
 mods without uploading:

@@ -15,7 +15,8 @@ The speed multiplier stacks with existing buffs and debuffs - if you've got Flig
 Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
 
 1. Install BepInEx if you haven't already
-2. Place `Sprint.dll` in `BepInEx/plugins/`
+2. Copy the `Sprint/` package folder containing `Sprint.dll` into
+   `BepInEx/plugins/`
 3. Launch the game
 
 ## Configuration

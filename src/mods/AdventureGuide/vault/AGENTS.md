@@ -1,8 +1,8 @@
 # Erenshor Vault Publishing Notes
 
-Adventure Guide is distributed through the Erenshor Vault (erenshorvault.app),
-which hosts Lunaris mods that players install through Lunaris' mod management
-UI. Thunderstore/BepInEx packaging has been retired.
+Adventure Guide's native Lunaris build is distributed through the Erenshor
+Vault (`erenshorvault.app`), whose mod manager installs it through Lunaris.
+The separate native BepInEx build is packaged and published on Thunderstore.
 
 ## Listing source of truth
 
@@ -20,8 +20,8 @@ Newtonsoft.Json, and System.Numerics.Vectors, so no dependency DLLs are bundled
 just its own DLL). Build it with:
 
 ```bash
-uv run erenshor mod build --mod adventure-guide
-# output: src/mods/AdventureGuide/bin/Debug/netstandard2.1/AdventureGuide.dll
+uv run erenshor mod build --mod adventure-guide --loader lunaris
+# output: src/mods/AdventureGuide/bin/Debug/netstandard2.1/lunaris/AdventureGuide.dll
 ```
 
 ## Releasing

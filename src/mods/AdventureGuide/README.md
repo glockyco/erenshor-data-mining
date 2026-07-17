@@ -21,9 +21,12 @@ uv run erenshor mod build --mod adventure-guide --loader lunaris
 uv run erenshor mod deploy --mod adventure-guide --loader lunaris
 ```
 
-BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
-`<game>/plugins`. Restart after a Lunaris deployment. To prepare a local Vault
-artifact for manual upload, run `uv run erenshor mod vault --mod adventure-guide`.
+BepInEx deployment follows `thunderstore.toml` and installs the plugin plus its
+runtime files under `<game>/BepInEx/plugins/AdventureGuide/`. Lunaris deploys
+the native DLL to `<game>/plugins`. Each deploy also activates that loader.
+Exit the game before switching, then restart before testing. To prepare a local
+Vault artifact for manual upload, run
+`uv run erenshor mod vault --mod adventure-guide`.
 There is no GitHub release automation. The canonical local Thunderstore check
 packages all four public mods without uploading:
 
@@ -69,9 +72,11 @@ resources/
 
 4. **Rendering**: `Plugin.OnGUI()` drives a private ImGui renderer
    (`Rendering/ImGuiRenderer.cs`) that owns its own ImGui context, font atlas
-   (embedded Roboto), and a Unity `CommandBuffer`, using the Lunaris-provided
-   `ImGui.NET`/`cimgui` binaries. The renderer sets its context for the whole
-   frame and restores the previous one in a `finally` block.
+   (embedded Roboto), and a Unity `CommandBuffer`. Lunaris supplies the native
+   ImGui runtime for the Lunaris target. The BepInEx package ships the official
+   `ImGui.NET` managed and Windows x64 native runtime files. The renderer sets
+   its context for the whole frame and restores the previous one in a `finally`
+   block.
 
 5. **Input isolation**: `PointerOverUIPatch` patches
    `EventSystem.IsPointerOverGameObject()` to return true when the cursor is over
@@ -104,10 +109,12 @@ used.
 
 ## Configuration
 
-Settings are available through each loader's native config system. BepInEx stores
-`adventureguide/imgui.ini` under its config path. Lunaris stores its settings in
-`<Game Folder>/plugins/config/adventureguide.lpcfg`. Keys are grouped
-into `General`, `Navigation`, `World Markers`, and `Tracker` sections (see
+Settings are available through each loader's native config system. BepInEx
+stores settings in `BepInEx/config/wow-much.adventure-guide.cfg` and ImGui
+window state in `BepInEx/config/adventureguide/imgui.ini`. Lunaris stores
+settings in `<game>/plugins/config/adventureguide.lpcfg` and window state in
+`<game>/plugins/config/adventureguide/imgui.ini`. Keys are grouped into
+`General`, `Navigation`, `World Markers`, and `Tracker` sections (see
 `Config/GuideConfig.cs`). Defaults: open guide **L**, quest tracker **K**, toggle
 ground path **P**.
 

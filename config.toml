@@ -77,8 +77,9 @@ app_id = "2382520"
 unity_project = "$REPO_ROOT/variants/main/unity"
 editor_scripts = "$REPO_ROOT/src/Assets/Editor"
 game_files = "$REPO_ROOT/variants/main/game"
-# Optional runnable install override for mod setup/deploy/launch. On macOS the
-# CLI otherwise discovers this app_id inside the CROSSOVER_BOTTLE Steam library.
+# Optional runnable install override for mod setup/status/activate/deploy/launch.
+# On macOS the CLI otherwise discovers this app_id inside the CROSSOVER_BOTTLE
+# Steam library.
 # Set in .erenshor/config.local.toml for non-standard or non-CrossOver installs.
 # game_install = "$HOME/path/to/Erenshor"
 database_raw = "$REPO_ROOT/variants/main/erenshor-main-raw.sqlite"

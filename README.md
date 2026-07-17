@@ -197,14 +197,26 @@ pnpm lint
 
 ### Build and deploy companion mods
 
+Every maintained mod has native BepInEx and Lunaris targets. Both loaders may
+remain installed in one game installation. Deployment activates exactly one by
+switching the root `winhttp.dll` proxy. Select the game variant with `-V`:
+
 ```bash
-uv run erenshor mod setup
-uv run erenshor mod build
-uv run erenshor mod deploy
+uv run erenshor -V playtest mod setup
+uv run erenshor -V playtest mod build --loader all
+uv run erenshor -V playtest mod status
+uv run erenshor -V playtest mod deploy --loader lunaris
+uv run erenshor -V playtest mod deploy --loader bepinex
+uv run erenshor mod thunderstore --dry-run
 uv run erenshor mod publish
-uv run erenshor mod thunderstore
-uv run erenshor mod launch
 ```
+
+Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
+`mod activate --loader <bepinex|lunaris>` to switch an installed loader without
+rebuilding. Standard CrossOver installs are resolved from `-V main`,
+`-V playtest`, or `-V demo`; non-standard installs use
+`[variants.<name>] game_install` in `.erenshor/config.local.toml`. See the
+`mod-pipeline` skill for package publication and proxy safety details.
 
 ### Capture map tiles
 

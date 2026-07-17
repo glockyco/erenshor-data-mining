@@ -124,7 +124,7 @@ Stops the maps dev server, kills the game and its wine satellites (Erenshor.exe,
 - `skill://unity-export-system` — listener and record architecture
 - `skill://tile-capture` — bounds discovery, capture mod, exclusion rules
 - `skill://interactive-map` — overview rendering, `zone-positions.json`, `north_bearing`, debug hooks
-- `skill://mod-pipeline` — mod build/deploy, `ERENSHOR_GAME_PATH` precedence
+- `skill://mod-pipeline` — dual-loader build/deploy and variant install resolution
 - `skill://runtime-eval` — HotRepl prerequisites and snippets
 - `skill://wiki-templates` — wiki page generation and field preservation
 - `skill://sheets-queries` — sheets query patterns

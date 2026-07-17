@@ -71,16 +71,24 @@ Entity identification:
 
 ## CLI Commands
 
+Use `-V main`, `-V playtest`, or `-V demo` to select the game installation.
+Standard CrossOver installs are discovered by Steam App ID. Deployment activates
+the selected loader, so exit the game before switching loaders and restart it
+before testing.
+
 ```bash
-uv run erenshor mod setup              # Copy game DLLs to lib/ (first time)
-uv run erenshor mod dev-setup          # Install ScriptEngine + ConfigManager (first time)
-uv run erenshor mod build --mod <id>   # Build a mod
-uv run erenshor mod deploy --mod <id>  # Deploy to BepInEx/plugins
-uv run erenshor mod deploy --mod <id> --scripts  # Deploy for hot reload
-uv run erenshor mod launch             # Start the game
+uv run erenshor -V playtest mod setup
+uv run erenshor -V playtest mod build --mod <id> --loader all
+uv run erenshor -V playtest mod status
+uv run erenshor -V playtest mod deploy --mod <id> --loader bepinex
+uv run erenshor -V playtest mod deploy --mod <id> --loader lunaris
+uv run erenshor -V playtest mod launch
 ```
 
-Check `BepInEx/LogOutput.log` for errors.
+BepInEx plugins install under `BepInEx/plugins/`. Lunaris plugins install under
+the game's top-level `plugins/` directory. Check `BepInEx/LogOutput.log` for a
+BepInEx target. Use Lunaris' in-game log UI for a Lunaris target. See the
+`mod-pipeline` skill for shared-install proxy switching and package publication.
 
 ## Common Pitfalls
 
@@ -143,12 +151,14 @@ generic + adapter pattern to test core logic without Unity runtime.
 ## Hot Reload Workflow
 
 - Run `erenshor mod dev-setup` once to install ScriptEngine + ConfigurationManager
-- `erenshor mod deploy --mod <id> --scripts` copies DLL + PDB to `BepInEx/scripts/`
+- `erenshor mod deploy --mod <id> --loader bepinex --scripts` activates BepInEx
+  and copies the DLL + PDB to `BepInEx/scripts/`
 - Trigger ScriptEngine reload through HotRepl using the `runtime-eval` skill's
   `ReloadPlugins` reflection snippet
 - Press F1 for in-game config editor when ConfigurationManager is installed
 - Mod must implement `OnDestroy()` that unpatches Harmony and removes event handlers
-- Full cycle: `mod deploy --mod <id> --scripts` → HotRepl `ReloadPlugins` call
+- Full cycle: `mod deploy --mod <id> --loader bepinex --scripts` → HotRepl
+  `ReloadPlugins` call
 
 ## Runtime Debugging
 

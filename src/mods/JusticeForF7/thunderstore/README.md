@@ -48,5 +48,6 @@ HideOtherWorldText = true
 Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
 
 1. Install BepInEx if you haven't already
-2. Place `JusticeForF7.dll` in `BepInEx/plugins/`
+2. Copy the `JusticeForF7/` package folder containing `JusticeForF7.dll` into
+   `BepInEx/plugins/`
 3. Launch the game — config file is generated on first run

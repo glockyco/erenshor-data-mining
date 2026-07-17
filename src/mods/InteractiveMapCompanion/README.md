@@ -18,9 +18,11 @@ uv run erenshor mod build --mod interactive-map-companion --loader lunaris
 uv run erenshor mod deploy --mod interactive-map-companion --loader lunaris
 ```
 
-BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
-`<game>/plugins`. Restart after a Lunaris deployment. The canonical local
-Thunderstore check packages all four public mods without uploading:
+BepInEx deployment follows `thunderstore.toml` and installs the DLL under
+`<game>/BepInEx/plugins/InteractiveMapCompanion/`. Lunaris deploys to
+`<game>/plugins`. Each deploy also activates its loader. Exit the game before
+switching, then restart before testing. The canonical local Thunderstore check
+packages all four public mods without uploading:
 
 ```bash
 uv run erenshor mod thunderstore --dry-run
@@ -44,13 +46,19 @@ Prepare the Lunaris artifact for manual Vault upload with
 
 ## Installation
 
-1. Install [BepInEx 5.4.20 or newer](https://github.com/BepInEx/BepInEx/releases)
-   to your Erenshor installation
-2. Download the latest release of InteractiveMapCompanion
-3. Extract `InteractiveMapCompanion.dll` to `BepInEx/plugins/`
-4. Launch the game — the mod will start automatically
+Choose the package for the loader you use. Install the BepInEx build from
+Thunderstore or the native Lunaris build from the Erenshor Vault. Do not copy a
+DLL built for one loader into the other loader's plugin directory.
 
-**Note**: All dependencies are merged into the single DLL. No additional files needed.
+For a manual BepInEx installation:
+
+1. Install [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
+2. Copy the `InteractiveMapCompanion/` package folder into
+   `BepInEx/plugins/`. Keep the DLL inside that folder.
+3. Launch the game. The mod starts automatically.
+
+For Lunaris, install Interactive Map Companion through the in-game Vault
+browser. Loader-provided dependencies are not bundled with the Lunaris DLL.
 
 ## Usage
 
@@ -79,11 +87,9 @@ To use the map on another device on your local network:
 
 ## Configuration
 
-The mod can be configured via:
-`BepInEx/config/wow-much.interactive-map-companion.cfg`
-
-This file is automatically created the first time you run the game with the mod
-installed.
+Each loader exposes the same settings through its native config system.
+BepInEx writes `BepInEx/config/wow-much.interactive-map-companion.cfg`.
+Lunaris exposes the settings through its in-game config UI.
 
 ### Server Settings
 
@@ -135,7 +141,7 @@ uv run erenshor mod build --mod interactive-map-companion --loader lunaris
 uv run erenshor mod deploy --mod interactive-map-companion --loader lunaris
 
 # Launch the selected game installation
-uv run erenshor mod launch
+uv run erenshor -V playtest mod launch
 ```
 
 ## WebSocket Protocol
@@ -185,13 +191,19 @@ for JavaScript compatibility.
 ## Troubleshooting
 
 ### Mod Not Loading
-1. Check BepInEx console for errors
-2. Verify BepInEx version is 5.4.20 or newer
-3. Ensure DLL is in `BepInEx/plugins/` (not in a subdirectory)
+
+1. Run `uv run erenshor -V <variant> mod status` and confirm the intended loader
+   is active.
+2. For BepInEx, inspect `BepInEx/LogOutput.log` and confirm the DLL is under
+   `BepInEx/plugins/InteractiveMapCompanion/`.
+3. For Lunaris, inspect the in-game log UI and confirm the DLL is in the game's
+   top-level `plugins/` directory.
+4. Restart the game after changing or switching loaders.
 
 ### Overlay Not Appearing
 1. The overlay requires the game to be launched through Steam
-2. Check BepInEx log for `[Overlay]` lines — initialization errors are logged
+2. Check the active loader's log for `[Overlay]` lines — initialization errors
+   are logged
 3. Confirm `EnableOverlay = true` in the config file
 4. Try toggling with `M` (or your configured key) while in-game (not on the
    main menu)
@@ -199,8 +211,8 @@ for JavaScript compatibility.
 ### WebSocket Connection Failed
 1. Verify the game is running with mod loaded
 2. Check port 18585 is not blocked by firewall
-3. Enable debug logging: set `WebSocketLogLevel=Debug` in config
-4. Check BepInEx console for errors
+3. Enable debug logging through the active loader's config UI or file
+4. Check the active loader's log for errors
 
 ### Player Marker Not Appearing
 1. Ensure "Live Mode" is enabled on the map

@@ -1,9 +1,9 @@
 # Erenshor Vault listing for Adventure Guide.
 #
-# Source of truth for the Vault mod listing. Used manually today (paste into
-# erenshorvault.app/new-mod, then Versions -> new); a future `erenshor mod
-# vault` command will read it once the Vault's write API (Personal Access
-# Token) ships. See AGENTS.md in this directory.
+# Source of truth for the Vault mod listing. `erenshor mod vault --mod
+# adventure-guide` reads it, computes the next version, and builds the native
+# Lunaris DLL. Upload remains manual through erenshorvault.app because the
+# write API is not available. See AGENTS.md in this directory.
 
 [mod]
 # POST /api/mods create fields.

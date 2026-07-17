@@ -37,7 +37,7 @@ cutover or deployment.
 |------|----------|
 | `src/erenshor/` | Python CLI tool (Typer), pipeline logic, domain entities |
 | `src/Assets/Editor/` | C# Unity export scripts (listeners, records, scanner) |
-| `src/mods/` | BepInEx companion mods (C#) |
+| `src/mods/` | Native BepInEx and Lunaris companion mods (C#) |
 | `src/maps/` | Interactive map website (SvelteKit) |
 | `variants/{variant}/` | Per-variant game files, Unity projects, databases (gitignored) |
 | `variants/{variant}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp/` | Decompiled game C# scripts (read-only reference) |
@@ -69,11 +69,13 @@ uv run erenshor --help                          # All command groups
 uv run erenshor extract export                  # Unity -> raw SQLite
 uv run erenshor extract code-facts              # Shipped DLL -> raw code_facts (between export and build)
 uv run erenshor guide compile                   # Compile entity graph to guide.json
-uv run erenshor mod setup                       # Copy game DLLs (first time)
-uv run erenshor mod dev-setup                   # Install ScriptEngine + ConfigManager (first time)
-uv run erenshor mod build --mod <id>            # Build a mod
-uv run erenshor mod deploy --mod <id> --scripts # Hot reload deploy (F6 in game)
-uv run erenshor mod deploy --mod <id>           # Production deploy (restart game)
+uv run erenshor mod setup                                  # Provision both loaders' build references
+uv run erenshor mod build --mod <id> --loader all          # Build both native targets
+uv run erenshor mod status                                 # Inspect installed/active loaders
+uv run erenshor mod deploy --mod <id> --loader bepinex     # Build, deploy, and activate BepInEx
+uv run erenshor mod deploy --mod <id> --loader lunaris     # Build, deploy, and activate Lunaris
+uv run erenshor mod deploy --mod <id> --loader bepinex --scripts # BepInEx hot reload
+uv run erenshor mod thunderstore --dry-run                 # Validate all public BepInEx packages
 uv run erenshor maps build                    # Verify, build, and stamp maps site
 uv run erenshor maps deploy                   # Deploy existing fresh maps build
 uv run pytest                                   # Run all tests
@@ -88,7 +90,7 @@ Drive every subsystem through `uv run erenshor ...`; never call `pnpm build`,
 | Stage | Canonical command |
 |---|---|
 | Acquire/build game data | `uv run erenshor extract export` → `uv run erenshor extract code-facts` → `uv run erenshor extract build` |
-| Build mods | `uv run erenshor mod build --mod <id>` |
+| Build mods | `uv run erenshor mod build --mod <id> --loader all` |
 | Develop maps | `uv run erenshor maps dev` |
 | Publish maps externally | `uv run erenshor maps build` → `uv run erenshor maps deploy` |
 | Verify Python pipeline | `uv run pytest` |

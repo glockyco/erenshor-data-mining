@@ -46,9 +46,11 @@ uv run erenshor mod build --mod justice-for-f7 --loader lunaris
 uv run erenshor mod deploy --mod justice-for-f7 --loader lunaris
 ```
 
-BepInEx deploys to `<game>/BepInEx/plugins`. Lunaris deploys to
-`<game>/plugins`. Restart after a Lunaris deployment. Prepare the Lunaris
-artifact for manual Vault upload with:
+BepInEx deployment follows `thunderstore.toml` and installs the DLL under
+`<game>/BepInEx/plugins/JusticeForF7/`. Lunaris deploys to `<game>/plugins`.
+Each deploy also activates its loader. Exit the game before switching, then
+restart before testing. Prepare the Lunaris artifact for manual Vault upload
+with:
 
 ```bash
 uv run erenshor mod vault --mod justice-for-f7
@@ -64,8 +66,9 @@ uv run erenshor mod thunderstore --dry-run
 A real upload requires exactly one `--mod justice-for-f7` and a
 non-placeholder `TCLI_AUTH_TOKEN`. There is no GitHub release automation.
 
-Native Lunaris plugins do not hot-reload by replacing the DLL — restart the game
-after deploying. See the `mod-development` and `mod-pipeline` skills.
+Lunaris plugins may support loader-managed reloads, but this mod's release
+verification uses a full game restart after deployment. See the
+`mod-development` and `mod-pipeline` skills.
 
 ## Configuration
 

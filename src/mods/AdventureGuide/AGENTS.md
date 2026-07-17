@@ -1,11 +1,19 @@
 # Adventure Guide Agent Notes
 
-Adventure Guide is a native Lunaris plugin ported from the stable Thunderstore-era UI. Keep the stable UI and behavior unless the user explicitly approves a change.
+Adventure Guide has native BepInEx and Lunaris entrypoints over one shared
+runtime ported from the stable UI. Keep the shared UI and behavior consistent
+across loaders unless the user explicitly approves a change.
 
-## Lunaris boundaries
+## Loader and rendering boundaries
 
-- Adventure Guide is a native `LunarisPlugin`, but it owns a private ImGui context, font atlas, input pump, and Unity `CommandBuffer` renderer in `src/Rendering/ImGuiRenderer.cs`.
-- Use Lunaris-provided `ImGui.NET.dll` and `cimgui` only. Never ship, embed, extract, load, or ILRepack private ImGui managed/native binaries for Adventure Guide.
+- `Plugin.BepInEx.cs` and `Plugin.Lunaris.cs` are thin loader adapters. Shared
+  lifecycle, state, rendering, and cleanup stay in `Plugin.cs`.
+- Adventure Guide owns a private ImGui context, font atlas, input pump, and Unity
+  `CommandBuffer` renderer in `src/Rendering/ImGuiRenderer.cs`.
+- The Lunaris target uses Lunaris-provided `ImGui.NET.dll` and `cimgui`. The
+  BepInEx target uses the official `ImGui.NET` NuGet package and ships its
+  managed and Windows x64 native runtime files through `thunderstore.toml`.
+  Never check in, extract, or load private ImGui binaries.
 - Do not use `Lunaris.IGUI.ImGuiEx.RegisterFont` for Adventure Guide Roboto. Roboto is an embedded `AdventureGuide.Roboto-Regular.ttf` resource loaded into the private atlas with `ImGui.MemAlloc` and `AddFontFromMemoryTTF`.
 - Do not draw Adventure Guide UI from `OnImGuiDraw()`. `Plugin.OnGUI()` must call the private renderer, and the renderer must set `ImGui.SetCurrentContext(_context)` for the entire frame before restoring the previous context in `finally`.
 - Keep private `ImGuiIO.DisplaySize` equal to `Screen.width`/`Screen.height`. The guide windows, tracker backdrop, and arrow overlays share full-screen ImGui draw lists and screen-space camera projections.
@@ -29,14 +37,15 @@ Use focused checks while editing:
 
 ```bash
 uv run pytest tests/unit/mods/test_adventure_guide_lunaris.py tests/unit/mods/test_adventure_guide_style.py tests/unit/mods/test_adventure_guide_shortcuts.py tests/unit/mods/test_adventure_guide_quest_list.py tests/unit/mods/test_adventure_guide_font.py tests/unit/mods/test_adventure_guide_renderer.py tests/unit/mods/test_adventure_guide_vault.py tests/unit/cli/commands/test_mod.py
-uv run erenshor mod build --mod adventure-guide
+uv run erenshor mod build --mod adventure-guide --loader all
 ```
 
 Native Lunaris Playtest deployment requires a full Playtest restart. Replacing `plugins/AdventureGuide.dll` does not hot-reload the mod in a running game.
 
 ## Distribution
 
-Adventure Guide ships through the Erenshor Vault (Lunaris), not Thunderstore.
-Listing assets (`vault.toml`, `README.md`, `CHANGELOG.md`, `icon.png`) and the
-publish/version workflow live in `vault/` — see `vault/AGENTS.md`. The Vault
-package ships only `AdventureGuide.dll`; Lunaris provides the shared deps.
+Adventure Guide ships as a BepInEx package on Thunderstore and a native Lunaris
+release through the Erenshor Vault. Thunderstore packaging is defined by
+`thunderstore.toml`. Vault listing assets and the manual upload workflow live in
+`vault/` — see `vault/AGENTS.md`. The Vault package ships only
+`AdventureGuide.dll`; Lunaris provides the shared dependencies.

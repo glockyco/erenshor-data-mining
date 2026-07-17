@@ -7,16 +7,20 @@ For the full capture pipeline (Python orchestrator, tile generation, zone setup)
 ## Build & Deploy
 
 ```bash
-# First time only — copies game DLLs into lib/ (required for dotnet build)
-uv run erenshor mod setup --mod map-tile-capture
+# First time only — provisions game and both loader references for every mod
+uv run erenshor -V playtest mod setup
 
-# From repo root — always use these, not dotnet directly
-uv run erenshor mod build --mod map-tile-capture
-uv run erenshor mod deploy --mod map-tile-capture
+# Build both native targets
+uv run erenshor -V playtest mod build --mod map-tile-capture --loader all
 
-# Game must be restarted to pick up a new DLL
-pkill -f "Erenshor.exe"
+# Deploy one target and activate its loader
+uv run erenshor -V playtest mod deploy --mod map-tile-capture --loader bepinex
+# or:
+uv run erenshor -V playtest mod deploy --mod map-tile-capture --loader lunaris
 ```
+
+Exit the game before deployment and restart it after switching loaders. Use
+BepInEx when the capture workflow needs HotRepl runtime tuning.
 
 ## Tunable Constants
 

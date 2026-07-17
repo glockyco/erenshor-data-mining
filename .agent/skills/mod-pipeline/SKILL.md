@@ -236,8 +236,10 @@ Vault upload.
 - **Loader cannot activate:** install both loaders once and keep the backup
   proxies their installers create. `mod status` reports the recognized active
   and available proxies. The CLI will not overwrite an unknown `winhttp.dll`.
-- **BepInEx deployment not loading:** verify the DLL is under
-  `BepInEx/plugins` and inspect `BepInEx/LogOutput.log`.
+- **BepInEx deployment not loading:** run `mod status`, then verify public mods
+  use the nested paths declared by their `thunderstore.toml` manifests and
+  inspect `BepInEx/LogOutput.log`. Internal mods install directly under
+  `BepInEx/plugins`.
 - **Lunaris deployment not loading:** verify the DLL is under the game's
   top-level `plugins/` directory and restart the game.
 - **Thunderstore upload rejected:** rerun the dry run, verify the manifest's
@@ -246,8 +248,8 @@ Vault upload.
 
 ## Relevant files
 
-- `src/erenshor/cli/commands/mod.py` — setup, build, deploy, Thunderstore, and
-  Vault command implementations
+- `src/erenshor/cli/commands/mod.py` — setup, build, status, activation, deploy,
+  website publication, Thunderstore, and Vault command implementations
 - `src/mods/<ModName>/thunderstore.toml` — package manifest and declared build
   inputs/copy targets
 - `src/mods/<ModName>/vault/vault.toml` — Vault listing metadata

@@ -109,8 +109,9 @@ state.GetType().GetProperty("CurrentZone").GetValue(state)
 
 ## Triggering ScriptEngine hot reload
 
-After `erenshor mod deploy --mod <id> --scripts`, trigger ScriptEngine
-directly through HotRepl:
+After `erenshor mod deploy --mod <id> --loader bepinex --scripts`, trigger
+ScriptEngine directly through HotRepl. The deployment activates BepInEx, so
+restart the game first if Lunaris was active:
 
 ```bash
 uv run erenshor eval run '
