@@ -540,11 +540,11 @@ local function equipmentEffect(item, weapon)
 	if effectKey ~= nil then
 		return effectKey, procHeader, false
 	end
-	if not isBlank(item.wornEffect) then
-		return item.wornEffect, "Worn Effect:", true
-	end
 	if not isBlank(item.clickEffect) then
 		return item.clickEffect, "Activatable:", false
+	end
+	if not isBlank(item.wornEffect) then
+		return item.wornEffect, "Worn Effect:", true
 	end
 	return nil
 end

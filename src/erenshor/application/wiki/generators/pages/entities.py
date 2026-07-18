@@ -261,11 +261,11 @@ class EntityPageGenerator(PageGenerator):
             chance = str(int(item.bow_proc_chance)) if item.bow_proc_chance is not None else "0"
             return _make_proc(item.bow_effect_stable_key, chance, "Attack")
 
-        if item.worn_effect_stable_key:
-            return _make_proc(item.worn_effect_stable_key, "", "Worn")
-
         if item.item_effect_on_click_stable_key:
             return _make_proc(item.item_effect_on_click_stable_key, "", "Activatable")
+
+        if item.worn_effect_stable_key:
+            return _make_proc(item.worn_effect_stable_key, "", "Worn")
 
         return None
 

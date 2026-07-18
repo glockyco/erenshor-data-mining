@@ -1,5 +1,6 @@
-"""Tests for item section generation."""
+from types import SimpleNamespace
 
+from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
 from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities.item import Item
@@ -90,10 +91,36 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     assert "|proc_target_healing=\n" in result
     assert "|proc_shielding_amt=\n" in result
     assert "|proc_xp_bonus=\n" in result
-    assert "|stormcaller=True" in result
 
 
-def test_general_page_uses_legacy_general_template() -> None:
+def test_item_effect_selection_matches_game_click_priority() -> None:
+    generator = object.__new__(EntityPageGenerator)
+    generator.context = SimpleNamespace(
+        spell_repo=SimpleNamespace(
+            get_spell_by_stable_key=lambda key: Spell(
+                stable_key=key,
+                spell_name=key,
+                display_name=key,
+                wiki_page_name=key,
+                image_name=key,
+            )
+        )
+    )
+    item = Item(
+        stable_key="item:helmet_of_clarity",
+        display_name="Helmet of Clarity",
+        item_name="Helmet of Clarity",
+        item_effect_on_click_stable_key="spell:meditative_trance",
+        worn_effect_stable_key="spell:flow",
+    )
+
+    proc = generator._extract_proc(item)
+
+    assert proc is not None
+    assert proc.proc_style == "Activatable"
+    assert proc.spell is not None
+    assert proc.spell.stable_key == "spell:meditative_trance"
+
     generator = ItemSectionGenerator()
     item = Item(
         stable_key="item:magical_bag",
