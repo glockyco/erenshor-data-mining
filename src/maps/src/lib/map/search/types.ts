@@ -34,14 +34,22 @@ export type ZoneSearchResult = {
     name: string;
 };
 
+export type ItemSourceCounts = {
+    droppers: number;
+    vendors: number;
+    miningNodes: number;
+    fishingSpots: number;
+    itemBags: number;
+};
+
 export type ItemSearchResult = {
     type: 'item';
     itemStableKey: string;
     itemName: string;
     iconName: string | null;
     wikiPageName: string | null;
-    dropperCount: number; // total unique characters
-    zoneCount: number; // unique zones containing any dropper spawn
+    sourceCounts: ItemSourceCounts;
+    zoneCount: number; // unique zones containing any source location
 };
 
 export type SearchResult =

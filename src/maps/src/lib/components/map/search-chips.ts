@@ -69,7 +69,7 @@ export function getAvailableCategories(counts: Map<string, ChipCount>): Category
 export const CHIP_CONFIG: { key: Category; label: string }[] = [
     { key: 'all', label: 'All' },
     { key: 'live', label: 'Live' },
-    { key: 'item', label: 'Drops' },
+    { key: 'item', label: 'Items' },
     { key: 'enemy', label: 'Enemies' },
     { key: 'npc', label: 'NPCs' },
     { key: 'zone', label: 'Zones' }

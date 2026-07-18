@@ -63,19 +63,55 @@ export type CharacterDrop = {
     dropProbability: number;
 };
 
-// Item → dropper relationship (preloaded for item-to-droppers map search)
-export type ItemDropperRow = {
+// Item → acquisition-source rows (preloaded for the map item search)
+export type ItemSourceItemMeta = {
     itemStableKey: string;
     displayName: string;
     wikiPageName: string | null;
     iconName: string | null;
+};
+
+export type ItemDropSource = ItemSourceItemMeta & {
+    kind: 'drop';
     characterStableKey: string;
     npcName: string;
-    isFriendly: boolean;
     isRare: boolean;
     isUnique: boolean;
     dropProbability: number; // 0–100
 };
+
+export type ItemVendorSource = ItemSourceItemMeta & {
+    kind: 'vendor';
+    characterStableKey: string;
+    npcName: string;
+    price: number; // items.item_value, same figure SpawnPointPopupContent shows
+};
+
+export type ItemMiningSource = ItemSourceItemMeta & {
+    kind: 'mining';
+    nodeStableKey: string;
+    dropChance: number; // 0–100
+};
+
+export type ItemFishingSource = ItemSourceItemMeta & {
+    kind: 'fishing';
+    waterStableKey: string;
+    period: 'day' | 'night';
+    dropChance: number; // 0–100
+};
+
+export type ItemBagSource = ItemSourceItemMeta & {
+    kind: 'bag';
+    bagStableKey: string;
+    respawns: boolean;
+};
+
+export type ItemSourceRow =
+    | ItemDropSource
+    | ItemVendorSource
+    | ItemMiningSource
+    | ItemFishingSource
+    | ItemBagSource;
 
 // Vendor item info (for popups)
 export type VendorItem = {

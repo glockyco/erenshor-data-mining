@@ -17,7 +17,13 @@ function item(name: string): IndexEntry {
             itemName: name,
             iconName: null,
             wikiPageName: null,
-            dropperCount: 1,
+            sourceCounts: {
+                droppers: 1,
+                vendors: 0,
+                miningNodes: 0,
+                fishingSpots: 0,
+                itemBags: 0
+            },
             zoneCount: 1
         }
     };

@@ -12,7 +12,7 @@ import type {
     EnemyMarker,
     ForgeMarker,
     ItemBagMarker,
-    ItemDropperRow,
+    ItemSourceRow,
     MiningNodeMarker,
     NpcMarker,
     SecretPassageMarker,
@@ -24,7 +24,7 @@ import type {
 } from '$lib/map-markers';
 
 // Re-export types for popup generation
-export type { SpawnCharacter, MovementData, ItemDropperRow } from '$lib/map-markers';
+export type { SpawnCharacter, MovementData, ItemSourceRow } from '$lib/map-markers';
 
 // =============================================================================
 // World Positioning
@@ -196,25 +196,6 @@ export interface ZoneConfig {
 // Map Data Interfaces
 // =============================================================================
 
-export interface FilteredMapData {
-    achievementTriggers: WorldAchievementTrigger[];
-    npcs: WorldNpc[];
-    doors: WorldDoor[];
-    forges: WorldForge[];
-    itemBags: WorldItemBag[];
-    miningNodes: WorldMiningNode[];
-    secretPassages: WorldSecretPassage[];
-    enemiesCommon: WorldEnemy[];
-    enemiesRare: WorldEnemy[];
-    enemiesUnique: WorldEnemy[];
-    teleports: WorldTeleport[];
-    treasureLocs: WorldTreasureLoc[];
-    water: WorldWater[];
-    wishingWells: WorldWishingWell[];
-    zoneLines: WorldZoneLine[];
-    itemDroppers: ItemDropperRow[];
-}
-
 export interface MapMarkerData {
     achievementTriggers: WorldAchievementTrigger[];
     npcs: WorldNpc[];
@@ -232,7 +213,7 @@ export interface MapMarkerData {
     wishingWells: WorldWishingWell[];
     zoneLines: WorldZoneLine[];
     zones: ZoneWorldPosition[];
-    itemDroppers: ItemDropperRow[];
+    itemSources: ItemSourceRow[];
 }
 
 // =============================================================================

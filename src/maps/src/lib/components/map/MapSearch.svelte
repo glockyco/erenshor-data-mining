@@ -3,6 +3,7 @@
     import {
         emptySearchResponse,
         searchMarkers,
+        itemResultSummaryParts,
         type SearchResult,
         type SearchMatch,
         type IndexEntry,
@@ -139,7 +140,7 @@
         enemy: 'Enemy Spawn Points',
         npc: 'NPC Spawn Points',
         zone: 'Zones',
-        item: 'Drops'
+        item: 'Items'
     };
 
     // staticCategoryOrder controls display grouping in MapSearch.svelte;
@@ -177,7 +178,7 @@
             case 'zone':
                 return 'Zone';
             case 'item':
-                return `${result.dropperCount} dropper${result.dropperCount !== 1 ? 's' : ''} · ${result.zoneCount} zone${result.zoneCount !== 1 ? 's' : ''}`;
+                return itemResultSummaryParts(result).join(' \u00b7 ');
         }
     }
 

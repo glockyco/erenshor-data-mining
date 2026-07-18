@@ -140,14 +140,17 @@
 
     // Search index (built once from static data)
     const searchIndex = $derived(
-        buildSearchIndex(
-            data.markers.enemiesCommon,
-            data.markers.enemiesRare,
-            data.markers.enemiesUnique,
-            data.markers.npcs,
-            data.zones,
-            data.itemDroppers
-        )
+        buildSearchIndex({
+            enemiesCommon: data.markers.enemiesCommon,
+            enemiesRare: data.markers.enemiesRare,
+            enemiesUnique: data.markers.enemiesUnique,
+            npcs: data.markers.npcs,
+            zones: data.zones,
+            miningNodes: data.markers.miningNodes,
+            water: data.markers.water,
+            itemBags: data.markers.itemBags,
+            itemSources: data.itemSources
+        })
     );
 
     // Desktop detection (layout, tooltips, drawers)
@@ -178,8 +181,8 @@
             get searchIndex() {
                 return searchIndex;
             },
-            get itemDroppers() {
-                return data.itemDroppers;
+            get itemSources() {
+                return data.itemSources;
             },
             findEnemy: (name: string) =>
                 (

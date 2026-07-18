@@ -180,7 +180,7 @@
                                             >{item.name}</span
                                         >
                                         <span class="text-zinc-500 shrink-0 ml-2">
-                                            {formatPrice(item.price)}
+                                            {formatPrice(item.price)} gold
                                         </span>
                                     </div>
                                 {/each}

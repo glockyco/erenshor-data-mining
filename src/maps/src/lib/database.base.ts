@@ -8,7 +8,7 @@ import type {
     EnemyMarker,
     ForgeMarker,
     ItemBagMarker,
-    ItemDropperRow,
+    ItemSourceRow,
     MiningNodeMarker,
     MiningNodeItem,
     MovementData,
@@ -1078,50 +1078,176 @@ export class RepositoryBase {
     }
 
     /**
-     * Preload every map-visible droppable item and the characters that drop it.
-     * Used by the item-to-droppers map search — one query at page load, no
-     * runtime DB access. Items with is_map_visible = 0 are excluded.
+     * Preload every map-visible item acquisition source (drops, vendors, mining, fishing, item bags).
+     * Used by the map item search — one query batch at page load, no runtime DB access. Items with is_map_visible = 0 are excluded.
      */
-    async getItemDroppers(): Promise<ItemDropperRow[]> {
+    async getItemSources(): Promise<ItemSourceRow[]> {
         if (!this.db) throw new Error('DB not initialized');
 
-        const stmt = this.db.prepare(`
-            SELECT
-                i.stable_key        AS itemStableKey,
-                i.display_name      AS displayName,
-                i.wiki_page_name    AS wikiPageName,
-                i.item_icon_name    AS iconName,
-                c.stable_key        AS characterStableKey,
-                c.npc_name          AS npcName,
-                c.is_friendly       AS isFriendly,
-                c.is_rare           AS isRare,
-                c.is_unique         AS isUnique,
-                ld.drop_probability AS dropProbability
-            FROM loot_drops ld
-            JOIN items i ON i.stable_key = ld.item_stable_key
-            JOIN characters c ON c.stable_key = ld.character_stable_key
-            WHERE i.is_map_visible = 1
-            ORDER BY i.display_name, ld.drop_probability DESC
-        `);
+        const rows: ItemSourceRow[] = [];
 
-        const rows: ItemDropperRow[] = [];
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key        AS itemStableKey,
+                    i.display_name      AS displayName,
+                    i.wiki_page_name    AS wikiPageName,
+                    i.item_icon_name    AS iconName,
+                    c.stable_key        AS characterStableKey,
+                    c.npc_name          AS npcName,
+                    c.is_rare           AS isRare,
+                    c.is_unique         AS isUnique,
+                    ld.drop_probability AS dropProbability
+                FROM loot_drops ld
+                JOIN items i ON i.stable_key = ld.item_stable_key
+                JOIN characters c ON c.stable_key = ld.character_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name, ld.drop_probability DESC
+            `);
 
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            rows.push({
-                itemStableKey: row.itemStableKey as string,
-                displayName: row.displayName as string,
-                wikiPageName: (row.wikiPageName as string) ?? null,
-                iconName: (row.iconName as string) ?? null,
-                characterStableKey: row.characterStableKey as string,
-                npcName: (row.npcName as string) ?? '',
-                isFriendly: Boolean(row.isFriendly),
-                isRare: Boolean(row.isRare),
-                isUnique: Boolean(row.isUnique),
-                dropProbability: row.dropProbability as number
-            });
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'drop',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    characterStableKey: row.characterStableKey as string,
+                    npcName: (row.npcName as string) ?? '',
+                    isRare: Boolean(row.isRare),
+                    isUnique: Boolean(row.isUnique),
+                    dropProbability: row.dropProbability as number
+                });
+            }
+            stmt.free();
         }
-        stmt.free();
+
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key        AS itemStableKey,
+                    i.display_name      AS displayName,
+                    i.wiki_page_name    AS wikiPageName,
+                    i.item_icon_name    AS iconName,
+                    c.stable_key        AS characterStableKey,
+                    c.npc_name          AS npcName,
+                    i.item_value        AS price
+                FROM character_vendor_items cvi
+                JOIN items i ON i.stable_key = cvi.item_stable_key
+                JOIN characters c ON c.stable_key = cvi.character_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name
+            `);
+
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'vendor',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    characterStableKey: row.characterStableKey as string,
+                    npcName: (row.npcName as string) ?? '',
+                    price: (row.price as number) ?? 0
+                });
+            }
+            stmt.free();
+        }
+
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key             AS itemStableKey,
+                    i.display_name           AS displayName,
+                    i.wiki_page_name        AS wikiPageName,
+                    i.item_icon_name        AS iconName,
+                    mi.mining_node_stable_key AS nodeStableKey,
+                    mi.drop_chance           AS dropChance
+                FROM mining_node_items mi
+                JOIN items i ON i.stable_key = mi.item_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name
+            `);
+
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'mining',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    nodeStableKey: row.nodeStableKey as string,
+                    dropChance: (row.dropChance as number) ?? 0
+                });
+            }
+            stmt.free();
+        }
+
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key        AS itemStableKey,
+                    i.display_name      AS displayName,
+                    i.wiki_page_name    AS wikiPageName,
+                    i.item_icon_name    AS iconName,
+                    wf.water_stable_key AS waterStableKey,
+                    wf.type             AS fishType,
+                    wf.drop_chance      AS dropChance
+                FROM water_fishables wf
+                JOIN items i ON i.stable_key = wf.item_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name
+            `);
+
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'fishing',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    waterStableKey: row.waterStableKey as string,
+                    period: row.fishType === 'NightFishable' ? 'night' : 'day',
+                    dropChance: (row.dropChance as number) ?? 0
+                });
+            }
+            stmt.free();
+        }
+
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key        AS itemStableKey,
+                    i.display_name      AS displayName,
+                    i.wiki_page_name    AS wikiPageName,
+                    i.item_icon_name    AS iconName,
+                    ib.stable_key       AS bagStableKey,
+                    ib.respawns         AS respawns
+                FROM item_bags ib
+                JOIN items i ON i.stable_key = ib.item_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name
+            `);
+
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'bag',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    bagStableKey: row.bagStableKey as string,
+                    respawns: Boolean(row.respawns)
+                });
+            }
+            stmt.free();
+        }
+
         return rows;
     }
 

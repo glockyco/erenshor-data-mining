@@ -5,20 +5,28 @@
  * prefix-then-substring matching with round-robin interleaving across categories.
  */
 
-import type { WorldEnemy, WorldNpc, ZoneWorldPosition } from '$lib/types/world-map';
-import type { ItemDropperRow } from '$lib/map-markers';
+import type {
+    WorldEnemy,
+    WorldNpc,
+    WorldMiningNode,
+    WorldWater,
+    WorldItemBag,
+    ZoneWorldPosition
+} from '$lib/types/world-map';
+import type { ItemSourceRow } from '$lib/map-markers';
 import type {
     SearchProvider,
     IndexEntry,
     SearchResult,
     ResolvedHighlight,
     EnemySearchResult,
+    ItemSearchResult,
     SearchMatch
 } from './types';
 import { EnemySearchProvider } from './enemy-provider';
 import { NpcSearchProvider } from './npc-provider';
 import { ZoneSearchProvider } from './zone-provider';
-import { ItemSearchProvider } from './item-drop-provider';
+import { ItemSearchProvider } from './item-source-provider';
 import { searchTieredWithTotal } from './fuse-index';
 
 export type { SearchResult, IndexEntry, ResolvedHighlight, SearchMatch } from './types';
@@ -63,6 +71,21 @@ export function emptySearchResponse(): SearchResponse {
     return { matches: [], categories, total: 0, hasMore: false };
 }
 
+export function itemResultSummaryParts(result: ItemSearchResult): string[] {
+    const c = result.sourceCounts;
+    const parts: string[] = [];
+    const push = (n: number, label: string) => {
+        if (n > 0) parts.push(`${n} ${label}${n !== 1 ? 's' : ''}`);
+    };
+    push(c.droppers, 'dropper');
+    push(c.vendors, 'vendor');
+    push(c.miningNodes, 'mining node');
+    push(c.fishingSpots, 'fishing spot');
+    push(c.itemBags, 'item bag');
+    push(result.zoneCount, 'zone');
+    return parts;
+}
+
 // =============================================================================
 // Search Index
 // =============================================================================
@@ -83,23 +106,36 @@ export interface SearchIndex {
  * Build the search index from preloaded map data.
  * Called once at page load, rebuilt when live entities change.
  */
-export function buildSearchIndex(
-    enemiesCommon: WorldEnemy[],
-    enemiesRare: WorldEnemy[],
-    enemiesUnique: WorldEnemy[],
-    npcs: WorldNpc[],
-    zones: ZoneWorldPosition[],
-    itemDroppers: ItemDropperRow[]
-): SearchIndex {
-    const enemyProvider = new EnemySearchProvider(enemiesCommon, enemiesRare, enemiesUnique);
-    const npcProvider = new NpcSearchProvider(npcs);
-    const zoneProvider = new ZoneSearchProvider(zones);
-    const itemProvider = new ItemSearchProvider(itemDroppers, [
-        ...enemiesCommon,
-        ...enemiesRare,
-        ...enemiesUnique,
-        ...npcs
-    ]);
+export function buildSearchIndex(input: {
+    enemiesCommon: WorldEnemy[];
+    enemiesRare: WorldEnemy[];
+    enemiesUnique: WorldEnemy[];
+    npcs: WorldNpc[];
+    zones: ZoneWorldPosition[];
+    miningNodes: WorldMiningNode[];
+    water: WorldWater[];
+    itemBags: WorldItemBag[];
+    itemSources: ItemSourceRow[];
+}): SearchIndex {
+    const enemyProvider = new EnemySearchProvider(
+        input.enemiesCommon,
+        input.enemiesRare,
+        input.enemiesUnique
+    );
+    const npcProvider = new NpcSearchProvider(input.npcs);
+    const zoneProvider = new ZoneSearchProvider(input.zones);
+    const itemProvider = new ItemSearchProvider(
+        input.itemSources,
+        [
+            ...input.enemiesCommon,
+            ...input.enemiesRare,
+            ...input.enemiesUnique,
+            ...input.npcs
+        ],
+        input.miningNodes,
+        input.water,
+        input.itemBags
+    );
 
     const providers: SearchProvider[] = [
         itemProvider,

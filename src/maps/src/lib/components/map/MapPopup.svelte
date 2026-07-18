@@ -8,7 +8,7 @@
     } from '$lib/types/world-map';
     import type { Selection } from '$lib/types/selection';
     import { getSelectionBorderColor } from '$lib/types/selection';
-    import type { SearchIndex } from '$lib/map/search';
+    import { itemResultSummaryParts, type SearchIndex } from '$lib/map/search';
     import PopupContainer from './PopupContainer.svelte';
     import SpawnPointPopupContent from './popups/SpawnPointPopupContent.svelte';
     import CollocatedSpawnPopupContent from './popups/CollocatedSpawnPopupContent.svelte';
@@ -182,12 +182,8 @@
                 }
                 case 'zone':
                     return 'Zone';
-                case 'item': {
-                    const parts: string[] = ['Drops'];
-                    parts.push(`${r.dropperCount} dropper${r.dropperCount !== 1 ? 's' : ''}`);
-                    parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
-                    return parts.join(' \u2022 ');
-                }
+                case 'item':
+                    return ['Item', ...itemResultSummaryParts(r)].join(' \u2022 ');
             }
         }
 
@@ -251,16 +247,10 @@
         return searchIndex.npcProvider.getMarkers(selection.result.name);
     });
 
-    const searchItemMarkers = $derived.by(() => {
+    const searchItemSources = $derived.by(() => {
         if (selection?.type !== 'search' || selection.result.type !== 'item' || !searchIndex)
             return [];
-        return searchIndex.itemProvider.getMarkersForItem(selection.result.itemStableKey);
-    });
-
-    const searchItemDropRows = $derived.by(() => {
-        if (selection?.type !== 'search' || selection.result.type !== 'item' || !searchIndex)
-            return [];
-        return searchIndex.itemProvider.getDropRowsForItem(selection.result.itemStableKey);
+        return searchIndex.itemProvider.getSourcesForItem(selection.result.itemStableKey);
     });
 </script>
 
@@ -298,8 +288,7 @@
         {:else if result.type === 'item'}
             <SearchItemPopup
                 result={result}
-                markers={searchItemMarkers}
-                dropRows={searchItemDropRows}
+                sources={searchItemSources}
                 {onHoverSpawn}
                 {onFocusSpawn}
                 {onFocusAll}
