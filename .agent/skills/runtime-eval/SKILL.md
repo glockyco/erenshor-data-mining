@@ -65,6 +65,12 @@ uv run erenshor eval watch 'GameData.PlayerControl.transform.position'  # Stream
 uv run erenshor eval complete 'Camera.main.'                  # Autocomplete
 ```
 
+## Combat evaluation
+
+For controlled experiments that validate damage, healing, resistance, proc,
+resource, or cooldown behavior, use the `combat-evaluation` skill. Keep this
+skill focused on HotRepl commands, evaluator constraints, and runtime access.
+
 ## C# 7 Limitations
 
 The Mono compiler supports C# 7.x only. These **do not work**:
