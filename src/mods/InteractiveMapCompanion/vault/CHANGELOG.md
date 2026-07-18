@@ -3,7 +3,7 @@
 ## v2026.718.0
 
 - Fixed the overlay shortcut not responding.
-- Removed repeated browser paint messages from the debug log while the overlay is idle.
+- Removed repeated browser paint statistics from the debug log.
 - Links can now open any page, with the Back and Map buttons available to return.
 
 ## v2026.717.0

@@ -163,7 +163,7 @@ internal sealed class MapOverlay : MonoBehaviour
         int width = Config!.OverlayWidth;
         int height = Config.OverlayHeight;
 
-        _renderer = new BrowserRenderer(Log!, _rawImage, width, height);
+        _renderer = new BrowserRenderer(_rawImage, width, height);
         _browser = new BrowserManager(Log!, _renderer.OnPaint);
         _browser.NavigationStateChanged += UpdateNavigationState;
         UpdateNavigationState();
@@ -216,7 +216,6 @@ internal sealed class MapOverlay : MonoBehaviour
             return;
 
         _renderer?.Update();
-        _renderer?.LogDiagnostics(Time.deltaTime);
 
         if (!_visible || !_browser.IsReady)
             return;

@@ -24,18 +24,8 @@ internal sealed class BrowserRenderer : IDisposable
     private bool _textureDirty;
     private bool _disposed;
 
-    // Diagnostics: track paint stats and emit a summary every 5 seconds.
-    private readonly IModLogger _log;
-    private float _diagTimer;
-    private int _diagPaintCount;
-    private int _diagUploadCount;
-    private long _diagDirtyPixels;
-    private long _diagFullPixels;
-    private const float DiagInterval = 5f;
-
-    internal BrowserRenderer(IModLogger log, RawImage rawImage, int width, int height)
+    internal BrowserRenderer(RawImage rawImage, int width, int height)
     {
-        _log = log;
         _rawImage = rawImage;
         _width = width;
         _height = height;
@@ -75,11 +65,6 @@ internal sealed class BrowserRenderer : IDisposable
         // the Steam callback and back-pressure CEF's paint rate.
         _texture.LoadRawTextureData(param.pBGRA, fullWidth * fullHeight * 4);
         _textureDirty = true;
-
-        // Diagnostics: accumulate dirty-rect vs full-surface coverage.
-        _diagPaintCount++;
-        _diagDirtyPixels += (long)param.unUpdateWide * param.unUpdateTall;
-        _diagFullPixels += (long)fullWidth * fullHeight;
     }
 
     /// <summary>
@@ -94,39 +79,6 @@ internal sealed class BrowserRenderer : IDisposable
 
         _textureDirty = false;
         _texture.Apply(updateMipmaps: false, makeNoLongerReadable: false);
-        _diagUploadCount++;
-    }
-
-    // Called from MapOverlay.Update() — uses Unity time so must be on main thread.
-    internal void LogDiagnostics(float deltaTime)
-    {
-        _diagTimer += deltaTime;
-        if (_diagTimer < DiagInterval)
-            return;
-
-        float interval = _diagTimer;
-        _diagTimer = 0f;
-
-        if (_diagPaintCount == 0)
-            return;
-
-        float paintHz = _diagPaintCount / interval;
-        float uploadHz = _diagUploadCount / interval;
-        float dirtyPct =
-            _diagFullPixels > 0 ? (float)_diagDirtyPixels / _diagFullPixels * 100f : 0f;
-        int redundant = _diagPaintCount - _diagUploadCount;
-
-        _log.LogDebug(
-            $"[Overlay] Paint: {paintHz:F1} callbacks/s  "
-                + $"uploads: {uploadHz:F1}/s  "
-                + $"dirty rect avg: {dirtyPct:F1}% of surface  "
-                + $"redundant (overwritten before upload): {redundant}"
-        );
-
-        _diagPaintCount = 0;
-        _diagUploadCount = 0;
-        _diagDirtyPixels = 0;
-        _diagFullPixels = 0;
     }
 
     private void CreateTexture(int width, int height)
