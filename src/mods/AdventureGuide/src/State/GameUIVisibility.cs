@@ -5,5 +5,16 @@ namespace AdventureGuide.State;
 /// </summary>
 internal static class GameUIVisibility
 {
-    public static bool IsVisible => GameData.MainCanvas?.enabled ?? true;
+    public static bool IsVisible
+    {
+        get
+        {
+            // GameData.MainCanvas can hold a destroyed Canvas during scene
+            // transitions. `?.` only checks the managed reference, so the
+            // `.enabled` access throws. Unity's overloaded null check covers
+            // both the unassigned and the destroyed case.
+            var canvas = GameData.MainCanvas;
+            return canvas == null || canvas.enabled;
+        }
+    }
 }

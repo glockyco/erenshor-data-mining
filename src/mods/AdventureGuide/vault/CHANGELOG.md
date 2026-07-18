@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.718.0
+
+- Fix error spam in the log after returning to the main menu.
+
 ## v2026.717.0
 
 - Hide the navigation arrow, ground path, and world markers while Hide UI mode (F7) is active.
