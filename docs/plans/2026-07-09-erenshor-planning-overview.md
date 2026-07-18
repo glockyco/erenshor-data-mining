@@ -134,7 +134,7 @@ and [`2026-06-26-maps-domain-url-migration`](archive/2026-06-26-maps-domain-url-
 
 - `docs/plans/archive/2026-06-26-maps-domain-url-migration.md` — archived maps domain and URL migration.
 - `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` — Cargo/Lua design authority.
-- `docs/audits/2026-07-04-export-gap-analysis.md` — export and formula gap audit.
+- `docs/plans/archive/2026-07-04-export-gap-analysis.md` — archived export and formula gap audit.
 - `docs/plans/archive/2026-07-13-planar-march-release-refresh.md` — archived release plan.
 - `docs/plans/archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — archived guide plan.
 - `docs/plans/INDEX.md` — generated navigation.

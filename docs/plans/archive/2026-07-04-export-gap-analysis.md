@@ -1,9 +1,16 @@
+---
+title: "Export Gap Analysis: Main vs Playtest Audit"
+type: audit
+status: implemented
+created: 2026-07-04
+parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-07-18
+---
+
 # Export Gap Analysis: Main vs Playtest Audit
 
 **Date:** 2026-07-04
 **Scope:** Exhaustive list of fields and formula changes relevant to our data exports (wiki, sheets, map, AdventureGuide) that are missing or need updating based on the main-vs-playtest script audit.
-> **Resolved by:** [`2026-07-04-playtest-reconciliation-quality-tiers-formulas-export-gaps`](../plans/archive/2026-07-04-playtest-reconciliation-quality-tiers-formulas-export-gaps.md).
-
 
 ---
 

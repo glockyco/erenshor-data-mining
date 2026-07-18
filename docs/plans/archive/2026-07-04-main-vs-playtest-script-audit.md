@@ -1,3 +1,12 @@
+---
+title: Main vs Playtest Script Audit
+type: audit
+status: implemented
+created: 2026-07-04
+parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-07-18
+---
+
 # Main vs Playtest Script Audit
 
 **Date:** 2026-07-04

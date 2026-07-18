@@ -15,8 +15,9 @@ script audit.
 
 ## Background
 
-The audit (`docs/audits/2026-07-04-main-vs-playtest-script-audit.md` and
-`docs/audits/2026-07-04-export-gap-analysis.md`) compared all decompiled C#
+The audit
+(`docs/plans/archive/2026-07-04-main-vs-playtest-script-audit.md` and
+`docs/plans/archive/2026-07-04-export-gap-analysis.md`) compared all decompiled C#
 scripts between the main and playtest builds. It found formula changes, new
 fields, and a quality-tier rename that all affect the data exports (wiki,
 sheets, map, AdventureGuide).
