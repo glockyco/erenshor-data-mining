@@ -237,13 +237,22 @@ The AdventureGuide mod embeds the compiled guide graph from `quest_guides/guide.
 
 ### Runtime C# REPL / HotRepl workflows
 
+HotRepl runs under BepInEx. With the game closed, select that loader and launch
+the default `main` variant through Steam. HotRepl remains installed between
+sessions, so it is not redeployed for each launch.
+
 ```bash
+uv run erenshor mod activate --loader bepinex
+uv run erenshor mod launch
 uv run erenshor eval ping
-uv run erenshor eval run
-uv run erenshor eval watch
-uv run erenshor eval complete
+uv run erenshor eval run 'SceneManager.GetActiveScene().name'
+uv run erenshor eval watch 'GameData.PlayerControl.transform.position'
+uv run erenshor eval complete 'Camera.main.'
 uv run erenshor eval reset
 ```
+
+The `runtime-eval` skill documents current multi-assembly host installation,
+loader selection, runtime inspection, and ScriptEngine reloads.
 
 ## Companion mods
 

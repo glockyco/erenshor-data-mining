@@ -160,19 +160,23 @@ generic + adapter pattern to test core logic without Unity runtime.
 
 ## Hot Reload Workflow
 
-- Run `erenshor mod dev-setup` once to install ScriptEngine + ConfigurationManager
-- `erenshor mod deploy --mod <id> --loader bepinex --scripts` activates BepInEx
-  and copies the DLL + PDB to `BepInEx/scripts/`
+- Run `uv run erenshor mod dev-setup` once to install ScriptEngine + ConfigurationManager
+- Install or update the multi-assembly HotRepl host separately as documented in the
+  `runtime-eval` skill. `mod dev-setup` does not install HotRepl
+- With the game closed, run `uv run erenshor mod activate --loader bepinex`, then
+  `uv run erenshor mod launch`. Do not swap loader proxy files manually
+- `uv run erenshor mod deploy --mod <id> --loader bepinex --scripts` activates
+  BepInEx and copies the DLL + PDB to `BepInEx/scripts/`
 - Trigger ScriptEngine reload through HotRepl using the `runtime-eval` skill's
   `ReloadPlugins` reflection snippet
 - Press F1 for in-game config editor when ConfigurationManager is installed
 - Mod must implement `OnDestroy()` that unpatches Harmony and removes event handlers
-- Full cycle: `mod deploy --mod <id> --loader bepinex --scripts` → HotRepl
-  `ReloadPlugins` call
+- Full cycle: `uv run erenshor mod deploy --mod <id> --loader bepinex --scripts`
+  → HotRepl `ReloadPlugins` call
 
 ## Runtime Debugging
 
-- Use `erenshor eval run '<C# expression>'` for live game inspection. See `runtime-eval` skill for full API.
+- Use `uv run erenshor eval run '<C# expression>'` for live game inspection. See `runtime-eval` skill for full API.
 - `Resources.FindObjectsOfTypeAll(type)` finds DontDestroyOnLoad objects invisible to `FindObjectOfType`
 - Inspect private fields: `GetField("_name", BindingFlags.NonPublic | BindingFlags.Instance)`
 - After hot reload, multiple assemblies coexist (ScriptEngine appends timestamps). Use `.Last()` to get the active one when searching by assembly name.
