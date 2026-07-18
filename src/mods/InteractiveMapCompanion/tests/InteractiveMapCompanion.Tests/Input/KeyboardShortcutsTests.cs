@@ -38,6 +38,16 @@ public sealed class KeyboardShortcutsTests
     }
 
     [Fact]
+    public void IsHeld_requires_the_configured_single_key()
+    {
+        var keyboard = new FakeKeyboardInput(KeyCode.LeftShift);
+
+        Assert.True(KeyboardShortcuts.IsHeld(KeyCode.LeftShift, keyboard));
+        Assert.False(KeyboardShortcuts.IsHeld(KeyCode.RightShift, keyboard));
+        Assert.False(KeyboardShortcuts.IsHeld(KeyCode.None, keyboard));
+    }
+
+    [Fact]
     public void WasPressed_uses_frame_edge_state_and_rejects_none()
     {
         var keyboard = new FakeKeyboardInput(pressed: [KeyCode.F2]);

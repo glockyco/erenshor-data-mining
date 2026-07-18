@@ -143,6 +143,7 @@ generic + adapter pattern to test core logic without Unity runtime.
 
 ## Game Input System
 
+- Lunaris `IKeybind` consumes bound Windows key messages during gameplay and its runtime events are not reliable across installations. Register a `KeyCode` setting and poll it through `UnityKeyboardInput` instead. This uses Lunaris' enum dropdown until the loader fixes its keybind path.
 - `EventSystem.IsPointerOverGameObject()` gates mouse input in `PlayerControl.cs` and `CameraController.cs`
 - IMGUI windows do NOT register with EventSystem. Patch it via Harmony postfix to return true when cursor is over the IMGUI window.
 - `Cursor.lockState = CursorLockMode.Locked` moves `Input.mousePosition` to screen center. Skip hit-testing when locked — the game locks cursor during camera drag.

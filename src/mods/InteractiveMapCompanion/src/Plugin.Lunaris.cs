@@ -1,3 +1,4 @@
+using ErenshorMods.Input;
 using InteractiveMapCompanion.Config;
 using Lunaris;
 using Lunaris.Config;
@@ -21,14 +22,12 @@ public sealed class Plugin : LunarisPlugin
 {
     private InteractiveMapRuntime? _runtime;
     private MapSettings? _settings;
-    private bool _toggleRequested;
 
     private void Awake()
     {
         gameObject.hideFlags = HideFlags.HideAndDontSave;
 
         _settings = Config.Register<MapSettings>().Get();
-        _settings.ToggleKey.OnPressed += OnTogglePressed;
         var config = new LunarisModConfig(_settings);
         var log = new LunarisModLogger(Logging);
         _runtime = new InteractiveMapRuntime(gameObject, config, log);
@@ -37,8 +36,9 @@ public sealed class Plugin : LunarisPlugin
 
     private void Update()
     {
-        bool togglePressed = _toggleRequested;
-        _toggleRequested = false;
+        bool togglePressed =
+            _settings != null
+            && KeyboardShortcuts.WasPressed(_settings.ToggleKey, UnityKeyboardInput.Instance);
         _runtime?.Tick(Time.deltaTime, togglePressed);
     }
 
@@ -49,15 +49,10 @@ public sealed class Plugin : LunarisPlugin
 
     private void OnDestroy()
     {
-        if (_settings != null)
-            _settings.ToggleKey.OnPressed -= OnTogglePressed;
         _runtime?.Stop();
         _runtime = null;
         _settings = null;
-        _toggleRequested = false;
     }
-
-    private void OnTogglePressed() => _toggleRequested = true;
 
     private sealed class LunarisModLogger : IModLogger
     {
@@ -91,14 +86,7 @@ public sealed class Plugin : LunarisPlugin
         public override LogLevel WebSocketLogLevel => _settings.WebSocketLogLevel;
         public override LogLevel ModLogLevel => _settings.ModLogLevel;
         public override bool EnableOverlay => _settings.EnableOverlay;
-        public override KeyCode ToggleKey
-        {
-            get
-            {
-                var keys = _settings.ToggleKey?.Keys;
-                return keys != null && keys.Length > 0 ? keys[0] : KeyCode.M;
-            }
-        }
+        public override KeyCode ToggleKey => _settings.ToggleKey;
         public override float AnchorX
         {
             get => _settings.AnchorX;
@@ -163,9 +151,8 @@ public sealed class Plugin : LunarisPlugin
         )]
         public bool EnableOverlay { get; set; } = true;
 
-        [Keybind(KeyCode.M)]
         [Config("ToggleKey", "Overlay", "Key to show/hide the in-game map overlay")]
-        public IKeybind ToggleKey { get; set; } = null!;
+        public KeyCode ToggleKey { get; set; } = KeyCode.M;
 
         [Config(
             "AnchorX",

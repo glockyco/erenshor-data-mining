@@ -6,21 +6,20 @@ namespace Sprint.Config;
 
 /// <summary>
 /// Lunaris-registered settings for the Sprint mod. Values bind live: Lunaris
-/// updates this instance (and the keybind entry) when the player edits options
-/// in the config UI, so the plugin can read fields directly each frame.
+/// updates this instance when the player edits options, so the plugin can read
+/// fields directly each frame.
 /// </summary>
 public sealed class SprintSettings : ISprintSettings
 {
     [Config("Enabled", "General", "Master switch. When false, sprint is disabled.")]
     public bool Enabled { get; set; } = true;
 
-    [Keybind(KeyCode.LeftShift)]
     [Config(
         "Sprint Key",
         "Controls",
         "Controls sprinting. Hold it, or tap to toggle when Toggle Mode is enabled."
     )]
-    public IKeybind SprintKey { get; set; } = null!;
+    public KeyCode SprintKey { get; set; } = KeyCode.LeftShift;
 
     [Config(
         "Toggle Mode",

@@ -1,3 +1,4 @@
+using ErenshorMods.Input;
 using Lunaris;
 using Sprint.Config;
 using Sprint.Core;
@@ -23,13 +24,16 @@ public sealed class Plugin : LunarisPlugin
 
         Logging.LogInfo(
             $"{PluginInfo.Name} v{PluginInfo.Version} loaded\n"
-                + $"  Sprint Key: {_settings.SprintKey.DisplayString}\n"
+                + $"  Sprint Key: {_settings.SprintKey}\n"
                 + $"  Toggle Mode: {(_settings.ToggleMode ? "Enabled" : "Disabled")}\n"
                 + $"  Speed Multiplier: {_settings.SprintMultiplier}x"
         );
     }
 
-    private void Update() => SprintRuntime.Tick(_settings.SprintKey.IsHeld);
+    private void Update() =>
+        SprintRuntime.Tick(
+            KeyboardShortcuts.IsHeld(_settings.SprintKey, UnityKeyboardInput.Instance)
+        );
 
     private void OnDestroy() => SprintRuntime.Stop();
 }

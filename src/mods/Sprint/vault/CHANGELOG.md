@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.718.0
+
+- Fixed Sprint interfering with Erenshor's Shift party shortcuts.
+
 ## v2026.717.0
 
 - Maintenance release. No functional changes.

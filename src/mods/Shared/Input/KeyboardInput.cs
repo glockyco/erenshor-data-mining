@@ -28,6 +28,9 @@ public static class KeyboardShortcuts
     public static bool WasPressed(KeyCode key, IKeyboardInput keyboard) =>
         key != KeyCode.None && keyboard.WasPressed(key);
 
+    public static bool IsHeld(KeyCode key, IKeyboardInput keyboard) =>
+        key != KeyCode.None && keyboard.IsHeld(key);
+
     public static bool IsHeld(IReadOnlyList<KeyCode> keys, IKeyboardInput keyboard)
     {
         if (keys.Count == 0)

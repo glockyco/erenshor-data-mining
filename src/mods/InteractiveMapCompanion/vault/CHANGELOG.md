@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.718.0
+
+- Fixed the overlay shortcut not responding.
+
 ## v2026.717.0
 
 - Added back, forward, and map navigation buttons to the in-game browser window.

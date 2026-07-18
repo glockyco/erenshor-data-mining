@@ -12,7 +12,7 @@ is distributed through Thunderstore.
 ```
 src/
 ├── Plugin.BepInEx.cs          # BepInEx adapter and KeyboardShortcut binding
-├── Plugin.Lunaris.cs          # Lunaris adapter and IKeybind binding
+├── Plugin.Lunaris.cs          # Lunaris KeyCode setting with Unity input polling
 ├── PluginInfo.cs              # GUID/name + generated version constant
 ├── Config/                    # Loader-neutral contract and Lunaris settings
 ├── Core/SprintRuntime.cs      # Shared lifecycle, input, speed, patch, cleanup
