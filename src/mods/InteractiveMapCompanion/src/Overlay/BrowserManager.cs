@@ -17,9 +17,6 @@ internal sealed class BrowserManager : IDisposable
 {
     internal const string MapUrl = "https://erenshor.compendiums.org/map";
 
-    private const string CanonicalMapHost = "erenshor.compendiums.org";
-    private const string LegacyMapHost = "erenshor-maps.wowmuch1.workers.dev";
-
     private readonly IModLogger _log;
     private readonly Action<HTML_NeedsPaint_t> _onPaint;
 
@@ -232,36 +229,9 @@ internal sealed class BrowserManager : IDisposable
     {
         if (_disposed || _appIsQuitting)
             return;
-        // HTML_StartRequest_t fires only for full document navigations, not for
-        // SvelteKit's client-side pushState/replaceState routing. Allow only
-        // HTTPS requests to one of the two approved map origins; deny everything
-        // else (external links, etc.) so the overlay cannot be navigated away
-        // from the map.
-        //
-        // AllowStartRequest MUST be called for every callback regardless of
-        // which browser fired it, or that browser will hang indefinitely.
-        bool ours = param.unBrowserHandle == _browser;
-        bool allowed = ours && IsAllowedNavigation(param.pchURL);
-
-        if (ours && !allowed)
-            _log.LogDebug($"[Overlay] Blocked navigation to: {param.pchURL}");
-
-        SteamHTMLSurface.AllowStartRequest(param.unBrowserHandle, allowed);
-    }
-
-    private static bool IsAllowedNavigation(string? url)
-    {
-        if (url == null || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
-            return false;
-
-        if (
-            !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-            || uri.Port != 443
-        )
-            return false;
-
-        return string.Equals(uri.Host, CanonicalMapHost, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(uri.Host, LegacyMapHost, StringComparison.OrdinalIgnoreCase);
+        // AllowStartRequest MUST be called for every callback or the browser hangs.
+        // The overlay is a normal browser surface, so do not restrict destinations.
+        SteamHTMLSurface.AllowStartRequest(param.unBrowserHandle, true);
     }
 
     private void OnHistoryChanged(HTML_CanGoBackAndForward_t param)
