@@ -273,11 +273,13 @@
 
 <div class="space-y-4">
     <!-- Summary -->
-    <div class="flex items-center justify-between">
+    <div class="relative flex items-center justify-center">
         {#if result.iconName}
             <img src={`/items/${result.iconName}.w48.webp`} alt="" class="h-12 w-12" />
         {/if}
-        <WikiLink pageName={result.wikiPageName} />
+        <div class="absolute right-0">
+            <WikiLink pageName={result.wikiPageName} />
+        </div>
     </div>
 
     <!-- Focus all button -->
