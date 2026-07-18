@@ -3,6 +3,7 @@
 ## v2026.718.0
 
 - Fixed the overlay shortcut not responding.
+- Removed repeated browser paint messages from the debug log while the overlay is idle.
 
 ## v2026.717.0
 

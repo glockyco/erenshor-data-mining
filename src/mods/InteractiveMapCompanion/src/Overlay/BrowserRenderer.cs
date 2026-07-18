@@ -108,10 +108,7 @@ internal sealed class BrowserRenderer : IDisposable
         _diagTimer = 0f;
 
         if (_diagPaintCount == 0)
-        {
-            _log.LogDebug("[Overlay] Paint diagnostics: no callbacks received.");
             return;
-        }
 
         float paintHz = _diagPaintCount / interval;
         float uploadHz = _diagUploadCount / interval;
