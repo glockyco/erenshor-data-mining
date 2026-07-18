@@ -181,7 +181,6 @@ function bagRow(
     itemStableKey: string,
     displayName: string,
     bagStableKey: string,
-    respawns: boolean,
     opts: Partial<ItemBagSource> = {}
 ): ItemBagSource {
     return {
@@ -191,7 +190,6 @@ function bagRow(
         wikiPageName: null,
         iconName: null,
         bagStableKey,
-        respawns,
         ...opts
     };
 }
@@ -343,8 +341,8 @@ describe('ItemSearchProvider', () => {
             [
                 miningRow('item:resources', 'Resources', 'mining:1', 50),
                 miningRow('item:resources', 'Resources', 'mining:missing', 50),
-                bagRow('item:resources', 'Resources', 'bag:1', true),
-                bagRow('item:resources', 'Resources', 'bag:missing', false)
+                bagRow('item:resources', 'Resources', 'bag:1'),
+                bagRow('item:resources', 'Resources', 'bag:missing')
             ],
             [],
             [mining],
@@ -369,7 +367,7 @@ describe('ItemSearchProvider', () => {
             [
                 miningRow('item:missing', 'Missing', 'mining:none', 1),
                 fishingRow('item:missing', 'Missing', 'water:none', 'day', 1),
-                bagRow('item:missing', 'Missing', 'bag:none', false),
+                bagRow('item:missing', 'Missing', 'bag:none'),
                 vendorRow('item:missing', 'Missing', 'char:none', 'Missing', 1),
                 row('item:missing', 'Missing', 'char:none', 'Missing', 1)
             ],
@@ -390,7 +388,7 @@ describe('ItemSearchProvider', () => {
             [
                 miningRow('item:all', 'All Resources', 'mining:1', 10),
                 fishingRow('item:all', 'All Resources', 'water:1', 'day', 20),
-                bagRow('item:all', 'All Resources', 'bag:1', true)
+                bagRow('item:all', 'All Resources', 'bag:1')
             ],
             [],
             [mining],

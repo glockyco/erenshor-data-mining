@@ -103,7 +103,6 @@ export type ItemFishingSource = ItemSourceItemMeta & {
 export type ItemBagSource = ItemSourceItemMeta & {
     kind: 'bag';
     bagStableKey: string;
-    respawns: boolean;
 };
 
 export type ItemSourceRow =

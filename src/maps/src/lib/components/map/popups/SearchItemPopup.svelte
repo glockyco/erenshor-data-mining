@@ -3,7 +3,6 @@
     import type { WorldEnemy, WorldNpc, WorldMiningNode, WorldWater, WorldItemBag } from '$lib/types/world-map';
     import type { AnySourceMarker, ResolvedItemSource } from '$lib/map/search/item-source-provider';
     import type { ItemSearchResult } from '$lib/map/search';
-    import { itemResultSummaryParts } from '$lib/map/search';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
@@ -50,11 +49,6 @@
         chances: number[];
     }
 
-    interface BagEntry {
-        marker: WorldItemBag;
-        respawns: boolean;
-    }
-
     interface ZoneMiningGroup {
         zone: string;
         zoneName: string;
@@ -70,7 +64,7 @@
     interface ZoneBagGroup {
         zone: string;
         zoneName: string;
-        entries: Map<string, BagEntry>;
+        markers: Map<string, WorldItemBag>;
     }
 
     let { result, sources, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
@@ -241,22 +235,15 @@
                 group = {
                     zone: marker.zone,
                     zoneName: marker.zoneName,
-                    entries: new Map()
+                    markers: new Map()
                 };
                 groups.set(marker.zone, group);
             }
-            const entry = group.entries.get(marker.stableKey);
-            if (entry) entry.respawns ||= source.row.respawns;
-            else {
-                group.entries.set(marker.stableKey, {
-                    marker,
-                    respawns: source.row.respawns
-                });
-            }
+            group.markers.set(marker.stableKey, marker);
         }
 
         return [...groups.values()].sort(
-            (a, b) => b.entries.size - a.entries.size
+            (a, b) => b.markers.size - a.markers.size
         );
     });
 
@@ -287,14 +274,9 @@
 <div class="space-y-4">
     <!-- Summary -->
     <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            {#if result.iconName}
-                <img src={`/items/${result.iconName}.w48.webp`} alt="" class="h-12 w-12" />
-            {/if}
-            <div class="text-sm text-zinc-300">
-                {itemResultSummaryParts(result).join(' · ')}
-            </div>
-        </div>
+        {#if result.iconName}
+            <img src={`/items/${result.iconName}.w48.webp`} alt="" class="h-12 w-12" />
+        {/if}
         <WikiLink pageName={result.wikiPageName} />
     </div>
 
@@ -499,8 +481,7 @@
         <div class="space-y-1 border-t border-zinc-700 pt-2">
             <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Item bags</div>
             {#each bagsByZone as group (group.zone)}
-                {@const entries = [...group.entries.values()]}
-                {@const markers = entries.map((entry) => entry.marker)}
+                {@const markers = [...group.markers.values()]}
                 <button
                     type="button"
                     class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left
@@ -513,15 +494,9 @@
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
                             <span>{group.zoneName}</span>
-                            {#if entries.every((entry) => !entry.respawns)}
-                                <span
-                                    class="rounded px-1 py-0.5 text-[10px]
-                                           bg-amber-900/50 text-amber-300"
-                                >one-time</span>
-                            {/if}
                         </div>
                         <div class="text-zinc-500">
-                            {entries.length} bag{entries.length !== 1 ? 's' : ''}
+                            {markers.length} bag{markers.length !== 1 ? 's' : ''}
                         </div>
                     </div>
                     <Crosshair

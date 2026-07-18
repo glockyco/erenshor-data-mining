@@ -1225,8 +1225,7 @@ export class RepositoryBase {
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
                     i.item_icon_name    AS iconName,
-                    ib.stable_key       AS bagStableKey,
-                    ib.respawns         AS respawns
+                    ib.stable_key       AS bagStableKey
                 FROM item_bags ib
                 JOIN items i ON i.stable_key = ib.item_stable_key
                 WHERE i.is_map_visible = 1
@@ -1241,8 +1240,7 @@ export class RepositoryBase {
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
                     iconName: (row.iconName as string) ?? null,
-                    bagStableKey: row.bagStableKey as string,
-                    respawns: Boolean(row.respawns)
+                    bagStableKey: row.bagStableKey as string
                 });
             }
             stmt.free();
