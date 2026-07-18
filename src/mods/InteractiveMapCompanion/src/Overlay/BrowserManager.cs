@@ -17,6 +17,31 @@ internal sealed class BrowserManager : IDisposable
 {
     internal const string MapUrl = "https://erenshor.compendiums.org/map";
 
+    // Steam HTML Surface never creates windows for target=_blank links or
+    // window.open — those clicks are silently dropped by the embedded browser.
+    // Rewrite them inside the page into same-surface navigations, which flow
+    // through the regular (allowed) StartRequest path. Idempotent: safe to
+    // inject on every finished page load. Uses single quotes only so it can
+    // live in a verbatim C# string.
+    private const string SameTabNavigationScript =
+        @"(function () {
+            if (window.__erenshorSameTab) return;
+            window.__erenshorSameTab = true;
+            window.open = function (url) {
+                if (url) window.location.href = url;
+                return null;
+            };
+            document.addEventListener('click', function (e) {
+                if (e.defaultPrevented || e.button !== 0) return;
+                var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+                if (!link) return;
+                var target = (link.getAttribute('target') || '').toLowerCase();
+                if (target !== '_blank' && target !== '_new') return;
+                e.preventDefault();
+                window.location.href = link.href;
+            });
+        })();";
+
     private readonly IModLogger _log;
     private readonly Action<HTML_NeedsPaint_t> _onPaint;
 
@@ -31,10 +56,14 @@ internal sealed class BrowserManager : IDisposable
     private bool _appIsQuitting;
     private bool _canGoBack;
     private bool _canGoForward;
+    private string? _pendingNavigationUrl;
 
     // Steamworks callback registrations — must be kept alive (not GC'd)
     private Callback<HTML_NeedsPaint_t>? _paintCallback;
     private Callback<HTML_StartRequest_t>? _startRequestCallback;
+    private Callback<HTML_OpenLinkInNewTab_t>? _openLinkCallback;
+    private Callback<HTML_NewWindow_t>? _newWindowCallback;
+    private Callback<HTML_FinishedRequest_t>? _finishedRequestCallback;
     private Callback<HTML_JSAlert_t>? _jsAlertCallback;
     private Callback<HTML_JSConfirm_t>? _jsConfirmCallback;
     private Callback<HTML_FileOpenDialog_t>? _fileOpenDialogCallback;
@@ -141,6 +170,18 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.GoBack(_browser);
     }
 
+    internal void ProcessPendingNavigation()
+    {
+        if (_disposed || _appIsQuitting || !_browserReady || _pendingNavigationUrl == null)
+            return;
+
+        string url = _pendingNavigationUrl;
+        _pendingNavigationUrl = null;
+
+        _log.LogInfo($"[Overlay] Opening external link: {url}");
+        SteamHTMLSurface.LoadURL(_browser, url, null);
+    }
+
     internal void GoForward()
     {
         if (_disposed || _appIsQuitting || !CanGoForward)
@@ -158,6 +199,17 @@ internal sealed class BrowserManager : IDisposable
 
         // StartRequest: MUST respond with AllowStartRequest or browser hangs
         _startRequestCallback = Callback<HTML_StartRequest_t>.Create(OnStartRequest);
+
+        // External links commonly request a new tab or window. Steam only
+        // reports these — it never opens anything — so reuse the overlay
+        // browser and keep the existing Back and Map controls available.
+        _openLinkCallback = Callback<HTML_OpenLinkInNewTab_t>.Create(OnOpenLinkInNewTab);
+        _newWindowCallback = Callback<HTML_NewWindow_t>.Create(OnNewWindow);
+
+        // Not every Steam client build raises the new-window callbacks.
+        // Patch each loaded page so target=_blank and window.open navigate
+        // the current surface directly, independent of callback support.
+        _finishedRequestCallback = Callback<HTML_FinishedRequest_t>.Create(OnFinishedRequest);
 
         // JS dialogs: MUST respond or browser hangs
         _jsAlertCallback = Callback<HTML_JSAlert_t>.Create(OnJSAlert);
@@ -234,6 +286,38 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.AllowStartRequest(param.unBrowserHandle, true);
     }
 
+    private void OnOpenLinkInNewTab(HTML_OpenLinkInNewTab_t param)
+    {
+        if (_disposed || _appIsQuitting || param.unBrowserHandle != _browser)
+            return;
+
+        QueueExternalNavigation(param.pchURL);
+    }
+
+    private void OnNewWindow(HTML_NewWindow_t param)
+    {
+        if (_disposed || _appIsQuitting || param.unBrowserHandle != _browser)
+            return;
+
+        QueueExternalNavigation(param.pchURL);
+    }
+
+    private void QueueExternalNavigation(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return;
+
+        _pendingNavigationUrl = url;
+    }
+
+    private void OnFinishedRequest(HTML_FinishedRequest_t param)
+    {
+        if (_disposed || _appIsQuitting || param.unBrowserHandle != _browser)
+            return;
+
+        SteamHTMLSurface.ExecuteJavascript(_browser, SameTabNavigationScript);
+    }
+
     private void OnHistoryChanged(HTML_CanGoBackAndForward_t param)
     {
         if (_disposed || _appIsQuitting || param.unBrowserHandle != _browser)
@@ -292,6 +376,9 @@ internal sealed class BrowserManager : IDisposable
         // already-torn-down API.
         _paintCallback?.Dispose();
         _startRequestCallback?.Dispose();
+        _openLinkCallback?.Dispose();
+        _newWindowCallback?.Dispose();
+        _finishedRequestCallback?.Dispose();
         _jsAlertCallback?.Dispose();
         _jsConfirmCallback?.Dispose();
         _fileOpenDialogCallback?.Dispose();
@@ -315,6 +402,7 @@ internal sealed class BrowserManager : IDisposable
         _initialized = false;
         _canGoBack = false;
         _canGoForward = false;
+        _pendingNavigationUrl = null;
         _browser = default;
     }
 }

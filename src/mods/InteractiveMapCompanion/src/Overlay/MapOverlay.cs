@@ -215,6 +215,7 @@ internal sealed class MapOverlay : MonoBehaviour
         if (_stopped || !_ready || _browser == null)
             return;
 
+        _browser.ProcessPendingNavigation();
         _renderer?.Update();
 
         if (!_visible || !_browser.IsReady)
