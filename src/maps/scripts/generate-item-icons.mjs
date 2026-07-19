@@ -7,7 +7,7 @@
  * two display sizes (20px palette, 48px popup). Idempotent — skips icons
  * already converted.
  */
-import { existsSync, readdirSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -57,11 +57,6 @@ async function main() {
     }
 
     const iconNames = result[0].values.map((row) => row[0]);
-    const existing = new Set(
-        readdirSync(outDir)
-            .filter((f) => f.endsWith('.w20.webp'))
-            .map((f) => f.replace(/\.w20\.webp$/, ''))
-    );
 
     let generated = 0;
     let skipped = 0;
@@ -74,10 +69,18 @@ async function main() {
             continue;
         }
 
-        // Skip if the 20px variant already exists (48px assumed present too)
-        if (existing.has(iconName)) {
-            skipped++;
-            continue;
+        // Skip only when both WebP variants exist AND are at least as new as the
+        // source PNG. Keying on mere existence stranded stale icons: a game update
+        // can repoint an already-generated icon name (e.g. "8_2") at a different
+        // sprite, and the old WebP would never be rebuilt.
+        const w20 = join(outDir, `${iconName}.w20.webp`);
+        const w48 = join(outDir, `${iconName}.w48.webp`);
+        if (existsSync(w20) && existsSync(w48)) {
+            const srcMtime = statSync(sourcePng).mtimeMs;
+            if (statSync(w20).mtimeMs >= srcMtime && statSync(w48).mtimeMs >= srcMtime) {
+                skipped++;
+                continue;
+            }
         }
 
         // Generate 20px (palette) and 48px (popup) WebP
