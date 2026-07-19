@@ -47,3 +47,16 @@ def test_obtained_from_character_sources_preserve_keys_and_conditions(
     dialogs = character_repo.get_characters_giving_item("item:gen - shivering belt lamp")
     assert dialogs[0].source_key.startswith("character:kio the lightkeeper")
     assert dialogs[0].condition == "requires quest Meet Shivering Step"
+
+
+def test_legacy_vendor_query_includes_quest_gated_stock(
+    character_repo: CharacterRepository,
+) -> None:
+    """The legacy infobox vendor query surfaces quest-unlocked vendor stock.
+
+    Enchanted Smithy has no direct character_vendor_items row; Breena Carpenter
+    only sells it after the 'Crafting: Enchanted Smithy' quest. The legacy query
+    must still list her so the item infobox shows a vendor source.
+    """
+    vendors = character_repo.get_vendors_selling_item("item:furniture - enchanted smithy")
+    assert any(link.display_name == "Breena Carpenter" for link in vendors)

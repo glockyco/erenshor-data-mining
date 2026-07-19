@@ -329,6 +329,9 @@ class CharacterRepository(BaseRepository[Character]):
     def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
         """Get characters (vendors) that sell the given item.
 
+        Includes both directly-stocked vendor items and quest-gated stock a vendor
+        only sells after the player completes an unlocking quest.
+
         Returns pre-built CharacterLink objects — section generators call str(link)
         directly without resolver lookup.
 
@@ -347,6 +350,12 @@ class CharacterRepository(BaseRepository[Character]):
                 FROM character_deduplications d
                 JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
                 WHERE cvi.item_stable_key = ?
+                UNION
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                WHERE qv.unlock_item_for_vendor_stable_key = ?
             ),
             reps AS (
                 SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
@@ -362,7 +371,7 @@ class CharacterRepository(BaseRepository[Character]):
         """
 
         try:
-            rows = self._execute_raw(query, (item_stable_key,))
+            rows = self._execute_raw(query, (item_stable_key, item_stable_key))
             links = [
                 CharacterLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
