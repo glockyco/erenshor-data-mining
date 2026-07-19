@@ -21,6 +21,16 @@ body {
     font-family: var(--font-display);
 }
 
+/* Tailwind v4 preflight resets interactive elements to cursor:default.
+   Restore the pointer affordance on genuinely clickable controls. */
+@layer base {
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    summary {
+        cursor: pointer;
+    }
+}
+
 .erenshor-leaflet-control {
     display: inline-flex;
     align-items: center;
