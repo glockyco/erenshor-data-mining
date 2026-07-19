@@ -1,5 +1,6 @@
 {{Item
 |title=Malaroth Sinew Cord
+|stablekey=item:belt - 23 - malaroth sinew cord
 |type=
 |vendorsource=
 |source=[[Shivunax]] (66.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Eldoth Writings: The Wisp
+|stablekey=item:gen - eldoth - on braxonian 2
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Overseer Refleigh]] (100.0%)<br>[[Molorai Specialist]] (6.0%)<br>[[Molorai Outrider]] (5.7%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)

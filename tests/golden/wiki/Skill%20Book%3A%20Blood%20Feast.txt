@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Blood Feast
+|stablekey=item:skillbook - blood feast
 |type=[[Ability Books]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
 |source=[[Islander Bandit]] (1.1%)

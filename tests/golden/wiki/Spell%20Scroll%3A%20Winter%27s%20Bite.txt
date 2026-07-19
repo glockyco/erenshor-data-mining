@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Winter's Bite
+|stablekey=item:spell scroll - winter's bite
 |type=[[Ability Books]]
 |vendorsource=[[Juctin Mysia]]
 |source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)<br>[[Braxon Fanatic]] (2.8%)

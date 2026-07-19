@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Group Healing
+|stablekey=item:spell scroll - group healing
 |type=
 |vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
 |source=[[Molorai Spiritist]] (100.0%)

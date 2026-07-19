@@ -1,5 +1,6 @@
 {{Item
 |title=Diamond Helm
+|stablekey=item:head - 30 - diamond helm
 |type=
 |vendorsource=
 |source=[[Sivakayan Shadow]] (8.6%)

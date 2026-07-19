@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Sunburst
+|stablekey=item:spell scroll - sunburst
 |type=[[Ability Books]]
 |vendorsource=[[Leyor M'Chante]]
 |source=[[Molorai Captain Sigrid]] (12.7%)

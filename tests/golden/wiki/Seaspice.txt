@@ -1,5 +1,6 @@
 {{Item
 |title=Seaspice
+|stablekey=item:cons - seaspice
 |type=[[Consumables|Consumable]], [[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=[[Cully Edwarse]]<br>[[Saya Seawatcher]]<br>[[Shantee Swingblade]]<br>[[Summoned: Pocket Vendor]]
 |source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Lost Soul]] (100.0%)<br>[[Sylvan Giant Runt]] (86.3%)<br>[[The Lost Sea Giant King]] (66.1%)<br>[[Cerynth Duskveil]] (59.4%)<br>[[Elizah Vernor]] (59.4%)<br>[[Molorai Brewmistress]] (59.4%)<br>[[Myrre Morrigane]] (59.4%)<br>[[Rose Crystalshade]] (59.4%)<br>[[Thella Steepleton]] (59.4%)<br>[[Plaxitheris]] (19.4%)<br>[[Priel Consort]] (4.3%)<br>[[Priel Deceiver]] (4.3%)<br>[[Priel Enforcer]] (4.3%)<br>[[Priel Gifted]] (4.3%)<br>[[Priel Grimwatch]] (4.3%)<br>[[Priel Purist]] (4.3%)<br>[[Priel Swiftblade]] (4.3%)<br>[[A Lost Sea Giant]] (4.0%)

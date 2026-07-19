@@ -1,5 +1,6 @@
 {{Item
 |title=Breezeworn Sash
+|stablekey=item:belt - 6 - breezeworn sash
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Invisibility
+|stablekey=item:spell scroll - invisibility
 |type=
 |vendorsource=[[Edwin Ansegg]]<br>[[Nylith Valorro]]
 |source=

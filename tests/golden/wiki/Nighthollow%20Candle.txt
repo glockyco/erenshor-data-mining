@@ -1,5 +1,6 @@
 {{Item
 |title=Nighthollow Candle
+|stablekey=item:hand - 100 - the nighthollow candle
 |type=
 |vendorsource=
 |source=

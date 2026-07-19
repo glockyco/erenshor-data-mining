@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of the Sky
+|stablekey=item:ring - 7 - ring of the sky
 |type=
 |vendorsource=
 |source=[[Tinkles]] (4.0%)

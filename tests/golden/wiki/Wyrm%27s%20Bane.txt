@@ -1,5 +1,6 @@
 {{Item
 |title=Wyrm's Bane
+|stablekey=item:gen - wyrm's bane
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Elysia Thistlewick]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Gifted Sleeves
+|stablekey=item:arm - 25 - gifted sleeves
 |type=
 |vendorsource=
 |source=[[Julianna Priel]] (50.0%)

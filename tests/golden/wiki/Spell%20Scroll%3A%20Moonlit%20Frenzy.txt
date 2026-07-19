@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Moonlit Frenzy
+|stablekey=item:spell scroll - moonlit frenzy
 |type=[[Ability Books]]
 |vendorsource=
 |source=[[Raval, The First Paladin]] (100.0%)

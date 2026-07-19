@@ -1,5 +1,6 @@
 {{Item
 |title=Fernalla's Paintbrush
+|stablekey=item:wand - 42 - fernalla's paintbrush
 |type=
 |vendorsource=
 |source=[[Jinx]] (68.9%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

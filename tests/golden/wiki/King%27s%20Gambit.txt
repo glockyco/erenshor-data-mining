@@ -1,5 +1,6 @@
 {{Item
 |title=King's Gambit
+|stablekey=item:weap - 42 - king's gambit
 |type=
 |vendorsource=
 |source=[[Chunk of Amarion]] (40.8%)

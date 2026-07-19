@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ethereal Rending
+|stablekey=item:spell scroll - ethereal rend
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Edwin Ansegg]]<br>[[Nylith Valorro]]
 |source=

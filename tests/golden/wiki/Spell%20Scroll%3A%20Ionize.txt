@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ionize
+|stablekey=item:spell scroll - ionize
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Elizabeth DeWitt]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Mid Day on the Isle
+|stablekey=item:quest - bellwain midday
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

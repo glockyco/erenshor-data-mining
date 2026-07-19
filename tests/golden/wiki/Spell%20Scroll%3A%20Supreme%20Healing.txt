@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Supreme Healing
+|stablekey=item:spell scroll - supreme healing
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Juctin Mysia]]
 |source=

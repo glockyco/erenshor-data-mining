@@ -1,5 +1,6 @@
 {{Item
 |title=Hopewarden
+|stablekey=item:secondary - 38 - hopewarden
 |type=
 |vendorsource=
 |source=[[Sivakayan Doomshade]] (8.6%)

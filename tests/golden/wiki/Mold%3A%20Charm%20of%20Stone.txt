@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Stone
+|stablekey=item:template - charm of stone
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

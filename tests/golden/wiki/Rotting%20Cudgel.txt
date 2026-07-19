@@ -1,5 +1,6 @@
 {{Item
 |title=Rotting Cudgel
+|stablekey=item:weap - 6 - rotting cudgel
 |type=
 |vendorsource=
 |source=[[A Skeleton Soldier]] (3.5%)

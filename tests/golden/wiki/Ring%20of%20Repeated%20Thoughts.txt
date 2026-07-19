@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Repeated Thoughts
+|stablekey=item:ring - 31 - ring of repeated thoughts
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

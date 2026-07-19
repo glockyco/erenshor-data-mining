@@ -1,5 +1,6 @@
 {{Item
 |title=Ornate Toolbox
+|stablekey=item:gen - an ornate toolbox
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Highwayman Raider]] (7.3%)

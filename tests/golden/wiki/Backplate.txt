@@ -1,5 +1,6 @@
 {{Item
 |title=Backplate
+|stablekey=item:back - 11 - backplate
 |type=
 |vendorsource=
 |source=[[Bassalt Vallano]] (50.0%)

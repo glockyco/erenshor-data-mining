@@ -1,5 +1,6 @@
 {{Item
 |title=Frozen Mana Charm
+|stablekey=item:neck - 34 - frozen mana charm
 |type=
 |vendorsource=
 |source=[[Nazura the Traitor]] (66.7%)

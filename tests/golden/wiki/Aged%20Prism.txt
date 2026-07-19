@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Prism
+|stablekey=item:aura - aged prism
 |type=[[Auras]]
 |vendorsource=
 |source=[[Plunkey]] (33.3%)

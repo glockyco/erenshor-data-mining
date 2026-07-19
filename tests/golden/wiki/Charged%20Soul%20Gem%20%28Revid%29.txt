@@ -1,5 +1,6 @@
 {{Item
 |title=Charged Soul Gem (Revid)
+|stablekey=item:quest - charged soul gem revid
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

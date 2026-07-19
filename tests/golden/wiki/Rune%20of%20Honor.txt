@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Honor
+|stablekey=item:gen - raid rune of vitheo
 |type=
 |vendorsource=
 |source=

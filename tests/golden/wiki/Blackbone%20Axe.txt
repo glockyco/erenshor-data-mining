@@ -1,5 +1,6 @@
 {{Item
 |title=Blackbone Axe
+|stablekey=item:weap - 38 - blackened bone axe
 |type=
 |vendorsource=
 |source=[[Sableheart, Steed of Sivakaya]] (33.3%)

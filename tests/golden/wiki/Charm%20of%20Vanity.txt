@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of Vanity
+|stablekey=item:charm - 22 - charm of vanity
 |type=
 |vendorsource=
 |source=

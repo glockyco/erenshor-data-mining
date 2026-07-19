@@ -1,5 +1,6 @@
 {{Item
 |title=Bellwain's Master Key
+|stablekey=item:quest - bellwain bedroom key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

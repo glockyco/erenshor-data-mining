@@ -1,5 +1,6 @@
 {{Item
 |title=Inert Diamond
+|stablekey=item:template - inert diamond
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=[[Lost Treasure (1-10)]] (84.4%)<br>[[Lost Treasure (10-20)]] (65.2%)<br>[[Lost Treasure (30+)]] (56.6%)

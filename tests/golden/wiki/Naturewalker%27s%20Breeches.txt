@@ -1,5 +1,6 @@
 {{Item
 |title=Naturewalker's Breeches
+|stablekey=item:leg - 33 - naturewalker's breeches
 |type=
 |vendorsource=
 |source=[[Corrupted Fungal Bear]] (33.3%)

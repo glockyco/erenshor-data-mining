@@ -1,5 +1,6 @@
 {{Item
 |title=Recurve Bow
+|stablekey=item:bow - 11 - recurve bow
 |type=
 |vendorsource=
 |source=[[A Faerie Drone]] (4.5%)

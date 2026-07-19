@@ -1,5 +1,6 @@
 {{Item
 |title=Ealdred's Journal
+|stablekey=item:gen - ealdred's journal
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Darkwarden Ealdred]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Rotten Chain Tunic
+|stablekey=item:chest - 16 - rotten chain tunic
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

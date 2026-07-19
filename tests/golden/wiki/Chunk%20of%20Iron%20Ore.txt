@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Iron Ore
+|stablekey=item:ore - iron ore
 |type=[[Crafting]]
 |vendorsource=
 |source=

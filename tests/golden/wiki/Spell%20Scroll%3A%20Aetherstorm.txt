@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Aetherstorm
+|stablekey=item:spell scroll - aetherblast
 |type=[[Ability Books]]
 |vendorsource=[[Edwin Ansegg]]
 |source=

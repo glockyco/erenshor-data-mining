@@ -1,5 +1,6 @@
 {{Item
 |title=Mudmold Shield
+|stablekey=item:secondary - 14 - mudmold shield
 |type=
 |vendorsource=
 |source=[[Rosle of the Spirits]] (33.3%)

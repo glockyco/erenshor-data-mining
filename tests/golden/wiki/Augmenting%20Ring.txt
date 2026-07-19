@@ -1,5 +1,6 @@
 {{Item
 |title=Augmenting Ring
+|stablekey=item:ring - 24 - augmenting ring
 |type=
 |vendorsource=
 |source=[[Fearantula]] (33.3%)

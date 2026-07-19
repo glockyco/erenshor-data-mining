@@ -1,5 +1,6 @@
 {{Item
 |title=Gladiator's Coil
+|stablekey=item:ring - 42 - gladiator's coil
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 2)]] (50.0%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)

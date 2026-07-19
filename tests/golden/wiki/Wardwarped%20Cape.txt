@@ -1,5 +1,6 @@
 {{Item
 |title=Wardwarped Cape
+|stablekey=item:back - 37 - wardwarped cape
 |type=
 |vendorsource=
 |source=[[Wardwarped Alpha]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Arcane Proficiency
+|stablekey=item:skillbook - arcane proficiency
 |type=[[Ability Books]]
 |vendorsource=[[Edwin Ansegg]]
 |source=

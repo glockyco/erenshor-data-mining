@@ -1,5 +1,6 @@
 {{Item
 |title=Wyrm Skin Protector
+|stablekey=item:chest - 35 - wyrmskin protector
 |type=
 |vendorsource=
 |source=[[Swamp Wyrm]] (25.0%)

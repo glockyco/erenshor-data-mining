@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Blast of Thorns
+|stablekey=item:spell scroll - drudd blast of thorns
 |type=[[:Category:Ability Books|Spell Scroll]], [[Crafting]]
 |vendorsource=[[Alyssia Fearnon]]
 |source=

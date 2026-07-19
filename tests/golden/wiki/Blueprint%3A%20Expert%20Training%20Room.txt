@@ -1,5 +1,6 @@
 {{Item
 |title=Blueprint: Expert Training Room
+|stablekey=item:furniture - expert training blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 2)]] (54.7%)

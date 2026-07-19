@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Druid's Charm
+|stablekey=item:template - druid's charm
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

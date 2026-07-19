@@ -1,5 +1,6 @@
 {{Item
 |title=Pulsating Stone
+|stablekey=item:gen - pulsating stone
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Stone Hound]] (86.3%)<br>[[Mosscovered Stoneman]] (43.4%)<br>[[Diamond Colossus]] (15.7%)<br>[[Stoneman Seeker]] (4.5%)<br>[[Wishlan the Savior]] (4.5%)

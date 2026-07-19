@@ -1,5 +1,6 @@
 {{Item
 |title=Resolving Fluid
+|stablekey=item:template - resolving fluid
 |type=[[Crafting|Mold]]
 |vendorsource=[[Braxon Lolo]]
 |source=

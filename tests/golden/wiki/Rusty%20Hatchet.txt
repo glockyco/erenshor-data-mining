@@ -1,5 +1,6 @@
 {{Item
 |title=Rusty Hatchet
+|stablekey=item:weap - 1 - rusty hatchet
 |type=
 |vendorsource=[[Innkeeper Ryvan]]<br>[[Samuel Thatcher]]<br>[[Yale Harvey]]
 |source=

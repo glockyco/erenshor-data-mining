@@ -1,5 +1,6 @@
 {{Item
 |title=Anointed Sword
+|stablekey=item:weap - 14 - anointed sword
 |type=
 |vendorsource=
 |source=[[Overseer Orlok]] (25.0%)

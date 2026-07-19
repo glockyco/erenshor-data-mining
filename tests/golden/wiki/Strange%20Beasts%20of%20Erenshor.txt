@@ -1,5 +1,6 @@
 {{Item
 |title=Strange Beasts of Erenshor
+|stablekey=item:book - strange beasts of erenshor
 |type=[[Lore Items|Lore]]
 |vendorsource=[[Rory Gilmare]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Lamentation
+|stablekey=item:weap - 28 - lamentation
 |type=
 |vendorsource=
 |source=[[Parzgil]] (66.7%)

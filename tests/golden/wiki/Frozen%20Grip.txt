@@ -1,5 +1,6 @@
 {{Item
 |title=Frozen Grip
+|stablekey=item:wrist - 42 - frozen grip
 |type=
 |vendorsource=
 |source=[[Braxonian Chest]] (35.5%)

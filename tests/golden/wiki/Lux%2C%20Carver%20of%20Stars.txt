@@ -1,5 +1,6 @@
 {{Item
 |title=Lux, Carver of Stars
+|stablekey=item:weap - 40 - lux, carver of stars
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

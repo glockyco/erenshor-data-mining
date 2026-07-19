@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakrux
+|stablekey=item:gen - sivak
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Wandering Gladiator]] (100.0%)<br>[[Braxonian Chest]] (98.3%)<br>[[Solunarian Chest]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 1)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 3)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 4)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 5)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 6)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 7)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (98.3%)<br>[[Vithean Chest|Vithean Chest (Round 2)]] (93.8%)<br>[[Lost Treasure (1-10)]] (84.4%)<br>[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (74.5%)<br>[[Brax, God of Elements]] (62.9%)<br>[[Lost Treasure (30+)]] (56.6%)<br>[[Braxonian Fossil]] (21.1%)<br>[[Guardian of Brax]] (8.4%)<br>[[Fire Elemental]] (1.2%)

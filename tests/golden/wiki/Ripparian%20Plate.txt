@@ -1,5 +1,6 @@
 {{Item
 |title=Ripparian Plate
+|stablekey=item:chest - 30 - ripparian plate
 |type=
 |vendorsource=
 |source=[[Armorer Nell]] (3.0%)<br>[[Captain Ovid]] (3.0%)<br>[[Celeso the Historian]] (3.0%)<br>[[Hector Yvey]] (3.0%)<br>[[Jeremie Galyard]] (3.0%)<br>[[Mavik Estonia]] (3.0%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (3.0%)<br>[[Ripper Soldier]] (2.0%)

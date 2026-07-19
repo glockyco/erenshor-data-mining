@@ -1,5 +1,6 @@
 {{Item
 |title=Protector's Charm
+|stablekey=item:charm - 35 - protector's charm
 |type=
 |vendorsource=
 |source=[[Braxonian Fossil]] (5.3%)

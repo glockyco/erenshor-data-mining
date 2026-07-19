@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Bank Set
+|stablekey=item:furniture - wood bank
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

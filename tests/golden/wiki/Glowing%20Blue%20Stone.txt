@@ -1,5 +1,6 @@
 {{Item
 |title=Glowing Blue Stone
+|stablekey=item:hand - 31 - glowing blue stone
 |type=
 |vendorsource=
 |source=[[Ancient Spectre]] (7.0%)

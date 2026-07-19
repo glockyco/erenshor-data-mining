@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Utility Belt
+|stablekey=item:belt - 13 - molorai utility belt
 |type=
 |vendorsource=
 |source=

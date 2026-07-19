@@ -1,5 +1,6 @@
 {{Item
 |title=Tarnished Steel Belt
+|stablekey=item:belt - 20 - tarnished steel belt
 |type=
 |vendorsource=
 |source=[[Spectral Guard]] (6.9%)<br>[[Spectral High Guard]] (6.9%)

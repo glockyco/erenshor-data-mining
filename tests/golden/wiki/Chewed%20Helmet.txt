@@ -1,5 +1,6 @@
 {{Item
 |title=Chewed Helmet
+|stablekey=item:head - 17 - chewed helmet
 |type=
 |vendorsource=
 |source=[[Lurk]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Internal Rot
+|stablekey=item:spell scroll - internal rot
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Juctin Mysia]]
 |source=

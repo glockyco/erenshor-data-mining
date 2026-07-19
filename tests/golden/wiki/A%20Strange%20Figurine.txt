@@ -1,5 +1,6 @@
 {{Item
 |title=A Strange Figurine
+|stablekey=item:quest - game piece the candlekeeper
 |type=[[:Category:Items|Summoning Item]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

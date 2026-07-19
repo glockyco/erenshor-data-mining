@@ -1,5 +1,6 @@
 {{Item
 |title=Meteor Metal Boots
+|stablekey=item:foot - 42 - meteor metal boots
 |type=
 |vendorsource=
 |source=[[Solunarian Chest]] (40.4%)<br>[[Soluna]] (5.8%)

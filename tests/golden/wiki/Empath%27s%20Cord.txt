@@ -1,5 +1,6 @@
 {{Item
 |title=Empath's Cord
+|stablekey=item:belt - 28 - empath's cord
 |type=
 |vendorsource=
 |source=[[Failed Experiment]] (87.1%)

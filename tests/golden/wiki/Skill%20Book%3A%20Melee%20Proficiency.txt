@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Melee Proficiency
+|stablekey=item:skillbook - combat proficiency
 |type=
 |vendorsource=[[Roreli Gilmare]]<br>[[Sven Feartines]]
 |source=

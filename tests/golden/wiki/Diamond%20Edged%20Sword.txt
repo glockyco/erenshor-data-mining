@@ -1,5 +1,6 @@
 {{Item
 |title=Diamond Edged Sword
+|stablekey=item:weap - 30 - diamond edged sword
 |type=
 |vendorsource=
 |source=[[Sivakayan Shadow]] (4.3%)

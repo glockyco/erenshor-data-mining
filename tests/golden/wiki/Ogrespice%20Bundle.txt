@@ -1,5 +1,6 @@
 {{Item
 |title=Ogrespice Bundle
+|stablekey=item:wand - 14 - ogrespice bundle
 |type=
 |vendorsource=
 |source=[[Agsha of the Soil]] (66.7%)<br>[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Mystic]] (2.1%)<br>[[A Grassland Ogre Shaman]] (2.1%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Cold Steel Plate
+|stablekey=item:chest - 6 - cold steel plate
 |type=
 |vendorsource=
 |source=

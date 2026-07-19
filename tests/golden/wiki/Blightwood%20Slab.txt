@@ -1,5 +1,6 @@
 {{Item
 |title=Blightwood Slab
+|stablekey=item:gen - blightwood
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Parzgil]] (100.0%)<br>[[Blighted Jackal]] (14.2%)<br>[[Lupine Horror]] (11.5%)

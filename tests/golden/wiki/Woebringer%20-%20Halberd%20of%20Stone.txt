@@ -1,5 +1,6 @@
 {{Item
 |title=Woebringer - Halberd of Stone
+|stablekey=item:weap - 17 - woebringer - halberd of stone
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

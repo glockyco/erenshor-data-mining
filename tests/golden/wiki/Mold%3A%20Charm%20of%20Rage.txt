@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Rage
+|stablekey=item:template - charm of rage
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Sash
+|stablekey=item:belt - 17 - braxonian sash
 |type=
 |vendorsource=
 |source=[[Apha, Priest of Brax]] (67.9%)<br>[[Upha, Priest of Brax]] (67.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Key (Halloween Event)
+|stablekey=item:key - crypt key
 |type=
 |vendorsource=
 |source=[[Crypt Keeper]] (100.0%)

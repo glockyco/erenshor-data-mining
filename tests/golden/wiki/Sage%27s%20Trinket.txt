@@ -1,5 +1,6 @@
 {{Item
 |title=Sage's Trinket
+|stablekey=item:aura - the sage
 |type=[[Auras|Aura]]
 |vendorsource=
 |source=[[Volcanic Giant]] (25.0%)

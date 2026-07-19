@@ -1,5 +1,6 @@
 {{Item
 |title=Swamproot
+|stablekey=item:gen - swamproot
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Nipper Pup]] (74.5%)<br>[[Ragewhip]] (27.8%)<br>[[Swamp Nettle]] (23.5%)

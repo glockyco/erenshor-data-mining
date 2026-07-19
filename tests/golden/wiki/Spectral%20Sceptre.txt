@@ -1,5 +1,6 @@
 {{Item
 |title=Spectral Sceptre
+|stablekey=item:wand - 15 - spectralsceptre
 |type=
 |vendorsource=
 |source=[[Cursed Vithean Traitor]] (6.8%)

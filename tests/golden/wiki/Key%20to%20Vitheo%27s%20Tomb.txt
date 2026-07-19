@@ -1,5 +1,6 @@
 {{Item
 |title=Key to Vitheo's Tomb
+|stablekey=item:key - key to vitheo's tomb
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[The Abomination]] (100.0%)

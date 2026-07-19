@@ -1,5 +1,6 @@
 {{Item
 |title=Serpentine Blood
+|stablekey=item:gen - serpentine blood
 |type=[[:Category:Items|General]]
 |vendorsource=[[Enterprising Spirit]]
 |source=[[A Deepling Lunarite]] (12.1%)<br>[[A Deepling Verdite]] (12.1%)<br>[[A Deepling Crimsonite]] (7.8%)<br>[[A Deepling Orator]] (5.3%)

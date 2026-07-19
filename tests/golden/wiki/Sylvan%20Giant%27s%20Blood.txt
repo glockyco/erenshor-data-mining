@@ -1,5 +1,6 @@
 {{Item
 |title=Sylvan Giant's Blood
+|stablekey=item:gen - sylvan giants blood
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Sylvan Giant]] (86.3%)

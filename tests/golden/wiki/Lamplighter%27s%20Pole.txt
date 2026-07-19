@@ -1,5 +1,6 @@
 {{Item
 |title=Lamplighter's Pole
+|stablekey=item:weap - 25 - lamplighter's pole
 |type=
 |vendorsource=
 |source=[[Kio the Darkbringer]] (50.0%)

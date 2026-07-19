@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Arterial Collapse
+|stablekey=item:spell scroll - arterial collapse
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Aspen Dechaffe]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Fang
+|stablekey=item:gen - ancient fang
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Dream]] (100.0%)

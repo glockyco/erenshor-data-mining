@@ -1,5 +1,6 @@
 {{Item
 |title=The Interrogator
+|stablekey=item:weap - 12 - the interrogator
 |type=
 |vendorsource=
 |source=[[Molorai Jailor]] (19.5%)

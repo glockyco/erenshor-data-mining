@@ -1,5 +1,6 @@
 {{Item
 |title=Tattered Leather Boots
+|stablekey=item:foot - 1 - tattered leather boots
 |type=
 |vendorsource=
 |source=[[Rattlewrists]] (100.0%)<br>[[Plaxitheris]] (19.4%)<br>[[Grassland Ogre Gatherer]] (7.3%)<br>[[A Seafiend]] (6.0%)<br>[[Grassland Ogre Hunter]] (3.4%)<br>[[A Sturdy Skeleton]] (1.3%)<br>[[Drowned Corpse]] (1.3%)<br>[[Gort]] (1.3%)<br>[[Summoned Fallen Warrior]] (1.3%)<br>[[The Corpse of Brice Mathers]] (1.3%)<br>[[The Corpse of Cyndreela Mathers]] (1.3%)<br>[[A Brittle Skeleton]] (1.2%)<br>[[Risen Pilgrim]] (1.2%)

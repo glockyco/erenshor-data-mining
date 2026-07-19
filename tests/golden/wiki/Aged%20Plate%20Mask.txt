@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Plate Mask
+|stablekey=item:head - 17 - aged plate mask
 |type=
 |vendorsource=
 |source=[[Spectral King's Guard]] (25.0%)<br>[[Spectral Castle Guard]] (1.7%)

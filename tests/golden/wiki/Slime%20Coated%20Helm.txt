@@ -1,5 +1,6 @@
 {{Item
 |title=Slime Coated Helm
+|stablekey=item:head - 19 - slime coated helm
 |type=
 |vendorsource=
 |source=[[A Subterranean Goop]] (6.7%)<br>[[A Subterranean Magmite]] (6.7%)<br>[[Gloopa|Gloopa (Quarter)]] (4.3%)

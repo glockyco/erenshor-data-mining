@@ -1,5 +1,6 @@
 {{Item
 |title=Resolving Greaves
+|stablekey=item:gm - leg - resolving greaves
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Allegiant Ring
+|stablekey=item:ring - 33 - molorai allegiant ring
 |type=
 |vendorsource=
 |source=[[Molorai Eldermistress]] (66.7%)<br>[[Cerynth Duskveil]] (55.6%)<br>[[Myrre Morrigane]] (55.6%)<br>[[Rose Crystalshade]] (55.6%)

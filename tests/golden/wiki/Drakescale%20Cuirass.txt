@@ -1,5 +1,6 @@
 {{Item
 |title=Drakescale Cuirass
+|stablekey=item:chest - 28 - drakescale cuirass
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (25.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Leather Skullcap
+|stablekey=item:head - 5 - shivering leather skullcap
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)

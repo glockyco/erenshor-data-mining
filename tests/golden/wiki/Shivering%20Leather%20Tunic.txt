@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Leather Tunic
+|stablekey=item:chest - 5 - shivering leather tunic
 |type=
 |vendorsource=
 |source=[[Molorai Spiritist]] (41.8%)<br>[[Molorai Militia Druid]] (3.0%)

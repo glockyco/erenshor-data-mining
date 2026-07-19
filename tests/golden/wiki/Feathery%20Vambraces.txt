@@ -1,5 +1,6 @@
 {{Item
 |title=Feathery Vambraces
+|stablekey=item:arm - 31 - feathery vambraces
 |type=
 |vendorsource=
 |source=[[Aviak]] (50.0%)

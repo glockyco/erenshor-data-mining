@@ -1,5 +1,6 @@
 {{Item
 |title=Game Room
+|stablekey=item:furniture - game r oom
 |type=
 |vendorsource=
 |source=

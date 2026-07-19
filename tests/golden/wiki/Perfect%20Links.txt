@@ -1,5 +1,6 @@
 {{Item
 |title=Perfect Links
+|stablekey=item:wrist - 30 - perfect links
 |type=
 |vendorsource=
 |source=[[Statue of Brax]] (50.0%)

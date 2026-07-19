@@ -1,5 +1,6 @@
 {{Item
 |title=Siva-Braxon Teachings (2)
+|stablekey=item:gen - siva-braxon teachings 1
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ancient Educator]] (7.8%)<br>[[Arcane Pupil]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Swampy Loincloth
+|stablekey=item:belt - 35 - swampy loincloth
 |type=
 |vendorsource=
 |source=[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)

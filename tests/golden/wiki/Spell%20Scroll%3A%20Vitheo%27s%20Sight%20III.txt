@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Sight III
+|stablekey=item:spell scroll - vitheo's sight iii
 |type=
 |vendorsource=
 |source=[[Apparition of Vitheo]] (87.1%)

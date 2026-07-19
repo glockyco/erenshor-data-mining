@@ -1,5 +1,6 @@
 {{Item
 |title=Force of the Sea
+|stablekey=item:aura - vitheo 2
 |type=[[Auras]]<br>[[Crafting]]
 |vendorsource=[[Pierson Windwash]]
 |source=

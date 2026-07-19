@@ -1,5 +1,6 @@
 {{Item
 |title=Ascendant's Embrace
+|stablekey=item:chest - 35 - ascendant's embrace
 |type=
 |vendorsource=
 |source=[[Balthom, Soldier of Sivakaya]] (33.3%)

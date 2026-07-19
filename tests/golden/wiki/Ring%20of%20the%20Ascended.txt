@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of the Ascended
+|stablekey=item:ring - 39 - ring of the ascended
 |type=
 |vendorsource=
 |source=[[Apparition of Vitheo]] (34.8%)

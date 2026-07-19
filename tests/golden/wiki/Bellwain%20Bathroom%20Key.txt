@@ -1,5 +1,6 @@
 {{Item
 |title=Bellwain Bathroom Key
+|stablekey=item:quest - bellwain bathroom key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Blueprint: Azynthian Rest
+|stablekey=item:furniture - azynthi coffin blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Molorai Dockmaster]] (0.8%)<br>[[Molorai Acquirer]] (0.3%)<br>[[Molorai Ancille]] (0.3%)<br>[[Molorai Anointed]] (0.3%)<br>[[Molorai Bloodwarden]] (0.3%)<br>[[Molorai Eldermistress]] (0.3%)<br>[[Molorai Nightmistress]] (0.3%)<br>[[Molorai Outrider]] (0.3%)<br>[[Molorai Truthseeker]] (0.3%)

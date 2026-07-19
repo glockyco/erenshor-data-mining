@@ -1,5 +1,6 @@
 {{Item
 |title=Stinging Bracer
+|stablekey=item:wrist - 16 - stinging bracer
 |type=
 |vendorsource=
 |source=[[Spark Queen]] (50.0%)

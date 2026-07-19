@@ -1,5 +1,6 @@
 {{Item
 |title=Salt Soaked Cuff
+|stablekey=item:wrist - 11 - salt soaked cuff
 |type=
 |vendorsource=
 |source=[[A Seafiend]] (4.4%)

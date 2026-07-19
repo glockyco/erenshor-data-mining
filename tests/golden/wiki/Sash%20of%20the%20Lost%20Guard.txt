@@ -1,5 +1,6 @@
 {{Item
 |title=Sash of the Lost Guard
+|stablekey=item:belt - 19 - sash of the lost guard
 |type=
 |vendorsource=
 |source=[[Spectral King's Guard]] (25.0%)

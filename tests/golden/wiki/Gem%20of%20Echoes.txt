@@ -1,5 +1,6 @@
 {{Item
 |title=Gem of Echoes
+|stablekey=item:aura - gem of echoes
 |type=[[Auras]]
 |vendorsource=
 |source=[[Granitus]] (20.0%)

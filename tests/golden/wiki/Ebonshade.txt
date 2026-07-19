@@ -1,5 +1,6 @@
 {{Item
 |title=Ebonshade
+|stablekey=item:weap - 19 - ebonshade
 |type=
 |vendorsource=
 |source=[[Seed of Blight]] (15.0%)

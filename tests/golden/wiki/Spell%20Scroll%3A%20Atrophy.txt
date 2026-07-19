@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Atrophy
+|stablekey=item:spell scroll - atrophy
 |type=
 |vendorsource=[[Grant Haxoway]]<br>[[Xander Zaxtrough]]
 |source=

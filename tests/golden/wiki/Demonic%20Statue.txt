@@ -1,5 +1,6 @@
 {{Item
 |title=Demonic Statue
+|stablekey=item:gen - demonic statue
 |type=[[Quest Items]]
 |vendorsource=
 |source=[[Nightmare]] (100.0%)

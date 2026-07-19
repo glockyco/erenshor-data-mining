@@ -1,5 +1,6 @@
 {{Item
 |title=Salt Encrusted Boots
+|stablekey=item:foot - 28 - salt encrusted boots
 |type=
 |vendorsource=
 |source=[[Molorai Mason]] (66.7%)<br>[[Molorai Dockmaster]] (33.3%)

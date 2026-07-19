@@ -1,5 +1,6 @@
 {{Item
 |title=Creationist's Legwrap
+|stablekey=item:leg - 38 - creationist's wrap
 |type=
 |vendorsource=
 |source=[[Aeiros, Soldier of Sivakaya]] (50.0%)

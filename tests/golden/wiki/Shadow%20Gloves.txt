@@ -1,5 +1,6 @@
 {{Item
 |title=Shadow Gloves
+|stablekey=item:glove - 30 - shadow gloves
 |type=
 |vendorsource=
 |source=[[Sivakayan Spymaster]] (66.7%)

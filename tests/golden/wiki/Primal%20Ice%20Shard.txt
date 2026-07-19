@@ -1,5 +1,6 @@
 {{Item
 |title=Primal Ice Shard
+|stablekey=item:aura - primal ice shard
 |type=
 |vendorsource=
 |source=[[Warder of Ice]] (69.7%)

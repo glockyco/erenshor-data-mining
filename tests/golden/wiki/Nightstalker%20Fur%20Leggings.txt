@@ -1,5 +1,6 @@
 {{Item
 |title=Nightstalker Fur Leggings
+|stablekey=item:leg - 24 - nightstalker fur leggings
 |type=
 |vendorsource=
 |source=[[Tiallia Priel]] (75.0%)

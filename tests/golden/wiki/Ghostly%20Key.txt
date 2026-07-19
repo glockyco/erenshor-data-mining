@@ -1,5 +1,6 @@
 {{Item
 |title=Ghostly Key
+|stablekey=item:key - ghostly key
 |type=[[Quest Items|Quest Item]], [[Keys|Key]]
 |vendorsource=
 |source=

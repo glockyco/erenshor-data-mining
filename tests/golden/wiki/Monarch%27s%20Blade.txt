@@ -1,5 +1,6 @@
 {{Item
 |title=Monarch's Blade
+|stablekey=item:weap - 39 - monarch's blade
 |type=
 |vendorsource=
 |source=[[Monarch of the Flame]] (33.3%)

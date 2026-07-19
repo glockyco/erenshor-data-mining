@@ -1,5 +1,6 @@
 {{Item
 |title=The Gift of Eloquence
+|stablekey=item:neck - 19 - the gift of thought
 |type=
 |vendorsource=
 |source=[[A Deepling Orator]] (43.4%)

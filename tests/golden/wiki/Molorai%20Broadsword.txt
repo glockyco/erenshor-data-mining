@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Broadsword
+|stablekey=item:weap - 16 - molorai broadsword
 |type=
 |vendorsource=
 |source=[[Molorai Outrider]] (20.6%)

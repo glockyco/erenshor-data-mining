@@ -1,5 +1,6 @@
 {{Item
 |title=Oslind's Eviscerator
+|stablekey=item:weap - 31 - oslind's eviscerator
 |type=
 |vendorsource=
 |source=[[Prince Oslind]] (33.3%)

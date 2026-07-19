@@ -1,5 +1,6 @@
 {{Item
 |title=Decayed Amulet
+|stablekey=item:neck - 7 - decayed amulet
 |type=
 |vendorsource=
 |source=[[An Apparition of Sivakaya]] (25.0%)<br>[[Risen Druid]] (2.9%)

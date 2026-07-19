@@ -1,5 +1,6 @@
 {{Item
 |title=Cyclone Steel Gloves
+|stablekey=item:glove - 42 - cyclone steel gloves
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 1)]] (2.5%)<br>[[Vithean Chest|Vithean Chest (Round 3)]] (2.5%)<br>[[Vithean Chest|Vithean Chest (Round 4)]] (2.4%)<br>[[Vithean Chest|Vithean Chest (Round 5)]] (2.4%)<br>[[Vithean Chest|Vithean Chest (Round 6)]] (2.4%)<br>[[Vithean Chest|Vithean Chest (Round 7)]] (2.4%)<br>[[Wandering Gladiator]] (1.8%)<br>[[Vithean Chest|Vithean Chest (Round 2)]] (1.6%)<br>[[Honsus]] (1.5%)<br>[[Tojokom]] (1.5%)<br>[[Wandering Gladiator]] (1.0%)<br>[[Expert Gladiator]] (0.9%)

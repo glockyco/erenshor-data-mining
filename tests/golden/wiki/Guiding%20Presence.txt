@@ -1,5 +1,6 @@
 {{Item
 |title=Guiding Presence
+|stablekey=item:wrist - 40 - guiding presence
 |type=
 |vendorsource=
 |source=[[Fallen Fernalla]] (35.5%)<br>[[Fallen Fernalla]] (27.4%)

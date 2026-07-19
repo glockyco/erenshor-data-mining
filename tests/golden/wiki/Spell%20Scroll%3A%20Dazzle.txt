@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dazzle
+|stablekey=item:spell scroll - dazzle
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
 |source=[[Plaxitheris]] (8.7%)

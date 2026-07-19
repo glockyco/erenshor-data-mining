@@ -1,5 +1,6 @@
 {{Item
 |title=Toxin Warped Band
+|stablekey=item:ring - 15 - toxin warped band
 |type=
 |vendorsource=
 |source=[[King Cobra]] (15.0%)

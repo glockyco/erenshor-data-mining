@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Scab Cape
+|stablekey=item:back - 15 - fungal scab cape
 |type=
 |vendorsource=
 |source=[[Druo the Reborn]] (14.8%)

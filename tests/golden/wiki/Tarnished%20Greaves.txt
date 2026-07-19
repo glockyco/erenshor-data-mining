@@ -1,5 +1,6 @@
 {{Item
 |title=Tarnished Greaves
+|stablekey=item:leg - 7 - tarnished greaves
 |type=
 |vendorsource=
 |source=[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Plaguebringer]] (1.1%)

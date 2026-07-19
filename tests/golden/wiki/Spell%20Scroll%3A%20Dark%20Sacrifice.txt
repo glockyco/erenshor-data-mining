@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dark Sacrifice
+|stablekey=item:spell scroll - dark sacrifice
 |type=
 |vendorsource=
 |source=[[Orinthar]] (1.0%)<br>[[Vextral]] (1.0%)

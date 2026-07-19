@@ -1,5 +1,6 @@
 {{Item
 |title=Distinguished Cape
+|stablekey=item:back - 19 - distinguishedcape
 |type=
 |vendorsource=
 |source=[[Spectral Torturer]] (33.3%)

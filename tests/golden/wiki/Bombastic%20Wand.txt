@@ -1,5 +1,6 @@
 {{Item
 |title=Bombastic Wand
+|stablekey=item:wand - 29 - bombastic wand
 |type=
 |vendorsource=
 |source=[[Vinx]] (25.0%)

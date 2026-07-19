@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Cape
+|stablekey=item:back - 35 - azynthian cape
 |type=
 |vendorsource=
 |source=[[Oracle Miress]] (33.3%)

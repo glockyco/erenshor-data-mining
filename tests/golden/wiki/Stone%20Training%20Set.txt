@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Training Set
+|stablekey=item:furniture - stone training
 |type=
 |vendorsource=
 |source=

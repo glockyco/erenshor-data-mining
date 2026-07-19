@@ -1,5 +1,6 @@
 {{Item
 |title=Hardened Sceptre
+|stablekey=item:wand - 13 - hardened bronze sceptre
 |type=
 |vendorsource=
 |source=[[Molorai Archmage]] (46.4%)<br>[[Molorai Archmage]] (6.7%)

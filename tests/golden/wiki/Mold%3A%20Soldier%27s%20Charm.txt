@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Soldier's Charm
+|stablekey=item:template - soldier's charm
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

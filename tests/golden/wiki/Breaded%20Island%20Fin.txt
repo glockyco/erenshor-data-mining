@@ -1,5 +1,6 @@
 {{Item
 |title=Breaded Island Fin
+|stablekey=item:con - breaded island fin
 |type=[[Consumables#Food|Food]], [[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

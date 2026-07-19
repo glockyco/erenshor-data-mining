@@ -1,5 +1,6 @@
 {{Item
 |title=Dreamy Sleeves
+|stablekey=item:arm - 35 - dreamy sleeves
 |type=
 |vendorsource=
 |source=[[Hypnic]] (33.3%)

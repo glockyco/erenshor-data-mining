@@ -1,5 +1,6 @@
 {{Item
 |title=Channeling Gloves
+|stablekey=item:glove - 7 - channeling gloves
 |type=
 |vendorsource=
 |source=[[Ughl of the Skies]] (50.0%)

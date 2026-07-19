@@ -1,5 +1,6 @@
 {{Item
 |title=Vaporous Armguard
+|stablekey=item:arm - 24 - vaporous armguard
 |type=
 |vendorsource=
 |source=[[Invader of Dreams]] (25.0%)

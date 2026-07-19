@@ -1,5 +1,6 @@
 {{Item
 |title=Malaroth Scale Chestguard
+|stablekey=item:chest - 28 - malaroth scale chestguard
 |type=
 |vendorsource=
 |source=[[Brood Mother]] (33.3%)

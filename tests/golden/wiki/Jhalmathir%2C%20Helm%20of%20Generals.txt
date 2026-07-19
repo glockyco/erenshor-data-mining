@@ -1,5 +1,6 @@
 {{Item
 |title=Jhalmathir, Helm of Generals
+|stablekey=item:head - 21 - jhalmathir, helm of generals
 |type=
 |vendorsource=
 |source=[[Evadne the Corrupted]] (29.1%)

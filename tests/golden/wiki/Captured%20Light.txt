@@ -1,5 +1,6 @@
 {{Item
 |title=Captured Light
+|stablekey=item:gen - shard of light
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Warded Shadow]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Green Emerald Ring
+|stablekey=item:ring - 6 - emerald ring
 |type=
 |vendorsource=[[Parmalee Gemlyn]]
 |source=

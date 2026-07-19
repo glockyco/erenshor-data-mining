@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Weak Poison
+|stablekey=item:spell scroll - weak poison
 |type=[[Ability Books]]
 |vendorsource=[[Alyssia Fearnon]]
 |source=[[Plaxitheris]] (8.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Druid's Charm
+|stablekey=item:charm - 30 - druid's charm
 |type=
 |vendorsource=
 |source=

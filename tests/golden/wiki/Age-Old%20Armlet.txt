@@ -1,5 +1,6 @@
 {{Item
 |title=Age-Old Armlet
+|stablekey=item:arm - 37 - age-old armlet
 |type=
 |vendorsource=
 |source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (33.3%)

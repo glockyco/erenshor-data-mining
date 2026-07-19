@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Hood
+|stablekey=item:head - 1 - daggersilk hood
 |type=
 |vendorsource=
 |source=

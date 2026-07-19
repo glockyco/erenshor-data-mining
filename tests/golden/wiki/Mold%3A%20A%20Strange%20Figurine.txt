@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: A Strange Figurine
+|stablekey=item:template - a strange figurine
 |type=[[Crafting|Mold]],[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Chazz Pillot]] (100.0%)

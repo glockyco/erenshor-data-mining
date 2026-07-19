@@ -1,5 +1,6 @@
 {{Item
 |title=Red Leaf Cape
+|stablekey=item:back - 27 - redleaf cape
 |type=
 |vendorsource=
 |source=[[Diva]] (50.0%)

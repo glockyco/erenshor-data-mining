@@ -1,5 +1,6 @@
 {{Item
 |title=Rolling Clouds
+|stablekey=item:aura - storm 1
 |type=[[Auras|Aura]]
 |vendorsource=[[Alexandria Fadden]]<br>[[Amanda Rostley]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Compression Wraps
+|stablekey=item:leg - 3 - compression wraps
 |type=
 |vendorsource=
 |source=[[A Sorrowful Spirit]] (4.4%)

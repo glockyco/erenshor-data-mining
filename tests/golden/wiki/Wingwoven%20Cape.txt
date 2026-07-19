@@ -1,5 +1,6 @@
 {{Item
 |title=Wingwoven Cape
+|stablekey=item:back - 33 - wingwoven cape
 |type=
 |vendorsource=
 |source=[[Winkles]] (18.2%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)

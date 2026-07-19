@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ice Meteor
+|stablekey=item:spell scroll - ice meteor
 |type=
 |vendorsource=
 |source=[[Ice Elemental]] (2.2%)<br>[[Greater Ice Elemental]] (1.0%)<br>[[Large Ice Elemental]] (1.0%)

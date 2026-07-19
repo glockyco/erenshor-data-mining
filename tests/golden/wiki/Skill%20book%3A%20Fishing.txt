@@ -1,5 +1,6 @@
 {{Item
 |title=Skill book: Fishing
+|stablekey=item:skillbook - fishing
 |type=
 |vendorsource=
 |source=

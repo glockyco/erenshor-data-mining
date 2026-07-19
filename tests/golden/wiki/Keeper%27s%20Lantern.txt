@@ -1,5 +1,6 @@
 {{Item
 |title=Keeper's Lantern
+|stablekey=item:gen - keeper's lantern
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

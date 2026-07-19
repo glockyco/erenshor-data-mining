@@ -1,5 +1,6 @@
 {{Item
 |title=Dusken Shield
+|stablekey=item:secondary - 18 - dusken shield
 |type=
 |vendorsource=
 |source=[[Dusken Giant]] (66.7%)

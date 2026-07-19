@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Sleep
+|stablekey=item:spell scroll - sleep
 |type=[[Ability Books]]
 |vendorsource=[[Cerbantias Flameward]]
 |source=[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Riftstone
+|stablekey=item:gen - azynthian riftstone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Watchlight]] (100.0%)

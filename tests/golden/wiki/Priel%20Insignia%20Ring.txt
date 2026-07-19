@@ -1,5 +1,6 @@
 {{Item
 |title=Priel Insignia Ring
+|stablekey=item:ring - 4 - priel insignia ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Priel Bandit Recruit]] (14.8%)

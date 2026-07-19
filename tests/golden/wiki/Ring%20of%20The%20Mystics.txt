@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of The Mystics
+|stablekey=item:ring - 14 - ring of the mystics
 |type=
 |vendorsource=
 |source=[[Rosle of the Spirits]] (66.7%)<br>[[Agsha of the Soil]] (33.3%)

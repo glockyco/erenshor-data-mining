@@ -1,5 +1,6 @@
 {{Item
 |title=Aetherial Hood
+|stablekey=item:head - 21 - aetherial helm
 |type=
 |vendorsource=
 |source=[[Aetherfiend]] (12.1%)<br>[[Shadow Man]] (12.1%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Forest Pendant
+|stablekey=item:neck - 18 - forest charm
 |type=
 |vendorsource=
 |source=

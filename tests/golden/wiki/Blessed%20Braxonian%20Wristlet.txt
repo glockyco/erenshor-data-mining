@@ -1,5 +1,6 @@
 {{Item
 |title=Blessed Braxonian Wristlet
+|stablekey=item:wrist - 30 - blessed braxonian wristlet
 |type=
 |vendorsource=
 |source=[[Kingsman]] (33.3%)<br>[[Hand of the King]] (3.0%)

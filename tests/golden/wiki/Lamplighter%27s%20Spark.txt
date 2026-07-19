@@ -1,5 +1,6 @@
 {{Item
 |title=Lamplighter's Spark
+|stablekey=item:hand - 6 - lamplighter's spark
 |type=
 |vendorsource=
 |source=

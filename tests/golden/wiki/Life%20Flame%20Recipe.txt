@@ -1,5 +1,6 @@
 {{Item
 |title=Life Flame Recipe
+|stablekey=item:gen - rekindling the flame 3
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Cursed Vithean Conspirer]] (6.8%)<br>[[Cursed Vithean Traitor]] (6.8%)<br>[[Vithean Betrayer]] (4.6%)

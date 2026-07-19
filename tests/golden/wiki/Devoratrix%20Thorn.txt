@@ -1,5 +1,6 @@
 {{Item
 |title=Devoratrix Thorn
+|stablekey=item:gen - devoratrix thorn
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Devoratrix]] (6.9%)<br>[[Planar Flora]] (6.9%)

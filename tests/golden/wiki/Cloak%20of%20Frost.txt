@@ -1,5 +1,6 @@
 {{Item
 |title=Cloak of Frost
+|stablekey=item:back - 42 - cloak of frost
 |type=
 |vendorsource=
 |source=[[Greater Ice Elemental]] (4.3%)<br>[[Large Ice Elemental]] (4.3%)

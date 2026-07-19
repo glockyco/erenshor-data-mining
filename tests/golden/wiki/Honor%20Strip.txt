@@ -1,5 +1,6 @@
 {{Item
 |title=Honor Strip
+|stablekey=item:back - 19 - honor strip
 |type=
 |vendorsource=
 |source=[[A Deepling Orator]] (43.4%)

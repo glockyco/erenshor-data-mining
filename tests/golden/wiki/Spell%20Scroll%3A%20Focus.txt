@@ -2,6 +2,7 @@ Currently <span style="color: #FFFF00;">unobtainable</span>
 
 {{Item
 |title=Spell Scroll: Focus
+|stablekey=item:spell scroll - focus
 |type=[[Ability Books]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Soul Tap
+|stablekey=item:spell scroll - soul tap
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Grant Haxoway]]
 |source=[[Acceptor]] (3.1%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)

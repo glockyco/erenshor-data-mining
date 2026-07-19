@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Invasive Thoughts
+|stablekey=item:spell scroll - invasive thoughts
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Brax's Wrath
+|stablekey=item:spell scroll - brax's wrath
 |type=
 |vendorsource=
 |source=[[Fire Elemental]] (2.6%)<br>[[Greater Fire Elemental]] (1.0%)<br>[[Large Fire Elemental]] (1.0%)

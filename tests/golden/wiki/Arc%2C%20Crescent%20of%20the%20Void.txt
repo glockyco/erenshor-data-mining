@@ -1,5 +1,6 @@
 {{Item
 |title=Arc, Crescent of the Void
+|stablekey=item:bow - 40 - arco, crescent of the void
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

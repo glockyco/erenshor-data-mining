@@ -1,5 +1,6 @@
 {{Item
 |title=Crested Shield
+|stablekey=item:secondary - 14 - crested shield
 |type=
 |vendorsource=
 |source=[[Goliath]] (20.0%)

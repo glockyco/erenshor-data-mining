@@ -1,5 +1,6 @@
 {{Item
 |title=Cleansing Incineration
+|stablekey=item:aura - brax 5
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

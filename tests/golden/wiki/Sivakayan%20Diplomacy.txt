@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Diplomacy
+|stablekey=item:gen - sivakayan diplomacy
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Sivakayan Emissary]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Necromantic Bow
+|stablekey=item:bow - 31 - bow of necromancy
 |type=
 |vendorsource=
 |source=[[Faceless Necromancer]] (7.0%)

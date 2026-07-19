@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Moon Bolt
+|stablekey=item:spell scroll - moon bolt
 |type=[[Ability Books]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
 |source=

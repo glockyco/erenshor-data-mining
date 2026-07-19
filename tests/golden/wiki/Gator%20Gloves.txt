@@ -1,5 +1,6 @@
 {{Item
 |title=Gator Gloves
+|stablekey=item:glove - 18 - gator gloves
 |type=
 |vendorsource=
 |source=[[Lurk]] (66.7%)

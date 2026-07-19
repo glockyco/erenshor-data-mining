@@ -1,5 +1,6 @@
 {{Item
 |title=Willowcutter
+|stablekey=item:weap - 42 - willowcutter
 |type=
 |vendorsource=
 |source=[[Fernallan High Priest]] (68.7%)

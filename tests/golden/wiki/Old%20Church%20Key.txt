@@ -1,5 +1,6 @@
 {{Item
 |title=Old Church Key
+|stablekey=item:key - old church key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

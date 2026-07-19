@@ -1,5 +1,6 @@
 {{Item
 |title=Molten Axe
+|stablekey=item:weap - 39 - molten axe
 |type=
 |vendorsource=
 |source=[[Demented Malaroth]] (50.0%)

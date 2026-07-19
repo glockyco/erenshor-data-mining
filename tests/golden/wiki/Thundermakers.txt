@@ -1,5 +1,6 @@
 {{Item
 |title=Thundermakers
+|stablekey=item:foot - 36 - thundermakers
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

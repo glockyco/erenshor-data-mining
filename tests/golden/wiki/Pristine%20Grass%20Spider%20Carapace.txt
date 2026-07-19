@@ -1,5 +1,6 @@
 {{Item
 |title=Pristine Grass Spider Carapace
+|stablekey=item:gen - pristine grass spider carapace
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Mature Grass Spider]] (12.9%)<br>[[A Grass Spider]] (2.8%)

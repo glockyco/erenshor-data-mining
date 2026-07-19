@@ -1,5 +1,6 @@
 {{Item
 |title=Dueling Armguards
+|stablekey=item:arm - 22 - dueling armguards
 |type=
 |vendorsource=
 |source=[[Chazza Priel]] (50.0%)

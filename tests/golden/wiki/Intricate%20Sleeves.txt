@@ -1,5 +1,6 @@
 {{Item
 |title=Intricate Sleeves
+|stablekey=item:arm - 24 - fine silk sleeves
 |type=
 |vendorsource=
 |source=[[Balaste the Fallen]] (66.7%)

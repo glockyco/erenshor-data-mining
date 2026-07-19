@@ -1,5 +1,6 @@
 {{Item
 |title=World Builder
+|stablekey=item:weap - 28 - world builder
 |type=
 |vendorsource=
 |source=[[Bloom Preserver]] (1.5%)

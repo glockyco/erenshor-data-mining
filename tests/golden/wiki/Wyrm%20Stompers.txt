@@ -1,5 +1,6 @@
 {{Item
 |title=Wyrm Stompers
+|stablekey=item:foot - 36 - wyrm stompers
 |type=
 |vendorsource=
 |source=[[Sivakayan High Shadow]] (8.6%)

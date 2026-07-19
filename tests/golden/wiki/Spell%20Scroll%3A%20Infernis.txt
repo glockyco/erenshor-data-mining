@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Infernis
+|stablekey=item:spell scroll - infernis
 |type=[[Ability Books]]
 |vendorsource=
 |source=[[Oracle Miress]] (33.3%)<br>[[Oracle Tretha]] (33.3%)

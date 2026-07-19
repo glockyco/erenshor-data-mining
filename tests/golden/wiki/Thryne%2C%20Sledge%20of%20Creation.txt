@@ -1,5 +1,6 @@
 {{Item
 |title=Thryne, Sledge of Creation
+|stablekey=item:weap - 39 - thryne
 |type=
 |vendorsource=
 |source=[[Vessel Siraethe]] (28.6%)

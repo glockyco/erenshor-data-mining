@@ -1,5 +1,6 @@
 {{Item
 |title=Beast Harness
+|stablekey=item:belt - 2 - beast harness
 |type=
 |vendorsource=
 |source=[[Sylvan Giant Runt]] (25.0%)

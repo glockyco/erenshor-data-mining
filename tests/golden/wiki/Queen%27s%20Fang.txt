@@ -1,5 +1,6 @@
 {{Item
 |title=Queen's Fang
+|stablekey=item:weap - 19 - queen's fang
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Slumbering Queen]] (52.2%)

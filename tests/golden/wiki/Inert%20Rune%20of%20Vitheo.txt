@@ -1,5 +1,6 @@
 {{Item
 |title=Inert Rune of Vitheo
+|stablekey=item:gen - inert rune of vitheo
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Apparition of Vitheo]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Linen Bedpants
+|stablekey=item:leg - 24 - linen bedpants
 |type=
 |vendorsource=
 |source=[[Invader of Dreams]] (25.0%)

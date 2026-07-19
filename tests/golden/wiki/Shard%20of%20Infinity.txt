@@ -1,5 +1,6 @@
 {{Item
 |title=Shard of Infinity
+|stablekey=item:secondary - 42 - shard of infinity
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

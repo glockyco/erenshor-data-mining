@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Celestial Smite III
+|stablekey=item:skillbook - celestial smite iii
 |type=
 |vendorsource=
 |source=[[Solunarian Moonkeeper]] (2.8%)<br>[[Solunarian Sunbringer]] (2.8%)<br>[[Solunarian Paladin]] (1.1%)

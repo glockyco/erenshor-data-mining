@@ -1,5 +1,6 @@
 {{Item
 |title=Stalwart Belt
+|stablekey=item:belt - 5 - stalwart belt
 |type=
 |vendorsource=
 |source=[[Grizzlepaw]] (10.4%)

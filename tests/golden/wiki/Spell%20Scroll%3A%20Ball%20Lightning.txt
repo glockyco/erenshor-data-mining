@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ball Lightning
+|stablekey=item:spell scroll - ball lightning
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Elizabeth DeWitt]]<br>[[Windlae Oldseer]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Wolf Meat
+|stablekey=item:gen - wolf meat
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Molorai Attack Dog]] (94.9%)<br>[[Wild Ancestral Dog]] (94.9%)<br>[[Fungal Wolf]] (94.8%)<br>[[Stalking Wolf]] (94.8%)<br>[[Alpha Wolf]] (87.1%)<br>[[Ancient Canine]] (87.1%)<br>[[A Young Wolf]] (86.3%)<br>[[Constellation: Wolf]] (86.3%)<br>[[Dire Wolf]] (86.3%)<br>[[Giant Watchdog]] (86.3%)<br>[[Mutt]] (86.3%)<br>[[Summoned Azynthian Warhound]] (86.3%)<br>[[Summoned Dire Wolf]] (86.3%)<br>[[Dire Huntress]] (74.5%)<br>[[Pack Mother]] (74.5%)<br>[[Planar Wolf]] (74.5%)

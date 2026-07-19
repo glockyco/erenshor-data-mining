@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Coal
+|stablekey=item:ore - ancient coal
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Gloopa|Gloopa (Quarter)]] (74.5%)<br>[[Astra, Rogue of the Stars]] (41.6%)<br>[[Candlekeeper]] (40.2%)<br>[[Statue of Brax]] (34.1%)<br>[[Slumbering Queen]] (28.3%)<br>[[Braxon Prospect]] (1.1%)<br>[[Braxonian Ascended]] (1.1%)<br>[[Braxonian Tempest]] (1.1%)

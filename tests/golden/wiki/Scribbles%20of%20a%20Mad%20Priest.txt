@@ -1,5 +1,6 @@
 {{Item
 |title=Scribbles of a Mad Priest
+|stablekey=item:gen - scribbles of a mad priest
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Upha, Priest of Brax]] (100.0%)
@@ -73,6 +74,7 @@
 
 {{Item
 |title=Scribbles of a Mad Priest
+|stablekey=item:gen - scribbles of a mad priest 4
 |type=
 |vendorsource=
 |source=[[Fenton the Blighted]] (100.0%)

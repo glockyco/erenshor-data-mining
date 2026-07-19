@@ -1,5 +1,6 @@
 {{Item
 |title=Ulor's Encyclopedia
+|stablekey=item:hand - 36 - ulor's encylopedia
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

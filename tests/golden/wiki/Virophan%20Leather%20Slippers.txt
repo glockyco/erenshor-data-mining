@@ -1,5 +1,6 @@
 {{Item
 |title=Virophan Leather Slippers
+|stablekey=item:foot - 21 - virophan leather slippers
 |type=
 |vendorsource=
 |source=[[Balaste the Fallen]] (33.3%)

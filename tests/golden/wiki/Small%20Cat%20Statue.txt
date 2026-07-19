@@ -1,6 +1,7 @@
 Give to [[The Conductor]] to obtain a {{ItemLink|Nightmare Crystal}}.
 {{Item
 |title=Small Cat Statue
+|stablekey=item:gen - a small cat statue
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Hypnic]] (100.0%)

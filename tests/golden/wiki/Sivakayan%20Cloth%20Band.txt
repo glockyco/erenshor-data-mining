@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Cloth Band
+|stablekey=item:head - 21 - sivakayan cloth band
 |type=
 |vendorsource=
 |source=[[Sivakayan Voidweaver]] (7.4%)

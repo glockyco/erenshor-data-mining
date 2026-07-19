@@ -1,5 +1,6 @@
 {{Item
 |title=Note from Eldoth
+|stablekey=item:gen - ilyth's note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Darkwarden Ilyth]] (100.0%)

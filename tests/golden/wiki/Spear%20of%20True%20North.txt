@@ -1,5 +1,6 @@
 {{Item
 |title=Spear of True North
+|stablekey=item:weap - 42 - spear of true north
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)

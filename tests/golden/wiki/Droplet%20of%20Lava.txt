@@ -1,5 +1,6 @@
 {{Item
 |title=Droplet of Lava
+|stablekey=item:cons - lava droplet
 |type=[[Crafting]], [[Consumables|Consumable]]
 |vendorsource=
 |source=[[A Lava Spirit]] (13.1%)<br>[[Volcanic Giant]] (13.1%)<br>[[Shelled Monstrosity]] (4.5%)<br>[[Spark Queen]] (4.5%)<br>[[Spark Royal]] (4.5%)<br>[[Volcano Scarab]] (4.5%)<br>[[Spark Beetle]] (4.3%)<br>[[Spark Soldier]] (4.3%)

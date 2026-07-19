@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Immolation
+|stablekey=item:spell scroll - immolation
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Cerbantias Flameward]]<br>[[Juctin Mysia]]
 |source=[[Blight Eater]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)

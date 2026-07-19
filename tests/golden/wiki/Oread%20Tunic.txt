@@ -1,5 +1,6 @@
 {{Item
 |title=Oread Tunic
+|stablekey=item:chest - 7 - oread tunic
 |type=
 |vendorsource=
 |source=[[Autmis the Lost]] (53.7%)

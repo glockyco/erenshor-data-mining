@@ -1,5 +1,6 @@
 {{Item
 |title=A Rolled Note
+|stablekey=item:gen - a rolled note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

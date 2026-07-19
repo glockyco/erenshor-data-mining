@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Willow Seed
+|stablekey=item:gen - willow seed azure
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

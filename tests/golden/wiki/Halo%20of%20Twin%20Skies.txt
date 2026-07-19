@@ -1,5 +1,6 @@
 {{Item
 |title=Halo of Twin Skies
+|stablekey=item:ring - 42 - halo of twin skies
 |type=
 |vendorsource=
 |source=[[Animation of Grace]] (68.9%)<br>[[Soluna]] (5.8%)

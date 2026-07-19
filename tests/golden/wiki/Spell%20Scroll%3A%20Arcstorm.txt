@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Arcstorm
+|stablekey=item:spell scroll - arcstorm
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Elizabeth DeWitt]]
 |source=

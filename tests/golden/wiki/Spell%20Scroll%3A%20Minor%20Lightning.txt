@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Minor Lightning
+|stablekey=item:spell scroll - minor lightning
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Alyssia Fearnon]]
 |source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[Islander Bandit]] (1.1%)

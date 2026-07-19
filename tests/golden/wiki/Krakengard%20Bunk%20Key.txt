@@ -1,5 +1,6 @@
 {{Item
 |title=Krakengard Bunk Key
+|stablekey=item:key - krarkengard bunk key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Molorai Brewmistress]] (100.0%)

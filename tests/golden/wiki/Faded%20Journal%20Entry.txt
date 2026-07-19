@@ -1,5 +1,6 @@
 {{Item
 |title=Faded Journal Entry
+|stablekey=item:gen - faded journal (soluna)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Raval, The First Paladin]] (100.0%)

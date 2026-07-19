@@ -1,5 +1,6 @@
 {{Item
 |title=Fluorite Amulet
+|stablekey=item:neck - 5 - fluorite amulet
 |type=
 |vendorsource=[[Parmalee Gemlyn]]
 |source=

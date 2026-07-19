@@ -1,5 +1,6 @@
 {{Item
 |title=Gut Cord
+|stablekey=item:belt - 25 - gut cord
 |type=
 |vendorsource=
 |source=[[Swamp Wyrm]] (50.0%)

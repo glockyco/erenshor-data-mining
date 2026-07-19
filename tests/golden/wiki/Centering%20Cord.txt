@@ -1,5 +1,6 @@
 {{Item
 |title=Centering Cord
+|stablekey=item:belt - 33 - centering cord
 |type=
 |vendorsource=
 |source=[[Corrupted Fungal Bear]] (66.7%)

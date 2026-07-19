@@ -1,5 +1,6 @@
 {{Item
 |title=Instructions for Warmth
+|stablekey=item:gen - instructions for warmth
 |type=[[Quest Items|Quest Item]], [[Lore Items|Lore]]
 |vendorsource=
 |source=

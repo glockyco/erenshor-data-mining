@@ -1,5 +1,6 @@
 {{Item
 |title=Aged letter
+|stablekey=item:gen - dusty scribbles
 |type=
 |vendorsource=
 |source=

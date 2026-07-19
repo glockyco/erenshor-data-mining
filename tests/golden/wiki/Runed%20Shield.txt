@@ -1,5 +1,6 @@
 {{Item
 |title=Runed Shield
+|stablekey=item:secondary - 28 - runed shield
 |type=
 |vendorsource=
 |source=[[Undertoes]] (33.3%)

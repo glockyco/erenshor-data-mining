@@ -1,5 +1,6 @@
 {{Item
 |title=Bellwain Attic Key
+|stablekey=item:quest - bellwain attic key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

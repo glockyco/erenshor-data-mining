@@ -1,5 +1,6 @@
 {{Item
 |title=Warhound Collar
+|stablekey=item:gen - azynthian collar
 |type=
 |vendorsource=
 |source=[[Wild Ancestral Dog]] (50.0%)

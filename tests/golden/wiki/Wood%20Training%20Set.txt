@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Training Set
+|stablekey=item:furniture - wood training
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Tempestalia, Ring of Storms
+|stablekey=item:ring - 20 - tempestalia
 |type=
 |vendorsource=
 |source=

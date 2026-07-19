@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Bracer
+|stablekey=item:wrist - 30 - braxonian bracer
 |type=
 |vendorsource=
 |source=[[Braxonian Weapon Master]] (2.1%)<br>[[Braxonian Honor Guard]] (1.9%)<br>[[Braxonian High Guard]] (1.6%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)

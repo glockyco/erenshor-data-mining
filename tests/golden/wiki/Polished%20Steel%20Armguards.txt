@@ -1,5 +1,6 @@
 {{Item
 |title=Polished Steel Armguards
+|stablekey=item:arm - 12 - polished steel armguards
 |type=
 |vendorsource=
 |source=[[Overseer Orlok]] (3.2%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Old Halberd
+|stablekey=item:weap - 6 - old halberd
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=[[Sylvan Giant Runt]] (25.0%)

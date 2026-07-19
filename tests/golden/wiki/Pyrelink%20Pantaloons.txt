@@ -1,5 +1,6 @@
 {{Item
 |title=Pyrelink Pantaloons
+|stablekey=item:leg - 21 - pyrelink pantaloons
 |type=
 |vendorsource=
 |source=[[Evadne the Corrupted]] (29.1%)

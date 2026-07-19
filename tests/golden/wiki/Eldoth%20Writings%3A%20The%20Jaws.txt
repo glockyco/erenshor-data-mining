@@ -1,5 +1,6 @@
 {{Item
 |title=Eldoth Writings: The Jaws
+|stablekey=item:gen - eldoth - the jaws
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Overseer Laseal]] (100.0%)

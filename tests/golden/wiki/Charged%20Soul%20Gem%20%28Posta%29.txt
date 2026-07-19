@@ -1,5 +1,6 @@
 {{Item
 |title=Charged Soul Gem (Posta)
+|stablekey=item:quest - charged soul gem posta
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

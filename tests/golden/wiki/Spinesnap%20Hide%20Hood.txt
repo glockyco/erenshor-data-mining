@@ -1,5 +1,6 @@
 {{Item
 |title=Spinesnap Hide Hood
+|stablekey=item:head - 30 - spinesnap hide hood
 |type=
 |vendorsource=
 |source=[[Spinesnap Gorilla]] (6.7%)

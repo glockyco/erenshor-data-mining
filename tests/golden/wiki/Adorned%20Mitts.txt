@@ -1,5 +1,6 @@
 {{Item
 |title=Adorned Mitts
+|stablekey=item:glove - 18 - adorned mitts
 |type=
 |vendorsource=
 |source=[[Prioress]] (6.7%)

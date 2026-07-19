@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Mead
+|stablekey=item:cons - azure mead
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=[[Benny Bommby]]<br>[[Innkeeper Ryvan]]<br>[[Isaac Salaman]]<br>[[Shady Fisherman]]
 |source=[[Priel Malarist]] (8.5%)

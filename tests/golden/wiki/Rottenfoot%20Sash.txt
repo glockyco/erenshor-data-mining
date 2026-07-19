@@ -1,5 +1,6 @@
 {{Item
 |title=Rottenfoot Sash
+|stablekey=item:belt - 10 - rottenfoot sash
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Rottenfoot Mauler]] (32.7%)<br>[[A Rottenfoot Warrior]] (15.7%)<br>[[Rottenfoot Witchdoctor]] (7.8%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Eyestalk Wand
+|stablekey=item:wand - 12 - eyestalk wand
 |type=
 |vendorsource=
 |source=[[Old Brackey]] (39.9%)

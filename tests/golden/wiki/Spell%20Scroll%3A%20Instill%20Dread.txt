@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Instill Dread
+|stablekey=item:spell scroll - instill dread
 |type=
 |vendorsource=
 |source=[[Darkwarden Awxa]] (6.9%)<br>[[Darkwarden Ealdred]] (6.9%)

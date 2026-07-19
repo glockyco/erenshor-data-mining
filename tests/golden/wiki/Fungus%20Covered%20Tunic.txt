@@ -1,5 +1,6 @@
 {{Item
 |title=Fungus Covered Tunic
+|stablekey=item:chest - 18 - fungus covered tunic
 |type=
 |vendorsource=
 |source=[[Devoratrix]] (5.8%)<br>[[Planar Flora]] (5.8%)<br>[[Diva]] (3.8%)

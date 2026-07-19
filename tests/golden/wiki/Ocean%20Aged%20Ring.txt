@@ -1,5 +1,6 @@
 {{Item
 |title=Ocean Aged Ring
+|stablekey=item:ring - 24 - seawashed ring
 |type=
 |vendorsource=
 |source=[[Pamia the Coward]] (66.7%)

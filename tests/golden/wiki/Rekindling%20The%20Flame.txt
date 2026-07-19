@@ -1,5 +1,6 @@
 {{Item
 |title=Rekindling The Flame
+|stablekey=item:gen - rekindling the flame
 |type=[[Lore Items|Lore Item]]
 |vendorsource=
 |source=[[Elwio the Traitor]] (100.0%)

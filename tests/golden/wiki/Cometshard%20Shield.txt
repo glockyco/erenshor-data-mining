@@ -1,5 +1,6 @@
 {{Item
 |title=Cometshard Shield
+|stablekey=item:secondary - 42 - cometshard shield
 |type=
 |vendorsource=
 |source=[[Solunarian Chest]] (40.4%)

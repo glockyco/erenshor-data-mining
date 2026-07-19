@@ -1,5 +1,6 @@
 {{Item
 |title=Looming Reaper
+|stablekey=item:weap - 30 - looming reaper
 |type=
 |vendorsource=
 |source=[[The Gardener of Loomingwood]] (25.0%)

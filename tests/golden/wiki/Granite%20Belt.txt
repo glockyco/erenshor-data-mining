@@ -1,5 +1,6 @@
 {{Item
 |title=Granite Belt
+|stablekey=item:belt - 28 - granite girdle
 |type=
 |vendorsource=
 |source=[[Granitus]] (20.0%)

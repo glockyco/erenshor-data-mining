@@ -1,5 +1,6 @@
 {{Item
 |title=Blueprint: Stone Fountain
+|stablekey=item:furniture - stone fountain blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Cinder]] (0.8%)<br>[[Diamond Colossus]] (0.5%)<br>[[Stoneman Colossus]] (0.5%)<br>[[Stoneman Obsidian]] (0.5%)<br>[[Stoneman]] (0.2%)<br>[[Stoneman Knight]] (0.2%)<br>[[Stoneman Magi]] (0.2%)<br>[[Stoneman]] (0.2%)

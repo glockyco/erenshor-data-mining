@@ -1,5 +1,6 @@
 {{Item
 |title=Asp's Fang
+|stablekey=item:weap - 29 - asp's fang
 |type=
 |vendorsource=
 |source=[[Asp]] (4.4%)

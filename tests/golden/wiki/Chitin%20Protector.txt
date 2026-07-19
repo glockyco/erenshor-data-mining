@@ -1,5 +1,6 @@
 {{Item
 |title=Chitin Protector
+|stablekey=item:chest - 25 - chitin protector
 |type=
 |vendorsource=
 |source=[[Shelled Monstrosity]] (33.3%)

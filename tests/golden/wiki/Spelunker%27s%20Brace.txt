@@ -1,5 +1,6 @@
 {{Item
 |title=Spelunker's Brace
+|stablekey=item:wrist - 17 - spelunker's brace
 |type=
 |vendorsource=
 |source=[[A Fungus Ravaged Brute]] (13.4%)

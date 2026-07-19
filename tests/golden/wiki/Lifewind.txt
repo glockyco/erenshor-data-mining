@@ -1,5 +1,6 @@
 {{Item
 |title=Lifewind
+|stablekey=item:back - 30 - lifewind
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (50.0%)

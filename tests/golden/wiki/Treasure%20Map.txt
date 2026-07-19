@@ -1,5 +1,6 @@
 {{Item
 |title=Treasure Map
+|stablekey=item:gen - treasure map
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Braxonian Fossil]] (10.5%)

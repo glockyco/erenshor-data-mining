@@ -1,5 +1,6 @@
 {{Item
 |title=Heart of Astra
+|stablekey=item:gen - heart of astra
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (100.0%)

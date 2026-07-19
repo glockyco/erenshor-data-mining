@@ -1,5 +1,6 @@
 {{Item
 |title=Fernalla's Sivakayan Rune
+|stablekey=item:gen - half sivakayan rune (fernalla)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

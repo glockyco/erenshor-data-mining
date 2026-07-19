@@ -1,5 +1,6 @@
 {{Item
 |title=Seawashed Cloak
+|stablekey=item:back - 17 - seawashed cloak
 |type=
 |vendorsource=
 |source=[[Spike]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Cobwebbed Breeches
+|stablekey=item:leg - 28 - cobwebbed breeches
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (25.6%)

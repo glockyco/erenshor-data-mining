@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Dining Set
+|stablekey=item:furniture - stone dining
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=End of Life
+|stablekey=item:aura - reaver 3
 |type=
 |vendorsource=
 |source=[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)

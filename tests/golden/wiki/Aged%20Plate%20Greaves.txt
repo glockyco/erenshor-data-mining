@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Plate Greaves
+|stablekey=item:leg - 18 -  aged plate greaves
 |type=
 |vendorsource=
 |source=[[Spectral Castle Guard]] (1.7%)<br>[[Spectral King's Guard]] (1.0%)<br>[[Rotting Royal Hound]] (0.9%)

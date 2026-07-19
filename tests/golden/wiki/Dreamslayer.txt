@@ -1,5 +1,6 @@
 {{Item
 |title=Dreamslayer
+|stablekey=item:weap - 22 - dreamslayer
 |type=
 |vendorsource=
 |source=[[Nightmarian Knight]] (4.3%)

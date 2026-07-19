@@ -1,5 +1,6 @@
 {{Item
 |title=Flint Carapace
+|stablekey=item:gen - flint carapace
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Spark Beetle]] (11.8%)<br>[[Spark Soldier]] (11.8%)

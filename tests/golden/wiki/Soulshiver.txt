@@ -1,5 +1,6 @@
 {{Item
 |title=Soulshiver
+|stablekey=item:weap - 31 - soulshiver
 |type=
 |vendorsource=
 |source=[[Braxonian Weapon Master]] (33.3%)

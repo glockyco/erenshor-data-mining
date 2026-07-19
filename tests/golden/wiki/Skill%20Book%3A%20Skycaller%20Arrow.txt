@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Skycaller Arrow
+|stablekey=item:skillbook - skycaller arrow
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Elizabeth DeWitt]]
 |source=

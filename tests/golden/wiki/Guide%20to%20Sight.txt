@@ -1,5 +1,6 @@
 {{Item
 |title=Guide to Sight
+|stablekey=item:gen - how to see
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

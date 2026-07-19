@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Brax's Rage
+|stablekey=item:spell scroll - brax's rage
 |type=[[Ability Books]]
 |vendorsource=[[Edwin Ansegg]]
 |source=[[Gloopa|Gloopa (Quarter)]] (1.7%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)

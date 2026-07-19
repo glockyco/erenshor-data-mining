@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Light Healing
+|stablekey=item:spell scroll - light healing
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Tiver Banes]]
 |source=

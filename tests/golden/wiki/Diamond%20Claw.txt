@@ -1,5 +1,6 @@
 {{Item
 |title=Diamond Claw
+|stablekey=item:weap - 25 - diamondclaw
 |type=
 |vendorsource=
 |source=[[Diamond Hound]] (6.9%)

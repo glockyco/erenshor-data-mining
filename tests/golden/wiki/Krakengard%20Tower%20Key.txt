@@ -1,5 +1,6 @@
 {{Item
 |title=Krakengard Tower Key
+|stablekey=item:key - krakengard tower key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Molorai Captain Sigrid]] (100.0%)

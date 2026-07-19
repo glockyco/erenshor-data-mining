@@ -1,5 +1,6 @@
 {{Item
 |title=Metal Girdle
+|stablekey=item:belt - 2- metal girdle
 |type=
 |vendorsource=
 |source=[[Gort]] (50.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Bandit's Mask
+|stablekey=item:head - 13 - bandit's mask
 |type=
 |vendorsource=
 |source=[[Molorai Spiritist]] (7.8%)<br>[[Overseer Orlok]] (3.2%)

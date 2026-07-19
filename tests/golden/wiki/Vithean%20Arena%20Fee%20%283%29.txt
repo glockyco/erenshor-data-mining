@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Arena Fee (3)
+|stablekey=item:quest - vithean arena token 3
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 2)]] (100.0%)

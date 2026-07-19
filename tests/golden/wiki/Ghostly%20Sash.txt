@@ -1,5 +1,6 @@
 {{Item
 |title=Ghostly Sash
+|stablekey=item:belt - 23 - ghostly sash
 |type=
 |vendorsource=
 |source=[[Ghost of Plaxitheris]] (50.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Shifted Fate
+|stablekey=item:weap - 42 - sword of shifted fate
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

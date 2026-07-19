@@ -1,5 +1,6 @@
 {{Item
 |title=Light Plate Greaves
+|stablekey=item:leg - 3 - light plate greaves
 |type=
 |vendorsource=[[Ludo Luxo]]<br>[[Sven Feartines]]
 |source=[[Sylvan Giant Runt]] (23.5%)<br>[[Plaxitheris]] (19.4%)<br>[[A Skeleton Captain]] (3.4%)<br>[[A Sturdy Skeleton]] (1.3%)<br>[[Drowned Corpse]] (1.3%)<br>[[Gort]] (1.3%)<br>[[Summoned Fallen Warrior]] (1.3%)<br>[[The Corpse of Brice Mathers]] (1.3%)<br>[[The Corpse of Cyndreela Mathers]] (1.3%)

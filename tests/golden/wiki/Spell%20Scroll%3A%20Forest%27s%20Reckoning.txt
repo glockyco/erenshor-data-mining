@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Forest's Reckoning
+|stablekey=item:spell scroll - drudd forest's reckoning
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Tiver Banes]]
 |source=

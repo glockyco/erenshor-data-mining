@@ -1,5 +1,6 @@
 {{Item
 |title=Flowing Cloak
+|stablekey=item:back - 26 - flowing cloak
 |type=
 |vendorsource=
 |source=[[Restless Thoughts]] (33.3%)

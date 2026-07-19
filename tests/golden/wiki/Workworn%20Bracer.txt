@@ -1,5 +1,6 @@
 {{Item
 |title=Workworn Bracer
+|stablekey=item:wrist - 20 - workworn bracer
 |type=
 |vendorsource=
 |source=[[Spectral Torturer]] (33.3%)

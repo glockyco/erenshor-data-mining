@@ -1,5 +1,6 @@
 {{Item
 |title=Fernallan Sceptre
+|stablekey=item:wand - 24 - fernallan sceptre
 |type=
 |vendorsource=
 |source=[[Maple]] (50.0%)

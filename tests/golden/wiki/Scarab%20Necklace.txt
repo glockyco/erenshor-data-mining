@@ -1,5 +1,6 @@
 {{Item
 |title=Scarab Necklace
+|stablekey=item:neck - 14 - scarab necklace
 |type=
 |vendorsource=
 |source=[[Nipper Lashfist]] (4.5%)<br>[[Nipper Manatooth]] (4.5%)

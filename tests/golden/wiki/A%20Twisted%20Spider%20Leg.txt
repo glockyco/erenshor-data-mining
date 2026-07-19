@@ -1,5 +1,6 @@
 {{Item
 |title=A Twisted Spider Leg
+|stablekey=item:wrist - 16 - twisted spider leg
 |type=
 |vendorsource=
 |source=[[Slumbering Queen]] (28.3%)<br>[[A Fungal Sentinel]] (25.2%)<br>[[A Fungal Drone]] (19.6%)

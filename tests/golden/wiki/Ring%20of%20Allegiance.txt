@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Allegiance
+|stablekey=item:ring - 42 - ring of allegiance
 |type=
 |vendorsource=
 |source=[[Solunarian Sunbringer]] (6.7%)

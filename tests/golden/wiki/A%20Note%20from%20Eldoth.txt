@@ -1,5 +1,6 @@
 {{Item
 |title=A Note from Eldoth
+|stablekey=item:gen - correspondence from eldoth
 |type=[[Lore Items|Lore Item]]
 |vendorsource=
 |source=[[Overseer Orlok]] (100.0%)

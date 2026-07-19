@@ -1,5 +1,6 @@
 {{Item
 |title=Advisor's Sword
+|stablekey=item:weap - 42 - advisor's sword
 |type=
 |vendorsource=
 |source=[[Khorso, Soluna's Advisor]] (70.0%)<br>[[Soluna]] (5.8%)

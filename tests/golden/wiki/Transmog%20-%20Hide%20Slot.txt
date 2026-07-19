@@ -1,5 +1,6 @@
 {{Item
 |title=Transmog - Hide Slot
+|stablekey=item:tmog - hideslot
 |type=
 |vendorsource=
 |source=

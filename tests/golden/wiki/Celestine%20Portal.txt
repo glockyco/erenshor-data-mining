@@ -1,5 +1,6 @@
 {{Item
 |title=Celestine Portal
+|stablekey=item:furniture - celestial portal
 |type=
 |vendorsource=
 |source=

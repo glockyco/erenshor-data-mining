@@ -1,5 +1,6 @@
 {{Item
 |title=Spectral Dagger
+|stablekey=item:weap - 15 - spectraldagger
 |type=
 |vendorsource=
 |source=[[The Crypt Guardian]] (14.8%)<br>[[Vithean Blademaster]] (13.1%)<br>[[Vithean Betrayer]] (5.1%)<br>[[Vithean Immortal]] (3.0%)

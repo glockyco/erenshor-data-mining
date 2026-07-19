@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Braxonian Key
+|stablekey=item:key -  ancient braxonian key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[Evadne the Corrupted]] (100.0%)

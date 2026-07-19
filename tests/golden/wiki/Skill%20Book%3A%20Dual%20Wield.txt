@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Dual Wield
+|stablekey=item:skillbook - dual wield
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Ludo Luxo]]<br>[[Sven Feartines]]
 |source=[[Islander Bandit]] (1.1%)

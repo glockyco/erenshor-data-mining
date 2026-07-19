@@ -1,5 +1,6 @@
 {{Item
 |title=Cursed Hide Shield
+|stablekey=item:secondary - 38 - cursed hide shield
 |type=
 |vendorsource=
 |source=[[Demented Malaroth]] (50.0%)

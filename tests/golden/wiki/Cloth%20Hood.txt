@@ -1,5 +1,6 @@
 {{Item
 |title=Cloth Hood
+|stablekey=item:head - 1 - cloth hood
 |type=
 |vendorsource=
 |source=[[Kio the Darkbringer]] (64.2%)<br>[[Cloaked Shadow]] (36.8%)<br>[[Neophyte Necromancer]] (32.7%)<br>[[Zashlyn Bloodbane]] (29.1%)<br>[[Bridgekeeper]] (15.8%)<br>[[Curator]] (15.8%)<br>[[Gatekeeper]] (15.8%)<br>[[Harbinger]] (15.8%)<br>[[Vos Ashlyn]] (15.8%)<br>[[Faceless Necromancer]] (14.2%)<br>[[Boatman]] (12.4%)<br>[[Woe]] (12.4%)<br>[[A Lava Spirit]] (5.1%)<br>[[Volcanic Giant]] (5.1%)<br>[[Nipper Tad]] (4.6%)<br>[[Chosen Fawn]] (3.9%)<br>[[Fawn of Fernalla]] (3.9%)<br>[[Risen Druid]] (3.9%)<br>[[Vinx]] (3.9%)<br>[[A Sorrowful Spirit]] (3.0%)<br>[[Mourning]] (3.0%)<br>[[A Protected Memory]] (2.6%)<br>[[A Restless Spirit]] (2.6%)<br>[[An Enraged Spirit]] (2.6%)

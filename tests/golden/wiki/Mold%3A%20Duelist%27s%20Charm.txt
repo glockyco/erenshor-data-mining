@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Duelist's Charm
+|stablekey=item:template - duelist's charm
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Eldoth's Journal Entry
+|stablekey=item:gen - eldoth writings page 6
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Eldoth Molorai]] (100.0%)

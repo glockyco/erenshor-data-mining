@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Sight IV
+|stablekey=item:spell scroll - vitheo's sight iv
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 2)]] (19.5%)

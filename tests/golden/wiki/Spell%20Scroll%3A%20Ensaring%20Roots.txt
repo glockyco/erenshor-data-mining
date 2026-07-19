@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ensaring Roots
+|stablekey=item:spell scroll - ensaring roots
 |type=
 |vendorsource=[[Alexander Farland]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Angler's Ring
+|stablekey=item:template - anglers ring
 |type=[[Crafting|Mold]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

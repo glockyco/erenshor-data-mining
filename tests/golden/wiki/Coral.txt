@@ -1,5 +1,6 @@
 {{Item
 |title=Coral
+|stablekey=item:gen - a coral
 |type=[[Crafting]]
 |vendorsource=[[Enterprising Spirit]]
 |source=[[A Rottenfoot Warrior]] (51.4%)<br>[[A Rottenfoot Witchdoctor]] (51.4%)<br>[[A Seafiend]] (51.4%)<br>[[A Seafiend Manalord]] (51.4%)<br>[[A Seafiend Manathite]] (51.4%)<br>[[A Seafiend Worker]] (51.4%)<br>[[Algaeth Bilgeback]] (51.4%)<br>[[Rottenfoot Swampwalker]] (41.8%)<br>[[Tek-Nu Dah]] (41.8%)<br>[[Rottenfoot Mauler]] (32.7%)<br>[[Rottenfoot Witchdoctor]] (32.7%)<br>[[Nipper King]] (6.5%)<br>[[Nipper Diremaw]] (3.4%)<br>[[Nipper Farseer]] (3.4%)<br>[[Nipper Whiptail]] (3.4%)

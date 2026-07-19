@@ -1,5 +1,6 @@
 {{Item
 |title=Mirrored Bracer
+|stablekey=item:wrist - 33 - mirrored bracer
 |type=
 |vendorsource=
 |source=

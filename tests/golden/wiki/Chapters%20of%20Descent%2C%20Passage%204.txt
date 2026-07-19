@@ -1,5 +1,6 @@
 {{Item
 |title=Chapters of Descent, Passage 4
+|stablekey=item:gen - cod - pg 4
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Lazalith, Soldier of Sivakaya]] (100.0%)<br>[[Ecclesiarch]] (4.6%)

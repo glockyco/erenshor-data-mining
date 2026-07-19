@@ -1,5 +1,6 @@
 {{Item
 |title=Mask of Spies
+|stablekey=item:head - 33 - mask of spies
 |type=
 |vendorsource=
 |source=[[Sivakayan Emissary]] (50.0%)<br>[[Sivakayan Spymaster]] (33.3%)

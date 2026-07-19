@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Armguards
+|stablekey=item:arm - 30 - azynthian armguards
 |type=
 |vendorsource=
 |source=[[Oracle Tretha]] (33.3%)

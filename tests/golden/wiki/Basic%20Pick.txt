@@ -1,5 +1,6 @@
 {{Item
 |title=Basic Pick
+|stablekey=item:weap - 2 - basic pick
 |type=
 |vendorsource=[[Amethi Plazzo]]<br>[[Brian Meshley]]<br>[[Javo Follay]]<br>[[Saya Seawatcher]]
 |source=

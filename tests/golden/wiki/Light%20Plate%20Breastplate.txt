@@ -1,5 +1,6 @@
 {{Item
 |title=Light Plate Breastplate
+|stablekey=item:chest - 4 - light plate armor
 |type=
 |vendorsource=[[Alyssia Fearnon]]<br>[[Benson Gamble]]<br>[[Ludo Luxo]]<br>[[Samuel Thatcher]]<br>[[Sven Feartines]]<br>[[Yale Harvey]]
 |source=[[Sylvan Giant Runt]] (23.5%)<br>[[Plaxitheris]] (19.4%)<br>[[Vevillo Polter]] (3.7%)<br>[[A Skeleton Captain]] (3.4%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[A Sturdy Skeleton]] (1.3%)<br>[[Drowned Corpse]] (1.3%)<br>[[Gort]] (1.3%)<br>[[Summoned Fallen Warrior]] (1.3%)<br>[[The Corpse of Brice Mathers]] (1.3%)<br>[[The Corpse of Cyndreela Mathers]] (1.3%)<br>[[Islander Bandit]] (1.1%)

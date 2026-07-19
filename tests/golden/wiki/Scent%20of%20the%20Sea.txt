@@ -1,5 +1,6 @@
 {{Item
 |title=Scent of the Sea
+|stablekey=item:aura - vitheo 1
 |type=[[Auras]]
 |vendorsource=[[Alexandria Fadden]]<br>[[Amanda Rostley]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Rotting Metal Shield
+|stablekey=item:secondary - 7 - rotting metal shield
 |type=
 |vendorsource=
 |source=[[A Skeleton Captain]] (9.4%)

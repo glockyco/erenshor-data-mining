@@ -1,5 +1,6 @@
 {{Item
 |title=Bellwain's Last Entry
+|stablekey=item:quest - bellwain final journal
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

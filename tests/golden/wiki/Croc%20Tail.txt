@@ -1,5 +1,6 @@
 {{Item
 |title=Croc Tail
+|stablekey=item:gen - croc tail
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Stonetooth Croc]] (27.8%)<br>[[Rotbelly Croc]] (14.8%)

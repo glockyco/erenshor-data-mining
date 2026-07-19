@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Summon Brute
+|stablekey=item:spell scroll - summon brute
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Wardwarped Gorilla]] (14.2%)

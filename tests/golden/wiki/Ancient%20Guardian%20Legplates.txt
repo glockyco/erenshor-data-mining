@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Legplates
+|stablekey=item:leg - 21 - ancient guardian legplates
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

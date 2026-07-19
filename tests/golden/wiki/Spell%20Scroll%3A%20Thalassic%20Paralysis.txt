@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Thalassic Paralysis
+|stablekey=item:spell scroll - thalassic paralysis
 |type=
 |vendorsource=
 |source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)

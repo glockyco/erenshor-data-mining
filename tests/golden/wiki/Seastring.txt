@@ -1,5 +1,6 @@
 {{Item
 |title=Seastring
+|stablekey=item:bow - 13 - seastring
 |type=
 |vendorsource=
 |source=[[Greater Vithean Elemental]] (33.3%)

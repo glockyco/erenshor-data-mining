@@ -1,5 +1,6 @@
 {{Item
 |title=Frozen Lava Ring
+|stablekey=item:ring - 31 - frozen lava ring
 |type=
 |vendorsource=
 |source=[[Historian of Braxonia]] (50.0%)

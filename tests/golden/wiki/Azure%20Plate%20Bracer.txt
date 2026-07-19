@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Plate Bracer
+|stablekey=item:wrist - 7 - azure plate bracer
 |type=
 |vendorsource=[[Violet Smithfield]]
 |source=

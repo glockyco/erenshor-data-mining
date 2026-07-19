@@ -1,5 +1,6 @@
 {{Item
 |title=Sibling's Locket
+|stablekey=item:neck - 42 - sibling's locket
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 7)]] (66.7%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)

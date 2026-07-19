@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Straightsword
+|stablekey=item:weap - 24 - sivakayan straightsword
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Gherist Morthario]] (28.2%)<br>[[Sivakayan Raider]] (2.4%)<br>[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)

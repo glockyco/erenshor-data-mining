@@ -1,5 +1,6 @@
 {{Item
 |title=Ephermalia, Blade of Waning
+|stablekey=item:weap - 28 - ephermalia
 |type=
 |vendorsource=
 |source=[[Morian the Ascended]] (33.3%)

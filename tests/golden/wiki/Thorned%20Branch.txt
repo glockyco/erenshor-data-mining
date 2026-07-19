@@ -1,5 +1,6 @@
 {{Item
 |title=Thorned Branch
+|stablekey=item:weap - 19 - thorned branch
 |type=
 |vendorsource=
 |source=[[Elder Guardian]] (1.4%)

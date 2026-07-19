@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Arena Fee (6)
+|stablekey=item:quest - vithean arena token 6
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 5)]] (100.0%)

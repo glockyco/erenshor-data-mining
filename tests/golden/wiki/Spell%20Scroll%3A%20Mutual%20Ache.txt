@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Mutual Ache
+|stablekey=item:spell scroll - mutual ache
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

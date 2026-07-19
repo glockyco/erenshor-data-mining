@@ -1,5 +1,6 @@
 {{Item
 |title=Living Chainmail Jacket
+|stablekey=item:chest - 12 - living chainmail jacket
 |type=
 |vendorsource=[[Tiver Banes]]
 |source=[[Tinkles]] (23.7%)<br>[[Botanist]] (6.9%)

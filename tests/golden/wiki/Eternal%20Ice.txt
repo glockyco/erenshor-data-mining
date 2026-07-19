@@ -1,5 +1,6 @@
 {{Item
 |title=Eternal Ice
+|stablekey=item:gen - eternal ice
 |type=[[Quest Items|Quest Item]]
 |vendorsource=[[Enterprising Spirit]]
 |source=[[Shiverman]] (3.0%)

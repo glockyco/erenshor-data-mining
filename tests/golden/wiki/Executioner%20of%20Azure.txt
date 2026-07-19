@@ -1,5 +1,6 @@
 {{Item
 |title=Executioner of Azure
+|stablekey=item:weap - 36 - executioner of azure
 |type=
 |vendorsource=
 |source=[[Captain Kilkay]] (100.0%)

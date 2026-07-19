@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Mutual Pain
+|stablekey=item:spell scroll - mutual pain
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=

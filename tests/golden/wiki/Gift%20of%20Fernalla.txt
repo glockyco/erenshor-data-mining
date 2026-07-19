@@ -1,5 +1,6 @@
 {{Item
 |title=Gift of Fernalla
+|stablekey=item:gen - gift of fernalla
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

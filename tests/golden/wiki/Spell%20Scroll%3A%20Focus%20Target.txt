@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Focus Target
+|stablekey=item:spell scroll - focus target
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Windlae Oldseer]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Arena Fee (4)
+|stablekey=item:quest - vithean arena token 4
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 3)]] (100.0%)

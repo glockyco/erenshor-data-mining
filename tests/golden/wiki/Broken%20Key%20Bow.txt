@@ -1,5 +1,6 @@
 {{Item
 |title=Broken Key Bow
+|stablekey=item:gen - broken key bow
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Mourning]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Flight of Foot
+|stablekey=item:spell scroll - flight of foot
 |type=
 |vendorsource=
 |source=

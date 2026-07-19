@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Bouquet
+|stablekey=item:wand - 18 - fungal wand
 |type=
 |vendorsource=
 |source=[[Ravager, The First Infected]] (45.8%)

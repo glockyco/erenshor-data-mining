@@ -1,5 +1,6 @@
 {{Item
 |title=Blizzard Bane
+|stablekey=item:back - 42 - blizzardbane
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (37.6%)<br>[[Braxonian Chest]] (35.5%)

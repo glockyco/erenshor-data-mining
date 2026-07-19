@@ -1,5 +1,6 @@
 {{Item
 |title=Game Master's Plate
+|stablekey=item:gm - chest - game master's plate
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Key to Traitor's Halls
+|stablekey=item:key - traitor's hall key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

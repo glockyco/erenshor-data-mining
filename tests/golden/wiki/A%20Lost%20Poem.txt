@@ -1,5 +1,6 @@
 {{Item
 |title=A Lost Poem (1)
+|stablekey=item:gen - scribbles of a mad priest 1
 |type=
 |vendorsource=
 |source=[[Braxon Fanatic]] (7.8%)
@@ -73,6 +74,7 @@
 
 {{Item
 |title=A Lost Poem (2)
+|stablekey=item:gen - scribbles of a mad priest 2
 |type=
 |vendorsource=
 |source=[[Braxon Fanatic]] (7.8%)
@@ -146,6 +148,7 @@
 
 {{Item
 |title=A Lost Poem (3)
+|stablekey=item:gen - scribbles of a mad priest 3
 |type=
 |vendorsource=
 |source=[[Braxon Fanatic]] (7.8%)

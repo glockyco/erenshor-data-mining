@@ -1,5 +1,6 @@
 {{Item
 |title=Bladeturner
+|stablekey=item:ring - 34 - bladeturner
 |type=
 |vendorsource=
 |source=[[Nazura the Traitor]] (33.3%)

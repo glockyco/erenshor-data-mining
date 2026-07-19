@@ -1,5 +1,6 @@
 {{Item
 |title=Statuesque Greaves
+|stablekey=item:leg - 38 - statuesque greaves
 |type=
 |vendorsource=
 |source=[[Blight Wyrm]] (33.3%)

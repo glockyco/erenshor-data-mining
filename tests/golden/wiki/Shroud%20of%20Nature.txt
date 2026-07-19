@@ -1,5 +1,6 @@
 {{Item
 |title=Shroud of Nature
+|stablekey=item:back - 42 - shroud of nature
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (36.0%)

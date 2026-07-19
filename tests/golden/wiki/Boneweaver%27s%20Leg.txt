@@ -1,5 +1,6 @@
 {{Item
 |title=Boneweaver's Leg
+|stablekey=item:wand - 19 - boneweaver's leg
 |type=
 |vendorsource=
 |source=[[Boneweaver]] (33.3%)

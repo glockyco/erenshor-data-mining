@@ -1,5 +1,6 @@
 {{Item
 |title=Boots of Grounding
+|stablekey=item:foot - 11 - boots of grounding
 |type=
 |vendorsource=
 |source=[[Overseer Orlok]] (3.2%)

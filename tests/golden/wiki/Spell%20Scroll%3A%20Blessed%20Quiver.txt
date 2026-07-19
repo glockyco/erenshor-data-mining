@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Blessed Quiver
+|stablekey=item:spell scroll - blessed quiver
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Elwio the Traitor]] (63.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Arboreal Cape
+|stablekey=item:back - 30 - arboreal cape
 |type=
 |vendorsource=
 |source=[[Sylvan Giant]] (50.0%)

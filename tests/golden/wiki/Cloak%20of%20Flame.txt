@@ -1,5 +1,6 @@
 {{Item
 |title=Cloak of Flame
+|stablekey=item:back - 42 - cloak of flame
 |type=
 |vendorsource=
 |source=[[Warder of Flame]] (69.7%)

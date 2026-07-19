@@ -1,5 +1,6 @@
 {{Item
 |title=Bag of Faerie Dust
+|stablekey=item:gen - faerie dust
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Faerie Drone]] (7.7%)<br>[[A Faerie Enchantress]] (4.5%)<br>[[A Faerie Foliagian]] (4.5%)<br>[[A Faerie Windchild]] (4.5%)<br>[[Tinkles]] (4.0%)<br>[[Winkles]] (1.8%)

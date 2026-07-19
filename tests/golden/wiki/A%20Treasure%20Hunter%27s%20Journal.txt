@@ -1,5 +1,6 @@
 {{Item
 |title=A Treasure Hunter's Journal
+|stablekey=item:book - a treasure hunter's journal
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

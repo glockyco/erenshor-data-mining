@@ -1,5 +1,6 @@
 {{Item
 |title=Evacuate Soul
+|stablekey=item:aura - reaver 4
 |type=
 |vendorsource=
 |source=[[Eldoth Molorai]] (94.0%)

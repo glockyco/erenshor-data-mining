@@ -1,5 +1,6 @@
 {{Item
 |title=Brashell
+|stablekey=item:gen - brashell
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Evadne the Corrupted]] (100.0%)

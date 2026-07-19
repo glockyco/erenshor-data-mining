@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Gloves
+|stablekey=item:glove - 22 - ancient guardian gloves
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

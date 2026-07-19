@@ -1,5 +1,6 @@
 {{Item
 |title=A Magical Bag
+|stablekey=item:gen - magical bag
 |type=Activatable
 |vendorsource=[[Elysia Thistlewick]]
 |source=

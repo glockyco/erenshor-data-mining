@@ -1,6 +1,7 @@
 {{DISPLAYTITLE:Stardust}}
 {{Item
 |title=Stardust
+|stablekey=item:ore - stardust
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (68.7%)<br>[[Stardust]] (8.7%)

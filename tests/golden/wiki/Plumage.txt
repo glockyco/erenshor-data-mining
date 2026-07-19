@@ -1,5 +1,6 @@
 {{Item
 |title=Plumage
+|stablekey=item:chest - 28 - plumage
 |type=
 |vendorsource=
 |source=[[Aviak]] (50.0%)

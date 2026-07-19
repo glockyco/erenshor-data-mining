@@ -1,5 +1,6 @@
 {{Item
 |title=Frenzied Fistwraps
+|stablekey=item:glove - 24 - frenzied fistwraps
 |type=
 |vendorsource=
 |source=[[Frenzy]] (66.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Group Revitalize
+|stablekey=item:spell scroll - group revitalize
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Juctin Mysia]]
 |source=

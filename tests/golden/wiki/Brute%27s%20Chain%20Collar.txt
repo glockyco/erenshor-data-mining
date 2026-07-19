@@ -1,5 +1,6 @@
 {{Item
 |title=Brute's Chain Collar
+|stablekey=item:neck - 18 - brute's collar
 |type=
 |vendorsource=
 |source=[[Goliath]] (20.0%)

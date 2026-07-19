@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Regrowth
+|stablekey=item:spell scroll - regrowth
 |type=[[Ability Books]]
 |vendorsource=[[Alexander Farland]]
 |source=

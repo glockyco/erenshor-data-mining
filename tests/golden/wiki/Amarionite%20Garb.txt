@@ -1,5 +1,6 @@
 {{Item
 |title=Amarionite Garb
+|stablekey=item:chest - 42 - amarionite garb
 |type=
 |vendorsource=
 |source=[[Chunk of Amarion]] (40.8%)

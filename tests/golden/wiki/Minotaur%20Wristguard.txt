@@ -1,5 +1,6 @@
 {{Item
 |title=Minotaur Wristguard
+|stablekey=item:wrist - 42 - minotaur shackle
 |type=
 |vendorsource=
 |source=[[Planar Minotaur]] (4.3%)

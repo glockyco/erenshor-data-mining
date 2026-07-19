@@ -1,5 +1,6 @@
 {{Item
 |title=The Necromancer
+|stablekey=item:quest - game piece the necromancer
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Weak Wand
+|stablekey=item:wand - 3 - weak wand
 |type=
 |vendorsource=
 |source=[[Mourning]] (41.0%)<br>[[Islander Bandit]] (3.9%)

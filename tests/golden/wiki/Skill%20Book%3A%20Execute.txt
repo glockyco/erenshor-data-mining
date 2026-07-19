@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Execute
+|stablekey=item:skillbook - execute
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Windlae Oldseer]]
 |source=

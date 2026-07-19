@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Resting place
+|stablekey=item:furniture - azynthi coffin
 |type=
 |vendorsource=
 |source=

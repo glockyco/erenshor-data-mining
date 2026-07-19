@@ -1,5 +1,6 @@
 {{Item
 |title=Protector's Bracer
+|stablekey=item:wrist - 25 - protector's bracer
 |type=
 |vendorsource=
 |source=[[Warded Shadow]] (37.9%)

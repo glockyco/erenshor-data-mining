@@ -1,5 +1,6 @@
 {{Item
 |title=Planar Spear
+|stablekey=item:weap - 42 - planar ice lance
 |type=
 |vendorsource=
 |source=[[Warder of Ice]] (69.7%)

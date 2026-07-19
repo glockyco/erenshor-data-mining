@@ -1,5 +1,6 @@
 {{Item
 |title=Ghoul Scab
+|stablekey=item:gen - ghoul scab
 |type=[[Crafting]]
 |vendorsource=[[Enterprising Spirit]]
 |source=[[Ghoul]] (87.1%)<br>[[Shambler]] (87.1%)<br>[[Shadow of Sleep]] (51.4%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Broken Key Blade
+|stablekey=item:gen - broken key
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Woe]] (100.0%)

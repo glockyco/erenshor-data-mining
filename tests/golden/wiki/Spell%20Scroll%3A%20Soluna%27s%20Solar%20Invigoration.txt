@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Soluna's Solar Invigoration
+|stablekey=item:spell scroll - soluna's solar invigoration
 |type=
 |vendorsource=
 |source=

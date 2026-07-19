@@ -1,5 +1,6 @@
 {{Item
 |title=Letters and Words
+|stablekey=item:hand - 42 - letters and words (common)
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (34.3%)<br>[[Fernalla, Goddess of Nature]] (1.5%)
@@ -101,6 +102,7 @@
 
 {{Item
 |title=Letters and Words
+|stablekey=item:hand - 42 - letters and words (rare)
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (4.4%)<br>[[Fernalla, Goddess of Nature]] (0.5%)

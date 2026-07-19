@@ -1,5 +1,6 @@
 {{Item
 |title=Amber's Gift
+|stablekey=item:aura - mosquito
 |type=[[Auras]]
 |vendorsource=
 |source=[[Beady]] (25.0%)<br>[[Nipper Lashfist]] (4.4%)<br>[[Nipper Manatooth]] (4.4%)

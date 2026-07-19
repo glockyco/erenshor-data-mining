@@ -1,5 +1,6 @@
 {{Item
 |title=Jackal Hood
+|stablekey=item:head - 27 - jackal hood
 |type=
 |vendorsource=
 |source=[[Lupine Horror]] (66.7%)

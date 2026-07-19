@@ -1,5 +1,6 @@
 {{Item
 |title=Mana Strand Bracer
+|stablekey=item:wrist - 42 - mana strand bracer
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

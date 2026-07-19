@@ -1,5 +1,6 @@
 {{Item
 |title=Pearlescent Kelp Totem
+|stablekey=item:hand - 17 - pearlescent depth totem
 |type=
 |vendorsource=
 |source=[[Algaeth Bilgeback]] (14.3%)

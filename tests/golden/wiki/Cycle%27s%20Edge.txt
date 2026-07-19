@@ -1,5 +1,6 @@
 {{Item
 |title=Cycle's Edge
+|stablekey=item:weap - 42 - cycle's edge
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (36.0%)

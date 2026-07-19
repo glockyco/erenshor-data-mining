@@ -1,5 +1,6 @@
 {{Item
 |title=Autmis' Note
+|stablekey=item:gen - oread note
 |type=
 |vendorsource=
 |source=[[Autmis the Lost]] (100.0%)

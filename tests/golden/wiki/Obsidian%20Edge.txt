@@ -1,5 +1,6 @@
 {{Item
 |title=Obsidian Edge
+|stablekey=item:weap - 42 - obsidian edge
 |type=
 |vendorsource=
 |source=[[Braxonian Chest]] (35.5%)

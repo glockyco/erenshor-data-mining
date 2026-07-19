@@ -1,5 +1,6 @@
 {{Item
 |title=Hardened Slime Ring
+|stablekey=item:ring - 16 - hardened slime ring
 |type=
 |vendorsource=
 |source=[[Gloopa|Gloopa (Quarter)]] (38.5%)<br>[[Gloopa|Gloopa (Quarter)]] (1.7%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)

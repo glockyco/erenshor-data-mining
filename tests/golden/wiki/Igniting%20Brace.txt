@@ -1,5 +1,6 @@
 {{Item
 |title=Igniting Brace
+|stablekey=item:wrist - 25 - ignition brace
 |type=
 |vendorsource=
 |source=[[Kio the Darkbringer]] (50.0%)

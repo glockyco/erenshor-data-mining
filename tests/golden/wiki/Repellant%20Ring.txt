@@ -1,5 +1,6 @@
 {{Item
 |title=Repellant Ring
+|stablekey=item:ring - 42 - repellant ring
 |type=
 |vendorsource=
 |source=[[Sprinkles]] (69.6%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

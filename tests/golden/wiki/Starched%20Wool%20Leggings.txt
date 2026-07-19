@@ -1,5 +1,6 @@
 {{Item
 |title=Starched Wool Leggings
+|stablekey=item:leg - 28 - starched wool leggings
 |type=
 |vendorsource=
 |source=[[Addison Priel]] (50.0%)

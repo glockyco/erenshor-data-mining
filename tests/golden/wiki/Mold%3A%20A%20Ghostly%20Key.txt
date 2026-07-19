@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: A Ghostly Key
+|stablekey=item:template - a chewed key mold
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=[[Plaxitheris]] (100.0%)

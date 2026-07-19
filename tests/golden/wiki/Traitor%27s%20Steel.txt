@@ -1,5 +1,6 @@
 {{Item
 |title=Traitor's Steel
+|stablekey=item:weap - 33 - traitor's steel
 |type=
 |vendorsource=
 |source=[[Elwio the Traitor]] (33.3%)

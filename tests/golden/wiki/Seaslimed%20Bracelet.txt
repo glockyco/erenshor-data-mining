@@ -1,5 +1,6 @@
 {{Item
 |title=Seaslimed Bracelet
+|stablekey=item:wrist - 6 - seaslimed bracelet
 |type=
 |vendorsource=
 |source=

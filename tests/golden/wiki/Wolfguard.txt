@@ -1,5 +1,6 @@
 {{Item
 |title=Wolfguard
+|stablekey=item:wrist - 6 - wolfguard
 |type=
 |vendorsource=
 |source=[[Battlefist]] (33.3%)

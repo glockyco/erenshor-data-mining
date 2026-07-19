@@ -1,5 +1,6 @@
 {{Item
 |title=Warder's Staff
+|stablekey=item:wand - 42 - staff of the warder
 |type=
 |vendorsource=
 |source=[[Warder of Ice]] (69.7%)<br>[[Brax, God of Elements]] (37.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Archer's Vambrace
+|stablekey=item:arm - 8 - archer's vambrace
 |type=
 |vendorsource=
 |source=[[Sylvan Giant Runt]] (25.0%)

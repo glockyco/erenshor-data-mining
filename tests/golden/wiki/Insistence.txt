@@ -1,5 +1,6 @@
 {{Item
 |title=Insistence
+|stablekey=item:ring - 42 - insistence
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (36.0%)

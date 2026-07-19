@@ -1,5 +1,6 @@
 {{Item
 |title=Collar of the Huntress
+|stablekey=item:neck - 22 - collar of the huntress
 |type=
 |vendorsource=
 |source=[[Dire Huntress]] (27.8%)

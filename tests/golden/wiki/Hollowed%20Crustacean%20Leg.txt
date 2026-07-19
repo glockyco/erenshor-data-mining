@@ -1,5 +1,6 @@
 {{Item
 |title=Hollowed Crustacean Leg
+|stablekey=item:wrist - 11 - hollowed crustacean leg
 |type=
 |vendorsource=
 |source=[[Old Brackey]] (69.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=A Planar Pumpkin
+|stablekey=item:fish - a planar pumpkin
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Bow
+|stablekey=item:bow - 28 - braxonian bow
 |type=
 |vendorsource=
 |source=[[Braxonian High Guard]] (4.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Treasure Hunter's Pin
+|stablekey=item:gen - treasure hunter's pin
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Glow of Eternity
+|stablekey=item:aura - brax 3
 |type=[[Auras]]
 |vendorsource=
 |source=[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)

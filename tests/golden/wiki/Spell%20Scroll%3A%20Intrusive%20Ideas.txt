@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Intrusive Ideas
+|stablekey=item:spell scroll - intrusive ideas
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Molorai Archmage]] (13.4%)<br>[[Molorai Archmage]] (13.1%)

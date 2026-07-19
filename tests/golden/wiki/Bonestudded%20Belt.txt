@@ -1,5 +1,6 @@
 {{Item
 |title=Bonestudded Belt
+|stablekey=item:belt - 5 - bonestudded belt
 |type=
 |vendorsource=
 |source=

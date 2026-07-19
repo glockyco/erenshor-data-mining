@@ -1,5 +1,6 @@
 {{Item
 |title=Twisted Branch
+|stablekey=item:weap - 33 - twisted branch
 |type=
 |vendorsource=
 |source=[[Botanist]] (6.7%)

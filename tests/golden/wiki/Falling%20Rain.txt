@@ -1,5 +1,6 @@
 {{Item
 |title=Falling Rain
+|stablekey=item:aura - storm 2
 |type=[[Auras|Aura]]
 |vendorsource=[[Elizabeth DeWitt]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Meditative Trance (1)
+|stablekey=item:spell scroll - meditate
 |type=
 |vendorsource=[[Cerbantias Flameward]]
 |source=
@@ -34,6 +35,7 @@
 
 {{Item
 |title=Spell Scroll: Meditative Trance (2)
+|stablekey=item:spell scroll - meditate dru
 |type=
 |vendorsource=[[Tiver Banes]]
 |source=

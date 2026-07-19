@@ -1,5 +1,6 @@
 {{Item
 |title=Pillars of Pyroclast
+|stablekey=item:leg - 26 - pillars of pyroclast
 |type=
 |vendorsource=
 |source=[[Pyroclast]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Livingroom Set
+|stablekey=item:furniture - wood living
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Windblown Boots
+|stablekey=item:foot - 23 - windblown boots
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

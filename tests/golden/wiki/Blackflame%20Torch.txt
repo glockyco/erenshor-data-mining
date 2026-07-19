@@ -1,5 +1,6 @@
 {{Item
 |title=Blackflame Torch
+|stablekey=item:weap - 18 - blackflame torch
 |type=
 |vendorsource=
 |source=[[Acceptor]] (3.4%)

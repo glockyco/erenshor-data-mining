@@ -1,5 +1,6 @@
 {{Item
 |title=Lunar Bangle
+|stablekey=item:arm - 42 - lunar bangle
 |type=
 |vendorsource=
 |source=[[Solunarian Chest]] (40.4%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Brackwood Mace
+|stablekey=item:weap - 3 - brackwood mace
 |type=
 |vendorsource=
 |source=[[Vevillo Polter]] (13.6%)<br>[[Aranuil Olaseo]] (13.1%)<br>[[Odyss Repman]] (13.1%)<br>[[Islander Bandit]] (4.4%)

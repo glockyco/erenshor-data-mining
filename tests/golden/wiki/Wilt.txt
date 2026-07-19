@@ -1,5 +1,6 @@
 {{Item
 |title=Wilt
+|stablekey=item:aura - fernalla 3
 |type=[[Auras]]
 |vendorsource=
 |source=[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)

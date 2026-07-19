@@ -1,5 +1,6 @@
 {{Item
 |title=Inert Rune of Soluna
+|stablekey=item:gen - inert rune of soluna
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

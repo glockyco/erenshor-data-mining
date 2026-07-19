@@ -1,5 +1,6 @@
 {{Item
 |title=Surestep
+|stablekey=item:foot - 23 - surestep
 |type=
 |vendorsource=
 |source=[[Mosscovered Stoneman]] (27.8%)

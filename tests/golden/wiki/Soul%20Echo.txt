@@ -1,5 +1,6 @@
 {{Item
 |title=Soul Echo
+|stablekey=item:neck - 28 - soul echo
 |type=
 |vendorsource=
 |source=[[Fenton the Blighted]] (25.0%)

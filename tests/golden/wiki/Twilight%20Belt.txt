@@ -1,5 +1,6 @@
 {{Item
 |title=Twilight Belt
+|stablekey=item:belt - 15 - twilight belt
 |type=
 |vendorsource=
 |source=[[Restless Thoughts]] (33.3%)

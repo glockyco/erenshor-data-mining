@@ -1,5 +1,6 @@
 {{Item
 |title=Ghostly Giant's Blood
+|stablekey=item:gen - ghostly giant's blood
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Lost Sea Giant]] (93.5%)<br>[[A Lost Sea Giant]] (87.1%)<br>[[The Lost Sea Giant King]] (66.1%)

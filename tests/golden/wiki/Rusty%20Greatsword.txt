@@ -1,5 +1,6 @@
 {{Item
 |title=Rusty Greatsword
+|stablekey=item:weap - 3 - rusty greatword
 |type=
 |vendorsource=[[Benson Gamble]]<br>[[Treven Pines]]
 |source=

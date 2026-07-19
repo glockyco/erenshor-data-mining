@@ -1,5 +1,6 @@
 {{Item
 |title=Burial Cloth Wristwrap
+|stablekey=item:wrist - 4 - burial cloth wristwrap
 |type=
 |vendorsource=
 |source=[[Woe]] (4.7%)

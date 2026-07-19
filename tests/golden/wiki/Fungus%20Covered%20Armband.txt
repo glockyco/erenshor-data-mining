@@ -1,5 +1,6 @@
 {{Item
 |title=Fungus Covered Armband
+|stablekey=item:arm - 17 - fungus covered armband
 |type=
 |vendorsource=
 |source=[[Ravager, The First Infected]] (45.8%)<br>[[A Deepling Crimsonite]] (2.3%)<br>[[A Deepling Lunarite]] (2.3%)<br>[[A Deepling Verdite]] (2.3%)<br>[[A Deepling Orator]] (1.5%)

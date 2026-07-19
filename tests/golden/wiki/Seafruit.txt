@@ -1,5 +1,6 @@
 {{Item
 |title=Seafruit
+|stablekey=item:cons - seafruit
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Annaleigh Hephan]]<br>[[Benny Bommby]]<br>[[Cully Edwarse]]<br>[[Isaac Salaman]]<br>[[Kylie Clark]]<br>[[Summoned: Pocket Vendor]]
 |source=[[The Lost Sea Giant King]] (66.1%)<br>[[Cerynth Duskveil]] (59.4%)<br>[[Elizah Vernor]] (59.4%)<br>[[Molorai Brewmistress]] (59.4%)<br>[[Myrre Morrigane]] (59.4%)<br>[[Rose Crystalshade]] (59.4%)<br>[[Thella Steepleton]] (59.4%)<br>[[Plaxitheris]] (19.4%)<br>[[Winkles]] (15.7%)<br>[[A Faerie Drone]] (10.1%)<br>[[A Faerie Enchantress]] (10.1%)<br>[[A Faerie Foliagian]] (10.1%)<br>[[A Faerie Windchild]] (10.1%)<br>[[A Lost Sea Giant]] (4.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Preserved Cloth Coat
+|stablekey=item:chest - 25 - preserved cloth coat
 |type=
 |vendorsource=
 |source=[[Diamond Colossus]] (50.0%)

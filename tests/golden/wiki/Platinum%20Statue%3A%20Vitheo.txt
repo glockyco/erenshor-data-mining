@@ -1,5 +1,6 @@
 {{Item
 |title=Platinum Statue: Vitheo
+|stablekey=item:furniture - stone statue platinum vitheo
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (13.0%)

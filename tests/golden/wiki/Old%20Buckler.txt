@@ -1,5 +1,6 @@
 {{Item
 |title=Old Buckler
+|stablekey=item:secondary - 1 - old buckler
 |type=
 |vendorsource=[[Benson Gamble]]<br>[[Gus Highrest]]<br>[[Treven Pines]]
 |source=

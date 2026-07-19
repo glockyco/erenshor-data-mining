@@ -1,5 +1,6 @@
 {{Item
 |title=Loomingwood Branch
+|stablekey=item:gen - loomingwood branch
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[The Gardener of Loomingwood]] (100.0%)<br>[[Thorn (Enemy)|Thorn]] (12.9%)<br>[[Aviak]] (9.7%)<br>[[Diva]] (9.1%)<br>[[Devoratrix]] (6.9%)<br>[[Planar Flora]] (6.9%)

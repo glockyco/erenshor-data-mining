@@ -1,5 +1,6 @@
 {{Item
 |title=Elderstone Ring
+|stablekey=item:ring - 17 - elderstone ring
 |type=
 |vendorsource=
 |source=[[Slumbering Queen]] (52.2%)

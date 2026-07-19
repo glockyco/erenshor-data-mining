@@ -1,5 +1,6 @@
 {{Item
 |title=Nature's Will
+|stablekey=item:secondary - 40 - nature's will
 |type=
 |vendorsource=
 |source=[[Fallen Fernalla]] (35.5%)<br>[[Fallen Fernalla]] (27.4%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Blue Burnstone
+|stablekey=item:gen - blue burnstone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Fearantula]] (100.0%)

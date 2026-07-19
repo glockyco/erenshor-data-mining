@@ -1,5 +1,6 @@
 {{Item
 |title=Radiant Helm
+|stablekey=item:head - 42 - radiant helm
 |type=
 |vendorsource=
 |source=[[Solunarian Sunbringer]] (1.7%)<br>[[Solunarian Moonkeeper]] (1.1%)<br>[[Solunarian Paladin]] (1.0%)

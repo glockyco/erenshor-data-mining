@@ -1,5 +1,6 @@
 {{Item
 |title=Spectral Bow
+|stablekey=item:bow - 24 - spectral bow
 |type=
 |vendorsource=
 |source=[[The Crypt Guardian]] (8.7%)

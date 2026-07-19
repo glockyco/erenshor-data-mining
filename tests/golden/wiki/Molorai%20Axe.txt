@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Axe
+|stablekey=item:weap - 7 - molora axe
 |type=[[Quest Items|Quest Item]]
 |vendorsource=[[Pierson Windwash]]
 |source=[[Molorai Bodyguard]] (17.3%)<br>[[Molorai Veteran]] (14.3%)<br>[[Molorai Militia Warrior]] (4.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Death's Embrace
+|stablekey=item:spell scroll - death's embrace
 |type=[[Ability Books]]<br>[[Crafting]]
 |vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Sven Feartines]]
 |source=

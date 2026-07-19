@@ -1,5 +1,6 @@
 {{Item
 |title=Rebirth
+|stablekey=item:aura - fernalla 5
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (36.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Birdbone Band
+|stablekey=item:ring - 22 - birdbone band
 |type=
 |vendorsource=
 |source=[[Pteriaped Matron]] (66.7%)

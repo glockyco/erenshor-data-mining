@@ -1,5 +1,6 @@
 {{Item
 |title=Devout Moccasins
+|stablekey=item:foot - 16  - devout moccasins
 |type=
 |vendorsource=
 |source=[[Ecclesiarch]] (9.1%)

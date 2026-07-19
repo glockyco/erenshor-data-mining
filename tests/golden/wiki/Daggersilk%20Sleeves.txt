@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Sleeves
+|stablekey=item:arm - 5 - daggersilk sleeves
 |type=
 |vendorsource=
 |source=

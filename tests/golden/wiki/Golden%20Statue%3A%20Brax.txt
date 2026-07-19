@@ -1,5 +1,6 @@
 {{Item
 |title=Golden Statue: Brax
+|stablekey=item:furniture - gold statue brax
 |type=
 |vendorsource=
 |source=[[Statue of Brax]] (1.3%)<br>[[Braxonian High Guard]] (0.2%)

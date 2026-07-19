@@ -1,5 +1,6 @@
 {{Item
 |title=Jackalbone Loop
+|stablekey=item:ring - 22 - jackalbone loop
 |type=
 |vendorsource=
 |source=[[Lupine Horror]] (33.3%)

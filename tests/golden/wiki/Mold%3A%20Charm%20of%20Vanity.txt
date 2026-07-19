@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Vanity
+|stablekey=item:template - charm of vanity
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

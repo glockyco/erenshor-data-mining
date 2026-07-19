@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Clarity
+|stablekey=item:ring - 11 - ring of clarity
 |type=
 |vendorsource=
 |source=[[Tinkles]] (84.7%)<br>[[Molorai Archmage]] (7.8%)<br>[[Molorai Archmage]] (7.6%)

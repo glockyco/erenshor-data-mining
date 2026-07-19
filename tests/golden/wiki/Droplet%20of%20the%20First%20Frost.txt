@@ -1,5 +1,6 @@
 {{Item
 |title=Droplet of the First Frost
+|stablekey=item:gen - droplet of the first frost
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Historian of Braxonia]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Wisp's Presence
+|stablekey=item:aura - wisps's presence
 |type=[[Auras]]
 |vendorsource=
 |source=

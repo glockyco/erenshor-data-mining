@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Living Ruby
+|stablekey=item:gen - chunk of living ruby
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Ruby Fiend]] (17.4%)

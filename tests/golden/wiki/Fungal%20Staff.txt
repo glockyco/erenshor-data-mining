@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Staff
+|stablekey=item:weap - 29 - fungal staff
 |type=
 |vendorsource=
 |source=[[Abyssal Lord]] (50.0%)<br>[[Abyssal Fungus Protector]] (0.9%)<br>[[Abyssal Fungus Protector]] (0.6%)<br>[[Abyssal Fungus Warrior]] (0.6%)

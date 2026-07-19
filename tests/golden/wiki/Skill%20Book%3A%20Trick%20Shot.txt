@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Trick Shot
+|stablekey=item:skillbook - trick shot
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
 |source=[[Bowmistress of Sivakaya]] (100.0%)

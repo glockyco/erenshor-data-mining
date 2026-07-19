@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Testament
+|stablekey=item:hand - 31 - braxonian scripture
 |type=
 |vendorsource=
 |source=[[Historian of Braxonia]] (50.0%)

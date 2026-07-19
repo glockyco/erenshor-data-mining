@@ -1,5 +1,6 @@
 {{Item
 |title=Deciding Blade
+|stablekey=item:gm - weap - 35 - deciding blade
 |type=
 |vendorsource=
 |source=

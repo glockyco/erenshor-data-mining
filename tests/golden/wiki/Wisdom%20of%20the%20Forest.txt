@@ -1,5 +1,6 @@
 {{Item
 |title=Wisdom of the Forest
+|stablekey=item:head - 28 - wisdom of the forest
 |type=
 |vendorsource=
 |source=[[Diva]] (50.0%)

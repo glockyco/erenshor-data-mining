@@ -1,5 +1,6 @@
 {{Item
 |title=Fading Memory
+|stablekey=item:gen - fading memory
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Ancient Spectre]] (4.0%)<br>[[Spectre]] (4.0%)

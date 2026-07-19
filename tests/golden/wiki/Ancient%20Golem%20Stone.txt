@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Golem Stone
+|stablekey=item:gen - ancient golem stone
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (5.7%)

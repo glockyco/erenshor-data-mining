@@ -1,5 +1,6 @@
 {{Item
 |title=Ripparian Pendant
+|stablekey=item:neck - 38 - ripparian pendant
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Deathgiver
+|stablekey=item:bow - 30 - deathgiver
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

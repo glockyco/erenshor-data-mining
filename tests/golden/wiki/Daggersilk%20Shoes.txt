@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Shoes
+|stablekey=item:foot - 1 - daggersilk shoes
 |type=
 |vendorsource=
 |source=

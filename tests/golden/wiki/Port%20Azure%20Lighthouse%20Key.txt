@@ -1,5 +1,6 @@
 {{Item
 |title=Port Azure Lighthouse Key
+|stablekey=item:key -  port azure lighthouse key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Short Sword of Viropha
+|stablekey=item:weap - 12 - short sword of viropha
 |type=
 |vendorsource=
 |source=[[Aquilamar Blade]] (8.9%)<br>[[Aquilamar Protector]] (8.9%)<br>[[Cirreus Alxanth]] (8.9%)<br>[[Vethalo Gala]] (8.9%)

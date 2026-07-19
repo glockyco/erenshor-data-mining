@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Control Chant
+|stablekey=item:skillbook - end channel
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Nylith Valorro]]
 |source=

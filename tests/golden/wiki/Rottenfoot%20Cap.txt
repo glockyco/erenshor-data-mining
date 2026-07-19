@@ -1,5 +1,6 @@
 {{Item
 |title=Rottenfoot Cap
+|stablekey=item:head - 12 - rottenfoot cap
 |type=
 |vendorsource=
 |source=[[Rottenfoot Mauler]] (4.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Small Engraved Compass
+|stablekey=item:gen - small engraved compass
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Restless Thoughts]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Torch
+|stablekey=item:secondary - 50 - shivering torch
 |type=
 |vendorsource=
 |source=

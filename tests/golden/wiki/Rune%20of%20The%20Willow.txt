@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of The Willow
+|stablekey=item:gen - raid rune of fernalla
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Chitin Bracer
+|stablekey=item:wrist - 22 - chitin bracer
 |type=
 |vendorsource=
 |source=[[Shelled Monstrosity]] (66.7%)

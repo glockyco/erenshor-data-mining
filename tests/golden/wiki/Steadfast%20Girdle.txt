@@ -1,5 +1,6 @@
 {{Item
 |title=Steadfast Girdle
+|stablekey=item:belt - 31 - steadfast girdle
 |type=
 |vendorsource=
 |source=[[The Abomination]] (50.0%)

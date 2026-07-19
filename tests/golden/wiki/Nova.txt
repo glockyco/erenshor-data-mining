@@ -1,5 +1,6 @@
 {{Item
 |title=Nova
+|stablekey=item:aura - soluna 5
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Brilliance
+|stablekey=item:template - charm of brilliance
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

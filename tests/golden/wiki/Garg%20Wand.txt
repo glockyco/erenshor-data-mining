@@ -1,5 +1,6 @@
 {{Item
 |title=Garg Wand
+|stablekey=item:wand - 33 - garg wand
 |type=
 |vendorsource=
 |source=[[Molorai Curator]] (100.0%)

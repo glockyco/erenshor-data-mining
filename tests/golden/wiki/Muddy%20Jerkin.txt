@@ -1,5 +1,6 @@
 {{Item
 |title=Muddy Jerkin
+|stablekey=item:chest - 14 - muddy leather jerkin
 |type=
 |vendorsource=
 |source=[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Plaguebringer]] (1.1%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Helm of the Deep
+|stablekey=item:head - 17 - helm of the deep
 |type=
 |vendorsource=
 |source=[[Spike]] (66.7%)

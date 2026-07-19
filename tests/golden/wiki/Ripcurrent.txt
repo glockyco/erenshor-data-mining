@@ -1,5 +1,6 @@
 {{Item
 |title=Ripcurrent
+|stablekey=item:aura - vitheo 5
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Compassion
+|stablekey=item:template - charm of compassion
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

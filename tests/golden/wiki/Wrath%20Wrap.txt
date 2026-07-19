@@ -1,5 +1,6 @@
 {{Item
 |title=Wrath Wrap
+|stablekey=item:wrist - 24 - wrathwrap
 |type=
 |vendorsource=
 |source=[[Frenzy]] (33.3%)

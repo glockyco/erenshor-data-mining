@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Arcanist's Charm
+|stablekey=item:template - arcanist's charm
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

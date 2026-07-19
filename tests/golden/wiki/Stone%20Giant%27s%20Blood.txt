@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Giant's Blood
+|stablekey=item:gen - stone giants blood
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Granitus]] (100.0%)<br>[[Gruhglor]] (87.1%)

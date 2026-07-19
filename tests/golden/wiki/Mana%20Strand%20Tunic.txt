@@ -1,5 +1,6 @@
 {{Item
 |title=Mana Strand Tunic
+|stablekey=item:chest - 42 - mana strand tunic
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Royal Waistband
+|stablekey=item:belt - 31 - royals waistband
 |type=
 |vendorsource=
 |source=[[Prince Ardant]] (66.7%)

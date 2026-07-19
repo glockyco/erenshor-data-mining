@@ -1,5 +1,6 @@
 {{Item
 |title=Judicial Boots
+|stablekey=item:gm - foot - 35 - boots of the guide
 |type=
 |vendorsource=
 |source=

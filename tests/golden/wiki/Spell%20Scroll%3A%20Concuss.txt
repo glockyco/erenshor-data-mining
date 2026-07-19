@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Concuss
+|stablekey=item:spell scroll - concuss
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aspen Dechaffe]]
 |source=[[Blight Eater]] (4.6%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[A Deepling Orator]] (1.9%)

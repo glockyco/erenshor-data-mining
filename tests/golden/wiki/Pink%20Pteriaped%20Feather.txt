@@ -1,5 +1,6 @@
 {{Item
 |title=Pink Pteriaped Feather
+|stablekey=item:gen - pink pteriaped feather
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Pteriaped Chick]] (1.9%)<br>[[Pteriaped Matron]] (1.9%)

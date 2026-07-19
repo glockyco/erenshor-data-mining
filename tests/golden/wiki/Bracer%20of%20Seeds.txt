@@ -1,5 +1,6 @@
 {{Item
 |title=Bracer of Seeds
+|stablekey=item:wrist - 42 - bracer of seeds
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (36.0%)

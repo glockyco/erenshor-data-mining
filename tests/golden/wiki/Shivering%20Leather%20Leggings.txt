@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Leather Leggings
+|stablekey=item:leg - 5 - shivering leather leggings
 |type=
 |vendorsource=
 |source=[[A Golden Spirit]] (14.0%)<br>[[Molorai Militia Druid]] (3.0%)

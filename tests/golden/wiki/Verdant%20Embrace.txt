@@ -1,5 +1,6 @@
 {{Item
 |title=Verdant Embrace
+|stablekey=item:back - 40 - verdant embrace
 |type=
 |vendorsource=
 |source=[[Fallen Fernalla]] (35.5%)<br>[[Fallen Fernalla]] (27.4%)

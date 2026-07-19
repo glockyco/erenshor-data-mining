@@ -1,5 +1,6 @@
 {{Item
 |title=Intricate Key
+|stablekey=item:key - intricate
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[Molorai Eldermistress]] (100.0%)

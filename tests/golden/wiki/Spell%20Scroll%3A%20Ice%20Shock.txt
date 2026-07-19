@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ice Shock
+|stablekey=item:spell scroll - ice shock
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Cerbantias Flameward]]
 |source=

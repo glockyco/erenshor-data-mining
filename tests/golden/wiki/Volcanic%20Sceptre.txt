@@ -1,5 +1,6 @@
 {{Item
 |title=Volcanic Sceptre
+|stablekey=item:wand - 26 - volcanic sceptre
 |type=
 |vendorsource=
 |source=[[Volcanic Giant]] (50.0%)

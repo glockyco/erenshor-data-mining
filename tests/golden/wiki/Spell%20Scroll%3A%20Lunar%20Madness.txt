@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Lunar Madness
+|stablekey=item:spell scroll - lunar madness
 |type=[[Ability Books]]
 |vendorsource=[[Benson Gamble]]<br>[[Gus Highrest]]<br>[[Treven Pines]]
 |source=[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)

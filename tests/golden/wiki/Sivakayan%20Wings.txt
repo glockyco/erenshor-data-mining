@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Wings
+|stablekey=item:back - 37 - sivakayan wings
 |type=
 |vendorsource=
 |source=[[Reaver of Sivakaya]] (10.9%)<br>[[Assassin of Sivakaya]] (6.5%)<br>[[Grand Arcanist of Sivakaya]] (6.5%)<br>[[High Paladin of Sivakaya]] (6.5%)<br>[[High Priestess of Sivakaya]] (6.5%)<br>[[Bowmistress of Sivakaya]] (5.5%)

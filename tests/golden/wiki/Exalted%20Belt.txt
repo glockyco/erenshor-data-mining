@@ -1,5 +1,6 @@
 {{Item
 |title=Exalted Belt
+|stablekey=item:belt - 34 - exhalted belt
 |type=
 |vendorsource=
 |source=[[Exalted Firebone]] (66.7%)

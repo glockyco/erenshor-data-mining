@@ -1,5 +1,6 @@
 {{Item
 |title=Blackened Iron Amulet
+|stablekey=item:neck - 11 - blackened iron amulet
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Rainbow Flint
+|stablekey=item:quest - rainbow flint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Crippling Blow
+|stablekey=item:skillbook - crippling blow
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
 |source=[[Assassin of Sivakaya]] (100.0%)

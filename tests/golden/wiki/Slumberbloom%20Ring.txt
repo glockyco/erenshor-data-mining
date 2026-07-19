@@ -1,5 +1,6 @@
 {{Item
 |title=Slumberbloom Ring
+|stablekey=item:ring - 25 - slumberbloom ring
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Wardens of the North
+|stablekey=item:book - wardens of the north
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ancient Celestarian]] (7.8%)<br>[[Ancient Knight]] (2.1%)<br>[[Ancient Guard]] (1.2%)<br>[[Ancient Corpse]] (1.0%)

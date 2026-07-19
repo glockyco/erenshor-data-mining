@@ -1,5 +1,6 @@
 {{Item
 |title=Gauntlets of Fiery Strength
+|stablekey=item:glove - 42 - gauntlets of fiery strength
 |type=
 |vendorsource=
 |source=[[Warder of Flame]] (69.7%)

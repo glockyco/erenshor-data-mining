@@ -1,5 +1,6 @@
 {{Item
 |title=Brackfruit Juice
+|stablekey=item:cons - brackfruit juice
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=[[Benny Bommby]]<br>[[Cully Edwarse]]<br>[[Innkeeper Ryvan]]<br>[[Isaac Salaman]]<br>[[Saya Seawatcher]]<br>[[Summoned: Pocket Vendor]]
 |source=[[Morian the Ascended]] (100.0%)<br>[[A Fungal Sentinel]] (93.5%)<br>[[Aviak]] (91.9%)<br>[[A Grassland Ogre Elder]] (76.6%)<br>[[Plaxitheris]] (19.4%)<br>[[Cloaked Shadow]] (13.4%)

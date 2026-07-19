@@ -1,5 +1,6 @@
 {{Item
 |title=Steel Long Sword
+|stablekey=item:weap - 4 - steel long sword
 |type=
 |vendorsource=[[Akaran Black]]<br>[[Pierson Windwash]]
 |source=[[A Lesser Avatar of Sivakaya]] (20.6%)

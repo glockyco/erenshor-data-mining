@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Sight
+|stablekey=item:spell scroll - vitheo's sight i
 |type=
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]
 |source=

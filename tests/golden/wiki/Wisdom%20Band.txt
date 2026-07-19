@@ -1,5 +1,6 @@
 {{Item
 |title=Wisdom Band
+|stablekey=item:ring - 22 - wisdom band
 |type=
 |vendorsource=
 |source=[[Lost Treasure (10-20)]] (20.0%)<br>[[Lost Treasure (1-10)]] (16.7%)

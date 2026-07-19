@@ -1,5 +1,6 @@
 {{Item
 |title=Polished Longsword
+|stablekey=item:weap - 6 - polished longsword
 |type=
 |vendorsource=[[Benson Gamble]]<br>[[Sven Feartines]]
 |source=[[Bassalt Vallano]] (6.3%)<br>[[A Skeleton Soldier]] (4.0%)<br>[[A Skeleton Captain]] (3.4%)

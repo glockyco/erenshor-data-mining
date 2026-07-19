@@ -1,5 +1,6 @@
 {{Item
 |title=Imperium
+|stablekey=item:bow - 42 - imperium
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

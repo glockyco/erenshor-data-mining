@@ -1,5 +1,6 @@
 {{Item
 |title=Ritual Cape
+|stablekey=item:back - 24 - ritual cape
 |type=
 |vendorsource=
 |source=[[Cinder]] (20.0%)

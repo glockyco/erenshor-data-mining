@@ -1,5 +1,6 @@
 {{Item
 |title=Aether's Blessing
+|stablekey=item:neck - 19 - aether's blessing
 |type=
 |vendorsource=
 |source=[[Aetherfiend]] (20.6%)<br>[[Shadow Man]] (20.6%)

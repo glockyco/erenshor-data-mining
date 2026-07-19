@@ -1,5 +1,6 @@
 {{Item
 |title=Dawn's Light
+|stablekey=item:aura - soluna 1
 |type=[[Auras]]
 |vendorsource=[[Alexandria Fadden]]<br>[[Amanda Rostley]]
 |source=

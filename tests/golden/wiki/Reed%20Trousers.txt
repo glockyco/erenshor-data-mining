@@ -1,5 +1,6 @@
 {{Item
 |title=Reed Trousers
+|stablekey=item:leg - 18 - reed trousers
 |type=
 |vendorsource=
 |source=[[Plunkey]] (66.7%)

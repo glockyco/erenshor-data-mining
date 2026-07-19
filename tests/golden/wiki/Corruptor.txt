@@ -1,5 +1,6 @@
 {{Item
 |title=Corruptor
+|stablekey=item:wand - 40 - corruptor
 |type=
 |vendorsource=
 |source=[[Azynthian Keeper]] (33.3%)

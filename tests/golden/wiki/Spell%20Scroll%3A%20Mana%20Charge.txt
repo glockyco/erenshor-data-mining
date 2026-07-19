@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Mana Charge
+|stablekey=item:spell scroll - mana charge
 |type=[[Ability Books]]
 |vendorsource=
 |source=

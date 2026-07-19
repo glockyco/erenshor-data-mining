@@ -1,5 +1,6 @@
 {{Item
 |title=Dusken Giant's Blood
+|stablekey=item:gen - dusken giants blood
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Dusken Giant]] (86.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Swirlstone Ring
+|stablekey=item:ring - 12 - swirlstone ring
 |type=
 |vendorsource=
 |source=[[Molorai Archmage]] (70.9%)

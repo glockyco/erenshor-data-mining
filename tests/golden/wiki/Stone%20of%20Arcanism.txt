@@ -1,5 +1,6 @@
 {{Item
 |title=Stone of Arcanism
+|stablekey=item:aura - arcanism
 |type=
 |vendorsource=
 |source=

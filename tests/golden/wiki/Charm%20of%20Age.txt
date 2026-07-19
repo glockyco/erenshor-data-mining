@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of Age
+|stablekey=item:charm - 22 - charm of age
 |type=
 |vendorsource=
 |source=

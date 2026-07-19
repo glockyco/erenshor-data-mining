@@ -1,5 +1,6 @@
 {{Item
 |title=Abyssal Plate
+|stablekey=item:chest - 38 - abyssal plate
 |type=
 |vendorsource=
 |source=[[Sivakayan Voidmaster]] (4.3%)

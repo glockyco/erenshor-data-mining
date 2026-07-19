@@ -1,5 +1,6 @@
 {{Item
 |title=Siva-Braxonian Teachings
+|stablekey=item:hand - 32 - siva-braxonian teachings
 |type=
 |vendorsource=
 |source=

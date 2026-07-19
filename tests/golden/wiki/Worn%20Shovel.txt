@@ -1,5 +1,6 @@
 {{Item
 |title=Worn Shovel
+|stablekey=item:gen - a worn shovel
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Cavesilk Trousers
+|stablekey=item:leg - 17 - cavesilk trousers
 |type=
 |vendorsource=
 |source=[[Slumbering Queen]] (52.2%)

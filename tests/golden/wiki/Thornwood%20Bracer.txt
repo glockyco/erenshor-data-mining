@@ -1,5 +1,6 @@
 {{Item
 |title=Thornwood Bracer
+|stablekey=item:wrist - 42 - thornwood bracer
 |type=
 |vendorsource=
 |source=[[Fernallan High Priest]] (68.7%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

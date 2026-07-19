@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Interrogation Note
+|stablekey=item:gen - aged interrogation note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Tortured Prisoner]] (13.5%)

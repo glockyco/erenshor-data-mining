@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Livingroom Set
+|stablekey=item:furniture - azynthi living
 |type=
 |vendorsource=
 |source=

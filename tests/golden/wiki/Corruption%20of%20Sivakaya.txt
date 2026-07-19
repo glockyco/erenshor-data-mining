@@ -1,5 +1,6 @@
 {{Item
 |title=Corruption of Sivakaya
+|stablekey=item:aura - corruption
 |type=[[Auras]]
 |vendorsource=
 |source=

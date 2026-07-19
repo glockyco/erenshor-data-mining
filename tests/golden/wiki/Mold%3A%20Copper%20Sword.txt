@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Copper Sword
+|stablekey=item:template - bronze sword
 |type=[[Crafting|Mold]]
 |vendorsource=[[Brian Meshley]]
 |source=

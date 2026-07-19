@@ -1,5 +1,6 @@
 {{Item
 |title=Night Wave
+|stablekey=item:back - 30 - nightwave
 |type=
 |vendorsource=
 |source=[[Noctua]] (33.3%)

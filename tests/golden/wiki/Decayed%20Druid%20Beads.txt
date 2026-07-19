@@ -1,5 +1,6 @@
 {{Item
 |title=Decayed Druid Beads
+|stablekey=item:gen - decayed druid beads
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Elder Guardian]] (32.3%)<br>[[Bloom Preserver]] (21.6%)<br>[[Greater Fawn]] (21.6%)<br>[[Chosen Fawn]] (13.8%)<br>[[Fawn of Fernalla]] (13.8%)<br>[[Maple]] (11.0%)<br>[[Risen Druid]] (10.6%)<br>[[Risen Hierophant]] (10.2%)<br>[[Vinx]] (7.3%)<br>[[Frenzy]] (4.8%)<br>[[Grappler]] (4.8%)<br>[[Fernallan Guardian]] (3.0%)

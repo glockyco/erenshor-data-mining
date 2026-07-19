@@ -1,5 +1,6 @@
 {{Item
 |title=Globe of Shadows
+|stablekey=item:gen - globe of shadows
 |type=
 |vendorsource=
 |source=

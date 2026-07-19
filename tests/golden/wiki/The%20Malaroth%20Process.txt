@@ -1,5 +1,6 @@
 {{Item
 |title=The Malaroth Process
+|stablekey=item:gen - the malaroth process
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Priel Malarist]] (13.1%)

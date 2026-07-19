@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Soluna's Landing
+|stablekey=item:gen - rune of soluna's landing
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

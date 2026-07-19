@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of Brilliance
+|stablekey=item:charm - 22 - charm of brilliance
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Portal Shard (Fire)
+|stablekey=item:gen - braxonian portal shard - fire
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Braxonian Planar Guard (Fire)]] (100.0%)

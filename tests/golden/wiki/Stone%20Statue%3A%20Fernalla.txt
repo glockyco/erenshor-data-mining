@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Statue: Fernalla
+|stablekey=item:furniture - stone statue fernalla
 |type=
 |vendorsource=
 |source=[[Risen Hierophant]] (1.2%)<br>[[Vinx]] (1.2%)<br>[[Rotting Guardian]] (0.6%)<br>[[Risen Druid]] (0.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Vendor Set
+|stablekey=item:furniture - stone vendor
 |type=
 |vendorsource=
 |source=

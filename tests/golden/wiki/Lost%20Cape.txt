@@ -1,5 +1,6 @@
 {{Item
 |title=Lost Cape
+|stablekey=item:back - 20 - lost cape
 |type=
 |vendorsource=
 |source=[[Lost Treasure (10-20)]] (20.0%)<br>[[Lost Treasure (1-10)]] (16.7%)

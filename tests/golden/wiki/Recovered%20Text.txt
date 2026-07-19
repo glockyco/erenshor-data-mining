@@ -1,5 +1,6 @@
 {{Item
 |title=Recovered Text
+|stablekey=item:gen - the ancient school
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Molorai Archaeologist]] (100.0%)

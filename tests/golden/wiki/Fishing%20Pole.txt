@@ -1,5 +1,6 @@
 {{Item
 |title=Fishing Pole
+|stablekey=item:weap - 1 - fishing pole
 |type=
 |vendorsource=[[Amethi Plazzo]]<br>[[Enterprising Spirit]]<br>[[Isaac Salaman]]<br>[[Javo Follay]]<br>[[Oscar VanEllis]]<br>[[Shady Fisherman]]
 |source=

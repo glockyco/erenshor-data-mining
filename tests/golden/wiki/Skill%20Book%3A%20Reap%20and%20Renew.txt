@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Reap and Renew
+|stablekey=item:skillbook - reap and renew
 |type=[[Ability Books]]
 |vendorsource=
 |source=[[High Priestess of Sivakaya]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Ceto
+|stablekey=item:weap - 29 - ceto
 |type=
 |vendorsource=
 |source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (33.3%)

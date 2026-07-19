@@ -1,5 +1,6 @@
 {{Item
 |title=The Sun Lilies
+|stablekey=item:quest - bellwain sun lillies
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

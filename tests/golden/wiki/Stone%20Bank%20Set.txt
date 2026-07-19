@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Bank Set
+|stablekey=item:furniture - stone bank
 |type=
 |vendorsource=
 |source=

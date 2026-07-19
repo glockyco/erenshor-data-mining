@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Theft of Vigor
+|stablekey=item:spell scroll - stolen vigor
 |type=[[Ability Books]]
 |vendorsource=[[Leyor M'Chante]]
 |source=

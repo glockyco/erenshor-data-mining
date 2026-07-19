@@ -1,5 +1,6 @@
 {{Item
 |title=Spidersmasher
+|stablekey=item:weap - 13 - spidersmasher
 |type=
 |vendorsource=
 |source=[[Battlefist]] (33.3%)<br>[[Obba of the Warkind]] (3.4%)<br>[[A Grassland Ogre Bruiser]] (3.0%)<br>[[A Grassland Ogre Sentinel]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Major Healing
+|stablekey=item:spell scroll - major healing
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aspen Dechaffe]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Ripparian Axe
+|stablekey=item:weap - 36 - ripparian axe
 |type=
 |vendorsource=[[Oscar VanEllis]]
 |source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (12.1%)<br>[[Ripper Soldier]] (12.1%)<br>[[Armorer Nell]] (4.0%)<br>[[Captain Ovid]] (4.0%)<br>[[Celeso the Historian]] (4.0%)<br>[[Jeremie Galyard]] (4.0%)

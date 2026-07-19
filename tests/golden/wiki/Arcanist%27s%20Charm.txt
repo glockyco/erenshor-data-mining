@@ -1,5 +1,6 @@
 {{Item
 |title=Arcanist's Charm
+|stablekey=item:charm - 30 - arcanist's charm
 |type=
 |vendorsource=
 |source=

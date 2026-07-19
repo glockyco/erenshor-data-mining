@@ -1,5 +1,6 @@
 {{Item
 |title=Priel Note (1)
+|stablekey=item:gen - priel note
 |type=
 |vendorsource=
 |source=[[Chazza Priel]] (100.0%)
@@ -73,6 +74,7 @@
 
 {{Item
 |title=Priel Note (2)
+|stablekey=item:gen - priel note 1
 |type=
 |vendorsource=
 |source=[[Tiallia Priel]] (100.0%)

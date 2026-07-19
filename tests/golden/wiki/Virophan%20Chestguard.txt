@@ -1,5 +1,6 @@
 {{Item
 |title=Virophan Chestguard
+|stablekey=item:chest - 25 - mithirilite chestguard
 |type=
 |vendorsource=
 |source=[[Oarik the Failure]] (33.3%)

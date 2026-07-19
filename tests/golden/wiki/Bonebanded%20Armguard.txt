@@ -1,5 +1,6 @@
 {{Item
 |title=Bonebanded Armguard
+|stablekey=item:arm - 39 - bonebanded armguard
 |type=
 |vendorsource=
 |source=[[Balthom, Soldier of Sivakaya]] (33.3%)

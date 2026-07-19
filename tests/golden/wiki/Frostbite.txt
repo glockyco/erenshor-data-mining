@@ -1,5 +1,6 @@
 {{Item
 |title=Frostbite
+|stablekey=item:bow - 42 - frostbite
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (37.6%)<br>[[Braxonian Chest]] (35.5%)

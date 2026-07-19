@@ -1,5 +1,6 @@
 {{Item
 |title=Sailor's Work Gloves
+|stablekey=item:glove - 7 - sailor's work gloves
 |type=
 |vendorsource=[[Saya Seawatcher]]
 |source=[[The Lost Sea Giant King]] (30.1%)<br>[[Overseer Orlok]] (3.2%)

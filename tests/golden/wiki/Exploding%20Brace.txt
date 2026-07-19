@@ -1,5 +1,6 @@
 {{Item
 |title=Exploding Brace
+|stablekey=item:wrist - 28 - exploding brace
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (25.6%)

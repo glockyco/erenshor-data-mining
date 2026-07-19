@@ -1,5 +1,6 @@
 {{Item
 |title=Flame of the Redemption
+|stablekey=item:aura - brax 4
 |type=[[Auras]]
 |vendorsource=
 |source=[[Evadne the Corrupted]] (29.1%)<br>[[Blazefiend]] (25.0%)

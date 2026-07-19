@@ -1,5 +1,6 @@
 {{Item
 |title=Islander Bandit Armwrap
+|stablekey=item:arm - 2 - islander bandit armwrap
 |type=
 |vendorsource=
 |source=[[Aranuil Olaseo]] (19.8%)<br>[[Odyss Repman]] (19.8%)<br>[[Vevillo Polter]] (19.8%)

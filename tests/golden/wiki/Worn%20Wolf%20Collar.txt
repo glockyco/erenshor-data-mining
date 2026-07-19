@@ -1,5 +1,6 @@
 {{Item
 |title=Worn Wolf Collar
+|stablekey=item:belt - 3 - worn wolf collar
 |type=
 |vendorsource=
 |source=[[Alpha Wolf]] (38.6%)<br>[[Ancient Canine]] (38.6%)

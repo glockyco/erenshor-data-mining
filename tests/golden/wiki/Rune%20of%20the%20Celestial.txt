@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of the Celestial
+|stablekey=item:gen - raid rune of soluna
 |type=
 |vendorsource=
 |source=

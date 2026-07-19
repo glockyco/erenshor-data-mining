@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Living Stone
+|stablekey=item:aura - living stone
 |type=[[Auras]]
 |vendorsource=
 |source=[[Cinder]] (20.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Kick
+|stablekey=item:skillbook - kick
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Aillee Desten]]<br>[[Amethi Plazzo]]<br>[[Benson Gamble]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]<br>[[Zane Theavale]]
 |source=[[Islander Bandit]] (1.1%)

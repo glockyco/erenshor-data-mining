@@ -1,5 +1,6 @@
 {{Item
 |title=Pull of Sleep
+|stablekey=item:wrist - 5 - grip of slumber
 |type=
 |vendorsource=
 |source=[[Wiggleribs]] (6.9%)

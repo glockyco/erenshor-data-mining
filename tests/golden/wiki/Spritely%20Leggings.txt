@@ -1,5 +1,6 @@
 {{Item
 |title=Spritely Leggings
+|stablekey=item:leg - 11 - spritely leggings
 |type=
 |vendorsource=
 |source=[[Massia the Fallen]] (50.0%)

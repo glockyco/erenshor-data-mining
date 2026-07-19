@@ -1,5 +1,6 @@
 {{Item
 |title=Ceremonial Ring
+|stablekey=item:ring - 14 - ancient ceremonial ring
 |type=
 |vendorsource=
 |source=

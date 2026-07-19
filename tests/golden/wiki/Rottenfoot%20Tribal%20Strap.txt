@@ -1,5 +1,6 @@
 {{Item
 |title=Rottenfoot Tribal Strap
+|stablekey=item:chest - 14 - rottenfoot tribal strap
 |type=
 |vendorsource=
 |source=[[Rottenfoot Mauler]] (5.8%)

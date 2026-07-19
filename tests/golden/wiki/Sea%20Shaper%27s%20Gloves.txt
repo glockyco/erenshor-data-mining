@@ -1,5 +1,6 @@
 {{Item
 |title=Sea Shaper's Gloves
+|stablekey=item:glove - 42 - sea shaper's gloves
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)

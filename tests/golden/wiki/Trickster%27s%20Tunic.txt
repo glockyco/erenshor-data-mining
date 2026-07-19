@@ -1,5 +1,6 @@
 {{Item
 |title=Trickster's Tunic
+|stablekey=item:chest - 42 - trickster's tunic
 |type=
 |vendorsource=
 |source=[[Sprinkles]] (69.6%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

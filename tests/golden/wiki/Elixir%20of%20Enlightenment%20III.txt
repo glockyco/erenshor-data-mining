@@ -1,5 +1,6 @@
 {{Item
 |title=Elixir of Enlightenment III
+|stablekey=item:cons - enlightening potion iii
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Elysia Thistlewick]]
 |source=[[Lost Treasure (30+)]] (14.4%)<br>[[Lost Treasure (1-10)]] (11.7%)<br>[[Lost Treasure (20-30)]] (10.8%)<br>[[Lost Treasure (10-20)]] (7.2%)

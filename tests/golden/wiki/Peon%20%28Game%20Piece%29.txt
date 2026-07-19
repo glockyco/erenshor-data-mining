@@ -1,5 +1,6 @@
 {{Item
 |title=Peon
+|stablekey=item:quest - game piece peon
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
 |source=[[Sand Mummy]] (3.4%)<br>[[Scorched Skeleton]] (3.4%)<br>[[Blight Eater]] (3.0%)<br>[[Blighted Priest]] (2.3%)<br>[[Braxon Fanatic]] (1.7%)

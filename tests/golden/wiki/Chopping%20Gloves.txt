@@ -1,5 +1,6 @@
 {{Item
 |title=Chopping Gloves
+|stablekey=item:glove - 11 - chain gloves
 |type=
 |vendorsource=
 |source=[[Molorai Chef]] (13.4%)

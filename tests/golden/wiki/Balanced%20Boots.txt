@@ -1,5 +1,6 @@
 {{Item
 |title=Balanced Boots
+|stablekey=item:foot - 6 - balanced boots
 |type=
 |vendorsource=
 |source=

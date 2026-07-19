@@ -1,5 +1,6 @@
 {{Item
 |title=Adept Wand
+|stablekey=item:wand - 8 - adept wand
 |type=
 |vendorsource=
 |source=[[Zashlyn Bloodbane]] (33.3%)<br>[[Neophyte Necromancer]] (5.8%)

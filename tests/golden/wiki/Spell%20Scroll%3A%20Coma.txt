@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Coma
+|stablekey=item:spell scroll - coma
 |type=[[Ability Books]]
 |vendorsource=[[Cerbantias Flameward]]
 |source=

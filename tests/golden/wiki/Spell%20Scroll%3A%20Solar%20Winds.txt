@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Solar Winds
+|stablekey=item:spell scroll - solar winds
 |type=
 |vendorsource=
 |source=[[Solunarian Moonkeeper]] (2.8%)<br>[[Solunarian Sunbringer]] (2.8%)<br>[[Solunarian Paladin]] (1.1%)

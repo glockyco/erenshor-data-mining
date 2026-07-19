@@ -1,5 +1,6 @@
 {{Item
 |title=Ritual Stone
+|stablekey=item:gen - ritual stone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[An Apparition of Sivakaya]] (100.0%)

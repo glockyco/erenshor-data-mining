@@ -1,5 +1,6 @@
 {{Item
 |title=Sylvan Cord
+|stablekey=item:belt - 6 - sylvan cord
 |type=
 |vendorsource=
 |source=[[Sylvan Giant Runt]] (25.0%)

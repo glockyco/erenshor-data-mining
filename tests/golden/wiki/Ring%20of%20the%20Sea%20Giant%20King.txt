@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of the Sea Giant King
+|stablekey=item:head - 8 - ring of the sea giant king
 |type=
 |vendorsource=
 |source=[[The Lost Sea Giant King]] (30.1%)

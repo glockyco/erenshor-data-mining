@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Soluna's Solar Blessing
+|stablekey=item:spell scroll - soluna's solar blessing
 |type=
 |vendorsource=
 |source=

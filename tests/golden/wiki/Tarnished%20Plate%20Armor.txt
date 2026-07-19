@@ -1,5 +1,6 @@
 {{Item
 |title=Tarnished Plate Armor
+|stablekey=item:chest - 13 - tarnished plate armor
 |type=
 |vendorsource=
 |source=[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Plaguebringer]] (1.1%)

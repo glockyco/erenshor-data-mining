@@ -1,5 +1,6 @@
 {{Item
 |title=Eventide Gloves
+|stablekey=item:glove - 42 - eventide gauntlets
 |type=
 |vendorsource=
 |source=[[Solunarian Sunbringer]] (1.7%)<br>[[Solunarian Moonkeeper]] (1.1%)<br>[[Solunarian Paladin]] (1.0%)

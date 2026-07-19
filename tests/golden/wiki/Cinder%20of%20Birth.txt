@@ -1,5 +1,6 @@
 {{Item
 |title=Cinder of Birth
+|stablekey=item:hand - 20 - cinder of birth
 |type=
 |vendorsource=
 |source=[[Beady]] (25.0%)

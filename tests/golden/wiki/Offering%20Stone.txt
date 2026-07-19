@@ -1,5 +1,6 @@
 {{Item
 |title=Offering Stone
+|stablekey=item:gen - offering stone
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
 |source=

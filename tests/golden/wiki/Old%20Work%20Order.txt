@@ -1,5 +1,6 @@
 {{Item
 |title=Old Work Order
+|stablekey=item:gen - old work order
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Molorai Mason]] (100.0%)

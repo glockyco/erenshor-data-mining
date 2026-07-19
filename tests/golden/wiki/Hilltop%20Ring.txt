@@ -1,5 +1,6 @@
 {{Item
 |title=Hilltop Ring
+|stablekey=item:ring - 6 - hilltop ring
 |type=
 |vendorsource=
 |source=[[Autmis the Lost]] (53.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Protection
+|stablekey=item:spell scroll - protection
 |type=
 |vendorsource=
 |source=

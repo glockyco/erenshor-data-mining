@@ -1,5 +1,6 @@
 {{Item
 |title=Merging Vessel
+|stablekey=item:template - merging vessel
 |type=
 |vendorsource=[[Elysia Thistlewick]]<br>[[Summoned: Pocket Vendor]]
 |source=

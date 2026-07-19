@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: The Wild's Grasp
+|stablekey=item:spell scroll - drudd the wild's grasp
 |type=
 |vendorsource=[[Tiver Banes]]
 |source=

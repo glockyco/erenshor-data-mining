@@ -1,5 +1,6 @@
 {{Item
 |title=Petrified Club
+|stablekey=item:weap - 9 - a petrified club
 |type=
 |vendorsource=
 |source=[[Tek-Nu Dah]] (51.7%)<br>[[A Rottenfoot Warrior]] (4.4%)<br>[[A Rottenfoot Witchdoctor]] (4.4%)<br>[[Rottenfoot Mauler]] (3.4%)<br>[[Rottenfoot Swampwalker]] (3.4%)<br>[[Rottenfoot Witchdoctor]] (3.4%)

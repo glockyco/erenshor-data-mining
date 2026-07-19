@@ -2,6 +2,7 @@
 
 {{Item
 |title=Blaze Fiend
+|stablekey=item:quest - game piece blazefiend
 |type=
 |vendorsource=
 |source=[[Evadne the Corrupted]] (29.1%)<br>[[Molorai Archaeologist]] (5.8%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Molorai Archaeologist]] (2.5%)

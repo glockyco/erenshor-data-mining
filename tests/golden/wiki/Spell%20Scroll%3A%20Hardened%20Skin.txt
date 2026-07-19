@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Hardened Skin
+|stablekey=item:spell scroll - hardened flesh
 |type=[[Ability Books]]
 |vendorsource=[[Nylith Valorro]]
 |source=[[A Sorrowful Spirit]] (2.8%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Shield
+|stablekey=item:secondary - 24 - sivakayan shield
 |type=
 |vendorsource=
 |source=[[Gherist Morthario]] (26.9%)<br>[[Reaver of Sivakaya]] (1.5%)<br>[[Assassin of Sivakaya]] (1.2%)<br>[[Grand Arcanist of Sivakaya]] (1.2%)<br>[[High Paladin of Sivakaya]] (1.2%)<br>[[High Priestess of Sivakaya]] (1.2%)<br>[[Sivakayan Bodyguard]] (1.2%)<br>[[Sivakayan Cleric]] (1.2%)<br>[[Sivakayan Templar]] (1.2%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Crushing Current
+|stablekey=item:spell scroll - crushing current
 |type=
 |vendorsource=
 |source=

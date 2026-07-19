@@ -1,5 +1,6 @@
 {{Item
 |title=Creeping Waistband
+|stablekey=item:belt - 42 - creeping waistband
 |type=
 |vendorsource=
 |source=[[Jinx]] (68.9%)

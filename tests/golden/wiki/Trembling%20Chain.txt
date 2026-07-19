@@ -1,5 +1,6 @@
 {{Item
 |title=Trembling Chain
+|stablekey=item:neck - 25 - trembling chain
 |type=
 |vendorsource=
 |source=[[Warded Shadow]] (37.9%)

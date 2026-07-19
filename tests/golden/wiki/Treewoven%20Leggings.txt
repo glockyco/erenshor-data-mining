@@ -1,5 +1,6 @@
 {{Item
 |title=Treewoven Leggings
+|stablekey=item:leg - 30 - treewoven leggings
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

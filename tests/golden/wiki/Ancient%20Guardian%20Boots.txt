@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Boots
+|stablekey=item:foot - 21 - ancient guardian boots
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

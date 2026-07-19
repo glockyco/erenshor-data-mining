@@ -1,5 +1,6 @@
 {{Item
 |title=Twilight Shield
+|stablekey=item:secondary - 7 - twilight shield
 |type=
 |vendorsource=
 |source=[[A Lost Sea Giant]] (13.1%)<br>[[A Lost Sea Giant]] (3.0%)

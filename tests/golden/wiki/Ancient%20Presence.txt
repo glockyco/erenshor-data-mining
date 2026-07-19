@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Presence
+|stablekey=item:aura - ancient presence
 |type=[[Auras]]
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Death's Decay
+|stablekey=item:gen - death's decay
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ghost of Plaxitheris]] (78.0%)<br>[[Shiverman]] (59.2%)<br>[[Warded Shadow]] (30.3%)<br>[[Shadow of Sleep]] (14.1%)

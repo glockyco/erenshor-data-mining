@@ -1,5 +1,6 @@
 {{Item
 |title=Temporal Shard
+|stablekey=item:neck - 38 - temporal relic
 |type=
 |vendorsource=
 |source=[[Eldoth Molorai]] (6.7%)

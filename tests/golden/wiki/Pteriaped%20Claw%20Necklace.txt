@@ -1,5 +1,6 @@
 {{Item
 |title=Pteriaped Claw Necklace
+|stablekey=item:neck - 22 - pteriaped claw necklace
 |type=
 |vendorsource=
 |source=[[Pteriaped Matron]] (33.3%)

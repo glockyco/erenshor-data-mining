@@ -1,5 +1,6 @@
 {{Item
 |title=Thorn
+|stablekey=item:weap - 10 - thorn
 |type=
 |vendorsource=
 |source=[[Massia the Fallen]] (50.0%)

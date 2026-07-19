@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of Age
+|stablekey=item:template - charm of age
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

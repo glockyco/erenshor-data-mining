@@ -1,5 +1,6 @@
 {{Item
 |title=Parallax, Key to the Void
+|stablekey=item:weap - 40 - parallax, key to the void
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

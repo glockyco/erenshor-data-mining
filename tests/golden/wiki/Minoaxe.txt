@@ -1,5 +1,6 @@
 {{Item
 |title=Minoaxe
+|stablekey=item:weap - 20 - minoaxe
 |type=
 |vendorsource=
 |source=[[Loomingwood Minotaur Hero]] (50.0%)

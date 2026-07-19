@@ -1,5 +1,6 @@
 {{Item
 |title=Funeral Shroud
+|stablekey=item:head - 5 - funeral shroud
 |type=
 |vendorsource=
 |source=[[Mourning]] (10.1%)

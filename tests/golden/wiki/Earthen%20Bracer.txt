@@ -1,5 +1,6 @@
 {{Item
 |title=Earthen Bracer
+|stablekey=item:wrist - 7 - earthen bracer
 |type=
 |vendorsource=
 |source=[[Druo the Reborn]] (43.4%)

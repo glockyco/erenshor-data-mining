@@ -1,5 +1,6 @@
 {{Item
 |title=Intact Fungal Cap
+|stablekey=item:gen - intact fungal cap
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Abyssal Fungus Protector]] (18.2%)<br>[[Abyssal Fungus Protector]] (2.1%)<br>[[Abyssal Fungus Warrior]] (2.1%)

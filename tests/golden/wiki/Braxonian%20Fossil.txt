@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Fossil
+|stablekey=item:gen - braxonian fossil
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Rook Allshade]]
 |source=

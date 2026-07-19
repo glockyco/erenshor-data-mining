@@ -1,5 +1,6 @@
 {{Item
 |title=Freedom of the Sky
+|stablekey=item:aura - vitheo 3
 |type=[[Auras]]
 |vendorsource=
 |source=[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)

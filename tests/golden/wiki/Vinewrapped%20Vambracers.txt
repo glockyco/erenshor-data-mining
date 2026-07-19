@@ -1,5 +1,6 @@
 {{Item
 |title=Vinewrapped Vambracers
+|stablekey=item:arm - 9 - vinewrapped vambracer
 |type=
 |vendorsource=[[Tiver Banes]]
 |source=[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Molorai Militia Druid]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Brax's Touch
+|stablekey=item:spell scroll - brax's touch
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Gus Highrest]]<br>[[Nylith Valorro]]<br>[[Treven Pines]]
 |source=[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)

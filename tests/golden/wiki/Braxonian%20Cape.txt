@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Cape
+|stablekey=item:back - 32 - braxonian cape
 |type=
 |vendorsource=
 |source=[[Braxonian Weapon Master]] (66.7%)

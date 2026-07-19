@@ -1,5 +1,6 @@
 {{Item
 |title=Charred Sleeves
+|stablekey=item:arm - 25 - charred epaulets
 |type=
 |vendorsource=
 |source=[[Stoneman Colossus]] (66.7%)

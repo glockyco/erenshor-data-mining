@@ -1,5 +1,6 @@
 {{Item
 |title=Mooncutter
+|stablekey=item:weap - 22 - mooncutter
 |type=
 |vendorsource=
 |source=[[Nightmare]] (25.0%)

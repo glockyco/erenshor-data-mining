@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Echoes
+|stablekey=item:ring - 35 - ring of echoes
 |type=
 |vendorsource=
 |source=[[Hypnic]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Celestial Spike
+|stablekey=item:hand - 25 - celestial spike
 |type=
 |vendorsource=
 |source=[[Stardust]] (4.3%)

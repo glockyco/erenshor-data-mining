@@ -1,5 +1,6 @@
 {{Item
 |title=A Collection of Notes
+|stablekey=item:quest - bellwain collection
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

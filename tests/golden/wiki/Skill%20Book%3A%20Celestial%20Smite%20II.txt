@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Celestial Smite II
+|stablekey=item:skillbook - celestial smite ii
 |type=
 |vendorsource=[[Akaran Black]]
 |source=

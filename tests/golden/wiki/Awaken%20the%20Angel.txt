@@ -1,5 +1,6 @@
 {{Item
 |title=Awaken the Angel
+|stablekey=item:gen - awaken the angel
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Kio the Darkbringer]] (100.0%)

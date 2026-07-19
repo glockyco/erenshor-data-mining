@@ -1,5 +1,6 @@
 {{Item
 |title=Elixir of Enlightenment II
+|stablekey=item:cons - enlightening potion ii
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=[[Elysia Thistlewick]]
 |source=[[Lost Treasure (10-20)]] (24.9%)<br>[[Lost Treasure (1-10)]] (16.7%)

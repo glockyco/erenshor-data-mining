@@ -1,5 +1,6 @@
 {{Item
 |title=Odd Malaroth Feed
+|stablekey=item:gen - malaroth feed bad
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
 |source=

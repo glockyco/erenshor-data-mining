@@ -1,5 +1,6 @@
 {{Item
 |title=Memory of a Guardian
+|stablekey=item:gen - memory of the guardian
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[The Crypt Guardian]] (100.0%)

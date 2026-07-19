@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ocean's Lull
+|stablekey=item:spell scroll - ocean's lull
 |type=[[Ability Books]]
 |vendorsource=[[Ludo Luxo]]
 |source=

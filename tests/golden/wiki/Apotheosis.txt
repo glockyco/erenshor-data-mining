@@ -1,5 +1,6 @@
 {{Item
 |title=Apotheosis
+|stablekey=item:weap - 38 - apotheosis
 |type=
 |vendorsource=
 |source=[[Apparition of Vitheo]] (17.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Eroded Bangle
+|stablekey=item:wrist - 28 - eroded bangle
 |type=
 |vendorsource=
 |source=[[Savannah Priel (Character)|Savannah Priel]] (50.0%)

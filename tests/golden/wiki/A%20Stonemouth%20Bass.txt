@@ -1,5 +1,6 @@
 {{Item
 |title=A Stonemouth Bass
+|stablekey=item:fish - a stonemouth
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=

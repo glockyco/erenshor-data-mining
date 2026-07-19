@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Tangle
+|stablekey=item:spell scroll - tangle
 |type=[[Ability Books]]
 |vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Tiver Banes]]
 |source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[Islander Bandit]] (1.1%)

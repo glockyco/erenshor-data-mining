@@ -1,5 +1,6 @@
 {{Item
 |title=Allbond
+|stablekey=item:wrist - 42 - the allbond
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

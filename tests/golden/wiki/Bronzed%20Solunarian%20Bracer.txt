@@ -1,5 +1,6 @@
 {{Item
 |title=Bronzed Solunarian Bracer
+|stablekey=item:wrist - 8 - bronzed solunian bracer
 |type=
 |vendorsource=[[Akaran Black]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Tricorner
+|stablekey=item:head - 39 - sivakayan tricorner
 |type=
 |vendorsource=
 |source=[[Sableheart, Steed of Sivakaya]] (33.3%)

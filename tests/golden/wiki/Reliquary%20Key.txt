@@ -1,5 +1,6 @@
 {{Item
 |title=Reliquary Key
+|stablekey=item:key - reliquary key
 |type=
 |vendorsource=
 |source=[[Reliquary Guard]] (100.0%)

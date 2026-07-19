@@ -1,5 +1,6 @@
 {{Item
 |title=Priest's Stein
+|stablekey=item:hand - 18 - priest's stein
 |type=
 |vendorsource=
 |source=

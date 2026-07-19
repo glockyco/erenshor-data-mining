@@ -1,5 +1,6 @@
 {{Item
 |title=Heart of Eldoth Molorai
+|stablekey=item:gen - heart of eldoth molorai
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Malaroth Tag
+|stablekey=item:neck - 35 - malaroth lead
 |type=
 |vendorsource=
 |source=[[Lacy]] (100.0%)

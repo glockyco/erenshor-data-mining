@@ -1,5 +1,6 @@
 {{Item
 |title=Intact Faerie Wing
+|stablekey=item:gen - faerie wing
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)<br>[[A Faerie Drone]] (1.1%)

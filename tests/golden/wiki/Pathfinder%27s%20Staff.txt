@@ -1,5 +1,6 @@
 {{Item
 |title=Pathfinder's Staff
+|stablekey=item:weap - 9 - pathfinder's staff
 |type=
 |vendorsource=
 |source=[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Molorai Militia Druid]] (3.0%)

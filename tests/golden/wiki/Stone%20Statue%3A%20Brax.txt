@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Statue: Brax
+|stablekey=item:furniture - stone statue brax
 |type=
 |vendorsource=
 |source=[[Prince Oslind]] (1.4%)<br>[[Prince Ardant]] (1.4%)<br>[[Braxonian Honor Guard]] (0.6%)<br>[[Braxonian High Guard]] (0.5%)

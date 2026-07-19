@@ -1,5 +1,6 @@
 {{Item
 |title=Shielded Ring
+|stablekey=item:ring - 17 - shielded ring
 |type=
 |vendorsource=
 |source=[[Acolyte]] (5.8%)

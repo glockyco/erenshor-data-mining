@@ -1,5 +1,6 @@
 {{Item
 |title=Eternal Diadem
+|stablekey=item:head - 31 - eternal diadem
 |type=
 |vendorsource=
 |source=[[Candlekeeper]] (50.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Ascended Remains
+|stablekey=item:hand - 37 - ascended remains
 |type=
 |vendorsource=
 |source=[[Vessel Siraethe]] (28.6%)

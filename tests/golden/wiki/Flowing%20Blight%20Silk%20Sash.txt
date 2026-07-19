@@ -1,5 +1,6 @@
 {{Item
 |title=Flowing Blight Silk Sash
+|stablekey=item:belt - 28 - flowing blightsilk sash
 |type=
 |vendorsource=
 |source=[[Parzgil]] (33.3%)

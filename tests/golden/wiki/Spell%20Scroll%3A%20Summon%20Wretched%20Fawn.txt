@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Summon Wretched Fawn
+|stablekey=item:spell scroll - summon wretched fawn
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Alexander Farland]]
 |source=

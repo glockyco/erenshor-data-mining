@@ -1,5 +1,6 @@
 {{Item
 |title=Beast Stone
+|stablekey=item:gen - beast stone
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=

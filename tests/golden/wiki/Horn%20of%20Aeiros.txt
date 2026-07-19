@@ -1,5 +1,6 @@
 {{Item
 |title=Horn of Aeiros
+|stablekey=item:weap - 39 - horn of aeiros
 |type=
 |vendorsource=
 |source=[[Aeiros, Soldier of Sivakaya]] (50.0%)

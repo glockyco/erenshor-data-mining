@@ -1,5 +1,6 @@
 {{Item
 |title=Skittering Boots
+|stablekey=item:foot - 42 - skittering boots
 |type=
 |vendorsource=
 |source=[[Xjeris]] (68.9%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

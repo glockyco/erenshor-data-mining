@@ -1,5 +1,6 @@
 {{Item
 |title=Correcting Cape
+|stablekey=item:gm - back - 30 - correcting cape
 |type=
 |vendorsource=
 |source=

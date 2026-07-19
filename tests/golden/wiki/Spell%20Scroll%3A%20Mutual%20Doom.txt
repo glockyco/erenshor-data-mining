@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Mutual Doom
+|stablekey=item:spell scroll - mutual doom
 |type=
 |vendorsource=
 |source=[[Raval, The First Paladin]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vithean Wind
+|stablekey=item:spell scroll - vithean wind
 |type=[[Ability Books]]
 |vendorsource=[[Edwin Ansegg]]<br>[[Pierson Windwash]]
 |source=

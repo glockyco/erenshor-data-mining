@@ -1,5 +1,6 @@
 {{Item
 |title=Brax's Candle
+|stablekey=item:wand - 29 - brax's candle
 |type=
 |vendorsource=
 |source=[[Braxonian Ascended]] (4.6%)<br>[[Braxonian Tempest]] (4.6%)

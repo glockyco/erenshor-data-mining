@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Parrying Dagger
+|stablekey=item:weap - 18 - molorai parrying dagger
 |type=
 |vendorsource=
 |source=[[Overseer Laseal]] (50.0%)

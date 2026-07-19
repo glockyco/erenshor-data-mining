@@ -1,5 +1,6 @@
 {{Item
 |title=Enchanted Smithy
+|stablekey=item:furniture - enchanted smithy
 |type=
 |vendorsource=
 |source=

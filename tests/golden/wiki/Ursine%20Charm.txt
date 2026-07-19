@@ -1,5 +1,6 @@
 {{Item
 |title=Ursine Charm
+|stablekey=item:charm - 42 - ursine charm
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)

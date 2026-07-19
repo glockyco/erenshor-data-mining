@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Plate Boots
+|stablekey=item:foot - 6 - azure plate boots
 |type=
 |vendorsource=[[Violet Smithfield]]
 |source=

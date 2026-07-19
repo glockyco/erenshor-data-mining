@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Summon Dire Wolf
+|stablekey=item:spell scroll - summon dire wolf
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Juctin Mysia]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Torn Note
+|stablekey=item:gen - a torn note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ghost of Wyland Sercher]] (100.0%)

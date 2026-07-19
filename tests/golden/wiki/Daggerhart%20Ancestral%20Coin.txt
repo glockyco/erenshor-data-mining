@@ -1,5 +1,6 @@
 {{Item
 |title=Daggerhart Ancestral Coin
+|stablekey=item:gen - ancestral coin
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Aranuil Olaseo]] (100.0%)<br>[[Odyss Repman]] (100.0%)<br>[[Vevillo Polter]] (100.0%)

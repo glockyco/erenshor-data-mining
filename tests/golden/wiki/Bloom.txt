@@ -1,5 +1,6 @@
 {{Item
 |title=Bloom
+|stablekey=item:aura - fernalla 2
 |type=[[Auras]]<br>[[Crafting]]
 |vendorsource=[[Tiver Banes]]
 |source=[[Beady]] (25.0%)

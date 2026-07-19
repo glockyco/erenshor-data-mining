@@ -1,5 +1,6 @@
 {{Item
 |title=Mithril Short Sword
+|stablekey=item:weap - 30 - mithril short sword
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (25.6%)

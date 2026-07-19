@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Ring
+|stablekey=item:ring - 19 - shivering ring
 |type=
 |vendorsource=
 |source=[[Shadow of Sleep]] (8.2%)

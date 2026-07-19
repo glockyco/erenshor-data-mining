@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Belt Lamp
+|stablekey=item:gen - shivering belt lamp
 |type=
 |vendorsource=
 |source=

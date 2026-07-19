@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Charm of the Jester
+|stablekey=item:template - charm of the jester
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of Compassion
+|stablekey=item:charm - 22 - charm of compassion
 |type=
 |vendorsource=
 |source=

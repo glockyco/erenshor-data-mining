@@ -1,5 +1,6 @@
 {{Item
 |title=Ethereal Vault
+|stablekey=item:cons - ethereal vault
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=

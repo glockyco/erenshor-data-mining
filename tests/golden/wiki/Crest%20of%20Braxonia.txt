@@ -1,5 +1,6 @@
 {{Item
 |title=Crest of Braxonia
+|stablekey=item:neck - 31 - crest of braxonia
 |type=
 |vendorsource=
 |source=[[Prince Oslind]] (66.7%)

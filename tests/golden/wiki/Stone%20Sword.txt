@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Sword
+|stablekey=item:weap - 26 - stone sword
 |type=
 |vendorsource=
 |source=[[Granitus]] (20.0%)<br>[[Cinder]] (1.5%)<br>[[Stoneman]] (0.2%)

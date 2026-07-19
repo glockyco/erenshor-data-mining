@@ -1,5 +1,6 @@
 {{Item
 |title=Famish
+|stablekey=item:belt - 30 - famish
 |type=
 |vendorsource=
 |source=[[Darkwarden Ealdred]] (33.3%)

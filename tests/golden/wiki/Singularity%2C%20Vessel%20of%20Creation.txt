@@ -1,5 +1,6 @@
 {{Item
 |title=Singularity, Vessel of Creation
+|stablekey=item:wand - 40 - singularity, vessel of creation
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

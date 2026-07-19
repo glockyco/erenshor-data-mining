@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Targeted Windstorm
+|stablekey=item:spell scroll - targeted windstorm
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Elizabeth DeWitt]]<br>[[Torado Zortia]]
 |source=

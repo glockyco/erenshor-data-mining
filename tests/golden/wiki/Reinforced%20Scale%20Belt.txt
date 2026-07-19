@@ -1,5 +1,6 @@
 {{Item
 |title=Reinforced Scale Belt
+|stablekey=item:belt - 17 - reinforced scale belt
 |type=
 |vendorsource=
 |source=[[A Deepling Brute]] (9.8%)<br>[[A Nagalok]] (6.7%)

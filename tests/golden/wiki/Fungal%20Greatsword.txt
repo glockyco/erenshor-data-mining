@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Greatsword
+|stablekey=item:weap - 30 - fungal greatsword
 |type=
 |vendorsource=
 |source=[[Vinx]] (25.0%)

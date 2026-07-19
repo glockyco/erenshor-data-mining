@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Plate
+|stablekey=item:chest - 20 - ancient guardian plate
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

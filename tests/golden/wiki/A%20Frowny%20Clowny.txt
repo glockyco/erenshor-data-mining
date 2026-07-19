@@ -1,5 +1,6 @@
 {{Item
 |title=A Frowny Clowny
+|stablekey=item:fish - a frowny clowny
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=[[Isaac Salaman]]
 |source=[[Priel Malarist]] (1.7%)

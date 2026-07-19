@@ -1,5 +1,6 @@
 {{Item
 |title=Duelist's Charm
+|stablekey=item:charm - 30 - duelist's charm
 |type=
 |vendorsource=
 |source=

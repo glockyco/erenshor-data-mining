@@ -1,5 +1,6 @@
 {{Item
 |title=Nagalok Claw Gloves
+|stablekey=item:glove - 15 - nagalok claw gloves
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Void Slice
+|stablekey=item:skillbook - void slice
 |type=
 |vendorsource=
 |source=[[Reaver of Sivakaya]] (100.0%)

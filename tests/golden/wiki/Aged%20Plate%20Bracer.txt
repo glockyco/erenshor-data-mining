@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Plate Bracer
+|stablekey=item:wrist - 7 - aged plate bracer
 |type=
 |vendorsource=
 |source=[[Spectral Guard]] (2.7%)<br>[[Spectral High Guard]] (2.7%)<br>[[Spectral King's Guard]] (2.0%)<br>[[Rotting Royal Hound]] (0.9%)

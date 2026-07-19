@@ -1,5 +1,6 @@
 {{Item
 |title=Embalmed Bracer
+|stablekey=item:wrist - 6 - embalmed bracer
 |type=
 |vendorsource=
 |source=[[Zashlyn Bloodbane]] (37.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Hero Bracer
+|stablekey=item:wrist - 22 - hero bracer
 |type=
 |vendorsource=
 |source=[[Loomingwood Minotaur Hero]] (34.6%)

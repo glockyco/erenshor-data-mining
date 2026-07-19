@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Celestial Pull II
+|stablekey=item:spell scroll - celestial pull ii
 |type=
 |vendorsource=[[Leyor M'Chante]]
 |source=

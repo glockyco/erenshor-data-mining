@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Portal Shard (Ice)
+|stablekey=item:gen - braxonian portal shard - ice
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Braxonian Planar Guard (Ice)]] (100.0%)

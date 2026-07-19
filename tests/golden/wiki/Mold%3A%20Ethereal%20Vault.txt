@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Ethereal Vault
+|stablekey=item:template - ethereal vault
 |type=
 |vendorsource=
 |source=

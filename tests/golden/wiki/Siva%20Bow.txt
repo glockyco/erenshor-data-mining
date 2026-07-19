@@ -1,5 +1,6 @@
 {{Item
 |title=Siva Bow
+|stablekey=item:bow - 38 - sivakayan bow
 |type=
 |vendorsource=
 |source=[[Bowmistress of Sivakaya]] (6.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Plague Mask
+|stablekey=item:head - 31 - plague mask
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

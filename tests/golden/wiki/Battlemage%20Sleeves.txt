@@ -1,5 +1,6 @@
 {{Item
 |title=Battlemage Sleeves
+|stablekey=item:arm - 22 - battlemage sleeves
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (50.0%)

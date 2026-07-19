@@ -1,5 +1,6 @@
 {{Item
 |title=Whipsword
+|stablekey=item:weap - 14 - whipsword
 |type=
 |vendorsource=
 |source=[[Overseer Orlok]] (25.0%)

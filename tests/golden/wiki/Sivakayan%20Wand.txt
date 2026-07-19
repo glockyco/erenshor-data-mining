@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Wand
+|stablekey=item:wand - 25 - sivakayan wand
 |type=
 |vendorsource=
 |source=[[Shrouded Sivakayan]] (2.5%)<br>[[Sivakayan Doomshade]] (2.5%)<br>[[Sivakayan High Shadow]] (2.5%)<br>[[Sivakayan Shadow]] (2.5%)<br>[[Sivakayan Voidmaster]] (2.5%)<br>[[Sivakayan Devoted]] (2.1%)<br>[[Sivakayan Faithbound]] (2.1%)

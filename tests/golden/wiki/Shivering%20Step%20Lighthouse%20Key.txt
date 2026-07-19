@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Step Lighthouse Key
+|stablekey=item:key - shivering step lighthouse key 1
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

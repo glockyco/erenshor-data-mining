@@ -1,5 +1,6 @@
 {{Item
 |title=Kingsman
+|stablekey=item:quest - game piece kingsman
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
 |source=[[Prince Oslind]] (17.1%)<br>[[Prince Ardant]] (17.1%)<br>[[Braxonian Planar Guard (Fire)]] (12.1%)<br>[[Braxonian Planar Guard (Ice)]] (12.1%)<br>[[Braxonian High Guard]] (4.6%)

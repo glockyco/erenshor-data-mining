@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Block II
+|stablekey=item:skillbook - block 2
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Roreli Gilmare]]
 |source=

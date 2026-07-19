@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Dodge IV
+|stablekey=item:skillbook - dodge 4
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Oscar VanEllis]]<br>[[Roreli Gilmare]]
 |source=

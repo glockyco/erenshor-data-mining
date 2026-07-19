@@ -1,5 +1,6 @@
 {{Item
 |title=Angler's Ring
+|stablekey=item:ring - 6 - angler's ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

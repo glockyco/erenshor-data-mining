@@ -1,5 +1,6 @@
 {{Item
 |title=A Worm Eel
+|stablekey=item:fish - a worm eel
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=[[A Rottenfoot Witchdoctor]] (22.9%)<br>[[A Rottenfoot Warrior]] (15.7%)<br>[[A Seafiend]] (14.9%)<br>[[A Seafiend Manalord]] (14.9%)<br>[[A Seafiend Manathite]] (14.9%)<br>[[A Seafiend Worker]] (14.9%)<br>[[Algaeth Bilgeback]] (14.9%)<br>[[A Nagalok]] (7.8%)<br>[[An Immature Nagalok]] (7.8%)<br>[[Blunga]] (7.8%)<br>[[Juvenile Nagalok]] (7.8%)<br>[[Occuphage, Eater of Eyes]] (7.8%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Witchdoctor]] (7.8%)<br>[[Spike]] (7.8%)<br>[[Tek-Nu Dah]] (7.8%)<br>[[Rottenfoot Mauler]] (5.8%)

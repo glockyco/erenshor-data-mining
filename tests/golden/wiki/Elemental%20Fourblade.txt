@@ -1,5 +1,6 @@
 {{Item
 |title=Elemental Fourblade
+|stablekey=item:weap - 42 - elemental four-blade
 |type=
 |vendorsource=
 |source=[[Elementalist Mizuki]] (68.9%)

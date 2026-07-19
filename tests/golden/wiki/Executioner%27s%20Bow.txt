@@ -1,5 +1,6 @@
 {{Item
 |title=Executioner's Bow
+|stablekey=item:bow - 8 - executioner's string
 |type=
 |vendorsource=[[Torado Zortia]]
 |source=

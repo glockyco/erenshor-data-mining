@@ -1,5 +1,6 @@
 {{Item
 |title=Elderstone Shard
+|stablekey=item:gen - elderstone shard
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=[[Parmalee Gemlyn]]
 |source=[[A Fungus Ravaged Brute]] (6.7%)<br>[[Ravager, The First Infected]] (6.7%)<br>[[A Deepling Brute]] (3.2%)<br>[[A Deepling Crimsonite]] (2.3%)<br>[[A Deepling Lunarite]] (2.3%)<br>[[A Deepling Verdite]] (2.3%)<br>[[A Deepling Orator]] (1.5%)

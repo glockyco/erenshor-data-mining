@@ -1,5 +1,6 @@
 {{Item
 |title=Creator's Charm
+|stablekey=item:charm - 42 - creator's charm
 |type=
 |vendorsource=
 |source=[[Warder of Flame]] (69.7%)

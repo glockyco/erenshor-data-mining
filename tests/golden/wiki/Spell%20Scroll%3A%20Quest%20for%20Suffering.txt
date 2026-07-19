@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Quest for Suffering
+|stablekey=item:spell scroll - quest for suffering
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=

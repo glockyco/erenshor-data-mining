@@ -1,5 +1,6 @@
 {{Item
 |title=Copper Sceptre
+|stablekey=item:wand - bronzesceptre
 |type=
 |vendorsource=
 |source=

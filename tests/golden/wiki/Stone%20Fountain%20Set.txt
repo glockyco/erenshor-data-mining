@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Fountain Set
+|stablekey=item:furniture - stone fountain
 |type=
 |vendorsource=
 |source=

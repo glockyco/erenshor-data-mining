@@ -1,5 +1,6 @@
 {{Item
 |title=Mino Hatchet
+|stablekey=item:weap - 24 - mino hatchet
 |type=
 |vendorsource=
 |source=[[Loomingwood Minotaur Legionnaire]] (12.9%)<br>[[Loomingwood Minotaur Soldier]] (12.9%)

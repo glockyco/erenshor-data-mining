@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Brick
+|stablekey=item:quest - vithean stones
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Cackles]] (6.7%)<br>[[Crankles]] (6.7%)<br>[[Founder]] (6.7%)<br>[[Jack]] (6.7%)<br>[[Rumors]] (6.7%)<br>[[Skelunker]] (6.7%)<br>[[Sockets]] (6.7%)<br>[[Vithean Remains]] (6.7%)<br>[[Vithean Blademaster]] (6.4%)<br>[[Vithean Elite]] (6.4%)

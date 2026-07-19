@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Blessing of the Sea
+|stablekey=item:spell scroll - vitheo's blessing of the sea
 |type=
 |vendorsource=
 |source=

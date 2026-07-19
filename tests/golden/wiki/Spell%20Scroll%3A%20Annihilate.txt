@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Annihilate
+|stablekey=item:spell scroll - annihilate
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Vos Ashlyn]] (50.0%)

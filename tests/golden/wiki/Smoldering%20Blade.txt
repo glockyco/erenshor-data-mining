@@ -1,5 +1,6 @@
 {{Item
 |title=Smoldering Blade
+|stablekey=item:weap - 25 - smoldering blade
 |type=
 |vendorsource=
 |source=[[Blazefiend]] (25.0%)

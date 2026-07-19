@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Suffocation
+|stablekey=item:spell scroll - suffocate
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Arcanist Cap
+|stablekey=item:head - 7 - arcanist cap
 |type=
 |vendorsource=
 |source=[[Alexander Farland]] (19.5%)<br>[[Arbant Sparrow]] (19.5%)<br>[[Cerbantias Flameward]] (19.5%)<br>[[Chance Barlow]] (19.5%)<br>[[Edwin Ansegg]] (19.5%)<br>[[Faun Vulak]] (19.5%)<br>[[Garrey Ambrose]] (19.5%)<br>[[Lexant Crowsilk]] (19.5%)<br>[[Liam Kilfa]] (19.5%)<br>[[Lucian Revald]] (19.5%)<br>[[Malor Mara]] (19.5%)<br>[[Malthor Sageleaf]] (19.5%)<br>[[Molorai Militia Arcanist]] (19.5%)<br>[[Navidson Zampano]] (19.5%)<br>[[Nylith Valorro]] (19.5%)<br>[[Revan Gavault]] (19.5%)<br>[[Staggy Garth]] (19.5%)<br>[[Sagan Ilth]] (13.4%)

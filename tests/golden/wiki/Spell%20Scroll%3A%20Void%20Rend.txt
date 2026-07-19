@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Void Rend
+|stablekey=item:spell scroll - void rend
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=[[Sivakayan Reaver]] (3.0%)

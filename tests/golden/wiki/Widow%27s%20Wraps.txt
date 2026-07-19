@@ -1,5 +1,6 @@
 {{Item
 |title=Widow's Wraps
+|stablekey=item:glove - 24 - widow's wraps
 |type=
 |vendorsource=
 |source=[[Fearantula]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Auction Set
+|stablekey=item:furniture - wood auction
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

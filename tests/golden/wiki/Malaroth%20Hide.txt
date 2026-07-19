@@ -1,5 +1,6 @@
 {{Item
 |title=Malaroth Hide
+|stablekey=item:gen - malaroth hide
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Brood Mother]] (22.1%)<br>[[Captured Molorath]] (22.1%)<br>[[Demented Malaroth]] (22.1%)<br>[[Failed Experiment]] (22.1%)<br>[[Lacy]] (22.1%)<br>[[Malaroth Cub]] (22.1%)<br>[[Mature Malaroth]] (22.1%)<br>[[Shivunax]] (22.1%)<br>[[Tamed Malaroth]] (22.1%)<br>[[Vizijivi]] (22.1%)<br>[[Xasxi]] (22.1%)

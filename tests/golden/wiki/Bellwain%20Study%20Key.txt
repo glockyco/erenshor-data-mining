@@ -1,5 +1,6 @@
 {{Item
 |title=Bellwain Study Key
+|stablekey=item:quest - bellwain study key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

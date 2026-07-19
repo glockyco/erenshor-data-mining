@@ -1,5 +1,6 @@
 {{Item
 |title=Loss Stone
+|stablekey=item:quest - loss stone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

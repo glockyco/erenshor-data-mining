@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Brax's Fury
+|stablekey=item:spell scroll - brax's fury
 |type=[[Ability Books]]
 |vendorsource=[[Edwin Ansegg]]
 |source=

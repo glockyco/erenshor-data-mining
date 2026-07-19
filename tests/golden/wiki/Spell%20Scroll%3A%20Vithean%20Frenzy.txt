@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vithean Frenzy
+|stablekey=item:spell scroll - vithean frenzy
 |type=[[Ability Books]]
 |vendorsource=[[Juctin Mysia]]
 |source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (87.1%)<br>[[Captain Kilkay]] (63.0%)

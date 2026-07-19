@@ -1,5 +1,6 @@
 {{Item
 |title=Pristine Ceremonial Ring
+|stablekey=item:ring - 14 - ancient ceremonial ring 1
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Rottenfoot Ring
+|stablekey=item:ring - 13 - rottenfoot ring
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[Rottenfoot Mauler]] (5.8%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Blueprint: Enchanted Smithy
+|stablekey=item:furniture - enchanted smithy blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Stoneman]] (6.4%)<br>[[Stoneman Obsidian]] (2.0%)<br>[[Stoneman Knight]] (1.1%)

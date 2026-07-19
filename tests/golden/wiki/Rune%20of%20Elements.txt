@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Elements
+|stablekey=item:gen - raid rune of brax
 |type=
 |vendorsource=
 |source=

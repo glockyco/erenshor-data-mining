@@ -1,5 +1,6 @@
 {{Item
 |title=Treant Eye Shield
+|stablekey=item:secondary - 42 - treant eye shield
 |type=
 |vendorsource=
 |source=[[Arbor]] (66.7%)

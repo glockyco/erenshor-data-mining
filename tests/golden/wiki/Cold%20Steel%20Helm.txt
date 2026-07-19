@@ -1,5 +1,6 @@
 {{Item
 |title=Cold Steel Helm
+|stablekey=item:head - 6 - cold steel helm
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[A Golden Spirit]] (14.0%)<br>[[Molorai Militia Warrior]] (4.9%)

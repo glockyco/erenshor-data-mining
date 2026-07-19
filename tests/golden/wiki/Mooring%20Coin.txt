@@ -1,5 +1,6 @@
 {{Item
 |title=Mooring Coin
+|stablekey=item:gen - mooring coin
 |type=[[Teleportation]]
 |vendorsource=
 |source=

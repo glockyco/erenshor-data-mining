@@ -1,5 +1,6 @@
 {{Item
 |title=Ripper Insignia Badge
+|stablekey=item:gen  - ripper insignia ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Armorer Nell]] (20.6%)<br>[[Captain Ovid]] (20.6%)<br>[[Celeso the Historian]] (20.6%)<br>[[Hector Yvey]] (20.6%)<br>[[Jeremie Galyard]] (20.6%)<br>[[Mavik Estonia]] (20.6%)<br>[[Ripper DeMerth (Character)|Ripper DeMerth]] (20.6%)<br>[[Ripper Soldier]] (20.6%)

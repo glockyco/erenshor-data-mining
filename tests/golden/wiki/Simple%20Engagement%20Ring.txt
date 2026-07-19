@@ -1,5 +1,6 @@
 {{Item
 |title=Simple Engagement Ring
+|stablekey=item:ring - 24 - simple engagement ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Risen Pilgrim]] (1.7%)

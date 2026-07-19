@@ -1,5 +1,6 @@
 {{Item
 |title=Jellystick
+|stablekey=item:weap - 14 - jellywhip
 |type=
 |vendorsource=
 |source=[[Ragewhip]] (50.0%)<br>[[Swamp Nettle]] (4.3%)

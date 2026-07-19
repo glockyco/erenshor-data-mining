@@ -1,5 +1,6 @@
 {{Item
 |title=Petrified Wood Cane
+|stablekey=item:weap - 33 - petrified walking stick
 |type=
 |vendorsource=
 |source=[[Statue of Brax]] (50.0%)

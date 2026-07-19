@@ -1,5 +1,6 @@
 {{Item
 |title=Nighthollow Wax
+|stablekey=item:gen - nighthollow wax
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

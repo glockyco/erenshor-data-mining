@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dark Pact
+|stablekey=item:spell scroll - dark pact
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

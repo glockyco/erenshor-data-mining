@@ -1,5 +1,6 @@
 {{Item
 |title=Gem Adorned Belt
+|stablekey=item:belt - 28 - gem adorned belt
 |type=
 |vendorsource=
 |source=[[Brood Mother]] (66.7%)

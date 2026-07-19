@@ -1,5 +1,6 @@
 {{Item
 |title=Shadow Helm
+|stablekey=item:head - 26 - shadow's helm
 |type=
 |vendorsource=
 |source=[[Warded Shadow]] (37.9%)

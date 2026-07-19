@@ -1,5 +1,6 @@
 {{Item
 |title=Cryptid Claws
+|stablekey=item:weap - 36 - cryptid claws
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

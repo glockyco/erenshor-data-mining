@@ -1,5 +1,6 @@
 {{Item
 |title=Bog Hoop
+|stablekey=item:ring - 15 - bog hoop
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Nipper Lashfist]] (4.5%)<br>[[Nipper Manatooth]] (4.5%)

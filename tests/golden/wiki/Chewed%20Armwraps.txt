@@ -1,5 +1,6 @@
 {{Item
 |title=Chewed Armwraps
+|stablekey=item:arm - 22 - chewed armwraps
 |type=
 |vendorsource=
 |source=[[Dream]] (50.0%)

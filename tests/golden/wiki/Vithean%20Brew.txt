@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Brew
+|stablekey=item:cons - vithean brew
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Benny Bommby]]<br>[[Innkeeper Ryvan]]<br>[[Master of Battle]]
 |source=

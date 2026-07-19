@@ -1,5 +1,6 @@
 {{Item
 |title=Ripparian Willow Seed
+|stablekey=item:gen - willow seed ripper
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

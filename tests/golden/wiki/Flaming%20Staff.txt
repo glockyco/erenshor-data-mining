@@ -1,5 +1,6 @@
 {{Item
 |title=Flaming Staff
+|stablekey=item:wand - 42 - flaming staff
 |type=
 |vendorsource=
 |source=[[Greater Fire Elemental]] (4.3%)<br>[[Large Fire Elemental]] (4.3%)

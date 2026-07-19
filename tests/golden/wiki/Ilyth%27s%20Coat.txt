@@ -1,5 +1,6 @@
 {{Item
 |title=Ilyth's Coat
+|stablekey=item:chest - 35 - ilyth's coat
 |type=
 |vendorsource=
 |source=[[Darkwarden Ilyth]] (50.0%)

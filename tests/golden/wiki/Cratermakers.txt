@@ -1,5 +1,6 @@
 {{Item
 |title=Cratermakers
+|stablekey=item:foot - 28 - cratermakers
 |type=
 |vendorsource=
 |source=[[Granitus]] (20.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Virophan Helm
+|stablekey=item:head - 33 - virophan helm
 |type=
 |vendorsource=
 |source=[[Elwio the Traitor]] (66.7%)

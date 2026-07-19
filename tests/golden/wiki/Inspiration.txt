@@ -1,5 +1,6 @@
 {{Item
 |title=Inspiration
+|stablekey=item:ring - 17 - inspiration
 |type=
 |vendorsource=
 |source=[[Lazalith, Soldier of Sivakaya]] (13.5%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Wolfhide Boots
+|stablekey=item:foot - 12 - wolfhide boots
 |type=
 |vendorsource=
 |source=[[Obba of the Warkind]] (33.3%)

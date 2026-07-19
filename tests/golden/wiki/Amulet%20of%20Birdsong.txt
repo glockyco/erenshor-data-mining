@@ -1,5 +1,6 @@
 {{Item
 |title=Amulet of Birdsong
+|stablekey=item:neck - 28 - amulet of birdsong
 |type=
 |vendorsource=
 |source=[[Ripples]] (50.0%)

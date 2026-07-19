@@ -1,5 +1,6 @@
 {{Item
 |title=Morning on the Isle
+|stablekey=item:quest - bellwain morning
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

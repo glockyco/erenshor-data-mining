@@ -1,5 +1,6 @@
 {{Item
 |title=Albino Bear Hood
+|stablekey=item:head - 18 - albino bear hood
 |type=
 |vendorsource=
 |source=[[Albino Kodiak]] (12.9%)

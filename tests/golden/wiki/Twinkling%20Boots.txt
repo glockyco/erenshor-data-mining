@@ -1,5 +1,6 @@
 {{Item
 |title=Twinkling Boots
+|stablekey=item:foot - 42 - twinkling slippers
 |type=
 |vendorsource=
 |source=[[Faerie Trickster]] (6.7%)<br>[[Planar Faerie]] (6.7%)

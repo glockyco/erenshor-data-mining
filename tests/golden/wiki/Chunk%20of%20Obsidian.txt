@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Obsidian
+|stablekey=item:ore - obsidian
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Cinder]] (84.7%)<br>[[A Lava Spirit]] (13.1%)<br>[[Volcanic Giant]] (13.1%)<br>[[Stoneman Obsidian]] (2.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Gourd Carver
+|stablekey=item:weap - 6 - gourd carver
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[Battlefist]] (33.3%)

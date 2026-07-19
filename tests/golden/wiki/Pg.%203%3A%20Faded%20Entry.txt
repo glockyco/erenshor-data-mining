@@ -1,5 +1,6 @@
 {{Item
 |title=Pg. 3: Faded Entry
+|stablekey=item:gen - treasure hunter pg 3 (underspine)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Druo the Reborn]] (100.0%)

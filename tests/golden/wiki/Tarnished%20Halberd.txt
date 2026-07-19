@@ -1,5 +1,6 @@
 {{Item
 |title=Tarnished Halberd
+|stablekey=item:weap - 17 - tarnished halberd
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=[[Spectral Castle Guard]] (13.4%)<br>[[Spectral King's Guard]] (13.4%)<br>[[Spectral Guard]] (6.9%)<br>[[Spectral High Guard]] (6.9%)

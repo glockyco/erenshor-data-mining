@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Visions
+|stablekey=item:ring - 29 - ring of visions
 |type=
 |vendorsource=
 |source=[[Spectre]] (2.3%)

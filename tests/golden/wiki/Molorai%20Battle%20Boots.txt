@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Battle Boots
+|stablekey=item:foot - 9 - molorai battle boots
 |type=
 |vendorsource=
 |source=[[Molorai Bodyguard]] (7.8%)<br>[[Molorai Veteran]] (7.8%)

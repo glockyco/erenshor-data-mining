@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Spectrum
+|stablekey=item:spell scroll - spectrum
 |type=[[Ability Books]]
 |vendorsource=[[Leyor M'Chante]]
 |source=

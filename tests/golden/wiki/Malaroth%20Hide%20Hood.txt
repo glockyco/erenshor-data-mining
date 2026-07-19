@@ -1,5 +1,6 @@
 {{Item
 |title=Malaroth Hide Hood
+|stablekey=item:head - 21 - malaroth hide hood
 |type=
 |vendorsource=
 |source=[[Vizijivi]] (50.0%)

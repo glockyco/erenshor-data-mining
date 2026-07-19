@@ -1,5 +1,6 @@
 {{Item
 |title=Graveweed Leaf
+|stablekey=item:gen - graveweed leaf
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Neophyte Necromancer]] (10.1%)<br>[[Zashlyn Bloodbane]] (8.5%)<br>[[Boatman]] (1.1%)

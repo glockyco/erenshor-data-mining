@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Dining Set
+|stablekey=item:furniture - azynthi dining
 |type=
 |vendorsource=
 |source=

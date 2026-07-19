@@ -1,5 +1,6 @@
 {{Item
 |title=Volcanic Shield
+|stablekey=item:secondary - 26 - volcanic shield
 |type=
 |vendorsource=
 |source=[[Volcanic Giant]] (25.0%)

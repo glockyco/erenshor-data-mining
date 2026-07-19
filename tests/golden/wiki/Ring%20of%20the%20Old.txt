@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of the Old
+|stablekey=item:ring - 28 - ring of the old faith
 |type=
 |vendorsource=
 |source=[[Darkwarden Awxa]] (66.7%)

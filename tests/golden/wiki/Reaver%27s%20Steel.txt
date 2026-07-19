@@ -1,5 +1,6 @@
 {{Item
 |title=Reaver's Steel
+|stablekey=item:weap - 39 - reaver's steel
 |type=
 |vendorsource=
 |source=[[Reaver of Sivakaya]] (6.9%)

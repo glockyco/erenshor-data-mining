@@ -1,5 +1,6 @@
 {{Item
 |title=Xasxi Bone Bracer
+|stablekey=item:wrist - 22 - xasxi's bone bracer
 |type=
 |vendorsource=
 |source=[[Xasxi]] (66.7%)

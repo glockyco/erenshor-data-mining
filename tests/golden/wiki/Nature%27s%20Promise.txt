@@ -1,5 +1,6 @@
 {{Item
 |title=Nature's Promise
+|stablekey=item:neck - 31 - nature's promise
 |type=
 |vendorsource=
 |source=[[Maple]] (1.5%)<br>[[Greater Fawn]] (1.5%)<br>[[Risen Hierophant]] (1.2%)<br>[[Vinx]] (1.2%)<br>[[Frenzy]] (1.0%)<br>[[Grappler]] (1.0%)<br>[[Fernallan Guardian]] (0.6%)<br>[[Rotting Guardian]] (0.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Inert Rune of Brax
+|stablekey=item:gen - inert rune of brax
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

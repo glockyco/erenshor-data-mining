@@ -1,5 +1,6 @@
 {{Item
 |title=Tamer's Pack
+|stablekey=item:back - 24 - tamer's pack
 |type=
 |vendorsource=
 |source=[[Priel Tamer]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Demented Brain
+|stablekey=item:gen - demented brain
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Demented Malaroth]] (100.0%)

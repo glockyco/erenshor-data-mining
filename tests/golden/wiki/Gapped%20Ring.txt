@@ -1,5 +1,6 @@
 {{Item
 |title=Gapped Ring
+|stablekey=item:ring - 14 - gapped ring
 |type=
 |vendorsource=
 |source=[[Ughl of the Skies]] (50.0%)

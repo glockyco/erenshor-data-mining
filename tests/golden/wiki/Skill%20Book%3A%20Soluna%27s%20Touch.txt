@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Soluna's Touch
+|stablekey=item:skillbook - soluna's touch
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
 |source=[[High Paladin of Sivakaya]] (100.0%)

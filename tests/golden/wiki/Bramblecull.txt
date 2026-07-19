@@ -1,5 +1,6 @@
 {{Item
 |title=Bramblecull
+|stablekey=item:weap - 38 - bramblecull
 |type=
 |vendorsource=
 |source=[[Grounds Keeper]] (33.3%)

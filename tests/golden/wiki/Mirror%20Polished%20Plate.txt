@@ -1,5 +1,6 @@
 {{Item
 |title=Mirror Polished Plate
+|stablekey=item:chest - 21 - mirror polished plate
 |type=
 |vendorsource=
 |source=[[Stoneman Diamondine]] (33.3%)

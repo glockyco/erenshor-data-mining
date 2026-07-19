@@ -1,5 +1,6 @@
 {{Item
 |title=Bloodstained Plate
+|stablekey=item:chest - 30 - bloodstained plate
 |type=
 |vendorsource=
 |source=[[The Abomination]] (50.0%)

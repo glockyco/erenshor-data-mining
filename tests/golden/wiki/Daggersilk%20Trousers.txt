@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Trousers
+|stablekey=item:leg - 5 - daggersilk pants
 |type=
 |vendorsource=
 |source=

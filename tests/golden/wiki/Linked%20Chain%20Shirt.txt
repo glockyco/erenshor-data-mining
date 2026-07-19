@@ -1,5 +1,6 @@
 {{Item
 |title=Linked Chain Shirt
+|stablekey=item:chest - 10 - linked chain
 |type=
 |vendorsource=
 |source=[[Molorai Captain Sigrid]] (10.9%)<br>[[Molorai Veteran]] (1.7%)<br>[[Molorai Militia Warrior]] (1.0%)

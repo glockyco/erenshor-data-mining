@@ -1,5 +1,6 @@
 {{Item
 |title=Island Fin
+|stablekey=item:fish - island fin
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=

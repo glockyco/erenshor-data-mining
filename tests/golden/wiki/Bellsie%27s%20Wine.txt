@@ -1,5 +1,6 @@
 {{Item
 |title=Bellsie's Wine
+|stablekey=item:quest - bellwain bellsie's wine
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

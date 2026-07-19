@@ -1,5 +1,6 @@
 {{Item
 |title=Petitioner's Vambraces
+|stablekey=item:gm - arm - 35 - petitioner's vambraces
 |type=
 |vendorsource=
 |source=

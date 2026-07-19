@@ -1,5 +1,6 @@
 {{Item
 |title=Stowaway's Step Gate Key
+|stablekey=item:key - stowaway gate key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

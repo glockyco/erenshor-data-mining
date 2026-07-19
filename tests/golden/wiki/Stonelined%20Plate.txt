@@ -1,5 +1,6 @@
 {{Item
 |title=Stonelined Plate
+|stablekey=item:chest - 28 - stonelined plate
 |type=
 |vendorsource=
 |source=[[Loomingwood Minotaur Hero]] (25.0%)

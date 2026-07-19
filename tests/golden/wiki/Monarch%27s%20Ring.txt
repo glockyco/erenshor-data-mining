@@ -1,5 +1,6 @@
 {{Item
 |title=Monarch's Ring
+|stablekey=item:ring - 39 - monarch's ring
 |type=
 |vendorsource=
 |source=[[Monarch of the Flame]] (33.3%)

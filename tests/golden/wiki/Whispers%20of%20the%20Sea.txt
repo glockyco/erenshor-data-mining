@@ -1,5 +1,6 @@
 {{Item
 |title=Whispers of the Sea
+|stablekey=item:gen - whispers of the sea
 |type=[[Crafting]]
 |vendorsource=
 |source=[[A Seafiend]] (8.8%)<br>[[A Seafiend Manalord]] (8.8%)<br>[[A Seafiend Manathite]] (8.8%)<br>[[A Seafiend Worker]] (8.8%)<br>[[A Seafiend]] (4.4%)

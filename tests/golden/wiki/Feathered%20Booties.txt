@@ -1,5 +1,6 @@
 {{Item
 |title=Feathered Booties
+|stablekey=item:foot - 19 - feathered booties
 |type=
 |vendorsource=
 |source=[[Pteriaped Matron]] (66.7%)

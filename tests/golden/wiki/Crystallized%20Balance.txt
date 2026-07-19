@@ -1,5 +1,6 @@
 {{Item
 |title=Crystallized Balance
+|stablekey=item:gen - crystallized balance
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=[[Braxonian Fossil]] (10.5%)

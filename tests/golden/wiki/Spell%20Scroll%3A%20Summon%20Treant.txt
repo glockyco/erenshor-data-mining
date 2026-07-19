@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Summon Treant
+|stablekey=item:spell scroll - summon treant
 |type=
 |vendorsource=
 |source=[[Arbor]] (64.9%)

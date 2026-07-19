@@ -1,5 +1,6 @@
 {{Item
 |title=Planetary Shard
+|stablekey=item:aura - planetary shard
 |type=
 |vendorsource=
 |source=[[Khorso, Soluna's Advisor]] (70.0%)

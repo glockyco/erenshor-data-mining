@@ -1,5 +1,6 @@
 {{Item
 |title=Blightsteel Greaves
+|stablekey=item:leg - 28 - blightsteel greaves
 |type=
 |vendorsource=
 |source=[[Harbinger of Corruption]] (66.7%)

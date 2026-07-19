@@ -1,5 +1,6 @@
 {{Item
 |title=Gift of Azynthi
+|stablekey=item:aura - azynthi
 |type=[[Auras]]
 |vendorsource=
 |source=[[Oracle Tretha]] (33.3%)

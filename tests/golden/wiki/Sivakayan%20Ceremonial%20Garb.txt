@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Ceremonial Garb
+|stablekey=item:chest - 25 - sivakayan ceremonial garb
 |type=
 |vendorsource=
 |source=[[Sivakayan Voidweaver]] (12.9%)

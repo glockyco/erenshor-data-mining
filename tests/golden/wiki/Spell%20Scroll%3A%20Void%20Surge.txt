@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Void Surge
+|stablekey=item:spell scroll - void surge
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=

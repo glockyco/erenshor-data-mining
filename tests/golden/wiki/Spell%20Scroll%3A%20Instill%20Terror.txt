@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Instill Terror
+|stablekey=item:spell scroll - instill terror
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=

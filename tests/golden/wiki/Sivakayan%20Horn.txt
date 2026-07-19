@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Horn
+|stablekey=item:gen - sivakayan horn
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
 |source=[[A Lesser Avatar of Sivakaya]] (9.0%)

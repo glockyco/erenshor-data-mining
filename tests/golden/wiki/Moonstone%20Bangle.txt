@@ -1,5 +1,6 @@
 {{Item
 |title=Moonstone Bangle
+|stablekey=item:wrist - 25 - moonstone bangle
 |type=
 |vendorsource=
 |source=[[Celestial Matter]] (6.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of the Stone
+|stablekey=item:charm - 22-  charm of stone
 |type=
 |vendorsource=
 |source=

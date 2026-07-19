@@ -1,5 +1,6 @@
 {{Item
 |title=Dainty Mitts
+|stablekey=item:glove - 22 - dainty gloves
 |type=
 |vendorsource=
 |source=[[Diamond Colossus]] (50.0%)

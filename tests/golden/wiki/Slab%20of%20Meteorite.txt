@@ -1,5 +1,6 @@
 {{Item
 |title=Slab of Meteorite
+|stablekey=item:secondary - 26 - slab of meteorite
 |type=
 |vendorsource=
 |source=[[Living Meteorite]] (12.8%)

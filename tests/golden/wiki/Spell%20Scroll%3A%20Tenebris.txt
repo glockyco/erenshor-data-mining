@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Tenebris
+|stablekey=item:spell scroll - tenebris
 |type=[[Ability Books]]
 |vendorsource=
 |source=[[Vos Ashlyn]] (50.0%)

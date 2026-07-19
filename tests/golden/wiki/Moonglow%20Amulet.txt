@@ -1,5 +1,6 @@
 {{Item
 |title=Moonglow Amulet
+|stablekey=item:neck - 26 - moonglow amulet
 |type=
 |vendorsource=
 |source=[[Ancient Corpse]] (5.8%)<br>[[Ancient Celestarian]] (4.6%)<br>[[Ancient Guard]] (3.5%)<br>[[Ancient Knight]] (3.5%)

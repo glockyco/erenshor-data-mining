@@ -1,5 +1,6 @@
 {{Item
 |title=A Fanged Caveskimmer
+|stablekey=item:fish - a fanged caveskimmer
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Isaac Salaman]]
 |source=[[Slumbering Queen]] (28.3%)<br>[[A Fungal Sentinel]] (15.1%)<br>[[A Fungal Drone]] (11.5%)

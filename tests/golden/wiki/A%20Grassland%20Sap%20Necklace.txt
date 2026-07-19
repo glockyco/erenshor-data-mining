@@ -1,5 +1,6 @@
 {{Item
 |title=A Grassland Sap Necklace
+|stablekey=item:neck - 9 - ogre tooth necklace
 |type=
 |vendorsource=
 |source=[[A Grassland Ogre Chieftan]] (9.0%)

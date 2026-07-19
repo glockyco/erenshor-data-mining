@@ -1,5 +1,6 @@
 {{Item
 |title=Provoker
+|stablekey=item:secondary - 26 - provoker
 |type=
 |vendorsource=
 |source=[[Mephallo]] (66.7%)

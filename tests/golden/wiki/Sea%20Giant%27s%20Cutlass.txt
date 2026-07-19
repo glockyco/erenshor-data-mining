@@ -1,5 +1,6 @@
 {{Item
 |title=Sea Giant's Cutlass
+|stablekey=item:weap - 8 - sea giant's cutlass
 |type=
 |vendorsource=
 |source=[[The Lost Sea Giant King]] (30.1%)<br>[[A Lost Sea Giant]] (8.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Planar Healing
+|stablekey=item:spell scroll - planar healing
 |type=
 |vendorsource=
 |source=[[Fernallan High Priest]] (100.0%)

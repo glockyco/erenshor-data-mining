@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Bracer
+|stablekey=item:wrist - 21 - ancient guardian bracer
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

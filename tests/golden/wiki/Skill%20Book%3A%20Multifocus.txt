@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Multifocus
+|stablekey=item:skillbook - multifocus
 |type=
 |vendorsource=
 |source=[[Fire Elemental]] (2.6%)<br>[[Ice Elemental]] (2.2%)<br>[[Greater Fire Elemental]] (1.0%)<br>[[Greater Ice Elemental]] (1.0%)<br>[[Large Fire Elemental]] (1.0%)<br>[[Large Ice Elemental]] (1.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Scripture 1
+|stablekey=item:gen - azynthian scripture
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Molorai Curator]] (4.0%)<br>[[Molorai Dockmaster]] (4.0%)<br>[[Molorai Mason]] (4.0%)<br>[[Molorai Ancille]] (3.0%)<br>[[Molorai Anointed]] (3.0%)<br>[[Molorai Bloodwarden]] (3.0%)<br>[[Molorai Eldermistress]] (3.0%)<br>[[Molorai Nightmistress]] (3.0%)<br>[[Molorai Outrider]] (3.0%)<br>[[Molorai Truthseeker]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Invoke Storm
+|stablekey=item:spell scroll - invoke storm
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
 |source=

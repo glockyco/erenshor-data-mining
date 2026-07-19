@@ -1,5 +1,6 @@
 {{Item
 |title=Essence of Nature
+|stablekey=item:gen - essence of nature
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Corrupted Oread]] (27.8%)<br>[[Dryad Spirit]] (27.8%)<br>[[Massia the Fallen]] (27.8%)<br>[[Spectral Bear]] (27.8%)<br>[[Fernallan Guardian]] (23.5%)<br>[[Rotting Guardian]] (14.8%)

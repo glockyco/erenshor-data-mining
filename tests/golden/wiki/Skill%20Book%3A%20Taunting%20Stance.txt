@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Taunting Stance
+|stablekey=item:skillbook - stance - taunting
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

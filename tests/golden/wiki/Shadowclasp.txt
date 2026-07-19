@@ -1,5 +1,6 @@
 {{Item
 |title=Shadowclasp
+|stablekey=item:back - 33 - shadowclasp
 |type=
 |vendorsource=
 |source=[[Shrouded Sivakayan]] (4.3%)

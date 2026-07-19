@@ -1,5 +1,6 @@
 {{Item
 |title=Flame Well Seed
+|stablekey=item:furniture - brax well
 |type=
 |vendorsource=
 |source=[[Braxonian Planar Guard (Fire)]] (5.9%)<br>[[Braxonian Planar Guard (Ice)]] (5.9%)<br>[[Prince Oslind]] (1.4%)<br>[[Prince Ardant]] (1.4%)

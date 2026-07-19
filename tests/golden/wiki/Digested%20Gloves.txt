@@ -1,5 +1,6 @@
 {{Item
 |title=Digested Gloves
+|stablekey=item:glove - 22 - digested gloves
 |type=
 |vendorsource=
 |source=[[Vizijivi]] (50.0%)

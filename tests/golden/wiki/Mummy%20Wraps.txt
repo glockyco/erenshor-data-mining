@@ -1,5 +1,6 @@
 {{Item
 |title=Mummy Wraps
+|stablekey=item:glove - 5 - mummy wraps
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[Rotting Mummy]] (7.0%)

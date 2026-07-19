@@ -1,5 +1,6 @@
 {{Item
 |title=Voidblessed Compass
+|stablekey=item:gen - voidbound compass
 |type=
 |vendorsource=
 |source=

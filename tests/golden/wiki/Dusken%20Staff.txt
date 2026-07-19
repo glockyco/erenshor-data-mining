@@ -1,5 +1,6 @@
 {{Item
 |title=Dusken Staff
+|stablekey=item:weap - 22 - dusken staff
 |type=
 |vendorsource=
 |source=[[Dusken Giant]] (33.3%)

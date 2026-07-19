@@ -1,5 +1,6 @@
 {{Item
 |title=Green Pteriaped Feather
+|stablekey=item:gen - blue pteriaped feather
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Pteriaped Chick]] (35.0%)<br>[[Pteriaped Matron]] (35.0%)

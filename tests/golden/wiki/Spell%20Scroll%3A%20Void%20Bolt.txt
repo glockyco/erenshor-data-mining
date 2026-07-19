@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Void Bolt
+|stablekey=item:spell scroll - void bolt
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

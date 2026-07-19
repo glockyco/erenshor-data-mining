@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Magic Bolt
+|stablekey=item:spell scroll - magic bolt
 |type=[[Ability Books]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
 |source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)

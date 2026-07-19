@@ -1,5 +1,6 @@
 {{Item
 |title=Unholy Bonesaw
+|stablekey=item:weap - 24 - bonesaw
 |type=
 |vendorsource=
 |source=[[Headless]] (5.9%)

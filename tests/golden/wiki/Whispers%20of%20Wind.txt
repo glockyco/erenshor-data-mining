@@ -1,5 +1,6 @@
 {{Item
 |title=Whispers of Wind
+|stablekey=item:aura - vitheo 4
 |type=[[Auras]]
 |vendorsource=
 |source=[[Ripples]] (50.0%)

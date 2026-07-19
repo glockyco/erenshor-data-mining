@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dooming Undertow
+|stablekey=item:spell scroll - dooming undertow
 |type=[[Ability Books]]
 |vendorsource=[[Juctin Mysia]]
 |source=

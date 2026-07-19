@@ -1,5 +1,6 @@
 {{Item
 |title=Abominable Ribcage
+|stablekey=item:back - 42 - ribcage
 |type=
 |vendorsource=
 |source=[[Jinx]] (68.9%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

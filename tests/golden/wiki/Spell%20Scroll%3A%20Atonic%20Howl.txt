@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Atonic Howl
+|stablekey=item:spell scroll - atonic howl
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

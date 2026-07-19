@@ -1,5 +1,6 @@
 {{Item
 |title=Songmaker
+|stablekey=item:weap - 18 - torturer's dagger
 |type=
 |vendorsource=
 |source=[[Spectral Torturer]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Ice Bolt
+|stablekey=item:spell scroll - ice bolt
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Inert Rune of Fernalla
+|stablekey=item:gen - inert rune of fernalla
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Fallen Fernalla]] (100.0%)

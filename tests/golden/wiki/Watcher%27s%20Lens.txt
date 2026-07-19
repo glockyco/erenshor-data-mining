@@ -2,6 +2,7 @@
 
 {{Item
 |title=Watcher's Lens
+|stablekey=item:gen - watcher's lens
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

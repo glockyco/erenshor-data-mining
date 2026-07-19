@@ -1,5 +1,6 @@
 {{Item
 |title=Memories of Snow
+|stablekey=item:hand - 25 - memories of snow
 |type=
 |vendorsource=
 |source=[[Invader of Dreams]] (25.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Guide of Offering
+|stablekey=item:gen - offering stone guide
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

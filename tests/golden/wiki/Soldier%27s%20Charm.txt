@@ -1,5 +1,6 @@
 {{Item
 |title=Soldier's Charm
+|stablekey=item:charm - 30 - soldier's charm
 |type=
 |vendorsource=
 |source=

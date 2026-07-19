@@ -1,5 +1,6 @@
 {{Item
 |title=A Sleepyhead
+|stablekey=item:fish - sleepyhead
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=[[Wardwarped Alpha]] (20.8%)<br>[[Frenzy]] (17.8%)<br>[[Grappler]] (17.8%)<br>[[Spinesnap Gorilla]] (17.8%)<br>[[Wardwarped Gorilla]] (14.2%)

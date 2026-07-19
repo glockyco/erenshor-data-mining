@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Glare of Soluna
+|stablekey=item:spell scroll - glare of soluna
 |type=[[Ability Books]]
 |vendorsource=[[Akaran Black]]<br>[[Leyor M'Chante]]
 |source=

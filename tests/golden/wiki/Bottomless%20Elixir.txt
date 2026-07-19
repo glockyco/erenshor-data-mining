@@ -1,5 +1,6 @@
 {{Item
 |title=Bottomless Elixir
+|stablekey=item:cons - bottomless elixir
 |type=[[Quest Items|Quest Item]], [[Consumables|Potion]]
 |vendorsource=
 |source=

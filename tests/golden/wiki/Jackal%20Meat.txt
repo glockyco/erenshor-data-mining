@@ -1,5 +1,6 @@
 {{Item
 |title=Jackal Meat
+|stablekey=item:gen - jackal meat
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Desert Jackal]] (86.3%)

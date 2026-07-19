@@ -1,5 +1,6 @@
 {{Item
 |title=Charged Sword
+|stablekey=item:weap - 35 - charged sword
 |type=
 |vendorsource=
 |source=[[Savannah Priel (Character)|Savannah Priel]] (50.0%)

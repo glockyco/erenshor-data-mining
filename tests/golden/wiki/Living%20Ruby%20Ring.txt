@@ -1,5 +1,6 @@
 {{Item
 |title=Living Ruby Ring
+|stablekey=item:ring - 24 - living ruby ring
 |type=
 |vendorsource=
 |source=[[Ruby Fiend]] (9.0%)

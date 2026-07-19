@@ -1,5 +1,6 @@
 {{Item
 |title=Priel Steel Armguards
+|stablekey=item:arm - 28 - priel steel arms
 |type=
 |vendorsource=
 |source=[[Julianna Priel]] (50.0%)

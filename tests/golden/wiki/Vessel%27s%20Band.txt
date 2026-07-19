@@ -1,5 +1,6 @@
 {{Item
 |title=Vessel's Band
+|stablekey=item:ring - 39 - vessel's band
 |type=
 |vendorsource=
 |source=[[Vessel Siraethe]] (28.6%)

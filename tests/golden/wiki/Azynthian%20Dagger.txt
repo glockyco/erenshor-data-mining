@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Dagger
+|stablekey=item:weap - 35 - azynthiandagger
 |type=
 |vendorsource=
 |source=[[Oracle Miress]] (33.3%)

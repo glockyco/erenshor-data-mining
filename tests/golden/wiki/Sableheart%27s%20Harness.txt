@@ -1,5 +1,6 @@
 {{Item
 |title=Sableheart's Harness
+|stablekey=item:belt - 31 - sableheart's harness
 |type=
 |vendorsource=
 |source=[[Sableheart, Steed of Sivakaya]] (33.3%)

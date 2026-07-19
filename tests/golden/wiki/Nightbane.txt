@@ -1,5 +1,6 @@
 {{Item
 |title=Nightbane
+|stablekey=item:back - 33 - nightbane
 |type=
 |vendorsource=
 |source=[[Hypnic]] (33.3%)

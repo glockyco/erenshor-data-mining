@@ -1,5 +1,6 @@
 {{Item
 |title=Fernallan Knight's Helm
+|stablekey=item:head - 24 - fernallan knight's helm
 |type=
 |vendorsource=
 |source=[[Maple]] (50.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Mace
+|stablekey=item:weap - 30 - braxonian mace
 |type=
 |vendorsource=
 |source=[[Braxonian High Guard]] (4.6%)<br>[[Braxonian Honor Guard]] (2.3%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)

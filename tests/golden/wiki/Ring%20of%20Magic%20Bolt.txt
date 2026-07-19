@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Magic Bolt
+|stablekey=item:ring - 5 - ring of magic bolt
 |type=
 |vendorsource=[[Samuel Thatcher]]<br>[[Yale Harvey]]
 |source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Sylvan Giant Runt]] (23.5%)

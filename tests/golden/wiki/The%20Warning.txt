@@ -1,5 +1,6 @@
 {{Item
 |title=The Warning
+|stablekey=item:quest - bellwain window pane
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

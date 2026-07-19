@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Warstomps
+|stablekey=item:foot - 18 - molorai warstomps
 |type=
 |vendorsource=
 |source=[[Overseer Laseal]] (55.1%)

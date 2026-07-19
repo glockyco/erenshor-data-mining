@@ -1,5 +1,6 @@
 {{Item
 |title=Merosavillian Bow
+|stablekey=item:bow - 21 - merosavillian bow
 |type=
 |vendorsource=
 |source=[[Spectral King's Guard]] (25.0%)

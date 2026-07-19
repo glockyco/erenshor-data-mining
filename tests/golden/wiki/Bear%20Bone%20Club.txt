@@ -1,5 +1,6 @@
 {{Item
 |title=Bear Bone Club
+|stablekey=item:weap - 6 - bearbone club
 |type=
 |vendorsource=[[Brian Meshley]]
 |source=[[Yarren Mathers]] (100.0%)<br>[[Elysia Thistlewick]] (12.9%)<br>[[Sprig Laisey]] (12.9%)<br>[[Priel Lieutenant Bovo]] (8.7%)<br>[[Priel Lieutenant Laflin]] (8.7%)<br>[[Priel Lieutenant Lance]] (8.7%)<br>[[Addison Priel]] (8.7%)<br>[[Chazza Priel]] (8.7%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (8.7%)<br>[[Julianna Priel]] (8.7%)

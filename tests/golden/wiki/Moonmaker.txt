@@ -1,5 +1,6 @@
 {{Item
 |title=Moonmaker
+|stablekey=item:weap - 42 - moonmaker
 |type=
 |vendorsource=
 |source=[[Solunarian Moonkeeper]] (6.7%)

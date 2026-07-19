@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Citrine Sandsilver
+|stablekey=item:ore - citrine sandsilver
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Candlekeeper]] (40.2%)<br>[[Evadne the Corrupted]] (29.1%)

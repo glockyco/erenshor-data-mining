@@ -1,5 +1,6 @@
 {{Item
 |title=Swirlstone Amulet
+|stablekey=item:neck - 12 - swirlstone amulet
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)

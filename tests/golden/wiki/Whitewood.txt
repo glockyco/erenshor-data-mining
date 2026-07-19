@@ -1,5 +1,6 @@
 {{Item
 |title=Whitewood
+|stablekey=item:bow - 7 - whitewood bow
 |type=
 |vendorsource=
 |source=[[Priel Lieutenant Bovo]] (4.9%)<br>[[Priel Lieutenant Laflin]] (4.9%)<br>[[Priel Lieutenant Lance]] (4.9%)

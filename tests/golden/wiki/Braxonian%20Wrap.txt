@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Wrap
+|stablekey=item:chest - 19 - braxonian wrap
 |type=
 |vendorsource=
 |source=[[Apha, Priest of Brax]] (25.5%)<br>[[Upha, Priest of Brax]] (25.5%)

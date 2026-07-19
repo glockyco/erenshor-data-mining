@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Instill Fear
+|stablekey=item:spell scroll - instill fear
 |type=
 |vendorsource=[[Xander Zaxtrough]]
 |source=

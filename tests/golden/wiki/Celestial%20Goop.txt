@@ -1,5 +1,6 @@
 {{Item
 |title=Celestial Goop
+|stablekey=item:gen - celestial goop
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Celestial Matter]] (13.4%)

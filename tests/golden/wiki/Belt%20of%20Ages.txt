@@ -1,5 +1,6 @@
 {{Item
 |title=Belt of Ages
+|stablekey=item:belt - 25 - belt of ages
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

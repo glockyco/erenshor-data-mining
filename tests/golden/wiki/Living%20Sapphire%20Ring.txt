@@ -1,5 +1,6 @@
 {{Item
 |title=Living Sapphire Ring
+|stablekey=item:ring - 24 - living sapphire ring
 |type=
 |vendorsource=
 |source=[[Sapphire Fiend]] (9.0%)

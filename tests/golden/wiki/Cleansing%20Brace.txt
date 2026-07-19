@@ -1,5 +1,6 @@
 {{Item
 |title=Cleansing Brace
+|stablekey=item:wrist - 42 - cleansing brace
 |type=
 |vendorsource=
 |source=[[Braxonian Chest]] (35.5%)

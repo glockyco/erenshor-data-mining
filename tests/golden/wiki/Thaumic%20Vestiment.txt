@@ -1,5 +1,6 @@
 {{Item
 |title=Thaumic Vestiment
+|stablekey=item:chest - 42 - thaumic vestiment
 |type=
 |vendorsource=
 |source=[[Lava Fiend]] (4.0%)<br>[[Tundra Walker]] (3.7%)<br>[[Greater Fire Elemental]] (2.0%)<br>[[Greater Ice Elemental]] (2.0%)<br>[[Large Fire Elemental]] (2.0%)<br>[[Large Ice Elemental]] (2.0%)<br>[[Fire Elemental]] (1.7%)<br>[[Ice Elemental]] (1.7%)

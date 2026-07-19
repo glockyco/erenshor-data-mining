@@ -1,5 +1,6 @@
 {{Item
 |title=Mason's Pick
+|stablekey=item:weap - 0 - mason's pick
 |type=
 |vendorsource=
 |source=[[Molorai Mason]] (33.3%)

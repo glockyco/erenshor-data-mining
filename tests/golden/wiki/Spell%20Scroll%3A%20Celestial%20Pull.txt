@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Celestial Pull
+|stablekey=item:spell scroll - celestial pull
 |type=[[Ability Books]]
 |vendorsource=[[Akaran Black]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Belt Lamp
+|stablekey=item:gen - belt lamp
 |type=
 |vendorsource=[[Gus Highrest]]<br>[[Parmalee Gemlyn]]<br>[[Samuel Thatcher]]<br>[[Treven Pines]]
 |source=

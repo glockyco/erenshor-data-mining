@@ -1,5 +1,6 @@
 {{Item
 |title=Obsidian Bracer
+|stablekey=item:wrist - 13 - obsidian bracer
 |type=
 |vendorsource=
 |source=[[Molorai Captain Sigrid]] (55.4%)

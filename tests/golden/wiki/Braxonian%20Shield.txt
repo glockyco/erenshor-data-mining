@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Shield
+|stablekey=item:secondary - 18 - braxonian shield
 |type=
 |vendorsource=
 |source=[[Peon]] (33.3%)

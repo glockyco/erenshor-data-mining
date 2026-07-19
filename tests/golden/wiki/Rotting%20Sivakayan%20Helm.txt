@@ -1,5 +1,6 @@
 {{Item
 |title=Rotting Sivakayan Helm
+|stablekey=item:head - 9 - sivakayan metal helm
 |type=
 |vendorsource=
 |source=[[An Apparition of Sivakaya]] (25.0%)

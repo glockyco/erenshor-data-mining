@@ -1,5 +1,6 @@
 {{Item
 |title=Pg. 5: Faded Entry
+|stablekey=item:gen - treasure hunter pg 5 (elderstone)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ravager, The First Infected]] (100.0%)

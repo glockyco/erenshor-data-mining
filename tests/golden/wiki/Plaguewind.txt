@@ -1,5 +1,6 @@
 {{Item
 |title=Plaguewind
+|stablekey=item:back - 38 - plaguewind
 |type=
 |vendorsource=
 |source=[[Blight Wyrm]] (33.3%)

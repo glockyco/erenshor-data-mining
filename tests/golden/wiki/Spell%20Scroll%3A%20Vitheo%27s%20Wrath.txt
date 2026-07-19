@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Wrath
+|stablekey=item:spell scroll - vitheo's wrath
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Elizabeth DeWitt]]<br>[[Juctin Mysia]]
 |source=

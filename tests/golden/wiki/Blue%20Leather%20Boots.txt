@@ -1,5 +1,6 @@
 {{Item
 |title=Blue Leather Boots
+|stablekey=item:foot - 9 - blue leather boots
 |type=
 |vendorsource=
 |source=[[Bassalt Vallano]] (50.0%)

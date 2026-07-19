@@ -1,5 +1,6 @@
 {{Item
 |title=Seastone Prism
+|stablekey=item:neck - 18 - seastone prism
 |type=
 |vendorsource=
 |source=[[Algaeth Bilgeback]] (85.7%)

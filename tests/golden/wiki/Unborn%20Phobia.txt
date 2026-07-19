@@ -1,6 +1,7 @@
 Used as both a recipe list and ingredient for {{QuestLink | link=The Ripper Ritual}}
 {{Item
 |title=Unborn Phobia
+|stablekey=item:gen - unborn phobia
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Invader of Dreams]] (100.0%)

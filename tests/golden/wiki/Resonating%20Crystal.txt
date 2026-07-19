@@ -1,5 +1,6 @@
 {{Item
 |title=Resonating Crystal
+|stablekey=item:hand - 28 - resonating crystal
 |type=
 |vendorsource=
 |source=[[Granitus]] (20.0%)

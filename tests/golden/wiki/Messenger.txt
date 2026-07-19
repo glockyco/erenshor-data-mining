@@ -1,5 +1,6 @@
 {{Item
 |title=Messenger
+|stablekey=item:weap - 35 - messenger
 |type=
 |vendorsource=
 |source=[[Rotting Guardian]] (0.6%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Bronzed Solunarian Greaves
+|stablekey=item:leg - 8 - bronzed solunian greaves
 |type=
 |vendorsource=[[Akaran Black]]
 |source=

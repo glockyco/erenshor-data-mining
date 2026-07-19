@@ -1,5 +1,6 @@
 {{Item
 |title=Carved Bow
+|stablekey=item:bow - 4 - carved bow
 |type=
 |vendorsource=[[Gus Highrest]]<br>[[Treven Pines]]
 |source=[[Grassland Ogre Hunter]] (22.1%)<br>[[Islander Bandit]] (3.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Rotting Meat
+|stablekey=item:gen - rotting meat
 |type=[[:Category:Items|General]]
 |vendorsource=[[Enterprising Spirit]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Magical Skin II
+|stablekey=item:spell scroll - magic skin 2
 |type=[[Ability Books]]
 |vendorsource=[[Cerbantias Flameward]]
 |source=

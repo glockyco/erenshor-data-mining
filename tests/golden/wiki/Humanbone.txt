@@ -1,5 +1,6 @@
 {{Item
 |title=Humanbone
+|stablekey=item:bow - 17 - humanbone bow
 |type=
 |vendorsource=
 |source=[[A Grassland Ogre Sentinel]] (12.1%)<br>[[A Grassland Ogre Shaman]] (8.7%)

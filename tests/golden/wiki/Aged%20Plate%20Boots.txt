@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Plate Boots
+|stablekey=item:foot - 18 - aged plate boots
 |type=
 |vendorsource=
 |source=[[Spectral Guard]] (1.4%)<br>[[Spectral High Guard]] (1.4%)<br>[[Spectral King's Guard]] (1.0%)<br>[[Rotting Royal Hound]] (0.9%)

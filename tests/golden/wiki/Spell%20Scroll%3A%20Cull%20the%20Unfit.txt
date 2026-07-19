@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Cull the Unfit
+|stablekey=item:spell scroll - drudd cull the unfit
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Aspen Dechaffe]]
 |source=

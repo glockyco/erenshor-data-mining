@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Precision
+|stablekey=item:skillbook - precision
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Windlae Oldseer]]
 |source=

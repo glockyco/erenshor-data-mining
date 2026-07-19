@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Codex 2 of 4
+|stablekey=item:gen - sivakayan codex shard 2
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Shrouded Sivakayan]] (100.0%)

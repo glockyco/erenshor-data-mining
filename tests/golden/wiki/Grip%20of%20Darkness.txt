@@ -1,5 +1,6 @@
 {{Item
 |title=Grip of Darkness
+|stablekey=item:glove - 33 - grip of darkness
 |type=
 |vendorsource=
 |source=[[Molorai Eldermistress]] (33.3%)

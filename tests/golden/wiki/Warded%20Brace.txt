@@ -1,5 +1,6 @@
 {{Item
 |title=Warded Brace
+|stablekey=item:wrist - 35 - warded brace
 |type=
 |vendorsource=
 |source=[[Wardwarped Alpha]] (33.3%)

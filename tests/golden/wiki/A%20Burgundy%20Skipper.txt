@@ -1,5 +1,6 @@
 {{Item
 |title=A Burgundy Skipper
+|stablekey=item:fish - a burgundy skipper
 |type=[[Consumables|Consumable]]
 |vendorsource=[[Isaac Salaman]]
 |source=

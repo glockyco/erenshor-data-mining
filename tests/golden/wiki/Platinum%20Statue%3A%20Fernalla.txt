@@ -1,5 +1,6 @@
 {{Item
 |title=Platinum Statue: Fernalla
+|stablekey=item:furniture - stone statue platinum fernalla
 |type=
 |vendorsource=
 |source=[[Fernalla, Goddess of Nature]] (14.8%)<br>[[Fernalla, Goddess of Nature]] (11.2%)

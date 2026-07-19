@@ -1,5 +1,6 @@
 {{Item
 |title=Stowaway's Step Lighthouse Key
+|stablekey=item:key - stowaway step lighthouse key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

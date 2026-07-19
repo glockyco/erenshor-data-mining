@@ -1,5 +1,6 @@
 {{Item
 |title=Diamondine Shield
+|stablekey=item:secondary - 18 - diamondine shield
 |type=
 |vendorsource=
 |source=[[Stoneman Diamondine]] (66.7%)

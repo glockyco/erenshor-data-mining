@@ -1,5 +1,6 @@
 {{Item
 |title=Relaxation
+|stablekey=item:quest - bellwain relaxing
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

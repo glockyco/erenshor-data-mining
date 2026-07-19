@@ -1,5 +1,6 @@
 {{Item
 |title=Morning Glow
+|stablekey=item:aura - soluna 2
 |type=[[Auras]]
 |vendorsource=[[Akaran Black]]
 |source=[[Beady]] (25.0%)

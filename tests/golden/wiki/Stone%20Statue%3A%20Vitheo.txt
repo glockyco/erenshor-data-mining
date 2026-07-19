@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Statue: Vitheo
+|stablekey=item:furniture - stone statue vitheo
 |type=
 |vendorsource=
 |source=[[Vithean Betrayer]] (1.7%)<br>[[Vithean Immortal]] (0.8%)

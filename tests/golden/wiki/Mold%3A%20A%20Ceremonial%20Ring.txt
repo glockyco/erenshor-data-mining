@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: A Ceremonial Ring
+|stablekey=item:template - a ceremonial ring
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=

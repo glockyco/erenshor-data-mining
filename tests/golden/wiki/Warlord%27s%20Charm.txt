@@ -1,5 +1,6 @@
 {{Item
 |title=Warlord's Charm
+|stablekey=item:charm - 35 - warlord's charm
 |type=
 |vendorsource=
 |source=[[Braxonian Fossil]] (5.3%)

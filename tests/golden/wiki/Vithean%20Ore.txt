@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Ore
+|stablekey=item:ore - vithean ore
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Vithean Elemental]] (19.6%)

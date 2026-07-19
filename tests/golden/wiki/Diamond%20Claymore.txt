@@ -1,5 +1,6 @@
 {{Item
 |title=Diamond Claymore
+|stablekey=item:weap - 25 - diamond claymore
 |type=
 |vendorsource=
 |source=[[Stoneman Colossus]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Battleworn Plate
+|stablekey=item:chest - 20 - battleworn plate
 |type=
 |vendorsource=
 |source=[[Goliath]] (20.0%)

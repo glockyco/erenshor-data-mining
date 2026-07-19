@@ -1,5 +1,6 @@
 {{Item
 |title=Smithy
+|stablekey=item:furniture - generic smithy
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Journeyman's Pick
+|stablekey=item:weap - 0 - journeyman's pick
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Stone Auction Set
+|stablekey=item:furniture - stone auction
 |type=
 |vendorsource=
 |source=

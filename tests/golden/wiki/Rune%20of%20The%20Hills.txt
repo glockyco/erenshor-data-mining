@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of The Hills
+|stablekey=item:gen - rune of the hills
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

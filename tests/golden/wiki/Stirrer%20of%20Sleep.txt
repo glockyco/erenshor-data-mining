@@ -1,5 +1,6 @@
 {{Item
 |title=Stirrer of Sleep
+|stablekey=item:weap - 28 - stirrer of sleep
 |type=
 |vendorsource=
 |source=[[Cloaked Shadow]] (4.5%)

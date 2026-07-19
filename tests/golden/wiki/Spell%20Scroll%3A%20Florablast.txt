@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Florablast
+|stablekey=item:spell scroll - florablast
 |type=
 |vendorsource=
 |source=[[Astorim]] (1.7%)<br>[[Karsith]] (1.7%)<br>[[Orinthar]] (1.5%)<br>[[Vextral]] (1.5%)

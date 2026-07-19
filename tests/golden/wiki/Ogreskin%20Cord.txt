@@ -1,5 +1,6 @@
 {{Item
 |title=Ogreskin Cord
+|stablekey=item:belt - 11 - ogreskin cord
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Impending Doom
+|stablekey=item:spell scroll - impending doom
 |type=[[Ability Books]]
 |vendorsource=[[Leyor M'Chante]]
 |source=

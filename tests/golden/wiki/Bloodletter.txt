@@ -1,5 +1,6 @@
 {{Item
 |title=Bloodletter
+|stablekey=item:weap - 13 - bloodletter
 |type=
 |vendorsource=
 |source=[[A Highwayman Marauder]] (7.3%)<br>[[Shambler]] (6.7%)

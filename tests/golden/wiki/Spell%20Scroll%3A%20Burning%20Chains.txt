@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Burning Chains
+|stablekey=item:spell scroll - burning chains
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
 |source=[[Gloopa|Gloopa (Quarter)]] (1.7%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)

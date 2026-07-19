@@ -1,5 +1,6 @@
 {{Item
 |title=Razor Waveblade
+|stablekey=item:weap - 13 - razor waveblade
 |type=
 |vendorsource=
 |source=[[Molorai Bodyguard]] (5.1%)

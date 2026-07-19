@@ -1,5 +1,6 @@
 {{Item
 |title=Kio's Leave Order
+|stablekey=item:gen - deportation papers
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

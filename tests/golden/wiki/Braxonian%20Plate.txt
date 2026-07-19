@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Plate
+|stablekey=item:chest - 32 - braxonian plate
 |type=
 |vendorsource=
 |source=[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxonian Weapon Master]] (0.7%)<br>[[Braxonian Honor Guard]] (0.6%)<br>[[Braxonian High Guard]] (0.5%)

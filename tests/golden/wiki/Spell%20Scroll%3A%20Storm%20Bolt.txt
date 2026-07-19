@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Storm Bolt
+|stablekey=item:spell scroll - storm bolt
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Gus Highrest]]<br>[[Treven Pines]]
 |source=

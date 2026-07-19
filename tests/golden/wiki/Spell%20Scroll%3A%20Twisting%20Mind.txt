@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Twisting Mind
+|stablekey=item:spell scroll - twisting mind
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Sivakayan Faithbound]] (2.1%)

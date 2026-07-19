@@ -1,5 +1,6 @@
 {{Item
 |title=Fire Emerald Band
+|stablekey=item:ring - 16 - fire emerald band
 |type=
 |vendorsource=
 |source=[[Blazefiend]] (25.0%)

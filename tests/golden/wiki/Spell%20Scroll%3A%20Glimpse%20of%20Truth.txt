@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Glimpse of Truth
+|stablekey=item:spell scroll - glimpse of demise
 |type=[[Ability Books]]
 |vendorsource=[[Leyor M'Chante]]
 |source=

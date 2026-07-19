@@ -1,5 +1,6 @@
 {{Item
 |title=Arachnid Carapace
+|stablekey=item:chest - 42 - arachnid carapace
 |type=
 |vendorsource=
 |source=[[Xjeris]] (68.9%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

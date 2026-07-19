@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Quiver
+|stablekey=item:back - 42 - vithean quiver
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skeleton Eye
+|stablekey=item:gen - skeleton eye
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Skeleton Captain]] (6.0%)<br>[[Wiggleribs]] (5.9%)<br>[[A Skeleton Soldier]] (3.4%)<br>[[Bassalt Vallano]] (3.4%)

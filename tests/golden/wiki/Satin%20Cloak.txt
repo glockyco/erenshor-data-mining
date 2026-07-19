@@ -1,5 +1,6 @@
 {{Item
 |title=Satin Cloak
+|stablekey=item:back - 6 - satin cloak
 |type=
 |vendorsource=
 |source=[[Zashlyn Bloodbane]] (5.6%)

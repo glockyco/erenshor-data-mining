@@ -1,5 +1,6 @@
 {{Item
 |title=Savannah's Musings
+|stablekey=item:book - savannahs ledger
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Savannah Priel (Character)|Savannah Priel]] (100.0%)

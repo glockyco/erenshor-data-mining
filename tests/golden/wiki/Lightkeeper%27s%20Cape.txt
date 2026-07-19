@@ -1,5 +1,6 @@
 {{Item
 |title=Lightkeeper's Cape
+|stablekey=item:back - 6 - lightkeepers cape
 |type=
 |vendorsource=
 |source=

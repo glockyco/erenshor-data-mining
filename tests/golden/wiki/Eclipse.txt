@@ -1,5 +1,6 @@
 {{Item
 |title=Eclipse
+|stablekey=item:aura - soluna 4
 |type=[[Auras]]
 |vendorsource=
 |source=[[Raval, The First Paladin]] (20.0%)

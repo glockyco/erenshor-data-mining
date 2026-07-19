@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Helm
+|stablekey=item:head - 21 - ancient guardian helm
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

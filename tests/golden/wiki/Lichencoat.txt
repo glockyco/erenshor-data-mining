@@ -1,5 +1,6 @@
 {{Item
 |title=Lichencoat
+|stablekey=item:chest - 30 - lichencoat
 |type=
 |vendorsource=
 |source=[[Abyssal Lord]] (50.0%)

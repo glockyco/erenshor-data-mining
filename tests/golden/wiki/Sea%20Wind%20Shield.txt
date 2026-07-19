@@ -1,5 +1,6 @@
 {{Item
 |title=Sea Wind Shield
+|stablekey=item:secondary - 42 - sea wind shield
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)

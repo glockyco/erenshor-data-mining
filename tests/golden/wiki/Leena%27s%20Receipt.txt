@@ -1,5 +1,6 @@
 {{Item
 |title=Leena's Receipt
+|stablekey=item:gen - leena's receipt
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

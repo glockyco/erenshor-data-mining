@@ -1,5 +1,6 @@
 {{Item
 |title=Tenet of Braxonia
+|stablekey=item:neck - 42 - tenet of braxonia
 |type=
 |vendorsource=
 |source=[[Brax, God of Elements]] (33.3%)

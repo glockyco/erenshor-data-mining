@@ -1,5 +1,6 @@
 {{Item
 |title=Flamesoles
+|stablekey=item:foot - 21 - flamesoles
 |type=
 |vendorsource=
 |source=[[Ember Acolyte]] (33.3%)

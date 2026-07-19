@@ -1,5 +1,6 @@
 {{Item
 |title=Shadowed Key
+|stablekey=item:key - shadowed key
 |type=
 |vendorsource=
 |source=[[Soul Linked Spider]] (100.0%)

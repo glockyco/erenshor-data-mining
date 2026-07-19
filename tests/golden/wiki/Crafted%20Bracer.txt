@@ -1,5 +1,6 @@
 {{Item
 |title=Crafted Bracer
+|stablekey=item:wrist - 16 - crafted bracer
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

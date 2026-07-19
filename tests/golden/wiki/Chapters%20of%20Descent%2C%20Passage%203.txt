@@ -1,5 +1,6 @@
 {{Item
 |title=Chapters of Descent, Passage 3
+|stablekey=item:gen - cod - pg 3
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Acceptor]] (100.0%)

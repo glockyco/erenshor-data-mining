@@ -1,5 +1,6 @@
 {{Item
 |title=Cape of the Sands
+|stablekey=item:back - 17 - sandcloak
 |type=
 |vendorsource=
 |source=[[Overseer Refleigh]] (14.2%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)

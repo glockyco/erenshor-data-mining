@@ -1,5 +1,6 @@
 {{Item
 |title=Spark of Light
+|stablekey=item:aura - brax 1
 |type=[[Auras]]
 |vendorsource=[[Alexandria Fadden]]<br>[[Amanda Rostley]]
 |source=

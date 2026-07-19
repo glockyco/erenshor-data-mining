@@ -1,5 +1,6 @@
 {{Item
 |title=Fiery Revival
+|stablekey=item:neck - 25 - firey revival
 |type=
 |vendorsource=
 |source=[[Pyroclast]] (33.3%)

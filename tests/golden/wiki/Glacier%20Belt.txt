@@ -1,5 +1,6 @@
 {{Item
 |title=Glacier Belt
+|stablekey=item:belt - 42 - glacier belt
 |type=
 |vendorsource=
 |source=[[Elementalist Mizuki]] (68.9%)<br>[[Brax, God of Elements]] (37.6%)

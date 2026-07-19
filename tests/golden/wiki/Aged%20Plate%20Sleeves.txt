@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Plate Sleeves
+|stablekey=item:arm - 6 - aged plate  sleeves
 |type=
 |vendorsource=
 |source=[[Spectral Castle Guard]] (3.4%)<br>[[Spectral Guard]] (2.7%)<br>[[Spectral High Guard]] (2.7%)<br>[[Spectral King's Guard]] (2.0%)<br>[[Rotting Royal Hound]] (0.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Braxonian Ore
+|stablekey=item:ore - braxonian ore
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Statue of Brax]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Call To Arms
+|stablekey=item:back - 12 - call to arms
 |type=
 |vendorsource=
 |source=[[Overseer Orlok]] (51.6%)

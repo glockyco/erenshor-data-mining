@@ -1,5 +1,6 @@
 {{Item
 |title=Monarch of Flame
+|stablekey=item:quest - game piece monarch of flame
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=[[Elysia Thistlewick]]
 |source=[[Hand of the King]] (4.4%)

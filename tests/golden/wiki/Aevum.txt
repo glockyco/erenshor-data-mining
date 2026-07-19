@@ -1,5 +1,6 @@
 {{Item
 |title=Aevum
+|stablekey=item:neck - 42 - aevum
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

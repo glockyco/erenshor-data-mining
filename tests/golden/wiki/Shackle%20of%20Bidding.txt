@@ -1,5 +1,6 @@
 {{Item
 |title=Shackle of Bidding
+|stablekey=item:wrist - 25 - shackle of bidding
 |type=
 |vendorsource=
 |source=[[Morian the Ascended]] (66.7%)

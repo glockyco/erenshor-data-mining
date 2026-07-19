@@ -1,5 +1,6 @@
 {{Item
 |title=Meteorite Gauntlets
+|stablekey=item:glove - 24 - meteorite gauntlets
 |type=
 |vendorsource=
 |source=[[Living Meteorite]] (13.1%)

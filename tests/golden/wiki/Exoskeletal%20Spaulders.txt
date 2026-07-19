@@ -1,5 +1,6 @@
 {{Item
 |title=Exoskeletal Spaulders
+|stablekey=item:arm - 18 - exoskeleton spaulders
 |type=
 |vendorsource=
 |source=[[Spark Royal]] (50.0%)

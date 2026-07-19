@@ -1,5 +1,6 @@
 {{Item
 |title=Faerie Sleeves
+|stablekey=item:arm - 8 - faerie sleeves
 |type=
 |vendorsource=
 |source=[[Tinkles]] (4.0%)

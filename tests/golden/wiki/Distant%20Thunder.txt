@@ -1,5 +1,6 @@
 {{Item
 |title=Distant Thunder
+|stablekey=item:aura - storm 3
 |type=[[Auras|Aura]]
 |vendorsource=
 |source=[[Cinder]] (20.0%)<br>[[Goliath]] (3.3%)<br>[[Gruhglor]] (3.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Frostmaker
+|stablekey=item:weap - 33 - frostmaker
 |type=
 |vendorsource=
 |source=[[Candlekeeper]] (50.0%)

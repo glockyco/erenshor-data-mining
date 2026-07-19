@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of Rage
+|stablekey=item:charm - 22 - charm of rage
 |type=
 |vendorsource=
 |source=

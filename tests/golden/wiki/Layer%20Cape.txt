@@ -1,5 +1,6 @@
 {{Item
 |title=Layer Cape
+|stablekey=item:back - 19 - layered cape
 |type=
 |vendorsource=
 |source=[[Goliath]] (20.0%)

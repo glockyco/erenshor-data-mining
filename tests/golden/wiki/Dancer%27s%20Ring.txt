@@ -1,5 +1,6 @@
 {{Item
 |title=Dancer's Ring
+|stablekey=item:ring - 34 - dancer's ring
 |type=
 |vendorsource=
 |source=[[Sivakayan High Shadow]] (4.3%)

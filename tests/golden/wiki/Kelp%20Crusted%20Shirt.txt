@@ -1,5 +1,6 @@
 {{Item
 |title=Kelp Crusted Shirt
+|stablekey=item:chest - 5 - seaweed soaked shirt
 |type=
 |vendorsource=
 |source=[[Blunga]] (83.3%)

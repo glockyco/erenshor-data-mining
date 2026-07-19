@@ -1,5 +1,6 @@
 {{Item
 |title=Ethereal Shell
+|stablekey=item:aura - ethereal shell (item)
 |type=
 |vendorsource=
 |source=[[Xjeris]] (68.9%)

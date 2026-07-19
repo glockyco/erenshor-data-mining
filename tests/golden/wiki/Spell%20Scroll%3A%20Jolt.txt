@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Jolt
+|stablekey=item:spell scroll - jolt
 |type=[[Ability Books]]
 |vendorsource=[[Aldoa Manday]]<br>[[Edwin Ansegg]]<br>[[Ophelia Luminee]]
 |source=

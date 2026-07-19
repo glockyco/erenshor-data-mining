@@ -1,5 +1,6 @@
 {{Item
 |title=Etched Armlet
+|stablekey=item:arm - 8 - etched armlet
 |type=
 |vendorsource=
 |source=[[Obba of the Warkind]] (66.7%)

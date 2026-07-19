@@ -1,5 +1,6 @@
 {{Item
 |title=Essence of Flame
+|stablekey=item:aura - brax 2
 |type=[[Auras]]
 |vendorsource=[[Edwin Ansegg]]
 |source=

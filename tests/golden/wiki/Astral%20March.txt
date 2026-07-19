@@ -1,5 +1,6 @@
 {{Item
 |title=Astral March
+|stablekey=item:leg - 42 - astral march
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

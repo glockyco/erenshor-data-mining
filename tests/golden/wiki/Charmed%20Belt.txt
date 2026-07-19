@@ -1,5 +1,6 @@
 {{Item
 |title=Charmed Belt
+|stablekey=item:belt - 31 - charmed belt
 |type=
 |vendorsource=
 |source=[[Winkles]] (18.2%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)

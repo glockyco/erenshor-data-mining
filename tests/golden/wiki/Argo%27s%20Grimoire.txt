@@ -1,5 +1,6 @@
 {{Item
 |title=Argo's Grimoire
+|stablekey=item:hand - 10 - argo's grimmiore
 |type=
 |vendorsource=
 |source=[[Tinkles]] (23.7%)<br>[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Overseer Orlok]] (3.2%)

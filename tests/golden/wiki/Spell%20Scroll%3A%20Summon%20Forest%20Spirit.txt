@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Summon Forest Spirit
+|stablekey=item:spell scroll - summon forest spirit
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=[[Tiver Banes]]
 |source=

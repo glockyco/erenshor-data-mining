@@ -1,5 +1,6 @@
 {{Item
 |title=Sailor's Belt
+|stablekey=item:belt - 9 - sailor's belt
 |type=
 |vendorsource=[[Saya Seawatcher]]
 |source=[[The Lost Sea Giant King]] (30.1%)

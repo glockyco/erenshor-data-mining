@@ -1,5 +1,6 @@
 {{Item
 |title=Hardened Copper Sword
+|stablekey=item:weap - bronze short sword +1
 |type=
 |vendorsource=
 |source=[[Bassle Wavebreaker]] (67.9%)<br>[[Cagnus Marlsen]] (67.9%)<br>[[Molorai Anointed]] (57.4%)<br>[[Molorai Specialist]] (57.4%)

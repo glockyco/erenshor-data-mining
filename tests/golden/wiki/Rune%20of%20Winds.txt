@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Winds
+|stablekey=item:gen - rune of winds
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

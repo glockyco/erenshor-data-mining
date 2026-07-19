@@ -1,5 +1,6 @@
 {{Item
 |title=Interstellar Charm
+|stablekey=item:charm - 42 - interstellar charm
 |type=
 |vendorsource=
 |source=[[Animation of Faith]] (25.1%)<br>[[Soluna]] (5.8%)

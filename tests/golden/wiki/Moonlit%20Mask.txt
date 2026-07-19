@@ -1,5 +1,6 @@
 {{Item
 |title=Moonlit Mask
+|stablekey=item:head - 42 - moonlit mask
 |type=
 |vendorsource=
 |source=[[Soluna]] (36.0%)

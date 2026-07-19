@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Copper Sceptre
+|stablekey=item:template - bronze sceptre
 |type=[[Crafting|Mold]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
 |source=

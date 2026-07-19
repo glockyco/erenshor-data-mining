@@ -1,5 +1,6 @@
 {{Item
 |title=Braided Belt
+|stablekey=item:belt - 2 - braided belt
 |type=
 |vendorsource=
 |source=

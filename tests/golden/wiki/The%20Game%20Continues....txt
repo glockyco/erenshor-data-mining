@@ -1,5 +1,6 @@
 {{Item
 |title=The Game Continues...
+|stablekey=item:gen - beta test note
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=

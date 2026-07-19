@@ -1,5 +1,6 @@
 {{Item
 |title=Runed Molorai Axe
+|stablekey=item:weap - 11 - runed molora axe 1
 |type=
 |vendorsource=
 |source=[[Molorai Archmage]] (70.9%)

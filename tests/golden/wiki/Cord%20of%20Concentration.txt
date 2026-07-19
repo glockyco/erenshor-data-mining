@@ -1,5 +1,6 @@
 {{Item
 |title=Cord of Concentration
+|stablekey=item:belt - 42 - cord of concentration
 |type=
 |vendorsource=
 |source=[[Animation of Grace]] (68.9%)

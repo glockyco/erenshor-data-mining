@@ -1,5 +1,6 @@
 {{Item
 |title=Gloves of Vitheo
+|stablekey=item:glove - 39 - gloves of vitheo
 |type=
 |vendorsource=
 |source=[[Apparition of Vitheo]] (51.7%)

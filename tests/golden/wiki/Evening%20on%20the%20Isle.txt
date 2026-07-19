@@ -1,5 +1,6 @@
 {{Item
 |title=Evening on the Isle
+|stablekey=item:quest - bellwain evening
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

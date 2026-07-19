@@ -1,5 +1,6 @@
 {{Item
 |title=Wakeweaver
+|stablekey=item:back - 42 - wakeweaver
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)

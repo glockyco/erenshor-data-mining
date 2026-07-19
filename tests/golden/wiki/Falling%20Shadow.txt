@@ -1,5 +1,6 @@
 {{Item
 |title=Falling Shadow
+|stablekey=item:aura - reaver 1
 |type=
 |vendorsource=[[Alexandria Fadden]]<br>[[Amanda Rostley]]
 |source=

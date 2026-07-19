@@ -1,5 +1,6 @@
 {{Item
 |title=Spark of the First Flame
+|stablekey=item:gen - spark of the first flame
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Braxonian Ascended]] (7.8%)<br>[[Braxonian High Guard]] (7.8%)<br>[[Braxonian Tempest]] (7.8%)<br>[[Braxon Prospect]] (6.8%)

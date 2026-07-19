@@ -1,5 +1,6 @@
 {{Item
 |title=Explorer's Cap
+|stablekey=item:head - 15 - explorers cap
 |type=
 |vendorsource=
 |source=[[Goliath]] (20.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Standard Halberd
+|stablekey=item:weap - 6 - standard halberd
 |type=
 |vendorsource=[[Brian Meshley]]
 |source=

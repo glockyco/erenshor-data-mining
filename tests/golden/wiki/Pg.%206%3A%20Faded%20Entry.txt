@@ -1,5 +1,6 @@
 {{Item
 |title=Pg. 6: Faded Entry
+|stablekey=item:gen - treasure hunter pg 6 (rockshade)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Pyroclast]] (100.0%)

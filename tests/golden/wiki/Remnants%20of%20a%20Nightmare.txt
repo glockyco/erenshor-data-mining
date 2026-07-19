@@ -1,5 +1,6 @@
 {{Item
 |title=Remnants of a Nightmare
+|stablekey=item:gen - remnants of a nightmare
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
 |source=[[Restless Thoughts]] (78.7%)<br>[[Invader of Dreams]] (26.8%)<br>[[Nightmarian Hound]] (19.3%)<br>[[Nightmarian Arcanist]] (17.8%)<br>[[Nightmarian Knight]] (11.8%)<br>[[Lullaby Fiend]] (4.5%)<br>[[Night Terror]] (4.5%)<br>[[Waking Nightmare]] (4.5%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Sivakaya's Dismay
+|stablekey=item:spell scroll - sivakaya's dismay
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

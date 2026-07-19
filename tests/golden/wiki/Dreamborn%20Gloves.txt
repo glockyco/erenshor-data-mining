@@ -1,5 +1,6 @@
 {{Item
 |title=Dreamborn Gloves
+|stablekey=item:glove - 22 - dreamborn gloves
 |type=
 |vendorsource=
 |source=[[Invader of Dreams]] (25.0%)

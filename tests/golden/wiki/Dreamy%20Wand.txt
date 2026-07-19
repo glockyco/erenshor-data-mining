@@ -1,5 +1,6 @@
 {{Item
 |title=Dreamy Wand
+|stablekey=item:wand - 21 - dreamy wand
 |type=
 |vendorsource=
 |source=[[Dream]] (50.0%)

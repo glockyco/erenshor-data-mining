@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Sands
+|stablekey=item:gen - rune of sands
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Sand Mummy]] (4.6%)<br>[[Scorched Skeleton]] (4.6%)

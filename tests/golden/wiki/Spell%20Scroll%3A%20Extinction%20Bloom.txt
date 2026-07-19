@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Extinction Bloom
+|stablekey=item:spell scroll - drudd extinction bloom
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
 |source=[[Molorai Nightmistress]] (5.2%)

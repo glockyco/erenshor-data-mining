@@ -1,5 +1,6 @@
 {{Item
 |title=Gem Encrusted Sash
+|stablekey=item:belt - 42 - gem encrusted girdle
 |type=
 |vendorsource=
 |source=[[Sprinkles]] (69.6%)<br>[[Fernalla, Goddess of Nature]] (5.8%)

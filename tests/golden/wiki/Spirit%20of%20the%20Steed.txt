@@ -1,5 +1,6 @@
 {{Item
 |title=Spirit of the Steed
+|stablekey=item:aura - steed
 |type=[[Auras]]
 |vendorsource=
 |source=[[Blazefiend]] (25.0%)

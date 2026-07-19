@@ -1,5 +1,6 @@
 {{Item
 |title=Shrine of Blessings
+|stablekey=item:furniture - shrine of blessings
 |type=
 |vendorsource=
 |source=

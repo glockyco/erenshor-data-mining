@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Air of Intimidation
+|stablekey=item:spell scroll - air of intimidation
 |type=
 |vendorsource=
 |source=[[Khorso, Soluna's Advisor]] (100.0%)

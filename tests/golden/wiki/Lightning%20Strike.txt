@@ -1,5 +1,6 @@
 {{Item
 |title=Lightning Strike
+|stablekey=item:aura - storm 4
 |type=[[Auras|Aura]]
 |vendorsource=
 |source=[[Apparition of Vitheo]] (20.5%)

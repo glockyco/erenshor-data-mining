@@ -1,5 +1,6 @@
 {{Item
 |title=Wizarding Mitts
+|stablekey=item:glove - 7 - wizarding mitts
 |type=
 |vendorsource=[[Edwin Ansegg]]
 |source=

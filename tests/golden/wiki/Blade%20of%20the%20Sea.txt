@@ -1,5 +1,6 @@
 {{Item
 |title=Blade of the Sea
+|stablekey=item:weap - 12 - blade of the sea
 |type=
 |vendorsource=
 |source=[[Greater Vithean Elemental]] (33.3%)

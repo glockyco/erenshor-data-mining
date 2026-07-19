@@ -1,5 +1,6 @@
 {{Item
 |title=Golden Luminstone Ring
+|stablekey=item:ring - 3 - golden luminstone ring
 |type=
 |vendorsource=[[Parmalee Gemlyn]]
 |source=[[A Protected Memory]] (7.6%)<br>[[A Restless Spirit]] (7.6%)<br>[[A Sorrowful Spirit]] (5.6%)<br>[[An Enraged Spirit]] (5.6%)

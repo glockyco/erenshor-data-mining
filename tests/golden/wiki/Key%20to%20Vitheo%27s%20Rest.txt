@@ -1,5 +1,6 @@
 {{Item
 |title=Key to Vitheo's Rest
+|stablekey=item:key - key to vitheo's rest
 |type=[[Quest Items|Quest Item]], [[Keys|Key]]
 |vendorsource=
 |source=[[Aareth Graveblade]] (100.0%)<br>[[Vethalo Gala]] (100.0%)

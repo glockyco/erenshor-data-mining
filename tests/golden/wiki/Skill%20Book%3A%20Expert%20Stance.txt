@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Expert Stance
+|stablekey=item:skillbook - stance - expert
 |type=
 |vendorsource=
 |source=[[Solunarian Paladin]] (1.1%)

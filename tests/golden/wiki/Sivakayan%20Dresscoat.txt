@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Dresscoat
+|stablekey=item:chest - 30 - sivakayan dresscoat
 |type=
 |vendorsource=
 |source=[[Darkwarden Ealdred]] (66.7%)<br>[[Sivakayan Emissary]] (50.0%)<br>[[Darkwarden Awxa]] (33.3%)

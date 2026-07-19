@@ -1,5 +1,6 @@
 {{Item
 |title=Bag of Offering Stones
+|stablekey=item:gen - bag of offering stones
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Tome of Necromancy
+|stablekey=item:hand - 36 - tome of necromancy
 |type=
 |vendorsource=
 |source=[[Darkwarden Ilyth]] (50.0%)

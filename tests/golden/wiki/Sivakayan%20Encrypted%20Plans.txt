@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Encrypted Plans
+|stablekey=item:gen - sivakayan codex encryption
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Sivakayan Voidmaster]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Double Attack
+|stablekey=item:skillbook - double attack
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Benson Gamble]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
 |source=

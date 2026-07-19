@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: An Otherwordly Box
+|stablekey=item:template - an otherwordly mold
 |type=
 |vendorsource=[[Elysia Thistlewick]]<br>[[Summoned: Pocket Vendor]]
 |source=

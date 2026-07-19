@@ -1,5 +1,6 @@
 {{Item
 |title=Monarch's Mask
+|stablekey=item:head - 39 - monarch's mask
 |type=
 |vendorsource=
 |source=[[Monarch of the Flame]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Officer's Bracer
+|stablekey=item:wrist -  25 - officer's brace
 |type=
 |vendorsource=
 |source=[[Armorer Nell]] (4.0%)<br>[[Captain Ovid]] (4.0%)<br>[[Celeso the Historian]] (4.0%)<br>[[Jeremie Galyard]] (4.0%)

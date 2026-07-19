@@ -1,5 +1,6 @@
 {{Item
 |title=Charm of the Jester
+|stablekey=item:charm - 22 - charm of the jester
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Griefwarden
+|stablekey=item:secondary - 38 - griefwarden
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

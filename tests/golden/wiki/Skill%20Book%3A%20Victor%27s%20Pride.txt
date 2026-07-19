@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Victor's Pride
+|stablekey=item:skillbook - pride
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Ludo Luxo]]
 |source=

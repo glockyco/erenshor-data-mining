@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Counter-Attack
+|stablekey=item:skillbook - counter-attack
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Grant Haxoway]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Rockshade Key
+|stablekey=item:key - rockshade key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[Stoneman Knight]] (1.1%)

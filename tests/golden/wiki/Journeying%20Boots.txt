@@ -1,5 +1,6 @@
 {{Item
 |title=Journeying Boots
+|stablekey=item:foot - 14 - journeying boots
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=A Beaktooth
+|stablekey=item:fish - gumtooth
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=

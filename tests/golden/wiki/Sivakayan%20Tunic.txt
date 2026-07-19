@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Tunic
+|stablekey=item:chest - 8 - sivakayan tunic
 |type=
 |vendorsource=
 |source=[[Acceptor]] (3.4%)

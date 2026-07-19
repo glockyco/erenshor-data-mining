@@ -1,5 +1,6 @@
 {{Item
 |title=Memory of Balaste
+|stablekey=item:gen - memory of balaste
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Balaste the Fallen]] (100.0%)

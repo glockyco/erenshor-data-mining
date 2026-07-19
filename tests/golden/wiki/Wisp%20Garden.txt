@@ -1,5 +1,6 @@
 {{Item
 |title=Wisp Garden
+|stablekey=item:furniture - wisp garden
 |type=
 |vendorsource=
 |source=[[Corrupted Fungal Bear]] (1.0%)<br>[[Fungal Wolf]] (1.0%)<br>[[Maple]] (1.0%)<br>[[Risen Hierophant]] (1.0%)<br>[[Stalking Wolf]] (1.0%)<br>[[Bloom Preserver]] (1.0%)<br>[[Frenzy]] (1.0%)<br>[[Grappler]] (1.0%)<br>[[Greater Fawn]] (1.0%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (0.6%)<br>[[Fernallan Guardian]] (0.6%)<br>[[Rotting Guardian]] (0.6%)<br>[[Fungal Bear]] (0.5%)

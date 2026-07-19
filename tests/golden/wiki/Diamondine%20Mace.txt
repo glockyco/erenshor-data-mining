@@ -1,5 +1,6 @@
 {{Item
 |title=Diamondine Mace
+|stablekey=item:weap - 18 - diamondine mace
 |type=
 |vendorsource=
 |source=[[Stoneman Diamondine]] (4.5%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Rusty Shortsword
+|stablekey=item:weap - 1 - rusty sword
 |type=
 |vendorsource=[[Gus Highrest]]<br>[[Innkeeper Ryvan]]<br>[[Samuel Thatcher]]<br>[[Treven Pines]]<br>[[Yale Harvey]]
 |source=[[A Brittle Skeleton]] (5.9%)<br>[[Risen Pilgrim]] (5.9%)

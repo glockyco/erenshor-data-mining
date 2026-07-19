@@ -1,5 +1,6 @@
 {{Item
 |title=Awaken
+|stablekey=item:weap - 16 - awaken
 |type=
 |vendorsource=
 |source=[[Restless Thoughts]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Seafarer's Pendant
+|stablekey=item:neck - 8 - seafarer's pendant
 |type=
 |vendorsource=
 |source=[[Aragath Swellsteer]] (100.0%)

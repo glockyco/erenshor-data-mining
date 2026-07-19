@@ -1,5 +1,6 @@
 {{Item
 |title=Bracer of the Blessed
+|stablekey=item:wrist - 42 - bracer of the blessed
 |type=
 |vendorsource=
 |source=[[Animation of Faith]] (68.2%)

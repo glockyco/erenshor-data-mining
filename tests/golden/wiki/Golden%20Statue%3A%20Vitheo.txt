@@ -1,5 +1,6 @@
 {{Item
 |title=Golden Statue: Vitheo
+|stablekey=item:furniture - gold statue vitheo
 |type=
 |vendorsource=
 |source=[[Vithean Immortal]] (0.2%)

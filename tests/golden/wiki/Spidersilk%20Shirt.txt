@@ -1,5 +1,6 @@
 {{Item
 |title=Spidersilk Shirt
+|stablekey=item:chest - 13 - spidersilk shirt
 |type=
 |vendorsource=[[Edwin Ansegg]]
 |source=

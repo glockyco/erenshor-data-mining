@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vithean Gale
+|stablekey=item:spell scroll - vithean gale
 |type=[[Ability Books]]
 |vendorsource=[[Juctin Mysia]]
 |source=

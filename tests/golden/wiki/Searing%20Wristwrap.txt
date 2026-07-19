@@ -1,5 +1,6 @@
 {{Item
 |title=Searing Wristwrap
+|stablekey=item:wrist - 17 - searing wrap
 |type=
 |vendorsource=
 |source=[[Overseer Refleigh]] (14.2%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Plain Necklace
+|stablekey=item:neck - 1 - plain necklace
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Brackish Croc Whelp]] (100.0%)

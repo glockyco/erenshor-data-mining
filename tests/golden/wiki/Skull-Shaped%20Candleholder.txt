@@ -1,5 +1,6 @@
 {{Item
 |title=Skull-Shaped Candleholder
+|stablekey=item:gen - nighthollow base
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Eldoth Molorai]] (100.0%)

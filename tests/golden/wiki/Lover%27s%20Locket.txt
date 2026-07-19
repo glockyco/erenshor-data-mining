@@ -1,5 +1,6 @@
 {{Item
 |title=Lover's Locket
+|stablekey=item:neck - 26 - lover's locket
 |type=
 |vendorsource=
 |source=[[Arcane Headmaster]] (50.0%)

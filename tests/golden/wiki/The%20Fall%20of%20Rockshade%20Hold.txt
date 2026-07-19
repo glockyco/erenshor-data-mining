@@ -1,5 +1,6 @@
 {{Item
 |title=The Fall of Rockshade Hold
+|stablekey=item:book - fall of rockshade
 |type=[[Lore Items|Lore]]
 |vendorsource=[[Rory Gilmare]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Sleeper's Pin
+|stablekey=item:weap - 21 - pin
 |type=
 |vendorsource=
 |source=[[Nightmarian Arcanist]] (6.7%)

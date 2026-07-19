@@ -1,5 +1,6 @@
 {{Item
 |title=Crested Spaulders
+|stablekey=item:arm - 36 - crested spaulders
 |type=
 |vendorsource=
 |source=[[Armorer Nell]] (4.0%)<br>[[Captain Ovid]] (4.0%)<br>[[Celeso the Historian]] (4.0%)<br>[[Jeremie Galyard]] (4.0%)

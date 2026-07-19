@@ -1,5 +1,6 @@
 {{Item
 |title=A Strange Artifact
+|stablekey=item:gen - a strange artifact (fern)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=
@@ -73,6 +74,7 @@
 
 {{Item
 |title=A Strange Artifact
+|stablekey=item:gen - a strange artifact (vith)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

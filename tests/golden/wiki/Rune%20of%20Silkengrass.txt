@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Silkengrass
+|stablekey=item:gen - rune of silkengrass
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Shadow Man]] (5.9%)<br>[[Aetherfiend]] (5.1%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vithean Breeze
+|stablekey=item:spell scroll - vithean breeze
 |type=[[Ability Books]]
 |vendorsource=[[Aldoa Manday]]<br>[[Ludo Luxo]]<br>[[Ophelia Luminee]]<br>[[Pierson Windwash]]<br>[[Samuel Thatcher]]<br>[[Yale Harvey]]
 |source=

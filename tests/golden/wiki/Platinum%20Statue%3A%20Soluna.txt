@@ -1,5 +1,6 @@
 {{Item
 |title=Platinum Statue: Soluna
+|stablekey=item:furniture - stone statue platinum soluna
 |type=
 |vendorsource=
 |source=[[Soluna]] (16.6%)<br>[[Soluna]] (13.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Mold: Nighthollow Wax
+|stablekey=item:template - nighthollow wax mold
 |type=[[Crafting|Mold]]
 |vendorsource=
 |source=[[Candlekeeper]] (100.0%)

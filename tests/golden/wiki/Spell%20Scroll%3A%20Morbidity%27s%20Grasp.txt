@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Morbidity's Grasp
+|stablekey=item:spell scroll - morbidity's grasp
 |type=[[Ability Books]]
 |vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Predator's Shard
+|stablekey=item:neck - 42 - predator's soulstone
 |type=
 |vendorsource=
 |source=[[Arbor]] (66.7%)

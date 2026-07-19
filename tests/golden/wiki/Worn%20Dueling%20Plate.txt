@@ -1,5 +1,6 @@
 {{Item
 |title=Worn Dueling Plate
+|stablekey=item:chest - 28 - worn dueling plate
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (25.6%)

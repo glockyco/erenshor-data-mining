@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Block
+|stablekey=item:skillbook - block 1
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Akaran Black]]
 |source=[[Islander Bandit]] (1.1%)

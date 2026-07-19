@@ -1,5 +1,6 @@
 {{Item
 |title=Old Torn Cape
+|stablekey=item:back - 4 - torn cape
 |type=
 |vendorsource=
 |source=[[An Apparition of Sivakaya]] (25.2%)<br>[[Sylvan Giant Runt]] (23.5%)<br>[[A Lesser Avatar of Sivakaya]] (9.0%)<br>[[Plaxitheris]] (8.7%)

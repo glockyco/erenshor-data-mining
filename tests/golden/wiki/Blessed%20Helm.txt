@@ -1,5 +1,6 @@
 {{Item
 |title=Blessed Helm
+|stablekey=item:head - 31 - blessed helm
 |type=
 |vendorsource=
 |source=[[Raval, The First Paladin]] (20.0%)

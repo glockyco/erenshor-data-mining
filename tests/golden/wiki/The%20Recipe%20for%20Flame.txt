@@ -1,5 +1,6 @@
 {{Item
 |title=The Recipe for Flame
+|stablekey=item:gen - rekindling the flame 1
 |type=[[Lore Items|Lore Item]]
 |vendorsource=
 |source=[[Nazura the Traitor]] (100.0%)

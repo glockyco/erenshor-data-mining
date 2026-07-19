@@ -1,5 +1,6 @@
 {{Item
 |title=Infused Bracelet
+|stablekey=item:wrist - 6 - infused bracelet
 |type=
 |vendorsource=
 |source=[[Blunga]] (16.7%)

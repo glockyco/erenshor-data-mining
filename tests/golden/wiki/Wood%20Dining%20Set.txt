@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Dining Set
+|stablekey=item:furniture - wood dining
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

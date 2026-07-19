@@ -1,5 +1,6 @@
 {{Item
 |title=An Octorunner
+|stablekey=item:fish - octorunner
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=[[Summoned: Pocket Vendor]]
 |source=[[Priel Malarist]] (1.7%)

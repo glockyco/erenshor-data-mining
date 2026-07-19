@@ -1,5 +1,6 @@
 {{Item
 |title=Ear of Kilkay
+|stablekey=item:gen - ear of kilkay
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Captain Kilkay]] (100.0%)

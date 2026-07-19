@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Leather Sleeves
+|stablekey=item:arm - 5 - shivering leather sleeves
 |type=
 |vendorsource=
 |source=[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)

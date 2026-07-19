@@ -1,5 +1,6 @@
 {{Item
 |title=Wild Colossus Ring
+|stablekey=item:ring - 22 - wild colossus ring
 |type=
 |vendorsource=
 |source=[[Xasxi]] (33.3%)

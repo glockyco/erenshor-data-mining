@@ -1,5 +1,6 @@
 {{Item
 |title=Stolen Memories
+|stablekey=item:gen - stolen memories
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Acolyte of Azynthi]] (100.0%)

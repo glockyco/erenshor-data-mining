@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Hateful Stance
+|stablekey=item:skillbook - stance - hateful
 |type=
 |vendorsource=
 |source=[[Darkwarden Ealdred]] (32.7%)

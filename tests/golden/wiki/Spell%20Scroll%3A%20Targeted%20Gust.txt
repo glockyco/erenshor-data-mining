@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Targeted Gust
+|stablekey=item:spell scroll - targeted gust
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Windlae Oldseer]]
 |source=

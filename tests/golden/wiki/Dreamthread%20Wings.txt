@@ -1,5 +1,6 @@
 {{Item
 |title=Dreamthread Wings
+|stablekey=item:back - 19 - dreamthreaded wings
 |type=
 |vendorsource=
 |source=[[Ghost of Plaxitheris]] (50.0%)

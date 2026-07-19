@@ -1,5 +1,6 @@
 {{Item
 |title=Ancient Guardian Sleeve
+|stablekey=item:arm - 19  - ancient guardian sleeve
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

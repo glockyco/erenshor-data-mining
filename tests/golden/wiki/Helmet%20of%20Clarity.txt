@@ -1,5 +1,6 @@
 {{Item
 |title=Helmet of Clarity
+|stablekey=item:head - 42 - helm of clarity
 |type=
 |vendorsource=
 |source=[[Animation of Faith]] (68.2%)

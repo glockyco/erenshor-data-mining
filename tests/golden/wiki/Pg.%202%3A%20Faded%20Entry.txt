@@ -1,5 +1,6 @@
 {{Item
 |title=Pg. 2: Faded Entry
+|stablekey=item:gen - treasure hunter pg 2 (krakengard)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Molorai Captain Sigrid]] (100.0%)

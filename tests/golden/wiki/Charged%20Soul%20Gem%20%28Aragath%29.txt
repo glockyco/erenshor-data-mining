@@ -1,5 +1,6 @@
 {{Item
 |title=Charged Soul Gem (Aragath)
+|stablekey=item:quest - charged soul gem aragath
 |type=
 |vendorsource=
 |source=

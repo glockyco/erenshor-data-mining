@@ -1,5 +1,6 @@
 {{Item
 |title=Warped Choker
+|stablekey=item:neck - 38 - warped choker
 |type=
 |vendorsource=
 |source=[[Sivakayan Voidmaster]] (8.6%)

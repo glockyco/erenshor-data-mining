@@ -1,5 +1,6 @@
 {{Item
 |title=Solar Forged Ring
+|stablekey=item:ring - 31 - solarforged ring
 |type=
 |vendorsource=
 |source=[[Raval, The First Paladin]] (40.0%)

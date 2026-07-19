@@ -1,5 +1,6 @@
 {{Item
 |title=Looming Void
+|stablekey=item:aura - reaver 2
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Memory of Vitheo
+|stablekey=item:gen - memory of vitheo
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Apparition of Vitheo]] (100.0%)

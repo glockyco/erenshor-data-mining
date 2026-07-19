@@ -1,5 +1,6 @@
 {{Item
 |title=Ring of Tidal Winds
+|stablekey=item:ring - 42 - ring of tidal winds
 |type=
 |vendorsource=
 |source=[[Solunarian Chest]] (33.3%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)

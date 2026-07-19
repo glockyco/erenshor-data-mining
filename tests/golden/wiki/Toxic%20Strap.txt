@@ -1,5 +1,6 @@
 {{Item
 |title=Toxic Strap
+|stablekey=item:belt - 18 - toxic strap
 |type=
 |vendorsource=
 |source=[[Gloopa|Gloopa (Quarter)]] (38.5%)

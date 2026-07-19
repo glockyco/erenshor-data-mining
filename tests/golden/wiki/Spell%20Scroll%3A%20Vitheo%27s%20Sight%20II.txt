@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Vitheo's Sight II
+|stablekey=item:spell scroll - vitheo's sight ii
 |type=
 |vendorsource=[[Pierson Windwash]]
 |source=

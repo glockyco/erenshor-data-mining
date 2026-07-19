@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Weight of the Sea
+|stablekey=item:spell scroll - weight of the sea
 |type=[[Ability Books]]
 |vendorsource=[[Pierson Windwash]]
 |source=

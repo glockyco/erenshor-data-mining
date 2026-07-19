@@ -1,5 +1,6 @@
 {{Item
 |title=Flaming Vambraces
+|stablekey=item:arm - 19 - flaming vambraces
 |type=
 |vendorsource=
 |source=[[Peon]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Idol of Sivakaya
+|stablekey=item:hand - 5 - idol of sivakaya
 |type=[[Crafting]]
 |vendorsource=
 |source=[[Neophyte Necromancer]] (3.4%)<br>[[Woe]] (2.3%)<br>[[Boatman]] (1.1%)

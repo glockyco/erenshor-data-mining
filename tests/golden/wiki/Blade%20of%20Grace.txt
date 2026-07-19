@@ -1,5 +1,6 @@
 {{Item
 |title=Blade of Grace
+|stablekey=item:weap - 42 - blade of grace
 |type=
 |vendorsource=
 |source=[[Animation of Grace]] (68.9%)<br>[[Soluna]] (5.8%)

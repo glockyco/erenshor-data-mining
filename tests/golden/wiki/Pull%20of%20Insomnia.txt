@@ -1,5 +1,6 @@
 {{Item
 |title=Pull of Insomnia
+|stablekey=item:wrist - 11 - grip of insomnia
 |type=
 |vendorsource=
 |source=[[Wiggleribs]] (6.9%)

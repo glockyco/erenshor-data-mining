@@ -1,5 +1,6 @@
 {{Item
 |title=Feathered Cape
+|stablekey=item:back - 26 - feathered cape
 |type=
 |vendorsource=
 |source=[[Pteriaped Matron]] (33.3%)

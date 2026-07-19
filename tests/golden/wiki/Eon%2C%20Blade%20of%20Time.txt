@@ -1,5 +1,6 @@
 {{Item
 |title=Eon, Blade of Time
+|stablekey=item:weap - 40 - eon
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

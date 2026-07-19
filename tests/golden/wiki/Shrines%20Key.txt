@@ -1,5 +1,6 @@
 {{Item
 |title=Shrines Key
+|stablekey=item:key - shrines key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=

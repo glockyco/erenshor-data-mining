@@ -1,5 +1,6 @@
 {{Item
 |title=End's Bane
+|stablekey=item:weap - 24 - end's call
 |type=
 |vendorsource=
 |source=[[Tiallia Priel]] (25.0%)

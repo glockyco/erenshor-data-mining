@@ -1,5 +1,6 @@
 {{Item
 |title=Vithean Sea Salt Ring
+|stablekey=item:ring - 12 - vithean seasalt ring
 |type=
 |vendorsource=
 |source=[[Molorai Captain Sigrid]] (55.4%)<br>[[Overseer Orlok]] (3.2%)

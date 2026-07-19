@@ -1,5 +1,6 @@
 {{Item
 |title=Demon's Crest
+|stablekey=item:neck - 10 - dreamcatcher
 |type=
 |vendorsource=
 |source=[[A Faerie Drone]] (4.5%)

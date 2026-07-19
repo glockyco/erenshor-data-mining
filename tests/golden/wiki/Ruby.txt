@@ -1,6 +1,7 @@
 This item can be turned in for {{QuestLink | link=A Magical Sword in Port Azure}}
 {{Item
 |title=Ruby
+|stablekey=item:gen - ruby
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (41.6%)<br>[[Headless]] (20.6%)<br>[[Bloom Preserver]] (17.8%)<br>[[Greater Fawn]] (17.8%)<br>[[Vinx]] (17.0%)<br>[[Chosen Fawn]] (13.8%)<br>[[Fawn of Fernalla]] (13.8%)<br>[[Autmis the Lost]] (12.9%)<br>[[Elizah Vernor]] (12.3%)<br>[[Molorai Brewmistress]] (12.3%)<br>[[Thella Steepleton]] (12.3%)<br>[[Risen Druid]] (10.8%)<br>[[Maple]] (6.9%)<br>[[Risen Hierophant]] (6.9%)<br>[[Elder Guardian]] (6.8%)<br>[[Molorai Veteran]] (6.8%)<br>[[A Deepling Brute]] (6.6%)<br>[[Shrouded Sivakayan]] (4.9%)<br>[[Sivakayan Doomshade]] (4.9%)<br>[[Sivakayan High Shadow]] (4.9%)<br>[[Sivakayan Shadow]] (4.9%)<br>[[Sivakayan Voidmaster]] (4.9%)<br>[[Wild Ogre]] (4.3%)<br>[[Sivakayan Devoted]] (4.2%)<br>[[Sivakayan Faithbound]] (4.2%)<br>[[Tinkles]] (4.0%)<br>[[Stoneman]] (3.2%)<br>[[Overseer Orlok]] (3.2%)<br>[[Gasper]] (1.8%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.6%)<br>[[Fright]] (1.6%)<br>[[Stoneman Magi]] (1.1%)<br>[[Shiverman]] (0.6%)<br>[[Ancient Guard]] (0.2%)<br>[[Braxonian High Guard]] (0.2%)<br>[[Vithean Immortal]] (0.2%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Black Flame
+|stablekey=item:gen - nighthollow flame
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Monarch of the Flame]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Armbands of Order
+|stablekey=item:arm - 36 - armbands of order
 |type=
 |vendorsource=
 |source=[[Lost Treasure (30+)]] (12.8%)

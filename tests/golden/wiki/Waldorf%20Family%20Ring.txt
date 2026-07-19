@@ -1,5 +1,6 @@
 {{Item
 |title=Waldorf Family Ring
+|stablekey=item:ring - 2 -  waldorf family ring
 |type=
 |vendorsource=
 |source=

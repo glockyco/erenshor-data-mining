@@ -1,5 +1,6 @@
 {{Item
 |title=Cold Steel Greaves
+|stablekey=item:leg - 6 - cold steel greaves
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=[[A Golden Spirit]] (14.0%)<br>[[Molorai Militia Warrior]] (4.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Dodge
+|stablekey=item:skillbook - dodge 1
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Amethi Plazzo]]<br>[[Benson Gamble]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
 |source=[[Islander Bandit]] (1.1%)

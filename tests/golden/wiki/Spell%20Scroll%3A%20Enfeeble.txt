@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Enfeeble
+|stablekey=item:spell scroll - enfeeble
 |type=
 |vendorsource=[[Grant Haxoway]]
 |source=[[Sivakayan Reaver]] (3.0%)

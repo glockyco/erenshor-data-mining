@@ -1,5 +1,6 @@
 {{Item
 |title=Elder's Slippers
+|stablekey=item:foot - 27 - elder's slippers
 |type=
 |vendorsource=
 |source=[[Arcane Headmaster]] (50.0%)

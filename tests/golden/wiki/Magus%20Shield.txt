@@ -1,5 +1,6 @@
 {{Item
 |title=Magus Shield
+|stablekey=item:secondary - 11 - magus shield
 |type=
 |vendorsource=
 |source=[[Sagan Ilth]] (6.7%)

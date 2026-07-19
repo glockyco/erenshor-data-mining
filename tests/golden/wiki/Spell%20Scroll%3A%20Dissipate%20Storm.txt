@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dissipate Storm
+|stablekey=item:spell scroll - dissipate storm
 |type=[[Ability Books]]
 |vendorsource=
 |source=

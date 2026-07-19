@@ -1,5 +1,6 @@
 {{Item
 |title=Seafarer's Hood
+|stablekey=item:head - 28 - seafarer's hood
 |type=
 |vendorsource=
 |source=[[Molorai Dockmaster]] (66.7%)

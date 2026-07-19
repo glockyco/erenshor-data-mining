@@ -1,5 +1,6 @@
 {{Item
 |title=Stilling Cord
+|stablekey=item:belt - 31 - stilling cord
 |type=
 |vendorsource=
 |source=[[Shrouded Sivakayan]] (8.6%)

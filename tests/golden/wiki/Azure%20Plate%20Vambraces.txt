@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Plate Vambraces
+|stablekey=item:arm - 6 - azure plate vamebraces
 |type=
 |vendorsource=[[Violet Smithfield]]
 |source=

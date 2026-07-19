@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Waste
+|stablekey=item:spell scroll - waste
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

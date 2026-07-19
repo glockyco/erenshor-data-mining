@@ -1,5 +1,6 @@
 {{Item
 |title=Chunk of Copper Ore
+|stablekey=item:ore - bronze ore
 |type=[[Crafting]]
 |vendorsource=
 |source=

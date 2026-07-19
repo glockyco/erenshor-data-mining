@@ -1,5 +1,6 @@
 {{Item
 |title=Colorless Trousers
+|stablekey=item:leg - 42 - colorless trousers
 |type=
 |vendorsource=
 |source=[[Chunk of Amarion]] (40.8%)

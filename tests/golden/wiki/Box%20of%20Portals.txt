@@ -1,5 +1,6 @@
 {{Item
 |title=Box of Portals
+|stablekey=item:gen - box of portals
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

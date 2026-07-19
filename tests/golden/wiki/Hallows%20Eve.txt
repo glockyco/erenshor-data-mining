@@ -1,5 +1,6 @@
 {{Item
 |title=Hallows Eve
+|stablekey=item:aura - hallows
 |type=[[Auras]]
 |vendorsource=
 |source=[[Mephallo]] (33.3%)

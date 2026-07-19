@@ -1,5 +1,6 @@
 {{Item
 |title=Soul Gem (Revid)
+|stablekey=item:quest - soul gem revid
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Revid]] (100.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Fiery Thoughts
+|stablekey=item:head - 42 - fiery thoughts
 |type=
 |vendorsource=
 |source=[[Elementalist Mizuki]] (68.9%)

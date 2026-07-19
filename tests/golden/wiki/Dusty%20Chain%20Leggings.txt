@@ -1,5 +1,6 @@
 {{Item
 |title=Dusty Chain Leggings
+|stablekey=item:leg - 6 - dusty chain legs
 |type=
 |vendorsource=[[Pierson Windwash]]
 |source=

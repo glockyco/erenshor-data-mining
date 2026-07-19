@@ -1,5 +1,6 @@
 {{Item
 |title=Insect Shell Ring
+|stablekey=item:ring - 18 - insect shell ring
 |type=
 |vendorsource=
 |source=[[Spark Queen]] (50.0%)

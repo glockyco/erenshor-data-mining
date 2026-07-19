@@ -1,5 +1,6 @@
 {{Item
 |title=Coal
+|stablekey=item:ore - coal
 |type=[[Crafting]]<br>[[Quest Items|Quest Item]]
 |vendorsource=[[Oscar VanEllis]]
 |source=[[Failed Cremation]] (100.0%)

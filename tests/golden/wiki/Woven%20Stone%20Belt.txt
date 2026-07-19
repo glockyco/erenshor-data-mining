@@ -1,5 +1,6 @@
 {{Item
 |title=Woven Stone Belt
+|stablekey=item:belt - 24 - woven stone belt
 |type=
 |vendorsource=
 |source=[[Cinder]] (40.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Copper Sword
+|stablekey=item:weap - bronze short sword
 |type=
 |vendorsource=[[Brian Meshley]]<br>[[Pierson Windwash]]
 |source=[[Gort]] (10.4%)<br>[[Summoned Fallen Warrior]] (10.4%)<br>[[The Corpse of Brice Mathers]] (10.4%)<br>[[The Corpse of Cyndreela Mathers]] (10.4%)<br>[[A Sturdy Skeleton]] (7.0%)

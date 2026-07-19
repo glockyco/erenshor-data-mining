@@ -1,5 +1,6 @@
 {{Item
 |title=Oceanic Charm
+|stablekey=item:charm - 42 - oceanic charm
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 7)]] (66.7%)

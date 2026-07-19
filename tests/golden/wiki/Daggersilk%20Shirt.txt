@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Shirt
+|stablekey=item:chest - 5 - daggersilk shirt
 |type=
 |vendorsource=
 |source=

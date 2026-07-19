@@ -1,5 +1,6 @@
 {{Item
 |title=Wand of Air
+|stablekey=item:wand - 12 - wand of air
 |type=
 |vendorsource=
 |source=[[Greater Vithean Elemental]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Thaumic Hood
+|stablekey=item:head - 42 - thaumic hood
 |type=
 |vendorsource=
 |source=[[Greater Fire Elemental]] (2.0%)<br>[[Greater Ice Elemental]] (2.0%)<br>[[Large Fire Elemental]] (2.0%)<br>[[Large Ice Elemental]] (2.0%)<br>[[Lava Fiend]] (1.9%)<br>[[Fire Elemental]] (1.7%)<br>[[Ice Elemental]] (1.7%)<br>[[Tundra Walker]] (1.2%)

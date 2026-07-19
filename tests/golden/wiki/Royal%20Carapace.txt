@@ -1,5 +1,6 @@
 {{Item
 |title=Royal Carapace
+|stablekey=item:secondary - 18 - royal carapace
 |type=
 |vendorsource=
 |source=[[Spark Royal]] (50.0%)

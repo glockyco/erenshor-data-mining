@@ -1,5 +1,6 @@
 {{Item
 |title=Pendant of Petrified Wood
+|stablekey=item:neck - 13 - petrified wood pendant
 |type=[[Crafting]]
 |vendorsource=
 |source=[[A Grassland Ogre Plaguebringer]] (1.1%)

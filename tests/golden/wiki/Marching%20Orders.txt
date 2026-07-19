@@ -1,5 +1,6 @@
 {{Item
 |title=Marching Orders
+|stablekey=item:gen - marching orders
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Gherist Morthario]] (100.0%)

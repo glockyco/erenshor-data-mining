@@ -1,5 +1,6 @@
 {{Item
 |title=Ceremonial Gloves
+|stablekey=item:glove - 5 - ceremonial gloves
 |type=
 |vendorsource=
 |source=[[Failed Cremation]] (48.3%)

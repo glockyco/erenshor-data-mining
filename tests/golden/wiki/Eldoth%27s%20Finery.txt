@@ -1,5 +1,6 @@
 {{Item
 |title=Eldoth's Finery
+|stablekey=item:chest - 38 - eldoth's finery
 |type=
 |vendorsource=
 |source=[[Eldoth Molorai]] (25.0%)

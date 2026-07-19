@@ -1,5 +1,6 @@
 {{Item
 |title=Notes of a Hermit
+|stablekey=item:gen - notes of a hermit
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[A Hermit]] (100.0%)<br>[[Bommer Olvaro]] (100.0%)<br>[[Liam Olvaro]] (100.0%)

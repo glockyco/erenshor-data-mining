@@ -1,5 +1,6 @@
 {{Item
 |title=Fury Helm
+|stablekey=item:head - 35 - fury helm
 |type=
 |vendorsource=
 |source=[[Wardwarped Alpha]] (33.3%)

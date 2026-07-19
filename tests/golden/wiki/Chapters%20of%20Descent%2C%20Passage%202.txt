@@ -1,5 +1,6 @@
 {{Item
 |title=Chapters of Descent, Passage 2
+|stablekey=item:gen - cod - pg 2
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Prioress]] (6.8%)<br>[[Acolyte]] (6.0%)

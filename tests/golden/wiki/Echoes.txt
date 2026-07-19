@@ -1,5 +1,6 @@
 {{Item
 |title=Echoes
+|stablekey=item:head - 30 - echoes
 |type=
 |vendorsource=
 |source=

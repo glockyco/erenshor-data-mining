@@ -1,5 +1,6 @@
 {{Item
 |title=Lost Wizarding Hat
+|stablekey=item:head - 25 - lost wizarding cap
 |type=
 |vendorsource=
 |source=[[Arcane Pupil]] (4.4%)

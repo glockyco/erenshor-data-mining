@@ -1,5 +1,6 @@
 {{Item
 |title=Priel Knife
+|stablekey=item:weap - 4 - priel knife
 |type=
 |vendorsource=
 |source=[[A Priel Bandit Recruit]] (12.9%)<br>[[Islander Bandit]] (1.1%)

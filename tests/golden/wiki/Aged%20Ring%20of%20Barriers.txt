@@ -1,5 +1,6 @@
 {{Item
 |title=Aged Ring of Barriers
+|stablekey=item:ring - 25 - aged ring of barriers
 |type=
 |vendorsource=
 |source=[[Worn Ancient Guardian]] (1.4%)

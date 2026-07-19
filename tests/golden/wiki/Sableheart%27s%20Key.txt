@@ -1,5 +1,6 @@
 {{Item
 |title=Sableheart's Key
+|stablekey=item:key - sableheart's key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[Vessel Siraethe]] (100.0%)

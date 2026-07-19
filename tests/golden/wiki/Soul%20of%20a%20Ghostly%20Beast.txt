@@ -1,5 +1,6 @@
 {{Item
 |title=Soul of a Ghostly Beast
+|stablekey=item:gen - soul of a ghostly beast
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Ghost of Plaxitheris]] (100.0%)

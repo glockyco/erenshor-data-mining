@@ -1,5 +1,6 @@
 {{Item
 |title=Torn Treasure Map (Bottom Right)
+|stablekey=item:gen - torn map bottom right
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

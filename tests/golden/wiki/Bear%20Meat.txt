@@ -1,5 +1,6 @@
 {{Item
 |title=Bear Meat
+|stablekey=item:gen - bear meat
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Fungal Bear]] (95.3%)<br>[[Grizzlepaw]] (91.6%)<br>[[Planar Grizzly]] (74.5%)<br>[[A Brown Bear]] (38.6%)<br>[[A Brown Bear Cub]] (38.6%)<br>[[A Grizzly Bear]] (27.8%)<br>[[Dream]] (27.8%)<br>[[Kodiak]] (27.8%)<br>[[Albino Kodiak]] (14.8%)

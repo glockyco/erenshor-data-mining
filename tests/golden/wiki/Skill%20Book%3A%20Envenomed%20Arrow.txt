@@ -1,5 +1,6 @@
 {{Item
 |title=Skill Book: Envenomed Arrow
+|stablekey=item:skillbook - envenomed arrow
 |type=[[Ability Books|Skill Book]]
 |vendorsource=[[Torado Zortia]]
 |source=

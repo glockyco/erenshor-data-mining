@@ -1,5 +1,6 @@
 {{Item
 |title=Eternox, Remnant of the Void
+|stablekey=item:weap - 40 - eternox, remnant of the void
 |type=
 |vendorsource=
 |source=[[Astra, Rogue of the Stars]] (16.7%)

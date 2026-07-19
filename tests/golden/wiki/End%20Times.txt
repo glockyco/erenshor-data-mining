@@ -1,5 +1,6 @@
 {{Item
 |title=End Times
+|stablekey=item:aura - end times
 |type=
 |vendorsource=
 |source=[[Solunarian Chest]] (40.4%)

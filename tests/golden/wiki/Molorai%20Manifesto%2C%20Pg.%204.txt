@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Manifesto, Pg. 4
+|stablekey=item:gen - eldoth writings page 4
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Overseer Orlok]] (4.5%)<br>[[Molorai Captain Sigrid]] (2.6%)<br>[[Molorai Brewmistress]] (2.2%)<br>[[Molorai Spiritist]] (1.7%)<br>[[Molorai Chef]] (1.4%)

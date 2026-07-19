@@ -1,5 +1,6 @@
 {{Item
 |title=Knight's Helm
+|stablekey=item:head - 17 - knight's helm
 |type=
 |vendorsource=
 |source=[[Gruhglor]] (19.5%)

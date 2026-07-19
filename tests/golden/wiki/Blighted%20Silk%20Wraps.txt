@@ -1,5 +1,6 @@
 {{Item
 |title=Blighted Silk Wraps
+|stablekey=item:wrist - 28 - blighted silk wraps
 |type=
 |vendorsource=
 |source=[[Fenton the Blighted]] (75.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Esen
+|stablekey=item:weap - 29 - esen
 |type=
 |vendorsource=
 |source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (33.3%)

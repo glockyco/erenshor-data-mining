@@ -1,5 +1,6 @@
 {{Item
 |title=Old Journal Pg. 2
+|stablekey=item:gen - lost text 1
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Stoneman Obsidian]] (2.0%)<br>[[Stoneman Knight]] (1.1%)<br>[[Stoneman Magi]] (1.1%)

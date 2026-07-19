@@ -1,5 +1,6 @@
 {{Item
 |title=Golden Statue: Soluna
+|stablekey=item:furniture - gold statue soluna
 |type=
 |vendorsource=
 |source=[[Raval, The First Paladin]] (1.0%)<br>[[Ancient Guard]] (0.2%)

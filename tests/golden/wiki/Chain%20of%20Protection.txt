@@ -1,5 +1,6 @@
 {{Item
 |title=Chain of Protection
+|stablekey=item:neck - 25 - chain of protection
 |type=
 |vendorsource=
 |source=[[Soul Linked Spider]] (50.0%)<br>[[Soul Linked Spider]] (2.3%)<br>[[Soul Linked Spider]] (2.2%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Longsword
+|stablekey=item:weap - 30 - fungal longsword
 |type=
 |vendorsource=
 |source=[[Vinx]] (50.0%)

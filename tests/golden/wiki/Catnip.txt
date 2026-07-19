@@ -1,5 +1,6 @@
 {{Item
 |title=Catnip
+|stablekey=item:gen - catnip
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Catnip (Enemy)]] (100.0%)

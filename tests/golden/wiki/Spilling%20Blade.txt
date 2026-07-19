@@ -1,5 +1,6 @@
 {{Item
 |title=Spilling Blade
+|stablekey=item:weap - 42 - spilling blade
 |type=
 |vendorsource=
 |source=[[Fernallan High Guard]] (6.7%)

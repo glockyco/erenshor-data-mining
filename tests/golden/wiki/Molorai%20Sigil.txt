@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Sigil
+|stablekey=item:neck - 34 - molorai sigil
 |type=
 |vendorsource=
 |source=[[Molorai Mason]] (2.0%)<br>[[Molorai Acquirer]] (1.3%)<br>[[Molorai Ancille]] (1.3%)<br>[[Molorai Anointed]] (1.3%)<br>[[Molorai Bloodwarden]] (1.3%)<br>[[Molorai Eldermistress]] (1.3%)<br>[[Molorai Nightmistress]] (1.3%)<br>[[Molorai Outrider]] (1.3%)<br>[[Molorai Truthseeker]] (1.3%)<br>[[Molorai Dockmaster]] (0.8%)

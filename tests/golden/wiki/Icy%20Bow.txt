@@ -1,5 +1,6 @@
 {{Item
 |title=Icy Bow
+|stablekey=item:bow - 38 - icy bow
 |type=
 |vendorsource=
 |source=[[Sivakayan Doomshade]] (4.3%)

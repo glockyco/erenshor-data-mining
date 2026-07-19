@@ -1,5 +1,6 @@
 {{Item
 |title=Rootwoven Wraps
+|stablekey=item:glove - 30 - rootwoven wraps
 |type=
 |vendorsource=
 |source=[[The Gardener of Loomingwood]] (50.0%)

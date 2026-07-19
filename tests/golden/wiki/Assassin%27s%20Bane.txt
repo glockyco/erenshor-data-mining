@@ -1,5 +1,6 @@
 {{Item
 |title=Assassin's Bane
+|stablekey=item:back - 33 - assassin's bane
 |type=
 |vendorsource=
 |source=[[Molorai Acquirer]] (33.3%)

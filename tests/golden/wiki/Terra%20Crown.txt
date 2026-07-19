@@ -1,5 +1,6 @@
 {{Item
 |title=Terra Crown
+|stablekey=item:head - 31 - terra crown
 |type=
 |vendorsource=
 |source=[[Nipper King]] (33.3%)

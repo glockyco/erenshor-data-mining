@@ -1,5 +1,6 @@
 {{Item
 |title=Memory of Elwio
+|stablekey=item:gen - memory of elwio
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Elwio the Traitor]] (100.0%)

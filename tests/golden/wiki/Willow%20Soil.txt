@@ -1,5 +1,6 @@
 {{Item
 |title=Willow Soil
+|stablekey=item:gen - bag of willow soil
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Sylvan Giant Runt]] (100.0%)

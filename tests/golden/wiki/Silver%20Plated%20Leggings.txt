@@ -1,5 +1,6 @@
 {{Item
 |title=Silver Plated Leggings
+|stablekey=item:leg - 18 - silver plated leggings
 |type=
 |vendorsource=
 |source=[[Ravager, The First Infected]] (45.8%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Crystallized Tactics
+|stablekey=item:hand - 24 - crystalized tactics
 |type=
 |vendorsource=
 |source=[[Pamia the Coward]] (33.3%)

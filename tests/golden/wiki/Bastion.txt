@@ -1,5 +1,6 @@
 {{Item
 |title=Bastion
+|stablekey=item:secondary - 38 - bastion
 |type=
 |vendorsource=
 |source=[[Constructed Faithful]] (4.9%)<br>[[Astorim]] (1.7%)<br>[[Karsith]] (1.7%)<br>[[Orinthar]] (1.5%)<br>[[Vextral]] (1.5%)

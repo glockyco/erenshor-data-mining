@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Mask
+|stablekey=item:head - 41 - azynthian cowl
 |type=
 |vendorsource=
 |source=[[Azynthian Keeper]] (40.8%)

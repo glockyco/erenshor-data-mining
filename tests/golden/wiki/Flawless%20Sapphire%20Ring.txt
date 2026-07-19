@@ -1,5 +1,6 @@
 {{Item
 |title=Flawless Sapphire Ring
+|stablekey=item:ring - 21 - flawless sapphire ring
 |type=
 |vendorsource=
 |source=[[Lost Treasure (20-30)]] (7.0%)<br>[[Lost Treasure (10-20)]] (6.2%)

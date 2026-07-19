@@ -1,5 +1,6 @@
 {{Item
 |title=Shroud of Barriers
+|stablekey=item:head - 12 - shroud of barriers
 |type=
 |vendorsource=
 |source=[[Braxon Fanatic]] (1.7%)

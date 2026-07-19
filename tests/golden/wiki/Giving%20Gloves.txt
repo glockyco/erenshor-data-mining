@@ -1,5 +1,6 @@
 {{Item
 |title=Giving Gloves
+|stablekey=item:glove - 28 - giving gloves
 |type=
 |vendorsource=
 |source=[[Addison Priel]] (50.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Skyfolk Band
+|stablekey=item:ring - 33 - skyfolk band
 |type=
 |vendorsource=
 |source=[[Winkles]] (50.9%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)

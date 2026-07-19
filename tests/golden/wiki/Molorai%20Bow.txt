@@ -1,5 +1,6 @@
 {{Item
 |title=Molorai Bow
+|stablekey=item:bow - 10 - molorai bow
 |type=
 |vendorsource=
 |source=[[Molorai Militia Warrior]] (4.9%)

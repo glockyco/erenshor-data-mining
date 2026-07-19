@@ -1,5 +1,6 @@
 {{Item
 |title=A Fingerbiter
+|stablekey=item:fish - fingerbiter
 |type=[[Consumables|Consumable]]
 |vendorsource=
 |source=

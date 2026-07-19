@@ -1,5 +1,6 @@
 {{Item
 |title=Bracelet of the Vessel
+|stablekey=item:wrist - 39 - vessel bracelet
 |type=
 |vendorsource=
 |source=[[Vessel Siraethe]] (28.6%)

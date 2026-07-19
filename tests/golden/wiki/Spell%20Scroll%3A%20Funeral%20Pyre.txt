@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Funeral Pyre
+|stablekey=item:spell scroll - funeral pyre
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Juctin Mysia]]
 |source=

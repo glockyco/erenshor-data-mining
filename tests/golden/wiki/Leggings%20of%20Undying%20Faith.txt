@@ -1,5 +1,6 @@
 {{Item
 |title=Leggings of Undying Faith
+|stablekey=item:leg - 6 - undying faith leggings
 |type=
 |vendorsource=
 |source=[[An Apparition of Sivakaya]] (25.0%)

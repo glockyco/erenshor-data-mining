@@ -1,5 +1,6 @@
 {{Item
 |title=Dockhouse Key
+|stablekey=item:key - dockhouse key
 |type=[[Keys|Key]]
 |vendorsource=
 |source=[[Kio the Darkbringer]] (100.0%)

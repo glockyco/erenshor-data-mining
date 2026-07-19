@@ -1,5 +1,6 @@
 {{Item
 |title=Nightmare Crystal
+|stablekey=item:gen - nightmare crystal
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

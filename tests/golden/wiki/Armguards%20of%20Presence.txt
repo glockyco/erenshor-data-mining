@@ -1,5 +1,6 @@
 {{Item
 |title=Armguards of Presence
+|stablekey=item:arm - 41 - armguards of presence
 |type=
 |vendorsource=
 |source=[[Azynthian Keeper]] (40.8%)

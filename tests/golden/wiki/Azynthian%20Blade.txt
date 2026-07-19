@@ -1,5 +1,6 @@
 {{Item
 |title=Azynthian Blade
+|stablekey=item:weap - 33 - azynthian blade
 |type=
 |vendorsource=
 |source=[[Molorai Curator]] (5.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Necrosis
+|stablekey=item:spell scroll - necrosis
 |type=
 |vendorsource=
 |source=[[Azynthian Firebone]] (2.3%)<br>[[Azynthian Icebone]] (2.3%)<br>[[Greater Azynthian Firebone]] (2.3%)<br>[[Greater Azynthian Icebone]] (2.3%)

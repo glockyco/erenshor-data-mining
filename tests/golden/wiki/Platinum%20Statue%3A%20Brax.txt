@@ -1,5 +1,6 @@
 {{Item
 |title=Platinum Statue: Brax
+|stablekey=item:furniture - stone statue platinum brax
 |type=
 |vendorsource=
 |source=

@@ -1,5 +1,6 @@
 {{Item
 |title=Desert Silk Sleeves
+|stablekey=item:arm - 18 - desert silk sleeves
 |type=
 |vendorsource=
 |source=[[Apha, Priest of Brax]] (67.9%)<br>[[Upha, Priest of Brax]] (67.9%)<br>[[Molorai Archaeologist]] (13.4%)<br>[[Molorai Archaeologist]] (12.1%)<br>[[Blighted Priest]] (2.3%)<br>[[Braxon Fanatic]] (1.7%)

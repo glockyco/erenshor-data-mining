@@ -1,5 +1,6 @@
 {{Item
 |title=Polished Steel Belt
+|stablekey=item:belt - 31 - polished steel belt
 |type=
 |vendorsource=
 |source=[[Braxonian Honor Guard]] (2.3%)

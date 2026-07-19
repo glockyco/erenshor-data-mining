@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Emit Vitae
+|stablekey=item:spell scroll - emit vitae
 |type=
 |vendorsource=
 |source=[[Solunarian Paladin]] (1.1%)

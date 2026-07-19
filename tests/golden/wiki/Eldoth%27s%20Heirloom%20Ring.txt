@@ -1,5 +1,6 @@
 {{Item
 |title=Eldoth's Heirloom Ring
+|stablekey=item:ring - 40 - molorai heirloom ring
 |type=
 |vendorsource=
 |source=[[Eldoth Molorai]] (50.0%)

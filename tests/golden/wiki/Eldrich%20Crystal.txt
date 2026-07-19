@@ -1,5 +1,6 @@
 {{Item
 |title=Eldrich Crystal
+|stablekey=item:gen - eldrich crystal
 |type=[[Quest Items|Quest Item]], [[:Category:Items|General]]
 |vendorsource=
 |source=[[Azynthian Keeper]] (100.0%)

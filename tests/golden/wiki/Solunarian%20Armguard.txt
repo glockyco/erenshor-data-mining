@@ -1,5 +1,6 @@
 {{Item
 |title=Solunarian Armguard
+|stablekey=item:arm - 10 - solunian armguard
 |type=
 |vendorsource=
 |source=

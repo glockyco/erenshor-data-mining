@@ -1,5 +1,6 @@
 {{Item
 |title=Wishlan's Hope
+|stablekey=item:gen - wishlan's hope
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Cinder]] (100.0%)

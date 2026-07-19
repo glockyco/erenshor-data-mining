@@ -1,5 +1,6 @@
 {{Item
 |title=Amulet of Azure
+|stablekey=item:neck - 38 - amulet of azure
 |type=
 |vendorsource=
 |source=

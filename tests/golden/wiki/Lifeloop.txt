@@ -1,5 +1,6 @@
 {{Item
 |title=Lifeloop
+|stablekey=item:ring - 17 - lifeloop
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

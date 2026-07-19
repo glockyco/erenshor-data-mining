@@ -1,5 +1,6 @@
 {{Item
 |title=Reaver Plate
+|stablekey=item:chest - 10 - reaver plate
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

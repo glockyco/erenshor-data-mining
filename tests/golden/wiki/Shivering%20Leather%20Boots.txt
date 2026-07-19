@@ -1,5 +1,6 @@
 {{Item
 |title=Shivering Leather Boots
+|stablekey=item:foot - 5 - shivering leather boots
 |type=
 |vendorsource=
 |source=[[A Golden Spirit]] (14.0%)<br>[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)

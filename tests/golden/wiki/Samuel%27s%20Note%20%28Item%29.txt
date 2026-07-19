@@ -1,6 +1,7 @@
 {{DISPLAYTITLE:Samuel's Note}}
 {{Item
 |title=Samuel's Note
+|stablekey=item:gen - samuel's note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

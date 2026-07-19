@@ -1,5 +1,6 @@
 {{Item
 |title=Sivakayan Breeches
+|stablekey=item:leg - 24 - sivakayan breeches
 |type=
 |vendorsource=
 |source=[[Sivakayan Voidweaver]] (7.4%)<br>[[Sivakayan Devoted]] (4.2%)<br>[[Sivakayan Faithbound]] (2.1%)

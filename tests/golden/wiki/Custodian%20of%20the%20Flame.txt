@@ -1,5 +1,6 @@
 {{Item
 |title=Custodian of the Flame
+|stablekey=item:gen - candlekeeper note
 |type=[[Lore Items|Lore]]
 |vendorsource=
 |source=[[Candlekeeper]] (100.0%)

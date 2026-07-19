@@ -1,5 +1,6 @@
 {{Item
 |title=Azure Loyalty Medal
+|stablekey=item:quest - insignia of loyalty to azure
 |type=
 |vendorsource=
 |source=

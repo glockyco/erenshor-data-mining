@@ -1,5 +1,6 @@
 {{Item
 |title=Wood Vendor Set
+|stablekey=item:furniture - wood vendor
 |type=
 |vendorsource=[[Breena Carpenter]]
 |source=

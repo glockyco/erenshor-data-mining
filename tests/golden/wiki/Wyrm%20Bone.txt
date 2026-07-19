@@ -1,5 +1,6 @@
 {{Item
 |title=Wyrm Bone
+|stablekey=item:weap - 35 - wyrmbone
 |type=
 |vendorsource=
 |source=[[Swamp Wyrm]] (25.0%)

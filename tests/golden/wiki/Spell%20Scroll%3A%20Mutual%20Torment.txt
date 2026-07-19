@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Mutual Torment
+|stablekey=item:spell scroll - mutual torment
 |type=
 |vendorsource=
 |source=[[Sivakayan Reaver]] (3.0%)

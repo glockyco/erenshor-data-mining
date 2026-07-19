@@ -1,5 +1,6 @@
 {{Item
 |title=Fungal Wrapped Bracer
+|stablekey=item:wrist - 28 - fungal wrapped bracer
 |type=
 |vendorsource=
 |source=[[Nipper King]] (66.7%)

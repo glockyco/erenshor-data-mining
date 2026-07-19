@@ -1,5 +1,6 @@
 {{Item
 |title=Illusionist Trousers
+|stablekey=item:leg - 33 - illusionist trousers
 |type=
 |vendorsource=
 |source=[[Molorai Acquirer]] (66.7%)

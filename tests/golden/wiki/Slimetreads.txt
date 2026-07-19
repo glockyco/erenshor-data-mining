@@ -1,5 +1,6 @@
 {{Item
 |title=Slimetreads
+|stablekey=item:foot - 21 - slimetreads
 |type=
 |vendorsource=
 |source=[[Gloopa|Gloopa (Quarter)]] (38.5%)

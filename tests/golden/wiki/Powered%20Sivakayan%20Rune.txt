@@ -1,5 +1,6 @@
 {{Item
 |title=Powered Sivakayan Rune
+|stablekey=item:gen - full sivakayan rune
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

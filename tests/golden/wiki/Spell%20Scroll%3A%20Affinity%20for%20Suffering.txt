@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Affinity for Suffering
+|stablekey=item:spell scroll - affinity for suffering
 |type=
 |vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
 |source=

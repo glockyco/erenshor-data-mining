@@ -1,5 +1,6 @@
 {{Item
 |title=Blueprint: Loomingwood Market
+|stablekey=item:furniture - loomingwood marketplace blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
 |source=[[Aviak]] (0.5%)<br>[[Devoratrix]] (0.5%)<br>[[Planar Flora]] (0.5%)<br>[[Pteriaped Chick]] (0.5%)<br>[[Pteriaped Matron]] (0.5%)<br>[[Aetherfiend]] (0.4%)<br>[[Diva]] (0.3%)<br>[[Loomingwood Minotaur Hero]] (0.3%)<br>[[Loomingwood Minotaur Legionnaire]] (0.3%)<br>[[Loomingwood Minotaur Soldier]] (0.3%)<br>[[Thorn (Enemy)|Thorn]] (0.3%)<br>[[Loomingwidow]] (0.3%)

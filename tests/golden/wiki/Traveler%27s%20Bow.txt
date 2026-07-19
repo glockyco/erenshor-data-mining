@@ -1,5 +1,6 @@
 {{Item
 |title=Traveler's Bow
+|stablekey=item:bow - 2 - traveller's bow
 |type=
 |vendorsource=
 |source=

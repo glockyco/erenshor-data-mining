@@ -1,5 +1,6 @@
 {{Item
 |title=Coiling Belt
+|stablekey=item:belt - 28 - coiled belt
 |type=
 |vendorsource=
 |source=[[Coiling Dusker]] (6.7%)

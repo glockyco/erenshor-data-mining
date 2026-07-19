@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Expose Weakness
+|stablekey=item:spell scroll - expose weakness
 |type=[[Ability Books]]
 |vendorsource=
 |source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)

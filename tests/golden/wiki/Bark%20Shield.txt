@@ -1,5 +1,6 @@
 {{Item
 |title=Bark Shield
+|stablekey=item:secondary - 19 - bark shield
 |type=
 |vendorsource=
 |source=[[A Protected Memory]] (25.0%)

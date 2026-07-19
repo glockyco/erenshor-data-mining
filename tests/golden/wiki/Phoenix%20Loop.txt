@@ -1,5 +1,6 @@
 {{Item
 |title=Phoenix Loop
+|stablekey=item:ring - 24 - phoenix band
 |type=
 |vendorsource=
 |source=[[Pyroclast]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Greater Regrowth
+|stablekey=item:spell scroll - greater regrowth
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=[[Aspen Dechaffe]]
 |source=

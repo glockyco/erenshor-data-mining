@@ -1,5 +1,6 @@
 {{Item
 |title=Nightfall
+|stablekey=item:weap - 6 - nightfall
 |type=
 |vendorsource=
 |source=[[A Skeleton Captain]] (9.4%)<br>[[Wiggleribs]] (6.9%)

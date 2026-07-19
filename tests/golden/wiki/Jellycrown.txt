@@ -1,5 +1,6 @@
 {{Item
 |title=Jellycrown
+|stablekey=item:head - 13 - jelly crown
 |type=
 |vendorsource=
 |source=[[Ragewhip]] (50.0%)

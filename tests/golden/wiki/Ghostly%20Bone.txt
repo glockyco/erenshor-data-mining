@@ -1,5 +1,6 @@
 {{Item
 |title=Ghostly Bone
+|stablekey=item:gen - ghostly bone
 |type=[[:Category:Items|General]]
 |vendorsource=
 |source=[[Azynthian Firebone]] (91.9%)<br>[[Azynthian Icebone]] (91.9%)<br>[[Greater Azynthian Firebone]] (91.9%)<br>[[Greater Azynthian Icebone]] (91.9%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Hunting Coat
+|stablekey=item:chest - 42 - hunting coat
 |type=
 |vendorsource=
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (36.4%)

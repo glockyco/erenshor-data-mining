@@ -1,5 +1,6 @@
 {{Item
 |title=Decay
+|stablekey=item:aura - fernalla 4
 |type=[[Auras]]
 |vendorsource=
 |source=[[The Gardener of Loomingwood]] (25.0%)

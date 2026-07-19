@@ -1,5 +1,6 @@
 {{Item
 |title=Ruined Grass Spider Carapace
+|stablekey=item:gen - ruined grass spider carapace
 |type=
 |vendorsource=
 |source=[[Loomingwidow]] (27.1%)<br>[[A Grass Spider]] (24.9%)<br>[[A Mature Grass Spider]] (14.8%)

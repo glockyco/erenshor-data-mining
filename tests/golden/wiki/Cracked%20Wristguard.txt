@@ -1,5 +1,6 @@
 {{Item
 |title=Cracked Wristguard
+|stablekey=item:wrist - 7 - cracked wristguard
 |type=
 |vendorsource=
 |source=[[Gort]] (50.0%)

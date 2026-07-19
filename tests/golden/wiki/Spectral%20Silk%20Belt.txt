@@ -1,5 +1,6 @@
 {{Item
 |title=Spectral Silk Belt
+|stablekey=item:belt - 19 - spectral silk belt
 |type=
 |vendorsource=
 |source=[[Boneweaver]] (66.7%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Gardener's Wrist Wrap
+|stablekey=item:wrist - 38 - gardener's wristwrap
 |type=
 |vendorsource=
 |source=[[Grounds Keeper]] (66.7%)

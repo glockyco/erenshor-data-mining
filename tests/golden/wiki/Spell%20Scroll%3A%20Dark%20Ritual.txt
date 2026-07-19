@@ -1,5 +1,6 @@
 {{Item
 |title=Spell Scroll: Dark Ritual
+|stablekey=item:spell scroll - dark ritual
 |type=
 |vendorsource=[[Shantee Swingblade]]
 |source=

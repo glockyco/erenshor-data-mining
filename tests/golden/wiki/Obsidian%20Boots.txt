@@ -1,5 +1,6 @@
 {{Item
 |title=Obsidian Boots
+|stablekey=item:foot - 23 - obsidian boots
 |type=
 |vendorsource=
 |source=[[Nightmare]] (50.0%)

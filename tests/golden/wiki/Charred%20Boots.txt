@@ -1,5 +1,6 @@
 {{Item
 |title=Charred Boots
+|stablekey=item:foot - 5 - charred boots
 |type=
 |vendorsource=[[Asaga Underloft]]
 |source=[[Failed Cremation]] (48.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Siraethe's Prayercrest
+|stablekey=item:head - 39 - siraethe's prayercrest
 |type=
 |vendorsource=
 |source=[[Vessel Siraethe]] (20.0%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Acolyte's Cudgel
+|stablekey=item:weap - 18 - acolyte's cudgel
 |type=
 |vendorsource=
 |source=[[Ecclesiarch]] (6.7%)

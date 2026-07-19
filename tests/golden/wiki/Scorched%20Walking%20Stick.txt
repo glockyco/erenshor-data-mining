@@ -1,5 +1,6 @@
 {{Item
 |title=Scorched Walking Stick
+|stablekey=item:weap - 18 - scorched walking stick
 |type=
 |vendorsource=
 |source=[[Peon]] (33.3%)

@@ -1,5 +1,6 @@
 {{Item
 |title=Rune of Ripper's Keep
+|stablekey=item:gen - rune of ripper's keep
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
 |source=

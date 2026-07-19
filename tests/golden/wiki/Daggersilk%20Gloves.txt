@@ -1,5 +1,6 @@
 {{Item
 |title=Daggersilk Gloves
+|stablekey=item:glove - 5 - daggersilk gloves 1
 |type=
 |vendorsource=
 |source=
