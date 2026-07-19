@@ -1,1 +1,1 @@
-{{Item|stablekey=item:bear_meat}}
+{{Item|stablekey=item:bear_meat|lua=1}}

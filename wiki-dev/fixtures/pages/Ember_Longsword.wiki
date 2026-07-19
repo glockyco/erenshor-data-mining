@@ -1,4 +1,4 @@
-{{Item|stablekey=item:ember_longsword}}
+{{Item|stablekey=item:ember_longsword|lua=1}}
 
 {{ItemTooltip|stablekey=item:ember_longsword}}
 

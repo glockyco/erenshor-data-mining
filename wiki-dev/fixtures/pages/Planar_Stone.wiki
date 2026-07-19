@@ -1,1 +1,1 @@
-{{Item|stablekey=item:ore - planar stone}}
+{{Item|stablekey=item:ore - planar stone|lua=1}}

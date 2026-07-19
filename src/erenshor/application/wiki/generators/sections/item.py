@@ -594,6 +594,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         return {
             "title": display_name,
+            "stablekey": item.stable_key,
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,

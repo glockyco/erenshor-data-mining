@@ -1,1 +1,1 @@
-{{Item|stablekey=item:bear_claw}}
+{{Item|stablekey=item:bear_claw|lua=1}}

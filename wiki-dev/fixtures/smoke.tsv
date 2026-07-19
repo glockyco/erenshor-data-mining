@@ -221,6 +221,15 @@ Legacy Item Fixture	Legacy inline-param item, no stablekey.
 Legacy Item Fixture	portable-infobox
 Legacy Item Fixture	pi-type-Item
 Legacy Item Fixture	Category:Items
+Generated Item Fixture	Generated Sword Fixture
+Generated Item Fixture	Sold by
+Generated Item Fixture	Generated Vendor
+Generated Item Fixture	Dropped by
+Generated Item Fixture	Generated Monster
+Generated Item Fixture	View on the interactive map
+Generated Item Fixture	sel=item:item%3Agen+-+sword+fixture
+Generated Item Fixture	pi-type-Item
+Generated Item Fixture	Category:Items
 Parameterized ItemTooltip Fixture	Parameterized Sword
 Parameterized ItemTooltip Fixture	Weapon
 Parameterized ItemTooltip Fixture	Standard

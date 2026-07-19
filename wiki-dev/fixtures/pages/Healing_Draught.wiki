@@ -1,3 +1,3 @@
-{{Item|stablekey=item:healing_draught}}
+{{Item|stablekey=item:healing_draught|lua=1}}
 
 {{ItemTooltip|stablekey=item:healing_draught}}

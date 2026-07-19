@@ -31,7 +31,7 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
     assert "{{ItemTooltip" in result
     assert "|kind=Weapon" in result
     assert "|damage=10" in result
-    assert "|stablekey=" not in result
+    assert "|stablekey=item:ember_longsword" in result
     assert "{{Item/Weapon" not in result
     assert "{{Fancy-weapon" not in result
     assert result.count("{{ItemTooltip") == 1
@@ -137,4 +137,4 @@ def test_item_effect_selection_matches_game_click_priority() -> None:
     assert "{{Item/General" in result
     assert "|description=A larger bag." in result
     assert "{{ItemTooltip" not in result
-    assert "|stablekey=" not in result
+    assert "|stablekey=item:magical_bag" in result

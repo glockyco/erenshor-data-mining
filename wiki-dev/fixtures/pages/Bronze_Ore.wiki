@@ -1,1 +1,1 @@
-{{Item|stablekey=item:ore - bronze ore}}
+{{Item|stablekey=item:ore - bronze ore|lua=1}}

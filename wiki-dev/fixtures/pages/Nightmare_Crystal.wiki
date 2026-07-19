@@ -1,1 +1,1 @@
-{{Item|stablekey=item:gen - nightmare crystal}}
+{{Item|stablekey=item:gen - nightmare crystal|lua=1}}

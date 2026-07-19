@@ -1,3 +1,3 @@
-{{Item|stablekey=item:sword_mastery_manual}}
+{{Item|stablekey=item:sword_mastery_manual|lua=1}}
 
 {{ItemTooltip|stablekey=item:sword_mastery_manual}}

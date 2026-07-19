@@ -1,5 +1,6 @@
 {{Item
 |stablekey=item:ember_longsword
+|lua=1
 |title=Manual Ember Blade
 |image=Manual Ember Blade.png
 |type=Weapon

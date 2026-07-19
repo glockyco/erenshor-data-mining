@@ -1,1 +1,1 @@
-{{Item|stablekey=item:missing_relic}}
+{{Item|stablekey=item:missing_relic|lua=1}}

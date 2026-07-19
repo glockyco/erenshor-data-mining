@@ -1,0 +1,9 @@
+{{Item
+|title=Generated Sword Fixture
+|stablekey=item:gen - sword fixture
+|image=Generated Sword Fixture.png
+|type=Weapon
+|vendorsource=[[Generated Vendor]]
+|source=[[Generated Monster]] (42.0%)
+|description=Generated legacy-branch item with stablekey and map link.
+}}
