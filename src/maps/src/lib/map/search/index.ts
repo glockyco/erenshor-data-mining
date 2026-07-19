@@ -13,7 +13,7 @@ import type {
     WorldItemBag,
     ZoneWorldPosition
 } from '$lib/types/world-map';
-import type { ItemSourceRow } from '$lib/map-markers';
+import type { ItemSourceRow, ItemSourceItemMeta } from '$lib/map-markers';
 import type {
     SearchProvider,
     IndexEntry,
@@ -72,6 +72,8 @@ export function emptySearchResponse(): SearchResponse {
 }
 
 export function itemResultSummaryParts(result: ItemSearchResult): string[] {
+    if (!result.hasKnownSource) return ['Obtainability unknown'];
+
     const c = result.sourceCounts;
     const parts: string[] = [];
     const push = (n: number, label: string) => {
@@ -116,6 +118,7 @@ export function buildSearchIndex(input: {
     water: WorldWater[];
     itemBags: WorldItemBag[];
     itemSources: ItemSourceRow[];
+    allItems: ItemSourceItemMeta[];
 }): SearchIndex {
     const enemyProvider = new EnemySearchProvider(
         input.enemiesCommon,
@@ -134,7 +137,8 @@ export function buildSearchIndex(input: {
         ],
         input.miningNodes,
         input.water,
-        input.itemBags
+        input.itemBags,
+        input.allItems
     );
 
     const providers: SearchProvider[] = [

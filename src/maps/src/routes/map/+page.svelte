@@ -149,7 +149,8 @@
             miningNodes: data.markers.miningNodes,
             water: data.markers.water,
             itemBags: data.markers.itemBags,
-            itemSources: data.itemSources
+            itemSources: data.itemSources,
+            allItems: data.allItems
         })
     );
 

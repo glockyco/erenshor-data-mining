@@ -4,7 +4,8 @@ import type {
     ItemVendorSource,
     ItemMiningSource,
     ItemFishingSource,
-    ItemBagSource
+    ItemBagSource,
+    ItemSourceItemMeta
 } from '$lib/map-markers';
 import type {
     WorldEnemy,
@@ -105,7 +106,7 @@ function row(
         kind: 'drop',
         itemStableKey,
         displayName,
-        wikiPageName: null,
+        wikiPageName: displayName,
         iconName: null,
         characterStableKey: charStableKey,
         npcName,
@@ -128,7 +129,7 @@ function vendorRow(
         kind: 'vendor',
         itemStableKey,
         displayName,
-        wikiPageName: null,
+        wikiPageName: displayName,
         iconName: null,
         characterStableKey: charStableKey,
         npcName,
@@ -148,7 +149,7 @@ function miningRow(
         kind: 'mining',
         itemStableKey,
         displayName,
-        wikiPageName: null,
+        wikiPageName: displayName,
         iconName: null,
         nodeStableKey,
         dropChance,
@@ -168,7 +169,7 @@ function fishingRow(
         kind: 'fishing',
         itemStableKey,
         displayName,
-        wikiPageName: null,
+        wikiPageName: displayName,
         iconName: null,
         waterStableKey,
         period,
@@ -187,7 +188,7 @@ function bagRow(
         kind: 'bag',
         itemStableKey,
         displayName,
-        wikiPageName: null,
+        wikiPageName: displayName,
         iconName: null,
         bagStableKey,
         ...opts
@@ -254,6 +255,33 @@ function makeBag(
 }
 
 describe('ItemSearchProvider', () => {
+    it('indexes wiki items with no map source rows as unknown', () => {
+        const allItems: ItemSourceItemMeta[] = [
+            {
+                itemStableKey: 'item:quest-only',
+                displayName: 'Quest Reward',
+                wikiPageName: 'Quest Reward',
+                iconName: 'quest-reward'
+            }
+        ];
+        const provider = new ItemSearchProvider([], [], [], [], [], allItems);
+
+        expect(provider.getResult('item:quest-only')).toMatchObject({
+            itemStableKey: 'item:quest-only',
+            itemName: 'Quest Reward',
+            hasKnownSource: false,
+            sourceCounts: {
+                droppers: 0,
+                vendors: 0,
+                miningNodes: 0,
+                fishingSpots: 0,
+                itemBags: 0
+            },
+            zoneCount: 0
+        });
+        expect(provider.buildIndex()).toHaveLength(1);
+    });
+
     it('indexes items keyed by stable key, not display name', () => {
         // Two items share the same display name but have different stable keys
         const rows = [
@@ -275,7 +303,7 @@ describe('ItemSearchProvider', () => {
         expect(keys).toContain('item:b');
     });
 
-    it('excludes items whose droppers have no resolvable spawn point', () => {
+    it('indexes items whose source locations cannot be resolved', () => {
         const rows = [
             row('item:has-spawn', 'Dropped Sword', 'char:spawn', 'Goblin', 10),
             row('item:no-spawn', 'Vendor Only', 'char:none', 'Merchant', 50)
@@ -286,11 +314,20 @@ describe('ItemSearchProvider', () => {
         ], [], [], []);
         const entries = provider.buildIndex();
 
-        expect(entries).toHaveLength(1);
-        const result = entries[0].result;
-        expect(isItemResult(result)).toBe(true);
-        if (isItemResult(result)) {
-            expect(result.itemStableKey).toBe('item:has-spawn');
+        expect(entries).toHaveLength(2);
+        const result = entries.find((entry) =>
+            isItemResult(entry.result) && entry.result.itemStableKey === 'item:no-spawn'
+        )?.result;
+        expect(result).toBeDefined();
+        if (result && isItemResult(result)) {
+            expect(result.hasKnownSource).toBe(false);
+            expect(result.sourceCounts).toEqual({
+                droppers: 0,
+                vendors: 0,
+                miningNodes: 0,
+                fishingSpots: 0,
+                itemBags: 0
+            });
         }
     });
 
@@ -376,8 +413,8 @@ describe('ItemSearchProvider', () => {
             [],
             []
         );
-        expect(unresolvable.getResult('item:missing')).toBeNull();
-        expect(unresolvable.buildIndex()).toHaveLength(0);
+        expect(unresolvable.getResult('item:missing')?.hasKnownSource).toBe(false);
+        expect(unresolvable.buildIndex()).toHaveLength(1);
     });
 
     it('returns resource sources and highlights every resource marker position', () => {
@@ -442,7 +479,8 @@ describe('ItemSearchProvider', () => {
                 fishingSpots: 0,
                 itemBags: 0
             },
-            zoneCount: 2
+            zoneCount: 2,
+            hasKnownSource: true
         });
 
         expect(result.type).toBe('positions');

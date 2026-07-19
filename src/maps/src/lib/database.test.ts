@@ -63,6 +63,30 @@ describe('Repository', () => {
         expect(markers.length).toBeGreaterThan(0);
         expect(markers[0].category).toBe('zone-line');
     });
+    it('gets all wiki items, including quest-unlocked vendor sources', async () => {
+        const items = await db.getAllItems();
+        expect(items.length).toBeGreaterThan(0);
+        expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
+
+        const enchantedSmithy = items.find(
+            (item) => item.itemStableKey === 'item:furniture - enchanted smithy'
+        );
+        expect(enchantedSmithy).toBeDefined();
+
+        const sources = await db.getItemSources();
+        expect(
+            sources.some(
+                (source) =>
+                    source.kind === 'vendor' &&
+                    source.itemStableKey === 'item:furniture - enchanted smithy' &&
+                    source.characterStableKey === 'character:breena carpenter'
+            )
+        ).toBe(true);
+
+        const vendorItems = await db.getVendorItems('character:breena carpenter');
+        expect(vendorItems.some((item) => item.name === 'Enchanted Smithy')).toBe(true);
+    });
+
     it('gets all map-visible item acquisition sources', async () => {
         const rows = await db.getItemSources();
         expect(Array.isArray(rows)).toBe(true);

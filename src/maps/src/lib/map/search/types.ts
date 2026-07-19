@@ -50,6 +50,7 @@ export type ItemSearchResult = {
     wikiPageName: string | null;
     sourceCounts: ItemSourceCounts;
     zoneCount: number; // unique zones containing any source location
+    hasKnownSource: boolean;
 };
 
 export type SearchResult =

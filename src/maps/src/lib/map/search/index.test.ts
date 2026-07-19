@@ -18,7 +18,8 @@ function item(name: string, stableKey: string): IndexEntry {
                 fishingSpots: 0,
                 itemBags: 0
             },
-            zoneCount: 1
+            zoneCount: 1,
+            hasKnownSource: true
         }
     };
 }

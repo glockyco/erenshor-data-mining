@@ -8,6 +8,7 @@ import type {
     EnemyMarker,
     ForgeMarker,
     ItemBagMarker,
+    ItemSourceItemMeta,
     ItemSourceRow,
     MiningNodeMarker,
     MiningNodeItem,
@@ -1078,6 +1079,39 @@ export class RepositoryBase {
     }
 
     /**
+     * Preload every item with a wiki page for the map item search. This includes
+     * items whose acquisition sources are not represented by map markers.
+     */
+    async getAllItems(): Promise<ItemSourceItemMeta[]> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(`
+            SELECT
+                stable_key     AS itemStableKey,
+                display_name   AS displayName,
+                wiki_page_name AS wikiPageName,
+                item_icon_name AS iconName
+            FROM items
+            WHERE wiki_page_name IS NOT NULL
+              AND TRIM(wiki_page_name) != ''
+            ORDER BY display_name, stable_key
+        `);
+
+        const items: ItemSourceItemMeta[] = [];
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            items.push({
+                itemStableKey: row.itemStableKey as string,
+                displayName: row.displayName as string,
+                wikiPageName: row.wikiPageName as string,
+                iconName: (row.iconName as string) ?? null
+            });
+        }
+        stmt.free();
+        return items;
+    }
+
+    /**
      * Preload every map-visible item acquisition source (drops, vendors, mining, fishing, item bags).
      * Used by the map item search — one query batch at page load, no runtime DB access. Items with is_map_visible = 0 are excluded.
      */
@@ -1137,7 +1171,21 @@ export class RepositoryBase {
                 JOIN items i ON i.stable_key = cvi.item_stable_key
                 JOIN characters c ON c.stable_key = cvi.character_stable_key
                 WHERE i.is_map_visible = 1
-                ORDER BY i.display_name
+                UNION
+                SELECT
+                    i.stable_key        AS itemStableKey,
+                    i.display_name      AS displayName,
+                    i.wiki_page_name    AS wikiPageName,
+                    i.item_icon_name    AS iconName,
+                    c.stable_key        AS characterStableKey,
+                    c.npc_name          AS npcName,
+                    i.item_value        AS price
+                FROM character_vendor_quest_unlocks cvqu
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
+                JOIN characters c ON c.stable_key = cvqu.character_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY displayName, itemStableKey, characterStableKey
             `);
 
             while (stmt.step()) {
@@ -1254,13 +1302,23 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-            SELECT i.display_name AS ItemName, i.item_value AS ItemValue
-            FROM character_vendor_items cvi
-            JOIN items i ON i.stable_key = cvi.item_stable_key
-            WHERE cvi.character_stable_key = ?
-            ORDER BY i.display_name
+            WITH vendor_items AS (
+                SELECT i.display_name AS ItemName, i.item_value AS ItemValue
+                FROM character_vendor_items cvi
+                JOIN items i ON i.stable_key = cvi.item_stable_key
+                WHERE cvi.character_stable_key = ?
+                UNION
+                SELECT i.display_name AS ItemName, i.item_value AS ItemValue
+                FROM character_vendor_quest_unlocks cvqu
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
+                WHERE cvqu.character_stable_key = ?
+            )
+            SELECT ItemName, ItemValue
+            FROM vendor_items
+            ORDER BY ItemName
             `,
-            [stableKey]
+            [stableKey, stableKey]
         );
 
         const items: VendorItem[] = [];

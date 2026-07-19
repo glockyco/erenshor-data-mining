@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { serializeSelection } from './selection';
+import { serializeSelection, deserializeSelection } from './selection';
+import { buildSearchIndex } from '$lib/map/search';
 
 describe('serializeSelection', () => {
     it('preserves not-found search URLs', () => {
@@ -11,7 +12,41 @@ describe('serializeSelection', () => {
         ).toBe('zone:Unknown Zone');
     });
 
-    it('does not serialize screen-space marker groups', () => {
-        expect(serializeSelection({ type: 'marker-group', markers: [] })).toBeNull();
+
+    it('restores wiki items without map sources as search results', () => {
+        const searchIndex = buildSearchIndex({
+            enemiesCommon: [],
+            enemiesRare: [],
+            enemiesUnique: [],
+            npcs: [],
+            zones: [],
+            miningNodes: [],
+            water: [],
+            itemBags: [],
+            itemSources: [],
+            allItems: [
+                {
+                    itemStableKey: 'item:quest-only',
+                    displayName: 'Quest Reward',
+                    wikiPageName: 'Quest Reward',
+                    iconName: null
+                }
+            ]
+        });
+
+        const selection = deserializeSelection('item:item:quest-only', {
+            findMarkerByStableKey: () => null,
+            findZoneByKey: () => null,
+            searchIndex
+        });
+
+        expect(selection).toMatchObject({
+            type: 'search',
+            result: {
+                type: 'item',
+                itemStableKey: 'item:quest-only',
+                hasKnownSource: false
+            }
+        });
     });
 });

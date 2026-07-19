@@ -17,8 +17,8 @@ function responseFor(matches: SearchMatch[]): SearchResponse {
 describe('computeChipCounts', () => {
     it('reports visible and total static results by type', () => {
         const matches: SearchMatch[] = [
-            { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1 }, matchRange: null },
-            { result: { type: 'item', itemStableKey: 'b', itemName: 'B', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1 }, matchRange: null },
+            { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1, hasKnownSource: true }, matchRange: null },
+            { result: { type: 'item', itemStableKey: 'b', itemName: 'B', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1, hasKnownSource: true }, matchRange: null },
             { result: { type: 'enemy', name: 'Goblin', effectiveRarity: 2, spawnCount: 1, zoneCount: 1 }, matchRange: null }
         ];
         const counts = computeChipCounts(responseFor(matches), 0);
@@ -39,7 +39,8 @@ describe('computeChipCounts', () => {
                     iconName: null,
                     wikiPageName: null,
                     sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 },
-                    zoneCount: 1
+                    zoneCount: 1,
+                    hasKnownSource: true
                 },
                 matchRange: null
             },
@@ -88,7 +89,7 @@ describe('computeChipCounts', () => {
     });
     it('discloses live totals and aggregates them into All', () => {
         const response = responseFor([
-            { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1 }, matchRange: null }
+            { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1, hasKnownSource: true }, matchRange: null }
         ]);
         const counts = computeChipCounts(response, 3, 7);
         expect(counts.get('all')).toEqual({ visible: 4, total: 8, hasMore: true });

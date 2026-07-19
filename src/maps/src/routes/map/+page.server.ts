@@ -516,6 +516,7 @@ export async function load() {
     // Preload item acquisition sources for the map search index (one query,
     // no runtime DB access — see ItemSearchProvider).
     const itemSources = await repo.getItemSources();
+    const allItems = await repo.getAllItems();
 
     return {
         markers: {
@@ -540,6 +541,7 @@ export async function load() {
         worldCenter,
         worldBounds,
         levelRange: { min: enemyLevelMin, max: enemyLevelMax },
-        itemSources
+        itemSources,
+        allItems
     };
 }

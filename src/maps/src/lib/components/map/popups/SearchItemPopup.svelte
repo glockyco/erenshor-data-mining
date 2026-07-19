@@ -282,17 +282,25 @@
         </div>
     </div>
 
-    <!-- Focus all button -->
-    <button
-        type="button"
-        onclick={() => onFocusAll()}
-        class="flex w-full items-center justify-center gap-2 rounded-md
-               bg-zinc-700/50 px-3 py-2 text-xs text-zinc-300
-               hover:bg-zinc-700 hover:text-white transition-colors"
-    >
-        <Crosshair class="h-3.5 w-3.5" />
-        <span>Show all {allMarkers.length} location{allMarkers.length !== 1 ? 's' : ''}</span>
-    </button>
+    {#if result.hasKnownSource}
+        <!-- Focus all button -->
+        <button
+            type="button"
+            onclick={() => onFocusAll()}
+            onmouseenter={() => onHoverSpawn(markerKeys(allMarkers))}
+            onmouseleave={() => onHoverSpawn(null)}
+            class="flex w-full items-center justify-center gap-2 rounded-md
+                   bg-zinc-700/50 px-3 py-2 text-xs text-zinc-300
+                   hover:bg-zinc-700 hover:text-white transition-colors"
+        >
+            <Crosshair class="h-3.5 w-3.5" />
+            <span>Show all {allMarkers.length} location{allMarkers.length !== 1 ? 's' : ''}</span>
+        </button>
+    {:else}
+        <p class="border-t border-zinc-700 pt-3 text-center text-xs text-zinc-400">
+            The map has no data on how to obtain this item.
+        </p>
+    {/if}
 
     {#if droppersByZone.length > 0}
         <!-- Dropped by -->

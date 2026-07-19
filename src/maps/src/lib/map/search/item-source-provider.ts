@@ -18,6 +18,7 @@ import type {
 } from '$lib/types/world-map';
 import type {
     ItemSourceRow,
+    ItemSourceItemMeta,
     ItemDropSource,
     ItemVendorSource,
     ItemMiningSource,
@@ -61,7 +62,8 @@ export class ItemSearchProvider implements SearchProvider {
         spawnMarkers: AnySpawnMarker[],
         miningNodes: WorldMiningNode[],
         water: WorldWater[],
-        itemBags: WorldItemBag[]
+        itemBags: WorldItemBag[],
+        allItems: ItemSourceItemMeta[] = rows
     ) {
         this.itemByStableKey = new Map();
         this.markersByCharacter = new Map();
@@ -106,11 +108,17 @@ export class ItemSearchProvider implements SearchProvider {
             }
         }
 
-        // Build one search result per item, retaining only sources whose map
-        // markers are loaded. Items without any resolvable source location stay
-        // out of the index because they cannot be highlighted on the map.
-        for (const [itemStableKey, itemRows] of rowsByKey) {
-            const first = itemRows[0];
+        const itemsByKey = new Map<string, ItemSourceItemMeta>();
+        for (const item of allItems) {
+            if (!item.wikiPageName?.trim()) continue;
+            itemsByKey.set(item.itemStableKey, item);
+        }
+
+        // Build one search result per wiki item, retaining only sources whose
+        // map markers are loaded. Items without a resolvable source remain in
+        // the index so their obtainability can be shown as unknown.
+        for (const [itemStableKey, item] of itemsByKey) {
+            const itemRows = rowsByKey.get(itemStableKey) ?? [];
             const sources: ResolvedItemSource[] = [];
 
             for (const row of itemRows) {
@@ -142,8 +150,6 @@ export class ItemSearchProvider implements SearchProvider {
                     }
                 }
             }
-
-            if (sources.length === 0) continue;
 
             const dropperKeys = new Set<string>();
             const vendorKeys = new Set<string>();
@@ -183,11 +189,12 @@ export class ItemSearchProvider implements SearchProvider {
                 result: {
                     type: 'item',
                     itemStableKey,
-                    itemName: first.displayName,
-                    iconName: first.iconName,
-                    wikiPageName: first.wikiPageName,
+                    itemName: item.displayName,
+                    iconName: item.iconName,
+                    wikiPageName: item.wikiPageName,
                     sourceCounts,
-                    zoneCount: zoneSet.size
+                    zoneCount: zoneSet.size,
+                    hasKnownSource: sources.length > 0
                 },
                 sources
             });

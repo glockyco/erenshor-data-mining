@@ -24,7 +24,8 @@ function item(name: string): IndexEntry {
                 fishingSpots: 0,
                 itemBags: 0
             },
-            zoneCount: 1
+            zoneCount: 1,
+            hasKnownSource: true
         }
     };
 }
