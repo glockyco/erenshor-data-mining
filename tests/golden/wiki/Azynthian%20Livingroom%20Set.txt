@@ -2,7 +2,7 @@
 |title=Azynthian Livingroom Set
 |stablekey=item:furniture - azynthi living
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

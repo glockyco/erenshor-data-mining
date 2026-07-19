@@ -2,7 +2,7 @@
 |title=Loomingwood Shrine Set
 |stablekey=item:furniture - loomingwood shrine
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

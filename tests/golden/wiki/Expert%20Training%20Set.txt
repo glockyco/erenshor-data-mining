@@ -2,7 +2,7 @@
 |title=Expert Training Set
 |stablekey=item:furniture - expert training
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

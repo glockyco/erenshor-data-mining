@@ -2,7 +2,7 @@
 |title=Vithean Arena Fee (2)
 |stablekey=item:quest - vithean arena token 2
 |type=[[Quest Items|Quest Item]]
-|vendorsource=
+|vendorsource=[[Master of Battle]]
 |source=[[Vithean Chest|Vithean Chest (Round 1)]] (100.0%)
 |othersource=
 |questsource=

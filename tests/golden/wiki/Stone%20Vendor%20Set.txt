@@ -2,7 +2,7 @@
 |title=Stone Vendor Set
 |stablekey=item:furniture - stone vendor
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

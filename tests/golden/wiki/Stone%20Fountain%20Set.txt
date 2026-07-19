@@ -2,7 +2,7 @@
 |title=Stone Fountain Set
 |stablekey=item:furniture - stone fountain
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

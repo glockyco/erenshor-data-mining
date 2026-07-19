@@ -2,7 +2,7 @@
 |title=Vithean Arena Fee (1)
 |stablekey=item:quest - vithean arena token 1
 |type=[[Quest Items|Quest Item]]
-|vendorsource=
+|vendorsource=[[Master of Battle]]
 |source=[[Vithean Chest|Vithean Chest (Round 8)]] (100.0%)
 |othersource=
 |questsource={{QuestLink|An Arena Token}}

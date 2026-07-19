@@ -2,7 +2,7 @@
 |title=Stone Training Set
 |stablekey=item:furniture - stone training
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

@@ -2,7 +2,7 @@
 |title=Game Room
 |stablekey=item:furniture - game r oom
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

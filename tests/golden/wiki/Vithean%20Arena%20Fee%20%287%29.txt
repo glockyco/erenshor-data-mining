@@ -2,7 +2,7 @@
 |title=Vithean Arena Fee (7)
 |stablekey=item:quest - vithean arena token 7
 |type=[[Quest Items|Quest Item]]
-|vendorsource=
+|vendorsource=[[Master of Battle]]
 |source=[[Vithean Chest|Vithean Chest (Round 6)]] (100.0%)
 |othersource=
 |questsource=

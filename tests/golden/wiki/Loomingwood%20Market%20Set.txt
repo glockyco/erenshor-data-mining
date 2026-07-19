@@ -2,7 +2,7 @@
 |title=Loomingwood Market Set
 |stablekey=item:furniture - loomingwood marketplace
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

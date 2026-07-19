@@ -2,7 +2,7 @@
 |title=Azynthian Resting place
 |stablekey=item:furniture - azynthi coffin
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

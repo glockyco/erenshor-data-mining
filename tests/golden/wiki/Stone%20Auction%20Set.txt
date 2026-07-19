@@ -2,7 +2,7 @@
 |title=Stone Auction Set
 |stablekey=item:furniture - stone auction
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

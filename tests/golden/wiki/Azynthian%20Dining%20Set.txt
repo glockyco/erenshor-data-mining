@@ -2,7 +2,7 @@
 |title=Azynthian Dining Set
 |stablekey=item:furniture - azynthi dining
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=

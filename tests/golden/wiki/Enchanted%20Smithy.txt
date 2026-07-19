@@ -2,7 +2,7 @@
 |title=Enchanted Smithy
 |stablekey=item:furniture - enchanted smithy
 |type=
-|vendorsource=
+|vendorsource=[[Breena Carpenter]]
 |source=
 |othersource=
 |questsource=
