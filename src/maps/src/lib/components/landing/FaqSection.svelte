@@ -2,7 +2,21 @@
     import SectionHead from './SectionHead.svelte';
     import Icon from './Icon.svelte';
     import { line } from './icons';
-    import { FAQ_ITEMS } from '$lib/seo/faq';
+    import { FAQ_ITEMS, type FaqCategory } from '$lib/seo/faq';
+
+    // Two rendered clusters over the flat, category-ordered array. Each group
+    // carries its items' global indices so the open-state array stays flat and
+    // aligned with FAQ_ITEMS.
+    const GROUP_LABELS: Record<FaqCategory, string> = {
+        tools: 'Using this site',
+        game: 'About the game'
+    };
+    const GROUPS = (['tools', 'game'] satisfies FaqCategory[]).map((category) => ({
+        label: GROUP_LABELS[category],
+        entries: FAQ_ITEMS.map((item, index) => ({ item, index })).filter(
+            ({ item }) => item.category === category
+        )
+    }));
 
     // First question open by default, the rest collapsed. Each <details> stays
     // independently user-toggleable through the binding; the bulk control just
@@ -24,26 +38,31 @@
         </button>
     </SectionHead>
     <div class="faq">
-        {#each FAQ_ITEMS as item, i (item.question)}
-            <details class="qa" bind:open={open[i]}>
-                <summary>
-                    <h3>{item.question}</h3>
-                    <span class="chev" aria-hidden="true">
-                        <Icon paths={line.chevron} stroke class="block h-[18px] w-[18px]" />
-                    </span>
-                </summary>
-                <div class="answer">
-                    <p>
-                        {#each item.answer as seg, j (j)}
-                            {#if typeof seg === 'string'}
-                                {seg}
-                            {:else}
-                                <a href={seg.href}>{seg.text}</a>
-                            {/if}
-                        {/each}
-                    </p>
-                </div>
-            </details>
+        {#each GROUPS as group (group.label)}
+            <div class="group">
+                <h3 class="group-label">{group.label}</h3>
+                {#each group.entries as { item, index } (item.question)}
+                    <details class="qa" bind:open={open[index]}>
+                        <summary>
+                            <h4>{item.question}</h4>
+                            <span class="chev" aria-hidden="true">
+                                <Icon paths={line.chevron} stroke class="block h-[18px] w-[18px]" />
+                            </span>
+                        </summary>
+                        <div class="answer">
+                            <p>
+                                {#each item.answer as seg, j (j)}
+                                    {#if typeof seg === 'string'}
+                                        {seg}
+                                    {:else}
+                                        <a href={seg.href}>{seg.text}</a>
+                                    {/if}
+                                {/each}
+                            </p>
+                        </div>
+                    </details>
+                {/each}
+            </div>
         {/each}
     </div>
 </section>
@@ -76,6 +95,17 @@
     .faq {
         display: flex;
         flex-direction: column;
+        gap: clamp(26px, 3vw, 40px);
+    }
+    .group-label {
+        margin: 0;
+        padding: 0 0 6px;
+        border-bottom: 1px solid var(--color-line);
+        font-family: var(--font-mono, var(--font-display));
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--color-muted);
     }
     .qa {
         border-bottom: 1px solid var(--color-line);
@@ -101,7 +131,7 @@
         outline-offset: 3px;
         border-radius: 3px;
     }
-    .qa h3 {
+    .qa h4 {
         margin: 0;
         font-family: var(--font-display);
         font-size: 1.12rem;
@@ -109,7 +139,7 @@
         color: var(--color-ink);
         transition: color 0.15s;
     }
-    .qa summary:hover h3 {
+    .qa summary:hover h4 {
         color: var(--color-accent);
     }
     .chev {

@@ -6,16 +6,15 @@
  * page flattens the segments to plain text). Answers are answer-first and link
  * to the relevant tool or source so visitors are never left hanging.
  *
- * Items are ordered by category so the flat list reads tools-first. Once the
- * list grows past roughly a dozen questions, a grouped layout is a trivial
- * wrapper over the same array. The JSON-LD builder reads only question and
- * answer, so `category` carries no SEO weight.
+ * Items are ordered by category and FaqSection renders them as two grouped
+ * clusters (tools first, then game). The JSON-LD builder reads only question
+ * and answer, so `category` carries no SEO weight.
  */
 
 /** A run of answer text, or a link with display text and an href. */
 export type AnswerSegment = string | { text: string; href: string };
 
-/** Which bucket a question belongs to, for a future grouped render. */
+/** Which rendered cluster a question belongs to. */
 export type FaqCategory = 'tools' | 'game';
 
 export interface FaqItem {
