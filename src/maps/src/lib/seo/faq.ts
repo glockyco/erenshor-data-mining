@@ -77,13 +77,13 @@ export const FAQ_ITEMS: FaqItem[] = [
             { text: 'Thunderstore', href: 'https://thunderstore.io/c/erenshor/' },
             ' is the established, legacy ecosystem for BepInEx mods. ',
             { text: 'Erenshor Vault', href: 'https://erenshorvault.app/' },
-            ' is an Erenshor-specific mod hosting site for ',
+            ' and ',
             { text: 'Lunaris', href: 'https://github.com/MizukiBelhi/Lunaris' },
-            ', a loader that can install and update mods from within the game. Our maps-adjacent mods are the ',
+            ' are a mod hosting site and mod loader built specifically by the Erenshor community to offer a more seamless modding experience. The ',
             { text: 'Adventure Guide', href: '/adventure-guide' },
-            ' for quest walkthroughs and GPS routing, and the ',
+            ' mod for quest walkthroughs and GPS routing, and the ',
             { text: 'Interactive Map Companion', href: '/mod' },
-            ' for live tracking on the world map.'
+            ' mod for live tracking on the world map are available on both platforms.'
         ]
     },
     {
