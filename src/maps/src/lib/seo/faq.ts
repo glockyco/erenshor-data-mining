@@ -79,7 +79,7 @@ export const FAQ_ITEMS: FaqItem[] = [
             { text: 'Erenshor Vault', href: 'https://erenshorvault.app/' },
             ' is an Erenshor-specific mod hosting site for ',
             { text: 'Lunaris', href: 'https://github.com/MizukiBelhi/Lunaris' },
-            ', a loader that can install and update mods while the game runs. Our maps-adjacent mods are the ',
+            ', a loader that can install and update mods from within the game. Our maps-adjacent mods are the ',
             { text: 'Adventure Guide', href: '/adventure-guide' },
             ' for quest walkthroughs and GPS routing, and the ',
             { text: 'Interactive Map Companion', href: '/mod' },
