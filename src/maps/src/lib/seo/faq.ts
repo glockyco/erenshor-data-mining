@@ -79,7 +79,7 @@ export const FAQ_ITEMS: FaqItem[] = [
             { text: 'Erenshor Vault', href: 'https://erenshorvault.app/' },
             ' and ',
             { text: 'Lunaris', href: 'https://github.com/MizukiBelhi/Lunaris' },
-            ' are a mod hosting site and mod loader built specifically by the Erenshor community to offer a more seamless modding experience. The ',
+            ' are a mod hosting site and mod loader built by the Erenshor community to offer a more seamless modding experience. The ',
             { text: 'Adventure Guide', href: '/adventure-guide' },
             ' mod for quest walkthroughs and GPS routing, and the ',
             { text: 'Interactive Map Companion', href: '/mod' },
@@ -117,7 +117,7 @@ export const FAQ_ITEMS: FaqItem[] = [
                 text: 'Zones index',
                 href: 'https://erenshor.wiki.gg/wiki/Zones'
             },
-            " for Erenshor's outdoor zones, dungeons, raids, and event zones, with level ranges and connections. Use the ",
+            " for Erenshor's outdoor zones, dungeons, raids, and event zones. Use the ",
             { text: 'zone maps', href: '/zone-maps' },
             ' for individual area maps, or the ',
             { text: 'interactive world map', href: '/map' },
@@ -138,7 +138,7 @@ export const FAQ_ITEMS: FaqItem[] = [
                 text: 'Prichard Zemoro',
                 href: 'https://erenshor.wiki.gg/wiki/Prichard_Zemoro'
             },
-            ' consumes one Treasure Map plus one Elixir of Enlightenment II and rewards one Sivakrux. A single map cannot be used for both paths. See the ',
+            ' takes one Treasure Map plus one Elixir of Enlightenment II and rewards one Sivakrux. See the ',
             {
                 text: 'Treasure Hunting guide',
                 href: 'https://erenshor.wiki.gg/wiki/Treasure_Hunting'
