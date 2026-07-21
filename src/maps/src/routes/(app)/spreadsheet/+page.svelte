@@ -151,8 +151,6 @@
         <div class="flex flex-col items-center gap-6">
             <a
                 href={sheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
                 class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"
             >
                 <svg
@@ -186,8 +184,6 @@
                 <!-- eslint-disable svelte/no-navigation-without-resolve -->
                 <a
                     href={sheet.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     class="flex items-center bg-slate-700 rounded-lg px-4 py-3 border-l-4 border-purple-500 hover:border-pink-500 transition-all duration-200 shadow-sm hover:scale-105 group"
                 >
                     <!-- eslint-enable svelte/no-navigation-without-resolve -->

@@ -176,8 +176,6 @@
                 <p>
                     Download and install <a
                         href="https://github.com/BepInEx/BepInEx/releases"
-                        target="_blank"
-                        rel="noopener noreferrer"
                         class="text-purple-400 hover:text-purple-300 underline"
                     >
                         BepInEx 5.4
@@ -384,8 +382,6 @@
                 <p class="text-slate-400">
                     See the <a
                         href="https://steamcommunity.com/sharedfiles/filedetails/?id=3485536525"
-                        target="_blank"
-                        rel="noopener noreferrer"
                         class="text-purple-400 hover:text-purple-300 underline"
                     >
                         Erenshor Modding guide on Steam

@@ -52,8 +52,6 @@
                 {#each socials as s (s.href)}
                     <a
                         href={s.href}
-                        target="_blank"
-                        rel="noopener"
                         aria-label={s.label}
                         title={s.label}
                         class="grid place-items-center text-muted transition-colors hover:text-accent"

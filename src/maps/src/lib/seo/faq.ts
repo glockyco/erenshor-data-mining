@@ -13,7 +13,7 @@
  */
 
 /** A run of answer text, or a link with display text and an href. */
-export type AnswerSegment = string | { text: string; href: string; external?: boolean };
+export type AnswerSegment = string | { text: string; href: string };
 
 /** Which bucket a question belongs to, for a future grouped render. */
 export type FaqCategory = 'tools' | 'game';
@@ -91,7 +91,7 @@ export const FAQ_ITEMS: FaqItem[] = [
         category: 'tools',
         answer: [
             'They work together and link to each other. The ',
-            { text: 'official wiki', href: 'https://erenshor.wiki.gg', external: true },
+            { text: 'official wiki', href: 'https://erenshor.wiki.gg' },
             ' has drop rates, stats, and lore, and its enemy pages link to this map. The ',
             { text: 'world map', href: '/map' },
             ' shows you visually where everything is, with every spawn on one map, filtering, and live positions, and links back to the wiki for the deeper details.'
@@ -177,8 +177,7 @@ export const FAQ_ITEMS: FaqItem[] = [
             'No. Erenshor is an offline single-player simulated MMORPG where the other adventurers are AI SimPlayers. There is no official multiplayer. If you want to play together, the community ',
             {
                 text: 'co-op mod',
-                href: 'https://thunderstore.io/c/erenshor/p/mizuki/Erenshor_COOP/',
-                external: true
+                href: 'https://thunderstore.io/c/erenshor/p/mizuki/Erenshor_COOP/'
             },
             ' brings co-op to the game.'
         ]
@@ -190,8 +189,7 @@ export const FAQ_ITEMS: FaqItem[] = [
             'Neither. ',
             {
                 text: 'SimPlayers',
-                href: 'https://erenshor.wiki.gg/wiki/Simulated_Players',
-                external: true
+                href: 'https://erenshor.wiki.gg/wiki/Simulated_Players'
             },
             ' are scripted AI characters (state machines and decision trees, not an LLM) that level up, group, trade, and chat to make the world feel populated.'
         ]

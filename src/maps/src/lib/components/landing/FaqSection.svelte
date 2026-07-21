@@ -37,10 +37,6 @@
                         {#each item.answer as seg, j (j)}
                             {#if typeof seg === 'string'}
                                 {seg}
-                            {:else if seg.external}
-                                <a href={seg.href} target="_blank" rel="noopener noreferrer"
-                                    >{seg.text}</a
-                                >
                             {:else}
                                 <a href={seg.href}>{seg.text}</a>
                             {/if}

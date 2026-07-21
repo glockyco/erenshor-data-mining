@@ -2341,8 +2341,6 @@
     {#if !debugStore.enabled}
         <a
             href={KOFI_URL}
-            target="_blank"
-            rel="noopener noreferrer"
             aria-label="Support on Ko-fi"
             title="Support on Ko-fi"
             style:right={kofiButtonRight}

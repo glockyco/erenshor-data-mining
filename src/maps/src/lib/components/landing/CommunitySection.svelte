@@ -71,7 +71,7 @@
                 <h3 class="group-title">{group.title}</h3>
                 <div class="links">
                     {#each group.links as l (l.href)}
-                        <a class="link" href={l.href} target="_blank" rel="noopener">
+                        <a class="link" href={l.href}>
                             <span class="ic"><Icon paths={l.icon} stroke class="block h-[19px] w-[19px]" /></span>
                             <div>
                                 <h4>{l.title}</h4>
