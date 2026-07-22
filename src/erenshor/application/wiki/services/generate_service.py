@@ -6,6 +6,7 @@ fetched content, and preserving manual edits.
 
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -13,6 +14,8 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
     import mwparserfromhell
     import mwparserfromhell.nodes
     import mwparserfromhell.wikicode
@@ -94,6 +97,7 @@ class WikiGenerateService:
         limit: int | None = None,
         page_titles: list[str] | None = None,
         generator_names: list[str] | None = None,
+        preflight: Callable[[Mapping[str, str]], None] | None = None,
     ) -> OperationResult:
         """Generate wiki pages using registered generators.
 
@@ -108,6 +112,8 @@ class WikiGenerateService:
             limit: Maximum number of pages to generate (for testing).
             page_titles: If specified, only generate these specific page titles. If None, generate all pages.
             generator_names: Optional list of generator names to use. If None, use all registered generators.
+            preflight: Optional callback invoked with an immutable mapping of the exact
+                successfully processed standard page titles and content.
 
         Returns:
             OperationResult with summary statistics and warnings/errors.
@@ -171,6 +177,8 @@ class WikiGenerateService:
         # If there are no standard pages (e.g. zones-only run), return success directly
         # rather than letting _process_generated_pages emit a misleading warning.
         if not standard_pages:
+            if preflight is not None:
+                preflight(MappingProxyType({}))
             file_count = len(file_pairs)
             return OperationResult(
                 total=file_count,
@@ -180,7 +188,7 @@ class WikiGenerateService:
                 warnings=[],
                 errors=[],
             )
-        return self._process_generated_pages(standard_pages, dry_run)
+        return self._process_generated_pages(standard_pages, dry_run, preflight)
 
     def _write_file_pages(
         self,
@@ -213,6 +221,7 @@ class WikiGenerateService:
         self,
         generated_pages: list[GeneratedPage],
         dry_run: bool,
+        preflight: Callable[[Mapping[str, str]], None] | None = None,
     ) -> OperationResult:
         """Process generated pages with preservation and normalization.
 
@@ -229,6 +238,7 @@ class WikiGenerateService:
         failed = 0
         warnings: list[str] = []
         errors: list[str] = []
+        processed_content: dict[str, str] = {}
 
         self._console.print(f"\n[bold]Generating {total} wiki pages...[/bold]\n")
 
@@ -299,6 +309,7 @@ class WikiGenerateService:
                         final_content,
                     )
 
+                processed_content[gen_page.title] = final_content
                 succeeded += 1
 
             except Exception as e:
@@ -307,6 +318,10 @@ class WikiGenerateService:
                 errors.append(error_msg)
                 self._console.print(f"[red]✗[/red] {error_msg}")
                 failed += 1
+
+        if preflight is not None and failed == 0:
+            ordered_content = dict(sorted(processed_content.items(), key=lambda item: (item[0].casefold(), item[0])))
+            preflight(MappingProxyType(ordered_content))
 
         # Display summary
         from erenshor.application.wiki.services.helpers import display_operation_summary

@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -345,6 +346,41 @@ class WikiStorage:
             return None
 
         return file_path.read_text(encoding="utf-8")
+
+    def list_generated_titles(self) -> tuple[str, ...]:
+        """Return all generated article titles in deterministic order."""
+        metadata = self._load_metadata()
+        return tuple(
+            sorted(
+                (title for title, page in metadata.items() if page.generated_at is not None),
+                key=lambda title: (title.casefold(), title),
+            )
+        )
+
+    def read_generated_pages(self, page_titles: Sequence[str] | None = None) -> dict[str, str]:
+        """Return one deterministic snapshot of generated page contents.
+
+        Metadata and files are one storage contract. A generated metadata row
+        without its content file is corruption and fails instead of silently
+        weakening deployment preflight checks.
+        """
+        requested = None if page_titles is None else set(page_titles)
+        metadata = self._load_metadata()
+        titles = sorted(
+            (
+                title
+                for title, page_metadata in metadata.items()
+                if page_metadata.generated_at is not None and (requested is None or title in requested)
+            ),
+            key=lambda title: (title.casefold(), title),
+        )
+        pages: dict[str, str] = {}
+        for title in titles:
+            content = self.read_generated_by_title(title)
+            if content is None:
+                raise FileNotFoundError(f"Generated wiki content missing for {title!r}")
+            pages[title] = content
+        return pages
 
     def get_metadata_by_title(self, page_title: str) -> PageMetadata | None:
         """Get metadata for a page by title.

@@ -5,7 +5,9 @@ error handling and progress tracking.
 """
 
 import time
+from collections.abc import Callable, Mapping
 from pathlib import Path
+from types import MappingProxyType
 
 from loguru import logger
 from rich.console import Console
@@ -179,6 +181,7 @@ class WikiDeployService:
         dry_run: bool = False,
         limit: int | None = None,
         page_titles: list[str] | None = None,
+        preflight: Callable[[Mapping[str, str]], None] | None = None,
     ) -> OperationResult:
         """Deploy generated wiki pages to MediaWiki.
 
@@ -189,6 +192,8 @@ class WikiDeployService:
             dry_run: If True, simulate deployment without actually uploading.
             limit: Maximum number of pages to deploy (for testing).
             page_titles: If specified, only deploy these specific page titles. If None, deploy all generated pages.
+            preflight: Optional callback invoked with an immutable mapping of the exact
+                selected page titles and content before login or any edit.
 
         Returns:
             OperationResult with summary statistics and warnings/errors.
@@ -207,7 +212,10 @@ class WikiDeployService:
 
         # Get all generated page titles from storage metadata
         metadata = self._storage._load_metadata()
-        all_generated_titles = [title for title, meta in metadata.items() if meta.generated_at is not None]
+        all_generated_titles = sorted(
+            (title for title, meta in metadata.items() if meta.generated_at is not None),
+            key=lambda title: (title.casefold(), title),
+        )
 
         # Filter by requested page titles if specified
         if page_titles:
@@ -230,37 +238,16 @@ class WikiDeployService:
                 errors=[],
             )
 
-        # Login to wiki before deploying (required for edit operations)
-        if not dry_run:
+        # Select deployable pages and read their content before login. This makes
+        # the preflight plan deterministic and ensures uploads use the audited bytes.
+        selected_content: dict[str, str] = {}
+        for page_title in candidate_titles:
+            if limit and len(selected_content) >= limit:
+                logger.info(f"Reached deployment limit of {limit}")
+                break
+
+            total += 1
             try:
-                self._wiki_client.login()
-            except Exception as e:
-                error_msg = f"Failed to login to wiki: {e}"
-                logger.error(error_msg)
-                return OperationResult(
-                    total=len(candidate_titles),
-                    succeeded=0,
-                    failed=len(candidate_titles),
-                    skipped=0,
-                    warnings=[],
-                    errors=[error_msg],
-                )
-
-        self._console.print("\n[bold]Deploying wiki pages...[/bold]\n")
-
-        # Deploy each page with progress bar, respecting limit
-        for page_title in track(
-            candidate_titles,
-            description="Deploying pages",
-            total=len(candidate_titles),
-        ):
-            try:
-                # Check if limit reached (limit applies to successful deployments only)
-                if limit and succeeded >= limit:
-                    logger.info(f"Reached deployment limit of {limit}")
-                    break
-
-                # Check if page should be deployed
                 page_metadata = metadata.get(page_title)
                 if page_metadata:
                     should_deploy, reason = page_metadata.should_deploy()
@@ -269,7 +256,6 @@ class WikiDeployService:
                         skipped += 1
                         continue
 
-                # Read generated content
                 content = self._storage.read_generated_by_title(page_title)
                 if not content:
                     warning = f"No generated content for {page_title}"
@@ -277,6 +263,42 @@ class WikiDeployService:
                     skipped += 1
                     continue
 
+                selected_content[page_title] = content
+            except Exception as e:
+                error_msg = f"Error deploying {page_title}: {e}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+                self._console.print(f"[red]✗[/red] {error_msg}")
+                failed += 1
+
+        if preflight is not None:
+            preflight(MappingProxyType(selected_content))
+
+        # Login to wiki before deploying (required for edit operations)
+        if not dry_run:
+            try:
+                self._wiki_client.login()
+            except Exception as e:
+                error_msg = f"Failed to login to wiki: {e}"
+                logger.error(error_msg)
+                return OperationResult(
+                    total=total,
+                    succeeded=0,
+                    failed=failed + len(selected_content),
+                    skipped=skipped,
+                    warnings=warnings,
+                    errors=[*errors, error_msg],
+                )
+
+        self._console.print("\n[bold]Deploying wiki pages...[/bold]\n")
+
+        # Deploy each selected page with progress bar.
+        for page_title, content in track(
+            selected_content.items(),
+            description="Deploying pages",
+            total=len(selected_content),
+        ):
+            try:
                 # Upload to wiki (skip in dry-run)
                 if not dry_run:
                     try:

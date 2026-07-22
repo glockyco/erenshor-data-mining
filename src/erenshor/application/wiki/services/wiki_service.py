@@ -38,6 +38,7 @@ Example:
     >>> service.deploy_all()
 """
 
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from loguru import logger
@@ -207,6 +208,7 @@ class WikiService:
         limit: int | None = None,
         page_titles: list[str] | None = None,
         generator_names: list[str] | None = None,
+        preflight: Callable[[Mapping[str, str]], None] | None = None,
     ) -> OperationResult:
         """Generate wiki pages for all entities or specified page titles.
 
@@ -216,8 +218,8 @@ class WikiService:
             dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of pages to generate (for testing).
             page_titles: If specified, only generate these specific page titles.
-
-        Returns:
+            preflight: Optional callback invoked with the exact processed pages before
+                generation reports success.
             OperationResult with summary statistics and warnings/errors.
         """
         return self._generate_service.generate_all(
@@ -225,6 +227,7 @@ class WikiService:
             limit=limit,
             page_titles=page_titles,
             generator_names=generator_names,
+            preflight=preflight,
         )
 
     def deploy_all(
@@ -232,6 +235,7 @@ class WikiService:
         dry_run: bool = False,
         limit: int | None = None,
         page_titles: list[str] | None = None,
+        preflight: Callable[[Mapping[str, str]], None] | None = None,
     ) -> OperationResult:
         """Deploy generated wiki pages to MediaWiki.
 
@@ -241,6 +245,8 @@ class WikiService:
             dry_run: If True, simulate deployment without actually uploading.
             limit: Maximum number of pages to deploy (for testing).
             page_titles: If specified, only deploy these specific page titles.
+            preflight: Optional callback invoked with an immutable mapping of the exact
+                selected page titles and content before login or any edit.
 
         Returns:
             OperationResult with summary statistics and warnings/errors.
@@ -249,6 +255,7 @@ class WikiService:
             dry_run=dry_run,
             limit=limit,
             page_titles=page_titles,
+            preflight=preflight,
         )
 
     def deploy_from_dir(

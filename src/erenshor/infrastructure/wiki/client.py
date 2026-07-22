@@ -130,6 +130,16 @@ class MediaWikiPageSnapshot:
     content_model: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class MediaWikiTitleStatus:
+    """Existence and redirect metadata for one requested wiki title."""
+
+    requested: str
+    normalized: str
+    redirect_target: str | None
+    exists: bool
+
+
 class MediaWikiClient:
     """Client for MediaWiki API operations.
 
@@ -615,6 +625,250 @@ class MediaWikiClient:
 
         logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
         return result_dict
+
+    def get_title_statuses(self, titles: Sequence[str]) -> dict[str, MediaWikiTitleStatus]:
+        """Return normalized, redirect, and existence status for each title.
+
+        Requests are batched using the configured API batch size.  MediaWiki's
+        ``normalized`` and ``redirects`` response maps are reconciled locally so
+        callers retain the exact requested title as the result key.
+        """
+        if not titles:
+            return {}
+
+        requested_titles = list(dict.fromkeys(titles))
+        statuses: dict[str, MediaWikiTitleStatus] = {}
+        for start in range(0, len(requested_titles), self.batch_size):
+            batch = requested_titles[start : start + self.batch_size]
+            result = self._request(
+                {
+                    "action": "query",
+                    "prop": "info",
+                    "redirects": "1",
+                    "titles": "|".join(batch),
+                }
+            )
+            query = result.get("query", {})
+            if not isinstance(query, dict):
+                raise MediaWikiAPIError("Invalid title status response: missing query object")
+
+            normalized: dict[str, str] = {}
+            raw_normalized = query.get("normalized", [])
+            if not isinstance(raw_normalized, list):
+                raise MediaWikiAPIError("Invalid title status response: normalized must be a list")
+            for item in raw_normalized:
+                if (
+                    not isinstance(item, dict)
+                    or not isinstance(item.get("from"), str)
+                    or not isinstance(item.get("to"), str)
+                ):
+                    raise MediaWikiAPIError("Invalid title status response: malformed normalized entry")
+                normalized[item["from"]] = item["to"]
+
+            redirects: dict[str, str] = {}
+            raw_redirects = query.get("redirects", [])
+            if not isinstance(raw_redirects, list):
+                raise MediaWikiAPIError("Invalid title status response: redirects must be a list")
+            for item in raw_redirects:
+                if (
+                    not isinstance(item, dict)
+                    or not isinstance(item.get("from"), str)
+                    or not isinstance(item.get("to"), str)
+                ):
+                    raise MediaWikiAPIError("Invalid title status response: malformed redirect entry")
+                redirects[item["from"]] = item["to"]
+
+            pages = query.get("pages", {})
+            if not isinstance(pages, dict):
+                raise MediaWikiAPIError("Invalid title status response: pages must be an object")
+            existence: dict[str, bool] = {}
+            for page in pages.values():
+                if not isinstance(page, dict) or not isinstance(page.get("title"), str):
+                    raise MediaWikiAPIError("Invalid title status response: malformed page entry")
+                page_id = page.get("pageid")
+                exists = not bool(page.get("missing"))
+                if page_id is None:
+                    exists = False
+                else:
+                    try:
+                        exists = exists and int(page_id) >= 0
+                    except (TypeError, ValueError) as error:
+                        raise MediaWikiAPIError("Invalid title status response: malformed page id") from error
+                existence[page["title"]] = exists
+
+            for requested in batch:
+                normalized_title = normalized.get(requested, requested)
+                initial_redirect_target = redirects.get(normalized_title, redirects.get(requested))
+                final_title = initial_redirect_target or normalized_title
+                seen_titles: set[str] = set()
+                while final_title not in seen_titles and final_title in redirects:
+                    seen_titles.add(final_title)
+                    final_title = redirects[final_title]
+                exists = existence.get(final_title, existence.get(normalized_title, existence.get(requested, False)))
+                statuses[requested] = MediaWikiTitleStatus(
+                    requested=requested,
+                    normalized=normalized_title,
+                    redirect_target=final_title if initial_redirect_target is not None else None,
+                    exists=exists,
+                )
+
+        return statuses
+
+    @staticmethod
+    def _deterministic_unique_titles(titles: Sequence[str]) -> tuple[str, ...]:
+        """Return unique titles in a stable, case-insensitive order."""
+        return tuple(sorted(set(titles), key=lambda title: (title.casefold(), title)))
+
+    def get_wanted_pages(self, namespace: int = 0) -> tuple[str, ...]:
+        """Return unique wanted-page titles in ``namespace``.
+
+        QueryPage does not expose a namespace parameter for WantedPages, so the
+        namespace is filtered from each returned result while all continuation
+        pages are consumed.
+        """
+        titles: list[str] = []
+        continue_params: dict[str, str] = {}
+        params: dict[str, Any] = {
+            "action": "query",
+            "list": "querypage",
+            "qppage": "Wantedpages",
+            "qplimit": "max",
+        }
+        while True:
+            result = self._request(params | continue_params)
+            query = result.get("query", {})
+            querypage = query.get("querypage", []) if isinstance(query, dict) else []
+            entries = querypage.get("results", []) if isinstance(querypage, dict) else querypage
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Invalid WantedPages response")
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+                    raise MediaWikiAPIError("Invalid WantedPages response: malformed result")
+                try:
+                    entry_namespace = int(entry.get("ns", 0))
+                except (TypeError, ValueError) as error:
+                    raise MediaWikiAPIError("Invalid WantedPages response: malformed namespace") from error
+                if entry_namespace == namespace:
+                    titles.append(entry["title"])
+            continuation = result.get("continue")
+            if not isinstance(continuation, dict):
+                break
+            continue_params = {key: str(value) for key, value in continuation.items()}
+        return self._deterministic_unique_titles(titles)
+
+    def get_linking_pages_by_title(
+        self,
+        titles: Sequence[str],
+        namespace: int = 0,
+    ) -> dict[str, tuple[str, ...]]:
+        """Return linking pages for many target titles using batched queries."""
+        requested_titles = self._deterministic_unique_titles(titles)
+        linking_pages: dict[str, list[str]] = {title: [] for title in requested_titles}
+        requested_by_key = {title.replace("_", " ").strip().casefold(): title for title in requested_titles}
+        for start in range(0, len(requested_titles), self.batch_size):
+            batch = requested_titles[start : start + self.batch_size]
+            continue_params: dict[str, str] = {}
+            params: dict[str, Any] = {
+                "action": "query",
+                "prop": "linkshere",
+                "titles": "|".join(batch),
+                "lhnamespace": str(namespace),
+                "lhlimit": "max",
+            }
+            while True:
+                result = self._request(params | continue_params)
+                query = result.get("query", {})
+                pages = query.get("pages", {}) if isinstance(query, dict) else {}
+                if not isinstance(pages, dict):
+                    raise MediaWikiAPIError("Invalid linking-pages response")
+                for page in pages.values():
+                    if not isinstance(page, dict) or not isinstance(page.get("title"), str):
+                        raise MediaWikiAPIError("Invalid linking-pages response: malformed target")
+                    response_title = page["title"]
+                    requested_title = requested_by_key.get(response_title.replace("_", " ").strip().casefold())
+                    if requested_title is None:
+                        raise MediaWikiAPIError("Invalid linking-pages response: unexpected target")
+                    entries = page.get("linkshere", [])
+                    if not isinstance(entries, list):
+                        raise MediaWikiAPIError("Invalid linking-pages response")
+                    for entry in entries:
+                        if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+                            raise MediaWikiAPIError("Invalid linking-pages response: malformed result")
+                        try:
+                            entry_namespace = int(entry.get("ns", namespace))
+                        except (TypeError, ValueError) as error:
+                            raise MediaWikiAPIError("Invalid linking-pages response: malformed namespace") from error
+                        if entry_namespace == namespace:
+                            linking_pages[requested_title].append(entry["title"])
+                continuation = result.get("continue")
+                if not isinstance(continuation, dict):
+                    break
+                continue_params = {key: str(value) for key, value in continuation.items()}
+        return {title: self._deterministic_unique_titles(linking_pages[title]) for title in requested_titles}
+
+    def get_linking_pages(self, title: str, namespace: int = 0) -> tuple[str, ...]:
+        """Return unique pages linking to ``title`` in ``namespace``."""
+        titles: list[str] = []
+        continue_params: dict[str, str] = {}
+        params: dict[str, Any] = {
+            "action": "query",
+            "list": "backlinks",
+            "bltitle": title,
+            "blnamespace": str(namespace),
+            "bllimit": "max",
+        }
+        while True:
+            result = self._request(params | continue_params)
+            query = result.get("query", {})
+            entries = query.get("backlinks", []) if isinstance(query, dict) else []
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Invalid linking-pages response")
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+                    raise MediaWikiAPIError("Invalid linking-pages response: malformed result")
+                try:
+                    entry_namespace = int(entry.get("ns", namespace))
+                except (TypeError, ValueError) as error:
+                    raise MediaWikiAPIError("Invalid linking-pages response: malformed namespace") from error
+                if entry_namespace == namespace:
+                    titles.append(entry["title"])
+            continuation = result.get("continue")
+            if not isinstance(continuation, dict):
+                break
+            continue_params = {key: str(value) for key, value in continuation.items()}
+        return self._deterministic_unique_titles(titles)
+
+    def get_category_members(self, title: str, namespace: int = 0) -> tuple[str, ...]:
+        """Return unique members of category ``title`` in ``namespace``."""
+        titles: list[str] = []
+        continue_params: dict[str, str] = {}
+        params: dict[str, Any] = {
+            "action": "query",
+            "list": "categorymembers",
+            "cmtitle": title,
+            "cmnamespace": str(namespace),
+            "cmlimit": "max",
+        }
+        while True:
+            result = self._request(params | continue_params)
+            query = result.get("query", {})
+            entries = query.get("categorymembers", []) if isinstance(query, dict) else []
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Invalid category-members response")
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+                    raise MediaWikiAPIError("Invalid category-members response: malformed result")
+                try:
+                    entry_namespace = int(entry.get("ns", namespace))
+                except (TypeError, ValueError) as error:
+                    raise MediaWikiAPIError("Invalid category-members response: malformed namespace") from error
+                if entry_namespace == namespace:
+                    titles.append(entry["title"])
+            continuation = result.get("continue")
+            if not isinstance(continuation, dict):
+                break
+            continue_params = {key: str(value) for key, value in continuation.items()}
+        return self._deterministic_unique_titles(titles)
 
     def get_page_snapshots(
         self,

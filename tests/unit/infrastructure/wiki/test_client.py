@@ -32,6 +32,7 @@ from erenshor.infrastructure.wiki import (
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
     MediaWikiRequestPolicy,
+    MediaWikiTitleStatus,
 )
 from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
@@ -1418,3 +1419,208 @@ class TestMediaWikiClientExpandTemplates:
         assert request.query["action"] == "expandtemplates"
         assert request.query["prop"] == "wikitext"
         assert request.query["text"] == "{{#invoke:Erenshor/Item|field|stablekey=item:ember|1=type}}"
+
+
+class TestMediaWikiClientSemanticLinkReads:
+    """Test read-only title and semantic-link maintenance queries."""
+
+    def test_get_title_statuses_batches_deduplicates_and_reconciles_titles(self) -> None:
+        with _mediawiki_api_server(
+            [
+                {
+                    "query": {
+                        "normalized": [{"from": "foo bar", "to": "Foo bar"}],
+                        "redirects": [{"from": "Foo bar", "to": "Canonical bar"}],
+                        "pages": {
+                            "1": {"pageid": 1, "title": "Canonical bar"},
+                            "-1": {"title": "Missing", "missing": ""},
+                        },
+                    }
+                },
+                {
+                    "query": {
+                        "pages": {"2": {"pageid": 2, "title": "Other"}},
+                    }
+                },
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, batch_size=2, clock=MockClock())
+            statuses = client.get_title_statuses(["foo bar", "foo bar", "Missing", "Other"])
+
+        assert statuses == {
+            "foo bar": MediaWikiTitleStatus(
+                requested="foo bar",
+                normalized="Foo bar",
+                redirect_target="Canonical bar",
+                exists=True,
+            ),
+            "Missing": MediaWikiTitleStatus(
+                requested="Missing",
+                normalized="Missing",
+                redirect_target=None,
+                exists=False,
+            ),
+            "Other": MediaWikiTitleStatus(
+                requested="Other",
+                normalized="Other",
+                redirect_target=None,
+                exists=True,
+            ),
+        }
+        assert [request.query["titles"] for request in api.requests] == ["foo bar|Missing", "Other"]
+        assert all(request.query["action"] == "query" for request in api.requests)
+        assert all(request.query["prop"] == "info" for request in api.requests)
+        assert all(request.query["redirects"] == "1" for request in api.requests)
+        assert all(request.method == "GET" for request in api.requests)
+
+    def test_get_title_statuses_returns_final_redirect_target(self) -> None:
+        with _mediawiki_api_server(
+            [
+                {
+                    "query": {
+                        "redirects": [
+                            {"from": "Old", "to": "Newer"},
+                            {"from": "Newer", "to": "Canonical"},
+                        ],
+                        "pages": {"1": {"pageid": 1, "title": "Canonical"}},
+                    }
+                }
+            ]
+        ) as (api_url, _):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+
+            status = client.get_title_statuses(["Old"])["Old"]
+
+        assert status.redirect_target == "Canonical"
+        assert status.exists is True
+
+    def test_get_wanted_pages_exhausts_continuation_and_filters_unique_namespace(self) -> None:
+        with _mediawiki_api_server(
+            [
+                {
+                    "continue": {"qpoffset": 2, "continue": "-||"},
+                    "query": {
+                        "querypage": {
+                            "results": [
+                                {"ns": 0, "title": "Zulu"},
+                                {"ns": 10, "title": "Template:Nope"},
+                                {"ns": 0, "title": "Alpha"},
+                            ]
+                        }
+                    },
+                },
+                {"query": {"querypage": {"results": [{"ns": 0, "title": "Zulu"}]}}},
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            titles = client.get_wanted_pages(namespace=0)
+
+        assert titles == ("Alpha", "Zulu")
+        assert api.requests[0].query == {
+            "action": "query",
+            "list": "querypage",
+            "qppage": "Wantedpages",
+            "qplimit": "max",
+            "format": "json",
+            "maxlag": "5",
+        }
+        assert api.requests[1].query["qpoffset"] == "2"
+        assert api.requests[1].query["continue"] == "-||"
+
+    def test_get_linking_pages_by_title_batches_targets_and_continuation(self) -> None:
+        with _mediawiki_api_server(
+            [
+                {
+                    "continue": {"lhcontinue": "next", "continue": "-||"},
+                    "query": {
+                        "pages": {
+                            "-1": {
+                                "ns": 0,
+                                "title": "Target A",
+                                "missing": "",
+                                "linkshere": [{"ns": 0, "title": "Source Z"}],
+                            },
+                            "-2": {
+                                "ns": 0,
+                                "title": "Target B",
+                                "missing": "",
+                                "linkshere": [
+                                    {"ns": 0, "title": "Source B"},
+                                    {"ns": 10, "title": "Template:Nope"},
+                                ],
+                            },
+                        }
+                    },
+                },
+                {
+                    "query": {
+                        "pages": {
+                            "-1": {
+                                "ns": 0,
+                                "title": "Target A",
+                                "missing": "",
+                                "linkshere": [{"ns": 0, "title": "Source A"}],
+                            }
+                        }
+                    }
+                },
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, batch_size=2, clock=MockClock())
+            linking = client.get_linking_pages_by_title(["Target B", "Target A", "Target B"], namespace=0)
+
+        assert linking == {
+            "Target A": ("Source A", "Source Z"),
+            "Target B": ("Source B",),
+        }
+        assert api.requests[0].query["prop"] == "linkshere"
+        assert api.requests[0].query["titles"] == "Target A|Target B"
+        assert api.requests[0].query["lhnamespace"] == "0"
+        assert api.requests[1].query["lhcontinue"] == "next"
+
+    def test_get_linking_pages_and_category_members_use_namespace_and_continue(self) -> None:
+        with _mediawiki_api_server(
+            [
+                {
+                    "continue": {"blcontinue": "next", "continue": "-||"},
+                    "query": {
+                        "backlinks": [
+                            {"ns": 0, "title": "Zulu"},
+                            {"ns": 0, "title": "Alpha"},
+                            {"ns": 10, "title": "Template:Nope"},
+                        ]
+                    },
+                },
+                {"query": {"backlinks": [{"ns": 0, "title": "Zulu"}]}},
+                {
+                    "continue": {"cmcontinue": "next-category", "continue": "-||"},
+                    "query": {
+                        "categorymembers": [
+                            {"ns": 14, "title": "Category:Other"},
+                            {"ns": 14, "title": "Category:Alpha"},
+                        ]
+                    },
+                },
+                {"query": {"categorymembers": [{"ns": 14, "title": "Category:Alpha"}]}},
+            ]
+        ) as (api_url, api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            linking = client.get_linking_pages("Target", namespace=0)
+            members = client.get_category_members("Category:Things", namespace=14)
+
+        assert linking == ("Alpha", "Zulu")
+        assert members == ("Category:Alpha", "Category:Other")
+        assert api.requests[0].query["list"] == "backlinks"
+        assert api.requests[0].query["bltitle"] == "Target"
+        assert api.requests[0].query["blnamespace"] == "0"
+        assert api.requests[1].query["blcontinue"] == "next"
+        assert api.requests[2].query["list"] == "categorymembers"
+        assert api.requests[2].query["cmtitle"] == "Category:Things"
+        assert api.requests[2].query["cmnamespace"] == "14"
+        assert api.requests[3].query["cmcontinue"] == "next-category"
+
+    def test_read_only_api_errors_use_existing_exception(self) -> None:
+        with _mediawiki_api_server([{"error": {"code": "badvalue", "info": "Invalid title"}}]) as (api_url, _api):
+            client = MediaWikiClient(api_url=api_url, clock=MockClock())
+            with pytest.raises(MediaWikiAPIError, match="Invalid title"):
+                client.get_title_statuses(["Bad"])

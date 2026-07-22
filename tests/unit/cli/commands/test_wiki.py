@@ -14,6 +14,7 @@ with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator
     from erenshor.cli.main import app
 
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki_deploy.link_audit import LinkAuditFinding, LinkAuditReport
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.override_classifier import ArticleOverrideClassification, OverrideFieldDecision
 from erenshor.application.wiki_deploy.override_migration import ArticleMigration, ArticleOverrideReview
@@ -267,6 +268,148 @@ class TestWikiGenerateCommand:
         assert "variants/main/wiki/lua/Erenshor/Data/Links.lua" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Quests.lua" in result.output
         assert "variants/main/wiki/lua/Erenshor/Data/Zones.lua" in result.output
+
+
+class TestWikiLinkAuditCommand:
+    """Test semantic-link audit command and generated workflow gates."""
+
+    @staticmethod
+    def _report(*findings: LinkAuditFinding) -> LinkAuditReport:
+        return LinkAuditReport(
+            variant="main",
+            remote_checked=False,
+            generated_content_sha256="0" * 64,
+            findings=tuple(findings),
+        )
+
+    def test_audit_links_offline_uses_generated_storage_and_output(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        storage = MagicMock()
+        storage.read_generated_pages.return_value = {"Source": "{{ItemLink|A}}"}
+        monkeypatch.setattr(wiki_command, "WikiStorage", MagicMock(return_value=storage))
+        run_audit = MagicMock(return_value=self._report())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+        output = tmp_path / "audit.json"
+
+        result = runner.invoke(app, ["wiki", "audit-links", "--offline", "--output", str(output)])
+
+        assert result.exit_code == 0
+        assert run_audit.call_args.args[1] == {"Source": "{{ItemLink|A}}"}
+        assert run_audit.call_args.kwargs == {
+            "online": False,
+            "include_live_pages": False,
+            "output_path": output,
+        }
+
+    def test_audit_links_online_is_default_and_errors_exit_one(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        storage = MagicMock()
+        storage.read_generated_pages.return_value = {"Source": "content"}
+        monkeypatch.setattr(wiki_command, "WikiStorage", MagicMock(return_value=storage))
+        finding = LinkAuditFinding(
+            code="missing_stable_key_data",
+            severity="error",
+            source_page="Source",
+            kind="item",
+            stable_key="item:missing",
+            supplied_target=None,
+            canonical_target=None,
+            message="missing",
+        )
+        run_audit = MagicMock(return_value=self._report(finding))
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+
+        result = runner.invoke(app, ["wiki", "audit-links", "--output", str(tmp_path / "audit.json")])
+
+        assert result.exit_code == 1
+        assert run_audit.call_args.kwargs["online"] is True
+        assert run_audit.call_args.kwargs["include_live_pages"] is True
+
+    def test_generate_runs_offline_audit_on_exact_processed_pages(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result: OperationResult,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        service = MagicMock()
+
+        def generate_all(**kwargs):
+            kwargs["preflight"]({"Generated": "exact content"})
+            return mock_operation_result
+
+        service.generate_all.side_effect = generate_all
+        monkeypatch.setattr(wiki_command, "_create_wiki_service", MagicMock(return_value=service))
+        run_audit = MagicMock(return_value=self._report())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+
+        result = runner.invoke(app, ["--dry-run", "wiki", "generate"])
+
+        assert result.exit_code == 0
+        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
+        assert run_audit.call_args.kwargs == {
+            "online": False,
+            "include_live_pages": False,
+            "output_path": None,
+        }
+
+    def test_generated_deploy_runs_online_audit_but_directory_upload_does_not(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result: OperationResult,
+        tmp_path: Path,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        service = MagicMock()
+
+        def deploy_all(**kwargs):
+            kwargs["preflight"]({"Generated": "exact content"})
+            return mock_operation_result
+
+        service.deploy_all.side_effect = deploy_all
+        service.deploy_from_dir.return_value = mock_operation_result
+        monkeypatch.setattr(wiki_command, "_create_wiki_service", MagicMock(return_value=service))
+        run_audit = MagicMock(return_value=self._report())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+
+        generated = runner.invoke(
+            app,
+            ["--dry-run", "wiki", "deploy", "--legacy-article-deploy"],
+        )
+        assert generated.exit_code == 0
+        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
+        assert run_audit.call_args.kwargs == {
+            "online": True,
+            "include_live_pages": False,
+            "output_path": None,
+        }
+
+        run_audit.reset_mock()
+        directory = runner.invoke(
+            app,
+            [
+                "--dry-run",
+                "wiki",
+                "deploy",
+                "--legacy-article-deploy",
+                "--from-dir",
+                str(tmp_path),
+            ],
+        )
+        assert directory.exit_code == 0
+        run_audit.assert_not_called()
+        assert "audit-links" in directory.output
 
 
 class TestWikiInventoryTemplatesCommand:

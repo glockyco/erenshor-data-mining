@@ -22,6 +22,7 @@ import sys
 import tempfile
 import uuid
 from collections import Counter
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -34,6 +35,12 @@ from erenshor.application.wiki.services.class_display_service import ClassDispla
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
+from erenshor.application.wiki_deploy.link_audit import (
+    ERROR_CODES,
+    FINDING_CODES,
+    LinkAuditReport,
+)
+from erenshor.application.wiki_deploy.link_audit_service import LinkAuditService
 from erenshor.application.wiki_deploy.manifest import (
     RepoWikiPageManifest,
     build_repo_page_manifest,
@@ -71,6 +78,7 @@ from erenshor.application.wiki_lua.generation import (
     item_shard_dir,
     planned_top_level_module_paths,
 )
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry, build_link_catalog_entries
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -439,6 +447,97 @@ def _create_lua_repositories(
     )
 
 
+def _build_link_audit_catalog(cli_ctx: CLIContext) -> tuple[LinkCatalogEntry, ...]:
+    """Build semantic-link identities from the canonical read-only repositories."""
+    (
+        item_repo,
+        character_repo,
+        _spawn_repo,
+        _loot_repo,
+        spell_repo,
+        skill_repo,
+        stance_repo,
+        quest_repo,
+        zone_repo,
+        faction_repo,
+        class_display,
+    ) = _create_lua_repositories(cli_ctx)
+    return build_link_catalog_entries(
+        items=item_repo.get_items_for_link_catalog(),
+        characters=character_repo.get_characters_for_wiki_generation(),
+        quests=quest_repo.get_quests_for_wiki_generation(),
+        zones=zone_repo.get_all_zones(),
+        spells=spell_repo.get_spells_for_wiki_generation(),
+        skills=skill_repo.get_skills_for_wiki_generation(),
+        stances=stance_repo.get_all(),
+        factions=faction_repo.get_factions_for_wiki_generation(),
+        class_display=class_display,
+    )
+
+
+def _default_link_audit_output(cli_ctx: CLIContext) -> Path:
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return variant_config.resolved_wiki(cli_ctx.repo_root) / "link-audit.json"
+
+
+def _print_link_audit_summary(report: LinkAuditReport, output_path: Path | None) -> None:
+    """Print deterministic per-code audit counts and report metadata."""
+    console.print(
+        Panel.fit(
+            "[bold cyan]Semantic link audit[/bold cyan]\n"
+            f"Variant: {report.variant}\n"
+            f"Remote checked: {str(report.remote_checked).lower()}\n"
+            f"Generated content SHA-256: {report.generated_content_sha256}",
+            border_style="cyan",
+        )
+    )
+    for code in sorted(FINDING_CODES, key=lambda value: (value not in ERROR_CODES, value)):
+        severity = "error" if code in ERROR_CODES else "warning"
+        color = "red" if severity == "error" else "yellow"
+        console.print(f"[{color}]{severity.upper()}[/{color}] {code}: {report.summary.get(code, 0)}")
+    if output_path is not None:
+        console.print(f"[green]Wrote audit report:[/green] {output_path}", soft_wrap=True)
+
+
+def _run_link_audit(
+    cli_ctx: CLIContext,
+    generated_pages: Mapping[str, str],
+    *,
+    online: bool,
+    include_live_pages: bool,
+    output_path: Path | None,
+) -> LinkAuditReport:
+    """Run one audit from canonical repositories and optional read-only live facts."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
+    known_generated_titles = set(storage.list_generated_titles()) | set(generated_pages)
+    client = _create_readonly_mediawiki_client(cli_ctx) if online else None
+    try:
+        audit_service = LinkAuditService(_build_link_audit_catalog(cli_ctx), client=client)
+        report = audit_service.audit(
+            generated_pages=generated_pages,
+            planned_titles=tuple(generated_pages),
+            variant=cli_ctx.variant,
+            online=online,
+            include_live_pages=include_live_pages,
+            known_generated_titles=known_generated_titles,
+        )
+    finally:
+        if client is not None:
+            client.close()
+
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        report.write_json(output_path)
+    _print_link_audit_summary(report, output_path)
+    return report
+
+
+@require_preconditions(database_exists, database_valid, database_has_items)
+def _assert_generated_deploy_preconditions(ctx: typer.Context) -> None:
+    """Require clean database inputs only for generated-storage deployment."""
+
+
 def _lua_output_root(cli_ctx: CLIContext) -> Path:
     """Return the local generated Lua module output directory."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -609,6 +708,52 @@ def generate_lua(ctx: typer.Context) -> None:
         raise typer.Exit(1) from e
 
 
+@app.command("audit-links")
+@require_preconditions(database_exists, database_valid, database_has_items)
+def audit_links_command(
+    ctx: typer.Context,
+    offline: Annotated[
+        bool,
+        typer.Option(
+            "--offline",
+            help="Skip MediaWiki API reads and enforce only local catalog and planned-page invariants.",
+        ),
+    ] = False,
+    output: Annotated[
+        Path | None,
+        typer.Option(
+            "--output",
+            "-o",
+            help="Audit report path (default: the variant wiki directory/link-audit.json).",
+        ),
+    ] = None,
+) -> None:
+    """Audit generated semantic links without editing MediaWiki."""
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
+    output_path: Path | None = output or _default_link_audit_output(cli_ctx)
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: audit report will not be written.[/yellow]")
+        output_path = None
+
+    try:
+        report = _run_link_audit(
+            cli_ctx,
+            storage.read_generated_pages(),
+            online=not offline,
+            include_live_pages=not offline,
+            output_path=output_path,
+        )
+    except Exception as error:
+        console.print(f"[red]Semantic link audit failed: {error}[/red]")
+        logger.exception("Semantic link audit failed")
+        raise typer.Exit(1) from error
+
+    if report.has_errors:
+        raise typer.Exit(1)
+
+
 @app.command("inventory-templates")
 def inventory_templates(
     ctx: typer.Context,
@@ -720,12 +865,26 @@ def generate(
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Generate pages (all or specified)
+        # Generate pages (all or specified) and audit the exact processed
+        # snapshot before generation reports success.
+        def audit_generated_pages(generated_pages: Mapping[str, str]) -> None:
+            report = _run_link_audit(
+                cli_ctx,
+                generated_pages,
+                online=False,
+                include_live_pages=False,
+                output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+            )
+            if report.has_errors:
+                error_count = sum(1 for finding in report.findings if finding.severity == "error")
+                raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+
         result = service.generate_all(
             dry_run=cli_ctx.dry_run,
             limit=limit,
             page_titles=page_titles,
             generator_names=generator,
+            preflight=audit_generated_pages,
         )
 
         # Show warnings and errors
@@ -1416,14 +1575,19 @@ def deploy(
         raise typer.Exit(1)
 
     try:
-        service = _create_wiki_service(cli_ctx)
-
         if from_dir:
+            service = _create_wiki_service(cli_ctx)
+            console.print(
+                "[yellow]Directory uploads are outside the generated-content gate. "
+                "Run 'erenshor wiki audit-links' explicitly for generated storage.[/yellow]"
+            )
             result = service.deploy_from_dir(
                 source_dir=Path(from_dir),
                 dry_run=cli_ctx.dry_run,
             )
         else:
+            _assert_generated_deploy_preconditions(ctx)
+            service = _create_wiki_service(cli_ctx)
             page_titles: list[str] | None = None
             if pages_file:
                 page_titles = _read_page_titles(pages_file)
@@ -1441,10 +1605,23 @@ def deploy(
             )
             console.print()
 
+            def audit_deployment_pages(generated_pages: Mapping[str, str]) -> None:
+                report = _run_link_audit(
+                    cli_ctx,
+                    generated_pages,
+                    online=True,
+                    include_live_pages=False,
+                    output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+                )
+                if report.has_errors:
+                    error_count = sum(1 for finding in report.findings if finding.severity == "error")
+                    raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+
             result = service.deploy_all(
                 dry_run=cli_ctx.dry_run,
                 limit=limit,
                 page_titles=page_titles,
+                preflight=audit_deployment_pages,
             )
 
         if result.has_warnings():

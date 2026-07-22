@@ -15,6 +15,7 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiPageSnapshot,
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
+    MediaWikiTitleStatus,
 )
 from erenshor.infrastructure.wiki.filename_sanitizer import (
     needs_redirect,
@@ -52,6 +53,7 @@ __all__ = [
     "MediaWikiRequestPolicy",
     "MediaWikiRequestor",
     "MediaWikiRetryableRequestError",
+    "MediaWikiTitleStatus",
     "MediaWikiUnretryableRequestError",
     "RequestKind",
     "TemplateNotFoundError",
